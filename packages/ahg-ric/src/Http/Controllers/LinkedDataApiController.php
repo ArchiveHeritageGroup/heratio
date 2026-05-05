@@ -58,6 +58,13 @@ class LinkedDataApiController extends Controller
         return self::SINGULAR[$plural] ?? rtrim($plural, 's');
     }
 
+    private static function pluralEntityType(string $singular): string
+    {
+        static $plural = null;
+        $plural ??= array_flip(self::SINGULAR);
+        return $plural[$singular] ?? "{$singular}s";
+    }
+
     public function __construct()
     {
         $this->serializer = new RicSerializationService();
@@ -1587,7 +1594,12 @@ class LinkedDataApiController extends Controller
             if (!in_array($type, $types)) continue;
             $i18nTable = "ric_{$type}_i18n";
             $labelCol = $type === 'rule' ? 'title' : ($type === 'instantiation' ? 'title' : 'name');
-            $result["{$type}s"] = DB::table('relation as r')
+            // Use the canonical plural ('activities', not 'activitys') so the
+            // JS in _ric-entities-panel.blade.php — which reads data.activities
+            // — actually finds the array. The blind {$type}s pluralization
+            // here used to silently produce data.activitys, leaving the count
+            // stuck at 0 even when activities were saved + linked correctly.
+            $result[self::pluralEntityType($type)] = DB::table('relation as r')
                 ->join('object as o', 'r.object_id', '=', 'o.id')
                 ->where('r.subject_id', $id)
                 ->where('o.class_name', $class)
