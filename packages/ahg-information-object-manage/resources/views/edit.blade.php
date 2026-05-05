@@ -3,24 +3,9 @@
 @section('title', 'Edit: ' . ($io->title ?? 'Untitled'))
 @section('body-class', 'edit informationobject')
 
-@section('sidebar')
-  @if(isset($io->repository_id) && $io->repository_id)
-    @php
-      $repoLogo = \Illuminate\Support\Facades\DB::table('slug')
-          ->where('object_id', $io->repository_id)
-          ->value('slug');
-    @endphp
-    @if($repoLogo)
-      <div class="repository-logo mb-3 mx-auto">
-        <a class="text-decoration-none" href="{{ url('/repository/' . $repoLogo) }}">
-          <img alt="{{ __('Go to repository') }}" class="img-fluid img-thumbnail border-4 shadow-sm bg-white"
-               src="/uploads/r/{{ $repoLogo }}/conf/logo.png"
-               onerror="this.parentElement.style.display='none'">
-        </a>
-      </div>
-    @endif
-  @endif
-@endsection
+{{-- Sidebar intentionally empty in edit mode: the repository-logo / "Go to
+     repository" link is a navigation shortcut for read-only viewing and is
+     misleading while the user has unsaved edits in the form. --}}
 
 @section('content')
   <h1>Item {{ $io->identifier ? $io->identifier . ' - ' : '' }}{{ $io->title ?? '[Untitled]' }}</h1>
