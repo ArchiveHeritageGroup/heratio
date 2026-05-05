@@ -50,6 +50,78 @@ class PrivacyController extends Controller
      * Scan an IO for PII.
      * Shows potential PII found by NER extraction as a scan result.
      */
+    /**
+     * POST handler for the "Save Scan Results" button on the privacy scan
+     * page. Recomputes the same NER-derived PII scan + persists the summary
+     * + entities into audit_log for compliance review (no dedicated
+     * privacy_pii_scan table exists yet; audit_log is the canonical
+     * cross-module event store).
+     */
+    public function saveScan(int $id)
+    {
+        $io = $this->getIOById($id);
+        if (!$io) abort(404);
+
+        // Recompute the same scan shape the GET handler renders so the
+        // saved snapshot matches what the user just looked at.
+        $allEntities = $this->nerService->getEntitiesForObject($id);
+        $piiRiskMap = [
+            'SA_ID' => 'high', 'PASSPORT' => 'high', 'BANK' => 'high',
+            'TAX' => 'high', 'MEDICAL' => 'high', 'BIOMETRIC' => 'high',
+            'EMAIL' => 'medium', 'PHONE' => 'medium', 'DOB' => 'medium',
+            'ADDRESS' => 'low', 'NAME' => 'low', 'IP_ADDRESS' => 'low', 'PERSON' => 'low',
+        ];
+        $piiEntities = [];
+        foreach ($allEntities as $entity) {
+            $risk = $piiRiskMap[$entity->entity_type] ?? null;
+            if ($risk !== null) {
+                $piiEntities[] = [
+                    'type'       => $entity->entity_type,
+                    'value'      => $entity->entity_value,
+                    'confidence' => (float) $entity->confidence,
+                    'risk'       => $risk,
+                ];
+            }
+        }
+        $highCount = count(array_filter($piiEntities, fn($e) => $e['risk'] === 'high'));
+        $medCount  = count(array_filter($piiEntities, fn($e) => $e['risk'] === 'medium'));
+        $lowCount  = count(array_filter($piiEntities, fn($e) => $e['risk'] === 'low'));
+        $riskScore = min(100, ($highCount * 30) + ($medCount * 15) + ($lowCount * 5));
+
+        $snapshot = [
+            'risk_score'     => $riskScore,
+            'high'           => $highCount,
+            'medium'         => $medCount,
+            'low'            => $lowCount,
+            'entity_count'   => count($piiEntities),
+            'fields_scanned' => ['title', 'scope_and_content', 'archival_history'],
+            'entities'       => $piiEntities,
+            'scanned_at'     => now()->toIso8601ZuluString(),
+        ];
+
+        try {
+            \DB::table('audit_log')->insert([
+                'table_name' => 'privacy_pii_scan',
+                'record_id'  => $id,
+                'action'     => 'create',
+                'new_record' => json_encode($snapshot),
+                'user_id'    => auth()->id(),
+                'username'   => auth()->user()->username ?? null,
+                'ip_address' => request()->ip(),
+                'user_agent' => substr((string) request()->userAgent(), 0, 500),
+                'module'     => 'privacy',
+                'created_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('saveScan: audit_log insert failed: ' . $e->getMessage());
+        }
+
+        $entityCount = count($piiEntities);
+        return redirect()
+            ->route('io.privacy.scan', ['id' => $id])
+            ->with('success', "Scan results saved (risk score {$riskScore}, {$entityCount} PII entities recorded in audit_log).");
+    }
+
     public function scan(int $id)
     {
         $io = $this->getIOById($id);

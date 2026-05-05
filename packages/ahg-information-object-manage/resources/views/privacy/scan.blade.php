@@ -218,9 +218,8 @@
           </div>
           <div class="card-body">
             <p class="text-muted small">Save this scan result to the record for future reference and compliance tracking.</p>
-            <form method="POST" action="#">
+            <form method="POST" action="{{ route('io.privacy.scan.save', ['id' => $io->id ?? 0]) }}">
               @csrf
-              <input type="hidden" name="information_object_id" value="{{ $io->id ?? '' }}">
               <button type="submit" class="btn atom-btn-outline-success w-100" id="save-scan-btn">
                 <i class="fas fa-save me-1"></i> {{ __('Save Scan Results') }}
               </button>

@@ -148,6 +148,7 @@ Route::middleware('auth')->group(function () {
 
     // Privacy & PII
     Route::get('/privacy/scan/{id}', [PrivacyController::class, 'scan'])->name('io.privacy.scan')->where('id', '[0-9]+');
+    Route::post('/privacy/scan/{id}', [PrivacyController::class, 'saveScan'])->name('io.privacy.scan.save')->where('id', '[0-9]+');
     Route::get('/privacy/redaction/{slug}', [PrivacyController::class, 'redaction'])->name('io.privacy.redaction');
     Route::post('/privacy/redaction/{slug}/save', [PrivacyController::class, 'saveRedactions'])->name('io.privacy.redaction.save');
     Route::get('/privacy/dashboard', [PrivacyController::class, 'dashboard'])->name('io.privacy.dashboard');
