@@ -42,6 +42,92 @@ class DamController extends Controller
         $this->service = new DamService(app()->getLocale());
     }
 
+    /**
+     * The DAM edit form prefixes most IPTC field names with `iptc_`
+     * (`iptc_creator`, `iptc_caption`, etc.) but the controller's validators
+     * and $request->only() lists use the unprefixed column names. Without
+     * this remap the entire IPTC section silently never saved.
+     *
+     * Two prefixed names are kept on purpose because the column itself
+     * carries the prefix or distinguishes from the i18n title:
+     *   - iptc_subject_code (column is named that way)
+     *   - iptc_title        (separate from main IO title)
+     *
+     * Also turns the form's `credit_role[]` / `credit_name[]` parallel
+     * arrays into a `contributors_json` string for dam_iptc_metadata.
+     */
+    private function normalizeFormFields(Request $request): void
+    {
+        $prefixedToInternal = [
+            'iptc_creator'                  => 'creator',
+            'iptc_creator_job_title'        => 'creator_job_title',
+            'iptc_creator_email'            => 'creator_email',
+            'iptc_creator_phone'            => 'creator_phone',
+            'iptc_creator_website'          => 'creator_website',
+            'iptc_creator_city'             => 'creator_city',
+            'iptc_creator_address'          => 'creator_address',
+            'iptc_headline'                 => 'headline',
+            'iptc_caption'                  => 'caption',
+            'iptc_keywords'                 => 'keywords',
+            'iptc_intellectual_genre'       => 'intellectual_genre',
+            'iptc_persons_shown'            => 'persons_shown',
+            'iptc_date_created'             => 'date_created',
+            'iptc_city'                     => 'city',
+            'iptc_state_province'           => 'state_province',
+            'iptc_sublocation'              => 'sublocation',
+            'iptc_country'                  => 'country',
+            'iptc_country_code'             => 'country_code',
+            'iptc_credit_line'              => 'credit_line',
+            'iptc_source'                   => 'source',
+            'iptc_copyright_notice'         => 'copyright_notice',
+            'iptc_rights_usage_terms'       => 'rights_usage_terms',
+            'iptc_license_type'             => 'license_type',
+            'iptc_license_url'              => 'license_url',
+            'iptc_license_expiry'           => 'license_expiry',
+            'iptc_model_release_status'     => 'model_release_status',
+            'iptc_model_release_id'         => 'model_release_id',
+            'iptc_property_release_status'  => 'property_release_status',
+            'iptc_property_release_id'      => 'property_release_id',
+            'iptc_artwork_title'            => 'artwork_title',
+            'iptc_artwork_creator'          => 'artwork_creator',
+            'iptc_artwork_date'             => 'artwork_date',
+            'iptc_artwork_source'           => 'artwork_source',
+            'iptc_artwork_copyright'        => 'artwork_copyright',
+            'iptc_job_id'                   => 'job_id',
+            'iptc_instructions'             => 'instructions',
+        ];
+        $merge = [];
+        foreach ($prefixedToInternal as $from => $to) {
+            // Only fill the unprefixed key if it wasn't sent directly.
+            // Empty-string is treated as "not filled" so `nullable` rules
+            // collapse it into null on save.
+            if ($request->has($from) && !$request->filled($to)) {
+                $merge[$to] = $request->input($from);
+            }
+        }
+
+        // Production credits: zip credit_role[] + credit_name[] → contributors_json.
+        $roles = $request->input('credit_role', []);
+        $names = $request->input('credit_name', []);
+        if (!is_array($roles)) $roles = [];
+        if (!is_array($names)) $names = [];
+        $credits = [];
+        $rowCount = max(count($roles), count($names));
+        for ($i = 0; $i < $rowCount; $i++) {
+            $role = trim((string) ($roles[$i] ?? ''));
+            $name = trim((string) ($names[$i] ?? ''));
+            if ($role === '' && $name === '') continue;
+            $credits[] = ['role' => $role, 'name' => $name];
+        }
+        // Always send the key — including empty array — so a save that clears
+        // every row actually wipes the stored JSON.
+        $merge['contributors_json'] = $credits ? json_encode($credits, JSON_UNESCAPED_UNICODE) : null;
+
+        if ($merge) {
+            $request->merge($merge);
+        }
+    }
+
     public function dashboard()
     {
         $stats = $this->service->getDashboardStats();
@@ -129,6 +215,16 @@ class DamController extends Controller
             abort(404);
         }
 
+        // Decode contributors_json into $asset->credits so the production-credits
+        // form rows repopulate. Stored as JSON in dam_iptc_metadata.contributors_json.
+        $asset->credits = [];
+        if (!empty($asset->contributors_json)) {
+            $decoded = json_decode((string) $asset->contributors_json, true);
+            if (is_array($decoded)) {
+                $asset->credits = $decoded;
+            }
+        }
+
         $formChoices = $this->service->getFormChoices();
 
         return view('ahg-dam::dam.edit', [
@@ -142,9 +238,11 @@ class DamController extends Controller
 
     public function store(Request $request)
     {
+        $this->normalizeFormFields($request);
         $request->validate([
             'identifier' => 'required|string|max:255',
             'title' => 'required|string|max:1024',
+            'contributors_json' => 'nullable|string',
             'repository_id' => 'nullable|integer',
             'level_of_description_id' => 'nullable|integer',
             'scope_and_content' => 'nullable|string',
@@ -226,6 +324,8 @@ class DamController extends Controller
             'artwork_title', 'artwork_creator', 'artwork_date',
             'artwork_source', 'artwork_copyright',
             'iptc_title', 'job_id', 'instructions',
+            // Production credits (zipped from credit_role[]+credit_name[] by normalizeFormFields).
+            'contributors_json',
         ]);
 
         $id = $this->service->create($data);
@@ -258,9 +358,11 @@ class DamController extends Controller
             abort(404);
         }
 
+        $this->normalizeFormFields($request);
         $request->validate([
             'identifier' => 'required|string|max:255',
             'title' => 'required|string|max:1024',
+            'contributors_json' => 'nullable|string',
             'repository_id' => 'nullable|integer',
             'level_of_description_id' => 'nullable|integer',
             'scope_and_content' => 'nullable|string',
@@ -342,6 +444,8 @@ class DamController extends Controller
             'artwork_title', 'artwork_creator', 'artwork_date',
             'artwork_source', 'artwork_copyright',
             'iptc_title', 'job_id', 'instructions',
+            // Production credits (zipped from credit_role[]+credit_name[] by normalizeFormFields).
+            'contributors_json',
             // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — persisted to information_object.icip_sensitivity.
             'icip_sensitivity',
         ]);

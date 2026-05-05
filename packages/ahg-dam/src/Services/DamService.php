@@ -356,6 +356,8 @@ class DamService
                 'artwork_date' => $data['artwork_date'] ?? null,
                 'artwork_source' => $data['artwork_source'] ?? null,
                 'artwork_copyright' => $data['artwork_copyright'] ?? null,
+                // Production credits (JSON of {role, name} pairs).
+                'contributors_json' => $data['contributors_json'] ?? null,
                 'created_at' => now(),
             ]);
 
@@ -448,6 +450,8 @@ class DamService
                 'property_release_status', 'property_release_id',
                 'artwork_title', 'artwork_creator', 'artwork_date',
                 'artwork_source', 'artwork_copyright',
+                // Production credits — JSON array of {role, name} pairs.
+                'contributors_json',
             ];
 
             $iptcUpdate = [];
