@@ -68,6 +68,114 @@ class InformationObjectController extends Controller
         ];
     }
 
+    /**
+     * Find a term in the given taxonomy by case-insensitive name (in the
+     * supplied culture), or create one. Returns the term id (= object.id).
+     * Used by the access-point save blocks when the user typed a free-text
+     * value that didn't come from the autocomplete dropdown.
+     *
+     * Notes on nested-set: AtoM/Heratio terms across all taxonomies share a
+     * single nested-set tree rooted at term id=110 in this install. Doing a
+     * full lft/rgt shift on every "type a new subject" action would touch
+     * thousands of rows, so we leave lft/rgt NULL — the autocomplete and
+     * access-point browse paths both filter by taxonomy_id and don't need
+     * the nested-set encoding for flat taxonomies.
+     */
+    public static function findOrCreateTerm(string $name, int $taxonomyId, string $culture): int
+    {
+        $name = trim($name);
+        if ($name === '') return 0;
+
+        $existing = DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', $taxonomyId)
+            ->where('term_i18n.culture', $culture)
+            ->whereRaw('LOWER(term_i18n.name) = ?', [mb_strtolower($name)])
+            ->value('term.id');
+        if ($existing) return (int) $existing;
+
+        // Default parent = the taxonomy's most-common parent_id (its root term).
+        $parentId = (int) (DB::table('term')
+            ->where('taxonomy_id', $taxonomyId)
+            ->select('parent_id')
+            ->groupBy('parent_id')
+            ->orderByRaw('COUNT(*) DESC')
+            ->limit(1)
+            ->value('parent_id') ?? 110);
+
+        $termId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitTerm',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('term')->insert([
+            'id'             => $termId,
+            'taxonomy_id'    => $taxonomyId,
+            'parent_id'      => $parentId,
+            'lft'            => null,
+            'rgt'            => null,
+            'source_culture' => $culture,
+        ]);
+        DB::table('term_i18n')->insert([
+            'id'      => $termId,
+            'culture' => $culture,
+            'name'    => $name,
+        ]);
+
+        // Slug it so the term is reachable via /term/{slug}.
+        $base = \Illuminate\Support\Str::slug($name) ?: ('term-' . $termId);
+        $slug = $base; $n = 1;
+        while (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $n++;
+        }
+        DB::table('slug')->insert(['object_id' => $termId, 'slug' => $slug]);
+
+        return $termId;
+    }
+
+    /**
+     * Find an actor by case-insensitive authorized form of name (in the supplied
+     * culture), or create one. Used by the Name access-points save block for
+     * free-text entries.
+     */
+    public static function findOrCreateActor(string $name, string $culture): int
+    {
+        $name = trim($name);
+        if ($name === '') return 0;
+
+        $existing = DB::table('actor')
+            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+            ->where('actor_i18n.culture', $culture)
+            ->whereRaw('LOWER(actor_i18n.authorized_form_of_name) = ?', [mb_strtolower($name)])
+            ->value('actor.id');
+        if ($existing) return (int) $existing;
+
+        $actorId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitActor',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('actor')->insert([
+            'id'             => $actorId,
+            'parent_id'      => null,
+            'source_culture' => $culture,
+        ]);
+        DB::table('actor_i18n')->insert([
+            'id'                      => $actorId,
+            'culture'                 => $culture,
+            'authorized_form_of_name' => $name,
+        ]);
+
+        $base = \Illuminate\Support\Str::slug($name) ?: ('actor-' . $actorId);
+        $slug = $base; $n = 1;
+        while (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug = $base . '-' . $n++;
+        }
+        DB::table('slug')->insert(['object_id' => $actorId, 'slug' => $slug]);
+
+        return $actorId;
+    }
+
     public function browse(Request $request)
     {
         // Redirect to GLAM browse with translated params (single browse page, no duplication)
@@ -2034,62 +2142,44 @@ class InformationObjectController extends Controller
             }
         }
 
-        // ---- Subject access points (taxonomy 35) ----
-        if ($request->has('subjectAccessPointIds')) {
-            $oldSubjectIds = DB::table('object_term_relation')
-                ->where('object_id', $ioId)
-                ->whereIn('term_id', function ($q) { $q->select('id')->from('term')->where('taxonomy_id', 35); })
-                ->pluck('id')->toArray();
-            DB::table('object_term_relation')->whereIn('id', $oldSubjectIds)->delete();
-            if (!empty($oldSubjectIds)) DB::table('object')->whereIn('id', $oldSubjectIds)->delete();
+        // ---- Subject / Place / Genre access points (term-based) ----
+        // Each section reads two arrays: <name>Ids[] for picks from the
+        // autocomplete dropdown, and <name>Names[] for free-text entries that
+        // should be created as new terms in the right taxonomy. Find-or-create
+        // dedupes on (taxonomy_id, lower(name)) so re-typing an existing label
+        // doesn't spawn a duplicate.
+        $taxonomyAP = [
+            35 => ['idsKey' => 'subjectAccessPointIds', 'namesKey' => 'subjectAccessPointNames'],
+            42 => ['idsKey' => 'placeAccessPointIds',   'namesKey' => 'placeAccessPointNames'],
+            78 => ['idsKey' => 'genreAccessPointIds',   'namesKey' => 'genreAccessPointNames'],
+        ];
+        foreach ($taxonomyAP as $taxonomyId => $cfg) {
+            if (!$request->has($cfg['idsKey']) && !$request->has($cfg['namesKey'])) continue;
 
-            foreach (array_filter((array) $request->input('subjectAccessPointIds', [])) as $termId) {
-                $relId = DB::table('object')->insertGetId([
-                    'class_name' => 'QubitObjectTermRelation',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                DB::table('object_term_relation')->insert([
-                    'id'        => $relId,
-                    'object_id' => $ioId,
-                    'term_id'   => (int) $termId,
-                ]);
+            // Wipe existing object_term_relation rows for this IO in this taxonomy.
+            $oldRelIds = DB::table('object_term_relation')
+                ->where('object_id', $ioId)
+                ->whereIn('term_id', function ($q) use ($taxonomyId) {
+                    $q->select('id')->from('term')->where('taxonomy_id', $taxonomyId);
+                })
+                ->pluck('id')->toArray();
+            if (!empty($oldRelIds)) {
+                DB::table('object_term_relation')->whereIn('id', $oldRelIds)->delete();
+                DB::table('object')->whereIn('id', $oldRelIds)->delete();
             }
-        }
 
-        // ---- Place access points (taxonomy 42) ----
-        if ($request->has('placeAccessPointIds')) {
-            $oldPlaceIds = DB::table('object_term_relation')
-                ->where('object_id', $ioId)
-                ->whereIn('term_id', function ($q) { $q->select('id')->from('term')->where('taxonomy_id', 42); })
-                ->pluck('id')->toArray();
-            DB::table('object_term_relation')->whereIn('id', $oldPlaceIds)->delete();
-            if (!empty($oldPlaceIds)) DB::table('object')->whereIn('id', $oldPlaceIds)->delete();
-
-            foreach (array_filter((array) $request->input('placeAccessPointIds', [])) as $termId) {
-                $relId = DB::table('object')->insertGetId([
-                    'class_name' => 'QubitObjectTermRelation',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                DB::table('object_term_relation')->insert([
-                    'id'        => $relId,
-                    'object_id' => $ioId,
-                    'term_id'   => (int) $termId,
-                ]);
+            // Build the unified set of term IDs to link (existing picks +
+            // find-or-create on free-text names).
+            $termIds = [];
+            foreach (array_filter((array) $request->input($cfg['idsKey'], [])) as $tid) {
+                $termIds[(int) $tid] = true;
             }
-        }
+            foreach ((array) $request->input($cfg['namesKey'], []) as $name) {
+                $resolved = self::findOrCreateTerm((string) $name, $taxonomyId, $culture);
+                if ($resolved > 0) $termIds[$resolved] = true;
+            }
 
-        // ---- Genre access points (taxonomy 78) ----
-        if ($request->has('genreAccessPointIds')) {
-            $oldGenreIds = DB::table('object_term_relation')
-                ->where('object_id', $ioId)
-                ->whereIn('term_id', function ($q) { $q->select('id')->from('term')->where('taxonomy_id', 78); })
-                ->pluck('id')->toArray();
-            DB::table('object_term_relation')->whereIn('id', $oldGenreIds)->delete();
-            if (!empty($oldGenreIds)) DB::table('object')->whereIn('id', $oldGenreIds)->delete();
-
-            foreach (array_filter((array) $request->input('genreAccessPointIds', [])) as $termId) {
+            foreach (array_keys($termIds) as $tid) {
                 $relId = DB::table('object')->insertGetId([
                     'class_name' => 'QubitObjectTermRelation',
                     'created_at' => now(),
@@ -2098,7 +2188,7 @@ class InformationObjectController extends Controller
                 DB::table('object_term_relation')->insert([
                     'id'        => $relId,
                     'object_id' => $ioId,
-                    'term_id'   => (int) $termId,
+                    'term_id'   => $tid,
                 ]);
             }
         }
@@ -2141,12 +2231,30 @@ class InformationObjectController extends Controller
         }
 
         // ---- Name access points (relation type 161) ----
-        if ($request->has('nameAccessPointIds')) {
-            DB::table('relation')
+        // nameAccessPointIds[] = actor IDs picked from the dropdown.
+        // nameAccessPointNames[] = free-text names; each becomes an actor
+        // via find-or-create, then linked.
+        if ($request->has('nameAccessPointIds') || $request->has('nameAccessPointNames')) {
+            // Drop existing outbound name access-point relations for this IO.
+            $oldRelIds = DB::table('relation')
                 ->where('subject_id', $ioId)
                 ->where('type_id', 161)
-                ->delete();
-            foreach (array_filter((array) $request->input('nameAccessPointIds', [])) as $actorId) {
+                ->pluck('id')->toArray();
+            if (!empty($oldRelIds)) {
+                DB::table('relation')->whereIn('id', $oldRelIds)->delete();
+                DB::table('object')->whereIn('id', $oldRelIds)->delete();
+            }
+
+            $actorIds = [];
+            foreach (array_filter((array) $request->input('nameAccessPointIds', [])) as $aid) {
+                $actorIds[(int) $aid] = true;
+            }
+            foreach ((array) $request->input('nameAccessPointNames', []) as $name) {
+                $resolved = self::findOrCreateActor((string) $name, $culture);
+                if ($resolved > 0) $actorIds[$resolved] = true;
+            }
+
+            foreach (array_keys($actorIds) as $aid) {
                 $relObjectId = DB::table('object')->insertGetId([
                     'class_name' => 'QubitRelation',
                     'created_at' => now(),
@@ -2155,7 +2263,7 @@ class InformationObjectController extends Controller
                 DB::table('relation')->insert([
                     'id'             => $relObjectId,
                     'subject_id'     => $ioId,
-                    'object_id'      => (int) $actorId,
+                    'object_id'      => $aid,
                     'type_id'        => 161,
                     'source_culture' => $culture,
                 ]);

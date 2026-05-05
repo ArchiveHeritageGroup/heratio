@@ -22,6 +22,8 @@
         'multi'       => false,                   // optional, multi-select mode
         'multiName'   => '',                      // optional, name for hidden inputs in multi mode (e.g. 'creatorIds[]')
         'rowsLayout'  => false,                   // optional, multi-row block UI (each pick = its own row + Remove) instead of inline chips
+        'freeText'    => false,                   // optional (multi mode): committing free text on blur/Enter creates a "new" chip
+        'freeTextName'=> '',                      // optional (multi+freeText): hidden-input name for new-text chips (e.g. 'subjectAccessPointNames[]')
         'existingItems'=> [],                     // optional, pre-selected items [{id:..., name:...}, ...]
     ])
 
@@ -48,6 +50,8 @@
     $acMulti         = $multi ?? false;
     $acMultiName     = $multiName ?? ($acName . '[]');
     $acRowsLayout    = $rowsLayout ?? false;
+    $acFreeText      = $freeText ?? false;
+    $acFreeTextName  = $freeTextName ?? '';
     $acExistingItems = $existingItems ?? [];
     $acExtraParams   = $extraParams ?? [];
     if ($acRoute) {
@@ -71,6 +75,8 @@
         'allowFreeText'=> $acAllowFreeText,
         'multi'        => $acMulti,
         'multiName'    => $acMultiName,
+        'freeText'     => $acFreeText,
+        'freeTextName' => $acFreeTextName,
     ], JSON_HEX_APOS | JSON_HEX_QUOT);
 @endphp
 
@@ -239,19 +245,59 @@
             input.dispatchEvent(new Event('ahg:autocomplete:select', { bubbles: true }));
         }
 
-        /** Multi mode: add a tag badge */
-        function addTag(id, name) {
+        /** Multi mode: add a tag badge. When isNew=true the badge represents
+         *  a free-text entry that will be created server-side on save; the
+         *  hidden input uses cfg.freeTextName instead of cfg.multiName. */
+        function addTag(id, name, isNew) {
             if (!tagsEl) return;
-            // Prevent duplicates
-            if (tagsEl.querySelector('[data-id="' + id + '"]')) return;
+            // Dedupe: existing chips by id; new chips by lowercased name.
+            if (!isNew && tagsEl.querySelector('[data-id="' + id + '"]')) return;
+            if (isNew) {
+                var lower = String(name).toLowerCase();
+                var existingNew = Array.from(tagsEl.querySelectorAll('.ahg-ac-tag[data-new="1"]'));
+                for (var i = 0; i < existingNew.length; i++) {
+                    if ((existingNew[i].dataset.name || '').toLowerCase() === lower) return;
+                }
+                // Also dedupe new-name against an existing-id chip with the same display name.
+                var existingNamed = Array.from(tagsEl.querySelectorAll('.ahg-ac-tag:not([data-new="1"])'));
+                for (var j = 0; j < existingNamed.length; j++) {
+                    if ((existingNamed[j].textContent || '').trim().toLowerCase() === lower) return;
+                }
+            }
 
-            const badge = document.createElement('span');
-            badge.className = 'badge bg-secondary me-1 mb-1 ahg-ac-tag';
-            badge.dataset.id = id;
+            var hiddenName  = isNew ? cfg.freeTextName : cfg.multiName;
+            var hiddenValue = isNew ? name : id;
+            var badge = document.createElement('span');
+            badge.className = 'badge ' + (isNew ? 'bg-warning text-dark' : 'bg-secondary') + ' me-1 mb-1 ahg-ac-tag';
+            if (isNew) { badge.dataset.new = '1'; badge.dataset.name = name; }
+            else       { badge.dataset.id  = id; }
             badge.innerHTML = esc(name)
-                + '<input type="hidden" name="' + esc(cfg.multiName) + '" value="' + esc(String(id)) + '">'
+                + (isNew ? ' <i class="fas fa-plus-circle small" title="Will be created on save"></i>' : '')
+                + '<input type="hidden" name="' + esc(hiddenName) + '" value="' + esc(String(hiddenValue)) + '">'
                 + '<button type="button" class="btn-close btn-close-white ms-1 ahg-ac-tag-remove" aria-label="Remove" style="font-size: 0.6em;"></button>';
             tagsEl.appendChild(badge);
+        }
+
+        /** Multi+freeText mode: commit whatever is currently typed as a new chip. */
+        function commitFreeText() {
+            if (!cfg.multi || !cfg.freeText || !cfg.freeTextName) return false;
+            var text = (input.value || '').trim();
+            if (!text) return false;
+            // If the typed text exactly matches one of the current dropdown
+            // results (case-insensitive), prefer the existing-term selection
+            // so we don't create a duplicate.
+            var lower = text.toLowerCase();
+            for (var i = 0; i < results.length; i++) {
+                var nm = String(results[i][cfg.nameField] || '').trim().toLowerCase();
+                if (nm === lower) {
+                    selectItem(results[i]);
+                    return true;
+                }
+            }
+            addTag(null, text, true);
+            input.value = '';
+            hideDropdown();
+            return true;
         }
 
         // --- Event listeners ---
@@ -264,6 +310,20 @@
         // Keyboard navigation
         input.addEventListener('keydown', function (e) {
             const items = dropdown.querySelectorAll('.ahg-ac-item');
+
+            if (e.key === 'Enter') {
+                // Pick highlighted dropdown row first; else commit free text if enabled.
+                if (items.length && activeIdx >= 0) {
+                    e.preventDefault();
+                    selectItem(results[activeIdx]);
+                    return;
+                }
+                if (cfg.multi && cfg.freeText && commitFreeText()) {
+                    e.preventDefault();
+                    return;
+                }
+            }
+
             if (!items.length) return;
 
             if (e.key === 'ArrowDown') {
@@ -274,13 +334,20 @@
                 e.preventDefault();
                 activeIdx = Math.max(activeIdx - 1, 0);
                 updateActive(items);
-            } else if (e.key === 'Enter' && activeIdx >= 0) {
-                e.preventDefault();
-                selectItem(results[activeIdx]);
             } else if (e.key === 'Escape') {
                 hideDropdown();
             }
         });
+
+        // Blur in free-text multi mode: whatever the user typed becomes a new chip.
+        if (cfg.multi && cfg.freeText) {
+            input.addEventListener('blur', function () {
+                // Defer so an in-flight dropdown click can complete first.
+                setTimeout(function () {
+                    if (document.activeElement !== input) commitFreeText();
+                }, 150);
+            });
+        }
 
         function updateActive(items) {
             items.forEach(function (el, i) {
