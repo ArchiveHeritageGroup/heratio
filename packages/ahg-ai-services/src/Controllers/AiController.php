@@ -1812,21 +1812,36 @@ class AiController extends Controller
     private function callNerApi(string $apiUrl, string $apiKey, ?string $text = null, ?string $pdfPath = null): ?array
     {
         try {
-            $payload = [];
+            $base = rtrim($apiUrl, '/');
             if ($pdfPath) {
-                $payload['pdf_path'] = $pdfPath;
+                // PDF: multipart upload to /ner/extract-pdf — the API host
+                // can't see our local filesystem, so we send the file bytes.
+                $response = \Illuminate\Support\Facades\Http::timeout(120)
+                    ->withHeaders(['X-API-Key' => $apiKey])
+                    ->attach('file', file_get_contents($pdfPath), basename($pdfPath))
+                    ->post($base . '/ner/extract-pdf');
             } else {
-                $payload['text'] = $text;
+                $response = \Illuminate\Support\Facades\Http::timeout(120)
+                    ->withHeaders([
+                        'Content-Type' => 'application/json',
+                        'X-API-Key'    => $apiKey,
+                    ])
+                    ->post($base . '/ner/extract', ['text' => $text]);
             }
 
-            $response = \Illuminate\Support\Facades\Http::timeout(120)
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                    'X-API-Key'    => $apiKey,
-                ])
-                ->post(rtrim($apiUrl, '/') . '/ner/extract', $payload);
+            $body = $response->json();
+            if (!is_array($body)) return ['success' => false, 'error' => 'non-JSON response'];
 
-            return $response->json();
+            // The upstream API returns {success, entities:{PERSON,ORG,GPE,DATE}}
+            // but the UI expects entity_count too — compute it here so we
+            // don't show "0 entities found" when the API found some.
+            if (!isset($body['entity_count']) && !empty($body['entities']) && is_array($body['entities'])) {
+                $body['entity_count'] = array_sum(array_map(
+                    fn ($v) => is_array($v) ? count($v) : 0,
+                    $body['entities']
+                ));
+            }
+            return $body;
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
