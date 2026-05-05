@@ -335,9 +335,15 @@ class LibraryService
                 'updated_at' => now(),
             ]);
 
-            // 6. Sync creators if any were submitted
+            // 6. Sync creators / subjects / item physical-location if submitted
             if (array_key_exists('creators', $data)) {
                 $this->syncCreators((int) $libraryItemId, (array) $data['creators']);
+            }
+            if (array_key_exists('subjects', $data)) {
+                $this->syncSubjects((int) $libraryItemId, (array) $data['subjects']);
+            }
+            if (array_key_exists('itemLocation', $data)) {
+                $this->upsertItemLocation($id, $data['itemLocation']);
             }
 
             // 7. Create display_object_config record
@@ -453,14 +459,23 @@ class LibraryService
                 }
             }
 
-            // 4. Sync creators (replace-all on save)
-            if (array_key_exists('creators', $data)) {
+            // 4. Sync creators + subjects (replace-all on save) and upsert
+            // item physical-location row.
+            if (array_key_exists('creators', $data) || array_key_exists('subjects', $data)) {
                 $libraryItemId = (int) DB::table('library_item')
                     ->where('information_object_id', $id)
                     ->value('id');
                 if ($libraryItemId) {
-                    $this->syncCreators($libraryItemId, (array) $data['creators']);
+                    if (array_key_exists('creators', $data)) {
+                        $this->syncCreators($libraryItemId, (array) $data['creators']);
+                    }
+                    if (array_key_exists('subjects', $data)) {
+                        $this->syncSubjects($libraryItemId, (array) $data['subjects']);
+                    }
                 }
+            }
+            if (array_key_exists('itemLocation', $data)) {
+                $this->upsertItemLocation($id, $data['itemLocation']);
             }
 
             // 5. Touch the object record
@@ -497,6 +512,60 @@ class LibraryService
                 'sort_order'      => $sort++,
                 'created_at'      => now(),
             ]);
+        }
+    }
+
+    /**
+     * Replace all library_item_subject rows for the given library_item with
+     * the supplied list. Empty `heading` rows are dropped; subject_type
+     * defaults to 'topic'.
+     */
+    private function syncSubjects(int $libraryItemId, array $subjects): void
+    {
+        DB::table('library_item_subject')
+            ->where('library_item_id', $libraryItemId)
+            ->delete();
+
+        foreach ($subjects as $s) {
+            if (!is_array($s)) continue;
+            $heading = trim((string) ($s['heading'] ?? ''));
+            if ($heading === '') continue;
+            DB::table('library_item_subject')->insert([
+                'library_item_id' => $libraryItemId,
+                'heading'         => $heading,
+                'subject_type'    => 'topic',
+            ]);
+        }
+    }
+
+    /**
+     * Upsert one row in information_object_physical_location for the IO.
+     * Pass null to delete any existing row (the controller passes null when
+     * the user leaves every Item Physical Location field blank). The table
+     * is UNIQUE on information_object_id so insert-or-update is safe.
+     */
+    private function upsertItemLocation(int $informationObjectId, ?array $location): void
+    {
+        if ($location === null) {
+            DB::table('information_object_physical_location')
+                ->where('information_object_id', $informationObjectId)
+                ->delete();
+            return;
+        }
+
+        $exists = DB::table('information_object_physical_location')
+            ->where('information_object_id', $informationObjectId)
+            ->exists();
+
+        if ($exists) {
+            DB::table('information_object_physical_location')
+                ->where('information_object_id', $informationObjectId)
+                ->update($location);
+        } else {
+            DB::table('information_object_physical_location')->insert(array_merge(
+                ['information_object_id' => $informationObjectId],
+                $location
+            ));
         }
     }
 

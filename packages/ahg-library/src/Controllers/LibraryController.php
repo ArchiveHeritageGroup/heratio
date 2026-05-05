@@ -232,10 +232,27 @@ class LibraryController extends Controller
             'general_note' => 'nullable|string',
             'bibliography_note' => 'nullable|string',
             'language' => 'nullable|string|max:10',
+            'parent' => 'nullable|string|max:255',
             'creators' => 'nullable|array',
             'creators.*.name' => 'nullable|string|max:500',
             'creators.*.role' => 'nullable|string|max:50',
             'creators.*.authority_uri' => 'nullable|string|max:500',
+            'subjects' => 'nullable|array',
+            'subjects.*.heading' => 'nullable|string|max:500',
+            'item_physical_object_id' => 'nullable|integer',
+            'item_barcode' => 'nullable|string|max:100',
+            'item_box_number' => 'nullable|string|max:50',
+            'item_folder_number' => 'nullable|string|max:50',
+            'item_shelf' => 'nullable|string|max:50',
+            'item_row' => 'nullable|string|max:50',
+            'item_position' => 'nullable|string|max:50',
+            'item_item_number' => 'nullable|string|max:50',
+            'item_extent_value' => 'nullable|numeric',
+            'item_extent_unit' => 'nullable|string|max:50',
+            'item_condition_status' => 'nullable|string|max:43',
+            'item_access_status' => 'nullable|string|max:53',
+            'item_condition_notes' => 'nullable|string',
+            'item_location_notes' => 'nullable|string',
         ]);
 
         $data = $request->only([
@@ -251,7 +268,22 @@ class LibraryController extends Controller
             'dimensions', 'physical_details', 'scope_and_content',
             'contents_note', 'general_note', 'bibliography_note', 'language',
         ]);
-        $data['creators'] = $request->input('creators', []);
+        $data['creators']     = $request->input('creators', []);
+        $data['subjects']     = $request->input('subjects', []);
+        $data['itemLocation'] = $this->collectItemLocation($request);
+
+        // Add-new-as-child: form posts hidden parent=<slug> when launched
+        // from a record's "Add new" action. Resolve to information_object.id
+        // so the new record nests under it.
+        $parentSlug = $request->input('parent');
+        if ($parentSlug) {
+            $parentId = \Illuminate\Support\Facades\DB::table('slug')
+                ->where('slug', $parentSlug)
+                ->value('object_id');
+            if ($parentId) {
+                $data['parent_id'] = (int) $parentId;
+            }
+        }
 
         $id = $this->service->create($data);
         $slug = $this->service->getSlug($id);
@@ -316,6 +348,22 @@ class LibraryController extends Controller
             'creators.*.name' => 'nullable|string|max:500',
             'creators.*.role' => 'nullable|string|max:50',
             'creators.*.authority_uri' => 'nullable|string|max:500',
+            'subjects' => 'nullable|array',
+            'subjects.*.heading' => 'nullable|string|max:500',
+            'item_physical_object_id' => 'nullable|integer',
+            'item_barcode' => 'nullable|string|max:100',
+            'item_box_number' => 'nullable|string|max:50',
+            'item_folder_number' => 'nullable|string|max:50',
+            'item_shelf' => 'nullable|string|max:50',
+            'item_row' => 'nullable|string|max:50',
+            'item_position' => 'nullable|string|max:50',
+            'item_item_number' => 'nullable|string|max:50',
+            'item_extent_value' => 'nullable|numeric',
+            'item_extent_unit' => 'nullable|string|max:50',
+            'item_condition_status' => 'nullable|string|max:43',
+            'item_access_status' => 'nullable|string|max:53',
+            'item_condition_notes' => 'nullable|string',
+            'item_location_notes' => 'nullable|string',
         ]);
 
         $data = $request->only([
@@ -333,13 +381,53 @@ class LibraryController extends Controller
             // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — persisted to information_object.icip_sensitivity.
             'icip_sensitivity',
         ]);
-        $data['creators'] = $request->input('creators', []);
+        $data['creators']     = $request->input('creators', []);
+        $data['subjects']     = $request->input('subjects', []);
+        $data['itemLocation'] = $this->collectItemLocation($request);
 
         $this->service->update($slug, $data);
 
         return redirect()
             ->route('library.show', $slug)
             ->with('success', 'Library item updated successfully.');
+    }
+
+    /**
+     * Pull every item_* hidden under the form's "Item Physical Location"
+     * section into a shape the service can upsert into
+     * information_object_physical_location. Returns null if the user left every
+     * field blank, so the service knows not to create an empty row.
+     */
+    private function collectItemLocation(Request $request): ?array
+    {
+        $map = [
+            'physical_object_id' => 'item_physical_object_id',
+            'barcode'            => 'item_barcode',
+            'box_number'         => 'item_box_number',
+            'folder_number'      => 'item_folder_number',
+            'shelf'              => 'item_shelf',
+            'row'                => 'item_row',
+            'position'           => 'item_position',
+            'item_number'        => 'item_item_number',
+            'extent_value'       => 'item_extent_value',
+            'extent_unit'        => 'item_extent_unit',
+            'condition_status'   => 'item_condition_status',
+            'access_status'      => 'item_access_status',
+            'condition_notes'    => 'item_condition_notes',
+            'notes'              => 'item_location_notes',
+        ];
+        $out = [];
+        $anyFilled = false;
+        foreach ($map as $col => $field) {
+            $v = $request->input($field);
+            if (is_string($v)) {
+                $v = trim($v);
+                if ($v === '') $v = null;
+            }
+            $out[$col] = $v;
+            if ($v !== null && $v !== '') $anyFilled = true;
+        }
+        return $anyFilled ? $out : null;
     }
 
     public function destroy(Request $request, string $slug)

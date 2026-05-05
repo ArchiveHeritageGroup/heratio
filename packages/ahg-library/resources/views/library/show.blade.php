@@ -1684,7 +1684,7 @@
         <button type="submit" class="btn atom-btn-outline-danger">{{ __('Delete') }}</button>
       </form>
     </li>
-    <li><a href="{{ route('library.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
+    <li><a href="{{ route('library.create', ['parent' => $item->slug]) }}" class="btn atom-btn-outline-light">Add new</a></li>
     <li><a href="{{ route('informationobject.move', $item->slug) }}" class="btn atom-btn-outline-light">Move</a></li>
     <li><a href="{{ route('library.rename', $item->slug) }}" class="btn atom-btn-outline-light">Rename</a></li>
     @if($hasDigitalObject)
