@@ -500,6 +500,9 @@ class LibraryController extends Controller
                     $newSlug = $newSlug . '-' . $item->id;
                 }
                 DB::table('slug')->where('object_id', $item->id)->update(['slug' => $newSlug]);
+                \AhgCore\Support\AuditLog::captureSecondaryMutation((int) $item->id, 'library_item', 'slug_rename', [
+                    'data' => ['before' => $slug, 'after' => $newSlug],
+                ]);
             }
         }
 
@@ -514,6 +517,9 @@ class LibraryController extends Controller
                         $cleanName .= '.' . $ext;
                     }
                     DB::table('digital_object')->where('id', $do->id)->update(['name' => $cleanName]);
+                    \AhgCore\Support\AuditLog::captureSecondaryMutation((int) $item->id, 'library_item', 'digital_object_rename', [
+                        'data' => ['before' => $do->name, 'after' => $cleanName, 'digital_object_id' => $do->id],
+                    ]);
                 }
             }
         }

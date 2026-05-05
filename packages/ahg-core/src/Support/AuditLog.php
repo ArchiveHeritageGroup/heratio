@@ -95,6 +95,32 @@ class AuditLog
     }
 
     /**
+     * Like captureMutation but always writes its own dedicated audit row
+     * via writeDirect(), instead of stashing onto the request. Use this
+     * for sub-entity edits that fire in the SAME request as a primary
+     * service::update() — the primary already stashes onto request
+     * attributes, and a second stash would silently overwrite it. With
+     * this variant the primary service's diff stays intact AND the sub-
+     * entity edit gets its own audit row.
+     *
+     * Examples:
+     *   Inside ActorController::update() after the maintaining-repository
+     *   relation swap fires post-ActorService::update():
+     *       captureSecondaryMutation($actorId, 'actor', 'maintaining_repository_change', ['data' => […]]);
+     *
+     * Tradeoff: captureSecondaryMutation rows are written whether or not
+     * a request is bound, and don't pick up the IP / user-agent / sensitive-
+     * field masking the audit middleware adds (writeDirect sets those to
+     * null) — fine for sub-entity context where the parent row already
+     * carries that metadata.
+     */
+    public static function captureSecondaryMutation(int $objectId, string $objectType, string $action, array $payload): void
+    {
+        $payload = array_merge(['mutation_action' => $action], $payload);
+        self::writeDirect($objectId, $objectType, $payload);
+    }
+
+    /**
      * Internal: stash payload onto request attributes (read by the audit
      * middleware) or write directly when no request is bound.
      */

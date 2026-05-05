@@ -610,6 +610,12 @@ class ActorController extends Controller
 
         // ---- Subject access points (taxonomy 35) ----
         if ($request->has('subjectAccessPointIds')) {
+            $beforeSubjects = DB::table('object_term_relation')
+                ->where('object_id', $actor->id)
+                ->whereIn('term_id', function ($q) {
+                    $q->select('id')->from('term')->where('taxonomy_id', 35);
+                })
+                ->pluck('term_id')->map(fn ($v) => (int) $v)->sort()->values()->toArray();
             DB::table('object_term_relation')
                 ->where('object_id', $actor->id)
                 ->whereIn('term_id', function ($q) {
@@ -622,10 +628,23 @@ class ActorController extends Controller
                     'term_id'   => (int) $termId,
                 ]);
             }
+            $afterSubjects = array_values(array_map('intval', array_filter((array) $request->input('subjectAccessPointIds', []))));
+            sort($afterSubjects);
+            if ($beforeSubjects !== $afterSubjects) {
+                \AhgCore\Support\AuditLog::captureSecondaryMutation($actor->id, 'actor', 'subject_access_points_change', [
+                    'data' => ['before' => $beforeSubjects, 'after' => $afterSubjects],
+                ]);
+            }
         }
 
         // ---- Place access points (taxonomy 42) ----
         if ($request->has('placeAccessPointIds')) {
+            $beforePlaces = DB::table('object_term_relation')
+                ->where('object_id', $actor->id)
+                ->whereIn('term_id', function ($q) {
+                    $q->select('id')->from('term')->where('taxonomy_id', 42);
+                })
+                ->pluck('term_id')->map(fn ($v) => (int) $v)->sort()->values()->toArray();
             DB::table('object_term_relation')
                 ->where('object_id', $actor->id)
                 ->whereIn('term_id', function ($q) {
@@ -638,10 +657,21 @@ class ActorController extends Controller
                     'term_id'   => (int) $termId,
                 ]);
             }
+            $afterPlaces = array_values(array_map('intval', array_filter((array) $request->input('placeAccessPointIds', []))));
+            sort($afterPlaces);
+            if ($beforePlaces !== $afterPlaces) {
+                \AhgCore\Support\AuditLog::captureSecondaryMutation($actor->id, 'actor', 'place_access_points_change', [
+                    'data' => ['before' => $beforePlaces, 'after' => $afterPlaces],
+                ]);
+            }
         }
 
         // ---- Maintaining repository ----
         if ($request->has('maintaining_repository_id')) {
+            $beforeRepoId = (int) DB::table('relation')
+                ->where('subject_id', $actor->id)
+                ->whereIn('object_id', function ($q) { $q->select('id')->from('repository'); })
+                ->value('object_id');
             // Remove existing maintaining repository relation
             DB::table('relation')
                 ->where('subject_id', $actor->id)
@@ -663,6 +693,11 @@ class ActorController extends Controller
                     'object_id'      => $repoId,
                     'type_id'        => TermId::RELATION_MAINTAINING_REPOSITORY,
                     'source_culture' => $culture,
+                ]);
+            }
+            if ($beforeRepoId !== $repoId) {
+                \AhgCore\Support\AuditLog::captureSecondaryMutation($actor->id, 'actor', 'maintaining_repository_change', [
+                    'data' => ['before' => $beforeRepoId ?: null, 'after' => $repoId ?: null],
                 ]);
             }
         }
