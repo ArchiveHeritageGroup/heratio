@@ -355,6 +355,7 @@
 {{-- BEFORE CONTENT: Digital object reference image               --}}
 {{-- ============================================================ --}}
 @section('before-content')
+  @include('ahg-information-object-manage::partials._redaction-overlay')
   @include('ahg-information-object-manage::partials._digital-object-viewer')
 @endsection
 

@@ -745,6 +745,30 @@ class InformationObjectController extends Controller
         $materialLanguages      = $resolveProp('language')->map($resolveLang);
         $materialScripts        = $resolveProp('script')->map($resolveScript);
 
+        // Visual redactions (PSIS parity). Non-admin viewers see the redacted
+        // version: black rectangles overlaid on the preview image at the
+        // coordinates the cataloguer drew. Admins see the un-redacted view —
+        // matches PdfRedactionService::canBypassRedaction() in PSIS.
+        $visualRedactions = collect();
+        $canBypassRedaction = (bool) (auth()->check() && auth()->user()
+            && (method_exists(auth()->user(), 'isAdministrator')
+                ? auth()->user()->isAdministrator()
+                : (auth()->user()->is_admin ?? false)));
+        try {
+            if (\Schema::hasTable('privacy_visual_redaction')) {
+                $visualRedactions = DB::table('privacy_visual_redaction')
+                    ->where('object_id', $io->id)
+                    ->whereIn('status', ['applied', 'pending', 'reviewed'])
+                    ->orderBy('page_number')
+                    ->orderBy('id')
+                    ->get();
+                // Decode the coordinates JSON once so the view doesn't have to.
+                foreach ($visualRedactions as $r) {
+                    $r->coords = json_decode((string) ($r->coordinates ?? '{}'), true) ?: [];
+                }
+            }
+        } catch (\Throwable $e) { /* table missing in some installs */ }
+
         // Security Classification (sidecar). Pre-resolves the classification's
         // display name + colour + watermark name so the show view doesn't need
         // to do any joins.
@@ -1059,6 +1083,8 @@ class InformationObjectController extends Controller
             'relatedMaterialDescriptions' => $relatedMaterialDescriptions,
             'museumMetadata' => $museumMetadata,
             'security' => $security,
+            'visualRedactions' => $visualRedactions,
+            'canBypassRedaction' => $canBypassRedaction,
             'collectionRootId' => $collectionRootId,
             'hasChildren' => ($io->rgt - $io->lft) > 1,
             'displayStandardName' => $displayStandardName,
