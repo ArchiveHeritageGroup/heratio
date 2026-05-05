@@ -102,9 +102,21 @@ class ConditionService
      *
      * @return int The new report ID
      */
+    /**
+     * Snapshot for the security_audit_log before/after diff.
+     */
+    private function reportSnapshot(int $id): array
+    {
+        return (array) (DB::table('condition_report')->where('id', $id)
+            ->select('information_object_id', 'assessor_user_id', 'assessment_date', 'context',
+                'overall_rating', 'summary', 'recommendations', 'priority', 'next_check_date',
+                'environmental_notes', 'handling_notes', 'display_notes', 'storage_notes')
+            ->first() ?? []);
+    }
+
     public function createReport(array $data): int
     {
-        return DB::table('condition_report')->insertGetId([
+        $newId = DB::table('condition_report')->insertGetId([
             'information_object_id' => $data['information_object_id'],
             'assessor_user_id'      => $data['assessor_user_id'] ?? null,
             'assessment_date'       => $data['assessment_date'],
@@ -121,6 +133,8 @@ class ConditionService
             'created_at'            => now(),
             'updated_at'            => now(),
         ]);
+        \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'condition_report', $this->reportSnapshot((int) $newId));
+        return (int) $newId;
     }
 
     /**
@@ -128,25 +142,27 @@ class ConditionService
      */
     public function updateReport(int $id, array $data): bool
     {
-        $update = [];
+        $before = $this->reportSnapshot($id);
 
+        $update = [];
         $fields = [
             'assessor_user_id', 'assessment_date', 'context', 'overall_rating',
             'summary', 'recommendations', 'priority', 'next_check_date',
             'environmental_notes', 'handling_notes', 'display_notes', 'storage_notes',
         ];
-
         foreach ($fields as $field) {
             if (array_key_exists($field, $data)) {
                 $update[$field] = $data[$field];
             }
         }
-
         $update['updated_at'] = now();
 
-        return DB::table('condition_report')
+        $result = DB::table('condition_report')
             ->where('id', $id)
             ->update($update) >= 0;
+
+        \AhgCore\Support\AuditLog::captureEdit($id, 'condition_report', $before, $this->reportSnapshot($id));
+        return $result;
     }
 
     /**
@@ -154,6 +170,8 @@ class ConditionService
      */
     public function deleteReport(int $id): bool
     {
+        \AhgCore\Support\AuditLog::captureDelete($id, 'condition_report', $this->reportSnapshot($id));
+
         DB::table('condition_damage')
             ->where('condition_report_id', $id)
             ->delete();

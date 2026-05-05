@@ -245,7 +245,7 @@ class DamService
      */
     public function create(array $data): int
     {
-        return DB::transaction(function () use ($data) {
+        $newId = DB::transaction(function () use ($data) {
             // 1. Create object record
             $id = DB::table('object')->insertGetId([
                 'class_name' => 'QubitInformationObject',
@@ -370,6 +370,9 @@ class DamService
 
             return $id;
         });
+
+        \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'dam_asset', $this->auditSnapshot((int) $newId));
+        return (int) $newId;
     }
 
     /**
@@ -522,6 +525,8 @@ class DamService
         if (!$objectId) {
             return;
         }
+
+        \AhgCore\Support\AuditLog::captureDelete((int) $objectId, 'dam_asset', $this->auditSnapshot((int) $objectId));
 
         DB::transaction(function () use ($objectId) {
             // 1. Delete IPTC metadata

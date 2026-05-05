@@ -43,6 +43,44 @@ class AuditLog
             'after'  => self::pickKeys($after, $changed),
         ];
 
+        self::stash($objectId, $objectType, $payload);
+    }
+
+    /**
+     * Record the snapshot of a newly-created entity. There's no "before"
+     * (the row didn't exist), so the payload carries `after` only and the
+     * audit row's action stays as whatever the middleware classified it
+     * (typically 'create' on POST / 'api_POST' on /api/* paths).
+     */
+    public static function captureCreate(int $objectId, string $objectType, array $after): void
+    {
+        $payload = [
+            'after' => $after,
+            'created' => true,
+        ];
+        self::stash($objectId, $objectType, $payload);
+    }
+
+    /**
+     * Record the snapshot of an entity about to be deleted. Call this
+     * BEFORE the delete fires — once the row is gone the snapshot is
+     * unrecoverable. Payload carries `before` only.
+     */
+    public static function captureDelete(int $objectId, string $objectType, array $before): void
+    {
+        $payload = [
+            'before'  => $before,
+            'deleted' => true,
+        ];
+        self::stash($objectId, $objectType, $payload);
+    }
+
+    /**
+     * Internal: stash payload onto request attributes (read by the audit
+     * middleware) or write directly when no request is bound.
+     */
+    private static function stash(int $objectId, string $objectType, array $payload): void
+    {
         try {
             $req = app('request');
             $req->attributes->set('audit.diff', $payload);
@@ -83,12 +121,14 @@ class AuditLog
         if (!Schema::hasTable('security_audit_log')) return;
         $userId = auth()->id();
         $userName = $userId ? DB::table('user')->where('id', $userId)->value('username') : null;
+        $action = !empty($payload['created']) ? 'create'
+                : (!empty($payload['deleted']) ? 'delete' : 'update');
         DB::table('security_audit_log')->insert([
             'object_id'       => $objectId,
             'object_type'     => $objectType,
             'user_id'         => $userId,
             'user_name'       => $userName,
-            'action'          => 'update',
+            'action'          => $action,
             'action_category' => 'admin',
             'details'         => json_encode($payload),
             'ip_address'      => null,

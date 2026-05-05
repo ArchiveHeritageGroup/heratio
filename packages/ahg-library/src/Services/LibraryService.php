@@ -245,7 +245,7 @@ class LibraryService
      */
     public function create(array $data): int
     {
-        return DB::transaction(function () use ($data) {
+        $newId = DB::transaction(function () use ($data) {
             // 1. Create object record
             $id = DB::table('object')->insertGetId([
                 'class_name' => 'QubitInformationObject',
@@ -356,6 +356,9 @@ class LibraryService
 
             return $id;
         });
+
+        \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'library_item', $this->auditSnapshot((int) $newId));
+        return (int) $newId;
     }
 
     /**
@@ -630,6 +633,10 @@ class LibraryService
         }
 
         $id = $item->id;
+
+        // Snapshot before the delete fires — once the row is gone the
+        // captured payload is the only record of what was there.
+        \AhgCore\Support\AuditLog::captureDelete((int) $id, 'library_item', $this->auditSnapshot((int) $id));
 
         DB::transaction(function () use ($id) {
             // 1. Delete display_object_config

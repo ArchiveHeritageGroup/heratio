@@ -342,7 +342,7 @@ class MuseumService
      */
     public function create(array $data): string
     {
-        return DB::transaction(function () use ($data) {
+        $newSlug = DB::transaction(function () use ($data) {
             $parentId = $data['parent_id'] ?? 1;
 
             // Determine lft/rgt position: place as last child of parent
@@ -526,6 +526,12 @@ class MuseumService
 
             return $slug;
         });
+
+        $newId = (int) DB::table('slug')->where('slug', $newSlug)->value('object_id');
+        if ($newId) {
+            \AhgCore\Support\AuditLog::captureCreate($newId, 'museum_object', $this->auditSnapshot($newId));
+        }
+        return $newSlug;
     }
 
     /**
@@ -721,6 +727,11 @@ class MuseumService
      */
     public function delete(string $slug): void
     {
+        $resolvedId = (int) DB::table('slug')->where('slug', $slug)->value('object_id');
+        if ($resolvedId) {
+            \AhgCore\Support\AuditLog::captureDelete($resolvedId, 'museum_object', $this->auditSnapshot($resolvedId));
+        }
+
         DB::transaction(function () use ($slug) {
             $record = DB::table('slug')
                 ->join('information_object', 'slug.object_id', '=', 'information_object.id')

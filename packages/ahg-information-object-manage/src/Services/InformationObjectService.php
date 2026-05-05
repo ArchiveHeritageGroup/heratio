@@ -172,7 +172,7 @@ class InformationObjectService
         $culture = $culture ?: app()->getLocale();
         $data = self::normalizeKeys($data);
 
-        return DB::transaction(function () use ($data, $culture) {
+        $newId = DB::transaction(function () use ($data, $culture) {
             $parentId = (int) ($data['parent_id'] ?? self::ROOT_ID);
 
             // 1. Determine nested set position (last child of parent)
@@ -263,6 +263,9 @@ class InformationObjectService
 
             return $objectId;
         });
+
+        \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'information_object', self::auditSnapshot((int) $newId, $culture));
+        return (int) $newId;
     }
 
     // ─── Update ──────────────────────────────────────────────────────
@@ -389,6 +392,8 @@ class InformationObjectService
      */
     public static function delete(int $id): void
     {
+        \AhgCore\Support\AuditLog::captureDelete($id, 'information_object', self::auditSnapshot($id, app()->getLocale()));
+
         DB::transaction(function () use ($id) {
             $record = DB::table('information_object')
                 ->where('id', $id)

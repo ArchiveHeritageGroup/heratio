@@ -754,7 +754,7 @@ class ActorService
      */
     public function create(array $data): int
     {
-        return DB::transaction(function () use ($data) {
+        $newId = DB::transaction(function () use ($data) {
             // 1. Create object record
             $id = DB::table('object')->insertGetId([
                 'class_name' => 'QubitActor',
@@ -829,6 +829,9 @@ class ActorService
 
             return $id;
         });
+
+        \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'actor', $this->auditSnapshot((int) $newId));
+        return (int) $newId;
     }
 
     /**
@@ -949,6 +952,8 @@ class ActorService
      */
     public function delete(int $id): void
     {
+        \AhgCore\Support\AuditLog::captureDelete($id, 'actor', $this->auditSnapshot($id));
+
         DB::transaction(function () use ($id) {
             // 1. Delete events where this actor is the creator/subject
             $eventIds = DB::table('event')->where('actor_id', $id)->pluck('id')->toArray();

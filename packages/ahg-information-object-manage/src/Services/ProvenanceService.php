@@ -63,6 +63,18 @@ class ProvenanceService
      *
      * @return int The new entry ID
      */
+    /**
+     * Snapshot for the security_audit_log before/after diff.
+     */
+    private function entrySnapshot(int $id): array
+    {
+        $row = DB::table('provenance_entry')->where('id', $id)->first();
+        if (!$row) return [];
+        $arr = (array) $row;
+        unset($arr['id'], $arr['created_at'], $arr['updated_at']);
+        return $arr;
+    }
+
     public function createEntry(array $data): int
     {
         // Determine next sequence number
@@ -70,7 +82,7 @@ class ProvenanceService
             ->where('information_object_id', $data['information_object_id'])
             ->max('sequence') ?? 0;
 
-        return DB::table('provenance_entry')->insertGetId([
+        $newId = DB::table('provenance_entry')->insertGetId([
             'information_object_id' => $data['information_object_id'],
             'sequence'              => $maxSeq + 1,
             'owner_name'            => $data['owner_name'],
@@ -96,6 +108,8 @@ class ProvenanceService
             'created_at'            => now(),
             'updated_at'            => now(),
         ]);
+        \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'provenance_entry', $this->entrySnapshot((int) $newId));
+        return (int) $newId;
     }
 
     /**
@@ -103,8 +117,9 @@ class ProvenanceService
      */
     public function updateEntry(int $id, array $data): bool
     {
-        $update = [];
+        $before = $this->entrySnapshot($id);
 
+        $update = [];
         $fields = [
             'owner_name', 'owner_type', 'owner_actor_id', 'owner_location',
             'owner_location_tgn', 'start_date', 'start_date_qualifier',
@@ -112,18 +127,19 @@ class ProvenanceService
             'sale_price', 'sale_currency', 'auction_house', 'auction_lot',
             'certainty', 'sources', 'notes', 'is_gap', 'gap_explanation', 'sequence',
         ];
-
         foreach ($fields as $field) {
             if (array_key_exists($field, $data)) {
                 $update[$field] = $data[$field];
             }
         }
-
         $update['updated_at'] = now();
 
-        return DB::table('provenance_entry')
+        $result = DB::table('provenance_entry')
             ->where('id', $id)
             ->update($update) >= 0;
+
+        \AhgCore\Support\AuditLog::captureEdit($id, 'provenance_entry', $before, $this->entrySnapshot($id));
+        return $result;
     }
 
     /**
@@ -135,6 +151,8 @@ class ProvenanceService
         if (!$entry) {
             return false;
         }
+
+        \AhgCore\Support\AuditLog::captureDelete($id, 'provenance_entry', $this->entrySnapshot($id));
 
         $deleted = DB::table('provenance_entry')
             ->where('id', $id)

@@ -211,7 +211,7 @@ class AccessionService
      */
     public function create(array $data): int
     {
-        return DB::transaction(function () use ($data) {
+        $newId = DB::transaction(function () use ($data) {
             // 1. Create object record
             $id = DB::table('object')->insertGetId([
                 'class_name' => 'QubitAccession',
@@ -264,6 +264,9 @@ class AccessionService
 
             return $id;
         });
+
+        \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'accession', $this->auditSnapshot((int) $newId));
+        return (int) $newId;
     }
 
     /**
@@ -355,6 +358,8 @@ class AccessionService
      */
     public function delete(int $id): void
     {
+        \AhgCore\Support\AuditLog::captureDelete($id, 'accession', $this->auditSnapshot($id));
+
         DB::transaction(function () use ($id) {
             // 1. Delete deaccessions
             $deaccessionIds = DB::table('deaccession')->where('accession_id', $id)->pluck('id')->toArray();

@@ -171,6 +171,23 @@ class ExtendedRightsService
      * Save (create) an extended right for an object.
      * Inserts into extended_rights, extended_rights_i18n, and extended_rights_tk_label.
      */
+    /**
+     * Snapshot for the security_audit_log before/after diff.
+     */
+    private function rightSnapshot(int $rightsId): array
+    {
+        $row = DB::table('extended_rights')->where('id', $rightsId)->first();
+        if (!$row) return [];
+        $arr = (array) $row;
+        unset($arr['id'], $arr['created_at'], $arr['updated_at'], $arr['created_by'], $arr['updated_by']);
+        $i18n = (array) (DB::table('extended_rights_i18n')
+            ->where('extended_rights_id', $rightsId)
+            ->where('culture', $this->culture)
+            ->select('rights_note', 'usage_conditions', 'copyright_notice')
+            ->first() ?? []);
+        return array_merge($arr, $i18n);
+    }
+
     public function saveExtendedRight(int $objectId, array $data, ?int $userId = null): int
     {
         $now = date('Y-m-d H:i:s');
@@ -220,6 +237,7 @@ class ExtendedRightsService
             }
         }
 
+        \AhgCore\Support\AuditLog::captureCreate($id, 'extended_rights', $this->rightSnapshot($id));
         return $id;
     }
 
@@ -228,6 +246,7 @@ class ExtendedRightsService
      */
     public function updateExtendedRight(int $rightsId, array $data, ?int $userId = null): void
     {
+        $before = $this->rightSnapshot($rightsId);
         $now = date('Y-m-d H:i:s');
 
         $record = [
@@ -280,6 +299,8 @@ class ExtendedRightsService
                 ]);
             }
         }
+
+        \AhgCore\Support\AuditLog::captureEdit($rightsId, 'extended_rights', $before, $this->rightSnapshot($rightsId));
     }
 
     /**
@@ -287,6 +308,8 @@ class ExtendedRightsService
      */
     public function deleteExtendedRight(int $rightsId): void
     {
+        \AhgCore\Support\AuditLog::captureDelete($rightsId, 'extended_rights', $this->rightSnapshot($rightsId));
+
         DB::table('extended_rights_tk_label')->where('extended_rights_id', $rightsId)->delete();
         DB::table('extended_rights_i18n')->where('extended_rights_id', $rightsId)->delete();
         DB::table('extended_rights')->where('id', $rightsId)->delete();

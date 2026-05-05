@@ -439,7 +439,7 @@ class RepositoryService
      */
     public function create(array $data): int
     {
-        return DB::transaction(function () use ($data) {
+        $newId = DB::transaction(function () use ($data) {
             // 1. Create object record
             $id = DB::table('object')->insertGetId([
                 'class_name' => 'QubitRepository',
@@ -543,6 +543,9 @@ class RepositoryService
 
             return $id;
         });
+
+        \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'repository', $this->auditSnapshot((int) $newId));
+        return (int) $newId;
     }
 
     /**
@@ -683,6 +686,8 @@ class RepositoryService
      */
     public function delete(int $id): void
     {
+        \AhgCore\Support\AuditLog::captureDelete($id, 'repository', $this->auditSnapshot($id));
+
         DB::transaction(function () use ($id) {
             // 1. Delete contact information
             $contactIds = DB::table('contact_information')->where('actor_id', $id)->pluck('id')->toArray();

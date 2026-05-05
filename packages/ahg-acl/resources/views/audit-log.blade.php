@@ -145,6 +145,9 @@
                         @php
                           $d = is_string($log->details) ? json_decode($log->details, true) : $log->details;
                           $changed = is_array($d) && isset($d['changed_fields']) ? (array) $d['changed_fields'] : [];
+                          $isCreate = is_array($d) && !empty($d['created']);
+                          $isDelete = is_array($d) && !empty($d['deleted']);
+                          $snapshot = $isCreate ? ($d['after'] ?? []) : ($isDelete ? ($d['before'] ?? []) : []);
                         @endphp
                         @if(!empty($changed))
                           <h6 class="mb-2 small text-uppercase text-muted">{{ __('Field changes') }}</h6>
@@ -157,6 +160,24 @@
                                   <td class="small text-danger" style="white-space:pre-wrap;">{{ is_scalar($d['before'][$field] ?? null) ? ($d['before'][$field] ?? '—') : json_encode($d['before'][$field] ?? null, JSON_UNESCAPED_UNICODE) }}</td>
                                   <td class="small text-success" style="white-space:pre-wrap;">{{ is_scalar($d['after'][$field] ?? null)  ? ($d['after'][$field]  ?? '—') : json_encode($d['after'][$field]  ?? null, JSON_UNESCAPED_UNICODE) }}</td>
                                 </tr>
+                              @endforeach
+                            </tbody>
+                          </table>
+                        @elseif(($isCreate || $isDelete) && !empty($snapshot))
+                          <h6 class="mb-2 small text-uppercase {{ $isCreate ? 'text-success' : 'text-danger' }}">
+                            <i class="fas fa-{{ $isCreate ? 'plus-circle' : 'trash-alt' }} me-1"></i>
+                            {{ $isCreate ? __('Created — initial values') : __('Deleted — last known values') }}
+                          </h6>
+                          <table class="table table-sm table-striped mb-3">
+                            <thead><tr><th>{{ __('Field') }}</th><th>{{ __('Value') }}</th></tr></thead>
+                            <tbody>
+                              @foreach($snapshot as $f => $v)
+                                @if($v !== null && $v !== '')
+                                  <tr>
+                                    <td><code>{{ $f }}</code></td>
+                                    <td class="small {{ $isCreate ? 'text-success' : 'text-danger' }}" style="white-space:pre-wrap;">{{ is_scalar($v) ? $v : json_encode($v, JSON_UNESCAPED_UNICODE) }}</td>
+                                  </tr>
+                                @endif
                               @endforeach
                             </tbody>
                           </table>
