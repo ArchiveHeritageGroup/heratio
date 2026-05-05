@@ -42,6 +42,12 @@
 
   <form method="POST" action="{{ route('informationobject.store') }}" id="editForm" enctype="multipart/form-data">
     @csrf
+    {{-- Persist the duplicate intent through the POST so store() can copy
+         multi-row tables (events, altIds, notes, languages, access points,
+         related descriptions, watermark, security) from the source IO. --}}
+    @if(request('copy_from'))
+      <input type="hidden" name="copy_from" value="{{ (int) request('copy_from') }}">
+    @endif
     @if($parentId)
       <input type="hidden" name="parent_id" value="{{ $parentId }}">
     @endif
@@ -754,16 +760,27 @@
 document.addEventListener('DOMContentLoaded', function() {
   'use strict';
 
-  // Generate identifier button
+  // Generate identifier button — pass the form's current repository + level so
+  // per-repository numbering schemes can match. credentials:same-origin keeps
+  // the auth cookie on the fetch so the auth-protected route resolves.
   var genBtn = document.getElementById('generate-identifier');
   if (genBtn) {
     genBtn.addEventListener('click', function() {
       var url = this.getAttribute('data-url');
-      fetch(url).then(function(r) { return r.json(); }).then(function(data) {
-        if (data.identifier) {
-          document.getElementById('identifier').value = data.identifier;
-        }
-      });
+      var qs = [];
+      var repoEl  = document.querySelector('[name="repository_id"]');
+      var levelEl = document.querySelector('[name="level_of_description_id"]');
+      if (repoEl && repoEl.value)  qs.push('repository_id=' + encodeURIComponent(repoEl.value));
+      if (levelEl && levelEl.value) qs.push('level_of_description_id=' + encodeURIComponent(levelEl.value));
+      if (qs.length) url += (url.indexOf('?') >= 0 ? '&' : '?') + qs.join('&');
+      fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data && data.identifier) {
+            document.getElementById('identifier').value = data.identifier;
+          }
+        })
+        .catch(function() { /* swallow; user can type manually */ });
     });
   }
 

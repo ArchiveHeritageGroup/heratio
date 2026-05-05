@@ -1114,11 +1114,23 @@ document.addEventListener('DOMContentLoaded', function() {
   if (genBtn) {
     genBtn.addEventListener('click', function() {
       var url = this.getAttribute('data-url');
-      fetch(url).then(function(r) { return r.json(); }).then(function(data) {
-        if (data.identifier) {
-          document.getElementById('identifier').value = data.identifier;
-        }
-      });
+      // Pass the form's current repository + level so per-repository numbering
+      // schemes can match. Without these the controller falls back to the
+      // first active scheme, which may not be the right one for this repo.
+      var qs = [];
+      var repoEl  = document.querySelector('[name="repository_id"]');
+      var levelEl = document.querySelector('[name="level_of_description_id"]');
+      if (repoEl && repoEl.value)  qs.push('repository_id=' + encodeURIComponent(repoEl.value));
+      if (levelEl && levelEl.value) qs.push('level_of_description_id=' + encodeURIComponent(levelEl.value));
+      if (qs.length) url += (url.indexOf('?') >= 0 ? '&' : '?') + qs.join('&');
+      fetch(url, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data && data.identifier) {
+            document.getElementById('identifier').value = data.identifier;
+          }
+        })
+        .catch(function() { /* swallow; user can type manually */ });
     });
   }
 

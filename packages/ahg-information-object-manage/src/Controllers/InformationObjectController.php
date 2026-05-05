@@ -745,6 +745,37 @@ class InformationObjectController extends Controller
         $materialLanguages      = $resolveProp('language')->map($resolveLang);
         $materialScripts        = $resolveProp('script')->map($resolveScript);
 
+        // Security Classification (sidecar). Pre-resolves the classification's
+        // display name + colour + watermark name so the show view doesn't need
+        // to do any joins.
+        $security = null;
+        try {
+            $sec = DB::table('ahg_io_security')->where('object_id', $io->id)->first();
+            if ($sec) {
+                $cls = !empty($sec->security_classification_id)
+                    ? DB::table('security_classification')
+                        ->where('id', $sec->security_classification_id)
+                        ->select('name', 'color', 'icon')
+                        ->first()
+                    : null;
+                $wm = !empty($sec->watermark_type_id)
+                    ? DB::table('watermark_type')->where('id', $sec->watermark_type_id)->value('name')
+                    : null;
+                $security = (object) [
+                    'classification_id'      => $sec->security_classification_id,
+                    'classification_name'    => $cls->name  ?? null,
+                    'classification_color'   => $cls->color ?? null,
+                    'classification_icon'    => $cls->icon  ?? null,
+                    'reason'                 => $sec->security_reason,
+                    'review_date'            => $sec->security_review_date,
+                    'declassify_date'        => $sec->security_declassify_date,
+                    'handling_instructions'  => $sec->security_handling_instructions,
+                    'inherit_to_children'    => (int) ($sec->security_inherit_to_children ?? 0),
+                    'watermark_name'         => $wm,
+                ];
+            }
+        } catch (\Throwable $e) { /* sidecar table missing in some installs */ }
+
         // Finding aid link — check if a finding aid file exists for the collection root
         $findingAid = null;
         $collectionRootId = $io->id;
@@ -1027,6 +1058,7 @@ class InformationObjectController extends Controller
             'findingAid' => $findingAid,
             'relatedMaterialDescriptions' => $relatedMaterialDescriptions,
             'museumMetadata' => $museumMetadata,
+            'security' => $security,
             'collectionRootId' => $collectionRootId,
             'hasChildren' => ($io->rgt - $io->lft) > 1,
             'displayStandardName' => $displayStandardName,
@@ -2840,9 +2872,252 @@ class InformationObjectController extends Controller
             );
         }
 
+        // ---- Duplicate (copy_from): clone multi-row tables from source IO ----
+        $copyFromId = (int) $request->input('copy_from', 0);
+        if ($copyFromId > 0 && $copyFromId !== $objectId) {
+            self::duplicateMultiRowFromSource($copyFromId, $objectId, $culture);
+        }
+
         return redirect()
             ->route('informationobject.show', $slug)
             ->with('success', 'Archival description created successfully.');
+    }
+
+    /**
+     * Clone all multi-row sections from a source IO onto a freshly-created
+     * target IO. Called by store() when the form was submitted with a hidden
+     * copy_from input. Covers:
+     *   - alternativeIdentifiers (property)
+     *   - events (event + event_i18n) — all event types incl. type-111 creators
+     *   - notes (note + note_i18n) — all 4 note types managed in the form
+     *   - language / script / languageOfDescription / scriptOfDescription
+     *     (PHP-serialized property arrays)
+     *   - languageNote (free-text property)
+     *   - access points: subjects (35), places (42), genres (78), names (relation 161)
+     *   - related descriptions (relation 176)
+     *   - watermark settings (object_watermark_setting; custom_watermark left
+     *     pointing at the source's row — global custom watermarks are shared
+     *     anyway, and per-object customs would need re-uploading to be useful).
+     *   - security panel (ahg_io_security row).
+     * The source is read culture-by-culture for i18n rows; we replicate the
+     * current culture only (matches the rest of the form's behaviour).
+     */
+    private static function duplicateMultiRowFromSource(int $srcId, int $dstId, string $culture): void
+    {
+        // ---- Alternative identifiers (property name=alternativeIdentifiers) ----
+        $altRows = DB::table('property')
+            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+            ->where('property.object_id', $srcId)
+            ->where('property.name', 'alternativeIdentifiers')
+            ->where('property_i18n.culture', $culture)
+            ->select('property.scope', 'property_i18n.value')
+            ->get();
+        foreach ($altRows as $row) {
+            $pid = DB::table('object')->insertGetId([
+                'class_name' => 'QubitProperty',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('property')->insert([
+                'id'             => $pid,
+                'object_id'      => $dstId,
+                'scope'          => $row->scope,
+                'name'           => 'alternativeIdentifiers',
+                'source_culture' => $culture,
+            ]);
+            DB::table('property_i18n')->insert([
+                'id'      => $pid,
+                'culture' => $culture,
+                'value'   => $row->value,
+            ]);
+        }
+
+        // ---- Events (event + event_i18n; all types incl. creators) ----
+        $events = DB::table('event')
+            ->leftJoin('event_i18n', function ($j) use ($culture) {
+                $j->on('event.id', '=', 'event_i18n.id')->where('event_i18n.culture', $culture);
+            })
+            ->where('event.object_id', $srcId)
+            ->select('event.type_id', 'event.actor_id', 'event.start_date', 'event.end_date',
+                     'event_i18n.date', 'event_i18n.name')
+            ->get();
+        foreach ($events as $evt) {
+            $eid = DB::table('object')->insertGetId([
+                'class_name' => 'QubitEvent',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('event')->insert([
+                'id'             => $eid,
+                'object_id'      => $dstId,
+                'type_id'        => $evt->type_id,
+                'actor_id'       => $evt->actor_id,
+                'start_date'     => $evt->start_date,
+                'end_date'       => $evt->end_date,
+                'source_culture' => $culture,
+            ]);
+            DB::table('event_i18n')->insert([
+                'id'      => $eid,
+                'culture' => $culture,
+                'date'    => $evt->date,
+                'name'    => $evt->name,
+            ]);
+        }
+
+        // ---- Notes (note + note_i18n; all four managed types) ----
+        $notes = DB::table('note')
+            ->leftJoin('note_i18n', function ($j) use ($culture) {
+                $j->on('note.id', '=', 'note_i18n.id')->where('note_i18n.culture', $culture);
+            })
+            ->where('note.object_id', $srcId)
+            ->whereIn('note.type_id', [125, 174, 120, 124])
+            ->select('note.type_id', 'note_i18n.content')
+            ->get();
+        foreach ($notes as $note) {
+            if (trim((string) $note->content) === '') continue;
+            $nid = DB::table('object')->insertGetId([
+                'class_name' => 'QubitNote',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('note')->insert([
+                'id'             => $nid,
+                'object_id'      => $dstId,
+                'type_id'        => $note->type_id,
+                'source_culture' => $culture,
+            ]);
+            DB::table('note_i18n')->insert([
+                'id'      => $nid,
+                'culture' => $culture,
+                'content' => $note->content,
+            ]);
+        }
+
+        // ---- Language / script / langOfDescription / scriptOfDescription
+        //      / languageNote — copy the property row verbatim.
+        foreach (['language', 'script', 'languageOfDescription', 'scriptOfDescription', 'languageNote'] as $propName) {
+            $val = DB::table('property')
+                ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+                ->where('property.object_id', $srcId)
+                ->where('property.name', $propName)
+                ->where('property_i18n.culture', $culture)
+                ->value('property_i18n.value');
+            if ($val === null) continue;
+            $pid = DB::table('object')->insertGetId([
+                'class_name' => 'QubitProperty',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('property')->insert([
+                'id'             => $pid,
+                'object_id'      => $dstId,
+                'name'           => $propName,
+                'source_culture' => $culture,
+            ]);
+            DB::table('property_i18n')->insert([
+                'id'      => $pid,
+                'culture' => $culture,
+                'value'   => $val,
+            ]);
+        }
+
+        // ---- Access points (taxonomy 35 / 42 / 78) ----
+        foreach ([35, 42, 78] as $taxonomyId) {
+            $termIds = DB::table('object_term_relation as otr')
+                ->join('term as t', 'otr.term_id', '=', 't.id')
+                ->where('otr.object_id', $srcId)
+                ->where('t.taxonomy_id', $taxonomyId)
+                ->pluck('otr.term_id')->all();
+            foreach ($termIds as $tid) {
+                $relId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitObjectTermRelation',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('object_term_relation')->insert([
+                    'id'        => $relId,
+                    'object_id' => $dstId,
+                    'term_id'   => (int) $tid,
+                ]);
+            }
+        }
+
+        // ---- Name access points (relation type 161) ----
+        $actorIds = DB::table('relation')
+            ->where('subject_id', $srcId)->where('type_id', 161)
+            ->pluck('object_id')->all();
+        foreach ($actorIds as $aid) {
+            $rid = DB::table('object')->insertGetId([
+                'class_name' => 'QubitRelation',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('relation')->insert([
+                'id'             => $rid,
+                'subject_id'     => $dstId,
+                'object_id'      => (int) $aid,
+                'type_id'        => 161,
+                'source_culture' => $culture,
+            ]);
+        }
+
+        // ---- Related descriptions (relation type 176) — outbound from source ----
+        $relIoIds = DB::table('relation')
+            ->where('subject_id', $srcId)->where('type_id', 176)
+            ->pluck('object_id')->all();
+        foreach ($relIoIds as $oid) {
+            $rid = DB::table('object')->insertGetId([
+                'class_name' => 'QubitRelation',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('relation')->insert([
+                'id'             => $rid,
+                'subject_id'     => $dstId,
+                'object_id'      => (int) $oid,
+                'type_id'        => 176,
+                'source_culture' => $culture,
+            ]);
+        }
+
+        // ---- Watermark settings (object_watermark_setting) ----
+        $wm = DB::table('object_watermark_setting')->where('object_id', $srcId)->first();
+        if ($wm) {
+            DB::table('object_watermark_setting')->updateOrInsert(
+                ['object_id' => $dstId],
+                [
+                    'watermark_enabled'   => $wm->watermark_enabled,
+                    'watermark_type_id'   => $wm->watermark_type_id,
+                    'custom_watermark_id' => $wm->custom_watermark_id,
+                    'position'            => $wm->position,
+                    'opacity'             => $wm->opacity,
+                    'created_at'          => now(),
+                    'updated_at'          => now(),
+                ]
+            );
+        }
+
+        // ---- Security panel (ahg_io_security sidecar) ----
+        try {
+            $sec = DB::table('ahg_io_security')->where('object_id', $srcId)->first();
+            if ($sec) {
+                DB::table('ahg_io_security')->updateOrInsert(
+                    ['object_id' => $dstId],
+                    [
+                        'security_classification_id'     => $sec->security_classification_id,
+                        'security_reason'                => $sec->security_reason,
+                        'security_review_date'           => $sec->security_review_date,
+                        'security_declassify_date'       => $sec->security_declassify_date,
+                        'security_handling_instructions' => $sec->security_handling_instructions,
+                        'security_inherit_to_children'   => $sec->security_inherit_to_children,
+                        'update_descendants_default'     => $sec->update_descendants_default ?? 0,
+                        'watermark_type_id'              => $sec->watermark_type_id ?? null,
+                        'created_at'                     => now(),
+                        'updated_at'                     => now(),
+                    ]
+                );
+            }
+        } catch (\Throwable $e) { /* sidecar may not exist on first deploy */ }
     }
 
     /**
@@ -3236,32 +3511,85 @@ class InformationObjectController extends Controller
         $repositoryId = (int) $request->query('repository_id', 0);
         $levelId      = (int) $request->query('level_of_description_id', 0);
 
+        // Pick a scheme: per-repository preferred, else any default+active, else
+        // any active, else fall back to a generic REC-{seq} pattern so the
+        // button is never silent.
         $scheme = null;
         if (\Schema::hasTable('numbering_scheme_repository') && $repositoryId > 0) {
             $scheme = DB::table('numbering_scheme_repository as nsr')
-                ->join('numbering_scheme as ns', 'ns.id', '=', 'nsr.numbering_scheme_id')
+                ->join('numbering_scheme as ns', 'ns.id', '=', 'nsr.scheme_id')
                 ->where('nsr.repository_id', $repositoryId)
+                ->where('nsr.is_active', 1)
                 ->select('ns.*')
                 ->first();
         }
         if (!$scheme && \Schema::hasTable('numbering_scheme')) {
-            $scheme = DB::table('numbering_scheme')->where('is_active', 1)->first();
+            $scheme = DB::table('numbering_scheme')
+                ->where('is_active', 1)
+                ->orderByDesc('is_default')
+                ->orderBy('id')
+                ->first();
         }
 
-        if (!$scheme) {
-            return response()->json(['identifier' => '']);
+        $pattern = $scheme->pattern ?? 'REC-{SEQ:5}';
+
+        // Next sequence number: prefer scheme.current_sequence (the cataloguer
+        // dashboard increments this on save). Fall back to numbering_sequence_used.
+        $nextNumber = 1;
+        if ($scheme) {
+            $nextNumber = (int) ($scheme->current_sequence ?? 0) + 1;
+            if ($nextNumber <= 1 && \Schema::hasTable('numbering_sequence_used')) {
+                $nextNumber = ((int) DB::table('numbering_sequence_used')
+                    ->where('scheme_id', $scheme->id)
+                    ->max('sequence_number')) + 1;
+            }
+            if ($nextNumber < 1) $nextNumber = 1;
         }
 
-        $pattern = $scheme->pattern ?? '{next}';
-        $nextNumber = ((int) DB::table('numbering_sequence_used')
-            ->where('scheme_id', $scheme->id)
-            ->max('sequence_number')) + 1;
+        // Repo / fonds / context substitutions. Only fill them if we know the
+        // value; leave the placeholder so the cataloguer notices and edits.
+        $repoCode  = '';
+        $fondsCode = '';
+        if ($repositoryId > 0) {
+            // Try the repository's institution identifier (i18n desc field) first,
+            // then the actor row's corporate_body_identifiers code, else blank.
+            $repoCode = (string) (DB::table('repository_i18n')
+                ->where('id', $repositoryId)
+                ->where('culture', app()->getLocale())
+                ->value('desc_institution_identifier') ?? '');
+            if ($repoCode === '') {
+                $repoCode = (string) (DB::table('actor')
+                    ->where('id', $repositoryId)
+                    ->value('corporate_body_identifiers') ?? '');
+            }
+        }
 
-        $identifier = strtr($pattern, [
-            '{next}' => (string) $nextNumber,
-            '{year}' => date('Y'),
-            '{YY}'   => date('y'),
-        ]);
+        $year   = date('Y');
+        $year2  = date('y');
+
+        $replacements = [
+            '{next}'   => (string) $nextNumber,
+            '{year}'   => $year,
+            '{YEAR}'   => $year,
+            '{YY}'     => $year2,
+            '{REPO}'   => $repoCode,
+            '{FONDS}'  => $fondsCode,
+            // Optional context tokens: leave placeholder when empty so the
+            // human catalouger sees what they need to fill in.
+            '{DEPT}'    => '{DEPT}',
+            '{TYPE}'    => '{TYPE}',
+            '{PROJECT}' => '{PROJECT}',
+            '{ITEM}'    => '{ITEM}',
+            '{PREFIX}'  => '{PREFIX}',
+        ];
+
+        $identifier = strtr($pattern, $replacements);
+
+        // {SEQ:N} -> next sequence padded to N digits.
+        $identifier = preg_replace_callback('/\{SEQ(?::(\d+))?\}/', function ($m) use ($nextNumber) {
+            $width = isset($m[1]) ? (int) $m[1] : 0;
+            return $width > 0 ? str_pad((string) $nextNumber, $width, '0', STR_PAD_LEFT) : (string) $nextNumber;
+        }, $identifier);
 
         return response()->json(['identifier' => $identifier]);
     }
