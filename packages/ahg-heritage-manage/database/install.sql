@@ -1061,7 +1061,11 @@ CREATE TABLE IF NOT EXISTS heritage_hero_slide (
 -- Visual browse categories (Time, Place, People, Theme, Format, Trending)
 CREATE TABLE IF NOT EXISTS heritage_explore_category (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    institution_id INT DEFAULT NULL,
+    -- 0 = global (not institution-scoped). NOT NULL because MySQL treats NULL
+    -- as unknown for unique-key purposes — with NULL allowed, the
+    -- (institution_id, code) UNIQUE KEY couldn't catch INSERT IGNORE replays
+    -- and we ended up with two of every category on the heritage landing.
+    institution_id INT NOT NULL DEFAULT 0,
 
     -- Content
     code VARCHAR(50) NOT NULL,
@@ -1274,13 +1278,14 @@ INSERT IGNORE INTO heritage_branding_config (institution_id, primary_color, seco
 (NULL, '#0d6efd', '#6c757d', NULL, 'Powered by AtoM Heritage Platform');
 
 -- Default explore categories
+-- 0 = global / not institution-scoped (matches the column's NOT NULL DEFAULT 0)
 INSERT IGNORE INTO heritage_explore_category (institution_id, code, name, description, tagline, icon, source_type, source_reference, display_style, display_order, show_on_landing) VALUES
-(NULL, 'time', 'Time', 'Browse by historical period', 'Journey through time', 'bi-clock-history', 'field', 'dates', 'timeline', 1, 1),
-(NULL, 'place', 'Place', 'Browse by location', 'Explore by geography', 'bi-geo-alt', 'authority', 'place', 'map', 2, 1),
-(NULL, 'people', 'People', 'Browse by person or creator', 'Discover the people', 'bi-people', 'authority', 'actor', 'grid', 3, 1),
-(NULL, 'theme', 'Theme', 'Browse by subject', 'Explore by topic', 'bi-tag', 'taxonomy', 'subject', 'grid', 4, 1),
-(NULL, 'format', 'Format', 'Browse by format type', 'Filter by media', 'bi-collection', 'taxonomy', 'contentType', 'grid', 5, 1),
-(NULL, 'trending', 'Trending', 'Popular items this week', 'What people are viewing', 'bi-graph-up', 'custom', 'trending', 'carousel', 6, 1);
+(0, 'time', 'Time', 'Browse by historical period', 'Journey through time', 'bi-clock-history', 'field', 'dates', 'timeline', 1, 1),
+(0, 'place', 'Place', 'Browse by location', 'Explore by geography', 'bi-geo-alt', 'authority', 'place', 'map', 2, 1),
+(0, 'people', 'People', 'Browse by person or creator', 'Discover the people', 'bi-people', 'authority', 'actor', 'grid', 3, 1),
+(0, 'theme', 'Theme', 'Browse by subject', 'Explore by topic', 'bi-tag', 'taxonomy', 'subject', 'grid', 4, 1),
+(0, 'format', 'Format', 'Browse by format type', 'Filter by media', 'bi-collection', 'taxonomy', 'contentType', 'grid', 5, 1),
+(0, 'trending', 'Trending', 'Popular items this week', 'What people are viewing', 'bi-graph-up', 'custom', 'trending', 'carousel', 6, 1);
 
 -- Default timeline periods (South African focused with international context)
 INSERT IGNORE INTO heritage_timeline_period (institution_id, name, short_name, start_year, end_year, description, display_order, show_on_landing) VALUES
