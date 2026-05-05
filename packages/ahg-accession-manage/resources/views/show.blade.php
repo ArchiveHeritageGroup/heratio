@@ -76,6 +76,48 @@
     @include('ahg-ric::_ric-view-accession', ['accession' => $accession])
   @else
 
+  {{-- Workflow status + finalise action. Status comes from accession_v2;
+       absent row means the accession was created before the workflow
+       table was wired (or via a path that bypasses upsertWorkflow). The
+       Finalise button POSTs to accession.finalise which re-checks the
+       blockers server-side, so even if the button surface is wrong the
+       transition stays gated. --}}
+  @php
+    $wfStatus = $workflow->status ?? null;
+    $statusBadge = match ($wfStatus) {
+        'draft'       => ['bg-secondary', __('Draft')],
+        'submitted'   => ['bg-info text-dark', __('Submitted')],
+        'under_review'=> ['bg-warning text-dark', __('Under review')],
+        'accepted'    => ['bg-success', __('Finalised')],
+        'rejected'    => ['bg-danger', __('Rejected')],
+        'returned'    => ['bg-secondary', __('Returned')],
+        default       => null,
+    };
+  @endphp
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+    @if($statusBadge)
+      <span class="badge {{ $statusBadge[0] }} fs-6">
+        <i class="fas fa-circle-check me-1"></i>{{ $statusBadge[1] }}
+        @if($wfStatus === 'accepted' && !empty($workflow->accepted_at))
+          <span class="ms-1 small fw-normal">{{ \Illuminate\Support\Carbon::parse($workflow->accepted_at)->isoFormat('YYYY-MM-DD') }}</span>
+        @endif
+      </span>
+    @endif
+    @auth
+      @if($wfStatus !== 'accepted' && $wfStatus !== 'rejected')
+        <form method="POST" action="{{ route('accession.finalise', $accession->slug) }}" class="d-inline">
+          @csrf
+          <button type="submit"
+                  class="btn btn-sm btn-success"
+                  @if(!empty($finalisationBlockers ?? [])) disabled title="{{ __('Resolve the requirements below first') }}" @endif
+                  onclick="return confirm('{{ __('Finalise this accession? This sets status to accepted and stamps the timestamp.') }}')">
+            <i class="fas fa-check-double me-1"></i>{{ __('Finalise') }}
+          </button>
+        </form>
+      @endif
+    @endauth
+  </div>
+
   {{-- Finalisation blockers — surfaces the accession_require_donor_agreement
        and accession_require_appraisal settings as a list of unmet criteria.
        Empty array = all settings are off OR all gates pass; banner stays

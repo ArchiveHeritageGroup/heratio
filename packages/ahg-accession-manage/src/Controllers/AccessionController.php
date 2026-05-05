@@ -308,6 +308,12 @@ class AccessionController extends Controller
         // each criterion still missing. Empty array = all gates passed.
         $finalisationBlockers = $this->service->finalisationBlockers($accession->id);
 
+        // Workflow row from accession_v2 — used to render the current
+        // status badge + decide whether to show the Finalise button.
+        $workflow = DB::table('accession_v2')
+            ->where('accession_id', $accession->id)
+            ->first();
+
         return view('ahg-accession-manage::show', [
             'accession' => $accession,
             'termNames' => $termNames,
@@ -326,7 +332,53 @@ class AccessionController extends Controller
             'physicalObjects' => $physicalObjects,
             'sourceLangName' => $sourceLangName,
             'finalisationBlockers' => $finalisationBlockers,
+            'workflow' => $workflow,
         ]);
+    }
+
+    /**
+     * Finalise an accession — moves accession_v2.status to 'accepted' and
+     * stamps accepted_at. Refuses the transition when any finalisationBlockers
+     * (driven by the accession_require_donor_agreement + accession_require_appraisal
+     * settings) are unmet, or when the accession is already accepted/rejected.
+     * The UI button on the show page POSTs here.
+     */
+    public function finalise(Request $request, string $slug)
+    {
+        $accession = $this->service->getBySlug($slug);
+        if (!$accession) {
+            abort(404);
+        }
+
+        $blockers = $this->service->finalisationBlockers($accession->id);
+        if (!empty($blockers)) {
+            return redirect()
+                ->route('accession.show', $slug)
+                ->with('error', 'Cannot finalise: ' . implode('; ', $blockers));
+        }
+
+        $current = DB::table('accession_v2')
+            ->where('accession_id', $accession->id)
+            ->value('status');
+        if ($current === 'accepted') {
+            return redirect()
+                ->route('accession.show', $slug)
+                ->with('info', 'This accession is already finalised.');
+        }
+        if ($current === 'rejected') {
+            return redirect()
+                ->route('accession.show', $slug)
+                ->with('error', 'A rejected accession cannot be finalised — clear the rejection first.');
+        }
+
+        $this->service->upsertWorkflow($accession->id, [
+            'status'      => 'accepted',
+            'accepted_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('accession.show', $slug)
+            ->with('success', 'Accession finalised.');
     }
 
     public function create()

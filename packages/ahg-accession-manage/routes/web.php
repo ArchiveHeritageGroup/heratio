@@ -13,6 +13,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/accession/add', [AccessionController::class, 'store'])->name('accession.store')->middleware('acl:create');
     Route::get('/accession/{slug}/edit', [AccessionController::class, 'edit'])->name('accession.edit');
     Route::post('/accession/{slug}/edit', [AccessionController::class, 'update'])->name('accession.update')->middleware('acl:update');
+    // Finalise transition. Sets accession_v2.status='accepted' + accepted_at,
+    // gated on AccessionService::finalisationBlockers() (which honours
+    // accession_require_donor_agreement + accession_require_appraisal).
+    Route::post('/accession/{slug}/finalise', [AccessionController::class, 'finalise'])->name('accession.finalise')->middleware('acl:update');
 });
 
 Route::middleware('admin')->group(function () {
