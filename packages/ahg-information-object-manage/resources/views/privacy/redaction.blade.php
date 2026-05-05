@@ -61,13 +61,18 @@
     position: relative;
     background: #1a1a2e;
     border-radius: 8px;
-    overflow: hidden;
+    /* Was overflow:hidden + a 600px wrapper — that clipped any zoomed/long
+       page so the cataloguer couldn't reach the bottom of the PDF. Switch to
+       auto-scroll, cap the height to the viewport, and let the wrapper grow
+       to fit the canvas so the scrollbar surfaces the rest. */
+    overflow: auto;
     min-height: 600px;
+    max-height: calc(100vh - 200px);
   }
   .redaction-canvas-wrapper {
     position: relative;
     width: 100%;
-    height: 600px;
+    min-height: 600px;
   }
   #pdf-canvas {
     display: block;
