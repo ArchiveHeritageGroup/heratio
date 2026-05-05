@@ -34,14 +34,20 @@
        paints absolutely-positioned <div> rectangles over it. Re-runs on
        window.resize so coordinates re-scale when the layout reflows. --}}
   @unless($canBypassRedaction ?? false)
-    <script type="application/json" id="ahg-visual-redactions-{{ $io->id }}">
-      @json($visualRedactions->map(fn($r) => [
-          'page'   => $r->page_number ?? 1,
-          'coords' => $r->coords ?? [],
-          'norm'   => (int) ($r->normalized ?? 0),
-          'color'  => $r->color ?? '#000000',
-      ]))
-    </script>
+    @php
+      // Build the JSON payload in PHP — Blade's @json directive arg-parser
+      // mis-counts brackets when given a nested array literal + arrow-fn
+      // inside the directive args, causing a parse error at the closing ')'.
+      $__redactionPayload = collect($visualRedactions)->map(function ($r) {
+          return [
+              'page'   => $r->page_number ?? 1,
+              'coords' => $r->coords ?? [],
+              'norm'   => (int) ($r->normalized ?? 0),
+              'color'  => $r->color ?? '#000000',
+          ];
+      })->values();
+    @endphp
+    <script type="application/json" id="ahg-visual-redactions-{{ $io->id }}">@json($__redactionPayload)</script>
     <script nonce="{{ csp_nonce() }}">
     (function () {
       'use strict';

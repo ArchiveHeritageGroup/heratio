@@ -134,7 +134,15 @@
                             <div class="col">
                                 <p class="mb-1"><strong>{{ __('Filename:') }}</strong> {{ e($referenceImage->name) }}</p>
                                 <p class="mb-2"><strong>{{ __('Filesize:') }}</strong> {{ \AhgCore\Services\DigitalObjectService::formatFileSize($referenceImage->byte_size) }}</p>
-                                <a href="{{ $refUrl }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt me-1"></i>{{ __('View') }}</a>
+                                <a href="{{ $refUrl }}" target="_blank" class="btn btn-sm btn-outline-primary me-2"><i class="fas fa-external-link-alt me-1"></i>{{ __('View') }}</a>
+                                {{-- PSIS-parity per-representation delete. Button is
+                                     wired via HTML5 form="..." to a <form> outside the
+                                     outer edit form (nested forms are invalid HTML).
+                                     The form is rendered at the bottom of this view. --}}
+                                <button type="submit" form="rep-delete-ref-{{ $referenceImage->id }}" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('{{ __('Delete this reference representation? The master file will remain intact.') }}');">
+                                    <i class="fas fa-times me-1"></i>{{ __('Delete') }}
+                                </button>
                             </div>
                         </div>
                     @else
@@ -160,7 +168,11 @@
                             <div class="col">
                                 <p class="mb-1"><strong>{{ __('Filename:') }}</strong> {{ e($thumbnailImage->name) }}</p>
                                 <p class="mb-2"><strong>{{ __('Filesize:') }}</strong> {{ \AhgCore\Services\DigitalObjectService::formatFileSize($thumbnailImage->byte_size) }}</p>
-                                <a href="{{ $thumbUrl }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-external-link-alt me-1"></i>{{ __('View') }}</a>
+                                <a href="{{ $thumbUrl }}" target="_blank" class="btn btn-sm btn-outline-primary me-2"><i class="fas fa-external-link-alt me-1"></i>{{ __('View') }}</a>
+                                <button type="submit" form="rep-delete-thumb-{{ $thumbnailImage->id }}" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('{{ __('Delete this thumbnail representation? The master file will remain intact.') }}');">
+                                    <i class="fas fa-times me-1"></i>{{ __('Delete') }}
+                                </button>
                             </div>
                         </div>
                     @else
@@ -221,4 +233,23 @@
     </ul>
 
 </form>
+
+{{-- Sibling forms for the per-representation Delete buttons. Live OUTSIDE the
+     outer edit form because nested <form> elements are invalid HTML; the
+     buttons inside the cards above target these via the HTML5 form="..." attr. --}}
+@if($referenceImage ?? null)
+  <form id="rep-delete-ref-{{ $referenceImage->id }}" method="POST"
+        action="{{ route('io.digitalobject.representation.delete', $referenceImage->id) }}" style="display:none;">
+    @csrf
+    @method('DELETE')
+  </form>
+@endif
+@if($thumbnailImage ?? null)
+  <form id="rep-delete-thumb-{{ $thumbnailImage->id }}" method="POST"
+        action="{{ route('io.digitalobject.representation.delete', $thumbnailImage->id) }}" style="display:none;">
+    @csrf
+    @method('DELETE')
+  </form>
+@endif
+
 @endsection

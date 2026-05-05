@@ -197,6 +197,33 @@ class DigitalObjectController extends Controller
     }
 
     /**
+     * Delete just one representation (reference or thumbnail) without
+     * touching the master. Mirrors PSIS's per-representation delete button.
+     * After delete, redirect back to the master's edit page.
+     */
+    public function representationDelete(Request $request, int $id)
+    {
+        $doRow = DB::table('digital_object')->where('id', $id)->first();
+        if (!$doRow) abort(404);
+
+        // Refuse to delete the master via this endpoint — use the regular
+        // delete() route which cascades to derivatives.
+        if (empty($doRow->parent_id)) {
+            return redirect()->back()->with('error', 'Use the master delete action to remove the whole digital object.');
+        }
+
+        $masterId = (int) $doRow->parent_id;
+        $success = DigitalObjectService::delete($id);
+
+        if ($success) {
+            return redirect()->route('io.digitalobject.show', $masterId)
+                ->with('success', 'Representation deleted successfully.');
+        }
+        return redirect()->route('io.digitalobject.show', $masterId)
+            ->with('error', 'Failed to delete representation.');
+    }
+
+    /**
      * Display digital object metadata page.
      *
      * @param int $id Digital object ID

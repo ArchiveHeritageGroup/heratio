@@ -178,6 +178,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/informationobject/{slug}/upload', [DigitalObjectController::class, 'upload'])->name('io.digitalobject.upload')->middleware('acl:create');
     Route::match(['get', 'post'], '/informationobject/{slug}/multiFileUpload', [DigitalObjectController::class, 'multiFileUpload'])->name('io.multiFileUpload');
     Route::delete('/digitalobject/{id}', [DigitalObjectController::class, 'delete'])->name('io.digitalobject.delete')->middleware('acl:delete')->where('id', '[0-9]+');
+    // Per-representation delete — removes only the chosen reference/thumbnail
+    // row without cascading to the master (matches PSIS's behaviour).
+    Route::delete('/digitalobject/representation/{id}', [DigitalObjectController::class, 'representationDelete'])->name('io.digitalobject.representation.delete')->middleware('acl:delete')->where('id', '[0-9]+');
     Route::put('/digitalobject/{id}', [DigitalObjectController::class, 'update'])->name('io.digitalobject.update')->middleware('acl:update')->where('id', '[0-9]+');
     Route::get('/digitalobject/{id}', [DigitalObjectController::class, 'show'])->name('io.digitalobject.show')->where('id', '[0-9]+');
 
