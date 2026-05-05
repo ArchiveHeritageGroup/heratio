@@ -1874,6 +1874,52 @@ class InformationObjectController extends Controller
             }
         }
 
+        // ---- Events / Date(s) (ISAD 3.1.3, separate from the creator block above) ----
+        // Creators are type_id=111 with actor_id set and are managed exclusively by
+        // the _creatorsIncluded block. Everything else (dates) is managed here.
+        if ($request->has('events')) {
+            $oldEventIds = DB::table('event')
+                ->where('object_id', $ioId)
+                ->where(function ($q) { $q->where('type_id', '!=', 111)->orWhereNull('type_id'); })
+                ->pluck('id')->toArray();
+            if (!empty($oldEventIds)) {
+                DB::table('event_i18n')->whereIn('id', $oldEventIds)->delete();
+                DB::table('event')->whereIn('id', $oldEventIds)->delete();
+                DB::table('object')->whereIn('id', $oldEventIds)->delete();
+            }
+
+            foreach ((array) $request->input('events', []) as $row) {
+                $typeId = (int) ($row['typeId'] ?? 0);
+                if ($typeId === 0 || $typeId === 111) continue;
+
+                $dateDisplay = trim((string) ($row['date'] ?? ''));
+                $startDate   = trim((string) ($row['startDate'] ?? ''));
+                $endDate     = trim((string) ($row['endDate'] ?? ''));
+                $actorId     = (int) ($row['actorId'] ?? 0);
+                if ($dateDisplay === '' && $startDate === '' && $endDate === '' && $actorId <= 0) continue;
+
+                $eventObjectId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitEvent',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('event')->insert([
+                    'id'             => $eventObjectId,
+                    'object_id'      => $ioId,
+                    'type_id'        => $typeId,
+                    'actor_id'       => $actorId > 0 ? $actorId : null,
+                    'start_date'     => $startDate !== '' ? $startDate : null,
+                    'end_date'       => $endDate !== '' ? $endDate : null,
+                    'source_culture' => $culture,
+                ]);
+                DB::table('event_i18n')->insert([
+                    'id'      => $eventObjectId,
+                    'culture' => $culture,
+                    'date'    => $dateDisplay !== '' ? $dateDisplay : null,
+                ]);
+            }
+        }
+
         // ---- Subject access points (taxonomy 35) ----
         if ($request->has('subjectAccessPointIds')) {
             $oldSubjectIds = DB::table('object_term_relation')
