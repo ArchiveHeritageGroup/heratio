@@ -70,3 +70,17 @@ public/vendor/ahg-theme-b5/js/ahg-iiif-viewer.js
 
 # Mirador bundle source (the build that produces the file above)
 tools/mirador-build/
+
+# Additional link targets reachable from the library show page (and most of
+# them from the archival-record show too — extending coverage that was missed
+# in the original IO lock). Added 2026-05-05 after the library show stabilised
+# (creators / subjects / item physical location / RiC entities / item physical
+# location render). Each package owns routes referenced from library/show.blade.php
+# and library/edit.blade.php:
+packages/ahg-cart/             # cart.add / cart.browse
+packages/ahg-favorites/        # favorites.add / favorites.remove
+packages/ahg-feedback/         # feedback.submit
+packages/ahg-loan/             # loan.create / loan.index / loan.show
+packages/ahg-storage-manage/   # physicalobject.show / physicalobject.link-to
+packages/ahg-repository-manage/ # repository.show
+packages/ahg-term-taxonomy/    # term.show
