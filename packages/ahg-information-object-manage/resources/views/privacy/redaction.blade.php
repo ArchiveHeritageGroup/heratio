@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 @section('title', 'Visual Redaction Editor — ' . ($io->title ?? ''))
 
-@push('styles')
+@push('css')
 <style>
   /* Redaction Editor Styles */
   .redaction-toolbar {
