@@ -178,6 +178,8 @@ class ExtendedRightsService
             'rights_holder_name' => $data['rights_holder_name'] ?? null,
         ];
 
+        $isCreate = !$id;
+        $beforeSnapshot = !$isCreate ? (array) (DB::table('rights_record')->where('id', $id)->first() ?? []) : [];
         if ($id) {
             $recordData['updated_at'] = now();
             DB::table('rights_record')->where('id', $id)->update($recordData);
@@ -208,6 +210,15 @@ class ExtendedRightsService
             }
         }
 
+        $afterSnapshot = (array) (DB::table('rights_record')->where('id', $id)->first() ?? []);
+        unset($afterSnapshot['id'], $afterSnapshot['created_at'], $afterSnapshot['updated_at'], $afterSnapshot['created_by']);
+        unset($beforeSnapshot['id'], $beforeSnapshot['created_at'], $beforeSnapshot['updated_at'], $beforeSnapshot['created_by']);
+        if ($isCreate) {
+            \AhgCore\Support\AuditLog::captureCreate((int) $id, 'rights_record', $afterSnapshot);
+        } else {
+            \AhgCore\Support\AuditLog::captureEdit((int) $id, 'rights_record', $beforeSnapshot, $afterSnapshot);
+        }
+
         return $id;
     }
 
@@ -216,6 +227,10 @@ class ExtendedRightsService
      */
     public function deleteRightsRecord(int $id): bool
     {
+        $snapshot = (array) (DB::table('rights_record')->where('id', $id)->first() ?? []);
+        unset($snapshot['id'], $snapshot['created_at'], $snapshot['updated_at'], $snapshot['created_by']);
+        \AhgCore\Support\AuditLog::captureDelete($id, 'rights_record', $snapshot);
+
         DB::table('rights_grant')->where('rights_record_id', $id)->delete();
         DB::table('rights_record_i18n')->where('id', $id)->delete();
 

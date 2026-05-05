@@ -280,8 +280,12 @@ class InformationObjectService
      * Flat snapshot of IO-update fields for the security_audit_log
      * before/after diff. Captures the structural columns + the i18n
      * narrative fields most edits touch. See packages/ahg-core/src/Support/AuditLog.php.
+     * Public so InformationObjectController::update can reuse it — the
+     * controller writes the IO directly rather than calling
+     * InformationObjectService::update, so it needs to take its own
+     * snapshot to feed AuditLog::captureEdit.
      */
-    private static function auditSnapshot(int $id, string $culture): array
+    public static function auditSnapshot(int $id, string $culture): array
     {
         $io = (array) (DB::table('information_object')->where('id', $id)
             ->select('identifier', 'level_of_description_id', 'collection_type_id', 'repository_id',

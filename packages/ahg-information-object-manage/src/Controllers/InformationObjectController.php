@@ -2115,6 +2115,13 @@ class InformationObjectController extends Controller
 
         $ioId = $io->id;
 
+        // Snapshot before — this controller writes the IO directly rather
+        // than calling InformationObjectService::update, so the v1.52.23
+        // service-level wrap doesn't fire for the main archival edit form.
+        // Capture before/after explicitly so /admin/acl/audit-log surfaces
+        // a field-level diff for archival edits as it does for sector edits.
+        $auditBefore = \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $ioId, $culture);
+
         // Update information_object table
         $ioUpdate = [
             'identifier' => $request->input('identifier'),
@@ -2829,6 +2836,9 @@ class InformationObjectController extends Controller
                 'updated_at' => now(),
             ]);
 
+        $auditAfter = \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $ioId, $culture);
+        \AhgCore\Support\AuditLog::captureEdit((int) $ioId, 'information_object', $auditBefore, $auditAfter);
+
         return redirect()
             ->route('informationobject.show', $slug)
             ->with('success', 'Archival description updated successfully.');
@@ -2994,6 +3004,8 @@ class InformationObjectController extends Controller
         if ($copyFromId > 0 && $copyFromId !== $objectId) {
             self::duplicateMultiRowFromSource($copyFromId, $objectId, $culture);
         }
+
+        \AhgCore\Support\AuditLog::captureCreate((int) $objectId, 'information_object', \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $objectId, $culture));
 
         return redirect()
             ->route('informationobject.show', $slug)
@@ -3489,6 +3501,10 @@ class InformationObjectController extends Controller
 
         $ioId = $record->id;
         $width = $record->rgt - $record->lft + 1;
+
+        // Snapshot before delete — controller-direct delete bypasses
+        // InformationObjectService::delete (which v1.52.24 wrapped).
+        \AhgCore\Support\AuditLog::captureDelete((int) $ioId, 'information_object', \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $ioId, app()->getLocale()));
 
         // Collect all descendant IDs (nested set: lft between this node's lft and rgt)
         $descendantIds = DB::table('information_object')

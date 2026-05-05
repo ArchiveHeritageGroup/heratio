@@ -517,7 +517,9 @@ class GalleryController extends Controller
     {
         $request->validate(['title' => 'required|string|max:1024']);
         if (Schema::hasTable('gallery_loan')) {
-            DB::table('gallery_loan')->insert(array_merge($request->only(['title','loan_type','borrower_name','start_date','end_date','insurance_value','loan_fee','conditions','notes']), ['status' => 'pending', 'created_at' => now(), 'updated_at' => now()]));
+            $loanData = array_merge($request->only(['title','loan_type','borrower_name','start_date','end_date','insurance_value','loan_fee','conditions','notes']), ['status' => 'pending', 'created_at' => now(), 'updated_at' => now()]);
+            $newId = DB::table('gallery_loan')->insertGetId($loanData);
+            \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'gallery_loan', $loanData);
         }
         return redirect()->route('gallery.loans')->with('success', 'Loan created.');
     }
@@ -541,7 +543,9 @@ class GalleryController extends Controller
     {
         $request->validate(['value' => 'required|numeric']);
         if (Schema::hasTable('gallery_valuation')) {
-            DB::table('gallery_valuation')->insert(array_merge($request->only(['valuation_type','value','valuation_date','appraiser','notes']), ['created_at' => now(), 'updated_at' => now()]));
+            $valuationData = array_merge($request->only(['valuation_type','value','valuation_date','appraiser','notes']), ['created_at' => now(), 'updated_at' => now()]);
+            $newId = DB::table('gallery_valuation')->insertGetId($valuationData);
+            \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'gallery_valuation', $valuationData);
         }
         return redirect()->route('gallery.valuations')->with('success', 'Valuation created.');
     }
@@ -565,7 +569,9 @@ class GalleryController extends Controller
     {
         $request->validate(['name' => 'required|string|max:1024']);
         if (Schema::hasTable('gallery_venue')) {
-            DB::table('gallery_venue')->insert(array_merge($request->only(['name','venue_type','address','city','country','contact_person','email','notes']), ['created_at' => now(), 'updated_at' => now()]));
+            $venueData = array_merge($request->only(['name','venue_type','address','city','country','contact_person','email','notes']), ['created_at' => now(), 'updated_at' => now()]);
+            $newId = DB::table('gallery_venue')->insertGetId($venueData);
+            \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'gallery_venue', $venueData);
         }
         return redirect()->route('gallery.venues')->with('success', 'Venue created.');
     }

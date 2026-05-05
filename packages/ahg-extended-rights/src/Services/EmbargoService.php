@@ -486,13 +486,24 @@ class EmbargoService
             ]);
         }
 
-        // Audit log
+        // Audit log (embargo-specific table)
         $this->logAudit($embargoId, 'create', $data['created_by'] ?? null, [], [
             'object_id' => $data['object_id'],
             'embargo_type' => $embargoType,
             'start_date' => $startDate,
             'end_date' => $data['end_date'] ?? null,
             'status' => $status,
+        ]);
+
+        // Unified audit log (security_audit_log surfaced on /admin/acl/audit-log)
+        \AhgCore\Support\AuditLog::captureCreate((int) $embargoId, 'rights_embargo', [
+            'object_id' => $data['object_id'],
+            'embargo_type' => $embargoType,
+            'reason' => $reasonEnum,
+            'start_date' => $startDate,
+            'end_date' => $data['end_date'] ?? null,
+            'status' => $status,
+            'auto_release' => !($data['is_perpetual'] ?? false),
         ]);
 
         self::clearCache();
@@ -558,8 +569,13 @@ class EmbargoService
                 );
         }
 
-        // Audit log
+        // Audit log (embargo-specific table)
         $this->logAudit($id, 'update', $data['updated_by'] ?? null, $oldValues, $updateData);
+
+        // Unified audit log (security_audit_log)
+        $beforeFlat = is_array($oldValues) ? array_intersect_key($oldValues, array_flip(['embargo_type','reason','start_date','end_date','status','auto_release','notify_before_days'])) : [];
+        $afterFlat  = array_intersect_key($updateData, array_flip(['embargo_type','reason','start_date','end_date','status','auto_release','notify_before_days']));
+        \AhgCore\Support\AuditLog::captureEdit((int) $id, 'rights_embargo', $beforeFlat, $afterFlat);
 
         self::clearCache();
 
