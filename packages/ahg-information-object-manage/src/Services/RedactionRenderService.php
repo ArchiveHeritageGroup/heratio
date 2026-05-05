@@ -109,9 +109,26 @@ class RedactionRenderService
 
     private function getMaster(int $ioId): ?object
     {
+        // An IO can have multiple parent_id IS NULL rows (e.g. a PDF master AND
+        // a JPG preview that was uploaded as a separate "master"). The PDF that
+        // the redactions reference might not be the row MySQL returns first
+        // without an ORDER BY — that intermittently swapped which file we
+        // looked at and the redactions silently disappeared. Prefer the master
+        // referenced by the redaction rows; otherwise fall back to oldest by id.
+        $referenced = DB::table('digital_object as d')
+            ->join('privacy_visual_redaction as r', 'r.digital_object_id', '=', 'd.id')
+            ->where('d.object_id', $ioId)
+            ->whereNull('d.parent_id')
+            ->whereIn('r.status', ['applied', 'reviewed', 'pending'])
+            ->select('d.id', 'd.name', 'd.path', 'd.mime_type')
+            ->orderBy('d.id')
+            ->first();
+        if ($referenced) return $referenced;
+
         return DB::table('digital_object')
             ->where('object_id', $ioId)
             ->whereNull('parent_id')
+            ->orderBy('id')
             ->select('id', 'name', 'path', 'mime_type')
             ->first();
     }
@@ -145,9 +162,12 @@ class RedactionRenderService
 
     private function loadRegions(int $ioId, int $masterId): array
     {
+        // Filter by object_id only — the show page's redaction banner / asset
+        // reroute also use object_id, so the renderer must agree with them.
+        // Filtering by digital_object_id used to silently drop the regions when
+        // getMaster() returned a different (sibling) master row.
         $rows = DB::table('privacy_visual_redaction')
             ->where('object_id', $ioId)
-            ->where('digital_object_id', $masterId)
             ->whereIn('status', ['applied', 'reviewed', 'pending'])
             ->orderBy('page_number')
             ->orderBy('id')

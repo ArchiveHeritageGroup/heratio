@@ -1,0 +1,40 @@
+# Heratio locked paths — enforced by bin/check-locked + hooks/pre-commit.
+#
+# Any file under these prefixes refuses to commit, push, or release until
+# explicitly unlocked with `./bin/unlock <path>`. The unlock is one-shot
+# and is cleared automatically after `./bin/release` succeeds.
+#
+# Lines starting with # are comments. Blank lines are ignored.
+# A trailing slash means "everything under this directory, recursively".
+# Without a trailing slash, the entry matches an exact file.
+#
+# Lock established 2026-05-05 to fully protect the archival-record show
+# page (/{slug}) and every link target reachable from it. See
+# memory/feedback_lock_io_show_tree.md for the rationale.
+
+# Information-object show page + all its handlers
+packages/ahg-information-object-manage/
+
+# Action-bar / dropdown link targets reachable from the IO show page
+packages/ahg-condition/
+packages/ahg-spectrum/
+packages/ahg-heritage-manage/
+packages/ahg-preservation/
+
+# AI Tools menu (Describe / NER / Summary / Translate / Animate / NER Review)
+packages/ahg-ai-services/
+
+# Research Tools menu (Source Assessment / Annotation / Trust / Dashboard)
+packages/ahg-research/
+
+# RiC menu (Graph Explorer / JSON-LD Export / Timeline)
+packages/ahg-ric/
+
+# Import / Export / Reports / Browse / Marketplace / Rights link targets
+packages/ahg-ingest/
+packages/ahg-export/
+packages/ahg-reports/
+packages/ahg-display/
+packages/ahg-marketplace/
+packages/ahg-rights/
+packages/ahg-extended-rights/

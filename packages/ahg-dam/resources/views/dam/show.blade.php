@@ -376,7 +376,10 @@
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Distributor') }}</h3><div class="col-9 p-2">{{ $asset->distributor }}</div></div>
       @endif
       @if($asset->broadcast_date)
-        <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Broadcast date') }}</h3><div class="col-9 p-2">{{ \Carbon\Carbon::parse($asset->broadcast_date)->format('Y-m-d') }}</div></div>
+        {{-- Stored as VARCHAR; can be a bare year, year-month, or full date.
+             Display the value as-is so we don't lose precision (Carbon::parse
+             on "2006" silently returned a 1970-era timestamp). --}}
+        <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Broadcast date') }}</h3><div class="col-9 p-2">{{ $asset->broadcast_date }}</div></div>
       @endif
       @if($asset->series_title)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Series title') }}</h3><div class="col-9 p-2">{{ $asset->series_title }}</div></div>

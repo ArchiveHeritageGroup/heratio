@@ -1,0 +1,25 @@
+#!/bin/bash
+#===============================================================================
+# Heratio - pre-commit hook
+#===============================================================================
+# Refuses to commit if any staged file is under a locked path (see
+# .locked-paths) and isn't covered by an active ./bin/unlock entry.
+#
+# Bypass requires --no-verify, which is reserved for the user. CLAUDE.md
+# already forbids skipping hooks via --no-verify in normal automated work.
+#
+# This file lives in the tracked hooks/ directory; activate with:
+#   git config core.hooksPath hooks
+#===============================================================================
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo .)"
+cd "$REPO_ROOT"
+
+if [ -x "./bin/check-locked" ]; then
+    if ! ./bin/check-locked --staged; then
+        exit 1
+    fi
+fi
+
+exit 0

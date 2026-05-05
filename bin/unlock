@@ -1,0 +1,93 @@
+#!/bin/bash
+#===============================================================================
+# Heratio - Unlock a locked path for the next release
+#===============================================================================
+# Adds one or more paths to .git/UNLOCKED (one-shot whitelist). After the
+# next successful ./bin/release, the file is cleared and the lock is re-armed.
+#
+# Usage:
+#   ./bin/unlock <path> [<path> ...]
+#   ./bin/unlock --list           # show currently unlocked paths
+#   ./bin/unlock --status         # alias for --list
+#
+# Examples:
+#   ./bin/unlock packages/ahg-information-object-manage/src/Controllers/PrivacyController.php
+#   ./bin/unlock packages/ahg-condition/
+#===============================================================================
+set -e
+
+cd "$(dirname "$0")/.."
+ROOT="$(pwd)"
+
+UNLOCK_FILE="${ROOT}/.git/UNLOCKED"
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+if [ $# -eq 0 ]; then
+    echo "Usage: ./bin/unlock <path> [<path> ...]" >&2
+    echo "       ./bin/unlock --list" >&2
+    exit 1
+fi
+
+if [ "$1" = "--list" ] || [ "$1" = "--status" ]; then
+    if [ ! -f "$UNLOCK_FILE" ] || [ ! -s "$UNLOCK_FILE" ]; then
+        echo -e "${YELLOW}No paths are currently unlocked.${NC}"
+        exit 0
+    fi
+    echo -e "${CYAN}Currently unlocked paths (one-shot, cleared after next release):${NC}"
+    grep -vE '^\s*(#|$)' "$UNLOCK_FILE" | sed 's/^/  /'
+    exit 0
+fi
+
+# Make sure .git exists (we are inside a repo).
+if [ ! -d "${ROOT}/.git" ]; then
+    echo -e "${RED}Error: not inside a git repo${NC}" >&2
+    exit 1
+fi
+
+# Touch the unlock file (creates it if missing).
+touch "$UNLOCK_FILE"
+
+ADDED=0
+for path in "$@"; do
+    # Normalise — strip leading ./ if any.
+    path="${path#./}"
+
+    # Warn if the path is not actually under a locked entry; the unlock is
+    # harmless in that case but tends to indicate a mistake.
+    if [ -f "${ROOT}/.locked-paths" ]; then
+        UNDER_LOCK=0
+        while IFS= read -r lp; do
+            [ -z "$lp" ] && continue
+            case "$lp" in
+                */) [[ "$path" == "$lp"* ]] && UNDER_LOCK=1 && break ;;
+                *)  [[ "$path" == "$lp" ]]  && UNDER_LOCK=1 && break ;;
+            esac
+        done < <(grep -vE '^\s*(#|$)' "${ROOT}/.locked-paths")
+        if [ "$UNDER_LOCK" -eq 0 ]; then
+            echo -e "${YELLOW}note:${NC} '${path}' is not in .locked-paths — unlock is a no-op for it" >&2
+        fi
+    fi
+
+    # Already unlocked?
+    if grep -qxF "$path" "$UNLOCK_FILE" 2>/dev/null; then
+        echo -e "  ${YELLOW}already unlocked:${NC} ${path}"
+        continue
+    fi
+
+    echo "$path" >> "$UNLOCK_FILE"
+    echo -e "  ${GREEN}unlocked:${NC} ${path}"
+    ADDED=$((ADDED + 1))
+done
+
+echo ""
+if [ "$ADDED" -gt 0 ]; then
+    echo -e "${GREEN}${ADDED} path(s) unlocked${NC} for the next ./bin/release."
+    echo -e "Run ${CYAN}./bin/unlock --list${NC} to review, or ${CYAN}./bin/lock <path>${NC} to revert."
+else
+    echo -e "${YELLOW}No new paths unlocked.${NC}"
+fi

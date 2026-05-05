@@ -1,0 +1,144 @@
+#!/bin/bash
+#===============================================================================
+# Heratio - Locked-Paths Enforcement
+#===============================================================================
+# Refuses to proceed if any change (staged or unstaged) touches a locked
+# path that hasn't been explicitly unlocked via `./bin/unlock <path>`.
+#
+# Exit codes:
+#   0 — no locked path touched, or every touched path is currently unlocked
+#   1 — locked-path violation found; caller (release / pre-commit) should abort
+#
+# Reads two manifests:
+#   .locked-paths        — committed list of locked path prefixes / files
+#   .git/UNLOCKED        — untracked one-shot whitelist written by ./bin/unlock
+#
+# Usage:
+#   ./bin/check-locked              # check working tree + index against HEAD
+#   ./bin/check-locked --staged     # only check staged changes (pre-commit)
+#   ./bin/check-locked --quiet      # exit 0/1 without printing on violations
+#===============================================================================
+set -e
+
+cd "$(dirname "$0")/.."
+ROOT="$(pwd)"
+
+MODE="all"
+QUIET=0
+for arg in "$@"; do
+    case "$arg" in
+        --staged) MODE="staged" ;;
+        --quiet)  QUIET=1 ;;
+    esac
+done
+
+MANIFEST="${ROOT}/.locked-paths"
+UNLOCK_FILE="${ROOT}/.git/UNLOCKED"
+
+if [ ! -f "$MANIFEST" ]; then
+    # No manifest = no lock active.
+    exit 0
+fi
+
+# Build the list of changed paths.
+if [ "$MODE" = "staged" ]; then
+    CHANGED=$(git diff --cached --name-only --diff-filter=ACMRTD 2>/dev/null || true)
+else
+    # Working tree (modified, unstaged) + index (staged) + untracked.
+    STAGED=$(git diff --cached --name-only --diff-filter=ACMRTD 2>/dev/null || true)
+    UNSTAGED=$(git diff --name-only --diff-filter=ACMRTD 2>/dev/null || true)
+    UNTRACKED=$(git ls-files --others --exclude-standard 2>/dev/null || true)
+    CHANGED=$(printf "%s\n%s\n%s\n" "$STAGED" "$UNSTAGED" "$UNTRACKED" | sort -u | sed '/^$/d')
+fi
+
+if [ -z "$CHANGED" ]; then
+    exit 0
+fi
+
+# Read locked entries (strip blank lines and comments).
+mapfile -t LOCKED < <(grep -vE '^\s*(#|$)' "$MANIFEST" | sed 's/[[:space:]]*$//')
+
+# Read unlocked entries (one-shot tokens written by ./bin/unlock).
+UNLOCKED=()
+if [ -f "$UNLOCK_FILE" ]; then
+    mapfile -t UNLOCKED < <(grep -vE '^\s*(#|$)' "$UNLOCK_FILE" | sed 's/[[:space:]]*$//')
+fi
+
+is_under_prefix() {
+    # Args: $1 = path being tested, $2 = prefix from manifest
+    local path="$1" prefix="$2"
+    case "$prefix" in
+        */) [[ "$path" == "$prefix"* ]] && return 0 ;;
+        *)  [[ "$path" == "$prefix" ]] && return 0 ;;
+    esac
+    return 1
+}
+
+VIOLATIONS=()
+while IFS= read -r path; do
+    [ -z "$path" ] && continue
+
+    LOCK_HIT=""
+    for lp in "${LOCKED[@]}"; do
+        [ -z "$lp" ] && continue
+        if is_under_prefix "$path" "$lp"; then
+            LOCK_HIT="$lp"
+            break
+        fi
+    done
+    [ -z "$LOCK_HIT" ] && continue
+
+    UNLOCK_HIT=""
+    for ul in "${UNLOCKED[@]}"; do
+        [ -z "$ul" ] && continue
+        if is_under_prefix "$path" "$ul"; then
+            UNLOCK_HIT="$ul"
+            break
+        fi
+    done
+    [ -n "$UNLOCK_HIT" ] && continue
+
+    VIOLATIONS+=("$path|$LOCK_HIT")
+done <<< "$CHANGED"
+
+if [ ${#VIOLATIONS[@]} -eq 0 ]; then
+    exit 0
+fi
+
+if [ "$QUIET" -eq 1 ]; then
+    exit 1
+fi
+
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+echo -e "${RED}════════════════════════════════════════════════════════════════${NC}" >&2
+echo -e "${RED}  LOCKED-PATH VIOLATION                                         ${NC}" >&2
+echo -e "${RED}════════════════════════════════════════════════════════════════${NC}" >&2
+echo "" >&2
+echo -e "${YELLOW}The following changed files are under locked paths:${NC}" >&2
+echo "" >&2
+for v in "${VIOLATIONS[@]}"; do
+    path="${v%|*}"
+    rule="${v#*|}"
+    printf "  ${RED}%s${NC}\n     locked by rule: ${CYAN}%s${NC}\n" "$path" "$rule" >&2
+done
+echo "" >&2
+echo -e "${YELLOW}To make a change here, unlock the path explicitly:${NC}" >&2
+echo "" >&2
+echo "  ./bin/unlock <path>" >&2
+echo "" >&2
+echo -e "  ${CYAN}Example:${NC} ./bin/unlock packages/ahg-information-object-manage/src/Controllers/PrivacyController.php" >&2
+echo "" >&2
+echo -e "  Unlock is ${YELLOW}one-shot${NC} — it's cleared automatically after the next" >&2
+echo "  successful ./bin/release. To re-lock manually before then:" >&2
+echo "" >&2
+echo "  ./bin/lock <path>          (remove a single unlock)" >&2
+echo "  ./bin/lock --all           (clear all unlocks)" >&2
+echo "" >&2
+echo -e "  See ${CYAN}.locked-paths${NC} for the current lock manifest." >&2
+echo "" >&2
+
+exit 1

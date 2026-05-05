@@ -375,10 +375,25 @@ class PrivacyController extends Controller
                 ? auth()->user()->isAdministrator()
                 : (bool) (auth()->user()->is_admin ?? false));
 
-        $master = DB::table('digital_object')
-            ->where('object_id', $io->id)
-            ->whereNull('parent_id')
+        // Match RedactionRenderService::getMaster() so controller + renderer
+        // agree on which master to serve when an IO has multiple parent_id IS
+        // NULL rows. Prefer the master referenced by redactions; otherwise
+        // oldest by id so MySQL can't return a different sibling per request.
+        $master = DB::table('digital_object as d')
+            ->join('privacy_visual_redaction as r', 'r.digital_object_id', '=', 'd.id')
+            ->where('d.object_id', $io->id)
+            ->whereNull('d.parent_id')
+            ->whereIn('r.status', ['applied', 'reviewed', 'pending'])
+            ->select('d.*')
+            ->orderBy('d.id')
             ->first();
+        if (!$master) {
+            $master = DB::table('digital_object')
+                ->where('object_id', $io->id)
+                ->whereNull('parent_id')
+                ->orderBy('id')
+                ->first();
+        }
         if (!$master) abort(404);
 
         // Admins bypass the redactor — return the original file.

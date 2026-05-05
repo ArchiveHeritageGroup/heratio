@@ -42,6 +42,15 @@ echo -e "${CYAN}  AtoM Heratio - Release${NC}"
 echo -e "${CYAN}════════════════════════════════════════════${NC}"
 echo ""
 
+# Locked-paths gate. Refuses to release if any change touches a locked path
+# that hasn't been explicitly unlocked. See bin/check-locked + .locked-paths.
+if [ -x "./bin/check-locked" ]; then
+    if ! ./bin/check-locked; then
+        echo -e "${RED}Release aborted by lock manifest. See message above.${NC}"
+        exit 1
+    fi
+fi
+
 if [ ! -f "$VERSION_FILE" ]; then
     echo -e "${RED}Error: version.json not found${NC}"
     exit 1
@@ -119,6 +128,13 @@ git tag -a "${TAG}" -m "${MSG}"
 echo -e "${BLUE}[3/3] Pushing to origin...${NC}"
 git push origin main
 git push origin "${TAG}"
+
+# One-shot unlocks expire here — successful push re-arms the lock. Future
+# changes to locked paths require a fresh ./bin/unlock invocation.
+if [ -f ".git/UNLOCKED" ]; then
+    rm -f ".git/UNLOCKED"
+    echo -e "${YELLOW}Cleared one-shot unlock list. Lock manifest is fully active again.${NC}"
+fi
 
 #===============================================================================
 # GitHub Release

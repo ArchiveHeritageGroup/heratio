@@ -1,0 +1,63 @@
+#!/bin/bash
+#===============================================================================
+# Heratio - Re-lock paths early (revert an unlock before release)
+#===============================================================================
+# Removes paths from .git/UNLOCKED so the lock catches them again on the
+# next commit / release.
+#
+# Usage:
+#   ./bin/lock <path> [<path> ...]   # remove specific paths from the unlock list
+#   ./bin/lock --all                 # clear every unlock
+#===============================================================================
+set -e
+
+cd "$(dirname "$0")/.."
+ROOT="$(pwd)"
+
+UNLOCK_FILE="${ROOT}/.git/UNLOCKED"
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+if [ $# -eq 0 ]; then
+    echo "Usage: ./bin/lock <path> [<path> ...]" >&2
+    echo "       ./bin/lock --all" >&2
+    exit 1
+fi
+
+if [ ! -f "$UNLOCK_FILE" ] || [ ! -s "$UNLOCK_FILE" ]; then
+    echo -e "${YELLOW}No unlocks to clear.${NC}"
+    exit 0
+fi
+
+if [ "$1" = "--all" ]; then
+    rm -f "$UNLOCK_FILE"
+    echo -e "${GREEN}All unlocks cleared.${NC} Lock manifest is fully active."
+    exit 0
+fi
+
+REMOVED=0
+for path in "$@"; do
+    path="${path#./}"
+    if grep -qxF "$path" "$UNLOCK_FILE" 2>/dev/null; then
+        # Remove the line atomically.
+        TMP="$(mktemp)"
+        grep -vxF "$path" "$UNLOCK_FILE" > "$TMP" || true
+        mv "$TMP" "$UNLOCK_FILE"
+        echo -e "  ${GREEN}re-locked:${NC} ${path}"
+        REMOVED=$((REMOVED + 1))
+    else
+        echo -e "  ${YELLOW}was not unlocked:${NC} ${path}"
+    fi
+done
+
+# If the unlock file is now empty, remove it.
+if [ ! -s "$UNLOCK_FILE" ]; then
+    rm -f "$UNLOCK_FILE"
+fi
+
+echo ""
+echo -e "${GREEN}${REMOVED} path(s) re-locked.${NC}"
+echo -e "Run ${CYAN}./bin/unlock --list${NC} to review remaining unlocks."

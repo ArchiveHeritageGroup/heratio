@@ -154,7 +154,11 @@ class DamController extends Controller
             'color_type' => 'nullable|string|max:50',
             'production_company' => 'nullable|string|max:255',
             'distributor' => 'nullable|string|max:255',
-            'broadcast_date' => 'nullable|date',
+            // Stored as VARCHAR(100). Accept year-only (1954), year-month
+            // (1954-06), or full date (1954-06-15) — Laravel's `date` rule
+            // rejected bare years even though the form's placeholder
+            // explicitly says "e.g., 1954".
+            'broadcast_date' => ['nullable', 'string', 'max:100', 'regex:/^\d{4}(-\d{2}(-\d{2})?)?$/'],
             'series_title' => 'nullable|string|max:255',
             'season_number' => 'nullable|integer',
             'episode_number' => 'nullable|integer',
@@ -266,7 +270,11 @@ class DamController extends Controller
             'color_type' => 'nullable|string|max:50',
             'production_company' => 'nullable|string|max:255',
             'distributor' => 'nullable|string|max:255',
-            'broadcast_date' => 'nullable|date',
+            // Stored as VARCHAR(100). Accept year-only (1954), year-month
+            // (1954-06), or full date (1954-06-15) — Laravel's `date` rule
+            // rejected bare years even though the form's placeholder
+            // explicitly says "e.g., 1954".
+            'broadcast_date' => ['nullable', 'string', 'max:100', 'regex:/^\d{4}(-\d{2}(-\d{2})?)?$/'],
             'series_title' => 'nullable|string|max:255',
             'season_number' => 'nullable|integer',
             'episode_number' => 'nullable|integer',
