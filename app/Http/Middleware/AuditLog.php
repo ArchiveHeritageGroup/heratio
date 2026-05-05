@@ -121,6 +121,12 @@ class AuditLog
             if (empty($action['object_type']) && $request->attributes->has('audit.object_type')) {
                 $action['object_type'] = (string) $request->attributes->get('audit.object_type');
             }
+            // Sub-entity endpoints set mutation_action = 'event_create',
+            // 'attachment_delete' etc. so the audit log distinguishes them
+            // from generic 'update' rows on the parent IO/accession.
+            if (!empty($diff['mutation_action'])) {
+                $action['action'] = (string) $diff['mutation_action'];
+            }
         }
 
         if (($settings['audit_mask_sensitive'] ?? '1') === '1' && $details) {

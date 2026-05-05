@@ -248,7 +248,7 @@ class PreservationService
      */
     public function logEvent(int $digitalObjectId, ?int $ioId, string $type, string $detail, string $outcome): int
     {
-        return DB::table('preservation_event')->insertGetId([
+        $newId = DB::table('preservation_event')->insertGetId([
             'digital_object_id'    => $digitalObjectId,
             'information_object_id'=> $ioId,
             'event_type'           => $type,
@@ -259,6 +259,16 @@ class PreservationService
             'linking_agent_value'  => 'heratio-preservation',
             'created_at'           => now()->format('Y-m-d H:i:s'),
         ]);
+        \AhgCore\Support\AuditLog::captureMutation((int) ($ioId ?? $digitalObjectId), 'preservation_event', 'preservation_' . $type, [
+            'data' => [
+                'digital_object_id' => $digitalObjectId,
+                'information_object_id' => $ioId,
+                'type' => $type,
+                'detail' => $detail,
+                'outcome' => $outcome,
+            ],
+        ]);
+        return (int) $newId;
     }
 
     /**
@@ -359,7 +369,11 @@ class PreservationService
         $data['uuid'] = $data['uuid'] ?? (string) Str::uuid();
         $data['created_at'] = $data['created_at'] ?? now()->format('Y-m-d H:i:s');
 
-        return DB::table('preservation_package')->insertGetId($data);
+        $newId = DB::table('preservation_package')->insertGetId($data);
+        \AhgCore\Support\AuditLog::captureMutation((int) $newId, 'preservation_package', 'create', [
+            'data' => array_intersect_key($data, array_flip(['uuid', 'package_type', 'information_object_id', 'storage_path'])),
+        ]);
+        return (int) $newId;
     }
 
     /**

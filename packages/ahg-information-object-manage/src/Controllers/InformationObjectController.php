@@ -1121,6 +1121,8 @@ class InformationObjectController extends Controller
         $displayStandardId = $request->input('display_standard_id');
         $updateDescendants = $request->boolean('update_descendants', false);
 
+        $previousDisplayStandardId = DB::table('information_object')->where('id', $io->id)->value('display_standard_id');
+
         // Update this IO
         DB::table('information_object')
             ->where('id', $io->id)
@@ -1133,6 +1135,14 @@ class InformationObjectController extends Controller
                 ->where('rgt', '<', $io->rgt)
                 ->update(['display_standard_id' => $displayStandardId ?: null]);
         }
+
+        \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'display_standard_change', [
+            'data' => [
+                'before' => $previousDisplayStandardId,
+                'after' => $displayStandardId ?: null,
+                'cascade_descendants' => (bool) $updateDescendants,
+            ],
+        ]);
 
         return redirect()->route('informationobject.show', $slug)
             ->with('success', 'Display standard updated.' . ($updateDescendants ? ' Descendants updated.' : ''));
@@ -3400,6 +3410,7 @@ class InformationObjectController extends Controller
             ->where('type_id', 158)
             ->first();
 
+        $previousStatusId = $exists ? (int) $exists->status_id : null;
         if ($exists) {
             DB::table('status')
                 ->where('object_id', $io->id)
@@ -3414,6 +3425,15 @@ class InformationObjectController extends Controller
         }
 
         $label = $statusId === 160 ? 'Published' : 'Draft';
+
+        \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'publication_status_change', [
+            'data' => [
+                'before_status_id' => $previousStatusId,
+                'after_status_id' => $statusId,
+                'after_label' => $label,
+                'cascade_descendants' => (bool) $request->boolean('updateDescendants'),
+            ],
+        ]);
 
         // Update descendants if requested
         if ($request->boolean('updateDescendants')) {

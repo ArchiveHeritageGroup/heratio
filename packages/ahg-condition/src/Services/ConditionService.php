@@ -103,7 +103,7 @@ class ConditionService
 
     public function createConditionCheck(int $objectId): int
     {
-        return DB::table('spectrum_condition_check')->insertGetId([
+        $newId = DB::table('spectrum_condition_check')->insertGetId([
             'object_id' => $objectId,
             'condition_check_reference' => 'CC-' . date('Ymd') . '-' . $objectId,
             'check_date' => now()->toDateString(),
@@ -111,6 +111,14 @@ class ConditionService
             'checked_by' => 'System',
             'created_at' => now(),
         ]);
+        \AhgCore\Support\AuditLog::captureMutation((int) $newId, 'condition_check', 'create', [
+            'data' => [
+                'condition_check_id' => $newId,
+                'object_id' => $objectId,
+                'reference' => 'CC-' . date('Ymd') . '-' . $objectId,
+            ],
+        ]);
+        return (int) $newId;
     }
 
     public function getPhotosForCheck(int $checkId): \Illuminate\Support\Collection
@@ -139,12 +147,16 @@ class ConditionService
 
     public function saveAnnotations(int $photoId, array $annotations, int $userId): bool
     {
-        return DB::table('spectrum_condition_photo')
+        $result = DB::table('spectrum_condition_photo')
             ->where('id', $photoId)
             ->update([
                 'annotations' => json_encode($annotations),
                 'updated_at' => now(),
             ]) >= 0;
+        \AhgCore\Support\AuditLog::captureMutation($photoId, 'condition_photo', 'annotations_update', [
+            'data' => ['annotation_count' => count($annotations), 'photo_id' => $photoId, 'user_id' => $userId],
+        ]);
+        return $result;
     }
 
     public function getAnnotationStats(int $checkId): array
@@ -179,7 +191,7 @@ class ConditionService
         $path = $uploadDir . '/' . $filename;
 
         if (move_uploaded_file($file['tmp_name'], $path)) {
-            return DB::table('spectrum_condition_photo')->insertGetId([
+            $newId = DB::table('spectrum_condition_photo')->insertGetId([
                 'condition_check_id' => $checkId,
                 'filename' => $filename,
                 'original_name' => $file['name'],
@@ -188,6 +200,16 @@ class ConditionService
                 'uploaded_by' => $userId,
                 'created_at' => now(),
             ]);
+            \AhgCore\Support\AuditLog::captureMutation((int) $newId, 'condition_photo', 'create', [
+                'data' => [
+                    'condition_check_id' => $checkId,
+                    'filename' => $filename,
+                    'original_name' => $file['name'],
+                    'photo_type' => $photoType,
+                    'caption' => $caption,
+                ],
+            ]);
+            return (int) $newId;
         }
 
         return null;
@@ -200,6 +222,15 @@ class ConditionService
         if (!$photo) {
             return false;
         }
+
+        \AhgCore\Support\AuditLog::captureMutation($photoId, 'condition_photo', 'delete', [
+            'data' => [
+                'filename' => $photo->filename ?? null,
+                'original_name' => $photo->original_name ?? null,
+                'photo_type' => $photo->photo_type ?? null,
+                'caption' => $photo->caption ?? null,
+            ],
+        ]);
 
         $path = storage_path('app/public/condition_photos/' . $photo->filename);
         if (file_exists($path)) {

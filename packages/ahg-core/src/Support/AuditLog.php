@@ -76,6 +76,25 @@ class AuditLog
     }
 
     /**
+     * Generic mutation capture for sub-entity inserts/updates/deletes that
+     * don't have a clean before/after shape (most simple inserts where
+     * "before" is null). Caller supplies the action label + payload.
+     *
+     * Examples (sub-entity flows):
+     *   captureMutation($eventId, 'event', 'create', ['data' => $row]);
+     *   captureMutation($attachmentId, 'accession_attachment', 'delete', ['data' => $row]);
+     *
+     * The middleware merges the payload into its row; the audit-log view's
+     * raw-payload disclosure renders it. No diff table for these — that's
+     * fine, the {action: …, data: …} surface tells the auditor what changed.
+     */
+    public static function captureMutation(int $objectId, string $objectType, string $action, array $payload): void
+    {
+        $payload = array_merge(['mutation_action' => $action], $payload);
+        self::stash($objectId, $objectType, $payload);
+    }
+
+    /**
      * Internal: stash payload onto request attributes (read by the audit
      * middleware) or write directly when no request is bound.
      */
@@ -121,8 +140,9 @@ class AuditLog
         if (!Schema::hasTable('security_audit_log')) return;
         $userId = auth()->id();
         $userName = $userId ? DB::table('user')->where('id', $userId)->value('username') : null;
-        $action = !empty($payload['created']) ? 'create'
-                : (!empty($payload['deleted']) ? 'delete' : 'update');
+        $action = !empty($payload['mutation_action']) ? (string) $payload['mutation_action']
+                : (!empty($payload['created']) ? 'create'
+                : (!empty($payload['deleted']) ? 'delete' : 'update'));
         DB::table('security_audit_log')->insert([
             'object_id'       => $objectId,
             'object_type'     => $objectType,
