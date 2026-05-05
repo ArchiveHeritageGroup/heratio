@@ -52,7 +52,7 @@
   @endif
   @if($_canUpdate)
   <li>
-    <a href="{{ url('/' . $io->slug . '/default/move') }}" class="btn atom-btn-outline-light">{{ __('Move') }}</a>
+    <a href="{{ route('informationobject.move', $io->slug) }}" class="btn atom-btn-outline-light">{{ __('Move') }}</a>
   </li>
   @endif
   @if($_canUpdate)
@@ -69,7 +69,7 @@
         </li>
         <li><hr class="dropdown-divider"></li>
         <li>
-          <a class="dropdown-item" href="{{ route('informationobject.edit', ['slug' => $io->slug, 'storage' => 1]) }}">
+          <a class="dropdown-item" href="{{ route('physicalobject.link-to', $io->slug) }}">
             <i class="fas fa-box me-2"></i>{{ __('Link physical storage') }}
           </a>
         </li>
@@ -93,13 +93,13 @@
           </a>
         </li>
         <li>
-          <a class="dropdown-item" href="{{ url('/' . $io->slug . '/right/edit') }}">
+          <a class="dropdown-item" href="{{ route('io.rights.extended', $io->slug) }}">
             <i class="fas fa-balance-scale me-2"></i>{{ __('Create new rights') }}
           </a>
         </li>
         @if($_hasChildren)
           <li>
-            <a class="dropdown-item" href="{{ url('/' . $io->slug . '/right/manage') }}">
+            <a class="dropdown-item" href="{{ route('io.rights.manage', $io->slug) }}">
               <i class="fas fa-sitemap me-2"></i>{{ __('Manage rights inheritance') }}
             </a>
           </li>

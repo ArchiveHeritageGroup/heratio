@@ -1569,6 +1569,13 @@ class InformationObjectController extends Controller
     {
         $culture = app()->getLocale();
 
+        // Legacy AtoM-style ?storage=1 query param — that flag means "Link
+        // physical storage", not "edit the description". Forward to the
+        // physical-storage UI so old bookmarks / external links still work.
+        if (request()->has('storage') && (int) request()->query('storage') === 1) {
+            return redirect()->route('physicalobject.link-to', $slug);
+        }
+
         // LEFT JOIN i18n on (id, culture) so the edit form still renders when
         // the target culture has no row yet — translator sees empty fields and
         // can populate them. INNER JOIN here would 404 on every untranslated
@@ -1882,6 +1889,13 @@ class InformationObjectController extends Controller
     {
         $culture = app()->getLocale();
         $parentId = $request->get('parent_id');
+
+        // Clear any leftover _old_input from a previous duplicate attempt so
+        // the regular Add New form opens blank. Earlier code put source-record
+        // data into _old_input via session()->put() (a sticky write, not a
+        // flash), and that data persisted across requests — pre-filling
+        // unrelated Add New pages with the previous duplicate's values.
+        session()->forget('_old_input');
 
         // If parent_id provided, resolve parent title for display
         $parentTitle = null;
