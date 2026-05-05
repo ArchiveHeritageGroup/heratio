@@ -1860,6 +1860,65 @@ class InformationObjectController extends Controller
                 ->value('title');
         }
 
+        // Duplicate (copy_from): pre-populate the form from the source record.
+        // The trick: seed session `_old_input` directly so every existing
+        // `old('field')` call in the view returns the source's value without
+        // having to touch each input's value binding. We deliberately drop
+        // `identifier` (must be unique — user can hit Generate to mint a new
+        // one) and keep `title` as-is (let the user edit if they want).
+        $copyFromId = (int) $request->get('copy_from');
+        if ($copyFromId > 0) {
+            $source = DB::table('information_object')
+                ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                    $j->on('information_object.id', '=', 'information_object_i18n.id')
+                      ->where('information_object_i18n.culture', $culture);
+                })
+                ->where('information_object.id', $copyFromId)
+                ->select(
+                    'information_object.level_of_description_id',
+                    'information_object.collection_type_id',
+                    'information_object.repository_id',
+                    'information_object.description_status_id',
+                    'information_object.description_detail_id',
+                    'information_object.description_identifier',
+                    'information_object.source_standard',
+                    'information_object.display_standard_id',
+                    'information_object.icip_sensitivity',
+                    'information_object_i18n.title',
+                    'information_object_i18n.alternate_title',
+                    'information_object_i18n.edition',
+                    'information_object_i18n.extent_and_medium',
+                    'information_object_i18n.archival_history',
+                    'information_object_i18n.acquisition',
+                    'information_object_i18n.scope_and_content',
+                    'information_object_i18n.appraisal',
+                    'information_object_i18n.accruals',
+                    'information_object_i18n.arrangement',
+                    'information_object_i18n.access_conditions',
+                    'information_object_i18n.reproduction_conditions',
+                    'information_object_i18n.physical_characteristics',
+                    'information_object_i18n.finding_aids',
+                    'information_object_i18n.location_of_originals',
+                    'information_object_i18n.location_of_copies',
+                    'information_object_i18n.related_units_of_description',
+                    'information_object_i18n.institution_responsible_identifier',
+                    'information_object_i18n.rules',
+                    'information_object_i18n.sources',
+                    'information_object_i18n.revision_history'
+                )
+                ->first();
+            if ($source) {
+                $sourceData = array_filter((array) $source, fn ($v) => $v !== null);
+                // Identifier intentionally left blank — uniqueness rule.
+                unset($sourceData['identifier']);
+                // Seed _old_input for the current request. Laravel's old()
+                // helper reads from session('_old_input', []) so the view's
+                // {{ old('title') }} etc. picks these up immediately.
+                $existingOld = (array) session('_old_input', []);
+                session()->put('_old_input', array_merge($sourceData, $existingOld));
+            }
+        }
+
         $dropdowns = $this->getFormDropdowns($culture);
 
         // Watermark Settings — only the global pool of custom watermarks

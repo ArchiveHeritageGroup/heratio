@@ -192,7 +192,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/informationobject/actorAutocomplete', [InformationObjectController::class, 'autocomplete'])->name('io.actorAutocomplete');
     Route::get('/informationobject/repositoryAutocomplete', [InformationObjectController::class, 'autocomplete'])->name('io.repositoryAutocomplete');
     Route::get('/informationobject/termAutocomplete', [InformationObjectController::class, 'autocomplete'])->name('io.termAutocomplete');
-    Route::get('/informationobject/generateIdentifierJson', [InformationObjectController::class, 'generateIdentifier'])->name('io.generateIdentifier');
+    Route::get('/informationobject/generateIdentifierJson', [InformationObjectController::class, 'generateIdentifier'])->name('io.generateIdentifierJson');
+    // Alias used by the create/edit form's Generate button (data-url="/informationobject/generateIdentifier").
+    Route::get('/informationobject/generateIdentifier', [InformationObjectController::class, 'generateIdentifier'])->name('io.generateIdentifier');
 
     // Legacy digital object URL aliases
     Route::post('/digitalobject/upload', [DigitalObjectController::class, 'upload'])->middleware('acl:create');
