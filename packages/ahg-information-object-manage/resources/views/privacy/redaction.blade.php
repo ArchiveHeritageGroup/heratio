@@ -942,11 +942,22 @@ document.addEventListener('DOMContentLoaded', function() {
     CONFIG.existingRedactions.forEach(function(r) {
       if (!fabricCanvas) return;
 
+      // If the row was saved with normalized=1 (0-1 fractions of canvas),
+      // multiply by current canvas dims to get the canvas-pixel coords the
+      // Fabric.Rect needs. normalized=0 (legacy pixel coords) is used as-is.
+      var canvasW = fabricCanvas.getWidth()  || 1;
+      var canvasH = fabricCanvas.getHeight() || 1;
+      var isNorm = (r.normalized | 0) === 1;
+      var left   = isNorm ? (r.left   * canvasW) : (r.left   || r.x || 0);
+      var top    = isNorm ? (r.top    * canvasH) : (r.top    || r.y || 0);
+      var w      = isNorm ? (r.width  * canvasW) : (r.width  || 100);
+      var h      = isNorm ? (r.height * canvasH) : (r.height || 50);
+
       const rect = new fabric.Rect({
-        left: r.left || r.x || 0,
-        top: r.top || r.y || 0,
-        width: r.width || 100,
-        height: r.height || 50,
+        left: left,
+        top:  top,
+        width: w,
+        height: h,
         fill: 'rgba(0, 0, 0, 0.6)',
         stroke: '#ff4444',
         strokeWidth: 2,
@@ -1073,15 +1084,25 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Saving...';
 
+    // Normalise coordinates to 0-1 fractions of the canvas dimensions before
+    // saving. Without this, the editor's current zoom level is baked into
+    // the stored values — PyMuPDF/Pillow then place the redaction rectangle
+    // at the wrong position because they interpret the numbers as absolute
+    // PDF points / image pixels at the file's native resolution. With
+    // normalised=1 the renderer multiplies by the file's actual page/image
+    // size at apply time, which is independent of editor zoom.
+    var canvasW = (fabricCanvas && fabricCanvas.getWidth())  || 1;
+    var canvasH = (fabricCanvas && fabricCanvas.getHeight()) || 1;
     const payload = {
       information_object_id: CONFIG.objectId,
       regions: regions.map(function(r) {
         return {
-          left: r.left,
-          top: r.top,
-          width: r.width,
-          height: r.height,
-          page: r.page || 1,
+          left:       r.left   / canvasW,
+          top:        r.top    / canvasH,
+          width:      r.width  / canvasW,
+          height:     r.height / canvasH,
+          page:       r.page || 1,
+          normalized: 1,
         };
       }),
     };

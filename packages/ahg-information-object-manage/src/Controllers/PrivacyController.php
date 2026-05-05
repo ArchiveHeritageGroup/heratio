@@ -213,19 +213,22 @@ class PrivacyController extends Controller
         // Get existing redactions for this object
         $existingRedactions = $this->privacyService->getRedactions($io->id);
 
-        // Parse coordinates from JSON and build flat array for JS
+        // Parse coordinates from JSON and build flat array for JS. Includes
+        // the `normalized` flag so the editor's loader can scale 0-1 fractions
+        // back into canvas pixels at the current zoom level.
         $redactionRegions = $existingRedactions->map(function ($r) {
             $coords = is_string($r->coordinates) ? json_decode($r->coordinates, true) : (array) $r->coordinates;
             return [
-                'id'     => $r->id,
-                'left'   => $coords['left'] ?? $coords['x'] ?? 0,
-                'top'    => $coords['top'] ?? $coords['y'] ?? 0,
-                'width'  => $coords['width'] ?? $coords['w'] ?? 100,
-                'height' => $coords['height'] ?? $coords['h'] ?? 50,
-                'page'   => $r->page_number,
-                'label'  => $r->label,
-                'color'  => $r->color,
-                'status' => $r->status,
+                'id'         => $r->id,
+                'left'       => $coords['left'] ?? $coords['x'] ?? 0,
+                'top'        => $coords['top'] ?? $coords['y'] ?? 0,
+                'width'      => $coords['width'] ?? $coords['w'] ?? 100,
+                'height'     => $coords['height'] ?? $coords['h'] ?? 50,
+                'normalized' => (int) ($r->normalized ?? 0),
+                'page'       => $r->page_number,
+                'label'      => $r->label,
+                'color'      => $r->color,
+                'status'     => $r->status,
             ];
         })->values()->toArray();
 
@@ -318,7 +321,11 @@ class PrivacyController extends Controller
                             'width'  => (float) ($r['width']  ?? 0),
                             'height' => (float) ($r['height'] ?? 0),
                         ],
-                        'normalized'        => 0,
+                        // Honour the editor's normalisation flag. Editor JS
+                        // now sends coords as 0-1 fractions of the canvas
+                        // (normalized=1) so renderer can multiply by the
+                        // file's native dimensions independent of zoom.
+                        'normalized'        => (int) ($r['normalized'] ?? 0) === 1 ? 1 : 0,
                         'source'            => 'manual',
                         'status'            => 'pending',
                         'created_by'        => auth()->id(),

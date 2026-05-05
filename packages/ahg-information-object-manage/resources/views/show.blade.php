@@ -1817,6 +1817,31 @@
       $doRefUrl = $doReference ? \AhgCore\Services\DigitalObjectService::getUrl($doReference) : '';
       $doThumbUrl = $doThumbnail ? \AhgCore\Services\DigitalObjectService::getUrl($doThumbnail) : '';
       $doMediaTypeName = \AhgCore\Services\DigitalObjectService::getMediaType($doMaster);
+
+      // Reroute Master + Reference download links through the redacted-asset
+      // endpoint for non-admin viewers when there are redactions on file.
+      // The endpoint generates the redacted file on-the-fly (cached after the
+      // first call) and streams it. Admins always get the original.
+      // Thumbnails stay on the original URL — they're typically too small to
+      // hold redactable content, and re-rendering them is wasteful.
+      $__doIsAdmin = auth()->check() && auth()->user()
+          && (method_exists(auth()->user(), 'isAdministrator')
+              ? auth()->user()->isAdministrator()
+              : (bool) (auth()->user()->is_admin ?? false));
+      $__doHasRedactions = false;
+      try {
+          if (\Illuminate\Support\Facades\Schema::hasTable('privacy_visual_redaction')) {
+              $__doHasRedactions = \Illuminate\Support\Facades\DB::table('privacy_visual_redaction')
+                  ->where('object_id', $io->id)
+                  ->whereIn('status', ['applied', 'reviewed', 'pending'])
+                  ->exists();
+          }
+      } catch (\Throwable $e) { /* table missing — leave flag false */ }
+      if ($__doHasRedactions && !$__doIsAdmin) {
+          $__redactedUrl = route('io.privacy.redacted-asset', $io->slug);
+          $doMasterUrl = $__redactedUrl;
+          $doRefUrl    = $__redactedUrl;
+      }
     @endphp
     <section class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
