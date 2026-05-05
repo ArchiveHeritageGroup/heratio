@@ -298,10 +298,34 @@ class InformationObjectService
                 'archival_history', 'acquisition', 'access_conditions', 'reproduction_conditions',
                 'physical_characteristics', 'arrangement', 'appraisal', 'accruals', 'finding_aids',
                 'location_of_originals', 'location_of_copies', 'related_units_of_description',
-                'rules', 'sources', 'revision_history', 'institution_responsible_identifier',
-                'edition_statement')
+                'rules', 'sources', 'revision_history', 'institution_responsible_identifier')
             ->first() ?? []);
-        return array_merge($io, $i18n);
+
+        // Sub-entity counts so the main IO captureEdit also surfaces
+        // delete-then-insert changes inside the same update() request:
+        // "events: 3 → 5", "subject access points: 12 → 11", etc. Cheap
+        // counts (no payload bloat); auditor sees that something changed
+        // in each sub-entity bucket without needing per-row diffs.
+        $counts = [
+            'count_events' => DB::table('event')->where('object_id', $id)->count(),
+            'count_notes' => DB::table('note')->where('object_id', $id)->count(),
+            'count_subject_access_points' => DB::table('object_term_relation as otr')
+                ->join('term', 'term.id', '=', 'otr.term_id')
+                ->where('otr.object_id', $id)->where('term.taxonomy_id', 35)->count(),
+            'count_place_access_points' => DB::table('object_term_relation as otr')
+                ->join('term', 'term.id', '=', 'otr.term_id')
+                ->where('otr.object_id', $id)->where('term.taxonomy_id', 42)->count(),
+            'count_genre_access_points' => DB::table('object_term_relation as otr')
+                ->join('term', 'term.id', '=', 'otr.term_id')
+                ->where('otr.object_id', $id)->where('term.taxonomy_id', 78)->count(),
+            'count_name_access_points' => DB::table('relation')
+                ->where('subject_id', $id)->where('type_id', 161)->count(),
+            'count_alternative_identifiers' => DB::table('property')
+                ->where('object_id', $id)->where('name', 'alternativeIdentifiers')->count(),
+            'count_children' => DB::table('information_object')->where('parent_id', $id)->count(),
+        ];
+
+        return array_merge($io, $i18n, $counts);
     }
 
     public static function update(int $id, array $data, ?string $culture = null): void

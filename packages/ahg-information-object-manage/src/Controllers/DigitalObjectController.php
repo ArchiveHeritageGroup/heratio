@@ -146,6 +146,14 @@ class DigitalObjectController extends Controller
                 \Log::info('ai_condition_auto_scan: would dispatch condition scan for IO ' . $io->id);
             }
 
+            \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'digital_object_upload', [
+                'data' => [
+                    'method' => $hasFtp && !$hasFile && !$hasUrl ? 'ftp' : ($hasUrl && !$hasFile ? 'url' : 'file'),
+                    'filename' => $request->input('ftp_filename') ?: ($request->input('external_name') ?: ($hasFile ? $request->file('digital_object')->getClientOriginalName() : null)),
+                    'external_url' => $hasUrl ? trim((string) $request->input('external_url')) : null,
+                ],
+            ]);
+
             return redirect()->route('informationobject.show', $slug)
                 ->with('success', $msg);
         } catch (\Exception $e) {
@@ -185,9 +193,21 @@ class DigitalObjectController extends Controller
             abort(404);
         }
 
+        // Snapshot the digital_object row before delete fires.
+        $snapshot = (array) (DB::table('digital_object')->where('id', $id)->first() ?? []);
+
         $success = DigitalObjectService::delete($id);
 
         if ($success) {
+            \AhgCore\Support\AuditLog::captureMutation((int) $objectId, 'information_object', 'digital_object_delete', [
+                'data' => [
+                    'digital_object_id' => $id,
+                    'name' => $snapshot['name'] ?? null,
+                    'mime_type' => $snapshot['mime_type'] ?? null,
+                    'byte_size' => $snapshot['byte_size'] ?? null,
+                    'usage_id' => $snapshot['usage_id'] ?? null,
+                ],
+            ]);
             return redirect()->route('informationobject.edit', $slug)
                 ->with('success', 'Digital object deleted successfully.');
         }

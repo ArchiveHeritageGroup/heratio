@@ -63,6 +63,10 @@ class FindingAidController extends Controller
         // Dispatch the finding aid generation job
         FindingAidJob::dispatch($io->id);
 
+        \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'finding_aid_generate', [
+            'data' => ['title' => $io->title ?? null, 'slug' => $slug, 'regenerated' => !empty($existingPath)],
+        ]);
+
         return redirect()->route('informationobject.show', $slug)
             ->with('success', 'Finding aid generation queued for: ' . ($io->title ?? $slug));
     }
@@ -123,6 +127,10 @@ class FindingAidController extends Controller
 
         $file->move($downloadsDir, $filename);
 
+        \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'finding_aid_upload', [
+            'data' => ['filename' => $filename, 'mime' => $file->getClientMimeType(), 'size' => $file->getSize() ?? null],
+        ]);
+
         return redirect()->route('informationobject.show', $slug)
             ->with('success', 'Finding aid uploaded successfully.');
     }
@@ -178,6 +186,9 @@ class FindingAidController extends Controller
         }
 
         if ($deleted) {
+            \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'finding_aid_delete', [
+                'data' => ['slug' => $slug, 'title' => $io->title ?? null],
+            ]);
             return redirect()->route('informationobject.show', $slug)
                 ->with('success', 'Finding aid deleted successfully.');
         }
