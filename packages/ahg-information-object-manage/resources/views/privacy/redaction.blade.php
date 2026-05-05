@@ -405,6 +405,11 @@ document.addEventListener('DOMContentLoaded', function() {
   const viewerContainer = document.getElementById('viewer-container');
 
   function setTool(tool) {
+    // Diagnostic: opening DevTools console after clicking Select/Draw
+    // should show this line. If you click and see nothing, the click
+    // isn't firing (cached JS, blocked by extension, or DOM has no
+    // tool-* button) - hard-refresh (Ctrl+Shift+R) before debugging.
+    try { console.log('[redaction] setTool:', tool, 'fabricCanvas?', !!fabricCanvas, 'osdViewer?', !!osdViewer); } catch (e) {}
     currentTool = tool;
     // Visual state (always works, regardless of viewer init order)
     if (toolSelectBtn) toolSelectBtn.classList.toggle('active', tool === 'select');

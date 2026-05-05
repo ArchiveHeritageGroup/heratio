@@ -29,14 +29,19 @@
 
 @push('styles')
 <style>
-  /* Sidebar 50% narrower than the previous col-lg-3 (25% → 12.5%) on
-     large screens; main content widens to 87.5% to match. Falls back to
-     the standard col-md-4 / col-md-8 split on smaller screens so the
-     folder list stays readable on tablets / phones. */
+  /* Sidebar reduced again per follow-up (12.5% → 8%) on large screens;
+     main content widens to 92% to match. Folder names will truncate but
+     stay clickable - hover to see the full name. Falls back to standard
+     col-md-3 / col-md-9 on tablets / phones so the folder list remains
+     readable below the lg breakpoint. */
   @media (min-width: 992px) {
-    .favorites-sidebar { flex: 0 0 12.5% !important; max-width: 12.5% !important; }
-    .favorites-main    { flex: 0 0 87.5% !important; max-width: 87.5% !important; }
+    .favorites-sidebar { flex: 0 0 8% !important; max-width: 8% !important; }
+    .favorites-main    { flex: 0 0 92% !important; max-width: 92% !important; }
+    .favorites-sidebar .list-group-item { font-size: 0.85rem; padding: 0.4rem 0.5rem; }
+    .favorites-sidebar .list-group-item span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   }
+  /* Thumbnail column: small inline preview when a digital object exists. */
+  td.fav-thumb img { width: 40px; height: 40px; object-fit: cover; border-radius: 3px; border: 1px solid #dee2e6; }
 </style>
 @endpush
 
@@ -311,9 +316,13 @@
                     {{ $item->archival_description }}
                   </a>
                 </td>
-                <td class="text-center">
-                  @if(!empty($item->has_digital_object))
-                    <i class="fas fa-camera text-info" title="{{ __('Has digital object') }}"></i>
+                <td class="text-center fav-thumb">
+                  @if(!empty($item->thumbnail_path))
+                    <a href="{{ favItemUrl($item) }}" title="{{ __('View') }}">
+                      <img src="{{ $item->thumbnail_path }}" alt="" loading="lazy">
+                    </a>
+                  @elseif(!empty($item->has_digital_object))
+                    <i class="fas fa-camera text-info" title="{{ __('Has digital object (no thumbnail)') }}"></i>
                   @endif
                 </td>
                 <td class="text-center text-muted small">{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') }}</td>
