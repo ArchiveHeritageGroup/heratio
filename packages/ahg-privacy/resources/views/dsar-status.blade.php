@@ -70,12 +70,44 @@ $statusClasses = [
             <form method="get" action="{{ route('ahgprivacy.dsar-status') }}">
                 <div class="row">
                     <div class="col-md-5 mb-3">
-                        <label class="form-label">{{ __('Reference Number') }}</label>
-                        <input type="text" name="reference" class="form-control" placeholder="{{ __('DSAR-202501-0001') }}" value="{{ request('reference') }}">
+                        <label class="form-label" for="dsar-ref-input">{{ __('Reference Number') }}</label>
+                        @if(!empty($myDsars) && count($myDsars) > 0)
+                            {{-- Authenticated user has at least one DSAR — combine a dropdown
+                                 of their refs with a free-text fallback. The <datalist>
+                                 gives type-ahead and lets them search/filter, while still
+                                 accepting any reference if they paste one from elsewhere. --}}
+                            <input list="dsar-refs-list" id="dsar-ref-input" name="reference"
+                                   class="form-control"
+                                   placeholder="{{ __('Pick from your requests or paste a reference...') }}"
+                                   value="{{ request('reference') }}">
+                            <datalist id="dsar-refs-list">
+                                @foreach($myDsars as $r)
+                                    <option value="{{ $r->reference_number }}">
+                                        {{ ucfirst(str_replace('_', ' ', $r->request_type)) }} &middot; {{ ucfirst(str_replace('_', ' ', $r->status)) }} &middot; {{ $r->received_date }}
+                                    </option>
+                                @endforeach
+                            </datalist>
+                            <div class="form-text small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                {{ trans_choice('You have :count request|You have :count requests', count($myDsars), ['count' => count($myDsars)]) }} —
+                                {{ __('start typing to filter, or pick from the dropdown.') }}
+                            </div>
+                        @else
+                            {{-- Anonymous / no requests on file: keep the freeform input + email
+                                 so a data subject who got the reference via email can still
+                                 look it up. --}}
+                            <input type="text" id="dsar-ref-input" name="reference" class="form-control"
+                                   placeholder="{{ __('DSAR-20260504-XXXXXX') }}" value="{{ request('reference') }}">
+                        @endif
                     </div>
                     <div class="col-md-5 mb-3">
-                        <label class="form-label">{{ __('Email Address') }}</label>
-                        <input type="email" name="email" class="form-control" value="{{ request('email') }}">
+                        <label class="form-label" for="dsar-email-input">{{ __('Email Address') }}</label>
+                        <input type="email" id="dsar-email-input" name="email" class="form-control"
+                               value="{{ request('email', auth()->check() ? (auth()->user()->email ?? '') : '') }}"
+                               @if(auth()->check() && empty(request('email'))) readonly @endif>
+                        @if(auth()->check())
+                            <div class="form-text small text-muted">{{ __('Pre-filled from your account.') }}</div>
+                        @endif
                     </div>
                     <div class="col-md-2 mb-3 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary w-100">

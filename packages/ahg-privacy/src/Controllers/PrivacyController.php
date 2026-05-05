@@ -230,7 +230,52 @@ class PrivacyController extends Controller
             ->with('success', 'Your request has been received. Please save the reference number for tracking.');
     }
 
-    public function dsarStatus() { return view('privacy::dsar-status'); }
+    public function dsarStatus(Request $request)
+    {
+        // YES, DSARs are saved per logged-in user via privacy_dsar.created_by
+        // (populated by createDsarRecord). The status page now picks up that
+        // user's own DSARs into a dropdown so they don't have to remember /
+        // type the reference number. Email match (requestor_email = my email)
+        // is included so admins who created a request on someone's behalf
+        // still surface that data subject's record when they sign in.
+        $myDsars = collect();
+        if (auth()->check()) {
+            $userId = (int) auth()->id();
+            $myEmail = (string) (auth()->user()->email ?? '');
+            $q = DB::table('privacy_dsar')
+                ->where(function ($q) use ($userId, $myEmail) {
+                    $q->where('created_by', $userId);
+                    if ($myEmail !== '') $q->orWhere('requestor_email', $myEmail);
+                })
+                ->orderByDesc('created_at')
+                ->select('id', 'reference_number', 'request_type', 'status', 'received_date', 'due_date');
+            $myDsars = $q->get();
+        }
+
+        // Look up the requested record (?reference=DSAR-... or ?id=N).
+        $dsar = null;
+        $reference = trim((string) $request->query('reference', ''));
+        $email     = trim((string) $request->query('email', ''));
+        if ($reference !== '') {
+            $row = DB::table('privacy_dsar')->where('reference_number', $reference)->first();
+            if ($row) {
+                $belongs = (auth()->check() && (int) $row->created_by === (int) auth()->id())
+                    || (auth()->check() && !empty(auth()->user()->email) && (string) $row->requestor_email === (string) auth()->user()->email)
+                    || ($email !== '' && (string) $row->requestor_email === $email);
+                if ($belongs) {
+                    $dsar = $row;
+                } else {
+                    return view('privacy::dsar-status', [
+                        'myDsars' => $myDsars,
+                    ])->with('error', 'Reference / email did not match a request you own.');
+                }
+            } else {
+                session()->flash('error', 'No request found with reference ' . $reference . '.');
+            }
+        }
+
+        return view('privacy::dsar-status', compact('dsar', 'myDsars'));
+    }
 
     public function index() { return view('privacy::index'); }
 
@@ -457,6 +502,7 @@ class PrivacyController extends Controller
                 'received_date'       => $receivedDate,
                 'due_date'            => $dueDate,
                 'assigned_to'         => $adminFields['assigned_to']  ?? null,
+                'created_by'          => auth()->id(),
                 'created_at'          => now(),
                 'updated_at'          => now(),
             ]);
