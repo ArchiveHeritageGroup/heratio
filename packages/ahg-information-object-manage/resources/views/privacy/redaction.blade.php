@@ -276,9 +276,20 @@
          - mouse:down/up on the canvas so you can see if drawing fires
        Remove this block once Draw is working again.
        ============================================================ --}}
-  <div id="redaction-debug-strip" class="alert alert-warning small py-2 px-3 mb-2"
-       style="font-family:monospace;white-space:pre-wrap;max-height:160px;overflow:auto;">
-    [debug] waiting for script to boot...
+  {{-- Debug strip — textarea so you can Ctrl+A inside it and copy. The
+       Copy button uses the Clipboard API as a fallback. --}}
+  <div class="alert alert-warning small py-2 px-3 mb-2 d-flex align-items-start gap-2">
+    <textarea id="redaction-debug-strip" readonly
+              class="form-control form-control-sm flex-grow-1"
+              style="font-family:monospace;font-size:12px;height:160px;
+                     background:#fff8dc;color:#222;
+                     resize:vertical;cursor:text;user-select:text;-webkit-user-select:text;"
+    >[debug] waiting for script to boot...</textarea>
+    <button type="button" class="btn btn-sm btn-warning" id="redaction-debug-copy"
+            style="white-space:nowrap;"
+            title="Copy debug log to clipboard">
+      <i class="fas fa-copy"></i> Copy
+    </button>
   </div>
 
   {{-- Redaction Toolbar --}}
@@ -423,9 +434,43 @@ function __heratioRedactDebug(msg) {
   var el = document.getElementById('redaction-debug-strip');
   if (el) {
     var ts = new Date().toISOString().substr(11, 12);
-    el.textContent = '[' + ts + '] ' + msg + '\n' + (el.textContent || '');
+    // Use .value because it's a <textarea> — .textContent on textareas does
+    // not update the visible/copyable buffer the way it does on a <div>.
+    el.value = '[' + ts + '] ' + msg + '\n' + (el.value || '');
   }
 }
+
+// Wire up the Copy button + select-all-on-click for the debug textarea.
+// Done at script-load (capture-phase delegated) so it works regardless of
+// when the elements end up in the DOM.
+document.addEventListener('click', function (e) {
+  var ta = document.getElementById('redaction-debug-strip');
+  if (e.target && e.target.id === 'redaction-debug-copy') {
+    e.preventDefault();
+    if (!ta) return;
+    ta.select();
+    var ok = false;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(ta.value);
+        ok = true;
+      } else {
+        ok = document.execCommand('copy');
+      }
+    } catch (err) { ok = false; }
+    var btn = e.target.closest('#redaction-debug-copy');
+    if (btn) {
+      var orig = btn.innerHTML;
+      btn.innerHTML = ok
+        ? '<i class="fas fa-check"></i> Copied!'
+        : '<i class="fas fa-times"></i> Failed (Ctrl+A then Ctrl+C)';
+      setTimeout(function () { btn.innerHTML = orig; }, 1800);
+    }
+    return;
+  }
+  // Click-into-textarea selects all so a manual Ctrl+C still works.
+  if (e.target === ta) { ta.select(); }
+}, false);
 
 __heratioRedactDebug('script loaded — registering tool handlers');
 __heratioRedactDebug('tool-draw button in DOM at script-load? ' + !!document.getElementById('tool-draw'));
