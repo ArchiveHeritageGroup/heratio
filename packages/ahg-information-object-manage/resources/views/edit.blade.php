@@ -837,7 +837,16 @@
       </h2>
       <div id="watermark-collapse" class="accordion-collapse collapse" aria-labelledby="watermark-heading">
         <div class="accordion-body">
-          <p class="text-muted">Watermark settings are managed via the digital object interface.</p>
+          <div class="mb-3">
+            <label for="watermark_type_id" class="form-label">{{ __('Watermark') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <select name="watermark_type_id" id="watermark_type_id" class="form-select">
+              <option value="">{{ __('-- None --') }}</option>
+              @foreach($watermarkTypes ?? [] as $wm)
+                <option value="{{ $wm->id }}" @selected(old('watermark_type_id', $io->watermark_type_id ?? '') == $wm->id)>{{ $wm->name }}</option>
+              @endforeach
+            </select>
+            <div class="form-text">{{ __('Applied when this record is reproduced via the IIIF / download pipeline. The classification level above and ancestor inheritance both also pin a default watermark; this overrides it.') }}</div>
+          </div>
         </div>
       </div>
     </div>

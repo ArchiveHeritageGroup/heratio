@@ -39,6 +39,35 @@ use Illuminate\Support\Str;
 
 class InformationObjectController extends Controller
 {
+    /**
+     * ISO 639-1 / "common" language codes -> display names. Single source
+     * of truth for the language selects on the edit form and the resolved
+     * names rendered on the show page. Keep in sync with the edit blade.
+     */
+    public static function languageDisplayMap(): array
+    {
+        return [
+            'en' => 'English', 'af' => 'Afrikaans', 'nl' => 'Dutch', 'de' => 'German',
+            'fr' => 'French', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sesotho',
+            'tn' => 'Setswana', 'nso' => 'Sepedi', 'ts' => 'Tsonga', 'ss' => 'Swati',
+            've' => 'Venda', 'nr' => 'Ndebele', 'pt' => 'Portuguese', 'es' => 'Spanish',
+            'it' => 'Italian', 'la' => 'Latin', 'grc' => 'Ancient Greek', 'he' => 'Hebrew',
+            'ar' => 'Arabic', 'fa' => 'Persian', 'hi' => 'Hindi', 'zh' => 'Chinese',
+            'ja' => 'Japanese', 'ko' => 'Korean', 'ru' => 'Russian', 'sw' => 'Swahili',
+        ];
+    }
+
+    /** ISO 15924 script codes -> display names. */
+    public static function scriptDisplayMap(): array
+    {
+        return [
+            'Latn' => 'Latin', 'Cyrl' => 'Cyrillic', 'Arab' => 'Arabic', 'Grek' => 'Greek',
+            'Hebr' => 'Hebrew', 'Deva' => 'Devanagari', 'Hans' => 'Chinese (Simplified)',
+            'Hant' => 'Chinese (Traditional)', 'Jpan' => 'Japanese', 'Kore' => 'Korean',
+            'Thai' => 'Thai', 'Geor' => 'Georgian', 'Armn' => 'Armenian', 'Ethi' => 'Ethiopic',
+        ];
+    }
+
     public function browse(Request $request)
     {
         // Redirect to GLAM browse with translated params (single browse page, no duplication)
@@ -584,65 +613,29 @@ class InformationObjectController extends Controller
                 ->value('name');
         }
 
-        // Languages of description (from property table — serialized PHP arrays)
-        $languagesOfDescriptionRaw = DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
-            ->where('property.object_id', $io->id)
-            ->where('property.name', 'languageOfDescription')
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
-        $languagesOfDescription = collect();
-        if ($languagesOfDescriptionRaw) {
-            $decoded = @unserialize($languagesOfDescriptionRaw);
-            if (is_array($decoded) && !empty($decoded)) {
-                $languagesOfDescription = collect($decoded);
-            }
-        }
+        // Helpers: resolve ISO 639-1 / ISO 15924 codes to display names. Same
+        // map the edit-form selects use, so what shows on the public record
+        // matches what the cataloguer picked.
+        $resolveProp = function (string $name) use ($io, $culture) {
+            $raw = DB::table('property')
+                ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+                ->where('property.object_id', $io->id)
+                ->where('property.name', $name)
+                ->where('property_i18n.culture', $culture)
+                ->value('property_i18n.value');
+            if (!$raw) return collect();
+            $decoded = @unserialize($raw);
+            return is_array($decoded) ? collect($decoded) : collect();
+        };
+        $langNames = self::languageDisplayMap();
+        $scriptNames = self::scriptDisplayMap();
+        $resolveLang = fn ($code) => $langNames[$code] ?? $code;
+        $resolveScript = fn ($code) => $scriptNames[$code] ?? $code;
 
-        // Scripts of description (from property table — serialized PHP arrays)
-        $scriptsOfDescriptionRaw = DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
-            ->where('property.object_id', $io->id)
-            ->where('property.name', 'scriptOfDescription')
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
-        $scriptsOfDescription = collect();
-        if ($scriptsOfDescriptionRaw) {
-            $decoded = @unserialize($scriptsOfDescriptionRaw);
-            if (is_array($decoded) && !empty($decoded)) {
-                $scriptsOfDescription = collect($decoded);
-            }
-        }
-
-        // Language of material (from property table — serialized PHP arrays of ISO codes)
-        $materialLanguagesRaw = DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
-            ->where('property.object_id', $io->id)
-            ->where('property.name', 'language')
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
-        $materialLanguages = collect();
-        if ($materialLanguagesRaw) {
-            $decoded = @unserialize($materialLanguagesRaw);
-            if (is_array($decoded) && !empty($decoded)) {
-                $materialLanguages = collect($decoded);
-            }
-        }
-
-        // Script of material (from property table)
-        $materialScriptsRaw = DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
-            ->where('property.object_id', $io->id)
-            ->where('property.name', 'script')
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
-        $materialScripts = collect();
-        if ($materialScriptsRaw) {
-            $decoded = @unserialize($materialScriptsRaw);
-            if (is_array($decoded) && !empty($decoded)) {
-                $materialScripts = collect($decoded);
-            }
-        }
+        $languagesOfDescription = $resolveProp('languageOfDescription')->map($resolveLang);
+        $scriptsOfDescription   = $resolveProp('scriptOfDescription')->map($resolveScript);
+        $materialLanguages      = $resolveProp('language')->map($resolveLang);
+        $materialScripts        = $resolveProp('script')->map($resolveScript);
 
         // Finding aid link — check if a finding aid file exists for the collection root
         $findingAid = null;
@@ -1363,19 +1356,19 @@ class InformationObjectController extends Controller
             ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
             ->get();
 
-        // Description status options (taxonomy_id = 44)
+        // Description status options (AtoM QubitTaxonomy::DESCRIPTION_STATUS_ID = 33)
         $descriptionStatuses = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->where('term.taxonomy_id', 44)
+            ->where('term.taxonomy_id', 33)
             ->where('term_i18n.culture', $culture)
             ->orderBy('term_i18n.name')
             ->select('term.id', 'term_i18n.name')
             ->get();
 
-        // Description detail options (taxonomy_id = 43)
+        // Description detail options (AtoM QubitTaxonomy::DESCRIPTION_DETAIL_LEVEL_ID = 31)
         $descriptionDetails = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->where('term.taxonomy_id', 43)
+            ->where('term.taxonomy_id', 31)
             ->where('term_i18n.culture', $culture)
             ->orderBy('term_i18n.name')
             ->select('term.id', 'term_i18n.name')
@@ -1462,6 +1455,7 @@ class InformationObjectController extends Controller
                 'information_object.source_standard',
                 'information_object.display_standard_id',
                 'information_object.source_culture',
+                'information_object.icip_sensitivity',
                 'information_object_i18n.title',
                 'information_object_i18n.alternate_title',
                 'information_object_i18n.edition',
@@ -1627,18 +1621,37 @@ class InformationObjectController extends Controller
         $scriptsOfDescription = collect();
         if ($scriptsOfDescriptionRaw) { $decoded = @unserialize($scriptsOfDescriptionRaw); if (is_array($decoded)) { $scriptsOfDescription = collect($decoded); } }
 
-        // Related material descriptions
-        $relatedMaterialDescriptions = collect();
-        try {
-            $relatedMaterialDescriptions = DB::table('relation')
-                ->join('information_object_i18n', 'relation.object_id', '=', 'information_object_i18n.id')
-                ->join('slug', 'relation.object_id', '=', 'slug.object_id')
-                ->where('relation.subject_id', $io->id)
-                ->where('relation.type_id', 173) // Related material description relation
-                ->where('information_object_i18n.culture', $culture)
-                ->select('relation.object_id as id', 'information_object_i18n.title', 'slug.slug')
-                ->get();
-        } catch (\Exception $e) {}
+        // Related material descriptions (relation type 176 — same id as save +
+        // show paths). Pull both directions: this IO can appear as either
+        // subject or object of the relation; the form needs both.
+        $relatedBySubject = DB::table('relation')
+            ->join('information_object_i18n', 'relation.object_id', '=', 'information_object_i18n.id')
+            ->join('slug', 'relation.object_id', '=', 'slug.object_id')
+            ->where('relation.subject_id', $io->id)
+            ->where('relation.type_id', 176)
+            ->where('information_object_i18n.culture', $culture)
+            ->select('relation.object_id as id', 'information_object_i18n.title', 'slug.slug')
+            ->get();
+        $relatedByObject = DB::table('relation')
+            ->join('information_object_i18n', 'relation.subject_id', '=', 'information_object_i18n.id')
+            ->join('slug', 'relation.subject_id', '=', 'slug.object_id')
+            ->where('relation.object_id', $io->id)
+            ->where('relation.type_id', 176)
+            ->where('information_object_i18n.culture', $culture)
+            ->select('relation.subject_id as id', 'information_object_i18n.title', 'slug.slug')
+            ->get();
+        $relatedMaterialDescriptions = $relatedBySubject->merge($relatedByObject)->unique('id')->values();
+
+        // Language and script free-text notes (saved as property name=languageNote
+        // to avoid an i18n column add). Merge back onto $io so the form
+        // pre-populates from the saved value.
+        $langNoteRaw = DB::table('property')
+            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+            ->where('property.object_id', $io->id)
+            ->where('property.name', 'languageNote')
+            ->where('property_i18n.culture', $culture)
+            ->value('property_i18n.value');
+        $io->language_notes = $langNoteRaw ?: '';
 
         // Parent info for admin area
         $parentTitle = null;
@@ -1672,6 +1685,7 @@ class InformationObjectController extends Controller
         $io->security_declassify_date       = $sec->security_declassify_date       ?? null;
         $io->security_handling_instructions = $sec->security_handling_instructions ?? null;
         $io->security_inherit_to_children   = (int) ($sec->security_inherit_to_children ?? 0);
+        $io->watermark_type_id              = $sec->watermark_type_id              ?? null;
 
         return view('ahg-io-manage::edit', array_merge(
             [
@@ -2232,6 +2246,7 @@ class InformationObjectController extends Controller
             'security_declassify_date',
             'security_handling_instructions',
             'security_inherit_to_children',
+            'watermark_type_id',
         ];
         $hasSecurityFields = false;
         foreach ($secKeys as $k) {
@@ -2245,6 +2260,7 @@ class InformationObjectController extends Controller
                 'security_declassify_date'       => $request->input('security_declassify_date') ?: null,
                 'security_handling_instructions' => $request->input('security_handling_instructions') ?: null,
                 'security_inherit_to_children'   => (int) $request->boolean('security_inherit_to_children'),
+                'watermark_type_id'              => $request->filled('watermark_type_id') ? (int) $request->input('watermark_type_id') : null,
                 'updated_at'                     => now(),
             ];
 
@@ -2277,6 +2293,7 @@ class InformationObjectController extends Controller
                             'security_declassify_date'       => $secPayload['security_declassify_date'],
                             'security_handling_instructions' => $secPayload['security_handling_instructions'],
                             'security_inherit_to_children'   => 1,
+                            'watermark_type_id'              => $secPayload['watermark_type_id'],
                             'created_at'                     => now(),
                             'updated_at'                     => now(),
                         ], $chunk);
@@ -2287,7 +2304,7 @@ class InformationObjectController extends Controller
                             ['object_id'],
                             ['security_classification_id', 'security_reason', 'security_review_date',
                              'security_declassify_date', 'security_handling_instructions',
-                             'security_inherit_to_children', 'updated_at']
+                             'security_inherit_to_children', 'watermark_type_id', 'updated_at']
                         );
                     }
                 }
