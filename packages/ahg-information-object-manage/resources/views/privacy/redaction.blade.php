@@ -423,13 +423,18 @@ document.addEventListener('DOMContentLoaded', function() {
         obj.selectable = (tool === 'select');
         obj.evented    = (tool === 'select');
       });
-      // Pointer-event routing for the OSD-overlay case: in draw mode the
-      // Fabric overlay captures clicks; otherwise OSD pan/zoom does.
-      if (fabricCanvas.upperCanvasEl && fabricCanvas.upperCanvasEl.parentElement) {
-        fabricCanvas.upperCanvasEl.parentElement.style.pointerEvents = (tool === 'draw') ? 'auto' : 'none';
-      }
-      if (osdViewer && typeof osdViewer.setMouseNavEnabled === 'function') {
-        osdViewer.setMouseNavEnabled(tool !== 'draw');
+      // Pointer-event routing — ONLY when an OSD viewer exists underneath
+      // the Fabric overlay (image path). For the PDF path there's nothing
+      // beneath the overlay to defer to, so flipping pointer-events would
+      // disable all interaction in select mode. Tool state itself
+      // (selection / object.selectable) is sufficient for PDFs.
+      if (osdViewer) {
+        if (fabricCanvas.upperCanvasEl && fabricCanvas.upperCanvasEl.parentElement) {
+          fabricCanvas.upperCanvasEl.parentElement.style.pointerEvents = (tool === 'draw') ? 'auto' : 'none';
+        }
+        if (typeof osdViewer.setMouseNavEnabled === 'function') {
+          osdViewer.setMouseNavEnabled(tool !== 'draw');
+        }
       }
     }
   }
