@@ -39,6 +39,14 @@
     outline: 2px solid #ffc107 !important;
     outline-offset: 2px !important;
   }
+  /* Selected region in the sidebar — matches the gold canvas highlight. */
+  .region-item.region-item-active {
+    background: rgba(255, 193, 7, 0.18);
+    border-left: 3px solid #ffc107;
+  }
+  .region-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
   /* Draw mode: turn the canvas crosshair-cursored so the user knows they're
      in draw mode the moment they hover. */
   .drawing-active .redaction-canvas-wrapper,
@@ -266,32 +274,6 @@
     </div>
   </div>
 
-  {{-- ============================================================
-       DEBUG STRIP — visible to the user. Updated live from the nonced
-       script so we don't need DevTools open. Shows:
-         - Whether the script booted
-         - Whether DOMContentLoaded fired
-         - Whether the toolbar buttons exist in the DOM at boot
-         - Every click on Draw / Select with a timestamp
-         - mouse:down/up on the canvas so you can see if drawing fires
-       Remove this block once Draw is working again.
-       ============================================================ --}}
-  {{-- Debug strip — textarea so you can Ctrl+A inside it and copy. The
-       Copy button uses the Clipboard API as a fallback. --}}
-  <div class="alert alert-warning small py-2 px-3 mb-2 d-flex align-items-start gap-2">
-    <textarea id="redaction-debug-strip" readonly
-              class="form-control form-control-sm flex-grow-1"
-              style="font-family:monospace;font-size:12px;height:160px;
-                     background:#fff8dc;color:#222;
-                     resize:vertical;cursor:text;user-select:text;-webkit-user-select:text;"
-    >[debug] waiting for script to boot...</textarea>
-    <button type="button" class="btn btn-sm btn-warning" id="redaction-debug-copy"
-            style="white-space:nowrap;"
-            title="Copy debug log to clipboard">
-      <i class="fas fa-copy"></i> Copy
-    </button>
-  </div>
-
   {{-- Redaction Toolbar --}}
   <div class="card border-0 shadow-sm mb-3 redaction-toolbar">
     <div class="card-body py-2">
@@ -323,9 +305,9 @@
             <button type="button" class="btn atom-atom-btn-outline-success btn-sm" id="save-redactions" title="{{ __('Save redactions') }}">
               <i class="fas fa-save me-1"></i> {{ __('Save') }}
             </button>
-            <button type="button" class="btn atom-btn-outline-light btn-sm" id="apply-redactions" title="{{ __('Apply redactions permanently') }}">
-              <i class="fas fa-stamp me-1"></i> {{ __('Apply') }}
-            </button>
+            {{-- Apply (permanent flatten) intentionally removed: redactions
+                 are applied on-the-fly server-side for non-admin viewers
+                 (RedactionRenderService). Admins always see the original. --}}
           </div>
         </div>
       </div>
@@ -405,8 +387,7 @@
             <li class="mb-2">Click and drag on the document to draw a redaction rectangle.</li>
             <li class="mb-2">Use <strong>{{ __('Select') }}</strong> to move or resize existing redactions.</li>
             <li class="mb-2">Click the <i class="fas fa-trash-alt text-danger"></i> icon on a region to remove it.</li>
-            <li class="mb-2">Click <strong>{{ __('Save') }}</strong> to store redactions without applying them.</li>
-            <li class="mb-0">Click <strong>{{ __('Apply') }}</strong> to permanently redact the document (irreversible).</li>
+            <li class="mb-0">Click <strong>{{ __('Save') }}</strong> to store the redactions. Non-admin viewers will see the redacted version automatically; admins always see the original.</li>
           </ol>
         </div>
       </div>
@@ -426,78 +407,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 
 <script nonce="{{ csp_nonce() }}">
-// Visible debug helper — prints to the on-page debug strip AND console so the
-// user can see state without DevTools. Each line is timestamped and prepended
-// to the strip so the latest event is at the top.
+// Console-only debug helper. Field-debug is via DevTools — open the Console
+// tab and filter for "[redaction]" to see the full pipeline:
+//   script load → DOMContentLoaded → setTool(...) → mouse:down/up.
+// Earlier sessions also wrote to a visible textarea on the page; that strip
+// has been removed now that Draw + Select are working again.
 function __heratioRedactDebug(msg) {
   try { console.log('[redaction]', msg); } catch(e){}
-  var el = document.getElementById('redaction-debug-strip');
-  if (el) {
-    var ts = new Date().toISOString().substr(11, 12);
-    // Use .value because it's a <textarea> — .textContent on textareas does
-    // not update the visible/copyable buffer the way it does on a <div>.
-    el.value = '[' + ts + '] ' + msg + '\n' + (el.value || '');
-  }
 }
 
-// Wire up the Copy button + select-all-on-click for the debug textarea.
-// Done at script-load (capture-phase delegated) so it works regardless of
-// when the elements end up in the DOM.
-document.addEventListener('click', function (e) {
-  var ta = document.getElementById('redaction-debug-strip');
-  if (e.target && e.target.id === 'redaction-debug-copy') {
-    e.preventDefault();
-    if (!ta) return;
-    ta.select();
-    var ok = false;
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(ta.value);
-        ok = true;
-      } else {
-        ok = document.execCommand('copy');
-      }
-    } catch (err) { ok = false; }
-    var btn = e.target.closest('#redaction-debug-copy');
-    if (btn) {
-      var orig = btn.innerHTML;
-      btn.innerHTML = ok
-        ? '<i class="fas fa-check"></i> Copied!'
-        : '<i class="fas fa-times"></i> Failed (Ctrl+A then Ctrl+C)';
-      setTimeout(function () { btn.innerHTML = orig; }, 1800);
-    }
-    return;
-  }
-  // Click-into-textarea selects all so a manual Ctrl+C still works.
-  if (e.target === ta) { ta.select(); }
-}, false);
-
 __heratioRedactDebug('script loaded — registering tool handlers');
-__heratioRedactDebug('tool-draw button in DOM at script-load? ' + !!document.getElementById('tool-draw'));
-__heratioRedactDebug('tool-select button in DOM at script-load? ' + !!document.getElementById('tool-select'));
-// Dump where the Draw button is positioned on the page after a brief delay
-// so the layout has settled. If the bounding rect is at 0,0 with width 0,
-// the button is invisible — explains why clicks miss it.
-setTimeout(function () {
-  var d = document.getElementById('tool-draw');
-  if (d) {
-    var r = d.getBoundingClientRect();
-    var cs = window.getComputedStyle(d);
-    __heratioRedactDebug('Draw button rect: x=' + Math.round(r.left) + ' y=' + Math.round(r.top)
-      + ' w=' + Math.round(r.width) + ' h=' + Math.round(r.height)
-      + ' display=' + cs.display + ' visibility=' + cs.visibility
-      + ' pointer-events=' + cs.pointerEvents);
-  }
-}, 500);
-// Also catch raw mousedown so we see where the user is actually clicking,
-// even if it's nowhere near the button. Helps diagnose "I'm clicking the
-// button but nothing happens" reports.
-document.addEventListener('mousedown', function (e) {
-  __heratioRedactDebug('mousedown @ ' + e.clientX + ',' + e.clientY
-    + ' target=' + (e.target && e.target.tagName)
-    + (e.target && e.target.id ? '#' + e.target.id : '')
-    + (e.target && e.target.className ? '.' + String(e.target.className).split(' ').join('.') : ''));
-}, true);
 
 // Delegated click handler for the Draw / Select buttons. Bound on document
 // so it's immune to any DOMContentLoaded-timing or nesting issue. Also runs
@@ -698,6 +617,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // the cursor + selection state match the highlighted button.
             setTool(currentTool || 'select');
           } else {
+            // Use the rescaler so existing redaction rectangles scale with the
+            // canvas instead of staying at their original pixel coordinates.
+            rescaleFabricObjectsAndResize(viewport.width, viewport.height);
             fabricCanvas.setWidth(viewport.width);
             fabricCanvas.setHeight(viewport.height);
             fabricCanvas.renderAll();
@@ -949,7 +871,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let html = '';
     regions.forEach(function(region) {
-      html += '<div class="region-item" data-region-id="' + region.id + '">' +
+      html += '<div class="region-item" data-region-id="' + region.id + '" style="cursor:pointer;">' +
         '<div class="d-flex justify-content-between align-items-start">' +
           '<div>' +
             '<div class="region-label"><i class="fas fa-vector-square text-danger me-1"></i> Region #' + region.id + '</div>' +
@@ -966,11 +888,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Attach delete handlers
     container.querySelectorAll('.btn-delete-region').forEach(function(btn) {
-      btn.addEventListener('click', function() {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation(); // don't also trigger the region-item click below
         const id = parseInt(this.getAttribute('data-region-id'), 10);
         deleteRegion(id);
       });
     });
+    // Click-to-highlight: clicking a region in the sidebar selects + flashes
+    // the corresponding fabric.Rect on the canvas, so the user can find the
+    // rectangle they're about to delete.
+    container.querySelectorAll('.region-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        var id = parseInt(this.getAttribute('data-region-id'), 10);
+        highlightRegion(id);
+      });
+    });
+  }
+
+  // Visually highlight a region's fabric.Rect: make it the canvas's active
+  // object (so corner handles show), bring it to front, and pulse its stroke
+  // colour for ~1s so it's obvious which one was clicked.
+  function highlightRegion(regionId) {
+    var region = regions.find(function (r) { return r.id === regionId; });
+    if (!region || !region.fabricObj || !fabricCanvas) return;
+    var rect = region.fabricObj;
+
+    // Toggle the sidebar's active state.
+    document.querySelectorAll('.region-item').forEach(function (el) {
+      el.classList.toggle('region-item-active', parseInt(el.getAttribute('data-region-id'), 10) === regionId);
+    });
+
+    // Bring to front + select.
+    fabricCanvas.bringToFront(rect);
+    fabricCanvas.setActiveObject(rect);
+
+    // Save current stroke for restore.
+    var origStroke = rect.stroke;
+    var origStrokeWidth = rect.strokeWidth;
+    rect.set({ stroke: '#ffc107', strokeWidth: 4 });
+    fabricCanvas.requestRenderAll();
+    setTimeout(function () {
+      // Only restore if the rect is still on canvas (user might have deleted).
+      if (fabricCanvas.getObjects().indexOf(rect) !== -1) {
+        rect.set({ stroke: origStroke, strokeWidth: origStrokeWidth });
+        fabricCanvas.requestRenderAll();
+      }
+    }, 1200);
   }
 
   function loadExistingRedactions() {
@@ -1034,76 +997,72 @@ document.addEventListener('DOMContentLoaded', function() {
   // =========================================================================
   // Zoom Controls
   // =========================================================================
+  // Rescale every Fabric object by the ratio between old/new canvas dims,
+  // then resize the canvas. Without this, rectangles drawn at one zoom level
+  // stay at their original pixel coordinates when the canvas grows or
+  // shrinks — visually drifting away from the underlying content.
+  function rescaleFabricObjectsAndResize(newW, newH) {
+    if (!fabricCanvas) return;
+    var oldW = fabricCanvas.getWidth() || newW;
+    var oldH = fabricCanvas.getHeight() || newH;
+    var rx = newW / oldW;
+    var ry = newH / oldH;
+    fabricCanvas.setWidth(newW);
+    fabricCanvas.setHeight(newH);
+    if (Math.abs(rx - 1) < 1e-6 && Math.abs(ry - 1) < 1e-6) {
+      fabricCanvas.requestRenderAll();
+      return;
+    }
+    fabricCanvas.forEachObject(function (obj) {
+      obj.set({
+        left:   obj.left   * rx,
+        top:    obj.top    * ry,
+        width:  obj.width  * rx,
+        height: obj.height * ry,
+        // Also scale strokeWidth proportionally so the dashed border stays
+        // visually consistent. Most drawn rects have strokeWidth 2.
+        strokeWidth: (obj.strokeWidth || 0) * Math.min(rx, ry),
+      });
+      // Update internal coordinate cache so hit-testing matches.
+      obj.setCoords();
+    });
+    fabricCanvas.requestRenderAll();
+  }
+
+  // Re-render the PDF at the current zoomLevel and rescale Fabric objects to
+  // match. Used by zoom-in/out/fit (and could be reused by page nav).
+  function redrawPdfAtCurrentZoom() {
+    if (!CONFIG.isPdf || !pdfDoc) return;
+    pdfDoc.getPage(currentPage).then(function (page) {
+      var scale = zoomLevel * 1.5;
+      var viewport = page.getViewport({ scale: scale });
+      var pdfCanvas = document.getElementById('pdf-canvas');
+      pdfCanvas.height = viewport.height;
+      pdfCanvas.width  = viewport.width;
+      page.render({ canvasContext: pdfCanvas.getContext('2d'), viewport: viewport });
+      rescaleFabricObjectsAndResize(viewport.width, viewport.height);
+    });
+  }
+
   document.getElementById('zoom-in').addEventListener('click', function() {
     zoomLevel = Math.min(zoomLevel + 0.25, 4.0);
     document.getElementById('zoom-level').textContent = Math.round(zoomLevel * 100) + '%';
-    if (CONFIG.isPdf && pdfDoc) {
-      pdfDoc.getPage(currentPage).then(function(page) {
-        const scale = zoomLevel * 1.5;
-        const viewport = page.getViewport({ scale: scale });
-        const pdfCanvas = document.getElementById('pdf-canvas');
-        pdfCanvas.height = viewport.height;
-        pdfCanvas.width = viewport.width;
-        const ctx = pdfCanvas.getContext('2d');
-        page.render({ canvasContext: ctx, viewport: viewport });
-        if (fabricCanvas) {
-          fabricCanvas.setWidth(viewport.width);
-          fabricCanvas.setHeight(viewport.height);
-          fabricCanvas.renderAll();
-        }
-      });
-    }
-    if (osdViewer) {
-      osdViewer.viewport.zoomBy(1.25);
-    }
+    redrawPdfAtCurrentZoom();
+    if (osdViewer) osdViewer.viewport.zoomBy(1.25);
   });
 
   document.getElementById('zoom-out').addEventListener('click', function() {
     zoomLevel = Math.max(zoomLevel - 0.25, 0.25);
     document.getElementById('zoom-level').textContent = Math.round(zoomLevel * 100) + '%';
-    if (CONFIG.isPdf && pdfDoc) {
-      pdfDoc.getPage(currentPage).then(function(page) {
-        const scale = zoomLevel * 1.5;
-        const viewport = page.getViewport({ scale: scale });
-        const pdfCanvas = document.getElementById('pdf-canvas');
-        pdfCanvas.height = viewport.height;
-        pdfCanvas.width = viewport.width;
-        const ctx = pdfCanvas.getContext('2d');
-        page.render({ canvasContext: ctx, viewport: viewport });
-        if (fabricCanvas) {
-          fabricCanvas.setWidth(viewport.width);
-          fabricCanvas.setHeight(viewport.height);
-          fabricCanvas.renderAll();
-        }
-      });
-    }
-    if (osdViewer) {
-      osdViewer.viewport.zoomBy(0.8);
-    }
+    redrawPdfAtCurrentZoom();
+    if (osdViewer) osdViewer.viewport.zoomBy(0.8);
   });
 
   document.getElementById('zoom-fit').addEventListener('click', function() {
     zoomLevel = 1.0;
     document.getElementById('zoom-level').textContent = '100%';
-    if (CONFIG.isPdf && pdfDoc) {
-      pdfDoc.getPage(currentPage).then(function(page) {
-        const scale = zoomLevel * 1.5;
-        const viewport = page.getViewport({ scale: scale });
-        const pdfCanvas = document.getElementById('pdf-canvas');
-        pdfCanvas.height = viewport.height;
-        pdfCanvas.width = viewport.width;
-        const ctx = pdfCanvas.getContext('2d');
-        page.render({ canvasContext: ctx, viewport: viewport });
-        if (fabricCanvas) {
-          fabricCanvas.setWidth(viewport.width);
-          fabricCanvas.setHeight(viewport.height);
-          fabricCanvas.renderAll();
-        }
-      });
-    }
-    if (osdViewer) {
-      osdViewer.viewport.goHome();
-    }
+    redrawPdfAtCurrentZoom();
+    if (osdViewer) osdViewer.viewport.goHome();
   });
 
   // =========================================================================
@@ -1154,62 +1113,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // =========================================================================
-  // Apply Redactions (AJAX - Permanent)
-  // =========================================================================
-  document.getElementById('apply-redactions').addEventListener('click', function() {
-    if (regions.length === 0) {
-      showToast('No redaction regions to apply.', 'warning');
-      return;
-    }
-    if (!confirm('WARNING: This will permanently redact the selected areas from the document. This action cannot be undone. Continue?')) {
-      return;
-    }
-
-    const btn = this;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Applying...';
-
-    const payload = {
-      information_object_id: CONFIG.objectId,
-      regions: regions.map(function(r) {
-        return {
-          left: r.left,
-          top: r.top,
-          width: r.width,
-          height: r.height,
-          page: r.page || 1,
-        };
-      }),
-    };
-
-    fetch(CONFIG.applyUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': CONFIG.csrfToken,
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
-    .then(function(response) { return response.json(); })
-    .then(function(data) {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-stamp me-1"></i> Apply';
-      if (data.success) {
-        showToast('Redactions applied successfully. Reloading...', 'success');
-        setTimeout(function() { window.location.reload(); }, 1500);
-      } else {
-        showToast(data.message || 'Failed to apply redactions.', 'danger');
-      }
-    })
-    .catch(function(err) {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-stamp me-1"></i> Apply';
-      console.error('Apply error:', err);
-      showToast('An error occurred while applying redactions.', 'danger');
-    });
-  });
+  // Apply (permanent flatten) handler removed — admins always see the
+  // original; non-admins are served the on-the-fly redacted file by
+  // RedactionRenderService at /privacy/redacted-asset/{slug}. There is
+  // no "permanent" state in this design.
 
   // =========================================================================
   // Toast Helper
