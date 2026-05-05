@@ -1506,12 +1506,26 @@ class InformationObjectController extends Controller
      */
     private function getFormDropdowns(string $culture): array
     {
-        // Level of description options (taxonomy_id = 34)
+        // Level of description options (taxonomy_id = 34) — RESTRICTED to
+        // archive-sector terms only. Without this filter, museum/library/dam
+        // /gallery LoD terms (Object, Artwork, Photograph, Periodical,
+        // Manuscript, etc.) appeared in the archival edit form, the user
+        // unwittingly picked one, save redirected to the wrong sector show
+        // page, and depending on the sector either 404'd or rendered as the
+        // wrong record type. The IO edit form is for ARCHIVAL records only;
+        // sector-specific records go through their own edit form. INNER JOIN
+        // on level_of_description_sector with sector='archive' ensures only
+        // the nine canonical ISAD levels (Collection, File, Fonds, Item,
+        // Part, Record group, Series, Subfonds, Subseries) are offered.
         $levels = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->join('level_of_description_sector', function ($j) {
+                $j->on('term.id', '=', 'level_of_description_sector.term_id')
+                  ->where('level_of_description_sector.sector', '=', 'archive');
+            })
             ->where('term.taxonomy_id', 34)
             ->where('term_i18n.culture', $culture)
-            ->orderBy('term_i18n.name')
+            ->orderBy('level_of_description_sector.display_order')
             ->select('term.id', 'term_i18n.name')
             ->get();
 
