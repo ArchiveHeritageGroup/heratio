@@ -91,17 +91,29 @@ class HeratioCspPreset implements Preset
 
             // Connect: AJAX endpoints (autocomplete, IIIF info.json, search).
             // blob: is required for Mirador, which fetches its manifest from a
-            // URL.createObjectURL() blob built client-side.
+            // URL.createObjectURL() blob built client-side. cdnjs allowed so
+            // PDF.js can fetch its cmap / standard-fonts data files
+            // (referenced relative to the worker URL).
             ->add(Directive::CONNECT, [
                 Keyword::SELF,
                 Scheme::BLOB,
                 'https://cdn.jsdelivr.net',
+                'https://cdnjs.cloudflare.com',
             ])
 
             // Frames: same-origin only (PDF previews, IIIF embed)
             ->add(Directive::FRAME, Keyword::SELF)
 
-            // Workers (OpenSeadragon, etc.)
-            ->add(Directive::WORKER, [Keyword::SELF, Scheme::BLOB]);
+            // Workers: PDF.js loads pdf.worker.min.js from cdnjs, so the
+            // worker source must be allow-listed there in addition to self
+            // + blob (OpenSeadragon's tile-renderer worker, Mirador's
+            // worker bundle which lives at /vendor/, etc.). Without
+            // cdnjs here the redaction page silently fails to render any
+            // PDF because PDF.js cannot start its background thread.
+            ->add(Directive::WORKER, [
+                Keyword::SELF,
+                Scheme::BLOB,
+                'https://cdnjs.cloudflare.com',
+            ]);
     }
 }
