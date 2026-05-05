@@ -374,7 +374,36 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 
 <script nonce="{{ csp_nonce() }}">
+// Immediate-fire log so we know the script is actually being loaded + executed.
+// If you click Draw and DON'T see "[redaction] script loaded" in DevTools
+// console, the <script> tag isn't running (CSP nonce mismatch, browser cache,
+// or the page is being served from a different render path entirely).
+try { console.log('[redaction] script loaded — registering tool handlers'); } catch(e){}
+
+// Delegated click handler for the Draw / Select buttons. Bound on document
+// so it's immune to any DOMContentLoaded-timing or nesting issue. Also runs
+// whether or not the rest of the script (Fabric init, etc.) succeeds.
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest && e.target.closest('#tool-draw, #tool-select');
+  if (!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  var tool = btn.id === 'tool-draw' ? 'draw' : 'select';
+  try { console.log('[redaction] toolbar click delegated:', tool); } catch(_){}
+  if (typeof window.__heratioRedactionSetTool === 'function') {
+    window.__heratioRedactionSetTool(tool);
+  } else {
+    // Fabric hasn't initialised yet — at least toggle the visible button state
+    // so the user gets immediate feedback. setTool() will sync once it loads.
+    document.getElementById('tool-select') && document.getElementById('tool-select').classList.toggle('active', tool === 'select');
+    document.getElementById('tool-draw')   && document.getElementById('tool-draw').classList.toggle('active',   tool === 'draw');
+    var vc = document.getElementById('viewer-container');
+    if (vc) vc.classList.toggle('drawing-active', tool === 'draw');
+  }
+}, true /* capture phase, beats any inner stopPropagation */);
+
 document.addEventListener('DOMContentLoaded', function() {
+  try { console.log('[redaction] DOMContentLoaded handler running'); } catch(e){}
 
   // =========================================================================
   // Configuration
@@ -469,12 +498,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  if (toolSelectBtn) {
-    toolSelectBtn.addEventListener('click', function() { setTool('select'); });
-  }
-  if (toolDrawBtn) {
-    toolDrawBtn.addEventListener('click', function() { setTool('draw'); });
-  }
+  // Expose setTool to the document-level delegated click handler that lives
+  // OUTSIDE the DOMContentLoaded wrapper. The delegated handler runs even if
+  // the wrapper hasn't fired yet (capture-phase, document-level), so it
+  // gives immediate visual feedback while Fabric initialises asynchronously.
+  // See top of script.
+  window.__heratioRedactionSetTool = setTool;
+  // Apply once at boot so the visible-active state matches `currentTool`.
+  setTool(currentTool);
 
   // =========================================================================
   // PDF Viewer Initialization
