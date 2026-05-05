@@ -64,7 +64,41 @@ class FavoritesService
         };
 
         $total = $q->count();
-        $results = $q->orderBy($sortCol, $sortDir)
+        // Use correlated subqueries (instead of joins) so each favorite row
+        // gets its own thumbnail without LEFT JOIN multiplying rows and
+        // tripping MySQL only_full_group_by. Prefers usage_id=142 (thumbnail),
+        // falls back to 141 (reference) when no thumbnail exists. The flag is
+        // true whenever ANY digital_object is linked.
+        $results = $q
+            ->select('favorites.*')
+            ->selectSub(function ($sub) {
+                // Prefer 142 (thumbnail) → 141 (reference) → 140 (master)
+                // BUT only return the master when its mime_type is a
+                // browser-renderable image (jpeg/png/gif/webp). TIFFs and
+                // non-image masters fall through and the camera-icon
+                // fallback in the view kicks in.
+                $sub->from('digital_object')
+                    ->whereColumn('digital_object.object_id', 'favorites.archival_description_id')
+                    ->where(function ($q) {
+                        $q->whereIn('digital_object.usage_id', [142, 141])
+                          ->orWhere(function ($q2) {
+                              $q2->where('digital_object.usage_id', 140)
+                                 ->whereIn('digital_object.mime_type', [
+                                     'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+                                 ]);
+                          });
+                    })
+                    ->orderByRaw('FIELD(usage_id, 142, 141, 140)')
+                    ->limit(1)
+                    ->selectRaw('CONCAT(path, name)');
+            }, 'thumbnail_path')
+            ->selectSub(function ($sub) {
+                $sub->from('digital_object')
+                    ->whereColumn('digital_object.object_id', 'favorites.archival_description_id')
+                    ->selectRaw('1')
+                    ->limit(1);
+            }, 'has_digital_object')
+            ->orderBy($sortCol, $sortDir)
             ->offset(($page - 1) * $limit)
             ->limit($limit)
             ->get();

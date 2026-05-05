@@ -27,17 +27,16 @@
   }
 @endphp
 
-@push('styles')
+@push('css')
 <style>
-  /* Sidebar reduced again per follow-up (12.5% → 8%) on large screens;
-     main content widens to 92% to match. Folder names will truncate but
-     stay clickable - hover to see the full name. Falls back to standard
-     col-md-3 / col-md-9 on tablets / phones so the folder list remains
-     readable below the lg breakpoint. */
+  /* Sidebar width: doubled from the previous 8% setting to 16% per request
+     after folder creation made the small sidebar feel too cramped. Main
+     content takes the remaining 84%. Falls back to standard col-md-3 /
+     col-md-9 split on smaller screens so folder names stay readable. */
   @media (min-width: 992px) {
-    .favorites-sidebar { flex: 0 0 8% !important; max-width: 8% !important; }
-    .favorites-main    { flex: 0 0 92% !important; max-width: 92% !important; }
-    .favorites-sidebar .list-group-item { font-size: 0.85rem; padding: 0.4rem 0.5rem; }
+    .favorites-sidebar { flex: 0 0 16% !important; max-width: 16% !important; }
+    .favorites-main    { flex: 0 0 84% !important; max-width: 84% !important; }
+    .favorites-sidebar .list-group-item { font-size: 0.875rem; padding: 0.45rem 0.6rem; }
     .favorites-sidebar .list-group-item span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   }
   /* Thumbnail column: small inline preview when a digital object exists. */
