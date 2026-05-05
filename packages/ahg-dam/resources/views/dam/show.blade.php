@@ -767,7 +767,7 @@
     @endif
     @if($canUpdate)
     <li>
-      <a href="{{ url('/' . $asset->slug . '/default/move') }}" class="btn atom-btn-outline-light">{{ __('Move') }}</a>
+      <a href="{{ route('informationobject.move', $asset->slug) }}" class="btn atom-btn-outline-light">{{ __('Move') }}</a>
     </li>
     <li>
       <div class="dropup">
@@ -795,9 +795,15 @@
             </li>
             @if($canDelete)
               <li>
-                <a class="dropdown-item text-danger" href="{{ url('/' . $asset->slug . '/digitalobject/delete') }}">
-                  <i class="fas fa-times-circle me-2"></i>{{ __('Delete digital object') }}
-                </a>
+                <form method="POST" action="{{ route('io.digitalobject.delete', $digitalObjects['master']->id) }}"
+                      onsubmit="return confirm('{{ __('Delete this digital object and all derivatives? This cannot be undone.') }}')"
+                      class="m-0">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="dropdown-item text-danger">
+                    <i class="fas fa-times-circle me-2"></i>{{ __('Delete digital object') }}
+                  </button>
+                </form>
               </li>
             @endif
           @else
@@ -813,13 +819,13 @@
             </a>
           </li>
           <li>
-            <a class="dropdown-item" href="{{ url('/' . $asset->slug . '/right/edit') }}">
+            <a class="dropdown-item" href="{{ route('io.rights.manage', $asset->slug) }}">
               <i class="fas fa-balance-scale me-2"></i>{{ __('Create new rights') }}
             </a>
           </li>
           @if($hasChildren)
             <li>
-              <a class="dropdown-item" href="{{ url('/' . $asset->slug . '/right/manage') }}">
+              <a class="dropdown-item" href="{{ route('io.rights.manage', $asset->slug) }}">
                 <i class="fas fa-sitemap me-2"></i>{{ __('Manage rights inheritance') }}
               </a>
             </li>
