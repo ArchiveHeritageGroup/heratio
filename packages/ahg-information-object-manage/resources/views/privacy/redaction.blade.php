@@ -428,17 +428,19 @@ document.addEventListener('DOMContentLoaded', function() {
         obj.selectable = (tool === 'select');
         obj.evented    = (tool === 'select');
       });
-      // Pointer-event routing — ONLY when an OSD viewer exists underneath
-      // the Fabric overlay (image path). For the PDF path there's nothing
-      // beneath the overlay to defer to, so flipping pointer-events would
-      // disable all interaction in select mode. Tool state itself
-      // (selection / object.selectable) is sufficient for PDFs.
+      // Pointer-event routing for the OSD path. Both Select and Draw need
+      // to receive mouse events on the Fabric overlay (Select to click/move
+      // existing rects, Draw to capture mouse:down/move/up). Earlier code
+      // forced pointer-events=none in select mode, which broke selection.
+      // Pan-by-drag on OSD is sacrificed when the editor is active — the
+      // user pans/zooms via OSD's nav-bar instead.
       if (osdViewer) {
-        if (fabricCanvas.upperCanvasEl && fabricCanvas.upperCanvasEl.parentElement) {
-          fabricCanvas.upperCanvasEl.parentElement.style.pointerEvents = (tool === 'draw') ? 'auto' : 'none';
-        }
+        var fabricWrap = fabricCanvas.upperCanvasEl && fabricCanvas.upperCanvasEl.parentElement;
+        if (fabricWrap) fabricWrap.style.pointerEvents = 'auto';
+        // Keep OSD's mouse navigation off while the Fabric overlay is the
+        // active layer; the nav-bar still drives zoom + reset.
         if (typeof osdViewer.setMouseNavEnabled === 'function') {
-          osdViewer.setMouseNavEnabled(tool !== 'draw');
+          osdViewer.setMouseNavEnabled(false);
         }
       }
     }
@@ -501,8 +503,25 @@ document.addEventListener('DOMContentLoaded', function() {
               height: viewport.height,
               selection: currentTool === 'select',
             });
+            // Fabric wraps the original <canvas> in a .canvas-container div
+            // that defaults to position:relative — pushing the overlay below
+            // the PDF canvas in the DOM flow instead of stacking on top.
+            // Force absolute positioning so the overlay covers the PDF, with
+            // pointer-events enabled so clicks reach Fabric's upper-canvas.
+            (function () {
+              var wrap = fabricCanvas.lowerCanvasEl && fabricCanvas.lowerCanvasEl.parentElement;
+              if (wrap) {
+                wrap.style.position = 'absolute';
+                wrap.style.top = '0';
+                wrap.style.left = '0';
+                wrap.style.pointerEvents = 'auto';
+              }
+            })();
             initFabricEvents();
             loadExistingRedactions();
+            // Apply the current tool now that the canvas + wrapper exist so
+            // the cursor + selection state match the highlighted button.
+            setTool(currentTool || 'select');
           } else {
             fabricCanvas.setWidth(viewport.width);
             fabricCanvas.setHeight(viewport.height);
@@ -650,7 +669,8 @@ document.addEventListener('DOMContentLoaded', function() {
       overlayEl.style.left = '0';
       overlayEl.style.width = '100%';
       overlayEl.style.height = '100%';
-      overlayEl.style.pointerEvents = 'none';
+      // pointer-events default 'auto' — setTool() then refines per-mode.
+      // Earlier code locked this at 'none' which made Select unusable.
 
       const container = osdViewer.canvas;
       container.appendChild(overlayEl);
