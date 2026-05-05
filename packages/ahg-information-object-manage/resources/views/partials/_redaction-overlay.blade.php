@@ -9,8 +9,7 @@
 --}}
 @if(isset($visualRedactions) && count($visualRedactions))
   @php
-    $applied = collect($visualRedactions)->where('status', 'applied')->count();
-    $pending = collect($visualRedactions)->whereIn('status', ['pending', 'reviewed'])->count();
+    $totalRedactions = collect($visualRedactions)->count();
   @endphp
 
   {{-- Compact status banner above the image preview. --}}
@@ -18,9 +17,9 @@
     <div>
       <i class="fas fa-mask me-1"></i>
       @if($canBypassRedaction ?? false)
-        {{ __(':n redaction(s) on file. Showing un-redacted view (admin).', ['n' => $applied + $pending]) }}
+        {{ trans_choice(':n redaction on file. Showing un-redacted view (admin).|:n redactions on file. Showing un-redacted view (admin).', $totalRedactions, ['n' => $totalRedactions]) }}
       @else
-        {{ __('Some content has been redacted by the institution. :a applied, :p pending.', ['a' => $applied, 'p' => $pending]) }}
+        {{ trans_choice(':n region of this record has been redacted by the institution.|:n regions of this record have been redacted by the institution.', $totalRedactions, ['n' => $totalRedactions]) }}
       @endif
     </div>
     @auth

@@ -327,7 +327,12 @@ class PrivacyController extends Controller
                         // file's native dimensions independent of zoom.
                         'normalized'        => (int) ($r['normalized'] ?? 0) === 1 ? 1 : 0,
                         'source'            => 'manual',
-                        'status'            => 'pending',
+                        // Auto-promote on save — there is no editor/admin
+                        // approval workflow; the user who saves *is* the admin
+                        // and the rectangle takes effect for non-admin viewers
+                        // immediately. Was 'pending' for a workflow that
+                        // never existed in this implementation.
+                        'status'            => 'applied',
                         'created_by'        => auth()->id(),
                     ]);
                 }
