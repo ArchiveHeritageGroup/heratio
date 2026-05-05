@@ -4,14 +4,40 @@
 @push('styles')
 <style>
   /* Redaction Editor Styles */
+  .redaction-toolbar {
+    /* Lift the toolbar above any canvas / overlay so clicks always reach it. */
+    position: relative;
+    z-index: 1000;
+  }
+  .redaction-toolbar #tool-draw,
+  .redaction-toolbar #tool-select {
+    /* Make the toolbar buttons large + obvious so they're hard to miss.
+       Earlier the buttons were btn-sm and rendered in a dark area where
+       they were hard to see — users were clicking on the canvas instead. */
+    min-width: 110px !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+  }
+  .redaction-toolbar #tool-draw {
+    background: #dc3545 !important;
+    color: #fff !important;
+    border: 2px solid #dc3545 !important;
+  }
+  .redaction-toolbar #tool-draw:hover {
+    background: #b02a37 !important;
+    border-color: #b02a37 !important;
+  }
+  .redaction-toolbar #tool-select {
+    background: #6c757d !important;
+    color: #fff !important;
+    border: 2px solid #6c757d !important;
+  }
   .redaction-toolbar .btn.active {
-    /* Visible active state — the inset shadow alone was too subtle, so
-       users couldn't tell whether Draw or Select was selected. */
-    box-shadow: inset 0 2px 6px rgba(0,0,0,.4);
-    background: #ffc107 !important;
-    color: #000 !important;
-    border-color: #ffb000 !important;
-    font-weight: 600;
+    /* Visible active state */
+    box-shadow: 0 0 0 3px #ffc107 !important, inset 0 2px 6px rgba(0,0,0,.4) !important;
+    outline: 2px solid #ffc107 !important;
+    outline-offset: 2px !important;
   }
   /* Draw mode: turn the canvas crosshair-cursored so the user knows they're
      in draw mode the moment they hover. */
@@ -404,6 +430,29 @@ function __heratioRedactDebug(msg) {
 __heratioRedactDebug('script loaded — registering tool handlers');
 __heratioRedactDebug('tool-draw button in DOM at script-load? ' + !!document.getElementById('tool-draw'));
 __heratioRedactDebug('tool-select button in DOM at script-load? ' + !!document.getElementById('tool-select'));
+// Dump where the Draw button is positioned on the page after a brief delay
+// so the layout has settled. If the bounding rect is at 0,0 with width 0,
+// the button is invisible — explains why clicks miss it.
+setTimeout(function () {
+  var d = document.getElementById('tool-draw');
+  if (d) {
+    var r = d.getBoundingClientRect();
+    var cs = window.getComputedStyle(d);
+    __heratioRedactDebug('Draw button rect: x=' + Math.round(r.left) + ' y=' + Math.round(r.top)
+      + ' w=' + Math.round(r.width) + ' h=' + Math.round(r.height)
+      + ' display=' + cs.display + ' visibility=' + cs.visibility
+      + ' pointer-events=' + cs.pointerEvents);
+  }
+}, 500);
+// Also catch raw mousedown so we see where the user is actually clicking,
+// even if it's nowhere near the button. Helps diagnose "I'm clicking the
+// button but nothing happens" reports.
+document.addEventListener('mousedown', function (e) {
+  __heratioRedactDebug('mousedown @ ' + e.clientX + ',' + e.clientY
+    + ' target=' + (e.target && e.target.tagName)
+    + (e.target && e.target.id ? '#' + e.target.id : '')
+    + (e.target && e.target.className ? '.' + String(e.target.className).split(' ').join('.') : ''));
+}, true);
 
 // Delegated click handler for the Draw / Select buttons. Bound on document
 // so it's immune to any DOMContentLoaded-timing or nesting issue. Also runs
@@ -637,7 +686,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!fabricCanvas) return;
 
     fabricCanvas.on('mouse:down', function(opt) {
-      if (currentTool !== 'draw') return;
+      if (currentTool !== 'draw') {
+        __heratioRedactDebug('mouse:down on canvas IGNORED — currentTool=' + currentTool
+          + '. Click the red DRAW button in the toolbar first.');
+        return;
+      }
       isDrawing = true;
       const pointer = fabricCanvas.getPointer(opt.e);
       drawStartX = pointer.x;
