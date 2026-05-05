@@ -97,7 +97,7 @@
                 <input type="text" class="form-control" id="identifier" name="identifier"
                        value="{{ old('identifier', $io->identifier) }}">
                 <button type="button" class="btn atom-btn-white" id="generate-identifier"
-                        data-url="{{ url('/informationobject/generateIdentifier') }}">
+                        data-generate-identifier-url="{{ url('/informationobject/generateIdentifier') }}">
                   <i class="fas fa-cog me-1" aria-hidden="true"></i>{{ __('Generate') }}
                 </button>
               </div>
@@ -1109,58 +1109,11 @@ document.addEventListener('DOMContentLoaded', function() {
     new bootstrap.Popover(el, { html: false });
   });
 
-  // Generate identifier button. Stops event propagation so no other listener
-  // can swallow it, prevents default in case any browser still treats the
-  // button as submit, and uses a relative URL to avoid mixed-content / proxy
-  // surprises. Logs every step to console so any failure mode is visible
-  // via F12 / DevTools without us guessing.
-  var genBtn = document.getElementById('generate-identifier');
-  if (genBtn) {
-    genBtn.addEventListener('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      var path = '/informationobject/generateIdentifier';
-      var qs = [];
-      var repoEl  = document.querySelector('[name="repository_id"]');
-      var levelEl = document.querySelector('[name="level_of_description_id"]');
-      if (repoEl && repoEl.value)  qs.push('repository_id=' + encodeURIComponent(repoEl.value));
-      if (levelEl && levelEl.value) qs.push('level_of_description_id=' + encodeURIComponent(levelEl.value));
-      if (qs.length) path += '?' + qs.join('&');
-      console.log('[generate-identifier] fetching', path);
-      fetch(path, {
-          method: 'GET',
-          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-          credentials: 'same-origin'
-        })
-        .then(function (r) {
-          console.log('[generate-identifier] HTTP', r.status, r.headers.get('content-type'));
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.text();
-        })
-        .then(function (raw) {
-          console.log('[generate-identifier] body', raw);
-          var data;
-          try { data = JSON.parse(raw); }
-          catch (parseErr) { throw new Error('non-JSON response'); }
-          if (data && typeof data.identifier === 'string' && data.identifier !== '') {
-            var input = document.getElementById('identifier');
-            input.value = data.identifier;
-            // dispatch a real input event so any framework listeners (Bootstrap
-            // validation, form-dirty trackers) see the change as authoritative
-            // and don't roll it back.
-            input.dispatchEvent(new Event('input',  { bubbles: true }));
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-            console.log('[generate-identifier] set identifier =', data.identifier);
-          } else {
-            console.warn('[generate-identifier] empty/missing identifier in response', data);
-          }
-        })
-        .catch(function (err) {
-          console.error('[generate-identifier] failed:', err);
-        });
-      return false;
-    });
-  }
+  // Generate identifier handler lives in the compiled theme bundle (Webpack
+  // module 7269), keyed off the data-generate-identifier-url attribute on the
+  // button. We deliberately don't bind a second handler here — having two
+  // listeners on the same click was racing with the bundle's success callback
+  // and clearing the field. See attribute set above.
 
   // Generic remove row handler
   document.addEventListener('click', function(e) {

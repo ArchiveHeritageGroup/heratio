@@ -1892,12 +1892,13 @@ class InformationObjectController extends Controller
                 ->value('title');
         }
 
-        // Duplicate (copy_from): pre-populate the form from the source record.
-        // The trick: seed session `_old_input` directly so every existing
-        // `old('field')` call in the view returns the source's value without
-        // having to touch each input's value binding. We deliberately drop
-        // `identifier` (must be unique — user can hit Generate to mint a new
-        // one) and keep `title` as-is (let the user edit if they want).
+        // Duplicate (copy_from): instead of trying to pre-fill the create
+        // form's many fields (which only handles scalars), clone the source
+        // record straight into a draft IO and redirect the user to its edit
+        // page. The edit form already renders every multi-row section, so
+        // the cataloguer sees everything (events, alt-IDs, notes, languages,
+        // access points, related descriptions, watermark, security) populated
+        // and can revise/save normally. Matches the AtoM "clone" convention.
         $copyFromId = (int) $request->get('copy_from');
         if ($copyFromId > 0) {
             $source = DB::table('information_object')
@@ -1906,48 +1907,95 @@ class InformationObjectController extends Controller
                       ->where('information_object_i18n.culture', $culture);
                 })
                 ->where('information_object.id', $copyFromId)
-                ->select(
-                    'information_object.level_of_description_id',
-                    'information_object.collection_type_id',
-                    'information_object.repository_id',
-                    'information_object.description_status_id',
-                    'information_object.description_detail_id',
-                    'information_object.description_identifier',
-                    'information_object.source_standard',
-                    'information_object.display_standard_id',
-                    'information_object.icip_sensitivity',
-                    'information_object_i18n.title',
-                    'information_object_i18n.alternate_title',
-                    'information_object_i18n.edition',
-                    'information_object_i18n.extent_and_medium',
-                    'information_object_i18n.archival_history',
-                    'information_object_i18n.acquisition',
-                    'information_object_i18n.scope_and_content',
-                    'information_object_i18n.appraisal',
-                    'information_object_i18n.accruals',
-                    'information_object_i18n.arrangement',
-                    'information_object_i18n.access_conditions',
-                    'information_object_i18n.reproduction_conditions',
-                    'information_object_i18n.physical_characteristics',
-                    'information_object_i18n.finding_aids',
-                    'information_object_i18n.location_of_originals',
-                    'information_object_i18n.location_of_copies',
-                    'information_object_i18n.related_units_of_description',
-                    'information_object_i18n.institution_responsible_identifier',
-                    'information_object_i18n.rules',
-                    'information_object_i18n.sources',
-                    'information_object_i18n.revision_history'
-                )
                 ->first();
             if ($source) {
-                $sourceData = array_filter((array) $source, fn ($v) => $v !== null);
-                // Identifier intentionally left blank — uniqueness rule.
-                unset($sourceData['identifier']);
-                // Seed _old_input for the current request. Laravel's old()
-                // helper reads from session('_old_input', []) so the view's
-                // {{ old('title') }} etc. picks these up immediately.
-                $existingOld = (array) session('_old_input', []);
-                session()->put('_old_input', array_merge($sourceData, $existingOld));
+                // Choose the parent: explicit ?parent_id wins; else copy from source's parent.
+                $newParent = $parentId ? (int) $parentId : (int) ($source->parent_id ?: 1);
+                $parentRow = DB::table('information_object')
+                    ->where('id', $newParent)
+                    ->select('lft', 'rgt')->first();
+                if (!$parentRow) {
+                    $newParent = 1;
+                    $parentRow = DB::table('information_object')->where('id', 1)->select('lft', 'rgt')->first();
+                }
+                $newLft = $parentRow->rgt;
+                $newRgt = $parentRow->rgt + 1;
+                DB::table('information_object')->where('rgt', '>=', $parentRow->rgt)->increment('rgt', 2);
+                DB::table('information_object')->where('lft', '>',  $parentRow->rgt)->increment('lft', 2);
+
+                // CTI: object row + information_object row.
+                $newObjId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitInformationObject',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('information_object')->insert([
+                    'id'                      => $newObjId,
+                    'identifier'              => null, // user mints a new one
+                    'level_of_description_id' => $source->level_of_description_id,
+                    'collection_type_id'      => $source->collection_type_id,
+                    'repository_id'           => $source->repository_id,
+                    'parent_id'               => $newParent,
+                    'description_status_id'   => $source->description_status_id,
+                    'description_detail_id'   => $source->description_detail_id,
+                    'description_identifier'  => $source->description_identifier,
+                    'source_standard'         => $source->source_standard,
+                    'display_standard_id'     => $source->display_standard_id,
+                    'icip_sensitivity'        => $source->icip_sensitivity,
+                    'lft'                     => $newLft,
+                    'rgt'                     => $newRgt,
+                    'source_culture'          => $culture,
+                ]);
+
+                // Copy all i18n fields verbatim — title gets " (copy)" appended
+                // so the cataloguer can spot the duplicate at a glance.
+                $i18nFields = [
+                    'title', 'alternate_title', 'edition', 'extent_and_medium',
+                    'archival_history', 'acquisition', 'scope_and_content',
+                    'appraisal', 'accruals', 'arrangement', 'access_conditions',
+                    'reproduction_conditions', 'physical_characteristics',
+                    'finding_aids', 'location_of_originals', 'location_of_copies',
+                    'related_units_of_description', 'institution_responsible_identifier',
+                    'rules', 'sources', 'revision_history',
+                ];
+                $i18nInsert = ['id' => $newObjId, 'culture' => $culture];
+                foreach ($i18nFields as $f) {
+                    $i18nInsert[$f] = $source->$f ?? null;
+                }
+                $i18nInsert['title'] = trim(($source->title ?? '(untitled)') . ' (copy)');
+                DB::table('information_object_i18n')->insert($i18nInsert);
+
+                // Slug — uniquify based on the new title.
+                $base = \Illuminate\Support\Str::slug($i18nInsert['title']) ?: ('record-' . $newObjId);
+                $slug = $base; $n = 1;
+                while (DB::table('slug')->where('slug', $slug)->exists()) {
+                    $slug = $base . '-' . $n++;
+                }
+                DB::table('slug')->insert(['object_id' => $newObjId, 'slug' => $slug]);
+
+                // Mark the duplicate as Draft so it's hidden from the public
+                // browse until the cataloguer reviews and publishes.
+                $statusObjId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitStatus',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('status')->insert([
+                    'id'        => $statusObjId,
+                    'object_id' => $newObjId,
+                    'type_id'   => 158,
+                    'status_id' => 159, // Draft
+                ]);
+
+                // All the multi-row sections (events, altIds, notes, languages,
+                // scripts, lang/script of description, languageNote, access
+                // points 35/42/78, name access points type-161, related
+                // descriptions type-176, watermark, security) come along here.
+                self::duplicateMultiRowFromSource($copyFromId, $newObjId, $culture);
+
+                return redirect()
+                    ->route('informationobject.edit', $slug)
+                    ->with('success', 'Draft duplicate created — review and save to publish.');
             }
         }
 
