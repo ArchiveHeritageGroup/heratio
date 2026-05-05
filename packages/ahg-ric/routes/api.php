@@ -49,7 +49,17 @@ use AhgRic\Http\Controllers\ImportController;
 |
 */
 
-Route::prefix('api/ric/v1')->middleware(['throttle:60,1', 'api.cors'])->group(function () {
+Route::prefix('api/ric/v1')->middleware([
+    // Session middleware so api.auth:write can fall back to the logged-in
+    // admin's cookie when no X-API-Key / Bearer is present (the embedded
+    // RiC modal + relation editor rely on this — they're called from
+    // Heratio pages and don't ship an API key). CSRF is intentionally
+    // excluded so external API-key callers aren't broken.
+    \Illuminate\Cookie\Middleware\EncryptCookies::class,
+    \Illuminate\Session\Middleware\StartSession::class,
+    'throttle:60,1',
+    'api.cors',
+])->group(function () {
     
     // Agents (ISAAR-CPF)
     Route::get('/agents', [LinkedDataApiController::class, 'listAgents']);
