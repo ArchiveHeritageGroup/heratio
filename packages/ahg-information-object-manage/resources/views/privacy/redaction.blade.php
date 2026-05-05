@@ -240,6 +240,21 @@
     </div>
   </div>
 
+  {{-- ============================================================
+       DEBUG STRIP — visible to the user. Updated live from the nonced
+       script so we don't need DevTools open. Shows:
+         - Whether the script booted
+         - Whether DOMContentLoaded fired
+         - Whether the toolbar buttons exist in the DOM at boot
+         - Every click on Draw / Select with a timestamp
+         - mouse:down/up on the canvas so you can see if drawing fires
+       Remove this block once Draw is working again.
+       ============================================================ --}}
+  <div id="redaction-debug-strip" class="alert alert-warning small py-2 px-3 mb-2"
+       style="font-family:monospace;white-space:pre-wrap;max-height:160px;overflow:auto;">
+    [debug] waiting for script to boot...
+  </div>
+
   {{-- Redaction Toolbar --}}
   <div class="card border-0 shadow-sm mb-3 redaction-toolbar">
     <div class="card-body py-2">
@@ -374,22 +389,33 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 
 <script nonce="{{ csp_nonce() }}">
-// Immediate-fire log so we know the script is actually being loaded + executed.
-// If you click Draw and DON'T see "[redaction] script loaded" in DevTools
-// console, the <script> tag isn't running (CSP nonce mismatch, browser cache,
-// or the page is being served from a different render path entirely).
-try { console.log('[redaction] script loaded — registering tool handlers'); } catch(e){}
+// Visible debug helper — prints to the on-page debug strip AND console so the
+// user can see state without DevTools. Each line is timestamped and prepended
+// to the strip so the latest event is at the top.
+function __heratioRedactDebug(msg) {
+  try { console.log('[redaction]', msg); } catch(e){}
+  var el = document.getElementById('redaction-debug-strip');
+  if (el) {
+    var ts = new Date().toISOString().substr(11, 12);
+    el.textContent = '[' + ts + '] ' + msg + '\n' + (el.textContent || '');
+  }
+}
+
+__heratioRedactDebug('script loaded — registering tool handlers');
+__heratioRedactDebug('tool-draw button in DOM at script-load? ' + !!document.getElementById('tool-draw'));
+__heratioRedactDebug('tool-select button in DOM at script-load? ' + !!document.getElementById('tool-select'));
 
 // Delegated click handler for the Draw / Select buttons. Bound on document
 // so it's immune to any DOMContentLoaded-timing or nesting issue. Also runs
 // whether or not the rest of the script (Fabric init, etc.) succeeds.
 document.addEventListener('click', function (e) {
+  __heratioRedactDebug('document click captured. target=' + (e.target && e.target.tagName) + ' id=' + (e.target && e.target.id));
   var btn = e.target.closest && e.target.closest('#tool-draw, #tool-select');
   if (!btn) return;
   e.preventDefault();
   e.stopPropagation();
   var tool = btn.id === 'tool-draw' ? 'draw' : 'select';
-  try { console.log('[redaction] toolbar click delegated:', tool); } catch(_){}
+  __heratioRedactDebug('TOOLBAR CLICK: ' + tool + ' (setTool fn ready? ' + (typeof window.__heratioRedactionSetTool) + ')');
   if (typeof window.__heratioRedactionSetTool === 'function') {
     window.__heratioRedactionSetTool(tool);
   } else {
@@ -399,11 +425,12 @@ document.addEventListener('click', function (e) {
     document.getElementById('tool-draw')   && document.getElementById('tool-draw').classList.toggle('active',   tool === 'draw');
     var vc = document.getElementById('viewer-container');
     if (vc) vc.classList.toggle('drawing-active', tool === 'draw');
+    __heratioRedactDebug('  -> setTool not ready yet; toggled active class manually');
   }
 }, true /* capture phase, beats any inner stopPropagation */);
 
 document.addEventListener('DOMContentLoaded', function() {
-  try { console.log('[redaction] DOMContentLoaded handler running'); } catch(e){}
+  __heratioRedactDebug('DOMContentLoaded fired');
 
   // =========================================================================
   // Configuration
@@ -454,7 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // should show this line. If you click and see nothing, the click
     // isn't firing (cached JS, blocked by extension, or DOM has no
     // tool-* button) - hard-refresh (Ctrl+Shift+R) before debugging.
-    try { console.log('[redaction] setTool:', tool, 'fabricCanvas?', !!fabricCanvas, 'osdViewer?', !!osdViewer); } catch (e) {}
+    __heratioRedactDebug('setTool(' + tool + ') fabricCanvas?' + !!fabricCanvas + ' osdViewer?' + !!osdViewer);
     currentTool = tool;
     // Visual state (always works, regardless of viewer init order)
     if (toolSelectBtn) toolSelectBtn.classList.toggle('active', tool === 'select');
@@ -631,7 +658,7 @@ document.addEventListener('DOMContentLoaded', function() {
         evented: false,
       });
       fabricCanvas.add(activeRect);
-      try { console.log('[redaction] mouse:down at', drawStartX, drawStartY); } catch(e){}
+      __heratioRedactDebug('mouse:down at ' + drawStartX + ',' + drawStartY);
     });
 
     fabricCanvas.on('mouse:move', function(opt) {
@@ -648,8 +675,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     fabricCanvas.on('mouse:up', function(opt) {
-      try { console.log('[redaction] mouse:up fired. isDrawing=', isDrawing,
-                        'activeRect=', activeRect && {w: activeRect.width, h: activeRect.height}); } catch(e){}
+      __heratioRedactDebug('mouse:up isDrawing=' + isDrawing + ' rect.w=' + (activeRect && activeRect.width) + ' rect.h=' + (activeRect && activeRect.height));
       if (!isDrawing || !activeRect) return;
       isDrawing = false;
 
