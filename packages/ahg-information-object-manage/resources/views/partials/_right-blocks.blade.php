@@ -267,7 +267,20 @@
       </div>
       <ul class="list-group list-group-flush">
         @foreach($genres as $genre)
-          <li class="list-group-item small">{{ $genre->name }}</li>
+          <li class="list-group-item small d-flex justify-content-between align-items-center gap-2">
+            @if(!empty($genre->slug))
+              <a href="{{ route('term.show', $genre->slug) }}" class="text-decoration-none flex-grow-1" title="{{ __('Open genre record') }}">
+                {{ $genre->name }}
+              </a>
+            @else
+              <span class="flex-grow-1">{{ $genre->name }}</span>
+            @endif
+            <a href="{{ route('informationobject.browse', ['genre' => $genre->name]) }}"
+               class="text-muted small text-decoration-none"
+               title="{{ __('Browse records tagged with this genre') }}">
+              <i class="fas fa-search"></i>
+            </a>
+          </li>
         @endforeach
       </ul>
     </div>
@@ -281,7 +294,20 @@
       </div>
       <ul class="list-group list-group-flush">
         @foreach($places as $place)
-          <li class="list-group-item small">{{ $place->name }}</li>
+          <li class="list-group-item small d-flex justify-content-between align-items-center gap-2">
+            @if(!empty($place->slug))
+              <a href="{{ route('term.show', $place->slug) }}" class="text-decoration-none flex-grow-1" title="{{ __('Open place record') }}">
+                {{ $place->name }}
+              </a>
+            @else
+              <span class="flex-grow-1">{{ $place->name }}</span>
+            @endif
+            <a href="{{ route('informationobject.browse', ['place' => $place->name]) }}"
+               class="text-muted small text-decoration-none"
+               title="{{ __('Browse records tagged with this place') }}">
+              <i class="fas fa-search"></i>
+            </a>
+          </li>
         @endforeach
       </ul>
     </div>

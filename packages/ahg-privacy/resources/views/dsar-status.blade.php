@@ -72,30 +72,19 @@ $statusClasses = [
                     <div class="col-md-5 mb-3">
                         <label class="form-label" for="dsar-ref-input">{{ __('Reference Number') }}</label>
                         @if(!empty($myDsars) && count($myDsars) > 0)
-                            {{-- Authenticated user has at least one DSAR — combine a dropdown
-                                 of their refs with a free-text fallback. The <datalist>
-                                 gives type-ahead and lets them search/filter, while still
-                                 accepting any reference if they paste one from elsewhere. --}}
-                            <input list="dsar-refs-list" id="dsar-ref-input" name="reference"
-                                   class="form-control"
-                                   placeholder="{{ __('Pick from your requests or paste a reference...') }}"
-                                   value="{{ request('reference') }}">
-                            <datalist id="dsar-refs-list">
+                            <select id="dsar-ref-input" name="reference" class="form-select">
+                                <option value="">{{ __('-- Select one of your requests --') }}</option>
                                 @foreach($myDsars as $r)
-                                    <option value="{{ $r->reference_number }}">
-                                        {{ ucfirst(str_replace('_', ' ', $r->request_type)) }} &middot; {{ ucfirst(str_replace('_', ' ', $r->status)) }} &middot; {{ $r->received_date }}
+                                    <option value="{{ $r->reference_number }}" @selected(request('reference') === $r->reference_number)>
+                                        {{ $r->reference_number }} &middot; {{ ucfirst(str_replace('_', ' ', $r->request_type)) }} &middot; {{ ucfirst(str_replace('_', ' ', $r->status)) }} &middot; {{ $r->received_date }}
                                     </option>
                                 @endforeach
-                            </datalist>
+                            </select>
                             <div class="form-text small">
                                 <i class="fas fa-info-circle me-1"></i>
-                                {{ trans_choice('You have :count request|You have :count requests', count($myDsars), ['count' => count($myDsars)]) }} —
-                                {{ __('start typing to filter, or pick from the dropdown.') }}
+                                {{ trans_choice('You have :count request|You have :count requests', count($myDsars), ['count' => count($myDsars)]) }}.
                             </div>
                         @else
-                            {{-- Anonymous / no requests on file: keep the freeform input + email
-                                 so a data subject who got the reference via email can still
-                                 look it up. --}}
                             <input type="text" id="dsar-ref-input" name="reference" class="form-control"
                                    placeholder="{{ __('DSAR-20260504-XXXXXX') }}" value="{{ request('reference') }}">
                         @endif

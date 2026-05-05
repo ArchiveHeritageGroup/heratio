@@ -468,7 +468,7 @@ class InformationObjectController extends Controller
             ->where('property.object_id', $io->id)
             ->where('property.name', 'alternativeIdentifiers')
             ->where('property_i18n.culture', $culture)
-            ->select('property_i18n.value')
+            ->select('property.id', 'property.scope as label', 'property_i18n.value')
             ->get();
 
         // Physical storage (relation type 151 = HAS_PHYSICAL_OBJECT)
@@ -1593,7 +1593,7 @@ class InformationObjectController extends Controller
             ->where('property.object_id', $io->id)
             ->where('property.name', 'alternativeIdentifiers')
             ->where('property_i18n.culture', $culture)
-            ->select('property_i18n.value')
+            ->select('property.id', 'property.scope as label', 'property_i18n.value')
             ->get();
 
         // Publication status
@@ -1939,6 +1939,43 @@ class InformationObjectController extends Controller
                     'id'        => $relId,
                     'object_id' => $ioId,
                     'term_id'   => (int) $termId,
+                ]);
+            }
+        }
+
+        // ---- Alternative identifiers (property name = alternativeIdentifiers) ----
+        if ($request->has('altIds')) {
+            $oldPropertyIds = DB::table('property')
+                ->where('object_id', $ioId)
+                ->where('name', 'alternativeIdentifiers')
+                ->pluck('id')->toArray();
+            if (!empty($oldPropertyIds)) {
+                DB::table('property_i18n')->whereIn('id', $oldPropertyIds)->delete();
+                DB::table('property')->whereIn('id', $oldPropertyIds)->delete();
+                DB::table('object')->whereIn('id', $oldPropertyIds)->delete();
+            }
+
+            foreach ((array) $request->input('altIds', []) as $row) {
+                $value = trim((string) ($row['value'] ?? ''));
+                $label = trim((string) ($row['label'] ?? ''));
+                if ($value === '' && $label === '') continue;
+
+                $propId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitProperty',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('property')->insert([
+                    'id'             => $propId,
+                    'object_id'      => $ioId,
+                    'scope'          => $label !== '' ? $label : null,
+                    'name'           => 'alternativeIdentifiers',
+                    'source_culture' => $culture,
+                ]);
+                DB::table('property_i18n')->insert([
+                    'id'      => $propId,
+                    'culture' => $culture,
+                    'value'   => $value,
                 ]);
             }
         }

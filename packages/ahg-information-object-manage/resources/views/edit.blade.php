@@ -133,7 +133,7 @@
                 <tbody>
                   @foreach($alternativeIdentifiers as $aiIdx => $ai)
                     <tr>
-                      <td><input type="text" class="form-control form-control-sm" name="altIds[{{ $aiIdx }}][label]" value="{{ $ai->value ?? '' }}" placeholder="{{ __('e.g. Former reference') }}"></td>
+                      <td><input type="text" class="form-control form-control-sm" name="altIds[{{ $aiIdx }}][label]" value="{{ $ai->label ?? '' }}" placeholder="{{ __('e.g. Former reference') }}"></td>
                       <td><input type="text" class="form-control form-control-sm" name="altIds[{{ $aiIdx }}][value]" value="{{ $ai->value ?? '' }}"></td>
                       <td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-row">{{ __('Remove') }}</button></td>
                     </tr>
