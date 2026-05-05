@@ -450,8 +450,39 @@ class GalleryService
     /**
      * Update a gallery artwork.
      */
+    /**
+     * Flat snapshot of gallery-update fields for the security_audit_log
+     * before/after diff.
+     */
+    private function auditSnapshot(int $id, string $culture = 'en'): array
+    {
+        $io = (array) (DB::table('information_object')->where('id', $id)
+            ->select('identifier', 'level_of_description_id', 'repository_id', 'icip_sensitivity',
+                'description_status_id', 'description_detail_id', 'description_identifier',
+                'source_standard', 'display_standard_id')
+            ->first() ?? []);
+        $i18n = (array) (DB::table('information_object_i18n')->where('id', $id)
+            ->where('culture', $culture)
+            ->select('title', 'alternate_title', 'extent_and_medium', 'scope_and_content',
+                'archival_history', 'acquisition', 'access_conditions', 'reproduction_conditions',
+                'physical_characteristics', 'arrangement', 'appraisal', 'accruals', 'finding_aids',
+                'location_of_originals', 'location_of_copies', 'related_units_of_description',
+                'rules', 'sources', 'revision_history', 'institution_responsible_identifier')
+            ->first() ?? []);
+        $mm = (array) (DB::table('museum_metadata')->where('object_id', $id)->first() ?? []);
+        unset($mm['id'], $mm['object_id'], $mm['created_at'], $mm['updated_at']);
+        return array_merge($io, $i18n, $mm);
+    }
+
     public function update(string $slug, array $data, string $culture = 'en'): void
     {
+        $resolved = DB::table('slug')
+            ->join('information_object', 'slug.object_id', '=', 'information_object.id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.id')
+            ->first();
+        $auditBefore = $resolved ? $this->auditSnapshot((int) $resolved->id, $culture) : [];
+
         DB::transaction(function () use ($slug, $data, $culture) {
             $io = DB::table('slug')
                 ->join('information_object', 'slug.object_id', '=', 'information_object.id')
@@ -544,6 +575,11 @@ class GalleryService
             // Update object.updated_at
             DB::table('object')->where('id', $ioId)->update(['updated_at' => now()]);
         });
+
+        if ($resolved) {
+            $auditAfter = $this->auditSnapshot((int) $resolved->id, $culture);
+            \AhgCore\Support\AuditLog::captureEdit((int) $resolved->id, 'gallery_artwork', $auditBefore, $auditAfter);
+        }
     }
 
     /**

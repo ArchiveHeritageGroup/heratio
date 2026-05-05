@@ -548,8 +548,33 @@ class RepositoryService
     /**
      * Update an existing repository.
      */
+    /**
+     * Flat snapshot of repository-update fields for the security_audit_log
+     * before/after diff.
+     */
+    private function auditSnapshot(int $id): array
+    {
+        $r = (array) (DB::table('repository')->where('id', $id)
+            ->select('identifier', 'desc_status_id', 'desc_detail_id', 'desc_identifier', 'upload_limit')
+            ->first() ?? []);
+        $a = (array) (DB::table('actor')->where('id', $id)
+            ->select('icip_sensitivity')
+            ->first() ?? []);
+        $i18n = (array) (DB::table('actor_i18n')->where('id', $id)
+            ->where('culture', $this->culture)
+            ->select('authorized_form_of_name', 'history', 'general_context', 'mandates', 'rules')
+            ->first() ?? []);
+        $rep_i18n = (array) (DB::table('repository_i18n')->where('id', $id)
+            ->where('culture', $this->culture)
+            ->first() ?? []);
+        unset($rep_i18n['id'], $rep_i18n['culture'], $rep_i18n['created_at'], $rep_i18n['updated_at']);
+        return array_merge($r, $a, $i18n, $rep_i18n);
+    }
+
     public function update(int $id, array $data): void
     {
+        $auditBefore = $this->auditSnapshot($id);
+
         DB::transaction(function () use ($id, $data) {
             // 1. Update repository record
             $repoUpdate = [];
@@ -648,6 +673,9 @@ class RepositoryService
                 'serial_number' => DB::raw('serial_number + 1'),
             ]);
         });
+
+        $auditAfter = $this->auditSnapshot($id);
+        \AhgCore\Support\AuditLog::captureEdit($id, 'repository', $auditBefore, $auditAfter);
     }
 
     /**

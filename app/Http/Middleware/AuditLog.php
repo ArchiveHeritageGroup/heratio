@@ -102,6 +102,27 @@ class AuditLog
         }
 
         $details = $action['details'] ?? null;
+
+        // Merge any service-layer before/after diff captured during the
+        // request via \AhgCore\Support\AuditLog::captureEdit(). The
+        // service stashes the diff + entity coords on request attributes
+        // (audit.diff / audit.object_id / audit.object_type); we splice
+        // them into details and override the URL-derived object coords
+        // when the service supplied a more authoritative value. This
+        // keeps the audit log to one row per request — the middleware
+        // row gets enriched rather than competing with a service row.
+        $diff = $request->attributes->get('audit.diff');
+        if (is_array($diff) && !empty($diff)) {
+            $decoded = is_string($details) ? (json_decode($details, true) ?: []) : (is_array($details) ? $details : []);
+            $details = json_encode(array_merge($decoded, $diff));
+            if (empty($action['object_id']) && $request->attributes->has('audit.object_id')) {
+                $action['object_id'] = (int) $request->attributes->get('audit.object_id');
+            }
+            if (empty($action['object_type']) && $request->attributes->has('audit.object_type')) {
+                $action['object_type'] = (string) $request->attributes->get('audit.object_type');
+            }
+        }
+
         if (($settings['audit_mask_sensitive'] ?? '1') === '1' && $details) {
             // Strip password/token/key fields from details
             $decoded = is_string($details) ? json_decode($details, true) : $details;
@@ -109,6 +130,13 @@ class AuditLog
                 foreach (['password', 'token', 'api_key', 'secret', 'salt'] as $sensitive) {
                     if (isset($decoded[$sensitive])) {
                         $decoded[$sensitive] = '***';
+                    }
+                    // Also mask inside before/after sub-arrays
+                    if (isset($decoded['before'][$sensitive])) {
+                        $decoded['before'][$sensitive] = '***';
+                    }
+                    if (isset($decoded['after'][$sensitive])) {
+                        $decoded['after'][$sensitive] = '***';
                     }
                 }
                 $details = json_encode($decoded);

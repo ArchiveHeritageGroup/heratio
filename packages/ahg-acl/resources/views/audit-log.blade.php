@@ -142,7 +142,29 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                       </div>
                       <div class="modal-body">
-                        <pre class="bg-light p-3 rounded small">{{ is_string($log->details) ? $log->details : json_encode($log->details, JSON_PRETTY_PRINT) }}</pre>
+                        @php
+                          $d = is_string($log->details) ? json_decode($log->details, true) : $log->details;
+                          $changed = is_array($d) && isset($d['changed_fields']) ? (array) $d['changed_fields'] : [];
+                        @endphp
+                        @if(!empty($changed))
+                          <h6 class="mb-2 small text-uppercase text-muted">{{ __('Field changes') }}</h6>
+                          <table class="table table-sm table-striped mb-3">
+                            <thead><tr><th>{{ __('Field') }}</th><th>{{ __('Before') }}</th><th>{{ __('After') }}</th></tr></thead>
+                            <tbody>
+                              @foreach($changed as $field)
+                                <tr>
+                                  <td><code>{{ $field }}</code></td>
+                                  <td class="small text-danger" style="white-space:pre-wrap;">{{ is_scalar($d['before'][$field] ?? null) ? ($d['before'][$field] ?? '—') : json_encode($d['before'][$field] ?? null, JSON_UNESCAPED_UNICODE) }}</td>
+                                  <td class="small text-success" style="white-space:pre-wrap;">{{ is_scalar($d['after'][$field] ?? null)  ? ($d['after'][$field]  ?? '—') : json_encode($d['after'][$field]  ?? null, JSON_UNESCAPED_UNICODE) }}</td>
+                                </tr>
+                              @endforeach
+                            </tbody>
+                          </table>
+                        @endif
+                        <details>
+                          <summary class="small text-muted">{{ __('Raw payload') }}</summary>
+                          <pre class="bg-light p-3 rounded small">{{ is_string($log->details) ? $log->details : json_encode($log->details, JSON_PRETTY_PRINT) }}</pre>
+                        </details>
                         @if($log->user_agent)
                           <hr><small class="text-muted">{{ __('User Agent') }}</small>
                           <div><code class="small">{{ $log->user_agent }}</code></div>

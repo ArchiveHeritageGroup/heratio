@@ -359,6 +359,46 @@ class LibraryService
     }
 
     /**
+     * Build a flat snapshot of the fields this service writes during update,
+     * for the security_audit_log before/after diff. Pulls only columns that
+     * update() can change, so the diff doesn't surface noise like
+     * updated_at or serial_number.
+     */
+    private function auditSnapshot(int $id): array
+    {
+        $io = (array) (DB::table('information_object')->where('id', $id)
+            ->select('identifier', 'level_of_description_id', 'repository_id', 'icip_sensitivity')
+            ->first() ?? []);
+        $i18n = (array) (DB::table('information_object_i18n')->where('id', $id)
+            ->where('culture', $this->culture)
+            ->select('title', 'scope_and_content')
+            ->first() ?? []);
+        $li = (array) (DB::table('library_item')->where('information_object_id', $id)
+            ->select('material_type', 'subtitle', 'responsibility_statement', 'call_number',
+                'classification_scheme', 'classification_number', 'dewey_decimal', 'cutter_number',
+                'shelf_location', 'copy_number', 'volume_designation', 'isbn', 'issn', 'lccn',
+                'oclc_number', 'openlibrary_id', 'goodreads_id', 'librarything_id', 'openlibrary_url',
+                'ebook_preview_url', 'cover_url', 'cover_url_original', 'doi', 'barcode',
+                'edition', 'edition_statement', 'publisher', 'publication_place', 'publication_date',
+                'series_title', 'series_number', 'pagination', 'dimensions', 'physical_details',
+                'contents_note', 'general_note', 'bibliography_note')
+            ->first() ?? []);
+        $creators = DB::table('library_item_creator as c')
+            ->join('library_item as li', 'li.id', '=', 'c.library_item_id')
+            ->where('li.information_object_id', $id)
+            ->orderBy('c.sort_order')
+            ->pluck('c.name')->toArray();
+        $subjects = DB::table('library_item_subject as s')
+            ->join('library_item as li', 'li.id', '=', 's.library_item_id')
+            ->where('li.information_object_id', $id)
+            ->pluck('s.heading')->toArray();
+        return array_merge($io, $i18n, $li, [
+            'creators' => $creators,
+            'subjects' => $subjects,
+        ]);
+    }
+
+    /**
      * Update an existing library item.
      */
     public function update(string $slug, array $data): void
@@ -369,6 +409,9 @@ class LibraryService
         }
 
         $id = $item->id;
+
+        // Snapshot before — for security_audit_log before/after diff.
+        $auditBefore = $this->auditSnapshot($id);
 
         DB::transaction(function () use ($id, $data) {
             // 1. Update information_object
@@ -484,6 +527,13 @@ class LibraryService
                 'serial_number' => DB::raw('serial_number + 1'),
             ]);
         });
+
+        // Snapshot after the transaction commits, then capture the diff
+        // for the audit log. The middleware merges it into the row it
+        // writes for this request — see app/Http/Middleware/AuditLog.php
+        // and packages/ahg-core/src/Support/AuditLog.php.
+        $auditAfter = $this->auditSnapshot($id);
+        \AhgCore\Support\AuditLog::captureEdit($id, 'library_item', $auditBefore, $auditAfter);
     }
 
     /**

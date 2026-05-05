@@ -269,8 +269,29 @@ class AccessionService
     /**
      * Update an existing accession.
      */
+    /**
+     * Flat snapshot of accession-update fields for the security_audit_log
+     * before/after diff.
+     */
+    private function auditSnapshot(int $id): array
+    {
+        $acc = (array) (DB::table('accession')->where('id', $id)
+            ->select('identifier', 'date', 'acquisition_type_id', 'processing_priority_id',
+                'processing_status_id', 'resource_type_id')
+            ->first() ?? []);
+        $i18n = (array) (DB::table('accession_i18n')->where('id', $id)
+            ->where('culture', $this->culture)
+            ->select('title', 'scope_and_content', 'appraisal', 'archival_history',
+                'location_information', 'physical_characteristics', 'processing_notes',
+                'received_extent_units', 'source_of_acquisition')
+            ->first() ?? []);
+        return array_merge($acc, $i18n);
+    }
+
     public function update(int $id, array $data): void
     {
+        $auditBefore = $this->auditSnapshot($id);
+
         DB::transaction(function () use ($id, $data) {
             // 1. Update accession record
             $accessionUpdate = [];
@@ -324,6 +345,9 @@ class AccessionService
                 'serial_number' => DB::raw('serial_number + 1'),
             ]);
         });
+
+        $auditAfter = $this->auditSnapshot($id);
+        \AhgCore\Support\AuditLog::captureEdit($id, 'accession', $auditBefore, $auditAfter);
     }
 
     /**

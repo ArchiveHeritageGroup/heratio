@@ -834,8 +834,29 @@ class ActorService
     /**
      * Update an existing actor.
      */
+    /**
+     * Flat snapshot of actor-update fields for the security_audit_log
+     * before/after diff.
+     */
+    private function auditSnapshot(int $id): array
+    {
+        $a = (array) (DB::table('actor')->where('id', $id)
+            ->select('entity_type_id', 'description_status_id', 'description_detail_id',
+                'description_identifier', 'source_standard', 'corporate_body_identifiers',
+                'parent_id', 'icip_sensitivity')
+            ->first() ?? []);
+        $i18n = (array) (DB::table('actor_i18n')->where('id', $id)
+            ->where('culture', $this->culture ?? 'en')
+            ->select('authorized_form_of_name', 'history', 'mandates', 'rules',
+                'general_context', 'institution_responsible_identifier')
+            ->first() ?? []);
+        return array_merge($a, $i18n);
+    }
+
     public function update(int $id, array $data): void
     {
+        $auditBefore = $this->auditSnapshot($id);
+
         DB::transaction(function () use ($id, $data) {
             // 1. Update actor record
             $actorUpdate = [];
@@ -918,6 +939,9 @@ class ActorService
                 'serial_number' => DB::raw('serial_number + 1'),
             ]);
         });
+
+        $auditAfter = $this->auditSnapshot($id);
+        \AhgCore\Support\AuditLog::captureEdit($id, 'actor', $auditBefore, $auditAfter);
     }
 
     /**

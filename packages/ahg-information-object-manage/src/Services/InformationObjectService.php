@@ -273,10 +273,36 @@ class InformationObjectService
      * Only the provided keys are updated; missing keys are left unchanged.
      * Data keys may be either snake_case or camelCase.
      */
+    /**
+     * Flat snapshot of IO-update fields for the security_audit_log
+     * before/after diff. Captures the structural columns + the i18n
+     * narrative fields most edits touch. See packages/ahg-core/src/Support/AuditLog.php.
+     */
+    private static function auditSnapshot(int $id, string $culture): array
+    {
+        $io = (array) (DB::table('information_object')->where('id', $id)
+            ->select('identifier', 'level_of_description_id', 'collection_type_id', 'repository_id',
+                'description_status_id', 'description_detail_id', 'description_identifier',
+                'source_standard', 'display_standard_id', 'icip_sensitivity', 'parent_id')
+            ->first() ?? []);
+        $i18n = (array) (DB::table('information_object_i18n')->where('id', $id)
+            ->where('culture', $culture)
+            ->select('title', 'alternate_title', 'extent_and_medium', 'scope_and_content',
+                'archival_history', 'acquisition', 'access_conditions', 'reproduction_conditions',
+                'physical_characteristics', 'arrangement', 'appraisal', 'accruals', 'finding_aids',
+                'location_of_originals', 'location_of_copies', 'related_units_of_description',
+                'rules', 'sources', 'revision_history', 'institution_responsible_identifier',
+                'edition_statement')
+            ->first() ?? []);
+        return array_merge($io, $i18n);
+    }
+
     public static function update(int $id, array $data, ?string $culture = null): void
     {
         $culture = $culture ?: app()->getLocale();
         $data = self::normalizeKeys($data);
+
+        $auditBefore = self::auditSnapshot($id, $culture);
 
         DB::transaction(function () use ($id, $data, $culture) {
             // 1. Update structural fields on information_object
@@ -348,6 +374,9 @@ class InformationObjectService
             // 4. Touch the object
             DB::table('object')->where('id', $id)->update(['updated_at' => now()]);
         });
+
+        $auditAfter = self::auditSnapshot($id, $culture);
+        \AhgCore\Support\AuditLog::captureEdit($id, 'information_object', $auditBefore, $auditAfter);
     }
 
     // ─── Delete ──────────────────────────────────────────────────────

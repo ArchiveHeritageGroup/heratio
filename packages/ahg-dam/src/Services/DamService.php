@@ -375,12 +375,32 @@ class DamService
     /**
      * Update an existing DAM asset.
      */
+    /**
+     * Flat snapshot of DAM-update fields for the security_audit_log
+     * before/after diff.
+     */
+    private function auditSnapshot(int $id): array
+    {
+        $io = (array) (DB::table('information_object')->where('id', $id)
+            ->select('identifier', 'parent_id', 'repository_id', 'level_of_description_id', 'icip_sensitivity')
+            ->first() ?? []);
+        $i18n = (array) (DB::table('information_object_i18n')->where('id', $id)
+            ->where('culture', $this->culture)
+            ->select('title', 'scope_and_content', 'extent_and_medium')
+            ->first() ?? []);
+        $iptc = (array) (DB::table('dam_iptc_metadata')->where('object_id', $id)->first() ?? []);
+        unset($iptc['id'], $iptc['object_id'], $iptc['created_at'], $iptc['updated_at']);
+        return array_merge($io, $i18n, $iptc);
+    }
+
     public function update(string $slug, array $data): void
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
         if (!$objectId) {
             return;
         }
+
+        $auditBefore = $this->auditSnapshot((int) $objectId);
 
         DB::transaction(function () use ($objectId, $data) {
             // 1. Update information_object
@@ -488,6 +508,9 @@ class DamService
                 'serial_number' => DB::raw('serial_number + 1'),
             ]);
         });
+
+        $auditAfter = $this->auditSnapshot((int) $objectId);
+        \AhgCore\Support\AuditLog::captureEdit((int) $objectId, 'dam_asset', $auditBefore, $auditAfter);
     }
 
     /**

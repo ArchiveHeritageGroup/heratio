@@ -531,8 +531,35 @@ class MuseumService
     /**
      * Update an existing museum object by slug.
      */
+    /**
+     * Flat snapshot of museum-update fields for the security_audit_log
+     * before/after diff. See packages/ahg-core/src/Support/AuditLog.php.
+     */
+    private function auditSnapshot(int $id): array
+    {
+        $io = (array) (DB::table('information_object')->where('id', $id)
+            ->select('identifier', 'level_of_description_id', 'repository_id', 'icip_sensitivity')
+            ->first() ?? []);
+        $i18n = (array) (DB::table('information_object_i18n')->where('id', $id)
+            ->where('culture', $this->culture)
+            ->select('title', 'alternate_title', 'scope_and_content', 'extent_and_medium',
+                'access_conditions', 'reproduction_conditions', 'physical_characteristics')
+            ->first() ?? []);
+        $mm = (array) (DB::table('museum_metadata')->where('object_id', $id)->first() ?? []);
+        unset($mm['id'], $mm['object_id'], $mm['created_at'], $mm['updated_at']);
+        return array_merge($io, $i18n, $mm);
+    }
+
     public function update(string $slug, array $data): void
     {
+        // Resolve id once so we can snapshot before the transaction.
+        $resolved = DB::table('slug')
+            ->join('information_object', 'slug.object_id', '=', 'information_object.id')
+            ->where('slug.slug', $slug)
+            ->select('information_object.id')
+            ->first();
+        $auditBefore = $resolved ? $this->auditSnapshot((int) $resolved->id) : [];
+
         DB::transaction(function () use ($slug, $data) {
             $record = DB::table('slug')
                 ->join('information_object', 'slug.object_id', '=', 'information_object.id')
@@ -682,6 +709,11 @@ class MuseumService
                 ->where('id', $ioId)
                 ->update(['updated_at' => now()]);
         });
+
+        if ($resolved) {
+            $auditAfter = $this->auditSnapshot((int) $resolved->id);
+            \AhgCore\Support\AuditLog::captureEdit((int) $resolved->id, 'museum_object', $auditBefore, $auditAfter);
+        }
     }
 
     /**
