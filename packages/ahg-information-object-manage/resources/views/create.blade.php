@@ -536,7 +536,139 @@
         </h2>
         <div id="watermark-collapse" class="accordion-collapse collapse" aria-labelledby="watermark-heading">
           <div class="accordion-body">
-            <p class="text-muted">Watermark settings are managed via the digital object interface.</p>
+            {{-- Mirrors the PSIS / ahgMuseumPlugin _watermarkSettings.php template.
+                 No object_watermark_setting row exists yet for a brand-new IO,
+                 so every field defaults — store() picks up the values via the
+                 same save block edit() uses. --}}
+            @php
+              $wmEnabled       = old('watermark_enabled', 0) ? 1 : 0;
+              $wmSelectedType  = old('watermark_type_id', '');
+              $wmSelectedCust  = old('custom_watermark_id', '');
+              $wmPosition      = old('new_watermark_position', 'center');
+              $wmOpacity       = (float) old('new_watermark_opacity', 40);
+            @endphp
+
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch"
+                       id="watermark_enabled" name="watermark_enabled" value="1"
+                       @checked($wmEnabled)
+                       style="width: 3em; height: 1.5em;">
+                <label class="form-check-label ms-2" for="watermark_enabled">
+                  <strong>{{ __('Enable watermark for this object') }}</strong>
+                </label>
+              </div>
+            </div>
+
+            <div id="watermark-options" style="{{ $wmEnabled ? '' : 'display:none;' }}">
+
+              <div class="mb-3">
+                <label for="watermark_type_id" class="form-label">{{ __('System watermark') }}</label>
+                <select name="watermark_type_id" id="watermark_type_id" class="form-select">
+                  <option value="">{{ __('Use default') }}</option>
+                  @foreach($watermarkTypes ?? [] as $wm)
+                    <option value="{{ $wm->id }}" @selected($wmSelectedType == $wm->id)>{{ $wm->name }}</option>
+                  @endforeach
+                </select>
+              </div>
+
+              @if(!empty($customWatermarks) && count($customWatermarks) > 0)
+                <div class="mb-3">
+                  <label for="custom_watermark_id" class="form-label">{{ __('Or use Custom Watermark') }}</label>
+                  <select name="custom_watermark_id" id="custom_watermark_id" class="form-select">
+                    <option value="">{{ __('None') }}</option>
+                    @foreach($customWatermarks as $cw)
+                      <option value="{{ $cw->id }}" @selected($wmSelectedCust == $cw->id)>
+                        {{ $cw->name }}@if(empty($cw->object_id)) ({{ __('Global') }})@endif
+                      </option>
+                    @endforeach
+                  </select>
+                </div>
+              @endif
+
+              <div class="card border-warning bg-warning-subtle mb-3">
+                <div class="card-body">
+                  <h6 class="card-title">{{ __('Upload NEW Custom Watermark') }}</h6>
+                  <p class="text-muted small mb-3">{{ __('Leave empty to keep existing selection above.') }}</p>
+
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="new_watermark_name" class="form-label">{{ __('Watermark name') }}</label>
+                      <input type="text" class="form-control form-control-sm" id="new_watermark_name"
+                             name="new_watermark_name" placeholder="{{ __('e.g. Company logo') }}">
+                    </div>
+                    <div class="col-md-6">
+                      <label for="new_watermark_file" class="form-label">{{ __('Watermark image') }}</label>
+                      <input type="file" class="form-control form-control-sm" id="new_watermark_file"
+                             name="new_watermark_file" accept="image/png,image/gif">
+                      <div class="form-text">{{ __('PNG or GIF with transparency recommended') }}</div>
+                    </div>
+                  </div>
+
+                  <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                      <label for="new_watermark_position" class="form-label">{{ __('Position') }}</label>
+                      <select name="new_watermark_position" id="new_watermark_position" class="form-select form-select-sm">
+                        @foreach([
+                            'center' => __('Center'),
+                            'top left' => __('Top left'),
+                            'top center' => __('Top center'),
+                            'top right' => __('Top right'),
+                            'left center' => __('Left center'),
+                            'right center' => __('Right center'),
+                            'bottom left' => __('Bottom left'),
+                            'bottom center' => __('Bottom center'),
+                            'bottom right' => __('Bottom right'),
+                            'repeat' => __('Repeat / tile'),
+                        ] as $val => $label)
+                          <option value="{{ $val }}" @selected($wmPosition === $val)>{{ $label }}</option>
+                        @endforeach
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="new_watermark_opacity" class="form-label">
+                        {{ __('Opacity') }}: <span id="watermark-opacity-value">{{ (int) $wmOpacity }}%</span>
+                      </label>
+                      <input type="range" class="form-range" id="new_watermark_opacity"
+                             name="new_watermark_opacity" min="10" max="100" step="5"
+                             value="{{ (int) $wmOpacity }}">
+                    </div>
+                  </div>
+
+                  <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" id="new_watermark_global"
+                           name="new_watermark_global" value="1">
+                    <label class="form-check-label" for="new_watermark_global">
+                      {{ __('Make available globally (for all records)') }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <script nonce="{{ csp_nonce() }}">
+            (function () {
+              var enableToggle = document.getElementById('watermark_enabled');
+              var optionsDiv   = document.getElementById('watermark-options');
+              if (enableToggle && optionsDiv) {
+                enableToggle.addEventListener('change', function () {
+                  optionsDiv.style.display = this.checked ? 'block' : 'none';
+                });
+              }
+              var slider = document.getElementById('new_watermark_opacity');
+              var label  = document.getElementById('watermark-opacity-value');
+              if (slider && label) {
+                slider.addEventListener('input', function () { label.textContent = this.value + '%'; });
+              }
+              var sysSel  = document.getElementById('watermark_type_id');
+              var custSel = document.getElementById('custom_watermark_id');
+              if (sysSel && custSel) {
+                custSel.addEventListener('change', function () { if (this.value) sysSel.value  = ''; });
+                sysSel.addEventListener('change',  function () { if (this.value) custSel.value = ''; });
+              }
+            })();
+            </script>
           </div>
         </div>
       </div>

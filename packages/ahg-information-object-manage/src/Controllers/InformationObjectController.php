@@ -1753,10 +1753,22 @@ class InformationObjectController extends Controller
 
         $dropdowns = $this->getFormDropdowns($culture);
 
+        // Watermark Settings — only the global pool of custom watermarks
+        // is meaningful on a brand-new IO (no per-object rows yet).
+        $customWatermarks = collect();
+        try {
+            $customWatermarks = DB::table('custom_watermark')
+                ->where('active', 1)
+                ->whereNull('object_id')
+                ->orderBy('name')
+                ->get();
+        } catch (\Throwable $e) { /* table may be missing in some installs */ }
+
         return view('ahg-io-manage::create', array_merge(
             [
                 'parentId' => $parentId,
                 'parentTitle' => $parentTitle,
+                'customWatermarks' => $customWatermarks,
             ],
             $dropdowns
         ));
@@ -2602,6 +2614,60 @@ class InformationObjectController extends Controller
             'object_id' => $objectId,
             'slug' => $slug,
         ]);
+
+        // Watermark Settings — same canonical write path as update(). Triggers
+        // when any watermark field is present so a brand-new IO can be saved
+        // with watermark wiring already in place.
+        if ($request->has('watermark_enabled') || $request->hasFile('new_watermark_file')
+            || $request->has('watermark_type_id') || $request->has('custom_watermark_id')) {
+
+            $watermarkEnabled  = $request->boolean('watermark_enabled') ? 1 : 0;
+            $watermarkTypeId   = $request->filled('watermark_type_id')   ? (int) $request->input('watermark_type_id')   : null;
+            $customWatermarkId = $request->filled('custom_watermark_id') ? (int) $request->input('custom_watermark_id') : null;
+            $position          = (string) $request->input('new_watermark_position', 'center');
+            $opacity           = ((int) $request->input('new_watermark_opacity', 40)) / 100;
+
+            if ($request->hasFile('new_watermark_file') && $request->file('new_watermark_file')->isValid()) {
+                $uploaded = $request->file('new_watermark_file');
+                $mime = $uploaded->getMimeType();
+                if (in_array($mime, ['image/png', 'image/gif'], true)) {
+                    $ext      = $mime === 'image/gif' ? 'gif' : 'png';
+                    $filename = 'watermark_' . uniqid() . '.' . $ext;
+                    $destDir  = rtrim(config('heratio.uploads_path'), '/') . '/watermarks';
+                    if (!is_dir($destDir)) { @mkdir($destDir, 0755, true); }
+                    $destPath = $destDir . '/' . $filename;
+                    if ($uploaded->move($destDir, $filename)) {
+                        @chmod($destPath, 0644);
+                        $isGlobal = $request->boolean('new_watermark_global');
+                        $newCustomId = DB::table('custom_watermark')->insertGetId([
+                            'object_id'  => $isGlobal ? null : $objectId,
+                            'name'       => $request->input('new_watermark_name') ?: 'Custom Watermark',
+                            'filename'   => $filename,
+                            'file_path'  => $destPath,
+                            'position'   => $position,
+                            'opacity'    => $opacity,
+                            'created_by' => (int) (auth()->id() ?? 0),
+                            'active'     => 1,
+                            'created_at' => now(),
+                        ]);
+                        $customWatermarkId = $newCustomId;
+                        $watermarkTypeId   = null;
+                    }
+                }
+            }
+
+            DB::table('object_watermark_setting')->updateOrInsert(
+                ['object_id' => $objectId],
+                [
+                    'watermark_enabled'   => $watermarkEnabled,
+                    'watermark_type_id'   => $watermarkTypeId,
+                    'custom_watermark_id' => $customWatermarkId,
+                    'position'            => $position,
+                    'opacity'             => $opacity,
+                    'updated_at'          => now(),
+                ]
+            );
+        }
 
         return redirect()
             ->route('informationobject.show', $slug)
