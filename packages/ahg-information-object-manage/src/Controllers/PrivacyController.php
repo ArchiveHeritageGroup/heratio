@@ -29,6 +29,7 @@ namespace AhgInformationObjectManage\Controllers;
 
 use AhgInformationObjectManage\Services\AiNerService;
 use AhgInformationObjectManage\Services\PrivacyService;
+use AhgInformationObjectManage\Services\RedactionRenderService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
@@ -332,11 +333,94 @@ class PrivacyController extends Controller
             ], 500);
         }
 
+        // Bust the cached redacted file so the next non-admin viewer
+        // re-renders against the updated region set.
+        try {
+            app(RedactionRenderService::class)->invalidate((int) $io->id);
+        } catch (\Throwable $e) { /* not fatal */ }
+
         return response()->json([
             'success' => true,
             'count'   => count($regions),
             'message' => count($regions) . ' redaction region' . (count($regions) === 1 ? '' : 's') . ' saved.',
         ]);
+    }
+
+    /**
+     * Stream the redacted master file to non-admin viewers. Admins are
+     * redirected to the original. On cache miss, renders synchronously
+     * via RedactionRenderService.
+     *
+     * GET /privacy/redacted-asset/{slug}
+     */
+    public function redactedAsset(string $slug)
+    {
+        $io = $this->getIO($slug);
+        if (!$io) abort(404);
+
+        $isAdmin = auth()->check() && auth()->user()
+            && (method_exists(auth()->user(), 'isAdministrator')
+                ? auth()->user()->isAdministrator()
+                : (bool) (auth()->user()->is_admin ?? false));
+
+        $master = DB::table('digital_object')
+            ->where('object_id', $io->id)
+            ->whereNull('parent_id')
+            ->first();
+        if (!$master) abort(404);
+
+        // Admins bypass the redactor — return the original file.
+        if ($isAdmin) {
+            return $this->streamOriginal($master);
+        }
+
+        $renderer = app(RedactionRenderService::class);
+        $redactedPath = $renderer->render((int) $io->id);
+        if (!$redactedPath || !file_exists($redactedPath)) {
+            // No redactions OR render failed — fall through to original.
+            // Logging this so unexpected failures surface in the audit log.
+            if ($redactedPath === null) {
+                \Log::info('[redaction] no regions; serving original', ['io_id' => $io->id]);
+            }
+            return $this->streamOriginal($master);
+        }
+
+        return response()->file($redactedPath, [
+            'Content-Type'        => $master->mime_type ?: 'application/octet-stream',
+            'Content-Disposition' => 'inline; filename="' . basename($master->name) . '"',
+            'X-Heratio-Redacted'  => '1',
+        ]);
+    }
+
+    private function streamOriginal(object $master)
+    {
+        // Same resolver as RedactionRenderService — the web-facing path field
+        // starts with /uploads/r/ which has to be stripped before joining
+        // with config('heratio.uploads_path').
+        $uploads = rtrim(config('heratio.uploads_path', '/mnt/nas/heratio/archive'), '/');
+        $rawPath = ltrim((string) $master->path, '/');
+        $stripped = $rawPath;
+        foreach (['uploads/r/', 'uploads/'] as $prefix) {
+            if (str_starts_with($stripped, $prefix)) {
+                $stripped = substr($stripped, strlen($prefix));
+                break;
+            }
+        }
+        $candidates = [
+            $uploads . '/' . $stripped . $master->name,
+            $uploads . '/' . $rawPath . $master->name,
+            rtrim((string) $master->path, '/') . '/' . $master->name,
+            $uploads . '/' . $master->name,
+        ];
+        foreach ($candidates as $c) {
+            if ($c && file_exists($c)) {
+                return response()->file($c, [
+                    'Content-Type'        => $master->mime_type ?: 'application/octet-stream',
+                    'Content-Disposition' => 'inline; filename="' . basename($master->name) . '"',
+                ]);
+            }
+        }
+        abort(404);
     }
 
     /**

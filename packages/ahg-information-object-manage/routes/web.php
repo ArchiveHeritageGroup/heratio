@@ -39,6 +39,11 @@ Route::get('/informationobject/browse', [InformationObjectController::class, 'br
 Route::get('/informationobject/autocomplete', [InformationObjectController::class, 'autocomplete'])->name('informationobject.autocomplete');
 Route::get('/informationobject/{slug}/print', [InformationObjectController::class, 'print'])->name('informationobject.print')->middleware('odrl:reproduce');
 
+// Redacted asset — public on purpose (non-admin viewers must reach this).
+// The controller does its own admin/non-admin gating: admins are served
+// the original, non-admins get the cached/rendered redacted file.
+Route::get('/privacy/redacted-asset/{slug}', [PrivacyController::class, 'redactedAsset'])->name('io.privacy.redacted-asset');
+
 // IO CRUD routes require auth + ACL
 Route::middleware('auth')->group(function () {
     Route::post('/admin/fix-missing-slug', [InformationObjectController::class, 'fixMissingSlug'])->name('admin.fix-missing-slug');

@@ -32,6 +32,31 @@
       $masterUrl = $masterObj ? \AhgCore\Services\DigitalObjectService::getUrl($masterObj) : '';
       $refUrl = $refObj ? \AhgCore\Services\DigitalObjectService::getUrl($refObj) : '';
       $thumbUrl = $thumbObj ? \AhgCore\Services\DigitalObjectService::getUrl($thumbObj) : '';
+
+      // Redaction reroute. Non-admin viewers must never see the un-redacted
+      // master — redirect master/reference URLs through the redacted-asset
+      // endpoint when there are redactions on file. The endpoint streams
+      // the cached/rendered redacted file; admins fall through to original.
+      $__hasRedactions = false;
+      try {
+          if (\Illuminate\Support\Facades\Schema::hasTable('privacy_visual_redaction')) {
+              $__hasRedactions = \Illuminate\Support\Facades\DB::table('privacy_visual_redaction')
+                  ->where('object_id', $io->id)
+                  ->whereIn('status', ['applied', 'reviewed', 'pending'])
+                  ->exists();
+          }
+      } catch (\Throwable $e) { /* table missing — leave flag false */ }
+      $__isAdminViewer = auth()->check() && auth()->user()
+          && (method_exists(auth()->user(), 'isAdministrator')
+              ? auth()->user()->isAdministrator()
+              : (bool) (auth()->user()->is_admin ?? false));
+      if ($__hasRedactions && !$__isAdminViewer) {
+          $__redactedUrl = route('io.privacy.redacted-asset', $io->slug);
+          $masterUrl = $__redactedUrl;
+          $refUrl    = $__redactedUrl;
+          // Thumbnails stay on the original — they're typically too small to
+          // contain redactable content, and re-rendering thumbs is expensive.
+      }
       $masterMediaType = $masterObj ? \AhgCore\Services\DigitalObjectService::getMediaType($masterObj) : null;
       $isPdf = $masterObj && $masterObj->mime_type === 'application/pdf';
 
