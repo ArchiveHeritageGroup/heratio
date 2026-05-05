@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const q = this.value.trim();
         if (q.length < 2) { resultsList.style.display = 'none'; return; }
         debounce = setTimeout(() => {
-            fetch(`${RIC_API_BASE}/autocomplete?q=${encodeURIComponent(q)}`, { credentials: 'same-origin' })
+            fetch(`/api/ric/v1/autocomplete?q=${encodeURIComponent(q)}`, { credentials: 'same-origin' })
                 .then(r => r.json())
                 .then(items => {
                     if (!items.length) { resultsList.innerHTML = '<div class="list-group-item text-muted">No results</div>'; resultsList.style.display = ''; return; }
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
             objectId = targetId;
         }
 
-        fetch(`${RIC_API_BASE}/relations`, {
+        fetch(`/api/ric/v1/relations`, {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },

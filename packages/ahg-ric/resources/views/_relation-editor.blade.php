@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const q = this.value.trim();
         if (q.length < 2) { acList.style.display = 'none'; return; }
         debounce = setTimeout(() => {
-            fetch(`${RIC_API_BASE}/autocomplete?q=${encodeURIComponent(q)}`, { credentials: 'same-origin' })
+            fetch(`/api/ric/v1/autocomplete?q=${encodeURIComponent(q)}`, { credentials: 'same-origin' })
                 .then(r => r.json())
                 .then(items => {
                     if (!items.length) { acList.style.display = 'none'; return; }
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!recordId) return;
         // Public API returns grouped {outgoing, incoming}; flatten for the
         // existing table renderer which expects a flat array with `direction`.
-        fetch(`${RIC_API_BASE}/relations-for/${recordId}`, { credentials: 'same-origin' })
+        fetch(`/api/ric/v1/relations-for/${recordId}`, { credentials: 'same-origin' })
             .then(r => r.json())
             .then(payload => {
                 const flat = [

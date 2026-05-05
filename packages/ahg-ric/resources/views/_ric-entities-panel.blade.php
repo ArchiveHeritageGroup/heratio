@@ -131,8 +131,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.ric-count-rules').textContent = 0;
     }
 
-    // Load entities for this record
-    fetch(`${RIC_API_BASE}/records/${recordId}/entities`, { credentials: 'same-origin' })
+    // Load entities for this record. Reads go LOCAL (/api/ric/v1) not
+    // ${RIC_API_BASE} for two reasons: (a) ric_* tables live in Heratio per
+    // the separation plan, so OpenRiC has nothing extra to add for this
+    // endpoint; (b) Heratio's CSP connect-src does not list
+    // https://ric.theahg.co.za, so a cross-origin fetch is silently blocked.
+    fetch(`/api/ric/v1/records/${recordId}/entities`, { credentials: 'same-origin' })
         .then(r => r.ok ? r.json() : null)
         .then(data => {
             if (!data) { renderEmpty(); return; }
@@ -149,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Load relations — public API returns grouped {outgoing, incoming};
     // flatten back for the legacy table renderer.
-    fetch(`${RIC_API_BASE}/relations-for/${recordId}`, { credentials: 'same-origin' })
+    fetch(`/api/ric/v1/relations-for/${recordId}`, { credentials: 'same-origin' })
         .then(r => r.ok ? r.json() : null)
         .then(payload => {
             if (!payload) {
@@ -214,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.ricDeleteEntity = function(id) {
         if (!confirm('Delete this RiC entity?')) return;
-        fetch(`${RIC_API_BASE}/entities/${id}`, { method: 'DELETE', credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+        fetch(`/api/ric/v1/entities/${id}`, { method: 'DELETE', credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
             .then(() => location.reload());
     };
 });

@@ -153,7 +153,7 @@
         const q = this.value.trim();
         if (q.length < 2) { resultsEl.style.display = 'none'; return; }
         debounce = setTimeout(() => {
-            fetch(`${RIC_API_BASE}/autocomplete?q=${encodeURIComponent(q)}&types=place,rule,activity,instantiation&limit=15`)
+            fetch(`/api/ric/v1/autocomplete?q=${encodeURIComponent(q)}&types=place,rule,activity,instantiation&limit=15`)
                 .then(r => r.json())
                 .then(items => {
                     if (!Array.isArray(items) || !items.length) {

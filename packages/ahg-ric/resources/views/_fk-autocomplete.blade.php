@@ -47,7 +47,7 @@ Required vars:
         toggleClearBtn();
         if (q.length < 2) { hideAc(); return; }
         debounce = setTimeout(() => {
-            fetch(`${RIC_API_BASE}/autocomplete?q=${encodeURIComponent(q)}&types=${encodeURIComponent(types)}`, { credentials: 'same-origin' })
+            fetch(`/api/ric/v1/autocomplete?q=${encodeURIComponent(q)}&types=${encodeURIComponent(types)}`, { credentials: 'same-origin' })
                 .then(r => r.json())
                 .then(items => {
                     if (!items.length) { hideAc(); return; }
