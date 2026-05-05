@@ -46,6 +46,10 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                 showNavigator: true,
                 navigatorPosition: 'BOTTOM_RIGHT',
                 prefixUrl: '/vendor/openseadragon/6.0.2/images/',
+                // openseadragon-filtering rewrites pixels on the 2D canvas via
+                // tile-loaded; the WebGL drawer (OSD 6 default) never reads
+                // those pixels, so filters silently no-op. Force canvas.
+                drawer: 'canvas',
                 gestureSettingsMouse: { clickToZoom: true, dblClickToZoom: true },
                 gestureSettingsTouch: { pinchToZoom: true },
                 animationTime: 0.5,
