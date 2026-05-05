@@ -624,6 +624,10 @@ document.addEventListener('DOMContentLoaded', function() {
             fabricCanvas.setHeight(viewport.height);
             fabricCanvas.renderAll();
           }
+          // Track pdf-canvas's current position so the Fabric overlay aligns
+          // when the PDF is centered (margin: 0 auto) at narrow zoom levels.
+          syncFabricPositionToPdfCanvas();
+          requestAnimationFrame(syncFabricPositionToPdfCanvas);
 
           document.getElementById('current-page').textContent = pageNum;
         });
@@ -1008,6 +1012,22 @@ document.addEventListener('DOMContentLoaded', function() {
   // =========================================================================
   // Zoom Controls
   // =========================================================================
+  // Sync Fabric overlay's wrapper position to track pdf-canvas. The CSS
+  // rule `#pdf-canvas { margin: 0 auto }` centers the PDF horizontally when
+  // it's narrower than the wrapper (i.e. zoomed out below 100%), but the
+  // Fabric overlay sits at left:0 anchored to the wrapper — which makes the
+  // rectangles drift left of the actual content. After each (re)render of
+  // the PDF canvas, copy pdf-canvas's offsetLeft/offsetTop onto Fabric's
+  // .canvas-container so both stay aligned at every zoom level.
+  function syncFabricPositionToPdfCanvas() {
+    if (!fabricCanvas) return;
+    var pdfCanvas = document.getElementById('pdf-canvas');
+    var wrap = fabricCanvas.lowerCanvasEl && fabricCanvas.lowerCanvasEl.parentElement;
+    if (!pdfCanvas || !wrap) return;
+    wrap.style.left = pdfCanvas.offsetLeft + 'px';
+    wrap.style.top  = pdfCanvas.offsetTop  + 'px';
+  }
+
   // Rescale every Fabric object by the ratio between old/new canvas dims,
   // then resize the canvas. Without this, rectangles drawn at one zoom level
   // stay at their original pixel coordinates when the canvas grows or
@@ -1050,10 +1070,21 @@ document.addEventListener('DOMContentLoaded', function() {
       var pdfCanvas = document.getElementById('pdf-canvas');
       pdfCanvas.height = viewport.height;
       pdfCanvas.width  = viewport.width;
-      page.render({ canvasContext: pdfCanvas.getContext('2d'), viewport: viewport });
+      page.render({ canvasContext: pdfCanvas.getContext('2d'), viewport: viewport })
+        .promise.then(syncFabricPositionToPdfCanvas);
       rescaleFabricObjectsAndResize(viewport.width, viewport.height);
+      // Also sync immediately + after a beat (for the case where the layout
+      // settles a frame after the resize).
+      syncFabricPositionToPdfCanvas();
+      requestAnimationFrame(syncFabricPositionToPdfCanvas);
     });
   }
+
+  // If the user resizes the window, the wrapper's available width changes and
+  // pdf-canvas may re-center, so the Fabric overlay needs to track it.
+  window.addEventListener('resize', function () {
+    syncFabricPositionToPdfCanvas();
+  });
 
   document.getElementById('zoom-in').addEventListener('click', function() {
     zoomLevel = Math.min(zoomLevel + 0.25, 4.0);
