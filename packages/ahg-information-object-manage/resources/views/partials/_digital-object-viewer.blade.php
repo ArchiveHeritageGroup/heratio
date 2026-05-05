@@ -595,7 +595,8 @@
           </div>
         @endif
 
-        <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
+        <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon.min.js') }}"></script>
+        <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon-filtering.js') }}"></script>
         <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
         <script nonce="{{ csp_nonce() }}">
         document.addEventListener('DOMContentLoaded', function() {

@@ -407,7 +407,8 @@
 {{-- PDF.js --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 {{-- OpenSeadragon --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/openseadragon.min.js"></script>
+<script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon.min.js') }}"></script>
+<script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon-filtering.js') }}"></script>
 {{-- Fabric.js --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 
@@ -778,7 +779,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     osdViewer = OpenSeadragon({
       id: 'image-viewer',
-      prefixUrl: 'https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/',
+      prefixUrl: '/vendor/openseadragon/6.0.2/images/',
       tileSources: {
         type: 'image',
         url: CONFIG.documentUrl,

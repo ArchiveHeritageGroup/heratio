@@ -18,10 +18,11 @@
   </div>
   <div id="iiif-viewer"></div>
 </div>
-<script src="{{ asset('vendor/openseadragon/openseadragon.min.js') }}"></script>
+<script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon.min.js') }}"></script>
+<script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon-filtering.js') }}"></script>
 <script>
 var manifest = @json($manifestUrl ?? '');
-OpenSeadragon({ id: 'iiif-viewer', tileSources: [manifest], prefixUrl: '/vendor/openseadragon/images/', showNavigator: true });
+OpenSeadragon({ id: 'iiif-viewer', tileSources: [manifest], prefixUrl: '/vendor/openseadragon/6.0.2/images/', showNavigator: true });
 </script>
 </body>
 </html>

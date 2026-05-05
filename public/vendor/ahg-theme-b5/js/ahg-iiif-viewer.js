@@ -45,7 +45,7 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                 },
                 showNavigator: true,
                 navigatorPosition: 'BOTTOM_RIGHT',
-                prefixUrl: '/vendor/ahg-theme-b5/js/vendor/openseadragon/images/',
+                prefixUrl: '/vendor/openseadragon/6.0.2/images/',
                 gestureSettingsMouse: { clickToZoom: true, dblClickToZoom: true },
                 gestureSettingsTouch: { pinchToZoom: true },
                 animationTime: 0.5,

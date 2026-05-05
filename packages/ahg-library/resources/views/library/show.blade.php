@@ -341,7 +341,8 @@
             <img src="{{ $refUrl ?: $thumbUrl ?: $masterUrl }}" alt="{{ $item->title }}" class="img-fluid img-thumbnail" style="max-height:400px;">
           </a>
         </div>
-        <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
+        <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon.min.js') }}"></script>
+        <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon-filtering.js') }}"></script>
         <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
         <script>document.addEventListener('DOMContentLoaded', function() { initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ addslashes($item->title) }}'); });</script>
       @elseif($masterMediaType === 'video')
@@ -1180,7 +1181,8 @@
             </a>
           </div>
 
-          <script src="{{ asset('vendor/ahg-theme-b5/js/vendor/openseadragon.min.js') }}"></script>
+          <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon.min.js') }}"></script>
+        <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon-filtering.js') }}"></script>
           <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
           <script>
           document.addEventListener('DOMContentLoaded', function() {
