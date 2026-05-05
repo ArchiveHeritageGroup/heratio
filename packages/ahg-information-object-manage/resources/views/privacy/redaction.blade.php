@@ -5,7 +5,23 @@
 <style>
   /* Redaction Editor Styles */
   .redaction-toolbar .btn.active {
-    box-shadow: inset 0 2px 4px rgba(0,0,0,.2);
+    /* Visible active state — the inset shadow alone was too subtle, so
+       users couldn't tell whether Draw or Select was selected. */
+    box-shadow: inset 0 2px 6px rgba(0,0,0,.4);
+    background: #ffc107 !important;
+    color: #000 !important;
+    border-color: #ffb000 !important;
+    font-weight: 600;
+  }
+  /* Draw mode: turn the canvas crosshair-cursored so the user knows they're
+     in draw mode the moment they hover. */
+  .drawing-active .redaction-canvas-wrapper,
+  .drawing-active #image-viewer {
+    cursor: crosshair !important;
+  }
+  /* Drawn rectangles must be visible whatever Fabric does internally. */
+  .canvas-container, .canvas-container canvas {
+    visibility: visible !important;
   }
   .redaction-viewer-container {
     position: relative;
@@ -424,9 +440,16 @@ document.addEventListener('DOMContentLoaded', function() {
       fabricCanvas.selection = (tool === 'select');
       fabricCanvas.defaultCursor = (tool === 'draw') ? 'crosshair' : 'default';
       fabricCanvas.hoverCursor   = (tool === 'draw') ? 'crosshair' : 'move';
+      // Rects stay selectable+evented regardless of tool — the canvas-level
+      // `selection` flag (above) controls whether group-select-by-drag is on,
+      // which is what we actually need to differ between Select and Draw.
+      // The previous code toggled per-object selectable/evented to false in
+      // Draw mode, which Fabric's renderer then sometimes treated as "drop
+      // from visible layer" — making the freshly drawn rect disappear on
+      // mouse:up.
       fabricCanvas.forEachObject(function(obj) {
-        obj.selectable = (tool === 'select');
-        obj.evented    = (tool === 'select');
+        obj.selectable = true;
+        obj.evented    = true;
       });
       // Pointer-event routing for the OSD path. Both Select and Draw need
       // to receive mouse events on the Fabric overlay (Select to click/move
@@ -571,10 +594,13 @@ document.addEventListener('DOMContentLoaded', function() {
         stroke: '#ff4444',
         strokeWidth: 2,
         strokeDashArray: [5, 3],
+        // selectable: false during the active drag so Fabric doesn't try
+        // to give it focus/controls mid-stroke. mouse:up flips both to true.
         selectable: false,
         evented: false,
       });
       fabricCanvas.add(activeRect);
+      try { console.log('[redaction] mouse:down at', drawStartX, drawStartY); } catch(e){}
     });
 
     fabricCanvas.on('mouse:move', function(opt) {
@@ -591,23 +617,36 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     fabricCanvas.on('mouse:up', function(opt) {
+      try { console.log('[redaction] mouse:up fired. isDrawing=', isDrawing,
+                        'activeRect=', activeRect && {w: activeRect.width, h: activeRect.height}); } catch(e){}
       if (!isDrawing || !activeRect) return;
       isDrawing = false;
 
-      // Only add if the rectangle is big enough
-      if (activeRect.width < 5 || activeRect.height < 5) {
+      // Read the live dimensions through getter so we don't get a cached 0
+      // from earlier read order and accidentally drop the rectangle.
+      var w = activeRect.width  | 0;
+      var h = activeRect.height | 0;
+      if (w < 3 || h < 3) {
+        // User just clicked, didn't drag — silently drop it. Threshold tightened
+        // from 5 to 3 since some users do tiny redactions on small images.
         fabricCanvas.remove(activeRect);
         activeRect = null;
+        fabricCanvas.requestRenderAll();
+        try { console.log('[redaction] rect too small, dropped'); } catch(e){}
         return;
       }
 
-      // Make the rect selectable now
+      // Always selectable + evented after creation. Earlier code set these
+      // to false in Draw mode, but Fabric's hit-testing on a non-evented
+      // fresh-add object can re-render in a way that drops the rect from
+      // view. Keeping them true is safe — the tool buttons control whether
+      // the user *can* click another rect.
       activeRect.set({
-        selectable: currentTool === 'select',
-        evented: currentTool === 'select',
+        selectable: true,
+        evented: true,
       });
 
-      const regionId = ++regionIdCounter;
+      var regionId = ++regionIdCounter;
       activeRect.regionId = regionId;
 
       addRegion({
@@ -620,8 +659,16 @@ document.addEventListener('DOMContentLoaded', function() {
         fabricObj: activeRect,
       });
 
+      // Keep a reference, then null out so the next draw doesn't reuse it.
+      var saved = activeRect;
       activeRect = null;
-      fabricCanvas.renderAll();
+      // Force a fresh render-pass so the new rect lands in the visible
+      // canvas. Some Fabric versions need an explicit requestRenderAll
+      // after set() to push state into the upper canvas; renderAll alone
+      // can race with Fabric's internal rAF schedule and "lose" the object
+      // until the next user interaction triggers a redraw.
+      fabricCanvas.requestRenderAll();
+      try { console.log('[redaction] rect added, regionId=', regionId, 'rect=', saved); } catch(e){}
     });
 
     fabricCanvas.on('object:modified', function(opt) {
