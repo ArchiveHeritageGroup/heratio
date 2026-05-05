@@ -1895,7 +1895,11 @@ class InformationObjectController extends Controller
         // data into _old_input via session()->put() (a sticky write, not a
         // flash), and that data persisted across requests — pre-filling
         // unrelated Add New pages with the previous duplicate's values.
+        // forget() + put([]) belt-and-braces in case the session driver caches
+        // the key separately; save() forces an immediate write-back to storage.
         session()->forget('_old_input');
+        session()->put('_old_input', []);
+        session()->save();
 
         // If parent_id provided, resolve parent title for display
         $parentTitle = null;
@@ -4056,64 +4060,134 @@ class InformationObjectController extends Controller
     /**
      * Show the move form for an information object.
      */
-    public function move(string $slug)
+    public function move(string $slug, Request $request = null)
     {
+        $request = $request ?? request();
         $culture = app()->getLocale();
 
         $io = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object.id', '=', 'information_object_i18n.id')
+                  ->where('information_object_i18n.culture', $culture);
+            })
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $culture)
             ->select(
                 'information_object.id',
                 'information_object.parent_id',
                 'information_object.level_of_description_id',
+                'information_object.lft',
+                'information_object.rgt',
                 'information_object_i18n.title',
                 'slug.slug'
             )
             ->first();
+        if (!$io) abort(404);
 
-        if (!$io) {
-            abort(404);
-        }
-
-        // Build breadcrumb of current parent hierarchy
-        $breadcrumb = [];
-        $currentParentId = $io->parent_id;
-        while ($currentParentId) {
-            $parent = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+        // PSIS-style "browsed parent": defaults to the IO's current parent so
+        // the user starts looking at where the record lives now. Override with
+        // ?parent=<slug> when the user clicks a child / breadcrumb / search hit.
+        $browsedParent = null;
+        $browsedParentSlug = $request->query('parent');
+        if ($browsedParentSlug) {
+            $browsedParent = DB::table('information_object')
+                ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                    $j->on('information_object.id', '=', 'information_object_i18n.id')
+                      ->where('information_object_i18n.culture', $culture);
+                })
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
-                ->where('information_object.id', $currentParentId)
-                ->where('information_object_i18n.culture', $culture)
-                ->select('information_object.id', 'information_object.parent_id', 'information_object_i18n.title', 'slug.slug')
+                ->where('slug.slug', $browsedParentSlug)
+                ->select(
+                    'information_object.id', 'information_object.parent_id',
+                    'information_object.lft', 'information_object.rgt',
+                    'information_object_i18n.title', 'slug.slug'
+                )
                 ->first();
-            if (!$parent) break;
-            array_unshift($breadcrumb, $parent);
-            $currentParentId = $parent->parent_id;
+        }
+        if (!$browsedParent) {
+            // Default to the IO's current parent. Fall back to root (id=1) if
+            // the IO is top-level already.
+            $defaultParentId = $io->parent_id ?: 1;
+            $browsedParent = DB::table('information_object')
+                ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                    $j->on('information_object.id', '=', 'information_object_i18n.id')
+                      ->where('information_object_i18n.culture', $culture);
+                })
+                ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
+                ->where('information_object.id', $defaultParentId)
+                ->select(
+                    'information_object.id', 'information_object.parent_id',
+                    'information_object.lft', 'information_object.rgt',
+                    'information_object_i18n.title', 'slug.slug'
+                )
+                ->first();
+        }
+        if (!$browsedParent) abort(404);
+
+        // Breadcrumb: ancestors of the BROWSED parent (PSIS pattern — lets the
+        // cataloguer walk back up from where they're currently looking).
+        $breadcrumb = [];
+        $cursorParentId = $browsedParent->parent_id;
+        while ($cursorParentId) {
+            $row = DB::table('information_object')
+                ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                    $j->on('information_object.id', '=', 'information_object_i18n.id')
+                      ->where('information_object_i18n.culture', $culture);
+                })
+                ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
+                ->where('information_object.id', $cursorParentId)
+                ->select('information_object.id', 'information_object.parent_id',
+                         'information_object_i18n.title', 'slug.slug')
+                ->first();
+            if (!$row) break;
+            array_unshift($breadcrumb, $row);
+            $cursorParentId = $row->parent_id;
         }
 
-        // Current parent name
-        $currentParent = null;
-        if ($io->parent_id) {
-            $currentParent = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
-                ->where('information_object.id', $io->parent_id)
-                ->where('information_object_i18n.culture', $culture)
-                ->select('information_object.id', 'information_object_i18n.title')
-                ->first();
+        // Children-of-browsed-parent OR search hits. Search first if the user
+        // typed a query; otherwise list direct children.
+        $query = trim((string) $request->query('query', ''));
+        $resultsQuery = DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as i', function ($j) use ($culture) {
+                $j->on('io.id', '=', 'i.id')->where('i.culture', $culture);
+            })
+            ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+            ->where('io.id', '!=', $io->id) // Can't move under self
+            ->select('io.id', 'io.identifier', 'io.lft', 'io.rgt',
+                     'i.title', 's.slug');
+
+        if ($query !== '') {
+            $resultsQuery = $resultsQuery
+                ->where(function ($q) use ($query) {
+                    $q->where('io.identifier', 'LIKE', '%' . $query . '%')
+                      ->orWhere('i.title', 'LIKE', '%' . $query . '%');
+                });
+        } else {
+            $resultsQuery = $resultsQuery->where('io.parent_id', $browsedParent->id);
+        }
+        $results = $resultsQuery->orderBy('i.title')->limit(50)->get();
+
+        // Tag rows that would be invalid Move-here destinations (descendants
+        // of the moving record) so the view can disable click-through.
+        foreach ($results as $r) {
+            $r->is_descendant_of_moving = ($io->lft !== null && $io->rgt !== null
+                && $r->lft !== null && $r->rgt !== null
+                && $r->lft >= $io->lft && $r->rgt <= $io->rgt);
         }
 
         return view('ahg-io-manage::move', [
             'io' => $io,
             'breadcrumb' => $breadcrumb,
-            'currentParent' => $currentParent,
+            'browsedParent' => $browsedParent,
+            'results' => $results,
+            'query' => $query,
         ]);
     }
 
     /**
-     * Process the move form: update parent_id for the information object.
+     * Process the move form: update parent_id AND nested-set lft/rgt so the
+     * MPTT tree stays consistent. Accepts either parent_slug (PSIS form) or
+     * the legacy new_parent_id field.
      */
     public function moveStore(Request $request, string $slug)
     {
@@ -4122,39 +4196,88 @@ class InformationObjectController extends Controller
         $ioRow = DB::table('slug')
             ->join('information_object', 'slug.object_id', '=', 'information_object.id')
             ->where('slug.slug', $slug)
-            ->select('information_object.id', 'information_object.level_of_description_id', 'slug.slug')
+            ->select('information_object.id', 'information_object.level_of_description_id',
+                     'information_object.lft', 'information_object.rgt', 'slug.slug')
             ->first();
+        if (!$ioRow) abort(404);
 
-        if (!$ioRow) {
-            abort(404);
+        // PSIS posts parent (slug); the older form posts new_parent_id (int).
+        $newParentId = null;
+        if ($request->filled('parent')) {
+            $newParentId = (int) DB::table('slug')->where('slug', $request->input('parent'))->value('object_id');
+        } elseif ($request->filled('new_parent_id')) {
+            $newParentId = (int) $request->input('new_parent_id');
+        }
+        if (!$newParentId) {
+            return back()->withErrors(['parent' => 'Pick a destination parent first.']);
         }
 
-        $request->validate([
-            'new_parent_id' => 'required|integer|exists:information_object,id',
-        ]);
-
-        $newParentId = (int) $request->input('new_parent_id');
-
-        // Prevent moving to self or to a descendant
+        // Self-move guard.
         if ($newParentId === $ioRow->id) {
-            return back()->withErrors(['new_parent_id' => 'Cannot move a record to itself.']);
+            return back()->withErrors(['parent' => 'Cannot move a record to itself.']);
         }
 
-        // Check that new parent is not a descendant of the record being moved
-        $checkId = $newParentId;
-        while ($checkId) {
-            $ancestor = DB::table('information_object')->where('id', $checkId)->value('parent_id');
-            if ($ancestor === $ioRow->id) {
-                return back()->withErrors(['new_parent_id' => 'Cannot move a record to one of its own descendants.']);
+        $newParent = DB::table('information_object')->where('id', $newParentId)
+            ->select('id', 'lft', 'rgt', 'parent_id')->first();
+        if (!$newParent) {
+            return back()->withErrors(['parent' => 'New parent not found.']);
+        }
+
+        // Descendant guard via lft/rgt — covers any nesting depth.
+        if ($ioRow->lft !== null && $ioRow->rgt !== null
+            && $newParent->lft !== null && $newParent->rgt !== null
+            && $newParent->lft >= $ioRow->lft && $newParent->rgt <= $ioRow->rgt) {
+            return back()->withErrors(['parent' => 'Cannot move a record to one of its own descendants.']);
+        }
+        // Already there?
+        if (DB::table('information_object')->where('id', $ioRow->id)->value('parent_id') == $newParentId) {
+            return back()->withErrors(['parent' => 'Record is already under that parent.']);
+        }
+
+        DB::transaction(function () use ($ioRow, $newParent, $newParentId) {
+            // Standard MPTT subtree move via three signed-shift updates:
+            // 1) Negate the moving subtree's lft/rgt (mark it).
+            // 2) Close the gap at the original location.
+            // 3) Open a gap at the destination.
+            // 4) Re-position the negated subtree by an offset, restoring sign.
+            $oldLft = (int) $ioRow->lft;
+            $oldRgt = (int) $ioRow->rgt;
+            $size   = $oldRgt - $oldLft + 1;
+
+            if ($oldLft > 0 && $oldRgt > 0) {
+                // 1) Mark the moving subtree.
+                DB::table('information_object')
+                    ->whereBetween('lft', [$oldLft, $oldRgt])
+                    ->update([
+                        'lft' => DB::raw('lft * -1'),
+                        'rgt' => DB::raw('rgt * -1'),
+                    ]);
+
+                // 2) Close the gap at the original position.
+                DB::table('information_object')->where('lft', '>', $oldRgt)->decrement('lft', $size);
+                DB::table('information_object')->where('rgt', '>', $oldRgt)->decrement('rgt', $size);
+
+                // 3) Re-fetch the destination's rgt — it may have shifted from step 2.
+                $destRgt = (int) DB::table('information_object')->where('id', $newParentId)->value('rgt');
+
+                // Open a gap at the destination (insertion point = destRgt).
+                DB::table('information_object')->where('lft', '>=', $destRgt)->where('lft', '>', 0)->increment('lft', $size);
+                DB::table('information_object')->where('rgt', '>=', $destRgt)->where('rgt', '>', 0)->increment('rgt', $size);
+
+                // 4) Move the marked subtree into the gap.
+                $offset = $destRgt - $oldLft;
+                DB::table('information_object')->where('lft', '<', 0)
+                    ->update([
+                        'lft' => DB::raw('(lft * -1) + ' . $offset),
+                        'rgt' => DB::raw('(rgt * -1) + ' . $offset),
+                    ]);
             }
-            $checkId = $ancestor;
-        }
 
-        DB::table('information_object')
-            ->where('id', $ioRow->id)
-            ->update([
-                'parent_id' => $newParentId,
-            ]);
+            // Finally: update the moving node's parent_id.
+            DB::table('information_object')
+                ->where('id', $ioRow->id)
+                ->update(['parent_id' => $newParentId]);
+        });
 
         // Determine sector-aware redirect
         $redirectRoute = 'informationobject.show';
