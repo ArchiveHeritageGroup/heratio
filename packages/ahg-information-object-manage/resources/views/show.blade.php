@@ -1466,7 +1466,7 @@
   @if(isset($provenanceEntries) && $provenanceEntries->isNotEmpty())
     <section class="border-bottom">
       <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        {{ __('Provenance &amp; Chain of Custody') }}
+        {{ __('Provenance & Chain of Custody') }}
       </h2>
       <div class="provenance-chain px-3 py-2">
         @foreach($provenanceEntries as $i => $entry)
@@ -1515,133 +1515,8 @@
     </section>
   @endif
 
-  {{-- ===== 10. Digital object metadata ===== --}}
-  @if(isset($digitalObjects) && $digitalObjects['master'])
-    @php
-      $doMaster = $digitalObjects['master'];
-      $doReference = $digitalObjects['reference'];
-      $doThumbnail = $digitalObjects['thumbnail'];
-      $doMasterUrl = \AhgCore\Services\DigitalObjectService::getUrl($doMaster);
-      $doRefUrl = $doReference ? \AhgCore\Services\DigitalObjectService::getUrl($doReference) : '';
-      $doThumbUrl = $doThumbnail ? \AhgCore\Services\DigitalObjectService::getUrl($doThumbnail) : '';
-      $doMediaTypeName = \AhgCore\Services\DigitalObjectService::getMediaType($doMaster);
-    @endphp
-    <section class="border-bottom">
-      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <a class="text-decoration-none text-white" href="#digital-object-collapse">
-          {{ __('Digital object metadata') }}
-        </a>
-      </h2>
-      <div id="digital-object-collapse">
-
-          {{-- Master file --}}
-          <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">{{ __('Master file') }}</h4>
-          <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filename') }}</h3>
-            <div class="col-9 p-2">
-              @auth
-                <a href="{{ $doMasterUrl }}" target="_blank">{{ $doMaster->name }}</a>
-              @else
-                {{ $doMaster->name }}
-              @endauth
-            </div>
-          </div>
-          @if($doMaster->media_type_id)
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Media type') }}</h3>
-              <div class="col-9 p-2">{{ ucfirst($doMediaTypeName) }}</div>
-            </div>
-          @endif
-          @if($doMaster->mime_type)
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('MIME type') }}</h3>
-              <div class="col-9 p-2">{{ $doMaster->mime_type }}</div>
-            </div>
-          @endif
-          @if($doMaster->byte_size)
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filesize') }}</h3>
-              <div class="col-9 p-2">
-                @if($doMaster->byte_size > 1048576)
-                  {{ number_format($doMaster->byte_size / 1048576, 1) }} MB
-                @else
-                  {{ number_format($doMaster->byte_size / 1024, 1) }} KB
-                @endif
-              </div>
-            </div>
-          @endif
-          @if($doMaster->checksum)
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Checksum') }}</h3>
-              <div class="col-9 p-2"><code class="small">{{ $doMaster->checksum }}</code></div>
-            </div>
-          @endif
-
-          {{-- Reference copy --}}
-          @if($doReference)
-            <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">{{ __('Reference copy') }}</h4>
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filename') }}</h3>
-              <div class="col-9 p-2">
-                @auth
-                  <a href="{{ $doRefUrl }}" target="_blank">{{ $doReference->name }}</a>
-                @else
-                  {{ $doReference->name }}
-                @endauth
-              </div>
-            </div>
-            @if($doReference->mime_type)
-              <div class="field text-break row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('MIME type') }}</h3>
-                <div class="col-9 p-2">{{ $doReference->mime_type }}</div>
-              </div>
-            @endif
-            @if($doReference->byte_size)
-              <div class="field text-break row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filesize') }}</h3>
-                <div class="col-9 p-2">
-                  @if($doReference->byte_size > 1048576)
-                    {{ number_format($doReference->byte_size / 1048576, 1) }} MB
-                  @else
-                    {{ number_format($doReference->byte_size / 1024, 1) }} KB
-                  @endif
-                </div>
-              </div>
-            @endif
-          @endif
-
-          {{-- Thumbnail copy --}}
-          @if($doThumbnail)
-            <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">{{ __('Thumbnail copy') }}</h4>
-            <div class="field text-break row g-0">
-              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filename') }}</h3>
-              <div class="col-9 p-2">
-                <a href="{{ $doThumbUrl }}" target="_blank">{{ $doThumbnail->name }}</a>
-              </div>
-            </div>
-            @if($doThumbnail->mime_type)
-              <div class="field text-break row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('MIME type') }}</h3>
-                <div class="col-9 p-2">{{ $doThumbnail->mime_type }}</div>
-              </div>
-            @endif
-            @if($doThumbnail->byte_size)
-              <div class="field text-break row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filesize') }}</h3>
-                <div class="col-9 p-2">
-                  @if($doThumbnail->byte_size > 1048576)
-                    {{ number_format($doThumbnail->byte_size / 1048576, 1) }} MB
-                  @else
-                    {{ number_format($doThumbnail->byte_size / 1024, 1) }} KB
-                  @endif
-                </div>
-              </div>
-            @endif
-          @endif
-
-      </div>
-    </section>
-  @endif
+  {{-- Digital object metadata moved to the bottom of the middle area
+       (just above the Action bar). See further down in this @section. --}}
 
   {{-- ===== 10b. Digital object rights (matching AtoM digitalobject/_rights.php) ===== --}}
   @auth
@@ -1929,6 +1804,135 @@
 
     {{-- P5.e Find Similar Records (vector similarity via Qdrant) --}}
     @include('ahg-search::_find-similar', ['ioId' => $io->id])
+  @endif
+
+  {{-- ===== 10. Digital object metadata (relocated to the bottom of the
+       middle area, just above the Action bar in @section('after-content')) ===== --}}
+  @if(isset($digitalObjects) && $digitalObjects['master'])
+    @php
+      $doMaster = $digitalObjects['master'];
+      $doReference = $digitalObjects['reference'];
+      $doThumbnail = $digitalObjects['thumbnail'];
+      $doMasterUrl = \AhgCore\Services\DigitalObjectService::getUrl($doMaster);
+      $doRefUrl = $doReference ? \AhgCore\Services\DigitalObjectService::getUrl($doReference) : '';
+      $doThumbUrl = $doThumbnail ? \AhgCore\Services\DigitalObjectService::getUrl($doThumbnail) : '';
+      $doMediaTypeName = \AhgCore\Services\DigitalObjectService::getMediaType($doMaster);
+    @endphp
+    <section class="border-bottom">
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <a class="text-decoration-none text-white" href="#digital-object-collapse">
+          {{ __('Digital object metadata') }}
+        </a>
+      </h2>
+      <div id="digital-object-collapse">
+
+          {{-- Master file --}}
+          <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">{{ __('Master file') }}</h4>
+          <div class="field text-break row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filename') }}</h3>
+            <div class="col-9 p-2">
+              @auth
+                <a href="{{ $doMasterUrl }}" target="_blank">{{ $doMaster->name }}</a>
+              @else
+                {{ $doMaster->name }}
+              @endauth
+            </div>
+          </div>
+          @if($doMaster->media_type_id)
+            <div class="field text-break row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Media type') }}</h3>
+              <div class="col-9 p-2">{{ ucfirst($doMediaTypeName) }}</div>
+            </div>
+          @endif
+          @if($doMaster->mime_type)
+            <div class="field text-break row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('MIME type') }}</h3>
+              <div class="col-9 p-2">{{ $doMaster->mime_type }}</div>
+            </div>
+          @endif
+          @if($doMaster->byte_size)
+            <div class="field text-break row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filesize') }}</h3>
+              <div class="col-9 p-2">
+                @if($doMaster->byte_size > 1048576)
+                  {{ number_format($doMaster->byte_size / 1048576, 1) }} MB
+                @else
+                  {{ number_format($doMaster->byte_size / 1024, 1) }} KB
+                @endif
+              </div>
+            </div>
+          @endif
+          @if($doMaster->checksum)
+            <div class="field text-break row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Checksum') }}</h3>
+              <div class="col-9 p-2"><code class="small">{{ $doMaster->checksum }}</code></div>
+            </div>
+          @endif
+
+          {{-- Reference copy --}}
+          @if($doReference)
+            <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">{{ __('Reference copy') }}</h4>
+            <div class="field text-break row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filename') }}</h3>
+              <div class="col-9 p-2">
+                @auth
+                  <a href="{{ $doRefUrl }}" target="_blank">{{ $doReference->name }}</a>
+                @else
+                  {{ $doReference->name }}
+                @endauth
+              </div>
+            </div>
+            @if($doReference->mime_type)
+              <div class="field text-break row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('MIME type') }}</h3>
+                <div class="col-9 p-2">{{ $doReference->mime_type }}</div>
+              </div>
+            @endif
+            @if($doReference->byte_size)
+              <div class="field text-break row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filesize') }}</h3>
+                <div class="col-9 p-2">
+                  @if($doReference->byte_size > 1048576)
+                    {{ number_format($doReference->byte_size / 1048576, 1) }} MB
+                  @else
+                    {{ number_format($doReference->byte_size / 1024, 1) }} KB
+                  @endif
+                </div>
+              </div>
+            @endif
+          @endif
+
+          {{-- Thumbnail copy --}}
+          @if($doThumbnail)
+            <h4 class="h6 py-2 px-3 mb-0 border-bottom" style="background:#f5f5f5;">{{ __('Thumbnail copy') }}</h4>
+            <div class="field text-break row g-0">
+              <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filename') }}</h3>
+              <div class="col-9 p-2">
+                <a href="{{ $doThumbUrl }}" target="_blank">{{ $doThumbnail->name }}</a>
+              </div>
+            </div>
+            @if($doThumbnail->mime_type)
+              <div class="field text-break row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('MIME type') }}</h3>
+                <div class="col-9 p-2">{{ $doThumbnail->mime_type }}</div>
+              </div>
+            @endif
+            @if($doThumbnail->byte_size)
+              <div class="field text-break row g-0">
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Filesize') }}</h3>
+                <div class="col-9 p-2">
+                  @if($doThumbnail->byte_size > 1048576)
+                    {{ number_format($doThumbnail->byte_size / 1048576, 1) }} MB
+                  @else
+                    {{ number_format($doThumbnail->byte_size / 1024, 1) }} KB
+                  @endif
+                </div>
+              </div>
+            @endif
+          @endif
+
+      </div>
+    </section>
   @endif
 
 @endsection
