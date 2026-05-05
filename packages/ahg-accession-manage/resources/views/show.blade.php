@@ -76,6 +76,24 @@
     @include('ahg-ric::_ric-view-accession', ['accession' => $accession])
   @else
 
+  {{-- Finalisation blockers — surfaces the accession_require_donor_agreement
+       and accession_require_appraisal settings as a list of unmet criteria.
+       Empty array = all settings are off OR all gates pass; banner stays
+       hidden. --}}
+  @if(!empty($finalisationBlockers ?? []))
+    <div class="alert alert-warning d-flex align-items-start mb-3" role="alert">
+      <i class="fas fa-exclamation-triangle me-2 mt-1"></i>
+      <div>
+        <strong>{{ __('Finalisation requirements not yet met') }}</strong>
+        <ul class="mb-0 mt-1 small">
+          @foreach($finalisationBlockers as $b)
+            <li>{{ $b }}</li>
+          @endforeach
+        </ul>
+      </div>
+    </div>
+  @endif
+
   @if(!empty($translations))
     @include('ahg-core::_translation-links')
   @endif

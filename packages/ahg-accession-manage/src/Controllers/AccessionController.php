@@ -302,6 +302,12 @@ class AccessionController extends Controller
             $sourceLangName = $langNames[$accession->source_culture] ?? $accession->source_culture;
         }
 
+        // Surface the accession_require_donor_agreement and
+        // accession_require_appraisal settings as a "Finalisation
+        // requirements" panel — list of human-readable strings naming
+        // each criterion still missing. Empty array = all gates passed.
+        $finalisationBlockers = $this->service->finalisationBlockers($accession->id);
+
         return view('ahg-accession-manage::show', [
             'accession' => $accession,
             'termNames' => $termNames,
@@ -319,6 +325,7 @@ class AccessionController extends Controller
             'rights' => $rights,
             'physicalObjects' => $physicalObjects,
             'sourceLangName' => $sourceLangName,
+            'finalisationBlockers' => $finalisationBlockers,
         ]);
     }
 
@@ -326,11 +333,17 @@ class AccessionController extends Controller
     {
         $formChoices = $this->service->getFormChoices();
 
+        // Settings-driven defaults. Passing them as scalars (rather than
+        // wrapping them in a stub \$accession) keeps the form's
+        // \$accession-truthy branches (Edit vs Add new title, route name)
+        // unchanged for new-accession context.
         return view('ahg-accession-manage::edit', [
             'accession' => null,
             'donor' => null,
             'donorContact' => null,
             'formChoices' => $formChoices,
+            'defaultIdentifier' => $this->service->nextAccessionNumber(),
+            'defaultPriorityTermId' => $this->service->defaultPriorityTermId(),
         ]);
     }
 
@@ -360,6 +373,8 @@ class AccessionController extends Controller
             'donor' => $donor,
             'donorContact' => $donorContact,
             'formChoices' => $formChoices,
+            'defaultIdentifier' => null,
+            'defaultPriorityTermId' => null,
         ]);
     }
 
@@ -394,6 +409,19 @@ class AccessionController extends Controller
 
         $id = $this->service->create($data);
         $slug = $this->service->getSlug($id);
+
+        // Auto-Assign to Archivist setting: if enabled, stamp the workflow
+        // row's assigned_to with the creating user. Honoured here rather
+        // than inside service->create() so the create() path stays
+        // re-usable from contexts (CSV import, API) that may want to
+        // bypass the per-user setting.
+        if ($this->service->autoAssignEnabled() && auth()->id()) {
+            $this->service->upsertWorkflow($id, [
+                'assigned_to' => auth()->id(),
+                'status'      => 'draft',
+                'priority'    => 'normal',
+            ]);
+        }
 
         return redirect()
             ->route('accession.show', $slug)

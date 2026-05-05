@@ -626,4 +626,193 @@ class AccessionService
     {
         return DB::table('slug')->where('object_id', $id)->value('slug');
     }
+
+    // -------------------------------------------------------------------
+    // Settings wiring (admin/ahgSettings/accession). Each method below maps
+    // one ahg_settings key into a concrete behaviour for the accession
+    // create / save / finalisation flow. Helpers live here so a future
+    // finalise endpoint or IO-from-accession flow can reuse them without
+    // re-reading settings or re-querying.
+    // -------------------------------------------------------------------
+
+    private function settingValue(string $key, $default = null)
+    {
+        // ahg_settings columns are setting_key / setting_value (not the
+        // shorter name/value the helper used in the first draft).
+        $row = DB::table('ahg_settings')->where('setting_key', $key)->first();
+        return $row ? $row->setting_value : $default;
+    }
+
+    private function settingBool(string $key, bool $default = false): bool
+    {
+        $v = $this->settingValue($key, $default ? 'true' : 'false');
+        return in_array(strtolower((string) $v), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    /**
+     * Render the next accession identifier from the
+     * accession_numbering_mask setting. Tokens supported:
+     *   {YYYY} → 4-digit year
+     *   {####} → zero-padded sequence (length = number of #)
+     * Sequence = (max numeric tail seen in accession.identifier with the
+     * matching prefix this year) + 1. Defaults to ACC-{YYYY}-{####} so a
+     * fresh install with no setting still produces sensible numbers.
+     */
+    public function nextAccessionNumber(): string
+    {
+        $mask = (string) $this->settingValue('accession_numbering_mask', 'ACC-{YYYY}-{####}');
+        $year = (int) date('Y');
+
+        // Compute the prefix (everything before the {####} token) so we
+        // can scan existing identifiers. Substitute {YYYY} first.
+        $prefixTemplate = str_replace('{YYYY}', (string) $year, $mask);
+        $hashStart = strpos($prefixTemplate, '{');
+        $prefix = $hashStart === false ? $prefixTemplate : substr($prefixTemplate, 0, $hashStart);
+
+        $hashLen = 4; // default if mask has no #### token
+        if (preg_match('/\{(#+)\}/', $mask, $m)) {
+            $hashLen = strlen($m[1]);
+        }
+
+        $maxSeq = 0;
+        if ($prefix !== '') {
+            $rows = DB::table('accession')
+                ->where('identifier', 'LIKE', $prefix . '%')
+                ->pluck('identifier');
+            foreach ($rows as $ident) {
+                $tail = substr((string) $ident, strlen($prefix));
+                if (preg_match('/^(\d+)/', $tail, $m)) {
+                    $n = (int) $m[1];
+                    if ($n > $maxSeq) $maxSeq = $n;
+                }
+            }
+        }
+
+        $next = $maxSeq + 1;
+        $rendered = str_replace('{YYYY}', (string) $year, $mask);
+        $rendered = preg_replace_callback('/\{(#+)\}/', function ($m) use ($next) {
+            return str_pad((string) $next, strlen($m[1]), '0', STR_PAD_LEFT);
+        }, $rendered);
+        return (string) $rendered;
+    }
+
+    /**
+     * Resolve the configured default priority (low/normal/high/urgent
+     * string) to a term_id in taxonomy 64 by case-insensitive name match.
+     * Returns null if no setting is configured or no matching term exists.
+     */
+    public function defaultPriorityTermId(): ?int
+    {
+        $name = (string) $this->settingValue('accession_default_priority', '');
+        if ($name === '') return null;
+        return DB::table('term')
+            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->where('term.taxonomy_id', 64)
+            ->whereRaw('LOWER(term_i18n.name) = ?', [strtolower($name)])
+            ->where('term_i18n.culture', $this->culture)
+            ->value('term.id') ?: null;
+    }
+
+    public function autoAssignEnabled(): bool
+    {
+        return $this->settingBool('accession_auto_assign_enabled', false);
+    }
+
+    public function containerBarcodesEnabled(): bool
+    {
+        return $this->settingBool('accession_allow_container_barcodes', false);
+    }
+
+    public function rightsInheritanceEnabled(): bool
+    {
+        return $this->settingBool('accession_rights_inheritance_enabled', false);
+    }
+
+    /**
+     * Upsert accession_v2 workflow row. Used by the auto-assign hook on
+     * accession create and any future finalise transition.
+     */
+    public function upsertWorkflow(int $accessionId, array $fields): void
+    {
+        $exists = DB::table('accession_v2')->where('accession_id', $accessionId)->exists();
+        if ($exists) {
+            DB::table('accession_v2')->where('accession_id', $accessionId)->update($fields);
+        } else {
+            DB::table('accession_v2')->insert(array_merge(
+                ['accession_id' => $accessionId],
+                $fields
+            ));
+        }
+    }
+
+    /**
+     * Finalisation prerequisites. Returns a list of human-readable strings
+     * naming each requirement that's still missing for this accession.
+     * Empty array means the accession can be finalised. Honours the
+     * accession_require_donor_agreement and accession_require_appraisal
+     * settings — a setting that's false skips its check entirely. Callable
+     * from a future finalise endpoint or surfaced as a banner on show.
+     */
+    public function finalisationBlockers(int $accessionId): array
+    {
+        $blockers = [];
+
+        if ($this->settingBool('accession_require_donor_agreement')) {
+            $hasAgreement = DB::table('accession_attachment')
+                ->where('accession_id', $accessionId)
+                ->where('category', 'donor_agreement')
+                ->exists();
+            if (!$hasAgreement) $blockers[] = 'Donor agreement attachment missing';
+        }
+
+        if ($this->settingBool('accession_require_appraisal')) {
+            $hasAppraisal = DB::table('accession_appraisal')
+                ->where('accession_id', $accessionId)
+                ->where('recommendation', '!=', 'pending')
+                ->exists();
+            if (!$hasAppraisal) $blockers[] = 'Appraisal not completed';
+        }
+
+        return $blockers;
+    }
+
+    /**
+     * Copy donor's PREMIS rights from the accession to a newly-created IO.
+     * Honours accession_rights_inheritance_enabled — a no-op when the
+     * setting is false. Idempotent: existing rows for the same IO are
+     * left alone. Called from any flow that materialises an IO out of an
+     * accession (the create-IO-from-accession flow doesn't exist yet, but
+     * the helper is ready when it lands).
+     */
+    public function inheritRightsToIo(int $accessionId, int $ioId): int
+    {
+        if (!$this->rightsInheritanceEnabled()) return 0;
+
+        // accession_rights_inherited is a join table (rights_id +
+        // information_object_id), not a copy. Idempotent: skip rows that
+        // are already linked. Honours each rights row's inherit_to_children
+        // flag — rows with that flag set to 0 stay attached to the
+        // accession only and don't propagate.
+        $rows = DB::table('accession_rights')
+            ->where('accession_id', $accessionId)
+            ->where('inherit_to_children', 1)
+            ->select('id')
+            ->get();
+        $applied = 0;
+        foreach ($rows as $r) {
+            $exists = DB::table('accession_rights_inherited')
+                ->where('rights_id', $r->id)
+                ->where('information_object_id', $ioId)
+                ->exists();
+            if (!$exists) {
+                DB::table('accession_rights_inherited')->insert([
+                    'rights_id'             => $r->id,
+                    'information_object_id' => $ioId,
+                    'applied_by'            => auth()->id(),
+                ]);
+                $applied++;
+            }
+        }
+        return $applied;
+    }
 }
