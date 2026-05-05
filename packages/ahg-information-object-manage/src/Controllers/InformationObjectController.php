@@ -1543,10 +1543,12 @@ class InformationObjectController extends Controller
             ->select('note.id', 'note.type_id', 'note_i18n.content')
             ->get();
 
-        // Separate publication notes (type_id = 220) and archivist notes (type_id = 174)
-        $publicationNotes = $notes->where('type_id', 220)->values();
-        $archivistNotes = $notes->where('type_id', 174)->values();
-        $generalNotes = $notes->whereNotIn('type_id', [220, 174])->values();
+        // Note type ids in taxonomy 37: 120 = Publication note, 124 = Archivist's
+        // note. Generals (125 = General, 174 = Language) and any other types fall
+        // through to $generalNotes for the typed multi-row table.
+        $publicationNotes = $notes->where('type_id', 120)->values();
+        $archivistNotes = $notes->where('type_id', 124)->values();
+        $generalNotes = $notes->whereNotIn('type_id', [120, 124])->values();
 
         // Subject access points (taxonomy_id = 35)
         $subjects = DB::table('object_term_relation')
@@ -1844,60 +1846,67 @@ class InformationObjectController extends Controller
             // museum_metadata table may not exist in all installs
         }
 
-        // ---- Creators (event type 111) ----
-        if ($request->has('_creatorsIncluded')) {
-            $creatorIds = array_filter((array) $request->input('creatorIds', []));
-            // Remove existing creator events for this IO
-            DB::table('event')
-                ->where('object_id', $ioId)
-                ->where('type_id', 111)
-                ->delete();
-            foreach ($creatorIds as $actorId) {
-                $actorId = (int) $actorId;
-                if ($actorId <= 0) continue;
-                $eventObjectId = DB::table('object')->insertGetId([
-                    'class_name' => 'QubitEvent',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                DB::table('event')->insert([
-                    'id'        => $eventObjectId,
-                    'object_id' => $ioId,
-                    'actor_id'  => $actorId,
-                    'type_id'   => 111,
-                    'source_culture' => $culture,
-                ]);
-                DB::table('event_i18n')->insert([
-                    'id'      => $eventObjectId,
-                    'culture' => $culture,
-                ]);
-            }
-        }
-
-        // ---- Events / Date(s) (ISAD 3.1.3, separate from the creator block above) ----
-        // Creators are type_id=111 with actor_id set and are managed exclusively by
-        // the _creatorsIncluded block. Everything else (dates) is managed here.
-        if ($request->has('events')) {
-            $oldEventIds = DB::table('event')
-                ->where('object_id', $ioId)
-                ->where(function ($q) { $q->where('type_id', '!=', 111)->orWhereNull('type_id'); })
-                ->pluck('id')->toArray();
+        // ---- Events / Date(s) + Creators (ISAD 3.1.3 / 3.2.1) ----
+        // Unified writer. Two form sources feed this:
+        //   creatorIds[]   - the "Name of creator(s)" autocomplete; each id => a
+        //                    type-111 (Creation) event with actor_id and no dates.
+        //   events[]       - the multi-row Date(s) table; each row carries typeId,
+        //                    optional actorId, start/end dates, and free-text date
+        //                    display. Type 111 is allowed and bundles actor+dates.
+        // When both forms reference the same actor under type 111, events[] wins
+        // (because it has the richer data). Old controller had separate blocks
+        // that competed and the creator block always stomped any dates.
+        if ($request->has('_creatorsIncluded') || $request->has('events')) {
+            // Wipe all existing events for this IO; we re-insert the merged set.
+            $oldEventIds = DB::table('event')->where('object_id', $ioId)->pluck('id')->toArray();
             if (!empty($oldEventIds)) {
                 DB::table('event_i18n')->whereIn('id', $oldEventIds)->delete();
                 DB::table('event')->whereIn('id', $oldEventIds)->delete();
                 DB::table('object')->whereIn('id', $oldEventIds)->delete();
             }
 
+            // Rows to write, indexed so we can dedupe creator events by actor.
+            $toWrite = [];
+
+            // Pass 1: events[] (full typeId + actor + dates)
             foreach ((array) $request->input('events', []) as $row) {
                 $typeId = (int) ($row['typeId'] ?? 0);
-                if ($typeId === 0 || $typeId === 111) continue;
-
+                if ($typeId === 0) continue;
                 $dateDisplay = trim((string) ($row['date'] ?? ''));
                 $startDate   = trim((string) ($row['startDate'] ?? ''));
                 $endDate     = trim((string) ($row['endDate'] ?? ''));
                 $actorId     = (int) ($row['actorId'] ?? 0);
                 if ($dateDisplay === '' && $startDate === '' && $endDate === '' && $actorId <= 0) continue;
 
+                $toWrite[] = [
+                    'type_id'      => $typeId,
+                    'actor_id'     => $actorId > 0 ? $actorId : null,
+                    'start_date'   => $startDate !== '' ? $startDate : null,
+                    'end_date'     => $endDate !== '' ? $endDate : null,
+                    'date_display' => $dateDisplay !== '' ? $dateDisplay : null,
+                ];
+            }
+
+            // Pass 2: creatorIds[] - only add a bare creator event for actors not
+            // already covered by an events[] type-111 row.
+            $coveredActors = collect($toWrite)
+                ->where('type_id', 111)
+                ->pluck('actor_id')
+                ->filter()
+                ->all();
+            foreach (array_filter((array) $request->input('creatorIds', [])) as $actorId) {
+                $actorId = (int) $actorId;
+                if ($actorId <= 0 || in_array($actorId, $coveredActors, true)) continue;
+                $toWrite[] = [
+                    'type_id'      => 111,
+                    'actor_id'     => $actorId,
+                    'start_date'   => null,
+                    'end_date'     => null,
+                    'date_display' => null,
+                ];
+            }
+
+            foreach ($toWrite as $w) {
                 $eventObjectId = DB::table('object')->insertGetId([
                     'class_name' => 'QubitEvent',
                     'created_at' => now(),
@@ -1906,17 +1915,67 @@ class InformationObjectController extends Controller
                 DB::table('event')->insert([
                     'id'             => $eventObjectId,
                     'object_id'      => $ioId,
-                    'type_id'        => $typeId,
-                    'actor_id'       => $actorId > 0 ? $actorId : null,
-                    'start_date'     => $startDate !== '' ? $startDate : null,
-                    'end_date'       => $endDate !== '' ? $endDate : null,
+                    'type_id'        => $w['type_id'],
+                    'actor_id'       => $w['actor_id'],
+                    'start_date'     => $w['start_date'],
+                    'end_date'       => $w['end_date'],
                     'source_culture' => $culture,
                 ]);
                 DB::table('event_i18n')->insert([
                     'id'      => $eventObjectId,
                     'culture' => $culture,
-                    'date'    => $dateDisplay !== '' ? $dateDisplay : null,
+                    'date'    => $w['date_display'],
                 ]);
+            }
+        }
+
+        // ---- Notes (general / publication / archivist) ----
+        // Form posts three arrays: notes[] (typed via dropdown - General 125 or
+        // Language 174), publicationNotes[] (textarea-only, type 120), and
+        // archivistNotes[] (textarea-only, type 124).
+        if ($request->has('notes') || $request->has('publicationNotes') || $request->has('archivistNotes')) {
+            $managedTypeIds = [125, 174, 120, 124];
+            $oldNoteIds = DB::table('note')
+                ->where('object_id', $ioId)
+                ->whereIn('type_id', $managedTypeIds)
+                ->pluck('id')->toArray();
+            if (!empty($oldNoteIds)) {
+                DB::table('note_i18n')->whereIn('id', $oldNoteIds)->delete();
+                DB::table('note')->whereIn('id', $oldNoteIds)->delete();
+                DB::table('object')->whereIn('id', $oldNoteIds)->delete();
+            }
+
+            $insertNote = function (int $typeId, string $content) use ($ioId, $culture) {
+                $content = trim($content);
+                if ($content === '') return;
+                $noteId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitNote',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('note')->insert([
+                    'id'             => $noteId,
+                    'object_id'      => $ioId,
+                    'type_id'        => $typeId,
+                    'source_culture' => $culture,
+                ]);
+                DB::table('note_i18n')->insert([
+                    'id'      => $noteId,
+                    'culture' => $culture,
+                    'content' => $content,
+                ]);
+            };
+
+            foreach ((array) $request->input('notes', []) as $row) {
+                $typeId = (int) ($row['typeId'] ?? 0);
+                if (!in_array($typeId, [125, 174], true)) continue;
+                $insertNote($typeId, (string) ($row['content'] ?? ''));
+            }
+            foreach ((array) $request->input('publicationNotes', []) as $row) {
+                $insertNote(120, (string) ($row['content'] ?? ''));
+            }
+            foreach ((array) $request->input('archivistNotes', []) as $row) {
+                $insertNote(124, (string) ($row['content'] ?? ''));
             }
         }
 
