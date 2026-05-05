@@ -305,6 +305,16 @@
     @include('icip::partials.ocap-badges', ['ioId' => $io->id])
   @endif
 
+  {{-- PSIS-parity PII redaction badge: warns the viewer that one or more
+       text values have been masked. Admin viewers bypass masking entirely so
+       the service short-circuits and we don't render the badge for them. --}}
+  @if(\AhgInformationObjectManage\Services\PiiMaskingService::hasRedactedPii((int) $io->id) && !\AhgInformationObjectManage\Services\PiiMaskingService::canBypassMasking())
+    <div class="alert alert-warning py-1 px-2 mb-2 d-inline-block small">
+      <i class="fas fa-shield-alt me-1"></i>
+      {{ __('This record contains redacted PII') }}
+    </div>
+  @endif
+
   {{-- Breadcrumb trail --}}
   @if($io->parent_id != 1 && !empty($breadcrumbs))
     <nav aria-label="{{ __('Hierarchy') }}">
@@ -668,7 +678,7 @@
       @if($io->archival_history)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Archival history') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->archival_history)) !!}</div>
+          <div class="col-9 p-2">{!! nl2br(e(\AhgInformationObjectManage\Services\PiiMaskingService::mask((int)$io->id, $io->archival_history))) !!}</div>
         </div>
       @endif
       @endif
@@ -704,7 +714,7 @@
       @if($io->scope_and_content)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Scope and content') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->scope_and_content)) !!}@include('ahg-translation::components.badge', ['source' => $translationSources['scope_and_content'] ?? null])</div>
+          <div class="col-9 p-2">{!! nl2br(e(\AhgInformationObjectManage\Services\PiiMaskingService::mask((int)$io->id, $io->scope_and_content))) !!}@include('ahg-translation::components.badge', ['source' => $translationSources['scope_and_content'] ?? null])</div>
         </div>
       @endif
 

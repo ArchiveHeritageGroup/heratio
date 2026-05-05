@@ -283,9 +283,37 @@ class PdfRedactor:
                         print(f"Warning: Failed to apply region: {e}", file=sys.stderr)
                         continue
 
-                # Apply all redactions for this page
+                # Apply all redactions for this page. PyMuPDF only paints the
+                # `fill` colour where TEXT existed under the redaction rect —
+                # whitespace areas inside the rect remain transparent, which
+                # leaks the original visual through. After apply_redactions
+                # runs, also draw an explicit filled rectangle for each region
+                # so the WHOLE area is opaque.
                 if page_redactions > 0:
                     page.apply_redactions()
+                    for region in page_regions:
+                        try:
+                            x = float(region.get('x', 0))
+                            y = float(region.get('y', 0))
+                            w = float(region.get('width', 0))
+                            h = float(region.get('height', 0))
+                            color = region.get('color', '#000000')
+                            normalized = region.get('normalized', True)
+                            if normalized:
+                                x = x * page_width
+                                y = y * page_height
+                                w = w * page_width
+                                h = h * page_height
+                            rect = fitz.Rect(x, y, x + w, y + h)
+                            if rect.is_empty or rect.is_infinite:
+                                continue
+                            rect = rect & page.rect
+                            fill_color = self.hex_to_rgb(color)
+                            page.draw_rect(rect, color=fill_color, fill=fill_color,
+                                           fill_opacity=1.0, width=0, overlay=True)
+                        except Exception as e:
+                            print(f"Warning: Failed to overpaint region: {e}", file=sys.stderr)
+                            continue
                     stats['pages_processed'].add(page_num)
                     stats['regions_applied'] += page_redactions
                     stats['regions_by_page'][page_num] = page_redactions
