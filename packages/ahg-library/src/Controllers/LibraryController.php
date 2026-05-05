@@ -224,14 +224,18 @@ class LibraryController extends Controller
             'publication_date' => 'nullable|string|max:255',
             'series_title' => 'nullable|string|max:500',
             'series_number' => 'nullable|string|max:50',
-            'pages' => 'nullable|string|max:50',
+            'pagination' => 'nullable|string|max:100',
             'dimensions' => 'nullable|string|max:255',
             'physical_details' => 'nullable|string|max:1024',
             'scope_and_content' => 'nullable|string',
-            'table_of_contents' => 'nullable|string',
+            'contents_note' => 'nullable|string',
             'general_note' => 'nullable|string',
             'bibliography_note' => 'nullable|string',
             'language' => 'nullable|string|max:10',
+            'creators' => 'nullable|array',
+            'creators.*.name' => 'nullable|string|max:500',
+            'creators.*.role' => 'nullable|string|max:50',
+            'creators.*.authority_uri' => 'nullable|string|max:500',
         ]);
 
         $data = $request->only([
@@ -243,15 +247,11 @@ class LibraryController extends Controller
             'openlibrary_id', 'goodreads_id', 'librarything_id', 'openlibrary_url',
             'ebook_preview_url', 'cover_url', 'cover_url_original', 'doi', 'barcode',
             'edition', 'edition_statement', 'publisher', 'publication_place',
-            'publication_date', 'series_title', 'series_number', 'pages',
+            'publication_date', 'series_title', 'series_number', 'pagination',
             'dimensions', 'physical_details', 'scope_and_content',
-            'table_of_contents', 'general_note', 'bibliography_note', 'language',
+            'contents_note', 'general_note', 'bibliography_note', 'language',
         ]);
-
-        // Map scope_and_content from abstract field
-        if (isset($data['scope_and_content'])) {
-            $data['abstract'] = $data['scope_and_content'];
-        }
+        $data['creators'] = $request->input('creators', []);
 
         $id = $this->service->create($data);
         $slug = $this->service->getSlug($id);
@@ -304,14 +304,18 @@ class LibraryController extends Controller
             'publication_date' => 'nullable|string|max:255',
             'series_title' => 'nullable|string|max:500',
             'series_number' => 'nullable|string|max:50',
-            'pages' => 'nullable|string|max:50',
+            'pagination' => 'nullable|string|max:100',
             'dimensions' => 'nullable|string|max:255',
             'physical_details' => 'nullable|string|max:1024',
             'scope_and_content' => 'nullable|string',
-            'table_of_contents' => 'nullable|string',
+            'contents_note' => 'nullable|string',
             'general_note' => 'nullable|string',
             'bibliography_note' => 'nullable|string',
             'language' => 'nullable|string|max:10',
+            'creators' => 'nullable|array',
+            'creators.*.name' => 'nullable|string|max:500',
+            'creators.*.role' => 'nullable|string|max:50',
+            'creators.*.authority_uri' => 'nullable|string|max:500',
         ]);
 
         $data = $request->only([
@@ -323,17 +327,13 @@ class LibraryController extends Controller
             'openlibrary_id', 'goodreads_id', 'librarything_id', 'openlibrary_url',
             'ebook_preview_url', 'cover_url', 'cover_url_original', 'doi', 'barcode',
             'edition', 'edition_statement', 'publisher', 'publication_place',
-            'publication_date', 'series_title', 'series_number', 'pages',
+            'publication_date', 'series_title', 'series_number', 'pagination',
             'dimensions', 'physical_details', 'scope_and_content',
-            'table_of_contents', 'general_note', 'bibliography_note', 'language',
+            'contents_note', 'general_note', 'bibliography_note', 'language',
             // ICIP cultural-sensitivity URI (issue #36 Phase 2b) — persisted to information_object.icip_sensitivity.
             'icip_sensitivity',
         ]);
-
-        // Map scope_and_content from abstract field
-        if (isset($data['scope_and_content'])) {
-            $data['abstract'] = $data['scope_and_content'];
-        }
+        $data['creators'] = $request->input('creators', []);
 
         $this->service->update($slug, $data);
 

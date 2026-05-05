@@ -292,7 +292,7 @@ class LibraryService
             ]);
 
             // 5. Create library_item record
-            DB::table('library_item')->insert([
+            $libraryItemId = DB::table('library_item')->insertGetId([
                 'information_object_id' => $id,
                 'material_type' => $data['material_type'] ?? null,
                 'subtitle' => $data['subtitle'] ?? null,
@@ -325,18 +325,22 @@ class LibraryService
                 'publication_date' => $data['publication_date'] ?? null,
                 'series_title' => $data['series_title'] ?? null,
                 'series_number' => $data['series_number'] ?? null,
-                'pages' => $data['pages'] ?? null,
+                'pagination' => $data['pagination'] ?? null,
                 'dimensions' => $data['dimensions'] ?? null,
                 'physical_details' => $data['physical_details'] ?? null,
-                'abstract' => $data['abstract'] ?? null,
-                'table_of_contents' => $data['table_of_contents'] ?? null,
+                'contents_note' => $data['contents_note'] ?? null,
                 'general_note' => $data['general_note'] ?? null,
                 'bibliography_note' => $data['bibliography_note'] ?? null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
-            // 6. Create display_object_config record
+            // 6. Sync creators if any were submitted
+            if (array_key_exists('creators', $data)) {
+                $this->syncCreators((int) $libraryItemId, (array) $data['creators']);
+            }
+
+            // 7. Create display_object_config record
             DB::table('display_object_config')->insert([
                 'object_id' => $id,
                 'object_type' => 'library',
@@ -421,8 +425,8 @@ class LibraryService
                 'openlibrary_id', 'goodreads_id', 'librarything_id', 'openlibrary_url',
                 'ebook_preview_url', 'cover_url', 'cover_url_original', 'doi', 'barcode',
                 'edition', 'edition_statement', 'publisher', 'publication_place',
-                'publication_date', 'series_title', 'series_number', 'pages',
-                'dimensions', 'physical_details', 'abstract', 'table_of_contents',
+                'publication_date', 'series_title', 'series_number', 'pagination',
+                'dimensions', 'physical_details', 'contents_note',
                 'general_note', 'bibliography_note',
             ];
             $libraryData = [];
@@ -449,12 +453,51 @@ class LibraryService
                 }
             }
 
-            // 4. Touch the object record
+            // 4. Sync creators (replace-all on save)
+            if (array_key_exists('creators', $data)) {
+                $libraryItemId = (int) DB::table('library_item')
+                    ->where('information_object_id', $id)
+                    ->value('id');
+                if ($libraryItemId) {
+                    $this->syncCreators($libraryItemId, (array) $data['creators']);
+                }
+            }
+
+            // 5. Touch the object record
             DB::table('object')->where('id', $id)->update([
                 'updated_at' => now(),
                 'serial_number' => DB::raw('serial_number + 1'),
             ]);
         });
+    }
+
+    /**
+     * Replace all library_item_creator rows for the given library_item with
+     * the supplied list. Empty `name` rows are dropped; sort_order tracks the
+     * form-submission order; `role` defaults to 'author'.
+     */
+    private function syncCreators(int $libraryItemId, array $creators): void
+    {
+        DB::table('library_item_creator')
+            ->where('library_item_id', $libraryItemId)
+            ->delete();
+
+        $sort = 0;
+        foreach ($creators as $c) {
+            if (!is_array($c)) continue;
+            $name = trim((string) ($c['name'] ?? ''));
+            if ($name === '') continue;
+            $role = trim((string) ($c['role'] ?? '')) ?: 'author';
+            $uri  = trim((string) ($c['authority_uri'] ?? ''));
+            DB::table('library_item_creator')->insert([
+                'library_item_id' => $libraryItemId,
+                'name'            => $name,
+                'role'            => $role,
+                'authority_uri'   => $uri !== '' ? $uri : null,
+                'sort_order'      => $sort++,
+                'created_at'      => now(),
+            ]);
+        }
     }
 
     /**

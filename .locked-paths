@@ -38,3 +38,35 @@ packages/ahg-display/
 packages/ahg-marketplace/
 packages/ahg-rights/
 packages/ahg-extended-rights/
+
+# Sector-specific show pages (DAM/Library/Museum/Gallery) — same protection
+# as the archival-record show page above. The DAM show is now stable end-to-
+# end (Move / rights / digital-object delete URLs corrected, finding-aid flash
+# survives the IO→DAM redirect, full Mirador 4 + image-tools + dl-plugin
+# wired in, OSD 6.0.2 + filtering toolbar wired in). Lock added 2026-05-05.
+packages/ahg-dam/
+packages/ahg-library/
+packages/ahg-museum/
+packages/ahg-gallery/
+
+# IIIF viewer page reachable from every sector show
+packages/ahg-iiif-collection/
+
+# Translation modal + side-by-side partials reachable from every show page
+packages/ahg-translation/
+
+# Canonical OpenSeadragon 6.0.2 install + filtering plugin + button assets.
+# Replaced two-copy 3.1.0 / 4.1.0 setup; all sector shows + redaction page
+# point here.
+public/vendor/openseadragon/
+
+# Mirador 4 bundle (image-tools + dl-plugin), viewer.html, compare.html.
+# Built from tools/mirador-build/ — keep both in lockstep.
+public/vendor/ahg-theme-b5/js/vendor/mirador/
+
+# Standalone OSD/Mirador/Carousel toggle JS — embeds the filtering toolbar
+# and is loaded by every viewer-bearing show page.
+public/vendor/ahg-theme-b5/js/ahg-iiif-viewer.js
+
+# Mirador bundle source (the build that produces the file above)
+tools/mirador-build/
