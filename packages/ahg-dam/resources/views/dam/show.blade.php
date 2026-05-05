@@ -366,7 +366,24 @@
   @endif
 
   {{-- Production area --}}
-  @if($asset->production_company || $asset->distributor || $asset->broadcast_date || $asset->series_title || $asset->season_number || $asset->episode_number || $asset->awards || $asset->audio_language || $asset->subtitle_language)
+  @php
+    // Decode contributors_json (production credits) once, here, so the
+    // section's existence check + render can both reference $productionCredits.
+    $productionCredits = [];
+    if (!empty($asset->contributors_json)) {
+        $decoded = json_decode((string) $asset->contributors_json, true);
+        if (is_array($decoded)) {
+            foreach ($decoded as $row) {
+                if (!is_array($row)) continue;
+                $role = trim((string) ($row['role'] ?? ''));
+                $name = trim((string) ($row['name'] ?? ''));
+                if ($role === '' && $name === '') continue;
+                $productionCredits[] = ['role' => $role, 'name' => $name];
+            }
+        }
+    }
+  @endphp
+  @if($asset->production_company || $asset->distributor || $asset->broadcast_date || $asset->series_title || $asset->season_number || $asset->episode_number || $asset->awards || $asset->audio_language || $asset->subtitle_language || count($productionCredits))
     <section id="productionArea" class="border-bottom">
       <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Production') }}</div></h2>
       @if($asset->production_company)
@@ -374,6 +391,21 @@
       @endif
       @if($asset->distributor)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Distributor') }}</h3><div class="col-9 p-2">{{ $asset->distributor }}</div></div>
+      @endif
+      @if(count($productionCredits))
+        <div class="field text-break row g-0">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Production credits') }}</h3>
+          <div class="col-9 p-2">
+            <ul class="list-unstyled mb-0">
+              @foreach($productionCredits as $credit)
+                <li>
+                  @if($credit['role'] !== '')<strong>{{ $credit['role'] }}:</strong>@endif
+                  {{ $credit['name'] }}
+                </li>
+              @endforeach
+            </ul>
+          </div>
+        </div>
       @endif
       @if($asset->broadcast_date)
         {{-- Stored as VARCHAR; can be a bare year, year-month, or full date.
@@ -564,6 +596,122 @@
       @if($asset->instructions)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Special instructions') }}</h3><div class="col-9 p-2">{!! nl2br(e($asset->instructions)) !!}</div></div>
       @endif
+    </section>
+  @endif
+
+  {{-- Alternative Versions (multi-row, dam_version_links) --}}
+  @if(isset($versionLinks) && $versionLinks->count())
+    <section id="versionsArea" class="border-bottom">
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Alternative Versions') }}</div></h2>
+      <div class="p-2">
+        <table class="table table-sm mb-0">
+          <thead>
+            <tr class="text-muted small">
+              <th>{{ __('Title') }}</th>
+              <th>{{ __('Type') }}</th>
+              <th>{{ __('Language') }}</th>
+              <th>{{ __('ISO') }}</th>
+              <th>{{ __('Year') }}</th>
+              <th>{{ __('Notes') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($versionLinks as $v)
+              <tr>
+                <td>{{ $v->title }}</td>
+                <td>{{ $v->version_type }}</td>
+                <td>{{ $v->language_name }}</td>
+                <td>{{ $v->language_code }}</td>
+                <td>{{ $v->year }}</td>
+                <td>{{ $v->notes }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    </section>
+  @endif
+
+  {{-- Format Holdings & Access (multi-row, dam_format_holdings) --}}
+  @if(isset($formatHoldings) && $formatHoldings->count())
+    <section id="holdingsArea" class="border-bottom">
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Format Holdings & Access') }}</div></h2>
+      <div class="p-2">
+        @foreach($formatHoldings as $h)
+          <div class="border rounded p-2 mb-2 small">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <div>
+                <strong>{{ $h->format_type }}</strong>
+                @if($h->format_details) <span class="text-muted">— {{ $h->format_details }}</span>@endif
+                @if($h->is_primary) <span class="badge bg-success ms-1">{{ __('Primary') }}</span>@endif
+              </div>
+              @if($h->condition_status)
+                <span class="badge bg-secondary">{{ ucfirst($h->condition_status) }}</span>
+              @endif
+            </div>
+            <div class="row g-2">
+              @if($h->holding_institution)
+                <div class="col-md-4"><span class="text-muted">{{ __('Institution') }}:</span> {{ $h->holding_institution }}</div>
+              @endif
+              @if($h->holding_location)
+                <div class="col-md-4"><span class="text-muted">{{ __('Location') }}:</span> {{ $h->holding_location }}</div>
+              @endif
+              @if($h->accession_number)
+                <div class="col-md-4"><span class="text-muted">{{ __('Accession') }}:</span> {{ $h->accession_number }}</div>
+              @endif
+              @if($h->access_status)
+                <div class="col-md-4"><span class="text-muted">{{ __('Access') }}:</span> {{ ucfirst(str_replace('_', ' ', $h->access_status)) }}</div>
+              @endif
+              @if($h->verified_date)
+                <div class="col-md-4"><span class="text-muted">{{ __('Verified') }}:</span> {{ $h->verified_date }}</div>
+              @endif
+              @if($h->access_url)
+                <div class="col-md-12"><span class="text-muted">{{ __('Access URL') }}:</span> <a href="{{ $h->access_url }}" target="_blank" rel="noopener">{{ $h->access_url }}</a></div>
+              @endif
+              @if($h->access_notes)
+                <div class="col-md-12"><span class="text-muted">{{ __('Access notes') }}:</span> {{ $h->access_notes }}</div>
+              @endif
+              @if($h->notes)
+                <div class="col-md-12"><span class="text-muted">{{ __('Notes') }}:</span> {{ $h->notes }}</div>
+              @endif
+            </div>
+          </div>
+        @endforeach
+      </div>
+    </section>
+  @endif
+
+  {{-- External References (multi-row, dam_external_links) --}}
+  @if(isset($externalLinks) && $externalLinks->count())
+    <section id="externalLinksArea" class="border-bottom">
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('External References') }}</div></h2>
+      <div class="p-2">
+        @foreach($externalLinks as $l)
+          <div class="border rounded p-2 mb-2 small">
+            <div class="d-flex justify-content-between align-items-start mb-1">
+              <div>
+                <span class="badge bg-info">{{ $l->link_type }}</span>
+                @if($l->title) <strong class="ms-2">{{ $l->title }}</strong>@endif
+                @if($l->is_primary) <span class="badge bg-success ms-1">{{ __('Primary') }}</span>@endif
+              </div>
+              @if($l->verified_date)
+                <span class="text-muted">{{ __('Verified') }}: {{ $l->verified_date }}</span>
+              @endif
+            </div>
+            @if($l->url)
+              <div><a href="{{ $l->url }}" target="_blank" rel="noopener">{{ $l->url }}</a></div>
+            @endif
+            @if($l->person_name || $l->person_role)
+              <div class="text-muted">
+                {{ $l->person_name }}@if($l->person_role) — {{ $l->person_role }}@endif
+              </div>
+            @endif
+            @if($l->description)
+              <div>{{ $l->description }}</div>
+            @endif
+          </div>
+        @endforeach
+      </div>
     </section>
   @endif
 
