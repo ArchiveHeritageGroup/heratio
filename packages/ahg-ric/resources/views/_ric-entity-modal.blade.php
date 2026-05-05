@@ -207,15 +207,19 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!data.title) { alert('Title is required'); return; }
         }
 
-        // API-3: POST /api/ric/v1/{type}s for the entity, then if a link-to-record
-        // was specified, POST /api/ric/v1/relations for the relation. Two round-trips
-        // in place of the admin /store convenience endpoint.
+        // POST /api/ric/v1/{type-plural} for the entity (LOCAL Heratio — writes
+        // never go cross-origin to OpenRiC; per the separation plan ric_*
+        // tables live here and OpenRiC is read-only public). Then if a
+        // link-to-record was specified, POST /api/ric/v1/relations. Both
+        // routes are gated by api.auth:write which accepts the logged-in
+        // admin's session cookie via credentials: 'same-origin'.
         const entityPayload = Object.assign({}, data);
         delete entityPayload.entity_type;
         delete entityPayload.link_to_record_id;
         delete entityPayload.link_relation_type;
         const entityType = data.entity_type; // 'place' | 'rule' | 'activity' | 'instantiation'
-        const typeUrl = `${RIC_API_BASE}/${entityType}s`;
+        const plural = entityType === 'activity' ? 'activities' : (entityType + 's');
+        const typeUrl = `/api/ric/v1/${plural}`;
         fetch(typeUrl, {
             method: 'POST',
             credentials: 'same-origin',
@@ -227,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!ok) { alert('Error: ' + (body.error || body.message || 'Unknown')); return; }
             const createdId = body.id;
             if (data.link_to_record_id && data.link_relation_type && createdId) {
-                const relResp = await fetch(`${RIC_API_BASE}/relations`, {
+                const relResp = await fetch(`/api/ric/v1/relations`, {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },

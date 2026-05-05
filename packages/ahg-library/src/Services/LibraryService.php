@@ -294,7 +294,7 @@ class LibraryService
             // 5. Create library_item record
             $libraryItemId = DB::table('library_item')->insertGetId([
                 'information_object_id' => $id,
-                'material_type' => $data['material_type'] ?? null,
+                'material_type' => $data['material_type'] ?: 'monograph',
                 'subtitle' => $data['subtitle'] ?? null,
                 'responsibility_statement' => $data['responsibility_statement'] ?? null,
                 'call_number' => $data['call_number'] ?? null,
@@ -832,8 +832,18 @@ class LibraryService
      */
     public function getItemLocation(int $informationObjectId): array
     {
-        $row = DB::table('information_object_physical_location')
-            ->where('information_object_id', $informationObjectId)
+        $row = DB::table('information_object_physical_location as iopl')
+            ->leftJoin('physical_object as po', 'iopl.physical_object_id', '=', 'po.id')
+            ->leftJoin('physical_object_i18n as poi', function ($j) {
+                $j->on('po.id', '=', 'poi.id')
+                  ->where('poi.culture', '=', $this->culture);
+            })
+            ->where('iopl.information_object_id', $informationObjectId)
+            ->select(
+                'iopl.*',
+                'poi.name as physical_object_name',
+                'poi.location as physical_object_location'
+            )
             ->first();
 
         if (!$row) {

@@ -543,6 +543,71 @@
     </section>
   @endif
 
+  {{-- Item Physical Location (information_object_physical_location row) --}}
+  @php
+    $iloc = $itemLocation ?? [];
+    $hasIloc = collect(['physical_object_id','barcode','box_number','folder_number','shelf','row','position','item_number','extent_value','extent_unit','condition_status','access_status','condition_notes','notes'])
+        ->contains(fn ($k) => !empty($iloc[$k]));
+  @endphp
+  @if($hasIloc)
+    <section class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ __('Item Physical Location') }}</h5>
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          @if(!empty($iloc['physical_object_name']))
+            <dt class="col-sm-4">Storage container</dt>
+            <dd class="col-sm-8">
+              {{ $iloc['physical_object_name'] }}
+              @if(!empty($iloc['physical_object_location']))
+                <span class="text-muted small">({{ $iloc['physical_object_location'] }})</span>
+              @endif
+            </dd>
+          @endif
+          @if(!empty($iloc['barcode']))
+            <dt class="col-sm-4">Item barcode</dt>
+            <dd class="col-sm-8"><code>{{ $iloc['barcode'] }}</code></dd>
+          @endif
+          @php
+            $within = array_filter([
+              !empty($iloc['box_number'])    ? 'Box '    . $iloc['box_number']    : null,
+              !empty($iloc['folder_number']) ? 'Folder ' . $iloc['folder_number'] : null,
+              !empty($iloc['shelf'])         ? 'Shelf '  . $iloc['shelf']         : null,
+              !empty($iloc['row'])           ? 'Row '    . $iloc['row']           : null,
+              !empty($iloc['position'])      ? 'Pos '    . $iloc['position']      : null,
+              !empty($iloc['item_number'])   ? 'Item #'  . $iloc['item_number']   : null,
+            ]);
+          @endphp
+          @if(!empty($within))
+            <dt class="col-sm-4">Location within container</dt>
+            <dd class="col-sm-8">{{ implode(' > ', $within) }}</dd>
+          @endif
+          @if(!empty($iloc['extent_value']) || !empty($iloc['extent_unit']))
+            <dt class="col-sm-4">Extent</dt>
+            <dd class="col-sm-8">{{ trim(($iloc['extent_value'] ?? '') . ' ' . ($iloc['extent_unit'] ?? '')) }}</dd>
+          @endif
+          @if(!empty($iloc['condition_status']))
+            <dt class="col-sm-4">Condition</dt>
+            <dd class="col-sm-8"><span class="badge bg-secondary">{{ ucfirst($iloc['condition_status']) }}</span></dd>
+          @endif
+          @if(!empty($iloc['access_status']))
+            <dt class="col-sm-4">Access status</dt>
+            <dd class="col-sm-8"><span class="badge bg-{{ $iloc['access_status'] === 'available' ? 'success' : 'warning' }}">{{ ucfirst($iloc['access_status']) }}</span></dd>
+          @endif
+          @if(!empty($iloc['condition_notes']))
+            <dt class="col-sm-4">Condition notes</dt>
+            <dd class="col-sm-8">{!! nl2br(e($iloc['condition_notes'])) !!}</dd>
+          @endif
+          @if(!empty($iloc['notes']))
+            <dt class="col-sm-4">Location notes</dt>
+            <dd class="col-sm-8">{!! nl2br(e($iloc['notes'])) !!}</dd>
+          @endif
+        </dl>
+      </div>
+    </section>
+  @endif
+
   {{-- Publication Information --}}
   @if($item->publisher || $item->publication_place || $item->publication_date || $item->edition || $item->edition_statement || $item->series_title)
     <section class="card mb-4">

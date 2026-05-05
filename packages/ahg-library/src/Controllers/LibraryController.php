@@ -132,6 +132,9 @@ class LibraryController extends Controller
             ->select('physical_object.id', 'physical_object.type_id', 'physical_object_i18n.name', 'physical_object_i18n.location')
             ->get();
 
+        // Item physical location (single row from information_object_physical_location)
+        $itemLocation = $this->service->getItemLocation($item->id);
+
         return view('ahg-library::library.show', [
             'item' => $item,
             'levelName' => $levelName,
@@ -142,6 +145,7 @@ class LibraryController extends Controller
             'digitalObjects' => $digitalObjects,
             'repository' => $repository,
             'physicalObjects' => $physicalObjects,
+            'itemLocation' => $itemLocation,
         ]);
     }
 

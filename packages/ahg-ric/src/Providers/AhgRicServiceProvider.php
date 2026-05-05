@@ -76,14 +76,15 @@ class AhgRicServiceProvider extends ServiceProvider
         // Load web routes
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
 
-        // Load API routes ONLY when this process is itself serving the RiC API
-        // (i.e. RIC_API_URL is unset). When RIC_API_URL is set, this process is
-        // a client of an external RiC service (Heratio post-split), and
-        // loading the API routes would just duplicate a surface that's served
-        // authoritatively elsewhere.
-        if (empty(config('ric.api_url'))) {
-            $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
-        }
+        // Always load /api/ric/v1/* routes locally. Per the separation plan
+        // (memory: project_ric_separation_plan.md) the relational ric_* tables
+        // stay in Heratio; OpenRiC handles graph/SPARQL READS only. Even
+        // post-split, write surfaces (modal entity create, relation editor)
+        // need a local endpoint that accepts the admin's session cookie —
+        // otherwise the embedded JS would have to ship an API key to call
+        // OpenRiC cross-origin, which we don't do. Reads can still go to
+        // RIC_API_BASE = config('ric.api_url') for graph traversal.
+        $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
 
         // Load views
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-ric');

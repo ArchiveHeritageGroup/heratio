@@ -36,6 +36,28 @@ class LinkedDataApiController extends Controller
     private ShaclValidationService $validator;
     private RicEntityService $entities;
 
+    /**
+     * Map plural URL segments → singular form used in audit logs and JSON
+     * responses. Blind rtrim($type, 's') yielded 'activitie' for
+     * 'activities'; this map handles the irregular plurals correctly.
+     */
+    private const SINGULAR = [
+        'places'          => 'place',
+        'rules'           => 'rule',
+        'activities'      => 'activity',
+        'instantiations'  => 'instantiation',
+        'agents'          => 'agent',
+        'records'         => 'record',
+        'repositories'    => 'repository',
+        'functions'       => 'function',
+        'relations'       => 'relation',
+    ];
+
+    private static function singularEntityType(string $plural): string
+    {
+        return self::SINGULAR[$plural] ?? rtrim($plural, 's');
+    }
+
     public function __construct()
     {
         $this->serializer = new RicSerializationService();
@@ -1680,10 +1702,7 @@ class LinkedDataApiController extends Controller
         $limit = min((int) $request->query('limit', 50), 200);
         // Audit rows store the singular form (place, record, …); accept the
         // plural URL segment (places, records, …) and normalise here.
-        $singular = ['places' => 'place', 'rules' => 'rule', 'activities' => 'activity',
-                     'instantiations' => 'instantiation', 'agents' => 'agent', 'records' => 'record',
-                     'repositories' => 'repository', 'functions' => 'function', 'relations' => 'relation'];
-        $entityType = $singular[$type] ?? rtrim($type, 's');
+        $entityType = self::singularEntityType($type);
         $rows = DB::table('openric_audit_log')
             ->where('entity_type', $entityType)
             ->where('entity_id', $id)
@@ -1753,11 +1772,11 @@ class LinkedDataApiController extends Controller
                 'instantiations' => $this->entities->createInstantiation($data),
             };
             $slug = DB::table('slug')->where('object_id', $id)->value('slug');
-            \AhgRic\Support\AuditLog::record($request, 'create', rtrim($type, 's'), $id, $data);
+            \AhgRic\Support\AuditLog::record($request, 'create', self::singularEntityType($type), $id, $data);
             return response()->json([
                 'id' => $id,
                 'slug' => $slug,
-                'type' => rtrim($type, 's'),
+                'type' => self::singularEntityType($type),
                 'href' => "/api/ric/v1/{$type}/" . ($slug ?: $id),
             ], 201);
         } catch (\Throwable $e) {
@@ -1781,7 +1800,7 @@ class LinkedDataApiController extends Controller
                 'activities' => $this->entities->updateActivity($id, $data),
                 'instantiations' => $this->entities->updateInstantiation($id, $data),
             };
-            \AhgRic\Support\AuditLog::record($request, 'update', rtrim($type, 's'), $id, $data);
+            \AhgRic\Support\AuditLog::record($request, 'update', self::singularEntityType($type), $id, $data);
             return response()->json(['success' => true, 'id' => $id]);
         } catch (\Throwable $e) {
             Log::error('[RiC API] updateEntity failed', ['type' => $type, 'id' => $id, 'error' => $e->getMessage()]);
@@ -1825,7 +1844,7 @@ class LinkedDataApiController extends Controller
                 'activities' => $this->entities->deleteActivity($id),
                 'instantiations' => $this->entities->deleteInstantiation($id),
             };
-            \AhgRic\Support\AuditLog::record(request(), 'delete', rtrim($type, 's'), $id);
+            \AhgRic\Support\AuditLog::record(request(), 'delete', self::singularEntityType($type), $id);
             return response()->json(['success' => true, 'id' => $id]);
         } catch (\Throwable $e) {
             Log::error('[RiC API] deleteEntity failed', ['type' => $type, 'id' => $id, 'error' => $e->getMessage()]);

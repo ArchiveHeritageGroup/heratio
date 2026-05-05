@@ -222,15 +222,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.ricSubmitRelation = function() {
         const payload = currentFormPayload();
+        // Writes always hit local Heratio (api.auth:write accepts the admin
+        // session); RIC_API_BASE is reserved for cross-origin reads only.
         if (editingId === null) {
             if (!payload.object_id || !payload.relation_type) { alert('Select a target entity and relation type'); return; }
-            fetch(`${RIC_API_BASE}/relations`, {
+            fetch(`/api/ric/v1/relations`, {
                 method: 'POST', credentials: 'same-origin', headers: jsonHeaders(), body: JSON.stringify(payload)
             })
             .then(r => r.json().then(body => ({ ok: r.ok, body })))
             .then(({ ok, body }) => { if (ok) location.reload(); else alert(body.error || body.message || 'Create failed'); });
         } else {
-            fetch(`${RIC_API_BASE}/relations/${editingId}`, {
+            fetch(`/api/ric/v1/relations/${editingId}`, {
                 method: 'PATCH', credentials: 'same-origin', headers: jsonHeaders(), body: JSON.stringify(payload)
             })
             .then(r => r.json().then(body => ({ ok: r.ok, body })))
@@ -272,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.ricDeleteRelation = function(id) {
         if (!confirm('Remove this relation?')) return;
-        fetch(`${RIC_API_BASE}/relations/${id}`, { method: 'DELETE', credentials: 'same-origin', headers: jsonHeaders() })
+        fetch(`/api/ric/v1/relations/${id}`, { method: 'DELETE', credentials: 'same-origin', headers: jsonHeaders() })
             .then(() => location.reload());
     };
 
