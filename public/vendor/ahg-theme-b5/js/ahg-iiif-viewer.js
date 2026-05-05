@@ -56,7 +56,99 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                 immediateRender: true,
                 crossOriginPolicy: 'Anonymous'
             });
+            buildFilterToolbar();
         }
+    }
+
+    // Filter toolbar: brightness / contrast / greyscale / invert / threshold.
+    // Requires openseadragon-filtering.js to be loaded — feature-detected so
+    // missing plugin just skips the toolbar instead of throwing.
+    function buildFilterToolbar() {
+        if (!osdViewer || !osdViewer.setFilterOptions || !window.OpenSeadragon || !OpenSeadragon.Filters) return;
+        if (document.getElementById('osd-filters-' + vid)) return;
+        injectFilterStyles();
+
+        var bar = document.createElement('div');
+        bar.id = 'osd-filters-' + vid;
+        bar.className = 'osd-filter-toolbar';
+        bar.innerHTML =
+            '<button type="button" class="osd-filter-toggle" title="Image filters" aria-label="Image filters">' +
+                '<i class="fas fa-sliders-h"></i>' +
+            '</button>' +
+            '<div class="osd-filter-panel" hidden>' +
+                '<label>Brightness <span class="osd-filter-val" data-for="brightness">0</span>' +
+                    '<input type="range" data-filter="brightness" min="-100" max="100" value="0" step="1">' +
+                '</label>' +
+                '<label>Contrast <span class="osd-filter-val" data-for="contrast">0</span>' +
+                    '<input type="range" data-filter="contrast" min="-50" max="50" value="0" step="1">' +
+                '</label>' +
+                '<label class="osd-filter-check">' +
+                    '<input type="checkbox" data-filter="greyscale"> Greyscale' +
+                '</label>' +
+                '<label class="osd-filter-check">' +
+                    '<input type="checkbox" data-filter="invert"> Invert' +
+                '</label>' +
+                '<label>Threshold <span class="osd-filter-val" data-for="threshold">off</span>' +
+                    '<input type="range" data-filter="threshold" min="0" max="255" value="0" step="1">' +
+                '</label>' +
+                '<button type="button" class="osd-filter-reset">Reset</button>' +
+            '</div>';
+        osdEl.appendChild(bar);
+
+        bar.querySelector('.osd-filter-toggle').addEventListener('click', function () {
+            var p = bar.querySelector('.osd-filter-panel');
+            p.hidden = !p.hidden;
+        });
+
+        bar.querySelectorAll('input').forEach(function (inp) {
+            inp.addEventListener('input', applyFilters);
+            inp.addEventListener('change', applyFilters);
+        });
+
+        bar.querySelector('.osd-filter-reset').addEventListener('click', function () {
+            bar.querySelectorAll('input[type=range]').forEach(function (r) { r.value = 0; });
+            bar.querySelectorAll('input[type=checkbox]').forEach(function (c) { c.checked = false; });
+            applyFilters();
+        });
+
+        function applyFilters() {
+            var brightness = parseFloat(bar.querySelector('[data-filter=brightness]').value);
+            var contrastRaw = parseFloat(bar.querySelector('[data-filter=contrast]').value);
+            var greyscale = bar.querySelector('[data-filter=greyscale]').checked;
+            var invert = bar.querySelector('[data-filter=invert]').checked;
+            var threshold = parseInt(bar.querySelector('[data-filter=threshold]').value, 10);
+
+            bar.querySelector('[data-for=brightness]').textContent = brightness;
+            bar.querySelector('[data-for=contrast]').textContent = contrastRaw;
+            bar.querySelector('[data-for=threshold]').textContent = threshold > 0 ? threshold : 'off';
+
+            var processors = [];
+            if (greyscale) processors.push(OpenSeadragon.Filters.GREYSCALE());
+            if (brightness) processors.push(OpenSeadragon.Filters.BRIGHTNESS(brightness));
+            if (contrastRaw) processors.push(OpenSeadragon.Filters.CONTRAST(1 + contrastRaw / 50));
+            if (invert) processors.push(OpenSeadragon.Filters.INVERT());
+            if (threshold > 0) processors.push(OpenSeadragon.Filters.THRESHOLDING(threshold));
+
+            osdViewer.setFilterOptions({ filters: processors.length ? { processors: processors } : [] });
+        }
+    }
+
+    function injectFilterStyles() {
+        if (document.getElementById('osd-filter-styles')) return;
+        var s = document.createElement('style');
+        s.id = 'osd-filter-styles';
+        s.textContent =
+            '.osd-filter-toolbar{position:absolute;top:8px;right:8px;z-index:1000;font-size:12px;color:#fff;}' +
+            '.osd-filter-toggle{width:34px;height:34px;border:0;border-radius:4px;background:rgba(0,0,0,.65);color:#fff;cursor:pointer;}' +
+            '.osd-filter-toggle:hover{background:rgba(0,0,0,.85);}' +
+            '.osd-filter-panel{position:absolute;top:40px;right:0;background:rgba(0,0,0,.85);padding:10px 12px;border-radius:6px;width:200px;display:flex;flex-direction:column;gap:8px;}' +
+            '.osd-filter-panel label{display:flex;flex-direction:column;font-size:11px;line-height:1.3;gap:2px;}' +
+            '.osd-filter-panel label.osd-filter-check{flex-direction:row;align-items:center;gap:6px;}' +
+            '.osd-filter-panel input[type=range]{width:100%;}' +
+            '.osd-filter-val{font-weight:600;color:#9ec1ff;}' +
+            '.osd-filter-reset{background:#444;color:#fff;border:0;border-radius:3px;padding:4px 8px;cursor:pointer;font-size:11px;}' +
+            '.osd-filter-reset:hover{background:#666;}';
+        document.head.appendChild(s);
     }
 
     function showMirador() {
