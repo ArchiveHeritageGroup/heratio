@@ -116,10 +116,22 @@
 document.addEventListener('DOMContentLoaded', function() {
     const recordId = {{ $recordId }};
 
+    function renderEmpty() {
+        renderActivities([]);
+        renderInstantiations([]);
+        renderPlaces([]);
+        renderRules([]);
+        document.querySelector('.ric-count-activities').textContent = 0;
+        document.querySelector('.ric-count-instantiations').textContent = 0;
+        document.querySelector('.ric-count-places').textContent = 0;
+        document.querySelector('.ric-count-rules').textContent = 0;
+    }
+
     // Load entities for this record
     fetch(`${RIC_API_BASE}/records/${recordId}/entities`, { credentials: 'same-origin' })
-        .then(r => r.json())
+        .then(r => r.ok ? r.json() : null)
         .then(data => {
+            if (!data) { renderEmpty(); return; }
             renderActivities(data.activities || []);
             renderInstantiations(data.instantiations || []);
             renderPlaces(data.places || []);
@@ -129,18 +141,26 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('.ric-count-places').textContent = (data.places || []).length;
             document.querySelector('.ric-count-rules').textContent = (data.rules || []).length;
         })
-        .catch(() => {});
+        .catch(() => { renderEmpty(); });
 
     // Load relations — public API returns grouped {outgoing, incoming};
     // flatten back for the legacy table renderer.
     fetch(`${RIC_API_BASE}/relations-for/${recordId}`, { credentials: 'same-origin' })
-        .then(r => r.json())
+        .then(r => r.ok ? r.json() : null)
         .then(payload => {
+            if (!payload) {
+                document.querySelector('.ric-count-relations').textContent = 0;
+                if (typeof renderRelations === 'function') renderRelations([]);
+                return;
+            }
             const flat = [ ...(payload.outgoing || []), ...(payload.incoming || []) ];
             document.querySelector('.ric-count-relations').textContent = flat.length;
             if (typeof renderRelations === 'function') renderRelations(flat);
         })
-        .catch(() => {});
+        .catch(() => {
+            document.querySelector('.ric-count-relations').textContent = 0;
+            if (typeof renderRelations === 'function') renderRelations([]);
+        });
 
     function renderActivities(items) {
         const body = document.getElementById('ric-activities-body');
