@@ -96,7 +96,7 @@
     {{-- Containers & Rights --}}
     <div class="card mb-4">
       <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-box me-2"></i>{{ __('Containers &amp; Rights') }}</h5>
+        <h5 class="mb-0"><i class="fas fa-box me-2"></i>{{ __('Containers & Rights') }}</h5>
       </div>
       <div class="card-body">
         <div class="row g-3">

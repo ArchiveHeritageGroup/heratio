@@ -847,19 +847,5 @@
         @endauth
       @endif
 
-      {{-- TIFF to PDF Merge button (only for items with TIFF digital objects) --}}
-      @auth
-        @php
-          $hasTiffDigitalObject = isset($digitalObjects) && ($digitalObjects['master'] ?? null)
-            && in_array(strtolower($digitalObjects['master']->mime_type ?? ''), ['image/tiff', 'image/tif', 'image/x-tiff']);
-        @endphp
-        @if($hasTiffDigitalObject)
-          <div class="text-center my-2">
-            <a href="{{ route('tiffpdfmerge.create') }}?io_id={{ $io->id }}" class="btn atom-btn-white btn-sm">
-              <i class="fas fa-file-pdf me-1"></i> {{ __('Merge to PDF') }}
-            </a>
-          </div>
-        @endif
-      @endauth
     @endif
   @endif

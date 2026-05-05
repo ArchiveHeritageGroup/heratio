@@ -252,13 +252,24 @@
               </div>
 
               <div class="mb-3">
-                <label for="premis_rights_holder_id" class="form-label">{{ __('Rights Holder (Actor)') }}</label>
-                <input type="text" name="premis_rights_holder_id" id="premis_rights_holder_id" class="form-control"
-                       value="{{ old('premis_rights_holder_id', $pri->rights_holder_id ?? '') }}"
-                       placeholder="{{ __('Actor ID') }}">
-                @if($pri && ($pri->rights_holder_name ?? null))
-                  <small class="text-muted">Current: {{ $pri->rights_holder_name }}</small>
-                @endif
+                {{-- Was a plain <input type="text" placeholder="Actor ID">
+                     so users had to know the numeric record id. Swapped to
+                     the shared autocomplete component (already used for
+                     Creators + Repository on the IO edit form) so users
+                     type a name and pick from the live actor.autocomplete
+                     dropdown. \$pri->rights_holder_name is populated by
+                     ExtendedRightsService::getRightsHolderName() so the
+                     existing record's display value pre-fills correctly. --}}
+                @include('ahg-core::components.autocomplete', [
+                    'name'         => 'premis_rights_holder_id',
+                    'label'        => __('Rights Holder (Actor)'),
+                    'route'        => 'actor.autocomplete',
+                    'value'        => old('premis_rights_holder_id', $pri->rights_holder_id ?? ''),
+                    'displayValue' => $pri->rights_holder_name ?? '',
+                    'placeholder'  => __('Type to search actors...'),
+                    'idField'      => 'id',
+                    'nameField'    => 'name',
+                ])
               </div>
 
               <div class="mb-3">
