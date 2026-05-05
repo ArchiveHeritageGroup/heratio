@@ -1663,6 +1663,16 @@ class InformationObjectController extends Controller
             'displayStandards' => ($dropdowns['displayStandards'] ?? collect())->pluck('name', 'id'),
         ];
 
+        // ahg_io_security sidecar: pre-populate the security panel. Missing row =
+        // unclassified record, fields render blank.
+        $sec = DB::table('ahg_io_security')->where('object_id', $io->id)->first();
+        $io->security_classification_id     = $sec->security_classification_id     ?? null;
+        $io->security_reason                = $sec->security_reason                ?? null;
+        $io->security_review_date           = $sec->security_review_date           ?? null;
+        $io->security_declassify_date       = $sec->security_declassify_date       ?? null;
+        $io->security_handling_instructions = $sec->security_handling_instructions ?? null;
+        $io->security_inherit_to_children   = (int) ($sec->security_inherit_to_children ?? 0);
+
         return view('ahg-io-manage::edit', array_merge(
             [
                 'io' => $io,
@@ -2207,6 +2217,177 @@ class InformationObjectController extends Controller
                     'id'      => $propId,
                     'culture' => $culture,
                     'value'   => $note,
+                ]);
+            }
+        }
+
+        // ---- Security panel (ahg_io_security sidecar) ----
+        // Form posts the full set whenever the panel renders, so we always have
+        // an authoritative snapshot. Upsert and (optionally) propagate to all
+        // descendants in this IO's lft/rgt subtree.
+        $secKeys = [
+            'security_classification_id',
+            'security_reason',
+            'security_review_date',
+            'security_declassify_date',
+            'security_handling_instructions',
+            'security_inherit_to_children',
+        ];
+        $hasSecurityFields = false;
+        foreach ($secKeys as $k) {
+            if ($request->has($k)) { $hasSecurityFields = true; break; }
+        }
+        if ($hasSecurityFields) {
+            $secPayload = [
+                'security_classification_id'     => $request->filled('security_classification_id') ? (int) $request->input('security_classification_id') : null,
+                'security_reason'                => $request->input('security_reason') ?: null,
+                'security_review_date'           => $request->input('security_review_date') ?: null,
+                'security_declassify_date'       => $request->input('security_declassify_date') ?: null,
+                'security_handling_instructions' => $request->input('security_handling_instructions') ?: null,
+                'security_inherit_to_children'   => (int) $request->boolean('security_inherit_to_children'),
+                'updated_at'                     => now(),
+            ];
+
+            DB::table('ahg_io_security')->updateOrInsert(
+                ['object_id' => $ioId],
+                $secPayload + ['created_at' => now()]
+            );
+
+            // Propagate to descendants when explicitly requested. Uses the IO's
+            // lft/rgt subtree (not parent_id) so nested-set descendants in any
+            // hierarchy depth are covered.
+            if ($request->boolean('updateDescendants')) {
+                $node = DB::table('information_object')->where('id', $ioId)->select('lft', 'rgt')->first();
+                if ($node && $node->lft !== null && $node->rgt !== null) {
+                    $descendantIds = DB::table('information_object')
+                        ->where('id', '!=', $ioId)
+                        ->where('lft', '>', $node->lft)
+                        ->where('rgt', '<', $node->rgt)
+                        ->pluck('id')->all();
+
+                    foreach (array_chunk($descendantIds, 500) as $chunk) {
+                        // Upsert one row per descendant. Same payload but inherit
+                        // is forced ON, so any further descendants down the line
+                        // pick up this value too.
+                        $rows = array_map(fn ($id) => [
+                            'object_id'                      => (int) $id,
+                            'security_classification_id'     => $secPayload['security_classification_id'],
+                            'security_reason'                => $secPayload['security_reason'],
+                            'security_review_date'           => $secPayload['security_review_date'],
+                            'security_declassify_date'       => $secPayload['security_declassify_date'],
+                            'security_handling_instructions' => $secPayload['security_handling_instructions'],
+                            'security_inherit_to_children'   => 1,
+                            'created_at'                     => now(),
+                            'updated_at'                     => now(),
+                        ], $chunk);
+
+                        // upsert lets MySQL handle existing rows
+                        DB::table('ahg_io_security')->upsert(
+                            $rows,
+                            ['object_id'],
+                            ['security_classification_id', 'security_reason', 'security_review_date',
+                             'security_declassify_date', 'security_handling_instructions',
+                             'security_inherit_to_children', 'updated_at']
+                        );
+                    }
+                }
+            }
+        }
+
+        // ---- Related descriptions (relation type 176) ----
+        // Form posts relatedDescriptions[idx][id] = id of another IO. We model
+        // this as a directed relation with this IO as subject; the read path
+        // already merges subject+object directions.
+        if ($request->has('relatedDescriptions')) {
+            // Drop existing outbound relations of this type from this IO so the
+            // form is the source of truth. Inbound (where this IO is object)
+            // are managed from the other record's edit page — leave them alone.
+            $oldRelIds = DB::table('relation')
+                ->where('subject_id', $ioId)
+                ->where('type_id', 176)
+                ->pluck('id')->toArray();
+            if (!empty($oldRelIds)) {
+                DB::table('relation')->whereIn('id', $oldRelIds)->delete();
+                DB::table('object')->whereIn('id', $oldRelIds)->delete();
+            }
+
+            $seen = [];
+            foreach ((array) $request->input('relatedDescriptions', []) as $row) {
+                $otherId = (int) ($row['id'] ?? 0);
+                if ($otherId <= 0 || $otherId === $ioId || isset($seen[$otherId])) continue;
+                $seen[$otherId] = true;
+
+                $relObjectId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitRelation',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('relation')->insert([
+                    'id'             => $relObjectId,
+                    'subject_id'     => $ioId,
+                    'object_id'      => $otherId,
+                    'type_id'        => 176,
+                    'source_culture' => $culture,
+                ]);
+            }
+        }
+
+        // ---- Add new child levels (create-on-save) ----
+        // Each childLevels[idx] row spawns a brand-new IO record under this one.
+        // Mirrors store() but parents to $ioId and inserts inside the parent's
+        // nested-set range, shifting siblings to make room.
+        if ($request->has('childLevels')) {
+            foreach ((array) $request->input('childLevels', []) as $row) {
+                $title       = trim((string) ($row['title'] ?? ''));
+                $identifier  = trim((string) ($row['identifier'] ?? ''));
+                $levelId     = (int) ($row['levelId'] ?? 0);
+                if ($title === '' && $identifier === '' && $levelId === 0) continue;
+                if ($title === '') continue; // title is required by store() validation
+
+                // Place as last child of $ioId. Re-read parent each iteration
+                // because the previous insert shifted the tree.
+                $parent = DB::table('information_object')
+                    ->where('id', $ioId)
+                    ->select('lft', 'rgt')
+                    ->first();
+                if (!$parent) break;
+
+                $newLft = $parent->rgt;
+                $newRgt = $parent->rgt + 1;
+
+                DB::table('information_object')->where('rgt', '>=', $parent->rgt)->increment('rgt', 2);
+                DB::table('information_object')->where('lft', '>',  $parent->rgt)->increment('lft', 2);
+
+                $childId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitInformationObject',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('information_object')->insert([
+                    'id'                      => $childId,
+                    'identifier'              => $identifier !== '' ? $identifier : null,
+                    'level_of_description_id' => $levelId > 0 ? $levelId : null,
+                    'repository_id'           => $request->input('repository_id') ?: null,
+                    'parent_id'               => $ioId,
+                    'lft'                     => $newLft,
+                    'rgt'                     => $newRgt,
+                    'source_culture'          => $culture,
+                ]);
+                DB::table('information_object_i18n')->insert([
+                    'id'      => $childId,
+                    'culture' => $culture,
+                    'title'   => $title,
+                ]);
+
+                // Generate a unique slug for the new child.
+                $base = \Illuminate\Support\Str::slug($title) ?: ('record-' . $childId);
+                $slugCandidate = $base; $n = 1;
+                while (DB::table('slug')->where('slug', $slugCandidate)->exists()) {
+                    $slugCandidate = $base . '-' . $n++;
+                }
+                DB::table('slug')->insert([
+                    'object_id' => $childId,
+                    'slug'      => $slugCandidate,
                 ]);
             }
         }

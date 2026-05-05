@@ -483,22 +483,27 @@
             </div>
 
             {{-- Related descriptions --}}
-            <div class="mb-3">
-              <label class="form-label">Related descriptions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <div id="related-desc-list">
-                @foreach($relatedMaterialDescriptions as $rdIdx => $rd)
-                  <div class="input-group input-group-sm mb-1">
-                    <input type="text" class="form-control" value="{{ $rd->title ?? '' }}" readonly>
-                    <input type="hidden" name="relatedDescriptions[{{ $rdIdx }}][id]" value="{{ $rd->id }}">
-                    <button type="button" class="btn btn-outline-danger btn-remove-ap">{{ __('Remove') }}</button>
-                  </div>
-                @endforeach
-              </div>
-              <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" placeholder="{{ __('Type to add related description...') }}" autocomplete="off">
-              </div>
-              <span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="To create a relationship between this description and another description held in the system, begin typing the name of the related description and select it from the autocomplete drop-down menu when it appears below. Multiple relationships can be created."><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span>
-            </div>
+            @php
+              $relatedItems = ($relatedMaterialDescriptions ?? collect())->map(fn ($rd) => [
+                  'id'   => $rd->id,
+                  'name' => $rd->title ?? '(untitled)',
+              ])->toArray();
+            @endphp
+            @include('ahg-core::components.autocomplete', [
+                'name'          => 'relatedDescriptionsSearch',
+                'label'         => __('Related descriptions'),
+                'route'         => 'informationobject.autocomplete',
+                'placeholder'   => __('Type to add a related description — pick from the list to create a new row...'),
+                'required'      => false,
+                'idField'       => 'id',
+                'nameField'     => 'name',
+                'multi'         => true,
+                'multiName'     => 'relatedDescriptions[][id]',
+                'rowsLayout'    => true,
+                'existingItems' => $relatedItems,
+                'inputClass'    => 'form-control-sm',
+                'helpText'      => __('Begin typing the name of another description and pick it from the dropdown to create a relationship. Multiple relationships can be created.'),
+            ])
 
             {{-- Publication notes multi-row --}}
             <div class="mb-3">
