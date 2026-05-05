@@ -1417,10 +1417,10 @@ class InformationObjectController extends Controller
             ->select('id', 'name', 'image_file')
             ->get();
 
-        // Collection type options (taxonomy_id = 12)
+        // Collection type options (AtoM QubitTaxonomy::COLLECTION_TYPE_ID = 45)
         $collectionTypes = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->where('term.taxonomy_id', 12)
+            ->where('term.taxonomy_id', 45)
             ->where('term_i18n.culture', $culture)
             ->orderBy('term_i18n.name')
             ->select('term.id', 'term_i18n.name')
@@ -2103,6 +2103,110 @@ class InformationObjectController extends Controller
                     'object_id'      => (int) $actorId,
                     'type_id'        => 161,
                     'source_culture' => $culture,
+                ]);
+            }
+        }
+
+        // ---- Publication status (status table, type_id = 158) ----
+        // Per CLAUDE.md: publication status lives in `status`, not on
+        // information_object. type 158 is the publication-status discriminator.
+        if ($request->has('publication_status_id')) {
+            $statusId = (int) $request->input('publication_status_id');
+            DB::table('status')
+                ->where('object_id', $ioId)
+                ->where('type_id', 158)
+                ->delete();
+            if ($statusId > 0) {
+                $statusObjectId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitStatus',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('status')->insert([
+                    'id'        => $statusObjectId,
+                    'object_id' => $ioId,
+                    'type_id'   => 158,
+                    'status_id' => $statusId,
+                ]);
+            }
+        }
+
+        // ---- Languages / scripts (PHP-serialized arrays in property table) ----
+        // AtoM stores ISO codes for language(s) of material, script(s) of material,
+        // language(s) of description, script(s) of description as a single property
+        // row per type, with value = serialize([codes]). We mirror that exactly so
+        // existing AtoM-imported records keep the same shape.
+        $serialisedProps = [
+            'language'             => 'languages',
+            'script'               => 'scripts',
+            'languageOfDescription'=> 'languagesOfDescription',
+            'scriptOfDescription'  => 'scriptsOfDescription',
+        ];
+        foreach ($serialisedProps as $propName => $formField) {
+            if (!$request->has($formField)) continue;
+            $values = array_values(array_filter(
+                array_map('strval', (array) $request->input($formField, [])),
+                fn ($v) => $v !== ''
+            ));
+
+            $oldIds = DB::table('property')
+                ->where('object_id', $ioId)
+                ->where('name', $propName)
+                ->pluck('id')->toArray();
+            if (!empty($oldIds)) {
+                DB::table('property_i18n')->whereIn('id', $oldIds)->delete();
+                DB::table('property')->whereIn('id', $oldIds)->delete();
+                DB::table('object')->whereIn('id', $oldIds)->delete();
+            }
+
+            if (!empty($values)) {
+                $propId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitProperty',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('property')->insert([
+                    'id'             => $propId,
+                    'object_id'      => $ioId,
+                    'name'           => $propName,
+                    'source_culture' => $culture,
+                ]);
+                DB::table('property_i18n')->insert([
+                    'id'      => $propId,
+                    'culture' => $culture,
+                    'value'   => serialize($values),
+                ]);
+            }
+        }
+
+        // ---- Language note (free-text, stored as property name=languageNote) ----
+        if ($request->has('language_notes')) {
+            $note = trim((string) $request->input('language_notes', ''));
+            $oldIds = DB::table('property')
+                ->where('object_id', $ioId)
+                ->where('name', 'languageNote')
+                ->pluck('id')->toArray();
+            if (!empty($oldIds)) {
+                DB::table('property_i18n')->whereIn('id', $oldIds)->delete();
+                DB::table('property')->whereIn('id', $oldIds)->delete();
+                DB::table('object')->whereIn('id', $oldIds)->delete();
+            }
+            if ($note !== '') {
+                $propId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitProperty',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('property')->insert([
+                    'id'             => $propId,
+                    'object_id'      => $ioId,
+                    'name'           => 'languageNote',
+                    'source_culture' => $culture,
+                ]);
+                DB::table('property_i18n')->insert([
+                    'id'      => $propId,
+                    'culture' => $culture,
+                    'value'   => $note,
                 ]);
             }
         }

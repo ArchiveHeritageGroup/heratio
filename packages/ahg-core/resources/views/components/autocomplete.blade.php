@@ -21,6 +21,7 @@
         'extraParams' => [],                      // optional, extra query params appended to the route URL
         'multi'       => false,                   // optional, multi-select mode
         'multiName'   => '',                      // optional, name for hidden inputs in multi mode (e.g. 'creatorIds[]')
+        'rowsLayout'  => false,                   // optional, multi-row block UI (each pick = its own row + Remove) instead of inline chips
         'existingItems'=> [],                     // optional, pre-selected items [{id:..., name:...}, ...]
     ])
 
@@ -46,6 +47,7 @@
     $acAllowFreeText = $allowFreeText ?? false;
     $acMulti         = $multi ?? false;
     $acMultiName     = $multiName ?? ($acName . '[]');
+    $acRowsLayout    = $rowsLayout ?? false;
     $acExistingItems = $existingItems ?? [];
     $acExtraParams   = $extraParams ?? [];
     if ($acRoute) {
@@ -72,7 +74,7 @@
     ], JSON_HEX_APOS | JSON_HEX_QUOT);
 @endphp
 
-<div class="mb-3 ahg-autocomplete" id="{{ $acId }}" data-config='{{ $acConfig }}'>
+<div class="mb-3 ahg-autocomplete{{ $acRowsLayout ? ' ahg-ac-rows-mode' : '' }}" id="{{ $acId }}" data-config='{{ $acConfig }}'>
 
     @if($acLabel)
         <label for="{{ $acId }}-input" class="form-label">
@@ -367,6 +369,39 @@
 .ahg-autocomplete .ahg-ac-tag {
     display: inline-flex;
     align-items: center;
+}
+
+/* Multi-row repeater layout: each picked item becomes a full-width block,
+   stacked vertically, with the Remove button right-aligned. The search
+   input below is labelled "Add another..." so the multi-add UX is explicit. */
+.ahg-autocomplete.ahg-ac-rows-mode .ahg-ac-tags {
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+.ahg-autocomplete.ahg-ac-rows-mode .ahg-ac-tag {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bs-light, #f8f9fa) !important;
+    color: var(--bs-body-color, #212529) !important;
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    padding: 0.35rem 0.5rem 0.35rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: normal;
+    margin-right: 0;
+    margin-bottom: 0;
+}
+.ahg-autocomplete.ahg-ac-rows-mode .ahg-ac-tag .btn-close {
+    filter: none !important;
+    opacity: 0.5;
+    margin-left: auto !important;
+    font-size: 0.75em !important;
+}
+.ahg-autocomplete.ahg-ac-rows-mode .ahg-ac-tag .btn-close:hover {
+    opacity: 1;
 }
 </style>
 @endpush
