@@ -40,8 +40,18 @@ class CronRunCommand extends Command
         $results = $service->runDueSchedules();
 
         foreach ($results as $r) {
-            $icon = $r['status'] === 'success' ? '<info>OK</info>' : '<error>FAIL</error>';
-            $this->line("  [{$icon}] {$r['slug']} ({$r['duration_ms']}ms)");
+            // CronSchedulerService::runDueSchedules returns 2 result shapes:
+            // (a) full row from runSingle() with id/slug/status/duration_ms/next_run
+            // (b) skipped/deferred row with only status + reason
+            // The skipped shape was crashing this loop with "Undefined array
+            // key duration_ms" once schedule:run actually started firing
+            // every minute (the cron infra fix in v1.52.41). Tolerate both.
+            $status = $r['status'] ?? 'unknown';
+            $icon = $status === 'success' ? '<info>OK</info>'
+                  : ($status === 'skipped' || $status === 'deferred' ? '<comment>SKIP</comment>' : '<error>FAIL</error>');
+            $label = $r['slug'] ?? $r['reason'] ?? '(unknown)';
+            $duration = isset($r['duration_ms']) ? "({$r['duration_ms']}ms)" : '';
+            $this->line(trim("  [{$icon}] {$label} {$duration}"));
         }
 
         $failed = collect($results)->where('status', 'failed')->count();
