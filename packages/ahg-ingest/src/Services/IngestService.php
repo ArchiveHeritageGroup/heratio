@@ -346,6 +346,36 @@ class IngestService
             'parent_id' => null,
         ]);
 
+        // Auto metadata extraction (closes #86 Phase 6 for the ingest path).
+        // Mirrors the wire-up in DigitalObjectController::upload: fires the
+        // shared orchestrator against the file at its canonical location,
+        // captures a secondary audit row with sector + extracted/written
+        // fields. Failures are non-fatal so a broken extractor cannot break
+        // the ingest itself. Gated on meta_extract_on_upload (default true).
+        try {
+            $extractor = app(\AhgMetadataExtraction\Services\MetadataExtractionService::class);
+            $result = $extractor->extractAndApplyOnUpload($ioId, $targetPath);
+            if (!empty($result['written']) || !empty($result['extracted_fields'])) {
+                \AhgCore\Support\AuditLog::captureSecondaryMutation($ioId, 'information_object', 'metadata_extraction_apply', [
+                    'data' => [
+                        'sector'            => $result['sector'] ?? null,
+                        'extracted_fields'  => $result['extracted_fields'] ?? [],
+                        'written'           => $result['written'] ?? [],
+                        'skipped'           => $result['skipped'] ?? [],
+                        'digital_object_id' => $doObjectId,
+                        'filename'          => $filename,
+                        'source'            => 'ingest',
+                    ],
+                ]);
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Metadata extraction on ingest failed: ' . $e->getMessage(), [
+                'io_id' => $ioId,
+                'do_id' => $doObjectId,
+                'trace_first' => $e->getFile() . ':' . $e->getLine(),
+            ]);
+        }
+
         return $doObjectId;
     }
 

@@ -699,20 +699,29 @@ class MetadataExtractionService
             'scopeAndContent'      => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'scope_and_content'],
             'accessConditions'     => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'access_conditions'],
             'physicalCharacteristics' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'physical_characteristics'],
-            'nameAccessPoints'     => ['type' => 'relation', 'reason' => 'relation table insert (relation_type=name); not in scope for first pass'],
-            'subjectAccessPoints'  => ['type' => 'relation', 'reason' => 'relation table insert (term taxonomy 35); not in scope for first pass'],
-            'placeAccessPoints'    => ['type' => 'relation', 'reason' => 'relation table insert (term taxonomy 42); not in scope for first pass'],
-            'creationEvent'        => ['type' => 'event', 'reason' => 'event table insert; not in scope for first pass'],
+            // Phase 3 (#86): match-only-skip strategy. We split EXIF strings
+            // on common separators (semicolon, comma) and look up each token
+            // by exact match against term_i18n / actor_i18n. Found = relation
+            // inserted. Not found = surfaced in skipped[] with the unmatched
+            // token list, NEVER auto-created (would contaminate authority
+            // files with arbitrary EXIF artist names).
+            'nameAccessPoints'     => ['type' => 'actor_relation',  'relation_type_id' => 161],
+            'subjectAccessPoints'  => ['type' => 'term_relation',   'taxonomy_id' => 35],
+            'placeAccessPoints'    => ['type' => 'term_relation',   'taxonomy_id' => 42],
+            // Phase 4 (#86): dedupe-then-insert. If the IO already has a
+            // creation event we skip; otherwise insert with the parsed date
+            // (ISO YYYY-MM-DD or partial). type_id=111 = 'Creation'.
+            'creationEvent'        => ['type' => 'creation_event',  'type_id' => 111],
         ],
         'museum' => [
             'title'                  => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
             'briefDescription'       => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'scope_and_content'],
             'productionDate'         => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'creation_date_earliest'],
-            'productionPerson'       => ['type' => 'skip', 'reason' => 'museum_metadata has no production_person column; would need actor relation'],
+            'productionPerson'       => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'creator_identity'],
             'rightsNotes'            => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'rights_remarks'],
             'objectCategory'         => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'object_category'],
             'technicalDescription'   => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'techniques'],
-            'fieldCollectionPlace'   => ['type' => 'skip', 'reason' => 'no direct museum_metadata column; would need event table'],
+            'fieldCollectionPlace'   => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'discovery_place'],
         ],
         'library' => [
             'title' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
@@ -899,7 +908,7 @@ class MetadataExtractionService
                 $skipped[$field] = "atom-key '{$atomKey}' not resolvable for sector '{$sector}'";
                 continue;
             }
-            if (in_array($rule['type'], ['skip', 'relation', 'event'], true)) {
+            if (in_array($rule['type'], ['skip'], true)) {
                 $skipped[$field] = $rule['reason'] ?? "type={$rule['type']}";
                 continue;
             }

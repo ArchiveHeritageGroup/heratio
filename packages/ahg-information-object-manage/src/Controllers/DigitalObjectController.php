@@ -160,6 +160,7 @@ class DigitalObjectController extends Controller
             // Failures are non-fatal: a broken extractor must not break the
             // upload itself. Walks the master digital_object that was just
             // inserted to find the on-disk path.
+            $extractionMsg = '';
             if ($hasFile && !$hasFtp && !$hasUrl) {
                 try {
                     $master = DB::table('digital_object')
@@ -188,6 +189,14 @@ class DigitalObjectController extends Controller
                                         'filename'         => $master->name,
                                     ],
                                 ]);
+                                // Operator-facing summary appended to the success
+                                // flash so the auto-population is visible.
+                                $writtenFields = array_keys($result['written'] ?? []);
+                                if (!empty($writtenFields)) {
+                                    $extractionMsg = ' Auto-populated from file metadata: ' . implode(', ', $writtenFields) . '.';
+                                } elseif (!empty($result['extracted_fields'])) {
+                                    $extractionMsg = ' Found ' . count($result['extracted_fields']) . ' metadata field(s) in file but no columns updated (existing values preserved or no mapping for sector).';
+                                }
                             }
                         }
                     }
@@ -200,7 +209,7 @@ class DigitalObjectController extends Controller
             }
 
             return redirect()->route('informationobject.show', $slug)
-                ->with('success', $msg);
+                ->with('success', $msg . $extractionMsg);
         } catch (\Exception $e) {
             return redirect()->route('informationobject.show', $slug)
                 ->with('error', 'Upload failed: ' . $e->getMessage());
