@@ -279,7 +279,10 @@ class ActorController extends Controller
         $externalIdentifiers = $this->service->getActorIdentifiers($actor->id);
         $structuredOccupations = $this->service->getActorOccupations($actor->id);
 
-        return view('ahg-actor-manage::show', [
+        // #98 Phase 1: pick the view per setting.scope='default_template' name='actor' (isaar default).
+        // ISAAR-CPF is the only canonical standard; resolver falls back to the base 'show' view when
+        // the operator picks an unimplemented value, so changing the setting can never break the page.
+        return view(\AhgCore\Services\SettingHelper::resolveTemplateView('actor', 'ahg-actor-manage::show', 'isaar'), [
             'actor' => $actor,
             'entityTypeName' => $entityTypeName,
             'otherNames' => $otherNames,

@@ -152,6 +152,37 @@ class SettingHelper
     }
 
     /**
+     * Resolve a default-template view name for an entity show page (#98 Phase 1).
+     *
+     * Reads the setting at scope='default_template', name=$entityType (the AtoM
+     * legacy mechanism for picking ISAD vs DACS vs RAD vs MODS for descriptions
+     * — and ISAAR for actors, ISDIAH for repositories). Falls back to the base
+     * view when the chosen template's blade hasn't been authored yet so an
+     * operator can pick a value the codebase doesn't yet implement and still
+     * see a valid page.
+     *
+     * Example:
+     *     return view(
+     *         SettingHelper::resolveTemplateView('informationobject', 'ahg-io-manage::show', 'isad'),
+     *         compact('io', ...),
+     *     );
+     *
+     * Phase 2 of #98 will author show-dacs / show-rad / show-mods etc.; this
+     * resolver picks them up the moment the blade file lands on disk, no
+     * controller change required.
+     */
+    public static function resolveTemplateView(string $entityType, string $viewBase, string $defaultTemplate): string
+    {
+        $template = self::getScoped('default_template', $entityType, $defaultTemplate);
+        $template = trim($template) !== '' ? trim($template) : $defaultTemplate;
+        $candidate = $viewBase . '-' . $template;
+        if (\Illuminate\Support\Facades\View::exists($candidate)) {
+            return $candidate;
+        }
+        return $viewBase;
+    }
+
+    /**
      * Check if the audit log feature is enabled.
      */
     public static function isAuditLogEnabled(): bool

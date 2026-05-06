@@ -1043,7 +1043,10 @@ class InformationObjectController extends Controller
             }
         }
 
-        return view('ahg-io-manage::show', [
+        // #98 Phase 1: pick the view per setting.scope='default_template' name='informationobject'
+        // (isad / dacs / rad / mods). Falls back to the base 'show' view when the chosen
+        // template's blade hasn't been authored yet — Phase 2 will add show-dacs / show-rad / show-mods.
+        return view(\AhgCore\Services\SettingHelper::resolveTemplateView('informationobject', 'ahg-io-manage::show', 'isad'), [
             'io' => $io,
             'levelName' => $levelName,
             'repository' => $repository,
