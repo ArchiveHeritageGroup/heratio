@@ -174,7 +174,20 @@ $searchRealm = session('search-realm');
       </li>
     @endif
 
-    @if(ahg_is_plugin_enabled('ahgPortableExportPlugin'))
+    @php
+      // Closes audit issue #88: gate on portable_export_enabled AND
+      // portable_export_description_button. Both default true so existing
+      // installs see no behavioural change. The plugin enable check stays
+      // as the outer gate (per the AHG plugin model).
+      $__peEnabled = (string) (\Illuminate\Support\Facades\DB::table('ahg_settings')
+        ->where('setting_key', 'portable_export_enabled')->value('setting_value') ?? 'true');
+      $__peDescBtn = (string) (\Illuminate\Support\Facades\DB::table('ahg_settings')
+        ->where('setting_key', 'portable_export_description_button')->value('setting_value') ?? 'true');
+      $__peShow = ahg_is_plugin_enabled('ahgPortableExportPlugin')
+        && in_array(strtolower($__peEnabled), ['1','true','yes','on'], true)
+        && in_array(strtolower($__peDescBtn), ['1','true','yes','on'], true);
+    @endphp
+    @if($__peShow)
       <li>
         <a class="atom-icon-link portable-export-link" href="#"
            data-slug="{{ $slug }}"
@@ -192,7 +205,7 @@ $searchRealm = session('search-realm');
 
 </section>
 
-@if(ahg_is_plugin_enabled('ahgPortableExportPlugin'))
+@if($__peShow ?? false)
 <script>
 (function() {
   var link = document.querySelector('.portable-export-link');

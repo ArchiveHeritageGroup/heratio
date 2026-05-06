@@ -118,6 +118,28 @@
           <i class="fas fa-file-csv me-1"></i> {{ __('Export CSV') }}
         </a>
       </li>
+      @php
+        // Closes #88: clipboard "Portable Export" button gated on
+        // portable_export_enabled AND portable_export_clipboard_button.
+        // Both default true. Routes to /portable-export with clipboard
+        // scope hint via query string; the wizard handles the rest.
+        $__peEnabled = (string) (\Illuminate\Support\Facades\DB::table('ahg_settings')
+          ->where('setting_key', 'portable_export_enabled')->value('setting_value') ?? 'true');
+        $__peClipboardBtn = (string) (\Illuminate\Support\Facades\DB::table('ahg_settings')
+          ->where('setting_key', 'portable_export_clipboard_button')->value('setting_value') ?? 'true');
+        $__peClipboardShow = ahg_is_plugin_enabled('ahgPortableExportPlugin')
+          && in_array(strtolower($__peEnabled), ['1','true','yes','on'], true)
+          && in_array(strtolower($__peClipboardBtn), ['1','true','yes','on'], true)
+          && \Illuminate\Support\Facades\Route::has('portable-export.index');
+      @endphp
+      @if($__peClipboardShow)
+        <li>
+          <a href="{{ route('portable-export.index') }}?scope_type=clipboard&clipboard_type={{ $type }}" class="btn atom-btn-outline-light"
+             title="{{ __('Generate a standalone portable catalogue viewer from the items in this clipboard') }}">
+            <i class="fas fa-compact-disc me-1"></i> {{ __('Portable Export') }}
+          </a>
+        </li>
+      @endif
     </ul>
   @endif
 

@@ -106,3 +106,6 @@ packages/ahg-menu-manage/      # _static-pages-menu partial @included in
 packages/ahg-oai/              # #87 (OAI-PMH 7-setting wire-up) - closed v1.52.36
 packages/ahg-core/src/Controllers/VoiceController.php  # #94 (voice settings endpoint) - closed v1.52.36
 packages/ahg-core/src/Controllers/TtsController.php    # #92 (TTS default_voice + default_pitch) - closed in upcoming release
+packages/ahg-portable-export/   # #88 (portable export 10-setting wire-up) - closed in upcoming release
+packages/ahg-core/resources/views/_action-icons.blade.php  # #88 (portable export description-button gate) - closed in upcoming release
+packages/ahg-core/resources/views/clipboard/index.blade.php # #88 (portable export clipboard-button gate) - closed in upcoming release

@@ -214,7 +214,7 @@
                 <div class="card h-100">
                   <div class="card-body">
                     <div class="form-check form-switch mb-2">
-                      <input class="form-check-input" type="checkbox" id="inc-refs" name="include_references" value="1" checked>
+                      <input class="form-check-input" type="checkbox" id="inc-refs" name="include_references" value="1" {{ ($defaults['include_references'] ?? true) ? 'checked' : '' }}>
                       <label class="form-check-label fw-bold" for="inc-refs"><i class="fas fa-images me-1"></i>Reference Images</label>
                     </div>
                     <small class="text-muted">{{ __('Medium-resolution images for detail views.') }}</small>
@@ -225,7 +225,7 @@
                 <div class="card h-100">
                   <div class="card-body">
                     <div class="form-check form-switch mb-2">
-                      <input class="form-check-input" type="checkbox" id="inc-masters" name="include_masters" value="0">
+                      <input class="form-check-input" type="checkbox" id="inc-masters" name="include_masters" value="1" {{ ($defaults['include_masters'] ?? false) ? 'checked' : '' }}>
                       <label class="form-check-label fw-bold" for="inc-masters"><i class="fas fa-file-archive me-1"></i>Master Files</label>
                     </div>
                     <small class="text-muted">{{ __('Full-resolution master files. Warning: can significantly increase export size.') }}</small>
@@ -257,11 +257,12 @@
             </div>
             <div class="col-md-3">
               <label for="export-culture" class="form-label fw-bold">{{ __('Language') }}</label>
+              @php $defaultCulture = $defaults['culture'] ?? 'en'; @endphp
               <select class="form-select" id="export-culture" name="culture">
-                <option value="en">{{ __('English') }}</option>
-                <option value="fr">{{ __('French') }}</option>
-                <option value="af">{{ __('Afrikaans') }}</option>
-                <option value="pt">{{ __('Portuguese') }}</option>
+                <option value="en" {{ $defaultCulture === 'en' ? 'selected' : '' }}>{{ __('English') }}</option>
+                <option value="fr" {{ $defaultCulture === 'fr' ? 'selected' : '' }}>{{ __('French') }}</option>
+                <option value="af" {{ $defaultCulture === 'af' ? 'selected' : '' }}>{{ __('Afrikaans') }}</option>
+                <option value="pt" {{ $defaultCulture === 'pt' ? 'selected' : '' }}>{{ __('Portuguese') }}</option>
               </select>
             </div>
           </div>
