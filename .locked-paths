@@ -109,3 +109,4 @@ packages/ahg-core/src/Controllers/TtsController.php    # #92 (TTS default_voice 
 packages/ahg-portable-export/   # #88 (portable export 10-setting wire-up) - closed in upcoming release
 packages/ahg-core/resources/views/_action-icons.blade.php  # #88 (portable export description-button gate) - closed in upcoming release
 packages/ahg-core/resources/views/clipboard/index.blade.php # #88 (portable export clipboard-button gate) - closed in upcoming release
+packages/ahg-core/src/Services/SectorIdentifierService.php  # #89 (sector numbering shared service) - closed in upcoming release

@@ -18,6 +18,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // SessionTimeout has to run *before* StartSession so the
+        // session.lifetime override (sourced from
+        // ahg_settings.security_session_timeout_minutes) takes effect on
+        // cookie issuance. prepend() puts it at the top of the web stack,
+        // ahead of Laravel's built-ins. Closes audit issue #90.
+        $middleware->web(prepend: [
+            \App\Http\Middleware\SessionTimeout::class,
+        ]);
+
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\AuditLog::class,

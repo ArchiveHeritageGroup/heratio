@@ -3528,6 +3528,28 @@ class SettingsController extends Controller
     }
 
     public function securitySettings(Request $request) {
+        // Stamp security_force_password_change_baseline whenever the operator
+        // flips security_force_password_change from off to on. The login
+        // gate in App\Http\Controllers\Auth\LoginController uses this
+        // timestamp to decide which users are out-of-date relative to the
+        // most recent admin demand. Without it, a force-change toggle would
+        // either kick everyone forever (false flag never expires) or do
+        // nothing (no baseline to compare against). Closes audit issue #90.
+        if ($request->isMethod('post')) {
+            $posted = $request->input('settings', []);
+            $newFlag = isset($posted['security_force_password_change']) ? 'true' : 'false';
+            $prevFlag = (string) (DB::table('ahg_settings')
+                ->where('setting_group', 'security')
+                ->where('setting_key', 'security_force_password_change')
+                ->value('setting_value') ?? 'false');
+            if ($newFlag === 'true' && $prevFlag !== 'true') {
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => 'security_force_password_change_baseline', 'setting_group' => 'security'],
+                    ['setting_value' => now()->format('Y-m-d H:i:s')]
+                );
+            }
+        }
+
         return $this->buildGroupSettings($request, 'security', 'security-settings', 'Security', [
             'security_lockout_enabled','security_force_password_change','security_password_expiry_notify',
         ]);

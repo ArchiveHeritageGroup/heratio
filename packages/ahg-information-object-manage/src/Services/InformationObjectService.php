@@ -205,9 +205,23 @@ class InformationObjectService
             ]);
 
             // 3. Insert information_object record
+            // Sector identifier auto-generation (#89): when the operator
+            // hasn't supplied an identifier and the sector mask is enabled,
+            // SectorIdentifierService::next renders one from the configured
+            // mask + atomically increments the counter. When the mask is
+            // disabled or no sector resolves, returns null and we keep the
+            // legacy null/operator-supplied behaviour.
+            $resolvedIdentifier = $data['identifier'] ?? null;
+            if (empty($resolvedIdentifier)) {
+                $sectorCode = \AhgCore\Services\SectorIdentifierService::resolveSector($data['source_standard'] ?? null);
+                $generated = \AhgCore\Services\SectorIdentifierService::next($sectorCode);
+                if ($generated !== null) {
+                    $resolvedIdentifier = $generated;
+                }
+            }
             $ioInsert = [
                 'id' => $objectId,
-                'identifier' => $data['identifier'] ?? null,
+                'identifier' => $resolvedIdentifier,
                 'level_of_description_id' => !empty($data['level_of_description_id']) ? (int) $data['level_of_description_id'] : null,
                 'collection_type_id' => !empty($data['collection_type_id']) ? (int) $data['collection_type_id'] : null,
                 'repository_id' => !empty($data['repository_id']) ? (int) $data['repository_id'] : null,

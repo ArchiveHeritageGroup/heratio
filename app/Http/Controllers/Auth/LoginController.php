@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Auth\SecuritySettings;
 use App\Http\Controllers\Controller;
 use App\Mail\PasswordResetMail;
 use Illuminate\Http\Request;
@@ -11,15 +12,11 @@ use Illuminate\Support\Facades\Mail;
 
 class LoginController extends Controller
 {
-    /**
-     * Maximum login attempts before lockout.
-     */
-    protected const MAX_ATTEMPTS = 5;
-
-    /**
-     * Lockout duration in minutes.
-     */
-    protected const LOCKOUT_MINUTES = 15;
+    // Lockout window + duration are now read from /admin/ahgSettings/security
+    // via App\Auth\SecuritySettings (closes audit issue #90). The previous
+    // hardcoded MAX_ATTEMPTS=5 and LOCKOUT_MINUTES=15 constants are kept as
+    // documentation of the historical defaults — defaults now live in
+    // SecuritySettings::lockoutMaxAttempts() and ::lockoutDurationMinutes().
 
     // =============================================
     // Login / Logout
@@ -59,19 +56,30 @@ class LoginController extends Controller
         $identifier = $request->input('email');
         $ip = $request->ip();
 
-        // Check brute-force lockout
-        $recentFailures = DB::table('login_attempt')
-            ->where('identifier', $identifier)
-            ->where('success', 0)
-            ->where('attempted_at', '>=', now()->subMinutes(self::LOCKOUT_MINUTES))
-            ->count();
+        // Lockout uses settings from /admin/ahgSettings/security. Master
+        // switch (security_lockout_enabled) skips the gate entirely, which
+        // is the right behaviour for kiosks / testing environments where
+        // brute-forcing isn't a concern.
+        $lockoutEnabled = SecuritySettings::lockoutEnabled();
+        $maxAttempts    = SecuritySettings::lockoutMaxAttempts();
+        $lockoutMins    = SecuritySettings::lockoutDurationMinutes();
 
-        if ($recentFailures >= self::MAX_ATTEMPTS) {
-            $this->recordAttempt($identifier, $ip, false);
+        if ($lockoutEnabled) {
+            $recentFailures = DB::table('login_attempt')
+                ->where('identifier', $identifier)
+                ->where('success', 0)
+                ->where('attempted_at', '>=', now()->subMinutes($lockoutMins))
+                ->count();
 
-            return back()->withErrors([
-                'email' => 'Too many failed login attempts. Please try again in ' . self::LOCKOUT_MINUTES . ' minutes.',
-            ])->onlyInput('email');
+            if ($recentFailures >= $maxAttempts) {
+                $this->recordAttempt($identifier, $ip, false);
+
+                return back()->withErrors([
+                    'email' => 'Too many failed login attempts. Please try again in ' . $lockoutMins . ' minutes.',
+                ])->onlyInput('email');
+            }
+        } else {
+            $recentFailures = 0;
         }
 
         $credentials = [
@@ -92,22 +100,75 @@ class LoginController extends Controller
                 $next = '/';
             }
 
+            // Password-policy gates after successful auth (issue #90):
+            //   1. password_expiry_days — force change when last
+            //      password_history.changed_at exceeds the threshold.
+            //   2. security_force_password_change — global flag flipped on
+            //      by an admin; every user whose last change predates the
+            //      baseline timestamp must reset.
+            // Both routes lead to /user/password with a flash message; the
+            // form-save handler will let them through once a new password
+            // is in password_history.
+            if ($flashMsg = $this->passwordPolicyRedirectReason(Auth::user())) {
+                $request->session()->put('login_redirect_next', $next);
+                return redirect()->route('user.password.edit')->with('warning', $flashMsg);
+            }
+
             return redirect($next)
                 ->withCookie(cookie('atom_authenticated', '1', 43200, '/', null, false, false));
         }
 
         // Failed attempt
         $this->recordAttempt($identifier, $ip, false);
-        $remaining = self::MAX_ATTEMPTS - $recentFailures - 1;
-
         $errorMsg = 'The provided credentials do not match our records.';
-        if ($remaining > 0 && $remaining <= 2) {
-            $errorMsg .= ' ' . $remaining . ' attempt(s) remaining before lockout.';
+        if ($lockoutEnabled) {
+            $remaining = $maxAttempts - $recentFailures - 1;
+            if ($remaining > 0 && $remaining <= 2) {
+                $errorMsg .= ' ' . $remaining . ' attempt(s) remaining before lockout.';
+            }
         }
 
         return back()->withErrors([
             'email' => $errorMsg,
         ])->onlyInput('email');
+    }
+
+    /**
+     * Decide whether a freshly-authenticated user must change their password
+     * before continuing. Returns a flash message describing why, or null when
+     * the user is good to go. Centralises both expiry + force-change checks
+     * so they share the redirect path.
+     */
+    protected function passwordPolicyRedirectReason($user): ?string
+    {
+        if (!$user) return null;
+
+        $latestChange = DB::table('password_history')
+            ->where('user_id', $user->id)
+            ->orderByDesc('changed_at')
+            ->value('changed_at');
+
+        // Password expiry — only checked when expiry_days > 0 (0 disables).
+        if (SecuritySettings::passwordExpiryEnabled() && $latestChange) {
+            $expiryDays = SecuritySettings::passwordExpiryDays();
+            $expired = \Carbon\Carbon::parse($latestChange)->lt(now()->subDays($expiryDays));
+            if ($expired) {
+                return 'Your password is older than ' . $expiryDays . ' days and must be changed.';
+            }
+        }
+
+        // Global force-change flag — applies when the admin flipped it ON
+        // and the user hasn't reset since the baseline timestamp was stamped.
+        if (SecuritySettings::forcePasswordChange()) {
+            $baseline = SecuritySettings::forcePasswordChangeBaseline();
+            $needsForceChange = !$latestChange
+                || ($baseline && \Carbon\Carbon::parse($latestChange)->lt($baseline));
+            if ($needsForceChange) {
+                return 'An administrator has required all users to set a new password.';
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -393,13 +454,18 @@ class LoginController extends Controller
             ]);
         }
 
-        // Check password not reused (last 5)
+        // Check password not reused. The history depth is read from
+        // /admin/ahgSettings/security (password_history_count) so an
+        // operator can tighten/loosen the policy without code changes.
+        $historyCount = SecuritySettings::passwordHistoryCount();
         $newPlaintext = $request->input('password');
-        $recentPasswords = DB::table('password_history')
-            ->where('user_id', $user->id)
-            ->orderByDesc('changed_at')
-            ->limit(5)
-            ->pluck('password_hash');
+        $recentPasswords = $historyCount > 0
+            ? DB::table('password_history')
+                ->where('user_id', $user->id)
+                ->orderByDesc('changed_at')
+                ->limit($historyCount)
+                ->pluck('password_hash')
+            : collect();
 
         // We need to test the new SHA1 hash against stored bcrypt hashes
         // But we don't have the old salts, so we store the bcrypt hash in history.
