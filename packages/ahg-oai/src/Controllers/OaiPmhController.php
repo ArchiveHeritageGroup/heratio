@@ -77,26 +77,63 @@ class OaiPmhController extends Controller
     ];
 
     /**
-     * Page size for resumption tokens.
+     * Default page size for resumption tokens. Overridden at runtime by
+     * ahg_settings.resumption_token_limit when set; see pageSize().
      */
     private const PAGE_SIZE = 100;
 
     /**
-     * Repository identifier (domain name).
+     * Read a setting from ahg_settings (group=oai by convention) with a
+     * fallback default. Cached per-request via a static lookup table so we
+     * don't hit the DB on every XML element render.
      */
-    private function getRepositoryIdentifier(): string
+    private function setting(string $key, $default = null)
     {
-        $host = request()->getHost();
+        static $cache = null;
+        if ($cache === null) {
+            $cache = DB::table('ahg_settings')
+                ->where('setting_group', 'oai')
+                ->pluck('setting_value', 'setting_key')
+                ->all();
+        }
+        $v = $cache[$key] ?? null;
+        return ($v === null || $v === '') ? $default : $v;
+    }
 
-        return $host;
+    /** Resumption-token page size from settings, falling back to PAGE_SIZE. */
+    private function pageSize(): int
+    {
+        $v = (int) $this->setting('resumption_token_limit', self::PAGE_SIZE);
+        return $v > 0 ? $v : self::PAGE_SIZE;
     }
 
     /**
-     * Format an OAI identifier from an oai_local_identifier.
+     * Repository identifier published in OAI Identify + used to compose
+     * record identifiers. Reads ahg_settings.oai_repository_identifier
+     * (operator-configured) and falls back to the request host so behaviour
+     * is unchanged for installs that haven't filled the setting in.
+     */
+    private function getRepositoryIdentifier(): string
+    {
+        return (string) $this->setting('oai_repository_identifier', request()->getHost());
+    }
+
+    /**
+     * Format an OAI identifier from an oai_local_identifier. When
+     * oai_repository_code is set, it's prefixed onto the local id so a
+     * federated harvester can distinguish records originating from this
+     * repository even if multiple repos share the same hostname (multi-
+     * tenancy / proxied setups). Format:
+     *   oai:{repositoryIdentifier}:{repository_code}-{oai_local_id}
+     * If no repository code is set, the dash and prefix are dropped:
+     *   oai:{repositoryIdentifier}:{oai_local_id}
+     * keeping the legacy shape for installs that haven't configured it.
      */
     private function formatOaiIdentifier(int $oaiLocalId): string
     {
-        return 'oai:' . $this->getRepositoryIdentifier() . ':' . $oaiLocalId;
+        $code = trim((string) $this->setting('oai_repository_code', ''));
+        $localPart = $code !== '' ? $code . '-' . $oaiLocalId : (string) $oaiLocalId;
+        return 'oai:' . $this->getRepositoryIdentifier() . ':' . $localPart;
     }
 
     /**

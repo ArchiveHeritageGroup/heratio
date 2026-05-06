@@ -2,6 +2,7 @@
 
 use AhgCore\Controllers\ClipboardController;
 use AhgCore\Controllers\TtsController;
+use AhgCore\Controllers\VoiceController;
 use Illuminate\Support\Facades\Route;
 
 // Client-side error logging — captures JS errors to Laravel log
@@ -22,6 +23,11 @@ Route::get('/tts/pdfText', [TtsController::class, 'pdfText'])->name('tts.pdfText
 // Legacy AtoM URL aliases (JS widgets may use /index.php/tts/...)
 Route::get('/index.php/tts/settings', [TtsController::class, 'settings'])->name('tts.settings.legacy');
 Route::get('/index.php/tts/pdfText', [TtsController::class, 'pdfText'])->name('tts.pdfText.legacy');
+
+// Voice settings endpoint — voiceCommands.js fetches this at init.
+// Path matches the legacy AtoM URL hard-coded into the bundled JS.
+Route::get('/index.php/ahgVoice/getSettings', [VoiceController::class, 'getSettings'])->name('voice.settings');
+Route::get('/ahgVoice/getSettings', [VoiceController::class, 'getSettings'])->name('voice.settings.modern');
 
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
