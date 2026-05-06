@@ -38,6 +38,7 @@ class PruneCommand extends Command
     private const TABLES = [
         ['security_audit_log',           'created_at'],
         ['access_audit_log',             'created_at'],
+        ['audit_log',                    'created_at'],
         ['ahg_audit_log',                'created_at'],
         ['ahg_audit_access',             'created_at'],
         ['ahg_audit_authentication',     'created_at'],
