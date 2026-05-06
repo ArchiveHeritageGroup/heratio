@@ -132,3 +132,21 @@ packages/ahg-information-object-manage/routes/web.php                           
 packages/ahg-portable-export/src/Console/Commands/BundleWorkerCommand.php   # #88 worker: dump entities, copy assets, build viewer, zip
 packages/ahg-portable-export/src/Controllers/PortableExportController.php   # #88 apiStart entity_types -> scope_items + Artisan::queue dispatch
 packages/ahg-portable-export/src/Providers/AhgPortableExportServiceProvider.php  # #88 command registration + daily schedule
+
+# #89 phase 2 - sector identifier auto-generation in the four sector
+# services + the form-side bootstrap fix in SettingsController. Lock the
+# five files together so any drift in the auto-id wiring goes through
+# the unlock workflow.
+packages/ahg-museum/src/Services/MuseumService.php          # #89 phase 2: museum sector wire-up
+packages/ahg-gallery/src/Services/GalleryService.php        # #89 phase 2: gallery sector wire-up
+packages/ahg-dam/src/Services/DamService.php                # #89 phase 2: dam sector wire-up
+packages/ahg-library/src/Services/LibraryService.php        # #89 phase 2: library sector wire-up
+packages/ahg-settings/src/Controllers/SettingsController.php # #89 form-side bootstrap fix in sectorNumbering()
+
+# #100 IIIF Web Annotations: persistence backend + Mirador-annotation-editor
+# bundle. The HTTP API + adapter contract has to round-trip W3C Web
+# Annotation JSON-LD between the bundled JS and the PHP store, so any
+# drift in either side breaks the loop. Lock the package + the bundle
+# changes together. (mirador.min.js, ahg-iiif-viewer.js, tools/mirador-
+# build/ are already locked above by their own rules.)
+packages/ahg-annotations/   # #100 W3C Web Annotation REST API (Annotot-shaped) + ahg_iiif_annotation table

@@ -220,10 +220,20 @@ class AccessionService
                 'serial_number' => 0,
             ]);
 
+            // Sector identifier auto-generation (#89). Accession isn't
+            // sector-specific, so SectorIdentifierService::next('accession')
+            // fails its sector-specific lookup and falls through to the
+            // global mask path. Operator-supplied identifier always wins.
+            $resolvedIdentifier = $data['identifier'] ?? null;
+            if (empty($resolvedIdentifier)) {
+                $generated = \AhgCore\Services\SectorIdentifierService::next('accession');
+                if ($generated !== null) $resolvedIdentifier = $generated;
+            }
+
             // 2. Create accession record
             DB::table('accession')->insert([
                 'id' => $id,
-                'identifier' => $data['identifier'],
+                'identifier' => $resolvedIdentifier,
                 'date' => $data['date'] ?? null,
                 'acquisition_type_id' => $data['acquisition_type_id'] ?? null,
                 'processing_priority_id' => $data['processing_priority_id'] ?? null,

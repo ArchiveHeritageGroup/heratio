@@ -337,10 +337,20 @@ class GalleryService
                 'updated_at' => now(),
             ]);
 
+            // Sector identifier auto-generation (#89). Same pattern as the
+            // other sector services - operator-supplied identifier wins;
+            // SectorIdentifierService::next() fills in only when empty AND
+            // the gallery-sector mask is enabled.
+            $resolvedIdentifier = $data['identifier'] ?? null;
+            if (empty($resolvedIdentifier)) {
+                $generated = \AhgCore\Services\SectorIdentifierService::next('gallery');
+                if ($generated !== null) $resolvedIdentifier = $generated;
+            }
+
             // Insert information_object
             $ioInsert = [
                 'id' => $objectId,
-                'identifier' => $data['identifier'] ?? null,
+                'identifier' => $resolvedIdentifier,
                 'level_of_description_id' => !empty($data['level_of_description_id']) ? $data['level_of_description_id'] : null,
                 'collection_type_id' => null,
                 'repository_id' => !empty($data['repository_id']) ? $data['repository_id'] : null,

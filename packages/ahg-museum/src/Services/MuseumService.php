@@ -374,10 +374,22 @@ class MuseumService
                 'updated_at' => now(),
             ]);
 
+            // Sector identifier auto-generation (#89): when the operator
+            // hasn't supplied an identifier and the museum-sector mask is
+            // enabled, SectorIdentifierService::next() renders one from the
+            // configured mask + atomically increments the counter. Returns
+            // null when the mask is disabled, in which case we keep the
+            // legacy null/operator-supplied behaviour.
+            $resolvedIdentifier = $data['identifier'] ?? null;
+            if (empty($resolvedIdentifier)) {
+                $generated = \AhgCore\Services\SectorIdentifierService::next('museum');
+                if ($generated !== null) $resolvedIdentifier = $generated;
+            }
+
             // Insert into information_object table
             $ioInsert = [
                 'id' => $objectId,
-                'identifier' => $data['identifier'] ?? null,
+                'identifier' => $resolvedIdentifier,
                 'level_of_description_id' => $data['level_of_description_id'] ?: null,
                 'collection_type_id' => null,
                 'repository_id' => $data['repository_id'] ?: null,

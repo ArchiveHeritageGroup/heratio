@@ -2409,7 +2409,36 @@ class SettingsController extends Controller
             foreach (array_keys($sectors) as $code) {
                 foreach (['identifier_mask_enabled', 'identifier_mask', 'identifier_counter'] as $field) {
                     $val = $request->input("sector_{$code}__{$field}", '');
-                    $this->service->saveSetting("sector_{$code}_{$field}", null, $val, $culture);
+                    $name = "sector_{$code}_{$field}";
+                    // SettingsService::saveSetting silently no-ops when no
+                    // setting row exists yet (it only updates the i18n row,
+                    // never creates the setting+i18n pair). Bootstrap a
+                    // minimal CTI shape (object class_name='QubitSetting'
+                    // -> setting -> setting_i18n) when missing so the form
+                    // save actually persists. Closes #89's form-side bug:
+                    // the seeds use double-underscore names but the form
+                    // reads/writes single-underscore, leaving every save
+                    // silently dropped on the floor.
+                    DB::transaction(function () use ($name, $culture) {
+                        $existing = DB::table('setting')->whereNull('scope')->where('name', $name)->first();
+                        if (!$existing) {
+                            $objId = DB::table('object')->insertGetId([
+                                'class_name' => 'QubitSetting',
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                                'serial_number' => 0,
+                            ]);
+                            DB::table('setting')->insert([
+                                'id' => $objId,
+                                'name' => $name,
+                                'scope' => null,
+                                'editable' => 1,
+                                'deleteable' => 1,
+                                'source_culture' => $culture,
+                            ]);
+                        }
+                    });
+                    $this->service->saveSetting($name, null, (string) $val, $culture);
                 }
             }
             return redirect()->route('settings.sector-numbering')->with('success', 'Sector numbering saved.');

@@ -776,13 +776,29 @@ class ActorService
                 'slug' => $slug,
             ]);
 
+            // Sector identifier auto-generation (#89). Actor has no plain
+            // 'identifier' column; the closest analogue is
+            // description_identifier (the cataloguer's reference to the
+            // ISAAR description record). Per the user's option-(x) decision
+            // we wire SectorIdentifierService::next('actor') to fill it
+            // when empty. Semantically a forced fit - description_identifier
+            // is meant for catalog references like 'ISAAR-CPF/ZA/MUSEUM-1',
+            // not auto-generated counters - but it's the only field on the
+            // actor table that fits the wire-up contract. Falls through to
+            // the global mask since 'actor' isn't a sector-specific code.
+            $resolvedIdentifier = $data['description_identifier'] ?? null;
+            if (empty($resolvedIdentifier)) {
+                $generated = \AhgCore\Services\SectorIdentifierService::next('actor');
+                if ($generated !== null) $resolvedIdentifier = $generated;
+            }
+
             // 3. Create actor record
             $actorInsert = [
                 'id' => $id,
                 'entity_type_id' => $data['entity_type_id'] ?? null,
                 'description_status_id' => $data['description_status_id'] ?? null,
                 'description_detail_id' => $data['description_detail_id'] ?? null,
-                'description_identifier' => $data['description_identifier'] ?? null,
+                'description_identifier' => $resolvedIdentifier,
                 'source_standard' => $data['source_standard'] ?? null,
                 'corporate_body_identifiers' => $data['corporate_body_identifiers'] ?? null,
                 'parent_id' => 3, // Actor::ROOT_ID

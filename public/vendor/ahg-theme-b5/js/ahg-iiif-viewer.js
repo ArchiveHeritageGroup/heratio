@@ -253,9 +253,13 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                     return;
                 }
                 // Mirador honours iiif_show_fullscreen + iiif_enable_annotations.
-                // Annotations on -> sidebar opens to the annotation panel; off ->
-                // sidebar stays available but starts closed (the legacy default).
-                Mirador.viewer({
+                // Annotations on -> sidebar opens to the annotation panel and
+                // mirador-annotation-editor is wired with the Heratio storage
+                // adapter (writes to /api/annotations, reads via the same
+                // search endpoint). Closes #100. Adapter is exposed as
+                // window.HeratioAnnotationAdapter by the bundle entrypoint
+                // (see tools/mirador-build/src/index.js).
+                var miradorConfig = {
                     id: 'mirador-' + vid,
                     windows: [{
                         manifestId: manifestUrl,
@@ -272,7 +276,19 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                     },
                     workspaceControlPanel: { enabled: false },
                     workspace: { type: 'mosaic', allowNewWindows: false }
-                });
+                };
+                if (cfg.enable_annotations === true && typeof window.HeratioAnnotationAdapter === 'function') {
+                    miradorConfig.annotation = {
+                        adapter: function (canvasId) { return new window.HeratioAnnotationAdapter(canvasId); },
+                        // Editor stays editable; the storage backend gates
+                        // writes via session auth (anon POST -> 302 to
+                        // /login). Toggling readonly per-user from JS would
+                        // need to round-trip the auth state into a global,
+                        // which we don't currently expose.
+                        exportLocalStorageAnnotations: false
+                    };
+                }
+                Mirador.viewer(miradorConfig);
 
                 // Hide Mirador's own close/minimize/maximize buttons via CSS
                 setTimeout(function() {

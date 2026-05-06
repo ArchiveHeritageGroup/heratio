@@ -15,7 +15,7 @@ module.exports = {
     rules: [
       {
         test: /\.m?jsx?$/,
-        exclude: /node_modules\/(?!(mirador|mirador-image-tools|mirador-dl-plugin)\/)/,
+        exclude: /node_modules\/(?!(mirador|mirador-image-tools|mirador-dl-plugin|mirador-annotation-editor)\/)/,
         use: {
           loader: 'babel-loader',
           options: {
@@ -25,6 +25,13 @@ module.exports = {
             ],
           },
         },
+      },
+      // mirador-annotation-editor's bundled CSS (Quill editor + drawing
+      // tools styles). style-loader injects it as a runtime <style> tag
+      // so the bundle stays a single JS deliverable.
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },

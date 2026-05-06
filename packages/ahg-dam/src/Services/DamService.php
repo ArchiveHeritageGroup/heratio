@@ -254,10 +254,18 @@ class DamService
                 'serial_number' => 0,
             ]);
 
+            // Sector identifier auto-generation (#89). DAM sector mask
+            // applies when operator hasn't supplied an identifier.
+            $resolvedIdentifier = $data['identifier'] ?? null;
+            if (empty($resolvedIdentifier)) {
+                $generated = \AhgCore\Services\SectorIdentifierService::next('dam');
+                if ($generated !== null) $resolvedIdentifier = $generated;
+            }
+
             // 2. Create information_object record
             $ioInsert = [
                 'id' => $id,
-                'identifier' => $data['identifier'] ?? null,
+                'identifier' => $resolvedIdentifier,
                 'parent_id' => $data['parent_id'] ?? 1,
                 'repository_id' => $data['repository_id'] ?? null,
                 'level_of_description_id' => $data['level_of_description_id'] ?? null,

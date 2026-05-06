@@ -470,10 +470,19 @@ class RepositoryService
             }
             DB::table('actor')->insert($actorInsert);
 
+            // Sector identifier auto-generation (#89). Repository is not
+            // sector-specific, so ::next('repository') falls through to the
+            // global mask path. Operator-supplied identifier wins.
+            $resolvedIdentifier = $data['identifier'] ?? null;
+            if (empty($resolvedIdentifier)) {
+                $generated = \AhgCore\Services\SectorIdentifierService::next('repository');
+                if ($generated !== null) $resolvedIdentifier = $generated;
+            }
+
             // 4. Create repository record
             DB::table('repository')->insert([
                 'id' => $id,
-                'identifier' => $data['identifier'] ?? null,
+                'identifier' => $resolvedIdentifier,
                 'desc_status_id' => $data['desc_status_id'] ?? null,
                 'desc_detail_id' => $data['desc_detail_id'] ?? null,
                 'desc_identifier' => $data['desc_identifier'] ?? null,

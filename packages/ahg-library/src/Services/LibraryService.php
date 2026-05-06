@@ -254,10 +254,18 @@ class LibraryService
                 'serial_number' => 0,
             ]);
 
+            // Sector identifier auto-generation (#89). Library sector mask
+            // applies when operator hasn't supplied an identifier.
+            $resolvedIdentifier = $data['identifier'] ?? null;
+            if (empty($resolvedIdentifier)) {
+                $generated = \AhgCore\Services\SectorIdentifierService::next('library');
+                if ($generated !== null) $resolvedIdentifier = $generated;
+            }
+
             // 2. Create information_object record
             $ioInsert = [
                 'id' => $id,
-                'identifier' => $data['identifier'] ?? null,
+                'identifier' => $resolvedIdentifier,
                 'level_of_description_id' => $data['level_of_description_id'] ?? null,
                 'repository_id' => $data['repository_id'] ?? null,
                 'parent_id' => $data['parent_id'] ?? 1,
