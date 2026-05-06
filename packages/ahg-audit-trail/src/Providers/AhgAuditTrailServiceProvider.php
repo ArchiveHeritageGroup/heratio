@@ -42,5 +42,18 @@ class AhgAuditTrailServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-audit-trail');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgAuditTrail\Console\Commands\PruneCommand::class,
+            ]);
+
+            // Schedule a daily prune. Honours ahg_settings.audit_retention_days
+            // (compliance group) — set to 0 to disable. The command itself
+            // is a no-op when retention is disabled.
+            $this->app->afterResolving(\Illuminate\Console\Scheduling\Schedule::class, function (\Illuminate\Console\Scheduling\Schedule $schedule) {
+                $schedule->command('audit:prune')->dailyAt('03:30')->withoutOverlapping();
+            });
+        }
     }
 }

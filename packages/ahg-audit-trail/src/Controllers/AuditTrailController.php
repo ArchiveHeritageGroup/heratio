@@ -669,4 +669,25 @@ class AuditTrailController extends Controller
 
         return view('ahg-audit-trail::entity-history', ['rows' => $rows]);
     }
+
+    /**
+     * Run the audit:prune artisan command on demand. Surfaced as a button on
+     * /admin/ahgSettings/compliance so admins can trigger a one-shot prune
+     * without waiting for the daily schedule. Honours the same retention
+     * setting and the 0/empty-disables-pruning rule.
+     */
+    public function pruneNow(Request $request)
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('audit:prune');
+            $output = trim(\Illuminate\Support\Facades\Artisan::output());
+            $rows = (int) (DB::table('ahg_settings')->where('setting_key', 'audit_last_pruned_rows')->value('setting_value') ?: 0);
+            $when = (string) DB::table('ahg_settings')->where('setting_key', 'audit_last_pruned_at')->value('setting_value');
+            return redirect()->route('settings.ahg.compliance')
+                ->with('success', "Audit prune complete: {$rows} row(s) removed (last run {$when}).");
+        } catch (\Throwable $e) {
+            return redirect()->route('settings.ahg.compliance')
+                ->with('error', 'Audit prune failed: ' . $e->getMessage());
+        }
+    }
 }

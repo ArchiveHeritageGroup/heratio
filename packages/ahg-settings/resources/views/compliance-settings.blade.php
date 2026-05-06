@@ -33,9 +33,42 @@
         <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('Regulatory Compliance') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted mb-3">Configure regulatory compliance features. For detailed compliance management (DSARs, breaches, ROPA), see the Privacy Compliance module.</p>
+        <p class="text-muted mb-3">Configure regulatory compliance features. For detailed compliance management (DSARs, breaches, ROPA), see the @if(\Illuminate\Support\Facades\Route::has('privacy.dashboard'))<a href="{{ route('privacy.dashboard') }}">Privacy Compliance module</a>@else Privacy Compliance module @endif.</p>
+
+        @php
+          // Hide internal {audit_last_pruned_*} stamps from the form — they're
+          // derived state written by the pruner, not user-editable.
+          $internal = ['audit_last_pruned_at', 'audit_last_pruned_rows'];
+          $lastPrunedAt = $settings['audit_last_pruned_at'] ?? null;
+          $lastPrunedRows = $settings['audit_last_pruned_rows'] ?? null;
+        @endphp
+        @if(array_key_exists('audit_retention_days', $settings))
+          <div class="alert alert-info small d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <i class="fas fa-clock me-1"></i>
+              Audit log pruner runs daily at 03:30. 0 disables pruning.
+              @if($lastPrunedAt)
+                <br><span class="text-muted">Last run: {{ $lastPrunedAt }} — {{ (int) $lastPrunedRows }} row(s) removed.</span>
+              @else
+                <br><span class="text-muted">Has not run yet.</span>
+              @endif
+            </div>
+            @if(\Illuminate\Support\Facades\Route::has('audit.prune'))
+              <form method="POST" action="{{ route('audit.prune') }}" class="m-0">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-outline-primary"
+                        onclick="return confirm('Run the audit-log pruner now? This deletes rows older than the configured retention from every audit table.')">
+                  <i class="fas fa-broom me-1"></i> {{ __('Run prune now') }}
+                </button>
+              </form>
+            @endif
+          </div>
+        @endif
 
         @forelse($settings as $key => $val)
+          @if(in_array($key, $internal, true))
+            @continue
+          @endif
           @php
             $label = ucfirst(str_replace('_', ' ', preg_replace('/^compliance_/', '', $key)));
             $isCheckbox = in_array($val, ['true','false','1','0']);
