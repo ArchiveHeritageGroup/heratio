@@ -111,18 +111,19 @@
           <div class="row mb-4">
             <div class="col-md-8">
               <label class="form-label fw-bold">{{ __('Export Type') }}</label>
+              @php $defaultMode = $defaults['mode'] ?? 'read_only'; @endphp
               <div class="btn-group w-100" role="group">
-                <input type="radio" class="btn-check" name="mode" id="mode-viewer" value="read_only" checked>
+                <input type="radio" class="btn-check" name="mode" id="mode-viewer" value="read_only" {{ $defaultMode === 'read_only' ? 'checked' : '' }}>
                 <label class="btn btn-outline-primary" for="mode-viewer">
                   <i class="fas fa-eye me-1"></i>Viewer Export
                   <br><small class="fw-normal">{{ __('HTML viewer for offline browsing') }}</small>
                 </label>
-                <input type="radio" class="btn-check" name="mode" id="mode-editable" value="editable">
+                <input type="radio" class="btn-check" name="mode" id="mode-editable" value="editable" {{ $defaultMode === 'editable' ? 'checked' : '' }}>
                 <label class="btn btn-outline-primary" for="mode-editable">
                   <i class="fas fa-pen me-1"></i>Editable Export
                   <br><small class="fw-normal">{{ __('Viewer with notes + file import') }}</small>
                 </label>
-                <input type="radio" class="btn-check" name="mode" id="mode-archive" value="archive">
+                <input type="radio" class="btn-check" name="mode" id="mode-archive" value="archive" {{ $defaultMode === 'archive' ? 'checked' : '' }}>
                 <label class="btn btn-outline-success" for="mode-archive">
                   <i class="fas fa-archive me-1"></i>Archive Export
                   <br><small class="fw-normal">{{ __('Re-importable JSON + digital objects') }}</small>
@@ -191,7 +192,7 @@
                 <div class="card h-100">
                   <div class="card-body">
                     <div class="form-check form-switch mb-2">
-                      <input class="form-check-input" type="checkbox" id="inc-objects" name="include_objects" value="1" checked>
+                      <input class="form-check-input" type="checkbox" id="inc-objects" name="include_objects" value="1" {{ ($defaults['include_objects'] ?? true) ? 'checked' : '' }}>
                       <label class="form-check-label fw-bold" for="inc-objects"><i class="fas fa-file-image me-1"></i>Digital Objects</label>
                     </div>
                     <small class="text-muted">{{ __('Include digital object files in the export package.') }}</small>
@@ -202,7 +203,7 @@
                 <div class="card h-100">
                   <div class="card-body">
                     <div class="form-check form-switch mb-2">
-                      <input class="form-check-input" type="checkbox" id="inc-thumbs" name="include_thumbnails" value="1" checked>
+                      <input class="form-check-input" type="checkbox" id="inc-thumbs" name="include_thumbnails" value="1" {{ ($defaults['include_thumbnails'] ?? true) ? 'checked' : '' }}>
                       <label class="form-check-label fw-bold" for="inc-thumbs"><i class="fas fa-image me-1"></i>Thumbnails</label>
                     </div>
                     <small class="text-muted">{{ __('Small thumbnail images for browse views.') }}</small>

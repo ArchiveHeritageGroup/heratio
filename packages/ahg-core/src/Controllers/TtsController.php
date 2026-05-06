@@ -78,6 +78,11 @@ class TtsController extends Controller
             'rate' => floatval($settings['default_rate'] ?? 1.0),
             'readLabels' => ($settings['read_labels'] ?? '1') === '1',
             'keyboardShortcuts' => ($settings['keyboard_shortcuts'] ?? '1') === '1',
+            // default_voice + default_pitch (issue #92) — exposed so the
+            // front-end TTS init script can apply them at construction time.
+            // Empty string + 1.0 are the SpeechSynthesisUtterance defaults.
+            'defaultVoice' => (string) ($settings['default_voice'] ?? ''),
+            'defaultPitch' => floatval($settings['default_pitch'] ?? 1.0),
             'fieldsToRead' => $fieldsToRead ?: [],
             'sector' => $sector,
         ]);
