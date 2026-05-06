@@ -2868,8 +2868,26 @@ class SettingsController extends Controller
 
         $settingNames = ['ahg_central_enabled', 'ahg_central_api_url', 'ahg_central_api_key', 'ahg_central_site_id'];
 
+        // Per-key lock state from ahg_settings.is_locked. The AHG Central
+        // feature ships its settings rows with is_locked=1 because no
+        // consumer reads them yet (see GitHub issue #67). The lock keeps the
+        // form visible (user can see the planned shape) but refuses writes
+        // so a flag the codebase can't honour cannot be flipped on.
+        $lockedKeys = \Illuminate\Support\Facades\DB::table('ahg_settings')
+            ->whereIn('setting_key', $settingNames)
+            ->where('is_locked', 1)
+            ->pluck('setting_key')
+            ->all();
+        $allLocked = count($lockedKeys) === count($settingNames);
+
         if ($request->isMethod('post')) {
+            if ($allLocked) {
+                return redirect()->route('settings.ahg-integration')
+                    ->with('error', 'AHG Central is under construction - settings are locked and cannot be changed.');
+            }
+
             foreach ($settingNames as $name) {
+                if (in_array($name, $lockedKeys, true)) continue;
                 $this->service->saveSetting($name, null, $request->input("settings.{$name}", ''), $culture);
             }
 
@@ -2895,14 +2913,22 @@ class SettingsController extends Controller
             }
         }
 
+        // Read live values from ahg_settings (where the lock + values live)
+        // rather than from the i18n-scoped setting table (which is empty for
+        // these keys). Falls back to the original setting-table read for
+        // anything not present in ahg_settings.
+        $ahgRows = \Illuminate\Support\Facades\DB::table('ahg_settings')
+            ->whereIn('setting_key', $settingNames)
+            ->pluck('setting_value', 'setting_key')
+            ->all();
         $settings = [];
         foreach ($settingNames as $name) {
-            $settings[$name] = $this->service->getSetting($name, null, $culture) ?? '';
+            $settings[$name] = $ahgRows[$name] ?? ($this->service->getSetting($name, null, $culture) ?? '');
         }
         $settings['ahg_central_api_url'] = $settings['ahg_central_api_url'] ?: 'https://central.theahg.co.za/api/v1';
         $settings['ahg_central_site_id'] = $settings['ahg_central_site_id'] ?? '';
 
-        return view('ahg-settings::ahg-integration', compact('menu', 'settings', 'testResult'));
+        return view('ahg-settings::ahg-integration', compact('menu', 'settings', 'testResult', 'lockedKeys', 'allLocked'));
     }
 
     // ─── Page Elements ─────────────────────────────────────────────────

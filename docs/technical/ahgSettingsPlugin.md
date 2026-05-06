@@ -614,28 +614,46 @@ class NumberingFilter
 
 ## AHG Central Integration
 
-### Overview
+> **Status: Under Construction (v1.52.33).** AHG Central is a planned cloud service. The settings page is visible so operators can preview the configuration shape, but **no consumer reads the values yet** and the form is locked at the database level (`ahg_settings.is_locked = 1` for all four `ahg_central_*` keys). Tracking issue: [#67](https://github.com/ArchiveHeritageGroup/heratio/issues/67). The rest of this section describes the **planned** future state, not a working integration. Do not attempt to wire the env-var legacy path - it is documentation of the original AtoM plugin's shape, retained as a design reference.
 
-AHG Central is a cloud service provided by The Archive and Heritage Group for shared AI training and future cloud features. Configuration is managed via the AHG Central settings page.
+### Overview (planned)
+
+AHG Central will be a cloud service provided by The Archive and Heritage Group for shared AI training and future cloud features. Configuration will be managed via the AHG Central settings page once a consumer service is built.
+
+### Future-work checklist
+
+The following pieces still need to land before AHG Central becomes a working feature:
+
+1. **Wire-protocol decision.** REST vs GraphQL, payload shapes for NER-training data exchange, sync model (push-only / pull-only / bidirectional), conflict resolution.
+2. **Backend service.** `central.theahg.co.za` (or whichever endpoint is chosen) needs the receive-end implemented. Until that exists there is nothing to talk to.
+3. **Client service class.** Probably `AhgCentralService` in `ahg-ai-services` or `ahg-core` - reads the four `ahg_central_*` keys, signs requests with the API key + site id, retries on transient failure, surfaces failures to the audit log.
+4. **Scheduled sync command.** `php artisan ahg-central:sync` registered via `Schedule::command(...)->daily()` (or whichever cadence fits the use case). Reads `ahg_central_enabled` to decide whether to run.
+5. **Test-connection endpoint.** The `Test Connection` button in the form already issues `GET {api_url}/ping`; the receiver needs to honour it.
+6. **Database unlock.** Once a consumer exists, the migration `2026_05_06_120000_add_is_locked_to_ahg_settings.php` adds the `is_locked` column; the four `ahg_central_*` rows can be unlocked with `UPDATE ahg_settings SET is_locked = 0 WHERE setting_key LIKE 'ahg_central_%'`. The settings form auto-detects the unlock and allows writes again.
+7. **NER-training pipeline integration.** The legacy AtoM `NerTrainingSync` class shape (below) shows how training rows used to flow to a remote training service. The Heratio version, when built, should use the same key fallback order (DB → env → default).
 
 ### Access
 
 Navigate to: **Admin > AHG Plugin Settings > AHG Central**
 
-Or directly: `/ahgSettings/ahgIntegration`
+Or directly: `/admin/ahgSettings/ahgIntegration`
 
-### Settings
+The page is visible to admins but currently shows an `Under Construction` banner with all inputs disabled.
+
+### Settings (planned shape, currently locked)
 
 | Setting | Storage Key | Description |
 |---------|-------------|-------------|
 | Enable Integration | ahg_central_enabled | Master switch for cloud features |
-| API URL | ahg_central_api_url | AHG Central endpoint (default: https://train.theahg.co.za/api) |
+| API URL | ahg_central_api_url | AHG Central endpoint (default: `https://central.theahg.co.za/api/v1`) |
 | API Key | ahg_central_api_key | Authentication key (contact support@theahg.co.za) |
-| Site ID | ahg_central_site_id | Unique identifier for this AtoM instance |
+| Site ID | ahg_central_site_id | Unique identifier for this Heratio instance |
 
-### Settings Hierarchy
+All four rows ship with `is_locked = 1` in `ahg_settings` and the controller refuses POST writes to locked keys. Operators see the banner + disabled form; the values cannot be flipped from their defaults until the lock is cleared.
 
-Database settings take precedence over environment variables:
+### Settings Hierarchy (planned)
+
+Once a consumer is wired, database settings will take precedence over environment variables:
 
 ```
 Database settings (preferred)
@@ -645,9 +663,9 @@ Environment variables (fallback)
 Default values
 ```
 
-### Legacy Environment Variables
+### Legacy Environment Variables (design reference, not active)
 
-For backward compatibility, the following environment variables are still supported:
+The original AtoM plugin honoured these env vars. Heratio's future client should mirror the same fallback order:
 
 | Variable | Maps To |
 |----------|---------|
@@ -655,25 +673,27 @@ For backward compatibility, the following environment variables are still suppor
 | NER_API_KEY | ahg_central_api_key |
 | NER_SITE_ID | ahg_central_site_id |
 
-### Test Connection
+### Test Connection (planned behaviour)
 
-The settings page includes a "Test Connection" button that:
-1. Sends a request to the `/health` endpoint
-2. Validates API key authentication
-3. Reports connection status
+Once a backend exists, the `Test Connection` button will:
+1. Send a `GET` to `{api_url}/ping`.
+2. Validate API-key authentication.
+3. Report connection status.
 
-### NerTrainingSync Integration
+The current button is disabled while the lock is in place.
 
-The `NerTrainingSync` class automatically uses database settings when available:
+### Reference: legacy NerTrainingSync shape
+
+This is how the AtoM plugin wired its consumer - kept here as a starting point for the Heratio client when it is built:
 
 ```php
-// In NerTrainingSync constructor
+// In a future AhgCentralService constructor:
 $this->centralApiUrl = $this->getDbSetting('ahg_central_api_url')
     ?: getenv('NER_TRAINING_API_URL')
-    ?: 'https://train.theahg.co.za/api';
+    ?: 'https://central.theahg.co.za/api/v1';
 ```
 
-The `isEnabled()` method checks if integration is configured and enabled before attempting to sync training data.
+The `isEnabled()` method should check `ahg_central_enabled = '1'` AND a non-empty API key before attempting any sync.
 
 ---
 

@@ -27,6 +27,7 @@
 
 namespace AhgInformationObjectManage\Controllers;
 
+use AhgCore\Support\AuditLog;
 use AhgInformationObjectManage\Services\AiNerService;
 use AhgInformationObjectManage\Services\PrivacyService;
 use AhgInformationObjectManage\Services\RedactionRenderService;
@@ -302,6 +303,11 @@ class PrivacyController extends Controller
                 ->value('id');
         }
 
+        // Snapshot the existing region set before the replace-all so the
+        // audit row carries a real before/after diff (region writes don't go
+        // through any of the wrapped service::update paths).
+        $beforeRegions = $this->snapshotRedactions((int) $io->id);
+
         try {
             \DB::transaction(function () use ($io, $digitalObjectId, $regions) {
                 // Replace-all: drop existing redactions for this IO, then insert
@@ -351,11 +357,51 @@ class PrivacyController extends Controller
             app(RedactionRenderService::class)->invalidate((int) $io->id);
         } catch (\Throwable $e) { /* not fatal */ }
 
+        // Audit-trail: visual-redaction edits don't go through any of the
+        // service::update paths wrapped in v1.52.23, and the replace-all
+        // shape means there's no per-region create/move/delete - one save
+        // call is one audit event. Capture the before/after region sets so
+        // /admin/acl/audit-log shows what the user changed.
+        $afterRegions = $this->snapshotRedactions((int) $io->id);
+        try {
+            AuditLog::captureMutation((int) $io->id, 'information_object', 'redaction_regions_save', [
+                'before_count' => count($beforeRegions),
+                'after_count'  => count($afterRegions),
+                'before'       => $beforeRegions,
+                'after'        => $afterRegions,
+            ]);
+        } catch (\Throwable $e) { /* audit failure must not break the save */ }
+
         return response()->json([
             'success' => true,
             'count'   => count($regions),
             'message' => count($regions) . ' redaction region' . (count($regions) === 1 ? '' : 's') . ' saved.',
         ]);
+    }
+
+    /**
+     * Snapshot the visual-redaction set for an IO in a stable, audit-friendly
+     * shape. Strips per-row id / timestamps so before/after diffs aren't
+     * dominated by churn the user can't see.
+     */
+    private function snapshotRedactions(int $objectId): array
+    {
+        return \DB::table('privacy_visual_redaction')
+            ->where('object_id', $objectId)
+            ->orderBy('page_number')
+            ->orderBy('id')
+            ->get(['page_number', 'region_type', 'coordinates', 'normalized', 'source', 'label', 'color', 'status'])
+            ->map(fn ($r) => [
+                'page'       => (int) $r->page_number,
+                'type'       => (string) $r->region_type,
+                'coords'     => json_decode((string) $r->coordinates, true) ?? [],
+                'normalized' => (int) $r->normalized,
+                'source'     => (string) $r->source,
+                'label'      => $r->label,
+                'color'      => (string) $r->color,
+                'status'     => (string) $r->status,
+            ])
+            ->all();
     }
 
     /**

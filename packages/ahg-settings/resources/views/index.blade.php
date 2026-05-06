@@ -15,7 +15,7 @@
 
     // Helper to add a tile only when its route exists AND, if a plugin is named, the plugin is enabled.
     // Pass $plugin (e.g. 'ahgAIPlugin') as the 9th arg to gate by atom_plugin.is_enabled.
-    $addTile = function (string $label, string $icon, string $desc, string $routeName, string $color = 'primary', string $btnText = 'Configure', string $btnIcon = 'fa-cog', ?string $routeParam = null, ?string $plugin = null) use (&$allTiles) {
+    $addTile = function (string $label, string $icon, string $desc, string $routeName, string $color = 'primary', string $btnText = 'Configure', string $btnIcon = 'fa-cog', ?string $routeParam = null, ?string $plugin = null, ?string $badge = null) use (&$allTiles) {
         if (!\Route::has($routeName)) return;
         if ($plugin && !\AhgCore\Services\MenuService::isPluginEnabled($plugin)) return;
         $allTiles[$label] = [
@@ -26,6 +26,7 @@
             'color' => $color,
             'btn'   => $btnText,
             'btn_icon' => $btnIcon,
+            'badge' => $badge,
         ];
     };
 
@@ -177,7 +178,7 @@
     $addTile('AI Condition Assessment','fa-robot',               'AI-powered damage detection and condition scoring for archival materials', 'settings.ai-condition', 'info');
     $addTile('Audit Trail',           'fa-history',             'View change history and user activity logs', 'acl.audit-log');
     $addTile('Background Jobs',       'fa-tasks',              'Job queue, concurrent limits, timeout, retry, cleanup, and failure notifications', 'settings.ahg.jobs');
-    $addTile('AHG Central',           'fa-cloud',              'Connect to AHG Central cloud services for shared NER training and AI features', 'settings.ahg-integration');
+    $addTile('AHG Central',           'fa-cloud',              'Connect to AHG Central cloud services for shared NER training and AI features', 'settings.ahg-integration', 'primary', 'Configure', 'fa-cog', null, null, 'Under Construction');
     $addTile('AI Services',           'fa-brain',              'NER, Summarization, Spell Check — processing mode and field mappings', 'settings.ai-services');
     $addTile('ICIP Settings',         'fa-shield-alt',         'Indigenous Cultural and Intellectual Property management settings', 'settings.icip-settings', 'warning');
     $addTile('Marketplace',           'fa-store-alt',          'Commission rates, listing fees, currencies, payout rules, and platform configuration', 'ahgmarketplace.admin-settings', 'success');
@@ -220,7 +221,12 @@
           <div class="card h-100 shadow-sm settings-tile {{ $tile['color'] !== 'primary' ? 'border-' . $tile['color'] : '' }}">
             <div class="card-body text-center py-4">
               <div class="mb-3"><i class="fas {{ $tile['icon'] }} fa-3x text-{{ $tile['color'] }}"></i></div>
-              <h5 class="card-title text-dark">{{ $tile['label'] }}</h5>
+              <h5 class="card-title text-dark">
+                {{ $tile['label'] }}
+                @if(!empty($tile['badge']))
+                  <span class="badge bg-warning text-dark ms-1" style="font-size: 0.6rem; vertical-align: middle;"><i class="fas fa-hard-hat me-1"></i>{{ $tile['badge'] }}</span>
+                @endif
+              </h5>
               <p class="card-text text-muted small">{{ $tile['desc'] }}</p>
             </div>
             <div class="card-footer bg-white border-0 text-center pb-4">

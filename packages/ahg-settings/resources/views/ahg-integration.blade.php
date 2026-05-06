@@ -18,6 +18,26 @@
 @endsection
 
 @section('content')
+    @php $allLocked = $allLocked ?? false; $lockedKeys = $lockedKeys ?? []; @endphp
+
+    @if($allLocked)
+      <div class="alert alert-warning d-flex align-items-start mb-4" role="alert">
+        <i class="fas fa-hard-hat fa-2x me-3 text-warning"></i>
+        <div>
+          <h5 class="alert-heading mb-1">{{ __('Under Construction') }}</h5>
+          <p class="mb-1">{{ __('AHG Central is a planned cloud service. The settings below are visible so you can preview the configuration shape, but no consumer reads these values yet and the form is locked - changes will not be saved.') }}</p>
+          <p class="mb-0 small text-muted">{{ __('Tracking issue:') }} <a href="https://github.com/ArchiveHeritageGroup/heratio/issues/67" target="_blank" rel="noopener">#67 - AHG Central settings: all 4 keys unwired</a></p>
+        </div>
+      </div>
+    @endif
+
+    @if(session('error'))
+      <div class="alert alert-danger alert-dismissible fade show">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    @endif
+
     @if(isset($testResult))
       <div class="alert alert-{{ $testResult['success'] ? 'success' : 'danger' }} alert-dismissible fade show">
         <strong>{{ $testResult['success'] ? 'Success!' : 'Error:' }}</strong> {{ $testResult['message'] }}
@@ -30,7 +50,7 @@
         <h5 class="mb-0"><i class="fas fa-cloud me-2"></i>{{ __('About AHG Central') }}</h5>
       </div>
       <div class="card-body">
-        <p class="mb-2">AHG Central is a cloud service provided by The Archive and Heritage Group that enhances your instance with:</p>
+        <p class="mb-2">AHG Central is a cloud service provided by The Archive and Heritage Group that will enhance your instance with:</p>
         <ul class="mb-3">
           <li><strong>{{ __('Shared NER Training') }}</strong> - Contribute and benefit from a community-trained Named Entity Recognition model</li>
           <li><strong>{{ __('Future AI Services') }}</strong> - Access to upcoming cloud-based AI features</li>
@@ -44,15 +64,20 @@
       @csrf
 
       <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header d-flex align-items-center">
           <h5 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('Connection Settings') }}</h5>
+          @if($allLocked)
+            <span class="badge bg-warning text-dark ms-2"><i class="fas fa-lock me-1"></i>{{ __('Locked') }}</span>
+          @endif
         </div>
         <div class="card-body">
+          @php $disabledAttr = $allLocked ? 'disabled' : ''; @endphp
+
           <div class="mb-3">
             <label for="ahg_central_enabled" class="form-label">{{ __('Enable AHG Central Integration') }}</label>
             <div>
               <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" name="settings[ahg_central_enabled]" id="ahg_central_enabled" value="1" {{ ($settings['ahg_central_enabled'] ?? '0') == '1' ? 'checked' : '' }}>
+                <input class="form-check-input" type="checkbox" name="settings[ahg_central_enabled]" id="ahg_central_enabled" value="1" {{ ($settings['ahg_central_enabled'] ?? '0') == '1' ? 'checked' : '' }} {{ $disabledAttr }}>
                 <label class="form-check-label" for="ahg_central_enabled">{{ __('Allow this instance to communicate with AHG Central services.') }}</label>
               </div>
             </div>
@@ -60,22 +85,22 @@
 
           <div class="mb-3">
             <label for="ahg_central_api_url" class="form-label">{{ __('AHG Central API URL') }}</label>
-            <input type="url" name="settings[ahg_central_api_url]" id="ahg_central_api_url" class="form-control" value="{{ $settings['ahg_central_api_url'] ?? 'https://central.theahg.co.za/api/v1' }}">
+            <input type="url" name="settings[ahg_central_api_url]" id="ahg_central_api_url" class="form-control" value="{{ $settings['ahg_central_api_url'] ?? 'https://central.theahg.co.za/api/v1' }}" {{ $allLocked ? 'readonly' : '' }}>
             <div class="form-text">Base URL for the AHG Central API endpoint.</div>
           </div>
 
           <div class="mb-3">
             <label for="ahg_central_api_key" class="form-label">{{ __('API Key') }}</label>
             <div class="input-group">
-              <input type="password" name="settings[ahg_central_api_key]" class="form-control" id="ahg_central_api_key" value="{{ $settings['ahg_central_api_key'] ?? '' }}">
-              <button class="btn btn-outline-secondary" type="button" onclick="var i=document.getElementById('ahg_central_api_key');i.type=i.type==='password'?'text':'password';"><i class="fas fa-eye"></i></button>
+              <input type="password" name="settings[ahg_central_api_key]" class="form-control" id="ahg_central_api_key" value="{{ $settings['ahg_central_api_key'] ?? '' }}" {{ $allLocked ? 'readonly' : '' }}>
+              <button class="btn btn-outline-secondary" type="button" onclick="var i=document.getElementById('ahg_central_api_key');i.type=i.type==='password'?'text':'password';" {{ $disabledAttr }}><i class="fas fa-eye"></i></button>
             </div>
             <div class="form-text">Authentication key provided by AHG Central.</div>
           </div>
 
           <div class="mb-3">
             <label for="ahg_central_site_id" class="form-label">{{ __('Site ID') }}</label>
-            <input type="text" name="settings[ahg_central_site_id]" id="ahg_central_site_id" class="form-control" value="{{ $settings['ahg_central_site_id'] ?? '' }}">
+            <input type="text" name="settings[ahg_central_site_id]" id="ahg_central_site_id" class="form-control" value="{{ $settings['ahg_central_site_id'] ?? '' }}" {{ $allLocked ? 'readonly' : '' }}>
             <div class="form-text">Unique identifier for this Heratio instance when communicating with AHG Central.</div>
           </div>
         </div>
@@ -87,7 +112,7 @@
         </div>
         <div class="card-body">
           <p class="mb-3">Test the connection to AHG Central before saving your settings.</p>
-          <button type="submit" name="action" value="test" class="btn btn-info">
+          <button type="submit" name="action" value="test" class="btn btn-info" {{ $disabledAttr }}>
             <i class="fas fa-plug me-1"></i> {{ __('Test Connection') }}
           </button>
         </div>
@@ -130,7 +155,7 @@
       </div>
 
       <div class="actions">
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary" {{ $disabledAttr }}>
           <i class="fas fa-save me-1"></i> {{ __('Save Settings') }}
         </button>
         <a href="{{ route('settings.index') }}" class="btn btn-secondary">
