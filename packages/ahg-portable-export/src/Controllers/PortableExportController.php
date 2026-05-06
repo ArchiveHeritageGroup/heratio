@@ -196,12 +196,28 @@ class PortableExportController extends Controller
             }
         }
 
+        // scope_items: optional list of slugs (or ids). Used by:
+        //   - clipboard scope: caller passes the clipboard's items (slugs)
+        //   - archive mode: caller passes entity_types to include
+        // Stored as JSON in scope_items so the worker can read both shapes
+        // without us adding a new column. The legacy entity_types form key
+        // is folded into the same JSON for backwards compat.
+        $scopeItems = null;
+        if (!empty($data['scope_items']) && is_array($data['scope_items'])) {
+            $scopeItems = ['items' => array_values(array_filter(array_map('strval', $data['scope_items']))) ];
+        }
+        if (!empty($data['entity_types'])) {
+            $scopeItems = $scopeItems ?? [];
+            $scopeItems['entity_types'] = is_array($data['entity_types']) ? $data['entity_types'] : preg_split('/[\s,]+/', (string) $data['entity_types'], -1, PREG_SPLIT_NO_EMPTY);
+        }
+
         $id = DB::table('portable_export')->insertGetId([
             'user_id' => auth()->id() ?? 0,
             'title' => $title,
             'scope_type' => $scope,
             'scope_repository_id' => $data['repository_id'] ?? null,
             'scope_slug' => $data['scope_slug'] ?? null,
+            'scope_items' => $scopeItems !== null ? json_encode($scopeItems) : null,
             'mode' => $mode,
             'culture' => $culture,
             'include_masters' => $includeMasters,
@@ -212,11 +228,19 @@ class PortableExportController extends Controller
                 'subtitle' => $data['branding_subtitle'] ?? null,
                 'footer' => $data['branding_footer'] ?? null,
             ]),
-            'entity_types' => $data['entity_types'] ?? null,
             'status' => 'pending',
             'progress' => 0,
             'created_at' => now(),
         ]);
+
+        // Dispatch the bundler worker so the row gets picked up immediately.
+        // Best-effort: if the queue dispatch fails the row still exists for
+        // the daily cron sweep to pick up later.
+        try {
+            \Illuminate\Support\Facades\Artisan::queue('ahg:portable-export-worker', ['--id' => $id]);
+        } catch (\Throwable $e) {
+            \Log::warning('apiStart could not queue worker: ' . $e->getMessage(), ['export_id' => $id]);
+        }
 
         return response()->json([
             'success' => true,
@@ -242,6 +266,9 @@ class PortableExportController extends Controller
                 $ioQuery->whereBetween('lft', [$ancestor->lft, $ancestor->rgt]);
             }
         }
+        // Note: clipboard scope deferred here - apiStart caps it later via
+        // explicit slug count, which is small enough that the heuristic
+        // doesn't matter.
         $descriptions = (clone $ioQuery)->count();
         $digitalObjects = DB::table('digital_object')->count();
         // Same coefficients as apiEstimate (5KB per IO record, 250KB per DO).

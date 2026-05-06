@@ -50,6 +50,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'cart/payment/notify',
             'marketplace/payfast/notify',
+            // IIIF Web Annotations REST API (#100). Called by the
+            // mirador-annotations plugin from within the embedded viewer;
+            // the plugin's fetch shape doesn't know about Laravel CSRF.
+            // Endpoint is session-auth-gated for writes (auth.required
+            // middleware on POST/PUT/DELETE) so cross-site forgery is
+            // already blocked at the auth layer.
+            'api/annotations',
+            'api/annotations/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

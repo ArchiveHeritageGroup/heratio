@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7aa171db0e5e4c7c1060cffe13f3c622",
+    "content-hash": "9e9d603db8c2b50daeace9f0a809fd41",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -194,6 +194,36 @@
                 "AGPL-3.0-or-later"
             ],
             "description": "AHG AI Services - LLM integration, NER, summarization, translation, spellcheck for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/annotations",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-annotations",
+                "reference": "c402880db102d5b1ea04fb70cfaa495ebd9a92e1"
+            },
+            "require": {
+                "ahg/core": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgAnnotations\\Providers\\AhgAnnotationsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgAnnotations\\": "src/"
+                }
+            },
+            "description": "IIIF Web Annotation Storage backend (Annotot-shaped) for Heratio. Closes #100.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11719,6 +11749,7 @@
         "ahg/acl": 20,
         "ahg/actor-manage": 20,
         "ahg/ai-services": 20,
+        "ahg/annotations": 20,
         "ahg/api": 20,
         "ahg/api-plugin": 20,
         "ahg/audit-trail": 20,

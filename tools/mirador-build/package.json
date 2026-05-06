@@ -2,7 +2,7 @@
   "name": "heratio-mirador-bundle",
   "private": true,
   "version": "1.0.0",
-  "description": "Heratio Mirador 4 bundle with image-tools + download plugins.",
+  "description": "Heratio Mirador 4 bundle with image-tools + download + annotations plugins.",
   "scripts": {
     "build": "webpack --mode production",
     "deploy": "webpack --mode production && cp dist/mirador.min.js ../../public/vendor/ahg-theme-b5/js/vendor/mirador/mirador.min.js"
@@ -11,6 +11,7 @@
     "mirador": "^4.0.0",
     "mirador-image-tools": "^1.0.0",
     "mirador-dl-plugin": "^1.0.0",
+    "mirador-annotation-editor": "^1.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-i18next": "^15.0.0",

@@ -123,3 +123,12 @@ packages/ahg-core/src/Controllers/IiifController.php      # #81 (IIIF settings J
 packages/ahg-information-object-manage/resources/views/add-digital-object.blade.php  # bulk upload UI: webkitdirectory + drag-drop folder + mirror-tree toggle
 packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php   # bulkUpload() handler
 packages/ahg-information-object-manage/routes/web.php                                # POST /{slug}/object/addDigitalObject/bulk route
+
+# Portable Export bundler-worker (#88 option b - the full build).
+# Three pieces locked as a unit: the worker command (does the actual
+# bundling), the controller (apiStart now stashes scope_items + dispatches
+# the worker; entity_types collapsed into the same JSON column), and the
+# service provider (registers + schedules the daily safety-net sweep).
+packages/ahg-portable-export/src/Console/Commands/BundleWorkerCommand.php   # #88 worker: dump entities, copy assets, build viewer, zip
+packages/ahg-portable-export/src/Controllers/PortableExportController.php   # #88 apiStart entity_types -> scope_items + Artisan::queue dispatch
+packages/ahg-portable-export/src/Providers/AhgPortableExportServiceProvider.php  # #88 command registration + daily schedule
