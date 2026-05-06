@@ -51,7 +51,7 @@ class PruneCommand extends Command
         ['object_3d_audit_log',          'created_at'],
         ['openric_audit_log',            'created_at'],
         ['privacy_audit_log',            'created_at'],
-        ['research_researcher_audit',    'created_at'],
+        ['research_researcher_audit',    'archived_at'],
         ['spectrum_audit_log',           'created_at'],
         ['display_mode_audit',           'created_at'],
         ['atom_extension_audit',         'created_at'],

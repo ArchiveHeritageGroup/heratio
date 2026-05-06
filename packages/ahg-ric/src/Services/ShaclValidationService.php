@@ -195,16 +195,13 @@ class ShaclValidationService
     private function entityExistsInDatabase(string $uri): bool
     {
         $slug = $this->extractSlug($uri);
-        
-        return DB::table('actor')
-            ->where('slug', $slug)
-            ->exists()
-            || DB::table('information_object')
-                ->where('slug', $slug)
-                ->exists()
-            || DB::table('repository')
-                ->where('slug', $slug)
-                ->exists();
+        $objectId = (int) DB::table('slug')->where('slug', $slug)->value('object_id');
+        if (!$objectId) {
+            return false;
+        }
+        return DB::table('actor')->where('id', $objectId)->exists()
+            || DB::table('information_object')->where('id', $objectId)->exists()
+            || DB::table('repository')->where('id', $objectId)->exists();
     }
 
     /**
