@@ -83,4 +83,21 @@ class FederationService
 
         return $query->orderByDesc('federation_harvest_log.harvest_date')->paginate($perPage);
     }
+
+    /**
+     * Is federation feature enabled in settings?
+     *
+     * Reads the existing `federation_enabled` setting (seeded by the plugin).
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        $val = DB::table('setting')->where('name', 'federation_enabled')->value('value');
+        if ($val === null) {
+            return false;
+        }
+        // Stored as '1' / '0' in seed SQL — cast to bool
+        return (bool) intval($val);
+    }
 }

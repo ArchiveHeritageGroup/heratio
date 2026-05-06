@@ -1,9 +1,11 @@
 <?php
 
 use AhgFederation\Controllers\FederationController;
+use AhgFederation\Middleware\EnsureFederationEnabled;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'admin'])->prefix('federation')->group(function () {
+// Protect the federation UI/API with the federation_enabled setting via middleware.
+Route::middleware(['auth', 'admin', EnsureFederationEnabled::class])->prefix('federation')->group(function () {
     Route::get('/', [FederationController::class, 'index'])->name('federation.index');
     Route::get('/peers', [FederationController::class, 'peers'])->name('federation.peers');
     Route::get('/peers/add', [FederationController::class, 'editPeer'])->name('federation.addPeer');
@@ -16,10 +18,9 @@ Route::middleware(['auth', 'admin'])->prefix('federation')->group(function () {
 });
 
 // Legacy AtoM URL aliases (AJAX endpoints used by JS widgets)
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'admin', EnsureFederationEnabled::class])->group(function () {
     Route::post('/admin/federation/api/test-peer', [FederationController::class, 'testPeer'])->name('federation.api.testPeer');
     Route::post('/admin/federation/harvest', [FederationController::class, 'runHarvest'])->name('federation.api.harvest');
     // GET /admin/federation/harvest/ — legacy page URL (AtoM used admin prefix)
     Route::get('/admin/federation/harvest', [FederationController::class, 'harvest'])->name('federation.harvest.legacy');
 });
-
