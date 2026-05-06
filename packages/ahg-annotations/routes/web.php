@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/api/annotations/search', [AnnotationsController::class, 'search'])->name('annotations.search');
 Route::get('/api/annotations/{uuid}', [AnnotationsController::class, 'show'])->name('annotations.show');
 
-// Authenticated writes.
-Route::middleware('auth.required')->group(function () {
-    Route::post('/api/annotations', [AnnotationsController::class, 'store'])->name('annotations.store');
-    Route::put('/api/annotations/{uuid}', [AnnotationsController::class, 'update'])->name('annotations.update');
-    Route::delete('/api/annotations/{uuid}', [AnnotationsController::class, 'destroy'])->name('annotations.destroy');
-});
+// Writes — auth gate is enforced inside the controller methods (they
+// return JSON 401 when not authenticated). Putting auth.required as
+// route middleware would redirect-to-/login (302 -> HTML), which the
+// mirador-annotation-editor's fetch-based adapter can't parse and
+// silently fails on. JSON-401 lets the editor surface a real error.
+Route::post('/api/annotations', [AnnotationsController::class, 'store'])->name('annotations.store');
+Route::put('/api/annotations/{uuid}', [AnnotationsController::class, 'update'])->name('annotations.update');
+Route::delete('/api/annotations/{uuid}', [AnnotationsController::class, 'destroy'])->name('annotations.destroy');

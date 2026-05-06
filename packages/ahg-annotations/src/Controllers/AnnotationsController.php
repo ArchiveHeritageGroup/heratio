@@ -94,6 +94,13 @@ class AnnotationsController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        // Return JSON 401 instead of redirecting unauthenticated callers to
+        // /login (the auth.required group does that by default and the
+        // mirador-annotation-editor's adapter chokes on HTML responses).
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Authentication required to save annotations.'], 401);
+        }
+
         $body = $request->json()->all();
         if (empty($body)) {
             return response()->json(['error' => 'Empty body'], 422);
@@ -136,6 +143,9 @@ class AnnotationsController extends Controller
 
     public function update(Request $request, string $uuid): JsonResponse
     {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Authentication required to save annotations.'], 401);
+        }
         $row = DB::table('ahg_iiif_annotation')->where('uuid', $uuid)->first();
         if (!$row) {
             return response()->json(['error' => 'Not found'], 404);
@@ -163,6 +173,9 @@ class AnnotationsController extends Controller
 
     public function destroy(string $uuid): JsonResponse
     {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Authentication required to save annotations.'], 401);
+        }
         $deleted = DB::table('ahg_iiif_annotation')->where('uuid', $uuid)->delete();
         if (!$deleted) {
             return response()->json(['error' => 'Not found'], 404);

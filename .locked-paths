@@ -143,6 +143,16 @@ packages/ahg-dam/src/Services/DamService.php                # #89 phase 2: dam s
 packages/ahg-library/src/Services/LibraryService.php        # #89 phase 2: library sector wire-up
 packages/ahg-settings/src/Controllers/SettingsController.php # #89 form-side bootstrap fix in sectorNumbering()
 
+# #89 final pass - Accession + Repository + Actor + RiC Record wire-ups
+# (the targets the issue named explicitly that I'd silently dropped from
+# the first close, plus the RiC primary-entity create path that bypasses
+# IO::create). Lock as a unit for the same reason as the other sector
+# services.
+packages/ahg-accession-manage/src/Services/AccessionService.php   # #89 final pass: accession auto-id via global mask
+packages/ahg-actor-manage/src/Services/ActorService.php           # #89 final pass: actor description_identifier auto-id (forced fit)
+packages/ahg-repository-manage/src/Services/RepositoryService.php # #89 final pass: repository auto-id via global mask
+packages/ahg-ric/src/Services/RicEntityService.php                # #89 final pass: RiC Record auto-id via global mask
+
 # #100 IIIF Web Annotations: persistence backend + Mirador-annotation-editor
 # bundle. The HTTP API + adapter contract has to round-trip W3C Web
 # Annotation JSON-LD between the bundled JS and the PHP store, so any

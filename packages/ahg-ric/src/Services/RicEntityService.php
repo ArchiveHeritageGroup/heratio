@@ -1076,9 +1076,20 @@ class RicEntityService
             // the whole tree; collision risk is zero for new leaves.
             $maxRgt = (int) (DB::table('information_object')->max('rgt') ?? 0);
 
+            // Sector identifier auto-generation (#89). RiC Record creates
+            // bypass InformationObjectService::create, so the IO wire-up
+            // doesn't fire here. Honour the same auto-id contract:
+            // operator-supplied wins; ::next('record') tries sector-specific
+            // (won't exist for 'record'), falls through to the global mask.
+            $resolvedIdentifier = $data['identifier'] ?? null;
+            if (empty($resolvedIdentifier)) {
+                $generated = \AhgCore\Services\SectorIdentifierService::next('record');
+                if ($generated !== null) $resolvedIdentifier = $generated;
+            }
+
             DB::table('information_object')->insert([
                 'id' => $id,
-                'identifier' => $data['identifier'] ?? null,
+                'identifier' => $resolvedIdentifier,
                 'level_of_description_id' => $data['level_of_description_id'] ?? null,
                 'collection_type_id' => $data['collection_type_id'] ?? null,
                 'repository_id' => $data['repository_id'] ?? null,
