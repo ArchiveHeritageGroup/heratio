@@ -667,6 +667,340 @@ class MetadataExtractionService
     }
 
     // ------------------------------------------------------------------
+    // Normalisation + per-sector apply (consumes map_*_<sector> settings)
+    // ------------------------------------------------------------------
+
+    /** Normalised-dict keys that the per-sector mapping addresses. */
+    public const NORMALISED_FIELDS = ['title', 'creator', 'date', 'description', 'copyright', 'keywords', 'technical', 'gps'];
+
+    /**
+     * AtoM-legacy key → real Heratio column on the per-sector typed table.
+     * The values stored in ahg_settings.map_<field>_<sector> are AtoM field
+     * labels (productionPerson, copyrightNotice, etc.). For DAM most of them
+     * land directly in dam_iptc_metadata. For IO/Museum many of them are
+     * relations (subject access points, name access points) which this
+     * first pass does NOT handle - they're enumerated in the return value
+     * with a 'relation' marker so the caller knows to skip them.
+     */
+    private const SECTOR_COLUMN_RESOLVER = [
+        'dam' => [
+            'creator'         => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'creator'],
+            'caption'         => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'caption'],
+            'keywords'        => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'keywords'],
+            'dateCreated'     => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'date_created'],
+            'date_created'    => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'date_created'],
+            'copyrightNotice' => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'copyright_notice'],
+            'gpsLocation'     => ['type' => 'gps_components', 'table' => 'dam_iptc_metadata'],
+            'technicalInfo'   => ['type' => 'skip', 'reason' => 'no dedicated column on dam_iptc_metadata; raw values land in property table via extractFromDigitalObject'],
+            'title'           => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
+        ],
+        'isad' => [
+            'title'                => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
+            'scopeAndContent'      => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'scope_and_content'],
+            'accessConditions'     => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'access_conditions'],
+            'physicalCharacteristics' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'physical_characteristics'],
+            'nameAccessPoints'     => ['type' => 'relation', 'reason' => 'relation table insert (relation_type=name); not in scope for first pass'],
+            'subjectAccessPoints'  => ['type' => 'relation', 'reason' => 'relation table insert (term taxonomy 35); not in scope for first pass'],
+            'placeAccessPoints'    => ['type' => 'relation', 'reason' => 'relation table insert (term taxonomy 42); not in scope for first pass'],
+            'creationEvent'        => ['type' => 'event', 'reason' => 'event table insert; not in scope for first pass'],
+        ],
+        'museum' => [
+            'title'                  => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
+            'briefDescription'       => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'scope_and_content'],
+            'productionDate'         => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'creation_date_earliest'],
+            'productionPerson'       => ['type' => 'skip', 'reason' => 'museum_metadata has no production_person column; would need actor relation'],
+            'rightsNotes'            => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'rights_remarks'],
+            'objectCategory'         => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'object_category'],
+            'technicalDescription'   => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'techniques'],
+            'fieldCollectionPlace'   => ['type' => 'skip', 'reason' => 'no direct museum_metadata column; would need event table'],
+        ],
+        'library' => [
+            'title' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
+        ],
+    ];
+
+    /**
+     * Resolve a free-form information_object.source_standard value to one of
+     * the four sector keys we support: 'dam', 'museum', 'library', 'isad'.
+     * 'isad' is the catch-all default (anything ISAD/DACS/empty).
+     */
+    public function resolveSector(?string $sourceStandard): string
+    {
+        $s = strtolower(trim((string) $sourceStandard));
+        if ($s === 'dam') return 'dam';
+        if ($s === 'library') return 'library';
+        if (str_contains($s, 'cco') || str_contains($s, 'museum')) return 'museum';
+        return 'isad';
+    }
+
+    /**
+     * Extract metadata from a file and flatten to a normalised dict suitable
+     * for per-sector apply. Returns one of {title, creator, date, description,
+     * copyright, keywords, technical, gps} keys (any subset). Honours the
+     * meta_extract_iptc / meta_extract_xmp / meta_extract_gps toggles - if a
+     * channel is disabled in settings, its values do NOT appear in the dict.
+     *
+     * Source priority for each field is XMP > IPTC > EXIF > exiftool catch-all,
+     * with first-non-empty winning. EXIF + exiftool are always available; IPTC
+     * + XMP are gated by the toggles.
+     */
+    public function extractNormalised(string $filePath): array
+    {
+        $raw = $this->extract($filePath);
+        $exif = $raw['exif'] ?? [];
+        $iptc = $raw['iptc'] ?? [];
+        $xmp  = $raw['xmp']  ?? [];
+        $pdf  = $raw['pdf']  ?? [];
+        $exiftool = $raw['exiftool'] ?? [];
+
+        // Toggles: default values seeded in ahg_settings (false for IPTC/XMP/GPS,
+        // i.e. opt-in). Operators flip them on per-instance.
+        $iptcEnabled = $this->settingBool('meta_extract_iptc', false);
+        $xmpEnabled  = $this->settingBool('meta_extract_xmp', false);
+        $gpsEnabled  = $this->settingBool('meta_extract_gps', false);
+
+        if (!$iptcEnabled) $iptc = [];
+        if (!$xmpEnabled)  $xmp  = [];
+
+        $first = function (...$values) {
+            foreach ($values as $v) {
+                if (is_array($v)) {
+                    foreach ($v as $vv) if ($vv !== null && $vv !== '') return is_array($vv) ? implode('; ', $vv) : (string) $vv;
+                    continue;
+                }
+                if ($v !== null && $v !== '') return (string) $v;
+            }
+            return null;
+        };
+
+        $normalised = [
+            'title'       => $first(
+                $xmp['title'] ?? null,
+                $iptc['object_name'] ?? null,
+                $iptc['headline'] ?? null,
+                $pdf['title'] ?? null,
+                $exif['ImageDescription'] ?? null,
+                $exiftool['XMP-dc:Title'] ?? $exiftool['IPTC:ObjectName'] ?? null
+            ),
+            'creator'     => $first(
+                is_array($xmp['creator'] ?? null) ? $xmp['creator'] : ($xmp['creator'] ?? null),
+                $iptc['byline'] ?? null,
+                $exif['Artist'] ?? null,
+                $pdf['author'] ?? null,
+                $exiftool['XMP-dc:Creator'] ?? $exiftool['EXIF:Artist'] ?? $exiftool['IPTC:By-line'] ?? null
+            ),
+            'date'        => $first(
+                $exif['DateTimeOriginal'] ?? null,
+                $xmp['date_time_original'] ?? $xmp['create_date'] ?? null,
+                $iptc['date_created'] ?? null,
+                $pdf['creation_date'] ?? null,
+                $exif['DateTime'] ?? null,
+                $exiftool['EXIF:DateTimeOriginal'] ?? $exiftool['XMP-xmp:CreateDate'] ?? null
+            ),
+            'description' => $first(
+                $xmp['description'] ?? null,
+                $iptc['caption'] ?? null,
+                $pdf['subject'] ?? null,
+                $exif['UserComment'] ?? null,
+                $exiftool['XMP-dc:Description'] ?? $exiftool['IPTC:Caption-Abstract'] ?? null
+            ),
+            'copyright'   => $first(
+                $xmp['rights'] ?? null,
+                $iptc['copyright'] ?? null,
+                $exif['Copyright'] ?? null,
+                $exiftool['XMP-dc:Rights'] ?? $exiftool['EXIF:Copyright'] ?? null
+            ),
+            'keywords'    => $first(
+                is_array($xmp['keywords'] ?? null) ? implode(', ', $xmp['keywords']) : null,
+                is_array($iptc['keywords'] ?? null) ? implode(', ', $iptc['keywords']) : ($iptc['keywords'] ?? null),
+                $pdf['keywords'] ?? null,
+                $exiftool['XMP-dc:Subject'] ?? $exiftool['IPTC:Keywords'] ?? null
+            ),
+            'technical'   => $first(
+                $exif['Make'] ?? null,
+                $exif['Model'] ?? null,
+                $exiftool['EXIF:Make'] ?? $exiftool['EXIF:Model'] ?? null
+            ),
+        ];
+
+        if ($gpsEnabled && !empty($raw['gps'])) {
+            $normalised['gps'] = $raw['gps']; // {latitude, longitude, decimal[, altitude]}
+        }
+
+        // Strip nulls so the apply step's overwrite checks don't see false positives.
+        return array_filter($normalised, fn ($v) => $v !== null && $v !== '');
+    }
+
+    /**
+     * Resolve the per-sector mapping from ahg_settings.map_<field>_<sector>.
+     * Returns ['title' => 'title', 'creator' => 'creator', ...] keyed by
+     * normalised-field name with values being the AtoM-legacy field labels
+     * the operator chose on /admin/ahgSettings/metadata. Falls back to the
+     * shipped defaults when an operator hasn't customised.
+     */
+    public function getMappingForSector(string $sector): array
+    {
+        $sector = strtolower($sector);
+        $keys = [];
+        foreach (self::NORMALISED_FIELDS as $f) {
+            $keys[$f] = "map_{$f}_{$sector}";
+        }
+        $keys['gps'] = "map_gps_{$sector}";
+
+        $rows = DB::table('ahg_settings')
+            ->whereIn('setting_key', array_values($keys))
+            ->pluck('setting_value', 'setting_key')
+            ->all();
+
+        $out = [];
+        foreach ($keys as $field => $key) {
+            $v = $rows[$key] ?? null;
+            if ($v !== null && $v !== '') $out[$field] = $v;
+        }
+        return $out;
+    }
+
+    /**
+     * Apply a normalised metadata dict to a sector's typed columns.
+     *
+     * Returns ['written' => [field=>column], 'skipped' => [field=>reason]]
+     * so the caller can audit-trail what landed where. Honours
+     * meta_overwrite_existing: when false, only writes columns that are
+     * currently NULL or empty.
+     *
+     * First-pass scope: handles 'column' (direct DB column), 'i18n' (the
+     * source-culture row of information_object_i18n), and 'gps_components'
+     * (split decimal lat/lon to city/state/country isn't really possible -
+     * we store the decimal in dam_iptc_metadata.sublocation as the closest
+     * fit since there's no dedicated coords column). Skips 'relation' /
+     * 'event' targets - those need term/actor/event inserts that are out of
+     * scope for the first pass and are reported in 'skipped' so #86 can
+     * track follow-up work.
+     */
+    public function applyToSector(int $objectId, string $sector, array $normalised, array $options = []): array
+    {
+        $sector = strtolower($sector);
+        $resolver = self::SECTOR_COLUMN_RESOLVER[$sector] ?? self::SECTOR_COLUMN_RESOLVER['isad'];
+        $mapping  = $this->getMappingForSector($sector);
+        $overwrite = $options['overwrite'] ?? $this->settingBool('meta_overwrite_existing', false);
+        $culture   = $options['culture'] ?? app()->getLocale();
+
+        $written = [];
+        $skipped = [];
+
+        foreach ($normalised as $field => $value) {
+            $atomKey = $mapping[$field] ?? null;
+            if (!$atomKey) {
+                $skipped[$field] = 'no mapping configured for sector';
+                continue;
+            }
+            $rule = $resolver[$atomKey] ?? null;
+            if (!$rule) {
+                $skipped[$field] = "atom-key '{$atomKey}' not resolvable for sector '{$sector}'";
+                continue;
+            }
+            if (in_array($rule['type'], ['skip', 'relation', 'event'], true)) {
+                $skipped[$field] = $rule['reason'] ?? "type={$rule['type']}";
+                continue;
+            }
+
+            $strValue = is_array($value) ? json_encode($value) : (string) $value;
+            $strValue = trim($strValue);
+            if ($strValue === '') continue;
+            // Truncate to a reasonable length so a stray giant XMP blob can't
+            // overflow varchar columns and break the upload transaction.
+            if (mb_strlen($strValue) > 4000) $strValue = mb_substr($strValue, 0, 4000);
+
+            try {
+                if ($rule['type'] === 'column') {
+                    $row = DB::table($rule['table'])->where('object_id', $objectId)->first();
+                    if (!$row) {
+                        $skipped[$field] = "no {$rule['table']} row for object_id={$objectId}";
+                        continue;
+                    }
+                    $current = $row->{$rule['column']} ?? null;
+                    if (!$overwrite && $current !== null && $current !== '') {
+                        $skipped[$field] = "column has value, overwrite=false";
+                        continue;
+                    }
+                    DB::table($rule['table'])
+                        ->where('object_id', $objectId)
+                        ->update([$rule['column'] => $strValue]);
+                    $written[$field] = "{$rule['table']}.{$rule['column']}";
+                } elseif ($rule['type'] === 'i18n') {
+                    $row = DB::table($rule['table'])
+                        ->where('id', $objectId)->where('culture', $culture)->first();
+                    if (!$row) {
+                        $skipped[$field] = "no {$rule['table']} row for id={$objectId}/{$culture}";
+                        continue;
+                    }
+                    $current = $row->{$rule['column']} ?? null;
+                    if (!$overwrite && $current !== null && $current !== '') {
+                        $skipped[$field] = "i18n column has value, overwrite=false";
+                        continue;
+                    }
+                    DB::table($rule['table'])
+                        ->where('id', $objectId)->where('culture', $culture)
+                        ->update([$rule['column'] => $strValue]);
+                    $written[$field] = "{$rule['table']}.{$rule['column']}";
+                } elseif ($rule['type'] === 'gps_components') {
+                    if (is_array($value) && isset($value['decimal'])) {
+                        DB::table($rule['table'])
+                            ->where('object_id', $objectId)
+                            ->update(['sublocation' => $value['decimal']]);
+                        $written[$field] = "{$rule['table']}.sublocation (decimal lat,lon)";
+                    } else {
+                        $skipped[$field] = 'gps payload missing decimal component';
+                    }
+                }
+            } catch (\Throwable $e) {
+                $skipped[$field] = 'write failed: ' . $e->getMessage();
+            }
+        }
+
+        return ['written' => $written, 'skipped' => $skipped];
+    }
+
+    /**
+     * Single entry point for upload-path callers: extract from the file at
+     * $filePath, resolve the sector from the IO's source_standard, and apply
+     * to the per-sector typed columns. No-op if meta_extract_on_upload is
+     * disabled. Returns the apply() result so the caller can audit-trail.
+     */
+    public function extractAndApplyOnUpload(int $objectId, string $filePath, array $options = []): array
+    {
+        if (!$this->settingBool('meta_extract_on_upload', true)) {
+            return ['written' => [], 'skipped' => ['_disabled' => 'meta_extract_on_upload=false']];
+        }
+        if (!file_exists($filePath)) {
+            return ['written' => [], 'skipped' => ['_disabled' => "file not found: {$filePath}"]];
+        }
+        $sourceStandard = (string) DB::table('information_object')
+            ->where('id', $objectId)
+            ->value('source_standard');
+        $sector = $this->resolveSector($sourceStandard);
+        $normalised = $this->extractNormalised($filePath);
+        if (empty($normalised)) {
+            return ['written' => [], 'skipped' => ['_no_metadata' => 'no metadata extracted from file']];
+        }
+        $result = $this->applyToSector($objectId, $sector, $normalised, $options);
+        $result['sector'] = $sector;
+        $result['extracted_fields'] = array_keys($normalised);
+        return $result;
+    }
+
+    /**
+     * Read a boolean-shaped ahg_settings row. Honours 'true'/'false'/'1'/'0'.
+     */
+    private function settingBool(string $key, bool $default): bool
+    {
+        $v = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
+        if ($v === null) return $default;
+        $s = strtolower(trim((string) $v));
+        return in_array($s, ['1', 'true', 'yes', 'on'], true);
+    }
+
+    // ------------------------------------------------------------------
     // Private helpers
     // ------------------------------------------------------------------
 

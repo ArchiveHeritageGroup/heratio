@@ -154,6 +154,51 @@ class DigitalObjectController extends Controller
                 ],
             ]);
 
+            // Auto metadata extraction (closes #86 first pass for the file
+            // upload path). Only fires for actual file uploads - URL/FTP
+            // linked objects don't have a local file to read EXIF from.
+            // Failures are non-fatal: a broken extractor must not break the
+            // upload itself. Walks the master digital_object that was just
+            // inserted to find the on-disk path.
+            if ($hasFile && !$hasFtp && !$hasUrl) {
+                try {
+                    $master = DB::table('digital_object')
+                        ->where('object_id', $io->id)
+                        ->where('usage_id', DigitalObjectService::USAGE_MASTER)
+                        ->orderByDesc('id')
+                        ->first();
+                    if ($master) {
+                        $uploadsPath = config('heratio.uploads_path');
+                        $localPath = rtrim($uploadsPath, '/') . '/' . ltrim($master->path, '/') . $master->name;
+                        if (!file_exists($localPath)) {
+                            $localPath = rtrim($uploadsPath, '/') . '/' . ltrim($master->path, '/');
+                            if (is_dir($localPath)) $localPath = rtrim($localPath, '/') . '/' . $master->name;
+                        }
+                        if (file_exists($localPath)) {
+                            $extractor = app(\AhgMetadataExtraction\Services\MetadataExtractionService::class);
+                            $result = $extractor->extractAndApplyOnUpload((int) $io->id, $localPath);
+                            if (!empty($result['written']) || !empty($result['extracted_fields'])) {
+                                \AhgCore\Support\AuditLog::captureSecondaryMutation((int) $io->id, 'information_object', 'metadata_extraction_apply', [
+                                    'data' => [
+                                        'sector'           => $result['sector'] ?? null,
+                                        'extracted_fields' => $result['extracted_fields'] ?? [],
+                                        'written'          => $result['written'] ?? [],
+                                        'skipped'          => $result['skipped'] ?? [],
+                                        'digital_object_id'=> $master->id,
+                                        'filename'         => $master->name,
+                                    ],
+                                ]);
+                            }
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('Metadata extraction on upload failed: ' . $e->getMessage(), [
+                        'io_id' => $io->id,
+                        'trace_first' => $e->getFile() . ':' . $e->getLine(),
+                    ]);
+                }
+            }
+
             return redirect()->route('informationobject.show', $slug)
                 ->with('success', $msg);
         } catch (\Exception $e) {
