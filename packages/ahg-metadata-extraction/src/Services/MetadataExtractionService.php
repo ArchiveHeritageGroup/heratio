@@ -961,6 +961,65 @@ class MetadataExtractionService
                     } else {
                         $skipped[$field] = 'gps payload missing decimal component';
                     }
+                } elseif ($rule['type'] === 'term_relation') {
+                    $tokens = $this->splitMultiValue($strValue);
+                    [$matched, $unmatched] = $this->matchTermsByName($tokens, $rule['taxonomy_id'], $culture);
+                    $insertedIds = [];
+                    foreach ($matched as $termId) {
+                        if (!$this->relationExists($termId, $objectId, null)) {
+                            $insertedIds[] = $this->insertRelation($termId, $objectId, null, $culture);
+                        }
+                    }
+                    if (!empty($insertedIds)) {
+                        $written[$field] = sprintf(
+                            'relation x %d (subject=term[taxonomy=%d], object=io)',
+                            count($insertedIds), $rule['taxonomy_id']
+                        );
+                    }
+                    if (!empty($unmatched)) {
+                        $skipped[$field] = sprintf(
+                            'unmatched in taxonomy %d (match-only policy, no auto-create): %s',
+                            $rule['taxonomy_id'],
+                            implode(', ', array_slice($unmatched, 0, 5)) . (count($unmatched) > 5 ? ', …' : '')
+                        );
+                    }
+                } elseif ($rule['type'] === 'actor_relation') {
+                    $tokens = $this->splitMultiValue($strValue);
+                    [$matched, $unmatched] = $this->matchActorsByName($tokens, $culture);
+                    $insertedIds = [];
+                    foreach ($matched as $actorId) {
+                        if (!$this->relationExists($actorId, $objectId, $rule['relation_type_id'])) {
+                            $insertedIds[] = $this->insertRelation($actorId, $objectId, $rule['relation_type_id'], $culture);
+                        }
+                    }
+                    if (!empty($insertedIds)) {
+                        $written[$field] = sprintf(
+                            'relation x %d (subject=actor, object=io, type=%d)',
+                            count($insertedIds), $rule['relation_type_id']
+                        );
+                    }
+                    if (!empty($unmatched)) {
+                        $skipped[$field] = sprintf(
+                            'unmatched actor names (match-only policy, no auto-create): %s',
+                            implode(', ', array_slice($unmatched, 0, 5)) . (count($unmatched) > 5 ? ', …' : '')
+                        );
+                    }
+                } elseif ($rule['type'] === 'creation_event') {
+                    $existing = DB::table('event')
+                        ->where('object_id', $objectId)
+                        ->where('type_id', $rule['type_id'])
+                        ->exists();
+                    if ($existing) {
+                        $skipped[$field] = 'creation event already exists for this IO (dedupe policy)';
+                    } else {
+                        $isoDate = $this->normaliseIsoDate($strValue);
+                        if ($isoDate === null) {
+                            $skipped[$field] = "could not parse date '{$strValue}' to ISO YYYY-MM-DD";
+                        } else {
+                            $eventId = $this->insertEvent($objectId, $rule['type_id'], $isoDate, $culture);
+                            $written[$field] = "event id={$eventId} (type=creation, start_date={$isoDate})";
+                        }
+                    }
                 }
             } catch (\Throwable $e) {
                 $skipped[$field] = 'write failed: ' . $e->getMessage();
@@ -968,6 +1027,154 @@ class MetadataExtractionService
         }
 
         return ['written' => $written, 'skipped' => $skipped];
+    }
+
+    /**
+     * Split a multi-value EXIF string (semicolon / comma separated) into an
+     * array of trimmed non-empty tokens. Used for keywords / artist lists
+     * where EXIF shoves multiple values into one string.
+     */
+    private function splitMultiValue(string $value): array
+    {
+        $parts = preg_split('/\s*[;,]\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
+        return array_values(array_filter(array_map('trim', $parts ?: []), fn ($v) => $v !== ''));
+    }
+
+    /**
+     * Look up term ids by exact (case-insensitive) name match within a
+     * taxonomy. Returns [matched_term_ids, unmatched_input_strings].
+     * Match-only policy: no auto-create. The audit row carries the unmatched
+     * list so an operator can decide later whether to add them as authority
+     * file entries.
+     */
+    private function matchTermsByName(array $names, int $taxonomyId, string $culture): array
+    {
+        $matched = [];
+        $unmatched = [];
+        foreach ($names as $n) {
+            $id = (int) DB::table('term as t')
+                ->join('term_i18n as ti', 'ti.id', '=', 't.id')
+                ->where('t.taxonomy_id', $taxonomyId)
+                ->whereRaw('LOWER(ti.name) = LOWER(?)', [$n])
+                ->whereIn('ti.culture', [$culture, 'en'])
+                ->orderByRaw('FIELD(ti.culture, ?, ?)', [$culture, 'en'])
+                ->value('t.id');
+            if ($id) {
+                $matched[$n] = $id;
+            } else {
+                $unmatched[] = $n;
+            }
+        }
+        return [array_values(array_unique($matched)), $unmatched];
+    }
+
+    /**
+     * Look up actor ids by exact (case-insensitive) authorized_form_of_name
+     * match. Returns [matched_actor_ids, unmatched_input_strings]. Same
+     * match-only policy as matchTermsByName: no auto-create.
+     */
+    private function matchActorsByName(array $names, string $culture): array
+    {
+        $matched = [];
+        $unmatched = [];
+        foreach ($names as $n) {
+            $id = (int) DB::table('actor as a')
+                ->join('actor_i18n as ai', 'ai.id', '=', 'a.id')
+                ->whereRaw('LOWER(ai.authorized_form_of_name) = LOWER(?)', [$n])
+                ->whereIn('ai.culture', [$culture, 'en'])
+                ->orderByRaw('FIELD(ai.culture, ?, ?)', [$culture, 'en'])
+                ->value('a.id');
+            if ($id) {
+                $matched[$n] = $id;
+            } else {
+                $unmatched[] = $n;
+            }
+        }
+        return [array_values(array_unique($matched)), $unmatched];
+    }
+
+    /** Whether a relation row already exists for (subject, object[, type]). */
+    private function relationExists(int $subjectId, int $objectId, ?int $typeId): bool
+    {
+        $q = DB::table('relation')->where('subject_id', $subjectId)->where('object_id', $objectId);
+        if ($typeId !== null) {
+            $q->where('type_id', $typeId);
+        }
+        return $q->exists();
+    }
+
+    /**
+     * Insert a relation row honouring AtoM's CTI shape (object row first,
+     * relation row references the same id). Returns the new relation id.
+     */
+    private function insertRelation(int $subjectId, int $objectId, ?int $typeId, string $culture): int
+    {
+        $relId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitRelation',
+            'created_at' => now(),
+            'updated_at' => now(),
+            'serial_number' => 0,
+        ]);
+        DB::table('relation')->insert([
+            'id' => $relId,
+            'subject_id' => $subjectId,
+            'object_id'  => $objectId,
+            'type_id'    => $typeId,
+            'source_culture' => $culture,
+        ]);
+        return $relId;
+    }
+
+    /**
+     * Insert an event row honouring AtoM's CTI shape.
+     */
+    private function insertEvent(int $objectId, int $typeId, string $isoDate, string $culture): int
+    {
+        $eventId = DB::table('object')->insertGetId([
+            'class_name' => 'QubitEvent',
+            'created_at' => now(),
+            'updated_at' => now(),
+            'serial_number' => 0,
+        ]);
+        DB::table('event')->insert([
+            'id' => $eventId,
+            'object_id' => $objectId,
+            'type_id' => $typeId,
+            'start_date' => $isoDate,
+            'source_culture' => $culture,
+        ]);
+        return $eventId;
+    }
+
+    /**
+     * Best-effort parse of a free-form date to ISO YYYY-MM-DD. Handles EXIF
+     * 'YYYY:MM:DD HH:MM:SS' (most common), ISO 'YYYY-MM-DD', and 'YYYY' (year
+     * only - returns YYYY-01-01). Returns null if the input is unparseable
+     * so the caller can surface a skipped reason instead of inserting bad
+     * data.
+     */
+    private function normaliseIsoDate(string $value): ?string
+    {
+        $value = trim($value);
+        if ($value === '') return null;
+        // EXIF DateTime: 2021:02:05 15:04:54
+        if (preg_match('/^(\d{4}):(\d{2}):(\d{2})/', $value, $m)) {
+            return "{$m[1]}-{$m[2]}-{$m[3]}";
+        }
+        // ISO date or ISO datetime: 2021-02-05 / 2021-02-05T15:04:54
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $value, $m)) {
+            return "{$m[1]}-{$m[2]}-{$m[3]}";
+        }
+        // Year only
+        if (preg_match('/^(\d{4})$/', $value, $m)) {
+            return "{$m[1]}-01-01";
+        }
+        // strtotime fallback
+        $t = @strtotime($value);
+        if ($t !== false && $t > 0) {
+            return date('Y-m-d', $t);
+        }
+        return null;
     }
 
     /**
