@@ -213,6 +213,31 @@
             // continues to work (it doesn't depend on WaveSurfer).
             return;
           }
+          // WaveSurfer 7 needs `url` to fetch+decode the audio for the
+          // waveform; `media: audio` only binds playback to the
+          // existing <audio>. Pass both so the waveform draws AND
+          // the original audio element (and any sibling controls)
+          // keep driving the same audio source.
+          var wsCreate = function (container, audio, sourceEl) {
+            return window.WaveSurfer.create({
+              container: container,
+              waveColor: 'rgba(13,110,253,0.30)',
+              progressColor: 'rgba(13,110,253,0.85)',
+              cursorColor: 'rgba(13,110,253,0.85)',
+              cursorWidth: 2,
+              height: 60,
+              barWidth: 2,
+              barGap: 1,
+              normalize: true,
+              media: audio,
+              url: sourceEl.src
+            });
+          };
+
+          // Path 1: AHG custom audio UI (hidden <audio> behind a custom
+          // controls block in _digital-object-viewer.blade.php). Replace
+          // the placeholder progress bar with the WaveSurfer canvas; the
+          // existing buttons keep driving the same <audio>.
           document.querySelectorAll('.ahg-media-player').forEach(function (wrapper) {
             if (wrapper.dataset.ahgWaveformApplied === '1') return;
             var audio = wrapper.querySelector('audio');
@@ -226,32 +251,46 @@
             var originalHTML = progressDiv.innerHTML;
             progressDiv.innerHTML = '';
             progressDiv.style.cursor = 'pointer';
-
+            // The wrapper has waveColor='rgba(255,255,255,0.30)' against the
+            // dark gradient background it's painted on; override the default
+            // primary-blue tint so bars are visible on the dark backdrop.
             try {
-              // WaveSurfer 7 needs `url` to fetch+decode the audio for the
-              // waveform; `media: audio` only binds playback to the
-              // existing <audio>. Pass both so the waveform draws AND
-              // the existing custom buttons keep driving the same audio
-              // element (instead of creating a second hidden one).
-              window.WaveSurfer.create({
-                container: progressDiv,
+              wsCreate(progressDiv, audio, sourceEl).setOptions({
                 waveColor: 'rgba(255,255,255,0.30)',
-                progressColor: 'rgba(13,110,253,0.85)',
-                cursorColor: 'rgba(255,255,255,0.85)',
-                cursorWidth: 2,
-                height: 60,
-                barWidth: 2,
-                barGap: 1,
-                normalize: true,
-                media: audio,
-                url: sourceEl.src
+                cursorColor: 'rgba(255,255,255,0.85)'
               });
             } catch (e) {
-              // WaveSurfer construction or fetch failed (decode error,
-              // CORS, etc.). Restore the placeholder progress bar so
-              // the user-visible UX is the pre-#101 state.
               progressDiv.innerHTML = originalHTML;
               wrapper.dataset.ahgWaveformApplied = '0';
+            }
+          });
+
+          // Path 2: plain <audio> elements (e.g. the digital-object
+          // component on museum/actor/repository show pages). Supplement
+          // them with a sibling WaveSurfer canvas inserted above; native
+          // controls stay in place so play/pause UX is unchanged.
+          document.querySelectorAll('audio').forEach(function (audio) {
+            if (audio.dataset.ahgWaveformApplied === '1') return;
+            // Skip elements already handled by Path 1 (inside .ahg-media-player)
+            // and any explicit opt-out.
+            if (audio.closest && audio.closest('.ahg-media-player')) return;
+            if (audio.dataset.noAhgMedia === '1' || audio.hasAttribute('data-no-ahg-media')) return;
+            var sourceEl = audio.querySelector('source');
+            if (!sourceEl || !sourceEl.src) return;
+
+            audio.dataset.ahgWaveformApplied = '1';
+            var canvasDiv = document.createElement('div');
+            canvasDiv.className = 'ahg-waveform mb-2';
+            canvasDiv.style.cursor = 'pointer';
+            audio.parentNode.insertBefore(canvasDiv, audio);
+
+            try {
+              wsCreate(canvasDiv, audio, sourceEl);
+            } catch (e) {
+              // WaveSurfer init failed — pull the empty sibling back out so
+              // the page looks identical to the pre-#101 state.
+              if (canvasDiv.parentNode) canvasDiv.parentNode.removeChild(canvasDiv);
+              audio.dataset.ahgWaveformApplied = '0';
             }
           });
         };
