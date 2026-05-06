@@ -116,3 +116,10 @@ app/Console/Commands/AuthGcAttemptsCommand.php # #90 (login_attempt cleanup sche
 app/Console/Commands/AuthWarnPasswordExpiryCommand.php # #90 (password-expiry warn email) - closed in upcoming release
 app/Support/IiifSettings.php                              # #81 (IIIF settings 9-key reader) - closed in upcoming release
 packages/ahg-core/src/Controllers/IiifController.php      # #81 (IIIF settings JSON endpoint) - closed in upcoming release
+
+# Folder upload on the addDigitalObject page (per user request 2026-05-06).
+# Three files modified together for the new bulk_mirror_tree feature; lock
+# the trio so any drift goes through the unlock workflow.
+packages/ahg-information-object-manage/resources/views/add-digital-object.blade.php  # bulk upload UI: webkitdirectory + drag-drop folder + mirror-tree toggle
+packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php   # bulkUpload() handler
+packages/ahg-information-object-manage/routes/web.php                                # POST /{slug}/object/addDigitalObject/bulk route

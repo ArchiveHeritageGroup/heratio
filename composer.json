@@ -27,6 +27,7 @@
         "ahg/acl": "@dev",
         "ahg/actor-manage": "@dev",
         "ahg/ai-services": "@dev",
+        "ahg/annotations": "@dev",
         "ahg/api": "@dev",
         "ahg/api-plugin": "@dev",
         "ahg/audit-trail": "@dev",
