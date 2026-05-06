@@ -168,3 +168,10 @@ packages/ahg-annotations/   # #100 W3C Web Annotation REST API (Annotot-shaped) 
 tools/plyr-build/                   # #103 build source (npm install + copy)
 public/vendor/plyr/                 # #103 Plyr 3 dist (plyr.min.js + plyr.css + plyr.svg)
 public/vendor/videojs/              # #103 Video.js 8 dist (video.min.js + video-js.min.css)
+
+# #101 WaveSurfer.js media-show-waveform bundle. The build script + the
+# deployed dist work as a unit (master.blade.php loads the dist file
+# from public/vendor/wavesurfer/ when media_show_waveform=true). Lock
+# the source + output together.
+tools/wavesurfer-build/             # #101 build source (npm install + copy)
+public/vendor/wavesurfer/           # #101 WaveSurfer 7 dist (wavesurfer.min.js)

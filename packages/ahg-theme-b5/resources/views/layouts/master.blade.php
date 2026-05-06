@@ -101,14 +101,33 @@
          Video.js instance. If the vendor script fails to load (404,
          CSP block), window.Plyr / window.videojs stays undefined and
          the init falls back to native HTML5 — the existing controls /
-         autoplay / loop / volume attributes still apply. --}}
-    @php $__mediaPlayer = \App\Support\MediaSettings::playerType(); @endphp
+         autoplay / loop / volume attributes still apply.
+
+         Issue #101: when media_show_waveform is true, the WaveSurfer.js
+         bundle (built by tools/wavesurfer-build/) is loaded and a
+         separate init pass walks every .ahg-media-player wrapper (the
+         AHG custom audio UI in _digital-object-viewer.blade.php),
+         finds the hidden <audio> element + the placeholder progress
+         div (#{audioId}-progress), and replaces the placeholder fill
+         bar with a real WaveSurfer canvas. WaveSurfer is configured
+         with media: <existingAudio> so the existing custom buttons
+         (play/back/fwd/speed/volume) keep driving the same <audio> —
+         the waveform is purely a visual upgrade. If the vendor script
+         404s, window.WaveSurfer stays undefined and the init leaves
+         the original placeholder in place. --}}
+    @php
+        $__mediaPlayer   = \App\Support\MediaSettings::playerType();
+        $__mediaWaveform = \App\Support\MediaSettings::showWaveform();
+    @endphp
     @if($__mediaPlayer === 'plyr')
       <link href="{{ asset('vendor/plyr/plyr.css') }}" rel="stylesheet">
       <script defer src="{{ asset('vendor/plyr/plyr.min.js') }}"></script>
     @elseif($__mediaPlayer === 'videojs')
       <link href="{{ asset('vendor/videojs/video-js.min.css') }}" rel="stylesheet">
       <script defer src="{{ asset('vendor/videojs/video.min.js') }}"></script>
+    @endif
+    @if($__mediaWaveform)
+      <script defer src="{{ asset('vendor/wavesurfer/wavesurfer.min.js') }}"></script>
     @endif
     <script nonce="{{ $cspNonce }}">
       window.AHG_MEDIA = {!! json_encode(\App\Support\MediaSettings::payload(), JSON_UNESCAPED_SLASHES) !!};
@@ -180,10 +199,67 @@
             else el.addEventListener('loadedmetadata', function () { applyNative(el); }, { once: true });
           });
         };
+        // Issue #101: separate pass that decorates the AHG custom audio UI
+        // with a real WaveSurfer waveform when media_show_waveform=true.
+        // Runs independently of the player_type branches so it composes
+        // with player_type='basic'. The custom UI's hidden <audio> is
+        // bound via WaveSurfer's `media` option so the existing buttons
+        // (play/pause/back/fwd/speed/volume) keep driving playback.
+        var enhanceWaveform = function () {
+          if (!cfg.show_waveform) return;
+          if (typeof window.WaveSurfer === 'undefined' || !window.WaveSurfer || typeof window.WaveSurfer.create !== 'function') {
+            // Vendor script failed to load — leave the placeholder
+            // progress bar in place. The native custom-controls UX
+            // continues to work (it doesn't depend on WaveSurfer).
+            return;
+          }
+          document.querySelectorAll('.ahg-media-player').forEach(function (wrapper) {
+            if (wrapper.dataset.ahgWaveformApplied === '1') return;
+            var audio = wrapper.querySelector('audio');
+            if (!audio) return;
+            var progressDiv = wrapper.querySelector('[id$="-progress"]');
+            if (!progressDiv) return;
+            var sourceEl = audio.querySelector('source');
+            if (!sourceEl || !sourceEl.src) return;
+
+            wrapper.dataset.ahgWaveformApplied = '1';
+            var originalHTML = progressDiv.innerHTML;
+            progressDiv.innerHTML = '';
+            progressDiv.style.cursor = 'pointer';
+
+            try {
+              // WaveSurfer 7 needs `url` to fetch+decode the audio for the
+              // waveform; `media: audio` only binds playback to the
+              // existing <audio>. Pass both so the waveform draws AND
+              // the existing custom buttons keep driving the same audio
+              // element (instead of creating a second hidden one).
+              window.WaveSurfer.create({
+                container: progressDiv,
+                waveColor: 'rgba(255,255,255,0.30)',
+                progressColor: 'rgba(13,110,253,0.85)',
+                cursorColor: 'rgba(255,255,255,0.85)',
+                cursorWidth: 2,
+                height: 60,
+                barWidth: 2,
+                barGap: 1,
+                normalize: true,
+                media: audio,
+                url: sourceEl.src
+              });
+            } catch (e) {
+              // WaveSurfer construction or fetch failed (decode error,
+              // CORS, etc.). Restore the placeholder progress bar so
+              // the user-visible UX is the pre-#101 state.
+              progressDiv.innerHTML = originalHTML;
+              wrapper.dataset.ahgWaveformApplied = '0';
+            }
+          });
+        };
+        var run = function () { enhance(); enhanceWaveform(); };
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', enhance);
+          document.addEventListener('DOMContentLoaded', run);
         } else {
-          enhance();
+          run();
         }
       })();
     </script>

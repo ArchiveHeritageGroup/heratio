@@ -1,0 +1,12 @@
+{
+  "name": "heratio-wavesurfer-bundle",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Heratio WaveSurfer.js vendor bundle: copies the prebuilt UMD dist file into public/vendor/wavesurfer/. Powers the media_show_waveform toggle on /admin/ahgSettings/media (issue #101).",
+  "scripts": {
+    "deploy": "bash build.sh"
+  },
+  "dependencies": {
+    "wavesurfer.js": "^7.0.0"
+  }
+}
