@@ -88,6 +88,106 @@
       window.AHG_IIIF = {!! json_encode(\App\Support\IiifSettings::payload(), JSON_UNESCAPED_SLASHES) !!};
     </script>
 
+    {{-- Media Player settings (closes audit issue #85). Exposes
+         autoplay/loop/volume/controls/download from /admin/ahgSettings/media.
+         A small inline init applies media_default_volume to every
+         <audio>/<video> element once it has loaded enough metadata to
+         know its initial volume — server-side blade attributes can't
+         set volume since it's a JS property, not an HTML attribute.
+
+         Issue #103: when media_player_type is 'plyr' or 'videojs', the
+         matching vendor bundle (built by tools/plyr-build/) is loaded
+         and the inline init wraps every <audio>/<video> in a Plyr or
+         Video.js instance. If the vendor script fails to load (404,
+         CSP block), window.Plyr / window.videojs stays undefined and
+         the init falls back to native HTML5 — the existing controls /
+         autoplay / loop / volume attributes still apply. --}}
+    @php $__mediaPlayer = \App\Support\MediaSettings::playerType(); @endphp
+    @if($__mediaPlayer === 'plyr')
+      <link href="{{ asset('vendor/plyr/plyr.css') }}" rel="stylesheet">
+      <script defer src="{{ asset('vendor/plyr/plyr.min.js') }}"></script>
+    @elseif($__mediaPlayer === 'videojs')
+      <link href="{{ asset('vendor/videojs/video-js.min.css') }}" rel="stylesheet">
+      <script defer src="{{ asset('vendor/videojs/video.min.js') }}"></script>
+    @endif
+    <script nonce="{{ $cspNonce }}">
+      window.AHG_MEDIA = {!! json_encode(\App\Support\MediaSettings::payload(), JSON_UNESCAPED_SLASHES) !!};
+      (function () {
+        var cfg = window.AHG_MEDIA || {};
+        var vol = typeof cfg.default_volume === 'number' ? cfg.default_volume : 1.0;
+        var applyNative = function (el) {
+          if (!el || el.dataset.ahgMediaApplied === '1') return;
+          el.dataset.ahgMediaApplied = '1';
+          try { el.volume = vol; } catch (e) { /* iOS Safari blocks volume set; ignore */ }
+        };
+        var enhance = function () {
+          // Some IO show pages (audio path in _digital-object-viewer.blade.php)
+          // wrap a hidden <audio> in their own custom-controls UI inside a
+          // .ahg-media-player block. Skip those — wrapping with Plyr/Video.js
+          // would clobber the existing UI. data-no-ahg-media is the explicit
+          // opt-out for any future markup that wants to skip the enhancement.
+          var els = Array.prototype.filter.call(
+            document.querySelectorAll('audio, video'),
+            function (el) {
+              if (el.dataset.noAhgMedia === '1' || el.hasAttribute('data-no-ahg-media')) return false;
+              if (el.closest && el.closest('.ahg-media-player')) return false;
+              return true;
+            }
+          );
+          if (cfg.player_type === 'plyr' && typeof window.Plyr === 'function') {
+            els.forEach(function (el) {
+              if (el.dataset.ahgMediaApplied === '1') return;
+              el.dataset.ahgMediaApplied = '1';
+              try {
+                new window.Plyr(el, {
+                  iconUrl: '{{ asset('vendor/plyr/plyr.svg') }}',
+                  volume: vol,
+                  autoplay: !!cfg.autoplay,
+                  loop: { active: !!cfg.loop },
+                  controls: cfg.show_controls ? undefined
+                    : ['play-large']
+                });
+              } catch (e) {
+                /* Plyr init failed — fall back to native attributes already on el. */
+                try { el.volume = vol; } catch (_) {}
+              }
+            });
+            return;
+          }
+          if (cfg.player_type === 'videojs' && typeof window.videojs === 'function') {
+            els.forEach(function (el) {
+              if (el.dataset.ahgMediaApplied === '1') return;
+              el.dataset.ahgMediaApplied = '1';
+              try {
+                if (!el.classList.contains('video-js')) el.classList.add('video-js');
+                var p = window.videojs(el, {
+                  controls: !!cfg.show_controls,
+                  autoplay: !!cfg.autoplay,
+                  loop: !!cfg.loop,
+                  preload: 'metadata'
+                });
+                p.ready(function () { try { p.volume(vol); } catch (_) {} });
+              } catch (e) {
+                /* Video.js init failed — fall back to native attributes already on el. */
+                try { el.volume = vol; } catch (_) {}
+              }
+            });
+            return;
+          }
+          /* basic / unknown / vendor-script-unavailable: native HTML5 path. */
+          els.forEach(function (el) {
+            if (el.readyState >= 1) applyNative(el);
+            else el.addEventListener('loadedmetadata', function () { applyNative(el); }, { once: true });
+          });
+        };
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', enhance);
+        } else {
+          enhance();
+        }
+      })();
+    </script>
+
     {{-- Webpack bundles --}}
     @if($themeData['vendorJsBundle'] ?? null)
       <script defer src="{{ $themeData['vendorJsBundle'] }}"></script>

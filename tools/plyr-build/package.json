@@ -1,0 +1,13 @@
+{
+  "name": "heratio-media-players-bundle",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Heratio media-player vendor bundle: copies the prebuilt Plyr + Video.js dist files into public/vendor/{plyr,videojs}/. Used by media_player_type='plyr'|'videojs' on /admin/ahgSettings/media (issue #103).",
+  "scripts": {
+    "deploy": "bash build.sh"
+  },
+  "dependencies": {
+    "plyr": "^3.7.0",
+    "video.js": "^8.0.0"
+  }
+}

@@ -160,3 +160,11 @@ packages/ahg-ric/src/Services/RicEntityService.php                # #89 final pa
 # changes together. (mirador.min.js, ahg-iiif-viewer.js, tools/mirador-
 # build/ are already locked above by their own rules.)
 packages/ahg-annotations/   # #100 W3C Web Annotation REST API (Annotot-shaped) + ahg_iiif_annotation table
+
+# #103 Plyr / Video.js media-player bundles. The build script + deployed
+# vendor assets work as a unit (master.blade.php loads the dist files
+# from public/vendor/{plyr,videojs}/). Lock the build source + both
+# deployed bundles together so any drift goes through the unlock flow.
+tools/plyr-build/                   # #103 build source (npm install + copy)
+public/vendor/plyr/                 # #103 Plyr 3 dist (plyr.min.js + plyr.css + plyr.svg)
+public/vendor/videojs/              # #103 Video.js 8 dist (video.min.js + video-js.min.css)
