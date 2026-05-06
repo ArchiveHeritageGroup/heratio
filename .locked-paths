@@ -110,3 +110,7 @@ packages/ahg-portable-export/   # #88 (portable export 10-setting wire-up) - clo
 packages/ahg-core/resources/views/_action-icons.blade.php  # #88 (portable export description-button gate) - closed in upcoming release
 packages/ahg-core/resources/views/clipboard/index.blade.php # #88 (portable export clipboard-button gate) - closed in upcoming release
 packages/ahg-core/src/Services/SectorIdentifierService.php  # #89 (sector numbering shared service) - closed in upcoming release
+app/Auth/SecuritySettings.php                  # #90 (security settings 10-key reader) - closed in upcoming release
+app/Http/Middleware/SessionTimeout.php         # #90 (session lifetime override) - closed in upcoming release
+app/Console/Commands/AuthGcAttemptsCommand.php # #90 (login_attempt cleanup scheduled command) - closed in upcoming release
+app/Console/Commands/AuthWarnPasswordExpiryCommand.php # #90 (password-expiry warn email) - closed in upcoming release
