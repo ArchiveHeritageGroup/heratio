@@ -42,8 +42,14 @@ $thumbnailUsage = config('atom.term.THUMBNAIL_ID');
           'object_id' => $resource->object->id ?? $resource->objectId ?? 0,
       ]); @endphp
     @else
-      {{-- Native HTML5 player --}}
-      <video controls class="w-100" style="max-height:500px;" preload="metadata">
+      {{-- Native HTML5 player. Issue #85: controls / autoplay / loop
+           come from /admin/ahgSettings/media; media_default_volume is
+           applied JS-side by the master.blade.php window.AHG_MEDIA init. --}}
+      @php $__media = \App\Support\MediaSettings::payload(); @endphp
+      <video class="w-100" style="max-height:500px;" preload="metadata"
+        @if($__media['show_controls']) controls @endif
+        @if($__media['autoplay']) autoplay @endif
+        @if($__media['loop']) loop @endif>
         <source src="{{ asset($representation->getFullPath()) }}" type="{{ $resource->mimeType }}">
         Your browser does not support video playback.
       </video>
@@ -55,7 +61,10 @@ $thumbnailUsage = config('atom.term.THUMBNAIL_ID');
     </div>
   @endif
 
-  @if(isset($link) && \AhgCore\Services\AclService::check($resource->object ?? null, 'readMaster'))
+  {{-- Issue #85: media_show_download gates the download button alongside
+       the existing ACL check. If either is false, the button is hidden. --}}
+  @if(isset($link) && \AhgCore\Services\AclService::check($resource->object ?? null, 'readMaster')
+      && (\App\Support\MediaSettings::showDownload() || ($__media['show_download'] ?? false)))
     <div class="mt-2">
       <a href="{{ $link }}" class="btn btn-sm btn-outline-secondary">{{ __('Download video') }}</a>
     </div>

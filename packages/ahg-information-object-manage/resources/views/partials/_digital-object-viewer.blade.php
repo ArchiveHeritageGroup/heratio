@@ -724,7 +724,11 @@
           @endauth
         @endif
 
-        {{-- Transcription panel --}}
+        {{-- Transcription panel. Issue #102: gated by media_transcription_enabled
+             from /admin/ahgSettings/media. The panel + 'transcribe this' CTA both
+             disappear when the operator has the toggle off, even when a row
+             already exists in media_transcription. --}}
+        @if(\App\Support\MediaSettings::transcriptionEnabled())
         @if($transcription)
           @php
             $segments = json_decode($transcription->segments ?? '[]', true) ?: [];
@@ -793,6 +797,7 @@
           </div>
           @endauth
         @endif
+        @endif {{-- /media_transcription_enabled (#102) --}}
 
         {{-- Snippets --}}
         @if($snippets->isNotEmpty())

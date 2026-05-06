@@ -33,17 +33,40 @@
       </a>
       <div class="mt-1 text-muted small">{{ $master->name }}</div>
     @elseif($mediaType === 'audio')
-      <audio controls class="w-100">
+      {{-- Issue #85: media_show_controls / autoplay / loop / download
+           driven from /admin/ahgSettings/media. media_default_volume is
+           applied via the window.AHG_MEDIA init in master.blade.php. --}}
+      @php $__media = \App\Support\MediaSettings::payload(); @endphp
+      <audio class="w-100"
+        @if($__media['show_controls']) controls @endif
+        @if($__media['autoplay']) autoplay @endif
+        @if($__media['loop']) loop @endif>
         <source src="{{ \AhgCore\Services\DigitalObjectService::getUrl($master) }}" type="{{ $master->mime_type }}">
         Your browser does not support audio playback.
       </audio>
-      <div class="mt-1 text-muted small">{{ $master->name }}</div>
+      <div class="mt-1 text-muted small">
+        {{ $master->name }}
+        @if($__media['show_download'])
+          <a href="{{ \AhgCore\Services\DigitalObjectService::getUrl($master) }}" download
+             class="ms-2 small text-decoration-none"><i class="fas fa-download"></i> {{ __('Download') }}</a>
+        @endif
+      </div>
     @elseif($mediaType === 'video')
-      <video controls class="w-100" style="max-height: {{ $viewerHeight }}; background: {{ $bgColor }};">
+      @php $__media = \App\Support\MediaSettings::payload(); @endphp
+      <video class="w-100" style="max-height: {{ $viewerHeight }}; background: {{ $bgColor }};"
+        @if($__media['show_controls']) controls @endif
+        @if($__media['autoplay']) autoplay @endif
+        @if($__media['loop']) loop @endif>
         <source src="{{ \AhgCore\Services\DigitalObjectService::getUrl($master) }}" type="{{ $master->mime_type }}">
         Your browser does not support video playback.
       </video>
-      <div class="mt-1 text-muted small">{{ $master->name }}</div>
+      <div class="mt-1 text-muted small">
+        {{ $master->name }}
+        @if($__media['show_download'])
+          <a href="{{ \AhgCore\Services\DigitalObjectService::getUrl($master) }}" download
+             class="ms-2 small text-decoration-none"><i class="fas fa-download"></i> {{ __('Download') }}</a>
+        @endif
+      </div>
     @elseif($mediaType === 'text')
       <div class="card">
         <div class="card-body">
