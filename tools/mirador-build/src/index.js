@@ -29,13 +29,37 @@ class HeratioAnnotationAdapter {
     this.annotationPageId = `${window.location.origin}/api/annotations/page/${encodeURIComponent(canvasId)}`;
   }
 
+  /**
+   * Mirador-annotation-editor calls this on the adapter to attribute new
+   * annotations (creator name in the W3C JSON-LD body). Without this
+   * method MAE throws "t.getStorageAdapterUser is not a function" and
+   * the save aborts before our create() is even reached. The actual
+   * creator_id stored on ahg_iiif_annotation is sourced server-side
+   * from Auth::id() — this string is just for the embedded creator
+   * name when the annotation is rendered later.
+   */
+  getStorageAdapterUser() {
+    // Best-effort: read the logged-in user from a meta tag if present,
+    // fall back to a generic label. Heratio doesn't currently emit a
+    // user-name meta in the layout, so the fallback is what shows up
+    // most of the time. Updating the layout to emit <meta name="user-name">
+    // is the natural follow-up to surface the real name.
+    const meta = document.querySelector('meta[name="user-name"]');
+    return (meta && meta.getAttribute('content')) || 'Heratio User';
+  }
+
   async all() {
+    // Always return an AnnotationPage shape — MAE downstream expects to
+    // read .items.length even on empty/error states; null trips a
+    // "Cannot read properties of undefined (reading 'length')" deeper
+    // in the editor's saga.
+    const empty = { id: this.annotationPageId, type: 'AnnotationPage', items: [] };
     try {
       const r = await fetch(`/api/annotations/search?targetId=${encodeURIComponent(this.canvasId)}`, {
         credentials: 'same-origin',
         headers: { 'Accept': 'application/json' },
       });
-      if (!r.ok) return null;
+      if (!r.ok) return empty;
       const data = await r.json();
       return {
         id: this.annotationPageId,
@@ -44,7 +68,7 @@ class HeratioAnnotationAdapter {
       };
     } catch (e) {
       console.warn('[HeratioAnnotationAdapter] all() failed:', e);
-      return null;
+      return empty;
     }
   }
 
@@ -64,7 +88,14 @@ class HeratioAnnotationAdapter {
       body: JSON.stringify(body),
     });
     if (!r.ok) throw new Error('Annotation create failed: ' + r.status);
-    return await r.json();
+    // Return the FULL AnnotationPage (not just the newly-created
+    // annotation) — MAE's saveAnnotation saga passes the result into
+    // the canvas state-update handler `t(canvasId, pageId, r)`, and the
+    // canvas only re-renders annotation bodies when `r` is a complete
+    // AnnotationPage. Returning just the single annotation made the
+    // shape persist server-side but the body text wouldn't show until
+    // page reload triggered all() afresh.
+    return await this.all();
   }
 
   async update(annotation) {
@@ -77,7 +108,7 @@ class HeratioAnnotationAdapter {
       body: JSON.stringify(annotation),
     });
     if (!r.ok) throw new Error('Annotation update failed: ' + r.status);
-    return await r.json();
+    return await this.all();
   }
 
   async delete(annotationId) {
@@ -89,6 +120,7 @@ class HeratioAnnotationAdapter {
       headers: { 'Accept': 'application/json' },
     });
     if (!r.ok) throw new Error('Annotation delete failed: ' + r.status);
+    return await this.all();
   }
 
   _idFromUrl(id) {

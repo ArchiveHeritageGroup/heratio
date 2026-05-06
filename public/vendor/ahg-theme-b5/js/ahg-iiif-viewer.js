@@ -263,7 +263,16 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                     id: 'mirador-' + vid,
                     windows: [{
                         manifestId: manifestUrl,
-                        sideBarPanel: cfg.enable_annotations === true ? 'annotations' : 'info'
+                        sideBarPanel: cfg.enable_annotations === true ? 'annotations' : 'info',
+                        // highlightAllAnnotations keeps drawn shapes
+                        // permanently visible on the canvas; without it
+                        // Mirador's stock overlay only renders shapes on
+                        // mouseover. Only flip on when annotations are
+                        // enabled — leaving it off when the panel isn't
+                        // open avoids painting over images that have
+                        // pre-existing IIIF manifest annotations the
+                        // operator hasn't opted into surfacing.
+                        highlightAllAnnotations: cfg.enable_annotations === true
                     }],
                     window: {
                         allowClose: false,
@@ -272,7 +281,8 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                         allowTopMenuButton: false,
                         allowWindowSideBar: true,
                         sideBarOpenByDefault: cfg.enable_annotations === true,
-                        sideBarOpen: cfg.enable_annotations === true
+                        sideBarOpen: cfg.enable_annotations === true,
+                        highlightAllAnnotations: cfg.enable_annotations === true
                     },
                     workspaceControlPanel: { enabled: false },
                     workspace: { type: 'mosaic', allowNewWindows: false }

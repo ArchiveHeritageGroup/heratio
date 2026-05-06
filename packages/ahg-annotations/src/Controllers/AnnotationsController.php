@@ -74,7 +74,7 @@ class AnnotationsController extends Controller
         $resources = $rows->map(function ($row) {
             $body = json_decode($row->body_json, true) ?: [];
             $body['id'] = url('/api/annotations/' . $row->uuid);
-            return $body;
+            return $this->expandSelector($body);
         })->all();
 
         return response()->json(['resources' => $resources]);
@@ -89,7 +89,59 @@ class AnnotationsController extends Controller
 
         $body = json_decode($row->body_json, true) ?: [];
         $body['id'] = url('/api/annotations/' . $uuid);
-        return response()->json($body);
+        return response()->json($this->expandSelector($body));
+    }
+
+    /**
+     * Bridge MAE's save format with Mirador's stock canvas-overlay reader.
+     *
+     * mirador-annotation-editor stores the drawn SVG inside
+     * `maeData.target.svg` and writes the W3C `target` field as a bare
+     * string (the canvas IRI). Mirador's stock canvas annotation overlay,
+     * which is what actually paints SVG shapes onto the OpenSeadragon
+     * canvas, reads `target.selector.value` for SvgSelector content. With
+     * MAE's format alone, the overlay finds no selector and nothing
+     * renders — even though the drawing was saved correctly.
+     *
+     * On read, we expand the shape: when maeData.target.svg is present
+     * and target is still a bare string, we promote target to an object
+     * with a SvgSelector populated from maeData. MAE's own readers still
+     * find maeData unchanged, so editing continues to work.
+     */
+    private function expandSelector(array $body): array
+    {
+        $svg = $body['maeData']['target']['svg'] ?? null;
+        if (!$svg) return $body;
+
+        $targetSource = is_string($body['target'] ?? null)
+            ? $body['target']
+            : ($body['target']['source'] ?? $body['target']['id'] ?? null);
+        if (!$targetSource) return $body;
+
+        // Preserve any existing selector entries (e.g. FragmentSelector
+        // from older saves) and append our SvgSelector.
+        $existing = (is_array($body['target'] ?? null) && isset($body['target']['selector']))
+            ? $body['target']['selector']
+            : [];
+        $existingArr = is_array($existing) && array_is_list($existing) ? $existing : ($existing ? [$existing] : []);
+
+        $hasSvg = false;
+        foreach ($existingArr as $sel) {
+            if (is_array($sel) && ($sel['type'] ?? null) === 'SvgSelector' && !empty($sel['value'])) {
+                $hasSvg = true;
+                break;
+            }
+        }
+        if (!$hasSvg) {
+            $existingArr[] = ['type' => 'SvgSelector', 'value' => $svg];
+        }
+
+        $body['target'] = [
+            'source'   => $targetSource,
+            'selector' => count($existingArr) === 1 ? $existingArr[0] : $existingArr,
+        ];
+
+        return $body;
     }
 
     public function store(Request $request): JsonResponse
