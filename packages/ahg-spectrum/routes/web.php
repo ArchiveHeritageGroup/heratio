@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use AhgSpectrum\Middleware\EnsureSpectrumEnabled;
 
-Route::prefix('admin/spectrum')->middleware(['web', 'auth'])->group(function () {
+Route::prefix('admin/spectrum')->middleware(['web', 'auth', EnsureSpectrumEnabled::class])->group(function () {
     Route::get('/condition-admin', [\AhgSpectrum\Controllers\SpectrumController::class, 'conditionAdmin'])->name('ahgspectrum.condition-admin');
     Route::get('/condition-photos', [\AhgSpectrum\Controllers\SpectrumController::class, 'conditionPhotos'])->name('ahgspectrum.condition-photos');
     Route::get('/condition-risk', [\AhgSpectrum\Controllers\SpectrumController::class, 'conditionRisk'])->name('ahgspectrum.condition-risk');
@@ -47,7 +48,7 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth'])->group(function () 
     Route::get('/reports/movements', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportMovements'])->name('ahgspectrum.report-movements');
     Route::get('/reports/conditions', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportConditions'])->name('ahgspectrum.report-conditions');
     Route::get('/reports/conservation', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportConservation'])->name('ahgspectrum.report-conservation');
-    Route::get('/reports/valuations', [\AhgSpectrum\Controllers\SpectrumController::class, 'reportValuations'])->name('ahgspectrum.report-valuations');
+    Route::get('/reports/valuations', [\AhgSpectrum\Controllers\SpectrumController::class, 'report-valuations');
 
     // Condition photo annotations
     Route::post('/save-annotations', [\AhgSpectrum\Controllers\SpectrumController::class, 'saveAnnotations'])->name('spectrum.saveAnnotations');
