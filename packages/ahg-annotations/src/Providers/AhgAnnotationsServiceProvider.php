@@ -48,8 +48,17 @@ class AhgAnnotationsServiceProvider extends ServiceProvider
     {
         Route::middleware('web')->group(__DIR__ . '/../../routes/web.php');
 
-        if (!Schema::hasTable('ahg_iiif_annotation')) {
-            $this->installSchema();
+        // Guard the hasTable() call itself — composer's post-autoload-dump
+        // runs `php artisan package:discover` in CI before any DB is wired,
+        // and Laravel's default sqlite fallback throws when the file is
+        // absent. Skip silently in that case; install retries on next boot
+        // once a real DB is reachable.
+        try {
+            if (!Schema::hasTable('ahg_iiif_annotation')) {
+                $this->installSchema();
+            }
+        } catch (\Throwable $e) {
+            // No DB connection — nothing to install yet.
         }
     }
 

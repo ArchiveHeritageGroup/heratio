@@ -50,6 +50,11 @@ class VoiceController extends Controller
 {
     public function getSettings(Request $request)
     {
+        // Issue #99: expose all 16 keys from /admin/ahgSettings/voice_ai (was 8 — the
+        // remaining 6 LLM-routing / cloud-limit / timeout / audit keys plus the 2
+        // already-consumed keys are surfaced too so a future JS-side consumer can
+        // read provider/model/limit without an extra fetch). voice_anthropic_api_key
+        // is intentionally NOT echoed — it's a credential, not a UI flag.
         $defaults = [
             'voice_enabled'              => 'true',
             'voice_language'             => 'en-US',
@@ -59,6 +64,14 @@ class VoiceController extends Controller
             'voice_show_floating_btn'    => 'true',
             'voice_hover_read_enabled'   => 'false',
             'voice_hover_read_delay'     => '400',
+            // #99 keys
+            'voice_llm_provider'         => 'local',
+            'voice_local_llm_url'        => 'http://localhost:11434',
+            'voice_local_llm_model'      => 'llava:7b',
+            'voice_local_llm_timeout'    => '30',
+            'voice_cloud_model'          => 'claude-sonnet-4-20250514',
+            'voice_daily_cloud_limit'    => '50',
+            'voice_audit_ai_calls'       => 'false',
         ];
 
         $settings = $defaults;
@@ -68,6 +81,7 @@ class VoiceController extends Controller
                 ->pluck('setting_value', 'setting_key')
                 ->toArray();
             foreach ($rows as $key => $value) {
+                if ($key === 'voice_anthropic_api_key') continue; // never expose creds
                 $settings[$key] = (string) $value;
             }
         }

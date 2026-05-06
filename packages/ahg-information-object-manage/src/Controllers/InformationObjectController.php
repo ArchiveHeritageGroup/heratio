@@ -1197,39 +1197,34 @@ class InformationObjectController extends Controller
         }
 
         if ($refImage) {
-            // Vision model (llava) — describe the actual image
-            $ollamaUrl = DB::table('ahg_settings')
-                ->where('setting_key', 'voice_local_llm_url')
-                ->value('setting_value') ?: 'http://192.168.0.78:11434';
-            $model = 'llava:7b';
-
+            // Issue #99: route through VoiceLLMService so /admin/ahgSettings/voice_ai
+            // controls (provider local/cloud/hybrid, timeout, daily cloud limit,
+            // audit toggle, anthropic key + cloud model) all take effect on the
+            // describe-image flow. The previous inline Http::post() honoured only
+            // voice_local_llm_url + a hardcoded llava:7b model.
             $imageBase64 = base64_encode(file_get_contents($refImage));
+            $mimeType = function_exists('mime_content_type') ? (mime_content_type($refImage) ?: 'image/jpeg') : 'image/jpeg';
             $prompt = "You are an archival description specialist. Describe this image in detail for an archival record titled \"{$title}\". "
                 . "Write a professional scope and content note (3-5 sentences) following ISAD(G) standards. "
                 . "Describe what you see: the subject, composition, condition, any text visible, and historical context if apparent.";
 
-            try {
-                $response = \Illuminate\Support\Facades\Http::timeout(60)->post($ollamaUrl . '/api/generate', [
-                    'model' => $model,
-                    'prompt' => $prompt,
-                    'images' => [$imageBase64],
-                    'stream' => false,
-                    'options' => ['temperature' => 0.3],
+            $llmResult = (new \AhgCore\Services\VoiceLLMService())->chat($prompt, $imageBase64, [
+                'temperature' => 0.3,
+                'media_type'  => $mimeType,
+                'max_tokens'  => 1024,
+            ]);
+            if ($llmResult['ok']) {
+                return response()->json([
+                    'success'            => true,
+                    'description'        => (string) $llmResult['text'],
+                    'method'             => 'vision',
+                    'model'              => $llmResult['model'],
+                    'provider'           => $llmResult['provider'],
+                    'processing_time_ms' => round((microtime(true) - $startTime) * 1000),
                 ]);
-
-                if ($response->successful()) {
-                    $text = $response->json()['response'] ?? '';
-                    return response()->json([
-                        'success' => true,
-                        'description' => $text,
-                        'method' => 'vision',
-                        'model' => $model,
-                        'processing_time_ms' => round((microtime(true) - $startTime) * 1000),
-                    ]);
-                }
-            } catch (\Exception $e) {
-                // Fall through to text LLM
             }
+            // VoiceLLMService failure (Ollama unreachable, daily limit hit,
+            // bad cloud key, etc.) — fall through to text LLM fallback below.
         }
 
         // Text LLM fallback — describe from title and metadata
