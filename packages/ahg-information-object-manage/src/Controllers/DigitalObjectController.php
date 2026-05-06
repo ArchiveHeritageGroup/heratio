@@ -217,6 +217,163 @@ class DigitalObjectController extends Controller
     }
 
     /**
+     * Bulk folder upload (closes #folder-upload-on-iio-page user request).
+     *
+     * Accepts a multipart payload with digital_objects[] (the files) and
+     * parallel relative_paths[] (each file's webkitRelativePath). When
+     * bulk_mirror_tree=1 (default) the folder hierarchy is mirrored as a
+     * child-IO tree under $slug: every intermediate directory becomes a
+     * folder-level IO, every file becomes an item-level child IO with a
+     * master digital_object attached via the existing DigitalObjectService.
+     * When bulk_mirror_tree=0 every file is created as a flat sibling under
+     * $slug regardless of its source path.
+     *
+     * Files that come without a relative_paths[] entry (legacy multi-file
+     * picker) are treated as flat-mode siblings.
+     *
+     * Existing fires-on-upload wire-ups (metadata-extraction from #86,
+     * audit-trail captureMutation per upload) run unchanged because we
+     * route every per-file write through DigitalObjectService::upload.
+     */
+    public function bulkUpload(Request $request, string $slug)
+    {
+        $request->validate([
+            'digital_objects'   => 'required|array|min:1',
+            'digital_objects.*' => 'file|max:524288', // 512 MB per file
+            'relative_paths'    => 'array',
+            'relative_paths.*'  => 'string|max:2048',
+            'bulk_mirror_tree'  => 'nullable|in:0,1',
+        ]);
+
+        $io = $this->getIO($slug);
+        if (!$io) {
+            abort(404);
+        }
+
+        $mirrorTree = (int) $request->input('bulk_mirror_tree', '1') === 1;
+        $files = $request->file('digital_objects', []);
+        $relPaths = (array) $request->input('relative_paths', []);
+        $culture = app()->getLocale();
+
+        // Folder-level term id for level_of_description: cache the lookup so
+        // we don't query it per row. 'folder' is the AtoM convention; falls
+        // back to 'item' parent (i.e. the leaf default) when the term row
+        // doesn't exist on this install.
+        $folderLodId = (int) DB::table('term as t')
+            ->join('term_i18n as ti', 'ti.id', '=', 't.id')
+            ->where('t.taxonomy_id', 34) // levels of description
+            ->whereRaw('LOWER(ti.name) = ?', ['folder'])
+            ->where('ti.culture', 'en')
+            ->value('t.id');
+        $itemLodId = (int) DB::table('term as t')
+            ->join('term_i18n as ti', 'ti.id', '=', 't.id')
+            ->where('t.taxonomy_id', 34)
+            ->whereRaw('LOWER(ti.name) = ?', ['item'])
+            ->where('ti.culture', 'en')
+            ->value('t.id');
+
+        // Cache for already-created folder IOs keyed by their full
+        // path-from-root so repeated lookups during this bulk upload don't
+        // create duplicate folder IOs.
+        $folderIoIdByPath = [];
+        $perFile = [];
+        $errors  = [];
+
+        foreach ($files as $i => $upload) {
+            if (!$upload || !$upload->isValid()) {
+                $errors[] = ['index' => $i, 'reason' => 'upload invalid: ' . ($upload ? $upload->getErrorMessage() : 'no file')];
+                continue;
+            }
+
+            $relPath = (string) ($relPaths[$i] ?? $upload->getClientOriginalName());
+            $relPath = ltrim(str_replace('\\', '/', $relPath), '/');
+            if ($relPath === '') {
+                $relPath = $upload->getClientOriginalName();
+            }
+
+            $segments = explode('/', $relPath);
+            $fileName = array_pop($segments); // leaf basename
+            $folderSegments = $mirrorTree ? array_filter($segments, fn ($s) => $s !== '' && $s !== '.') : [];
+
+            try {
+                // Walk-or-create the folder chain under $io. Cache by
+                // accumulated path so we don't double-create on consecutive
+                // files in the same folder.
+                $parentId = (int) $io->id;
+                $accumPath = '';
+                foreach ($folderSegments as $segment) {
+                    $accumPath = $accumPath === '' ? $segment : ($accumPath . '/' . $segment);
+                    if (isset($folderIoIdByPath[$accumPath])) {
+                        $parentId = $folderIoIdByPath[$accumPath];
+                        continue;
+                    }
+                    $folderIoId = \AhgInformationObjectManage\Services\InformationObjectService::create([
+                        'title'                   => $segment,
+                        'parent_id'               => $parentId,
+                        'level_of_description_id' => $folderLodId ?: null,
+                        'source_standard'         => $io->source_standard ?? null,
+                    ], $culture);
+                    $folderIoIdByPath[$accumPath] = $folderIoId;
+                    $parentId = $folderIoId;
+                }
+
+                // Create the leaf item IO and attach the file as its master DO.
+                $leafTitle = pathinfo($fileName, PATHINFO_FILENAME) ?: $fileName;
+                $leafIoId = \AhgInformationObjectManage\Services\InformationObjectService::create([
+                    'title'                   => $leafTitle,
+                    'parent_id'               => $parentId,
+                    'level_of_description_id' => $itemLodId ?: null,
+                    'source_standard'         => $io->source_standard ?? null,
+                ], $culture);
+
+                $doId = DigitalObjectService::upload($leafIoId, $upload);
+                // upload() returns null on duplicate-master refusal; here we
+                // just inserted the IO so duplicate is impossible, but keep
+                // the field for the audit row.
+                $perFile[] = [
+                    'rel_path'    => $relPath,
+                    'child_io_id' => $leafIoId,
+                    'do_id'       => is_int($doId) ? $doId : null,
+                    'filename'    => $fileName,
+                    'size'        => $upload->getSize(),
+                ];
+            } catch (\Throwable $e) {
+                $errors[] = [
+                    'index'    => $i,
+                    'rel_path' => $relPath,
+                    'reason'   => $e->getMessage(),
+                ];
+                \Log::warning('bulkUpload failed for file: ' . $e->getMessage(), [
+                    'io_id' => $io->id, 'rel_path' => $relPath, 'trace' => $e->getFile() . ':' . $e->getLine(),
+                ]);
+            }
+        }
+
+        \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'digital_object_bulk_upload', [
+            'data' => [
+                'mirror_tree'   => $mirrorTree,
+                'files_total'   => count($files),
+                'files_ok'      => count($perFile),
+                'files_failed'  => count($errors),
+                'folders_made'  => count($folderIoIdByPath),
+                'files'         => array_slice($perFile, 0, 50),
+                'errors'        => array_slice($errors, 0, 20),
+            ],
+        ]);
+
+        $msg = sprintf(
+            'Uploaded %d file(s) into %d child description(s).',
+            count($perFile),
+            count($perFile) + count($folderIoIdByPath)
+        );
+        $flash = ['success' => $msg];
+        if (!empty($errors)) {
+            $flash = ['warning' => $msg . ' ' . count($errors) . ' file(s) failed - see audit log for details.'];
+        }
+        return redirect()->route('informationobject.show', $slug)->with($flash);
+    }
+
+    /**
      * Delete a digital object and its derivatives.
      *
      * @param Request $request

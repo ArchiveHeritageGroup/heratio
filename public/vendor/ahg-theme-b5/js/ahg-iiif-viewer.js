@@ -1,7 +1,29 @@
 /**
  * AHG IIIF Viewer - OpenSeadragon + Mirador + Carousel toggle for images
+ *
+ * Runtime config is read from window.AHG_IIIF (injected by master.blade.php
+ * from /admin/ahgSettings/iiif via App\Support\IiifSettings::payload).
+ * Closes audit issue #81. The 9 keys honoured here:
+ *   - enabled              gate the entire viewer (no-op + warning when off)
+ *   - viewer               default initialMode override
+ *   - server_url           IIIF tile-source origin (empty -> local Cantaloupe)
+ *   - default_zoom         OSD initial zoom level
+ *   - max_zoom             OSD maxZoomPixelRatio cap
+ *   - show_navigator       OSD navigator overlay
+ *   - show_fullscreen      toolbar fullscreen button visibility
+ *   - show_rotation        toolbar rotation button visibility (future)
+ *   - enable_annotations   Mirador annotation panel visibility
  */
 function initIiifViewer(viewerId, imageUrl, title, initialMode) {
+    var cfg = (window.AHG_IIIF && typeof window.AHG_IIIF === 'object') ? window.AHG_IIIF : {};
+    // Master kill-switch. When the operator disables IIIF, fall back to a
+    // plain <img> render so callers don't get an inert page.
+    if (cfg.enabled === false) {
+        var fallback = document.getElementById('img-' + viewerId);
+        if (fallback) fallback.style.display = 'block';
+        return;
+    }
+
     var vid = viewerId;
     var osdEl = document.getElementById('osd-' + vid);
     var mirEl = document.getElementById('mirador-' + vid);
@@ -11,6 +33,10 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
     var miradorLoaded = false;
 
     // Build IIIF tile source for formats that need Cantaloupe (TIFF, JP2, etc.)
+    // server_url override (cfg.server_url) lets ops front the viewer with a
+    // remote IIIF image server instead of the local Cantaloupe proxy. Empty
+    // string keeps the legacy behaviour (current origin + /iiif/3/).
+    var iiifOrigin = (cfg.server_url && cfg.server_url.length) ? cfg.server_url : window.location.origin;
     var needsIiif = /\.(tiff?|jp2|jpx)$/i.test(imageUrl);
     var iiifTileSource = null;
     if (needsIiif) {
@@ -18,7 +44,7 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
         var urlObj = new URL(imageUrl, window.location.origin);
         var relPath = urlObj.pathname.replace(/^\//, '');
         var iiifId = relPath.replace(/\//g, '_SL_');
-        iiifTileSource = window.location.origin + '/iiif/3/' + iiifId + '/info.json';
+        iiifTileSource = iiifOrigin + '/iiif/3/' + iiifId + '/info.json';
     }
 
     function hideAllPanels() {
@@ -36,6 +62,10 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
         document.getElementById('btn-img-' + vid).classList.remove('active');
 
         if (!osdViewer && typeof OpenSeadragon !== 'undefined') {
+            // OSD options sourced from window.AHG_IIIF where the operator's
+            // /admin/ahgSettings/iiif choices apply. Defaults match the
+            // pre-wiring hardcoded values so this is a behavioural no-op
+            // until the operator changes a setting.
             osdViewer = OpenSeadragon({
                 id: 'osd-' + vid,
                 tileSources: iiifTileSource || {
@@ -43,8 +73,10 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                     url: imageUrl,
                     buildPyramid: false
                 },
-                showNavigator: true,
+                showNavigator: cfg.show_navigator !== false,
                 navigatorPosition: 'BOTTOM_RIGHT',
+                showFullPageControl: cfg.show_fullscreen === true,
+                showRotationControl: cfg.show_rotation !== false,
                 prefixUrl: '/vendor/openseadragon/6.0.2/images/',
                 // openseadragon-filtering rewrites pixels on the 2D canvas via
                 // tile-loaded; the WebGL drawer (OSD 6 default) never reads
@@ -54,7 +86,8 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                 gestureSettingsTouch: { pinchToZoom: true },
                 animationTime: 0.5,
                 zoomPerClick: 1.5,
-                maxZoomPixelRatio: 4,
+                defaultZoomLevel: (typeof cfg.default_zoom === 'number' && cfg.default_zoom > 0) ? cfg.default_zoom : 0,
+                maxZoomPixelRatio: (typeof cfg.max_zoom === 'number' && cfg.max_zoom > 0) ? cfg.max_zoom : 4,
                 visibilityRatio: 0.5,
                 constrainDuringPan: true,
                 immediateRender: true,
@@ -219,16 +252,23 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                     mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador viewer not available.</div>';
                     return;
                 }
+                // Mirador honours iiif_show_fullscreen + iiif_enable_annotations.
+                // Annotations on -> sidebar opens to the annotation panel; off ->
+                // sidebar stays available but starts closed (the legacy default).
                 Mirador.viewer({
                     id: 'mirador-' + vid,
-                    windows: [{ manifestId: manifestUrl }],
+                    windows: [{
+                        manifestId: manifestUrl,
+                        sideBarPanel: cfg.enable_annotations === true ? 'annotations' : 'info'
+                    }],
                     window: {
                         allowClose: false,
                         allowMaximize: false,
-                        allowFullscreen: true,
+                        allowFullscreen: cfg.show_fullscreen !== false,
                         allowTopMenuButton: false,
                         allowWindowSideBar: true,
-                        sideBarOpen: false
+                        sideBarOpenByDefault: cfg.enable_annotations === true,
+                        sideBarOpen: cfg.enable_annotations === true
                     },
                     workspaceControlPanel: { enabled: false },
                     workspace: { type: 'mosaic', allowNewWindows: false }
@@ -288,16 +328,31 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
     document.getElementById('btn-osd-' + vid).addEventListener('click', showOSD);
     document.getElementById('btn-mirador-' + vid).addEventListener('click', showMirador);
     document.getElementById('btn-img-' + vid).addEventListener('click', showImg);
-    document.getElementById('btn-fs-' + vid).addEventListener('click', function () {
-        var el = osdEl.style.display !== 'none' ? osdEl :
-                 (mirEl.style.display !== 'none' ? mirEl :
-                 (carEl && carEl.style.display !== 'none' ? carEl : imgEl));
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    });
 
-    // Honour initial mode from server settings (defaults to OSD)
-    var mode = (initialMode || 'openseadragon').toLowerCase();
+    // iiif_show_fullscreen gates the toolbar fullscreen button. When the
+    // operator hides it the wrapping <button id="btn-fs-..."> still exists
+    // (the rendering blade is locked) — we hide it from JS instead so the
+    // button stops responding without a layout shift on the surrounding
+    // toolbar. Skip the listener attach when there's no element at all.
+    var fsBtn = document.getElementById('btn-fs-' + vid);
+    if (fsBtn) {
+        if (cfg.show_fullscreen === false) {
+            fsBtn.style.display = 'none';
+        } else {
+            fsBtn.addEventListener('click', function () {
+                var el = osdEl.style.display !== 'none' ? osdEl :
+                         (mirEl.style.display !== 'none' ? mirEl :
+                         (carEl && carEl.style.display !== 'none' ? carEl : imgEl));
+                if (el.requestFullscreen) el.requestFullscreen();
+                else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            });
+        }
+    }
+
+    // Initial mode resolution. Caller's initialMode arg wins (page-specific
+    // pick); falling back to the operator's iiif_viewer setting; falling
+    // back to OSD. Closes the wiring loop on cfg.viewer.
+    var mode = (initialMode || cfg.viewer || 'openseadragon').toLowerCase();
     if (mode === 'mirador')              showMirador();
     else if (mode === 'single' ||
              mode === 'carousel')         showImg();

@@ -114,3 +114,5 @@ app/Auth/SecuritySettings.php                  # #90 (security settings 10-key r
 app/Http/Middleware/SessionTimeout.php         # #90 (session lifetime override) - closed in upcoming release
 app/Console/Commands/AuthGcAttemptsCommand.php # #90 (login_attempt cleanup scheduled command) - closed in upcoming release
 app/Console/Commands/AuthWarnPasswordExpiryCommand.php # #90 (password-expiry warn email) - closed in upcoming release
+app/Support/IiifSettings.php                              # #81 (IIIF settings 9-key reader) - closed in upcoming release
+packages/ahg-core/src/Controllers/IiifController.php      # #81 (IIIF settings JSON endpoint) - closed in upcoming release

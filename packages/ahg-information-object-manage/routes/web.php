@@ -182,6 +182,12 @@ Route::middleware('auth')->group(function () {
     // Digital Object upload/delete
     Route::post('/informationobject/{slug}/upload', [DigitalObjectController::class, 'upload'])->name('io.digitalobject.upload')->middleware('acl:create');
     Route::match(['get', 'post'], '/informationobject/{slug}/multiFileUpload', [DigitalObjectController::class, 'multiFileUpload'])->name('io.multiFileUpload');
+    // Bulk folder upload — accepts digital_objects[] + relative_paths[] and
+    // mirrors the folder structure as child IOs each with their own master DO.
+    Route::post('/{slug}/object/addDigitalObject/bulk', [DigitalObjectController::class, 'bulkUpload'])
+        ->name('io.digitalobject.bulk-upload')
+        ->middleware('acl:create')
+        ->where('slug', '[a-z0-9][a-z0-9-]*');
     Route::delete('/digitalobject/{id}', [DigitalObjectController::class, 'delete'])->name('io.digitalobject.delete')->middleware('acl:delete')->where('id', '[0-9]+');
     // Per-representation delete — removes only the chosen reference/thumbnail
     // row without cascading to the master (matches PSIS's behaviour).

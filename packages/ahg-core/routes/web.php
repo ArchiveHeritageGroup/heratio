@@ -1,6 +1,7 @@
 <?php
 
 use AhgCore\Controllers\ClipboardController;
+use AhgCore\Controllers\IiifController;
 use AhgCore\Controllers\TtsController;
 use AhgCore\Controllers\VoiceController;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,16 @@ Route::get('/index.php/tts/pdfText', [TtsController::class, 'pdfText'])->name('t
 // Path matches the legacy AtoM URL hard-coded into the bundled JS.
 Route::get('/index.php/ahgVoice/getSettings', [VoiceController::class, 'getSettings'])->name('voice.settings');
 Route::get('/ahgVoice/getSettings', [VoiceController::class, 'getSettings'])->name('voice.settings.modern');
+
+// IIIF viewer settings endpoint (closes audit issue #81). The master
+// layout injects window.AHG_IIIF synchronously so the viewer init can
+// read it without a fetch; this endpoint exists for any future
+// fetch-based consumer (SPA shells, harvesters, etc.).
+//
+// Path is /api/iiif-settings rather than /iiif/settings because nginx
+// routes the entire /iiif/ prefix to the Cantaloupe image server (see
+// /etc/nginx ^~ /iiif/ block) — colliding here would 404 from Java.
+Route::get('/api/iiif-settings', [IiifController::class, 'getSettings'])->name('iiif.settings');
 
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {

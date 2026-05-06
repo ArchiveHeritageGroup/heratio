@@ -78,6 +78,16 @@
     })();
     </script>
 
+    {{-- IIIF viewer settings (closes audit issue #81). Exposes the 9 keys
+         from /admin/ahgSettings/iiif as window.AHG_IIIF so the bundled
+         ahg-iiif-viewer.js (and any future consumer) can apply them at
+         viewer construction without an extra round-trip. Values are
+         JSON-encoded server-side so booleans + numerics survive the
+         boundary intact. Mirrors the voice/tts settings injection. --}}
+    <script nonce="{{ $cspNonce }}">
+      window.AHG_IIIF = {!! json_encode(\App\Support\IiifSettings::payload(), JSON_UNESCAPED_SLASHES) !!};
+    </script>
+
     {{-- Webpack bundles --}}
     @if($themeData['vendorJsBundle'] ?? null)
       <script defer src="{{ $themeData['vendorJsBundle'] }}"></script>
