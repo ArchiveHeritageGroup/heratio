@@ -83,17 +83,23 @@ class OaiPmhController extends Controller
     private const PAGE_SIZE = 100;
 
     /**
-     * Read a setting from ahg_settings (group=oai by convention) with a
-     * fallback default. Cached per-request via a static lookup table so we
-     * don't hit the DB on every XML element render.
+     * Read a setting from the i18n `setting` table (scope='oai', the same
+     * shape SettingsService::getOaiSettings + setSetting use) with a fallback
+     * default. Cached per-request via a static lookup table so we don't hit
+     * the DB on every XML element render. The 7 keys this honours are the
+     * audit's: oai_authentication_enabled, oai_repository_code,
+     * oai_repository_identifier, oai_admin_emails, sample_oai_identifier,
+     * resumption_token_limit, oai_additional_sets_enabled.
      */
     private function setting(string $key, $default = null)
     {
         static $cache = null;
         if ($cache === null) {
-            $cache = DB::table('ahg_settings')
-                ->where('setting_group', 'oai')
-                ->pluck('setting_value', 'setting_key')
+            $cache = DB::table('setting as s')
+                ->join('setting_i18n as si', 'si.id', '=', 's.id')
+                ->where('s.scope', 'oai')
+                ->where('si.culture', 'en')
+                ->pluck('si.value', 's.name')
                 ->all();
         }
         $v = $cache[$key] ?? null;
@@ -166,6 +172,46 @@ class OaiPmhController extends Controller
      */
     public function handle(Request $request): Response
     {
+        // Optional API-key gate. When ahg_settings.oai_authentication_enabled
+        // is '1', refuse harvest attempts that don't carry an oai-scope API
+        // key. Honours the same X-API-Key / Authorization: Bearer / api=
+        // shapes the rest of the public API uses (ahg-api package). Default
+        // off so anonymous OAI harvesting keeps working out of the box.
+        if ((string) $this->setting('oai_authentication_enabled', '0') === '1') {
+            $key = $request->header('X-API-Key')
+                ?: ($request->bearerToken() ?: $request->query('api'));
+            $valid = false;
+            if ($key && \Illuminate\Support\Facades\Schema::hasTable('ahg_api_key')) {
+                // ahg_api_key shape (per the central API key store): api_key
+                // (the secret), scopes (JSON array of strings), is_active,
+                // expires_at. A key counts as valid for OAI when active,
+                // not yet expired, and either has no scopes restriction
+                // (NULL or empty array, treat as wildcard) or contains
+                // 'oai' / '*' in scopes.
+                $row = DB::table('ahg_api_key')
+                    ->where('api_key', $key)
+                    ->where('is_active', 1)
+                    ->where(function ($q) {
+                        $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+                    })
+                    ->select('scopes')
+                    ->first();
+                if ($row) {
+                    $scopes = json_decode((string) ($row->scopes ?? '[]'), true);
+                    if (!is_array($scopes) || empty($scopes)) {
+                        $valid = true; // unrestricted key
+                    } else {
+                        $valid = in_array('oai', $scopes, true) || in_array('*', $scopes, true);
+                    }
+                }
+            }
+            if (!$valid) {
+                // OAI-PMH has no native auth verb; surface as an HTTP 401
+                // with a short text body so harvesters fail fast.
+                return new Response('OAI authentication required (X-API-Key, Bearer, or ?api= with oai scope).', 401, ['Content-Type' => 'text/plain']);
+            }
+        }
+
         $verb = $request->query('verb');
 
         // Check verb is present and valid
@@ -248,14 +294,32 @@ class OaiPmhController extends Controller
 
         $repositoryName = config('app.name', 'Heratio');
         $baseUrl = $request->url();
-        $adminEmail = config('mail.from.address', 'admin@' . $request->getHost());
+        // OAI Identify allows multiple <adminEmail> elements - the spec is a
+        // 'one or more' (1+) cardinality. ahg_settings.oai_admin_emails is a
+        // comma-separated list (the form input is a single textbox); split,
+        // trim, dedupe. Falls back to mail.from.address so existing installs
+        // that haven't configured the setting still produce a valid Identify
+        // response.
+        $adminEmailsRaw = (string) $this->setting('oai_admin_emails', '');
+        $adminEmails = array_values(array_unique(array_filter(array_map('trim', explode(',', $adminEmailsRaw)))));
+        if (empty($adminEmails)) {
+            $adminEmails = [config('mail.from.address', 'admin@' . $request->getHost())];
+        }
+        // Sample identifier shown in <sampleIdentifier>. ahg_settings holds
+        // the operator's chosen example local-id (e.g. '100002'). When set
+        // we use it directly; when not, we still emit the legacy '100002'
+        // hardcode so the Identify response stays well-formed.
+        $sampleLocalId = (int) $this->setting('sample_oai_identifier', 100002);
+        if ($sampleLocalId <= 0) $sampleLocalId = 100002;
 
         $xml = $this->xmlHeader($request);
         $xml .= '  <Identify>' . "\n";
         $xml .= '    <repositoryName>' . $this->esc($repositoryName) . '</repositoryName>' . "\n";
         $xml .= '    <baseURL>' . $this->esc($baseUrl) . '</baseURL>' . "\n";
         $xml .= '    <protocolVersion>2.0</protocolVersion>' . "\n";
-        $xml .= '    <adminEmail>' . $this->esc($adminEmail) . '</adminEmail>' . "\n";
+        foreach ($adminEmails as $email) {
+            $xml .= '    <adminEmail>' . $this->esc($email) . '</adminEmail>' . "\n";
+        }
         $xml .= '    <earliestDatestamp>' . $earliestDatestamp . '</earliestDatestamp>' . "\n";
         $xml .= '    <deletedRecord>no</deletedRecord>' . "\n";
         $xml .= '    <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>' . "\n";
@@ -266,7 +330,7 @@ class OaiPmhController extends Controller
         $xml .= '        <scheme>oai</scheme>' . "\n";
         $xml .= '        <repositoryIdentifier>' . $this->esc($this->getRepositoryIdentifier()) . '</repositoryIdentifier>' . "\n";
         $xml .= '        <delimiter>:</delimiter>' . "\n";
-        $xml .= '        <sampleIdentifier>' . $this->formatOaiIdentifier(100002) . '</sampleIdentifier>' . "\n";
+        $xml .= '        <sampleIdentifier>' . $this->formatOaiIdentifier($sampleLocalId) . '</sampleIdentifier>' . "\n";
         $xml .= '      </oai-identifier>' . "\n";
         $xml .= '    </description>' . "\n";
         $xml .= '  </Identify>' . "\n";
@@ -299,8 +363,15 @@ class OaiPmhController extends Controller
     private function listSets(Request $request, array $params): Response
     {
         $cursor = (int) ($params['cursor'] ?? 0);
+        $pageSize = $this->pageSize();
 
-        // Top-level collections: IOs whose parent_id = root (id=1) and published
+        // Default behaviour: top-level collections only (IOs whose
+        // parent_id = root (id=1) AND publication status = published).
+        // When ahg_settings.oai_additional_sets_enabled='1' we drop the
+        // parent_id=1 filter so harvesters can subscribe to descendant
+        // collections too. Useful for federation harvesters that want
+        // sub-fonds-level granularity. Default off because it can balloon
+        // the set count from ~10 to thousands.
         $query = DB::table('information_object as io')
             ->join('object as o', 'io.id', '=', 'o.id')
             ->join('information_object_i18n as ioi', function ($join) {
@@ -311,13 +382,16 @@ class OaiPmhController extends Controller
                 $join->on('io.id', '=', 'st.object_id')
                      ->where('st.type_id', '=', 158);
             })
-            ->where('io.parent_id', '=', 1)
             ->where('st.status_id', '=', 160)
             ->select('io.id', 'io.oai_local_identifier', 'ioi.title')
             ->orderBy('io.id');
 
+        if ((string) $this->setting('oai_additional_sets_enabled', '0') !== '1') {
+            $query->where('io.parent_id', '=', 1);
+        }
+
         $totalCount = $query->count();
-        $sets = $query->offset($cursor)->limit(self::PAGE_SIZE)->get();
+        $sets = $query->offset($cursor)->limit($pageSize)->get();
 
         if ($sets->isEmpty() && $cursor === 0) {
             return $this->errorResponse($request, 'noSetHierarchy');
@@ -336,7 +410,7 @@ class OaiPmhController extends Controller
         $remaining = $totalCount - $cursor - $sets->count();
         if ($remaining > 0) {
             $token = $this->encodeResumptionToken([
-                'cursor' => $cursor + self::PAGE_SIZE,
+                'cursor' => $cursor + $pageSize,
             ]);
             $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
         }
@@ -358,9 +432,10 @@ class OaiPmhController extends Controller
         $set = $params['set'] ?? null;
         $metadataPrefix = $params['metadataPrefix'] ?? 'oai_dc';
 
+        $pageSize = $this->pageSize();
         $query = $this->buildRecordQuery($from, $until, $set);
         $totalCount = $query->count();
-        $records = $query->offset($cursor)->limit(self::PAGE_SIZE)->get();
+        $records = $query->offset($cursor)->limit($pageSize)->get();
 
         if ($records->isEmpty()) {
             return $this->errorResponse($request, 'noRecordsMatch');
@@ -376,7 +451,7 @@ class OaiPmhController extends Controller
         $remaining = $totalCount - $cursor - $records->count();
         if ($remaining > 0) {
             $token = $this->encodeResumptionToken([
-                'cursor' => $cursor + self::PAGE_SIZE,
+                'cursor' => $cursor + $pageSize,
                 'metadataPrefix' => $metadataPrefix,
                 'from' => $from ?? '',
                 'until' => $until ?? '',
@@ -402,9 +477,10 @@ class OaiPmhController extends Controller
         $set = $params['set'] ?? null;
         $metadataPrefix = $params['metadataPrefix'] ?? 'oai_dc';
 
+        $pageSize = $this->pageSize();
         $query = $this->buildRecordQuery($from, $until, $set);
         $totalCount = $query->count();
-        $records = $query->offset($cursor)->limit(self::PAGE_SIZE)->get();
+        $records = $query->offset($cursor)->limit($pageSize)->get();
 
         if ($records->isEmpty()) {
             return $this->errorResponse($request, 'noRecordsMatch');
@@ -425,7 +501,7 @@ class OaiPmhController extends Controller
         $remaining = $totalCount - $cursor - $records->count();
         if ($remaining > 0) {
             $token = $this->encodeResumptionToken([
-                'cursor' => $cursor + self::PAGE_SIZE,
+                'cursor' => $cursor + $pageSize,
                 'metadataPrefix' => $metadataPrefix,
                 'from' => $from ?? '',
                 'until' => $until ?? '',

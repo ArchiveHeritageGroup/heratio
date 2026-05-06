@@ -98,3 +98,9 @@ packages/ahg-actor-manage/     # actor.autocomplete used by IO + rights
                                # Repository / Rights Holder
 packages/ahg-menu-manage/      # _static-pages-menu partial @included in
                                # every sector show's left sidebar
+
+# Per-issue locks added after a fix-and-close to prevent silent drift on
+# the wired-up consumer code. Pattern: closing an audit-batch issue (#67-)
+# locks the package(s) the wire-up touched. Unlock individually for the
+# next iteration.
+packages/ahg-oai/              # #87 (OAI-PMH 7-setting wire-up) - closed v1.52.36

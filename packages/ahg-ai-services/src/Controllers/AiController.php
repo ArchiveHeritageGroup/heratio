@@ -275,17 +275,28 @@ class AiController extends Controller
                 $mtApiKey = $this->llmService->getAiSetting('translate', 'mt.api_key', '');
                 $mtTimeout = (int) $this->llmService->getAiSetting('translate', 'mt.timeout_seconds', '60');
                 $sourceLang = $this->llmService->getAiSetting('translate', 'translation_source_lang', 'en');
+                // The MT adapter at 127.0.0.1:5004 routes to different model
+                // backends based on the `provider` field — ollama-adapter,
+                // nllb, opus-mt, etc. Pass it through so the operator's pick
+                // on /admin/ahgSettings/translate is honoured. Empty string
+                // means "let the adapter decide".
+                $mtProvider = trim((string) $this->llmService->getAiSetting('translate', 'mt.provider', ''));
+
+                $payload = [
+                    'text'        => $text,
+                    'source_lang' => $sourceLang,
+                    'target_lang' => $targetLang,
+                ];
+                if ($mtProvider !== '') {
+                    $payload['provider'] = $mtProvider;
+                }
 
                 $response = \Illuminate\Support\Facades\Http::timeout($mtTimeout)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'X-API-Key'    => $mtApiKey,
                     ])
-                    ->post($translationEndpoint, [
-                        'text'        => $text,
-                        'source_lang' => $sourceLang,
-                        'target_lang' => $targetLang,
-                    ]);
+                    ->post($translationEndpoint, $payload);
 
                 if ($response->successful()) {
                     $body = $response->json();

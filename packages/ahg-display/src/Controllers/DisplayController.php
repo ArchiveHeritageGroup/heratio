@@ -124,11 +124,29 @@ class DisplayController extends Controller
 
     public function browse(Request $request)
     {
+        // Master kill-switch (issue #93). Disabled by /admin/ahgSettings/themes
+        // -> "Enable GLAM browse" toggle. When off, the route 404s so the
+        // sector show pages and other entry points become the only browse
+        // surfaces. Default is on.
+        if (!\AhgCore\Services\AhgSettingsService::getBool('enable_glam_browse', true)) {
+            abort(404);
+        }
+
         $culture = app()->getLocale();
         $this->isAuthenticated = auth()->check();
 
         // Get all filter parameters
         $this->typeFilter = $request->input('type');
+        // When the user lands on /glam/browse without an explicit type filter
+        // and no other narrowing parameter, fall back to the operator's
+        // default_sector (issue #93). Lets a museum-only deployment skip the
+        // archive default. Empty string in the setting means "no default".
+        if ($this->typeFilter === null && !$request->hasAny(['parent', 'collection', 'ancestor', 'creator', 'subject', 'place', 'genre', 'level', 'media', 'repo', 'query', 'topLevel', 'topLod', 'hasDigital', 'onlyMedia'])) {
+            $defaultSector = trim((string) \AhgCore\Services\AhgSettingsService::get('default_sector', ''));
+            if ($defaultSector !== '') {
+                $this->typeFilter = $defaultSector;
+            }
+        }
         $this->parentId = $request->input('parent');
         $this->topLevelOnly = $request->input('topLevel', '0');
         $page = max(1, (int) $request->input('page', 1));
