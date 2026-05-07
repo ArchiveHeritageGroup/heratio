@@ -50,6 +50,11 @@ class RunFixitySchedulesCommand extends Command
             return self::SUCCESS;
         }
 
+        // Apply integrity_default_max_memory globally for this command run.
+        // Per-schedule loops inherit it; matches IntegrityVerifyCommand
+        // behaviour so the same setting governs both code paths.
+        @ini_set('memory_limit', \AhgIntegrity\Support\IntegritySettings::defaultMaxMemoryMb() . 'M');
+
         $now = Carbon::now();
 
         $q = DB::table('preservation_workflow_schedule')
@@ -106,7 +111,13 @@ class RunFixitySchedulesCommand extends Command
     {
         $startedAt = microtime(true);
         $startCarbon = Carbon::now();
-        $batchLimit = (int) ($this->option('max-batch') ?: ($schedule->batch_limit ?? 100));
+        // Resolution order: --max-batch CLI option > schedule.batch_limit
+        // column > integrity_default_batch_size setting > built-in 100. Same
+        // pattern as IntegrityVerifyCommand so an operator who configures the
+        // global default sees it apply to both code paths.
+        $batchLimit = (int) ($this->option('max-batch')
+            ?: ($schedule->batch_limit
+                ?? \AhgIntegrity\Support\IntegritySettings::defaultBatchSize()));
         $options    = $this->decodeOptions($schedule->options ?? null);
         // Schedule-level overrides win; otherwise fall back to the global
         // integrity_default_algorithm / integrity_io_throttle_ms settings so
@@ -181,7 +192,36 @@ class RunFixitySchedulesCommand extends Command
         }
 
         $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-        $endStatus  = $errorMessage ? 'failed' : ($stats['failed'] > 0 ? 'completed_with_errors' : 'completed');
+
+        // Status decision honours integrity_dead_letter_threshold so a single
+        // schedule run that hard-fails above the operator's tolerance gets
+        // marked dead_letter and won't be silently retried by the scheduler
+        // until an operator reviews. Mirrors IntegrityVerifyCommand's run
+        // status decision against integrity_run.
+        $deadLetterThreshold = \AhgIntegrity\Support\IntegritySettings::deadLetterThreshold();
+        if ($errorMessage) {
+            $endStatus = 'failed';
+        } elseif ($stats['failed'] >= $deadLetterThreshold) {
+            $endStatus = 'dead_letter';
+        } elseif ($stats['failed'] > 0) {
+            $endStatus = 'completed_with_errors';
+        } else {
+            $endStatus = 'completed';
+        }
+
+        // Wall-clock cap signal: if this single runOne() exceeded
+        // integrity_default_max_runtime seconds, log it. This doesn't abort
+        // the in-flight batch (batchVerify is internal), but flags the
+        // operator that the cap was crossed so they can split a long
+        // schedule into smaller ones.
+        $maxRuntimeMs = \AhgIntegrity\Support\IntegritySettings::defaultMaxRuntimeSeconds() * 1000;
+        if ($maxRuntimeMs > 0 && $durationMs > $maxRuntimeMs) {
+            Log::warning('preservation: fixity schedule exceeded integrity_default_max_runtime', [
+                'schedule_id' => $schedule->id,
+                'duration_ms' => $durationMs,
+                'cap_ms' => $maxRuntimeMs,
+            ]);
+        }
 
         DB::table('preservation_workflow_run')->where('id', $runId)->update([
             'status'              => $endStatus,
