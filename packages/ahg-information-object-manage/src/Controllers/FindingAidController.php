@@ -145,6 +145,13 @@ class FindingAidController extends Controller
             abort(404);
         }
 
+        // settings.publicFindingAid (#80): when off, only authenticated
+        // operators can download. When on (default), anonymous downloads
+        // are allowed - matches AtoM's anonymous EAD/PDF surface.
+        if (!\AhgCore\Support\GlobalSettings::publicFindingAid() && !auth()->check()) {
+            abort(403);
+        }
+
         $path = $this->getFindingAidPath($io->id);
         if (!$path || !file_exists($path)) {
             return redirect()->route('informationobject.show', $slug)

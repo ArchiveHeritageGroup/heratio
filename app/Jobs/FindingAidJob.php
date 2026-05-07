@@ -84,10 +84,20 @@ class FindingAidJob implements ShouldQueue
                 ]);
             }
 
-            // Optionally convert to PDF using wkhtmltopdf
-            $wkhtmltopdf = trim(shell_exec('which wkhtmltopdf 2>/dev/null') ?? '');
-            if (!empty($wkhtmltopdf) && file_exists($wkhtmltopdf)) {
-                $this->generatePdf($io, $xml, $downloadsDir, $wkhtmltopdf);
+            // Convert to PDF only when findingAidFormat=pdf (operator-set
+            // on /admin/settings/global). Other formats keep the XML on disk
+            // as the canonical artefact; Heratio's existing eadToHtml
+            // transform serves the html path inline when needed.
+            $format = \AhgCore\Support\GlobalSettings::findingAidFormat();
+            if ($format === 'pdf') {
+                $wkhtmltopdf = trim(shell_exec('which wkhtmltopdf 2>/dev/null') ?? '');
+                if (!empty($wkhtmltopdf) && file_exists($wkhtmltopdf)) {
+                    $this->generatePdf($io, $xml, $downloadsDir, $wkhtmltopdf);
+                } else {
+                    $this->log('findingAidFormat=pdf but wkhtmltopdf is not installed; skipping PDF generation. XML remains the canonical artefact.');
+                }
+            } else {
+                $this->log('findingAidFormat=' . $format . '; skipping PDF generation.');
             }
 
             $this->log('Finding aid generation complete.');

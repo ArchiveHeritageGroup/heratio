@@ -156,7 +156,15 @@ class DisplayController extends Controller
         if ($limit < 10) $limit = 10;
         if ($limit > 100) $limit = 100;
 
-        $sort = $request->input('sort', 'date');
+        // settings.sort_browser_anonymous / sort_browser_user (#80): defaults
+        // for browse sort when ?sort= isn't in the request. Anonymous + auth'd
+        // users get separate defaults. Unrecognised tokens fall through the
+        // switch below to the default title sort, so an operator-typed value
+        // can never break the page.
+        $defaultSort = auth()->check()
+            ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
+            : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
+        $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
         $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
         $viewMode = $request->input('view', 'card');
         $this->hasDigital = $request->input('hasDigital');
@@ -549,7 +557,15 @@ class DisplayController extends Controller
         $typeFilter = $request->input('type');
         $parentId = $request->input('parent');
         $topLevelOnly = $request->input('topLevel', '0');
-        $sort = $request->input('sort', 'date');
+        // settings.sort_browser_anonymous / sort_browser_user (#80): defaults
+        // for browse sort when ?sort= isn't in the request. Anonymous + auth'd
+        // users get separate defaults. Unrecognised tokens fall through the
+        // switch below to the default title sort, so an operator-typed value
+        // can never break the page.
+        $defaultSort = auth()->check()
+            ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
+            : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
+        $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
         $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
 
         $query = DB::table('information_object as io')
@@ -629,7 +645,15 @@ class DisplayController extends Controller
         $typeFilter = $request->input('type');
         $parentId = $request->input('parent');
         $topLevelOnly = $request->input('topLevel', '0');
-        $sort = $request->input('sort', 'date');
+        // settings.sort_browser_anonymous / sort_browser_user (#80): defaults
+        // for browse sort when ?sort= isn't in the request. Anonymous + auth'd
+        // users get separate defaults. Unrecognised tokens fall through the
+        // switch below to the default title sort, so an operator-typed value
+        // can never break the page.
+        $defaultSort = auth()->check()
+            ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
+            : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
+        $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
         $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
 
         $query = DB::table('information_object as io')

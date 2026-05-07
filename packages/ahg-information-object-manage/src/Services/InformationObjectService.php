@@ -213,10 +213,32 @@ class InformationObjectService
             // legacy null/operator-supplied behaviour.
             $resolvedIdentifier = $data['identifier'] ?? null;
             if (empty($resolvedIdentifier)) {
-                $sectorCode = \AhgCore\Services\SectorIdentifierService::resolveSector($data['source_standard'] ?? null);
-                $generated = \AhgCore\Services\SectorIdentifierService::next($sectorCode);
-                if ($generated !== null) {
-                    $resolvedIdentifier = $generated;
+                // settings.inherit_code_informationobject (#80): when on, a
+                // child IO inherits the parent's identifier as a prefix and
+                // appends a sibling sequence number ("PARENT-1", "PARENT-2")
+                // so archival hierarchies surface the lineage in the code
+                // itself. Falls back to the sector-mask path when the
+                // parent has no identifier or the setting is off.
+                if ($parentId !== self::ROOT_ID
+                    && \AhgCore\Support\GlobalSettings::inheritCodeInformationObject()
+                ) {
+                    $parentIdent = DB::table('information_object')
+                        ->where('id', $parentId)
+                        ->value('identifier');
+                    if (!empty($parentIdent)) {
+                        $siblingSeq = DB::table('information_object')
+                            ->where('parent_id', $parentId)
+                            ->count() + 1;
+                        $resolvedIdentifier = $parentIdent . '-' . $siblingSeq;
+                    }
+                }
+
+                if (empty($resolvedIdentifier)) {
+                    $sectorCode = \AhgCore\Services\SectorIdentifierService::resolveSector($data['source_standard'] ?? null);
+                    $generated = \AhgCore\Services\SectorIdentifierService::next($sectorCode);
+                    if ($generated !== null) {
+                        $resolvedIdentifier = $generated;
+                    }
                 }
             }
             $ioInsert = [
@@ -247,8 +269,21 @@ class InformationObjectService
             }
             DB::table('information_object_i18n')->insert($i18nData);
 
-            // 5. Generate slug
-            $baseSlug = Str::slug($data['title'] ?? 'untitled');
+            // 5. Generate slug. permissive_slug_creation controls whether
+            // Unicode + non-ASCII characters survive the slug transform.
+            // - false (default): Str::slug() ASCII-normalises (matches AtoM's
+            //   strict mode + Laravel default).
+            // - true: a softer transform that lowercases + replaces only
+            //   whitespace + control chars with hyphens, so Unicode letter
+            //   characters are preserved (matches AtoM's permissive mode for
+            //   institutions that surface non-Latin titles publicly).
+            $title = $data['title'] ?? 'untitled';
+            if (\AhgCore\Support\GlobalSettings::permissiveSlugCreation()) {
+                $baseSlug = trim(preg_replace('/\s+/u', '-', mb_strtolower($title)), '-');
+                $baseSlug = preg_replace('/[\x00-\x1F\x7F]+/', '', $baseSlug);
+            } else {
+                $baseSlug = Str::slug($title);
+            }
             if (empty($baseSlug)) {
                 $baseSlug = 'untitled';
             }
@@ -263,10 +298,14 @@ class InformationObjectService
                 'slug' => $slug,
             ]);
 
-            // 6. Set default publication status (Draft)
+            // 6. Set default publication status. Resolution order:
+            //    explicit $data['publication_status_id']
+            //    > settings.defaultPubStatus
+            //    > self::STATUS_DRAFT (159)
+            // Honours the operator-set defaultPubStatus on /admin/settings/global.
             $pubStatusId = !empty($data['publication_status_id'])
                 ? (int) $data['publication_status_id']
-                : self::STATUS_DRAFT;
+                : \AhgCore\Support\GlobalSettings::defaultPublicationStatusId(self::STATUS_DRAFT);
 
             DB::table('status')->insert([
                 'object_id' => $objectId,
