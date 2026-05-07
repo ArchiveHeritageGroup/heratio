@@ -127,38 +127,9 @@ CREATE TABLE IF NOT EXISTS researcher_submission_review (
 
 -- ============================================================
 -- Workflow seed data (high IDs to avoid conflicts)
--- Wrapped in a stored procedure with table-exists guards. ahg_workflow* are
--- created by ahg-workflow (alphabetically loads later than ahg-researcher-
--- manage); on a fresh install, this seed silently skips on first pass and
--- lands on the second bin/install pass.
+-- Moved to AhgResearcherManage\Services\WorkflowSeeder (PHP) — invoked
+-- from the service provider's boot(). PDO can't parse the DELIMITER
+-- directive that the previous CREATE PROCEDURE wrapper used. See #105.
 -- ============================================================
-DROP PROCEDURE IF EXISTS ahg_researcher_seed_workflow;
-DELIMITER //
-CREATE PROCEDURE ahg_researcher_seed_workflow()
-proc: BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ahg_workflow') THEN
-        LEAVE proc;
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ahg_workflow_step') THEN
-        LEAVE proc;
-    END IF;
-
-    INSERT IGNORE INTO ahg_workflow (id, name, description, scope_type, trigger_event,
-        applies_to, is_active, is_default, require_all_steps, notification_enabled)
-    VALUES (100, 'Researcher Submission Review',
-        'Two-step review for researcher-submitted collections',
-        'global', 'submit', 'information_object', 1, 0, 1, 1);
-
-    INSERT IGNORE INTO ahg_workflow_step (id, workflow_id, name, step_order, step_type,
-        action_required, pool_enabled, instructions, is_active)
-    VALUES
-    (100, 100, 'Content Review', 1, 'review', 'approve_reject', 1,
-        'Review the researcher submission for completeness, metadata quality, and adherence to descriptive standards.', 1),
-    (101, 100, 'Publication Approval', 2, 'approve', 'approve_reject', 1,
-        'Final approval before publishing records. Verify repository placement and access conditions.', 1);
-END proc //
-DELIMITER ;
-CALL ahg_researcher_seed_workflow();
-DROP PROCEDURE IF EXISTS ahg_researcher_seed_workflow;
 
 SET FOREIGN_KEY_CHECKS = 1;

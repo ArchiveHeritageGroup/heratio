@@ -699,41 +699,10 @@ CREATE TABLE IF NOT EXISTS `ahg_ai_training_contribution` (
 
 -- ============================================================================
 -- Seed Data: Dropdown Manager taxonomies (section: ai)
--- Wrapped in a stored procedure with a table-exists guard. ahg_dropdown is
--- created by ahg-settings (alphabetically loads later than ahg-condition);
--- on a fresh install, this seed will silently skip on first pass and land
--- on the second bin/install pass.
+-- Moved to AhgCondition\Services\AiDropdownSeeder (PHP) — invoked from the
+-- service provider's boot(). PDO can't parse the DELIMITER directive that
+-- the previous CREATE PROCEDURE wrapper used. See issue #105.
 -- ============================================================================
-DROP PROCEDURE IF EXISTS ahg_condition_seed_ai_dropdowns;
-DELIMITER //
-CREATE PROCEDURE ahg_condition_seed_ai_dropdowns()
-proc: BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ahg_dropdown') THEN
-        LEAVE proc;
-    END IF;
-
-    INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `sort_order`, `is_default`) VALUES
-        ('ai_assessment_source', 'AI Assessment Source', 'ai', 'manual', 'Manual Upload', '#6c757d', 10, 1),
-        ('ai_assessment_source', 'AI Assessment Source', 'ai', 'bulk', 'Bulk Scan', '#0d6efd', 20, 0),
-        ('ai_assessment_source', 'AI Assessment Source', 'ai', 'auto', 'Auto (On Upload)', '#198754', 30, 0),
-        ('ai_assessment_source', 'AI Assessment Source', 'ai', 'api', 'External API', '#6f42c1', 40, 0),
-        ('ai_assessment_source', 'AI Assessment Source', 'ai', 'manual_entry', 'Manual Entry', '#495057', 50, 0);
-
-    INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `sort_order`, `is_default`) VALUES
-        ('ai_service_tier', 'AI Service Tier', 'ai', 'free', 'Free (50/month)', '#6c757d', 10, 1),
-        ('ai_service_tier', 'AI Service Tier', 'ai', 'standard', 'Standard (500/month)', '#0d6efd', 20, 0),
-        ('ai_service_tier', 'AI Service Tier', 'ai', 'pro', 'Professional (5000/month)', '#198754', 30, 0),
-        ('ai_service_tier', 'AI Service Tier', 'ai', 'enterprise', 'Enterprise (Unlimited)', '#dc3545', 40, 0);
-
-    INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `sort_order`, `is_default`) VALUES
-        ('ai_confidence_level', 'AI Confidence Level', 'ai', 'low', 'Low (<50%)', '#dc3545', 10, 0),
-        ('ai_confidence_level', 'AI Confidence Level', 'ai', 'medium', 'Medium (50-75%)', '#ffc107', 20, 0),
-        ('ai_confidence_level', 'AI Confidence Level', 'ai', 'high', 'High (75-90%)', '#198754', 30, 1),
-        ('ai_confidence_level', 'AI Confidence Level', 'ai', 'very_high', 'Very High (>90%)', '#0d6efd', 40, 0);
-END proc //
-DELIMITER ;
-CALL ahg_condition_seed_ai_dropdowns();
-DROP PROCEDURE IF EXISTS ahg_condition_seed_ai_dropdowns;
 
 -- Seed internal API client
 INSERT IGNORE INTO `ahg_ai_service_client` (`id`, `name`, `organization`, `email`, `api_key`, `tier`, `monthly_limit`, `is_active`) VALUES
