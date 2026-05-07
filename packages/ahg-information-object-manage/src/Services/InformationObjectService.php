@@ -137,7 +137,7 @@ class InformationObjectService
         $culture = $culture ?: app()->getLocale();
         $fallback = config('app.fallback_locale', 'en');
 
-        return DB::table('information_object')
+        $row = DB::table('information_object')
             ->leftJoin('information_object_i18n as ioi_cur', function ($j) use ($culture) {
                 $j->on('ioi_cur.id', '=', 'information_object.id')
                     ->where('ioi_cur.culture', '=', $culture);
@@ -151,6 +151,28 @@ class InformationObjectService
             ->where('information_object.id', $id)
             ->select(self::buildSelectColumns())
             ->first();
+
+        // #74 encryption_field_access_restrictions: decrypt the two
+        // registered columns at the central read site so every downstream
+        // consumer (controllers, blades, exporters) gets plaintext without
+        // each having to call EncryptionService themselves. decrypt() is
+        // idempotent for plaintext - returns the input unchanged when
+        // isCiphertext returns false - so this runs safely whether the
+        // operator has the category on or off.
+        if ($row !== null) {
+            $enc = new \AhgCore\Services\EncryptionService();
+            foreach (['access_conditions', 'reproduction_conditions'] as $col) {
+                if (property_exists($row, $col) && $row->{$col} !== null && $row->{$col} !== '') {
+                    $row->{$col} = $enc->decrypt(
+                        \AhgCore\Services\EncryptionService::CATEGORY_ACCESS_RESTRICTIONS,
+                        (string) $row->{$col},
+                        'information_object_i18n', $col, $id
+                    );
+                }
+            }
+        }
+
+        return $row;
     }
 
     // ─── Create ──────────────────────────────────────────────────────
@@ -437,6 +459,24 @@ class InformationObjectService
             foreach (self::$i18nFields as $field) {
                 if (array_key_exists($field, $data)) {
                     $i18nUpdate[$field] = $data[$field];
+                }
+            }
+
+            // #74 encryption_field_access_restrictions: encrypt the two
+            // registered columns before INSERT/UPDATE so the daily bulk-apply
+            // safety-net doesn't have to retrofit them. encrypt() no-ops to
+            // plaintext when the category is off / encryption_enabled is
+            // off, so the column round-trips cleanly either way.
+            if (!empty($i18nUpdate)) {
+                $enc = new \AhgCore\Services\EncryptionService();
+                foreach (['access_conditions', 'reproduction_conditions'] as $col) {
+                    if (array_key_exists($col, $i18nUpdate)) {
+                        $i18nUpdate[$col] = $enc->encrypt(
+                            \AhgCore\Services\EncryptionService::CATEGORY_ACCESS_RESTRICTIONS,
+                            $i18nUpdate[$col],
+                            'information_object_i18n', $col, $id
+                        );
+                    }
                 }
             }
 

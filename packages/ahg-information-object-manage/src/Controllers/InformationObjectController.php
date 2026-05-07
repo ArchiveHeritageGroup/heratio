@@ -329,6 +329,24 @@ class InformationObjectController extends Controller
             abort(404);
         }
 
+        // #74 encryption_field_access_restrictions: decrypt the two
+        // registered i18n columns before the show-page blade renders them.
+        // The show() method does its own inline query (not via
+        // InformationObjectService::getById), so the central decrypt at the
+        // service level doesn't catch this read - we have to wrap here too.
+        // decrypt() is idempotent for plaintext so the call is safe whether
+        // the operator has the category on or off.
+        $__enc = new \AhgCore\Services\EncryptionService();
+        foreach (['access_conditions', 'reproduction_conditions'] as $__col) {
+            if (isset($io->{$__col}) && $io->{$__col} !== null && $io->{$__col} !== '') {
+                $io->{$__col} = $__enc->decrypt(
+                    \AhgCore\Services\EncryptionService::CATEGORY_ACCESS_RESTRICTIONS,
+                    (string) $io->{$__col},
+                    'information_object_i18n', $__col, (int) $io->id
+                );
+            }
+        }
+
         // Level of description name
         $levelName = null;
         if ($io->level_of_description_id) {
