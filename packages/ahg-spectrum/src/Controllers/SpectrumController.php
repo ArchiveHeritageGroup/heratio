@@ -86,7 +86,17 @@ class SpectrumController extends Controller
     {
         $settings = new SpectrumSettings();
         $defaultCurrency = $settings->defaultCurrency();
-        return view('spectrum::loans', ['defaultCurrency' => $defaultCurrency]);
+        // #91 verification follow-up: defaultLoanPeriodDays() existed as a
+        // helper but had zero call sites - the closure claimed wired but
+        // nobody read it. The loans view is the natural surface (the
+        // operator creating a new loan needs to know the institution's
+        // default period); pass it in alongside defaultCurrency so the
+        // setting takes real effect on the spectrum loans page.
+        $defaultLoanDays = $settings->defaultLoanPeriodDays();
+        return view('spectrum::loans', [
+            'defaultCurrency' => $defaultCurrency,
+            'defaultLoanDays' => $defaultLoanDays,
+        ]);
     }
 
     // ─── #123 enable_barcodes ──────────────────────────────────────────
