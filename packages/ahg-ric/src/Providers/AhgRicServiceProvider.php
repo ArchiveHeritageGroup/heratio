@@ -25,11 +25,13 @@
 
 namespace AhgRic\Providers;
 
+use AhgRic\Services\FusekiSyncService;
 use AhgRic\Services\RelationshipService;
 use AhgRic\Services\RicEntityService;
 use AhgRic\Services\RicSerializationService;
 use AhgRic\Services\ShaclValidationService;
 use AhgRic\Services\SparqlQueryService;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 
 class AhgRicServiceProvider extends ServiceProvider
@@ -96,7 +98,38 @@ class AhgRicServiceProvider extends ServiceProvider
                 \AhgRic\Console\Commands\IssueKey::class,
                 \AhgRic\Console\Commands\RebuildNestedSet::class,
                 \AhgRic\Console\Commands\SeedDemo::class,
+                // #77 phase 2: Fuseki integrity + orphan cleanup
+                \AhgRic\Console\Commands\FusekiIntegrityCheckCommand::class,
+                \AhgRic\Console\Commands\FusekiOrphanCleanupCommand::class,
             ]);
+
+            // #77 phase 2: schedule integrity check from fuseki_integrity_schedule
+            // setting (cron expression; empty disables the schedule). Orphan
+            // cleanup runs daily at 03:30; the command itself no-ops when
+            // fuseki_orphan_retention_days = 0. Both schedules are registered
+            // unconditionally so a config-time setting change is picked up
+            // without needing an artisan re-cache.
+            $this->app->booted(function () {
+                $schedule = $this->app->make(Schedule::class);
+                try {
+                    $cron = (string) (\Illuminate\Support\Facades\DB::table('ahg_settings')
+                        ->where('setting_key', 'fuseki_integrity_schedule')
+                        ->value('setting_value') ?? '0 4 * * *');
+                    if (trim($cron) !== '') {
+                        $schedule->command('ahg:fuseki-integrity-check --quiet-success')
+                            ->cron($cron)
+                            ->withoutOverlapping(60);
+                    }
+                } catch (\Throwable $e) {
+                    // Settings table missing on a brand-new install: skip the
+                    // schedule registration silently. Once the table exists
+                    // and the operator saves the setting, the next boot picks
+                    // it up.
+                }
+                $schedule->command('ahg:fuseki-orphan-cleanup')
+                    ->dailyAt('03:30')
+                    ->withoutOverlapping(60);
+            });
         }
 
         // Expose the RiC API base URL to every Blade view so embedded JS can

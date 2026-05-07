@@ -51,6 +51,19 @@ class SpectrumWorkflowService
             return [];
         }
 
+        // #91: spectrum_auto_create_movement gates the location_movement
+        // auto-trigger across every chain that fans out to it (object_entry,
+        // acquisition, loans_in, loans_out, loss_damage). When off, the
+        // operator must start movements manually from the workflow page;
+        // when on (default) the existing behaviour is preserved.
+        $autoMovement = (new SpectrumSettings())->autoCreateMovement();
+        if (!$autoMovement) {
+            $triggers = array_values(array_filter($triggers, fn ($t) => $t !== 'location_movement'));
+            if (empty($triggers)) {
+                return [];
+            }
+        }
+
         $triggered = [];
         $completedLabel = self::getProcedureLabel($completedProcedure);
 
