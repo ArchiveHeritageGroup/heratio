@@ -139,12 +139,13 @@ jobs:
           T=$(mysql -h 127.0.0.1 -uroot -Nse "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='heratio'")
           echo "Table count: $T"
           # database/core/*.sql contains ~382 CREATE TABLE statements (00=52, 01=4,
-          # 02=7, 03=319). Stage 7 (heratio:install-bootstrap --pass=2) is
-          # supposed to bring the total to ~995 by running per-package install.sql,
-          # but in CI it is producing nothing extra — see follow-up issue.
-          # For now, gate at 350 so CI catches catastrophic schema regressions
-          # without false-failing on the bootstrap gap.
-          [[ "$T" -ge 350 ]] || { echo "ERROR: expected ≥ 350 tables, got $T"; exit 1; }
+          # 02=7, 03=319). Stage 7 (heratio:install-bootstrap --pass=2) brings
+          # the total to ~995 by running per-package install.sql. Threshold
+          # restored to 800 after #53 was fixed (bin/install was leaving
+          # DB_CONNECTION=sqlite in the rendered .env so all 81 packages
+          # skipped). Local installs land ~995; 800 leaves headroom for a
+          # handful of legitimately-skipped packages without false-failing.
+          [[ "$T" -ge 800 ]] || { echo "ERROR: expected ≥ 800 tables, got $T"; exit 1; }
 
       - name: mysqldump — schema only
         run: |

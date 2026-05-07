@@ -81,5 +81,13 @@ class SpectrumController extends Controller
         ]);
     }
 
+    // Simple loans view with defaults applied
+    public function loans()
+    {
+        $settings = new SpectrumSettings();
+        $defaultCurrency = $settings->defaultCurrency();
+        return view('spectrum::loans', ['defaultCurrency' => $defaultCurrency]);
+    }
+
     // ... rest of file unchanged ...
 }

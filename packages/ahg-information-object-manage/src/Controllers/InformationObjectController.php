@@ -1043,11 +1043,28 @@ class InformationObjectController extends Controller
             }
         }
 
+        // #98 Phase 2: pull per-standard sidecar rows so show-dacs.blade.php /
+        // show-rad.blade.php / show-mods.blade.php can render the standard-
+        // specific elements that aren't in information_object_i18n. Each
+        // returns null when no row exists; templates use null-safe access.
+        $dacsExt = \Illuminate\Support\Facades\Schema::hasTable('ahg_io_dacs')
+            ? \Illuminate\Support\Facades\DB::table('ahg_io_dacs')->where('information_object_id', $io->id)->first()
+            : null;
+        $radExt  = \Illuminate\Support\Facades\Schema::hasTable('ahg_io_rad')
+            ? \Illuminate\Support\Facades\DB::table('ahg_io_rad')->where('information_object_id', $io->id)->first()
+            : null;
+        $modsExt = \Illuminate\Support\Facades\Schema::hasTable('ahg_io_mods')
+            ? \Illuminate\Support\Facades\DB::table('ahg_io_mods')->where('information_object_id', $io->id)->first()
+            : null;
+
         // #98 Phase 1: pick the view per setting.scope='default_template' name='informationobject'
         // (isad / dacs / rad / mods). Falls back to the base 'show' view when the chosen
         // template's blade hasn't been authored yet — Phase 2 will add show-dacs / show-rad / show-mods.
         return view(\AhgCore\Services\SettingHelper::resolveTemplateView('informationobject', 'ahg-io-manage::show', 'isad'), [
             'io' => $io,
+            'dacsExt' => $dacsExt,
+            'radExt'  => $radExt,
+            'modsExt' => $modsExt,
             'levelName' => $levelName,
             'repository' => $repository,
             'events' => $events,
