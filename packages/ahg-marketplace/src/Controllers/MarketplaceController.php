@@ -1796,6 +1796,16 @@ class MarketplaceController extends Controller
                 (string) ($payload['pf_payment_id'] ?? ''),
                 $payload
             );
+
+            // #84 featured-listing purchase flow: when source=feature_purchase,
+            // apply is_featured=1 + featured_until=+30d to the listing.
+            // markTransactionPaid above only flips the transaction's
+            // payment_status; this side-effect is what the seller actually
+            // paid for. Re-read the txn after markTransactionPaid since
+            // applyFeatureFromTransaction reads the row.
+            if (($txn->source ?? '') === \AhgMarketplace\Services\MarketplaceService::TXN_SOURCE_FEATURE) {
+                $this->service->applyFeatureFromTransaction((int) $txn->id);
+            }
         } elseif (in_array($status, ['FAILED', 'CANCELLED'], true)) {
             DB::table('marketplace_transaction')->where('id', $txn->id)->update([
                 'payment_status' => 'failed',
@@ -2277,12 +2287,20 @@ class MarketplaceController extends Controller
 
         $result = $this->service->getSellerListings($seller->id, $filters, $limit, $offset);
 
+        // #84 featured-listing fee + currency for the per-row Feature button.
+        // When fee=0 the blade hides the button entirely so no half-built UX
+        // surface is shown to operators who haven't configured the price.
+        $featureFee = (float) $this->service->getSetting('featured_listing_fee', 0);
+        $featureCurrency = (string) $this->service->getSetting('default_currency', 'ZAR');
+
         return view('marketplace::seller-listings', [
             'seller' => $seller,
             'listings' => $result['items'],
             'total' => $result['total'],
             'statusFilter' => $statusFilter,
             'page' => $page,
+            'featureFee' => $featureFee,
+            'featureCurrency' => $featureCurrency,
         ]);
     }
 
@@ -2460,6 +2478,52 @@ class MarketplaceController extends Controller
         session()->flash('error', $result['error'] ?? 'Failed to create listing.');
 
         return redirect()->route('ahgmarketplace.seller-listing-create');
+    }
+
+    /**
+     * #84 featured-listing purchase flow: initiate PayFast checkout for the
+     * featured_listing_fee. The seller is BOTH the seller and buyer of this
+     * transaction (self-purchase to promote their own listing). On payment
+     * COMPLETE the ITN handler flips is_featured=1 + sets featured_until
+     * to now+30 days. When the operator hasn't set a fee (=0) the route
+     * returns a flash and bounces back without creating a transaction.
+     */
+    public function sellerListingFeature(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $seller = $this->requireSeller($userId);
+        $listingId = (int) $request->input('id');
+        if (!$listingId) return redirect()->route('ahgmarketplace.seller-listings');
+
+        $listing = $this->service->getListingById($listingId);
+        if (!$listing) abort(404);
+        if ((int) $listing->seller_id !== (int) $seller->id) {
+            session()->flash('error', 'You do not have permission to feature this listing.');
+            return redirect()->route('ahgmarketplace.seller-listings');
+        }
+
+        $fee = (float) $this->service->getSetting('featured_listing_fee', 0);
+        if ($fee <= 0) {
+            session()->flash('error', 'Featured-listing fee is not configured. Contact the marketplace operator.');
+            return redirect()->route('ahgmarketplace.seller-listing-edit', ['id' => $listingId]);
+        }
+
+        $txn = $this->service->createFeaturePurchaseTransaction($listingId, $userId);
+        if (!$txn) {
+            session()->flash('error', 'Could not create feature-purchase transaction.');
+            return redirect()->route('ahgmarketplace.seller-listing-edit', ['id' => $listingId]);
+        }
+
+        try {
+            $payments = app(\AhgMarketplace\Services\MarketplacePaymentService::class);
+            $buyerName = trim(($seller->display_name ?? '') ?: 'Seller');
+            $buyerEmail = (string) (DB::table('user')->where('id', $userId)->value('email') ?? '');
+            $url = $payments->buildProcessUrl($txn, $listing, $buyerName, $buyerEmail);
+            return redirect()->away($url);
+        } catch (\Throwable $e) {
+            session()->flash('error', 'Could not initiate payment: ' . $e->getMessage());
+            return redirect()->route('ahgmarketplace.seller-listing-edit', ['id' => $listingId]);
+        }
     }
 
     public function sellerListingEdit(Request $request)

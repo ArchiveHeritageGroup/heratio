@@ -137,6 +137,28 @@
                 <a href="{{ route('ahgmarketplace.seller-listing-images', ['id' => $listing->id]) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Images') }}">
                   <i class="fas fa-images"></i>
                 </a>
+                {{-- #84 featured-listing purchase: surfaced on every active
+                     listing row when the operator has set a non-zero fee.
+                     Already-featured listings show a "Featured" badge
+                     instead of the buy button so the seller doesn't pay
+                     twice mid-window (paying twice IS allowed and extends
+                     the window - this is just a UX nudge). --}}
+                @if(($listing->status ?? '') === 'active' && ($featureFee ?? 0) > 0)
+                  @if(!empty($listing->is_featured) && !empty($listing->featured_until) && strtotime($listing->featured_until) > time())
+                    <span class="badge bg-warning text-dark align-middle" title="{{ __('Featured until') . ' ' . date('d M Y', strtotime($listing->featured_until)) }}">
+                      <i class="fas fa-star"></i> {{ __('Featured') }}
+                    </span>
+                  @else
+                    <form method="POST" action="{{ route('ahgmarketplace.seller-listing-feature') }}" class="d-inline">
+                      @csrf
+                      <input type="hidden" name="id" value="{{ $listing->id }}">
+                      <button type="submit" class="btn btn-sm btn-outline-warning" title="{{ __('Feature this listing') }}"
+                              onclick="return confirm('{{ __('Feature this listing for 30 days for ') }}{{ $featureCurrency ?? 'ZAR' }} {{ number_format((float) $featureFee, 2) }}?')">
+                        <i class="fas fa-star"></i>
+                      </button>
+                    </form>
+                  @endif
+                @endif
                 @if(($listing->status ?? '') === 'draft' && Route::has('ahgmarketplace.seller-listing-publish'))
                   <form method="POST" action="{{ route('ahgmarketplace.seller-listing-publish', ['id' => $listing->id]) }}" class="d-inline">
                     @csrf
