@@ -44,6 +44,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'acl' => \App\Http\Middleware\CheckAcl::class,
             // Issue #40 c5 — gate plugin URLs by per-user grant
             'plugin' => \AhgCore\Http\Middleware\PluginAccessMiddleware::class,
+            // Issue #72 — gate /admin/privacy/* on the dp_enabled master toggle.
+            // Registered here (not in AhgPrivacyServiceProvider via
+            // Route::aliasMiddleware) because in Laravel 11/12 the alias map is
+            // snapshotted at app-boot before service providers boot, so a
+            // provider-level alias registration arrives too late for routes
+            // that resolve middleware on the first request.
+            'dp.enabled' => \AhgPrivacy\Middleware\EnsureDataProtectionEnabled::class,
         ]);
 
         // Payment gateway webhooks — server-to-server, no CSRF token available

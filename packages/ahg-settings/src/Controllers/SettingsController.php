@@ -3145,15 +3145,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Carousel settings stub.
-     */
-    public function carousel(Request $request)
-    {
-        // Redirect to the real IIIF/Carousel settings page
-        return redirect()->route('iiif.settings');
-    }
-
-    /**
      * Authority Records Settings — structured card view cloned from AtoM @case('authority').
      */
     public function authority(Request $request)
