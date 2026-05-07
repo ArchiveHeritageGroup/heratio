@@ -35,16 +35,34 @@ class ReservationNotifier
 {
     public function notifyOnReserve(int $reservationId): void
     {
+        $platformName = $this->platformName();
         $this->dispatchIfFlag(
             $reservationId,
             'notified_on_reserve',
             'Reserved for 12 hours: %s',
-            "%s\n\nYou've placed a 12-hour hold on '%s' on the Heratio Marketplace.\n\n"
+            "%s\n\nYou've placed a 12-hour hold on '%s' on $platformName.\n\n"
             . "Hold expires: %s (in %s).\n"
             . "Listing URL: %s\n\n"
             . "Complete your purchase before the hold expires to keep this item.\n\n"
             . "If you no longer want it, you can release the reservation from the listing page.\n"
         );
+    }
+
+    /**
+     * Operator-controllable display name. Used in email bodies + footer.
+     * Defaults to "Heratio Marketplace" when the setting is unset.
+     */
+    private function platformName(): string
+    {
+        try {
+            $row = DB::table('marketplace_settings')
+                ->where('setting_key', 'platform_name')
+                ->first();
+            $val = $row->setting_value ?? null;
+            return $val !== null && $val !== '' ? (string) $val : 'Heratio Marketplace';
+        } catch (\Throwable $e) {
+            return 'Heratio Marketplace';
+        }
     }
 
     public function notify6HoursBefore(int $reservationId): void

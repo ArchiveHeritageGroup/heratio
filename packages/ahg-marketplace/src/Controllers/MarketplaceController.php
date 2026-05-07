@@ -1652,6 +1652,26 @@ class MarketplaceController extends Controller
     {
         $userId = $this->requireAuth($request);
 
+        // Operator-controllable gateway list. Default ['payfast'] covers the
+        // current (single) supported gateway. When an operator adds Stripe /
+        // PayPal etc. and toggles them in supported_payment_gateways, this
+        // gate stops a removed gateway from accepting checkouts immediately
+        // without needing a redeploy.
+        $requestedGateway = (string) $request->input('gateway', 'payfast');
+        $supported = $this->service->getSetting('supported_payment_gateways', '["payfast"]');
+        if (is_string($supported)) {
+            $decoded = json_decode($supported, true);
+            $supported = is_array($decoded) ? $decoded : ['payfast'];
+        }
+        if (!in_array($requestedGateway, $supported, true)) {
+            session()->flash('error', sprintf(
+                'Payment gateway "%s" is not enabled. Allowed: %s.',
+                $requestedGateway,
+                implode(', ', $supported),
+            ));
+            return redirect()->route('ahgmarketplace.listings');
+        }
+
         $listing = $this->service->getListingById($listingId);
         if (!$listing) {
             abort(404);
@@ -2294,6 +2314,14 @@ class MarketplaceController extends Controller
             : collect();
         $licenceTypes = $this->service->getLicenceTypes();
 
+        // Settings the listing-create form needs to surface to sellers:
+        // min price floor, featured-listing fee, and the operator-configurable
+        // terms URL. Each is a one-time read; defaults mirror the install seed.
+        $minListingPrice = (float) $this->service->getSetting('min_listing_price', 1.00);
+        $featuredListingFee = (float) $this->service->getSetting('featured_listing_fee', 0);
+        $termsUrl = (string) $this->service->getSetting('terms_url', '/marketplace/terms');
+        $maxListingImages = (int) $this->service->getSetting('max_listing_images', 10);
+
         return view('marketplace::seller-listing-create', compact(
             'seller',
             'sectors',
@@ -2302,6 +2330,10 @@ class MarketplaceController extends Controller
             'prefill',
             'brokerArtists',
             'licenceTypes',
+            'minListingPrice',
+            'featuredListingFee',
+            'termsUrl',
+            'maxListingImages',
         ));
     }
 
@@ -2315,6 +2347,27 @@ class MarketplaceController extends Controller
             'sector' => 'required|string|in:gallery,museum,archive,library,dam',
             'listing_type' => 'required|string|in:fixed_price,auction,offer_only,licence,3d_model',
         ]);
+
+        // Anti-scam floor: settings.min_listing_price gates whatever fixed-price
+        // / buy-now / reserve value the seller submitted. Listings of type
+        // offer_only or licence skip the floor since they don't carry a base
+        // price upfront.
+        $minPrice = (float) $this->service->getSetting('min_listing_price', 1.00);
+        if ($minPrice > 0
+            && in_array($request->input('listing_type'), ['fixed_price', 'auction', '3d_model'], true)
+        ) {
+            $submittedPrice = (float) $request->input('price', 0);
+            if ($submittedPrice > 0 && $submittedPrice < $minPrice) {
+                $currency = (string) $this->service->getSetting('default_currency', 'ZAR');
+                return back()
+                    ->withInput()
+                    ->withErrors(['price' => sprintf(
+                        'Listing price must be at least %s %.2f',
+                        $currency,
+                        $minPrice,
+                    )]);
+            }
+        }
 
         // Broker mode — when an artist is selected, compute price from base + markup
         $artistId = (int) $request->input('artist_id', 0) ?: null;
@@ -2580,7 +2633,7 @@ class MarketplaceController extends Controller
             return redirect()->route('ahgmarketplace.seller-listings');
         }
 
-        $maxImages = (int) $this->service->getSetting('max_images_per_listing', 10);
+        $maxImages = (int) $this->service->getSetting('max_listing_images', 10);
 
         // If the listing has no images yet but is linked to a GLAM record with
         // digital objects, auto-attach the linked record's reference/master image
@@ -2622,7 +2675,7 @@ class MarketplaceController extends Controller
         $formAction = $request->input('form_action', '');
 
         if ($formAction === 'upload') {
-            $maxImages = (int) $this->service->getSetting('max_images_per_listing', 10);
+            $maxImages = (int) $this->service->getSetting('max_listing_images', 10);
             $currentImages = $this->service->getListingImages($listingId);
 
             if (count($currentImages) >= $maxImages) {
