@@ -1,8 +1,36 @@
 {{--
-  Treeview sidebar partial for IO show page.
+  Treeview partial for IO show page.
   Expects: $io (current information object with ->id, ->title, ->slug)
   Loads initial data via inline JSON, then lazy-loads via AJAX.
+
+  #118 treeview_type dispatcher: GlobalSettings::treeviewType() picks
+  between 'sidebar' (default - card-wrapped, fits a sidebar column) and
+  'full' (chrome-free wide layout that fills the available container).
+  The setting is set on /admin/ahgSettings/treeview. Both layouts render
+  the SAME tree data + use the same #treeview-tree element + AJAX loader -
+  the variant only changes the surrounding chrome. The 'sidebar' default
+  keeps existing IO show pages bit-for-bit identical.
 --}}
+@php
+  $__treeviewType = \AhgCore\Support\GlobalSettings::treeviewType();
+@endphp
+
+@if($__treeviewType === 'full')
+<div class="mb-3" id="treeview-card">
+  <h5 class="mb-2 fw-bold d-flex justify-content-between align-items-center">
+    <span><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy') }}</span>
+    <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="{{ __('Refresh') }}">
+      <i class="fas fa-sync-alt"></i>
+    </button>
+  </h5>
+  <div class="border rounded p-2" id="treeview-container" style="min-height:200px;">
+    <div class="text-center py-3 text-muted" id="treeview-loading">
+      <i class="fas fa-spinner fa-spin me-1"></i> {{ __('Loading hierarchy...') }}
+    </div>
+    <ul class="list-unstyled ps-0 mb-0" id="treeview-tree" style="display:none; column-count: 2; column-gap: 1.5rem;"></ul>
+  </div>
+</div>
+@else
 <div class="card mb-3" id="treeview-card">
   <div class="card-header fw-bold d-flex justify-content-between align-items-center">
     <span><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy') }}</span>
@@ -17,6 +45,7 @@
     <ul class="list-unstyled ps-0 mb-0" id="treeview-tree" style="display:none;"></ul>
   </div>
 </div>
+@endif
 
 <style>
   #treeview-tree li { padding: 2px 0; }
