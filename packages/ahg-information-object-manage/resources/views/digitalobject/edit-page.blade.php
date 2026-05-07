@@ -82,7 +82,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label text-muted small mb-0">{{ __('Filename') }}</label>
-                            <p class="fw-bold mb-0">{{ e($do->name) }}</p>
+                            <p class="fw-bold mb-0">{{ e(\AhgCore\Support\GlobalSettings::displayFilename($do->name) ?? '') }}</p>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label text-muted small mb-0">{{ __('Filesize') }}</label>

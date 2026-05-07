@@ -257,7 +257,7 @@
                 @endif
               </td>
               <td><small>{{ \Illuminate\Support\Str::limit($derivative->master_name, 25) }}</small></td>
-              <td><small>{{ \Illuminate\Support\Str::limit($derivative->name, 25) }}</small></td>
+              <td><small>{{ \Illuminate\Support\Str::limit(\AhgCore\Support\GlobalSettings::displayFilename($derivative->name) ?? '', 25) }}</small></td>
               <td>
                 <span class="badge {{ $derivative->usage_id == 142 ? 'bg-success' : 'bg-info' }}">
                   {{ $usageLabels[$derivative->usage_id] ?? 'Unknown' }}

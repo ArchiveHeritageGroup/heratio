@@ -8,7 +8,7 @@
   <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
     <h5 class="mb-0">
       <i class="bi bi-file-earmark me-2"></i>
-      {{ e($digitalObject->name ?: basename($digitalObject->path)) }}
+      {{ e(\AhgCore\Support\GlobalSettings::displayFilename($digitalObject->name) ?: basename($digitalObject->path)) }}
     </h5>
     <div>
       <a href="{{ route('metadata-extraction.index') }}" class="btn atom-btn-white btn-sm">
@@ -33,7 +33,7 @@
           </tr>
           <tr>
             <th>{{ __('File Name') }}</th>
-            <td>{{ e($digitalObject->name ?: basename($digitalObject->path)) }}</td>
+            <td>{{ e(\AhgCore\Support\GlobalSettings::displayFilename($digitalObject->name) ?: basename($digitalObject->path)) }}</td>
           </tr>
           <tr>
             <th>{{ __('MIME Type') }}</th>
