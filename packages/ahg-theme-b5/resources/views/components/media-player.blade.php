@@ -35,6 +35,12 @@
                          that can't stream the reference fall back cleanly
       $showDownload    - bool; honour media_show_download (default true)
       $poster          - video-only poster URL (default null)
+      $tracks          - video-only array of caption/subtitle tracks. Each
+                         entry is an associative array with keys src, kind
+                         ('subtitles' | 'captions' | 'descriptions' |
+                         'chapters' | 'metadata'), srclang (BCP-47), label
+                         (display name), default (bool). Empty array = no
+                         tracks. (default [])
 --}}
 
 @php
@@ -42,6 +48,7 @@
     $needsStreaming ??= false;
     $showDownload   ??= true;
     $poster         ??= null;
+    $tracks         ??= [];
 
     $__playerType = \App\Support\MediaSettings::playerType();
     $__media      = \App\Support\MediaSettings::payload();
@@ -64,6 +71,13 @@
                 @if($needsStreaming && $src !== $masterUrl)
                     <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
                 @endif
+                @foreach($tracks as $__t)
+                    <track src="{{ $__t['src'] }}"
+                           kind="{{ $__t['kind'] ?? 'subtitles' }}"
+                           srclang="{{ $__t['srclang'] ?? 'en' }}"
+                           label="{{ $__t['label'] ?? '' }}"
+                           @if(!empty($__t['default'])) default @endif>
+                @endforeach
                 {{ __('Your browser does not support video playback.') }}
             </video>
         @else
@@ -113,6 +127,13 @@
                 @if($needsStreaming && $src !== $masterUrl)
                     <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
                 @endif
+                @foreach($tracks as $__t)
+                    <track src="{{ $__t['src'] }}"
+                           kind="{{ $__t['kind'] ?? 'subtitles' }}"
+                           srclang="{{ $__t['srclang'] ?? 'en' }}"
+                           label="{{ $__t['label'] ?? '' }}"
+                           @if(!empty($__t['default'])) default @endif>
+                @endforeach
             </video>
         @else
             <audio id="{{ $playerId }}" class="w-100 mb-2" preload="metadata" controls
@@ -169,6 +190,13 @@
                 @if($needsStreaming && $src !== $masterUrl)
                     <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
                 @endif
+                @foreach($tracks as $__t)
+                    <track src="{{ $__t['src'] }}"
+                           kind="{{ $__t['kind'] ?? 'subtitles' }}"
+                           srclang="{{ $__t['srclang'] ?? 'en' }}"
+                           label="{{ $__t['label'] ?? '' }}"
+                           @if(!empty($__t['default'])) default @endif>
+                @endforeach
                 {{ __('Your browser does not support video playback.') }}
             </video>
         @else
@@ -275,6 +303,22 @@
             var wrapper = document.getElementById('{{ $playerId }}-wrapper');
 
             if (!media) return;
+
+            // #106 phase 5: apply operator settings (default_volume / loop /
+            // autoplay) from window.AHG_MEDIA. media_show_controls is
+            // intentionally NOT applied in rich mode — we provide our own
+            // chrome and the @if($__media['show_controls']) guard around
+            // the controls row already hides our custom controls when the
+            // setting is off; setting el.controls=true would re-enable the
+            // native overlay on top of the Heratio chrome.
+            var __cfg = window.AHG_MEDIA || {};
+            var __vol = typeof __cfg.default_volume === 'number' ? __cfg.default_volume : 1.0;
+            try { media.volume = __vol; } catch (e) { /* iOS Safari blocks; ignore */ }
+            if (volRange) volRange.value = String(__vol);
+            if (__cfg.loop) media.loop = true;
+            if (__cfg.autoplay) {
+                try { var __p = media.play(); if (__p && typeof __p.catch === 'function') __p.catch(function(){}); } catch (e) {}
+            }
 
             function fmt(s) { var m = Math.floor(s/60); return m + ':' + String(Math.floor(s%60)).padStart(2,'0'); }
 

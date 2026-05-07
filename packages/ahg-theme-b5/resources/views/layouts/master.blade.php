@@ -230,6 +230,10 @@
           // would clobber the custom controls — but applyNative just sets
           // properties on the underlying element, which is what the custom
           // UI's existing JS reads. Sync the visible volume slider too.
+          // (#106: rich-mode video takes a different path — the component
+          // applies window.AHG_MEDIA itself in its own IIFE so we don't
+          // accidentally re-enable native browser controls on top of the
+          // Heratio chrome.)
           document.querySelectorAll('.ahg-media-player audio').forEach(function (audio) {
             if (audio.dataset.ahgMediaApplied === '1') return;
             applyNative(audio);
