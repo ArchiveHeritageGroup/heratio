@@ -137,7 +137,21 @@
         var applyNative = function (el) {
           if (!el || el.dataset.ahgMediaApplied === '1') return;
           el.dataset.ahgMediaApplied = '1';
+          // Issue #85: apply autoplay / loop / show_controls / volume from
+          // /admin/ahgSettings/media. Properties are set dynamically so the
+          // hardcoded blade markup in _digital-object-viewer.blade.php (which
+          // ships with controls + no autoplay/loop) honours the operator
+          // setting without per-page wiring.
           try { el.volume = vol; } catch (e) { /* iOS Safari blocks volume set; ignore */ }
+          if (typeof cfg.show_controls === 'boolean') el.controls = !!cfg.show_controls;
+          if (cfg.loop) el.loop = true;
+          if (cfg.autoplay) {
+            // .play() must be called after the user gesture in some browsers;
+            // muting first is the standard workaround for unmuted-autoplay
+            // policies. We don't force-mute though — let the browser refuse
+            // and the user click play instead.
+            try { var p = el.play(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch (e) {}
+          }
         };
         var enhance = function () {
           // Some IO show pages (audio path in _digital-object-viewer.blade.php)
@@ -198,6 +212,48 @@
             if (el.readyState >= 1) applyNative(el);
             else el.addEventListener('loadedmetadata', function () { applyNative(el); }, { once: true });
           });
+
+          // Issue #85: also apply the basic settings to <audio> elements
+          // inside .ahg-media-player wrappers (the AHG custom audio UI on
+          // /sound etc.). enhance() filters those out because Plyr/Video.js
+          // would clobber the custom controls — but applyNative just sets
+          // properties on the underlying element, which is what the custom
+          // UI's existing JS reads. Sync the visible volume slider too.
+          document.querySelectorAll('.ahg-media-player audio').forEach(function (audio) {
+            if (audio.dataset.ahgMediaApplied === '1') return;
+            applyNative(audio);
+            var wrapper = audio.closest('.ahg-media-player');
+            if (!wrapper) return;
+            var slider = wrapper.querySelector('input[type="range"][id$="-vol"]');
+            if (slider) {
+              slider.value = String(vol);
+              // The custom UI's inline JS listens for 'input'; dispatch one
+              // so the badge / fill colour stay consistent with the new value.
+              try { slider.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
+            }
+          });
+
+          // Issue #85: gate media-block download buttons by media_show_download.
+          // The hardcoded download anchors in _digital-object-viewer.blade.php
+          // (one per audio + video block) sit inside an auth-only Blade gate so
+          // logged-in users see them by default. Hide them via JS when
+          // show_download is off.
+          if (!cfg.show_download) {
+            // Audio: download anchor lives inside the .ahg-media-player wrapper.
+            document.querySelectorAll('.ahg-media-player a[download]').forEach(function (a) {
+              a.style.display = 'none';
+            });
+            // Video: download anchor sits in the next sibling .d-flex of the
+            // <video> element. Walk parents one level up + grab any a[download].
+            document.querySelectorAll('video').forEach(function (v) {
+              var sib = v.nextElementSibling;
+              while (sib) {
+                sib.querySelectorAll('a[download]').forEach(function (a) { a.style.display = 'none'; });
+                if (sib.tagName === 'DIV' && sib.classList.contains('mt-2')) break;
+                sib = sib.nextElementSibling;
+              }
+            });
+          }
         };
         // Issue #101: separate pass that decorates the AHG custom audio UI
         // with a real WaveSurfer waveform when media_show_waveform=true.

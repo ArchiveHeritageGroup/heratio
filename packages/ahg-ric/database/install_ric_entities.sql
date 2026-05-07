@@ -149,14 +149,14 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ============================================================
 
 -- ric_entity_type
-INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
 ('ric_entity_type', 'RiC Entity Type', 'ric', 'place', 'Place', '#28a745', 'fa-map-marker-alt', 1, 0, 1, NOW(), NOW()),
 ('ric_entity_type', 'RiC Entity Type', 'ric', 'rule', 'Rule', '#fd7e14', 'fa-gavel', 2, 0, 1, NOW(), NOW()),
 ('ric_entity_type', 'RiC Entity Type', 'ric', 'activity', 'Activity', '#6f42c1', 'fa-running', 3, 0, 1, NOW(), NOW()),
 ('ric_entity_type', 'RiC Entity Type', 'ric', 'instantiation', 'Instantiation', '#17a2b8', 'fa-file-alt', 4, 0, 1, NOW(), NOW());
 
 -- ric_place_type
-INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
 ('ric_place_type', 'RiC Place Type', 'ric', 'country', 'Country', '#007bff', 'fa-globe', 1, 0, 1, NOW(), NOW()),
 ('ric_place_type', 'RiC Place Type', 'ric', 'region', 'Region', '#6c757d', 'fa-map', 2, 0, 1, NOW(), NOW()),
 ('ric_place_type', 'RiC Place Type', 'ric', 'province', 'Province/State', '#6c757d', 'fa-map', 3, 0, 1, NOW(), NOW()),
@@ -169,7 +169,7 @@ INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `c
 ('ric_place_type', 'RiC Place Type', 'ric', 'address', 'Address', '#17a2b8', 'fa-map-pin', 10, 0, 1, NOW(), NOW());
 
 -- ric_rule_type
-INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
 ('ric_rule_type', 'RiC Rule Type', 'ric', 'mandate', 'Mandate', '#dc3545', 'fa-gavel', 1, 1, 1, NOW(), NOW()),
 ('ric_rule_type', 'RiC Rule Type', 'ric', 'regulation', 'Regulation', '#fd7e14', 'fa-balance-scale', 2, 0, 1, NOW(), NOW()),
 ('ric_rule_type', 'RiC Rule Type', 'ric', 'policy', 'Policy', '#007bff', 'fa-file-contract', 3, 0, 1, NOW(), NOW()),
@@ -178,7 +178,7 @@ INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `c
 ('ric_rule_type', 'RiC Rule Type', 'ric', 'standard', 'Standard', '#17a2b8', 'fa-certificate', 6, 0, 1, NOW(), NOW());
 
 -- ric_activity_type
-INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
 ('ric_activity_type', 'RiC Activity Type', 'ric', 'production', 'Production', '#28a745', 'fa-industry', 1, 1, 1, NOW(), NOW()),
 ('ric_activity_type', 'RiC Activity Type', 'ric', 'accumulation', 'Accumulation', '#007bff', 'fa-layer-group', 2, 0, 1, NOW(), NOW()),
 ('ric_activity_type', 'RiC Activity Type', 'ric', 'custody', 'Custody', '#6f42c1', 'fa-archive', 3, 0, 1, NOW(), NOW()),
@@ -189,7 +189,7 @@ INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `c
 ('ric_activity_type', 'RiC Activity Type', 'ric', 'destruction', 'Destruction', '#dc3545', 'fa-fire', 8, 0, 1, NOW(), NOW());
 
 -- ric_carrier_type
-INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
 ('ric_carrier_type', 'RiC Carrier Type', 'ric', 'physical', 'Physical', '#6c757d', 'fa-box', 1, 1, 1, NOW(), NOW()),
 ('ric_carrier_type', 'RiC Carrier Type', 'ric', 'digital', 'Digital', '#007bff', 'fa-hdd', 2, 0, 1, NOW(), NOW()),
 ('ric_carrier_type', 'RiC Carrier Type', 'ric', 'microform', 'Microform', '#fd7e14', 'fa-film', 3, 0, 1, NOW(), NOW()),
@@ -198,7 +198,7 @@ INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `c
 ('ric_carrier_type', 'RiC Carrier Type', 'ric', 'mixed', 'Mixed', '#6f42c1', 'fa-cubes', 6, 0, 1, NOW(), NOW());
 
 -- ric_relation_category
-INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `created_at`, `updated_at`) VALUES
 ('ric_relation_category', 'RiC Relation Category', 'ric', 'provenance', 'Provenance', '#28a745', 'fa-project-diagram', 1, 0, 1, NOW(), NOW()),
 ('ric_relation_category', 'RiC Relation Category', 'ric', 'temporal', 'Temporal', '#007bff', 'fa-clock', 2, 0, 1, NOW(), NOW()),
 ('ric_relation_category', 'RiC Relation Category', 'ric', 'associative', 'Associative', '#6f42c1', 'fa-link', 3, 0, 1, NOW(), NOW()),
@@ -209,7 +209,7 @@ INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `c
 ('ric_relation_category', 'RiC Relation Category', 'ric', 'derivative', 'Derivative', '#6c757d', 'fa-code-branch', 8, 0, 1, NOW(), NOW());
 
 -- ric_relation_type (~30 specific types with RiC-O predicate metadata in JSON)
-INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `metadata`, `created_at`, `updated_at`) VALUES
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `color`, `icon`, `sort_order`, `is_default`, `is_active`, `metadata`, `created_at`, `updated_at`) VALUES
 -- Provenance relations
 ('ric_relation_type', 'RiC Relation Type', 'ric', 'has_creator', 'Has Creator', '#28a745', 'fa-user-edit', 1, 0, 1, '{"predicate":"rico:hasCreator","inverse":"rico:isCreatorOf","category":"provenance","domain":"Record","range":"Agent","symmetric":false}', NOW(), NOW()),
 ('ric_relation_type', 'RiC Relation Type', 'ric', 'has_accumulator', 'Has Accumulator', '#28a745', 'fa-layer-group', 2, 0, 1, '{"predicate":"rico:hasAccumulator","inverse":"rico:isAccumulatorOf","category":"provenance","domain":"Record","range":"Agent","symmetric":false}', NOW(), NOW()),
@@ -254,19 +254,19 @@ INSERT INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `c
 -- ============================================================
 -- COLUMN MAP ENTRIES (link table columns to dropdown taxonomies)
 -- ============================================================
-INSERT INTO `ahg_dropdown_column_map` (`table_name`, `column_name`, `taxonomy`, `is_strict`, `created_at`)
+INSERT IGNORE INTO `ahg_dropdown_column_map` (`table_name`, `column_name`, `taxonomy`, `is_strict`, `created_at`)
 SELECT 'ric_place', 'type_id', 'ric_place_type', 1, NOW()
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `ahg_dropdown_column_map` WHERE `table_name`='ric_place' AND `column_name`='type_id');
 
-INSERT INTO `ahg_dropdown_column_map` (`table_name`, `column_name`, `taxonomy`, `is_strict`, `created_at`)
+INSERT IGNORE INTO `ahg_dropdown_column_map` (`table_name`, `column_name`, `taxonomy`, `is_strict`, `created_at`)
 SELECT 'ric_rule', 'type_id', 'ric_rule_type', 1, NOW()
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `ahg_dropdown_column_map` WHERE `table_name`='ric_rule' AND `column_name`='type_id');
 
-INSERT INTO `ahg_dropdown_column_map` (`table_name`, `column_name`, `taxonomy`, `is_strict`, `created_at`)
+INSERT IGNORE INTO `ahg_dropdown_column_map` (`table_name`, `column_name`, `taxonomy`, `is_strict`, `created_at`)
 SELECT 'ric_activity', 'type_id', 'ric_activity_type', 1, NOW()
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `ahg_dropdown_column_map` WHERE `table_name`='ric_activity' AND `column_name`='type_id');
 
-INSERT INTO `ahg_dropdown_column_map` (`table_name`, `column_name`, `taxonomy`, `is_strict`, `created_at`)
+INSERT IGNORE INTO `ahg_dropdown_column_map` (`table_name`, `column_name`, `taxonomy`, `is_strict`, `created_at`)
 SELECT 'ric_instantiation', 'carrier_type', 'ric_carrier_type', 1, NOW()
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `ahg_dropdown_column_map` WHERE `table_name`='ric_instantiation' AND `column_name`='carrier_type');
 
