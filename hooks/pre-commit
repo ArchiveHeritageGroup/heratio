@@ -2,8 +2,23 @@
 #===============================================================================
 # Heratio - pre-commit hook
 #===============================================================================
-# Refuses to commit if any staged file is under a locked path (see
-# .locked-paths) and isn't covered by an active ./bin/unlock entry.
+# Three gates run, in order:
+#
+#   1. Locked-paths gate (./bin/check-locked --staged) - refuses to commit any
+#      staged file under a locked path that isn't in the active ./bin/unlock
+#      list.
+#
+#   2. Syntax gate (#108) - php -l on every staged *.php file, bash -n on every
+#      staged *.sh file. Catches the v1.52.59 / 6049f747 disaster where an
+#      AI-emitted unified diff was applied as file content, leaving literal
+#      +/- prefixes that fail to parse and silently dropped class-closing
+#      braces.
+#
+#   3. Diff-marker gate (#108) - rejects staged source files that contain a
+#      run of three or more consecutive lines starting with `+` or `-` outside
+#      a unified-diff context. The pattern is the smoking gun of a unified
+#      diff pasted as file content. Scoped to source files (*.php, *.js, *.ts,
+#      *.blade.php) so a deliberate .patch / .diff commit isn't blocked.
 #
 # Bypass requires --no-verify, which is reserved for the user. CLAUDE.md
 # already forbids skipping hooks via --no-verify in normal automated work.
@@ -16,10 +31,81 @@ set -e
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo .)"
 cd "$REPO_ROOT"
 
+# ── Gate 1: locked-paths ───────────────────────────────────────────────────
 if [ -x "./bin/check-locked" ]; then
     if ! ./bin/check-locked --staged; then
         exit 1
     fi
+fi
+
+# ── Collect staged files (added/copied/modified/renamed; not deleted) ──────
+mapfile -t STAGED < <(git diff --cached --name-only --diff-filter=ACMR)
+if [ "${#STAGED[@]}" -eq 0 ]; then
+    exit 0
+fi
+
+# ── Gate 2: syntax (#108) ──────────────────────────────────────────────────
+SYNTAX_ERRORS=0
+for f in "${STAGED[@]}"; do
+    [ -f "$f" ] || continue
+    case "$f" in
+        *.php)
+            if ! php -l "$f" >/dev/null 2>&1; then
+                echo "pre-commit: php -l failed on $f"
+                php -l "$f" 2>&1 | sed 's/^/    /'
+                SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+            fi
+            ;;
+        *.sh)
+            if ! bash -n "$f" 2>/dev/null; then
+                echo "pre-commit: bash -n failed on $f"
+                bash -n "$f" 2>&1 | sed 's/^/    /'
+                SYNTAX_ERRORS=$((SYNTAX_ERRORS + 1))
+            fi
+            ;;
+    esac
+done
+
+if [ "$SYNTAX_ERRORS" -gt 0 ]; then
+    echo ""
+    echo "pre-commit: refusing commit - $SYNTAX_ERRORS file(s) failed syntax check."
+    echo "pre-commit: see #108 for the broken-commit pattern this gate catches."
+    exit 1
+fi
+
+# ── Gate 3: diff-marker scan (#108) ────────────────────────────────────────
+# Reject files with >=3 consecutive line-start +/- markers (the AI-diff-as-
+# content tell-tale). Scoped to source files so .patch/.diff commits pass.
+DIFF_MARKER_HITS=0
+for f in "${STAGED[@]}"; do
+    [ -f "$f" ] || continue
+    case "$f" in
+        *.php|*.js|*.ts|*.blade.php|*.tsx|*.jsx)
+            # awk: count runs of consecutive lines starting with + or - (but
+            # not ++ or --, which appear in legitimate code as ++var/--var).
+            # If any run reaches 3, flag the file.
+            if awk '
+                BEGIN { run = 0 }
+                /^[+-][^+-]/ { run++; if (run >= 3) { print NR; exit 1 } next }
+                { run = 0 }
+            ' "$f" >/dev/null 2>&1; then
+                : # clean
+            else
+                echo "pre-commit: diff-marker pattern detected in $f"
+                echo "    (3+ consecutive lines starting with + or - - looks like a unified diff)"
+                DIFF_MARKER_HITS=$((DIFF_MARKER_HITS + 1))
+            fi
+            ;;
+    esac
+done
+
+if [ "$DIFF_MARKER_HITS" -gt 0 ]; then
+    echo ""
+    echo "pre-commit: refusing commit - $DIFF_MARKER_HITS file(s) look like a"
+    echo "pre-commit: unified diff was pasted as file content (see #108)."
+    echo "pre-commit: if this is a deliberate .patch commit, rename to .patch"
+    echo "pre-commit: or .diff and commit again."
+    exit 1
 fi
 
 exit 0

@@ -63,8 +63,14 @@ class FindingAidJob implements ShouldQueue
             $levelName = $this->getLevelName($io, $culture);
             $children = $this->getDescendants($io, $culture);
 
-            // Build EAD XML
-            $xml = $this->buildEadXml($io, $repository, $events, $creators, $subjects, $places, $genres, $notes, $levelName, $children, $culture);
+            // Build EAD XML. #112: pick the layout from /admin/settings/global
+            // findingAidModel ('inventory-summary' default | 'full-details').
+            // inventory-summary keeps the parent archdesc full but emits each
+            // child with only identifier + title + scope_and_content; full-details
+            // expands every child field. Unknown values fall back to inventory-summary.
+            $model = \AhgCore\Support\GlobalSettings::findingAidModel();
+            $xml = $this->buildEadXml($io, $repository, $events, $creators, $subjects, $places, $genres, $notes, $levelName, $children, $culture, $model);
+            $this->log('Finding aid model: ' . $model);
 
             // Ensure downloads directory exists
             $downloadsDir = public_path('downloads');
@@ -412,8 +418,9 @@ HTML;
         return $map[$level ?? ''] ?? 'otherlevel';
     }
 
-    protected function buildEadXml($io, $repository, $events, $creators, $subjects, $places, $genres, $notes, $levelName, $children, string $culture): string
+    protected function buildEadXml($io, $repository, $events, $creators, $subjects, $places, $genres, $notes, $levelName, $children, string $culture, string $model = 'inventory-summary'): string
     {
+        $isInventory = ($model !== 'full-details');
         $eadLevel = $this->mapLevelToEad($levelName);
         $date = gmdate('Y-m-d H:i e');
         $dateNormal = gmdate('Y-m-d');
@@ -549,14 +556,17 @@ HTML;
                     $xml .= "        <unitid>" . $this->e($child->identifier) . "</unitid>\n";
                 }
                 $xml .= "        <unittitle>" . $this->e($child->title) . "</unittitle>\n";
-                if ($child->extent_and_medium) {
+                // full-details expands physdesc/extent in the did; inventory-summary
+                // keeps the did to the bare identifier + title only.
+                if (!$isInventory && $child->extent_and_medium) {
                     $xml .= "        <physdesc><extent>" . $this->e($child->extent_and_medium) . "</extent></physdesc>\n";
                 }
                 $xml .= "      </did>\n";
                 if ($child->scope_and_content) {
                     $xml .= "      <scopecontent><p>" . $this->e($child->scope_and_content) . "</p></scopecontent>\n";
                 }
-                if ($child->arrangement) {
+                // arrangement is a full-details extra; inventory-summary stops at scope.
+                if (!$isInventory && $child->arrangement) {
                     $xml .= "      <arrangement><p>" . $this->e($child->arrangement) . "</p></arrangement>\n";
                 }
                 if ($child->rgt == $child->lft + 1) {

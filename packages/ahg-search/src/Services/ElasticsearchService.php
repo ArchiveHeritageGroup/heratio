@@ -79,7 +79,7 @@ class ElasticsearchService
                     'must' => [
                         [
                             'query_string' => [
-                                'query' => $query,
+                                'query' => $this->sanitizeQuery($query),
                                 'fields' => [
                                     "i18n.{$culture}.title^3",
                                     "i18n.{$culture}.authorizedFormOfName^3",
@@ -888,11 +888,16 @@ class ElasticsearchService
     }
 
     /**
-     * Sanitize query string for ES.
+     * Sanitize query string for ES. Strips bare wildcards that would expand
+     * to match-all (a UX foot-gun in user-typed queries) then defers to
+     * EscapeQueriesHelper for the Lucene-reserved-char escape pass, which
+     * is gated on GlobalSettings::escapeQueries() per #111.
      */
     protected function sanitizeQuery(string $query): string
     {
-        return strtr($query, ['*' => '', '?' => '']);
+        $stripped = strtr($query, ['*' => '', '?' => '']);
+
+        return \AhgCore\Support\EscapeQueriesHelper::escapeForElasticsearch($stripped);
     }
 
     /**

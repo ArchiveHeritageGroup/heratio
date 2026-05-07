@@ -1566,11 +1566,18 @@ class DisplayController extends Controller
             return trim(preg_replace('/[\+\-><\(\)~\*"@]+/', ' ', $s));
         };
 
+        // #111: escape LIKE wildcards (% _) when escape_queries is on so a
+        // pasted value like "100% complete" matches literally instead of
+        // collapsing into a match-all-after-100 wildcard. When the operator
+        // turns escape_queries off, the helper passes the raw term through
+        // and power users can wildcard-search via LIKE.
+        $likeEscape = static fn (string $s): string => \AhgCore\Support\EscapeQueriesHelper::escapeForLike($s);
+
         if (is_array($searchTerms)) {
             // Semantic search: OR between all terms
-            $query->where(function ($qb) use ($searchTerms, $useFulltext, $sectorTables, $ftSanitize) {
+            $query->where(function ($qb) use ($searchTerms, $useFulltext, $sectorTables, $ftSanitize, $likeEscape) {
                 foreach ($searchTerms as $term) {
-                    $q = '%' . $term . '%';
+                    $q = '%' . $likeEscape((string) $term) . '%';
                     $ftTerm = $ftSanitize((string) $term);
                     $qb->orWhere(function ($inner) use ($q, $term, $ftTerm, $useFulltext, $sectorTables) {
                         if ($useFulltext && $ftTerm !== '') {
@@ -1602,7 +1609,7 @@ class DisplayController extends Controller
             });
         } else {
             // Normal search: single term
-            $q = '%' . $searchTerms . '%';
+            $q = '%' . $likeEscape((string) $searchTerms) . '%';
             $ftTerm = $ftSanitize((string) $searchTerms);
             if ($useFulltext && $ftTerm !== '') {
                 $query->where(function ($qb) use ($q, $ftTerm, $sectorTables) {
