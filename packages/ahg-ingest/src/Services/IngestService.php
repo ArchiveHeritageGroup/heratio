@@ -66,33 +66,140 @@ class IngestService
 
     public function createSession(int $userId, array $config): int
     {
-        return DB::table('ingest_session')->insertGetId([
-            'user_id' => $userId,
-            'title' => $config['title'] ?? '',
-            'entity_type' => $config['entity_type'] ?? 'description',
-            'sector' => $config['sector'] ?? 'archive',
-            'standard' => $config['standard'] ?? 'isadg',
-            'repository_id' => $config['repository_id'] ?? null,
-            'parent_id' => $config['parent_id'] ?? null,
-            'config' => json_encode($config),
-            'status' => 'configure',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $defaults = $this->ingestSettings();
+        $row = $this->buildSessionRow($config, $defaults);
+        $row['user_id'] = $userId;
+        $row['config'] = json_encode($config);
+        $row['status'] = 'configure';
+        $row['created_at'] = now();
+        $row['updated_at'] = now();
+
+        return DB::table('ingest_session')->insertGetId($row);
     }
 
     public function updateSession(int $id, array $config): void
     {
-        DB::table('ingest_session')->where('id', $id)->update([
+        $defaults = $this->ingestSettings();
+        $row = $this->buildSessionRow($config, $defaults);
+        $row['config'] = json_encode($config);
+        $row['updated_at'] = now();
+
+        DB::table('ingest_session')->where('id', $id)->update($row);
+    }
+
+    /**
+     * Read every ingest_* setting once with its form-default fallback. Used
+     * by createSession / updateSession to fill columns the operator didn't
+     * touch, by configureDefaults() to pre-fill the configure form when
+     * starting a new session, and by OaisPackagerService to fall back to a
+     * configured AIP/SIP/DIP path when the session column is empty.
+     */
+    public function ingestSettings(): array
+    {
+        return [
+            'aip_path' => (string) \AhgCore\Services\AhgSettingsService::get('ingest_aip_path', ''),
+            'dip_path' => (string) \AhgCore\Services\AhgSettingsService::get('ingest_dip_path', ''),
+            'sip_path' => (string) \AhgCore\Services\AhgSettingsService::get('ingest_sip_path', ''),
+            'generate_aip' => \AhgCore\Services\AhgSettingsService::getBool('ingest_generate_aip', true),
+            'generate_dip' => \AhgCore\Services\AhgSettingsService::getBool('ingest_generate_dip', true),
+            'generate_sip' => \AhgCore\Services\AhgSettingsService::getBool('ingest_generate_sip', true),
+            'create_records' => \AhgCore\Services\AhgSettingsService::getBool('ingest_create_records', true),
+            'default_sector' => (string) \AhgCore\Services\AhgSettingsService::get('ingest_default_sector', 'archive'),
+            'default_standard' => (string) \AhgCore\Services\AhgSettingsService::get('ingest_default_standard', 'isadg'),
+            'face_detect' => \AhgCore\Services\AhgSettingsService::getBool('ingest_face_detect', false),
+            'format_id' => \AhgCore\Services\AhgSettingsService::getBool('ingest_format_id', false),
+            'ner' => \AhgCore\Services\AhgSettingsService::getBool('ingest_ner', false),
+            'ocr' => \AhgCore\Services\AhgSettingsService::getBool('ingest_ocr', false),
+            'reference' => \AhgCore\Services\AhgSettingsService::getBool('ingest_reference', true),
+            'spellcheck' => \AhgCore\Services\AhgSettingsService::getBool('ingest_spellcheck', false),
+            'spellcheck_lang' => (string) \AhgCore\Services\AhgSettingsService::get('ingest_spellcheck_lang', 'en_ZA'),
+            'summarize' => \AhgCore\Services\AhgSettingsService::getBool('ingest_summarize', false),
+            'thumbnails' => \AhgCore\Services\AhgSettingsService::getBool('ingest_thumbnails', true),
+            'translate' => \AhgCore\Services\AhgSettingsService::getBool('ingest_translate', false),
+            'translate_from' => (string) \AhgCore\Services\AhgSettingsService::get('ingest_translate_from', 'en'),
+            'translate_to' => (string) \AhgCore\Services\AhgSettingsService::get('ingest_translate_to', 'af'),
+            'virus_scan' => \AhgCore\Services\AhgSettingsService::getBool('ingest_virus_scan', true),
+        ];
+    }
+
+    /**
+     * Build the ingest_session row payload, using posted form values where
+     * present and falling back to operator-configured ingest_* settings.
+     * Centralised so create + update share the same column-coverage logic
+     * (create previously dropped every process_* and output_* checkbox on
+     * the floor; the form had knobs that never reached the DB).
+     */
+    protected function buildSessionRow(array $config, array $defaults): array
+    {
+        $bool = fn ($v, $default) => array_key_exists($v, $config)
+            ? (!empty($config[$v]) ? 1 : 0)
+            : ($default ? 1 : 0);
+
+        return [
             'title' => $config['title'] ?? '',
             'entity_type' => $config['entity_type'] ?? 'description',
-            'sector' => $config['sector'] ?? 'archive',
-            'standard' => $config['standard'] ?? 'isadg',
+            'sector' => $config['sector'] ?? $defaults['default_sector'],
+            'standard' => $config['standard'] ?? $defaults['default_standard'],
             'repository_id' => $config['repository_id'] ?? null,
             'parent_id' => $config['parent_id'] ?? null,
-            'config' => json_encode($config),
-            'updated_at' => now(),
-        ]);
+            'output_create_records' => $bool('output_create_records', $defaults['create_records']),
+            'output_generate_sip' => $bool('output_generate_sip', $defaults['generate_sip']),
+            'output_generate_aip' => $bool('output_generate_aip', $defaults['generate_aip']),
+            'output_generate_dip' => $bool('output_generate_dip', $defaults['generate_dip']),
+            'output_sip_path' => $config['output_sip_path'] ?? ($defaults['sip_path'] ?: null),
+            'output_aip_path' => $config['output_aip_path'] ?? ($defaults['aip_path'] ?: null),
+            'output_dip_path' => $config['output_dip_path'] ?? ($defaults['dip_path'] ?: null),
+            'process_ner' => $bool('process_ner', $defaults['ner']),
+            'process_ocr' => $bool('process_ocr', $defaults['ocr']),
+            'process_virus_scan' => $bool('process_virus_scan', $defaults['virus_scan']),
+            'process_summarize' => $bool('process_summarize', $defaults['summarize']),
+            'process_spellcheck' => $bool('process_spellcheck', $defaults['spellcheck']),
+            'process_translate' => $bool('process_translate', $defaults['translate']),
+            'process_translate_lang' => $config['process_translate_lang']
+                ?? ($defaults['translate_from'] . '-' . $defaults['translate_to']),
+            'process_format_id' => $bool('process_format_id', $defaults['format_id']),
+            'process_face_detect' => $bool('process_face_detect', $defaults['face_detect']),
+            'derivative_thumbnails' => $bool('derivative_thumbnails', $defaults['thumbnails']),
+            'derivative_reference' => $bool('derivative_reference', $defaults['reference']),
+        ];
+    }
+
+    /**
+     * Configure-form initial values for new sessions. Returned object mirrors
+     * the ingest_session row shape so the form's `@checked($session->X ??
+     * Y)` pattern works whether $session is a real DB row or a synthetic
+     * defaults object.
+     */
+    public function configureDefaults(): object
+    {
+        $d = $this->ingestSettings();
+        return (object) [
+            'title' => '',
+            'entity_type' => 'description',
+            'sector' => $d['default_sector'],
+            'standard' => $d['default_standard'],
+            'repository_id' => null,
+            'parent_id' => null,
+            'output_create_records' => $d['create_records'],
+            'output_generate_sip' => $d['generate_sip'],
+            'output_generate_aip' => $d['generate_aip'],
+            'output_generate_dip' => $d['generate_dip'],
+            'output_sip_path' => $d['sip_path'] ?: null,
+            'output_aip_path' => $d['aip_path'] ?: null,
+            'output_dip_path' => $d['dip_path'] ?: null,
+            'process_ner' => $d['ner'],
+            'process_ocr' => $d['ocr'],
+            'process_virus_scan' => $d['virus_scan'],
+            'process_summarize' => $d['summarize'],
+            'process_spellcheck' => $d['spellcheck'],
+            'process_spellcheck_lang' => $d['spellcheck_lang'],
+            'process_translate' => $d['translate'],
+            'process_translate_lang' => $d['translate_from'] . '-' . $d['translate_to'],
+            'process_format_id' => $d['format_id'],
+            'process_face_detect' => $d['face_detect'],
+            'derivative_thumbnails' => $d['thumbnails'],
+            'derivative_reference' => $d['reference'],
+        ];
     }
 
     public function updateSessionStatus(int $id, string $status): void

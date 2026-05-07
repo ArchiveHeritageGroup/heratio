@@ -75,7 +75,17 @@ class OaisPackagerService
         $uuid = (string) Str::uuid();
         $packagesRoot = rtrim(config('heratio.packages_path'), '/');
         $workDir = $packagesRoot . '/' . $uuid;
-        $exportDir = $options['export_path'] ?? ($packagesRoot . '/exports');
+
+        // Resolution order for the export directory:
+        //   1. options['export_path']       (explicit per-call override)
+        //   2. ingest_<type>_path setting   (operator-configured global default)
+        //   3. {packages_path}/exports      (built-in fallback)
+        // The settings layer is what wires ingest_aip_path / ingest_sip_path /
+        // ingest_dip_path - issue #71's path-keys.
+        $settingKey = 'ingest_' . strtolower($type) . '_path';
+        $configuredPath = (string) \AhgCore\Services\AhgSettingsService::get($settingKey, '');
+        $exportDir = $options['export_path']
+            ?? ($configuredPath !== '' ? $configuredPath : ($packagesRoot . '/exports'));
         if (!is_dir($workDir) && !@mkdir($workDir, 0775, true) && !is_dir($workDir)) {
             throw new \RuntimeException("Cannot create work dir: {$workDir}");
         }

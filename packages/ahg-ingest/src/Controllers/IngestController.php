@@ -101,18 +101,31 @@ class IngestController extends Controller
 
     public function configure(Request $request, ?int $id = null)
     {
-        $session = $id ? $this->service->getSession($id) : null;
+        // For new sessions present a synthetic $session pre-populated from the
+        // ingest_* settings so the form's @checked / value="..." patterns
+        // pull operator-configured defaults rather than the schema's bare
+        // column defaults.
+        $session = $id
+            ? $this->service->getSession($id)
+            : $this->service->configureDefaults();
 
         if ($request->isMethod('post')) {
+            // Expanded `only()` list mirrors the columns now persisted by
+            // IngestService::buildSessionRow - previously the form had
+            // checkboxes for output_*_path / process_translate / process_format_id /
+            // process_face_detect that never reached createSession().
             $config = $request->only([
                 'title', 'entity_type', 'sector', 'standard',
                 'repository_id', 'parent_id', 'parent_placement',
                 'new_parent_title', 'new_parent_level',
                 'output_create_records', 'output_generate_sip',
                 'output_generate_aip', 'output_generate_dip',
+                'output_sip_path', 'output_aip_path', 'output_dip_path',
                 'derivative_thumbnails', 'derivative_reference',
                 'process_ner', 'process_ocr', 'process_virus_scan',
                 'process_summarize', 'process_spellcheck',
+                'process_translate', 'process_translate_lang',
+                'process_format_id', 'process_face_detect',
             ]);
 
             if ($id) {
