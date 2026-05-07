@@ -181,6 +181,29 @@ class ConditionService
 
     public function uploadPhoto(int $checkId, array $file, string $photoType, string $caption, int $userId): ?int
     {
+        // #115 repository_quota: condition photos count against the owning
+        // repository's cap (spectrum_condition_check.object_id ->
+        // information_object.repository_id). Refuse the upload up-front when
+        // over the cap so PhotoProcessor doesn't burn cycles processing a
+        // file we'll then have to delete.
+        $repoId = (int) DB::table('spectrum_condition_check as cc')
+            ->join('information_object as io', 'cc.object_id', '=', 'io.id')
+            ->where('cc.id', $checkId)
+            ->value('io.repository_id');
+        $proposedBytes = (int) ($file['size'] ?? (@filesize($file['tmp_name'] ?? '') ?: 0));
+        if ($proposedBytes > 0 && !\AhgCore\Services\RepositoryQuotaService::canAccept(
+            $repoId ?: null,
+            $proposedBytes,
+        )) {
+            \Illuminate\Support\Facades\Log::warning('[condition] uploadPhoto rejected by repository quota', [
+                'condition_check_id' => $checkId,
+                'repository_id' => $repoId,
+                'original_name' => $file['name'] ?? null,
+                'proposed_bytes' => $proposedBytes,
+            ]);
+            return null;
+        }
+
         try {
             $result = (new \AhgMediaProcessing\Services\PhotoProcessor())
                 ->process($file['tmp_name'], $file['name']);

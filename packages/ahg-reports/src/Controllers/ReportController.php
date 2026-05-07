@@ -27,6 +27,8 @@
 
 namespace AhgReports\Controllers;
 
+use AhgCore\Constants\TermId;
+use AhgCore\Support\GlobalSettings;
 use AhgReports\Services\ReportService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -41,6 +43,45 @@ class ReportController extends Controller
     public function __construct(ReportService $service)
     {
         $this->service = $service;
+    }
+
+    // ── #113 generate_reports_as_pub_user ──────────────────────────────
+    //
+    // When the operator-configurable setting on /admin/settings/global is on,
+    // each report is generated "as if I were anonymous" - i.e. only public
+    // (Published) records are counted. For reports backed by
+    // `information_object` (descriptions, recent updates) this means forcing
+    // a publication_status=PUBLISHED filter regardless of what the operator
+    // explicitly passed. For reports backed by tables that anonymous users
+    // have no access to at all (accessions, donors, storage, internal user
+    // activity), the controller short-circuits with a flash explaining why
+    // and links the operator back to the global setting to disable it.
+    //
+    // The mapping below lists every report endpoint and how it behaves under
+    // pub_user mode:
+    //   'force_published' - force publicationStatus param to PUBLISHED
+    //   'no_access'       - redirect to dashboard with explanatory flash
+    //   null              - report semantics already match (e.g. authorities
+    //                       linked only to public actors render fine for all)
+    private function pubUserMode(): bool
+    {
+        return GlobalSettings::generateReportsAsPubUser();
+    }
+
+    /**
+     * Bounce the operator back to the dashboard with a flash explaining that
+     * this report has no anonymous-user equivalent. Used by the six reports
+     * (accessions, donors, repositories, storage, activity, authorities)
+     * that surface internal-only data.
+     */
+    private function pubUserNoAccess(string $reportLabel)
+    {
+        $msg = sprintf(
+            '"%s" has no anonymous-user equivalent. Anonymous visitors cannot see this data, so the report would always be empty in pub-user mode. Disable "Generate reports as anonymous user" on /admin/settings/global to view operator-level data.',
+            $reportLabel
+        );
+
+        return redirect()->route('reports.dashboard')->with('warning', $msg);
     }
 
     public function dashboard()
@@ -85,6 +126,7 @@ class ReportController extends Controller
 
     public function accessions(Request $request)
     {
+        if ($this->pubUserMode()) return $this->pubUserNoAccess('Accessions Report');
         $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'limit', 'page']);
         $data = $this->service->reportAccessions($params);
         $cultures = $this->service->getAvailableCultures();
@@ -105,6 +147,12 @@ class ReportController extends Controller
     public function descriptions(Request $request)
     {
         $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'level', 'publicationStatus', 'limit', 'page']);
+        // #113: pub_user mode forces the publication-status filter to PUBLISHED
+        // regardless of any operator-supplied value. Anonymous visitors only
+        // see published descriptions, so this is the report's pub-user view.
+        if ($this->pubUserMode()) {
+            $params['publicationStatus'] = TermId::PUBLICATION_STATUS_PUBLISHED;
+        }
         $data = $this->service->reportDescriptions($params);
         $levels = $this->service->getLevelsOfDescription();
 
@@ -129,6 +177,7 @@ class ReportController extends Controller
 
     public function authorities(Request $request)
     {
+        if ($this->pubUserMode()) return $this->pubUserNoAccess('Authorities Report');
         $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'entityType', 'limit', 'page']);
         $data = $this->service->reportAuthorities($params);
         $entityTypes = $this->service->getEntityTypes();
@@ -148,6 +197,7 @@ class ReportController extends Controller
 
     public function donors(Request $request)
     {
+        if ($this->pubUserMode()) return $this->pubUserNoAccess('Donors Report');
         $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'limit', 'page']);
         $data = $this->service->reportDonors($params);
 
@@ -164,6 +214,7 @@ class ReportController extends Controller
 
     public function repositories(Request $request)
     {
+        if ($this->pubUserMode()) return $this->pubUserNoAccess('Repositories Report');
         $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'limit', 'page']);
         $data = $this->service->reportRepositories($params);
 
@@ -180,6 +231,7 @@ class ReportController extends Controller
 
     public function storage(Request $request)
     {
+        if ($this->pubUserMode()) return $this->pubUserNoAccess('Physical Storage Report');
         $params = $request->only(['culture', 'dateStart', 'dateEnd', 'dateOf', 'limit', 'page']);
         $data = $this->service->reportPhysicalStorage($params);
 
@@ -196,6 +248,7 @@ class ReportController extends Controller
 
     public function activity(Request $request)
     {
+        if ($this->pubUserMode()) return $this->pubUserNoAccess('User Activity Report');
         $params = $request->only(['dateStart', 'dateEnd', 'actionUser', 'userAction', 'limit', 'page']);
         $data = $this->service->reportUserActivity($params);
         $users = $this->service->getAuditUsers();
@@ -207,6 +260,14 @@ class ReportController extends Controller
 
     public function recent(Request $request)
     {
+        // #113: recent updates spans every object class (descriptions, actors,
+        // accessions, donors, physical-objects). Filtering it down to
+        // public-only would require joining the publication status on
+        // information_object only and dropping every other class - effectively
+        // a different report. Short-circuit with the no-access flash; the
+        // operator who wants "what recently went public" is better served by
+        // the GLAM browse with a date-sort.
+        if ($this->pubUserMode()) return $this->pubUserNoAccess('Recent Updates Report');
         $params = $request->only(['dateStart', 'dateEnd', 'className', 'limit', 'page']);
         $data = $this->service->reportUpdates($params);
 

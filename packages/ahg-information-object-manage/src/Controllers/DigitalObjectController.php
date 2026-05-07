@@ -118,6 +118,24 @@ class DigitalObjectController extends Controller
                 ->with('error', 'A digital object already exists. Delete the current one before uploading a new file.');
         }
 
+        // #115 repository_quota: refuse the upload up-front when this IO''s
+        // repository is over its operator-set cap. Only file uploads count
+        // toward the quota - URL/FTP-linked objects don''t consume local
+        // disk so they bypass the gate.
+        if ($hasFile && !$hasFtp && !$hasUrl) {
+            $proposedBytes = (int) $request->file('digital_object')->getSize();
+            if (!\AhgCore\Services\RepositoryQuotaService::canAccept(
+                $io->repository_id ? (int) $io->repository_id : null,
+                $proposedBytes,
+            )) {
+                return redirect()->route('informationobject.edit', $slug)
+                    ->with('error', \AhgCore\Services\RepositoryQuotaService::rejectionMessage(
+                        (int) $io->repository_id,
+                        $proposedBytes,
+                    ));
+            }
+        }
+
         try {
             if ($hasFtp && !$hasFile && !$hasUrl) {
                 $ftp = \AhgFtpUpload\Services\FtpService::fromSettings();
@@ -254,6 +272,28 @@ class DigitalObjectController extends Controller
         $files = $request->file('digital_objects', []);
         $relPaths = (array) $request->input('relative_paths', []);
         $culture = app()->getLocale();
+
+        // #115 repository_quota: refuse the entire bulk batch up-front when
+        // the sum of incoming bytes would push this repository over the cap.
+        // Partial-batch rejection (some files in, some out) would leave the
+        // operator with half-created folder IOs to clean up, so the all-or-
+        // nothing gate is the right semantic here.
+        $batchBytes = 0;
+        foreach ($files as $upload) {
+            if ($upload && $upload->isValid()) {
+                $batchBytes += (int) $upload->getSize();
+            }
+        }
+        if ($batchBytes > 0 && !\AhgCore\Services\RepositoryQuotaService::canAccept(
+            $io->repository_id ? (int) $io->repository_id : null,
+            $batchBytes,
+        )) {
+            return redirect()->route('io.digitalobject.add', $slug)
+                ->with('error', \AhgCore\Services\RepositoryQuotaService::rejectionMessage(
+                    (int) $io->repository_id,
+                    $batchBytes,
+                ));
+        }
 
         // Folder-level term id for level_of_description: cache the lookup so
         // we don't query it per row. 'folder' is the AtoM convention; falls

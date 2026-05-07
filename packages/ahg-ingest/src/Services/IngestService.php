@@ -356,6 +356,23 @@ class IngestService
         $repositoryId = $meta['repository_id'] ?? $session->repository_id ?? null;
         $culture = $meta['culture'] ?? 'en';
 
+        // #115 repository_quota: refuse the ingest up-front when the repository
+        // is over its operator-set cap. Filesize is the staged file's size on
+        // disk - the digital_object row that ingestFile inserts later uses the
+        // same number for its byte_size column. Throw rather than redirect so
+        // ScanWatchCommand / ProcessScanFile / any future caller sees the
+        // failure and can surface it to the operator.
+        $proposedBytes = (int) (@filesize($stagedPath) ?: 0);
+        if ($proposedBytes > 0 && !\AhgCore\Services\RepositoryQuotaService::canAccept(
+            $repositoryId ? (int) $repositoryId : null,
+            $proposedBytes,
+        )) {
+            throw new \RuntimeException(\AhgCore\Services\RepositoryQuotaService::rejectionMessage(
+                (int) $repositoryId,
+                $proposedBytes,
+            ));
+        }
+
         // Resolve existing IO by (parent_id, identifier) if identifier supplied.
         $ioId = null;
         $wasExisting = false;

@@ -168,10 +168,49 @@ class GlobalSettings
         return self::asBool(SettingHelper::get('multi_repository', '1'));
     }
 
-    public static function repositoryQuota(): int
+    /**
+     * Master gate for the repository upload-quota system. Setting lives on
+     * /admin/ahgSettings/uploads. When off, RepositoryQuotaService::canAccept()
+     * unconditionally returns true and no enforcement runs. #115.
+     */
+    public static function enableRepositoryQuotas(): bool
     {
-        $raw = SettingHelper::get('repository_quota', '0');
-        return ctype_digit($raw) ? (int) $raw : 0;
+        return self::asBool(SettingHelper::get('enable_repository_quotas', '0'));
+    }
+
+    /**
+     * Operator-set per-repository upload limit, in gigabytes. Form input is a
+     * decimal (`step=0.01`). Special values per the form''s own help text:
+     *   -1.0 = unlimited
+     *    0.0 = uploads disabled for this repository
+     *   >0   = the soft cap in GB
+     * #115. Returns -1.0 / 0.0 / a positive float; never throws on bad input.
+     */
+    public static function repositoryQuotaGb(): float
+    {
+        $raw = trim((string) SettingHelper::get('repository_quota', '-1'));
+        if ($raw === '') {
+            return -1.0;
+        }
+        return is_numeric($raw) ? (float) $raw : -1.0;
+    }
+
+    /**
+     * Same as repositoryQuotaGb() but converted to bytes for byte-vs-byte
+     * comparison against `digital_object.byte_size`. Returns null when the
+     * quota is unlimited (-1) so callers can short-circuit. #115.
+     */
+    public static function repositoryQuotaBytes(): ?int
+    {
+        $gb = self::repositoryQuotaGb();
+        if ($gb < 0) {
+            return null;
+        }
+        // 1 GB = 1024^3 bytes (binary GiB - matches how disk_total_space and
+        // most disk-quota tools report). The form label says "GB" without
+        // disambiguation; binary is the convention in storage-tooling and
+        // matches how digital_object.byte_size is summed elsewhere.
+        return (int) round($gb * 1073741824);
     }
 
     // ── Finding aid ────────────────────────────────────────────────────
