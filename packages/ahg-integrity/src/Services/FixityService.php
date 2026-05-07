@@ -219,8 +219,14 @@ class FixityService
      * from integrity_default_algorithm + integrity_io_throttle_ms when the
      * caller passes the empty / -1 sentinels; explicit values still win so
      * per-schedule overrides keep working.
+     *
+     * @param  ?int  $deadlineUnixTs  Optional wall-clock deadline (Unix ts).
+     *   When set, the loop breaks before the next iteration once `time()`
+     *   reaches it; honours integrity_default_max_runtime in scheduled
+     *   callers without forcing every consumer to thread their own check.
+     *   Returned array contains only objects processed before the deadline.
      */
-    public function batchVerify(array $objectIds, string $algorithm = '', int $throttleMs = -1): array
+    public function batchVerify(array $objectIds, string $algorithm = '', int $throttleMs = -1, ?int $deadlineUnixTs = null): array
     {
         if ($algorithm === '') {
             $algorithm = IntegritySettings::defaultAlgorithm();
@@ -232,6 +238,10 @@ class FixityService
         $results = [];
 
         foreach ($objectIds as $id) {
+            if ($deadlineUnixTs !== null && time() >= $deadlineUnixTs) {
+                break;
+            }
+
             $results[$id] = $this->verifyObject($id, $algorithm);
 
             if ($throttleMs > 0) {

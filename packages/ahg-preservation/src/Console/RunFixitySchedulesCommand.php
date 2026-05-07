@@ -151,7 +151,16 @@ class RunFixitySchedulesCommand extends Command
             } else {
                 // FixityService::batchVerify returns an array keyed by digital_object_id whose
                 // values are the verifyObject() result arrays (with 'outcome' = verified|mismatch|missing|error).
-                $batch = $fixity->batchVerify($ids, $algorithm, $throttleMs);
+                // Wall-clock deadline derived from integrity_default_max_runtime
+                // (per-runOne; counted from this schedule's $startedAt). 0 disables
+                // the cap. batchVerify checks the deadline at the top of each
+                // iteration and breaks before the next verifyObject call - any
+                // objects past the cut-off are simply not present in the
+                // returned array, and the schedule's stats reflect "processed
+                // up to the cap" cleanly.
+                $maxRuntime = \AhgIntegrity\Support\IntegritySettings::defaultMaxRuntimeSeconds();
+                $deadline = $maxRuntime > 0 ? ((int) $startedAt + $maxRuntime) : null;
+                $batch = $fixity->batchVerify($ids, $algorithm, $throttleMs, $deadline);
                 $stats['processed'] = count($batch);
                 foreach ($batch as $digitalObjectId => $r) {
                     $outcomeRaw = is_array($r) ? ($r['outcome'] ?? 'unknown') : 'unknown';
@@ -209,17 +218,22 @@ class RunFixitySchedulesCommand extends Command
             $endStatus = 'completed';
         }
 
-        // Wall-clock cap signal: if this single runOne() exceeded
-        // integrity_default_max_runtime seconds, log it. This doesn't abort
-        // the in-flight batch (batchVerify is internal), but flags the
-        // operator that the cap was crossed so they can split a long
-        // schedule into smaller ones.
-        $maxRuntimeMs = \AhgIntegrity\Support\IntegritySettings::defaultMaxRuntimeSeconds() * 1000;
-        if ($maxRuntimeMs > 0 && $durationMs > $maxRuntimeMs) {
-            Log::warning('preservation: fixity schedule exceeded integrity_default_max_runtime', [
+        // Wall-clock signal: when the deadline parameter passed into
+        // batchVerify caused an early break, fewer objects landed in the
+        // result array than $batchLimit asked for. Log so the operator sees
+        // the cap fired.
+        $maxRuntime = \AhgIntegrity\Support\IntegritySettings::defaultMaxRuntimeSeconds();
+        if ($maxRuntime > 0
+            && !empty($ids)
+            && $stats['processed'] < count($ids)
+            && $durationMs >= ($maxRuntime * 1000) - 1000
+        ) {
+            Log::warning('preservation: fixity schedule hit integrity_default_max_runtime cap', [
                 'schedule_id' => $schedule->id,
                 'duration_ms' => $durationMs,
-                'cap_ms' => $maxRuntimeMs,
+                'cap_seconds' => $maxRuntime,
+                'processed' => $stats['processed'],
+                'requested' => count($ids),
             ]);
         }
 
