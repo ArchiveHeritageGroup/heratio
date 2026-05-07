@@ -93,11 +93,14 @@ class FederationService
      */
     public function isEnabled(): bool
     {
-        $val = DB::table('setting')->where('name', 'federation_enabled')->value('value');
-        if ($val === null) {
-            return false;
-        }
-        // Stored as '1' / '0' in seed SQL — cast to bool
+        // The AtoM `setting` table has no `value` column — the value lives in
+        // setting_i18n keyed by (id, culture). The previous direct
+        // ->value('value') call threw SQL 1054 on every invocation, which
+        // bubbled up as a 500 from the middleware. Plus the federation_enabled
+        // row has scope='federation' (not null) so SettingHelper::get (which
+        // filters whereNull(scope)) misses it — must use ::getScoped.
+        $val = \AhgCore\Services\SettingHelper::getScoped('federation', 'federation_enabled', '1');
+        if ($val === '') return false;
         return (bool) intval($val);
     }
 }
