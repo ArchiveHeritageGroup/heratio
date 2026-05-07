@@ -3476,8 +3476,26 @@ class SettingsController extends Controller
             $allKeys = array_keys($settings);
             // Include any posted keys not yet in DB
             foreach (array_keys($posted) as $pk) { if (!in_array($pk, $allKeys)) $allKeys[] = $pk; }
+            // #119: also include declared checkbox keys that are neither in DB
+            // nor in $posted (the unchecked-on-fresh-install case). Without this
+            // the foreach below skips them and the operator's "uncheck + save"
+            // never persists.
+            foreach ($checkboxKeys as $ck) { if (!in_array($ck, $allKeys, true)) $allKeys[] = $ck; }
+            // #119: a checkbox is identified either by the explicit allow-list
+            // OR by an existing DB value of literal 'true'/'false'. Without
+            // auto-detect an existing-row checkbox that the operator unchecks
+            // would save '' (truthy-cast as false at the read site, but the
+            // dynamic compliance blade re-renders that as a text input instead
+            // of a checkbox on the next page load). Auto-detect keeps the field
+            // type stable. Restricted to the textual booleans only - '1'/'0'
+            // would collide with legitimate small-integer values like
+            // library_max_renewals=0 (no-renewals-allowed) and silently turn
+            // them into checkboxes.
+            $boolish = ['true', 'false'];
             foreach ($allKeys as $key) {
-                $value = in_array($key, $checkboxKeys)
+                $isCheckbox = in_array($key, $checkboxKeys, true)
+                    || (isset($settings[$key]) && in_array($settings[$key], $boolish, true));
+                $value = $isCheckbox
                     ? (isset($posted[$key]) ? 'true' : 'false')
                     : ($posted[$key] ?? '');
                 DB::table('ahg_settings')->updateOrInsert(
@@ -3585,7 +3603,15 @@ class SettingsController extends Controller
     }
 
     public function librarySettings(Request $request) {
-        return $this->buildGroupSettings($request, 'library', 'library-group-settings', 'Library Settings', []);
+        // #119: explicit checkbox list so a fresh-install operator can persist
+        // an unchecked default-true switch on first save (no DB row exists yet,
+        // so the auto-detect fallback in buildGroupSettings can't fire).
+        return $this->buildGroupSettings($request, 'library', 'library-group-settings', 'Library Settings', [
+            'library_auto_fine', 'library_barcode_auto_generate',
+            'library_auto_expire_holds', 'library_auto_expire_patrons',
+            'library_opac_enabled', 'library_opac_show_availability',
+            'library_opac_show_covers', 'library_opac_allow_holds',
+        ]);
     }
 
     public function multiTenantSettings(Request $request) {
