@@ -357,7 +357,8 @@
       @else
         <div class="py-3">
           <i class="fas fa-file fa-3x text-muted mb-2 d-block"></i>
-          <p class="text-muted mb-1">{{ $masterObj->name ?? 'Digital object' }}</p>
+          {{-- settings.stripExtensions (#117): drops .ext from displayed filename when on. --}}
+          <p class="text-muted mb-1">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Digital object' }}</p>
           @auth <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Download') }}</a> @endauth
         </div>
       @endif
@@ -1060,7 +1061,7 @@
           </video>
           <div class="mt-2 d-flex justify-content-between align-items-center">
             <div>
-              <span class="badge bg-secondary">{{ $masterObj->name ?? '' }}</span>
+              <span class="badge bg-secondary">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? '' }}</span>
               <span class="badge bg-light text-dark">{{ $masterMime }}</span>
               @if($masterObj->byte_size ?? 0)
                 <span class="badge bg-light text-dark">{{ \AhgCore\Services\DigitalObjectService::formatFileSize($masterObj->byte_size) }}</span>
@@ -1125,7 +1126,7 @@
             </div>
             <div class="mt-3 d-flex justify-content-between align-items-center">
               <div>
-                <span class="badge bg-secondary">{{ $masterObj->name ?? '' }}</span>
+                <span class="badge bg-secondary">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? '' }}</span>
                 <span class="badge" style="background:rgba(255,255,255,0.1);color:#ccc;">{{ $masterMime }}</span>
                 @if($masterObj->byte_size ?? 0)
                   <span class="badge" style="background:rgba(255,255,255,0.1);color:#ccc;">{{ \AhgCore\Services\DigitalObjectService::formatFileSize($masterObj->byte_size) }}</span>
@@ -1182,7 +1183,7 @@
             <div class="d-flex flex-column align-items-center">
               <div class="mb-2">
                 <span class="badge bg-primary"><i class="fas fa-cube me-1"></i>3D Model</span>
-                <span class="badge bg-secondary">{{ $masterObj->name ?? '3D Model' }}</span>
+                <span class="badge bg-secondary">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? '3D Model' }}</span>
               </div>
               <div id="{{ $modelViewerId }}-container" style="width:100%;height:400px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:8px;position:relative;">
                 <model-viewer
@@ -1259,7 +1260,7 @@
           {{-- Other file: show info and download --}}
           <div class="py-4">
             <i class="fas fa-file fa-3x text-muted mb-3 d-block"></i>
-            <p class="text-muted">{{ $masterObj->name ?? 'Digital object' }}</p>
+            <p class="text-muted">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Digital object' }}</p>
             @auth
               <a href="{{ $masterUrl }}" download class="btn atom-btn-white">
                 <i class="fas fa-download me-1"></i>{{ __('Download file') }}

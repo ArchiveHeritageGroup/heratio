@@ -9,7 +9,7 @@
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('preservation.index') }}">Preservation</a></li>
-        <li class="breadcrumb-item active">{{ $digitalObject->name ?? 'Object' }}</li>
+        <li class="breadcrumb-item active">{{ \AhgCore\Support\GlobalSettings::displayFilename($digitalObject->name) ?? 'Object' }}</li>
       </ol>
     </nav>
 
@@ -23,7 +23,7 @@
           <div class="col-md-6">
             <table class="table table-sm">
               <tr><th width="150">{{ __('ID') }}</th><td>{{ $digitalObject->id ?? '' }}</td></tr>
-              <tr><th>{{ __('Filename') }}</th><td>{{ $digitalObject->name ?? 'Unknown' }}</td></tr>
+              <tr><th>{{ __('Filename') }}</th><td>{{ \AhgCore\Support\GlobalSettings::displayFilename($digitalObject->name) ?? 'Unknown' }}</td></tr>
               <tr><th>{{ __('Parent Object') }}</th><td>
                 @if($digitalObject->slug ?? null) <a href="{{ route('informationobject.show', $digitalObject->slug) }}">{{ $digitalObject->object_title ?? 'View' }}</a>
                 @else - @endif
