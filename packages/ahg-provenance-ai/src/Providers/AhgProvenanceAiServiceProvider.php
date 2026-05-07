@@ -55,6 +55,33 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
     {
         $this->ensureSchema();
         $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
+
+        // #62 Fuseki replay command + 5-min schedule. The command itself
+        // is a no-op when there are no NULL-URI rows queued, so the
+        // schedule fires harmlessly when the pool is healthy. Schedule
+        // self-gates on fuseki_sync_enabled - flipping that toggle off
+        // silences the loop without artisan re-cache.
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgProvenanceAi\Console\Commands\FusekiReplayCommand::class,
+            ]);
+            $this->app->booted(function () {
+                $schedule = $this->app->make(\Illuminate\Console\Scheduling\Schedule::class);
+                $schedule->command('ahg:provenance-ai:replay')
+                    ->everyFiveMinutes()
+                    ->withoutOverlapping(10)
+                    ->when(function () {
+                        try {
+                            $v = \Illuminate\Support\Facades\DB::table('ahg_settings')
+                                ->where('setting_key', 'fuseki_sync_enabled')
+                                ->value('setting_value');
+                            return $v === null ? true : (bool) intval($v);
+                        } catch (\Throwable $e) {
+                            return false;
+                        }
+                    });
+            });
+        }
     }
 
     /**

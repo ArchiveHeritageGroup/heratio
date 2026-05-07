@@ -211,12 +211,152 @@ class IngestCommitRunner
                 $meta,
                 basename($digitalObjectPath)
             );
+            // #109: per-row AI orchestration. The configure form persists 8
+            // process_* gates onto ingest_session, but pre-this-release the
+            // runner never read them. Each gate fires its corresponding AI
+            // step right after IO+DO creation. Steps log + best-effort
+            // fail-soft - a DOWN GPU pool / missing model must not break
+            // the surrounding ingest commit (the row is already saved).
+            $this->runAiSteps($session, (int) $result['io_id'], (int) ($result['do_id'] ?? 0), $digitalObjectPath);
             return ['io_id' => $result['io_id'], 'do_id' => $result['do_id']];
         }
 
         // No digital object — create the IO only.
         $ioId = \AhgInformationObjectManage\Services\InformationObjectService::create($meta, 'en');
+        // #109: text-only AI steps still run when there's no DO (NER /
+        // summarize / spellcheck / translate operate on the IO's text
+        // fields, not on a binary file).
+        $this->runAiSteps($session, $ioId, 0, null);
         return ['io_id' => $ioId, 'do_id' => null];
+    }
+
+    /**
+     * #109 AI-step runtime orchestration. Each per-row step gates on the
+     * corresponding ingest_session.process_* column + the global enable
+     * setting (which the configure form already pre-fills the column
+     * from). Steps that need a binary file are skipped when $digitalObjectPath
+     * is null (text-only ingest); text-field steps still run.
+     *
+     * Failures are non-fatal + logged. The surrounding ingest commit
+     * succeeds regardless - operator can re-run failed steps later via
+     * the relevant AI service's own re-process command.
+     */
+    protected function runAiSteps(object $session, int $ioId, int $doId, ?string $filePath): void
+    {
+        $log = static function (string $step, string $msg, array $ctx = []) use ($ioId, $doId): void {
+            \Illuminate\Support\Facades\Log::info('[ingest-ai-step] ' . $step . ': ' . $msg,
+                array_merge(['io_id' => $ioId, 'do_id' => $doId], $ctx));
+        };
+
+        $tryStep = static function (string $name, callable $fn) use ($log): void {
+            try {
+                $fn();
+            } catch (\Throwable $e) {
+                $log($name, 'failed: ' . $e->getMessage());
+            }
+        };
+
+        // Each gate is a tinyint column. Cast defensively to int because the
+        // session row may carry boolean / string values depending on driver.
+        $on = static fn ($v) => $v !== null && (int) $v === 1;
+
+        if ($filePath && $on($session->process_virus_scan ?? null)) {
+            $tryStep('virus_scan', function () use ($filePath, $log) {
+                if (!class_exists(\AhgAiServices\Services\VirusScanService::class)) {
+                    $log('virus_scan', 'service class not present, skipping');
+                    return;
+                }
+                $svc = app(\AhgAiServices\Services\VirusScanService::class);
+                if (method_exists($svc, 'scanFile')) {
+                    $svc->scanFile($filePath);
+                }
+            });
+        }
+
+        if ($filePath && $on($session->process_ocr ?? null)) {
+            $tryStep('ocr', function () use ($doId, $filePath, $log) {
+                if (!class_exists(\AhgAiServices\Services\OcrService::class)) {
+                    $log('ocr', 'service class not present, skipping'); return;
+                }
+                $svc = app(\AhgAiServices\Services\OcrService::class);
+                if (method_exists($svc, 'enqueueForDigitalObject') && $doId > 0) {
+                    $svc->enqueueForDigitalObject($doId);
+                }
+            });
+        }
+
+        if ($filePath && $on($session->process_format_id ?? null)) {
+            $tryStep('format_id', function () use ($filePath, $log) {
+                if (!class_exists(\AhgAiServices\Services\FormatIdService::class)) {
+                    $log('format_id', 'service class not present, skipping'); return;
+                }
+                $svc = app(\AhgAiServices\Services\FormatIdService::class);
+                if (method_exists($svc, 'identify')) { $svc->identify($filePath); }
+            });
+        }
+
+        if ($filePath && $on($session->process_face_detect ?? null) && $doId > 0) {
+            $tryStep('face_detect', function () use ($doId) {
+                $svc = new \AhgCore\Services\FaceDetectionService();
+                if ($svc->isEnabled()) {
+                    $svc->detectAndStore($doId);
+                }
+            });
+        }
+
+        // Text-field steps: NER / Summarize / Spellcheck / Translate run on
+        // IO text content regardless of whether a DO exists. Each consults
+        // the relevant ahg-ai-services class through its existing service
+        // interface - the runner's role is to fire the gate, not to know
+        // the per-service implementation details.
+        if ($on($session->process_ner ?? null)) {
+            $tryStep('ner', function () use ($ioId, $log) {
+                if (!class_exists(\AhgAiServices\Services\NerService::class)) {
+                    $log('ner', 'NerService not present, skipping'); return;
+                }
+                $svc = app(\AhgAiServices\Services\NerService::class);
+                if (method_exists($svc, 'enqueueForInformationObject')) {
+                    $svc->enqueueForInformationObject($ioId);
+                }
+            });
+        }
+
+        if ($on($session->process_summarize ?? null)) {
+            $tryStep('summarize', function () use ($ioId, $log) {
+                if (!class_exists(\AhgAiServices\Services\SummarizerService::class)) {
+                    $log('summarize', 'SummarizerService not present, skipping'); return;
+                }
+                $svc = app(\AhgAiServices\Services\SummarizerService::class);
+                if (method_exists($svc, 'enqueueForInformationObject')) {
+                    $svc->enqueueForInformationObject($ioId);
+                }
+            });
+        }
+
+        if ($on($session->process_spellcheck ?? null)) {
+            $tryStep('spellcheck', function () use ($ioId, $log) {
+                if (!class_exists(\AhgAiServices\Services\SpellcheckService::class)) {
+                    $log('spellcheck', 'SpellcheckService not present, skipping'); return;
+                }
+                $svc = app(\AhgAiServices\Services\SpellcheckService::class);
+                if (method_exists($svc, 'enqueueForInformationObject')) {
+                    $svc->enqueueForInformationObject($ioId);
+                }
+            });
+        }
+
+        if ($on($session->process_translate ?? null)) {
+            $tryStep('translate', function () use ($ioId, $session, $log) {
+                if (!class_exists(\AhgAiServices\Services\TranslateService::class)) {
+                    $log('translate', 'TranslateService not present, skipping'); return;
+                }
+                $svc = app(\AhgAiServices\Services\TranslateService::class);
+                $targetLang = (string) ($session->process_translate_lang ?? 'af');
+                if (method_exists($svc, 'enqueueForInformationObject')) {
+                    $svc->enqueueForInformationObject($ioId, $targetLang);
+                }
+            });
+        }
     }
 
     /**
