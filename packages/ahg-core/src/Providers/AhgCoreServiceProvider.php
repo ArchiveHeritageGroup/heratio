@@ -236,6 +236,11 @@ class AhgCoreServiceProvider extends ServiceProvider
 
                 // #125 derivative encryption bulk-apply
                 \AhgCore\Commands\EncryptionDerivativesBulkApplyCommand::class,
+
+                // #45 GPU pool admin CLI - lets ops add/list/health/disable
+                // GPU endpoints (.78=8GB existing, .115=20GB tomorrow,
+                // 24GB host next week) without touching SQL.
+                \AhgCore\Commands\GpuPoolCommand::class,
             ]);
 
             $this->app->booted(function () {

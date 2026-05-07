@@ -124,11 +124,43 @@ class VoiceLLMService
 
     // ─── local (ollama) ────────────────────────────────────────────
 
+    /**
+     * Heuristic vRAM-floor lookup for a model name. Conservative numbers
+     * for int4 quantised weights + KV cache + a small context window.
+     * Falls back to 6GB (fits any modern GPU) when the model name doesn't
+     * match a known prefix - operator can override by editing
+     * models_supported on the relevant ahg_gpu_endpoint row.
+     */
+    private function vramFloorForModel(string $model): int
+    {
+        $lower = strtolower($model);
+        // Order matters: most specific first
+        if (preg_match('/(70b|72b)/', $lower)) return 40; // multi-GPU territory
+        if (preg_match('/(34b|33b)/', $lower)) return 22; // 24GB-class
+        if (preg_match('/(13b|14b)/', $lower)) return 10; // 20GB-class
+        if (preg_match('/(7b|8b|9b)/',  $lower)) return 6;  // 8GB-class
+        if (preg_match('/(1b|3b)/',     $lower)) return 4;
+        return 6; // Conservative default
+    }
+
     private function callLocal(string $prompt, ?string $imageBase64, array $settings, array $opts): array
     {
-        $url     = rtrim((string) ($settings['voice_local_llm_url']   ?? 'http://localhost:11434'), '/');
         $model   = (string) ($settings['voice_local_llm_model']  ?? 'llava:7b');
         $timeout = (int)    ($settings['voice_local_llm_timeout'] ?? 30);
+
+        // GPU pool: ask AhgGpuPoolService for a current endpoint that
+        // supports this model + has enough vRAM. Falls back to the
+        // legacy voice_local_llm_url setting when the pool returns
+        // null (empty pool / all-down / no host meets vRAM floor) so
+        // operators on pre-pool installs see no behaviour change. This
+        // is the swap mechanism: ops add a row for the new GPU
+        // (.115/24GB next week), bump its priority, the next call
+        // routes there - zero code changes.
+        $minVram = $this->vramFloorForModel($model);
+        $pooled = \AhgCore\Services\AhgGpuPoolService::pickEndpoint($model, $minVram);
+        $url = $pooled !== null
+            ? $pooled
+            : rtrim((string) ($settings['voice_local_llm_url'] ?? 'http://localhost:11434'), '/');
 
         $body = [
             'model'   => $model,
