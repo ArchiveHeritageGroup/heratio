@@ -28,6 +28,7 @@
 namespace AhgRepositoryManage\Services;
 
 use AhgCore\Constants\TermId;
+use AhgCore\Services\EncryptionService;
 use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -131,7 +132,7 @@ class RepositoryService
      */
     public function getContacts(int $repoId): \Illuminate\Support\Collection
     {
-        return DB::table('contact_information')
+        $rows = DB::table('contact_information')
             ->leftJoin('contact_information_i18n', function ($j) {
                 $j->on('contact_information.id', '=', 'contact_information_i18n.id')
                     ->where('contact_information_i18n.culture', '=', $this->culture);
@@ -157,6 +158,22 @@ class RepositoryService
                 'contact_information_i18n.note',
             ])
             ->get();
+
+        // Decrypt registered contact_details fields. Pass-through for plaintext
+        // rows (no sentinel prefix) so legacy data + freshly-typed inserts both
+        // read correctly. Errors here are logged via EncryptionService and
+        // re-thrown only on integrity failure (key mismatch / tampered cipher).
+        $enc = new EncryptionService();
+        foreach ($rows as $r) {
+            if (!empty($r->email)) {
+                $r->email = $enc->decrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, (string) $r->email, 'contact_information', 'email', $r->id);
+            }
+            if (!empty($r->city)) {
+                $r->city = $enc->decrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, (string) $r->city, 'contact_information_i18n', 'city', $r->id);
+            }
+        }
+
+        return $rows;
     }
 
     /**
@@ -787,13 +804,16 @@ class RepositoryService
                 continue;
             }
 
+            $enc = new EncryptionService();
+            $emailEnc = $enc->encrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, $contactData['email'] ?? null, 'contact_information', 'email', null);
+
             $contactId = DB::table('contact_information')->insertGetId([
                 'actor_id' => $repoId,
                 'primary_contact' => !empty($contactData['primary_contact']) ? 1 : 0,
                 'contact_person' => $contactData['contact_person'] ?? null,
                 'street_address' => $contactData['street_address'] ?? null,
                 'website' => $contactData['website'] ?? null,
-                'email' => $contactData['email'] ?? null,
+                'email' => $emailEnc,
                 'telephone' => $contactData['telephone'] ?? null,
                 'fax' => $contactData['fax'] ?? null,
                 'postal_code' => $contactData['postal_code'] ?? null,
@@ -807,11 +827,13 @@ class RepositoryService
                 'serial_number' => 0,
             ]);
 
+            $cityEnc = $enc->encrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, $contactData['city'] ?? null, 'contact_information_i18n', 'city', $contactId);
+
             DB::table('contact_information_i18n')->insert([
                 'id' => $contactId,
                 'culture' => $this->culture,
                 'contact_type' => $contactData['contact_type'] ?? null,
-                'city' => $contactData['city'] ?? null,
+                'city' => $cityEnc,
                 'region' => $contactData['region'] ?? null,
                 'note' => $contactData['note'] ?? null,
             ]);
@@ -835,12 +857,15 @@ class RepositoryService
             }
 
             if (!empty($contactData['id'])) {
+                $enc = new EncryptionService();
+                $emailEnc = $enc->encrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, $contactData['email'] ?? null, 'contact_information', 'email', $contactData['id']);
+
                 DB::table('contact_information')->where('id', $contactData['id'])->update([
                     'primary_contact' => !empty($contactData['primary_contact']) ? 1 : 0,
                     'contact_person' => $contactData['contact_person'] ?? null,
                     'street_address' => $contactData['street_address'] ?? null,
                     'website' => $contactData['website'] ?? null,
-                    'email' => $contactData['email'] ?? null,
+                    'email' => $emailEnc,
                     'telephone' => $contactData['telephone'] ?? null,
                     'fax' => $contactData['fax'] ?? null,
                     'postal_code' => $contactData['postal_code'] ?? null,
@@ -852,9 +877,10 @@ class RepositoryService
                     'serial_number' => DB::raw('serial_number + 1'),
                 ]);
 
+                $cityEnc = $enc->encrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, $contactData['city'] ?? null, 'contact_information_i18n', 'city', $contactData['id']);
                 $this->upsertI18n('contact_information_i18n', $contactData['id'], [
                     'contact_type' => $contactData['contact_type'] ?? null,
-                    'city' => $contactData['city'] ?? null,
+                    'city' => $cityEnc,
                     'region' => $contactData['region'] ?? null,
                     'note' => $contactData['note'] ?? null,
                 ]);

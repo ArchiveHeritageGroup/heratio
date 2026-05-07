@@ -176,6 +176,10 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Commands\LibraryIllOverdueCommand::class,
                 \AhgCore\Commands\LibraryProcessCoversCommand::class,
 
+                // Encryption
+                \AhgCore\Commands\EncryptionBulkApplyCommand::class,
+                \AhgCore\Commands\EncryptionBulkRevertCommand::class,
+
                 // Museum
                 \AhgCore\Commands\MuseumAatSyncCommand::class,
                 \AhgCore\Commands\MuseumExhibitionCommand::class,
@@ -226,6 +230,25 @@ class AhgCoreServiceProvider extends ServiceProvider
                 // Standalone install bootstrap (Phase 1 #6)
                 \AhgCore\Commands\InstallBootstrapCommand::class,
             ]);
+
+            $this->app->booted(function () {
+                $schedule = $this->app->make(\Illuminate\Console\Scheduling\Schedule::class);
+                // Daily safety net for unwrapped writers: walk every registered
+                // ahg_encrypted_fields row and encrypt anything still in
+                // plaintext. Per-service transparent wrappers (RepositoryService
+                // etc.) catch writes immediately; this catches the rest.
+                // Self-gates on encryption_enabled so it's a no-op when off.
+                $schedule->command('ahg:encryption-bulk-apply')
+                    ->dailyAt('04:00')
+                    ->withoutOverlapping(60)
+                    ->when(function () {
+                        try {
+                            return (new \AhgCore\Services\EncryptionService())->isEnabled();
+                        } catch (\Throwable $e) {
+                            return false;
+                        }
+                    });
+            });
         }
 
         // Issue #99: per-user daily cloud-LLM call counter. Auto-install
