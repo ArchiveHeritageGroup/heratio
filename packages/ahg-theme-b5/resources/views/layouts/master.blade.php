@@ -386,6 +386,18 @@
     <link href="{{ asset('vendor/ahg-theme-b5/css/custom.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/ahg-theme-b5/css/style.css') }}" rel="stylesheet">
 
+    {{-- Operator-overridable header background colour from
+         settings.header_background_colour (legacy AtoM scope=NULL setting).
+         Empty value means "use the theme default" baked into custom.css. --}}
+    @php
+      $__headerBg = \AhgCore\Support\GlobalSettings::headerBackgroundColour();
+    @endphp
+    @if ($__headerBg !== '')
+      <style nonce="{{ $cspNonce }}">
+        :root { --ahg-primary: {{ $__headerBg }}; }
+      </style>
+    @endif
+
     @stack('css')
   </head>
   <body class="d-flex flex-column min-vh-100 @yield('body-class')">

@@ -236,7 +236,10 @@ class HomeController extends Controller
                 ->get()
                 ->groupBy('parent_id');
 
-            $baseUrl = rtrim(config('app.url'), '/');
+            // Operator-overridable base URL: settings.siteBaseUrl wins when
+            // set (useful behind reverse proxies whose APP_URL differs from
+            // the public URL); otherwise falls back to config('app.url').
+            $baseUrl = \AhgCore\Support\GlobalSettings::siteBaseUrl();
             $slides = [];
 
             foreach ($items as $item) {
