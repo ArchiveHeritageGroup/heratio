@@ -77,11 +77,15 @@
             @endforeach
           </select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="form-label form-label-sm mb-0">{{ __('Contains') }}</label>
           <input type="text" name="contains" class="form-control form-control-sm" placeholder="{{ __('substring of key, English source, or translation') }}" value="{{ $contains }}">
         </div>
-        <div class="col-md-2 text-end">
+        <div class="col-md-2">
+          <label class="form-label form-label-sm mb-0">{{ __('Changed since') }}</label>
+          <input type="date" name="changed" class="form-control form-control-sm" value="{{ $changedSince ?? '' }}" title="{{ __('Show only keys with an approved edit on or after this date.') }}">
+        </div>
+        <div class="col-md-1 text-end">
           <button type="submit" class="btn btn-sm btn-primary w-100"><i class="fas fa-filter me-1"></i>{{ __('Apply') }}</button>
         </div>
       </div>
@@ -93,6 +97,7 @@
     {{ __(':total keys', ['total' => number_format($matrix['total'] ?? 0)]) }}
     @if($missing) — {{ __('missing in :code', ['code' => $missing]) }} @endif
     @if($contains) — {{ __('matching ":q"', ['q' => $contains]) }} @endif
+    @if(!empty($changedSince)) - {{ __('changed since :date', ['date' => $changedSince]) }} @endif
   </p>
 
   {{-- Editor table --}}
@@ -127,6 +132,9 @@
                   <button type="button" class="btn btn-sm btn-outline-primary ui-string-mt-btn" title="{{ __('Suggest translation (MT)') }}">
                     <i class="fas fa-magic"></i>
                   </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary ui-string-history-btn" title="{{ __('Show edit history') }}">
+                    <i class="fas fa-history"></i>
+                  </button>
                 </div>
                 <div class="ui-string-status small mt-1" style="min-height:1em;"></div>
               </td>
@@ -137,6 +145,26 @@
         @endforelse
       </tbody>
     </table>
+  </div>
+
+  {{-- History modal (one shared instance, body swapped on demand) --}}
+  <div class="modal fade" id="ui-string-history-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-history me-2"></i>{{ __('UI string edit history') }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+        </div>
+        <div class="modal-body" id="ui-string-history-body">
+          <div class="text-center py-5 text-muted">
+            <span class="spinner-border" role="status"></span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   {{-- Pagination --}}
@@ -177,6 +205,7 @@
   ready(function () {
     var saveUrl     = "{{ route('ahgtranslation.strings.save') }}";
     var mtUrl       = "{{ route('ahgtranslation.strings.mt-suggest') }}";
+    var historyUrl  = "{{ route('ahgtranslation.strings.history') }}";
     var isAdmin     = {{ $isAdmin ? 'true' : 'false' }};
     var reviewCheckbox = document.getElementById('ui-strings-request-review');
     var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).getAttribute && document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -272,6 +301,29 @@
             })
             .catch(function (e) { status.textContent = '✗ MT error: ' + e.message; })
             .finally(function () { mtBtn.disabled = false; mtBtn.innerHTML = origIcon; });
+        });
+      }
+
+      // History button - opens a shared modal and loads the partial inline.
+      var histBtn = cell.querySelector('.ui-string-history-btn');
+      if (histBtn) {
+        histBtn.addEventListener('click', function () {
+          var loc = cell.getAttribute('data-locale');
+          var key = cell.getAttribute('data-key');
+          var body = document.getElementById('ui-string-history-body');
+          var modalEl = document.getElementById('ui-string-history-modal');
+          if (!body || !modalEl) return;
+          body.innerHTML = '<div class="text-center py-5 text-muted"><span class="spinner-border" role="status"></span></div>';
+          // Bootstrap 5 modal API (the theme bundles BS 5).
+          var modal = (window.bootstrap && window.bootstrap.Modal)
+            ? window.bootstrap.Modal.getOrCreateInstance(modalEl)
+            : null;
+          if (modal) modal.show();
+          var u = historyUrl + '?locale=' + encodeURIComponent(loc) + '&key=' + encodeURIComponent(key);
+          fetch(u, { credentials: 'same-origin', headers: { 'Accept': 'text/html', 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) { return r.text(); })
+            .then(function (html) { body.innerHTML = html; })
+            .catch(function (e) { body.innerHTML = '<div class="alert alert-danger">' + (e.message || 'failed to load history') + '</div>'; });
         });
       }
     });

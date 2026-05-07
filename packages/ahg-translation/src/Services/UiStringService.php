@@ -195,6 +195,10 @@ class UiStringService
      * @param string|null $contains       case-insensitive substring (matches key OR any locale value)
      * @param int         $limit          page size (0 = unlimited; sensible default for MVP)
      * @param int         $offset
+     * @param string|null $changedSince   ISO date 'YYYY-MM-DD'; only rows that have an
+     *                                    approved ui_string_change row dated >= this for
+     *                                    the locale-of-interest (defaults to localeFilter
+     *                                    if set, else any locale)
      * @return array{rows:array, total:int, locales:array}
      */
     public function matrix(
@@ -202,7 +206,8 @@ class UiStringService
         ?string $missingLocale = null,
         ?string $contains = null,
         int $limit = 200,
-        int $offset = 0
+        int $offset = 0,
+        ?string $changedSince = null
     ): array {
         $allLocales = $this->enabledLocales();
         $locales = $localeFilter
@@ -242,6 +247,31 @@ class UiStringService
                 if ($en !== '' && mb_stripos($en, $needle) !== false) return true;
                 return false;
             }));
+        }
+
+        // Filter - changed since: surfaces only keys that have an approved
+        // change row dated >= the supplied date. Scope to the current locale
+        // when one is selected, else any locale. Uses ui_string_change as the
+        // audit log (post-#57 it's the unified pending+history table).
+        if ($changedSince !== null && $changedSince !== '') {
+            try {
+                $since = (new \DateTimeImmutable($changedSince))->format('Y-m-d 00:00:00');
+            } catch (\Throwable $e) {
+                $since = null;
+            }
+            if ($since && Schema::hasTable('ui_string_change')) {
+                $q = DB::table('ui_string_change')
+                    ->where('status', 'approved')
+                    ->where('reviewed_at', '>=', $since);
+                if ($localeFilter && in_array($localeFilter, $allLocales, true)) {
+                    $q->where('locale', $localeFilter);
+                }
+                $changedKeys = $q->pluck('key_text')->all();
+                $changedSet = array_flip(array_map('strval', $changedKeys));
+                $keys = array_values(array_filter($keys, fn ($k) => isset($changedSet[$k])));
+            } else {
+                $keys = [];
+            }
         }
 
         $total = count($keys);
@@ -335,6 +365,40 @@ class UiStringService
                 'reviewed_at'         => now(),
                 'review_note'         => $note,
             ]) > 0;
+    }
+
+    /**
+     * History rows for a single (locale, key) pair, newest first. Includes
+     * pending + approved + rejected entries so the editor sees the full chain
+     * of edits, who made them, and which were ultimately applied.
+     */
+    public function historyFor(string $locale, string $key, int $limit = 50): \Illuminate\Support\Collection
+    {
+        $this->guardLocale($locale);
+        if (!Schema::hasTable('ui_string_change')) {
+            return collect();
+        }
+        return DB::table('ui_string_change as c')
+            ->leftJoin('user as us', 'us.id', '=', 'c.submitted_by_user_id')
+            ->leftJoin('actor_i18n as as_i18n', function ($j) {
+                $j->on('as_i18n.id', '=', 'us.id')->where('as_i18n.culture', '=', 'en');
+            })
+            ->leftJoin('user as ur', 'ur.id', '=', 'c.reviewed_by_user_id')
+            ->leftJoin('actor_i18n as ar_i18n', function ($j) {
+                $j->on('ar_i18n.id', '=', 'ur.id')->where('ar_i18n.culture', '=', 'en');
+            })
+            ->where('c.locale', $locale)
+            ->where('c.key_text', $key)
+            ->orderByDesc('c.submitted_at')
+            ->limit($limit)
+            ->select(
+                'c.*',
+                'us.username as submitter_username',
+                'as_i18n.authorized_form_of_name as submitter_name',
+                'ur.username as reviewer_username',
+                'ar_i18n.authorized_form_of_name as reviewer_name'
+            )
+            ->get();
     }
 
     public function pendingChanges(?string $locale = null): \Illuminate\Support\Collection

@@ -44,4 +44,5 @@ Route::prefix('admin/translation')->middleware(['web', 'auth'])->group(function 
     Route::get('/strings',            [\AhgTranslation\Controllers\TranslationController::class, 'stringsIndex'])->name('ahgtranslation.strings');
     Route::post('/strings/save',      [\AhgTranslation\Controllers\TranslationController::class, 'stringsSave'])->name('ahgtranslation.strings.save');
     Route::get('/strings/mt-suggest', [\AhgTranslation\Controllers\TranslationController::class, 'stringsMtSuggest'])->name('ahgtranslation.strings.mt-suggest');
+    Route::get('/strings/history',    [\AhgTranslation\Controllers\TranslationController::class, 'stringsHistory'])->name('ahgtranslation.strings.history');
 });
