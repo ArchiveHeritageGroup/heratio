@@ -112,6 +112,11 @@ class IngestService
             'ocr' => \AhgCore\Services\AhgSettingsService::getBool('ingest_ocr', false),
             'reference' => \AhgCore\Services\AhgSettingsService::getBool('ingest_reference', true),
             'spellcheck' => \AhgCore\Services\AhgSettingsService::getBool('ingest_spellcheck', false),
+            // Global-only: there's no matching ingest_session.process_spellcheck_lang
+            // column AND no input on configure.blade.php for a per-session override.
+            // The future spellcheck step (gated on the orchestration in #109)
+            // reads this setting directly. Closing this loop per-session would
+            // need a schema add + a form select - filed + closed as #110 path (b).
             'spellcheck_lang' => (string) \AhgCore\Services\AhgSettingsService::get('ingest_spellcheck_lang', 'en_ZA'),
             'summarize' => \AhgCore\Services\AhgSettingsService::getBool('ingest_summarize', false),
             'thumbnails' => \AhgCore\Services\AhgSettingsService::getBool('ingest_thumbnails', true),
@@ -192,7 +197,10 @@ class IngestService
             'process_virus_scan' => $d['virus_scan'],
             'process_summarize' => $d['summarize'],
             'process_spellcheck' => $d['spellcheck'],
-            'process_spellcheck_lang' => $d['spellcheck_lang'],
+            // No process_spellcheck_lang on the synthetic session: there's no
+            // column to persist it AND no form input to override it. Closed
+            // as #110 path (b) - global-only, read directly from settings by
+            // the future spellcheck step.
             'process_translate' => $d['translate'],
             'process_translate_lang' => $d['translate_from'] . '-' . $d['translate_to'],
             'process_format_id' => $d['format_id'],
