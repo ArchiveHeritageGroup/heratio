@@ -421,6 +421,66 @@ class DigitalObjectController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
+    /**
+     * #125 derivative encryption: stream a digital_object file to the
+     * caller, decrypting on the fly when encryption_encrypt_derivatives
+     * is on AND the on-disk file carries the encryption sentinel.
+     * Plaintext files (legacy data, or installs without encryption on)
+     * stream verbatim - this endpoint replaces the nginx-direct
+     * /uploads/r/{ioId}/master_x.jpg URL when encryption is in play, so
+     * blade templates that need to honour the encryption gate should
+     * link here instead of the raw uploads path.
+     *
+     * Returns the file with its stored mime_type so browsers render it
+     * inline (image, PDF preview, etc.). Caller-controlled download
+     * via ?download=1 query param sets Content-Disposition: attachment.
+     */
+    public function stream(Request $request, int $id)
+    {
+        $doRow = DB::table('digital_object')->where('id', $id)->first();
+        if (!$doRow || empty($doRow->path) || empty($doRow->name)) {
+            abort(404);
+        }
+
+        $uploadsBase = rtrim((string) config('heratio.uploads_path'), '/');
+        if ($uploadsBase === '') abort(500, 'Uploads path is not configured.');
+
+        // Same path resolution as the bulk-apply command.
+        $rel = preg_replace('#^/uploads/#', '', (string) $doRow->path);
+        $rel = ltrim((string) $rel, '/');
+        $localPath = $uploadsBase . '/' . $rel . $doRow->name;
+
+        if (!is_file($localPath) || !is_readable($localPath)) {
+            abort(404, 'File not found on disk.');
+        }
+
+        $mime = $doRow->mime_type ?: 'application/octet-stream';
+        $disposition = $request->boolean('download') ? 'attachment' : 'inline';
+        $filename = $doRow->name;
+
+        $enc = new \AhgCore\Services\EncryptionService();
+        if ($enc->isFileEncrypted($localPath)) {
+            // Decrypt-on-stream. streamFileDecrypted returns the plaintext
+            // bytes; null means decrypt failed (logged inside the helper).
+            $bytes = $enc->streamFileDecrypted($localPath);
+            if ($bytes === null) {
+                abort(500, 'Could not decrypt file.');
+            }
+            return response($bytes, 200, [
+                'Content-Type'        => $mime,
+                'Content-Length'      => (string) strlen($bytes),
+                'Content-Disposition' => $disposition . '; filename="' . addslashes($filename) . '"',
+                'Cache-Control'       => 'private, no-store',
+            ]);
+        }
+
+        // Plaintext on disk - cheap path via Laravel's BinaryFileResponse.
+        return response()->file($localPath, [
+            'Content-Type'        => $mime,
+            'Content-Disposition' => $disposition . '; filename="' . addslashes($filename) . '"',
+        ]);
+    }
+
     public function delete(Request $request, int $id)
     {
         // Find the IO that owns this digital object so we can redirect back

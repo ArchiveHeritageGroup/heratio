@@ -4,48 +4,106 @@
   Loads initial data via inline JSON, then lazy-loads via AJAX.
 
   #118 treeview_type dispatcher: GlobalSettings::treeviewType() picks
-  between 'sidebar' (default - card-wrapped, fits a sidebar column) and
-  'full' (chrome-free wide layout that fills the available container).
-  The setting is set on /admin/ahgSettings/treeview. Both layouts render
-  the SAME tree data + use the same #treeview-tree element + AJAX loader -
-  the variant only changes the surrounding chrome. The 'sidebar' default
-  keeps existing IO show pages bit-for-bit identical.
+  between four layouts. All share the same #treeview-tree element + AJAX
+  loader so the JS below runs identically; only the surrounding chrome
+  changes.
+
+   - 'sidebar'      (default) card-wrapped tree, fits a sidebar column
+   - 'full'         chrome-free wide variant, two-column dense flow
+   - 'accordion'    Bootstrap accordion - tree collapses behind a header
+                    button so the IO show page reclaims the vertical space
+                    when the operator doesn't need the hierarchy
+   - 'nested-list'  bare semantic <ul>/<li> with zero card/border chrome
+                    + zero column tricks, for the operator who wants the
+                    leanest possible markup (e.g. embedding in print views)
+
+  The 'sidebar' default keeps existing IO show pages bit-for-bit
+  identical. Layouts beyond the first two ship in #118 phase 2.
 --}}
 @php
   $__treeviewType = \AhgCore\Support\GlobalSettings::treeviewType();
 @endphp
 
-@if($__treeviewType === 'full')
-<div class="mb-3" id="treeview-card">
-  <h5 class="mb-2 fw-bold d-flex justify-content-between align-items-center">
-    <span><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy') }}</span>
-    <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="{{ __('Refresh') }}">
-      <i class="fas fa-sync-alt"></i>
-    </button>
-  </h5>
-  <div class="border rounded p-2" id="treeview-container" style="min-height:200px;">
-    <div class="text-center py-3 text-muted" id="treeview-loading">
-      <i class="fas fa-spinner fa-spin me-1"></i> {{ __('Loading hierarchy...') }}
+@switch($__treeviewType)
+  @case('full')
+    <div class="mb-3" id="treeview-card">
+      <h5 class="mb-2 fw-bold d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy') }}</span>
+        <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="{{ __('Refresh') }}">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </h5>
+      <div class="border rounded p-2" id="treeview-container" style="min-height:200px;">
+        <div class="text-center py-3 text-muted" id="treeview-loading">
+          <i class="fas fa-spinner fa-spin me-1"></i> {{ __('Loading hierarchy...') }}
+        </div>
+        <ul class="list-unstyled ps-0 mb-0" id="treeview-tree" style="display:none; column-count: 2; column-gap: 1.5rem;"></ul>
+      </div>
     </div>
-    <ul class="list-unstyled ps-0 mb-0" id="treeview-tree" style="display:none; column-count: 2; column-gap: 1.5rem;"></ul>
-  </div>
-</div>
-@else
-<div class="card mb-3" id="treeview-card">
-  <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-    <span><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy') }}</span>
-    <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="{{ __('Refresh') }}">
-      <i class="fas fa-sync-alt"></i>
-    </button>
-  </div>
-  <div class="card-body p-2" id="treeview-container">
-    <div class="text-center py-3 text-muted" id="treeview-loading">
-      <i class="fas fa-spinner fa-spin me-1"></i> {{ __('Loading hierarchy...') }}
+    @break
+
+  @case('accordion')
+    <div class="accordion mb-3" id="treeview-card" data-default-closed>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="treeview-accordion-header">
+          <button class="accordion-button collapsed fw-bold" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#treeview-accordion-body"
+                  aria-expanded="false" aria-controls="treeview-accordion-body">
+            <i class="fas fa-sitemap me-2"></i> {{ __('Hierarchy') }}
+          </button>
+        </h2>
+        <div id="treeview-accordion-body" class="accordion-collapse collapse"
+             aria-labelledby="treeview-accordion-header">
+          <div class="accordion-body p-2" id="treeview-container">
+            <div class="d-flex justify-content-end mb-2">
+              <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="{{ __('Refresh') }}">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            </div>
+            <div class="text-center py-3 text-muted" id="treeview-loading">
+              <i class="fas fa-spinner fa-spin me-1"></i> {{ __('Loading hierarchy...') }}
+            </div>
+            <ul class="list-unstyled ps-0 mb-0" id="treeview-tree" style="display:none;"></ul>
+          </div>
+        </div>
+      </div>
     </div>
-    <ul class="list-unstyled ps-0 mb-0" id="treeview-tree" style="display:none;"></ul>
-  </div>
-</div>
-@endif
+    @break
+
+  @case('nested-list')
+    <div class="mb-3" id="treeview-card">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <strong><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy') }}</strong>
+        <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="{{ __('Refresh') }}">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+      <div id="treeview-container">
+        <div class="text-muted small" id="treeview-loading">
+          <i class="fas fa-spinner fa-spin me-1"></i> {{ __('Loading hierarchy...') }}
+        </div>
+        <ul class="list-unstyled ps-0 mb-0" id="treeview-tree" style="display:none;"></ul>
+      </div>
+    </div>
+    @break
+
+  @default
+    {{-- 'sidebar' (default) --}}
+    <div class="card mb-3" id="treeview-card">
+      <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy') }}</span>
+        <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="{{ __('Refresh') }}">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+      <div class="card-body p-2" id="treeview-container">
+        <div class="text-center py-3 text-muted" id="treeview-loading">
+          <i class="fas fa-spinner fa-spin me-1"></i> {{ __('Loading hierarchy...') }}
+        </div>
+        <ul class="list-unstyled ps-0 mb-0" id="treeview-tree" style="display:none;"></ul>
+      </div>
+    </div>
+@endswitch
 
 <style>
   #treeview-tree li { padding: 2px 0; }

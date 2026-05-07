@@ -233,6 +233,9 @@ class AhgCoreServiceProvider extends ServiceProvider
                 // #67 AHG Central
                 \AhgCore\Console\Commands\AhgCentralPingCommand::class,
                 \AhgCore\Console\Commands\AhgCentralHeartbeatCommand::class,
+
+                // #125 derivative encryption bulk-apply
+                \AhgCore\Commands\EncryptionDerivativesBulkApplyCommand::class,
             ]);
 
             $this->app->booted(function () {
@@ -261,6 +264,21 @@ class AhgCoreServiceProvider extends ServiceProvider
                 $schedule->command('ahg:central-heartbeat')
                     ->dailyAt('05:00')
                     ->withoutOverlapping(60);
+
+                // #125 derivative encryption: daily walk over digital_object
+                // rows + encrypt unencrypted files when the operator has
+                // encryption_encrypt_derivatives on. Self-gates inside
+                // handle() so the schedule fires harmlessly when off.
+                $schedule->command('ahg:encryption-derivatives-bulk-apply')
+                    ->dailyAt('04:30')
+                    ->withoutOverlapping(120)
+                    ->when(function () {
+                        try {
+                            return (new \AhgCore\Services\EncryptionService())->shouldEncryptDerivatives();
+                        } catch (\Throwable $e) {
+                            return false;
+                        }
+                    });
             });
         }
 

@@ -92,7 +92,40 @@ class RicEntityService
         $graph = $this->graphUri($entityType, $id);
         $entityUri = $this->entityUri($entityType, $id);
         $type = $this->ricoTypeFor($entityType);
-        $sync->dispatchSyncOnSave($graph, fn () => $sync->buildEntityTurtle($type, $entityUri, $label, $identifier));
+
+        // #77 phase 3: prefer full RIC-O serialization (RicSerializationService
+        // -> JSON-LD -> turtle) over the buildEntityTurtle stub. The stub
+        // remains as the fallback when:
+        //   - the entity type has no serialize* method (e.g. `relation`
+        //     which is a graph edge, not a dedicated RIC-O class)
+        //   - the serializer returns an error
+        //   - the conversion produces an empty body (sanity check)
+        // This preserves the v1.53.6 behaviour for relation edges while
+        // upgrading the four primary entity types to full property +
+        // relation expansion.
+        $sync->dispatchSyncOnSave($graph, function () use ($entityType, $id, $sync, $type, $entityUri, $label, $identifier) {
+            $serializer = app(RicSerializationService::class);
+            $jsonLd = match ($entityType) {
+                'place'         => $serializer->serializePlace($id),
+                'rule'          => $serializer->serializeRule($id),
+                'activity'      => $serializer->serializeActivity($id),
+                'instantiation' => $serializer->serializeInstantiation($id),
+                default         => null,
+            };
+            if (is_array($jsonLd) && !isset($jsonLd['error'])) {
+                // Force the @id to our urn:ahg:ric:* scheme so the graph URI
+                // and the subject URI match up - RicSerializationService
+                // builds @id from baseUri+/place/{id} which differs from our
+                // graph naming convention.
+                $jsonLd['@id'] = $entityUri;
+                $turtle = RicSerializationService::toTurtle($jsonLd);
+                if (trim($turtle) !== '') {
+                    return $turtle;
+                }
+            }
+            // Fallback: stub turtle from FusekiSyncService.
+            return $sync->buildEntityTurtle($type, $entityUri, $label, $identifier);
+        });
     }
 
     private function dispatchDelete(string $entityType, int $id, array $relatedGraphs = []): void

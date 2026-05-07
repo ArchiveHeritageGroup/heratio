@@ -204,6 +204,150 @@ class EncryptionService
             ]);
     }
 
+    // =========================================================================
+    //  #125 derivative-file encryption
+    // =========================================================================
+    //
+    // Same SENTINEL+Crypt pattern as the column path, applied to whole
+    // files so digital_object derivatives (thumbnails / reference /
+    // preservation copies / IIIF tiles / PDFs / transcripts etc.) can sit
+    // encrypted at rest. Read path is symmetric: streamFileDecrypted writes
+    // plaintext to a tmp file (or returns the bytes) for the streaming
+    // controller to push through to the browser.
+    //
+    // Format: [16-byte FILE_SENTINEL] [Laravel::encrypt() body, base64'd].
+    // The sentinel lets isFileEncrypted detect already-encrypted files
+    // without trying to decrypt + catching - useful for the bulk-apply
+    // sweep (re-running it is a no-op).
+    //
+    // Cantaloupe constraint: the IIIF tile server reads files directly
+    // from disk via Java code that has no Heratio-aware decryption hook.
+    // When encryption_encrypt_derivatives is on, operators must either
+    // (a) point Cantaloupe at the PHP-side decrypted-stream endpoint
+    // instead of the raw uploads_path, or (b) accept that IIIF tile
+    // serving stays plaintext. Filed in #125's discussion thread.
+
+    public const FILE_SENTINEL = "AHG_ENC_DERIV_v1\n";
+
+    /**
+     * Encrypt a file in-place. Idempotent (already-encrypted files are
+     * left alone). Returns true on success, false when the category is
+     * off or the file is missing.
+     */
+    public function encryptFile(string $path): bool
+    {
+        if (!$this->shouldEncryptDerivatives()) return false;
+        if (!is_file($path) || !is_readable($path)) return false;
+        if ($this->isFileEncrypted($path)) return true; // Already done
+
+        try {
+            $plain = @file_get_contents($path);
+            if ($plain === false) return false;
+
+            // Crypt::encryptString returns base64; the FILE_SENTINEL gives us
+            // a cheap is-this-already-encrypted check without decrypting.
+            $encrypted = self::FILE_SENTINEL . Crypt::encryptString($plain);
+
+            // Atomic write via tmp + rename so a crash mid-write doesn't leave
+            // a half-encrypted file on disk.
+            $tmp = $path . '.enc.tmp';
+            if (@file_put_contents($tmp, $encrypted) === false) return false;
+            if (!@rename($tmp, $path)) {
+                @unlink($tmp);
+                return false;
+            }
+
+            $this->writeAudit('encrypt', 'derivatives', null, null, $path, 'success');
+            return true;
+        } catch (\Throwable $e) {
+            $this->writeAudit('encrypt', 'derivatives', null, null, $path, 'error', $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('[encryption] file encrypt failed', [
+                'path' => $path, 'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Decrypt a file in-place. Used by the bulk-revert command. For the
+     * streaming hot path use streamFileDecrypted instead - it returns the
+     * plaintext bytes without touching the on-disk file.
+     */
+    public function decryptFile(string $path): bool
+    {
+        if (!is_file($path) || !is_readable($path)) return false;
+        if (!$this->isFileEncrypted($path)) return true; // Already plain
+
+        try {
+            $body = @file_get_contents($path);
+            if ($body === false) return false;
+            $cipher = substr($body, strlen(self::FILE_SENTINEL));
+            $plain = Crypt::decryptString($cipher);
+
+            $tmp = $path . '.dec.tmp';
+            if (@file_put_contents($tmp, $plain) === false) return false;
+            if (!@rename($tmp, $path)) {
+                @unlink($tmp);
+                return false;
+            }
+
+            $this->writeAudit('decrypt', 'derivatives', null, null, $path, 'success');
+            return true;
+        } catch (\Throwable $e) {
+            $this->writeAudit('decrypt', 'derivatives', null, null, $path, 'error', $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('[encryption] file decrypt failed', [
+                'path' => $path, 'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Cheap check via the FILE_SENTINEL prefix. Reads only the first
+     * sentinel-length bytes so it's safe to call on multi-GB derivative
+     * files (master TIFFs, IIIF tile cache, etc.).
+     */
+    public function isFileEncrypted(string $path): bool
+    {
+        $len = strlen(self::FILE_SENTINEL);
+        $fp = @fopen($path, 'rb');
+        if (!$fp) return false;
+        $head = fread($fp, $len);
+        fclose($fp);
+        return $head === self::FILE_SENTINEL;
+    }
+
+    /**
+     * Decrypt-on-stream: returns the plaintext bytes for an encrypted file.
+     * Used by the streaming controller to serve the file without persisting
+     * the decrypted form to disk. Returns null when the file isn't
+     * encrypted (caller should serve the file directly via readfile or
+     * X-Accel-Redirect).
+     *
+     * For very large files this loads everything into memory - acceptable
+     * for thumbnails/reference (typically < 50MB) but not for full
+     * preservation masters. Operator using encryption with multi-GB
+     * masters should pair with sufficient PHP memory_limit / streaming
+     * decrypt (the latter is a future enhancement).
+     */
+    public function streamFileDecrypted(string $path): ?string
+    {
+        if (!is_file($path) || !is_readable($path)) return null;
+        if (!$this->isFileEncrypted($path)) return null;
+
+        try {
+            $body = @file_get_contents($path);
+            if ($body === false) return null;
+            $cipher = substr($body, strlen(self::FILE_SENTINEL));
+            return Crypt::decryptString($cipher);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[encryption] streamFileDecrypted failed', [
+                'path' => $path, 'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
     /**
      * Write a single ahg_encryption_audit row. Swallows DB errors (the audit
      * write must not break the enclosing encrypt/decrypt) but logs them.
