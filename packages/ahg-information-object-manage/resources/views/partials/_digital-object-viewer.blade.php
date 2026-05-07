@@ -123,7 +123,9 @@
         </video>
         <div class="mt-2 d-flex justify-content-between align-items-center">
           <div>
-            <span class="badge bg-secondary">{{ $masterObj->name ?? '' }}</span>
+            {{-- settings.stripExtensions (#117): when on, drops the extension
+                 from the displayed filename. Operator config in /admin/settings/global. --}}
+            <span class="badge bg-secondary">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? '' }}</span>
             <span class="badge bg-light text-dark">{{ $masterMime }}</span>
             @if($masterObj->byte_size ?? 0)
               <span class="badge bg-light text-dark">{{ \AhgCore\Services\DigitalObjectService::formatFileSize($masterObj->byte_size) }}</span>
@@ -196,7 +198,7 @@
           {{-- File info + download --}}
           <div class="mt-3 d-flex justify-content-between align-items-center">
             <div>
-              <span class="badge bg-secondary">{{ $masterObj->name ?? '' }}</span>
+              <span class="badge bg-secondary">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? '' }}</span>
               <span class="badge" style="background:rgba(255,255,255,0.1);color:#ccc;">{{ $masterMime }}</span>
               @if($masterObj->byte_size ?? 0)
                 <span class="badge" style="background:rgba(255,255,255,0.1);color:#ccc;">{{ \AhgCore\Services\DigitalObjectService::formatFileSize($masterObj->byte_size) }}</span>
@@ -271,7 +273,7 @@
           <div class="d-flex flex-column align-items-center">
             <div class="mb-2">
               <span class="badge bg-primary"><i class="fas fa-cube me-1"></i>3D Model</span>
-              <span class="badge bg-secondary">{{ $masterObj->name ?? '3D Model' }}</span>
+              <span class="badge bg-secondary">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? '3D Model' }}</span>
               <span class="badge bg-info">{{ strtoupper($modelExt) }}</span>
               @if($turntableMp4)
                 <span class="badge bg-dark"><i class="fas fa-video me-1"></i>{{ __('Turntable MP4') }}</span>
@@ -384,7 +386,7 @@
             <div id="{{ $modelViewerId }}-error" class="alert alert-danger mt-2 d-none" style="max-width:500px;">
               <i class="fas fa-exclamation-triangle me-1"></i>
               <span>{{ __('Failed to load 3D model.') }}</span>
-              <br><small class="text-muted">File: {{ $masterObj->name ?? 'Unknown' }}</small>
+              <br><small class="text-muted">File: {{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Unknown' }}</small>
             </div>
             <small class="text-muted mt-2">
               <i class="fas fa-mouse me-1"></i>Drag to rotate | <i class="fas fa-search-plus me-1"></i>Scroll to zoom
@@ -642,7 +644,7 @@
         {{-- No displayable object: show download link --}}
         <div class="py-4">
           <i class="fas fa-file fa-3x text-muted mb-3 d-block"></i>
-          <p class="text-muted">{{ $masterObj->name ?? 'Digital object' }}</p>
+          <p class="text-muted">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Digital object' }}</p>
           @auth
             <a href="{{ $masterUrl }}" download class="btn atom-btn-white">
               <i class="fas fa-download me-1"></i>{{ __('Download file') }}

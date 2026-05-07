@@ -143,6 +143,24 @@ class GlobalSettings
         return self::asBool(SettingHelper::get('stripExtensions', '0'));
     }
 
+    /**
+     * Display helper: returns the filename minus its extension when
+     * settings.stripExtensions is on; otherwise the original name. Safe to
+     * call from any blade with `{{ \AhgCore\Support\GlobalSettings::displayFilename($do->name) }}`.
+     * Null-safe (returns the input when blank).
+     */
+    public static function displayFilename(?string $name): ?string
+    {
+        if ($name === null || $name === '') {
+            return $name;
+        }
+        if (!self::stripExtensions()) {
+            return $name;
+        }
+        $stem = pathinfo($name, PATHINFO_FILENAME);
+        return $stem !== '' ? $stem : $name;
+    }
+
     // ── Multi-repository ───────────────────────────────────────────────
 
     public static function multiRepository(): bool

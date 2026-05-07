@@ -161,7 +161,27 @@ class TreeviewService
             })->where('st.status_id', 160);
         }
 
-        $query->orderBy('io.lft');
+        // settings.sort_treeview_informationobject (#116): operator-controllable
+        // default sort for the description-hierarchy treeview. AtoM tokens:
+        //   manual / lft  -> orderBy lft (default; preserves operator-curated order)
+        //   alphabetic    -> orderBy ioi.title
+        //   identifier    -> orderBy io.identifier
+        // Unrecognised tokens fall through to lft so an operator-typed value
+        // can never break the page.
+        $sortToken = \AhgCore\Support\GlobalSettings::sortTreeviewInformationObject();
+        switch ($sortToken) {
+            case 'alphabetic':
+            case 'title':
+                $query->orderBy('ioi.title');
+                break;
+            case 'identifier':
+                $query->orderBy('io.identifier');
+                break;
+            case 'manual':
+            case 'lft':
+            default:
+                $query->orderBy('io.lft');
+        }
 
         // Get total count for hasMore
         $totalChildren = (clone $query)->count();
