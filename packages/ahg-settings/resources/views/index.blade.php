@@ -178,7 +178,7 @@
     $addTile('AI Condition Assessment','fa-robot',               'AI-powered damage detection and condition scoring for archival materials', 'settings.ai-condition', 'info');
     $addTile('Audit Trail',           'fa-history',             'View change history and user activity logs', 'acl.audit-log');
     $addTile('Background Jobs',       'fa-tasks',              'Job queue, concurrent limits, timeout, retry, cleanup, and failure notifications', 'settings.ahg.jobs');
-    $addTile('AHG Central',           'fa-cloud',              'Connect to AHG Central cloud services for shared NER training and AI features', 'settings.ahg-integration', 'primary', 'Configure', 'fa-cog', null, null, 'Under Construction');
+    $addTile('AHG Central',           'fa-cloud',              'Connect to AHG Central cloud services for shared NER training and AI features. Client wired (v1.53.10); cloud endpoint at central.theahg.co.za not yet live.', 'settings.ahg-integration', 'primary', 'Configure', 'fa-cog', null, null, 'Server pending');
     $addTile('AI Services',           'fa-brain',              'NER, Summarization, Spell Check — processing mode and field mappings', 'settings.ai-services');
     $addTile('ICIP Settings',         'fa-shield-alt',         'Indigenous Cultural and Intellectual Property management settings', 'settings.icip-settings', 'warning');
     $addTile('Marketplace',           'fa-store-alt',          'Commission rates, listing fees, currencies, payout rules, and platform configuration', 'ahgmarketplace.admin-settings', 'success');

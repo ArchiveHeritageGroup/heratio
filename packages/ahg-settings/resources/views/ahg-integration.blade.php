@@ -24,9 +24,9 @@
       <div class="alert alert-warning d-flex align-items-start mb-4" role="alert">
         <i class="fas fa-hard-hat fa-2x me-3 text-warning"></i>
         <div>
-          <h5 class="alert-heading mb-1">{{ __('Under Construction') }}</h5>
-          <p class="mb-1">{{ __('AHG Central is a planned cloud service. The settings below are visible so you can preview the configuration shape, but no consumer reads these values yet and the form is locked - changes will not be saved.') }}</p>
-          <p class="mb-0 small text-muted">{{ __('Tracking issue:') }} <a href="https://github.com/ArchiveHeritageGroup/heratio/issues/67" target="_blank" rel="noopener">#67 - AHG Central settings: all 4 keys unwired</a></p>
+          <h5 class="alert-heading mb-1">{{ __('Settings locked for maintenance') }}</h5>
+          <p class="mb-1">{{ __('The AHG Central settings rows are currently flagged is_locked=1 in ahg_settings, so the form refuses writes. This is normally cleared automatically by the package service provider on first artisan run after install. If you see this banner on a healthy install, an operator has explicitly re-locked the rows for testing.') }}</p>
+          <p class="mb-0 small text-muted">{{ __('Tracking issue:') }} <a href="https://github.com/ArchiveHeritageGroup/heratio/issues/67" target="_blank" rel="noopener">#67 - AHG Central settings (closed: client wired in v1.53.10)</a></p>
         </div>
       </div>
     @endif
@@ -50,12 +50,13 @@
         <h5 class="mb-0"><i class="fas fa-cloud me-2"></i>{{ __('About AHG Central') }}</h5>
       </div>
       <div class="card-body">
-        <p class="mb-2">AHG Central is a cloud service provided by The Archive and Heritage Group that will enhance your instance with:</p>
+        <p class="mb-2">AHG Central is a planned cloud service from The Archive and Heritage Group that will enhance your instance with:</p>
         <ul class="mb-3">
           <li><strong>{{ __('Shared NER Training') }}</strong> - Contribute and benefit from a community-trained Named Entity Recognition model</li>
           <li><strong>{{ __('Future AI Services') }}</strong> - Access to upcoming cloud-based AI features</li>
           <li><strong>{{ __('Usage Analytics') }}</strong> - Optional aggregate statistics to improve the platform</li>
         </ul>
+        <div class="alert alert-info small mb-2 mt-3"><i class="fas fa-info-circle me-1"></i><strong>Status (May 2026):</strong> the client integration shipped in v1.53.10 - this form, the <code>AhgCentralService</code> class, the <code>ahg:central-ping</code> + <code>ahg:central-heartbeat</code> artisan commands, and the daily 05:00 heartbeat schedule are all live. The <strong>cloud endpoint at central.theahg.co.za is not yet running</strong> - DNS does not resolve as of the May 2026 audit. Enabling the toggle and saving credentials is harmless (the heartbeat fails non-fatally and logs a warning), but no data flows in or out until the server side ships. Tracked in the cloud-service follow-up issue.</div>
         <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i>Note: This is separate from local AI services configured in the AI Services settings. Local AI services run on your own infrastructure while AHG Central is a cloud service.</p>
       </div>
     </div>
