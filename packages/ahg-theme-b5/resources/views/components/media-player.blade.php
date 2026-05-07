@@ -306,11 +306,11 @@
 
             // #106 phase 5: apply operator settings (default_volume / loop /
             // autoplay) from window.AHG_MEDIA. media_show_controls is
-            // intentionally NOT applied in rich mode — we provide our own
-            // chrome and the @if($__media['show_controls']) guard around
-            // the controls row already hides our custom controls when the
-            // setting is off; setting el.controls=true would re-enable the
-            // native overlay on top of the Heratio chrome.
+            // intentionally NOT applied in rich mode - we provide our own
+            // chrome and the show_controls Blade guard around the controls
+            // row already hides our custom controls when the setting is
+            // off; setting el.controls=true would re-enable the native
+            // overlay on top of the Heratio chrome.
             var __cfg = window.AHG_MEDIA || {};
             var __vol = typeof __cfg.default_volume === 'number' ? __cfg.default_volume : 1.0;
             try { media.volume = __vol; } catch (e) { /* iOS Safari blocks; ignore */ }
