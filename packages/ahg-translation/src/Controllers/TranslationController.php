@@ -1258,6 +1258,13 @@ class TranslationController extends Controller
 
         $missing  = $request->input('missing');
         $contains = $request->input('contains');
+        // Accepts either ?changed=since:YYYY-MM-DD (issue spec) or
+        // ?changed=YYYY-MM-DD (shorthand). The 'since:' prefix is optional.
+        $changedRaw   = (string) $request->input('changed', '');
+        $changedSince = null;
+        if ($changedRaw !== '') {
+            $changedSince = preg_replace('/^since:\s*/i', '', $changedRaw);
+        }
         $page     = max(1, (int) $request->input('page', 1));
         $limit    = 100;
         $offset   = ($page - 1) * $limit;
@@ -1279,7 +1286,7 @@ class TranslationController extends Controller
             }
         }
 
-        $matrix = $svc->matrix($locale ?: null, $missing ?: null, $contains ?: null, $limit, $offset);
+        $matrix = $svc->matrix($locale ?: null, $missing ?: null, $contains ?: null, $limit, $offset, $changedSince ?: null);
 
         // Pending count for the badge in the header link to the review queue.
         $pendingCount = (int) DB::table('ui_string_change')->where('status', 'pending')->count();
@@ -1290,11 +1297,36 @@ class TranslationController extends Controller
             'locale'        => $locale,
             'missing'       => $missing,
             'contains'      => $contains,
+            'changed'       => $changedRaw,
+            'changedSince'  => $changedSince,
             'page'          => $page,
             'limit'         => $limit,
             'totalPages'    => (int) ceil(($matrix['total'] ?? 0) / max(1, $limit)),
             'isAdmin'       => \AhgCore\Services\AclService::isAdministrator(),
             'pendingCount'  => $pendingCount,
+        ]);
+    }
+
+    /**
+     * GET /admin/translation/strings/history?locale=zu&key=Title
+     * Returns the audit chain for one (locale, key) pair as a tiny HTML
+     * partial suitable for injection into a Bootstrap modal body.
+     */
+    public function stringsHistory(Request $request)
+    {
+        if (!\AhgCore\Services\AclService::isAdministrator() && !\AhgCore\Services\AclService::isEditor()) {
+            abort(403, 'Insufficient permissions');
+        }
+        $request->validate([
+            'locale' => 'required|string|max:16',
+            'key'    => 'required|string',
+        ]);
+        $svc = app(\AhgTranslation\Services\UiStringService::class);
+        $rows = $svc->historyFor($request->input('locale'), $request->input('key'));
+        return view('ahg-translation::_string-history', [
+            'rows'   => $rows,
+            'locale' => $request->input('locale'),
+            'key'    => $request->input('key'),
         ]);
     }
 
