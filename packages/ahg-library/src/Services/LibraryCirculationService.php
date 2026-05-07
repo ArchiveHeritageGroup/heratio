@@ -349,6 +349,19 @@ class LibraryCirculationService
                 'updated_at' => now(),
             ]);
         } else {
+            // #74 encryption_field_financial_data: encrypt-on-write so
+            // direct inserts don't have to wait for the daily bulk-apply
+            // safety net. Short-circuits to plaintext when the category
+            // is off (or encryption_enabled is off); the column happily
+            // round-trips either form.
+            $enc = new \AhgCore\Services\EncryptionService();
+            $description = $enc->encrypt(
+                \AhgCore\Services\EncryptionService::CATEGORY_FINANCIAL_DATA,
+                "Overdue: $overdueDays day(s) past due",
+                'library_fine',
+                'description',
+                null
+            );
             DB::table('library_fine')->insert([
                 'patron_id' => $checkout->patron_id,
                 'checkout_id' => $checkout->id,
@@ -357,7 +370,7 @@ class LibraryCirculationService
                 'paid_amount' => 0.00,
                 'currency' => LibrarySettings::currency(),
                 'status' => 'outstanding',
-                'description' => "Overdue: $overdueDays day(s) past due",
+                'description' => $description,
                 'fine_date' => date('Y-m-d'),
                 'created_at' => now(),
             ]);
