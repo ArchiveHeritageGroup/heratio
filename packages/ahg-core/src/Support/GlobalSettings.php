@@ -169,6 +169,32 @@ class GlobalSettings
     }
 
     /**
+     * Repository id to lock browse + facets to when multi_repository is off.
+     * Resolution order:
+     *   1. operator-set `single_repo_id` setting (positive integer)
+     *   2. fall back to the first row in the `repository` table (lowest id)
+     *   3. null when no repositories exist (caller should treat as "no
+     *      single-repo mode" - the gate becomes a no-op)
+     * Closes #114.
+     */
+    public static function singleRepoId(): ?int
+    {
+        $raw = trim((string) SettingHelper::get('single_repo_id', ''));
+        if ($raw !== '' && ctype_digit($raw)) {
+            $explicit = (int) $raw;
+            if ($explicit > 0) return $explicit;
+        }
+        try {
+            $first = \Illuminate\Support\Facades\DB::table('repository')
+                ->orderBy('id')
+                ->value('id');
+            return $first ? (int) $first : null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
      * Master gate for the repository upload-quota system. Setting lives on
      * /admin/ahgSettings/uploads. When off, RepositoryQuotaService::canAccept()
      * unconditionally returns true and no enforcement runs. #115.

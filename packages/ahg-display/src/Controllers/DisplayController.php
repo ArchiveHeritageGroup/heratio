@@ -264,6 +264,19 @@ class DisplayController extends Controller
         $this->placeSearchFilter = $request->input('placeSearch');
         $this->genreSearchFilter = $request->input('genreSearch');
         $this->repoFilter = $request->input('repo');
+
+        // #114 multi_repository: when off, force the repo filter to the
+        // operator-pinned single_repo_id regardless of any user-supplied
+        // ?repo= override. This makes the entire browse surface behave as
+        // a single-institution catalogue (the alternate UX the audit was
+        // describing) without needing per-route hide-or-show plumbing.
+        if (!\AhgCore\Support\GlobalSettings::multiRepository()) {
+            $forced = \AhgCore\Support\GlobalSettings::singleRepoId();
+            if ($forced) {
+                $this->repoFilter = (string) $forced;
+            }
+        }
+
         $this->startDateFilter = $request->input('startDate');
         $this->endDateFilter = $request->input('endDate');
         $this->rangeTypeFilter = $request->input('rangeType', 'inclusive');
@@ -275,10 +288,17 @@ class DisplayController extends Controller
             || $this->levelFilter || $this->mediaFilter || $this->repoFilter
             || $this->queryFilter || $this->hasDigital;
 
+        // #114 multi_repository: when off, the repository facet is meaningless
+        // (browse is locked to a single repo). Skip the facet build entirely
+        // and pass an empty collection to the view so the sidebar card
+        // hides itself - the facet partial only renders when the collection
+        // is non-empty.
+        $singleRepoMode = !\AhgCore\Support\GlobalSettings::multiRepository();
+
         if ($hasFilters) {
             $types = $this->getLiveFacet('type');
             $levels = $this->getLiveFacet('level');
-            $repositories = $this->getLiveFacet('repository');
+            $repositories = $singleRepoMode ? collect() : $this->getLiveFacet('repository');
             $creators = $this->getLiveFacet('creator');
             $subjects = $this->getLiveFacet('subject');
             $places = $this->getLiveFacet('place');
@@ -288,7 +308,7 @@ class DisplayController extends Controller
             $sfx = $this->isAuthenticated ? '_all' : '';
             $types = $this->getCachedFacet('glam_type' . $sfx, 'object_type');
             $levels = $this->getCachedFacet('level' . $sfx);
-            $repositories = $this->getCachedFacet('repository' . $sfx);
+            $repositories = $singleRepoMode ? collect() : $this->getCachedFacet('repository' . $sfx);
             $creators = $this->getCachedFacet('creator' . $sfx);
             $subjects = $this->getCachedFacet('subject' . $sfx);
             $places = $this->getCachedFacet('place' . $sfx);
