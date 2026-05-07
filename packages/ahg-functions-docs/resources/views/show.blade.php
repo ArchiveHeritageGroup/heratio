@@ -161,32 +161,31 @@
   </div>
 </div>
 
-@push('head')
+@push('css')
   @if($rendered['page'] > 1)
     <link rel="prev" href="{{ route('functionsDocs.show', ['kind' => $kind, 'page' => $rendered['page'] - 1] + ($filter !== '' ? ['q' => $filter] : [])) }}">
   @endif
   @if($rendered['page'] < $rendered['pages'])
     <link rel="next" href="{{ route('functionsDocs.show', ['kind' => $kind, 'page' => $rendered['page'] + 1] + ($filter !== '' ? ['q' => $filter] : [])) }}">
   @endif
+  <style nonce="{{ function_exists('csp_nonce') ? csp_nonce() : '' }}">
+    .functions-docs.show .markdown-body code {
+      background: rgba(0, 0, 0, 0.06);
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+      font-size: 0.875em;
+    }
+    .functions-docs.show .markdown-body pre {
+      background: #f7f7f9;
+      padding: 0.75rem;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .functions-docs.show .markdown-body h2 { font-size: 1.15rem; margin-top: 1rem; }
+    .functions-docs.show .markdown-body h3 { font-size: 1rem; margin-top: 0.75rem; }
+    .functions-docs.show .markdown-body p { margin-bottom: 0.5rem; }
+    .functions-docs.show .markdown-body ul,
+    .functions-docs.show .markdown-body ol { margin-bottom: 0.5rem; }
+  </style>
 @endpush
-
-<style>
-  .functions-docs.show .markdown-body code {
-    background: rgba(0, 0, 0, 0.06);
-    padding: 0.1em 0.35em;
-    border-radius: 3px;
-    font-size: 0.875em;
-  }
-  .functions-docs.show .markdown-body pre {
-    background: #f7f7f9;
-    padding: 0.75rem;
-    border-radius: 4px;
-    overflow-x: auto;
-  }
-  .functions-docs.show .markdown-body h2 { font-size: 1.15rem; margin-top: 1rem; }
-  .functions-docs.show .markdown-body h3 { font-size: 1rem; margin-top: 0.75rem; }
-  .functions-docs.show .markdown-body p { margin-bottom: 0.5rem; }
-  .functions-docs.show .markdown-body ul,
-  .functions-docs.show .markdown-body ol { margin-bottom: 0.5rem; }
-</style>
 @endsection
