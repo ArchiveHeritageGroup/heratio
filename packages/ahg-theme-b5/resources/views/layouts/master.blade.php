@@ -103,6 +103,17 @@
          the init falls back to native HTML5 — the existing controls /
          autoplay / loop / volume attributes still apply.
 
+         Issue #106: media_player_type now accepts five values —
+         'heratio' (default Heratio-branded UI), 'heratio-minimal'
+         (small native UI), 'plyr', 'videojs', 'native'. The shared
+         theme::components.media-player Blade component is the single
+         source of truth for the rich / minimal layouts. The Plyr /
+         Video.js wrap branches below are only entered when the
+         operator explicitly chose those values; everything else
+         (heratio / heratio-minimal / native / unknown) falls through
+         to the native-attributes path so the component's own UI is
+         preserved.
+
          Issue #101: when media_show_waveform is true, the WaveSurfer.js
          bundle (built by tools/wavesurfer-build/) is loaded and a
          separate init pass walks every .ahg-media-player wrapper (the

@@ -111,32 +111,24 @@
         </div>
 
       @elseif($masterMediaType === 'video')
-        {{-- Video: HTML5 player with streaming fallback for non-native formats --}}
-        <video id="ahg-video-player" controls class="w-100" style="max-height:500px; background:#000;" preload="metadata"
-               @if($thumbUrl) poster="{{ $thumbUrl }}" @endif>
-          <source src="{{ $videoSrc }}" type="{{ $videoMime }}">
-          @if($needsStreaming && $videoSrc !== $masterUrl)
-            {{-- Also try master as fallback --}}
-            <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
-          @endif
-          Your browser does not support this video format.
-        </video>
-        <div class="mt-2 d-flex justify-content-between align-items-center">
-          <div>
-            {{-- settings.stripExtensions (#117): when on, drops the extension
-                 from the displayed filename. Operator config in /admin/settings/global. --}}
-            <span class="badge bg-secondary">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? '' }}</span>
-            <span class="badge bg-light text-dark">{{ $masterMime }}</span>
-            @if($masterObj->byte_size ?? 0)
-              <span class="badge bg-light text-dark">{{ \AhgCore\Services\DigitalObjectService::formatFileSize($masterObj->byte_size) }}</span>
-            @endif
-          </div>
-          @auth
-            <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white">
-              <i class="fas fa-download me-1"></i>{{ __('Download video') }}
-            </a>
-          @endauth
-        </div>
+        {{-- #106 Phase 2+4: shared Heratio video player component (the
+             primary IO show-page video render). Replaces the inline
+             <video controls> tag + sibling badge/download row. Uses
+             $videoSrc / $videoMime so the streaming-fallback chain
+             still works via $needsStreaming + $masterUrl. --}}
+        @include('theme::components.media-player', [
+            'type'           => 'video',
+            'playerId'       => 'ahg-video-' . $io->id,
+            'src'            => $videoSrc,
+            'mime'           => $videoMime,
+            'name'           => $masterObj->name ?? '',
+            'masterUrl'      => $masterUrl,
+            'masterMime'     => $masterMime,
+            'byteSize'       => $masterObj->byte_size ?? null,
+            'needsStreaming' => $needsStreaming,
+            'showDownload'   => true,
+            'poster'         => $thumbUrl ?? null,
+        ])
 
       @elseif($masterMediaType === 'audio')
         {{-- Audio: Enhanced player with speed/skip controls (matching AtoM AhgMediaPlayer) --}}

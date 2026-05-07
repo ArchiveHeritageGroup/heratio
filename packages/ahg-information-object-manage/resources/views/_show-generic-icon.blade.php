@@ -40,10 +40,22 @@ $altTextClosed = __($altText ?: 'Original %1% not accessible', ['%1%' => $digita
       <i class="fas fa-info-circle me-1"></i>
       <strong>@php echo function_exists('ahg_get_format_name') ? ahg_get_format_name($mimeType) : $mimeType; @endphp</strong> - Streaming via server transcoding (original file preserved)
     </div>
-    <video controls preload="metadata" class="mw-100" style="max-height: 500px; background: #000;">
-      <source src="/media/stream/{{ $resource->id }}" type="video/mp4">
-      Your browser does not support video playback.
-    </video>
+    {{-- #106 Phase 2+4: shared Heratio video player component on the
+         streaming-transcode path (the streaming endpoint always serves
+         transcoded MP4, so MIME is video/mp4 here). --}}
+    @include('theme::components.media-player', [
+        'type'           => 'video',
+        'playerId'       => 'ahg-video-stream-' . ($resource->id ?? uniqid()),
+        'src'            => '/media/stream/' . $resource->id,
+        'mime'           => 'video/mp4',
+        'name'           => $resource->name ?? '',
+        'masterUrl'      => '/media/stream/' . $resource->id,
+        'masterMime'     => 'video/mp4',
+        'byteSize'       => $resource->byte_size ?? null,
+        'needsStreaming' => true,
+        'showDownload'   => false,
+        'poster'         => null,
+    ])
     @if(isset($link) && ($canReadMaster ?? false))
       <div class="mt-2">
         <a href="{{ $link }}" class="btn btn-sm btn-outline-primary" target="_blank">
@@ -60,10 +72,21 @@ $altTextClosed = __($altText ?: 'Original %1% not accessible', ['%1%' => $digita
       <i class="fas fa-info-circle me-1"></i>
       <strong>@php echo function_exists('ahg_get_format_name') ? ahg_get_format_name($mimeType) : $mimeType; @endphp</strong> - Streaming via server transcoding (original file preserved)
     </div>
-    <audio controls preload="metadata" class="w-100">
-      <source src="/media/stream/{{ $resource->id }}" type="audio/mpeg">
-      Your browser does not support audio playback.
-    </audio>
+    {{-- #106 Phase 1+4: shared Heratio audio player component (streaming
+         path - the streaming endpoint serves transcoded MP3, so MIME
+         is always audio/mpeg here). --}}
+    @include('theme::components.media-player', [
+        'type' => 'audio',
+        'playerId' => 'ahg-audio-stream-' . ($resource->id ?? uniqid()),
+        'src' => '/media/stream/' . $resource->id,
+        'mime' => 'audio/mpeg',
+        'name' => $resource->name ?? '',
+        'masterUrl' => '/media/stream/' . $resource->id,
+        'masterMime' => 'audio/mpeg',
+        'byteSize' => $resource->byte_size ?? null,
+        'needsStreaming' => true,
+        'showDownload' => false,
+    ])
     @if(isset($link) && ($canReadMaster ?? false))
       <div class="mt-2">
         <a href="{{ $link }}" class="btn btn-sm btn-outline-primary" target="_blank">

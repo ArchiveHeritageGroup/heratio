@@ -26,17 +26,23 @@ $thumbnailUsage = config('atom.term.THUMBNAIL_ID');
           'object_id' => $resource->object->id ?? $resource->objectId ?? 0,
       ]); @endphp
     @else
-      {{-- Native HTML5 player. Issue #85: controls / autoplay / loop
-           come from /admin/ahgSettings/media; media_default_volume is
-           applied JS-side by the master.blade.php window.AHG_MEDIA init. --}}
-      @php $__media = \App\Support\MediaSettings::payload(); @endphp
-      <audio class="w-100" preload="metadata"
-        @if($__media['show_controls']) controls @endif
-        @if($__media['autoplay']) autoplay @endif
-        @if($__media['loop']) loop @endif>
-        <source src="{{ asset($representation->getFullPath()) }}" type="{{ $resource->mimeType }}">
-        Your browser does not support audio playback.
-      </audio>
+      {{-- #106 Phase 1+4: shared Heratio audio player component. --}}
+      @php
+        $__media = \App\Support\MediaSettings::payload();
+        $__src = asset($representation->getFullPath());
+      @endphp
+      @include('theme::components.media-player', [
+          'type' => 'audio',
+          'playerId' => 'ahg-audio-show-' . ($resource->id ?? uniqid()),
+          'src' => $__src,
+          'mime' => $resource->mimeType,
+          'name' => $representation->name ?? '',
+          'masterUrl' => $__src,
+          'masterMime' => $resource->mimeType,
+          'byteSize' => $representation->byte_size ?? null,
+          'needsStreaming' => false,
+          'showDownload' => $__media['show_download'] ?? true,
+      ])
     @endif
 
   @else

@@ -11,7 +11,7 @@ use AhgCore\Services\AhgSettingsService;
  * are functional end-to-end.
  *
  * Six keys wired here:
- *   - media_player_type      basic | plyr | videojs (#103: all three live)
+ *   - media_player_type      heratio | heratio-minimal | plyr | videojs | native (#106 5-tier)
  *   - media_autoplay         <video|audio autoplay> + Plyr/Video.js opts
  *   - media_loop             <video|audio loop> + Plyr/Video.js opts
  *   - media_default_volume   JS sets player.volume on loadedmetadata
@@ -33,10 +33,28 @@ use AhgCore\Services\AhgSettingsService;
  */
 class MediaSettings
 {
+    /**
+     * #106: five-tier player dispatch.
+     *
+     *   heratio          - rich Heratio-branded UI (DEFAULT for new installs)
+     *   heratio-minimal  - native controls + minimal badges + JS readout
+     *   plyr             - Plyr vendor bundle (#103)
+     *   videojs          - Video.js vendor bundle (#103)
+     *   native           - bare HTML5 controls; no JS wrapper
+     *
+     * Backwards-compat: pre-#106 the seeded values were 'basic' and
+     * 'enhanced'; map both to 'heratio' so installs upgrading from
+     * #103 silently land on the new branded default.
+     */
     public static function playerType(): string
     {
-        $t = (string) AhgSettingsService::get('media_player_type', 'basic');
-        return in_array($t, ['basic', 'plyr', 'videojs'], true) ? $t : 'basic';
+        $t = (string) AhgSettingsService::get('media_player_type', 'heratio');
+        // Migrate legacy values seeded pre-#106.
+        if ($t === 'basic' || $t === 'enhanced') {
+            return 'heratio';
+        }
+        $allowed = ['heratio', 'heratio-minimal', 'plyr', 'videojs', 'native'];
+        return in_array($t, $allowed, true) ? $t : 'heratio';
     }
 
     public static function autoplay(): bool

@@ -940,7 +940,16 @@ class SettingsController extends Controller
 
         $selectFields = [
             'spectrum_default_currency' => ['ZAR' => 'ZAR', 'USD' => 'USD', 'EUR' => 'EUR', 'GBP' => 'GBP'],
-            'media_player_type' => ['basic' => 'Basic HTML5 Player', 'enhanced' => 'Enhanced Player'],
+            // #106: 5-tier player dispatch (heratio default; legacy
+            // 'basic' / 'enhanced' values still accepted by App\Support\
+            // MediaSettings::playerType() and remapped to 'heratio').
+            'media_player_type' => [
+                'heratio'         => 'Heratio (Recommended)',
+                'heratio-minimal' => 'Heratio-minimal',
+                'plyr'            => 'Plyr',
+                'videojs'         => 'Video.js',
+                'native'          => 'Native HTML5',
+            ],
             'photo_max_upload_size' => ['5242880' => '5 MB', '10485760' => '10 MB', '20971520' => '20 MB', '52428800' => '50 MB'],
             'dp_default_regulation' => ['popia' => 'POPIA (South Africa)', 'gdpr' => 'GDPR (EU)', 'paia' => 'PAIA (South Africa)', 'ccpa' => 'CCPA (California)'],
             'iiif_viewer' => ['openseadragon' => 'OpenSeadragon', 'mirador' => 'Mirador', 'leaflet' => 'Leaflet-IIIF'],
