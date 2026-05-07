@@ -90,7 +90,8 @@ class FusekiReplayCommand extends Command
                 $r = $this->rowToInferenceRecord($row);
                 if ($r === null) { $infFailed++; continue; }
 
-                $graphUri = 'urn:ahg:provenance-ai:inference:' . $row->uuid;
+                $tenant   = config('heratio.ld.tenant', 'ahg');
+                $graphUri = "urn:{$tenant}:provenance-ai:inference:" . $row->uuid;
                 // Use the protected buildInferenceTurtle via a thin
                 // public wrapper (added as a sibling to record()) - or
                 // call the Fuseki sync directly with a minimal turtle
@@ -130,7 +131,8 @@ class FusekiReplayCommand extends Command
             foreach ($pending as $row) {
                 if ($dry) { $ovReplayed++; continue; }
                 try {
-                    $graphUri = 'urn:ahg:provenance-ai:override:' . $row->uuid;
+                    $tenant   = config('heratio.ld.tenant', 'ahg');
+                    $graphUri = "urn:{$tenant}:provenance-ai:override:" . $row->uuid;
                     $turtle = $this->buildOverrideTurtle($row);
 
                     $result = $sync->insertRdfStar($graphUri, $turtle);
@@ -222,10 +224,12 @@ class FusekiReplayCommand extends Command
         // to produce a valid graph the operator can later enrich.
         $uuid = (string) $row->uuid;
         $reviewedAt = $row->reviewed_at ?? now()->toIso8601ZuluString();
+        $tenant = config('heratio.ld.tenant', 'ahg');
+        $provNs = config('heratio.ld.provenance_ns');
         return "@prefix prov: <http://www.w3.org/ns/prov#> .\n"
              . "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
-             . "@prefix ex: <https://heratio.theahg.co.za/ns/provenance-ai#> .\n"
-             . "<urn:ahg:provenance-ai:override:{$uuid}> a prov:Activity ;\n"
+             . "@prefix ex: <{$provNs}> .\n"
+             . "<urn:{$tenant}:provenance-ai:override:{$uuid}> a prov:Activity ;\n"
              . "    prov:atTime \"" . addslashes((string) $reviewedAt) . "\"^^xsd:dateTime ;\n"
              . "    ex:reviewed_by \"" . addslashes((string) ($row->reviewer_id ?? '')) . "\" .\n";
     }

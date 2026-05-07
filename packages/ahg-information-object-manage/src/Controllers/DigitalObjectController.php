@@ -164,6 +164,32 @@ class DigitalObjectController extends Controller
                 \Log::info('ai_condition_auto_scan: would dispatch condition scan for IO ' . $io->id);
             }
 
+            // #69 auto_extract_on_upload: when the operator has the AI Services
+            // master toggle on, fire Donut document-understanding against the
+            // freshly-uploaded master so structured fields land in the IO without
+            // a manual Suggest click. Only applies to file uploads (URL/FTP
+            // links don't have a local path to feed Donut). Failures are
+            // non-fatal - the upload itself has already succeeded by this point.
+            if ($hasFile && !$hasFtp && !$hasUrl
+                && class_exists(\AhgAiServices\Support\AiServicesSettings::class)
+                && \AhgAiServices\Support\AiServicesSettings::autoExtractOnUpload()) {
+                try {
+                    $masterRow = DB::table('digital_object')
+                        ->where('object_id', $io->id)
+                        ->where('usage_id', DigitalObjectService::USAGE_MASTER)
+                        ->first();
+                    if ($masterRow && !empty($masterRow->path)) {
+                        $abs = config('heratio.uploads_path') . '/' . ltrim($masterRow->path, '/');
+                        if (is_file($abs) && class_exists(\AhgAiServices\Services\DonutService::class)) {
+                            $donut = app(\AhgAiServices\Services\DonutService::class);
+                            $donut->extract($abs); // fire-and-forget; result is the operator's job to claim via Suggest
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Log::info('[auto_extract_on_upload] Donut dispatch deferred: ' . $e->getMessage());
+                }
+            }
+
             \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'digital_object_upload', [
                 'data' => [
                     'method' => $hasFtp && !$hasFile && !$hasUrl ? 'ftp' : ($hasUrl && !$hasFile ? 'url' : 'file'),

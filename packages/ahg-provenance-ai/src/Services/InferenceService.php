@@ -222,7 +222,8 @@ class InferenceService
     protected function writeRdfStarAnnotation(int $inferenceId, string $uuid, InferenceRecord $r): void
     {
         try {
-            $graphUri = 'urn:ahg:provenance-ai:inference:' . $uuid;
+            $tenant   = config('heratio.ld.tenant', 'ahg');
+            $graphUri = "urn:{$tenant}:provenance-ai:inference:" . $uuid;
             $turtle   = $this->buildInferenceTurtle($uuid, $r);
 
             // Delegate to FusekiSyncService so settings (enable/queue) are honoured.
@@ -266,12 +267,14 @@ class InferenceService
      */
     protected function buildInferenceTurtle(string $uuid, InferenceRecord $r): string
     {
+        $tenant = config('heratio.ld.tenant', 'ahg');
+        $provNs = config('heratio.ld.provenance_ns');
         $prefixes = "@prefix prov: <http://www.w3.org/ns/prov#> .\n"
                   . "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
-                  . "@prefix ex: <https://heratio.theahg.co.za/ns/provenance-ai#> .\n"
+                  . "@prefix ex: <{$provNs}> .\n"
                   . "@prefix ric: <https://www.ica.org/standards/RiC/ontology#> .\n";
 
-        $inference = "<urn:ahg:provenance-ai:inference:{$uuid}>";
+        $inference = "<urn:{$tenant}:provenance-ai:inference:{$uuid}>";
         $target    = $this->targetUri($r);
 
         // The "thing being asserted" - we anchor the meta-assertion on the
@@ -279,7 +282,7 @@ class InferenceService
         // RDF-Star annotation is well-formed even before the AI write
         // commits. The output_hash sentinel makes the meta-assertion
         // round-trippable to the original output via ahg_ai_inference.output_hash.
-        $outputNode = "<urn:ahg:provenance-ai:output:{$r->outputHash}>";
+        $outputNode = "<urn:{$tenant}:provenance-ai:output:{$r->outputHash}>";
 
         $generatedAt = now()->toIso8601ZuluString();
         $body = $prefixes
@@ -307,10 +310,11 @@ class InferenceService
      */
     protected function targetUri(InferenceRecord $r): string
     {
-        $type  = rawurlencode($r->targetEntityType);
-        $id    = (int) $r->targetEntityId;
-        $field = rawurlencode($r->targetField);
-        return "<urn:ahg:entity:{$type}:{$id}:{$field}>";
+        $tenant = config('heratio.ld.tenant', 'ahg');
+        $type   = rawurlencode($r->targetEntityType);
+        $id     = (int) $r->targetEntityId;
+        $field  = rawurlencode($r->targetField);
+        return "<urn:{$tenant}:entity:{$type}:{$id}:{$field}>";
     }
 
     /**

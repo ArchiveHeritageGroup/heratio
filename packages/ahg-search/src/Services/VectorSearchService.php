@@ -163,6 +163,12 @@ class VectorSearchService
             'with_payload'  => true,
             'with_vector'   => false,
         ];
+        // #69: honour qdrant_min_score so the operator's filter floor reaches
+        // the engine instead of being ignored. Empty / 0 means no floor.
+        $minScore = (float) ($this->setting('semantic_qdrant_min_score', '0') ?? '0');
+        if ($minScore > 0) {
+            $body['score_threshold'] = $minScore;
+        }
         if ($filter !== null) {
             $body['filter'] = $filter;
         }
@@ -240,6 +246,28 @@ class VectorSearchService
             }
         } catch (Throwable $e) {
             // setting table might not exist on a brand-new install
+        }
+        // #69: fall back to the AI Services settings tile (ahg_ner_settings).
+        // The semantic_* keys are the canonical ones VectorSearchService was
+        // built around; the AI Services form exposes qdrant_url / qdrant_collection
+        // which mean the same thing - try them when the canonical key is unset
+        // so the operator doesn't have to know about both.
+        $alias = match ($key) {
+            'semantic_qdrant_url'        => 'qdrant_url',
+            'semantic_qdrant_collection' => 'qdrant_collection',
+            'semantic_embedding_model'   => 'qdrant_model',
+            'semantic_qdrant_min_score'  => 'qdrant_min_score',
+            default                      => null,
+        };
+        if ($alias) {
+            try {
+                $row = DB::table('ahg_ner_settings')->where('setting_key', $alias)->value('setting_value');
+                if ($row !== null && $row !== '') {
+                    return (string) $row;
+                }
+            } catch (Throwable $e) {
+                // ahg_ner_settings absent - fall through
+            }
         }
         return $default;
     }

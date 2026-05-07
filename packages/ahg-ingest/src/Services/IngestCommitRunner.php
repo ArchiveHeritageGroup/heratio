@@ -321,7 +321,13 @@ class IngestCommitRunner
             });
         }
 
-        if ($on($session->process_summarize ?? null)) {
+        // #69 master gates: ahg_ner_settings.{summarizer|spellcheck|translation}_enabled
+        // operator-global kill switch on top of the per-session toggle. Both must be
+        // on for the step to run. Helper short-circuits when the table is missing.
+        $aiOn = class_exists(\AhgAiServices\Support\AiServicesSettings::class);
+
+        if ($on($session->process_summarize ?? null)
+            && (!$aiOn || \AhgAiServices\Support\AiServicesSettings::summarizerEnabled())) {
             $tryStep('summarize', function () use ($ioId, $log) {
                 if (!class_exists(\AhgAiServices\Services\SummarizerService::class)) {
                     $log('summarize', 'SummarizerService not present, skipping'); return;
@@ -333,7 +339,8 @@ class IngestCommitRunner
             });
         }
 
-        if ($on($session->process_spellcheck ?? null)) {
+        if ($on($session->process_spellcheck ?? null)
+            && (!$aiOn || \AhgAiServices\Support\AiServicesSettings::spellcheckEnabled())) {
             $tryStep('spellcheck', function () use ($ioId, $log) {
                 if (!class_exists(\AhgAiServices\Services\SpellcheckService::class)) {
                     $log('spellcheck', 'SpellcheckService not present, skipping'); return;
@@ -345,13 +352,16 @@ class IngestCommitRunner
             });
         }
 
-        if ($on($session->process_translate ?? null)) {
+        if ($on($session->process_translate ?? null)
+            && (!$aiOn || \AhgAiServices\Support\AiServicesSettings::translationEnabled())) {
             $tryStep('translate', function () use ($ioId, $session, $log) {
                 if (!class_exists(\AhgAiServices\Services\TranslateService::class)) {
                     $log('translate', 'TranslateService not present, skipping'); return;
                 }
                 $svc = app(\AhgAiServices\Services\TranslateService::class);
-                $targetLang = (string) ($session->process_translate_lang ?? 'af');
+                // session column wins; fall back to the operator default.
+                $targetLang = (string) ($session->process_translate_lang
+                    ?? (\AhgAiServices\Support\AiServicesSettings::spellcheckLanguage() ?: 'af'));
                 if (method_exists($svc, 'enqueueForInformationObject')) {
                     $svc->enqueueForInformationObject($ioId, $targetLang);
                 }

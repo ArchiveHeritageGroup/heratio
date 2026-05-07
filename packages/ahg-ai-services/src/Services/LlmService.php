@@ -197,6 +197,39 @@ class LlmService
      */
     public function complete(string $prompt, array $options = []): ?string
     {
+        // #69: ai_services_processing_mode + api_url/key/timeout drive a master
+        // 'cloud' override that bypasses the per-provider config table. Used
+        // when the operator wants a single hosted endpoint to handle all calls
+        // (e.g. self-hosted vLLM at a stable URL). 'hybrid' falls through to
+        // the per-provider table; 'local' also falls through.
+        $aiSet = class_exists(\AhgAiServices\Support\AiServicesSettings::class)
+                ? \AhgAiServices\Support\AiServicesSettings::class : null;
+        if ($aiSet && $aiSet::processingMode() === 'cloud') {
+            $url = $aiSet::apiUrl();
+            $key = $aiSet::apiKey();
+            $tmo = $aiSet::apiTimeout();
+            if ($url) {
+                try {
+                    $req = \Illuminate\Support\Facades\Http::timeout($tmo)->asJson();
+                    if ($key) { $req = $req->withToken($key); }
+                    $resp = $req->post(rtrim($url, '/') . '/v1/chat/completions', [
+                        'messages' => [['role' => 'user', 'content' => $prompt]],
+                        'temperature' => $options['temperature'] ?? 0.2,
+                    ]);
+                    if ($resp->ok()) {
+                        $body = $resp->json();
+                        $text = $body['choices'][0]['message']['content'] ?? null;
+                        if (is_string($text) && $text !== '') {
+                            return $text;
+                        }
+                    }
+                    Log::warning('[ahg-ai] cloud-mode endpoint returned no text', ['status' => $resp->status()]);
+                } catch (\Throwable $e) {
+                    Log::warning('[ahg-ai] cloud-mode endpoint threw, falling through to local: ' . $e->getMessage());
+                }
+            }
+        }
+
         $configId = $options['config_id'] ?? null;
         $config   = $configId ? $this->getConfiguration($configId) : $this->getDefaultConfig();
 
@@ -482,13 +515,22 @@ class LlmService
     /**
      * Summarize text using the active LLM.
      */
-    public function summarize(string $text, int $maxLength = 200): ?string
+    public function summarize(string $text, ?int $maxLength = null): ?string
     {
         if (empty(trim($text))) {
             return null;
         }
 
-        $prompt = "Summarize the following text in no more than {$maxLength} words. "
+        // #69: defaults from operator AI Services settings unless caller overrides.
+        $aiSet = class_exists(\AhgAiServices\Support\AiServicesSettings::class)
+                ? \AhgAiServices\Support\AiServicesSettings::class : null;
+        if ($aiSet && !$aiSet::summarizerEnabled()) {
+            return null; // master gate off - no work, no cost
+        }
+        $maxLength = $maxLength ?? ($aiSet ? $aiSet::summarizerMaxLength() : 200);
+        $minLength = $aiSet ? $aiSet::summarizerMinLength() : 30;
+
+        $prompt = "Summarize the following text in {$minLength} to {$maxLength} words. "
             . "Preserve key facts, dates, and names. Output only the summary, no preamble.\n\n"
             . "Text:\n{$text}";
 
@@ -502,6 +544,37 @@ class LlmService
     {
         if (empty(trim($text))) {
             return null;
+        }
+
+        // #69: master gate + dual-mode dispatch (mt endpoint vs LLM round-trip).
+        $aiSet = class_exists(\AhgAiServices\Support\AiServicesSettings::class)
+                ? \AhgAiServices\Support\AiServicesSettings::class : null;
+        if ($aiSet && !$aiSet::translationEnabled()) {
+            return null;
+        }
+
+        $mode = $aiSet ? $aiSet::translationMode() : 'llm';
+        $mtEp = $aiSet ? $aiSet::mtEndpoint() : null;
+        if ($mode === 'mt' && $mtEp) {
+            try {
+                $resp = \Illuminate\Support\Facades\Http::timeout($aiSet::mtTimeout())
+                    ->asJson()
+                    ->post(rtrim($mtEp, '/') . '/translate', [
+                        'text'   => $text,
+                        'target' => $targetLang,
+                    ]);
+                if ($resp->ok()) {
+                    $body = $resp->json();
+                    if (is_array($body) && isset($body['translation']) && is_string($body['translation'])) {
+                        return $body['translation'];
+                    }
+                }
+                Log::warning('[ahg-ai] MT endpoint failed; falling back to LLM round-trip', [
+                    'status' => $resp->status(),
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('[ahg-ai] MT endpoint threw; falling back to LLM round-trip: ' . $e->getMessage());
+            }
         }
 
         $prompt = "Translate the following text into {$targetLang}. "
@@ -597,7 +670,15 @@ class LlmService
             return [];
         }
 
-        $prompt = "Check the following text for spelling and grammar errors. "
+        // #69: master gate + locale.
+        $aiSet = class_exists(\AhgAiServices\Support\AiServicesSettings::class)
+                ? \AhgAiServices\Support\AiServicesSettings::class : null;
+        if ($aiSet && !$aiSet::spellcheckEnabled()) {
+            return [];
+        }
+        $lang = $aiSet ? $aiSet::spellcheckLanguage() : 'en';
+
+        $prompt = "Check the following text in language '{$lang}' for spelling and grammar errors. "
             . "Return ONLY a valid JSON array of corrections. Each item must have:\n"
             . "- \"original\": the misspelled/incorrect word or phrase\n"
             . "- \"suggestion\": the corrected version\n"
