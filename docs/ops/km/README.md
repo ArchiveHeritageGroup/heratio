@@ -7,17 +7,33 @@ output they reference.
 
 ## What's here
 
-### #49 - Qdrant credential audit
+### #49 - Qdrant credential audit + shared redactor
 
-Daily defence-in-depth scan over every Qdrant collection.
+Daily defence-in-depth scan + a single source of truth for the redaction
+regex set every ingest script consults inbound.
 
 | File | Live path |
 |---|---|
 | `audit-qdrant.py` | `/opt/ai/km/audit-qdrant.py` |
 | `km-audit-qdrant.service` | `/etc/systemd/system/km-audit-qdrant.service` |
 | `km-audit-qdrant.timer` | `/etc/systemd/system/km-audit-qdrant.timer` (daily 03:30) |
+| `redact.py` | `/opt/ai/km/redact.py` (shared module - all ingest scripts import from here) |
+| `redact_existing.py` | `/opt/ai/km/redact_existing.py` (one-shot in-place re-redaction over existing chunks) |
+| `ingest.py` | `/opt/ai/km/ingest.py` (km_threads) - redacts via redact.py |
+| `ingest_qa.py` | `/opt/ai/km/ingest_qa.py` (km_qa) - redacts via redact.py |
+| `ingest_atom_docs.py` | `/opt/ai/km/ingest_atom_docs.py` (km_heratio - AtoM docs path) - redacts |
+| `ingest_ric.py` | `/opt/ai/km/ingest_ric.py` (km_ric) - redacts |
+| `ingest_v2101.py` | `/opt/ai/km/ingest_v2101.py` (km_heratio - 2.10.1 docs path) - redacts |
+| `ingest_upgrade.py` | `/opt/ai/km/ingest_upgrade.py` (km_heratio - upgrade docs path) - redacts |
+| `ingest_heratio.py` | `/opt/ai/km/ingest_heratio.py` (km_heratio - main pass) - redacts |
 
-Exit codes: `0` clean, `2` leaks found (systemd marks unit FAILED), `3` Qdrant unreachable.
+Exit codes for `audit-qdrant.py`: `0` clean, `2` leaks found (systemd marks unit FAILED), `3` Qdrant unreachable.
+
+audit-qdrant.py hardening notes:
+- `PLACEHOLDER_HINTS` skip filter drops docs-style examples (`your-*`, `${VAR}`, `<API_KEY>`, `xxxxxxxx`, `process.env.X`, `ak_live_x*`, truncation suffix `...`) before they count as hits.
+- `COMMON_WORDS_AFTER_LABEL` skip set drops field-label-followed-by-whitespace-word false positives (`Password: chosen`, `password: correct`, etc.).
+- 4-octet RFC1918 enforcement so date-shaped 3-octet matches (`10.04.2026`) do not trigger.
+- Does not strip `<REDACTED>`/`<INTERNAL_IP>`/`<SSH_KEY>` placeholders before scanning - leaves them in so the regex matches them as the value (PLACEHOLDER_HINTS then skips), instead of stripping them and falsely matching the next paragraph word.
 
 ### #58 - Function/method/route catalogues for KM retrieval
 

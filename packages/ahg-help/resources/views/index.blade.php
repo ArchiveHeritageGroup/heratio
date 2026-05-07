@@ -43,6 +43,27 @@
       </div>
     </div>
 
+    {{-- Function & Route Catalogues (admin-gated; surface only for signed-in admins) --}}
+    @auth
+      @if(\AhgCore\Services\AclService::canAdmin(auth()->id()))
+        <div class="card border-info mb-4">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h5 class="card-title mb-1"><i class="bi bi-journal-code me-2"></i>{{ __('Function & Route Catalogues') }}</h5>
+                <p class="card-text text-muted mb-0">{{ __('Browse the auto-generated PHP, JS, Blade, Python, and HTTP route catalogues. Operator/dev reference - regenerated every ~10 minutes.') }}</p>
+              </div>
+              <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                <a href="{{ route('functionsDocs.index') }}" class="btn atom-btn-white">
+                  <i class="bi bi-list-ul me-1"></i>{{ __('Browse catalogues') }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      @endif
+    @endauth
+
     {{-- Category Cards --}}
     <h2 class="h4 mb-3">{{ __('Browse by Category') }}</h2>
     <div class="row g-3 mb-4">

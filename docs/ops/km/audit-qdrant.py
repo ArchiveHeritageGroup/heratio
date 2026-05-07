@@ -52,7 +52,7 @@ PATTERNS: list[tuple[re.Pattern, str]] = [
     (re.compile(r'[A-Z][A-Z0-9_]+(?:PASSWORD|KEY|TOKEN|SECRET)\s*=\s*[`\'"]?[^\s`\'",]{4,}'),     'ENV_VAR=VALUE'),
     (re.compile(r'\b(?:Merlot|AtoM)@\d+\b'),                                                       'literal Merlot@/AtoM@'),
     (re.compile(r'\bahg_ai_demo_internal_\d+\b'),                                                  'demo internal key'),
-    (re.compile(r'\b(?:10|192\.168|172\.(?:1[6-9]|2\d|3[01]))\.\d+\.\d+\b'),                       'RFC1918 IP'),
+    (re.compile(r'\b(?:10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+)\b'), 'RFC1918 IP'),
     (re.compile(r'(?:ssh-(?:rsa|ed25519|dss)|-----BEGIN [A-Z ]+ KEY-----)'),                       'SSH/PEM key'),
     # Extras over the redactor:
     (re.compile(r'\bsk-[A-Za-z0-9]{20,}\b'),                                                       'OpenAI/Anthropic-style key'),
@@ -63,6 +63,41 @@ PATTERNS: list[tuple[re.Pattern, str]] = [
 # A scan that just finds the placeholder is fine - that's the redactor doing
 # its job, not a leak. Skip these substrings before regexing the payload.
 REDACTED_PLACEHOLDERS = ('<REDACTED>', '<INTERNAL_IP>', '<SSH_KEY>')
+
+# Patterns that, when MATCHED, are docs-style placeholders rather than real
+# secrets - skip the hit. Common cases: install-guide examples ("your-api-key"),
+# YAML/env-var references that point at a value but aren't one
+# (`${OPENSEARCH_PASSWORD}`), already-truncated examples (suffix `...`),
+# and obvious xxxxxxxxxxxxx fillers. Without this filter the audit drowns
+# real signal in install-guide noise.
+PLACEHOLDER_HINTS = re.compile(
+    r'your-[a-z-]+'             # your-api-key, your-secure-password
+    r'|YOUR[_A-Z]+'             # YOUR_API_KEY, YOURPASSWORD
+    r'|\$\{[A-Z_]+\}'           # ${OPENSEARCH_PASSWORD}
+    r'|<[A-Z_][A-Z0-9_]*>'      # <API_KEY> placeholder
+    r'|x{8,}'                   # xxxxxxxxxxxxxxxx
+    r'|X{8,}'                   # XXXXXXXXXXXXXXXX
+    r'|placeholder'
+    r'|example\.com'
+    r'|ak_live_x+'              # API-key example with x-fillers
+    r'|process\.env\.'          # apiKey: process.env.X is a config-reference, not a value
+    r'|\.{3}$',                 # already-truncated excerpt ending in ...
+    re.I,
+)
+
+# Common-English-word values that follow "password:" / "Password:" labels in
+# threads but aren't real passwords - the regex matches because the field name
+# is followed by whitespace + a word.
+COMMON_WORDS_AFTER_LABEL = {
+    'chosen', 'correct', 'incorrect', 'wrong', 'invalid', 'changed', 'reset',
+    'expired', 'required', 'optional', 'mandatory', 'default', 'admin', 'test',
+    'login', 'logout', 'screen', 'field', 'button', 'value', 'string', 'unknown',
+    'AtomFramework',  # token = AtomFramework is a class reference in docs
+    'fedoraPassword',  # python literal string in docs
+    'Authorization',  # token: `Authorization` is a header-name doc reference
+    'ATOM_API_KEY', 'REACT_APP_ATOM_API_KEY',  # config-key names, not values
+    'Content-Type',
+}
 
 
 def iter_strings(payload) -> Iterable[tuple[str, str]]:
@@ -89,14 +124,34 @@ def scan_text(text: str) -> list[tuple[str, str]]:
     """Return [(label, excerpt), ...] for every pattern that matched."""
     if not text or len(text) < 6:
         return []
+    # Don't strip <REDACTED>/<INTERNAL_IP>/<SSH_KEY> here - leave them in
+    # the text so the SECRET regex matches THEM (the redactor's output) as
+    # the value, then PLACEHOLDER_HINTS skips. Stripping them collapses
+    # Password:<REDACTED>\n\nContact: -> Password:\n\nContact: which then
+    # falsely matches "Contact:" as the password value.
     cleaned = text
-    for ph in REDACTED_PLACEHOLDERS:
-        cleaned = cleaned.replace(ph, '')
     hits = []
     for pat, label in PATTERNS:
         m = pat.search(cleaned)
         if m:
             excerpt = m.group(0)
+            # Drop placeholder noise so docs-style examples don't drown
+            # the real signal.
+            if PLACEHOLDER_HINTS.search(excerpt):
+                continue
+            # Strip the label half ("Password: ", "api_key: ") and look at the
+            # captured value - if it's a common English word or known docs
+            # constant, skip it. Field-label-followed-by-whitespace-word is
+            # the dominant false-positive class.
+            value_only = re.sub(r'^[A-Za-z_][A-Za-z0-9_-]*\s*[:=]\s*[`\'"]?', '', excerpt).strip().strip('`\'"')
+            if value_only in COMMON_WORDS_AFTER_LABEL:
+                continue
+            # RFC1918 hits: belt-and-braces - re-validate the match has 4
+            # dotted-decimal octets (full IP). Dates like 10.04.2026 are
+            # 3-octet and pre-filtered by the source pattern, but defend
+            # in depth.
+            if label == 'RFC1918 IP' and not re.search(r'\b(?:10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+)\b', excerpt):
+                continue
             if len(excerpt) > 80:
                 excerpt = excerpt[:77] + '...'
             hits.append((label, excerpt))

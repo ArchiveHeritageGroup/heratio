@@ -56,6 +56,7 @@
         "ahg/forms": "@dev",
         "ahg/ftp-upload": "@dev",
         "ahg/function-manage": "@dev",
+        "ahg/functions-docs": "@dev",
         "ahg/gallery": "@dev",
         "ahg/gis": "@dev",
         "ahg/graphql": "@dev",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9e9d603db8c2b50daeace9f0a809fd41",
+    "content-hash": "580dbcfb2cbc6331e03ec7bcedc2cdf2",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -409,10 +409,11 @@
             "dist": {
                 "type": "path",
                 "url": "packages/ahg-condition",
-                "reference": "67b77de2e2f7dffb0fcd30b27faff7f0dd497bd4"
+                "reference": "99a96e0a28d3eedd6fc8b6b9f0b30c0f593c3512"
             },
             "require": {
-                "ahg/core": "@dev"
+                "ahg/core": "@dev",
+                "ahg/media-processing": "@dev"
             },
             "type": "library",
             "extra": {
@@ -913,10 +914,12 @@
             "dist": {
                 "type": "path",
                 "url": "packages/ahg-federation",
-                "reference": "b96b82427ef65c029335501b7947ab56d3ae7c23"
+                "reference": "a785f16db887ca4ce0bbdc81d1063fd10fc2e006"
             },
             "require": {
-                "ahg/core": "@dev"
+                "ahg/core": "@dev",
+                "ahg/information-object-manage": "@dev",
+                "ahg/term-taxonomy": "@dev"
             },
             "type": "library",
             "extra": {
@@ -1052,6 +1055,37 @@
                 }
             },
             "description": "Function (ISDF) browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/functions-docs",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-functions-docs",
+                "reference": "1b5d583d55b2a061d13a684e538a0f86bd2b31fe"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "league/commonmark": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgFunctionsDocs\\Providers\\AhgFunctionsDocsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgFunctionsDocs\\": "src/"
+                }
+            },
+            "description": "Browser-rendered surface for the auto-generated function/route catalogues (closes #126)",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11778,6 +11812,7 @@
         "ahg/forms": 20,
         "ahg/ftp-upload": 20,
         "ahg/function-manage": 20,
+        "ahg/functions-docs": 20,
         "ahg/gallery": 20,
         "ahg/gis": 20,
         "ahg/graphql": 20,

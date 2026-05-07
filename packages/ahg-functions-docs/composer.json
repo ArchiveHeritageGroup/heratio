@@ -1,0 +1,21 @@
+{
+    "name": "ahg/functions-docs",
+    "description": "Browser-rendered surface for the auto-generated function/route catalogues (closes #126)",
+    "type": "library",
+    "require": {
+        "ahg/core": "@dev",
+        "league/commonmark": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgFunctionsDocs\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgFunctionsDocs\\Providers\\AhgFunctionsDocsServiceProvider"
+            ]
+        }
+    }
+}
