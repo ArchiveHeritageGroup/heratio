@@ -121,6 +121,70 @@ class ConditionService
         return (int) $newId;
     }
 
+    /**
+     * Transition a condition check from `pending` to a real assessment
+     * (`good`/`fair`/`poor`/`unfit`). Closes #120: when
+     * `spectrum_require_photos` is on, refuses the transition unless at
+     * least one row exists in `spectrum_condition_photo` for the check.
+     *
+     * Throws \DomainException with an operator-readable message when the
+     * gate trips. Caller should catch + surface as a flash error rather
+     * than a 500.
+     */
+    public function completeConditionCheck(int $checkId, string $newCondition, ?string $note = null): bool
+    {
+        $allowed = ['good', 'fair', 'poor', 'unfit'];
+        if (!in_array($newCondition, $allowed, true)) {
+            throw new \InvalidArgumentException(
+                'Invalid overall_condition value: ' . $newCondition
+                . '. Must be one of: ' . implode(', ', $allowed)
+            );
+        }
+
+        $check = DB::table('spectrum_condition_check')->where('id', $checkId)->first();
+        if (!$check) {
+            throw new \DomainException("Condition check {$checkId} not found.");
+        }
+
+        // #120: photo-count gate. Use the photo_count denorm column when
+        // populated, fall back to a COUNT(*) when null/0 to be robust against
+        // installs that haven't backfilled the denorm.
+        if (\AhgSpectrum\Services\SpectrumSettings::class
+            && (new \AhgSpectrum\Services\SpectrumSettings())->requirePhotos()) {
+            $photoCount = (int) ($check->photo_count ?? 0);
+            if ($photoCount === 0) {
+                $photoCount = (int) DB::table('spectrum_condition_photo')
+                    ->where('condition_check_id', $checkId)
+                    ->count();
+            }
+            if ($photoCount === 0) {
+                throw new \DomainException(
+                    'At least one photo is required before completing a condition check ('
+                    . 'spectrum_require_photos is enabled on /admin/ahgSettings/spectrum). '
+                    . 'Upload a photo and try again.'
+                );
+            }
+        }
+
+        DB::table('spectrum_condition_check')
+            ->where('id', $checkId)
+            ->update([
+                'overall_condition' => $newCondition,
+                'condition_note' => $note,
+                'updated_at' => now(),
+            ]);
+
+        \AhgCore\Support\AuditLog::captureMutation((int) $checkId, 'condition_check', 'complete', [
+            'data' => [
+                'condition_check_id' => $checkId,
+                'overall_condition_to' => $newCondition,
+                'overall_condition_from' => $check->overall_condition ?? null,
+            ],
+        ]);
+
+        return true;
+    }
+
     public function getPhotosForCheck(int $checkId): \Illuminate\Support\Collection
     {
         return DB::table('spectrum_condition_photo')

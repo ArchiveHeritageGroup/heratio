@@ -89,5 +89,74 @@ class SpectrumController extends Controller
         return view('spectrum::loans', ['defaultCurrency' => $defaultCurrency]);
     }
 
-    // ... rest of file unchanged ...
+    // ─── #123 enable_barcodes ──────────────────────────────────────────
+    //
+    // Centralised barcode lookup. Operator scans a barcode (or types one
+    // into the search box); we resolve to the owning information_object
+    // and redirect to its show page. The route is registered in
+    // routes/web.php but only resolves to a useful response when
+    // spectrum_enable_barcodes=1 (the gate below 404s otherwise so the
+    // feature is invisible to operators who haven't opted in).
+
+    public function barcodeScan(Request $request)
+    {
+        $settings = new SpectrumSettings();
+        if (!$settings->isEnabled() || !$settings->enableBarcodes()) {
+            abort(404);
+        }
+
+        $barcode = trim((string) $request->input('barcode', ''));
+        if ($barcode === '') {
+            return view('spectrum::barcode-scan', ['result' => null, 'barcode' => '']);
+        }
+
+        $objectId = \AhgSpectrum\Services\SpectrumBarcodeService::findObjectByBarcode($barcode);
+        if (!$objectId) {
+            return view('spectrum::barcode-scan', [
+                'result' => 'not-found',
+                'barcode' => $barcode,
+            ]);
+        }
+
+        // Resolve to the public slug + redirect to the IO show page.
+        $slug = DB::table('slug')->where('object_id', $objectId)->value('slug');
+        if ($slug) {
+            return redirect('/' . $slug);
+        }
+
+        // Slug missing (rare): fall back to the report-shape view.
+        return view('spectrum::barcode-scan', [
+            'result' => 'object-without-slug',
+            'barcode' => $barcode,
+            'object_id' => $objectId,
+        ]);
+    }
+
+    public function barcodeAssign(Request $request)
+    {
+        $settings = new SpectrumSettings();
+        if (!$settings->isEnabled() || !$settings->enableBarcodes()) {
+            abort(404);
+        }
+
+        $request->validate([
+            'object_id' => 'required|integer|min:1',
+            'barcode'   => 'required|string|max:255',
+            'label'     => 'nullable|string|max:255',
+        ]);
+
+        try {
+            $newId = \AhgSpectrum\Services\SpectrumBarcodeService::assign(
+                (int) $request->input('object_id'),
+                (string) $request->input('barcode'),
+                $request->input('label'),
+                Auth::id(),
+            );
+            return back()->with('success', 'Barcode assigned (id ' . $newId . ').');
+        } catch (\DomainException $e) {
+            return back()->withInput()->withErrors(['barcode' => $e->getMessage()]);
+        } catch (\InvalidArgumentException $e) {
+            return back()->withInput()->withErrors(['barcode' => $e->getMessage()]);
+        }
+    }
 }

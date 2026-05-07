@@ -28,6 +28,12 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth', EnsureSpectrumEnable
     Route::post('/workflow-transition', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflowTransition'])->name('ahgspectrum.workflow-transition');
     Route::post('/workflow-sop', [\AhgSpectrum\Controllers\SpectrumController::class, 'workflowSop'])->name('ahgspectrum.workflow-sop');
 
+    // #123 enable_barcodes: scan + assign endpoints. Both 404 when
+    // spectrum_enable_barcodes is off (controller-side check) so the
+    // routes are invisible until the operator opts in.
+    Route::match(['get', 'post'], '/barcode/scan', [\AhgSpectrum\Controllers\SpectrumController::class, 'barcodeScan'])->name('ahgspectrum.barcode-scan');
+    Route::post('/barcode/assign', [\AhgSpectrum\Controllers\SpectrumController::class, 'barcodeAssign'])->name('ahgspectrum.barcode-assign');
+
     // Notifications
     Route::get('/notifications', [\AhgSpectrum\Controllers\SpectrumController::class, 'notifications'])->name('ahgspectrum.notifications');
     Route::post('/notification/mark-read', [\AhgSpectrum\Controllers\SpectrumController::class, 'notificationMarkRead'])->name('ahgspectrum.notification.mark-read');

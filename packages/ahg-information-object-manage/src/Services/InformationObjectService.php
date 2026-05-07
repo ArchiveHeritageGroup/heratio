@@ -386,6 +386,24 @@ class InformationObjectService
         $culture = $culture ?: app()->getLocale();
         $data = self::normalizeKeys($data);
 
+        // #121/#122: spectrum publish-guard. When publication_status_id is
+        // being transitioned to PUBLISHED, ask the spectrum module whether
+        // any of its require_* settings block. Throws DomainException with
+        // operator-readable reasons when blocked so the caller (controller
+        // / API) can surface a flash error rather than failing silently.
+        // Cheap when both spectrum_require_valuation + spectrum_require_insurance
+        // are off (the guard returns early without DB lookups).
+        if (
+            array_key_exists('publication_status_id', $data)
+            && (int) ($data['publication_status_id'] ?? 0) === self::STATUS_PUBLISHED
+            && class_exists(\AhgSpectrum\Services\SpectrumPublishGuardService::class)
+        ) {
+            $reasons = (new \AhgSpectrum\Services\SpectrumPublishGuardService())->canPublish($id);
+            if (!empty($reasons)) {
+                throw new \DomainException(implode("\n", $reasons));
+            }
+        }
+
         $auditBefore = self::auditSnapshot($id, $culture);
 
         DB::transaction(function () use ($id, $data, $culture) {

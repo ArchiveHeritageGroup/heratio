@@ -51,6 +51,13 @@ class SpectrumWorkflowService
             return [];
         }
 
+        // #124 spectrum_auto_numbering: when on AND the underlying
+        // information_object has no identifier yet, backfill via the
+        // sector identifier service before any downstream procedure runs.
+        // Idempotent (only fires when identifier is blank), cheap when
+        // the setting is off (one DB lookup short-circuit).
+        self::backfillIdentifierIfNeeded($recordId);
+
         // #91: spectrum_auto_create_movement gates the location_movement
         // auto-trigger across every chain that fans out to it (object_entry,
         // acquisition, loans_in, loans_out, loss_damage). When off, the
@@ -121,6 +128,50 @@ class SpectrumWorkflowService
         }
 
         return $triggered;
+    }
+
+    /**
+     * #124 spectrum_auto_numbering: when on, backfill an empty identifier
+     * via SectorIdentifierService at workflow time. The IO sector is
+     * derived from information_object.source_standard via the existing
+     * resolver. No-op when:
+     *   - spectrum_auto_numbering is off
+     *   - the IO already has an identifier
+     *   - the sector mask isn't enabled (next() returns null)
+     *   - the row doesn't exist
+     */
+    private static function backfillIdentifierIfNeeded(int $recordId): void
+    {
+        try {
+            if (!(new SpectrumSettings())->autoNumbering()) {
+                return;
+            }
+            $row = DB::table('information_object')
+                ->select('id', 'identifier', 'source_standard')
+                ->where('id', $recordId)
+                ->first();
+            if (!$row) return;
+            if (!empty($row->identifier)) return;
+
+            $sector = \AhgCore\Services\SectorIdentifierService::resolveSector($row->source_standard);
+            $next = \AhgCore\Services\SectorIdentifierService::next($sector);
+            if ($next === null) return;
+
+            DB::table('information_object')
+                ->where('id', $recordId)
+                ->update(['identifier' => $next]);
+
+            \AhgCore\Support\AuditLog::captureMutation((int) $recordId, 'information_object', 'auto_identifier_backfill', [
+                'data' => [
+                    'identifier' => $next,
+                    'sector' => $sector,
+                    'source' => 'spectrum_auto_numbering',
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            // Non-fatal: workflow should run even if backfill fails.
+            \Illuminate\Support\Facades\Log::warning('[spectrum] auto-numbering backfill failed for record ' . $recordId . ': ' . $e->getMessage());
+        }
     }
 
     /**
