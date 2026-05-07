@@ -3,7 +3,9 @@
     "description": "Federation and OAI-PMH peer harvesting for Heratio",
     "type": "library",
     "require": {
-        "ahg/core": "@dev"
+        "ahg/core": "@dev",
+        "ahg/information-object-manage": "@dev",
+        "ahg/term-taxonomy": "@dev"
     },
     "autoload": {
         "psr-4": {

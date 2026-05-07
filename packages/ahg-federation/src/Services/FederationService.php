@@ -37,17 +37,73 @@ class FederationService
     public function getStats(): array
     {
         $peerCount = DB::table('federation_peer')->count();
+        $activePeerCount = DB::table('federation_peer')->where('is_active', 1)->count();
         $harvestCount = DB::table('federation_harvest_log')->count();
-        // Real column is `harvest_date`; code previously used `started_at`.
         $lastHarvest = DB::table('federation_harvest_log')
             ->orderByDesc('harvest_date')
             ->value('harvest_date');
 
+        $searchCacheRows = DB::table('federation_search_cache')->count();
+        $searchCacheLive = DB::table('federation_search_cache')
+            ->where('expires_at', '>', now())
+            ->count();
+        $searchLogCount = DB::table('federation_search_log')->count();
+        $vocabSyncCount = DB::table('federation_vocab_sync')
+            ->where('sync_enabled', 1)
+            ->count();
+
         return [
             'peerCount' => $peerCount,
+            'activePeerCount' => $activePeerCount,
             'harvestCount' => $harvestCount,
             'lastHarvest' => $lastHarvest,
+            'searchCacheRows' => $searchCacheRows,
+            'searchCacheLive' => $searchCacheLive,
+            'searchLogCount' => $searchLogCount,
+            'vocabSyncCount' => $vocabSyncCount,
         ];
+    }
+
+    /**
+     * Recent harvest sessions, newest first.
+     */
+    public function getRecentHarvestSessions(int $limit = 5): \Illuminate\Support\Collection
+    {
+        return DB::table('federation_harvest_session as s')
+            ->leftJoin('federation_peer as p', 's.peer_id', '=', 'p.id')
+            ->orderByDesc('s.started_at')
+            ->limit($limit)
+            ->select('s.*', 'p.name as peer_name')
+            ->get();
+    }
+
+    /**
+     * Recent federated searches, newest first.
+     */
+    public function getRecentSearches(int $limit = 5): \Illuminate\Support\Collection
+    {
+        return DB::table('federation_search_log')
+            ->orderByDesc('created_at')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Vocabulary sync configurations (ungrouped).
+     */
+    public function getVocabSyncConfigs(?string $culture = null): \Illuminate\Support\Collection
+    {
+        $culture = $culture ?: app()->getLocale();
+
+        return DB::table('federation_vocab_sync as vs')
+            ->leftJoin('federation_peer as p', 'vs.peer_id', '=', 'p.id')
+            ->leftJoin('taxonomy_i18n as ti', function ($j) use ($culture) {
+                $j->on('vs.taxonomy_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
+            })
+            ->orderBy('p.name')
+            ->orderBy('ti.name')
+            ->select('vs.*', 'p.name as peer_name', 'ti.name as taxonomy_name')
+            ->get();
     }
 
     /**
