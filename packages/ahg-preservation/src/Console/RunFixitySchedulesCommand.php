@@ -41,6 +41,15 @@ class RunFixitySchedulesCommand extends Command
 
     public function handle(FixityService $fixity, PreservationService $preservation): int
     {
+        // Master gate. integrity_enabled=false silences scheduled scans
+        // entirely - matches IntegrityVerifyCommand behaviour. --force can
+        // bypass this so an operator can run a one-off scan during incident
+        // response without flipping the global toggle on first.
+        if (!\AhgIntegrity\Support\IntegritySettings::enabled() && !$this->option('force')) {
+            $this->warn('integrity_enabled is off; scheduled fixity scans skipping (use --force to run anyway).');
+            return self::SUCCESS;
+        }
+
         $now = Carbon::now();
 
         $q = DB::table('preservation_workflow_schedule')
@@ -99,7 +108,13 @@ class RunFixitySchedulesCommand extends Command
         $startCarbon = Carbon::now();
         $batchLimit = (int) ($this->option('max-batch') ?: ($schedule->batch_limit ?? 100));
         $options    = $this->decodeOptions($schedule->options ?? null);
-        $algorithm  = (string) ($options['algorithm'] ?? 'sha256');
+        // Schedule-level overrides win; otherwise fall back to the global
+        // integrity_default_algorithm / integrity_io_throttle_ms settings so
+        // a single operator knob applies to every fixity path. Previously
+        // batchVerify() got a hardcoded 'sha256' + throttle=0, ignoring the
+        // operator's configuration.
+        $algorithm  = (string) ($options['algorithm'] ?? \AhgIntegrity\Support\IntegritySettings::defaultAlgorithm());
+        $throttleMs = (int) ($options['io_throttle_ms'] ?? \AhgIntegrity\Support\IntegritySettings::ioThrottleMs());
         $staleDays  = (int) ($options['stale_days'] ?? 90);
         $repoId     = isset($options['repository_id']) ? (int) $options['repository_id'] : null;
 
@@ -125,7 +140,7 @@ class RunFixitySchedulesCommand extends Command
             } else {
                 // FixityService::batchVerify returns an array keyed by digital_object_id whose
                 // values are the verifyObject() result arrays (with 'outcome' = verified|mismatch|missing|error).
-                $batch = $fixity->batchVerify($ids, $algorithm, 0);
+                $batch = $fixity->batchVerify($ids, $algorithm, $throttleMs);
                 $stats['processed'] = count($batch);
                 foreach ($batch as $digitalObjectId => $r) {
                     $outcomeRaw = is_array($r) ? ($r['outcome'] ?? 'unknown') : 'unknown';

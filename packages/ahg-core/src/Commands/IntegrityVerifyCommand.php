@@ -3,6 +3,7 @@
 namespace AhgCore\Commands;
 
 use AhgIntegrity\Services\FixityService;
+use AhgIntegrity\Support\IntegritySettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -26,17 +27,37 @@ class IntegrityVerifyCommand extends Command
     {
         $fixity = app(FixityService::class);
 
-        // --status: show stats
+        // --status: show stats (always allowed regardless of integrity_enabled
+        // so an operator can see scan history even when the feature is paused).
         if ($this->option('status')) {
             return $this->showStatus();
         }
 
-        $algorithm = 'sha256';
-        $limit = (int) $this->option('limit');
-        $throttle = (int) $this->option('throttle');
+        // Master gate. When integrity_enabled is off, scheduled scans skip
+        // entirely; on-demand --object-id and --all still run because the
+        // operator explicitly invoked the command (matches the
+        // FixityService::verifyObject convention).
+        if (!IntegritySettings::enabled() && $this->option('schedule-id') && !$this->option('object-id') && !$this->option('all')) {
+            $this->warn('integrity_enabled is off; scheduled scan skipping.');
+            return self::SUCCESS;
+        }
+
+        // Defaults flow: integrity_* settings -> CLI options (10/200) -> per-schedule overrides.
+        $algorithm = IntegritySettings::defaultAlgorithm();
+        $limit = (int) $this->option('limit') ?: IntegritySettings::defaultBatchSize();
+        $throttle = $this->option('throttle') !== null
+            ? (int) $this->option('throttle')
+            : IntegritySettings::ioThrottleMs();
         $dryRun = $this->option('dry-run');
         $repositoryId = $this->option('repository-id') ? (int) $this->option('repository-id') : null;
         $staleDays = (int) $this->option('stale-days');
+
+        // Wall-clock + memory caps per integrity_default_max_runtime / _max_memory.
+        // 0 disables the runtime cap; memory cap floors at 64MB.
+        $maxRuntimeSeconds = IntegritySettings::defaultMaxRuntimeSeconds();
+        $startedAt = microtime(true);
+        $maxMemoryMb = IntegritySettings::defaultMaxMemoryMb();
+        @ini_set('memory_limit', $maxMemoryMb . 'M');
 
         // Determine schedule if provided
         $schedule = null;
@@ -49,7 +70,8 @@ class IntegrityVerifyCommand extends Command
                 $this->error('Schedule #' . $scheduleId . ' not found.');
                 return 1;
             }
-            $algorithm = $schedule->algorithm ?? 'sha256';
+            // Per-schedule overrides win over the global defaults.
+            $algorithm = $schedule->algorithm ?? $algorithm;
             $limit = $schedule->batch_size ?? $limit;
             $throttle = $schedule->io_throttle_ms ?? $throttle;
             $repositoryId = $schedule->repository_id ?? $repositoryId;
@@ -121,6 +143,15 @@ class IntegrityVerifyCommand extends Command
         $bytesScanned = 0;
 
         foreach ($objectIds as $doId) {
+            // Wall-clock cap from integrity_default_max_runtime. 0 disables.
+            if ($maxRuntimeSeconds > 0 && (microtime(true) - $startedAt) > $maxRuntimeSeconds) {
+                $this->warn(sprintf(
+                    'Wall-clock cap reached after %ds (integrity_default_max_runtime); stopping early.',
+                    $maxRuntimeSeconds,
+                ));
+                break;
+            }
+
             $result = $fixity->verifyObject($doId, $algorithm);
 
             // Get IO and repo IDs
@@ -204,10 +235,20 @@ class IntegrityVerifyCommand extends Command
         $bar->finish();
         $this->newLine();
 
+        // Dead-letter status when failure count exceeds the operator-configured
+        // threshold (integrity_dead_letter_threshold). Signals that the run
+        // crossed the operator's tolerance and the schedule shouldn't be
+        // retried automatically until an operator reviews. Threshold counts
+        // hard failures (failed + errors + missing) - skipped objects don't
+        // count since they were intentional.
+        $hardFailures = $failed + $errors + $missing;
+        $deadLetterThreshold = IntegritySettings::deadLetterThreshold();
+        $finalStatus = $hardFailures >= $deadLetterThreshold ? 'dead_letter' : 'completed';
+
         // Update run record
         if ($runId && Schema::hasTable('integrity_run')) {
             DB::table('integrity_run')->where('id', $runId)->update([
-                'status'          => 'completed',
+                'status'          => $finalStatus,
                 'objects_scanned' => count($objectIds),
                 'objects_passed'  => $passed,
                 'objects_failed'  => $failed,
@@ -217,6 +258,14 @@ class IntegrityVerifyCommand extends Command
                 'bytes_scanned'   => $bytesScanned,
                 'completed_at'    => now(),
             ]);
+        }
+
+        if ($finalStatus === 'dead_letter') {
+            $this->warn(sprintf(
+                'Run flagged dead_letter: %d hard failure(s) >= integrity_dead_letter_threshold (%d). Operator review required.',
+                $hardFailures,
+                $deadLetterThreshold,
+            ));
         }
 
         $this->info("Verification complete: {$passed} passed, {$failed} failed, {$missing} missing, {$errors} errors, {$skipped} skipped.");

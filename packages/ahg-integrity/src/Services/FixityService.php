@@ -16,6 +16,7 @@
 
 namespace AhgIntegrity\Services;
 
+use AhgIntegrity\Support\IntegritySettings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -25,10 +26,16 @@ class FixityService
     private const UPLOAD_ROOT = '/mnt/nas/heratio/archive';
 
     /**
-     * Compute a checksum for a file on disk.
+     * Compute a checksum for a file on disk. Algorithm defaults to the
+     * operator-configured integrity_default_algorithm setting when the
+     * caller passes the empty-string sentinel; explicit algorithm always
+     * wins so per-baseline overrides keep working.
      */
-    public function computeChecksum(string $filePath, string $algorithm = 'sha256'): ?string
+    public function computeChecksum(string $filePath, string $algorithm = ''): ?string
     {
+        if ($algorithm === '') {
+            $algorithm = IntegritySettings::defaultAlgorithm();
+        }
         if (!file_exists($filePath) || !is_readable($filePath)) {
             return null;
         }
@@ -37,10 +44,17 @@ class FixityService
     }
 
     /**
-     * Verify a single digital object against its stored checksum.
+     * Verify a single digital object against its stored checksum. Algorithm
+     * defaults from settings when the caller doesn't specify one. On a
+     * mismatch or hard failure, dispatches an IntegrityNotifier alert
+     * (gated on integrity_notify_on_mismatch / integrity_notify_on_failure).
      */
-    public function verifyObject(int $digitalObjectId, string $algorithm = 'sha256'): array
+    public function verifyObject(int $digitalObjectId, string $algorithm = ''): array
     {
+        if ($algorithm === '') {
+            $algorithm = IntegritySettings::defaultAlgorithm();
+        }
+
         $startTime = microtime(true);
 
         $filePath = $this->getDigitalObjectPath($digitalObjectId);
@@ -139,8 +153,15 @@ class FixityService
                 ]);
         }
 
-        // If no preservation_checksum record exists and we computed a hash, create one
-        if (Schema::hasTable('preservation_checksum') && !isset($checksumRow) && $actual) {
+        // If no preservation_checksum record exists, conditionally auto-baseline.
+        // Honours integrity_auto_baseline: when off, leaves the row absent so
+        // the next scan still reports outcome='no_baseline' until an operator
+        // explicitly creates one.
+        if (Schema::hasTable('preservation_checksum')
+            && !isset($checksumRow)
+            && $actual
+            && IntegritySettings::autoBaseline()
+        ) {
             DB::table('preservation_checksum')->insert([
                 'digital_object_id'   => $digitalObjectId,
                 'algorithm'           => $algorithm,
@@ -151,6 +172,32 @@ class FixityService
                 'verification_status' => 'verified',
                 'created_at'          => now(),
             ]);
+        }
+
+        // Dispatch notifications. Mismatch (fail) maps to notify_on_mismatch;
+        // missing/error/no_baseline outcomes map to notify_on_failure. Pass +
+        // auto-baseline don't notify. The notifier itself is no-op when the
+        // setting is off OR the destinations (alert_email + webhook_url) are
+        // both empty, so this call is cheap on the happy path.
+        if (in_array($outcome, ['fail', 'missing', 'error', 'no_baseline'], true)) {
+            $action = $outcome === 'fail'
+                ? \AhgIntegrity\Services\IntegrityNotifier::ACTION_MISMATCH
+                : \AhgIntegrity\Services\IntegrityNotifier::ACTION_FAILURE;
+            try {
+                (new IntegrityNotifier())->notify($action, [
+                    'digital_object_id' => $digitalObjectId,
+                    'algorithm' => $algorithm,
+                    'expected' => $expected,
+                    'actual' => $actual,
+                    'path' => $filePath,
+                    'outcome' => $outcome,
+                ]);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[integrity] notifier dispatch failed', [
+                    'digital_object_id' => $digitalObjectId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         return [
@@ -168,10 +215,20 @@ class FixityService
     }
 
     /**
-     * Batch verify multiple digital objects.
+     * Batch verify multiple digital objects. Algorithm + throttle default
+     * from integrity_default_algorithm + integrity_io_throttle_ms when the
+     * caller passes the empty / -1 sentinels; explicit values still win so
+     * per-schedule overrides keep working.
      */
-    public function batchVerify(array $objectIds, string $algorithm = 'sha256', int $throttleMs = 0): array
+    public function batchVerify(array $objectIds, string $algorithm = '', int $throttleMs = -1): array
     {
+        if ($algorithm === '') {
+            $algorithm = IntegritySettings::defaultAlgorithm();
+        }
+        if ($throttleMs < 0) {
+            $throttleMs = IntegritySettings::ioThrottleMs();
+        }
+
         $results = [];
 
         foreach ($objectIds as $id) {
