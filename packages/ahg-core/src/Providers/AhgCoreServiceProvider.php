@@ -229,6 +229,10 @@ class AhgCoreServiceProvider extends ServiceProvider
 
                 // Standalone install bootstrap (Phase 1 #6)
                 \AhgCore\Commands\InstallBootstrapCommand::class,
+
+                // #67 AHG Central
+                \AhgCore\Console\Commands\AhgCentralPingCommand::class,
+                \AhgCore\Console\Commands\AhgCentralHeartbeatCommand::class,
             ]);
 
             $this->app->booted(function () {
@@ -248,7 +252,40 @@ class AhgCoreServiceProvider extends ServiceProvider
                             return false;
                         }
                     });
+
+                // #67 AHG Central daily heartbeat. Schedule fires
+                // unconditionally; the command itself short-circuits when
+                // ahg_central_enabled=0 so flipping the toggle in
+                // /admin/ahgSettings/ahgIntegration is enough to silence it
+                // without needing artisan re-cache.
+                $schedule->command('ahg:central-heartbeat')
+                    ->dailyAt('05:00')
+                    ->withoutOverlapping(60);
             });
+        }
+
+        // #67 AHG Central: now that AhgCentralService exists, the per-row
+        // is_locked guard the SettingsController::ahgIntegration page used
+        // (to keep the form visible-but-immutable until a consumer shipped)
+        // is no longer needed. Console-only idempotent unlock so the cost
+        // sits with artisan / scheduler / install runs (one of which fires
+        // on every deploy) rather than every web request. UPDATE matches
+        // zero rows once the unlock has happened so subsequent runs are
+        // free.
+        if ($this->app->runningInConsole()) {
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable('ahg_settings')) {
+                    \Illuminate\Support\Facades\DB::table('ahg_settings')
+                        ->whereIn('setting_key', [
+                            'ahg_central_enabled', 'ahg_central_api_url',
+                            'ahg_central_api_key', 'ahg_central_site_id',
+                        ])
+                        ->where('is_locked', 1)
+                        ->update(['is_locked' => 0]);
+                }
+            } catch (\Throwable $e) {
+                // is_locked column missing on older installs - ignore.
+            }
         }
 
         // Issue #99: per-user daily cloud-LLM call counter. Auto-install
