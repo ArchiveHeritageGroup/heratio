@@ -329,6 +329,15 @@ class InformationObjectController extends Controller
             abort(404);
         }
 
+        // #51 ACL enforcement: read-side gate. AclService::hasPermission
+        // returns true for administrators (admin bypass built in) and false
+        // for unauthenticated users without per-record read grants. abort(403)
+        // is harsher than AtoM's hide-with-notice UX but matches the audit's
+        // stated acceptance criterion.
+        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $io->id)) {
+            abort(403, 'You do not have permission to view this record.');
+        }
+
         // #74 encryption_field_access_restrictions: decrypt the two
         // registered i18n columns before the show-page blade renders them.
         // The show() method does its own inline query (not via

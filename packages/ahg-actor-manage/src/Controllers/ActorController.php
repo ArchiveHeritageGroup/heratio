@@ -204,6 +204,13 @@ class ActorController extends Controller
             abort(404);
         }
 
+        // #51 ACL enforcement: read-side gate. Admin-bypass built into
+        // hasPermission so admins always pass; anonymous users + group
+        // members without 'read' on this actor get 403.
+        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $actor->id)) {
+            abort(403, 'You do not have permission to view this record.');
+        }
+
         $entityTypeName = $this->service->getEntityTypeName($actor->entity_type_id);
         $otherNames = $this->service->getOtherNames($actor->id);
         $contacts = $this->service->getContacts($actor->id);

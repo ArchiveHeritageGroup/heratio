@@ -181,6 +181,11 @@ class RepositoryController extends Controller
             abort(404);
         }
 
+        // #51 ACL enforcement: read-side gate. Admin bypass built in.
+        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $repository->id)) {
+            abort(403, 'You do not have permission to view this repository.');
+        }
+
         $contacts = $this->service->getContacts($repository->id);
         $digitalObjects = $this->service->getDigitalObjects($repository->id);
         $holdingsCount = $this->service->getHoldingsCount($repository->id);

@@ -108,4 +108,20 @@ if [ "$DIFF_MARKER_HITS" -gt 0 ]; then
     exit 1
 fi
 
+# ── Gate 4: gitleaks secret-detection (#48) ────────────────────────────────
+# Optional - gitleaks isn't part of Heratio's required toolchain so the hook
+# gracefully skips when the binary is missing. CI re-runs the same gate via
+# .github/workflows/test.yml (security-audit job), so a missing local binary
+# still gets caught before merge - this hook is the fast-feedback layer for
+# developers who do have it installed.
+if command -v gitleaks >/dev/null 2>&1; then
+    if ! gitleaks protect --staged --redact -v 2>&1 | tail -20; then
+        echo ""
+        echo "pre-commit: refusing commit - gitleaks detected secret(s) in staged"
+        echo "pre-commit: changes (see #48). Remove the secret + add to .gitleaksignore"
+        echo "pre-commit: only when it's a confirmed false positive."
+        exit 1
+    fi
+fi
+
 exit 0

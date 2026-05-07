@@ -186,6 +186,11 @@ class TermController extends Controller
             abort(404);
         }
 
+        // #51 ACL enforcement: read-side gate. Admin bypass built in.
+        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $term->id)) {
+            abort(403, 'You do not have permission to view this term.');
+        }
+
         $taxonomyName = $this->termService->getTaxonomyName($term->taxonomy_id, $culture);
         $scopeNote = $this->termService->getScopeNote($term->id, $culture);
         $relatedDescriptionsCount = $this->termService->getRelatedDescriptionCount($term->id);
