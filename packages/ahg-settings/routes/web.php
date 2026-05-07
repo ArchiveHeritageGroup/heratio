@@ -58,7 +58,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/ahg-import', [SettingsController::class, 'ahgImportSettings'])->name('settings.ahg-import');
     Route::get('/admin/settings/ahg-integration', fn () => redirect('/admin/ahgSettings/ahgIntegration')); // legacy redirect
     Route::get('/admin/settings/library', [SettingsController::class, 'library'])->name('settings.library');
-    Route::get('/admin/settings/carousel', [SettingsController::class, 'carousel'])->name('settings.carousel');
+    Route::get('/admin/settings/carousel', fn () => redirect('/admin/ahgSettings/carousel')); // legacy redirect
     Route::get('/admin/settings/authority', fn () => redirect('/admin/ahgSettings/authority')); // legacy redirect
     Route::match(['get', 'post'], '/settings/pageElements', [SettingsController::class, 'pageElements'])->name('settings.page-elements');
     Route::match(['get', 'post'], '/admin/settings/page-elements', [SettingsController::class, 'pageElements']); // legacy alias

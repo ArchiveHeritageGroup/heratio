@@ -1,0 +1,12 @@
+[Unit]
+Description=KM defence-in-depth: Qdrant credential scan (#49)
+After=network.target qdrant.service
+Documentation=https://github.com/ArchiveHeritageGroup/heratio/issues/49
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/ai/km/audit-qdrant.py
+StandardOutput=journal
+StandardError=journal
+# Exit 2 = leaks detected; exit 3 = qdrant unreachable. Both mark FAILED.
+SuccessExitStatus=0

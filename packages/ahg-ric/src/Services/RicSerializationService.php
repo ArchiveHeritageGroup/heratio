@@ -1390,4 +1390,215 @@ class RicSerializationService
 
         return $record;
     }
+
+    // =========================================================================
+    //  #77 phase 3: JSON-LD -> turtle converter
+    // =========================================================================
+    //
+    // Replaces the FusekiSyncService::buildEntityTurtle stub (rico:type +
+    // rdfs:label only) with a full RIC-O turtle emission backed by the
+    // serialize{Place,Rule,Activity,Instantiation} methods above. The
+    // Heratio JSON-LD shape is restricted enough that a focused converter
+    // is small + correct - no need to pull in a full RDF library.
+    //
+    // Supported shapes (the only ones serialize* methods produce):
+    //   - @context: prefix map -> @prefix directives
+    //   - @id: subject URI -> <URI>
+    //   - @type: rdf:type -> <subject> a <type> .
+    //   - scalar values (string/int/float/bool) -> typed literals
+    //   - nested objects with @id + @type -> two-line block (subject -> nested-id ; nested-id -> nested fields)
+    //   - arrays of scalars -> repeated triples with the same predicate
+
+    /**
+     * Convert a JSON-LD array (as returned by serialize*) to a turtle
+     * body suitable for `INSERT DATA { GRAPH <uri> { ... } }`. Returns
+     * an empty string when the input lacks @id or has an `error` key.
+     */
+    public static function toTurtle(array $jsonLd): string
+    {
+        if (isset($jsonLd['error']) || empty($jsonLd['@id'])) {
+            return '';
+        }
+
+        $prefixes = $jsonLd['@context'] ?? [];
+        $subject = '<' . $jsonLd['@id'] . '>';
+        $lines = [];
+
+        // @prefix directives. Stable order so diffs are quiet.
+        $declared = [];
+        foreach ($prefixes as $alias => $uri) {
+            if (!is_string($uri)) continue;
+            $declared[$alias] = $uri;
+        }
+        // Common openric extension uses a default namespace - declare lazily
+        // when we actually emit a property in it.
+        $declared['openric'] = $declared['openric'] ?? 'http://openric.theahg.co.za/ns/v0.2/openric#';
+        ksort($declared);
+        foreach ($declared as $alias => $uri) {
+            $lines[] = '@prefix ' . $alias . ': <' . $uri . '> .';
+        }
+        $lines[] = '';
+
+        // Body. For each property emit `subject predicate object .` Keep
+        // the entity self-contained per turtle file - nested objects that
+        // carry an @id get inlined as a separate statement block.
+        $extraStatements = [];
+        $parts = [];
+        foreach ($jsonLd as $key => $value) {
+            if (str_starts_with($key, '@')) continue;
+            $emitted = self::emitProperty($key, $value, $extraStatements);
+            if ($emitted !== null) {
+                $parts[] = $emitted;
+            }
+        }
+
+        // rdf:type comes from @type
+        $type = $jsonLd['@type'] ?? null;
+        if ($type) {
+            array_unshift($parts, 'a ' . self::predicateOrUri((string) $type));
+        }
+
+        if (empty($parts)) {
+            // Nothing to emit (no type, no properties) - bail out so we don't
+            // produce a half-empty triple.
+            return '';
+        }
+
+        $lines[] = $subject;
+        foreach ($parts as $i => $p) {
+            $suffix = ($i === count($parts) - 1) ? ' .' : ' ;';
+            $lines[] = '    ' . $p . $suffix;
+        }
+
+        // Inline nested-entity statements (one block per nested @id seen).
+        foreach ($extraStatements as $block) {
+            $lines[] = '';
+            $lines[] = $block;
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Emit a single property (predicate + object pair) for the toTurtle
+     * body. Returns null when the value is null/empty so the caller can
+     * skip it without leaving a dangling semicolon.
+     *
+     * @param array<int,string> $extraStatements appended-to ref for nested-entity blocks
+     */
+    private static function emitProperty(string $key, $value, array &$extraStatements): ?string
+    {
+        if ($value === null || $value === '' || $value === []) {
+            return null;
+        }
+
+        $predicate = self::predicateOrUri($key);
+
+        // Array of scalars / array of objects -> repeat predicate
+        if (is_array($value) && !self::isAssoc($value)) {
+            $objects = [];
+            foreach ($value as $v) {
+                $obj = self::emitObject($v, $extraStatements);
+                if ($obj !== null) $objects[] = $obj;
+            }
+            if (empty($objects)) return null;
+            return $predicate . ' ' . implode(', ', $objects);
+        }
+
+        // Single object (associative array with @id, or scalar)
+        $obj = self::emitObject($value, $extraStatements);
+        return $obj === null ? null : ($predicate . ' ' . $obj);
+    }
+
+    /**
+     * Render a single object (literal, URI ref, or nested entity) for the
+     * predicate-object slot. Nested entities with @id are rendered as a
+     * URI reference here AND added to $extraStatements so their own type
+     * + label appear as a separate block in the same turtle body.
+     */
+    private static function emitObject($value, array &$extraStatements): ?string
+    {
+        if ($value === null || $value === '') return null;
+
+        if (is_bool($value)) {
+            return $value ? '"true"^^xsd:boolean' : '"false"^^xsd:boolean';
+        }
+        if (is_int($value)) {
+            return '"' . $value . '"^^xsd:integer';
+        }
+        if (is_float($value)) {
+            return '"' . $value . '"^^xsd:decimal';
+        }
+        if (is_string($value)) {
+            // Heuristic: a value that looks like an absolute URI -> URI ref;
+            // otherwise treat as a literal. owl:sameAs / @id values come in
+            // as strings here when they're not nested objects.
+            if (preg_match('#^https?://|^urn:#i', $value)) {
+                return '<' . $value . '>';
+            }
+            return self::escapeLiteral($value);
+        }
+        if (is_array($value) && self::isAssoc($value)) {
+            // Nested entity: emit as URI reference in the parent triple +
+            // append a separate block of statements about the nested URI.
+            if (!empty($value['@id'])) {
+                $nestedSubj = '<' . $value['@id'] . '>';
+                $nestedLines = [];
+                foreach ($value as $k => $v) {
+                    if (str_starts_with($k, '@')) continue;
+                    $nestedExtras = []; // nested entities don't recurse further
+                    $emitted = self::emitProperty($k, $v, $nestedExtras);
+                    if ($emitted !== null) $nestedLines[] = '    ' . $emitted;
+                }
+                if (!empty($value['@type'])) {
+                    array_unshift($nestedLines, '    a ' . self::predicateOrUri((string) $value['@type']));
+                }
+                if (!empty($nestedLines)) {
+                    $body = implode(" ;\n", $nestedLines) . ' .';
+                    $extraStatements[] = $nestedSubj . "\n" . $body;
+                }
+                return $nestedSubj;
+            }
+            // Anonymous nested object - flatten as a literal "key=value" string
+            // (no blank-node syntax to avoid gettings tangled with INSERT DATA).
+            return self::escapeLiteral(json_encode($value));
+        }
+
+        return null;
+    }
+
+    /**
+     * Render a key as a turtle predicate. Already-prefixed values like
+     * `rico:name` pass through; absolute URIs get angle-bracketed.
+     */
+    private static function predicateOrUri(string $key): string
+    {
+        if (preg_match('/^[a-z][a-z0-9_]*:[A-Za-z][\w\-]*$/i', $key)) {
+            return $key; // already prefixed (e.g. rico:name)
+        }
+        if (preg_match('#^https?://|^urn:#i', $key)) {
+            return '<' . $key . '>';
+        }
+        // Bare key (rare in our shape) - treat as openric:key by default
+        return 'openric:' . $key;
+    }
+
+    private static function escapeLiteral(string $value): string
+    {
+        // Multi-line strings use turtle's """...""" form; escape inner triple
+        // quotes by collapsing them. Single-line values use the cheaper "..."
+        // form with backslash-escapes for backslash + double-quote.
+        if (str_contains($value, "\n") || str_contains($value, "\r")) {
+            $body = str_replace(['\\', '"""'], ['\\\\', '\\"\\"\\"'], $value);
+            return '"""' . $body . '"""';
+        }
+        $body = str_replace(['\\', '"'], ['\\\\', '\\"'], $value);
+        return '"' . $body . '"';
+    }
+
+    private static function isAssoc(array $arr): bool
+    {
+        if ($arr === []) return false;
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
 }

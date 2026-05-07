@@ -3,7 +3,8 @@
     "description": "Condition report photo annotation for Heratio",
     "type": "library",
     "require": {
-        "ahg/core": "@dev"
+        "ahg/core": "@dev",
+        "ahg/media-processing": "@dev"
     },
     "autoload": {
         "psr-4": {

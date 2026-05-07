@@ -325,7 +325,10 @@ class LibraryService
                 'cover_url' => $data['cover_url'] ?? null,
                 'cover_url_original' => $data['cover_url_original'] ?? null,
                 'doi' => $data['doi'] ?? null,
-                'barcode' => $data['barcode'] ?? null,
+                'barcode' => $data['barcode']
+                    ?? (\AhgLibrary\Support\LibrarySettings::barcodeAutoGenerate()
+                        ? $this->autoGenerateBarcode()
+                        : null),
                 'edition' => $data['edition'] ?? null,
                 'edition_statement' => $data['edition_statement'] ?? null,
                 'publisher' => $data['publisher'] ?? null,
@@ -367,6 +370,29 @@ class LibraryService
 
         \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'library_item', $this->auditSnapshot((int) $newId));
         return (int) $newId;
+    }
+
+    /**
+     * Generate a unique library_item barcode. Format: LIB-YYNNNNN where YY
+     * is the current 2-digit year and NNNNN is one above the largest
+     * matching numeric tail this year, so barcodes are sortable and stable
+     * across imports. Honoured only when library_barcode_auto_generate=true
+     * AND the caller didn't supply a barcode explicitly.
+     */
+    private function autoGenerateBarcode(): string
+    {
+        $year = date('y');
+        $prefix = "LIB-{$year}";
+        // Pull the highest existing tail for this year and increment.
+        $latest = DB::table('library_item')
+            ->where('barcode', 'LIKE', $prefix . '%')
+            ->orderByDesc('barcode')
+            ->value('barcode');
+        $next = 1;
+        if ($latest && preg_match('/^' . preg_quote($prefix, '/') . '(\d+)$/', $latest, $m)) {
+            $next = (int) $m[1] + 1;
+        }
+        return sprintf('%s%05d', $prefix, $next);
     }
 
     /**

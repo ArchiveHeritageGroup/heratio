@@ -329,6 +329,33 @@ class InformationObjectController extends Controller
             abort(404);
         }
 
+        // #51 ACL enforcement: read-side gate. AclService::hasPermission
+        // returns true for administrators (admin bypass built in) and false
+        // for unauthenticated users without per-record read grants. abort(403)
+        // is harsher than AtoM's hide-with-notice UX but matches the audit's
+        // stated acceptance criterion.
+        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $io->id)) {
+            abort(403, 'You do not have permission to view this record.');
+        }
+
+        // #74 encryption_field_access_restrictions: decrypt the two
+        // registered i18n columns before the show-page blade renders them.
+        // The show() method does its own inline query (not via
+        // InformationObjectService::getById), so the central decrypt at the
+        // service level doesn't catch this read - we have to wrap here too.
+        // decrypt() is idempotent for plaintext so the call is safe whether
+        // the operator has the category on or off.
+        $__enc = new \AhgCore\Services\EncryptionService();
+        foreach (['access_conditions', 'reproduction_conditions'] as $__col) {
+            if (isset($io->{$__col}) && $io->{$__col} !== null && $io->{$__col} !== '') {
+                $io->{$__col} = $__enc->decrypt(
+                    \AhgCore\Services\EncryptionService::CATEGORY_ACCESS_RESTRICTIONS,
+                    (string) $io->{$__col},
+                    'information_object_i18n', $__col, (int) $io->id
+                );
+            }
+        }
+
         // Level of description name
         $levelName = null;
         if ($io->level_of_description_id) {
@@ -1043,8 +1070,28 @@ class InformationObjectController extends Controller
             }
         }
 
-        return view('ahg-io-manage::show', [
+        // #98 Phase 2: pull per-standard sidecar rows so show-dacs.blade.php /
+        // show-rad.blade.php / show-mods.blade.php can render the standard-
+        // specific elements that aren't in information_object_i18n. Each
+        // returns null when no row exists; templates use null-safe access.
+        $dacsExt = \Illuminate\Support\Facades\Schema::hasTable('ahg_io_dacs')
+            ? \Illuminate\Support\Facades\DB::table('ahg_io_dacs')->where('information_object_id', $io->id)->first()
+            : null;
+        $radExt  = \Illuminate\Support\Facades\Schema::hasTable('ahg_io_rad')
+            ? \Illuminate\Support\Facades\DB::table('ahg_io_rad')->where('information_object_id', $io->id)->first()
+            : null;
+        $modsExt = \Illuminate\Support\Facades\Schema::hasTable('ahg_io_mods')
+            ? \Illuminate\Support\Facades\DB::table('ahg_io_mods')->where('information_object_id', $io->id)->first()
+            : null;
+
+        // #98 Phase 1: pick the view per setting.scope='default_template' name='informationobject'
+        // (isad / dacs / rad / mods). Falls back to the base 'show' view when the chosen
+        // template's blade hasn't been authored yet — Phase 2 will add show-dacs / show-rad / show-mods.
+        return view(\AhgCore\Services\SettingHelper::resolveTemplateView('informationobject', 'ahg-io-manage::show', 'isad'), [
             'io' => $io,
+            'dacsExt' => $dacsExt,
+            'radExt'  => $radExt,
+            'modsExt' => $modsExt,
             'levelName' => $levelName,
             'repository' => $repository,
             'events' => $events,
@@ -1197,39 +1244,34 @@ class InformationObjectController extends Controller
         }
 
         if ($refImage) {
-            // Vision model (llava) — describe the actual image
-            $ollamaUrl = DB::table('ahg_settings')
-                ->where('setting_key', 'voice_local_llm_url')
-                ->value('setting_value') ?: 'http://192.168.0.78:11434';
-            $model = 'llava:7b';
-
+            // Issue #99: route through VoiceLLMService so /admin/ahgSettings/voice_ai
+            // controls (provider local/cloud/hybrid, timeout, daily cloud limit,
+            // audit toggle, anthropic key + cloud model) all take effect on the
+            // describe-image flow. The previous inline Http::post() honoured only
+            // voice_local_llm_url + a hardcoded llava:7b model.
             $imageBase64 = base64_encode(file_get_contents($refImage));
+            $mimeType = function_exists('mime_content_type') ? (mime_content_type($refImage) ?: 'image/jpeg') : 'image/jpeg';
             $prompt = "You are an archival description specialist. Describe this image in detail for an archival record titled \"{$title}\". "
                 . "Write a professional scope and content note (3-5 sentences) following ISAD(G) standards. "
                 . "Describe what you see: the subject, composition, condition, any text visible, and historical context if apparent.";
 
-            try {
-                $response = \Illuminate\Support\Facades\Http::timeout(60)->post($ollamaUrl . '/api/generate', [
-                    'model' => $model,
-                    'prompt' => $prompt,
-                    'images' => [$imageBase64],
-                    'stream' => false,
-                    'options' => ['temperature' => 0.3],
+            $llmResult = (new \AhgCore\Services\VoiceLLMService())->chat($prompt, $imageBase64, [
+                'temperature' => 0.3,
+                'media_type'  => $mimeType,
+                'max_tokens'  => 1024,
+            ]);
+            if ($llmResult['ok']) {
+                return response()->json([
+                    'success'            => true,
+                    'description'        => (string) $llmResult['text'],
+                    'method'             => 'vision',
+                    'model'              => $llmResult['model'],
+                    'provider'           => $llmResult['provider'],
+                    'processing_time_ms' => round((microtime(true) - $startTime) * 1000),
                 ]);
-
-                if ($response->successful()) {
-                    $text = $response->json()['response'] ?? '';
-                    return response()->json([
-                        'success' => true,
-                        'description' => $text,
-                        'method' => 'vision',
-                        'model' => $model,
-                        'processing_time_ms' => round((microtime(true) - $startTime) * 1000),
-                    ]);
-                }
-            } catch (\Exception $e) {
-                // Fall through to text LLM
             }
+            // VoiceLLMService failure (Ollama unreachable, daily limit hit,
+            // bad cloud key, etc.) — fall through to text LLM fallback below.
         }
 
         // Text LLM fallback — describe from title and metadata

@@ -26,11 +26,23 @@ $thumbnailUsage = config('atom.term.THUMBNAIL_ID');
           'object_id' => $resource->object->id ?? $resource->objectId ?? 0,
       ]); @endphp
     @else
-      {{-- Native HTML5 player --}}
-      <audio controls class="w-100" preload="metadata">
-        <source src="{{ asset($representation->getFullPath()) }}" type="{{ $resource->mimeType }}">
-        Your browser does not support audio playback.
-      </audio>
+      {{-- #106 Phase 1+4: shared Heratio audio player component. --}}
+      @php
+        $__media = \App\Support\MediaSettings::payload();
+        $__src = asset($representation->getFullPath());
+      @endphp
+      @include('theme::components.media-player', [
+          'type' => 'audio',
+          'playerId' => 'ahg-audio-show-' . ($resource->id ?? uniqid()),
+          'src' => $__src,
+          'mime' => $resource->mimeType,
+          'name' => $representation->name ?? '',
+          'masterUrl' => $__src,
+          'masterMime' => $resource->mimeType,
+          'byteSize' => $representation->byte_size ?? null,
+          'needsStreaming' => false,
+          'showDownload' => $__media['show_download'] ?? true,
+      ])
     @endif
 
   @else
@@ -39,7 +51,10 @@ $thumbnailUsage = config('atom.term.THUMBNAIL_ID');
     </div>
   @endif
 
-  @if(isset($link) && \AhgCore\Services\AclService::check($resource->object ?? null, 'readMaster'))
+  {{-- Issue #85: media_show_download gates the download button alongside
+       the existing ACL check. If either is false, the button is hidden. --}}
+  @if(isset($link) && \AhgCore\Services\AclService::check($resource->object ?? null, 'readMaster')
+      && \App\Support\MediaSettings::showDownload())
     <div class="mt-2">
       <a href="{{ $link }}" class="btn btn-sm btn-outline-secondary">{{ __('Download audio') }}</a>
     </div>

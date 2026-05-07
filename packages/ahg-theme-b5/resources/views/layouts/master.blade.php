@@ -88,6 +88,292 @@
       window.AHG_IIIF = {!! json_encode(\App\Support\IiifSettings::payload(), JSON_UNESCAPED_SLASHES) !!};
     </script>
 
+    {{-- Media Player settings (closes audit issue #85). Exposes
+         autoplay/loop/volume/controls/download from /admin/ahgSettings/media.
+         A small inline init applies media_default_volume to every
+         <audio>/<video> element once it has loaded enough metadata to
+         know its initial volume — server-side blade attributes can't
+         set volume since it's a JS property, not an HTML attribute.
+
+         Issue #103: when media_player_type is 'plyr' or 'videojs', the
+         matching vendor bundle (built by tools/plyr-build/) is loaded
+         and the inline init wraps every <audio>/<video> in a Plyr or
+         Video.js instance. If the vendor script fails to load (404,
+         CSP block), window.Plyr / window.videojs stays undefined and
+         the init falls back to native HTML5 — the existing controls /
+         autoplay / loop / volume attributes still apply.
+
+         Issue #106: media_player_type now accepts five values —
+         'heratio' (default Heratio-branded UI), 'heratio-minimal'
+         (small native UI), 'plyr', 'videojs', 'native'. The shared
+         theme::components.media-player Blade component is the single
+         source of truth for the rich / minimal layouts. The Plyr /
+         Video.js wrap branches below are only entered when the
+         operator explicitly chose those values; everything else
+         (heratio / heratio-minimal / native / unknown) falls through
+         to the native-attributes path so the component's own UI is
+         preserved.
+
+         Issue #101: when media_show_waveform is true, the WaveSurfer.js
+         bundle (built by tools/wavesurfer-build/) is loaded and a
+         separate init pass walks every .ahg-media-player wrapper (the
+         AHG custom audio UI in _digital-object-viewer.blade.php),
+         finds the hidden <audio> element + the placeholder progress
+         div (#{audioId}-progress), and replaces the placeholder fill
+         bar with a real WaveSurfer canvas. WaveSurfer is configured
+         with media: <existingAudio> so the existing custom buttons
+         (play/back/fwd/speed/volume) keep driving the same <audio> —
+         the waveform is purely a visual upgrade. If the vendor script
+         404s, window.WaveSurfer stays undefined and the init leaves
+         the original placeholder in place. --}}
+    @php
+        $__mediaPlayer   = \App\Support\MediaSettings::playerType();
+        $__mediaWaveform = \App\Support\MediaSettings::showWaveform();
+    @endphp
+    @if($__mediaPlayer === 'plyr')
+      <link href="{{ asset('vendor/plyr/plyr.css') }}" rel="stylesheet">
+      <script defer src="{{ asset('vendor/plyr/plyr.min.js') }}"></script>
+    @elseif($__mediaPlayer === 'videojs')
+      <link href="{{ asset('vendor/videojs/video-js.min.css') }}" rel="stylesheet">
+      <script defer src="{{ asset('vendor/videojs/video.min.js') }}"></script>
+    @endif
+    @if($__mediaWaveform)
+      <script defer src="{{ asset('vendor/wavesurfer/wavesurfer.min.js') }}"></script>
+    @endif
+    <script nonce="{{ $cspNonce }}">
+      window.AHG_MEDIA = {!! json_encode(\App\Support\MediaSettings::payload(), JSON_UNESCAPED_SLASHES) !!};
+      (function () {
+        var cfg = window.AHG_MEDIA || {};
+        var vol = typeof cfg.default_volume === 'number' ? cfg.default_volume : 1.0;
+        var applyNative = function (el) {
+          if (!el || el.dataset.ahgMediaApplied === '1') return;
+          el.dataset.ahgMediaApplied = '1';
+          // Issue #85: apply autoplay / loop / show_controls / volume from
+          // /admin/ahgSettings/media. Properties are set dynamically so the
+          // hardcoded blade markup in _digital-object-viewer.blade.php (which
+          // ships with controls + no autoplay/loop) honours the operator
+          // setting without per-page wiring.
+          try { el.volume = vol; } catch (e) { /* iOS Safari blocks volume set; ignore */ }
+          if (typeof cfg.show_controls === 'boolean') el.controls = !!cfg.show_controls;
+          if (cfg.loop) el.loop = true;
+          if (cfg.autoplay) {
+            // .play() must be called after the user gesture in some browsers;
+            // muting first is the standard workaround for unmuted-autoplay
+            // policies. We don't force-mute though — let the browser refuse
+            // and the user click play instead.
+            try { var p = el.play(); if (p && typeof p.catch === 'function') p.catch(function(){}); } catch (e) {}
+          }
+        };
+        var enhance = function () {
+          // Some IO show pages (audio path in _digital-object-viewer.blade.php)
+          // wrap a hidden <audio> in their own custom-controls UI inside a
+          // .ahg-media-player block. Skip those — wrapping with Plyr/Video.js
+          // would clobber the existing UI. data-no-ahg-media is the explicit
+          // opt-out for any future markup that wants to skip the enhancement.
+          var els = Array.prototype.filter.call(
+            document.querySelectorAll('audio, video'),
+            function (el) {
+              if (el.dataset.noAhgMedia === '1' || el.hasAttribute('data-no-ahg-media')) return false;
+              if (el.closest && el.closest('.ahg-media-player')) return false;
+              return true;
+            }
+          );
+          if (cfg.player_type === 'plyr' && typeof window.Plyr === 'function') {
+            els.forEach(function (el) {
+              if (el.dataset.ahgMediaApplied === '1') return;
+              el.dataset.ahgMediaApplied = '1';
+              try {
+                new window.Plyr(el, {
+                  iconUrl: '{{ asset('vendor/plyr/plyr.svg') }}',
+                  volume: vol,
+                  autoplay: !!cfg.autoplay,
+                  loop: { active: !!cfg.loop },
+                  controls: cfg.show_controls ? undefined
+                    : ['play-large']
+                });
+              } catch (e) {
+                /* Plyr init failed — fall back to native attributes already on el. */
+                try { el.volume = vol; } catch (_) {}
+              }
+            });
+            return;
+          }
+          if (cfg.player_type === 'videojs' && typeof window.videojs === 'function') {
+            els.forEach(function (el) {
+              if (el.dataset.ahgMediaApplied === '1') return;
+              el.dataset.ahgMediaApplied = '1';
+              try {
+                if (!el.classList.contains('video-js')) el.classList.add('video-js');
+                var p = window.videojs(el, {
+                  controls: !!cfg.show_controls,
+                  autoplay: !!cfg.autoplay,
+                  loop: !!cfg.loop,
+                  preload: 'metadata'
+                });
+                p.ready(function () { try { p.volume(vol); } catch (_) {} });
+              } catch (e) {
+                /* Video.js init failed — fall back to native attributes already on el. */
+                try { el.volume = vol; } catch (_) {}
+              }
+            });
+            return;
+          }
+          /* basic / unknown / vendor-script-unavailable: native HTML5 path. */
+          els.forEach(function (el) {
+            if (el.readyState >= 1) applyNative(el);
+            else el.addEventListener('loadedmetadata', function () { applyNative(el); }, { once: true });
+          });
+
+          // Issue #85: also apply the basic settings to <audio> elements
+          // inside .ahg-media-player wrappers (the AHG custom audio UI on
+          // /sound etc.). enhance() filters those out because Plyr/Video.js
+          // would clobber the custom controls — but applyNative just sets
+          // properties on the underlying element, which is what the custom
+          // UI's existing JS reads. Sync the visible volume slider too.
+          // (#106: rich-mode video takes a different path — the component
+          // applies window.AHG_MEDIA itself in its own IIFE so we don't
+          // accidentally re-enable native browser controls on top of the
+          // Heratio chrome.)
+          document.querySelectorAll('.ahg-media-player audio').forEach(function (audio) {
+            if (audio.dataset.ahgMediaApplied === '1') return;
+            applyNative(audio);
+            var wrapper = audio.closest('.ahg-media-player');
+            if (!wrapper) return;
+            var slider = wrapper.querySelector('input[type="range"][id$="-vol"]');
+            if (slider) {
+              slider.value = String(vol);
+              // The custom UI's inline JS listens for 'input'; dispatch one
+              // so the badge / fill colour stay consistent with the new value.
+              try { slider.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
+            }
+          });
+
+          // Issue #85: gate media-block download buttons by media_show_download.
+          // The hardcoded download anchors in _digital-object-viewer.blade.php
+          // (one per audio + video block) sit inside an auth-only Blade gate so
+          // logged-in users see them by default. Hide them via JS when
+          // show_download is off.
+          if (!cfg.show_download) {
+            // Audio: download anchor lives inside the .ahg-media-player wrapper.
+            document.querySelectorAll('.ahg-media-player a[download]').forEach(function (a) {
+              a.style.display = 'none';
+            });
+            // Video: download anchor sits in the next sibling .d-flex of the
+            // <video> element. Walk parents one level up + grab any a[download].
+            document.querySelectorAll('video').forEach(function (v) {
+              var sib = v.nextElementSibling;
+              while (sib) {
+                sib.querySelectorAll('a[download]').forEach(function (a) { a.style.display = 'none'; });
+                if (sib.tagName === 'DIV' && sib.classList.contains('mt-2')) break;
+                sib = sib.nextElementSibling;
+              }
+            });
+          }
+        };
+        // Issue #101: separate pass that decorates the AHG custom audio UI
+        // with a real WaveSurfer waveform when media_show_waveform=true.
+        // Runs independently of the player_type branches so it composes
+        // with player_type='basic'. The custom UI's hidden <audio> is
+        // bound via WaveSurfer's `media` option so the existing buttons
+        // (play/pause/back/fwd/speed/volume) keep driving playback.
+        var enhanceWaveform = function () {
+          if (!cfg.show_waveform) return;
+          if (typeof window.WaveSurfer === 'undefined' || !window.WaveSurfer || typeof window.WaveSurfer.create !== 'function') {
+            // Vendor script failed to load — leave the placeholder
+            // progress bar in place. The native custom-controls UX
+            // continues to work (it doesn't depend on WaveSurfer).
+            return;
+          }
+          // WaveSurfer 7 needs `url` to fetch+decode the audio for the
+          // waveform; `media: audio` only binds playback to the
+          // existing <audio>. Pass both so the waveform draws AND
+          // the original audio element (and any sibling controls)
+          // keep driving the same audio source.
+          var wsCreate = function (container, audio, sourceEl) {
+            return window.WaveSurfer.create({
+              container: container,
+              waveColor: 'rgba(13,110,253,0.30)',
+              progressColor: 'rgba(13,110,253,0.85)',
+              cursorColor: 'rgba(13,110,253,0.85)',
+              cursorWidth: 2,
+              height: 60,
+              barWidth: 2,
+              barGap: 1,
+              normalize: true,
+              media: audio,
+              url: sourceEl.src
+            });
+          };
+
+          // Path 1: AHG custom audio UI (hidden <audio> behind a custom
+          // controls block in _digital-object-viewer.blade.php). Replace
+          // the placeholder progress bar with the WaveSurfer canvas; the
+          // existing buttons keep driving the same <audio>.
+          document.querySelectorAll('.ahg-media-player').forEach(function (wrapper) {
+            if (wrapper.dataset.ahgWaveformApplied === '1') return;
+            var audio = wrapper.querySelector('audio');
+            if (!audio) return;
+            var progressDiv = wrapper.querySelector('[id$="-progress"]');
+            if (!progressDiv) return;
+            var sourceEl = audio.querySelector('source');
+            if (!sourceEl || !sourceEl.src) return;
+
+            wrapper.dataset.ahgWaveformApplied = '1';
+            var originalHTML = progressDiv.innerHTML;
+            progressDiv.innerHTML = '';
+            progressDiv.style.cursor = 'pointer';
+            // The wrapper has waveColor='rgba(255,255,255,0.30)' against the
+            // dark gradient background it's painted on; override the default
+            // primary-blue tint so bars are visible on the dark backdrop.
+            try {
+              wsCreate(progressDiv, audio, sourceEl).setOptions({
+                waveColor: 'rgba(255,255,255,0.30)',
+                cursorColor: 'rgba(255,255,255,0.85)'
+              });
+            } catch (e) {
+              progressDiv.innerHTML = originalHTML;
+              wrapper.dataset.ahgWaveformApplied = '0';
+            }
+          });
+
+          // Path 2: plain <audio> elements (e.g. the digital-object
+          // component on museum/actor/repository show pages). Supplement
+          // them with a sibling WaveSurfer canvas inserted above; native
+          // controls stay in place so play/pause UX is unchanged.
+          document.querySelectorAll('audio').forEach(function (audio) {
+            if (audio.dataset.ahgWaveformApplied === '1') return;
+            // Skip elements already handled by Path 1 (inside .ahg-media-player)
+            // and any explicit opt-out.
+            if (audio.closest && audio.closest('.ahg-media-player')) return;
+            if (audio.dataset.noAhgMedia === '1' || audio.hasAttribute('data-no-ahg-media')) return;
+            var sourceEl = audio.querySelector('source');
+            if (!sourceEl || !sourceEl.src) return;
+
+            audio.dataset.ahgWaveformApplied = '1';
+            var canvasDiv = document.createElement('div');
+            canvasDiv.className = 'ahg-waveform mb-2';
+            canvasDiv.style.cursor = 'pointer';
+            audio.parentNode.insertBefore(canvasDiv, audio);
+
+            try {
+              wsCreate(canvasDiv, audio, sourceEl);
+            } catch (e) {
+              // WaveSurfer init failed — pull the empty sibling back out so
+              // the page looks identical to the pre-#101 state.
+              if (canvasDiv.parentNode) canvasDiv.parentNode.removeChild(canvasDiv);
+              audio.dataset.ahgWaveformApplied = '0';
+            }
+          });
+        };
+        var run = function () { enhance(); enhanceWaveform(); };
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', run);
+        } else {
+          run();
+        }
+      })();
+    </script>
+
     {{-- Webpack bundles --}}
     @if($themeData['vendorJsBundle'] ?? null)
       <script defer src="{{ $themeData['vendorJsBundle'] }}"></script>
@@ -114,6 +400,18 @@
     @endif
     <link href="{{ asset('vendor/ahg-theme-b5/css/custom.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/ahg-theme-b5/css/style.css') }}" rel="stylesheet">
+
+    {{-- Operator-overridable header background colour from
+         settings.header_background_colour (legacy AtoM scope=NULL setting).
+         Empty value means "use the theme default" baked into custom.css. --}}
+    @php
+      $__headerBg = \AhgCore\Support\GlobalSettings::headerBackgroundColour();
+    @endphp
+    @if ($__headerBg !== '')
+      <style nonce="{{ $cspNonce }}">
+        :root { --ahg-primary: {{ $__headerBg }}; }
+      </style>
+    @endif
 
     @stack('css')
   </head>

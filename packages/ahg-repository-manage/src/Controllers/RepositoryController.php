@@ -181,6 +181,11 @@ class RepositoryController extends Controller
             abort(404);
         }
 
+        // #51 ACL enforcement: read-side gate. Admin bypass built in.
+        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $repository->id)) {
+            abort(403, 'You do not have permission to view this repository.');
+        }
+
         $contacts = $this->service->getContacts($repository->id);
         $digitalObjects = $this->service->getDigitalObjects($repository->id);
         $holdingsCount = $this->service->getHoldingsCount($repository->id);
@@ -209,7 +214,10 @@ class RepositoryController extends Controller
             $sourceLangName = $langNames[$repository->source_culture] ?? $repository->source_culture;
         }
 
-        return view('ahg-repository-manage::show', [
+        // #98 Phase 1: pick the view per setting.scope='default_template' name='repository' (isdiah default).
+        // ISDIAH is the only canonical standard for archival institutions; resolver falls back to the
+        // base 'show' view when the operator picks an unimplemented value.
+        return view(\AhgCore\Services\SettingHelper::resolveTemplateView('repository', 'ahg-repository-manage::show', 'isdiah'), [
             'repository' => $repository,
             'contacts' => $contacts,
             'digitalObjects' => $digitalObjects,

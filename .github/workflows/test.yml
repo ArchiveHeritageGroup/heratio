@@ -80,6 +80,40 @@ jobs:
               -not -path '*/worktree/*' \
               -print0 | xargs -0 -n1 -P4 php -l > /dev/null
 
+  # #48 security gates: gitleaks (fail) + composer audit (warn) + npm audit (fail at high+).
+  # The 2026-04-30 credential leak (Merlot@123 et al.) is the motivation here -
+  # gitleaks would have caught the secret before it landed in git history.
+  # composer / npm audit catch known-CVE deps; npm fails at high+ severity,
+  # composer warn-only because false positives are common in archival deps.
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # gitleaks needs full history to scan
+      - name: Gitleaks - secret detection
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - name: composer audit (warn-only, common false positives in archival deps)
+        run: composer audit --no-interaction || echo "composer audit found advisories (non-fatal)"
+      - name: Setup Node for npm audit
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: npm audit (fail at high+ severity)
+        run: |
+          if [ -f package.json ]; then
+            npm audit --audit-level=high
+          else
+            echo "No package.json at repo root; skipping npm audit."
+          fi
+
   laravel-unit:
     name: Unit Tests
     runs-on: ubuntu-latest

@@ -204,6 +204,13 @@ class ActorController extends Controller
             abort(404);
         }
 
+        // #51 ACL enforcement: read-side gate. Admin-bypass built into
+        // hasPermission so admins always pass; anonymous users + group
+        // members without 'read' on this actor get 403.
+        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $actor->id)) {
+            abort(403, 'You do not have permission to view this record.');
+        }
+
         $entityTypeName = $this->service->getEntityTypeName($actor->entity_type_id);
         $otherNames = $this->service->getOtherNames($actor->id);
         $contacts = $this->service->getContacts($actor->id);
@@ -279,7 +286,10 @@ class ActorController extends Controller
         $externalIdentifiers = $this->service->getActorIdentifiers($actor->id);
         $structuredOccupations = $this->service->getActorOccupations($actor->id);
 
-        return view('ahg-actor-manage::show', [
+        // #98 Phase 1: pick the view per setting.scope='default_template' name='actor' (isaar default).
+        // ISAAR-CPF is the only canonical standard; resolver falls back to the base 'show' view when
+        // the operator picks an unimplemented value, so changing the setting can never break the page.
+        return view(\AhgCore\Services\SettingHelper::resolveTemplateView('actor', 'ahg-actor-manage::show', 'isaar'), [
             'actor' => $actor,
             'entityTypeName' => $entityTypeName,
             'otherNames' => $otherNames,

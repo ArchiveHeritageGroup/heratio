@@ -26,8 +26,10 @@
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="settings[treeview_type]" class="form-select">
-                    <option value="sidebar" {{ ($settings['treeview_type'] ?? '') == 'sidebar' ? 'selected' : '' }}>{{ __('Sidebar') }}</option>
-                    <option value="full" {{ ($settings['treeview_type'] ?? '') == 'full' ? 'selected' : '' }}>{{ __('Full width') }}</option>
+                    <option value="sidebar" {{ ($settings['treeview_type'] ?? '') == 'sidebar' ? 'selected' : '' }}>{{ __('Sidebar') }} ({{ __('default - card-wrapped sidebar tree') }})</option>
+                    <option value="full" {{ ($settings['treeview_type'] ?? '') == 'full' ? 'selected' : '' }}>{{ __('Full width') }} ({{ __('chrome-free 2-column dense layout') }})</option>
+                    <option value="accordion" {{ ($settings['treeview_type'] ?? '') == 'accordion' ? 'selected' : '' }}>{{ __('Accordion') }} ({{ __('collapsed by default; click to expand') }})</option>
+                    <option value="nested-list" {{ ($settings['treeview_type'] ?? '') == 'nested-list' ? 'selected' : '' }}>{{ __('Nested list') }} ({{ __('bare semantic markup, no card') }})</option>
                   </select>
                 </div>
                 <div class="col-md-6 mb-3">

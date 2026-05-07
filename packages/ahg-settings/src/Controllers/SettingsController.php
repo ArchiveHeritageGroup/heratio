@@ -940,7 +940,16 @@ class SettingsController extends Controller
 
         $selectFields = [
             'spectrum_default_currency' => ['ZAR' => 'ZAR', 'USD' => 'USD', 'EUR' => 'EUR', 'GBP' => 'GBP'],
-            'media_player_type' => ['basic' => 'Basic HTML5 Player', 'enhanced' => 'Enhanced Player'],
+            // #106: 5-tier player dispatch (heratio default; legacy
+            // 'basic' / 'enhanced' values still accepted by App\Support\
+            // MediaSettings::playerType() and remapped to 'heratio').
+            'media_player_type' => [
+                'heratio'         => 'Heratio (Recommended)',
+                'heratio-minimal' => 'Heratio-minimal',
+                'plyr'            => 'Plyr',
+                'videojs'         => 'Video.js',
+                'native'          => 'Native HTML5',
+            ],
             'photo_max_upload_size' => ['5242880' => '5 MB', '10485760' => '10 MB', '20971520' => '20 MB', '52428800' => '50 MB'],
             'dp_default_regulation' => ['popia' => 'POPIA (South Africa)', 'gdpr' => 'GDPR (EU)', 'paia' => 'PAIA (South Africa)', 'ccpa' => 'CCPA (California)'],
             'iiif_viewer' => ['openseadragon' => 'OpenSeadragon', 'mirador' => 'Mirador', 'leaflet' => 'Leaflet-IIIF'],
@@ -2360,27 +2369,90 @@ class SettingsController extends Controller
     }
 
     // ─── ICIP Settings ─────────────────────────────────────────────────
+    /**
+     * #79: storage canonicalisation. Pre-this-release, this method wrote
+     * `icip_*`-prefixed keys to the legacy AtoM `setting` table, while the
+     * runtime consumers (AuditIcipAccess middleware, LocalContextsHubService,
+     * IcipController::getIcipConfig) all read non-prefixed keys from a
+     * dedicated `icip_config` table. Form saves never reached the consumers
+     * - the master gates were silently no-ops and the operator's settings
+     * had no effect.
+     *
+     * Path 1 from #79's resolution paths (icip_config canonical) is now
+     * implemented: read + write directly against icip_config so the form
+     * and runtime use the same store. Legacy `setting` rows with the
+     * `icip_*` prefix are not touched (they're harmless dead data; the
+     * operator can leave them or delete them later).
+     */
     public function icipSettings(Request $request)
     {
-        $culture = app()->getLocale();
         $menu = $this->buildMenu('icip-settings');
 
-        $settingNames = ['enable_public_notices', 'enable_staff_notices', 'require_acknowledgement_default', 'require_community_consent', 'consultation_period_days'];
-        $defaults = ['enable_public_notices' => '0', 'enable_staff_notices' => '0', 'require_acknowledgement_default' => '0', 'require_community_consent' => '0', 'consultation_period_days' => '30'];
+        // The canonical key list - matches what the runtime consumers read
+        // from icip_config + what the icip-settings.blade.php form renders.
+        // Defaults mirror the form's existing fallbacks so empty rows stay
+        // operator-equivalent.
+        $keyDefaults = [
+            'enable_public_notices'              => '0',
+            'enable_staff_notices'               => '0',
+            'require_acknowledgement_default'    => '0',
+            'require_community_consent'          => '0',
+            'consent_expiry_warning_days'        => '90',
+            'default_consultation_follow_up_days' => '30',
+            'local_contexts_hub_enabled'         => '0',
+            'local_contexts_api_key'             => '',
+            'audit_all_icip_access'              => '0',
+        ];
 
         if ($request->isMethod('post')) {
-            foreach ($settingNames as $name) {
-                $this->service->saveSetting('icip_' . $name, null, $request->input("settings.{$name}", ''), $culture);
+            $this->ensureIcipConfigTable();
+            $posted = $request->input('settings', []);
+            foreach (array_keys($keyDefaults) as $key) {
+                $value = (string) ($posted[$key] ?? $keyDefaults[$key]);
+                DB::table('icip_config')->updateOrInsert(
+                    ['config_key' => $key],
+                    ['config_value' => $value, 'updated_at' => now()]
+                );
             }
             return redirect()->route('settings.icip-settings')->with('success', 'ICIP settings saved.');
         }
 
-        $settings = [];
-        foreach ($settingNames as $name) {
-            $settings[$name] = $this->service->getSetting('icip_' . $name, null, $culture) ?? ($defaults[$name] ?? '');
+        // Read - if icip_config is missing on a fresh install (e.g. the
+        // ahg-icip package install.sql hasn't run yet), fall back to the
+        // defaults so the form still renders.
+        $settings = $keyDefaults;
+        if (Schema::hasTable('icip_config')) {
+            $rows = DB::table('icip_config')->get();
+            foreach ($rows as $row) {
+                if (array_key_exists($row->config_key, $settings)) {
+                    $settings[$row->config_key] = (string) ($row->config_value ?? '');
+                }
+            }
         }
+        // Backwards-compat alias the blade falls back to.
+        $settings['consultation_period_days'] = $settings['default_consultation_follow_up_days'];
 
         return view('ahg-settings::icip-settings', compact('settings', 'menu'));
+    }
+
+    /**
+     * #79: lazy-create icip_config so the settings page works even when the
+     * ahg-icip package install.sql hasn't been run yet (mirrors the lazy-
+     * create patterns SpectrumInsuranceService / SpectrumBarcodeService use).
+     */
+    private function ensureIcipConfigTable(): void
+    {
+        if (Schema::hasTable('icip_config')) {
+            return;
+        }
+        Schema::create('icip_config', function ($t) {
+            $t->id();
+            $t->string('config_key', 100)->unique();
+            $t->text('config_value')->nullable();
+            $t->text('description')->nullable();
+            $t->timestamp('created_at')->useCurrent();
+            $t->timestamp('updated_at')->useCurrent();
+        });
     }
 
     // ─── Sector Numbering ──────────────────────────────────────────────
@@ -3145,15 +3217,6 @@ class SettingsController extends Controller
     }
 
     /**
-     * Carousel settings stub.
-     */
-    public function carousel(Request $request)
-    {
-        // Redirect to the real IIIF/Carousel settings page
-        return redirect()->route('iiif.settings');
-    }
-
-    /**
      * Authority Records Settings — structured card view cloned from AtoM @case('authority').
      */
     public function authority(Request $request)
@@ -3476,8 +3539,26 @@ class SettingsController extends Controller
             $allKeys = array_keys($settings);
             // Include any posted keys not yet in DB
             foreach (array_keys($posted) as $pk) { if (!in_array($pk, $allKeys)) $allKeys[] = $pk; }
+            // #119: also include declared checkbox keys that are neither in DB
+            // nor in $posted (the unchecked-on-fresh-install case). Without this
+            // the foreach below skips them and the operator's "uncheck + save"
+            // never persists.
+            foreach ($checkboxKeys as $ck) { if (!in_array($ck, $allKeys, true)) $allKeys[] = $ck; }
+            // #119: a checkbox is identified either by the explicit allow-list
+            // OR by an existing DB value of literal 'true'/'false'. Without
+            // auto-detect an existing-row checkbox that the operator unchecks
+            // would save '' (truthy-cast as false at the read site, but the
+            // dynamic compliance blade re-renders that as a text input instead
+            // of a checkbox on the next page load). Auto-detect keeps the field
+            // type stable. Restricted to the textual booleans only - '1'/'0'
+            // would collide with legitimate small-integer values like
+            // library_max_renewals=0 (no-renewals-allowed) and silently turn
+            // them into checkboxes.
+            $boolish = ['true', 'false'];
             foreach ($allKeys as $key) {
-                $value = in_array($key, $checkboxKeys)
+                $isCheckbox = in_array($key, $checkboxKeys, true)
+                    || (isset($settings[$key]) && in_array($settings[$key], $boolish, true));
+                $value = $isCheckbox
                     ? (isset($posted[$key]) ? 'true' : 'false')
                     : ($posted[$key] ?? '');
                 DB::table('ahg_settings')->updateOrInsert(
@@ -3585,7 +3666,15 @@ class SettingsController extends Controller
     }
 
     public function librarySettings(Request $request) {
-        return $this->buildGroupSettings($request, 'library', 'library-group-settings', 'Library Settings', []);
+        // #119: explicit checkbox list so a fresh-install operator can persist
+        // an unchecked default-true switch on first save (no DB row exists yet,
+        // so the auto-detect fallback in buildGroupSettings can't fire).
+        return $this->buildGroupSettings($request, 'library', 'library-group-settings', 'Library Settings', [
+            'library_auto_fine', 'library_barcode_auto_generate',
+            'library_auto_expire_holds', 'library_auto_expire_patrons',
+            'library_opac_enabled', 'library_opac_show_availability',
+            'library_opac_show_covers', 'library_opac_allow_holds',
+        ]);
     }
 
     public function multiTenantSettings(Request $request) {

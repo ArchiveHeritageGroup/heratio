@@ -35,7 +35,7 @@
         @endif
         <div class="card-body p-2">
             <h6 class="card-title mb-1 text-truncate" title="{{ $object->title ?? '' }}">
-                {{ $object->title ?? $digitalObject->name ?? 'Untitled' }}
+                {{ $object->title ?? \AhgCore\Support\GlobalSettings::displayFilename($digitalObject->name) ?? 'Untitled' }}
             </h6>
             @if(!empty($fields['identity']['date']))
             <small class="text-muted">{{ $fields['identity']['date']['value'] }}</small>

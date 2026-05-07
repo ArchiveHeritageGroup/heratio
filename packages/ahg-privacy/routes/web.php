@@ -7,7 +7,7 @@ use AhgPrivacy\Controllers\PrivacyController;
 Route::get('/privacyAdmin', fn () => redirect('/admin/privacy/index'));
 Route::get('/privacyAdmin/{action}', fn (string $action) => redirect('/admin/privacy/' . \Illuminate\Support\Str::kebab($action)));
 
-Route::prefix('admin/privacy')->middleware(['web', 'auth'])->group(function () {
+Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(function () {
     Route::get('/complaint-confirmation', [PrivacyController::class, 'complaintConfirmation'])->name('ahgprivacy.complaint-confirmation');
     Route::get('/complaint', [PrivacyController::class, 'complaint'])->name('ahgprivacy.complaint');
     Route::get('/dashboard', [PrivacyController::class, 'dashboard'])->name('ahgprivacy.dashboard');

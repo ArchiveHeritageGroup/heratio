@@ -27,10 +27,15 @@
 
 namespace AhgFederation\Controllers;
 
+use AhgFederation\Services\FederatedSearchService;
+use AhgFederation\Services\FederationProvenance;
 use AhgFederation\Services\FederationService;
+use AhgFederation\Services\HarvestService;
+use AhgFederation\Services\HarvestException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FederationController extends Controller
 {
@@ -45,8 +50,13 @@ class FederationController extends Controller
     {
         $stats = $this->service->getStats();
         $peers = $this->service->getPeers();
+        $recentSessions = $this->service->getRecentHarvestSessions();
+        $recentSearches = $this->service->getRecentSearches();
+        $vocabSyncConfigs = $this->service->getVocabSyncConfigs();
 
-        return view('ahg-federation::index', compact('stats', 'peers'));
+        return view('ahg-federation::index', compact(
+            'stats', 'peers', 'recentSessions', 'recentSearches', 'vocabSyncConfigs',
+        ));
     }
 
     /**
@@ -202,93 +212,169 @@ class FederationController extends Controller
      * AJAX: Run harvest for a peer.
      * POST /federation/harvest/run
      * POST /admin/federation/harvest/
+     *
+     * Wraps HarvestService so records actually persist to information_object.
+     * Synchronous; for very large peers operators should prefer the
+     * `php artisan ahg:federation-harvest --peer={id}` CLI path.
      */
-    public function runHarvest(Request $request)
+    public function runHarvest(Request $request, HarvestService $harvestService)
     {
-        $peerId = $request->input('peer_id');
-        $peer = $this->service->getPeer((int) $peerId);
+        $peerId = (int) $request->input('peer_id');
+        $peer = $this->service->getPeer($peerId);
 
         if (!$peer) {
             return response()->json(['success' => false, 'error' => 'Peer not found']);
         }
 
+        $sessionId = DB::table('federation_harvest_session')->insertGetId([
+            'peer_id' => $peerId,
+            'started_at' => now(),
+            'status' => 'running',
+            'metadata_prefix' => $request->input('metadata_prefix', $peer->default_metadata_prefix ?? 'oai_dc'),
+            'harvest_from' => $request->input('from'),
+            'harvest_until' => $request->input('until'),
+            'harvest_set' => $request->input('set', $peer->default_set ?? null),
+            'is_full_harvest' => $request->boolean('full_harvest') ? 1 : 0,
+            'initiated_by' => auth()->id(),
+        ]);
+
         try {
-            // Create harvest session
-            $sessionId = DB::table('federation_harvest_session')->insertGetId([
-                'peer_id' => $peerId,
-                'started_at' => now(),
-                'status' => 'running',
-                'metadata_prefix' => $request->input('metadata_prefix', $peer->default_metadata_prefix ?? 'oai_dc'),
-                'harvest_from' => $request->input('from'),
-                'harvest_until' => $request->input('until'),
-                'harvest_set' => $request->input('set', $peer->default_set ?? null),
-                'is_full_harvest' => $request->boolean('full_harvest') ? 1 : 0,
-                'initiated_by' => auth()->id(),
-            ]);
+            $options = array_filter([
+                'metadataPrefix' => $request->input('metadata_prefix'),
+                'from' => $request->input('from'),
+                'until' => $request->input('until'),
+                'set' => $request->input('set'),
+                'fullHarvest' => $request->boolean('full_harvest'),
+            ], fn ($v) => $v !== null && $v !== false && $v !== '');
 
-            // Attempt OAI-PMH harvest
-            $baseUrl = rtrim($peer->base_url, '/');
-            $params = [
-                'verb' => 'ListRecords',
-                'metadataPrefix' => $request->input('metadata_prefix', $peer->default_metadata_prefix ?? 'oai_dc'),
-            ];
+            $result = $harvestService->harvestPeer($peerId, $options);
 
-            if ($request->input('from')) {
-                $params['from'] = $request->input('from');
-            }
-            if ($request->input('until')) {
-                $params['until'] = $request->input('until');
-            }
-            if ($request->input('set', $peer->default_set ?? null)) {
-                $params['set'] = $request->input('set', $peer->default_set);
-            }
-
-            $harvestUrl = $baseUrl . '?' . http_build_query($params);
-            $client = new \Illuminate\Http\Client\Factory();
-            $response = $client->timeout(120)->get($harvestUrl);
-
-            $stats = ['total' => 0, 'created' => 0, 'updated' => 0, 'deleted' => 0, 'skipped' => 0, 'errors' => 0];
-
-            if ($response->successful()) {
-                // Count records in response
-                preg_match_all('/<record>/s', $response->body(), $records);
-                $stats['total'] = count($records[0] ?? []);
-            }
-
-            // Update session
             DB::table('federation_harvest_session')
                 ->where('id', $sessionId)
                 ->update([
                     'completed_at' => now(),
-                    'status' => 'completed',
-                    'records_total' => $stats['total'],
-                    'records_created' => $stats['created'],
-                    'records_updated' => $stats['updated'],
-                    'records_deleted' => $stats['deleted'],
-                    'records_skipped' => $stats['skipped'],
-                    'records_errors' => $stats['errors'],
+                    'status' => $result->isSuccessful() ? 'completed' : 'partial',
+                    'records_total' => $result->stats['total'],
+                    'records_created' => $result->stats['created'],
+                    'records_updated' => $result->stats['updated'],
+                    'records_deleted' => $result->stats['deleted'],
+                    'records_skipped' => $result->stats['skipped'],
+                    'records_errors' => $result->stats['errors'],
+                    'error_message' => $result->stats['errors'] > 0
+                        ? implode("\n", array_slice($result->stats['errorMessages'], 0, 20))
+                        : null,
                 ]);
 
             return response()->json([
-                'success' => true,
-                'result' => $stats,
+                'success' => $result->isSuccessful(),
+                'result' => $result->stats,
+                'summary' => $result->getSummary(),
                 'sessionId' => $sessionId,
             ]);
-        } catch (\Exception $e) {
-            if (isset($sessionId)) {
-                DB::table('federation_harvest_session')
-                    ->where('id', $sessionId)
-                    ->update([
-                        'completed_at' => now(),
-                        'status' => 'failed',
-                        'error_message' => $e->getMessage(),
-                    ]);
-            }
+        } catch (HarvestException | \Throwable $e) {
+            DB::table('federation_harvest_session')
+                ->where('id', $sessionId)
+                ->update([
+                    'completed_at' => now(),
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage(),
+                ]);
+
+            Log::warning('[federation] runHarvest failed', [
+                'peer_id' => $peerId,
+                'session_id' => $sessionId,
+                'error' => $e->getMessage(),
+            ]);
 
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage(),
+                'sessionId' => $sessionId,
             ]);
         }
+    }
+
+    /**
+     * Run a federated search across active peers.
+     *
+     * GET /federation/search?q=...
+     *
+     * Anonymous-readable so it can be embedded in public browse pages, but
+     * gated by EnsureFederationEnabled at the route level.
+     */
+    public function search(Request $request, FederatedSearchService $searchService)
+    {
+        $query = trim((string) $request->query('q', ''));
+        if ($query === '') {
+            return response()->json(['success' => false, 'error' => 'Query parameter q is required'], 400);
+        }
+
+        $options = array_filter([
+            'limit' => $request->query('limit') !== null ? (int) $request->query('limit') : null,
+            'type' => $request->query('type'),
+            'repository' => $request->query('repository'),
+            'dateFrom' => $request->query('dateFrom'),
+            'dateTo' => $request->query('dateTo'),
+            'cache' => $request->query('cache') !== '0',
+        ], fn ($v) => $v !== null);
+
+        try {
+            $result = $searchService->search($query, $options);
+            return response()->json($result->toJsonResponse());
+        } catch (\Throwable $e) {
+            Log::warning('[federation] federated search failed', [
+                'query' => $query,
+                'error' => $e->getMessage(),
+            ]);
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Configure search settings for a peer.
+     *
+     * POST /federation/peers/{id}/search-config
+     */
+    public function savePeerSearchConfig(Request $request, FederatedSearchService $searchService, int $id)
+    {
+        $request->validate([
+            'search_api_url' => 'nullable|url',
+            'search_api_key' => 'nullable|string|max:255',
+            'search_enabled' => 'nullable|boolean',
+            'search_timeout_ms' => 'nullable|integer|min:500|max:60000',
+            'search_max_results' => 'nullable|integer|min:1|max:1000',
+            'search_priority' => 'nullable|integer|min:0|max:1000',
+        ]);
+
+        $settings = $request->only([
+            'search_api_url', 'search_api_key', 'search_enabled',
+            'search_timeout_ms', 'search_max_results', 'search_priority',
+        ]);
+
+        $ok = $searchService->configurePeerSearch($id, $settings);
+
+        return response()->json(['success' => (bool) $ok]);
+    }
+
+    /**
+     * Get federation provenance for an information object.
+     *
+     * GET /federation/provenance/{objectId}.json
+     *
+     * Returns 200 with provenance details when the IO was harvested, or
+     * 200 with {federated:false} when it's a local record.
+     */
+    public function provenance(int $objectId, FederationProvenance $provenance)
+    {
+        $info = $provenance->getProvenance($objectId);
+        if (!$info) {
+            return response()->json(['federated' => false, 'objectId' => $objectId]);
+        }
+
+        $info['federated'] = true;
+        $info['objectId'] = $objectId;
+        $info['harvestHistory'] = $provenance->getHarvestHistory($objectId);
+
+        return response()->json($info);
     }
 }

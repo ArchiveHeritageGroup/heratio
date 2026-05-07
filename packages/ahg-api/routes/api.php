@@ -261,4 +261,8 @@ Route::fallback(function (\Illuminate\Http\Request $request) {
             'timestamp' => now()->toIso8601String(),
         ], 404);
     }
+    // Route::fallback() is global, not api-scoped. Without this, any non-api
+    // unmatched URL fell into the closure's null return and rendered as
+    // empty 200 (issue #41 — /admin/typo, /admin/dashboard, etc.).
+    abort(404);
 })->middleware('api.cors');

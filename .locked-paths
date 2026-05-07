@@ -160,3 +160,25 @@ packages/ahg-ric/src/Services/RicEntityService.php                # #89 final pa
 # changes together. (mirador.min.js, ahg-iiif-viewer.js, tools/mirador-
 # build/ are already locked above by their own rules.)
 packages/ahg-annotations/   # #100 W3C Web Annotation REST API (Annotot-shaped) + ahg_iiif_annotation table
+
+# #103 Plyr / Video.js media-player bundles. The build script + deployed
+# vendor assets work as a unit (master.blade.php loads the dist files
+# from public/vendor/{plyr,videojs}/). Lock the build source + both
+# deployed bundles together so any drift goes through the unlock flow.
+tools/plyr-build/                   # #103 build source (npm install + copy)
+public/vendor/plyr/                 # #103 Plyr 3 dist (plyr.min.js + plyr.css + plyr.svg)
+public/vendor/videojs/              # #103 Video.js 8 dist (video.min.js + video-js.min.css)
+
+# #101 WaveSurfer.js media-show-waveform bundle. The build script + the
+# deployed dist work as a unit (master.blade.php loads the dist file
+# from public/vendor/wavesurfer/ when media_show_waveform=true). Lock
+# the source + output together.
+tools/wavesurfer-build/             # #101 build source (npm install + copy)
+public/vendor/wavesurfer/           # #101 WaveSurfer 7 dist (wavesurfer.min.js)
+
+# #98 default_template wiring + DACS/RAD/MODS show templates. Sidecar
+# tables (ahg_io_dacs / ahg_io_rad / ahg_io_mods) hold the per-standard
+# fields; element_visibility flags gate sections. The visibility-form
+# blade is the operator's only way to flip the flags, so drift there
+# would silently break the standard-template show pages.
+packages/ahg-settings/resources/views/visible-elements.blade.php  # #98 mods_headings block + future DACS/RAD wiring

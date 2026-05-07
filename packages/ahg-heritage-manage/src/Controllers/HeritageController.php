@@ -1514,7 +1514,78 @@ class HeritageController extends Controller
 
     public function adminAccessRequests() { return view('ahg-heritage-manage::admin-access-requests', ['items' => collect()]); }
     public function adminBranding() { return view('ahg-heritage-manage::admin-branding', ['items' => collect()]); }
-    public function adminConfig() { return view('ahg-heritage-manage::admin-config', ['items' => collect()]); }
+    /**
+     * Heritage Landing Config admin form. GET renders the form pre-filled
+     * from the single-row heritage_landing_config table + heritage_hero_slide
+     * rows; POST validates + upserts the config row. Closes #78.
+     *
+     * The hero-slide CRUD lives at /heritage/admin/hero-slides — this form
+     * surfaces the existing rows for context only.
+     */
+    public function adminConfig(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            return $this->adminConfigStore($request);
+        }
+        $config     = Schema::hasTable('heritage_landing_config')
+            ? DB::table('heritage_landing_config')->first()
+            : null;
+        $heroImages = Schema::hasTable('heritage_hero_slide')
+            ? DB::table('heritage_hero_slide')->orderBy('display_order')->get()->map(fn ($r) => (array) $r)->toArray()
+            : [];
+        return view('ahg-heritage-manage::admin-config', compact('config', 'heroImages'));
+    }
+
+    /**
+     * POST handler for the heritage landing config form. Upserts the single
+     * heritage_landing_config row (insert if missing, update if present).
+     * Validates each field; suggested_searches is split on newlines and
+     * stored as JSON; checkboxes use $request->has() (present-when-ticked).
+     */
+    private function adminConfigStore(Request $request)
+    {
+        if (!Schema::hasTable('heritage_landing_config')) {
+            return redirect()->route('heritage.admin-config')
+                ->with('error', 'heritage_landing_config table not installed; run migrations first.');
+        }
+        $validated = $request->validate([
+            'hero_tagline'             => 'nullable|string|max:500',
+            'hero_subtext'             => 'nullable|string|max:500',
+            'hero_search_placeholder'  => 'nullable|string|max:255',
+            'suggested_searches'       => 'nullable|string',
+            'hero_effect'              => 'nullable|in:kenburns,fade,none',
+            'hero_rotation_seconds'    => 'nullable|integer|min:1|max:60',
+            'primary_color'            => 'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
+            'secondary_color'          => 'nullable|regex:/^#[0-9A-Fa-f]{6}$/',
+        ]);
+        $rawSuggestions = (string) ($validated['suggested_searches'] ?? '');
+        $suggestions = array_values(array_filter(array_map('trim', preg_split('/\r?\n/', $rawSuggestions)), fn ($s) => $s !== ''));
+        $payload = [
+            'hero_tagline'             => $validated['hero_tagline']            ?? null,
+            'hero_subtext'             => $validated['hero_subtext']            ?? null,
+            'hero_search_placeholder'  => $validated['hero_search_placeholder'] ?? null,
+            'suggested_searches'       => json_encode($suggestions, JSON_UNESCAPED_SLASHES),
+            'hero_effect'              => $validated['hero_effect']             ?? 'kenburns',
+            'hero_rotation_seconds'    => (int) ($validated['hero_rotation_seconds'] ?? 8),
+            'show_curated_stories'     => $request->has('show_curated_stories')    ? 1 : 0,
+            'show_community_activity'  => $request->has('show_community_activity') ? 1 : 0,
+            'show_filters'             => $request->has('show_filters')            ? 1 : 0,
+            'show_stats'               => $request->has('show_stats')              ? 1 : 0,
+            'show_recent_additions'    => $request->has('show_recent_additions')   ? 1 : 0,
+            'primary_color'            => ($validated['primary_color']   ?? '') ?: '#0d6efd',
+            'secondary_color'          => ($validated['secondary_color'] ?? '') ?: null,
+            'updated_at'               => now(),
+        ];
+        $existing = DB::table('heritage_landing_config')->first();
+        if ($existing) {
+            DB::table('heritage_landing_config')->where('id', $existing->id)->update($payload);
+        } else {
+            $payload['created_at'] = now();
+            DB::table('heritage_landing_config')->insert($payload);
+        }
+        return redirect()->route('heritage.admin-config')
+            ->with('success', __('Heritage landing configuration saved.'));
+    }
     public function adminEmbargoes() { return view('ahg-heritage-manage::admin-embargoes', ['items' => collect()]); }
     public function adminFeaturedCollections() { return view('ahg-heritage-manage::admin-featured-collections', ['items' => collect()]); }
     public function adminFeatures() { return view('ahg-heritage-manage::admin-features', ['items' => collect()]); }

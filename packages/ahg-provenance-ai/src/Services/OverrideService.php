@@ -225,7 +225,8 @@ class OverrideService
                 return;
             }
 
-            $graphUri = 'urn:ahg:provenance-ai:override:' . $overrideUuid;
+            $tenant   = config('heratio.ld.tenant', 'ahg');
+            $graphUri = "urn:{$tenant}:provenance-ai:override:" . $overrideUuid;
             $turtle   = $this->buildOverrideTurtle($overrideUuid, $inference->uuid, $originalValue, $overrideValue, $reviewerUserId, $reason);
 
             $upd    = app(\AhgRic\Services\SparqlUpdateService::class);
@@ -256,13 +257,15 @@ class OverrideService
         int $reviewerUserId,
         ?string $reason
     ): string {
+        $tenant = config('heratio.ld.tenant', 'ahg');
+        $provNs = config('heratio.ld.provenance_ns');
         $prefixes = "@prefix prov: <http://www.w3.org/ns/prov#> .\n"
                   . "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
-                  . "@prefix ex: <https://heratio.theahg.co.za/ns/provenance-ai#> .\n";
+                  . "@prefix ex: <{$provNs}> .\n";
 
-        $override  = "<urn:ahg:provenance-ai:override:{$overrideUuid}>";
-        $inference = "<urn:ahg:provenance-ai:inference:{$inferenceUuid}>";
-        $user      = "<urn:ahg:user:{$reviewerUserId}>";
+        $override  = "<urn:{$tenant}:provenance-ai:override:{$overrideUuid}>";
+        $inference = "<urn:{$tenant}:provenance-ai:inference:{$inferenceUuid}>";
+        $user      = "<urn:{$tenant}:user:{$reviewerUserId}>";
         $when      = now()->toIso8601ZuluString();
 
         $body = $prefixes

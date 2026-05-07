@@ -212,8 +212,26 @@ class DigitalObjectService
             throw new \RuntimeException('Failed to store uploaded file.');
         }
 
+        // Capture byte_size + checksum from the PLAINTEXT file before any
+        // encrypt-on-write rewrites it. The DB columns reflect the
+        // semantic content the operator uploaded, not the on-disk wrapped
+        // format - matters for quota / dedup / verification.
         $byteSize = filesize($masterPath);
         $checksum = md5_file($masterPath);
+
+        // #125 derivative encryption: when encryption_encrypt_derivatives is
+        // on, encrypt the master file in place after the move. Idempotent +
+        // no-op when the gate is off so the existing flow stays unchanged
+        // for operators who haven't opted in. Encrypt failure is non-fatal -
+        // logged and the upload continues with the file at rest as
+        // plaintext (the daily bulk-apply will retry).
+        try {
+            (new \AhgCore\Services\EncryptionService())->encryptFile($masterPath);
+        } catch (\Throwable $__e) {
+            \Illuminate\Support\Facades\Log::warning('[encryption] master encrypt-on-write failed', [
+                'path' => $masterPath, 'error' => $__e->getMessage(),
+            ]);
+        }
 
         // Create object table entry for digital object (class table inheritance)
         $now = now()->format('Y-m-d H:i:s');

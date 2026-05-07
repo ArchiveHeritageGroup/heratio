@@ -312,6 +312,153 @@ class MarketplaceService
         ]);
     }
 
+    // =========================================================================
+    //  #84 featured-listing purchase flow
+    // =========================================================================
+    //
+    // Sellers pay featured_listing_fee to promote a listing for 30 days.
+    // Flow: featureCheckout -> create marketplace_transaction with
+    // source='feature_purchase' -> redirect to PayFast -> ITN COMPLETE ->
+    // applyFeatureFromTransaction -> is_featured=1 + featured_until=+30d.
+    // Daily ahg:marketplace-feature-expire flips is_featured back when the
+    // window closes.
+
+    public const FEATURE_DURATION_DAYS = 30;
+    public const TXN_SOURCE_FEATURE = 'feature_purchase';
+
+    /**
+     * Lazy-create the is_featured + featured_until columns. install.sql
+     * declares is_featured but operators on installs predating that line
+     * have a marketplace_listing without it; the rest of the codebase
+     * already queries the column so this method also fixes those latent
+     * bugs (idempotent, no-op when columns already exist).
+     */
+    public function ensureFeaturedColumns(): void
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable($this->listingTable)) {
+            return;
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn($this->listingTable, 'is_featured')) {
+            \Illuminate\Support\Facades\Schema::table($this->listingTable, function ($t) {
+                $t->boolean('is_featured')->default(false)->after('status');
+            });
+        }
+        if (!\Illuminate\Support\Facades\Schema::hasColumn($this->listingTable, 'featured_until')) {
+            \Illuminate\Support\Facades\Schema::table($this->listingTable, function ($t) {
+                $t->dateTime('featured_until')->nullable()->after('is_featured');
+            });
+        }
+    }
+
+    /**
+     * Create a marketplace_transaction row for a feature-listing purchase.
+     * source='feature_purchase' lets the ITN handler distinguish it from
+     * normal buy-now / auction-win transactions. seller_id + buyer_id are
+     * the same person (the seller is buying promotion for their own
+     * listing); platform_commission is 0 since the entire fee accrues to
+     * the platform. Returns the transaction object for use by
+     * MarketplacePaymentService::buildProcessUrl.
+     */
+    public function createFeaturePurchaseTransaction(int $listingId, int $sellerUserId): ?object
+    {
+        $listing = $this->getListingById($listingId);
+        if (!$listing) return null;
+
+        $fee = (float) $this->getSetting('featured_listing_fee', 0);
+        if ($fee <= 0) {
+            return null; // Operator hasn't set a fee - feature flow is disabled.
+        }
+
+        $currency = (string) $this->getSetting('default_currency', 'ZAR');
+        $vatRate = (float) $this->getSetting('vat_rate', 0);
+        $vatAmount = round($fee * $vatRate / 100, 2);
+
+        $txnNumber = $this->generateTransactionNumber();
+        $txnId = DB::table($this->transactionTable)->insertGetId([
+            'transaction_number'         => $txnNumber,
+            'listing_id'                 => $listingId,
+            'seller_id'                  => $listing->seller_id,
+            'buyer_id'                   => $sellerUserId, // Self-purchase
+            'source'                     => self::TXN_SOURCE_FEATURE,
+            'sale_price'                 => $fee,
+            'currency'                   => $currency,
+            'platform_commission_rate'   => 0,
+            'platform_commission_amount' => 0,
+            'seller_amount'              => 0,
+            'vat_amount'                 => $vatAmount,
+            'total_with_vat'             => $fee + $vatAmount,
+            'shipping_cost'              => 0,
+            'insurance_cost'             => 0,
+            'grand_total'                => $fee + $vatAmount,
+            'payment_status'             => 'pending',
+            'created_at'                 => now(),
+            'updated_at'                 => now(),
+        ]);
+
+        return DB::table($this->transactionTable)->where('id', $txnId)->first();
+    }
+
+    /**
+     * Apply the feature flag + window to the listing referenced by a paid
+     * feature-purchase transaction. Called from the PayFast ITN handler
+     * when payment_status=COMPLETE and txn->source=feature_purchase.
+     * Idempotent: re-applying extends the featured_until by another full
+     * window from now (so paying twice gives 60 days, not just resets).
+     */
+    public function applyFeatureFromTransaction(int $txnId): bool
+    {
+        $txn = DB::table($this->transactionTable)->where('id', $txnId)->first();
+        if (!$txn || $txn->source !== self::TXN_SOURCE_FEATURE || empty($txn->listing_id)) {
+            return false;
+        }
+        $this->ensureFeaturedColumns();
+
+        $listing = DB::table($this->listingTable)->where('id', $txn->listing_id)->first();
+        if (!$listing) return false;
+
+        $now = now();
+        $existingUntil = !empty($listing->featured_until) ? \Carbon\Carbon::parse($listing->featured_until) : $now;
+        $base = $existingUntil->isFuture() ? $existingUntil : $now;
+        $newUntil = $base->copy()->addDays(self::FEATURE_DURATION_DAYS);
+
+        DB::table($this->listingTable)->where('id', $txn->listing_id)->update([
+            'is_featured'    => 1,
+            'featured_until' => $newUntil,
+            'updated_at'     => now(),
+        ]);
+
+        \AhgCore\Support\AuditLog::captureMutation((int) $txn->listing_id, $this->listingTable, 'feature_apply', [
+            'data' => [
+                'transaction_id' => $txnId,
+                'transaction_number' => $txn->transaction_number,
+                'fee' => (float) $txn->grand_total,
+                'featured_until' => $newUntil->toIso8601String(),
+            ],
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Reset is_featured=0 for every listing whose featured_until window
+     * has closed. Called daily by ahg:marketplace-feature-expire.
+     * Returns the number of listings demoted.
+     */
+    public function expireFeaturedListings(): int
+    {
+        $this->ensureFeaturedColumns();
+        $now = now();
+        $count = DB::table($this->listingTable)
+            ->where('is_featured', 1)
+            ->whereNotNull('featured_until')
+            ->where('featured_until', '<', $now)
+            ->update([
+                'is_featured' => 0,
+                'updated_at'  => $now,
+            ]);
+        return (int) $count;
+    }
+
     /**
      * Get images for a listing.
      */

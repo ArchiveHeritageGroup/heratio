@@ -1652,6 +1652,26 @@ class MarketplaceController extends Controller
     {
         $userId = $this->requireAuth($request);
 
+        // Operator-controllable gateway list. Default ['payfast'] covers the
+        // current (single) supported gateway. When an operator adds Stripe /
+        // PayPal etc. and toggles them in supported_payment_gateways, this
+        // gate stops a removed gateway from accepting checkouts immediately
+        // without needing a redeploy.
+        $requestedGateway = (string) $request->input('gateway', 'payfast');
+        $supported = $this->service->getSetting('supported_payment_gateways', '["payfast"]');
+        if (is_string($supported)) {
+            $decoded = json_decode($supported, true);
+            $supported = is_array($decoded) ? $decoded : ['payfast'];
+        }
+        if (!in_array($requestedGateway, $supported, true)) {
+            session()->flash('error', sprintf(
+                'Payment gateway "%s" is not enabled. Allowed: %s.',
+                $requestedGateway,
+                implode(', ', $supported),
+            ));
+            return redirect()->route('ahgmarketplace.listings');
+        }
+
         $listing = $this->service->getListingById($listingId);
         if (!$listing) {
             abort(404);
@@ -1776,6 +1796,16 @@ class MarketplaceController extends Controller
                 (string) ($payload['pf_payment_id'] ?? ''),
                 $payload
             );
+
+            // #84 featured-listing purchase flow: when source=feature_purchase,
+            // apply is_featured=1 + featured_until=+30d to the listing.
+            // markTransactionPaid above only flips the transaction's
+            // payment_status; this side-effect is what the seller actually
+            // paid for. Re-read the txn after markTransactionPaid since
+            // applyFeatureFromTransaction reads the row.
+            if (($txn->source ?? '') === \AhgMarketplace\Services\MarketplaceService::TXN_SOURCE_FEATURE) {
+                $this->service->applyFeatureFromTransaction((int) $txn->id);
+            }
         } elseif (in_array($status, ['FAILED', 'CANCELLED'], true)) {
             DB::table('marketplace_transaction')->where('id', $txn->id)->update([
                 'payment_status' => 'failed',
@@ -2257,12 +2287,20 @@ class MarketplaceController extends Controller
 
         $result = $this->service->getSellerListings($seller->id, $filters, $limit, $offset);
 
+        // #84 featured-listing fee + currency for the per-row Feature button.
+        // When fee=0 the blade hides the button entirely so no half-built UX
+        // surface is shown to operators who haven't configured the price.
+        $featureFee = (float) $this->service->getSetting('featured_listing_fee', 0);
+        $featureCurrency = (string) $this->service->getSetting('default_currency', 'ZAR');
+
         return view('marketplace::seller-listings', [
             'seller' => $seller,
             'listings' => $result['items'],
             'total' => $result['total'],
             'statusFilter' => $statusFilter,
             'page' => $page,
+            'featureFee' => $featureFee,
+            'featureCurrency' => $featureCurrency,
         ]);
     }
 
@@ -2294,6 +2332,14 @@ class MarketplaceController extends Controller
             : collect();
         $licenceTypes = $this->service->getLicenceTypes();
 
+        // Settings the listing-create form needs to surface to sellers:
+        // min price floor, featured-listing fee, and the operator-configurable
+        // terms URL. Each is a one-time read; defaults mirror the install seed.
+        $minListingPrice = (float) $this->service->getSetting('min_listing_price', 1.00);
+        $featuredListingFee = (float) $this->service->getSetting('featured_listing_fee', 0);
+        $termsUrl = (string) $this->service->getSetting('terms_url', '/marketplace/terms');
+        $maxListingImages = (int) $this->service->getSetting('max_listing_images', 10);
+
         return view('marketplace::seller-listing-create', compact(
             'seller',
             'sectors',
@@ -2302,6 +2348,10 @@ class MarketplaceController extends Controller
             'prefill',
             'brokerArtists',
             'licenceTypes',
+            'minListingPrice',
+            'featuredListingFee',
+            'termsUrl',
+            'maxListingImages',
         ));
     }
 
@@ -2315,6 +2365,27 @@ class MarketplaceController extends Controller
             'sector' => 'required|string|in:gallery,museum,archive,library,dam',
             'listing_type' => 'required|string|in:fixed_price,auction,offer_only,licence,3d_model',
         ]);
+
+        // Anti-scam floor: settings.min_listing_price gates whatever fixed-price
+        // / buy-now / reserve value the seller submitted. Listings of type
+        // offer_only or licence skip the floor since they don't carry a base
+        // price upfront.
+        $minPrice = (float) $this->service->getSetting('min_listing_price', 1.00);
+        if ($minPrice > 0
+            && in_array($request->input('listing_type'), ['fixed_price', 'auction', '3d_model'], true)
+        ) {
+            $submittedPrice = (float) $request->input('price', 0);
+            if ($submittedPrice > 0 && $submittedPrice < $minPrice) {
+                $currency = (string) $this->service->getSetting('default_currency', 'ZAR');
+                return back()
+                    ->withInput()
+                    ->withErrors(['price' => sprintf(
+                        'Listing price must be at least %s %.2f',
+                        $currency,
+                        $minPrice,
+                    )]);
+            }
+        }
 
         // Broker mode — when an artist is selected, compute price from base + markup
         $artistId = (int) $request->input('artist_id', 0) ?: null;
@@ -2407,6 +2478,52 @@ class MarketplaceController extends Controller
         session()->flash('error', $result['error'] ?? 'Failed to create listing.');
 
         return redirect()->route('ahgmarketplace.seller-listing-create');
+    }
+
+    /**
+     * #84 featured-listing purchase flow: initiate PayFast checkout for the
+     * featured_listing_fee. The seller is BOTH the seller and buyer of this
+     * transaction (self-purchase to promote their own listing). On payment
+     * COMPLETE the ITN handler flips is_featured=1 + sets featured_until
+     * to now+30 days. When the operator hasn't set a fee (=0) the route
+     * returns a flash and bounces back without creating a transaction.
+     */
+    public function sellerListingFeature(Request $request)
+    {
+        $userId = $this->requireAuth($request);
+        $seller = $this->requireSeller($userId);
+        $listingId = (int) $request->input('id');
+        if (!$listingId) return redirect()->route('ahgmarketplace.seller-listings');
+
+        $listing = $this->service->getListingById($listingId);
+        if (!$listing) abort(404);
+        if ((int) $listing->seller_id !== (int) $seller->id) {
+            session()->flash('error', 'You do not have permission to feature this listing.');
+            return redirect()->route('ahgmarketplace.seller-listings');
+        }
+
+        $fee = (float) $this->service->getSetting('featured_listing_fee', 0);
+        if ($fee <= 0) {
+            session()->flash('error', 'Featured-listing fee is not configured. Contact the marketplace operator.');
+            return redirect()->route('ahgmarketplace.seller-listing-edit', ['id' => $listingId]);
+        }
+
+        $txn = $this->service->createFeaturePurchaseTransaction($listingId, $userId);
+        if (!$txn) {
+            session()->flash('error', 'Could not create feature-purchase transaction.');
+            return redirect()->route('ahgmarketplace.seller-listing-edit', ['id' => $listingId]);
+        }
+
+        try {
+            $payments = app(\AhgMarketplace\Services\MarketplacePaymentService::class);
+            $buyerName = trim(($seller->display_name ?? '') ?: 'Seller');
+            $buyerEmail = (string) (DB::table('user')->where('id', $userId)->value('email') ?? '');
+            $url = $payments->buildProcessUrl($txn, $listing, $buyerName, $buyerEmail);
+            return redirect()->away($url);
+        } catch (\Throwable $e) {
+            session()->flash('error', 'Could not initiate payment: ' . $e->getMessage());
+            return redirect()->route('ahgmarketplace.seller-listing-edit', ['id' => $listingId]);
+        }
     }
 
     public function sellerListingEdit(Request $request)
@@ -2580,7 +2697,7 @@ class MarketplaceController extends Controller
             return redirect()->route('ahgmarketplace.seller-listings');
         }
 
-        $maxImages = (int) $this->service->getSetting('max_images_per_listing', 10);
+        $maxImages = (int) $this->service->getSetting('max_listing_images', 10);
 
         // If the listing has no images yet but is linked to a GLAM record with
         // digital objects, auto-attach the linked record's reference/master image
@@ -2622,7 +2739,7 @@ class MarketplaceController extends Controller
         $formAction = $request->input('form_action', '');
 
         if ($formAction === 'upload') {
-            $maxImages = (int) $this->service->getSetting('max_images_per_listing', 10);
+            $maxImages = (int) $this->service->getSetting('max_listing_images', 10);
             $currentImages = $this->service->getListingImages($listingId);
 
             if (count($currentImages) >= $maxImages) {

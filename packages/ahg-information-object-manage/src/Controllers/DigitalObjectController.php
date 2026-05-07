@@ -118,6 +118,24 @@ class DigitalObjectController extends Controller
                 ->with('error', 'A digital object already exists. Delete the current one before uploading a new file.');
         }
 
+        // #115 repository_quota: refuse the upload up-front when this IO''s
+        // repository is over its operator-set cap. Only file uploads count
+        // toward the quota - URL/FTP-linked objects don''t consume local
+        // disk so they bypass the gate.
+        if ($hasFile && !$hasFtp && !$hasUrl) {
+            $proposedBytes = (int) $request->file('digital_object')->getSize();
+            if (!\AhgCore\Services\RepositoryQuotaService::canAccept(
+                $io->repository_id ? (int) $io->repository_id : null,
+                $proposedBytes,
+            )) {
+                return redirect()->route('informationobject.edit', $slug)
+                    ->with('error', \AhgCore\Services\RepositoryQuotaService::rejectionMessage(
+                        (int) $io->repository_id,
+                        $proposedBytes,
+                    ));
+            }
+        }
+
         try {
             if ($hasFtp && !$hasFile && !$hasUrl) {
                 $ftp = \AhgFtpUpload\Services\FtpService::fromSettings();
@@ -144,6 +162,32 @@ class DigitalObjectController extends Controller
 
             if (AhgSettingsService::getBool('ai_condition_auto_scan', false)) {
                 \Log::info('ai_condition_auto_scan: would dispatch condition scan for IO ' . $io->id);
+            }
+
+            // #69 auto_extract_on_upload: when the operator has the AI Services
+            // master toggle on, fire Donut document-understanding against the
+            // freshly-uploaded master so structured fields land in the IO without
+            // a manual Suggest click. Only applies to file uploads (URL/FTP
+            // links don't have a local path to feed Donut). Failures are
+            // non-fatal - the upload itself has already succeeded by this point.
+            if ($hasFile && !$hasFtp && !$hasUrl
+                && class_exists(\AhgAiServices\Support\AiServicesSettings::class)
+                && \AhgAiServices\Support\AiServicesSettings::autoExtractOnUpload()) {
+                try {
+                    $masterRow = DB::table('digital_object')
+                        ->where('object_id', $io->id)
+                        ->where('usage_id', DigitalObjectService::USAGE_MASTER)
+                        ->first();
+                    if ($masterRow && !empty($masterRow->path)) {
+                        $abs = config('heratio.uploads_path') . '/' . ltrim($masterRow->path, '/');
+                        if (is_file($abs) && class_exists(\AhgAiServices\Services\DonutService::class)) {
+                            $donut = app(\AhgAiServices\Services\DonutService::class);
+                            $donut->extract($abs); // fire-and-forget; result is the operator's job to claim via Suggest
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    \Log::info('[auto_extract_on_upload] Donut dispatch deferred: ' . $e->getMessage());
+                }
             }
 
             \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'digital_object_upload', [
@@ -254,6 +298,28 @@ class DigitalObjectController extends Controller
         $files = $request->file('digital_objects', []);
         $relPaths = (array) $request->input('relative_paths', []);
         $culture = app()->getLocale();
+
+        // #115 repository_quota: refuse the entire bulk batch up-front when
+        // the sum of incoming bytes would push this repository over the cap.
+        // Partial-batch rejection (some files in, some out) would leave the
+        // operator with half-created folder IOs to clean up, so the all-or-
+        // nothing gate is the right semantic here.
+        $batchBytes = 0;
+        foreach ($files as $upload) {
+            if ($upload && $upload->isValid()) {
+                $batchBytes += (int) $upload->getSize();
+            }
+        }
+        if ($batchBytes > 0 && !\AhgCore\Services\RepositoryQuotaService::canAccept(
+            $io->repository_id ? (int) $io->repository_id : null,
+            $batchBytes,
+        )) {
+            return redirect()->route('io.digitalobject.add', $slug)
+                ->with('error', \AhgCore\Services\RepositoryQuotaService::rejectionMessage(
+                    (int) $io->repository_id,
+                    $batchBytes,
+                ));
+        }
 
         // Folder-level term id for level_of_description: cache the lookup so
         // we don't query it per row. 'folder' is the AtoM convention; falls
@@ -381,6 +447,66 @@ class DigitalObjectController extends Controller
      *
      * @return \Illuminate\Http\RedirectResponse
      */
+    /**
+     * #125 derivative encryption: stream a digital_object file to the
+     * caller, decrypting on the fly when encryption_encrypt_derivatives
+     * is on AND the on-disk file carries the encryption sentinel.
+     * Plaintext files (legacy data, or installs without encryption on)
+     * stream verbatim - this endpoint replaces the nginx-direct
+     * /uploads/r/{ioId}/master_x.jpg URL when encryption is in play, so
+     * blade templates that need to honour the encryption gate should
+     * link here instead of the raw uploads path.
+     *
+     * Returns the file with its stored mime_type so browsers render it
+     * inline (image, PDF preview, etc.). Caller-controlled download
+     * via ?download=1 query param sets Content-Disposition: attachment.
+     */
+    public function stream(Request $request, int $id)
+    {
+        $doRow = DB::table('digital_object')->where('id', $id)->first();
+        if (!$doRow || empty($doRow->path) || empty($doRow->name)) {
+            abort(404);
+        }
+
+        $uploadsBase = rtrim((string) config('heratio.uploads_path'), '/');
+        if ($uploadsBase === '') abort(500, 'Uploads path is not configured.');
+
+        // Same path resolution as the bulk-apply command.
+        $rel = preg_replace('#^/uploads/#', '', (string) $doRow->path);
+        $rel = ltrim((string) $rel, '/');
+        $localPath = $uploadsBase . '/' . $rel . $doRow->name;
+
+        if (!is_file($localPath) || !is_readable($localPath)) {
+            abort(404, 'File not found on disk.');
+        }
+
+        $mime = $doRow->mime_type ?: 'application/octet-stream';
+        $disposition = $request->boolean('download') ? 'attachment' : 'inline';
+        $filename = $doRow->name;
+
+        $enc = new \AhgCore\Services\EncryptionService();
+        if ($enc->isFileEncrypted($localPath)) {
+            // Decrypt-on-stream. streamFileDecrypted returns the plaintext
+            // bytes; null means decrypt failed (logged inside the helper).
+            $bytes = $enc->streamFileDecrypted($localPath);
+            if ($bytes === null) {
+                abort(500, 'Could not decrypt file.');
+            }
+            return response($bytes, 200, [
+                'Content-Type'        => $mime,
+                'Content-Length'      => (string) strlen($bytes),
+                'Content-Disposition' => $disposition . '; filename="' . addslashes($filename) . '"',
+                'Cache-Control'       => 'private, no-store',
+            ]);
+        }
+
+        // Plaintext on disk - cheap path via Laravel's BinaryFileResponse.
+        return response()->file($localPath, [
+            'Content-Type'        => $mime,
+            'Content-Disposition' => $disposition . '; filename="' . addslashes($filename) . '"',
+        ]);
+    }
+
     public function delete(Request $request, int $id)
     {
         // Find the IO that owns this digital object so we can redirect back

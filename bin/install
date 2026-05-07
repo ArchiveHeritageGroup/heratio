@@ -213,6 +213,7 @@ else
         -e "s|^SESSION_HTTP_ONLY=.*|SESSION_HTTP_ONLY=true|" \
         -e "s|^SESSION_SAME_SITE=.*|SESSION_SAME_SITE=lax|" \
         -e "s|^SESSION_ENCRYPT=.*|SESSION_ENCRYPT=true|" \
+        -e "s|^DB_CONNECTION=.*|DB_CONNECTION=mysql|" \
         -e "s|^DB_HOST=.*|DB_HOST=${DB_HOST}|" \
         -e "s|^DB_DATABASE=.*|DB_DATABASE=${DB_NAME}|" \
         -e "s|^DB_USERNAME=.*|DB_USERNAME=${DB_USER}|" \

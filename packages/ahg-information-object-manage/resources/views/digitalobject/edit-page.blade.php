@@ -46,13 +46,34 @@
                     @if($isImage && $previewUrl)
                         <img src="{{ $previewUrl }}" class="img-fluid rounded shadow" style="max-height:400px;" alt="">
                     @elseif($isVideo && $masterUrl)
-                        <video controls class="w-100" style="max-height:400px;">
-                            <source src="{{ $masterUrl }}" type="{{ $do->mime_type }}">
-                        </video>
+                        {{-- #106 Phase 2+4: shared Heratio video player component on the edit page preview. --}}
+                        @include('theme::components.media-player', [
+                            'type'           => 'video',
+                            'playerId'       => 'ahg-video-edit-' . ($do->id ?? uniqid()),
+                            'src'            => $masterUrl,
+                            'mime'           => $do->mime_type,
+                            'name'           => $do->name ?? '',
+                            'masterUrl'      => $masterUrl,
+                            'masterMime'     => $do->mime_type,
+                            'byteSize'       => $do->byte_size ?? null,
+                            'needsStreaming' => false,
+                            'showDownload'   => true,
+                            'poster'         => null,
+                        ])
                     @elseif($isAudio && $masterUrl)
-                        <audio controls class="w-100 mt-4">
-                            <source src="{{ $masterUrl }}" type="{{ $do->mime_type }}">
-                        </audio>
+                        {{-- #106 Phase 1+4: shared Heratio audio player component on the edit page preview. --}}
+                        @include('theme::components.media-player', [
+                            'type' => 'audio',
+                            'playerId' => 'ahg-audio-edit-' . ($do->id ?? uniqid()),
+                            'src' => $masterUrl,
+                            'mime' => $do->mime_type,
+                            'name' => $do->name ?? '',
+                            'masterUrl' => $masterUrl,
+                            'masterMime' => $do->mime_type,
+                            'byteSize' => $do->byte_size ?? null,
+                            'needsStreaming' => false,
+                            'showDownload' => true,
+                        ])
                     @elseif($previewUrl)
                         <img src="{{ $previewUrl }}" class="img-fluid rounded" style="max-height:200px;" alt="">
                     @else
@@ -82,7 +103,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label text-muted small mb-0">{{ __('Filename') }}</label>
-                            <p class="fw-bold mb-0">{{ e($do->name) }}</p>
+                            <p class="fw-bold mb-0">{{ e(\AhgCore\Support\GlobalSettings::displayFilename($do->name) ?? '') }}</p>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label text-muted small mb-0">{{ __('Filesize') }}</label>

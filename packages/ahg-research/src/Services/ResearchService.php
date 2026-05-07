@@ -27,7 +27,13 @@
 
 namespace AhgResearch\Services;
 
+use AhgCore\Services\AhgSettingsService;
+use AhgResearch\Mail\BookingCancelledMail;
+use AhgResearch\Mail\BookingConfirmedMail;
+use AhgResearch\Mail\BookingCreatedMail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * ResearchService - Core Research Portal Service
@@ -60,13 +66,29 @@ class ResearchService
 
     public function registerResearcher(array $data): int
     {
+        // #74 encryption_field_donor_information / personal_notes: encrypt
+        // sensitive PII (phone, id_number, notes) on write so direct
+        // inserts pass through the same gate the bulk-apply safety net
+        // uses. Each call no-ops to plaintext when its category is off.
+        $enc = new \AhgCore\Services\EncryptionService();
+        $phone = $enc->encrypt(
+            \AhgCore\Services\EncryptionService::CATEGORY_DONOR_INFORMATION,
+            $data['phone'] ?? null,
+            'research_researcher', 'phone', null
+        );
+        $idNumber = $enc->encrypt(
+            \AhgCore\Services\EncryptionService::CATEGORY_DONOR_INFORMATION,
+            $data['id_number'] ?? null,
+            'research_researcher', 'id_number', null
+        );
+
         $researcherId = DB::table('research_researcher')->insertGetId([
             'user_id' => $data['user_id'],
             'title' => $data['title'] ?? null,
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
+            'phone' => $phone,
             'affiliation_type' => $data['affiliation_type'] ?? 'independent',
             'institution' => $data['institution'] ?? null,
             'department' => $data['department'] ?? null,
@@ -76,7 +98,7 @@ class ResearchService
             'current_project' => $data['current_project'] ?? null,
             'orcid_id' => $data['orcid_id'] ?? null,
             'id_type' => ($data['id_type'] ?? null) ?: null,
-            'id_number' => $data['id_number'] ?? null,
+            'id_number' => $idNumber,
             'status' => 'pending',
             'created_at' => date('Y-m-d H:i:s'),
         ]);
@@ -103,6 +125,30 @@ class ResearchService
     {
         $oldValues = (array)(DB::table('research_researcher')->where('id', $id)->first() ?? new \stdClass);
         $data['updated_at'] = date('Y-m-d H:i:s');
+
+        // #74 encryption_field_donor_information / personal_notes: same
+        // gate as registerResearcher() above - encrypt the registered PII
+        // columns when present in the update payload.
+        $enc = new \AhgCore\Services\EncryptionService();
+        if (array_key_exists('phone', $data)) {
+            $data['phone'] = $enc->encrypt(
+                \AhgCore\Services\EncryptionService::CATEGORY_DONOR_INFORMATION,
+                $data['phone'], 'research_researcher', 'phone', $id
+            );
+        }
+        if (array_key_exists('id_number', $data)) {
+            $data['id_number'] = $enc->encrypt(
+                \AhgCore\Services\EncryptionService::CATEGORY_DONOR_INFORMATION,
+                $data['id_number'], 'research_researcher', 'id_number', $id
+            );
+        }
+        if (array_key_exists('notes', $data)) {
+            $data['notes'] = $enc->encrypt(
+                \AhgCore\Services\EncryptionService::CATEGORY_PERSONAL_NOTES,
+                $data['notes'], 'research_researcher', 'notes', $id
+            );
+        }
+
         $result = DB::table('research_researcher')->where('id', $id)->update($data) > 0;
         if ($result) {
             $newValues = (array)(DB::table('research_researcher')->where('id', $id)->first() ?? new \stdClass);
@@ -173,6 +219,9 @@ class ResearchService
             'created_at' => date('Y-m-d H:i:s'),
         ]);
         $this->logAudit('create', 'ResearchBooking', $bookingId, [], $data, 'Booking ' . $data['booking_date']);
+
+        $this->sendBookingMail($bookingId, fn ($b) => new BookingCreatedMail($b));
+
         return $bookingId;
     }
 
@@ -229,6 +278,8 @@ class ResearchService
         if ($result) {
             $newValues = (array)(DB::table('research_booking')->where('id', $id)->first() ?? new \stdClass);
             $this->logAudit('confirm', 'ResearchBooking', $id, $oldValues, $newValues, null);
+
+            $this->sendBookingMail($id, fn ($b) => new BookingConfirmedMail($b));
         }
         return $result;
     }
@@ -244,8 +295,37 @@ class ResearchService
         if ($result) {
             $newValues = (array)(DB::table('research_booking')->where('id', $id)->first() ?? new \stdClass);
             $this->logAudit('cancel', 'ResearchBooking', $id, $oldValues, $newValues, null);
+
+            $this->sendBookingMail($id, fn ($b) => new BookingCancelledMail($b, $reason));
         }
         return $result;
+    }
+
+    /**
+     * Dispatch a booking-related email when research_email_notifications is enabled.
+     *
+     * Gated, idempotent against missing recipient address, and never throws -
+     * mail-delivery failure must not roll back the booking action that triggered it.
+     */
+    protected function sendBookingMail(int $bookingId, callable $mailableFactory): void
+    {
+        if (!AhgSettingsService::getBool('research_email_notifications', true)) {
+            return;
+        }
+
+        try {
+            $booking = $this->getBooking($bookingId);
+            if (!$booking || empty($booking->email)) {
+                return;
+            }
+
+            Mail::to($booking->email)->send($mailableFactory($booking));
+        } catch (\Throwable $e) {
+            Log::warning('[research] booking mail failed', [
+                'booking_id' => $bookingId,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function checkIn(int $bookingId): bool

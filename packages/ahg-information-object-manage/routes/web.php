@@ -195,6 +195,15 @@ Route::middleware('auth')->group(function () {
     Route::put('/digitalobject/{id}', [DigitalObjectController::class, 'update'])->name('io.digitalobject.update')->middleware('acl:update')->where('id', '[0-9]+');
     Route::get('/digitalobject/{id}', [DigitalObjectController::class, 'show'])->name('io.digitalobject.show')->where('id', '[0-9]+');
 
+    // #125 derivative encryption: decrypt-on-stream endpoint. Blade
+    // templates and external integrators that need to honour the
+    // encryption_encrypt_derivatives gate should link here instead of
+    // the raw /uploads/ URL. ?download=1 sets Content-Disposition:
+    // attachment for "save file" UX.
+    Route::get('/digitalobject/{id}/stream', [DigitalObjectController::class, 'stream'])
+        ->name('io.digitalobject.stream')
+        ->where('id', '[0-9]+');
+
     // Research Tools
     Route::get('/research/citation/{slug}', [ResearchController::class, 'citation'])->name('io.research.citation');
     Route::match(['get', 'post'], '/research/assessment/{slug}', [ResearchController::class, 'sourceAssessment'])->name('io.research.assessment');

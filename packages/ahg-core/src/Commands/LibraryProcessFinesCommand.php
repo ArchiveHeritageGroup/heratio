@@ -72,6 +72,17 @@ class LibraryProcessFinesCommand extends Command
                     ]);
                 }
             } else {
+                // #74 encryption_field_financial_data: encrypt-on-write so
+                // command-driven inserts pass through the same gate the
+                // bulk-apply safety net uses. No-op when the category is off.
+                $enc = new \AhgCore\Services\EncryptionService();
+                $description = $enc->encrypt(
+                    \AhgCore\Services\EncryptionService::CATEGORY_FINANCIAL_DATA,
+                    "auto-accrued {$days}d × {$rate}",
+                    'library_fine',
+                    'description',
+                    null
+                );
                 DB::table('library_fine')->insert([
                     'patron_id' => $r->patron_id,
                     'checkout_id' => $r->id,
@@ -80,7 +91,7 @@ class LibraryProcessFinesCommand extends Command
                     'currency' => 'ZAR',
                     'status' => 'outstanding',
                     'fine_date' => $today,
-                    'description' => "auto-accrued {$days}d × {$rate}",
+                    'description' => $description,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

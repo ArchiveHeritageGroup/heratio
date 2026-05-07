@@ -62,4 +62,31 @@ return [
         // Default: 15 min → 1 h → 4 h → 24 h → 72 h.
         'retry_backoff_minutes' => env('HERATIO_SCAN_RETRY_BACKOFF', '15,60,240,1440,4320'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Linked-data namespaces (RDF / Fuseki / SPARQL)
+    |--------------------------------------------------------------------------
+    |
+    | Namespace + URN-authority strings used by every Turtle / SPARQL writer
+    | (provenance-ai, RiC, OAI ingest, etc.). Heratio is jurisdiction-neutral,
+    | so these MUST be operator-tunable per install - never hardcode the AHG
+    | tenant strings into Turtle templates. Defaults derive from APP_URL +
+    | a tenant tag so a fresh install on its own domain produces clean,
+    | self-referencing graph URIs without operator action.
+    |
+    | LD_TENANT             - Short tenant token used in urn:{tenant}:* graph
+    |                         URIs. Defaults to 'ahg' for backward compat with
+    |                         existing data; a new tenant should override.
+    | LD_PROVENANCE_NS      - Full URI (with trailing # or /) of the
+    |                         provenance-ai vocabulary. Defaults to
+    |                         {APP_URL}/ns/provenance-ai# so it self-resolves.
+    | LD_RIC_NS             - Same idea for the RiC application profile.
+    |
+    */
+    'ld' => [
+        'tenant' => env('LD_TENANT', 'ahg'),
+        'provenance_ns' => env('LD_PROVENANCE_NS', rtrim(env('APP_URL', 'http://localhost'), '/') . '/ns/provenance-ai#'),
+        'ric_ns'        => env('LD_RIC_NS',        rtrim(env('APP_URL', 'http://localhost'), '/') . '/ns/ric-profile#'),
+    ],
 ];

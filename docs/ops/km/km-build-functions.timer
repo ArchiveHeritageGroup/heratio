@@ -1,0 +1,14 @@
+[Unit]
+Description=KM function/method/route catalogue regen (every 10 min)
+Documentation=https://github.com/ArchiveHeritageGroup/heratio/issues/58
+
+[Timer]
+# 10-minute cadence is fine for a write-rarely catalogue - the inotify
+# watcher debounces 30s after the last write, so the ingest cycle still
+# runs exactly once per regen.
+OnBootSec=2min
+OnUnitActiveSec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

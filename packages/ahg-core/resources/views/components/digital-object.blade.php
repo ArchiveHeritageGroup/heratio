@@ -33,17 +33,52 @@
       </a>
       <div class="mt-1 text-muted small">{{ $master->name }}</div>
     @elseif($mediaType === 'audio')
-      <audio controls class="w-100">
-        <source src="{{ \AhgCore\Services\DigitalObjectService::getUrl($master) }}" type="{{ $master->mime_type }}">
-        Your browser does not support audio playback.
-      </audio>
-      <div class="mt-1 text-muted small">{{ $master->name }}</div>
+      {{-- #106 Phase 1+4: shared Heratio audio player component. Replaces
+           the previous bare <audio controls> rendering used by the sector
+           show pages (museum / actor / repository / dam etc.) so audio
+           chrome is consistent across every surface. The component
+           respects media_show_download via $showDownload + the media_*
+           runtime hooks set up by master.blade.php's window.AHG_MEDIA. --}}
+      @php
+        $__media = \App\Support\MediaSettings::payload();
+        $__masterUrl = \AhgCore\Services\DigitalObjectService::getUrl($master);
+      @endphp
+      @include('theme::components.media-player', [
+          'type' => 'audio',
+          'playerId' => 'ahg-audio-' . ($master->id ?? uniqid()),
+          'src' => $__masterUrl,
+          'mime' => $master->mime_type,
+          'name' => $master->name ?? '',
+          'masterUrl' => $__masterUrl,
+          'masterMime' => $master->mime_type,
+          'byteSize' => $master->byte_size ?? null,
+          'needsStreaming' => false,
+          'showDownload' => $__media['show_download'] ?? true,
+      ])
     @elseif($mediaType === 'video')
-      <video controls class="w-100" style="max-height: {{ $viewerHeight }}; background: {{ $bgColor }};">
-        <source src="{{ \AhgCore\Services\DigitalObjectService::getUrl($master) }}" type="{{ $master->mime_type }}">
-        Your browser does not support video playback.
-      </video>
-      <div class="mt-1 text-muted small">{{ $master->name }}</div>
+      {{-- #106 Phase 2+4: shared Heratio video player component. Replaces
+           the previous bare <video controls> rendering used by sector
+           show pages (museum / actor / repository / dam etc.) so video
+           chrome is consistent across every surface. The component
+           respects media_show_download via $showDownload and reads the
+           operator's media_player_type to pick the right layout. --}}
+      @php
+        $__media     = \App\Support\MediaSettings::payload();
+        $__masterUrl = \AhgCore\Services\DigitalObjectService::getUrl($master);
+      @endphp
+      @include('theme::components.media-player', [
+          'type'           => 'video',
+          'playerId'       => 'ahg-video-' . ($master->id ?? uniqid()),
+          'src'            => $__masterUrl,
+          'mime'           => $master->mime_type,
+          'name'           => $master->name ?? '',
+          'masterUrl'      => $__masterUrl,
+          'masterMime'     => $master->mime_type,
+          'byteSize'       => $master->byte_size ?? null,
+          'needsStreaming' => false,
+          'showDownload'   => $__media['show_download'] ?? true,
+          'poster'         => $thumbnailUrl ?? null,
+      ])
     @elseif($mediaType === 'text')
       <div class="card">
         <div class="card-body">

@@ -137,7 +137,7 @@ class InformationObjectService
         $culture = $culture ?: app()->getLocale();
         $fallback = config('app.fallback_locale', 'en');
 
-        return DB::table('information_object')
+        $row = DB::table('information_object')
             ->leftJoin('information_object_i18n as ioi_cur', function ($j) use ($culture) {
                 $j->on('ioi_cur.id', '=', 'information_object.id')
                     ->where('ioi_cur.culture', '=', $culture);
@@ -151,6 +151,28 @@ class InformationObjectService
             ->where('information_object.id', $id)
             ->select(self::buildSelectColumns())
             ->first();
+
+        // #74 encryption_field_access_restrictions: decrypt the two
+        // registered columns at the central read site so every downstream
+        // consumer (controllers, blades, exporters) gets plaintext without
+        // each having to call EncryptionService themselves. decrypt() is
+        // idempotent for plaintext - returns the input unchanged when
+        // isCiphertext returns false - so this runs safely whether the
+        // operator has the category on or off.
+        if ($row !== null) {
+            $enc = new \AhgCore\Services\EncryptionService();
+            foreach (['access_conditions', 'reproduction_conditions'] as $col) {
+                if (property_exists($row, $col) && $row->{$col} !== null && $row->{$col} !== '') {
+                    $row->{$col} = $enc->decrypt(
+                        \AhgCore\Services\EncryptionService::CATEGORY_ACCESS_RESTRICTIONS,
+                        (string) $row->{$col},
+                        'information_object_i18n', $col, $id
+                    );
+                }
+            }
+        }
+
+        return $row;
     }
 
     // ─── Create ──────────────────────────────────────────────────────
@@ -213,10 +235,32 @@ class InformationObjectService
             // legacy null/operator-supplied behaviour.
             $resolvedIdentifier = $data['identifier'] ?? null;
             if (empty($resolvedIdentifier)) {
-                $sectorCode = \AhgCore\Services\SectorIdentifierService::resolveSector($data['source_standard'] ?? null);
-                $generated = \AhgCore\Services\SectorIdentifierService::next($sectorCode);
-                if ($generated !== null) {
-                    $resolvedIdentifier = $generated;
+                // settings.inherit_code_informationobject (#80): when on, a
+                // child IO inherits the parent's identifier as a prefix and
+                // appends a sibling sequence number ("PARENT-1", "PARENT-2")
+                // so archival hierarchies surface the lineage in the code
+                // itself. Falls back to the sector-mask path when the
+                // parent has no identifier or the setting is off.
+                if ($parentId !== self::ROOT_ID
+                    && \AhgCore\Support\GlobalSettings::inheritCodeInformationObject()
+                ) {
+                    $parentIdent = DB::table('information_object')
+                        ->where('id', $parentId)
+                        ->value('identifier');
+                    if (!empty($parentIdent)) {
+                        $siblingSeq = DB::table('information_object')
+                            ->where('parent_id', $parentId)
+                            ->count() + 1;
+                        $resolvedIdentifier = $parentIdent . '-' . $siblingSeq;
+                    }
+                }
+
+                if (empty($resolvedIdentifier)) {
+                    $sectorCode = \AhgCore\Services\SectorIdentifierService::resolveSector($data['source_standard'] ?? null);
+                    $generated = \AhgCore\Services\SectorIdentifierService::next($sectorCode);
+                    if ($generated !== null) {
+                        $resolvedIdentifier = $generated;
+                    }
                 }
             }
             $ioInsert = [
@@ -247,8 +291,21 @@ class InformationObjectService
             }
             DB::table('information_object_i18n')->insert($i18nData);
 
-            // 5. Generate slug
-            $baseSlug = Str::slug($data['title'] ?? 'untitled');
+            // 5. Generate slug. permissive_slug_creation controls whether
+            // Unicode + non-ASCII characters survive the slug transform.
+            // - false (default): Str::slug() ASCII-normalises (matches AtoM's
+            //   strict mode + Laravel default).
+            // - true: a softer transform that lowercases + replaces only
+            //   whitespace + control chars with hyphens, so Unicode letter
+            //   characters are preserved (matches AtoM's permissive mode for
+            //   institutions that surface non-Latin titles publicly).
+            $title = $data['title'] ?? 'untitled';
+            if (\AhgCore\Support\GlobalSettings::permissiveSlugCreation()) {
+                $baseSlug = trim(preg_replace('/\s+/u', '-', mb_strtolower($title)), '-');
+                $baseSlug = preg_replace('/[\x00-\x1F\x7F]+/', '', $baseSlug);
+            } else {
+                $baseSlug = Str::slug($title);
+            }
             if (empty($baseSlug)) {
                 $baseSlug = 'untitled';
             }
@@ -263,10 +320,14 @@ class InformationObjectService
                 'slug' => $slug,
             ]);
 
-            // 6. Set default publication status (Draft)
+            // 6. Set default publication status. Resolution order:
+            //    explicit $data['publication_status_id']
+            //    > settings.defaultPubStatus
+            //    > self::STATUS_DRAFT (159)
+            // Honours the operator-set defaultPubStatus on /admin/settings/global.
             $pubStatusId = !empty($data['publication_status_id'])
                 ? (int) $data['publication_status_id']
-                : self::STATUS_DRAFT;
+                : \AhgCore\Support\GlobalSettings::defaultPublicationStatusId(self::STATUS_DRAFT);
 
             DB::table('status')->insert([
                 'object_id' => $objectId,
@@ -347,6 +408,24 @@ class InformationObjectService
         $culture = $culture ?: app()->getLocale();
         $data = self::normalizeKeys($data);
 
+        // #121/#122: spectrum publish-guard. When publication_status_id is
+        // being transitioned to PUBLISHED, ask the spectrum module whether
+        // any of its require_* settings block. Throws DomainException with
+        // operator-readable reasons when blocked so the caller (controller
+        // / API) can surface a flash error rather than failing silently.
+        // Cheap when both spectrum_require_valuation + spectrum_require_insurance
+        // are off (the guard returns early without DB lookups).
+        if (
+            array_key_exists('publication_status_id', $data)
+            && (int) ($data['publication_status_id'] ?? 0) === self::STATUS_PUBLISHED
+            && class_exists(\AhgSpectrum\Services\SpectrumPublishGuardService::class)
+        ) {
+            $reasons = (new \AhgSpectrum\Services\SpectrumPublishGuardService())->canPublish($id);
+            if (!empty($reasons)) {
+                throw new \DomainException(implode("\n", $reasons));
+            }
+        }
+
         $auditBefore = self::auditSnapshot($id, $culture);
 
         DB::transaction(function () use ($id, $data, $culture) {
@@ -380,6 +459,24 @@ class InformationObjectService
             foreach (self::$i18nFields as $field) {
                 if (array_key_exists($field, $data)) {
                     $i18nUpdate[$field] = $data[$field];
+                }
+            }
+
+            // #74 encryption_field_access_restrictions: encrypt the two
+            // registered columns before INSERT/UPDATE so the daily bulk-apply
+            // safety-net doesn't have to retrofit them. encrypt() no-ops to
+            // plaintext when the category is off / encryption_enabled is
+            // off, so the column round-trips cleanly either way.
+            if (!empty($i18nUpdate)) {
+                $enc = new \AhgCore\Services\EncryptionService();
+                foreach (['access_conditions', 'reproduction_conditions'] as $col) {
+                    if (array_key_exists($col, $i18nUpdate)) {
+                        $i18nUpdate[$col] = $enc->encrypt(
+                            \AhgCore\Services\EncryptionService::CATEGORY_ACCESS_RESTRICTIONS,
+                            $i18nUpdate[$col],
+                            'information_object_i18n', $col, $id
+                        );
+                    }
                 }
             }
 

@@ -1123,4 +1123,53 @@ UNLOCK TABLES;
 
 
 
+-- ============================================================
+-- #122: per-object insurance link table.
+-- Existing gallery_insurance_policy is institution-level (no FK to
+-- information_object); this table makes spectrum_require_insurance
+-- enforceable per-object. Lazy-created on first read in
+-- SpectrumPublishGuardService for installs that never re-run install.sql.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `spectrum_object_insurance` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `object_id` int NOT NULL,
+  `policy_number` varchar(100) NOT NULL,
+  `insurer` varchar(255) NOT NULL,
+  `policy_type` varchar(60) DEFAULT 'all_risk',
+  `coverage_amount` decimal(15,2) DEFAULT NULL,
+  `currency` varchar(3) DEFAULT 'USD',
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `notes` text,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `created_by` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_object_id` (`object_id`),
+  KEY `idx_active_dates` (`is_active`, `start_date`, `end_date`),
+  CONSTRAINT `spectrum_object_insurance_object_fk` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- #123: centralised per-object barcode link table.
+-- Avoids touching every sector blade form to add a barcode field; the
+-- spectrum module owns barcodes as a separate cross-sector concern.
+-- spectrum_enable_barcodes gates the lookup route + the assign endpoint
+-- (route 404s when off so the feature is invisible until enabled).
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `spectrum_object_barcode` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `object_id` int NOT NULL,
+  `barcode` varchar(255) NOT NULL,
+  `barcode_type` varchar(40) DEFAULT 'code128',
+  `label` varchar(255) DEFAULT NULL,
+  `is_primary` tinyint(1) DEFAULT 1,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `created_by` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_barcode` (`barcode`),
+  KEY `idx_object_id` (`object_id`),
+  CONSTRAINT `spectrum_object_barcode_object_fk` FOREIGN KEY (`object_id`) REFERENCES `information_object` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

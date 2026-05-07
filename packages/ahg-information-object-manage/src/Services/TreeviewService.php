@@ -161,7 +161,35 @@ class TreeviewService
             })->where('st.status_id', 160);
         }
 
-        $query->orderBy('io.lft');
+        // settings.sort_treeview_informationobject (#116): operator-controllable
+        // default sort for the description-hierarchy treeview-children listing.
+        // AtoM tokens:
+        //   manual / lft  -> orderBy lft (default; preserves operator-curated order)
+        //   alphabetic    -> orderBy ioi.title
+        //   identifier    -> orderBy io.identifier
+        // Unrecognised tokens fall through to lft so an operator-typed value
+        // can never break the page. Note: getAncestors() + getSiblings() below
+        // intentionally stay lft-ordered regardless of this setting because:
+        //   - Ancestors render as a breadcrumb (parent -> child); alphabetic
+        //     order would mix hierarchy levels nonsensically.
+        //   - Siblings power directional navigation ("next" / "previous"); the
+        //     lft order IS the navigation order and breaking it would break
+        //     the "next sibling" semantics.
+        // The setting only applies to the children-listing sort surface.
+        $sortToken = \AhgCore\Support\GlobalSettings::sortTreeviewInformationObject();
+        switch ($sortToken) {
+            case 'alphabetic':
+            case 'title':
+                $query->orderBy('ioi.title');
+                break;
+            case 'identifier':
+                $query->orderBy('io.identifier');
+                break;
+            case 'manual':
+            case 'lft':
+            default:
+                $query->orderBy('io.lft');
+        }
 
         // Get total count for hasMore
         $totalChildren = (clone $query)->count();

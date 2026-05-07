@@ -40,22 +40,32 @@ Route::post('/set-locale', function (\Illuminate\Http\Request $request) {
 })->name('set-locale');
 
 // Authentication routes
+// #47: POST /login is throttled via the 'login' RateLimiter::for closure
+// in AppServiceProvider (5/min per IP + 5/min per username). GET stays
+// unthrottled so a victim of the throttle can still see the form and
+// understand what's happening.
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Registration
+// #47: POST /user/register also throttled via the same 'login' bucket
+// (registration is the second-most-common credential-bruteforce target -
+// account-creation flooding to fill the user table).
 Route::get('/user/register', [LoginController::class, 'showRegister'])->name('register');
-Route::post('/user/register', [LoginController::class, 'register']);
+Route::post('/user/register', [LoginController::class, 'register'])->middleware('throttle:login');
 Route::get('/research/register', [LoginController::class, 'showResearcherRegister'])->name('researcher.register');
-Route::post('/research/register', [LoginController::class, 'researcherRegister'])->name('research.register.store');
+Route::post('/research/register', [LoginController::class, 'researcherRegister'])->name('research.register.store')->middleware('throttle:login');
 Route::get('/research/registration-complete', [LoginController::class, 'registrationComplete'])->name('researcher.register.complete');
 
 // Password reset (public)
+// #47: throttle the two POST surfaces via the 'passwordReset' bucket
+// (3/min per IP - tighter than login because each request triggers a
+// transactional email that costs real money on providers like AWS SES).
 Route::get('/user/password-reset', [LoginController::class, 'showPasswordReset'])->name('password.reset');
-Route::post('/user/password-reset', [LoginController::class, 'submitPasswordReset']);
+Route::post('/user/password-reset', [LoginController::class, 'submitPasswordReset'])->middleware('throttle:passwordReset');
 Route::get('/user/password-reset/{token}', [LoginController::class, 'showPasswordResetConfirm'])->name('password.reset.confirm');
-Route::post('/user/password-reset/{token}', [LoginController::class, 'submitPasswordResetConfirm']);
+Route::post('/user/password-reset/{token}', [LoginController::class, 'submitPasswordResetConfirm'])->middleware('throttle:passwordReset');
 
 // User profile and password change (auth required)
 Route::middleware('auth.required')->group(function () {

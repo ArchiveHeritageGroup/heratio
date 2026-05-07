@@ -66,12 +66,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/reports/call-numbers', [LibraryController::class, 'reportCallNumbers'])->name('library.report-call-numbers');
 });
 
-// OPAC (public)
-Route::get('/opac', [LibraryController::class, 'opac'])->name('library.opac');
-Route::get('/opac/view/{slug}', [LibraryController::class, 'opacView'])->name('library.opac-view');
-Route::middleware('auth')->group(function () {
-    Route::get('/opac/account', [LibraryController::class, 'opacAccount'])->name('library.opac-account');
-    Route::get('/opac/hold/{slug}', [LibraryController::class, 'opacHold'])->name('library.opac-hold');
-    Route::post('/opac/hold/{slug}', [LibraryController::class, 'opacHoldStore'])->name('library.opac-hold-store')->middleware('acl:create');
-    Route::post('/opac/renew/{id}', [LibraryController::class, 'opacRenew'])->name('library.opac-renew')->where('id', '[0-9]+')->middleware('acl:update');
+// OPAC (public). Master gate: library_opac_enabled (404s the whole surface when off).
+Route::middleware('opac.enabled')->group(function () {
+    Route::get('/opac', [LibraryController::class, 'opac'])->name('library.opac');
+    Route::get('/opac/view/{slug}', [LibraryController::class, 'opacView'])->name('library.opac-view');
+    Route::middleware('auth')->group(function () {
+        Route::get('/opac/account', [LibraryController::class, 'opacAccount'])->name('library.opac-account');
+        Route::get('/opac/hold/{slug}', [LibraryController::class, 'opacHold'])->name('library.opac-hold');
+        Route::post('/opac/hold/{slug}', [LibraryController::class, 'opacHoldStore'])->name('library.opac-hold-store')->middleware('acl:create');
+        Route::post('/opac/renew/{id}', [LibraryController::class, 'opacRenew'])->name('library.opac-renew')->where('id', '[0-9]+')->middleware('acl:update');
+    });
 });

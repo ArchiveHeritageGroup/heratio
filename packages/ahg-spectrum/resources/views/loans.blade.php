@@ -17,6 +17,22 @@
                     <li><i class="fas fa-arrow-down text-success me-2"></i>{{ __('Loans In:') }} {{ $summary['totalIn'] ?? 0 }}</li>
                     <li><i class="fas fa-arrow-up text-warning me-2"></i>{{ __('Loans Out:') }} {{ $summary['totalOut'] ?? 0 }}</li>
                 </ul>
+                {{-- #91 verification follow-up: surface the default loan
+                     period + currency from spectrum settings so operators
+                     creating new loans can see the institution defaults
+                     at a glance. The setting (spectrum_loan_default_period
+                     + spectrum_default_currency) is now genuinely consumed. --}}
+                @if(isset($defaultLoanDays) || isset($defaultCurrency))
+                <hr class="my-2">
+                <div class="small text-muted">
+                    @if(isset($defaultLoanDays))
+                      <div><i class="fas fa-calendar-day me-1"></i>{{ __('Default loan period') }}: <strong>{{ (int) $defaultLoanDays }} {{ __('days') }}</strong></div>
+                    @endif
+                    @if(isset($defaultCurrency))
+                      <div><i class="fas fa-money-bill-wave me-1"></i>{{ __('Default currency') }}: <strong>{{ $defaultCurrency }}</strong></div>
+                    @endif
+                </div>
+                @endif
             </div>
             <div class="card-footer">
                 <a href="{{ route('ahgspectrum.dashboard') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a>

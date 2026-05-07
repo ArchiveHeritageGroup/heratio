@@ -457,6 +457,30 @@ class ResearchController extends Controller
             }
         }
 
+        // #74 encryption_field_donor_information / personal_notes: decrypt
+        // PII columns before passing to the view. Idempotent for plaintext
+        // values (EncryptionService::decrypt round-trips when isCiphertext
+        // is false), so the call is safe whether the operator has the
+        // category on or off.
+        $enc = new \AhgCore\Services\EncryptionService();
+        $researcher->phone = $enc->decrypt(
+            \AhgCore\Services\EncryptionService::CATEGORY_DONOR_INFORMATION,
+            (string) ($researcher->phone ?? ''),
+            'research_researcher', 'phone', $researcher->id
+        );
+        $researcher->id_number = $enc->decrypt(
+            \AhgCore\Services\EncryptionService::CATEGORY_DONOR_INFORMATION,
+            (string) ($researcher->id_number ?? ''),
+            'research_researcher', 'id_number', $researcher->id
+        );
+        if (property_exists($researcher, 'notes')) {
+            $researcher->notes = $enc->decrypt(
+                \AhgCore\Services\EncryptionService::CATEGORY_PERSONAL_NOTES,
+                (string) ($researcher->notes ?? ''),
+                'research_researcher', 'notes', $researcher->id
+            );
+        }
+
         $bookings = $this->service->getResearcherBookings($id);
 
         return view('research::research.view-researcher', array_merge(

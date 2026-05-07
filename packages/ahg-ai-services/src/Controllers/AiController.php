@@ -4883,8 +4883,117 @@ PY;
             return response()->json(['success' => false, 'error' => 'Donut service unavailable']);
         }
 
+        // #63: pre-record provenance for every Donut-derived field. The
+        // record exists yet (target_entity_id=0 sentinel); the form-save
+        // handler that creates the IO from this Donut output finalises
+        // the rows by calling /api/donut-finalize with the session_uuid +
+        // new io_id. The session_uuid is carried in the response so the
+        // frontend can include it as a hidden field in the create-record
+        // form. Per-field call so each suggested value gets its own
+        // ahg_ai_inference row + uuid + (eventually) Fuseki graph.
+        $sessionUuid = (string) \Illuminate\Support\Str::uuid();
+        $occurredAt = now()->toDateTimeString();
+        $fields = is_array($result['fields'] ?? null) ? $result['fields']
+                 : (is_array($result) ? $result : []);
+        foreach ($fields as $fieldName => $value) {
+            if (!is_string($fieldName) || $fieldName === '' || $fieldName === 'success') continue;
+            $valueStr = is_scalar($value) ? (string) $value : json_encode($value);
+            if ($valueStr === '' || $valueStr === null) continue;
+            try {
+                \Illuminate\Support\Facades\DB::table('ahg_ai_inference')->insert([
+                    'uuid'              => (string) \Illuminate\Support\Str::uuid(),
+                    'service_name'      => 'DONUT',
+                    'model_name'        => 'donut-base',
+                    'model_version'     => 'v0',
+                    'input_hash'        => hash('sha256', file_get_contents($imagePath)),
+                    'output_hash'       => hash('sha256', $valueStr),
+                    'output_excerpt'    => mb_substr($valueStr, 0, 500),
+                    'confidence'        => isset($result['confidence']) ? (float) $result['confidence'] : null,
+                    'target_entity_type'=> 'pending',
+                    'target_entity_id'  => 0, // sentinel - finalised at form save
+                    'target_field'      => mb_substr($fieldName, 0, 64),
+                    // Stash the session uuid + the original image path for
+                    // the finalise step. input_excerpt is varchar(500), big
+                    // enough for both as a CSV "session=...,image=...".
+                    'input_excerpt'     => mb_substr('session=' . $sessionUuid . ',image=' . $imagePath, 0, 500),
+                    'user_id'           => \Illuminate\Support\Facades\Auth::id(),
+                    'occurred_at'       => $occurredAt,
+                ]);
+            } catch (\Throwable $e) {
+                // Provenance must not break the suggestion flow.
+                \Illuminate\Support\Facades\Log::warning('[donut] pre-record failed: ' . $e->getMessage());
+            }
+        }
+
         $result['success'] = true;
+        $result['donut_session_uuid'] = $sessionUuid;
         return response()->json($result);
+    }
+
+    /**
+     * #63 Donut finalise endpoint. Called by the form-save handler that
+     * creates an information_object from a Donut suggestion - takes the
+     * session uuid the frontend received from donutPrefill plus the new
+     * IO id, and updates every pending ahg_ai_inference row with the
+     * real target_entity_id. Each row's Fuseki write is then attempted
+     * via the FusekiSyncService gate the rest of provenance-ai uses.
+     */
+    public function donutFinalize(Request $request)
+    {
+        $session = (string) $request->input('session_uuid', '');
+        $ioId = (int) $request->input('io_id', 0);
+        if ($session === '' || $ioId <= 0) {
+            return response()->json(['success' => false, 'error' => 'session_uuid + io_id required']);
+        }
+
+        $needle = 'session=' . $session;
+        $rows = \Illuminate\Support\Facades\DB::table('ahg_ai_inference')
+            ->where('service_name', 'DONUT')
+            ->where('target_entity_type', 'pending')
+            ->where('input_excerpt', 'like', $needle . '%')
+            ->get();
+
+        if ($rows->isEmpty()) {
+            return response()->json(['success' => true, 'finalised' => 0, 'note' => 'no pending DONUT rows for session']);
+        }
+
+        $count = 0;
+        foreach ($rows as $row) {
+            \Illuminate\Support\Facades\DB::table('ahg_ai_inference')
+                ->where('id', $row->id)
+                ->update([
+                    'target_entity_type' => 'information_object',
+                    'target_entity_id'   => $ioId,
+                ]);
+
+            // Best-effort Fuseki write via the existing FusekiSyncService
+            // gate. Failure leaves fuseki_graph_uri NULL so the #62 replay
+            // command picks it up later.
+            try {
+                $sync = app(\AhgRic\Services\FusekiSyncService::class);
+                $tenant   = config('heratio.ld.tenant', 'ahg');
+                $provNs   = config('heratio.ld.provenance_ns');
+                $graphUri = "urn:{$tenant}:provenance-ai:inference:" . $row->uuid;
+                $turtle = "@prefix prov: <http://www.w3.org/ns/prov#> .\n"
+                        . "@prefix ex: <{$provNs}> .\n"
+                        . "<{$graphUri}> a prov:Activity ;\n"
+                        . "    ex:service \"DONUT\" ;\n"
+                        . "    ex:targetField \"" . addslashes($row->target_field) . "\" ;\n"
+                        . "    ex:target <urn:{$tenant}:entity:information_object:{$ioId}:" . rawurlencode($row->target_field) . "> .\n";
+                $r = $sync->insertRdfStar($graphUri, $turtle);
+                if (!empty($r['ok'])) {
+                    \Illuminate\Support\Facades\DB::table('ahg_ai_inference')
+                        ->where('id', $row->id)
+                        ->update(['fuseki_graph_uri' => $graphUri]);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::info('[donut-finalise] Fuseki deferred: ' . $e->getMessage());
+            }
+
+            $count++;
+        }
+
+        return response()->json(['success' => true, 'finalised' => $count, 'session_uuid' => $session, 'io_id' => $ioId]);
     }
 
     /**

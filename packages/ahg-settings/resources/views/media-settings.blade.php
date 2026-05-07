@@ -37,10 +37,22 @@
         <div class="row mb-3">
           <label class="col-sm-3 col-form-label" for="media_player_type">{{ __('Player Type') }}</label>
           <div class="col-sm-9">
+            @php
+              // #106: five-tier dispatch. Treat legacy 'basic' / 'enhanced'
+              // values as 'heratio' for the dropdown's "selected" state.
+              $__cur = $settings['media_player_type'] ?? 'heratio';
+              if ($__cur === 'basic' || $__cur === 'enhanced') $__cur = 'heratio';
+            @endphp
             <select class="form-select" id="media_player_type" name="settings[media_player_type]">
-              <option value="basic" {{ ($settings['media_player_type'] ?? 'enhanced') === 'basic' ? 'selected' : '' }}>{{ __('Basic HTML5 Player') }}</option>
-              <option value="enhanced" {{ ($settings['media_player_type'] ?? 'enhanced') === 'enhanced' ? 'selected' : '' }}>{{ __('Enhanced Player (Recommended)') }}</option>
+              <option value="heratio"          {{ $__cur === 'heratio'         ? 'selected' : '' }}>{{ __('Heratio (Recommended)') }}</option>
+              <option value="heratio-minimal"  {{ $__cur === 'heratio-minimal' ? 'selected' : '' }}>{{ __('Heratio-minimal') }}</option>
+              <option value="plyr"             {{ $__cur === 'plyr'            ? 'selected' : '' }}>{{ __('Plyr') }}</option>
+              <option value="videojs"          {{ $__cur === 'videojs'         ? 'selected' : '' }}>{{ __('Video.js') }}</option>
+              <option value="native"           {{ $__cur === 'native'          ? 'selected' : '' }}>{{ __('Native HTML5') }}</option>
             </select>
+            <div class="form-text">
+              {{ __('Heratio: branded rich UI on every audio + video surface. Heratio-minimal: small native UI for low-bandwidth or accessibility-first installs (also rendered automatically when the rich player JS errors out). Plyr / Video.js: third-party chrome. Native: bare browser controls.') }}
+            </div>
           </div>
         </div>
 

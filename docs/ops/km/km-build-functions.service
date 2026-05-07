@@ -1,0 +1,11 @@
+[Unit]
+Description=KM function/method/route catalogue regen (#58)
+After=network.target
+Documentation=https://github.com/ArchiveHeritageGroup/heratio/issues/58
+
+[Service]
+Type=oneshot
+ExecStart=/opt/ai/km/build_functions_kb_all.sh
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=10min

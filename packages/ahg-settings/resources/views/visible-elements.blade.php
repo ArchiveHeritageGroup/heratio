@@ -112,6 +112,27 @@
                 'dacs_physical_access' => 'Physical access',
               ],
             ],
+            'mods_headings' => [
+              'label' => 'MODS template - top-level elements',
+              'fields' => [
+                'mods_titleinfo_area'           => 'titleInfo',
+                'mods_name_area'                => 'name (creator)',
+                'mods_type_of_resource_area'    => 'typeOfResource',
+                'mods_genre_area'               => 'genre',
+                'mods_origininfo_area'          => 'originInfo (dates / edition)',
+                'mods_language_area'            => 'language (of the resource)',
+                'mods_physicaldescription_area' => 'physicalDescription',
+                'mods_abstract_area'            => 'abstract',
+                'mods_table_of_contents_area'   => 'tableOfContents',
+                'mods_subject_area'             => 'subject (access points)',
+                'mods_classification_area'      => 'classification',
+                'mods_related_item_area'        => 'relatedItem',
+                'mods_identifier_area'          => 'identifier',
+                'mods_location_area'            => 'location',
+                'mods_access_condition_area'    => 'accessCondition',
+                'mods_record_info_area'         => 'recordInfo (auth-only)',
+              ],
+            ],
             'do_original' => [
               'label' => 'Digital object metadata - original file',
               'fields' => [

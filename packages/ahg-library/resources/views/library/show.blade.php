@@ -349,15 +349,39 @@
         <script src="{{ asset('vendor/ahg-theme-b5/js/ahg-iiif-viewer.js') }}"></script>
         <script>document.addEventListener('DOMContentLoaded', function() { initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ addslashes($item->title) }}'); });</script>
       @elseif($masterMediaType === 'video')
-        <video controls class="w-100" style="max-height:500px;background:#000;" preload="metadata" @if($thumbUrl) poster="{{ $thumbUrl }}" @endif>
-          <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
-        </video>
+        {{-- #106 Phase 2+4: shared Heratio video player component (top-of-page preview). --}}
+        @include('theme::components.media-player', [
+            'type'           => 'video',
+            'playerId'       => 'ahg-video-lib-top-' . ($masterObj->id ?? uniqid()),
+            'src'            => $masterUrl,
+            'mime'           => $masterMime,
+            'name'           => $masterObj->name ?? '',
+            'masterUrl'      => $masterUrl,
+            'masterMime'     => $masterMime,
+            'byteSize'       => $masterObj->byte_size ?? null,
+            'needsStreaming' => false,
+            'showDownload'   => true,
+            'poster'         => $thumbUrl ?? null,
+        ])
       @elseif($masterMediaType === 'audio')
-        <audio controls class="w-100"><source src="{{ $masterUrl }}" type="{{ $masterMime }}"></audio>
+        {{-- #106 Phase 1+4: shared Heratio audio player component (top-of-page preview). --}}
+        @include('theme::components.media-player', [
+            'type' => 'audio',
+            'playerId' => 'ahg-audio-lib-top-' . ($masterObj->id ?? uniqid()),
+            'src' => $masterUrl,
+            'mime' => $masterMime,
+            'name' => $masterObj->name ?? '',
+            'masterUrl' => $masterUrl,
+            'masterMime' => $masterMime,
+            'byteSize' => $masterObj->byte_size ?? null,
+            'needsStreaming' => false,
+            'showDownload' => true,
+        ])
       @else
         <div class="py-3">
           <i class="fas fa-file fa-3x text-muted mb-2 d-block"></i>
-          <p class="text-muted mb-1">{{ $masterObj->name ?? 'Digital object' }}</p>
+          {{-- settings.stripExtensions (#117): drops .ext from displayed filename when on. --}}
+          <p class="text-muted mb-1">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Digital object' }}</p>
           @auth <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Download') }}</a> @endauth
         </div>
       @endif
@@ -1049,131 +1073,45 @@
           </div>
 
         @elseif($masterMediaType === 'video')
-          {{-- Video: HTML5 player --}}
-          <video id="ahg-video-player" controls class="w-100" style="max-height:500px; background:#000;" preload="metadata"
-                 @if($thumbUrl) poster="{{ $thumbUrl }}" @endif>
-            <source src="{{ $videoSrc }}" type="{{ $videoMime }}">
-            @if($needsStreaming && $videoSrc !== $masterUrl)
-              <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
-            @endif
-            Your browser does not support this video format.
-          </video>
-          <div class="mt-2 d-flex justify-content-between align-items-center">
-            <div>
-              <span class="badge bg-secondary">{{ $masterObj->name ?? '' }}</span>
-              <span class="badge bg-light text-dark">{{ $masterMime }}</span>
-              @if($masterObj->byte_size ?? 0)
-                <span class="badge bg-light text-dark">{{ \AhgCore\Services\DigitalObjectService::formatFileSize($masterObj->byte_size) }}</span>
-              @endif
-            </div>
-            @auth
-              <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white">
-                <i class="fas fa-download me-1"></i>{{ __('Download video') }}
-              </a>
-            @endauth
-          </div>
+          {{-- #106 Phase 2+4: shared Heratio video player component (rich
+               player on the library show page; replaces the inline
+               <video controls> + sibling badge/download row). --}}
+          @include('theme::components.media-player', [
+              'type'           => 'video',
+              'playerId'       => 'ahg-video-' . $item->id,
+              'src'            => $videoSrc,
+              'mime'           => $videoMime,
+              'name'           => $masterObj->name ?? '',
+              'masterUrl'      => $masterUrl,
+              'masterMime'     => $masterMime,
+              'byteSize'       => $masterObj->byte_size ?? null,
+              'needsStreaming' => $needsStreaming,
+              'showDownload'   => true,
+              'poster'         => $thumbUrl ?? null,
+          ])
 
         @elseif($masterMediaType === 'audio')
-          {{-- Audio: Enhanced player --}}
+          {{-- #106 Phase 1+4: shared Heratio audio player component (rich
+               player on the library show page; replaces the inlined
+               .ahg-media-player block that duplicated _digital-object-viewer's
+               structure pre-#106). --}}
           @php
             $audioSrc = $needsStreaming && $refObj ? $refUrl : $masterUrl;
             $audioMime = $needsStreaming && $refObj ? ($refObj->mime_type ?? 'audio/mpeg') : $masterMime;
             $audioPlayerId = 'ahg-audio-' . $item->id;
           @endphp
-          <div class="ahg-media-player rounded p-3" style="background:linear-gradient(135deg,#1a1a2e,#16213e);">
-            <audio id="{{ $audioPlayerId }}" preload="metadata" style="display:none;">
-              <source src="{{ $audioSrc }}" type="{{ $audioMime }}">
-              @if($needsStreaming && $audioSrc !== $masterUrl)
-                <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
-              @endif
-            </audio>
-            <div id="{{ $audioPlayerId }}-progress" class="mb-3" style="cursor:pointer;height:60px;background:rgba(255,255,255,0.05);border-radius:6px;position:relative;overflow:hidden;">
-              <div id="{{ $audioPlayerId }}-fill" style="height:100%;width:0%;background:linear-gradient(90deg,rgba(13,110,253,0.4),rgba(13,110,253,0.15));position:absolute;transition:width 0.1s;"></div>
-              <div class="d-flex align-items-center justify-content-center h-100 position-relative">
-                <i class="fas fa-music fa-2x text-white" style="opacity:0.15;"></i>
-              </div>
-            </div>
-            <div class="d-flex justify-content-between text-white mb-2" style="font-size:0.8rem;opacity:0.7;">
-              <span id="{{ $audioPlayerId }}-current">0:00</span>
-              <span id="{{ $audioPlayerId }}-duration">0:00</span>
-            </div>
-            <div class="d-flex align-items-center justify-content-center gap-2">
-              <button class="btn btn-sm btn-outline-light" id="{{ $audioPlayerId }}-back" title="{{ __('Back 10s') }}">
-                <i class="fas fa-backward"></i> 10s
-              </button>
-              <button class="btn btn-lg btn-light rounded-circle" id="{{ $audioPlayerId }}-play" title="{{ __('Play/Pause') }}" style="width:50px;height:50px;">
-                <i class="fas fa-play" id="{{ $audioPlayerId }}-play-icon"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-light" id="{{ $audioPlayerId }}-fwd" title="{{ __('Forward 10s') }}">
-                10s <i class="fas fa-forward"></i>
-              </button>
-              <div class="ms-3 d-flex align-items-center gap-1">
-                <span class="text-white small">{{ __('Speed:') }}</span>
-                <select id="{{ $audioPlayerId }}-speed" class="form-select form-select-sm" style="width:70px;background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.2);">
-                  <option value="0.5">0.5x</option>
-                  <option value="0.75">0.75x</option>
-                  <option value="1" selected>1x</option>
-                  <option value="1.25">1.25x</option>
-                  <option value="1.5">1.5x</option>
-                  <option value="2">2x</option>
-                </select>
-              </div>
-              <div class="ms-2 d-flex align-items-center gap-1">
-                <i class="fas fa-volume-up text-white" style="opacity:0.7;"></i>
-                <input type="range" id="{{ $audioPlayerId }}-vol" class="form-range" style="width:80px;" min="0" max="1" step="0.05" value="1">
-              </div>
-            </div>
-            <div class="mt-3 d-flex justify-content-between align-items-center">
-              <div>
-                <span class="badge bg-secondary">{{ $masterObj->name ?? '' }}</span>
-                <span class="badge" style="background:rgba(255,255,255,0.1);color:#ccc;">{{ $masterMime }}</span>
-                @if($masterObj->byte_size ?? 0)
-                  <span class="badge" style="background:rgba(255,255,255,0.1);color:#ccc;">{{ \AhgCore\Services\DigitalObjectService::formatFileSize($masterObj->byte_size) }}</span>
-                @endif
-              </div>
-              @auth
-                <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-light">
-                  <i class="fas fa-download me-1"></i>{{ __('Download') }}
-                </a>
-              @endauth
-            </div>
-          </div>
-          <script>
-          document.addEventListener('DOMContentLoaded', function() {
-            var audio = document.getElementById('{{ $audioPlayerId }}');
-            var playBtn = document.getElementById('{{ $audioPlayerId }}-play');
-            var playIcon = document.getElementById('{{ $audioPlayerId }}-play-icon');
-            var backBtn = document.getElementById('{{ $audioPlayerId }}-back');
-            var fwdBtn = document.getElementById('{{ $audioPlayerId }}-fwd');
-            var speedSel = document.getElementById('{{ $audioPlayerId }}-speed');
-            var volRange = document.getElementById('{{ $audioPlayerId }}-vol');
-            var progress = document.getElementById('{{ $audioPlayerId }}-progress');
-            var fill = document.getElementById('{{ $audioPlayerId }}-fill');
-            var curTime = document.getElementById('{{ $audioPlayerId }}-current');
-            var durTime = document.getElementById('{{ $audioPlayerId }}-duration');
-            if (!audio) return;
-            function fmt(s) { var m = Math.floor(s/60); return m + ':' + String(Math.floor(s%60)).padStart(2,'0'); }
-            audio.addEventListener('loadedmetadata', function() { durTime.textContent = fmt(audio.duration); });
-            audio.addEventListener('timeupdate', function() {
-              curTime.textContent = fmt(audio.currentTime);
-              if (audio.duration) fill.style.width = (audio.currentTime / audio.duration * 100) + '%';
-            });
-            audio.addEventListener('ended', function() { playIcon.className = 'fas fa-play'; });
-            playBtn.addEventListener('click', function() {
-              if (audio.paused) { audio.play(); playIcon.className = 'fas fa-pause'; }
-              else { audio.pause(); playIcon.className = 'fas fa-play'; }
-            });
-            backBtn.addEventListener('click', function() { audio.currentTime = Math.max(0, audio.currentTime - 10); });
-            fwdBtn.addEventListener('click', function() { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10); });
-            speedSel.addEventListener('change', function() { audio.playbackRate = parseFloat(this.value); });
-            volRange.addEventListener('input', function() { audio.volume = parseFloat(this.value); });
-            progress.addEventListener('click', function(e) {
-              var rect = this.getBoundingClientRect();
-              var pct = (e.clientX - rect.left) / rect.width;
-              if (audio.duration) audio.currentTime = pct * audio.duration;
-            });
-          });
-          </script>
+          @include('theme::components.media-player', [
+              'type' => 'audio',
+              'playerId' => $audioPlayerId,
+              'src' => $audioSrc,
+              'mime' => $audioMime,
+              'name' => $masterObj->name ?? '',
+              'masterUrl' => $masterUrl,
+              'masterMime' => $masterMime,
+              'byteSize' => $masterObj->byte_size ?? null,
+              'needsStreaming' => $needsStreaming,
+              'showDownload' => true,
+          ])
 
         @elseif($is3DModel)
           {{-- 3D Model: model-viewer --}}
@@ -1182,7 +1120,7 @@
             <div class="d-flex flex-column align-items-center">
               <div class="mb-2">
                 <span class="badge bg-primary"><i class="fas fa-cube me-1"></i>3D Model</span>
-                <span class="badge bg-secondary">{{ $masterObj->name ?? '3D Model' }}</span>
+                <span class="badge bg-secondary">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? '3D Model' }}</span>
               </div>
               <div id="{{ $modelViewerId }}-container" style="width:100%;height:400px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:8px;position:relative;">
                 <model-viewer
@@ -1259,7 +1197,7 @@
           {{-- Other file: show info and download --}}
           <div class="py-4">
             <i class="fas fa-file fa-3x text-muted mb-3 d-block"></i>
-            <p class="text-muted">{{ $masterObj->name ?? 'Digital object' }}</p>
+            <p class="text-muted">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Digital object' }}</p>
             @auth
               <a href="{{ $masterUrl }}" download class="btn atom-btn-white">
                 <i class="fas fa-download me-1"></i>{{ __('Download file') }}

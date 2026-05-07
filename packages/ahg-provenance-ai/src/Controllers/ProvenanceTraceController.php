@@ -58,7 +58,7 @@ use Illuminate\Support\Facades\DB;
  *           "input_excerpt": "...", "output_excerpt": "...",
  *           "endpoint": "...", "elapsed_ms": 142,
  *           "occurred_at": "2026-05-04T10:00:00Z",
- *           "fuseki_graph_uri": "urn:ahg:provenance-ai:inference:..." | null
+ *           "fuseki_graph_uri": "urn:{tenant}:provenance-ai:inference:..." | null
  *         },
  *         "overrides": [
  *           {
@@ -67,7 +67,7 @@ use Illuminate\Support\Facades\DB;
  *             "original": "...", "new": "...",
  *             "status": "applied",
  *             "occurred_at": "2026-05-04T11:00:00Z",
- *             "fuseki_override_uri": "urn:ahg:provenance-ai:override:..." | null
+ *             "fuseki_override_uri": "urn:{tenant}:provenance-ai:override:..." | null
  *           }
  *         ],
  *         "current_effective_value": "Hard rock mining"

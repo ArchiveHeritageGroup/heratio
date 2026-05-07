@@ -391,6 +391,88 @@ class AclService
         }
     }
 
+    // =========================================================================
+    //  #52 user-level ACL editor: mirror the four group methods above for
+    //  user_id-keyed permissions. The acl_permission table already carries
+    //  the user_id column alongside group_id (line 152 of savePermission
+    //  picks it up), and AtoM's per-user ACL semantics are identical to
+    //  per-group except for the FK column. Two small wrapper methods +
+    //  a UserAclController is enough to expose the editor at /user/{slug}/...
+    // =========================================================================
+
+    /**
+     * Mirror of getGroupPermissionsByClass for per-user permissions.
+     */
+    public function getUserPermissionsByClass(int $userId, string $className): \Illuminate\Support\Collection
+    {
+        return DB::table('acl_permission as p')
+            ->leftJoin('object as o', 'o.id', '=', 'p.object_id')
+            ->where('p.user_id', $userId)
+            ->where(function ($q) use ($className) {
+                $q->whereNull('p.object_id')
+                  ->orWhere('o.class_name', $className);
+            })
+            ->select('p.id', 'p.object_id', 'p.action', 'p.grant_deny as grantDeny', 'p.constants', 'o.class_name')
+            ->orderBy('p.object_id')
+            ->orderBy('p.action')
+            ->get();
+    }
+
+    /**
+     * Mirror of applyAclForm but writes user_id instead of group_id. Same
+     * form shape (`acl[<perm_id|key>] = grant|deny|inherit`) so the same
+     * blade UI can serve both editors with just a different action URL.
+     */
+    public function applyUserAclForm(int $userId, array $form, array $allowedActions, string $className): void
+    {
+        $now = now()->toDateTimeString();
+
+        $existing = $this->getUserPermissionsByClass($userId, $className)->keyBy('id');
+
+        foreach ($form as $key => $value) {
+            $value = (int) $value;
+            if (ctype_digit((string) $key)) {
+                $permId = (int) $key;
+                if (!$existing->has($permId)) continue;
+                if ($value === self::INHERIT) {
+                    DB::table('acl_permission')->where('id', $permId)->delete();
+                } elseif (in_array($value, [self::GRANT, self::DENY], true)) {
+                    DB::table('acl_permission')->where('id', $permId)->update([
+                        'grant_deny' => $value,
+                        'updated_at' => $now,
+                    ]);
+                }
+                continue;
+            }
+            if (!preg_match('/^([a-zA-Z]+)_(.+)$/', $key, $m)) continue;
+            [$_full, $action, $scopeKey] = $m;
+            if (!isset($allowedActions[$action])) continue;
+            if ($value !== self::GRANT && $value !== self::DENY) continue;
+
+            $objectId = null;
+            $constants = null;
+            if ($scopeKey === 'root') {
+                // Whole-class scope
+            } elseif (str_starts_with($scopeKey, 'repo:')) {
+                $constants = json_encode(['repository' => substr($scopeKey, 5)]);
+            } else {
+                $obj = DB::table('slug')->where('slug', $scopeKey)->first();
+                if (!$obj) continue;
+                $objectId = $obj->object_id;
+            }
+            DB::table('acl_permission')->insert([
+                'user_id'       => $userId,
+                'object_id'     => $objectId,
+                'action'        => $action,
+                'grant_deny'    => $value,
+                'constants'     => $constants,
+                'created_at'    => $now,
+                'updated_at'    => $now,
+                'serial_number' => 0,
+            ]);
+        }
+    }
+
     /**
      * Hydrate per-repository / per-IO entity rows referenced by permission scopes
      * so `_acl-table.blade.php` can render captions with names.

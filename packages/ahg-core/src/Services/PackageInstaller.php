@@ -55,10 +55,10 @@ class PackageInstaller
     /** Last error message recorded by autoInstall, if any. Reset per call. */
     public static string $lastError = '';
 
-    public static function autoInstall(string $packageRoot, bool $force = false): bool
+    public static function autoInstall(string $packageRoot, bool $force = false, ?string $sqlFile = null): bool
     {
         self::$lastError = '';
-        $sqlFile = rtrim($packageRoot, '/') . '/database/install.sql';
+        $sqlFile = $sqlFile ?? (rtrim($packageRoot, '/') . '/database/install.sql');
         if (!is_readable($sqlFile)) {
             self::$lastError = "not readable: {$sqlFile}";
             return false;
@@ -100,10 +100,18 @@ class PackageInstaller
     }
 
     /**
-     * Iterate every packages/<name>/database/install.sql under the given
+     * Iterate every packages/<name>/database/install*.sql under the given
      * packages root and run autoInstall on each. Used by the
      * heratio:install-bootstrap artisan command and by bin/install's
      * Laravel-boot-sweep stage.
+     *
+     * Pattern is install*.sql (not just install.sql) so per-feature schema
+     * splits like install_voice_usage.sql / install_template_extensions.sql /
+     * install_i18n.sql get swept too — otherwise those tables only land via
+     * service-provider boot hooks during a web request, which never happens
+     * in the CI artifact build. Sort naturally puts install.sql before
+     * install_*.sql per package because '.' < '_' in ASCII; cross-package
+     * ordering stays alphabetic by package name.
      *
      * @return array{ran:int, skipped:int, files:array}
      */
@@ -113,18 +121,22 @@ class PackageInstaller
         $skipped = 0;
         $files = [];
 
-        $dirs = glob(rtrim($packagesRoot, '/') . '/*/database/install.sql');
+        $dirs = glob(rtrim($packagesRoot, '/') . '/*/database/install*.sql');
         sort($dirs);
 
         foreach ($dirs as $sqlFile) {
             $packageRoot = dirname(dirname($sqlFile));
             $packageName = basename($packageRoot);
-            $didRun = self::autoInstall($packageRoot, $force);
+            $fileLabel   = basename($sqlFile);
+            // Per-package + per-file key so install.sql + install_*.sql for
+            // the same package both appear in the result map.
+            $reportKey = $fileLabel === 'install.sql' ? $packageName : "{$packageName}/{$fileLabel}";
+            $didRun = self::autoInstall($packageRoot, $force, $sqlFile);
             // Stash the per-package error string when we skipped — surfaces in
             // the verbose listing of `heratio:install-bootstrap` so CI can see
             // why a package didn't install (otherwise the warning is hidden in
             // storage/logs/laravel.log which CI doesn't expose).
-            $files[$packageName] = $didRun ? 'installed' : ('skipped — ' . self::$lastError);
+            $files[$reportKey] = $didRun ? 'installed' : ('skipped — ' . self::$lastError);
             $didRun ? $ran++ : $skipped++;
         }
 

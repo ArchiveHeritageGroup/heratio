@@ -25,6 +25,30 @@ class AhgInformationObjectManageServiceProvider extends ServiceProvider
         }
 
         $this->ensureSecurityTable();
+        $this->ensureTemplateExtensions();
+    }
+
+    /**
+     * #98 Phase 2 — install ahg_io_dacs / ahg_io_rad / ahg_io_mods
+     * sidecar tables + seed the per-chapter / per-area / per-element
+     * element_visibility flags so the show-{standard}.blade.php
+     * templates can render only the operator-enabled sections.
+     */
+    private function ensureTemplateExtensions(): void
+    {
+        try {
+            $alreadyInstalled =
+                \Illuminate\Support\Facades\Schema::hasTable('ahg_io_dacs')
+                && \Illuminate\Support\Facades\Schema::hasTable('ahg_io_rad')
+                && \Illuminate\Support\Facades\Schema::hasTable('ahg_io_mods');
+            if ($alreadyInstalled) return;
+
+            $sql = file_get_contents(__DIR__ . '/../../database/install_template_extensions.sql');
+            if (!is_string($sql) || trim($sql) === '') return;
+            \Illuminate\Support\Facades\DB::unprepared($sql);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[ahg-io-manage] ensureTemplateExtensions failed: ' . $e->getMessage());
+        }
     }
 
     /**

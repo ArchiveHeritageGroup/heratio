@@ -156,7 +156,15 @@ class DisplayController extends Controller
         if ($limit < 10) $limit = 10;
         if ($limit > 100) $limit = 100;
 
-        $sort = $request->input('sort', 'date');
+        // settings.sort_browser_anonymous / sort_browser_user (#80): defaults
+        // for browse sort when ?sort= isn't in the request. Anonymous + auth'd
+        // users get separate defaults. Unrecognised tokens fall through the
+        // switch below to the default title sort, so an operator-typed value
+        // can never break the page.
+        $defaultSort = auth()->check()
+            ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
+            : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
+        $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
         $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
         $viewMode = $request->input('view', 'card');
         $this->hasDigital = $request->input('hasDigital');
@@ -256,6 +264,19 @@ class DisplayController extends Controller
         $this->placeSearchFilter = $request->input('placeSearch');
         $this->genreSearchFilter = $request->input('genreSearch');
         $this->repoFilter = $request->input('repo');
+
+        // #114 multi_repository: when off, force the repo filter to the
+        // operator-pinned single_repo_id regardless of any user-supplied
+        // ?repo= override. This makes the entire browse surface behave as
+        // a single-institution catalogue (the alternate UX the audit was
+        // describing) without needing per-route hide-or-show plumbing.
+        if (!\AhgCore\Support\GlobalSettings::multiRepository()) {
+            $forced = \AhgCore\Support\GlobalSettings::singleRepoId();
+            if ($forced) {
+                $this->repoFilter = (string) $forced;
+            }
+        }
+
         $this->startDateFilter = $request->input('startDate');
         $this->endDateFilter = $request->input('endDate');
         $this->rangeTypeFilter = $request->input('rangeType', 'inclusive');
@@ -267,10 +288,17 @@ class DisplayController extends Controller
             || $this->levelFilter || $this->mediaFilter || $this->repoFilter
             || $this->queryFilter || $this->hasDigital;
 
+        // #114 multi_repository: when off, the repository facet is meaningless
+        // (browse is locked to a single repo). Skip the facet build entirely
+        // and pass an empty collection to the view so the sidebar card
+        // hides itself - the facet partial only renders when the collection
+        // is non-empty.
+        $singleRepoMode = !\AhgCore\Support\GlobalSettings::multiRepository();
+
         if ($hasFilters) {
             $types = $this->getLiveFacet('type');
             $levels = $this->getLiveFacet('level');
-            $repositories = $this->getLiveFacet('repository');
+            $repositories = $singleRepoMode ? collect() : $this->getLiveFacet('repository');
             $creators = $this->getLiveFacet('creator');
             $subjects = $this->getLiveFacet('subject');
             $places = $this->getLiveFacet('place');
@@ -280,7 +308,7 @@ class DisplayController extends Controller
             $sfx = $this->isAuthenticated ? '_all' : '';
             $types = $this->getCachedFacet('glam_type' . $sfx, 'object_type');
             $levels = $this->getCachedFacet('level' . $sfx);
-            $repositories = $this->getCachedFacet('repository' . $sfx);
+            $repositories = $singleRepoMode ? collect() : $this->getCachedFacet('repository' . $sfx);
             $creators = $this->getCachedFacet('creator' . $sfx);
             $subjects = $this->getCachedFacet('subject' . $sfx);
             $places = $this->getCachedFacet('place' . $sfx);
@@ -549,7 +577,15 @@ class DisplayController extends Controller
         $typeFilter = $request->input('type');
         $parentId = $request->input('parent');
         $topLevelOnly = $request->input('topLevel', '0');
-        $sort = $request->input('sort', 'date');
+        // settings.sort_browser_anonymous / sort_browser_user (#80): defaults
+        // for browse sort when ?sort= isn't in the request. Anonymous + auth'd
+        // users get separate defaults. Unrecognised tokens fall through the
+        // switch below to the default title sort, so an operator-typed value
+        // can never break the page.
+        $defaultSort = auth()->check()
+            ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
+            : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
+        $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
         $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
 
         $query = DB::table('information_object as io')
@@ -629,7 +665,15 @@ class DisplayController extends Controller
         $typeFilter = $request->input('type');
         $parentId = $request->input('parent');
         $topLevelOnly = $request->input('topLevel', '0');
-        $sort = $request->input('sort', 'date');
+        // settings.sort_browser_anonymous / sort_browser_user (#80): defaults
+        // for browse sort when ?sort= isn't in the request. Anonymous + auth'd
+        // users get separate defaults. Unrecognised tokens fall through the
+        // switch below to the default title sort, so an operator-typed value
+        // can never break the page.
+        $defaultSort = auth()->check()
+            ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
+            : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
+        $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
         $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
 
         $query = DB::table('information_object as io')
@@ -1542,11 +1586,18 @@ class DisplayController extends Controller
             return trim(preg_replace('/[\+\-><\(\)~\*"@]+/', ' ', $s));
         };
 
+        // #111: escape LIKE wildcards (% _) when escape_queries is on so a
+        // pasted value like "100% complete" matches literally instead of
+        // collapsing into a match-all-after-100 wildcard. When the operator
+        // turns escape_queries off, the helper passes the raw term through
+        // and power users can wildcard-search via LIKE.
+        $likeEscape = static fn (string $s): string => \AhgCore\Support\EscapeQueriesHelper::escapeForLike($s);
+
         if (is_array($searchTerms)) {
             // Semantic search: OR between all terms
-            $query->where(function ($qb) use ($searchTerms, $useFulltext, $sectorTables, $ftSanitize) {
+            $query->where(function ($qb) use ($searchTerms, $useFulltext, $sectorTables, $ftSanitize, $likeEscape) {
                 foreach ($searchTerms as $term) {
-                    $q = '%' . $term . '%';
+                    $q = '%' . $likeEscape((string) $term) . '%';
                     $ftTerm = $ftSanitize((string) $term);
                     $qb->orWhere(function ($inner) use ($q, $term, $ftTerm, $useFulltext, $sectorTables) {
                         if ($useFulltext && $ftTerm !== '') {
@@ -1578,7 +1629,7 @@ class DisplayController extends Controller
             });
         } else {
             // Normal search: single term
-            $q = '%' . $searchTerms . '%';
+            $q = '%' . $likeEscape((string) $searchTerms) . '%';
             $ftTerm = $ftSanitize((string) $searchTerms);
             if ($useFulltext && $ftTerm !== '') {
                 $query->where(function ($qb) use ($q, $ftTerm, $sectorTables) {

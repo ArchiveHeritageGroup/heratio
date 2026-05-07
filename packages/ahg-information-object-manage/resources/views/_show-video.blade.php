@@ -42,11 +42,27 @@ $thumbnailUsage = config('atom.term.THUMBNAIL_ID');
           'object_id' => $resource->object->id ?? $resource->objectId ?? 0,
       ]); @endphp
     @else
-      {{-- Native HTML5 player --}}
-      <video controls class="w-100" style="max-height:500px;" preload="metadata">
-        <source src="{{ asset($representation->getFullPath()) }}" type="{{ $resource->mimeType }}">
-        Your browser does not support video playback.
-      </video>
+      {{-- #106 Phase 2+4: shared Heratio video player component on the
+           reference-derivative path. media_show_controls / autoplay /
+           loop are honoured inside the component via
+           App\Support\MediaSettings::payload(). --}}
+      @php
+        $__videoSrc = asset($representation->getFullPath());
+        $__byteSize = $resource->byte_size ?? null;
+      @endphp
+      @include('theme::components.media-player', [
+          'type'           => 'video',
+          'playerId'       => 'ahg-video-ref-' . ($resource->id ?? uniqid()),
+          'src'            => $__videoSrc,
+          'mime'           => $resource->mimeType,
+          'name'           => $resource->name ?? '',
+          'masterUrl'      => $link ?? $__videoSrc,
+          'masterMime'     => $resource->mimeType,
+          'byteSize'       => $__byteSize,
+          'needsStreaming' => false,
+          'showDownload'   => false,
+          'poster'         => null,
+      ])
     @endif
 
   @else
@@ -55,7 +71,12 @@ $thumbnailUsage = config('atom.term.THUMBNAIL_ID');
     </div>
   @endif
 
-  @if(isset($link) && \AhgCore\Services\AclService::check($resource->object ?? null, 'readMaster'))
+  {{-- Issue #85: media_show_download gates the download button alongside
+       the existing ACL check. The component-internal download is disabled
+       (showDownload=false above) so guests with readMaster permission
+       still see this anchor. --}}
+  @if(isset($link) && \AhgCore\Services\AclService::check($resource->object ?? null, 'readMaster')
+      && \App\Support\MediaSettings::showDownload())
     <div class="mt-2">
       <a href="{{ $link }}" class="btn btn-sm btn-outline-secondary">{{ __('Download video') }}</a>
     </div>

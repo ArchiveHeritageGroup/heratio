@@ -121,6 +121,13 @@ Route::prefix('marketplace/seller')->middleware(['web', 'auth'])->group(function
     Route::get('/listing-edit', [$controller, 'sellerListingEdit'])->name('ahgmarketplace.seller-listing-edit');
     Route::post('/listing-edit', [$controller, 'sellerListingEditPost'])->name('ahgmarketplace.seller-listing-edit.post')->middleware('acl:update');
 
+    // #84 featured-listing purchase: POST initiates PayFast checkout for the
+    // seller-pays-to-promote-own-listing flow. ITN COMPLETE -> sets
+    // is_featured=1 + featured_until=now+30d.
+    Route::post('/listing-feature', [$controller, 'sellerListingFeature'])
+        ->name('ahgmarketplace.seller-listing-feature')
+        ->middleware('acl:update');
+
     Route::get('/listing-images', [$controller, 'sellerListingImages'])->name('ahgmarketplace.seller-listing-images');
     Route::post('/listing-images', [$controller, 'sellerListingImagesPost'])->name('ahgmarketplace.seller-listing-images.post')->middleware('acl:update');
 

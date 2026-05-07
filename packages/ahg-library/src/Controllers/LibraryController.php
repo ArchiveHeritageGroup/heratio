@@ -37,10 +37,16 @@ use Illuminate\Support\Facades\DB;
 class LibraryController extends Controller
 {
     protected LibraryService $service;
+    protected \AhgLibrary\Services\LibraryCirculationService $circ;
+    protected \AhgLibrary\Services\LibraryPatronService $patrons;
+    protected \AhgLibrary\Services\LibraryOpacService $opac;
 
     public function __construct()
     {
         $this->service = new LibraryService(app()->getLocale());
+        $this->circ = new \AhgLibrary\Services\LibraryCirculationService();
+        $this->patrons = new \AhgLibrary\Services\LibraryPatronService();
+        $this->opac = new \AhgLibrary\Services\LibraryOpacService();
     }
 
     public function browse(Request $request)
@@ -556,9 +562,26 @@ class LibraryController extends Controller
 
     // ── Circulation ────────────────────────────────────────────────
 
-    public function circulation() { return view('ahg-library::circulation.index', ['loans' => collect()]); }
-    public function loanRules() { return view('ahg-library::circulation.loan-rules', ['rules' => collect()]); }
-    public function overdue() { return view('ahg-library::circulation.overdue', ['overdueItems' => collect()]); }
+    public function circulation()
+    {
+        return view('ahg-library::circulation.index', [
+            'loans' => collect($this->circ->listCheckouts(['status' => 'active'])),
+        ]);
+    }
+
+    public function loanRules()
+    {
+        return view('ahg-library::circulation.loan-rules', [
+            'rules' => collect($this->circ->getLoanRules()),
+        ]);
+    }
+
+    public function overdue()
+    {
+        return view('ahg-library::circulation.overdue', [
+            'overdueItems' => collect($this->circ->listOverdue()),
+        ]);
+    }
 
     // ── ILL ────────────────────────────────────────────────────────
 
@@ -623,8 +646,29 @@ class LibraryController extends Controller
 
     // ── Patrons ────────────────────────────────────────────────────
 
-    public function patrons() { return view('ahg-library::patron.index', ['patrons' => collect()]); }
-    public function patronView(int $id) { $patron = (object)['id' => $id, 'name' => '', 'type' => '', 'card_number' => '', 'email' => '', 'phone' => '', 'active' => true]; return view('ahg-library::patron.view', ['patron' => $patron, 'loans' => collect()]); }
+    public function patrons(Request $request)
+    {
+        return view('ahg-library::patron.index', [
+            'patrons' => collect($this->patrons->list([
+                'search' => $request->query('q'),
+                'status' => $request->query('status'),
+                'type' => $request->query('type'),
+            ])),
+        ]);
+    }
+
+    public function patronView(int $id)
+    {
+        $patron = $this->patrons->get($id);
+        if (!$patron) {
+            abort(404);
+        }
+        return view('ahg-library::patron.view', [
+            'patron' => $patron,
+            'loans' => collect($this->patrons->getActiveLoans($id)),
+            'holds' => collect($this->patrons->getActiveHolds($id)),
+        ]);
+    }
 
     // ── Serials ────────────────────────────────────────────────────
 
@@ -633,12 +677,136 @@ class LibraryController extends Controller
 
     // ── OPAC ───────────────────────────────────────────────────────
 
-    public function opac(Request $request) { $results = $request->has('q') ? collect() : null; return view('ahg-library::opac.index', compact('results')); }
-    public function opacView(string $slug) { $item = $this->service->getBySlug($slug); if (!$item) abort(404); $item->available = true; return view('ahg-library::opac.view', compact('item')); }
-    public function opacAccount() { return view('ahg-library::opac.account', ['loans' => collect(), 'holds' => collect()]); }
-    public function opacHold(string $slug) { $item = $this->service->getBySlug($slug); if (!$item) abort(404); return view('ahg-library::opac.hold', compact('item')); }
-    public function opacHoldStore(Request $request, string $slug) { return redirect()->route('library.opac-view', $slug)->with('success', 'Hold placed.'); }
-    public function opacRenew(Request $request, int $id) { return redirect()->route('library.opac-account')->with('success', 'Item renewed.'); }
+    public function opac(Request $request)
+    {
+        $query = (string) $request->query('q', '');
+        $results = $request->has('q')
+            ? $this->opac->search($query, [
+                'material_type' => $request->query('material_type'),
+                'language' => $request->query('language'),
+            ])
+            : null;
+
+        return view('ahg-library::opac.index', [
+            'results' => $results,
+            'newArrivals' => collect($this->opac->newArrivals()),
+            'popular' => collect($this->opac->popular()),
+            'settings' => [
+                'show_availability' => \AhgLibrary\Support\LibrarySettings::opacShowAvailability(),
+                'show_covers' => \AhgLibrary\Support\LibrarySettings::opacShowCovers(),
+                'allow_holds' => \AhgLibrary\Support\LibrarySettings::opacAllowHolds(),
+            ],
+        ]);
+    }
+
+    public function opacView(string $slug)
+    {
+        $item = $this->service->getBySlug($slug);
+        if (!$item) {
+            abort(404);
+        }
+        $availability = \AhgLibrary\Support\LibrarySettings::opacShowAvailability()
+            ? $this->opac->getAvailability((int) ($item->library_item_id ?? $item->id))
+            : null;
+        $item->available = $availability ? $availability['available'] > 0 : true;
+        $item->availability = $availability;
+
+        return view('ahg-library::opac.view', [
+            'item' => $item,
+            'allowHolds' => \AhgLibrary\Support\LibrarySettings::opacAllowHolds(),
+        ]);
+    }
+
+    public function opacAccount(Request $request)
+    {
+        // Account view requires an authenticated patron. Look up by
+        // user.email -> library_patron.email; falls back to empty
+        // collections when no matching patron exists.
+        $loans = collect();
+        $holds = collect();
+        $patron = null;
+
+        if ($user = $request->user()) {
+            $patron = DB::table('library_patron')
+                ->where('email', $user->email)
+                ->first();
+            if ($patron) {
+                $loans = collect($this->patrons->getActiveLoans((int) $patron->id));
+                $holds = collect($this->patrons->getActiveHolds((int) $patron->id));
+            }
+        }
+
+        return view('ahg-library::opac.account', compact('loans', 'holds', 'patron'));
+    }
+
+    public function opacHold(string $slug)
+    {
+        if (!\AhgLibrary\Support\LibrarySettings::opacAllowHolds()) {
+            abort(404);
+        }
+        $item = $this->service->getBySlug($slug);
+        if (!$item) {
+            abort(404);
+        }
+        return view('ahg-library::opac.hold', compact('item'));
+    }
+
+    public function opacHoldStore(Request $request, string $slug)
+    {
+        if (!\AhgLibrary\Support\LibrarySettings::opacAllowHolds()) {
+            abort(404);
+        }
+
+        $item = $this->service->getBySlug($slug);
+        if (!$item) {
+            abort(404);
+        }
+
+        $user = $request->user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $patron = DB::table('library_patron')->where('email', $user->email)->first();
+        if (!$patron) {
+            return redirect()->route('library.opac-view', $slug)
+                ->with('error', __('No library patron record matched your account. Contact a librarian.'));
+        }
+
+        $itemId = (int) ($item->library_item_id ?? $item->id);
+        $holdId = $this->circ->placeHold($itemId, (int) $patron->id);
+
+        if (!$holdId) {
+            return redirect()->route('library.opac-view', $slug)
+                ->with('error', __('Hold could not be placed (queue full, max holds reached, or patron suspended).'));
+        }
+
+        return redirect()->route('library.opac-view', $slug)
+            ->with('success', __('Hold placed.'));
+    }
+
+    public function opacRenew(Request $request, int $id)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $patron = DB::table('library_patron')->where('email', $user->email)->first();
+        $checkout = DB::table('library_checkout')->where('id', $id)->first();
+
+        // Ownership check: patrons may only renew their own checkouts.
+        if (!$patron || !$checkout || (int) $checkout->patron_id !== (int) $patron->id) {
+            abort(404);
+        }
+
+        if (!$this->circ->renew($id)) {
+            return redirect()->route('library.opac-account')
+                ->with('error', __('Renewal not allowed (max renewals reached or another patron is waiting).'));
+        }
+
+        return redirect()->route('library.opac-account')->with('success', __('Item renewed.'));
+    }
 
     // ── Reports ────────────────────────────────────────────────────
 

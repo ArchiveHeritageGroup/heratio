@@ -1,6 +1,7 @@
 <?php
 
 use AhgUserManage\Controllers\UserController;
+use AhgUserManage\Controllers\UserAclController;
 use Illuminate\Support\Facades\Route;
 
 // Per-user plugin preferences — admin + editor only. Authenticated-only
@@ -39,20 +40,28 @@ Route::middleware('admin')->group(function () {
     Route::delete('/user/{slug}/delete', [UserController::class, 'destroy'])->name('user.destroy')->middleware('acl:delete')
         ->where('slug', '(?!profile|password|register|clipboard|registration|view|verify|add|list|browse)[a-zA-Z0-9][a-zA-Z0-9._-]*');
 
-    // ACL permission pages
-    Route::get('/user/{slug}/indexActorAcl', [UserController::class, 'indexActorAcl'])->name('user.indexActorAcl');
-    Route::match(['get', 'post'], '/user/{slug}/editActorAcl', [UserController::class, 'editActorAcl'])->name('user.editActorAcl'); // ACL check in controller for POST only
+    // ACL permission pages (#52). Routes were registered pointing at
+    // UserController methods that didn't exist - repointed at the new
+    // UserAclController which mirrors the group ACL editor pattern from
+    // /admin/acl/group/{id}/{tab}. Index routes redirect to the matching
+    // edit form (the AtoM-style cross-group permissions matrix is a
+    // future enhancement). The editResearcherAcl route stays pointed at
+    // UserController for now - researcher-acl is its own concept and the
+    // existing stub view (60 lines, not the IO/Actor/Repo/Term shape)
+    // suggests a different design that #52 doesn't cover.
+    Route::get('/user/{slug}/indexActorAcl', [UserAclController::class, 'indexActorAcl'])->name('user.indexActorAcl');
+    Route::match(['get', 'post'], '/user/{slug}/editActorAcl', [UserAclController::class, 'editActorAcl'])->name('user.editActorAcl');
 
-    Route::get('/user/{slug}/indexInformationObjectAcl', [UserController::class, 'indexInformationObjectAcl'])->name('user.indexInformationObjectAcl');
-    Route::match(['get', 'post'], '/user/{slug}/editInformationObjectAcl', [UserController::class, 'editInformationObjectAcl'])->name('user.editInformationObjectAcl'); // ACL check in controller for POST only
+    Route::get('/user/{slug}/indexInformationObjectAcl', [UserAclController::class, 'indexInformationObjectAcl'])->name('user.indexInformationObjectAcl');
+    Route::match(['get', 'post'], '/user/{slug}/editInformationObjectAcl', [UserAclController::class, 'editInformationObjectAcl'])->name('user.editInformationObjectAcl');
 
-    Route::get('/user/{slug}/indexRepositoryAcl', [UserController::class, 'indexRepositoryAcl'])->name('user.indexRepositoryAcl');
-    Route::match(['get', 'post'], '/user/{slug}/editRepositoryAcl', [UserController::class, 'editRepositoryAcl'])->name('user.editRepositoryAcl'); // ACL check in controller for POST only
+    Route::get('/user/{slug}/indexRepositoryAcl', [UserAclController::class, 'indexRepositoryAcl'])->name('user.indexRepositoryAcl');
+    Route::match(['get', 'post'], '/user/{slug}/editRepositoryAcl', [UserAclController::class, 'editRepositoryAcl'])->name('user.editRepositoryAcl');
 
-    Route::get('/user/{slug}/indexTermAcl', [UserController::class, 'indexTermAcl'])->name('user.indexTermAcl');
-    Route::match(['get', 'post'], '/user/{slug}/editTermAcl', [UserController::class, 'editTermAcl'])->name('user.editTermAcl'); // ACL check in controller for POST only
+    Route::get('/user/{slug}/indexTermAcl', [UserAclController::class, 'indexTermAcl'])->name('user.indexTermAcl');
+    Route::match(['get', 'post'], '/user/{slug}/editTermAcl', [UserAclController::class, 'editTermAcl'])->name('user.editTermAcl');
 
-    Route::match(['get', 'post'], '/user/{slug}/editResearcherAcl', [UserController::class, 'editResearcherAcl'])->name('user.editResearcherAcl'); // ACL check in controller for POST only
+    Route::match(['get', 'post'], '/user/{slug}/editResearcherAcl', [UserController::class, 'editResearcherAcl'])->name('user.editResearcherAcl'); // researcher-acl is a separate stub - out of #52 scope
 
     Route::get('/user/{slug}', [UserController::class, 'show'])
         ->name('user.show')

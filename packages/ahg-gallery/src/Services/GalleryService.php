@@ -126,6 +126,22 @@ class GalleryService
             ])
             ->first();
 
+        // #74 encryption_field_access_restrictions: decrypt the two
+        // registered i18n columns at the central gallery-show read site.
+        // Idempotent for plaintext.
+        if ($artwork !== null) {
+            $__enc = new \AhgCore\Services\EncryptionService();
+            foreach (['access_conditions', 'reproduction_conditions'] as $__col) {
+                if (isset($artwork->{$__col}) && $artwork->{$__col} !== null && $artwork->{$__col} !== '') {
+                    $artwork->{$__col} = $__enc->decrypt(
+                        \AhgCore\Services\EncryptionService::CATEGORY_ACCESS_RESTRICTIONS,
+                        (string) $artwork->{$__col},
+                        'information_object_i18n', $__col, (int) $artwork->id
+                    );
+                }
+            }
+        }
+
         // Overlay culture-aware CCO field values from museum_metadata_i18n.
         // The base SELECT pulls source-culture (parent) values; this overrides
         // each translatable field with COALESCE(current, en, parent).
@@ -379,8 +395,19 @@ class GalleryService
                 'scope_and_content' => $data['scope_and_content'] ?? null,
                 'archival_history' => $data['archival_history'] ?? null,
                 'acquisition' => $data['acquisition'] ?? null,
-                'access_conditions' => $data['access_conditions'] ?? null,
-                'reproduction_conditions' => $data['reproduction_conditions'] ?? null,
+                // #74 encryption_field_access_restrictions: encrypt-on-write
+                // for the two registered i18n columns. Helper no-ops when
+                // the category is off so plaintext round-trips cleanly.
+                'access_conditions' => (new \AhgCore\Services\EncryptionService())->encrypt(
+                    \AhgCore\Services\EncryptionService::CATEGORY_ACCESS_RESTRICTIONS,
+                    $data['access_conditions'] ?? null,
+                    'information_object_i18n', 'access_conditions', $objectId
+                ),
+                'reproduction_conditions' => (new \AhgCore\Services\EncryptionService())->encrypt(
+                    \AhgCore\Services\EncryptionService::CATEGORY_ACCESS_RESTRICTIONS,
+                    $data['reproduction_conditions'] ?? null,
+                    'information_object_i18n', 'reproduction_conditions', $objectId
+                ),
                 'physical_characteristics' => $data['physical_characteristics'] ?? null,
                 'arrangement' => $data['arrangement'] ?? null,
                 'appraisal' => $data['appraisal'] ?? null,

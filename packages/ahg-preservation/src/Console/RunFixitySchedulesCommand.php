@@ -41,6 +41,20 @@ class RunFixitySchedulesCommand extends Command
 
     public function handle(FixityService $fixity, PreservationService $preservation): int
     {
+        // Master gate. integrity_enabled=false silences scheduled scans
+        // entirely - matches IntegrityVerifyCommand behaviour. --force can
+        // bypass this so an operator can run a one-off scan during incident
+        // response without flipping the global toggle on first.
+        if (!\AhgIntegrity\Support\IntegritySettings::enabled() && !$this->option('force')) {
+            $this->warn('integrity_enabled is off; scheduled fixity scans skipping (use --force to run anyway).');
+            return self::SUCCESS;
+        }
+
+        // Apply integrity_default_max_memory globally for this command run.
+        // Per-schedule loops inherit it; matches IntegrityVerifyCommand
+        // behaviour so the same setting governs both code paths.
+        @ini_set('memory_limit', \AhgIntegrity\Support\IntegritySettings::defaultMaxMemoryMb() . 'M');
+
         $now = Carbon::now();
 
         $q = DB::table('preservation_workflow_schedule')
@@ -97,9 +111,21 @@ class RunFixitySchedulesCommand extends Command
     {
         $startedAt = microtime(true);
         $startCarbon = Carbon::now();
-        $batchLimit = (int) ($this->option('max-batch') ?: ($schedule->batch_limit ?? 100));
+        // Resolution order: --max-batch CLI option > schedule.batch_limit
+        // column > integrity_default_batch_size setting > built-in 100. Same
+        // pattern as IntegrityVerifyCommand so an operator who configures the
+        // global default sees it apply to both code paths.
+        $batchLimit = (int) ($this->option('max-batch')
+            ?: ($schedule->batch_limit
+                ?? \AhgIntegrity\Support\IntegritySettings::defaultBatchSize()));
         $options    = $this->decodeOptions($schedule->options ?? null);
-        $algorithm  = (string) ($options['algorithm'] ?? 'sha256');
+        // Schedule-level overrides win; otherwise fall back to the global
+        // integrity_default_algorithm / integrity_io_throttle_ms settings so
+        // a single operator knob applies to every fixity path. Previously
+        // batchVerify() got a hardcoded 'sha256' + throttle=0, ignoring the
+        // operator's configuration.
+        $algorithm  = (string) ($options['algorithm'] ?? \AhgIntegrity\Support\IntegritySettings::defaultAlgorithm());
+        $throttleMs = (int) ($options['io_throttle_ms'] ?? \AhgIntegrity\Support\IntegritySettings::ioThrottleMs());
         $staleDays  = (int) ($options['stale_days'] ?? 90);
         $repoId     = isset($options['repository_id']) ? (int) $options['repository_id'] : null;
 
@@ -125,7 +151,16 @@ class RunFixitySchedulesCommand extends Command
             } else {
                 // FixityService::batchVerify returns an array keyed by digital_object_id whose
                 // values are the verifyObject() result arrays (with 'outcome' = verified|mismatch|missing|error).
-                $batch = $fixity->batchVerify($ids, $algorithm, 0);
+                // Wall-clock deadline derived from integrity_default_max_runtime
+                // (per-runOne; counted from this schedule's $startedAt). 0 disables
+                // the cap. batchVerify checks the deadline at the top of each
+                // iteration and breaks before the next verifyObject call - any
+                // objects past the cut-off are simply not present in the
+                // returned array, and the schedule's stats reflect "processed
+                // up to the cap" cleanly.
+                $maxRuntime = \AhgIntegrity\Support\IntegritySettings::defaultMaxRuntimeSeconds();
+                $deadline = $maxRuntime > 0 ? ((int) $startedAt + $maxRuntime) : null;
+                $batch = $fixity->batchVerify($ids, $algorithm, $throttleMs, $deadline);
                 $stats['processed'] = count($batch);
                 foreach ($batch as $digitalObjectId => $r) {
                     $outcomeRaw = is_array($r) ? ($r['outcome'] ?? 'unknown') : 'unknown';
@@ -166,7 +201,41 @@ class RunFixitySchedulesCommand extends Command
         }
 
         $durationMs = (int) ((microtime(true) - $startedAt) * 1000);
-        $endStatus  = $errorMessage ? 'failed' : ($stats['failed'] > 0 ? 'completed_with_errors' : 'completed');
+
+        // Status decision honours integrity_dead_letter_threshold so a single
+        // schedule run that hard-fails above the operator's tolerance gets
+        // marked dead_letter and won't be silently retried by the scheduler
+        // until an operator reviews. Mirrors IntegrityVerifyCommand's run
+        // status decision against integrity_run.
+        $deadLetterThreshold = \AhgIntegrity\Support\IntegritySettings::deadLetterThreshold();
+        if ($errorMessage) {
+            $endStatus = 'failed';
+        } elseif ($stats['failed'] >= $deadLetterThreshold) {
+            $endStatus = 'dead_letter';
+        } elseif ($stats['failed'] > 0) {
+            $endStatus = 'completed_with_errors';
+        } else {
+            $endStatus = 'completed';
+        }
+
+        // Wall-clock signal: when the deadline parameter passed into
+        // batchVerify caused an early break, fewer objects landed in the
+        // result array than $batchLimit asked for. Log so the operator sees
+        // the cap fired.
+        $maxRuntime = \AhgIntegrity\Support\IntegritySettings::defaultMaxRuntimeSeconds();
+        if ($maxRuntime > 0
+            && !empty($ids)
+            && $stats['processed'] < count($ids)
+            && $durationMs >= ($maxRuntime * 1000) - 1000
+        ) {
+            Log::warning('preservation: fixity schedule hit integrity_default_max_runtime cap', [
+                'schedule_id' => $schedule->id,
+                'duration_ms' => $durationMs,
+                'cap_seconds' => $maxRuntime,
+                'processed' => $stats['processed'],
+                'requested' => count($ids),
+            ]);
+        }
 
         DB::table('preservation_workflow_run')->where('id', $runId)->update([
             'status'              => $endStatus,

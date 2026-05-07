@@ -27,7 +27,12 @@
 
 namespace AhgWorkflow\Services;
 
+use AhgCore\Services\AhgSettingsService;
+use AhgWorkflow\Mail\WorkflowTaskApprovedMail;
+use AhgWorkflow\Mail\WorkflowTaskRejectedMail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class WorkflowService
@@ -235,7 +240,8 @@ class WorkflowService
      */
     public function approveTask(int $taskId, int $userId, ?string $comment = null): bool
     {
-        return DB::transaction(function () use ($taskId, $userId, $comment) {
+        $hadNextStep = false;
+        $result = DB::transaction(function () use ($taskId, $userId, $comment, &$hadNextStep) {
             $task = DB::table('ahg_workflow_task')->where('id', $taskId)->lockForUpdate()->first();
             if (!$task) {
                 return false;
@@ -265,6 +271,7 @@ class WorkflowService
                     ->first();
 
                 if ($nextStep) {
+                    $hadNextStep = true;
                     $newTaskId = DB::table('ahg_workflow_task')->insertGetId([
                         'workflow_id' => $task->workflow_id,
                         'workflow_step_id' => $nextStep->id,
@@ -296,6 +303,12 @@ class WorkflowService
 
             return true;
         });
+
+        if ($result) {
+            $this->sendTaskDecisionMail($taskId, $userId, $comment, true, $hadNextStep);
+        }
+
+        return $result;
     }
 
     /**
@@ -303,7 +316,7 @@ class WorkflowService
      */
     public function rejectTask(int $taskId, int $userId, string $comment): bool
     {
-        return DB::transaction(function () use ($taskId, $userId, $comment) {
+        $result = DB::transaction(function () use ($taskId, $userId, $comment) {
             $task = DB::table('ahg_workflow_task')->where('id', $taskId)->lockForUpdate()->first();
             if (!$task) {
                 return false;
@@ -324,6 +337,78 @@ class WorkflowService
 
             return true;
         });
+
+        if ($result) {
+            $this->sendTaskDecisionMail($taskId, $userId, $comment, false, false);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Dispatch an approve/reject email to the task submitter, gated on the
+     * workflow_email_notifications setting. Mail-delivery failures are logged
+     * but never propagated - the workflow decision must still succeed.
+     */
+    protected function sendTaskDecisionMail(
+        int $taskId,
+        int $decisionByUserId,
+        ?string $comment,
+        bool $approved,
+        bool $hadNextStep,
+    ): void {
+        if (!AhgSettingsService::getBool('workflow_email_notifications', true)) {
+            return;
+        }
+
+        try {
+            $row = DB::table('ahg_workflow_task as t')
+                ->leftJoin('ahg_workflow as w', 't.workflow_id', '=', 'w.id')
+                ->leftJoin('ahg_workflow_step as s', 't.workflow_step_id', '=', 's.id')
+                ->leftJoin('user as u_sub', 't.submitted_by', '=', 'u_sub.id')
+                ->where('t.id', $taskId)
+                ->select(
+                    't.id as task_id',
+                    't.object_id',
+                    't.object_type',
+                    't.decision_at',
+                    'w.name as workflow_name',
+                    's.name as step_name',
+                    'u_sub.email as recipient_email',
+                    'u_sub.username as recipient_name',
+                )
+                ->first();
+
+            $decisionByName = DB::table('user')->where('id', $decisionByUserId)->value('username');
+
+            if (!$row || empty($row->recipient_email)) {
+                return;
+            }
+
+            $context = [
+                'task_id' => $row->task_id,
+                'workflow_name' => $row->workflow_name,
+                'step_name' => $row->step_name,
+                'object_type' => $row->object_type,
+                'object_id' => $row->object_id,
+                'decision_at' => $row->decision_at,
+                'recipient_name' => $row->recipient_name,
+                'decision_by_name' => $decisionByName,
+                'comment' => $comment,
+                'has_next_step' => $hadNextStep,
+            ];
+
+            $mailable = $approved
+                ? new WorkflowTaskApprovedMail($context)
+                : new WorkflowTaskRejectedMail($context);
+
+            Mail::to($row->recipient_email)->send($mailable);
+        } catch (\Throwable $e) {
+            Log::warning('[workflow] task-decision mail failed', [
+                'task_id' => $taskId,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

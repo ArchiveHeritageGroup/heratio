@@ -390,54 +390,35 @@ class ConditionController extends Controller
             return response()->json(['success' => false, 'error' => 'Image file not found: ' . $filePath]);
         }
 
-        // Call Ollama LLaVA vision model for condition assessment
+        // Issue #99: route through VoiceLLMService so the operator's
+        // /admin/ahgSettings/voice_ai choices actually take effect — provider
+        // (local/cloud/hybrid), timeout, daily cloud limit, and audit toggle.
+        // The previous inline curl block honoured voice_local_llm_url +
+        // voice_local_llm_model only; the other 4 keys were ignored.
         try {
-            $ollamaUrl = DB::table('ahg_settings')
-                ->where('setting_key', 'voice_local_llm_url')
-                ->value('setting_value') ?: 'http://localhost:11434';
-            $model = DB::table('ahg_settings')
-                ->where('setting_key', 'voice_local_llm_model')
-                ->value('setting_value') ?: 'llava:7b';
-
             $materialType = $request->input('material_type', 'unknown');
             $materialHint = $materialType !== 'unknown' ? "The object is made of {$materialType}. " : '';
 
             $prompt = "You are a professional conservator assessing the physical condition of a cultural heritage object from a photograph. {$materialHint}Analyze this image and provide a structured condition assessment.\n\nRespond in EXACTLY this format (one item per line):\n\nRATING: [one of: excellent, good, fair, poor, critical]\nSEVERITY: [one of: minor, moderate, severe, critical]\nDAMAGE: [comma-separated list from: tear, stain, foxing, fading, water_damage, mold, pest_damage, abrasion, brittleness, loss, crack, corrosion, discolouration, deformation, dust, none]\nDESCRIPTION: [2-3 sentences describing the visible condition]\nRECOMMENDATIONS: [1-2 sentences on conservation treatment needed]\n\nBe specific about what you observe. If the object appears in good condition with no visible damage, say so. Do not invent damage that is not visible.";
 
             $imageBase64 = base64_encode(file_get_contents($fullPath));
+            $mimeType = function_exists('mime_content_type') ? (mime_content_type($fullPath) ?: 'image/jpeg') : 'image/jpeg';
 
-            $ch = curl_init($ollamaUrl . '/api/generate');
-            curl_setopt_array($ch, [
-                CURLOPT_POST => true,
-                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-                CURLOPT_POSTFIELDS => json_encode([
-                    'model' => $model,
-                    'prompt' => $prompt,
-                    'images' => [$imageBase64],
-                    'stream' => false,
-                    'options' => [
-                        'temperature' => 0,
-                        'seed' => 42,
-                    ],
-                ]),
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT => 60,
-                CURLOPT_CONNECTTIMEOUT => 5,
+            $llmResult = (new \AhgCore\Services\VoiceLLMService())->chat($prompt, $imageBase64, [
+                'temperature' => 0,
+                'media_type'  => $mimeType,
+                'max_tokens'  => 1024,
             ]);
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $curlError = curl_error($ch);
-            curl_close($ch);
 
-            if ($httpCode !== 200 || !$response) {
+            if (!$llmResult['ok']) {
                 return response()->json([
                     'success' => false,
-                    'error' => 'Ollama returned HTTP ' . $httpCode . ($curlError ? ' (' . $curlError . ')' : ''),
+                    'error'   => 'AI assess failed (' . $llmResult['provider'] . '): ' . ($llmResult['error'] ?? 'unknown'),
+                    'http_status' => $llmResult['http_status'] ?? 0,
                 ]);
             }
 
-            $ollamaResult = json_decode($response, true);
-            $rawText = $ollamaResult['response'] ?? '';
+            $rawText = (string) $llmResult['text'];
 
             // Parse line-based response (matching AtoM ConditionAIService::parseResponse)
             $validRatings = ['excellent', 'good', 'fair', 'poor', 'critical'];

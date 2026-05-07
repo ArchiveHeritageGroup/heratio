@@ -1,0 +1,165 @@
+#!/bin/bash
+#===============================================================================
+# Heratio - lockstep-fork
+#===============================================================================
+# Closes #55. Replaces the per-file port-the-fix workflow that was producing
+# whack-a-mole 500s on the atom + dam forks (each missing file -> next 500).
+#
+# What it does (per fork):
+#   1. Backs up the fork's package/app/bootstrap/etc. tree to /mnt/nas/heratio/backups/
+#   2. mysqldumps the fork's DB
+#   3. rsyncs heratio HEAD over the fork's package/app tree (with --delete so
+#      removed-from-heratio files vanish from the fork)
+#   4. Preserves the fork-specific state: .env, storage/, vendor/, public/build,
+#      node_modules/, .git/, version.json, and the fork-only DB credentials
+#   5. Reports what changed (file counts + size delta) so the operator can
+#      sanity-check before clearing caches / restarting php-fpm
+#
+# Usage:
+#   sudo ./bin/lockstep-fork atom              # dry-run (no writes)
+#   sudo ./bin/lockstep-fork atom --apply      # actually run
+#   sudo ./bin/lockstep-fork dam --apply       # second fork
+#   sudo ./bin/lockstep-fork --help            # this help
+#
+# After --apply:
+#   sudo -u www-data php /usr/share/nginx/<fork>/artisan view:clear
+#   sudo -u www-data php /usr/share/nginx/<fork>/artisan config:clear
+#   sudo systemctl reload php8.3-fpm
+#===============================================================================
+set -e
+
+HERATIO_ROOT="/usr/share/nginx/heratio"
+BACKUP_DIR="/mnt/nas/heratio/backups"
+TIMESTAMP="$(date +%Y%m%d-%H%M)"
+
+usage() {
+    sed -n '/^# Heratio - lockstep-fork/,/^# After --apply:/p' "$0" | sed 's/^# \?//'
+    exit 0
+}
+
+# Args
+FORK=""
+APPLY=0
+for arg in "$@"; do
+    case "$arg" in
+        --help|-h) usage ;;
+        --apply)   APPLY=1 ;;
+        atom|dam)  FORK="$arg" ;;
+        *)         echo "unknown arg: $arg (use --help)"; exit 2 ;;
+    esac
+done
+[ -z "$FORK" ] && { echo "missing fork name (atom|dam) - run with --help"; exit 2; }
+
+FORK_ROOT="/usr/share/nginx/$FORK"
+[ -d "$FORK_ROOT" ] || { echo "fork root missing: $FORK_ROOT"; exit 2; }
+
+# Identify the fork's DB from .env (heratio-side knowledge of remote DB names).
+FORK_DB=$(grep -E '^DB_DATABASE=' "$FORK_ROOT/.env" 2>/dev/null | cut -d= -f2- | tr -d '"' || echo "")
+
+echo "════════════════════════════════════════════════════════════════"
+echo "Lockstep clone: heratio HEAD -> $FORK"
+echo "  source:  $HERATIO_ROOT"
+echo "  target:  $FORK_ROOT"
+echo "  fork DB: ${FORK_DB:-(unknown - skipping mysqldump)}"
+echo "  apply:   $([ $APPLY -eq 1 ] && echo YES || echo 'NO (dry-run)')"
+echo "════════════════════════════════════════════════════════════════"
+
+# Paths to overwrite from heratio (the codebase). The list mirrors the
+# 'safe to overwrite' set the issue body documents - everything else is
+# preserved as fork-local state via the EXCLUDES below.
+SYNC_PATHS=(
+    "packages"
+    "app"
+    "bootstrap"
+    "config"
+    "database"
+    "routes"
+    "resources"
+    "tests"
+    "hooks"
+    "composer.json"
+    "composer.lock"
+    "version.json"
+    "artisan"
+    "phpunit.xml"
+    "phpunit.xml.dist"
+)
+
+# Fork-local state to preserve - these don't get touched by the rsync.
+# Listed for documentation; actual preservation happens because we only
+# rsync the SYNC_PATHS listed above (everything outside is left alone).
+PRESERVE_PATHS=(
+    ".env"
+    ".env.testing"
+    "storage"
+    "vendor"
+    "node_modules"
+    "public/build"
+    "public/uploads"
+    "public/iiif"
+    ".git"
+)
+
+# 1. Backup
+if [ $APPLY -eq 1 ]; then
+    if [ ! -d "$BACKUP_DIR" ]; then
+        mkdir -p "$BACKUP_DIR" || { echo "FAIL: cannot create $BACKUP_DIR"; exit 3; }
+    fi
+    BACKUP_TGZ="$BACKUP_DIR/${FORK}-pre-clone-${TIMESTAMP}.tar.gz"
+    echo "[1/4] Backing up fork tree -> $BACKUP_TGZ"
+    tar -czf "$BACKUP_TGZ" -C /usr/share/nginx \
+        "$FORK"/packages "$FORK"/app "$FORK"/bootstrap "$FORK"/config \
+        "$FORK"/database "$FORK"/routes "$FORK"/resources \
+        "$FORK"/composer.json "$FORK"/composer.lock "$FORK"/version.json \
+        2>/dev/null || echo "  (some files were missing - tar continued)"
+
+    # 2. DB backup
+    if [ -n "$FORK_DB" ]; then
+        BACKUP_SQL="$BACKUP_DIR/${FORK_DB}-pre-clone-${TIMESTAMP}.sql.gz"
+        echo "[2/4] mysqldump $FORK_DB -> $BACKUP_SQL"
+        mysqldump --no-tablespaces "$FORK_DB" 2>/dev/null | gzip > "$BACKUP_SQL" \
+            || echo "  (mysqldump failed - check creds; continuing without DB backup)"
+    else
+        echo "[2/4] DB backup skipped (no DB_DATABASE in .env)"
+    fi
+else
+    echo "[1/4] Backup skipped (dry-run)"
+    echo "[2/4] DB backup skipped (dry-run)"
+fi
+
+# 3. rsync
+RSYNC_FLAGS="-a --delete --info=stats2"
+[ $APPLY -eq 0 ] && RSYNC_FLAGS="$RSYNC_FLAGS --dry-run"
+echo "[3/4] rsync heratio HEAD -> $FORK (--delete on each path)"
+for path in "${SYNC_PATHS[@]}"; do
+    src="$HERATIO_ROOT/$path"
+    dst="$FORK_ROOT/$path"
+    [ -e "$src" ] || continue
+
+    # When src is a file (composer.json etc.), rsync without trailing slash
+    # so we copy the file itself. When src is a dir, trailing slash means
+    # "contents of, into target dir" - matches per-path semantics.
+    if [ -d "$src" ]; then
+        echo "  $path/ ..."
+        rsync $RSYNC_FLAGS "$src/" "$dst/" 2>&1 | grep -E "^(Number of|Total transferred|Total file size)" | sed 's/^/    /'
+    else
+        echo "  $path"
+        rsync $RSYNC_FLAGS "$src" "$dst" 2>&1 | grep -E "^(Number of|Total transferred|Total file size)" | sed 's/^/    /'
+    fi
+done
+
+# 4. Report + post-step hint
+echo "[4/4] Done."
+echo ""
+if [ $APPLY -eq 1 ]; then
+    echo "Next steps:"
+    echo "  sudo -u www-data php $FORK_ROOT/artisan view:clear"
+    echo "  sudo -u www-data php $FORK_ROOT/artisan config:clear"
+    echo "  sudo -u www-data php $FORK_ROOT/artisan cache:clear || true"
+    echo "  sudo systemctl reload php8.3-fpm"
+    echo ""
+    echo "Backups at $BACKUP_DIR/${FORK}-pre-clone-${TIMESTAMP}.tar.gz + ${FORK_DB}-pre-clone-${TIMESTAMP}.sql.gz"
+    echo "Roll back: stop php-fpm, untar, mysql < (restore the SQL), restart"
+else
+    echo "Dry-run complete. Re-run with --apply to actually clone."
+fi

@@ -27,11 +27,77 @@
 
 namespace AhgAccessRequest\Services;
 
-use Illuminate\Support\Facades\DB;
+use AhgAccessRequest\Mail\AccessRequestApprovedMail;
+use AhgAccessRequest\Mail\AccessRequestDeniedMail;
+use AhgAccessRequest\Mail\AccessRequestPendingMail;
+use AhgAccessRequest\Mail\AccessRequestSubmittedMail;
+use AhgCore\Services\AhgSettingsService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class AccessRequestService
 {
+    /**
+     * #95: master gate for the four access-request mailers. Mirrors the
+     * pattern in ResearchService::sendBookingMail / WorkflowService - when
+     * the operator turns the toggle off on /admin/ahgSettings/email, the
+     * mailers no-op silently. Default is on (true) so a fresh install gets
+     * notifications without the operator having to toggle anything.
+     */
+    private function notificationsEnabled(): bool
+    {
+        return AhgSettingsService::getBool('access_request_email_notifications', true);
+    }
+
+    /**
+     * Wraps Mail::to(...)->send(...) in a try/catch that logs but never
+     * throws - mail-delivery failure must not roll back the surrounding
+     * approval / denial / submission action that triggered it.
+     */
+    private function trySend(string $email, $mailable, string $context): void
+    {
+        if (!$this->notificationsEnabled() || empty($email)) {
+            return;
+        }
+        try {
+            Mail::to($email)->send($mailable);
+        } catch (\Throwable $e) {
+            Log::warning('[access-request] mail send failed', [
+                'context' => $context,
+                'email' => $email,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Resolve a user_id to their email address, or null if missing.
+     */
+    private function emailFor(int $userId): ?string
+    {
+        return DB::table('user')->where('id', $userId)->value('email') ?: null;
+    }
+
+    /**
+     * Resolve a user_id to their display name (actor_i18n.authorized_form_of_name)
+     * with email fallback when the actor row is missing. Used as the
+     * "requester" label in the pending-approver email.
+     */
+    private function displayNameFor(int $userId): string
+    {
+        $row = DB::table('user as u')
+            ->leftJoin('actor_i18n as a', function ($j) {
+                $j->on('u.id', '=', 'a.id')->where('a.culture', '=', 'en');
+            })
+            ->where('u.id', $userId)
+            ->select('u.email', 'a.authorized_form_of_name as name')
+            ->first();
+        return $row->name ?? $row->email ?? ('User #' . $userId);
+    }
+
+
     /**
      * Browse all access requests (admin view).
      */
@@ -141,7 +207,7 @@ class AccessRequestService
         // Map urgency → priority
         $priority = $data['urgency'] ?? 'normal';
 
-        return DB::table('security_access_request')->insertGetId([
+        $newId = DB::table('security_access_request')->insertGetId([
             'user_id'           => $userId,
             'request_type'      => $data['request_type'] ?? 'clearance',
             'classification_id' => $data['object_id'] ?? null,
@@ -152,6 +218,37 @@ class AccessRequestService
             'created_at'        => now(),
             'updated_at'        => now(),
         ]);
+
+        // #95: notify requester (acknowledgement) + every active approver
+        // (review queue heads-up). Both gated on access_request_email_notifications
+        // via trySend(); failure is logged but never raised so the SQL
+        // insert above can't be rolled back by a mail glitch.
+        if ($this->notificationsEnabled()) {
+            $created = (object) [
+                'id' => $newId,
+                'justification' => $justification,
+                'priority' => $priority,
+                'created_at' => now(),
+            ];
+
+            $requesterEmail = $this->emailFor($userId);
+            if ($requesterEmail) {
+                $this->trySend($requesterEmail, new AccessRequestSubmittedMail($created), 'submitted');
+            }
+
+            $requesterName = $this->displayNameFor($userId);
+            foreach ($this->getApprovers() as $approver) {
+                if (!empty($approver->email)) {
+                    $this->trySend(
+                        (string) $approver->email,
+                        new AccessRequestPendingMail($created, $requesterName),
+                        'pending'
+                    );
+                }
+            }
+        }
+
+        return $newId;
     }
 
     /**
@@ -159,15 +256,30 @@ class AccessRequestService
      */
     public function approveRequest(int $id, int $reviewerId, ?string $notes = null): bool
     {
-        return DB::table('access_request')
+        $reviewedAt = now();
+        $affected = DB::table('access_request')
             ->where('id', $id)
             ->update([
                 'status'       => 'approved',
                 'reviewed_by'  => $reviewerId,
-                'reviewed_at'  => now(),
+                'reviewed_at'  => $reviewedAt,
                 'review_notes' => $notes,
-                'updated_at'   => now(),
+                'updated_at'   => $reviewedAt,
             ]) > 0;
+
+        // #95: notify the requester their request was approved. Look up the
+        // user's email from the access_request row's user_id (rather than
+        // re-reading the whole row) since the update above already happened.
+        if ($affected && $this->notificationsEnabled()) {
+            $userId = (int) DB::table('access_request')->where('id', $id)->value('user_id');
+            $email = $userId ? $this->emailFor($userId) : null;
+            if ($email) {
+                $payload = (object) ['id' => $id, 'reviewed_at' => $reviewedAt];
+                $this->trySend($email, new AccessRequestApprovedMail($payload, $notes), 'approved');
+            }
+        }
+
+        return $affected;
     }
 
     public function cancelRequest(int $id, int $userId): bool
@@ -187,15 +299,28 @@ class AccessRequestService
      */
     public function denyRequest(int $id, int $reviewerId, ?string $reason = null): bool
     {
-        return DB::table('access_request')
+        $reviewedAt = now();
+        $affected = DB::table('access_request')
             ->where('id', $id)
             ->update([
                 'status'       => 'denied',
                 'reviewed_by'  => $reviewerId,
-                'reviewed_at'  => now(),
+                'reviewed_at'  => $reviewedAt,
                 'review_notes' => $reason,
-                'updated_at'   => now(),
+                'updated_at'   => $reviewedAt,
             ]) > 0;
+
+        // #95: notify the requester their request was denied + the reason.
+        if ($affected && $this->notificationsEnabled()) {
+            $userId = (int) DB::table('access_request')->where('id', $id)->value('user_id');
+            $email = $userId ? $this->emailFor($userId) : null;
+            if ($email) {
+                $payload = (object) ['id' => $id, 'reviewed_at' => $reviewedAt];
+                $this->trySend($email, new AccessRequestDeniedMail($payload, $reason), 'denied');
+            }
+        }
+
+        return $affected;
     }
 
     /**

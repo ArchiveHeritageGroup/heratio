@@ -29,13 +29,119 @@ class RicEntityService
         $this->culture = $culture ?? (string) app()->getLocale();
     }
 
+    // ── #77 phase 2: Fuseki sync hooks ─────────────────────────────────
+    //
+    // Every create/update/delete on a ric_* entity dispatches through
+    // FusekiSyncService, which gates the actual write on:
+    //   fuseki_sync_enabled    (master)
+    //   fuseki_sync_on_save    (creates + updates)
+    //   fuseki_sync_on_delete  (deletes)
+    //   fuseki_cascade_delete  (also drops dependent relation graphs)
+    //
+    // The setting reads happen inside the service so a sync that's gated
+    // off pays only the cost of one DB lookup. Hooks are after-commit
+    // (called outside the DB::transaction block) so a Fuseki failure
+    // can't roll back the relational write.
+
+    private const GRAPH_PREFIX = 'urn:ahg:ric:';
+
+    private function graphUri(string $entityType, int $id): string
+    {
+        return self::GRAPH_PREFIX . $entityType . ':' . $id;
+    }
+
+    private function entityUri(string $entityType, int $id): string
+    {
+        // Same scheme as graph URI - one entity per graph keeps deletes
+        // surgical (DROP GRAPH removes everything we wrote for the entity).
+        return self::GRAPH_PREFIX . $entityType . ':' . $id;
+    }
+
+    private function ricoTypeFor(string $entityType): string
+    {
+        return match ($entityType) {
+            'place'         => 'rico:Place',
+            'rule'          => 'rico:Rule',
+            'activity'      => 'rico:Activity',
+            'instantiation' => 'rico:Instantiation',
+            'relation'      => 'rico:Relation',
+            default         => 'rico:Thing',
+        };
+    }
+
+    /**
+     * Resolve the relation graph URIs for an entity that's about to be
+     * deleted, so cascadeDelete can drop them along with the entity's
+     * own graph. Walks the relation table for any relation where this
+     * entity is subject or object.
+     */
+    private function relatedGraphsForEntity(int $entityId): array
+    {
+        $relationIds = DB::table('relation')
+            ->where(function ($q) use ($entityId) {
+                $q->where('subject_id', $entityId)->orWhere('object_id', $entityId);
+            })
+            ->pluck('id')
+            ->all();
+        return array_map(fn ($id) => $this->graphUri('relation', (int) $id), $relationIds);
+    }
+
+    private function dispatchSave(string $entityType, int $id, ?string $label, ?string $identifier = null): void
+    {
+        $sync = app(FusekiSyncService::class);
+        $graph = $this->graphUri($entityType, $id);
+        $entityUri = $this->entityUri($entityType, $id);
+        $type = $this->ricoTypeFor($entityType);
+
+        // #77 phase 3: prefer full RIC-O serialization (RicSerializationService
+        // -> JSON-LD -> turtle) over the buildEntityTurtle stub. The stub
+        // remains as the fallback when:
+        //   - the entity type has no serialize* method (e.g. `relation`
+        //     which is a graph edge, not a dedicated RIC-O class)
+        //   - the serializer returns an error
+        //   - the conversion produces an empty body (sanity check)
+        // This preserves the v1.53.6 behaviour for relation edges while
+        // upgrading the four primary entity types to full property +
+        // relation expansion.
+        $sync->dispatchSyncOnSave($graph, function () use ($entityType, $id, $sync, $type, $entityUri, $label, $identifier) {
+            $serializer = app(RicSerializationService::class);
+            $jsonLd = match ($entityType) {
+                'place'         => $serializer->serializePlace($id),
+                'rule'          => $serializer->serializeRule($id),
+                'activity'      => $serializer->serializeActivity($id),
+                'instantiation' => $serializer->serializeInstantiation($id),
+                default         => null,
+            };
+            if (is_array($jsonLd) && !isset($jsonLd['error'])) {
+                // Force the @id to our urn:ahg:ric:* scheme so the graph URI
+                // and the subject URI match up - RicSerializationService
+                // builds @id from baseUri+/place/{id} which differs from our
+                // graph naming convention.
+                $jsonLd['@id'] = $entityUri;
+                $turtle = RicSerializationService::toTurtle($jsonLd);
+                if (trim($turtle) !== '') {
+                    return $turtle;
+                }
+            }
+            // Fallback: stub turtle from FusekiSyncService.
+            return $sync->buildEntityTurtle($type, $entityUri, $label, $identifier);
+        });
+    }
+
+    private function dispatchDelete(string $entityType, int $id, array $relatedGraphs = []): void
+    {
+        $sync = app(FusekiSyncService::class);
+        $graph = $this->graphUri($entityType, $id);
+        $sync->dispatchSyncOnDelete($graph, $relatedGraphs);
+    }
+
     // ================================================================
     // PLACE
     // ================================================================
 
     public function createPlace(array $data): int
     {
-        return DB::transaction(function () use ($data) {
+        $id = DB::transaction(function () use ($data) {
             $id = $this->insertObjectRecord('RicPlace');
             $this->insertSlug($id, $data['name'] ?? 'untitled-place');
 
@@ -60,6 +166,9 @@ class RicEntityService
 
             return $id;
         });
+
+        $this->dispatchSave('place', $id, $data['name'] ?? null, $data['authority_uri'] ?? null);
+        return $id;
     }
 
     public function updatePlace(int $id, array $data): void
@@ -75,16 +184,24 @@ class RicEntityService
 
             $this->touchObject($id);
         });
+
+        $this->dispatchSave('place', $id, $data['name'] ?? null, $data['authority_uri'] ?? null);
     }
 
     public function deletePlace(int $id): void
     {
+        // #77: collect related-relation graphs BEFORE the relational delete
+        // since relation rows that reference this place are gone afterwards.
+        $related = $this->relatedGraphsForEntity($id);
+
         DB::transaction(function () use ($id) {
             DB::table('ric_place_i18n')->where('id', $id)->delete();
             DB::table('ric_place')->where('id', $id)->delete();
             DB::table('slug')->where('object_id', $id)->delete();
             DB::table('object')->where('id', $id)->delete();
         });
+
+        $this->dispatchDelete('place', $id, $related);
     }
 
     public function getPlaceById(int $id): ?object
@@ -142,7 +259,7 @@ class RicEntityService
 
     public function createRule(array $data): int
     {
-        return DB::transaction(function () use ($data) {
+        $id = DB::transaction(function () use ($data) {
             $id = $this->insertObjectRecord('RicRule');
             $this->insertSlug($id, $data['title'] ?? 'untitled-rule');
 
@@ -167,6 +284,9 @@ class RicEntityService
 
             return $id;
         });
+
+        $this->dispatchSave('rule', $id, $data['title'] ?? null, $data['authority_uri'] ?? null);
+        return $id;
     }
 
     public function updateRule(int $id, array $data): void
@@ -182,16 +302,22 @@ class RicEntityService
 
             $this->touchObject($id);
         });
+
+        $this->dispatchSave('rule', $id, $data['title'] ?? null, $data['authority_uri'] ?? null);
     }
 
     public function deleteRule(int $id): void
     {
+        $related = $this->relatedGraphsForEntity($id);
+
         DB::transaction(function () use ($id) {
             DB::table('ric_rule_i18n')->where('id', $id)->delete();
             DB::table('ric_rule')->where('id', $id)->delete();
             DB::table('slug')->where('object_id', $id)->delete();
             DB::table('object')->where('id', $id)->delete();
         });
+
+        $this->dispatchDelete('rule', $id, $related);
     }
 
     public function getRuleById(int $id): ?object
@@ -231,7 +357,7 @@ class RicEntityService
 
     public function createActivity(array $data): int
     {
-        return DB::transaction(function () use ($data) {
+        $id = DB::transaction(function () use ($data) {
             $id = $this->insertObjectRecord('RicActivity');
             $this->insertSlug($id, $data['name'] ?? 'untitled-activity');
 
@@ -254,6 +380,9 @@ class RicEntityService
 
             return $id;
         });
+
+        $this->dispatchSave('activity', $id, $data['name'] ?? null);
+        return $id;
     }
 
     public function updateActivity(int $id, array $data): void
@@ -269,16 +398,22 @@ class RicEntityService
 
             $this->touchObject($id);
         });
+
+        $this->dispatchSave('activity', $id, $data['name'] ?? null);
     }
 
     public function deleteActivity(int $id): void
     {
+        $related = $this->relatedGraphsForEntity($id);
+
         DB::transaction(function () use ($id) {
             DB::table('ric_activity_i18n')->where('id', $id)->delete();
             DB::table('ric_activity')->where('id', $id)->delete();
             DB::table('slug')->where('object_id', $id)->delete();
             DB::table('object')->where('id', $id)->delete();
         });
+
+        $this->dispatchDelete('activity', $id, $related);
     }
 
     public function getActivityById(int $id): ?object
@@ -322,7 +457,7 @@ class RicEntityService
 
     public function createInstantiation(array $data): int
     {
-        return DB::transaction(function () use ($data) {
+        $id = DB::transaction(function () use ($data) {
             $id = $this->insertObjectRecord('RicInstantiation');
             $this->insertSlug($id, $data['title'] ?? 'untitled-instantiation');
 
@@ -348,6 +483,9 @@ class RicEntityService
 
             return $id;
         });
+
+        $this->dispatchSave('instantiation', $id, $data['title'] ?? null);
+        return $id;
     }
 
     public function updateInstantiation(int $id, array $data): void
@@ -363,16 +501,22 @@ class RicEntityService
 
             $this->touchObject($id);
         });
+
+        $this->dispatchSave('instantiation', $id, $data['title'] ?? null);
     }
 
     public function deleteInstantiation(int $id): void
     {
+        $related = $this->relatedGraphsForEntity($id);
+
         DB::transaction(function () use ($id) {
             DB::table('ric_instantiation_i18n')->where('id', $id)->delete();
             DB::table('ric_instantiation')->where('id', $id)->delete();
             DB::table('slug')->where('object_id', $id)->delete();
             DB::table('object')->where('id', $id)->delete();
         });
+
+        $this->dispatchDelete('instantiation', $id, $related);
     }
 
     public function getInstantiationById(int $id): ?object
@@ -416,7 +560,7 @@ class RicEntityService
      */
     public function createRelation(int $subjectId, int $objectId, string $relTypeCode, array $data = []): int
     {
-        return DB::transaction(function () use ($subjectId, $objectId, $relTypeCode, $data) {
+        $id = DB::transaction(function () use ($subjectId, $objectId, $relTypeCode, $data) {
             // Look up the relation type metadata from ahg_dropdown
             $relType = DB::table('ahg_dropdown')
                 ->where('taxonomy', 'ric_relation_type')
@@ -480,6 +624,9 @@ class RicEntityService
 
             return $id;
         });
+
+        $this->dispatchSave('relation', $id, $relTypeCode);
+        return $id;
     }
 
     /**
@@ -492,6 +639,9 @@ class RicEntityService
             DB::table('relation')->where('id', $relationId)->delete();
             DB::table('object')->where('id', $relationId)->delete();
         });
+
+        // Relations are leaves in the graph - no further cascade.
+        $this->dispatchDelete('relation', $relationId);
     }
 
     /**
@@ -535,6 +685,8 @@ class RicEntityService
 
             $this->touchObject($relationId);
         });
+
+        $this->dispatchSave('relation', $relationId, $data['relation_type'] ?? null);
     }
 
     /**
