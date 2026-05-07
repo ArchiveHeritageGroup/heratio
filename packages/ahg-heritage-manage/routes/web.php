@@ -83,7 +83,7 @@ Route::middleware('admin')->group(function () {
     // Admin sub-pages
     Route::get('/heritage/admin/access-requests', [HeritageController::class, 'adminAccessRequests'])->name('heritage.admin-access-requests');
     Route::get('/heritage/admin/branding', [HeritageController::class, 'adminBranding'])->name('heritage.admin-branding');
-    Route::get('/heritage/admin/config', [HeritageController::class, 'adminConfig'])->name('heritage.admin-config');
+    Route::match(['get', 'post'], '/heritage/admin/config', [HeritageController::class, 'adminConfig'])->name('heritage.admin-config');
     Route::get('/heritage/admin/embargoes', [HeritageController::class, 'adminEmbargoes'])->name('heritage.admin-embargoes');
     Route::get('/heritage/admin/featured-collections', [HeritageController::class, 'adminFeaturedCollections'])->name('heritage.admin-featured-collections');
     Route::get('/heritage/admin/features', [HeritageController::class, 'adminFeatures'])->name('heritage.admin-features');
