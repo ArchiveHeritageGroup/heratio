@@ -33,7 +33,6 @@ class EnsureDataProtectionEnabled
 {
     public function handle(Request $request, Closure $next)
     {
-        @file_put_contents('/tmp/dp-middleware-fire.log', date('c') . ' ' . $request->path() . PHP_EOL, FILE_APPEND);
         if (!DataProtectionSettings::enabled()) {
             abort(404);
         }
