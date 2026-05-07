@@ -392,4 +392,36 @@ Contact your system administrator if you experience issues with the translation 
 
 ---
 
-*Part of the AtoM AHG Framework*
+## May 2026 update - UI string storage moved from JSON to DB
+
+**Affects:** how `__()`-wrapped UI strings (navbar, browse page, button labels, etc.) are stored, NOT record-content translation. Record-content translation continues to flow through the existing `/admin/translation/translate/{slug}` workflow.
+
+### What changed (issue #57)
+
+UI strings used to live entirely in `lang/{locale}.json` files on disk. Editing required SSH access. As of v1.52.49 they live in a new `ui_string` DB table (key + culture + value, one row per pair). The `lang/*.json` files are now the cold-start fallback only - present on disk but consulted only when a key is missing in the DB.
+
+### Migration
+
+One-shot artisan command:
+
+```bash
+php artisan ahg:translation:import-json-to-db
+```
+
+Walks every `lang/*.json` and seeds the table. Idempotent on rerun. Initial seed populates ~55,000 rows across 64 cultures.
+
+### What this enables
+
+- **Per-culture audit and diff** are now a single `SELECT` against `ui_string` instead of `git log` over a 7000-key JSON.
+- **MT-translated values stop polluting git** - the DB has its own audit table (`ui_string_edit_log`).
+- **Deploy story collapses** - one `mysqldump` instead of a filesystem volume mount of `lang/`.
+
+### Coming next: in-app editor (issue #54, in flight)
+
+A form-based editor at `/admin/translation/strings` will let admins fix UI strings through a grid (key + per-locale columns + inline edit + AJAX save) instead of SSH-editing JSON. Filters: `?missing=zu` (only keys missing in the given locale), `?contains=cart` (substring search), `?changed=since:YYYY-MM-DD` (recent edits via the audit table).
+
+The MT-suggest button per cell (auto-fill from the existing NLLB endpoint) is gated behind the Server-78 GPU rollout (issue #45).
+
+---
+
+*Part of the Heratio platform*

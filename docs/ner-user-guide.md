@@ -473,4 +473,40 @@ SELECT COUNT(*) FROM ahg_ner_entity;       -- Entities
 
 ---
 
-*© The Archive and Heritage Group | January 2026*
+## May 2026 update - 16 settings keys now wired
+
+The form at `/admin/ahgSettings/aiServices` previously had 16 of 20 fields that saved to `ahg_ner_settings` but were never read by any consumer. v1.53.23 wired them through a new `AhgAiServices\Support\AiServicesSettings` helper. The four master gates - `summarizer_enabled`, `spellcheck_enabled`, `translation_enabled`, `ner_enabled` - now act as global kill switches that sit ABOVE the per-session ingest toggles. Both must be on for the step to run.
+
+### Processing mode
+
+`ai_services_processing_mode` (local | cloud | hybrid). Cloud mode posts to a single hosted endpoint configured via `ai_services_api_url` + `ai_services_api_key` + `ai_services_api_timeout`, bypassing the per-provider config table at `/admin/ai/llm-config`. Use it when you want one stable hosted endpoint to handle every AI call instead of registering each provider individually.
+
+### Translation mode
+
+`translation_mode` (mt | llm). The `mt` mode posts to `mt_endpoint` with `mt_timeout` (e.g. for an NLLB-200 sidecar) and falls through to the LLM round-trip on failure or when the endpoint is missing. `llm` mode skips the MT endpoint entirely and uses the configured LLM with a translation prompt.
+
+### Discovery / Qdrant fallback
+
+The vector search service now falls back to `qdrant_url`, `qdrant_collection`, `qdrant_model`, `qdrant_min_score` (the keys exposed on the AI Services form) when the canonical `semantic_qdrant_*` settings are unset. So you don't have to know about both tables - the AI Services tile is enough. `qdrant_min_score` is sent to Qdrant as `score_threshold` and filters out hits below the floor.
+
+### Auto-extract on upload
+
+New `auto_extract_on_upload` toggle - when on, file uploads of digital objects auto-trigger Donut document extraction. URL/FTP-linked objects bypass since they have no local file. Result lands in `ahg_ai_inference` with full PROV-O provenance (see "AI Inference Provenance - User Guide" for the trace endpoint and override workflow).
+
+### Master gate + per-session interplay
+
+For ingest sessions (the wizard at `/admin/ingest/...`), every per-session `process_*` toggle is now AND-ed against its master gate:
+
+| Per-session toggle | Master gate (AI Services settings) |
+|---|---|
+| `process_summarize` | `summarizer_enabled` |
+| `process_spellcheck` | `spellcheck_enabled` |
+| `process_translate` | `translation_enabled` |
+| `process_face_detect` | `face_enabled` (new in v1.53.21) |
+| `process_ner` | `ner_enabled` |
+
+Turning a master gate off silently disables the step across every ingest session, regardless of per-session settings. Useful for cost control and emergency disable.
+
+---
+
+*Part of the Heratio platform | Updated May 2026*
