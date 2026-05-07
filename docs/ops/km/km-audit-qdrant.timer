@@ -1,0 +1,12 @@
+[Unit]
+Description=KM defence-in-depth: Qdrant credential scan (daily)
+Documentation=https://github.com/ArchiveHeritageGroup/heratio/issues/49
+
+[Timer]
+# Daily at 03:30 - well clear of the every-2h km-ingest cycle.
+OnCalendar=*-*-* 03:30:00
+Persistent=true
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target
