@@ -14,7 +14,9 @@ set -e
 cd "$(dirname "$0")/.."
 ROOT="$(pwd)"
 
-UNLOCK_FILE="${ROOT}/.git/UNLOCKED"
+# Resolve git dir (handles worktrees, where .git is a file not a directory).
+GITDIR=$(git rev-parse --git-dir 2>/dev/null || echo "${ROOT}/.git")
+UNLOCK_FILE="${GITDIR}/UNLOCKED"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'

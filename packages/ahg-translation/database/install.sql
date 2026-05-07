@@ -76,6 +76,38 @@ INSERT IGNORE INTO `ahg_translation_settings` (`setting_key`, `setting_value`)
   SELECT 'mt.target_culture', 'en'
   WHERE NOT EXISTS (SELECT 1 FROM `ahg_translation_settings` WHERE `setting_key`='mt.target_culture');
 
+-- ui_string — DB-backed catalogue for every UI translation key (issue #57).
+-- Replaces lang/{locale}.json as the system-of-record for UI labels. The JSON
+-- files remain on disk as a deploy-time fallback (DbAwareLoader reads files
+-- when the DB has no rows for a culture) and as the seed source for the
+-- one-shot `php artisan ahg:translation:import-json-to-db` command.
+--
+-- Why a dedicated table (not setting_i18n with a new scope):
+--   - ~7000 keys per culture would flood the existing setting_i18n queries
+--   - per-culture diff/audit is cleaner with a single uniform shape
+--   - the in-app strings editor + SBS modal already share UiStringService
+--     which now writes here (was: flock + atomic JSON rename)
+--
+-- The (key, culture) UNIQUE has a 255-char prefix on `key` because MySQL's
+-- index-key-length limit on utf8mb4 is 768 bytes (= 192 chars at 4 bytes/char
+-- without prefix), and a few of the ported AtoM keys run over 200 chars.
+--
+-- The `key` column uses utf8mb4_bin collation because the UI-string catalogue
+-- contains case-distinct keys ("Active" vs "active", "-- Select Category --"
+-- vs "-- Select category --") that the default utf8mb4_unicode_ci treats as
+-- duplicates and would silently coalesce on UNIQUE/UPSERT. _bin is byte-
+-- exact so each variant gets its own row, matching JSON-file behaviour.
+CREATE TABLE IF NOT EXISTS `ui_string` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `key` VARCHAR(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `culture` VARCHAR(16) NOT NULL,
+  `value` LONGTEXT,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ui_string_key_culture` (`key`(255), `culture`),
+  KEY `idx_culture` (`culture`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- ui_string_change — pending/approved/rejected workflow for /admin/translation/strings
 -- (issue #54 second-pass — admin auto-approves, editor goes to queue, admin
 -- can opt-in to second-review). Also serves as the audit log: every change
