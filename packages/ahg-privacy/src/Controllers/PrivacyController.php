@@ -28,10 +28,13 @@
 namespace AhgPrivacy\Controllers;
 
 use AhgPrivacy\Services\PrivacyService;
+use AhgPrivacy\Support\DataProtectionSettings;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 
 class PrivacyController extends Controller
@@ -197,11 +200,12 @@ class PrivacyController extends Controller
     public function dsarRequest()
     {
         // Public-facing DSAR request form (data subject submits a request).
-        // Falls back to popia for the request-type list — the form has no
-        // jurisdiction selector at this surface; the data protection officer
-        // routes the request server-side once received.
-        $requestTypes = PrivacyService::getRequestTypes('popia');
-        return view('privacy::dsar-request', compact('requestTypes'));
+        // Request-type list is fetched for the operator-configured default
+        // regulation (#72: dp_default_regulation). The data protection
+        // officer can re-route the request server-side once received.
+        $defaultRegulation = DataProtectionSettings::defaultRegulation();
+        $requestTypes      = PrivacyService::getRequestTypes($defaultRegulation);
+        return view('privacy::dsar-request', compact('requestTypes', 'defaultRegulation'));
     }
 
     /**
@@ -211,7 +215,8 @@ class PrivacyController extends Controller
      */
     public function dsarRequestStore(Request $request)
     {
-        $jurisdiction = (string) $request->input('jurisdiction', 'popia');
+        // #72: when the form omits jurisdiction, fall back to dp_default_regulation.
+        $jurisdiction = (string) $request->input('jurisdiction', DataProtectionSettings::defaultRegulation());
         $validated = $request->validate([
             'request_type'        => 'required|string|max:89',
             'requestor_name'      => 'required|string|max:255',
@@ -412,8 +417,19 @@ class PrivacyController extends Controller
         // Admin-facing DSAR-creation form. Loads jurisdictions, request types,
         // id-type taxonomy, and a user list for the Assigned-To dropdown.
         $jurisdictions = $this->loadJurisdictions();
-        $defaultJurisdiction = array_key_first($jurisdictions);
+        // #72: prefer dp_default_regulation when it names a known jurisdiction;
+        // otherwise fall back to first row of privacy_jurisdiction.
+        $configured = DataProtectionSettings::defaultRegulation();
+        $defaultJurisdiction = isset($jurisdictions[$configured])
+            ? $configured
+            : array_key_first($jurisdictions);
         $requestTypes = PrivacyService::getRequestTypes($defaultJurisdiction);
+        // #72: pass POPIA fee context so the form / blade can surface "standard fee R<x>"
+        // and special-category fee. Passed unconditionally; blades that don't
+        // consume them ignore the variables harmlessly.
+        $dpFee        = DataProtectionSettings::feeFor($defaultJurisdiction, false);
+        $dpFeeSpecial = DataProtectionSettings::feeFor($defaultJurisdiction, true);
+        $dpResponseDays = DataProtectionSettings::responseDaysFor($defaultJurisdiction);
 
         $idTypes = [];
         try {
@@ -426,7 +442,7 @@ class PrivacyController extends Controller
             $users = DB::table('user')->select('id', 'username', 'email')->orderBy('username')->get();
         }
 
-        return view('privacy::dsar-add', compact('jurisdictions', 'defaultJurisdiction', 'requestTypes', 'idTypes', 'users'));
+        return view('privacy::dsar-add', compact('jurisdictions', 'defaultJurisdiction', 'requestTypes', 'idTypes', 'users', 'dpFee', 'dpFeeSpecial', 'dpResponseDays'));
     }
 
     /**
@@ -481,7 +497,10 @@ class PrivacyController extends Controller
         if (!isset($juris[$jurisdiction])) {
             $jurisdiction = array_key_first($juris) ?: 'popia';
         }
-        $dsarDays = (int) ($juris[$jurisdiction]['dsar_days'] ?? 30);
+        // #72: response window comes from DataProtectionSettings — for popia
+        // the dp_popia_response_days override wins; for other jurisdictions
+        // the helper falls through to privacy_jurisdiction.dsar_days.
+        $dsarDays = DataProtectionSettings::responseDaysFor($jurisdiction);
 
         $receivedDate = $adminFields['received_date'] ?? now()->toDateString();
         $dueDate      = \Carbon\Carbon::parse($receivedDate)->addDays($dsarDays)->toDateString();
@@ -527,8 +546,63 @@ class PrivacyController extends Controller
                 ]);
             } catch (\Throwable $e) { /* log table optional */ }
 
+            // #72: dispatch DSAR-received notification to dp_notify_email
+            // when set. Mail failure must not roll back the insert.
+            $this->notifyDsarReceived($reference, $jurisdiction, $data, $receivedDate, $dueDate, $source);
+
             return $dsarId;
         });
+    }
+
+    /**
+     * #72: send a one-line summary email to the operator-configured
+     * dp_notify_email address whenever a new DSAR lands. Includes the
+     * configured POPIA fees so the data protection officer can quote
+     * them back to the requester. No-op when dp_notify_email is unset
+     * or mail dispatch throws.
+     */
+    private function notifyDsarReceived(
+        string $reference,
+        string $jurisdiction,
+        array $data,
+        string $receivedDate,
+        string $dueDate,
+        string $source
+    ): void {
+        $to = DataProtectionSettings::notifyEmail();
+        if ($to === '') {
+            return;
+        }
+
+        $body = "A new Data Subject Access Request was received.\n\n"
+              . "Reference:     {$reference}\n"
+              . "Jurisdiction:  {$jurisdiction}\n"
+              . "Request type:  " . ($data['request_type'] ?? '') . "\n"
+              . "Requestor:     " . ($data['requestor_name'] ?? '') . "\n"
+              . "Email:         " . ($data['requestor_email'] ?? '(not provided)') . "\n"
+              . "Received:      {$receivedDate}\n"
+              . "Due:           {$dueDate}\n"
+              . "Source:        {$source}\n";
+
+        $fee        = DataProtectionSettings::feeFor($jurisdiction, false);
+        $feeSpecial = DataProtectionSettings::feeFor($jurisdiction, true);
+        if ($fee !== null || $feeSpecial !== null) {
+            $body .= "\nApplicable fees:\n";
+            if ($fee !== null)        $body .= "  Standard:        " . number_format($fee, 2) . "\n";
+            if ($feeSpecial !== null) $body .= "  Special category: " . number_format($feeSpecial, 2) . "\n";
+        }
+
+        $body .= "\nManage at /admin/privacy/dsar-list.\n";
+
+        try {
+            Mail::raw($body, function ($m) use ($to, $reference) {
+                $m->to($to)->subject("[Heratio] DSAR received: {$reference}");
+            });
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-privacy] DSAR notification dispatch failed: ' . $e->getMessage(), [
+                'reference' => $reference,
+            ]);
+        }
     }
 
     /**

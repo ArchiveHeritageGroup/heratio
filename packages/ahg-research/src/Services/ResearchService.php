@@ -27,7 +27,13 @@
 
 namespace AhgResearch\Services;
 
+use AhgCore\Services\AhgSettingsService;
+use AhgResearch\Mail\BookingCancelledMail;
+use AhgResearch\Mail\BookingConfirmedMail;
+use AhgResearch\Mail\BookingCreatedMail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * ResearchService - Core Research Portal Service
@@ -173,6 +179,9 @@ class ResearchService
             'created_at' => date('Y-m-d H:i:s'),
         ]);
         $this->logAudit('create', 'ResearchBooking', $bookingId, [], $data, 'Booking ' . $data['booking_date']);
+
+        $this->sendBookingMail($bookingId, fn ($b) => new BookingCreatedMail($b));
+
         return $bookingId;
     }
 
@@ -229,6 +238,8 @@ class ResearchService
         if ($result) {
             $newValues = (array)(DB::table('research_booking')->where('id', $id)->first() ?? new \stdClass);
             $this->logAudit('confirm', 'ResearchBooking', $id, $oldValues, $newValues, null);
+
+            $this->sendBookingMail($id, fn ($b) => new BookingConfirmedMail($b));
         }
         return $result;
     }
@@ -244,8 +255,37 @@ class ResearchService
         if ($result) {
             $newValues = (array)(DB::table('research_booking')->where('id', $id)->first() ?? new \stdClass);
             $this->logAudit('cancel', 'ResearchBooking', $id, $oldValues, $newValues, null);
+
+            $this->sendBookingMail($id, fn ($b) => new BookingCancelledMail($b, $reason));
         }
         return $result;
+    }
+
+    /**
+     * Dispatch a booking-related email when research_email_notifications is enabled.
+     *
+     * Gated, idempotent against missing recipient address, and never throws -
+     * mail-delivery failure must not roll back the booking action that triggered it.
+     */
+    protected function sendBookingMail(int $bookingId, callable $mailableFactory): void
+    {
+        if (!AhgSettingsService::getBool('research_email_notifications', true)) {
+            return;
+        }
+
+        try {
+            $booking = $this->getBooking($bookingId);
+            if (!$booking || empty($booking->email)) {
+                return;
+            }
+
+            Mail::to($booking->email)->send($mailableFactory($booking));
+        } catch (\Throwable $e) {
+            Log::warning('[research] booking mail failed', [
+                'booking_id' => $bookingId,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function checkIn(int $bookingId): bool
