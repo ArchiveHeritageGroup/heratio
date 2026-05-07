@@ -181,38 +181,53 @@ class ConditionService
 
     public function uploadPhoto(int $checkId, array $file, string $photoType, string $caption, int $userId): ?int
     {
-        $uploadDir = storage_path('app/public/condition_photos');
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0755, true);
+        try {
+            $result = (new \AhgMediaProcessing\Services\PhotoProcessor())
+                ->process($file['tmp_name'], $file['name']);
+        } catch (\AhgMediaProcessing\Services\PhotoProcessorException $e) {
+            \Illuminate\Support\Facades\Log::warning('[condition] uploadPhoto rejected', [
+                'condition_check_id' => $checkId,
+                'original_name' => $file['name'] ?? null,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
         }
 
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $filename = uniqid('cond_') . '.' . $ext;
-        $path = $uploadDir . '/' . $filename;
+        $exif = $result['exif'] ?? [];
 
-        if (move_uploaded_file($file['tmp_name'], $path)) {
-            $newId = DB::table('spectrum_condition_photo')->insertGetId([
+        $newId = DB::table('spectrum_condition_photo')->insertGetId([
+            'condition_check_id' => $checkId,
+            'filename' => $result['filename'],
+            'original_name' => $file['name'],
+            'original_filename' => $file['name'],
+            'file_path' => $result['path'],
+            'file_size' => $result['size'],
+            'mime_type' => $result['mime_type'],
+            'width' => $result['width'],
+            'height' => $result['height'],
+            'photographer' => $exif['photographer'] ?? null,
+            'photo_date' => $exif['photo_date'] ?? null,
+            'camera_info' => $exif['camera_info'] ?? null,
+            'photo_type' => $photoType,
+            'caption' => $caption,
+            'created_by' => $userId,
+            'created_at' => now(),
+        ]);
+
+        \AhgCore\Support\AuditLog::captureMutation((int) $newId, 'condition_photo', 'create', [
+            'data' => [
                 'condition_check_id' => $checkId,
-                'filename' => $filename,
+                'filename' => $result['filename'],
                 'original_name' => $file['name'],
                 'photo_type' => $photoType,
                 'caption' => $caption,
-                'uploaded_by' => $userId,
-                'created_at' => now(),
-            ]);
-            \AhgCore\Support\AuditLog::captureMutation((int) $newId, 'condition_photo', 'create', [
-                'data' => [
-                    'condition_check_id' => $checkId,
-                    'filename' => $filename,
-                    'original_name' => $file['name'],
-                    'photo_type' => $photoType,
-                    'caption' => $caption,
-                ],
-            ]);
-            return (int) $newId;
-        }
+                'width' => $result['width'],
+                'height' => $result['height'],
+                'thumbnails' => array_keys($result['thumbnails'] ?? []),
+            ],
+        ]);
 
-        return null;
+        return (int) $newId;
     }
 
     public function deletePhoto(int $photoId, int $userId): bool
@@ -232,9 +247,26 @@ class ConditionService
             ],
         ]);
 
-        $path = storage_path('app/public/condition_photos/' . $photo->filename);
-        if (file_exists($path)) {
-            unlink($path);
+        // Master file: prefer the stored file_path (populated by uploadPhoto via PhotoProcessor);
+        // fall back to the legacy hardcoded location for rows that predate the wiring.
+        $masterPath = !empty($photo->file_path)
+            ? $photo->file_path
+            : storage_path('app/public/condition_photos/' . $photo->filename);
+        if (!empty($photo->filename) && is_file($masterPath)) {
+            @unlink($masterPath);
+        }
+
+        // Thumbnail siblings sit at {masterDir}/thumbs/{small,medium,large}/{filename}.
+        // Sweep them whether or not the master existed; orphan thumbs are a real
+        // failure mode we'd rather not leave behind.
+        if (!empty($photo->filename)) {
+            $masterDir = dirname($masterPath);
+            foreach (['small', 'medium', 'large'] as $size) {
+                $thumbPath = rtrim($masterDir, '/') . "/thumbs/$size/" . $photo->filename;
+                if (is_file($thumbPath)) {
+                    @unlink($thumbPath);
+                }
+            }
         }
 
         return DB::table('spectrum_condition_photo')->where('id', $photoId)->delete() > 0;
