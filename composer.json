@@ -94,7 +94,6 @@
         "ahg/provenance-ai": "@dev",
         "ahg/rad-manage": "@dev",
         "ahg/records-manage": "@dev",
-        "ahg/registry": "@dev",
         "ahg/reports": "@dev",
         "ahg/repository-manage": "@dev",
         "ahg/request-publish": "@dev",

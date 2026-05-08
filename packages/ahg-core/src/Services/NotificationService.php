@@ -3,11 +3,9 @@
 /**
  * NotificationService — generic, user_id-keyed in-app notifications.
  *
- * Canonical writer for the ahg_notification table. Replaces the AtoM
- * registry-side registry_notification + ahgRegistryPlugin\NotificationService
- * with a cross-package implementation. Domain-specific tables that already
- * exist (research_notification, spectrum_notification) keep their own
- * service classes for now; new code should prefer this one.
+ * Canonical writer for the ahg_notification table. Domain-specific tables
+ * that already exist (research_notification, spectrum_notification) keep
+ * their own service classes for now; new code should prefer this one.
  *
  * Admin recipients resolve through acl_user_group (group_id 100 = administrator
  * per the canonical Heratio convention; matches SpectrumNotificationService).

@@ -137,19 +137,18 @@ class DropdownController extends Controller
      * Edit: list all terms for a given source + taxonomy.
      *
      * Issue #59 Phase 3 - source dispatcher pattern. {source} is one of
-     * 'ahg_dropdown', 'registry_dropdown', 'term', 'setting'. The view receives
-     * a normalised shape regardless of source so the side-by-side editor blade
-     * can iterate rows with $row->id, $row->code, $row->label, $row->sort_order
+     * 'ahg_dropdown', 'term', 'setting'. The view receives a normalised
+     * shape regardless of source so the side-by-side editor blade can
+     * iterate rows with $row->id, $row->code, $row->label, $row->sort_order
      * and post per-row saves to /admin/dropdowns/{source}/{id}/i18n.
      */
     public function edit(string $source, string $taxonomy)
     {
         $payload = match ($source) {
-            'ahg_dropdown'      => $this->loadAhgDropdownTaxonomy($taxonomy),
-            'registry_dropdown' => $this->loadRegistryDropdownTaxonomy($taxonomy),
-            'term'              => $this->loadTermTaxonomy((int) $taxonomy),
-            'setting'           => $this->loadSettingScope($taxonomy),
-            default             => abort(404, 'Unknown dropdown source.'),
+            'ahg_dropdown' => $this->loadAhgDropdownTaxonomy($taxonomy),
+            'term'         => $this->loadTermTaxonomy((int) $taxonomy),
+            'setting'      => $this->loadSettingScope($taxonomy),
+            default        => abort(404, 'Unknown dropdown source.'),
         };
 
         if (empty($payload['terms']) || $payload['terms']->isEmpty()) {
@@ -216,45 +215,6 @@ class DropdownController extends Controller
             'taxonomyLabel'   => $first->taxonomy_label ?? $taxonomy,
             'taxonomySection' => $first->taxonomy_section ?? null,
             'columnMappings'  => $columnMappings,
-        ];
-    }
-
-    /**
-     * Issue #59 Phase 3 - source loader for registry_dropdown.
-     * Schema uses `dropdown_group` not `taxonomy`. RegistryService already has
-     * the COALESCE helper - call it through.
-     */
-    protected function loadRegistryDropdownTaxonomy(string $group): array
-    {
-        if (!Schema::hasTable('registry_dropdown')) {
-            return ['terms' => collect()];
-        }
-        $culture = (string) app()->getLocale();
-        $hasI18n = Schema::hasTable('registry_dropdown_i18n');
-        $q = DB::table('registry_dropdown as d')->where('d.dropdown_group', $group);
-        if ($hasI18n) {
-            $q->leftJoin('registry_dropdown_i18n as di_cur', function ($j) use ($culture) {
-                $j->on('di_cur.id', '=', 'd.id')->where('di_cur.culture', '=', $culture);
-            });
-            $q->leftJoin('registry_dropdown_i18n as di_fb', function ($j) {
-                $j->on('di_fb.id', '=', 'd.id')->where('di_fb.culture', '=', 'en');
-            });
-            $q->select(
-                'd.id', 'd.value as code', 'd.dropdown_group', 'd.badge_color',
-                'd.sort_order', 'd.is_active',
-                DB::raw("COALESCE(NULLIF(di_cur.label, ''), NULLIF(di_fb.label, ''), d.label) AS label"),
-                DB::raw('d.label AS source_label')
-            );
-        } else {
-            $q->select('d.id', 'd.value as code', 'd.dropdown_group', 'd.badge_color', 'd.sort_order', 'd.is_active', 'd.label', DB::raw('d.label AS source_label'));
-        }
-        $terms = $q->orderBy('d.sort_order')->get();
-
-        return [
-            'terms'           => $terms,
-            'taxonomyLabel'   => $group,
-            'taxonomySection' => 'registry',
-            'columnMappings'  => collect(),
         ];
     }
 
@@ -371,7 +331,7 @@ class DropdownController extends Controller
         if ($culture === '' || $label === '') {
             return response()->json(['ok' => false, 'error' => 'culture and label are required'], 422);
         }
-        if (!in_array($source, ['ahg_dropdown', 'registry_dropdown', 'term', 'setting'], true)) {
+        if (!in_array($source, ['ahg_dropdown', 'term', 'setting'], true)) {
             return response()->json(['ok' => false, 'error' => 'unknown source'], 400);
         }
 
@@ -428,7 +388,7 @@ class DropdownController extends Controller
 
     /**
      * Issue #59 Phase 3 - read the en source-of-truth label for a row in any
-     * of the 4 sources. Used to populate ahg_translation_draft.source_text +
+     * of the 3 sources. Used to populate ahg_translation_draft.source_text +
      * source_hash when an editor queues a draft. Returns '' if the row is
      * gone (orphan); the draft will reject on approval via draftApplyDropdown.
      */
@@ -438,8 +398,6 @@ class DropdownController extends Controller
             switch ($source) {
                 case 'ahg_dropdown':
                     return (string) (DB::table('ahg_dropdown')->where('id', $id)->value('label') ?? '');
-                case 'registry_dropdown':
-                    return (string) (DB::table('registry_dropdown')->where('id', $id)->value('label') ?? '');
                 case 'term':
                     return (string) (DB::table('term_i18n')->where('id', $id)->where('culture', 'en')->value('name') ?? '');
                 case 'setting':
@@ -463,15 +421,6 @@ class DropdownController extends Controller
                     throw new \RuntimeException('ahg_dropdown_i18n table not installed yet');
                 }
                 DB::table('ahg_dropdown_i18n')->updateOrInsert(
-                    ['id' => $id, 'culture' => $culture],
-                    ['label' => $label]
-                );
-                break;
-            case 'registry_dropdown':
-                if (!Schema::hasTable('registry_dropdown_i18n')) {
-                    throw new \RuntimeException('registry_dropdown_i18n table not installed yet');
-                }
-                DB::table('registry_dropdown_i18n')->updateOrInsert(
                     ['id' => $id, 'culture' => $culture],
                     ['label' => $label]
                 );

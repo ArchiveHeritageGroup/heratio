@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "580dbcfb2cbc6331e03ec7bcedc2cdf2",
+    "content-hash": "04bf1f806403434a2a11007dd6deb456",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -2182,36 +2182,6 @@
                 }
             },
             "description": "Records Management module for Heratio — retention schedules, disposal workflows, file plan, compliance reporting. Disablable.",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "ahg/registry",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "packages/ahg-registry",
-                "reference": "8ed62b0e968a00f94afa5135a8c650c69d8c0449"
-            },
-            "require": {
-                "ahg/core": "@dev"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "AhgRegistry\\Providers\\AhgRegistryServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "AhgRegistry\\": "src/"
-                }
-            },
-            "description": "Registry / Community Hub for Heratio — institutions, vendors, software, standards, groups, blog, discussions",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11850,7 +11820,6 @@
         "ahg/provenance-ai": 20,
         "ahg/rad-manage": 20,
         "ahg/records-manage": 20,
-        "ahg/registry": 20,
         "ahg/reports": 20,
         "ahg/repository-manage": 20,
         "ahg/request-publish": 20,

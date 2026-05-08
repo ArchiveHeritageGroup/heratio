@@ -1046,12 +1046,12 @@ class TranslationController extends Controller
             return back()->with('notice', 'Draft already applied');
         }
 
-        // Issue #59 Phase 3 - dropdown-source drafts (ahg_dropdown /
-        // registry_dropdown / term / setting) bypass the IO/museum_metadata
-        // orphan check (which targets the `object` table) and apply via
-        // DropdownController::applyI18nSave directly to the source's _i18n
-        // table. Same pattern as museum_metadata's class_name dispatch below.
-        $dropdownSources = ['ahg_dropdown', 'registry_dropdown', 'term', 'setting'];
+        // Issue #59 Phase 3 - dropdown-source drafts (ahg_dropdown / term /
+        // setting) bypass the IO/museum_metadata orphan check (which targets
+        // the `object` table) and apply via DropdownController::applyI18nSave
+        // directly to the source's _i18n table. Same pattern as
+        // museum_metadata's class_name dispatch below.
+        $dropdownSources = ['ahg_dropdown', 'term', 'setting'];
         if (in_array($draft->entity_type ?? '', $dropdownSources, true)) {
             return $this->draftApplyDropdown($draft);
         }
@@ -1097,7 +1097,7 @@ class TranslationController extends Controller
 
     /**
      * Issue #59 Phase 3 - apply a queued draft whose entity_type is one of
-     * the 4 dropdown sources. Source-aware orphan check (the parent table
+     * the 3 dropdown sources. Source-aware orphan check (the parent table
      * differs per source) then dispatches to DropdownController::applyI18nSave
      * which does the upsert into the right *_i18n table.
      */
@@ -1108,10 +1108,9 @@ class TranslationController extends Controller
         $culture  = (string) $draft->target_culture;
         $label    = (string) $draft->translated_text;
         $parents  = [
-            'ahg_dropdown'      => 'ahg_dropdown',
-            'registry_dropdown' => 'registry_dropdown',
-            'term'              => 'term',
-            'setting'           => 'setting',
+            'ahg_dropdown' => 'ahg_dropdown',
+            'term'         => 'term',
+            'setting'      => 'setting',
         ];
         $parentTable = $parents[$source] ?? null;
         if (!$parentTable) {
