@@ -1,0 +1,23 @@
+{
+  "watch": {
+    "dirs":  ["docs", "docker"],
+    "files": ["CLAUDE.md", "README.md"]
+  },
+  "ingest": {
+    "doc_sources": [
+      { "path": "docs/user-manual",     "category": "heratio-user-manual" },
+      { "path": "docs/install",         "category": "heratio-install" },
+      { "path": "docs/getting-started", "category": "heratio-getting-started" },
+      { "path": "docs/developer",       "category": "heratio-developer" },
+      { "path": "docs/technical",       "category": "heratio-technical" },
+      { "path": "docs/operations",      "category": "heratio-operations" },
+      { "path": "docs/reference",       "category": "heratio-reference" },
+      { "path": "docs/adr",             "category": "heratio-adr" }
+    ],
+    "root_files": [
+      { "path": "CLAUDE.md",        "category": "heratio",        "title": "Heratio Project Overview" },
+      { "path": "README.md",        "category": "heratio",        "title": "Heratio README" },
+      { "path": "docker/README.md", "category": "heratio-docker", "title": "Heratio Docker Stack Reference" }
+    ]
+  }
+}
