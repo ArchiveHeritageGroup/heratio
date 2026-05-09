@@ -1426,11 +1426,26 @@ class DisplayController extends Controller
     {
         $culture = app()->getLocale();
 
+        // The type facet must always expose every sibling bucket so the user
+        // can pivot between sectors. If we let applyFilters() pin the query
+        // to the currently-selected type (eg. default_sector='archive'), the
+        // GROUP BY collapses to a single row and the sidebar reads as a
+        // single locked option. Drop the type filter for this dimension only.
+        $excludeTypeFilter = $dimension === 'type';
+        $savedTypeFilter = $this->typeFilter;
+        if ($excludeTypeFilter) {
+            $this->typeFilter = null;
+        }
+
         $query = DB::table('information_object as io')
             ->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id')
             ->where('io.id', '>', 1);
 
         $this->applyFilters($query);
+
+        if ($excludeTypeFilter) {
+            $this->typeFilter = $savedTypeFilter;
+        }
 
         switch ($dimension) {
             case 'type':
