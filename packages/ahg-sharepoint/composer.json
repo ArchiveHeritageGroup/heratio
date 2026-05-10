@@ -1,0 +1,25 @@
+{
+    "name": "ahg/sharepoint",
+    "description": "Microsoft 365 SharePoint integration for Heratio: tenant config, drive registration, manual delta sync (Phase 1); webhook records handoff (Phase 2); federated search + M365 connector feed (Phase 3).",
+    "type": "library",
+    "license": "AGPL-3.0-or-later",
+    "require": {
+        "ahg/core": "@dev",
+        "ahg/ingest": "@dev",
+        "ahg/audit-trail": "@dev",
+        "ahg/settings": "@dev",
+        "firebase/php-jwt": "^6.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgSharePoint\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgSharePoint\\Providers\\AhgSharePointServiceProvider"
+            ]
+        }
+    }
+}
