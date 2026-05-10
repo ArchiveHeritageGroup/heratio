@@ -97,6 +97,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ahgSettings/email', [SettingsController::class, 'email'])->name('settings.email');
     Route::match(['get', 'post'], '/admin/ahgSettings/encryption', [SettingsController::class, 'encryptionSettings'])->name('settings.ahg.encryption');
     Route::match(['get', 'post'], '/admin/ahgSettings/ftp', [SettingsController::class, 'ftpSettings'])->name('settings.ahg.ftp');
+    Route::match(['get', 'post'], '/admin/ahgSettings/sharepoint', [SettingsController::class, 'sharePointSettings'])->name('settings.ahg.sharepoint');
     Route::match(['get', 'post'], '/admin/ahgSettings/fuseki', [SettingsController::class, 'fusekiSettings'])->name('settings.ahg.fuseki');
     Route::match(['get', 'post'], '/admin/ahgSettings/icipSettings', [SettingsController::class, 'icipSettings'])->name('settings.icip-settings');
     Route::match(['get', 'post'], '/admin/ahgSettings/iiif', [SettingsController::class, 'iiifGroupSettings'])->name('settings.ahg.iiif');

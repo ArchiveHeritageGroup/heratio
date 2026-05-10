@@ -30,6 +30,20 @@ class GraphClientService
         throw new \RuntimeException('GraphClientService::acquireToken not implemented yet');
     }
 
+    /**
+     * On-Behalf-Of flow — exchange a user's bearer token for a Graph token
+     * impersonating that user. Used by manual-push file fetch path so
+     * Heratio never bypasses the user's SharePoint permissions.
+     */
+    public function acquireOboToken(int $tenantId, string $userToken, string $graphScope): string
+    {
+        // TODO (Phase 2.B):
+        //   POST /oauth2/v2.0/token with grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer,
+        //   requested_token_use=on_behalf_of, assertion=$userToken, scope=$graphScope.
+        //   Cache by (tenantId, oid claim, scope, hash($userToken)) — short TTL.
+        throw new \RuntimeException('GraphClientService::acquireOboToken not implemented yet');
+    }
+
     public function get(int $tenantId, string $path, array $headers = []): array
     {
         throw new \RuntimeException('GraphClientService::get not implemented yet');

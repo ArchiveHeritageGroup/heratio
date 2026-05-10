@@ -1022,6 +1022,7 @@ class SettingsController extends Controller
             'metadata' => 'fa-tags', 'multi_tenant' => 'fa-building', 'photos' => 'fa-camera',
             'portable_export' => 'fa-compact-disc', 'security' => 'fa-shield-alt',
             'spectrum' => 'fa-archive', 'voice_ai' => 'fa-microphone', 'ftp' => 'fa-server',
+            'sharepoint' => 'fa-cloud',
         ];
         $groupIcon = $ahgGroupIcons[$group] ?? 'fa-puzzle-piece';
 
@@ -1049,6 +1050,7 @@ class SettingsController extends Controller
             'compliance' => 'Compliance',
             'ftp' => 'FTP / SFTP',
             'ai_condition' => 'AI Condition Assessment',
+            'sharepoint' => 'SharePoint Integration',
         ];
         $groupLabel = $ahgGroupLabels[$group] ?? ucfirst(str_replace('_', ' ', $group));
 
@@ -3457,6 +3459,60 @@ class SettingsController extends Controller
         }
 
         return view('ahg-settings::ftp-settings', compact('menu', 'settings'));
+    }
+
+    /**
+     * SharePoint Integration Settings — Mirror of AtoM ahgSettingsPlugin
+     * @case('sharepoint'). Backed by ahg/sharepoint package.
+     */
+    public function sharePointSettings(Request $request)
+    {
+        $menu = $this->buildMenu('sharepoint');
+
+        $settings = [];
+        if (Schema::hasTable('ahg_settings')) {
+            $rows = DB::table('ahg_settings')->where('setting_group', 'sharepoint')->get();
+            foreach ($rows as $row) {
+                $settings[$row->setting_key] = $row->setting_value;
+            }
+        }
+
+        if ($request->isMethod('post')) {
+            $checkboxes = [
+                'sharepoint_enabled',
+                'sharepoint_records_handoff_enabled',
+                'sharepoint_federated_search_enabled',
+                'sharepoint_m365_search_enabled',
+                'sharepoint_inherit_ai_defaults',
+                'sharepoint_push_user_create_enabled',
+            ];
+            $textKeys = [
+                'webhook_public_url',
+                'retention_label_map',
+            ];
+
+            foreach ($checkboxes as $key) {
+                $value = $request->has($key) ? 'true' : 'false';
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'sharepoint'],
+                    ['setting_value' => $value, 'updated_at' => now()],
+                );
+                $settings[$key] = $value;
+            }
+            foreach ($textKeys as $key) {
+                $value = (string) $request->input($key, '');
+                DB::table('ahg_settings')->updateOrInsert(
+                    ['setting_key' => $key, 'setting_group' => 'sharepoint'],
+                    ['setting_value' => $value, 'updated_at' => now()],
+                );
+                $settings[$key] = $value;
+            }
+
+            return redirect()->route('settings.ahg.sharepoint')
+                ->with('notice', 'SharePoint settings saved.');
+        }
+
+        return view('ahg-settings::sharepoint-settings', compact('menu', 'settings'));
     }
 
     /**

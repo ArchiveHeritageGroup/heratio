@@ -149,4 +149,20 @@ CREATE TABLE IF NOT EXISTS sharepoint_event (
     CONSTRAINT fk_sp_event_drive FOREIGN KEY (drive_id) REFERENCES sharepoint_drive(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- -----------------------------------------------------
+-- 7. sharepoint_user_mapping (Phase 2.B)
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS sharepoint_user_mapping (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    aad_object_id VARCHAR(64) NOT NULL COMMENT 'AAD oid claim',
+    aad_upn VARCHAR(255) DEFAULT NULL,
+    aad_email VARCHAR(255) DEFAULT NULL,
+    atom_user_id INT NOT NULL COMMENT 'FK to user.id',
+    created_by VARCHAR(20) NOT NULL DEFAULT 'auto' COMMENT 'auto, manual, admin',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_seen_at DATETIME DEFAULT NULL,
+    UNIQUE KEY uniq_aad (aad_object_id),
+    KEY idx_user (atom_user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

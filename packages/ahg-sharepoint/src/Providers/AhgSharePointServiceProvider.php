@@ -29,6 +29,12 @@ class AhgSharePointServiceProvider extends ServiceProvider
         $this->app->singleton(\AhgSharePoint\Services\SharePointSubscriptionService::class);
         $this->app->singleton(\AhgSharePoint\Services\SharePointWebhookHandler::class);
         $this->app->singleton(\AhgSharePoint\Services\SharePointIngestAdapter::class);
+
+        // Phase 2.B — push + user mapping + JWT
+        $this->app->singleton(\AhgSharePoint\Repositories\SharePointUserMappingRepository::class);
+        $this->app->singleton(\AhgSharePoint\Services\GraphTokenValidatorService::class);
+        $this->app->singleton(\AhgSharePoint\Services\SharePointUserMappingService::class);
+        $this->app->singleton(\AhgSharePoint\Services\SharePointPushService::class);
     }
 
     public function boot(): void

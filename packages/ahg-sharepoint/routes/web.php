@@ -20,6 +20,10 @@ Route::prefix('sharepoint')->group(function () {
     Route::get('/events',                                 [SharePointController::class, 'events'])->name('sharepoint.events');
     Route::match(['get', 'post'], '/events/{id}',         [SharePointController::class, 'eventDetail'])->whereNumber('id')->name('sharepoint.events.detail');
 
+    // Phase 2.B — User mapping admin
+    Route::get('/user-mappings',                          [\AhgSharePoint\Controllers\SharePointUserMappingController::class, 'index'])->name('sharepoint.user-mappings');
+    Route::match(['get', 'post'], '/user-mappings/{id}',  [\AhgSharePoint\Controllers\SharePointUserMappingController::class, 'edit'])->whereNumber('id')->name('sharepoint.user-mapping.edit');
+
     // Phase 3
     Route::get('/federated-search',            [SharePointFederatedSearchController::class, 'search'])->name('sharepoint.federated-search');
 });
