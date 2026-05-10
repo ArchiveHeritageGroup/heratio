@@ -59,4 +59,45 @@ class SharePointController extends Controller
         // TODO: GET = render mapping editor; POST = persist sharepoint_mapping rows.
         return view('ahg-sharepoint::mapping', ['driveId' => $id]);
     }
+
+    // ---- Phase 2.A actions ----
+
+    public function subscriptions(Request $request)
+    {
+        $rows = \Illuminate\Support\Facades\DB::table('sharepoint_subscription')
+            ->orderBy('expires_at')
+            ->get();
+        return view('ahg-sharepoint::subscriptions', ['subscriptions' => $rows]);
+    }
+
+    public function events(Request $request)
+    {
+        $query = \Illuminate\Support\Facades\DB::table('sharepoint_event')
+            ->orderByDesc('received_at')
+            ->limit(200);
+        $status = $request->query('status');
+        if ($status) {
+            $query->where('status', $status);
+        }
+        return view('ahg-sharepoint::events', [
+            'events' => $query->get(),
+            'statusFilter' => $status,
+        ]);
+    }
+
+    public function eventDetail(Request $request, int $id)
+    {
+        $event = \Illuminate\Support\Facades\DB::table('sharepoint_event')->where('id', $id)->first();
+        if ($event === null) {
+            abort(404);
+        }
+        if ($request->isMethod('POST') && $request->input('form_action') === 'retry') {
+            \AhgSharePoint\Jobs\IngestSharePointEventJob::dispatch($id)->onQueue('integrations');
+            \Illuminate\Support\Facades\DB::table('sharepoint_event')
+                ->where('id', $id)
+                ->update(['status' => 'queued', 'last_error' => null]);
+            return redirect()->route('sharepoint.events.detail', ['id' => $id]);
+        }
+        return view('ahg-sharepoint::event-detail', ['event' => $event]);
+    }
 }

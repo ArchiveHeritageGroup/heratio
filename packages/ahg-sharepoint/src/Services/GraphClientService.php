@@ -40,8 +40,23 @@ class GraphClientService
         throw new \RuntimeException('GraphClientService::post not implemented yet');
     }
 
+    public function patch(int $tenantId, string $path, array $body, array $headers = []): array
+    {
+        throw new \RuntimeException('GraphClientService::patch not implemented yet');
+    }
+
+    public function delete(int $tenantId, string $path, array $headers = []): void
+    {
+        throw new \RuntimeException('GraphClientService::delete not implemented yet');
+    }
+
     public function downloadDriveItem(int $tenantId, string $siteId, string $driveId, string $itemId, string $destinationPath): void
     {
         throw new \RuntimeException('GraphClientService::downloadDriveItem not implemented yet');
+    }
+
+    public function getListItemFields(int $tenantId, string $siteId, string $driveId, string $itemId): array
+    {
+        throw new \RuntimeException('GraphClientService::getListItemFields not implemented yet');
     }
 }

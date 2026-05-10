@@ -2,28 +2,55 @@
 
 namespace AhgSharePoint\Controllers;
 
+use AhgSharePoint\Services\SharePointWebhookHandler;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 
 /**
- * Graph webhook receiver. Phase 2.
+ * Graph webhook receiver. Phase 2.A.
  *
- * **PUBLIC, NO CSRF, NO AUTH.** Auth boundary is the clientState match against
+ * **PUBLIC, NO CSRF.** Auth boundary is the clientState match against
  * sharepoint_subscription.client_state.
  *
- * Phase 1: returns 503 so a misconfigured Graph subscription fails loudly.
+ * Two flows:
+ *   1. Subscription validation handshake — Graph GETs ?validationToken=...
+ *      We MUST echo it as text/plain 200 within 10s.
+ *   2. Notification delivery — Graph POSTs JSON {value:[{...},{...}]}
+ *      Validate clientState, INSERT sharepoint_event, enqueue
+ *      IngestSharePointEventJob, return 202.
+ *
+ * Mirror of atom-ahg-plugins/ahgSharePointPlugin executeWebhook action.
  */
 class SharePointWebhookController extends Controller
 {
-    public function receive(Request $request): Response
+    public function __construct(private SharePointWebhookHandler $handler)
     {
-        // Phase 1 — fail loudly. Phase 2 wires the real handler:
-        //   1. If query.validationToken present, echo as text/plain 200 (subscription create handshake).
-        //   2. Else iterate notifications[]; for each, match clientState, INSERT sharepoint_event,
-        //      dispatch sharepoint:ingest-event job, return 202.
+    }
 
-        return response('SharePoint webhook receiver not enabled (Phase 2). See ahg-sharepoint docs.', 503)
-            ->header('Content-Type', 'text/plain');
+    public function receive(Request $request): Response|JsonResponse
+    {
+        // Validation handshake
+        $validationToken = $request->query('validationToken');
+        if ($validationToken !== null && $validationToken !== '') {
+            return response($validationToken, 200, ['Content-Type' => 'text/plain']);
+        }
+
+        if (!$request->isMethod('POST')) {
+            return response('Method not allowed', 405, ['Content-Type' => 'text/plain']);
+        }
+
+        $payload = $request->json()->all();
+        if (!is_array($payload)) {
+            return response('Invalid JSON', 400, ['Content-Type' => 'text/plain']);
+        }
+
+        $result = $this->handler->handleNotifications($payload);
+
+        return response()->json([
+            'accepted' => $result['accepted'],
+            'dropped' => $result['dropped'],
+        ], 202);
     }
 }

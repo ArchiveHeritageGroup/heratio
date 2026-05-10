@@ -15,9 +15,20 @@ class AhgSharePointServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Singleton bindings (Phase 1)
+        // Phase 1 singletons
         $this->app->singleton(\AhgSharePoint\Services\GraphTokenCache::class);
         $this->app->singleton(\AhgSharePoint\Services\GraphClientService::class);
+
+        // Phase 2.A — repositories + services
+        $this->app->singleton(\AhgSharePoint\Repositories\SharePointTenantRepository::class);
+        $this->app->singleton(\AhgSharePoint\Repositories\SharePointDriveRepository::class);
+        $this->app->singleton(\AhgSharePoint\Repositories\SharePointSubscriptionRepository::class);
+        $this->app->singleton(\AhgSharePoint\Repositories\SharePointEventRepository::class);
+        $this->app->singleton(\AhgSharePoint\Services\SharePointMappingService::class);
+        $this->app->singleton(\AhgSharePoint\Services\SharePointRetentionMapper::class);
+        $this->app->singleton(\AhgSharePoint\Services\SharePointSubscriptionService::class);
+        $this->app->singleton(\AhgSharePoint\Services\SharePointWebhookHandler::class);
+        $this->app->singleton(\AhgSharePoint\Services\SharePointIngestAdapter::class);
     }
 
     public function boot(): void

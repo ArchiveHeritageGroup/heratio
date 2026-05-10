@@ -15,6 +15,11 @@ Route::prefix('sharepoint')->group(function () {
     Route::get('/drives/browse',               [SharePointController::class, 'driveBrowse'])->name('sharepoint.drives.browse');
     Route::match(['get', 'post'], '/drives/{id}/mapping',  [SharePointController::class, 'mapping'])->whereNumber('id')->name('sharepoint.drives.mapping');
 
+    // Phase 2.A — subscription + event admin UI
+    Route::get('/subscriptions',                          [SharePointController::class, 'subscriptions'])->name('sharepoint.subscriptions');
+    Route::get('/events',                                 [SharePointController::class, 'events'])->name('sharepoint.events');
+    Route::match(['get', 'post'], '/events/{id}',         [SharePointController::class, 'eventDetail'])->whereNumber('id')->name('sharepoint.events.detail');
+
     // Phase 3
     Route::get('/federated-search',            [SharePointFederatedSearchController::class, 'search'])->name('sharepoint.federated-search');
 });

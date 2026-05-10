@@ -2,19 +2,25 @@
 
 namespace AhgSharePoint\Console\Commands;
 
+use AhgSharePoint\Services\SharePointSubscriptionService;
 use Illuminate\Console\Command;
 
 /**
- * Phase 2 — cron-driven (hourly) subscription renewal.
+ * Cron-driven (hourly) subscription renewal.
+ *
+ * Mirror of sharepointRenewSubscriptionsTask.class.php in the AtoM plugin.
+ *
+ * @phase 2.A
  */
 class SharePointRenewSubscriptionsCommand extends Command
 {
     protected $signature = 'sharepoint:renew-subscriptions';
-    protected $description = 'Renew Graph webhook subscriptions expiring within 12h (Phase 2)';
+    protected $description = 'Renew Graph webhook subscriptions expiring within 12h';
 
-    public function handle(): int
+    public function handle(SharePointSubscriptionService $svc): int
     {
-        $this->error('Phase 2 — sharepoint:renew-subscriptions not yet shipped. See plan §6.1.');
-        return self::FAILURE;
+        $result = $svc->renewExpiring();
+        $this->info("renewed={$result['renewed']} errors={$result['errors']}");
+        return $result['errors'] > 0 ? self::FAILURE : self::SUCCESS;
     }
 }
