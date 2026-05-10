@@ -42,11 +42,41 @@ class SharePointTenantRepository
 
     public function resolveSecret(int $tenantId): string
     {
-        // TODO:
-        //   1. Fetch row, read client_secret_ref.
-        //   2. Pull ciphertext from ahg_settings group=sharepoint, key=client_secret_ref.
-        //   3. \Illuminate\Support\Facades\Crypt::decryptString($ciphertext) (or shared ahg-core EncryptionService).
-        //   4. Return plaintext (do NOT log).
-        throw new \RuntimeException('SharePointTenantRepository::resolveSecret not implemented yet');
+        $tenant = $this->find($tenantId);
+        if ($tenant === null) {
+            throw new \RuntimeException("Tenant {$tenantId} not found");
+        }
+        $ref = (string) ($tenant->client_secret_ref ?? '');
+        if ($ref === '') {
+            throw new \RuntimeException("Tenant {$tenantId} has no client_secret_ref");
+        }
+
+        $row = DB::table('ahg_settings')
+            ->where('setting_group', 'sharepoint')
+            ->where('setting_key', $ref)
+            ->first();
+        if ($row === null || empty($row->setting_value)) {
+            throw new \RuntimeException("Encrypted client_secret not found at ahg_settings(sharepoint, {$ref})");
+        }
+
+        try {
+            return \Illuminate\Support\Facades\Crypt::decryptString((string) $row->setting_value);
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('Failed to decrypt client_secret: ' . $e->getMessage(), 0, $e);
+        }
+    }
+
+    public function persistSecret(int $tenantId, string $plaintextSecret): string
+    {
+        $ciphertext = \Illuminate\Support\Facades\Crypt::encryptString($plaintextSecret);
+        $ref = "client_secret_{$tenantId}";
+
+        DB::table('ahg_settings')->updateOrInsert(
+            ['setting_group' => 'sharepoint', 'setting_key' => $ref],
+            ['setting_value' => $ciphertext, 'updated_at' => now()],
+        );
+
+        $this->update($tenantId, ['client_secret_ref' => $ref]);
+        return $ref;
     }
 }
