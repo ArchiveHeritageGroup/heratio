@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "04bf1f806403434a2a11007dd6deb456",
+    "content-hash": "d6548b91b009632538f6ffb89c1084d9",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -2549,6 +2549,43 @@
             }
         },
         {
+            "name": "ahg/sharepoint",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-sharepoint",
+                "reference": "201bdac7ebe3ae730a023a4d7941d07663ac7983"
+            },
+            "require": {
+                "ahg/audit-trail": "@dev",
+                "ahg/core": "@dev",
+                "ahg/ingest": "@dev",
+                "ahg/settings": "@dev",
+                "firebase/php-jwt": "^6.10"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgSharePoint\\Providers\\AhgSharePointServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgSharePoint\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Microsoft 365 SharePoint integration for Heratio: tenant config, drive registration, manual delta sync (Phase 1); webhook records handoff (Phase 2); federated search + M365 connector feed (Phase 3).",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "ahg/spectrum",
             "version": "dev-main",
             "dist": {
@@ -2811,6 +2848,40 @@
                 }
             },
             "description": "Heratio Vendor package (migrated from ahgVendorPlugin)",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/version-control",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-version-control",
+                "reference": "ce4c9dd168664df433594b5bdfe7ea66ac748b92"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "php": ">=8.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgVersionControl\\Providers\\AhgVersionControlServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgVersionControl\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Version history with diff and restore for information_object and actor entities. Mirrors the AHG version-snapshot pattern used by reports, landing pages and heritage contributions.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -3426,6 +3497,69 @@
                 }
             ],
             "time": "2025-03-06T22:45:56+00:00"
+        },
+        {
+            "name": "firebase/php-jwt",
+            "version": "v6.11.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/googleapis/php-jwt.git",
+                "reference": "d1e91ecf8c598d073d0995afa8cd5c75c6e19e66"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/googleapis/php-jwt/zipball/d1e91ecf8c598d073d0995afa8cd5c75c6e19e66",
+                "reference": "d1e91ecf8c598d073d0995afa8cd5c75c6e19e66",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "^7.4",
+                "phpspec/prophecy-phpunit": "^2.0",
+                "phpunit/phpunit": "^9.5",
+                "psr/cache": "^2.0||^3.0",
+                "psr/http-client": "^1.0",
+                "psr/http-factory": "^1.0"
+            },
+            "suggest": {
+                "ext-sodium": "Support EdDSA (Ed25519) signatures",
+                "paragonie/sodium_compat": "Support EdDSA (Ed25519) signatures when libsodium is not present"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Firebase\\JWT\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Neuman Vong",
+                    "email": "neuman+pear@twilio.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Anant Narayanan",
+                    "email": "anant@php.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
+            "homepage": "https://github.com/firebase/php-jwt",
+            "keywords": [
+                "jwt",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/googleapis/php-jwt/issues",
+                "source": "https://github.com/googleapis/php-jwt/tree/v6.11.1"
+            },
+            "time": "2025-04-09T20:32:01+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -11832,6 +11966,7 @@
         "ahg/security-clearance": 20,
         "ahg/semantic-search": 20,
         "ahg/settings": 20,
+        "ahg/sharepoint": 20,
         "ahg/spectrum": 20,
         "ahg/static-page": 20,
         "ahg/statistics": 20,
@@ -11841,6 +11976,7 @@
         "ahg/translation": 20,
         "ahg/user-manage": 20,
         "ahg/vendor": 20,
+        "ahg/version-control": 20,
         "ahg/workflow": 20
     },
     "prefer-stable": true,
