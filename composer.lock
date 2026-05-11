@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d6548b91b009632538f6ffb89c1084d9",
+    "content-hash": "30ee2fd265ba60f8048566cbda446d30",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -2543,6 +2543,40 @@
                 }
             },
             "description": "Settings management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/share-link",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-share-link",
+                "reference": "1ea43645b5273695d6a86224943b0e17c341fada"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "php": ">=8.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgShareLink\\Providers\\AhgShareLinkServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgShareLink\\": "src/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Time-limited, auditable share links for information_object records. Anonymous bearer-token access; HMAC-derived URL-safe tokens; classified-record gating; admin revocation; audit dual-write.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11966,6 +12000,7 @@
         "ahg/security-clearance": 20,
         "ahg/semantic-search": 20,
         "ahg/settings": 20,
+        "ahg/share-link": 20,
         "ahg/sharepoint": 20,
         "ahg/spectrum": 20,
         "ahg/static-page": 20,

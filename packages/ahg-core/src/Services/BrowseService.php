@@ -38,6 +38,16 @@ abstract class BrowseService
         $this->culture = $culture ?? (string) app()->getLocale();
     }
 
+    /**
+     * Constrain a query to the active tenant's repository_id.
+     * Thin delegate to AhgCore\Support\TenantScope::apply() - kept on the
+     * base class so subclasses can call $this->applyTenantScope($q).
+     */
+    protected function applyTenantScope($query, string $repoIdColumn = 'repository_id'): void
+    {
+        \AhgCore\Support\TenantScope::apply($query, $repoIdColumn);
+    }
+
     abstract protected function getTable(): string;
 
     abstract protected function getI18nTable(): string;

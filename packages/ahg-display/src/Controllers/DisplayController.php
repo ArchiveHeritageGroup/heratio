@@ -32,6 +32,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use AhgCore\Services\SettingHelper;
+use AhgCore\Support\TenantScope;
 use AhgDisplay\Services\DisplayService;
 use AhgDisplay\Services\DisplayTypeDetector;
 use AhgDisplay\Repositories\UserBrowseSettingsRepository;
@@ -1168,6 +1169,12 @@ class DisplayController extends Controller
         if ($this->repoFilter) {
             $query->where('io.repository_id', $this->repoFilter);
         }
+
+        // Multi-tenant scope. Applied after the user-driven repoFilter so a
+        // tenant user can't widen their scope via URL param: both ANDed, the
+        // narrower wins. No-op when multi-tenancy is disabled or the user is
+        // a Heratio admin.
+        TenantScope::apply($query, 'io.repository_id');
 
         // Text search filters - use OR logic for semantic search
         if ($this->queryFilter) {

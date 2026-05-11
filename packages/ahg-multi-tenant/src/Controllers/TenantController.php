@@ -1,29 +1,11 @@
 <?php
 
 /**
- * TenantController - Controller for Heratio
+ * TenantController - admin CRUD + tenant switcher endpoint.
  *
- * Copyright (C) 2026 Johan Pieterse
- * Plain Sailing Information Systems
- * Email: johan@plainsailingisystems.co.za
- *
- * This file is part of Heratio.
- *
- * Heratio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Heratio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
+ * License: AGPL-3.0-or-later
  */
-
-
 
 namespace AhgMultiTenant\Controllers;
 
@@ -33,6 +15,13 @@ use Illuminate\Http\Request;
 
 class TenantController extends Controller
 {
+    private const ACCEPTED_FIELDS = [
+        'name', 'code', 'description', 'domain', 'subdomain',
+        'repository_id', 'contact_email', 'contact_phone',
+        'max_users', 'max_storage_gb', 'is_active', 'is_default',
+        'status',
+    ];
+
     protected TenantService $service;
 
     public function __construct()
@@ -50,13 +39,9 @@ class TenantController extends Controller
     public function create(Request $request)
     {
         if ($request->isMethod('post')) {
-            $id = $this->service->createTenant($request->only([
-                'name', 'code', 'domain', 'database_name',
-                'description', 'contact_email', 'contact_phone',
-                'max_users', 'max_storage_gb', 'is_active',
-            ]));
+            $this->service->createTenant($request->only(self::ACCEPTED_FIELDS));
 
-            return redirect()->route('tenant.index')->with('notice', 'Tenant created');
+            return redirect()->route('tenant.index')->with('notice', __('Tenant created'));
         }
 
         return view('ahg-multi-tenant::create');
@@ -68,13 +53,9 @@ class TenantController extends Controller
         abort_unless($tenant, 404, 'Tenant not found');
 
         if ($request->isMethod('post')) {
-            $this->service->updateTenant($id, $request->only([
-                'name', 'code', 'domain', 'database_name',
-                'description', 'contact_email', 'contact_phone',
-                'max_users', 'max_storage_gb', 'is_active',
-            ]));
+            $this->service->updateTenant($id, $request->only(self::ACCEPTED_FIELDS));
 
-            return redirect()->route('tenant.index')->with('notice', 'Tenant updated');
+            return redirect()->route('tenant.index')->with('notice', __('Tenant updated'));
         }
 
         return view('ahg-multi-tenant::edit-tenant', compact('tenant'));
@@ -105,15 +86,23 @@ class TenantController extends Controller
         if ($request->isMethod('post')) {
             $this->service->updateBranding($tenantId, $request->only([
                 'logo_url', 'primary_color', 'secondary_color',
+                'header_bg_color', 'header_text_color', 'link_color', 'button_color',
                 'header_html', 'footer_html', 'custom_css',
             ]));
 
-            return redirect()->route('tenant.branding', $tenantId)->with('notice', 'Branding updated');
+            return redirect()->route('tenant.branding', $tenantId)->with('notice', __('Branding updated'));
         }
 
         $branding = $this->service->getBranding($tenantId);
 
         return view('ahg-multi-tenant::branding', compact('tenant', 'branding'));
+    }
+
+    public function destroy(int $id)
+    {
+        $this->service->deleteTenant($id);
+
+        return redirect()->route('tenant.index')->with('notice', __('Tenant deleted'));
     }
 
     public function unknownDomain()
@@ -127,56 +116,42 @@ class TenantController extends Controller
     }
 
     /**
-     * Admin dashboard for tenant management.
-     */
-    public function admin()
-    {
-        $tenants = $this->service->getTenants();
-        $stats = [
-            'total' => count($tenants),
-            'active' => collect($tenants)->where('is_active', 1)->count(),
-        ];
-
-        return view('ahg-multi-tenant::admin', compact('tenants', 'stats'));
-    }
-
-    /**
-     * Handle POST actions for tenant management.
-     */
-    public function post(Request $request)
-    {
-        $action = $request->get('action');
-        $id = (int) $request->get('id');
-
-        if ($action === 'delete' && $id) {
-            $this->service->deleteTenant($id);
-
-            return redirect()->route('tenant.index')->with('notice', 'Tenant deleted.');
-        }
-
-        if ($action === 'toggle_active' && $id) {
-            $tenant = $this->service->getTenant($id);
-            if ($tenant) {
-                $this->service->updateTenant($id, ['is_active' => !$tenant->is_active]);
-            }
-
-            return redirect()->route('tenant.index')->with('notice', 'Tenant status updated.');
-        }
-
-        return redirect()->back()->with('error', 'Invalid action.');
-    }
-
-    /**
-     * Return available tenants as JSON for the tenant switcher dropdown.
+     * JSON endpoint backing the navbar tenant switcher.
      */
     public function switcher()
     {
-        $tenants = $this->service->getTenants();
-        $current = $this->service->getCurrentTenant();
-
         return response()->json([
-            'tenants' => $tenants,
-            'current' => $current,
+            'tenants' => $this->service->getTenants(),
+            'current' => $this->service->getCurrentTenant(),
         ]);
+    }
+
+    /**
+     * POST /tenant/switch  -  set the current tenant for this session.
+     */
+    public function switchTo(Request $request)
+    {
+        $id = (int) $request->input('tenant_id');
+        $tenant = $this->service->getTenant($id);
+
+        if (!$tenant || !$tenant->is_active) {
+            return redirect()->back()->with('error', __('Tenant not available'));
+        }
+
+        // Only allow the switch if the user is assigned to the tenant or is
+        // a Laravel admin. AclService remains the source of truth elsewhere.
+        $userId = (int) (auth()->id() ?? 0);
+        $isAssigned = $userId > 0 && \Illuminate\Support\Facades\DB::table('ahg_tenant_user')
+            ->where('tenant_id', $id)
+            ->where('user_id', $userId)
+            ->exists();
+
+        if (!$isAssigned && !(auth()->user()->is_admin ?? false)) {
+            return redirect()->back()->with('error', __('Not authorised for that tenant'));
+        }
+
+        session(['current_tenant_id' => $id]);
+
+        return redirect()->back()->with('notice', __('Switched to :name', ['name' => $tenant->name]));
     }
 }

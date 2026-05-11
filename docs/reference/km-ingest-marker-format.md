@@ -50,6 +50,48 @@ containing `.km-ingest`).
 - `root_files` - specific files (with optional title) to ingest as
   single documents. `title` overrides the heading inferred from the
   file content.
+- `visibility_default` (optional) - default visibility for any source
+  or file in this marker that doesn't declare its own. Allowed values:
+  `internal` (default) or `external`. If omitted, defaults to
+  `internal`.
+- Each `doc_source` and `root_file` entry MAY include its own
+  `visibility` field; that overrides `visibility_default`.
+
+## Visibility (hard access filter, not a soft LLM hint)
+
+Every chunk written to Qdrant carries a `visibility` payload field.
+The KM API filters retrievals on this field based on the auth role:
+
+- `admin` (KM_API_KEY, MCP/server-to-server) — sees all chunks
+  regardless of visibility.
+- `web` (KM_WEB_API_KEY, browser/claude.ai frontends) — sees only
+  chunks with `visibility = "external"`. Internal chunks are never
+  returned.
+- `anon` (no key, when KM_AUTH_DISABLED is unset) — same restriction
+  as `web`: external only.
+
+**Default is `internal` everywhere.** A source/file inherits visibility
+from (in order): its own `visibility` field → marker's
+`visibility_default` → the global default `"internal"`.
+
+**Rule for what can be `external`:** end-user *functional + install*
+documentation for the AtoM, Heratio, and Archivematica products. All
+other content (project ops, plans, CLAUDE.md, infra runbooks, ADRs,
+technical specs, developer notes, internal Q&A) stays `internal`.
+When in doubt, leave it internal — the cost of over-restricting is
+one missed answer; the cost of leaking operational context to a
+public chat client is much higher.
+
+**Migration safety:** chunks ingested before the visibility field
+existed have NO `visibility` payload. The web/anon filter requires
+`visibility == "external"`, so old un-tagged chunks are automatically
+excluded from public queries until re-ingested. This is fail-safe:
+stale chunks never leak.
+
+After updating any marker's visibility settings:
+
+1. `systemctl restart km-ingest-watcher.service` (so watcher re-globs)
+2. `systemctl start km-ingest.service` (re-ingest with new tags)
 
 ## Categories
 

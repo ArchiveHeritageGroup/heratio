@@ -1,129 +1,117 @@
 -- ============================================================================
--- ahg-multi-tenant — install schema
+-- ahg-multi-tenant - install schema
 -- ============================================================================
--- Ported from /usr/share/nginx/archive/atom-ahg-plugins/ahgMultiTenantPlugin/database/install.sql
--- on 2026-04-30. Heratio standalone install — Phase 1 #3.
+-- Heratio standalone multi-tenancy. Single-database, repository-scoped tenants.
+-- Each tenant maps to a `repository` row; data scoping is enforced via the
+-- existing `repository_id` FK on `information_object`, `digital_object`, etc.
+-- Tenant roles (ahg_tenant_user.role) SUPPLEMENT ahg-acl - they do not
+-- replace it.
 --
--- Transforms applied:
---   - DROP TABLE/VIEW statements removed
---   - CREATE TABLE → CREATE TABLE IF NOT EXISTS (idempotent re-run)
---   - mysqldump /*!NNNNN ... */ blocks stripped (incl. multi-line)
---   - COMMENT clauses moved to end of column definition (MySQL 8 strict)
---   - VIEWs stripped (recreate by hand if needed)
---   - Wrapped in SET FOREIGN_KEY_CHECKS=0 to allow plugins to load before
---     their FK targets in other plugins / seed data
+-- Idempotent. Safe to re-run on existing installs.
+--
+-- Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
+-- License: AGPL-3.0-or-later
 -- ============================================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
 
--- ahgMultiTenantPlugin Installation SQL
--- Version: 1.1.0
--- This plugin uses both dedicated tenant tables and ahg_settings for storage.
+-- ============================================================================
+-- ahg_tenant - one row per tenant; FK to repository for data scoping
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS `ahg_tenant` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `code` VARCHAR(50) NOT NULL COMMENT 'Unique tenant code / slug',
+    `name` VARCHAR(255) NOT NULL COMMENT 'Display name',
+    `description` TEXT DEFAULT NULL,
+    `domain` VARCHAR(255) DEFAULT NULL COMMENT 'Full custom domain (e.g. tenant1.example.com)',
+    `subdomain` VARCHAR(100) DEFAULT NULL COMMENT 'Subdomain segment (alternative to full domain)',
+    `repository_id` INT DEFAULT NULL COMMENT 'Primary repository this tenant scopes to',
+    `contact_email` VARCHAR(255) DEFAULT NULL,
+    `contact_phone` VARCHAR(50) DEFAULT NULL,
+    `max_users` INT DEFAULT NULL COMMENT 'Quota; NULL = unlimited',
+    `max_storage_gb` INT DEFAULT NULL,
+    `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+    `is_default` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Fallback tenant when no host / session match',
+    `status` VARCHAR(36) NOT NULL DEFAULT 'active' COMMENT 'active, suspended, trial',
+    `trial_ends_at` DATETIME DEFAULT NULL,
+    `suspended_at` DATETIME DEFAULT NULL,
+    `suspended_reason` VARCHAR(500) DEFAULT NULL,
+    `settings` JSON DEFAULT NULL COMMENT 'Free-form per-tenant settings',
+    `created_by` INT DEFAULT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
--- ============================================================================
--- Legacy Support: ahg_settings table (for backward compatibility)
--- ============================================================================
-CREATE TABLE IF NOT EXISTS ahg_settings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    setting_key VARCHAR(100) NOT NULL UNIQUE,
-    setting_value TEXT,
-    setting_type VARCHAR(49) COMMENT 'string, integer, boolean, json, float' DEFAULT 'string',
-    setting_group VARCHAR(50) NOT NULL DEFAULT 'general',
-    description VARCHAR(500),
-    is_sensitive TINYINT(1) DEFAULT 0,
-    updated_by INT,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_setting_group (setting_group),
-    FOREIGN KEY (updated_by) REFERENCES user(id) ON DELETE SET NULL
+    UNIQUE KEY `uk_tenant_code` (`code`),
+    UNIQUE KEY `uk_tenant_domain` (`domain`),
+    UNIQUE KEY `uk_tenant_subdomain` (`subdomain`),
+    KEY `idx_tenant_status` (`status`, `is_active`),
+    KEY `idx_tenant_repository` (`repository_id`),
+    KEY `idx_tenant_default` (`is_default`),
+
+    CONSTRAINT `fk_ahg_tenant_repository` FOREIGN KEY (`repository_id`) REFERENCES `repository` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `fk_ahg_tenant_created_by` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
--- Table: heritage_tenant
--- Stores tenant (organization) information for multi-tenancy
+-- ahg_tenant_user - per-tenant role assignments. Supplements ahg-acl.
+-- A user may belong to multiple tenants; is_primary picks the default.
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS heritage_tenant (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    code VARCHAR(50) NOT NULL UNIQUE COMMENT 'Unique tenant code/slug',
-    name VARCHAR(255) NOT NULL COMMENT 'Display name of the tenant',
-    domain VARCHAR(255) DEFAULT NULL COMMENT 'Custom domain for the tenant',
-    subdomain VARCHAR(100) DEFAULT NULL COMMENT 'Subdomain for the tenant',
-    settings JSON DEFAULT NULL COMMENT 'Tenant-specific settings override',
-    status VARCHAR(36) COMMENT 'active, suspended, trial' NOT NULL DEFAULT 'trial' COMMENT 'Tenant status',
-    trial_ends_at DATETIME DEFAULT NULL COMMENT 'Trial expiration date',
-    suspended_at DATETIME DEFAULT NULL COMMENT 'When tenant was suspended',
-    suspended_reason VARCHAR(500) DEFAULT NULL COMMENT 'Reason for suspension',
-    repository_id INT DEFAULT NULL COMMENT 'Link to AtoM repository (optional)',
-    contact_name VARCHAR(255) DEFAULT NULL COMMENT 'Primary contact name',
-    contact_email VARCHAR(255) DEFAULT NULL COMMENT 'Primary contact email',
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    created_by INT DEFAULT NULL COMMENT 'User who created the tenant',
+CREATE TABLE IF NOT EXISTS `ahg_tenant_user` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `tenant_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
+    `role` VARCHAR(50) NOT NULL DEFAULT 'viewer' COMMENT 'owner, super_user, editor, contributor, viewer',
+    `is_super_user` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Convenience flag mirroring role=super_user|owner',
+    `is_primary` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Default tenant for this user when no host/session match',
+    `assigned_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `assigned_by` INT DEFAULT NULL,
 
-    INDEX idx_tenant_code (code),
-    INDEX idx_tenant_status (status),
-    INDEX idx_tenant_domain (domain),
-    INDEX idx_tenant_subdomain (subdomain),
-    INDEX idx_tenant_repository (repository_id),
+    UNIQUE KEY `uk_tenant_user` (`tenant_id`, `user_id`),
+    KEY `idx_tu_user` (`user_id`),
+    KEY `idx_tu_role` (`role`),
+    KEY `idx_tu_primary` (`user_id`, `is_primary`),
 
-    FOREIGN KEY (repository_id) REFERENCES repository(id) ON DELETE SET NULL,
-    FOREIGN KEY (created_by) REFERENCES user(id) ON DELETE SET NULL
+    CONSTRAINT `fk_ahg_tu_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `ahg_tenant` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_ahg_tu_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_ahg_tu_assigned_by` FOREIGN KEY (`assigned_by`) REFERENCES `user` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
--- Table: heritage_tenant_user
--- Maps users to tenants with roles
+-- ahg_tenant_branding - per-tenant theme overrides (logo, colours, custom CSS)
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS heritage_tenant_user (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    tenant_id INT NOT NULL,
-    user_id INT NOT NULL,
-    role VARCHAR(58) COMMENT 'owner, super_user, editor, contributor, viewer' NOT NULL DEFAULT 'viewer' COMMENT 'User role within tenant',
-    is_primary TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Is this the users primary tenant',
-    assigned_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    assigned_by INT DEFAULT NULL COMMENT 'User who assigned this user',
+CREATE TABLE IF NOT EXISTS `ahg_tenant_branding` (
+    `tenant_id` INT PRIMARY KEY,
+    `logo_url` VARCHAR(500) DEFAULT NULL,
+    `primary_color` VARCHAR(20) DEFAULT NULL,
+    `secondary_color` VARCHAR(20) DEFAULT NULL,
+    `header_bg_color` VARCHAR(20) DEFAULT NULL,
+    `header_text_color` VARCHAR(20) DEFAULT NULL,
+    `link_color` VARCHAR(20) DEFAULT NULL,
+    `button_color` VARCHAR(20) DEFAULT NULL,
+    `header_html` TEXT DEFAULT NULL,
+    `footer_html` TEXT DEFAULT NULL,
+    `custom_css` MEDIUMTEXT DEFAULT NULL,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    UNIQUE KEY uk_tenant_user (tenant_id, user_id),
-    INDEX idx_tenant_user_tenant (tenant_id),
-    INDEX idx_tenant_user_user (user_id),
-    INDEX idx_tenant_user_role (role),
-
-    FOREIGN KEY (tenant_id) REFERENCES heritage_tenant(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
-    FOREIGN KEY (assigned_by) REFERENCES user(id) ON DELETE SET NULL
+    CONSTRAINT `fk_ahg_tb_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `ahg_tenant` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
--- Table: heritage_tenant_settings_override
--- Stores per-tenant settings that override global defaults
+-- ahg_tenant_settings_override - per-tenant overrides on ahg_settings keys
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS heritage_tenant_settings_override (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    tenant_id INT NOT NULL,
-    setting_key VARCHAR(100) NOT NULL,
-    setting_value TEXT,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    updated_by INT DEFAULT NULL,
+CREATE TABLE IF NOT EXISTS `ahg_tenant_settings_override` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `tenant_id` INT NOT NULL,
+    `setting_key` VARCHAR(100) NOT NULL,
+    `setting_value` TEXT DEFAULT NULL,
+    `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_by` INT DEFAULT NULL,
 
-    UNIQUE KEY uk_tenant_setting (tenant_id, setting_key),
-    INDEX idx_tenant_setting_key (setting_key),
+    UNIQUE KEY `uk_tenant_setting` (`tenant_id`, `setting_key`),
+    KEY `idx_tso_key` (`setting_key`),
 
-    FOREIGN KEY (tenant_id) REFERENCES heritage_tenant(id) ON DELETE CASCADE,
-    FOREIGN KEY (updated_by) REFERENCES user(id) ON DELETE SET NULL
+    CONSTRAINT `fk_ahg_tso_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `ahg_tenant` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_ahg_tso_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ============================================================================
--- Legacy Settings Format (still supported for backward compatibility):
--- tenant_repo_{repository_id}_super_users = "5,12,18" (comma-separated user IDs)
--- tenant_repo_{repository_id}_users = "22,25,30" (comma-separated user IDs)
--- tenant_repo_{repository_id}_primary_color = "#336699"
--- tenant_repo_{repository_id}_secondary_color = "#6c757d"
--- tenant_repo_{repository_id}_header_bg_color = "#212529"
--- tenant_repo_{repository_id}_header_text_color = "#ffffff"
--- tenant_repo_{repository_id}_link_color = "#0d6efd"
--- tenant_repo_{repository_id}_button_color = "#198754"
--- tenant_repo_{repository_id}_logo = "/uploads/tenants/{repository_id}/logo.png"
--- tenant_repo_{repository_id}_custom_css = "..."
--- ============================================================================
 
 SET FOREIGN_KEY_CHECKS = 1;

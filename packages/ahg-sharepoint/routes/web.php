@@ -26,6 +26,17 @@ Route::prefix('sharepoint')->group(function () {
 
     // Phase 3
     Route::get('/federated-search',            [SharePointFederatedSearchController::class, 'search'])->name('sharepoint.federated-search');
+
+    // Phase 2 — v2 ingest plan: auto-ingest rules + per-drive mapping templates
+    Route::get('/rules',                       [SharePointController::class, 'rules'])->name('sharepoint.rules');
+    Route::get('/rules/edit',                  [SharePointController::class, 'ruleEdit'])->name('sharepoint.rule.edit');
+    Route::post('/rules/save',                 [SharePointController::class, 'ruleSave'])->name('sharepoint.rule.save');
+    Route::post('/rules/{id}/delete',          [SharePointController::class, 'ruleDelete'])->whereNumber('id')->name('sharepoint.rule.delete');
+    Route::post('/rules/{id}/run',             [SharePointController::class, 'ruleRun'])->whereNumber('id')->name('sharepoint.rule.run');
+    Route::get('/mappings',                    [SharePointController::class, 'mappings'])->name('sharepoint.mappings');
+    Route::post('/mappings/save',              [SharePointController::class, 'mappingsSave'])->name('sharepoint.mappings.save');
+    Route::post('/mappings/template/delete',   [SharePointController::class, 'mappingTemplateDelete'])->name('sharepoint.mappings.template.delete');
+    Route::get('/columns',                     [SharePointController::class, 'columns'])->name('sharepoint.columns');
 });
 
 // Phase 2 — Graph webhook receiver. PUBLIC, NO CSRF.

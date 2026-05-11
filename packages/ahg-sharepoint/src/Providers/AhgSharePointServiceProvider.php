@@ -35,6 +35,10 @@ class AhgSharePointServiceProvider extends ServiceProvider
         $this->app->singleton(\AhgSharePoint\Services\GraphTokenValidatorService::class);
         $this->app->singleton(\AhgSharePoint\Services\SharePointUserMappingService::class);
         $this->app->singleton(\AhgSharePoint\Services\SharePointPushService::class);
+
+        // Phase 2 (v2 ingest plan)
+        $this->app->singleton(\AhgSharePoint\Services\SharePointBrowserService::class);
+        $this->app->singleton(\AhgSharePoint\Services\SharePointAutoIngestService::class);
     }
 
     public function boot(): void
@@ -60,6 +64,7 @@ class AhgSharePointServiceProvider extends ServiceProvider
                 \AhgSharePoint\Console\Commands\SharePointSubscribeCommand::class,
                 \AhgSharePoint\Console\Commands\SharePointRenewSubscriptionsCommand::class,
                 \AhgSharePoint\Console\Commands\SharePointIngestEventCommand::class,
+                \AhgSharePoint\Console\Commands\SharePointAutoIngestCommand::class,
             ]);
         }
     }

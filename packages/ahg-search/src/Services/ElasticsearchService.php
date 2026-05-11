@@ -27,6 +27,7 @@
 
 namespace AhgSearch\Services;
 
+use AhgCore\Support\TenantScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -40,6 +41,47 @@ class ElasticsearchService
     {
         $this->host = config('services.elasticsearch.host', 'http://localhost:9200');
         $this->indexPrefix = config('services.elasticsearch.prefix', 'archive_');
+    }
+
+    /**
+     * Multi-tenant repository filter for an IO-only ES query. Returns null
+     * when no scoping should apply (admin, feature off, no tenant, etc.) -
+     * callers should simply not append.
+     */
+    protected function tenantIoFilter(): ?array
+    {
+        $repoId = TenantScope::getActiveRepoId();
+        if ($repoId === null) {
+            return null;
+        }
+
+        return ['term' => ['repository.id' => $repoId]];
+    }
+
+    /**
+     * Multi-tenant scope clause for a multi-index search (IO + actor +
+     * repository + term). IO docs are filtered by repository.id; non-IO
+     * docs pass through (they have no repository.id field). Returns null
+     * when scoping should NOT apply.
+     */
+    protected function tenantMultiIndexFilter(): ?array
+    {
+        $repoId = TenantScope::getActiveRepoId();
+        if ($repoId === null) {
+            return null;
+        }
+
+        return [
+            'bool' => [
+                'should' => [
+                    // Non-IO docs (actor / term) - no repository.id field.
+                    ['bool' => ['must_not' => [['exists' => ['field' => 'repository.id']]]]],
+                    // IO docs scoped to the tenant.
+                    ['term' => ['repository.id' => $repoId]],
+                ],
+                'minimum_should_match' => 1,
+            ],
+        ];
     }
 
     // ──────────────────────────────────────────────────────────────────────
@@ -71,29 +113,33 @@ class ElasticsearchService
 
         $url = "{$this->host}/{$indices}/_search";
 
-        $body = [
-            'from' => $from,
-            'size' => $size,
-            'query' => [
-                'bool' => [
-                    'must' => [
-                        [
-                            'query_string' => [
-                                'query' => $this->sanitizeQuery($query),
-                                'fields' => [
-                                    "i18n.{$culture}.title^3",
-                                    "i18n.{$culture}.authorizedFormOfName^3",
-                                    "i18n.{$culture}.scopeAndContent",
-                                    "i18n.{$culture}.history",
-                                    "identifier^2",
-                                    "referenceCode^2",
-                                ],
-                                'default_operator' => 'AND',
-                            ],
+        $bool = [
+            'must' => [
+                [
+                    'query_string' => [
+                        'query' => $this->sanitizeQuery($query),
+                        'fields' => [
+                            "i18n.{$culture}.title^3",
+                            "i18n.{$culture}.authorizedFormOfName^3",
+                            "i18n.{$culture}.scopeAndContent",
+                            "i18n.{$culture}.history",
+                            "identifier^2",
+                            "referenceCode^2",
                         ],
+                        'default_operator' => 'AND',
                     ],
                 ],
             ],
+        ];
+
+        if ($tenantClause = $this->tenantMultiIndexFilter()) {
+            $bool['filter'] = [$tenantClause];
+        }
+
+        $body = [
+            'from' => $from,
+            'size' => $size,
+            'query' => ['bool' => $bool],
             'highlight' => [
                 'fields' => [
                     "i18n.{$culture}.title" => (object) [],
@@ -127,40 +173,44 @@ class ElasticsearchService
 
         $url = "{$this->host}/{$indices}/_search";
 
+        $bool = [
+            'should' => [
+                [
+                    'match_phrase_prefix' => [
+                        "i18n.{$culture}.title" => [
+                            'query' => $query,
+                            'boost' => 3,
+                        ],
+                    ],
+                ],
+                [
+                    'match_phrase_prefix' => [
+                        "i18n.{$culture}.authorizedFormOfName" => [
+                            'query' => $query,
+                            'boost' => 3,
+                        ],
+                    ],
+                ],
+                [
+                    'match_phrase_prefix' => [
+                        'identifier' => [
+                            'query' => $query,
+                            'boost' => 2,
+                        ],
+                    ],
+                ],
+            ],
+            'minimum_should_match' => 1,
+        ];
+
+        if ($tenantClause = $this->tenantMultiIndexFilter()) {
+            $bool['filter'] = [$tenantClause];
+        }
+
         $body = [
             'size' => $size,
             '_source' => ['slug', "i18n.{$culture}", 'identifier'],
-            'query' => [
-                'bool' => [
-                    'should' => [
-                        [
-                            'match_phrase_prefix' => [
-                                "i18n.{$culture}.title" => [
-                                    'query' => $query,
-                                    'boost' => 3,
-                                ],
-                            ],
-                        ],
-                        [
-                            'match_phrase_prefix' => [
-                                "i18n.{$culture}.authorizedFormOfName" => [
-                                    'query' => $query,
-                                    'boost' => 3,
-                                ],
-                            ],
-                        ],
-                        [
-                            'match_phrase_prefix' => [
-                                'identifier' => [
-                                    'query' => $query,
-                                    'boost' => 2,
-                                ],
-                            ],
-                        ],
-                    ],
-                    'minimum_should_match' => 1,
-                ],
-            ],
+            'query' => ['bool' => $bool],
         ];
 
         $response = Http::post($url, $body);
@@ -226,6 +276,10 @@ class ElasticsearchService
 
         if ($repository) {
             $must[] = ['term' => ['repository.id' => (int) $repository]];
+        }
+
+        if ($tenantClause = $this->tenantIoFilter()) {
+            $must[] = $tenantClause;
         }
 
         // Date range
@@ -500,6 +554,13 @@ class ElasticsearchService
         // Published only (status 160 = published)
         $filter[] = ['term' => ['publicationStatusId' => 160]];
 
+        // Multi-tenant scope. Applied after the user-driven repository filter
+        // so a tenant user can't widen scope via URL param - both ANDed, the
+        // narrower wins. No-op when multi-tenancy is disabled or admin.
+        if ($tenantClause = $this->tenantIoFilter()) {
+            $filter[] = $tenantClause;
+        }
+
         // Build query
         $boolQuery = [];
         if (!empty($must)) {
@@ -616,6 +677,9 @@ class ElasticsearchService
         if ($repo) {
             $qb->where('io.repository_id', '=', $repo);
         }
+
+        // Multi-tenant scope (matches the ES side via the same gate).
+        TenantScope::apply($qb, 'io.repository_id');
 
         // Level of description filter
         if ($level) {

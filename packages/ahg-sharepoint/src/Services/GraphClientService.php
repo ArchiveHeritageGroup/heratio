@@ -151,6 +151,33 @@ class GraphClientService
         }
     }
 
+    /**
+     * Drive-scoped download (no siteId). Used by SharePointBrowserService /
+     * the v2 ingest flow which keys on drive_id only.
+     */
+    public function downloadDriveItemByDriveId(int $tenantId, string $driveId, string $itemId, string $destinationPath): void
+    {
+        $token = $this->acquireToken($tenantId);
+        $url = $this->resolveBase($tenantId)
+            . "/drives/{$driveId}/items/{$itemId}/content";
+
+        $dir = dirname($destinationPath);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+
+        $resp = Http::withToken($token)
+            ->timeout(self::DOWNLOAD_TIMEOUT_SECONDS)
+            ->withOptions(['sink' => $destinationPath, 'allow_redirects' => true])
+            ->get($url);
+
+        if (!$resp->successful()) {
+            throw new \RuntimeException(
+                "downloadDriveItemByDriveId failed: HTTP {$resp->status()} for {$url}",
+            );
+        }
+    }
+
     public function getListItemFields(int $tenantId, string $siteId, string $driveId, string $itemId): array
     {
         $resp = $this->get(

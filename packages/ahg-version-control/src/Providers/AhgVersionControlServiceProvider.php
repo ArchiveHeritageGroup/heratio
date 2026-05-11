@@ -20,12 +20,14 @@ use AhgVersionControl\Console\CaptureCommand;
 use AhgVersionControl\Console\DiffCommand;
 use AhgVersionControl\Console\PruneCommand;
 use AhgVersionControl\Console\SnapshotSmokeCommand;
+use AhgVersionControl\Http\Middleware\VersionLinkInjector;
 use AhgVersionControl\Observers\ActorSnapshotObserver;
 use AhgVersionControl\Observers\InformationObjectSnapshotObserver;
 use AhgVersionControl\Services\DiffComputer;
 use AhgVersionControl\Services\RestoreService;
 use AhgVersionControl\Services\SnapshotBuilder;
 use AhgVersionControl\Services\VersionWriter;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 
 class AhgVersionControlServiceProvider extends ServiceProvider
@@ -41,7 +43,7 @@ class AhgVersionControlServiceProvider extends ServiceProvider
         ));
     }
 
-    public function boot(): void
+    public function boot(Router $router): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
@@ -57,8 +59,15 @@ class AhgVersionControlServiceProvider extends ServiceProvider
             ]);
         }
 
-        // Phase D — observers: auto-capture a version on every save.
+        // Phase D - observers: auto-capture a version on every save.
         InformationObject::observe(InformationObjectSnapshotObserver::class);
         Actor::observe(ActorSnapshotObserver::class);
+
+        // Phase G - response-filter middleware that injects the "Version
+        // history (N)" banner into IO / actor / sector show pages. Alias
+        // available for targeted use; bootstrap/app.php appends it to the
+        // web group so every show page is covered without touching the
+        // (locked) show blades.
+        $router->aliasMiddleware('version-link.inject', VersionLinkInjector::class);
     }
 }
