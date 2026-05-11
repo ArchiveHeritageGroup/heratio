@@ -1,0 +1,22 @@
+{
+    "name": "ahg/share-link",
+    "description": "Time-limited, auditable share links for information_object records. Anonymous bearer-token access; HMAC-derived URL-safe tokens; classified-record gating; admin revocation; audit dual-write.",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "ahg/core": "@dev",
+        "php": ">=8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgShareLink\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgShareLink\\Providers\\AhgShareLinkServiceProvider"
+            ]
+        }
+    }
+}

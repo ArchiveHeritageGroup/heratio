@@ -35,6 +35,19 @@ return Application::configure(basePath: dirname(__DIR__))
             // Must run after AddCspHeaders so the nonce is bound in the
             // container by the time we post-process the response body.
             \App\Http\Middleware\InjectCspNonces::class,
+            // Resolves the active tenant (host -> session -> primary ->
+            // default) and binds it as app('tenant.current'). No-op when
+            // ahg_settings.tenant_enabled is false, so single-tenant
+            // installs are unchanged.
+            \AhgMultiTenant\Http\Middleware\ResolveTenantMiddleware::class,
+            // Injects a "Version history (N)" banner into IO / actor /
+            // sector show pages. Silent no-op when the entity has no
+            // captured versions or the response isn't HTML.
+            \AhgVersionControl\Http\Middleware\VersionLinkInjector::class,
+            // Injects a "Share record" button + Bootstrap modal into IO
+            // show pages. Silent no-op when the user is anonymous, lacks
+            // share_link.create ACL, or the response isn't HTML.
+            \AhgShareLink\Http\Middleware\ShareLinkInjector::class,
         ]);
 
         $middleware->alias([
