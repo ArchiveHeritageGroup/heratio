@@ -38,7 +38,7 @@ Route::get('/ahgVoice/getSettings', [VoiceController::class, 'getSettings'])->na
 // Path is /api/iiif-settings rather than /iiif/settings because nginx
 // routes the entire /iiif/ prefix to the Cantaloupe image server (see
 // /etc/nginx ^~ /iiif/ block) — colliding here would 404 from Java.
-Route::get('/api/iiif-settings', [IiifController::class, 'getSettings'])->name('iiif.settings');
+Route::get('/api/iiif-settings', [IiifController::class, 'getSettings'])->name('iiif.viewer.settings');
 
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
@@ -56,13 +56,7 @@ Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::post('/exportCheck', [ClipboardController::class, 'exportCheck'])->name('exportCheck');
 });
 
-// Object import select & TIFF/PDF merge (auth required)
+// Object import select (auth required). TIFF/PDF merge routes live in ahg-preservation.
 Route::middleware('auth')->group(function () {
     Route::get('/object/{slug}/import-select', fn($slug) => view('ahg-core::object-import-select', ['slug' => $slug]))->name('object.importSelect');
-    Route::get('/tiffpdfmerge/create', fn() => redirect()->route('preservation.tiffpdfmerge.index'))->name('tiffpdfmerge.create');
-    Route::post('/tiffpdfmerge/upload', fn() => redirect()->back())->name('tiffpdfmerge.upload');
-    Route::post('/tiffpdfmerge/process', fn() => redirect()->back())->name('tiffpdfmerge.process');
-    Route::post('/tiffpdfmerge/reorder', fn() => redirect()->back())->name('tiffpdfmerge.reorder');
-    Route::delete('/tiffpdfmerge/{id}/file', fn($id) => redirect()->back())->name('tiffpdfmerge.removeFile');
-    Route::delete('/tiffpdfmerge/{id}', fn($id) => redirect()->back())->name('tiffpdfmerge.delete');
 });

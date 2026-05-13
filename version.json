@@ -1,6 +1,6 @@
 {
     "name": "Heratio",
-    "version": "1.58.0",
-    "release_date": "2026-05-11",
+    "version": "1.58.1",
+    "release_date": "2026-05-13",
     "description": "Pure Laravel archival management platform by The Archive and Heritage Group"
 }

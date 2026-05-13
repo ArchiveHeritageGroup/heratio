@@ -315,7 +315,7 @@
                         <td class="text-end">
                             @if(!$ac->training_approved)
                                 <button type="button" class="btn btn-sm btn-success" onclick="approveTraining({{ $ac->id }}, '{{ e($ac->name) }}')"
-                                    {{ empty($ac->training_approval_doc) ? 'disabled title="{{ __('Upload consent document first') }}"' : '' }}>
+                                    @if(empty($ac->training_approval_doc)) disabled title="{{ __('Upload consent document first') }}" @endif>
                                     <i class="fas fa-check me-1"></i>{{ __('Approve') }}
                                 </button>
                             @else
