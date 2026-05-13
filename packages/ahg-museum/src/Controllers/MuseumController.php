@@ -59,25 +59,65 @@ class MuseumController extends Controller
             'subquery' => $request->get('subquery', ''),
         ];
 
-        $workType = $request->get('work_type');
-        if ($workType) {
-            $params['filters']['work_type'] = $workType;
+        // Single-value facets pulled from museum_metadata. Empty values are
+        // skipped so the URL stays clean when "All …" is selected.
+        $facetKeys = [
+            'work_type', 'classification', 'materials', 'techniques',
+            'period', 'style', 'school', 'dynasty',
+            'cultural_context', 'creator_identity',
+        ];
+        $selected = [];
+        foreach ($facetKeys as $k) {
+            $v = trim((string) $request->get($k, ''));
+            if ($v !== '') {
+                $params['filters'][$k] = $v;
+                $selected[$k] = $v;
+            }
         }
 
-        $classification = $request->get('classification');
-        if ($classification) {
-            $params['filters']['classification'] = $classification;
-        }
+        // Creation date range (creation_date_earliest / creation_date_latest).
+        $dateFrom = trim((string) $request->get('date_from', ''));
+        $dateTo   = trim((string) $request->get('date_to', ''));
+        if ($dateFrom !== '') $params['filters']['date_from'] = $dateFrom;
+        if ($dateTo   !== '') $params['filters']['date_to']   = $dateTo;
+
+        // Identifier search across accession_number / barcode / object_number
+        // (museum_object table). Distinct from the keyword $subquery so users
+        // can paste a barcode and not get false positives from a similar word
+        // appearing in a description.
+        $idSearch = trim((string) $request->get('id_search', ''));
+        if ($idSearch !== '') $params['filters']['id_search'] = $idSearch;
 
         $result = $this->service->browse($params);
         $pager = new SimplePager($result);
 
         return view('ahg-museum::museum.browse', [
             'pager' => $pager,
-            'workTypes' => $result['workTypes'] ?? [],
-            'classifications' => $result['classifications'] ?? [],
-            'selectedWorkType' => $workType,
-            'selectedClassification' => $classification,
+            // Distinct-values lists for each facet dropdown
+            'workTypes'         => $result['workTypes']         ?? [],
+            'classifications'   => $result['classifications']   ?? [],
+            'materialsList'     => $result['materials']         ?? [],
+            'techniquesList'    => $result['techniques']        ?? [],
+            'periods'           => $result['periods']           ?? [],
+            'styles'            => $result['styles']            ?? [],
+            'schools'           => $result['schools']           ?? [],
+            'dynasties'         => $result['dynasties']         ?? [],
+            'culturalContexts'  => $result['cultural_contexts'] ?? [],
+            'creators'          => $result['creators']          ?? [],
+            // Currently-applied selections (drive the dropdown labels)
+            'selectedWorkType'         => $selected['work_type']         ?? null,
+            'selectedClassification'   => $selected['classification']    ?? null,
+            'selectedMaterials'        => $selected['materials']         ?? null,
+            'selectedTechniques'       => $selected['techniques']        ?? null,
+            'selectedPeriod'           => $selected['period']            ?? null,
+            'selectedStyle'            => $selected['style']             ?? null,
+            'selectedSchool'           => $selected['school']            ?? null,
+            'selectedDynasty'          => $selected['dynasty']           ?? null,
+            'selectedCulturalContext'  => $selected['cultural_context']  ?? null,
+            'selectedCreator'          => $selected['creator_identity']  ?? null,
+            'selectedDateFrom'         => $dateFrom,
+            'selectedDateTo'           => $dateTo,
+            'selectedIdSearch'         => $idSearch,
             'sortOptions' => [
                 'alphabetic' => 'Title',
                 'lastUpdated' => 'Date modified',

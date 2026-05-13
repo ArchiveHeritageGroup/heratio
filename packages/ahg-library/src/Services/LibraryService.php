@@ -664,6 +664,13 @@ class LibraryService
      * Replace all library_item_subject rows for the given library_item with
      * the supplied list. Empty `heading` rows are dropped; subject_type
      * defaults to 'topic'.
+     *
+     * Also bridges the headings into the global AHG subject taxonomy
+     * (term + object_term_relation, taxonomy_id=35) so they become
+     * searchable through GLAM browse / museum / DAM / gallery facets and
+     * the Elasticsearch term index. Library-local rows stay in
+     * library_item_subject; cross-cutting access points go via
+     * SubjectAccessPointService::sync on the parent information_object.
      */
     private function syncSubjects(int $libraryItemId, array $subjects): void
     {
@@ -671,6 +678,7 @@ class LibraryService
             ->where('library_item_id', $libraryItemId)
             ->delete();
 
+        $headings = [];
         foreach ($subjects as $s) {
             if (!is_array($s)) continue;
             $heading = trim((string) ($s['heading'] ?? ''));
@@ -680,6 +688,17 @@ class LibraryService
                 'heading'         => $heading,
                 'subject_type'    => 'topic',
             ]);
+            $headings[] = $heading;
+        }
+
+        // Promote headings into the cross-sector subject taxonomy so museum /
+        // DAM / gallery browse + global search can filter on them. The save
+        // paths (create + update) always pass a replace-all list, so sync()
+        // is the right semantics here.
+        $ioId = (int) (DB::table('library_item')->where('id', $libraryItemId)
+            ->value('information_object_id') ?? 0);
+        if ($ioId > 0) {
+            \AhgCore\Services\SubjectAccessPointService::sync($ioId, $headings, $this->culture);
         }
     }
 

@@ -252,22 +252,92 @@ class MuseumService
                 'slug.slug',
             ]);
 
-            // Filter by work_type
-            if (!empty($params['filters']['work_type'])) {
-                $query->where('museum_metadata.work_type', $params['filters']['work_type']);
+            // Equality filters from the facet dropdowns. The materials /
+            // techniques columns are TEXT so an exact match works for values
+            // that came from the same distinct-pluck dropdown; if operators
+            // start typing free-form into the URL we fall back to LIKE.
+            $exactFilters = [
+                'work_type'        => 'museum_metadata.work_type',
+                'classification'   => 'museum_metadata.classification',
+                'period'           => 'museum_metadata.period',
+                'style'            => 'museum_metadata.style',
+                'school'           => 'museum_metadata.school',
+                'dynasty'          => 'museum_metadata.dynasty',
+                'cultural_context' => 'museum_metadata.cultural_context',
+                'creator_identity' => 'museum_metadata.creator_identity',
+            ];
+            foreach ($exactFilters as $k => $col) {
+                if (!empty($params['filters'][$k])) {
+                    $query->where($col, $params['filters'][$k]);
+                }
+            }
+            // Materials + techniques live in TEXT columns that can hold
+            // semicolon-separated lists ("Silver; Gold") so we match by
+            // substring rather than equality.
+            foreach (['materials', 'techniques'] as $k) {
+                if (!empty($params['filters'][$k])) {
+                    $query->where('museum_metadata.' . $k, 'LIKE',
+                        '%' . $params['filters'][$k] . '%');
+                }
             }
 
-            // Filter by classification
-            if (!empty($params['filters']['classification'])) {
-                $query->where('museum_metadata.classification', $params['filters']['classification']);
+            // Creation date range. creation_date_earliest is the lower bound
+            // and creation_date_latest the upper; we treat the filter as
+            // "items whose creation period overlaps the user's range".
+            if (!empty($params['filters']['date_from'])) {
+                $query->where(function ($q) use ($params) {
+                    $q->where('museum_metadata.creation_date_latest', '>=', $params['filters']['date_from'])
+                      ->orWhereNull('museum_metadata.creation_date_latest');
+                });
+            }
+            if (!empty($params['filters']['date_to'])) {
+                $query->where(function ($q) use ($params) {
+                    $q->where('museum_metadata.creation_date_earliest', '<=', $params['filters']['date_to'])
+                      ->orWhereNull('museum_metadata.creation_date_earliest');
+                });
             }
 
-            // Search on title, creator, identifier
+            // Identifier search: accession_number / barcode / object_number
+            // (museum_object table) + information_object.identifier. left
+            // join because not every IO has a museum_object row.
+            if (!empty($params['filters']['id_search'])) {
+                $ids = $params['filters']['id_search'];
+                $query->leftJoin('museum_object',
+                    'museum_object.object_id', '=', 'information_object.id');
+                $query->where(function ($q) use ($ids) {
+                    $q->where('information_object.identifier',     'LIKE', "%{$ids}%")
+                      ->orWhere('museum_object.accession_number',  'LIKE', "%{$ids}%")
+                      ->orWhere('museum_object.barcode',           'LIKE', "%{$ids}%")
+                      ->orWhere('museum_object.object_number',     'LIKE', "%{$ids}%")
+                      ->orWhere('museum_object.identifier',        'LIKE', "%{$ids}%");
+                });
+            }
+
+            // Full-text keyword across title + the rich museum_metadata text
+            // fields. Same OR-block pattern so the user can find an object
+            // by typing 'silver', 'arabic inscription', 'Cape Town', etc.
             if ($subquery !== '') {
-                $query->where(function ($q) use ($subquery) {
-                    $q->where('information_object_i18n.title', 'LIKE', "%{$subquery}%")
-                      ->orWhere('museum_metadata.creator_identity', 'LIKE', "%{$subquery}%")
-                      ->orWhere('information_object.identifier', 'LIKE', "%{$subquery}%");
+                $needle = "%{$subquery}%";
+                $query->where(function ($q) use ($needle) {
+                    $q->where('information_object_i18n.title',                  'LIKE', $needle)
+                      ->orWhere('information_object_i18n.scope_and_content',     'LIKE', $needle)
+                      ->orWhere('information_object.identifier',                 'LIKE', $needle)
+                      ->orWhere('museum_metadata.creator_identity',              'LIKE', $needle)
+                      ->orWhere('museum_metadata.materials',                     'LIKE', $needle)
+                      ->orWhere('museum_metadata.techniques',                    'LIKE', $needle)
+                      ->orWhere('museum_metadata.inscription',                   'LIKE', $needle)
+                      ->orWhere('museum_metadata.inscription_transcription',     'LIKE', $needle)
+                      ->orWhere('museum_metadata.inscription_translation',       'LIKE', $needle)
+                      ->orWhere('museum_metadata.condition_notes',               'LIKE', $needle)
+                      ->orWhere('museum_metadata.condition_description',         'LIKE', $needle)
+                      ->orWhere('museum_metadata.provenance',                    'LIKE', $needle)
+                      ->orWhere('museum_metadata.provenance_text',               'LIKE', $needle)
+                      ->orWhere('museum_metadata.ownership_history',             'LIKE', $needle)
+                      ->orWhere('museum_metadata.historical_context',            'LIKE', $needle)
+                      ->orWhere('museum_metadata.architectural_context',         'LIKE', $needle)
+                      ->orWhere('museum_metadata.archaeological_context',        'LIKE', $needle)
+                      ->orWhere('museum_metadata.physical_appearance',           'LIKE', $needle)
+                      ->orWhere('museum_metadata.current_location',              'LIKE', $needle);
                 });
             }
 
@@ -314,31 +384,42 @@ class MuseumService
                 ];
             }
 
-            // Get distinct work types for filter dropdown
-            $workTypes = DB::table('museum_metadata')
-                ->whereNotNull('work_type')
-                ->where('work_type', '!=', '')
-                ->distinct()
-                ->orderBy('work_type')
-                ->pluck('work_type')
-                ->toArray();
-
-            // Get distinct classifications for filter dropdown
-            $classifications = DB::table('museum_metadata')
-                ->whereNotNull('classification')
-                ->where('classification', '!=', '')
-                ->distinct()
-                ->orderBy('classification')
-                ->pluck('classification')
-                ->toArray();
+            // Distinct values for every facet dropdown. Each is a small,
+            // independent query - museum collections are typically <100k
+            // rows so the cost is negligible. If this becomes hot we can
+            // cache or combine into a single GROUP BY pass.
+            $distinct = function (string $col): array {
+                return DB::table('museum_metadata')
+                    ->whereNotNull($col)->where($col, '!=', '')
+                    ->distinct()->orderBy($col)
+                    ->pluck($col)->toArray();
+            };
+            $workTypes        = $distinct('work_type');
+            $classifications  = $distinct('classification');
+            $materials        = $distinct('materials');
+            $techniques       = $distinct('techniques');
+            $periods          = $distinct('period');
+            $styles           = $distinct('style');
+            $schools          = $distinct('school');
+            $dynasties        = $distinct('dynasty');
+            $culturalContexts = $distinct('cultural_context');
+            $creators         = $distinct('creator_identity');
 
             return [
-                'hits' => $hits,
-                'total' => $total,
-                'page' => $page,
-                'limit' => $limit,
-                'workTypes' => $workTypes,
-                'classifications' => $classifications,
+                'hits'              => $hits,
+                'total'             => $total,
+                'page'              => $page,
+                'limit'             => $limit,
+                'workTypes'         => $workTypes,
+                'classifications'   => $classifications,
+                'materials'         => $materials,
+                'techniques'        => $techniques,
+                'periods'           => $periods,
+                'styles'            => $styles,
+                'schools'           => $schools,
+                'dynasties'         => $dynasties,
+                'cultural_contexts' => $culturalContexts,
+                'creators'          => $creators,
             ];
         } catch (\Exception $e) {
             \Log::error('MuseumService browse error: ' . $e->getMessage());
@@ -350,6 +431,14 @@ class MuseumService
                 'limit' => $limit,
                 'workTypes' => [],
                 'classifications' => [],
+                'materials' => [],
+                'techniques' => [],
+                'periods' => [],
+                'styles' => [],
+                'schools' => [],
+                'dynasties' => [],
+                'cultural_contexts' => [],
+                'creators' => [],
             ];
         }
     }
