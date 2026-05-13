@@ -1701,20 +1701,47 @@ class AiController extends Controller
     /*  Private helper methods for NER/Suggest/Batch                       */
     /* ================================================================== */
 
+    /**
+     * Resolve api_url / api_key against the same precedence the rest of the
+     * codebase uses: ahg_ner_settings (the AI Services settings page is the
+     * canonical writer) → ahg_ai_settings.general (legacy AtoM-era store,
+     * kept for back-compat) → hardcoded default. Mirrors the lookup in
+     * NerService::loadSetting and LlmService::getSetting so the two tables
+     * can't drift behind AiController's back. See the Test Connection /
+     * Show API Key fix on /admin/ahgSettings/aiServices for context.
+     */
     private function getAiApiUrl(): string
     {
-        return DB::table('ahg_ai_settings')
-            ->where('feature', 'general')
-            ->where('setting_key', 'api_url')
-            ->value('setting_value') ?? 'http://192.168.0.112:5004';
+        return $this->loadGeneralAiSetting('api_url', 'http://192.168.0.112:5004/ai/v1');
     }
 
     private function getAiApiKey(): string
     {
-        return DB::table('ahg_ai_settings')
-            ->where('feature', 'general')
-            ->where('setting_key', 'api_key')
-            ->value('setting_value') ?? '';
+        return $this->loadGeneralAiSetting('api_key', '');
+    }
+
+    private function loadGeneralAiSetting(string $key, string $default): string
+    {
+        try {
+            $v = DB::table('ahg_ner_settings')
+                ->where('setting_key', $key)
+                ->value('setting_value');
+            if ($v !== null && $v !== '') {
+                return (string) $v;
+            }
+
+            $v = DB::table('ahg_ai_settings')
+                ->where('feature', 'general')
+                ->where('setting_key', $key)
+                ->value('setting_value');
+            if ($v !== null && $v !== '') {
+                return (string) $v;
+            }
+        } catch (\Throwable $e) {
+            // table missing during boot - fall through to default
+        }
+
+        return $default;
     }
 
     private function getInformationObject(int $id, string $culture = 'en'): ?object

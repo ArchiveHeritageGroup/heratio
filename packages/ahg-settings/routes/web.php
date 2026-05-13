@@ -88,6 +88,10 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ahgSettings/accession', [SettingsController::class, 'accessionSettings'])->name('settings.ahg.accession');
     Route::match(['get', 'post'], '/admin/ahgSettings/ahgIntegration', [SettingsController::class, 'ahgIntegration'])->name('settings.ahg-integration');
     Route::match(['get', 'post'], '/admin/ahgSettings/aiServices', [SettingsController::class, 'aiServices'])->name('settings.ai-services');
+    // Same-origin proxies for the Test Connection buttons on the aiServices page.
+    // Server-side test bypasses browser CORS + mixed-content + localhost-mismatch.
+    Route::post('/admin/ahgSettings/aiServices/test',    [SettingsController::class, 'aiServicesTest'])->name('settings.ai-services.test');
+    Route::post('/admin/ahgSettings/aiServices/test-mt', [SettingsController::class, 'aiServicesTestMt'])->name('settings.ai-services.test-mt');
     Route::match(['get', 'post'], '/admin/ahgSettings/audit', [SettingsController::class, 'auditSettings'])->name('settings.ahg.audit');
     Route::match(['get', 'post'], '/admin/ahgSettings/authority', [SettingsController::class, 'authority'])->name('settings.authority');
     Route::match(['get', 'post'], '/admin/ahgSettings/jobs', [SettingsController::class, 'jobsSettings'])->name('settings.ahg.jobs');

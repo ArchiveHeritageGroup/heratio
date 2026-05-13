@@ -2881,6 +2881,129 @@ class SettingsController extends Controller
     }
 
     /**
+     * Same-origin proxy for the "Test Connection" button on the aiServices page.
+     * The browser can't hit cross-origin AI hosts directly (CORS + mixed content);
+     * doing the test from PHP also matches what the live NER / summarisation
+     * services see when they call out.
+     */
+    public function aiServicesTest(Request $request)
+    {
+        $url    = trim((string) $request->input('url', ''));
+        $apiKey = trim((string) $request->input('api_key', ''));
+
+        if ($url === '') {
+            return response()->json(['success' => false, 'error' => 'URL is empty'], 422);
+        }
+
+        $health = rtrim($url, '/') . '/health';
+        $ch = curl_init($health);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_HTTPHEADER     => array_filter([
+                'Accept: application/json',
+                $apiKey !== '' ? 'X-API-Key: ' . $apiKey : null,
+            ]),
+        ]);
+        $body = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err  = curl_error($ch);
+        curl_close($ch);
+
+        if ($body === false || $code === 0) {
+            return response()->json(['success' => false, 'error' => $err ?: 'no response'], 200);
+        }
+        if ($code >= 400) {
+            return response()->json(['success' => false, 'error' => 'HTTP ' . $code], 200);
+        }
+
+        $data = json_decode((string) $body, true) ?: [];
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'ner_model'        => $data['ner_model']        ?? ($data['models']['ner']        ?? null),
+                'summarizer_model' => $data['summarizer_model'] ?? ($data['models']['summarizer'] ?? null),
+            ],
+        ]);
+    }
+
+    /**
+     * Same-origin proxy for the OPUS-MT "Test" button. Hits /health on the MT
+     * adapter, then issues a tiny en→af translate to confirm the model loads.
+     */
+    public function aiServicesTestMt(Request $request)
+    {
+        $endpoint = trim((string) $request->input('endpoint', ''));
+        $apiKey   = trim((string) $request->input('api_key', ''));
+
+        if ($endpoint === '') {
+            return response()->json(['success' => false, 'error' => 'Endpoint is empty'], 422);
+        }
+
+        $base    = preg_replace('#/translate/?$#', '', $endpoint);
+        $headers = array_filter([
+            'Content-Type: application/json',
+            'Accept: application/json',
+            $apiKey !== '' ? 'X-API-Key: ' . $apiKey : null,
+        ]);
+
+        $ch = curl_init(rtrim($base, '/') . '/health');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_HTTPHEADER     => $headers,
+        ]);
+        $body = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err  = curl_error($ch);
+        curl_close($ch);
+
+        if ($body === false || $code === 0) {
+            return response()->json(['success' => false, 'error' => $err ?: 'no response'], 200);
+        }
+        if ($code >= 400) {
+            return response()->json(['success' => false, 'error' => 'HTTP ' . $code . ' on /health'], 200);
+        }
+
+        $health = json_decode((string) $body, true) ?: [];
+
+        $ch = curl_init($endpoint);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_POST           => true,
+            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_POSTFIELDS     => json_encode([
+                'source' => 'en', 'target' => 'af', 'text' => 'Hello, how are you?',
+            ]),
+        ]);
+        $tBody = curl_exec($ch);
+        $tCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $tErr  = curl_error($ch);
+        curl_close($ch);
+
+        if ($tBody === false || $tCode >= 400) {
+            return response()->json([
+                'success' => false,
+                'error'   => $tErr ?: ('translate returned HTTP ' . $tCode),
+            ], 200);
+        }
+
+        $t = json_decode((string) $tBody, true) ?: [];
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'status'     => $health['status']                ?? 'ok',
+                'translator' => $health['models']['translator']  ?? ($health['model'] ?? null),
+                'translated' => $t['translated'] ?? $t['translatedText'] ?? null,
+            ],
+        ]);
+    }
+
+    /**
      * Check Qdrant service and collection health.
      */
     protected function checkQdrantStatus(string $url, string $collection): array

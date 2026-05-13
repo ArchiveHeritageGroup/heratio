@@ -59,7 +59,7 @@
           <small class="text-muted">{{ __('URL of the AI service (e.g., http://localhost:5004/ai/v1)') }}</small>
         </div>
         <div class="col-sm-3">
-          <button type="button" class="btn btn-outline-info" onclick="testConnection()">
+          <button type="button" class="btn btn-outline-info" id="btn-test-connection">
             <i class="fas fa-plug me-1"></i>{{ __('Test Connection') }}
           </button>
         </div>
@@ -72,7 +72,7 @@
             value="{{ $settings['api_key'] ?? '' }}">
         </div>
         <div class="col-sm-3">
-          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="togglePassword()">
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-toggle-api-key">
             <i class="fas fa-eye"></i> {{ __('Show') }}
           </button>
         </div>
@@ -284,7 +284,7 @@
           <small class="text-muted">{{ __('OPUS-MT translation server URL') }}</small>
         </div>
         <div class="col-sm-3">
-          <button type="button" class="btn btn-outline-info" onclick="testTranslation()">
+          <button type="button" class="btn btn-outline-info" id="btn-test-translation">
             <i class="fas fa-plug me-1"></i>{{ __('Test') }}
           </button>
         </div>
@@ -340,7 +340,7 @@
       <div class="row mb-3">
         <label class="col-sm-3 col-form-label">{{ __('Institution Sector') }}</label>
         <div class="col-sm-4">
-          <select class="form-select" name="translation_sector" id="translation_sector" onchange="updateFieldsForSector()">
+          <select class="form-select" name="translation_sector" id="translation_sector">
             <option value="archives" {{ ($settings['translation_sector'] ?? 'archives') === 'archives' ? 'selected' : '' }}>
               Archives (ISAD(G))
             </option>
@@ -402,9 +402,9 @@
           @endforeach
 
           <div class="mt-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllFields()">{{ __('Select All') }}</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAllFields()">{{ __('Deselect All') }}</button>
-            <button type="button" class="btn btn-sm btn-outline-info" onclick="resetTargetFields()">{{ __('Reset Targets to Same Field') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-select-all-fields">{{ __('Select All') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-deselect-all-fields">{{ __('Deselect All') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-info" id="btn-reset-target-fields">{{ __('Reset Targets to Same Field') }}</button>
           </div>
         </div>
       </div>
@@ -568,134 +568,176 @@
 <div id="connectionResult" class="alert d-none mb-4"></div>
 
 <script>
-// Initialize sector fields on page load
+// Heratio runs a strict CSP (script-src 'self' + nonce, no 'unsafe-inline').
+// Inline onclick="..." attributes are silently blocked by the browser, so all
+// handlers below are bound via addEventListener inside this nonced <script>.
+
 document.addEventListener('DOMContentLoaded', function() {
     updateFieldsForSector();
 
-    // Disable hidden sector inputs on form submit
     const form = document.querySelector('form');
     if (form) {
-        form.addEventListener('submit', function(e) {
-            document.querySelectorAll('.sector-fields').forEach(div => {
+        form.addEventListener('submit', function() {
+            document.querySelectorAll('.sector-fields').forEach(function(div) {
                 if (div.style.display === 'none') {
-                    div.querySelectorAll('input, select').forEach(input => {
+                    div.querySelectorAll('input, select').forEach(function(input) {
                         input.disabled = true;
                     });
                 }
             });
         });
     }
+
+    const sectorSelect = document.getElementById('translation_sector');
+    if (sectorSelect) sectorSelect.addEventListener('change', updateFieldsForSector);
+
+    bind('btn-select-all-fields',    'click',  selectAllFields);
+    bind('btn-deselect-all-fields',  'click',  deselectAllFields);
+    bind('btn-reset-target-fields',  'click',  resetTargetFields);
+    bind('btn-toggle-api-key',       'click',  togglePassword);
+    bind('btn-test-connection',      'click',  testConnection);
+    bind('btn-test-translation',     'click',  testTranslation);
 });
+
+function bind(id, event, handler) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener(event, handler);
+}
 
 function updateFieldsForSector() {
     const sector = document.getElementById('translation_sector').value;
-    document.querySelectorAll('.sector-fields').forEach(el => {
+    document.querySelectorAll('.sector-fields').forEach(function(el) {
         el.style.display = 'none';
-        el.querySelectorAll('input, select').forEach(input => input.disabled = false);
+        el.querySelectorAll('input, select').forEach(function(input) { input.disabled = false; });
     });
     const sectorDiv = document.getElementById('sector-fields-' + sector);
-    if (sectorDiv) {
-        sectorDiv.style.display = 'block';
-    }
+    if (sectorDiv) sectorDiv.style.display = 'block';
 }
 
 function selectAllFields() {
     const sector = document.getElementById('translation_sector').value;
     const sectorDiv = document.getElementById('sector-fields-' + sector);
-    if (sectorDiv) {
-        sectorDiv.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
-    }
+    if (sectorDiv) sectorDiv.querySelectorAll('input[type="checkbox"]').forEach(function(cb) { cb.checked = true; });
 }
 
 function deselectAllFields() {
     const sector = document.getElementById('translation_sector').value;
     const sectorDiv = document.getElementById('sector-fields-' + sector);
-    if (sectorDiv) {
-        sectorDiv.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-    }
+    if (sectorDiv) sectorDiv.querySelectorAll('input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
 }
 
 function resetTargetFields() {
     const sector = document.getElementById('translation_sector').value;
     const sectorDiv = document.getElementById('sector-fields-' + sector);
     if (sectorDiv) {
-        sectorDiv.querySelectorAll('select').forEach(select => {
-            const sourceField = select.name.replace('translate_target_', '');
-            select.value = sourceField;
+        sectorDiv.querySelectorAll('select').forEach(function(select) {
+            select.value = select.name.replace('translate_target_', '');
         });
     }
 }
 
-function togglePassword() {
+function togglePassword(e) {
     const field = document.getElementById('api_key');
-    const btn = event.target.closest('button');
+    const btn = e.currentTarget;
     if (field.type === 'password') {
         field.type = 'text';
-        btn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide';
+        btn.innerHTML = '<i class="fas fa-eye-slash"></i> {{ __('Hide') }}';
     } else {
         field.type = 'password';
-        btn.innerHTML = '<i class="fas fa-eye"></i> Show';
+        btn.innerHTML = '<i class="fas fa-eye"></i> {{ __('Show') }}';
     }
 }
 
-function testConnection() {
-    const url = document.querySelector('input[name="api_url"]').value;
+function showResult(html, level) {
     const resultDiv = document.getElementById('connectionResult');
-
-    resultDiv.className = 'alert alert-info';
-    resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Testing connection...';
+    resultDiv.className = 'alert alert-' + level;
+    resultDiv.innerHTML = html;
     resultDiv.classList.remove('d-none');
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
-    fetch(url + '/health')
-        .then(response => response.json())
-        .then(data => {
-            resultDiv.className = 'alert alert-success';
-            resultDiv.innerHTML = '<i class="fas fa-check-circle me-2"></i><strong>Connection successful!</strong><br>' +
-                'NER Model: ' + (data.ner_model || 'N/A') + '<br>' +
-                'Summarizer: ' + (data.summarizer_model || 'N/A');
+function csrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+}
+
+function testConnection() {
+    const url    = document.querySelector('input[name="api_url"]').value;
+    const apiKey = document.querySelector('input[name="api_key"]').value;
+    showResult('<i class="fas fa-spinner fa-spin me-2"></i>Testing connection...', 'info');
+
+    // Route via same-origin server proxy so CORS / mixed-content / browser-
+    // localhost mismatches can't kill the test. The PHP side uses the same
+    // HTTP client that the live NER / summarisation services use.
+    fetch('{{ route('settings.ai-services.test') }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
+        body: JSON.stringify({ url: url, api_key: apiKey })
+    })
+        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, body: d }; }); })
+        .then(function(res) {
+            if (res.ok && res.body.success) {
+                const d = res.body.data || {};
+                showResult(
+                    '<i class="fas fa-check-circle me-2"></i><strong>Connection successful!</strong><br>' +
+                    'NER Model: ' + (d.ner_model || 'N/A') + '<br>' +
+                    'Summarizer: ' + (d.summarizer_model || 'N/A'),
+                    'success'
+                );
+            } else {
+                showResult(
+                    '<i class="fas fa-exclamation-triangle me-2"></i><strong>Connection failed!</strong><br>' +
+                    'Error: ' + (res.body.error || 'unknown') + '<br>' +
+                    'URL: ' + url,
+                    'danger'
+                );
+            }
         })
-        .catch(error => {
-            resultDiv.className = 'alert alert-danger';
-            resultDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i><strong>Connection failed!</strong><br>' +
-                'Error: ' + error.message + '<br>' +
-                'Make sure the AI service is running at: ' + url;
+        .catch(function(error) {
+            showResult(
+                '<i class="fas fa-exclamation-triangle me-2"></i><strong>Connection failed!</strong><br>' +
+                'Error: ' + error.message,
+                'danger'
+            );
         });
 }
 
 function testTranslation() {
     const endpoint = document.querySelector('input[name="mt_endpoint"]').value;
-    const baseUrl = endpoint.replace(/\/translate$/, '');
-    const apiKey = document.querySelector('input[name="api_key"]')?.value || '<set in ahg_settings>';
-    const resultDiv = document.getElementById('connectionResult');
+    const apiKey   = document.querySelector('input[name="api_key"]').value;
+    showResult('<i class="fas fa-spinner fa-spin me-2"></i>Testing OPUS-MT connection...', 'info');
 
-    resultDiv.className = 'alert alert-info';
-    resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Testing OPUS-MT connection...';
-    resultDiv.classList.remove('d-none');
-
-    fetch(baseUrl + '/health', { headers: { 'X-API-Key': apiKey } })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'ok') {
-                const translatorModel = data.models?.translator || 'N/A';
-                return fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
-                    body: JSON.stringify({ source: 'en', target: 'af', text: 'Hello, how are you?' })
-                }).then(r => r.json()).then(t => {
-                    const translated = t.translated || t.translatedText || 'N/A';
-                    resultDiv.className = 'alert alert-success';
-                    resultDiv.innerHTML = '<i class="fas fa-check-circle me-2"></i><strong>OPUS-MT Connection successful!</strong><br>' +
-                        'Status: ' + data.status + '<br>' +
-                        'Translator: ' + translatorModel + '<br>' +
-                        '<strong>Test:</strong> "Hello, how are you?" &rarr; "' + translated + '"';
-                });
+    fetch('{{ route('settings.ai-services.test-mt') }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
+        body: JSON.stringify({ endpoint: endpoint, api_key: apiKey })
+    })
+        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, body: d }; }); })
+        .then(function(res) {
+            if (res.ok && res.body.success) {
+                const d = res.body.data || {};
+                showResult(
+                    '<i class="fas fa-check-circle me-2"></i><strong>OPUS-MT Connection successful!</strong><br>' +
+                    'Status: ' + (d.status || 'ok') + '<br>' +
+                    'Translator: ' + (d.translator || 'N/A') + '<br>' +
+                    '<strong>Test:</strong> "Hello, how are you?" &rarr; "' + (d.translated || 'N/A') + '"',
+                    'success'
+                );
+            } else {
+                showResult(
+                    '<i class="fas fa-exclamation-triangle me-2"></i><strong>OPUS-MT Connection failed!</strong><br>' +
+                    'Error: ' + (res.body.error || 'unknown') + '<br>' +
+                    'Endpoint: ' + endpoint,
+                    'danger'
+                );
             }
         })
-        .catch(error => {
-            resultDiv.className = 'alert alert-danger';
-            resultDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i><strong>OPUS-MT Connection failed!</strong><br>' +
-                'Error: ' + error.message + '<br>' +
-                'Endpoint: ' + endpoint;
+        .catch(function(error) {
+            showResult(
+                '<i class="fas fa-exclamation-triangle me-2"></i><strong>OPUS-MT Connection failed!</strong><br>' +
+                'Error: ' + error.message,
+                'danger'
+            );
         });
 }
 </script>
