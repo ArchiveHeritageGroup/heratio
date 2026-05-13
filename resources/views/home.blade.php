@@ -57,7 +57,18 @@
 @endsection
 
 @section('content')
-  {{-- Static page content (hero + below-the-fold copy from static_page id=7) --}}
+  @php
+    // Split the home static_page on the <!-- HERATIO_MIDPAGE --> marker so the
+    // marketplace hero + featured carousel can render between the new hero copy
+    // (top half) and the legacy AHG feature list (bottom half). If the marker
+    // isn't present, the whole page renders in $heroPart and $featuresPart is
+    // empty — preserves the old single-block behaviour for other static pages.
+    $homeParts = $page ? preg_split('/<!--\s*HERATIO_MIDPAGE\s*-->/', (string) ($page->content ?? ''), 2) : [''];
+    $heroPart = $homeParts[0] ?? '';
+    $featuresPart = $homeParts[1] ?? '';
+  @endphp
+
+  {{-- Static page hero (top half) --}}
   @if($page)
     <div class="page p-3">
       @auth
@@ -69,7 +80,7 @@
           </div>
         @endif
       @endauth
-      {!! $page->content ?? '' !!}
+      {!! $heroPart !!}
     </div>
   @endif
 
@@ -262,5 +273,13 @@
         background-color: #000;
     }
     </style>
+  @endif
+
+  {{-- Static page features list (bottom half — only when HERATIO_MIDPAGE marker
+       is present in the static_page content). --}}
+  @if($page && $featuresPart !== '')
+    <div class="page p-3">
+      {!! $featuresPart !!}
+    </div>
   @endif
 @endsection

@@ -19,9 +19,17 @@
           <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#version-collapse">{{ __('Version') }}</button></h2>
           <div id="version-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
+              @php
+                $heratioVersion = (string) (json_decode((string) @file_get_contents(base_path('version.json')), true)['version'] ?? '');
+              @endphp
               <div class="mb-3">
                 <label class="form-label">Application version <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[version]" class="form-control" value="{{ $settings['version'] ?? '' }}" readonly>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">{{ __('Heratio version') }}</label>
+                <input type="text" class="form-control" value="{{ $heratioVersion }}" readonly>
+                <small class="text-muted">{{ __('Read from version.json; bumped by bin/release on every deploy.') }}</small>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[check_for_updates]" value="0">
