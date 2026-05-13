@@ -27,6 +27,7 @@ class AhgLibraryServiceProvider extends ServiceProvider
                 \AhgLibrary\Console\Commands\AutoExpireHoldsCommand::class,
                 \AhgLibrary\Console\Commands\AutoExpirePatronsCommand::class,
                 \AhgLibrary\Console\Commands\CalculateFinesCommand::class,
+                \AhgLibrary\Console\Commands\BackfillLibraryAuthorsCommand::class,
             ]);
 
             $this->app->booted(function () {

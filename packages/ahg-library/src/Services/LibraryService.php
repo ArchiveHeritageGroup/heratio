@@ -620,7 +620,7 @@ class LibraryService
      * authorized_form_of_name. parent_id stays NULL since these aren't part
      * of an organisational hierarchy.
      */
-    private function resolveOrCreateActor(string $name, string $culture, string $fallback): ?int
+    public function resolveOrCreateActor(string $name, string $culture, string $fallback): ?int
     {
         $needle = trim($name);
         if ($needle === '') {

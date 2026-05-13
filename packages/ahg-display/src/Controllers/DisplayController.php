@@ -54,6 +54,11 @@ class DisplayController extends Controller
     protected ?string $levelFilter = null;
     protected ?string $mediaFilter = null;
     protected ?string $repoFilter = null;
+    // Library-only facets (only meaningful when result set includes library_item rows)
+    protected ?string $materialTypeFilter = null;
+    protected ?string $conditionGradeFilter = null;
+    protected ?string $acquisitionMethodFilter = null;
+    protected ?string $circulationStatusFilter = null;
     protected ?string $queryFilter = null;
     protected ?array $queryFilterTerms = null;
     protected ?string $titleFilter = null;
@@ -142,7 +147,7 @@ class DisplayController extends Controller
         // and no other narrowing parameter, fall back to the operator's
         // default_sector (issue #93). Lets a museum-only deployment skip the
         // archive default. Empty string in the setting means "no default".
-        if ($this->typeFilter === null && !$request->hasAny(['parent', 'collection', 'ancestor', 'creator', 'subject', 'place', 'genre', 'level', 'media', 'repo', 'query', 'topLevel', 'topLod', 'hasDigital', 'onlyMedia'])) {
+        if ($this->typeFilter === null && !$request->hasAny(['parent', 'collection', 'ancestor', 'creator', 'subject', 'place', 'genre', 'level', 'media', 'repo', 'query', 'topLevel', 'topLod', 'hasDigital', 'onlyMedia', 'materialType', 'conditionGrade', 'acquisitionMethod', 'circulationStatus'])) {
             $defaultSector = trim((string) \AhgCore\Services\AhgSettingsService::get('default_sector', ''));
             if ($defaultSector !== '') {
                 $this->typeFilter = $defaultSector;
@@ -192,6 +197,10 @@ class DisplayController extends Controller
         $this->genreFilter = $request->input('genre');
         $this->levelFilter = $request->input('level');
         $this->mediaFilter = $request->input('media');
+        $this->materialTypeFilter = $request->input('materialType') ?: null;
+        $this->conditionGradeFilter = $request->input('conditionGrade') ?: null;
+        $this->acquisitionMethodFilter = $request->input('acquisitionMethod') ?: null;
+        $this->circulationStatusFilter = $request->input('circulationStatus') ?: null;
 
         // Text search filters
         $this->queryFilter = $request->input('query');
@@ -287,7 +296,9 @@ class DisplayController extends Controller
         $hasFilters = $this->typeFilter || $this->parentId || $this->creatorFilter
             || $this->subjectFilter || $this->placeFilter || $this->genreFilter
             || $this->levelFilter || $this->mediaFilter || $this->repoFilter
-            || $this->queryFilter || $this->hasDigital;
+            || $this->queryFilter || $this->hasDigital
+            || $this->materialTypeFilter || $this->conditionGradeFilter
+            || $this->acquisitionMethodFilter || $this->circulationStatusFilter;
 
         // #114 multi_repository: when off, the repository facet is meaningless
         // (browse is locked to a single repo). Skip the facet build entirely
@@ -316,6 +327,14 @@ class DisplayController extends Controller
             $genres = $this->getCachedFacet('genre' . $sfx);
             $mediaTypes = $this->getCachedFacet('media_type' . $sfx, 'media_type');
         }
+
+        // Library-only facets: always live (no display_facet_cache row), cheap
+        // queries because they hit a small table. The view skips empty results,
+        // so on archive-only browses these blocks don't render.
+        $materialTypes      = $this->getLiveFacet('material_type');
+        $conditionGrades    = $this->getLiveFacet('condition_grade');
+        $acquisitionMethods = $this->getLiveFacet('acquisition_method');
+        $circulationStatuses = $this->getLiveFacet('circulation_status');
 
         // Discovery integration - skipped (ahgDiscoveryPlugin not yet migrated)
         $discoveryMode = false;
@@ -517,6 +536,10 @@ class DisplayController extends Controller
             'level' => $this->levelFilter,
             'media' => $this->mediaFilter,
             'repo' => $this->repoFilter,
+            'materialType' => $this->materialTypeFilter,
+            'conditionGrade' => $this->conditionGradeFilter,
+            'acquisitionMethod' => $this->acquisitionMethodFilter,
+            'circulationStatus' => $this->circulationStatusFilter,
             'hasDigital' => $this->hasDigital,
             'view' => $viewMode,
             'limit' => $limit,
@@ -536,6 +559,10 @@ class DisplayController extends Controller
         $levelFilter = $this->levelFilter;
         $mediaFilter = $this->mediaFilter;
         $repoFilter = $this->repoFilter;
+        $materialTypeFilter = $this->materialTypeFilter;
+        $conditionGradeFilter = $this->conditionGradeFilter;
+        $acquisitionMethodFilter = $this->acquisitionMethodFilter;
+        $circulationStatusFilter = $this->circulationStatusFilter;
         $queryFilter = $this->queryFilter;
 
         return view('ahg-display::display.browse', compact(
@@ -546,7 +573,9 @@ class DisplayController extends Controller
             'subjectFilter', 'placeFilter', 'genreFilter', 'levelFilter', 'mediaFilter',
             'repoFilter', 'queryFilter', 'filterParams', 'discoveryMode',
             'discoveryExpanded', 'discoveryMeta', 'correctedQuery', 'didYouMean',
-            'originalQuery', 'esAssistedSearch', 'brokenItems'
+            'originalQuery', 'esAssistedSearch', 'brokenItems',
+            'materialTypes', 'conditionGrades', 'acquisitionMethods', 'circulationStatuses',
+            'materialTypeFilter', 'conditionGradeFilter', 'acquisitionMethodFilter', 'circulationStatusFilter'
         ));
     }
 
@@ -1183,6 +1212,25 @@ class DisplayController extends Controller
             $query->where('io.repository_id', $this->repoFilter);
         }
 
+        // Library-only filters: each scopes the result set to IOs whose paired
+        // library_item row matches the value (and therefore excludes non-library
+        // records entirely when any of these is set).
+        $libFilters = [
+            'material_type'      => $this->materialTypeFilter,
+            'condition_grade'    => $this->conditionGradeFilter,
+            'acquisition_method' => $this->acquisitionMethodFilter,
+            'circulation_status' => $this->circulationStatusFilter,
+        ];
+        foreach ($libFilters as $col => $val) {
+            if ($val === null || $val === '') continue;
+            $query->whereExists(function ($q) use ($col, $val) {
+                $q->select(DB::raw(1))
+                    ->from('library_item as li_w')
+                    ->whereRaw('li_w.information_object_id = io.id')
+                    ->where("li_w.{$col}", $val);
+            });
+        }
+
         // Multi-tenant scope. Applied after the user-driven repoFilter so a
         // tenant user can't widen their scope via URL param: both ANDed, the
         // narrower wins. No-op when multi-tenancy is disabled or the user is
@@ -1451,7 +1499,14 @@ class DisplayController extends Controller
         // to the currently-selected type (eg. default_sector='archive'), the
         // GROUP BY collapses to a single row and the sidebar reads as a
         // single locked option. Drop the type filter for this dimension only.
-        $excludeTypeFilter = $dimension === 'type';
+        //
+        // Library-only dimensions (material_type / condition_grade /
+        // acquisition_method / circulation_status) need the same treatment:
+        // when default_sector='archive', honoring the type filter excludes
+        // every library_item from the count and the facet vanishes, even
+        // though the user *would* want to pivot to library by clicking it.
+        $libraryDimensions = ['material_type', 'condition_grade', 'acquisition_method', 'circulation_status'];
+        $excludeTypeFilter = $dimension === 'type' || in_array($dimension, $libraryDimensions, true);
         $savedTypeFilter = $this->typeFilter;
         if ($excludeTypeFilter) {
             $this->typeFilter = null;
@@ -1556,6 +1611,24 @@ class DisplayController extends Controller
                     ->select('io.repository_id as facet_id', 'rai.authorized_form_of_name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
                     ->groupBy('io.repository_id', 'rai.authorized_form_of_name');
                 break;
+
+            case 'material_type':
+            case 'condition_grade':
+            case 'acquisition_method':
+            case 'circulation_status':
+                $libCol = $dimension;
+                $query->join('library_item as li_f', 'li_f.information_object_id', '=', 'io.id')
+                    ->whereNotNull("li_f.{$libCol}")
+                    ->where("li_f.{$libCol}", '!=', '')
+                    ->select("li_f.{$libCol} as facet_id", DB::raw("li_f.{$libCol} as facet_name"), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy("li_f.{$libCol}");
+                return $query->orderByDesc('cnt')->limit(30)->get()->map(function ($r) use ($libCol) {
+                    $obj = new \stdClass();
+                    $obj->id = $r->facet_id;
+                    $obj->name = $r->facet_name;
+                    $obj->count = $r->cnt;
+                    return $obj;
+                })->toArray();
 
             case 'media_type':
                 $query->join('digital_object as dof', function ($j) {

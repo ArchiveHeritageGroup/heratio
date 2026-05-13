@@ -295,6 +295,49 @@
         </div>
       </div>
 
+      {{-- Library facets (Material / Condition / Acquisition / Circulation).
+           Each block renders only when the live facet query returns rows, so on
+           archive-only browses they stay hidden. --}}
+      @php
+        $libraryFacets = [
+          ['var' => $materialTypes ?? [],      'label' => __('Material type'),       'param' => 'materialType',      'selected' => $materialTypeFilter ?? null,      'id' => 'facetMaterial'],
+          ['var' => $conditionGrades ?? [],    'label' => __('Condition'),           'param' => 'conditionGrade',    'selected' => $conditionGradeFilter ?? null,    'id' => 'facetCondition'],
+          ['var' => $acquisitionMethods ?? [], 'label' => __('Acquisition method'),  'param' => 'acquisitionMethod', 'selected' => $acquisitionMethodFilter ?? null, 'id' => 'facetAcquisition'],
+          ['var' => $circulationStatuses ?? [],'label' => __('Circulation status'),  'param' => 'circulationStatus', 'selected' => $circulationStatusFilter ?? null, 'id' => 'facetCirculation'],
+        ];
+      @endphp
+      @foreach($libraryFacets as $lf)
+        @if(!empty($lf['var']))
+          <div class="card mb-2">
+            <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="{{ $lf['id'] }}" data-bs-toggle="collapse" data-bs-target="#{{ $lf['id'] }}" style="background:var(--ahg-primary);color:#fff">
+              <strong>{{ $lf['label'] }}</strong> <i class="fas fa-chevron-down float-end"></i>
+            </div>
+            <div id="{{ $lf['id'] }}" class="collapse">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ empty($lf['selected']) ? 'active' : '' }}">
+                  <a href="{{ glamBrowseUrl($fp, [], [$lf['param']]) }}" class="text-decoration-none small {{ empty($lf['selected']) ? 'text-white' : '' }}">
+                    {{ __('All') }}
+                  </a>
+                </li>
+                @foreach($lf['var'] as $row)
+                  <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ ($lf['selected'] ?? '') == $row->id ? 'active' : '' }}">
+                    <a href="{{ glamBrowseUrl($fp, [$lf['param'] => $row->id]) }}"
+                       class="text-decoration-none small {{ ($lf['selected'] ?? '') == $row->id ? 'text-white' : '' }}">
+                      <span class="facet-link text-truncate" title="{{ ucfirst(str_replace('_', ' ', $row->name)) }}">
+                        {{ ucfirst(str_replace('_', ' ', $row->name)) }}
+                      </span>
+                      @if($row->count)
+                        <span class="badge bg-secondary rounded-pill">{{ number_format($row->count) }}</span>
+                      @endif
+                    </a>
+                  </li>
+                @endforeach
+              </ul>
+            </div>
+          </div>
+        @endif
+      @endforeach
+
       {{-- Repository facet (closed by default) --}}
       <div class="card mb-2">
         <div class="card-header py-2 cursor-pointer" role="button" tabindex="0" aria-expanded="false" aria-controls="facetRepo" data-bs-toggle="collapse" data-bs-target="#facetRepo" style="background:var(--ahg-primary);color:#fff">
