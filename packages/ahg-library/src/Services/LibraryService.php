@@ -584,6 +584,9 @@ class LibraryService
             ->where('library_item_id', $libraryItemId)
             ->delete();
 
+        $culture = (string) app()->getLocale();
+        $fallback = (string) config('app.fallback_locale', 'en');
+
         $sort = 0;
         foreach ($creators as $c) {
             if (!is_array($c)) continue;
@@ -591,15 +594,70 @@ class LibraryService
             if ($name === '') continue;
             $role = trim((string) ($c['role'] ?? '')) ?: 'author';
             $uri  = trim((string) ($c['authority_uri'] ?? ''));
+
+            $actorId = $this->resolveOrCreateActor($name, $culture, $fallback);
+
             DB::table('library_item_creator')->insert([
                 'library_item_id' => $libraryItemId,
                 'name'            => $name,
+                'actor_id'        => $actorId,
                 'role'            => $role,
                 'authority_uri'   => $uri !== '' ? $uri : null,
                 'sort_order'      => $sort++,
                 'created_at'      => now(),
             ]);
         }
+    }
+
+    /**
+     * Lookup an existing actor by authorized_form_of_name (case-insensitive,
+     * trimmed) in the current culture, falling back to the configured fallback
+     * locale. If no match, create a minimal new actor row + actor_i18n entry.
+     * Returns the actor.id so library_item_creator.actor_id can be populated.
+     *
+     * Mirrors the AtoM authority-record pattern: every QubitActor needs an
+     * `object` row (class_name='QubitActor') plus a culture-specific
+     * authorized_form_of_name. parent_id stays NULL since these aren't part
+     * of an organisational hierarchy.
+     */
+    private function resolveOrCreateActor(string $name, string $culture, string $fallback): ?int
+    {
+        $needle = trim($name);
+        if ($needle === '') {
+            return null;
+        }
+
+        $existing = DB::table('actor_i18n')
+            ->whereIn('culture', array_unique([$culture, $fallback]))
+            ->whereRaw('LOWER(TRIM(authorized_form_of_name)) = ?', [mb_strtolower($needle)])
+            ->orderByRaw('FIELD(culture, ?, ?)', [$culture, $fallback])
+            ->value('id');
+
+        if ($existing) {
+            return (int) $existing;
+        }
+
+        return DB::transaction(function () use ($needle, $culture) {
+            $objectId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitActor',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('actor')->insert([
+                'id'             => $objectId,
+                'parent_id'      => null,
+                'source_culture' => $culture,
+            ]);
+
+            DB::table('actor_i18n')->insert([
+                'id'                       => $objectId,
+                'culture'                  => $culture,
+                'authorized_form_of_name'  => $needle,
+            ]);
+
+            return (int) $objectId;
+        });
     }
 
     /**

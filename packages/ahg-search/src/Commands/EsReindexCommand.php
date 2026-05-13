@@ -298,7 +298,38 @@ class EsReindexCommand extends Command
                     ->get()
                     ->groupBy('object_id');
 
-                $creatorActorIds = $creators->flatten()->pluck('actor_id')->unique()->toArray();
+                // Batch-load library_item rows for these IOs (NULL for non-library IOs).
+                // ISBN, summary, series_title etc. live only on library_item and need to
+                // surface in the IO ES doc so global search can match them.
+                $libraryItems = DB::table('library_item')
+                    ->whereIn('information_object_id', $ids)
+                    ->get()
+                    ->keyBy('information_object_id');
+
+                // Batch-load library_item_creator rows. Authors are kept in their own
+                // table; library save now upserts a matching actor and stores actor_id,
+                // so library creators get merged into the IO doc's creators list the
+                // same way event-table creators do.
+                $libraryCreators = collect();
+                if ($libraryItems->isNotEmpty()) {
+                    $libraryItemIds = $libraryItems->pluck('id')->toArray();
+                    $libraryCreatorRows = DB::table('library_item_creator')
+                        ->whereIn('library_item_id', $libraryItemIds)
+                        ->orderBy('sort_order')
+                        ->get();
+                    $libByItemId = $libraryItems->keyBy('id');
+                    foreach ($libraryCreatorRows as $lc) {
+                        $libItem = $libByItemId[$lc->library_item_id] ?? null;
+                        if (!$libItem) continue;
+                        $ioId = (int) $libItem->information_object_id;
+                        $libraryCreators[$ioId] = $libraryCreators->get($ioId, collect())->push($lc);
+                    }
+                }
+
+                $creatorActorIds = $creators->flatten()->pluck('actor_id')->unique()
+                    ->merge($libraryCreators->flatten()->pluck('actor_id')->filter()->unique())
+                    ->unique()
+                    ->toArray();
                 $creatorI18n = [];
                 if (!empty($creatorActorIds)) {
                     $creatorI18n = DB::table('actor_i18n')
@@ -316,8 +347,13 @@ class EsReindexCommand extends Command
                     $do = $digitalObjects[$row->id] ?? null;
                     $repo = $repos[$row->repository_id] ?? null;
 
-                    // Build creators array
+                    // Build creators array — merge AtoM-style event creators with
+                    // library_item_creator rows (each library author becomes an actor
+                    // via LibraryService::resolveOrCreateActor on save). Names from
+                    // pre-actor-link library rows are still emitted as a string-only
+                    // creator so search-by-name works during the rollover.
                     $ioCreators = [];
+                    $seenActorIds = [];
                     if (isset($creators[$row->id])) {
                         foreach ($creators[$row->id] as $evt) {
                             $ci = $creatorI18n[$evt->actor_id] ?? collect();
@@ -325,8 +361,33 @@ class EsReindexCommand extends Command
                                 'id' => $evt->actor_id,
                                 'i18n' => $this->buildI18n($ci, ['authorizedFormOfName' => 'authorized_form_of_name']),
                             ];
+                            $seenActorIds[$evt->actor_id] = true;
                         }
                     }
+                    if ($libraryCreators->has($row->id)) {
+                        foreach ($libraryCreators->get($row->id) as $lc) {
+                            if ($lc->actor_id && isset($seenActorIds[$lc->actor_id])) continue;
+                            if ($lc->actor_id) {
+                                $ci = $creatorI18n[$lc->actor_id] ?? collect();
+                                $ioCreators[] = [
+                                    'id' => $lc->actor_id,
+                                    'i18n' => $this->buildI18n($ci, ['authorizedFormOfName' => 'authorized_form_of_name']),
+                                ];
+                                $seenActorIds[$lc->actor_id] = true;
+                            } else {
+                                // Pre-actor-link row: emit the name as a bare creator so
+                                // text search still finds the book by author string.
+                                $ioCreators[] = [
+                                    'id' => null,
+                                    'i18n' => ['en' => ['authorizedFormOfName' => $lc->name]],
+                                ];
+                            }
+                        }
+                    }
+
+                    // Library-specific fields (ISBN, series, summary) hoisted to the
+                    // top of the IO ES doc when this row has a library_item.
+                    $libRow = $libraryItems->get($row->id);
 
                     $doc = [
                         'slug' => $slug,
@@ -354,6 +415,16 @@ class EsReindexCommand extends Command
                         'creators' => $ioCreators,
                         'inheritedCreators' => [],
                     ];
+
+                    if ($libRow) {
+                        $doc['isbn'] = $libRow->isbn ?: null;
+                        $doc['callNumber'] = $libRow->call_number ?: null;
+                        $doc['seriesTitle'] = $libRow->series_title ?: null;
+                        $doc['seriesIssn'] = $libRow->series_issn ?: null;
+                        $doc['summary'] = $libRow->summary ?: null;
+                        $doc['contentsNote'] = $libRow->contents_note ?: null;
+                        $doc['materialType'] = $libRow->material_type ?: null;
+                    }
 
                     if ($do) {
                         $doc['digitalObject'] = [

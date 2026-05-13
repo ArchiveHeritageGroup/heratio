@@ -234,4 +234,16 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+-- Link library_item_creator to actor (Authority Record). Nullable so the
+-- existing free-text path still works when no matching actor exists yet;
+-- LibraryService::syncCreators upserts the actor on save and populates this.
+SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'library_item_creator' AND COLUMN_NAME = 'actor_id');
+SET @sql = IF(@col_exists = 0,
+    'ALTER TABLE library_item_creator ADD COLUMN actor_id INT UNSIGNED NULL AFTER name, ADD INDEX idx_library_item_creator_actor (actor_id)',
+    'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 SET FOREIGN_KEY_CHECKS = 1;
