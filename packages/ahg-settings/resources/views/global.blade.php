@@ -23,10 +23,6 @@
                 $heratioVersion = (string) (json_decode((string) @file_get_contents(base_path('version.json')), true)['version'] ?? '');
               @endphp
               <div class="mb-3">
-                <label class="form-label">Application version <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                <input type="text" name="settings[version]" class="form-control" value="{{ $settings['version'] ?? '' }}" readonly>
-              </div>
-              <div class="mb-3">
                 <label class="form-label">{{ __('Heratio version') }}</label>
                 <input type="text" class="form-control" value="{{ $heratioVersion }}" readonly>
                 <small class="text-muted">{{ __('Read from version.json; bumped by bin/release on every deploy.') }}</small>
