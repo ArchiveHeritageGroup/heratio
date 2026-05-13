@@ -57,6 +57,22 @@
 @endsection
 
 @section('content')
+  {{-- Static page content (hero + below-the-fold copy from static_page id=7) --}}
+  @if($page)
+    <div class="page p-3">
+      @auth
+        @if(auth()->user()->is_admin)
+          <div class="mb-2 text-end">
+            <a href="{{ route('staticpage.edit', 'home') }}" class="btn btn-sm atom-btn-white">
+              <i class="fas fa-pencil-alt me-1" aria-hidden="true"></i>{{ __('Edit') }}
+            </a>
+          </div>
+        @endif
+      @endauth
+      {!! $page->content ?? '' !!}
+    </div>
+  @endif
+
   {{-- Marketplace hero CTA — only when ahgMarketplacePlugin is enabled --}}
   @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgMarketplacePlugin'))
   <section class="marketplace-hero rounded shadow-sm mb-4 p-4"
@@ -246,21 +262,5 @@
         background-color: #000;
     }
     </style>
-  @endif
-
-  {{-- Static page content --}}
-  @if($page)
-    <div class="page p-3">
-      @auth
-        @if(auth()->user()->is_admin)
-          <div class="mb-2 text-end">
-            <a href="{{ route('staticpage.edit', 'home') }}" class="btn btn-sm atom-btn-white">
-              <i class="fas fa-pencil-alt me-1" aria-hidden="true"></i>{{ __('Edit') }}
-            </a>
-          </div>
-        @endif
-      @endauth
-      {!! $page->content ?? '' !!}
-    </div>
   @endif
 @endsection
