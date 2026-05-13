@@ -1709,7 +1709,7 @@ class DisplayController extends Controller
         }
 
         self::$sectorSearchTables = [];
-        $candidates = ['dam_iptc_metadata', 'museum_metadata', 'gallery_artist'];
+        $candidates = ['dam_iptc_metadata', 'museum_metadata', 'gallery_artist', 'library_item', 'library_item_creator'];
 
         foreach ($candidates as $table) {
             try {
@@ -1774,6 +1774,47 @@ class DisplayController extends Controller
                     });
             });
         }
+
+        // Library: search ISBN, call_number, series_title, summary, contents_note
+        // on the per-IO library_item row.
+        if (in_array('library_item', $sectorTables)) {
+            $qb->orWhereExists(function ($sub) use ($likePattern) {
+                $sub->select(DB::raw(1))
+                    ->from('library_item as li')
+                    ->whereRaw('li.information_object_id = io.id')
+                    ->where(function ($w) use ($likePattern) {
+                        $w->where('li.isbn', 'like', $likePattern)
+                            ->orWhere('li.call_number', 'like', $likePattern)
+                            ->orWhere('li.series_title', 'like', $likePattern)
+                            ->orWhere('li.summary', 'like', $likePattern)
+                            ->orWhere('li.contents_note', 'like', $likePattern);
+                    });
+            });
+        }
+
+        // Library creators: search the raw author name (covers rows where
+        // resolveOrCreateActor has not run yet so actor_id is still NULL).
+        if (in_array('library_item_creator', $sectorTables)) {
+            $qb->orWhereExists(function ($sub) use ($likePattern) {
+                $sub->select(DB::raw(1))
+                    ->from('library_item_creator as lic')
+                    ->join('library_item as li2', 'li2.id', '=', 'lic.library_item_id')
+                    ->whereRaw('li2.information_object_id = io.id')
+                    ->where('lic.name', 'like', $likePattern);
+            });
+        }
+
+        // Authority records: search actor_i18n.authorized_form_of_name for any
+        // IO whose `event` row links to a matching actor. Catches author/creator
+        // searches across all sectors (not just library), so "Nelson Mandela"
+        // finds the autobiography even though no library_item.title contains it.
+        $qb->orWhereExists(function ($sub) use ($likePattern) {
+            $sub->select(DB::raw(1))
+                ->from('event as ev_act')
+                ->join('actor_i18n as ai_act', 'ai_act.id', '=', 'ev_act.actor_id')
+                ->whereRaw('ev_act.object_id = io.id')
+                ->where('ai_act.authorized_form_of_name', 'like', $likePattern);
+        });
     }
 
     public function browseEmbedded(Request $request)

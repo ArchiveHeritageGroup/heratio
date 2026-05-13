@@ -200,7 +200,31 @@ class ElasticsearchService
                 ],
                 [
                     'match_phrase_prefix' => [
+                        "creators.i18n.{$culture}.authorizedFormOfName" => [
+                            'query' => $query,
+                            'boost' => 2,
+                        ],
+                    ],
+                ],
+                [
+                    'match_phrase_prefix' => [
                         'identifier' => [
+                            'query' => $query,
+                            'boost' => 2,
+                        ],
+                    ],
+                ],
+                [
+                    'match_phrase_prefix' => [
+                        'isbn' => [
+                            'query' => $query,
+                            'boost' => 3,
+                        ],
+                    ],
+                ],
+                [
+                    'match_phrase_prefix' => [
+                        'callNumber' => [
                             'query' => $query,
                             'boost' => 2,
                         ],
