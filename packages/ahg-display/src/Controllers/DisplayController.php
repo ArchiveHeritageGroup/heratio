@@ -574,6 +574,7 @@ class DisplayController extends Controller
     public function printView(Request $request)
     {
         $culture = app()->getLocale();
+        $fallback = config('app.fallback_locale', 'en');
 
         $typeFilter = $request->input('type');
         $parentId = $request->input('parent');
@@ -593,13 +594,25 @@ class DisplayController extends Controller
             ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
             })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('io.id', '=', 'i18n_fb.id')->where('i18n_fb.culture', '=', $fallback);
+            })
             ->leftJoin('term_i18n as level', function ($j) use ($culture) {
                 $j->on('io.level_of_description_id', '=', 'level.id')->where('level.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as level_fb', function ($j) use ($fallback) {
+                $j->on('io.level_of_description_id', '=', 'level_fb.id')->where('level_fb.culture', '=', $fallback);
             })
             ->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id')
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.id', '>', 1)
-            ->select('io.id', 'io.identifier', 'i18n.title', 'i18n.scope_and_content', 'level.name as level_name', 'doc.object_type', 'slug.slug');
+            ->select(
+                'io.id', 'io.identifier',
+                DB::raw("COALESCE(NULLIF(i18n.title, ''), i18n_fb.title) AS title"),
+                DB::raw("COALESCE(NULLIF(i18n.scope_and_content, ''), i18n_fb.scope_and_content) AS scope_and_content"),
+                DB::raw("COALESCE(NULLIF(level.name, ''), level_fb.name) AS level_name"),
+                'doc.object_type', 'slug.slug'
+            );
 
         if ($parentId) {
             $query->where('io.parent_id', $parentId);
