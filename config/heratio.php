@@ -45,6 +45,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Homepage mode
+    |--------------------------------------------------------------------------
+    |
+    | 'marketing'      — product-pitch page (vision + pillars + sectors +
+    |                    standards + CTAs). Used on the vendor's own marketing
+    |                    site (heratio.theahg.co.za).
+    | 'institutional'  — operational homepage with browse, popular, marketplace,
+    |                    featured carousel, etc. Default for every other host
+    |                    so new installs work out of the box.
+    | null             — autodetect by request host (marketing only when host
+    |                    is heratio.theahg.co.za, institutional otherwise).
+    |
+    */
+    'homepage_mode' => env('HERATIO_HOMEPAGE_MODE'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Scanner / capture pipeline (ahg-scan)
     |--------------------------------------------------------------------------
     |

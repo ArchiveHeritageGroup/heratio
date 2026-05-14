@@ -29,6 +29,23 @@ class HomeController extends Controller
             ->select('static_page.id', 'static_page_i18n.title', 'static_page_i18n.content')
             ->first();
 
+        // Marketing-mode short-circuit. Used on the vendor's own site
+        // (heratio.theahg.co.za) to render the product pitch - vision, pillars,
+        // sectors, standards, CTAs - without the body-level operational chrome
+        // (sidebar Browse-by, sidebar Popular, marketplace hero block, featured
+        // carousel, the big feature wall). The navbar login dropdown is kept
+        // because heratio.theahg.co.za is itself the demo - it's seeded with
+        // real data and the same demo account (louise@theahg.co.za) works here
+        // as everywhere else, so prospects can log in and explore.
+        // Default is institutional mode (the existing behaviour), so any
+        // institution that installs Heratio gets a working operational homepage
+        // out of the box.
+        $mode = config('heratio.homepage_mode')
+            ?? (request()->getHost() === 'heratio.theahg.co.za' ? 'marketing' : 'institutional');
+        if ($mode === 'marketing') {
+            return view('home-marketing', compact('page'));
+        }
+
         // Browse menu items (children of the Browse menu)
         $browseMenuId = DB::table('menu')->where('name', 'browse')->value('id');
         $browseItems = collect();
