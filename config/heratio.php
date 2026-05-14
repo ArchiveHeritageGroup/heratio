@@ -62,6 +62,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Contact form recipient
+    |--------------------------------------------------------------------------
+    |
+    | Address that receives /contact form submissions. Defaults to the mail
+    | from-address so a fresh install with sendmail configured already works
+    | out of the box - operators only need to set HERATIO_CONTACT_EMAIL when
+    | a different inbox should receive prospect enquiries.
+    |
+    */
+    'contact_email' => env('HERATIO_CONTACT_EMAIL', env('MAIL_FROM_ADDRESS')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Scanner / capture pipeline (ahg-scan)
     |--------------------------------------------------------------------------
     |

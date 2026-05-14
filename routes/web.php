@@ -87,7 +87,9 @@ Route::get('/index.php/settings/{page}', fn (string $page) => redirect('/admin/s
 Route::get('/admin/description-updates', fn () => redirect('/search/descriptionUpdates'));
 Route::get('/admin/global-replace', fn () => redirect('/search/globalReplace'));
 Route::get('/home', fn () => redirect('/'));
-Route::get('/contact', [\AhgStaticPage\Controllers\StaticPageController::class, 'show'])->defaults('slug', 'contact')->name('staticpage.contact');
+Route::get('/contact', [\App\Http\Controllers\ContactController::class, 'show'])->name('contact.show');
+Route::post('/contact', [\App\Http\Controllers\ContactController::class, 'submit'])->name('contact.submit');
+Route::get('/contact/info', [\AhgStaticPage\Controllers\StaticPageController::class, 'show'])->defaults('slug', 'contact')->name('staticpage.contact');
 Route::get('/favorites/browse', fn () => redirect('/favorites'));
 Route::get('/cart/browse', fn () => redirect('/cart'));
 Route::get('/menu/list', fn () => redirect('/admin/menu/browse', 301));
