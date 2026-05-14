@@ -520,6 +520,78 @@
     });
     </script>
 
+    {{-- Carousel / imageflow / thumb fallback: when an <img.img-thumbnail>
+         points at a non-image asset (mp3/glb/zip/pdf/docx/etc.) the browser
+         renders a broken-image icon. Catch the error in the capture phase and
+         swap the img for a Font Awesome icon picked by URL extension, so the
+         "any file type, any sector" GLAM/DAM mix presents cleanly without
+         touching the dozens of carousel partials across locked packages. --}}
+    <script nonce="{{ $cspNonce }}">
+    (function () {
+      'use strict';
+      var ICON_MAP = {
+        mp3: 'fa-music', wav: 'fa-music', m4a: 'fa-music', flac: 'fa-music', ogg: 'fa-music', aac: 'fa-music',
+        mp4: 'fa-film', mov: 'fa-film', webm: 'fa-film', avi: 'fa-film', mkv: 'fa-film', mxf: 'fa-film', rm: 'fa-film',
+        pdf: 'fa-file-pdf',
+        zip: 'fa-file-archive', rar: 'fa-file-archive', gz: 'fa-file-archive', tgz: 'fa-file-archive', tar: 'fa-file-archive', '7z': 'fa-file-archive',
+        glb: 'fa-cube', gltf: 'fa-cube', obj: 'fa-cube', stl: 'fa-cube', fbx: 'fa-cube', dae: 'fa-cube',
+        docx: 'fa-file-word', doc: 'fa-file-word', odt: 'fa-file-word',
+        xlsx: 'fa-file-excel', xls: 'fa-file-excel', csv: 'fa-file-excel', ods: 'fa-file-excel',
+        pptx: 'fa-file-powerpoint', ppt: 'fa-file-powerpoint', odp: 'fa-file-powerpoint',
+        txt: 'fa-file-alt', rtf: 'fa-file-alt', md: 'fa-file-alt',
+        swf: 'fa-bolt',
+        xml: 'fa-code', json: 'fa-code', yaml: 'fa-code', yml: 'fa-code'
+      };
+      function extOf(url) {
+        if (!url) return '';
+        var u = url.split('?')[0].split('#')[0];
+        var slash = u.lastIndexOf('/');
+        if (slash >= 0) u = u.slice(slash + 1);
+        var dot = u.lastIndexOf('.');
+        return dot < 0 ? '' : u.slice(dot + 1).toLowerCase();
+      }
+      function replaceWithIcon(img) {
+        if (img.__ahgIconSwapped) return;
+        img.__ahgIconSwapped = true;
+        var cls = ICON_MAP[extOf(img.getAttribute('src') || '')] || 'fa-file';
+        var w = img.offsetWidth || img.width || parseInt(img.style.width, 10) || 90;
+        var h = img.offsetHeight || img.height || parseInt(img.style.height, 10) || 68;
+        var span = document.createElement('span');
+        span.className = 'ahg-thumb-fallback img-thumbnail d-inline-flex align-items-center justify-content-center text-muted';
+        span.style.width = w + 'px';
+        span.style.height = h + 'px';
+        span.style.background = '#f1f3f5';
+        span.style.fontSize = Math.max(16, Math.min(w, h) * 0.45) + 'px';
+        span.style.verticalAlign = 'middle';
+        span.title = img.getAttribute('alt') || '';
+        var ic = document.createElement('i');
+        ic.className = 'fas ' + cls;
+        ic.setAttribute('aria-hidden', 'true');
+        span.appendChild(ic);
+        if (img.parentNode) img.parentNode.replaceChild(span, img);
+      }
+      function init() {
+        // Capture-phase listener: error doesn't bubble, so capture: true on document
+        // catches it on the way down from window to the img.
+        document.addEventListener('error', function (e) {
+          var t = e.target;
+          if (t && t.tagName === 'IMG' && t.classList && t.classList.contains('img-thumbnail')) {
+            replaceWithIcon(t);
+          }
+        }, true);
+        // Sweep already-broken images (load failed before listener attached).
+        document.querySelectorAll('img.img-thumbnail').forEach(function (img) {
+          if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) {
+            replaceWithIcon(img);
+          }
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else { init(); }
+    })();
+    </script>
+
     {{-- CSP-safe rebind of inline onsubmit="return confirm(...)" / onclick="return confirm(...)".
          Strict CSP (script-src nonce) blocks inline event-handler attributes — extract the
          confirm() message from the attribute and re-attach as a proper event listener. --}}
