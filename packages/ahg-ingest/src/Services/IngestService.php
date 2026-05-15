@@ -528,4 +528,483 @@ class IngestService
             default => \AhgCore\Services\DigitalObjectService::MEDIA_OTHER,
         };
     }
+
+    // ------------------------------------------------------------------
+    // Wizard-step pipeline: parseRows -> saveMappings -> enrichRows
+    //
+    // Used by IngestController (manual wizard) AND SharePointAutoIngestService
+    // (background cron). All three operate on the ingest_session row +
+    // ingest_file / ingest_mapping / ingest_row tables; none of them touch
+    // the live information_object tree (that's IngestCommitRunner's job).
+    // ------------------------------------------------------------------
+
+    /**
+     * Discover every ingest_file row in this session, parse it into
+     * ingest_row records, and seed ingest_mapping rows for any source
+     * column the operator hasn't seen yet. Idempotent on re-parse: an
+     * ingest_file with status='parsed' is skipped.
+     */
+    public function parseRows(int $sessionId): int
+    {
+        $files = DB::table('ingest_file')
+            ->where('session_id', $sessionId)
+            ->whereIn('status', ['pending', 'uploaded'])
+            ->orderBy('id')
+            ->get();
+
+        $totalRowsCreated = 0;
+        foreach ($files as $file) {
+            $before = (int) DB::table('ingest_row')->where('session_id', $sessionId)->count();
+            try {
+                switch ($file->file_type) {
+                    case 'csv':        $this->parseCsvFile($sessionId, $file); break;
+                    case 'sharepoint': $this->parseSharePointFile($sessionId, $file); break;
+                    case 'xml':        $this->parseXmlFile($sessionId, $file); break;
+                    case 'ead':        $this->parseEadFile($sessionId, $file); break;
+                    case 'zip':        $this->parseZipFile($sessionId, $file); break;
+                    default:
+                        throw new \RuntimeException("Unknown file_type: {$file->file_type}");
+                }
+                $created = (int) DB::table('ingest_row')->where('session_id', $sessionId)->count() - $before;
+                DB::table('ingest_file')->where('id', $file->id)->update([
+                    'status'    => 'parsed',
+                    'row_count' => $created,
+                ]);
+                $totalRowsCreated += $created;
+            } catch (\Throwable $e) {
+                DB::table('ingest_file')->where('id', $file->id)->update([
+                    'status'        => 'error',
+                    'error_message' => $e->getMessage(),
+                ]);
+                \Log::warning("IngestService::parseRows failed for ingest_file id={$file->id}: " . $e->getMessage());
+            }
+        }
+        return $totalRowsCreated;
+    }
+
+    /**
+     * Apply the operator's mapping decisions from the Map step.
+     *
+     * @param array<int,array{id:int,target_field:?string,is_ignored:int,default_value:?string,transform:?string}> $mappings
+     */
+    public function saveMappings(int $sessionId, array $mappings): void
+    {
+        foreach ($mappings as $m) {
+            $id = (int) ($m['id'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
+            DB::table('ingest_mapping')
+                ->where('id', $id)
+                ->where('session_id', $sessionId)
+                ->update([
+                    'target_field'  => $m['target_field']  ?? null,
+                    'is_ignored'    => (int) ($m['is_ignored'] ?? 0),
+                    'default_value' => $m['default_value'] ?? null,
+                    'transform'     => $m['transform']     ?? null,
+                ]);
+        }
+    }
+
+    /**
+     * Walk every ingest_row, project its source `data` through ingest_mapping,
+     * and write the result into `enriched_data`. The validator + commit runner
+     * read enriched_data as their canonical input — anything written to
+     * `data` that has no mapping (or a mapping flagged is_ignored) is dropped.
+     *
+     * Also promotes a few specific enriched fields back onto the ingest_row
+     * row itself (title / legacy_id / level_of_description) so the Map and
+     * Preview UIs can show sensible summaries without re-decoding the JSON.
+     */
+    public function enrichRows(int $sessionId): int
+    {
+        $mappings = DB::table('ingest_mapping')
+            ->where('session_id', $sessionId)
+            ->where('is_ignored', 0)
+            ->get();
+        if ($mappings->isEmpty()) {
+            return 0;
+        }
+
+        $rows = DB::table('ingest_row')
+            ->where('session_id', $sessionId)
+            ->orderBy('id')
+            ->get();
+
+        $updated = 0;
+        foreach ($rows as $row) {
+            $data = $row->data ? json_decode((string) $row->data, true) : [];
+            if (!is_array($data)) {
+                $data = [];
+            }
+            $enriched = [];
+            foreach ($mappings as $m) {
+                if (empty($m->target_field)) {
+                    continue;
+                }
+                $raw = $data[$m->source_column] ?? null;
+                $value = ($raw === null || $raw === '')
+                    ? ($m->default_value ?? null)
+                    : $raw;
+                if ($value !== null && !empty($m->transform)) {
+                    $value = $this->applyMappingTransform((string) $value, (string) $m->transform);
+                }
+                $enriched[$m->target_field] = $value;
+            }
+            DB::table('ingest_row')->where('id', $row->id)->update([
+                'enriched_data'        => json_encode($enriched, JSON_UNESCAPED_UNICODE),
+                'title'                => $enriched['title']               ?? $row->title,
+                'legacy_id'            => $enriched['legacyId']            ?? $row->legacy_id,
+                'level_of_description' => $enriched['levelOfDescription']  ?? $row->level_of_description,
+            ]);
+            $updated++;
+        }
+        return $updated;
+    }
+
+    // ------------------------------------------------------------------
+    // Per-file parsers used by parseRows().
+    // ------------------------------------------------------------------
+
+    private function parseCsvFile(int $sessionId, object $file): void
+    {
+        $path = (string) $file->stored_path;
+        if (!is_file($path)) {
+            throw new \RuntimeException("CSV not found: {$path}");
+        }
+        $delimiter = $file->delimiter ?: ',';
+        $encoding  = $file->encoding  ?: 'UTF-8';
+
+        $handle = fopen($path, 'r');
+        if ($handle === false) {
+            throw new \RuntimeException("Cannot open CSV: {$path}");
+        }
+        try {
+            $headers = !empty($file->headers) ? json_decode((string) $file->headers, true) : null;
+            if (!is_array($headers) || empty($headers)) {
+                $firstRow = fgetcsv($handle, 0, $delimiter);
+                if ($firstRow === false || $firstRow === null) {
+                    return;
+                }
+                $headers = [];
+                foreach ($firstRow as $h) {
+                    $headers[] = trim($this->toUtf8((string) $h, $encoding));
+                }
+                DB::table('ingest_file')->where('id', $file->id)->update(['headers' => json_encode($headers)]);
+            }
+
+            $this->ensureMappingsForColumns($sessionId, $headers);
+
+            $startRow = (int) (DB::table('ingest_row')->where('session_id', $sessionId)->max('row_number') ?? 0);
+            $rowNumber = $startRow;
+            while (($cells = fgetcsv($handle, 0, $delimiter)) !== false) {
+                // fgetcsv yields [null] for blank lines.
+                if ($cells === [null]) {
+                    continue;
+                }
+                if (count($cells) < count($headers)) {
+                    $cells = array_pad($cells, count($headers), null);
+                }
+                $data = [];
+                foreach ($headers as $i => $h) {
+                    $v = $cells[$i] ?? null;
+                    $data[$h] = is_string($v) ? $this->toUtf8($v, $encoding) : $v;
+                }
+                $rowNumber++;
+                DB::table('ingest_row')->insert([
+                    'session_id' => $sessionId,
+                    'row_number' => $rowNumber,
+                    'legacy_id'  => $data['legacyId'] ?? $data['legacy_id'] ?? null,
+                    'title'      => $data['title']    ?? null,
+                    'data'       => json_encode($data, JSON_UNESCAPED_UNICODE),
+                    'is_valid'   => 0,
+                    'is_excluded'=> 0,
+                    'created_at' => now(),
+                ]);
+            }
+        } finally {
+            fclose($handle);
+        }
+    }
+
+    private function parseSharePointFile(int $sessionId, object $file): void
+    {
+        $sidecar = !empty($file->sidecar_json) ? json_decode((string) $file->sidecar_json, true) : [];
+        if (!is_array($sidecar)) {
+            $sidecar = [];
+        }
+        $listFields = $sidecar['sp_list_item_fields'] ?? [];
+        if (!is_array($listFields)) {
+            $listFields = [];
+        }
+
+        // Source data = SharePoint listItem fields + a small set of file-
+        // level synthetic keys (prefixed with _ to avoid collisions with
+        // operator-defined column names).
+        $data = $listFields + [
+            '_filename'        => $file->original_name,
+            '_mime_type'       => $file->mime_type,
+            '_file_size'       => $file->file_size,
+            '_sp_web_url'      => $sidecar['sp_web_url']      ?? null,
+            '_sp_last_modified'=> $sidecar['sp_last_modified']?? null,
+            '_sp_created'      => $sidecar['sp_created']      ?? null,
+            '_sp_item_id'      => $sidecar['sp_item_id']      ?? null,
+        ];
+
+        $this->ensureMappingsForColumns($sessionId, array_keys($data));
+
+        $rowNumber = (int) (DB::table('ingest_row')->where('session_id', $sessionId)->max('row_number') ?? 0) + 1;
+        DB::table('ingest_row')->insert([
+            'session_id'          => $sessionId,
+            'row_number'          => $rowNumber,
+            'title'               => $data['Title'] ?? $data['title'] ?? $file->original_name,
+            'digital_object_path' => $file->stored_path,
+            'data'                => json_encode($data, JSON_UNESCAPED_UNICODE),
+            'checksum_sha256'     => $file->source_hash,
+            'is_valid'            => 0,
+            'is_excluded'         => 0,
+            'created_at'          => now(),
+        ]);
+    }
+
+    private function parseXmlFile(int $sessionId, object $file): void
+    {
+        libxml_use_internal_errors(true);
+        $xml = @simplexml_load_file((string) $file->stored_path);
+        if ($xml === false) {
+            throw new \RuntimeException('Invalid XML: ' . $file->stored_path);
+        }
+
+        // Strategy: treat each immediate child of root as one row, and
+        // flatten its first-level children into the data dict. If the root
+        // itself looks like a single record (no repeating child name), fall
+        // back to a single-row ingest.
+        $items = [];
+        $childNames = [];
+        foreach ($xml->children() as $child) {
+            $childNames[] = $child->getName();
+        }
+        $hasRepeats = count($childNames) > count(array_unique($childNames));
+        if ($hasRepeats || count($childNames) > 1) {
+            foreach ($xml->children() as $child) {
+                $items[] = $this->flattenXmlNode($child);
+            }
+        } else {
+            $items[] = $this->flattenXmlNode($xml);
+        }
+
+        $allKeys = [];
+        foreach ($items as $item) {
+            $allKeys = array_unique(array_merge($allKeys, array_keys($item)));
+        }
+        $this->ensureMappingsForColumns($sessionId, $allKeys);
+
+        $startRow = (int) (DB::table('ingest_row')->where('session_id', $sessionId)->max('row_number') ?? 0);
+        foreach ($items as $i => $data) {
+            DB::table('ingest_row')->insert([
+                'session_id' => $sessionId,
+                'row_number' => $startRow + $i + 1,
+                'title'      => $data['title'] ?? $data['Title'] ?? null,
+                'data'       => json_encode($data, JSON_UNESCAPED_UNICODE),
+                'is_valid'   => 0,
+                'is_excluded'=> 0,
+                'created_at' => now(),
+            ]);
+        }
+    }
+
+    private function parseEadFile(int $sessionId, object $file): void
+    {
+        libxml_use_internal_errors(true);
+        $xml = @simplexml_load_file((string) $file->stored_path);
+        if ($xml === false) {
+            throw new \RuntimeException('Invalid EAD: ' . $file->stored_path);
+        }
+        $items = [];
+        $this->walkEadComponents($xml, $items);
+        if (empty($items)) {
+            throw new \RuntimeException('No EAD <c>/<c01..c12> components found in: ' . $file->stored_path);
+        }
+
+        $allKeys = [];
+        foreach ($items as $item) {
+            $allKeys = array_unique(array_merge($allKeys, array_keys($item)));
+        }
+        $this->ensureMappingsForColumns($sessionId, $allKeys);
+
+        $startRow = (int) (DB::table('ingest_row')->where('session_id', $sessionId)->max('row_number') ?? 0);
+        foreach ($items as $i => $data) {
+            DB::table('ingest_row')->insert([
+                'session_id'           => $sessionId,
+                'row_number'           => $startRow + $i + 1,
+                'level_of_description' => $data['level'] ?? null,
+                'title'                => $data['unittitle'] ?? null,
+                'data'                 => json_encode($data, JSON_UNESCAPED_UNICODE),
+                'is_valid'             => 0,
+                'is_excluded'          => 0,
+                'created_at'           => now(),
+            ]);
+        }
+    }
+
+    private function parseZipFile(int $sessionId, object $file): void
+    {
+        if (!class_exists(\ZipArchive::class)) {
+            throw new \RuntimeException('PHP ZipArchive extension is not installed.');
+        }
+        $zipPath = (string) $file->stored_path;
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath) !== true) {
+            throw new \RuntimeException("Cannot open ZIP: {$zipPath}");
+        }
+        $extractDir = dirname($zipPath) . '/extracted_' . $file->id;
+        if (!is_dir($extractDir) && !mkdir($extractDir, 0775, true) && !is_dir($extractDir)) {
+            $zip->close();
+            throw new \RuntimeException("Cannot create extract dir: {$extractDir}");
+        }
+        $zip->extractTo($extractDir);
+        $zip->close();
+
+        DB::table('ingest_file')->where('id', $file->id)->update(['extracted_path' => $extractDir]);
+
+        // Locate the CSV (or CSVs) inside; everything else is left in place
+        // for IngestCommitRunner to attach as digital objects.
+        $csvFiles = [];
+        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(
+            $extractDir,
+            \FilesystemIterator::SKIP_DOTS,
+        ));
+        foreach ($it as $entry) {
+            if ($entry->isFile() && strtolower($entry->getExtension()) === 'csv') {
+                $csvFiles[] = (string) $entry;
+            }
+        }
+        if (empty($csvFiles)) {
+            throw new \RuntimeException("ZIP contains no CSV: {$zipPath}");
+        }
+        foreach ($csvFiles as $csvPath) {
+            $virtual = (object) [
+                'id'          => $file->id,
+                'stored_path' => $csvPath,
+                'delimiter'   => $file->delimiter ?? null,
+                'encoding'    => $file->encoding  ?? null,
+                'headers'     => null,
+            ];
+            $this->parseCsvFile($sessionId, $virtual);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Small helpers shared by parseRows + enrichRows.
+    // ------------------------------------------------------------------
+
+    private function ensureMappingsForColumns(int $sessionId, array $columns): void
+    {
+        $existing = DB::table('ingest_mapping')
+            ->where('session_id', $sessionId)
+            ->pluck('source_column')
+            ->all();
+        $existingSet = array_flip($existing);
+        $sort = (int) (DB::table('ingest_mapping')->where('session_id', $sessionId)->max('sort_order') ?? 0) + 1;
+        foreach ($columns as $col) {
+            if (!is_string($col) || $col === '') {
+                continue;
+            }
+            if (isset($existingSet[$col])) {
+                continue;
+            }
+            DB::table('ingest_mapping')->insert([
+                'session_id'    => $sessionId,
+                'source_column' => $col,
+                'target_field'  => null,
+                'is_ignored'    => 0,
+                'sort_order'    => $sort++,
+            ]);
+            $existingSet[$col] = true;
+        }
+    }
+
+    private function flattenXmlNode(\SimpleXMLElement $node): array
+    {
+        $out = [];
+        // Attributes appear as @name keys, matching the convention in
+        // ahg-display/ahg-search highlighting.
+        foreach ($node->attributes() as $aName => $aVal) {
+            $out['@' . $aName] = (string) $aVal;
+        }
+        $children = $node->children();
+        if (count($children) === 0) {
+            $text = trim((string) $node);
+            if ($text !== '') {
+                $out['_text'] = $text;
+            }
+            return $out;
+        }
+        foreach ($children as $child) {
+            $key = $child->getName();
+            $val = trim((string) $child);
+            // If we've seen the key before, keep the first value but append
+            // newline-separated extras so repeating elements don't drop data
+            // silently. The operator can still pick which copy to map onto
+            // a single target_field in the Map step.
+            if (isset($out[$key])) {
+                $out[$key] = $out[$key] . "\n" . $val;
+            } else {
+                $out[$key] = $val;
+            }
+        }
+        return $out;
+    }
+
+    private function walkEadComponents(\SimpleXMLElement $node, array &$out): void
+    {
+        $name = $node->getName();
+        if ($name === 'c' || preg_match('/^c\d{1,2}$/', $name)) {
+            $row = ['level' => (string) ($node['level'] ?? '')];
+            if (isset($node->did)) {
+                foreach ($node->did->children() as $f) {
+                    $key = $f->getName();
+                    $val = trim((string) $f);
+                    $row[$key] = isset($row[$key]) ? $row[$key] . "\n" . $val : $val;
+                }
+            }
+            $out[] = $row;
+        }
+        foreach ($node->children() as $child) {
+            $this->walkEadComponents($child, $out);
+        }
+    }
+
+    private function applyMappingTransform(string $value, string $transform): string
+    {
+        return match ($transform) {
+            'trim'       => trim($value),
+            'uppercase'  => mb_strtoupper($value, 'UTF-8'),
+            'lowercase'  => mb_strtolower($value, 'UTF-8'),
+            'titlecase'  => mb_convert_case($value, MB_CASE_TITLE, 'UTF-8'),
+            'date_iso'   => $this->coerceDateToIso($value),
+            'strip_html' => trim(strip_tags($value)),
+            default      => $value,
+        };
+    }
+
+    private function coerceDateToIso(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return $value;
+        }
+        $ts = strtotime($value);
+        return $ts !== false ? date('Y-m-d', $ts) : $value;
+    }
+
+    private function toUtf8(string $value, string $encoding): string
+    {
+        $encoding = strtoupper($encoding);
+        if ($encoding === 'UTF-8' || $encoding === '') {
+            return $value;
+        }
+        $converted = @mb_convert_encoding($value, 'UTF-8', $encoding);
+        return is_string($converted) ? $converted : $value;
+    }
 }

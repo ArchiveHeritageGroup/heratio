@@ -152,7 +152,171 @@ class IngestController extends Controller
 
         $files = $this->service->getFiles($id);
 
-        return view('ahg-ingest::upload', compact('session', 'files'));
+        $spTenants = [];
+        if (class_exists(\AhgSharePoint\Services\SharePointBrowserService::class)) {
+            try {
+                $spTenants = \Illuminate\Support\Facades\DB::table('sharepoint_tenant')
+                    ->where('status', '!=', 'disabled')
+                    ->orderBy('name')
+                    ->get()
+                    ->all();
+            } catch (\Throwable $e) {
+                $spTenants = [];
+            }
+        }
+
+        return view('ahg-ingest::upload', compact('session', 'files', 'spTenants'));
+    }
+
+    /**
+     * SharePoint AJAX browse endpoint — proxies to SharePointBrowserService.
+     */
+    public function browseSharePoint(Request $request, int $id)
+    {
+        abort_unless($this->service->getSession($id), 404);
+        if (!class_exists(\AhgSharePoint\Services\SharePointBrowserService::class)) {
+            return response()->json(['error' => 'SharePoint package not installed'], 500);
+        }
+        $browser = app(\AhgSharePoint\Services\SharePointBrowserService::class);
+        $tenantId = (int) $request->query('tenant_id');
+        $op = (string) $request->query('op');
+
+        try {
+            switch ($op) {
+                case 'sites':
+                    return response()->json(['op' => 'sites', 'sites' => $browser->listSites($tenantId, $request->query('search'))]);
+                case 'drives':
+                    return response()->json(['op' => 'drives', 'drives' => $browser->listDrives($tenantId, (string) $request->query('site_id'))]);
+                case 'children':
+                    return response()->json([
+                        'op' => 'children',
+                        'items' => $browser->listChildren(
+                            $tenantId,
+                            (string) $request->query('drive_id'),
+                            (string) ($request->query('item_id') ?: 'root'),
+                        ),
+                    ]);
+                default:
+                    return response()->json(['error' => 'unknown op'], 400);
+            }
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Import selected SharePoint items into a session, then redirect to Map step.
+     */
+    public function importFromSharePoint(Request $request, int $id)
+    {
+        $session = $this->service->getSession($id);
+        abort_unless($session, 404);
+        abort_unless(class_exists(\AhgSharePoint\Services\SharePointBrowserService::class), 500, 'SharePoint package not installed');
+
+        $tenantId = (int) $request->input('sp_tenant_id');
+        $driveGraphId = (string) $request->input('sp_drive_id');
+        $driveName = (string) $request->input('sp_drive_name');
+        $siteId = (string) $request->input('sp_site_id');
+        $itemIds = (array) $request->input('sp_item_ids', []);
+
+        if ($tenantId <= 0 || $driveGraphId === '' || empty($itemIds)) {
+            return back()->with('error', __('SharePoint import requires tenant, drive, and at least one item.'));
+        }
+
+        $drivePk = (int) \Illuminate\Support\Facades\DB::table('sharepoint_drive')
+            ->where('drive_id', $driveGraphId)
+            ->value('id');
+        if (!$drivePk) {
+            $drivePk = (int) \Illuminate\Support\Facades\DB::table('sharepoint_drive')->insertGetId([
+                'tenant_id' => $tenantId,
+                'site_id' => $siteId,
+                'site_url' => '',
+                'drive_id' => $driveGraphId,
+                'drive_name' => $driveName,
+                'ingest_enabled' => 0,
+                'sector' => $session->sector ?? 'archive',
+                'default_parent_placement' => 'top_level',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        $browser = app(\AhgSharePoint\Services\SharePointBrowserService::class);
+        $uploadDir = config('ahg-ingest.upload_dir', storage_path('app/ingest')) . '/' . $id;
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+
+        $imported = 0;
+        $errors = [];
+        foreach ($itemIds as $itemId) {
+            try {
+                $meta = $browser->getMetadata($tenantId, $driveGraphId, $itemId, true);
+                $name = $meta['name'] ?: $itemId;
+                $itemDir = $uploadDir . '/' . $itemId;
+                if (!is_dir($itemDir)) {
+                    mkdir($itemDir, 0775, true);
+                }
+                $safeName = preg_replace('#[^A-Za-z0-9._ \-]#', '_', $name);
+                $destPath = $itemDir . '/' . $safeName;
+                $browser->downloadItem($tenantId, $driveGraphId, $itemId, $destPath);
+
+                $checksum = is_file($destPath) ? hash_file('sha256', $destPath) : null;
+                $listFields = $meta['_raw']['listItem']['fields'] ?? [];
+
+                \Illuminate\Support\Facades\DB::table('ingest_file')->insert([
+                    'session_id' => $id,
+                    'file_type' => 'sharepoint',
+                    'original_name' => $name,
+                    'stored_path' => $destPath,
+                    'file_size' => $meta['size'] ?? (filesize($destPath) ?: 0),
+                    'mime_type' => $meta['mimeType'] ?? null,
+                    'status' => 'pending',
+                    'source_hash' => $checksum,
+                    'sidecar_json' => json_encode([
+                        'sp_drive_id' => $drivePk,
+                        'sp_drive_graph_id' => $driveGraphId,
+                        'sp_item_id' => $itemId,
+                        'sp_etag' => $meta['etag'] ?? null,
+                        'sp_web_url' => $meta['webUrl'] ?? null,
+                        'sp_list_item_fields' => $listFields,
+                        'sp_last_modified' => $meta['lastModifiedDateTime'] ?? null,
+                        'sp_created' => $meta['createdDateTime'] ?? null,
+                    ]),
+                    'created_at' => now(),
+                ]);
+                ++$imported;
+            } catch (\Throwable $e) {
+                $errors[] = "{$itemId}: " . $e->getMessage();
+            }
+        }
+
+        $this->service->updateSession($id, [
+            'source' => 'sharepoint_manual',
+            'source_id' => $drivePk,
+            'source_metadata' => json_encode([
+                'sp_drive_id' => $driveGraphId,
+                'sp_drive_pk' => $drivePk,
+                'sp_drive_name' => $driveName,
+                'sp_site_id' => $siteId,
+                'sp_item_ids' => $itemIds,
+                'imported_at' => now()->toIso8601String(),
+            ]),
+        ]);
+
+        if ($imported === 0) {
+            $msg = __('No SharePoint items could be imported.');
+            if (!empty($errors)) {
+                $msg .= ' ' . implode('; ', array_slice($errors, 0, 3));
+            }
+            return back()->with('error', $msg);
+        }
+
+        $this->service->parseRows($id);
+        $this->service->updateSessionStatus($id, 'map');
+
+        $flash = sprintf(__('Imported %d of %d items.'), $imported, count($itemIds));
+        return redirect()->route('ingest.map', ['id' => $id])->with('notice', $flash);
     }
 
     public function map(Request $request, int $id)
@@ -160,9 +324,122 @@ class IngestController extends Controller
         $session = $this->service->getSession($id);
         abort_unless($session, 404);
 
-        $mappings = $this->service->getMappings($id);
+        if ($request->isMethod('post')) {
+            $action = $request->input('form_action', 'save');
+            if ($action === 'save') {
+                $payload    = (array) $request->input('target_field', []);
+                $ignored    = (array) $request->input('is_ignored', []);
+                $defaults   = (array) $request->input('default_value', []);
+                $transforms = (array) $request->input('transform', []);
+                $mappings   = [];
+                foreach ($payload as $mapId => $targetField) {
+                    $mappings[] = [
+                        'id'            => (int) $mapId,
+                        'target_field'  => $targetField !== '' ? $targetField : null,
+                        'is_ignored'    => isset($ignored[$mapId]) ? 1 : 0,
+                        'default_value' => $defaults[$mapId]   ?? null,
+                        'transform'     => $transforms[$mapId] ?? null,
+                    ];
+                }
+                if (!empty($mappings)) {
+                    $this->service->saveMappings($id, $mappings);
+                }
+                if ($request->input('save_as_template') && ($session->source ?? '') === 'sharepoint_manual') {
+                    $this->saveSharePointMappingTemplate($id, $session);
+                }
+                $this->service->enrichRows($id);
+                $this->service->updateSessionStatus($id, 'validate');
+                return redirect()->route('ingest.validate', ['id' => $id]);
+            }
+        }
 
-        return view('ahg-ingest::map', compact('session', 'mappings'));
+        $mappings     = $this->service->getMappings($id);
+        $targetFields = $this->targetFieldsFor((string) ($session->standard ?? 'isadg'));
+        $sampleRows   = \Illuminate\Support\Facades\DB::table('ingest_row')
+            ->where('session_id', $id)
+            ->orderBy('row_number')
+            ->limit(5)
+            ->get();
+
+        return view('ahg-ingest::map', compact('session', 'mappings', 'targetFields', 'sampleRows'));
+    }
+
+    /**
+     * Target-field vocabulary by archival standard. Drives the dropdown in
+     * the Map step. ISAD-G is the default fallback; per-standard subsets
+     * exist for DACS / RAD / MODS / Spectrum so operators only see fields
+     * their selected standard understands.
+     *
+     * @return array<int,string>
+     */
+    private function targetFieldsFor(string $standard): array
+    {
+        $isadg = [
+            'identifier', 'title', 'levelOfDescription', 'scopeAndContent',
+            'extentAndMedium', 'archivalHistory', 'acquisition',
+            'appraisal', 'accruals', 'arrangement', 'accessConditions',
+            'reproductionConditions', 'language', 'physicalCharacteristics',
+            'findingAids', 'locationOfOriginals', 'locationOfCopies',
+            'relatedUnitsOfDescription', 'publicationNote',
+            'creators', 'subjects', 'places',
+            'eventDates', 'eventStartDate', 'eventEndDate',
+            'legacyId', 'parentId', 'repository',
+        ];
+        $dacs  = array_merge($isadg, ['biographicalHistory', 'preferredCitation']);
+        $rad   = array_merge($isadg, ['editionStatement', 'standardNumber']);
+        $mods  = ['identifier', 'title', 'subTitle', 'language', 'genre', 'subject',
+                  'publisher', 'placeOfPublication', 'dateIssued', 'abstract',
+                  'physicalDescription', 'tableOfContents', 'note', 'classification'];
+        $spectrum = ['objectNumber', 'objectName', 'briefDescription', 'materials',
+                     'techniques', 'measurements', 'condition', 'location',
+                     'creator', 'placeOfOrigin', 'dateMade', 'subjectMatter'];
+
+        return match (strtolower($standard)) {
+            'dacs'     => $dacs,
+            'rad'      => $rad,
+            'mods'     => $mods,
+            'spectrum' => $spectrum,
+            default    => $isadg,
+        };
+    }
+
+    /**
+     * Persist current session's ingest_mapping rows as the default sharepoint_mapping
+     * template for the session's source drive.
+     */
+    private function saveSharePointMappingTemplate(int $sessionId, object $session): void
+    {
+        $meta = $session->source_metadata ? @json_decode((string) $session->source_metadata, true) : [];
+        $drivePk = (int) ($meta['sp_drive_pk'] ?? 0);
+        if ($drivePk <= 0 && !empty($meta['sp_drive_id'])) {
+            $drivePk = (int) \Illuminate\Support\Facades\DB::table('sharepoint_drive')
+                ->where('drive_id', $meta['sp_drive_id'])
+                ->value('id');
+        }
+        if ($drivePk <= 0) {
+            session()->flash('error', 'Could not resolve SharePoint drive; mapping template NOT saved.');
+            return;
+        }
+        \Illuminate\Support\Facades\DB::table('sharepoint_mapping')->where('drive_id', $drivePk)->delete();
+        $rows = \Illuminate\Support\Facades\DB::table('ingest_mapping')
+            ->where('session_id', $sessionId)
+            ->where('is_ignored', 0)
+            ->get();
+        foreach ($rows as $i => $r) {
+            \Illuminate\Support\Facades\DB::table('sharepoint_mapping')->insert([
+                'drive_id' => $drivePk,
+                'content_type_id' => null,
+                'source_field' => $r->source_column,
+                'target_field' => $r->target_field,
+                'target_standard' => $session->standard ?? 'isadg',
+                'transform' => $r->transform,
+                'default_value' => $r->default_value,
+                'is_required' => 0,
+                'sort_order' => (int) ($r->sort_order ?? $i),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 
     public function validate(Request $request, int $id)

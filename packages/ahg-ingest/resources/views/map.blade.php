@@ -334,6 +334,28 @@
         </div>
     </div>
 
+    @php
+        $isSpManual = ($session->source ?? '') === 'sharepoint_manual';
+        $spDriveName = '';
+        if ($isSpManual) {
+            $spMeta = @json_decode((string) ($session->source_metadata ?? '{}'), true);
+            $spDriveName = is_array($spMeta) ? ($spMeta['sp_drive_name'] ?? '') : '';
+        }
+    @endphp
+
+    @if($isSpManual)
+    <div class="form-check mt-3 mb-3 border-top pt-3">
+        <input class="form-check-input" type="checkbox" id="save_as_template" name="save_as_template" value="1">
+        <label class="form-check-label" for="save_as_template">
+            {{ __('Save this mapping as the default for SharePoint drive') }}
+            <code>{{ $spDriveName ?: '?' }}</code>
+        </label>
+        <small class="d-block text-muted">
+            {{ __('Future ingests from this drive will pre-fill these mappings, including cron-driven auto-ingest.') }}
+        </small>
+    </div>
+    @endif
+
     <div class="d-flex justify-content-between">
         <a href="{{ route('ingest.upload', ['id' => $session->id ?? 0]) }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}

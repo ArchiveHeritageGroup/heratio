@@ -12,4 +12,8 @@ Route::middleware('auth')->prefix('ingest')->group(function () {
     Route::match(['get', 'post'], '/{id}/preview', [IngestController::class, 'preview'])->name('ingest.preview');
     Route::match(['get', 'post'], '/{id}/commit', [IngestController::class, 'commit'])->name('ingest.commit');
     Route::get('/template/{sector?}', [IngestController::class, 'downloadTemplate'])->name('ingest.template');
+
+    // SharePoint manual-path picker (v2 ingest plan, step D)
+    Route::get('/{id}/sharepoint/browse', [IngestController::class, 'browseSharePoint'])->name('ingest.sharepoint.browse');
+    Route::post('/{id}/sharepoint/import', [IngestController::class, 'importFromSharePoint'])->name('ingest.sharepoint.import');
 });
