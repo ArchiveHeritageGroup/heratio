@@ -6,6 +6,33 @@ This page summarises the user-visible features that landed across releases v1.53
 
 ---
 
+## Research enhancements roadmap - 13 features (researcher) - 2026-05-16
+
+The full roadmap at `docs/research-enhancements-roadmap.md` landed in one release. All 13 items are shipped and live; full user-facing guide at `docs/research-enhancements-user-guide.md`.
+
+- **NotebookLM-style Studio pane** on every research project (Briefing / Study Guide / FAQ / Timeline / Diagram / Video Script / Spreadsheet / Audio Overview) - generations are grounded in the project's evidence-set items with `[N]` citation provenance. Spreadsheets export to real .xlsx via PhpSpreadsheet; audio uses a configurable `HERATIO_TTS_ENDPOINT`.
+- **Citation hover popovers** on any inline `[N]` markers - shows source title + snippet + scroll-to-source. Plus a **Copy in citation manager format** picker on `/research/cite/{slug}` with RIS / BibTeX / EndNote XML / APA 7 / MLA 9 / Chicago 17 downloads.
+- **Researcher private notebooks** at `/research/notebooks` - saved queries, AI outputs, pinned sources, freeform notes. One-click **Promote to project** turns a notebook into a public research project with its source pins materialised as a collection.
+- **Cross-fonds reasoning queries** at `/research/cross-fonds-query` - ask one question across N fonds in parallel, merged and reranked. Optional thesaurus expansion via `ahg-semantic-search`.
+- **Research analytics dashboard** at `/research/analytics` - 8 KPI tiles, top researchers, popular descriptions, popular collections, top search terms, weekly volume chart. Aggregates existing `research_activity_log`; no new audit tables.
+- **Real-time collaboration** at `/research/projects/{id}/realtime/panel` - presence list + threaded comments on evidence sets, polling-based (3s) since this host has no WebSocket broker. Shared annotation layers via new `project_id` + `visibility` columns on `ahg_iiif_annotation`.
+- **ORCID integration** at `/research/orcid` - OAuth authorize / pull Works / push Works. Tokens AES-256-CBC encrypted. Required ENV: `ORCID_CLIENT_ID`, `ORCID_CLIENT_SECRET`, `ORCID_REDIRECT_URI`.
+- **GraphQL researcher types** in the existing `/admin/graphql` endpoint - `researchProject`, `researchProjects`, `researchAnnotations`, `researchCollections`, and a combined `researcherView(researcherId)` single-round-trip query for Zotero / Tropy / LMS integration.
+- **Mobile / PWA** at `/research/mobile` - phone-first reading list + quick journal entry + four-button nav. `manifest.webmanifest` supports "Add to home screen" / standalone mode.
+- **Offline mode** via `/sw.js` service worker - caches the mobile shell, journal entries queue in `localStorage` and post to `/research/sync/offline` when the browser comes back online.
+
+Schema additions in `packages/ahg-research/database/install.sql`: `research_studio_artefact`, `research_notebook`, `research_notebook_item`, `research_collaboration_session`, `research_collaboration_presence`, `research_evidence_comment`, `researcher_orcid_link`, `research_cross_fonds_query`, `research_offline_sync_log`. Plus `project_id` + `visibility` columns on `ahg_iiif_annotation` (added with `IF NOT EXISTS` for safe upgrades).
+
+References: `docs/research-enhancements-roadmap.md` (roadmap source-of-truth), `docs/research-enhancements-user-guide.md` (user guide), `docs/reference/research-roadmap-2026-05-features.md` (KM index).
+
+---
+
+## Heratio php-fpm `ProtectSystem=full` drop-in (operator) - 2026-05-16
+
+`/etc/systemd/system/php8.3-fpm.service.d/heratio-storage.conf` added so php-fpm can write to `storage/` and `bootstrap/cache/`. Without this, `/help` (and any page that triggers Blade view compilation or log writes) returns 500 with a misleading `tempnam(): file created in the system's temporary directory` masking exception. See `docs/operations/php-fpm-protectsystem.md` for the host-wide pattern.
+
+---
+
 ## AI services - 16 settings keys now wired (operator)
 
 The form at `/admin/ahgSettings/aiServices` previously had 16 of 20 fields that saved to `ahg_ner_settings` but were never read by any consumer. v1.53.23 wired all 16 through a new `AhgAiServices\Support\AiServicesSettings` helper:
