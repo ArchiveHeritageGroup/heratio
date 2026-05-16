@@ -41,5 +41,13 @@ class AhgResearchServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(\AhgResearch\Services\OdrlService::class);
+        $this->app->singleton(\AhgResearch\Services\BibliographyService::class);
+        $this->app->singleton(\AhgResearch\Services\CitationService::class);
+        $this->app->singleton(\AhgResearch\Services\ResearchStudioService::class);
+        $this->app->singleton(\AhgResearch\Services\NotebookService::class);
+        $this->app->singleton(\AhgResearch\Services\CrossFondsQueryService::class);
+        $this->app->singleton(\AhgResearch\Services\ResearchAnalyticsService::class);
+        $this->app->singleton(\AhgResearch\Services\CollaborationRealtimeService::class);
+        $this->app->singleton(\AhgResearch\Services\OrcidService::class);
     }
 }

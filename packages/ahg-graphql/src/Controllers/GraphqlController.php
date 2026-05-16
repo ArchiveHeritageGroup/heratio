@@ -94,11 +94,182 @@ class GraphqlController extends Controller
             return $this->resolveRepositories();
         }
 
+        if (preg_match('/\bresearchProject\s*\(\s*id\s*:\s*(\d+)\s*\)/i', $query, $m)) {
+            return $this->resolveResearchProject((int) $m[1]);
+        }
+
+        if (preg_match('/\bresearchProjects\b/i', $query)) {
+            return $this->resolveResearchProjects((int) ($variables['limit'] ?? 25));
+        }
+
+        if (preg_match('/\bresearchAnnotations\s*\(\s*targetIri\s*:\s*"([^"]+)"\s*\)/i', $query, $m)) {
+            return $this->resolveResearchAnnotations($m[1]);
+        }
+
+        if (preg_match('/\bresearchCollections\s*\(\s*projectId\s*:\s*(\d+)\s*\)/i', $query, $m)) {
+            return $this->resolveResearchCollections((int) $m[1]);
+        }
+
+        if (preg_match('/\bresearcherView\s*\(\s*researcherId\s*:\s*(\d+)\s*\)/i', $query, $m)) {
+            return $this->resolveResearcherView((int) $m[1]);
+        }
+
         if (preg_match('/\b__schema\b/i', $query)) {
             return ['data' => ['__schema' => $this->getSchemaInfo()]];
         }
 
-        return ['errors' => [['message' => 'Unsupported query. Available: informationObject(id), informationObjects, actor(id), actors, repositories']]];
+        return ['errors' => [['message' => 'Unsupported query. Available: informationObject(id), informationObjects, actor(id), actors, repositories, researchProject(id), researchProjects, researchAnnotations(targetIri), researchCollections(projectId), researcherView(researcherId)']]];
+    }
+
+    private function resolveResearchProject(int $id): array
+    {
+        $project = DB::table('research_project as p')
+            ->leftJoin('research_researcher as r', 'p.owner_id', '=', 'r.id')
+            ->where('p.id', $id)
+            ->select('p.id', 'p.title', 'p.description', 'p.project_type', 'p.status',
+                     'p.start_date', 'p.expected_end_date', 'p.created_at',
+                     'r.id as owner_id', 'r.first_name as owner_first_name', 'r.last_name as owner_last_name')
+            ->first();
+
+        if (!$project) return ['errors' => [['message' => "Research project {$id} not found"]]];
+
+        $collections = DB::table('research_collection')
+            ->where('project_id', $id)
+            ->select('id', 'name', 'description', 'is_public')
+            ->get()
+            ->map(fn ($c) => (array) $c)
+            ->toArray();
+
+        $studio = [];
+        try {
+            $studio = DB::table('research_studio_artefact')
+                ->where('project_id', $id)
+                ->orderByDesc('created_at')
+                ->limit(50)
+                ->select('id', 'output_type', 'title', 'status', 'created_at')
+                ->get()->map(fn ($a) => (array) $a)->toArray();
+        } catch (\Throwable $e) {}
+
+        $data = (array) $project;
+        $data['collections'] = $collections;
+        $data['studio_artefacts'] = $studio;
+
+        return ['data' => ['researchProject' => $data]];
+    }
+
+    private function resolveResearchProjects(int $limit): array
+    {
+        $rows = DB::table('research_project as p')
+            ->leftJoin('research_researcher as r', 'p.owner_id', '=', 'r.id')
+            ->orderByDesc('p.created_at')
+            ->limit($limit)
+            ->select('p.id', 'p.title', 'p.project_type', 'p.status',
+                     'r.id as owner_id', 'r.first_name as owner_first_name', 'r.last_name as owner_last_name')
+            ->get()
+            ->map(fn ($p) => (array) $p)
+            ->toArray();
+
+        return ['data' => ['researchProjects' => $rows]];
+    }
+
+    private function resolveResearchAnnotations(string $targetIri): array
+    {
+        try {
+            $rows = DB::table('ahg_iiif_annotation')
+                ->where('target_iri', $targetIri)
+                ->orderBy('id')
+                ->select('uuid', 'project_id', 'visibility', 'body_json', 'created_by', 'created_at')
+                ->get()
+                ->map(function ($r) {
+                    return [
+                        'uuid'        => $r->uuid,
+                        'project_id'  => $r->project_id,
+                        'visibility'  => $r->visibility,
+                        'created_by'  => $r->created_by,
+                        'created_at'  => $r->created_at,
+                        'body'        => json_decode($r->body_json, true),
+                    ];
+                })
+                ->toArray();
+        } catch (\Throwable $e) {
+            $rows = [];
+        }
+
+        return ['data' => ['researchAnnotations' => $rows]];
+    }
+
+    private function resolveResearchCollections(int $projectId): array
+    {
+        $cols = DB::table('research_collection')
+            ->where('project_id', $projectId)
+            ->select('id', 'name', 'description', 'is_public', 'created_at')
+            ->get()->map(fn ($c) => (array) $c)->toArray();
+
+        $items = DB::table('research_collection_item as ci')
+            ->whereIn('ci.collection_id', array_column($cols, 'id') ?: [0])
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('ci.object_id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
+            })
+            ->select('ci.collection_id', 'ci.object_id', 'ci.notes', 'ioi.title')
+            ->get()
+            ->groupBy('collection_id');
+
+        foreach ($cols as &$c) {
+            $c['items'] = $items->get($c['id'], collect())->map(fn ($i) => (array) $i)->toArray();
+        }
+
+        return ['data' => ['researchCollections' => $cols]];
+    }
+
+    /**
+     * Combined query that powers external tools (Zotero, Tropy, LMS) - returns
+     * researcher profile + their projects + the latest annotations they've
+     * made in one round-trip.
+     */
+    private function resolveResearcherView(int $researcherId): array
+    {
+        $researcher = DB::table('research_researcher')->where('id', $researcherId)
+            ->select('id', 'first_name', 'last_name', 'email', 'orcid_id', 'institution', 'researcher_type_id')
+            ->first();
+
+        if (!$researcher) return ['errors' => [['message' => "Researcher {$researcherId} not found"]]];
+
+        $projects = DB::table('research_project as p')
+            ->leftJoin('research_project_collaborator as pc', function ($j) use ($researcherId) {
+                $j->on('pc.project_id', '=', 'p.id')->where('pc.researcher_id', '=', $researcherId);
+            })
+            ->where(function ($q) use ($researcherId) {
+                $q->where('p.owner_id', $researcherId)->orWhereNotNull('pc.id');
+            })
+            ->orderByDesc('p.created_at')
+            ->limit(50)
+            ->select('p.id', 'p.title', 'p.project_type', 'p.status', 'p.created_at')
+            ->get()->map(fn ($p) => (array) $p)->toArray();
+
+        $annotations = [];
+        try {
+            $annotations = DB::table('ahg_iiif_annotation')
+                ->where('created_by', $researcherId)
+                ->orderByDesc('created_at')
+                ->limit(50)
+                ->select('uuid', 'target_iri', 'project_id', 'visibility', 'created_at')
+                ->get()->map(fn ($a) => (array) $a)->toArray();
+        } catch (\Throwable $e) {}
+
+        $orcid = null;
+        try {
+            $orcid = DB::table('researcher_orcid_link')->where('researcher_id', $researcherId)
+                ->select('orcid_id', 'last_synced_at', 'last_works_count')
+                ->first();
+            $orcid = $orcid ? (array) $orcid : null;
+        } catch (\Throwable $e) {}
+
+        return ['data' => ['researcherView' => [
+            'researcher'  => (array) $researcher,
+            'projects'    => $projects,
+            'annotations' => $annotations,
+            'orcid'       => $orcid,
+        ]]];
     }
 
     private function resolveInformationObject(int $id): array
@@ -185,6 +356,10 @@ class GraphqlController extends Controller
                 ['name' => 'InformationObject', 'fields' => ['id', 'identifier', 'title', 'slug', 'scope_and_content', 'parent_id', 'repository_id']],
                 ['name' => 'Actor', 'fields' => ['id', 'authorized_form_of_name', 'history', 'slug', 'entity_type_id']],
                 ['name' => 'Repository', 'fields' => ['id', 'authorized_form_of_name', 'slug']],
+                ['name' => 'ResearchProject', 'fields' => ['id', 'title', 'description', 'project_type', 'status', 'collections', 'studio_artefacts']],
+                ['name' => 'ResearchCollection', 'fields' => ['id', 'name', 'description', 'is_public', 'items']],
+                ['name' => 'ResearchAnnotation', 'fields' => ['uuid', 'project_id', 'visibility', 'body', 'created_by', 'created_at']],
+                ['name' => 'ResearcherView', 'fields' => ['researcher', 'projects', 'annotations', 'orcid']],
             ],
             'queries' => [
                 'informationObject(id: Int!)' => 'InformationObject',
@@ -192,6 +367,11 @@ class GraphqlController extends Controller
                 'actor(id: Int!)' => 'Actor',
                 'actors(limit: Int)' => '[Actor]',
                 'repositories' => '[Repository]',
+                'researchProject(id: Int!)' => 'ResearchProject',
+                'researchProjects(limit: Int)' => '[ResearchProject]',
+                'researchAnnotations(targetIri: String!)' => '[ResearchAnnotation]',
+                'researchCollections(projectId: Int!)' => '[ResearchCollection]',
+                'researcherView(researcherId: Int!)' => 'ResearcherView',
             ],
         ];
     }

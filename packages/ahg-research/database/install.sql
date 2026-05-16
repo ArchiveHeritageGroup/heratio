@@ -1951,6 +1951,182 @@ CREATE TABLE IF NOT EXISTS `researcher_submission_review` (
   CONSTRAINT `researcher_submission_review_ibfk_1` FOREIGN KEY (`submission_id`) REFERENCES `researcher_submission` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `research_studio_artefact` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `project_id` int NOT NULL,
+  `created_by` int DEFAULT NULL,
+  `output_type` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'briefing, study_guide, faq, timeline, diagram, video_script, spreadsheet, audio',
+  `title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `body` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `body_format` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'markdown' COMMENT 'markdown, html, json, mermaid, csv',
+  `source_object_ids` json DEFAULT NULL COMMENT 'IO ids the artefact was synthesised from',
+  `citations` json DEFAULT NULL COMMENT 'list of {n, object_id, title, snippet, url} backing each [N] marker in body',
+  `model` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tokens_used` int DEFAULT 0,
+  `generation_time_ms` int DEFAULT NULL,
+  `audio_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `audio_digital_object_id` int DEFAULT NULL,
+  `audio_duration_seconds` int DEFAULT NULL,
+  `audio_transcript` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `xlsx_path` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'ready' COMMENT 'pending, generating, ready, error',
+  `error_text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_project` (`project_id`),
+  KEY `idx_output_type` (`output_type`),
+  KEY `idx_status` (`status`),
+  KEY `idx_created_by` (`created_by`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `research_notebook` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `researcher_id` int NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `summary` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `cover_object_id` int DEFAULT NULL COMMENT 'optional pinned IO used as the notebook cover',
+  `promoted_to_project_id` int DEFAULT NULL COMMENT 'set when notebook has been promoted to a public research project',
+  `promoted_at` datetime DEFAULT NULL,
+  `sort_order` int DEFAULT 0,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_researcher` (`researcher_id`),
+  KEY `idx_promoted` (`promoted_to_project_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `research_notebook_item` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `notebook_id` int NOT NULL,
+  `item_type` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'saved_query, ai_output, source_pin, note',
+  `title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `body` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `source_object_id` int DEFAULT NULL,
+  `saved_search_id` int DEFAULT NULL,
+  `ai_output_payload` json DEFAULT NULL,
+  `pinned` tinyint(1) DEFAULT 0,
+  `sort_order` int DEFAULT 0,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_notebook` (`notebook_id`),
+  KEY `idx_item_type` (`item_type`),
+  KEY `idx_source_object` (`source_object_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `research_collaboration_session` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `project_id` int NOT NULL,
+  `started_by` int NOT NULL,
+  `started_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `ended_at` datetime DEFAULT NULL,
+  `expires_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_project` (`project_id`),
+  KEY `idx_active` (`project_id`, `ended_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `research_collaboration_presence` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `project_id` int NOT NULL,
+  `researcher_id` int NOT NULL,
+  `session_id` int DEFAULT NULL,
+  `cursor_target` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'route+anchor that identifies what the collaborator is viewing',
+  `user_color` varchar(7) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '#rrggbb assigned for this session',
+  `last_seen_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_project_researcher` (`project_id`, `researcher_id`),
+  KEY `idx_session` (`session_id`),
+  KEY `idx_last_seen` (`last_seen_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `research_evidence_comment` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `collection_id` int DEFAULT NULL COMMENT 'evidence-set / collection the comment is anchored to',
+  `item_id` int DEFAULT NULL COMMENT 'optional specific item within the collection',
+  `project_id` int DEFAULT NULL,
+  `author_id` int NOT NULL,
+  `parent_comment_id` int DEFAULT NULL,
+  `body` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'open' COMMENT 'open, resolved',
+  `resolved_by` int DEFAULT NULL,
+  `resolved_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_collection` (`collection_id`),
+  KEY `idx_item` (`item_id`),
+  KEY `idx_project` (`project_id`),
+  KEY `idx_author` (`author_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_parent` (`parent_comment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `researcher_orcid_link` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `researcher_id` int NOT NULL,
+  `orcid_id` varchar(19) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '0000-0000-0000-000X',
+  `access_token_encrypted` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `refresh_token_encrypted` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `scope` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `expires_at` datetime DEFAULT NULL,
+  `last_synced_at` datetime DEFAULT NULL,
+  `last_works_count` int DEFAULT NULL,
+  `last_error` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_researcher` (`researcher_id`),
+  UNIQUE KEY `uniq_orcid` (`orcid_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `research_cross_fonds_query` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `researcher_id` int DEFAULT NULL,
+  `query_text` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `fonds_ids` json DEFAULT NULL,
+  `results_count` int DEFAULT 0,
+  `elapsed_ms` int DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_researcher` (`researcher_id`),
+  KEY `idx_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE IF NOT EXISTS `research_offline_sync_log` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `researcher_id` int NOT NULL,
+  `sync_started_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `sync_completed_at` datetime DEFAULT NULL,
+  `queued_count` int DEFAULT 0,
+  `applied_count` int DEFAULT 0,
+  `conflict_count` int DEFAULT 0,
+  `payload_hash` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `error_text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `idx_researcher` (`researcher_id`),
+  KEY `idx_started` (`sync_started_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

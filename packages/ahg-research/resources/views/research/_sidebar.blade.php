@@ -27,6 +27,22 @@
        class="list-group-item list-group-item-action {{ $active === 'bibliographies' ? 'active' : '' }}">
         <i class="fas fa-book me-2"></i>{{ __('Bibliographies') }}
     </a>
+    <a href="{{ route('research.notebooks') }}"
+       class="list-group-item list-group-item-action {{ $active === 'notebooks' ? 'active' : '' }}">
+        <i class="fas fa-sticky-note me-2"></i>{{ __('Notebooks') }}
+    </a>
+    <a href="{{ route('research.crossFondsQuery') }}"
+       class="list-group-item list-group-item-action {{ $active === 'crossFonds' ? 'active' : '' }}">
+        <i class="fas fa-network-wired me-2"></i>{{ __('Cross-fonds Query') }}
+    </a>
+    <a href="{{ route('research.analytics') }}"
+       class="list-group-item list-group-item-action {{ $active === 'analytics' ? 'active' : '' }}">
+        <i class="fas fa-chart-line me-2"></i>{{ __('Analytics') }}
+    </a>
+    <a href="{{ route('research.orcid') }}"
+       class="list-group-item list-group-item-action {{ $active === 'orcid' ? 'active' : '' }}">
+        <i class="fab fa-orcid me-2 text-success"></i>{{ __('ORCID Link') }}
+    </a>
     <a href="{{ route('research.reports') }}"
        class="list-group-item list-group-item-action {{ $active === 'reports' ? 'active' : '' }}">
         <i class="fas fa-file-alt me-2"></i>{{ __('My Reports') }}

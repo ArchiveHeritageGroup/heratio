@@ -26,6 +26,24 @@
     </div>
 </div>
 
+@isset($exportFormats)
+<div class="card mb-3">
+    <div class="card-header"><h6 class="mb-0"><i class="fas fa-file-export me-2"></i>{{ __('Copy in citation manager format') }}</h6></div>
+    <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+            @foreach($exportFormats as $key => $label)
+                <a class="btn btn-sm btn-outline-secondary" href="{{ route('research.citeExport', ['slug' => $objectSlug, 'format' => $key]) }}">
+                    <i class="fas fa-download me-1"></i>{{ $label }}
+                </a>
+            @endforeach
+        </div>
+        <div class="form-text mt-2">
+            {{ __('Downloads a file you can drop into Zotero / Mendeley / EndNote / LaTeX. RIS works for almost all reference managers.') }}
+        </div>
+    </div>
+</div>
+@endisset
+
 <div class="card">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>{{ __('Citations') }}</h5></div>
     <div class="card-body">

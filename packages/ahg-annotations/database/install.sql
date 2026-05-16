@@ -26,6 +26,10 @@ CREATE TABLE IF NOT EXISTS `ahg_iiif_annotation` (
     -- annotations by archival record without parsing the IRI. Null when the
     -- annotation lives on a canvas not tied to an IO (rare; keep flexible).
     `information_object_id` BIGINT UNSIGNED NULL,
+    -- Project scope: when set, every collaborator on the project sees the
+    -- annotation (shared annotation layer). Null = private to created_by.
+    `project_id` INT NULL,
+    `visibility` VARCHAR(20) NOT NULL DEFAULT 'private' COMMENT 'private, project, public',
     `body_json` JSON NOT NULL,
     `created_by` INT NULL,
     `updated_by` INT NULL,
@@ -35,5 +39,15 @@ CREATE TABLE IF NOT EXISTS `ahg_iiif_annotation` (
     UNIQUE KEY `uuid_unique` (`uuid`),
     KEY `target_iri_idx` (`target_iri`(255)),
     KEY `io_id_idx` (`information_object_id`),
-    KEY `created_by_idx` (`created_by`)
+    KEY `created_by_idx` (`created_by`),
+    KEY `project_idx` (`project_id`),
+    KEY `visibility_idx` (`visibility`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Idempotent column adds for older installs that already created the
+-- annotation table without the project/visibility scope.
+ALTER TABLE `ahg_iiif_annotation`
+    ADD COLUMN IF NOT EXISTS `project_id` INT NULL AFTER `information_object_id`,
+    ADD COLUMN IF NOT EXISTS `visibility` VARCHAR(20) NOT NULL DEFAULT 'private' AFTER `project_id`,
+    ADD KEY IF NOT EXISTS `project_idx` (`project_id`),
+    ADD KEY IF NOT EXISTS `visibility_idx` (`visibility`);

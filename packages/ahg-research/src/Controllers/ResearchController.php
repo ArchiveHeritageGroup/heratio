@@ -1026,10 +1026,30 @@ class ResearchController extends Controller
             }
         }
 
+        $exportFormats = \AhgResearch\Services\CitationService::FORMATS;
+
         return view('research::research.cite', array_merge(
             $this->getSidebarData('bibliographies'),
-            compact('citations', 'styles')
+            compact('citations', 'styles', 'exportFormats'),
+            ['objectId' => (int) $object->object_id, 'objectSlug' => $slug]
         ));
+    }
+
+    public function citeExport(Request $request, string $slug, string $format)
+    {
+        $object = DB::table('slug')->where('slug', $slug)->first();
+        if (!$object) abort(404);
+
+        $citation = app(\AhgResearch\Services\CitationService::class)->export((int) $object->object_id, strtolower($format));
+
+        if (isset($citation['error'])) {
+            abort(404, $citation['error']);
+        }
+
+        return response($citation['body'], 200, [
+            'Content-Type'        => $citation['mime'],
+            'Content-Disposition' => 'attachment; filename="' . $citation['filename'] . '"',
+        ]);
     }
 
     // =========================================================================
@@ -5059,6 +5079,536 @@ class ResearchController extends Controller
         return view('research::research.project-collaborators', array_merge(
             $this->getSidebarData('projects'),
             compact('project', 'researcher', 'collaborators')
+        ));
+    }
+
+    // =========================================================================
+    // STUDIO (NotebookLM-style artefact generator)
+    // =========================================================================
+
+    public function studio(Request $request, int $projectId)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $project = DB::table('research_project')->where('id', $projectId)->first();
+        if (!$project) abort(404, 'Project not found');
+
+        $studio = app(\AhgResearch\Services\ResearchStudioService::class);
+
+        $artefacts = $studio->listForProject($projectId);
+
+        $availableSources = DB::table('research_collection as c')
+            ->leftJoin('research_collection_item as ci', 'c.id', '=', 'ci.collection_id')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('ci.object_id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
+            })
+            ->where('c.project_id', $projectId)
+            ->select('ci.object_id', 'ioi.title', 'c.name as collection_name')
+            ->whereNotNull('ci.object_id')
+            ->orderBy('c.name')
+            ->orderBy('ioi.title')
+            ->get()
+            ->toArray();
+
+        $supportedTypes = \AhgResearch\Services\ResearchStudioService::SUPPORTED_TYPES;
+
+        return view('research::research.studio', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'researcher', 'artefacts', 'availableSources', 'supportedTypes')
+        ));
+    }
+
+    public function studioGenerate(Request $request, int $projectId)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $validated = $request->validate([
+            'output_type'          => 'required|string|in:briefing,study_guide,faq,timeline,diagram,video_script,spreadsheet,audio',
+            'source_object_ids'    => 'required|array|min:1',
+            'source_object_ids.*'  => 'integer|min:1',
+            'title'                => 'nullable|string|max:500',
+            'columns_request'      => 'nullable|string|max:500',
+            'voice_id'             => 'nullable|string|max:120',
+        ]);
+
+        $studio = app(\AhgResearch\Services\ResearchStudioService::class);
+
+        $options = array_filter([
+            'title'           => $validated['title'] ?? null,
+            'columns_request' => $validated['columns_request'] ?? null,
+            'voice_id'        => $validated['voice_id'] ?? null,
+        ], fn ($v) => $v !== null && $v !== '');
+
+        $artefactId = $studio->generate(
+            $projectId,
+            $validated['source_object_ids'],
+            $validated['output_type'],
+            $options,
+            (int) ($researcher->id ?? 0)
+        );
+
+        return redirect()->route('research.studioShow', ['projectId' => $projectId, 'artefactId' => $artefactId])
+            ->with('success', 'Studio artefact generated.');
+    }
+
+    public function studioShow(Request $request, int $projectId, int $artefactId)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $project = DB::table('research_project')->where('id', $projectId)->first();
+        if (!$project) abort(404);
+
+        $artefact = app(\AhgResearch\Services\ResearchStudioService::class)->get($artefactId);
+        if (!$artefact || (int) $artefact->project_id !== $projectId) abort(404);
+
+        $citations = is_string($artefact->citations) ? json_decode($artefact->citations, true) : [];
+
+        return view('research::research.studio-show', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'artefact', 'citations')
+        ));
+    }
+
+    public function studioDownload(Request $request, int $projectId, int $artefactId)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $artefact = app(\AhgResearch\Services\ResearchStudioService::class)->get($artefactId);
+        if (!$artefact || (int) $artefact->project_id !== $projectId) abort(404);
+
+        if ($artefact->output_type === 'spreadsheet' && $artefact->xlsx_path && is_file($artefact->xlsx_path)) {
+            return response()->download($artefact->xlsx_path, basename($artefact->xlsx_path));
+        }
+
+        if ($artefact->output_type === 'audio' && $artefact->audio_url) {
+            return redirect()->away($artefact->audio_url);
+        }
+
+        abort(404, 'No downloadable file for this artefact.');
+    }
+
+    public function studioDelete(Request $request, int $projectId, int $artefactId)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $artefact = app(\AhgResearch\Services\ResearchStudioService::class)->get($artefactId);
+        if (!$artefact || (int) $artefact->project_id !== $projectId) abort(404);
+
+        app(\AhgResearch\Services\ResearchStudioService::class)->delete($artefactId);
+
+        return redirect()->route('research.studio', $projectId)->with('success', 'Studio artefact removed.');
+    }
+
+    // =========================================================================
+    // NOTEBOOKS (researcher-private scratchpad)
+    // =========================================================================
+
+    public function notebooks(Request $request)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        $svc = app(\AhgResearch\Services\NotebookService::class);
+
+        if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+            if ($action === 'create') {
+                $id = $svc->create((int) $researcher->id, [
+                    'title'   => $request->input('title', 'Untitled notebook'),
+                    'summary' => $request->input('summary'),
+                ]);
+                return redirect()->route('research.notebookShow', $id)->with('success', 'Notebook created.');
+            }
+        }
+
+        $notebooks = $svc->listForResearcher((int) $researcher->id);
+
+        return view('research::research.notebooks', array_merge(
+            $this->getSidebarData('notebooks'),
+            compact('notebooks', 'researcher')
+        ));
+    }
+
+    public function notebookShow(Request $request, int $id)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        $svc = app(\AhgResearch\Services\NotebookService::class);
+        $notebook = $svc->get($id);
+        if (!$notebook || (int) $notebook->researcher_id !== (int) $researcher->id) abort(404);
+
+        if ($request->isMethod('post')) {
+            $action = $request->input('form_action');
+            if ($action === 'update') {
+                $svc->update($id, [
+                    'title'   => $request->input('title'),
+                    'summary' => $request->input('summary'),
+                ]);
+                return redirect()->route('research.notebookShow', $id)->with('success', 'Notebook updated.');
+            }
+            if ($action === 'add_item') {
+                $svc->addItem($id, [
+                    'item_type'        => $request->input('item_type', 'note'),
+                    'title'            => $request->input('item_title'),
+                    'body'             => $request->input('item_body'),
+                    'source_object_id' => $request->input('source_object_id') ?: null,
+                    'saved_search_id'  => $request->input('saved_search_id') ?: null,
+                    'pinned'           => (bool) $request->input('pinned'),
+                ]);
+                return redirect()->route('research.notebookShow', $id)->with('success', 'Note added.');
+            }
+            if ($action === 'remove_item') {
+                $svc->removeItem((int) $request->input('item_id'));
+                return redirect()->route('research.notebookShow', $id)->with('success', 'Note removed.');
+            }
+            if ($action === 'pin_item') {
+                $itemId = (int) $request->input('item_id');
+                $svc->updateItem($itemId, ['pinned' => (bool) $request->input('pinned')]);
+                return redirect()->route('research.notebookShow', $id);
+            }
+        }
+
+        $items = $svc->getItems($id);
+        $itemTypes = \AhgResearch\Services\NotebookService::ITEM_TYPES;
+
+        return view('research::research.notebook-show', array_merge(
+            $this->getSidebarData('notebooks'),
+            compact('notebook', 'items', 'researcher', 'itemTypes')
+        ));
+    }
+
+    public function notebookDelete(Request $request, int $id)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        $svc = app(\AhgResearch\Services\NotebookService::class);
+        $notebook = $svc->get($id);
+        if (!$notebook || (int) $notebook->researcher_id !== (int) $researcher->id) abort(404);
+
+        $svc->delete($id);
+        return redirect()->route('research.notebooks')->with('success', 'Notebook deleted.');
+    }
+
+    public function notebookPromote(Request $request, int $id)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        $svc = app(\AhgResearch\Services\NotebookService::class);
+        $projectId = $svc->promoteToProject($id, (int) $researcher->id);
+
+        if (!$projectId) {
+            return redirect()->route('research.notebookShow', $id)->with('error', 'Could not promote notebook.');
+        }
+
+        return redirect()->route('research.viewProject', $projectId)
+            ->with('success', 'Notebook promoted to project.');
+    }
+
+    // =========================================================================
+    // CROSS-FONDS QUERY
+    // =========================================================================
+
+    // =========================================================================
+    // MOBILE / PWA + OFFLINE SYNC
+    // =========================================================================
+
+    public function mobileHome(Request $request)
+    {
+        $researcher = Auth::check() ? $this->service->getResearcherByUserId(Auth::id()) : null;
+
+        $readingList = [];
+        if ($researcher) {
+            try {
+                $readingList = DB::table('research_collection_item as ci')
+                    ->join('research_collection as c', 'ci.collection_id', '=', 'c.id')
+                    ->leftJoin('information_object_i18n as ioi', function ($j) {
+                        $j->on('ci.object_id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
+                    })
+                    ->leftJoin('slug', 'ci.object_id', '=', 'slug.object_id')
+                    ->where('c.researcher_id', $researcher->id)
+                    ->orderByDesc('ci.created_at')
+                    ->limit(50)
+                    ->select('ci.object_id', 'ioi.title', 'slug.slug', 'c.name as collection_name')
+                    ->get()
+                    ->toArray();
+            } catch (\Throwable $e) {}
+        }
+
+        return view('research::research.mobile-home', compact('researcher', 'readingList'));
+    }
+
+    public function offlineSync(Request $request)
+    {
+        if (!Auth::check()) abort(401);
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) abort(403);
+
+        $payload = $request->json()->all();
+        if (!is_array($payload) || empty($payload['queue'])) {
+            return response()->json(['applied' => 0, 'conflicts' => 0]);
+        }
+
+        $applied = 0;
+        $conflicts = 0;
+        $logId = DB::table('research_offline_sync_log')->insertGetId([
+            'researcher_id'   => (int) $researcher->id,
+            'sync_started_at' => date('Y-m-d H:i:s'),
+            'queued_count'    => count($payload['queue']),
+            'payload_hash'    => hash('sha256', json_encode($payload['queue'])),
+        ]);
+
+        foreach ($payload['queue'] as $item) {
+            $kind = $item['kind'] ?? null;
+            try {
+                if ($kind === 'journal_entry') {
+                    DB::table('research_journal_entry')->insert([
+                        'researcher_id' => (int) $researcher->id,
+                        'project_id'    => $item['project_id'] ?? null,
+                        'entry_type'    => $item['entry_type'] ?? 'note',
+                        'entry_date'    => $item['entry_date'] ?? date('Y-m-d'),
+                        'title'         => mb_substr((string) ($item['title'] ?? ''), 0, 255),
+                        'content'       => (string) ($item['content'] ?? ''),
+                        'created_at'    => date('Y-m-d H:i:s'),
+                    ]);
+                    $applied++;
+                } elseif ($kind === 'annotation') {
+                    DB::table('ahg_iiif_annotation')->insert([
+                        'uuid'                  => $item['uuid'] ?? (string) \Illuminate\Support\Str::uuid(),
+                        'target_iri'            => (string) ($item['target_iri'] ?? ''),
+                        'information_object_id' => $item['information_object_id'] ?? null,
+                        'project_id'            => $item['project_id'] ?? null,
+                        'visibility'            => $item['visibility'] ?? 'private',
+                        'body_json'             => json_encode($item['body'] ?? []),
+                        'created_by'            => Auth::id(),
+                        'updated_by'            => Auth::id(),
+                        'created_at'            => date('Y-m-d H:i:s'),
+                        'updated_at'            => date('Y-m-d H:i:s'),
+                    ]);
+                    $applied++;
+                } else {
+                    $conflicts++;
+                }
+            } catch (\Throwable $e) {
+                $conflicts++;
+            }
+        }
+
+        DB::table('research_offline_sync_log')->where('id', $logId)->update([
+            'sync_completed_at' => date('Y-m-d H:i:s'),
+            'applied_count'     => $applied,
+            'conflict_count'    => $conflicts,
+        ]);
+
+        return response()->json([
+            'applied'   => $applied,
+            'conflicts' => $conflicts,
+            'log_id'    => $logId,
+        ]);
+    }
+
+    // =========================================================================
+    // ORCID INTEGRATION
+    // =========================================================================
+
+    public function orcidLink(Request $request)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        $svc = app(\AhgResearch\Services\OrcidService::class);
+        $link = $svc->getLink((int) $researcher->id);
+        $isConfigured = $svc->isConfigured();
+
+        return view('research::research.orcid-link', array_merge(
+            $this->getSidebarData('orcid'),
+            compact('researcher', 'link', 'isConfigured')
+        ));
+    }
+
+    public function orcidAuthorize(Request $request)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        $svc = app(\AhgResearch\Services\OrcidService::class);
+        if (!$svc->isConfigured()) {
+            return redirect()->route('research.orcid')->with('error', 'ORCID is not configured. Set ORCID_CLIENT_ID, ORCID_CLIENT_SECRET and ORCID_REDIRECT_URI.');
+        }
+
+        session(['orcid_researcher_id' => $researcher->id]);
+        return redirect()->away($svc->authorizeUrl());
+    }
+
+    public function orcidCallback(Request $request)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        $code = $request->query('code');
+        $state = $request->query('state');
+        if (!$code) {
+            return redirect()->route('research.orcid')->with('error', 'ORCID returned no authorisation code.');
+        }
+        if (session('orcid_oauth_state') && $state !== session('orcid_oauth_state')) {
+            return redirect()->route('research.orcid')->with('error', 'ORCID state mismatch.');
+        }
+
+        $svc = app(\AhgResearch\Services\OrcidService::class);
+        try {
+            $token = $svc->exchangeCode($code);
+            $svc->linkResearcher((int) $researcher->id, $token);
+        } catch (\Throwable $e) {
+            return redirect()->route('research.orcid')->with('error', 'ORCID link failed: ' . $e->getMessage());
+        }
+
+        return redirect()->route('research.orcid')->with('success', 'ORCID linked successfully.');
+    }
+
+    public function orcidSync(Request $request)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        $svc = app(\AhgResearch\Services\OrcidService::class);
+        try {
+            $svc->pullWorks((int) $researcher->id);
+        } catch (\Throwable $e) {
+            return redirect()->route('research.orcid')->with('error', 'Sync failed: ' . $e->getMessage());
+        }
+
+        return redirect()->route('research.orcid')->with('success', 'Works pulled from ORCID.');
+    }
+
+    public function orcidUnlink(Request $request)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        app(\AhgResearch\Services\OrcidService::class)->unlink((int) $researcher->id);
+        return redirect()->route('research.orcid')->with('success', 'ORCID unlinked.');
+    }
+
+    // =========================================================================
+    // REAL-TIME COLLABORATION (polling fallback)
+    // =========================================================================
+
+    public function collabJoin(Request $request, int $projectId)
+    {
+        if (!Auth::check()) abort(401);
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) abort(403);
+
+        $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
+        $data = $svc->joinProject($projectId, (int) $researcher->id, $request->input('cursor_target'));
+
+        return response()->json(array_merge($data, $svc->poll($projectId)));
+    }
+
+    public function collabPoll(Request $request, int $projectId)
+    {
+        if (!Auth::check()) abort(401);
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) abort(403);
+
+        $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
+        $svc->heartbeat($projectId, (int) $researcher->id, $request->input('cursor_target'));
+
+        $since = $request->input('since');
+        return response()->json($svc->poll($projectId, $since !== null ? (int) $since : null));
+    }
+
+    public function collabComment(Request $request, int $projectId)
+    {
+        if (!Auth::check()) abort(401);
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) abort(403);
+
+        $validated = $request->validate([
+            'body'              => 'required|string|max:5000',
+            'collection_id'     => 'nullable|integer',
+            'item_id'           => 'nullable|integer',
+            'parent_comment_id' => 'nullable|integer',
+        ]);
+
+        $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
+        $id = $svc->postComment($projectId, (int) $researcher->id, $validated);
+
+        return response()->json(['id' => $id, 'status' => 'open']);
+    }
+
+    public function collabCommentResolve(Request $request, int $projectId, int $commentId)
+    {
+        if (!Auth::check()) abort(401);
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) abort(403);
+
+        $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
+        $svc->resolveComment($commentId, (int) $researcher->id);
+
+        return response()->json(['status' => 'resolved']);
+    }
+
+    public function collabPanel(Request $request, int $projectId)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        $project = DB::table('research_project')->where('id', $projectId)->first();
+        if (!$project) abort(404);
+
+        $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
+        $comments = $svc->comments($projectId);
+        $presence = $svc->presence($projectId);
+
+        return view('research::research.collab-panel', array_merge(
+            $this->getSidebarData('projects'),
+            compact('project', 'comments', 'presence', 'researcher')
+        ));
+    }
+
+    public function analytics(Request $request)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $from = $request->input('from');
+        $to   = $request->input('to');
+
+        $data = app(\AhgResearch\Services\ResearchAnalyticsService::class)->dashboard($from, $to);
+
+        return view('research::research.analytics', array_merge(
+            $this->getSidebarData('analytics'),
+            compact('data')
+        ));
+    }
+
+    public function crossFondsQuery(Request $request)
+    {
+        $researcher = Auth::check() ? $this->service->getResearcherByUserId(Auth::id()) : null;
+        $svc = app(\AhgResearch\Services\CrossFondsQueryService::class);
+
+        $fondsList = $svc->availableFonds();
+        $query = trim((string) $request->input('q', ''));
+        $selected = array_map('intval', (array) $request->input('fonds', []));
+        $expand = (bool) $request->input('expand');
+
+        $result = null;
+        if ($query !== '') {
+            $result = $svc->query($query, $selected, $researcher->id ?? null, [
+                'expand' => $expand,
+                'top_k'  => 30,
+            ]);
+        }
+
+        return view('research::research.cross-fonds-query', array_merge(
+            $this->getSidebarData('crossFonds'),
+            compact('fondsList', 'query', 'selected', 'expand', 'result')
         ));
     }
 }

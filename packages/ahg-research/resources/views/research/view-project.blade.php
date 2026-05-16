@@ -381,6 +381,8 @@
         <div class="card mb-4">
             <div class="card-header bg-success text-white"><h6 class="mb-0"><i class="fas fa-file-export me-2"></i>{{ __('Research Output') }}</h6></div>
             <div class="list-group list-group-flush">
+                <a href="{{ route('research.studio', $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-flask me-2 text-info"></i>{{ __('Studio') }}</a>
+                <a href="{{ route('research.collabPanel', $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-users me-2 text-primary"></i>{{ __('Live Collaboration') }}</a>
                 <a href="{{ route('research.reports', ['project_id' => $project->id]) }}" class="list-group-item list-group-item-action"><i class="fas fa-file-alt me-2 text-dark"></i>Reports ({{ count($reports ?? []) }})</a>
                 <a href="{{ url('/research/ro-crate/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-box me-2 text-primary"></i>{{ __('RO-Crate Package') }}</a>
                 <a href="{{ url('/research/reproducibility/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-redo me-2 text-info"></i>{{ __('Reproducibility Pack') }}</a>

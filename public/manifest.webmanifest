@@ -1,0 +1,34 @@
+{
+    "name": "Heratio",
+    "short_name": "Heratio",
+    "description": "International archival management platform - research portal",
+    "start_url": "/research/mobile",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#0d6efd",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "any",
+            "type": "image/x-icon"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Mobile research",
+            "url": "/research/mobile",
+            "description": "Read-and-annotate flow tuned for phone"
+        },
+        {
+            "name": "Cross-fonds query",
+            "url": "/research/cross-fonds-query",
+            "description": "Ask one question across multiple fonds"
+        },
+        {
+            "name": "Notebooks",
+            "url": "/research/notebooks",
+            "description": "Private researcher scratchpad"
+        }
+    ]
+}

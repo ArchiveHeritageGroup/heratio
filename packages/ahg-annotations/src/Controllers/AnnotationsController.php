@@ -63,10 +63,27 @@ class AnnotationsController extends Controller
             return response()->json(['resources' => []]);
         }
 
-        $rows = DB::table('ahg_iiif_annotation')
+        $projectId = $request->query('projectId');
+        $visibility = $request->query('visibility');
+        $authorId   = $request->query('createdBy');
+
+        $q = DB::table('ahg_iiif_annotation')
             ->where('target_iri', $targetId)
-            ->orderBy('id')
-            ->get(['uuid', 'body_json', 'created_at', 'updated_at']);
+            ->orderBy('id');
+
+        // Shared-annotation-layer filters (W3C-Web-Annotation native search
+        // ignores these so plain Mirador requests still return everything).
+        if ($projectId !== null && $projectId !== '') {
+            $q->where('project_id', (int) $projectId);
+        }
+        if ($visibility !== null && $visibility !== '') {
+            $q->where('visibility', (string) $visibility);
+        }
+        if ($authorId !== null && $authorId !== '') {
+            $q->where('created_by', (int) $authorId);
+        }
+
+        $rows = $q->get(['uuid', 'body_json', 'created_at', 'updated_at']);
 
         // Annotot's response shape: { resources: [W3C Annotation, ...] }
         // Each resource is the body_json with `id` rewritten to our
@@ -179,10 +196,18 @@ class AnnotationsController extends Controller
         // before storing, so re-fetches round-trip without rewriting.
         $body['id'] = url('/api/annotations/' . $uuid);
 
+        $projectId  = $request->query('projectId') ?: ($body['_heratio']['project_id']  ?? null);
+        $visibility = $request->query('visibility') ?: ($body['_heratio']['visibility'] ?? 'private');
+        if (!in_array($visibility, ['private', 'project', 'public'], true)) {
+            $visibility = 'private';
+        }
+
         DB::table('ahg_iiif_annotation')->insert([
             'uuid'                  => $uuid,
             'target_iri'            => $targetIri,
             'information_object_id' => $this->resolveIoIdFromTarget($targetIri),
+            'project_id'            => $projectId ? (int) $projectId : null,
+            'visibility'            => $visibility,
             'body_json'             => json_encode($body, JSON_UNESCAPED_SLASHES),
             'created_by'            => $userId,
             'updated_by'            => $userId,
