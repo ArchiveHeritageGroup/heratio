@@ -17,6 +17,17 @@ Route::middleware(['web', 'auth'])
     ->post('/share-link/issue', [ShareLinkIssueController::class, 'store'])
     ->name('share-link.issue');
 
+// v0.2 — bookmarkable issuance form (GET) + post-issue success (GET).
+// Complements the inline modal: same backend, different surface so curators
+// can land directly on a record's share form from a saved link.
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/share-link/new', [ShareLinkIssueController::class, 'newForm'])
+        ->name('share-link.new');
+    Route::get('/share-link/issued/{tokenId}', [ShareLinkIssueController::class, 'issued'])
+        ->where('tokenId', '\d+')
+        ->name('share-link.issued');
+});
+
 // Admin index + detail — gated by share_link.list_all ACL (admin bypass).
 // Phase F.
 Route::middleware(['web', 'auth'])->group(function () {

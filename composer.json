@@ -83,6 +83,7 @@
         "ahg/mods-manage": "@dev",
         "ahg/multi-tenant": "@dev",
         "ahg/museum": "@dev",
+        "ahg/narssa": "@dev",
         "ahg/naz": "@dev",
         "ahg/nmmz": "@dev",
         "ahg/oai": "@dev",

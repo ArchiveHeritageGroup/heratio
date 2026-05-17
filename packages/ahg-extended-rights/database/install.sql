@@ -233,4 +233,95 @@ CREATE TABLE IF NOT EXISTS `embargo_i18n` (
 -- NOTE: These tables are defined in ahgRightsPlugin/data/install.sql
 -- Do not duplicate here - ensure ahgRightsPlugin is installed first
 
+-- ============================================================
+-- Retention schedule + disposal workflow (2026-05-17 sync from
+-- ahgExtendedRightsPlugin migration). Records-management framework
+-- support: File-Plan-driven retention with multi-stage disposal
+-- workflow (records officer -> legal -> executive). Suitable for
+-- any national archival framework (NARSSA, NARA, PRO Act, ISO 15489).
+-- Operators replace seed schedules with their organisation File Plan.
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS `retention_schedule` (
+    `id`                         INT NOT NULL AUTO_INCREMENT,
+    `code`                       VARCHAR(50)  NOT NULL COMMENT 'Operator-friendly identifier from the organisation File Plan',
+    `title`                      VARCHAR(255) NOT NULL,
+    `description`                TEXT NULL,
+    `active_period_years`        INT NOT NULL DEFAULT 5  COMMENT 'Years the record is operationally active',
+    `dormant_period_years`       INT NOT NULL DEFAULT 0  COMMENT 'Years held after active period before disposal trigger',
+    `trigger_event`              VARCHAR(50)  NOT NULL DEFAULT 'creation_date' COMMENT 'creation_date, file_closure, fiscal_year_end, contract_end, employment_end',
+    `disposal_action`            VARCHAR(20)  NOT NULL DEFAULT 'review' COMMENT 'destroy, transfer_narssa, transfer_other, review, permanent',
+    `legal_basis`                VARCHAR(255) NULL COMMENT 'Statutory authority for the schedule',
+    `requires_legal_signoff`     TINYINT(1) NOT NULL DEFAULT 0,
+    `requires_executive_signoff` TINYINT(1) NOT NULL DEFAULT 0,
+    `is_active`                  TINYINT(1) NOT NULL DEFAULT 1,
+    `created_at`                 DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`                 DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_code` (`code`),
+    KEY `idx_disposal_action` (`disposal_action`),
+    KEY `idx_active` (`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `retention_assignment` (
+    `id`                       BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `information_object_id`    INT NOT NULL,
+    `retention_schedule_id`    INT NOT NULL,
+    `trigger_event_date`       DATE NOT NULL COMMENT 'When the retention clock starts',
+    `calculated_disposal_due`  DATE NOT NULL COMMENT 'trigger_event_date + active + dormant',
+    `assigned_by`              INT NULL,
+    `notes`                    TEXT NULL,
+    `created_at`               DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`               DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_io` (`information_object_id`),
+    KEY `idx_schedule` (`retention_schedule_id`),
+    KEY `idx_due` (`calculated_disposal_due`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `disposal_action` (
+    `id`                       BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `information_object_id`    INT NOT NULL,
+    `retention_assignment_id`  BIGINT UNSIGNED NULL,
+    `action_type`              VARCHAR(20) NOT NULL COMMENT 'destroy, transfer_narssa, transfer_other, review, defer',
+    `status`                   VARCHAR(30) NOT NULL DEFAULT 'proposed' COMMENT 'proposed, officer_signed, legal_signed, executive_signed, approved, executed, rejected, deferred',
+    `proposed_by`              INT NULL,
+    `proposed_at`              DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+    `officer_signed_by`        INT NULL,
+    `officer_signed_at`        DATETIME NULL,
+    `legal_signed_by`          INT NULL,
+    `legal_signed_at`          DATETIME NULL,
+    `executive_signed_by`      INT NULL,
+    `executive_signed_at`      DATETIME NULL,
+    `executed_by`              INT NULL,
+    `executed_at`              DATETIME NULL,
+    `rejected_by`              INT NULL,
+    `rejected_at`              DATETIME NULL,
+    `rejection_reason`         TEXT NULL,
+    `transfer_destination`     VARCHAR(255) NULL COMMENT 'Archive identifier for transfer_* actions',
+    `transfer_manifest_path`   VARCHAR(500) NULL COMMENT 'Path to generated transfer .tar.gz when applicable',
+    `notes`                    TEXT NULL,
+    `created_at`               DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`               DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_io` (`information_object_id`),
+    KEY `idx_assignment` (`retention_assignment_id`),
+    KEY `idx_status` (`status`),
+    KEY `idx_action_type` (`action_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Generic seed schedules (operators replace with their File Plan).
+-- Codes are intentionally generic (no jurisdiction prefix) so the
+-- defaults work in any market. Legal-basis values reference example
+-- frameworks; rewrite for the deployment's regulatory environment.
+INSERT IGNORE INTO `retention_schedule`
+  (`code`, `title`, `description`, `active_period_years`, `dormant_period_years`, `trigger_event`, `disposal_action`, `legal_basis`, `requires_legal_signoff`, `requires_executive_signoff`, `is_active`)
+VALUES
+  ('COMM-001', 'Press releases (general)',         'Routine media releases',                   2,  3, 'creation_date',   'destroy',         'See operator File Plan',   0, 0, 1),
+  ('COMM-002', 'Cabinet/Board briefings',          'High-impact briefings, permanent transfer', 5, 25, 'creation_date',   'transfer_narssa', 'See operator File Plan',   1, 1, 1),
+  ('CORP-001', 'Annual reports',                   'Annual reports - permanent retention',     5,  0, 'creation_date',   'permanent',       'See operator File Plan',   0, 1, 1),
+  ('CORP-002', 'Procurement records',              'Procurement audit trail',                  5,  7, 'fiscal_year_end', 'destroy',         'See operator File Plan',   1, 0, 1),
+  ('HR-001',   'Employee personnel files',         'Employee records',                         7, 30, 'employment_end',  'destroy',         'See operator File Plan',   1, 0, 1),
+  ('LEG-001',  'Legal opinions / counsel records', 'Legal advice retained long-term',          5, 20, 'creation_date',   'review',          'See operator File Plan',   1, 1, 1);
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "30ee2fd265ba60f8048566cbda446d30",
+    "content-hash": "fc13352517fbd622663928a8c61bd8d9",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -914,11 +914,13 @@
             "dist": {
                 "type": "path",
                 "url": "packages/ahg-federation",
-                "reference": "a785f16db887ca4ce0bbdc81d1063fd10fc2e006"
+                "reference": "2da6b7b09a25c2ca02c28bfb4b8d4b5ba15d18bd"
             },
             "require": {
                 "ahg/core": "@dev",
                 "ahg/information-object-manage": "@dev",
+                "ahg/search": "@dev",
+                "ahg/sharepoint": "@dev",
                 "ahg/term-taxonomy": "@dev"
             },
             "type": "library",
@@ -1857,6 +1859,40 @@
                 }
             },
             "description": "Museum cataloguing (CCO standard) browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/narssa",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-narssa",
+                "reference": "a2b200c292e46ebf021e55db28e98f56c6366c7b"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "php": ">=8.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgNarssa\\Providers\\AhgNarssaServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgNarssa\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "Archive transfer manifest packager. Builds tar.gz packages with manifest.csv + METS wrapper + EAD2002 per-item descriptions + SHA-256 checksums, recorded in narssa_transfer / narssa_transfer_item. Suitable for NARSSA, NARA, TNA-UK, and equivalent national-archive transfer regimes.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11977,6 +12013,7 @@
         "ahg/mods-manage": 20,
         "ahg/multi-tenant": 20,
         "ahg/museum": 20,
+        "ahg/narssa": 20,
         "ahg/naz": 20,
         "ahg/nmmz": 20,
         "ahg/oai": 20,

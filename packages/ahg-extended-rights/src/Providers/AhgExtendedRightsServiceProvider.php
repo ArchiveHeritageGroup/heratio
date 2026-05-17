@@ -11,6 +11,8 @@ class AhgExtendedRightsServiceProvider extends ServiceProvider
         $this->app->singleton(\AhgExtendedRights\Services\ExtendedRightsService::class);
         $this->app->singleton(\AhgExtendedRights\Services\EmbargoService::class);
         $this->app->singleton(\AhgExtendedRights\Services\EmbargoNotificationService::class);
+        $this->app->singleton(\AhgExtendedRights\Services\RetentionScheduleService::class);
+        $this->app->singleton(\AhgExtendedRights\Services\DisposalWorkflowService::class);
 
         if ($this->app->runningInConsole()) {
             $this->commands([

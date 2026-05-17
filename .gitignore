@@ -66,3 +66,8 @@ playwright-report/
 
 # Claude Code per-user settings — may contain commands invoking sshpass with literals
 .claude/settings.local.json
+
+# SharePoint integration is LOCAL-only per the SP NO-PUSH policy. Canonical
+# source lives at /opt/ahg-sp-integration/ on the integration host; the
+# Heratio-side port in app/Domain/SharePoint/ must NEVER be committed.
+/app/Domain/SharePoint/

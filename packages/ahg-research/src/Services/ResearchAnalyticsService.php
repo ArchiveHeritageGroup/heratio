@@ -65,14 +65,18 @@ class ResearchAnalyticsService
             ->whereBetween('created_at', [$from . ' 00:00:00', $to . ' 23:59:59']);
 
         return [
-            'total_events'      => (clone $base)->count(),
-            'unique_researchers'=> (clone $base)->distinct()->count('researcher_id'),
-            'unique_objects'    => (clone $base)->whereNotNull('entity_id')->distinct()->count(DB::raw("CONCAT(entity_type, ':', entity_id)")),
-            'view_events'       => (clone $base)->where('activity_type', 'view')->count(),
-            'search_events'     => (clone $base)->where('activity_type', 'search')->count(),
-            'cite_events'       => (clone $base)->where('activity_type', 'cite')->count(),
-            'download_events'   => (clone $base)->where('activity_type', 'download')->count(),
-            'annotation_events' => (clone $base)->where('activity_type', 'annotate')->count(),
+            'total_events'             => (clone $base)->count(),
+            'unique_researchers'       => (clone $base)->distinct()->count('researcher_id'),
+            'unique_objects'           => (clone $base)->whereNotNull('entity_id')->distinct()->count(DB::raw("CONCAT(entity_type, ':', entity_id)")),
+            'view_events'              => (clone $base)->where('activity_type', 'view')->count(),
+            'search_events'            => (clone $base)->whereIn('activity_type', ['search', 'search_cross_fonds'])->count(),
+            'cite_events'              => (clone $base)->whereIn('activity_type', ['cite', 'cite_export'])->count(),
+            'download_events'          => (clone $base)->where('activity_type', 'download')->count(),
+            'annotation_events'        => (clone $base)->where('activity_type', 'annotate')->count(),
+            'ai_studio_events'         => (clone $base)->where('activity_type', 'ai_studio')->count(),
+            'cross_fonds_search_events' => (clone $base)->where('activity_type', 'search_cross_fonds')->count(),
+            'cite_export_events'       => (clone $base)->where('activity_type', 'cite_export')->count(),
+            'notebook_item_added_events' => (clone $base)->where('activity_type', 'notebook_item_added')->count(),
         ];
     }
 
