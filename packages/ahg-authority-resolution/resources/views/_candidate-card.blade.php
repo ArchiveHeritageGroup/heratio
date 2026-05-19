@@ -1,15 +1,17 @@
 {{--
     auth-res::_candidate-card - one candidate (display name + score + evidence table)
 
+    Bootstrap 5 chrome to match the rest of the Heratio admin UI.
+
     Args:
         $candidate : object - row from ahg_mention_candidate with
                      evidence_signals_decoded + evidence_data_decoded attached
         $isPlace   : bool   - PLACE/GPE/LOC mention? (controls map preview)
-        $isFirst   : bool   - first candidate (radio is pre-selected)
+        $isFirst   : bool   - first candidate (radio is pre-selected, border highlighted)
 --}}
 @php
     $signals = $candidate->evidence_signals_decoded ?? [];
-    $data = $candidate->evidence_data_decoded ?? [];
+    $data    = $candidate->evidence_data_decoded ?? [];
 
     // Dimension order per spec (persons/orgs vs places).
     $isPlaceCand = in_array(($candidate->candidate_source ?? ''), ['mysql_term', 'fuseki_place'], true) || $isPlace;
@@ -17,20 +19,15 @@
         ? ['hierarchical', 'document_prior', 'co_occurring', 'scale', 'conflict']
         : ['temporal', 'geographic', 'relational', 'role', 'conflict'];
 
-    $sourceLabel = match($candidate->candidate_source) {
-        'mysql_actor' => 'Local actor',
-        'mysql_term' => 'Local place',
-        'fuseki_agent' => 'Fuseki agent',
-        'fuseki_place' => 'Fuseki place',
-        default => $candidate->candidate_source,
-    };
-    $sourceCls = match($candidate->candidate_source) {
-        'mysql_actor' => 'bg-blue-100 text-blue-800',
-        'mysql_term' => 'bg-teal-100 text-teal-800',
-        'fuseki_agent' => 'bg-purple-100 text-purple-800',
-        'fuseki_place' => 'bg-pink-100 text-pink-800',
-        default => 'bg-slate-100 text-slate-700',
-    };
+    $sourceBadge = [
+        'mysql_actor'   => ['cls' => 'primary', 'label' => 'Local actor'],
+        'fuseki_agent'  => ['cls' => 'info',    'label' => 'Fuseki agent'],
+        'mysql_term'    => ['cls' => 'success', 'label' => 'Local place'],
+        'fuseki_place'  => ['cls' => 'info',    'label' => 'Fuseki place'],
+    ];
+    $srcCfg = $sourceBadge[$candidate->candidate_source] ?? ['cls' => 'secondary', 'label' => $candidate->candidate_source];
+
+    $compositeScore = $candidate->composite_score !== null ? (float) $candidate->composite_score : null;
 
     // Build the read-only "view authority" link.
     $authorityUrl = null;
@@ -45,86 +42,109 @@
     }
 @endphp
 
-<label class="block rounded-lg border border-slate-200 bg-white p-4 cursor-pointer hover:border-indigo-400 hover:shadow-sm transition"
-       data-candidate-card="{{ $candidate->id }}">
-    <div class="flex items-start gap-3">
-        <input type="radio" name="candidate_id" value="{{ $candidate->id }}"
-               form="auth-res-link-form"
-               class="mt-1 h-4 w-4 text-indigo-600 border-slate-300"
-               {{ $isFirst ? 'checked' : '' }}>
-
-        <div class="flex-1 min-w-0">
-            <div class="flex items-baseline justify-between gap-2">
-                <div class="min-w-0">
-                    <h3 class="text-base font-semibold text-slate-900 truncate">
-                        {{ $candidate->candidate_display_name }}
-                    </h3>
-                    <div class="mt-1 flex items-center gap-2 text-xs">
-                        <span class="rounded-md px-2 py-0.5 font-medium {{ $sourceCls }}">{{ $sourceLabel }}</span>
-                        <span class="text-slate-500">Rank #{{ $candidate->rank_position }}</span>
-                        @if($candidate->candidate_authority_id)
-                            <span class="text-slate-400">id={{ $candidate->candidate_authority_id }}</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="text-right shrink-0">
-                    <div class="text-xs uppercase tracking-wide text-slate-500">Composite</div>
-                    <div class="text-2xl font-semibold text-indigo-700 leading-tight">
-                        {{ number_format((float) ($candidate->composite_score ?? 0), 3) }}
-                    </div>
-                    <div class="text-[10px] text-slate-400">name: {{ number_format((float) $candidate->name_similarity_score, 3) }}</div>
-                </div>
+<div class="card mb-3 {{ $isFirst ? 'border-success' : '' }}" data-candidate-card="{{ $candidate->id }}">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+            <div class="form-check m-0">
+                <input class="form-check-input" type="radio" name="candidate_id"
+                       value="{{ $candidate->id }}"
+                       form="auth-res-link-form"
+                       id="auth-res-cand-{{ $candidate->id }}"
+                       {{ $isFirst ? 'checked' : '' }}>
             </div>
-
-            {{-- Evidence dimension table --}}
-            @if(!empty($signals))
-                <div class="mt-3 rounded-md border border-slate-100 overflow-hidden">
-                    <table class="min-w-full divide-y divide-slate-100">
-                        <tbody class="divide-y divide-slate-100">
-                            @foreach($dimensions as $dim)
-                                @if(array_key_exists($dim, $signals))
-                                    @include('auth-res::_evidence-row', [
-                                        'dimension' => $dim,
-                                        'signal' => $signals[$dim],
-                                        'data' => $data[$dim] ?? null,
-                                    ])
-                                @endif
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <p class="mt-3 text-xs text-slate-500 italic">No evidence signals computed yet (run auth-res:score-evidence).</p>
+            <label class="m-0" for="auth-res-cand-{{ $candidate->id }}">
+                <strong>{{ $candidate->candidate_display_name }}</strong>
+            </label>
+            @if($isFirst)
+                <span class="badge bg-success ms-1"><i class="bi bi-star-fill me-1"></i>top</span>
             @endif
-
-            {{-- Footer: authority link + (place) map preview --}}
-            <div class="mt-3 flex items-center justify-between text-xs">
-                @if($authorityUrl)
-                    <a href="{{ $authorityUrl }}" target="_blank" rel="noopener"
-                       class="text-indigo-700 hover:underline">
-                        View full authority record &rarr;
-                    </a>
-                @else
-                    <span class="text-slate-400">No authority link available</span>
-                @endif
-
-                @if($isPlaceCand && $candidate->candidate_authority_id)
-                    <span class="text-slate-400">place candidate (no coordinates on file)</span>
-                @endif
-            </div>
-
-            @if($isPlaceCand)
-                {{-- Best-effort map preview. The term table has no lat/long
-                     columns and the property table is empty for place terms,
-                     so we render an empty placeholder + the "no coordinates"
-                     hint. Leaflet is loaded only on PLACE review screens. --}}
-                <div id="auth-res-map-{{ $candidate->id }}"
-                     class="mt-3 rounded-md border border-dashed border-slate-200 bg-slate-50 h-32 flex items-center justify-center text-xs text-slate-500"
-                     data-candidate-map="1"
-                     data-display-name="{{ $candidate->candidate_display_name }}">
-                    Map preview (no coordinates available)
-                </div>
+            <span class="badge bg-{{ $srcCfg['cls'] }} ms-1">{{ $srcCfg['label'] }}</span>
+        </div>
+        <div class="text-end">
+            <small class="text-muted d-block">rank #{{ (int) $candidate->rank_position }}</small>
+            @if($compositeScore !== null)
+                <strong class="text-success">{{ number_format($compositeScore, 3) }}</strong>
+            @else
+                <small class="text-muted">no score</small>
             @endif
         </div>
     </div>
-</label>
+
+    <div class="card-body py-2">
+        <div class="d-flex justify-content-between mb-2 small">
+            <span>
+                @if($candidate->candidate_authority_id !== null)
+                    <i class="bi bi-person-badge text-muted me-1"></i>
+                    authority #{{ (int) $candidate->candidate_authority_id }}
+                @elseif($candidate->candidate_fuseki_uri)
+                    <i class="bi bi-link-45deg text-muted me-1"></i>
+                    <code class="small">{{ $candidate->candidate_fuseki_uri }}</code>
+                @endif
+            </span>
+            <span class="text-muted">
+                name sim: {{ number_format((float) $candidate->name_similarity_score, 3) }}
+            </span>
+        </div>
+
+        @if(!empty($signals))
+            <table class="table table-sm mb-2">
+                <thead class="visually-hidden">
+                    <tr><th>Dimension</th><th>Signal</th><th>Detail</th></tr>
+                </thead>
+                <tbody>
+                    @foreach($dimensions as $dim)
+                        @if(array_key_exists($dim, $signals))
+                            @include('auth-res::_evidence-row', [
+                                'dimension' => $dim,
+                                'signal'    => $signals[$dim],
+                                'data'      => $data[$dim] ?? null,
+                            ])
+                        @endif
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <p class="text-muted small mb-2 fst-italic">No evidence signals computed (run <code>auth-res:score-evidence</code>).</p>
+        @endif
+
+        @if($authorityUrl)
+            <a href="{{ $authorityUrl }}" target="_blank" rel="noopener"
+               class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-eye me-1"></i>{{ __('View authority') }}
+            </a>
+        @elseif($candidate->candidate_authority_id !== null)
+            <span class="text-muted small">
+                <i class="bi bi-person-badge me-1"></i>authority #{{ (int) $candidate->candidate_authority_id }}
+            </span>
+        @else
+            <span class="text-muted small">No authority link available</span>
+        @endif
+
+        @if($isPlaceCand)
+            {{-- Best-effort map preview. Leaflet is loaded only on PLACE review screens
+                 by the parent page. When candidate has no coordinates, init shows a
+                 world-view map instead of leaving a dead box. --}}
+            <div id="auth-res-map-{{ $candidate->id }}"
+                 class="mt-2"
+                 data-candidate-map="1"
+                 data-display-name="{{ $candidate->candidate_display_name }}"
+                 style="height: 160px; border: 1px solid #dee2e6; border-radius: 4px;
+                        display: flex; align-items: center; justify-content: center;
+                        background: #f8f9fa; font-size: 0.75rem; color: #6c757d;">
+                Map preview (no coordinates available)
+            </div>
+        @endif
+    </div>
+
+    <div class="card-footer d-flex gap-1 flex-wrap py-2">
+        <form method="post"
+              action="{{ route('auth-res.review.link', ['mention' => $candidate->mention_id ?? request()->route('mention')]) }}"
+              class="d-inline">
+            @csrf
+            <input type="hidden" name="candidate_id" value="{{ $candidate->id }}">
+            <button type="submit" class="btn btn-sm btn-success">
+                <i class="bi bi-check-lg me-1"></i>{{ __('Link to this') }}
+            </button>
+        </form>
+    </div>
+</div>

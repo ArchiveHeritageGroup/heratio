@@ -1,54 +1,73 @@
 {{--
-    auth-res::_park-row - one parked-mention row in the /park table.
+    auth-res::_park-row - one parked-mention row in the /park table (Bootstrap 5).
 
     Args:
         $r              : object - listFor() row (joined park + mention + ner_entity + context)
         $archivistNames : array<int,string> - id -> display name
 --}}
-<tr class="hover:bg-slate-50 {{ (int) $r->new_candidate_available === 1 ? 'bg-emerald-50/40' : '' }}">
-    <td class="px-3 py-2 text-slate-500">{{ (int) $r->mention_id }}</td>
-    <td class="px-3 py-2">
-        <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+@php
+    $typeBadges = [
+        'PERSON'     => 'primary',
+        'ORG'        => 'info',
+        'GPE'        => 'success',
+        'LOC'        => 'success',
+        'PLACE'      => 'success',
+        'ISAD_PLACE' => 'success',
+    ];
+    $hasNewCand = (int) ($r->new_candidate_available ?? 0) === 1;
+    $uid = (int) $r->parked_by_user_id;
+@endphp
+<tr class="{{ $hasNewCand ? 'table-warning' : '' }}">
+    <td class="text-muted small">#{{ (int) $r->mention_id }}</td>
+    <td>
+        <span class="badge bg-{{ $typeBadges[$r->entity_type] ?? 'secondary' }}">
             {{ $r->entity_type }}
         </span>
     </td>
-    <td class="px-3 py-2 text-slate-900 font-medium break-words max-w-xs">{{ $r->entity_value }}</td>
-    <td class="px-3 py-2 text-slate-500 text-xs">#{{ (int) $r->object_id }}</td>
-    <td class="px-3 py-2 text-slate-700 text-xs">
-        @php($uid = (int) $r->parked_by_user_id)
-        {{ $archivistNames[$uid] ?? ('user #' . $uid) }}
-    </td>
-    <td class="px-3 py-2 text-slate-500 text-xs whitespace-nowrap">{{ $r->parked_at }}</td>
-    <td class="px-3 py-2 text-slate-700 text-xs max-w-xs">
-        <span title="{{ $r->reason }}">{{ \Illuminate\Support\Str::limit((string) $r->reason, 80) }}</span>
-    </td>
-    <td class="px-3 py-2 text-slate-700 text-xs">
-        <span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-slate-700">{{ (int) $r->candidate_count }}</span>
-    </td>
-    <td class="px-3 py-2">
-        @if((int) $r->new_candidate_available === 1)
-            <span class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800"
-                  title="Candidate set changed since parking ({{ $r->new_candidate_check_at }})">
-                new candidate
-            </span>
+    <td><strong>{{ $r->entity_value }}</strong></td>
+    <td class="text-muted small">
+        @if(!empty($r->io_slug))
+            <a href="/{{ $r->io_slug }}" target="_blank" rel="noopener">
+                {{ $r->io_title ?? ('Object #' . (int) $r->object_id) }}
+                <i class="bi bi-box-arrow-up-right ms-1 small text-muted"></i>
+            </a>
         @else
-            <span class="text-xs text-slate-400">-</span>
+            <span class="text-muted">Object #{{ (int) $r->object_id }}</span>
         @endif
     </td>
-    <td class="px-3 py-2 whitespace-nowrap">
-        <div class="flex items-center gap-2">
-            <a href="{{ route('auth-res.review.show', ['mention' => (int) $r->mention_id]) }}"
-               class="text-xs font-medium text-indigo-700 hover:underline">View</a>
-            <form method="POST"
-                  action="{{ route('auth-res.park.unpark', ['mention' => (int) $r->mention_id]) }}"
-                  class="inline">
-                @csrf
-                <button type="submit"
-                        class="rounded-md border border-emerald-400 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-800 hover:bg-emerald-100"
-                        onclick="return confirm('Unpark mention #{{ (int) $r->mention_id }} and re-run candidate generation?');">
-                    Unpark + re-review
-                </button>
-            </form>
-        </div>
+    <td class="text-muted small">
+        {{ $archivistNames[$uid] ?? ('user #' . $uid) }}
+    </td>
+    <td class="text-muted small text-nowrap">{{ $r->parked_at }}</td>
+    <td class="small">
+        <span title="{{ $r->reason }}">{{ \Illuminate\Support\Str::limit((string) $r->reason, 80) }}</span>
+    </td>
+    <td class="text-center">
+        <span class="badge bg-secondary">{{ (int) ($r->candidate_count ?? 0) }}</span>
+    </td>
+    <td class="text-center">
+        @if($hasNewCand)
+            <span class="badge bg-warning text-dark"
+                  title="Candidate set changed since parking ({{ $r->new_candidate_check_at ?? '' }})">
+                <i class="bi bi-bell me-1"></i>{{ __('New') }}
+            </span>
+        @else
+            <span class="text-muted">-</span>
+        @endif
+    </td>
+    <td class="text-nowrap">
+        <a href="{{ route('auth-res.review.show', ['mention' => (int) $r->mention_id]) }}"
+           class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-eye me-1"></i>{{ __('View') }}
+        </a>
+        <form method="POST"
+              action="{{ route('auth-res.park.unpark', ['mention' => (int) $r->mention_id]) }}"
+              class="d-inline"
+              onsubmit="return confirm('{{ __('Un-park this mention? Candidates will be regenerated and the mention returns to the pending queue.') }}');">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-outline-success">
+                <i class="bi bi-play-fill me-1"></i>{{ __('Un-park & re-review') }}
+            </button>
+        </form>
     </td>
 </tr>
