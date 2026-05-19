@@ -1,0 +1,83 @@
+site_name: AHG Authority Resolution Engine
+site_description: >-
+  Evidence-based, archivist-driven authority resolution for Heratio (Laravel)
+  and AtoM Heratio (Symfony 1.4). Six tables, eleven CLI commands, ten
+  evidence evaluators, seven external sources, RDF-Star provenance in Fuseki.
+site_author: Plain Sailing Information Systems
+copyright: Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
+
+docs_dir: auth-res
+site_dir: ../site/auth-res
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - toc.integrate
+    - content.code.copy
+    - content.tabs.link
+    - search.suggest
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - footnotes
+  - toc:
+      permalink: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+
+nav:
+  - Home: index.md
+  - Workflow:
+      - Overview: workflow/overview.md
+      - The Five-Outcome Decision Tree: workflow/decision-tree.md
+  - Configuration:
+      - Settings keys: config/settings.md
+      - External authority sources: config/external-sources.md
+      - Rate limits + cache TTLs: config/rate-limits.md
+  - Operations:
+      - CLI commands (Laravel): ops/cli-laravel.md
+      - CLI tasks (AtoM): ops/cli-atom.md
+      - Park queue: ops/park-queue.md
+      - NER feedback export: ops/ner-feedback.md
+  - Provenance Model:
+      - RDF-Star shape: provenance/shape.md
+      - Decisions graph: provenance/decisions.md
+      - Field provenance graph: provenance/field-provenance.md
+      - SPARQL recipes: provenance/sparql.md
+  - Reference:
+      - Schema (six tables + NER feedback): reference/schema.md
+      - Service API: reference/services.md

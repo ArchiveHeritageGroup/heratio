@@ -362,10 +362,12 @@ class AiController extends Controller
             + count($entities['places'])
             + count($entities['dates']);
 
-        // If an object ID is given, store entities for review
+        // If an object ID is given, store entities for review.
+        // Forwarding $text gives authority-resolution context derivation full match rate
+        // (vs falling back to IO i18n concat).
         $stored = 0;
         if ($objectId) {
-            $stored = $this->nerService->createAccessPoints($objectId, $entities);
+            $stored = $this->nerService->createAccessPoints($objectId, $entities, $text);
         }
 
         return response()->json([
@@ -530,7 +532,7 @@ class AiController extends Controller
             return response()->json($result ?: ['success' => false, 'error' => 'NER extraction failed']);
         }
 
-        $this->saveExtraction($id, $result['entities']);
+        $this->saveExtraction($id, $result['entities'], $text ?? null);
 
         return response()->json([
             'success'            => true,
@@ -1885,7 +1887,7 @@ class AiController extends Controller
         }
     }
 
-    private function saveExtraction(int $objectId, array $entities): void
+    private function saveExtraction(int $objectId, array $entities, ?string $sourceText = null): void
     {
         try {
             DB::table('ahg_ner_entity')
@@ -1914,7 +1916,7 @@ class AiController extends Controller
 
             foreach ($uniqueEntities as $type => $values) {
                 foreach ($values as $value) {
-                    DB::table('ahg_ner_entity')->insert([
+                    $nerEntityId = (int) DB::table('ahg_ner_entity')->insertGetId([
                         'extraction_id' => $extractionId,
                         'object_id'     => $objectId,
                         'entity_type'   => $type,
@@ -1922,6 +1924,19 @@ class AiController extends Controller
                         'status'        => 'pending',
                         'created_at'    => now(),
                     ]);
+
+                    // Hook into authority-resolution mention workflow.
+                    // Safe no-op if ahg-authority-resolution package not installed.
+                    if ($nerEntityId > 0
+                        && class_exists(\AhgAuthorityResolution\Services\PromoteToMentionService::class)
+                    ) {
+                        try {
+                            app(\AhgAuthorityResolution\Services\PromoteToMentionService::class)
+                                ->promote($nerEntityId, $sourceText);
+                        } catch (\Throwable $e) {
+                            \Log::warning('AiController::saveExtraction mention promotion failed (id=' . $nerEntityId . '): ' . $e->getMessage());
+                        }
+                    }
                 }
             }
         } catch (\Exception $e) {
@@ -2288,7 +2303,7 @@ class AiController extends Controller
                     $apiKey  = $this->getAiApiKey();
                     $result  = $this->callNerApi($apiUrl, $apiKey, $text);
                     if ($result && ($result['success'] ?? false)) {
-                        $this->saveExtraction($objectId, $result['entities']);
+                        $this->saveExtraction($objectId, $result['entities'], $text);
                     }
                 }
                 break;

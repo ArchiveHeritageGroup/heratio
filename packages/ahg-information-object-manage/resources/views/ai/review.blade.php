@@ -74,9 +74,9 @@
                 </td>
                 <td>
                   <div class="btn-group btn-group-sm">
-                    <button class="btn atom-btn-white" onclick="reviewObject({{ $obj->id }})" title="{{ __('Review pending entities') }}">
+                    <a href="{{ route('auth-res.queue', ['object_id' => $obj->id]) }}" class="btn atom-btn-white" title="{{ __('Review pending entities (authority resolution)') }}">
                       <i class="fas fa-eye me-1"></i>{{ __('Review') }}
-                    </button>
+                    </a>
                     @if(($obj->has_pdf ?? false) && ($obj->approved_count ?? 0) > 0)
                       <a href="{{ route('io.ai.extract', ['id' => $obj->id]) }}"
                          class="btn atom-btn-white" title="{{ __('View PDF with entity highlights') }}">

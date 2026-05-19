@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fc13352517fbd622663928a8c61bd8d9",
+    "content-hash": "2d32132d79631ad4d4ab23e9b0f6b457",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -311,6 +311,44 @@
                 }
             },
             "description": "Audit trail browse for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/authority-resolution",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-authority-resolution",
+                "reference": "fdcd76b4d849e5ee62007f3515563a351cd771e1"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "ahg/ric": "@dev",
+                "illuminate/database": "^11.0|^12.0",
+                "illuminate/http": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgAuthorityResolution\\Providers\\AhgAuthorityResolutionServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgAuthorityResolution\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "AHG Authority Resolution Engine - Evidence-based resolution for persons, places, and organisations. Replaces name-only matching with an archivist-driven workflow that surfaces neighbourhood-context evidence, ranked candidates, and Fuseki-backed provenance.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -11961,6 +11999,7 @@
         "ahg/api": 20,
         "ahg/api-plugin": 20,
         "ahg/audit-trail": 20,
+        "ahg/authority-resolution": 20,
         "ahg/backup": 20,
         "ahg/cart": 20,
         "ahg/cdpa": 20,

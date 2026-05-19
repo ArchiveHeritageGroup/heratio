@@ -1,0 +1,26 @@
+{
+    "name": "ahg/authority-resolution",
+    "description": "AHG Authority Resolution Engine - Evidence-based resolution for persons, places, and organisations. Replaces name-only matching with an archivist-driven workflow that surfaces neighbourhood-context evidence, ranked candidates, and Fuseki-backed provenance.",
+    "type": "library",
+    "license": "AGPL-3.0-or-later",
+    "require": {
+        "php": "^8.2",
+        "ahg/core": "@dev",
+        "ahg/ric": "@dev",
+        "illuminate/support": "^11.0|^12.0",
+        "illuminate/database": "^11.0|^12.0",
+        "illuminate/http": "^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgAuthorityResolution\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgAuthorityResolution\\Providers\\AhgAuthorityResolutionServiceProvider"
+            ]
+        }
+    }
+}

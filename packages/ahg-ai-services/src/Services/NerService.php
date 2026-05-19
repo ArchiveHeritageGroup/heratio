@@ -224,11 +224,15 @@ class NerService
     /**
      * Create access points (term/actor relations) for extracted entities on an information object.
      *
-     * @param int   $informationObjectId The target information object
-     * @param array $entities            ['persons' => [], 'organizations' => [], 'places' => [], 'dates' => []]
+     * @param int         $informationObjectId The target information object
+     * @param array       $entities            ['persons' => [], 'organizations' => [], 'places' => [], 'dates' => []]
+     * @param string|null $sourceText          Exact text NER ran against; forwarded to the
+     *                                         authority-resolution mention promoter so context
+     *                                         derivation uses the right text (full match rate).
+     *                                         Null falls back to IO i18n fetch (lossy).
      * @return int  Count of created access points
      */
-    public function createAccessPoints(int $informationObjectId, array $entities): int
+    public function createAccessPoints(int $informationObjectId, array $entities, ?string $sourceText = null): int
     {
         $count  = 0;
         $culture = 'en';
@@ -254,7 +258,7 @@ class NerService
                     continue;
                 }
 
-                DB::table('ahg_ner_entity')->insert([
+                $nerEntityId = (int) DB::table('ahg_ner_entity')->insertGetId([
                     'object_id'    => $informationObjectId,
                     'entity_type'  => $entityType,
                     'entity_value' => $value,
@@ -263,11 +267,34 @@ class NerService
                     'created_at'   => now(),
                 ]);
 
+                $this->maybePromoteToMention($nerEntityId, $sourceText);
+
                 $count++;
             }
         }
 
         return $count;
+    }
+
+    /**
+     * Hook: forward newly-inserted ner_entity rows to the authority-resolution
+     * engine for promotion to a workflow mention with neighbourhood context.
+     * Safe no-op when ahg-authority-resolution package is not installed.
+     */
+    private function maybePromoteToMention(int $nerEntityId, ?string $sourceText): void
+    {
+        if ($nerEntityId <= 0) {
+            return;
+        }
+        if (!class_exists(\AhgAuthorityResolution\Services\PromoteToMentionService::class)) {
+            return;
+        }
+        try {
+            app(\AhgAuthorityResolution\Services\PromoteToMentionService::class)
+                ->promote($nerEntityId, $sourceText);
+        } catch (\Throwable $e) {
+            Log::warning('NerService::maybePromoteToMention failed (ner_entity_id=' . $nerEntityId . '): ' . $e->getMessage());
+        }
     }
 
     /**
