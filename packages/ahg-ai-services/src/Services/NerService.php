@@ -64,6 +64,21 @@ class NerService
      */
     private ?array $modelIdentity = null;
 
+    /**
+     * Raw entities_v2 list from the most recent extract() / extractViaApi() /
+     * extractFromPdf() call. Each record is
+     * {value, type, offset_start, offset_end, score}. Empty array when the
+     * upstream API did not return the entities_v2 key (pre-deploy) or when
+     * extraction fell back to the LLM path.
+     *
+     * heratio#132: this is how the API's per-entity offsets + scores reach
+     * createAccessPoints() without changing the extract() return shape.
+     * Read it via lastDetailedEntities().
+     *
+     * @var list<array{value:string,type:string,offset_start:int,offset_end:int,score:float|null}>
+     */
+    private array $lastDetailedEntities = [];
+
     public function __construct(LlmService $llmService)
     {
         $this->llmService = $llmService;
@@ -83,6 +98,11 @@ class NerService
     {
         $default = ['persons' => [], 'organizations' => [], 'places' => [], 'dates' => []];
 
+        // Reset the per-call detailed-entity buffer up front so a caller that
+        // reads lastDetailedEntities() after a gated/empty/LLM-fallback call
+        // never sees stale entities_v2 data from a previous extraction.
+        $this->lastDetailedEntities = [];
+
         // Gate: check if NER is enabled in AI Services settings
         if ($this->loadSetting('ner_enabled', '1') !== '1') {
             return $default;
@@ -96,11 +116,67 @@ class NerService
         $apiResult = $this->extractViaApi($text);
 
         if ($apiResult !== null) {
+            $this->captureDetailedEntities($apiResult);
             return $this->normalizeApiResult($apiResult);
         }
 
-        // Fall back to LLM-based extraction
+        // Fall back to LLM-based extraction (no per-entity offsets/scores).
         return $this->llmService->extractEntities($text);
+    }
+
+    /**
+     * Per-entity detailed records (value/type/offsets/score) from the most
+     * recent extract()/extractFromPdf() call.
+     *
+     * heratio#132: when the upstream API returns the entities_v2 key, this is
+     * non-empty and carries real character offsets + per-entity score (which
+     * may itself be null - spaCy emits no confidence). Empty array means the
+     * API did not return entities_v2 (pre-deploy) or extraction fell back to
+     * the LLM path; callers must then use the legacy lossy path.
+     *
+     * @return list<array{value:string,type:string,offset_start:int,offset_end:int,score:float|null}>
+     */
+    public function lastDetailedEntities(): array
+    {
+        return $this->lastDetailedEntities;
+    }
+
+    /**
+     * Parse the entities_v2 list out of a raw API response and stash it in
+     * $lastDetailedEntities. Defensive: a missing/malformed entities_v2 key
+     * leaves the buffer empty so callers fall back to the legacy path.
+     */
+    private function captureDetailedEntities(array $apiResult): void
+    {
+        $this->lastDetailedEntities = [];
+
+        $v2 = $apiResult['entities_v2'] ?? null;
+        if (!is_array($v2)) {
+            return;
+        }
+
+        foreach ($v2 as $rec) {
+            if (!is_array($rec)) {
+                continue;
+            }
+            $value = trim((string) ($rec['value'] ?? ''));
+            $type  = (string) ($rec['type'] ?? '');
+            if ($value === '' || $type === '') {
+                continue;
+            }
+            // score is a float OR null - spaCy's standard NER emits no
+            // per-entity confidence today. Never fabricate one.
+            $score = $rec['score'] ?? null;
+            $score = ($score === null) ? null : (float) $score;
+
+            $this->lastDetailedEntities[] = [
+                'value'        => $value,
+                'type'         => $type,
+                'offset_start' => (int) ($rec['offset_start'] ?? 0),
+                'offset_end'   => (int) ($rec['offset_end'] ?? 0),
+                'score'        => $score,
+            ];
+        }
     }
 
     /**
@@ -109,6 +185,10 @@ class NerService
     public function extractFromPdf(string $filePath): array
     {
         $default = ['persons' => [], 'organizations' => [], 'places' => [], 'dates' => []];
+
+        // Reset the detailed-entity buffer for this call (same contract as
+        // extract()): a failed/empty PDF extraction must not expose stale data.
+        $this->lastDetailedEntities = [];
 
         if (!file_exists($filePath)) {
             return $default;
@@ -123,6 +203,7 @@ class NerService
             if ($response->successful()) {
                 $body = $response->json();
                 if (!empty($body['success'])) {
+                    $this->captureDetailedEntities($body);
                     return $this->normalizeApiResult($body);
                 }
             }
@@ -234,10 +315,21 @@ class NerService
      */
     public function createAccessPoints(int $informationObjectId, array $entities, ?string $sourceText = null): int
     {
-        $count  = 0;
-        $culture = 'en';
+        // heratio#132: prefer the detailed entities_v2 records from the most
+        // recent extract() call. They carry real character offsets + a real
+        // (or null) per-entity score, which feeds the authority-resolution
+        // engine far more accurately than the legacy stripos re-derivation.
+        $detailed = $this->lastDetailedEntities();
+        if (!empty($detailed)) {
+            return $this->createAccessPointsFromDetailed($informationObjectId, $detailed, $sourceText);
+        }
 
-        // Store entities to ahg_ner_entity for review workflow
+        // Legacy path: the API did not return entities_v2 (pre-deploy) or
+        // extraction fell back to the LLM. We only have value + type - no
+        // offsets, no score. Promote with a null offset (lossy) and write a
+        // null confidence (honest: we have no per-entity score).
+        $count = 0;
+
         foreach ($entities as $type => $values) {
             $entityType = $this->mapEntityType($type);
 
@@ -262,7 +354,7 @@ class NerService
                     'object_id'    => $informationObjectId,
                     'entity_type'  => $entityType,
                     'entity_value' => $value,
-                    'confidence'   => 1.0000,
+                    'confidence'   => null,
                     'status'       => 'pending',
                     'created_at'   => now(),
                 ]);
@@ -277,12 +369,85 @@ class NerService
     }
 
     /**
+     * heratio#132: write access points from the API's entities_v2 list.
+     *
+     * Each record carries the exact character offsets the API found the
+     * mention at, plus a per-entity score (a real float OR null - spaCy emits
+     * no confidence today, and we never fabricate one). The offsets are
+     * forwarded to the authority-resolution promoter so context derivation
+     * uses the exact span instead of a lossy stripos scan.
+     *
+     * @param list<array{value:string,type:string,offset_start:int,offset_end:int,score:float|null}> $detailed
+     */
+    private function createAccessPointsFromDetailed(int $informationObjectId, array $detailed, ?string $sourceText): int
+    {
+        $count = 0;
+
+        foreach ($detailed as $rec) {
+            $value = trim((string) ($rec['value'] ?? ''));
+            if ($value === '') {
+                continue;
+            }
+            // entities_v2 type is already a spaCy label (PERSON/ORG/GPE/DATE);
+            // run it through mapEntityType() anyway so the entity_type
+            // vocabulary stays identical to the legacy path.
+            $entityType = $this->mapEntityType((string) ($rec['type'] ?? ''));
+
+            // score is a real float OR null. Never the hardcoded 1.0.
+            $score = $rec['score'] ?? null;
+            $score = ($score === null) ? null : (float) $score;
+
+            // Check for duplicate
+            $exists = DB::table('ahg_ner_entity')
+                ->where('object_id', $informationObjectId)
+                ->where('entity_type', $entityType)
+                ->where('entity_value', $value)
+                ->exists();
+
+            if ($exists) {
+                continue;
+            }
+
+            $nerEntityId = (int) DB::table('ahg_ner_entity')->insertGetId([
+                'object_id'    => $informationObjectId,
+                'entity_type'  => $entityType,
+                'entity_value' => $value,
+                'confidence'   => $score,
+                'status'       => 'pending',
+                'created_at'   => now(),
+            ]);
+
+            $this->maybePromoteToMention(
+                $nerEntityId,
+                $sourceText,
+                ['start' => (int) ($rec['offset_start'] ?? 0), 'end' => (int) ($rec['offset_end'] ?? 0)],
+                $score
+            );
+
+            $count++;
+        }
+
+        return $count;
+    }
+
+    /**
      * Hook: forward newly-inserted ner_entity rows to the authority-resolution
      * engine for promotion to a workflow mention with neighbourhood context.
      * Safe no-op when ahg-authority-resolution package is not installed.
+     *
+     * @param array{start:int,end:int}|null $knownOffset  Exact character offsets
+     *        from entities_v2; forwarded so context derivation skips the lossy
+     *        stripos scan. Null on the legacy path.
+     * @param float|null $realConfidence  Per-entity score from entities_v2;
+     *        written to ahg_mention_context.real_confidence. Null when the API
+     *        exposes no per-entity score (spaCy default) or on the legacy path.
      */
-    private function maybePromoteToMention(int $nerEntityId, ?string $sourceText): void
-    {
+    private function maybePromoteToMention(
+        int $nerEntityId,
+        ?string $sourceText,
+        ?array $knownOffset = null,
+        ?float $realConfidence = null
+    ): void {
         if ($nerEntityId <= 0) {
             return;
         }
@@ -291,7 +456,7 @@ class NerService
         }
         try {
             app(\AhgAuthorityResolution\Services\PromoteToMentionService::class)
-                ->promote($nerEntityId, $sourceText);
+                ->promote($nerEntityId, $sourceText, $knownOffset, $realConfidence);
         } catch (\Throwable $e) {
             Log::warning('NerService::maybePromoteToMention failed (ner_entity_id=' . $nerEntityId . '): ' . $e->getMessage());
         }

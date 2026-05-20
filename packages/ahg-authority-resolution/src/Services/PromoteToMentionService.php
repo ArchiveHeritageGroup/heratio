@@ -61,10 +61,22 @@ class PromoteToMentionService
      * @param string|null $sourceText  Exact text NER was run against (full match rate). If
      *                                 null, falls back to IO i18n concatenation (lossy
      *                                 when NER ran against digital-object content).
+     * @param array{start:int,end:int}|null $knownOffset  Exact character offsets from the
+     *                                                    upstream NER API (entities_v2). When
+     *                                                    given, context derivation skips the
+     *                                                    lossy stripos scan. Null = legacy path.
+     * @param float|null  $realConfidence  Per-entity confidence score from the upstream API
+     *                                     (entities_v2 score). Written to
+     *                                     ahg_mention_context.real_confidence. Null when the
+     *                                     API exposes no per-entity score (spaCy default).
      * @return int|null
      */
-    public function promote(int $nerEntityId, ?string $sourceText = null): ?int
-    {
+    public function promote(
+        int $nerEntityId,
+        ?string $sourceText = null,
+        ?array $knownOffset = null,
+        ?float $realConfidence = null
+    ): ?int {
         $entity = DB::table('ahg_ner_entity')->where('id', $nerEntityId)->first();
         if (!$entity) {
             return null;
@@ -84,10 +96,11 @@ class PromoteToMentionService
             (string) $entity->entity_value,
             (string) $entity->entity_type,
             $others,
-            $roleTokens
+            $roleTokens,
+            $knownOffset
         );
 
-        return DB::transaction(function () use ($entity, $context) {
+        return DB::transaction(function () use ($entity, $context, $realConfidence) {
             $now = now();
             $mentionId = DB::table('ahg_mention')->insertGetId([
                 'ner_entity_id' => $entity->id,
@@ -107,7 +120,7 @@ class PromoteToMentionService
                 'surrounding_text_before' => $context['surrounding_text_before'],
                 'surrounding_text_after' => $context['surrounding_text_after'],
                 'ner_model_version' => null,
-                'real_confidence' => null,
+                'real_confidence' => $realConfidence,
                 'co_occurring_entities' => json_encode($context['co_occurring_entities'], JSON_UNESCAPED_UNICODE),
                 'nearby_dates' => json_encode($context['nearby_dates'], JSON_UNESCAPED_UNICODE),
                 'nearby_places' => json_encode($context['nearby_places'], JSON_UNESCAPED_UNICODE),

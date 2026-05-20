@@ -503,6 +503,12 @@ class AiController extends Controller
         $apiKey = $this->getAiApiKey();
 
         $result = null;
+        // entities_v2 offsets are only valid against the exact text they were
+        // computed from. The PDF+metadata merge below combines two separate
+        // offset spaces (PDF body vs metadata), so we cannot pass entities_v2
+        // for that case - $sourceText would not match. Only the text-only
+        // branch yields entities_v2 whose offsets line up with $sourceText.
+        $detailedEntities = [];
 
         if ($pdfPath && file_exists($pdfPath)) {
             $result = $this->callNerApi($apiUrl, $apiKey, null, $pdfPath);
@@ -526,13 +532,15 @@ class AiController extends Controller
                 return response()->json(['success' => false, 'error' => 'No text content found']);
             }
             $result = $this->callNerApi($apiUrl, $apiKey, $text);
+            // Text-only: entities_v2 offsets match $text exactly.
+            $detailedEntities = $this->extractDetailedEntities($result);
         }
 
         if (!$result || !($result['success'] ?? false)) {
             return response()->json($result ?: ['success' => false, 'error' => 'NER extraction failed']);
         }
 
-        $this->saveExtraction($id, $result['entities'], $text ?? null);
+        $this->saveExtraction($id, $result['entities'], $text ?? null, $detailedEntities);
 
         return response()->json([
             'success'            => true,
@@ -1887,7 +1895,22 @@ class AiController extends Controller
         }
     }
 
-    private function saveExtraction(int $objectId, array $entities, ?string $sourceText = null): void
+    /**
+     * Second NER write path (the callNerApi() flow, distinct from
+     * NerService::createAccessPoints()).
+     *
+     * heratio#132: when the upstream API returns entities_v2 (a flat list of
+     * {value, type, offset_start, offset_end, score}), iterate that instead of
+     * the legacy entities dict so real character offsets + per-entity score
+     * reach the authority-resolution promoter. Pre-deploy (no entities_v2) the
+     * legacy dict iteration is kept, writing a null confidence (honest: no
+     * per-entity score) and promoting with a null offset (lossy).
+     *
+     * @param array                                  $entities         legacy {PERSON:[...],ORG:[...],...}
+     * @param list<array{value:string,type:string,offset_start:int,offset_end:int,score:float|null}>|null $detailedEntities
+     *        the parsed entities_v2 list, or null/empty when the API did not return it.
+     */
+    private function saveExtraction(int $objectId, array $entities, ?string $sourceText = null, ?array $detailedEntities = null): void
     {
         try {
             DB::table('ahg_ner_entity')
@@ -1902,6 +1925,49 @@ class AiController extends Controller
                 'extracted_at' => now(),
             ]);
 
+            if (!empty($detailedEntities)) {
+                // entities_v2 path: real offsets + real (or null) score.
+                $seen = [];
+                foreach ($detailedEntities as $rec) {
+                    $value = trim((string) ($rec['value'] ?? ''));
+                    $type  = (string) ($rec['type'] ?? '');
+                    if ($value === '' || $type === '') {
+                        continue;
+                    }
+                    // De-dup on type+value, same intent as the legacy branch.
+                    $key = $type . '|' . strtolower($value);
+                    if (isset($seen[$key])) {
+                        continue;
+                    }
+                    $seen[$key] = true;
+
+                    // score is a real float OR null. Never a fabricated constant.
+                    $score = $rec['score'] ?? null;
+                    $score = ($score === null) ? null : (float) $score;
+
+                    $nerEntityId = (int) DB::table('ahg_ner_entity')->insertGetId([
+                        'extraction_id' => $extractionId,
+                        'object_id'     => $objectId,
+                        'entity_type'   => $type,
+                        'entity_value'  => $value,
+                        'confidence'    => $score,
+                        'status'        => 'pending',
+                        'created_at'    => now(),
+                    ]);
+
+                    $this->promoteMention(
+                        $nerEntityId,
+                        $sourceText,
+                        ['start' => (int) ($rec['offset_start'] ?? 0), 'end' => (int) ($rec['offset_end'] ?? 0)],
+                        $score
+                    );
+                }
+                return;
+            }
+
+            // Legacy path: no entities_v2 (pre-deploy). value + type only,
+            // no offsets, no score - write a null confidence (honest) and
+            // promote with a null offset (lossy stripos derivation).
             $uniqueEntities = [];
             foreach ($entities as $type => $values) {
                 $seen = [];
@@ -1921,27 +1987,80 @@ class AiController extends Controller
                         'object_id'     => $objectId,
                         'entity_type'   => $type,
                         'entity_value'  => $value,
+                        'confidence'    => null,
                         'status'        => 'pending',
                         'created_at'    => now(),
                     ]);
 
-                    // Hook into authority-resolution mention workflow.
-                    // Safe no-op if ahg-authority-resolution package not installed.
-                    if ($nerEntityId > 0
-                        && class_exists(\AhgAuthorityResolution\Services\PromoteToMentionService::class)
-                    ) {
-                        try {
-                            app(\AhgAuthorityResolution\Services\PromoteToMentionService::class)
-                                ->promote($nerEntityId, $sourceText);
-                        } catch (\Throwable $e) {
-                            \Log::warning('AiController::saveExtraction mention promotion failed (id=' . $nerEntityId . '): ' . $e->getMessage());
-                        }
-                    }
+                    $this->promoteMention($nerEntityId, $sourceText);
                 }
             }
         } catch (\Exception $e) {
             \Log::error("NER save error: " . $e->getMessage());
         }
+    }
+
+    /**
+     * Hook a newly-inserted ahg_ner_entity row into the authority-resolution
+     * mention workflow. Safe no-op when the ahg-authority-resolution package
+     * is not installed.
+     *
+     * @param array{start:int,end:int}|null $knownOffset  exact offsets from entities_v2
+     * @param float|null                    $realConfidence  per-entity score from entities_v2
+     */
+    private function promoteMention(
+        int $nerEntityId,
+        ?string $sourceText = null,
+        ?array $knownOffset = null,
+        ?float $realConfidence = null
+    ): void {
+        if ($nerEntityId <= 0
+            || !class_exists(\AhgAuthorityResolution\Services\PromoteToMentionService::class)
+        ) {
+            return;
+        }
+        try {
+            app(\AhgAuthorityResolution\Services\PromoteToMentionService::class)
+                ->promote($nerEntityId, $sourceText, $knownOffset, $realConfidence);
+        } catch (\Throwable $e) {
+            \Log::warning('AiController::saveExtraction mention promotion failed (id=' . $nerEntityId . '): ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Pull the entities_v2 list out of a raw callNerApi() response.
+     * Defensive: returns an empty array when the key is absent (pre-deploy)
+     * or malformed, so callers fall back to the legacy entities dict.
+     *
+     * @return list<array{value:string,type:string,offset_start:int,offset_end:int,score:float|null}>
+     */
+    private function extractDetailedEntities(?array $result): array
+    {
+        $v2 = $result['entities_v2'] ?? null;
+        if (!is_array($v2)) {
+            return [];
+        }
+        $out = [];
+        foreach ($v2 as $rec) {
+            if (!is_array($rec)) {
+                continue;
+            }
+            $value = trim((string) ($rec['value'] ?? ''));
+            $type  = (string) ($rec['type'] ?? '');
+            if ($value === '' || $type === '') {
+                continue;
+            }
+            $score = $rec['score'] ?? null;
+            $score = ($score === null) ? null : (float) $score;
+            $out[] = [
+                'value'        => $value,
+                'type'         => $type,
+                'offset_start' => (int) ($rec['offset_start'] ?? 0),
+                'offset_end'   => (int) ($rec['offset_end'] ?? 0),
+                'score'        => $score,
+            ];
+        }
+        return $out;
     }
 
     private function findMatchingActors(string $entityValue): array
@@ -2303,7 +2422,13 @@ class AiController extends Controller
                     $apiKey  = $this->getAiApiKey();
                     $result  = $this->callNerApi($apiUrl, $apiKey, $text);
                     if ($result && ($result['success'] ?? false)) {
-                        $this->saveExtraction($objectId, $result['entities'], $text);
+                        // Text-only call: entities_v2 offsets match $text.
+                        $this->saveExtraction(
+                            $objectId,
+                            $result['entities'],
+                            $text,
+                            $this->extractDetailedEntities($result)
+                        );
                     }
                 }
                 break;

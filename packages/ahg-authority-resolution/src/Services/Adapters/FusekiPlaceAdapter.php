@@ -3,11 +3,20 @@
 /**
  * FusekiPlaceAdapter - Service for Heratio
  *
- * Candidate adapter STUB for GPE / PLACE / LOC candidates sourced from
- * the Heratio Fuseki dataset. Task 8/future will wire this against
- * urn:heratio:auth-res:graph:decisions sibling dataset; for Task 3 we
- * ship MySQL adapters only and this returns an empty list so the
- * generator's adapter-iteration logic remains uniform.
+ * Candidate adapter for GPE / PLACE / LOC candidates sourced from the
+ * live Heratio Fuseki dataset (the OpenRiC model dataset). Queries the
+ * triplestore for RiC-O places - rico:Place - whose name literal
+ * contains the mention's entity_value.
+ *
+ * These candidates are Fuseki-native: they have no MySQL authority row,
+ * so authority_id is null and fuseki_uri carries the subject URI. The
+ * engine schema (ahg_mention_candidate.candidate_fuseki_uri) already
+ * supports null authority_id + non-null fuseki_uri.
+ *
+ * SPARQL is run through AhgRic\Services\SparqlQueryService - the shared
+ * Fuseki client - and never a bespoke HTTP client. Any failure (Fuseki
+ * down, dataset empty, malformed result) is swallowed and yields an
+ * empty list so candidate generation is never interrupted.
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -31,8 +40,14 @@
 
 namespace AhgAuthorityResolution\Services\Adapters;
 
+use AhgRic\Services\SparqlQueryService;
+
 class FusekiPlaceAdapter implements CandidateAdapterInterface
 {
+    public function __construct(private SparqlQueryService $sparql)
+    {
+    }
+
     public function supports(string $entityType): bool
     {
         return in_array($entityType, ['GPE', 'PLACE', 'LOC'], true);
@@ -40,8 +55,108 @@ class FusekiPlaceAdapter implements CandidateAdapterInterface
 
     public function search(string $query, string $entityType, int $limit): array
     {
-        // Task 8/future will wire against urn:heratio:auth-res:graph:decisions
-        // sibling dataset; for Task 3 we ship MySQL adapters only.
-        return [];
+        if (!$this->supports($entityType)) {
+            return [];
+        }
+
+        $query = trim($query);
+        if ($query === '') {
+            return [];
+        }
+
+        $limit = max(1, $limit);
+
+        try {
+            $sparql = $this->buildSparql($query, $limit);
+            $result = $this->sparql->executeQuery($sparql);
+
+            // SparqlQueryService normalises to ['bindings' => [...], 'head' => [...]].
+            $bindings = $result['bindings'] ?? ($result['results']['bindings'] ?? []);
+            if (!is_array($bindings) || $bindings === []) {
+                return [];
+            }
+
+            $seen = [];
+            $out = [];
+            foreach ($bindings as $row) {
+                $uri = $row['s']['value'] ?? null;
+                $name = $row['name']['value'] ?? null;
+                if (!is_string($uri) || $uri === '') {
+                    continue;
+                }
+                if (!is_string($name)) {
+                    continue;
+                }
+                $name = trim($name);
+                if ($name === '' || isset($seen[$uri])) {
+                    continue;
+                }
+                $seen[$uri] = true;
+
+                $out[] = [
+                    'source' => 'fuseki_place',
+                    'authority_id' => null,
+                    'fuseki_uri' => $uri,
+                    'display_name' => $name,
+                ];
+            }
+
+            return $out;
+        } catch (\Throwable $e) {
+            // Fuseki unreachable, dataset empty, or malformed response:
+            // never let it bubble into candidate generation.
+            return [];
+        }
+    }
+
+    /**
+     * Build the SPARQL SELECT for place candidates.
+     *
+     * Matches the RiC-O place class (rico:Place). The display name is
+     * read from whichever name predicate is present - rico:name,
+     * rico:hasOrHadName -> rico:textualValue, rdfs:label or
+     * skos:prefLabel - so the query works regardless of which
+     * serialisation the dataset uses for instance names.
+     */
+    private function buildSparql(string $query, int $limit): string
+    {
+        $needle = $this->escapeSparqlString(mb_strtolower($query));
+
+        return <<<SPARQL
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT DISTINCT ?s ?name
+WHERE {
+    ?s a rico:Place .
+    {
+        ?s rico:name ?name .
+    } UNION {
+        ?s rico:hasOrHadName ?nameObj .
+        ?nameObj rico:textualValue ?name .
+    } UNION {
+        ?s rdfs:label ?name .
+    } UNION {
+        ?s skos:prefLabel ?name .
+    }
+    FILTER(CONTAINS(LCASE(STR(?name)), "{$needle}"))
+}
+LIMIT {$limit}
+SPARQL;
+    }
+
+    /**
+     * Escape a user string for safe embedding inside a SPARQL double-quoted
+     * literal. Backslashes and double quotes are escaped; control chars
+     * that would terminate the literal are stripped.
+     */
+    private function escapeSparqlString(string $value): string
+    {
+        $value = str_replace(["\r", "\n", "\t"], ' ', $value);
+        $value = str_replace('\\', '\\\\', $value);
+        $value = str_replace('"', '\\"', $value);
+
+        return $value;
     }
 }

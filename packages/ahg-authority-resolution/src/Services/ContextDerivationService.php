@@ -49,6 +49,10 @@ class ContextDerivationService
      * @param string $mentionType     Entity type (PERSON / ORG / GPE / etc.)
      * @param list<array{ner_entity_id:int,value:string,type:string}> $otherEntities
      * @param array<string,list<string>> $roleLanguageTokens  e.g. ['kinship' => ['son of', 'daughter of'], ...]
+     * @param array{start:int,end:int}|null $knownOffset  Exact character offsets supplied by the
+     *                                                    upstream NER API (entities_v2). When given,
+     *                                                    skips the lossy stripos scan entirely and
+     *                                                    treats the mention as occurring exactly once.
      *
      * @return array{
      *   character_offset_start: int|null,
@@ -69,16 +73,27 @@ class ContextDerivationService
         string $mentionValue,
         string $mentionType,
         array $otherEntities,
-        array $roleLanguageTokens
+        array $roleLanguageTokens,
+        ?array $knownOffset = null
     ): array {
-        $occurrences = $this->findAllOccurrences($sourceText, $mentionValue);
+        if ($knownOffset !== null
+            && isset($knownOffset['start'], $knownOffset['end'])
+        ) {
+            // API-supplied exact offset (entities_v2). No stripos re-derivation:
+            // the offset is authoritative and unambiguous (occurrence_count = 1).
+            $occurrences = [[(int) $knownOffset['start'], (int) $knownOffset['end']]];
+        } else {
+            // Legacy lossy path: scan the text for every occurrence of the value.
+            $occurrences = $this->findAllOccurrences($sourceText, $mentionValue);
+        }
 
         if (empty($occurrences)) {
             return $this->emptyContext(0);
         }
 
         // Pick the first occurrence (on-demand backfill convention: lossy when name repeats;
-        // ambiguity flagged via occurrence_count for the review UI).
+        // ambiguity flagged via occurrence_count for the review UI). When a knownOffset was
+        // supplied there is exactly one occurrence, so this is the exact mention.
         [$startOffset, $endOffset] = $occurrences[0];
 
         $paragraph = $this->findEnclosingParagraph($sourceText, $startOffset);
