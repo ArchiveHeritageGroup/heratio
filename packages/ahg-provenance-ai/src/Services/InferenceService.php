@@ -59,6 +59,9 @@ class InferenceService
         $uuid = (string) Str::uuid();
         $now = now();
 
+        // heratio#135 - structured model provenance captured at inference time.
+        $modelManifest = $this->buildModelManifest($r);
+
         $id = DB::table('ahg_ai_inference')->insertGetId([
             'uuid'                => $uuid,
             'service_name'        => $r->serviceName,
@@ -76,6 +79,7 @@ class InferenceService
             'target_field'        => $r->targetField,
             'elapsed_ms'          => $r->elapsedMs,
             'fuseki_graph_uri'    => null,
+            'model_manifest'      => json_encode($modelManifest),
             'user_id'             => $r->userId,
             'occurred_at'         => $now,
             'created_at'          => $now,
@@ -88,7 +92,7 @@ class InferenceService
         // below, a signing failure must never poison the AI service caller.
         try {
             $signer    = app(InferenceSigner::class);
-            $signature = $signer->sign($this->buildManifest($id, $uuid, $now, $r));
+            $signature = $signer->sign($this->buildManifest($id, $uuid, $now, $r, $modelManifest));
             if ($signature !== null) {
                 DB::table('ahg_ai_inference')->where('id', $id)->update([
                     'signature'     => $signature,
@@ -116,22 +120,69 @@ class InferenceService
      * The canonical manifest signed for heratio#136. The field set is fixed
      * and must match what a verifier reconstructs. occurred_at is passed in
      * so the signed timestamp is byte-identical to the persisted column.
-     * (model_manifest joins this set once heratio#135 adds the column.)
+     * model_manifest (heratio#135) is part of the signed set.
      */
-    private function buildManifest(int $id, string $uuid, $occurredAt, InferenceRecord $r): array
+    private function buildManifest(int $id, string $uuid, $occurredAt, InferenceRecord $r, array $modelManifest): array
     {
         return [
-            'id'            => $id,
-            'uuid'          => $uuid,
-            'occurred_at'   => (string) $occurredAt,
-            'service_name'  => $r->serviceName,
-            'model_name'    => $r->modelName,
-            'model_version' => $r->modelVersion,
-            'input_hash'    => $r->inputHash,
-            'output_hash'   => $r->outputHash,
-            'confidence'    => $r->confidence,
-            'target'        => $r->targetEntityType . ':' . $r->targetEntityId . ':' . $r->targetField,
+            'id'             => $id,
+            'uuid'           => $uuid,
+            'occurred_at'    => (string) $occurredAt,
+            'service_name'   => $r->serviceName,
+            'model_name'     => $r->modelName,
+            'model_version'  => $r->modelVersion,
+            'input_hash'     => $r->inputHash,
+            'output_hash'    => $r->outputHash,
+            'confidence'     => $r->confidence,
+            'model_manifest' => $modelManifest,
+            'target'         => $r->targetEntityType . ':' . $r->targetEntityId . ':' . $r->targetField,
         ];
+    }
+
+    /**
+     * heratio#135 - the per-inference model manifest. Starts from the
+     * operator-curated manifest on ahg_llm_config (matched on model name)
+     * and overlays the live model identity captured at inference time.
+     */
+    private function buildModelManifest(InferenceRecord $r): array
+    {
+        $configManifest = null;
+        try {
+            $raw = DB::table('ahg_llm_config')->where('model', $r->modelName)->value('model_manifest');
+            if (is_string($raw) && $raw !== '') {
+                $decoded = json_decode($raw, true);
+                if (is_array($decoded)) {
+                    $configManifest = $decoded;
+                }
+            }
+        } catch (\Throwable $e) {
+            // ahg_llm_config or its model_manifest column may be absent on an
+            // older install - fall through to the minimal live-only manifest.
+        }
+
+        return self::composeModelManifest($r->modelName, $r->modelVersion, $r->serviceName, $configManifest);
+    }
+
+    /**
+     * Pure composer (no DB): the operator-curated config manifest with the
+     * live inference-time identity overlaid. Always returns a non-empty
+     * manifest so ahg_ai_inference.model_manifest is populated whenever model
+     * metadata is available (heratio#135 acceptance criterion).
+     */
+    public static function composeModelManifest(
+        string $modelName,
+        string $modelVersion,
+        string $serviceName,
+        ?array $configManifest
+    ): array {
+        $manifest = is_array($configManifest) ? $configManifest : [];
+        $manifest['model_name']    = $modelName;
+        $manifest['model_version'] = $modelVersion;
+        $manifest['service_name']  = $serviceName;
+        if (!isset($manifest['model_id']) || $manifest['model_id'] === '') {
+            $manifest['model_id'] = $modelName . '@' . $modelVersion;
+        }
+        return $manifest;
     }
 
     /**

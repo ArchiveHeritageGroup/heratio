@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS `ahg_ai_inference` (
     `fuseki_graph_uri`    varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL                       COMMENT 'NULL until the RDF-Star annotation has been written to Fuseki',
     `signature`           text COLLATE utf8mb4_unicode_ci DEFAULT NULL                               COMMENT 'heratio#136 - base64 Ed25519 detached signature over the canonical inference manifest',
     `signer_key_id`       varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL                        COMMENT 'heratio#136 - reference to the signing key (the key itself is never stored in the DB)',
+    `model_manifest`      json DEFAULT NULL                                                          COMMENT 'heratio#135 - structured model-provenance manifest snapshot for this inference',
     `user_id`             int DEFAULT NULL                                                           COMMENT 'Triggering user when known (NULL for batch / cron paths)',
     `occurred_at`         datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `created_at`          datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

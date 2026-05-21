@@ -74,7 +74,13 @@
               <td class="text-end">{{ $m->temperature }}</td>
               <td class="text-end">{{ $m->inference_count }}</td>
               <td class="small">{{ $m->last_used ? \Illuminate\Support\Str::limit((string) $m->last_used, 16, '') : '—' }}</td>
-              <td class="small text-muted" title="{{ __('Pending heratio#135') }}">{{ $m->model_manifest ?? '—' }}</td>
+              <td class="small">
+                @if(is_array($m->model_manifest) && $m->model_manifest)
+                  <span class="badge bg-success" title="{{ implode(', ', array_keys($m->model_manifest)) }}">{{ count($m->model_manifest) }} {{ __('keys') }}</span>
+                @else
+                  <span class="text-muted">—</span>
+                @endif
+              </td>
             </tr>
           @empty
             <tr><td colspan="8" class="text-center text-muted py-3">{{ __('No LLM configurations.') }}</td></tr>

@@ -90,7 +90,7 @@ class GovernanceController extends Controller
             ->get([
                 'id', 'provider', 'name', 'model', 'is_active', 'is_default',
                 'endpoint_url', 'max_tokens', 'temperature', 'timeout_seconds',
-                'created_at', 'updated_at',
+                'model_manifest', 'created_at', 'updated_at',
             ])
             ->map(function ($row) {
                 $row->last_used = DB::table('ahg_ai_inference')
@@ -99,8 +99,10 @@ class GovernanceController extends Controller
                 $row->inference_count = DB::table('ahg_ai_inference')
                     ->where('model_name', $row->model)
                     ->count();
-                // heratio#135 - model_manifest column does not exist yet.
-                $row->model_manifest = null;
+                // heratio#135 - decode the operator-curated model manifest.
+                $row->model_manifest = is_string($row->model_manifest ?? null)
+                    ? json_decode($row->model_manifest, true)
+                    : null;
                 return $row;
             })
             ->values()

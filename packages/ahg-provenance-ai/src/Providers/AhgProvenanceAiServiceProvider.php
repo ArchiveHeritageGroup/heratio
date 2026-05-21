@@ -116,6 +116,18 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
                     $table->string('signer_key_id', 64)->nullable()->after('signature');
                 });
             }
+            // heratio#135 - structured model-provenance manifest (JSON), on
+            // the inference row and on the model config it snapshots from.
+            if (Schema::hasTable('ahg_ai_inference') && !Schema::hasColumn('ahg_ai_inference', 'model_manifest')) {
+                Schema::table('ahg_ai_inference', function ($table) {
+                    $table->json('model_manifest')->nullable();
+                });
+            }
+            if (Schema::hasTable('ahg_llm_config') && !Schema::hasColumn('ahg_llm_config', 'model_manifest')) {
+                Schema::table('ahg_llm_config', function ($table) {
+                    $table->json('model_manifest')->nullable();
+                });
+            }
         } catch (\Throwable $e) {
             \Log::warning('[ahg-provenance-ai] auto-install failed: ' . $e->getMessage());
         }
