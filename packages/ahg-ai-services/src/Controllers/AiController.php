@@ -1133,32 +1133,43 @@ class AiController extends Controller
             return response()->json(['success' => false, 'error' => 'Object not found']);
         }
 
-        $apiUrl = $this->getAiApiUrl();
+        $apiUrl = rtrim($this->getAiApiUrl(), '/');
         $apiKey = $this->getAiApiKey();
 
-        $pdfPath = $this->getDigitalObjectPath($id);
+        // Prefer the digitised document itself; fall back to catalogue metadata.
+        $pdfPath = $this->getDigitalObjectPath($id, 'pdf');
         $text    = $this->getObjectTextForSummary($object);
 
-        if (empty(trim($text)) && (!$pdfPath || !file_exists($pdfPath))) {
+        if ((!$pdfPath || !is_file($pdfPath)) && empty(trim($text))) {
             return response()->json(['success' => false, 'error' => 'No text content found to summarize']);
         }
 
         $startTime = microtime(true);
 
         try {
-            $payload = ['max_length' => $maxLength, 'min_length' => $minLength];
-            if ($pdfPath && file_exists($pdfPath)) {
-                $payload['pdf_path'] = $pdfPath;
+            if ($pdfPath && is_file($pdfPath)) {
+                // Summarise the PDF document - the API extracts the text
+                // (pdfminer + OCR fallback). The file bytes are uploaded
+                // because the API host cannot see our filesystem.
+                $response = \Illuminate\Support\Facades\Http::timeout(180)
+                    ->withHeaders(['X-API-Key' => $apiKey])
+                    ->attach('file', file_get_contents($pdfPath), basename($pdfPath))
+                    ->post($apiUrl . '/summarize-pdf', [
+                        'max_length' => $maxLength,
+                        'min_length' => $minLength,
+                    ]);
             } else {
-                $payload['text'] = $text;
+                $response = \Illuminate\Support\Facades\Http::timeout(120)
+                    ->withHeaders([
+                        'Content-Type' => 'application/json',
+                        'X-API-Key'    => $apiKey,
+                    ])
+                    ->post($apiUrl . '/summarize', [
+                        'text'       => $text,
+                        'max_length' => $maxLength,
+                        'min_length' => $minLength,
+                    ]);
             }
-
-            $response = \Illuminate\Support\Facades\Http::timeout(120)
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                    'X-API-Key'    => $apiKey,
-                ])
-                ->post($apiUrl . '/ai/v1/summarize', $payload);
 
             $elapsed = round((microtime(true) - $startTime) * 1000);
 
@@ -1182,11 +1193,78 @@ class AiController extends Controller
                 'original_length'    => $result['original_length'] ?? 0,
                 'processing_time_ms' => $elapsed,
                 'saved'              => $saved,
-                'source'             => $pdfPath ? 'pdf' : 'metadata',
+                'source'             => ($pdfPath && is_file($pdfPath)) ? 'pdf' : 'metadata',
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * GET /admin/ai/translate/{id}
+     * Translate an information object - preferring the digitised document
+     * (PDF text layer via pdftotext) over the catalogue description.
+     * Query params: target_lang (required).
+     */
+    public function translateObject(Request $request, int $id)
+    {
+        $culture    = app()->getLocale();
+        $targetLang = (string) $request->input('target_lang', 'en');
+
+        $object = $this->getInformationObject($id, $culture);
+        if (!$object) {
+            return response()->json(['success' => false, 'error' => 'Object not found']);
+        }
+
+        // Prefer the digitised document; fall back to catalogue description.
+        $pdfPath = $this->getDigitalObjectPath($id, 'pdf');
+        $source  = 'metadata';
+        $text    = '';
+
+        if ($pdfPath && is_file($pdfPath)) {
+            $text = $this->extractPdfText($pdfPath);
+            if (trim($text) !== '') {
+                $source = 'pdf';
+            }
+        }
+        if (trim($text) === '') {
+            $text = $this->getObjectText($object);
+        }
+
+        if (trim($text) === '') {
+            return response()->json(['success' => false, 'error' => 'No text content found to translate']);
+        }
+
+        // Reuse the text-translate path (MT adapter, with LLM fallback).
+        $request->merge(['text' => $text, 'target_lang' => $targetLang]);
+        $response = $this->translate($request);
+
+        $data = $response->getData(true);
+        $data['document_source'] = $source;
+
+        return response()->json($data, $response->getStatusCode());
+    }
+
+    /**
+     * Extract the embedded text layer of a PDF via poppler's pdftotext.
+     * Returns '' for image-only / scanned PDFs that carry no text layer -
+     * the caller then falls back to catalogue metadata.
+     */
+    private function extractPdfText(string $pdfPath): string
+    {
+        try {
+            $process = new \Symfony\Component\Process\Process(
+                ['pdftotext', '-q', '-enc', 'UTF-8', $pdfPath, '-']
+            );
+            $process->setTimeout(60);
+            $process->run();
+            if ($process->isSuccessful()) {
+                return trim($process->getOutput());
+            }
+        } catch (\Throwable $e) {
+            // poppler missing or failed - fall through to empty string
+        }
+        return '';
     }
 
     /* ================================================================== */

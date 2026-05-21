@@ -136,11 +136,23 @@
           </a>
         @endif
 
-        {{-- AI image-to-video (SVD on 8 GB; CogVideoX/WAN on 24 GB) ----------- --}}
+        {{-- AI image-to-video (SVD on 8 GB; CogVideoX/WAN on 24 GB).
+             Only for genuine image records - hidden when the object also
+             carries a PDF/document, so document records whose only image is
+             a page-render derivative do not get an Animate button. --}}
         @if(class_exists(\AhgImageAr\Services\AnimationService::class)
             && app(\AhgImageAr\Services\AnimationService::class)->isEnabled()
             && \Illuminate\Support\Facades\DB::table('digital_object')
-                  ->where('object_id', $io->id)->where('mime_type', 'like', 'image/%')->exists())
+                  ->where('object_id', $io->id)->where('mime_type', 'like', 'image/%')->exists()
+            && ! \Illuminate\Support\Facades\DB::table('digital_object')
+                  ->where('object_id', $io->id)
+                  ->where(function ($q) {
+                      $q->where('mime_type', 'application/pdf')
+                        ->orWhere('mime_type', 'like', 'application/msword%')
+                        ->orWhere('mime_type', 'like', 'application/vnd.openxmlformats-officedocument%')
+                        ->orWhere('mime_type', 'like', 'application/vnd.oasis.opendocument%')
+                        ->orWhere('mime_type', 'like', 'text/%');
+                  })->exists())
           @php
             $existingAnim = \Illuminate\Support\Facades\DB::table('object_image_ar')
               ->where('object_id', $io->id)->first(['id']);
