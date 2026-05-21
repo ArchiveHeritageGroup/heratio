@@ -1068,7 +1068,9 @@ class AiController extends Controller
         $mode     = $request->input('mode', 'all');
         $useZones = $request->boolean('use_zones', true);
 
-        $apiUrl = $this->getAiApiUrl();
+        // heratio#131 - htr_url is the full gateway HTR endpoint; do NOT
+        // append /ai/v1/htr (that produced a double /ai/v1 prefix -> 404).
+        $htrUrl = $this->loadGeneralAiSetting('htr_url', 'https://ai.theahg.co.za/ai/v1/htr');
         $apiKey = $this->getAiApiKey();
 
         $startTime = microtime(true);
@@ -1076,10 +1078,10 @@ class AiController extends Controller
         try {
             $response = \Illuminate\Support\Facades\Http::timeout(120)
                 ->withHeaders([
-                    'Content-Type' => 'application/json',
-                    'X-API-Key'    => $apiKey,
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => 'Bearer ' . $apiKey,
                 ])
-                ->post($apiUrl . '/ai/v1/htr', [
+                ->post($htrUrl, [
                     'image_path' => $imagePath,
                     'mode'       => $mode,
                     'use_zones'  => $useZones,
@@ -2947,8 +2949,11 @@ PY;
         }
 
         try {
-            $htrUrl = config('services.htr.url', 'http://localhost:5006');
-            $response = \Illuminate\Support\Facades\Http::timeout(30)->post("{$htrUrl}/crop-ocr", [
+            // heratio#131 - through the gateway (legacy HTR proxy) + Bearer.
+            $htrUrl = $this->loadGeneralAiSetting('htr_url', 'https://ai.theahg.co.za/ai/v1/htr');
+            $response = \Illuminate\Support\Facades\Http::timeout(30)
+                ->withHeaders(['Authorization' => 'Bearer ' . $this->getAiApiKey()])
+                ->post("{$htrUrl}/legacy/crop-ocr", [
                 'image_path' => $imagePath,
                 'bbox' => $bbox,
             ]);
@@ -3366,7 +3371,9 @@ PY;
         }
 
         $results = [];
-        $htrUrl = 'http://192.168.0.115:5006/ocr-finetuned';
+        // heratio#131 - through the gateway (legacy HTR proxy) + Bearer.
+        $htrUrl = $this->loadGeneralAiSetting('htr_url', 'https://ai.theahg.co.za/ai/v1/htr') . '/legacy/ocr-finetuned';
+        $htrKey = $this->getAiApiKey();
 
         foreach ($annotations as $ann) {
             $label = $ann['label'] ?? '';
@@ -3396,6 +3403,7 @@ PY;
                     CURLOPT_POSTFIELDS => ['file' => $cFile],
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_TIMEOUT => 30,
+                    CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . $htrKey],
                 ]);
                 $response = curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

@@ -63,7 +63,9 @@ class PageIndexService
 
     private function loadConfig(): void
     {
-        $this->ocrEndpoint = 'http://192.168.0.115:5006';
+        // heratio#131 - default through the AI gateway's legacy HTR proxy
+        // (the pageindex.ocr_endpoint setting below still overrides it).
+        $this->ocrEndpoint = 'https://ai.theahg.co.za/ai/v1/htr/legacy';
 
         // Load Fuseki config from ahg_settings (same as RicSyncService)
         $this->fusekiEndpoint = 'http://192.168.0.112:3030/ric';
@@ -673,6 +675,10 @@ class PageIndexService
      */
     private function callOcrService(string $filePath): ?string
     {
+        // heratio#131 - gateway Bearer key for the legacy OCR/HTR proxy.
+        $apiKey = (string) (DB::table('ahg_ner_settings')
+            ->where('setting_key', 'api_key')->value('setting_value') ?? '');
+
         $ch = curl_init();
 
         curl_setopt_array($ch, [
@@ -684,6 +690,7 @@ class PageIndexService
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 120,
             CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_HTTPHEADER => $apiKey !== '' ? ['Authorization: Bearer ' . $apiKey] : [],
         ]);
 
         $response = curl_exec($ch);

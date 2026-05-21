@@ -33,16 +33,50 @@ use Illuminate\Support\Facades\Log;
 class HtrService
 {
     protected string $baseUrl;
+    protected string $apiKey;
 
     public function __construct()
     {
-        $this->baseUrl = rtrim(env('HTR_SERVICE_URL', 'http://192.168.0.115:5006'), '/');
+        // heratio#131 - resolve the HTR endpoint from settings, routed through
+        // the gateway's legacy HTR proxy. HTR_SERVICE_URL stays a developer-
+        // only override, no longer the production source of truth.
+        $htrUrl = rtrim($this->setting('htr_url', 'https://ai.theahg.co.za/ai/v1/htr'), '/');
+        $this->baseUrl = rtrim(env('HTR_SERVICE_URL', $htrUrl . '/legacy'), '/');
+        $this->apiKey  = $this->setting('api_key', '');
+    }
+
+    /** heratio#131 - resolve an AI setting (ahg_ner_settings, then ahg_ai_settings general). */
+    private function setting(string $key, string $default): string
+    {
+        try {
+            $v = \Illuminate\Support\Facades\DB::table('ahg_ner_settings')
+                ->where('setting_key', $key)->value('setting_value');
+            if ($v !== null && $v !== '') {
+                return (string) $v;
+            }
+            $v = \Illuminate\Support\Facades\DB::table('ahg_ai_settings')
+                ->where('feature', 'general')->where('setting_key', $key)->value('setting_value');
+            if ($v !== null && $v !== '') {
+                return (string) $v;
+            }
+        } catch (\Throwable $e) {
+            // settings tables absent during boot - fall through to the default
+        }
+        return $default;
+    }
+
+    /** heratio#131 - HTTP client carrying the gateway Bearer token. */
+    private function http(): \Illuminate\Http\Client\PendingRequest
+    {
+        return $this->apiKey !== ''
+            ? Http::withToken($this->apiKey)
+            : Http::withHeaders([]);
     }
 
     public function health(): ?array
     {
         try {
-            $response = Http::timeout(10)->get("{$this->baseUrl}/health");
+            $response = $this->http()->timeout(10)->get("{$this->baseUrl}/health");
             return $response->successful() ? $response->json() : null;
         } catch (\Exception $e) {
             Log::error('HTR health check failed: ' . $e->getMessage());
@@ -57,7 +91,7 @@ class HtrService
     public function extract(string $filePath, string $docType = 'auto', string $format = 'all'): ?array
     {
         try {
-            $response = Http::timeout(60)
+            $response = $this->http()->timeout(60)
                 ->attach('file', fopen($filePath, 'r'), basename($filePath))
                 ->post("{$this->baseUrl}/extract", [
                     'doc_type' => $docType,
@@ -129,7 +163,7 @@ class HtrService
     public function batch(array $filePaths, string $format = 'csv'): ?array
     {
         try {
-            $request = Http::timeout(60);
+            $request = $this->http()->timeout(60);
             foreach ($filePaths as $path) {
                 $request = $request->attach('files', fopen($path, 'r'), basename($path));
             }
@@ -144,7 +178,7 @@ class HtrService
     public function downloadOutput(string $jobId, string $format)
     {
         try {
-            return Http::timeout(30)->get("{$this->baseUrl}/download/{$jobId}/{$format}");
+            return $this->http()->timeout(30)->get("{$this->baseUrl}/download/{$jobId}/{$format}");
         } catch (\Exception $e) {
             Log::error('HTR download failed: ' . $e->getMessage());
             return null;
@@ -154,7 +188,7 @@ class HtrService
     public function saveAnnotation(string $imagePath, string $type, array $annotations): ?array
     {
         try {
-            $response = Http::timeout(30)
+            $response = $this->http()->timeout(30)
                 ->attach('image', fopen($imagePath, 'r'), basename($imagePath))
                 ->post("{$this->baseUrl}/annotate", [
                     'type' => $type,
@@ -170,7 +204,7 @@ class HtrService
     public function trainingStatus(): ?array
     {
         try {
-            $response = Http::timeout(10)->get("{$this->baseUrl}/training/status");
+            $response = $this->http()->timeout(10)->get("{$this->baseUrl}/training/status");
             return $response->successful() ? $response->json() : null;
         } catch (\Exception $e) {
             Log::error('HTR training status failed: ' . $e->getMessage());
@@ -181,7 +215,7 @@ class HtrService
     public function triggerTraining(): ?array
     {
         try {
-            $response = Http::timeout(30)->post("{$this->baseUrl}/train");
+            $response = $this->http()->timeout(30)->post("{$this->baseUrl}/train");
             return $response->successful() ? $response->json() : null;
         } catch (\Exception $e) {
             Log::error('HTR trigger training failed: ' . $e->getMessage());
@@ -192,7 +226,7 @@ class HtrService
     public function sources(): array
     {
         try {
-            $response = Http::timeout(15)->get("{$this->baseUrl}/sources");
+            $response = $this->http()->timeout(15)->get("{$this->baseUrl}/sources");
             return $response->successful() ? $response->json() : ['sources' => [], 'training_stats' => [], 'familysearch_configured' => false];
         } catch (\Exception $e) {
             Log::error('HTR sources failed: ' . $e->getMessage());
@@ -203,7 +237,7 @@ class HtrService
     public function downloadBatch(string $collectionId, int $count, string $docType = ''): ?array
     {
         try {
-            $response = Http::timeout(30)->post("{$this->baseUrl}/download-batch", [
+            $response = $this->http()->timeout(30)->post("{$this->baseUrl}/download-batch", [
                 'collection_id' => $collectionId,
                 'count' => $count,
                 'doc_type' => $docType,
@@ -218,7 +252,7 @@ class HtrService
     public function downloadStatus(string $jobId): ?array
     {
         try {
-            $response = Http::timeout(10)->get("{$this->baseUrl}/download-status/{$jobId}");
+            $response = $this->http()->timeout(10)->get("{$this->baseUrl}/download-status/{$jobId}");
             return $response->successful() ? $response->json() : null;
         } catch (\Exception $e) {
             Log::error('HTR download-status failed: ' . $e->getMessage());
@@ -229,7 +263,7 @@ class HtrService
     public function downloadJobs(): array
     {
         try {
-            $response = Http::timeout(10)->get("{$this->baseUrl}/download-jobs");
+            $response = $this->http()->timeout(10)->get("{$this->baseUrl}/download-jobs");
             return $response->successful() ? $response->json() : ['jobs' => []];
         } catch (\Exception $e) {
             Log::error('HTR download-jobs failed: ' . $e->getMessage());
