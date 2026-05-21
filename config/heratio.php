@@ -119,4 +119,22 @@ return [
         'provenance_ns' => env('LD_PROVENANCE_NS', rtrim(env('APP_URL', 'http://localhost'), '/') . '/ns/provenance-ai#'),
         'ric_ns'        => env('LD_RIC_NS',        rtrim(env('APP_URL', 'http://localhost'), '/') . '/ns/ric-profile#'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | RiC / Fuseki triplestore
+    |--------------------------------------------------------------------------
+    |
+    | FUSEKI_ENDPOINT       - Base URL of the Fuseki dataset holding the
+    |                         OpenRiC graph. SparqlQueryService queries
+    |                         {fuseki_endpoint}/sparql. Instance data lives
+    |                         in the openric-model dataset.
+    | RIC_SPARQL_VIA_PYTHON - SparqlQueryService routing. Direct HTTP to the
+    |                         Fuseki SPARQL endpoint is the default. Leave
+    |                         false: the shipped ric_semantic_search.py is a
+    |                         Flask server, not a CLI query tool (heratio#138).
+    |
+    */
+    'fuseki_endpoint'       => env('FUSEKI_ENDPOINT', 'http://localhost:3030/openric-model'),
+    'ric_sparql_via_python' => env('RIC_SPARQL_VIA_PYTHON', false),
 ];

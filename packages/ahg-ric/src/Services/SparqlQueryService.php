@@ -27,7 +27,7 @@ class SparqlQueryService
 
     public function __construct()
     {
-        $this->fusekiEndpoint = config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio');
+        $this->fusekiEndpoint = config('heratio.fuseki_endpoint', 'http://localhost:3030/openric-model');
         $this->pythonScript = __DIR__ . '/../../tools/ric_semantic_search.py';
     }
 
@@ -265,8 +265,11 @@ SPARQL;
             return Cache::get($cacheKey);
         }
 
-        // Check if Python script exists
-        if (file_exists($this->pythonScript)) {
+        // Direct HTTP to the Fuseki SPARQL endpoint is the canonical,
+        // dependency-free path and the default. ric_semantic_search.py is a
+        // Flask HTTP server, not a CLI query tool, so the Python branch is
+        // opt-in only (config heratio.ric_sparql_via_python). See heratio#138.
+        if (config('heratio.ric_sparql_via_python', false) && file_exists($this->pythonScript)) {
             $result = $this->executeViaPython($sparql);
         } else {
             $result = $this->executeViaHttp($sparql);
