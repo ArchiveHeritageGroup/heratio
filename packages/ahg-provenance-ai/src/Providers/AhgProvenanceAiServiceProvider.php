@@ -56,6 +56,10 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
         $this->ensureSchema();
         $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
 
+        // heratio#137 - AI Inventory & Governance dashboard.
+        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-provenance-ai');
+
         // #62 Fuseki replay command + 5-min schedule. The command itself
         // is a no-op when there are no NULL-URI rows queued, so the
         // schedule fires harmlessly when the pool is healthy. Schedule
