@@ -1305,11 +1305,14 @@
         <h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>{{ __('Generate Summary') }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body" id="summaryModalBody">
-        <div class="text-center py-5">
-          <div class="spinner-border text-success mb-3"></div>
-          <p class="text-muted">Loading summary generator...</p>
+      <div class="modal-body">
+        <p class="text-muted small mb-3">{{ __('AI summary of the digitised document (PDF), falling back to the catalogue description.') }}</p>
+        <div class="text-center mb-3">
+          <button type="button" class="btn btn-success btn-lg" id="summaryGenerateBtn" data-object-id="{{ $io->id }}">
+            <i class="fas fa-magic me-2"></i>{{ __('Generate summary from document') }}
+          </button>
         </div>
+        <div id="summaryModalResult"></div>
       </div>
       <div class="modal-footer">
         <a href="{{ route('io.ai.summarize', $io->id) }}" class="btn btn-sm atom-btn-white" target="_blank">
@@ -1321,20 +1324,48 @@
   </div>
 </div>
 <script>
-document.getElementById('summaryModal').addEventListener('shown.bs.modal', function() {
-  var body = document.getElementById('summaryModalBody');
-  if (body.dataset.loaded) return;
-  body.dataset.loaded = '1';
-  fetch('{{ route("io.ai.summarize", $io->id) }}', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-  .then(function(r) { return r.text(); })
-  .then(function(html) {
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(html, 'text/html');
-    var content = doc.querySelector('#content, [role="main"], .container');
-    body.innerHTML = content ? content.innerHTML : html;
-  })
-  .catch(function(err) { body.innerHTML = '<div class="alert alert-danger">Failed to load: ' + err.message + '</div>'; });
-});
+(function () {
+  // Self-contained modal (mirrors #nerModal). The old version fetched the
+  // standalone summarize page and injected it via innerHTML - but scripts
+  // inserted through innerHTML never execute, so the injected button was dead.
+  var btn = document.getElementById('summaryGenerateBtn');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    var id  = btn.dataset.objectId;
+    var out = document.getElementById('summaryModalResult');
+    var original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating from document…';
+    out.innerHTML = '<p class="text-muted">Working… this can take a moment for a large document.</p>';
+    fetch('/admin/ai/summarize/' + encodeURIComponent(id), {
+      headers: {
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      }
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      btn.disabled = false;
+      btn.innerHTML = original;
+      if (!data.success) {
+        out.innerHTML = '<div class="alert alert-danger mb-0">' + (data.error || 'Summarization failed') + '</div>';
+        return;
+      }
+      var src = data.source === 'pdf' ? 'document (PDF)' : 'catalogue metadata';
+      var summary = (data.summary || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      out.innerHTML =
+        '<div class="card"><div class="card-header fw-bold">Generated summary</div>' +
+        '<div class="card-body"><p style="white-space:pre-wrap">' + summary + '</p>' +
+        '<p class="text-muted small mb-0">Source: ' + src + ' · ' + (data.processing_time_ms || 0) + ' ms' +
+        (data.saved ? ' · saved to description' : '') + '</p></div></div>';
+    })
+    .catch(function (err) {
+      btn.disabled = false;
+      btn.innerHTML = original;
+      out.innerHTML = '<div class="alert alert-danger mb-0">' + err.message + '</div>';
+    });
+  });
+})();
 </script>
 @endauth
 
