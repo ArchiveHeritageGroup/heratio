@@ -16,6 +16,9 @@
 -- ==========================================================================
 
 -- One workflow row per promoted NER entity.
+-- The assigned_* / workflow_task_id columns back the Assign / Workflow
+-- feature: an archivist can assign a mention to another archivist, which
+-- routes it through the ahg-workflow plugin (ahg_workflow_task).
 CREATE TABLE IF NOT EXISTS ahg_mention (
     id                   BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     ner_entity_id        BIGINT UNSIGNED NOT NULL,
@@ -26,10 +29,20 @@ CREATE TABLE IF NOT EXISTS ahg_mention (
     promoted_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
                          ON UPDATE CURRENT_TIMESTAMP,
+    assigned_to_user_id  INT NULL
+                         COMMENT 'user.id the mention is assigned to (Assign / Workflow feature)',
+    assigned_by_user_id  INT NULL
+                         COMMENT 'user.id of the archivist who made the assignment',
+    assigned_at          DATETIME NULL
+                         COMMENT 'when the mention was last assigned',
+    workflow_task_id     BIGINT UNSIGNED NULL
+                         COMMENT 'ahg_workflow_task.id created when the mention was assigned',
     PRIMARY KEY (id),
     UNIQUE KEY uq_mention_ner_entity (ner_entity_id),
     KEY idx_mention_object (object_id),
     KEY idx_mention_state (state, entity_type),
+    KEY idx_mention_assigned (assigned_to_user_id, state),
+    KEY idx_mention_workflow_task (workflow_task_id),
     CONSTRAINT fk_mention_ner_entity
         FOREIGN KEY (ner_entity_id) REFERENCES ahg_ner_entity (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -210,6 +210,59 @@ class WorkflowService
     }
 
     /**
+     * Assign a task to an arbitrary user (delegated assignment).
+     *
+     * Mirrors claimTask() but, instead of a self-claim, routes the task to
+     * the supplied $userId on behalf of $performedBy (the archivist doing
+     * the assigning). Sets assigned_to = $userId, status = 'claimed',
+     * claimed_at = now() and logs an 'assigned' history row. Additive port
+     * of the AtoM-side WorkflowService::assignToUser() - existing methods
+     * are untouched.
+     *
+     * @param string|null $comment  Optional archivist reason / message. When
+     *                              given, it becomes the history row's comment
+     *                              so the assignee sees why the task came to
+     *                              them. Null falls back to the default
+     *                              "Assigned to user #N" note.
+     */
+    public function assignToUser(int $taskId, int $userId, int $performedBy, ?string $comment = null): bool
+    {
+        return DB::transaction(function () use ($taskId, $userId, $performedBy, $comment) {
+            $task = DB::table('ahg_workflow_task')->where('id', $taskId)->lockForUpdate()->first();
+            if (!$task) {
+                return false;
+            }
+
+            $fromStatus = $task->status;
+
+            DB::table('ahg_workflow_task')->where('id', $taskId)->update([
+                'assigned_to' => $userId,
+                'status' => 'claimed',
+                'claimed_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $note = ($comment !== null && trim($comment) !== '')
+                ? trim($comment)
+                : ('Assigned to user #' . $userId);
+
+            // 'reassigned' is the workflow_history_action taxonomy code for a
+            // delegated assignment (an assign-to-another-user, vs the
+            // self-claim 'claimed' code).
+            $this->logHistory(
+                $task,
+                'reassigned',
+                $fromStatus,
+                'claimed',
+                $performedBy,
+                $note
+            );
+
+            return true;
+        });
+    }
+
+    /**
      * Release a task back to the pool.
      */
     public function releaseTask(int $taskId, int $userId, ?string $comment = null): bool

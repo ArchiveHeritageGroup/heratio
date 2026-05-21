@@ -26,7 +26,9 @@ SET FOREIGN_KEY_CHECKS = 0;
 CREATE TABLE IF NOT EXISTS federation_peer (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL COMMENT 'Human-readable name for the peer repository',
-    base_url VARCHAR(500) NOT NULL COMMENT 'Base URL of the OAI-PMH endpoint',
+    peer_type VARCHAR(64) NOT NULL DEFAULT 'oai_pmh' COMMENT 'Connector dispatch key: oai_pmh | sharepoint_graph_search | atom_local',
+    config JSON NULL COMMENT 'Connector-specific configuration (KQL scopes, tenant_id, etc.)',
+    base_url VARCHAR(500) NOT NULL COMMENT 'Base URL of the OAI-PMH endpoint (use "-" for non-OAI peer types)',
     oai_identifier VARCHAR(255) NULL COMMENT 'Optional OAI repository identifier',
     api_key VARCHAR(255) NULL COMMENT 'Optional API key for authentication',
     description TEXT NULL COMMENT 'Description of the peer repository',
@@ -50,8 +52,34 @@ CREATE TABLE IF NOT EXISTS federation_peer (
     -- Indexes
     INDEX idx_peer_active (is_active),
     INDEX idx_peer_url (base_url(255)),
+    INDEX idx_peer_type (peer_type),
     UNIQUE INDEX idx_peer_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Idempotent back-fill for installs that pre-date peer_type / config.
+-- CREATE TABLE IF NOT EXISTS above is a no-op on existing tables, so we
+-- need an explicit ALTER guarded against re-runs.
+SET @col := (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'federation_peer' AND COLUMN_NAME = 'peer_type');
+SET @sql := IF(@col = 0,
+    "ALTER TABLE federation_peer ADD COLUMN peer_type VARCHAR(64) NOT NULL DEFAULT 'oai_pmh' AFTER name, ADD KEY idx_peer_type (peer_type)",
+    'SELECT ''federation_peer.peer_type exists''');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @col := (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'federation_peer' AND COLUMN_NAME = 'config');
+SET @sql := IF(@col = 0,
+    'ALTER TABLE federation_peer ADD COLUMN config JSON NULL AFTER peer_type',
+    'SELECT ''federation_peer.config exists''');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- Self-peer: feeds local Elasticsearch results into the federated result list
+-- via AtomElasticsearchConnector. The matching federation_peer_search row is
+-- seeded further down, after that table is created. Disable by toggling
+-- is_active in the UI.
+INSERT IGNORE INTO federation_peer (name, peer_type, base_url, is_active, description)
+VALUES ('Local archive (Elasticsearch)', 'atom_local', '-', 1,
+        'Local Heratio index. Contributes own records to federated search results.');
 
 -- Federation Harvest Log table
 -- Records each harvest action for auditing and debugging
@@ -164,6 +192,12 @@ CREATE TABLE IF NOT EXISTS federation_peer_search (
         FOREIGN KEY (peer_id) REFERENCES federation_peer(id)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Enable the self-peer for search (referenced by the federation_peer
+-- INSERT IGNORE earlier in this file). search_priority=50 makes local
+-- results rank ahead of typical remote peers (default 100).
+INSERT IGNORE INTO federation_peer_search (peer_id, search_enabled, search_priority)
+SELECT id, 1, 50 FROM federation_peer WHERE peer_type = 'atom_local';
 
 -- Cache for federated search results
 CREATE TABLE IF NOT EXISTS federation_search_cache (

@@ -381,7 +381,7 @@
         <div class="py-3">
           <i class="fas fa-file fa-3x text-muted mb-2 d-block"></i>
           {{-- settings.stripExtensions (#117): drops .ext from displayed filename when on. --}}
-          <p class="text-muted mb-1">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Digital object' }}</p>
+          <p class="text-muted mb-1">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj?->name) ?? 'Digital object' }}</p>
           @auth <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Download') }}</a> @endauth
         </div>
       @endif
@@ -1197,7 +1197,7 @@
           {{-- Other file: show info and download --}}
           <div class="py-4">
             <i class="fas fa-file fa-3x text-muted mb-3 d-block"></i>
-            <p class="text-muted">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Digital object' }}</p>
+            <p class="text-muted">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj?->name) ?? 'Digital object' }}</p>
             @auth
               <a href="{{ $masterUrl }}" download class="btn atom-btn-white">
                 <i class="fas fa-download me-1"></i>{{ __('Download file') }}

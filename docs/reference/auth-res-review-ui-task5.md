@@ -213,3 +213,65 @@ echo "decision #" . $decisionId . "\n";
 - Task 9: `ahg_ner_feedback` table (Reject button is a stub here).
 - Lock policy: `feedback_lock_io_show_tree.md`, `feedback_lock_all_pages.md`.
 - Tailwind reference: `feedback_heratio_tailwind.md`.
+
+## Review-screen enhancements (May 2026)
+
+Two enhancements layered onto the review screen and the assign workflow.
+
+### 1. "View full context" modal
+
+The review screen's left region (the "Context window" card) shows only ~150
+chars either side of the mention. A "View full context" button in that card
+header now opens a Bootstrap 5 `modal-xl` showing the entire source text of
+the mention's information object, with the mention occurrence highlighted.
+
+- Endpoint: `GET /admin/authority-resolution/review/{mention}/context`
+  (route name `auth-res.review.context`, `AuthorityReviewController::context`).
+- Returns JSON `{ ok, source_text, offset_start, offset_end,
+  paragraph_start, paragraph_end, entity_value }`.
+- `source_text` is the IO i18n field concatenation - it reuses
+  `PromoteToMentionService::fetchSourceText(int $objectId)` so the text shape
+  matches what the promote pipeline ran NER against. `object_id` comes from
+  the `ahg_mention` row.
+- Offset units: `ahg_mention_context` stores BYTE offsets (ContextDerivation
+  Service derives them with byte-based `strpos`/`substr`). A browser's
+  `String.slice()` operates on UTF-16 code units, so the endpoint converts
+  every byte offset to a UTF-16 code-unit offset server-side
+  (`byteToUtf16Offset()`). The frontend then splices the highlight with a
+  plain `slice()` and the `<mark>` lands exactly on the entity even for
+  multibyte text (verified: `Gdańsk` at byte 529 -> UTF-16 525).
+- Null offsets: when the on-demand backfill found no exact match the context
+  row carries NULL offsets. The endpoint still returns the full
+  `source_text`; the modal shows it without a `<mark>` plus an "exact
+  position not recorded" note.
+- Frontend: `_context-modal.blade.php` (new partial) + JS in
+  `review.blade.php`. The JS slices the raw string into
+  [before-para][para-before-mark][mark][para-after-mark][after-para],
+  HTML-escapes each slice independently, then concatenates with the
+  `<mark class="ar-context-mark">` and `<span class="ar-context-para">`
+  wrappers - offset math stays on the raw string, output is escaped.
+
+### 2. Optional reason / message on Assign
+
+The Assign modal (`_assign-modal.blade.php`) and the queue's batch-assign bar
++ per-row assign modal now carry an optional `reason` field labelled
+"Reason / message (optional)".
+
+- `AssignmentService::assign()` and `assignBatch()` take an optional
+  `?string $reason = null`. The batch applies the one reason to every
+  selected mention.
+- `AssignmentController::assignFromReview()` / `assignFromQueue()` validate
+  `reason` as `nullable|string|max:2000` and pass it through.
+- Storage: `ahg_workflow_task` has no `notes`/`comment` column (its
+  `decision_comment` is the decision comment, semantically distinct), so the
+  reason is stored as the **workflow task's assignment comment** - the
+  `ahg_workflow_history` row that `WorkflowService::assignToUser()` already
+  writes for every assignment. `assignToUser()` gained an additive optional
+  `?string $comment = null` param: when supplied it replaces the default
+  "Assigned to user #N" note on the `reassigned` history row. No schema
+  change, no new column.
+- The assignee sees the reason in their workflow dashboard task history.
+
+## Candidate-card display fixes (2026-05-20)
+
+Two display-only fixes to the review-screen candidate card. (1) The "view authority" reference no longer renders a dead `authority #901608` muted string. `AuthorityReviewController::show()` now LEFT JOINs `slug` on `slug.object_id = ahg_mention_candidate.candidate_authority_id` (actors and taxonomy terms are both Qubit objects with `slug` rows), exposing `authority_slug` to the card. `_candidate-card.blade.php` builds `$authorityUrl` from the slug-based `/{slug}` catch-all (the route IO show pages use - the numeric `/actor/{id}` and `/taxonomy/term/{id}` routes are not registered in Heratio) and both the body meta row and the footer fallback now render a clickable link labelled with the authority's name (`candidate_display_name`); when no slug exists they fall back to the plain name, and only show the raw `#id` when there is no name at all. (2) `_evidence-row.blade.php` gained a display-time `$humanizeToken` helper: a value matching `^[a-z][a-z0-9_]*$` (bare snake_case token, no spaces/braces/quotes) is rendered as `ucfirst(str_replace('_',' ',token))`, so machine reasons like `candidate_has_no_meaningful_ancestors` show as "Candidate has no meaningful ancestors"; JSON blobs, prose and numbers pass through untouched. Stored evidence data is unchanged - this is purely view-layer. Verified against mention 15 (candidate Gdansk, `candidate_authority_id=901897`, `authority_slug=gdansk`): review screen returns HTTP 200 with a working `/gdansk` link and sentence-case Detail cells.

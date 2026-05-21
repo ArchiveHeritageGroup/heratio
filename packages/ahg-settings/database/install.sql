@@ -101,4 +101,37 @@ INSERT IGNORE INTO numbering_scheme (name, sector, pattern, description, is_defa
 ('DAM Project', 'dam', '{PROJECT}-{SEQ:4}', 'Project-based numbering', 0, 1)
 ON DUPLICATE KEY UPDATE name = VALUES(name);
 
+-- ----------------------------------------------------------------------------
+-- Application error log. Written to by the global exception handler in
+-- bootstrap/app.php and read by the /admin/errorLog admin page
+-- (SettingsController::errorLog). Must exist on every install or the error
+-- handler fatals trying to log to a missing table, causing site-wide 500s.
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ahg_error_log` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `level` varchar(20) NOT NULL DEFAULT 'error',
+  `status_code` int DEFAULT NULL,
+  `message` text NOT NULL,
+  `file` varchar(500) DEFAULT NULL,
+  `line` int DEFAULT NULL,
+  `exception_class` varchar(255) DEFAULT NULL,
+  `request_id` varchar(128) DEFAULT NULL,
+  `url` varchar(2000) DEFAULT NULL,
+  `http_method` varchar(10) DEFAULT NULL,
+  `client_ip` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(500) DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
+  `hostname` varchar(255) DEFAULT NULL,
+  `trace` text,
+  `is_read` tinyint(1) NOT NULL DEFAULT '0',
+  `resolved_at` datetime DEFAULT NULL,
+  `resolved_by` int DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_error_log_created` (`created_at`),
+  KEY `idx_error_log_read` (`is_read`),
+  KEY `idx_error_log_level` (`level`),
+  KEY `idx_error_log_resolved` (`resolved_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;

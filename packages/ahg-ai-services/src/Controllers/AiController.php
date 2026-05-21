@@ -1803,13 +1803,13 @@ class AiController extends Controller
 
     private function getDigitalObjectPath(int $objectId, string $type = 'any'): ?string
     {
-        $digitalObject = DB::table('digital_object')
+        $digitalObjects = DB::table('digital_object')
             ->where('object_id', $objectId)
             ->whereNull('parent_id')
             ->orderByDesc('id')
-            ->first();
+            ->get();
 
-        if (!$digitalObject) {
+        if ($digitalObjects->isEmpty()) {
             return null;
         }
 
@@ -1822,33 +1822,36 @@ class AiController extends Controller
             default => array_merge($pdfExts, $imageExts),
         };
 
-        $path = $digitalObject->path ?? null;
-        $name = $digitalObject->name ?? null;
-
-        if ($path && $name) {
-            // Try Heratio uploads path
-            $fullPath = config('heratio.uploads_path') . '/' . ltrim($path, '/') . $name;
-            if (file_exists($fullPath)) {
-                $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
-                if (in_array($ext, $allowedExts)) {
-                    return $fullPath;
-                }
+        // An object can carry several digital objects (e.g. a master PDF plus
+        // a JPEG thumbnail). Walk every candidate and return the first whose
+        // extension matches the requested $type - never give up after one row.
+        foreach ($digitalObjects as $digitalObject) {
+            $path = $digitalObject->path ?? null;
+            $name = $digitalObject->name ?? null;
+            if (!$path || !$name) {
+                continue;
             }
 
-            // Try AtoM path
-            $fullPath = '/usr/share/nginx/archive/' . ltrim($path, '/') . $name;
-            if (file_exists($fullPath)) {
-                $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
-                if (in_array($ext, $allowedExts)) {
-                    return $fullPath;
-                }
+            $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+            if (!in_array($ext, $allowedExts, true)) {
+                continue;
             }
 
-            // Try AtoM uploads
-            $fullPath = '/usr/share/nginx/archive/uploads/' . ltrim(str_replace('/uploads/', '', $path), '/') . $name;
-            if (file_exists($fullPath)) {
-                $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
-                if (in_array($ext, $allowedExts)) {
+            // The stored path already begins with "/uploads/", so the NAS
+            // storage root (heratio.storage_path) is the correct base on this
+            // install. uploads_path and the AtoM mirror are kept as fallbacks
+            // for legacy / mirrored data.
+            $rel = ltrim($path, '/') . $name;
+            $candidates = [
+                rtrim((string) config('heratio.storage_path'), '/') . '/' . $rel,
+                rtrim((string) config('heratio.uploads_path'), '/') . '/' . $rel,
+                '/usr/share/nginx/archive/' . $rel,
+                '/usr/share/nginx/archive/uploads/'
+                    . ltrim(str_replace('/uploads/', '', $path), '/') . $name,
+            ];
+
+            foreach ($candidates as $fullPath) {
+                if (is_file($fullPath)) {
                     return $fullPath;
                 }
             }

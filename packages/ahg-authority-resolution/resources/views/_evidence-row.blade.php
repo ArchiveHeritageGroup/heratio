@@ -30,17 +30,31 @@
         default          => ucfirst(str_replace('_', ' ', $dimension)),
     };
 
+    // Display-time humanizer: turn a bare snake_case machine token (e.g.
+    // "candidate_has_no_meaningful_ancestors") into readable sentence-case
+    // text. Only fires on a genuine token - all lowercase letters/digits/
+    // underscores, no spaces, braces or quotes. Anything else (JSON blobs,
+    // already-readable prose, numbers) is returned untouched. Does NOT touch
+    // the stored evidence data.
+    $humanizeToken = function ($value): string {
+        $str = (string) $value;
+        if ($str !== '' && preg_match('/^[a-z][a-z0-9_]*$/', $str)) {
+            return ucfirst(str_replace('_', ' ', $str));
+        }
+        return $str;
+    };
+
     // Best-effort one-line summary of the underlying data.
     $summary = '';
     if (is_array($data) && !empty($data)) {
         if (isset($data['reason'])) {
-            $summary = (string) $data['reason'];
+            $summary = $humanizeToken($data['reason']);
         } else {
-            $summary = collect($data)->map(function ($v, $k) {
+            $summary = collect($data)->map(function ($v, $k) use ($humanizeToken) {
                 if (is_array($v)) {
                     $v = implode(', ', array_map('strval', array_slice($v, 0, 3)));
                 }
-                return $k . ': ' . (string) $v;
+                return $k . ': ' . $humanizeToken($v);
             })->take(3)->implode('; ');
         }
         if (strlen($summary) > 160) {

@@ -44,6 +44,7 @@ use AhgAuthorityResolution\Services\Adapters\FusekiAgentAdapter;
 use AhgAuthorityResolution\Services\Adapters\FusekiPlaceAdapter;
 use AhgAuthorityResolution\Services\Adapters\MysqlActorAdapter;
 use AhgAuthorityResolution\Services\Adapters\MysqlTermAdapter;
+use AhgAuthorityResolution\Services\AssignmentService;
 use AhgAuthorityResolution\Services\AuthorityCreator;
 use AhgAuthorityResolution\Services\CandidateGeneratorService;
 use AhgAuthorityResolution\Services\ContextDerivationService;
@@ -180,6 +181,9 @@ class AhgAuthorityResolutionServiceProvider extends ServiceProvider
 
         $this->app->singleton(AuthorityCreator::class);
         $this->app->singleton(FieldProvenanceWriter::class);
+
+        // Assign / Workflow feature: routes mentions through ahg-workflow.
+        $this->app->singleton(AssignmentService::class);
     }
 
     public function boot(): void
@@ -190,6 +194,12 @@ class AhgAuthorityResolutionServiceProvider extends ServiceProvider
                 $this->autoSeedDecisionsGraphUri();
                 $this->autoSeedCandidateTopN();
                 $this->autoSeedLookupSettings();
+            }
+            // Assign / Workflow feature: seed the "Authority Resolution
+            // Review" workflow definition into the ahg-workflow tables if
+            // they exist and the workflow is missing.
+            if (Schema::hasTable('ahg_workflow') && Schema::hasTable('ahg_workflow_step')) {
+                $this->autoSeedAuthResWorkflow();
             }
         } catch (\Throwable $e) {
             // Boot must never break the request. Settings auto-seed is
@@ -276,6 +286,80 @@ class AhgAuthorityResolutionServiceProvider extends ServiceProvider
             $out[] = $line;
         }
         return trim(implode("\n", $out));
+    }
+
+    /**
+     * Assign / Workflow feature: insert the "Authority Resolution Review"
+     * workflow + its single "Review" step if they are not already present.
+     * Keyed on the workflow name so it is safe to re-run. Executes the
+     * shipped database/seed_workflow.sql when available; falls back to an
+     * inline insert if the file is missing.
+     */
+    private function autoSeedAuthResWorkflow(): void
+    {
+        $workflowName = 'Authority Resolution Review';
+
+        $exists = DB::table('ahg_workflow')->where('name', $workflowName)->exists();
+        if ($exists) {
+            return;
+        }
+
+        $sqlPath = __DIR__ . '/../../database/seed_workflow.sql';
+        if (is_file($sqlPath)) {
+            $sql = file_get_contents($sqlPath);
+            if ($sql !== false && trim($sql) !== '') {
+                $rawStatements = preg_split('/;\s*\n/', $sql) ?: [];
+                foreach ($rawStatements as $raw) {
+                    $stmt = $this->stripLeadingCommentLines((string) $raw);
+                    $stmt = rtrim($stmt, ";\n\t ");
+                    if ($stmt === '') {
+                        continue;
+                    }
+                    try {
+                        DB::unprepared($stmt . ';');
+                    } catch (\Throwable $e) {
+                        // One bad statement should not abort the rest.
+                    }
+                }
+                // If the SQL seed produced the workflow, we are done.
+                if (DB::table('ahg_workflow')->where('name', $workflowName)->exists()) {
+                    return;
+                }
+            }
+        }
+
+        // Inline fallback - seed file missing or did not apply.
+        $workflowId = DB::table('ahg_workflow')->insertGetId([
+            'name' => $workflowName,
+            'description' => 'Routes promoted NER mentions assigned by an archivist through a single review step. Created by the AHG Authority Resolution Engine (Assign / Workflow feature).',
+            'scope_type' => 'global',
+            'scope_id' => null,
+            'trigger_event' => 'submit',
+            'applies_to' => 'ahg_mention',
+            'is_active' => 1,
+            'is_default' => 0,
+            'require_all_steps' => 1,
+            'allow_parallel' => 0,
+            'notification_enabled' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('ahg_workflow_step')->insert([
+            'workflow_id' => $workflowId,
+            'name' => 'Review',
+            'description' => 'Review the assigned mention and resolve it to an authority record (link / create / reject).',
+            'step_order' => 1,
+            'step_type' => 'review',
+            'action_required' => 'approve_reject',
+            'pool_enabled' => 1,
+            'notification_template' => 'default',
+            'instructions' => 'Open the mention in the Authority Resolution review screen, weigh the ranked candidates against the evidence packet, and record a link / create-new / reject decision.',
+            'is_optional' => 0,
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     private function autoSeedCandidateTopN(): void

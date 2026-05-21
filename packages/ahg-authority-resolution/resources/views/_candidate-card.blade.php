@@ -29,13 +29,17 @@
 
     $compositeScore = $candidate->composite_score !== null ? (float) $candidate->composite_score : null;
 
-    // Build the read-only "view authority" link.
+    // Build the read-only "view authority" link. Prefer the slug-based
+    // /{slug} catch-all URL (the same route IO show pages resolve through) -
+    // it is the only authority URL guaranteed to resolve in Heratio. The
+    // numeric /actor/{id} and /taxonomy/term/{id} routes are not registered,
+    // so fall through to those only when there is genuinely no slug.
+    $authoritySlug = $candidate->authority_slug ?? null;
+    $authorityName = trim((string) ($candidate->candidate_display_name ?? '')) ?: null;
     $authorityUrl = null;
     if ($candidate->candidate_authority_id) {
-        if ($candidate->candidate_source === 'mysql_actor' || $candidate->candidate_source === 'fuseki_agent') {
-            $authorityUrl = url('/actor/' . (int) $candidate->candidate_authority_id);
-        } elseif ($candidate->candidate_source === 'mysql_term' || $candidate->candidate_source === 'fuseki_place') {
-            $authorityUrl = url('/taxonomy/term/' . (int) $candidate->candidate_authority_id);
+        if ($authoritySlug) {
+            $authorityUrl = url('/' . $authoritySlug);
         }
     } elseif ($candidate->candidate_fuseki_uri) {
         $authorityUrl = $candidate->candidate_fuseki_uri;
@@ -75,7 +79,13 @@
             <span>
                 @if($candidate->candidate_authority_id !== null)
                     <i class="bi bi-person-badge text-muted me-1"></i>
-                    authority #{{ (int) $candidate->candidate_authority_id }}
+                    @if($authorityUrl)
+                        <a href="{{ $authorityUrl }}" target="_blank" rel="noopener">{{ $authorityName ?? ('authority #' . (int) $candidate->candidate_authority_id) }}</a>
+                    @elseif($authorityName)
+                        {{ $authorityName }}
+                    @else
+                        authority #{{ (int) $candidate->candidate_authority_id }}
+                    @endif
                 @elseif($candidate->candidate_fuseki_uri)
                     <i class="bi bi-link-45deg text-muted me-1"></i>
                     <code class="small">{{ $candidate->candidate_fuseki_uri }}</code>
@@ -110,11 +120,11 @@
         @if($authorityUrl)
             <a href="{{ $authorityUrl }}" target="_blank" rel="noopener"
                class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-eye me-1"></i>{{ __('View authority') }}
+                <i class="bi bi-eye me-1"></i>{{ $authorityName ?? __('View authority') }}
             </a>
         @elseif($candidate->candidate_authority_id !== null)
             <span class="text-muted small">
-                <i class="bi bi-person-badge me-1"></i>authority #{{ (int) $candidate->candidate_authority_id }}
+                <i class="bi bi-person-badge me-1"></i>{{ $authorityName ?? ('authority #' . (int) $candidate->candidate_authority_id) }}
             </span>
         @else
             <span class="text-muted small">No authority link available</span>
@@ -128,7 +138,8 @@
                  class="mt-2"
                  data-candidate-map="1"
                  data-display-name="{{ $candidate->candidate_display_name }}"
-                 style="height: 160px; border: 1px solid #dee2e6; border-radius: 4px;
+                 style="height: 160px; max-width: 100%; overflow: hidden; position: relative;
+                        border: 1px solid #dee2e6; border-radius: 4px;
                         display: flex; align-items: center; justify-content: center;
                         background: #f8f9fa; font-size: 0.75rem; color: #6c757d;">
                 Map preview (no coordinates available)

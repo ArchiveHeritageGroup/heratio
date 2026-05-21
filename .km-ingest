@@ -6,6 +6,7 @@
   "ingest": {
     "visibility_default": "internal",
     "doc_sources": [
+      { "path": "docs/help",            "category": "heratio-help",            "visibility": "external" },
       { "path": "docs/user-manual",     "category": "heratio-user-manual",     "visibility": "external" },
       { "path": "docs/install",         "category": "heratio-install",         "visibility": "external" },
       { "path": "docs/getting-started", "category": "heratio-getting-started", "visibility": "external" },

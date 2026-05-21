@@ -12,6 +12,7 @@
  * Licensed under the GNU AGPL v3.
  */
 
+use AhgAuthorityResolution\Http\Controllers\AssignmentController;
 use AhgAuthorityResolution\Http\Controllers\AuthorityReviewController;
 use AhgAuthorityResolution\Http\Controllers\ParkQueueController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,11 @@ Route::middleware(['web', 'admin'])
         Route::get('/review/{mention}', [AuthorityReviewController::class, 'show'])
             ->whereNumber('mention')
             ->name('review.show');
+
+        // "View full context" - full source text + highlight offsets as JSON.
+        Route::get('/review/{mention}/context', [AuthorityReviewController::class, 'context'])
+            ->whereNumber('mention')
+            ->name('review.context');
 
         Route::post('/review/{mention}/link', [AuthorityReviewController::class, 'link'])
             ->whereNumber('mention')->name('review.link');
@@ -57,4 +63,12 @@ Route::middleware(['web', 'admin'])
             ->whereNumber('mention')->name('park.unpark');
         Route::get('/park/dashboard.json', [ParkQueueController::class, 'dashboard'])
             ->name('park.dashboard');
+
+        // Assign / Workflow feature: route mentions through ahg-workflow.
+        Route::post('/review/{mention}/assign', [AssignmentController::class, 'assignFromReview'])
+            ->whereNumber('mention')->name('review.assign');
+        Route::post('/queue/assign', [AssignmentController::class, 'assignFromQueue'])
+            ->name('queue.assign');
+        Route::get('/archivists.json', [AssignmentController::class, 'archivistsJson'])
+            ->name('archivists.json');
     });

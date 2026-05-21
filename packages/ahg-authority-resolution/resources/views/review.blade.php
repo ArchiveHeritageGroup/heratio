@@ -17,6 +17,20 @@
               integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
               crossorigin="">
     @endif
+    <style nonce="{{ function_exists('csp_nonce') ? csp_nonce() : '' }}">
+        /* "View full context" modal: paragraph shading + mention highlight. */
+        #ar-context-modal .ar-context-para {
+            background-color: rgba(13, 110, 253, .08);
+            border-radius: .2rem;
+            box-shadow: 0 0 0 .15rem rgba(13, 110, 253, .08);
+        }
+        #ar-context-modal .ar-context-mark {
+            background-color: #ffe066;
+            padding: .05rem .1rem;
+            border-radius: .15rem;
+            font-weight: 600;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -130,8 +144,13 @@
             </div>
 
             <div class="card mb-3">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <strong><i class="bi bi-text-paragraph me-1"></i>{{ __('Context window') }}</strong>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            data-bs-toggle="modal" data-bs-target="#ar-context-modal">
+                        <i class="bi bi-file-text me-1"></i>{{ __('View full context') }}
+                    </button>
                 </div>
                 <div class="card-body">
                     @if(!$context)
@@ -287,6 +306,24 @@
                 </div>
                 <div class="card-body d-grid gap-2">
 
+                    {{-- Assign / Workflow feature: current assignee + Assign button --}}
+                    @if(!empty($mention->assigned_to_user_id))
+                        <div class="alert alert-secondary py-2 mb-0 small">
+                            <i class="bi bi-person-check me-1"></i>
+                            {{ __('Assigned to') }}:
+                            <strong>{{ $currentAssigneeName ?? ('User #' . (int) $mention->assigned_to_user_id) }}</strong>
+                            @if(!empty($mention->workflow_task_id))
+                                <br><span class="text-muted">{{ __('Workflow task') }} #{{ (int) $mention->workflow_task_id }}</span>
+                            @endif
+                        </div>
+                    @endif
+
+                    <button type="button"
+                            class="btn btn-outline-primary w-100"
+                            data-bs-toggle="modal" data-bs-target="#ar-assign-modal">
+                        <i class="bi bi-person-check me-1"></i>{{ !empty($mention->assigned_to_user_id) ? __('Re-assign') : __('Assign') }}
+                    </button>
+
                     @if($mention->state === 'pending')
 
                         {{-- 1. Link to selected candidate --}}
@@ -360,6 +397,8 @@
 @include('auth-res::_link-different-modal', ['mention' => $mention])
 @include('auth-res::_park-modal',            ['mention' => $mention])
 @include('auth-res::_reject-modal',          ['mention' => $mention])
+@include('auth-res::_assign-modal',          ['mention' => $mention, 'archivists' => $archivists, 'currentAssigneeName' => $currentAssigneeName])
+@include('auth-res::_context-modal',         ['mention' => $mention])
 
 @push('js')
     @if($isPlace)
@@ -430,6 +469,126 @@
                 debounceTimer = setTimeout(doSearch, 250);
             });
         }
+
+        // ---- "View full context" modal ----
+        // On first open of #ar-context-modal, fetch the full source text +
+        // offsets, then render with the mention span <mark>'d and its
+        // paragraph shaded. Slice the RAW string into five pieces, HTML-escape
+        // each piece independently, then concatenate with the wrapper tags -
+        // this keeps offset math on the raw string while the output is safe.
+        (function () {
+            var ctxModalEl = document.getElementById('ar-context-modal');
+            if (!ctxModalEl) { return; }
+
+            var contextUrl = {!! json_encode(route('auth-res.review.context', ['mention' => $mention->id])) !!};
+            var elLoading  = document.getElementById('ar-context-loading');
+            var elError    = document.getElementById('ar-context-error');
+            var elNoOffset = document.getElementById('ar-context-nooffset');
+            var elText     = document.getElementById('ar-context-text');
+            var elBody     = document.getElementById('ar-context-body');
+            var elEmpty    = document.getElementById('ar-context-empty');
+            var elMeta     = document.getElementById('ar-context-meta');
+            var loaded     = false;
+
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>"']/g, function (c) {
+                    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+                });
+            }
+
+            // Clamp an offset into [0, len].
+            function clamp(n, len) {
+                if (typeof n !== 'number' || isNaN(n)) { return null; }
+                if (n < 0) { return 0; }
+                if (n > len) { return len; }
+                return n;
+            }
+
+            function render(data) {
+                var text = (data && typeof data.source_text === 'string') ? data.source_text : '';
+
+                if (text === '') {
+                    elEmpty.classList.remove('d-none');
+                    return;
+                }
+
+                var len = text.length;
+                var cs = clamp(data.offset_start, len);
+                var ce = clamp(data.offset_end, len);
+                var ps = clamp(data.paragraph_start, len);
+                var pe = clamp(data.paragraph_end, len);
+
+                var haveMark = (cs !== null && ce !== null && ce > cs);
+                // Paragraph wrapper only when it is a valid range that
+                // actually contains the mention span.
+                var havePara = (ps !== null && pe !== null && pe > ps
+                                && haveMark && ps <= cs && pe >= ce);
+
+                var html;
+                if (!haveMark) {
+                    // No usable offsets - show plain text, note the omission.
+                    elNoOffset.classList.remove('d-none');
+                    html = escapeHtml(text);
+                    elMeta.textContent = String(len) + ' ' + {!! json_encode(__('characters')) !!};
+                } else if (havePara) {
+                    // [before-para][para-before-mark][mark][para-after-mark][after-para]
+                    html = escapeHtml(text.slice(0, ps))
+                        + '<span class="ar-context-para">'
+                        + escapeHtml(text.slice(ps, cs))
+                        + '<mark class="ar-context-mark">' + escapeHtml(text.slice(cs, ce)) + '</mark>'
+                        + escapeHtml(text.slice(ce, pe))
+                        + '</span>'
+                        + escapeHtml(text.slice(pe));
+                    elMeta.textContent =
+                        {!! json_encode(__('Mention at')) !!} + ' ' + cs + '-' + ce
+                        + ' / ' + {!! json_encode(__('paragraph')) !!} + ' ' + ps + '-' + pe;
+                } else {
+                    // Mark only (paragraph range missing or inconsistent).
+                    html = escapeHtml(text.slice(0, cs))
+                        + '<mark class="ar-context-mark">' + escapeHtml(text.slice(cs, ce)) + '</mark>'
+                        + escapeHtml(text.slice(ce));
+                    elMeta.textContent =
+                        {!! json_encode(__('Mention at')) !!} + ' ' + cs + '-' + ce;
+                }
+
+                elBody.innerHTML = html;
+                elText.classList.remove('d-none');
+
+                // Scroll the highlighted mention into view inside the box.
+                var markEl = elBody.querySelector('.ar-context-mark');
+                if (markEl && markEl.scrollIntoView) {
+                    try { markEl.scrollIntoView({ block: 'center' }); } catch (e) {}
+                }
+            }
+
+            function load() {
+                if (loaded) { return; }
+                loaded = true;
+                fetch(contextUrl, {
+                    credentials: 'same-origin',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                })
+                .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+                .then(function (res) {
+                    elLoading.classList.add('d-none');
+                    if (!res.ok || !res.body || !res.body.ok) {
+                        elError.textContent = (res.body && res.body.error)
+                            ? res.body.error
+                            : {!! json_encode(__('Could not load the source text.')) !!};
+                        elError.classList.remove('d-none');
+                        return;
+                    }
+                    render(res.body);
+                })
+                .catch(function () {
+                    elLoading.classList.add('d-none');
+                    elError.textContent = {!! json_encode(__('Could not load the source text.')) !!};
+                    elError.classList.remove('d-none');
+                });
+            }
+
+            ctxModalEl.addEventListener('show.bs.modal', load);
+        })();
 
         // ---- Leaflet placeholders ----
         // Best-effort: term schema has no lat/long columns so this initialises a

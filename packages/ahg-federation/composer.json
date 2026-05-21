@@ -5,7 +5,9 @@
     "require": {
         "ahg/core": "@dev",
         "ahg/information-object-manage": "@dev",
-        "ahg/term-taxonomy": "@dev"
+        "ahg/term-taxonomy": "@dev",
+        "ahg/search": "@dev",
+        "ahg/sharepoint": "@dev"
     },
     "autoload": {
         "psr-4": {

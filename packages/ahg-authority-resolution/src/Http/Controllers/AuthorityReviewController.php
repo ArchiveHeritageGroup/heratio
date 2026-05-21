@@ -22,10 +22,12 @@ namespace AhgAuthorityResolution\Http\Controllers;
 
 use AhgAuthorityResolution\Services\Adapters\MysqlActorAdapter;
 use AhgAuthorityResolution\Services\Adapters\MysqlTermAdapter;
+use AhgAuthorityResolution\Services\AssignmentService;
 use AhgAuthorityResolution\Services\AuthorityCreator;
 use AhgAuthorityResolution\Services\DecisionRecorder;
 use AhgAuthorityResolution\Services\FieldProvenanceWriter;
 use AhgAuthorityResolution\Services\Lookup\PrefillEngine;
+use AhgAuthorityResolution\Services\PromoteToMentionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -50,6 +52,8 @@ class AuthorityReviewController extends Controller
         private PrefillEngine $prefillEngine,
         private AuthorityCreator $authorityCreator,
         private FieldProvenanceWriter $fieldProvenanceWriter,
+        private AssignmentService $assignments,
+        private PromoteToMentionService $promoter,
     ) {}
 
     /**
@@ -63,23 +67,55 @@ class AuthorityReviewController extends Controller
         $objectId = (int) $request->query('object_id', 0);
         $state = trim((string) $request->query('state', 'pending'));
 
+        // Build the filtered-set base query once; reused for the visible page,
+        // the total count, and the "select all N matching the filter" id list.
+        $applyFilters = function ($query) use ($state, $entityType, $objectId) {
+            if ($state !== '' && $state !== 'any') {
+                $query->where('m.state', $state);
+            }
+            if ($entityType !== '') {
+                $query->where('m.entity_type', $entityType);
+            }
+            if ($objectId > 0) {
+                $query->where('m.object_id', $objectId);
+            }
+            return $query;
+        };
+
+        // Source-object subquery: one Master digital-object row per IO. usage_id
+        // 140 = "Master" in the term taxonomy. MIN(id) keeps a single row even
+        // in the unlikely event of two masters on one IO.
+        $masterDo = DB::table('digital_object')
+            ->select('object_id', DB::raw('MIN(id) AS do_id'))
+            ->where('usage_id', 140)
+            ->groupBy('object_id');
+
         $q = DB::table('ahg_mention as m')
             ->join('ahg_ner_entity as n', 'n.id', '=', 'm.ner_entity_id')
             ->leftJoin(DB::raw('(SELECT mention_id, COUNT(*) AS c FROM ahg_mention_candidate GROUP BY mention_id) AS cc'), 'cc.mention_id', '=', 'm.id')
+            ->leftJoin('information_object as io', 'io.id', '=', 'm.object_id')
+            ->leftJoin('slug as s', 's.object_id', '=', 'm.object_id')
+            ->leftJoinSub($masterDo, 'md', 'md.object_id', '=', 'm.object_id')
+            ->leftJoin('digital_object as d', 'd.id', '=', 'md.do_id')
             ->select('m.id', 'm.entity_type', 'm.state', 'm.object_id', 'm.promoted_at',
-                     'n.entity_value', 'n.confidence', DB::raw('COALESCE(cc.c, 0) AS candidate_count'));
-
-        if ($state !== '' && $state !== 'any') {
-            $q->where('m.state', $state);
-        }
-        if ($entityType !== '') {
-            $q->where('m.entity_type', $entityType);
-        }
-        if ($objectId > 0) {
-            $q->where('m.object_id', $objectId);
-        }
+                     'm.assigned_to_user_id', 'm.workflow_task_id',
+                     'n.entity_value', 'n.confidence', DB::raw('COALESCE(cc.c, 0) AS candidate_count'),
+                     's.slug as io_slug', 'io.identifier as io_identifier',
+                     'd.mime_type as do_mime_type', 'd.name as do_name');
+        $applyFilters($q);
 
         $rows = $q->orderBy('m.id')->limit(200)->get();
+
+        // Total rows matching the current filter (drives "select all N").
+        $filteredTotal = $applyFilters(DB::table('ahg_mention as m'))->count();
+
+        // Every mention id matching the current filter - the batch-assign
+        // "select all matching" link uses this to target the whole set.
+        $allFilteredIds = $applyFilters(DB::table('ahg_mention as m'))
+            ->orderBy('m.id')
+            ->pluck('m.id')
+            ->map(fn($v) => (int) $v)
+            ->all();
 
         $counts = DB::table('ahg_mention')
             ->select('state', DB::raw('COUNT(*) AS c'))
@@ -87,12 +123,38 @@ class AuthorityReviewController extends Controller
             ->pluck('c', 'state')
             ->all();
 
+        // Assignee display names for the "Assigned to" column.
+        $assigneeIds = array_values(array_unique(array_filter(array_map(
+            fn($r) => (int) ($r->assigned_to_user_id ?? 0),
+            $rows->all()
+        ))));
+        $assigneeNames = [];
+        if (!empty($assigneeIds)) {
+            $assigneeNames = DB::table('user')
+                ->leftJoin('actor_i18n', function ($join) {
+                    $join->on('user.id', '=', 'actor_i18n.id')
+                        ->where('actor_i18n.culture', '=', 'en');
+                })
+                ->whereIn('user.id', $assigneeIds)
+                ->get(['user.id', 'user.username', 'actor_i18n.authorized_form_of_name as display_name'])
+                ->mapWithKeys(function ($u) {
+                    $name = trim((string) ($u->display_name ?? ''))
+                        ?: (trim((string) ($u->username ?? '')) ?: ('User #' . (int) $u->id));
+                    return [(int) $u->id => $name];
+                })
+                ->all();
+        }
+
         return view('auth-res::queue', [
             'rows' => $rows,
             'counts' => $counts,
             'filterEntityType' => $entityType,
             'filterObjectId' => $objectId,
             'filterState' => $state,
+            'filteredTotal' => $filteredTotal,
+            'allFilteredIds' => $allFilteredIds,
+            'assigneeNames' => $assigneeNames,
+            'archivists' => $this->assignments->archivists(),
         ]);
     }
 
@@ -107,10 +169,16 @@ class AuthorityReviewController extends Controller
         }
 
         $context = DB::table('ahg_mention_context')->where('mention_id', $mention)->first();
-        $candidates = DB::table('ahg_mention_candidate')
-            ->where('mention_id', $mention)
-            ->orderByDesc('composite_score')
-            ->orderBy('rank_position')
+        // Candidate rows. LEFT JOIN slug so every candidate that points at a
+        // resolved Qubit object (actor OR taxonomy term - both carry a slug
+        // row) gets an authority_slug. The candidate card uses this to render
+        // a working /{slug} link instead of a dead "authority #N" string.
+        $candidates = DB::table('ahg_mention_candidate as mc')
+            ->leftJoin('slug as authslug', 'authslug.object_id', '=', 'mc.candidate_authority_id')
+            ->where('mc.mention_id', $mention)
+            ->orderByDesc('mc.composite_score')
+            ->orderBy('mc.rank_position')
+            ->select('mc.*', 'authslug.slug as authority_slug')
             ->get();
 
         // Decode JSON blobs once for the view.
@@ -149,6 +217,33 @@ class AuthorityReviewController extends Controller
             ->first();
         $ioSlug = $ioSlugRow->slug ?? null;
 
+        // Assign / Workflow feature: archivist picker + current-assignee name.
+        $archivists = $this->assignments->archivists();
+        $currentAssigneeName = null;
+        if (!empty($row->assigned_to_user_id)) {
+            foreach ($archivists as $a) {
+                if ((int) $a['id'] === (int) $row->assigned_to_user_id) {
+                    $currentAssigneeName = $a['name'];
+                    break;
+                }
+            }
+            if ($currentAssigneeName === null) {
+                // Assignee not in the eligible list (role changed, etc.).
+                $u = DB::table('user')
+                    ->leftJoin('actor_i18n', function ($join) {
+                        $join->on('user.id', '=', 'actor_i18n.id')
+                            ->where('actor_i18n.culture', '=', 'en');
+                    })
+                    ->where('user.id', (int) $row->assigned_to_user_id)
+                    ->select('user.username', 'actor_i18n.authorized_form_of_name as display_name')
+                    ->first();
+                if ($u) {
+                    $currentAssigneeName = trim((string) ($u->display_name ?? ''))
+                        ?: (trim((string) ($u->username ?? '')) ?: ('User #' . (int) $row->assigned_to_user_id));
+                }
+            }
+        }
+
         return view('auth-res::review', [
             'mention' => $row,
             'context' => $context,
@@ -161,7 +256,101 @@ class AuthorityReviewController extends Controller
             'nextMentionId' => $next,
             'ioSlug' => $ioSlug,
             'isPlace' => in_array($row->entity_type, self::PLACE_TYPES, true),
+            'archivists' => $archivists,
+            'currentAssigneeName' => $currentAssigneeName,
         ]);
+    }
+
+    /**
+     * GET /admin/authority-resolution/review/{mention}/context
+     *
+     * "View full context" feature. Returns the full source text of the
+     * mention's information object (the same IO-i18n concatenation the
+     * promote pipeline runs against) plus the character / paragraph offsets
+     * recorded in ahg_mention_context. The review-screen modal renders the
+     * text and highlights the mention span.
+     *
+     * Offsets are nullable: when the on-demand backfill found no exact match
+     * (or NER ran against digital-object content) ahg_mention_context carries
+     * NULL offsets. The response still returns the full source_text so the
+     * archivist can read the document; the frontend just omits the <mark>.
+     *
+     * Offset units: ahg_mention_context stores BYTE offsets (ContextDerivation
+     * Service derives them with the byte-based strpos / substr family). A
+     * browser's String.slice() operates on UTF-16 code units, so the raw byte
+     * offsets would land mid-character on any multibyte text. We therefore
+     * convert each byte offset to a UTF-16 code-unit offset here, server-side,
+     * so the frontend can splice the highlight with a plain String.slice().
+     */
+    public function context(int $mention): JsonResponse
+    {
+        $row = DB::table('ahg_mention as m')
+            ->join('ahg_ner_entity as n', 'n.id', '=', 'm.ner_entity_id')
+            ->where('m.id', $mention)
+            ->first(['m.id', 'm.object_id', 'n.entity_value']);
+
+        if (!$row) {
+            return response()->json(['ok' => false, 'error' => 'Mention not found.'], 404);
+        }
+
+        $context = DB::table('ahg_mention_context')
+            ->where('mention_id', $mention)
+            ->first([
+                'character_offset_start',
+                'character_offset_end',
+                'paragraph_offset_start',
+                'paragraph_offset_end',
+            ]);
+
+        $sourceText = $this->promoter->fetchSourceText((int) $row->object_id);
+
+        $byteCol = function ($v): ?int {
+            return $v !== null ? (int) $v : null;
+        };
+
+        return response()->json([
+            'ok' => true,
+            'source_text' => $sourceText,
+            'offset_start' => $this->byteToUtf16Offset($sourceText, $byteCol($context->character_offset_start ?? null)),
+            'offset_end' => $this->byteToUtf16Offset($sourceText, $byteCol($context->character_offset_end ?? null)),
+            'paragraph_start' => $this->byteToUtf16Offset($sourceText, $byteCol($context->paragraph_offset_start ?? null)),
+            'paragraph_end' => $this->byteToUtf16Offset($sourceText, $byteCol($context->paragraph_offset_end ?? null)),
+            'entity_value' => (string) $row->entity_value,
+        ]);
+    }
+
+    /**
+     * Convert a byte offset into a JavaScript String index (UTF-16 code-unit
+     * count of the byte-prefix). Returns null for a null input. Out-of-range
+     * byte offsets are clamped to the string length so the frontend never
+     * receives an offset past end-of-text.
+     */
+    private function byteToUtf16Offset(string $text, ?int $byteOffset): ?int
+    {
+        if ($byteOffset === null) {
+            return null;
+        }
+        if ($byteOffset <= 0) {
+            return 0;
+        }
+        $byteLen = strlen($text);
+        if ($byteOffset >= $byteLen) {
+            $prefix = $text;
+        } else {
+            $prefix = substr($text, 0, $byteOffset);
+            // The byte offset may land mid-character (paragraph offsets come
+            // from regex match positions). Trim any dangling continuation
+            // bytes so the codepoint count below is exact.
+            $prefix = mb_strcut($prefix, 0, strlen($prefix), 'UTF-8');
+        }
+        // UTF-16 code-unit count: one unit per BMP codepoint, two per astral
+        // (>= U+10000) codepoint. mb_str_split keeps it simple and correct.
+        $units = 0;
+        foreach (mb_str_split($prefix, 1, 'UTF-8') as $ch) {
+            $cp = mb_ord($ch, 'UTF-8');
+            $units += ($cp !== false && $cp >= 0x10000) ? 2 : 1;
+        }
+        return $units;
     }
 
     /**
@@ -525,6 +714,10 @@ class AuthorityReviewController extends Controller
                 'm.object_id',
                 'm.promoted_at',
                 'm.ner_entity_id',
+                'm.assigned_to_user_id',
+                'm.assigned_by_user_id',
+                'm.assigned_at',
+                'm.workflow_task_id',
                 'n.entity_value',
                 'n.confidence',
                 'n.linked_actor_id',
