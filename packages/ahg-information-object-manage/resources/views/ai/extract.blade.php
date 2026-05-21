@@ -38,7 +38,7 @@
 @endsection
 
 @push('js')
-<script>
+<script nonce="{{ csp_nonce() }}">
 function extractEntities(objectId) {
     const btn = document.getElementById('nerExtractBtn');
     btn.disabled = true;

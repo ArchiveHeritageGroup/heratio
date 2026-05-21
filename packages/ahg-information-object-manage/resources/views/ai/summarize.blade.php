@@ -30,7 +30,7 @@
 @endsection
 
 @push('js')
-<script>
+<script nonce="{{ csp_nonce() }}">
 document.getElementById('generate-summary-btn')?.addEventListener('click', function () {
     const btn = this;
     const id  = btn.dataset.objectId;
