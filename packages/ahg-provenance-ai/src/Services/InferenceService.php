@@ -82,6 +82,25 @@ class InferenceService
             'updated_at'          => $now,
         ]);
 
+        // heratio#136 - Ed25519-sign the canonical manifest of this inference.
+        // Opt-in: a no-op until `ahg:provenance-ai:keygen` has created a
+        // keypair. Best-effort and self-contained - like the Fuseki write
+        // below, a signing failure must never poison the AI service caller.
+        try {
+            $signer    = app(InferenceSigner::class);
+            $signature = $signer->sign($this->buildManifest($id, $uuid, $now, $r));
+            if ($signature !== null) {
+                DB::table('ahg_ai_inference')->where('id', $id)->update([
+                    'signature'     => $signature,
+                    'signer_key_id' => $signer->keyId(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-provenance-ai] inference signing failed: ' . $e->getMessage(), [
+                'inference_id' => $id,
+            ]);
+        }
+
         // Phase 3a: write the canonical RDF-Star annotation to Fuseki.
         $this->writeRdfStarAnnotation($id, $uuid, $r);
 
@@ -91,6 +110,28 @@ class InferenceService
         $this->maybeEnqueueReview($id, $r);
 
         return ['id' => $id, 'uuid' => $uuid];
+    }
+
+    /**
+     * The canonical manifest signed for heratio#136. The field set is fixed
+     * and must match what a verifier reconstructs. occurred_at is passed in
+     * so the signed timestamp is byte-identical to the persisted column.
+     * (model_manifest joins this set once heratio#135 adds the column.)
+     */
+    private function buildManifest(int $id, string $uuid, $occurredAt, InferenceRecord $r): array
+    {
+        return [
+            'id'            => $id,
+            'uuid'          => $uuid,
+            'occurred_at'   => (string) $occurredAt,
+            'service_name'  => $r->serviceName,
+            'model_name'    => $r->modelName,
+            'model_version' => $r->modelVersion,
+            'input_hash'    => $r->inputHash,
+            'output_hash'   => $r->outputHash,
+            'confidence'    => $r->confidence,
+            'target'        => $r->targetEntityType . ':' . $r->targetEntityId . ':' . $r->targetField,
+        ];
     }
 
     /**

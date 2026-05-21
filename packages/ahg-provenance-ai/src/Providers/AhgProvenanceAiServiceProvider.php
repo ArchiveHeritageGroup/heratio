@@ -68,6 +68,7 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgProvenanceAi\Console\Commands\FusekiReplayCommand::class,
+                \AhgProvenanceAi\Console\Commands\KeygenCommand::class,
             ]);
             $this->app->booted(function () {
                 $schedule = $this->app->make(\Illuminate\Console\Scheduling\Schedule::class);
@@ -100,12 +101,20 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
     protected function ensureSchema(): void
     {
         try {
-            if (Schema::hasTable('ahg_ai_inference') && Schema::hasTable('ahg_ai_override')) {
-                return;
+            if (!Schema::hasTable('ahg_ai_inference') || !Schema::hasTable('ahg_ai_override')) {
+                $sql = @file_get_contents(__DIR__ . '/../../database/install.sql');
+                if (is_string($sql) && $sql !== '') {
+                    DB::unprepared($sql);
+                }
             }
-            $sql = @file_get_contents(__DIR__ . '/../../database/install.sql');
-            if (is_string($sql) && $sql !== '') {
-                DB::unprepared($sql);
+            // heratio#136 - Ed25519 signature columns. install.sql uses
+            // CREATE TABLE IF NOT EXISTS, so an already-created table needs
+            // an explicit, idempotent ALTER for the new columns.
+            if (Schema::hasTable('ahg_ai_inference') && !Schema::hasColumn('ahg_ai_inference', 'signature')) {
+                Schema::table('ahg_ai_inference', function ($table) {
+                    $table->text('signature')->nullable()->after('fuseki_graph_uri');
+                    $table->string('signer_key_id', 64)->nullable()->after('signature');
+                });
             }
         } catch (\Throwable $e) {
             \Log::warning('[ahg-provenance-ai] auto-install failed: ' . $e->getMessage());
