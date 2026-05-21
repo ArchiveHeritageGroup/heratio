@@ -121,11 +121,11 @@ class GovernanceController extends Controller
             ->get([
                 'id', 'uuid', 'service_name', 'model_name', 'model_version',
                 'confidence', 'standard', 'target_entity_type', 'target_entity_id',
-                'target_field', 'elapsed_ms', 'occurred_at',
+                'target_field', 'elapsed_ms', 'occurred_at', 'signer_key_id',
             ])
             ->map(function ($row) {
-                // heratio#136 - Ed25519 manifest signing not yet wired.
-                $row->signed = false;
+                // heratio#136 - signed once an Ed25519 signature was recorded.
+                $row->signed = !empty($row->signer_key_id);
                 return $row;
             })
             ->values()
