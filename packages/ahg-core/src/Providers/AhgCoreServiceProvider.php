@@ -233,6 +233,8 @@ class AhgCoreServiceProvider extends ServiceProvider
                 // #67 AHG Central
                 \AhgCore\Console\Commands\AhgCentralPingCommand::class,
                 \AhgCore\Console\Commands\AhgCentralHeartbeatCommand::class,
+                // #127 AHG Central error-log sync
+                \AhgCore\Console\Commands\AhgCentralSyncErrorsCommand::class,
 
                 // #125 derivative encryption bulk-apply
                 \AhgCore\Commands\EncryptionDerivativesBulkApplyCommand::class,
@@ -269,6 +271,15 @@ class AhgCoreServiceProvider extends ServiceProvider
                 $schedule->command('ahg:central-heartbeat')
                     ->dailyAt('05:00')
                     ->withoutOverlapping(60);
+
+                // #127 AHG Central error-log sync. Hourly so fleet errors
+                // surface on the central.theahg.co.za dashboard with low
+                // latency. The command self-gates on ahg_central_enabled AND
+                // ahg_central_error_sync, so the schedule fires harmlessly
+                // when either toggle is off.
+                $schedule->command('ahg:central-sync-errors')
+                    ->hourly()
+                    ->withoutOverlapping(120);
 
                 // #125 derivative encryption: daily walk over digital_object
                 // rows + encrypt unencrypted files when the operator has
@@ -308,6 +319,52 @@ class AhgCoreServiceProvider extends ServiceProvider
                 }
             } catch (\Throwable $e) {
                 // is_locked column missing on older installs - ignore.
+            }
+        }
+
+        // #127 AHG Central auto-commissioning. Seed the ahg_central_* rows so
+        // a fresh install heartbeats + (optionally) error-syncs without an
+        // operator touching the settings form. INSERT-if-missing only - an
+        // operator's saved value is never overwritten. ahg_central_enabled is
+        // seeded ON only when a fleet enrolment key is present (config <- the
+        // .env AHG_CENTRAL_API_KEY); an install with no key stays quiet rather
+        // than phoning home. Console-only + idempotent, like the block above.
+        if ($this->app->runningInConsole()) {
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasTable('ahg_settings')) {
+                    $centralUrl = rtrim((string) config('heratio.central.api_url', 'https://central.theahg.co.za/api/v1'), '/');
+                    $centralKey = (string) config('heratio.central.api_key', '');
+                    $host = strtolower((string) (gethostname() ?: 'unknown'));
+                    $host = preg_replace('/[^a-z0-9._-]/', '-', $host) ?: 'unknown';
+
+                    $centralDefaults = [
+                        'ahg_central_enabled'       => $centralKey !== '' ? '1' : '0',
+                        'ahg_central_api_url'       => $centralUrl,
+                        'ahg_central_api_key'       => $centralKey,
+                        'ahg_central_site_id'       => 'heratio-' . $host,
+                        'ahg_central_error_sync'    => '0',
+                        'ahg_central_last_error_id' => '0',
+                    ];
+                    $existing = \Illuminate\Support\Facades\DB::table('ahg_settings')
+                        ->where('setting_key', 'like', 'ahg_central%')
+                        ->pluck('setting_key')
+                        ->all();
+                    foreach ($centralDefaults as $key => $value) {
+                        if (in_array($key, $existing, true)) {
+                            continue;
+                        }
+                        \Illuminate\Support\Facades\DB::table('ahg_settings')->insert([
+                            'setting_key'   => $key,
+                            'setting_value' => $value,
+                            'setting_type'  => in_array($key, ['ahg_central_enabled', 'ahg_central_error_sync'], true) ? 'boolean' : 'string',
+                            'setting_group' => 'ahg_central',
+                            'is_locked'     => 0,
+                        ]);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // ahg_settings missing / column drift - the client still works
+                // off config defaults; the seed retries on the next console run.
             }
         }
 

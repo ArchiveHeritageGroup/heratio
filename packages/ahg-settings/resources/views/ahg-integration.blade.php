@@ -50,13 +50,14 @@
         <h5 class="mb-0"><i class="fas fa-cloud me-2"></i>{{ __('About AHG Central') }}</h5>
       </div>
       <div class="card-body">
-        <p class="mb-2">AHG Central is a planned cloud service from The Archive and Heritage Group that will enhance your instance with:</p>
+        <p class="mb-2">AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:</p>
         <ul class="mb-3">
+          <li><strong>{{ __('Fleet Monitoring') }}</strong> - A heartbeat + version + error-log view of every connected instance</li>
           <li><strong>{{ __('Shared NER Training') }}</strong> - Contribute and benefit from a community-trained Named Entity Recognition model</li>
           <li><strong>{{ __('Future AI Services') }}</strong> - Access to upcoming cloud-based AI features</li>
           <li><strong>{{ __('Usage Analytics') }}</strong> - Optional aggregate statistics to improve the platform</li>
         </ul>
-        <div class="alert alert-info small mb-2 mt-3"><i class="fas fa-info-circle me-1"></i><strong>Status (May 2026):</strong> the client integration shipped in v1.53.10 - this form, the <code>AhgCentralService</code> class, the <code>ahg:central-ping</code> + <code>ahg:central-heartbeat</code> artisan commands, and the daily 05:00 heartbeat schedule are all live. The <strong>cloud endpoint at central.theahg.co.za is not yet running</strong> - DNS does not resolve as of the May 2026 audit. Enabling the toggle and saving credentials is harmless (the heartbeat fails non-fatally and logs a warning), but no data flows in or out until the server side ships. Tracked in the cloud-service follow-up issue.</div>
+        <div class="alert alert-success small mb-2 mt-3"><i class="fas fa-check-circle me-1"></i><strong>Status (May 2026):</strong> AHG Central is <strong>live at central.theahg.co.za</strong>. The client integration - this form, the <code>AhgCentralService</code> class, and the <code>ahg:central-ping</code> / <code>ahg:central-heartbeat</code> / <code>ahg:central-sync-errors</code> artisan commands - is wired to it. Onboarding is automatic: a fresh install carrying the fleet key auto-enrols on its first heartbeat, with no registration step. Error-log sync (below) is opt-in.</div>
         <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i>Note: This is separate from local AI services configured in the AI Services settings. Local AI services run on your own infrastructure while AHG Central is a cloud service.</p>
       </div>
     </div>
@@ -101,8 +102,18 @@
 
           <div class="mb-3">
             <label for="ahg_central_site_id" class="form-label">{{ __('Site ID') }}</label>
-            <input type="text" name="settings[ahg_central_site_id]" id="ahg_central_site_id" class="form-control" value="{{ $settings['ahg_central_site_id'] ?? '' }}" {{ $allLocked ? 'readonly' : '' }}>
-            <div class="form-text">Unique identifier for this Heratio instance when communicating with AHG Central.</div>
+            <input type="text" name="settings[ahg_central_site_id]" id="ahg_central_site_id" class="form-control" value="{{ $settings['ahg_central_site_id'] ?? '' }}" placeholder="{{ __('Auto-derived from this server\'s hostname') }}" {{ $allLocked ? 'readonly' : '' }}>
+            <div class="form-text">Unique identifier for this Heratio instance when communicating with AHG Central. Leave blank to auto-derive it from the hostname.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="ahg_central_error_sync" class="form-label">{{ __('Sync Error Logs to AHG Central') }}</label>
+            <div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="settings[ahg_central_error_sync]" id="ahg_central_error_sync" value="1" {{ ($settings['ahg_central_error_sync'] ?? '0') == '1' ? 'checked' : '' }} {{ $disabledAttr }}>
+                <label class="form-check-label" for="ahg_central_error_sync">{{ __('Push this instance\'s error log to the AHG Central fleet dashboard. Entries are redacted - email addresses and long number sequences are masked, and URL query strings stripped - before they leave this server. Off by default: error logs can carry sensitive detail.') }}</label>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -247,6 +247,13 @@ else
     ensure_env SESSION_HTTP_ONLY     true
     ensure_env SESSION_SAME_SITE     lax
 
+    # AHG Central (heratio#127). The URL is public; the fleet enrolment key is
+    # taken from the environment at install time and never committed - export
+    # AHG_CENTRAL_API_KEY before running this script to auto-commission the
+    # install onto central.theahg.co.za. Left blank, the install stays quiet.
+    ensure_env AHG_CENTRAL_API_URL   "https://central.theahg.co.za/api/v1"
+    ensure_env AHG_CENTRAL_API_KEY   "${AHG_CENTRAL_API_KEY:-}"
+
     chmod 640 .env
     chown root:www-data .env 2>/dev/null || true
 

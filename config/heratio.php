@@ -137,4 +137,28 @@ return [
     */
     'fuseki_endpoint'       => env('FUSEKI_ENDPOINT', 'http://localhost:3030/openric-model'),
     'ric_sparql_via_python' => env('RIC_SPARQL_VIA_PYTHON', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | AHG Central (heratio#127)
+    |--------------------------------------------------------------------------
+    |
+    | Cloud registry / heartbeat / fleet-monitoring service. The client
+    | (AhgCore\Services\AhgCentralService) reads the per-install ahg_central_*
+    | rows from ahg_settings; these two values are the deploy-time defaults the
+    | install process (bin/install / docker/init.sh) seeds into .env so a fresh
+    | install auto-commissions without an operator touching the settings form.
+    |
+    | AHG_CENTRAL_API_URL - the Central API base. Public; safe to default.
+    | AHG_CENTRAL_API_KEY - the shared fleet enrolment key. NEVER committed -
+    |                       it is supplied per deploy via the environment and
+    |                       lands in .env only. Empty here by design: an
+    |                       install with no key stays quiet (does not phone
+    |                       home); one carrying the fleet key auto-enrols.
+    |
+    */
+    'central' => [
+        'api_url' => env('AHG_CENTRAL_API_URL', 'https://central.theahg.co.za/api/v1'),
+        'api_key' => env('AHG_CENTRAL_API_KEY', ''),
+    ],
 ];

@@ -29,52 +29,97 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Outbound client for the optional "AHG Central" cloud-side aggregator.
+ * Outbound client for the AHG Central cloud service (heratio#127 / #67).
  *
- * Closes #67 (the four ahg_central_* settings now have a real consumer):
- *   - ahg_central_enabled  -> isEnabled() gates every outbound call AND the
- *                             daily heartbeat schedule
- *   - ahg_central_api_url  -> apiUrl() / endpoint() build target URLs
- *   - ahg_central_api_key  -> apiKey() carried as Authorization Bearer
- *   - ahg_central_site_id  -> siteId() included in heartbeat + sync payloads
+ * AHG Central (central.theahg.co.za) is the fleet registry + heartbeat +
+ * error-monitoring service. This class is its client side. Onboarding is
+ * zero-touch: a fresh install carries the fleet enrolment key in .env
+ * (AHG_CENTRAL_API_KEY, seeded by bin/install -> config heratio.central),
+ * derives its site_id from the hostname, and auto-enrols on its first
+ * heartbeat - no operator registration step.
  *
- * The cloud-side API is a forward-looking surface - if the operator turns
- * the toggle on with a URL that doesn't have a Heratio Central instance
- * behind it, the calls will return 4xx/5xx and get logged. That's fine:
- * the SETTING wiring is the contract this issue is closing, not the
- * cloud-side service availability.
+ * Settings (ahg_settings, seeded by AhgCoreServiceProvider):
+ *   - ahg_central_enabled        -> isEnabled() gates every outbound call
+ *   - ahg_central_error_sync     -> errorSyncEnabled() gates error-sync only
+ *   - ahg_central_api_url        -> apiUrl()   (falls back to config default)
+ *   - ahg_central_api_key        -> apiKey()   (falls back to the .env key)
+ *   - ahg_central_site_id        -> siteId()   (falls back to the hostname)
+ *   - ahg_central_last_error_id  -> the error-sync watermark
  *
- * The endpoints expected on the cloud side are documented inline:
- *   GET  {api_url}/ping              -> 200 OK with { ok: true }
- *   POST {api_url}/heartbeat         -> records site is alive (siteId+version)
- *   POST {api_url}/sync/descriptions -> bulk push of description metadata
+ * Central is advisory and best-effort - it must never gate local
+ * functionality. Every method here fails soft.
+ *
+ * Endpoints on the cloud side ({api_url} = .../api/v1):
+ *   GET  {api_url}/ping       -> liveness
+ *   POST {api_url}/heartbeat  -> records this install alive + auto-enrols it
+ *   POST {api_url}/errors     -> ingests a batch of redacted ahg_error_log rows
  */
 class AhgCentralService
 {
+    /** Per-run cap on rows pulled from ahg_error_log into one POST. */
+    private const ERROR_BATCH_MAX = 500;
+
     public function isEnabled(): bool
     {
         return $this->setting('ahg_central_enabled', '0') === '1';
     }
 
+    /**
+     * Error-sync is a *separate* opt-in on top of isEnabled(): error logs can
+     * carry stack traces / PII, so shipping them off-box needs its own
+     * explicit consent. Default off.
+     */
+    public function errorSyncEnabled(): bool
+    {
+        return $this->setting('ahg_central_error_sync', '0') === '1';
+    }
+
     public function apiUrl(): string
     {
-        return rtrim($this->setting('ahg_central_api_url', ''), '/');
+        $url = rtrim($this->setting('ahg_central_api_url', ''), '/');
+        if ($url !== '') {
+            return $url;
+        }
+
+        // Deploy default - config/heratio.php <- AHG_CENTRAL_API_URL.
+        return rtrim((string) config('heratio.central.api_url', ''), '/');
     }
 
     public function apiKey(): string
     {
-        return (string) $this->setting('ahg_central_api_key', '');
-    }
+        $key = (string) $this->setting('ahg_central_api_key', '');
+        if ($key !== '') {
+            return $key;
+        }
 
-    public function siteId(): string
-    {
-        return (string) $this->setting('ahg_central_site_id', '');
+        // Deploy default - the shared fleet enrolment key from .env.
+        return (string) config('heratio.central.api_key', '');
     }
 
     /**
-     * Synchronous reachability check. Returns ['ok'=>bool, 'http'=>int, 'error'=>?string].
-     * Used by the artisan ahg:central-ping command + the settings page's
-     * Test-connection button.
+     * Stable per-install identifier. Operator-set value wins; otherwise it is
+     * auto-derived from the machine hostname so a fresh install registers
+     * itself without anyone filling in the settings form.
+     */
+    public function siteId(): string
+    {
+        $id = (string) $this->setting('ahg_central_site_id', '');
+
+        return $id !== '' ? $id : $this->defaultSiteId();
+    }
+
+    /** 'heratio-' + sanitised hostname - the auto-derived site_id. */
+    public function defaultSiteId(): string
+    {
+        $host = strtolower((string) (gethostname() ?: 'unknown'));
+        $host = preg_replace('/[^a-z0-9._-]/', '-', $host) ?: 'unknown';
+
+        return 'heratio-' . $host;
+    }
+
+    /**
+     * Synchronous reachability check. Returns ['ok'=>bool, 'http'=>int, ...].
+     * Used by `ahg:central-ping` + the settings page Test-connection button.
      */
     public function ping(): array
     {
@@ -84,14 +129,14 @@ class AhgCentralService
         if ($this->apiUrl() === '') {
             return ['ok' => false, 'http' => 0, 'error' => 'ahg_central_api_url is empty'];
         }
+
         return $this->request('GET', '/ping');
     }
 
     /**
-     * Daily heartbeat: lets the cloud aggregator know this Heratio instance
-     * is alive + which version. Caller is the scheduled
-     * AhgCentralHeartbeatCommand. Skips silently when the toggle is off
-     * (the schedule still fires but the body returns immediately).
+     * Daily heartbeat: tells Central this install is alive + on which version.
+     * An unknown site_id presenting the fleet key auto-enrols on the Central
+     * side - this is the zero-touch registration path. No-ops when disabled.
      */
     public function heartbeat(): array
     {
@@ -114,6 +159,132 @@ class AhgCentralService
         ]);
     }
 
+    /**
+     * Push new ahg_error_log rows to Central for fleet-wide error visibility.
+     *
+     * Incremental + idempotent: only rows past the ahg_central_last_error_id
+     * watermark are sent; the watermark advances only on a 2xx. Every text
+     * field is redacted (maskPii + URL query-string stripping) before it
+     * leaves the building, and the PII-heavy columns (trace, client_ip,
+     * user_agent, user_id, request_id) are never sent at all.
+     *
+     * Best-effort - returns a result array, never throws. Caller is the
+     * scheduled AhgCentralSyncErrorsCommand.
+     *
+     * @return array{ok:bool,sent:int,error?:string,http?:int,watermark?:int}
+     */
+    public function syncErrors(int $batch = 200): array
+    {
+        if (!$this->isEnabled()) {
+            return ['ok' => false, 'sent' => 0, 'error' => 'ahg_central_enabled is off'];
+        }
+        if (!$this->errorSyncEnabled()) {
+            return ['ok' => false, 'sent' => 0, 'error' => 'ahg_central_error_sync is off'];
+        }
+        if ($this->apiUrl() === '' || $this->siteId() === '') {
+            return ['ok' => false, 'sent' => 0, 'error' => 'apiUrl or siteId is empty'];
+        }
+
+        $batch = max(1, min($batch, self::ERROR_BATCH_MAX));
+        $watermark = (int) $this->setting('ahg_central_last_error_id', '0');
+
+        try {
+            $rows = DB::table('ahg_error_log')
+                ->where('id', '>', $watermark)
+                ->orderBy('id')
+                ->limit($batch)
+                ->get();
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-central] ahg_error_log read failed', ['error' => $e->getMessage()]);
+
+            return ['ok' => false, 'sent' => 0, 'error' => 'ahg_error_log read failed'];
+        }
+
+        if ($rows->isEmpty()) {
+            return ['ok' => true, 'sent' => 0, 'watermark' => $watermark];
+        }
+
+        $payload = [];
+        $maxId = $watermark;
+        foreach ($rows as $r) {
+            $maxId = max($maxId, (int) $r->id);
+            $payload[] = [
+                'occurred_at'     => (string) ($r->created_at ?? ''),
+                'level'           => (string) ($r->level ?? ''),
+                'status_code'     => isset($r->status_code) && $r->status_code !== null ? (int) $r->status_code : null,
+                'message'         => $this->redact((string) ($r->message ?? '')),
+                'exception_class' => (string) ($r->exception_class ?? ''),
+                'file'            => (string) ($r->file ?? ''),
+                'line'            => isset($r->line) && $r->line !== null ? (int) $r->line : null,
+                'url'             => $this->redact($this->stripQuery((string) ($r->url ?? ''))),
+                'http_method'     => (string) ($r->http_method ?? ''),
+                'hostname'        => (string) ($r->hostname ?? ''),
+                // Stable dedup key on the Central side - the origin row id.
+                'fingerprint'     => (string) $r->id,
+            ];
+        }
+
+        $result = $this->request('POST', '/errors', ['errors' => $payload]);
+        if (!empty($result['ok'])) {
+            $this->putSetting('ahg_central_last_error_id', (string) $maxId);
+
+            return [
+                'ok'        => true,
+                'sent'      => count($payload),
+                'http'      => (int) ($result['http'] ?? 0),
+                'watermark' => $maxId,
+            ];
+        }
+
+        return [
+            'ok'    => false,
+            'sent'  => 0,
+            'http'  => (int) ($result['http'] ?? 0),
+            'error' => 'POST /errors returned non-2xx',
+        ];
+    }
+
+    /**
+     * Mask PII (emails + 9+-digit number runs) before a value leaves the
+     * building. Reuses AhgAiServices\Services\GuardrailService::maskPii() when
+     * that package is present; falls back to an equivalent inline pass so
+     * redaction never silently no-ops.
+     */
+    private function redact(string $text): string
+    {
+        if ($text === '') {
+            return '';
+        }
+
+        try {
+            $guardrail = app(\AhgAiServices\Services\GuardrailService::class);
+            [$masked] = $guardrail->maskPii($text);
+
+            return (string) $masked;
+        } catch (\Throwable $e) {
+            // ahg-ai-services absent - inline equivalent of maskPii().
+            $text = preg_replace('/[\w.+-]+@[\w-]+\.[\w.-]+/u', '[REDACTED:email]', $text) ?? $text;
+            $text = preg_replace_callback(
+                '/\+?\d[\d\s().-]{6,}\d/u',
+                fn ($m) => strlen(preg_replace('/\D/', '', $m[0])) >= 9 ? '[REDACTED:number]' : $m[0],
+                $text
+            ) ?? $text;
+
+            return $text;
+        }
+    }
+
+    /** Drop the query string from a URL so tokens in ?params never ship. */
+    private function stripQuery(string $url): string
+    {
+        if ($url === '') {
+            return '';
+        }
+        $q = strpos($url, '?');
+
+        return $q === false ? $url : substr($url, 0, $q);
+    }
+
     private function request(string $method, string $path, ?array $jsonBody = null): array
     {
         $url = $this->apiUrl() . $path;
@@ -125,7 +296,7 @@ class AhgCentralService
         ];
         $opts = [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_TIMEOUT        => 15,
             CURLOPT_CUSTOMREQUEST  => $method,
         ];
         if ($jsonBody !== null) {
@@ -142,6 +313,7 @@ class AhgCentralService
 
         if ($response === false) {
             Log::warning('[ahg-central] curl error', ['url' => $url, 'method' => $method, 'error' => $err]);
+
             return ['ok' => false, 'http' => 0, 'error' => $err];
         }
 
@@ -154,17 +326,30 @@ class AhgCentralService
     }
 
     /**
-     * Read a key from ahg_settings (where the form saves them, per
-     * SettingsController::ahgIntegration). Returns the default when the
-     * row is missing or empty. The value column is plain text.
+     * Read a key from ahg_settings (where the form saves them). Returns the
+     * default when the row is missing or empty. The value column is plain text.
      */
     private function setting(string $key, string $default = ''): string
     {
         try {
             $val = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
+
             return ($val === null || $val === '') ? $default : (string) $val;
         } catch (\Throwable $e) {
             return $default;
+        }
+    }
+
+    /** Persist a key back to ahg_settings (used for the error-sync watermark). */
+    private function putSetting(string $key, string $value): void
+    {
+        try {
+            DB::table('ahg_settings')->updateOrInsert(
+                ['setting_key' => $key],
+                ['setting_value' => $value]
+            );
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-central] could not persist ' . $key, ['error' => $e->getMessage()]);
         }
     }
 }

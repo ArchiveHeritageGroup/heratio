@@ -3092,7 +3092,7 @@ class SettingsController extends Controller
         $menu = $this->buildMenu('ahg-integration');
         $testResult = null;
 
-        $settingNames = ['ahg_central_enabled', 'ahg_central_api_url', 'ahg_central_api_key', 'ahg_central_site_id'];
+        $settingNames = ['ahg_central_enabled', 'ahg_central_error_sync', 'ahg_central_api_url', 'ahg_central_api_key', 'ahg_central_site_id'];
 
         // Per-key lock state from ahg_settings.is_locked. The AHG Central
         // feature ships its settings rows with is_locked=1 because no

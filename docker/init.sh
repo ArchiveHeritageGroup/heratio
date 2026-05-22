@@ -55,6 +55,9 @@ ELASTICSEARCH_PREFIX=${ELASTICSEARCH_PREFIX:-heratio_}
 HERATIO_STORAGE_PATH=${HERATIO_STORAGE_PATH:-/var/www/heratio/storage/uploads}
 HERATIO_UPLOADS_PATH=${HERATIO_UPLOADS_PATH:-/var/www/heratio/storage/uploads}
 HERATIO_BACKUPS_PATH=${HERATIO_BACKUPS_PATH:-/var/www/heratio/storage/backups}
+
+AHG_CENTRAL_API_URL=${AHG_CENTRAL_API_URL:-https://central.theahg.co.za/api/v1}
+AHG_CENTRAL_API_KEY=${AHG_CENTRAL_API_KEY:-}
 EOF
     php artisan key:generate --force --no-interaction
 fi
