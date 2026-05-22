@@ -149,6 +149,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/settings/ahg/multi_tenant', fn () => redirect('/admin/ahgSettings/multiTenant')); // legacy redirect
     Route::get('/admin/settings/ahg/portable_export', fn () => redirect('/admin/ahgSettings/portableExport')); // legacy redirect
     Route::get('/admin/settings/ahg/compliance', fn () => redirect('/admin/ahgSettings/compliance')); // legacy redirect
+    Route::get('/admin/settings/ahg/ahg_central', fn () => redirect('/admin/ahgSettings/ahgIntegration')); // legacy redirect (heratio#127: AHG Central has a bespoke page)
 
     // AHG group route — catch-all for generic key-value settings
     Route::match(['get', 'post'], '/admin/settings/ahg/{group}', [SettingsController::class, 'ahgSection'])->name('settings.ahg');

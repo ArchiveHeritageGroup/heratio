@@ -160,20 +160,22 @@ class AhgCentralService
     }
 
     /**
-     * Push new ahg_error_log rows to Central for fleet-wide error visibility.
+     * Push the current open ahg_error_log rows to Central for fleet-wide
+     * error visibility.
      *
-     * Incremental + idempotent: only rows past the ahg_central_last_error_id
-     * watermark are sent; the watermark advances only on a 2xx. Every text
-     * field is redacted (maskPii + URL query-string stripping) before it
-     * leaves the building, and the PII-heavy columns (trace, client_ip,
-     * user_agent, user_id, request_id) are never sent at all.
+     * Open errors only (resolved_at IS NULL) and a *full replace*: each run
+     * sends the site's current open set and Central stores exactly that, so
+     * resolving an error at source removes it from the fleet view on the next
+     * run. Every text field is redacted (maskPii + URL query-string stripping)
+     * before it leaves the building, and the PII-heavy columns (trace,
+     * client_ip, user_agent, user_id, request_id) are never sent at all.
      *
      * Best-effort - returns a result array, never throws. Caller is the
      * scheduled AhgCentralSyncErrorsCommand.
      *
-     * @return array{ok:bool,sent:int,error?:string,http?:int,watermark?:int}
+     * @return array{ok:bool,sent:int,error?:string,http?:int}
      */
-    public function syncErrors(int $batch = 200): array
+    public function syncErrors(int $batch = 500): array
     {
         if (!$this->isEnabled()) {
             return ['ok' => false, 'sent' => 0, 'error' => 'ahg_central_enabled is off'];
@@ -185,14 +187,15 @@ class AhgCentralService
             return ['ok' => false, 'sent' => 0, 'error' => 'apiUrl or siteId is empty'];
         }
 
-        $batch = max(1, min($batch, self::ERROR_BATCH_MAX));
-        $watermark = (int) $this->setting('ahg_central_last_error_id', '0');
+        $cap = max(1, min($batch, self::ERROR_BATCH_MAX));
 
         try {
+            // Open errors only - rows not yet resolved (resolved_at IS NULL),
+            // most recent first.
             $rows = DB::table('ahg_error_log')
-                ->where('id', '>', $watermark)
-                ->orderBy('id')
-                ->limit($batch)
+                ->whereNull('resolved_at')
+                ->orderBy('id', 'desc')
+                ->limit($cap)
                 ->get();
         } catch (\Throwable $e) {
             Log::warning('[ahg-central] ahg_error_log read failed', ['error' => $e->getMessage()]);
@@ -200,14 +203,8 @@ class AhgCentralService
             return ['ok' => false, 'sent' => 0, 'error' => 'ahg_error_log read failed'];
         }
 
-        if ($rows->isEmpty()) {
-            return ['ok' => true, 'sent' => 0, 'watermark' => $watermark];
-        }
-
         $payload = [];
-        $maxId = $watermark;
         foreach ($rows as $r) {
-            $maxId = max($maxId, (int) $r->id);
             $payload[] = [
                 'occurred_at'     => (string) ($r->created_at ?? ''),
                 'level'           => (string) ($r->level ?? ''),
@@ -224,15 +221,15 @@ class AhgCentralService
             ];
         }
 
-        $result = $this->request('POST', '/errors', ['errors' => $payload]);
+        // replace=true: Central drops this site's existing rows and stores
+        // exactly the open set posted here. An empty set therefore clears the
+        // site, which is correct when every error has been resolved.
+        $result = $this->request('POST', '/errors', ['errors' => $payload, 'replace' => true]);
         if (!empty($result['ok'])) {
-            $this->putSetting('ahg_central_last_error_id', (string) $maxId);
-
             return [
-                'ok'        => true,
-                'sent'      => count($payload),
-                'http'      => (int) ($result['http'] ?? 0),
-                'watermark' => $maxId,
+                'ok'   => true,
+                'sent' => count($payload),
+                'http' => (int) ($result['http'] ?? 0),
             ];
         }
 

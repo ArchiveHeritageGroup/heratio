@@ -29,19 +29,17 @@ use AhgCore\Services\AhgCentralService;
 use Illuminate\Console\Command;
 
 /**
- * Push redacted ahg_error_log rows to AHG Central for fleet-wide error
- * visibility (heratio#127). Incremental + watermarked - each run sends only
- * rows past ahg_central_last_error_id and drains any backlog in bounded
- * passes. No-ops silently unless BOTH ahg_central_enabled and
- * ahg_central_error_sync are on.
+ * Push redacted open ahg_error_log rows to AHG Central for fleet-wide error
+ * visibility (heratio#127). Each run sends the site's current open-error set
+ * (resolved_at IS NULL) as a full replace, so the fleet view stays to open
+ * errors only - an error resolved at source drops out on the next run.
+ * No-ops silently unless BOTH ahg_central_enabled and ahg_central_error_sync
+ * are on.
  */
 class AhgCentralSyncErrorsCommand extends Command
 {
-    protected $signature = 'ahg:central-sync-errors {--batch=200 : Rows per POST}';
-    protected $description = 'Sync ahg_error_log rows to AHG Central (redacted, watermarked, incremental).';
-
-    /** Bounded passes per run - caps a fresh-enable backlog drain. */
-    private const MAX_PASSES = 25;
+    protected $signature = 'ahg:central-sync-errors {--batch=500 : Max open error rows to send}';
+    protected $description = 'Sync the open ahg_error_log rows to AHG Central (redacted, full replace).';
 
     public function handle(): int
     {
@@ -58,24 +56,16 @@ class AhgCentralSyncErrorsCommand extends Command
             return self::SUCCESS;
         }
 
-        $batch = max(1, min((int) $this->option('batch'), 500));
-        $total = 0;
+        // One POST - a full replace of the site's open-error set on Central.
+        $res = $svc->syncErrors((int) $this->option('batch'));
+        if (empty($res['ok'])) {
+            $this->warn('[ahg-central-sync-errors] ' . ($res['error'] ?? 'failed'));
+            // Non-fatal - the schedule retries on its next tick.
 
-        for ($pass = 0; $pass < self::MAX_PASSES; $pass++) {
-            $res = $svc->syncErrors($batch);
-            if (empty($res['ok'])) {
-                $this->warn('[ahg-central-sync-errors] stopped: ' . ($res['error'] ?? 'unknown error'));
-                // Non-fatal - the schedule retries on its next tick.
-                return self::SUCCESS;
-            }
-            $sent = (int) ($res['sent'] ?? 0);
-            $total += $sent;
-            if ($sent < $batch) {
-                break; // caught up with the watermark
-            }
+            return self::SUCCESS;
         }
 
-        $this->info('[ahg-central-sync-errors] synced ' . $total . ' error row(s).');
+        $this->info('[ahg-central-sync-errors] synced ' . (int) ($res['sent'] ?? 0) . ' open error row(s).');
 
         return self::SUCCESS;
     }
