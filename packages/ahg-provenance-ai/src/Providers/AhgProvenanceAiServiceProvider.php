@@ -123,6 +123,12 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
                     $table->json('model_manifest')->nullable();
                 });
             }
+            // heratio#141 - RAG-guardrail verdict column, same idempotent pattern.
+            if (Schema::hasTable('ahg_ai_inference') && !Schema::hasColumn('ahg_ai_inference', 'guardrail')) {
+                Schema::table('ahg_ai_inference', function ($table) {
+                    $table->json('guardrail')->nullable();
+                });
+            }
             if (Schema::hasTable('ahg_llm_config') && !Schema::hasColumn('ahg_llm_config', 'model_manifest')) {
                 Schema::table('ahg_llm_config', function ($table) {
                     $table->json('model_manifest')->nullable();

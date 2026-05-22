@@ -80,6 +80,7 @@ class InferenceService
             'elapsed_ms'          => $r->elapsedMs,
             'fuseki_graph_uri'    => null,
             'model_manifest'      => json_encode($modelManifest),
+            'guardrail'           => $r->guardrail !== null ? json_encode($r->guardrail) : null,
             'user_id'             => $r->userId,
             'occurred_at'         => $now,
             'created_at'          => $now,

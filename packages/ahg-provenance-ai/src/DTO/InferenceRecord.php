@@ -56,6 +56,7 @@ final class InferenceRecord
         public readonly ?string $outputExcerpt = null,
         public readonly ?int    $elapsedMs   = null,
         public readonly ?int    $userId      = null, // triggering user; null for batch / cron
+        public readonly ?array  $guardrail   = null, // #141 - RAG-guardrail verdict for this inference
     ) {}
 
     /**

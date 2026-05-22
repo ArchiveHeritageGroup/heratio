@@ -209,6 +209,25 @@ class LlmService
             $key = $aiSet::apiKey();
             $tmo = $aiSet::apiTimeout();
             if ($url) {
+                // #141 - the cloud-mode override is its own dispatch path, so
+                // it needs the guardrail too. block -> abort; mask -> redacted prompt.
+                try {
+                    $guard = new GuardrailService();
+                    $gi = $guard->inspect([
+                        'provider'      => 'cloud',
+                        'system_prompt' => '',
+                        'user_prompt'   => $prompt,
+                        'data_scope'    => $options['data_scope'] ?? null,
+                        'purpose'       => $options['purpose'] ?? null,
+                    ]);
+                    if (($gi['action'] ?? 'allow') === 'block') {
+                        Log::warning('[ahg-ai] cloud-mode call blocked by guardrail: ' . ($gi['reason'] ?? ''));
+                        return null;
+                    }
+                    $prompt = $gi['user_prompt'];
+                } catch (\Throwable $e) {
+                    Log::warning('[ahg-ai] cloud-mode guardrail failed, proceeding: ' . $e->getMessage());
+                }
                 try {
                     $req = \Illuminate\Support\Facades\Http::timeout($tmo)->asJson();
                     if ($key) { $req = $req->withToken($key); }
@@ -433,7 +452,25 @@ class LlmService
         }
 
         $prompts = $this->buildPrompt($template, $context['data']);
-        $result  = $this->completeFull($prompts['system'], $prompts['user'], $configId);
+
+        // #141 - the RAG provenance bundle: the retrieved source fields the
+        // grounding check scores the generated description against.
+        $contextSources = array_values(array_filter([
+            $context['data']['title'] ?? null,
+            $context['data']['scope_and_content'] ?? null,
+            $context['data']['archival_history'] ?? null,
+            $context['data']['extent_and_medium'] ?? null,
+            $context['data']['arrangement'] ?? null,
+            $context['data']['physical_characteristics'] ?? null,
+            $context['data']['acquisition'] ?? null,
+            $context['data']['ocr_text'] ?? null,
+        ], static fn ($v) => is_string($v) && trim($v) !== ''));
+
+        $result = $this->completeFull($prompts['system'], $prompts['user'], $configId, [
+            'purpose'         => 'description_generation',
+            'data_scope'      => 'internal',
+            'context_sources' => $contextSources,
+        ]);
 
         if (empty($result['success'])) {
             return $result;
@@ -475,6 +512,7 @@ class LlmService
                 outputExcerpt:    $outE,
                 elapsedMs:        isset($result['generation_time_ms']) ? (int) $result['generation_time_ms'] : null,
                 userId:           $userId,
+                guardrail:        $result['guardrail'] ?? null,
             ));
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('LlmService::generateSuggestion: inference write failed: ' . $e->getMessage());
@@ -489,6 +527,7 @@ class LlmService
             'model'             => $result['model'] ?? null,
             'generation_time_ms'=> $result['generation_time_ms'] ?? 0,
             'template_name'     => $template->name ?? '',
+            'guardrail'         => $result['guardrail'] ?? null,
         ];
     }
 
@@ -903,32 +942,72 @@ class LlmService
      */
     private function dispatchToProviderFull(object $config, string $systemPrompt, string $userPrompt, array $options = []): array
     {
+        $model       = $options['model'] ?? $config->model;
+        $maxTokens   = $options['max_tokens'] ?? $config->max_tokens ?? 2000;
+        $temperature = $options['temperature'] ?? (float) ($config->temperature ?? 0.7);
+        $timeout     = $options['timeout'] ?? $config->timeout_seconds ?? 120;
+
+        // #141 - apply RAG guardrails before the prompt leaves the building.
+        // Fail-open on an unexpected guardrail error: a bug in the policy
+        // layer must never deny the AI service (deliberate `block` decisions
+        // still block).
+        $guard   = null;
+        $inspect = null;
+        try {
+            $guard   = new GuardrailService();
+            $inspect = $guard->inspect([
+                'provider'      => $config->provider ?? '',
+                'model'         => (string) $model,
+                'system_prompt' => $systemPrompt,
+                'user_prompt'   => $userPrompt,
+                'data_scope'    => $options['data_scope'] ?? null,
+                'purpose'       => $options['purpose'] ?? null,
+            ]);
+            if (($inspect['action'] ?? 'allow') === 'block') {
+                return [
+                    'success'            => false,
+                    'error'              => $inspect['reason'] ?? 'Blocked by AI guardrail policy',
+                    'text'               => null,
+                    'tokens_used'        => 0,
+                    'model'              => $model,
+                    'generation_time_ms' => 0,
+                    'blocked'            => true,
+                    'guardrail'          => $guard->summarize($inspect, null),
+                ];
+            }
+            // Dispatch the possibly-masked prompts.
+            $systemPrompt = $inspect['system_prompt'];
+            $userPrompt   = $inspect['user_prompt'];
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] guardrail inspect failed, proceeding unguarded: ' . $e->getMessage());
+            $guard = null;
+            $inspect = null;
+        }
+
         // Decrypt API key if present
         $apiKey = null;
         if (!empty($config->api_key_encrypted)) {
             $apiKey = $this->decryptApiKey($config->api_key_encrypted);
         }
 
-        $model       = $options['model'] ?? $config->model;
-        $maxTokens   = $options['max_tokens'] ?? $config->max_tokens ?? 2000;
-        $temperature = $options['temperature'] ?? (float) ($config->temperature ?? 0.7);
-        $timeout     = $options['timeout'] ?? $config->timeout_seconds ?? 120;
-
         $startTime = microtime(true);
 
         try {
             switch ($config->provider) {
                 case 'openai':
-                    return $this->callOpenAI($config->endpoint_url ?? 'https://api.openai.com/v1', $apiKey, $systemPrompt, $userPrompt, $model, $maxTokens, $temperature, $timeout);
+                    $result = $this->callOpenAI($config->endpoint_url ?? 'https://api.openai.com/v1', $apiKey, $systemPrompt, $userPrompt, $model, $maxTokens, $temperature, $timeout);
+                    break;
 
                 case 'anthropic':
-                    return $this->callAnthropic($config->endpoint_url ?? 'https://api.anthropic.com/v1', $apiKey, $systemPrompt, $userPrompt, $model, $maxTokens, $temperature, $timeout);
+                    $result = $this->callAnthropic($config->endpoint_url ?? 'https://api.anthropic.com/v1', $apiKey, $systemPrompt, $userPrompt, $model, $maxTokens, $temperature, $timeout);
+                    break;
 
                 case 'ollama':
-                    return $this->callOllama($config->endpoint_url ?? 'http://localhost:11434', $systemPrompt, $userPrompt, $model, $maxTokens, $temperature, $timeout);
+                    $result = $this->callOllama($config->endpoint_url ?? 'http://localhost:11434', $systemPrompt, $userPrompt, $model, $maxTokens, $temperature, $timeout);
+                    break;
 
                 default:
-                    return [
+                    $result = [
                         'success'           => false,
                         'error'             => "Unknown provider: {$config->provider}",
                         'text'              => null,
@@ -940,7 +1019,7 @@ class LlmService
         } catch (\Exception $e) {
             Log::error("LlmService dispatch error: " . $e->getMessage());
 
-            return [
+            $result = [
                 'success'           => false,
                 'error'             => $e->getMessage(),
                 'text'              => null,
@@ -949,6 +1028,23 @@ class LlmService
                 'generation_time_ms' => round((microtime(true) - $startTime) * 1000),
             ];
         }
+
+        // #141 - grounding check on the RAG output + attach the guardrail
+        // summary so callers (and the inference record) can see the verdict.
+        if ($guard !== null && $inspect !== null) {
+            try {
+                $grounding = null;
+                if (!empty($result['success']) && !empty($result['text'])
+                    && !empty($options['context_sources']) && is_array($options['context_sources'])) {
+                    $grounding = $guard->checkGrounding((string) $result['text'], $options['context_sources']);
+                }
+                $result['guardrail'] = $guard->summarize($inspect, $grounding);
+            } catch (\Throwable $e) {
+                Log::warning('[ahg-ai] guardrail post-check failed: ' . $e->getMessage());
+            }
+        }
+
+        return $result;
     }
 
     /**

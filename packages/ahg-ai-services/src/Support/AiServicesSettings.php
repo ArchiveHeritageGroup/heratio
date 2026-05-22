@@ -69,6 +69,15 @@ class AiServicesSettings
         return $v === null ? $default : (float) $v;
     }
 
+    /** A comma-separated setting parsed into a lowercased, trimmed list. */
+    private static function csv(string $key, string $default): array
+    {
+        $raw = (string) self::raw($key, $default);
+        $items = array_map('trim', explode(',', strtolower($raw)));
+
+        return array_values(array_filter($items, static fn ($v) => $v !== ''));
+    }
+
     // ── Master dispatcher ──────────────────────────────────────────────
 
     /** local | cloud | hybrid */
@@ -136,4 +145,40 @@ class AiServicesSettings
     // ── Capture pipeline ───────────────────────────────────────────────
 
     public static function autoExtractOnUpload(): bool { return self::bool('auto_extract_on_upload', false); }
+
+    // ── RAG guardrails (#141) ──────────────────────────────────────────
+
+    /** off | warn | mask | block - enforcement strength of the guardrails. */
+    public static function ragGuardrailMode(): string
+    {
+        $v = strtolower(trim((string) self::raw('rag_guardrail_mode', 'warn')));
+        return in_array($v, ['off', 'warn', 'mask', 'block'], true) ? $v : 'warn';
+    }
+
+    /** Data scopes permitted to be sent to a cloud provider. */
+    public static function ragCloudAllowedScopes(): array
+    {
+        return self::csv('rag_cloud_allowed_scopes', 'public,internal');
+    }
+
+    /** Provider names treated as inside the local trust domain. */
+    public static function ragLocalProviders(): array
+    {
+        return self::csv('rag_local_providers', 'ollama');
+    }
+
+    /** The operator-sanctioned set of inference purposes. */
+    public static function ragSanctionedPurposes(): array
+    {
+        return self::csv(
+            'rag_sanctioned_purposes',
+            'description_generation,summarization,translation,entity_extraction,spellcheck,research_assistance,metadata_enrichment'
+        );
+    }
+
+    /** Minimum grounding score below which a RAG output is flagged. */
+    public static function ragGroundingThreshold(): float
+    {
+        return self::float('rag_grounding_threshold', 0.45);
+    }
 }
