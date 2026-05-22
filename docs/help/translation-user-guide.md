@@ -50,7 +50,7 @@ Translate archival descriptions between languages using offline machine translat
 
 ## Supported Languages
 
-### South African Languages (11 Official)
+### South African Languages
 ```
 +-------------------------------------------------------------+
 |                  SOUTH AFRICAN LANGUAGES                     |
@@ -62,7 +62,7 @@ Translate archival descriptions between languages using offline machine translat
 |  tn    | Setswana           | nso   | Sepedi (Northern Sotho)|
 |  ts    | Xitsonga           | ss    | SiSwati               |
 |  ve    | Tshivenda          | nr    | isiNdebele            |
-|  en    | English            |       |                       |
+|  en    | English            | nd    | Northern Ndebele      |
 +-------------------------------------------------------------+
 ```
 
@@ -385,6 +385,10 @@ Quality may vary for:
 - Historical language forms
 
 **Always review translations before applying.**
+
+### MzansiLM for South African languages
+
+The general-purpose model (qwen3) carries very little African-language training data and produces Dutch-flavoured or hallucinated text for the SA languages. When the operator enables **MzansiLM** in AI Services settings (`mzansilm_enabled` plus a `mzansilm_endpoint`), translation into the routed locales - by default isiZulu, isiXhosa, Sepedi, Sesotho, SiSwati, Xitsonga, Setswana, Tshivenda, isiNdebele and Northern Ndebele - is sent to **MzansiLM-125M**, a model purpose-trained on the SA languages. If MzansiLM is not configured for a locale, or a call fails, the translation falls back to the default machine-translation / LLM path. Afrikaans is deliberately not routed - the Afrikaans catalogue is operator-maintained.
 
 ---
 

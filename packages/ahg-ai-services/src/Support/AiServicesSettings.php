@@ -181,4 +181,40 @@ class AiServicesSettings
     {
         return self::float('rag_grounding_threshold', 0.45);
     }
+
+    // ── MzansiLM SA-language model (#128) ──────────────────────────────
+
+    /** Master gate: route SA-language translation to MzansiLM instead of the default LLM/MT path. */
+    public static function mzansilmEnabled(): bool
+    {
+        return self::bool('mzansilm_enabled', false);
+    }
+
+    /** OpenAI-shape base URL of the MzansiLM endpoint, e.g. http://gpu-host:8000/v1 . */
+    public static function mzansilmEndpoint(): ?string
+    {
+        return self::raw('mzansilm_endpoint');
+    }
+
+    /** Model name requested from the MzansiLM endpoint. */
+    public static function mzansilmModel(): string
+    {
+        $v = (string) self::raw('mzansilm_model', 'mzansilm-125m');
+        return $v !== '' ? $v : 'mzansilm-125m';
+    }
+
+    /**
+     * Target locales routed to MzansiLM. Default is the ten SA languages the
+     * issue prioritises (af is deliberately excluded - the operator owns the
+     * Afrikaans catalogue).
+     */
+    public static function mzansilmLocales(): array
+    {
+        return self::csv('mzansilm_locales', 'zu,xh,nso,st,ss,ts,tn,ve,nr,nd');
+    }
+
+    public static function mzansilmTimeout(): int
+    {
+        return self::int('mzansilm_timeout', 60);
+    }
 }

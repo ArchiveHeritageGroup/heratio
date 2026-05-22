@@ -592,6 +592,15 @@ class LlmService
             return null;
         }
 
+        // #128: SA-language targets route to MzansiLM when the operator has
+        // enabled it - qwen3 produces Dutch-flavoured / hallucinated output for
+        // those languages. Returns null (fall through to the MT/LLM path) when
+        // MzansiLM is not configured for this locale or the call fails.
+        $viaMzansi = $this->translateViaMzansiLm($text, $targetLang);
+        if ($viaMzansi !== null) {
+            return $viaMzansi;
+        }
+
         $mode = $aiSet ? $aiSet::translationMode() : 'llm';
         $mtEp = $aiSet ? $aiSet::mtEndpoint() : null;
         if ($mode === 'mt' && $mtEp) {
@@ -622,6 +631,69 @@ class LlmService
             . "Text:\n{$text}";
 
         return $this->complete($prompt);
+    }
+
+    /**
+     * #128: route an SA-language translation to MzansiLM-125M.
+     *
+     * MzansiLM is purpose-trained on the MzansiText corpus (all 11 official SA
+     * languages); qwen3 has near-zero African-language pretraining and produces
+     * Dutch-flavoured / hallucinated output for these locales.
+     *
+     * Returns the translated text, or null when MzansiLM is not enabled, not
+     * configured for the target locale, or the call fails - the caller then
+     * falls through to the default MT / LLM path. The MzansiLM endpoint is
+     * operator-configured (no hardcoded host).
+     */
+    private function translateViaMzansiLm(string $text, string $targetLang): ?string
+    {
+        $aiSet = class_exists(\AhgAiServices\Support\AiServicesSettings::class)
+                ? \AhgAiServices\Support\AiServicesSettings::class : null;
+        if (!$aiSet || !$aiSet::mzansilmEnabled()) {
+            return null;
+        }
+
+        // Match either the full locale (e.g. zu_ZA) or its base subtag (zu).
+        $locale = strtolower(trim($targetLang));
+        $base   = preg_split('/[-_]/', $locale)[0] ?? $locale;
+        $routed = $aiSet::mzansilmLocales();
+        if (!in_array($locale, $routed, true) && !in_array($base, $routed, true)) {
+            return null;
+        }
+
+        $endpoint = $aiSet::mzansilmEndpoint();
+        if (empty($endpoint)) {
+            Log::warning('[ahg-ai] MzansiLM enabled for ' . $targetLang . ' but mzansilm_endpoint is unset; falling back');
+            return null;
+        }
+
+        try {
+            $resp = \Illuminate\Support\Facades\Http::timeout($aiSet::mzansilmTimeout())
+                ->asJson()
+                ->post(rtrim($endpoint, '/') . '/chat/completions', [
+                    'model'       => $aiSet::mzansilmModel(),
+                    'messages'    => [[
+                        'role'    => 'user',
+                        'content' => "Translate the following text into {$targetLang}. "
+                                   . "Preserve proper nouns, dates, and archival terminology. "
+                                   . "Output only the translation, no preamble.\n\n{$text}",
+                    ]],
+                    'temperature' => 0.2,
+                ]);
+            if ($resp->ok()) {
+                $out = $resp->json()['choices'][0]['message']['content'] ?? null;
+                if (is_string($out) && trim($out) !== '') {
+                    return $out;
+                }
+            }
+            Log::warning('[ahg-ai] MzansiLM translate returned no text; falling back', [
+                'lang' => $targetLang, 'status' => $resp->status(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] MzansiLM translate failed; falling back: ' . $e->getMessage());
+        }
+
+        return null;
     }
 
     /**

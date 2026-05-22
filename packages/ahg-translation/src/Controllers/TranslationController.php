@@ -144,7 +144,9 @@ class TranslationController extends Controller
     ];
 
     /**
-     * Target languages with culture codes (all 11 SA official + international).
+     * Target languages with culture codes (the 11 SA official languages, nd
+     * for the wider SADC region - all covered by MzansiLM, #128 - plus
+     * international languages).
      */
     private const TARGET_LANGUAGES = [
         'en'  => 'English',
@@ -158,6 +160,7 @@ class TranslationController extends Controller
         'ss'  => 'SiSwati',
         've'  => 'Tshivenda',
         'nr'  => 'isiNdebele',
+        'nd'  => 'Northern Ndebele',
         'nl'  => 'Dutch',
         'fr'  => 'French',
         'de'  => 'German',
