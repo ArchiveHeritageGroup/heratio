@@ -101,6 +101,8 @@ class AhgRicServiceProvider extends ServiceProvider
                 // #77 phase 2: Fuseki integrity + orphan cleanup
                 \AhgRic\Console\Commands\FusekiIntegrityCheckCommand::class,
                 \AhgRic\Console\Commands\FusekiOrphanCleanupCommand::class,
+                // #139: bulk-load RiC agent/place instances into Fuseki
+                \AhgRic\Console\Commands\FusekiInstanceLoadCommand::class,
             ]);
 
             // #77 phase 2: schedule integrity check from fuseki_integrity_schedule
