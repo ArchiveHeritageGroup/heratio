@@ -6,6 +6,8 @@
 
 Powerful AI-powered tools for archival records: Named Entity Recognition (NER), Translation, Summarization, Spellcheck, Handwriting Text Recognition (HTR), and **LLM Description Suggestions**.
 
+> **The AI tools are an optional paid subscription, not part of the base platform.** They are dormant until an AHG AI gateway subscription is activated. See **AI features - subscription service** for what is included and how to subscribe.
+
 ---
 
 ## Overview
