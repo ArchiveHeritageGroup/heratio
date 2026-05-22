@@ -68,6 +68,18 @@ This writes the keypair into `storage/app/ai-signing/`, which is gitignored. The
 
 Signing is **best-effort**: if signing fails for any reason, the inference is still recorded (unsigned) rather than lost. The dashboard's signed count tells you how much of your inference history is covered.
 
+## RAG guardrails
+
+Every LLM and RAG call Heratio makes passes through a policy guardrail before the prompt is dispatched, and the generated text is checked for grounding afterwards. The guardrails enforce three things:
+
+- **Data-scope policy.** Each request carries a data scope. A cloud provider may only receive scopes on the allow-list (`rag_cloud_allowed_scopes`, default `public,internal`); local providers carry any scope because the data never leaves the trust domain. Out-of-scope data to a cloud provider is blocked, and email addresses and long number sequences in cloud-bound prompts are masked.
+- **Purpose limitation.** Each request declares a purpose. It must be in the operator-sanctioned set (`rag_sanctioned_purposes`); an unsanctioned purpose is blocked or flagged.
+- **Grounding / hallucination check.** When a RAG call supplies its retrieved sources, the generated output is scored against them; output that is not grounded in those sources is flagged as a possible hallucination.
+
+**Modes.** One setting, `rag_guardrail_mode`, sets the strength: `off`; `warn` (the default - compute and flag, but never block or alter a prompt); `mask` (redact PII in cloud-bound prompts); or `block` (reject out-of-scope data and unsanctioned purposes outright). Start on `warn`, watch the flags, then opt up. The five `rag_*` settings live alongside the other AI settings.
+
+The guardrail verdict - mode, action, data scope, purpose, masked-PII count, grounding score and flags - is attached to every LLM result and persisted on the `ahg_ai_inference.guardrail` column for inferences that are recorded. The guardrail layer is **fail-open**: a bug in the policy code never denies the AI service, though a deliberate block always blocks.
+
 ## How AI requests are routed
 
 All AI traffic from Heratio flows through one place: the **AI gateway** at `https://ai.theahg.co.za/ai/v1/...`. The gateway authenticates each request with a bearer token, routes it to whichever GPU worker is healthy, and logs it. Heratio is an AI *client* - it never hosts a model itself.

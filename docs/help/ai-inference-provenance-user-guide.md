@@ -52,3 +52,4 @@ Same shapes are available as JSON from the trace and coverage endpoints; SPARQL 
 - FOIA walkthrough: `docs/diagnostics/provenance/foia-walkthrough.md`
 - KM reference: `docs/reference/ai-inference-provenance-discipline.md`
 - GitHub issue #61 (closed)
+- AtoM-AHG parity: the `atom-ahg-plugins` side now records and Ed25519-signs its own AI inferences too, with `ai-provenance:keygen` / `verify` / `replay` tasks (issue #140, closed).
