@@ -194,7 +194,7 @@ class TranslationController extends Controller
                 ->with('notice', 'Settings updated');
         }
 
-        $endpoint = $this->getSetting('mt.endpoint', 'http://192.168.0.112:5004/ai/v1/translate');
+        $endpoint = $this->getSetting('mt.endpoint', 'https://ai.theahg.co.za/ai/v1/translate');
         $timeout = $this->getSetting('mt.timeout_seconds', '60');
         $apiKey = $this->getSetting('mt.api_key', '');
 
@@ -619,7 +619,7 @@ class TranslationController extends Controller
      */
     public function health()
     {
-        $endpoint = $this->getSetting('mt.endpoint', 'http://192.168.0.112:5004/ai/v1/translate');
+        $endpoint = $this->getSetting('mt.endpoint', 'https://ai.theahg.co.za/ai/v1/translate');
         $apiKey = $this->getSetting('mt.api_key', '<set in ahg_settings>');
 
         $ch = curl_init($endpoint);
@@ -750,7 +750,7 @@ class TranslationController extends Controller
      */
     private function translateText(string $text, string $sourceCulture, string $targetCulture, ?int $maxLength = null): array
     {
-        $endpoint = $this->getSetting('mt.endpoint', 'http://192.168.0.112:5004/ai/v1/translate');
+        $endpoint = $this->getSetting('mt.endpoint', 'https://ai.theahg.co.za/ai/v1/translate');
         $apiKey = $this->getSetting('mt.api_key', '<set in ahg_settings>');
         $timeout = (int) $this->getSetting('mt.timeout_seconds', '60');
 

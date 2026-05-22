@@ -63,6 +63,22 @@ deploying, set `mzansilm_enabled = 1` and smoke-test translation quality on
 isiZulu / isiXhosa / Sepedi / Sesotho before relying on it - it is a research
 baseline with no published benchmarks.
 
+## Translation routing and the AI gateway
+
+Translation does not call a model host directly - it goes through the **AHG AI
+gateway** (`https://ai.theahg.co.za/ai/v1/...`), the same consolidation HTR
+received in #131. Both the live `mt.endpoint` setting and the hardcoded
+fallback default in `TranslationController` are the gateway's `/ai/v1/translate`
+endpoint, so translation traffic is authenticated and audited alongside the
+other AI services whether or not the setting is present.
+
+(Earlier the hardcoded fallback was a local `192.168.0.112:5004` MT adapter,
+and a stale `ahg_ner_settings.mt.endpoint` row pointed at `192.168.0.115:5004`
+- both removed under #128 so the gateway is the only translation path.)
+
+MzansiLM, once deployed, is reached through the operator-set `mzansilm_endpoint`
+- which can itself be a gateway route or a direct vLLM / Ollama endpoint.
+
 ## Not in this change
 
 - **Model provisioning and the SA-language quality evaluation** (issue #128
