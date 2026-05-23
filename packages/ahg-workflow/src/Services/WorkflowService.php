@@ -517,9 +517,9 @@ class WorkflowService
     /**
      * Get all workflows.
      */
-    public function getWorkflows(): array
+    public function getWorkflows(?string $spectrumProcedure = null): array
     {
-        return DB::table('ahg_workflow')
+        $q = DB::table('ahg_workflow')
             ->leftJoin(DB::raw('(SELECT workflow_id, COUNT(*) as step_count FROM ahg_workflow_step GROUP BY workflow_id) sc'), 'ahg_workflow.id', '=', 'sc.workflow_id')
             ->leftJoin(DB::raw('(SELECT workflow_id, COUNT(*) as active_task_count FROM ahg_workflow_task WHERE status IN (\'pending\',\'claimed\',\'in_progress\') GROUP BY workflow_id) tc'), 'ahg_workflow.id', '=', 'tc.workflow_id')
             ->select(
@@ -527,9 +527,14 @@ class WorkflowService
                 DB::raw('COALESCE(sc.step_count, 0) as step_count'),
                 DB::raw('COALESCE(tc.active_task_count, 0) as active_task_count')
             )
-            ->orderBy('ahg_workflow.name')
-            ->get()
-            ->toArray();
+            ->orderBy('ahg_workflow.name');
+
+        // Spectrum#A — optional filter
+        if ($spectrumProcedure !== null && $spectrumProcedure !== '') {
+            $q->where('ahg_workflow.spectrum_procedure', $spectrumProcedure);
+        }
+
+        return $q->get()->toArray();
     }
 
     /**
@@ -568,6 +573,7 @@ class WorkflowService
             'allow_parallel' => $data['allow_parallel'] ?? 0,
             'auto_archive_days' => $data['auto_archive_days'] ?? null,
             'notification_enabled' => $data['notification_enabled'] ?? 1,
+            'spectrum_procedure' => SpectrumProcedureCatalog::normalize($data['spectrum_procedure'] ?? null),
             'created_by' => $data['created_by'] ?? null,
             'created_at' => now(),
             'updated_at' => now(),
@@ -592,6 +598,7 @@ class WorkflowService
             'allow_parallel' => $data['allow_parallel'] ?? 0,
             'auto_archive_days' => $data['auto_archive_days'] ?? null,
             'notification_enabled' => $data['notification_enabled'] ?? 1,
+            'spectrum_procedure' => SpectrumProcedureCatalog::normalize($data['spectrum_procedure'] ?? null),
             'updated_at' => now(),
         ]);
     }

@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Close all audit stub issues on ArchiveHeritageGroup/heratio.
+Keeps: #143, #144, #145, #146, #644
+"""
+
+import subprocess, time
+
+KEEPERS = {143, 144, 145, 146, 644}
+
+# All stub numbers confirmed from gh issue list
+STUBS = [
+    537,535,532,528,527,526,525,520,519,517,515,514,513,510,509,508,507,506,502,500,
+    498,496,495,493,490,489,487,486,485,484,483,482,481,480,479,478,477,476,475,474,
+    473,472,471,470,469,468,467,466,463,460,457,456,455,454,453,452,451,450,449,448,
+    447,445,444,443,442,441,440,439,406,405,398,397,396,395,394,392,390,386,385,381,
+    376,374,372,370,368,367,365,363,362,361,360,358,356,353,351,350,349,347,346,344,
+    342,341,340,339,338,337,336,331,329,328,326,325,324,323,322,321,320,319,318,317,
+    316,315,314,313,312,311,310,309,308,306,305,304,303,302,301,300,299,298,297,296,
+    295,294,293,292,291,290,289,288,287,286,285,284,283,282,281,280,279,278,277,276,
+    275,274,273,272,271,270,269,268,267,266,265,264,263,262,261,260,259,258,257,256,
+    255,254,253,252,251,250,249,248,247,246,245,244,243,242,241,240,239,238,237,236,
+    235,234,233,232,231,230,229,228,227,226,225,224,223,222,221,220,219,218,217,216,
+    215,214,213,212,211,210,209,208,207,206,205,204,203,202,201,200,199,198,197,196,
+    195,194,193,192,191,190,189,188,187,186,185,184,183,182,181,180,179,178,177,176,
+    175,174,173,172,171,170,169,168,167,165,164,158,156,153,152,150,149,148,147,
+]
+
+REPO = "ArchiveHeritageGroup/heratio"
+BATCH_SIZE = 20
+GAP = 5  # seconds between batches
+
+print(f"Closing {len(STUBS)} stub issues (keeping {len(KEEPERS)} open)...")
+print(f"Rate: 1 batch of {BATCH_SIZE} every {GAP}s → ~{(len(STUBS)/BATCH_SIZE)*GAP/60:.1f} min total")
+print()
+
+closed = 0
+errors = 0
+
+for i in range(0, len(STUBS), BATCH_SIZE):
+    batch = STUBS[i:i+BATCH_SIZE]
+    batch_ok = 0
+    batch_err = 0
+    for num in batch:
+        cmd = f"gh issue close {num} --repo {REPO}"
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        if result.returncode == 0:
+            print(f"✅ Closed #{num}")
+            closed += 1
+            batch_ok += 1
+        else:
+            print(f"❌ Error on #{num}: {result.stderr.strip()}")
+            errors += 1
+            batch_err += 1
+        time.sleep(0.25)  # small gap between individual closes
+    print(f"  Batch {i//BATCH_SIZE+1}: {batch_ok} ok, {batch_err} errors")
+    time.sleep(GAP)
+
+print()
+print(f"Done — {closed} closed, {errors} errors.")

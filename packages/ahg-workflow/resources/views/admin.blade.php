@@ -40,8 +40,32 @@
     </div>
   </div>
 
+  {{-- Spectrum#A — filter UI (no-op if no procedures defined) --}}
+  @if(!empty($spectrumProcedures ?? []))
+    <form method="GET" action="{{ route('workflow.admin') }}" class="d-flex flex-wrap gap-2 align-items-end mb-3">
+      <div class="flex-grow-1" style="max-width: 28rem;">
+        <label for="spectrum" class="form-label small mb-1">{{ __('Filter by Spectrum 5.1 procedure') }}</label>
+        <select name="spectrum" id="spectrum" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="">{{ __('All workflows') }}</option>
+          @foreach($spectrumProcedures as $code => $label)
+            <option value="{{ $code }}" {{ ($spectrumFilter ?? '') === $code ? 'selected' : '' }}>{{ __($label) }}</option>
+          @endforeach
+        </select>
+      </div>
+      @if(!empty($spectrumFilter))
+        <a href="{{ route('workflow.admin') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-times me-1"></i>{{ __('Clear filter') }}</a>
+      @endif
+    </form>
+  @endif
+
   @if(count($workflows) === 0)
-    <div class="alert alert-info">No workflows configured yet. Create your first workflow to get started.</div>
+    <div class="alert alert-info">
+      @if(!empty($spectrumFilter))
+        {{ __('No workflows are tagged with that Spectrum procedure yet.') }}
+      @else
+        No workflows configured yet. Create your first workflow to get started.
+      @endif
+    </div>
   @else
     <div class="card">
       <div class="card-body p-0">
@@ -54,6 +78,7 @@
                 <th>{{ __('Scope') }}</th>
                 <th>{{ __('Trigger') }}</th>
                 <th>{{ __('Applies To') }}</th>
+                <th>{{ __('Spectrum') }}</th>
                 <th>{{ __('Steps') }}</th>
                 <th>{{ __('Active Tasks') }}</th>
                 <th>{{ __('Status') }}</th>
@@ -73,6 +98,13 @@
                   <td><span class="badge bg-secondary">{{ ucfirst($wf->scope_type) }}</span></td>
                   <td>{{ str_replace('_', ' ', ucfirst($wf->trigger_event)) }}</td>
                   <td>{{ str_replace('_', ' ', ucfirst($wf->applies_to)) }}</td>
+                  <td>
+                    @if(!empty($wf->spectrum_procedure) && isset($spectrumProcedures[$wf->spectrum_procedure]))
+                      <span class="badge bg-info text-dark"><i class="fas fa-university me-1"></i>{{ $spectrumProcedures[$wf->spectrum_procedure] }}</span>
+                    @else
+                      <span class="text-muted small">—</span>
+                    @endif
+                  </td>
                   <td><span class="badge bg-info">{{ $wf->step_count }}</span></td>
                   <td><span class="badge bg-warning text-dark">{{ $wf->active_task_count }}</span></td>
                   <td>

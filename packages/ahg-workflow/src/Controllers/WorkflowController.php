@@ -27,6 +27,7 @@
 
 namespace AhgWorkflow\Controllers;
 
+use AhgWorkflow\Services\SpectrumProcedureCatalog;
 use AhgWorkflow\Services\WorkflowDiagramService;
 use AhgWorkflow\Services\WorkflowEdgeService;
 use AhgWorkflow\Services\WorkflowService;
@@ -218,13 +219,21 @@ class WorkflowController extends Controller
     /**
      * Admin: list workflows.
      */
-    public function admin()
+    public function admin(Request $request)
     {
-        $workflows = $this->service->getWorkflows();
+        // Spectrum#A — optional filter to find workflows for a given procedure
+        $spectrumFilter = $request->query('spectrum');
+        if ($spectrumFilter !== null) {
+            $spectrumFilter = SpectrumProcedureCatalog::normalize($spectrumFilter);   // null if invalid
+        }
+
+        $workflows = $this->service->getWorkflows($spectrumFilter);
 
         return view('ahg-workflow::admin', [
             'workflows' => $workflows,
             'workflowRequiredForPublish' => $this->service->isWorkflowRequiredForPublish(),
+            'spectrumProcedures' => SpectrumProcedureCatalog::all(),
+            'spectrumFilter' => $spectrumFilter,
         ]);
     }
 
@@ -299,7 +308,7 @@ class WorkflowController extends Controller
 
             $data = $request->only([
                 'name', 'description', 'scope_type', 'scope_id', 'trigger_event',
-                'applies_to', 'auto_archive_days',
+                'applies_to', 'auto_archive_days', 'spectrum_procedure',
             ]);
             $data['is_active'] = $request->has('is_active') ? 1 : 0;
             $data['is_default'] = $request->has('is_default') ? 1 : 0;
@@ -314,6 +323,7 @@ class WorkflowController extends Controller
 
         return view('ahg-workflow::edit-workflow', [
             'workflow' => $workflow,
+            'spectrumProcedures' => SpectrumProcedureCatalog::all(),
         ]);
     }
 
@@ -332,6 +342,7 @@ class WorkflowController extends Controller
             'workflow' => $workflow,
             'svg'      => $svc->render((int) $id),
             'fallback' => $svc->textFallback((int) $id),
+            'spectrumLabel' => SpectrumProcedureCatalog::label($workflow->spectrum_procedure ?? null),
         ]);
     }
 
@@ -412,6 +423,7 @@ class WorkflowController extends Controller
             'svg'       => $payload['svg'],
             'statusMap' => $payload['statusMap'],
             'fallback'  => $svc->textFallback((int) $task->workflow_id),
+            'spectrumLabel' => SpectrumProcedureCatalog::label($workflow->spectrum_procedure ?? null),
         ]);
     }
 

@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `ahg_workflow` (
     `allow_parallel` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Allow parallel step execution',
     `auto_archive_days` INT DEFAULT NULL COMMENT 'Auto-archive completed tasks after N days',
     `notification_enabled` TINYINT(1) NOT NULL DEFAULT 1,
+    `spectrum_procedure` VARCHAR(64) DEFAULT NULL COMMENT 'Spectrum 5.1 procedure code (object_entry, acquisition, inventory, location_movement, cataloguing, object_exit, loans_in, loans_out, insurance, damage_loss, conservation, audit, condition_check, valuation, risk_management, emergency_planning, use_of_collections, rights_management, reproduction, deaccessioning, retrospective_doc), or NULL',
     `created_by` INT DEFAULT NULL,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -55,7 +56,8 @@ CREATE TABLE IF NOT EXISTS `ahg_workflow` (
     KEY `idx_scope` (`scope_type`, `scope_id`),
     KEY `idx_trigger` (`trigger_event`),
     KEY `idx_active` (`is_active`),
-    KEY `idx_default` (`is_default`, `scope_type`, `scope_id`)
+    KEY `idx_default` (`is_default`, `scope_type`, `scope_id`),
+    KEY `ix_spectrum_procedure` (`spectrum_procedure`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================

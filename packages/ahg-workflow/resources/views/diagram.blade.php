@@ -39,6 +39,12 @@
     </a>
   </div>
 
+  @if(!empty($spectrumLabel ?? ''))
+    <p class="mb-2">
+      <span class="badge bg-info text-dark"><i class="fas fa-university me-1"></i>{{ __('Spectrum:') }} {{ $spectrumLabel }}</span>
+    </p>
+  @endif
+
   @if(!empty($workflow->description))
     <p class="text-muted">{{ $workflow->description }}</p>
   @endif

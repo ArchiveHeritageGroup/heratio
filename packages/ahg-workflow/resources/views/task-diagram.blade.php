@@ -41,6 +41,12 @@
     </a>
   </div>
 
+  @if(!empty($spectrumLabel ?? ''))
+    <p class="mb-2">
+      <span class="badge bg-info text-dark"><i class="fas fa-university me-1"></i>{{ __('Spectrum:') }} {{ $spectrumLabel }}</span>
+    </p>
+  @endif
+
   <p class="text-muted">
     {{ __('Object:') }} <span class="badge bg-secondary">{{ $task->object_type ?? '' }}</span>
     <span class="ms-1">#{{ $task->object_id ?? '' }}</span>
