@@ -167,6 +167,19 @@
     <li><a class="dropdown-item" href="{{ route('strongroom.browse') }}"><i class="fas fa-warehouse me-2"></i>{{ __('Strongrooms') }}</a></li>
     @endif
 
+    {{-- heratio#146 — front-of-house exhibition spaces (gated by ahg_exhibition_space table) --}}
+    @php
+      $hasExhibitionSpace = false;
+      try {
+          $hasExhibitionSpace = \Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_space');
+      } catch (\Throwable $e) {}
+    @endphp
+    @if($hasExhibitionSpace)
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">{{ __('Exhibition spaces') }}</h6></li>
+    <li><a class="dropdown-item" href="{{ route('exhibition-space.browse') }}"><i class="fas fa-palette me-2"></i>{{ __('Exhibition spaces') }}</a></li>
+    @endif
+
     {{-- Workflow (gated by ahg_workflow table existence — ahg-workflow feature, heratio#143) --}}
     @php
       $hasWorkflow = false;

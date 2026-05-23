@@ -1,6 +1,7 @@
 <?php
 
 use AhgExhibition\Controllers\ExhibitionController;
+use AhgExhibition\Controllers\ExhibitionSpaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->prefix('exhibition')->group(function () {
@@ -26,3 +27,24 @@ Route::middleware('auth')->prefix('exhibition')->group(function () {
     Route::get('/{id}/checklists', [ExhibitionController::class, 'checklists'])->name('exhibition.checklists');
     Route::get('/{id}', [ExhibitionController::class, 'show'])->name('exhibition.show');
 });
+
+// heratio#146 — exhibition space (front-of-house space allocation, sibling of strongroom)
+Route::get('/exhibition-space/browse', [ExhibitionSpaceController::class, 'browse'])->name('exhibition-space.browse');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/exhibition-space/add', [ExhibitionSpaceController::class, 'create'])->name('exhibition-space.create');
+    Route::post('/exhibition-space/add', [ExhibitionSpaceController::class, 'store'])->name('exhibition-space.store')->middleware('acl:create');
+    Route::get('/exhibition-space/{slug}/edit', [ExhibitionSpaceController::class, 'edit'])->name('exhibition-space.edit');
+    Route::post('/exhibition-space/{slug}/edit', [ExhibitionSpaceController::class, 'update'])->name('exhibition-space.update')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/place', [ExhibitionSpaceController::class, 'placePlacement'])->name('exhibition-space.place')->middleware('acl:update');
+    Route::post('/exhibition-space/placement/{placementId}/remove', [ExhibitionSpaceController::class, 'removePlacement'])->name('exhibition-space.placement.remove')->middleware('acl:update')->whereNumber('placementId');
+});
+
+Route::middleware('admin')->group(function () {
+    Route::get('/exhibition-space/{slug}/delete', [ExhibitionSpaceController::class, 'confirmDelete'])->name('exhibition-space.confirmDelete');
+    Route::delete('/exhibition-space/{slug}/delete', [ExhibitionSpaceController::class, 'destroy'])->name('exhibition-space.destroy')->middleware('acl:delete');
+});
+
+Route::get('/exhibition-space/{slug}', [ExhibitionSpaceController::class, 'show'])
+    ->name('exhibition-space.show')
+    ->where('slug', '(?!browse|add|placement)[a-z0-9][a-z0-9-]*');
