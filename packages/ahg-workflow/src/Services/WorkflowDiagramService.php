@@ -50,12 +50,32 @@ class WorkflowDiagramService
             return $this->emptyState(__('This workflow has no steps yet. Add at least one step to see a diagram.'));
         }
 
-        // Group by step_order — steps with the same order render as parallel siblings.
-        $rows = [];
-        foreach ($steps as $step) {
-            $rows[(int) $step->step_order][] = $step;
+        // heratio#143 Phase 3 — if explicit edges exist, lay out by topological rank.
+        // Otherwise fall back to step_order grouping (linear / parallel via shared order).
+        $edgeSvc = new WorkflowEdgeService();
+        $stepsById = $steps->keyBy('id');
+        if ($edgeSvc->hasEdges($workflowId)) {
+            $rankRows = $edgeSvc->topologicalRows($workflowId);
+            $edges = $edgeSvc->getEdges($workflowId)->toArray();
+            $useExplicitEdges = true;
+            $rows = [];
+            foreach ($rankRows as $rank => $stepIds) {
+                foreach ($stepIds as $sid) {
+                    if (isset($stepsById[$sid])) {
+                        $rows[$rank][] = $stepsById[$sid];
+                    }
+                }
+            }
+        } else {
+            $useExplicitEdges = false;
+            $edges = [];
+            // Group by step_order — steps with the same order render as parallel siblings.
+            $rows = [];
+            foreach ($steps as $step) {
+                $rows[(int) $step->step_order][] = $step;
+            }
+            ksort($rows);
         }
-        ksort($rows);
 
         $maxParallel = max(array_map('count', $rows));
         $svgW = self::PAD * 2 + ($maxParallel * self::NODE_W) + (($maxParallel - 1) * self::V_GAP);
@@ -92,20 +112,42 @@ class WorkflowDiagramService
         }
 
         // Render edges first (so nodes paint on top).
-        $rowOrders = array_keys($rows);
-        for ($i = 0; $i < count($rowOrders) - 1; $i++) {
-            foreach ($rows[$rowOrders[$i]] as $from) {
-                foreach ($rows[$rowOrders[$i + 1]] as $to) {
-                    $fromPos = $positions[$from->id];
-                    $toPos = $positions[$to->id];
-                    $x1 = $fromPos['x'] + self::NODE_W / 2;
-                    $y1 = $fromPos['y'] + self::NODE_H;
-                    $x2 = $toPos['x']   + self::NODE_W / 2;
-                    $y2 = $toPos['y'];
-                    $out .= sprintf(
-                        '<line x1="%d" y1="%d" x2="%d" y2="%d" class="wfdiag-edge" marker-end="url(#wfdiag-arrow)"/>',
-                        $x1, $y1, $x2, $y2 - 2
-                    );
+        if ($useExplicitEdges) {
+            // Use the stored edges.
+            foreach ($edges as $edge) {
+                $fromId = (int) $edge->from_step_id;
+                $toId   = (int) $edge->to_step_id;
+                if (!isset($positions[$fromId]) || !isset($positions[$toId])) {
+                    continue;
+                }
+                $fromPos = $positions[$fromId];
+                $toPos = $positions[$toId];
+                $x1 = $fromPos['x'] + self::NODE_W / 2;
+                $y1 = $fromPos['y'] + self::NODE_H;
+                $x2 = $toPos['x']   + self::NODE_W / 2;
+                $y2 = $toPos['y'];
+                $out .= sprintf(
+                    '<line x1="%d" y1="%d" x2="%d" y2="%d" class="wfdiag-edge" marker-end="url(#wfdiag-arrow)"/>',
+                    $x1, $y1, $x2, $y2 - 2
+                );
+            }
+        } else {
+            // Fallback: fully-connect consecutive rows by step_order.
+            $rowOrders = array_keys($rows);
+            for ($i = 0; $i < count($rowOrders) - 1; $i++) {
+                foreach ($rows[$rowOrders[$i]] as $from) {
+                    foreach ($rows[$rowOrders[$i + 1]] as $to) {
+                        $fromPos = $positions[$from->id];
+                        $toPos = $positions[$to->id];
+                        $x1 = $fromPos['x'] + self::NODE_W / 2;
+                        $y1 = $fromPos['y'] + self::NODE_H;
+                        $x2 = $toPos['x']   + self::NODE_W / 2;
+                        $y2 = $toPos['y'];
+                        $out .= sprintf(
+                            '<line x1="%d" y1="%d" x2="%d" y2="%d" class="wfdiag-edge" marker-end="url(#wfdiag-arrow)"/>',
+                            $x1, $y1, $x2, $y2 - 2
+                        );
+                    }
                 }
             }
         }

@@ -329,7 +329,28 @@ INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `code`, `label`
 ('workflow_escalation_action', 'Workflow Escalation Action', 'notify_admin', 'Notify Administrator', '#fd7e14', 'fa-user-shield', 2, 1, 'workflow'),
 ('workflow_escalation_action', 'Workflow Escalation Action', 'auto_reassign', 'Auto-Reassign', '#dc3545', 'fa-exchange-alt', 3, 1, 'workflow');
 
-
+-- ============================================================================
+-- heratio#143 Phase 3 — workflow graph edges (drag-drop designer support).
+-- Optional; when present, the diagram renderer uses these edges to model
+-- branching/parallel flow. When absent, the renderer falls back to
+-- ahg_workflow_step.step_order (linear).
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS ahg_workflow_edge (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    workflow_id INT NOT NULL,
+    from_step_id INT NOT NULL,
+    to_step_id INT NOT NULL,
+    condition_expr VARCHAR(500) NULL COMMENT 'optional gating expression — free text for now, structure later',
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    UNIQUE KEY uq_workflow_edge (workflow_id, from_step_id, to_step_id),
+    INDEX ix_workflow (workflow_id),
+    INDEX ix_from_step (from_step_id),
+    INDEX ix_to_step (to_step_id),
+    CONSTRAINT fk_wfedge_workflow FOREIGN KEY (workflow_id) REFERENCES ahg_workflow(id) ON DELETE CASCADE,
+    CONSTRAINT fk_wfedge_from FOREIGN KEY (from_step_id) REFERENCES ahg_workflow_step(id) ON DELETE CASCADE,
+    CONSTRAINT fk_wfedge_to FOREIGN KEY (to_step_id) REFERENCES ahg_workflow_step(id) ON DELETE CASCADE
+);
 
 
 

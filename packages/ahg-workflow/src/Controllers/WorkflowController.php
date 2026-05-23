@@ -28,6 +28,7 @@
 namespace AhgWorkflow\Controllers;
 
 use AhgWorkflow\Services\WorkflowDiagramService;
+use AhgWorkflow\Services\WorkflowEdgeService;
 use AhgWorkflow\Services\WorkflowService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -332,6 +333,63 @@ class WorkflowController extends Controller
             'svg'      => $svc->render((int) $id),
             'fallback' => $svc->textFallback((int) $id),
         ]);
+    }
+
+    /**
+     * heratio#143 Phase 3 — drag-drop designer canvas.
+     */
+    public function designer(int $id)
+    {
+        $workflow = $this->service->getWorkflow($id);
+        if (!$workflow) {
+            abort(404, 'Workflow not found');
+        }
+
+        $steps = DB::table('ahg_workflow_step')
+            ->where('workflow_id', $id)
+            ->orderBy('step_order')
+            ->orderBy('id')
+            ->get(['id', 'name', 'step_order', 'step_type', 'is_optional']);
+
+        $edges = (new WorkflowEdgeService())->getEdges($id);
+
+        return view('ahg-workflow::designer', [
+            'workflow' => $workflow,
+            'steps'    => $steps,
+            'edges'    => $edges,
+        ]);
+    }
+
+    /**
+     * heratio#143 Phase 3 — AJAX save endpoint. Replaces ALL edges for a
+     * workflow with the supplied set, after DAG validation.
+     */
+    public function designerSave(Request $request, int $id)
+    {
+        $workflow = $this->service->getWorkflow($id);
+        if (!$workflow) {
+            return response()->json(['ok' => false, 'errors' => ['Workflow not found.']], 404);
+        }
+
+        $raw = $request->input('edges', []);
+        if (!is_array($raw)) {
+            return response()->json(['ok' => false, 'errors' => ['edges must be an array.']], 422);
+        }
+
+        $edges = [];
+        foreach ($raw as $e) {
+            if (!is_array($e)) {
+                continue;
+            }
+            $edges[] = [
+                'from_step_id'   => (int) ($e['from_step_id'] ?? 0),
+                'to_step_id'     => (int) ($e['to_step_id'] ?? 0),
+                'condition_expr' => isset($e['condition_expr']) ? (string) $e['condition_expr'] : null,
+            ];
+        }
+
+        $result = (new WorkflowEdgeService())->replaceEdges($id, $edges);
+        return response()->json($result, $result['ok'] ? 200 : 422);
     }
 
     /**
