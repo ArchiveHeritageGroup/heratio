@@ -154,6 +154,19 @@
     <li><a class="dropdown-item" href="{{ route('heritage.custodian') }}"><i class="fas fa-hands me-2"></i>{{ __('Custodian') }}</a></li>
     @endif
 
+    {{-- Storage (gated by ahg_strongroom table existence — ahg-storage-manage feature) --}}
+    @php
+      $hasStrongrooms = false;
+      try {
+          $hasStrongrooms = \Illuminate\Support\Facades\Schema::hasTable('ahg_strongroom');
+      } catch (\Throwable $e) {}
+    @endphp
+    @if($hasStrongrooms)
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">{{ __('Storage') }}</h6></li>
+    <li><a class="dropdown-item" href="{{ route('strongroom.browse') }}"><i class="fas fa-warehouse me-2"></i>{{ __('Strongrooms') }}</a></li>
+    @endif
+
     {{-- Maintenance (Backup/Restore gated by ahgBackupPlugin; Jobs always shown) --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">{{ __('Maintenance') }}</h6></li>

@@ -349,6 +349,63 @@
           </div>
         </div>
 
+        {{-- heratio#144 — Strongroom assignment (only when strongroom feature installed) --}}
+        @if(!empty($strongroomChoices ?? []) || ($currentAssignment ?? null))
+        <div class="card mb-4">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-warehouse me-2"></i>{{ __('Strongroom assignment') }}</h5>
+          </div>
+          <div class="card-body">
+            @if($currentAssignment)
+              <div class="alert alert-secondary py-2 mb-3">
+                {{ __('Currently in:') }}
+                <strong>{{ $currentAssignment->strongroom_name }}</strong>
+                — {{ (float) $currentAssignment->size_units_used }}
+                {{ __($currentAssignment->capacity_unit) }}
+              </div>
+            @endif
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">{{ __('Action') }}</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="strongroom_action" id="sra_none" value="" checked>
+                <label class="form-check-label" for="sra_none">{{ __('No change') }}</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="strongroom_action" id="sra_assign" value="assign">
+                <label class="form-check-label" for="sra_assign">{{ $currentAssignment ? __('Move to another strongroom (or update units)') : __('Assign to a strongroom') }}</label>
+              </div>
+              @if($currentAssignment)
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="strongroom_action" id="sra_unassign" value="unassign">
+                <label class="form-check-label" for="sra_unassign">{{ __('Remove from current strongroom') }}</label>
+              </div>
+              @endif
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label for="strongroom_id" class="form-label">{{ __('Strongroom') }}</label>
+                <select name="strongroom_id" id="strongroom_id" class="form-select">
+                  <option value="">{{ __('-- Select a strongroom --') }}</option>
+                  @foreach($strongroomChoices ?? [] as $rid => $label)
+                    <option value="{{ $rid }}" @selected(old('strongroom_id', $currentAssignment->strongroom_id ?? '') == $rid)>{{ $label }}</option>
+                  @endforeach
+                </select>
+                <div class="form-text">{{ __('Used only when "Assign" or "Move" is selected above.') }}</div>
+              </div>
+              <div class="col-md-4">
+                <label for="size_units_used" class="form-label">{{ __('Units used') }}</label>
+                <input type="number" name="size_units_used" id="size_units_used" class="form-control"
+                       min="0" step="0.01"
+                       value="{{ old('size_units_used', $currentAssignment->size_units_used ?? '') }}">
+                <div class="form-text">{{ __('e.g. linear-metre / box count, matched to the room\'s unit.') }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        @endif
+
       </div>
     </div>
 

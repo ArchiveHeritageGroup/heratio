@@ -29,6 +29,7 @@ namespace AhgStorageManage\Controllers;
 
 use AhgStorageManage\Services\StorageBrowseService;
 use AhgStorageManage\Services\StorageService;
+use AhgStorageManage\Services\StrongroomService;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
@@ -108,11 +109,11 @@ class StorageController extends Controller
 
     public function create()
     {
-        return view('ahg-storage-manage::edit', [
+        return view('ahg-storage-manage::edit', array_merge([
             'storage' => null,
             'typeChoices' => $this->service->getFormChoices(),
             'extendedData' => [],
-        ]);
+        ], $this->strongroomViewData(null)));
     }
 
     public function edit(string $slug)
@@ -122,11 +123,11 @@ class StorageController extends Controller
             abort(404);
         }
 
-        return view('ahg-storage-manage::edit', [
+        return view('ahg-storage-manage::edit', array_merge([
             'storage' => $storage,
             'typeChoices' => $this->service->getFormChoices(),
             'extendedData' => $this->service->getExtendedData($storage->id),
-        ]);
+        ], $this->strongroomViewData($storage->id)));
     }
 
     public function store(Request $request)
@@ -134,6 +135,7 @@ class StorageController extends Controller
         $request->validate(['name' => 'required|string|max:1024']);
         $id = $this->service->create($request->only($this->baseFields()));
         $this->service->saveExtendedData($id, $request->only($this->extendedFields()));
+        $this->applyStrongroomAssignment($request, $id);
         return redirect()
             ->route('physicalobject.show', $this->service->getSlug($id))
             ->with('success', 'Physical storage created successfully.');
@@ -149,9 +151,51 @@ class StorageController extends Controller
         $request->validate(['name' => 'required|string|max:1024']);
         $this->service->update($storage->id, $request->only($this->baseFields()));
         $this->service->saveExtendedData($storage->id, $request->only($this->extendedFields()));
+        $this->applyStrongroomAssignment($request, $storage->id);
         return redirect()
             ->route('physicalobject.show', $slug)
             ->with('success', 'Physical storage updated successfully.');
+    }
+
+    /**
+     * Build strongroom-related view data. Returns empty array if the
+     * ahg_strongroom table does not yet exist (feature not installed).
+     */
+    private function strongroomViewData(?int $physicalObjectId): array
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_strongroom')) {
+            return ['strongroomChoices' => [], 'currentAssignment' => null];
+        }
+        $svc = new StrongroomService();
+        return [
+            'strongroomChoices' => $svc->dropdownChoices(),
+            'currentAssignment' => $physicalObjectId ? $svc->getAssignment($physicalObjectId) : null,
+        ];
+    }
+
+    /**
+     * Handle strongroom_action POST values: 'assign' / 'unassign' / '' (no-op).
+     * Silently skips if the feature is not installed.
+     */
+    private function applyStrongroomAssignment(Request $request, int $physicalObjectId): void
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_strongroom')) {
+            return;
+        }
+        $svc = new StrongroomService();
+        $action = (string) $request->input('strongroom_action', '');
+
+        if ('unassign' === $action) {
+            $svc->unassign($physicalObjectId);
+            return;
+        }
+        if ('assign' === $action) {
+            $roomId = (int) $request->input('strongroom_id', 0);
+            $size = (float) $request->input('size_units_used', 0);
+            if ($roomId > 0) {
+                $svc->assign($physicalObjectId, $roomId, $size);
+            }
+        }
     }
 
     public function confirmDelete(string $slug)
