@@ -6,15 +6,39 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0"><i class="fas fa-cog me-2"></i>{{ __('Workflow Administration') }}</h1>
-    <div>
+    <div class="d-flex gap-2 flex-wrap">
       <a href="{{ route('workflow.admin.create') }}" class="btn atom-btn-outline-success">
         <i class="fas fa-plus me-1"></i>{{ __('Create Workflow') }}
       </a>
+      {{-- Spectrum#B: install the 21 procedure starter pack --}}
+      <form method="POST" action="{{ route('workflow.admin.install-spectrum') }}" class="d-inline"
+            onsubmit="return confirm('{{ __('Install the Spectrum 5.1 procedure starter pack? This will add any missing Spectrum-tagged workflows. Tick the Overwrite box first if you want to RESET existing seeded steps (this will lose hand-customised steps for those procedures).') }}');">
+        @csrf
+        <label class="me-1 small text-muted" title="{{ __('When ticked, existing Spectrum workflows have their steps replaced with the seed defaults. Without it, only missing procedures are added.') }}">
+          <input type="checkbox" name="overwrite" value="1"> {{ __('Overwrite') }}
+        </label>
+        <button type="submit" class="btn btn-outline-info">
+          <i class="fas fa-university me-1"></i>{{ __('Install Spectrum pack') }}
+        </button>
+      </form>
       <a href="{{ route('workflow.dashboard') }}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-1"></i>{{ __('Dashboard') }}
       </a>
     </div>
   </div>
+
+  @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-1"></i>{{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  @endif
+  @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-triangle me-1"></i>{{ session('error') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  @endif
 
   {{-- Workflow Settings --}}
   <div class="card mb-4">

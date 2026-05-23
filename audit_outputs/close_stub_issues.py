@@ -3,11 +3,10 @@
 Keeps: #143, #144, #145, #146, #644
 """
 
-import subprocess, time
+import subprocess, time, sys
 
 KEEPERS = {143, 144, 145, 146, 644}
 
-# All stub numbers confirmed from gh issue list
 STUBS = [
     537,535,532,528,527,526,525,520,519,517,515,514,513,510,509,508,507,506,502,500,
     498,496,495,493,490,489,487,486,485,484,483,482,481,480,479,478,477,476,475,474,
@@ -27,11 +26,14 @@ STUBS = [
 
 REPO = "ArchiveHeritageGroup/heratio"
 BATCH_SIZE = 20
-GAP = 5  # seconds between batches
+GAP = 5
+
+sys.stdout.reconfigure(line_buffering=True)
 
 print(f"Closing {len(STUBS)} stub issues (keeping {len(KEEPERS)} open)...")
-print(f"Rate: 1 batch of {BATCH_SIZE} every {GAP}s → ~{(len(STUBS)/BATCH_SIZE)*GAP/60:.1f} min total")
+print(f"Rate: 1 batch of {BATCH_SIZE} every {GAP}s")
 print()
+sys.stdout.flush()
 
 closed = 0
 errors = 0
@@ -51,9 +53,12 @@ for i in range(0, len(STUBS), BATCH_SIZE):
             print(f"❌ Error on #{num}: {result.stderr.strip()}")
             errors += 1
             batch_err += 1
-        time.sleep(0.25)  # small gap between individual closes
+        sys.stdout.flush()
+        time.sleep(0.25)
     print(f"  Batch {i//BATCH_SIZE+1}: {batch_ok} ok, {batch_err} errors")
+    sys.stdout.flush()
     time.sleep(GAP)
 
 print()
 print(f"Done — {closed} closed, {errors} errors.")
+sys.stdout.flush()

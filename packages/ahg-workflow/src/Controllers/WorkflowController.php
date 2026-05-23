@@ -347,6 +347,28 @@ class WorkflowController extends Controller
     }
 
     /**
+     * Spectrum#B — install (or re-install) the Spectrum 5.1 procedure pack via
+     * the Artisan command. Idempotent default; --overwrite is opt-in via
+     * the form checkbox.
+     */
+    public function installSpectrumPack(Request $request)
+    {
+        $overwrite = $request->boolean('overwrite');
+        $args = [];
+        if ($overwrite) {
+            $args['--overwrite'] = true;
+        }
+
+        try {
+            \Illuminate\Support\Facades\Artisan::call('workflow:seed-spectrum', $args);
+            $output = \Illuminate\Support\Facades\Artisan::output();
+            return redirect()->route('workflow.admin')->with('success', 'Spectrum procedure pack installed. ' . trim(strrchr($output, "\n") ?: $output));
+        } catch (\Throwable $e) {
+            return redirect()->route('workflow.admin')->with('error', 'Install failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * heratio#143 Phase 3 — drag-drop designer canvas.
      */
     public function designer(int $id)

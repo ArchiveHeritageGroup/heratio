@@ -49,6 +49,9 @@ Route::middleware('admin')->group(function () {
     Route::get('/workflow/{id}/designer', [WorkflowController::class, 'designer'])->name('workflow.designer')->whereNumber('id');
     Route::post('/workflow/{id}/designer/save', [WorkflowController::class, 'designerSave'])->name('workflow.designer.save')->whereNumber('id');
 
+    // Spectrum#B — install/re-install Spectrum 5.1 procedure pack.
+    Route::post('/workflow/admin/install-spectrum', [WorkflowController::class, 'installSpectrumPack'])->name('workflow.admin.install-spectrum');
+
     // Admin: steps
     Route::post('/workflow/admin/{workflowId}/step/add', [WorkflowController::class, 'addStep'])->name('workflow.admin.step.add');
     Route::post('/workflow/admin/step/{id}/delete', [WorkflowController::class, 'deleteStep'])->name('workflow.admin.step.delete');
