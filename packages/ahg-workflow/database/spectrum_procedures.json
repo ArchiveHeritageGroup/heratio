@@ -10,7 +10,7 @@
         { "name": "Issue receipt", "step_type": "review", "action_required": "approve_reject", "instructions": "Issue a written entry receipt to the depositor specifying what has been received and on what terms." },
         { "name": "Initial condition check", "step_type": "review", "action_required": "approve_reject", "instructions": "Conduct a basic condition assessment on arrival — note any damage, packaging issues, or immediate conservation concerns." },
         { "name": "Provisional location", "step_type": "review", "action_required": "approve_reject", "instructions": "Assign a provisional secure location (entry store / triage area). Record the location in the entry record." },
-        { "name": "Handover for processing", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Transfer the object to the appropriate next procedure (Acquisition, Loans in, Cataloguing, etc.). Close the Object entry record once handover is confirmed." }
+        { "name": "Handover for processing", "step_type": "approve", "action_required": "approve_reject", "instructions": "Transfer the object to the appropriate next procedure (Acquisition, Loans in, Cataloguing, etc.). Close the Object entry record once handover is confirmed." }
       ]
     },
     "acquisition": {
@@ -18,10 +18,10 @@
       "description": "Take legal and physical ownership of an object and formally enter it into the permanent collection.",
       "steps": [
         { "name": "Acquisition proposal", "step_type": "review", "action_required": "approve_reject", "instructions": "Prepare and submit the acquisition proposal — provenance, condition, significance, cost, fit with collecting policy." },
-        { "name": "Governance approval", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Acquisitions panel / trustees consider the proposal against the collecting policy and authorise (or decline) the acquisition." },
+        { "name": "Governance approval", "step_type": "approve", "action_required": "approve_reject", "instructions": "Acquisitions panel / trustees consider the proposal against the collecting policy and authorise (or decline) the acquisition." },
         { "name": "Transfer of title", "step_type": "review", "action_required": "approve_reject", "instructions": "Obtain signed transfer-of-title documentation from the previous owner; record terms and conditions." },
         { "name": "Assign accession number", "step_type": "review", "action_required": "approve_reject", "instructions": "Allocate a unique accession number per the institution's numbering scheme and mark the object." },
-        { "name": "Formal accession record", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Create the permanent accession record linking ownership, accession number, and catalogue entry. Notify stakeholders." }
+        { "name": "Formal accession record", "step_type": "approve", "action_required": "approve_reject", "instructions": "Create the permanent accession record linking ownership, accession number, and catalogue entry. Notify stakeholders." }
       ]
     },
     "inventory": {
@@ -32,7 +32,7 @@
         { "name": "Physical verification", "step_type": "review", "action_required": "approve_reject", "instructions": "Locate and physically check each item within scope. Record what is found and what is missing." },
         { "name": "Reconcile against records", "step_type": "review", "action_required": "approve_reject", "instructions": "Compare findings with catalogue and location records. Identify discrepancies (missing, found-not-recorded, location mismatch)." },
         { "name": "Investigate discrepancies", "step_type": "review", "action_required": "approve_reject", "instructions": "Follow up each discrepancy — search known locations, check loans/exits, review recent moves." },
-        { "name": "Inventory report", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Produce the inventory report summarising findings, outstanding items, and recommended follow-up actions." }
+        { "name": "Inventory report", "step_type": "approve", "action_required": "approve_reject", "instructions": "Produce the inventory report summarising findings, outstanding items, and recommended follow-up actions." }
       ]
     },
     "location_movement": {
@@ -43,7 +43,7 @@
         { "name": "Plan move", "step_type": "review", "action_required": "approve_reject", "instructions": "Plan route, packing, handlers, and timing. Identify risks and mitigations." },
         { "name": "Pre-move record", "step_type": "review", "action_required": "approve_reject", "instructions": "Capture the current location and the planned destination. Update the location record to 'in transit' as the move starts." },
         { "name": "Execute move", "step_type": "review", "action_required": "approve_reject", "instructions": "Carry out the move under the planned conditions. Note any incidents or deviations." },
-        { "name": "Confirm new location", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Confirm the object is in the new location and update the location record. Close the move." }
+        { "name": "Confirm new location", "step_type": "approve", "action_required": "approve_reject", "instructions": "Confirm the object is in the new location and update the location record. Close the move." }
       ]
     },
     "cataloguing": {
@@ -53,8 +53,8 @@
         { "name": "Identify object", "step_type": "review", "action_required": "approve_reject", "instructions": "Establish what the object is — title, classification, materials, technique. Reference authority lists." },
         { "name": "Descriptive catalogue", "step_type": "review", "action_required": "approve_reject", "instructions": "Complete the descriptive fields: dimensions, marks/inscriptions, makers, dates, place of origin, history." },
         { "name": "Subject indexing", "step_type": "review", "action_required": "approve_reject", "instructions": "Assign subject terms, keywords, and any standard-vocabulary references (AAT, ULAN, Iconclass, etc.)." },
-        { "name": "Quality review", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Curatorial / senior reviewer checks the catalogue entry for accuracy, completeness, and consistency." },
-        { "name": "Publication", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Make the catalogue record visible internally (and externally where appropriate) once approved." }
+        { "name": "Quality review", "step_type": "approve", "action_required": "approve_reject", "instructions": "Curatorial / senior reviewer checks the catalogue entry for accuracy, completeness, and consistency." },
+        { "name": "Publication", "step_type": "approve", "action_required": "approve_reject", "instructions": "Make the catalogue record visible internally (and externally where appropriate) once approved." }
       ]
     },
     "object_exit": {
@@ -62,10 +62,10 @@
       "description": "Document objects leaving the museum's care, whether temporarily or permanently.",
       "steps": [
         { "name": "Reason for exit", "step_type": "review", "action_required": "approve_reject", "instructions": "Record why the object is leaving — loan return, disposal, transfer, conservation off-site, etc." },
-        { "name": "Authorisation", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Obtain the appropriate authorisation per the exit reason (registrar, curator, trustees)." },
+        { "name": "Authorisation", "step_type": "approve", "action_required": "approve_reject", "instructions": "Obtain the appropriate authorisation per the exit reason (registrar, curator, trustees)." },
         { "name": "Pre-exit record", "step_type": "review", "action_required": "approve_reject", "instructions": "Capture final condition photographs and condition report. Update location to 'awaiting exit'." },
         { "name": "Handover", "step_type": "review", "action_required": "approve_reject", "instructions": "Physical handover to the receiving party with signed receipt; record date, time, and carrier." },
-        { "name": "Close record", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Close out the exit record; update the object's status (on loan, deaccessioned, etc.) and notify affected systems." }
+        { "name": "Close record", "step_type": "approve", "action_required": "approve_reject", "instructions": "Close out the exit record; update the object's status (on loan, deaccessioned, etc.) and notify affected systems." }
       ]
     },
     "loans_in": {
@@ -73,10 +73,10 @@
       "description": "Manage objects borrowed from external lenders, from request through return.",
       "steps": [
         { "name": "Loan request", "step_type": "review", "action_required": "approve_reject", "instructions": "Prepare the loan request, including purpose, duration, environmental requirements, and security." },
-        { "name": "Lender agreement", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Negotiate and sign the loan agreement; both parties must hold a copy." },
+        { "name": "Lender agreement", "step_type": "approve", "action_required": "approve_reject", "instructions": "Negotiate and sign the loan agreement; both parties must hold a copy." },
         { "name": "Insurance & transport", "step_type": "review", "action_required": "approve_reject", "instructions": "Arrange insurance (nail-to-nail or as specified) and transport. Confirm couriers if required." },
         { "name": "Receive & inspect", "step_type": "review", "action_required": "approve_reject", "instructions": "Receive the object, inspect against the lender's condition report, record any discrepancies." },
-        { "name": "Return at end of loan", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Return the object to the lender; obtain signed acknowledgement and close the loan record." }
+        { "name": "Return at end of loan", "step_type": "approve", "action_required": "approve_reject", "instructions": "Return the object to the lender; obtain signed acknowledgement and close the loan record." }
       ]
     },
     "loans_out": {
@@ -84,10 +84,10 @@
       "description": "Manage objects lent from the museum to external borrowers.",
       "steps": [
         { "name": "Borrower request review", "step_type": "review", "action_required": "approve_reject", "instructions": "Assess the borrower's request — purpose, venue suitability, security, environmental conditions." },
-        { "name": "Loan agreement", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Issue and sign the loan agreement specifying duration, conditions, insurance, and credit line." },
+        { "name": "Loan agreement", "step_type": "approve", "action_required": "approve_reject", "instructions": "Issue and sign the loan agreement specifying duration, conditions, insurance, and credit line." },
         { "name": "Condition documentation", "step_type": "review", "action_required": "approve_reject", "instructions": "Photograph and document condition immediately before dispatch. Share with borrower." },
         { "name": "Dispatch", "step_type": "review", "action_required": "approve_reject", "instructions": "Arrange packing, transport, and courier where required. Confirm receipt by borrower." },
-        { "name": "Return inspection", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Inspect on return, compare condition with pre-dispatch documentation, log any change or damage." }
+        { "name": "Return inspection", "step_type": "approve", "action_required": "approve_reject", "instructions": "Inspect on return, compare condition with pre-dispatch documentation, log any change or damage." }
       ]
     },
     "insurance": {
@@ -95,9 +95,9 @@
       "description": "Manage insurance and government indemnity arrangements for the collection.",
       "steps": [
         { "name": "Valuation for insurance", "step_type": "review", "action_required": "approve_reject", "instructions": "Establish or refresh insurance values — periodic for permanent collection, per-loan for borrowed/lent items." },
-        { "name": "Policy review", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Review policy coverage against current risks; renew or amend with insurer/indemnity issuer." },
+        { "name": "Policy review", "step_type": "approve", "action_required": "approve_reject", "instructions": "Review policy coverage against current risks; renew or amend with insurer/indemnity issuer." },
         { "name": "Document declarations", "step_type": "review", "action_required": "approve_reject", "instructions": "Maintain schedules of insured items, exclusions, and declarations required by the insurer." },
-        { "name": "Annual review", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Annual review of cover, values, and claims history." }
+        { "name": "Annual review", "step_type": "approve", "action_required": "approve_reject", "instructions": "Annual review of cover, values, and claims history." }
       ]
     },
     "damage_loss": {
@@ -106,9 +106,9 @@
       "steps": [
         { "name": "Discovery & immediate response", "step_type": "review", "action_required": "approve_reject", "instructions": "On discovery of damage or loss, secure the area / object, prevent further harm, and notify the registrar." },
         { "name": "Damage assessment", "step_type": "review", "action_required": "approve_reject", "instructions": "Conservator or qualified assessor documents the extent and likely cause of damage." },
-        { "name": "Incident report", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Produce a formal incident report including circumstances, immediate actions, and recommendations." },
+        { "name": "Incident report", "step_type": "approve", "action_required": "approve_reject", "instructions": "Produce a formal incident report including circumstances, immediate actions, and recommendations." },
         { "name": "Recovery/repair planning", "step_type": "review", "action_required": "approve_reject", "instructions": "Plan treatment, recovery, or — in case of loss — investigation and insurance claim." },
-        { "name": "Final disposition", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Close the incident: restored, written off, or under continuing investigation. Update insurance & catalogue records." }
+        { "name": "Final disposition", "step_type": "approve", "action_required": "approve_reject", "instructions": "Close the incident: restored, written off, or under continuing investigation. Update insurance & catalogue records." }
       ]
     },
     "conservation": {
@@ -117,9 +117,9 @@
       "steps": [
         { "name": "Condition assessment", "step_type": "review", "action_required": "approve_reject", "instructions": "Assess the current condition of the object — visual examination, instrumentation if needed." },
         { "name": "Treatment proposal", "step_type": "review", "action_required": "approve_reject", "instructions": "Conservator drafts treatment proposal: aims, methods, materials, risks, alternatives." },
-        { "name": "Approval", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Curator / conservation manager approves the treatment proposal." },
+        { "name": "Approval", "step_type": "approve", "action_required": "approve_reject", "instructions": "Curator / conservation manager approves the treatment proposal." },
         { "name": "Treatment & documentation", "step_type": "review", "action_required": "approve_reject", "instructions": "Carry out treatment; document materials, techniques, before/after photographs." },
-        { "name": "Preventive care review", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Review the object's storage and display conditions to prevent recurrence; update care plan." }
+        { "name": "Preventive care review", "step_type": "approve", "action_required": "approve_reject", "instructions": "Review the object's storage and display conditions to prevent recurrence; update care plan." }
       ]
     },
     "audit": {
@@ -130,7 +130,7 @@
         { "name": "Sampling & verification", "step_type": "review", "action_required": "approve_reject", "instructions": "Carry out the audit checks — physical verification, record cross-checks, procedure compliance." },
         { "name": "Findings documentation", "step_type": "review", "action_required": "approve_reject", "instructions": "Document findings in detail — what was checked, what was found, what was missing or anomalous." },
         { "name": "Management response", "step_type": "review", "action_required": "approve_reject", "instructions": "Management reviews findings and prepares responses / corrective action plan." },
-        { "name": "Audit report", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Final audit report shared with trustees / governance, with agreed actions tracked." }
+        { "name": "Audit report", "step_type": "approve", "action_required": "approve_reject", "instructions": "Final audit report shared with trustees / governance, with agreed actions tracked." }
       ]
     },
     "condition_check": {
@@ -140,7 +140,7 @@
         { "name": "Initial visual inspection", "step_type": "review", "action_required": "approve_reject", "instructions": "Visual inspection covering structural, surface, and material condition." },
         { "name": "Detailed examination", "step_type": "review", "action_required": "approve_reject", "instructions": "Where required, detailed examination including magnification, lighting variation, photography." },
         { "name": "Technical analysis", "step_type": "review", "action_required": "approve_reject", "instructions": "Optional: technical analysis (X-ray, UV, infrared, material analysis) where indicated and resourced." },
-        { "name": "Condition report", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Produce the condition report with photographs, observations, and any recommendations." }
+        { "name": "Condition report", "step_type": "approve", "action_required": "approve_reject", "instructions": "Produce the condition report with photographs, observations, and any recommendations." }
       ]
     },
     "valuation": {
@@ -150,7 +150,7 @@
         { "name": "Valuation request", "step_type": "review", "action_required": "approve_reject", "instructions": "Capture the trigger for valuation — insurance, loan, deaccession, periodic review." },
         { "name": "Comparable research", "step_type": "review", "action_required": "approve_reject", "instructions": "Research recent sales / valuations of comparable objects. Document sources." },
         { "name": "Independent appraisal", "step_type": "review", "action_required": "approve_reject", "instructions": "Where required, commission an independent appraiser. Confirm their credentials." },
-        { "name": "Documentation & review schedule", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Record the valuation, basis, valuer, date, and schedule next review." }
+        { "name": "Documentation & review schedule", "step_type": "approve", "action_required": "approve_reject", "instructions": "Record the valuation, basis, valuer, date, and schedule next review." }
       ]
     },
     "risk_management": {
@@ -161,7 +161,7 @@
         { "name": "Risk assessment & scoring", "step_type": "review", "action_required": "approve_reject", "instructions": "Assess likelihood and impact of each risk; assign a score and priority." },
         { "name": "Mitigation planning", "step_type": "review", "action_required": "approve_reject", "instructions": "Plan mitigation actions — preventive, detective, corrective. Assign owners and deadlines." },
         { "name": "Implementation", "step_type": "review", "action_required": "approve_reject", "instructions": "Carry out the agreed mitigations. Document evidence." },
-        { "name": "Periodic review", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Periodic review of the risk register; revise scoring, add new risks, retire mitigated ones." }
+        { "name": "Periodic review", "step_type": "approve", "action_required": "approve_reject", "instructions": "Periodic review of the risk register; revise scoring, add new risks, retire mitigated ones." }
       ]
     },
     "emergency_planning": {
@@ -172,7 +172,7 @@
         { "name": "Plan development", "step_type": "review", "action_required": "approve_reject", "instructions": "Develop response plans — salvage priorities, evacuation order, emergency contacts, equipment cache." },
         { "name": "Staff training", "step_type": "review", "action_required": "approve_reject", "instructions": "Train all relevant staff in the plan, their roles, and use of equipment." },
         { "name": "Drill & exercise", "step_type": "review", "action_required": "approve_reject", "instructions": "Run scheduled drills to test the plan; capture lessons learned." },
-        { "name": "Plan review/update", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Update the plan based on exercise outcomes, staff changes, and new risks." }
+        { "name": "Plan review/update", "step_type": "approve", "action_required": "approve_reject", "instructions": "Update the plan based on exercise outcomes, staff changes, and new risks." }
       ]
     },
     "use_of_collections": {
@@ -181,9 +181,9 @@
       "steps": [
         { "name": "Use request", "step_type": "review", "action_required": "approve_reject", "instructions": "Capture the user's request — who, what, why, when, how (handling? imaging?)." },
         { "name": "Eligibility review", "step_type": "review", "action_required": "approve_reject", "instructions": "Verify identity, purpose, and any ethical / rights considerations." },
-        { "name": "Approval & conditions", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Approve (or decline) with specific conditions — supervision, copying restrictions, photography." },
+        { "name": "Approval & conditions", "step_type": "approve", "action_required": "approve_reject", "instructions": "Approve (or decline) with specific conditions — supervision, copying restrictions, photography." },
         { "name": "Supervised use", "step_type": "review", "action_required": "approve_reject", "instructions": "Facilitate the access under the agreed conditions; record what was used." },
-        { "name": "Post-use condition check", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Check the object's condition after use; document any change. Close the access record." }
+        { "name": "Post-use condition check", "step_type": "approve", "action_required": "approve_reject", "instructions": "Check the object's condition after use; document any change. Close the access record." }
       ]
     },
     "rights_management": {
@@ -194,7 +194,7 @@
         { "name": "Rights documentation", "step_type": "review", "action_required": "approve_reject", "instructions": "Record rightsholders, terms, expiry dates, and supporting documentation." },
         { "name": "Permission requests", "step_type": "review", "action_required": "approve_reject", "instructions": "Where the museum needs permission to use an object (e.g. image online), request and record permissions." },
         { "name": "Licence tracking", "step_type": "review", "action_required": "approve_reject", "instructions": "Maintain a current view of in-force licences and their conditions." },
-        { "name": "Periodic review", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Periodic review — rights expiring, new claims, policy changes." }
+        { "name": "Periodic review", "step_type": "approve", "action_required": "approve_reject", "instructions": "Periodic review — rights expiring, new claims, policy changes." }
       ]
     },
     "reproduction": {
@@ -205,7 +205,7 @@
         { "name": "Rights clearance", "step_type": "review", "action_required": "approve_reject", "instructions": "Verify the museum has the right to reproduce; obtain external permission if needed." },
         { "name": "Production", "step_type": "review", "action_required": "approve_reject", "instructions": "Produce the reproduction — digitisation shoot, replica fabrication, etc. Document parameters." },
         { "name": "Quality control", "step_type": "review", "action_required": "approve_reject", "instructions": "QC the output — colour, resolution, metadata, naming." },
-        { "name": "Delivery & record", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Deliver to the requester and store the master in the digital asset system or replica register." }
+        { "name": "Delivery & record", "step_type": "approve", "action_required": "approve_reject", "instructions": "Deliver to the requester and store the master in the digital asset system or replica register." }
       ]
     },
     "deaccessioning": {
@@ -213,10 +213,10 @@
       "description": "Formally remove an object from the permanent collection through governance-approved disposal.",
       "steps": [
         { "name": "Deaccession proposal", "step_type": "review", "action_required": "approve_reject", "instructions": "Prepare the deaccession case — rationale, due diligence, ethical considerations, disposal method." },
-        { "name": "Governance review", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Collections committee and trustees consider the case; approve, decline, or refer." },
-        { "name": "Authorisation", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Final authorisation from governing body; record decision and any conditions." },
+        { "name": "Governance review", "step_type": "approve", "action_required": "approve_reject", "instructions": "Collections committee and trustees consider the case; approve, decline, or refer." },
+        { "name": "Authorisation", "step_type": "approve", "action_required": "approve_reject", "instructions": "Final authorisation from governing body; record decision and any conditions." },
         { "name": "Disposal execution", "step_type": "review", "action_required": "approve_reject", "instructions": "Execute the disposal — transfer to another institution, return to donor, sale, or last-resort destruction." },
-        { "name": "Permanent record", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Record the deaccession permanently — even after disposal, the museum keeps the documentation indefinitely." }
+        { "name": "Permanent record", "step_type": "approve", "action_required": "approve_reject", "instructions": "Record the deaccession permanently — even after disposal, the museum keeps the documentation indefinitely." }
       ]
     },
     "retrospective_doc": {
@@ -227,7 +227,7 @@
         { "name": "Prioritise", "step_type": "review", "action_required": "approve_reject", "instructions": "Prioritise by significance, risk, and resourcing constraints." },
         { "name": "Catalogue", "step_type": "review", "action_required": "approve_reject", "instructions": "Catalogue each prioritised item to current standards; reuse existing legacy data where reliable." },
         { "name": "Verify", "step_type": "review", "action_required": "approve_reject", "instructions": "Cross-check identification and provenance against external sources where possible." },
-        { "name": "Integrate", "step_type": "approve_reject", "action_required": "approve_reject", "instructions": "Integrate the new catalogue records into the main collection system; close the retrospective project for that batch." }
+        { "name": "Integrate", "step_type": "approve", "action_required": "approve_reject", "instructions": "Integrate the new catalogue records into the main collection system; close the retrospective project for that batch." }
       ]
     }
   }

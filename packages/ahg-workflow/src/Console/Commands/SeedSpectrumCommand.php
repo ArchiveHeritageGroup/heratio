@@ -95,8 +95,13 @@ class SeedSpectrumCommand extends Command
             if ($dryRun) {
                 return ['action' => 'created', 'icon' => '+', 'message' => 'would CREATE workflow + ' . count($procedure['steps'] ?? []) . ' steps'];
             }
-            $workflowId = $this->createWorkflow($code, $procedure);
-            $stepCount = $this->insertSteps($workflowId, $procedure['steps'] ?? []);
+            // Spectrum#B v1.65.1 — wrap create+steps in a transaction so a mid-insert
+            // failure (e.g. column truncation) doesn't leave behind a partial workflow.
+            [$workflowId, $stepCount] = DB::transaction(function () use ($code, $procedure) {
+                $wfId = $this->createWorkflow($code, $procedure);
+                $count = $this->insertSteps($wfId, $procedure['steps'] ?? []);
+                return [$wfId, $count];
+            });
             return ['action' => 'created', 'icon' => '+', 'message' => "created workflow id={$workflowId} with {$stepCount} steps"];
         }
 
