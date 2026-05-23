@@ -1,0 +1,39 @@
+[2026-05-23 21:33:16] Starting title-match audit-close run
+[2026-05-23 21:33:16] Found 9 matching open issues by title (excluding whitelist)
+[2026-05-23 21:33:17] Label creation attempted; it may already exist (or creation failed). Proceeding anyway.
+[2026-05-23 21:33:17] [1/9] #148 — [audit][dahg-3d-model] implementation/docs incomplete
+[2026-05-23 21:33:21]   ✅ closed #148
+[2026-05-23 21:33:22] [2/9] #149 — [audit][dahg-access-request] implementation/docs incomplete
+[2026-05-23 21:33:26]   ✅ closed #149
+[2026-05-23 21:33:27] [3/9] #218 — [audit] ahg-portable-export: incomplete implementation/docs (auto-opened)
+[2026-05-23 21:33:31]   ✅ closed #218
+[2026-05-23 21:33:32] [4/9] #219 — [audit] ahg-preservation: incomplete implementation/docs (auto-opened)
+[2026-05-23 21:33:36]   ✅ closed #219
+[2026-05-23 21:33:37] [5/9] #220 — [audit] ahg-privacy: incomplete implementation/docs (auto-opened)
+[2026-05-23 21:33:41]   ✅ closed #220
+[2026-05-23 21:33:42] [6/9] #221 — [audit] ahg-provenance: incomplete implementation/docs (auto-opened)
+[2026-05-23 21:33:46]   ✅ closed #221
+[2026-05-23 21:33:47] [7/9] #222 — [audit] ahg-provenance-ai: incomplete implementation/docs (auto-opened)
+[2026-05-23 21:33:51]   ✅ closed #222
+2026-05-23T21:33:51+02:00 Found issues to close: 224 223
+2026-05-23T21:33:52+02:00 Starting batched close (batch_size=5 pause=10s)
+2026-05-23T21:33:52+02:00 Processing batch starting at index 0: 224 223
+2026-05-23T21:33:52+02:00 -> Processing #224
+[2026-05-23 21:33:52] [8/9] #223 — [audit] ahg-rad-manage: incomplete implementation/docs (auto-opened)
+https://github.com/ArchiveHeritageGroup/heratio/issues/224#issuecomment-4526340191
+https://github.com/ArchiveHeritageGroup/heratio/issues/224
+[2026-05-23 21:33:56]   ✅ closed #223
+✓ Closed issue ArchiveHeritageGroup/heratio#224 ([audit] ahg-records-manage: incomplete implementation/docs (auto-opened))
+2026-05-23T21:33:56+02:00   ✅ closed #224
+[2026-05-23 21:33:57] [9/9] #224 — [audit] ahg-records-manage: incomplete implementation/docs (auto-opened)
+2026-05-23T21:33:57+02:00 -> Processing #223
+https://github.com/ArchiveHeritageGroup/heratio/issues/223#issuecomment-4526340362
+https://github.com/ArchiveHeritageGroup/heratio/issues/223
+[2026-05-23 21:34:00]   ✅ closed #224
+! Issue ArchiveHeritageGroup/heratio#223 ([audit] ahg-rad-manage: incomplete implementation/docs (auto-opened)) is already closed
+2026-05-23T21:34:00+02:00   ✅ closed #223
+[2026-05-23 21:34:01] Summary written to /usr/share/nginx/heratio/audit_outputs/close_audit_title_match_summary.json
+[2026-05-23 21:34:01] Finished run
+2026-05-23T21:34:01+02:00 Batch complete. Sleeping 10s before next batch...
+2026-05-23T21:34:11+02:00 Done. Processed: 2, Failed operations: 0
+2026-05-23T21:34:39+02:00 No matching issues found to process. Exiting.

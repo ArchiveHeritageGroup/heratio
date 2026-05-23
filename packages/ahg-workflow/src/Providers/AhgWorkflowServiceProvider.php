@@ -23,6 +23,7 @@ class AhgWorkflowServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgWorkflow\Console\Commands\SeedSpectrumCommand::class,
+                \AhgWorkflow\Console\Commands\SpectrumOverdueCommand::class,
             ]);
         }
     }

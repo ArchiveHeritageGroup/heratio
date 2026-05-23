@@ -27,6 +27,7 @@
 
 namespace AhgWorkflow\Controllers;
 
+use AhgWorkflow\Services\SpectrumComplianceService;
 use AhgWorkflow\Services\SpectrumProcedureCatalog;
 use AhgWorkflow\Services\WorkflowDiagramService;
 use AhgWorkflow\Services\WorkflowEdgeService;
@@ -151,6 +152,16 @@ class WorkflowController extends Controller
         $result = $this->service->approveTask($id, $userId, $request->input('comment'));
 
         if ($result) {
+            // Spectrum Phase C2 — apply cross-procedure chain rules
+            try {
+                $svc = new SpectrumComplianceService();
+                $chain = $svc->applyChainOnTaskApproved($id);
+                if (($chain['spawned'] ?? 0) > 0) {
+                    return redirect()->route('workflow.my-tasks')->with('success', "Task approved. Spectrum chain spawned {$chain['spawned']} downstream task(s).");
+                }
+            } catch (\Throwable $e) {
+                // chain spawn is best-effort — don't block approval
+            }
             return redirect()->route('workflow.my-tasks')->with('success', 'Task approved successfully.');
         }
 
@@ -586,4 +597,87 @@ class WorkflowController extends Controller
     public function teamWork(Request $request) { return view('ahg-workflow::team-work', ['rows' => collect()]); }
 
     public function timeline(int $id) { return view('ahg-workflow::timeline', ['events' => collect()]); }
+
+    // =========================================================================
+    // Spectrum Phase C — compliance dashboard, chain rules, per-object, export
+    // =========================================================================
+
+    public function spectrumDashboard(Request $request)
+    {
+        $svc = new SpectrumComplianceService();
+        $overdueDays = (int) $request->input('overdue_days', 30);
+        return view('ahg-workflow::spectrum-dashboard', [
+            'heatmap'     => $svc->heatmap('information_object', $overdueDays),
+            'overdueDays' => $overdueDays,
+            'statuses'    => SpectrumComplianceService::STATUSES,
+        ]);
+    }
+
+    public function spectrumExportCsv(Request $request)
+    {
+        $svc = new SpectrumComplianceService();
+        $overdueDays = (int) $request->input('overdue_days', 30);
+        $heatmap = $svc->heatmap('information_object', $overdueDays);
+
+        $filename = 'spectrum_compliance_'.date('Y-m-d').'.csv';
+        $headers = [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ];
+
+        $callback = function () use ($heatmap) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['procedure_code', 'procedure', 'total_objects', 'not_started', 'in_progress', 'completed', 'overdue', 'rejected', 'percent_completed']);
+            foreach ($heatmap as $code => $row) {
+                fputcsv($out, [
+                    $code,
+                    $row['label'],
+                    $row['total_objects'],
+                    $row['totals']['not_started'],
+                    $row['totals']['in_progress'],
+                    $row['totals']['completed'],
+                    $row['totals']['overdue'],
+                    $row['totals']['rejected'],
+                    $row['percent_completed'],
+                ]);
+            }
+            fclose($out);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function spectrumChainRules()
+    {
+        $svc = new SpectrumComplianceService();
+        return view('ahg-workflow::spectrum-chain-rules', [
+            'rules'      => $svc->getChainRules(),
+            'procedures' => SpectrumProcedureCatalog::all(),
+        ]);
+    }
+
+    public function spectrumChainSave(Request $request)
+    {
+        $svc = new SpectrumComplianceService();
+        try {
+            $svc->saveChainRule([
+                'id'             => $request->input('id'),
+                'from_procedure' => $request->input('from_procedure'),
+                'to_procedure'   => $request->input('to_procedure'),
+                'trigger_event'  => $request->input('trigger_event', 'on_complete'),
+                'is_active'      => $request->has('is_active'),
+                'notes'          => $request->input('notes'),
+            ]);
+            return redirect()->route('workflow.spectrum.chain')->with('success', 'Chain rule saved.');
+        } catch (\Throwable $e) {
+            return redirect()->route('workflow.spectrum.chain')->with('error', $e->getMessage());
+        }
+    }
+
+    public function spectrumChainDelete(Request $request, int $id)
+    {
+        $svc = new SpectrumComplianceService();
+        $svc->deleteChainRule($id);
+        return redirect()->route('workflow.spectrum.chain')->with('success', 'Chain rule deleted.');
+    }
 }

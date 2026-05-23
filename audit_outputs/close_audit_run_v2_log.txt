@@ -1,0 +1,4 @@
+[2026-05-23 21:19:12] Starting audit-close run (v2)
+[2026-05-23 21:19:12] Found 0 open issues with label 'audit'
+[2026-05-23 21:19:12] Summary written to /usr/share/nginx/heratio/audit_outputs/close_audit_summary_v2.json
+[2026-05-23 21:19:12] Finished run

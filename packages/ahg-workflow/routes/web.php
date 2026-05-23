@@ -52,6 +52,13 @@ Route::middleware('admin')->group(function () {
     // Spectrum#B — install/re-install Spectrum 5.1 procedure pack.
     Route::post('/workflow/admin/install-spectrum', [WorkflowController::class, 'installSpectrumPack'])->name('workflow.admin.install-spectrum');
 
+    // Spectrum Phase C — compliance dashboard + chain rules + export.
+    Route::get('/spectrum/dashboard', [WorkflowController::class, 'spectrumDashboard'])->name('workflow.spectrum.dashboard');
+    Route::get('/spectrum/export.csv', [WorkflowController::class, 'spectrumExportCsv'])->name('workflow.spectrum.export');
+    Route::get('/spectrum/chain', [WorkflowController::class, 'spectrumChainRules'])->name('workflow.spectrum.chain');
+    Route::post('/spectrum/chain/save', [WorkflowController::class, 'spectrumChainSave'])->name('workflow.spectrum.chain.save');
+    Route::post('/spectrum/chain/{id}/delete', [WorkflowController::class, 'spectrumChainDelete'])->name('workflow.spectrum.chain.delete')->whereNumber('id');
+
     // Admin: steps
     Route::post('/workflow/admin/{workflowId}/step/add', [WorkflowController::class, 'addStep'])->name('workflow.admin.step.add');
     Route::post('/workflow/admin/step/{id}/delete', [WorkflowController::class, 'deleteStep'])->name('workflow.admin.step.delete');

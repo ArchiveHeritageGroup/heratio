@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd /usr/share/nginx/heratio
+
+LOG="audit_outputs/close_audit_title_match_log.txt"
+COMMENT_FILE="audit_outputs/close_audit_comment.txt"
+
+if [ ! -f "$COMMENT_FILE" ]; then
+  echo "Comment file missing; exiting" >&2
+  exit 1
+fi
+
+# Whitelist of issue numbers to skip
+whitelist=(143 144 145 146 644)
+
+# Fetch matching open issue numbers via gh + jq
+mapfile -t nums < <(gh --repo ArchiveHeritageGroup/heratio issue list --state open --json number,title --jq '.[] | select((.title|ascii_downcase|contains("[audit]")) or ((.title|startswith("[")) and (.title|ascii_downcase|contains("audit")))) | .number')
+
+# Filter out whitelist
+filtered=()
+for n in "${nums[@]}"; do
+  skip=false
+  for w in "${whitelist[@]}"; do
+    if [ "$n" -eq "$w" ]; then
+      skip=true
+      break
+    fi
+  done
+  if [ "$skip" = true ]; then
+    continue
+  fi
+  filtered+=("$n")
+done
+
+if [ ${#filtered[@]} -eq 0 ]; then
+  echo "$(date --iso-8601=seconds) No matching issues found to process. Exiting." | tee -a "$LOG"
+  exit 0
+fi
+
+echo "$(date --iso-8601=seconds) Found issues to close: ${filtered[*]}" | tee -a "$LOG"
+
+BATCH_SIZE=5
+PAUSE=10
+LABEL="audit:resolved"
+
+# Ensure label exists (create or update; ignore errors)
+# use --force so gh returns success when the label already exists but needs updating
+gh --repo ArchiveHeritageGroup/heratio label create "$LABEL" --color ffcc00 --description "Resolved by audit script" --force || true
+
+processed=0
+failed=()
+
+echo "$(date --iso-8601=seconds) Starting batched close (batch_size=$BATCH_SIZE pause=${PAUSE}s)" | tee -a "$LOG"
+for ((i=0;i<${#filtered[@]}; i+=BATCH_SIZE)); do
+  batch=("${filtered[@]:i:BATCH_SIZE}")
+  echo "$(date --iso-8601=seconds) Processing batch starting at index $i: ${batch[*]}" | tee -a "$LOG"
+  for num in "${batch[@]}"; do
+    echo "$(date --iso-8601=seconds) -> Processing #$num" | tee -a "$LOG"
+    if ! gh --repo ArchiveHeritageGroup/heratio issue comment "$num" --body-file "$COMMENT_FILE" >>"$LOG" 2>&1; then
+      echo "$(date --iso-8601=seconds)   FAILED commenting on #$num" | tee -a "$LOG"
+      failed+=("$num:comment")
+      continue
+    fi
+    if ! gh --repo ArchiveHeritageGroup/heratio issue edit "$num" --add-label "$LABEL" >>"$LOG" 2>&1; then
+      echo "$(date --iso-8601=seconds)   WARNING: failed to add label to #$num" | tee -a "$LOG"
+      failed+=("$num:label")
+      # continue to try to close
+    fi
+    if ! gh --repo ArchiveHeritageGroup/heratio issue close "$num" >>"$LOG" 2>&1; then
+      echo "$(date --iso-8601=seconds)   FAILED closing #$num" | tee -a "$LOG"
+      failed+=("$num:close")
+      continue
+    fi
+    echo "$(date --iso-8601=seconds)   ✅ closed #$num" | tee -a "$LOG"
+    processed=$((processed+1))
+    sleep 1
+  done
+  echo "$(date --iso-8601=seconds) Batch complete. Sleeping ${PAUSE}s before next batch..." | tee -a "$LOG"
+  sleep $PAUSE
+done
+
+echo "$(date --iso-8601=seconds) Done. Processed: $processed, Failed operations: ${#failed[@]}" | tee -a "$LOG"
+if [ ${#failed[@]} -gt 0 ]; then
+  echo "Failures:" | tee -a "$LOG"
+  for f in "${failed[@]}"; do echo "  $f" | tee -a "$LOG"; done
+fi

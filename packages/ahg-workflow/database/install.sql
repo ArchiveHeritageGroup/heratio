@@ -354,7 +354,42 @@ CREATE TABLE IF NOT EXISTS ahg_workflow_edge (
     CONSTRAINT fk_wfedge_to FOREIGN KEY (to_step_id) REFERENCES ahg_workflow_step(id) ON DELETE CASCADE
 );
 
+-- ============================================================================
+-- Spectrum Phase C — per-object compliance cache + cross-procedure chain rules
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS ahg_spectrum_object_compliance (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    object_id INT NOT NULL,
+    object_type VARCHAR(50) NOT NULL DEFAULT 'information_object',
+    spectrum_procedure VARCHAR(64) NOT NULL COMMENT 'one of the 21 Spectrum procedure codes',
+    status VARCHAR(20) NOT NULL DEFAULT 'not_started'
+      COMMENT 'one of: not_started, in_progress, completed, overdue, rejected',
+    started_at DATETIME NULL,
+    completed_at DATETIME NULL,
+    last_task_id INT NULL,
+    last_computed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME NULL,
+    updated_at DATETIME NULL,
+    UNIQUE KEY uq_object_procedure (object_id, object_type, spectrum_procedure),
+    INDEX ix_procedure_status (spectrum_procedure, status),
+    INDEX ix_object (object_id, object_type),
+    INDEX ix_status (status)
+);
 
+CREATE TABLE IF NOT EXISTS ahg_spectrum_chain_rule (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    from_procedure VARCHAR(64) NOT NULL COMMENT 'when THIS procedure completes',
+    to_procedure VARCHAR(64) NOT NULL COMMENT 'auto-spawn a task on THIS procedure',
+    trigger_event VARCHAR(20) NOT NULL DEFAULT 'on_complete'
+      COMMENT 'one of: on_complete, on_approve, on_first_step',
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    notes TEXT NULL,
+    created_at DATETIME NULL,
+    updated_at DATETIME NULL,
+    UNIQUE KEY uq_chain (from_procedure, to_procedure, trigger_event),
+    INDEX ix_from (from_procedure, is_active),
+    INDEX ix_to (to_procedure)
+);
 
 
 SET FOREIGN_KEY_CHECKS = 1;
