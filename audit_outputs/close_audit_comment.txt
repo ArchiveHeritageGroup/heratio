@@ -1,0 +1,6 @@
+## Resolution
+
+Documentation has been reviewed and updated. This issue is now closed.
+
+---
+*Auto-closed by audit resolution script*
