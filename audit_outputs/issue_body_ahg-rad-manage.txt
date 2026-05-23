@@ -1,0 +1,16 @@
+## Package: `ahg-rad-manage`
+## Status: INCOMPLETE — 3 missing item(s)
+
+### Missing checks: services, db, readme
+
+### docs/help files referencing this package (1 found):
+- `docs/help/standalone-install-plan.md`
+
+### Required actions:
+- [ ] Add missing **services** files for `ahg-rad-manage`
+- [ ] Add missing **db** files for `ahg-rad-manage`
+- [ ] Add missing **readme** files for `ahg-rad-manage`
+
+### Notes
+- Run: `python audit_checker.py ahg-rad-manage` to re-verify after fixes.
+- See package source at `packages/ahg-rad-manage/`.

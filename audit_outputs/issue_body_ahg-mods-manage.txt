@@ -1,0 +1,16 @@
+## Package: `ahg-mods-manage`
+## Status: INCOMPLETE — 3 missing item(s)
+
+### Missing checks: services, db, readme
+
+### docs/help files referencing this package (1 found):
+- `docs/help/standalone-install-plan.md`
+
+### Required actions:
+- [ ] Add missing **services** files for `ahg-mods-manage`
+- [ ] Add missing **db** files for `ahg-mods-manage`
+- [ ] Add missing **readme** files for `ahg-mods-manage`
+
+### Notes
+- Run: `python audit_checker.py ahg-mods-manage` to re-verify after fixes.
+- See package source at `packages/ahg-mods-manage/`.

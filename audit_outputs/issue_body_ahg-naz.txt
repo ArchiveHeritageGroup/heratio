@@ -1,0 +1,19 @@
+## Package: `ahg-naz`
+## Status: INCOMPLETE — 2 missing item(s)
+
+### Missing checks: services, readme
+
+### docs/help files referencing this package (5 found):
+- `docs/help/ahgprovenanceplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/provenance-management.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/database-erd.md`
+
+### Required actions:
+- [ ] Add missing **services** files for `ahg-naz`
+- [ ] Add missing **readme** files for `ahg-naz`
+
+### Notes
+- Run: `python audit_checker.py ahg-naz` to re-verify after fixes.
+- See package source at `packages/ahg-naz/`.

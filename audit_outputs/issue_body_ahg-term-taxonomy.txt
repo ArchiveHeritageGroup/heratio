@@ -1,0 +1,15 @@
+## Package: `ahg-term-taxonomy`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (2 found):
+- `docs/help/standalone-install-plan.md`
+- `docs/help/term-taxonomy-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-term-taxonomy`
+
+### Notes
+- Run: `python audit_checker.py ahg-term-taxonomy` to re-verify after fixes.
+- See package source at `packages/ahg-term-taxonomy/`.

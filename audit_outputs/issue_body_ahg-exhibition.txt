@@ -1,0 +1,47 @@
+## Package: `ahg-exhibition`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (34 found):
+- `docs/help/functions.md`
+- `docs/help/ahgspectrumplugin.md`
+- `docs/help/glam-browse-user-guide.md`
+- `docs/help/roadmap.md`
+- `docs/help/ahgcoreplugin.md`
+- `docs/help/heritage-accounting-user-guide.md`
+- `docs/help/condition-reports.md`
+- `docs/help/museum-module-user-guide.md`
+- `docs/help/ahgdonoragreementplugin.md`
+- `docs/help/ahgconditionplugin.md`
+- `docs/help/cart-user-guide.md`
+- `docs/help/icip-user-guide.md`
+- `docs/help/loan-module-user-guide.md`
+- `docs/help/ahgprovenanceplugin.md`
+- `docs/help/research-training-manual-user-guide.md`
+- `docs/help/ahgdatamigrationplugin.md`
+- `docs/help/ahggalleryplugin.md`
+- `docs/help/landing-page-user-guide.md`
+- `docs/help/ahgreportbuilderplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/marketplace-user-guide.md`
+- `docs/help/ahgmuseumplugin.md`
+- `docs/help/gallery-module-user-guide.md`
+- `docs/help/portable-export-user-guide.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/ahgexhibitionplugin.md`
+- `docs/help/spectrum-user-guide.md`
+- `docs/help/workflows.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/ahgdisplayplugin.md`
+- `docs/help/exhibition-user-guide.md`
+- `docs/help/marketplace-flow-guide.md`
+- `docs/help/database-erd.md`
+- `docs/help/donor-agreement-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-exhibition`
+
+### Notes
+- Run: `python audit_checker.py ahg-exhibition` to re-verify after fixes.
+- See package source at `packages/ahg-exhibition/`.

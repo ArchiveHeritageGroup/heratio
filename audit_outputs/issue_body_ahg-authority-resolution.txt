@@ -1,0 +1,20 @@
+## Package: `ahg-authority-resolution`
+## Status: INCOMPLETE — 2 missing item(s)
+
+### Missing checks: controllers, readme
+
+### docs/help files referencing this package (6 found):
+- `docs/help/authority-resolution-review-screen.md`
+- `docs/help/authority-resolution-user-guide.md`
+- `docs/help/authority-resolution-create-new-authority.md`
+- `docs/help/ahg-authority-resolution.md`
+- `docs/help/authority-resolution-evidence-scoring.md`
+- `docs/help/authority-resolution-park-queue.md`
+
+### Required actions:
+- [ ] Add missing **controllers** files for `ahg-authority-resolution`
+- [ ] Add missing **readme** files for `ahg-authority-resolution`
+
+### Notes
+- Run: `python audit_checker.py ahg-authority-resolution` to re-verify after fixes.
+- See package source at `packages/ahg-authority-resolution/`.

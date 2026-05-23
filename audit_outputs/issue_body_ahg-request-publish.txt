@@ -1,0 +1,15 @@
+## Package: `ahg-request-publish`
+## Status: INCOMPLETE — 3 missing item(s)
+
+### Missing checks: services, readme, docs_help
+
+### docs/help files referencing this package (0 found):
+
+### Required actions:
+- [ ] Add missing **services** files for `ahg-request-publish`
+- [ ] Add missing **readme** files for `ahg-request-publish`
+- [ ] Add missing **docs_help** files for `ahg-request-publish`
+
+### Notes
+- Run: `python audit_checker.py ahg-request-publish` to re-verify after fixes.
+- See package source at `packages/ahg-request-publish/`.

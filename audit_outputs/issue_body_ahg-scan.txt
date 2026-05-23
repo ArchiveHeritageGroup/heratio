@@ -1,0 +1,78 @@
+## Package: `ahg-scan`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (65 found):
+- `docs/help/ahgnerplugin.md`
+- `docs/help/shell-execution-policy.md`
+- `docs/help/functions.md`
+- `docs/help/atom-heratio-security-assessment-2026-03-07.md`
+- `docs/help/label-printing-user-guide.md`
+- `docs/help/issue-198-implementation-plan.md`
+- `docs/help/ahgpreservationplugin.md`
+- `docs/help/roadmap.md`
+- `docs/help/ai-tools-user-guide.md`
+- `docs/help/heritage-accounting-user-guide.md`
+- `docs/help/reproduction-requests.md`
+- `docs/help/user-manual.md`
+- `docs/help/condition-reports.md`
+- `docs/help/dam-module-user-guide.md`
+- `docs/help/security-user-manual.md`
+- `docs/help/marketplace-payments-payouts.md`
+- `docs/help/duplicate-detection-user-guide.md`
+- `docs/help/authority-resolution-user-guide.md`
+- `docs/help/iiif-integration-user-guide.md`
+- `docs/help/ner-user-guide.md`
+- `docs/help/ahgingestplugin.md`
+- `docs/help/research-training-manual-user-guide.md`
+- `docs/help/atom-heratio-3dmodelviewer-feature-overview.md`
+- `docs/help/ahgprivacyplugin.md`
+- `docs/help/ahg-authority-resolution.md`
+- `docs/help/odrl-rights-policies.md`
+- `docs/help/atom-heratio-security-feature-overview.md`
+- `docs/help/vendor-user-guide.md`
+- `docs/help/atom-heratio-iiif-ai-extraction-feature-overview.md`
+- `docs/help/ahg3dmodelplugin.md`
+- `docs/help/ahgresearchplugin.md`
+- `docs/help/authority-resolution-evidence-scoring.md`
+- `docs/help/marketplace-user-guide.md`
+- `docs/help/researcher-user-guide.md`
+- `docs/help/privacy-user-guide.md`
+- `docs/help/ahgdedupeplugin.md`
+- `docs/help/preservation-user-guide.md`
+- `docs/help/portable-export-user-guide.md`
+- `docs/help/barcode-user-guide.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/authority-resolution-park-queue.md`
+- `docs/help/security-model.md`
+- `docs/help/ftp-upload-user-guide.md`
+- `docs/help/ai-condition-user-guide.md`
+- `docs/help/whats-new-2026-05.md`
+- `docs/help/atom-heratio-library-system-feature-overview.md`
+- `docs/help/ahgvendorplugin.md`
+- `docs/help/audio-player-user-guide.md`
+- `docs/help/ahgsettingsplugin.md`
+- `docs/help/pdf-merge-user-guide.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/atom-heratio-library-system-user-manual.md`
+- `docs/help/term-taxonomy-user-guide.md`
+- `docs/help/integrity-assurance-user-guide.md`
+- `docs/help/privacy-compliance-user-guide.md`
+- `docs/help/marketplace-flow-guide.md`
+- `docs/help/scanner-capture-user-guide.md`
+- `docs/help/authority-resolution-cli-commands.md`
+- `docs/help/database-erd.md`
+- `docs/help/donor-agreement-user-guide.md`
+- `docs/help/architecture.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/data-ingest-user-guide.md`
+- `docs/help/ahg-settings-user-guide.md`
+- `docs/help/information-object-manage-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-scan`
+
+### Notes
+- Run: `python audit_checker.py ahg-scan` to re-verify after fixes.
+- See package source at `packages/ahg-scan/`.

@@ -1,0 +1,17 @@
+## Package: `ahg-cdpa`
+## Status: INCOMPLETE — 2 missing item(s)
+
+### Missing checks: services, readme
+
+### docs/help files referencing this package (3 found):
+- `docs/help/standalone-install-plan.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/database-erd.md`
+
+### Required actions:
+- [ ] Add missing **services** files for `ahg-cdpa`
+- [ ] Add missing **readme** files for `ahg-cdpa`
+
+### Notes
+- Run: `python audit_checker.py ahg-cdpa` to re-verify after fixes.
+- See package source at `packages/ahg-cdpa/`.

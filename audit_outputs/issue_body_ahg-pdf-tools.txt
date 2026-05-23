@@ -1,0 +1,15 @@
+## Package: `ahg-pdf-tools`
+## Status: INCOMPLETE — 3 missing item(s)
+
+### Missing checks: db, readme, docs_help
+
+### docs/help files referencing this package (0 found):
+
+### Required actions:
+- [ ] Add missing **db** files for `ahg-pdf-tools`
+- [ ] Add missing **readme** files for `ahg-pdf-tools`
+- [ ] Add missing **docs_help** files for `ahg-pdf-tools`
+
+### Notes
+- Run: `python audit_checker.py ahg-pdf-tools` to re-verify after fixes.
+- See package source at `packages/ahg-pdf-tools/`.

@@ -1,0 +1,16 @@
+## Package: `ahg-theme-b5`
+## Status: INCOMPLETE — 2 missing item(s)
+
+### Missing checks: controllers, readme
+
+### docs/help files referencing this package (2 found):
+- `docs/help/ahg-authority-resolution.md`
+- `docs/help/standalone-install-plan.md`
+
+### Required actions:
+- [ ] Add missing **controllers** files for `ahg-theme-b5`
+- [ ] Add missing **readme** files for `ahg-theme-b5`
+
+### Notes
+- Run: `python audit_checker.py ahg-theme-b5` to re-verify after fixes.
+- See package source at `packages/ahg-theme-b5/`.

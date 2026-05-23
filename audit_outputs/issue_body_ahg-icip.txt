@@ -1,0 +1,30 @@
+## Package: `ahg-icip`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (17 found):
+- `docs/help/functions.md`
+- `docs/help/access-requests-user-guide.md`
+- `docs/help/heritage-sites-user-guide.md`
+- `docs/help/function-manage-user-guide.md`
+- `docs/help/icip-user-guide.md`
+- `docs/help/data-migration-user-guide.md`
+- `docs/help/ahgicipplugin.md`
+- `docs/help/registry-community-hub-user-guide.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/atom-ahg-framework-library-architecture-diagrams.md`
+- `docs/help/ai-inference-provenance-user-guide.md`
+- `docs/help/heratio-migration.md`
+- `docs/help/database-erd.md`
+- `docs/help/donor-agreement-user-guide.md`
+- `docs/help/ethics-milestones.md`
+- `docs/help/ahg-settings-user-guide.md`
+- `docs/help/workflow-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-icip`
+
+### Notes
+- Run: `python audit_checker.py ahg-icip` to re-verify after fixes.
+- See package source at `packages/ahg-icip/`.

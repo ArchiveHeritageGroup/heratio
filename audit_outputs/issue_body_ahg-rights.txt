@@ -1,0 +1,73 @@
+## Package: `ahg-rights`
+## Status: INCOMPLETE — 5 missing item(s)
+
+### Missing checks: controllers, services, views, routes, readme
+
+### docs/help files referencing this package (56 found):
+- `docs/help/functions.md`
+- `docs/help/research-knowledge-platform-user-guide.md`
+- `docs/help/glam-browse-user-guide.md`
+- `docs/help/issue-198-implementation-plan.md`
+- `docs/help/iiif-compliance-validation.md`
+- `docs/help/roadmap.md`
+- `docs/help/ahgcoreplugin.md`
+- `docs/help/data-migration-user-manual.md`
+- `docs/help/daya-magration-technical-documentation.md`
+- `docs/help/extended-rights-user-guide.md`
+- `docs/help/ahgdonoragreementplugin.md`
+- `docs/help/dam-module-user-guide.md`
+- `docs/help/ai-subscription.md`
+- `docs/help/ahgdoiplugin.md`
+- `docs/help/marketplace-seller-quickstart.md`
+- `docs/help/publish-gates-user-guide.md`
+- `docs/help/icip-user-guide.md`
+- `docs/help/ahgiiifplugin.md`
+- `docs/help/ahgdamplugin.md`
+- `docs/help/loan-module-user-guide.md`
+- `docs/help/ahgmigrationplugin.md`
+- `docs/help/metadata-export-user-guide.md`
+- `docs/help/ahgprovenanceplugin.md`
+- `docs/help/research-training-manual-user-guide.md`
+- `docs/help/data-migration-user-guide.md`
+- `docs/help/shacl-validation-howto.md`
+- `docs/help/rights-management-user-guide.md`
+- `docs/help/ahgrightsplugin.md`
+- `docs/help/technical-documentation.md`
+- `docs/help/contract-management-user-guide.md`
+- `docs/help/odrl-rights-policies.md`
+- `docs/help/ahgdatamigrationplugin.md`
+- `docs/help/ahggalleryplugin.md`
+- `docs/help/encryption-user-guide.md`
+- `docs/help/ahgheritageplugin.md`
+- `docs/help/ahgicipplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/provenance-management.md`
+- `docs/help/ahgextendedrightsplugin.md`
+- `docs/help/embargo-user-guide.md`
+- `docs/help/ahgreportsplugin.md`
+- `docs/help/accession-v2-user-guide.md`
+- `docs/help/workflows.md`
+- `docs/help/heratio-migration.md`
+- `docs/help/ahgricexplorerplugin.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/ahgaccessrequestplugin.md`
+- `docs/help/actor-manage-user-guide.md`
+- `docs/help/privacy-compliance-user-guide.md`
+- `docs/help/scanner-capture-user-guide.md`
+- `docs/help/database-erd.md`
+- `docs/help/donor-agreement-user-guide.md`
+- `docs/help/ahgmetadataextractionplugin.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/ahgmetadataexportplugin.md`
+- `docs/help/data-ingest-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **controllers** files for `ahg-rights`
+- [ ] Add missing **services** files for `ahg-rights`
+- [ ] Add missing **views** files for `ahg-rights`
+- [ ] Add missing **routes** files for `ahg-rights`
+- [ ] Add missing **readme** files for `ahg-rights`
+
+### Notes
+- Run: `python audit_checker.py ahg-rights` to re-verify after fixes.
+- See package source at `packages/ahg-rights/`.

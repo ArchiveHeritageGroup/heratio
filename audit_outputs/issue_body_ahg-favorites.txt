@@ -1,0 +1,25 @@
+## Package: `ahg-favorites`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (12 found):
+- `docs/help/functions.md`
+- `docs/help/roadmap.md`
+- `docs/help/ahgcoreplugin.md`
+- `docs/help/plugin-architecture.md`
+- `docs/help/ahgregistryplugin.md`
+- `docs/help/ahgfavoritesplugin.md`
+- `docs/help/registry-community-hub-user-guide.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/workflows.md`
+- `docs/help/favorites-user-guide.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-favorites`
+
+### Notes
+- Run: `python audit_checker.py ahg-favorites` to re-verify after fixes.
+- See package source at `packages/ahg-favorites/`.

@@ -1,0 +1,167 @@
+{
+  "total_checklists": 110,
+  "with_missing": 110,
+  "missing_examples": [
+    {
+      "item": "README_and_docs",
+      "missing": [
+        "controllers",
+        "services",
+        "views",
+        "routes",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "artisan_and_tasks",
+      "missing": [
+        "controllers",
+        "services",
+        "views",
+        "routes",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "dependency_manifests",
+      "missing": [
+        "controllers",
+        "services",
+        "views",
+        "routes",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "docker_helpers",
+      "missing": [
+        "controllers",
+        "services",
+        "views",
+        "routes",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "env_and_examples",
+      "missing": [
+        "controllers",
+        "services",
+        "views",
+        "routes",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "storage_uploads",
+      "missing": [
+        "controllers",
+        "services",
+        "views",
+        "routes",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "tests_and_playwright",
+      "missing": [
+        "controllers",
+        "services",
+        "views",
+        "routes",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "dahg-doi",
+      "missing": [
+        "controllers",
+        "services",
+        "views",
+        "routes",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "dahg-rights",
+      "missing": [
+        "controllers",
+        "services",
+        "views",
+        "routes",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "dahg-oai",
+      "missing": [
+        "services",
+        "views",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "dahg-annotations",
+      "missing": [
+        "services",
+        "views",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "dahg-api-plugin",
+      "missing": [
+        "services",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "dahg-dacs-manage",
+      "missing": [
+        "services",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "dahg-dc-manage",
+      "missing": [
+        "services",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    },
+    {
+      "item": "dahg-label",
+      "missing": [
+        "services",
+        "migrations",
+        "readme",
+        "help"
+      ]
+    }
+  ]
+}

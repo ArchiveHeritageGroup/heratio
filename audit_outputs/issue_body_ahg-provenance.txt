@@ -1,0 +1,64 @@
+## Package: `ahg-provenance`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (51 found):
+- `docs/help/functions.md`
+- `docs/help/authority-resolution-review-screen.md`
+- `docs/help/atom-heratio-security-assessment-2026-03-07.md`
+- `docs/help/research-knowledge-platform-user-guide.md`
+- `docs/help/glam-browse-user-guide.md`
+- `docs/help/issue-198-implementation-plan.md`
+- `docs/help/roadmap.md`
+- `docs/help/data-migration-user-manual.md`
+- `docs/help/plugin-architecture.md`
+- `docs/help/extended-rights-user-guide.md`
+- `docs/help/museum-module-user-guide.md`
+- `docs/help/semantic-search-user-guide.md`
+- `docs/help/ahgdonoragreementplugin.md`
+- `docs/help/ai-subscription.md`
+- `docs/help/marketplace-seller-quickstart.md`
+- `docs/help/authority-resolution-user-guide.md`
+- `docs/help/icip-user-guide.md`
+- `docs/help/ner-user-guide.md`
+- `docs/help/ahgmigrationplugin.md`
+- `docs/help/ahgprovenanceplugin.md`
+- `docs/help/research-training-manual-user-guide.md`
+- `docs/help/data-migration-user-guide.md`
+- `docs/help/rights-management-user-guide.md`
+- `docs/help/ai-governance-user-guide.md`
+- `docs/help/ahgrightsplugin.md`
+- `docs/help/authority-resolution-create-new-authority.md`
+- `docs/help/atom-heratio-library-system-technical-manual.md`
+- `docs/help/ahg-authority-resolution.md`
+- `docs/help/ric-integration-guide.md`
+- `docs/help/ahgdatamigrationplugin.md`
+- `docs/help/nginx-security-hardening.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/storage-configuration.md`
+- `docs/help/marketplace-user-guide.md`
+- `docs/help/ai-ops-runbook.md`
+- `docs/help/marketplace-make-an-offer.md`
+- `docs/help/ahgmuseumplugin.md`
+- `docs/help/provenance-management.md`
+- `docs/help/gallery-module-user-guide.md`
+- `docs/help/ai-inference-provenance-user-guide.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/whats-new-2026-05.md`
+- `docs/help/workflows.md`
+- `docs/help/heratio-migration.md`
+- `docs/help/marketplace-flow-guide.md`
+- `docs/help/scanner-capture-user-guide.md`
+- `docs/help/authority-resolution-cli-commands.md`
+- `docs/help/database-erd.md`
+- `docs/help/authority-resolution-provenance.md`
+- `docs/help/ric-user-guide.md`
+- `docs/help/information-object-manage-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-provenance`
+
+### Notes
+- Run: `python audit_checker.py ahg-provenance` to re-verify after fixes.
+- See package source at `packages/ahg-provenance/`.

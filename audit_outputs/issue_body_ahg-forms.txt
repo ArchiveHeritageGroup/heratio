@@ -1,0 +1,63 @@
+## Package: `ahg-forms`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (50 found):
+- `docs/help/ahgnerplugin.md`
+- `docs/help/functions.md`
+- `docs/help/forms-builder-user-guide.md`
+- `docs/help/research-knowledge-platform-user-guide.md`
+- `docs/help/label-printing-user-guide.md`
+- `docs/help/accessibility-wcag.md`
+- `docs/help/issue-198-implementation-plan.md`
+- `docs/help/access-requests-user-guide.md`
+- `docs/help/ahgregistryplugin.md`
+- `docs/help/dam-module-user-guide.md`
+- `docs/help/sharepoint-user-guide.md`
+- `docs/help/ahgfederationplugin.md`
+- `docs/help/marketplace-payments-payouts.md`
+- `docs/help/publish-gates-user-guide.md`
+- `docs/help/ahgformsplugin.md`
+- `docs/help/function-manage-user-guide.md`
+- `docs/help/custom-fields-user-guide.md`
+- `docs/help/research-training-manual-user-guide.md`
+- `docs/help/ahgthemeb5plugin.md`
+- `docs/help/translation-user-guide.md`
+- `docs/help/security-classification-user-guide.md`
+- `docs/help/openseadragon-user-guide.md`
+- `docs/help/atom-heratio-library-system-technical-manual.md`
+- `docs/help/ric-integration-guide.md`
+- `docs/help/ahgicipplugin.md`
+- `docs/help/registry-community-hub-user-guide.md`
+- `docs/help/csrf-policy.md`
+- `docs/help/nginx-security-hardening.md`
+- `docs/help/ahgreportbuilderplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/ahgmuseumplugin.md`
+- `docs/help/barcode-user-guide.md`
+- `docs/help/ahglandingpageplugin.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/security-model.md`
+- `docs/help/ahgreportsplugin.md`
+- `docs/help/repository-manage-user-guide.md`
+- `docs/help/heratio-migration.md`
+- `docs/help/ahgricexplorerplugin.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/eas-standards-reference.md`
+- `docs/help/research-bibliographies.md`
+- `docs/help/actor-manage-user-guide.md`
+- `docs/help/privacy-compliance-user-guide.md`
+- `docs/help/scanner-capture-user-guide.md`
+- `docs/help/database-erd.md`
+- `docs/help/pr-review-checklist.md`
+- `docs/help/ethics-milestones.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/information-object-manage-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-forms`
+
+### Notes
+- Run: `python audit_checker.py ahg-forms` to re-verify after fixes.
+- See package source at `packages/ahg-forms/`.

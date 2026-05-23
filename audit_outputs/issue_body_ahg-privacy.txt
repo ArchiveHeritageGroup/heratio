@@ -1,0 +1,62 @@
+## Package: `ahg-privacy`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (49 found):
+- `docs/help/ahgnerplugin.md`
+- `docs/help/ahgstatisticsplugin.md`
+- `docs/help/functions.md`
+- `docs/help/system-flows.md`
+- `docs/help/roadmap.md`
+- `docs/help/ahgcoreplugin.md`
+- `docs/help/ai-tools-user-guide.md`
+- `docs/help/contact-management-user-guide.md`
+- `docs/help/plugin-architecture.md`
+- `docs/help/extended-rights-user-guide.md`
+- `docs/help/heritage-sites-user-guide.md`
+- `docs/help/semantic-search-user-guide.md`
+- `docs/help/security-user-manual.md`
+- `docs/help/reports-dashboard-user-guide.md`
+- `docs/help/ahgiiifplugin.md`
+- `docs/help/custom-fields-user-guide.md`
+- `docs/help/rights-management-user-guide.md`
+- `docs/help/ahgrightsplugin.md`
+- `docs/help/authority-resolution-create-new-authority.md`
+- `docs/help/ahgcontactplugin.md`
+- `docs/help/ahgaiplugin.md`
+- `docs/help/ahgprivacyplugin.md`
+- `docs/help/encryption-user-guide.md`
+- `docs/help/ahgheritageplugin.md`
+- `docs/help/atom-heratio-security-feature-overview.md`
+- `docs/help/report-builder-user-guide.md`
+- `docs/help/metadata-extraction-user-guide.md`
+- `docs/help/ahgreportbuilderplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/privacy-user-guide.md`
+- `docs/help/ahgextendedrightsplugin.md`
+- `docs/help/embargo-user-guide.md`
+- `docs/help/ahgembargoplugin.md`
+- `docs/help/security-model.md`
+- `docs/help/ahgreportsplugin.md`
+- `docs/help/ahgexportplugin.md`
+- `docs/help/workflows.md`
+- `docs/help/heratio-migration.md`
+- `docs/help/ahgsettingsplugin.md`
+- `docs/help/statistics-user-guide.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/privacy-compliance-user-guide.md`
+- `docs/help/security-compliance-user-guide.md`
+- `docs/help/atom-heratio-security-audit-report.md`
+- `docs/help/database-erd.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/atom-heratio-customfields-feature-overview.md`
+- `docs/help/ahg-settings-user-guide.md`
+- `docs/help/information-object-manage-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-privacy`
+
+### Notes
+- Run: `python audit_checker.py ahg-privacy` to re-verify after fixes.
+- See package source at `packages/ahg-privacy/`.

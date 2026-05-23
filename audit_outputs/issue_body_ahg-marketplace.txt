@@ -1,0 +1,26 @@
+## Package: `ahg-marketplace`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (13 found):
+- `docs/help/marketplace-seller-quickstart.md`
+- `docs/help/marketplace-payments-payouts.md`
+- `docs/help/marketplace-reservations.md`
+- `docs/help/marketplace-buyer-quickstart.md`
+- `docs/help/marketplace-bidding-auctions.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/marketplace-user-guide.md`
+- `docs/help/marketplace-make-an-offer.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/whats-new-2026-05.md`
+- `docs/help/marketplace-admin-operations.md`
+- `docs/help/marketplace-flow-guide.md`
+- `docs/help/ahg-settings-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-marketplace`
+
+### Notes
+- Run: `python audit_checker.py ahg-marketplace` to re-verify after fixes.
+- See package source at `packages/ahg-marketplace/`.

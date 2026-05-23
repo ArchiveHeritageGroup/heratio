@@ -1,0 +1,16 @@
+## Package: `ahg-security-clearance`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (3 found):
+- `docs/help/standalone-install-plan.md`
+- `docs/help/actor-manage-user-guide.md`
+- `docs/help/information-object-manage-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-security-clearance`
+
+### Notes
+- Run: `python audit_checker.py ahg-security-clearance` to re-verify after fixes.
+- See package source at `packages/ahg-security-clearance/`.

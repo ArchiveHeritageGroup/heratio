@@ -1,0 +1,70 @@
+## Package: `ahg-gallery`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (57 found):
+- `docs/help/3d-model-viewer-user-guide.md`
+- `docs/help/functions.md`
+- `docs/help/ahgfeedbackplugin.md`
+- `docs/help/label-printing-user-guide.md`
+- `docs/help/glam-browse-user-guide.md`
+- `docs/help/roadmap.md`
+- `docs/help/ahgcoreplugin.md`
+- `docs/help/ahgloanplugin.md`
+- `docs/help/plugin-architecture.md`
+- `docs/help/museum-module-user-guide.md`
+- `docs/help/feedback-user-guide.md`
+- `docs/help/voice-commands.md`
+- `docs/help/ahgregistryplugin.md`
+- `docs/help/sharepoint-user-guide.md`
+- `docs/help/migration-tools-user-guide.md`
+- `docs/help/api-technical-reference.md`
+- `docs/help/ahgmigrationplugin.md`
+- `docs/help/ahgingestplugin.md`
+- `docs/help/advanced-search-user-guide.md`
+- `docs/help/data-migration-user-guide.md`
+- `docs/help/shacl-validation-howto.md`
+- `docs/help/ahgthemeb5plugin.md`
+- `docs/help/atom-heratio-3dmodelviewer-feature-overview.md`
+- `docs/help/marketplace-buyer-quickstart.md`
+- `docs/help/ahgdatamigrationplugin.md`
+- `docs/help/ahggalleryplugin.md`
+- `docs/help/registry-community-hub-user-guide.md`
+- `docs/help/report-builder-user-guide.md`
+- `docs/help/ahg3dmodelplugin.md`
+- `docs/help/ahgreportbuilderplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/marketplace-user-guide.md`
+- `docs/help/ahgmuseumplugin.md`
+- `docs/help/provenance-management.md`
+- `docs/help/gallery-module-user-guide.md`
+- `docs/help/ai-inference-provenance-user-guide.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/ahgreportsplugin.md`
+- `docs/help/ahgexhibitionplugin.md`
+- `docs/help/marketplace-admin-operations.md`
+- `docs/help/spectrum-user-guide.md`
+- `docs/help/workflows.md`
+- `docs/help/heratio-migration.md`
+- `docs/help/ahgsettingsplugin.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/ahglabelplugin.md`
+- `docs/help/atom-heratio-library-system-user-manual.md`
+- `docs/help/ahgdisplayplugin.md`
+- `docs/help/exhibition-user-guide.md`
+- `docs/help/marketplace-flow-guide.md`
+- `docs/help/scanner-capture-user-guide.md`
+- `docs/help/database-erd.md`
+- `docs/help/favorites-user-guide.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/api-user-guide.md`
+- `docs/help/data-ingest-user-guide.md`
+- `docs/help/ahg-settings-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-gallery`
+
+### Notes
+- Run: `python audit_checker.py ahg-gallery` to re-verify after fixes.
+- See package source at `packages/ahg-gallery/`.

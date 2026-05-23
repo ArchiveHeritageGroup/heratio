@@ -1,0 +1,94 @@
+## Package: `ahg-statistics`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (81 found):
+- `docs/help/ahgnerplugin.md`
+- `docs/help/ahgstatisticsplugin.md`
+- `docs/help/functions.md`
+- `docs/help/ahgfeedbackplugin.md`
+- `docs/help/forms-builder-user-guide.md`
+- `docs/help/research-knowledge-platform-user-guide.md`
+- `docs/help/iiif-compliance-validation.md`
+- `docs/help/multi-tenant-user-guide.md`
+- `docs/help/ahgpreservationplugin.md`
+- `docs/help/ahgloanplugin.md`
+- `docs/help/atom-heratio-keymanagement-feature-overview.md`
+- `docs/help/ai-tools-user-guide.md`
+- `docs/help/extended-rights-user-guide.md`
+- `docs/help/museum-module-user-guide.md`
+- `docs/help/heritage-sites-user-guide.md`
+- `docs/help/ahgregistryplugin.md`
+- `docs/help/dam-module-user-guide.md`
+- `docs/help/ner-knowledge-graph-technical.md`
+- `docs/help/ahgdoiplugin.md`
+- `docs/help/ahgfederationplugin.md`
+- `docs/help/reports-dashboard-user-guide.md`
+- `docs/help/ahgformsplugin.md`
+- `docs/help/duplicate-detection-user-guide.md`
+- `docs/help/icip-user-guide.md`
+- `docs/help/loan-module-user-guide.md`
+- `docs/help/metadata-export-user-guide.md`
+- `docs/help/ahgprovenanceplugin.md`
+- `docs/help/research-training-manual-user-guide.md`
+- `docs/help/ahgrightsplugin.md`
+- `docs/help/ahgaiplugin.md`
+- `docs/help/atom-heratio-library-system-technical-manual.md`
+- `docs/help/knowledge-graph-user-guide.md`
+- `docs/help/ahgprivacyplugin.md`
+- `docs/help/ric-integration-guide.md`
+- `docs/help/ahggalleryplugin.md`
+- `docs/help/ahgheritageplugin.md`
+- `docs/help/landing-page-user-guide.md`
+- `docs/help/vendor-user-guide.md`
+- `docs/help/atom-heratio-iiif-ai-extraction-feature-overview.md`
+- `docs/help/ahglibraryplugin.md`
+- `docs/help/registry-community-hub-user-guide.md`
+- `docs/help/report-builder-user-guide.md`
+- `docs/help/metadata-extraction-user-guide.md`
+- `docs/help/ahgresearchplugin.md`
+- `docs/help/elasticsearch-configuration.md`
+- `docs/help/ahgreportbuilderplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/ahgmuseumplugin.md`
+- `docs/help/privacy-user-guide.md`
+- `docs/help/ahgdedupeplugin.md`
+- `docs/help/ahgextendedrightsplugin.md`
+- `docs/help/preservation-user-guide.md`
+- `docs/help/embargo-user-guide.md`
+- `docs/help/ahglandingpageplugin.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/ahgapiplugin.md`
+- `docs/help/ahgreportsplugin.md`
+- `docs/help/ahgexhibitionplugin.md`
+- `docs/help/accession-v2-user-guide.md`
+- `docs/help/ahgexportplugin.md`
+- `docs/help/ahgtiffpdfmergeplugin.md`
+- `docs/help/ahgrequesttopublishplugin.md`
+- `docs/help/statistics-user-guide.md`
+- `docs/help/ahgricexplorerplugin.md`
+- `docs/help/ahgsemanticsearchplugin.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/semantic-search-technical.md`
+- `docs/help/ahgaccessrequestplugin.md`
+- `docs/help/atom-heratio-library-system-user-manual.md`
+- `docs/help/integrity-assurance-user-guide.md`
+- `docs/help/exhibition-user-guide.md`
+- `docs/help/privacy-compliance-user-guide.md`
+- `docs/help/ahgmultitenantplugin.md`
+- `docs/help/database-erd.md`
+- `docs/help/ahgmetadataextractionplugin.md`
+- `docs/help/ric-user-guide.md`
+- `docs/help/ethics-milestones.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/api-user-guide.md`
+- `docs/help/workflow-user-guide.md`
+- `docs/help/ahgworkflowplugin.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-statistics`
+
+### Notes
+- Run: `python audit_checker.py ahg-statistics` to re-verify after fixes.
+- See package source at `packages/ahg-statistics/`.

@@ -1,0 +1,53 @@
+## Package: `ahg-loan`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (40 found):
+- `docs/help/functions.md`
+- `docs/help/ahgspectrumplugin.md`
+- `docs/help/glam-browse-user-guide.md`
+- `docs/help/roadmap.md`
+- `docs/help/ahgcoreplugin.md`
+- `docs/help/ahgloanplugin.md`
+- `docs/help/contact-management-user-guide.md`
+- `docs/help/plugin-architecture.md`
+- `docs/help/condition-reports.md`
+- `docs/help/museum-module-user-guide.md`
+- `docs/help/semantic-search-user-guide.md`
+- `docs/help/ahgdonoragreementplugin.md`
+- `docs/help/dam-module-user-guide.md`
+- `docs/help/ahgdamplugin.md`
+- `docs/help/loan-module-user-guide.md`
+- `docs/help/custom-fields-user-guide.md`
+- `docs/help/ahgprovenanceplugin.md`
+- `docs/help/shacl-validation-howto.md`
+- `docs/help/ahgcontactplugin.md`
+- `docs/help/atom-heratio-library-system-technical-manual.md`
+- `docs/help/contract-management-user-guide.md`
+- `docs/help/ahggalleryplugin.md`
+- `docs/help/report-builder-user-guide.md`
+- `docs/help/ahgreportbuilderplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/ahgmuseumplugin.md`
+- `docs/help/provenance-management.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/ahgexhibitionplugin.md`
+- `docs/help/atom-heratio-library-system-feature-overview.md`
+- `docs/help/spectrum-user-guide.md`
+- `docs/help/workflows.md`
+- `docs/help/ahgricexplorerplugin.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/atom-heratio-library-system-user-manual.md`
+- `docs/help/exhibition-user-guide.md`
+- `docs/help/database-erd.md`
+- `docs/help/donor-agreement-user-guide.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/ahg-settings-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-loan`
+
+### Notes
+- Run: `python audit_checker.py ahg-loan` to re-verify after fixes.
+- See package source at `packages/ahg-loan/`.

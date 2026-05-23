@@ -1,0 +1,14 @@
+## Package: `ahg-iiif-collection`
+## Status: INCOMPLETE — 2 missing item(s)
+
+### Missing checks: readme, docs_help
+
+### docs/help files referencing this package (0 found):
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-iiif-collection`
+- [ ] Add missing **docs_help** files for `ahg-iiif-collection`
+
+### Notes
+- Run: `python audit_checker.py ahg-iiif-collection` to re-verify after fixes.
+- See package source at `packages/ahg-iiif-collection/`.

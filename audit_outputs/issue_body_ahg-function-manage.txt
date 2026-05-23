@@ -1,0 +1,15 @@
+## Package: `ahg-function-manage`
+## Status: INCOMPLETE — 2 missing item(s)
+
+### Missing checks: db, readme
+
+### docs/help files referencing this package (1 found):
+- `docs/help/standalone-install-plan.md`
+
+### Required actions:
+- [ ] Add missing **db** files for `ahg-function-manage`
+- [ ] Add missing **readme** files for `ahg-function-manage`
+
+### Notes
+- Run: `python audit_checker.py ahg-function-manage` to re-verify after fixes.
+- See package source at `packages/ahg-function-manage/`.

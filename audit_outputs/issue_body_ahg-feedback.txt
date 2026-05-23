@@ -1,0 +1,36 @@
+## Package: `ahg-feedback`
+## Status: INCOMPLETE — 2 missing item(s)
+
+### Missing checks: services, readme
+
+### docs/help files referencing this package (22 found):
+- `docs/help/functions.md`
+- `docs/help/ahgfeedbackplugin.md`
+- `docs/help/authority-resolution-review-screen.md`
+- `docs/help/roadmap.md`
+- `docs/help/access-requests-user-guide.md`
+- `docs/help/ai-tools-user-guide.md`
+- `docs/help/feedback-user-guide.md`
+- `docs/help/heritage-sites-user-guide.md`
+- `docs/help/voice-commands.md`
+- `docs/help/authority-resolution-user-guide.md`
+- `docs/help/research-training-manual-user-guide.md`
+- `docs/help/ahgaiplugin.md`
+- `docs/help/ahg-authority-resolution.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/workflows.md`
+- `docs/help/ahgrequesttopublishplugin.md`
+- `docs/help/heratio-migration.md`
+- `docs/help/exhibition-user-guide.md`
+- `docs/help/authority-resolution-cli-commands.md`
+- `docs/help/database-erd.md`
+- `docs/help/authority-resolution-provenance.md`
+- `docs/help/ethics-milestones.md`
+
+### Required actions:
+- [ ] Add missing **services** files for `ahg-feedback`
+- [ ] Add missing **readme** files for `ahg-feedback`
+
+### Notes
+- Run: `python audit_checker.py ahg-feedback` to re-verify after fixes.
+- See package source at `packages/ahg-feedback/`.

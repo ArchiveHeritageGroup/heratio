@@ -1,0 +1,16 @@
+## Package: `ahg-custom-fields`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (3 found):
+- `docs/help/ahgcustomfieldsplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-custom-fields`
+
+### Notes
+- Run: `python audit_checker.py ahg-custom-fields` to re-verify after fixes.
+- See package source at `packages/ahg-custom-fields/`.

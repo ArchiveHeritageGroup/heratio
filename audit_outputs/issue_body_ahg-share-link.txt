@@ -1,0 +1,16 @@
+## Package: `ahg-share-link`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (3 found):
+- `docs/help/atom-heratio-timelimitedsharelink-feature-overview.md`
+- `docs/help/atom-heratio-timelimitedsharelink-user-manual.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-share-link`
+
+### Notes
+- Run: `python audit_checker.py ahg-share-link` to re-verify after fixes.
+- See package source at `packages/ahg-share-link/`.

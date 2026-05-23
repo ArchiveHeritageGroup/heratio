@@ -1,0 +1,15 @@
+## Package: `ahg-jobs-manage`
+## Status: INCOMPLETE — 2 missing item(s)
+
+### Missing checks: services, readme
+
+### docs/help files referencing this package (1 found):
+- `docs/help/standalone-install-plan.md`
+
+### Required actions:
+- [ ] Add missing **services** files for `ahg-jobs-manage`
+- [ ] Add missing **readme** files for `ahg-jobs-manage`
+
+### Notes
+- Run: `python audit_checker.py ahg-jobs-manage` to re-verify after fixes.
+- See package source at `packages/ahg-jobs-manage/`.

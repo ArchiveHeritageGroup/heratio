@@ -1,0 +1,33 @@
+## Package: `ahg-narssa`
+## Status: INCOMPLETE — 3 missing item(s)
+
+### Missing checks: controllers, views, readme
+
+### docs/help files referencing this package (18 found):
+- `docs/help/functions.md`
+- `docs/help/atom-heratio-timelimitedsharelink-feature-overview.md`
+- `docs/help/ahgaudittrailplugin.md`
+- `docs/help/security-user-manual.md`
+- `docs/help/publish-gates-user-guide.md`
+- `docs/help/encryption-user-guide.md`
+- `docs/help/ahgheritageplugin.md`
+- `docs/help/atom-heratio-security-feature-overview.md`
+- `docs/help/atom-heratio-versioncontrol-feature-overview.md`
+- `docs/help/portable-export-user-guide.md`
+- `docs/help/workflows.md`
+- `docs/help/ahgsettingsplugin.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/security-compliance-user-guide.md`
+- `docs/help/database-erd.md`
+- `docs/help/architecture.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/data-ingest-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **controllers** files for `ahg-narssa`
+- [ ] Add missing **views** files for `ahg-narssa`
+- [ ] Add missing **readme** files for `ahg-narssa`
+
+### Notes
+- Run: `python audit_checker.py ahg-narssa` to re-verify after fixes.
+- See package source at `packages/ahg-narssa/`.

@@ -1,0 +1,15 @@
+## Package: `ahg-static-page`
+## Status: INCOMPLETE — 2 missing item(s)
+
+### Missing checks: services, readme
+
+### docs/help files referencing this package (1 found):
+- `docs/help/standalone-install-plan.md`
+
+### Required actions:
+- [ ] Add missing **services** files for `ahg-static-page`
+- [ ] Add missing **readme** files for `ahg-static-page`
+
+### Notes
+- Run: `python audit_checker.py ahg-static-page` to re-verify after fixes.
+- See package source at `packages/ahg-static-page/`.

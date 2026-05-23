@@ -1,0 +1,14 @@
+## Package: `ahg-image-ar`
+## Status: INCOMPLETE — 2 missing item(s)
+
+### Missing checks: readme, docs_help
+
+### docs/help files referencing this package (0 found):
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-image-ar`
+- [ ] Add missing **docs_help** files for `ahg-image-ar`
+
+### Notes
+- Run: `python audit_checker.py ahg-image-ar` to re-verify after fixes.
+- See package source at `packages/ahg-image-ar/`.

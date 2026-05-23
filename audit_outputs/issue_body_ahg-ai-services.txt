@@ -1,0 +1,19 @@
+## Package: `ahg-ai-services`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (6 found):
+- `docs/help/ahgnerplugin.md`
+- `docs/help/user-manual.md`
+- `docs/help/ner-user-guide.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/ahgsettingsplugin.md`
+- `docs/help/ahg-settings-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-ai-services`
+
+### Notes
+- Run: `python audit_checker.py ahg-ai-services` to re-verify after fixes.
+- See package source at `packages/ahg-ai-services/`.

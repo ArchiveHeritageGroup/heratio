@@ -1,0 +1,36 @@
+## Package: `ahg-annotations`
+## Status: INCOMPLETE — 3 missing item(s)
+
+### Missing checks: services, views, readme
+
+### docs/help files referencing this package (21 found):
+- `docs/help/3d-model-viewer-user-guide.md`
+- `docs/help/functions.md`
+- `docs/help/system-flows.md`
+- `docs/help/research-knowledge-platform-user-guide.md`
+- `docs/help/issue-198-implementation-plan.md`
+- `docs/help/iiif-compliance-validation.md`
+- `docs/help/ahgcoreplugin.md`
+- `docs/help/condition-reports.md`
+- `docs/help/iiif-integration-user-guide.md`
+- `docs/help/ahgiiifplugin.md`
+- `docs/help/research-api-keys.md`
+- `docs/help/research-training-manual-user-guide.md`
+- `docs/help/atom-heratio-3dmodelviewer-feature-overview.md`
+- `docs/help/mirador-user-guide.md`
+- `docs/help/atom-heratio-iiif-ai-extraction-feature-overview.md`
+- `docs/help/ahg3dmodelplugin.md`
+- `docs/help/ahgresearchplugin.md`
+- `docs/help/researcher-user-guide.md`
+- `docs/help/whats-new-2026-05.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/database-erd.md`
+
+### Required actions:
+- [ ] Add missing **services** files for `ahg-annotations`
+- [ ] Add missing **views** files for `ahg-annotations`
+- [ ] Add missing **readme** files for `ahg-annotations`
+
+### Notes
+- Run: `python audit_checker.py ahg-annotations` to re-verify after fixes.
+- See package source at `packages/ahg-annotations/`.

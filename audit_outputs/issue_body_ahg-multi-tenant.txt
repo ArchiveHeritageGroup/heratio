@@ -1,0 +1,18 @@
+## Package: `ahg-multi-tenant`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (5 found):
+- `docs/help/issue-198-implementation-plan.md`
+- `docs/help/multi-tenant-user-guide.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/ahgmultitenantplugin.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-multi-tenant`
+
+### Notes
+- Run: `python audit_checker.py ahg-multi-tenant` to re-verify after fixes.
+- See package source at `packages/ahg-multi-tenant/`.

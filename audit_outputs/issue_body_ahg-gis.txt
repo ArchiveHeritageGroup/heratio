@@ -1,0 +1,122 @@
+## Package: `ahg-gis`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (109 found):
+- `docs/help/ahgstatisticsplugin.md`
+- `docs/help/ahgrepositorybrowseplugin.md`
+- `docs/help/functions.md`
+- `docs/help/ahgdiscoveryplugin.md`
+- `docs/help/ahgportableexportplugin.md`
+- `docs/help/system-flows.md`
+- `docs/help/ahgfeedbackplugin.md`
+- `docs/help/forms-builder-user-guide.md`
+- `docs/help/research-knowledge-platform-user-guide.md`
+- `docs/help/issue-198-implementation-plan.md`
+- `docs/help/ahgpreservationplugin.md`
+- `docs/help/roadmap.md`
+- `docs/help/access-requests-user-guide.md`
+- `docs/help/ahgcoreplugin.md`
+- `docs/help/ahggraphqlplugin.md`
+- `docs/help/ahgcustomfieldsplugin.md`
+- `docs/help/atom-heratio-keymanagement-feature-overview.md`
+- `docs/help/heritage-accounting-user-guide.md`
+- `docs/help/daya-magration-technical-documentation.md`
+- `docs/help/research-workspace.md`
+- `docs/help/plugin-architecture.md`
+- `docs/help/doi-user-guide.md`
+- `docs/help/museum-module-user-guide.md`
+- `docs/help/heritage-sites-user-guide.md`
+- `docs/help/semantic-search-user-guide.md`
+- `docs/help/ahgregistryplugin.md`
+- `docs/help/ahgdoiplugin.md`
+- `docs/help/sharepoint-user-guide.md`
+- `docs/help/marketplace-seller-quickstart.md`
+- `docs/help/ahgfederationplugin.md`
+- `docs/help/reports-dashboard-user-guide.md`
+- `docs/help/ahgformsplugin.md`
+- `docs/help/function-manage-user-guide.md`
+- `docs/help/authority-resolution-user-guide.md`
+- `docs/help/icip-user-guide.md`
+- `docs/help/ahgiiifplugin.md`
+- `docs/help/ner-user-guide.md`
+- `docs/help/loan-module-user-guide.md`
+- `docs/help/ahg-central-fleet-monitoring.md`
+- `docs/help/metadata-export-user-guide.md`
+- `docs/help/ahgingestplugin.md`
+- `docs/help/research-training-manual-user-guide.md`
+- `docs/help/rights-management-user-guide.md`
+- `docs/help/ahgrightsplugin.md`
+- `docs/help/authority-resolution-create-new-authority.md`
+- `docs/help/technical-documentation.md`
+- `docs/help/ahgcontactplugin.md`
+- `docs/help/atom-heratio-library-system-technical-manual.md`
+- `docs/help/ahgprivacyplugin.md`
+- `docs/help/marketplace-buyer-quickstart.md`
+- `docs/help/ahgtermtaxonomyplugin.md`
+- `docs/help/ahg-authority-resolution.md`
+- `docs/help/odrl-rights-policies.md`
+- `docs/help/ahgdatamigrationplugin.md`
+- `docs/help/ahggalleryplugin.md`
+- `docs/help/ahgheritageplugin.md`
+- `docs/help/atom-heratio-security-feature-overview.md`
+- `docs/help/vendor-user-guide.md`
+- `docs/help/ahgicipplugin.md`
+- `docs/help/registry-community-hub-user-guide.md`
+- `docs/help/ahgresearchplugin.md`
+- `docs/help/authority-resolution-evidence-scoring.md`
+- `docs/help/ahgreportbuilderplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/atom-ahg-framework-library-architecture-diagrams.md`
+- `docs/help/cart-ecommerce-user-guide.md`
+- `docs/help/marketplace-user-guide.md`
+- `docs/help/ai-ops-runbook.md`
+- `docs/help/grap-consolidation-plan.md`
+- `docs/help/researcher-user-guide.md`
+- `docs/help/ahgmuseumplugin.md`
+- `docs/help/privacy-user-guide.md`
+- `docs/help/eas-export-formats-guide.md`
+- `docs/help/ahgextendedrightsplugin.md`
+- `docs/help/preservation-user-guide.md`
+- `docs/help/embargo-user-guide.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/whats-new-2026-05.md`
+- `docs/help/ahgreportsplugin.md`
+- `docs/help/ahgexhibitionplugin.md`
+- `docs/help/marketplace-admin-operations.md`
+- `docs/help/atom-heratio-library-system-feature-overview.md`
+- `docs/help/spectrum-user-guide.md`
+- `docs/help/ahgtranslationplugin.md`
+- `docs/help/workflows.md`
+- `docs/help/ahgvendorplugin.md`
+- `docs/help/ric-sync-setup.md`
+- `docs/help/ahgtiffpdfmergeplugin.md`
+- `docs/help/ahgrequesttopublishplugin.md`
+- `docs/help/ahgsettingsplugin.md`
+- `docs/help/statistics-user-guide.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/ahglabelplugin.md`
+- `docs/help/atom-heratio-library-system-user-manual.md`
+- `docs/help/ahgdisplayplugin.md`
+- `docs/help/exhibition-user-guide.md`
+- `docs/help/privacy-compliance-user-guide.md`
+- `docs/help/ahggrapplugin.md`
+- `docs/help/marketplace-flow-guide.md`
+- `docs/help/scanner-capture-user-guide.md`
+- `docs/help/authority-resolution-cli-commands.md`
+- `docs/help/database-erd.md`
+- `docs/help/modified-files.md`
+- `docs/help/ahgmetadataextractionplugin.md`
+- `docs/help/architecture.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/ahgmetadataexportplugin.md`
+- `docs/help/ahg-settings-user-guide.md`
+- `docs/help/ahgworkflowplugin.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-gis`
+
+### Notes
+- Run: `python audit_checker.py ahg-gis` to re-verify after fixes.
+- See package source at `packages/ahg-gis/`.

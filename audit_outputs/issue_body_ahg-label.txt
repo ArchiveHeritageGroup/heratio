@@ -1,0 +1,91 @@
+## Package: `ahg-label`
+## Status: INCOMPLETE — 3 missing item(s)
+
+### Missing checks: services, db, readme
+
+### docs/help files referencing this package (76 found):
+- `docs/help/ahgrepositorybrowseplugin.md`
+- `docs/help/functions.md`
+- `docs/help/ahgdiscoveryplugin.md`
+- `docs/help/ahgportableexportplugin.md`
+- `docs/help/system-flows.md`
+- `docs/help/forms-builder-user-guide.md`
+- `docs/help/authority-resolution-review-screen.md`
+- `docs/help/research-knowledge-platform-user-guide.md`
+- `docs/help/label-printing-user-guide.md`
+- `docs/help/issue-198-implementation-plan.md`
+- `docs/help/iiif-compliance-validation.md`
+- `docs/help/roadmap.md`
+- `docs/help/ahgcoreplugin.md`
+- `docs/help/ahgcustomfieldsplugin.md`
+- `docs/help/plugin-architecture.md`
+- `docs/help/condition-reports.md`
+- `docs/help/extended-rights-user-guide.md`
+- `docs/help/ner-knowledge-graph-technical.md`
+- `docs/help/sharepoint-user-guide.md`
+- `docs/help/backup-restore-user-guide.md`
+- `docs/help/ahgfederationplugin.md`
+- `docs/help/ahgformsplugin.md`
+- `docs/help/icip-user-guide.md`
+- `docs/help/ahgiiifplugin.md`
+- `docs/help/ahgdamplugin.md`
+- `docs/help/ahgmigrationplugin.md`
+- `docs/help/metadata-export-user-guide.md`
+- `docs/help/custom-fields-user-guide.md`
+- `docs/help/ahgprovenanceplugin.md`
+- `docs/help/research-training-manual-user-guide.md`
+- `docs/help/ahguioverridesplugin.md`
+- `docs/help/rights-management-user-guide.md`
+- `docs/help/ahgrightsplugin.md`
+- `docs/help/translation-user-guide.md`
+- `docs/help/federation-user-guide.md`
+- `docs/help/ahggalleryplugin.md`
+- `docs/help/term-taxonomy-browse-user-guide.md`
+- `docs/help/mirador-user-guide.md`
+- `docs/help/landing-page-user-guide.md`
+- `docs/help/ahgicipplugin.md`
+- `docs/help/registry-community-hub-user-guide.md`
+- `docs/help/ahg3dmodelplugin.md`
+- `docs/help/ahgresearchplugin.md`
+- `docs/help/ahgreportbuilderplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/atom-ahg-framework-library-architecture-diagrams.md`
+- `docs/help/researcher-user-guide.md`
+- `docs/help/ahgmuseumplugin.md`
+- `docs/help/gallery-module-user-guide.md`
+- `docs/help/ahgextendedrightsplugin.md`
+- `docs/help/csv-digital-object-import-guide.md`
+- `docs/help/barcode-user-guide.md`
+- `docs/help/ahglandingpageplugin.md`
+- `docs/help/security-model.md`
+- `docs/help/ai-condition-user-guide.md`
+- `docs/help/ahgexhibitionplugin.md`
+- `docs/help/accession-v2-user-guide.md`
+- `docs/help/ahgexportplugin.md`
+- `docs/help/workflows.md`
+- `docs/help/ahgrequesttopublishplugin.md`
+- `docs/help/ahgsettingsplugin.md`
+- `docs/help/ahgricexplorerplugin.md`
+- `docs/help/ahgsemanticsearchplugin.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/ahglabelplugin.md`
+- `docs/help/atom-heratio-library-system-user-manual.md`
+- `docs/help/term-taxonomy-user-guide.md`
+- `docs/help/ahgdisplayplugin.md`
+- `docs/help/exhibition-user-guide.md`
+- `docs/help/scanner-capture-user-guide.md`
+- `docs/help/authority-resolution-cli-commands.md`
+- `docs/help/database-erd.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/atom-heratio-customfields-feature-overview.md`
+- `docs/help/ahgmetadataexportplugin.md`
+- `docs/help/ahg-settings-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **services** files for `ahg-label`
+- [ ] Add missing **db** files for `ahg-label`
+- [ ] Add missing **readme** files for `ahg-label`
+
+### Notes
+- Run: `python audit_checker.py ahg-label` to re-verify after fixes.
+- See package source at `packages/ahg-label/`.

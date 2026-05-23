@@ -1,0 +1,65 @@
+## Package: `ahg-jobs`
+## Status: INCOMPLETE — 3 missing item(s)
+
+### Missing checks: controllers, db, readme
+
+### docs/help files referencing this package (50 found):
+- `docs/help/ahgnerplugin.md`
+- `docs/help/research-knowledge-platform-user-guide.md`
+- `docs/help/issue-198-implementation-plan.md`
+- `docs/help/roadmap.md`
+- `docs/help/data-migration-user-manual.md`
+- `docs/help/ai-tools-user-guide.md`
+- `docs/help/daya-magration-technical-documentation.md`
+- `docs/help/atom-heratio-versioncontrol-user-manual.md`
+- `docs/help/doi-user-guide.md`
+- `docs/help/ner-knowledge-graph-technical.md`
+- `docs/help/ahgdoiplugin.md`
+- `docs/help/sharepoint-user-guide.md`
+- `docs/help/security-user-manual.md`
+- `docs/help/ahgiiifplugin.md`
+- `docs/help/ahgmigrationplugin.md`
+- `docs/help/metadata-export-user-guide.md`
+- `docs/help/ahgingestplugin.md`
+- `docs/help/research-training-manual-user-guide.md`
+- `docs/help/data-migration-user-guide.md`
+- `docs/help/ahgrightsplugin.md`
+- `docs/help/technical-documentation.md`
+- `docs/help/ahgaiplugin.md`
+- `docs/help/ahgthemeb5plugin.md`
+- `docs/help/atom-heratio-library-system-technical-manual.md`
+- `docs/help/ahg-authority-resolution.md`
+- `docs/help/ahgdatamigrationplugin.md`
+- `docs/help/ahgheritageplugin.md`
+- `docs/help/vendor-user-guide.md`
+- `docs/help/authority-resolution-evidence-scoring.md`
+- `docs/help/nginx-security-hardening.md`
+- `docs/help/ahgreportbuilderplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/atom-heratio-timelimitedsharelink-user-manual.md`
+- `docs/help/ahgdedupeplugin.md`
+- `docs/help/ftp-upload-user-guide.md`
+- `docs/help/ai-condition-user-guide.md`
+- `docs/help/ahgvendorplugin.md`
+- `docs/help/ahgtiffpdfmergeplugin.md`
+- `docs/help/ahgsettingsplugin.md`
+- `docs/help/statistics-user-guide.md`
+- `docs/help/pdf-merge-user-guide.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/integrity-assurance-user-guide.md`
+- `docs/help/atom-heratio-security-audit-report.md`
+- `docs/help/authority-resolution-cli-commands.md`
+- `docs/help/database-erd.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/ahgmetadataexportplugin.md`
+- `docs/help/ahg-settings-user-guide.md`
+- `docs/help/information-object-manage-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **controllers** files for `ahg-jobs`
+- [ ] Add missing **db** files for `ahg-jobs`
+- [ ] Add missing **readme** files for `ahg-jobs`
+
+### Notes
+- Run: `python audit_checker.py ahg-jobs` to re-verify after fixes.
+- See package source at `packages/ahg-jobs/`.

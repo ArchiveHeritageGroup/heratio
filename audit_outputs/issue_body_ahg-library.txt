@@ -1,0 +1,97 @@
+## Package: `ahg-library`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (84 found):
+- `docs/help/ahgstatisticsplugin.md`
+- `docs/help/functions.md`
+- `docs/help/ahgfeedbackplugin.md`
+- `docs/help/forms-builder-user-guide.md`
+- `docs/help/label-printing-user-guide.md`
+- `docs/help/glam-browse-user-guide.md`
+- `docs/help/multi-tenant-user-guide.md`
+- `docs/help/roadmap.md`
+- `docs/help/ahgcoreplugin.md`
+- `docs/help/data-migration-user-manual.md`
+- `docs/help/daya-magration-technical-documentation.md`
+- `docs/help/plugin-architecture.md`
+- `docs/help/condition-reports.md`
+- `docs/help/library-module-user-guide.md`
+- `docs/help/feedback-user-guide.md`
+- `docs/help/voice-commands.md`
+- `docs/help/semantic-search-user-guide.md`
+- `docs/help/ahgregistryplugin.md`
+- `docs/help/sharepoint-user-guide.md`
+- `docs/help/outbound-http-policy.md`
+- `docs/help/ahgformsplugin.md`
+- `docs/help/migration-tools-user-guide.md`
+- `docs/help/graphql-user-guide.md`
+- `docs/help/api-technical-reference.md`
+- `docs/help/iiif-integration-user-guide.md`
+- `docs/help/ahgiiifplugin.md`
+- `docs/help/ahgmigrationplugin.md`
+- `docs/help/metadata-export-user-guide.md`
+- `docs/help/ahgprovenanceplugin.md`
+- `docs/help/ahgingestplugin.md`
+- `docs/help/fuzzy-search-user-guide.md`
+- `docs/help/advanced-search-user-guide.md`
+- `docs/help/data-migration-user-guide.md`
+- `docs/help/shacl-validation-howto.md`
+- `docs/help/rights-management-user-guide.md`
+- `docs/help/ahgrightsplugin.md`
+- `docs/help/technical-documentation.md`
+- `docs/help/ahgthemeb5plugin.md`
+- `docs/help/atom-heratio-library-system-technical-manual.md`
+- `docs/help/marketplace-buyer-quickstart.md`
+- `docs/help/ahgdatamigrationplugin.md`
+- `docs/help/export-data-user-guide.md`
+- `docs/help/ahglibraryplugin.md`
+- `docs/help/registry-community-hub-user-guide.md`
+- `docs/help/report-builder-user-guide.md`
+- `docs/help/ahg3dmodelplugin.md`
+- `docs/help/nginx-security-hardening.md`
+- `docs/help/ahgreportbuilderplugin.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/atom-ahg-framework-library-architecture-diagrams.md`
+- `docs/help/marketplace-user-guide.md`
+- `docs/help/provenance-management.md`
+- `docs/help/ai-inference-provenance-user-guide.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/ahgreportsplugin.md`
+- `docs/help/ahgexhibitionplugin.md`
+- `docs/help/marketplace-admin-operations.md`
+- `docs/help/atom-heratio-library-system-feature-overview.md`
+- `docs/help/workflows.md`
+- `docs/help/ahgrequesttopublishplugin.md`
+- `docs/help/heratio-migration.md`
+- `docs/help/ahgsettingsplugin.md`
+- `docs/help/statistics-user-guide.md`
+- `docs/help/ahgsemanticsearchplugin.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/ahglabelplugin.md`
+- `docs/help/ahgcartplugin.md`
+- `docs/help/semantic-search-technical.md`
+- `docs/help/eas-standards-reference.md`
+- `docs/help/atom-heratio-library-system-user-manual.md`
+- `docs/help/term-taxonomy-user-guide.md`
+- `docs/help/ahgdisplayplugin.md`
+- `docs/help/ahggrapplugin.md`
+- `docs/help/atom-heratio-security-audit-report.md`
+- `docs/help/marketplace-flow-guide.md`
+- `docs/help/scanner-capture-user-guide.md`
+- `docs/help/database-erd.md`
+- `docs/help/atom-heratio-library-order-api.md`
+- `docs/help/favorites-user-guide.md`
+- `docs/help/architecture.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/api-user-guide.md`
+- `docs/help/data-ingest-user-guide.md`
+- `docs/help/ahg-settings-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-library`
+
+### Notes
+- Run: `python audit_checker.py ahg-library` to re-verify after fixes.
+- See package source at `packages/ahg-library/`.

@@ -1,0 +1,15 @@
+## Package: `ahg-media-processing`
+## Status: INCOMPLETE — 2 missing item(s)
+
+### Missing checks: db, readme
+
+### docs/help files referencing this package (1 found):
+- `docs/help/ahg-settings-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **db** files for `ahg-media-processing`
+- [ ] Add missing **readme** files for `ahg-media-processing`
+
+### Notes
+- Run: `python audit_checker.py ahg-media-processing` to re-verify after fixes.
+- See package source at `packages/ahg-media-processing/`.

@@ -1,0 +1,43 @@
+## Package: `ahg-ingest`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (30 found):
+- `docs/help/system-flows.md`
+- `docs/help/research-knowledge-platform-user-guide.md`
+- `docs/help/roadmap.md`
+- `docs/help/documentation-standard.md`
+- `docs/help/atom-heratio-versioncontrol-user-manual.md`
+- `docs/help/atom-heratio-filevalidationservice-feature-overview.md`
+- `docs/help/sharepoint-user-guide.md`
+- `docs/help/ner-user-guide.md`
+- `docs/help/metadata-export-user-guide.md`
+- `docs/help/ahgingestplugin.md`
+- `docs/help/atom-heratio-iiif-ai-extraction-feature-overview.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/preservation-user-guide.md`
+- `docs/help/ahgmarketplaceplugin.md`
+- `docs/help/ftp-upload-user-guide.md`
+- `docs/help/ai-condition-user-guide.md`
+- `docs/help/whats-new-2026-05.md`
+- `docs/help/repository-manage-user-guide.md`
+- `docs/help/ahgsettingsplugin.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/integrity-assurance-user-guide.md`
+- `docs/help/actor-manage-user-guide.md`
+- `docs/help/atom-heratio-security-audit-report.md`
+- `docs/help/scanner-capture-user-guide.md`
+- `docs/help/database-erd.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/ahgmetadataexportplugin.md`
+- `docs/help/data-ingest-user-guide.md`
+- `docs/help/ahg-settings-user-guide.md`
+- `docs/help/information-object-manage-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-ingest`
+
+### Notes
+- Run: `python audit_checker.py ahg-ingest` to re-verify after fixes.
+- See package source at `packages/ahg-ingest/`.

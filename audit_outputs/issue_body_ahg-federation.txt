@@ -1,0 +1,23 @@
+## Package: `ahg-federation`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (10 found):
+- `docs/help/issue-198-implementation-plan.md`
+- `docs/help/outbound-http-policy.md`
+- `docs/help/ahgfederationplugin.md`
+- `docs/help/federation-user-guide.md`
+- `docs/help/standalone-install-plan.md`
+- `docs/help/heratio-migration.md`
+- `docs/help/api-reporting-export.md`
+- `docs/help/atom-heratio-security-audit-report.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+- `docs/help/ahg-settings-user-guide.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-federation`
+
+### Notes
+- Run: `python audit_checker.py ahg-federation` to re-verify after fixes.
+- See package source at `packages/ahg-federation/`.

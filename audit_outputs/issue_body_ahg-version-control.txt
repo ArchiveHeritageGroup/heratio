@@ -1,0 +1,16 @@
+## Package: `ahg-version-control`
+## Status: INCOMPLETE — 1 missing item(s)
+
+### Missing checks: readme
+
+### docs/help files referencing this package (3 found):
+- `docs/help/atom-heratio-versioncontrol-user-manual.md`
+- `docs/help/atom-heratio-versioncontrol-feature-overview.md`
+- `docs/help/atom-heratio-gcis-rfb-001-atom-aligned-plan.md`
+
+### Required actions:
+- [ ] Add missing **readme** files for `ahg-version-control`
+
+### Notes
+- Run: `python audit_checker.py ahg-version-control` to re-verify after fixes.
+- See package source at `packages/ahg-version-control/`.
