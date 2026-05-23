@@ -7,6 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-clipboard-check"></i> Task #{{ $task->id }}: {{ $task->step_name }}</h1>
     <div>
+      <a href="{{ route('workflow.task.diagram', $task->id) }}" class="btn btn-outline-info"><i class="fas fa-project-diagram me-1"></i>{{ __('Progress diagram') }}</a>
       <a href="{{ route('workflow.my-tasks') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('My Tasks') }}</a>
       <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-tachometer-alt"></i> {{ __('Dashboard') }}</a>
     </div>

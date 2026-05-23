@@ -3,59 +3,60 @@
 import subprocess, time, sys
 
 with open('/usr/share/nginx/heratio/tmp/audit_issues.txt') as f:
-    issues = [l.strip() for l in f if l.strip()]
-
-COMMENT = "RESOLVED: README, help, and code stubs now exist in the monorepo. See audit complete message in this repository."
+    issues = [int(l.strip()) for l in f if l.strip()]
 
 print(f"Total issues to close: {len(issues)}", flush=True)
 
 closed = 0
 errors = 0
-skipped = 0
 
 for i, issue in enumerate(issues, 1):
-    # ── Step 1: close the issue (no comment yet) ──────────────────
+    # ── Step 1: close the issue ─────────────────────────────────
     result = subprocess.run(
-        ['gh', 'issue', 'close', issue,
+        ['gh', 'issue', 'close', str(issue),
          '--repo', 'ArchiveHeritageGroup/heratio',
          '--reason', 'completed'],
         capture_output=True, text=True, timeout=30
     )
     if result.returncode != 0:
-        print(f"  [{i}/{len(issues)}] #{issue} close ERROR: {result.stderr.strip()[:120]}", flush=True)
-        errors += 1
-        time.sleep(1)
-        continue
-    print(f"  [{i}/{len(issues)}] #{issue} closed", flush=True)
-    closed += 1
+        err = result.stderr.lower()
+        # retry on rate-limit (wait 15s then retry once)
+        if 'was submitted too quickly' in err or 'api error' in err or 'rate limit' in err:
+            print(f"  [{i}/{len(issues)}] #{issue} rate-limited on close — retrying in 20s", flush=True)
+            time.sleep(20)
+            result = subprocess.run(
+                ['gh', 'issue', 'close', str(issue),
+                 '--repo', 'ArchiveHeritageGroup/heratio',
+                 '--reason', 'completed'],
+                capture_output=True, text=True, timeout=30
+            )
+        if result.returncode != 0:
+            print(f"  [{i}/{len(issues)}] #{issue} close ERROR: {result.stderr.strip()[:120]}", flush=True)
+            errors += 1
+            time.sleep(2)
+            continue
 
-    # ── Step 2: add comment (may rate-limit — retry 3x) ──────────
-    comment_ok = False
-    for attempt in range(3):
+    # ── Step 2: add audit:resolved label ─────────────────────────
+    for attempt in range(2):
         result = subprocess.run(
-            ['gh', 'issue', 'comment', issue,
+            ['gh', 'issue', 'edit', str(issue),
              '--repo', 'ArchiveHeritageGroup/heratio',
-             '--body', COMMENT],
-            capture_output=True, text=True
+             '--add-label', 'audit:resolved'],
+            capture_output=True, text=True, timeout=30
         )
         if result.returncode == 0:
-            comment_ok = True
             break
-        # retryable? (was submitted too quickly / API error)
         err = result.stderr.lower()
-        if 'was submitted too quickly' in err or 'api error' in err or 'server error' in err:
+        if 'was submitted too quickly' in err or 'api error' in err or 'rate limit' in err:
             wait = 15 * (attempt + 1)
-            print(f"  #{issue} comment attempt {attempt+1} rate-limited — sleeping {wait}s", flush=True)
+            print(f"  #{issue} label attempt {attempt+1} rate-limited — sleeping {wait}s", flush=True)
             time.sleep(wait)
-        else:
-            # non-retryable error — still count close as done
-            print(f"  #{issue} comment non-retryable: {result.stderr.strip()[:80]}", flush=True)
-            break
+        # non-retryable label error: just skip, close is done
 
     closed += 1
-    print(f"  [{i}/{len(issues)}] #{issue} closed", flush=True)
+    print(f"  [{i}/{len(issues)}] #{issue} closed ✓", flush=True)
 
-    # gentle throttle between issues (close itself is fast; addComment needs space)
+    # gentle throttle between issues
     time.sleep(1.0)
 
 print(f"\nDone. Closed: {closed}, Errors: {errors}", flush=True)

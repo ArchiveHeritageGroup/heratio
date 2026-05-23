@@ -335,6 +335,29 @@ class WorkflowController extends Controller
     }
 
     /**
+     * heratio#143 Phase 2 — task progress overlay on the workflow diagram.
+     */
+    public function taskDiagram(int $taskId)
+    {
+        $task = $this->service->getTask($taskId);
+        if (!$task) {
+            abort(404, 'Task not found');
+        }
+
+        $svc = new WorkflowDiagramService();
+        $payload = $svc->renderForTask($taskId);
+        $workflow = $this->service->getWorkflow((int) $task->workflow_id);
+
+        return view('ahg-workflow::task-diagram', [
+            'task'      => $task,
+            'workflow'  => $workflow,
+            'svg'       => $payload['svg'],
+            'statusMap' => $payload['statusMap'],
+            'fallback'  => $svc->textFallback((int) $task->workflow_id),
+        ]);
+    }
+
+    /**
      * Admin: delete workflow.
      */
     public function deleteWorkflow(int $id)

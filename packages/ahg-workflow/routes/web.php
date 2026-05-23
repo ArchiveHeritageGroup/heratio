@@ -42,6 +42,9 @@ Route::middleware('admin')->group(function () {
     // heratio#143 Phase 1 — visual diagram (read-only).
     Route::get('/workflow/{id}/diagram', [WorkflowController::class, 'diagram'])->name('workflow.diagram')->whereNumber('id');
 
+    // heratio#143 Phase 2 — task progress overlay on the diagram.
+    Route::get('/workflow/task/{taskId}/diagram', [WorkflowController::class, 'taskDiagram'])->name('workflow.task.diagram')->whereNumber('taskId');
+
     // Admin: steps
     Route::post('/workflow/admin/{workflowId}/step/add', [WorkflowController::class, 'addStep'])->name('workflow.admin.step.add');
     Route::post('/workflow/admin/step/{id}/delete', [WorkflowController::class, 'deleteStep'])->name('workflow.admin.step.delete');

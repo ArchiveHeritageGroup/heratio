@@ -168,6 +168,89 @@ class WorkflowDiagramService
     }
 
     /**
+     * heratio#143 Phase 2 — render the diagram with per-step status overlay
+     * for a specific running task. Returns SVG + status map for the view to consume.
+     *
+     * @return array{svg:string, statusMap:array<int,string>, task:object|null, workflowId:int|null}
+     */
+    public function renderForTask(int $taskId): array
+    {
+        $task = DB::table('ahg_workflow_task')->where('id', $taskId)->first();
+        if (!$task) {
+            return [
+                'svg'        => $this->emptyState(__('Task not found.')),
+                'statusMap'  => [],
+                'task'       => null,
+                'workflowId' => null,
+            ];
+        }
+
+        $statusMap = $this->buildTaskStatusMap(
+            (int) $task->workflow_id,
+            (int) $task->object_id,
+            (string) $task->object_type,
+            (int) $task->workflow_step_id
+        );
+
+        return [
+            'svg'        => $this->render((int) $task->workflow_id, $statusMap),
+            'statusMap'  => $statusMap,
+            'task'       => $task,
+            'workflowId' => (int) $task->workflow_id,
+        ];
+    }
+
+    /**
+     * Build a step_id => status map by examining every task ever created for the
+     * (workflow_id, object_id) pair. A step is 'completed' if any task on that step
+     * was approved; 'rejected' if any task on that step was rejected; 'current' if
+     * the most recent task on that step is still pending/claimed; otherwise the
+     * step is not in the map (the view treats absence as 'pending — not yet reached').
+     *
+     * @return array<int,string>
+     */
+    private function buildTaskStatusMap(int $workflowId, int $objectId, string $objectType, int $currentStepId): array
+    {
+        $tasks = DB::table('ahg_workflow_task')
+            ->where('workflow_id', $workflowId)
+            ->where('object_id', $objectId)
+            ->where('object_type', $objectType)
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get(['workflow_step_id', 'status', 'decision']);
+
+        $statusMap = [];
+        foreach ($tasks as $t) {
+            $stepId = (int) $t->workflow_step_id;
+            $decision = (string) $t->decision;
+            $status = (string) $t->status;
+
+            // Rejected wins over everything else on the same step.
+            if ('rejected' === $decision) {
+                $statusMap[$stepId] = 'rejected';
+                continue;
+            }
+            // Approved is sticky unless something else later overrides it.
+            if ('approved' === $decision && ($statusMap[$stepId] ?? null) !== 'rejected') {
+                $statusMap[$stepId] = 'completed';
+                continue;
+            }
+            // Still in-flight → mark as current, but never downgrade an existing completed/rejected.
+            if (in_array($status, ['pending', 'claimed', 'in_progress'], true) && !isset($statusMap[$stepId])) {
+                $statusMap[$stepId] = 'current';
+            }
+        }
+
+        // Belt-and-braces: the task the user is viewing is always current
+        // (covers the edge case where the row was just created with empty decision).
+        if (!isset($statusMap[$currentStepId])) {
+            $statusMap[$currentStepId] = 'current';
+        }
+
+        return $statusMap;
+    }
+
+    /**
      * Return a fallback ordered list — used by the diagram view as a screen-reader
      * alternative and as a graceful fallback if SVG is hidden.
      *
