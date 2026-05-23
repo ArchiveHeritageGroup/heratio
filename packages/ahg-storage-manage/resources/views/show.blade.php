@@ -115,6 +115,37 @@
         </div>
         @endif
 
+        {{-- heratio#144 — Strongroom assignment --}}
+        @if(!empty($strongroomAssignment))
+        @php
+          $srUnitLabels = [
+            'linear_meters' => __('Linear meters'),
+            'shelves'       => __('Shelves'),
+            'boxes'         => __('Boxes'),
+            'cubic_meters'  => __('Cubic meters'),
+          ];
+          $srUnitLabel = $srUnitLabels[$strongroomAssignment->capacity_unit] ?? $strongroomAssignment->capacity_unit;
+          $srSize = (float) ($strongroomAssignment->size_units_used ?? 0);
+        @endphp
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-warehouse me-2"></i>{{ __('Strongroom') }}</h5>
+          </div>
+          <div class="card-body">
+            <dl class="row mb-0">
+              <dt class="col-sm-4">{{ __('Strongroom') }}</dt>
+              <dd class="col-sm-8">
+                <a href="{{ route('strongroom.show', ['slug' => $strongroomAssignment->strongroom_slug]) }}">
+                  {{ $strongroomAssignment->strongroom_name }}
+                </a>
+              </dd>
+              <dt class="col-sm-4">{{ __('Size used') }}</dt>
+              <dd class="col-sm-8">{{ rtrim(rtrim(number_format($srSize, 2), '0'), '.') }} {{ $srUnitLabel }}</dd>
+            </dl>
+          </div>
+        </div>
+        @endif
+
         {{-- Dimensions --}}
         @if(!empty($extendedData['width']) || !empty($extendedData['height']) || !empty($extendedData['depth']))
         <div class="card mb-4">

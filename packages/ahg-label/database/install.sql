@@ -1,0 +1,4 @@
+-- ahg-ahg-label / database/install.sql
+-- Auto-generated stub — replace with actual schema/migrations.
+-- See GH issue #TBD for implementation plan.
+-- Generated: 2026-05-23

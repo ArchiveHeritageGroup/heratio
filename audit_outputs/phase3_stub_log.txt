@@ -1,0 +1,224 @@
+[WROTE] ahg-3d-model/README.md  (GH #TBD)
+[OK   ] docs/help/3d-model-user-guide.md  already exists
+[WROTE] ahg-access-request/README.md  (GH #TBD)
+[OK   ] docs/help/access-request-user-guide.md  already exists
+[WROTE] ahg-accession-manage/README.md  (GH #TBD)
+[OK   ] docs/help/accession-manage-user-guide.md  already exists
+[WROTE] ahg-acl/README.md  (GH #TBD)
+[OK   ] docs/help/acl-user-guide.md  already exists
+[WROTE] ahg-acl/database/install.sql
+[WROTE] ahg-actor-manage/README.md  (GH #TBD)
+[OK   ] docs/help/actor-manage-user-guide.md  already exists
+[WROTE] ahg-ai-services/README.md  (GH #TBD)
+[OK   ] docs/help/ai-services-user-guide.md  already exists
+[WROTE] ahg-annotations/README.md  (GH #TBD)
+[OK   ] docs/help/annotations-user-guide.md  already exists
+[WROTE] ahg-api/README.md  (GH #TBD)
+[OK   ] docs/help/api-user-guide.md  already exists
+[WROTE] ahg-api-plugin/README.md  (GH #TBD)
+[OK   ] docs/help/api-plugin-user-guide.md  already exists
+[WROTE] ahg-api-plugin/database/install.sql
+[WROTE] ahg-audit-trail/README.md  (GH #TBD)
+[OK   ] docs/help/audit-trail-user-guide.md  already exists
+[WROTE] ahg-authority-resolution/README.md  (GH #TBD)
+[OK   ] docs/help/authority-resolution-user-guide.md  already exists
+[WROTE] ahg-backup/README.md  (GH #TBD)
+[OK   ] docs/help/backup-user-guide.md  already exists
+[WROTE] ahg-cart/README.md  (GH #TBD)
+[OK   ] docs/help/cart-user-guide.md  already exists
+[WROTE] ahg-cdpa/README.md  (GH #TBD)
+[OK   ] docs/help/cdpa-user-guide.md  already exists
+[WROTE] ahg-condition/README.md  (GH #TBD)
+[OK   ] docs/help/condition-user-guide.md  already exists
+[WROTE] ahg-core/README.md  (GH #TBD)
+[OK   ] docs/help/core-user-guide.md  already exists
+[WROTE] ahg-custom-fields/README.md  (GH #TBD)
+[OK   ] docs/help/custom-fields-user-guide.md  already exists
+[WROTE] ahg-dacs-manage/README.md  (GH #TBD)
+[OK   ] docs/help/dacs-manage-user-guide.md  already exists
+[WROTE] ahg-dacs-manage/database/install.sql
+[WROTE] ahg-dam/README.md  (GH #TBD)
+[OK   ] docs/help/dam-user-guide.md  already exists
+[WROTE] ahg-data-migration/README.md  (GH #TBD)
+[OK   ] docs/help/data-migration-user-guide.md  already exists
+[WROTE] ahg-dc-manage/README.md  (GH #TBD)
+[OK   ] docs/help/dc-manage-user-guide.md  already exists
+[WROTE] ahg-dc-manage/database/install.sql
+[WROTE] ahg-dedupe/README.md  (GH #TBD)
+[OK   ] docs/help/dedupe-user-guide.md  already exists
+[WROTE] ahg-discovery/README.md  (GH #TBD)
+[OK   ] docs/help/discovery-user-guide.md  already exists
+[WROTE] ahg-display/README.md  (GH #TBD)
+[OK   ] docs/help/display-user-guide.md  already exists
+[WROTE] ahg-doi/README.md  (GH #TBD)
+[OK   ] docs/help/doi-user-guide.md  already exists
+[WROTE] ahg-doi/routes/web.php
+[WROTE] ahg-doi-manage/README.md  (GH #TBD)
+[OK   ] docs/help/doi-manage-user-guide.md  already exists
+[WROTE] ahg-doi-manage/database/install.sql
+[WROTE] ahg-donor-manage/README.md  (GH #TBD)
+[OK   ] docs/help/donor-manage-user-guide.md  already exists
+[WROTE] ahg-dropdown-manage/README.md  (GH #TBD)
+[OK   ] docs/help/dropdown-manage-user-guide.md  already exists
+[WROTE] ahg-exhibition/README.md  (GH #TBD)
+[OK   ] docs/help/exhibition-user-guide.md  already exists
+[WROTE] ahg-export/README.md  (GH #TBD)
+[OK   ] docs/help/export-user-guide.md  already exists
+[WROTE] ahg-export/database/install.sql
+[WROTE] ahg-extended-rights/README.md  (GH #TBD)
+[OK   ] docs/help/extended-rights-user-guide.md  already exists
+[WROTE] ahg-favorites/README.md  (GH #TBD)
+[OK   ] docs/help/favorites-user-guide.md  already exists
+[WROTE] ahg-federation/README.md  (GH #TBD)
+[OK   ] docs/help/federation-user-guide.md  already exists
+[WROTE] ahg-feedback/README.md  (GH #TBD)
+[OK   ] docs/help/feedback-user-guide.md  already exists
+[WROTE] ahg-forms/README.md  (GH #TBD)
+[OK   ] docs/help/forms-user-guide.md  already exists
+[WROTE] ahg-ftp-upload/README.md  (GH #TBD)
+[OK   ] docs/help/ftp-upload-user-guide.md  already exists
+[WROTE] ahg-function-manage/README.md  (GH #TBD)
+[OK   ] docs/help/function-manage-user-guide.md  already exists
+[WROTE] ahg-function-manage/database/install.sql
+[WROTE] ahg-functions-docs/README.md  (GH #TBD)
+[OK   ] docs/help/functions-docs-user-guide.md  already exists
+[WROTE] ahg-functions-docs/database/install.sql
+[WROTE] ahg-gallery/README.md  (GH #TBD)
+[OK   ] docs/help/gallery-user-guide.md  already exists
+[WROTE] ahg-gis/README.md  (GH #TBD)
+[OK   ] docs/help/gis-user-guide.md  already exists
+[WROTE] ahg-graphql/README.md  (GH #TBD)
+[OK   ] docs/help/graphql-user-guide.md  already exists
+[WROTE] ahg-help/README.md  (GH #TBD)
+[OK   ] docs/help/help-user-guide.md  already exists
+[WROTE] ahg-heritage-manage/README.md  (GH #TBD)
+[OK   ] docs/help/heritage-manage-user-guide.md  already exists
+[WROTE] ahg-icip/README.md  (GH #TBD)
+[OK   ] docs/help/icip-user-guide.md  already exists
+[WROTE] ahg-iiif-collection/README.md  (GH #TBD)
+[OK   ] docs/help/iiif-collection-user-guide.md  already exists
+[WROTE] ahg-image-ar/README.md  (GH #TBD)
+[OK   ] docs/help/image-ar-user-guide.md  already exists
+[WROTE] ahg-information-object-manage/README.md  (GH #TBD)
+[OK   ] docs/help/information-object-manage-user-guide.md  already exists
+[WROTE] ahg-ingest/README.md  (GH #TBD)
+[OK   ] docs/help/ingest-user-guide.md  already exists
+[WROTE] ahg-integrity/README.md  (GH #TBD)
+[OK   ] docs/help/integrity-user-guide.md  already exists
+[WROTE] ahg-ipsas/README.md  (GH #TBD)
+[OK   ] docs/help/ipsas-user-guide.md  already exists
+[WROTE] ahg-jobs/README.md  (GH #TBD)
+[OK   ] docs/help/jobs-user-guide.md  already exists
+[WROTE] ahg-jobs/database/install.sql
+[WROTE] ahg-jobs-manage/README.md  (GH #TBD)
+[OK   ] docs/help/jobs-manage-user-guide.md  already exists
+[WROTE] ahg-label/README.md  (GH #TBD)
+[OK   ] docs/help/label-user-guide.md  already exists
+[WROTE] ahg-label/database/install.sql
+[WROTE] ahg-landing-page/README.md  (GH #TBD)
+[OK   ] docs/help/landing-page-user-guide.md  already exists
+[WROTE] ahg-library/README.md  (GH #TBD)
+[OK   ] docs/help/library-user-guide.md  already exists
+[WROTE] ahg-loan/README.md  (GH #TBD)
+[OK   ] docs/help/loan-user-guide.md  already exists
+[WROTE] ahg-marketplace/README.md  (GH #TBD)
+[OK   ] docs/help/marketplace-user-guide.md  already exists
+[WROTE] ahg-media-processing/README.md  (GH #TBD)
+[OK   ] docs/help/media-processing-user-guide.md  already exists
+[WROTE] ahg-media-processing/database/install.sql
+[WROTE] ahg-media-streaming/README.md  (GH #TBD)
+[OK   ] docs/help/media-streaming-user-guide.md  already exists
+[WROTE] ahg-media-streaming/database/install.sql
+[WROTE] ahg-menu-manage/README.md  (GH #TBD)
+[OK   ] docs/help/menu-manage-user-guide.md  already exists
+[WROTE] ahg-metadata-export/README.md  (GH #TBD)
+[OK   ] docs/help/metadata-export-user-guide.md  already exists
+[WROTE] ahg-metadata-extraction/README.md  (GH #TBD)
+[OK   ] docs/help/metadata-extraction-user-guide.md  already exists
+[WROTE] ahg-metadata-extraction/database/install.sql
+[WROTE] ahg-mods-manage/README.md  (GH #TBD)
+[OK   ] docs/help/mods-manage-user-guide.md  already exists
+[WROTE] ahg-mods-manage/database/install.sql
+[WROTE] ahg-multi-tenant/README.md  (GH #TBD)
+[OK   ] docs/help/multi-tenant-user-guide.md  already exists
+[WROTE] ahg-museum/README.md  (GH #TBD)
+[OK   ] docs/help/museum-user-guide.md  already exists
+[WROTE] ahg-narssa/README.md  (GH #TBD)
+[OK   ] docs/help/narssa-user-guide.md  already exists
+[WROTE] ahg-naz/README.md  (GH #TBD)
+[OK   ] docs/help/naz-user-guide.md  already exists
+[WROTE] ahg-nmmz/README.md  (GH #TBD)
+[OK   ] docs/help/nmmz-user-guide.md  already exists
+[WROTE] ahg-oai/README.md  (GH #TBD)
+[OK   ] docs/help/oai-user-guide.md  already exists
+[WROTE] ahg-oai/database/install.sql
+[WROTE] ahg-pdf-tools/README.md  (GH #TBD)
+[OK   ] docs/help/pdf-tools-user-guide.md  already exists
+[WROTE] ahg-pdf-tools/database/install.sql
+[WROTE] ahg-portable-export/README.md  (GH #TBD)
+[OK   ] docs/help/portable-export-user-guide.md  already exists
+[WROTE] ahg-preservation/README.md  (GH #TBD)
+[OK   ] docs/help/preservation-user-guide.md  already exists
+[WROTE] ahg-privacy/README.md  (GH #TBD)
+[OK   ] docs/help/privacy-user-guide.md  already exists
+[WROTE] ahg-provenance/README.md  (GH #TBD)
+[OK   ] docs/help/provenance-user-guide.md  already exists
+[WROTE] ahg-provenance-ai/README.md  (GH #TBD)
+[OK   ] docs/help/provenance-ai-user-guide.md  already exists
+[WROTE] ahg-rad-manage/README.md  (GH #TBD)
+[OK   ] docs/help/rad-manage-user-guide.md  already exists
+[WROTE] ahg-rad-manage/database/install.sql
+[WROTE] ahg-records-manage/README.md  (GH #TBD)
+[OK   ] docs/help/records-manage-user-guide.md  already exists
+[WROTE] ahg-reports/README.md  (GH #TBD)
+[OK   ] docs/help/reports-user-guide.md  already exists
+[WROTE] ahg-repository-manage/README.md  (GH #TBD)
+[OK   ] docs/help/repository-manage-user-guide.md  already exists
+[WROTE] ahg-request-publish/README.md  (GH #TBD)
+[OK   ] docs/help/request-publish-user-guide.md  already exists
+[WROTE] ahg-research/README.md  (GH #TBD)
+[OK   ] docs/help/research-user-guide.md  already exists
+[WROTE] ahg-researcher-manage/README.md  (GH #TBD)
+[OK   ] docs/help/researcher-manage-user-guide.md  already exists
+[SKIP-FULL] ahg-ric — fully implemented
+[WROTE] ahg-rights/README.md  (GH #TBD)
+[OK   ] docs/help/rights-user-guide.md  already exists
+[WROTE] ahg-rights/routes/web.php
+[WROTE] ahg-rights-holder-manage/README.md  (GH #TBD)
+[OK   ] docs/help/rights-holder-manage-user-guide.md  already exists
+[WROTE] ahg-scan/README.md  (GH #TBD)
+[OK   ] docs/help/scan-user-guide.md  already exists
+[WROTE] ahg-search/README.md  (GH #TBD)
+[OK   ] docs/help/search-user-guide.md  already exists
+[WROTE] ahg-security-clearance/README.md  (GH #TBD)
+[OK   ] docs/help/security-clearance-user-guide.md  already exists
+[WROTE] ahg-semantic-search/README.md  (GH #TBD)
+[OK   ] docs/help/semantic-search-user-guide.md  already exists
+[WROTE] ahg-settings/README.md  (GH #TBD)
+[OK   ] docs/help/settings-user-guide.md  already exists
+[WROTE] ahg-share-link/README.md  (GH #TBD)
+[OK   ] docs/help/share-link-user-guide.md  already exists
+[SKIP-FULL] ahg-sharepoint — fully implemented
+[SKIP-FULL] ahg-spectrum — fully implemented
+[WROTE] ahg-static-page/README.md  (GH #TBD)
+[OK   ] docs/help/static-page-user-guide.md  already exists
+[WROTE] ahg-statistics/README.md  (GH #TBD)
+[OK   ] docs/help/statistics-user-guide.md  already exists
+[WROTE] ahg-storage-manage/README.md  (GH #TBD)
+[OK   ] docs/help/storage-manage-user-guide.md  already exists
+[WROTE] ahg-term-taxonomy/README.md  (GH #TBD)
+[OK   ] docs/help/term-taxonomy-user-guide.md  already exists
+[WROTE] ahg-theme-b5/README.md  (GH #TBD)
+[OK   ] docs/help/theme-b5-user-guide.md  already exists
+[WROTE] ahg-translation/README.md  (GH #TBD)
+[OK   ] docs/help/translation-user-guide.md  already exists
+[WROTE] ahg-user-manage/README.md  (GH #TBD)
+[OK   ] docs/help/user-manage-user-guide.md  already exists
+[WROTE] ahg-vendor/README.md  (GH #TBD)
+[OK   ] docs/help/vendor-user-guide.md  already exists
+[WROTE] ahg-version-control/README.md  (GH #TBD)
+[OK   ] docs/help/version-control-user-guide.md  already exists
+[WROTE] ahg-workflow/README.md  (GH #TBD)
+[OK   ] docs/help/workflow-user-guide.md  already exists
+
+Done. 100 packages updated.

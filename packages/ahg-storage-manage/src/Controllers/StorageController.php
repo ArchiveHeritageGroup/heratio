@@ -29,6 +29,7 @@ namespace AhgStorageManage\Controllers;
 
 use AhgStorageManage\Services\StorageBrowseService;
 use AhgStorageManage\Services\StorageService;
+use AhgStorageManage\Services\StrongroomService;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
@@ -38,10 +39,12 @@ use Illuminate\Support\Facades\DB;
 class StorageController extends Controller
 {
     protected StorageService $service;
+    protected StrongroomService $strongroomService;
 
     public function __construct()
     {
         $this->service = new StorageService(app()->getLocale());
+        $this->strongroomService = new StrongroomService();
     }
 
     public function browse(Request $request)
@@ -103,6 +106,7 @@ class StorageController extends Controller
             'descriptions' => $descriptions,
             'accessions' => $accessions,
             'extendedData' => $this->service->getExtendedData($storage->id),
+            'strongroomAssignment' => $this->strongroomService->getAssignment($storage->id),
         ]);
     }
 
@@ -112,6 +116,9 @@ class StorageController extends Controller
             'storage' => null,
             'typeChoices' => $this->service->getFormChoices(),
             'extendedData' => [],
+            'strongroomChoices' => $this->strongroomService->dropdownChoices(),
+            'strongroomAssignment' => null,
+            'strongroomUnits' => StrongroomService::CAPACITY_UNITS,
         ]);
     }
 
@@ -126,6 +133,9 @@ class StorageController extends Controller
             'storage' => $storage,
             'typeChoices' => $this->service->getFormChoices(),
             'extendedData' => $this->service->getExtendedData($storage->id),
+            'strongroomChoices' => $this->strongroomService->dropdownChoices(),
+            'strongroomAssignment' => $this->strongroomService->getAssignment($storage->id),
+            'strongroomUnits' => StrongroomService::CAPACITY_UNITS,
         ]);
     }
 
@@ -134,9 +144,11 @@ class StorageController extends Controller
         $request->validate(['name' => 'required|string|max:1024']);
         $id = $this->service->create($request->only($this->baseFields()));
         $this->service->saveExtendedData($id, $request->only($this->extendedFields()));
-        return redirect()
+        $warning = $this->saveStrongroomAssignment($id, $request);
+        $flash = redirect()
             ->route('physicalobject.show', $this->service->getSlug($id))
             ->with('success', 'Physical storage created successfully.');
+        return null !== $warning ? $flash->with('warning', $warning) : $flash;
     }
 
     public function update(Request $request, string $slug)
@@ -149,9 +161,41 @@ class StorageController extends Controller
         $request->validate(['name' => 'required|string|max:1024']);
         $this->service->update($storage->id, $request->only($this->baseFields()));
         $this->service->saveExtendedData($storage->id, $request->only($this->extendedFields()));
-        return redirect()
+        $warning = $this->saveStrongroomAssignment($storage->id, $request);
+        $flash = redirect()
             ->route('physicalobject.show', $slug)
             ->with('success', 'Physical storage updated successfully.');
+        return null !== $warning ? $flash->with('warning', $warning) : $flash;
+    }
+
+    /**
+     * heratio#144 — Apply the strongroom-assignment fields from the form.
+     * Blank strongroom = unassign. Capacity overflow is allowed (operator
+     * override) but flashes a warning. Returns the warning text or null.
+     */
+    private function saveStrongroomAssignment(int $physicalObjectId, Request $request): ?string
+    {
+        $rawId = trim((string) $request->input('assign_strongroom_id', ''));
+        if ('' === $rawId) {
+            $this->strongroomService->unassign($physicalObjectId);
+
+            return null;
+        }
+
+        $strongroomId = (int) $rawId;
+        $size = (float) $request->input('assign_size_units', 0);
+        $overflow = $this->strongroomService->capacityOverflow($strongroomId, $size, $physicalObjectId);
+
+        $this->strongroomService->assign($physicalObjectId, $strongroomId, $size);
+
+        if (null !== $overflow && $overflow > 0) {
+            return sprintf(
+                'Saved, but the strongroom is now over capacity by %s unit(s).',
+                rtrim(rtrim(number_format($overflow, 2), '0'), '.')
+            );
+        }
+
+        return null;
     }
 
     public function confirmDelete(string $slug)
@@ -203,16 +247,34 @@ class StorageController extends Controller
                 $j->on('physical_object.type_id', '=', 'term_i18n.id')
                   ->where('term_i18n.culture', '=', $culture);
             })
+            // heratio#144 - strongroom assignment columns (LEFT JOINs so unassigned containers still appear).
+            ->leftJoin('ahg_physical_object_storage as ps', 'ps.physical_object_id', '=', 'physical_object.id')
+            ->leftJoin('ahg_strongroom as sr', 'sr.id', '=', 'ps.strongroom_id')
             ->where('physical_object_i18n.culture', $culture)
-            ->select('physical_object_i18n.name', 'term_i18n.name as type', 'physical_object_i18n.location')
+            ->select(
+                'physical_object_i18n.name',
+                'term_i18n.name as type',
+                'physical_object_i18n.location',
+                'sr.name as strongroom',
+                'ps.size_units_used',
+                'sr.capacity_unit'
+            )
+            ->orderBy('sr.name')
             ->orderBy('physical_object_i18n.name')
             ->get();
 
         return new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($rows) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['Name', 'Type', 'Location']);
+            fputcsv($out, ['Name', 'Type', 'Location', 'Strongroom', 'Size used', 'Capacity unit']);
             foreach ($rows as $r) {
-                fputcsv($out, [$r->name, $r->type ?? '', $r->location ?? '']);
+                fputcsv($out, [
+                    $r->name,
+                    $r->type ?? '',
+                    $r->location ?? '',
+                    $r->strongroom ?? '',
+                    $r->size_units_used ?? '',
+                    $r->capacity_unit ?? '',
+                ]);
             }
             fclose($out);
         }, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="storage-report-' . date('Ymd') . '.csv"']);

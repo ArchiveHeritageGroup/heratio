@@ -352,6 +352,51 @@
       </div>
     </div>
 
+    {{-- heratio#144 — Strongroom assignment --}}
+    <div class="card mb-4">
+      <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
+        <h5 class="mb-0"><i class="fas fa-warehouse me-2"></i>{{ __('Strongroom assignment') }}</h5>
+      </div>
+      <div class="card-body">
+        @php
+          $currentSrId = $strongroomAssignment->strongroom_id ?? null;
+          $currentSize = $strongroomAssignment->size_units_used ?? '';
+        @endphp
+        @if(empty($strongroomChoices))
+          <p class="text-muted mb-0">
+            {{ __('No strongrooms defined yet.') }}
+            @auth <a href="{{ route('strongroom.create') }}">{{ __('Add one') }}</a>. @endauth
+          </p>
+        @else
+          <div class="row g-3">
+            <div class="col-md-7">
+              <label for="assign_strongroom_id" class="form-label">{{ __('Strongroom') }}
+                <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <select name="assign_strongroom_id" id="assign_strongroom_id" class="form-select">
+                <option value="">— {{ __('Not assigned to a strongroom') }} —</option>
+                @foreach($strongroomChoices as $id => $label)
+                  <option value="{{ $id }}" @selected((int) old('assign_strongroom_id', $currentSrId) === (int) $id)>{{ $label }}</option>
+                @endforeach
+              </select>
+              <div class="form-text">
+                {{ __('Selecting a strongroom assigns this container to it; clearing the selection unassigns it.') }}
+              </div>
+            </div>
+            <div class="col-md-5">
+              <label for="assign_size_units" class="form-label">{{ __('Size used') }}
+                <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <input type="number" min="0" step="0.01"
+                     name="assign_size_units" id="assign_size_units" class="form-control"
+                     value="{{ old('assign_size_units', $currentSize) }}">
+              <div class="form-text">
+                {{ __("How much of the strongroom's capacity this container consumes, in the strongroom's unit.") }}
+              </div>
+            </div>
+          </div>
+        @endif
+      </div>
+    </div>
+
     <section class="actions mb-3">
       <ul class="actions mb-1 nav gap-2">
         @if($storage)
