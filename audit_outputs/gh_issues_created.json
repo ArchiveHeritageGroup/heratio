@@ -349,6 +349,50 @@
     [
       "ahg-workflow",
       "GraphQL: API rate limit already exceeded for user ID 40993577."
+    ],
+    [
+      "ahg-share-link",
+      "GraphQL: API rate limit already exceeded for user ID 40993577."
+    ],
+    [
+      "ahg-static-page",
+      "GraphQL: API rate limit already exceeded for user ID 40993577."
+    ],
+    [
+      "ahg-statistics",
+      "GraphQL: API rate limit already exceeded for user ID 40993577."
+    ],
+    [
+      "ahg-storage-manage",
+      "GraphQL: API rate limit already exceeded for user ID 40993577."
+    ],
+    [
+      "ahg-term-taxonomy",
+      "GraphQL: API rate limit already exceeded for user ID 40993577."
+    ],
+    [
+      "ahg-theme-b5",
+      "GraphQL: API rate limit already exceeded for user ID 40993577."
+    ],
+    [
+      "ahg-translation",
+      "GraphQL: API rate limit already exceeded for user ID 40993577."
+    ],
+    [
+      "ahg-user-manage",
+      "GraphQL: API rate limit already exceeded for user ID 40993577."
+    ],
+    [
+      "ahg-vendor",
+      "GraphQL: API rate limit already exceeded for user ID 40993577."
+    ],
+    [
+      "ahg-version-control",
+      "GraphQL: API rate limit already exceeded for user ID 40993577."
+    ],
+    [
+      "ahg-workflow",
+      "GraphQL: API rate limit already exceeded for user ID 40993577."
     ]
   ]
 }
