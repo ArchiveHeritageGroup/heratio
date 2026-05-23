@@ -8,6 +8,26 @@ This page summarises the user-visible features that landed across releases v1.53
 
 ---
 
+## AHG Central fleet monitoring is live (operator)
+
+The AHG Central cloud service at `central.theahg.co.za` is now running. A
+fresh install auto-enrols on its first daily heartbeat - there is nothing for
+an operator to register. The fleet is monitored from the AHG Workbench, which
+also raises a bell notification when an install joins, goes silent, or reports
+critical errors.
+
+Error-log sync to AHG Central remains a **separate opt-in**, off by default.
+Switching it on sends redacted error entries hourly; emails and long number
+sequences are masked, and URL query strings are stripped before anything
+leaves the server.
+
+Configure it at **Admin → AHG Settings → AHG Integration**, where the
+**Test Connection** button confirms the install can reach AHG Central.
+
+Reference: "AHG Central - Fleet Monitoring" (this help center).
+
+---
+
 ## AI services - 16 settings keys now wired (operator)
 
 The form at `/admin/ahgSettings/aiServices` previously had 16 of 20 fields that saved to `ahg_ner_settings` but were never read by any consumer. v1.53.23 wired all 16 through a new `AhgAiServices\Support\AiServicesSettings` helper:

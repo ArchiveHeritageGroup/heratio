@@ -6,6 +6,20 @@ This page summarises the user-visible features that landed across releases v1.53
 
 ---
 
+## AHG Central fleet monitoring shipped (operator) - 2026-05-22
+
+The AHG Central cloud service at `central.theahg.co.za` is now live, and the fleet is operational. Three Heratio Laravel installs (`heratio-theahg`, `atom-theahg`, `dam-theahg`) plus one AtoM Heratio install (`atom-wdb`) auto-enrolled and are reporting daily heartbeats; the AHG Workbench **AHG Central** admin tab proxies the fleet feed and drops new-instance / gone-silent / critical-error notifications into the operator's bell.
+
+- **Server:** Flask app at `/opt/ai/central/app.py` (port 5060, systemd unit `ahg-central.service`), nginx vhost + Let's Encrypt, SQLite registry. Endpoints: `/api/v1/{ping,heartbeat,errors,admin/fleet}` plus a fallback operator dashboard at `/`.
+- **Auto-enrolment:** a fresh install carrying the shared fleet key (`CENTRAL_ENROLMENT_KEY`) creates its own registry row on the first heartbeat - no manual registration step.
+- **`ahgCorePlugin`** ships a Symfony-side reporter for AtoM Heratio (`central:{heartbeat,sync-errors,ping}`) sharing the same `ahg_central_*` settings via `SettingService`. AtoM Heratio installs need an explicit cron line for `php symfony central:heartbeat` - there is no auto-scheduler on that platform.
+- **`ahgCentralPlugin` v1.1.0** (new, standalone) - a universal Symfony plugin that auto-detects vanilla AtoM vs AtoM Heratio: reads `ahg_error_log` when the table exists, else tails `qubit_prod.log`; reports `atom-ahg-plugins/version.json` (3.x) or `qubitConfiguration::VERSION` (2.x). Clean drop-in replacement for `ahgCorePlugin`'s built-in reporter, and the first reporter for plain stock AtoM.
+- **Privacy:** error sync is a separate opt-in. Emails and 9+-digit numbers are masked, URL query strings are stripped, stack traces / client IPs / user agents / user ids are never sent.
+
+References: `docs/reference/ahg-central-fleet.md` (full architecture, in KM under `heratio-reference`); `docs/help/ahg-central-fleet-monitoring.md` (end-user article). Closes #127 (closes #67 transitively).
+
+---
+
 ## Research enhancements roadmap - 13 features (researcher) - 2026-05-16
 
 The full roadmap at `docs/research-enhancements-roadmap.md` landed in one release. All 13 items are shipped and live; full user-facing guide at `docs/research-enhancements-user-guide.md`.
