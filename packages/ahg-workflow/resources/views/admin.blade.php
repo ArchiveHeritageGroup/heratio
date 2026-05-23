@@ -83,6 +83,7 @@
                     @endif
                   </td>
                   <td>
+                    <a href="{{ route('workflow.diagram', $wf->id) }}" class="btn btn-sm btn-outline-info" title="{{ __('View diagram') }}"><i class="fas fa-project-diagram"></i></a>
                     <a href="{{ route('workflow.admin.edit', $wf->id) }}" class="btn btn-sm atom-btn-white"><i class="fas fa-edit"></i></a>
                     <form action="{{ route('workflow.admin.delete', $wf->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this workflow and all its steps and tasks?')">
                       @csrf

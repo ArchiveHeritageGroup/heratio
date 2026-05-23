@@ -39,6 +39,9 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/workflow/admin/{id}/edit', [WorkflowController::class, 'editWorkflow'])->name('workflow.admin.edit');
     Route::post('/workflow/admin/{id}/delete', [WorkflowController::class, 'deleteWorkflow'])->name('workflow.admin.delete');
 
+    // heratio#143 Phase 1 — visual diagram (read-only).
+    Route::get('/workflow/{id}/diagram', [WorkflowController::class, 'diagram'])->name('workflow.diagram')->whereNumber('id');
+
     // Admin: steps
     Route::post('/workflow/admin/{workflowId}/step/add', [WorkflowController::class, 'addStep'])->name('workflow.admin.step.add');
     Route::post('/workflow/admin/step/{id}/delete', [WorkflowController::class, 'deleteStep'])->name('workflow.admin.step.delete');

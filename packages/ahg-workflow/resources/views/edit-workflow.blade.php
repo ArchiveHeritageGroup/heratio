@@ -6,7 +6,10 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0"><i class="fas fa-edit"></i> Edit Workflow: {{ $workflow->name }}</h1>
-    <a href="{{ route('workflow.admin') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
+    <div class="d-flex gap-2">
+      <a href="{{ route('workflow.diagram', $workflow->id) }}" class="btn btn-outline-info"><i class="fas fa-project-diagram me-1"></i>{{ __('View diagram') }}</a>
+      <a href="{{ route('workflow.admin') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
+    </div>
   </div>
 
   @if($errors->any())

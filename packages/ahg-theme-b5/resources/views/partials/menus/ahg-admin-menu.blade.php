@@ -167,6 +167,20 @@
     <li><a class="dropdown-item" href="{{ route('strongroom.browse') }}"><i class="fas fa-warehouse me-2"></i>{{ __('Strongrooms') }}</a></li>
     @endif
 
+    {{-- Workflow (gated by ahg_workflow table existence — ahg-workflow feature, heratio#143) --}}
+    @php
+      $hasWorkflow = false;
+      try {
+          $hasWorkflow = \Illuminate\Support\Facades\Schema::hasTable('ahg_workflow');
+      } catch (\Throwable $e) {}
+    @endphp
+    @if($hasWorkflow)
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">{{ __('Workflow') }}</h6></li>
+    <li><a class="dropdown-item" href="{{ route('workflow.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>{{ __('Dashboard') }}</a></li>
+    <li><a class="dropdown-item" href="{{ route('workflow.admin') }}"><i class="fas fa-cogs me-2"></i>{{ __('Workflows & diagrams') }}</a></li>
+    @endif
+
     {{-- Maintenance (Backup/Restore gated by ahgBackupPlugin; Jobs always shown) --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">{{ __('Maintenance') }}</h6></li>

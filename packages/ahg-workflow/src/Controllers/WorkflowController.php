@@ -27,6 +27,7 @@
 
 namespace AhgWorkflow\Controllers;
 
+use AhgWorkflow\Services\WorkflowDiagramService;
 use AhgWorkflow\Services\WorkflowService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -312,6 +313,24 @@ class WorkflowController extends Controller
 
         return view('ahg-workflow::edit-workflow', [
             'workflow' => $workflow,
+        ]);
+    }
+
+    /**
+     * heratio#143 Phase 1 — read-only visual diagram of a workflow.
+     */
+    public function diagram(int $id)
+    {
+        $workflow = $this->service->getWorkflow($id);
+        if (!$workflow) {
+            abort(404, 'Workflow not found');
+        }
+
+        $svc = new WorkflowDiagramService();
+        return view('ahg-workflow::diagram', [
+            'workflow' => $workflow,
+            'svg'      => $svc->render((int) $id),
+            'fallback' => $svc->textFallback((int) $id),
         ]);
     }
 
