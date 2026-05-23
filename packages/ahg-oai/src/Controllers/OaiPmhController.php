@@ -26,6 +26,10 @@
 
 namespace AhgOai\Controllers;
 
+use AhgMetadataExport\Services\Exporters\Ead2002Serializer;
+use AhgMetadataExport\Services\Exporters\Ead3Serializer;
+use AhgMetadataExport\Services\Exporters\MarcxmlSerializer;
+use AhgMetadataExport\Services\Exporters\ModsSerializer;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
@@ -81,6 +85,34 @@ class OaiPmhController extends Controller
      * ahg_settings.resumption_token_limit when set; see pageSize().
      */
     private const PAGE_SIZE = 100;
+
+    /**
+     * Supported OAI-PMH metadataPrefix values, each mapped to its
+     * advertised schema + namespace for ListMetadataFormats. The dispatch
+     * to the per-format serializer happens in renderMetadata().
+     */
+    private const METADATA_FORMATS = [
+        'oai_dc' => [
+            'schema'    => 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
+            'namespace' => 'http://www.openarchives.org/OAI/2.0/oai_dc/',
+        ],
+        'oai_ead' => [
+            'schema'    => 'http://www.loc.gov/ead/ead.xsd',
+            'namespace' => 'urn:isbn:1-931666-22-9',
+        ],
+        'oai_ead3' => [
+            'schema'    => 'https://www.loc.gov/ead/ead3.xsd',
+            'namespace' => 'http://ead3.archivists.org/schema/',
+        ],
+        'mods' => [
+            'schema'    => 'http://www.loc.gov/standards/mods/v3/mods-3-5.xsd',
+            'namespace' => 'http://www.loc.gov/mods/v3',
+        ],
+        'marcxml' => [
+            'schema'    => 'http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd',
+            'namespace' => 'http://www.loc.gov/MARC21/slim',
+        ],
+    ];
 
     /**
      * Read a setting from the i18n `setting` table (scope='oai', the same
@@ -252,9 +284,9 @@ class OaiPmhController extends Controller
             }
         }
 
-        // Check metadataPrefix is valid (oai_dc only for now)
+        // Check metadataPrefix is one of the registered formats.
         $metadataPrefix = $params['metadataPrefix'] ?? null;
-        if ($metadataPrefix !== null && $metadataPrefix !== '' && $metadataPrefix !== 'oai_dc') {
+        if ($metadataPrefix !== null && $metadataPrefix !== '' && !isset(self::METADATA_FORMATS[$metadataPrefix])) {
             return $this->errorResponse($request, 'cannotDisseminateFormat');
         }
 
@@ -341,20 +373,84 @@ class OaiPmhController extends Controller
 
     /**
      * ListMetadataFormats verb: return supported metadata formats.
+     *
+     * Per OAI-PMH 2.0, when called with an identifier argument the response
+     * is the subset of formats available for that specific record. Heratio
+     * supports the same format set for every record (no per-record limits),
+     * so the identifier argument is validated (idDoesNotExist if unknown)
+     * but the format list itself does not vary.
      */
     private function listMetadataFormats(Request $request): Response
     {
+        // If identifier is supplied, validate it exists - per spec we should
+        // return idDoesNotExist otherwise.
+        $identifier = $request->query('identifier');
+        if ($identifier !== null && $identifier !== '') {
+            $oaiLocalId = $this->parseOaiIdentifier($identifier);
+            if ($oaiLocalId === null) {
+                return $this->errorResponse($request, 'idDoesNotExist');
+            }
+            $exists = DB::table('information_object')
+                ->where('oai_local_identifier', $oaiLocalId)
+                ->exists();
+            if (!$exists) {
+                return $this->errorResponse($request, 'idDoesNotExist');
+            }
+        }
+
         $xml = $this->xmlHeader($request);
         $xml .= '  <ListMetadataFormats>' . "\n";
-        $xml .= '    <metadataFormat>' . "\n";
-        $xml .= '      <metadataPrefix>oai_dc</metadataPrefix>' . "\n";
-        $xml .= '      <schema>http://www.openarchives.org/OAI/2.0/oai_dc.xsd</schema>' . "\n";
-        $xml .= '      <metadataNamespace>http://www.openarchives.org/OAI/2.0/oai_dc/</metadataNamespace>' . "\n";
-        $xml .= '    </metadataFormat>' . "\n";
+        foreach (self::METADATA_FORMATS as $prefix => $spec) {
+            $xml .= '    <metadataFormat>' . "\n";
+            $xml .= '      <metadataPrefix>' . $prefix . '</metadataPrefix>' . "\n";
+            $xml .= '      <schema>' . $this->esc($spec['schema']) . '</schema>' . "\n";
+            $xml .= '      <metadataNamespace>' . $this->esc($spec['namespace']) . '</metadataNamespace>' . "\n";
+            $xml .= '    </metadataFormat>' . "\n";
+        }
         $xml .= '  </ListMetadataFormats>' . "\n";
         $xml .= $this->xmlFooter();
 
         return $this->xmlResponse($xml);
+    }
+
+    /**
+     * Render the metadata body for a record in the requested format.
+     * Dublin Core stays inline (renderDublinCore) because it has been hand-
+     * tuned for the OAI envelope; the other 4 formats delegate to the
+     * ahg-metadata-export serializers which return self-contained XML.
+     * Output is indented 8 spaces to align with the surrounding <metadata>.
+     */
+    private function renderMetadata(object $record, string $metadataPrefix): string
+    {
+        if ($metadataPrefix === 'oai_dc') {
+            return $this->renderDublinCore($record);
+        }
+
+        $body = '';
+        $culture = $record->source_culture ?? 'en';
+        switch ($metadataPrefix) {
+            case 'oai_ead':
+                $body = (new Ead2002Serializer())->serializeRecord((int) $record->id, $culture, true);
+                break;
+            case 'oai_ead3':
+                $body = (new Ead3Serializer())->serializeRecord((int) $record->id, $culture, true);
+                break;
+            case 'mods':
+                $body = (new ModsSerializer())->serializeRecord((int) $record->id, $culture);
+                break;
+            case 'marcxml':
+                $body = (new MarcxmlSerializer())->serializeRecord((int) $record->id, $culture);
+                break;
+        }
+
+        if ($body === '') {
+            return '';
+        }
+
+        // Indent each line by 8 spaces so the body sits inside <metadata>.
+        $lines = explode("\n", $body);
+        $padded = array_map(fn ($line) => $line === '' ? '' : '        ' . $line, $lines);
+        return implode("\n", $padded) . "\n";
     }
 
     /**
@@ -493,7 +589,7 @@ class OaiPmhController extends Controller
             $xml .= '    <record>' . "\n";
             $xml .= $this->renderHeader($record, 6);
             $xml .= '      <metadata>' . "\n";
-            $xml .= $this->renderDublinCore($record);
+            $xml .= $this->renderMetadata($record, $metadataPrefix);
             $xml .= '      </metadata>' . "\n";
             $xml .= '    </record>' . "\n";
         }
@@ -583,7 +679,7 @@ class OaiPmhController extends Controller
         $xml .= '    <record>' . "\n";
         $xml .= $this->renderHeader($record, 6);
         $xml .= '      <metadata>' . "\n";
-        $xml .= $this->renderDublinCore($record);
+        $xml .= $this->renderMetadata($record, $metadataPrefix);
         $xml .= '      </metadata>' . "\n";
         $xml .= '    </record>' . "\n";
         $xml .= '  </GetRecord>' . "\n";
