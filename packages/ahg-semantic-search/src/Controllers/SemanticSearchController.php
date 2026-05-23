@@ -208,7 +208,7 @@ class SemanticSearchController extends Controller
      */
     public function testExpand(Request $request)
     {
-        $query = $request->input('query', '');
+        $query = (string) $request->input('query', '');
 
         try {
             $expanded = $this->service->expandQuery($query);
