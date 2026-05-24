@@ -78,6 +78,11 @@ return Application::configure(basePath: dirname(__DIR__))
             // already blocked at the auth layer.
             'api/annotations',
             'api/annotations/*',
+            // OAI-PMH 2.0 spec mandates POST verb support (#655 Phase 2).
+            // Harvesters are server-to-server clients that have no CSRF
+            // token; the endpoint enforces its own auth via optional
+            // X-API-Key when ahg_settings.oai_authentication_enabled='1'.
+            'oai',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

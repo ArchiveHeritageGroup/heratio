@@ -211,7 +211,7 @@ class OaiPmhController extends Controller
         // off so anonymous OAI harvesting keeps working out of the box.
         if ((string) $this->setting('oai_authentication_enabled', '0') === '1') {
             $key = $request->header('X-API-Key')
-                ?: ($request->bearerToken() ?: $request->query('api'));
+                ?: ($request->bearerToken() ?: $request->input('api'));
             $valid = false;
             if ($key && \Illuminate\Support\Facades\Schema::hasTable('ahg_api_key')) {
                 // ahg_api_key shape (per the central API key store): api_key
@@ -244,7 +244,16 @@ class OaiPmhController extends Controller
             }
         }
 
-        $verb = $request->query('verb');
+        // Per OAI-PMH 2.0 spec section 3.4 both GET and POST are valid;
+        // POST passes parameters in the body as application/x-www-form-urlencoded.
+        // $request->all() unifies query string + form body so the same
+        // dispatch path handles either transport. CSRF is excepted for /oai
+        // in bootstrap/app.php so harvesters without a token can POST.
+        $allParams = $request->all();
+        // Drop any framework-injected fields that aren't OAI args.
+        unset($allParams['_token'], $allParams['_method']);
+
+        $verb = $allParams['verb'] ?? null;
 
         // Check verb is present and valid
         if (empty($verb) || !in_array($verb, self::VERBS)) {
@@ -252,7 +261,7 @@ class OaiPmhController extends Controller
         }
 
         // If resumptionToken is present, decode and apply its parameters
-        $params = $request->query();
+        $params = $allParams;
         if (isset($params['resumptionToken'])) {
             $decoded = $this->decodeResumptionToken($params['resumptionToken']);
             if ($decoded === false) {
@@ -261,14 +270,14 @@ class OaiPmhController extends Controller
             // Apply token params (they override query params except verb)
             $params = array_merge($params, $decoded);
             // When resumptionToken is present, the only other allowed param is verb
-            $queryKeys = array_keys($request->query());
+            $queryKeys = array_keys($allParams);
             $nonTokenKeys = array_diff($queryKeys, ['verb', 'resumptionToken']);
             if (count($nonTokenKeys) > 0) {
                 return $this->errorResponse($request, 'badArgument');
             }
         } else {
             // Validate allowed/mandatory parameters
-            $queryKeys = array_keys($request->query());
+            $queryKeys = array_keys($allParams);
             $verbConfig = self::VERB_PARAMS[$verb];
 
             foreach ($queryKeys as $key) {
@@ -353,7 +362,13 @@ class OaiPmhController extends Controller
             $xml .= '    <adminEmail>' . $this->esc($email) . '</adminEmail>' . "\n";
         }
         $xml .= '    <earliestDatestamp>' . $earliestDatestamp . '</earliestDatestamp>' . "\n";
-        $xml .= '    <deletedRecord>no</deletedRecord>' . "\n";
+        // "transient" advertises that we keep tombstones for deleted records
+        // for an indefinite-but-not-guaranteed-forever period. Backed by the
+        // oai_deleted_record table populated via `php artisan oai:mark-deleted`.
+        // Falls back to "no" if the table is missing so a half-installed
+        // upgrade keeps producing valid Identify responses.
+        $deletedPolicy = \Illuminate\Support\Facades\Schema::hasTable('oai_deleted_record') ? 'transient' : 'no';
+        $xml .= '    <deletedRecord>' . $deletedPolicy . '</deletedRecord>' . "\n";
         $xml .= '    <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>' . "\n";
         $xml .= '    <description>' . "\n";
         $xml .= '      <oai-identifier xmlns="http://www.openarchives.org/OAI/2.0/oai-identifier"' . "\n";
@@ -365,10 +380,47 @@ class OaiPmhController extends Controller
         $xml .= '        <sampleIdentifier>' . $this->formatOaiIdentifier($sampleLocalId) . '</sampleIdentifier>' . "\n";
         $xml .= '      </oai-identifier>' . "\n";
         $xml .= '    </description>' . "\n";
+
+        // <friends> container — OAI-PMH friends.xsd lists other OAI repos this
+        // server knows about. Sourced from ahg-federation's federation_peer
+        // table: active peers with peer_type='oai_pmh' and a base_url.
+        // Empty <friends> is permitted; we just omit the element when the
+        // federation_peer table is absent or holds no active OAI peers.
+        $friends = $this->getOaiFriends();
+        if (!empty($friends)) {
+            $xml .= '    <description>' . "\n";
+            $xml .= '      <friends xmlns="http://www.openarchives.org/OAI/2.0/friends/"' . "\n";
+            $xml .= '               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' . "\n";
+            $xml .= '               xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/friends/ http://www.openarchives.org/OAI/2.0/friends.xsd">' . "\n";
+            foreach ($friends as $url) {
+                $xml .= '        <baseURL>' . $this->esc($url) . '</baseURL>' . "\n";
+            }
+            $xml .= '      </friends>' . "\n";
+            $xml .= '    </description>' . "\n";
+        }
+
         $xml .= '  </Identify>' . "\n";
         $xml .= $this->xmlFooter();
 
         return $this->xmlResponse($xml);
+    }
+
+    /**
+     * Return base URLs of known OAI-PMH peers from ahg-federation.
+     * Empty array when the federation table is missing or no active peers.
+     */
+    private function getOaiFriends(): array
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('federation_peer')) {
+            return [];
+        }
+        return DB::table('federation_peer')
+            ->where('peer_type', 'oai_pmh')
+            ->where('is_active', 1)
+            ->whereNotNull('base_url')
+            ->where('base_url', '!=', '')
+            ->pluck('base_url')
+            ->all();
     }
 
     /**
@@ -384,7 +436,7 @@ class OaiPmhController extends Controller
     {
         // If identifier is supplied, validate it exists - per spec we should
         // return idDoesNotExist otherwise.
-        $identifier = $request->query('identifier');
+        $identifier = $request->input('identifier');
         if ($identifier !== null && $identifier !== '') {
             $oaiLocalId = $this->parseOaiIdentifier($identifier);
             if ($oaiLocalId === null) {
@@ -519,9 +571,16 @@ class OaiPmhController extends Controller
 
     /**
      * ListIdentifiers verb: list record identifiers with datestamps.
+     *
+     * Streams live records first (phase=live), then transitions to deleted-
+     * record tombstones (phase=deleted) via resumptionToken. Harvesters that
+     * honour resumption walk all pages and end up with: every live id +
+     * every tombstone in the date range. The phase key lives inside the
+     * resumption token, not as a user-facing arg.
      */
     private function listIdentifiers(Request $request, array $params): Response
     {
+        $phase = $params['phase'] ?? 'live';
         $cursor = (int) ($params['cursor'] ?? 0);
         $from = $params['from'] ?? null;
         $until = $params['until'] ?? null;
@@ -529,12 +588,23 @@ class OaiPmhController extends Controller
         $metadataPrefix = $params['metadataPrefix'] ?? 'oai_dc';
 
         $pageSize = $this->pageSize();
+
+        if ($phase === 'deleted') {
+            return $this->listIdentifiersDeleted($request, $cursor, $from, $until, $set, $metadataPrefix, $pageSize);
+        }
+
         $query = $this->buildRecordQuery($from, $until, $set);
         $totalCount = $query->count();
         $records = $query->offset($cursor)->limit($pageSize)->get();
 
+        // No live records and no tombstones means noRecordsMatch. With
+        // tombstones present, transition straight to the deleted phase.
         if ($records->isEmpty()) {
-            return $this->errorResponse($request, 'noRecordsMatch');
+            $tombstones = $this->getTombstones($from, $until, 0, 1);
+            if (empty($tombstones)) {
+                return $this->errorResponse($request, 'noRecordsMatch');
+            }
+            return $this->listIdentifiersDeleted($request, 0, $from, $until, $set, $metadataPrefix, $pageSize);
         }
 
         $xml = $this->xmlHeader($request);
@@ -547,6 +617,59 @@ class OaiPmhController extends Controller
         $remaining = $totalCount - $cursor - $records->count();
         if ($remaining > 0) {
             $token = $this->encodeResumptionToken([
+                'phase' => 'live',
+                'cursor' => $cursor + $pageSize,
+                'metadataPrefix' => $metadataPrefix,
+                'from' => $from ?? '',
+                'until' => $until ?? '',
+                'set' => $set ?? '',
+            ]);
+            $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
+        } else {
+            // Live records exhausted — bridge to deleted-records phase if
+            // any tombstones fall in this from/until range.
+            $hasTombstones = !empty($this->getTombstones($from, $until, 0, 1));
+            if ($hasTombstones) {
+                $token = $this->encodeResumptionToken([
+                    'phase' => 'deleted',
+                    'cursor' => 0,
+                    'metadataPrefix' => $metadataPrefix,
+                    'from' => $from ?? '',
+                    'until' => $until ?? '',
+                    'set' => $set ?? '',
+                ]);
+                $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
+            }
+        }
+
+        $xml .= '  </ListIdentifiers>' . "\n";
+        $xml .= $this->xmlFooter();
+
+        return $this->xmlResponse($xml);
+    }
+
+    /**
+     * Render a page of tombstone headers (status="deleted") for ListIdentifiers.
+     */
+    private function listIdentifiersDeleted(Request $request, int $cursor, ?string $from, ?string $until, ?string $set, string $metadataPrefix, int $pageSize): Response
+    {
+        $tombstones = $this->getTombstones($from, $until, $cursor, $pageSize);
+        if (empty($tombstones)) {
+            return $this->errorResponse($request, 'noRecordsMatch');
+        }
+
+        $xml = $this->xmlHeader($request);
+        $xml .= '  <ListIdentifiers>' . "\n";
+
+        foreach ($tombstones as $t) {
+            $xml .= $this->renderTombstoneHeader((int) $t->oai_local_identifier, (string) $t->deleted_at, 4);
+        }
+
+        $totalDeleted = $this->countTombstones($from, $until);
+        $remaining = $totalDeleted - $cursor - count($tombstones);
+        if ($remaining > 0) {
+            $token = $this->encodeResumptionToken([
+                'phase' => 'deleted',
                 'cursor' => $cursor + $pageSize,
                 'metadataPrefix' => $metadataPrefix,
                 'from' => $from ?? '',
@@ -563,10 +686,13 @@ class OaiPmhController extends Controller
     }
 
     /**
-     * ListRecords verb: list full records with DC metadata.
+     * ListRecords verb: list full records. Same live -> deleted phase
+     * transition as listIdentifiers; for the deleted phase we emit only
+     * the header (status="deleted") with no <metadata> wrapper per spec.
      */
     private function listRecords(Request $request, array $params): Response
     {
+        $phase = $params['phase'] ?? 'live';
         $cursor = (int) ($params['cursor'] ?? 0);
         $from = $params['from'] ?? null;
         $until = $params['until'] ?? null;
@@ -574,12 +700,21 @@ class OaiPmhController extends Controller
         $metadataPrefix = $params['metadataPrefix'] ?? 'oai_dc';
 
         $pageSize = $this->pageSize();
+
+        if ($phase === 'deleted') {
+            return $this->listRecordsDeleted($request, $cursor, $from, $until, $set, $metadataPrefix, $pageSize);
+        }
+
         $query = $this->buildRecordQuery($from, $until, $set);
         $totalCount = $query->count();
         $records = $query->offset($cursor)->limit($pageSize)->get();
 
         if ($records->isEmpty()) {
-            return $this->errorResponse($request, 'noRecordsMatch');
+            $tombstones = $this->getTombstones($from, $until, 0, 1);
+            if (empty($tombstones)) {
+                return $this->errorResponse($request, 'noRecordsMatch');
+            }
+            return $this->listRecordsDeleted($request, 0, $from, $until, $set, $metadataPrefix, $pageSize);
         }
 
         $xml = $this->xmlHeader($request);
@@ -597,6 +732,60 @@ class OaiPmhController extends Controller
         $remaining = $totalCount - $cursor - $records->count();
         if ($remaining > 0) {
             $token = $this->encodeResumptionToken([
+                'phase' => 'live',
+                'cursor' => $cursor + $pageSize,
+                'metadataPrefix' => $metadataPrefix,
+                'from' => $from ?? '',
+                'until' => $until ?? '',
+                'set' => $set ?? '',
+            ]);
+            $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
+        } else {
+            $hasTombstones = !empty($this->getTombstones($from, $until, 0, 1));
+            if ($hasTombstones) {
+                $token = $this->encodeResumptionToken([
+                    'phase' => 'deleted',
+                    'cursor' => 0,
+                    'metadataPrefix' => $metadataPrefix,
+                    'from' => $from ?? '',
+                    'until' => $until ?? '',
+                    'set' => $set ?? '',
+                ]);
+                $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
+            }
+        }
+
+        $xml .= '  </ListRecords>' . "\n";
+        $xml .= $this->xmlFooter();
+
+        return $this->xmlResponse($xml);
+    }
+
+    /**
+     * Render a page of tombstone records (status="deleted") for ListRecords.
+     * Per spec, deleted records have only a <header> — no <metadata> wrapper.
+     */
+    private function listRecordsDeleted(Request $request, int $cursor, ?string $from, ?string $until, ?string $set, string $metadataPrefix, int $pageSize): Response
+    {
+        $tombstones = $this->getTombstones($from, $until, $cursor, $pageSize);
+        if (empty($tombstones)) {
+            return $this->errorResponse($request, 'noRecordsMatch');
+        }
+
+        $xml = $this->xmlHeader($request);
+        $xml .= '  <ListRecords>' . "\n";
+
+        foreach ($tombstones as $t) {
+            $xml .= '    <record>' . "\n";
+            $xml .= $this->renderTombstoneHeader((int) $t->oai_local_identifier, (string) $t->deleted_at, 6);
+            $xml .= '    </record>' . "\n";
+        }
+
+        $totalDeleted = $this->countTombstones($from, $until);
+        $remaining = $totalDeleted - $cursor - count($tombstones);
+        if ($remaining > 0) {
+            $token = $this->encodeResumptionToken([
+                'phase' => 'deleted',
                 'cursor' => $cursor + $pageSize,
                 'metadataPrefix' => $metadataPrefix,
                 'from' => $from ?? '',
@@ -623,6 +812,21 @@ class OaiPmhController extends Controller
         $oaiLocalId = $this->parseOaiIdentifier($identifier);
         if ($oaiLocalId === null) {
             return $this->errorResponse($request, 'idDoesNotExist');
+        }
+
+        // Tombstone check first — a deleted record exists in OAI's view
+        // even though it no longer exists in information_object. Return
+        // <header status="deleted"> with no metadata per spec.
+        $tomb = $this->getTombstone($oaiLocalId);
+        if ($tomb !== null) {
+            $xml = $this->xmlHeader($request);
+            $xml .= '  <GetRecord>' . "\n";
+            $xml .= '    <record>' . "\n";
+            $xml .= $this->renderTombstoneHeader($oaiLocalId, (string) $tomb->deleted_at, 6);
+            $xml .= '    </record>' . "\n";
+            $xml .= '  </GetRecord>' . "\n";
+            $xml .= $this->xmlFooter();
+            return $this->xmlResponse($xml);
         }
 
         $record = DB::table('information_object as io')
@@ -788,6 +992,72 @@ class OaiPmhController extends Controller
         $xml .= $pad . '</header>' . "\n";
 
         return $xml;
+    }
+
+    /**
+     * Render a tombstone <header status="deleted"> for an oai_local_identifier.
+     * Per OAI-PMH 2.0 deleted-record records have only the header — no
+     * setSpec (we don't track which set a deleted record belonged to) and
+     * no <metadata> wrapper. The datestamp is the deletion timestamp.
+     */
+    private function renderTombstoneHeader(int $oaiLocalId, string $deletedAt, int $indent = 4): string
+    {
+        $pad = str_repeat(' ', $indent);
+        $xml  = $pad . '<header status="deleted">' . "\n";
+        $xml .= $pad . '  <identifier>' . $this->formatOaiIdentifier($oaiLocalId) . '</identifier>' . "\n";
+        $xml .= $pad . '  <datestamp>' . $this->getDate($deletedAt) . '</datestamp>' . "\n";
+        $xml .= $pad . '</header>' . "\n";
+        return $xml;
+    }
+
+    /**
+     * Return a single tombstone row or null when no tombstone exists.
+     */
+    private function getTombstone(int $oaiLocalId): ?object
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('oai_deleted_record')) {
+            return null;
+        }
+        return DB::table('oai_deleted_record')
+            ->where('oai_local_identifier', $oaiLocalId)
+            ->select('oai_local_identifier', 'deleted_at', 'reason')
+            ->first();
+    }
+
+    /**
+     * Page of tombstones filtered by deleted_at in from/until range.
+     */
+    private function getTombstones(?string $from, ?string $until, int $cursor, int $limit): array
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('oai_deleted_record')) {
+            return [];
+        }
+        $q = DB::table('oai_deleted_record')
+            ->select('oai_local_identifier', 'deleted_at')
+            ->orderBy('deleted_at')
+            ->orderBy('oai_local_identifier');
+        if ($from) {
+            $q->where('deleted_at', '>=', $this->mysqlDate($from));
+        }
+        if ($until) {
+            $q->where('deleted_at', '<=', $this->mysqlDate($until));
+        }
+        return $q->offset($cursor)->limit($limit)->get()->all();
+    }
+
+    private function countTombstones(?string $from, ?string $until): int
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('oai_deleted_record')) {
+            return 0;
+        }
+        $q = DB::table('oai_deleted_record');
+        if ($from) {
+            $q->where('deleted_at', '>=', $this->mysqlDate($from));
+        }
+        if ($until) {
+            $q->where('deleted_at', '<=', $this->mysqlDate($until));
+        }
+        return (int) $q->count();
     }
 
     /**
@@ -1111,9 +1381,16 @@ class OaiPmhController extends Controller
         $date = $this->getDate();
         $requestUrl = $request->url();
 
-        // Build request attributes string
+        // Build request attributes string. Use input() so the same envelope
+        // works for both GET (query string) and POST (form body) requests
+        // per OAI-PMH 2.0 spec section 3.4. Filter out framework noise.
         $attrs = '';
-        foreach ($request->query() as $key => $value) {
+        $reqParams = $request->all();
+        unset($reqParams['_token'], $reqParams['_method']);
+        foreach ($reqParams as $key => $value) {
+            if (!is_scalar($value)) {
+                continue;
+            }
             $attrs .= ' ' . $key . '="' . $this->esc((string) $value) . '"';
         }
 
