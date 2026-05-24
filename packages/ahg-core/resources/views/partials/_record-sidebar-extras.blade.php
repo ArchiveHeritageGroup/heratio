@@ -154,6 +154,12 @@
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.mods'))
         <a href="{{ route('informationobject.export.mods', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('MODS XML') }}</a>
       @endif
+      @if(\Illuminate\Support\Facades\Route::has('informationobject.export.marcxml'))
+        <a href="{{ route('informationobject.export.marcxml', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('MARC21 (MARCXML)') }}</a>
+      @endif
+      @if(\Illuminate\Support\Facades\Route::has('informationobject.export.marc'))
+        <a href="{{ route('informationobject.export.marc', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-file-export me-1"></i> {{ __('MARC21 (binary .mrc)') }}</a>
+      @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.rico'))
         <a href="{{ route('informationobject.export.rico', $__slug) }}" class="list-group-item list-group-item-action small"><i class="fas fa-code me-1"></i> {{ __('RiC-O JSON-LD') }}</a>
       @endif

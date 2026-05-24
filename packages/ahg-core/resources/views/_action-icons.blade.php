@@ -174,6 +174,23 @@ $searchRealm = session('search-realm');
       </li>
     @endif
 
+    @if(\Illuminate\Support\Facades\Route::has('informationobject.export.marcxml'))
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.marcxml', $slug ?? '') }}">
+          <i class="fas fa-fw fa-upload me-1" aria-hidden="true">
+          </i>{{ __('MARC21 (MARCXML)') }}
+        </a>
+      </li>
+    @endif
+    @if(\Illuminate\Support\Facades\Route::has('informationobject.export.marc'))
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.marc', $slug ?? '') }}">
+          <i class="fas fa-fw fa-download me-1" aria-hidden="true">
+          </i>{{ __('MARC21 (binary .mrc)') }}
+        </a>
+      </li>
+    @endif
+
     @php
       // Closes audit issue #88: gate on portable_export_enabled AND
       // portable_export_description_button. Both default true so existing

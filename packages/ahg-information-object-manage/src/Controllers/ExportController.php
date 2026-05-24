@@ -145,6 +145,52 @@ class ExportController extends Controller
     }
 
     /**
+     * Export an information object as MARC21 in MARCXML envelope.
+     * Uses MarcxmlSerializer from ahg-metadata-export (shipped v1.67.0 for OAI-PMH).
+     */
+    public function marcxml(string $slug)
+    {
+        $culture = app()->getLocale();
+        $io = $this->getIO($slug, $culture);
+        if (!$io) {
+            abort(404);
+        }
+
+        $serializer = new \AhgMetadataExport\Services\Exporters\MarcxmlSerializer();
+        $body = $serializer->serializeRecord((int) $io->id, $culture);
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $body . "\n";
+
+        return response($xml, 200)
+            ->header('Content-Type', 'application/marcxml+xml; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '.marcxml"');
+    }
+
+    /**
+     * Export an information object as MARC21 binary (ISO 2709 .mrc format).
+     * Renders via MarcxmlSerializer then transcodes to ISO 2709 bytes.
+     */
+    public function marc(string $slug)
+    {
+        $culture = app()->getLocale();
+        $io = $this->getIO($slug, $culture);
+        if (!$io) {
+            abort(404);
+        }
+
+        $serializer = new \AhgMetadataExport\Services\Exporters\MarcxmlSerializer();
+        $marcxml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+                 . $serializer->serializeRecord((int) $io->id, $culture);
+
+        $encoder = new \AhgMetadataExport\Services\Exporters\Marc21BinaryEncoder();
+        $binary = $encoder->encodeFromMarcxml($marcxml);
+
+        return response($binary, 200)
+            ->header('Content-Type', 'application/marc')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '.mrc"');
+    }
+
+    /**
      * Export an information object as EAD 4 XML (draft).
      * Uses the Ead4Serializer from ahg-metadata-export.
      */

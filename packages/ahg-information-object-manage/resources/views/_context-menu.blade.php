@@ -72,6 +72,16 @@
     <a href="{{ route('informationobject.export.mods', $slug) }}" class="list-group-item list-group-item-action small">
       <i class="fas fa-file-export me-1"></i> {{ __('MODS 3.5 XML') }}
     </a>
+    @if(\Illuminate\Support\Facades\Route::has('informationobject.export.marcxml'))
+      <a href="{{ route('informationobject.export.marcxml', $slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-file-export me-1"></i> {{ __('MARC21 (MARCXML)') }}
+      </a>
+    @endif
+    @if(\Illuminate\Support\Facades\Route::has('informationobject.export.marc'))
+      <a href="{{ route('informationobject.export.marc', $slug) }}" class="list-group-item list-group-item-action small">
+        <i class="fas fa-download me-1"></i> {{ __('MARC21 (binary .mrc)') }}
+      </a>
+    @endif
     @auth
       <a href="{{ route('informationobject.export.csv', $slug) }}" class="list-group-item list-group-item-action small">
         <i class="fas fa-file-csv me-1"></i> {{ __('Export CSV') }}

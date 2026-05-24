@@ -86,6 +86,23 @@
         </a>
       </li>
     @endif
+
+    @if(\Illuminate\Support\Facades\Route::has('informationobject.export.marcxml'))
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.marcxml', $resource->slug) }}">
+          <i class="fas fa-fw fa-upload me-1" aria-hidden="true">
+          </i>{{ __('MARC21 (MARCXML)') }}
+        </a>
+      </li>
+    @endif
+    @if(\Illuminate\Support\Facades\Route::has('informationobject.export.marc'))
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.marc', $resource->slug) }}">
+          <i class="fas fa-fw fa-download me-1" aria-hidden="true">
+          </i>{{ __('MARC21 (binary .mrc)') }}
+        </a>
+      </li>
+    @endif
   </ul>
 
   @include('ahg-information-object-manage::_finding-aid-link', ['resource' => $resource, 'contextMenu' => true])

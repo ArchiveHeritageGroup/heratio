@@ -1642,6 +1642,16 @@
           <i class="fas fa-code me-1"></i> {{ __('MODS 3.5 XML') }}
         </a>
       @endif
+      @if(\Illuminate\Support\Facades\Route::has('informationobject.export.marcxml'))
+        <a href="{{ route('informationobject.export.marcxml', $item->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-code me-1"></i> {{ __('MARC21 (MARCXML)') }}
+        </a>
+      @endif
+      @if(\Illuminate\Support\Facades\Route::has('informationobject.export.marc'))
+        <a href="{{ route('informationobject.export.marc', $item->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-file-export me-1"></i> {{ __('MARC21 (binary .mrc)') }}
+        </a>
+      @endif
       @if(\Illuminate\Support\Facades\Route::has('informationobject.export.rico'))
         <a href="{{ route('informationobject.export.rico', $item->slug) }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-code me-1"></i> {{ __('RiC-O JSON-LD') }}
