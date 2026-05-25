@@ -2,7 +2,7 @@
 /**
  * Heratio - EU AI Act Article 12 compliance package wiring.
  *
- * @copyright Copyright (c) 2026, The Archive and Heritage Group (Pty) Ltd
+ * @copyright Copyright (c) 2026, Plain Sailing Information Systems
  * @author    Johan Pieterse <johan@plainsailingisystems.co.za>
  * @license   AGPL-3.0-or-later
  */
@@ -11,11 +11,16 @@ declare(strict_types=1);
 
 namespace AhgAiCompliance\Providers;
 
+use AhgAiCompliance\Console\Commands\AnnexIvCommand;
+use AhgAiCompliance\Console\Commands\HaltCommand;
 use AhgAiCompliance\Console\Commands\InstallKeyCommand;
 use AhgAiCompliance\Console\Commands\PruneCommand;
+use AhgAiCompliance\Console\Commands\RiskMonitorCommand;
 use AhgAiCompliance\Console\Commands\VerifyInferenceLogCommand;
+use AhgAiCompliance\Services\AiRiskService;
 use AhgAiCompliance\Services\InferenceLogger;
 use AhgAiCompliance\Services\KeyResolver;
+use AhgAiCompliance\Services\OversightService;
 use AhgAiCompliance\Storage\EloquentChainStore;
 use AhgInferenceReceipts\KeyPair;
 use AhgInferenceReceipts\ReceiptChain;
@@ -61,33 +66,66 @@ final class AhgAiComplianceServiceProvider extends ServiceProvider
         $this->app->singleton(InferenceLogger::class, function ($app) {
             return new InferenceLogger($app->make(ReceiptChain::class));
         });
+
+        $this->app->singleton(AiRiskService::class, function ($app) {
+            return new AiRiskService($app->make(InferenceLogger::class));
+        });
+
+        $this->app->singleton(OversightService::class, function ($app) {
+            return new OversightService($app->make(InferenceLogger::class));
+        });
     }
 
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-ai-compliance');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallKeyCommand::class,
                 VerifyInferenceLogCommand::class,
                 PruneCommand::class,
+                RiskMonitorCommand::class,
+                AnnexIvCommand::class,
+                HaltCommand::class,
             ]);
 
             try {
                 if (!Schema::hasTable('ai_inference_log') || !Schema::hasTable('ai_inference_key')) {
-                    $sql = (string) file_get_contents(__DIR__ . '/../../database/install.sql');
-                    foreach (array_filter(array_map('trim', explode(';', $sql))) as $stmt) {
-                        if ($stmt !== '') {
-                            \DB::statement($stmt);
-                        }
-                    }
+                    $this->runInstallSqlFile(__DIR__ . '/../../database/install.sql');
+                }
+                if (!Schema::hasTable('ai_risk_register') || !Schema::hasTable('ai_risk_incident')) {
+                    $this->runInstallSqlFile(__DIR__ . '/../../database/install-risk-register.sql');
+                    $this->app->make(AiRiskService::class)->seedIfEmpty();
+                }
+                if (!Schema::hasTable('ai_model_registry')) {
+                    // Issue #725 - EU AI Act Article 11 / Annex IV model registry.
+                    // Seed rows are baked into install-model-registry.sql via INSERT IGNORE.
+                    $this->runInstallSqlFile(__DIR__ . '/../../database/install-model-registry.sql');
+                }
+                if (!Schema::hasTable('ai_oversight_policy')
+                    || !Schema::hasTable('ai_operator_attestation')
+                    || !Schema::hasTable('ai_review_decision')) {
+                    // Issue #726 - EU AI Act Article 14 human oversight tables.
+                    $this->runInstallSqlFile(__DIR__ . '/../../database/install-oversight.sql');
+                    $this->app->make(OversightService::class)->seedIfEmpty();
                 }
             } catch (Throwable $e) {
                 // Boot must never abort. The CI path covers this via
                 // `php artisan migrate`-style smoke after fresh install.
                 // See reference_ci_schema_hastable.md for the single-try
                 // pattern.
+            }
+        }
+    }
+
+    private function runInstallSqlFile(string $path): void
+    {
+        $sql = (string) file_get_contents($path);
+        foreach (array_filter(array_map('trim', explode(';', $sql))) as $stmt) {
+            if ($stmt !== '') {
+                \DB::statement($stmt);
             }
         }
     }

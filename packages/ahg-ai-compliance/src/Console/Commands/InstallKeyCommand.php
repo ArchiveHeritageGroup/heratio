@@ -2,7 +2,7 @@
 /**
  * Heratio - generate or rotate the Ed25519 signing key for the inference log.
  *
- * @copyright Copyright (c) 2026, The Archive and Heritage Group (Pty) Ltd
+ * @copyright Copyright (c) 2026, Plain Sailing Information Systems
  * @author    Johan Pieterse <johan@plainsailingisystems.co.za>
  * @license   AGPL-3.0-or-later
  */
