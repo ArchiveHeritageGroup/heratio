@@ -22,6 +22,14 @@
   $eventTypes = $eventTypes ?? collect();
   $modsTypeOptions = $modsTypeOptions ?? collect();
   $events = $events ?? collect();
+  $creationEvents = $creationEvents ?? collect();
+  $publicationEvents = $publicationEvents ?? collect();
+  $publisherActorId = $publisherActorId ?? null;
+  $publisherActorName = $publisherActorName ?? '';
+  $publisherFreeText = $publisherFreeText ?? '';
+  $placeOfPublicationId = $placeOfPublicationId ?? null;
+  $placeOfPublicationName = $placeOfPublicationName ?? '';
+  $modsNote = $modsNote ?? '';
   $subjects = $subjects ?? collect();
   $places = $places ?? collect();
   $nameAccessPoints = $nameAccessPoints ?? collect();
@@ -31,6 +39,19 @@
   $parentTitle = $parentTitle ?? null;
   $parentSlug = $parentSlug ?? null;
   $selectedModsTypeIds = $modsTypes->pluck('term_id')->all();
+
+  // First creation / publication event drives the single-value originInfo inputs
+  $firstCreation = $creationEvents->first();
+  $firstPublication = $publicationEvents->first();
+  $creationDateDisplay = $firstCreation->date_display ?? '';
+  $creationStartDate = $firstCreation->start_date ?? '';
+  $publicationDateDisplay = $firstPublication->date_display ?? '';
+  $publicationStartDate = $firstPublication->start_date ?? '';
+
+  // Build the existing-items lists for the multi-select autocompletes
+  $existingSubjects = $subjects->map(fn($t) => ['id' => $t->term_id, 'name' => $t->name])->all();
+  $existingPlaces   = $places->map(fn($t) => ['id' => $t->term_id, 'name' => $t->name])->all();
+  $existingNames    = $nameAccessPoints->map(fn($n) => ['id' => $n->actor_id, 'name' => $n->name])->all();
 @endphp
 
 <h1>Edit archival description
@@ -99,27 +120,122 @@
       </div>
     </div>
 
+    {{-- #662 Phase 2: originInfo block — publisher + dateIssued +
+         dateCreated + placeOfPublication. The publisher accepts either an
+         existing actor (autocomplete) OR free text (recorded as the
+         mods:publisher serialized property). --}}
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mods-origin">originInfo</button>
+      </h2>
+      <div id="mods-origin" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">{{ __('dateCreated (display)') }}</label>
+                <input type="text" name="creation_date" class="form-control" value="{{ old('creation_date', $creationDateDisplay) }}" placeholder="{{ __('e.g. circa 1920s') }}">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">{{ __('dateCreated (ISO 8601)') }}</label>
+                <input type="text" name="creation_start_date" class="form-control" value="{{ old('creation_start_date', $creationStartDate) }}" placeholder="YYYY-MM-DD">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">{{ __('dateIssued (display)') }}</label>
+                <input type="text" name="publication_date" class="form-control" value="{{ old('publication_date', $publicationDateDisplay) }}" placeholder="{{ __('e.g. 2026 spring') }}">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">{{ __('dateIssued (ISO 8601)') }}</label>
+                <input type="text" name="publication_start_date" class="form-control" value="{{ old('publication_start_date', $publicationStartDate) }}" placeholder="YYYY-MM-DD">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            @include('ahg-core::components.autocomplete', [
+                'name'         => 'publisher_id',
+                'label'        => __('publisher (actor)'),
+                'route'        => 'actor.autocomplete',
+                'value'        => old('publisher_id', $publisherActorId),
+                'displayValue' => old('publisher_name_input', $publisherActorName),
+                'placeholder'  => __('Type to search actors...'),
+                'helpText'     => __('Leave blank and use the free-text field below for one-off publishers.'),
+            ])
+          </div>
+          <div class="mb-3">
+            <label class="form-label">{{ __('publisher (free text)') }}</label>
+            <input type="text" name="publisher_name" class="form-control" value="{{ old('publisher_name', $publisherFreeText) }}" placeholder="{{ __('Used only when no actor is selected') }}">
+          </div>
+
+          <div class="mb-3">
+            @include('ahg-core::components.autocomplete', [
+                'name'         => 'place_of_publication_id',
+                'label'        => __('placeOfPublication'),
+                'route'        => 'term.autocomplete',
+                'value'        => old('place_of_publication_id', $placeOfPublicationId),
+                'displayValue' => old('place_of_publication_name', $placeOfPublicationName),
+                'placeholder'  => __('Type to search places...'),
+                'extraParams'  => ['taxonomy_id' => 42],
+            ])
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="accordion-item">
       <h2 class="accordion-header">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mods-access">{{ __('Subject / name access points') }}</button>
       </h2>
       <div id="mods-access" class="accordion-collapse collapse">
         <div class="accordion-body">
-          <h6>{{ __('subject (topic)') }}</h6>
-          @foreach($subjects as $t)
-            <span class="badge bg-secondary me-1">{{ $t->name }}</span>
-            <input type="hidden" name="subjectAccessPointIds[]" value="{{ $t->term_id }}">
-          @endforeach
-          <h6 class="mt-3">{{ __('subject (geographic)') }}</h6>
-          @foreach($places as $t)
-            <span class="badge bg-secondary me-1">{{ $t->name }}</span>
-            <input type="hidden" name="placeAccessPointIds[]" value="{{ $t->term_id }}">
-          @endforeach
-          <h6 class="mt-3">{{ __('name') }}</h6>
-          @foreach($nameAccessPoints as $n)
-            <span class="badge bg-secondary me-1">{{ $n->name }}</span>
-            <input type="hidden" name="nameAccessPointIds[]" value="{{ $n->actor_id }}">
-          @endforeach
+          {{-- #662 Phase 2: badges replaced with autocomplete-driven
+               editable multi-selects. Subjects + Places use term.autocomplete
+               with a taxonomy_id filter, Names use actor.autocomplete. --}}
+          @include('ahg-core::components.autocomplete', [
+              'name'          => 'subjectAccessPoints',
+              'multi'         => true,
+              'multiName'     => 'subjectAccessPointIds[]',
+              'label'         => __('subject (topic)'),
+              'route'         => 'term.autocomplete',
+              'placeholder'   => __('Type to search subjects...'),
+              'existingItems' => $existingSubjects,
+              'extraParams'   => ['taxonomy_id' => 35],
+          ])
+          @include('ahg-core::components.autocomplete', [
+              'name'          => 'placeAccessPoints',
+              'multi'         => true,
+              'multiName'     => 'placeAccessPointIds[]',
+              'label'         => __('subject (geographic)'),
+              'route'         => 'term.autocomplete',
+              'placeholder'   => __('Type to search places...'),
+              'existingItems' => $existingPlaces,
+              'extraParams'   => ['taxonomy_id' => 42],
+          ])
+          @include('ahg-core::components.autocomplete', [
+              'name'          => 'nameAccessPoints',
+              'multi'         => true,
+              'multiName'     => 'nameAccessPointIds[]',
+              'label'         => __('name'),
+              'route'         => 'actor.autocomplete',
+              'placeholder'   => __('Type to search actors...'),
+              'existingItems' => $existingNames,
+          ])
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mods-note">note</button>
+      </h2>
+      <div id="mods-note" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="mb-3">
+            <label class="form-label">{{ __('General note (mods:note type="general")') }}</label>
+            <textarea name="mods_note" class="form-control" rows="4">{{ old('mods_note', $modsNote) }}</textarea>
+          </div>
         </div>
       </div>
     </div>

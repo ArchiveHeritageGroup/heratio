@@ -109,7 +109,13 @@ class ExportController extends Controller
         $levelName = $this->getLevelName($io, $culture);
         $languages = $this->getLanguages($io, $culture);
 
-        $xml = $this->buildModsXml($io, $repository, $events, $creators, $subjects, $places, $genres, $levelName, $languages, $culture);
+        // #662 Phase 2: load MODS-specific extras
+        //   - placeOfPublication: relations linked to publication event (type 114)
+        //   - mods:note: serialized 'mods:note' property
+        $modsNote = $this->getSerializedProperty($io->id, 'mods:note', $culture);
+        $placesOfPublication = $this->getPlacesOfPublication($io->id, $culture);
+
+        $xml = $this->buildModsXml($io, $repository, $events, $creators, $subjects, $places, $genres, $levelName, $languages, $culture, $modsNote, $placesOfPublication);
 
         return response($xml, 200)
             ->header('Content-Type', 'application/xml; charset=UTF-8')
@@ -142,6 +148,25 @@ class ExportController extends Controller
         return response($xml, 200)
             ->header('Content-Type', 'application/xml; charset=UTF-8')
             ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '_ead3.xml"');
+    }
+
+    /**
+     * Export an information object as METS 1.12 XML.
+     * Phase 1 of #658 (METS + PROV-O audit). Emits dmdSec + amdSec +
+     * fileSec + structMap. Uses MetsSerializer from ahg-metadata-export.
+     */
+    public function mets(string $slug)
+    {
+        $culture = app()->getLocale();
+        $io = $this->getIO($slug, $culture);
+        if (!$io) {
+            abort(404);
+        }
+        $serializer = new \AhgMetadataExport\Services\Exporters\MetsSerializer();
+        $body = $serializer->serializeRecord((int) $io->id, $culture);
+        return response($body, 200)
+            ->header('Content-Type', 'application/xml; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '.mets.xml"');
     }
 
     /**
@@ -403,8 +428,10 @@ class ExportController extends Controller
         ]);
     }
 
-    private function buildModsXml($io, $repository, $events, $creators, $subjects, $places, $genres, $levelName, $languages, string $culture): string
+    private function buildModsXml($io, $repository, $events, $creators, $subjects, $places, $genres, $levelName, $languages, string $culture, ?string $modsNote = null, $placesOfPublication = null): string
     {
+        $placesOfPublication = $placesOfPublication ?? collect();
+
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<mods xmlns="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-5.xsd" version="3.5">' . "\n";
 
@@ -430,16 +457,62 @@ class ExportController extends Controller
             $xml .= "  <typeOfResource>" . $this->e($levelName) . "</typeOfResource>\n";
         }
 
-        // Origin info (dates)
+        // Origin info — #662 Phase 2 adds publisher, dateIssued (event 114),
+        // dateCreated (event 111), and placeOfPublication.
         $hasOrigin = false;
         $originXml = "  <originInfo>\n";
+
+        // Publisher: prefer publication event actor; fall back to repository
+        $publisherEmitted = false;
         foreach ($events as $event) {
-            $dateVal = $event->date_display ?: ($event->start_date ?? '');
-            if ($dateVal) {
-                $hasOrigin = true;
-                $originXml .= "    <dateCreated>" . $this->e($dateVal) . "</dateCreated>\n";
+            if ((int) ($event->type_id ?? 0) === 114 && !empty($event->actor_id)) {
+                $publisher = DB::table('actor_i18n')
+                    ->where('id', $event->actor_id)
+                    ->where('culture', $culture)
+                    ->value('authorized_form_of_name');
+                if ($publisher) {
+                    $originXml .= "    <publisher>" . $this->e($publisher) . "</publisher>\n";
+                    $publisherEmitted = true;
+                    $hasOrigin = true;
+                    break;
+                }
             }
         }
+        if (!$publisherEmitted && $repository) {
+            $originXml .= "    <publisher>" . $this->e($repository->name) . "</publisher>\n";
+            $hasOrigin = true;
+        }
+
+        foreach ($events as $event) {
+            $dateVal = $event->date_display ?: ($event->start_date ?? '');
+            if (!$dateVal) {
+                continue;
+            }
+            $typeId = (int) ($event->type_id ?? 0);
+            $iso = $event->start_date ?? null;
+            if ($typeId === 114) {
+                // Publication
+                if ($iso) {
+                    $originXml .= "    <dateIssued encoding=\"iso8601\">" . $this->e($iso) . "</dateIssued>\n";
+                }
+                $originXml .= "    <dateIssued>" . $this->e($dateVal) . "</dateIssued>\n";
+            } elseif ($typeId === 111) {
+                // Creation
+                if ($iso) {
+                    $originXml .= "    <dateCreated encoding=\"iso8601\">" . $this->e($iso) . "</dateCreated>\n";
+                }
+                $originXml .= "    <dateCreated>" . $this->e($dateVal) . "</dateCreated>\n";
+            } else {
+                $originXml .= "    <dateCreated>" . $this->e($dateVal) . "</dateCreated>\n";
+            }
+            $hasOrigin = true;
+        }
+
+        foreach ($placesOfPublication as $pop) {
+            $originXml .= "    <placeOfPublication><placeTerm type=\"text\">" . $this->e($pop->name ?? '') . "</placeTerm></placeOfPublication>\n";
+            $hasOrigin = true;
+        }
+
         $originXml .= "  </originInfo>\n";
         if ($hasOrigin) {
             $xml .= $originXml;
@@ -458,6 +531,11 @@ class ExportController extends Controller
         // Abstract (scope and content)
         if ($io->scope_and_content) {
             $xml .= "  <abstract>" . $this->e($io->scope_and_content) . "</abstract>\n";
+        }
+
+        // mods:note — #662 Phase 2 general note
+        if (!empty($modsNote)) {
+            $xml .= "  <note type=\"general\">" . $this->e($modsNote) . "</note>\n";
         }
 
         // Subjects
@@ -658,6 +736,50 @@ class ExportController extends Controller
     private function e(string $value = null): string
     {
         return htmlspecialchars($value ?? '', ENT_XML1 | ENT_QUOTES, 'UTF-8');
+    }
+
+    /**
+     * Load a serialized PHP-style property (used by AtoM-port modules that
+     * stash structured values in `property`/`property_i18n`). Returns the
+     * first deserialised string when the value is a scalar list, or null
+     * when no row exists. Used by the MODS exporter to fetch mods:note.
+     */
+    private function getSerializedProperty(int $objectId, string $name, string $culture): ?string
+    {
+        $raw = DB::table('property')
+            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+            ->where('property.object_id', $objectId)
+            ->where('property.name', $name)
+            ->where('property_i18n.culture', $culture)
+            ->value('property_i18n.value');
+        if (!$raw) {
+            return null;
+        }
+        $decoded = @unserialize($raw);
+        if (is_string($decoded)) {
+            return $decoded;
+        }
+        if (is_array($decoded)) {
+            return implode("\n\n", array_filter($decoded));
+        }
+        return (string) $raw;
+    }
+
+    /**
+     * Fetch place-of-publication terms (taxonomy 42) keyed to publication
+     * events via the `relation` table with type_id = 162. Returns rows
+     * shaped {name, place_id}. Used by the MODS exporter to emit
+     * <originInfo><placeOfPublication>.
+     */
+    private function getPlacesOfPublication(int $ioId, string $culture)
+    {
+        return DB::table('relation')
+            ->join('term_i18n', 'relation.object_id', '=', 'term_i18n.id')
+            ->where('relation.subject_id', $ioId)
+            ->where('relation.type_id', 162)
+            ->where('term_i18n.culture', $culture)
+            ->select('relation.object_id as place_id', 'term_i18n.name')
+            ->get();
     }
 
     private function mapLevelToEad(?string $level): string

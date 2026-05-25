@@ -194,6 +194,16 @@ class ModsManageController extends Controller
                 );
             }
 
+            // #662 Phase 2: originInfo — creation + publication events,
+            // publisher (actor or free-text via property), placeOfPublication.
+            $this->saveOriginInfo((int) $io->id, $request, $culture);
+
+            // #662 Phase 2: mods:note (general note)
+            if ($request->has('mods_note')) {
+                $note = trim((string) $request->input('mods_note', ''));
+                $this->saveSerializedProperty((int) $io->id, 'mods:note', $note === '' ? [] : [$note], $culture);
+            }
+
             // Update object.updated_at
             DB::table('object')->where('id', $io->id)->update(['updated_at' => now()]);
 
@@ -204,11 +214,16 @@ class ModsManageController extends Controller
         // ── GET: load related data for the form ──
         $dropdowns = $this->getFormDropdowns($culture);
 
-        // Events (dates)
+        // Events (dates) — left-join event_i18n so events without an i18n
+        // row (e.g. creation events created from the IO edit form) still
+        // appear in the form.
         $events = DB::table('event')
-            ->join('event_i18n', 'event.id', '=', 'event_i18n.id')
+            ->leftJoin('event_i18n', function ($j) use ($culture) {
+                $j->on('event.id', '=', 'event_i18n.id')
+                    ->where('event_i18n.culture', $culture);
+            })
             ->where('event.object_id', $io->id)
-            ->where('event_i18n.culture', $culture)
+            ->whereIn('event.type_id', [111, 114])
             ->select('event.id', 'event.type_id', 'event.actor_id', 'event.start_date', 'event.end_date', 'event_i18n.date as date_display', 'event_i18n.name as event_name')
             ->get();
         foreach ($events as $evt) {
@@ -217,6 +232,47 @@ class ModsManageController extends Controller
                 $evt->actor_name = DB::table('actor_i18n')->where('id', $evt->actor_id)->where('culture', $culture)->value('authorized_form_of_name');
             }
         }
+        // #662 Phase 2: pre-split events for the originInfo form block
+        $creationEvents = $events->where('type_id', 111)->values();
+        $publicationEvents = $events->where('type_id', 114)->values();
+
+        // First publication event drives the publisher + placeOfPublication
+        // inputs. UI is single-value (one publisher, one place) in Phase 2.
+        $publisherActorId = null;
+        $publisherActorName = '';
+        $publisherFreeText = '';
+        if ($publicationEvents->isNotEmpty()) {
+            $pubEvt = $publicationEvents->first();
+            if ($pubEvt->actor_id) {
+                $publisherActorId = (int) $pubEvt->actor_id;
+                $publisherActorName = (string) ($pubEvt->actor_name ?? '');
+            }
+        }
+        // Free-text publisher (only used when no actor is bound)
+        $publisherFreeTextRaw = $this->loadSerializedProperty($io->id, 'mods:publisher', $culture);
+        if ($publisherFreeTextRaw->isNotEmpty()) {
+            $publisherFreeText = (string) $publisherFreeTextRaw->first();
+        }
+
+        // placeOfPublication: relation rows of type 162 between IO and a
+        // taxonomy-42 (place) term. Phase 2 surfaces a single value.
+        $placeOfPublicationId = null;
+        $placeOfPublicationName = '';
+        $popRow = DB::table('relation')
+            ->join('term_i18n', 'relation.object_id', '=', 'term_i18n.id')
+            ->where('relation.subject_id', $io->id)
+            ->where('relation.type_id', 162)
+            ->where('term_i18n.culture', $culture)
+            ->select('relation.object_id as term_id', 'term_i18n.name')
+            ->first();
+        if ($popRow) {
+            $placeOfPublicationId = (int) $popRow->term_id;
+            $placeOfPublicationName = (string) $popRow->name;
+        }
+
+        // mods:note (general note)
+        $modsNoteValues = $this->loadSerializedProperty($io->id, 'mods:note', $culture);
+        $modsNote = $modsNoteValues->isNotEmpty() ? (string) $modsNoteValues->first() : '';
 
         // Subject access points (taxonomy 35)
         $subjects = DB::table('object_term_relation')
@@ -288,6 +344,14 @@ class ModsManageController extends Controller
             [
                 'io' => $io,
                 'events' => $events,
+                'creationEvents' => $creationEvents,
+                'publicationEvents' => $publicationEvents,
+                'publisherActorId' => $publisherActorId,
+                'publisherActorName' => $publisherActorName,
+                'publisherFreeText' => $publisherFreeText,
+                'placeOfPublicationId' => $placeOfPublicationId,
+                'placeOfPublicationName' => $placeOfPublicationName,
+                'modsNote' => $modsNote,
                 'subjects' => $subjects,
                 'places' => $places,
                 'nameAccessPoints' => $nameAccessPoints,
@@ -299,6 +363,117 @@ class ModsManageController extends Controller
             ],
             $dropdowns
         ));
+    }
+
+    /**
+     * Persist creation + publication events from the originInfo block.
+     *
+     * Form payload (Phase 2):
+     *   - creation_date         (free-text display string)
+     *   - creation_start_date   (ISO 8601, optional)
+     *   - publication_date      (free-text display string)
+     *   - publication_start_date(ISO 8601, optional)
+     *   - publisher_id          (actor ID; takes precedence over publisher_name)
+     *   - publisher_name        (free-text publisher; stored as mods:publisher property)
+     *   - place_of_publication_id (term ID, taxonomy 42)
+     *
+     * Strategy: delete-then-insert for the two managed event types so the
+     * form acts as the source of truth. Other event types are left alone.
+     */
+    private function saveOriginInfo(int $ioId, Request $request, string $culture): void
+    {
+        $managed = [111, 114];
+
+        // Capture existing managed event IDs so we can clean up their i18n
+        // + object rows after deletion (event has FK back to object).
+        $existingIds = DB::table('event')
+            ->where('object_id', $ioId)
+            ->whereIn('type_id', $managed)
+            ->pluck('id')
+            ->all();
+        if (! empty($existingIds)) {
+            DB::table('event_i18n')->whereIn('id', $existingIds)->delete();
+            DB::table('event')->whereIn('id', $existingIds)->delete();
+            DB::table('object')->whereIn('id', $existingIds)->delete();
+        }
+
+        $creationDateDisplay = trim((string) $request->input('creation_date', ''));
+        $creationIso = trim((string) $request->input('creation_start_date', '')) ?: null;
+        $publicationDateDisplay = trim((string) $request->input('publication_date', ''));
+        $publicationIso = trim((string) $request->input('publication_start_date', '')) ?: null;
+        $publisherActorId = (int) $request->input('publisher_id', 0) ?: null;
+        $publisherFreeText = trim((string) $request->input('publisher_name', ''));
+        $placeOfPubId = (int) $request->input('place_of_publication_id', 0) ?: null;
+
+        // Creation event (type 111)
+        if ($creationDateDisplay !== '' || $creationIso !== null) {
+            $eventObjectId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitEvent',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('event')->insert([
+                'id' => $eventObjectId,
+                'object_id' => $ioId,
+                'type_id' => 111,
+                'start_date' => $creationIso,
+                'source_culture' => $culture,
+            ]);
+            DB::table('event_i18n')->insert([
+                'id' => $eventObjectId,
+                'culture' => $culture,
+                'date' => $creationDateDisplay !== '' ? $creationDateDisplay : $creationIso,
+            ]);
+        }
+
+        // Publication event (type 114) — also carries the publisher actor
+        $publicationEventId = null;
+        if ($publicationDateDisplay !== '' || $publicationIso !== null || $publisherActorId !== null) {
+            $publicationEventId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitEvent',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('event')->insert([
+                'id' => $publicationEventId,
+                'object_id' => $ioId,
+                'type_id' => 114,
+                'actor_id' => $publisherActorId,
+                'start_date' => $publicationIso,
+                'source_culture' => $culture,
+            ]);
+            DB::table('event_i18n')->insert([
+                'id' => $publicationEventId,
+                'culture' => $culture,
+                'date' => $publicationDateDisplay !== '' ? $publicationDateDisplay : $publicationIso,
+            ]);
+        }
+
+        // Free-text publisher persists as a serialised property when no
+        // actor is selected. Clears when both inputs are blank.
+        $this->saveSerializedProperty(
+            $ioId,
+            'mods:publisher',
+            ($publisherActorId === null && $publisherFreeText !== '') ? [$publisherFreeText] : [],
+            $culture
+        );
+
+        // placeOfPublication: relation type 162 (IO subject -> place term object)
+        DB::table('relation')->where('subject_id', $ioId)->where('type_id', 162)->delete();
+        if ($placeOfPubId !== null) {
+            $relObjectId = DB::table('object')->insertGetId([
+                'class_name' => 'QubitRelation',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('relation')->insert([
+                'id' => $relObjectId,
+                'subject_id' => $ioId,
+                'object_id' => $placeOfPubId,
+                'type_id' => 162,
+                'source_culture' => $culture,
+            ]);
+        }
     }
 
     // ── Helper: form dropdown queries ──

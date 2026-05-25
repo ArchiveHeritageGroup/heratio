@@ -78,6 +78,7 @@ Route::get('/informationobject/{slug}/export/ead4', [ExportController::class, 'e
 Route::get('/informationobject/{slug}/export/mods', [ExportController::class, 'mods'])->name('informationobject.export.mods');
 Route::get('/informationobject/{slug}/export/marcxml', [ExportController::class, 'marcxml'])->name('informationobject.export.marcxml');
 Route::get('/informationobject/{slug}/export/marc', [ExportController::class, 'marc'])->name('informationobject.export.marc');
+Route::get('/informationobject/{slug}/export/mets', [ExportController::class, 'mets'])->name('informationobject.export.mets');
 Route::get('/informationobject/{slug}/export/provo', [ExportController::class, 'provo'])->name('informationobject.export.provo');
 Route::get('/informationobject/{slug}/export/csv', [ExportController::class, 'csv'])->name('informationobject.export.csv');
 Route::get('/informationobject/{slug}/export/rico', [ExportController::class, 'ricJsonLd'])->name('informationobject.export.rico');

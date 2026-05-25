@@ -1050,6 +1050,21 @@
     'slug'   => $io->slug,
     'type'   => 'informationObject',
   ])
+  {{-- #658 Phase 1: METS download. Surfaced as a small supplemental block
+       because the main Export dropdown lives in the locked partial above
+       and cannot be edited from this issue's unlocked scope. --}}
+  @if(\Illuminate\Support\Facades\Route::has('informationobject.export.mets'))
+    <div class="card mb-3">
+      <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
+        <i class="fas fa-file-export me-1"></i> {{ __('METS / PROV-O') }}
+      </div>
+      <div class="list-group list-group-flush">
+        <a href="{{ route('informationobject.export.mets', $io->slug) }}" class="list-group-item list-group-item-action small">
+          <i class="fas fa-code me-1"></i> {{ __('METS 1.12 XML') }}
+        </a>
+      </div>
+    </div>
+  @endif
 @endsection
 
 {{-- ============================================================ --}}
