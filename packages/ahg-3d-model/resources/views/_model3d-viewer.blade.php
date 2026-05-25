@@ -106,6 +106,12 @@
             <i class="fas fa-bookmark me-1"></i>{{ __('Save current view') }}
           </button>
         @endauth
+        {{-- Phase 3 — share-view URL: copies a URL with the current camera
+             state (orbit + target + fov + animation) encoded in the hash. --}}
+        <button type="button" class="btn btn-sm atom-btn-white ahg-3d-share-view"
+                title="{{ __('Copy a link to this exact view') }}">
+          <i class="fas fa-share-alt me-1"></i>{{ __('Share view') }}
+        </button>
       </div>
     @endif
 
@@ -196,6 +202,11 @@
                 <i class="fas fa-bookmark me-1"></i>{{ __('Save current view') }}
               </button>
             @endauth
+            {{-- Phase 3 — share-view URL --}}
+            <button type="button" class="btn btn-sm atom-btn-white ahg-3d-share-view"
+                    title="{{ __('Copy a link to this exact view') }}">
+              <i class="fas fa-share-alt me-1"></i>{{ __('Share view') }}
+            </button>
           </div>
 
           <small class="text-muted mt-1 d-block">
@@ -423,6 +434,83 @@ if (!customElements.get('model-viewer')) {
     load();
   }
 
+  // ----- Phase 3: share-view URL state -----
+  // Encode current camera-orbit + camera-target + field-of-view + active
+  // animation in URL hash; decode on load to restore the exact view a
+  // shared link points at. Hash format: #3d-<modelId>=<base64-json>.
+  function readState(viewer) {
+    var state = {
+      orbit:  viewer.getCameraOrbit ? viewer.getCameraOrbit().toString() : (viewer.cameraOrbit || ''),
+      target: viewer.getCameraTarget ? viewer.getCameraTarget().toString() : (viewer.cameraTarget || ''),
+      fov:    viewer.getFieldOfView ? (viewer.getFieldOfView().toString() + 'deg') : (viewer.fieldOfView || ''),
+    };
+    if (viewer.animationName) state.anim = viewer.animationName;
+    return state;
+  }
+  function applyState(viewer, state) {
+    if (!state) return;
+    if (state.orbit)  viewer.cameraOrbit  = state.orbit;
+    if (state.target) viewer.cameraTarget = state.target;
+    if (state.fov)    viewer.fieldOfView  = state.fov;
+    if (state.anim)   viewer.animationName = state.anim;
+  }
+  function encodeHash(modelId, state) {
+    try {
+      // Strip empty keys so URL stays short
+      var clean = {};
+      Object.keys(state).forEach(function (k) { if (state[k]) clean[k] = state[k]; });
+      var b64 = btoa(unescape(encodeURIComponent(JSON.stringify(clean))));
+      return '#3d-' + modelId + '=' + b64;
+    } catch (e) { return ''; }
+  }
+  function decodeHashForModel(modelId) {
+    var h = (window.location.hash || '').replace(/^#/, '');
+    if (!h) return null;
+    var parts = h.split('&');
+    for (var i = 0; i < parts.length; i++) {
+      var kv = parts[i].split('=');
+      if (kv[0] === '3d-' + modelId && kv[1]) {
+        try { return JSON.parse(decodeURIComponent(escape(atob(kv[1])))); }
+        catch (e) { return null; }
+      }
+    }
+    return null;
+  }
+  function copyToClipboard(text, btn) {
+    var done = function () {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check me-1"></i>{{ __('Link copied') }}';
+      btn.classList.add('btn-success');
+      setTimeout(function () { btn.innerHTML = orig; btn.classList.remove('btn-success'); }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () { window.prompt('{{ __('Copy this URL:') }}', text); });
+    } else {
+      window.prompt('{{ __('Copy this URL:') }}', text);
+    }
+  }
+  function wireShareView(toolbar) {
+    var viewerId = toolbar.getAttribute('data-target');
+    var viewer = document.getElementById(viewerId);
+    var modelId = toolbar.getAttribute('data-model-id');
+    var btn = toolbar.querySelector('.ahg-3d-share-view');
+    if (!viewer || !btn) return;
+    // Restore-on-load if the URL already encodes state for this model
+    var pending = decodeHashForModel(modelId);
+    if (pending) {
+      if (viewer.modelIsVisible) applyState(viewer, pending);
+      else viewer.addEventListener('load', function () { applyState(viewer, pending); }, { once: true });
+    }
+    // Click handler: encode + copy
+    btn.addEventListener('click', function () {
+      var hash = encodeHash(modelId, readState(viewer));
+      var url = window.location.origin + window.location.pathname + window.location.search + hash;
+      // Reflect in the address bar so the user can see the encoded state
+      try { history.replaceState(null, '', hash); } catch (e) {}
+      copyToClipboard(url, btn);
+    });
+  }
+
   function init() {
     Array.prototype.forEach.call(
       document.querySelectorAll('.ahg-3d-anim-toolbar'),
@@ -431,6 +519,10 @@ if (!customElements.get('model-viewer')) {
     Array.prototype.forEach.call(
       document.querySelectorAll('.ahg-3d-bm-toolbar'),
       wireBookmarkToolbar
+    );
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.ahg-3d-bm-toolbar'),
+      wireShareView
     );
   }
 
