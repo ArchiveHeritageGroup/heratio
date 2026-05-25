@@ -102,6 +102,7 @@
         "ahg/request-publish": "@dev",
         "ahg/research": "@dev",
         "ahg/researcher-manage": "@dev",
+        "ahg/resourcesync": "@dev",
         "ahg/ric": "@dev",
         "ahg/rights-holder-manage": "@dev",
         "ahg/scan": "@dev",
