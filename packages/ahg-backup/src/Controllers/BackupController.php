@@ -27,11 +27,15 @@
 
 namespace AhgBackup\Controllers;
 
+use AhgBackup\Mail\BackupCompletedMail;
+use AhgBackup\Mail\BackupFailedMail;
 use AhgCore\Services\AhgSettingsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -189,6 +193,7 @@ class BackupController extends Controller
             'components.*' => 'in:database,uploads,plugins,framework',
         ]);
 
+        $startedAt = microtime(true);
         $components = $request->input('components', []);
         $backupPath = $this->getBackupPath();
 
@@ -335,19 +340,53 @@ class BackupController extends Controller
         // Enforce max backups limit
         $this->enforceRetention();
 
-        // Send notification if configured
-        $email = AhgSettingsService::get('backup_notification_email');
-        if ($email && !empty($createdFiles)) {
-            // Notification would be sent here in production
+        // Compute summary metrics for notification payloads.
+        $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
+        $totalSize = 0;
+        foreach ($createdFiles as $f) {
+            // $createdFiles entries have a 'size' human string; recompute bytes
+            // from the on-disk file for accuracy.
+            $candidate = $backupPath . '/' . ($f['filename'] ?? '');
+            if (File::exists($candidate)) {
+                $totalSize += File::size($candidate);
+            }
         }
+        $completedAt = now()->toIso8601String();
 
+        // Wire up notifications (Phase 2 of #671).
         if (!empty($createdFiles) && empty($errors)) {
+            $payload = [
+                'id'           => 'run-' . $timestamp,
+                'components'   => $components,
+                'files'        => $createdFiles,
+                'size_bytes'   => $totalSize,
+                'size_human'   => $this->humanFileSize($totalSize),
+                'duration_ms'  => $durationMs,
+                'status'       => 'success',
+                'warnings'     => [],
+                'completed_at' => $completedAt,
+            ];
+            $this->notifyBackupSuccess($payload);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Backup completed successfully.',
                 'files' => $createdFiles,
             ]);
         } elseif (!empty($createdFiles) && !empty($errors)) {
+            $payload = [
+                'id'           => 'run-' . $timestamp,
+                'components'   => $components,
+                'files'        => $createdFiles,
+                'size_bytes'   => $totalSize,
+                'size_human'   => $this->humanFileSize($totalSize),
+                'duration_ms'  => $durationMs,
+                'status'       => 'success_with_warnings',
+                'warnings'     => $errors,
+                'completed_at' => $completedAt,
+            ];
+            $this->notifyBackupSuccess($payload);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Backup completed with warnings.',
@@ -355,11 +394,140 @@ class BackupController extends Controller
                 'errors' => $errors,
             ]);
         } else {
+            $payload = [
+                'id'            => 'failed-' . $timestamp,
+                'components'    => $components,
+                'partial_files' => $createdFiles,
+                'errors'        => $errors,
+                'duration_ms'   => $durationMs,
+                'status'        => 'failed',
+                'completed_at'  => $completedAt,
+            ];
+            $this->notifyBackupFailure($payload);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Backup failed.',
                 'errors' => $errors,
             ], 500);
+        }
+    }
+
+    /**
+     * Send the success-path email + workbench notification.
+     * Wrapped end-to-end in try/catch so notification failure never
+     * breaks the backup response.
+     */
+    private function notifyBackupSuccess(array $payload): void
+    {
+        if (!AhgSettingsService::getBool('backup_notify_on_success', true)) {
+            return;
+        }
+
+        $email = AhgSettingsService::get('backup_notification_email')
+            ?: config('mail.from.address');
+        if (!empty($email)) {
+            try {
+                Mail::to($email)->queue(new BackupCompletedMail($payload));
+            } catch (\Throwable $e) {
+                Log::warning('[ahg-backup] mail send failed (success path)', [
+                    'email' => $email,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $username = AhgSettingsService::get('backup_notify_workbench_username', 'admin');
+        $title = $payload['status'] === 'success_with_warnings'
+            ? 'Heratio backup completed with warnings'
+            : 'Heratio backup completed';
+        $message = sprintf(
+            '%s components backed up (%s, %s).',
+            implode('+', $payload['components'] ?? []),
+            $payload['size_human'] ?? '?',
+            isset($payload['duration_ms'])
+                ? number_format($payload['duration_ms'] / 1000, 1) . 's'
+                : '?'
+        );
+        $eventType = $payload['status'] === 'success_with_warnings' ? 'warning' : 'success';
+        $this->dispatchWorkbenchNotification($username, $title, $message, $eventType);
+    }
+
+    /**
+     * Send the failure-path email + workbench notification.
+     */
+    private function notifyBackupFailure(array $payload): void
+    {
+        if (!AhgSettingsService::getBool('backup_notify_on_failure', true)) {
+            return;
+        }
+
+        $email = AhgSettingsService::get('backup_notification_email')
+            ?: config('mail.from.address');
+        if (!empty($email)) {
+            try {
+                Mail::to($email)->queue(new BackupFailedMail($payload));
+            } catch (\Throwable $e) {
+                Log::warning('[ahg-backup] mail send failed (failure path)', [
+                    'email' => $email,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $username = AhgSettingsService::get('backup_notify_workbench_username', 'admin');
+        $firstError = $payload['errors'][0] ?? 'No further detail available.';
+        $title = 'Heratio backup FAILED';
+        $message = sprintf(
+            'Backup of %s did not complete: %s',
+            implode('+', $payload['components'] ?? []),
+            \Illuminate\Support\Str::limit($firstError, 240)
+        );
+        $this->dispatchWorkbenchNotification($username, $title, $message, 'error');
+    }
+
+    /**
+     * Drop a JSON file into the Workbench notification inbox so it
+     * surfaces in Johan's bell + toast + chime on ai.theahg.co.za.
+     *
+     * Fails silently (log + skip) if the inbox directory does not
+     * exist on this host — must NOT crash the surrounding backup
+     * action.
+     */
+    private function dispatchWorkbenchNotification(string $username, string $title, string $message, string $eventType): void
+    {
+        $inbox = '/var/spool/workbench/notifications';
+
+        if (!is_dir($inbox) || !is_writable($inbox)) {
+            Log::info('[ahg-backup] workbench notification skipped (inbox unavailable)', [
+                'inbox' => $inbox,
+                'title' => $title,
+            ]);
+            return;
+        }
+
+        $payload = [
+            'username'  => $username,
+            'title'     => $title,
+            'message'   => $message,
+            'eventType' => $eventType,
+            'webLink'   => url('/admin/backup'),
+        ];
+
+        $filename = $inbox . '/' . uniqid('heratio-backup-', true) . '.json';
+        try {
+            $bytes = @file_put_contents($filename, json_encode($payload, JSON_PRETTY_PRINT));
+            if ($bytes === false) {
+                Log::warning('[ahg-backup] workbench notification write failed', [
+                    'filename' => $filename,
+                    'title' => $title,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-backup] workbench notification write threw', [
+                'filename' => $filename,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
@@ -400,6 +568,9 @@ class BackupController extends Controller
             'backup_max_backups' => AhgSettingsService::getInt('backup_max_backups', 10),
             'backup_retention_days' => AhgSettingsService::getInt('backup_retention_days', 30),
             'backup_notification_email' => AhgSettingsService::get('backup_notification_email', ''),
+            'backup_notify_workbench_username' => AhgSettingsService::get('backup_notify_workbench_username', 'admin'),
+            'backup_notify_on_success' => AhgSettingsService::getBool('backup_notify_on_success', true),
+            'backup_notify_on_failure' => AhgSettingsService::getBool('backup_notify_on_failure', true),
         ];
 
         return view('ahg-backup::settings', [
@@ -417,12 +588,18 @@ class BackupController extends Controller
             'backup_max_backups' => 'required|integer|min:1|max:999',
             'backup_retention_days' => 'required|integer|min:1|max:3650',
             'backup_notification_email' => 'nullable|email|max:255',
+            'backup_notify_workbench_username' => 'nullable|string|max:64',
+            'backup_notify_on_success' => 'nullable|boolean',
+            'backup_notify_on_failure' => 'nullable|boolean',
         ]);
 
         AhgSettingsService::set('backup_path', $request->input('backup_path'), 'backup');
         AhgSettingsService::set('backup_max_backups', $request->input('backup_max_backups'), 'backup');
         AhgSettingsService::set('backup_retention_days', $request->input('backup_retention_days'), 'backup');
         AhgSettingsService::set('backup_notification_email', $request->input('backup_notification_email', ''), 'backup');
+        AhgSettingsService::set('backup_notify_workbench_username', $request->input('backup_notify_workbench_username', 'admin'), 'backup');
+        AhgSettingsService::set('backup_notify_on_success', $request->boolean('backup_notify_on_success') ? '1' : '0', 'backup');
+        AhgSettingsService::set('backup_notify_on_failure', $request->boolean('backup_notify_on_failure') ? '1' : '0', 'backup');
 
         AhgSettingsService::clearCache();
 

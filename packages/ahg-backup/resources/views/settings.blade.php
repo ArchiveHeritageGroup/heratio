@@ -72,10 +72,41 @@
         <label for="backup_notification_email" class="form-label">Notification Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="email" class="form-control @error('backup_notification_email') is-invalid @enderror" id="backup_notification_email" name="backup_notification_email"
                value="{{ old('backup_notification_email', $settings['backup_notification_email']) }}" placeholder="{{ __('admin@example.com') }}">
-        <div class="form-text">Email address to receive backup completion notifications. Leave blank to disable notifications.</div>
+        <div class="form-text">Email address to receive backup completion notifications. Leave blank to fall back to <code>config/mail.from.address</code>.</div>
         @error('backup_notification_email')
           <div class="invalid-feedback">{{ $message }}</div>
         @enderror
+      </div>
+
+      <div class="mb-3">
+        <label for="backup_notify_workbench_username" class="form-label">Workbench Username <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <input type="text" class="form-control @error('backup_notify_workbench_username') is-invalid @enderror" id="backup_notify_workbench_username" name="backup_notify_workbench_username"
+               value="{{ old('backup_notify_workbench_username', $settings['backup_notify_workbench_username']) }}" placeholder="admin" maxlength="64">
+        <div class="form-text">Workbench username for backup bell/toast notifications (drops a JSON file into <code>/var/spool/workbench/notifications/</code>). Defaults to <code>admin</code>.</div>
+        @error('backup_notify_workbench_username')
+          <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-check mb-3">
+            <input type="hidden" name="backup_notify_on_success" value="0">
+            <input type="checkbox" class="form-check-input" id="backup_notify_on_success" name="backup_notify_on_success" value="1"
+                   @checked(old('backup_notify_on_success', $settings['backup_notify_on_success']))>
+            <label class="form-check-label" for="backup_notify_on_success">Notify on success</label>
+            <div class="form-text">Send email + Workbench notification when a backup completes (with or without warnings).</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-check mb-3">
+            <input type="hidden" name="backup_notify_on_failure" value="0">
+            <input type="checkbox" class="form-check-input" id="backup_notify_on_failure" name="backup_notify_on_failure" value="1"
+                   @checked(old('backup_notify_on_failure', $settings['backup_notify_on_failure']))>
+            <label class="form-check-label" for="backup_notify_on_failure">Notify on failure</label>
+            <div class="form-text">Send email + Workbench notification when a backup fails outright.</div>
+          </div>
+        </div>
       </div>
 
       <div class="actions mb-3" style="background:#495057 !important;border-radius:.375rem;padding:1rem;display:block;">
