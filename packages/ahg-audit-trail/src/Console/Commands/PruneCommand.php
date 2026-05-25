@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Schema;
 class PruneCommand extends Command
 {
     protected $signature = 'audit:prune {--dry-run : Report what would be pruned without deleting} {--days= : Override retention days for this run}';
+
     protected $description = 'Delete audit-log rows older than ahg_settings.audit_retention_days';
 
     /**
@@ -66,24 +67,31 @@ class PruneCommand extends Command
         $days = (int) ($this->option('days') ?? $this->retentionDays());
         if ($days <= 0) {
             $this->info('Retention disabled (audit_retention_days <= 0). Nothing to prune.');
+
             return self::SUCCESS;
         }
 
         $cutoff = now()->subDays($days)->format('Y-m-d H:i:s');
         $dry = (bool) $this->option('dry-run');
-        $this->line(($dry ? '[DRY RUN] ' : '') . "Pruning rows older than {$cutoff} (retention {$days} days)");
+        $this->line(($dry ? '[DRY RUN] ' : '')."Pruning rows older than {$cutoff} (retention {$days} days)");
 
         $totalRows = 0;
         $totalTables = 0;
         foreach (self::TABLES as [$table, $col]) {
-            if (!Schema::hasTable($table)) continue;
+            if (! Schema::hasTable($table)) {
+                continue;
+            }
             // Different installs / migrations have different audit-table
             // column shapes (some use created_at, some timestamp, some have
             // the column on a sister table). Skip silently when absent so
             // a missing column on one table doesn't abort the whole prune.
-            if (!Schema::hasColumn($table, $col)) continue;
+            if (! Schema::hasColumn($table, $col)) {
+                continue;
+            }
             $count = DB::table($table)->where($col, '<', $cutoff)->count();
-            if ($count === 0) continue;
+            if ($count === 0) {
+                continue;
+            }
             $totalTables++;
             $totalRows += $count;
             if ($dry) {
@@ -96,7 +104,7 @@ class PruneCommand extends Command
 
         // Stamp the last-prune timestamp + outcome in ahg_settings so the
         // compliance UI can surface it.
-        if (!$dry) {
+        if (! $dry) {
             DB::table('ahg_settings')->updateOrInsert(
                 ['setting_key' => 'audit_last_pruned_at'],
                 ['setting_value' => now()->format('Y-m-d H:i:s'), 'setting_group' => 'compliance', 'setting_type' => 'string', 'updated_at' => now()]
@@ -112,6 +120,7 @@ class PruneCommand extends Command
             $totalRows,
             $totalTables,
             $dry ? 'would be removed' : 'removed'));
+
         return self::SUCCESS;
     }
 

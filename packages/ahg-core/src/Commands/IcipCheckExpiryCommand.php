@@ -35,11 +35,11 @@ class IcipCheckExpiryCommand extends Command
         $this->info("expiring within {$window} days: {$expiring->count()}");
 
         foreach ($expired->take(20) as $c) {
-            $this->line(sprintf("  EXPIRED  consent=#%-5d obj=%-7d community=%-5s expiry=%s",
+            $this->line(sprintf('  EXPIRED  consent=#%-5d obj=%-7d community=%-5s expiry=%s',
                 $c->id, $c->information_object_id, $c->community_id ?? '-', $c->consent_expiry_date));
         }
         foreach ($expiring->take(20) as $c) {
-            $this->line(sprintf("  EXPIRING consent=#%-5d obj=%-7d community=%-5s expiry=%s",
+            $this->line(sprintf('  EXPIRING consent=#%-5d obj=%-7d community=%-5s expiry=%s',
                 $c->id, $c->information_object_id, $c->community_id ?? '-', $c->consent_expiry_date));
         }
 
@@ -60,14 +60,15 @@ class IcipCheckExpiryCommand extends Command
                 if (! $exists) {
                     DB::table('icip_access_restriction')->insert([
                         'information_object_id' => $c->information_object_id,
-                        'reason'                => 'icip_consent_expired',
-                        'created_at'            => now(),
+                        'reason' => 'icip_consent_expired',
+                        'created_at' => now(),
                     ]);
                     $newRestrictions++;
                 }
             }
             $this->info("inserted {$newRestrictions} new icip_access_restriction rows");
         }
+
         return self::SUCCESS;
     }
 }

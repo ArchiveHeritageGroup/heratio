@@ -64,10 +64,10 @@ class VectorSearchService
         }
 
         return [
-            'ok'         => true,
-            'query'      => $query,
+            'ok' => true,
+            'query' => $query,
             'collection' => $collection,
-            'hits'       => $hits,
+            'hits' => $hits,
         ];
     }
 
@@ -90,16 +90,16 @@ class VectorSearchService
         }
 
         // Drop the source point itself if it appears in the result set.
-        $hits = array_values(array_filter($hits, fn($h) => (int) $h['id'] !== $pointId));
+        $hits = array_values(array_filter($hits, fn ($h) => (int) $h['id'] !== $pointId));
         if (count($hits) > $limit) {
             $hits = array_slice($hits, 0, $limit);
         }
 
         return [
-            'ok'         => true,
-            'point_id'   => $pointId,
+            'ok' => true,
+            'point_id' => $pointId,
             'collection' => $collection,
-            'hits'       => $hits,
+            'hits' => $hits,
         ];
     }
 
@@ -110,11 +110,12 @@ class VectorSearchService
     public function health(): array
     {
         $emb = $this->embeddingHealth();
-        $qd  = $this->qdrantHealth();
+        $qd = $this->qdrantHealth();
+
         return [
             'embedding' => $emb,
-            'qdrant'    => $qd,
-            'ok'        => $emb['ok'] && $qd['ok'],
+            'qdrant' => $qd,
+            'ok' => $emb['ok'] && $qd['ok'],
         ];
     }
 
@@ -129,12 +130,12 @@ class VectorSearchService
      */
     public function embedQuery(string $text): ?array
     {
-        $url   = rtrim($this->setting('semantic_embedding_url', 'http://192.168.0.78:11434'), '/');
+        $url = rtrim($this->setting('semantic_embedding_url', 'http://192.168.0.78:11434'), '/');
         $model = $this->setting('semantic_embedding_model', 'all-minilm');
         $timeout = (int) $this->setting('semantic_timeout_ms', 5000);
 
         $payload = json_encode(['model' => $model, 'prompt' => $text]);
-        $resp = $this->httpPost($url . '/api/embeddings', $payload, $timeout);
+        $resp = $this->httpPost($url.'/api/embeddings', $payload, $timeout);
         if ($resp === null) {
             return null;
         }
@@ -142,6 +143,7 @@ class VectorSearchService
         if (! is_array($decoded) || empty($decoded['embedding']) || ! is_array($decoded['embedding'])) {
             return null;
         }
+
         return array_map('floatval', $decoded['embedding']);
     }
 
@@ -158,10 +160,10 @@ class VectorSearchService
     {
         $url = rtrim($this->setting('semantic_qdrant_url', 'http://localhost:6333'), '/');
         $body = [
-            'vector'        => $vector,
-            'limit'         => max(1, min(100, $limit)),
-            'with_payload'  => true,
-            'with_vector'   => false,
+            'vector' => $vector,
+            'limit' => max(1, min(100, $limit)),
+            'with_payload' => true,
+            'with_vector' => false,
         ];
         // #69: honour qdrant_min_score so the operator's filter floor reaches
         // the engine instead of being ignored. Empty / 0 means no floor.
@@ -172,7 +174,7 @@ class VectorSearchService
         if ($filter !== null) {
             $body['filter'] = $filter;
         }
-        $resp = $this->httpPost($url . '/collections/' . urlencode($collection) . '/points/search',
+        $resp = $this->httpPost($url.'/collections/'.urlencode($collection).'/points/search',
             json_encode($body),
             (int) $this->setting('semantic_timeout_ms', 5000));
         if ($resp === null) {
@@ -182,17 +184,19 @@ class VectorSearchService
         if (! is_array($decoded) || ! isset($decoded['result']) || ! is_array($decoded['result'])) {
             return null;
         }
+
         return array_map(function ($p) {
             $payload = is_array($p['payload'] ?? null) ? $p['payload'] : [];
+
             return [
-                'id'           => (int) ($p['id'] ?? 0),
-                'score'        => round((float) ($p['score'] ?? 0), 6),
-                'slug'         => $payload['slug'] ?? null,
-                'title'        => $payload['title'] ?? null,
-                'has_scope'    => isset($payload['has_scope']) ? (bool) $payload['has_scope'] : null,
-                'parent_id'    => isset($payload['parent_id']) ? (int) $payload['parent_id'] : null,
-                'database'     => $payload['database'] ?? null,
-                'payload'      => $payload,
+                'id' => (int) ($p['id'] ?? 0),
+                'score' => round((float) ($p['score'] ?? 0), 6),
+                'slug' => $payload['slug'] ?? null,
+                'title' => $payload['title'] ?? null,
+                'has_scope' => isset($payload['has_scope']) ? (bool) $payload['has_scope'] : null,
+                'parent_id' => isset($payload['parent_id']) ? (int) $payload['parent_id'] : null,
+                'database' => $payload['database'] ?? null,
+                'payload' => $payload,
             ];
         }, $decoded['result']);
     }
@@ -205,7 +209,7 @@ class VectorSearchService
     public function fetchPointVector(string $collection, int $pointId): ?array
     {
         $url = rtrim($this->setting('semantic_qdrant_url', 'http://localhost:6333'), '/');
-        $resp = $this->httpGet($url . '/collections/' . urlencode($collection) . '/points/' . $pointId,
+        $resp = $this->httpGet($url.'/collections/'.urlencode($collection).'/points/'.$pointId,
             ['with_vector' => 'true', 'with_payload' => 'false'],
             (int) $this->setting('semantic_timeout_ms', 5000));
         if ($resp === null) {
@@ -216,20 +220,23 @@ class VectorSearchService
         if (! is_array($vec)) {
             return null;
         }
+
         return array_map('floatval', $vec);
     }
 
     protected function embeddingHealth(): array
     {
         $url = rtrim($this->setting('semantic_embedding_url', 'http://192.168.0.78:11434'), '/');
-        $resp = $this->httpGet($url . '/api/version', [], 2000);
+        $resp = $this->httpGet($url.'/api/version', [], 2000);
+
         return ['ok' => $resp !== null, 'url' => $url];
     }
 
     protected function qdrantHealth(): array
     {
         $url = rtrim($this->setting('semantic_qdrant_url', 'http://localhost:6333'), '/');
-        $resp = $this->httpGet($url . '/collections', [], 2000);
+        $resp = $this->httpGet($url.'/collections', [], 2000);
+
         return ['ok' => $resp !== null, 'url' => $url];
     }
 
@@ -253,11 +260,11 @@ class VectorSearchService
         // which mean the same thing - try them when the canonical key is unset
         // so the operator doesn't have to know about both.
         $alias = match ($key) {
-            'semantic_qdrant_url'        => 'qdrant_url',
+            'semantic_qdrant_url' => 'qdrant_url',
             'semantic_qdrant_collection' => 'qdrant_collection',
-            'semantic_embedding_model'   => 'qdrant_model',
-            'semantic_qdrant_min_score'  => 'qdrant_min_score',
-            default                      => null,
+            'semantic_embedding_model' => 'qdrant_model',
+            'semantic_qdrant_min_score' => 'qdrant_min_score',
+            default => null,
         };
         if ($alias) {
             try {
@@ -269,14 +276,16 @@ class VectorSearchService
                 // ahg_ner_settings absent - fall through
             }
         }
+
         return $default;
     }
 
     protected function httpGet(string $url, array $query, int $timeoutMs): ?string
     {
         if (! empty($query)) {
-            $url .= (str_contains($url, '?') ? '&' : '?') . http_build_query($query);
+            $url .= (str_contains($url, '?') ? '&' : '?').http_build_query($query);
         }
+
         return $this->curl('GET', $url, null, $timeoutMs);
     }
 
@@ -290,25 +299,27 @@ class VectorSearchService
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT_MS     => max(500, $timeoutMs),
+            CURLOPT_TIMEOUT_MS => max(500, $timeoutMs),
             CURLOPT_CONNECTTIMEOUT_MS => max(500, min(2000, $timeoutMs)),
-            CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'Accept: application/json'],
-            CURLOPT_CUSTOMREQUEST  => $method,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json'],
+            CURLOPT_CUSTOMREQUEST => $method,
         ]);
         if ($body !== null) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         }
         $resp = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err  = curl_error($ch);
+        $err = curl_error($ch);
         curl_close($ch);
 
         if ($resp === false || $code < 200 || $code >= 300) {
             if ($err) {
-                Log::debug('VectorSearchService curl: ' . $method . ' ' . $url . ' err=' . $err);
+                Log::debug('VectorSearchService curl: '.$method.' '.$url.' err='.$err);
             }
+
             return null;
         }
+
         return is_string($resp) ? $resp : null;
     }
 }

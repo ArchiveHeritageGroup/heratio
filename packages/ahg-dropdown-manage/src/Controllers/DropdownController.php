@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgDropdownManage\Controllers;
 
 use Illuminate\Http\JsonResponse;
@@ -40,56 +38,56 @@ class DropdownController extends Controller
      * Section labels for taxonomy grouping — matches AtoM ahgDropdownPlugin.
      */
     protected array $sectionLabels = [
-        'access_research'          => 'Access & Research',
-        'ai'                       => 'AI & Automation',
-        'condition'                => 'Condition & Conservation',
-        'core'                     => 'Core & System',
-        'digital_media'            => 'Digital Assets & Media',
-        'display_ui'               => 'Display & UI',
-        'donor_agreement'          => 'Donor Agreements',
-        'exhibition_loan'          => 'Exhibitions & Loans',
-        'export_import'            => 'Export & Import',
-        'federation'               => 'Federation',
-        'finance'                  => 'Finance',
-        'forms_metadata'           => 'Forms & Metadata',
-        'heritage_monuments'       => 'Heritage & Monuments',
-        'integration'              => 'Integration',
-        'people'                   => 'People & Organisations',
-        'preservation'             => 'Preservation',
-        'privacy_compliance'       => 'Privacy & Compliance',
-        'provenance_rights'        => 'Provenance & Rights',
-        'reporting_workflow'       => 'Reporting & Workflow',
-        'reproduction'             => 'Reproduction',
-        'vendor'                   => 'Vendor',
-        'other'                    => 'Other',
+        'access_research' => 'Access & Research',
+        'ai' => 'AI & Automation',
+        'condition' => 'Condition & Conservation',
+        'core' => 'Core & System',
+        'digital_media' => 'Digital Assets & Media',
+        'display_ui' => 'Display & UI',
+        'donor_agreement' => 'Donor Agreements',
+        'exhibition_loan' => 'Exhibitions & Loans',
+        'export_import' => 'Export & Import',
+        'federation' => 'Federation',
+        'finance' => 'Finance',
+        'forms_metadata' => 'Forms & Metadata',
+        'heritage_monuments' => 'Heritage & Monuments',
+        'integration' => 'Integration',
+        'people' => 'People & Organisations',
+        'preservation' => 'Preservation',
+        'privacy_compliance' => 'Privacy & Compliance',
+        'provenance_rights' => 'Provenance & Rights',
+        'reporting_workflow' => 'Reporting & Workflow',
+        'reproduction' => 'Reproduction',
+        'vendor' => 'Vendor',
+        'other' => 'Other',
     ];
 
     /**
      * Section icons — matches AtoM ahgDropdownPlugin.
      */
     protected array $sectionIcons = [
-        'access_research'    => 'fa-book-reader',
-        'ai'                 => 'fa-robot',
-        'condition'          => 'fa-clipboard-check',
-        'core'               => 'fa-cogs',
-        'digital_media'      => 'fa-photo-video',
-        'display_ui'         => 'fa-desktop',
-        'donor_agreement'    => 'fa-handshake',
-        'exhibition_loan'    => 'fa-university',
-        'export_import'      => 'fa-file-export',
-        'federation'         => 'fa-project-diagram',
-        'finance'            => 'fa-coins',
-        'forms_metadata'     => 'fa-file-alt',
+        'access_research' => 'fa-book-reader',
+        'ai' => 'fa-robot',
+        'condition' => 'fa-clipboard-check',
+        'core' => 'fa-cogs',
+        'digital_media' => 'fa-photo-video',
+        'display_ui' => 'fa-desktop',
+        'donor_agreement' => 'fa-handshake',
+        'exhibition_loan' => 'fa-university',
+        'export_import' => 'fa-file-export',
+        'federation' => 'fa-project-diagram',
+        'finance' => 'fa-coins',
+        'forms_metadata' => 'fa-file-alt',
         'heritage_monuments' => 'fa-landmark',
-        'integration'        => 'fa-plug',
-        'people'             => 'fa-users',
-        'preservation'       => 'fa-shield-alt',
+        'integration' => 'fa-plug',
+        'people' => 'fa-users',
+        'preservation' => 'fa-shield-alt',
         'privacy_compliance' => 'fa-user-shield',
-        'provenance_rights'  => 'fa-balance-scale',
+        'provenance_rights' => 'fa-balance-scale',
         'reporting_workflow' => 'fa-tasks',
-        'reproduction'       => 'fa-copy',
-        'vendor'             => 'fa-store',
-        'other'              => 'fa-folder',
+        'reproduction' => 'fa-copy',
+        'vendor' => 'fa-store',
+        'other' => 'fa-folder',
     ];
 
     /**
@@ -121,15 +119,15 @@ class DropdownController extends Controller
         }
         // Any sections not in the predefined list go at the end
         foreach ($bySection as $key => $items) {
-            if (!isset($orderedSections[$key])) {
+            if (! isset($orderedSections[$key])) {
                 $orderedSections[$key] = $items;
             }
         }
 
         return view('ahg-dropdown-manage::index', [
-            'sectionLabels'   => $this->sectionLabels,
-            'sectionIcons'    => $this->sectionIcons,
-            'taxonomyGroups'  => $orderedSections,
+            'sectionLabels' => $this->sectionLabels,
+            'sectionIcons' => $this->sectionIcons,
+            'taxonomyGroups' => $orderedSections,
         ]);
     }
 
@@ -146,22 +144,22 @@ class DropdownController extends Controller
     {
         $payload = match ($source) {
             'ahg_dropdown' => $this->loadAhgDropdownTaxonomy($taxonomy),
-            'term'         => $this->loadTermTaxonomy((int) $taxonomy),
-            'setting'      => $this->loadSettingScope($taxonomy),
-            default        => abort(404, 'Unknown dropdown source.'),
+            'term' => $this->loadTermTaxonomy((int) $taxonomy),
+            'setting' => $this->loadSettingScope($taxonomy),
+            default => abort(404, 'Unknown dropdown source.'),
         };
 
         if (empty($payload['terms']) || $payload['terms']->isEmpty()) {
-            abort(404, 'Taxonomy not found in source ' . $source);
+            abort(404, 'Taxonomy not found in source '.$source);
         }
 
         return view('ahg-dropdown-manage::edit', array_merge([
-            'source'          => $source,
-            'taxonomy'        => $taxonomy,
-            'sectionLabels'   => $this->sectionLabels,
-            'sectionIcons'    => $this->sectionIcons,
-            'enabledLocales'  => $this->getEnabledLocales(),
-            'currentLocale'   => (string) app()->getLocale(),
+            'source' => $source,
+            'taxonomy' => $taxonomy,
+            'sectionLabels' => $this->sectionLabels,
+            'sectionIcons' => $this->sectionIcons,
+            'enabledLocales' => $this->getEnabledLocales(),
+            'currentLocale' => (string) app()->getLocale(),
         ], $payload));
     }
 
@@ -192,7 +190,7 @@ class DropdownController extends Controller
                 'd.id', 'd.code', 'd.taxonomy', 'd.taxonomy_label', 'd.taxonomy_section',
                 'd.color', 'd.icon', 'd.sort_order', 'd.is_default', 'd.is_active', 'd.metadata',
                 DB::raw("COALESCE(NULLIF(di_cur.label, ''), NULLIF(di_fb.label, ''), d.label) AS label"),
-                DB::raw("d.label AS source_label")
+                DB::raw('d.label AS source_label')
             );
         } else {
             $q->select('d.*', DB::raw('d.label AS source_label'));
@@ -211,10 +209,10 @@ class DropdownController extends Controller
             ->get();
 
         return [
-            'terms'           => $terms,
-            'taxonomyLabel'   => $first->taxonomy_label ?? $taxonomy,
+            'terms' => $terms,
+            'taxonomyLabel' => $first->taxonomy_label ?? $taxonomy,
             'taxonomySection' => $first->taxonomy_section ?? null,
-            'columnMappings'  => $columnMappings,
+            'columnMappings' => $columnMappings,
         ];
     }
 
@@ -224,7 +222,7 @@ class DropdownController extends Controller
      */
     protected function loadTermTaxonomy(int $taxonomyId): array
     {
-        if (!Schema::hasTable('term') || !Schema::hasTable('term_i18n')) {
+        if (! Schema::hasTable('term') || ! Schema::hasTable('term_i18n')) {
             return ['terms' => collect()];
         }
         $culture = (string) app()->getLocale();
@@ -249,10 +247,10 @@ class DropdownController extends Controller
             ->value('name');
 
         return [
-            'terms'           => $terms,
-            'taxonomyLabel'   => $taxonomyName ?? ('Taxonomy #' . $taxonomyId),
+            'terms' => $terms,
+            'taxonomyLabel' => $taxonomyName ?? ('Taxonomy #'.$taxonomyId),
             'taxonomySection' => 'atom',
-            'columnMappings'  => collect(),
+            'columnMappings' => collect(),
         ];
     }
 
@@ -262,7 +260,7 @@ class DropdownController extends Controller
      */
     protected function loadSettingScope(string $scope): array
     {
-        if (!Schema::hasTable('setting') || !Schema::hasTable('setting_i18n')) {
+        if (! Schema::hasTable('setting') || ! Schema::hasTable('setting_i18n')) {
             return ['terms' => collect()];
         }
         $culture = (string) app()->getLocale();
@@ -283,10 +281,10 @@ class DropdownController extends Controller
             ->get();
 
         return [
-            'terms'           => $terms,
-            'taxonomyLabel'   => $scope,
+            'terms' => $terms,
+            'taxonomyLabel' => $scope,
             'taxonomySection' => 'atom',
-            'columnMappings'  => collect(),
+            'columnMappings' => collect(),
         ];
     }
 
@@ -307,12 +305,16 @@ class DropdownController extends Controller
                     ->pluck('name')
                     ->toArray();
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
         if (empty($locales)) {
             $files = glob(base_path('lang/*.json')) ?: [];
             $locales = array_map(fn ($f) => pathinfo($f, PATHINFO_FILENAME), $files);
         }
-        if (!in_array('en', $locales, true)) array_unshift($locales, 'en');
+        if (! in_array('en', $locales, true)) {
+            array_unshift($locales, 'en');
+        }
+
         return array_values(array_unique($locales));
     }
 
@@ -327,11 +329,11 @@ class DropdownController extends Controller
     public function saveI18n(string $source, int $id, Request $request): JsonResponse
     {
         $culture = (string) $request->input('culture', '');
-        $label   = (string) $request->input('label', '');
+        $label = (string) $request->input('label', '');
         if ($culture === '' || $label === '') {
             return response()->json(['ok' => false, 'error' => 'culture and label are required'], 422);
         }
-        if (!in_array($source, ['ahg_dropdown', 'term', 'setting'], true)) {
+        if (! in_array($source, ['ahg_dropdown', 'term', 'setting'], true)) {
             return response()->json(['ok' => false, 'error' => 'unknown source'], 400);
         }
 
@@ -342,29 +344,30 @@ class DropdownController extends Controller
         // filter and admin's draftApprove can dispatch back to this saver.
         // source_hash is NOT NULL with no default (sha256 of source_text);
         // the source_text for a dropdown label is the en parent value.
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             try {
                 $sourceText = $this->lookupSourceLabel($source, $id);
                 $draftId = DB::table('ahg_translation_draft')->insertGetId([
-                    'object_id'           => $id,
-                    'entity_type'         => $source,
-                    'field_name'          => 'label',
-                    'source_culture'      => 'en',
-                    'target_culture'      => $culture,
-                    'source_hash'         => hash('sha256', $sourceText),
-                    'source_text'         => $sourceText,
-                    'translated_text'     => $label,
-                    'status'              => 'draft',
-                    'created_by_user_id'  => auth()->id(),
-                    'created_at'          => now(),
+                    'object_id' => $id,
+                    'entity_type' => $source,
+                    'field_name' => 'label',
+                    'source_culture' => 'en',
+                    'target_culture' => $culture,
+                    'source_hash' => hash('sha256', $sourceText),
+                    'source_text' => $sourceText,
+                    'translated_text' => $label,
+                    'status' => 'draft',
+                    'created_by_user_id' => auth()->id(),
+                    'created_at' => now(),
                 ]);
+
                 return response()->json([
-                    'ok'       => true,
-                    'state'    => 'pending',
+                    'ok' => true,
+                    'state' => 'pending',
                     'draft_id' => $draftId,
-                    'source'   => $source,
-                    'id'       => $id,
-                    'culture'  => $culture,
+                    'source' => $source,
+                    'id' => $id,
+                    'culture' => $culture,
                 ]);
             } catch (\Throwable $e) {
                 return response()->json(['ok' => false, 'error' => $e->getMessage()], 500);
@@ -377,11 +380,12 @@ class DropdownController extends Controller
         } catch (\Throwable $e) {
             return response()->json(['ok' => false, 'error' => $e->getMessage()], 500);
         }
+
         return response()->json([
-            'ok'      => true,
-            'state'   => 'applied',
-            'source'  => $source,
-            'id'      => $id,
+            'ok' => true,
+            'state' => 'applied',
+            'source' => $source,
+            'id' => $id,
             'culture' => $culture,
         ]);
     }
@@ -403,7 +407,9 @@ class DropdownController extends Controller
                 case 'setting':
                     return (string) (DB::table('setting_i18n')->where('id', $id)->where('culture', 'en')->value('value') ?? '');
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
+
         return '';
     }
 
@@ -417,7 +423,7 @@ class DropdownController extends Controller
     {
         switch ($source) {
             case 'ahg_dropdown':
-                if (!Schema::hasTable('ahg_dropdown_i18n')) {
+                if (! Schema::hasTable('ahg_dropdown_i18n')) {
                     throw new \RuntimeException('ahg_dropdown_i18n table not installed yet');
                 }
                 DB::table('ahg_dropdown_i18n')->updateOrInsert(
@@ -440,7 +446,7 @@ class DropdownController extends Controller
                 );
                 break;
             default:
-                throw new \RuntimeException('Unknown dropdown source: ' . $source);
+                throw new \RuntimeException('Unknown dropdown source: '.$source);
         }
     }
 
@@ -451,7 +457,7 @@ class DropdownController extends Controller
     {
         $request->validate([
             'taxonomy_label' => 'required|string|max:255',
-            'taxonomy_code'  => 'required|string|max:100',
+            'taxonomy_code' => 'required|string|max:100',
             'taxonomy_section' => 'required|string|max:50',
         ]);
 
@@ -464,18 +470,18 @@ class DropdownController extends Controller
         }
 
         DB::table('ahg_dropdown')->insert([
-            'taxonomy'         => $code,
-            'taxonomy_label'   => $request->taxonomy_label,
+            'taxonomy' => $code,
+            'taxonomy_label' => $request->taxonomy_label,
             'taxonomy_section' => $request->taxonomy_section,
-            'code'             => 'default',
-            'label'            => 'Default',
-            'color'            => null,
-            'icon'             => null,
-            'sort_order'       => 0,
-            'is_default'       => 1,
-            'is_active'        => 1,
-            'created_at'       => now(),
-            'updated_at'       => now(),
+            'code' => 'default',
+            'label' => 'Default',
+            'color' => null,
+            'icon' => null,
+            'sort_order' => 0,
+            'is_default' => 1,
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return response()->json([
@@ -491,7 +497,7 @@ class DropdownController extends Controller
     public function renameTaxonomy(Request $request): JsonResponse
     {
         $request->validate([
-            'taxonomy'  => 'required|string|max:100',
+            'taxonomy' => 'required|string|max:100',
             'new_label' => 'required|string|max:255',
         ]);
 
@@ -499,7 +505,7 @@ class DropdownController extends Controller
             ->where('taxonomy', $request->taxonomy)
             ->update([
                 'taxonomy_label' => $request->new_label,
-                'updated_at'     => now(),
+                'updated_at' => now(),
             ]);
 
         if ($updated === 0) {
@@ -536,14 +542,14 @@ class DropdownController extends Controller
     {
         $request->validate([
             'taxonomy' => 'required|string|max:100',
-            'section'  => 'required|string|max:50',
+            'section' => 'required|string|max:50',
         ]);
 
         $updated = DB::table('ahg_dropdown')
             ->where('taxonomy', $request->taxonomy)
             ->update([
                 'taxonomy_section' => $request->section,
-                'updated_at'       => now(),
+                'updated_at' => now(),
             ]);
 
         if ($updated === 0) {
@@ -560,10 +566,10 @@ class DropdownController extends Controller
     {
         $request->validate([
             'taxonomy' => 'required|string|max:100',
-            'label'    => 'required|string|max:255',
-            'code'     => 'required|string|max:100',
-            'color'    => 'nullable|string|max:7',
-            'icon'     => 'nullable|string|max:50',
+            'label' => 'required|string|max:255',
+            'code' => 'required|string|max:100',
+            'color' => 'nullable|string|max:7',
+            'icon' => 'nullable|string|max:50',
         ]);
 
         // Check code uniqueness within taxonomy
@@ -581,7 +587,7 @@ class DropdownController extends Controller
             ->where('taxonomy', $request->taxonomy)
             ->first();
 
-        if (!$existing) {
+        if (! $existing) {
             return response()->json(['success' => false, 'message' => 'Taxonomy not found.'], 404);
         }
 
@@ -591,18 +597,18 @@ class DropdownController extends Controller
             ->max('sort_order') ?? -1;
 
         $id = DB::table('ahg_dropdown')->insertGetId([
-            'taxonomy'         => $request->taxonomy,
-            'taxonomy_label'   => $existing->taxonomy_label,
+            'taxonomy' => $request->taxonomy,
+            'taxonomy_label' => $existing->taxonomy_label,
             'taxonomy_section' => $existing->taxonomy_section,
-            'code'             => $request->code,
-            'label'            => $request->label,
-            'color'            => $request->color ?: null,
-            'icon'             => $request->icon ?: null,
-            'sort_order'       => $maxSort + 1,
-            'is_default'       => 0,
-            'is_active'        => 1,
-            'created_at'       => now(),
-            'updated_at'       => now(),
+            'code' => $request->code,
+            'label' => $request->label,
+            'color' => $request->color ?: null,
+            'icon' => $request->icon ?: null,
+            'sort_order' => $maxSort + 1,
+            'is_default' => 0,
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         $term = DB::table('ahg_dropdown')->where('id', $id)->first();
@@ -610,7 +616,7 @@ class DropdownController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Term added successfully.',
-            'term'    => $term,
+            'term' => $term,
         ]);
     }
 
@@ -620,7 +626,7 @@ class DropdownController extends Controller
     public function updateTerm(Request $request): JsonResponse
     {
         $request->validate([
-            'id'    => 'required|integer',
+            'id' => 'required|integer',
             'field' => 'required|string|in:label,color,icon,is_active',
             'value' => 'nullable|string|max:255',
         ]);
@@ -636,7 +642,7 @@ class DropdownController extends Controller
         $updated = DB::table('ahg_dropdown')
             ->where('id', $request->id)
             ->update([
-                $field       => $value,
+                $field => $value,
                 'updated_at' => now(),
             ]);
 
@@ -658,7 +664,7 @@ class DropdownController extends Controller
 
         $term = DB::table('ahg_dropdown')->where('id', $request->id)->first();
 
-        if (!$term) {
+        if (! $term) {
             return response()->json(['success' => false, 'message' => 'Term not found.'], 404);
         }
 
@@ -686,7 +692,7 @@ class DropdownController extends Controller
     public function reorder(Request $request): JsonResponse
     {
         $request->validate([
-            'ids'   => 'required|array',
+            'ids' => 'required|array',
             'ids.*' => 'integer',
         ]);
 
@@ -710,7 +716,7 @@ class DropdownController extends Controller
 
         $term = DB::table('ahg_dropdown')->where('id', $request->id)->first();
 
-        if (!$term) {
+        if (! $term) {
             return response()->json(['success' => false, 'message' => 'Term not found.'], 404);
         }
 

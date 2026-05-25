@@ -1,7 +1,7 @@
 <?php
 
-use AhgUserManage\Controllers\UserController;
 use AhgUserManage\Controllers\UserAclController;
+use AhgUserManage\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Per-user plugin preferences — admin + editor only. Authenticated-only
@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 // their own plugin nav clutter; admins still override at
 // /user/{slug}/plugins (capability layer, separate route below).
 Route::middleware(['web', 'auth'])->group(function () {
-    Route::get('/user/profile/plugins',  [UserController::class, 'pluginPreferences'])
+    Route::get('/user/profile/plugins', [UserController::class, 'pluginPreferences'])
         ->name('user.plugin-preferences');
     Route::post('/user/profile/plugins', [UserController::class, 'savePluginPreferences'])
         ->name('user.plugin-preferences.save');
@@ -18,7 +18,7 @@ Route::middleware(['web', 'auth'])->group(function () {
 Route::middleware('admin')->group(function () {
 
     // Per-user plugin GRANTS (capability — admin sets, not user)
-    Route::get( '/user/{slug}/plugins', [UserController::class, 'pluginGrants'])
+    Route::get('/user/{slug}/plugins', [UserController::class, 'pluginGrants'])
         ->name('user.plugin-grants');
     Route::post('/user/{slug}/plugins', [UserController::class, 'savePluginGrants'])
         ->name('user.plugin-grants.save');
@@ -67,7 +67,7 @@ Route::middleware('admin')->group(function () {
         ->name('user.show')
         ->where('slug', '(?!register|profile|password|passwordEdit|passwordReset|add|list|browse|clipboard|registration|view|verify)[a-zA-Z0-9][a-zA-Z0-9._-]*');
 });
-Route::match(['get','post'], '/user/register', [UserController::class, 'register'])->name('user.register');
+Route::match(['get', 'post'], '/user/register', [UserController::class, 'register'])->name('user.register');
 Route::get('/user/verify/{token}', [UserController::class, 'verify'])->name('user.verify');
 Route::get('/user/view/{slug}', [UserController::class, 'userView'])->name('user.view');
 
@@ -88,4 +88,3 @@ Route::middleware('admin')->group(function () {
     Route::post('/user/registration/approve', [UserController::class, 'registrationApprove'])->name('user.registration.approve')->middleware('acl:update');
     Route::post('/user/registration/reject', [UserController::class, 'registrationReject'])->name('user.registration.reject')->middleware('acl:delete');
 });
-

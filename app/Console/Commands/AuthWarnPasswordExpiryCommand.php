@@ -26,22 +26,25 @@ use Illuminate\Support\Facades\Mail;
 class AuthWarnPasswordExpiryCommand extends Command
 {
     protected $signature = 'auth:warn-password-expiry {--dry-run}';
+
     protected $description = 'Email users whose password is within security_password_expiry_warn_days of expiring';
 
     public function handle(): int
     {
-        if (!SecuritySettings::passwordExpiryNotify()) {
+        if (! SecuritySettings::passwordExpiryNotify()) {
             $this->info('security_password_expiry_notify is false — skipping.');
+
             return self::SUCCESS;
         }
 
-        if (!SecuritySettings::passwordExpiryEnabled()) {
+        if (! SecuritySettings::passwordExpiryEnabled()) {
             $this->info('Password expiry disabled (password_expiry_days <= 0) — skipping.');
+
             return self::SUCCESS;
         }
 
         $expiryDays = SecuritySettings::passwordExpiryDays();
-        $warnDays   = SecuritySettings::passwordExpiryWarnDays();
+        $warnDays = SecuritySettings::passwordExpiryWarnDays();
 
         // Window: passwords whose changed_at falls between
         // (now - expiryDays) and (now - expiryDays + warnDays).
@@ -49,7 +52,7 @@ class AuthWarnPasswordExpiryCommand extends Command
         // gate handles those); anything younger than the upper bound has
         // more than warnDays left.
         $expireFrom = now()->subDays($expiryDays);
-        $warnFrom   = now()->subDays($expiryDays - $warnDays);
+        $warnFrom = now()->subDays($expiryDays - $warnDays);
 
         // Find each user's most recent password change and pick those
         // landing in the window.
@@ -61,13 +64,16 @@ class AuthWarnPasswordExpiryCommand extends Command
 
         if ($candidates->isEmpty()) {
             $this->info("No users in the warn window (expires in <= {$warnDays}d).");
+
             return self::SUCCESS;
         }
 
         $sent = 0;
         foreach ($candidates as $row) {
             $user = DB::table('user')->where('id', $row->user_id)->first();
-            if (!$user || empty($user->email) || empty($user->active)) continue;
+            if (! $user || empty($user->email) || empty($user->active)) {
+                continue;
+            }
 
             $daysLeft = (int) ceil(\Carbon\Carbon::parse($row->latest_change)
                 ->addDays($expiryDays)
@@ -75,6 +81,7 @@ class AuthWarnPasswordExpiryCommand extends Command
 
             if ($this->option('dry-run')) {
                 $this->line("[DRY RUN] would warn {$user->email} ({$daysLeft}d left)");
+
                 continue;
             }
 
@@ -82,20 +89,21 @@ class AuthWarnPasswordExpiryCommand extends Command
                 $token = bin2hex(random_bytes(32));
                 DB::table('research_password_reset')->where('user_id', $user->id)->delete();
                 DB::table('research_password_reset')->insert([
-                    'user_id'    => $user->id,
-                    'token'      => $token,
+                    'user_id' => $user->id,
+                    'token' => $token,
                     'expires_at' => now()->addHour(),
                     'created_at' => now(),
                 ]);
-                $resetUrl = url('/user/password-reset/' . $token);
+                $resetUrl = url('/user/password-reset/'.$token);
                 Mail::to($user->email)->queue(new PasswordResetMail($resetUrl, $user->username ?? $user->email));
                 $sent++;
             } catch (\Throwable $e) {
-                $this->warn("Failed to warn {$user->email}: " . $e->getMessage());
+                $this->warn("Failed to warn {$user->email}: ".$e->getMessage());
             }
         }
 
         $this->info("Sent {$sent} expiry-warning email(s).");
+
         return self::SUCCESS;
     }
 }

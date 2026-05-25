@@ -53,9 +53,9 @@ class ParkQueueController extends Controller
         );
 
         // Map archivist ids to display names (best-effort; falls back to id).
-        $archivistIds = array_unique(array_map(fn($r) => (int) $r->parked_by_user_id, $rows));
+        $archivistIds = array_unique(array_map(fn ($r) => (int) $r->parked_by_user_id, $rows));
         $archivistNames = [];
-        if (!empty($archivistIds)) {
+        if (! empty($archivistIds)) {
             $names = DB::table('users')
                 ->whereIn('id', $archivistIds)
                 ->pluck('name', 'id')
@@ -103,7 +103,7 @@ class ParkQueueController extends Controller
         }
 
         $exists = DB::table('ahg_mention_park')->where('mention_id', $mention)->exists();
-        if (!$exists) {
+        if (! $exists) {
             return redirect()->route('auth-res.park.index')
                 ->withErrors(['unpark' => "Mention #{$mention} is not parked."]);
         }
@@ -112,10 +112,11 @@ class ParkQueueController extends Controller
             $result = $this->parkQueue->unparkAndRereview($mention, $userId);
         } catch (\Throwable $e) {
             return redirect()->route('auth-res.park.index')
-                ->withErrors(['unpark' => 'Unpark failed: ' . $e->getMessage()]);
+                ->withErrors(['unpark' => 'Unpark failed: '.$e->getMessage()]);
         }
 
         $count = count($result['candidate_ids']);
+
         return redirect()->route('auth-res.review.show', ['mention' => $mention])
             ->with('notice', sprintf(
                 'Mention #%d unparked. %d candidate(s) regenerated, %d scored.',
@@ -140,7 +141,7 @@ class ParkQueueController extends Controller
         $counts = $this->parkQueue->countsByArchivist();
         $ids = array_keys($counts);
         $names = [];
-        if (!empty($ids)) {
+        if (! empty($ids)) {
             $names = DB::table('users')
                 ->whereIn('id', $ids)
                 ->pluck('name', 'id')
@@ -155,7 +156,7 @@ class ParkQueueController extends Controller
                 'count' => (int) $count,
             ];
         }
-        usort($byArchivist, fn($a, $b) => $b['count'] <=> $a['count']);
+        usort($byArchivist, fn ($a, $b) => $b['count'] <=> $a['count']);
 
         $totalParked = DB::table('ahg_mention_park')->count();
         $totalNewCandidate = DB::table('ahg_mention_park')->where('new_candidate_available', 1)->count();

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgAccessionManage\Services;
 
 use AhgCore\Services\BrowseService;
@@ -99,7 +97,7 @@ class AccessionBrowseService extends BrowseService
         if ($subquery !== '') {
             $query->where(function ($q) use ($subquery) {
                 $q->where('accession_i18n.title', 'LIKE', "%{$subquery}%")
-                  ->orWhere('accession.identifier', 'LIKE', "%{$subquery}%");
+                    ->orWhere('accession.identifier', 'LIKE', "%{$subquery}%");
             });
         }
 
@@ -129,13 +127,23 @@ class AccessionBrowseService extends BrowseService
     {
         $ids = [];
         foreach ($hits as $h) {
-            if (!empty($h['processing_status_id'])) $ids[] = $h['processing_status_id'];
-            if (!empty($h['processing_priority_id'])) $ids[] = $h['processing_priority_id'];
-            if (!empty($h['acquisition_type_id'])) $ids[] = $h['acquisition_type_id'];
-            if (!empty($h['resource_type_id'])) $ids[] = $h['resource_type_id'];
+            if (! empty($h['processing_status_id'])) {
+                $ids[] = $h['processing_status_id'];
+            }
+            if (! empty($h['processing_priority_id'])) {
+                $ids[] = $h['processing_priority_id'];
+            }
+            if (! empty($h['acquisition_type_id'])) {
+                $ids[] = $h['acquisition_type_id'];
+            }
+            if (! empty($h['resource_type_id'])) {
+                $ids[] = $h['resource_type_id'];
+            }
         }
         $ids = array_unique(array_filter($ids));
-        if (empty($ids)) return [];
+        if (empty($ids)) {
+            return [];
+        }
 
         return DB::table('term_i18n')
             ->whereIn('id', $ids)

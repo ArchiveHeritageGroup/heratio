@@ -46,14 +46,16 @@ class HarvestCommand extends Command
 
     public function handle(HarvestService $service): int
     {
-        if (!SettingHelper::getScoped('federation', 'federation_enabled', '0')) {
+        if (! SettingHelper::getScoped('federation', 'federation_enabled', '0')) {
             $this->error('Federation is disabled (federation_enabled=0). Enable it in Plugin Management before harvesting.');
+
             return self::FAILURE;
         }
 
         $peers = $this->resolvePeers();
         if ($peers->isEmpty()) {
             $this->warn('No active federation peers to harvest.');
+
             return self::SUCCESS;
         }
 
@@ -64,6 +66,7 @@ class HarvestCommand extends Command
 
         if ($this->option('dry-run')) {
             $this->info('Dry run; no requests sent.');
+
             return self::SUCCESS;
         }
 
@@ -89,7 +92,7 @@ class HarvestCommand extends Command
                 'harvest_from' => $options['from'] ?? null,
                 'harvest_until' => $options['until'] ?? null,
                 'harvest_set' => $options['set'] ?? ($peer->default_set ?? null),
-                'is_full_harvest' => !empty($options['fullHarvest']) ? 1 : 0,
+                'is_full_harvest' => ! empty($options['fullHarvest']) ? 1 : 0,
                 'initiated_by' => null,
             ]);
 
@@ -125,7 +128,7 @@ class HarvestCommand extends Command
                         'status' => 'failed',
                         'error_message' => $e->getMessage(),
                     ]);
-                $this->error("Harvest failed for {$peer->name}: " . $e->getMessage());
+                $this->error("Harvest failed for {$peer->name}: ".$e->getMessage());
                 $exit = self::FAILURE;
             }
         }

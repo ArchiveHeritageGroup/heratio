@@ -5,6 +5,4 @@ namespace AhgShareLink\Services;
 /**
  * @phase C
  */
-class NotAuthenticatedException extends ShareLinkException
-{
-}
+class NotAuthenticatedException extends ShareLinkException {}

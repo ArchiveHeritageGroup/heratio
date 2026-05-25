@@ -41,6 +41,7 @@ use Illuminate\Support\Facades\DB;
 class MysqlActorAdapter implements CandidateAdapterInterface
 {
     private const ENTITY_TYPE_PERSON = 132;
+
     private const ENTITY_TYPE_ORG = 131;
 
     public function supports(string $entityType): bool
@@ -50,7 +51,7 @@ class MysqlActorAdapter implements CandidateAdapterInterface
 
     public function search(string $query, string $entityType, int $limit): array
     {
-        if (!$this->supports($entityType)) {
+        if (! $this->supports($entityType)) {
             return [];
         }
 
@@ -69,7 +70,7 @@ class MysqlActorAdapter implements CandidateAdapterInterface
             ->join('actor_i18n as ai', 'ai.id', '=', 'a.id')
             ->where('a.entity_type_id', $entityTypeId)
             ->whereNotNull('ai.authorized_form_of_name')
-            ->where('ai.authorized_form_of_name', 'like', '%' . $query . '%')
+            ->where('ai.authorized_form_of_name', 'like', '%'.$query.'%')
             ->orderByRaw('CASE WHEN ai.culture = a.source_culture THEN 0 ELSE 1 END')
             ->orderBy('a.id')
             ->limit($limit)

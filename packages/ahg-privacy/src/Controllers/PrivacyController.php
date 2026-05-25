@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgPrivacy\Controllers;
 
 use AhgPrivacy\Services\PrivacyService;
@@ -43,12 +41,18 @@ class PrivacyController extends Controller
 
     public function __construct()
     {
-        $this->service = new PrivacyService();
+        $this->service = new PrivacyService;
     }
 
-    public function complaintConfirmation() { return view('privacy::complaint-confirmation'); }
+    public function complaintConfirmation()
+    {
+        return view('privacy::complaint-confirmation');
+    }
 
-    public function complaint() { return view('privacy::complaint'); }
+    public function complaint()
+    {
+        return view('privacy::complaint');
+    }
 
     public function dashboard(Request $request)
     {
@@ -64,16 +68,16 @@ class PrivacyController extends Controller
                 ->get();
             foreach ($rows as $j) {
                 $jurisdictions[$j->code] = [
-                    'name'            => $j->name,
-                    'full_name'       => $j->full_name,
-                    'country'         => $j->country,
-                    'region'          => $j->region,
-                    'icon'            => $j->icon ?: 'un',
-                    'dsar_days'       => (int) ($j->dsar_days ?? 30),
-                    'breach_hours'    => (int) ($j->breach_hours ?? 72),
-                    'effective_date'  => $j->effective_date,
-                    'regulator'       => $j->regulator,
-                    'regulator_url'   => $j->regulator_url,
+                    'name' => $j->name,
+                    'full_name' => $j->full_name,
+                    'country' => $j->country,
+                    'region' => $j->region,
+                    'icon' => $j->icon ?: 'un',
+                    'dsar_days' => (int) ($j->dsar_days ?? 30),
+                    'breach_hours' => (int) ($j->breach_hours ?? 72),
+                    'effective_date' => $j->effective_date,
+                    'regulator' => $j->regulator,
+                    'regulator_url' => $j->regulator_url,
                 ];
             }
             if ($currentJurisdiction !== 'all' && isset($rows)) {
@@ -84,7 +88,7 @@ class PrivacyController extends Controller
                     }
                 }
             }
-            if (!$activeJurisdiction && $rows->count() > 0) {
+            if (! $activeJurisdiction && $rows->count() > 0) {
                 $activeJurisdiction = $rows->first();
             }
         }
@@ -94,6 +98,7 @@ class PrivacyController extends Controller
             if ($currentJurisdiction !== 'all') {
                 $q->where('jurisdiction', $currentJurisdiction);
             }
+
             return $q;
         };
 
@@ -151,7 +156,7 @@ class PrivacyController extends Controller
         $score -= min(40, $dsarOverdue * 10);
         $score -= min(45, $breachCritical * 15);
         $score -= min(20, $ropaDpia * 5);
-        if (!$activeJurisdiction) {
+        if (! $activeJurisdiction) {
             $score -= 20;
         }
         $score = max(0, min(100, $score));
@@ -159,19 +164,19 @@ class PrivacyController extends Controller
         $stats = [
             'compliance_score' => $score,
             'dsar' => [
-                'pending'   => $dsarPending,
-                'overdue'   => $dsarOverdue,
-                'total'     => $dsarTotal,
+                'pending' => $dsarPending,
+                'overdue' => $dsarOverdue,
+                'total' => $dsarTotal,
                 'completed' => $dsarCompleted,
             ],
             'breach' => [
-                'open'     => $breachOpen,
+                'open' => $breachOpen,
                 'critical' => $breachCritical,
-                'total'    => $breachTotal,
+                'total' => $breachTotal,
             ],
             'ropa' => [
-                'approved'       => $ropaApproved,
-                'total'          => $ropaTotal,
+                'approved' => $ropaApproved,
+                'total' => $ropaTotal,
                 'requiring_dpia' => $ropaDpia,
             ],
             'consent' => [
@@ -195,7 +200,10 @@ class PrivacyController extends Controller
         ));
     }
 
-    public function dsarConfirmation() { return view('privacy::dsar-confirmation'); }
+    public function dsarConfirmation()
+    {
+        return view('privacy::dsar-confirmation');
+    }
 
     public function dsarRequest()
     {
@@ -204,7 +212,8 @@ class PrivacyController extends Controller
         // regulation (#72: dp_default_regulation). The data protection
         // officer can re-route the request server-side once received.
         $defaultRegulation = DataProtectionSettings::defaultRegulation();
-        $requestTypes      = PrivacyService::getRequestTypes($defaultRegulation);
+        $requestTypes = PrivacyService::getRequestTypes($defaultRegulation);
+
         return view('privacy::dsar-request', compact('requestTypes', 'defaultRegulation'));
     }
 
@@ -218,13 +227,13 @@ class PrivacyController extends Controller
         // #72: when the form omits jurisdiction, fall back to dp_default_regulation.
         $jurisdiction = (string) $request->input('jurisdiction', DataProtectionSettings::defaultRegulation());
         $validated = $request->validate([
-            'request_type'        => 'required|string|max:89',
-            'requestor_name'      => 'required|string|max:255',
-            'requestor_email'     => 'nullable|email|max:255',
-            'requestor_phone'     => 'nullable|string|max:50',
-            'requestor_id_type'   => 'nullable|string|max:50',
+            'request_type' => 'required|string|max:89',
+            'requestor_name' => 'required|string|max:255',
+            'requestor_email' => 'nullable|email|max:255',
+            'requestor_phone' => 'nullable|string|max:50',
+            'requestor_id_type' => 'nullable|string|max:50',
             'requestor_id_number' => 'nullable|string|max:100',
-            'description'         => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
 
         $dsarId = $this->createDsarRecord($jurisdiction, $validated, 'public-form');
@@ -250,7 +259,9 @@ class PrivacyController extends Controller
             $q = DB::table('privacy_dsar')
                 ->where(function ($q) use ($userId, $myEmail) {
                     $q->where('created_by', $userId);
-                    if ($myEmail !== '') $q->orWhere('requestor_email', $myEmail);
+                    if ($myEmail !== '') {
+                        $q->orWhere('requestor_email', $myEmail);
+                    }
                 })
                 ->orderByDesc('created_at')
                 ->select('id', 'reference_number', 'request_type', 'status', 'received_date', 'due_date');
@@ -260,12 +271,12 @@ class PrivacyController extends Controller
         // Look up the requested record (?reference=DSAR-... or ?id=N).
         $dsar = null;
         $reference = trim((string) $request->query('reference', ''));
-        $email     = trim((string) $request->query('email', ''));
+        $email = trim((string) $request->query('email', ''));
         if ($reference !== '') {
             $row = DB::table('privacy_dsar')->where('reference_number', $reference)->first();
             if ($row) {
                 $belongs = (auth()->check() && (int) $row->created_by === (int) auth()->id())
-                    || (auth()->check() && !empty(auth()->user()->email) && (string) $row->requestor_email === (string) auth()->user()->email)
+                    || (auth()->check() && ! empty(auth()->user()->email) && (string) $row->requestor_email === (string) auth()->user()->email)
                     || ($email !== '' && (string) $row->requestor_email === $email);
                 if ($belongs) {
                     $dsar = $row;
@@ -275,18 +286,27 @@ class PrivacyController extends Controller
                     ])->with('error', 'Reference / email did not match a request you own.');
                 }
             } else {
-                session()->flash('error', 'No request found with reference ' . $reference . '.');
+                session()->flash('error', 'No request found with reference '.$reference.'.');
             }
         }
 
         return view('privacy::dsar-status', compact('dsar', 'myDsars'));
     }
 
-    public function index() { return view('privacy::index'); }
+    public function index()
+    {
+        return view('privacy::index');
+    }
 
-    public function breachAdd() { return view('privacy::breach-add'); }
+    public function breachAdd()
+    {
+        return view('privacy::breach-add');
+    }
 
-    public function breachEdit() { return view('privacy::breach-edit'); }
+    public function breachEdit()
+    {
+        return view('privacy::breach-edit');
+    }
 
     public function breachList()
     {
@@ -297,18 +317,34 @@ class PrivacyController extends Controller
                 ->orderBy('id', 'desc')
                 ->get();
         }
+
         return view('privacy::breach-list', compact('breaches'));
     }
 
-    public function breachView() { return view('privacy::breach-view'); }
+    public function breachView()
+    {
+        return view('privacy::breach-view');
+    }
 
-    public function complaintAdd() { return view('privacy::complaint-add'); }
+    public function complaintAdd()
+    {
+        return view('privacy::complaint-add');
+    }
 
-    public function complaintEdit() { return view('privacy::complaint-edit'); }
+    public function complaintEdit()
+    {
+        return view('privacy::complaint-edit');
+    }
 
-    public function complaintList() { return view('privacy::complaint-list'); }
+    public function complaintList()
+    {
+        return view('privacy::complaint-list');
+    }
 
-    public function complaintView() { return view('privacy::complaint-view'); }
+    public function complaintView()
+    {
+        return view('privacy::complaint-view');
+    }
 
     public function config(Request $request)
     {
@@ -316,28 +352,28 @@ class PrivacyController extends Controller
         if (Schema::hasTable('privacy_jurisdiction')) {
             foreach (DB::table('privacy_jurisdiction')->where('is_active', 1)->orderBy('sort_order')->get() as $j) {
                 $jurisdictions[$j->code] = [
-                    'name'           => $j->name,
-                    'full_name'      => $j->full_name,
-                    'country'        => $j->country,
-                    'region'         => $j->region,
-                    'regulator'      => $j->regulator,
-                    'regulator_url'  => $j->regulator_url,
-                    'dsar_days'      => (int) ($j->dsar_days ?? 30),
-                    'breach_hours'   => (int) ($j->breach_hours ?? 72),
+                    'name' => $j->name,
+                    'full_name' => $j->full_name,
+                    'country' => $j->country,
+                    'region' => $j->region,
+                    'regulator' => $j->regulator,
+                    'regulator_url' => $j->regulator_url,
+                    'dsar_days' => (int) ($j->dsar_days ?? 30),
+                    'breach_hours' => (int) ($j->breach_hours ?? 72),
                     'effective_date' => $j->effective_date,
-                    'icon'           => $j->icon ?: 'un',
+                    'icon' => $j->icon ?: 'un',
                 ];
             }
         }
         if (empty($jurisdictions)) {
             $jurisdictions = [
                 'popia' => ['name' => 'POPIA', 'full_name' => 'Protection of Personal Information Act', 'country' => 'South Africa', 'region' => 'Africa', 'regulator' => 'Information Regulator', 'regulator_url' => 'https://inforegulator.org.za', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2021-07-01', 'icon' => 'za'],
-                'gdpr'  => ['name' => 'GDPR', 'full_name' => 'General Data Protection Regulation', 'country' => 'European Union', 'region' => 'Europe', 'regulator' => 'European Data Protection Board', 'regulator_url' => 'https://edpb.europa.eu', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2018-05-25', 'icon' => 'eu'],
+                'gdpr' => ['name' => 'GDPR', 'full_name' => 'General Data Protection Regulation', 'country' => 'European Union', 'region' => 'Europe', 'regulator' => 'European Data Protection Board', 'regulator_url' => 'https://edpb.europa.eu', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2018-05-25', 'icon' => 'eu'],
             ];
         }
 
         $currentJurisdiction = $request->input('jurisdiction', array_key_first($jurisdictions));
-        if (!isset($jurisdictions[$currentJurisdiction])) {
+        if (! isset($jurisdictions[$currentJurisdiction])) {
             $currentJurisdiction = array_key_first($jurisdictions);
         }
         $jurisdictionInfo = $jurisdictions[$currentJurisdiction] ?? reset($jurisdictions);
@@ -349,24 +385,24 @@ class PrivacyController extends Controller
 
         if ($request->isMethod('post') && Schema::hasTable('privacy_config')) {
             $request->validate([
-                'organization_name'         => 'nullable|string|max:255',
-                'registration_number'       => 'nullable|string|max:100',
-                'data_protection_email'     => 'nullable|email|max:255',
-                'dsar_response_days'        => 'nullable|integer|min:1|max:90',
+                'organization_name' => 'nullable|string|max:255',
+                'registration_number' => 'nullable|string|max:100',
+                'data_protection_email' => 'nullable|email|max:255',
+                'dsar_response_days' => 'nullable|integer|min:1|max:90',
                 'breach_notification_hours' => 'nullable|integer|min:0|max:168',
-                'retention_default_years'   => 'nullable|integer|min:1|max:100',
-                'is_active'                 => 'nullable|boolean',
+                'retention_default_years' => 'nullable|integer|min:1|max:100',
+                'is_active' => 'nullable|boolean',
             ]);
             $data = [
-                'jurisdiction'              => $currentJurisdiction,
-                'organization_name'         => $request->input('organization_name'),
-                'registration_number'       => $request->input('registration_number'),
-                'data_protection_email'     => $request->input('data_protection_email'),
-                'dsar_response_days'        => (int) $request->input('dsar_response_days', $jurisdictionInfo['dsar_days'] ?? 30),
+                'jurisdiction' => $currentJurisdiction,
+                'organization_name' => $request->input('organization_name'),
+                'registration_number' => $request->input('registration_number'),
+                'data_protection_email' => $request->input('data_protection_email'),
+                'dsar_response_days' => (int) $request->input('dsar_response_days', $jurisdictionInfo['dsar_days'] ?? 30),
                 'breach_notification_hours' => (int) $request->input('breach_notification_hours', $jurisdictionInfo['breach_hours'] ?? 72),
-                'retention_default_years'   => (int) $request->input('retention_default_years', 5),
-                'is_active'                 => $request->boolean('is_active') ? 1 : 0,
-                'updated_at'                => now(),
+                'retention_default_years' => (int) $request->input('retention_default_years', 5),
+                'is_active' => $request->boolean('is_active') ? 1 : 0,
+                'updated_at' => now(),
             ];
             if ($config) {
                 DB::table('privacy_config')->where('id', $config->id)->update($data);
@@ -374,6 +410,7 @@ class PrivacyController extends Controller
                 $data['created_at'] = now();
                 DB::table('privacy_config')->insert($data);
             }
+
             return redirect()->route('ahgprivacy.config', ['jurisdiction' => $currentJurisdiction])
                 ->with('success', __('Configuration saved successfully'));
         }
@@ -404,13 +441,25 @@ class PrivacyController extends Controller
         ));
     }
 
-    public function consentAdd() { return view('privacy::consent-add'); }
+    public function consentAdd()
+    {
+        return view('privacy::consent-add');
+    }
 
-    public function consentEdit() { return view('privacy::consent-edit'); }
+    public function consentEdit()
+    {
+        return view('privacy::consent-edit');
+    }
 
-    public function consentList() { return view('privacy::consent-list'); }
+    public function consentList()
+    {
+        return view('privacy::consent-list');
+    }
 
-    public function consentView() { return view('privacy::consent-view'); }
+    public function consentView()
+    {
+        return view('privacy::consent-view');
+    }
 
     public function dsarAdd()
     {
@@ -427,15 +476,18 @@ class PrivacyController extends Controller
         // #72: pass POPIA fee context so the form / blade can surface "standard fee R<x>"
         // and special-category fee. Passed unconditionally; blades that don't
         // consume them ignore the variables harmlessly.
-        $dpFee        = DataProtectionSettings::feeFor($defaultJurisdiction, false);
+        $dpFee = DataProtectionSettings::feeFor($defaultJurisdiction, false);
         $dpFeeSpecial = DataProtectionSettings::feeFor($defaultJurisdiction, true);
         $dpResponseDays = DataProtectionSettings::responseDaysFor($defaultJurisdiction);
 
         $idTypes = [];
         try {
             $rows = DB::table('ahg_dropdown')->where('taxonomy', 'id_type')->orderBy('sort_order')->orderBy('label')->get(['code', 'label']);
-            foreach ($rows as $r) $idTypes[$r->code] = $r->label;
-        } catch (\Throwable $e) { /* table optional */ }
+            foreach ($rows as $r) {
+                $idTypes[$r->code] = $r->label;
+            }
+        } catch (\Throwable $e) { /* table optional */
+        }
 
         $users = collect();
         if (Schema::hasTable('user')) {
@@ -454,33 +506,33 @@ class PrivacyController extends Controller
     {
         $jurisdiction = (string) $request->input('jurisdiction', 'popia');
         $validated = $request->validate([
-            'jurisdiction'        => 'nullable|string|max:30',
-            'request_type'        => 'required|string|max:89',
-            'priority'            => 'nullable|in:low,normal,high,urgent',
-            'received_date'       => 'nullable|date',
-            'assigned_to'         => 'nullable|integer',
-            'requestor_name'      => 'required|string|max:255',
-            'requestor_email'     => 'nullable|email|max:255',
-            'requestor_phone'     => 'nullable|string|max:50',
-            'requestor_id_type'   => 'nullable|string|max:50',
+            'jurisdiction' => 'nullable|string|max:30',
+            'request_type' => 'required|string|max:89',
+            'priority' => 'nullable|in:low,normal,high,urgent',
+            'received_date' => 'nullable|date',
+            'assigned_to' => 'nullable|integer',
+            'requestor_name' => 'required|string|max:255',
+            'requestor_email' => 'nullable|email|max:255',
+            'requestor_phone' => 'nullable|string|max:50',
+            'requestor_id_type' => 'nullable|string|max:50',
             'requestor_id_number' => 'nullable|string|max:100',
-            'description'         => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
 
         $dsarId = $this->createDsarRecord(
             $jurisdiction,
             $validated,
-            'admin-' . (string) (auth()->id() ?? 'unknown'),
+            'admin-'.(string) (auth()->id() ?? 'unknown'),
             [
-                'priority'      => $validated['priority']      ?? 'normal',
+                'priority' => $validated['priority'] ?? 'normal',
                 'received_date' => $validated['received_date'] ?? null,
-                'assigned_to'   => $validated['assigned_to']   ?? null,
+                'assigned_to' => $validated['assigned_to'] ?? null,
             ]
         );
 
         return redirect()
             ->route('ahgprivacy.dsar-list')
-            ->with('success', 'DSAR ' . $this->fetchReferenceNumber($dsarId) . ' created.');
+            ->with('success', 'DSAR '.$this->fetchReferenceNumber($dsarId).' created.');
     }
 
     /**
@@ -494,7 +546,7 @@ class PrivacyController extends Controller
     private function createDsarRecord(string $jurisdiction, array $data, string $source, array $adminFields = []): int
     {
         $juris = $this->loadJurisdictions();
-        if (!isset($juris[$jurisdiction])) {
+        if (! isset($juris[$jurisdiction])) {
             $jurisdiction = array_key_first($juris) ?: 'popia';
         }
         // #72: response window comes from DataProtectionSettings — for popia
@@ -503,48 +555,49 @@ class PrivacyController extends Controller
         $dsarDays = DataProtectionSettings::responseDaysFor($jurisdiction);
 
         $receivedDate = $adminFields['received_date'] ?? now()->toDateString();
-        $dueDate      = \Carbon\Carbon::parse($receivedDate)->addDays($dsarDays)->toDateString();
-        $reference    = 'DSAR-' . now()->format('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(6));
+        $dueDate = \Carbon\Carbon::parse($receivedDate)->addDays($dsarDays)->toDateString();
+        $reference = 'DSAR-'.now()->format('Ymd').'-'.strtoupper(\Illuminate\Support\Str::random(6));
 
         return DB::transaction(function () use ($data, $jurisdiction, $receivedDate, $dueDate, $reference, $source, $adminFields) {
             $dsarId = DB::table('privacy_dsar')->insertGetId([
-                'reference_number'    => $reference,
-                'jurisdiction'        => $jurisdiction,
-                'request_type'        => $data['request_type'],
-                'requestor_name'      => $data['requestor_name'],
-                'requestor_email'     => $data['requestor_email']     ?? null,
-                'requestor_phone'     => $data['requestor_phone']     ?? null,
-                'requestor_id_type'   => $data['requestor_id_type']   ?? null,
+                'reference_number' => $reference,
+                'jurisdiction' => $jurisdiction,
+                'request_type' => $data['request_type'],
+                'requestor_name' => $data['requestor_name'],
+                'requestor_email' => $data['requestor_email'] ?? null,
+                'requestor_phone' => $data['requestor_phone'] ?? null,
+                'requestor_id_type' => $data['requestor_id_type'] ?? null,
                 'requestor_id_number' => $data['requestor_id_number'] ?? null,
-                'status'              => 'received',
-                'priority'            => $adminFields['priority']     ?? 'normal',
-                'received_date'       => $receivedDate,
-                'due_date'            => $dueDate,
-                'assigned_to'         => $adminFields['assigned_to']  ?? null,
-                'created_by'          => auth()->id(),
-                'created_at'          => now(),
-                'updated_at'          => now(),
+                'status' => 'received',
+                'priority' => $adminFields['priority'] ?? 'normal',
+                'received_date' => $receivedDate,
+                'due_date' => $dueDate,
+                'assigned_to' => $adminFields['assigned_to'] ?? null,
+                'created_by' => auth()->id(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            if (!empty($data['description'])) {
+            if (! empty($data['description'])) {
                 $culture = app()->getLocale() ?: 'en';
                 DB::table('privacy_dsar_i18n')->insert([
-                    'id'          => $dsarId,
-                    'culture'     => $culture,
+                    'id' => $dsarId,
+                    'culture' => $culture,
                     'description' => $data['description'],
                 ]);
             }
 
             try {
                 DB::table('privacy_dsar_log')->insert([
-                    'dsar_id'    => $dsarId,
-                    'action'     => 'created',
-                    'details'    => 'DSAR ' . $reference . ' created via ' . $source . '.',
-                    'user_id'    => auth()->id(),
+                    'dsar_id' => $dsarId,
+                    'action' => 'created',
+                    'details' => 'DSAR '.$reference.' created via '.$source.'.',
+                    'user_id' => auth()->id(),
                     'ip_address' => request()->ip(),
                     'created_at' => now(),
                 ]);
-            } catch (\Throwable $e) { /* log table optional */ }
+            } catch (\Throwable $e) { /* log table optional */
+            }
 
             // #72: dispatch DSAR-received notification to dp_notify_email
             // when set. Mail failure must not roll back the insert.
@@ -575,21 +628,25 @@ class PrivacyController extends Controller
         }
 
         $body = "A new Data Subject Access Request was received.\n\n"
-              . "Reference:     {$reference}\n"
-              . "Jurisdiction:  {$jurisdiction}\n"
-              . "Request type:  " . ($data['request_type'] ?? '') . "\n"
-              . "Requestor:     " . ($data['requestor_name'] ?? '') . "\n"
-              . "Email:         " . ($data['requestor_email'] ?? '(not provided)') . "\n"
-              . "Received:      {$receivedDate}\n"
-              . "Due:           {$dueDate}\n"
-              . "Source:        {$source}\n";
+              ."Reference:     {$reference}\n"
+              ."Jurisdiction:  {$jurisdiction}\n"
+              .'Request type:  '.($data['request_type'] ?? '')."\n"
+              .'Requestor:     '.($data['requestor_name'] ?? '')."\n"
+              .'Email:         '.($data['requestor_email'] ?? '(not provided)')."\n"
+              ."Received:      {$receivedDate}\n"
+              ."Due:           {$dueDate}\n"
+              ."Source:        {$source}\n";
 
-        $fee        = DataProtectionSettings::feeFor($jurisdiction, false);
+        $fee = DataProtectionSettings::feeFor($jurisdiction, false);
         $feeSpecial = DataProtectionSettings::feeFor($jurisdiction, true);
         if ($fee !== null || $feeSpecial !== null) {
             $body .= "\nApplicable fees:\n";
-            if ($fee !== null)        $body .= "  Standard:        " . number_format($fee, 2) . "\n";
-            if ($feeSpecial !== null) $body .= "  Special category: " . number_format($feeSpecial, 2) . "\n";
+            if ($fee !== null) {
+                $body .= '  Standard:        '.number_format($fee, 2)."\n";
+            }
+            if ($feeSpecial !== null) {
+                $body .= '  Special category: '.number_format($feeSpecial, 2)."\n";
+            }
         }
 
         $body .= "\nManage at /admin/privacy/dsar-list.\n";
@@ -599,7 +656,7 @@ class PrivacyController extends Controller
                 $m->to($to)->subject("[Heratio] DSAR received: {$reference}");
             });
         } catch (\Throwable $e) {
-            Log::warning('[ahg-privacy] DSAR notification dispatch failed: ' . $e->getMessage(), [
+            Log::warning('[ahg-privacy] DSAR notification dispatch failed: '.$e->getMessage(), [
                 'reference' => $reference,
             ]);
         }
@@ -630,38 +687,42 @@ class PrivacyController extends Controller
         if (Schema::hasTable('privacy_jurisdiction')) {
             foreach (DB::table('privacy_jurisdiction')->where('is_active', 1)->orderBy('sort_order')->get() as $j) {
                 $jurisdictions[$j->code] = [
-                    'name'           => $j->name,
-                    'full_name'      => $j->full_name,
-                    'country'        => $j->country,
-                    'region'         => $j->region,
-                    'regulator'      => $j->regulator,
-                    'regulator_url'  => $j->regulator_url,
-                    'dsar_days'      => (int) ($j->dsar_days ?? 30),
-                    'breach_hours'   => (int) ($j->breach_hours ?? 72),
+                    'name' => $j->name,
+                    'full_name' => $j->full_name,
+                    'country' => $j->country,
+                    'region' => $j->region,
+                    'regulator' => $j->regulator,
+                    'regulator_url' => $j->regulator_url,
+                    'dsar_days' => (int) ($j->dsar_days ?? 30),
+                    'breach_hours' => (int) ($j->breach_hours ?? 72),
                     'effective_date' => $j->effective_date,
-                    'icon'           => $j->icon ?: 'un',
+                    'icon' => $j->icon ?: 'un',
                 ];
             }
         }
         if (empty($jurisdictions)) {
             $jurisdictions = [
                 'popia' => ['name' => 'POPIA', 'full_name' => 'Protection of Personal Information Act',     'country' => 'South Africa',   'region' => 'Africa', 'regulator' => 'Information Regulator',           'regulator_url' => 'https://inforegulator.org.za', 'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2021-07-01', 'icon' => 'za'],
-                'gdpr'  => ['name' => 'GDPR',  'full_name' => 'General Data Protection Regulation',         'country' => 'European Union', 'region' => 'Europe', 'regulator' => 'European Data Protection Board', 'regulator_url' => 'https://edpb.europa.eu',       'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2018-05-25', 'icon' => 'eu'],
+                'gdpr' => ['name' => 'GDPR',  'full_name' => 'General Data Protection Regulation',         'country' => 'European Union', 'region' => 'Europe', 'regulator' => 'European Data Protection Board', 'regulator_url' => 'https://edpb.europa.eu',       'dsar_days' => 30, 'breach_hours' => 72, 'effective_date' => '2018-05-25', 'icon' => 'eu'],
             ];
         }
+
         return $jurisdictions;
     }
 
-    public function dsarEdit() { return view('privacy::dsar-edit'); }
+    public function dsarEdit()
+    {
+        return view('privacy::dsar-edit');
+    }
 
     public function dsarList(Request $request)
     {
         $dsars = collect();
         if (Schema::hasTable('privacy_dsar')) {
             $dsars = $this->service->getDsarList([
-                'status'       => $request->input('status'),
+                'status' => $request->input('status'),
                 'jurisdiction' => $request->input('jurisdiction'),
-                'overdue'      => $request->input('overdue'),
+                'overdue' => $request->input('overdue'),
             ]);
         }
 
@@ -680,7 +741,7 @@ class PrivacyController extends Controller
     {
         // Accepts either ?id=N or ?ref=DSAR-... for deep-linking from
         // the confirmation page (which has the reference, not the id).
-        $id  = (int) $request->input('id', 0);
+        $id = (int) $request->input('id', 0);
         $ref = (string) $request->input('ref', '');
 
         $dsar = null;
@@ -689,7 +750,9 @@ class PrivacyController extends Controller
         } elseif ($ref !== '') {
             $dsar = DB::table('privacy_dsar')->where('reference_number', $ref)->first();
         }
-        if (!$dsar) abort(404);
+        if (! $dsar) {
+            abort(404);
+        }
 
         // Merge i18n columns (description / notes / response_summary) onto
         // the $dsar row so the view's flat property access works without
@@ -700,11 +763,11 @@ class PrivacyController extends Controller
                 ->where('id', $dsar->id)
                 ->where('culture', $culture)
                 ->first();
-            if (!$i18n && $culture !== 'en') {
+            if (! $i18n && $culture !== 'en') {
                 $i18n = DB::table('privacy_dsar_i18n')->where('id', $dsar->id)->where('culture', 'en')->first();
             }
-            $dsar->description      = $i18n->description      ?? null;
-            $dsar->notes            = $i18n->notes            ?? null;
+            $dsar->description = $i18n->description ?? null;
+            $dsar->notes = $i18n->notes ?? null;
             $dsar->response_summary = $i18n->response_summary ?? null;
         } catch (\Throwable $e) {
             $dsar->description = $dsar->description ?? null;
@@ -717,17 +780,17 @@ class PrivacyController extends Controller
         $requestTypes = PrivacyService::getRequestTypes($dsar->jurisdiction);
 
         $statusClasses = [
-            'received'   => 'info',
-            'verifying'  => 'primary',
-            'in_review'  => 'primary',
+            'received' => 'info',
+            'verifying' => 'primary',
+            'in_review' => 'primary',
             'processing' => 'warning',
-            'completed'  => 'success',
-            'rejected'   => 'danger',
-            'withdrawn'  => 'secondary',
+            'completed' => 'success',
+            'rejected' => 'danger',
+            'withdrawn' => 'secondary',
         ];
 
         $isOverdue = strtotime($dsar->due_date) < time()
-            && !in_array($dsar->status, ['completed', 'rejected', 'withdrawn']);
+            && ! in_array($dsar->status, ['completed', 'rejected', 'withdrawn']);
 
         $logs = collect();
         try {
@@ -737,14 +800,16 @@ class PrivacyController extends Controller
                 ->orderByDesc('l.created_at')->orderByDesc('l.id')
                 ->select('l.*', 'u.username')
                 ->get();
-        } catch (\Throwable $e) { /* log table optional */ }
+        } catch (\Throwable $e) { /* log table optional */
+        }
 
         // Resolve assigned user's username for the "Assigned To" line.
         $dsar->assigned_username = null;
-        if (!empty($dsar->assigned_to)) {
+        if (! empty($dsar->assigned_to)) {
             try {
                 $dsar->assigned_username = DB::table('user')->where('id', $dsar->assigned_to)->value('username');
-            } catch (\Throwable $e) { /* user table optional in fresh installs */ }
+            } catch (\Throwable $e) { /* user table optional in fresh installs */
+            }
         }
 
         return view('privacy::dsar-view', compact(
@@ -752,21 +817,45 @@ class PrivacyController extends Controller
         ));
     }
 
-    public function jurisdictionAdd() { return view('privacy::jurisdiction-add'); }
+    public function jurisdictionAdd()
+    {
+        return view('privacy::jurisdiction-add');
+    }
 
-    public function jurisdictionEdit() { return view('privacy::jurisdiction-edit'); }
+    public function jurisdictionEdit()
+    {
+        return view('privacy::jurisdiction-edit');
+    }
 
-    public function jurisdictionInfo() { return view('privacy::jurisdiction-info'); }
+    public function jurisdictionInfo()
+    {
+        return view('privacy::jurisdiction-info');
+    }
 
-    public function jurisdictionList() { return view('privacy::jurisdiction-list'); }
+    public function jurisdictionList()
+    {
+        return view('privacy::jurisdiction-list');
+    }
 
-    public function jurisdictions() { return view('privacy::jurisdictions'); }
+    public function jurisdictions()
+    {
+        return view('privacy::jurisdictions');
+    }
 
-    public function notifications() { return view('privacy::notifications'); }
+    public function notifications()
+    {
+        return view('privacy::notifications');
+    }
 
-    public function officerAdd() { return view('privacy::officer-add'); }
+    public function officerAdd()
+    {
+        return view('privacy::officer-add');
+    }
 
-    public function officerEdit() { return view('privacy::officer-edit'); }
+    public function officerEdit()
+    {
+        return view('privacy::officer-edit');
+    }
 
     public function officerList()
     {
@@ -782,10 +871,10 @@ class PrivacyController extends Controller
         if (Schema::hasTable('privacy_jurisdiction')) {
             foreach (DB::table('privacy_jurisdiction')->where('is_active', 1)->orderBy('sort_order')->get() as $j) {
                 $jurisdictions[$j->code] = [
-                    'name'      => $j->name,
+                    'name' => $j->name,
                     'full_name' => $j->full_name,
-                    'country'   => $j->country,
-                    'icon'      => $j->icon ?: 'un',
+                    'country' => $j->country,
+                    'icon' => $j->icon ?: 'un',
                 ];
             }
         }
@@ -793,7 +882,10 @@ class PrivacyController extends Controller
         return view('privacy::officer-list', compact('officers', 'jurisdictions'));
     }
 
-    public function paiaAdd() { return view('privacy::paia-add'); }
+    public function paiaAdd()
+    {
+        return view('privacy::paia-add');
+    }
 
     /**
      * PAIA request list.
@@ -808,7 +900,7 @@ class PrivacyController extends Controller
         $requests = collect();
         if (Schema::hasTable('privacy_paia_request')) {
             $requests = $this->service->getPaiaRequests([
-                'status'  => $request->input('status'),
+                'status' => $request->input('status'),
                 'section' => $request->input('section'),
             ]);
         }
@@ -818,17 +910,35 @@ class PrivacyController extends Controller
         return view('privacy::paia-list', compact('requests', 'paiaTypes'));
     }
 
-    public function piiReview() { return view('privacy::pii-review'); }
+    public function piiReview()
+    {
+        return view('privacy::pii-review');
+    }
 
-    public function piiScanObject() { return view('privacy::pii-scan-object'); }
+    public function piiScanObject()
+    {
+        return view('privacy::pii-scan-object');
+    }
 
-    public function piiScan() { return view('privacy::pii-scan'); }
+    public function piiScan()
+    {
+        return view('privacy::pii-scan');
+    }
 
-    public function report() { return view('privacy::report'); }
+    public function report()
+    {
+        return view('privacy::report');
+    }
 
-    public function ropaAdd() { return view('privacy::ropa-add'); }
+    public function ropaAdd()
+    {
+        return view('privacy::ropa-add');
+    }
 
-    public function ropaEdit() { return view('privacy::ropa-edit'); }
+    public function ropaEdit()
+    {
+        return view('privacy::ropa-edit');
+    }
 
     public function ropaList(Request $request)
     {
@@ -860,32 +970,38 @@ class PrivacyController extends Controller
     protected function getLawfulBasesForJurisdiction(string $jurisdiction): array
     {
         $popia = [
-            'consent'              => ['code' => 'POPIA S11(1)(a)', 'label' => 'Consent'],
-            'contract'             => ['code' => 'POPIA S11(1)(b)', 'label' => 'Contractual Necessity'],
-            'legal_obligation'     => ['code' => 'POPIA S11(1)(c)', 'label' => 'Legal Obligation'],
-            'vital_interests'      => ['code' => 'POPIA S11(1)(d)', 'label' => 'Vital Interests'],
-            'public_body'          => ['code' => 'POPIA S11(1)(e)', 'label' => 'Public Body Function'],
+            'consent' => ['code' => 'POPIA S11(1)(a)', 'label' => 'Consent'],
+            'contract' => ['code' => 'POPIA S11(1)(b)', 'label' => 'Contractual Necessity'],
+            'legal_obligation' => ['code' => 'POPIA S11(1)(c)', 'label' => 'Legal Obligation'],
+            'vital_interests' => ['code' => 'POPIA S11(1)(d)', 'label' => 'Vital Interests'],
+            'public_body' => ['code' => 'POPIA S11(1)(e)', 'label' => 'Public Body Function'],
             'legitimate_interests' => ['code' => 'POPIA S11(1)(f)', 'label' => 'Legitimate Interests'],
         ];
         $gdpr = [
-            'consent'              => ['code' => 'GDPR Art.6(1)(a)', 'label' => 'Consent'],
-            'contract'             => ['code' => 'GDPR Art.6(1)(b)', 'label' => 'Contract'],
-            'legal_obligation'     => ['code' => 'GDPR Art.6(1)(c)', 'label' => 'Legal Obligation'],
-            'vital_interests'      => ['code' => 'GDPR Art.6(1)(d)', 'label' => 'Vital Interests'],
-            'public_task'          => ['code' => 'GDPR Art.6(1)(e)', 'label' => 'Public Task'],
+            'consent' => ['code' => 'GDPR Art.6(1)(a)', 'label' => 'Consent'],
+            'contract' => ['code' => 'GDPR Art.6(1)(b)', 'label' => 'Contract'],
+            'legal_obligation' => ['code' => 'GDPR Art.6(1)(c)', 'label' => 'Legal Obligation'],
+            'vital_interests' => ['code' => 'GDPR Art.6(1)(d)', 'label' => 'Vital Interests'],
+            'public_task' => ['code' => 'GDPR Art.6(1)(e)', 'label' => 'Public Task'],
             'legitimate_interests' => ['code' => 'GDPR Art.6(1)(f)', 'label' => 'Legitimate Interests'],
         ];
 
         return match ($jurisdiction) {
-            'gdpr'  => $gdpr,
+            'gdpr' => $gdpr,
             'popia' => $popia,
             default => $popia,
         };
     }
 
-    public function ropaView() { return view('privacy::ropa-view'); }
+    public function ropaView()
+    {
+        return view('privacy::ropa-view');
+    }
 
-    public function visualRedactionEditor() { return view('privacy::visual-redaction-editor'); }
+    public function visualRedactionEditor()
+    {
+        return view('privacy::visual-redaction-editor');
+    }
 
     // =====================================================================
     //  POST handlers (Phase X.2 — cloned from PSIS privacyAdmin actions)
@@ -894,75 +1010,78 @@ class PrivacyController extends Controller
     public function dsarUpdate(Request $request)
     {
         $request->validate([
-            'id'               => 'required|integer|min:1',
-            'status'           => 'nullable|string|max:50',
-            'priority'         => 'nullable|string|max:20',
-            'assigned_to'      => 'nullable|integer',
-            'outcome'          => 'nullable|string|max:50',
-            'refusal_reason'   => 'nullable|string|max:2000',
-            'is_verified'      => 'nullable|boolean',
-            'fee_required'     => 'nullable|boolean',
-            'fee_paid'         => 'nullable|boolean',
-            'notes'            => 'nullable|string|max:10000',
+            'id' => 'required|integer|min:1',
+            'status' => 'nullable|string|max:50',
+            'priority' => 'nullable|string|max:20',
+            'assigned_to' => 'nullable|integer',
+            'outcome' => 'nullable|string|max:50',
+            'refusal_reason' => 'nullable|string|max:2000',
+            'is_verified' => 'nullable|boolean',
+            'fee_required' => 'nullable|boolean',
+            'fee_paid' => 'nullable|boolean',
+            'notes' => 'nullable|string|max:10000',
             'response_summary' => 'nullable|string|max:10000',
         ]);
 
         $id = (int) $request->input('id');
         $this->service->updateDsar($id, $request->all(), (int) Auth::id());
         session()->flash('success', 'DSAR updated successfully');
+
         return redirect()->route('ahgprivacy.dsar-view', ['id' => $id]);
     }
 
     public function breachUpdate(Request $request)
     {
         $request->validate([
-            'id'                       => 'required|integer|min:1',
-            'breach_type'              => 'nullable|string|max:50',
-            'severity'                 => 'nullable|string|in:low,medium,high,critical',
-            'status'                   => 'nullable|string|max:50',
-            'risk_to_rights'           => 'nullable|string|max:5000',
-            'data_subjects_affected'   => 'nullable|integer|min:0',
+            'id' => 'required|integer|min:1',
+            'breach_type' => 'nullable|string|max:50',
+            'severity' => 'nullable|string|in:low,medium,high,critical',
+            'status' => 'nullable|string|max:50',
+            'risk_to_rights' => 'nullable|string|max:5000',
+            'data_subjects_affected' => 'nullable|integer|min:0',
             'data_categories_affected' => 'nullable|string|max:2000',
-            'assigned_to'              => 'nullable|integer',
-            'notification_required'    => 'nullable|boolean',
-            'regulator_notified'       => 'nullable|boolean',
-            'subjects_notified'        => 'nullable|boolean',
-            'occurred_date'            => 'nullable|date',
-            'contained_date'           => 'nullable|date',
-            'resolved_date'            => 'nullable|date',
-            'regulator_notified_date'  => 'nullable|date',
-            'subjects_notified_date'   => 'nullable|date',
-            'title'                    => 'nullable|string|max:255',
-            'description'              => 'nullable|string|max:10000',
-            'cause'                    => 'nullable|string|max:5000',
-            'impact_assessment'        => 'nullable|string|max:10000',
-            'remedial_actions'         => 'nullable|string|max:10000',
-            'lessons_learned'          => 'nullable|string|max:10000',
+            'assigned_to' => 'nullable|integer',
+            'notification_required' => 'nullable|boolean',
+            'regulator_notified' => 'nullable|boolean',
+            'subjects_notified' => 'nullable|boolean',
+            'occurred_date' => 'nullable|date',
+            'contained_date' => 'nullable|date',
+            'resolved_date' => 'nullable|date',
+            'regulator_notified_date' => 'nullable|date',
+            'subjects_notified_date' => 'nullable|date',
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:10000',
+            'cause' => 'nullable|string|max:5000',
+            'impact_assessment' => 'nullable|string|max:10000',
+            'remedial_actions' => 'nullable|string|max:10000',
+            'lessons_learned' => 'nullable|string|max:10000',
         ]);
 
         $id = (int) $request->input('id');
         $this->service->updateBreach($id, $request->all(), (int) Auth::id());
         session()->flash('success', 'Breach updated successfully');
+
         return redirect()->route('ahgprivacy.breach-view', ['id' => $id]);
     }
 
     public function consentWithdraw(Request $request)
     {
         $request->validate([
-            'id'     => 'required|integer|min:1',
+            'id' => 'required|integer|min:1',
             'reason' => 'nullable|string|max:2000',
         ]);
 
         $id = (int) $request->input('id');
         $this->service->withdrawConsent($id, $request->input('reason'), (int) Auth::id());
         session()->flash('success', 'Consent withdrawn successfully');
+
         return redirect()->route('ahgprivacy.consent-list');
     }
 
     public function ropaSubmit(Request $request)
     {
         $request->validate([
-            'id'         => 'required|integer|min:1',
+            'id' => 'required|integer|min:1',
             'officer_id' => 'nullable|integer|min:1',
         ]);
 
@@ -975,13 +1094,14 @@ class PrivacyController extends Controller
         } else {
             session()->flash('error', 'Unable to submit for review. Only draft items can be submitted.');
         }
+
         return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
     }
 
     public function ropaApprove(Request $request)
     {
         $request->validate([
-            'id'      => 'required|integer|min:1',
+            'id' => 'required|integer|min:1',
             'comment' => 'nullable|string|max:2000',
         ]);
 
@@ -989,8 +1109,9 @@ class PrivacyController extends Controller
         $user = Auth::user();
         $userId = (int) Auth::id();
 
-        if (!$this->service->isPrivacyOfficer($userId) && !($user && ($user->is_admin ?? false))) {
+        if (! $this->service->isPrivacyOfficer($userId) && ! ($user && ($user->is_admin ?? false))) {
             session()->flash('error', 'Only Privacy Officers can approve records');
+
             return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
         }
 
@@ -999,13 +1120,14 @@ class PrivacyController extends Controller
         } else {
             session()->flash('error', 'Unable to approve. Only pending review items can be approved.');
         }
+
         return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
     }
 
     public function ropaReject(Request $request)
     {
         $request->validate([
-            'id'     => 'required|integer|min:1',
+            'id' => 'required|integer|min:1',
             'reason' => 'required|string|min:1|max:2000',
         ]);
 
@@ -1013,14 +1135,16 @@ class PrivacyController extends Controller
         $user = Auth::user();
         $userId = (int) Auth::id();
 
-        if (!$this->service->isPrivacyOfficer($userId) && !($user && ($user->is_admin ?? false))) {
+        if (! $this->service->isPrivacyOfficer($userId) && ! ($user && ($user->is_admin ?? false))) {
             session()->flash('error', 'Only Privacy Officers can reject records');
+
             return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
         }
 
         $reason = trim((string) $request->input('reason'));
         if ($reason === '') {
             session()->flash('error', 'Please provide a reason for rejection');
+
             return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
         }
 
@@ -1029,6 +1153,7 @@ class PrivacyController extends Controller
         } else {
             session()->flash('error', 'Unable to reject. Only pending review items can be rejected.');
         }
+
         return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
     }
 }

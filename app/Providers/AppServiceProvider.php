@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register custom Heratio authentication provider
         Auth::provider('atom', function ($app, array $config) {
-            return new AtomUserProvider();
+            return new AtomUserProvider;
         });
 
         // #47 login brute-force rate-limit. Per-IP throttle: 5 attempts in
@@ -44,16 +44,17 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('login', function (Request $request) {
             $ip = (string) $request->ip();
             $username = (string) $request->input('username', '');
+
             return [
-                Limit::perMinute(5)->by('login-ip:' . $ip),
-                Limit::perMinute(5)->by('login-user:' . strtolower($username)),
+                Limit::perMinute(5)->by('login-ip:'.$ip),
+                Limit::perMinute(5)->by('login-user:'.strtolower($username)),
             ];
         });
         RateLimiter::for('passwordReset', function (Request $request) {
             // Same shape but tighter - password reset emails cost real
             // money on transactional providers + reset tokens are a
             // credential-stuffing target.
-            return Limit::perMinute(3)->by('pwreset:' . $request->ip());
+            return Limit::perMinute(3)->by('pwreset:'.$request->ip());
         });
 
         // Schedule the security housekeeping commands (closes audit issue #90).

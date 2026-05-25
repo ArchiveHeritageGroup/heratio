@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -71,15 +69,15 @@ class AuthorityGraphService
         $visited[$actorId] = true;
 
         // Add this actor as a node
-        if (!isset($nodes[$actorId])) {
+        if (! isset($nodes[$actorId])) {
             $actor = $this->getActorInfo($actorId);
             if ($actor) {
                 $nodes[$actorId] = [
                     'data' => [
-                        'id'    => 'actor_' . $actorId,
-                        'label' => $actor->name ?? ('Actor #' . $actorId),
-                        'type'  => $actor->entity_type ?? 'unknown',
-                        'slug'  => $actor->slug ?? '',
+                        'id' => 'actor_'.$actorId,
+                        'label' => $actor->name ?? ('Actor #'.$actorId),
+                        'type' => $actor->entity_type ?? 'unknown',
+                        'slug' => $actor->slug ?? '',
                     ],
                 ];
             }
@@ -116,15 +114,15 @@ class AuthorityGraphService
             ->all();
 
         foreach ($relations as $rel) {
-            $edgeKey = $rel->subject_id . '_' . $rel->object_id . '_' . $rel->type_id;
-            if (!isset($edges[$edgeKey])) {
+            $edgeKey = $rel->subject_id.'_'.$rel->object_id.'_'.$rel->type_id;
+            if (! isset($edges[$edgeKey])) {
                 $edges[$edgeKey] = [
                     'data' => [
-                        'id'     => 'edge_' . $rel->id,
-                        'source' => 'actor_' . $rel->subject_id,
-                        'target' => 'actor_' . $rel->object_id,
-                        'label'  => $rel->relation_type ?? 'related',
-                        'date'   => $rel->relation_date ?? '',
+                        'id' => 'edge_'.$rel->id,
+                        'source' => 'actor_'.$rel->subject_id,
+                        'target' => 'actor_'.$rel->object_id,
+                        'label' => $rel->relation_type ?? 'related',
+                        'date' => $rel->relation_date ?? '',
                     ],
                 ];
             }

@@ -43,7 +43,7 @@ class TaxonomyController extends BaseApiController
     public function terms(int $id, Request $request): JsonResponse
     {
         $taxonomy = DB::table('taxonomy')->where('id', $id)->first();
-        if (!$taxonomy) {
+        if (! $taxonomy) {
             return $this->error('Not Found', "Taxonomy {$id} not found.", 404);
         }
 

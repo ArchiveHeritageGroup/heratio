@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Controllers;
 
 use AhgActorManage\Services\ActorBrowseService;
@@ -106,73 +104,73 @@ class ActorController extends Controller
         $baseUrl = url('/actor/browse');
         $allParams = $request->except(['page']);
 
-        if (!empty($params['subquery'])) {
+        if (! empty($params['subquery'])) {
             $removeParams = $allParams;
             unset($removeParams['query'], $removeParams['subquery']);
-            $filterTags[] = ['label' => 'Search: ' . $params['subquery'], 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+            $filterTags[] = ['label' => 'Search: '.$params['subquery'], 'removeUrl' => $baseUrl.'?'.http_build_query($removeParams)];
         }
-        if (!empty($params['entityType']) && isset($entityTypeFacets[$params['entityType']])) {
+        if (! empty($params['entityType']) && isset($entityTypeFacets[$params['entityType']])) {
             $removeParams = $allParams;
             unset($removeParams['entityType']);
-            $filterTags[] = ['label' => 'Entity type: ' . $entityTypeFacets[$params['entityType']]['name'], 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+            $filterTags[] = ['label' => 'Entity type: '.$entityTypeFacets[$params['entityType']]['name'], 'removeUrl' => $baseUrl.'?'.http_build_query($removeParams)];
         }
-        if (!empty($params['repository'])) {
+        if (! empty($params['repository'])) {
             $repoName = collect($repositories)->firstWhere('id', $params['repository'])->name ?? $params['repository'];
             $removeParams = $allParams;
             unset($removeParams['repository']);
-            $filterTags[] = ['label' => 'Repository: ' . $repoName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+            $filterTags[] = ['label' => 'Repository: '.$repoName, 'removeUrl' => $baseUrl.'?'.http_build_query($removeParams)];
         }
-        if (!empty($params['hasDigitalObject'])) {
+        if (! empty($params['hasDigitalObject'])) {
             $removeParams = $allParams;
             unset($removeParams['hasDigitalObject']);
-            $filterTags[] = ['label' => 'Has digital object', 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+            $filterTags[] = ['label' => 'Has digital object', 'removeUrl' => $baseUrl.'?'.http_build_query($removeParams)];
         }
-        if (!empty($params['emptyField'])) {
+        if (! empty($params['emptyField'])) {
             $removeParams = $allParams;
             unset($removeParams['emptyField']);
-            $filterTags[] = ['label' => 'Empty field: ' . $params['emptyField'], 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+            $filterTags[] = ['label' => 'Empty field: '.$params['emptyField'], 'removeUrl' => $baseUrl.'?'.http_build_query($removeParams)];
         }
         if ($request->has('languages') && $request->get('languages') !== '') {
             $langCode = $request->get('languages');
             $langName = isset($languageFacets[$langCode]) ? $languageFacets[$langCode]['name'] : $langCode;
             $removeParams = $allParams;
             unset($removeParams['languages']);
-            $filterTags[] = ['label' => 'Language: ' . $langName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+            $filterTags[] = ['label' => 'Language: '.$langName, 'removeUrl' => $baseUrl.'?'.http_build_query($removeParams)];
         }
         if ($request->has('maintainedBy') && $request->get('maintainedBy') !== '') {
             $mbId = $request->get('maintainedBy');
             $mbName = isset($maintainedByFacets[$mbId]) ? $maintainedByFacets[$mbId]['name'] : $mbId;
             $removeParams = $allParams;
             unset($removeParams['maintainedBy']);
-            $filterTags[] = ['label' => 'Maintained by: ' . $mbName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+            $filterTags[] = ['label' => 'Maintained by: '.$mbName, 'removeUrl' => $baseUrl.'?'.http_build_query($removeParams)];
         }
         if ($request->has('occupation') && $request->get('occupation') !== '') {
             $occId = $request->get('occupation');
             $occName = isset($occupationFacets[$occId]) ? $occupationFacets[$occId]['name'] : $occId;
             $removeParams = $allParams;
             unset($removeParams['occupation']);
-            $filterTags[] = ['label' => 'Occupation: ' . $occName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+            $filterTags[] = ['label' => 'Occupation: '.$occName, 'removeUrl' => $baseUrl.'?'.http_build_query($removeParams)];
         }
         if ($request->has('place') && $request->get('place') !== '') {
             $placeId = $request->get('place');
             $placeName = isset($placeFacets[$placeId]) ? $placeFacets[$placeId]['name'] : $placeId;
             $removeParams = $allParams;
             unset($removeParams['place']);
-            $filterTags[] = ['label' => 'Place: ' . $placeName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+            $filterTags[] = ['label' => 'Place: '.$placeName, 'removeUrl' => $baseUrl.'?'.http_build_query($removeParams)];
         }
         if ($request->has('subject') && $request->get('subject') !== '') {
             $subId = $request->get('subject');
             $subName = isset($subjectFacets[$subId]) ? $subjectFacets[$subId]['name'] : $subId;
             $removeParams = $allParams;
             unset($removeParams['subject']);
-            $filterTags[] = ['label' => 'Subject: ' . $subName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+            $filterTags[] = ['label' => 'Subject: '.$subName, 'removeUrl' => $baseUrl.'?'.http_build_query($removeParams)];
         }
         if ($request->has('mediaType') && $request->get('mediaType') !== '') {
             $mtId = $request->get('mediaType');
             $mtName = isset($mediaTypeFacets[$mtId]) ? $mediaTypeFacets[$mtId]['name'] : $mtId;
             $removeParams = $allParams;
             unset($removeParams['mediaType']);
-            $filterTags[] = ['label' => 'Media type: ' . $mtName, 'removeUrl' => $baseUrl . '?' . http_build_query($removeParams)];
+            $filterTags[] = ['label' => 'Media type: '.$mtName, 'removeUrl' => $baseUrl.'?'.http_build_query($removeParams)];
         }
 
         return view('ahg-actor-manage::browse', [
@@ -200,14 +198,14 @@ class ActorController extends Controller
     public function show(string $slug, Request $request)
     {
         $actor = $this->service->getBySlug($slug);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
         // #51 ACL enforcement: read-side gate. Admin-bypass built into
         // hasPermission so admins always pass; anonymous users + group
         // members without 'read' on this actor get 403.
-        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $actor->id)) {
+        if (! \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $actor->id)) {
             abort(403, 'You do not have permission to view this record.');
         }
 
@@ -266,7 +264,7 @@ class ActorController extends Controller
             $parentActor = DB::table('actor')
                 ->join('actor_i18n', function ($j) {
                     $j->on('actor.id', '=', 'actor_i18n.id')
-                      ->where('actor_i18n.culture', '=', app()->getLocale());
+                        ->where('actor_i18n.culture', '=', app()->getLocale());
                 })
                 ->join('slug', 'actor.id', '=', 'slug.object_id')
                 ->where('actor.id', $actor->parent_id)
@@ -334,7 +332,7 @@ class ActorController extends Controller
     public function print(string $slug)
     {
         $actor = $this->service->getBySlug($slug);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -369,7 +367,8 @@ class ActorController extends Controller
         $relatedFunctions = collect();
         try {
             $relatedFunctions = $this->service->getRelatedFunctions($actor->id);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         // AHG extended: completeness, external identifiers, structured occupations
         $completeness = $this->service->getActorCompleteness($actor->id);
@@ -424,7 +423,7 @@ class ActorController extends Controller
     public function edit(string $slug)
     {
         $actor = $this->service->getBySlug($slug);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -547,7 +546,7 @@ class ActorController extends Controller
     public function update(Request $request, string $slug)
     {
         $actor = $this->service->getBySlug($slug);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -635,7 +634,7 @@ class ActorController extends Controller
             foreach (array_filter((array) $request->input('subjectAccessPointIds', [])) as $termId) {
                 DB::table('object_term_relation')->insert([
                     'object_id' => $actor->id,
-                    'term_id'   => (int) $termId,
+                    'term_id' => (int) $termId,
                 ]);
             }
             $afterSubjects = array_values(array_map('intval', array_filter((array) $request->input('subjectAccessPointIds', []))));
@@ -664,7 +663,7 @@ class ActorController extends Controller
             foreach (array_filter((array) $request->input('placeAccessPointIds', [])) as $termId) {
                 DB::table('object_term_relation')->insert([
                     'object_id' => $actor->id,
-                    'term_id'   => (int) $termId,
+                    'term_id' => (int) $termId,
                 ]);
             }
             $afterPlaces = array_values(array_map('intval', array_filter((array) $request->input('placeAccessPointIds', []))));
@@ -680,7 +679,9 @@ class ActorController extends Controller
         if ($request->has('maintaining_repository_id')) {
             $beforeRepoId = (int) DB::table('relation')
                 ->where('subject_id', $actor->id)
-                ->whereIn('object_id', function ($q) { $q->select('id')->from('repository'); })
+                ->whereIn('object_id', function ($q) {
+                    $q->select('id')->from('repository');
+                })
                 ->value('object_id');
             // Remove existing maintaining repository relation
             DB::table('relation')
@@ -692,16 +693,16 @@ class ActorController extends Controller
             $repoId = (int) $request->input('maintaining_repository_id');
             if ($repoId > 0) {
                 $relObjectId = DB::table('object')->insertGetId([
-                    'class_name'  => 'QubitRelation',
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
+                    'class_name' => 'QubitRelation',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
                 $culture = app()->getLocale();
                 DB::table('relation')->insert([
-                    'id'             => $relObjectId,
-                    'subject_id'     => $actor->id,
-                    'object_id'      => $repoId,
-                    'type_id'        => TermId::RELATION_MAINTAINING_REPOSITORY,
+                    'id' => $relObjectId,
+                    'subject_id' => $actor->id,
+                    'object_id' => $repoId,
+                    'type_id' => TermId::RELATION_MAINTAINING_REPOSITORY,
                     'source_culture' => $culture,
                 ]);
             }
@@ -723,7 +724,7 @@ class ActorController extends Controller
     public function rename(string $slug)
     {
         $actor = $this->service->getBySlug($slug);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -741,7 +742,7 @@ class ActorController extends Controller
     public function processRename(Request $request, string $slug)
     {
         $actor = $this->service->getBySlug($slug);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -780,10 +781,10 @@ class ActorController extends Controller
                 if ($existingSlug) {
                     // Pad with a number to make unique
                     $counter = 2;
-                    while (DB::table('slug')->where('slug', $desiredSlug . '-' . $counter)->exists()) {
+                    while (DB::table('slug')->where('slug', $desiredSlug.'-'.$counter)->exists()) {
                         $counter++;
                     }
-                    $desiredSlug = $desiredSlug . '-' . $counter;
+                    $desiredSlug = $desiredSlug.'-'.$counter;
                 }
 
                 DB::table('slug')
@@ -816,7 +817,7 @@ class ActorController extends Controller
     public function confirmDelete(string $slug)
     {
         $actor = $this->service->getBySlug($slug);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -828,7 +829,7 @@ class ActorController extends Controller
     public function destroy(Request $request, string $slug)
     {
         $actor = $this->service->getBySlug($slug);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -847,23 +848,25 @@ class ActorController extends Controller
     public function reconcile(string $slug)
     {
         $actor = $this->service->getBySlug($slug);
-        if (!$actor) abort(404);
+        if (! $actor) {
+            abort(404);
+        }
 
-        $reconciler = new \AhgActorManage\Services\AuthorityReconciliationService();
+        $reconciler = new \AhgActorManage\Services\AuthorityReconciliationService;
         $enabledSources = $reconciler->getEnabledSources();
         $results = [];
-        $existingIds = (new \AhgActorManage\Services\AuthorityIdentifierService())->getIdentifiers($actor->id);
+        $existingIds = (new \AhgActorManage\Services\AuthorityIdentifierService)->getIdentifiers($actor->id);
 
-        if (!empty($enabledSources) && !empty($actor->authorized_form_of_name)) {
+        if (! empty($enabledSources) && ! empty($actor->authorized_form_of_name)) {
             $results = $reconciler->searchAll($actor->authorized_form_of_name);
         }
 
         return response()->json([
-            'actor_id'   => $actor->id,
-            'name'       => $actor->authorized_form_of_name,
-            'sources'    => array_keys($enabledSources),
-            'results'    => $results,
-            'existing'   => $existingIds,
+            'actor_id' => $actor->id,
+            'name' => $actor->authorized_form_of_name,
+            'sources' => array_keys($enabledSources),
+            'results' => $results,
+            'existing' => $existingIds,
         ]);
     }
 
@@ -873,15 +876,17 @@ class ActorController extends Controller
     public function reconcileLink(Request $request, string $slug)
     {
         $actor = $this->service->getBySlug($slug);
-        if (!$actor) abort(404);
+        if (! $actor) {
+            abort(404);
+        }
 
         $request->validate([
-            'source'           => 'required|string|in:wikidata,viaf,ulan,lcnaf,isni',
+            'source' => 'required|string|in:wikidata,viaf,ulan,lcnaf,isni',
             'identifier_value' => 'required|string|max:500',
-            'label'            => 'nullable|string|max:500',
+            'label' => 'nullable|string|max:500',
         ]);
 
-        $reconciler = new \AhgActorManage\Services\AuthorityReconciliationService();
+        $reconciler = new \AhgActorManage\Services\AuthorityReconciliationService;
         $id = $reconciler->linkActor(
             $actor->id,
             $request->input('source'),
@@ -901,10 +906,10 @@ class ActorController extends Controller
         $results = DB::table('actor')
             ->join('actor_i18n', function ($j) use ($culture) {
                 $j->on('actor.id', '=', 'actor_i18n.id')
-                  ->where('actor_i18n.culture', '=', $culture);
+                    ->where('actor_i18n.culture', '=', $culture);
             })
             ->join('slug', 'slug.object_id', '=', 'actor.id')
-            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%' . $query . '%')
+            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%'.$query.'%')
             ->select(
                 'actor.id',
                 'actor_i18n.authorized_form_of_name as name',
@@ -922,8 +927,8 @@ class ActorController extends Controller
 
     public function dashboard()
     {
-        $completenessService = new AuthorityCompletenessService();
-        $identifierService = new AuthorityIdentifierService();
+        $completenessService = new AuthorityCompletenessService;
+        $identifierService = new AuthorityIdentifierService;
 
         $stats = $completenessService->getDashboardStats();
         $identifierStats = $identifierService->getStats();
@@ -936,18 +941,18 @@ class ActorController extends Controller
 
     public function workqueue(Request $request)
     {
-        $completenessService = new AuthorityCompletenessService();
+        $completenessService = new AuthorityCompletenessService;
 
         $filters = [
-            'level'       => $request->get('level', ''),
+            'level' => $request->get('level', ''),
             'assigned_to' => $request->get('assigned_to', ''),
-            'unassigned'  => $request->get('unassigned', ''),
-            'min_score'   => $request->get('min_score', ''),
-            'max_score'   => $request->get('max_score', ''),
-            'sort'        => $request->get('sort', 'completeness_score'),
-            'sortDir'     => $request->get('sortDir', 'asc'),
-            'page'        => $request->get('page', 1),
-            'limit'       => $request->get('limit', 50),
+            'unassigned' => $request->get('unassigned', ''),
+            'min_score' => $request->get('min_score', ''),
+            'max_score' => $request->get('max_score', ''),
+            'sort' => $request->get('sort', 'completeness_score'),
+            'sortDir' => $request->get('sortDir', 'asc'),
+            'page' => $request->get('page', 1),
+            'limit' => $request->get('limit', 50),
         ];
 
         $workqueue = $completenessService->getWorkqueue($filters);
@@ -977,10 +982,10 @@ class ActorController extends Controller
 
     public function identifiers(int $actorId)
     {
-        $identifierService = new AuthorityIdentifierService();
+        $identifierService = new AuthorityIdentifierService;
 
         $actor = $this->getActorById($actorId);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -996,15 +1001,15 @@ class ActorController extends Controller
 
     public function apiIdentifierSave(Request $request)
     {
-        $identifierService = new AuthorityIdentifierService();
+        $identifierService = new AuthorityIdentifierService;
 
         $actorId = (int) $request->input('actor_id');
         $data = [
-            'identifier_type'  => $request->input('identifier_type', ''),
+            'identifier_type' => $request->input('identifier_type', ''),
             'identifier_value' => $request->input('identifier_value', ''),
-            'uri'              => $request->input('uri') ?: null,
-            'label'            => $request->input('label') ?: null,
-            'source'           => $request->input('source', 'manual'),
+            'uri' => $request->input('uri') ?: null,
+            'label' => $request->input('label') ?: null,
+            'source' => $request->input('source', 'manual'),
         ];
 
         $id = $identifierService->save($actorId, $data);
@@ -1014,7 +1019,7 @@ class ActorController extends Controller
 
     public function apiIdentifierDelete(int $id)
     {
-        $identifierService = new AuthorityIdentifierService();
+        $identifierService = new AuthorityIdentifierService;
         $result = $identifierService->delete($id);
 
         return response()->json(['success' => $result]);
@@ -1022,7 +1027,7 @@ class ActorController extends Controller
 
     public function apiIdentifierVerify(int $id)
     {
-        $identifierService = new AuthorityIdentifierService();
+        $identifierService = new AuthorityIdentifierService;
         $userId = (int) auth()->id();
         $result = $identifierService->verify($id, $userId);
 
@@ -1035,7 +1040,7 @@ class ActorController extends Controller
 
     public function apiWikidataSearch(Request $request)
     {
-        $lookupService = new AuthorityLookupService();
+        $lookupService = new AuthorityLookupService;
         $result = $lookupService->searchWikidata($request->get('q', ''));
 
         return response()->json($result);
@@ -1043,7 +1048,7 @@ class ActorController extends Controller
 
     public function apiViafSearch(Request $request)
     {
-        $lookupService = new AuthorityLookupService();
+        $lookupService = new AuthorityLookupService;
         $result = $lookupService->searchViaf($request->get('q', ''));
 
         return response()->json($result);
@@ -1051,7 +1056,7 @@ class ActorController extends Controller
 
     public function apiUlanSearch(Request $request)
     {
-        $lookupService = new AuthorityLookupService();
+        $lookupService = new AuthorityLookupService;
         $result = $lookupService->searchUlan($request->get('q', ''));
 
         return response()->json($result);
@@ -1059,7 +1064,7 @@ class ActorController extends Controller
 
     public function apiLcnafSearch(Request $request)
     {
-        $lookupService = new AuthorityLookupService();
+        $lookupService = new AuthorityLookupService;
         $result = $lookupService->searchLcnaf($request->get('q', ''));
 
         return response()->json($result);
@@ -1071,7 +1076,7 @@ class ActorController extends Controller
 
     public function apiCompletenessRecalc(int $actorId)
     {
-        $completenessService = new AuthorityCompletenessService();
+        $completenessService = new AuthorityCompletenessService;
         $result = $completenessService->calculateScore($actorId);
 
         return response()->json(['success' => true, 'result' => $result]);
@@ -1079,12 +1084,12 @@ class ActorController extends Controller
 
     public function apiCompletenessBatchAssign(Request $request)
     {
-        $completenessService = new AuthorityCompletenessService();
+        $completenessService = new AuthorityCompletenessService;
 
         $actorIds = $request->input('actor_ids', []);
         $assigneeId = (int) $request->input('assignee_id');
 
-        if (!is_array($actorIds)) {
+        if (! is_array($actorIds)) {
             $actorIds = explode(',', $actorIds);
         }
         $actorIds = array_map('intval', $actorIds);
@@ -1100,7 +1105,7 @@ class ActorController extends Controller
 
     public function apiGraphData(Request $request, int $actorId)
     {
-        $graphService = new AuthorityGraphService();
+        $graphService = new AuthorityGraphService;
 
         $depth = (int) $request->get('depth', 1);
         $depth = min($depth, 3);
@@ -1116,10 +1121,10 @@ class ActorController extends Controller
 
     public function merge(int $id)
     {
-        $mergeService = new AuthorityMergeService();
+        $mergeService = new AuthorityMergeService;
 
         $actor = $this->getActorById($id);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -1134,7 +1139,7 @@ class ActorController extends Controller
     public function split(int $id)
     {
         $actor = $this->getActorById($id);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -1145,7 +1150,7 @@ class ActorController extends Controller
 
     public function apiMergePreview(Request $request)
     {
-        $mergeService = new AuthorityMergeService();
+        $mergeService = new AuthorityMergeService;
 
         $primaryId = (int) $request->input('primary_id');
         $secondaryId = (int) $request->input('secondary_id');
@@ -1157,7 +1162,7 @@ class ActorController extends Controller
 
     public function apiMergeExecute(Request $request)
     {
-        $mergeService = new AuthorityMergeService();
+        $mergeService = new AuthorityMergeService;
 
         $primaryId = (int) $request->input('primary_id');
         $secondaryIds = $request->input('secondary_ids', []);
@@ -1165,7 +1170,7 @@ class ActorController extends Controller
         $notes = $request->input('notes', '');
         $userId = (int) auth()->id();
 
-        if (!is_array($secondaryIds)) {
+        if (! is_array($secondaryIds)) {
             $secondaryIds = explode(',', $secondaryIds);
         }
         $secondaryIds = array_map('intval', $secondaryIds);
@@ -1183,7 +1188,7 @@ class ActorController extends Controller
 
     public function apiSplitExecute(Request $request)
     {
-        $mergeService = new AuthorityMergeService();
+        $mergeService = new AuthorityMergeService;
 
         $sourceId = (int) $request->input('source_id');
         $fieldsToMove = $request->input('fields_to_move', []);
@@ -1208,10 +1213,10 @@ class ActorController extends Controller
 
     public function occupations(int $actorId)
     {
-        $occupationService = new AuthorityOccupationService();
+        $occupationService = new AuthorityOccupationService;
 
         $actor = $this->getActorById($actorId);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -1225,18 +1230,18 @@ class ActorController extends Controller
 
     public function apiOccupationSave(Request $request)
     {
-        $occupationService = new AuthorityOccupationService();
+        $occupationService = new AuthorityOccupationService;
 
         $actorId = (int) $request->input('actor_id');
         $occupationId = (int) $request->input('occupation_id', 0);
 
         $data = [
-            'term_id'         => $request->input('term_id') ?: null,
+            'term_id' => $request->input('term_id') ?: null,
             'occupation_text' => $request->input('occupation_text', ''),
-            'date_from'       => $request->input('date_from') ?: null,
-            'date_to'         => $request->input('date_to') ?: null,
-            'notes'           => $request->input('notes', ''),
-            'sort_order'      => (int) $request->input('sort_order', 0),
+            'date_from' => $request->input('date_from') ?: null,
+            'date_to' => $request->input('date_to') ?: null,
+            'notes' => $request->input('notes', ''),
+            'sort_order' => (int) $request->input('sort_order', 0),
         ];
 
         $id = $occupationService->save($actorId, $data, $occupationId);
@@ -1246,7 +1251,7 @@ class ActorController extends Controller
 
     public function apiOccupationDelete(int $id)
     {
-        $occupationService = new AuthorityOccupationService();
+        $occupationService = new AuthorityOccupationService;
         $result = $occupationService->delete($id);
 
         return response()->json(['success' => $result]);
@@ -1258,10 +1263,10 @@ class ActorController extends Controller
 
     public function functions(int $actorId)
     {
-        $functionService = new AuthorityFunctionService();
+        $functionService = new AuthorityFunctionService;
 
         $actor = $this->getActorById($actorId);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
@@ -1277,7 +1282,7 @@ class ActorController extends Controller
 
     public function functionBrowse()
     {
-        $functionService = new AuthorityFunctionService();
+        $functionService = new AuthorityFunctionService;
         $functions = $functionService->browseFunctions();
 
         return view('ahg-actor-manage::authority.function-browse', [
@@ -1287,18 +1292,18 @@ class ActorController extends Controller
 
     public function apiFunctionSave(Request $request)
     {
-        $functionService = new AuthorityFunctionService();
+        $functionService = new AuthorityFunctionService;
 
         $actorId = (int) $request->input('actor_id');
         $linkId = (int) $request->input('link_id', 0);
 
         $data = [
-            'function_id'   => $request->input('function_id'),
+            'function_id' => $request->input('function_id'),
             'relation_type' => $request->input('relation_type', 'responsible'),
-            'date_from'     => $request->input('date_from') ?: null,
-            'date_to'       => $request->input('date_to') ?: null,
-            'notes'         => $request->input('notes', ''),
-            'sort_order'    => (int) $request->input('sort_order', 0),
+            'date_from' => $request->input('date_from') ?: null,
+            'date_to' => $request->input('date_to') ?: null,
+            'notes' => $request->input('notes', ''),
+            'sort_order' => (int) $request->input('sort_order', 0),
         ];
 
         $id = $functionService->save($actorId, $data, $linkId);
@@ -1308,7 +1313,7 @@ class ActorController extends Controller
 
     public function apiFunctionDelete(int $id)
     {
-        $functionService = new AuthorityFunctionService();
+        $functionService = new AuthorityFunctionService;
         $result = $functionService->delete($id);
 
         return response()->json(['success' => $result]);
@@ -1320,7 +1325,7 @@ class ActorController extends Controller
 
     public function dedupIndex()
     {
-        $dedupeService = new AuthorityDedupeService();
+        $dedupeService = new AuthorityDedupeService;
         $stats = $dedupeService->getStats();
 
         return view('ahg-actor-manage::authority.dedup-index', [
@@ -1330,7 +1335,7 @@ class ActorController extends Controller
 
     public function dedupScan(Request $request)
     {
-        $dedupeService = new AuthorityDedupeService();
+        $dedupeService = new AuthorityDedupeService;
         $pairs = [];
 
         if ($request->isMethod('post')) {
@@ -1345,10 +1350,10 @@ class ActorController extends Controller
 
     public function dedupCompare(Request $request, int $id)
     {
-        $mergeService = new AuthorityMergeService();
+        $mergeService = new AuthorityMergeService;
 
         $secondaryId = (int) $request->get('secondary_id');
-        if (!$secondaryId) {
+        if (! $secondaryId) {
             abort(404);
         }
 
@@ -1361,7 +1366,7 @@ class ActorController extends Controller
 
     public function apiDedupDismiss(int $id)
     {
-        $mergeService = new AuthorityMergeService();
+        $mergeService = new AuthorityMergeService;
         $merge = $mergeService->getMerge($id);
 
         if ($merge) {
@@ -1375,7 +1380,7 @@ class ActorController extends Controller
 
     public function apiDedupMerge(int $id)
     {
-        $mergeService = new AuthorityMergeService();
+        $mergeService = new AuthorityMergeService;
         $userId = (int) auth()->id();
         $result = $mergeService->executeMerge($id, $userId);
 
@@ -1388,17 +1393,17 @@ class ActorController extends Controller
 
     public function nerIndex(Request $request)
     {
-        $nerService = new AuthorityNerPipelineService();
+        $nerService = new AuthorityNerPipelineService;
         $stats = $nerService->getStats();
 
         $filters = [
-            'status'      => $request->get('status', 'stub'),
+            'status' => $request->get('status', 'stub'),
             'entity_type' => $request->get('entity_type', ''),
-            'search'      => $request->get('search', ''),
-            'sort'        => $request->get('sort', 's.created_at'),
-            'sortDir'     => $request->get('sortDir', 'desc'),
-            'page'        => $request->get('page', 1),
-            'limit'       => $request->get('limit', 50),
+            'search' => $request->get('search', ''),
+            'sort' => $request->get('sort', 's.created_at'),
+            'sortDir' => $request->get('sortDir', 'desc'),
+            'page' => $request->get('page', 1),
+            'limit' => $request->get('limit', 50),
         ];
 
         $stubs = [];
@@ -1409,13 +1414,13 @@ class ActorController extends Controller
         }
 
         $pendingFilters = [
-            'entity_type'    => $request->get('entity_type', ''),
+            'entity_type' => $request->get('entity_type', ''),
             'min_confidence' => $request->get('min_confidence', ''),
-            'search'         => $request->get('search', ''),
-            'sort'           => 'ne.confidence',
-            'sortDir'        => 'desc',
-            'page'           => 1,
-            'limit'          => 20,
+            'search' => $request->get('search', ''),
+            'sort' => 'ne.confidence',
+            'sortDir' => 'desc',
+            'page' => 1,
+            'limit' => 20,
         ];
 
         $pendingEntities = [];
@@ -1435,7 +1440,7 @@ class ActorController extends Controller
 
     public function apiNerCreateStub(Request $request)
     {
-        $nerService = new AuthorityNerPipelineService();
+        $nerService = new AuthorityNerPipelineService;
         $userId = (int) auth()->id();
         $nerEntityId = (int) $request->input('ner_entity_id');
 
@@ -1450,7 +1455,7 @@ class ActorController extends Controller
 
     public function apiNerPromote(int $id)
     {
-        $nerService = new AuthorityNerPipelineService();
+        $nerService = new AuthorityNerPipelineService;
         $userId = (int) auth()->id();
         $result = $nerService->promoteStub($id, $userId);
 
@@ -1459,7 +1464,7 @@ class ActorController extends Controller
 
     public function apiNerReject(int $id)
     {
-        $nerService = new AuthorityNerPipelineService();
+        $nerService = new AuthorityNerPipelineService;
         $userId = (int) auth()->id();
         $result = $nerService->rejectStub($id, $userId);
 
@@ -1502,14 +1507,14 @@ class ActorController extends Controller
     public function contact(int $actorId)
     {
         $actor = $this->getActorById($actorId);
-        if (!$actor) {
+        if (! $actor) {
             abort(404);
         }
 
         $contacts = $this->service->getContacts($actorId);
 
         return view('ahg-actor-manage::authority.contact', [
-            'actor'    => $actor,
+            'actor' => $actor,
             'contacts' => $contacts,
         ]);
     }
@@ -1521,7 +1526,7 @@ class ActorController extends Controller
     public function apiEacExport(Request $request, int $actorId)
     {
         $actor = $this->getActorById($actorId);
-        if (!$actor) {
+        if (! $actor) {
             return response()->json(['success' => false, 'error' => 'Actor not found'], 404);
         }
 
@@ -1535,25 +1540,25 @@ class ActorController extends Controller
 
         $sourceLabels = [
             'wikidata' => 'Wikidata',
-            'viaf'     => 'Virtual International Authority File (VIAF)',
-            'ulan'     => 'Getty Union List of Artist Names (ULAN)',
-            'lcnaf'    => 'Library of Congress Name Authority File (LCNAF)',
-            'isni'     => 'International Standard Name Identifier (ISNI)',
-            'orcid'    => 'ORCID',
-            'gnd'      => 'Gemeinsame Normdatei (GND)',
+            'viaf' => 'Virtual International Authority File (VIAF)',
+            'ulan' => 'Getty Union List of Artist Names (ULAN)',
+            'lcnaf' => 'Library of Congress Name Authority File (LCNAF)',
+            'isni' => 'International Standard Name Identifier (ISNI)',
+            'orcid' => 'ORCID',
+            'gnd' => 'Gemeinsame Normdatei (GND)',
         ];
 
         foreach ($identifiers as $ident) {
             $otherRecordIds[] = [
-                'localType'  => $ident->identifier_type,
-                'value'      => $ident->identifier_value,
-                'uri'        => $ident->uri ?? '',
+                'localType' => $ident->identifier_type,
+                'value' => $ident->identifier_value,
+                'uri' => $ident->uri ?? '',
                 'isVerified' => (bool) ($ident->is_verified ?? false),
             ];
 
-            if (!empty($ident->uri)) {
+            if (! empty($ident->uri)) {
                 $sources[] = [
-                    'href'  => $ident->uri,
+                    'href' => $ident->uri,
                     'label' => $ident->label ?? ($sourceLabels[$ident->identifier_type] ?? ucfirst($ident->identifier_type)),
                 ];
             }
@@ -1563,7 +1568,7 @@ class ActorController extends Controller
             'success' => true,
             'eac_data' => [
                 'otherRecordIds' => $otherRecordIds,
-                'sources'        => $sources,
+                'sources' => $sources,
             ],
         ]);
     }

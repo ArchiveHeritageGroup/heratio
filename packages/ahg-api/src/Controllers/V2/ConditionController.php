@@ -17,7 +17,7 @@ class ConditionController extends BaseApiController
     {
         ['page' => $page, 'limit' => $limit] = $this->paginationParams($request);
 
-        if (!$this->tableExists()) {
+        if (! $this->tableExists()) {
             return $this->success(['conditions' => [], 'message' => 'Condition assessment module not installed.']);
         }
 
@@ -40,7 +40,7 @@ class ConditionController extends BaseApiController
      */
     public function store(Request $request): JsonResponse
     {
-        if (!$this->tableExists()) {
+        if (! $this->tableExists()) {
             return $this->error('Not Available', 'Condition assessment module not installed.', 501);
         }
 
@@ -69,12 +69,12 @@ class ConditionController extends BaseApiController
      */
     public function show(int $id): JsonResponse
     {
-        if (!$this->tableExists()) {
+        if (! $this->tableExists()) {
             return $this->error('Not Available', 'Condition assessment module not installed.', 501);
         }
 
         $condition = DB::table($this->table)->where('id', $id)->first();
-        if (!$condition) {
+        if (! $condition) {
             return $this->error('Not Found', 'Condition not found.', 404);
         }
 
@@ -86,12 +86,12 @@ class ConditionController extends BaseApiController
      */
     public function update(int $id, Request $request): JsonResponse
     {
-        if (!$this->tableExists()) {
+        if (! $this->tableExists()) {
             return $this->error('Not Available', 'Condition assessment module not installed.', 501);
         }
 
         $condition = DB::table($this->table)->where('id', $id)->first();
-        if (!$condition) {
+        if (! $condition) {
             return $this->error('Not Found', 'Condition not found.', 404);
         }
 
@@ -116,12 +116,12 @@ class ConditionController extends BaseApiController
      */
     public function destroy(int $id): JsonResponse
     {
-        if (!$this->tableExists()) {
+        if (! $this->tableExists()) {
             return $this->error('Not Available', 'Condition assessment module not installed.', 501);
         }
 
         $deleted = DB::table($this->table)->where('id', $id)->delete();
-        if (!$deleted) {
+        if (! $deleted) {
             return $this->error('Not Found', 'Condition not found.', 404);
         }
 
@@ -134,11 +134,11 @@ class ConditionController extends BaseApiController
     public function forDescription(string $slug): JsonResponse
     {
         $objectId = $this->slugToId($slug);
-        if (!$objectId) {
+        if (! $objectId) {
             return $this->error('Not Found', "Description '{$slug}' not found.", 404);
         }
 
-        if (!$this->tableExists()) {
+        if (! $this->tableExists()) {
             return $this->success(['conditions' => []]);
         }
 
@@ -155,7 +155,7 @@ class ConditionController extends BaseApiController
      */
     public function photos(int $id): JsonResponse
     {
-        if (!$this->tableExists('ahg_condition_photo')) {
+        if (! $this->tableExists('ahg_condition_photo')) {
             return $this->success(['photos' => []]);
         }
 
@@ -172,12 +172,12 @@ class ConditionController extends BaseApiController
      */
     public function uploadPhoto(int $id, Request $request): JsonResponse
     {
-        if (!$this->tableExists()) {
+        if (! $this->tableExists()) {
             return $this->error('Not Available', 'Condition assessment module not installed.', 501);
         }
 
         $condition = DB::table($this->table)->where('id', $id)->first();
-        if (!$condition) {
+        if (! $condition) {
             return $this->error('Not Found', 'Condition not found.', 404);
         }
 
@@ -213,16 +213,16 @@ class ConditionController extends BaseApiController
      */
     public function deletePhoto(int $id, int $photoId): JsonResponse
     {
-        if (!$this->tableExists()) {
+        if (! $this->tableExists()) {
             return $this->error('Not Available', 'Condition assessment module not installed.', 501);
         }
 
         $condition = DB::table($this->table)->where('id', $id)->first();
-        if (!$condition) {
+        if (! $condition) {
             return $this->error('Not Found', 'Condition not found.', 404);
         }
 
-        if (!$this->tableExists('ahg_condition_photo')) {
+        if (! $this->tableExists('ahg_condition_photo')) {
             return $this->error('Not Available', 'Condition photo module not installed.', 501);
         }
 
@@ -231,12 +231,12 @@ class ConditionController extends BaseApiController
             ->where('condition_id', $id)
             ->first();
 
-        if (!$photo) {
+        if (! $photo) {
             return $this->error('Not Found', 'Photo not found.', 404);
         }
 
         // Delete physical file
-        if (!empty($photo->path)) {
+        if (! empty($photo->path)) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete($photo->path);
         }
 

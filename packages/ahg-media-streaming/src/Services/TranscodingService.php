@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgMediaStreaming\Services;
 
 use AhgCore\Models\DigitalObject;
@@ -425,9 +423,9 @@ class TranscodingService
         // Determine output format and cached path
         $cacheDir = storage_path('app/transcoded');
         if ($this->isVideoTranscodeFormat($sourcePath)) {
-            $cachedPath = $cacheDir . '/' . $digitalObjectId . '.mp4';
+            $cachedPath = $cacheDir.'/'.$digitalObjectId.'.mp4';
         } else {
-            $cachedPath = $cacheDir . '/' . $digitalObjectId . '.mp3';
+            $cachedPath = $cacheDir.'/'.$digitalObjectId.'.mp3';
         }
 
         // Return cached version if it already exists and is non-empty

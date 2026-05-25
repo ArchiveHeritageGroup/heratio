@@ -79,6 +79,7 @@ class AuthorityReviewController extends Controller
             if ($objectId > 0) {
                 $query->where('m.object_id', $objectId);
             }
+
             return $query;
         };
 
@@ -98,10 +99,10 @@ class AuthorityReviewController extends Controller
             ->leftJoinSub($masterDo, 'md', 'md.object_id', '=', 'm.object_id')
             ->leftJoin('digital_object as d', 'd.id', '=', 'md.do_id')
             ->select('m.id', 'm.entity_type', 'm.state', 'm.object_id', 'm.promoted_at',
-                     'm.assigned_to_user_id', 'm.workflow_task_id',
-                     'n.entity_value', 'n.confidence', DB::raw('COALESCE(cc.c, 0) AS candidate_count'),
-                     's.slug as io_slug', 'io.identifier as io_identifier',
-                     'd.mime_type as do_mime_type', 'd.name as do_name');
+                'm.assigned_to_user_id', 'm.workflow_task_id',
+                'n.entity_value', 'n.confidence', DB::raw('COALESCE(cc.c, 0) AS candidate_count'),
+                's.slug as io_slug', 'io.identifier as io_identifier',
+                'd.mime_type as do_mime_type', 'd.name as do_name');
         $applyFilters($q);
 
         $rows = $q->orderBy('m.id')->limit(200)->get();
@@ -114,7 +115,7 @@ class AuthorityReviewController extends Controller
         $allFilteredIds = $applyFilters(DB::table('ahg_mention as m'))
             ->orderBy('m.id')
             ->pluck('m.id')
-            ->map(fn($v) => (int) $v)
+            ->map(fn ($v) => (int) $v)
             ->all();
 
         $counts = DB::table('ahg_mention')
@@ -125,11 +126,11 @@ class AuthorityReviewController extends Controller
 
         // Assignee display names for the "Assigned to" column.
         $assigneeIds = array_values(array_unique(array_filter(array_map(
-            fn($r) => (int) ($r->assigned_to_user_id ?? 0),
+            fn ($r) => (int) ($r->assigned_to_user_id ?? 0),
             $rows->all()
         ))));
         $assigneeNames = [];
-        if (!empty($assigneeIds)) {
+        if (! empty($assigneeIds)) {
             $assigneeNames = DB::table('user')
                 ->leftJoin('actor_i18n', function ($join) {
                     $join->on('user.id', '=', 'actor_i18n.id')
@@ -139,7 +140,8 @@ class AuthorityReviewController extends Controller
                 ->get(['user.id', 'user.username', 'actor_i18n.authorized_form_of_name as display_name'])
                 ->mapWithKeys(function ($u) {
                     $name = trim((string) ($u->display_name ?? ''))
-                        ?: (trim((string) ($u->username ?? '')) ?: ('User #' . (int) $u->id));
+                        ?: (trim((string) ($u->username ?? '')) ?: ('User #'.(int) $u->id));
+
                     return [(int) $u->id => $name];
                 })
                 ->all();
@@ -164,7 +166,7 @@ class AuthorityReviewController extends Controller
     public function show(int $mention)
     {
         $row = $this->loadMentionRow($mention);
-        if (!$row) {
+        if (! $row) {
             abort(404, 'Mention not found');
         }
 
@@ -185,6 +187,7 @@ class AuthorityReviewController extends Controller
         $candidates = $candidates->map(function ($c) {
             $c->evidence_signals_decoded = $c->evidence_signals ? json_decode($c->evidence_signals, true) : [];
             $c->evidence_data_decoded = $c->evidence_data ? json_decode($c->evidence_data, true) : [];
+
             return $c;
         });
 
@@ -220,7 +223,7 @@ class AuthorityReviewController extends Controller
         // Assign / Workflow feature: archivist picker + current-assignee name.
         $archivists = $this->assignments->archivists();
         $currentAssigneeName = null;
-        if (!empty($row->assigned_to_user_id)) {
+        if (! empty($row->assigned_to_user_id)) {
             foreach ($archivists as $a) {
                 if ((int) $a['id'] === (int) $row->assigned_to_user_id) {
                     $currentAssigneeName = $a['name'];
@@ -239,7 +242,7 @@ class AuthorityReviewController extends Controller
                     ->first();
                 if ($u) {
                     $currentAssigneeName = trim((string) ($u->display_name ?? ''))
-                        ?: (trim((string) ($u->username ?? '')) ?: ('User #' . (int) $row->assigned_to_user_id));
+                        ?: (trim((string) ($u->username ?? '')) ?: ('User #'.(int) $row->assigned_to_user_id));
                 }
             }
         }
@@ -289,7 +292,7 @@ class AuthorityReviewController extends Controller
             ->where('m.id', $mention)
             ->first(['m.id', 'm.object_id', 'n.entity_value']);
 
-        if (!$row) {
+        if (! $row) {
             return response()->json(['ok' => false, 'error' => 'Mention not found.'], 404);
         }
 
@@ -350,6 +353,7 @@ class AuthorityReviewController extends Controller
             $cp = mb_ord($ch, 'UTF-8');
             $units += ($cp !== false && $cp >= 0x10000) ? 2 : 1;
         }
+
         return $units;
     }
 
@@ -371,7 +375,7 @@ class AuthorityReviewController extends Controller
         try {
             $this->recorder->recordLink($mention, $userId, $candidateId);
         } catch (\Throwable $e) {
-            return back()->withErrors(['action' => 'Link failed: ' . $e->getMessage()]);
+            return back()->withErrors(['action' => 'Link failed: '.$e->getMessage()]);
         }
 
         return $this->redirectToNext($mention, 'Mention linked to authority record.');
@@ -394,7 +398,7 @@ class AuthorityReviewController extends Controller
         try {
             $this->recorder->recordLinkDifferent($mention, $userId, $authorityId);
         } catch (\Throwable $e) {
-            return back()->withErrors(['action' => 'Link-different failed: ' . $e->getMessage()]);
+            return back()->withErrors(['action' => 'Link-different failed: '.$e->getMessage()]);
         }
 
         return $this->redirectToNext($mention, 'Mention linked to a different existing authority.');
@@ -415,7 +419,7 @@ class AuthorityReviewController extends Controller
         }
 
         $packet = $this->prefillEngine->prefill($mention);
-        if (!$packet['mention']) {
+        if (! $packet['mention']) {
             abort(404, 'Mention not found');
         }
 
@@ -450,7 +454,7 @@ class AuthorityReviewController extends Controller
         }
 
         $row = $this->loadMentionRow($mention);
-        if (!$row) {
+        if (! $row) {
             abort(404, 'Mention not found');
         }
 
@@ -489,7 +493,7 @@ class AuthorityReviewController extends Controller
         } catch (\Throwable $e) {
             return back()
                 ->withInput()
-                ->withErrors(['action' => 'Authority creation failed: ' . $e->getMessage()]);
+                ->withErrors(['action' => 'Authority creation failed: '.$e->getMessage()]);
         }
 
         // Best-effort field provenance to Fuseki. Failure is logged but does
@@ -509,7 +513,7 @@ class AuthorityReviewController extends Controller
         try {
             $this->recorder->recordCreateNew($mention, $userId, $newAuthorityId);
         } catch (\Throwable $e) {
-            return back()->withErrors(['action' => 'Decision record failed after create: ' . $e->getMessage()]);
+            return back()->withErrors(['action' => 'Decision record failed after create: '.$e->getMessage()]);
         }
 
         return $this->redirectToNext($mention, "New authority record created (#{$newAuthorityId}) and linked.");
@@ -539,6 +543,7 @@ class AuthorityReviewController extends Controller
         }
 
         $sources = self::LOOKUP_SOURCES;
+
         return view('auth-res::settings', [
             'sources' => $sources,
             'bySource' => $bySource,
@@ -559,12 +564,12 @@ class AuthorityReviewController extends Controller
         $payload = (array) $request->input('settings', []);
         $writes = 0;
         foreach ($payload as $key => $value) {
-            if (!is_string($key) || strpos($key, 'lookup.') !== 0) {
+            if (! is_string($key) || strpos($key, 'lookup.') !== 0) {
                 continue;
             }
             // Cast bool checkboxes ('1'/'0' or missing) cleanly.
             $existing = DB::table('ahg_settings')->where('setting_key', $key)->first();
-            if (!$existing) {
+            if (! $existing) {
                 continue;
             }
             if ($existing->setting_type === 'bool') {
@@ -599,7 +604,7 @@ class AuthorityReviewController extends Controller
         $out = [];
         foreach (self::LOOKUP_SOURCES as $src) {
             $enabled = (int) (DB::table('ahg_settings')
-                ->where('setting_key', 'lookup.' . $src . '.enabled')
+                ->where('setting_key', 'lookup.'.$src.'.enabled')
                 ->value('setting_value') ?? 0) === 1;
             $cacheSize = DB::table('ahg_authority_lookup_cache')
                 ->where('source', $src)
@@ -613,6 +618,7 @@ class AuthorityReviewController extends Controller
                 'newest_cache_at' => $newestCacheAt,
             ];
         }
+
         return response()->json(['sources' => $out]);
     }
 
@@ -633,7 +639,7 @@ class AuthorityReviewController extends Controller
         try {
             $this->recorder->recordPark($mention, $userId, $reason);
         } catch (\Throwable $e) {
-            return back()->withErrors(['action' => 'Park failed: ' . $e->getMessage()]);
+            return back()->withErrors(['action' => 'Park failed: '.$e->getMessage()]);
         }
 
         return $this->redirectToNext($mention, 'Mention parked for later review.');
@@ -660,7 +666,7 @@ class AuthorityReviewController extends Controller
         try {
             $this->recorder->recordReject($mention, $userId, $reason !== '' ? $reason : null);
         } catch (\Throwable $e) {
-            return back()->withErrors(['action' => 'Reject failed: ' . $e->getMessage()]);
+            return back()->withErrors(['action' => 'Reject failed: '.$e->getMessage()]);
         }
 
         return $this->redirectToNext($mention, 'Mention rejected as false positive.');
@@ -728,10 +734,11 @@ class AuthorityReviewController extends Controller
 
     private function jsonOrEmpty(?string $json): array
     {
-        if (!$json) {
+        if (! $json) {
             return [];
         }
         $decoded = json_decode($json, true);
+
         return is_array($decoded) ? $decoded : [];
     }
 
@@ -749,6 +756,6 @@ class AuthorityReviewController extends Controller
         }
 
         return redirect()->route('auth-res.queue')
-            ->with('notice', $notice . ' Queue empty for the next pending mention - returned to queue.');
+            ->with('notice', $notice.' Queue empty for the next pending mention - returned to queue.');
     }
 }

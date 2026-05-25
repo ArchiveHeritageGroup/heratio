@@ -13,6 +13,7 @@ use Illuminate\Console\Command;
 class SharePointAutoIngestCommand extends Command
 {
     protected $signature = 'sharepoint:auto-ingest {--rule= : Run one rule by id} {--dry-run : Log what would happen} {--force : Ignore schedule_cron}';
+
     protected $description = 'Cron-driven SharePoint→Heratio ingest';
 
     public function handle(SharePointAutoIngestService $svc): int
@@ -36,6 +37,7 @@ class SharePointAutoIngestCommand extends Command
                 isset($r['error']) ? "  ERROR: {$r['error']}" : '',
             ));
         }
+
         return self::SUCCESS;
     }
 }

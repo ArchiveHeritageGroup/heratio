@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgDonorManage\Services;
 
 use AhgCore\Constants\TermId;
@@ -43,7 +41,7 @@ class DonorService
     public function getBySlug(string $slug): ?object
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId) {
+        if (! $objectId) {
             return null;
         }
 
@@ -152,7 +150,7 @@ class DonorService
                 })
                 ->pluck('id')
                 ->toArray();
-            if (!empty($oldRelationIds)) {
+            if (! empty($oldRelationIds)) {
                 DB::table('relation')->whereIn('id', $oldRelationIds)->delete();
                 DB::table('object')->whereIn('id', $oldRelationIds)->delete();
             }
@@ -205,7 +203,7 @@ class DonorService
             $slug = $baseSlug;
             $counter = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter++;
+                $slug = $baseSlug.'-'.$counter++;
             }
             DB::table('slug')->insert(['object_id' => $id, 'slug' => $slug]);
 
@@ -238,7 +236,7 @@ class DonorService
                 'revision_history' => $data['revision_history'] ?? null,
             ]);
 
-            if (!empty($data['contacts'])) {
+            if (! empty($data['contacts'])) {
                 $this->saveContacts($id, $data['contacts']);
             }
 
@@ -255,7 +253,7 @@ class DonorService
                     $actorUpdate[$f] = $data[$f];
                 }
             }
-            if (!empty($actorUpdate)) {
+            if (! empty($actorUpdate)) {
                 DB::table('actor')->where('id', $id)->update($actorUpdate);
             }
 
@@ -271,7 +269,7 @@ class DonorService
                     $i18n[$f] = $data[$f];
                 }
             }
-            if (!empty($i18n)) {
+            if (! empty($i18n)) {
                 $exists = DB::table('actor_i18n')->where('id', $id)->where('culture', $this->culture)->exists();
                 if ($exists) {
                     DB::table('actor_i18n')->where('id', $id)->where('culture', $this->culture)->update($i18n);
@@ -295,13 +293,13 @@ class DonorService
     {
         DB::transaction(function () use ($id) {
             $contactIds = DB::table('contact_information')->where('actor_id', $id)->pluck('id')->toArray();
-            if (!empty($contactIds)) {
+            if (! empty($contactIds)) {
                 DB::table('contact_information_i18n')->whereIn('id', $contactIds)->delete();
                 DB::table('contact_information')->whereIn('id', $contactIds)->delete();
             }
 
             $relationIds = DB::table('relation')->where('subject_id', $id)->orWhere('object_id', $id)->pluck('id')->toArray();
-            if (!empty($relationIds)) {
+            if (! empty($relationIds)) {
                 DB::table('relation_i18n')->whereIn('id', $relationIds)->delete();
                 DB::table('relation')->whereIn('id', $relationIds)->delete();
                 DB::table('slug')->whereIn('object_id', $relationIds)->delete();
@@ -309,7 +307,7 @@ class DonorService
             }
 
             $noteIds = DB::table('note')->where('object_id', $id)->pluck('id')->toArray();
-            if (!empty($noteIds)) {
+            if (! empty($noteIds)) {
                 DB::table('note_i18n')->whereIn('id', $noteIds)->delete();
                 DB::table('note')->whereIn('id', $noteIds)->delete();
                 DB::table('object')->whereIn('id', $noteIds)->delete();
@@ -332,9 +330,11 @@ class DonorService
     protected function saveContacts(int $actorId, array $contacts): void
     {
         foreach ($contacts as $c) {
-            if ($this->isContactEmpty($c)) continue;
+            if ($this->isContactEmpty($c)) {
+                continue;
+            }
             $cid = DB::table('contact_information')->insertGetId([
-                'actor_id' => $actorId, 'primary_contact' => !empty($c['primary_contact']) ? 1 : 0,
+                'actor_id' => $actorId, 'primary_contact' => ! empty($c['primary_contact']) ? 1 : 0,
                 'contact_person' => $c['contact_person'] ?? null, 'street_address' => $c['street_address'] ?? null,
                 'website' => $c['website'] ?? null, 'email' => $c['email'] ?? null,
                 'telephone' => $c['telephone'] ?? null, 'fax' => $c['fax'] ?? null,
@@ -355,15 +355,18 @@ class DonorService
     protected function syncContacts(int $actorId, array $contacts): void
     {
         foreach ($contacts as $c) {
-            if (!empty($c['delete']) && !empty($c['id'])) {
+            if (! empty($c['delete']) && ! empty($c['id'])) {
                 DB::table('contact_information_i18n')->where('id', $c['id'])->delete();
                 DB::table('contact_information')->where('id', $c['id'])->delete();
+
                 continue;
             }
-            if ($this->isContactEmpty($c)) continue;
-            if (!empty($c['id'])) {
+            if ($this->isContactEmpty($c)) {
+                continue;
+            }
+            if (! empty($c['id'])) {
                 DB::table('contact_information')->where('id', $c['id'])->update([
-                    'primary_contact' => !empty($c['primary_contact']) ? 1 : 0,
+                    'primary_contact' => ! empty($c['primary_contact']) ? 1 : 0,
                     'contact_person' => $c['contact_person'] ?? null, 'street_address' => $c['street_address'] ?? null,
                     'website' => $c['website'] ?? null, 'email' => $c['email'] ?? null,
                     'telephone' => $c['telephone'] ?? null, 'fax' => $c['fax'] ?? null,
@@ -388,8 +391,11 @@ class DonorService
     protected function isContactEmpty(array $d): bool
     {
         foreach (['contact_person', 'street_address', 'website', 'email', 'telephone', 'fax', 'city', 'region', 'postal_code', 'country_code'] as $f) {
-            if (!empty($d[$f])) return false;
+            if (! empty($d[$f])) {
+                return false;
+            }
         }
+
         return true;
     }
 }

@@ -53,7 +53,7 @@ class EvidenceScorer
     private array $evaluators;
 
     /**
-     * @param iterable<EvaluatorInterface> $evaluators
+     * @param  iterable<EvaluatorInterface>  $evaluators
      */
     public function __construct(iterable $evaluators, private DocumentPriorService $prior)
     {
@@ -80,7 +80,7 @@ class EvidenceScorer
     public function scoreCandidate(int $candidateId): ?array
     {
         $candidate = DB::table('ahg_mention_candidate')->where('id', $candidateId)->first();
-        if (!$candidate) {
+        if (! $candidate) {
             return null;
         }
 
@@ -88,14 +88,14 @@ class EvidenceScorer
             ->join('ahg_ner_entity as n', 'n.id', '=', 'm.ner_entity_id')
             ->where('m.id', $candidate->mention_id)
             ->first(['m.id', 'm.object_id', 'm.entity_type', 'm.state', 'n.entity_value']);
-        if (!$mention) {
+        if (! $mention) {
             return null;
         }
 
         $context = DB::table('ahg_mention_context')
             ->where('mention_id', $candidate->mention_id)
             ->first();
-        if (!$context) {
+        if (! $context) {
             // Synthesise an empty context object so evaluators can still emit "absent".
             $context = (object) [
                 'mention_id' => $candidate->mention_id,
@@ -113,7 +113,7 @@ class EvidenceScorer
         $data = [];
 
         foreach ($this->evaluators as $evaluator) {
-            if (!$evaluator->supports($entityType)) {
+            if (! $evaluator->supports($entityType)) {
                 continue;
             }
             try {
@@ -168,7 +168,7 @@ class EvidenceScorer
             ->where('mention_id', $mentionId)
             ->orderBy('id')
             ->pluck('id')
-            ->map(fn($v) => (int) $v)
+            ->map(fn ($v) => (int) $v)
             ->all();
 
         $results = [];
@@ -179,7 +179,7 @@ class EvidenceScorer
             }
         }
 
-        if (!empty($results)) {
+        if (! empty($results)) {
             $this->reRank($mentionId);
         }
 

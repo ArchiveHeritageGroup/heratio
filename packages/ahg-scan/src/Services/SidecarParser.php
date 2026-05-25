@@ -68,7 +68,7 @@ class SidecarParser
      */
     public function parse(string $path): array
     {
-        if (!is_file($path) || !is_readable($path)) {
+        if (! is_file($path) || ! is_readable($path)) {
             throw new \RuntimeException("Sidecar not readable: {$path}");
         }
         $xml = file_get_contents($path);
@@ -77,18 +77,18 @@ class SidecarParser
         }
 
         libxml_use_internal_errors(true);
-        $doc = new \DOMDocument();
+        $doc = new \DOMDocument;
         $doc->loadXML($xml);
         $errors = libxml_get_errors();
         libxml_clear_errors();
-        if (!$doc->documentElement || $doc->documentElement->localName !== 'heratioScan') {
+        if (! $doc->documentElement || $doc->documentElement->localName !== 'heratioScan') {
             throw new \RuntimeException("Sidecar root is not <heratioScan>: {$path}");
         }
 
         $warnings = [];
         foreach ($errors as $err) {
             if ($err->level === LIBXML_ERR_FATAL) {
-                throw new \RuntimeException("Sidecar XML fatal: " . trim($err->message));
+                throw new \RuntimeException('Sidecar XML fatal: '.trim($err->message));
             }
             $warnings[] = trim($err->message);
         }
@@ -128,13 +128,13 @@ class SidecarParser
         } elseif ($parentSlug) {
             $row = DB::table('slug')->where('slug', $parentSlug)->first();
             $result['parent_id'] = $row ? (int) $row->object_id : null;
-            if (!$result['parent_id']) {
+            if (! $result['parent_id']) {
                 $warnings[] = "parentSlug '{$parentSlug}' does not match any existing slug";
             }
         } elseif ($parentIdentifier) {
             $row = DB::table('information_object')->where('identifier', $parentIdentifier)->first();
             $result['parent_id'] = $row ? (int) $row->id : null;
-            if (!$result['parent_id']) {
+            if (! $result['parent_id']) {
                 $warnings[] = "parentIdentifier '{$parentIdentifier}' does not match any IO";
             }
         }
@@ -228,6 +228,7 @@ class SidecarParser
         }
 
         $result['_warnings'] = $warnings;
+
         return $result;
     }
 
@@ -248,7 +249,7 @@ class SidecarParser
             'source_standard' => $parsed['source_standard'] ?? $sessionFallback?->standard ?? null,
             'merge' => $parsed['merge'] ?? 'add-sequence',
             'culture' => 'en',
-        ], fn($v) => $v !== null);
+        ], fn ($v) => $v !== null);
     }
 
     // --- helpers ---
@@ -256,13 +257,17 @@ class SidecarParser
     protected function child(\DOMElement $parent, string $localName): ?string
     {
         $list = $parent->getElementsByTagNameNS(self::NAMESPACE, $localName);
-        if ($list->length === 0) { return null; }
+        if ($list->length === 0) {
+            return null;
+        }
         foreach ($list as $node) {
             if ($node->parentNode === $parent) {
                 $v = trim($node->textContent);
+
                 return $v === '' ? null : $v;
             }
         }
+
         return null;
     }
 
@@ -273,14 +278,18 @@ class SidecarParser
                 return $node;
             }
         }
+
         return null;
     }
 
     protected function childBool(\DOMElement $parent, string $localName): ?bool
     {
         $v = $this->child($parent, $localName);
-        if ($v === null) { return null; }
+        if ($v === null) {
+            return null;
+        }
         $v = strtolower($v);
+
         return in_array($v, ['true', '1', 'yes', 'y', 'on'], true);
     }
 
@@ -301,10 +310,12 @@ class SidecarParser
             $out['@attributes'] = $attrs;
         }
         foreach ($node->childNodes as $child) {
-            if (!$child instanceof \DOMElement) { continue; }
+            if (! $child instanceof \DOMElement) {
+                continue;
+            }
             $key = $child->localName;
             $value = $this->hasElementChildren($child) ? $this->nodeToArray($child) : trim($child->textContent);
-            if ($child->hasAttributes() && !$this->hasElementChildren($child)) {
+            if ($child->hasAttributes() && ! $this->hasElementChildren($child)) {
                 $attrs = [];
                 foreach ($child->attributes as $attr) {
                     $attrs[$attr->name] = $attr->value;
@@ -312,7 +323,7 @@ class SidecarParser
                 $value = ['@attributes' => $attrs, 'value' => $value];
             }
             if (isset($out[$key])) {
-                if (!is_array($out[$key]) || !array_is_list($out[$key])) {
+                if (! is_array($out[$key]) || ! array_is_list($out[$key])) {
                     $out[$key] = [$out[$key]];
                 }
                 $out[$key][] = $value;
@@ -320,14 +331,18 @@ class SidecarParser
                 $out[$key] = $value;
             }
         }
+
         return $out;
     }
 
     protected function hasElementChildren(\DOMElement $node): bool
     {
         foreach ($node->childNodes as $c) {
-            if ($c instanceof \DOMElement) { return true; }
+            if ($c instanceof \DOMElement) {
+                return true;
+            }
         }
+
         return false;
     }
 }

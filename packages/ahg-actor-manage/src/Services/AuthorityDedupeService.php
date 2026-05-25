@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -79,12 +77,12 @@ class AuthorityDedupeService
 
                 if ($score >= $this->threshold) {
                     $pairs[] = [
-                        'actor_a_id'   => $actors[$i]->id,
+                        'actor_a_id' => $actors[$i]->id,
                         'actor_a_name' => $actors[$i]->name,
-                        'actor_b_id'   => $actors[$j]->id,
+                        'actor_b_id' => $actors[$j]->id,
                         'actor_b_name' => $actors[$j]->name,
-                        'score'        => round($score, 4),
-                        'match_type'   => $this->getMatchType($score),
+                        'score' => round($score, 4),
+                        'match_type' => $this->getMatchType($score),
                     ];
                 }
             }
@@ -111,7 +109,7 @@ class AuthorityDedupeService
 
         // Boost score if dates overlap
         $dateBoost = 0.0;
-        if (!empty($a->dates) && !empty($b->dates)) {
+        if (! empty($a->dates) && ! empty($b->dates)) {
             if ($a->dates === $b->dates) {
                 $dateBoost = 0.10;
             }
@@ -219,10 +217,10 @@ class AuthorityDedupeService
 
         $k = 0;
         for ($i = 0; $i < $len1; $i++) {
-            if (!$s1Matches[$i]) {
+            if (! $s1Matches[$i]) {
                 continue;
             }
-            while (!$s2Matches[$k]) {
+            while (! $s2Matches[$k]) {
                 $k++;
             }
             if (mb_substr($s1, $i, 1) !== mb_substr($s2, $k, 1)) {
@@ -259,11 +257,11 @@ class AuthorityDedupeService
     public function getStats(): array
     {
         return [
-            'threshold'    => $this->threshold,
+            'threshold' => $this->threshold,
             'total_actors' => DB::table('actor')->count(),
             'total_merges' => DB::table('ahg_actor_merge')->where('merge_type', 'merge')->count(),
-            'pending'      => DB::table('ahg_actor_merge')->where('status', 'pending')->count(),
-            'completed'    => DB::table('ahg_actor_merge')->where('status', 'completed')->count(),
+            'pending' => DB::table('ahg_actor_merge')->where('status', 'pending')->count(),
+            'completed' => DB::table('ahg_actor_merge')->where('status', 'completed')->count(),
         ];
     }
 }

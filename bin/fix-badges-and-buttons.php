@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * Fix ALL missing field badges and bad button classes across all Heratio views.
  *
@@ -12,7 +13,6 @@
  * - btn-light → atom-btn-white
  * - btn-dark → atom-btn-white
  */
-
 $base = '/usr/share/nginx/heratio/packages';
 
 // Fields that are typically "Recommended" in AtoM (not required but important)
@@ -62,10 +62,10 @@ foreach ($bladeFiles as $path) {
     ];
     foreach ($btnReplacements as $bad => $good) {
         // Only replace standalone btn-light/btn-dark (not btn-outline-light etc)
-        $pattern = '/\bclass="([^"]*)\b' . preg_quote($bad, '/') . '\b([^"]*)"/';
+        $pattern = '/\bclass="([^"]*)\b'.preg_quote($bad, '/').'\b([^"]*)"/';
         if (preg_match($pattern, $content)) {
             $content = preg_replace(
-                '/\b' . preg_quote($bad, '/') . '\b/',
+                '/\b'.preg_quote($bad, '/').'\b/',
                 $good,
                 $content
             );
@@ -87,15 +87,15 @@ foreach ($bladeFiles as $path) {
 
         // Check if this line has a <label with class="form-label"> but NO badge
         if (preg_match('/<label\b[^>]*class="[^"]*form-label[^"]*"[^>]*>/', $line)
-            && !preg_match('/badge\s+bg-/', $line)
-            && !preg_match('/form-check-label/', $line)) {
+            && ! preg_match('/badge\s+bg-/', $line)
+            && ! preg_match('/form-check-label/', $line)) {
 
             // Determine badge type by looking at the next few lines for 'required' attribute
             $nextChunk = implode("\n", array_slice($lines, $i, 8));
 
             // Check if field is required
             $isRequired = preg_match('/\brequired\b/', $nextChunk)
-                       && !preg_match('/\brequired\b.*\brequired\b/s', $nextChunk); // avoid matching two different fields
+                       && ! preg_match('/\brequired\b.*\brequired\b/s', $nextChunk); // avoid matching two different fields
 
             // Also check for <span class="text-danger">*</span> on this label line
             if (preg_match('/text-danger[^>]*>\*/', $line)) {
@@ -124,23 +124,23 @@ foreach ($bladeFiles as $path) {
             // Insert badge before </label> on this line, or before the closing >text pattern
             if (preg_match('/<\/label>/', $line)) {
                 // Badge goes before </label>
-                $line = preg_replace('/<\/label>/', ' ' . $badge . '</label>', $line, 1);
+                $line = preg_replace('/<\/label>/', ' '.$badge.'</label>', $line, 1);
                 $badgesAdded++;
             } elseif (preg_match('/(>)([^<]+)$/', $line, $m)) {
                 // Label text is at end of line, no closing tag yet - add badge after label text
                 // Look for closing </label> on next line
                 $labelText = trim($m[2]);
-                if ($labelText && !empty($labelText)) {
+                if ($labelText && ! empty($labelText)) {
                     // Check if next line has </label>
                     $nextLine = isset($lines[$i + 1]) ? trim($lines[$i + 1]) : '';
                     if ($nextLine === '</label>' || preg_match('/^\s*<\/label>/', $lines[$i + 1] ?? '')) {
                         // Add badge to this line after label text
-                        $line = rtrim($line) . ' ' . $badge;
+                        $line = rtrim($line).' '.$badge;
                         $badgesAdded++;
                     } else {
                         // Single-line label with text after >
                         // Find the text content after the last > and before end of line
-                        $line = preg_replace('/(>[^<]+)(<\s*\/label>|$)/', '$1 ' . $badge . '$2', $line, 1);
+                        $line = preg_replace('/(>[^<]+)(<\s*\/label>|$)/', '$1 '.$badge.'$2', $line, 1);
                         if (strpos($line, $badge) !== false) {
                             $badgesAdded++;
                         }
@@ -158,7 +158,7 @@ foreach ($bladeFiles as $path) {
         file_put_contents($path, $content);
         $stats['files_changed']++;
         $stats['badges_added'] += $badgesAdded;
-        $rel = str_replace($base . '/', '', $path);
+        $rel = str_replace($base.'/', '', $path);
         $changedFiles[] = ['file' => $rel, 'badges' => $badgesAdded];
         echo "  FIXED: $rel (+$badgesAdded badges)\n";
     }

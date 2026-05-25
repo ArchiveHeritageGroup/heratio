@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgForms\Controllers;
 
 use AhgForms\Services\FormService;
@@ -37,7 +35,7 @@ class FormsController extends Controller
 
     public function __construct()
     {
-        $this->service = new FormService();
+        $this->service = new FormService;
     }
 
     public function index()
@@ -60,8 +58,8 @@ class FormsController extends Controller
         }
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('description', 'like', '%' . $search . '%');
+                $q->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%');
             });
         }
 
@@ -116,13 +114,14 @@ class FormsController extends Controller
         $fields = $this->service->getFields($id);
         $payload = [
             'template' => (array) $template,
-            'fields'   => collect($fields)->map(fn ($f) => (array) $f)->values()->all(),
+            'fields' => collect($fields)->map(fn ($f) => (array) $f)->values()->all(),
             'exported_at' => now()->toIso8601String(),
         ];
 
-        $filename = 'form_template_' . $id . '_' . now()->format('Y-m-d_His') . '.json';
+        $filename = 'form_template_'.$id.'_'.now()->format('Y-m-d_His').'.json';
+
         return response()->json($payload, 200, [
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
@@ -289,7 +288,7 @@ class FormsController extends Controller
 
             if ($template) {
                 $newId = $this->service->createTemplate([
-                    'name' => $template->name . ' (Copy)',
+                    'name' => $template->name.' (Copy)',
                     'description' => $template->description,
                     'form_type' => $template->form_type,
                     'config' => json_decode($template->config ?? '{}', true),
@@ -372,13 +371,13 @@ class FormsController extends Controller
         if ($repositoryId) {
             $query->where(function ($q) use ($repositoryId) {
                 $q->whereNull('repository_id')
-                  ->orWhere('repository_id', $repositoryId);
+                    ->orWhere('repository_id', $repositoryId);
             });
         }
 
         $template = $query->orderByDesc('is_default')->first();
 
-        if (!$template) {
+        if (! $template) {
             return response()->json(['error' => 'No template found']);
         }
 

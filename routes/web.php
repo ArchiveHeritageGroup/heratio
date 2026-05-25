@@ -34,6 +34,7 @@ Route::post('/set-locale', function (\Illuminate\Http\Request $request) {
     $response = (! preg_match('#^https?://#i', $redirectTo) || str_starts_with($redirectTo, $request->getSchemeAndHttpHost()))
         ? redirect($redirectTo)
         : redirect('/');
+
     // Year-long cookie so the locale survives logout / new sessions
     // (mirrors AtoM's atom_culture cookie). Cleared by sending culture=en.
     return $response->cookie('locale', $culture, 60 * 24 * 365, '/', null, true, false, false, 'lax');
@@ -81,9 +82,9 @@ Route::get('/admin/ahgSettings', fn () => redirect('/admin/settings'));
 Route::get('/admin/ahgSetting', fn () => redirect('/admin/settings'));
 Route::get('/settings', fn () => redirect('/admin/settings'));
 Route::get('/index.php/settings', fn () => redirect('/admin/settings'));
-Route::get('/settings/{page}', fn (string $page) => redirect('/admin/settings/' . \Illuminate\Support\Str::kebab($page)));
-Route::get('/display/browse', fn (\Illuminate\Http\Request $r) => redirect('/glam/browse?' . $r->getQueryString()));
-Route::get('/index.php/settings/{page}', fn (string $page) => redirect('/admin/settings/' . \Illuminate\Support\Str::kebab($page)));
+Route::get('/settings/{page}', fn (string $page) => redirect('/admin/settings/'.\Illuminate\Support\Str::kebab($page)));
+Route::get('/display/browse', fn (\Illuminate\Http\Request $r) => redirect('/glam/browse?'.$r->getQueryString()));
+Route::get('/index.php/settings/{page}', fn (string $page) => redirect('/admin/settings/'.\Illuminate\Support\Str::kebab($page)));
 Route::get('/admin/description-updates', fn () => redirect('/search/descriptionUpdates'));
 Route::get('/admin/global-replace', fn () => redirect('/search/globalReplace'));
 Route::get('/home', fn () => redirect('/'));
@@ -114,7 +115,7 @@ Route::get('/version', function () {
     if (is_file($head)) {
         $ref = trim((string) file_get_contents($head));
         if (str_starts_with($ref, 'ref: ')) {
-            $refFile = base_path('.git/' . substr($ref, 5));
+            $refFile = base_path('.git/'.substr($ref, 5));
             if (is_file($refFile)) {
                 $data['git_commit'] = substr(trim((string) file_get_contents($refFile)), 0, 12);
             }
@@ -122,6 +123,7 @@ Route::get('/version', function () {
             $data['git_commit'] = substr($ref, 0, 12);
         }
     }
+
     return response()->json($data)->header('Cache-Control', 'no-store, max-age=0');
 })->name('version');
 

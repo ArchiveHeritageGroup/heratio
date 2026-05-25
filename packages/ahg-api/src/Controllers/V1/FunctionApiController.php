@@ -60,7 +60,7 @@ class FunctionApiController extends Controller
             ->select('fo.*', 'fo_i18n.*', 'slug.slug', 'object.created_at', 'object.updated_at')
             ->first();
 
-        if (!$fn) {
+        if (! $fn) {
             return response()->json(['error' => 'Not found'], 404);
         }
 

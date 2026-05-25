@@ -28,9 +28,9 @@ class SearchUpdateCommand extends Command
 
     protected array $tables = [
         'informationobject' => 'information_object',
-        'actor'             => 'actor',
-        'term'              => 'term',
-        'repository'        => 'repository',
+        'actor' => 'actor',
+        'term' => 'term',
+        'repository' => 'repository',
     ];
 
     public function handle(): int
@@ -44,7 +44,11 @@ class SearchUpdateCommand extends Command
 
         $total = 0;
         foreach ($types as $type) {
-            if (! isset($this->tables[$type])) { $this->warn("unknown type: {$type}"); continue; }
+            if (! isset($this->tables[$type])) {
+                $this->warn("unknown type: {$type}");
+
+                continue;
+            }
             $table = $this->tables[$type];
             $ids = DB::table($table)->where('updated_at', '>=', $since)->pluck('id');
             $this->info("{$type}: {$ids->count()} records since {$since->toIso8601String()}");
@@ -54,6 +58,7 @@ class SearchUpdateCommand extends Command
             }
         }
         $this->info("indexed={$total}");
+
         return self::SUCCESS;
     }
 }

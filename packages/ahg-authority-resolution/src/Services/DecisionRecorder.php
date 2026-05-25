@@ -47,7 +47,7 @@ class DecisionRecorder
             ->where('mention_id', $mentionId)
             ->first();
 
-        if (!$candidate) {
+        if (! $candidate) {
             throw new \RuntimeException("candidate {$candidateId} not found for mention {$mentionId}");
         }
 
@@ -57,10 +57,12 @@ class DecisionRecorder
             if ($candidate->candidate_authority_id !== null) {
                 $this->backUpdateNerEntity($mentionId, (int) $candidate->candidate_authority_id);
             }
+
             return $id;
         });
 
         $this->writeProvenance($decisionId);
+
         return $decisionId;
     }
 
@@ -70,10 +72,12 @@ class DecisionRecorder
             $id = $this->insertDecision($mentionId, $userId, 'link_different', null, $authorityId, null);
             $this->setMentionState($mentionId, 'linked');
             $this->backUpdateNerEntity($mentionId, $authorityId);
+
             return $id;
         });
 
         $this->writeProvenance($decisionId);
+
         return $decisionId;
     }
 
@@ -93,10 +97,12 @@ class DecisionRecorder
             if ($newAuthorityId !== null) {
                 $this->backUpdateNerEntity($mentionId, $newAuthorityId);
             }
+
             return $id;
         });
 
         $this->writeProvenance($decisionId);
+
         return $decisionId;
     }
 
@@ -121,6 +127,7 @@ class DecisionRecorder
         });
 
         $this->writeProvenance($decisionId);
+
         return $decisionId;
     }
 
@@ -142,6 +149,7 @@ class DecisionRecorder
         $decisionId = DB::transaction(function () use ($mentionId, $userId) {
             $id = $this->insertDecision($mentionId, $userId, 'reject', null, null, null);
             $this->setMentionState($mentionId, 'rejected');
+
             return $id;
         });
 
@@ -199,7 +207,7 @@ class DecisionRecorder
         }
 
         $topScore = $originalTopScore;
-        if ($topScore === null && !empty($candidates)) {
+        if ($topScore === null && ! empty($candidates)) {
             $topScore = $candidates[0]->composite_score;
         }
 
@@ -244,7 +252,7 @@ class DecisionRecorder
     {
         try {
             $result = $this->provenanceWriter->write($decisionId);
-            if (!($result['ok'] ?? false)) {
+            if (! ($result['ok'] ?? false)) {
                 Log::warning('DecisionRecorder: provenance write returned not-ok', [
                     'decision_id' => $decisionId,
                     'error' => $result['error'] ?? 'unknown',

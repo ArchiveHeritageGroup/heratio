@@ -53,6 +53,7 @@ trait InformationObjectFetcher
         if (empty($io->repository_id)) {
             return null;
         }
+
         return DB::table('repository')
             ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
             ->where('repository.id', $io->repository_id)
@@ -66,7 +67,7 @@ trait InformationObjectFetcher
         return DB::table('event')
             ->leftJoin('event_i18n', function ($j) use ($culture) {
                 $j->on('event.id', '=', 'event_i18n.id')
-                  ->where('event_i18n.culture', $culture);
+                    ->where('event_i18n.culture', $culture);
             })
             ->where('event.object_id', $io->id)
             ->select('event.id', 'event.type_id', 'event.actor_id',
@@ -117,6 +118,7 @@ trait InformationObjectFetcher
         if (empty($io->level_of_description_id)) {
             return null;
         }
+
         return DB::table('term_i18n')
             ->where('id', $io->level_of_description_id)
             ->where('culture', $culture)
@@ -167,6 +169,7 @@ trait InformationObjectFetcher
             'Series' => 'series', 'Sub-series' => 'subseries', 'File' => 'file',
             'Item' => 'item', 'Part' => 'item',
         ];
+
         return $map[$level ?? ''] ?? 'otherlevel';
     }
 }

@@ -11,7 +11,9 @@ class Term extends Model
     use HasI18n, HasNestedSet;
 
     protected $table = 'term';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -47,6 +49,8 @@ class Term extends Model
 
     // Rights basis IDs
     const RIGHT_BASIS_COPYRIGHT_ID = 170;
+
     const RIGHT_BASIS_LICENSE_ID = 171;
+
     const RIGHT_BASIS_STATUTE_ID = 172;
 }

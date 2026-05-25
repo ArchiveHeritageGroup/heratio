@@ -5,6 +5,4 @@ namespace AhgShareLink\Services;
 /**
  * @phase C
  */
-class InvalidRequestException extends ShareLinkException
-{
-}
+class InvalidRequestException extends ShareLinkException {}

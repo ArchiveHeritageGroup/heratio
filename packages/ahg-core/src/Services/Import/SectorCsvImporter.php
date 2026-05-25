@@ -32,27 +32,38 @@ abstract class SectorCsvImporter
 {
     // Taxonomy IDs (matching AtoM database)
     const TAXONOMY_LEVEL_OF_DESCRIPTION = 34;
+
     const TAXONOMY_SUBJECT = 35;
+
     const TAXONOMY_PLACE = 42;
+
     const TAXONOMY_GENRE = 78;
 
     // Event type IDs
     const EVENT_TYPE_CREATION = 111;
+
     const EVENT_TYPE_PUBLICATION = 114;
 
     // Status IDs
     const STATUS_TYPE_PUBLICATION = 158;
+
     const STATUS_DRAFT = 159;
 
     // Job status IDs
     const JOB_STATUS_IN_PROGRESS = 183;
+
     const JOB_STATUS_COMPLETED = 184;
+
     const JOB_STATUS_ERROR = 185;
 
     protected string $culture = 'en';
+
     protected ?int $repositoryId = null;
+
     protected array $customMapping = [];
+
     protected string $updateMode = 'skip';
+
     protected string $matchField = 'legacyId';
 
     protected array $counters = [
@@ -64,7 +75,9 @@ abstract class SectorCsvImporter
     ];
 
     protected array $errors = [];
+
     protected array $legacyIdMap = [];
+
     protected int $jobRecordId = 0;
 
     // Callback for progress reporting (used by artisan commands)
@@ -73,8 +86,11 @@ abstract class SectorCsvImporter
     // ─── Abstract methods (sector-specific) ─────────────────────────
 
     abstract public function getColumnMap(): array;
+
     abstract public function getRequiredColumns(): array;
+
     abstract public function getSectorName(): string;
+
     abstract public function getStandard(): string;
 
     /**
@@ -103,12 +119,14 @@ abstract class SectorCsvImporter
     public function setCulture(string $culture): self
     {
         $this->culture = $culture;
+
         return $this;
     }
 
     public function setRepositoryId(?int $repositoryId): self
     {
         $this->repositoryId = $repositoryId;
+
         return $this;
     }
 
@@ -118,30 +136,35 @@ abstract class SectorCsvImporter
         if ($slugRecord) {
             $this->repositoryId = $slugRecord->object_id;
         }
+
         return $this;
     }
 
     public function setUpdateMode(string $mode): self
     {
         $this->updateMode = $mode;
+
         return $this;
     }
 
     public function setMatchField(string $field): self
     {
         $this->matchField = $field;
+
         return $this;
     }
 
     public function setCustomMapping(array $mapping): self
     {
         $this->customMapping = $mapping;
+
         return $this;
     }
 
     public function setProgressCallback(\Closure $callback): self
     {
         $this->progressCallback = $callback;
+
         return $this;
     }
 
@@ -163,13 +186,14 @@ abstract class SectorCsvImporter
     public function validate(string $filename): array
     {
         $handle = fopen($filename, 'r');
-        if (!$handle) {
+        if (! $handle) {
             return ['valid' => false, 'errors' => ['Cannot open file'], 'warnings' => [], 'total' => 0];
         }
 
         $header = fgetcsv($handle);
-        if (!$header) {
+        if (! $header) {
             fclose($handle);
+
             return ['valid' => false, 'errors' => ['Empty file or no header row'], 'warnings' => [], 'total' => 0];
         }
 
@@ -187,7 +211,7 @@ abstract class SectorCsvImporter
         }
 
         foreach ($required as $req) {
-            if (!in_array($req, $mappedHeaders)) {
+            if (! in_array($req, $mappedHeaders)) {
                 $errors[] = "Missing required column: {$req}";
             }
         }
@@ -200,7 +224,8 @@ abstract class SectorCsvImporter
             $total++;
 
             if (count($row) !== count($header)) {
-                $errors[] = "Row {$rowNumber}: column count mismatch (expected " . count($header) . ", got " . count($row) . ")";
+                $errors[] = "Row {$rowNumber}: column count mismatch (expected ".count($header).', got '.count($row).')';
+
                 continue;
             }
 
@@ -236,15 +261,17 @@ abstract class SectorCsvImporter
     public function import(string $filename, int $limit = PHP_INT_MAX, int $skip = 0): array
     {
         $handle = fopen($filename, 'r');
-        if (!$handle) {
+        if (! $handle) {
             $this->errors[] = "Cannot open file: {$filename}";
+
             return $this->counters;
         }
 
         $header = fgetcsv($handle);
-        if (!$header) {
+        if (! $header) {
             $this->errors[] = 'Empty file or no header row';
             fclose($handle);
+
             return $this->counters;
         }
 
@@ -265,6 +292,7 @@ abstract class SectorCsvImporter
                 if (count($row) !== count($header)) {
                     $this->errors[] = "Row {$rowNumber}: column count mismatch";
                     $this->counters['errors']++;
+
                     continue;
                 }
 
@@ -293,6 +321,7 @@ abstract class SectorCsvImporter
         }
 
         fclose($handle);
+
         return $this->counters;
     }
 
@@ -306,6 +335,7 @@ abstract class SectorCsvImporter
             if ($this->updateMode === 'skip') {
                 return 'skipped';
             }
+
             return $this->updateRecord($existingId, $data);
         }
 
@@ -348,7 +378,7 @@ abstract class SectorCsvImporter
                 ->select('rgt')
                 ->first();
 
-            if (!$parent) {
+            if (! $parent) {
                 throw new \RuntimeException("Parent ID {$parentId} not found");
             }
 
@@ -404,7 +434,7 @@ abstract class SectorCsvImporter
             $slug = $baseSlug;
             $counter = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter++;
+                $slug = $baseSlug.'-'.$counter++;
             }
             DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
 
@@ -418,7 +448,7 @@ abstract class SectorCsvImporter
 
             // Save keymap for legacy ID tracking
             $legacyId = $data['legacyId'] ?? null;
-            if (!empty($legacyId)) {
+            if (! empty($legacyId)) {
                 $this->saveKeymap($objectId, $legacyId);
                 $this->legacyIdMap[$legacyId] = $objectId;
             }
@@ -442,18 +472,18 @@ abstract class SectorCsvImporter
             $ioUpdate = array_filter([
                 'identifier' => $identifier,
                 'level_of_description_id' => $levelId,
-            ], fn($v) => $v !== null);
+            ], fn ($v) => $v !== null);
 
-            if (!empty($ioUpdate)) {
+            if (! empty($ioUpdate)) {
                 DB::table('information_object')->where('id', $id)->update($ioUpdate);
             }
 
             // Update i18n fields
             if ($this->updateMode !== 'merge') {
                 $i18nMap = $this->getI18nFieldMap($data);
-                $i18nUpdate = array_filter($i18nMap, fn($v) => $v !== null && $v !== '');
+                $i18nUpdate = array_filter($i18nMap, fn ($v) => $v !== null && $v !== '');
 
-                if (!empty($i18nUpdate)) {
+                if (! empty($i18nUpdate)) {
                     $exists = DB::table('information_object_i18n')
                         ->where('id', $id)
                         ->where('culture', $this->culture)
@@ -666,7 +696,7 @@ abstract class SectorCsvImporter
         $slug = $baseSlug;
         $counter = 1;
         while (DB::table('slug')->where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter++;
+            $slug = $baseSlug.'-'.$counter++;
         }
         DB::table('slug')->insert(['object_id' => $actorObjectId, 'slug' => $slug]);
 
@@ -677,7 +707,7 @@ abstract class SectorCsvImporter
 
     protected function createEvent(int $objectId, int $typeId, ?string $dateDisplay, ?string $startDate = null, ?string $endDate = null, ?int $actorId = null): void
     {
-        if (!$dateDisplay && !$startDate && !$actorId) {
+        if (! $dateDisplay && ! $startDate && ! $actorId) {
             return;
         }
 
@@ -745,6 +775,7 @@ abstract class SectorCsvImporter
         foreach ($map as $csvCol => $targetField) {
             $docs[$csvCol] = $targetField;
         }
+
         return $docs;
     }
 
@@ -757,12 +788,12 @@ abstract class SectorCsvImporter
             ->where('id', $mappingId)
             ->first();
 
-        if (!$mapping) {
+        if (! $mapping) {
             return $this;
         }
 
         $fieldMappings = json_decode($mapping->field_mappings ?? '[]', true);
-        if (!is_array($fieldMappings)) {
+        if (! is_array($fieldMappings)) {
             return $this;
         }
 

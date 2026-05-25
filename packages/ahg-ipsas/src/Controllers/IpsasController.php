@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgIpsas\Controllers;
 
 use AhgIpsas\Services\IpsasService;
@@ -37,7 +35,7 @@ class IpsasController extends Controller
 
     public function __construct()
     {
-        $this->service = new IpsasService();
+        $this->service = new IpsasService;
     }
 
     public function index()
@@ -254,7 +252,7 @@ class IpsasController extends Controller
     {
         $assets = $this->service->getAssets([]);
         $output = fopen('php://temp', 'r+');
-        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
         fputcsv($output, ['Asset #', 'Title', 'Category', 'Current Value', 'Status']);
 
         foreach ($assets as $a) {

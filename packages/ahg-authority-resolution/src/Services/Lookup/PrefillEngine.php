@@ -59,7 +59,7 @@ class PrefillEngine
     private array $adapters;
 
     /**
-     * @param iterable<LookupAdapterInterface> $adapters
+     * @param  iterable<LookupAdapterInterface>  $adapters
      */
     public function __construct(iterable $adapters)
     {
@@ -72,7 +72,7 @@ class PrefillEngine
     public function prefill(int $mentionId, ?string $forceSource = null, int $perSourceLimit = 5): array
     {
         $mention = $this->loadMention($mentionId);
-        if (!$mention) {
+        if (! $mention) {
             return [
                 'mention' => null,
                 'context' => null,
@@ -92,11 +92,11 @@ class PrefillEngine
                 if ($forceSource !== null && $adapter->source() !== $forceSource) {
                     continue;
                 }
-                if (!$adapter->supports($entityType)) {
+                if (! $adapter->supports($entityType)) {
                     continue;
                 }
                 $candidates = $adapter->search($query, $entityType, $perSourceLimit);
-                if (!empty($candidates)) {
+                if (! empty($candidates)) {
                     $lookupResults[$adapter->source()] = $candidates;
                 }
             }
@@ -117,7 +117,7 @@ class PrefillEngine
      * authority record. Highest-precedence source wins for any given
      * field. Each merged field carries provenance for the writer.
      *
-     * @param array<string, list<array<string,mixed>>> $lookupResults
+     * @param  array<string, list<array<string,mixed>>>  $lookupResults
      */
     private function mergeFields(array $lookupResults, string $entityType, object $mention, ?object $context): array
     {
@@ -150,26 +150,26 @@ class PrefillEngine
         // aren't already set (or were set from a lower-precedence source).
         $appliedRank = []; // field => rank index (lower is better)
         foreach ($precedence as $idx => $source) {
-            if (!isset($lookupResults[$source])) {
+            if (! isset($lookupResults[$source])) {
                 continue;
             }
             $candidate = $lookupResults[$source][0] ?? null;
-            if (!$candidate) {
+            if (! $candidate) {
                 continue;
             }
             $fields = is_array($candidate['fields'] ?? null) ? $candidate['fields'] : [];
 
             // Promote a couple of top-level fields too if subclasses didn't.
-            if (!empty($candidate['authorized_name']) && $isPlace === false && !isset($fields['authorized_form_of_name'])) {
+            if (! empty($candidate['authorized_name']) && $isPlace === false && ! isset($fields['authorized_form_of_name'])) {
                 $fields['authorized_form_of_name'] = (string) $candidate['authorized_name'];
             }
-            if (!empty($candidate['authorized_name']) && $isPlace && !isset($fields['name'])) {
+            if (! empty($candidate['authorized_name']) && $isPlace && ! isset($fields['name'])) {
                 $fields['name'] = (string) $candidate['authorized_name'];
             }
-            if (!empty($candidate['dates_of_existence']) && !isset($fields['dates_of_existence'])) {
+            if (! empty($candidate['dates_of_existence']) && ! isset($fields['dates_of_existence'])) {
                 $fields['dates_of_existence'] = (string) $candidate['dates_of_existence'];
             }
-            if (!empty($candidate['history_snippet']) && !isset($fields['history'])) {
+            if (! empty($candidate['history_snippet']) && ! isset($fields['history'])) {
                 $fields['history'] = (string) $candidate['history_snippet'];
             }
 
@@ -195,8 +195,8 @@ class PrefillEngine
         }
 
         // Context-derived hints (no external source, just our own context packet).
-        if (!$isPlace && $context && empty($merged['history']) && !empty($context->surrounding_text_before)) {
-            $combined = trim((string) $context->surrounding_text_before . ' [' . ($mention->entity_value ?? '') . '] ' . (string) ($context->surrounding_text_after ?? ''));
+        if (! $isPlace && $context && empty($merged['history']) && ! empty($context->surrounding_text_before)) {
+            $combined = trim((string) $context->surrounding_text_before.' ['.($mention->entity_value ?? '').'] '.(string) ($context->surrounding_text_after ?? ''));
             if ($combined !== '') {
                 $merged['history'] = $combined;
                 $provenance['history'] = [
@@ -210,6 +210,7 @@ class PrefillEngine
         }
 
         $merged['_provenance'] = $provenance;
+
         return $merged;
     }
 
@@ -223,13 +224,14 @@ class PrefillEngine
         } catch (\Throwable $e) {
             return self::DEFAULT_PRECEDENCE;
         }
-        if (!is_string($raw) || $raw === '') {
+        if (! is_string($raw) || $raw === '') {
             return self::DEFAULT_PRECEDENCE;
         }
         $decoded = json_decode($raw, true);
-        if (!is_array($decoded) || empty($decoded)) {
+        if (! is_array($decoded) || empty($decoded)) {
             return self::DEFAULT_PRECEDENCE;
         }
+
         return array_values(array_filter(array_map('strval', $decoded)));
     }
 

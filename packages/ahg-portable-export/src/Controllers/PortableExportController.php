@@ -48,6 +48,7 @@ class PortableExportController extends Controller
                 ->all();
         }
         $v = $cache[$key] ?? null;
+
         return ($v === null || $v === '') ? $default : $v;
     }
 
@@ -55,7 +56,10 @@ class PortableExportController extends Controller
     private function settingBool(string $key, bool $default): bool
     {
         $v = $this->setting($key, null);
-        if ($v === null) return $default;
+        if ($v === null) {
+            return $default;
+        }
+
         return in_array(strtolower((string) $v), ['1', 'true', 'yes', 'on'], true);
     }
 
@@ -67,7 +71,7 @@ class PortableExportController extends Controller
      */
     private function abortIfDisabled(): void
     {
-        if (!$this->settingBool('portable_export_enabled', true)) {
+        if (! $this->settingBool('portable_export_enabled', true)) {
             abort(404, 'Portable Export is disabled.');
         }
     }
@@ -102,13 +106,13 @@ class PortableExportController extends Controller
         // operator sees the install-wide policy without having to click
         // through every option on every export.
         $defaults = [
-            'culture'            => (string) $this->setting('portable_export_default_culture', $culture),
-            'mode'               => (string) $this->setting('portable_export_default_mode', 'read_only'),
-            'include_masters'    => $this->settingBool('portable_export_include_masters', false),
+            'culture' => (string) $this->setting('portable_export_default_culture', $culture),
+            'mode' => (string) $this->setting('portable_export_default_mode', 'read_only'),
+            'include_masters' => $this->settingBool('portable_export_include_masters', false),
             'include_thumbnails' => $this->settingBool('portable_export_include_thumbnails', true),
             'include_references' => $this->settingBool('portable_export_include_references', true),
-            'include_objects'    => $this->settingBool('portable_export_include_objects', true),
-            'max_size_mb'        => (int) $this->setting('portable_export_max_size_mb', 2048),
+            'include_objects' => $this->settingBool('portable_export_include_objects', true),
+            'max_size_mb' => (int) $this->setting('portable_export_max_size_mb', 2048),
         ];
 
         return view('ahg-portable-export::index', [
@@ -128,6 +132,7 @@ class PortableExportController extends Controller
     public function import(Request $request)
     {
         $this->abortIfDisabled();
+
         return view('ahg-portable-export::import');
     }
 
@@ -135,13 +140,14 @@ class PortableExportController extends Controller
     {
         $this->abortIfDisabled();
         $id = (int) $request->query('id');
-        if (!$id || !Schema::hasTable('portable_export')) {
+        if (! $id || ! Schema::hasTable('portable_export')) {
             abort(404);
         }
         $export = DB::table('portable_export')->where('id', $id)->first();
-        if (!$export || empty($export->output_path) || !file_exists($export->output_path)) {
+        if (! $export || empty($export->output_path) || ! file_exists($export->output_path)) {
             abort(404, 'Export file not found');
         }
+
         return response()->download($export->output_path);
     }
 
@@ -149,7 +155,7 @@ class PortableExportController extends Controller
 
     public function apiStart(Request $request): JsonResponse
     {
-        if (!$this->settingBool('portable_export_enabled', true)) {
+        if (! $this->settingBool('portable_export_enabled', true)) {
             return response()->json(['success' => false, 'error' => 'Portable Export is disabled.'], 403);
         }
 
@@ -160,15 +166,15 @@ class PortableExportController extends Controller
         // (portable_export_default_mode); same for culture + the include_*
         // flags. This honours operator-set policy without forcing the
         // wizard JS to repeat every default in its POST body.
-        $mode    = $data['mode']    ?? (string) $this->setting('portable_export_default_mode',    'read_only');
+        $mode = $data['mode'] ?? (string) $this->setting('portable_export_default_mode', 'read_only');
         $culture = $data['culture'] ?? (string) $this->setting('portable_export_default_culture', app()->getLocale());
 
-        $includeMasters    = array_key_exists('include_masters',    $data) ? !empty($data['include_masters'])    : $this->settingBool('portable_export_include_masters',    false);
-        $includeThumbnails = array_key_exists('include_thumbnails', $data) ? !empty($data['include_thumbnails']) : $this->settingBool('portable_export_include_thumbnails', true);
-        $includeReferences = array_key_exists('include_references', $data) ? !empty($data['include_references']) : $this->settingBool('portable_export_include_references', true);
-        $includeObjects    = array_key_exists('include_objects',    $data) ? !empty($data['include_objects'])    : $this->settingBool('portable_export_include_objects',    true);
+        $includeMasters = array_key_exists('include_masters', $data) ? ! empty($data['include_masters']) : $this->settingBool('portable_export_include_masters', false);
+        $includeThumbnails = array_key_exists('include_thumbnails', $data) ? ! empty($data['include_thumbnails']) : $this->settingBool('portable_export_include_thumbnails', true);
+        $includeReferences = array_key_exists('include_references', $data) ? ! empty($data['include_references']) : $this->settingBool('portable_export_include_references', true);
+        $includeObjects = array_key_exists('include_objects', $data) ? ! empty($data['include_objects']) : $this->settingBool('portable_export_include_objects', true);
 
-        if (!Schema::hasTable('portable_export')) {
+        if (! Schema::hasTable('portable_export')) {
             return response()->json([
                 'success' => false,
                 'error' => 'portable_export table does not exist — install the package schema first.',
@@ -203,10 +209,10 @@ class PortableExportController extends Controller
         // without us adding a new column. The legacy entity_types form key
         // is folded into the same JSON for backwards compat.
         $scopeItems = null;
-        if (!empty($data['scope_items']) && is_array($data['scope_items'])) {
-            $scopeItems = ['items' => array_values(array_filter(array_map('strval', $data['scope_items']))) ];
+        if (! empty($data['scope_items']) && is_array($data['scope_items'])) {
+            $scopeItems = ['items' => array_values(array_filter(array_map('strval', $data['scope_items'])))];
         }
-        if (!empty($data['entity_types'])) {
+        if (! empty($data['entity_types'])) {
             $scopeItems = $scopeItems ?? [];
             $scopeItems['entity_types'] = is_array($data['entity_types']) ? $data['entity_types'] : preg_split('/[\s,]+/', (string) $data['entity_types'], -1, PREG_SPLIT_NO_EMPTY);
         }
@@ -239,7 +245,7 @@ class PortableExportController extends Controller
         try {
             \Illuminate\Support\Facades\Artisan::queue('ahg:portable-export-worker', ['--id' => $id]);
         } catch (\Throwable $e) {
-            \Log::warning('apiStart could not queue worker: ' . $e->getMessage(), ['export_id' => $id]);
+            \Log::warning('apiStart could not queue worker: '.$e->getMessage(), ['export_id' => $id]);
         }
 
         return response()->json([
@@ -273,19 +279,21 @@ class PortableExportController extends Controller
         $digitalObjects = DB::table('digital_object')->count();
         // Same coefficients as apiEstimate (5KB per IO record, 250KB per DO).
         $estBytes = $descriptions * 5_000 + $digitalObjects * 250_000;
+
         return $estBytes / 1048576;
     }
 
     public function apiProgress(Request $request): JsonResponse
     {
         $id = (int) $request->query('id');
-        if (!$id || !Schema::hasTable('portable_export')) {
+        if (! $id || ! Schema::hasTable('portable_export')) {
             return response()->json(['status' => 'unknown']);
         }
         $row = DB::table('portable_export')->where('id', $id)->first();
-        if (!$row) {
+        if (! $row) {
             return response()->json(['status' => 'unknown']);
         }
+
         return response()->json([
             'status' => $row->status,
             'progress' => (int) ($row->progress ?? 0),
@@ -327,7 +335,7 @@ class PortableExportController extends Controller
 
         $estBytes = $descriptions * 5_000 + $digitalObjects * 250_000;
         $estMb = $estBytes / 1048576;
-        $estSize = $estMb >= 1024 ? round($estMb / 1024, 1) . ' GB' : round($estMb, 1) . ' MB';
+        $estSize = $estMb >= 1024 ? round($estMb / 1024, 1).' GB' : round($estMb, 1).' MB';
         $estDuration = max(1, (int) round($descriptions / 200 + $digitalObjects / 100));
 
         return response()->json([
@@ -358,8 +366,8 @@ class PortableExportController extends Controller
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.parent_id', 1) // top-level fonds/collections
             ->where(function ($w) use ($q) {
-                $w->where('ioi.title', 'LIKE', '%' . $q . '%')
-                  ->orWhere('io.identifier', 'LIKE', '%' . $q . '%');
+                $w->where('ioi.title', 'LIKE', '%'.$q.'%')
+                    ->orWhere('io.identifier', 'LIKE', '%'.$q.'%');
             })
             ->select(['ioi.title', 'io.identifier', 'slug.slug'])
             ->limit(15)
@@ -371,21 +379,22 @@ class PortableExportController extends Controller
     public function apiDelete(Request $request): JsonResponse
     {
         $id = (int) $request->input('id');
-        if (!$id || !Schema::hasTable('portable_export')) {
+        if (! $id || ! Schema::hasTable('portable_export')) {
             return response()->json(['success' => false, 'error' => 'Not found'], 404);
         }
         $row = DB::table('portable_export')->where('id', $id)->first();
-        if ($row && !empty($row->output_path) && file_exists($row->output_path)) {
+        if ($row && ! empty($row->output_path) && file_exists($row->output_path)) {
             @unlink($row->output_path);
         }
         DB::table('portable_export')->where('id', $id)->delete();
+
         return response()->json(['success' => true]);
     }
 
     public function apiToken(Request $request): JsonResponse
     {
         $id = (int) $request->input('id');
-        if (!$id) {
+        if (! $id) {
             return response()->json(['success' => false, 'error' => 'Missing id'], 400);
         }
         $token = bin2hex(random_bytes(16));
@@ -405,7 +414,7 @@ class PortableExportController extends Controller
 
         return response()->json([
             'success' => true,
-            'download_url' => url('/portable-export/share/' . $token),
+            'download_url' => url('/portable-export/share/'.$token),
         ]);
     }
 }

@@ -37,7 +37,7 @@ class ShareLinkInjector
         $response = $next($request);
 
         try {
-            if (!$this->isInjectionCandidate($request, $response)) {
+            if (! $this->isInjectionCandidate($request, $response)) {
                 return $response;
             }
 
@@ -46,7 +46,7 @@ class ShareLinkInjector
                 return $response;
             }
 
-            if (!$this->userCanCreate($userId)) {
+            if (! $this->userCanCreate($userId)) {
                 return $response;
             }
 
@@ -67,7 +67,7 @@ class ShareLinkInjector
             }
         } catch (\Throwable $e) {
             // Never break a show-page render on injection failure.
-            \Log::warning('ahg-share-link ShareLinkInjector error: ' . $e->getMessage());
+            \Log::warning('ahg-share-link ShareLinkInjector error: '.$e->getMessage());
         }
 
         return $response;
@@ -79,10 +79,11 @@ class ShareLinkInjector
             return false;
         }
         $contentType = (string) $response->headers->get('Content-Type', '');
-        if ($contentType !== '' && !str_starts_with($contentType, 'text/html')) {
+        if ($contentType !== '' && ! str_starts_with($contentType, 'text/html')) {
             return false;
         }
         $status = $response->getStatusCode();
+
         return $status >= 200 && $status < 300;
     }
 
@@ -107,7 +108,7 @@ class ShareLinkInjector
         } catch (\Throwable $e) {
             return null;
         }
-        if (!$row || empty($row->object_id)) {
+        if (! $row || empty($row->object_id)) {
             return null;
         }
         $objectId = (int) $row->object_id;
@@ -117,13 +118,14 @@ class ShareLinkInjector
         } catch (\Throwable $e) {
             return null;
         }
+
         return $isIo ? $objectId : null;
     }
 
     private function userCanCreate(int $userId): bool
     {
         try {
-            return (new AclCheck())->canUserDo($userId, AclCheck::ACTION_CREATE);
+            return (new AclCheck)->canUserDo($userId, AclCheck::ACTION_CREATE);
         } catch (\Throwable $e) {
             return false;
         }
@@ -136,24 +138,24 @@ class ShareLinkInjector
         $issueUrlEsc = htmlspecialchars($issueUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $csrfEsc = htmlspecialchars($csrfToken, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
-        $tShare  = $this->esc(__('Share this record'));
+        $tShare = $this->esc(__('Share this record'));
         $tShareModal = $this->esc(__('Share record'));
-        $tClose  = $this->esc(__('Close'));
+        $tClose = $this->esc(__('Close'));
         $tCancel = $this->esc(__('Cancel'));
         $tCreate = $this->esc(__('Create share link'));
         $tExpires = $this->esc(__('Expires on'));
-        $tEmail   = $this->esc(__('Recipient email'));
-        $tNote    = $this->esc(__('Note for recipient'));
-        $tMax     = $this->esc(__('Max visits'));
-        $tCopy    = $this->esc(__('Copy link'));
-        $tCopied  = $this->esc(__('Copied'));
-        $tHelp    = $this->esc(__('Anyone with this link can view the record until it expires.'));
+        $tEmail = $this->esc(__('Recipient email'));
+        $tNote = $this->esc(__('Note for recipient'));
+        $tMax = $this->esc(__('Max visits'));
+        $tCopy = $this->esc(__('Copy link'));
+        $tCopied = $this->esc(__('Copied'));
+        $tHelp = $this->esc(__('Anyone with this link can view the record until it expires.'));
         $tMaxNote = $this->esc(__('Maximum expiry is 90 days unless your account has an extended-expiry permission.'));
 
         $banner = '<div class="ahg-share-link-banner mb-2">'
-            . '<button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ahgShareLinkModal">'
-            . '<i class="fas fa-share-alt me-1"></i>' . $tShare
-            . '</button></div>';
+            .'<button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#ahgShareLinkModal">'
+            .'<i class="fas fa-share-alt me-1"></i>'.$tShare
+            .'</button></div>';
 
         $modal = <<<HTML
 <div class="modal fade" id="ahgShareLinkModal" tabindex="-1" aria-hidden="true">
@@ -274,7 +276,7 @@ class ShareLinkInjector
 </script>
 HTML;
 
-        return $banner . $modal;
+        return $banner.$modal;
     }
 
     /**
@@ -290,11 +292,12 @@ HTML;
         ];
         foreach ($patterns as $pattern) {
             $count = 0;
-            $replaced = preg_replace($pattern, '$1' . $payload, $body, 1, $count);
+            $replaced = preg_replace($pattern, '$1'.$payload, $body, 1, $count);
             if ($count > 0 && is_string($replaced)) {
                 return $replaced;
             }
         }
+
         return null;
     }
 
@@ -310,11 +313,12 @@ HTML;
         try {
             $nonce = app('csp-nonce');
             if (is_string($nonce) && $nonce !== '') {
-                return 'nonce="' . htmlspecialchars($nonce, ENT_QUOTES | ENT_HTML5, 'UTF-8') . '"';
+                return 'nonce="'.htmlspecialchars($nonce, ENT_QUOTES | ENT_HTML5, 'UTF-8').'"';
             }
         } catch (\Throwable $e) {
             // fall through
         }
+
         return '';
     }
 

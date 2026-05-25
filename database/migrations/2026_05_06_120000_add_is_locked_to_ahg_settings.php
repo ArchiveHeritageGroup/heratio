@@ -22,18 +22,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('ahg_settings')) {
+        if (! Schema::hasTable('ahg_settings')) {
             return;
         }
-        if (!Schema::hasColumn('ahg_settings', 'is_locked')) {
-            DB::statement("ALTER TABLE ahg_settings ADD COLUMN is_locked TINYINT(1) NOT NULL DEFAULT 0 AFTER is_sensitive");
+        if (! Schema::hasColumn('ahg_settings', 'is_locked')) {
+            DB::statement('ALTER TABLE ahg_settings ADD COLUMN is_locked TINYINT(1) NOT NULL DEFAULT 0 AFTER is_sensitive');
         }
     }
 
     public function down(): void
     {
         if (Schema::hasTable('ahg_settings') && Schema::hasColumn('ahg_settings', 'is_locked')) {
-            DB::statement("ALTER TABLE ahg_settings DROP COLUMN is_locked");
+            DB::statement('ALTER TABLE ahg_settings DROP COLUMN is_locked');
         }
     }
 };

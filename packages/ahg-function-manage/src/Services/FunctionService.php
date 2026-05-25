@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgFunctionManage\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -45,7 +43,7 @@ class FunctionService
     public function getBySlug(string $slug): ?object
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId) {
+        if (! $objectId) {
             return null;
         }
 
@@ -54,7 +52,9 @@ class FunctionService
 
     // AtoM term IDs for other_name types
     protected const PARALLEL_FORM_OF_NAME_ID = 148;
+
     protected const OTHER_FORM_OF_NAME_ID = 149;
+
     // AtoM term ID for maintenance note
     protected const MAINTENANCE_NOTE_ID = 127;
 
@@ -96,7 +96,7 @@ class FunctionService
             ])
             ->first();
 
-        if (!$row) {
+        if (! $row) {
             return null;
         }
 
@@ -233,7 +233,7 @@ class FunctionService
      */
     public function getTermName(?int $termId): ?string
     {
-        if (!$termId) {
+        if (! $termId) {
             return null;
         }
 
@@ -287,17 +287,17 @@ class FunctionService
             ]);
 
             // 4. Save parallel_name to other_name table
-            if (!empty($data['parallel_name'])) {
+            if (! empty($data['parallel_name'])) {
                 $this->saveOtherName($id, self::PARALLEL_FORM_OF_NAME_ID, $data['parallel_name']);
             }
 
             // 5. Save other_name to other_name table
-            if (!empty($data['other_name'])) {
+            if (! empty($data['other_name'])) {
                 $this->saveOtherName($id, self::OTHER_FORM_OF_NAME_ID, $data['other_name']);
             }
 
             // 6. Save maintenance_notes to note table
-            if (!empty($data['maintenance_notes'])) {
+            if (! empty($data['maintenance_notes'])) {
                 $this->saveMaintenanceNote($id, $data['maintenance_notes']);
             }
 
@@ -306,7 +306,7 @@ class FunctionService
             $slug = $baseSlug;
             $counter = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter;
+                $slug = $baseSlug.'-'.$counter;
                 $counter++;
             }
             DB::table('slug')->insert([
@@ -335,7 +335,7 @@ class FunctionService
                     $functionUpdate[$field] = $data[$field];
                 }
             }
-            if (!empty($functionUpdate)) {
+            if (! empty($functionUpdate)) {
                 DB::table('function_object')->where('id', $id)->update($functionUpdate);
             }
 
@@ -351,7 +351,7 @@ class FunctionService
                     $i18nData[$field] = $data[$field];
                 }
             }
-            if (!empty($i18nData)) {
+            if (! empty($i18nData)) {
                 $exists = DB::table('function_object_i18n')
                     ->where('id', $id)
                     ->where('culture', $this->culture)
@@ -405,7 +405,7 @@ class FunctionService
                 ->orWhere('object_id', $id)
                 ->pluck('id')
                 ->toArray();
-            if (!empty($relationIds)) {
+            if (! empty($relationIds)) {
                 DB::table('relation_i18n')->whereIn('id', $relationIds)->delete();
                 DB::table('relation')->whereIn('id', $relationIds)->delete();
                 DB::table('slug')->whereIn('object_id', $relationIds)->delete();
@@ -414,7 +414,7 @@ class FunctionService
 
             // 2. Delete notes
             $noteIds = DB::table('note')->where('object_id', $id)->pluck('id')->toArray();
-            if (!empty($noteIds)) {
+            if (! empty($noteIds)) {
                 DB::table('note_i18n')->whereIn('id', $noteIds)->delete();
                 DB::table('note')->whereIn('id', $noteIds)->delete();
                 DB::table('object')->whereIn('id', $noteIds)->delete();
@@ -473,7 +473,7 @@ class FunctionService
             ->first();
 
         if ($existing) {
-            if (!empty($name)) {
+            if (! empty($name)) {
                 // Update existing
                 $i18nExists = DB::table('other_name_i18n')
                     ->where('id', $existing->id)
@@ -497,7 +497,7 @@ class FunctionService
                 DB::table('other_name_i18n')->where('id', $existing->id)->delete();
                 DB::table('other_name')->where('id', $existing->id)->delete();
             }
-        } elseif (!empty($name)) {
+        } elseif (! empty($name)) {
             $this->saveOtherName($objectId, $typeId, $name);
         }
     }
@@ -532,7 +532,7 @@ class FunctionService
             ->first();
 
         if ($existing) {
-            if (!empty($content)) {
+            if (! empty($content)) {
                 $i18nExists = DB::table('note_i18n')
                     ->where('id', $existing->id)
                     ->where('culture', $this->culture)
@@ -555,7 +555,7 @@ class FunctionService
                 DB::table('note_i18n')->where('id', $existing->id)->delete();
                 DB::table('note')->where('id', $existing->id)->delete();
             }
-        } elseif (!empty($content)) {
+        } elseif (! empty($content)) {
             $this->saveMaintenanceNote($objectId, $content);
         }
     }

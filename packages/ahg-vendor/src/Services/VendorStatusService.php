@@ -25,15 +25,15 @@ class VendorStatusService
 {
     /** UX fallback icons — overridden by ahg_dropdown.icon or metadata.icon when set. */
     protected const ICON_FALLBACK = [
-        'pending_approval'     => 'clock',
-        'approved'             => 'check',
-        'dispatched'           => 'truck',
-        'received_by_vendor'   => 'building',
-        'in_progress'          => 'spinner',
-        'completed'            => 'check-circle',
+        'pending_approval' => 'clock',
+        'approved' => 'check',
+        'dispatched' => 'truck',
+        'received_by_vendor' => 'building',
+        'in_progress' => 'spinner',
+        'completed' => 'check-circle',
         'ready_for_collection' => 'box',
-        'returned'             => 'undo',
-        'cancelled'            => 'times',
+        'returned' => 'undo',
+        'cancelled' => 'times',
     ];
 
     /**
@@ -50,18 +50,21 @@ class VendorStatusService
             ?? (self::ICON_FALLBACK[$code] ?? 'question');
 
         return [
-            'code'      => $code,
-            'label'     => $row->label ?? ucfirst(str_replace('_', ' ', $code)),
+            'code' => $code,
+            'label' => $row->label ?? ucfirst(str_replace('_', ' ', $code)),
             'color_hex' => $hex,
-            'color'     => $this->bootstrapClass($hex),
-            'icon'      => $icon,
+            'color' => $this->bootstrapClass($hex),
+            'icon' => $icon,
         ];
     }
 
     /** All active rows of the given taxonomy, keyed by code. */
     public function options(string $taxonomy = 'vendor_transaction_status'): array
     {
-        if (! Schema::hasTable('ahg_dropdown')) return [];
+        if (! Schema::hasTable('ahg_dropdown')) {
+            return [];
+        }
+
         return DB::table('ahg_dropdown')
             ->where('taxonomy', $taxonomy)
             ->where('is_active', 1)
@@ -73,7 +76,10 @@ class VendorStatusService
 
     protected function row(string $code, string $taxonomy): ?object
     {
-        if (! Schema::hasTable('ahg_dropdown')) return null;
+        if (! Schema::hasTable('ahg_dropdown')) {
+            return null;
+        }
+
         return DB::table('ahg_dropdown')
             ->where('taxonomy', $taxonomy)
             ->where('code', $code)
@@ -83,16 +89,19 @@ class VendorStatusService
     /** Map a hex colour to the closest Bootstrap-5 contextual class. */
     protected function bootstrapClass(?string $hex): string
     {
-        if (! $hex) return 'secondary';
+        if (! $hex) {
+            return 'secondary';
+        }
         $hex = strtolower(ltrim($hex, '#'));
+
         return match ($hex) {
             '28a745', '20c997', '8bc34a', '4caf50' => 'success',
-            'dc3545', 'f44336', 'ff5722'           => 'danger',
-            'ffc107', 'fd7e14', 'ff9800'           => 'warning',
-            '17a2b8', '6f42c1'                     => 'info',
-            '007bff', '0d6efd'                     => 'primary',
-            '343a40', '212529'                     => 'dark',
-            default                                => 'secondary',
+            'dc3545', 'f44336', 'ff5722' => 'danger',
+            'ffc107', 'fd7e14', 'ff9800' => 'warning',
+            '17a2b8', '6f42c1' => 'info',
+            '007bff', '0d6efd' => 'primary',
+            '343a40', '212529' => 'dark',
+            default => 'secondary',
         };
     }
 }

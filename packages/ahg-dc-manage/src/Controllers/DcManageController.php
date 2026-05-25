@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgDcManage\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -41,7 +39,6 @@ class DcManageController extends Controller
      * locationOfOriginals, placeAccessPoints, repository, scopeAndContent,
      * subjectAccessPoints, title, type (DC type taxonomy 62).
      */
-
     public function edit(Request $request, string $slug)
     {
         $culture = app()->getLocale();
@@ -93,7 +90,7 @@ class DcManageController extends Controller
             ])
             ->first();
 
-        if (!$io) {
+        if (! $io) {
             abort(404);
         }
 
@@ -107,7 +104,7 @@ class DcManageController extends Controller
             DB::table('information_object')
                 ->where('id', $io->id)
                 ->update([
-                    'identifier'    => $request->input('identifier'),
+                    'identifier' => $request->input('identifier'),
                     'repository_id' => $request->input('repository_id') ?: null,
                     'source_standard' => 'Dublin Core Simple version 1.1',
                 ]);
@@ -123,10 +120,10 @@ class DcManageController extends Controller
                 ->where('id', $io->id)
                 ->where('culture', $culture)
                 ->update([
-                    'title'                => $request->input('title'),
-                    'extent_and_medium'    => $request->input('extent_and_medium'),
-                    'scope_and_content'    => $request->input('scope_and_content'),
-                    'access_conditions'    => $request->input('access_conditions'),
+                    'title' => $request->input('title'),
+                    'extent_and_medium' => $request->input('extent_and_medium'),
+                    'scope_and_content' => $request->input('scope_and_content'),
+                    'access_conditions' => $request->input('access_conditions'),
                     'location_of_originals' => $request->input('location_of_originals'),
                 ]);
 
@@ -258,7 +255,7 @@ class DcManageController extends Controller
 
         // Parent info
         $parentTitle = null;
-        $parentSlug  = null;
+        $parentSlug = null;
         if ($io->parent_id && $io->parent_id != 1) {
             $parent = DB::table('information_object')
                 ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
@@ -269,22 +266,22 @@ class DcManageController extends Controller
                 ->first();
             if ($parent) {
                 $parentTitle = $parent->title;
-                $parentSlug  = $parent->slug;
+                $parentSlug = $parent->slug;
             }
         }
 
         return view('dc-manage::edit', array_merge(
             [
-                'io'                   => $io,
-                'events'               => $events,
-                'creators'             => $creators,
-                'subjects'             => $subjects,
-                'places'               => $places,
-                'dcTypes'              => $dcTypes,
-                'publicationStatusId'  => $publicationStatusId,
-                'materialLanguages'    => $materialLanguages,
-                'parentTitle'          => $parentTitle,
-                'parentSlug'           => $parentSlug,
+                'io' => $io,
+                'events' => $events,
+                'creators' => $creators,
+                'subjects' => $subjects,
+                'places' => $places,
+                'dcTypes' => $dcTypes,
+                'publicationStatusId' => $publicationStatusId,
+                'materialLanguages' => $materialLanguages,
+                'parentTitle' => $parentTitle,
+                'parentSlug' => $parentSlug,
             ],
             $dropdowns
         ));
@@ -364,16 +361,16 @@ class DcManageController extends Controller
                 ->where('id', $existing->id)
                 ->where('culture', $culture)
                 ->update(['value' => $serialized]);
-        } elseif (!empty($values)) {
+        } elseif (! empty($values)) {
             $propId = DB::table('property')->insertGetId([
-                'object_id'      => $objectId,
-                'name'           => $name,
+                'object_id' => $objectId,
+                'name' => $name,
                 'source_culture' => $culture,
             ]);
             DB::table('property_i18n')->insert([
-                'id'      => $propId,
+                'id' => $propId,
                 'culture' => $culture,
-                'value'   => $serialized,
+                'value' => $serialized,
             ]);
         }
     }

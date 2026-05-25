@@ -2,9 +2,9 @@
 
 namespace AhgRecordsManage\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Carbon\Carbon;
 
 class RecordDeclarationService
 {
@@ -16,7 +16,7 @@ class RecordDeclarationService
      */
     public function declareRecord(int $ioId, int $userId): ?int
     {
-        if (!Schema::hasTable('record_declaration')) {
+        if (! Schema::hasTable('record_declaration')) {
             return null;
         }
 
@@ -74,6 +74,7 @@ class RecordDeclarationService
                                 'workflow_task_id' => $taskId,
                                 'updated_at' => Carbon::now(),
                             ]);
+
                         return $taskId;
                     }
                 } catch (\Throwable $e) {
@@ -90,7 +91,7 @@ class RecordDeclarationService
      */
     public function approveDeclaration(int $ioId, int $userId): bool
     {
-        if (!Schema::hasTable('record_declaration')) {
+        if (! Schema::hasTable('record_declaration')) {
             return false;
         }
 
@@ -114,7 +115,7 @@ class RecordDeclarationService
      */
     public function isRecord(int $ioId): bool
     {
-        if (!Schema::hasTable('record_declaration')) {
+        if (! Schema::hasTable('record_declaration')) {
             return false;
         }
 
@@ -129,7 +130,7 @@ class RecordDeclarationService
      */
     public function getRecordStatus(int $ioId): ?string
     {
-        if (!Schema::hasTable('record_declaration')) {
+        if (! Schema::hasTable('record_declaration')) {
             return null;
         }
 
@@ -153,7 +154,7 @@ class RecordDeclarationService
      */
     public function getPendingDeclarations(): array
     {
-        if (!Schema::hasTable('record_declaration')) {
+        if (! Schema::hasTable('record_declaration')) {
             return [];
         }
 
@@ -181,7 +182,7 @@ class RecordDeclarationService
      */
     private function getDeclarationsByStatus(string $status, int $page = 1, int $perPage = 25): array
     {
-        if (!Schema::hasTable('record_declaration')) {
+        if (! Schema::hasTable('record_declaration')) {
             return ['data' => [], 'total' => 0, 'page' => $page, 'per_page' => $perPage];
         }
 
@@ -198,10 +199,10 @@ class RecordDeclarationService
         $total = $query->count();
 
         $data = $query->select([
-                'rd.*',
-                'io_i18n.title as io_title',
-                'u.username as declared_by_name',
-            ])
+            'rd.*',
+            'io_i18n.title as io_title',
+            'u.username as declared_by_name',
+        ])
             ->orderBy('rd.created_at', 'desc')
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
@@ -221,7 +222,7 @@ class RecordDeclarationService
      */
     public function getAllDeclarations(int $page = 1, int $perPage = 25): array
     {
-        if (!Schema::hasTable('record_declaration')) {
+        if (! Schema::hasTable('record_declaration')) {
             return ['data' => [], 'total' => 0, 'page' => $page, 'per_page' => $perPage];
         }
 
@@ -237,10 +238,10 @@ class RecordDeclarationService
         $total = $query->count();
 
         $data = $query->select([
-                'rd.*',
-                'io_i18n.title as io_title',
-                'u.username as declared_by_name',
-            ])
+            'rd.*',
+            'io_i18n.title as io_title',
+            'u.username as declared_by_name',
+        ])
             ->orderBy('rd.created_at', 'desc')
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)

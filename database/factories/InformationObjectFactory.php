@@ -49,20 +49,20 @@ class InformationObjectFactory extends Factory
                         'title' => fake()->sentence(4),
                     ]);
                 }
-                
+
                 // Ensure slug exists
-                $title = $io->i18n()->where('culture', 'en')->value('title') ?? 'io-' . $io->id;
+                $title = $io->i18n()->where('culture', 'en')->value('title') ?? 'io-'.$io->id;
                 $slugBase = \Illuminate\Support\Str::slug($title);
                 $slug = $slugBase;
                 $counter = 1;
                 while (\DB::table('slug')->where('slug', $slug)->where('object_id', '!=', $io->id)->exists()) {
-                    $slug = $slugBase . '-' . $counter++;
+                    $slug = $slugBase.'-'.$counter++;
                 }
                 \DB::table('slug')->insert([
                     'slug' => $slug,
                     'object_id' => $io->id,
                 ]);
-                
+
                 // Ensure status exists (published)
                 if (! \DB::table('status')->where('object_id', $io->id)->exists()) {
                     \DB::table('status')->insert([
@@ -83,8 +83,11 @@ class InformationObjectFactory extends Factory
 
     // Real term IDs from taxonomy 34 (Levels of description)
     const LEVEL_COLLECTION = 238;
+
     const LEVEL_SERIES = 239;
+
     const LEVEL_FILE = 241;
+
     const LEVEL_ITEM = 242;
 
     public function collection(): static

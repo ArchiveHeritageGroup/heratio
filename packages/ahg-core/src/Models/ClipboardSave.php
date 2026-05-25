@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ClipboardSave extends Model
 {
     protected $table = 'clipboard_save';
+
     public $timestamps = false;
 
     protected $fillable = ['user_id', 'password', 'created_at'];

@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\DB;
  * to /usr/share/nginx/archive/atom-ahg-plugins/ahgVersionControlPlugin/database/install.sql
  * (modulo the header line). Mirror schemas across surfaces.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
-        $sql = file_get_contents(__DIR__ . '/../install.sql');
+        $sql = file_get_contents(__DIR__.'/../install.sql');
         if ($sql === false) {
             throw new \RuntimeException('Cannot read ahg-version-control install.sql');
         }

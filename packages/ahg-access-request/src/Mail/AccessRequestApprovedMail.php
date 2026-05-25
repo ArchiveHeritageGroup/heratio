@@ -45,7 +45,7 @@ class AccessRequestApprovedMail extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Access request approved - #' . $this->request->id);
+        return new Envelope(subject: 'Access request approved - #'.$this->request->id);
     }
 
     public function content(): Content
@@ -53,5 +53,8 @@ class AccessRequestApprovedMail extends Mailable implements ShouldQueue
         return new Content(view: 'ahg-access-request::emails.approved');
     }
 
-    public function attachments(): array { return []; }
+    public function attachments(): array
+    {
+        return [];
+    }
 }

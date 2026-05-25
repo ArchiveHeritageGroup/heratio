@@ -26,10 +26,14 @@ class CacheXmlPurgeCommand extends Command
         // 1. metadata_export_log: completed export rows past retention.
         if (Schema::hasTable('metadata_export_log')) {
             $q = DB::table('metadata_export_log');
-            if ($format) $q = $q->where('format', strtolower($format));
-            if ($days)   $q = $q->where('completed_at', '<', now()->subDays((int) $days));
+            if ($format) {
+                $q = $q->where('format', strtolower($format));
+            }
+            if ($days) {
+                $q = $q->where('completed_at', '<', now()->subDays((int) $days));
+            }
             $count = (int) (clone $q)->count();
-            $this->info("[metadata_export_log] eligible={$count}" . ($dry ? ' (dry-run)' : ''));
+            $this->info("[metadata_export_log] eligible={$count}".($dry ? ' (dry-run)' : ''));
             if (! $dry && $count > 0) {
                 $totalDeleted += (int) $q->delete();
             }
@@ -47,6 +51,7 @@ class CacheXmlPurgeCommand extends Command
         }
 
         $this->info("done; total_deleted={$totalDeleted}");
+
         return self::SUCCESS;
     }
 }

@@ -26,6 +26,7 @@ class CronRunCommand extends Command
 
         if ($due->isEmpty()) {
             $this->info('No schedules due.');
+
             return self::SUCCESS;
         }
 
@@ -33,6 +34,7 @@ class CronRunCommand extends Command
             $this->info("Due schedules ({$due->count()}):");
             $rows = $due->map(fn ($s) => [$s->slug, $s->artisan_command, $s->cron_expression, $s->next_run_at]);
             $this->table(['Slug', 'Command', 'Cron', 'Next Run'], $rows->toArray());
+
             return self::SUCCESS;
         }
 
@@ -57,6 +59,7 @@ class CronRunCommand extends Command
         $failed = collect($results)->where('status', 'failed')->count();
         if ($failed > 0) {
             $this->warn("{$failed} job(s) failed.");
+
             return self::FAILURE;
         }
 
@@ -69,13 +72,15 @@ class CronRunCommand extends Command
             ->where('slug', $slug)
             ->first();
 
-        if (!$schedule) {
+        if (! $schedule) {
             $this->error("Schedule not found: {$slug}");
+
             return self::FAILURE;
         }
 
         if ($dryRun) {
             $this->info("Would run: {$schedule->artisan_command} (cron: {$schedule->cron_expression})");
+
             return self::SUCCESS;
         }
 

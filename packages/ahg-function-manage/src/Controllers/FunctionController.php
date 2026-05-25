@@ -23,14 +23,12 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgFunctionManage\Controllers;
 
-use AhgFunctionManage\Services\FunctionBrowseService;
-use AhgFunctionManage\Services\FunctionService;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
+use AhgFunctionManage\Services\FunctionBrowseService;
+use AhgFunctionManage\Services\FunctionService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -64,6 +62,7 @@ class FunctionController extends Controller
             $doc['type_name'] = isset($doc['type_id']) && $doc['type_id']
                 ? DB::table('term_i18n')->where('id', $doc['type_id'])->where('culture', $culture)->value('name')
                 : null;
+
             return $doc;
         })->toArray();
 
@@ -81,7 +80,7 @@ class FunctionController extends Controller
     public function show(string $slug)
     {
         $function = $this->service->getBySlug($slug);
-        if (!$function) {
+        if (! $function) {
             abort(404);
         }
 
@@ -121,7 +120,7 @@ class FunctionController extends Controller
     public function edit(string $slug)
     {
         $function = $this->service->getBySlug($slug);
-        if (!$function) {
+        if (! $function) {
             abort(404);
         }
 
@@ -175,7 +174,7 @@ class FunctionController extends Controller
     public function update(Request $request, string $slug)
     {
         $function = $this->service->getBySlug($slug);
-        if (!$function) {
+        if (! $function) {
             abort(404);
         }
 
@@ -218,7 +217,7 @@ class FunctionController extends Controller
     public function confirmDelete(string $slug)
     {
         $function = $this->service->getBySlug($slug);
-        if (!$function) {
+        if (! $function) {
             abort(404);
         }
 
@@ -230,7 +229,7 @@ class FunctionController extends Controller
     public function destroy(Request $request, string $slug)
     {
         $function = $this->service->getBySlug($slug);
-        if (!$function) {
+        if (! $function) {
             abort(404);
         }
 

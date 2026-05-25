@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgMetadataExport\Controllers;
 
 use Illuminate\Http\Request;
@@ -39,23 +37,23 @@ class MetadataExportController extends Controller
     public function index()
     {
         $formats = [
-            'dc'       => ['name' => 'Dublin Core (RDF/XML)', 'icon' => 'bi-file-earmark-code'],
-            'mods'     => ['name' => 'MODS (XML)', 'icon' => 'bi-file-earmark-code'],
-            'ead'      => ['name' => 'EAD 2002 (XML)', 'icon' => 'bi-file-earmark-code'],
-            'eac'      => ['name' => 'EAC-CPF (XML)', 'icon' => 'bi-file-earmark-code'],
-            'eac2'     => ['name' => 'EAC-CPF 2.0 (XML)', 'icon' => 'bi-file-earmark-code'],
-            'ead4'     => ['name' => 'EAD 4 (XML)', 'icon' => 'bi-file-earmark-code'],
-            'eac-f'    => ['name' => 'EAC-F Functions (XML)', 'icon' => 'bi-file-earmark-code'],
-            'eag'      => ['name' => 'EAG 3.0 (XML)', 'icon' => 'bi-file-earmark-code'],
-            'json-ld'  => ['name' => 'JSON-LD', 'icon' => 'bi-braces'],
-            'turtle'   => ['name' => 'Turtle (TTL)', 'icon' => 'bi-file-earmark-text'],
+            'dc' => ['name' => 'Dublin Core (RDF/XML)', 'icon' => 'bi-file-earmark-code'],
+            'mods' => ['name' => 'MODS (XML)', 'icon' => 'bi-file-earmark-code'],
+            'ead' => ['name' => 'EAD 2002 (XML)', 'icon' => 'bi-file-earmark-code'],
+            'eac' => ['name' => 'EAC-CPF (XML)', 'icon' => 'bi-file-earmark-code'],
+            'eac2' => ['name' => 'EAC-CPF 2.0 (XML)', 'icon' => 'bi-file-earmark-code'],
+            'ead4' => ['name' => 'EAD 4 (XML)', 'icon' => 'bi-file-earmark-code'],
+            'eac-f' => ['name' => 'EAC-F Functions (XML)', 'icon' => 'bi-file-earmark-code'],
+            'eag' => ['name' => 'EAG 3.0 (XML)', 'icon' => 'bi-file-earmark-code'],
+            'json-ld' => ['name' => 'JSON-LD', 'icon' => 'bi-braces'],
+            'turtle' => ['name' => 'Turtle (TTL)', 'icon' => 'bi-file-earmark-text'],
             'ntriples' => ['name' => 'N-Triples', 'icon' => 'bi-file-earmark-text'],
         ];
 
         $repositories = DB::table('repository')
             ->join('actor_i18n', function ($join) {
                 $join->on('repository.id', '=', 'actor_i18n.id')
-                     ->where('actor_i18n.culture', '=', 'en');
+                    ->where('actor_i18n.culture', '=', 'en');
             })
             ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
             ->orderBy('actor_i18n.authorized_form_of_name')
@@ -86,7 +84,7 @@ class MetadataExportController extends Controller
         $repositories = DB::table('repository')
             ->join('actor_i18n', function ($join) {
                 $join->on('repository.id', '=', 'actor_i18n.id')
-                     ->where('actor_i18n.culture', '=', 'en');
+                    ->where('actor_i18n.culture', '=', 'en');
             })
             ->select('repository.id', 'actor_i18n.authorized_form_of_name as authorizedFormOfName', 'repository.id')
             ->orderBy('actor_i18n.authorized_form_of_name')

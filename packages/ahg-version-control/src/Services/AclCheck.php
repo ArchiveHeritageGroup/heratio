@@ -12,10 +12,13 @@ use Illuminate\Support\Facades\DB;
 
 class AclCheck
 {
-    public const ACTION_LIST                = 'version.list';
-    public const ACTION_DIFF                = 'version.diff';
-    public const ACTION_RESTORE             = 'version.restore';
-    public const ACTION_RESTORE_CLASSIFIED  = 'version.restore_classified';
+    public const ACTION_LIST = 'version.list';
+
+    public const ACTION_DIFF = 'version.diff';
+
+    public const ACTION_RESTORE = 'version.restore';
+
+    public const ACTION_RESTORE_CLASSIFIED = 'version.restore_classified';
 
     private const ACL_GROUP_ADMINISTRATOR = 100;
 
@@ -50,6 +53,7 @@ class AclCheck
             if ($groupGrant) {
                 return true;
             }
+
             return DB::table('acl_permission')
                 ->whereIn('group_id', $groups)
                 ->whereNull('action')
@@ -74,6 +78,7 @@ class AclCheck
         } catch (\Throwable $e) {
             self::$groupCache[$userId] = [];
         }
+
         return self::$groupCache[$userId];
     }
 }

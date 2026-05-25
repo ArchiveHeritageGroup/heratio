@@ -31,39 +31,39 @@ class DiscoverySimulateCommand extends Command
 
     public function handle(DiscoverySimulatedQueryService $svc): int
     {
-        $n      = max(1, (int) $this->option('n'));
-        $seed   = (int) $this->option('seed');
-        $runId  = (string) ($this->option('run-id') ?: 'ts-' . time());
-        $qPath  = (string) $this->option('qrels-out');
+        $n = max(1, (int) $this->option('n'));
+        $seed = (int) $this->option('seed');
+        $runId = (string) ($this->option('run-id') ?: 'ts-'.time());
+        $qPath = (string) $this->option('qrels-out');
         $persist = (bool) $this->option('persist');
-        $print   = (bool) $this->option('print');
+        $print = (bool) $this->option('print');
 
         // Scale per-type counts to total $n while preserving the 30/40/20/10 ratio.
         $base = ['title' => 30, 'subject' => 40, 'scope_np' => 20, 'typo' => 10];
         $factor = $n / array_sum($base);
-        $counts = array_map(fn($v) => max(1, (int) round($v * $factor)), $base);
+        $counts = array_map(fn ($v) => max(1, (int) round($v * $factor)), $base);
 
-        $this->info("[discovery-simulate] generating " . array_sum($counts) . " queries (seed={$seed}, run_id={$runId})");
+        $this->info('[discovery-simulate] generating '.array_sum($counts)." queries (seed={$seed}, run_id={$runId})");
         $records = $svc->generate($counts, $seed);
 
         // --- write qrels CSV (matches issue #16 schema) ---
         $this->writeQrelsCsv($qPath, $records);
-        $this->info('  wrote qrels: ' . realpath($qPath));
+        $this->info('  wrote qrels: '.realpath($qPath));
 
         // --- persist one row per query into the side table ---
         if ($persist) {
             $rows = [];
             foreach ($records as $r) {
                 $rows[] = [
-                    'run_id'              => $runId,
-                    'query_id'            => $r['query_id'],
-                    'query_text'          => mb_substr($r['query_text'], 0, 500),
-                    'query_type'          => $r['query_type'],
+                    'run_id' => $runId,
+                    'query_id' => $r['query_id'],
+                    'query_text' => mb_substr($r['query_text'], 0, 500),
+                    'query_type' => $r['query_type'],
                     'expected_object_ids' => json_encode($r['expected_object_ids']),
                 ];
             }
             DB::table('ahg_discovery_simulated_run')->insert($rows);
-            $this->info('  persisted ' . count($rows) . ' rows to ahg_discovery_simulated_run (run_id=' . $runId . ')');
+            $this->info('  persisted '.count($rows).' rows to ahg_discovery_simulated_run (run_id='.$runId.')');
         }
 
         // --- print samples to stdout ---
@@ -71,7 +71,7 @@ class DiscoverySimulateCommand extends Command
             $this->line('');
             foreach (['title', 'subject', 'scope_np', 'typo'] as $type) {
                 $this->line("[{$type}]");
-                foreach (array_filter($records, fn($r) => $r['query_type'] === $type) as $r) {
+                foreach (array_filter($records, fn ($r) => $r['query_type'] === $type) as $r) {
                     $gt = count($r['expected_object_ids']);
                     $this->line(sprintf('  %s  %-40s  ground_truth=%d', $r['query_id'], $r['query_text'], $gt));
                 }
@@ -84,7 +84,9 @@ class DiscoverySimulateCommand extends Command
     private function writeQrelsCsv(string $path, array $records): void
     {
         $dir = dirname($path);
-        if (! is_dir($dir)) mkdir($dir, 0775, true);
+        if (! is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
         $fh = fopen($path, 'w');
         fputcsv($fh, ['query_id', 'query_text', 'query_type', 'object_id', 'relevance']);
         foreach ($records as $r) {

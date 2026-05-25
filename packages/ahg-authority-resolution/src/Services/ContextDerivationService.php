@@ -36,24 +36,25 @@ namespace AhgAuthorityResolution\Services;
 class ContextDerivationService
 {
     private const SURROUNDING_TEXT_WINDOW = 150;
+
     private const ROLE_LANGUAGE_CHAR_WINDOW = 120;
 
     private const PLACE_TYPES = ['GPE', 'LOC', 'PLACE', 'ISAD_PLACE'];
+
     private const DATE_TYPES = ['DATE', 'ISAD_DATE'];
 
     /**
      * Derive the full context packet for a mention.
      *
-     * @param string $sourceText      Full source text (e.g. IO scope_and_content + adjacent fields, concatenated)
-     * @param string $mentionValue    The entity value being resolved (e.g. "Nelson Mandela")
-     * @param string $mentionType     Entity type (PERSON / ORG / GPE / etc.)
-     * @param list<array{ner_entity_id:int,value:string,type:string}> $otherEntities
-     * @param array<string,list<string>> $roleLanguageTokens  e.g. ['kinship' => ['son of', 'daughter of'], ...]
-     * @param array{start:int,end:int}|null $knownOffset  Exact character offsets supplied by the
-     *                                                    upstream NER API (entities_v2). When given,
-     *                                                    skips the lossy stripos scan entirely and
-     *                                                    treats the mention as occurring exactly once.
-     *
+     * @param  string  $sourceText  Full source text (e.g. IO scope_and_content + adjacent fields, concatenated)
+     * @param  string  $mentionValue  The entity value being resolved (e.g. "Nelson Mandela")
+     * @param  string  $mentionType  Entity type (PERSON / ORG / GPE / etc.)
+     * @param  list<array{ner_entity_id:int,value:string,type:string}>  $otherEntities
+     * @param  array<string,list<string>>  $roleLanguageTokens  e.g. ['kinship' => ['son of', 'daughter of'], ...]
+     * @param  array{start:int,end:int}|null  $knownOffset  Exact character offsets supplied by the
+     *                                                      upstream NER API (entities_v2). When given,
+     *                                                      skips the lossy stripos scan entirely and
+     *                                                      treats the mention as occurring exactly once.
      * @return array{
      *   character_offset_start: int|null,
      *   character_offset_end: int|null,
@@ -136,6 +137,7 @@ class ContextDerivationService
             $found[] = [$pos, $pos + $needleLen];
             $offset = $pos + $needleLen;
         }
+
         return $found;
     }
 
@@ -185,8 +187,8 @@ class ContextDerivationService
     }
 
     /**
-     * @param array{start:int,end:int,text:string} $paragraph
-     * @param list<array{ner_entity_id:int,value:string,type:string}> $others
+     * @param  array{start:int,end:int,text:string}  $paragraph
+     * @param  list<array{ner_entity_id:int,value:string,type:string}>  $others
      * @return list<array>
      */
     private function findEntitiesInParagraph(array $paragraph, array $others, int $mentionAbsOffset): array
@@ -211,6 +213,7 @@ class ContextDerivationService
                 'distance_chars' => abs($pos - $mentionInPara),
             ];
         }
+
         return $hits;
     }
 
@@ -219,7 +222,7 @@ class ContextDerivationService
     {
         return array_values(array_filter(
             $entities,
-            fn($e) => in_array($e['type'] ?? '', $types, true)
+            fn ($e) => in_array($e['type'] ?? '', $types, true)
         ));
     }
 
@@ -228,13 +231,13 @@ class ContextDerivationService
     {
         return array_values(array_filter(
             $entities,
-            fn($e) => !in_array($e['type'] ?? '', $types, true)
+            fn ($e) => ! in_array($e['type'] ?? '', $types, true)
         ));
     }
 
     /**
-     * @param array{start:int,end:int,text:string} $paragraph
-     * @param array<string,list<string>> $tokenList
+     * @param  array{start:int,end:int,text:string}  $paragraph
+     * @param  array<string,list<string>>  $tokenList
      * @return list<array{token:string,kind:string,position_offset:int,distance_chars:int}>
      */
     private function findRoleLanguage(array $paragraph, int $mentionAbsOffset, array $tokenList): array
@@ -244,11 +247,11 @@ class ContextDerivationService
         $mentionInPara = $mentionAbsOffset - $paragraph['start'];
 
         foreach ($tokenList as $kind => $tokens) {
-            if (!is_array($tokens)) {
+            if (! is_array($tokens)) {
                 continue;
             }
             foreach ($tokens as $token) {
-                if (!is_string($token) || $token === '') {
+                if (! is_string($token) || $token === '') {
                     continue;
                 }
                 $offset = 0;
@@ -266,6 +269,7 @@ class ContextDerivationService
                 }
             }
         }
+
         return $hits;
     }
 

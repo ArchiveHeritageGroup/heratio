@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgIcip\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -45,84 +43,84 @@ class IcipController extends Controller
 
     // Consent status options
     const CONSENT_STATUSES = [
-        'not_required'              => 'Not Required',
-        'pending_consultation'      => 'Pending Consultation',
-        'consultation_in_progress'  => 'Consultation in Progress',
-        'conditional_consent'       => 'Conditional Consent',
-        'full_consent'              => 'Full Consent',
-        'restricted_consent'        => 'Restricted Consent',
-        'denied'                    => 'Denied',
-        'unknown'                   => 'Unknown',
+        'not_required' => 'Not Required',
+        'pending_consultation' => 'Pending Consultation',
+        'consultation_in_progress' => 'Consultation in Progress',
+        'conditional_consent' => 'Conditional Consent',
+        'full_consent' => 'Full Consent',
+        'restricted_consent' => 'Restricted Consent',
+        'denied' => 'Denied',
+        'unknown' => 'Unknown',
     ];
 
     // Consent scope options
     const CONSENT_SCOPES = [
         'preservation_only' => 'Preservation Only',
-        'internal_access'   => 'Internal Access',
-        'public_access'     => 'Public Access',
-        'reproduction'      => 'Reproduction',
-        'commercial_use'    => 'Commercial Use',
-        'educational_use'   => 'Educational Use',
-        'research_use'      => 'Research Use',
-        'full_rights'       => 'Full Rights',
+        'internal_access' => 'Internal Access',
+        'public_access' => 'Public Access',
+        'reproduction' => 'Reproduction',
+        'commercial_use' => 'Commercial Use',
+        'educational_use' => 'Educational Use',
+        'research_use' => 'Research Use',
+        'full_rights' => 'Full Rights',
     ];
 
     // Australian states/territories
     const STATE_TERRITORIES = [
-        'NSW'      => 'New South Wales',
-        'VIC'      => 'Victoria',
-        'QLD'      => 'Queensland',
-        'WA'       => 'Western Australia',
-        'SA'       => 'South Australia',
-        'TAS'      => 'Tasmania',
-        'NT'       => 'Northern Territory',
-        'ACT'      => 'Australian Capital Territory',
+        'NSW' => 'New South Wales',
+        'VIC' => 'Victoria',
+        'QLD' => 'Queensland',
+        'WA' => 'Western Australia',
+        'SA' => 'South Australia',
+        'TAS' => 'Tasmania',
+        'NT' => 'Northern Territory',
+        'ACT' => 'Australian Capital Territory',
         'External' => 'External Territories',
     ];
 
     // Restriction types
     const RESTRICTION_TYPES = [
         'community_permission_required' => 'Community Permission Required',
-        'gender_restricted_male'        => 'Men Only (Gender Restricted)',
-        'gender_restricted_female'      => 'Women Only (Gender Restricted)',
-        'initiated_only'                => 'Initiated Persons Only',
-        'seasonal'                      => 'Seasonal Restriction',
-        'mourning_period'               => 'Mourning Period',
-        'repatriation_pending'          => 'Repatriation Pending',
-        'under_consultation'            => 'Under Consultation',
-        'elder_approval_required'       => 'Elder Approval Required',
-        'custom'                        => 'Custom Restriction',
+        'gender_restricted_male' => 'Men Only (Gender Restricted)',
+        'gender_restricted_female' => 'Women Only (Gender Restricted)',
+        'initiated_only' => 'Initiated Persons Only',
+        'seasonal' => 'Seasonal Restriction',
+        'mourning_period' => 'Mourning Period',
+        'repatriation_pending' => 'Repatriation Pending',
+        'under_consultation' => 'Under Consultation',
+        'elder_approval_required' => 'Elder Approval Required',
+        'custom' => 'Custom Restriction',
     ];
 
     // Consultation types
     const CONSULTATION_TYPES = [
         'initial_contact' => 'Initial Contact',
         'consent_request' => 'Consent Request',
-        'access_request'  => 'Access Request',
-        'repatriation'    => 'Repatriation',
-        'digitisation'    => 'Digitisation',
-        'exhibition'      => 'Exhibition',
-        'publication'     => 'Publication',
-        'research'        => 'Research',
-        'general'         => 'General',
-        'follow_up'       => 'Follow Up',
+        'access_request' => 'Access Request',
+        'repatriation' => 'Repatriation',
+        'digitisation' => 'Digitisation',
+        'exhibition' => 'Exhibition',
+        'publication' => 'Publication',
+        'research' => 'Research',
+        'general' => 'General',
+        'follow_up' => 'Follow Up',
     ];
 
     // Consultation methods
     const CONSULTATION_METHODS = [
         'in_person' => 'In Person',
-        'phone'     => 'Phone',
-        'video'     => 'Video Conference',
-        'email'     => 'Email',
-        'letter'    => 'Letter',
-        'other'     => 'Other',
+        'phone' => 'Phone',
+        'video' => 'Video Conference',
+        'email' => 'Email',
+        'letter' => 'Letter',
+        'other' => 'Other',
     ];
 
     // Consultation statuses
     const CONSULTATION_STATUSES = [
-        'scheduled'          => 'Scheduled',
-        'completed'          => 'Completed',
-        'cancelled'          => 'Cancelled',
+        'scheduled' => 'Scheduled',
+        'completed' => 'Completed',
+        'cancelled' => 'Cancelled',
         'follow_up_required' => 'Follow Up Required',
     ];
 
@@ -135,13 +133,13 @@ class IcipController extends Controller
      */
     public function dashboard()
     {
-        if (!Schema::hasTable('icip_community')) {
+        if (! Schema::hasTable('icip_community')) {
             return view('icip::dashboard', [
-                'stats'                => [],
+                'stats' => [],
                 'pendingConsultations' => [],
-                'expiringConsents'     => [],
-                'recentConsultations'  => [],
-                'tablesExist'          => false,
+                'expiringConsents' => [],
+                'recentConsultations' => [],
+                'tablesExist' => false,
             ]);
         }
 
@@ -157,11 +155,11 @@ class IcipController extends Controller
             ->get();
 
         return view('icip::dashboard', [
-            'stats'                => $stats,
+            'stats' => $stats,
             'pendingConsultations' => $pendingConsultations,
-            'expiringConsents'     => $expiringConsents,
-            'recentConsultations'  => $recentConsultations,
-            'tablesExist'          => true,
+            'expiringConsents' => $expiringConsents,
+            'recentConsultations' => $recentConsultations,
+            'tablesExist' => true,
         ]);
     }
 
@@ -174,11 +172,11 @@ class IcipController extends Controller
      */
     public function communities(Request $request)
     {
-        if (!Schema::hasTable('icip_community')) {
+        if (! Schema::hasTable('icip_community')) {
             return view('icip::communities', [
                 'communities' => collect(),
-                'states'      => self::STATE_TERRITORIES,
-                'filters'     => ['state' => null, 'active_only' => '1', 'search' => null],
+                'states' => self::STATE_TERRITORIES,
+                'filters' => ['state' => null, 'active_only' => '1', 'search' => null],
                 'tablesExist' => false,
             ]);
         }
@@ -207,11 +205,11 @@ class IcipController extends Controller
 
         return view('icip::communities', [
             'communities' => $communities,
-            'states'      => self::STATE_TERRITORIES,
-            'filters'     => [
-                'state'       => $state,
+            'states' => self::STATE_TERRITORIES,
+            'filters' => [
+                'state' => $state,
                 'active_only' => $activeOnly,
-                'search'      => $search,
+                'search' => $search,
             ],
             'tablesExist' => true,
         ]);
@@ -227,51 +225,53 @@ class IcipController extends Controller
 
         if ($id) {
             $community = DB::table('icip_community')->where('id', $id)->first();
-            if (!$community) {
+            if (! $community) {
                 abort(404, 'Community not found');
             }
         }
 
         if ($request->isMethod('post')) {
             $request->validate([
-                'name'             => 'required|string|max:255',
-                'state_territory'  => 'required|string|max:47',
+                'name' => 'required|string|max:255',
+                'state_territory' => 'required|string|max:47',
             ]);
 
             $alternateNames = $request->input('alternate_names');
             $data = [
-                'name'                       => $request->input('name'),
-                'alternate_names'            => $alternateNames ? json_encode(array_filter(array_map('trim', explode(',', $alternateNames)))) : null,
-                'language_group'             => $request->input('language_group'),
-                'region'                     => $request->input('region'),
-                'state_territory'            => $request->input('state_territory'),
-                'contact_name'               => $request->input('contact_name'),
-                'contact_email'              => $request->input('contact_email'),
-                'contact_phone'              => $request->input('contact_phone'),
-                'contact_address'            => $request->input('contact_address'),
-                'native_title_reference'     => $request->input('native_title_reference'),
-                'prescribed_body_corporate'  => $request->input('prescribed_body_corporate'),
-                'pbc_contact_email'          => $request->input('pbc_contact_email'),
-                'notes'                      => $request->input('notes'),
-                'is_active'                  => $request->input('is_active', 0) ? 1 : 0,
-                'updated_at'                 => now(),
+                'name' => $request->input('name'),
+                'alternate_names' => $alternateNames ? json_encode(array_filter(array_map('trim', explode(',', $alternateNames)))) : null,
+                'language_group' => $request->input('language_group'),
+                'region' => $request->input('region'),
+                'state_territory' => $request->input('state_territory'),
+                'contact_name' => $request->input('contact_name'),
+                'contact_email' => $request->input('contact_email'),
+                'contact_phone' => $request->input('contact_phone'),
+                'contact_address' => $request->input('contact_address'),
+                'native_title_reference' => $request->input('native_title_reference'),
+                'prescribed_body_corporate' => $request->input('prescribed_body_corporate'),
+                'pbc_contact_email' => $request->input('pbc_contact_email'),
+                'notes' => $request->input('notes'),
+                'is_active' => $request->input('is_active', 0) ? 1 : 0,
+                'updated_at' => now(),
             ];
 
             if ($id) {
                 DB::table('icip_community')->where('id', $id)->update($data);
+
                 return redirect()->route('ahgicip.communities')->with('notice', 'Community updated successfully.');
             } else {
                 $data['created_by'] = auth()->id();
                 $data['created_at'] = now();
                 DB::table('icip_community')->insert($data);
+
                 return redirect()->route('ahgicip.communities')->with('notice', 'Community created successfully.');
             }
         }
 
         return view('icip::community-edit', [
-            'id'        => $id,
+            'id' => $id,
             'community' => $community,
-            'states'    => self::STATE_TERRITORIES,
+            'states' => self::STATE_TERRITORIES,
         ]);
     }
 
@@ -283,7 +283,7 @@ class IcipController extends Controller
         $id = $request->query('id');
         $community = DB::table('icip_community')->where('id', $id)->first();
 
-        if (!$community) {
+        if (! $community) {
             abort(404, 'Community not found');
         }
 
@@ -306,11 +306,11 @@ class IcipController extends Controller
             ->get();
 
         return view('icip::community-view', [
-            'id'             => $id,
-            'community'      => $community,
-            'consents'       => $consents,
-            'consultations'  => $consultations,
-            'states'         => self::STATE_TERRITORIES,
+            'id' => $id,
+            'community' => $community,
+            'consents' => $consents,
+            'consultations' => $consultations,
+            'states' => self::STATE_TERRITORIES,
         ]);
     }
 
@@ -344,13 +344,13 @@ class IcipController extends Controller
      */
     public function consentList(Request $request)
     {
-        if (!Schema::hasTable('icip_consent')) {
+        if (! Schema::hasTable('icip_consent')) {
             return view('icip::consent-list', [
-                'consents'      => collect(),
+                'consents' => collect(),
                 'statusOptions' => self::CONSENT_STATUSES,
-                'communities'   => collect(),
-                'filters'       => ['status' => null, 'community_id' => null],
-                'tablesExist'   => false,
+                'communities' => collect(),
+                'filters' => ['status' => null, 'community_id' => null],
+                'tablesExist' => false,
             ]);
         }
 
@@ -386,14 +386,14 @@ class IcipController extends Controller
             ->get();
 
         return view('icip::consent-list', [
-            'consents'      => $consents,
+            'consents' => $consents,
             'statusOptions' => self::CONSENT_STATUSES,
-            'communities'   => $communities,
-            'filters'       => [
-                'status'       => $status,
+            'communities' => $communities,
+            'filters' => [
+                'status' => $status,
                 'community_id' => $communityId,
             ],
-            'tablesExist'   => true,
+            'tablesExist' => true,
         ]);
     }
 
@@ -408,7 +408,7 @@ class IcipController extends Controller
 
         if ($id) {
             $consent = DB::table('icip_consent')->where('id', $id)->first();
-            if (!$consent) {
+            if (! $consent) {
                 abort(404, 'Consent record not found');
             }
             $objectId = $consent->information_object_id;
@@ -436,23 +436,23 @@ class IcipController extends Controller
         if ($request->isMethod('post')) {
             $request->validate([
                 'information_object_id' => 'required|integer',
-                'consent_status'        => 'required|string|max:135',
+                'consent_status' => 'required|string|max:135',
             ]);
 
             $scopeArray = $request->input('consent_scope', []);
             $data = [
                 'information_object_id' => $request->input('information_object_id'),
-                'community_id'          => $request->input('community_id') ?: null,
-                'consent_status'        => $request->input('consent_status'),
-                'consent_scope'         => !empty($scopeArray) ? json_encode($scopeArray) : null,
-                'consent_date'          => $request->input('consent_date') ?: null,
-                'consent_expiry_date'   => $request->input('consent_expiry_date') ?: null,
-                'consent_granted_by'    => $request->input('consent_granted_by'),
+                'community_id' => $request->input('community_id') ?: null,
+                'consent_status' => $request->input('consent_status'),
+                'consent_scope' => ! empty($scopeArray) ? json_encode($scopeArray) : null,
+                'consent_date' => $request->input('consent_date') ?: null,
+                'consent_expiry_date' => $request->input('consent_expiry_date') ?: null,
+                'consent_granted_by' => $request->input('consent_granted_by'),
                 'consent_document_path' => $request->input('consent_document_path'),
-                'conditions'            => $request->input('conditions'),
-                'restrictions'          => $request->input('restrictions'),
-                'notes'                 => $request->input('notes'),
-                'updated_at'            => now(),
+                'conditions' => $request->input('conditions'),
+                'restrictions' => $request->input('restrictions'),
+                'notes' => $request->input('notes'),
+                'updated_at' => now(),
             ];
 
             if ($id) {
@@ -469,18 +469,19 @@ class IcipController extends Controller
                 return redirect()->route('ahgicip.object-icip', ['slug' => $object->slug])
                     ->with('notice', 'Consent record saved successfully.');
             }
+
             return redirect()->route('ahgicip.consent-list')
                 ->with('notice', 'Consent record saved successfully.');
         }
 
         return view('icip::consent-edit', [
-            'id'            => $id,
-            'consent'       => $consent,
-            'object'        => $object,
-            'objectId'      => $objectId,
+            'id' => $id,
+            'consent' => $consent,
+            'object' => $object,
+            'objectId' => $objectId,
             'statusOptions' => self::CONSENT_STATUSES,
-            'scopeOptions'  => self::CONSENT_SCOPES,
-            'communities'   => $communities,
+            'scopeOptions' => self::CONSENT_SCOPES,
+            'communities' => $communities,
         ]);
     }
 
@@ -507,14 +508,14 @@ class IcipController extends Controller
             ])
             ->first();
 
-        if (!$consent) {
+        if (! $consent) {
             abort(404, 'Consent record not found');
         }
 
         return view('icip::consent-view', [
-            'consent'       => $consent,
+            'consent' => $consent,
             'statusOptions' => self::CONSENT_STATUSES,
-            'scopeOptions'  => self::CONSENT_SCOPES,
+            'scopeOptions' => self::CONSENT_SCOPES,
         ]);
     }
 
@@ -527,12 +528,12 @@ class IcipController extends Controller
      */
     public function consultations(Request $request)
     {
-        if (!Schema::hasTable('icip_consultation')) {
+        if (! Schema::hasTable('icip_consultation')) {
             return view('icip::consultations', [
                 'consultations' => collect(),
-                'communities'   => collect(),
-                'filters'       => ['type' => null, 'community_id' => null, 'status' => null],
-                'tablesExist'   => false,
+                'communities' => collect(),
+                'filters' => ['type' => null, 'community_id' => null, 'status' => null],
+                'tablesExist' => false,
             ]);
         }
 
@@ -570,16 +571,16 @@ class IcipController extends Controller
             ->get();
 
         return view('icip::consultations', [
-            'consultations'       => $consultations,
-            'communities'         => $communities,
-            'consultationTypes'   => self::CONSULTATION_TYPES,
+            'consultations' => $consultations,
+            'communities' => $communities,
+            'consultationTypes' => self::CONSULTATION_TYPES,
             'consultationStatuses' => self::CONSULTATION_STATUSES,
-            'filters'             => [
-                'type'         => $type,
+            'filters' => [
+                'type' => $type,
                 'community_id' => $communityId,
-                'status'       => $status,
+                'status' => $status,
             ],
-            'tablesExist'         => true,
+            'tablesExist' => true,
         ]);
     }
 
@@ -594,7 +595,7 @@ class IcipController extends Controller
 
         if ($id) {
             $consultation = DB::table('icip_consultation')->where('id', $id)->first();
-            if (!$consultation) {
+            if (! $consultation) {
                 abort(404, 'Consultation not found');
             }
             $objectId = $consultation->information_object_id;
@@ -629,31 +630,31 @@ class IcipController extends Controller
 
         if ($request->isMethod('post')) {
             $request->validate([
-                'community_id'        => 'required|integer',
-                'consultation_type'   => 'required|string|max:132',
-                'consultation_date'   => 'required|date',
+                'community_id' => 'required|integer',
+                'consultation_type' => 'required|string|max:132',
+                'consultation_date' => 'required|date',
                 'consultation_method' => 'required|string|max:50',
-                'summary'             => 'required|string',
+                'summary' => 'required|string',
             ]);
 
             $data = [
-                'information_object_id'       => $request->input('information_object_id') ?: null,
-                'community_id'                => $request->input('community_id'),
-                'consultation_type'           => $request->input('consultation_type'),
-                'consultation_date'           => $request->input('consultation_date'),
-                'consultation_method'         => $request->input('consultation_method'),
-                'location'                    => $request->input('location'),
-                'attendees'                   => $request->input('attendees'),
-                'community_representatives'   => $request->input('community_representatives'),
+                'information_object_id' => $request->input('information_object_id') ?: null,
+                'community_id' => $request->input('community_id'),
+                'consultation_type' => $request->input('consultation_type'),
+                'consultation_date' => $request->input('consultation_date'),
+                'consultation_method' => $request->input('consultation_method'),
+                'location' => $request->input('location'),
+                'attendees' => $request->input('attendees'),
+                'community_representatives' => $request->input('community_representatives'),
                 'institution_representatives' => $request->input('institution_representatives'),
-                'summary'                     => $request->input('summary'),
-                'outcomes'                    => $request->input('outcomes'),
-                'follow_up_date'              => $request->input('follow_up_date') ?: null,
-                'follow_up_notes'             => $request->input('follow_up_notes'),
-                'is_confidential'             => $request->input('is_confidential', 0) ? 1 : 0,
-                'linked_consent_id'           => $request->input('linked_consent_id') ?: null,
-                'status'                      => $request->input('status'),
-                'updated_at'                  => now(),
+                'summary' => $request->input('summary'),
+                'outcomes' => $request->input('outcomes'),
+                'follow_up_date' => $request->input('follow_up_date') ?: null,
+                'follow_up_notes' => $request->input('follow_up_notes'),
+                'is_confidential' => $request->input('is_confidential', 0) ? 1 : 0,
+                'linked_consent_id' => $request->input('linked_consent_id') ?: null,
+                'status' => $request->input('status'),
+                'updated_at' => now(),
             ];
 
             if ($id) {
@@ -674,15 +675,15 @@ class IcipController extends Controller
         }
 
         return view('icip::consultation-edit', [
-            'id'                    => $id,
-            'consultation'          => $consultation,
-            'object'                => $object,
-            'objectId'              => $objectId,
-            'communities'           => $communities,
-            'consentRecords'        => $consentRecords,
-            'consultationTypes'     => self::CONSULTATION_TYPES,
-            'consultationMethods'   => self::CONSULTATION_METHODS,
-            'consultationStatuses'  => self::CONSULTATION_STATUSES,
+            'id' => $id,
+            'consultation' => $consultation,
+            'object' => $object,
+            'objectId' => $objectId,
+            'communities' => $communities,
+            'consentRecords' => $consentRecords,
+            'consultationTypes' => self::CONSULTATION_TYPES,
+            'consultationMethods' => self::CONSULTATION_METHODS,
+            'consultationStatuses' => self::CONSULTATION_STATUSES,
         ]);
     }
 
@@ -709,13 +710,13 @@ class IcipController extends Controller
             ])
             ->first();
 
-        if (!$consultation) {
+        if (! $consultation) {
             abort(404, 'Consultation not found');
         }
 
         return view('icip::consultation-view', [
-            'consultation'        => $consultation,
-            'consultationTypes'   => self::CONSULTATION_TYPES,
+            'consultation' => $consultation,
+            'consultationTypes' => self::CONSULTATION_TYPES,
             'consultationMethods' => self::CONSULTATION_METHODS,
             'consultationStatuses' => self::CONSULTATION_STATUSES,
         ]);
@@ -730,12 +731,12 @@ class IcipController extends Controller
      */
     public function tkLabels()
     {
-        if (!Schema::hasTable('icip_tk_label_type')) {
+        if (! Schema::hasTable('icip_tk_label_type')) {
             return view('icip::tk-labels', [
-                'labelTypes'    => collect(),
+                'labelTypes' => collect(),
                 'appliedLabels' => collect(),
-                'recentLabels'  => collect(),
-                'tablesExist'   => false,
+                'recentLabels' => collect(),
+                'tablesExist' => false,
             ]);
         }
 
@@ -778,10 +779,10 @@ class IcipController extends Controller
             ->get();
 
         return view('icip::tk-labels', [
-            'labelTypes'    => $labelTypes,
+            'labelTypes' => $labelTypes,
             'appliedLabels' => $appliedLabels,
-            'recentLabels'  => $recentLabels,
-            'tablesExist'   => true,
+            'recentLabels' => $recentLabels,
+            'tablesExist' => true,
         ]);
     }
 
@@ -794,11 +795,11 @@ class IcipController extends Controller
      */
     public function notices()
     {
-        if (!Schema::hasTable('icip_cultural_notice_type')) {
+        if (! Schema::hasTable('icip_cultural_notice_type')) {
             return view('icip::notices', [
-                'noticeTypes'    => collect(),
+                'noticeTypes' => collect(),
                 'appliedNotices' => collect(),
-                'tablesExist'    => false,
+                'tablesExist' => false,
             ]);
         }
 
@@ -828,9 +829,9 @@ class IcipController extends Controller
             ->get();
 
         return view('icip::notices', [
-            'noticeTypes'    => $noticeTypes,
+            'noticeTypes' => $noticeTypes,
             'appliedNotices' => $appliedNotices,
-            'tablesExist'    => true,
+            'tablesExist' => true,
         ]);
     }
 
@@ -839,7 +840,7 @@ class IcipController extends Controller
      */
     public function noticeTypes(Request $request)
     {
-        if (!Schema::hasTable('icip_cultural_notice_type')) {
+        if (! Schema::hasTable('icip_cultural_notice_type')) {
             return view('icip::notice-types', [
                 'noticeTypes' => collect(),
                 'tablesExist' => false,
@@ -857,18 +858,18 @@ class IcipController extends Controller
                 ]);
 
                 DB::table('icip_cultural_notice_type')->insert([
-                    'code'                      => $request->input('code'),
-                    'name'                      => $request->input('name'),
-                    'description'               => $request->input('description'),
-                    'default_text'              => $request->input('default_text'),
-                    'severity'                  => $request->input('severity', 'info'),
-                    'requires_acknowledgement'  => $request->input('requires_acknowledgement', 0) ? 1 : 0,
-                    'blocks_access'             => $request->input('blocks_access', 0) ? 1 : 0,
-                    'display_public'            => $request->input('display_public', 1) ? 1 : 0,
-                    'display_staff'             => $request->input('display_staff', 1) ? 1 : 0,
-                    'display_order'             => $request->input('display_order', 100),
-                    'is_active'                 => 1,
-                    'created_at'                => now(),
+                    'code' => $request->input('code'),
+                    'name' => $request->input('name'),
+                    'description' => $request->input('description'),
+                    'default_text' => $request->input('default_text'),
+                    'severity' => $request->input('severity', 'info'),
+                    'requires_acknowledgement' => $request->input('requires_acknowledgement', 0) ? 1 : 0,
+                    'blocks_access' => $request->input('blocks_access', 0) ? 1 : 0,
+                    'display_public' => $request->input('display_public', 1) ? 1 : 0,
+                    'display_staff' => $request->input('display_staff', 1) ? 1 : 0,
+                    'display_order' => $request->input('display_order', 100),
+                    'is_active' => 1,
+                    'created_at' => now(),
                 ]);
 
                 return redirect()->route('ahgicip.notice-types')
@@ -905,11 +906,11 @@ class IcipController extends Controller
      */
     public function restrictions()
     {
-        if (!Schema::hasTable('icip_access_restriction')) {
+        if (! Schema::hasTable('icip_access_restriction')) {
             return view('icip::restrictions', [
                 'restrictionTypes' => self::RESTRICTION_TYPES,
-                'restrictions'     => collect(),
-                'tablesExist'      => false,
+                'restrictions' => collect(),
+                'tablesExist' => false,
             ]);
         }
 
@@ -931,8 +932,8 @@ class IcipController extends Controller
 
         return view('icip::restrictions', [
             'restrictionTypes' => self::RESTRICTION_TYPES,
-            'restrictions'     => $restrictions,
-            'tablesExist'      => true,
+            'restrictions' => $restrictions,
+            'tablesExist' => true,
         ]);
     }
 
@@ -945,12 +946,12 @@ class IcipController extends Controller
      */
     public function reports()
     {
-        if (!Schema::hasTable('icip_consent')) {
+        if (! Schema::hasTable('icip_consent')) {
             return view('icip::reports', [
-                'stats'              => [],
-                'consentByStatus'    => collect(),
+                'stats' => [],
+                'consentByStatus' => collect(),
                 'recordsByCommunity' => collect(),
-                'tablesExist'        => false,
+                'tablesExist' => false,
             ]);
         }
 
@@ -974,11 +975,11 @@ class IcipController extends Controller
             ->get();
 
         return view('icip::reports', [
-            'stats'              => $stats,
-            'consentByStatus'    => $consentByStatus,
+            'stats' => $stats,
+            'consentByStatus' => $consentByStatus,
             'recordsByCommunity' => $recordsByCommunity,
-            'statusOptions'      => self::CONSENT_STATUSES,
-            'tablesExist'        => true,
+            'statusOptions' => self::CONSENT_STATUSES,
+            'tablesExist' => true,
         ]);
     }
 
@@ -990,7 +991,7 @@ class IcipController extends Controller
         $records = $this->getPendingConsultation(200);
 
         return view('icip::report-pending', [
-            'records'       => $records,
+            'records' => $records,
             'statusOptions' => self::CONSENT_STATUSES,
         ]);
     }
@@ -1004,7 +1005,7 @@ class IcipController extends Controller
         $records = $this->getExpiringConsents($days);
 
         return view('icip::report-expiry', [
-            'days'    => $days,
+            'days' => $days,
             'records' => $records,
         ]);
     }
@@ -1017,7 +1018,7 @@ class IcipController extends Controller
         $id = $request->query('id');
         $community = DB::table('icip_community')->where('id', $id)->first();
 
-        if (!$community) {
+        if (! $community) {
             abort(404, 'Community not found');
         }
 
@@ -1058,13 +1059,13 @@ class IcipController extends Controller
             ->get();
 
         return view('icip::report-community', [
-            'community'      => $community,
-            'consents'       => $consents,
-            'consultations'  => $consultations,
-            'notices'        => $notices,
-            'labels'         => $labels,
-            'statusOptions'  => self::CONSENT_STATUSES,
-            'states'         => self::STATE_TERRITORIES,
+            'community' => $community,
+            'consents' => $consents,
+            'consultations' => $consultations,
+            'notices' => $notices,
+            'labels' => $labels,
+            'statusOptions' => self::CONSENT_STATUSES,
+            'states' => self::STATE_TERRITORIES,
         ]);
     }
 
@@ -1080,7 +1081,7 @@ class IcipController extends Controller
         $slug = $request->query('slug');
         $object = $this->getObjectBySlug($slug);
 
-        if (!$object) {
+        if (! $object) {
             abort(404, 'Record not found');
         }
 
@@ -1095,15 +1096,15 @@ class IcipController extends Controller
         $consultations = $this->getObjectConsultations($object->id);
 
         return view('icip::object-icip', [
-            'object'           => $object,
-            'summary'          => $summary,
-            'consents'         => $consents,
-            'notices'          => $notices,
-            'labels'           => $labels,
-            'restrictions'     => $restrictions,
-            'consultations'    => $consultations,
-            'statusOptions'    => self::CONSENT_STATUSES,
-            'scopeOptions'     => self::CONSENT_SCOPES,
+            'object' => $object,
+            'summary' => $summary,
+            'consents' => $consents,
+            'notices' => $notices,
+            'labels' => $labels,
+            'restrictions' => $restrictions,
+            'consultations' => $consultations,
+            'statusOptions' => self::CONSENT_STATUSES,
+            'scopeOptions' => self::CONSENT_SCOPES,
             'restrictionTypes' => self::RESTRICTION_TYPES,
         ]);
     }
@@ -1116,7 +1117,7 @@ class IcipController extends Controller
         $slug = $request->query('slug') ?? $request->input('slug');
         $object = $this->getObjectBySlug($slug);
 
-        if (!$object) {
+        if (! $object) {
             abort(404, 'Record not found');
         }
 
@@ -1135,17 +1136,17 @@ class IcipController extends Controller
             $scopeArray = $request->input('consent_scope', []);
             $data = [
                 'information_object_id' => $object->id,
-                'community_id'          => $request->input('community_id') ?: null,
-                'consent_status'        => $request->input('consent_status'),
-                'consent_scope'         => !empty($scopeArray) ? json_encode($scopeArray) : null,
-                'consent_date'          => $request->input('consent_date') ?: null,
-                'consent_expiry_date'   => $request->input('consent_expiry_date') ?: null,
-                'consent_granted_by'    => $request->input('consent_granted_by'),
-                'conditions'            => $request->input('conditions'),
-                'notes'                 => $request->input('notes'),
-                'created_by'            => auth()->id(),
-                'created_at'            => now(),
-                'updated_at'            => now(),
+                'community_id' => $request->input('community_id') ?: null,
+                'consent_status' => $request->input('consent_status'),
+                'consent_scope' => ! empty($scopeArray) ? json_encode($scopeArray) : null,
+                'consent_date' => $request->input('consent_date') ?: null,
+                'consent_expiry_date' => $request->input('consent_expiry_date') ?: null,
+                'consent_granted_by' => $request->input('consent_granted_by'),
+                'conditions' => $request->input('conditions'),
+                'notes' => $request->input('notes'),
+                'created_by' => auth()->id(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ];
 
             DB::table('icip_consent')->insert($data);
@@ -1156,11 +1157,11 @@ class IcipController extends Controller
         }
 
         return view('icip::object-consent', [
-            'object'        => $object,
-            'consents'      => $consents,
+            'object' => $object,
+            'consents' => $consents,
             'statusOptions' => self::CONSENT_STATUSES,
-            'scopeOptions'  => self::CONSENT_SCOPES,
-            'communities'   => $communities,
+            'scopeOptions' => self::CONSENT_SCOPES,
+            'communities' => $communities,
         ]);
     }
 
@@ -1172,7 +1173,7 @@ class IcipController extends Controller
         $slug = $request->query('slug') ?? $request->input('slug');
         $object = $this->getObjectBySlug($slug);
 
-        if (!$object) {
+        if (! $object) {
             abort(404, 'Record not found');
         }
 
@@ -1198,18 +1199,19 @@ class IcipController extends Controller
 
                 DB::table('icip_cultural_notice')->insert([
                     'information_object_id' => $object->id,
-                    'notice_type_id'        => $request->input('notice_type_id'),
-                    'custom_text'           => $request->input('custom_text') ?: null,
-                    'community_id'          => $request->input('community_id') ?: null,
+                    'notice_type_id' => $request->input('notice_type_id'),
+                    'custom_text' => $request->input('custom_text') ?: null,
+                    'community_id' => $request->input('community_id') ?: null,
                     'applies_to_descendants' => $request->input('applies_to_descendants', 1) ? 1 : 0,
-                    'start_date'            => $request->input('start_date') ?: null,
-                    'end_date'              => $request->input('end_date') ?: null,
-                    'notes'                 => $request->input('notes'),
-                    'created_by'            => auth()->id(),
-                    'created_at'            => now(),
+                    'start_date' => $request->input('start_date') ?: null,
+                    'end_date' => $request->input('end_date') ?: null,
+                    'notes' => $request->input('notes'),
+                    'created_by' => auth()->id(),
+                    'created_at' => now(),
                 ]);
 
                 $this->updateObjectSummary($object->id);
+
                 return redirect()->route('ahgicip.object-notices', ['slug' => $slug])
                     ->with('notice', 'Cultural notice added.');
             } elseif ($action === 'remove') {
@@ -1219,16 +1221,17 @@ class IcipController extends Controller
                     ->delete();
 
                 $this->updateObjectSummary($object->id);
+
                 return redirect()->route('ahgicip.object-notices', ['slug' => $slug])
                     ->with('notice', 'Cultural notice removed.');
             }
         }
 
         return view('icip::object-notices', [
-            'object'      => $object,
+            'object' => $object,
             'noticeTypes' => $noticeTypes,
             'communities' => $communities,
-            'notices'     => $notices,
+            'notices' => $notices,
         ]);
     }
 
@@ -1240,7 +1243,7 @@ class IcipController extends Controller
         $slug = $request->query('slug') ?? $request->input('slug');
         $object = $this->getObjectBySlug($slug);
 
-        if (!$object) {
+        if (! $object) {
             abort(404, 'Record not found');
         }
 
@@ -1266,17 +1269,18 @@ class IcipController extends Controller
                 ]);
 
                 DB::table('icip_tk_label')->insertOrIgnore([
-                    'information_object_id'      => $object->id,
-                    'label_type_id'              => $request->input('label_type_id'),
-                    'community_id'               => $request->input('community_id') ?: null,
-                    'applied_by'                 => $request->input('applied_by', 'institution'),
-                    'local_contexts_project_id'  => $request->input('local_contexts_project_id'),
-                    'notes'                      => $request->input('notes'),
-                    'created_by'                 => auth()->id(),
-                    'created_at'                 => now(),
+                    'information_object_id' => $object->id,
+                    'label_type_id' => $request->input('label_type_id'),
+                    'community_id' => $request->input('community_id') ?: null,
+                    'applied_by' => $request->input('applied_by', 'institution'),
+                    'local_contexts_project_id' => $request->input('local_contexts_project_id'),
+                    'notes' => $request->input('notes'),
+                    'created_by' => auth()->id(),
+                    'created_at' => now(),
                 ]);
 
                 $this->updateObjectSummary($object->id);
+
                 return redirect()->route('ahgicip.object-labels', ['slug' => $slug])
                     ->with('notice', 'TK Label added.');
             } elseif ($action === 'remove') {
@@ -1286,16 +1290,17 @@ class IcipController extends Controller
                     ->delete();
 
                 $this->updateObjectSummary($object->id);
+
                 return redirect()->route('ahgicip.object-labels', ['slug' => $slug])
                     ->with('notice', 'TK Label removed.');
             }
         }
 
         return view('icip::object-labels', [
-            'object'     => $object,
+            'object' => $object,
             'labelTypes' => $labelTypes,
             'communities' => $communities,
-            'labels'     => $labels,
+            'labels' => $labels,
         ]);
     }
 
@@ -1307,7 +1312,7 @@ class IcipController extends Controller
         $slug = $request->query('slug') ?? $request->input('slug');
         $object = $this->getObjectBySlug($slug);
 
-        if (!$object) {
+        if (! $object) {
             abort(404, 'Record not found');
         }
 
@@ -1327,20 +1332,21 @@ class IcipController extends Controller
                 ]);
 
                 DB::table('icip_access_restriction')->insert([
-                    'information_object_id'      => $object->id,
-                    'restriction_type'           => $request->input('restriction_type'),
-                    'community_id'               => $request->input('community_id') ?: null,
-                    'start_date'                 => $request->input('start_date') ?: null,
-                    'end_date'                   => $request->input('end_date') ?: null,
-                    'applies_to_descendants'     => $request->input('applies_to_descendants', 1) ? 1 : 0,
+                    'information_object_id' => $object->id,
+                    'restriction_type' => $request->input('restriction_type'),
+                    'community_id' => $request->input('community_id') ?: null,
+                    'start_date' => $request->input('start_date') ?: null,
+                    'end_date' => $request->input('end_date') ?: null,
+                    'applies_to_descendants' => $request->input('applies_to_descendants', 1) ? 1 : 0,
                     'override_security_clearance' => $request->input('override_security_clearance', 1) ? 1 : 0,
-                    'custom_restriction_text'    => $request->input('custom_restriction_text'),
-                    'notes'                      => $request->input('notes'),
-                    'created_by'                 => auth()->id(),
-                    'created_at'                 => now(),
+                    'custom_restriction_text' => $request->input('custom_restriction_text'),
+                    'notes' => $request->input('notes'),
+                    'created_by' => auth()->id(),
+                    'created_at' => now(),
                 ]);
 
                 $this->updateObjectSummary($object->id);
+
                 return redirect()->route('ahgicip.object-restrictions', ['slug' => $slug])
                     ->with('notice', 'Restriction added.');
             } elseif ($action === 'remove') {
@@ -1350,16 +1356,17 @@ class IcipController extends Controller
                     ->delete();
 
                 $this->updateObjectSummary($object->id);
+
                 return redirect()->route('ahgicip.object-restrictions', ['slug' => $slug])
                     ->with('notice', 'Restriction removed.');
             }
         }
 
         return view('icip::object-restrictions', [
-            'object'           => $object,
+            'object' => $object,
             'restrictionTypes' => self::RESTRICTION_TYPES,
-            'communities'      => $communities,
-            'restrictions'     => $restrictions,
+            'communities' => $communities,
+            'restrictions' => $restrictions,
         ]);
     }
 
@@ -1371,7 +1378,7 @@ class IcipController extends Controller
         $slug = $request->query('slug');
         $object = $this->getObjectBySlug($slug);
 
-        if (!$object) {
+        if (! $object) {
             abort(404, 'Record not found');
         }
 
@@ -1383,10 +1390,10 @@ class IcipController extends Controller
         $consultations = $this->getObjectConsultations($object->id);
 
         return view('icip::object-consultations', [
-            'object'              => $object,
-            'communities'         => $communities,
-            'consultations'       => $consultations,
-            'consultationTypes'   => self::CONSULTATION_TYPES,
+            'object' => $object,
+            'communities' => $communities,
+            'consultations' => $consultations,
+            'consultationTypes' => self::CONSULTATION_TYPES,
             'consultationMethods' => self::CONSULTATION_METHODS,
         ]);
     }
@@ -1403,12 +1410,12 @@ class IcipController extends Controller
         $noticeId = $request->input('notice_id');
         $userId = auth()->id();
 
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['success' => false, 'error' => 'Not authenticated'], 401);
         }
 
         $notice = DB::table('icip_cultural_notice')->where('id', $noticeId)->first();
-        if (!$notice) {
+        if (! $notice) {
             return response()->json(['success' => false, 'error' => 'Notice not found'], 404);
         }
 
@@ -1417,13 +1424,13 @@ class IcipController extends Controller
             ->where('user_id', $userId)
             ->exists();
 
-        if (!$alreadyAcknowledged) {
+        if (! $alreadyAcknowledged) {
             DB::table('icip_notice_acknowledgement')->insert([
-                'notice_id'       => $noticeId,
-                'user_id'         => $userId,
+                'notice_id' => $noticeId,
+                'user_id' => $userId,
                 'acknowledged_at' => now(),
-                'ip_address'      => $request->ip(),
-                'user_agent'      => substr($request->userAgent() ?? '', 0, 500),
+                'ip_address' => $request->ip(),
+                'user_agent' => substr($request->userAgent() ?? '', 0, 500),
             ]);
         }
 
@@ -1450,14 +1457,14 @@ class IcipController extends Controller
             ->first();
 
         return response()->json([
-            'object_id'                 => $objectId,
-            'has_icip_content'          => $summary ? (bool) $summary->has_icip_content : false,
-            'consent_status'            => $summary ? $summary->consent_status : null,
-            'has_cultural_notices'      => $summary ? (bool) $summary->has_cultural_notices : false,
-            'has_tk_labels'             => $summary ? (bool) $summary->has_tk_labels : false,
-            'has_restrictions'          => $summary ? (bool) $summary->has_restrictions : false,
-            'requires_acknowledgement'  => $summary ? (bool) $summary->requires_acknowledgement : false,
-            'blocks_access'             => $summary ? (bool) $summary->blocks_access : false,
+            'object_id' => $objectId,
+            'has_icip_content' => $summary ? (bool) $summary->has_icip_content : false,
+            'consent_status' => $summary ? $summary->consent_status : null,
+            'has_cultural_notices' => $summary ? (bool) $summary->has_cultural_notices : false,
+            'has_tk_labels' => $summary ? (bool) $summary->has_tk_labels : false,
+            'has_restrictions' => $summary ? (bool) $summary->has_restrictions : false,
+            'requires_acknowledgement' => $summary ? (bool) $summary->requires_acknowledgement : false,
+            'blocks_access' => $summary ? (bool) $summary->blocks_access : false,
         ]);
     }
 
@@ -1480,7 +1487,7 @@ class IcipController extends Controller
 
     protected function getObjectBySlug(?string $slug): ?object
     {
-        if (!$slug) {
+        if (! $slug) {
             return null;
         }
 
@@ -1696,7 +1703,7 @@ class IcipController extends Controller
      */
     protected function getPendingConsultation(int $limit = 50)
     {
-        if (!Schema::hasTable('icip_consent')) {
+        if (! Schema::hasTable('icip_consent')) {
             return collect();
         }
 
@@ -1730,7 +1737,7 @@ class IcipController extends Controller
      */
     protected function getExpiringConsents(int $days = 90)
     {
-        if (!Schema::hasTable('icip_consent')) {
+        if (! Schema::hasTable('icip_consent')) {
             return collect();
         }
 
@@ -1764,14 +1771,14 @@ class IcipController extends Controller
     protected function checkAccess(int $objectId, ?int $userId = null): array
     {
         $result = [
-            'allowed'                   => true,
-            'requires_acknowledgement'  => false,
-            'unacknowledged_notices'    => [],
-            'blocked_reason'            => null,
-            'restrictions'              => [],
+            'allowed' => true,
+            'requires_acknowledgement' => false,
+            'unacknowledged_notices' => [],
+            'blocked_reason' => null,
+            'restrictions' => [],
         ];
 
-        if (!Schema::hasTable('icip_cultural_notice')) {
+        if (! Schema::hasTable('icip_cultural_notice')) {
             return $result;
         }
 
@@ -1786,7 +1793,7 @@ class IcipController extends Controller
                         ->exists()
                     : false;
 
-                if (!$acknowledged) {
+                if (! $acknowledged) {
                     $result['allowed'] = false;
                     $result['blocked_reason'] = 'Cultural notice requires acknowledgement before access';
                     $result['unacknowledged_notices'][] = $notice;
@@ -1799,7 +1806,7 @@ class IcipController extends Controller
                         ->exists()
                     : false;
 
-                if (!$acknowledged) {
+                if (! $acknowledged) {
                     $result['requires_acknowledgement'] = true;
                     $result['unacknowledged_notices'][] = $notice;
                 }
@@ -1817,7 +1824,7 @@ class IcipController extends Controller
                     'repatriation_pending',
                 ])) {
                     $result['allowed'] = false;
-                    $result['blocked_reason'] = 'ICIP restriction: ' . (self::RESTRICTION_TYPES[$restriction->restriction_type] ?? ucwords(str_replace('_', ' ', $restriction->restriction_type)));
+                    $result['blocked_reason'] = 'ICIP restriction: '.(self::RESTRICTION_TYPES[$restriction->restriction_type] ?? ucwords(str_replace('_', ' ', $restriction->restriction_type)));
                 }
             }
         }
@@ -1830,7 +1837,7 @@ class IcipController extends Controller
      */
     protected function updateObjectSummary(int $objectId): void
     {
-        if (!Schema::hasTable('icip_object_summary')) {
+        if (! Schema::hasTable('icip_object_summary')) {
             return;
         }
 
@@ -1886,20 +1893,20 @@ class IcipController extends Controller
         DB::table('icip_object_summary')->updateOrInsert(
             ['information_object_id' => $objectId],
             [
-                'has_icip_content'          => $hasContent ? 1 : 0,
-                'consent_status'            => $consent ? $consent->consent_status : null,
-                'has_cultural_notices'      => $noticeCount > 0 ? 1 : 0,
-                'cultural_notice_count'     => $noticeCount,
-                'has_tk_labels'             => $labelCount > 0 ? 1 : 0,
-                'tk_label_count'            => $labelCount,
-                'has_restrictions'          => $restrictionCount > 0 ? 1 : 0,
-                'restriction_count'         => $restrictionCount,
-                'requires_acknowledgement'  => $blockingNotice && $blockingNotice->requires_acknowledgement ? 1 : 0,
-                'blocks_access'             => $blockingNotice && $blockingNotice->blocks_access ? 1 : 0,
-                'community_ids'             => !empty($communityIds) ? json_encode(array_values($communityIds)) : null,
-                'last_consultation_date'    => $lastConsultation,
-                'consent_expiry_date'       => $consent ? $consent->consent_expiry_date : null,
-                'updated_at'               => now(),
+                'has_icip_content' => $hasContent ? 1 : 0,
+                'consent_status' => $consent ? $consent->consent_status : null,
+                'has_cultural_notices' => $noticeCount > 0 ? 1 : 0,
+                'cultural_notice_count' => $noticeCount,
+                'has_tk_labels' => $labelCount > 0 ? 1 : 0,
+                'tk_label_count' => $labelCount,
+                'has_restrictions' => $restrictionCount > 0 ? 1 : 0,
+                'restriction_count' => $restrictionCount,
+                'requires_acknowledgement' => $blockingNotice && $blockingNotice->requires_acknowledgement ? 1 : 0,
+                'blocks_access' => $blockingNotice && $blockingNotice->blocks_access ? 1 : 0,
+                'community_ids' => ! empty($communityIds) ? json_encode(array_values($communityIds)) : null,
+                'last_consultation_date' => $lastConsultation,
+                'consent_expiry_date' => $consent ? $consent->consent_expiry_date : null,
+                'updated_at' => now(),
             ]
         );
     }
@@ -1909,7 +1916,7 @@ class IcipController extends Controller
      */
     protected function getIcipConfig(string $key, $default = null)
     {
-        if (!Schema::hasTable('icip_config')) {
+        if (! Schema::hasTable('icip_config')) {
             return $default;
         }
 
@@ -1928,22 +1935,22 @@ class IcipController extends Controller
 
     public function ocapDashboard()
     {
-        $svc = new \AhgIcip\Services\OcapService();
-        if (!$svc->isEnabled()) {
+        $svc = new \AhgIcip\Services\OcapService;
+        if (! $svc->isEnabled()) {
             return view('icip::ocap-disabled', [
                 'enableUrl' => route('ahgicip.ocap-settings'),
             ]);
         }
 
         return view('icip::ocap-dashboard', [
-            'agg'    => $svc->aggregate(),
+            'agg' => $svc->aggregate(),
             'rollup' => $svc->rollup(),
         ]);
     }
 
     public function ocapSettings(Request $request)
     {
-        if (!Schema::hasTable('icip_config')) {
+        if (! Schema::hasTable('icip_config')) {
             abort(404);
         }
 
@@ -1953,7 +1960,8 @@ class IcipController extends Controller
                 ['config_key' => 'ocap_enabled'],
                 ['config_value' => $val, 'updated_at' => now()]
             );
-            return redirect()->route('ahgicip.ocap-settings')->with('success', 'OCAP overlay ' . ($val === '1' ? 'enabled' : 'disabled') . '.');
+
+            return redirect()->route('ahgicip.ocap-settings')->with('success', 'OCAP overlay '.($val === '1' ? 'enabled' : 'disabled').'.');
         }
 
         return view('icip::ocap-settings', [
@@ -1965,13 +1973,13 @@ class IcipController extends Controller
     {
         $request->validate([
             'information_object_id' => 'required|integer',
-            'possession'            => 'nullable|in:community,repository,shared',
+            'possession' => 'nullable|in:community,repository,shared',
         ]);
 
         $ioId = (int) $request->input('information_object_id');
         $possession = $request->input('possession') ?: null;
 
-        if (!Schema::hasTable('icip_object_summary') || !Schema::hasColumn('icip_object_summary', 'possession_assertion')) {
+        if (! Schema::hasTable('icip_object_summary') || ! Schema::hasColumn('icip_object_summary', 'possession_assertion')) {
             abort(409, 'OCAP columns missing.');
         }
 
@@ -1983,8 +1991,8 @@ class IcipController extends Controller
         } else {
             DB::table('icip_object_summary')->insert([
                 'information_object_id' => $ioId,
-                'possession_assertion'  => $possession,
-                'updated_at'            => now(),
+                'possession_assertion' => $possession,
+                'updated_at' => now(),
             ]);
         }
 

@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\DB;
  * Administrator (group 100) is intentionally NOT seeded — base AtoM grants
  * administrator allow-all via action=NULL which AclCheck honours.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         $seeds = [
@@ -28,12 +29,12 @@ return new class extends Migration {
                 ->where('group_id', $groupId)
                 ->where('action', $action)
                 ->exists();
-            if (!$exists) {
+            if (! $exists) {
                 DB::table('acl_permission')->insert([
-                    'user_id'    => null,
-                    'group_id'   => $groupId,
-                    'object_id'  => null,
-                    'action'     => $action,
+                    'user_id' => null,
+                    'group_id' => $groupId,
+                    'object_id' => null,
+                    'action' => $action,
                     'grant_deny' => 1,
                     'created_at' => now(),
                     'updated_at' => now(),

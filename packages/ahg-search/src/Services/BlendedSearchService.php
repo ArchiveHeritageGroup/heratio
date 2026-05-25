@@ -25,19 +25,16 @@ class BlendedSearchService
 {
     public const RRF_K = 60;
 
-    public function __construct(protected VectorSearchService $vector)
-    {
-    }
+    public function __construct(protected VectorSearchService $vector) {}
 
     /**
      * Reorder $keywordIds by blending with Qdrant similarity for $query.
      *
-     * @param array<int, int>  $keywordIds  IO ids in the order ES/MySQL returned them
-     * @param string           $query       The user's free-text query
-     * @param int              $candidatePool  How many Qdrant hits to consider (top-N)
-     * @param float            $vectorWeight  How much to weight the vector branch (0..1+); 1.0 = equal
-     * @param string|null      $collection  Qdrant collection name (default from settings)
-     *
+     * @param  array<int, int>  $keywordIds  IO ids in the order ES/MySQL returned them
+     * @param  string  $query  The user's free-text query
+     * @param  int  $candidatePool  How many Qdrant hits to consider (top-N)
+     * @param  float  $vectorWeight  How much to weight the vector branch (0..1+); 1.0 = equal
+     * @param  string|null  $collection  Qdrant collection name (default from settings)
      * @return array{
      *   ok: bool,
      *   ids: array<int,int>,           // new ID order
@@ -59,7 +56,9 @@ class BlendedSearchService
                 $usedVector = true;
                 foreach ($vec['hits'] as $h) {
                     $id = (int) $h['id'];
-                    if ($id <= 0) continue;
+                    if ($id <= 0) {
+                        continue;
+                    }
                     $vectorIds[] = $id;
                     $vectorMap[$id] = (float) ($h['score'] ?? 0.0);
                 }
@@ -71,21 +70,22 @@ class BlendedSearchService
             $scores = [];
             foreach ($keywordIds as $rank => $id) {
                 $scores[$id] = [
-                    'rrf'       => $this->rrfTerm($rank),
-                    'kw_rank'   => $rank,
-                    'vec_rank'  => null,
+                    'rrf' => $this->rrfTerm($rank),
+                    'kw_rank' => $rank,
+                    'vec_rank' => null,
                     'vec_score' => null,
                 ];
             }
+
             return [
-                'ok'     => true,
-                'ids'    => $keywordIds,
+                'ok' => true,
+                'ids' => $keywordIds,
                 'scores' => $scores,
-                'stats'  => [
-                    'kw'         => count($keywordIds),
-                    'vec'        => 0,
-                    'blended'    => count($keywordIds),
-                    'used_vector'=> false,
+                'stats' => [
+                    'kw' => count($keywordIds),
+                    'vec' => 0,
+                    'blended' => count($keywordIds),
+                    'used_vector' => false,
                 ],
             ];
         }
@@ -98,14 +98,18 @@ class BlendedSearchService
         $scores = [];
         foreach ($allIds as $id) {
             $rrf = 0.0;
-            $kr  = $kwRank[$id]  ?? null;
-            $vr  = $vecRank[$id] ?? null;
-            if ($kr !== null) $rrf += $this->rrfTerm($kr);
-            if ($vr !== null) $rrf += $this->rrfTerm($vr) * $vectorWeight;
+            $kr = $kwRank[$id] ?? null;
+            $vr = $vecRank[$id] ?? null;
+            if ($kr !== null) {
+                $rrf += $this->rrfTerm($kr);
+            }
+            if ($vr !== null) {
+                $rrf += $this->rrfTerm($vr) * $vectorWeight;
+            }
             $scores[$id] = [
-                'rrf'       => $rrf,
-                'kw_rank'   => $kr,
-                'vec_rank'  => $vr,
+                'rrf' => $rrf,
+                'kw_rank' => $kr,
+                'vec_rank' => $vr,
                 'vec_score' => $vectorMap[$id] ?? null,
             ];
         }
@@ -115,20 +119,23 @@ class BlendedSearchService
         $rankedIds = array_keys($scores);
         usort($rankedIds, function ($a, $b) use ($scores, $kwRank) {
             $cmp = $scores[$b]['rrf'] <=> $scores[$a]['rrf'];
-            if ($cmp !== 0) return $cmp;
+            if ($cmp !== 0) {
+                return $cmp;
+            }
             $aKw = $kwRank[$a] ?? PHP_INT_MAX;
             $bKw = $kwRank[$b] ?? PHP_INT_MAX;
+
             return $aKw <=> $bKw;
         });
 
         return [
-            'ok'     => true,
-            'ids'    => array_map('intval', $rankedIds),
+            'ok' => true,
+            'ids' => array_map('intval', $rankedIds),
             'scores' => $scores,
-            'stats'  => [
-                'kw'          => count($keywordIds),
-                'vec'         => count($vectorIds),
-                'blended'     => count($rankedIds),
+            'stats' => [
+                'kw' => count($keywordIds),
+                'vec' => count($vectorIds),
+                'blended' => count($rankedIds),
                 'used_vector' => true,
             ],
         ];

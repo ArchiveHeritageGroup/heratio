@@ -23,7 +23,7 @@ class ReviewScheduleService
     /**
      * List reviews matching filters. Default: pending + overdue first.
      *
-     * @param array $filters status, due_before, due_after, assigned_to, ioId, q
+     * @param  array  $filters  status, due_before, due_after, assigned_to, ioId, q
      * @return array{rows: array, total: int}
      */
     public function listQueue(array $filters = []): array
@@ -61,11 +61,11 @@ class ReviewScheduleService
             $q->where('r.information_object_id', $filters['ioId']);
         }
         if (! empty($filters['q'])) {
-            $q->where('ioi.title', 'like', '%' . $filters['q'] . '%');
+            $q->where('ioi.title', 'like', '%'.$filters['q'].'%');
         }
 
         $total = (clone $q)->count();
-        $rows  = $q->orderByRaw("FIELD(r.status, 'pending') DESC, r.review_due_date ASC")
+        $rows = $q->orderByRaw("FIELD(r.status, 'pending') DESC, r.review_due_date ASC")
             ->limit($filters['limit'] ?? 100)
             ->offset($filters['offset'] ?? 0)
             ->get()
@@ -107,12 +107,12 @@ class ReviewScheduleService
     {
         return DB::table('rm_review_schedule')->insertGetId([
             'information_object_id' => $data['information_object_id'],
-            'disposal_class_id'     => $data['disposal_class_id'] ?? null,
-            'review_type'           => $data['review_type'] ?? 'periodic',
-            'review_due_date'       => $data['review_due_date'],
-            'status'                => 'pending',
-            'assigned_to'           => $data['assigned_to'] ?? null,
-            'created_by'            => $userId,
+            'disposal_class_id' => $data['disposal_class_id'] ?? null,
+            'review_type' => $data['review_type'] ?? 'periodic',
+            'review_due_date' => $data['review_due_date'],
+            'status' => 'pending',
+            'assigned_to' => $data['assigned_to'] ?? null,
+            'created_by' => $userId,
         ]);
     }
 
@@ -132,22 +132,22 @@ class ReviewScheduleService
         }
 
         $update = [
-            'status'                => 'completed',
-            'decision'              => $data['decision'],
-            'decision_notes'        => $data['decision_notes'] ?? null,
+            'status' => 'completed',
+            'decision' => $data['decision'],
+            'decision_notes' => $data['decision_notes'] ?? null,
             'review_completed_date' => now()->toDateString(),
-            'next_review_due_date'  => $data['next_review_due_date'] ?? null,
+            'next_review_due_date' => $data['next_review_due_date'] ?? null,
         ];
 
         $disposalActionId = null;
         if (in_array($data['decision'], ['dispose', 'transfer'], true)) {
             $disposalActionId = DB::table('rm_disposal_action')->insertGetId([
                 'information_object_id' => $review->information_object_id,
-                'disposal_class_id'     => $review->disposal_class_id,
-                'action_type'           => $data['decision'] === 'transfer' ? 'transfer_archives' : 'destroy',
-                'status'                => 'pending',
-                'reason'                => 'Triggered by review #' . $id . ' decision: ' . $data['decision'],
-                'initiated_by'          => $userId,
+                'disposal_class_id' => $review->disposal_class_id,
+                'action_type' => $data['decision'] === 'transfer' ? 'transfer_archives' : 'destroy',
+                'status' => 'pending',
+                'reason' => 'Triggered by review #'.$id.' decision: '.$data['decision'],
+                'initiated_by' => $userId,
             ]);
             $update['triggered_disposal_action_id'] = $disposalActionId;
         }
@@ -155,10 +155,10 @@ class ReviewScheduleService
         DB::table('rm_review_schedule')->where('id', $id)->update($update);
 
         Log::info('rm: review completed', [
-            'review_id'   => $id,
-            'decision'    => $data['decision'],
+            'review_id' => $id,
+            'decision' => $data['decision'],
             'disposal_id' => $disposalActionId,
-            'user_id'     => $userId,
+            'user_id' => $userId,
         ]);
 
         return true;
@@ -180,14 +180,15 @@ class ReviewScheduleService
     public function counts(): array
     {
         $today = now()->toDateString();
-        $base  = DB::table('rm_review_schedule');
+        $base = DB::table('rm_review_schedule');
+
         return [
-            'pending'    => (clone $base)->where('status', 'pending')->count(),
-            'overdue'    => (clone $base)->where('status', 'pending')->where('review_due_date', '<=', $today)->count(),
-            'due_30d'    => (clone $base)->where('status', 'pending')
-                              ->whereBetween('review_due_date', [$today, now()->addDays(30)->toDateString()])
-                              ->count(),
-            'completed'  => (clone $base)->where('status', 'completed')->count(),
+            'pending' => (clone $base)->where('status', 'pending')->count(),
+            'overdue' => (clone $base)->where('status', 'pending')->where('review_due_date', '<=', $today)->count(),
+            'due_30d' => (clone $base)->where('status', 'pending')
+                ->whereBetween('review_due_date', [$today, now()->addDays(30)->toDateString()])
+                ->count(),
+            'completed' => (clone $base)->where('status', 'completed')->count(),
         ];
     }
 }

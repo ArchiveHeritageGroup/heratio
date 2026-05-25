@@ -10,6 +10,7 @@ class AclGroup extends Model
     use HasI18n;
 
     protected $table = 'acl_group';
+
     public $timestamps = true;
 
     protected $fillable = ['parent_id', 'source_culture', 'serial_number'];
@@ -40,7 +41,10 @@ class AclGroup extends Model
     }
 
     const ADMINISTRATOR_ID = 100;
+
     const EDITOR_ID = 101;
+
     const CONTRIBUTOR_ID = 102;
+
     const TRANSLATOR_ID = 103;
 }

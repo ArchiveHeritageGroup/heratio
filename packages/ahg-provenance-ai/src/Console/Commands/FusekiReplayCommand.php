@@ -58,12 +58,14 @@ class FusekiReplayCommand extends Command
     protected $signature = 'ahg:provenance-ai:replay
                             {--batch=200 : max rows to attempt per run}
                             {--dry-run : count pending without writing to Fuseki}';
+
     protected $description = 'Replay queued AI inference + override Fuseki writes (rows with NULL URIs).';
 
     public function handle(InferenceService $inference, FusekiSyncService $sync): int
     {
-        if (!Schema::hasTable('ahg_ai_inference')) {
+        if (! Schema::hasTable('ahg_ai_inference')) {
             $this->warn('ahg_ai_inference table missing - nothing to replay.');
+
             return self::SUCCESS;
         }
 
@@ -85,13 +87,21 @@ class FusekiReplayCommand extends Command
         $this->line(sprintf('[provenance-ai-replay] inference pending=%d (batch=%d)', $pending->count(), $batch));
 
         foreach ($pending as $row) {
-            if ($dry) { $infReplayed++; continue; }
+            if ($dry) {
+                $infReplayed++;
+
+                continue;
+            }
             try {
                 $r = $this->rowToInferenceRecord($row);
-                if ($r === null) { $infFailed++; continue; }
+                if ($r === null) {
+                    $infFailed++;
 
-                $tenant   = config('heratio.ld.tenant', 'ahg');
-                $graphUri = "urn:{$tenant}:provenance-ai:inference:" . $row->uuid;
+                    continue;
+                }
+
+                $tenant = config('heratio.ld.tenant', 'ahg');
+                $graphUri = "urn:{$tenant}:provenance-ai:inference:".$row->uuid;
                 // Use the protected buildInferenceTurtle via a thin
                 // public wrapper (added as a sibling to record()) - or
                 // call the Fuseki sync directly with a minimal turtle
@@ -100,7 +110,7 @@ class FusekiReplayCommand extends Command
                 $turtle = $this->callBuildTurtle($inference, $row->uuid, $r);
 
                 $result = $sync->insertRdfStar($graphUri, $turtle);
-                if (!empty($result['ok'])) {
+                if (! empty($result['ok'])) {
                     DB::table('ahg_ai_inference')->where('id', $row->id)
                         ->update(['fuseki_graph_uri' => $graphUri]);
                     $infReplayed++;
@@ -129,14 +139,18 @@ class FusekiReplayCommand extends Command
             $this->line(sprintf('[provenance-ai-replay] override pending=%d', $pending->count()));
 
             foreach ($pending as $row) {
-                if ($dry) { $ovReplayed++; continue; }
+                if ($dry) {
+                    $ovReplayed++;
+
+                    continue;
+                }
                 try {
-                    $tenant   = config('heratio.ld.tenant', 'ahg');
-                    $graphUri = "urn:{$tenant}:provenance-ai:override:" . $row->uuid;
+                    $tenant = config('heratio.ld.tenant', 'ahg');
+                    $graphUri = "urn:{$tenant}:provenance-ai:override:".$row->uuid;
                     $turtle = $this->buildOverrideTurtle($row);
 
                     $result = $sync->insertRdfStar($graphUri, $turtle);
-                    if (!empty($result['ok'])) {
+                    if (! empty($result['ok'])) {
                         DB::table('ahg_ai_override')->where('id', $row->id)
                             ->update(['fuseki_override_uri' => $graphUri]);
                         $ovReplayed++;
@@ -168,28 +182,29 @@ class FusekiReplayCommand extends Command
      */
     private function rowToInferenceRecord(object $row): ?InferenceRecord
     {
-        $required = ['service_name','model_name','model_version','input_hash','output_hash','target_entity_type','target_entity_id','target_field'];
+        $required = ['service_name', 'model_name', 'model_version', 'input_hash', 'output_hash', 'target_entity_type', 'target_entity_id', 'target_field'];
         foreach ($required as $f) {
-            if (!isset($row->$f) || $row->$f === '' || $row->$f === null) {
+            if (! isset($row->$f) || $row->$f === '' || $row->$f === null) {
                 return null;
             }
         }
+
         return new InferenceRecord(
-            serviceName:     (string) $row->service_name,
-            modelName:       (string) $row->model_name,
-            modelVersion:    (string) $row->model_version,
-            inputHash:       (string) $row->input_hash,
-            outputHash:      (string) $row->output_hash,
-            confidence:      isset($row->confidence) && $row->confidence !== null ? (float) $row->confidence : null,
-            standard:        $row->standard ?? null,
-            endpoint:        $row->endpoint ?? null,
-            targetEntityType:(string) $row->target_entity_type,
-            targetEntityId:  (int)    $row->target_entity_id,
-            targetField:     (string) $row->target_field,
-            inputExcerpt:    $row->input_excerpt ?? null,
-            outputExcerpt:   $row->output_excerpt ?? null,
-            elapsedMs:       isset($row->elapsed_ms) ? (int) $row->elapsed_ms : null,
-            userId:          isset($row->user_id) ? (int) $row->user_id : null,
+            serviceName: (string) $row->service_name,
+            modelName: (string) $row->model_name,
+            modelVersion: (string) $row->model_version,
+            inputHash: (string) $row->input_hash,
+            outputHash: (string) $row->output_hash,
+            confidence: isset($row->confidence) && $row->confidence !== null ? (float) $row->confidence : null,
+            standard: $row->standard ?? null,
+            endpoint: $row->endpoint ?? null,
+            targetEntityType: (string) $row->target_entity_type,
+            targetEntityId: (int) $row->target_entity_id,
+            targetField: (string) $row->target_field,
+            inputExcerpt: $row->input_excerpt ?? null,
+            outputExcerpt: $row->output_excerpt ?? null,
+            elapsedMs: isset($row->elapsed_ms) ? (int) $row->elapsed_ms : null,
+            userId: isset($row->user_id) ? (int) $row->user_id : null,
         );
     }
 
@@ -199,6 +214,7 @@ class FusekiReplayCommand extends Command
         // changing the visibility of the production write path.
         $ref = new \ReflectionMethod($inference, 'buildInferenceTurtle');
         $ref->setAccessible(true);
+
         return (string) $ref->invoke($inference, $uuid, $r);
     }
 
@@ -217,6 +233,7 @@ class FusekiReplayCommand extends Command
             if (method_exists($svc, 'buildOverrideTurtle')) {
                 $ref = new \ReflectionMethod($svc, 'buildOverrideTurtle');
                 $ref->setAccessible(true);
+
                 return (string) $ref->invoke($svc, $row);
             }
         }
@@ -226,11 +243,12 @@ class FusekiReplayCommand extends Command
         $reviewedAt = $row->reviewed_at ?? now()->toIso8601ZuluString();
         $tenant = config('heratio.ld.tenant', 'ahg');
         $provNs = config('heratio.ld.provenance_ns');
+
         return "@prefix prov: <http://www.w3.org/ns/prov#> .\n"
-             . "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
-             . "@prefix ex: <{$provNs}> .\n"
-             . "<urn:{$tenant}:provenance-ai:override:{$uuid}> a prov:Activity ;\n"
-             . "    prov:atTime \"" . addslashes((string) $reviewedAt) . "\"^^xsd:dateTime ;\n"
-             . "    ex:reviewed_by \"" . addslashes((string) ($row->reviewer_id ?? '')) . "\" .\n";
+             ."@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
+             ."@prefix ex: <{$provNs}> .\n"
+             ."<urn:{$tenant}:provenance-ai:override:{$uuid}> a prov:Activity ;\n"
+             .'    prov:atTime "'.addslashes((string) $reviewedAt)."\"^^xsd:dateTime ;\n"
+             .'    ex:reviewed_by "'.addslashes((string) ($row->reviewer_id ?? ''))."\" .\n";
     }
 }

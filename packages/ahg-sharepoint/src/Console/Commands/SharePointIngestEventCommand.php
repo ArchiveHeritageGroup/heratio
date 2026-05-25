@@ -20,6 +20,7 @@ use Illuminate\Console\Command;
 class SharePointIngestEventCommand extends Command
 {
     protected $signature = 'sharepoint:ingest-event {--event-id= : sharepoint_event.id}';
+
     protected $description = 'Process one inbound SharePoint webhook event';
 
     public function handle(SharePointIngestAdapter $adapter): int
@@ -27,15 +28,18 @@ class SharePointIngestEventCommand extends Command
         $eventId = (int) $this->option('event-id');
         if ($eventId <= 0) {
             $this->error('--event-id=<id> required');
+
             return self::INVALID;
         }
 
         try {
             $status = $adapter->ingest($eventId);
             $this->info("event {$eventId} -> {$status}");
+
             return self::SUCCESS;
         } catch (\Throwable $e) {
             $this->error("event {$eventId} failed: {$e->getMessage()}");
+
             return self::FAILURE;
         }
     }

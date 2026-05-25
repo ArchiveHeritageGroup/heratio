@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Heratio — PluginAccessMiddleware
  *
@@ -25,7 +26,7 @@ class PluginAccessMiddleware
         // Anonymous + no plugin grants → use global enablement only.
         $userId = $request->user()?->id;
 
-        if (!MenuService::isPluginAccessible($pluginName, $userId)) {
+        if (! MenuService::isPluginAccessible($pluginName, $userId)) {
             abort(403, "The '{$pluginName}' plugin is not enabled for your account.");
         }
 

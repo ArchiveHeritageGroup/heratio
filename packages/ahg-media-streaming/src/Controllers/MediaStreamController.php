@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgMediaStreaming\Controllers;
 
 use AhgCore\Models\DigitalObject;
@@ -85,7 +83,7 @@ class MediaStreamController extends Controller
 
         // Cache the thumbnail
         $thumbnailDir = storage_path('app/thumbnails');
-        $thumbnailPath = $thumbnailDir . '/' . $id . '.jpg';
+        $thumbnailPath = $thumbnailDir.'/'.$id.'.jpg';
 
         if (! file_exists($thumbnailPath) || filesize($thumbnailPath) === 0) {
             $success = $this->transcodingService->generateVideoThumbnail($sourcePath, $thumbnailPath);

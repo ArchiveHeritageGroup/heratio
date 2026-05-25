@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgForms\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -100,12 +98,12 @@ class FormService
     {
         $source = $this->getTemplate($sourceId);
 
-        if (!$source) {
+        if (! $source) {
             throw new \Exception('Source template not found');
         }
 
         $newId = DB::table('ahg_form_template')->insertGetId([
-            'name' => $newName ?? $source->name . ' (copy)',
+            'name' => $newName ?? $source->name.' (copy)',
             'description' => $source->description,
             'form_type' => $source->form_type,
             'config' => $source->config,
@@ -139,7 +137,7 @@ class FormService
     {
         $template = $this->getTemplate($id);
 
-        if (!$template) {
+        if (! $template) {
             return [];
         }
 
@@ -164,9 +162,9 @@ class FormService
         foreach ($data['fields'] ?? [] as $i => $field) {
             DB::table('ahg_form_field')->insert([
                 'template_id' => $id,
-                'field_name' => $field['field_name'] ?? 'field_' . $i,
+                'field_name' => $field['field_name'] ?? 'field_'.$i,
                 'field_type' => $field['field_type'] ?? 'text',
-                'label' => $field['label'] ?? 'Field ' . ($i + 1),
+                'label' => $field['label'] ?? 'Field '.($i + 1),
                 'atom_field' => $field['atom_field'] ?? null,
                 'sort_order' => $field['sort_order'] ?? $i,
                 'is_required' => $field['is_required'] ?? 0,
@@ -215,8 +213,8 @@ class FormService
      *   3. is_default=1 active template for this form_type (global fallback)
      *   4. null (no template — caller should fall back to standard edit)
      *
-     * @param string $formType   e.g. 'information_object', 'actor', 'accession'
-     * @param array<string,mixed>|null $context  optional: ['repository_id'=>, 'level_of_description_id'=>, 'collection_id'=>]
+     * @param  string  $formType  e.g. 'information_object', 'actor', 'accession'
+     * @param  array<string,mixed>|null  $context  optional: ['repository_id'=>, 'level_of_description_id'=>, 'collection_id'=>]
      */
     public function resolveTemplate(string $formType, ?array $context = null): ?object
     {
@@ -234,17 +232,17 @@ class FormService
 
         foreach ($assignments as $a) {
             $matches = true;
-            if (!empty($a->repository_id) && (int)$a->repository_id !== (int)($ctx['repository_id'] ?? 0)) {
+            if (! empty($a->repository_id) && (int) $a->repository_id !== (int) ($ctx['repository_id'] ?? 0)) {
                 $matches = false;
             }
-            if ($matches && !empty($a->level_of_description_id) && (int)$a->level_of_description_id !== (int)($ctx['level_of_description_id'] ?? 0)) {
+            if ($matches && ! empty($a->level_of_description_id) && (int) $a->level_of_description_id !== (int) ($ctx['level_of_description_id'] ?? 0)) {
                 $matches = false;
             }
-            if ($matches && !empty($a->collection_id) && (int)$a->collection_id !== (int)($ctx['collection_id'] ?? 0)) {
+            if ($matches && ! empty($a->collection_id) && (int) $a->collection_id !== (int) ($ctx['collection_id'] ?? 0)) {
                 $matches = false;
             }
             if ($matches) {
-                return $this->getTemplate((int)$a->template_id);
+                return $this->getTemplate((int) $a->template_id);
             }
         }
 
@@ -256,7 +254,7 @@ class FormService
             ->orderByDesc('id')
             ->first();
 
-        return $default ? $this->getTemplate((int)$default->id) : null;
+        return $default ? $this->getTemplate((int) $default->id) : null;
     }
 
     /**
@@ -275,7 +273,7 @@ class FormService
     /**
      * Field mappings for a template — keyed by field_id.
      *
-     * @return array<int,array<int,object>>  map: field_id => list of mapping rows (a field can map to multiple columns)
+     * @return array<int,array<int,object>> map: field_id => list of mapping rows (a field can map to multiple columns)
      */
     public function getMappingsForTemplate(int $templateId): array
     {
@@ -287,8 +285,9 @@ class FormService
 
         $out = [];
         foreach ($rows as $r) {
-            $out[(int)$r->field_id][] = $r;
+            $out[(int) $r->field_id][] = $r;
         }
+
         return $out;
     }
 

@@ -58,10 +58,11 @@ class TranslationLintCommand extends Command
 
         $root = base_path('packages');
         if ($packageFilter !== '') {
-            $root .= '/' . $packageFilter;
+            $root .= '/'.$packageFilter;
         }
         if (! is_dir($root)) {
             $this->error("Scan root not found: {$root}");
+
             return self::FAILURE;
         }
 
@@ -79,12 +80,20 @@ class TranslationLintCommand extends Command
 
         foreach ($rii as $file) {
             $path = $file->getPathname();
-            if (str_contains($path, '/worktree/')) continue;
-            if (str_contains($path, '/vendor/')) continue;
-            if (! str_ends_with($path, '.blade.php')) continue;
+            if (str_contains($path, '/worktree/')) {
+                continue;
+            }
+            if (str_contains($path, '/vendor/')) {
+                continue;
+            }
+            if (! str_ends_with($path, '.blade.php')) {
+                continue;
+            }
 
             $contents = @file_get_contents($path);
-            if ($contents === false) continue;
+            if ($contents === false) {
+                continue;
+            }
 
             // Strip <script>...</script> and <style>...</style> blocks so we
             // don't flag JS strings as UI hardcodes.
@@ -92,9 +101,11 @@ class TranslationLintCommand extends Command
             $stripped = preg_replace('#<style\b[^>]*>.*?</style>#is', '', $stripped);
 
             $hits = $this->findCandidates($stripped, $known);
-            if (empty($hits)) continue;
+            if (empty($hits)) {
+                continue;
+            }
 
-            $rel = str_replace(base_path() . '/', '', $path);
+            $rel = str_replace(base_path().'/', '', $path);
             $perFile[$rel] = $hits;
             $total += count($hits);
         }
@@ -104,7 +115,7 @@ class TranslationLintCommand extends Command
 
         if ($verbose) {
             foreach ($perFile as $relPath => $hits) {
-                $this->line("\n<comment>" . $relPath . "</comment>  (" . count($hits) . ' candidates)');
+                $this->line("\n<comment>".$relPath.'</comment>  ('.count($hits).' candidates)');
                 foreach ($hits as $h) {
                     $this->line(sprintf('  L%-4d  [%s]  %s',
                         $h['line'],
@@ -133,6 +144,7 @@ class TranslationLintCommand extends Command
 
         if ($failAbove !== null && $total > $failAbove) {
             $this->error("Total candidates {$total} exceeds threshold {$failAbove}");
+
             return self::FAILURE;
         }
 
@@ -167,7 +179,9 @@ class TranslationLintCommand extends Command
                 foreach ($matches[1] as $m) {
                     $text = trim($m[0]);
                     $offset = $m[1];
-                    if ($this->shouldSkip($text, $known)) continue;
+                    if ($this->shouldSkip($text, $known)) {
+                        continue;
+                    }
                     $hits[] = [
                         'kind' => $kind,
                         'text' => $text,
@@ -183,15 +197,25 @@ class TranslationLintCommand extends Command
     private function shouldSkip(string $text, array $known): bool
     {
         // Empty-ish
-        if (mb_strlen($text) < 2) return true;
+        if (mb_strlen($text) < 2) {
+            return true;
+        }
         // All numeric / dates / decimals
-        if (preg_match('/^[\d\s.,:\/+\-%]+$/', $text)) return true;
+        if (preg_match('/^[\d\s.,:\/+\-%]+$/', $text)) {
+            return true;
+        }
         // Single icon-only spans (Font Awesome, Bootstrap icon class names)
-        if (preg_match('/^(fa|fas|far|fal|fab|bi|icon)[-\s]/i', $text)) return true;
+        if (preg_match('/^(fa|fas|far|fal|fab|bi|icon)[-\s]/i', $text)) {
+            return true;
+        }
         // Already a Blade expression
-        if (str_contains($text, '{{') || str_contains($text, '{!!')) return true;
+        if (str_contains($text, '{{') || str_contains($text, '{!!')) {
+            return true;
+        }
         // Already wrapped via inline @php echo __() pattern
-        if (str_contains($text, '@php') && str_contains($text, '__(')) return true;
+        if (str_contains($text, '@php') && str_contains($text, '__(')) {
+            return true;
+        }
         // Brand strings, file formats, acronyms — proper nouns we don't translate
         $properNouns = [
             'Heratio', 'AHG', 'OpenRiC', 'RiC', 'AtoM', 'Artefactual', 'ICA',
@@ -204,7 +228,10 @@ class TranslationLintCommand extends Command
             'GLB', 'GLTF', 'STL', 'OBJ', 'FBX', 'GRAP', 'POPIA', 'PAIA', 'GDPR',
             'NMMZ', 'NAZ', 'CDPA', 'IPSAS', 'SPARQL',
         ];
-        if (in_array($text, $properNouns, true)) return true;
+        if (in_array($text, $properNouns, true)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -217,6 +244,7 @@ class TranslationLintCommand extends Command
             $offset += mb_strlen($line, '8bit') + 1;
             $map[] = $offset;
         }
+
         return $map;
     }
 
@@ -228,6 +256,7 @@ class TranslationLintCommand extends Command
                 return $i;
             }
         }
+
         return count($lineMap);
     }
 }

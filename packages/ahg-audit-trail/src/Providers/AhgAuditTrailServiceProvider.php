@@ -25,23 +25,23 @@
 
 namespace AhgAuditTrail\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use AhgAuditTrail\Services\AuditService;
+use Illuminate\Support\ServiceProvider;
 
 class AhgAuditTrailServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         $this->app->singleton(AuditService::class, function ($app) {
-            return new AuditService();
+            return new AuditService;
         });
     }
 
     public function boot(): void
     {
         \Illuminate\Support\Facades\Route::middleware('web')
-            ->group(__DIR__ . '/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-audit-trail');
+            ->group(__DIR__.'/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-audit-trail');
 
         if ($this->app->runningInConsole()) {
             $this->commands([

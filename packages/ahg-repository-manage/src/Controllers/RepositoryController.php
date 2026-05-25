@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgRepositoryManage\Controllers;
 
 use AhgCore\Constants\TermId;
@@ -85,7 +83,9 @@ class RepositoryController extends Controller
 
         // Thematic area options for advanced search dropdown (full list from taxonomy)
         $thematicAreaOptions = \Illuminate\Support\Facades\DB::table('term')
-            ->join('term_i18n', function ($j) use ($culture) { $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $culture); })
+            ->join('term_i18n', function ($j) use ($culture) {
+                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $culture);
+            })
             ->where('term.taxonomy_id', 72)
             ->orderBy('term_i18n.name')
             ->select('term.id', 'term_i18n.name')
@@ -93,7 +93,9 @@ class RepositoryController extends Controller
 
         // Repository types for advanced search dropdown
         $repositoryTypes = \Illuminate\Support\Facades\DB::table('term')
-            ->join('term_i18n', function ($j) use ($culture) { $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $culture); })
+            ->join('term_i18n', function ($j) use ($culture) {
+                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $culture);
+            })
             ->where('term.taxonomy_id', 37)
             ->orderBy('term_i18n.name')
             ->select('term.id', 'term_i18n.name')
@@ -102,55 +104,55 @@ class RepositoryController extends Controller
         // ── Filter tags (active filter pills) ──
         $filterTags = [];
 
-        if (!empty($params['thematicArea'])) {
+        if (! empty($params['thematicArea'])) {
             $taName = DB::table('term_i18n')->where('id', $params['thematicArea'])->where('culture', $culture)->value('name');
             if ($taName) {
                 $filterTags[] = [
-                    'label' => 'Thematic area: ' . $taName,
-                    'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['thematicAreas', 'page'])),
+                    'label' => 'Thematic area: '.$taName,
+                    'removeUrl' => url('/repository/browse').'?'.http_build_query($request->except(['thematicAreas', 'page'])),
                 ];
             }
         }
 
-        if (!empty($params['archiveType'])) {
+        if (! empty($params['archiveType'])) {
             $atName = DB::table('term_i18n')->where('id', $params['archiveType'])->where('culture', $culture)->value('name');
             if ($atName) {
                 $filterTags[] = [
-                    'label' => 'Archive type: ' . $atName,
-                    'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['types', 'page'])),
+                    'label' => 'Archive type: '.$atName,
+                    'removeUrl' => url('/repository/browse').'?'.http_build_query($request->except(['types', 'page'])),
                 ];
             }
         }
 
-        if (!empty($params['region'])) {
+        if (! empty($params['region'])) {
             $filterTags[] = [
-                'label' => 'Region: ' . $params['region'],
-                'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['regions', 'page'])),
+                'label' => 'Region: '.$params['region'],
+                'removeUrl' => url('/repository/browse').'?'.http_build_query($request->except(['regions', 'page'])),
             ];
         }
 
-        if (!empty($params['subregion'])) {
+        if (! empty($params['subregion'])) {
             $srName = DB::table('term_i18n')->where('id', $params['subregion'])->where('culture', $culture)->value('name');
             if ($srName) {
                 $filterTags[] = [
-                    'label' => 'Subregion: ' . $srName,
-                    'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['geographicSubregions', 'page'])),
+                    'label' => 'Subregion: '.$srName,
+                    'removeUrl' => url('/repository/browse').'?'.http_build_query($request->except(['geographicSubregions', 'page'])),
                 ];
             }
         }
 
-        if (!empty($params['locality'])) {
+        if (! empty($params['locality'])) {
             $filterTags[] = [
-                'label' => 'Locality: ' . $params['locality'],
-                'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['locality', 'page'])),
+                'label' => 'Locality: '.$params['locality'],
+                'removeUrl' => url('/repository/browse').'?'.http_build_query($request->except(['locality', 'page'])),
             ];
         }
 
-        if (!empty($params['languages'])) {
+        if (! empty($params['languages'])) {
             $langDisplay = locale_get_display_language($params['languages'], 'en') ?: $params['languages'];
             $filterTags[] = [
-                'label' => 'Language: ' . ucfirst($langDisplay),
-                'removeUrl' => url('/repository/browse') . '?' . http_build_query($request->except(['languages', 'page'])),
+                'label' => 'Language: '.ucfirst($langDisplay),
+                'removeUrl' => url('/repository/browse').'?'.http_build_query($request->except(['languages', 'page'])),
             ];
         }
 
@@ -177,12 +179,12 @@ class RepositoryController extends Controller
     public function show(string $slug)
     {
         $repository = $this->service->getBySlug($slug);
-        if (!$repository) {
+        if (! $repository) {
             abort(404);
         }
 
         // #51 ACL enforcement: read-side gate. Admin bypass built in.
-        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $repository->id)) {
+        if (! \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $repository->id)) {
             abort(403, 'You do not have permission to view this repository.');
         }
 
@@ -244,7 +246,7 @@ class RepositoryController extends Controller
     public function print(string $slug)
     {
         $repository = $this->service->getBySlug($slug);
-        if (!$repository) {
+        if (! $repository) {
             abort(404);
         }
 
@@ -293,7 +295,7 @@ class RepositoryController extends Controller
     public function edit(string $slug)
     {
         $repository = $this->service->getBySlug($slug);
-        if (!$repository) {
+        if (! $repository) {
             abort(404);
         }
 
@@ -334,7 +336,7 @@ class RepositoryController extends Controller
     public function update(Request $request, string $slug)
     {
         $repository = $this->service->getBySlug($slug);
-        if (!$repository) {
+        if (! $repository) {
             abort(404);
         }
 
@@ -355,7 +357,7 @@ class RepositoryController extends Controller
     public function confirmDelete(string $slug)
     {
         $repository = $this->service->getBySlug($slug);
-        if (!$repository) {
+        if (! $repository) {
             abort(404);
         }
 
@@ -370,7 +372,7 @@ class RepositoryController extends Controller
     public function destroy(Request $request, string $slug)
     {
         $repository = $this->service->getBySlug($slug);
-        if (!$repository) {
+        if (! $repository) {
             abort(404);
         }
 
@@ -387,7 +389,7 @@ class RepositoryController extends Controller
     public function editTheme(string $slug)
     {
         $repository = $this->service->getBySlug($slug);
-        if (!$repository) {
+        if (! $repository) {
             abort(404);
         }
 
@@ -402,7 +404,7 @@ class RepositoryController extends Controller
     public function updateTheme(Request $request, string $slug)
     {
         $repository = $this->service->getBySlug($slug);
-        if (!$repository) {
+        if (! $repository) {
             abort(404);
         }
 
@@ -428,7 +430,7 @@ class RepositoryController extends Controller
     public function editUploadLimit(Request $request, string $slug)
     {
         $repository = $this->service->getBySlug($slug);
-        if (!$repository) {
+        if (! $repository) {
             abort(404);
         }
 
@@ -463,7 +465,7 @@ class RepositoryController extends Controller
     public function uploadLimitExceeded(string $slug)
     {
         $repository = $this->service->getBySlug($slug);
-        if (!$repository) {
+        if (! $repository) {
             abort(404);
         }
 
@@ -471,7 +473,7 @@ class RepositoryController extends Controller
         $adminEmail = DB::table('user')
             ->join('actor_i18n', function ($j) {
                 $j->on('user.id', '=', 'actor_i18n.id')
-                  ->where('actor_i18n.culture', '=', app()->getLocale());
+                    ->where('actor_i18n.culture', '=', app()->getLocale());
             })
             ->orderBy('user.id')
             ->value('user.email') ?? '';
@@ -494,11 +496,11 @@ class RepositoryController extends Controller
         $results = DB::table('actor')
             ->join('actor_i18n', function ($j) use ($culture) {
                 $j->on('actor.id', '=', 'actor_i18n.id')
-                  ->where('actor_i18n.culture', '=', $culture);
+                    ->where('actor_i18n.culture', '=', $culture);
             })
             ->join('repository', 'repository.id', '=', 'actor.id')
             ->join('slug', 'slug.object_id', '=', 'actor.id')
-            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%' . $query . '%')
+            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%'.$query.'%')
             ->select(
                 'actor.id',
                 'actor_i18n.authorized_form_of_name as name',

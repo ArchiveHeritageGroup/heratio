@@ -23,26 +23,28 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgIntegrity\Controllers;
 
+use AhgIntegrity\Services\DestructionCertificateService;
+use AhgIntegrity\Services\LegalHoldService;
+use AhgIntegrity\Services\RecordDeclarationService;
+use AhgIntegrity\Services\RetentionService;
+use AhgIntegrity\Services\VitalRecordService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use AhgIntegrity\Services\LegalHoldService;
-use AhgIntegrity\Services\DestructionCertificateService;
-use AhgIntegrity\Services\RetentionService;
-use AhgIntegrity\Services\RecordDeclarationService;
-use AhgIntegrity\Services\VitalRecordService;
 
 class IntegrityController extends Controller
 {
     protected LegalHoldService $legalHoldService;
+
     protected DestructionCertificateService $certService;
+
     protected RetentionService $retentionService;
+
     protected RecordDeclarationService $declarationService;
+
     protected VitalRecordService $vitalRecordService;
 
     public function __construct(
@@ -153,7 +155,7 @@ class IntegrityController extends Controller
                 ->whereNotNull('integrity_ledger.repository_id')
                 ->join('actor_i18n', function ($j) use ($culture) {
                     $j->on('integrity_ledger.repository_id', '=', 'actor_i18n.id')
-                      ->where('actor_i18n.culture', '=', $culture);
+                        ->where('actor_i18n.culture', '=', $culture);
                 })
                 ->select('actor_i18n.authorized_form_of_name as name',
                     DB::raw('COUNT(*) as total'),
@@ -205,10 +207,32 @@ class IntegrityController extends Controller
         ]);
     }
 
-    public function alerts() { $alerts = Schema::hasTable('integrity_alert') ? DB::table('integrity_alert')->orderBy('created_at', 'desc')->limit(100)->get() : collect(); return view('ahg-integrity::integrity.alerts', compact('alerts')); }
-    public function deadLetter() { $deadLetters = Schema::hasTable('integrity_dead_letter') ? DB::table('integrity_dead_letter')->orderBy('created_at', 'desc')->limit(100)->get() : collect(); return view('ahg-integrity::integrity.dead-letter', compact('deadLetters')); }
-    public function disposition() { $dispositions = Schema::hasTable('integrity_disposition_queue') ? DB::table('integrity_disposition_queue')->orderBy('created_at', 'desc')->get() : collect(); return view('ahg-integrity::integrity.disposition', compact('dispositions')); }
-    public function export() { return view('ahg-integrity::integrity.export'); }
+    public function alerts()
+    {
+        $alerts = Schema::hasTable('integrity_alert') ? DB::table('integrity_alert')->orderBy('created_at', 'desc')->limit(100)->get() : collect();
+
+        return view('ahg-integrity::integrity.alerts', compact('alerts'));
+    }
+
+    public function deadLetter()
+    {
+        $deadLetters = Schema::hasTable('integrity_dead_letter') ? DB::table('integrity_dead_letter')->orderBy('created_at', 'desc')->limit(100)->get() : collect();
+
+        return view('ahg-integrity::integrity.dead-letter', compact('deadLetters'));
+    }
+
+    public function disposition()
+    {
+        $dispositions = Schema::hasTable('integrity_disposition_queue') ? DB::table('integrity_disposition_queue')->orderBy('created_at', 'desc')->get() : collect();
+
+        return view('ahg-integrity::integrity.disposition', compact('dispositions'));
+    }
+
+    public function export()
+    {
+        return view('ahg-integrity::integrity.export');
+    }
+
     public function holds(Request $request)
     {
         $page = max(1, (int) $request->query('page', 1));
@@ -226,25 +250,98 @@ class IntegrityController extends Controller
             ->get();
 
         return view('ahg-integrity::integrity.holds', [
-            'holds'        => $holdData['data'],
-            'total'        => $holdData['total'],
-            'page'         => $holdData['page'],
-            'perPage'      => $holdData['perPage'],
-            'counts'       => $counts,
+            'holds' => $holdData['data'],
+            'total' => $holdData['total'],
+            'page' => $holdData['page'],
+            'perPage' => $holdData['perPage'],
+            'counts' => $counts,
             'repositories' => $repositories,
             'repositoryId' => $repositoryId,
         ]);
     }
-    public function ledger() { $items = Schema::hasTable('integrity_ledger') ? DB::table('integrity_ledger')->orderBy('verified_at', 'desc')->limit(100)->get() : collect(); return view('ahg-integrity::integrity.ledger', compact('items')); }
-    public function policies() { $items = Schema::hasTable('integrity_policy') ? DB::table('integrity_policy')->orderBy('name')->get() : collect(); return view('ahg-integrity::integrity.policies', compact('items')); }
-    public function policyEdit(int $id) { $policy = Schema::hasTable('integrity_policy') ? DB::table('integrity_policy')->where('id', $id)->first() : null; if (!$policy) abort(404); return view('ahg-integrity::integrity.policy-edit', compact('policy')); }
-    public function policyUpdate(\Illuminate\Http\Request $request, int $id) { if (Schema::hasTable('integrity_policy')) { DB::table('integrity_policy')->where('id', $id)->update($request->only(['name', 'description', 'frequency']) + ['is_active' => $request->boolean('is_active'), 'updated_at' => now()]); } return redirect()->route('integrity.policies')->with('success', 'Policy updated.'); }
-    public function report() { $items = collect(); return view('ahg-integrity::integrity.report', compact('items')); }
-    public function runs() { $items = Schema::hasTable('integrity_run') ? DB::table('integrity_run')->orderBy('started_at', 'desc')->limit(50)->get() : collect(); return view('ahg-integrity::integrity.runs', compact('items')); }
-    public function runDetail(int $id) { $run = Schema::hasTable('integrity_run') ? DB::table('integrity_run')->where('id', $id)->first() : null; if (!$run) abort(404); $failures = Schema::hasTable('integrity_dead_letter') ? DB::table('integrity_dead_letter')->where('run_id', $id)->get() : collect(); return view('ahg-integrity::integrity.run-detail', compact('run', 'failures')); }
-    public function schedules() { $items = Schema::hasTable('integrity_schedule') ? DB::table('integrity_schedule')->orderBy('name')->get() : collect(); return view('ahg-integrity::integrity.schedules', compact('items')); }
-    public function scheduleEdit(int $id) { $schedule = Schema::hasTable('integrity_schedule') ? DB::table('integrity_schedule')->where('id', $id)->first() : null; if (!$schedule) abort(404); return view('ahg-integrity::integrity.schedule-edit', compact('schedule')); }
-    public function scheduleUpdate(\Illuminate\Http\Request $request, int $id) { if (Schema::hasTable('integrity_schedule')) { DB::table('integrity_schedule')->where('id', $id)->update($request->only(['name', 'cron_expression']) + ['is_active' => $request->boolean('is_active'), 'updated_at' => now()]); } return redirect()->route('integrity.schedules')->with('success', 'Schedule updated.'); }
+
+    public function ledger()
+    {
+        $items = Schema::hasTable('integrity_ledger') ? DB::table('integrity_ledger')->orderBy('verified_at', 'desc')->limit(100)->get() : collect();
+
+        return view('ahg-integrity::integrity.ledger', compact('items'));
+    }
+
+    public function policies()
+    {
+        $items = Schema::hasTable('integrity_policy') ? DB::table('integrity_policy')->orderBy('name')->get() : collect();
+
+        return view('ahg-integrity::integrity.policies', compact('items'));
+    }
+
+    public function policyEdit(int $id)
+    {
+        $policy = Schema::hasTable('integrity_policy') ? DB::table('integrity_policy')->where('id', $id)->first() : null;
+        if (! $policy) {
+            abort(404);
+        }
+
+return view('ahg-integrity::integrity.policy-edit', compact('policy'));
+    }
+
+    public function policyUpdate(\Illuminate\Http\Request $request, int $id)
+    {
+        if (Schema::hasTable('integrity_policy')) {
+            DB::table('integrity_policy')->where('id', $id)->update($request->only(['name', 'description', 'frequency']) + ['is_active' => $request->boolean('is_active'), 'updated_at' => now()]);
+        }
+
+return redirect()->route('integrity.policies')->with('success', 'Policy updated.');
+    }
+
+    public function report()
+    {
+        $items = collect();
+
+        return view('ahg-integrity::integrity.report', compact('items'));
+    }
+
+    public function runs()
+    {
+        $items = Schema::hasTable('integrity_run') ? DB::table('integrity_run')->orderBy('started_at', 'desc')->limit(50)->get() : collect();
+
+        return view('ahg-integrity::integrity.runs', compact('items'));
+    }
+
+    public function runDetail(int $id)
+    {
+        $run = Schema::hasTable('integrity_run') ? DB::table('integrity_run')->where('id', $id)->first() : null;
+        if (! $run) {
+            abort(404);
+        } $failures = Schema::hasTable('integrity_dead_letter') ? DB::table('integrity_dead_letter')->where('run_id', $id)->get() : collect();
+
+        return view('ahg-integrity::integrity.run-detail', compact('run', 'failures'));
+    }
+
+    public function schedules()
+    {
+        $items = Schema::hasTable('integrity_schedule') ? DB::table('integrity_schedule')->orderBy('name')->get() : collect();
+
+        return view('ahg-integrity::integrity.schedules', compact('items'));
+    }
+
+    public function scheduleEdit(int $id)
+    {
+        $schedule = Schema::hasTable('integrity_schedule') ? DB::table('integrity_schedule')->where('id', $id)->first() : null;
+        if (! $schedule) {
+            abort(404);
+        }
+
+return view('ahg-integrity::integrity.schedule-edit', compact('schedule'));
+    }
+
+    public function scheduleUpdate(\Illuminate\Http\Request $request, int $id)
+    {
+        if (Schema::hasTable('integrity_schedule')) {
+            DB::table('integrity_schedule')->where('id', $id)->update($request->only(['name', 'cron_expression']) + ['is_active' => $request->boolean('is_active'), 'updated_at' => now()]);
+        }
+
+return redirect()->route('integrity.schedules')->with('success', 'Schedule updated.');
+    }
 
     // ─── Legal Hold CRUD ─────────────────────────────────────────────
 
@@ -257,7 +354,7 @@ class IntegrityController extends Controller
     {
         $request->validate([
             'information_object_id' => 'required|integer|min:1',
-            'reason'                => 'required|string|max:2000',
+            'reason' => 'required|string|max:2000',
         ]);
 
         $userId = auth()->id() ?? 0;
@@ -265,13 +362,13 @@ class IntegrityController extends Controller
 
         // Verify IO exists
         $ioExists = DB::table('information_object')->where('id', $ioId)->exists();
-        if (!$ioExists) {
-            return back()->withInput()->with('error', 'Information object #' . $ioId . ' does not exist.');
+        if (! $ioExists) {
+            return back()->withInput()->with('error', 'Information object #'.$ioId.' does not exist.');
         }
 
         // Check if already under hold
         if ($this->legalHoldService->isUnderHold($ioId)) {
-            return back()->withInput()->with('error', 'Information object #' . $ioId . ' is already under an active legal hold.');
+            return back()->withInput()->with('error', 'Information object #'.$ioId.' is already under an active legal hold.');
         }
 
         $holdId = $this->legalHoldService->placeHold(
@@ -280,7 +377,7 @@ class IntegrityController extends Controller
             $userId
         );
 
-        return redirect()->route('integrity.holds')->with('success', 'Legal hold #' . $holdId . ' placed successfully.');
+        return redirect()->route('integrity.holds')->with('success', 'Legal hold #'.$holdId.' placed successfully.');
     }
 
     public function holdRelease(Request $request, int $id)
@@ -293,11 +390,11 @@ class IntegrityController extends Controller
 
         $released = $this->legalHoldService->releaseHold($id, $userId, $request->input('release_reason'));
 
-        if (!$released) {
-            return back()->with('error', 'Could not release hold #' . $id . '. It may already be released.');
+        if (! $released) {
+            return back()->with('error', 'Could not release hold #'.$id.'. It may already be released.');
         }
 
-        return redirect()->route('integrity.holds')->with('success', 'Legal hold #' . $id . ' released.');
+        return redirect()->route('integrity.holds')->with('success', 'Legal hold #'.$id.' released.');
     }
 
     public function holdHistory(int $ioId)
@@ -311,7 +408,7 @@ class IntegrityController extends Controller
         $history = $this->legalHoldService->getHoldHistory($ioId);
 
         return view('ahg-integrity::integrity.hold-history', [
-            'ioId'    => $ioId,
+            'ioId' => $ioId,
             'ioTitle' => $ioTitle,
             'history' => $history,
         ]);
@@ -323,7 +420,7 @@ class IntegrityController extends Controller
 
         return response()->json([
             'information_object_id' => $ioId,
-            'under_hold'            => $underHold,
+            'under_hold' => $underHold,
         ]);
     }
 
@@ -336,9 +433,9 @@ class IntegrityController extends Controller
 
         return view('ahg-integrity::integrity.certificates', [
             'certificates' => $certData['data'],
-            'total'        => $certData['total'],
-            'page'         => $certData['page'],
-            'perPage'      => $certData['perPage'],
+            'total' => $certData['total'],
+            'page' => $certData['page'],
+            'perPage' => $certData['perPage'],
         ]);
     }
 
@@ -348,7 +445,7 @@ class IntegrityController extends Controller
             ->where('id', $dispositionId)
             ->first();
 
-        if (!$disposition) {
+        if (! $disposition) {
             abort(404, 'Disposition queue item not found.');
         }
 
@@ -360,17 +457,17 @@ class IntegrityController extends Controller
 
         return view('ahg-integrity::integrity.certificate-generate', [
             'disposition' => $disposition,
-            'ioTitle'     => $ioTitle,
+            'ioTitle' => $ioTitle,
         ]);
     }
 
     public function certificateStore(Request $request)
     {
         $request->validate([
-            'disposition_id'     => 'required|integer|min:1',
-            'authorized_by'      => 'required|string|max:255',
+            'disposition_id' => 'required|integer|min:1',
+            'authorized_by' => 'required|string|max:255',
             'destruction_method' => 'required|string|max:50',
-            'witness'            => 'nullable|string|max:255',
+            'witness' => 'nullable|string|max:255',
         ]);
 
         $result = $this->certService->generateCertificate(
@@ -381,14 +478,14 @@ class IntegrityController extends Controller
         );
 
         return redirect()->route('integrity.certificates.view', ['id' => $result['id']])
-            ->with('success', 'Destruction certificate ' . $result['certificate_number'] . ' generated.');
+            ->with('success', 'Destruction certificate '.$result['certificate_number'].' generated.');
     }
 
     public function certificateView(int $id)
     {
         $cert = $this->certService->getCertificate($id);
 
-        if (!$cert) {
+        if (! $cert) {
             abort(404, 'Certificate not found.');
         }
 
@@ -407,12 +504,12 @@ class IntegrityController extends Controller
         $policies = $this->retentionService->getRetentionPolicies();
 
         return view('ahg-integrity::integrity.retention-events', [
-            'events'     => $eventsData['data'],
-            'total'      => $eventsData['total'],
-            'page'       => $eventsData['page'],
-            'perPage'    => $eventsData['per_page'],
+            'events' => $eventsData['data'],
+            'total' => $eventsData['total'],
+            'page' => $eventsData['page'],
+            'perPage' => $eventsData['per_page'],
             'eventTypes' => $eventTypes,
-            'policies'   => $policies,
+            'policies' => $policies,
         ]);
     }
 
@@ -420,8 +517,8 @@ class IntegrityController extends Controller
     {
         $request->validate([
             'information_object_id' => 'required|integer|min:1',
-            'event_type'            => 'required|string|max:50',
-            'notes'                 => 'nullable|string|max:2000',
+            'event_type' => 'required|string|max:50',
+            'notes' => 'nullable|string|max:2000',
         ]);
 
         $userId = auth()->id() ?? 0;
@@ -446,10 +543,10 @@ class IntegrityController extends Controller
 
         return view('ahg-integrity::integrity.declarations', [
             'declarations' => $allData['data'],
-            'total'        => $allData['total'],
-            'page'         => $allData['page'],
-            'perPage'      => $allData['per_page'],
-            'pending'      => $pending,
+            'total' => $allData['total'],
+            'page' => $allData['page'],
+            'perPage' => $allData['per_page'],
+            'pending' => $pending,
         ]);
     }
 
@@ -508,10 +605,10 @@ class IntegrityController extends Controller
             ->get();
 
         return view('ahg-integrity::integrity.vital-records', [
-            'records'      => $vitalData['data'],
-            'total'        => $vitalData['total'],
-            'page'         => $vitalData['page'],
-            'perPage'      => $vitalData['per_page'],
+            'records' => $vitalData['data'],
+            'total' => $vitalData['total'],
+            'page' => $vitalData['page'],
+            'perPage' => $vitalData['per_page'],
             'overdueCount' => $overdueCount,
             'repositories' => $repositories,
             'repositoryId' => $repositoryId,
@@ -522,8 +619,8 @@ class IntegrityController extends Controller
     {
         $request->validate([
             'information_object_id' => 'required|integer|min:1',
-            'reason'                => 'required|string|max:2000',
-            'review_cycle_days'     => 'required|integer|min:1|max:3650',
+            'reason' => 'required|string|max:2000',
+            'review_cycle_days' => 'required|integer|min:1|max:3650',
         ]);
 
         $userId = auth()->id() ?? 0;

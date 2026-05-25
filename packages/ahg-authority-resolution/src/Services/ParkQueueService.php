@@ -105,7 +105,7 @@ class ParkQueueService
             $q->where('p.parked_at', '>=', $sinceParked->format('Y-m-d H:i:s'));
         }
         if ($reasonQuery !== null && $reasonQuery !== '') {
-            $q->where('p.reason', 'like', '%' . $reasonQuery . '%');
+            $q->where('p.reason', 'like', '%'.$reasonQuery.'%');
         }
 
         switch ($sortBy) {
@@ -130,7 +130,7 @@ class ParkQueueService
     /**
      * Per-archivist counts for the dashboard widget.
      *
-     * @return array<int,int>  archivist_user_id => parked_count
+     * @return array<int,int> archivist_user_id => parked_count
      */
     public function countsByArchivist(): array
     {
@@ -143,6 +143,7 @@ class ParkQueueService
         foreach ($rows as $r) {
             $out[(int) $r->parked_by_user_id] = (int) $r->c;
         }
+
         return $out;
     }
 
@@ -192,8 +193,6 @@ class ParkQueueService
      *
      * Returns the count of mentions that just became "new candidate
      * available". Idempotent: re-running with no upstream change returns 0.
-     *
-     * @return int
      */
     public function scanForNewCandidates(): int
     {
@@ -224,6 +223,7 @@ class ParkQueueService
                     'mention_id' => $mentionId,
                     'exception' => $e->getMessage(),
                 ]);
+
                 continue;
             }
 
@@ -270,6 +270,7 @@ class ParkQueueService
             );
         }
         sort($parts, SORT_STRING);
+
         return implode(';', $parts);
     }
 }

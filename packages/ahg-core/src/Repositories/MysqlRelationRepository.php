@@ -15,7 +15,7 @@ class MysqlRelationRepository implements RelationRepository
             })
             ->where(function ($q) use ($entityId) {
                 $q->where('relation.subject_id', $entityId)
-                  ->orWhere('relation.object_id', $entityId);
+                    ->orWhere('relation.object_id', $entityId);
             })
             ->select(
                 'relation.*',

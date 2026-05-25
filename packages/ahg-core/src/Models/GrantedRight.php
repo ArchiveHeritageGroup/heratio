@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class GrantedRight extends Model
 {
     protected $table = 'granted_right';
+
     public $timestamps = false;
 
     protected $fillable = [

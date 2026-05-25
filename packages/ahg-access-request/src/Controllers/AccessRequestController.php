@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgAccessRequest\Controllers;
 
 use AhgAccessRequest\Services\AccessRequestService;
@@ -118,23 +116,23 @@ class AccessRequestController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'subject'                     => 'required|string|max:255',
-            'request_type'                => 'required|string|max:64',
-            'description'                 => 'required|string|max:2000',
-            'justification'               => 'nullable|string|max:2000',
-            'urgency'                     => 'nullable|in:low,normal,high,urgent',
+            'subject' => 'required|string|max:255',
+            'request_type' => 'required|string|max:64',
+            'description' => 'required|string|max:2000',
+            'justification' => 'nullable|string|max:2000',
+            'urgency' => 'nullable|in:low,normal,high,urgent',
             'requested_classification_id' => 'nullable|integer|exists:security_classification,id',
         ]);
 
         $this->service->createRequest(auth()->id(), [
-            'subject'       => $validated['subject'],
-            'request_type'  => $validated['request_type'],
+            'subject' => $validated['subject'],
+            'request_type' => $validated['request_type'],
             // Maps to security_access_request.classification_id (nullable)
-            'object_id'     => $validated['requested_classification_id'] ?? null,
+            'object_id' => $validated['requested_classification_id'] ?? null,
             // Subject + description go into the single justification text column
-            'reason'        => 'Subject: ' . $validated['subject'] . "\n\n" . $validated['description'],
+            'reason' => 'Subject: '.$validated['subject']."\n\n".$validated['description'],
             'justification' => $validated['justification'] ?? null,
-            'urgency'       => $validated['urgency'] ?? 'normal',
+            'urgency' => $validated['urgency'] ?? 'normal',
         ]);
 
         return redirect()->route('accessRequest.myRequests')->with('notice', 'Access request submitted.');

@@ -42,20 +42,23 @@ class VocabSyncCommand extends Command
 
     public function handle(VocabSyncService $service): int
     {
-        if (!SettingHelper::getScoped('federation', 'federation_enabled', '0')) {
+        if (! SettingHelper::getScoped('federation', 'federation_enabled', '0')) {
             $this->error('Federation is disabled (federation_enabled=0).');
+
             return self::FAILURE;
         }
 
         $configs = $this->resolveConfigs();
         if ($configs->isEmpty()) {
             $this->warn('No vocabulary sync configurations match.');
+
             return self::SUCCESS;
         }
 
         $direction = $this->option('direction');
         if ($direction === VocabSyncService::DIRECTION_PUSH || $direction === VocabSyncService::DIRECTION_BIDIRECTIONAL) {
             $this->error('Push and bidirectional sync are not yet supported (Heratio peers do not yet expose a /api/federation/vocab/import endpoint).');
+
             return self::FAILURE;
         }
 
@@ -67,6 +70,7 @@ class VocabSyncCommand extends Command
 
         if ($this->option('dry-run')) {
             $this->info('Dry run; no requests sent.');
+
             return self::SUCCESS;
         }
 
@@ -79,11 +83,11 @@ class VocabSyncCommand extends Command
             try {
                 $result = $service->syncWithPeer((int) $cfg->peer_id, (int) $cfg->taxonomy_id, $direction);
                 $this->info($result->getSummary());
-                if (!$result->isSuccessful()) {
+                if (! $result->isSuccessful()) {
                     $exit = self::FAILURE;
                 }
             } catch (\Throwable $e) {
-                $this->error("Sync failed: " . $e->getMessage());
+                $this->error('Sync failed: '.$e->getMessage());
                 $exit = self::FAILURE;
             }
         }
@@ -95,8 +99,12 @@ class VocabSyncCommand extends Command
     {
         $q = DB::table('federation_vocab_sync')->where('sync_enabled', 1);
 
-        if ($this->option('peer')) { $q->where('peer_id', (int) $this->option('peer')); }
-        if ($this->option('taxonomy')) { $q->where('taxonomy_id', (int) $this->option('taxonomy')); }
+        if ($this->option('peer')) {
+            $q->where('peer_id', (int) $this->option('peer'));
+        }
+        if ($this->option('taxonomy')) {
+            $q->where('taxonomy_id', (int) $this->option('taxonomy'));
+        }
 
         return $q->orderBy('peer_id')->orderBy('taxonomy_id')->get();
     }

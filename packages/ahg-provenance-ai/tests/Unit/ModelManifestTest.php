@@ -34,7 +34,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ModelManifestTest extends TestCase
 {
-    public function testMinimalManifestIsNonEmptyWhenNoConfig(): void
+    public function test_minimal_manifest_is_non_empty_when_no_config(): void
     {
         $m = InferenceService::composeModelManifest('qwen3:8b', 'unknown', 'LLM', null);
 
@@ -45,11 +45,11 @@ class ModelManifestTest extends TestCase
         $this->assertNotEmpty($m, 'manifest is always non-empty when model metadata is available');
     }
 
-    public function testCuratedConfigFieldsAreKept(): void
+    public function test_curated_config_fields_are_kept(): void
     {
         $config = [
-            'publisher'             => 'Alibaba',
-            'artifact_hash'         => 'abc123',
+            'publisher' => 'Alibaba',
+            'artifact_hash' => 'abc123',
             'declared_capabilities' => ['chat', 'summarize'],
         ];
         $m = InferenceService::composeModelManifest('qwen3:8b', '8.0', 'LLM', $config);
@@ -59,7 +59,7 @@ class ModelManifestTest extends TestCase
         $this->assertSame(['chat', 'summarize'], $m['declared_capabilities']);
     }
 
-    public function testLiveIdentityOverlaysStaleConfig(): void
+    public function test_live_identity_overlays_stale_config(): void
     {
         // A stale version/service in the config manifest must be overridden
         // by what was actually used at inference time.
@@ -70,7 +70,7 @@ class ModelManifestTest extends TestCase
         $this->assertSame('NER', $m['service_name']);
     }
 
-    public function testOperatorModelIdIsPreserved(): void
+    public function test_operator_model_id_is_preserved(): void
     {
         $m = InferenceService::composeModelManifest('m', 'v', 'NER', ['model_id' => 'curated:xyz']);
 

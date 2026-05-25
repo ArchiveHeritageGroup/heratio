@@ -11,9 +11,9 @@ class AhgHelpServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Illuminate\Support\Facades\Route::middleware('web')
-            ->group(__DIR__ . '/../../routes/web.php');
+            ->group(__DIR__.'/../../routes/web.php');
 
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-help');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-help');
 
         if ($this->app->runningInConsole()) {
             $this->commands([

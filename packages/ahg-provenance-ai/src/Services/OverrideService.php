@@ -84,17 +84,17 @@ class OverrideService
         $uuid = (string) Str::uuid();
         $now = now();
         $id = DB::table('ahg_ai_override')->insertGetId([
-            'uuid'                => $uuid,
-            'inference_id'        => $inferenceId,
-            'reviewer_user_id'    => $reviewerUserId,
-            'reason'              => $reason,
-            'original_value'      => $originalValue,
-            'override_value'      => $overrideValue,
-            'status'              => 'applied',
+            'uuid' => $uuid,
+            'inference_id' => $inferenceId,
+            'reviewer_user_id' => $reviewerUserId,
+            'reason' => $reason,
+            'original_value' => $originalValue,
+            'override_value' => $overrideValue,
+            'status' => 'applied',
             'fuseki_override_uri' => null,
-            'occurred_at'         => $now,
-            'created_at'          => $now,
-            'updated_at'          => $now,
+            'occurred_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
 
         $this->writeProvActivity($id, $uuid, $inferenceId, $originalValue, $overrideValue, $reviewerUserId, $reason);
@@ -140,7 +140,7 @@ class OverrideService
                 continue;
             }
             $inference = $this->findLatestInferenceForField($entityType, $entityId, $field);
-            if (!$inference) {
+            if (! $inference) {
                 continue;
             }
             // Reviewer changed an AI-touched field. Record the override.
@@ -148,14 +148,15 @@ class OverrideService
             // may already be the AI's output OR a previous reviewer's
             // override - the chain is preserved through inference_id FK).
             $this->record(
-                inferenceId:    (int) $inference->id,
-                originalValue:  $oldValue,
-                overrideValue:  $newValue,
+                inferenceId: (int) $inference->id,
+                originalValue: $oldValue,
+                overrideValue: $newValue,
                 reviewerUserId: $reviewerUserId,
-                reason:         null,
+                reason: null,
             );
             $count++;
         }
+
         return $count;
     }
 
@@ -217,33 +218,34 @@ class OverrideService
     ): void {
         try {
             $inference = DB::table('ahg_ai_inference')->where('id', $inferenceId)->first();
-            if (!$inference) {
+            if (! $inference) {
                 Log::warning('[ahg-provenance-ai] override write skipped: inference id not found', [
                     'override_id' => $overrideId,
                     'inference_id' => $inferenceId,
                 ]);
+
                 return;
             }
 
-            $tenant   = config('heratio.ld.tenant', 'ahg');
-            $graphUri = "urn:{$tenant}:provenance-ai:override:" . $overrideUuid;
-            $turtle   = $this->buildOverrideTurtle($overrideUuid, $inference->uuid, $originalValue, $overrideValue, $reviewerUserId, $reason);
+            $tenant = config('heratio.ld.tenant', 'ahg');
+            $graphUri = "urn:{$tenant}:provenance-ai:override:".$overrideUuid;
+            $turtle = $this->buildOverrideTurtle($overrideUuid, $inference->uuid, $originalValue, $overrideValue, $reviewerUserId, $reason);
 
-            $upd    = app(\AhgRic\Services\SparqlUpdateService::class);
+            $upd = app(\AhgRic\Services\SparqlUpdateService::class);
             $result = $upd->insertData($graphUri, $turtle);
 
-            if (!empty($result['ok'])) {
+            if (! empty($result['ok'])) {
                 DB::table('ahg_ai_override')->where('id', $overrideId)
                     ->update(['fuseki_override_uri' => $graphUri]);
             } else {
                 Log::warning('[ahg-provenance-ai] Fuseki override write deferred for replay', [
                     'override_id' => $overrideId,
                     'http_status' => $result['status'] ?? null,
-                    'error'       => $result['error']  ?? null,
+                    'error' => $result['error'] ?? null,
                 ]);
             }
         } catch (\Throwable $e) {
-            Log::warning('[ahg-provenance-ai] Fuseki override write threw, queued for replay: ' . $e->getMessage(), [
+            Log::warning('[ahg-provenance-ai] Fuseki override write threw, queued for replay: '.$e->getMessage(), [
                 'override_id' => $overrideId,
             ]);
         }
@@ -260,25 +262,25 @@ class OverrideService
         $tenant = config('heratio.ld.tenant', 'ahg');
         $provNs = config('heratio.ld.provenance_ns');
         $prefixes = "@prefix prov: <http://www.w3.org/ns/prov#> .\n"
-                  . "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
-                  . "@prefix ex: <{$provNs}> .\n";
+                  ."@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
+                  ."@prefix ex: <{$provNs}> .\n";
 
-        $override  = "<urn:{$tenant}:provenance-ai:override:{$overrideUuid}>";
+        $override = "<urn:{$tenant}:provenance-ai:override:{$overrideUuid}>";
         $inference = "<urn:{$tenant}:provenance-ai:inference:{$inferenceUuid}>";
-        $user      = "<urn:{$tenant}:user:{$reviewerUserId}>";
-        $when      = now()->toIso8601ZuluString();
+        $user = "<urn:{$tenant}:user:{$reviewerUserId}>";
+        $when = now()->toIso8601ZuluString();
 
         $body = $prefixes
-              . "{$override} a prov:Activity ;\n"
-              . "    prov:used {$inference} ;\n"
-              . "    prov:wasAssociatedWith {$user} ;\n"
-              . "    prov:atTime \"{$when}\"^^xsd:dateTime ;\n"
-              . "    ex:originalValue \"" . $this->esc($originalValue) . "\" ;\n"
-              . "    ex:newValue \"" . $this->esc($overrideValue) . "\" ;\n"
-              . ($reason !== null && $reason !== ''
-                  ? "    ex:reason \"" . $this->esc($reason) . "\" ;\n"
+              ."{$override} a prov:Activity ;\n"
+              ."    prov:used {$inference} ;\n"
+              ."    prov:wasAssociatedWith {$user} ;\n"
+              ."    prov:atTime \"{$when}\"^^xsd:dateTime ;\n"
+              .'    ex:originalValue "'.$this->esc($originalValue)."\" ;\n"
+              .'    ex:newValue "'.$this->esc($overrideValue)."\" ;\n"
+              .($reason !== null && $reason !== ''
+                  ? '    ex:reason "'.$this->esc($reason)."\" ;\n"
                   : '')
-              . "    ex:status \"applied\" .\n";
+              ."    ex:status \"applied\" .\n";
 
         return $body;
     }
@@ -287,7 +289,7 @@ class OverrideService
     {
         return strtr($s, [
             '\\' => '\\\\',
-            '"'  => '\\"',
+            '"' => '\\"',
             "\n" => '\\n',
             "\r" => '\\r',
         ]);

@@ -32,12 +32,13 @@ use Illuminate\Support\Facades\Schema;
 class VocabularyResolverService
 {
     private string $sparqlEndpoint;
+
     private int $cacheTtlSeconds;
 
     public function __construct(?string $sparqlEndpoint = null, ?int $cacheTtlSeconds = null)
     {
         $this->sparqlEndpoint = $sparqlEndpoint
-            ?? rtrim((string) config('ric.fuseki.url', 'http://localhost:3030/ric'), '/') . '/query';
+            ?? rtrim((string) config('ric.fuseki.url', 'http://localhost:3030/ric'), '/').'/query';
         $this->cacheTtlSeconds = $cacheTtlSeconds ?? (int) config('ric.vocabulary_cache_ttl', 86400);
     }
 
@@ -65,6 +66,7 @@ class VocabularyResolverService
             foreach ($allLabels as $lang => $labels) {
                 $this->writeCache($uri, $lang, $labels['pref'] ?? '', $labels['alt'] ?? []);
             }
+
             // Prefer requested culture, then fallback, then any.
             return $allLabels[$culture]['pref']
                 ?? $allLabels[$fallback]['pref']
@@ -84,6 +86,7 @@ class VocabularyResolverService
         $row = $this->fetchCache($uri, $culture);
         if ($row && ! empty($row->alt_labels)) {
             $decoded = json_decode($row->alt_labels, true);
+
             return is_array($decoded) ? $decoded : [];
         }
         // SPARQL miss path same as preferredLabel — populate cache
@@ -91,6 +94,7 @@ class VocabularyResolverService
         foreach ($allLabels as $lang => $labels) {
             $this->writeCache($uri, $lang, $labels['pref'] ?? '', $labels['alt'] ?? []);
         }
+
         return $allLabels[$culture]['alt'] ?? [];
     }
 
@@ -98,7 +102,7 @@ class VocabularyResolverService
      * Bulk resolution — one SPARQL VALUES query for many URIs at once.
      *
      * @param  string[]  $uris
-     * @return array<string, string>  uri => preferred label
+     * @return array<string, string> uri => preferred label
      */
     public function resolveMany(array $uris, ?string $culture = null): array
     {
@@ -125,6 +129,7 @@ class VocabularyResolverService
                 }
             }
         }
+
         return $out;
     }
 
@@ -155,6 +160,7 @@ class VocabularyResolverService
         if (! Schema::hasTable('vocabulary_label_cache')) {
             return null;
         }
+
         return DB::table('vocabulary_label_cache')
             ->where('uri', $uri)
             ->where('culture', $culture)
@@ -187,27 +193,29 @@ class VocabularyResolverService
     /**
      * SPARQL: fetch every skos label for a URI across all languages.
      *
-     * @return array<string, array{pref: string, alt: string[]}>  by language tag
+     * @return array<string, array{pref: string, alt: string[]}> by language tag
      */
     private function fetchAllLabelsViaSparql(string $uri): array
     {
         $sparql = sprintf(
             'PREFIX skos: <http://www.w3.org/2004/02/skos/core#>'
-            . ' PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>'
-            . ' SELECT ?lang ?pref ?alt WHERE {'
-            . '   <%s> ?p ?label .'
-            . '   FILTER (?p IN (skos:prefLabel, skos:altLabel, rdfs:label))'
-            . '   BIND(LANG(?label) AS ?lang)'
-            . '   BIND(IF(?p = skos:altLabel, ?label, "") AS ?alt)'
-            . '   BIND(IF(?p != skos:altLabel, ?label, "") AS ?pref)'
-            . ' }',
+            .' PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>'
+            .' SELECT ?lang ?pref ?alt WHERE {'
+            .'   <%s> ?p ?label .'
+            .'   FILTER (?p IN (skos:prefLabel, skos:altLabel, rdfs:label))'
+            .'   BIND(LANG(?label) AS ?lang)'
+            .'   BIND(IF(?p = skos:altLabel, ?label, "") AS ?alt)'
+            .'   BIND(IF(?p != skos:altLabel, ?label, "") AS ?pref)'
+            .' }',
             addslashes($uri)
         );
         $rows = $this->runSparql($sparql);
         $out = [];
         foreach ($rows as $r) {
             $lang = $r['lang']['value'] ?? '';
-            if ($lang === '') $lang = 'en';
+            if ($lang === '') {
+                $lang = 'en';
+            }
             $out[$lang] ??= ['pref' => '', 'alt' => []];
             if (($r['pref']['value'] ?? '') !== '') {
                 $out[$lang]['pref'] = $r['pref']['value'];
@@ -216,6 +224,7 @@ class VocabularyResolverService
                 $out[$lang]['alt'][] = $r['alt']['value'];
             }
         }
+
         return $out;
     }
 
@@ -223,19 +232,21 @@ class VocabularyResolverService
      * Bulk SPARQL with VALUES clause for many URIs in one round-trip.
      *
      * @param  string[]  $uris
-     * @return array<string, string>  uri => preferredLabel
+     * @return array<string, string> uri => preferredLabel
      */
     private function fetchManyLabelsViaSparql(array $uris, string $culture): array
     {
-        if (empty($uris)) return [];
-        $values = implode(' ', array_map(fn ($u) => '<' . addslashes($u) . '>', $uris));
+        if (empty($uris)) {
+            return [];
+        }
+        $values = implode(' ', array_map(fn ($u) => '<'.addslashes($u).'>', $uris));
         $sparql = sprintf(
             'PREFIX skos: <http://www.w3.org/2004/02/skos/core#>'
-            . ' SELECT ?uri ?label WHERE {'
-            . '   VALUES ?uri { %s }'
-            . '   ?uri skos:prefLabel ?label .'
-            . '   FILTER (LANG(?label) = "%s" || LANG(?label) = "")'
-            . ' }',
+            .' SELECT ?uri ?label WHERE {'
+            .'   VALUES ?uri { %s }'
+            .'   ?uri skos:prefLabel ?label .'
+            .'   FILTER (LANG(?label) = "%s" || LANG(?label) = "")'
+            .' }',
             $values,
             addslashes($culture)
         );
@@ -248,6 +259,7 @@ class VocabularyResolverService
                 $out[$uri] = $label;
             }
         }
+
         return $out;
     }
 
@@ -265,11 +277,13 @@ class VocabularyResolverService
             $resp = $req->post($this->sparqlEndpoint, ['query' => $query]);
             if ($resp->successful()) {
                 $data = $resp->json();
+
                 return $data['results']['bindings'] ?? [];
             }
         } catch (\Throwable $e) {
-            Log::warning('VocabularyResolverService SPARQL error: ' . $e->getMessage());
+            Log::warning('VocabularyResolverService SPARQL error: '.$e->getMessage());
         }
+
         return [];
     }
 
@@ -290,6 +304,7 @@ class VocabularyResolverService
         // CamelCase → "Camel Case", "-" or "_" → space
         $fragment = preg_replace('/([a-z])([A-Z])/', '$1 $2', $fragment);
         $fragment = str_replace(['_', '-'], ' ', $fragment ?? '');
+
         return trim((string) $fragment);
     }
 }

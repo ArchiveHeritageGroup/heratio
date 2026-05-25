@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgPdfTools\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -49,11 +47,11 @@ class PdfTextExtractService
      */
     public function extractText(string $pdfPath): ?string
     {
-        if (!file_exists($pdfPath)) {
+        if (! file_exists($pdfPath)) {
             throw new \RuntimeException("PDF file not found: {$pdfPath}");
         }
 
-        if (!$this->isPdftotextAvailable()) {
+        if (! $this->isPdftotextAvailable()) {
             throw new \RuntimeException('pdftotext is not installed. Install with: sudo apt install poppler-utils');
         }
 
@@ -67,6 +65,7 @@ class PdfTextExtractService
 
         if ($returnCode !== 0) {
             Log::warning("PdfTextExtract: pdftotext failed for {$pdfPath} (code {$returnCode})");
+
             return null;
         }
 
@@ -79,16 +78,16 @@ class PdfTextExtractService
     /**
      * Extract text from a specific page range.
      *
-     * @param int $firstPage First page number (1-based)
-     * @param int $lastPage  Last page number
+     * @param  int  $firstPage  First page number (1-based)
+     * @param  int  $lastPage  Last page number
      */
     public function extractTextPages(string $pdfPath, int $firstPage, int $lastPage): ?string
     {
-        if (!file_exists($pdfPath)) {
+        if (! file_exists($pdfPath)) {
             throw new \RuntimeException("PDF file not found: {$pdfPath}");
         }
 
-        if (!$this->isPdftotextAvailable()) {
+        if (! $this->isPdftotextAvailable()) {
             throw new \RuntimeException('pdftotext is not installed.');
         }
 
@@ -107,6 +106,7 @@ class PdfTextExtractService
         }
 
         $text = trim(implode("\n", $output));
+
         return $text !== '' ? $text : null;
     }
 
@@ -116,7 +116,8 @@ class PdfTextExtractService
     public function isPdftotextAvailable(): bool
     {
         $result = shell_exec('which pdftotext 2>/dev/null');
-        return !empty(trim($result ?? ''));
+
+        return ! empty(trim($result ?? ''));
     }
 
     /**
@@ -124,7 +125,7 @@ class PdfTextExtractService
      */
     public function getPdftotextVersion(): ?string
     {
-        if (!$this->isPdftotextAvailable()) {
+        if (! $this->isPdftotextAvailable()) {
             return null;
         }
 
@@ -151,12 +152,12 @@ class PdfTextExtractService
      * yet have extracted text in the property table, extracts the text,
      * and stores it.
      *
-     * @param array $digitalObjectIds Specific IDs to process, or empty for auto-detection
+     * @param  array  $digitalObjectIds  Specific IDs to process, or empty for auto-detection
      * @return int Count of successfully extracted
      */
     public function batchExtract(array $digitalObjectIds = [], int $limit = 50): int
     {
-        if (!$this->isPdftotextAvailable()) {
+        if (! $this->isPdftotextAvailable()) {
             throw new \RuntimeException('pdftotext is not installed.');
         }
 
@@ -166,7 +167,7 @@ class PdfTextExtractService
             ->where('mime_type', 'application/pdf')
             ->whereNotNull('path');
 
-        if (!empty($digitalObjectIds)) {
+        if (! empty($digitalObjectIds)) {
             $query->whereIn('id', $digitalObjectIds);
         } else {
             // Only those without existing extracted text
@@ -182,14 +183,15 @@ class PdfTextExtractService
         $successCount = 0;
 
         foreach ($digitalObjects as $obj) {
-            $filePath = rtrim($uploadsPath, '/') . '/' . ltrim($obj->path, '/');
+            $filePath = rtrim($uploadsPath, '/').'/'.ltrim($obj->path, '/');
 
-            if (!file_exists($filePath)) {
+            if (! file_exists($filePath)) {
                 $filePath = public_path($obj->path);
             }
 
-            if (!file_exists($filePath)) {
+            if (! file_exists($filePath)) {
                 Log::warning("PdfTextExtract batch: file not found for DO {$obj->id}: {$obj->path}");
+
                 continue;
             }
 
@@ -219,7 +221,7 @@ class PdfTextExtractService
             ->where('name', 'extracted_text')
             ->first();
 
-        if (!$property) {
+        if (! $property) {
             return null;
         }
 
@@ -258,18 +260,18 @@ class PdfTextExtractService
         // Create property
         // AtoM `property` has no created_at/updated_at — timestamps live on `object`.
         DB::table('property')->insert([
-            'id'             => $objectId,
-            'object_id'      => $digitalObjectId,
-            'name'           => 'extracted_text',
-            'scope'          => 'pdf_text_extraction',
+            'id' => $objectId,
+            'object_id' => $digitalObjectId,
+            'name' => 'extracted_text',
+            'scope' => 'pdf_text_extraction',
             'source_culture' => $culture,
         ]);
 
         // Create i18n entry with the text
         DB::table('property_i18n')->insert([
-            'id'      => $objectId,
+            'id' => $objectId,
             'culture' => $culture,
-            'value'   => $text,
+            'value' => $text,
         ]);
     }
 
@@ -290,9 +292,9 @@ class PdfTextExtractService
             ->count('object_id');
 
         return [
-            'total_pdfs'      => $totalPdfs,
-            'extracted_count'  => $extractedCount,
-            'remaining_count'  => $totalPdfs - $extractedCount,
+            'total_pdfs' => $totalPdfs,
+            'extracted_count' => $extractedCount,
+            'remaining_count' => $totalPdfs - $extractedCount,
         ];
     }
 }

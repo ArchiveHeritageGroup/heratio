@@ -20,17 +20,19 @@ class PreservationReplicateCommand extends Command
     {
         $targets = $svc->getReplicationTargets();
         if ($targetName = $this->option('target')) {
-            $targets = $targets->filter(fn($t) => ($t->name ?? '') === $targetName);
+            $targets = $targets->filter(fn ($t) => ($t->name ?? '') === $targetName);
         }
         if ($targets->isEmpty()) {
             $this->warn('no enabled replication targets configured');
+
             return self::SUCCESS;
         }
         $limit = max(1, (int) $this->option('limit'));
         $dry = (bool) $this->option('dry-run');
         $singlePackage = $this->option('package-id');
 
-        $totalOK = 0; $totalFail = 0;
+        $totalOK = 0;
+        $totalFail = 0;
         foreach ($targets as $t) {
             $this->info("--- target: {$t->name} ({$t->kind}) ---");
 
@@ -38,18 +40,25 @@ class PreservationReplicateCommand extends Command
             $q = DB::table('preservation_package as p')
                 ->leftJoin('preservation_event as pe', function ($j) use ($t) {
                     $j->on('pe.package_id', '=', 'p.id')
-                      ->where('pe.event_type', '=', 'replicate')
-                      ->where('pe.detail', 'like', '%' . $t->name . '%')
-                      ->where('pe.outcome', '=', 'success');
+                        ->where('pe.event_type', '=', 'replicate')
+                        ->where('pe.detail', 'like', '%'.$t->name.'%')
+                        ->where('pe.outcome', '=', 'success');
                 })
                 ->whereNull('pe.id')
                 ->where('p.status', 'completed');
-            if ($singlePackage) $q->where('p.id', (int) $singlePackage);
+            if ($singlePackage) {
+                $q->where('p.id', (int) $singlePackage);
+            }
             $rows = $q->orderBy('p.id')->limit($limit)->get(['p.id', 'p.bag_path']);
-            $this->info("  packages to replicate: {$rows->count()}" . ($dry ? ' (dry-run)' : ''));
+            $this->info("  packages to replicate: {$rows->count()}".($dry ? ' (dry-run)' : ''));
 
             foreach ($rows as $r) {
-                if ($dry) { $this->line("  would replicate package={$r->id} bag={$r->bag_path}"); $totalOK++; continue; }
+                if ($dry) {
+                    $this->line("  would replicate package={$r->id} bag={$r->bag_path}");
+                    $totalOK++;
+
+                    continue;
+                }
                 // Best-effort: copy bag dir to target; for now log the intent and let ops wire the
                 // actual transport (rclone/rsync/aws s3) per target kind.
                 $svc->logEvent(0, null, 'replicate', json_encode(['target' => $t->name, 'package_id' => $r->id]), 'pending');
@@ -59,6 +68,7 @@ class PreservationReplicateCommand extends Command
         }
 
         $this->info("done; ok={$totalOK} fail={$totalFail}");
+
         return self::SUCCESS;
     }
 }

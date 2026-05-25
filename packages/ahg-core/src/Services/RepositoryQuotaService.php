@@ -58,10 +58,10 @@ class RepositoryQuotaService
      */
     public static function canAccept(?int $repoId, int $proposedBytes): bool
     {
-        if (!GlobalSettings::enableRepositoryQuotas()) {
+        if (! GlobalSettings::enableRepositoryQuotas()) {
             return true;
         }
-        if (!$repoId) {
+        if (! $repoId) {
             return true;
         }
 
@@ -107,6 +107,7 @@ class RepositoryQuotaService
         }
         $usedGb = self::currentUsageBytes($repoId) / 1073741824;
         $proposedGb = $proposedBytes / 1073741824;
+
         return sprintf(
             'Repository quota reached. Cap: %.2f GB. In use: %.2f GB. This upload (%.2f GB) would exceed the cap. Operator: raise the cap on /admin/ahgSettings/uploads or remove existing files.',
             $capGb,

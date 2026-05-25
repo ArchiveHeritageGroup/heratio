@@ -74,12 +74,25 @@ class SectorIdentifierService
     public static function resolveSector(?string $sourceStandard): ?string
     {
         $s = strtolower(trim((string) $sourceStandard));
-        if ($s === '') return null;
-        if ($s === 'dam')      return 'dam';
-        if ($s === 'library')  return 'library';
-        if ($s === 'gallery')  return 'gallery';
-        if (str_contains($s, 'cco') || str_contains($s, 'museum')) return 'museum';
-        if (str_contains($s, 'isad') || str_contains($s, 'dacs') || str_contains($s, 'rad') || $s === 'archive') return 'archive';
+        if ($s === '') {
+            return null;
+        }
+        if ($s === 'dam') {
+            return 'dam';
+        }
+        if ($s === 'library') {
+            return 'library';
+        }
+        if ($s === 'gallery') {
+            return 'gallery';
+        }
+        if (str_contains($s, 'cco') || str_contains($s, 'museum')) {
+            return 'museum';
+        }
+        if (str_contains($s, 'isad') || str_contains($s, 'dacs') || str_contains($s, 'rad') || $s === 'archive') {
+            return 'archive';
+        }
+
         return 'archive'; // catch-all default for ISAD-shaped source standards
     }
 
@@ -99,7 +112,9 @@ class SectorIdentifierService
      */
     public static function next(?string $sectorCode): ?string
     {
-        if ($sectorCode === null || $sectorCode === '') return null;
+        if ($sectorCode === null || $sectorCode === '') {
+            return null;
+        }
         $sectorCode = strtolower($sectorCode);
 
         // Try sector-specific first. Read with single-underscore preferred,
@@ -124,14 +139,16 @@ class SectorIdentifierService
                 ? "sector_{$sectorCode}__identifier_counter"
                 : "sector_{$sectorCode}_identifier_counter";
             $next = self::incrementCounter($counterName);
+
             return self::renderMask((string) $mask, $next, $sectorCode);
         }
 
         // Fall back to global mask.
         $globalEnabled = self::settingBool('identifier_mask_enabled', false);
-        $globalMask    = (string) self::setting('identifier_mask', '');
+        $globalMask = (string) self::setting('identifier_mask', '');
         if ($globalEnabled && $globalMask !== '') {
             $next = self::incrementCounter('identifier_counter');
+
             return self::renderMask($globalMask, $next, $sectorCode);
         }
 
@@ -158,7 +175,7 @@ class SectorIdentifierService
                 ->select('s.id', 'si.value')
                 ->first();
 
-            if (!$row) {
+            if (! $row) {
                 // No row yet - bootstrap one. Use the SettingsService
                 // CTI shape: object row + setting row + setting_i18n row.
                 return self::bootstrapCounter($name, 1);
@@ -196,6 +213,7 @@ class SectorIdentifierService
             ->where('s.name', $name)
             ->where('si.culture', 'en')
             ->update(['si.value' => (string) $next]);
+
         return $next;
     }
 
@@ -224,6 +242,7 @@ class SectorIdentifierService
             'culture' => 'en',
             'value' => (string) $value,
         ]);
+
         return $value;
     }
 
@@ -242,6 +261,7 @@ class SectorIdentifierService
         // AtoM-style counter: %04i% -> counter padded to 4 digits, %i% -> raw.
         $out = preg_replace_callback('/%(\d*)i%/', function ($m) use ($counter) {
             $width = (int) $m[1];
+
             return $width > 0
                 ? str_pad((string) $counter, $width, '0', STR_PAD_LEFT)
                 : (string) $counter;
@@ -255,16 +275,17 @@ class SectorIdentifierService
         ]);
         // Curly-brace style.
         $out = strtr($out, [
-            '{YYYY}'   => $now->format('Y'),
-            '{YY}'     => $now->format('y'),
-            '{MM}'     => $now->format('m'),
-            '{DD}'     => $now->format('d'),
+            '{YYYY}' => $now->format('Y'),
+            '{YY}' => $now->format('y'),
+            '{MM}' => $now->format('m'),
+            '{DD}' => $now->format('d'),
             '{SECTOR}' => strtoupper($sectorCode),
         ]);
         // Hash-run style: any contiguous '#' run -> counter padded.
         $out = preg_replace_callback('/#+/', function ($m) use ($counter) {
             return str_pad((string) $counter, strlen($m[0]), '0', STR_PAD_LEFT);
         }, $out);
+
         return $out;
     }
 
@@ -277,9 +298,14 @@ class SectorIdentifierService
     private static function settingEither(string $primary, string $fallback, $default): array
     {
         $v = self::setting($primary, null);
-        if ($v !== null && $v !== '') return [$primary, $v];
+        if ($v !== null && $v !== '') {
+            return [$primary, $v];
+        }
         $v = self::setting($fallback, null);
-        if ($v !== null && $v !== '') return [$fallback, $v];
+        if ($v !== null && $v !== '') {
+            return [$fallback, $v];
+        }
+
         return [$primary, $default];
     }
 
@@ -287,29 +313,40 @@ class SectorIdentifierService
     private static function settingBoolEither(string $primary, string $fallback, bool $default): array
     {
         $v = self::setting($primary, null);
-        if ($v !== null && $v !== '') return [$primary, in_array(strtolower((string) $v), ['1','true','yes','on'], true)];
+        if ($v !== null && $v !== '') {
+            return [$primary, in_array(strtolower((string) $v), ['1', 'true', 'yes', 'on'], true)];
+        }
         $v = self::setting($fallback, null);
-        if ($v !== null && $v !== '') return [$fallback, in_array(strtolower((string) $v), ['1','true','yes','on'], true)];
+        if ($v !== null && $v !== '') {
+            return [$fallback, in_array(strtolower((string) $v), ['1', 'true', 'yes', 'on'], true)];
+        }
+
         return [$primary, $default];
     }
 
     /** Read a setting from the i18n setting table (no scope). */
     private static function setting(string $name, $default = null)
     {
-        if (!Schema::hasTable('setting') || !Schema::hasTable('setting_i18n')) return $default;
+        if (! Schema::hasTable('setting') || ! Schema::hasTable('setting_i18n')) {
+            return $default;
+        }
         $v = DB::table('setting as s')
             ->join('setting_i18n as si', 'si.id', '=', 's.id')
             ->whereNull('s.scope')
             ->where('s.name', $name)
             ->where('si.culture', 'en')
             ->value('si.value');
+
         return ($v === null || $v === '') ? $default : $v;
     }
 
     private static function settingBool(string $name, bool $default): bool
     {
         $v = self::setting($name, null);
-        if ($v === null) return $default;
+        if ($v === null) {
+            return $default;
+        }
+
         return in_array(strtolower((string) $v), ['1', 'true', 'yes', 'on'], true);
     }
 }

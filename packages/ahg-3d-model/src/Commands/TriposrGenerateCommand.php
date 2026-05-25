@@ -53,8 +53,9 @@ class TriposrGenerateCommand extends Command
         }
 
         $image = (string) $this->option('image');
-        if ($image === '' || !is_file($image)) {
+        if ($image === '' || ! is_file($image)) {
             $this->error('--image is required and must point to an existing file.');
+
             return 1;
         }
 
@@ -69,6 +70,7 @@ class TriposrGenerateCommand extends Command
 
         if (((string) ($cfg['triposr_enabled'] ?? '0')) !== '1') {
             $this->error('TripoSR is disabled in settings (/admin/3d-models/settings).');
+
             return 1;
         }
 
@@ -77,6 +79,7 @@ class TriposrGenerateCommand extends Command
             : (string) ($cfg['triposr_api_url'] ?? 'http://127.0.0.1:5050');
         if ($apiBase === '') {
             $this->error('TripoSR API URL is not configured.');
+
             return 1;
         }
 
@@ -88,12 +91,12 @@ class TriposrGenerateCommand extends Command
         $bakeTexture = $this->option('texture') || ((string) ($cfg['triposr_bake_texture'] ?? '0')) === '1';
 
         // Output path — staging in temp until the caller commits via --import
-        $stagingDir = sys_get_temp_dir() . '/heratio-triposr';
-        if (!is_dir($stagingDir)) {
+        $stagingDir = sys_get_temp_dir().'/heratio-triposr';
+        if (! is_dir($stagingDir)) {
             @mkdir($stagingDir, 0775, true);
         }
-        $stem = 'triposr_' . bin2hex(random_bytes(6));
-        $outFile = $stagingDir . '/' . $stem . '.glb';
+        $stem = 'triposr_'.bin2hex(random_bytes(6));
+        $outFile = $stagingDir.'/'.$stem.'.glb';
 
         $this->info(sprintf('Calling TripoSR @ %s (resolution=%d, remove_bg=%s, texture=%s)...',
             $apiBase, $resolution, $removeBg ? 'yes' : 'no', $bakeTexture ? 'yes' : 'no'));
@@ -103,7 +106,7 @@ class TriposrGenerateCommand extends Command
         // rejected by our FastAPI endpoint.
         $imageMime = function_exists('mime_content_type') ? (mime_content_type($image) ?: 'image/png') : 'image/png';
 
-        $ch = curl_init($apiBase . '/generate');
+        $ch = curl_init($apiBase.'/generate');
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => [
@@ -117,7 +120,7 @@ class TriposrGenerateCommand extends Command
             CURLOPT_TIMEOUT => $timeout,
             CURLOPT_HTTPHEADER => array_filter([
                 'Accept: model/gltf-binary',
-                !empty($cfg['triposr_remote_api_key']) ? 'Authorization: Bearer ' . $cfg['triposr_remote_api_key'] : null,
+                ! empty($cfg['triposr_remote_api_key']) ? 'Authorization: Bearer '.$cfg['triposr_remote_api_key'] : null,
             ]),
         ]);
         $body = curl_exec($ch);
@@ -125,71 +128,78 @@ class TriposrGenerateCommand extends Command
         $err = curl_error($ch);
         curl_close($ch);
 
-        if ($err || $httpCode !== 200 || !$body) {
-            $msg = $err ?: ('HTTP ' . $httpCode);
+        if ($err || $httpCode !== 200 || ! $body) {
+            $msg = $err ?: ('HTTP '.$httpCode);
 
             // Demo-mode fallback — if admin opted in, serve a bundled placeholder
             // GLB cube so the preview/save UX still works while the real backend
             // is unavailable (Ollama-vs-TripoSR GPU contention, server down, etc.).
             $demoOn = ((string) ($cfg['triposr_demo_mode'] ?? '0')) === '1';
-            $sample = __DIR__ . '/../../resources/sample-cube.glb';
+            $sample = __DIR__.'/../../resources/sample-cube.glb';
             if ($demoOn && is_file($sample)) {
                 if (@copy($sample, $outFile)) {
                     $this->warn('TripoSR backend unreachable — using bundled demo placeholder ('
-                        . basename($sample) . '). Real GPU/AI generation is on its way.');
+                        .basename($sample).'). Real GPU/AI generation is on its way.');
                     if ($this->option('no-import')) {
-                        $this->line('TRIPOSR_OUTPUT=' . $outFile);
+                        $this->line('TRIPOSR_OUTPUT='.$outFile);
                         $this->line('TRIPOSR_DEMO=1');
                     }
-                    if (!$this->option('no-import')) {
+                    if (! $this->option('no-import')) {
                         $objectId = (int) $this->option('object-id');
                         if ($objectId) {
-                            $importer = new \Ahg3dModel\Services\TriposrImportService();
+                            $importer = new \Ahg3dModel\Services\TriposrImportService;
                             $importer->importGlb($outFile, $objectId, $image);
                         }
                     }
+
                     return 0;
                 }
             }
 
             $detail = '';
             if ($httpCode === 404) {
-                $detail = ' — endpoint /generate not found at ' . $apiBase
-                    . '. Set the correct TripoSR API URL on /admin/3d-models/settings (or switch to "Remote GPU Server" mode if your TripoSR runs elsewhere).';
+                $detail = ' — endpoint /generate not found at '.$apiBase
+                    .'. Set the correct TripoSR API URL on /admin/3d-models/settings (or switch to "Remote GPU Server" mode if your TripoSR runs elsewhere).';
             } elseif ($httpCode === 0 || stripos($msg, 'timed out') !== false || stripos($msg, 'could not connect') !== false) {
-                $detail = ' — could not reach ' . $apiBase
-                    . '. Verify the host is up and the port is reachable from this server (firewall, nginx, etc.).';
+                $detail = ' — could not reach '.$apiBase
+                    .'. Verify the host is up and the port is reachable from this server (firewall, nginx, etc.).';
             }
-            $this->error('TripoSR call failed: ' . $msg . $detail);
+            $this->error('TripoSR call failed: '.$msg.$detail);
+
             return 1;
         }
         if (file_put_contents($outFile, $body) === false) {
-            $this->error('Could not write GLB to ' . $outFile);
+            $this->error('Could not write GLB to '.$outFile);
+
             return 1;
         }
 
-        $this->info('Generated: ' . $outFile);
+        $this->info('Generated: '.$outFile);
 
         // --no-import — leave the file in staging for the caller (web preview flow)
         if ($this->option('no-import')) {
-            $this->line('TRIPOSR_OUTPUT=' . $outFile); // parseable marker for callers
+            $this->line('TRIPOSR_OUTPUT='.$outFile); // parseable marker for callers
+
             return 0;
         }
 
         // Default: import (persist + DB row)
         $objectId = (int) $this->option('object-id');
-        if (!$objectId) {
+        if (! $objectId) {
             $this->error('--object-id is required when importing.');
+
             return 1;
         }
 
-        $importer = new \Ahg3dModel\Services\TriposrImportService();
+        $importer = new \Ahg3dModel\Services\TriposrImportService;
         $result = $importer->importGlb($outFile, $objectId, $image);
-        if (!$result['success']) {
-            $this->error('Import failed: ' . ($result['error'] ?? 'unknown'));
+        if (! $result['success']) {
+            $this->error('Import failed: '.($result['error'] ?? 'unknown'));
+
             return 1;
         }
-        $this->info('Imported as model #' . $result['model_id']);
+        $this->info('Imported as model #'.$result['model_id']);
+
         return 0;
     }
 }

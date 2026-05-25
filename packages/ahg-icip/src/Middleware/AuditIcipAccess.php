@@ -36,7 +36,7 @@ class AuditIcipAccess
                 }
             }
         } catch (\Throwable $e) {
-            Log::warning('AuditIcipAccess middleware failed: ' . $e->getMessage());
+            Log::warning('AuditIcipAccess middleware failed: '.$e->getMessage());
         }
 
         return $next($request);

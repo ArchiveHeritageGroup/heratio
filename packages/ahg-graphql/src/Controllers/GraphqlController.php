@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgGraphql\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -79,6 +77,7 @@ class GraphqlController extends Controller
         if (preg_match('/\binformationObjects\b/i', $query)) {
             $limit = $variables['limit'] ?? 25;
             $offset = $variables['offset'] ?? 0;
+
             return $this->resolveInformationObjects((int) $limit, (int) $offset);
         }
 
@@ -127,11 +126,13 @@ class GraphqlController extends Controller
             ->leftJoin('research_researcher as r', 'p.owner_id', '=', 'r.id')
             ->where('p.id', $id)
             ->select('p.id', 'p.title', 'p.description', 'p.project_type', 'p.status',
-                     'p.start_date', 'p.expected_end_date', 'p.created_at',
-                     'r.id as owner_id', 'r.first_name as owner_first_name', 'r.last_name as owner_last_name')
+                'p.start_date', 'p.expected_end_date', 'p.created_at',
+                'r.id as owner_id', 'r.first_name as owner_first_name', 'r.last_name as owner_last_name')
             ->first();
 
-        if (!$project) return ['errors' => [['message' => "Research project {$id} not found"]]];
+        if (! $project) {
+            return ['errors' => [['message' => "Research project {$id} not found"]]];
+        }
 
         $collections = DB::table('research_collection')
             ->where('project_id', $id)
@@ -148,7 +149,8 @@ class GraphqlController extends Controller
                 ->limit(50)
                 ->select('id', 'output_type', 'title', 'status', 'created_at')
                 ->get()->map(fn ($a) => (array) $a)->toArray();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $data = (array) $project;
         $data['collections'] = $collections;
@@ -164,7 +166,7 @@ class GraphqlController extends Controller
             ->orderByDesc('p.created_at')
             ->limit($limit)
             ->select('p.id', 'p.title', 'p.project_type', 'p.status',
-                     'r.id as owner_id', 'r.first_name as owner_first_name', 'r.last_name as owner_last_name')
+                'r.id as owner_id', 'r.first_name as owner_first_name', 'r.last_name as owner_last_name')
             ->get()
             ->map(fn ($p) => (array) $p)
             ->toArray();
@@ -182,12 +184,12 @@ class GraphqlController extends Controller
                 ->get()
                 ->map(function ($r) {
                     return [
-                        'uuid'        => $r->uuid,
-                        'project_id'  => $r->project_id,
-                        'visibility'  => $r->visibility,
-                        'created_by'  => $r->created_by,
-                        'created_at'  => $r->created_at,
-                        'body'        => json_decode($r->body_json, true),
+                        'uuid' => $r->uuid,
+                        'project_id' => $r->project_id,
+                        'visibility' => $r->visibility,
+                        'created_by' => $r->created_by,
+                        'created_at' => $r->created_at,
+                        'body' => json_decode($r->body_json, true),
                     ];
                 })
                 ->toArray();
@@ -232,7 +234,9 @@ class GraphqlController extends Controller
             ->select('id', 'first_name', 'last_name', 'email', 'orcid_id', 'institution', 'researcher_type_id')
             ->first();
 
-        if (!$researcher) return ['errors' => [['message' => "Researcher {$researcherId} not found"]]];
+        if (! $researcher) {
+            return ['errors' => [['message' => "Researcher {$researcherId} not found"]]];
+        }
 
         $projects = DB::table('research_project as p')
             ->leftJoin('research_project_collaborator as pc', function ($j) use ($researcherId) {
@@ -254,7 +258,8 @@ class GraphqlController extends Controller
                 ->limit(50)
                 ->select('uuid', 'target_iri', 'project_id', 'visibility', 'created_at')
                 ->get()->map(fn ($a) => (array) $a)->toArray();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $orcid = null;
         try {
@@ -262,13 +267,14 @@ class GraphqlController extends Controller
                 ->select('orcid_id', 'last_synced_at', 'last_works_count')
                 ->first();
             $orcid = $orcid ? (array) $orcid : null;
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         return ['data' => ['researcherView' => [
-            'researcher'  => (array) $researcher,
-            'projects'    => $projects,
+            'researcher' => (array) $researcher,
+            'projects' => $projects,
             'annotations' => $annotations,
-            'orcid'       => $orcid,
+            'orcid' => $orcid,
         ]]];
     }
 
@@ -281,7 +287,7 @@ class GraphqlController extends Controller
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.id', $id)
             ->select('io.id', 'io.identifier', 'io.parent_id', 'io.repository_id',
-                     'io.level_of_description_id', 'ioi.title', 'ioi.scope_and_content', 'slug.slug')
+                'io.level_of_description_id', 'ioi.title', 'ioi.scope_and_content', 'slug.slug')
             ->first();
 
         return $io ? ['data' => ['informationObject' => (array) $io]]

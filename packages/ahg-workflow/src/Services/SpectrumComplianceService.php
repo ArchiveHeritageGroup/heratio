@@ -22,17 +22,21 @@ class SpectrumComplianceService
      * Status codes used in ahg_spectrum_object_compliance.status.
      */
     public const STATUS_NOT_STARTED = 'not_started';
+
     public const STATUS_IN_PROGRESS = 'in_progress';
-    public const STATUS_COMPLETED   = 'completed';
-    public const STATUS_OVERDUE     = 'overdue';
-    public const STATUS_REJECTED    = 'rejected';
+
+    public const STATUS_COMPLETED = 'completed';
+
+    public const STATUS_OVERDUE = 'overdue';
+
+    public const STATUS_REJECTED = 'rejected';
 
     public const STATUSES = [
         self::STATUS_NOT_STARTED => 'Not started',
         self::STATUS_IN_PROGRESS => 'In progress',
-        self::STATUS_COMPLETED   => 'Completed',
-        self::STATUS_OVERDUE     => 'Overdue',
-        self::STATUS_REJECTED    => 'Rejected',
+        self::STATUS_COMPLETED => 'Completed',
+        self::STATUS_OVERDUE => 'Overdue',
+        self::STATUS_REJECTED => 'Rejected',
     ];
 
     /**
@@ -52,8 +56,8 @@ class SpectrumComplianceService
 
         if ($tasks->isEmpty()) {
             return [
-                'status'       => self::STATUS_NOT_STARTED,
-                'started_at'   => null,
+                'status' => self::STATUS_NOT_STARTED,
+                'started_at' => null,
                 'completed_at' => null,
                 'last_task_id' => null,
             ];
@@ -68,8 +72,8 @@ class SpectrumComplianceService
         });
         if ($rejected !== null) {
             return [
-                'status'       => self::STATUS_REJECTED,
-                'started_at'   => $startedAt,
+                'status' => self::STATUS_REJECTED,
+                'started_at' => $startedAt,
                 'completed_at' => null,
                 'last_task_id' => $lastTaskId,
             ];
@@ -79,8 +83,8 @@ class SpectrumComplianceService
         $latest = $tasks->last();
         if ($latest->decision === 'approved' || $latest->status === 'completed') {
             return [
-                'status'       => self::STATUS_COMPLETED,
-                'started_at'   => $startedAt,
+                'status' => self::STATUS_COMPLETED,
+                'started_at' => $startedAt,
                 'completed_at' => (string) ($latest->decision_at ?? $latest->created_at),
                 'last_task_id' => $lastTaskId,
             ];
@@ -92,8 +96,8 @@ class SpectrumComplianceService
             $ageDays = (time() - $createdTs) / 86400;
             if ($ageDays > $overdueDays) {
                 return [
-                    'status'       => self::STATUS_OVERDUE,
-                    'started_at'   => $startedAt,
+                    'status' => self::STATUS_OVERDUE,
+                    'started_at' => $startedAt,
                     'completed_at' => null,
                     'last_task_id' => $lastTaskId,
                 ];
@@ -101,8 +105,8 @@ class SpectrumComplianceService
         }
 
         return [
-            'status'       => self::STATUS_IN_PROGRESS,
-            'started_at'   => $startedAt,
+            'status' => self::STATUS_IN_PROGRESS,
+            'started_at' => $startedAt,
             'completed_at' => null,
             'last_task_id' => $lastTaskId,
         ];
@@ -124,13 +128,13 @@ class SpectrumComplianceService
             DB::table('ahg_spectrum_object_compliance')->updateOrInsert(
                 ['object_id' => $objectId, 'object_type' => $objectType, 'spectrum_procedure' => $procedure],
                 [
-                    'status'           => $state['status'],
-                    'started_at'       => $state['started_at'],
-                    'completed_at'     => $state['completed_at'],
-                    'last_task_id'     => $state['last_task_id'],
+                    'status' => $state['status'],
+                    'started_at' => $state['started_at'],
+                    'completed_at' => $state['completed_at'],
+                    'last_task_id' => $state['last_task_id'],
                     'last_computed_at' => $now,
-                    'updated_at'       => $now,
-                    'created_at'       => DB::raw('COALESCE(created_at, NOW())'),
+                    'updated_at' => $now,
+                    'created_at' => DB::raw('COALESCE(created_at, NOW())'),
                 ]
             );
             $written++;
@@ -183,9 +187,9 @@ class SpectrumComplianceService
                 'totals' => [
                     self::STATUS_NOT_STARTED => 0,
                     self::STATUS_IN_PROGRESS => 0,
-                    self::STATUS_COMPLETED   => 0,
-                    self::STATUS_OVERDUE     => 0,
-                    self::STATUS_REJECTED    => 0,
+                    self::STATUS_COMPLETED => 0,
+                    self::STATUS_OVERDUE => 0,
+                    self::STATUS_REJECTED => 0,
                 ],
                 'total_objects' => $totalObjects,
                 'percent_completed' => 0,
@@ -196,7 +200,7 @@ class SpectrumComplianceService
 
         foreach ($rows as $r) {
             $proc = (string) $r->spectrum_procedure;
-            if (!isset($heatmap[$proc])) {
+            if (! isset($heatmap[$proc])) {
                 continue;   // unknown / stale procedure code
             }
             $seenObjectsByProc[$proc][] = (int) $r->object_id;
@@ -244,12 +248,13 @@ class SpectrumComplianceService
         foreach ($codes as $code => $label) {
             $state = $this->computeStatus($objectId, $code, $objectType, $overdueDays);
             $out[$code] = [
-                'label'        => $label,
-                'status'       => $state['status'],
+                'label' => $label,
+                'status' => $state['status'],
                 'completed_at' => $state['completed_at'],
                 'last_task_id' => $state['last_task_id'],
             ];
         }
+
         return $out;
     }
 
@@ -267,7 +272,7 @@ class SpectrumComplianceService
             ->select('t.*', 'w.spectrum_procedure as from_procedure')
             ->first();
 
-        if (!$task || empty($task->from_procedure)) {
+        if (! $task || empty($task->from_procedure)) {
             return ['spawned' => 0, 'rules_matched' => 0];
         }
 
@@ -285,7 +290,7 @@ class SpectrumComplianceService
                 ->where('is_active', 1)
                 ->orderBy('id')
                 ->first();
-            if (!$targetWf) {
+            if (! $targetWf) {
                 continue;
             }
             $firstStep = DB::table('ahg_workflow_step')
@@ -293,7 +298,7 @@ class SpectrumComplianceService
                 ->orderBy('step_order')
                 ->orderBy('id')
                 ->first();
-            if (!$firstStep) {
+            if (! $firstStep) {
                 continue;
             }
             // Avoid double-spawning: only insert if no task exists yet for this (object, target workflow).
@@ -306,18 +311,18 @@ class SpectrumComplianceService
                 continue;
             }
             DB::table('ahg_workflow_task')->insert([
-                'workflow_id'      => $targetWf->id,
+                'workflow_id' => $targetWf->id,
                 'workflow_step_id' => $firstStep->id,
-                'object_id'        => $task->object_id,
-                'object_type'      => $task->object_type,
-                'status'           => 'pending',
-                'priority'         => 'normal',
-                'submitted_by'     => $task->submitted_by ?? 1,
-                'decision'         => 'pending',
+                'object_id' => $task->object_id,
+                'object_type' => $task->object_type,
+                'status' => 'pending',
+                'priority' => 'normal',
+                'submitted_by' => $task->submitted_by ?? 1,
+                'decision' => 'pending',
                 'previous_task_id' => $task->id,
-                'retry_count'      => 0,
-                'created_at'       => now(),
-                'updated_at'       => now(),
+                'retry_count' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
             $spawned++;
         }
@@ -338,12 +343,12 @@ class SpectrumComplianceService
         $id = (int) ($data['id'] ?? 0);
         $payload = [
             'from_procedure' => SpectrumProcedureCatalog::normalize($data['from_procedure'] ?? null),
-            'to_procedure'   => SpectrumProcedureCatalog::normalize($data['to_procedure'] ?? null),
-            'trigger_event'  => in_array($data['trigger_event'] ?? '', ['on_complete', 'on_approve', 'on_first_step'], true)
+            'to_procedure' => SpectrumProcedureCatalog::normalize($data['to_procedure'] ?? null),
+            'trigger_event' => in_array($data['trigger_event'] ?? '', ['on_complete', 'on_approve', 'on_first_step'], true)
                 ? $data['trigger_event'] : 'on_complete',
-            'is_active'      => !empty($data['is_active']) ? 1 : 0,
-            'notes'          => $data['notes'] ?? null,
-            'updated_at'     => now(),
+            'is_active' => ! empty($data['is_active']) ? 1 : 0,
+            'notes' => $data['notes'] ?? null,
+            'updated_at' => now(),
         ];
         if (empty($payload['from_procedure']) || empty($payload['to_procedure'])) {
             throw new \InvalidArgumentException('from_procedure and to_procedure must be valid Spectrum codes.');
@@ -354,9 +359,11 @@ class SpectrumComplianceService
 
         if ($id > 0) {
             DB::table('ahg_spectrum_chain_rule')->where('id', $id)->update($payload);
+
             return $id;
         }
         $payload['created_at'] = now();
+
         return (int) DB::table('ahg_spectrum_chain_rule')->insertGetId($payload);
     }
 

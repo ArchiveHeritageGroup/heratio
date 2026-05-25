@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgMediaProcessing\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -47,14 +45,23 @@ class WatermarkService
 {
     /** Position constants matching AtoM gravity values */
     const POS_TOP_LEFT = 'NorthWest';
+
     const POS_TOP_CENTER = 'North';
+
     const POS_TOP_RIGHT = 'NorthEast';
+
     const POS_CENTER_LEFT = 'West';
+
     const POS_CENTER = 'Center';
+
     const POS_CENTER_RIGHT = 'East';
+
     const POS_BOTTOM_LEFT = 'SouthWest';
+
     const POS_BOTTOM_CENTER = 'South';
+
     const POS_BOTTOM_RIGHT = 'SouthEast';
+
     const POS_REPEAT = 'Repeat';
 
     /** Map of human-readable position labels to ImageMagick gravity values */
@@ -93,7 +100,7 @@ class WatermarkService
 
     public function __construct()
     {
-        $this->uploadsPath = rtrim(config('heratio.uploads_path'), '/') . '/watermarks';
+        $this->uploadsPath = rtrim(config('heratio.uploads_path'), '/').'/watermarks';
     }
 
     /**
@@ -107,18 +114,20 @@ class WatermarkService
      */
     public function apply(string $imagePath, string $watermarkPath, string $position = 'SouthEast', int $opacity = 30): bool
     {
-        if (!file_exists($imagePath)) {
+        if (! file_exists($imagePath)) {
             Log::error('WatermarkService: Target image not found', ['path' => $imagePath]);
+
             return false;
         }
 
-        if (!file_exists($watermarkPath)) {
+        if (! file_exists($watermarkPath)) {
             Log::error('WatermarkService: Watermark image not found', ['path' => $watermarkPath]);
+
             return false;
         }
 
         // Check minimum image size before applying
-        $minSize = (int)$this->getSetting('watermark_min_size', '200');
+        $minSize = (int) $this->getSetting('watermark_min_size', '200');
         $imageInfo = @getimagesize($imagePath);
         if ($imageInfo && ($imageInfo[0] < $minSize || $imageInfo[1] < $minSize)) {
             Log::info('WatermarkService: Image too small for watermark', [
@@ -127,6 +136,7 @@ class WatermarkService
                 'height' => $imageInfo[1],
                 'min_size' => $minSize,
             ]);
+
             return false;
         }
 
@@ -159,6 +169,7 @@ class WatermarkService
                 'output' => implode("\n", $output),
                 'return_code' => $returnCode,
             ]);
+
             return false;
         }
 
@@ -173,25 +184,26 @@ class WatermarkService
     {
         $config = $this->getWatermarkConfig($objectId);
 
-        if (!$config || !isset($config['image'])) {
+        if (! $config || ! isset($config['image'])) {
             return false;
         }
 
         $watermarkPath = public_path($config['image']);
-        if (!file_exists($watermarkPath)) {
+        if (! file_exists($watermarkPath)) {
             // Try absolute path
             $watermarkPath = $config['image'];
-            if (!file_exists($watermarkPath)) {
+            if (! file_exists($watermarkPath)) {
                 Log::warning('WatermarkService: Watermark image not found for object', [
                     'object_id' => $objectId,
                     'image' => $config['image'],
                 ]);
+
                 return false;
             }
         }
 
         $position = $config['position'] ?? 'center';
-        $opacity = (int)(($config['opacity'] ?? 0.40) * 100);
+        $opacity = (int) (($config['opacity'] ?? 0.40) * 100);
 
         return $this->apply($imagePath, $watermarkPath, $position, $opacity);
     }
@@ -250,7 +262,7 @@ class WatermarkService
             ->first();
 
         if ($watermarkSetting) {
-            if (!$watermarkSetting->watermark_enabled) {
+            if (! $watermarkSetting->watermark_enabled) {
                 return null;
             }
 
@@ -261,7 +273,7 @@ class WatermarkService
                     'code' => 'CUSTOM',
                     'image' => $watermarkSetting->custom_path,
                     'position' => $watermarkSetting->position ?? $watermarkSetting->custom_position ?? 'center',
-                    'opacity' => (float)($watermarkSetting->opacity ?? $watermarkSetting->custom_opacity ?? 0.40),
+                    'opacity' => (float) ($watermarkSetting->opacity ?? $watermarkSetting->custom_opacity ?? 0.40),
                     'source' => 'custom_watermark',
                     'name' => $watermarkSetting->custom_name,
                 ];
@@ -272,9 +284,9 @@ class WatermarkService
                 return [
                     'type' => 'selected',
                     'code' => $watermarkSetting->type_code,
-                    'image' => $this->watermarkImagePath . $watermarkSetting->type_image,
+                    'image' => $this->watermarkImagePath.$watermarkSetting->type_image,
                     'position' => $watermarkSetting->position ?? $watermarkSetting->type_position ?? 'center',
-                    'opacity' => (float)($watermarkSetting->opacity ?? $watermarkSetting->type_opacity ?? 0.40),
+                    'opacity' => (float) ($watermarkSetting->opacity ?? $watermarkSetting->type_opacity ?? 0.40),
                     'source' => 'object_watermark_setting',
                 ];
             }
@@ -294,9 +306,9 @@ class WatermarkService
                     return [
                         'type' => 'default',
                         'code' => $wtype->code,
-                        'image' => $this->watermarkImagePath . $wtype->image_file,
+                        'image' => $this->watermarkImagePath.$wtype->image_file,
                         'position' => $wtype->position ?? 'center',
-                        'opacity' => (float)($wtype->opacity ?? 0.40),
+                        'opacity' => (float) ($wtype->opacity ?? 0.40),
                         'source' => 'default_setting',
                     ];
                 }
@@ -401,21 +413,22 @@ class WatermarkService
     ): int|false {
         // Validate file type
         $allowedMimes = ['image/png', 'image/jpeg', 'image/gif'];
-        if (!in_array($file->getMimeType(), $allowedMimes)) {
+        if (! in_array($file->getMimeType(), $allowedMimes)) {
             return false;
         }
 
         // Ensure upload directory exists
-        if (!is_dir($this->uploadsPath) && !mkdir($this->uploadsPath, 0755, true)) {
+        if (! is_dir($this->uploadsPath) && ! mkdir($this->uploadsPath, 0755, true)) {
             Log::error('WatermarkService: Cannot create uploads directory', ['path' => $this->uploadsPath]);
+
             return false;
         }
 
         $ext = $file->getClientOriginalExtension() ?: 'png';
-        $filename = 'watermark_' . uniqid() . '.' . $ext;
-        $filepath = $this->uploadsPath . '/' . $filename;
+        $filename = 'watermark_'.uniqid().'.'.$ext;
+        $filepath = $this->uploadsPath.'/'.$filename;
 
-        if (!$file->move($this->uploadsPath, $filename)) {
+        if (! $file->move($this->uploadsPath, $filename)) {
             return false;
         }
 
@@ -443,7 +456,7 @@ class WatermarkService
             ->where('id', $id)
             ->first();
 
-        if (!$watermark) {
+        if (! $watermark) {
             return false;
         }
 
@@ -543,15 +556,15 @@ class WatermarkService
                     'type' => 'custom',
                     'image' => $ow->custom_path,
                     'position' => $ow->position ?? 'center',
-                    'opacity' => (float)($ow->opacity ?? 0.40),
+                    'opacity' => (float) ($ow->opacity ?? 0.40),
                 ];
             } elseif ($ow->type_code && $ow->type_code !== 'NONE' && $ow->type_image) {
                 $cache[$ow->object_id] = [
                     'type' => 'selected',
                     'code' => $ow->type_code,
-                    'image' => $this->watermarkImagePath . $ow->type_image,
+                    'image' => $this->watermarkImagePath.$ow->type_image,
                     'position' => $ow->position ?? 'center',
-                    'opacity' => (float)($ow->opacity ?? 0.40),
+                    'opacity' => (float) ($ow->opacity ?? 0.40),
                 ];
             }
         }
@@ -572,9 +585,9 @@ class WatermarkService
                 ->first();
 
             if ($wtype && $wtype->image_file) {
-                $cache['_default']['image'] = $this->watermarkImagePath . $wtype->image_file;
+                $cache['_default']['image'] = $this->watermarkImagePath.$wtype->image_file;
                 $cache['_default']['position'] = $wtype->position ?? 'center';
-                $cache['_default']['opacity'] = (float)($wtype->opacity ?? 0.40);
+                $cache['_default']['opacity'] = (float) ($wtype->opacity ?? 0.40);
             }
         }
 

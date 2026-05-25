@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgAcl\Controllers;
 
 use AhgAcl\Services\AclService;
@@ -70,26 +68,27 @@ class AclController extends Controller
     {
         if ($request->isMethod('post')) {
             $request->validate([
-                'name'        => 'nullable|string|max:255',
+                'name' => 'nullable|string|max:255',
                 'description' => 'nullable|string',
-                'translate'   => 'nullable|boolean',
+                'translate' => 'nullable|boolean',
             ]);
             $this->service->saveGroupProfile($id, [
-                'name'        => $request->input('name'),
+                'name' => $request->input('name'),
                 'description' => $request->input('description'),
-                'translate'   => (bool) $request->input('translate'),
+                'translate' => (bool) $request->input('translate'),
             ]);
+
             return redirect()->route('acl.edit-group', ['id' => $id])
                 ->with('success', __('Profile saved.'));
         }
 
         $group = $this->service->getGroup($id);
-        if (!$group) {
+        if (! $group) {
             abort(404, 'Group not found.');
         }
-        $allUsers       = $this->service->getAllUsers();
-        $translateFlag  = $this->service->getGroupTranslateFlag($id);
-        $groupsMenu     = $this->service->getGroupTabsMenu($id);
+        $allUsers = $this->service->getAllUsers();
+        $translateFlag = $this->service->getGroupTranslateFlag($id);
+        $groupsMenu = $this->service->getGroupTabsMenu($id);
 
         return view('ahg-acl::edit-group-profile', compact(
             'group', 'allUsers', 'translateFlag', 'groupsMenu'
@@ -108,9 +107,11 @@ class AclController extends Controller
                 AclService::IO_ACTIONS,
                 'QubitInformationObject'
             );
+
             return redirect()->route('acl.editInformationObjectAcl', ['id' => $id])
                 ->with('success', __('Archival description permissions saved.'));
         }
+
         return $this->renderEntityAclTab(
             $id,
             'QubitInformationObject',
@@ -133,9 +134,11 @@ class AclController extends Controller
                 AclService::ACTOR_ACTIONS,
                 'QubitActor'
             );
+
             return redirect()->route('acl.editActorAcl', ['id' => $id])
                 ->with('success', __('Authority record permissions saved.'));
         }
+
         return $this->renderEntityAclTab(
             $id,
             'QubitActor',
@@ -158,9 +161,11 @@ class AclController extends Controller
                 AclService::REPOSITORY_ACTIONS,
                 'QubitRepository'
             );
+
             return redirect()->route('acl.editRepositoryAcl', ['id' => $id])
                 ->with('success', __('Archival institution permissions saved.'));
         }
+
         return $this->renderEntityAclTab(
             $id,
             'QubitRepository',
@@ -183,9 +188,11 @@ class AclController extends Controller
                 AclService::TERM_ACTIONS,
                 'QubitTerm'
             );
+
             return redirect()->route('acl.editTermAcl', ['id' => $id])
                 ->with('success', __('Taxonomy permissions saved.'));
         }
+
         return $this->renderEntityAclTab(
             $id,
             'QubitTerm',
@@ -211,26 +218,26 @@ class AclController extends Controller
         string $entitySlug
     ) {
         $resource = $this->service->getGroup($id);
-        if (!$resource) {
+        if (! $resource) {
             abort(404, 'Group not found.');
         }
 
-        $perms      = $this->service->getGroupPermissionsByClass($id, $className);
-        $bucketed   = $this->service->bucketIoPermissions($perms);
+        $perms = $this->service->getGroupPermissionsByClass($id, $className);
+        $bucketed = $this->service->bucketIoPermissions($perms);
         $rootEntity = (object) [
-            'id'                       => 0,
-            'slug'                     => 'root',
-            'is_root'                  => true,
-            'authorized_form_of_name'  => null,
-            'title'                    => null,
+            'id' => 0,
+            'slug' => 'root',
+            'is_root' => true,
+            'authorized_form_of_name' => null,
+            'title' => null,
         ];
 
         // Hydrate per-scope captions for the partials
-        $repositoryObjects         = $this->service->hydrateRepositoryEntities(array_keys($bucketed['repositories']));
+        $repositoryObjects = $this->service->hydrateRepositoryEntities(array_keys($bucketed['repositories']));
         $informationObjectEntities = [];
-        $actorEntities             = [];
-        $repositoryEntitiesById    = [];
-        $taxonomyEntities          = [];
+        $actorEntities = [];
+        $repositoryEntitiesById = [];
+        $taxonomyEntities = [];
         $perObjectIds = array_keys($bucketed['objects']);
         if ($className === 'QubitInformationObject') {
             $informationObjectEntities = $this->service->hydrateInformationObjectEntities($perObjectIds);
@@ -239,9 +246,11 @@ class AclController extends Controller
         } elseif ($className === 'QubitRepository') {
             $repositoryEntitiesById = $this->service->hydrateRepositoryEntities([]);
             // For the Repository ACL, scope-by-record uses object_id, so hydrate by id
-            if (!empty($perObjectIds)) {
+            if (! empty($perObjectIds)) {
                 $repositoryEntitiesById = DB::table('repository as r')
-                    ->leftJoin('actor_i18n as ai', function ($j) { $j->on('ai.id', '=', 'r.id')->where('ai.culture', '=', 'en'); })
+                    ->leftJoin('actor_i18n as ai', function ($j) {
+                        $j->on('ai.id', '=', 'r.id')->where('ai.culture', '=', 'en');
+                    })
                     ->whereIn('r.id', $perObjectIds)
                     ->select('r.id', 'ai.authorized_form_of_name')
                     ->get()->keyBy('id')->all();
@@ -251,23 +260,23 @@ class AclController extends Controller
         }
 
         return view($view, [
-            'resource'                  => $resource,
-            'basicActions'              => $actions,
-            'root'                      => $bucketed['root'],
-            'repositories'              => $bucketed['repositories'],          // IO-ACL per-repo (constants.repository)
-            'repositoryObjects'         => $repositoryObjects,                 // hydrated for IO-ACL per-repo scope
-            'informationObjects'        => $bucketed['objects'],
+            'resource' => $resource,
+            'basicActions' => $actions,
+            'root' => $bucketed['root'],
+            'repositories' => $bucketed['repositories'],          // IO-ACL per-repo (constants.repository)
+            'repositoryObjects' => $repositoryObjects,                 // hydrated for IO-ACL per-repo scope
+            'informationObjects' => $bucketed['objects'],
             'informationObjectEntities' => $informationObjectEntities,
-            'actors'                    => $bucketed['objects'],
-            'actorEntities'             => $actorEntities,
-            'taxonomies'                => $bucketed['objects'],
-            'taxonomyEntities'          => $taxonomyEntities,
-            'repositoriesById'          => $bucketed['objects'],               // Repository-ACL per-record
-            'repositoryEntitiesById'    => $repositoryEntitiesById,
-            'rootInformationObject'     => $rootEntity,
-            'entityLabel'               => $entityLabel,
-            'entitySlug'                => $entitySlug,
-            'groupsMenu'                => $this->service->getGroupTabsMenu($id),
+            'actors' => $bucketed['objects'],
+            'actorEntities' => $actorEntities,
+            'taxonomies' => $bucketed['objects'],
+            'taxonomyEntities' => $taxonomyEntities,
+            'repositoriesById' => $bucketed['objects'],               // Repository-ACL per-record
+            'repositoryEntitiesById' => $repositoryEntitiesById,
+            'rootInformationObject' => $rootEntity,
+            'entityLabel' => $entityLabel,
+            'entitySlug' => $entitySlug,
+            'groupsMenu' => $this->service->getGroupTabsMenu($id),
         ]);
     }
 
@@ -324,21 +333,21 @@ class AclController extends Controller
             $clearance = $this->service->getUserClearance($user->id);
 
             $row = (object) [
-                'user_id'             => $user->id,
-                'username'            => $user->username,
-                'email'               => $user->email ?? '',
-                'user_display_name'   => $user->display_name ?? $user->username,
-                'active'              => $user->active ?? 1,
-                'classification_id'   => $clearance->id ?? null,
+                'user_id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email ?? '',
+                'user_display_name' => $user->display_name ?? $user->username,
+                'active' => $user->active ?? 1,
+                'classification_id' => $clearance->id ?? null,
                 'classification_name' => $clearance->classification_name ?? $clearance->name ?? null,
                 'classification_code' => $clearance->code ?? null,
                 'classification_level' => $clearance->level ?? null,
                 'classification_color' => $clearance->color ?? null,
-                'granted_at'          => $clearance->granted_at ?? null,
-                'granted_by_name'     => $clearance->granted_by_name ?? null,
-                'expires_at'          => $clearance->expires_at ?? null,
+                'granted_at' => $clearance->granted_at ?? null,
+                'granted_by_name' => $clearance->granted_by_name ?? null,
+                'expires_at' => $clearance->expires_at ?? null,
                 'two_factor_verified' => $clearance->two_factor_verified ?? false,
-                'renewal_status'      => $clearance->renewal_status ?? null,
+                'renewal_status' => $clearance->renewal_status ?? null,
             ];
 
             if ($clearance) {
@@ -365,10 +374,10 @@ class AclController extends Controller
     public function bulkGrantClearance(Request $request)
     {
         $validated = $request->validate([
-            'user_ids'          => 'required|array|min:1',
-            'user_ids.*'        => 'integer|min:1|exists:user,id',
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'integer|min:1|exists:user,id',
             'classification_id' => 'required|integer|min:1|exists:security_classification,id',
-            'notes'             => 'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         $grantedBy = auth()->id() ?? 1;
@@ -398,10 +407,10 @@ class AclController extends Controller
 
             if (Schema::hasTable('user_security_clearance_log')) {
                 DB::table('user_security_clearance_log')->insert([
-                    'user_id'    => $userId,
-                    'action'     => 'clearance_revoked',
+                    'user_id' => $userId,
+                    'action' => 'clearance_revoked',
                     'changed_by' => $revokedBy,
-                    'notes'      => null,
+                    'notes' => null,
                     'created_at' => now(),
                 ]);
             }
@@ -411,7 +420,7 @@ class AclController extends Controller
         }
 
         $validated = $request->validate([
-            'user_id'           => 'required|integer|min:1|exists:user,id',
+            'user_id' => 'required|integer|min:1|exists:user,id',
             'classification_id' => 'required|integer|min:1|exists:security_classification,id',
         ]);
 
@@ -491,9 +500,9 @@ class AclController extends Controller
 
             $stats = [
                 'total_requests' => DB::table('access_request')->count(),
-                'pending'        => DB::table('access_request')->where('status', 'pending')->count(),
-                'approved'       => DB::table('access_request')->where('status', 'approved')->count(),
-                'denied'         => DB::table('access_request')->where('status', 'denied')->count(),
+                'pending' => DB::table('access_request')->where('status', 'pending')->count(),
+                'approved' => DB::table('access_request')->where('status', 'approved')->count(),
+                'denied' => DB::table('access_request')->where('status', 'denied')->count(),
             ];
         }
 
@@ -523,7 +532,7 @@ class AclController extends Controller
         }
 
         return redirect()->route('acl.access-requests')
-            ->with('success', 'Access request ' . $decision . '.');
+            ->with('success', 'Access request '.$decision.'.');
     }
 
     /**
@@ -574,7 +583,7 @@ class AclController extends Controller
      */
     public function pendingRequests(Request $request)
     {
-        if (!\AhgCore\Services\AclService::canAdmin(auth()->id())) {
+        if (! \AhgCore\Services\AclService::canAdmin(auth()->id())) {
             abort(403, 'Insufficient permissions');
         }
 
@@ -605,13 +614,13 @@ class AclController extends Controller
     public function auditLog(Request $request)
     {
         $filters = [
-            'action'      => $request->string('filter_action')->trim()->toString(),
+            'action' => $request->string('filter_action')->trim()->toString(),
             'object_type' => $request->string('entity_type')->trim()->toString(),
-            'username'    => $request->string('username')->trim()->toString(),
-            'from_date'   => $request->string('from_date')->trim()->toString(),
-            'to_date'     => $request->string('to_date')->trim()->toString(),
+            'username' => $request->string('username')->trim()->toString(),
+            'from_date' => $request->string('from_date')->trim()->toString(),
+            'to_date' => $request->string('to_date')->trim()->toString(),
         ];
-        $page  = max(1, (int) $request->input('page', 1));
+        $page = max(1, (int) $request->input('page', 1));
         $limit = (int) $request->input('limit', 50);
         $limit = in_array($limit, [25, 50, 100, 250]) ? $limit : 50;
         $format = $request->string('format')->lower()->toString();
@@ -629,15 +638,26 @@ class AclController extends Controller
                 'ai.authorized_form_of_name as display_name'
             );
 
-        if ($filters['action']      !== '') $query->where('sal.action', $filters['action']);
-        if ($filters['object_type'] !== '') $query->where('sal.object_type', $filters['object_type']);
-        if ($filters['username']    !== '') $query->where('sal.user_name', $filters['username']);
-        if ($filters['from_date']   !== '') $query->where('sal.created_at', '>=', $filters['from_date'] . ' 00:00:00');
-        if ($filters['to_date']     !== '') $query->where('sal.created_at', '<=', $filters['to_date'] . ' 23:59:59');
+        if ($filters['action'] !== '') {
+            $query->where('sal.action', $filters['action']);
+        }
+        if ($filters['object_type'] !== '') {
+            $query->where('sal.object_type', $filters['object_type']);
+        }
+        if ($filters['username'] !== '') {
+            $query->where('sal.user_name', $filters['username']);
+        }
+        if ($filters['from_date'] !== '') {
+            $query->where('sal.created_at', '>=', $filters['from_date'].' 00:00:00');
+        }
+        if ($filters['to_date'] !== '') {
+            $query->where('sal.created_at', '<=', $filters['to_date'].' 23:59:59');
+        }
 
         // CSV / JSON export — return all rows matching the filters (no pagination cap)
         if ($format === 'csv' || $format === 'json') {
             $rows = $query->orderByDesc('sal.created_at')->limit(50000)->get();
+
             return $this->exportAuditLog($rows, $format);
         }
 
@@ -656,11 +676,11 @@ class AclController extends Controller
             ->select('user_name')->distinct()->whereNotNull('user_name')->orderBy('user_name')->pluck('user_name')->filter()->values();
 
         $pager = [
-            'total'        => $total,
+            'total' => $total,
             'current_page' => $page,
-            'last_page'    => max(1, (int) ceil($total / $limit)),
-            'from'         => $total > 0 ? (($page - 1) * $limit) + 1 : 0,
-            'to'           => min($total, $page * $limit),
+            'last_page' => max(1, (int) ceil($total / $limit)),
+            'from' => $total > 0 ? (($page - 1) * $limit) + 1 : 0,
+            'to' => min($total, $page * $limit),
         ];
 
         return view('ahg-acl::audit-log', compact('entries', 'limit', 'filters', 'actionTypes', 'entityTypes', 'usernames', 'pager'));
@@ -671,13 +691,13 @@ class AclController extends Controller
         $stamp = now()->format('Ymd-His');
         if ($format === 'json') {
             return response()->json($rows)
-                ->header('Content-Disposition', 'attachment; filename="audit-log-' . $stamp . '.json"');
+                ->header('Content-Disposition', 'attachment; filename="audit-log-'.$stamp.'.json"');
         }
 
         // CSV
         $headers = [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="audit-log-' . $stamp . '.csv"',
+            'Content-Disposition' => 'attachment; filename="audit-log-'.$stamp.'.csv"',
         ];
         $callback = function () use ($rows) {
             $out = fopen('php://output', 'w');
@@ -697,6 +717,7 @@ class AclController extends Controller
             }
             fclose($out);
         };
+
         return response()->stream($callback, 200, $headers);
     }
 
@@ -713,7 +734,7 @@ class AclController extends Controller
                 ->join('user as u', 'u.id', '=', 'ara.user_id')
                 ->leftJoin('actor_i18n as ai', function ($join) {
                     $join->on('ai.id', '=', 'u.id')
-                         ->where('ai.culture', '=', 'en');
+                        ->where('ai.culture', '=', 'en');
                 })
                 ->leftJoin('user_security_clearance as uc', 'uc.user_id', '=', 'u.id')
                 ->leftJoin('security_classification as sc', 'sc.id', '=', 'uc.classification_id')
@@ -743,7 +764,7 @@ class AclController extends Controller
 
         $availableUsers = $this->service->getAllUsers()
             ->filter(function ($user) use ($approverUserIds) {
-                return !in_array($user->id, $approverUserIds);
+                return ! in_array($user->id, $approverUserIds);
             });
 
         return view('ahg-acl::approvers', compact('approvers', 'availableUsers', 'classifications'));
@@ -755,10 +776,10 @@ class AclController extends Controller
     public function addApprover(Request $request)
     {
         $request->validate([
-            'user_id'                  => 'required|integer',
+            'user_id' => 'required|integer',
             'min_classification_level' => 'required|integer',
             'max_classification_level' => 'required|integer',
-            'email_notifications'      => 'nullable|boolean',
+            'email_notifications' => 'nullable|boolean',
         ]);
 
         $now = now()->toDateTimeString();
@@ -775,12 +796,12 @@ class AclController extends Controller
         }
 
         DB::table('access_request_approver')->insert([
-            'user_id'                  => (int) $request->input('user_id'),
+            'user_id' => (int) $request->input('user_id'),
             'min_classification_level' => (int) $request->input('min_classification_level'),
             'max_classification_level' => (int) $request->input('max_classification_level'),
-            'email_notifications'      => $request->boolean('email_notifications') ? 1 : 0,
-            'active'                   => 1,
-            'created_at'               => $now,
+            'email_notifications' => $request->boolean('email_notifications') ? 1 : 0,
+            'active' => 1,
+            'created_at' => $now,
         ]);
 
         return redirect()->route('acl.approvers')
@@ -810,16 +831,18 @@ class AclController extends Controller
             $log->username = $log->user_name ?? '';
             $log->category = $log->action_category ?? '';
             $log->object_title = '';
-            if (!empty($log->details)) {
+            if (! empty($log->details)) {
                 $details = is_string($log->details) ? json_decode($log->details, true) : (array) $log->details;
                 $log->object_title = $details['object_title'] ?? $details['title'] ?? '';
             }
             $log->details = is_string($log->details) ? $log->details : json_encode($log->details);
+
             return $log;
         });
         $actions = DB::table('security_audit_log')->distinct()->pluck('action')->filter()->values()->toArray();
         $categories = DB::table('security_audit_log')->distinct()->pluck('action_category')->filter()->values()->toArray();
         $total = DB::table('security_audit_log')->count();
+
         return view('ahg-acl::security-audit.index', compact('logs', 'actions', 'categories', 'total'));
     }
 
@@ -834,6 +857,7 @@ class AclController extends Controller
             'top_objects' => collect(),
             'since' => $since->format('M j, Y H:i'),
         ];
+
         return view('ahg-acl::security-audit.dashboard', compact('stats', 'period'));
     }
 
@@ -846,6 +870,7 @@ class AclController extends Controller
         $securityLogs = collect();
         $dailyAccess = collect();
         $totalAccess = 0;
+
         return view('ahg-acl::security-audit.object-access', compact('object', 'period', 'accessLogs', 'securityLogs', 'dailyAccess', 'totalAccess'));
     }
 
@@ -860,24 +885,28 @@ class AclController extends Controller
             'compartments' => Schema::hasTable('security_compartment') ? DB::table('security_compartment')->count() : 0,
         ];
         $recentActivity = collect();
+
         return view('ahg-acl::security.security-dashboard', compact('stats', 'recentActivity'));
     }
 
     public function securityIndex()
     {
         $clearances = collect();
+
         return view('ahg-acl::security.security-index', compact('clearances'));
     }
 
     public function compartments()
     {
         $compartments = Schema::hasTable('security_compartment') ? DB::table('security_compartment')->get() : collect();
+
         return view('ahg-acl::security.compartments', compact('compartments'));
     }
 
     public function compartmentAccess()
     {
         $grants = collect();
+
         return view('ahg-acl::security.compartment-access', compact('grants'));
     }
 
@@ -885,6 +914,7 @@ class AclController extends Controller
     {
         $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->first() ?? (object) ['id' => $id, 'title' => 'Unknown'];
         $classifications = $this->service->getClassificationLevels();
+
         return view('ahg-acl::security.classify', compact('object', 'classifications'));
     }
 
@@ -898,6 +928,7 @@ class AclController extends Controller
         $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->first() ?? (object) ['id' => $id, 'title' => 'Unknown'];
         $currentClassification = null;
         $classifications = $this->service->getClassificationLevels();
+
         return view('ahg-acl::security.declassification', compact('object', 'currentClassification', 'classifications'));
     }
 
@@ -910,6 +941,7 @@ class AclController extends Controller
     {
         $stats = ['classified_count' => 0, 'cleared_users' => 0, 'denied_count' => 0];
         $breakdown = collect();
+
         return view('ahg-acl::security.report', compact('stats', 'breakdown'));
     }
 
@@ -917,6 +949,7 @@ class AclController extends Controller
     {
         $compliance = ['score' => 0, 'issues' => 0, 'overdue_reviews' => 0, 'expired_clearances' => 0];
         $issues = collect();
+
         return view('ahg-acl::security.security-compliance', compact('compliance', 'issues'));
     }
 
@@ -924,15 +957,15 @@ class AclController extends Controller
     {
         $wmService = app(\AhgMediaProcessing\Services\WatermarkService::class);
 
-        $watermarkTypes     = $wmService->getWatermarkTypes();
-        $customWatermarks   = $wmService->getCustomWatermarks();
-        $defaultEnabled     = $wmService->getSetting('default_watermark_enabled', '1');
-        $defaultType        = $wmService->getSetting('default_watermark_type', 'COPYRIGHT');
+        $watermarkTypes = $wmService->getWatermarkTypes();
+        $customWatermarks = $wmService->getCustomWatermarks();
+        $defaultEnabled = $wmService->getSetting('default_watermark_enabled', '1');
+        $defaultType = $wmService->getSetting('default_watermark_type', 'COPYRIGHT');
         $defaultCustomWatermarkId = $wmService->getSetting('default_custom_watermark_id', '');
-        $applyOnView        = $wmService->getSetting('apply_watermark_on_view', '1');
-        $applyOnDownload    = $wmService->getSetting('apply_watermark_on_download', '1');
-        $securityOverride   = $wmService->getSetting('security_watermark_override', '1');
-        $minSize            = $wmService->getSetting('watermark_min_size', '200');
+        $applyOnView = $wmService->getSetting('apply_watermark_on_view', '1');
+        $applyOnDownload = $wmService->getSetting('apply_watermark_on_download', '1');
+        $securityOverride = $wmService->getSetting('security_watermark_override', '1');
+        $minSize = $wmService->getSetting('watermark_min_size', '200');
 
         return view('ahg-acl::security.watermark-settings', compact(
             'watermarkTypes', 'customWatermarks',
@@ -969,13 +1002,13 @@ class AclController extends Controller
 
         // Save settings
         $wmService->saveSettings([
-            'default_watermark_enabled'  => $request->input('default_watermark_enabled', '0'),
-            'default_watermark_type'     => $request->input('default_watermark_type', 'COPYRIGHT'),
+            'default_watermark_enabled' => $request->input('default_watermark_enabled', '0'),
+            'default_watermark_type' => $request->input('default_watermark_type', 'COPYRIGHT'),
             'default_custom_watermark_id' => $request->input('default_custom_watermark_id', ''),
-            'apply_watermark_on_view'    => $request->input('apply_watermark_on_view', '0'),
+            'apply_watermark_on_view' => $request->input('apply_watermark_on_view', '0'),
             'apply_watermark_on_download' => $request->input('apply_watermark_on_download', '0'),
             'security_watermark_override' => $request->input('security_watermark_override', '0'),
-            'watermark_min_size'         => $request->input('watermark_min_size', '200'),
+            'watermark_min_size' => $request->input('watermark_min_size', '200'),
         ]);
 
         // Update Cantaloupe cache
@@ -994,6 +1027,7 @@ class AclController extends Controller
     {
         $watermarkCode = $request->input('watermark_code');
         $traceResult = null;
+
         return view('ahg-acl::security.trace-watermark', compact('watermarkCode', 'traceResult'));
     }
 
@@ -1001,6 +1035,7 @@ class AclController extends Controller
     {
         $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->first() ?? (object) ['id' => $id, 'title' => 'Unknown'];
         $objectClassification = null;
+
         return view('ahg-acl::security.object-view', compact('object', 'objectClassification'));
     }
 
@@ -1009,6 +1044,7 @@ class AclController extends Controller
         $user = DB::table('user')->where('id', $id)->first() ?? (object) ['id' => $id, 'username' => 'Unknown'];
         $clearance = $this->service->getUserClearance($id);
         $accessHistory = collect();
+
         return view('ahg-acl::security.user-clearance', compact('user', 'clearance', 'accessHistory'));
     }
 
@@ -1017,18 +1053,21 @@ class AclController extends Controller
         $user = DB::table('user')->where('id', $id)->first() ?? (object) ['id' => $id, 'username' => 'Unknown'];
         $clearance = $this->service->getUserClearance($id);
         $groups = collect();
+
         return view('ahg-acl::security.user', compact('user', 'clearance', 'groups'));
     }
 
     public function viewClassification(int $id)
     {
         $record = (object) ['object_title' => '', 'classification_name' => '', 'color' => '#999', 'classified_by' => '', 'classified_at' => '', 'reason' => ''];
+
         return view('ahg-acl::security.view', compact('record'));
     }
 
     public function securityAudit()
     {
         $auditEntries = collect();
+
         return view('ahg-acl::security.audit', compact('auditEntries'));
     }
 
@@ -1037,6 +1076,7 @@ class AclController extends Controller
         $object = DB::table('information_object_i18n')->where('id', $id)->where('culture', 'en')->first() ?? (object) ['id' => $id, 'title' => 'Unknown'];
         $classification = null;
         $userClearance = null;
+
         return view('ahg-acl::security.access-request', compact('object', 'classification', 'userClearance'));
     }
 
@@ -1049,6 +1089,7 @@ class AclController extends Controller
     {
         $access = ['reasons' => []];
         $objectTitle = 'Restricted Resource';
+
         return view('ahg-acl::access-denied', compact('access', 'objectTitle'));
     }
 
@@ -1076,6 +1117,7 @@ class AclController extends Controller
     {
         $accessRequest = DB::table('security_access_request')->where('id', $id)->first()
             ?? (object) ['id' => $id, 'requester_name' => '', 'object_title' => '', 'justification' => '', 'created_at' => '', 'request_type' => '', 'priority' => 'normal', 'duration_hours' => 24, 'user_id' => 0, 'status' => 'pending'];
+
         return view('ahg-acl::security.review-request', ['accessRequest' => $accessRequest]);
     }
 }

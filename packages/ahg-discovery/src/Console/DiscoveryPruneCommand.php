@@ -35,6 +35,7 @@ class DiscoveryPruneCommand extends Command
     {
         if (! Schema::hasTable('ahg_discovery_log')) {
             $this->warn('ahg_discovery_log table does not exist; nothing to prune.');
+
             return self::SUCCESS;
         }
 
@@ -85,6 +86,7 @@ class DiscoveryPruneCommand extends Command
         }
 
         $this->info("deleted_rows={$deletedTotal}");
+
         return self::SUCCESS;
     }
 

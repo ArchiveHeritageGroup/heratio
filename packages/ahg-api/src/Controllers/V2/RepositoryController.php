@@ -38,7 +38,7 @@ class RepositoryController extends BaseApiController
         // Holdings counts
         $repoIds = $rows->pluck('id')->toArray();
         $holdingsCounts = [];
-        if (!empty($repoIds)) {
+        if (! empty($repoIds)) {
             $holdingsCounts = DB::table('information_object')
                 ->whereIn('repository_id', $repoIds)
                 ->selectRaw('repository_id, COUNT(*) as cnt')

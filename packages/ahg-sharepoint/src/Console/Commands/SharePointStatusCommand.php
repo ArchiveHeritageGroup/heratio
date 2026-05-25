@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 class SharePointStatusCommand extends Command
 {
     protected $signature = 'sharepoint:status';
+
     protected $description = 'Print SharePoint integration health (tenants, drives, subs, queue depth)';
 
     public function handle(): int
@@ -23,7 +24,7 @@ class SharePointStatusCommand extends Command
             $this->line(sprintf(
                 '  #%d %-30s %-12s last_token=%s%s',
                 $t->id, substr($t->name, 0, 30), $t->status, $t->last_token_at ?? 'never',
-                $t->last_error ? ' ERROR: ' . substr($t->last_error, 0, 80) : '',
+                $t->last_error ? ' ERROR: '.substr($t->last_error, 0, 80) : '',
             ));
         }
 
@@ -44,7 +45,7 @@ class SharePointStatusCommand extends Command
             $this->line(sprintf(
                 '  drive=%d  last_run=%s  status=%s  items=%d%s',
                 $s->drive_id, $s->last_run_at ?? 'never', $s->last_status ?? '—', $s->items_processed,
-                $s->last_error ? ' ERROR: ' . substr($s->last_error, 0, 80) : '',
+                $s->last_error ? ' ERROR: '.substr($s->last_error, 0, 80) : '',
             ));
         }
 

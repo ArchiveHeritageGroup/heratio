@@ -49,7 +49,7 @@ class MysqlAgentRepository implements AgentRepository
         return DB::table('relation')
             ->leftJoin('actor_i18n as ai', function ($j) use ($id) {
                 $j->on(DB::raw("CASE WHEN relation.subject_id = {$id} THEN relation.object_id ELSE relation.subject_id END"), '=', 'ai.id')
-                  ->where('ai.culture', 'en');
+                    ->where('ai.culture', 'en');
             })
             ->leftJoin('slug', DB::raw("CASE WHEN relation.subject_id = {$id} THEN relation.object_id ELSE relation.subject_id END"), '=', 'slug.object_id')
             ->leftJoin('term_i18n as ti', function ($j) {
@@ -72,7 +72,7 @@ class MysqlAgentRepository implements AgentRepository
             ->leftJoin('slug', 'repository.id', '=', 'slug.object_id')
             ->join('relation', function ($j) use ($id) {
                 $j->on('relation.object_id', '=', 'repository.id')
-                  ->where('relation.subject_id', $id);
+                    ->where('relation.subject_id', $id);
             })
             ->where('actor_i18n.culture', 'en')
             ->select('repository.id', 'actor_i18n.authorized_form_of_name as name', 'slug.slug')

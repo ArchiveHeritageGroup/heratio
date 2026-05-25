@@ -15,7 +15,7 @@ class AhgThemeB5ServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $viewPath = __DIR__ . '/../../resources/views';
+        $viewPath = __DIR__.'/../../resources/views';
 
         // Load views with 'theme' namespace (primary)
         $this->loadViewsFrom($viewPath, 'theme');

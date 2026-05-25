@@ -26,7 +26,7 @@ class WorkflowDesignerSaveTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->edges = new WorkflowEdgeService();
+        $this->edges = new WorkflowEdgeService;
     }
 
     public function test_save_endpoint_persists_valid_edges_and_returns_ok(): void
@@ -120,28 +120,27 @@ class WorkflowDesignerSaveTest extends TestCase
     private function makeWorkflow(string $name = 'Designer Test'): int
     {
         return (int) DB::table('ahg_workflow')->insertGetId([
-            'name'          => $name,
-            'scope_type'    => 'global',
+            'name' => $name,
+            'scope_type' => 'global',
             'trigger_event' => 'submit',
-            'applies_to'    => 'information_object',
-            'is_active'     => 1,
-            'created_at'    => now(),
-            'updated_at'    => now(),
+            'applies_to' => 'information_object',
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
     private function makeStep(int $workflowId, string $name, int $order): int
     {
         return (int) DB::table('ahg_workflow_step')->insertGetId([
-            'workflow_id'     => $workflowId,
-            'name'            => $name,
-            'step_order'      => $order,
-            'step_type'       => 'review',
+            'workflow_id' => $workflowId,
+            'name' => $name,
+            'step_order' => $order,
+            'step_type' => 'review',
             'action_required' => 'approve_reject',
-            'is_active'       => 1,
-            'created_at'      => now(),
-            'updated_at'      => now(),
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
-
 }

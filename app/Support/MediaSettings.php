@@ -54,6 +54,7 @@ class MediaSettings
             return 'heratio';
         }
         $allowed = ['heratio', 'heratio-minimal', 'plyr', 'videojs', 'native'];
+
         return in_array($t, $allowed, true) ? $t : 'heratio';
     }
 
@@ -70,8 +71,13 @@ class MediaSettings
     public static function defaultVolume(): float
     {
         $v = (float) AhgSettingsService::get('media_default_volume', '1');
-        if ($v < 0) return 0.0;
-        if ($v > 1) return 1.0;
+        if ($v < 0) {
+            return 0.0;
+        }
+        if ($v > 1) {
+            return 1.0;
+        }
+
         return $v;
     }
 
@@ -103,13 +109,13 @@ class MediaSettings
     public static function payload(): array
     {
         return [
-            'player_type'           => self::playerType(),
-            'autoplay'              => self::autoplay(),
-            'loop'                  => self::loop(),
-            'default_volume'        => self::defaultVolume(),
-            'show_controls'         => self::showControls(),
-            'show_download'         => self::showDownload(),
-            'show_waveform'         => self::showWaveform(),
+            'player_type' => self::playerType(),
+            'autoplay' => self::autoplay(),
+            'loop' => self::loop(),
+            'default_volume' => self::defaultVolume(),
+            'show_controls' => self::showControls(),
+            'show_download' => self::showDownload(),
+            'show_waveform' => self::showWaveform(),
             'transcription_enabled' => self::transcriptionEnabled(),
         ];
     }

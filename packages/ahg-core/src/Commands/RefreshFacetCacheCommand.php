@@ -18,6 +18,7 @@ class RefreshFacetCacheCommand extends Command
     {
         if (! Schema::hasTable('display_facet_cache')) {
             $this->error('display_facet_cache table missing.');
+
             return self::FAILURE;
         }
         $conn = (string) $this->option('connection');
@@ -28,13 +29,15 @@ class RefreshFacetCacheCommand extends Command
         $this->info("source: {$sourceMap}");
 
         $facets = [
-            'subjects'   => 35,
-            'places'     => 42,
-            'genres'     => 78,
-            'level'      => 34,
+            'subjects' => 35,
+            'places' => 42,
+            'genres' => 78,
+            'level' => 34,
             'repository' => null,  // distinct repositories
         ];
-        if ($only) $facets = array_intersect_key($facets, [$only => true]);
+        if ($only) {
+            $facets = array_intersect_key($facets, [$only => true]);
+        }
 
         $totalRows = 0;
         DB::beginTransaction();
@@ -77,24 +80,26 @@ class RefreshFacetCacheCommand extends Command
                 foreach ($rows as $r) {
                     $batch[] = [
                         'facet_type' => $facetType,
-                        'term_id'    => (int) $r->term_id,
-                        'term_name'  => mb_strimwidth((string) ($r->term_name ?? ''), 0, 255),
-                        'count'      => (int) $r->cnt,
+                        'term_id' => (int) $r->term_id,
+                        'term_name' => mb_strimwidth((string) ($r->term_name ?? ''), 0, 255),
+                        'count' => (int) $r->cnt,
                         'created_at' => now(),
                     ];
                 }
                 foreach (array_chunk($batch, 1000) as $chunk) {
                     DB::table('display_facet_cache')->insert($chunk);
                 }
-                $this->info("  {$facetType}: " . count($batch) . " rows");
+                $this->info("  {$facetType}: ".count($batch).' rows');
                 $totalRows += count($batch);
             }
             DB::commit();
             $this->info("done; total_rows={$totalRows}");
+
             return self::SUCCESS;
         } catch (\Throwable $e) {
             DB::rollBack();
-            $this->error('refresh failed: ' . $e->getMessage());
+            $this->error('refresh failed: '.$e->getMessage());
+
             return self::FAILURE;
         }
     }

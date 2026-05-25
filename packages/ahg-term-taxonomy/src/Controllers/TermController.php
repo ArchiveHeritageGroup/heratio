@@ -23,14 +23,12 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgTermTaxonomy\Controllers;
 
-use AhgTermTaxonomy\Services\TermBrowseService;
-use AhgTermTaxonomy\Services\TermService;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
+use AhgTermTaxonomy\Services\TermBrowseService;
+use AhgTermTaxonomy\Services\TermService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -135,6 +133,7 @@ class TermController extends Controller
                 ->where('object.class_name', 'QubitActor')->count();
             $doc['isProtected'] = \Illuminate\Support\Facades\DB::table('term')
                 ->where('id', $termId)->value('parent_id') === null;
+
             return $doc;
         })->toArray();
 
@@ -182,12 +181,12 @@ class TermController extends Controller
 
         $term = $this->termService->getBySlug($slug, $culture);
 
-        if (!$term) {
+        if (! $term) {
             abort(404);
         }
 
         // #51 ACL enforcement: read-side gate. Admin bypass built in.
-        if (!\AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $term->id)) {
+        if (! \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $term->id)) {
             abort(403, 'You do not have permission to view this term.');
         }
 
@@ -204,7 +203,7 @@ class TermController extends Controller
         // Direct-only count (exclude narrower terms)
         $directCount = $relatedDescriptionsCount; // same if no narrower terms
         $narrowerIds = DB::table('term')->where('parent_id', $term->id)->pluck('id')->toArray();
-        if (!empty($narrowerIds)) {
+        if (! empty($narrowerIds)) {
             $directCount = DB::table('object_term_relation')
                 ->join('object', 'object_term_relation.object_id', '=', 'object.id')
                 ->where('object_term_relation.term_id', $term->id)
@@ -241,7 +240,7 @@ class TermController extends Controller
         $sort = $request->get('sort', 'lastUpdated');
 
         $termIds = [$term->id];
-        if (!$onlyDirect && !empty($narrowerIds)) {
+        if (! $onlyDirect && ! empty($narrowerIds)) {
             $termIds = array_merge($termIds, $narrowerIds);
         }
 
@@ -311,10 +310,10 @@ class TermController extends Controller
 
                     if ($thumb) {
                         // Path starts with /uploads/ which nginx aliases to AtoM's uploads dir
-                        $desc->thumbnail = ($thumb->path ?? '') . ($thumb->name ?? '');
+                        $desc->thumbnail = ($thumb->path ?? '').($thumb->name ?? '');
                     } else {
                         // No thumbnail — use generic icon image from AtoM
-                        $desc->thumbnail = '/generic-icons/' . match ((int) ($master->media_type_id ?? 0)) {
+                        $desc->thumbnail = '/generic-icons/'.match ((int) ($master->media_type_id ?? 0)) {
                             135 => 'audio.png',
                             136 => 'image.png',
                             137 => 'video.png',
@@ -323,6 +322,7 @@ class TermController extends Controller
                         };
                     }
                 }
+
                 return $desc;
             });
 
@@ -407,6 +407,7 @@ class TermController extends Controller
             ->where('type_id', 157)->get()
             ->map(function ($rel) use ($term, $culture) {
                 $otherId = $rel->subject_id == $term->id ? $rel->object_id : $rel->subject_id;
+
                 return DB::table('term')
                     ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
                     ->join('slug', 'term.id', '=', 'slug.object_id')
@@ -423,7 +424,9 @@ class TermController extends Controller
                 ->join('slug', 'term.id', '=', 'slug.object_id')
                 ->where('term.id', $currentParentId)->where('term_i18n.culture', $culture)
                 ->select('term.id', 'term_i18n.name', 'slug.slug', 'term.parent_id')->first();
-            if (!$ancestor) break;
+            if (! $ancestor) {
+                break;
+            }
             $breadcrumb->prepend($ancestor);
             $currentParentId = $ancestor->parent_id;
         }
@@ -452,9 +455,11 @@ class TermController extends Controller
         }
 
         // Google Maps API key for Place terms
-        $mapApiKey = ($term->taxonomy_id == 42 && !empty($term->code))
+        $mapApiKey = ($term->taxonomy_id == 42 && ! empty($term->code))
             ? DB::table('setting')
-                ->leftJoin('setting_i18n', function ($j) { $j->on('setting.id', '=', 'setting_i18n.id')->where('setting_i18n.culture', '=', 'en'); })
+                ->leftJoin('setting_i18n', function ($j) {
+                    $j->on('setting.id', '=', 'setting_i18n.id')->where('setting_i18n.culture', '=', 'en');
+                })
                 ->where('setting.name', 'google_maps_api_key')->whereNull('setting.scope')
                 ->value('setting_i18n.value')
             : null;
@@ -524,13 +529,13 @@ class TermController extends Controller
     public function exportSkos(Request $request)
     {
         $taxonomyId = (int) $request->input('taxonomy');
-        if (!$taxonomyId) {
+        if (! $taxonomyId) {
             abort(400, 'taxonomy parameter is required');
         }
 
         $format = strtolower((string) ($request->route('format') ?? $request->input('format', 'rdfxml')));
         $allowed = ['rdfxml', 'turtle', 'ntriples', 'jsonld'];
-        if (!in_array($format, $allowed, true)) {
+        if (! in_array($format, $allowed, true)) {
             $format = 'rdfxml';
         }
 
@@ -546,8 +551,8 @@ class TermController extends Controller
             ->orderBy('term_i18n.name')
             ->get();
 
-        $baseUri = url('/term') . '/';
-        $schemeUri = url('/taxonomy/' . $taxonomyId);
+        $baseUri = url('/term').'/';
+        $schemeUri = url('/taxonomy/'.$taxonomyId);
 
         // -------- #661 Phase 1: SKOS label/note types completeness ---------
         // Pre-fetch the per-term additional labels + notes in 2 batched
@@ -558,7 +563,7 @@ class TermController extends Controller
         $scopeNotesByTerm = [];
         $historyNotesByTerm = [];
 
-        if (!empty($termIds)) {
+        if (! empty($termIds)) {
             // other_name → skos:altLabel. Match the same culture filter as
             // prefLabel above so we don't emit one altLabel per supported
             // locale when only the requested culture is wanted. Phase 2
@@ -571,7 +576,9 @@ class TermController extends Controller
                 ->get();
             foreach ($otherNames as $on) {
                 $name = trim((string) $on->name);
-                if ($name === '') continue;
+                if ($name === '') {
+                    continue;
+                }
                 $altLabelsByTerm[$on->object_id][] = ['lang' => $culture, 'name' => $name];
             }
 
@@ -587,7 +594,9 @@ class TermController extends Controller
                 ->get();
             foreach ($notes as $n) {
                 $content = trim((string) $n->content);
-                if ($content === '') continue;
+                if ($content === '') {
+                    continue;
+                }
                 $scopeNotesByTerm[$n->object_id][] = ['lang' => $culture, 'text' => $content];
             }
         }
@@ -595,12 +604,12 @@ class TermController extends Controller
         // Build a normalised concept list ONCE — used by all serialisers.
         $concepts = [];
         foreach ($terms as $t) {
-            $uri = $baseUri . ($t->slug ?: $t->id);
+            $uri = $baseUri.($t->slug ?: $t->id);
             $parentUri = null;
             if ($t->parent_id) {
                 $parent = $terms->firstWhere('id', $t->parent_id);
                 if ($parent) {
-                    $parentUri = $baseUri . ($parent->slug ?: $parent->id);
+                    $parentUri = $baseUri.($parent->slug ?: $parent->id);
                 }
             }
             $concepts[] = [
@@ -609,9 +618,9 @@ class TermController extends Controller
                 'broader' => $parentUri,
                 'topConcept' => ($parentUri === null),
                 'notation' => $t->code ? (string) $t->code : null,
-                'altLabels'    => $altLabelsByTerm[$t->id] ?? [],
+                'altLabels' => $altLabelsByTerm[$t->id] ?? [],
                 'hiddenLabels' => $hiddenLabelsByTerm[$t->id] ?? [],
-                'scopeNotes'   => $scopeNotesByTerm[$t->id] ?? [],
+                'scopeNotes' => $scopeNotesByTerm[$t->id] ?? [],
                 'historyNotes' => $historyNotesByTerm[$t->id] ?? [],
             ];
         }
@@ -646,10 +655,11 @@ class TermController extends Controller
                 break;
         }
 
-        $filename = 'skos-taxonomy-' . $taxonomyId . '.' . $ext;
+        $filename = 'skos-taxonomy-'.$taxonomyId.'.'.$ext;
+
         return response($body, 200, [
             'Content-Type' => $contentType,
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 
@@ -662,48 +672,49 @@ class TermController extends Controller
         $culture = $scheme['culture'];
         $schemeUri = $scheme['uri'];
 
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"' . "\n";
-        $xml .= '         xmlns:skos="http://www.w3.org/2004/02/skos/core#"' . "\n";
-        $xml .= '         xmlns:dct="http://purl.org/dc/terms/">' . "\n\n";
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        $xml .= '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"'."\n";
+        $xml .= '         xmlns:skos="http://www.w3.org/2004/02/skos/core#"'."\n";
+        $xml .= '         xmlns:dct="http://purl.org/dc/terms/">'."\n\n";
 
-        $xml .= '  <skos:ConceptScheme rdf:about="' . htmlspecialchars($schemeUri) . '">' . "\n";
-        $xml .= '    <dct:title>' . htmlspecialchars($scheme['title']) . '</dct:title>' . "\n";
-        $xml .= '  </skos:ConceptScheme>' . "\n\n";
+        $xml .= '  <skos:ConceptScheme rdf:about="'.htmlspecialchars($schemeUri).'">'."\n";
+        $xml .= '    <dct:title>'.htmlspecialchars($scheme['title']).'</dct:title>'."\n";
+        $xml .= '  </skos:ConceptScheme>'."\n\n";
 
         foreach ($concepts as $c) {
-            $xml .= '  <skos:Concept rdf:about="' . htmlspecialchars($c['uri']) . '">' . "\n";
-            $xml .= '    <skos:prefLabel xml:lang="' . $culture . '">' . htmlspecialchars($c['prefLabel']) . '</skos:prefLabel>' . "\n";
-            $xml .= '    <skos:inScheme rdf:resource="' . htmlspecialchars($schemeUri) . '"/>' . "\n";
+            $xml .= '  <skos:Concept rdf:about="'.htmlspecialchars($c['uri']).'">'."\n";
+            $xml .= '    <skos:prefLabel xml:lang="'.$culture.'">'.htmlspecialchars($c['prefLabel']).'</skos:prefLabel>'."\n";
+            $xml .= '    <skos:inScheme rdf:resource="'.htmlspecialchars($schemeUri).'"/>'."\n";
 
             if ($c['broader']) {
-                $xml .= '    <skos:broader rdf:resource="' . htmlspecialchars($c['broader']) . '"/>' . "\n";
+                $xml .= '    <skos:broader rdf:resource="'.htmlspecialchars($c['broader']).'"/>'."\n";
             } else {
-                $xml .= '    <skos:topConceptOf rdf:resource="' . htmlspecialchars($schemeUri) . '"/>' . "\n";
+                $xml .= '    <skos:topConceptOf rdf:resource="'.htmlspecialchars($schemeUri).'"/>'."\n";
             }
 
             if ($c['notation']) {
-                $xml .= '    <skos:notation>' . htmlspecialchars($c['notation']) . '</skos:notation>' . "\n";
+                $xml .= '    <skos:notation>'.htmlspecialchars($c['notation']).'</skos:notation>'."\n";
             }
 
             // #661 Phase 1 additions — altLabel / hiddenLabel / scopeNote / historyNote
             foreach (($c['altLabels'] ?? []) as $alt) {
-                $xml .= '    <skos:altLabel xml:lang="' . htmlspecialchars($alt['lang']) . '">' . htmlspecialchars($alt['name']) . '</skos:altLabel>' . "\n";
+                $xml .= '    <skos:altLabel xml:lang="'.htmlspecialchars($alt['lang']).'">'.htmlspecialchars($alt['name']).'</skos:altLabel>'."\n";
             }
             foreach (($c['hiddenLabels'] ?? []) as $hid) {
-                $xml .= '    <skos:hiddenLabel xml:lang="' . htmlspecialchars($hid['lang']) . '">' . htmlspecialchars($hid['name']) . '</skos:hiddenLabel>' . "\n";
+                $xml .= '    <skos:hiddenLabel xml:lang="'.htmlspecialchars($hid['lang']).'">'.htmlspecialchars($hid['name']).'</skos:hiddenLabel>'."\n";
             }
             foreach (($c['scopeNotes'] ?? []) as $sn) {
-                $xml .= '    <skos:scopeNote xml:lang="' . htmlspecialchars($sn['lang']) . '">' . htmlspecialchars($sn['text']) . '</skos:scopeNote>' . "\n";
+                $xml .= '    <skos:scopeNote xml:lang="'.htmlspecialchars($sn['lang']).'">'.htmlspecialchars($sn['text']).'</skos:scopeNote>'."\n";
             }
             foreach (($c['historyNotes'] ?? []) as $hn) {
-                $xml .= '    <skos:historyNote xml:lang="' . htmlspecialchars($hn['lang']) . '">' . htmlspecialchars($hn['text']) . '</skos:historyNote>' . "\n";
+                $xml .= '    <skos:historyNote xml:lang="'.htmlspecialchars($hn['lang']).'">'.htmlspecialchars($hn['text']).'</skos:historyNote>'."\n";
             }
 
-            $xml .= '  </skos:Concept>' . "\n";
+            $xml .= '  </skos:Concept>'."\n";
         }
 
-        $xml .= '</rdf:RDF>' . "\n";
+        $xml .= '</rdf:RDF>'."\n";
+
         return $xml;
     }
 
@@ -721,33 +732,33 @@ class TermController extends Controller
         $ttl .= "@prefix dct:  <http://purl.org/dc/terms/> .\n";
         $ttl .= "@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .\n\n";
 
-        $ttl .= '<' . $schemeUri . '> a skos:ConceptScheme ;' . "\n";
-        $ttl .= '    dct:title ' . $this->ttlString($scheme['title']) . ' .' . "\n\n";
+        $ttl .= '<'.$schemeUri.'> a skos:ConceptScheme ;'."\n";
+        $ttl .= '    dct:title '.$this->ttlString($scheme['title']).' .'."\n\n";
 
         foreach ($concepts as $c) {
-            $ttl .= '<' . $c['uri'] . '> a skos:Concept ;' . "\n";
-            $ttl .= '    skos:prefLabel ' . $this->ttlLangString($c['prefLabel'], $culture) . ' ;' . "\n";
-            $ttl .= '    skos:inScheme <' . $schemeUri . '> ;' . "\n";
+            $ttl .= '<'.$c['uri'].'> a skos:Concept ;'."\n";
+            $ttl .= '    skos:prefLabel '.$this->ttlLangString($c['prefLabel'], $culture).' ;'."\n";
+            $ttl .= '    skos:inScheme <'.$schemeUri.'> ;'."\n";
             if ($c['broader']) {
-                $ttl .= '    skos:broader <' . $c['broader'] . '> ;' . "\n";
+                $ttl .= '    skos:broader <'.$c['broader'].'> ;'."\n";
             } else {
-                $ttl .= '    skos:topConceptOf <' . $schemeUri . '> ;' . "\n";
+                $ttl .= '    skos:topConceptOf <'.$schemeUri.'> ;'."\n";
             }
             if ($c['notation']) {
-                $ttl .= '    skos:notation ' . $this->ttlString($c['notation']) . ' ;' . "\n";
+                $ttl .= '    skos:notation '.$this->ttlString($c['notation']).' ;'."\n";
             }
             // #661 Phase 1 additions
             foreach (($c['altLabels'] ?? []) as $alt) {
-                $ttl .= '    skos:altLabel ' . $this->ttlLangString($alt['name'], $alt['lang']) . ' ;' . "\n";
+                $ttl .= '    skos:altLabel '.$this->ttlLangString($alt['name'], $alt['lang']).' ;'."\n";
             }
             foreach (($c['hiddenLabels'] ?? []) as $hid) {
-                $ttl .= '    skos:hiddenLabel ' . $this->ttlLangString($hid['name'], $hid['lang']) . ' ;' . "\n";
+                $ttl .= '    skos:hiddenLabel '.$this->ttlLangString($hid['name'], $hid['lang']).' ;'."\n";
             }
             foreach (($c['scopeNotes'] ?? []) as $sn) {
-                $ttl .= '    skos:scopeNote ' . $this->ttlLangString($sn['text'], $sn['lang']) . ' ;' . "\n";
+                $ttl .= '    skos:scopeNote '.$this->ttlLangString($sn['text'], $sn['lang']).' ;'."\n";
             }
             foreach (($c['historyNotes'] ?? []) as $hn) {
-                $ttl .= '    skos:historyNote ' . $this->ttlLangString($hn['text'], $hn['lang']) . ' ;' . "\n";
+                $ttl .= '    skos:historyNote '.$this->ttlLangString($hn['text'], $hn['lang']).' ;'."\n";
             }
             // Replace trailing ' ;' with ' .'
             $ttl = preg_replace('/ ;\n$/', " .\n", $ttl);
@@ -772,33 +783,33 @@ class TermController extends Controller
         $dct = 'http://purl.org/dc/terms/';
 
         $nt = '';
-        $nt .= '<' . $schemeUri . '> ' . $rdfType . ' <' . $skos . 'ConceptScheme> .' . "\n";
-        $nt .= '<' . $schemeUri . '> <' . $dct . 'title> ' . $this->ntString($scheme['title']) . ' .' . "\n";
+        $nt .= '<'.$schemeUri.'> '.$rdfType.' <'.$skos.'ConceptScheme> .'."\n";
+        $nt .= '<'.$schemeUri.'> <'.$dct.'title> '.$this->ntString($scheme['title']).' .'."\n";
 
         foreach ($concepts as $c) {
-            $nt .= '<' . $c['uri'] . '> ' . $rdfType . ' <' . $skos . 'Concept> .' . "\n";
-            $nt .= '<' . $c['uri'] . '> <' . $skos . 'prefLabel> ' . $this->ntLangString($c['prefLabel'], $culture) . ' .' . "\n";
-            $nt .= '<' . $c['uri'] . '> <' . $skos . 'inScheme> <' . $schemeUri . '> .' . "\n";
+            $nt .= '<'.$c['uri'].'> '.$rdfType.' <'.$skos.'Concept> .'."\n";
+            $nt .= '<'.$c['uri'].'> <'.$skos.'prefLabel> '.$this->ntLangString($c['prefLabel'], $culture).' .'."\n";
+            $nt .= '<'.$c['uri'].'> <'.$skos.'inScheme> <'.$schemeUri.'> .'."\n";
             if ($c['broader']) {
-                $nt .= '<' . $c['uri'] . '> <' . $skos . 'broader> <' . $c['broader'] . '> .' . "\n";
+                $nt .= '<'.$c['uri'].'> <'.$skos.'broader> <'.$c['broader'].'> .'."\n";
             } else {
-                $nt .= '<' . $c['uri'] . '> <' . $skos . 'topConceptOf> <' . $schemeUri . '> .' . "\n";
+                $nt .= '<'.$c['uri'].'> <'.$skos.'topConceptOf> <'.$schemeUri.'> .'."\n";
             }
             if ($c['notation']) {
-                $nt .= '<' . $c['uri'] . '> <' . $skos . 'notation> ' . $this->ntString($c['notation']) . ' .' . "\n";
+                $nt .= '<'.$c['uri'].'> <'.$skos.'notation> '.$this->ntString($c['notation']).' .'."\n";
             }
             // #661 Phase 1 additions
             foreach (($c['altLabels'] ?? []) as $alt) {
-                $nt .= '<' . $c['uri'] . '> <' . $skos . 'altLabel> ' . $this->ntLangString($alt['name'], $alt['lang']) . ' .' . "\n";
+                $nt .= '<'.$c['uri'].'> <'.$skos.'altLabel> '.$this->ntLangString($alt['name'], $alt['lang']).' .'."\n";
             }
             foreach (($c['hiddenLabels'] ?? []) as $hid) {
-                $nt .= '<' . $c['uri'] . '> <' . $skos . 'hiddenLabel> ' . $this->ntLangString($hid['name'], $hid['lang']) . ' .' . "\n";
+                $nt .= '<'.$c['uri'].'> <'.$skos.'hiddenLabel> '.$this->ntLangString($hid['name'], $hid['lang']).' .'."\n";
             }
             foreach (($c['scopeNotes'] ?? []) as $sn) {
-                $nt .= '<' . $c['uri'] . '> <' . $skos . 'scopeNote> ' . $this->ntLangString($sn['text'], $sn['lang']) . ' .' . "\n";
+                $nt .= '<'.$c['uri'].'> <'.$skos.'scopeNote> '.$this->ntLangString($sn['text'], $sn['lang']).' .'."\n";
             }
             foreach (($c['historyNotes'] ?? []) as $hn) {
-                $nt .= '<' . $c['uri'] . '> <' . $skos . 'historyNote> ' . $this->ntLangString($hn['text'], $hn['lang']) . ' .' . "\n";
+                $nt .= '<'.$c['uri'].'> <'.$skos.'historyNote> '.$this->ntLangString($hn['text'], $hn['lang']).' .'."\n";
             }
         }
 
@@ -842,18 +853,19 @@ class TermController extends Controller
                 foreach ($entries as $e) {
                     $out[] = ['@value' => $e[$textKey], '@language' => $e['lang']];
                 }
+
                 return $out;
             };
-            if (!empty($c['altLabels'])) {
+            if (! empty($c['altLabels'])) {
                 $node['skos:altLabel'] = $mapTo($c['altLabels'], 'name');
             }
-            if (!empty($c['hiddenLabels'])) {
+            if (! empty($c['hiddenLabels'])) {
                 $node['skos:hiddenLabel'] = $mapTo($c['hiddenLabels'], 'name');
             }
-            if (!empty($c['scopeNotes'])) {
+            if (! empty($c['scopeNotes'])) {
                 $node['skos:scopeNote'] = $mapTo($c['scopeNotes'], 'text');
             }
-            if (!empty($c['historyNotes'])) {
+            if (! empty($c['historyNotes'])) {
                 $node['skos:historyNote'] = $mapTo($c['historyNotes'], 'text');
             }
             $graph[] = $node;
@@ -868,7 +880,7 @@ class TermController extends Controller
             '@graph' => $graph,
         ];
 
-        return json_encode($doc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+        return json_encode($doc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)."\n";
     }
 
     /**
@@ -878,32 +890,32 @@ class TermController extends Controller
     private function escapeRdfLiteral(string $s): string
     {
         return strtr($s, [
-            "\\" => "\\\\",
-            "\"" => "\\\"",
-            "\n" => "\\n",
-            "\r" => "\\r",
-            "\t" => "\\t",
+            '\\' => '\\\\',
+            '"' => '\\"',
+            "\n" => '\\n',
+            "\r" => '\\r',
+            "\t" => '\\t',
         ]);
     }
 
     private function ttlString(string $s): string
     {
-        return '"' . $this->escapeRdfLiteral($s) . '"';
+        return '"'.$this->escapeRdfLiteral($s).'"';
     }
 
     private function ttlLangString(string $s, string $lang): string
     {
-        return '"' . $this->escapeRdfLiteral($s) . '"@' . $lang;
+        return '"'.$this->escapeRdfLiteral($s).'"@'.$lang;
     }
 
     private function ntString(string $s): string
     {
-        return '"' . $this->escapeRdfLiteral($s) . '"';
+        return '"'.$this->escapeRdfLiteral($s).'"';
     }
 
     private function ntLangString(string $s, string $lang): string
     {
-        return '"' . $this->escapeRdfLiteral($s) . '"@' . $lang;
+        return '"'.$this->escapeRdfLiteral($s).'"@'.$lang;
     }
 
     /**
@@ -915,7 +927,7 @@ class TermController extends Controller
 
         if ($request->isMethod('post')) {
             $taxonomyId = (int) $request->input('taxonomy_id');
-            if (!$taxonomyId) {
+            if (! $taxonomyId) {
                 return back()->with('error', 'Please select a taxonomy.');
             }
 
@@ -925,20 +937,20 @@ class TermController extends Controller
                 $xmlContent = file_get_contents($request->file('skos_file')->getPathname());
             } elseif ($request->filled('skos_url')) {
                 $url = $request->input('skos_url');
-                if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                if (! filter_var($url, FILTER_VALIDATE_URL)) {
                     return back()->with('error', 'Invalid URL.');
                 }
                 $ctx = stream_context_create(['http' => ['timeout' => 30, 'header' => 'Accept: application/rdf+xml,text/xml,*/*']]);
                 $xmlContent = @file_get_contents($url, false, $ctx);
                 if ($xmlContent === false) {
-                    return back()->with('error', 'Failed to fetch SKOS file from URL: ' . $url);
+                    return back()->with('error', 'Failed to fetch SKOS file from URL: '.$url);
                 }
             } else {
                 return back()->with('error', 'Please upload a file or provide a URL.');
             }
 
             $xml = simplexml_load_string($xmlContent);
-            if (!$xml) {
+            if (! $xml) {
                 return back()->with('error', 'Invalid XML content.');
             }
 
@@ -950,7 +962,9 @@ class TermController extends Controller
 
             foreach ($concepts as $c) {
                 $label = (string) $c->children('skos', true)->prefLabel;
-                if (!$label) continue;
+                if (! $label) {
+                    continue;
+                }
 
                 // Check if exists
                 $existing = DB::table('term')
@@ -960,7 +974,9 @@ class TermController extends Controller
                     ->where('term_i18n.name', $label)
                     ->value('term.id');
 
-                if ($existing) continue;
+                if ($existing) {
+                    continue;
+                }
 
                 // Create object + term + i18n + slug
                 $objectId = DB::table('object')->insertGetId([
@@ -981,7 +997,7 @@ class TermController extends Controller
                     'name' => $label,
                 ]);
 
-                $slug = \Illuminate\Support\Str::slug($label) . '-' . $objectId;
+                $slug = \Illuminate\Support\Str::slug($label).'-'.$objectId;
                 DB::table('slug')->insert([
                     'object_id' => $objectId,
                     'slug' => $slug,
@@ -1086,7 +1102,7 @@ class TermController extends Controller
 
         $term = $this->termService->getBySlug($slug, $culture);
 
-        if (!$term) {
+        if (! $term) {
             abort(404);
         }
 
@@ -1144,6 +1160,7 @@ class TermController extends Controller
             ->where('type_id', 157)->get()
             ->map(function ($rel) use ($term, $culture) {
                 $otherId = $rel->subject_id == $term->id ? $rel->object_id : $rel->subject_id;
+
                 return DB::table('term')
                     ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
                     ->where('term.id', $otherId)->where('term_i18n.culture', $culture)
@@ -1188,7 +1205,7 @@ class TermController extends Controller
 
         $term = $this->termService->getBySlug($slug, $culture);
 
-        if (!$term) {
+        if (! $term) {
             abort(404);
         }
 
@@ -1220,7 +1237,7 @@ class TermController extends Controller
 
         $term = $this->termService->getBySlug($slug, $culture);
 
-        if (!$term) {
+        if (! $term) {
             abort(404);
         }
 
@@ -1241,7 +1258,7 @@ class TermController extends Controller
 
         $term = $this->termService->getBySlug($slug, $culture);
 
-        if (!$term) {
+        if (! $term) {
             abort(404);
         }
 
@@ -1267,17 +1284,17 @@ class TermController extends Controller
         $culture = app()->getLocale();
         $limit = (int) $request->get('limit', 20);
 
-        if (!$taxonomyId) {
+        if (! $taxonomyId) {
             return response()->json([]);
         }
 
         $results = DB::table('term')
             ->join('term_i18n', function ($j) use ($culture) {
                 $j->on('term.id', '=', 'term_i18n.id')
-                  ->where('term_i18n.culture', '=', $culture);
+                    ->where('term_i18n.culture', '=', $culture);
             })
             ->where('term.taxonomy_id', $taxonomyId)
-            ->where('term_i18n.name', 'LIKE', '%' . $query . '%')
+            ->where('term_i18n.name', 'LIKE', '%'.$query.'%')
             ->select('term.id', 'term_i18n.name')
             ->orderBy('term_i18n.name')
             ->limit($limit)
@@ -1303,7 +1320,7 @@ class TermController extends Controller
             })
             ->leftJoin('slug as s', 's.object_id', '=', 't.id')
             ->when($term !== '', function ($q) use ($term) {
-                $q->where('ti.name', 'LIKE', '%' . $term . '%');
+                $q->where('ti.name', 'LIKE', '%'.$term.'%');
             })
             ->whereNotNull('ti.name')
             ->select('t.id', 'ti.name', 's.slug')

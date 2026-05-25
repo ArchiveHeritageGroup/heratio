@@ -28,9 +28,7 @@ use Throwable;
 
 class VectorSearchStrategy implements SearchStrategyInterface
 {
-    public function __construct(protected VectorSearchService $vector)
-    {
-    }
+    public function __construct(protected VectorSearchService $vector) {}
 
     public function name(): string
     {
@@ -42,6 +40,7 @@ class VectorSearchStrategy implements SearchStrategyInterface
         if (! class_exists(VectorSearchService::class)) {
             return false;
         }
+
         return $this->setting('ahg_discovery_vector_enabled', '1') !== '0';
     }
 
@@ -52,8 +51,8 @@ class VectorSearchStrategy implements SearchStrategyInterface
         }
 
         $minScore = (float) $this->setting('ahg_discovery_vector_min_score', '0.25');
-        $pool     = (int)   $this->setting('ahg_discovery_vector_pool_size', '100');
-        $pool     = max(1, min(200, $pool));
+        $pool = (int) $this->setting('ahg_discovery_vector_pool_size', '100');
+        $pool = max(1, min(200, $pool));
         $collection = $context['vector_collection'] ?? null;
 
         try {
@@ -73,12 +72,13 @@ class VectorSearchStrategy implements SearchStrategyInterface
             }
             $out[] = [
                 'object_id' => (int) $h['id'],
-                'score'     => round($score, 6),
-                'source'    => 'vector',
-                'slug'      => $h['slug'] ?? null,
-                'title'     => $h['title'] ?? null,
+                'score' => round($score, 6),
+                'source' => 'vector',
+                'slug' => $h['slug'] ?? null,
+                'title' => $h['title'] ?? null,
             ];
         }
+
         return $out;
     }
 
@@ -92,6 +92,7 @@ class VectorSearchStrategy implements SearchStrategyInterface
         } catch (Throwable $e) {
             // settings not yet seeded
         }
+
         return $default;
     }
 }

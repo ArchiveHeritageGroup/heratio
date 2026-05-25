@@ -20,17 +20,21 @@ class PreservationStatsCommand extends Command
 
         if ($this->option('format') === 'json') {
             $this->line(json_encode(['summary' => $stats, 'daily' => $daily], JSON_PRETTY_PRINT));
+
             return self::SUCCESS;
         }
 
         $this->info('=== summary ===');
-        foreach ((array) $stats as $k => $v) $this->line(sprintf("  %-30s %s", $k, is_scalar($v) ? $v : json_encode($v)));
+        foreach ((array) $stats as $k => $v) {
+            $this->line(sprintf('  %-30s %s', $k, is_scalar($v) ? $v : json_encode($v)));
+        }
 
-        $this->info("\n=== daily (last " . $this->option('days') . " days) ===");
+        $this->info("\n=== daily (last ".$this->option('days').' days) ===');
         foreach ($daily as $row) {
-            $this->line(sprintf("  %s  fixity=%-5d migrations=%-5d events=%d",
+            $this->line(sprintf('  %s  fixity=%-5d migrations=%-5d events=%d',
                 $row->day ?? '-', $row->fixity_checks ?? 0, $row->migrations ?? 0, $row->events ?? 0));
         }
+
         return self::SUCCESS;
     }
 }

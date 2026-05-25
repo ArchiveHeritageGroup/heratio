@@ -50,6 +50,7 @@ class ScoreMentionEvidenceJob implements ShouldQueue
     use SerializesModels;
 
     public int $tries = 2;
+
     public int $timeout = 180;
 
     public function __construct(public int $mentionId) {}

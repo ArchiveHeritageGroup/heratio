@@ -22,7 +22,11 @@ class LibraryIllOverdueCommand extends Command
 
     public function handle(): int
     {
-        if (! Schema::hasTable('library_ill_request')) { $this->warn('library_ill_request missing'); return self::SUCCESS; }
+        if (! Schema::hasTable('library_ill_request')) {
+            $this->warn('library_ill_request missing');
+
+            return self::SUCCESS;
+        }
         $days = max(1, (int) $this->option('days'));
         $cutoff = now()->copy()->subDays($days)->toDateString();
 
@@ -41,6 +45,7 @@ class LibraryIllOverdueCommand extends Command
                 mb_strimwidth((string) ($r->partner_library ?? ''), 0, 30, '..'),
                 mb_strimwidth((string) ($r->title ?? ''), 0, 50, '..')));
         }
+
         return self::SUCCESS;
     }
 }

@@ -25,9 +25,7 @@ use Illuminate\Routing\Controller;
  */
 class SharePointWebhookController extends Controller
 {
-    public function __construct(private SharePointWebhookHandler $handler)
-    {
-    }
+    public function __construct(private SharePointWebhookHandler $handler) {}
 
     public function receive(Request $request): Response|JsonResponse
     {
@@ -37,12 +35,12 @@ class SharePointWebhookController extends Controller
             return response($validationToken, 200, ['Content-Type' => 'text/plain']);
         }
 
-        if (!$request->isMethod('POST')) {
+        if (! $request->isMethod('POST')) {
             return response('Method not allowed', 405, ['Content-Type' => 'text/plain']);
         }
 
         $payload = $request->json()->all();
-        if (!is_array($payload)) {
+        if (! is_array($payload)) {
             return response('Invalid JSON', 400, ['Content-Type' => 'text/plain']);
         }
 

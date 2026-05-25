@@ -40,12 +40,12 @@ class VocabularyImportCommand extends Command
     protected $description = 'Load a SKOS/OWL/RDF vocabulary into Fuseki and prime vocabulary_label_cache';
 
     private const FORMAT_MIME = [
-        'rdfxml'   => 'application/rdf+xml',
-        'turtle'   => 'text/turtle',
+        'rdfxml' => 'application/rdf+xml',
+        'turtle' => 'text/turtle',
         'ntriples' => 'application/n-triples',
-        'nquads'   => 'application/n-quads',
-        'trig'     => 'application/trig',
-        'jsonld'   => 'application/ld+json',
+        'nquads' => 'application/n-quads',
+        'trig' => 'application/trig',
+        'jsonld' => 'application/ld+json',
     ];
 
     public function handle(): int
@@ -59,10 +59,12 @@ class VocabularyImportCommand extends Command
 
         if ($vocab === '') {
             $this->error('--vocabulary is required (e.g. ric-o, aat, lcsh, icip)');
+
             return self::FAILURE;
         }
         if (! isset(self::FORMAT_MIME[$format])) {
-            $this->error("Unknown --format={$format}. Valid: " . implode(', ', array_keys(self::FORMAT_MIME)));
+            $this->error("Unknown --format={$format}. Valid: ".implode(', ', array_keys(self::FORMAT_MIME)));
+
             return self::FAILURE;
         }
         if ($graph === '') {
@@ -79,12 +81,13 @@ class VocabularyImportCommand extends Command
 
         // 2) Where does Fuseki live?
         $fusekiBase = rtrim((string) config('ric.fuseki.url', 'http://localhost:3030/ric'), '/');
-        $dataEndpoint = $fusekiBase . '/data?graph=' . urlencode($graph);
-        $queryEndpoint = $fusekiBase . '/query';
+        $dataEndpoint = $fusekiBase.'/data?graph='.urlencode($graph);
+        $queryEndpoint = $fusekiBase.'/query';
         $this->info("Fuseki data endpoint: {$dataEndpoint}");
 
         if ($dryRun) {
             $this->warn('DRY RUN — not writing to Fuseki, not priming cache.');
+
             return self::SUCCESS;
         }
 
@@ -108,14 +111,16 @@ class VocabularyImportCommand extends Command
             }
             $resp = $req->put($dataEndpoint);
             if (! $resp->successful()) {
-                $this->error('Fuseki upload failed: HTTP ' . $resp->status() . ' — ' . substr($resp->body(), 0, 300));
+                $this->error('Fuseki upload failed: HTTP '.$resp->status().' — '.substr($resp->body(), 0, 300));
                 if ($resp->status() === 401 && $fusekiUser === '') {
                     $this->warn('Fuseki returned 401. Set FUSEKI_USER + FUSEKI_PASSWORD in .env (Heratio reads these via config/ric.php).');
                 }
+
                 return self::FAILURE;
             }
         } catch (\Throwable $e) {
-            $this->error('Fuseki upload exception: ' . $e->getMessage());
+            $this->error('Fuseki upload exception: '.$e->getMessage());
+
             return self::FAILURE;
         }
         $this->info("  ✓ uploaded into named graph <{$graph}>");
@@ -153,18 +158,23 @@ class VocabularyImportCommand extends Command
                 $resp = Http::timeout(30)->withHeaders(['Accept' => '*/*'])->get($source);
                 if (! $resp->successful()) {
                     $this->error("HTTP {$resp->status()} fetching {$source}");
+
                     return null;
                 }
+
                 return (string) $resp->body();
             } catch (\Throwable $e) {
-                $this->error('Fetch exception: ' . $e->getMessage());
+                $this->error('Fetch exception: '.$e->getMessage());
+
                 return null;
             }
         }
         if (! is_file($source)) {
             $this->error("File not found: {$source}");
+
             return null;
         }
+
         return (string) @file_get_contents($source);
     }
 
@@ -172,14 +182,14 @@ class VocabularyImportCommand extends Command
     {
         $sparql = sprintf(
             'PREFIX skos: <http://www.w3.org/2004/02/skos/core#>'
-            . ' PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>'
-            . ' SELECT ?uri ?lang ?pref (GROUP_CONCAT(DISTINCT ?alt; separator="") AS ?alts) WHERE {'
-            . '   GRAPH <%s> {'
-            . '     { ?uri skos:prefLabel ?pref } UNION { ?uri rdfs:label ?pref }'
-            . '     BIND(LANG(?pref) AS ?lang)'
-            . '     OPTIONAL { ?uri skos:altLabel ?alt . FILTER (LANG(?alt) = ?lang) }'
-            . '   }'
-            . ' } GROUP BY ?uri ?lang ?pref',
+            .' PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>'
+            .' SELECT ?uri ?lang ?pref (GROUP_CONCAT(DISTINCT ?alt; separator="") AS ?alts) WHERE {'
+            .'   GRAPH <%s> {'
+            .'     { ?uri skos:prefLabel ?pref } UNION { ?uri rdfs:label ?pref }'
+            .'     BIND(LANG(?pref) AS ?lang)'
+            .'     OPTIONAL { ?uri skos:altLabel ?alt . FILTER (LANG(?alt) = ?lang) }'
+            .'   }'
+            .' } GROUP BY ?uri ?lang ?pref',
             addslashes($graph)
         );
 
@@ -201,12 +211,14 @@ class VocabularyImportCommand extends Command
             }
             $resp = $req->post($queryEndpoint, ['query' => $sparql]);
             if (! $resp->successful()) {
-                $this->warn('SPARQL prewarm failed: HTTP ' . $resp->status());
+                $this->warn('SPARQL prewarm failed: HTTP '.$resp->status());
+
                 return 0;
             }
             $rows = $resp->json('results.bindings') ?? [];
         } catch (\Throwable $e) {
-            $this->warn('SPARQL prewarm exception: ' . $e->getMessage());
+            $this->warn('SPARQL prewarm exception: '.$e->getMessage());
+
             return 0;
         }
 
@@ -214,7 +226,9 @@ class VocabularyImportCommand extends Command
         foreach ($rows as $r) {
             $uri = $r['uri']['value'] ?? '';
             $lang = $r['lang']['value'] ?? '';
-            if ($lang === '') $lang = 'en';
+            if ($lang === '') {
+                $lang = 'en';
+            }
             $pref = $r['pref']['value'] ?? '';
             $altsRaw = $r['alts']['value'] ?? '';
             $alts = $altsRaw === '' ? [] : explode("\x1f", $altsRaw);
@@ -233,6 +247,7 @@ class VocabularyImportCommand extends Command
             );
             $count++;
         }
+
         return $count;
     }
 }

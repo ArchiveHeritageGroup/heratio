@@ -24,7 +24,11 @@ class LibraryPatronExpiryCommand extends Command
 
     public function handle(): int
     {
-        if (! Schema::hasTable('library_patron')) { $this->warn('library_patron missing'); return self::SUCCESS; }
+        if (! Schema::hasTable('library_patron')) {
+            $this->warn('library_patron missing');
+
+            return self::SUCCESS;
+        }
         $grace = max(0, (int) $this->option('grace-days'));
         $dry = (bool) $this->option('dry-run');
         $cutoff = now()->copy()->subDays($grace)->toDateString();
@@ -35,10 +39,13 @@ class LibraryPatronExpiryCommand extends Command
             ->where('membership_expiry', '<', $cutoff);
 
         $n = (clone $q)->count();
-        $this->info("expiring {$n} patron memberships (cutoff={$cutoff})" . ($dry ? ' (dry-run)' : ''));
-        if ($dry || $n === 0) return self::SUCCESS;
+        $this->info("expiring {$n} patron memberships (cutoff={$cutoff})".($dry ? ' (dry-run)' : ''));
+        if ($dry || $n === 0) {
+            return self::SUCCESS;
+        }
         $q->update(['borrowing_status' => 'expired']);
         $this->info("flagged={$n}");
+
         return self::SUCCESS;
     }
 }

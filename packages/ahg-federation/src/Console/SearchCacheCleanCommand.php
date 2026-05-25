@@ -31,12 +31,14 @@ use Illuminate\Console\Command;
 class SearchCacheCleanCommand extends Command
 {
     protected $signature = 'ahg:federation-search-cache-clean';
+
     protected $description = 'Delete expired rows from federation_search_cache.';
 
     public function handle(FederatedSearchService $service): int
     {
         $deleted = $service->clearExpiredCache();
         $this->info(sprintf('Pruned %d expired cache row%s.', $deleted, $deleted === 1 ? '' : 's'));
+
         return self::SUCCESS;
     }
 }

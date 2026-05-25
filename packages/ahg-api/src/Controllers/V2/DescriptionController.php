@@ -84,7 +84,7 @@ class DescriptionController extends BaseApiController
     public function show(string $slug, Request $request): JsonResponse
     {
         $id = $this->slugToId($slug);
-        if (!$id) {
+        if (! $id) {
             return $this->error('Not Found', "Description '{$slug}' not found.", 404);
         }
 
@@ -97,7 +97,7 @@ class DescriptionController extends BaseApiController
             ->select('io.*', 'ioi.*', 'object.created_at', 'object.updated_at', 'slug.slug')
             ->first();
 
-        if (!$io) {
+        if (! $io) {
             return $this->error('Not Found', "Description '{$slug}' not found.", 404);
         }
 
@@ -151,15 +151,15 @@ class DescriptionController extends BaseApiController
 
         // Resolve parent
         $parentId = 1; // root
-        if (!empty($input['parent_slug'])) {
+        if (! empty($input['parent_slug'])) {
             $parentId = $this->slugToId($input['parent_slug']);
-            if (!$parentId) {
+            if (! $parentId) {
                 return $this->error('Bad Request', "Parent '{$input['parent_slug']}' not found.", 400);
             }
         }
 
         $parent = DB::table('information_object')->where('id', $parentId)->first();
-        if (!$parent) {
+        if (! $parent) {
             return $this->error('Bad Request', 'Parent not found.', 400);
         }
 
@@ -237,7 +237,7 @@ class DescriptionController extends BaseApiController
     public function update(string $slug, Request $request): JsonResponse
     {
         $id = $this->slugToId($slug);
-        if (!$id) {
+        if (! $id) {
             return $this->error('Not Found', "Description '{$slug}' not found.", 404);
         }
 
@@ -270,7 +270,7 @@ class DescriptionController extends BaseApiController
             // Update base table fields
             $baseFields = ['identifier', 'level_of_description_id', 'repository_id'];
             $baseUpdate = array_intersect_key($input, array_flip($baseFields));
-            if (!empty($baseUpdate)) {
+            if (! empty($baseUpdate)) {
                 DB::table('information_object')->where('id', $id)->update($baseUpdate);
             }
 
@@ -281,7 +281,7 @@ class DescriptionController extends BaseApiController
                 'location_of_originals', 'location_of_copies', 'related_units_of_description',
                 'rules', 'sources', 'revision_history'];
             $i18nUpdate = array_intersect_key($input, array_flip($i18nFields));
-            if (!empty($i18nUpdate)) {
+            if (! empty($i18nUpdate)) {
                 DB::table('information_object_i18n')
                     ->where('id', $id)
                     ->where('culture', $this->culture)
@@ -317,13 +317,13 @@ class DescriptionController extends BaseApiController
     public function destroy(string $slug): JsonResponse
     {
         $id = $this->slugToId($slug);
-        if (!$id) {
+        if (! $id) {
             return $this->error('Not Found', "Description '{$slug}' not found.", 404);
         }
 
         // Check for children
         $io = DB::table('information_object')->where('id', $id)->first();
-        if (!$io) {
+        if (! $io) {
             return $this->error('Not Found', "Description '{$slug}' not found.", 404);
         }
 
@@ -519,8 +519,9 @@ class DescriptionController extends BaseApiController
             $thumbnailPath = null;
             if ($row->path) {
                 $pathInfo = pathinfo($row->path);
-                $thumbnailPath = '/uploads/' . $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_142.' . ($pathInfo['extension'] ?? 'jpg');
+                $thumbnailPath = '/uploads/'.$pathInfo['dirname'].'/'.$pathInfo['filename'].'_142.'.($pathInfo['extension'] ?? 'jpg');
             }
+
             return [
                 'id' => $row->id,
                 'name' => $row->name,
@@ -528,7 +529,7 @@ class DescriptionController extends BaseApiController
                 'byte_size' => $row->byte_size,
                 'checksum' => $row->checksum,
                 'thumbnail_url' => $thumbnailPath,
-                'master_url' => $row->path ? '/uploads/' . $row->path : null,
+                'master_url' => $row->path ? '/uploads/'.$row->path : null,
             ];
         })->values()->toArray();
     }
@@ -553,6 +554,7 @@ class DescriptionController extends BaseApiController
                 $result[$prop->name] = $prop->value;
             }
         }
+
         return $result;
     }
 
@@ -567,7 +569,7 @@ class DescriptionController extends BaseApiController
             ->select('parent_id', 'lft', 'rgt')
             ->first();
 
-        if (!$current || $current->parent_id == 1) {
+        if (! $current || $current->parent_id == 1) {
             return [];
         }
 
@@ -604,21 +606,30 @@ class DescriptionController extends BaseApiController
     protected function resolveTermNames($ids): array
     {
         $ids = $ids->filter()->unique()->values()->toArray();
-        if (empty($ids)) return [];
+        if (empty($ids)) {
+            return [];
+        }
+
         return DB::table('term_i18n')->whereIn('id', $ids)->where('culture', $this->culture)->pluck('name', 'id')->toArray();
     }
 
     protected function resolveRepoNames($ids): array
     {
         $ids = $ids->filter()->unique()->values()->toArray();
-        if (empty($ids)) return [];
+        if (empty($ids)) {
+            return [];
+        }
+
         return DB::table('actor_i18n')->whereIn('id', $ids)->where('culture', $this->culture)->pluck('authorized_form_of_name', 'id')->toArray();
     }
 
     protected function resolveActorNames($ids): array
     {
         $ids = $ids->filter()->unique()->values()->toArray();
-        if (empty($ids)) return [];
+        if (empty($ids)) {
+            return [];
+        }
+
         return DB::table('actor_i18n')->whereIn('id', $ids)->where('culture', $this->culture)->pluck('authorized_form_of_name', 'id')->toArray();
     }
 }

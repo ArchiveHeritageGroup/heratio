@@ -17,8 +17,7 @@ final class AccessResult
         public readonly string $action,
         public readonly ?string $reason,
         public readonly int $httpStatus,
-    ) {
-    }
+    ) {}
 
     public static function allow(object $tokenRow, string $action = 'view'): self
     {

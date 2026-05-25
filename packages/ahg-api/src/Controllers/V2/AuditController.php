@@ -56,7 +56,7 @@ class AuditController extends BaseApiController
     {
         $entry = DB::table('ahg_api_log')->where('id', $id)->first();
 
-        if (!$entry) {
+        if (! $entry) {
             return $this->error('Not Found', 'Audit entry not found.', 404);
         }
 

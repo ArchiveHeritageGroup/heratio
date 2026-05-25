@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgDataMigration\Services;
 
 use AhgCore\Constants\TermId;
@@ -53,11 +51,12 @@ class DataMigrationService
     public function getMapping(int $id): ?array
     {
         $row = DB::table('atom_data_mapping')->where('id', $id)->first();
-        if (!$row) {
+        if (! $row) {
             return null;
         }
         $data = (array) $row;
         $data['field_mappings'] = json_decode($data['field_mappings'], true) ?: [];
+
         return $data;
     }
 
@@ -72,18 +71,19 @@ class DataMigrationService
         }
 
         $record = [
-            'name'           => $data['name'],
-            'target_type'    => $data['target_type'],
-            'category'       => $data['category'] ?? 'Custom',
-            'description'    => $data['description'] ?? null,
+            'name' => $data['name'],
+            'target_type' => $data['target_type'],
+            'category' => $data['category'] ?? 'Custom',
+            'description' => $data['description'] ?? null,
             'field_mappings' => $fieldMappings,
-            'source_template'=> $data['source_template'] ?? null,
-            'is_default'     => $data['is_default'] ?? 0,
-            'created_by'     => $data['created_by'] ?? auth()->id(),
+            'source_template' => $data['source_template'] ?? null,
+            'is_default' => $data['is_default'] ?? 0,
+            'created_by' => $data['created_by'] ?? auth()->id(),
         ];
 
-        if (!empty($data['id'])) {
+        if (! empty($data['id'])) {
             DB::table('atom_data_mapping')->where('id', $data['id'])->update($record);
+
             return (int) $data['id'];
         }
 
@@ -123,13 +123,14 @@ class DataMigrationService
     public function getJob(int $id): ?array
     {
         $row = DB::table('atom_migration_job')->where('id', $id)->first();
-        if (!$row) {
+        if (! $row) {
             return null;
         }
         $data = (array) $row;
         $data['error_log'] = json_decode($data['error_log'] ?? '[]', true) ?: [];
         $data['mapping_snapshot'] = json_decode($data['mapping_snapshot'] ?? '{}', true) ?: [];
         $data['import_options'] = json_decode($data['import_options'] ?? '{}', true) ?: [];
+
         return $data;
     }
 
@@ -148,23 +149,23 @@ class DataMigrationService
         }
 
         return (int) DB::table('atom_migration_job')->insertGetId([
-            'name'             => $data['name'] ?? 'Import ' . now()->format('Y-m-d H:i:s'),
-            'target_type'      => $data['target_type'],
-            'source_file'      => $data['source_file'] ?? null,
-            'source_format'    => $data['source_format'] ?? 'csv',
-            'mapping_id'       => $data['mapping_id'] ?? null,
+            'name' => $data['name'] ?? 'Import '.now()->format('Y-m-d H:i:s'),
+            'target_type' => $data['target_type'],
+            'source_file' => $data['source_file'] ?? null,
+            'source_format' => $data['source_format'] ?? 'csv',
+            'mapping_id' => $data['mapping_id'] ?? null,
             'mapping_snapshot' => $mappingSnapshot,
-            'import_options'   => $importOptions,
-            'status'           => 'pending',
-            'total_records'    => $data['total_records'] ?? 0,
-            'processed_records'=> 0,
+            'import_options' => $importOptions,
+            'status' => 'pending',
+            'total_records' => $data['total_records'] ?? 0,
+            'processed_records' => 0,
             'imported_records' => 0,
-            'updated_records'  => 0,
-            'skipped_records'  => 0,
-            'error_count'      => 0,
-            'error_log'        => json_encode([]),
-            'created_by'       => $data['created_by'] ?? auth()->id(),
-            'created_at'       => now(),
+            'updated_records' => 0,
+            'skipped_records' => 0,
+            'error_count' => 0,
+            'error_log' => json_encode([]),
+            'created_by' => $data['created_by'] ?? auth()->id(),
+            'created_at' => now(),
         ]);
     }
 
@@ -187,7 +188,7 @@ class DataMigrationService
         if (array_key_exists('error_log', $data)) {
             $update['error_log'] = is_array($data['error_log']) ? json_encode($data['error_log']) : $data['error_log'];
         }
-        if (!empty($update)) {
+        if (! empty($update)) {
             DB::table('atom_migration_job')->where('id', $id)->update($update);
         }
     }
@@ -199,7 +200,7 @@ class DataMigrationService
     {
         $result = ['headers' => [], 'rows' => [], 'totalRows' => 0];
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return $result;
         }
 
@@ -217,6 +218,7 @@ class DataMigrationService
         $headers = fgetcsv($handle);
         if ($headers === false) {
             fclose($handle);
+
             return $result;
         }
 
@@ -238,6 +240,7 @@ class DataMigrationService
         $result['totalRows'] = $rowCount;
 
         fclose($handle);
+
         return $result;
     }
 
@@ -248,106 +251,106 @@ class DataMigrationService
     {
         $fields = match ($targetType) {
             'informationObject' => [
-                'identifier'                        => 'Identifier',
-                'title'                             => 'Title',
-                'alternate_title'                   => 'Alternate title',
-                'edition'                           => 'Edition',
-                'extent_and_medium'                 => 'Extent and medium',
-                'archival_history'                  => 'Archival history',
-                'acquisition'                       => 'Immediate source of acquisition',
-                'scope_and_content'                 => 'Scope and content',
-                'appraisal'                         => 'Appraisal',
-                'accruals'                          => 'Accruals',
-                'arrangement'                       => 'Arrangement',
-                'access_conditions'                 => 'Conditions governing access',
-                'reproduction_conditions'           => 'Conditions governing reproduction',
-                'physical_characteristics'          => 'Physical characteristics',
-                'finding_aids'                      => 'Finding aids',
-                'location_of_originals'             => 'Location of originals',
-                'location_of_copies'                => 'Location of copies',
-                'related_units_of_description'      => 'Related units of description',
+                'identifier' => 'Identifier',
+                'title' => 'Title',
+                'alternate_title' => 'Alternate title',
+                'edition' => 'Edition',
+                'extent_and_medium' => 'Extent and medium',
+                'archival_history' => 'Archival history',
+                'acquisition' => 'Immediate source of acquisition',
+                'scope_and_content' => 'Scope and content',
+                'appraisal' => 'Appraisal',
+                'accruals' => 'Accruals',
+                'arrangement' => 'Arrangement',
+                'access_conditions' => 'Conditions governing access',
+                'reproduction_conditions' => 'Conditions governing reproduction',
+                'physical_characteristics' => 'Physical characteristics',
+                'finding_aids' => 'Finding aids',
+                'location_of_originals' => 'Location of originals',
+                'location_of_copies' => 'Location of copies',
+                'related_units_of_description' => 'Related units of description',
                 'institution_responsible_identifier' => 'Institution responsible identifier',
-                'rules'                             => 'Rules or conventions',
-                'sources'                           => 'Sources',
-                'revision_history'                  => 'Revision history',
-                'level_of_description_id'           => 'Level of description',
-                'repository_id'                     => 'Repository',
-                'parent_id'                         => 'Parent ID',
-                'description_identifier'            => 'Description identifier',
-                'source_standard'                   => 'Source standard',
-                'legacyId'                          => 'Legacy ID',
-                'parentId'                          => 'Parent legacy ID',
-                'culture'                           => 'Culture',
+                'rules' => 'Rules or conventions',
+                'sources' => 'Sources',
+                'revision_history' => 'Revision history',
+                'level_of_description_id' => 'Level of description',
+                'repository_id' => 'Repository',
+                'parent_id' => 'Parent ID',
+                'description_identifier' => 'Description identifier',
+                'source_standard' => 'Source standard',
+                'legacyId' => 'Legacy ID',
+                'parentId' => 'Parent legacy ID',
+                'culture' => 'Culture',
             ],
             'actor' => [
                 'authorized_form_of_name' => 'Authorized form of name',
-                'dates_of_existence'      => 'Dates of existence',
-                'history'                 => 'History',
-                'places'                  => 'Places',
-                'legal_status'            => 'Legal status',
-                'functions'               => 'Functions',
-                'mandates'                => 'Mandates',
-                'internal_structures'     => 'Internal structures',
-                'general_context'         => 'General context',
+                'dates_of_existence' => 'Dates of existence',
+                'history' => 'History',
+                'places' => 'Places',
+                'legal_status' => 'Legal status',
+                'functions' => 'Functions',
+                'mandates' => 'Mandates',
+                'internal_structures' => 'Internal structures',
+                'general_context' => 'General context',
                 'institution_responsible_identifier' => 'Institution responsible identifier',
-                'rules'                   => 'Rules or conventions',
-                'sources'                 => 'Sources',
-                'revision_history'        => 'Revision history',
-                'entity_type_id'          => 'Entity type',
-                'description_identifier'  => 'Description identifier',
-                'legacyId'                => 'Legacy ID',
-                'culture'                 => 'Culture',
+                'rules' => 'Rules or conventions',
+                'sources' => 'Sources',
+                'revision_history' => 'Revision history',
+                'entity_type_id' => 'Entity type',
+                'description_identifier' => 'Description identifier',
+                'legacyId' => 'Legacy ID',
+                'culture' => 'Culture',
             ],
             'accession' => [
-                'identifier'              => 'Identifier',
-                'title'                   => 'Title',
-                'date'                    => 'Date',
-                'appraisal'               => 'Appraisal',
-                'archival_history'        => 'Archival history',
-                'location_information'    => 'Location information',
+                'identifier' => 'Identifier',
+                'title' => 'Title',
+                'date' => 'Date',
+                'appraisal' => 'Appraisal',
+                'archival_history' => 'Archival history',
+                'location_information' => 'Location information',
                 'physical_characteristics' => 'Physical characteristics',
-                'processing_notes'        => 'Processing notes',
-                'received_extent_units'   => 'Received extent units',
-                'scope_and_content'       => 'Scope and content',
-                'source_of_acquisition'   => 'Source of acquisition',
-                'acquisition_type_id'     => 'Acquisition type',
-                'processing_priority_id'  => 'Processing priority',
-                'processing_status_id'    => 'Processing status',
-                'resource_type_id'        => 'Resource type',
-                'legacyId'                => 'Legacy ID',
-                'culture'                 => 'Culture',
+                'processing_notes' => 'Processing notes',
+                'received_extent_units' => 'Received extent units',
+                'scope_and_content' => 'Scope and content',
+                'source_of_acquisition' => 'Source of acquisition',
+                'acquisition_type_id' => 'Acquisition type',
+                'processing_priority_id' => 'Processing priority',
+                'processing_status_id' => 'Processing status',
+                'resource_type_id' => 'Resource type',
+                'legacyId' => 'Legacy ID',
+                'culture' => 'Culture',
             ],
             'repository' => [
                 'authorized_form_of_name' => 'Authorized form of name',
-                'dates_of_existence'      => 'Dates of existence',
-                'history'                 => 'History',
-                'places'                  => 'Places',
-                'legal_status'            => 'Legal status',
-                'functions'               => 'Functions',
-                'mandates'                => 'Mandates',
-                'internal_structures'     => 'Internal structures',
-                'general_context'         => 'General context',
+                'dates_of_existence' => 'Dates of existence',
+                'history' => 'History',
+                'places' => 'Places',
+                'legal_status' => 'Legal status',
+                'functions' => 'Functions',
+                'mandates' => 'Mandates',
+                'internal_structures' => 'Internal structures',
+                'general_context' => 'General context',
                 'institution_responsible_identifier' => 'Institution responsible identifier',
-                'rules'                   => 'Rules or conventions',
-                'sources'                 => 'Sources',
-                'revision_history'        => 'Revision history',
-                'geocultural_context'     => 'Geocultural context',
-                'collecting_policies'     => 'Collecting policies',
-                'buildings'               => 'Buildings',
-                'holdings'                => 'Holdings',
-                'finding_aids'            => 'Finding aids',
-                'opening_times'           => 'Opening times',
-                'access_conditions'       => 'Access conditions',
-                'disabled_access'         => 'Disabled access',
-                'research_services'       => 'Research services',
-                'reproduction_services'   => 'Reproduction services',
-                'public_facilities'       => 'Public facilities',
+                'rules' => 'Rules or conventions',
+                'sources' => 'Sources',
+                'revision_history' => 'Revision history',
+                'geocultural_context' => 'Geocultural context',
+                'collecting_policies' => 'Collecting policies',
+                'buildings' => 'Buildings',
+                'holdings' => 'Holdings',
+                'finding_aids' => 'Finding aids',
+                'opening_times' => 'Opening times',
+                'access_conditions' => 'Access conditions',
+                'disabled_access' => 'Disabled access',
+                'research_services' => 'Research services',
+                'reproduction_services' => 'Reproduction services',
+                'public_facilities' => 'Public facilities',
                 'desc_institution_identifier' => 'Description institution identifier',
-                'desc_rules'              => 'Description rules',
-                'desc_sources'            => 'Description sources',
-                'desc_revision_history'   => 'Description revision history',
-                'legacyId'                => 'Legacy ID',
-                'culture'                 => 'Culture',
+                'desc_rules' => 'Description rules',
+                'desc_sources' => 'Description sources',
+                'desc_revision_history' => 'Description revision history',
+                'legacyId' => 'Legacy ID',
+                'culture' => 'Culture',
             ],
             default => [],
         };
@@ -361,23 +364,24 @@ class DataMigrationService
     public function executeImport(int $jobId): array
     {
         $job = $this->getJob($jobId);
-        if (!$job) {
+        if (! $job) {
             return ['success' => false, 'message' => 'Job not found'];
         }
 
         $this->updateJobProgress($jobId, [
-            'status'     => 'processing',
+            'status' => 'processing',
             'started_at' => now(),
             'progress_message' => 'Starting import...',
         ]);
 
         $sourcePath = $job['source_file'];
-        if (!$sourcePath || !file_exists($sourcePath)) {
+        if (! $sourcePath || ! file_exists($sourcePath)) {
             $this->updateJobProgress($jobId, [
-                'status'           => 'failed',
-                'completed_at'     => now(),
-                'progress_message' => 'Source file not found: ' . ($sourcePath ?: '(empty)'),
+                'status' => 'failed',
+                'completed_at' => now(),
+                'progress_message' => 'Source file not found: '.($sourcePath ?: '(empty)'),
             ]);
+
             return ['success' => false, 'message' => 'Source file not found'];
         }
 
@@ -392,7 +396,7 @@ class DataMigrationService
         $totalRows = $csvData['totalRows'];
 
         $this->updateJobProgress($jobId, [
-            'total_records'    => $totalRows,
+            'total_records' => $totalRows,
             'progress_message' => "Parsed {$totalRows} rows from CSV",
         ]);
 
@@ -423,13 +427,14 @@ class DataMigrationService
                 // Apply field mapping: source column => target field
                 $mapped = [];
                 foreach ($mapping as $sourceCol => $targetField) {
-                    if (!empty($targetField) && isset($row[$sourceCol])) {
+                    if (! empty($targetField) && isset($row[$sourceCol])) {
                         $mapped[$targetField] = $row[$sourceCol];
                     }
                 }
 
                 if (empty($mapped)) {
                     $skipped++;
+
                     continue;
                 }
 
@@ -439,7 +444,7 @@ class DataMigrationService
 
                 if ($recordId > 0) {
                     // Track legacy ID for parent-child resolution
-                    if (!empty($mapped['legacyId'])) {
+                    if (! empty($mapped['legacyId'])) {
                         $legacyIdMap[$mapped['legacyId']] = $recordId;
                     }
                     if ($importType === 'create') {
@@ -455,7 +460,7 @@ class DataMigrationService
             } catch (\Throwable $e) {
                 DB::rollBack();
                 $errors[] = [
-                    'row'     => $rowNum,
+                    'row' => $rowNum,
                     'message' => $e->getMessage(),
                 ];
             }
@@ -464,11 +469,11 @@ class DataMigrationService
             if ($rowNum % 25 === 0) {
                 $this->updateJobProgress($jobId, [
                     'processed_records' => $rowNum,
-                    'imported_records'  => $imported,
-                    'updated_records'   => $updated,
-                    'skipped_records'   => $skipped,
-                    'error_count'       => count($errors),
-                    'progress_message'  => "Processing row {$rowNum} of {$totalRows}...",
+                    'imported_records' => $imported,
+                    'updated_records' => $updated,
+                    'skipped_records' => $skipped,
+                    'error_count' => count($errors),
+                    'progress_message' => "Processing row {$rowNum} of {$totalRows}...",
                 ]);
             }
         }
@@ -477,23 +482,23 @@ class DataMigrationService
         $finalStatus = count($errors) > 0 && $imported === 0 && $updated === 0 ? 'failed' : 'completed';
 
         $this->updateJobProgress($jobId, [
-            'status'            => $finalStatus,
+            'status' => $finalStatus,
             'processed_records' => $rowNum,
-            'imported_records'  => $imported,
-            'updated_records'   => $updated,
-            'skipped_records'   => $skipped,
-            'error_count'       => count($errors),
-            'error_log'         => $errors,
-            'completed_at'      => now(),
-            'progress_message'  => "Completed: {$imported} imported, {$updated} updated, {$skipped} skipped, " . count($errors) . " errors",
+            'imported_records' => $imported,
+            'updated_records' => $updated,
+            'skipped_records' => $skipped,
+            'error_count' => count($errors),
+            'error_log' => $errors,
+            'completed_at' => now(),
+            'progress_message' => "Completed: {$imported} imported, {$updated} updated, {$skipped} skipped, ".count($errors).' errors',
         ]);
 
         return [
-            'success'  => true,
+            'success' => true,
             'imported' => $imported,
-            'updated'  => $updated,
-            'skipped'  => $skipped,
-            'errors'   => count($errors),
+            'updated' => $updated,
+            'skipped' => $skipped,
+            'errors' => count($errors),
         ];
     }
 
@@ -504,10 +509,10 @@ class DataMigrationService
     {
         return match ($targetType) {
             'informationObject' => $this->importInformationObject($mapped, $importType, $culture, $legacyIdMap),
-            'actor'             => $this->importActor($mapped, $importType, $culture),
-            'accession'         => $this->importAccession($mapped, $importType, $culture),
-            'repository'        => $this->importRepository($mapped, $importType, $culture, $legacyIdMap),
-            default             => 0,
+            'actor' => $this->importActor($mapped, $importType, $culture),
+            'accession' => $this->importAccession($mapped, $importType, $culture),
+            'repository' => $this->importRepository($mapped, $importType, $culture, $legacyIdMap),
+            default => 0,
         };
     }
 
@@ -531,7 +536,7 @@ class DataMigrationService
         ];
 
         // Resolve parent from legacy ID
-        if (!empty($mapped['parentId']) && empty($mapped['parent_id'])) {
+        if (! empty($mapped['parentId']) && empty($mapped['parent_id'])) {
             $parentLegacy = $mapped['parentId'];
             if (isset($legacyIdMap[$parentLegacy])) {
                 $mapped['parent_id'] = $legacyIdMap[$parentLegacy];
@@ -540,7 +545,7 @@ class DataMigrationService
 
         // Check for existing record if update mode
         $existingId = null;
-        if ($importType === 'update' && !empty($mapped['identifier'])) {
+        if ($importType === 'update' && ! empty($mapped['identifier'])) {
             $existingId = DB::table('information_object')
                 ->where('identifier', $mapped['identifier'])
                 ->value('id');
@@ -554,7 +559,7 @@ class DataMigrationService
                     $ioData[$f] = $mapped[$f];
                 }
             }
-            if (!empty($ioData)) {
+            if (! empty($ioData)) {
                 DB::table('information_object')->where('id', $existingId)->update($ioData);
             }
 
@@ -564,7 +569,7 @@ class DataMigrationService
                     $i18nData[$f] = $mapped[$f];
                 }
             }
-            if (!empty($i18nData)) {
+            if (! empty($i18nData)) {
                 $exists = DB::table('information_object_i18n')
                     ->where('id', $existingId)
                     ->where('culture', $culture)
@@ -582,14 +587,15 @@ class DataMigrationService
             }
 
             DB::table('object')->where('id', $existingId)->update(['updated_at' => now()]);
+
             return $existingId;
         }
 
         // Create new record
         $objectId = DB::table('object')->insertGetId([
-            'class_name'  => 'QubitInformationObject',
-            'created_at'  => now(),
-            'updated_at'  => now(),
+            'class_name' => 'QubitInformationObject',
+            'created_at' => now(),
+            'updated_at' => now(),
             'serial_number' => 0,
         ]);
 
@@ -629,17 +635,17 @@ class DataMigrationService
         $slugBase = Str::slug($mapped['title'] ?? $mapped['identifier'] ?? 'untitled');
         $slug = $this->generateUniqueSlug($slugBase);
         DB::table('slug')->insert([
-            'object_id'     => $objectId,
-            'slug'          => $slug,
+            'object_id' => $objectId,
+            'slug' => $slug,
             'serial_number' => 0,
         ]);
 
         // Create default publication status (draft)
         DB::table('status')->insert([
-            'object_id'      => $objectId,
-            'type_id'        => TermId::STATUS_TYPE_PUBLICATION,
-            'status_id'      => TermId::PUBLICATION_STATUS_DRAFT,
-            'serial_number'  => 0,
+            'object_id' => $objectId,
+            'type_id' => TermId::STATUS_TYPE_PUBLICATION,
+            'status_id' => TermId::PUBLICATION_STATUS_DRAFT,
+            'serial_number' => 0,
         ]);
 
         return $objectId;
@@ -661,7 +667,7 @@ class DataMigrationService
 
         // Check for existing record if update mode
         $existingId = null;
-        if ($importType === 'update' && !empty($mapped['authorized_form_of_name'])) {
+        if ($importType === 'update' && ! empty($mapped['authorized_form_of_name'])) {
             $existingId = DB::table('actor_i18n')
                 ->where('authorized_form_of_name', $mapped['authorized_form_of_name'])
                 ->where('culture', $culture)
@@ -675,21 +681,22 @@ class DataMigrationService
                     $i18nData[$f] = $mapped[$f];
                 }
             }
-            if (!empty($i18nData)) {
+            if (! empty($i18nData)) {
                 DB::table('actor_i18n')
                     ->where('id', $existingId)
                     ->where('culture', $culture)
                     ->update($i18nData);
             }
             DB::table('object')->where('id', $existingId)->update(['updated_at' => now()]);
+
             return $existingId;
         }
 
         // Create new
         $objectId = DB::table('object')->insertGetId([
-            'class_name'  => 'QubitActor',
-            'created_at'  => now(),
-            'updated_at'  => now(),
+            'class_name' => 'QubitActor',
+            'created_at' => now(),
+            'updated_at' => now(),
             'serial_number' => 0,
         ]);
 
@@ -712,8 +719,8 @@ class DataMigrationService
         $slugBase = Str::slug($mapped['authorized_form_of_name'] ?? 'actor');
         $slug = $this->generateUniqueSlug($slugBase);
         DB::table('slug')->insert([
-            'object_id'     => $objectId,
-            'slug'          => $slug,
+            'object_id' => $objectId,
+            'slug' => $slug,
             'serial_number' => 0,
         ]);
 
@@ -738,7 +745,7 @@ class DataMigrationService
 
         // Check for existing record if update mode
         $existingId = null;
-        if ($importType === 'update' && !empty($mapped['identifier'])) {
+        if ($importType === 'update' && ! empty($mapped['identifier'])) {
             $existingId = DB::table('accession')
                 ->where('identifier', $mapped['identifier'])
                 ->value('id');
@@ -752,7 +759,7 @@ class DataMigrationService
                 }
             }
             $accData['updated_at'] = now();
-            if (!empty($accData)) {
+            if (! empty($accData)) {
                 DB::table('accession')->where('id', $existingId)->update($accData);
             }
 
@@ -762,7 +769,7 @@ class DataMigrationService
                     $i18nData[$f] = $mapped[$f];
                 }
             }
-            if (!empty($i18nData)) {
+            if (! empty($i18nData)) {
                 $exists = DB::table('accession_i18n')
                     ->where('id', $existingId)
                     ->where('culture', $culture)
@@ -778,22 +785,23 @@ class DataMigrationService
                     DB::table('accession_i18n')->insert($i18nData);
                 }
             }
+
             return $existingId;
         }
 
         // Create new - accession uses object table for ID
         $objectId = DB::table('object')->insertGetId([
-            'class_name'  => 'QubitAccession',
-            'created_at'  => now(),
-            'updated_at'  => now(),
+            'class_name' => 'QubitAccession',
+            'created_at' => now(),
+            'updated_at' => now(),
             'serial_number' => 0,
         ]);
 
         $accData = [
-            'id'             => $objectId,
+            'id' => $objectId,
             'source_culture' => $culture,
-            'created_at'     => now(),
-            'updated_at'     => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
         foreach ($accFields as $f) {
             if (array_key_exists($f, $mapped) && $mapped[$f] !== '') {
@@ -813,8 +821,8 @@ class DataMigrationService
         $slugBase = Str::slug($mapped['identifier'] ?? $mapped['title'] ?? 'accession');
         $slug = $this->generateUniqueSlug($slugBase);
         DB::table('slug')->insert([
-            'object_id'     => $objectId,
-            'slug'          => $slug,
+            'object_id' => $objectId,
+            'slug' => $slug,
             'serial_number' => 0,
         ]);
 
@@ -842,7 +850,7 @@ class DataMigrationService
 
         // Check for existing record if update mode
         $existingId = null;
-        if ($importType === 'update' && !empty($mapped['authorized_form_of_name'])) {
+        if ($importType === 'update' && ! empty($mapped['authorized_form_of_name'])) {
             $existingId = DB::table('actor_i18n')
                 ->join('object', 'actor_i18n.id', '=', 'object.id')
                 ->where('object.class_name', 'QubitRepository')
@@ -858,7 +866,7 @@ class DataMigrationService
                     $i18nData[$f] = $mapped[$f];
                 }
             }
-            if (!empty($i18nData)) {
+            if (! empty($i18nData)) {
                 DB::table('actor_i18n')
                     ->where('id', $existingId)
                     ->where('culture', $culture)
@@ -871,7 +879,7 @@ class DataMigrationService
                     $repoData[$f] = $mapped[$f];
                 }
             }
-            if (!empty($repoData)) {
+            if (! empty($repoData)) {
                 $exists = DB::table('repository_i18n')
                     ->where('id', $existingId)
                     ->where('culture', $culture)
@@ -889,24 +897,25 @@ class DataMigrationService
             }
 
             DB::table('object')->where('id', $existingId)->update(['updated_at' => now()]);
+
             return $existingId;
         }
 
         // Create new
         $objectId = DB::table('object')->insertGetId([
-            'class_name'  => 'QubitRepository',
-            'created_at'  => now(),
-            'updated_at'  => now(),
+            'class_name' => 'QubitRepository',
+            'created_at' => now(),
+            'updated_at' => now(),
             'serial_number' => 0,
         ]);
 
         DB::table('actor')->insert([
-            'id'             => $objectId,
+            'id' => $objectId,
             'source_culture' => $culture,
         ]);
 
         DB::table('repository')->insert([
-            'id'             => $objectId,
+            'id' => $objectId,
             'source_culture' => $culture,
         ]);
 
@@ -929,8 +938,8 @@ class DataMigrationService
         $slugBase = Str::slug($mapped['authorized_form_of_name'] ?? 'repository');
         $slug = $this->generateUniqueSlug($slugBase);
         DB::table('slug')->insert([
-            'object_id'     => $objectId,
-            'slug'          => $slug,
+            'object_id' => $objectId,
+            'slug' => $slug,
             'serial_number' => 0,
         ]);
 
@@ -947,9 +956,10 @@ class DataMigrationService
         $original = $slug;
         $counter = 1;
         while (DB::table('slug')->where('slug', $slug)->exists()) {
-            $slug = $original . '-' . $counter;
+            $slug = $original.'-'.$counter;
             $counter++;
         }
+
         return $slug;
     }
 
@@ -984,9 +994,9 @@ class DataMigrationService
 
             fclose($handle);
         }, 200, [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $entityType . '_export_' . date('Y-m-d_His') . '.csv"',
-            'Cache-Control'       => 'no-cache',
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$entityType.'_export_'.date('Y-m-d_His').'.csv"',
+            'Cache-Control' => 'no-cache',
         ]);
     }
 
@@ -1132,11 +1142,11 @@ class DataMigrationService
         };
 
         // Apply date filters
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('object.created_at', '>=', $filters['date_from']);
         }
-        if (!empty($filters['date_to'])) {
-            $query->where('object.created_at', '<=', $filters['date_to'] . ' 23:59:59');
+        if (! empty($filters['date_to'])) {
+            $query->where('object.created_at', '<=', $filters['date_to'].' 23:59:59');
         }
 
         return $query;

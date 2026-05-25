@@ -38,45 +38,45 @@ class WorkflowSeeder
 {
     public static function seed(): void
     {
-        if (!Schema::hasTable('ahg_workflow') || !Schema::hasTable('ahg_workflow_step')) {
+        if (! Schema::hasTable('ahg_workflow') || ! Schema::hasTable('ahg_workflow_step')) {
             return;
         }
 
         DB::table('ahg_workflow')->insertOrIgnore([[
-            'id'                   => 100,
-            'name'                 => 'Researcher Submission Review',
-            'description'          => 'Two-step review for researcher-submitted collections',
-            'scope_type'           => 'global',
-            'trigger_event'        => 'submit',
-            'applies_to'           => 'information_object',
-            'is_active'            => 1,
-            'is_default'           => 0,
-            'require_all_steps'    => 1,
+            'id' => 100,
+            'name' => 'Researcher Submission Review',
+            'description' => 'Two-step review for researcher-submitted collections',
+            'scope_type' => 'global',
+            'trigger_event' => 'submit',
+            'applies_to' => 'information_object',
+            'is_active' => 1,
+            'is_default' => 0,
+            'require_all_steps' => 1,
             'notification_enabled' => 1,
         ]]);
 
         DB::table('ahg_workflow_step')->insertOrIgnore([
             [
-                'id'              => 100,
-                'workflow_id'     => 100,
-                'name'            => 'Content Review',
-                'step_order'      => 1,
-                'step_type'       => 'review',
+                'id' => 100,
+                'workflow_id' => 100,
+                'name' => 'Content Review',
+                'step_order' => 1,
+                'step_type' => 'review',
                 'action_required' => 'approve_reject',
-                'pool_enabled'    => 1,
-                'instructions'    => 'Review the researcher submission for completeness, metadata quality, and adherence to descriptive standards.',
-                'is_active'       => 1,
+                'pool_enabled' => 1,
+                'instructions' => 'Review the researcher submission for completeness, metadata quality, and adherence to descriptive standards.',
+                'is_active' => 1,
             ],
             [
-                'id'              => 101,
-                'workflow_id'     => 100,
-                'name'            => 'Publication Approval',
-                'step_order'      => 2,
-                'step_type'       => 'approve',
+                'id' => 101,
+                'workflow_id' => 100,
+                'name' => 'Publication Approval',
+                'step_order' => 2,
+                'step_type' => 'approve',
                 'action_required' => 'approve_reject',
-                'pool_enabled'    => 1,
-                'instructions'    => 'Final approval before publishing records. Verify repository placement and access conditions.',
-                'is_active'       => 1,
+                'pool_enabled' => 1,
+                'instructions' => 'Final approval before publishing records. Verify repository placement and access conditions.',
+                'is_active' => 1,
             ],
         ]);
     }

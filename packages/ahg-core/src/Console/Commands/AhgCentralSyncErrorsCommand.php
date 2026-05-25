@@ -39,18 +39,19 @@ use Illuminate\Console\Command;
 class AhgCentralSyncErrorsCommand extends Command
 {
     protected $signature = 'ahg:central-sync-errors {--batch=500 : Max open error rows to send}';
+
     protected $description = 'Sync the open ahg_error_log rows to AHG Central (redacted, full replace).';
 
     public function handle(): int
     {
         $svc = app(AhgCentralService::class);
 
-        if (!$svc->isEnabled()) {
+        if (! $svc->isEnabled()) {
             $this->line('[ahg-central-sync-errors] AHG Central disabled - skipping.');
 
             return self::SUCCESS;
         }
-        if (!$svc->errorSyncEnabled()) {
+        if (! $svc->errorSyncEnabled()) {
             $this->line('[ahg-central-sync-errors] error-sync toggle off - skipping.');
 
             return self::SUCCESS;
@@ -59,13 +60,13 @@ class AhgCentralSyncErrorsCommand extends Command
         // One POST - a full replace of the site's open-error set on Central.
         $res = $svc->syncErrors((int) $this->option('batch'));
         if (empty($res['ok'])) {
-            $this->warn('[ahg-central-sync-errors] ' . ($res['error'] ?? 'failed'));
+            $this->warn('[ahg-central-sync-errors] '.($res['error'] ?? 'failed'));
             // Non-fatal - the schedule retries on its next tick.
 
             return self::SUCCESS;
         }
 
-        $this->info('[ahg-central-sync-errors] synced ' . (int) ($res['sent'] ?? 0) . ' open error row(s).');
+        $this->info('[ahg-central-sync-errors] synced '.(int) ($res['sent'] ?? 0).' open error row(s).');
 
         return self::SUCCESS;
     }

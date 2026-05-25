@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgRightsHolderManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
@@ -69,7 +67,9 @@ class RightsHolderController extends Controller
     public function show(string $slug)
     {
         $rh = $this->service->getBySlug($slug);
-        if (!$rh) abort(404);
+        if (! $rh) {
+            abort(404);
+        }
 
         $rights = $this->service->getRelatedRights($rh->id);
         $basisIds = $rights->pluck('basis_id')->filter()->unique()->values()->toArray();
@@ -103,7 +103,9 @@ class RightsHolderController extends Controller
     public function edit(string $slug)
     {
         $rh = $this->service->getBySlug($slug);
-        if (!$rh) abort(404);
+        if (! $rh) {
+            abort(404);
+        }
 
         $contacts = $this->service->getContacts($rh->id);
 
@@ -117,30 +119,40 @@ class RightsHolderController extends Controller
     {
         $request->validate(['authorized_form_of_name' => 'required|string|max:1024']);
         $id = $this->service->create($request->only($this->fields()));
+
         return redirect()->route('rightsholder.show', $this->service->getSlug($id))->with('success', 'Rights holder created successfully.');
     }
 
     public function update(Request $request, string $slug)
     {
         $rh = $this->service->getBySlug($slug);
-        if (!$rh) abort(404);
+        if (! $rh) {
+            abort(404);
+        }
         $request->validate(['authorized_form_of_name' => 'required|string|max:1024']);
         $this->service->update($rh->id, $request->only($this->fields()));
+
         return redirect()->route('rightsholder.show', $slug)->with('success', 'Rights holder updated successfully.');
     }
 
     public function confirmDelete(string $slug)
     {
         $rh = $this->service->getBySlug($slug);
-        if (!$rh) abort(404);
+        if (! $rh) {
+            abort(404);
+        }
+
         return view('ahg-rights-holder-manage::delete', ['rightsHolder' => $rh]);
     }
 
     public function destroy(string $slug)
     {
         $rh = $this->service->getBySlug($slug);
-        if (!$rh) abort(404);
+        if (! $rh) {
+            abort(404);
+        }
         $this->service->delete($rh->id);
+
         return redirect()->route('rightsholder.browse')->with('success', 'Rights holder deleted successfully.');
     }
 

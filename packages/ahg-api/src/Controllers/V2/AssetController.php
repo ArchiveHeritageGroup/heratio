@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Schema;
 class AssetController extends BaseApiController
 {
     protected string $table = 'heritage_asset';
+
     protected string $valTable = 'heritage_valuation_history';
 
     /**
@@ -17,7 +18,7 @@ class AssetController extends BaseApiController
      */
     public function index(Request $request): JsonResponse
     {
-        if (!$this->tableExists($this->table)) {
+        if (! $this->tableExists($this->table)) {
             return $this->success(['assets' => [], 'message' => 'Heritage asset module not installed.']);
         }
 
@@ -39,7 +40,7 @@ class AssetController extends BaseApiController
      */
     public function store(Request $request): JsonResponse
     {
-        if (!$this->tableExists($this->table)) {
+        if (! $this->tableExists($this->table)) {
             return $this->error('Not Available', 'Heritage asset module not installed.', 501);
         }
 
@@ -66,12 +67,12 @@ class AssetController extends BaseApiController
      */
     public function show(int $id): JsonResponse
     {
-        if (!$this->tableExists($this->table)) {
+        if (! $this->tableExists($this->table)) {
             return $this->error('Not Available', 'Heritage asset module not installed.', 501);
         }
 
         $asset = DB::table($this->table)->where('id', $id)->first();
-        if (!$asset) {
+        if (! $asset) {
             return $this->error('Not Found', 'Asset not found.', 404);
         }
 
@@ -83,12 +84,12 @@ class AssetController extends BaseApiController
      */
     public function update(int $id, Request $request): JsonResponse
     {
-        if (!$this->tableExists($this->table)) {
+        if (! $this->tableExists($this->table)) {
             return $this->error('Not Available', 'Heritage asset module not installed.', 501);
         }
 
         $asset = DB::table($this->table)->where('id', $id)->first();
-        if (!$asset) {
+        if (! $asset) {
             return $this->error('Not Found', 'Asset not found.', 404);
         }
 
@@ -113,11 +114,11 @@ class AssetController extends BaseApiController
     public function forDescription(string $slug): JsonResponse
     {
         $objectId = $this->slugToId($slug);
-        if (!$objectId) {
+        if (! $objectId) {
             return $this->error('Not Found', "Description '{$slug}' not found.", 404);
         }
 
-        if (!$this->tableExists($this->table)) {
+        if (! $this->tableExists($this->table)) {
             return $this->success(null);
         }
 
@@ -131,7 +132,7 @@ class AssetController extends BaseApiController
      */
     public function valuations(Request $request): JsonResponse
     {
-        if (!$this->tableExists($this->valTable)) {
+        if (! $this->tableExists($this->valTable)) {
             return $this->success(['valuations' => [], 'message' => 'Valuation module not installed.']);
         }
 
@@ -153,7 +154,7 @@ class AssetController extends BaseApiController
      */
     public function storeValuation(Request $request): JsonResponse
     {
-        if (!$this->tableExists($this->valTable)) {
+        if (! $this->tableExists($this->valTable)) {
             return $this->error('Not Available', 'Valuation module not installed.', 501);
         }
 
@@ -180,7 +181,7 @@ class AssetController extends BaseApiController
      */
     public function assetValuations(int $id): JsonResponse
     {
-        if (!$this->tableExists($this->valTable)) {
+        if (! $this->tableExists($this->valTable)) {
             return $this->success(['valuations' => []]);
         }
 

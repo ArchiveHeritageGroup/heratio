@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgFeedback\Controllers;
 
 use AhgCore\Pagination\SimplePager;
@@ -105,7 +103,7 @@ class FeedbackController extends Controller
             ]);
 
             if ($slug) {
-                return redirect('/' . $slug)
+                return redirect('/'.$slug)
                     ->with('success', 'Thank you for your feedback. We will review it shortly.');
             }
 
@@ -266,7 +264,7 @@ class FeedbackController extends Controller
             )
             ->first();
 
-        if (!$feedback) {
+        if (! $feedback) {
             abort(404, 'Feedback not found.');
         }
 
@@ -337,10 +335,18 @@ class FeedbackController extends Controller
     public function view(int $id)
     {
         $culture = app()->getLocale();
-        $record = DB::table('feedback')->join('feedback_i18n', function($j) use ($culture) { $j->on('feedback.id','=','feedback_i18n.id')->where('feedback_i18n.culture','=',$culture); })->where('feedback.id', $id)->first();
-        if (!$record) abort(404);
+        $record = DB::table('feedback')->join('feedback_i18n', function ($j) use ($culture) {
+            $j->on('feedback.id', '=', 'feedback_i18n.id')->where('feedback_i18n.culture', '=', $culture);
+        })->where('feedback.id', $id)->first();
+        if (! $record) {
+            abort(404);
+        }
+
         return view('ahg-feedback::view', ['record' => $record]);
     }
 
-    public function submitSuccess() { return view('ahg-feedback::submit'); }
+    public function submitSuccess()
+    {
+        return view('ahg-feedback::submit');
+    }
 }

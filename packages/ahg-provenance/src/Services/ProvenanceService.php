@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgProvenance\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -42,13 +40,13 @@ class ProvenanceService
         $io = DB::table('information_object')
             ->leftJoin('slug', function ($join) {
                 $join->on('information_object.id', '=', 'slug.object_id')
-                     ->where('slug.slug', '!=', '');
+                    ->where('slug.slug', '!=', '');
             })
             ->where('slug.slug', $slug)
             ->select('information_object.*', 'slug.slug')
             ->first();
 
-        if (!$io) {
+        if (! $io) {
             return ['resource' => null, 'provenance' => null, 'documents' => collect()];
         }
 
@@ -63,7 +61,7 @@ class ProvenanceService
         $record = DB::table('provenance_record as pr')
             ->leftJoin('provenance_record_i18n as pri', function ($join) use ($culture) {
                 $join->on('pr.id', '=', 'pri.id')
-                     ->where('pri.culture', '=', $culture);
+                    ->where('pri.culture', '=', $culture);
             })
             ->leftJoin('provenance_agent as pa', 'pr.provenance_agent_id', '=', 'pa.id')
             ->where('pr.information_object_id', $io->id)
@@ -88,7 +86,7 @@ class ProvenanceService
             $events = DB::table('provenance_event as pe')
                 ->leftJoin('provenance_event_i18n as pei', function ($join) use ($culture) {
                     $join->on('pe.id', '=', 'pei.id')
-                         ->where('pei.culture', '=', $culture);
+                        ->where('pei.culture', '=', $culture);
                 })
                 ->leftJoin('provenance_agent as from_agent', 'pe.from_agent_id', '=', 'from_agent.id')
                 ->leftJoin('provenance_agent as to_agent', 'pe.to_agent_id', '=', 'to_agent.id')
@@ -129,7 +127,7 @@ class ProvenanceService
     public function getTimeline(string $slug): array
     {
         $data = $this->getBySlug($slug);
-        if (!$data['resource']) {
+        if (! $data['resource']) {
             return $data;
         }
 
@@ -155,11 +153,11 @@ class ProvenanceService
             ->join('information_object', 'pr.information_object_id', '=', 'information_object.id')
             ->leftJoin('information_object_i18n', function ($join) {
                 $join->on('information_object.id', '=', 'information_object_i18n.id')
-                     ->where('information_object_i18n.culture', '=', 'en');
+                    ->where('information_object_i18n.culture', '=', 'en');
             })
             ->leftJoin('slug', function ($join) {
                 $join->on('information_object.id', '=', 'slug.object_id')
-                     ->where('slug.slug', '!=', '');
+                    ->where('slug.slug', '!=', '');
             })
             ->leftJoin('provenance_event as pe', 'pe.provenance_record_id', '=', 'pr.id')
             ->select(
@@ -273,7 +271,7 @@ class ProvenanceService
     {
         $culture = app()->getLocale() ?: 'en';
         $ioId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$ioId) {
+        if (! $ioId) {
             return false;
         }
 
@@ -297,15 +295,15 @@ class ProvenanceService
         }
 
         // Handle checkboxes (default to 0 when unchecked / not present)
-        $values['has_gaps'] = !empty($data['has_gaps']) ? 1 : 0;
-        $values['nazi_era_provenance_checked'] = !empty($data['nazi_era_provenance_checked']) ? 1 : 0;
+        $values['has_gaps'] = ! empty($data['has_gaps']) ? 1 : 0;
+        $values['nazi_era_provenance_checked'] = ! empty($data['nazi_era_provenance_checked']) ? 1 : 0;
         $values['nazi_era_provenance_clear'] = ($data['nazi_era_provenance_clear'] ?? '') !== '' ? $data['nazi_era_provenance_clear'] : null;
-        $values['is_complete'] = !empty($data['is_complete']) ? 1 : 0;
-        $values['is_public'] = !empty($data['is_public']) ? 1 : 0;
+        $values['is_complete'] = ! empty($data['is_complete']) ? 1 : 0;
+        $values['is_public'] = ! empty($data['is_public']) ? 1 : 0;
 
         // Handle empty date/price
-        $values['acquisition_date'] = !empty($data['acquisition_date']) ? $data['acquisition_date'] : null;
-        $values['acquisition_price'] = !empty($data['acquisition_price']) ? $data['acquisition_price'] : null;
+        $values['acquisition_date'] = ! empty($data['acquisition_date']) ? $data['acquisition_date'] : null;
+        $values['acquisition_price'] = ! empty($data['acquisition_price']) ? $data['acquisition_price'] : null;
 
         // Handle current agent
         $agentName = $data['current_agent_name'] ?? null;
@@ -393,7 +391,7 @@ class ProvenanceService
         }
 
         $eventTypes = $data['event_type'] ?? [];
-        if (!is_array($eventTypes)) {
+        if (! is_array($eventTypes)) {
             return;
         }
 
@@ -414,17 +412,17 @@ class ProvenanceService
             $fromAgentId = null;
             $toAgentId = null;
 
-            if (!empty($fromAgents[$i])) {
+            if (! empty($fromAgents[$i])) {
                 $fromAgentId = $this->findOrCreateAgent($fromAgents[$i]);
             }
-            if (!empty($toAgents[$i])) {
+            if (! empty($toAgents[$i])) {
                 $toAgentId = $this->findOrCreateAgent($toAgents[$i]);
             }
 
             $eventData = [
                 'provenance_record_id' => $recordId,
                 'event_type' => $type,
-                'event_date' => !empty($eventDates[$i]) ? $eventDates[$i] : null,
+                'event_date' => ! empty($eventDates[$i]) ? $eventDates[$i] : null,
                 'event_date_text' => $eventDateTexts[$i] ?? null,
                 'event_location' => $eventLocations[$i] ?? null,
                 'certainty' => $eventCertainties[$i] ?? 'uncertain',
@@ -457,7 +455,7 @@ class ProvenanceService
     protected function processDocuments(int $recordId, array $data): void
     {
         $docTypes = $data['doc_type'] ?? [];
-        if (!is_array($docTypes)) {
+        if (! is_array($docTypes)) {
             return;
         }
 
@@ -467,8 +465,8 @@ class ProvenanceService
         $docDescriptions = $data['doc_description'] ?? [];
         $userId = auth()->id();
 
-        $uploadDir = config('heratio.uploads_path') . '/provenance';
-        if (!is_dir($uploadDir)) {
+        $uploadDir = config('heratio.uploads_path').'/provenance';
+        if (! is_dir($uploadDir)) {
             @mkdir($uploadDir, 0755, true);
         }
 
@@ -491,8 +489,8 @@ class ProvenanceService
                 $fileSize = $file->getSize();
 
                 $ext = $file->getClientOriginalExtension();
-                $filename = uniqid('prov_') . '.' . $ext;
-                $filePath = '/uploads/provenance/' . $filename;
+                $filename = uniqid('prov_').'.'.$ext;
+                $filePath = '/uploads/provenance/'.$filename;
 
                 $file->move($uploadDir, $filename);
             }
@@ -502,13 +500,13 @@ class ProvenanceService
                 'document_type' => $type,
                 'title' => $docTitles[$i] ?? null,
                 'description' => $docDescriptions[$i] ?? null,
-                'document_date' => !empty($docDates[$i]) ? $docDates[$i] : null,
+                'document_date' => ! empty($docDates[$i]) ? $docDates[$i] : null,
                 'filename' => $filename,
                 'original_filename' => $originalFilename,
                 'file_path' => $filePath,
                 'mime_type' => $mimeType,
                 'file_size' => $fileSize,
-                'external_url' => !empty($docUrls[$i]) ? $docUrls[$i] : null,
+                'external_url' => ! empty($docUrls[$i]) ? $docUrls[$i] : null,
                 'is_public' => 0,
                 'created_by' => $userId,
                 'created_at' => now(),
@@ -548,12 +546,12 @@ class ProvenanceService
     public function addEvent(string $slug, array $data): void
     {
         $ioId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$ioId) {
+        if (! $ioId) {
             return;
         }
 
         $record = DB::table('provenance_record')->where('information_object_id', $ioId)->first();
-        if (!$record) {
+        if (! $record) {
             return;
         }
 
@@ -590,7 +588,7 @@ class ProvenanceService
     {
         $doc = DB::table('provenance_document')->where('id', $id)->first();
         if ($doc && $doc->file_path) {
-            $fullPath = config('heratio.uploads_path') . '/provenance/' . $doc->filename;
+            $fullPath = config('heratio.uploads_path').'/provenance/'.$doc->filename;
             if (file_exists($fullPath)) {
                 @unlink($fullPath);
             }

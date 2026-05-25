@@ -21,9 +21,13 @@ use Illuminate\Support\Facades\DB;
 class OllamaPageIndexClient
 {
     private string $endpoint;
+
     private string $model;
+
     private int $timeout;
+
     private float $temperature;
+
     private int $maxRetries;
 
     public function __construct(array $config = [])
@@ -70,12 +74,11 @@ class OllamaPageIndexClient
      * The LLM analyses the document structure and returns a table-of-contents
      * style JSON tree with node IDs, titles, summaries, and child nodes.
      *
-     * @param string $documentText The full text content of the document
-     * @param string $documentType One of: ead, pdf, rico
-     * @param array  $metadata     Optional metadata (title, identifier, level, dates)
-     *
+     * @param  string  $documentText  The full text content of the document
+     * @param  string  $documentType  One of: ead, pdf, rico
+     * @param  array  $metadata  Optional metadata (title, identifier, level, dates)
      * @return array ['success' => bool, 'tree' => array|null, 'model' => string,
-     *                'tokens_used' => int, 'generation_time_ms' => int, 'error' => string|null]
+     *               'tokens_used' => int, 'generation_time_ms' => int, 'error' => string|null]
      */
     public function buildTree(string $documentText, string $documentType, array $metadata = []): array
     {
@@ -87,7 +90,7 @@ class OllamaPageIndexClient
             'num_predict' => 4000,
         ]);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return $result + ['tree' => null];
         }
 
@@ -129,12 +132,11 @@ class OllamaPageIndexClient
      *
      * Returns ranked node IDs with reasoning explanations.
      *
-     * @param array  $tree  The hierarchical tree JSON (from buildTree)
-     * @param string $query The user's search query
-     *
+     * @param  array  $tree  The hierarchical tree JSON (from buildTree)
+     * @param  string  $query  The user's search query
      * @return array ['success' => bool, 'matches' => array, 'reasoning' => string,
-     *                'model' => string, 'tokens_used' => int, 'generation_time_ms' => int,
-     *                'error' => string|null]
+     *               'model' => string, 'tokens_used' => int, 'generation_time_ms' => int,
+     *               'error' => string|null]
      */
     public function retrieveNodes(array $tree, string $query): array
     {
@@ -146,7 +148,7 @@ class OllamaPageIndexClient
             'num_predict' => 2000,
         ]);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return $result + ['matches' => [], 'reasoning' => ''];
         }
 
@@ -185,12 +187,12 @@ class OllamaPageIndexClient
     {
         $response = $this->request('GET', '/api/tags', null, 5);
 
-        if (!$response) {
+        if (! $response) {
             return [
                 'status' => 'error',
                 'endpoint' => $this->endpoint,
                 'model' => $this->model,
-                'error' => 'Cannot connect to Ollama at ' . $this->endpoint,
+                'error' => 'Cannot connect to Ollama at '.$this->endpoint,
             ];
         }
 
@@ -207,7 +209,7 @@ class OllamaPageIndexClient
             'model' => $this->model,
             'available_models' => $models,
             'model_loaded' => $hasModel,
-            'error' => $hasModel ? null : "Model {$this->model} not found. Available: " . implode(', ', $models),
+            'error' => $hasModel ? null : "Model {$this->model} not found. Available: ".implode(', ', $models),
         ];
     }
 
@@ -252,15 +254,15 @@ PROMPT;
     private function getTreeConstructionUserPrompt(string $documentText, string $documentType, array $metadata): string
     {
         $metaBlock = '';
-        if (!empty($metadata)) {
+        if (! empty($metadata)) {
             $metaParts = [];
             foreach ($metadata as $key => $value) {
-                if (!empty($value)) {
-                    $metaParts[] = ucfirst(str_replace('_', ' ', $key)) . ': ' . $value;
+                if (! empty($value)) {
+                    $metaParts[] = ucfirst(str_replace('_', ' ', $key)).': '.$value;
                 }
             }
             if ($metaParts) {
-                $metaBlock = "Document Metadata:\n" . implode("\n", $metaParts) . "\n\n";
+                $metaBlock = "Document Metadata:\n".implode("\n", $metaParts)."\n\n";
             }
         }
 
@@ -366,7 +368,7 @@ PROMPT;
         for ($attempt = 0; $attempt <= $this->maxRetries; $attempt++) {
             $response = $this->request('POST', '/api/chat', $payload);
 
-            if ($response !== null && !isset($response['error'])) {
+            if ($response !== null && ! isset($response['error'])) {
                 break;
             }
 
@@ -379,7 +381,7 @@ PROMPT;
 
         $generationTimeMs = (int) ((microtime(true) - $startTime) * 1000);
 
-        if (!$response || isset($response['error'])) {
+        if (! $response || isset($response['error'])) {
             return [
                 'success' => false,
                 'text' => null,
@@ -409,7 +411,7 @@ PROMPT;
     private function request(string $method, string $endpoint, ?array $data = null, ?int $timeout = null): ?array
     {
         $ch = curl_init();
-        $url = $this->endpoint . $endpoint;
+        $url = $this->endpoint.$endpoint;
 
         $options = [
             CURLOPT_URL => $url,
@@ -440,7 +442,7 @@ PROMPT;
         if ($httpCode >= 400) {
             error_log("[PageIndex] Ollama API HTTP {$httpCode} ({$endpoint}): {$response}");
 
-            return ['error' => "HTTP {$httpCode}: " . ($response ?: 'Unknown error')];
+            return ['error' => "HTTP {$httpCode}: ".($response ?: 'Unknown error')];
         }
 
         return json_decode($response, true);
@@ -504,7 +506,7 @@ PROMPT;
         }
 
         // Sort by relevance descending
-        usort($matches, fn($a, $b) => $b['relevance'] <=> $a['relevance']);
+        usort($matches, fn ($a, $b) => $b['relevance'] <=> $a['relevance']);
 
         return [
             'matches' => $matches,
@@ -519,12 +521,12 @@ PROMPT;
     {
         if (empty($node['id'])) {
             $counter++;
-            $node['id'] = $prefix . $counter;
+            $node['id'] = $prefix.$counter;
         }
 
-        if (!empty($node['children']) && is_array($node['children'])) {
+        if (! empty($node['children']) && is_array($node['children'])) {
             foreach ($node['children'] as $i => &$child) {
-                $child = $this->ensureNodeIds($child, $node['id'] . '.', $counter);
+                $child = $this->ensureNodeIds($child, $node['id'].'.', $counter);
             }
         }
 
@@ -556,7 +558,7 @@ PROMPT;
             'keywords' => $node['keywords'] ?? [],
         ];
 
-        if (!empty($node['children'])) {
+        if (! empty($node['children'])) {
             $compact['children'] = array_map([$this, 'compactTree'], $node['children']);
         } else {
             $compact['children'] = [];

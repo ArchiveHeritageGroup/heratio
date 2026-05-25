@@ -16,8 +16,8 @@ class AhgDropdownManageServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Illuminate\Support\Facades\Route::middleware('web')
-            ->group(__DIR__ . '/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-dropdown-manage');
+            ->group(__DIR__.'/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-dropdown-manage');
 
         $this->ensureI18nTable();
     }
@@ -32,11 +32,11 @@ class AhgDropdownManageServiceProvider extends ServiceProvider
     protected function ensureI18nTable(): void
     {
         try {
-            if (!Schema::hasTable('ahg_dropdown')) {
+            if (! Schema::hasTable('ahg_dropdown')) {
                 return;
             }
-            if (!Schema::hasTable('ahg_dropdown_i18n')) {
-                $sql = @file_get_contents(__DIR__ . '/../../database/install_i18n.sql');
+            if (! Schema::hasTable('ahg_dropdown_i18n')) {
+                $sql = @file_get_contents(__DIR__.'/../../database/install_i18n.sql');
                 if ($sql) {
                     DB::unprepared($sql);
                 }

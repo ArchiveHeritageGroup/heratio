@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCore\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -98,14 +96,14 @@ class TtsController extends Controller
     {
         $objectId = (int) $request->query('id');
 
-        if (!$objectId) {
+        if (! $objectId) {
             return response()->json(['success' => false, 'error' => 'Missing object ID']);
         }
 
         // Get the digital object
         $digitalObject = DB::table('digital_object')->where('id', $objectId)->first();
 
-        if (!$digitalObject) {
+        if (! $digitalObject) {
             return response()->json(['success' => false, 'error' => 'Digital object not found']);
         }
 
@@ -118,7 +116,7 @@ class TtsController extends Controller
         // Resolve the file path
         $filePath = $this->resolveDigitalObjectPath($digitalObject);
 
-        if (!$filePath || !file_exists($filePath)) {
+        if (! $filePath || ! file_exists($filePath)) {
             return response()->json(['success' => false, 'error' => 'PDF file not found on disk']);
         }
 
@@ -156,13 +154,13 @@ class TtsController extends Controller
      */
     private function resolveDigitalObjectPath(object $do): ?string
     {
-        $relative = ($do->path ?? '') . ($do->name ?? '');
+        $relative = ($do->path ?? '').($do->name ?? '');
 
         $candidates = [
             public_path($relative),
-            config('heratio.uploads_path') . '/' . $relative,
-            '/usr/share/nginx/archive/' . $relative,
-            '/usr/share/nginx/archive' . $relative,
+            config('heratio.uploads_path').'/'.$relative,
+            '/usr/share/nginx/archive/'.$relative,
+            '/usr/share/nginx/archive'.$relative,
         ];
 
         foreach ($candidates as $path) {
@@ -186,7 +184,7 @@ class TtsController extends Controller
 
         $escapedPath = escapeshellarg($filePath);
         $cmd = sprintf('%s -l %d -enc UTF-8 -nopgbrk %s -', $pdftotext, $maxPages, $escapedPath);
-        $output = shell_exec($cmd . ' 2>/dev/null');
+        $output = shell_exec($cmd.' 2>/dev/null');
 
         return $output !== null ? $output : false;
     }
@@ -222,6 +220,7 @@ class TtsController extends Controller
         $text = preg_replace('/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]/', '', $text);
         // Replace redacted content with spoken word
         $text = $this->removeRedactions($text);
+
         return trim($text);
     }
 

@@ -23,6 +23,7 @@ class CronSeedCommand extends Command
         $count = $service->seedDefaults($reset);
 
         $this->info("Seeded {$count} schedule entries.");
+
         return self::SUCCESS;
     }
 }

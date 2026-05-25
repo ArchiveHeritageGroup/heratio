@@ -23,26 +23,33 @@ use Illuminate\Support\Facades\Log;
 class PremisEventService
 {
     public const TYPE_VIRUS_CHECK = 'virusCheck';
+
     public const TYPE_FORMAT_ID = 'formatIdentification';
+
     public const TYPE_FIXITY = 'messageDigestCalculation';
+
     public const TYPE_INGESTION = 'ingestion';
+
     public const TYPE_DERIVATION = 'creation (derivation)';
+
     public const TYPE_REPLICATION = 'replication';
 
     public const OUTCOME_SUCCESS = 'success';
+
     public const OUTCOME_WARNING = 'warning';
+
     public const OUTCOME_FAILURE = 'failure';
 
     /**
      * Emit a preservation event. Designed to be fire-and-forget — logging
      * failure must never block the ingest pipeline.
      *
-     * @param int|null $ioId  Linked information_object.id (null is allowed for pre-IO events)
-     * @param int|null $doId  Linked digital_object.id
-     * @param string   $type  PREMIS event type (see constants)
-     * @param string   $outcome 'success' | 'warning' | 'failure' | 'unknown'
-     * @param string|null $detail Free-form description
-     * @param array    $detailExtra Structured data appended to event_outcome_detail
+     * @param  int|null  $ioId  Linked information_object.id (null is allowed for pre-IO events)
+     * @param  int|null  $doId  Linked digital_object.id
+     * @param  string  $type  PREMIS event type (see constants)
+     * @param  string  $outcome  'success' | 'warning' | 'failure' | 'unknown'
+     * @param  string|null  $detail  Free-form description
+     * @param  array  $detailExtra  Structured data appended to event_outcome_detail
      */
     public static function emit(
         ?int $ioId,
@@ -57,6 +64,7 @@ class PremisEventService
             if ($detailExtra) {
                 $outcomeDetail = json_encode($detailExtra, JSON_UNESCAPED_SLASHES);
             }
+
             return DB::table('preservation_event')->insertGetId([
                 'digital_object_id' => $doId,
                 'information_object_id' => $ioId,
@@ -72,7 +80,8 @@ class PremisEventService
                 'created_at' => now(),
             ]);
         } catch (\Throwable $e) {
-            Log::warning('[ahg-scan] PREMIS event emit failed: ' . $e->getMessage());
+            Log::warning('[ahg-scan] PREMIS event emit failed: '.$e->getMessage());
+
             return null;
         }
     }

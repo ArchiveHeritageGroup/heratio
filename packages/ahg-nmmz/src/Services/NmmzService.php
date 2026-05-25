@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgNmmz\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -112,19 +110,19 @@ class NmmzService
             ->leftJoin('nmmz_monument_category', 'nmmz_monument.category_id', '=', 'nmmz_monument_category.id')
             ->select('nmmz_monument.*', 'nmmz_monument_category.name as category_name');
 
-        if (!empty($filters['category_id'])) {
+        if (! empty($filters['category_id'])) {
             $query->where('nmmz_monument.category_id', $filters['category_id']);
         }
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('nmmz_monument.legal_status', $filters['status']);
         }
-        if (!empty($filters['province'])) {
+        if (! empty($filters['province'])) {
             $query->where('nmmz_monument.province', $filters['province']);
         }
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
-                $q->where('nmmz_monument.name', 'LIKE', '%' . $filters['search'] . '%')
-                    ->orWhere('nmmz_monument.description', 'LIKE', '%' . $filters['search'] . '%');
+                $q->where('nmmz_monument.name', 'LIKE', '%'.$filters['search'].'%')
+                    ->orWhere('nmmz_monument.description', 'LIKE', '%'.$filters['search'].'%');
             });
         }
 
@@ -151,6 +149,7 @@ class NmmzService
     public function deleteMonument(int $id): bool
     {
         DB::table('nmmz_monument_inspection')->where('monument_id', $id)->delete();
+
         return DB::table('nmmz_monument')->where('id', $id)->delete() > 0;
     }
 
@@ -172,16 +171,16 @@ class NmmzService
     {
         $query = DB::table('nmmz_antiquity');
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
-        if (!empty($filters['object_type'])) {
+        if (! empty($filters['object_type'])) {
             $query->where('object_type', $filters['object_type']);
         }
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
-                $q->where('name', 'LIKE', '%' . $filters['search'] . '%')
-                    ->orWhere('description', 'LIKE', '%' . $filters['search'] . '%');
+                $q->where('name', 'LIKE', '%'.$filters['search'].'%')
+                    ->orWhere('description', 'LIKE', '%'.$filters['search'].'%');
             });
         }
 
@@ -212,7 +211,7 @@ class NmmzService
     {
         $query = DB::table('nmmz_export_permit');
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
@@ -239,7 +238,7 @@ class NmmzService
 
     public function approvePermit(int $id, int $userId, ?string $conditions): void
     {
-        $permitNumber = 'EP-' . date('Y') . '-' . str_pad($id, 4, '0', STR_PAD_LEFT);
+        $permitNumber = 'EP-'.date('Y').'-'.str_pad($id, 4, '0', STR_PAD_LEFT);
 
         DB::table('nmmz_export_permit')->where('id', $id)->update([
             'status' => 'approved',
@@ -267,10 +266,10 @@ class NmmzService
     {
         $query = DB::table('nmmz_archaeological_site');
 
-        if (!empty($filters['province'])) {
+        if (! empty($filters['province'])) {
             $query->where('province', $filters['province']);
         }
-        if (!empty($filters['protection_status'])) {
+        if (! empty($filters['protection_status'])) {
             $query->where('protection_status', $filters['protection_status']);
         }
 
@@ -300,10 +299,10 @@ class NmmzService
     {
         $query = DB::table('nmmz_heritage_impact_assessment');
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
-        if (!empty($filters['province'])) {
+        if (! empty($filters['province'])) {
             $query->where('province', $filters['province']);
         }
 

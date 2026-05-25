@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\DB;
  * + comments natively). This is the source-of-truth + mirror approach we
  * established in F2 Phase A.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
-        $sql = file_get_contents(__DIR__ . '/../install.sql');
+        $sql = file_get_contents(__DIR__.'/../install.sql');
         if ($sql === false) {
             throw new \RuntimeException('Cannot read ahg-share-link install.sql');
         }

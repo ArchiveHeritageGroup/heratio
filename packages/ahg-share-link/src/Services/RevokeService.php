@@ -36,20 +36,20 @@ class RevokeService
         }
 
         $row = DB::table('information_object_share_token')->where('id', $tokenId)->first();
-        if (!$row) {
+        if (! $row) {
             throw new InvalidRequestException("share-link token #{$tokenId} not found");
         }
 
-        $acl = new AclCheck();
+        $acl = new AclCheck;
         $isOwner = (int) $row->issued_by === $userId;
-        if (!$isOwner) {
-            if (!$acl->canUserDo($userId, AclCheck::ACTION_REVOKE_OTHERS)) {
+        if (! $isOwner) {
+            if (! $acl->canUserDo($userId, AclCheck::ACTION_REVOKE_OTHERS)) {
                 throw new PermissionDeniedException("You do not have permission to revoke another user's share link");
             }
         }
 
         // Idempotent: short-circuit if already revoked.
-        if (!empty($row->revoked_at)) {
+        if (! empty($row->revoked_at)) {
             return ['revoked' => false, 'was_already_revoked' => true, 'token_row' => $row];
         }
 
@@ -74,42 +74,43 @@ class RevokeService
                 ->value('title');
 
             $metadata = [
-                'token_id'           => (int) $row->id,
+                'token_id' => (int) $row->id,
                 'parent_entity_type' => 'information_object',
-                'parent_entity_id'   => (int) $row->information_object_id,
-                'recipient_email'    => $row->recipient_email,
-                'expires_at'         => $row->expires_at,
-                'access_count'       => (int) $row->access_count,
-                'was_owner'          => (int) $row->issued_by === $userId,
-                'reason'             => $reason,
+                'parent_entity_id' => (int) $row->information_object_id,
+                'recipient_email' => $row->recipient_email,
+                'expires_at' => $row->expires_at,
+                'access_count' => (int) $row->access_count,
+                'was_owner' => (int) $row->issued_by === $userId,
+                'reason' => $reason,
             ];
 
             DB::table('ahg_audit_log')->insert([
-                'uuid'           => $this->generateUuid(),
-                'user_id'        => $userId,
-                'username'       => $userRow->username ?? null,
-                'user_email'     => $userRow->email ?? null,
-                'action'         => self::AUDIT_ACTION_REVOKED,
-                'entity_type'    => 'information_object_share_token',
-                'entity_id'      => (int) $row->information_object_id,
-                'entity_title'   => $entityTitle,
-                'module'         => 'share_link',
-                'action_name'    => 'revoke',
+                'uuid' => $this->generateUuid(),
+                'user_id' => $userId,
+                'username' => $userRow->username ?? null,
+                'user_email' => $userRow->email ?? null,
+                'action' => self::AUDIT_ACTION_REVOKED,
+                'entity_type' => 'information_object_share_token',
+                'entity_id' => (int) $row->information_object_id,
+                'entity_title' => $entityTitle,
+                'module' => 'share_link',
+                'action_name' => 'revoke',
                 'request_method' => 'POST',
-                'metadata'       => json_encode($metadata, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                'status'         => 'success',
-                'created_at'     => date('Y-m-d H:i:s'),
+                'metadata' => json_encode($metadata, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'status' => 'success',
+                'created_at' => date('Y-m-d H:i:s'),
             ]);
         } catch (\Throwable $e) {
-            error_log('ahgTimeLimitedShareLinkPlugin revoke audit failed: ' . $e->getMessage());
+            error_log('ahgTimeLimitedShareLinkPlugin revoke audit failed: '.$e->getMessage());
         }
     }
 
     private function generateUuid(): string
     {
         $b = random_bytes(16);
-        $b[6] = chr((ord($b[6]) & 0x0f) | 0x40);
-        $b[8] = chr((ord($b[8]) & 0x3f) | 0x80);
+        $b[6] = chr((ord($b[6]) & 0x0F) | 0x40);
+        $b[8] = chr((ord($b[8]) & 0x3F) | 0x80);
+
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($b), 4));
     }
 }

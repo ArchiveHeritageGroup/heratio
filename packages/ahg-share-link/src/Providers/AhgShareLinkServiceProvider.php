@@ -26,9 +26,9 @@ class AhgShareLinkServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(TokenService::class, fn () => new TokenService());
-        $this->app->singleton(AclCheck::class, fn () => new AclCheck());
-        $this->app->singleton(ClearanceCheck::class, fn () => new ClearanceCheck());
+        $this->app->singleton(TokenService::class, fn () => new TokenService);
+        $this->app->singleton(AclCheck::class, fn () => new AclCheck);
+        $this->app->singleton(ClearanceCheck::class, fn () => new ClearanceCheck);
         $this->app->singleton(IssueService::class, fn ($app) => new IssueService(
             $app->make(TokenService::class),
             $app->make(AclCheck::class),
@@ -37,15 +37,15 @@ class AhgShareLinkServiceProvider extends ServiceProvider
         $this->app->singleton(AccessService::class, fn ($app) => new AccessService(
             $app->make(TokenService::class),
         ));
-        $this->app->singleton(RevokeService::class, fn () => new RevokeService());
-        $this->app->singleton(PruneService::class, fn () => new PruneService());
+        $this->app->singleton(RevokeService::class, fn () => new RevokeService);
+        $this->app->singleton(PruneService::class, fn () => new PruneService);
     }
 
     public function boot(): void
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-share-link');
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
+        $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-share-link');
 
         if ($this->app->runningInConsole()) {
             $this->commands([

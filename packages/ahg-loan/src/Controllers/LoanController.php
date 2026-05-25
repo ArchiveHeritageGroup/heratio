@@ -23,12 +23,10 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgLoan\Controllers;
 
-use App\Http\Controllers\Controller;
 use AhgLoan\Services\LoanService;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -51,14 +49,14 @@ class LoanController extends Controller
     public function index(Request $request)
     {
         $params = [
-            'type'     => $request->input('type'),
-            'status'   => $request->input('status'),
-            'search'   => $request->input('search'),
-            'overdue'  => $request->input('overdue'),
-            'sector'   => $request->input('sector'),
-            'sort'     => $request->input('sort', 'updated_at'),
-            'dir'      => $request->input('dir', 'desc'),
-            'page'     => $request->input('page', 1),
+            'type' => $request->input('type'),
+            'status' => $request->input('status'),
+            'search' => $request->input('search'),
+            'overdue' => $request->input('overdue'),
+            'sector' => $request->input('sector'),
+            'sort' => $request->input('sort', 'updated_at'),
+            'dir' => $request->input('dir', 'desc'),
+            'page' => $request->input('page', 1),
             'per_page' => $request->input('per_page', 25),
         ];
 
@@ -67,11 +65,11 @@ class LoanController extends Controller
         // Statistics for sidebar
         $activeStatuses = ['on_loan', 'dispatched', 'in_transit', 'received'];
         $stats = [
-            'total'                => DB::table('ahg_loan')->count(),
-            'active_out'           => DB::table('ahg_loan')->where('loan_type', 'out')->whereIn('status', $activeStatuses)->count(),
-            'active_in'            => DB::table('ahg_loan')->where('loan_type', 'in')->whereIn('status', $activeStatuses)->count(),
-            'overdue'              => DB::table('ahg_loan')->where('end_date', '<', now())->whereIn('status', $activeStatuses)->count(),
-            'due_this_month'       => DB::table('ahg_loan')->whereBetween('end_date', [now(), now()->addDays(30)])->whereIn('status', $activeStatuses)->count(),
+            'total' => DB::table('ahg_loan')->count(),
+            'active_out' => DB::table('ahg_loan')->where('loan_type', 'out')->whereIn('status', $activeStatuses)->count(),
+            'active_in' => DB::table('ahg_loan')->where('loan_type', 'in')->whereIn('status', $activeStatuses)->count(),
+            'overdue' => DB::table('ahg_loan')->where('end_date', '<', now())->whereIn('status', $activeStatuses)->count(),
+            'due_this_month' => DB::table('ahg_loan')->whereBetween('end_date', [now(), now()->addDays(30)])->whereIn('status', $activeStatuses)->count(),
             'total_insurance_value' => DB::table('ahg_loan')->sum('insurance_value'),
         ];
 
@@ -95,12 +93,12 @@ class LoanController extends Controller
 
         // Purpose mapping
         $purposes = [
-            'exhibition'   => 'Exhibition',
-            'research'     => 'Research',
+            'exhibition' => 'Exhibition',
+            'research' => 'Research',
             'conservation' => 'Conservation',
-            'photography'  => 'Photography',
-            'education'    => 'Education',
-            'other'        => 'Other',
+            'photography' => 'Photography',
+            'education' => 'Education',
+            'other' => 'Other',
         ];
 
         return view('ahg-loan::loan.index', compact('loans', 'stats', 'overdue', 'dueSoon', 'params', 'purposes'));
@@ -113,7 +111,7 @@ class LoanController extends Controller
     {
         $loan = $this->service->get($id);
 
-        if (!$loan) {
+        if (! $loan) {
             abort(404);
         }
 
@@ -135,13 +133,13 @@ class LoanController extends Controller
             $io = DB::table('information_object')
                 ->join('information_object_i18n', function ($j) use ($culture) {
                     $j->on('information_object.id', '=', 'information_object_i18n.id')
-                       ->where('information_object_i18n.culture', $culture);
+                        ->where('information_object_i18n.culture', $culture);
                 })
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
                 ->where('information_object.id', $objectId)
                 ->select('information_object.id', 'information_object.identifier',
-                         'information_object_i18n.title', 'information_object_i18n.scope_and_content',
-                         'slug.slug')
+                    'information_object_i18n.title', 'information_object_i18n.scope_and_content',
+                    'slug.slug')
                 ->first();
 
             if ($io) {
@@ -162,28 +160,28 @@ class LoanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'loan_type'               => 'required|in:out,in',
-            'sector'                  => 'required|string|max:44',
-            'title'                   => 'nullable|string|max:500',
-            'description'             => 'nullable|string',
-            'purpose'                 => 'nullable|string|max:100',
-            'partner_institution'     => 'required|string|max:500',
-            'partner_contact_name'    => 'nullable|string|max:255',
-            'partner_contact_email'   => 'nullable|email|max:255',
-            'partner_contact_phone'   => 'nullable|string|max:100',
-            'partner_address'         => 'nullable|string',
-            'request_date'            => 'nullable|date',
-            'start_date'              => 'nullable|date',
-            'end_date'                => 'nullable|date|after_or_equal:start_date',
-            'insurance_type'          => 'nullable|string|max:53',
-            'insurance_value'         => 'nullable|numeric|min:0',
-            'insurance_currency'      => 'nullable|string|max:3',
+            'loan_type' => 'required|in:out,in',
+            'sector' => 'required|string|max:44',
+            'title' => 'nullable|string|max:500',
+            'description' => 'nullable|string',
+            'purpose' => 'nullable|string|max:100',
+            'partner_institution' => 'required|string|max:500',
+            'partner_contact_name' => 'nullable|string|max:255',
+            'partner_contact_email' => 'nullable|email|max:255',
+            'partner_contact_phone' => 'nullable|string|max:100',
+            'partner_address' => 'nullable|string',
+            'request_date' => 'nullable|date',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'insurance_type' => 'nullable|string|max:53',
+            'insurance_value' => 'nullable|numeric|min:0',
+            'insurance_currency' => 'nullable|string|max:3',
             'insurance_policy_number' => 'nullable|string|max:100',
-            'insurance_provider'      => 'nullable|string|max:255',
-            'loan_fee'                => 'nullable|numeric|min:0',
-            'loan_fee_currency'       => 'nullable|string|max:3',
-            'repository_id'           => 'nullable|integer',
-            'notes'                   => 'nullable|string',
+            'insurance_provider' => 'nullable|string|max:255',
+            'loan_fee' => 'nullable|numeric|min:0',
+            'loan_fee_currency' => 'nullable|string|max:3',
+            'repository_id' => 'nullable|integer',
+            'notes' => 'nullable|string',
         ]);
 
         $id = $this->service->create($validated, auth()->id());
@@ -207,7 +205,7 @@ class LoanController extends Controller
 
             $slug = DB::table('slug')->where('object_id', $objectId)->value('slug');
             if ($slug) {
-                return redirect('/' . $slug)->with('success', 'Loan created successfully.');
+                return redirect('/'.$slug)->with('success', 'Loan created successfully.');
             }
         }
 
@@ -222,7 +220,7 @@ class LoanController extends Controller
     {
         $loan = $this->service->get($id);
 
-        if (!$loan) {
+        if (! $loan) {
             abort(404);
         }
 
@@ -235,33 +233,33 @@ class LoanController extends Controller
     public function update(Request $request, int $id)
     {
         $loan = $this->service->get($id);
-        if (!$loan) {
+        if (! $loan) {
             abort(404);
         }
 
         $validated = $request->validate([
-            'loan_type'               => 'required|in:out,in',
-            'sector'                  => 'required|string|max:44',
-            'title'                   => 'nullable|string|max:500',
-            'description'             => 'nullable|string',
-            'purpose'                 => 'nullable|string|max:100',
-            'partner_institution'     => 'required|string|max:500',
-            'partner_contact_name'    => 'nullable|string|max:255',
-            'partner_contact_email'   => 'nullable|email|max:255',
-            'partner_contact_phone'   => 'nullable|string|max:100',
-            'partner_address'         => 'nullable|string',
-            'request_date'            => 'nullable|date',
-            'start_date'              => 'nullable|date',
-            'end_date'                => 'nullable|date|after_or_equal:start_date',
-            'insurance_type'          => 'nullable|string|max:53',
-            'insurance_value'         => 'nullable|numeric|min:0',
-            'insurance_currency'      => 'nullable|string|max:3',
+            'loan_type' => 'required|in:out,in',
+            'sector' => 'required|string|max:44',
+            'title' => 'nullable|string|max:500',
+            'description' => 'nullable|string',
+            'purpose' => 'nullable|string|max:100',
+            'partner_institution' => 'required|string|max:500',
+            'partner_contact_name' => 'nullable|string|max:255',
+            'partner_contact_email' => 'nullable|email|max:255',
+            'partner_contact_phone' => 'nullable|string|max:100',
+            'partner_address' => 'nullable|string',
+            'request_date' => 'nullable|date',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'insurance_type' => 'nullable|string|max:53',
+            'insurance_value' => 'nullable|numeric|min:0',
+            'insurance_currency' => 'nullable|string|max:3',
             'insurance_policy_number' => 'nullable|string|max:100',
-            'insurance_provider'      => 'nullable|string|max:255',
-            'loan_fee'                => 'nullable|numeric|min:0',
-            'loan_fee_currency'       => 'nullable|string|max:3',
-            'repository_id'           => 'nullable|integer',
-            'notes'                   => 'nullable|string',
+            'insurance_provider' => 'nullable|string|max:255',
+            'loan_fee' => 'nullable|numeric|min:0',
+            'loan_fee_currency' => 'nullable|string|max:3',
+            'repository_id' => 'nullable|integer',
+            'notes' => 'nullable|string',
         ]);
 
         $validated['updated_by'] = auth()->id();
@@ -288,8 +286,8 @@ class LoanController extends Controller
     public function addObject(Request $request, int $id)
     {
         $request->validate([
-            'object_id'            => 'required|integer',
-            'insurance_value'      => 'nullable|numeric|min:0',
+            'object_id' => 'required|integer',
+            'insurance_value' => 'nullable|numeric|min:0',
             'special_requirements' => 'nullable|string',
             'display_requirements' => 'nullable|string',
         ]);
@@ -320,7 +318,7 @@ class LoanController extends Controller
     {
         $request->validate([
             'new_status' => 'required|string',
-            'comment'    => 'nullable|string|max:1000',
+            'comment' => 'nullable|string|max:1000',
         ]);
 
         $result = $this->service->transition(
@@ -330,13 +328,13 @@ class LoanController extends Controller
             $request->input('comment')
         );
 
-        if (!$result) {
+        if (! $result) {
             return redirect()->route('loan.show', $id)
                 ->with('error', 'Invalid status transition.');
         }
 
         return redirect()->route('loan.show', $id)
-            ->with('success', 'Loan status updated to: ' . str_replace('_', ' ', $request->input('new_status')));
+            ->with('success', 'Loan status updated to: '.str_replace('_', ' ', $request->input('new_status')));
     }
 
     /**
@@ -346,7 +344,7 @@ class LoanController extends Controller
     {
         $request->validate([
             'new_end_date' => 'required|date|after:today',
-            'reason'       => 'required|string|max:1000',
+            'reason' => 'required|string|max:1000',
         ]);
 
         $this->service->extend(
@@ -367,7 +365,7 @@ class LoanController extends Controller
     {
         $request->validate([
             'return_date' => 'required|date',
-            'notes'       => 'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         $this->service->recordReturn(
@@ -387,7 +385,7 @@ class LoanController extends Controller
     public function uploadDocument(Request $request, int $id)
     {
         $request->validate([
-            'document'      => 'required|file|max:20480',
+            'document' => 'required|file|max:20480',
             'document_type' => 'required|string|max:50',
         ]);
 
@@ -417,5 +415,8 @@ class LoanController extends Controller
         return response()->json(['results' => $results]);
     }
 
-    public function dashboard() { return view('ahg-loan::loan-dashboard', ['activeCount'=>0,'overdueCount'=>0,'returningCount'=>0,'completedCount'=>0]); }
+    public function dashboard()
+    {
+        return view('ahg-loan::loan-dashboard', ['activeCount' => 0, 'overdueCount' => 0, 'returningCount' => 0, 'completedCount' => 0]);
+    }
 }

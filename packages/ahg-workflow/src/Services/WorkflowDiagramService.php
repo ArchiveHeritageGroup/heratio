@@ -20,23 +20,26 @@ class WorkflowDiagramService
 {
     // Layout constants (px).
     private const NODE_W = 220;
+
     private const NODE_H = 70;
-    private const V_GAP  = 36;
-    private const PAD    = 24;
-    private const ARROW  = 8;
+
+    private const V_GAP = 36;
+
+    private const PAD = 24;
+
+    private const ARROW = 8;
 
     /**
      * Render the full diagram for a workflow. Returns inline SVG markup.
      *
-     * @param int  $workflowId
-     * @param array $taskStatusByStepId Optional map of step_id => 'completed'|'current'|'pending'|'rejected'
-     *                                  (Phase 2 uses this; Phase 1 always passes []).
+     * @param  array  $taskStatusByStepId  Optional map of step_id => 'completed'|'current'|'pending'|'rejected'
+     *                                     (Phase 2 uses this; Phase 1 always passes []).
      * @return string SVG markup, or empty-state markup if the workflow has no steps.
      */
     public function render(int $workflowId, array $taskStatusByStepId = []): string
     {
         $workflow = DB::table('ahg_workflow')->where('id', $workflowId)->first();
-        if (!$workflow) {
+        if (! $workflow) {
             return $this->emptyState(__('Workflow not found.'));
         }
 
@@ -52,7 +55,7 @@ class WorkflowDiagramService
 
         // heratio#143 Phase 3 — if explicit edges exist, lay out by topological rank.
         // Otherwise fall back to step_order grouping (linear / parallel via shared order).
-        $edgeSvc = new WorkflowEdgeService();
+        $edgeSvc = new WorkflowEdgeService;
         $stepsById = $steps->keyBy('id');
         if ($edgeSvc->hasEdges($workflowId)) {
             $rankRows = $edgeSvc->topologicalRows($workflowId);
@@ -82,7 +85,7 @@ class WorkflowDiagramService
         $svgH = self::PAD * 2 + (count($rows) * self::NODE_H) + ((count($rows) - 1) * (self::V_GAP + self::ARROW * 2));
 
         $titleId = 'wf-diagram-title-'.$workflowId;
-        $descId  = 'wf-diagram-desc-'.$workflowId;
+        $descId = 'wf-diagram-desc-'.$workflowId;
 
         $out = sprintf(
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" role="img" aria-labelledby="%s %s" class="workflow-diagram" preserveAspectRatio="xMidYMin meet">',
@@ -93,7 +96,7 @@ class WorkflowDiagramService
 
         // Arrowhead marker.
         $out .= '<defs><marker id="wfdiag-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
-              . '<path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/></marker></defs>';
+              .'<path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/></marker></defs>';
 
         // Position each step.
         $positions = [];
@@ -116,15 +119,15 @@ class WorkflowDiagramService
             // Use the stored edges.
             foreach ($edges as $edge) {
                 $fromId = (int) $edge->from_step_id;
-                $toId   = (int) $edge->to_step_id;
-                if (!isset($positions[$fromId]) || !isset($positions[$toId])) {
+                $toId = (int) $edge->to_step_id;
+                if (! isset($positions[$fromId]) || ! isset($positions[$toId])) {
                     continue;
                 }
                 $fromPos = $positions[$fromId];
                 $toPos = $positions[$toId];
                 $x1 = $fromPos['x'] + self::NODE_W / 2;
                 $y1 = $fromPos['y'] + self::NODE_H;
-                $x2 = $toPos['x']   + self::NODE_W / 2;
+                $x2 = $toPos['x'] + self::NODE_W / 2;
                 $y2 = $toPos['y'];
                 $out .= sprintf(
                     '<line x1="%d" y1="%d" x2="%d" y2="%d" class="wfdiag-edge" marker-end="url(#wfdiag-arrow)"/>',
@@ -141,7 +144,7 @@ class WorkflowDiagramService
                         $toPos = $positions[$to->id];
                         $x1 = $fromPos['x'] + self::NODE_W / 2;
                         $y1 = $fromPos['y'] + self::NODE_H;
-                        $x2 = $toPos['x']   + self::NODE_W / 2;
+                        $x2 = $toPos['x'] + self::NODE_W / 2;
                         $y2 = $toPos['y'];
                         $out .= sprintf(
                             '<line x1="%d" y1="%d" x2="%d" y2="%d" class="wfdiag-edge" marker-end="url(#wfdiag-arrow)"/>',
@@ -166,9 +169,9 @@ class WorkflowDiagramService
                 ? sprintf(
                     '<polygon points="%d,%d %d,%d %d,%d %d,%d" class="%s"/>',
                     $pos['x'] + self::NODE_W / 2, $pos['y'],
-                    $pos['x'] + self::NODE_W,     $pos['y'] + self::NODE_H / 2,
+                    $pos['x'] + self::NODE_W, $pos['y'] + self::NODE_H / 2,
                     $pos['x'] + self::NODE_W / 2, $pos['y'] + self::NODE_H,
-                    $pos['x'],                    $pos['y'] + self::NODE_H / 2,
+                    $pos['x'], $pos['y'] + self::NODE_H / 2,
                     $cls
                 )
                 : sprintf(
@@ -218,11 +221,11 @@ class WorkflowDiagramService
     public function renderForTask(int $taskId): array
     {
         $task = DB::table('ahg_workflow_task')->where('id', $taskId)->first();
-        if (!$task) {
+        if (! $task) {
             return [
-                'svg'        => $this->emptyState(__('Task not found.')),
-                'statusMap'  => [],
-                'task'       => null,
+                'svg' => $this->emptyState(__('Task not found.')),
+                'statusMap' => [],
+                'task' => null,
                 'workflowId' => null,
             ];
         }
@@ -235,9 +238,9 @@ class WorkflowDiagramService
         );
 
         return [
-            'svg'        => $this->render((int) $task->workflow_id, $statusMap),
-            'statusMap'  => $statusMap,
-            'task'       => $task,
+            'svg' => $this->render((int) $task->workflow_id, $statusMap),
+            'statusMap' => $statusMap,
+            'task' => $task,
             'workflowId' => (int) $task->workflow_id,
         ];
     }
@@ -268,24 +271,26 @@ class WorkflowDiagramService
             $status = (string) $t->status;
 
             // Rejected wins over everything else on the same step.
-            if ('rejected' === $decision) {
+            if ($decision === 'rejected') {
                 $statusMap[$stepId] = 'rejected';
+
                 continue;
             }
             // Approved is sticky unless something else later overrides it.
-            if ('approved' === $decision && ($statusMap[$stepId] ?? null) !== 'rejected') {
+            if ($decision === 'approved' && ($statusMap[$stepId] ?? null) !== 'rejected') {
                 $statusMap[$stepId] = 'completed';
+
                 continue;
             }
             // Still in-flight → mark as current, but never downgrade an existing completed/rejected.
-            if (in_array($status, ['pending', 'claimed', 'in_progress'], true) && !isset($statusMap[$stepId])) {
+            if (in_array($status, ['pending', 'claimed', 'in_progress'], true) && ! isset($statusMap[$stepId])) {
                 $statusMap[$stepId] = 'current';
             }
         }
 
         // Belt-and-braces: the task the user is viewing is always current
         // (covers the edge case where the row was just created with empty decision).
-        if (!isset($statusMap[$currentStepId])) {
+        if (! isset($statusMap[$currentStepId])) {
             $statusMap[$currentStepId] = 'current';
         }
 
@@ -311,6 +316,7 @@ class WorkflowDiagramService
             $marker = $s->is_optional ? ' '.__('(optional)') : '';
             $out[] = sprintf('%d. %s — %s%s', $s->step_order, $s->name, ucwords(str_replace('_', ' ', (string) $s->step_type)), $marker);
         }
+
         return $out;
     }
 

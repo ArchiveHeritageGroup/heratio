@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgPdfTools\Controllers;
 
 use AhgPdfTools\Services\PdfTextExtractService;
@@ -52,11 +50,11 @@ class PdfToolsController extends Controller
      */
     public function index()
     {
-        $pdftotextAvailable   = $this->textService->isPdftotextAvailable();
+        $pdftotextAvailable = $this->textService->isPdftotextAvailable();
         $imageMagickAvailable = $this->mergeService->isImageMagickAvailable();
         $ghostscriptAvailable = $this->mergeService->isPdfASupported();
 
-        $pdftotextVersion   = $this->textService->getPdftotextVersion();
+        $pdftotextVersion = $this->textService->getPdftotextVersion();
         $imageMagickVersion = $this->mergeService->getImageMagickVersion();
         $ghostscriptVersion = $this->mergeService->getGhostscriptVersion();
 
@@ -82,9 +80,9 @@ class PdfToolsController extends Controller
     public function merge(Request $request)
     {
         if ($request->isMethod('GET')) {
-            $pageSizes    = $this->mergeService->getSupportedPageSizes();
+            $pageSizes = $this->mergeService->getSupportedPageSizes();
             $pdfaVersions = $this->mergeService->getSupportedPdfAVersions();
-            $formats      = $this->mergeService->getSupportedInputFormats();
+            $formats = $this->mergeService->getSupportedInputFormats();
             $imageMagickAvailable = $this->mergeService->isImageMagickAvailable();
             $ghostscriptAvailable = $this->mergeService->isPdfASupported();
 
@@ -99,14 +97,14 @@ class PdfToolsController extends Controller
 
         // POST: validate and merge
         $request->validate([
-            'files'       => 'required|array|min:1',
-            'files.*'     => 'required|file|max:102400', // 100 MB per file
-            'quality'     => 'nullable|integer|min:0|max:100',
-            'dpi'         => 'nullable|integer|min:72|max:600',
-            'page_size'   => 'nullable|string|in:' . implode(',', $this->mergeService->getSupportedPageSizes()),
+            'files' => 'required|array|min:1',
+            'files.*' => 'required|file|max:102400', // 100 MB per file
+            'quality' => 'nullable|integer|min:0|max:100',
+            'dpi' => 'nullable|integer|min:72|max:600',
+            'page_size' => 'nullable|string|in:'.implode(',', $this->mergeService->getSupportedPageSizes()),
             'orientation' => 'nullable|string|in:portrait,landscape',
-            'pdfa'        => 'nullable|boolean',
-            'pdfa_version'=> 'nullable|string|in:' . implode(',', $this->mergeService->getSupportedPdfAVersions()),
+            'pdfa' => 'nullable|boolean',
+            'pdfa_version' => 'nullable|string|in:'.implode(',', $this->mergeService->getSupportedPdfAVersions()),
         ]);
 
         $uploadedFiles = $request->file('files');
@@ -118,31 +116,31 @@ class PdfToolsController extends Controller
                 $ext = strtolower($file->getClientOriginalExtension());
                 $allowed = array_merge($this->mergeService->getSupportedInputFormats(), ['pdf']);
 
-                if (!in_array($ext, $allowed)) {
+                if (! in_array($ext, $allowed)) {
                     return redirect()->route('pdf-tools.merge')
                         ->with('error', "Unsupported file format: {$ext}");
                 }
 
-                $tmpPath = sys_get_temp_dir() . '/heratio_merge_in_' . uniqid() . '.' . $ext;
+                $tmpPath = sys_get_temp_dir().'/heratio_merge_in_'.uniqid().'.'.$ext;
                 $file->move(dirname($tmpPath), basename($tmpPath));
                 $tmpInputPaths[] = $tmpPath;
             }
 
-            $outputFilename = 'merged_' . date('Ymd_His') . '.pdf';
-            $outputPath = sys_get_temp_dir() . '/' . $outputFilename;
+            $outputFilename = 'merged_'.date('Ymd_His').'.pdf';
+            $outputPath = sys_get_temp_dir().'/'.$outputFilename;
 
             $options = [
-                'quality'     => (int) ($request->input('quality', 90)),
-                'dpi'         => (int) ($request->input('dpi', 150)),
-                'pageSize'    => $request->input('page_size', 'a4'),
+                'quality' => (int) ($request->input('quality', 90)),
+                'dpi' => (int) ($request->input('dpi', 150)),
+                'pageSize' => $request->input('page_size', 'a4'),
                 'orientation' => $request->input('orientation', 'portrait'),
-                'pdfa'        => (bool) $request->input('pdfa', false),
+                'pdfa' => (bool) $request->input('pdfa', false),
                 'pdfaVersion' => $request->input('pdfa_version', '2b'),
             ];
 
             $this->mergeService->merge($tmpInputPaths, $outputPath, $options);
 
-            if (!file_exists($outputPath)) {
+            if (! file_exists($outputPath)) {
                 return redirect()->route('pdf-tools.merge')
                     ->with('error', 'Merge completed but output file was not created.');
             }
@@ -154,7 +152,7 @@ class PdfToolsController extends Controller
 
         } catch (\Throwable $e) {
             return redirect()->route('pdf-tools.merge')
-                ->with('error', 'Merge failed: ' . $e->getMessage());
+                ->with('error', 'Merge failed: '.$e->getMessage());
         } finally {
             // Clean up input temp files
             foreach ($tmpInputPaths as $tmp) {
@@ -181,14 +179,14 @@ class PdfToolsController extends Controller
 
             $file = $request->file('pdf_file');
             $filename = $file->getClientOriginalName();
-            $tmpPath = sys_get_temp_dir() . '/heratio_extract_' . uniqid() . '.pdf';
+            $tmpPath = sys_get_temp_dir().'/heratio_extract_'.uniqid().'.pdf';
             $file->move(dirname($tmpPath), basename($tmpPath));
 
             try {
                 $extractedText = $this->textService->extractText($tmpPath);
             } catch (\Throwable $e) {
                 return redirect()->route('pdf-tools.index')
-                    ->with('error', 'Text extraction failed: ' . $e->getMessage());
+                    ->with('error', 'Text extraction failed: '.$e->getMessage());
             } finally {
                 if (file_exists($tmpPath)) {
                     @unlink($tmpPath);
@@ -201,15 +199,15 @@ class PdfToolsController extends Controller
             $doId = (int) $request->input('digital_object_id');
             $digitalObject = DB::table('digital_object')->where('id', $doId)->first();
 
-            if (!$digitalObject) {
+            if (! $digitalObject) {
                 return redirect()->route('pdf-tools.index')
                     ->with('error', "Digital object {$doId} not found.");
             }
 
             $uploadsPath = config('heratio.uploads_path');
-            $filePath = rtrim($uploadsPath, '/') . '/' . ltrim($digitalObject->path, '/');
+            $filePath = rtrim($uploadsPath, '/').'/'.ltrim($digitalObject->path, '/');
 
-            if (!file_exists($filePath)) {
+            if (! file_exists($filePath)) {
                 $filePath = public_path($digitalObject->path);
             }
 
@@ -224,7 +222,7 @@ class PdfToolsController extends Controller
                 }
             } catch (\Throwable $e) {
                 return redirect()->route('pdf-tools.index')
-                    ->with('error', 'Text extraction failed: ' . $e->getMessage());
+                    ->with('error', 'Text extraction failed: '.$e->getMessage());
             }
         }
 
@@ -246,7 +244,7 @@ class PdfToolsController extends Controller
      */
     public function batchExtractText()
     {
-        if (!$this->textService->isPdftotextAvailable()) {
+        if (! $this->textService->isPdftotextAvailable()) {
             return redirect()->route('pdf-tools.index')
                 ->with('error', 'pdftotext is not installed.');
         }
@@ -260,14 +258,14 @@ class PdfToolsController extends Controller
             if ($stats['remaining_count'] > 0) {
                 $msg .= " {$stats['remaining_count']} remaining - run again to continue.";
             } else {
-                $msg .= " All PDFs processed.";
+                $msg .= ' All PDFs processed.';
             }
 
             return redirect()->route('pdf-tools.index')
                 ->with('success', $msg);
         } catch (\Throwable $e) {
             return redirect()->route('pdf-tools.index')
-                ->with('error', 'Batch extraction failed: ' . $e->getMessage());
+                ->with('error', 'Batch extraction failed: '.$e->getMessage());
         }
     }
 }

@@ -57,7 +57,7 @@ class TenantService
         }
 
         $subdomain = explode('.', $host)[0] ?? null;
-        if (!$subdomain) {
+        if (! $subdomain) {
             return null;
         }
 
@@ -118,7 +118,7 @@ class TenantService
     {
         $data = $this->filterFillable($data);
 
-        if (empty($data['code']) && !empty($data['name'])) {
+        if (empty($data['code']) && ! empty($data['name'])) {
             $data['code'] = Str::slug($data['name']);
         }
 

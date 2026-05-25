@@ -29,7 +29,7 @@ class SharePointRetentionMapper
 
         $entry = $this->lookupMap($tag);
 
-        if (!empty($entry['embargo_until_field']) && $entry['embargo_until_field'] === '_ComplianceTagWrittenTime' && $written) {
+        if (! empty($entry['embargo_until_field']) && $entry['embargo_until_field'] === '_ComplianceTagWrittenTime' && $written) {
             $offsetDays = (int) ($entry['embargo_offset_days'] ?? 0);
             try {
                 $writtenDate = new \DateTimeImmutable($written);
@@ -54,7 +54,7 @@ class SharePointRetentionMapper
         }
 
         $map = json_decode($row->setting_value, true);
-        if (!is_array($map)) {
+        if (! is_array($map)) {
             return [];
         }
 

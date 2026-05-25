@@ -52,7 +52,7 @@ class QueueWorkCommand extends Command
                     'status' => 'processing',
                     'reserved_at' => now(),
                     'started_at' => now(),
-                    'worker_id' => gethostname() . ':' . getmypid(),
+                    'worker_id' => gethostname().':'.getmypid(),
                     'attempt_count' => $job->attempt_count + 1,
                 ]);
 
@@ -157,11 +157,11 @@ class QueueWorkCommand extends Command
 
         // CLI task bridge: payload contains a 'command' key with Symfony CLI task
         if (isset($payload['command'])) {
-            $cmd = 'php /usr/share/nginx/archive/symfony ' . escapeshellarg($payload['command']);
+            $cmd = 'php /usr/share/nginx/archive/symfony '.escapeshellarg($payload['command']);
 
             if (isset($payload['arguments']) && is_array($payload['arguments'])) {
                 foreach ($payload['arguments'] as $key => $value) {
-                    $cmd .= ' --' . escapeshellarg($key) . '=' . escapeshellarg($value);
+                    $cmd .= ' --'.escapeshellarg($key).'='.escapeshellarg($value);
                 }
             }
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * URL Audit V2: Full page-by-page, link-by-link comparison.
  * Rules 12, 12a, 12b, 13 enforcement.
@@ -12,7 +13,6 @@
  *   - Flag MISSING where AtoM has a link Heratio doesn't
  *   - Flag EXTRA where Heratio has a link AtoM doesn't
  */
-
 $heratioBase = '/usr/share/nginx/heratio/packages';
 $atomBase = '/usr/share/nginx/archive';
 
@@ -24,7 +24,7 @@ if ($routeOutput) {
         // Format: "  GET|HEAD        path name › Controller"
         if (preg_match('/^\s+(GET|POST|PUT|DELETE|PATCH)[^\s]*\s+(\S+)\s+(\S+)/', $line, $m)) {
             $method = $m[1];
-            $uri = '/' . ltrim($m[2], '/');
+            $uri = '/'.ltrim($m[2], '/');
             $name = $m[3];
             if (strpos($name, '›') === false && strpos($name, '.') !== false) {
                 $routeMap[$name] = $uri;
@@ -33,21 +33,25 @@ if ($routeOutput) {
     }
 }
 
-function resolveHeratioHref(string $raw): string {
+function resolveHeratioHref(string $raw): string
+{
     global $routeMap;
     // route('name', $param) → /resolved/path/{param}
     if (preg_match("/route\('([^']+)'/", $raw, $m)) {
         $name = $m[1];
+
         return $routeMap[$name] ?? "route:$name";
     }
     // url('/path') → /path
     if (preg_match("/url\('([^']+)'/", $raw, $m)) {
         return $m[1];
     }
+
     return $raw;
 }
 
-function resolveAtomHref(string $raw): string {
+function resolveAtomHref(string $raw): string
+{
     // url_for([$resource, 'module' => 'x', 'action' => 'y']) → /{slug}/x/y
     if (preg_match("/module.*?=.*?'(\w+)'.*?action.*?=.*?'(\w+)'/s", $raw, $m)) {
         return "/{slug}/$m[1]/$m[2]";
@@ -59,10 +63,12 @@ function resolveAtomHref(string $raw): string {
     if (preg_match('/href="([^"]+)"/', $raw, $m)) {
         return $m[1];
     }
+
     return $raw;
 }
 
-function extractLinks(string $content, bool $isAtom = false): array {
+function extractLinks(string $content, bool $isAtom = false): array
+{
     $links = [];
     // Match <a ... href="..." ...>text</a> (multiline)
     if (preg_match_all('/<a\s[^>]*href\s*=\s*["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/si', $content, $m, PREG_SET_ORDER)) {
@@ -70,10 +76,16 @@ function extractLinks(string $content, bool $isAtom = false): array {
             $href = trim($match[1]);
             $text = trim(strip_tags($match[2]));
             $text = preg_replace('/\s+/', ' ', $text);
-            if (!$text || strlen($text) < 2 || $href === '#' || $href === 'javascript:void(0)') continue;
+            if (! $text || strlen($text) < 2 || $href === '#' || $href === 'javascript:void(0)') {
+                continue;
+            }
             // Skip blade/PHP noise in text
-            if (preg_match('/^\{\{|^<\?php|^\$/', $text)) continue;
-            if (strlen($text) > 60) $text = substr($text, 0, 57) . '...';
+            if (preg_match('/^\{\{|^<\?php|^\$/', $text)) {
+                continue;
+            }
+            if (strlen($text) > 60) {
+                $text = substr($text, 0, 57).'...';
+            }
 
             $resolved = $isAtom ? resolveAtomHref($match[0]) : resolveHeratioHref($href);
             $isScoped = preg_match('/\$\w+|\{\{/', $href);
@@ -90,7 +102,7 @@ function extractLinks(string $content, bool $isAtom = false): array {
     if ($isAtom && preg_match_all('/url_for\(([^)]+)\)/s', $content, $uf)) {
         foreach ($uf[0] as $call) {
             $resolved = resolveAtomHref($call);
-            if (!in_array($resolved, array_column($links, 'resolved'))) {
+            if (! in_array($resolved, array_column($links, 'resolved'))) {
                 $links[] = [
                     'text' => '[url_for]',
                     'raw' => substr($call, 0, 120),
@@ -100,11 +112,12 @@ function extractLinks(string $content, bool $isAtom = false): array {
             }
         }
     }
+
     return $links;
 }
 
 // Mapping (same as audit-controls.php)
-$mapping = json_decode(file_get_contents(__DIR__ . '/atom-mapping.json'), true) ?? [];
+$mapping = json_decode(file_get_contents(__DIR__.'/atom-mapping.json'), true) ?? [];
 // Fallback: load inline if json doesn't exist
 if (empty($mapping)) {
     $mapping = [
@@ -158,24 +171,34 @@ $viewToAtom = [
     'delete' => ['deleteSuccess'],
 ];
 
-function findAtomTemplates(string $pkg, string $viewBase): array {
+function findAtomTemplates(string $pkg, string $viewBase): array
+{
     global $atomBase, $mapping, $viewToAtom;
-    if (!isset($mapping[$pkg])) return [];
-    $candidates = $viewToAtom[$viewBase] ?? [$viewBase . 'Success'];
+    if (! isset($mapping[$pkg])) {
+        return [];
+    }
+    $candidates = $viewToAtom[$viewBase] ?? [$viewBase.'Success'];
     $found = [];
     foreach ($mapping[$pkg] as $dir) {
         $fullDir = "$atomBase/$dir";
-        if (!is_dir($fullDir)) continue;
+        if (! is_dir($fullDir)) {
+            continue;
+        }
         foreach ($candidates as $c) {
             $f = "$fullDir/$c.php";
-            if (file_exists($f)) $found[] = $f;
+            if (file_exists($f)) {
+                $found[] = $f;
+            }
         }
         // Also check for _actionIcons, _contextMenu partials
         foreach (['_actionIcons', '_contextMenu', '_actions', '_findingAid', '_calculateDatesLink'] as $partial) {
             $f = "$fullDir/$partial.php";
-            if (file_exists($f)) $found[] = $f;
+            if (file_exists($f)) {
+                $found[] = $f;
+            }
         }
     }
+
     return array_unique($found);
 }
 
@@ -190,21 +213,27 @@ $totalMissing = 0;
 $allIssues = [];
 
 echo "# FULL URL AUDIT V2: Page-by-Page Link Comparison\n";
-echo "# Generated: " . date('Y-m-d H:i:s') . "\n";
-echo "# Route map: " . count($routeMap) . " named routes resolved\n\n";
+echo '# Generated: '.date('Y-m-d H:i:s')."\n";
+echo '# Route map: '.count($routeMap)." named routes resolved\n\n";
 
 foreach ($packages as $pkgPath) {
     $pkg = basename($pkgPath);
     $viewDir = "$pkgPath/resources/views";
-    if (!is_dir($viewDir)) continue;
+    if (! is_dir($viewDir)) {
+        continue;
+    }
 
     $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($viewDir, RecursiveDirectoryIterator::SKIP_DOTS));
     foreach ($it as $f) {
-        if (!preg_match('/\.blade\.php$/', $f->getFilename())) continue;
+        if (! preg_match('/\.blade\.php$/', $f->getFilename())) {
+            continue;
+        }
         $viewName = str_replace('.blade.php', '', $f->getFilename());
 
         // Only check main pages (show, browse, edit, create, delete)
-        if (!in_array($viewName, ['show', 'browse', 'edit', 'create', 'delete'])) continue;
+        if (! in_array($viewName, ['show', 'browse', 'edit', 'create', 'delete'])) {
+            continue;
+        }
 
         $hContent = file_get_contents($f->getPathname());
         // Resolve @include directives to inline partial content
@@ -214,23 +243,27 @@ foreach ($packages as $pkgPath) {
                 // e.g., 'ahg-information-object-manage::_context-menu' → packages/ahg-information-object-manage/resources/views/_context-menu.blade.php
                 if (str_contains($incView, '::')) {
                     [$incPkg, $incName] = explode('::', $incView, 2);
-                    $incPath = "$heratioBase/$incPkg/resources/views/" . str_replace('.', '/', $incName) . ".blade.php";
+                    $incPath = "$heratioBase/$incPkg/resources/views/".str_replace('.', '/', $incName).'.blade.php';
                 } else {
                     // Same package
-                    $incPath = dirname($f->getPathname()) . '/' . str_replace('.', '/', $incView) . ".blade.php";
+                    $incPath = dirname($f->getPathname()).'/'.str_replace('.', '/', $incView).'.blade.php';
                 }
                 if (file_exists($incPath)) {
-                    $hContent .= "\n" . file_get_contents($incPath);
+                    $hContent .= "\n".file_get_contents($incPath);
                 }
             }
         }
         $hLinks = extractLinks($hContent, false);
 
         $atomFiles = findAtomTemplates($pkg, $viewName);
-        if (empty($atomFiles)) continue;
+        if (empty($atomFiles)) {
+            continue;
+        }
 
         $aContent = '';
-        foreach ($atomFiles as $af) $aContent .= file_get_contents($af) . "\n";
+        foreach ($atomFiles as $af) {
+            $aContent .= file_get_contents($af)."\n";
+        }
         $aLinks = extractLinks($aContent, true);
 
         $totalPages++;
@@ -240,7 +273,9 @@ foreach ($packages as $pkgPath) {
 
         // Check: for each AtoM scoped link, is there a matching Heratio scoped link?
         foreach ($aLinks as $aLink) {
-            if (!$aLink['scoped']) continue;
+            if (! $aLink['scoped']) {
+                continue;
+            }
             $aText = strtolower($aLink['text']);
 
             // Find matching Heratio link by text
@@ -250,7 +285,7 @@ foreach ($packages as $pkgPath) {
                     stripos($hLink['text'], $aLink['text']) !== false ||
                     stripos($aLink['text'], $hLink['text']) !== false) {
                     $found = true;
-                    if (!$hLink['scoped']) {
+                    if (! $hLink['scoped']) {
                         $pageIssues[] = [
                             'type' => 'SCOPE_MISMATCH',
                             'text' => $aLink['text'],
@@ -262,7 +297,7 @@ foreach ($packages as $pkgPath) {
                     break;
                 }
             }
-            if (!$found && $aLink['text'] !== '[url_for]') {
+            if (! $found && $aLink['text'] !== '[url_for]') {
                 $pageIssues[] = [
                     'type' => 'MISSING_IN_HERATIO',
                     'text' => $aLink['text'],
@@ -272,17 +307,17 @@ foreach ($packages as $pkgPath) {
             }
         }
 
-        if (!empty($pageIssues)) {
-            $rel = str_replace($heratioBase . '/', '', $f->getPathname());
+        if (! empty($pageIssues)) {
+            $rel = str_replace($heratioBase.'/', '', $f->getPathname());
             echo "### $pkg/$viewName\n";
-            echo str_pad('Type', 20) . str_pad('Link Text', 30) . str_pad('AtoM URL', 40) . str_pad('Heratio URL', 40) . "\n";
-            echo str_repeat('─', 130) . "\n";
+            echo str_pad('Type', 20).str_pad('Link Text', 30).str_pad('AtoM URL', 40).str_pad('Heratio URL', 40)."\n";
+            echo str_repeat('─', 130)."\n";
             foreach ($pageIssues as $iss) {
                 echo str_pad($iss['type'], 20)
-                   . str_pad(substr($iss['text'], 0, 28), 30)
-                   . str_pad(substr($iss['atom_url'] ?? '', 0, 38), 40)
-                   . str_pad(substr($iss['heratio_url'] ?? 'N/A', 0, 38), 40)
-                   . "\n";
+                   .str_pad(substr($iss['text'], 0, 28), 30)
+                   .str_pad(substr($iss['atom_url'] ?? '', 0, 38), 40)
+                   .str_pad(substr($iss['heratio_url'] ?? 'N/A', 0, 38), 40)
+                   ."\n";
             }
             echo "\n";
             $allIssues[$rel] = $pageIssues;
@@ -295,4 +330,4 @@ echo "Pages checked:     $totalPages\n";
 echo "Total links:       $totalLinks\n";
 echo "Scope mismatches:  $totalMismatches\n";
 echo "Missing in Heratio: $totalMissing\n";
-echo "Pages with issues: " . count($allIssues) . "\n";
+echo 'Pages with issues: '.count($allIssues)."\n";

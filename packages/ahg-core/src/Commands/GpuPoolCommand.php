@@ -50,6 +50,7 @@ class GpuPoolCommand extends Command
                             {--priority=100 : lower wins under priority strategy}
                             {--models= : CSV of supported model names}
                             {--notes= : free-form notes}';
+
     protected $description = 'Manage the AhgGpuPoolService endpoint registry (list / add / health / enable / disable / remove).';
 
     public function handle(): int
@@ -58,13 +59,13 @@ class GpuPoolCommand extends Command
         AhgGpuPoolService::ensureTable();
 
         return match ($action) {
-            'list'    => $this->doList(),
-            'add'     => $this->doAdd(),
-            'health'  => $this->doHealth(),
-            'enable'  => $this->doToggle(true),
+            'list' => $this->doList(),
+            'add' => $this->doAdd(),
+            'health' => $this->doHealth(),
+            'enable' => $this->doToggle(true),
             'disable' => $this->doToggle(false),
-            'remove'  => $this->doRemove(),
-            default   => $this->bail("unknown action '{$action}' - use list|add|health|enable|disable|remove"),
+            'remove' => $this->doRemove(),
+            default => $this->bail("unknown action '{$action}' - use list|add|health|enable|disable|remove"),
         };
     }
 
@@ -73,6 +74,7 @@ class GpuPoolCommand extends Command
         $rows = DB::table(AhgGpuPoolService::TABLE)->orderBy('priority')->orderBy('id')->get();
         if ($rows->isEmpty()) {
             $this->line('(pool empty - run `php artisan ahg:gpu-pool add <name> <url>` to register an endpoint)');
+
             return self::SUCCESS;
         }
         $this->table(
@@ -87,13 +89,14 @@ class GpuPoolCommand extends Command
                 substr((string) ($r->models_supported ?? ''), 0, 40),
             ])->all(),
         );
+
         return self::SUCCESS;
     }
 
     private function doAdd(): int
     {
         $name = (string) $this->argument('name');
-        $url  = (string) $this->argument('url');
+        $url = (string) $this->argument('url');
         if ($name === '' || $url === '') {
             return $this->bail('add: name + url are required');
         }
@@ -105,6 +108,7 @@ class GpuPoolCommand extends Command
             $this->option('notes')
         );
         $this->info("[gpu-pool] registered '$name' -> $url (vram={$this->option('vram')}GB, priority={$this->option('priority')})");
+
         return self::SUCCESS;
     }
 
@@ -115,34 +119,46 @@ class GpuPoolCommand extends Command
             '[gpu-pool] health: %d up, %d down (of %d active)',
             $result['up'], $result['down'], $result['total']
         ));
+
         return $result['down'] === 0 ? self::SUCCESS : self::FAILURE;
     }
 
     private function doToggle(bool $enable): int
     {
         $name = (string) $this->argument('name');
-        if ($name === '') return $this->bail('enable/disable: name is required');
+        if ($name === '') {
+            return $this->bail('enable/disable: name is required');
+        }
         $affected = DB::table(AhgGpuPoolService::TABLE)
             ->where('name', $name)
             ->update(['is_active' => $enable ? 1 : 0, 'updated_at' => now()]);
-        if ($affected === 0) return $this->bail("'$name' not found in pool");
-        $this->info('[gpu-pool] ' . ($enable ? 'enabled' : 'disabled') . " '$name'");
+        if ($affected === 0) {
+            return $this->bail("'$name' not found in pool");
+        }
+        $this->info('[gpu-pool] '.($enable ? 'enabled' : 'disabled')." '$name'");
+
         return self::SUCCESS;
     }
 
     private function doRemove(): int
     {
         $name = (string) $this->argument('name');
-        if ($name === '') return $this->bail('remove: name is required');
+        if ($name === '') {
+            return $this->bail('remove: name is required');
+        }
         $affected = DB::table(AhgGpuPoolService::TABLE)->where('name', $name)->delete();
-        if ($affected === 0) return $this->bail("'$name' not found in pool");
+        if ($affected === 0) {
+            return $this->bail("'$name' not found in pool");
+        }
         $this->info("[gpu-pool] removed '$name'");
+
         return self::SUCCESS;
     }
 
     private function bail(string $msg): int
     {
         $this->error($msg);
+
         return self::FAILURE;
     }
 }

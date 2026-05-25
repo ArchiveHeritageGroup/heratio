@@ -40,14 +40,16 @@ class EncryptionBulkApplyCommand extends Command
 
     public function handle(EncryptionService $svc): int
     {
-        if (!$svc->isEnabled()) {
+        if (! $svc->isEnabled()) {
             $this->error('encryption_enabled is off; refusing to run.');
+
             return self::FAILURE;
         }
 
         $fields = $svc->listRegisteredFields($this->option('category'));
         if (empty($fields)) {
             $this->warn('No registered fields match.');
+
             return self::SUCCESS;
         }
 
@@ -56,19 +58,21 @@ class EncryptionBulkApplyCommand extends Command
         $totalErrors = 0;
 
         foreach ($fields as $f) {
-            if (!$svc->shouldEncryptCategory($f->category)) {
+            if (! $svc->shouldEncryptCategory($f->category)) {
                 $this->line(sprintf(
                     '  - skipping %s.%s (category %s disabled)',
                     $f->table_name, $f->column_name, $f->category,
                 ));
+
                 continue;
             }
 
-            if (!Schema::hasTable($f->table_name) || !Schema::hasColumn($f->table_name, $f->column_name)) {
+            if (! Schema::hasTable($f->table_name) || ! Schema::hasColumn($f->table_name, $f->column_name)) {
                 $this->warn(sprintf(
                     '  - %s.%s missing; skipping',
                     $f->table_name, $f->column_name,
                 ));
+
                 continue;
             }
 
@@ -79,6 +83,7 @@ class EncryptionBulkApplyCommand extends Command
 
             if ($this->option('dry-run')) {
                 $this->info(sprintf('  - dry-run: would encrypt up to %d row(s) of %s.%s', $rowCount, $f->table_name, $f->column_name));
+
                 continue;
             }
 
@@ -93,6 +98,7 @@ class EncryptionBulkApplyCommand extends Command
                         $current = $row->{$f->column_name};
                         if ($svc->isCiphertext((string) $current)) {
                             $totalSkipped++;
+
                             continue;
                         }
                         try {
@@ -130,6 +136,7 @@ class EncryptionBulkApplyCommand extends Command
             'Done. encrypted=%d skipped=%d errors=%d',
             $totalEncrypted, $totalSkipped, $totalErrors,
         ));
+
         return $totalErrors === 0 ? self::SUCCESS : self::FAILURE;
     }
 
@@ -149,6 +156,7 @@ class EncryptionBulkApplyCommand extends Command
              LIMIT 1",
             [$table],
         );
+
         return $row->pk ?? 'id';
     }
 }

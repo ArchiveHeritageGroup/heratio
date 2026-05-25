@@ -52,7 +52,7 @@ class TemplateEditController extends Controller
             ? $this->forms->getTemplate($templateId)
             : $this->forms->resolveTemplate($entityType, $context);
 
-        if (!$template) {
+        if (! $template) {
             return redirect($this->cancelUrl($entityType, $entityId))
                 ->with('error', 'No form template configured for this entity.');
         }
@@ -64,12 +64,12 @@ class TemplateEditController extends Controller
         $values = $this->loadCurrentValues($template, $entityType, $entityId);
 
         return view('ahg-forms::template-edit', [
-            'template'   => $template,
+            'template' => $template,
             'entityType' => $entityType,
-            'entityId'   => $entityId,
-            'values'     => $values,
-            'action'     => route('forms.template.submit', ['entityType' => $entityType, 'entityId' => $entityId, 'templateId' => $template->id]),
-            'cancelUrl'  => $this->cancelUrl($entityType, $entityId),
+            'entityId' => $entityId,
+            'values' => $values,
+            'action' => route('forms.template.submit', ['entityType' => $entityType, 'entityId' => $entityId, 'templateId' => $template->id]),
+            'cancelUrl' => $this->cancelUrl($entityType, $entityId),
         ]);
     }
 
@@ -80,7 +80,7 @@ class TemplateEditController extends Controller
     public function submit(Request $request, string $entityType, int $entityId, int $templateId)
     {
         $template = $this->forms->getTemplate($templateId);
-        if (!$template || $template->form_type !== $entityType) {
+        if (! $template || $template->form_type !== $entityType) {
             abort(404);
         }
 
@@ -94,16 +94,16 @@ class TemplateEditController extends Controller
             $raw = $submitted[$fieldName] ?? null;
             $value = $this->normaliseValue($raw, $field->field_type);
 
-            $maps = $mappings[(int)$field->id] ?? [];
+            $maps = $mappings[(int) $field->id] ?? [];
             if (empty($maps)) {
                 continue; // unmapped → ignore (still saved to submission log below)
             }
 
             foreach ($maps as $m) {
                 $value = $this->applyTransformation($value, $m->transformation, $m->transformation_config);
-                $key = $m->target_table . '|' . ($m->is_i18n ? ($m->culture ?: 'en') : '');
+                $key = $m->target_table.'|'.($m->is_i18n ? ($m->culture ?: 'en') : '');
                 $bucket[$key]['table'] = $m->target_table;
-                $bucket[$key]['is_i18n'] = (int)$m->is_i18n;
+                $bucket[$key]['is_i18n'] = (int) $m->is_i18n;
                 $bucket[$key]['culture'] = $m->culture ?: 'en';
                 $bucket[$key]['cols'][$m->target_column] = $value;
             }
@@ -116,19 +116,20 @@ class TemplateEditController extends Controller
             }
 
             DB::table('ahg_form_submission_log')->insert([
-                'template_id'   => $templateId,
-                'entity_type'   => $entityType,
-                'entity_id'     => $entityId,
-                'submitted_by'  => auth()->id(),
-                'submitted_at'  => now(),
-                'payload_json'  => json_encode($submitted),
+                'template_id' => $templateId,
+                'entity_type' => $entityType,
+                'entity_id' => $entityId,
+                'submitted_by' => auth()->id(),
+                'submitted_at' => now(),
+                'payload_json' => json_encode($submitted),
             ]);
 
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('TemplateEditController submit failed', ['err' => $e->getMessage()]);
-            return back()->with('error', 'Save failed: ' . $e->getMessage())->withInput();
+
+            return back()->with('error', 'Save failed: '.$e->getMessage())->withInput();
         }
 
         return redirect($this->showUrl($entityType, $entityId))
@@ -144,43 +145,49 @@ class TemplateEditController extends Controller
                 ->where('id', $entityId)
                 ->select('repository_id', 'level_of_description_id', 'parent_id')
                 ->first();
-            if (!$row) return [];
+            if (! $row) {
+                return [];
+            }
             // Walk up to find the top-level collection
             $collectionId = null;
             $parent = $row->parent_id;
             $depth = 0;
             while ($parent && $depth < 10) {
                 $next = DB::table('information_object')->where('id', $parent)->select('id', 'parent_id')->first();
-                if (!$next) break;
-                if (!$next->parent_id || (int)$next->parent_id === 1) {
-                    $collectionId = (int)$next->id;
+                if (! $next) {
+                    break;
+                }
+                if (! $next->parent_id || (int) $next->parent_id === 1) {
+                    $collectionId = (int) $next->id;
                     break;
                 }
                 $parent = $next->parent_id;
                 $depth++;
             }
+
             return [
-                'repository_id'           => $row->repository_id ? (int)$row->repository_id : null,
-                'level_of_description_id' => $row->level_of_description_id ? (int)$row->level_of_description_id : null,
-                'collection_id'           => $collectionId,
+                'repository_id' => $row->repository_id ? (int) $row->repository_id : null,
+                'level_of_description_id' => $row->level_of_description_id ? (int) $row->level_of_description_id : null,
+                'collection_id' => $collectionId,
             ];
         }
+
         return [];
     }
 
     private function loadCurrentValues(object $template, string $entityType, int $entityId): array
     {
         $values = [];
-        $mappings = $this->forms->getMappingsForTemplate((int)$template->id);
+        $mappings = $this->forms->getMappingsForTemplate((int) $template->id);
 
         // Pre-load distinct tables once, then read columns from cache
         $cache = [];
         foreach (($template->fields ?? []) as $field) {
-            $maps = $mappings[(int)$field->id] ?? [];
+            $maps = $mappings[(int) $field->id] ?? [];
             foreach ($maps as $m) {
-                $key = $m->target_table . '|' . ($m->is_i18n ? ($m->culture ?: 'en') : '');
-                if (!isset($cache[$key])) {
-                    $cache[$key] = $this->readRow($entityType, $entityId, $m->target_table, (int)$m->is_i18n, $m->culture ?: 'en');
+                $key = $m->target_table.'|'.($m->is_i18n ? ($m->culture ?: 'en') : '');
+                if (! isset($cache[$key])) {
+                    $cache[$key] = $this->readRow($entityType, $entityId, $m->target_table, (int) $m->is_i18n, $m->culture ?: 'en');
                 }
                 $row = $cache[$key];
                 if ($row && property_exists($row, $m->target_column)) {
@@ -189,6 +196,7 @@ class TemplateEditController extends Controller
                 }
             }
         }
+
         return $values;
     }
 
@@ -199,6 +207,7 @@ class TemplateEditController extends Controller
         if ($isI18n) {
             $q->where('culture', $culture);
         }
+
         return $q->first();
     }
 
@@ -243,36 +252,45 @@ class TemplateEditController extends Controller
         try {
             $cols = DB::getSchemaBuilder()->getColumnListing($table);
             foreach ($candidates as $c) {
-                if (in_array($c, $cols, true)) return $c;
+                if (in_array($c, $cols, true)) {
+                    return $c;
+                }
             }
         } catch (\Throwable $e) {
             // fall through
         }
+
         return 'object_id';
     }
 
     private function normaliseValue($raw, string $type)
     {
-        if (is_null($raw)) return null;
+        if (is_null($raw)) {
+            return null;
+        }
+
         return match ($type) {
-            'number'   => is_numeric($raw) ? $raw + 0 : null,
-            'checkbox' => ((string)$raw === '1' || $raw === true) ? 1 : 0,
-            'date'     => $raw ?: null,
-            default    => is_string($raw) ? trim($raw) : $raw,
+            'number' => is_numeric($raw) ? $raw + 0 : null,
+            'checkbox' => ((string) $raw === '1' || $raw === true) ? 1 : 0,
+            'date' => $raw ?: null,
+            default => is_string($raw) ? trim($raw) : $raw,
         };
     }
 
     private function applyTransformation($value, ?string $transformation, $config)
     {
-        if (!$transformation) return $value;
+        if (! $transformation) {
+            return $value;
+        }
         $cfg = is_string($config) ? json_decode($config, true) : ($config ?? []);
+
         return match ($transformation) {
-            'upper'      => is_string($value) ? mb_strtoupper($value) : $value,
-            'lower'      => is_string($value) ? mb_strtolower($value) : $value,
-            'trim'       => is_string($value) ? trim($value) : $value,
+            'upper' => is_string($value) ? mb_strtoupper($value) : $value,
+            'lower' => is_string($value) ? mb_strtolower($value) : $value,
+            'trim' => is_string($value) ? trim($value) : $value,
             'json_array' => is_string($value) ? json_decode($value, true) : $value,
-            'prefix'     => is_string($value) && !empty($cfg['prefix']) ? $cfg['prefix'] . $value : $value,
-            default      => $value,
+            'prefix' => is_string($value) && ! empty($cfg['prefix']) ? $cfg['prefix'].$value : $value,
+            default => $value,
         };
     }
 
@@ -280,8 +298,10 @@ class TemplateEditController extends Controller
     {
         if ($entityType === 'information_object') {
             $slug = DB::table('slug')->where('object_id', $entityId)->value('slug');
-            return $slug ? url('/' . $slug) : url('/informationobject/' . $entityId);
+
+            return $slug ? url('/'.$slug) : url('/informationobject/'.$entityId);
         }
+
         return url('/');
     }
 
@@ -289,8 +309,10 @@ class TemplateEditController extends Controller
     {
         if ($entityType === 'information_object') {
             $slug = DB::table('slug')->where('object_id', $entityId)->value('slug');
-            return $slug ? url('/informationobject/' . $slug . '/edit') : url('/');
+
+            return $slug ? url('/informationobject/'.$slug.'/edit') : url('/');
         }
+
         return url('/');
     }
 }

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgAccessionManage\Services;
 
 use AhgCore\Constants\TermId;
@@ -46,7 +44,7 @@ class AccessionService
     public function getBySlug(string $slug): ?object
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId) {
+        if (! $objectId) {
             return null;
         }
 
@@ -178,7 +176,7 @@ class AccessionService
      */
     public function getTermName(?int $termId): ?string
     {
-        if (!$termId) {
+        if (! $termId) {
             return null;
         }
 
@@ -227,7 +225,9 @@ class AccessionService
             $resolvedIdentifier = $data['identifier'] ?? null;
             if (empty($resolvedIdentifier)) {
                 $generated = \AhgCore\Services\SectorIdentifierService::next('accession');
-                if ($generated !== null) $resolvedIdentifier = $generated;
+                if ($generated !== null) {
+                    $resolvedIdentifier = $generated;
+                }
             }
 
             // 2. Create accession record
@@ -264,7 +264,7 @@ class AccessionService
             $slug = $baseSlug;
             $counter = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter;
+                $slug = $baseSlug.'-'.$counter;
                 $counter++;
             }
             DB::table('slug')->insert([
@@ -276,6 +276,7 @@ class AccessionService
         });
 
         \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'accession', $this->auditSnapshot((int) $newId));
+
         return (int) $newId;
     }
 
@@ -298,6 +299,7 @@ class AccessionService
                 'location_information', 'physical_characteristics', 'processing_notes',
                 'received_extent_units', 'source_of_acquisition')
             ->first() ?? []);
+
         return array_merge($acc, $i18n);
     }
 
@@ -317,7 +319,7 @@ class AccessionService
                     $accessionUpdate[$field] = $data[$field];
                 }
             }
-            if (!empty($accessionUpdate)) {
+            if (! empty($accessionUpdate)) {
                 DB::table('accession')->where('id', $id)->update($accessionUpdate);
             }
 
@@ -333,7 +335,7 @@ class AccessionService
                     $i18nData[$field] = $data[$field];
                 }
             }
-            if (!empty($i18nData)) {
+            if (! empty($i18nData)) {
                 $exists = DB::table('accession_i18n')
                     ->where('id', $id)
                     ->where('culture', $this->culture)
@@ -373,7 +375,7 @@ class AccessionService
         DB::transaction(function () use ($id) {
             // 1. Delete deaccessions
             $deaccessionIds = DB::table('deaccession')->where('accession_id', $id)->pluck('id')->toArray();
-            if (!empty($deaccessionIds)) {
+            if (! empty($deaccessionIds)) {
                 DB::table('deaccession_i18n')->whereIn('id', $deaccessionIds)->delete();
                 DB::table('deaccession')->whereIn('id', $deaccessionIds)->delete();
             }
@@ -384,7 +386,7 @@ class AccessionService
                 ->orWhere('object_id', $id)
                 ->pluck('id')
                 ->toArray();
-            if (!empty($relationIds)) {
+            if (! empty($relationIds)) {
                 DB::table('relation_i18n')->whereIn('id', $relationIds)->delete();
                 DB::table('relation')->whereIn('id', $relationIds)->delete();
                 DB::table('slug')->whereIn('object_id', $relationIds)->delete();
@@ -679,12 +681,14 @@ class AccessionService
         // ahg_settings columns are setting_key / setting_value (not the
         // shorter name/value the helper used in the first draft).
         $row = DB::table('ahg_settings')->where('setting_key', $key)->first();
+
         return $row ? $row->setting_value : $default;
     }
 
     private function settingBool(string $key, bool $default = false): bool
     {
         $v = $this->settingValue($key, $default ? 'true' : 'false');
+
         return in_array(strtolower((string) $v), ['1', 'true', 'yes', 'on'], true);
     }
 
@@ -716,13 +720,15 @@ class AccessionService
         $maxSeq = 0;
         if ($prefix !== '') {
             $rows = DB::table('accession')
-                ->where('identifier', 'LIKE', $prefix . '%')
+                ->where('identifier', 'LIKE', $prefix.'%')
                 ->pluck('identifier');
             foreach ($rows as $ident) {
                 $tail = substr((string) $ident, strlen($prefix));
                 if (preg_match('/^(\d+)/', $tail, $m)) {
                     $n = (int) $m[1];
-                    if ($n > $maxSeq) $maxSeq = $n;
+                    if ($n > $maxSeq) {
+                        $maxSeq = $n;
+                    }
                 }
             }
         }
@@ -732,6 +738,7 @@ class AccessionService
         $rendered = preg_replace_callback('/\{(#+)\}/', function ($m) use ($next) {
             return str_pad((string) $next, strlen($m[1]), '0', STR_PAD_LEFT);
         }, $rendered);
+
         return (string) $rendered;
     }
 
@@ -743,7 +750,10 @@ class AccessionService
     public function defaultPriorityTermId(): ?int
     {
         $name = (string) $this->settingValue('accession_default_priority', '');
-        if ($name === '') return null;
+        if ($name === '') {
+            return null;
+        }
+
         return DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
             ->where('term.taxonomy_id', 64)
@@ -801,7 +811,9 @@ class AccessionService
                 ->where('accession_id', $accessionId)
                 ->where('category', 'donor_agreement')
                 ->exists();
-            if (!$hasAgreement) $blockers[] = 'Donor agreement attachment missing';
+            if (! $hasAgreement) {
+                $blockers[] = 'Donor agreement attachment missing';
+            }
         }
 
         if ($this->settingBool('accession_require_appraisal')) {
@@ -809,7 +821,9 @@ class AccessionService
                 ->where('accession_id', $accessionId)
                 ->where('recommendation', '!=', 'pending')
                 ->exists();
-            if (!$hasAppraisal) $blockers[] = 'Appraisal not completed';
+            if (! $hasAppraisal) {
+                $blockers[] = 'Appraisal not completed';
+            }
         }
 
         return $blockers;
@@ -825,7 +839,9 @@ class AccessionService
      */
     public function inheritRightsToIo(int $accessionId, int $ioId): int
     {
-        if (!$this->rightsInheritanceEnabled()) return 0;
+        if (! $this->rightsInheritanceEnabled()) {
+            return 0;
+        }
 
         // accession_rights_inherited is a join table (rights_id +
         // information_object_id), not a copy. Idempotent: skip rows that
@@ -843,15 +859,16 @@ class AccessionService
                 ->where('rights_id', $r->id)
                 ->where('information_object_id', $ioId)
                 ->exists();
-            if (!$exists) {
+            if (! $exists) {
                 DB::table('accession_rights_inherited')->insert([
-                    'rights_id'             => $r->id,
+                    'rights_id' => $r->id,
                     'information_object_id' => $ioId,
-                    'applied_by'            => auth()->id(),
+                    'applied_by' => auth()->id(),
                 ]);
                 $applied++;
             }
         }
+
         return $applied;
     }
 }

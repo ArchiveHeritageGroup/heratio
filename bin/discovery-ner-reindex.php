@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * discovery-ner-reindex — denormalise atom.ahg_ner_entity into the
  * heratio_qubitinformationobject ES index so the entity strategy can move
@@ -24,13 +25,12 @@
  *   php bin/discovery-ner-reindex.php --dry-run          # plan only, no writes
  *   php bin/discovery-ner-reindex.php --object-id=91126  # one IO (debug)
  */
-
-const ES_HOST    = 'http://localhost:9200';
-const ES_INDEX   = 'heratio_qubitinformationobject';
+const ES_HOST = 'http://localhost:9200';
+const ES_INDEX = 'heratio_qubitinformationobject';
 const MAX_PER_IO = 200;  // cap multi-valued field length per IO
 
-require_once __DIR__ . '/../vendor/autoload.php';
-$app = require __DIR__ . '/../bootstrap/app.php';
+require_once __DIR__.'/../vendor/autoload.php';
+$app = require __DIR__.'/../bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 use Illuminate\Support\Facades\DB;
@@ -44,31 +44,35 @@ if ($opts['object-id'] > 0) {
         echo "no entities for object_id={$opts['object-id']}\n";
         exit(0);
     }
-    echo json_encode($row, JSON_PRETTY_PRINT) . "\n";
+    echo json_encode($row, JSON_PRETTY_PRINT)."\n";
     if (! $opts['dry-run']) {
         $resp = bulkUpdate([$row]);
-        echo "ES update: " . (empty($resp['errors']) ? 'ok' : 'errors=' . countErrors($resp)) . "\n";
+        echo 'ES update: '.(empty($resp['errors']) ? 'ok' : 'errors='.countErrors($resp))."\n";
     }
     exit(0);
 }
 
-$startId       = (int) $opts['since-id'];
-$batchSize     = (int) $opts['batch'];
-$totalIos      = 0;
+$startId = (int) $opts['since-id'];
+$batchSize = (int) $opts['batch'];
+$totalIos = 0;
 $totalEntities = 0;
-$totalBatches  = 0;
-$totalErrors   = 0;
-$tStart        = microtime(true);
+$totalBatches = 0;
+$totalErrors = 0;
+$tStart = microtime(true);
 
 while (true) {
     $batch = fetchBatch($conn, $startId, $batchSize);
-    if (empty($batch)) break;
+    if (empty($batch)) {
+        break;
+    }
 
     $totalBatches++;
     $totalIos += count($batch);
     foreach ($batch as $r) {
         $totalEntities += $r['nerEntityCount'];
-        if ($r['object_id'] > $startId) $startId = $r['object_id'];
+        if ($r['object_id'] > $startId) {
+            $startId = $r['object_id'];
+        }
     }
 
     if ($opts['dry-run']) {
@@ -104,7 +108,6 @@ printf("\nDONE: %d IOs, %d entities, %d batches, %d errors, %.0f s wall, %.1f io
     $totalIos, $totalEntities, $totalBatches, $totalErrors, $elapsed, $totalIos / max($elapsed, 0.001));
 exit($totalErrors > 0 ? 1 : 0);
 
-
 function fetchBatch($conn, int $sinceId, int $limit): array
 {
     // Step 1 — pull next $limit distinct object_ids strictly greater than cursor.
@@ -112,11 +115,13 @@ function fetchBatch($conn, int $sinceId, int $limit): array
         'SELECT DISTINCT object_id FROM ahg_ner_entity
          WHERE status IN ("approved","pending") AND object_id > ?
          ORDER BY object_id ASC
-         LIMIT ' . (int) $limit,
+         LIMIT '.(int) $limit,
         [$sinceId]
     );
-    if (empty($idRows)) return [];
-    $ids = array_map(fn($r) => (int) $r->object_id, $idRows);
+    if (empty($idRows)) {
+        return [];
+    }
+    $ids = array_map(fn ($r) => (int) $r->object_id, $idRows);
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
 
     // Step 2 — pull all entities for those IDs, ordered for stable aggregation.
@@ -149,14 +154,17 @@ function fetchBatch($conn, int $sinceId, int $limit): array
 
     $out = [];
     foreach ($ids as $oid) {
-        if (! isset($byIo[$oid])) continue;
+        if (! isset($byIo[$oid])) {
+            continue;
+        }
         $out[] = [
-            'object_id'       => $oid,
+            'object_id' => $oid,
             'nerEntityValues' => $byIo[$oid]['values'],
-            'nerEntityTypes'  => $byIo[$oid]['types'],
-            'nerEntityCount'  => $byIo[$oid]['cnt'],
+            'nerEntityTypes' => $byIo[$oid]['types'],
+            'nerEntityCount' => $byIo[$oid]['cnt'],
         ];
     }
+
     return $out;
 }
 
@@ -167,22 +175,30 @@ function fetchOne($conn, int $objectId): ?array
          FROM ahg_ner_entity
          WHERE object_id = ? AND status IN ('approved','pending')
          ORDER BY confidence DESC, id ASC
-         LIMIT " . (MAX_PER_IO * 4),
+         LIMIT ".(MAX_PER_IO * 4),
         [$objectId]
     );
-    if (empty($rows)) return null;
-    $values = []; $types = [];
+    if (empty($rows)) {
+        return null;
+    }
+    $values = [];
+    $types = [];
     foreach ($rows as $r) {
         $v = trim((string) $r->entity_value);
         $t = trim((string) $r->entity_type);
-        if ($v !== '' && count($values) < MAX_PER_IO && ! in_array($v, $values, true)) $values[] = $v;
-        if ($t !== '' && ! in_array($t, $types, true)) $types[] = $t;
+        if ($v !== '' && count($values) < MAX_PER_IO && ! in_array($v, $values, true)) {
+            $values[] = $v;
+        }
+        if ($t !== '' && ! in_array($t, $types, true)) {
+            $types[] = $t;
+        }
     }
+
     return [
-        'object_id'       => $objectId,
+        'object_id' => $objectId,
         'nerEntityValues' => $values,
-        'nerEntityTypes'  => $types,
-        'nerEntityCount'  => count($rows),
+        'nerEntityTypes' => $types,
+        'nerEntityCount' => count($rows),
     ];
 }
 
@@ -191,16 +207,16 @@ function bulkUpdate(array $batch): array
     $body = '';
     foreach ($batch as $r) {
         $action = ['update' => ['_index' => ES_INDEX, '_id' => (string) $r['object_id'], 'retry_on_conflict' => 3]];
-        $doc    = ['doc' => [
+        $doc = ['doc' => [
             'nerEntityValues' => $r['nerEntityValues'],
-            'nerEntityTypes'  => $r['nerEntityTypes'],
-            'nerEntityCount'  => $r['nerEntityCount'],
+            'nerEntityTypes' => $r['nerEntityTypes'],
+            'nerEntityCount' => $r['nerEntityCount'],
         ]];
-        $body .= json_encode($action) . "\n" . json_encode($doc) . "\n";
+        $body .= json_encode($action)."\n".json_encode($doc)."\n";
     }
     $cmd = sprintf(
         'curl -s --max-time 60 -X POST %s -H %s --data-binary @- 2>/dev/null',
-        escapeshellarg(ES_HOST . '/_bulk'),
+        escapeshellarg(ES_HOST.'/_bulk'),
         escapeshellarg('Content-Type: application/x-ndjson')
     );
     $proc = proc_open($cmd, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
@@ -210,39 +226,51 @@ function bulkUpdate(array $batch): array
     fclose($pipes[1]);
     fclose($pipes[2]);
     proc_close($proc);
+
     return json_decode((string) $resp, true) ?: ['errors' => true, 'items' => []];
 }
 
 function countErrors(array $resp): int
 {
-    if (empty($resp['errors'])) return 0;
+    if (empty($resp['errors'])) {
+        return 0;
+    }
     $n = 0;
     foreach (($resp['items'] ?? []) as $item) {
-        if (! empty($item['update']['error'])) $n++;
+        if (! empty($item['update']['error'])) {
+            $n++;
+        }
     }
+
     return $n;
 }
 
 function parseArgs(array $argv): array
 {
     $opts = [
-        'batch'     => 1000,
-        'since-id'  => 0,
+        'batch' => 1000,
+        'since-id' => 0,
         'object-id' => 0,
-        'dry-run'   => false,
+        'dry-run' => false,
     ];
     foreach (array_slice($argv, 1) as $arg) {
         if ($arg === '--help' || $arg === '-h') {
             echo "Usage: php bin/discovery-ner-reindex.php [--batch=N] [--since-id=N] [--object-id=N] [--dry-run]\n";
             exit(0);
         }
-        if ($arg === '--dry-run') { $opts['dry-run'] = true; continue; }
+        if ($arg === '--dry-run') {
+            $opts['dry-run'] = true;
+
+            continue;
+        }
         if (preg_match('/^--([a-z-]+)=(.*)$/', $arg, $m) && array_key_exists($m[1], $opts)) {
             $opts[$m[1]] = is_int($opts[$m[1]]) ? (int) $m[2] : $m[2];
+
             continue;
         }
         fwrite(STDERR, "ERROR: bad argument: {$arg}\n");
         exit(2);
     }
+
     return $opts;
 }

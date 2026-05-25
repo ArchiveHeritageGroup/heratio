@@ -54,13 +54,15 @@ class SharePointMappingService
         if (str_contains($sourceField, '.')) {
             $current = $driveItem;
             foreach (explode('.', $sourceField) as $part) {
-                if (!is_array($current) || !array_key_exists($part, $current)) {
+                if (! is_array($current) || ! array_key_exists($part, $current)) {
                     return null;
                 }
                 $current = $current[$part];
             }
+
             return $current;
         }
+
         return $driveItem[$sourceField] ?? null;
     }
 
@@ -69,6 +71,7 @@ class SharePointMappingService
         if ($value === null) {
             return null;
         }
+
         return match ($transform) {
             'date_iso' => $this->toIsoDate((string) $value),
             'html_strip' => trim(strip_tags((string) $value)),

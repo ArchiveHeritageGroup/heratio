@@ -44,38 +44,38 @@ class Ead3Serializer
     public function serializeRecord(int $objectId, string $culture = 'en', bool $includeChildren = true): string
     {
         $io = $this->fetchIo($objectId, $culture);
-        if (!$io) {
+        if (! $io) {
             return '';
         }
 
         $repository = $this->fetchRepository($io, $culture);
-        $events     = $this->fetchEvents($io, $culture);
-        $creators   = $this->fetchCreators($io, $culture);
-        $subjects   = $this->fetchAccessPoints($io, 35, $culture);
-        $places     = $this->fetchAccessPoints($io, 42, $culture);
-        $genres     = $this->fetchAccessPoints($io, 78, $culture);
-        $levelName  = $this->fetchLevelName($io, $culture);
-        $children   = $includeChildren ? $this->fetchDescendants($io, $culture) : collect();
+        $events = $this->fetchEvents($io, $culture);
+        $creators = $this->fetchCreators($io, $culture);
+        $subjects = $this->fetchAccessPoints($io, 35, $culture);
+        $places = $this->fetchAccessPoints($io, 42, $culture);
+        $genres = $this->fetchAccessPoints($io, 78, $culture);
+        $levelName = $this->fetchLevelName($io, $culture);
+        $children = $includeChildren ? $this->fetchDescendants($io, $culture) : collect();
 
         $eadLevel = $this->mapLevelToEad($levelName);
         $dateNormal = gmdate('Y-m-d');
 
-        $xml  = '<ead xmlns="' . $this->getNamespace() . '"';
+        $xml = '<ead xmlns="'.$this->getNamespace().'"';
         $xml .= ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"';
         $xml .= ' xmlns:xlink="http://www.w3.org/1999/xlink"';
-        $xml .= ' xsi:schemaLocation="' . $this->getNamespace() . ' ' . $this->getSchemaUrl() . '">' . "\n";
+        $xml .= ' xsi:schemaLocation="'.$this->getNamespace().' '.$this->getSchemaUrl().'">'."\n";
 
         // Control element (EAD3 replaces eadheader)
         $xml .= "<control>\n";
-        $xml .= "  <recordid>" . $this->escXml($io->identifier ?: $io->slug ?: (string) $io->id) . "</recordid>\n";
+        $xml .= '  <recordid>'.$this->escXml($io->identifier ?: $io->slug ?: (string) $io->id)."</recordid>\n";
         $xml .= "  <filedesc>\n";
-        $xml .= "    <titlestmt><titleproper>" . $this->escXml($io->title) . "</titleproper></titlestmt>\n";
+        $xml .= '    <titlestmt><titleproper>'.$this->escXml($io->title)."</titleproper></titlestmt>\n";
         if ($repository) {
-            $xml .= "    <publicationstmt><publisher>" . $this->escXml($repository->name) . "</publisher></publicationstmt>\n";
+            $xml .= '    <publicationstmt><publisher>'.$this->escXml($repository->name)."</publisher></publicationstmt>\n";
         }
         $xml .= "  </filedesc>\n";
         $xml .= "  <maintenancestatus value=\"derived\"/>\n";
-        $xml .= "  <maintenanceagency><agencyname>" . $this->escXml(config('app.name', 'Heratio')) . "</agencyname></maintenanceagency>\n";
+        $xml .= '  <maintenanceagency><agencyname>'.$this->escXml(config('app.name', 'Heratio'))."</agencyname></maintenanceagency>\n";
         $xml .= "  <maintenancehistory>\n";
         $xml .= "    <maintenanceevent>\n";
         $xml .= "      <eventtype value=\"derived\"/>\n";
@@ -90,26 +90,26 @@ class Ead3Serializer
         $xml .= "<archdesc level=\"{$eadLevel}\">\n";
         $xml .= "  <did>\n";
         if ($io->identifier) {
-            $xml .= "    <unitid>" . $this->escXml($io->identifier) . "</unitid>\n";
+            $xml .= '    <unitid>'.$this->escXml($io->identifier)."</unitid>\n";
         }
-        $xml .= "    <unittitle>" . $this->escXml($io->title) . "</unittitle>\n";
+        $xml .= '    <unittitle>'.$this->escXml($io->title)."</unittitle>\n";
 
         foreach ($events as $event) {
             $dateStr = $event->date_display ?? '';
-            if (!$event->start_date && !$event->end_date && !$dateStr) {
+            if (! $event->start_date && ! $event->end_date && ! $dateStr) {
                 continue;
             }
             if ($event->start_date && $event->end_date) {
                 $xml .= "    <unitdatestructured unitdatetype=\"inclusive\">\n";
-                $xml .= "      <daterange><fromdate standarddate=\"" . $this->escXml($event->start_date) . "\">" . $this->escXml($event->start_date) . "</fromdate>";
-                $xml .= "<todate standarddate=\"" . $this->escXml($event->end_date) . "\">" . $this->escXml($event->end_date) . "</todate></daterange>\n";
+                $xml .= '      <daterange><fromdate standarddate="'.$this->escXml($event->start_date).'">'.$this->escXml($event->start_date).'</fromdate>';
+                $xml .= '<todate standarddate="'.$this->escXml($event->end_date).'">'.$this->escXml($event->end_date)."</todate></daterange>\n";
                 $xml .= "    </unitdatestructured>\n";
             } elseif ($event->start_date) {
                 $xml .= "    <unitdatestructured>\n";
-                $xml .= "      <datesingle standarddate=\"" . $this->escXml($event->start_date) . "\">" . $this->escXml($dateStr ?: $event->start_date) . "</datesingle>\n";
+                $xml .= '      <datesingle standarddate="'.$this->escXml($event->start_date).'">'.$this->escXml($dateStr ?: $event->start_date)."</datesingle>\n";
                 $xml .= "    </unitdatestructured>\n";
             } elseif ($dateStr) {
-                $xml .= "    <unitdate>" . $this->escXml($dateStr) . "</unitdate>\n";
+                $xml .= '    <unitdate>'.$this->escXml($dateStr)."</unitdate>\n";
             }
         }
 
@@ -117,69 +117,69 @@ class Ead3Serializer
             $localType = match ((int) ($creator->entity_type_id ?? 0)) {
                 132 => 'persname', 130 => 'famname', 131 => 'corpname', default => 'name',
             };
-            $xml .= "    <origination><{$localType}><part>" . $this->escXml($creator->name) . "</part></{$localType}></origination>\n";
+            $xml .= "    <origination><{$localType}><part>".$this->escXml($creator->name)."</part></{$localType}></origination>\n";
         }
 
         if ($io->extent_and_medium) {
             $xml .= "    <physdescstructured physdescstructuredtype=\"spaceoccupied\" coverage=\"whole\">\n";
-            $xml .= "      <quantity>1</quantity><unittype>" . $this->escXml($io->extent_and_medium) . "</unittype>\n";
+            $xml .= '      <quantity>1</quantity><unittype>'.$this->escXml($io->extent_and_medium)."</unittype>\n";
             $xml .= "    </physdescstructured>\n";
         }
         if ($repository) {
-            $xml .= "    <repository><corpname><part>" . $this->escXml($repository->name) . "</part></corpname></repository>\n";
+            $xml .= '    <repository><corpname><part>'.$this->escXml($repository->name)."</part></corpname></repository>\n";
         }
         $xml .= "  </did>\n";
 
         if ($io->scope_and_content) {
-            $xml .= "  <scopecontent><p>" . $this->escXml($io->scope_and_content) . "</p></scopecontent>\n";
+            $xml .= '  <scopecontent><p>'.$this->escXml($io->scope_and_content)."</p></scopecontent>\n";
         }
         if ($io->arrangement) {
-            $xml .= "  <arrangement><p>" . $this->escXml($io->arrangement) . "</p></arrangement>\n";
+            $xml .= '  <arrangement><p>'.$this->escXml($io->arrangement)."</p></arrangement>\n";
         }
         if ($io->access_conditions) {
-            $xml .= "  <accessrestrict><p>" . $this->escXml($io->access_conditions) . "</p></accessrestrict>\n";
+            $xml .= '  <accessrestrict><p>'.$this->escXml($io->access_conditions)."</p></accessrestrict>\n";
         }
         if ($io->reproduction_conditions) {
-            $xml .= "  <userestrict><p>" . $this->escXml($io->reproduction_conditions) . "</p></userestrict>\n";
+            $xml .= '  <userestrict><p>'.$this->escXml($io->reproduction_conditions)."</p></userestrict>\n";
         }
         if ($io->archival_history) {
-            $xml .= "  <custodhist><p>" . $this->escXml($io->archival_history) . "</p></custodhist>\n";
+            $xml .= '  <custodhist><p>'.$this->escXml($io->archival_history)."</p></custodhist>\n";
         }
         if ($io->acquisition) {
-            $xml .= "  <acqinfo><p>" . $this->escXml($io->acquisition) . "</p></acqinfo>\n";
+            $xml .= '  <acqinfo><p>'.$this->escXml($io->acquisition)."</p></acqinfo>\n";
         }
         if ($io->appraisal) {
-            $xml .= "  <appraisal><p>" . $this->escXml($io->appraisal) . "</p></appraisal>\n";
+            $xml .= '  <appraisal><p>'.$this->escXml($io->appraisal)."</p></appraisal>\n";
         }
         if ($io->accruals) {
-            $xml .= "  <accruals><p>" . $this->escXml($io->accruals) . "</p></accruals>\n";
+            $xml .= '  <accruals><p>'.$this->escXml($io->accruals)."</p></accruals>\n";
         }
         if ($io->physical_characteristics) {
-            $xml .= "  <phystech><p>" . $this->escXml($io->physical_characteristics) . "</p></phystech>\n";
+            $xml .= '  <phystech><p>'.$this->escXml($io->physical_characteristics)."</p></phystech>\n";
         }
         if ($io->finding_aids) {
-            $xml .= "  <otherfindaid><p>" . $this->escXml($io->finding_aids) . "</p></otherfindaid>\n";
+            $xml .= '  <otherfindaid><p>'.$this->escXml($io->finding_aids)."</p></otherfindaid>\n";
         }
         if ($io->location_of_originals) {
-            $xml .= "  <originalsloc><p>" . $this->escXml($io->location_of_originals) . "</p></originalsloc>\n";
+            $xml .= '  <originalsloc><p>'.$this->escXml($io->location_of_originals)."</p></originalsloc>\n";
         }
         if ($io->location_of_copies) {
-            $xml .= "  <altformavail><p>" . $this->escXml($io->location_of_copies) . "</p></altformavail>\n";
+            $xml .= '  <altformavail><p>'.$this->escXml($io->location_of_copies)."</p></altformavail>\n";
         }
         if ($io->related_units_of_description) {
-            $xml .= "  <relatedmaterial><p>" . $this->escXml($io->related_units_of_description) . "</p></relatedmaterial>\n";
+            $xml .= '  <relatedmaterial><p>'.$this->escXml($io->related_units_of_description)."</p></relatedmaterial>\n";
         }
 
         if ($subjects->isNotEmpty() || $places->isNotEmpty() || $genres->isNotEmpty()) {
             $xml .= "  <controlaccess>\n";
             foreach ($subjects as $s) {
-                $xml .= "    <subject><part>" . $this->escXml($s->name) . "</part></subject>\n";
+                $xml .= '    <subject><part>'.$this->escXml($s->name)."</part></subject>\n";
             }
             foreach ($places as $p) {
-                $xml .= "    <geogname><part>" . $this->escXml($p->name) . "</part></geogname>\n";
+                $xml .= '    <geogname><part>'.$this->escXml($p->name)."</part></geogname>\n";
             }
             foreach ($genres as $g) {
-                $xml .= "    <genreform><part>" . $this->escXml($g->name) . "</part></genreform>\n";
+                $xml .= '    <genreform><part>'.$this->escXml($g->name)."</part></genreform>\n";
             }
             $xml .= "  </controlaccess>\n";
         }
@@ -198,15 +198,15 @@ class Ead3Serializer
                 $xml .= "    <c level=\"{$childLevel}\">\n";
                 $xml .= "      <did>\n";
                 if ($child->identifier) {
-                    $xml .= "        <unitid>" . $this->escXml($child->identifier) . "</unitid>\n";
+                    $xml .= '        <unitid>'.$this->escXml($child->identifier)."</unitid>\n";
                 }
-                $xml .= "        <unittitle>" . $this->escXml($child->title) . "</unittitle>\n";
+                $xml .= '        <unittitle>'.$this->escXml($child->title)."</unittitle>\n";
                 if ($child->extent_and_medium) {
-                    $xml .= "        <physdesc>" . $this->escXml($child->extent_and_medium) . "</physdesc>\n";
+                    $xml .= '        <physdesc>'.$this->escXml($child->extent_and_medium)."</physdesc>\n";
                 }
                 $xml .= "      </did>\n";
                 if ($child->scope_and_content) {
-                    $xml .= "      <scopecontent><p>" . $this->escXml($child->scope_and_content) . "</p></scopecontent>\n";
+                    $xml .= '      <scopecontent><p>'.$this->escXml($child->scope_and_content)."</p></scopecontent>\n";
                 }
                 if ($child->rgt == $child->lft + 1) {
                     $xml .= "    </c>\n";
@@ -222,6 +222,7 @@ class Ead3Serializer
         }
 
         $xml .= "</archdesc>\n</ead>";
+
         return $xml;
     }
 }

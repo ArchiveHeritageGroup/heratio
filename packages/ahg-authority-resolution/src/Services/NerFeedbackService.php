@@ -58,7 +58,7 @@ class NerFeedbackService
     public function captureFromRejection(int $decisionId, ?string $rejectionReason = null): ?int
     {
         $decision = DB::table('ahg_mention_decision')->where('id', $decisionId)->first();
-        if (!$decision || $decision->decision_type !== 'reject') {
+        if (! $decision || $decision->decision_type !== 'reject') {
             return null;
         }
 
@@ -72,7 +72,7 @@ class NerFeedbackService
                 'm.entity_type',
                 'n.entity_value',
             ]);
-        if (!$mention) {
+        if (! $mention) {
             return null;
         }
 
@@ -112,6 +112,7 @@ class NerFeedbackService
                 'decision_id' => $decisionId,
                 'exception' => $e->getMessage(),
             ]);
+
             return null;
         }
     }
@@ -119,13 +120,13 @@ class NerFeedbackService
     /**
      * Export every unexported ahg_ner_feedback row to a flat training file.
      *
-     * @param  string $format  'jsonl' (default) or 'conll'
+     * @param  string  $format  'jsonl' (default) or 'conll'
      * @return array{count:int,path:string}
      */
     public function exportUnexported(string $format = 'jsonl'): array
     {
         $format = strtolower($format);
-        if (!in_array($format, ['jsonl', 'conll'], true)) {
+        if (! in_array($format, ['jsonl', 'conll'], true)) {
             throw new \InvalidArgumentException("Unknown export format: {$format}");
         }
 
@@ -138,17 +139,18 @@ class NerFeedbackService
         $ts = date('Ymd-His');
         $ext = $format === 'jsonl' ? 'jsonl' : 'conll';
         $relDir = 'auth-res/ner-feedback';
-        $absDir = storage_path('app/' . $relDir);
+        $absDir = storage_path('app/'.$relDir);
 
-        if (!is_dir($absDir)) {
+        if (! is_dir($absDir)) {
             @mkdir($absDir, 0775, true);
         }
 
-        $path = $absDir . '/' . $ts . '.' . $ext;
+        $path = $absDir.'/'.$ts.'.'.$ext;
 
         if ($count === 0) {
             // Still touch the file so caller has a deterministic artefact.
             @file_put_contents($path, '');
+
             return ['count' => 0, 'path' => $path];
         }
 
@@ -162,7 +164,7 @@ class NerFeedbackService
             try {
                 foreach ($rows as $r) {
                     $line = $this->buildJsonlLine($r);
-                    fwrite($fh, $line . "\n");
+                    fwrite($fh, $line."\n");
                     $exportedIds[] = (int) $r->id;
                 }
             } finally {
@@ -188,7 +190,7 @@ class NerFeedbackService
         }
 
         // Mark rows exported in one statement.
-        if (!empty($exportedIds)) {
+        if (! empty($exportedIds)) {
             DB::table('ahg_ner_feedback')
                 ->whereIn('id', $exportedIds)
                 ->update([
@@ -242,7 +244,7 @@ class NerFeedbackService
         // Tokenise whitespace; mark the rejected span best-effort by string match.
         $tokens = preg_split('/\s+/u', trim($text)) ?: [];
         $rejectedTokens = preg_split('/\s+/u', trim($value)) ?: [];
-        $rejTokenCount = count(array_filter($rejectedTokens, fn($t) => $t !== ''));
+        $rejTokenCount = count(array_filter($rejectedTokens, fn ($t) => $t !== ''));
 
         $iSpan = -1;  // index where the rejected span starts (token-aligned)
         if ($rejTokenCount > 0) {
@@ -257,13 +259,13 @@ class NerFeedbackService
 
         foreach ($tokens as $idx => $tok) {
             if ($idx === $iSpan) {
-                $tag = 'B-REJ-' . $type;
+                $tag = 'B-REJ-'.$type;
             } elseif ($iSpan >= 0 && $idx > $iSpan && $idx < $iSpan + $rejTokenCount) {
-                $tag = 'I-REJ-' . $type;
+                $tag = 'I-REJ-'.$type;
             } else {
                 $tag = 'O';
             }
-            fwrite($fh, $tok . "\t" . $tag . "\n");
+            fwrite($fh, $tok."\t".$tag."\n");
         }
         fwrite($fh, "\n");
     }

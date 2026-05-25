@@ -61,8 +61,8 @@ class LoginController extends Controller
         // is the right behaviour for kiosks / testing environments where
         // brute-forcing isn't a concern.
         $lockoutEnabled = SecuritySettings::lockoutEnabled();
-        $maxAttempts    = SecuritySettings::lockoutMaxAttempts();
-        $lockoutMins    = SecuritySettings::lockoutDurationMinutes();
+        $maxAttempts = SecuritySettings::lockoutMaxAttempts();
+        $lockoutMins = SecuritySettings::lockoutDurationMinutes();
 
         if ($lockoutEnabled) {
             $recentFailures = DB::table('login_attempt')
@@ -75,7 +75,7 @@ class LoginController extends Controller
                 $this->recordAttempt($identifier, $ip, false);
 
                 return back()->withErrors([
-                    'email' => 'Too many failed login attempts. Please try again in ' . $lockoutMins . ' minutes.',
+                    'email' => 'Too many failed login attempts. Please try again in '.$lockoutMins.' minutes.',
                 ])->onlyInput('email');
             }
         } else {
@@ -111,6 +111,7 @@ class LoginController extends Controller
             // is in password_history.
             if ($flashMsg = $this->passwordPolicyRedirectReason(Auth::user())) {
                 $request->session()->put('login_redirect_next', $next);
+
                 return redirect()->route('user.password.edit')->with('warning', $flashMsg);
             }
 
@@ -124,7 +125,7 @@ class LoginController extends Controller
         if ($lockoutEnabled) {
             $remaining = $maxAttempts - $recentFailures - 1;
             if ($remaining > 0 && $remaining <= 2) {
-                $errorMsg .= ' ' . $remaining . ' attempt(s) remaining before lockout.';
+                $errorMsg .= ' '.$remaining.' attempt(s) remaining before lockout.';
             }
         }
 
@@ -141,7 +142,9 @@ class LoginController extends Controller
      */
     protected function passwordPolicyRedirectReason($user): ?string
     {
-        if (!$user) return null;
+        if (! $user) {
+            return null;
+        }
 
         $latestChange = DB::table('password_history')
             ->where('user_id', $user->id)
@@ -153,7 +156,7 @@ class LoginController extends Controller
             $expiryDays = SecuritySettings::passwordExpiryDays();
             $expired = \Carbon\Carbon::parse($latestChange)->lt(now()->subDays($expiryDays));
             if ($expired) {
-                return 'Your password is older than ' . $expiryDays . ' days and must be changed.';
+                return 'Your password is older than '.$expiryDays.' days and must be changed.';
             }
         }
 
@@ -161,7 +164,7 @@ class LoginController extends Controller
         // and the user hasn't reset since the baseline timestamp was stamped.
         if (SecuritySettings::forcePasswordChange()) {
             $baseline = SecuritySettings::forcePasswordChangeBaseline();
-            $needsForceChange = !$latestChange
+            $needsForceChange = ! $latestChange
                 || ($baseline && \Carbon\Carbon::parse($latestChange)->lt($baseline));
             if ($needsForceChange) {
                 return 'An administrator has required all users to set a new password.';
@@ -226,11 +229,11 @@ class LoginController extends Controller
             // Send email
             try {
                 $this->configureMailFromDatabase();
-                $resetUrl = url('/user/password-reset/' . $token);
+                $resetUrl = url('/user/password-reset/'.$token);
                 Mail::to($email)->queue(new PasswordResetMail($resetUrl, $user->username ?? $email));
             } catch (\Exception $e) {
                 // Log error but don't reveal to user
-                \Log::error('Password reset email failed: ' . $e->getMessage());
+                \Log::error('Password reset email failed: '.$e->getMessage());
             }
         }
 
@@ -318,8 +321,9 @@ class LoginController extends Controller
         $user = Auth::user();
         $slug = DB::table('slug')->where('object_id', $user->id)->value('slug');
         if ($slug) {
-            return redirect('/user/' . $slug);
+            return redirect('/user/'.$slug);
         }
+
         // Fallback: render the legacy auth.profile view if the user has no slug yet
         return view('auth.profile', compact('user'));
     }
@@ -333,7 +337,7 @@ class LoginController extends Controller
         $user = Auth::user();
         $slug = DB::table('slug')->where('object_id', $user->id)->value('slug');
         if ($slug) {
-            return redirect('/user/' . $slug . '/edit');
+            return redirect('/user/'.$slug.'/edit');
         }
         abort(404);
     }
@@ -347,8 +351,8 @@ class LoginController extends Controller
         $isAdmin = $user->isAdministrator();
 
         $rules = [
-            'username' => 'required|string|max:255|unique:user,username,' . $user->id,
-            'email' => 'required|email|max:255|unique:user,email,' . $user->id,
+            'username' => 'required|string|max:255|unique:user,username,'.$user->id,
+            'email' => 'required|email|max:255|unique:user,email,'.$user->id,
         ];
 
         // Password is optional on edit
@@ -447,7 +451,7 @@ class LoginController extends Controller
         $user = Auth::user();
 
         // Verify current password
-        $currentSha1 = sha1($user->salt . $request->input('current_password'));
+        $currentSha1 = sha1($user->salt.$request->input('current_password'));
         if (! password_verify($currentSha1, $user->password_hash)) {
             return back()->withErrors([
                 'current_password' => 'The current password is incorrect.',
@@ -479,7 +483,7 @@ class LoginController extends Controller
         // The most reliable check: does the new password match any of the last 5 stored hashes?
         // We'd need the original salts for that. So we store an additional check hash.
         // Practical approach: just prevent exact same password as current.
-        $newSha1 = sha1($user->salt . $newPlaintext);
+        $newSha1 = sha1($user->salt.$newPlaintext);
         if (password_verify($newSha1, $user->password_hash)) {
             return back()->withErrors([
                 'password' => 'New password must be different from your current password.',
@@ -577,7 +581,7 @@ class LoginController extends Controller
         $slug = $baseSlug;
         $counter = 1;
         while (DB::table('slug')->where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter++;
+            $slug = $baseSlug.'-'.$counter++;
         }
         DB::table('slug')->insert([
             'object_id' => $objectId,
@@ -641,7 +645,7 @@ class LoginController extends Controller
         ]);
 
         // Create actor_i18n row with first + last name
-        $displayName = trim($request->input('first_name') . ' ' . $request->input('last_name'));
+        $displayName = trim($request->input('first_name').' '.$request->input('last_name'));
         DB::table('actor_i18n')->insert([
             'id' => $objectId,
             'culture' => 'en',
@@ -680,7 +684,7 @@ class LoginController extends Controller
         $slug = $baseSlug;
         $counter = 1;
         while (DB::table('slug')->where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter++;
+            $slug = $baseSlug.'-'.$counter++;
         }
         DB::table('slug')->insert([
             'object_id' => $objectId,
@@ -732,7 +736,7 @@ class LoginController extends Controller
     public static function hashPassword(string $plaintext): array
     {
         $salt = bin2hex(random_bytes(32));
-        $sha1 = sha1($salt . $plaintext);
+        $sha1 = sha1($salt.$plaintext);
         $hash = password_hash($sha1, PASSWORD_DEFAULT);
 
         return ['salt' => $salt, 'password_hash' => $hash];
@@ -777,7 +781,7 @@ class LoginController extends Controller
             ]);
         } catch (\Exception $e) {
             // Table doesn't exist or query failed — fall back to .env
-            \Log::warning('Could not load email settings from database: ' . $e->getMessage());
+            \Log::warning('Could not load email settings from database: '.$e->getMessage());
         }
     }
 }

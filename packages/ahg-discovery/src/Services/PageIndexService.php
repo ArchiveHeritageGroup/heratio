@@ -29,7 +29,9 @@ class PageIndexService
 
     /** Fuseki SPARQL endpoint for RiC-O queries */
     private string $fusekiEndpoint;
+
     private string $fusekiUsername;
+
     private string $fusekiPassword;
 
     /** Cached connection name resolved once per instance (issue #14). */
@@ -110,12 +112,11 @@ class PageIndexService
      * Sets status to 'building', extracts document content, calls LLM to build
      * the tree, then stores it with status 'ready' or 'error'.
      *
-     * @param int    $objectId   The information_object.id or external doc ID
-     * @param string $objectType One of: ead, pdf, rico
-     * @param string $culture    Language culture for i18n fields (default: en)
-     *
+     * @param  int  $objectId  The information_object.id or external doc ID
+     * @param  string  $objectType  One of: ead, pdf, rico
+     * @param  string  $culture  Language culture for i18n fields (default: en)
      * @return array ['success' => bool, 'tree_id' => int|null, 'tree' => array|null,
-     *                'node_count' => int, 'model' => string, 'error' => string|null]
+     *               'node_count' => int, 'model' => string, 'error' => string|null]
      */
     public function buildTree(int $objectId, string $objectType, string $culture = 'en'): array
     {
@@ -152,7 +153,7 @@ class PageIndexService
                 default => throw new \InvalidArgumentException("Unknown object type: {$objectType}"),
             };
 
-            if (!$extraction['success']) {
+            if (! $extraction['success']) {
                 $this->markError($treeId, $extraction['error']);
 
                 return [
@@ -174,7 +175,7 @@ class PageIndexService
                 $extraction['metadata'] ?? []
             );
 
-            if (!$result['success']) {
+            if (! $result['success']) {
                 $this->markError($treeId, $result['error']);
 
                 return [
@@ -229,12 +230,11 @@ class PageIndexService
     /**
      * Query a single PageIndex tree with a natural language query.
      *
-     * @param int    $treeId The ahg_pageindex_tree.id
-     * @param string $query  The user's search query
-     * @param int|null $userId Optional user ID for logging
-     *
+     * @param  int  $treeId  The ahg_pageindex_tree.id
+     * @param  string  $query  The user's search query
+     * @param  int|null  $userId  Optional user ID for logging
      * @return array ['success' => bool, 'matches' => array, 'reasoning' => string,
-     *                'tree_path' => array, 'model' => string, 'error' => string|null]
+     *               'tree_path' => array, 'model' => string, 'error' => string|null]
      */
     public function query(int $treeId, string $query, ?int $userId = null): array
     {
@@ -243,7 +243,7 @@ class PageIndexService
             ->where('status', 'ready')
             ->first();
 
-        if (!$row) {
+        if (! $row) {
             return [
                 'success' => false,
                 'matches' => [],
@@ -255,7 +255,7 @@ class PageIndexService
         }
 
         $tree = json_decode($row->tree_json, true);
-        if (!$tree) {
+        if (! $tree) {
             return [
                 'success' => false,
                 'matches' => [],
@@ -298,11 +298,10 @@ class PageIndexService
     /**
      * Search across all ready trees for a query.
      *
-     * @param string $query       The user's search query
-     * @param string|null $objectType Filter by object type (ead, pdf, rico) or null for all
-     * @param int    $limit       Max trees to search
-     * @param int|null $userId    Optional user ID for logging
-     *
+     * @param  string  $query  The user's search query
+     * @param  string|null  $objectType  Filter by object type (ead, pdf, rico) or null for all
+     * @param  int  $limit  Max trees to search
+     * @param  int|null  $userId  Optional user ID for logging
      * @return array ['success' => bool, 'results' => array, 'total_matches' => int]
      */
     public function searchAll(string $query, ?string $objectType = null, int $limit = 20, ?int $userId = null): array
@@ -324,7 +323,7 @@ class PageIndexService
         foreach ($trees as $treeRow) {
             $result = $this->query((int) $treeRow->id, $query, $userId);
 
-            if ($result['success'] && !empty($result['matches'])) {
+            if ($result['success'] && ! empty($result['matches'])) {
                 $allResults[] = [
                     'tree_id' => (int) $treeRow->id,
                     'object_id' => (int) $treeRow->object_id,
@@ -366,7 +365,7 @@ class PageIndexService
             ->where('object_type', $objectType)
             ->first();
 
-        if (!$row) {
+        if (! $row) {
             return null;
         }
 
@@ -392,7 +391,7 @@ class PageIndexService
             ->where('status', 'ready')
             ->first();
 
-        if (!$row) {
+        if (! $row) {
             return null;
         }
 
@@ -416,7 +415,7 @@ class PageIndexService
             ->join('object as o', 'i.id', '=', 'o.id')
             ->leftJoin('information_object_i18n as i18n', function ($join) use ($culture) {
                 $join->on('i.id', '=', 'i18n.id')
-                     ->where('i18n.culture', $culture);
+                    ->where('i18n.culture', $culture);
             })
             ->where('i.id', $objectId)
             ->select(
@@ -445,7 +444,7 @@ class PageIndexService
             )
             ->first();
 
-        if (!$root) {
+        if (! $root) {
             return ['success' => false, 'text' => '', 'error' => "Information object {$objectId} not found"];
         }
 
@@ -457,7 +456,7 @@ class PageIndexService
             ->join('object as o', 'i.id', '=', 'o.id')
             ->leftJoin('information_object_i18n as i18n', function ($join) use ($culture) {
                 $join->on('i.id', '=', 'i18n.id')
-                     ->where('i18n.culture', $culture);
+                    ->where('i18n.culture', $culture);
             })
             ->where('i.lft', '>', $root->lft)
             ->where('i.rgt', '<', $root->rgt)
@@ -480,7 +479,7 @@ class PageIndexService
         $events = $db->table('event as e')
             ->leftJoin('event_i18n as ei18n', function ($join) use ($culture) {
                 $join->on('e.id', '=', 'ei18n.id')
-                     ->where('ei18n.culture', $culture);
+                    ->where('ei18n.culture', $culture);
             })
             ->where('e.object_id', $objectId)
             ->select('ei18n.date', 'ei18n.name as eventType', 'e.start_date', 'e.end_date')
@@ -490,7 +489,7 @@ class PageIndexService
         $creators = $db->table('event as e')
             ->join('actor_i18n as ai', function ($join) use ($culture) {
                 $join->on('e.actor_id', '=', 'ai.id')
-                     ->where('ai.culture', $culture);
+                    ->where('ai.culture', $culture);
             })
             ->where('e.object_id', $objectId)
             ->where('e.type_id', TermId::EVENT_TYPE_CREATION)
@@ -502,27 +501,27 @@ class PageIndexService
             ->join('repository as r', 'i.repository_id', '=', 'r.id')
             ->join('actor_i18n as ai', function ($join) use ($culture) {
                 $join->on('r.id', '=', 'ai.id')
-                     ->where('ai.culture', $culture);
+                    ->where('ai.culture', $culture);
             })
             ->where('i.id', $objectId)
             ->value('ai.authorized_form_of_name');
 
         // Build text representation
         $parts = [];
-        $parts[] = "Title: " . ($root->title ?? 'Untitled');
-        $parts[] = "Identifier: " . ($root->identifier ?? '');
-        $parts[] = "Level: " . ($levelLabel ?? '');
+        $parts[] = 'Title: '.($root->title ?? 'Untitled');
+        $parts[] = 'Identifier: '.($root->identifier ?? '');
+        $parts[] = 'Level: '.($levelLabel ?? '');
 
         if ($repository) {
             $parts[] = "Repository: {$repository}";
         }
 
         foreach ($creators as $creator) {
-            $parts[] = "Creator: " . $creator->name;
+            $parts[] = 'Creator: '.$creator->name;
         }
 
         foreach ($events as $event) {
-            $dateStr = $event->date ?: trim(($event->start_date ?? '') . ' - ' . ($event->end_date ?? ''), ' -');
+            $dateStr = $event->date ?: trim(($event->start_date ?? '').' - '.($event->end_date ?? ''), ' -');
             if ($dateStr) {
                 $parts[] = "Date: {$dateStr}";
             }
@@ -548,8 +547,8 @@ class PageIndexService
 
         foreach ($fields as $field => $label) {
             $value = $root->$field ?? '';
-            if (!empty(trim(strip_tags($value)))) {
-                $parts[] = "\n{$label}:\n" . strip_tags($value);
+            if (! empty(trim(strip_tags($value)))) {
+                $parts[] = "\n{$label}:\n".strip_tags($value);
             }
         }
 
@@ -558,14 +557,14 @@ class PageIndexService
             $parts[] = "\n--- Child records ({$children->count()}) ---";
             foreach ($children as $child) {
                 $childLevel = $this->getLevelLabel($child->level_of_description_id, $culture);
-                $line = "[{$childLevel}] " . ($child->title ?? 'Untitled');
-                if (!empty($child->identifier)) {
+                $line = "[{$childLevel}] ".($child->title ?? 'Untitled');
+                if (! empty($child->identifier)) {
                     $line .= " ({$child->identifier})";
                 }
                 $parts[] = $line;
                 $scope = strip_tags($child->scopeAndContent ?? '');
-                if (!empty(trim($scope))) {
-                    $parts[] = "  " . mb_substr($scope, 0, 300);
+                if (! empty(trim($scope))) {
+                    $parts[] = '  '.mb_substr($scope, 0, 300);
                 }
             }
         }
@@ -602,7 +601,7 @@ class PageIndexService
             ->select('do.id', 'do.path', 'do.name', 'do.mime_type')
             ->first();
 
-        if (!$digitalObject) {
+        if (! $digitalObject) {
             return ['success' => false, 'text' => '', 'error' => "No digital object found for object {$objectId}"];
         }
 
@@ -610,15 +609,15 @@ class PageIndexService
         $isPdf = str_contains($digitalObject->mime_type ?? '', 'pdf')
             || str_ends_with(strtolower($digitalObject->name ?? ''), '.pdf');
 
-        if (!$isPdf) {
+        if (! $isPdf) {
             return ['success' => false, 'text' => '', 'error' => "Digital object is not a PDF (mime: {$digitalObject->mime_type})"];
         }
 
         // Build the full file path
         $uploadPath = config('heratio.uploads_path');
-        $filePath = rtrim($uploadPath, '/') . '/' . ltrim($digitalObject->path, '/');
+        $filePath = rtrim($uploadPath, '/').'/'.ltrim($digitalObject->path, '/');
 
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             return ['success' => false, 'text' => '', 'error' => "PDF file not found: {$filePath}"];
         }
 
@@ -682,7 +681,7 @@ class PageIndexService
         $ch = curl_init();
 
         curl_setopt_array($ch, [
-            CURLOPT_URL => rtrim($this->ocrEndpoint, '/') . '/ocr/extract',
+            CURLOPT_URL => rtrim($this->ocrEndpoint, '/').'/ocr/extract',
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => [
                 'file' => new \CURLFile($filePath, 'application/pdf', basename($filePath)),
@@ -690,7 +689,7 @@ class PageIndexService
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 120,
             CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_HTTPHEADER => $apiKey !== '' ? ['Authorization: Bearer ' . $apiKey] : [],
+            CURLOPT_HTTPHEADER => $apiKey !== '' ? ['Authorization: Bearer '.$apiKey] : [],
         ]);
 
         $response = curl_exec($ch);
@@ -718,7 +717,7 @@ class PageIndexService
         }
 
         // If response is plain text
-        if (is_string($response) && !empty(trim($response))) {
+        if (is_string($response) && ! empty(trim($response))) {
             return $response;
         }
 
@@ -735,7 +734,7 @@ class PageIndexService
     private function extractRicoContent(int $objectId): array
     {
         $baseUri = 'https://archives.theahg.co.za/ric/';
-        $entityUri = $baseUri . 'informationobject/' . $objectId;
+        $entityUri = $baseUri.'informationobject/'.$objectId;
 
         // Query all triples for this entity and its related entities
         $sparql = <<<SPARQL
@@ -785,7 +784,7 @@ SPARQL;
         // Build text representation
         $parts = [];
         $parts[] = "RiC-O Entity: {$entityUri}";
-        $parts[] = "";
+        $parts[] = '';
 
         // Group properties
         $properties = [];
@@ -802,11 +801,11 @@ SPARQL;
         }
 
         foreach ($properties as $pred => $values) {
-            $parts[] = "{$pred}: " . implode('; ', array_unique($values));
+            $parts[] = "{$pred}: ".implode('; ', array_unique($values));
         }
 
         // Add related entities
-        if (!empty($relatedBindings)) {
+        if (! empty($relatedBindings)) {
             $parts[] = "\n--- Related Entities ---";
             $seen = [];
             foreach ($relatedBindings as $binding) {
@@ -820,7 +819,7 @@ SPARQL;
                 $label = $binding['relatedLabel']['value'] ?? '';
                 $type = preg_replace('#^.*/([^/]+)$#', '$1', $binding['relatedType']['value'] ?? '');
 
-                $line = "[{$relation}] " . ($label ?: $related);
+                $line = "[{$relation}] ".($label ?: $related);
                 if ($type) {
                     $line .= " ({$type})";
                 }
@@ -854,7 +853,7 @@ SPARQL;
      */
     private function executeSparqlQuery(string $sparql): array
     {
-        $ch = curl_init($this->fusekiEndpoint . '/query');
+        $ch = curl_init($this->fusekiEndpoint.'/query');
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $sparql,
@@ -874,7 +873,7 @@ SPARQL;
         curl_close($ch);
 
         if ($error || $response === false || $response === '') {
-            error_log("[PageIndex] SPARQL query error: " . ($error ?: "HTTP {$httpCode}"));
+            error_log('[PageIndex] SPARQL query error: '.($error ?: "HTTP {$httpCode}"));
 
             return [];
         }
@@ -899,7 +898,7 @@ SPARQL;
      */
     private function getLevelLabel(?int $termId, string $culture): string
     {
-        if (!$termId) {
+        if (! $termId) {
             return '';
         }
 
@@ -943,7 +942,7 @@ SPARQL;
                 'created_at' => now(),
             ]);
         } catch (\Exception $e) {
-            error_log("[PageIndex] Failed to log query: " . $e->getMessage());
+            error_log('[PageIndex] Failed to log query: '.$e->getMessage());
         }
     }
 
@@ -966,7 +965,7 @@ SPARQL;
 
         foreach ($node['children'] ?? [] as $child) {
             $result = $this->findNodePath($child, $targetId, $currentPath);
-            if (!empty($result)) {
+            if (! empty($result)) {
                 return $result;
             }
         }

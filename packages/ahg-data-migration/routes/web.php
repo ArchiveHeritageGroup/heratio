@@ -9,13 +9,13 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/data-migration',
         [DataMigrationController::class, 'index'])->name('data-migration.index');
 
-    Route::match(['get','post'], '/admin/data-migration/import',
+    Route::match(['get', 'post'], '/admin/data-migration/import',
         [DataMigrationController::class, 'import'])->name('data-migration.import');
 
-    Route::match(['get','post'], '/admin/data-migration/export',
+    Route::match(['get', 'post'], '/admin/data-migration/export',
         [DataMigrationController::class, 'export'])->name('data-migration.export');
 
-    Route::match(['get','post'], '/admin/data-migration/upload',
+    Route::match(['get', 'post'], '/admin/data-migration/upload',
         [DataMigrationController::class, 'upload'])->name('data-migration.upload');
 
     Route::get('/admin/data-migration/map',
@@ -61,13 +61,13 @@ Route::middleware('admin')->group(function () {
         [DataMigrationController::class, 'importMapping'])->name('data-migration.import-mapping');
 
     // ── Preservica ───────────────────────────────────────────
-    Route::match(['get','post'], '/admin/data-migration/preservica/import',
+    Route::match(['get', 'post'], '/admin/data-migration/preservica/import',
         [DataMigrationController::class, 'preservicaImport'])->name('data-migration.preservica-import');
 
-    Route::match(['get','post'], '/admin/data-migration/preservica/export',
+    Route::match(['get', 'post'], '/admin/data-migration/preservica/export',
         [DataMigrationController::class, 'preservicaExport'])->name('data-migration.preservica-export');
 
-    Route::match(['get','post'], '/admin/data-migration/preservica/export/{id}',
+    Route::match(['get', 'post'], '/admin/data-migration/preservica/export/{id}',
         [DataMigrationController::class, 'preservicaExport'])->name('data-migration.preservica-export-id')
         ->whereNumber('id');
 
@@ -117,7 +117,7 @@ Route::middleware('admin')->group(function () {
         [DataMigrationController::class, 'jobStatus'])->name('data-migration.job-status-legacy')
         ->whereNumber('id');
 
-    Route::match(['get','post'], '/dataMigration/upload',
+    Route::match(['get', 'post'], '/dataMigration/upload',
         [DataMigrationController::class, 'upload'])->name('data-migration.upload-legacy');
 
     Route::get('/dataMigration/map',
@@ -138,7 +138,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/dataMigration/exportCsvLegacy',
         [DataMigrationController::class, 'exportCsv'])->name('data-migration.export-csv-legacy2');
 
-    Route::match(['get','post'], '/dataMigration/export/{sector?}',
+    Route::match(['get', 'post'], '/dataMigration/export/{sector?}',
         [DataMigrationController::class, 'export'])->name('data-migration.sector-export');
 
     Route::get('/admin/data-migration/preview-data', [DataMigrationController::class, 'previewData'])->name('data-migration.preview-data');

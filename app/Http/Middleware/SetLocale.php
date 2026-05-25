@@ -130,6 +130,7 @@ class SetLocale
             if ($a['q'] === $b['q']) {
                 return $a['order'] <=> $b['order'];
             }
+
             return $b['q'] <=> $a['q'];
         });
 
@@ -180,6 +181,7 @@ class SetLocale
      *   3. lang/*.json directory listing (final fallback)
      *
      * @internal #675 Phase 1
+     *
      * @return array<int,string>
      */
     private function getSupportedLocales(): array
@@ -190,9 +192,9 @@ class SetLocale
 
         // 1. Explicit config-supplied list (if any operator added it).
         $configured = config('app.supported_locales');
-        if (is_array($configured) && !empty($configured)) {
+        if (is_array($configured) && ! empty($configured)) {
             $configured = array_values(array_filter(array_map('strval', $configured)));
-            if (!empty($configured)) {
+            if (! empty($configured)) {
                 return $this->cachedSupportedLocales = $configured;
             }
         }
@@ -205,7 +207,7 @@ class SetLocale
                     ->where('editable', 1)
                     ->pluck('name')
                     ->all();
-                if (!empty($enabled)) {
+                if (! empty($enabled)) {
                     return $this->cachedSupportedLocales = array_values(array_map('strval', $enabled));
                 }
             }
@@ -218,7 +220,7 @@ class SetLocale
         $locales = [];
         $langDir = base_path('lang');
         if (is_dir($langDir)) {
-            foreach (glob($langDir . '/*.json') ?: [] as $path) {
+            foreach (glob($langDir.'/*.json') ?: [] as $path) {
                 $name = basename($path, '.json');
                 if ($name === '' || $name[0] === '_' || $name[0] === '.') {
                     continue; // skip _meta.json, .lock siblings, etc.
@@ -238,13 +240,17 @@ class SetLocale
     protected function hydrateUiLabels(string $culture): void
     {
         try {
-            if (!Schema::hasTable('setting') || !Schema::hasTable('setting_i18n')) {
+            if (! Schema::hasTable('setting') || ! Schema::hasTable('setting_i18n')) {
                 return;
             }
             $fallback = config('app.fallback_locale', 'en');
             $rows = DB::table('setting as s')
-                ->leftJoin('setting_i18n as si',    function ($j) use ($culture)  { $j->on('s.id', '=', 'si.id')->where('si.culture', '=', $culture); })
-                ->leftJoin('setting_i18n as si_fb', function ($j) use ($fallback) { $j->on('s.id', '=', 'si_fb.id')->where('si_fb.culture', '=', $fallback); })
+                ->leftJoin('setting_i18n as si', function ($j) use ($culture) {
+                    $j->on('s.id', '=', 'si.id')->where('si.culture', '=', $culture);
+                })
+                ->leftJoin('setting_i18n as si_fb', function ($j) use ($fallback) {
+                    $j->on('s.id', '=', 'si_fb.id')->where('si_fb.culture', '=', $fallback);
+                })
                 ->where('s.scope', 'ui_label')
                 ->select('s.name', 'si.value as cur', 'si_fb.value as fb')
                 ->get();
@@ -252,14 +258,16 @@ class SetLocale
             foreach ($rows as $r) {
                 $val = ($r->cur !== null && $r->cur !== '') ? $r->cur : $r->fb;
                 $val = $val !== null ? strtr((string) $val, ['&nbsp;' => ' ']) : '';
-                if ($val === '') continue;
+                if ($val === '') {
+                    continue;
+                }
                 config(["app.ui_label_{$r->name}" => $val]);
                 $en = $r->fb !== null ? strtr((string) $r->fb, ['&nbsp;' => ' ']) : '';
                 if ($en !== '' && $val !== $en) {
                     $translatorOverrides[$en] = $val;
                 }
             }
-            if (!empty($translatorOverrides)) {
+            if (! empty($translatorOverrides)) {
                 app('translator')->addLines($translatorOverrides, $culture, '*');
             }
         } catch (\Throwable $e) {
@@ -277,7 +285,7 @@ class SetLocale
                 ->pluck('name')
                 ->toArray();
 
-            if (!empty($enabled)) {
+            if (! empty($enabled)) {
                 return in_array($culture, $enabled);
             }
         }

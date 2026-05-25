@@ -33,6 +33,7 @@ class DataMigrationRepository
                 $counts[$status]++;
             }
         }
+
         return $counts;
     }
 
@@ -74,34 +75,44 @@ class DataMigrationRepository
     public function getJobResults(int $id): array
     {
         $job = $this->service->getJob($id);
-        if (!$job) {
+        if (! $job) {
             return ['created' => 0, 'updated' => 0, 'errors' => [], 'log' => null];
         }
         $result = is_string($job['result'] ?? null) ? json_decode($job['result'], true) : ($job['result'] ?? []);
+
         return is_array($result) ? $result : [];
     }
 
     public function cancelJob(int $id): bool
     {
         $this->service->updateJobProgress($id, ['status' => 'cancelled']);
+
         return true;
     }
 
     public function getFileColumns(string $path): array
     {
-        if (!$path || !file_exists($path)) return [];
+        if (! $path || ! file_exists($path)) {
+            return [];
+        }
         $parsed = $this->service->parseCSV($path, 1);
+
         return $parsed['headers'] ?? [];
     }
 
     public function getFileRowCount(string $path): int
     {
-        if (!$path || !file_exists($path)) return 0;
+        if (! $path || ! file_exists($path)) {
+            return 0;
+        }
         $count = 0;
         if (($fh = @fopen($path, 'r')) !== false) {
-            while (fgets($fh) !== false) $count++;
+            while (fgets($fh) !== false) {
+                $count++;
+            }
             fclose($fh);
         }
+
         return max(0, $count - 1); // minus header
     }
 
@@ -112,8 +123,11 @@ class DataMigrationRepository
 
     public function previewRecords(?string $path, array $mappings = [], int $limit = 10): array
     {
-        if (!$path || !file_exists($path)) return [];
+        if (! $path || ! file_exists($path)) {
+            return [];
+        }
         $parsed = $this->service->parseCSV($path, $limit);
+
         return $parsed['rows'] ?? [];
     }
 
@@ -137,21 +151,22 @@ class DataMigrationRepository
     public function validateImport(string $path, array $mappings): array
     {
         $parsed = $this->service->parseCSV($path, 50);
+
         return [
             'valid_rows' => count($parsed['rows'] ?? []),
-            'errors'     => [],
-            'warnings'   => [],
+            'errors' => [],
+            'warnings' => [],
         ];
     }
 
     public function queueImportJob(string $path, string $targetType, array $mappings): int
     {
         return $this->service->createJob([
-            'type'        => 'import',
+            'type' => 'import',
             'target_type' => $targetType,
-            'file_path'   => $path,
-            'mappings'    => $mappings,
-            'status'      => 'queued',
+            'file_path' => $path,
+            'mappings' => $mappings,
+            'status' => 'queued',
         ]);
     }
 

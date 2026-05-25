@@ -46,7 +46,9 @@ use Illuminate\Support\Facades\DB;
 class DocumentPriorService
 {
     private const PLACE_TYPES = ['GPE', 'PLACE', 'LOC'];
+
     private const CACHE_TTL_SECONDS = 86400; // 24h
+
     private const SETTING_PREFIX = 'authority_resolution.prior.';
 
     /**
@@ -74,12 +76,14 @@ class DocumentPriorService
         $cached = $this->loadCached($fondsId);
         if ($cached !== null) {
             $cached['cached'] = true;
+
             return $cached;
         }
 
         $computed = $this->compute($fondsId);
         $this->saveCached($fondsId, $computed);
         $computed['cached'] = false;
+
         return $computed;
     }
 
@@ -96,7 +100,7 @@ class DocumentPriorService
 
         for ($i = 0; $i < $maxDepth; $i++) {
             $row = DB::table('information_object')->where('id', $currentId)->first(['id', 'parent_id']);
-            if (!$row) {
+            if (! $row) {
                 return null;
             }
             $parentId = $row->parent_id !== null ? (int) $row->parent_id : null;
@@ -105,6 +109,7 @@ class DocumentPriorService
             }
             $currentId = $parentId;
         }
+
         return $currentId;
     }
 
@@ -115,7 +120,7 @@ class DocumentPriorService
     {
         // Find every IO under the fonds via MPTT lft/rgt range.
         $fonds = DB::table('information_object')->where('id', $fondsId)->first(['id', 'lft', 'rgt']);
-        if (!$fonds) {
+        if (! $fonds) {
             return ['fonds_id' => $fondsId, 'io_count' => 0, 'distribution' => []];
         }
 
@@ -129,7 +134,7 @@ class DocumentPriorService
             $ioIds = DB::table('information_object')
                 ->whereBetween('lft', [$lft, $rgt])
                 ->pluck('id')
-                ->map(fn($v) => (int) $v)
+                ->map(fn ($v) => (int) $v)
                 ->all();
         }
 
@@ -171,12 +176,13 @@ class DocumentPriorService
         $out = [$rootId];
         $frontier = [$rootId];
         $hops = 0;
-        while (!empty($frontier) && $hops < 32) {
+        while (! empty($frontier) && $hops < 32) {
             $children = DB::table('information_object')->whereIn('parent_id', $frontier)->pluck('id')->all();
             $frontier = array_map('intval', $children);
             $out = array_merge($out, $frontier);
             $hops++;
         }
+
         return array_values(array_unique($out));
     }
 
@@ -186,9 +192,9 @@ class DocumentPriorService
     private function loadCached(int $fondsId): ?array
     {
         $row = DB::table('ahg_settings')
-            ->where('setting_key', self::SETTING_PREFIX . $fondsId)
+            ->where('setting_key', self::SETTING_PREFIX.$fondsId)
             ->first();
-        if (!$row) {
+        if (! $row) {
             return null;
         }
         $age = $row->updated_at ? (time() - strtotime((string) $row->updated_at)) : null;
@@ -196,7 +202,7 @@ class DocumentPriorService
             return null;
         }
         $decoded = json_decode((string) ($row->setting_value ?? ''), true);
-        if (!is_array($decoded)) {
+        if (! is_array($decoded)) {
             return null;
         }
         $dist = isset($decoded['distribution']) && is_array($decoded['distribution']) ? $decoded['distribution'] : [];
@@ -204,6 +210,7 @@ class DocumentPriorService
         foreach ($dist as $k => $v) {
             $distInt[(int) $k] = (int) $v;
         }
+
         return [
             'fonds_id' => (int) ($decoded['fonds_id'] ?? $fondsId),
             'io_count' => (int) ($decoded['io_count'] ?? 0),
@@ -212,7 +219,7 @@ class DocumentPriorService
     }
 
     /**
-     * @param array{fonds_id:int,io_count:int,distribution:array<int,int>} $payload
+     * @param  array{fonds_id:int,io_count:int,distribution:array<int,int>}  $payload
      */
     private function saveCached(int $fondsId, array $payload): void
     {
@@ -223,13 +230,14 @@ class DocumentPriorService
             'distribution' => (object) $payload['distribution'],  // force {} when empty so JSON shape stays stable
         ], JSON_UNESCAPED_UNICODE);
 
-        $key = self::SETTING_PREFIX . $fondsId;
+        $key = self::SETTING_PREFIX.$fondsId;
         $existing = DB::table('ahg_settings')->where('setting_key', $key)->first(['id']);
         if ($existing) {
             DB::table('ahg_settings')->where('id', $existing->id)->update([
                 'setting_value' => $value,
                 'updated_at' => now(),
             ]);
+
             return;
         }
         DB::table('ahg_settings')->insert([

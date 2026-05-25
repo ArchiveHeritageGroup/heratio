@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgSettings\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -124,7 +122,7 @@ class SettingsService
 
     public function getEmailSettings(): array
     {
-        if (!Schema::hasTable('email_setting')) {
+        if (! Schema::hasTable('email_setting')) {
             return ['smtp' => collect(), 'notification' => collect(), 'template' => collect(), 'toggles' => []];
         }
 
@@ -173,6 +171,7 @@ class SettingsService
         foreach ($names as $name) {
             $settings[$name] = $this->getSetting($name, null, $culture);
         }
+
         return $settings;
     }
 
@@ -213,6 +212,7 @@ class SettingsService
         foreach ($names as $name) {
             $settings[$name] = $this->getSetting($name, null, $culture) ?? '';
         }
+
         return $settings;
     }
 
@@ -227,6 +227,7 @@ class SettingsService
         foreach ($names as $name) {
             $settings[$name] = $this->getSetting($name, null, $culture) ?? '';
         }
+
         return $settings;
     }
 
@@ -242,6 +243,7 @@ class SettingsService
         foreach ($names as $name) {
             $result[$name] = isset($settings[$name]) ? ($settings[$name]->value ?? '') : '';
         }
+
         return $result;
     }
 
@@ -261,9 +263,9 @@ class SettingsService
         sort($extensions);
         $info['extensions'] = $extensions;
 
-        $dbSize = DB::select("SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb FROM information_schema.tables WHERE table_schema = DATABASE()");
+        $dbSize = DB::select('SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb FROM information_schema.tables WHERE table_schema = DATABASE()');
         $info['database_size_mb'] = $dbSize[0]->size_mb ?? 'N/A';
-        $info['table_count'] = DB::select("SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema = DATABASE()")[0]->cnt ?? 0;
+        $info['table_count'] = DB::select('SELECT COUNT(*) AS cnt FROM information_schema.tables WHERE table_schema = DATABASE()')[0]->cnt ?? 0;
 
         return $info;
     }
@@ -278,6 +280,7 @@ class SettingsService
         foreach ($names as $name) {
             $settings[$name] = $this->getSetting($name, null, $culture) ?? '';
         }
+
         return $settings;
     }
 

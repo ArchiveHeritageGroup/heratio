@@ -58,7 +58,7 @@ class TemporalEvaluator implements EvaluatorInterface
     public function evaluate(object $mention, object $context, object $candidate): array
     {
         $candSource = (string) ($candidate->candidate_source ?? '');
-        if (!in_array($candSource, ['mysql_actor', 'fuseki_agent'], true)) {
+        if (! in_array($candSource, ['mysql_actor', 'fuseki_agent'], true)) {
             return EvidenceSignal::make(EvidenceSignal::ABSENT, ['reason' => 'candidate_source_not_actor']);
         }
 
@@ -98,7 +98,7 @@ class TemporalEvaluator implements EvaluatorInterface
             }
         }
 
-        if (!empty($overlaps)) {
+        if (! empty($overlaps)) {
             return EvidenceSignal::make(EvidenceSignal::MATCH, [
                 'candidate_span' => $candSpan,
                 'candidate_text' => $datesRaw,
@@ -122,10 +122,11 @@ class TemporalEvaluator implements EvaluatorInterface
             ->orderByRaw("CASE WHEN culture = 'en' THEN 0 ELSE 1 END")
             ->first(['dates_of_existence']);
 
-        if (!$row) {
+        if (! $row) {
             return null;
         }
         $value = trim((string) ($row->dates_of_existence ?? ''));
+
         return $value === '' ? null : $value;
     }
 }

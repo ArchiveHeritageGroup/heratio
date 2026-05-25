@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgApi\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -54,7 +52,7 @@ class LegacyApiController extends Controller
             return response()->json(['error' => 'Query parameter required.'], 400);
         }
 
-        $searchTerm = '%' . $queryStr . '%';
+        $searchTerm = '%'.$queryStr.'%';
 
         $query = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
@@ -76,7 +74,7 @@ class LegacyApiController extends Controller
         $results = $query
             ->select('io.id', 'ioi.title', 'io.identifier', 'slug.slug',
                 'io.level_of_description_id', 'io.repository_id')
-            ->orderByRaw("CASE WHEN ioi.title LIKE ? THEN 0 ELSE 1 END", [$searchTerm])
+            ->orderByRaw('CASE WHEN ioi.title LIKE ? THEN 0 ELSE 1 END', [$searchTerm])
             ->offset($skip)
             ->limit($limit)
             ->get();
@@ -101,7 +99,7 @@ class LegacyApiController extends Controller
             return response()->json(['results' => []]);
         }
 
-        $searchTerm = $queryStr . '%';
+        $searchTerm = $queryStr.'%';
 
         // Search titles
         $titles = DB::table('information_object_i18n as ioi')
@@ -193,7 +191,7 @@ class LegacyApiController extends Controller
     protected function collectionExportPreview(int $collectionId): JsonResponse
     {
         $collection = DB::table('information_object')->where('id', $collectionId)->first();
-        if (!$collection) {
+        if (! $collection) {
             return response()->json(['error' => 'Collection not found'], 404);
         }
 
@@ -293,16 +291,16 @@ class LegacyApiController extends Controller
     protected function formatBytes(int $bytes): string
     {
         if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
+            return number_format($bytes / 1073741824, 2).' GB';
         }
         if ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
+            return number_format($bytes / 1048576, 2).' MB';
         }
         if ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
+            return number_format($bytes / 1024, 2).' KB';
         }
 
-        return $bytes . ' bytes';
+        return $bytes.' bytes';
     }
 
     /**

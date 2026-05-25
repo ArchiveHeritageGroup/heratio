@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgMediaProcessing\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -40,16 +38,21 @@ class DerivativeService
 {
     /** Usage IDs matching AtoM term taxonomy */
     const USAGE_MASTER = 140;
+
     const USAGE_REFERENCE = 141;
+
     const USAGE_THUMBNAIL = 142;
+
     const USAGE_EXTERNAL_URI = 166;
 
     /** Derivative type labels */
     const THUMBNAIL = 'thumbnail';
+
     const REFERENCE = 'reference';
 
     /** Default derivative dimensions */
     const DEFAULT_THUMBNAIL_SIZE = 150;
+
     const DEFAULT_REFERENCE_MAX_DIM = 480;
 
     /** Base upload path from server config */
@@ -68,14 +71,16 @@ class DerivativeService
      */
     public function generateThumbnail(string $masterPath, string $outputPath, int $size = self::DEFAULT_THUMBNAIL_SIZE): bool
     {
-        if (!file_exists($masterPath)) {
+        if (! file_exists($masterPath)) {
             Log::error('DerivativeService: Master file not found', ['path' => $masterPath]);
+
             return false;
         }
 
         $outputDir = dirname($outputPath);
-        if (!is_dir($outputDir) && !mkdir($outputDir, 0755, true)) {
+        if (! is_dir($outputDir) && ! mkdir($outputDir, 0755, true)) {
             Log::error('DerivativeService: Cannot create output directory', ['dir' => $outputDir]);
+
             return false;
         }
 
@@ -97,6 +102,7 @@ class DerivativeService
                 'output' => implode("\n", $output),
                 'return_code' => $returnCode,
             ]);
+
             return false;
         }
 
@@ -112,14 +118,16 @@ class DerivativeService
      */
     public function generateReference(string $masterPath, string $outputPath, int $maxDim = self::DEFAULT_REFERENCE_MAX_DIM): bool
     {
-        if (!file_exists($masterPath)) {
+        if (! file_exists($masterPath)) {
             Log::error('DerivativeService: Master file not found', ['path' => $masterPath]);
+
             return false;
         }
 
         $outputDir = dirname($outputPath);
-        if (!is_dir($outputDir) && !mkdir($outputDir, 0755, true)) {
+        if (! is_dir($outputDir) && ! mkdir($outputDir, 0755, true)) {
             Log::error('DerivativeService: Cannot create output directory', ['dir' => $outputDir]);
+
             return false;
         }
 
@@ -130,8 +138,8 @@ class DerivativeService
             ->where('setting_i18n.culture', 'en')
             ->value('setting_i18n.value');
 
-        if ($settingMaxWidth && is_numeric($settingMaxWidth) && (int)$settingMaxWidth > 0) {
-            $maxDim = (int)$settingMaxWidth;
+        if ($settingMaxWidth && is_numeric($settingMaxWidth) && (int) $settingMaxWidth > 0) {
+            $maxDim = (int) $settingMaxWidth;
         }
 
         $command = sprintf(
@@ -150,6 +158,7 @@ class DerivativeService
                 'output' => implode("\n", $output),
                 'return_code' => $returnCode,
             ]);
+
             return false;
         }
 
@@ -175,7 +184,7 @@ class DerivativeService
             ->where('usage_id', self::USAGE_MASTER)
             ->first();
 
-        if (!$master) {
+        if (! $master) {
             // Maybe the ID is for a derivative — find the master via parent_id
             $derivative = DB::table('digital_object')
                 ->where('id', $digitalObjectId)
@@ -188,23 +197,25 @@ class DerivativeService
                     ->first();
             }
 
-            if (!$master) {
-                $result['errors'][] = 'Master digital object not found for ID ' . $digitalObjectId;
+            if (! $master) {
+                $result['errors'][] = 'Master digital object not found for ID '.$digitalObjectId;
+
                 return $result;
             }
         }
 
         $masterPath = $this->resolvePath($master->path, $master->name);
-        if (!file_exists($masterPath)) {
-            $result['errors'][] = 'Master file not found on disk: ' . $masterPath;
+        if (! file_exists($masterPath)) {
+            $result['errors'][] = 'Master file not found on disk: '.$masterPath;
+
             return $result;
         }
 
-        $baseDir = $this->uploadsBasePath . '/' . ltrim($master->path, '/');
+        $baseDir = $this->uploadsBasePath.'/'.ltrim($master->path, '/');
 
         // Generate thumbnail
-        $thumbFilename = pathinfo($master->name, PATHINFO_FILENAME) . '_142.' . $this->getOutputExtension($master->name);
-        $thumbPath = $baseDir . $thumbFilename;
+        $thumbFilename = pathinfo($master->name, PATHINFO_FILENAME).'_142.'.$this->getOutputExtension($master->name);
+        $thumbPath = $baseDir.$thumbFilename;
         if ($this->generateThumbnail($masterPath, $thumbPath)) {
             $this->upsertDerivativeRecord($master, self::USAGE_THUMBNAIL, $thumbFilename, $thumbPath);
             $result['thumbnail'] = true;
@@ -213,8 +224,8 @@ class DerivativeService
         }
 
         // Generate reference
-        $refFilename = pathinfo($master->name, PATHINFO_FILENAME) . '_141.' . $this->getOutputExtension($master->name);
-        $refPath = $baseDir . $refFilename;
+        $refFilename = pathinfo($master->name, PATHINFO_FILENAME).'_141.'.$this->getOutputExtension($master->name);
+        $refPath = $baseDir.$refFilename;
         if ($this->generateReference($masterPath, $refPath)) {
             $this->upsertDerivativeRecord($master, self::USAGE_REFERENCE, $refFilename, $refPath);
             $result['reference'] = true;
@@ -238,7 +249,7 @@ class DerivativeService
             ->where('usage_id', self::USAGE_MASTER)
             ->first();
 
-        if (!$master) {
+        if (! $master) {
             return null;
         }
 
@@ -247,11 +258,12 @@ class DerivativeService
             ->where('usage_id', $usageId)
             ->first();
 
-        if (!$derivative) {
+        if (! $derivative) {
             return null;
         }
 
         $path = $this->resolvePath($derivative->path, $derivative->name);
+
         return file_exists($path) ? $path : null;
     }
 
@@ -265,11 +277,12 @@ class DerivativeService
             ->where('usage_id', self::USAGE_MASTER)
             ->first();
 
-        if (!$master) {
+        if (! $master) {
             return null;
         }
 
         $path = $this->resolvePath($master->path, $master->name);
+
         return file_exists($path) ? $path : null;
     }
 
@@ -311,8 +324,6 @@ class DerivativeService
 
     /**
      * Get a list of masters that are missing one or both derivatives.
-     *
-     * @return \Illuminate\Support\Collection
      */
     public function getMastersWithMissingDerivatives(int $limit = 100): \Illuminate\Support\Collection
     {
@@ -383,7 +394,7 @@ class DerivativeService
      */
     protected function resolvePath(string $relativePath, string $filename): string
     {
-        return $this->uploadsBasePath . '/' . ltrim($relativePath, '/') . $filename;
+        return $this->uploadsBasePath.'/'.ltrim($relativePath, '/').$filename;
     }
 
     /**
@@ -400,6 +411,7 @@ class DerivativeService
         if ($ext === 'webp' || $ext === 'png' || $ext === 'gif' || $ext === 'jpg' || $ext === 'jpeg') {
             return $ext;
         }
+
         return 'jpg';
     }
 

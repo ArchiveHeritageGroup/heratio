@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCore\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -65,7 +63,7 @@ class AhgSettingsService
     {
         $value = self::get($key);
 
-        if (null === $value) {
+        if ($value === null) {
             return $default;
         }
 
@@ -79,7 +77,7 @@ class AhgSettingsService
     {
         $value = self::get($key);
 
-        return null !== $value ? (int) $value : $default;
+        return $value !== null ? (int) $value : $default;
     }
 
     /**
@@ -104,7 +102,7 @@ class AhgSettingsService
      */
     public static function isEnabled(string $feature): bool
     {
-        $key = str_ends_with($feature, '_enabled') ? $feature : $feature . '_enabled';
+        $key = str_ends_with($feature, '_enabled') ? $feature : $feature.'_enabled';
 
         return self::getBool($key);
     }
@@ -139,7 +137,7 @@ class AhgSettingsService
      */
     private static function loadCache(): void
     {
-        if (null !== self::$cache) {
+        if (self::$cache !== null) {
             return;
         }
 
@@ -249,7 +247,7 @@ class AhgSettingsService
             return true;
         }
 
-        if (!self::isDropdownStrict($table, $column)) {
+        if (! self::isDropdownStrict($table, $column)) {
             return true;
         }
 
@@ -303,14 +301,14 @@ class AhgSettingsService
         $mappings = self::getDropdownMappingsForTable($table);
 
         foreach ($mappings as $column => $map) {
-            if (!isset($row[$column]) || $row[$column] === null || $row[$column] === '') {
+            if (! isset($row[$column]) || $row[$column] === null || $row[$column] === '') {
                 continue;
             }
 
             $value = $row[$column];
             $validValues = self::getDropdownValidValues($map->taxonomy);
 
-            if (!in_array($value, $validValues, true) && $map->is_strict) {
+            if (! in_array($value, $validValues, true) && $map->is_strict) {
                 $errors[$column] = [
                     'value' => $value,
                     'taxonomy' => $map->taxonomy,

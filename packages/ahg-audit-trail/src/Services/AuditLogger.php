@@ -41,15 +41,15 @@ class AuditLogger
         ?string $entityTitle = null,
     ): ?int {
         return $this->insert([
-            'action'        => 'create',
-            'entity_type'   => $entityType,
-            'entity_id'     => $entityId,
-            'entity_slug'   => $entitySlug,
-            'entity_title'  => $entityTitle,
-            'old_values'    => null,
-            'new_values'    => $newValues ? json_encode($newValues, JSON_UNESCAPED_UNICODE) : null,
+            'action' => 'create',
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'entity_slug' => $entitySlug,
+            'entity_title' => $entityTitle,
+            'old_values' => null,
+            'new_values' => $newValues ? json_encode($newValues, JSON_UNESCAPED_UNICODE) : null,
             'changed_fields' => $newValues ? json_encode(array_keys($newValues)) : null,
-            'metadata'      => $metadata ? json_encode($metadata) : null,
+            'metadata' => $metadata ? json_encode($metadata) : null,
         ]);
     }
 
@@ -75,16 +75,17 @@ class AuditLogger
         // table compact + makes diffs easy to read.
         $oldDiff = array_intersect_key($oldValues, array_flip($changed));
         $newDiff = array_intersect_key($newValues, array_flip($changed));
+
         return $this->insert([
-            'action'        => 'update',
-            'entity_type'   => $entityType,
-            'entity_id'     => $entityId,
-            'entity_slug'   => $entitySlug,
-            'entity_title'  => $entityTitle,
-            'old_values'    => $oldDiff ? json_encode($oldDiff, JSON_UNESCAPED_UNICODE) : null,
-            'new_values'    => $newDiff ? json_encode($newDiff, JSON_UNESCAPED_UNICODE) : null,
+            'action' => 'update',
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'entity_slug' => $entitySlug,
+            'entity_title' => $entityTitle,
+            'old_values' => $oldDiff ? json_encode($oldDiff, JSON_UNESCAPED_UNICODE) : null,
+            'new_values' => $newDiff ? json_encode($newDiff, JSON_UNESCAPED_UNICODE) : null,
             'changed_fields' => $changed ? json_encode($changed) : null,
-            'metadata'      => $metadata ? json_encode($metadata) : null,
+            'metadata' => $metadata ? json_encode($metadata) : null,
         ]);
     }
 
@@ -97,15 +98,15 @@ class AuditLogger
         ?string $entityTitle = null,
     ): ?int {
         return $this->insert([
-            'action'        => 'delete',
-            'entity_type'   => $entityType,
-            'entity_id'     => $entityId,
-            'entity_slug'   => $entitySlug,
-            'entity_title'  => $entityTitle,
-            'old_values'    => $oldValues ? json_encode($oldValues, JSON_UNESCAPED_UNICODE) : null,
-            'new_values'    => null,
+            'action' => 'delete',
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'entity_slug' => $entitySlug,
+            'entity_title' => $entityTitle,
+            'old_values' => $oldValues ? json_encode($oldValues, JSON_UNESCAPED_UNICODE) : null,
+            'new_values' => null,
             'changed_fields' => $oldValues ? json_encode(array_keys($oldValues)) : null,
-            'metadata'      => $metadata ? json_encode($metadata) : null,
+            'metadata' => $metadata ? json_encode($metadata) : null,
         ]);
     }
 
@@ -122,15 +123,15 @@ class AuditLogger
         ?string $entityTitle = null,
     ): ?int {
         return $this->insert([
-            'action'        => $action,
-            'entity_type'   => $entityType,
-            'entity_id'     => $entityId,
-            'entity_slug'   => $entitySlug,
-            'entity_title'  => $entityTitle,
-            'old_values'    => null,
-            'new_values'    => null,
+            'action' => $action,
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'entity_slug' => $entitySlug,
+            'entity_title' => $entityTitle,
+            'old_values' => null,
+            'new_values' => null,
             'changed_fields' => null,
-            'metadata'      => $metadata ? json_encode($metadata) : null,
+            'metadata' => $metadata ? json_encode($metadata) : null,
         ]);
     }
 
@@ -140,17 +141,20 @@ class AuditLogger
      */
     public function backfillChangedFields(int $auditRowId): bool
     {
-        if (!Schema::hasTable('ahg_audit_log')) {
+        if (! Schema::hasTable('ahg_audit_log')) {
             return false;
         }
         $row = DB::table('ahg_audit_log')->where('id', $auditRowId)
             ->select('old_values', 'new_values', 'changed_fields')->first();
-        if (!$row) return false;
+        if (! $row) {
+            return false;
+        }
         $old = $row->old_values ? (json_decode($row->old_values, true) ?: []) : [];
         $new = $row->new_values ? (json_decode($row->new_values, true) ?: []) : [];
         $changed = $this->changedKeys($old, $new);
         DB::table('ahg_audit_log')->where('id', $auditRowId)
             ->update(['changed_fields' => $changed ? json_encode($changed) : null]);
+
         return true;
     }
 
@@ -179,12 +183,13 @@ class AuditLogger
                 $changed[] = $k;
             }
         }
+
         return $changed;
     }
 
     private function insert(array $cols): ?int
     {
-        if (!Schema::hasTable('ahg_audit_log')) {
+        if (! Schema::hasTable('ahg_audit_log')) {
             return null;
         }
         try {
@@ -223,20 +228,21 @@ class AuditLogger
             }
 
             $row = array_merge([
-                'uuid'         => (string) Str::uuid(),
-                'user_id'      => $userId,
-                'username'     => $username,
-                'user_email'   => $userEmail,
-                'ip_address'   => $ip,
-                'user_agent'   => $ua,
-                'session_id'   => $sessionId,
+                'uuid' => (string) Str::uuid(),
+                'user_id' => $userId,
+                'username' => $username,
+                'user_email' => $userEmail,
+                'ip_address' => $ip,
+                'user_agent' => $ua,
+                'session_id' => $sessionId,
                 'request_method' => $reqMethod,
-                'request_uri'  => $reqUri,
-                'module'       => null,
-                'action_name'  => null,
-                'status'       => 'success',
-                'created_at'   => now(),
+                'request_uri' => $reqUri,
+                'module' => null,
+                'action_name' => null,
+                'status' => 'success',
+                'created_at' => now(),
             ], $cols);
+
             return (int) DB::table('ahg_audit_log')->insertGetId($row);
         } catch (\Throwable $e) {
             // Never let audit break the calling code path

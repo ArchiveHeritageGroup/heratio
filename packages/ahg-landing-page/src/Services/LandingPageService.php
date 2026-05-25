@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgLandingPage\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -93,7 +91,7 @@ class LandingPageService
         }
 
         // AtoM `atom_landing_page` uses `user_id` as the owner column.
-        $data['user_id']    = $userId;
+        $data['user_id'] = $userId;
         $data['created_at'] = now();
         $data['updated_at'] = now();
 
@@ -134,7 +132,7 @@ class LandingPageService
             'updated_at' => now(),
         ];
 
-        if (!empty($options['parent_block_id'])) {
+        if (! empty($options['parent_block_id'])) {
             $data['parent_block_id'] = $options['parent_block_id'];
             $data['column_slot'] = $options['column_slot'] ?? null;
         }
@@ -180,7 +178,7 @@ class LandingPageService
     {
         $block = DB::table('atom_landing_page_block')->where('id', $blockId)->first();
 
-        if (!$block) {
+        if (! $block) {
             return ['success' => false, 'error' => 'Block not found'];
         }
 
@@ -188,7 +186,7 @@ class LandingPageService
             'page_id' => $block->page_id,
             'block_type_id' => $block->block_type_id,
             'config' => $block->config,
-            'title' => ($block->title ?? '') . ' (copy)',
+            'title' => ($block->title ?? '').' (copy)',
             'position' => $block->position + 1,
             'is_visible' => $block->is_visible,
             'created_at' => now(),
@@ -202,7 +200,7 @@ class LandingPageService
     {
         $block = DB::table('atom_landing_page_block')->where('id', $blockId)->first();
 
-        if (!$block) {
+        if (! $block) {
             return ['success' => false, 'error' => 'Block not found'];
         }
 
@@ -211,7 +209,7 @@ class LandingPageService
             'updated_at' => now(),
         ]);
 
-        return ['success' => true, 'is_visible' => !$block->is_visible];
+        return ['success' => true, 'is_visible' => ! $block->is_visible];
     }
 
     public function getPageVersions(int $pageId): \Illuminate\Support\Collection

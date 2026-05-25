@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgIpsas\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -127,19 +125,19 @@ class IpsasService
             ->leftJoin('ipsas_asset_category as c', 'a.category_id', '=', 'c.id')
             ->select('a.*', 'c.name as category_name');
 
-        if (!empty($filters['category_id'])) {
+        if (! empty($filters['category_id'])) {
             $query->where('a.category_id', $filters['category_id']);
         }
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('a.status', $filters['status']);
         }
-        if (!empty($filters['valuation_basis'])) {
+        if (! empty($filters['valuation_basis'])) {
             $query->where('a.valuation_basis', $filters['valuation_basis']);
         }
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
-                $q->where('a.title', 'LIKE', '%' . $filters['search'] . '%')
-                    ->orWhere('a.asset_number', 'LIKE', '%' . $filters['search'] . '%');
+                $q->where('a.title', 'LIKE', '%'.$filters['search'].'%')
+                    ->orWhere('a.asset_number', 'LIKE', '%'.$filters['search'].'%');
             });
         }
 
@@ -158,7 +156,7 @@ class IpsasService
     public function createAsset(array $data): int
     {
         $count = DB::table('ipsas_heritage_asset')->count();
-        $data['asset_number'] = 'HA-' . str_pad($count + 1, 5, '0', STR_PAD_LEFT);
+        $data['asset_number'] = 'HA-'.str_pad($count + 1, 5, '0', STR_PAD_LEFT);
         $data['status'] = 'active';
         $data['created_at'] = now();
         $data['updated_at'] = now();
@@ -177,6 +175,7 @@ class IpsasService
         DB::table('ipsas_valuation')->where('asset_id', $id)->delete();
         DB::table('ipsas_impairment')->where('asset_id', $id)->delete();
         DB::table('ipsas_insurance')->where('asset_id', $id)->delete();
+
         return DB::table('ipsas_heritage_asset')->where('id', $id)->delete() > 0;
     }
 
@@ -191,10 +190,10 @@ class IpsasService
             ->leftJoin('ipsas_heritage_asset as a', 'v.asset_id', '=', 'a.id')
             ->select('v.*', 'a.asset_number', 'a.title as asset_title');
 
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('v.valuation_type', $filters['type']);
         }
-        if (!empty($filters['year'])) {
+        if (! empty($filters['year'])) {
             $query->whereYear('v.valuation_date', $filters['year']);
         }
 
@@ -215,7 +214,7 @@ class IpsasService
 
         $id = DB::table('ipsas_valuation')->insertGetId($data);
 
-        if (!empty($data['new_value']) && !empty($data['asset_id'])) {
+        if (! empty($data['new_value']) && ! empty($data['asset_id'])) {
             DB::table('ipsas_heritage_asset')->where('id', $data['asset_id'])->update([
                 'current_value' => $data['new_value'],
                 'updated_at' => now(),
@@ -231,10 +230,10 @@ class IpsasService
             ->leftJoin('ipsas_heritage_asset as a', 'i.asset_id', '=', 'a.id')
             ->select('i.*', 'a.asset_number', 'a.title as asset_title');
 
-        if (!empty($filters['asset_id'])) {
+        if (! empty($filters['asset_id'])) {
             $query->where('i.asset_id', $filters['asset_id']);
         }
-        if (!empty($filters['recognized_only'])) {
+        if (! empty($filters['recognized_only'])) {
             $query->where('i.impairment_recognized', 1);
         }
 
@@ -247,7 +246,7 @@ class IpsasService
             ->leftJoin('ipsas_heritage_asset as a', 'ins.asset_id', '=', 'a.id')
             ->select('ins.*', 'a.asset_number', 'a.title as asset_title');
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('ins.status', $filters['status']);
         }
 

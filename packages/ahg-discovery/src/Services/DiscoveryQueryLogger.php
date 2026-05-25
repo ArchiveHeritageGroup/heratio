@@ -50,34 +50,36 @@ class DiscoveryQueryLogger
             $preMergeRanks = [];
             foreach (($payload['strategy_results'] ?? []) as $name => $info) {
                 $hits = $info['hits'] ?? [];
-                $ms   = (int) ($info['ms'] ?? 0);
-                $ids  = array_map(fn($h) => (int) ($h['object_id'] ?? $h['id'] ?? 0), $hits);
+                $ms = (int) ($info['ms'] ?? 0);
+                $ids = array_map(fn ($h) => (int) ($h['object_id'] ?? $h['id'] ?? 0), $hits);
                 $strategyBreakdown[$name] = [
-                    'hits'    => count($hits),
-                    'ms'      => $ms,
+                    'hits' => count($hits),
+                    'ms' => $ms,
                     'top_ids' => array_slice($ids, 0, 50),
                 ];
                 $preMergeRanks[$name] = array_slice($ids, 0, 100);
             }
 
             $row = [
-                'user_id'           => $payload['user_id'] ?? null,
-                'session_id'        => $payload['session_id'] ?? null,
-                'query_text'        => mb_substr((string) ($payload['query'] ?? ''), 0, 8000),
-                'expanded_terms'    => isset($payload['expanded']) ? json_encode($payload['expanded']) : null,
-                'keywords'          => isset($payload['keywords']) ? json_encode($payload['keywords']) : null,
-                'result_count'      => count($payload['final_ids'] ?? $payload['merged_ids'] ?? []),
-                'response_ms'       => (int) ($payload['response_ms'] ?? 0),
-                'strategy_breakdown'=> $strategyBreakdown ? json_encode($strategyBreakdown) : null,
-                'pre_merge_ranks'   => $preMergeRanks ? json_encode($preMergeRanks) : null,
-                'post_merge_ranks'  => isset($payload['final_ids'])
+                'user_id' => $payload['user_id'] ?? null,
+                'session_id' => $payload['session_id'] ?? null,
+                'query_text' => mb_substr((string) ($payload['query'] ?? ''), 0, 8000),
+                'expanded_terms' => isset($payload['expanded']) ? json_encode($payload['expanded']) : null,
+                'keywords' => isset($payload['keywords']) ? json_encode($payload['keywords']) : null,
+                'result_count' => count($payload['final_ids'] ?? $payload['merged_ids'] ?? []),
+                'response_ms' => (int) ($payload['response_ms'] ?? 0),
+                'strategy_breakdown' => $strategyBreakdown ? json_encode($strategyBreakdown) : null,
+                'pre_merge_ranks' => $preMergeRanks ? json_encode($preMergeRanks) : null,
+                'post_merge_ranks' => isset($payload['final_ids'])
                     ? json_encode(array_slice(array_map('intval', $payload['final_ids']), 0, 200))
                     : null,
             ];
             $id = DB::table('ahg_discovery_log')->insertGetId($row);
+
             return (int) $id;
         } catch (Throwable $e) {
-            Log::warning('Discovery: failed to log query: ' . $e->getMessage());
+            Log::warning('Discovery: failed to log query: '.$e->getMessage());
+
             return null;
         }
     }
@@ -95,19 +97,21 @@ class DiscoveryQueryLogger
                 $q->where('id', $logId);
             } elseif ($sessionId) {
                 $q->where('session_id', $sessionId)
-                  ->whereNull('clicked_object')
-                  ->orderByDesc('id')
-                  ->limit(1);
+                    ->whereNull('clicked_object')
+                    ->orderByDesc('id')
+                    ->limit(1);
             } else {
                 return false;
             }
             $q->update([
                 'clicked_object' => $clickedObjectId,
-                'clicked_at'     => now(),
+                'clicked_at' => now(),
             ]);
+
             return true;
         } catch (Throwable $e) {
-            Log::warning('Discovery: failed to log click: ' . $e->getMessage());
+            Log::warning('Discovery: failed to log click: '.$e->getMessage());
+
             return false;
         }
     }
@@ -121,6 +125,7 @@ class DiscoveryQueryLogger
             DB::table('ahg_discovery_log')
                 ->where('id', $logId)
                 ->update(['dwell_ms' => max(0, min(3600000, $dwellMs))]);
+
             return true;
         } catch (Throwable $e) {
             return false;

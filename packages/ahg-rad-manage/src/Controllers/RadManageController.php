@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgRadManage\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -111,7 +109,7 @@ class RadManageController extends Controller
             ])
             ->first();
 
-        if (!$io) {
+        if (! $io) {
             abort(404);
         }
 
@@ -123,14 +121,14 @@ class RadManageController extends Controller
             DB::table('information_object')
                 ->where('id', $io->id)
                 ->update([
-                    'identifier'              => $request->input('identifier'),
+                    'identifier' => $request->input('identifier'),
                     'level_of_description_id' => $request->input('level_of_description_id') ?: null,
-                    'collection_type_id'      => $request->input('collection_type_id') ?: null,
-                    'repository_id'           => $request->input('repository_id') ?: null,
-                    'description_status_id'   => $request->input('description_status_id') ?: null,
-                    'description_detail_id'   => $request->input('description_detail_id') ?: null,
-                    'description_identifier'  => $request->input('description_identifier'),
-                    'source_standard'         => 'RAD version Jul2008',
+                    'collection_type_id' => $request->input('collection_type_id') ?: null,
+                    'repository_id' => $request->input('repository_id') ?: null,
+                    'description_status_id' => $request->input('description_status_id') ?: null,
+                    'description_detail_id' => $request->input('description_detail_id') ?: null,
+                    'description_identifier' => $request->input('description_identifier'),
+                    'source_standard' => 'RAD version Jul2008',
                 ]);
 
             if ($request->has('display_standard_id')) {
@@ -144,27 +142,27 @@ class RadManageController extends Controller
                 ->where('id', $io->id)
                 ->where('culture', $culture)
                 ->update([
-                    'title'                             => $request->input('title'),
-                    'alternate_title'                   => $request->input('alternate_title'),
-                    'edition'                           => $request->input('edition'),
-                    'extent_and_medium'                 => $request->input('extent_and_medium'),
-                    'archival_history'                  => $request->input('archival_history'),
-                    'acquisition'                       => $request->input('acquisition'),
-                    'scope_and_content'                 => $request->input('scope_and_content'),
-                    'appraisal'                         => $request->input('appraisal'),
-                    'accruals'                          => $request->input('accruals'),
-                    'arrangement'                       => $request->input('arrangement'),
-                    'access_conditions'                 => $request->input('access_conditions'),
-                    'reproduction_conditions'           => $request->input('reproduction_conditions'),
-                    'physical_characteristics'          => $request->input('physical_characteristics'),
-                    'finding_aids'                      => $request->input('finding_aids'),
-                    'location_of_originals'             => $request->input('location_of_originals'),
-                    'location_of_copies'                => $request->input('location_of_copies'),
-                    'related_units_of_description'      => $request->input('related_units_of_description'),
+                    'title' => $request->input('title'),
+                    'alternate_title' => $request->input('alternate_title'),
+                    'edition' => $request->input('edition'),
+                    'extent_and_medium' => $request->input('extent_and_medium'),
+                    'archival_history' => $request->input('archival_history'),
+                    'acquisition' => $request->input('acquisition'),
+                    'scope_and_content' => $request->input('scope_and_content'),
+                    'appraisal' => $request->input('appraisal'),
+                    'accruals' => $request->input('accruals'),
+                    'arrangement' => $request->input('arrangement'),
+                    'access_conditions' => $request->input('access_conditions'),
+                    'reproduction_conditions' => $request->input('reproduction_conditions'),
+                    'physical_characteristics' => $request->input('physical_characteristics'),
+                    'finding_aids' => $request->input('finding_aids'),
+                    'location_of_originals' => $request->input('location_of_originals'),
+                    'location_of_copies' => $request->input('location_of_copies'),
+                    'related_units_of_description' => $request->input('related_units_of_description'),
                     'institution_responsible_identifier' => $request->input('institution_responsible_identifier'),
-                    'rules'                             => $request->input('rules'),
-                    'sources'                           => $request->input('sources'),
-                    'revision_history'                  => $request->input('revision_history'),
+                    'rules' => $request->input('rules'),
+                    'sources' => $request->input('sources'),
+                    'revision_history' => $request->input('revision_history'),
                 ]);
 
             // RAD-specific properties from property table
@@ -190,26 +188,28 @@ class RadManageController extends Controller
                     DB::table('object')->whereIn('id', $existingEventIds)->delete();
                 }
                 foreach ($eventData as $evt) {
-                    if (empty($evt['type_id'])) continue;
+                    if (empty($evt['type_id'])) {
+                        continue;
+                    }
                     $eventObjectId = DB::table('object')->insertGetId([
                         'class_name' => 'QubitEvent',
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
                     DB::table('event')->insert([
-                        'id'             => $eventObjectId,
-                        'object_id'      => $io->id,
-                        'type_id'        => (int) $evt['type_id'],
-                        'actor_id'       => !empty($evt['actor_id']) ? (int) $evt['actor_id'] : null,
-                        'start_date'     => $evt['start_date'] ?? null,
-                        'end_date'       => $evt['end_date'] ?? null,
+                        'id' => $eventObjectId,
+                        'object_id' => $io->id,
+                        'type_id' => (int) $evt['type_id'],
+                        'actor_id' => ! empty($evt['actor_id']) ? (int) $evt['actor_id'] : null,
+                        'start_date' => $evt['start_date'] ?? null,
+                        'end_date' => $evt['end_date'] ?? null,
                         'source_culture' => $culture,
                     ]);
                     DB::table('event_i18n')->insert([
-                        'id'      => $eventObjectId,
+                        'id' => $eventObjectId,
                         'culture' => $culture,
-                        'date'    => $evt['date_display'] ?? null,
-                        'name'    => $evt['event_name'] ?? null,
+                        'date' => $evt['date_display'] ?? null,
+                        'name' => $evt['event_name'] ?? null,
                     ]);
                 }
             }
@@ -263,10 +263,10 @@ class RadManageController extends Controller
                         'updated_at' => now(),
                     ]);
                     DB::table('relation')->insert([
-                        'id'             => $relObjectId,
-                        'subject_id'     => $io->id,
-                        'object_id'      => (int) $actorId,
-                        'type_id'        => 161,
+                        'id' => $relObjectId,
+                        'subject_id' => $io->id,
+                        'object_id' => (int) $actorId,
+                        'type_id' => 161,
                         'source_culture' => $culture,
                     ]);
                 }
@@ -295,10 +295,10 @@ class RadManageController extends Controller
                         'updated_at' => now(),
                     ]);
                     DB::table('relation')->insert([
-                        'id'             => $relObjectId,
-                        'subject_id'     => $io->id,
-                        'object_id'      => (int) $relId,
-                        'type_id'        => 173,
+                        'id' => $relObjectId,
+                        'subject_id' => $io->id,
+                        'object_id' => (int) $relId,
+                        'type_id' => 173,
                         'source_culture' => $culture,
                     ]);
                 }
@@ -312,14 +312,14 @@ class RadManageController extends Controller
                     ->delete();
                 foreach (array_filter((array) $request->input('alternativeIdentifiers', [])) as $altId) {
                     $propId = DB::table('property')->insertGetId([
-                        'object_id'      => $io->id,
-                        'name'           => 'alternativeIdentifiers',
+                        'object_id' => $io->id,
+                        'name' => 'alternativeIdentifiers',
                         'source_culture' => $culture,
                     ]);
                     DB::table('property_i18n')->insert([
-                        'id'      => $propId,
+                        'id' => $propId,
                         'culture' => $culture,
-                        'value'   => $altId,
+                        'value' => $altId,
                     ]);
                 }
             }
@@ -362,8 +362,8 @@ class RadManageController extends Controller
             ->select('note.id', 'note.type_id', 'note_i18n.content')
             ->get();
         $publicationNotes = $notes->where('type_id', 220)->values();
-        $archivistNotes   = $notes->where('type_id', 174)->values();
-        $generalNotes     = $notes->whereNotIn('type_id', [220, 174])->values();
+        $archivistNotes = $notes->where('type_id', 174)->values();
+        $generalNotes = $notes->whereNotIn('type_id', [220, 174])->values();
 
         // Subject access points (taxonomy 35)
         $subjects = DB::table('object_term_relation')
@@ -432,11 +432,11 @@ class RadManageController extends Controller
 
         // Languages/scripts of material
         $materialLanguages = $this->loadSerializedProperty($io->id, 'language', $culture);
-        $materialScripts   = $this->loadSerializedProperty($io->id, 'script', $culture);
+        $materialScripts = $this->loadSerializedProperty($io->id, 'script', $culture);
 
         // Languages/scripts of description
         $languagesOfDescription = $this->loadSerializedProperty($io->id, 'languageOfDescription', $culture);
-        $scriptsOfDescription   = $this->loadSerializedProperty($io->id, 'scriptOfDescription', $culture);
+        $scriptsOfDescription = $this->loadSerializedProperty($io->id, 'scriptOfDescription', $culture);
 
         // RAD-specific properties
         $radProperties = [];
@@ -455,11 +455,12 @@ class RadManageController extends Controller
                 ->where('information_object_i18n.culture', $culture)
                 ->select('relation.object_id as id', 'information_object_i18n.title', 'slug.slug')
                 ->get();
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         // Parent info
         $parentTitle = null;
-        $parentSlug  = null;
+        $parentSlug = null;
         if ($io->parent_id && $io->parent_id != 1) {
             $parent = DB::table('information_object')
                 ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
@@ -470,32 +471,32 @@ class RadManageController extends Controller
                 ->first();
             if ($parent) {
                 $parentTitle = $parent->title;
-                $parentSlug  = $parent->slug;
+                $parentSlug = $parent->slug;
             }
         }
 
         return view('rad-manage::edit', array_merge(
             [
-                'io'                          => $io,
-                'events'                      => $events,
-                'notes'                       => $generalNotes,
-                'publicationNotes'            => $publicationNotes,
-                'archivistNotes'              => $archivistNotes,
-                'subjects'                    => $subjects,
-                'places'                      => $places,
-                'genres'                      => $genres,
-                'nameAccessPoints'            => $nameAccessPoints,
-                'materialTypes'               => $materialTypes,
-                'alternativeIdentifiers'      => $alternativeIdentifiers,
-                'publicationStatusId'         => $publicationStatusId,
-                'materialLanguages'           => $materialLanguages,
-                'materialScripts'             => $materialScripts,
-                'languagesOfDescription'      => $languagesOfDescription,
-                'scriptsOfDescription'        => $scriptsOfDescription,
-                'radProperties'               => $radProperties,
+                'io' => $io,
+                'events' => $events,
+                'notes' => $generalNotes,
+                'publicationNotes' => $publicationNotes,
+                'archivistNotes' => $archivistNotes,
+                'subjects' => $subjects,
+                'places' => $places,
+                'genres' => $genres,
+                'nameAccessPoints' => $nameAccessPoints,
+                'materialTypes' => $materialTypes,
+                'alternativeIdentifiers' => $alternativeIdentifiers,
+                'publicationStatusId' => $publicationStatusId,
+                'materialLanguages' => $materialLanguages,
+                'materialScripts' => $materialScripts,
+                'languagesOfDescription' => $languagesOfDescription,
+                'scriptsOfDescription' => $scriptsOfDescription,
+                'radProperties' => $radProperties,
                 'relatedMaterialDescriptions' => $relatedMaterialDescriptions,
-                'parentTitle'                 => $parentTitle,
-                'parentSlug'                  => $parentSlug,
+                'parentTitle' => $parentTitle,
+                'parentSlug' => $parentSlug,
             ],
             $dropdowns
         ));
@@ -590,14 +591,14 @@ class RadManageController extends Controller
                 ->update(['value' => $value]);
         } elseif ($value !== null && $value !== '') {
             $propId = DB::table('property')->insertGetId([
-                'object_id'      => $objectId,
-                'name'           => $name,
+                'object_id' => $objectId,
+                'name' => $name,
                 'source_culture' => $culture,
             ]);
             DB::table('property_i18n')->insert([
-                'id'      => $propId,
+                'id' => $propId,
                 'culture' => $culture,
-                'value'   => $value,
+                'value' => $value,
             ]);
         }
     }
@@ -635,16 +636,16 @@ class RadManageController extends Controller
                 ->where('id', $existing->id)
                 ->where('culture', $culture)
                 ->update(['value' => $serialized]);
-        } elseif (!empty($values)) {
+        } elseif (! empty($values)) {
             $propId = DB::table('property')->insertGetId([
-                'object_id'      => $objectId,
-                'name'           => $name,
+                'object_id' => $objectId,
+                'name' => $name,
                 'source_culture' => $culture,
             ]);
             DB::table('property_i18n')->insert([
-                'id'      => $propId,
+                'id' => $propId,
                 'culture' => $culture,
-                'value'   => $serialized,
+                'value' => $serialized,
             ]);
         }
     }

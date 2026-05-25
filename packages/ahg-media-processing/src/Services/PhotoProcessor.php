@@ -31,11 +31,17 @@ use Illuminate\Support\Facades\Log;
 class PhotoProcessor
 {
     public const DEFAULT_MAX_UPLOAD_SIZE = 5242880;          // 5MB
+
     public const DEFAULT_ALLOWED_TYPES = 'jpg,jpeg,png,gif,tiff';
+
     public const DEFAULT_JPEG_QUALITY = 72;
+
     public const DEFAULT_PNG_COMPRESSION = 8;
+
     public const DEFAULT_THUMBNAIL_SMALL = 150;
+
     public const DEFAULT_THUMBNAIL_MEDIUM = 400;
+
     public const DEFAULT_THUMBNAIL_LARGE = 800;
 
     /**
@@ -48,8 +54,8 @@ class PhotoProcessor
      *   - Apply watermark when photo_watermark_enabled is on (uses WatermarkService).
      *   - Extract EXIF (photo_date / camera_info / photographer / dims) when photo_extract_exif is on.
      *
-     * @param  string  $tmpPath        Source path on disk (typically $_FILES['file']['tmp_name'])
-     * @param  string  $originalName   Original filename, used for extension + provenance
+     * @param  string  $tmpPath  Source path on disk (typically $_FILES['file']['tmp_name'])
+     * @param  string  $originalName  Original filename, used for extension + provenance
      * @return array{
      *     filename: string,
      *     path: string,
@@ -65,7 +71,7 @@ class PhotoProcessor
      */
     public function process(string $tmpPath, string $originalName): array
     {
-        if (!is_file($tmpPath) || !is_readable($tmpPath)) {
+        if (! is_file($tmpPath) || ! is_readable($tmpPath)) {
             throw new PhotoProcessorException("Source file not readable: $tmpPath");
         }
 
@@ -81,7 +87,7 @@ class PhotoProcessor
 
         $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
         $allowed = $this->allowedExtensions();
-        if (!in_array($ext, $allowed, true)) {
+        if (! in_array($ext, $allowed, true)) {
             throw new PhotoProcessorException(sprintf(
                 'Disallowed file type: .%s (allowed: %s)',
                 $ext,
@@ -90,12 +96,12 @@ class PhotoProcessor
         }
 
         $uploadDir = $this->resolveUploadPath();
-        if (!is_dir($uploadDir) && !@mkdir($uploadDir, 0755, true)) {
+        if (! is_dir($uploadDir) && ! @mkdir($uploadDir, 0755, true)) {
             throw new PhotoProcessorException("Cannot create upload directory: $uploadDir");
         }
 
-        $filename = uniqid('photo_', true) . '.' . $ext;
-        $destPath = rtrim($uploadDir, '/') . '/' . $filename;
+        $filename = uniqid('photo_', true).'.'.$ext;
+        $destPath = rtrim($uploadDir, '/').'/'.$filename;
 
         // Read EXIF before any pixel-level mutation - the auto-orient pass below
         // strips the orientation tag, and a future photo_exif_strip pass strips
@@ -107,7 +113,7 @@ class PhotoProcessor
         // Copy then transform; never write transformed bytes back over $tmpPath
         // since that lives under tempdir managed by PHP and the move semantics
         // differ across SAPIs.
-        if (!@copy($tmpPath, $destPath)) {
+        if (! @copy($tmpPath, $destPath)) {
             throw new PhotoProcessorException("Failed to copy upload to $destPath");
         }
 
@@ -138,6 +144,7 @@ class PhotoProcessor
     protected function allowedExtensions(): array
     {
         $raw = (string) AhgSettingsService::get('photo_allowed_types', self::DEFAULT_ALLOWED_TYPES);
+
         return array_values(array_filter(array_map(
             fn ($e) => strtolower(trim($e, '. ')),
             explode(',', $raw),
@@ -160,12 +167,12 @@ class PhotoProcessor
         if ($configured !== '') {
             return $configured[0] === '/'
                 ? $configured
-                : rtrim(config('heratio.storage_path', storage_path('app')), '/') . '/' . ltrim($configured, '/');
+                : rtrim(config('heratio.storage_path', storage_path('app')), '/').'/'.ltrim($configured, '/');
         }
 
         $uploads = config('heratio.uploads_path');
         if ($uploads) {
-            return rtrim($uploads, '/') . '/condition_photos';
+            return rtrim($uploads, '/').'/condition_photos';
         }
 
         return storage_path('app/public/condition_photos');
@@ -226,7 +233,7 @@ class PhotoProcessor
         $exitCode = -1;
         exec($cmd, $output, $exitCode);
         if ($exitCode !== 0) {
-            throw new PhotoProcessorException("ImageMagick failed (exit $exitCode): " . implode("\n", $output));
+            throw new PhotoProcessorException("ImageMagick failed (exit $exitCode): ".implode("\n", $output));
         }
     }
 
@@ -250,12 +257,13 @@ class PhotoProcessor
             if ($size <= 0) {
                 continue;
             }
-            $thumbDir = rtrim($uploadDir, '/') . '/thumbs/' . $key;
-            if (!is_dir($thumbDir) && !@mkdir($thumbDir, 0755, true)) {
+            $thumbDir = rtrim($uploadDir, '/').'/thumbs/'.$key;
+            if (! is_dir($thumbDir) && ! @mkdir($thumbDir, 0755, true)) {
                 Log::warning('[photo] thumbnail dir create failed', ['dir' => $thumbDir]);
+
                 continue;
             }
-            $thumbPath = $thumbDir . '/' . $filename;
+            $thumbPath = $thumbDir.'/'.$filename;
             $cmd = sprintf(
                 'convert %s -thumbnail %dx%d -gravity center -extent %dx%d %s 2>&1',
                 escapeshellarg($masterPath),
@@ -321,12 +329,12 @@ class PhotoProcessor
      */
     protected function extractExif(string $path): array
     {
-        if (!function_exists('exif_read_data')) {
+        if (! function_exists('exif_read_data')) {
             return [];
         }
 
         $raw = @exif_read_data($path);
-        if ($raw === false || !is_array($raw)) {
+        if ($raw === false || ! is_array($raw)) {
             return [];
         }
 
@@ -335,7 +343,7 @@ class PhotoProcessor
             $raw['Model'] ?? null,
         ]);
         $photoDate = null;
-        if (!empty($raw['DateTimeOriginal'])) {
+        if (! empty($raw['DateTimeOriginal'])) {
             $ts = strtotime($raw['DateTimeOriginal']);
             if ($ts !== false) {
                 $photoDate = date('Y-m-d', $ts);
@@ -364,10 +372,9 @@ class PhotoProcessor
         if ($info === false) {
             return [null, null, mime_content_type($path) ?: 'application/octet-stream'];
         }
+
         return [(int) $info[0], (int) $info[1], $info['mime'] ?? 'application/octet-stream'];
     }
 }
 
-class PhotoProcessorException extends \Exception
-{
-}
+class PhotoProcessorException extends \Exception {}

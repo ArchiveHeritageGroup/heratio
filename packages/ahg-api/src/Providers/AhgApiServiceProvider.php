@@ -20,7 +20,7 @@ class AhgApiServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
+        $this->loadRoutesFrom(__DIR__.'/../../routes/api.php');
 
         // Register API middleware aliases
         $router = $this->app['router'];

@@ -58,6 +58,7 @@ class TranslationImportXliffCommand extends Command
 
         if (empty($sourceDirs)) {
             $this->error('No valid source dir(s) found. Pass --source=/path/to/i18n.');
+
             return self::FAILURE;
         }
 
@@ -68,6 +69,7 @@ class TranslationImportXliffCommand extends Command
         }
         if (! in_array($mode, ['merge', 'prefer-source', 'overwrite'], true)) {
             $this->error("Invalid --mode={$mode}. Use merge, prefer-source, or overwrite.");
+
             return self::FAILURE;
         }
         $prune = (bool) $this->option('prune');
@@ -82,8 +84,10 @@ class TranslationImportXliffCommand extends Command
         $locales = [];
         foreach ($sourceDirs as $sd) {
             foreach ((array) scandir($sd) as $e) {
-                if ($e === '.' || $e === '..') continue;
-                if (is_dir($sd . '/' . $e)) {
+                if ($e === '.' || $e === '..') {
+                    continue;
+                }
+                if (is_dir($sd.'/'.$e)) {
                     $locales[$e] = true;
                 }
             }
@@ -106,13 +110,13 @@ class TranslationImportXliffCommand extends Command
         $this->newLine();
 
         // 2) Load _meta.json for prefer-source mode (per-key hand_edited flags).
-        $metaPath = $langDir . '/_meta.json';
+        $metaPath = $langDir.'/_meta.json';
         $meta = is_file($metaPath) ? (json_decode(file_get_contents($metaPath), true) ?? []) : [];
 
         // 3) Codebase __() scan, only if pruning (it's expensive).
         $codebaseKeys = $prune ? $this->scanCodebaseKeys() : null;
         if ($prune) {
-            $this->info('Codebase __() scan: ' . count($codebaseKeys) . ' keys');
+            $this->info('Codebase __() scan: '.count($codebaseKeys).' keys');
         }
 
         $headers = ['locale', 'xliff units', 'with target', 'wrote', 'pruned', 'total after'];
@@ -122,7 +126,7 @@ class TranslationImportXliffCommand extends Command
             // Union XLIFFs from all source dirs (later sources win)
             $xliffMerged = [];
             foreach ($sourceDirs as $sd) {
-                $xliff = $sd . '/' . $locale . '/messages.xml';
+                $xliff = $sd.'/'.$locale.'/messages.xml';
                 if (is_file($xliff)) {
                     foreach ($this->parseXliff($xliff) as $src => $tgt) {
                         if ($tgt !== '') {
@@ -132,7 +136,7 @@ class TranslationImportXliffCommand extends Command
                 }
             }
 
-            $jsonPath = $langDir . '/' . $locale . '.json';
+            $jsonPath = $langDir.'/'.$locale.'.json';
             $existing = is_file($jsonPath)
                 ? (json_decode(file_get_contents($jsonPath), true) ?? [])
                 : [];
@@ -146,9 +150,9 @@ class TranslationImportXliffCommand extends Command
                 $isHandEdited = ($perKeyMeta[$source]['hand_edited'] ?? false) === true;
 
                 $write = match ($mode) {
-                    'merge'         => $existingValue === null || $existingValue === $source,
+                    'merge' => $existingValue === null || $existingValue === $source,
                     'prefer-source' => ! $isHandEdited,
-                    'overwrite'     => true,
+                    'overwrite' => true,
                 };
 
                 if ($write && $existingValue !== $target) {
@@ -177,7 +181,7 @@ class TranslationImportXliffCommand extends Command
             if (! $diff) {
                 file_put_contents(
                     $jsonPath,
-                    json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n"
+                    json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n"
                 );
             }
 
@@ -213,15 +217,19 @@ class TranslationImportXliffCommand extends Command
         libxml_use_internal_errors($prev);
         if ($xml === false) {
             $this->warn("Could not parse: {$path}");
+
             return $out;
         }
         $units = $xml->xpath('//trans-unit') ?: [];
         foreach ($units as $u) {
             $source = trim((string) ($u->source ?? ''));
             $target = trim((string) ($u->target ?? ''));
-            if ($source === '') continue;
+            if ($source === '') {
+                continue;
+            }
             $out[$source] = $target;
         }
+
         return $out;
     }
 
@@ -240,17 +248,27 @@ class TranslationImportXliffCommand extends Command
         ));
 
         foreach ($roots as $root) {
-            if (! is_dir($root)) continue;
+            if (! is_dir($root)) {
+                continue;
+            }
             $rii = new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS)
             );
             foreach ($rii as $file) {
                 $path = $file->getPathname();
-                if (str_contains($path, '/worktree/')) continue;
-                if (str_contains($path, '/vendor/')) continue;
-                if (! preg_match('/\.(blade\.php|php)$/', $path)) continue;
+                if (str_contains($path, '/worktree/')) {
+                    continue;
+                }
+                if (str_contains($path, '/vendor/')) {
+                    continue;
+                }
+                if (! preg_match('/\.(blade\.php|php)$/', $path)) {
+                    continue;
+                }
                 $contents = @file_get_contents($path);
-                if ($contents === false) continue;
+                if ($contents === false) {
+                    continue;
+                }
                 if (preg_match_all("/__\(\s*['\"]([^'\"]{1,500})['\"]/", $contents, $matches)) {
                     foreach ($matches[1] as $k) {
                         $keys[$k] = true;

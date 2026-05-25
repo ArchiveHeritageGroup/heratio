@@ -56,6 +56,7 @@ class ClassificationRuleService
         if (! empty($filters['fileplan_node_id'])) {
             $q->where('r.fileplan_node_id', (int) $filters['fileplan_node_id']);
         }
+
         return $q->orderByDesc('r.priority')->orderBy('r.id')->limit(500)->get()->all();
     }
 
@@ -76,16 +77,16 @@ class ClassificationRuleService
     public function createRule(array $data, int $userId): int
     {
         return DB::table('rm_classification_rule')->insertGetId([
-            'name'              => $data['name'],
-            'description'       => $data['description'] ?? null,
-            'rule_type'         => $data['rule_type'],
-            'match_pattern'     => $data['match_pattern'],
-            'fileplan_node_id'  => $data['fileplan_node_id'],
+            'name' => $data['name'],
+            'description' => $data['description'] ?? null,
+            'rule_type' => $data['rule_type'],
+            'match_pattern' => $data['match_pattern'],
+            'fileplan_node_id' => $data['fileplan_node_id'],
             'disposal_class_id' => $data['disposal_class_id'] ?? null,
-            'priority'          => $data['priority'] ?? 0,
-            'is_active'         => isset($data['is_active']) ? (int) (bool) $data['is_active'] : 1,
-            'apply_on'          => $data['apply_on'] ?? 'declare',
-            'created_by'        => $userId,
+            'priority' => $data['priority'] ?? 0,
+            'is_active' => isset($data['is_active']) ? (int) (bool) $data['is_active'] : 1,
+            'apply_on' => $data['apply_on'] ?? 'declare',
+            'created_by' => $userId,
         ]);
     }
 
@@ -98,6 +99,7 @@ class ClassificationRuleService
         if (isset($update['is_active'])) {
             $update['is_active'] = (int) (bool) $update['is_active'];
         }
+
         return DB::table('rm_classification_rule')->where('id', $id)->update($update) > 0;
     }
 
@@ -127,13 +129,14 @@ class ClassificationRuleService
             $hit = $this->evaluateRule($rule, $meta);
             if ($hit !== null) {
                 return [
-                    'rule'              => $rule,
-                    'fileplan_node_id'  => (int) $rule->fileplan_node_id,
+                    'rule' => $rule,
+                    'fileplan_node_id' => (int) $rule->fileplan_node_id,
                     'disposal_class_id' => $rule->disposal_class_id ? (int) $rule->disposal_class_id : null,
-                    'match_detail'      => $hit,
+                    'match_detail' => $hit,
                 ];
             }
         }
+
         return null;
     }
 
@@ -167,9 +170,9 @@ class ClassificationRuleService
         if (! $alreadyLogged) {
             DB::table('rm_classification_log')->insert([
                 'information_object_id' => $ioId,
-                'rule_id'               => $match['rule']->id,
-                'fileplan_node_id'      => $match['fileplan_node_id'],
-                'match_detail'          => $match['match_detail'],
+                'rule_id' => $match['rule']->id,
+                'fileplan_node_id' => $match['fileplan_node_id'],
+                'match_detail' => $match['match_detail'],
             ]);
         }
 
@@ -183,23 +186,23 @@ class ClassificationRuleService
             if (! $exists) {
                 DB::table('rm_record_disposal_class')->insert([
                     'information_object_id' => $ioId,
-                    'disposal_class_id'     => $match['disposal_class_id'],
-                    'assigned_by'           => 0, // system
-                    'created_at'            => now(),
+                    'disposal_class_id' => $match['disposal_class_id'],
+                    'assigned_by' => 0, // system
+                    'created_at' => now(),
                 ]);
             }
         }
 
         Log::info('rm: IO classified', [
-            'io_id'   => $ioId,
+            'io_id' => $ioId,
             'rule_id' => $match['rule']->id,
             'node_id' => $match['fileplan_node_id'],
-            'detail'  => $match['match_detail'],
+            'detail' => $match['match_detail'],
         ]);
 
         return [
-            'rule_id'           => (int) $match['rule']->id,
-            'fileplan_node_id'  => $match['fileplan_node_id'],
+            'rule_id' => (int) $match['rule']->id,
+            'fileplan_node_id' => $match['fileplan_node_id'],
             'disposal_class_id' => $match['disposal_class_id'],
         ];
     }
@@ -222,8 +225,8 @@ class ClassificationRuleService
             ->pluck('id');
 
         $classified = 0;
-        $skipped    = 0;
-        $failed     = 0;
+        $skipped = 0;
+        $failed = 0;
 
         foreach ($unclassified as $ioId) {
             try {
@@ -234,7 +237,7 @@ class ClassificationRuleService
                     $skipped++;
                 }
             } catch (Throwable $e) {
-                Log::warning('rm: classifyBatch failed for IO ' . $ioId, ['error' => $e->getMessage()]);
+                Log::warning('rm: classifyBatch failed for IO '.$ioId, ['error' => $e->getMessage()]);
                 $failed++;
             }
         }
@@ -255,6 +258,7 @@ class ClassificationRuleService
             return ['matched' => false, 'detail' => 'rule not found'];
         }
         $detail = $this->evaluateRule($rule, $meta);
+
         return ['matched' => $detail !== null, 'detail' => $detail];
     }
 
@@ -265,8 +269,8 @@ class ClassificationRuleService
     public function counts(): array
     {
         return [
-            'total_rules'        => DB::table('rm_classification_rule')->count(),
-            'active_rules'       => DB::table('rm_classification_rule')->where('is_active', 1)->count(),
+            'total_rules' => DB::table('rm_classification_rule')->count(),
+            'active_rules' => DB::table('rm_classification_rule')->where('is_active', 1)->count(),
             'classified_records' => DB::table('rm_classification_log')->count(),
         ];
     }
@@ -299,12 +303,12 @@ class ClassificationRuleService
     {
         return match ($rule->rule_type) {
             'folder_path' => $this->matchRegex($meta['folder_path'] ?? '', $rule->match_pattern, 'folder_path'),
-            'workspace'   => $this->matchExactCi($meta['workspace'] ?? '', $rule->match_pattern, 'workspace'),
-            'tag'         => $this->matchTag($meta['tags'] ?? [], $rule->match_pattern),
-            'mime_type'   => $this->matchRegex($meta['mime_type'] ?? '', $rule->match_pattern, 'mime_type'),
-            'metadata'    => $this->matchMetadata($meta['custom'] ?? [], $rule->match_pattern),
-            'department'  => $this->matchExactCi($meta['department'] ?? '', $rule->match_pattern, 'department'),
-            default       => null,
+            'workspace' => $this->matchExactCi($meta['workspace'] ?? '', $rule->match_pattern, 'workspace'),
+            'tag' => $this->matchTag($meta['tags'] ?? [], $rule->match_pattern),
+            'mime_type' => $this->matchRegex($meta['mime_type'] ?? '', $rule->match_pattern, 'mime_type'),
+            'metadata' => $this->matchMetadata($meta['custom'] ?? [], $rule->match_pattern),
+            'department' => $this->matchExactCi($meta['department'] ?? '', $rule->match_pattern, 'department'),
+            default => null,
         };
     }
 
@@ -313,12 +317,13 @@ class ClassificationRuleService
         if ($haystack === '' || $pattern === '') {
             return null;
         }
-        $delim   = '/';
-        $escaped = $delim . str_replace($delim, '\\' . $delim, $pattern) . $delim . 'i';
-        $ok      = @preg_match($escaped, $haystack);
+        $delim = '/';
+        $escaped = $delim.str_replace($delim, '\\'.$delim, $pattern).$delim.'i';
+        $ok = @preg_match($escaped, $haystack);
         if ($ok === 1) {
-            return "{$field}=" . mb_substr($haystack, 0, 200) . " ~~ {$pattern}";
+            return "{$field}=".mb_substr($haystack, 0, 200)." ~~ {$pattern}";
         }
+
         return null;
     }
 
@@ -327,6 +332,7 @@ class ClassificationRuleService
         if ($haystack === '' || $pattern === '') {
             return null;
         }
+
         return strcasecmp(trim($haystack), trim($pattern)) === 0
             ? "{$field}={$haystack}"
             : null;
@@ -338,9 +344,10 @@ class ClassificationRuleService
             return null;
         }
         $wanted = array_filter(array_map('trim', explode(',', strtolower($pattern))));
-        $haves  = array_map(fn($t) => strtolower(trim((string) $t)), $docTags);
-        $hits   = array_intersect($wanted, $haves);
-        return $hits ? 'tag~' . implode(',', $hits) : null;
+        $haves = array_map(fn ($t) => strtolower(trim((string) $t)), $docTags);
+        $hits = array_intersect($wanted, $haves);
+
+        return $hits ? 'tag~'.implode(',', $hits) : null;
     }
 
     private function matchMetadata(array $custom, string $pattern): ?string
@@ -360,6 +367,7 @@ class ClassificationRuleService
         if ($actual !== null && (string) $actual === $v) {
             return "metadata.{$k}={$v}";
         }
+
         return null;
     }
 
@@ -397,16 +405,16 @@ class ClassificationRuleService
         }
 
         $folderPath = $this->buildAncestorPath($ioId);
-        $tags       = $this->collectTags($ioId);
+        $tags = $this->collectTags($ioId);
 
         return [
             'folder_path' => $folderPath,
-            'workspace'   => $io->repository_name ?? '',
-            'department'  => $io->repository_name ?? '',
-            'tags'        => $tags,
-            'mime_type'   => (string) ($io->mime_type ?? ''),
-            'custom'      => [
-                'identifier'     => $io->identifier ?? '',
+            'workspace' => $io->repository_name ?? '',
+            'department' => $io->repository_name ?? '',
+            'tags' => $tags,
+            'mime_type' => (string) ($io->mime_type ?? ''),
+            'custom' => [
+                'identifier' => $io->identifier ?? '',
                 'source_culture' => $io->source_culture ?? '',
             ],
         ];
@@ -433,8 +441,9 @@ class ClassificationRuleService
         if ($ancestors->isEmpty()) {
             return '';
         }
-        $parts = $ancestors->map(fn($a) => $a->title ?: ($a->slug ?: ''))->filter()->all();
-        return '/' . implode('/', $parts);
+        $parts = $ancestors->map(fn ($a) => $a->title ?: ($a->slug ?: ''))->filter()->all();
+
+        return '/'.implode('/', $parts);
     }
 
     private function collectTags(int $ioId): array
@@ -449,7 +458,7 @@ class ClassificationRuleService
             ->where('term.taxonomy_id', 35)
             ->whereNotNull('ti.name')
             ->pluck('ti.name')
-            ->map(fn($n) => (string) $n)
+            ->map(fn ($n) => (string) $n)
             ->all();
     }
 }

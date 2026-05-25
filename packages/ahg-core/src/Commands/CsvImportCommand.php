@@ -30,6 +30,7 @@ class CsvImportCommand extends Command
         $file = (string) $this->argument('file');
         if (! is_file($file) || ! is_readable($file)) {
             $this->error("CSV not readable: {$file}");
+
             return self::FAILURE;
         }
 
@@ -49,7 +50,7 @@ class CsvImportCommand extends Command
             $importer->setUpdateMode($updateMode, $skipMatched);
         }
 
-        $this->info("importing {$file} (source={$sourceName}, limit=" . ($limit === PHP_INT_MAX ? 'all' : $limit) . ")");
+        $this->info("importing {$file} (source={$sourceName}, limit=".($limit === PHP_INT_MAX ? 'all' : $limit).')');
         $result = $importer->import($file, $limit, 0);
 
         $this->info(sprintf(

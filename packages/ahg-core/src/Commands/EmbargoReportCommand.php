@@ -24,17 +24,19 @@ class EmbargoReportCommand extends Command
                 'expiring_window_days' => (int) $this->option('expiring'),
                 'expiring' => $expiring,
             ], JSON_PRETTY_PRINT));
+
             return self::SUCCESS;
         }
 
-        $this->info("=== embargo summary ===");
+        $this->info('=== embargo summary ===');
         $this->line("  active total:        {$active->count()}");
         $this->line("  expiring in {$this->option('expiring')}d:    {$expiring->count()}");
 
         $this->info("\n=== expiring soon (top 30) ===");
         foreach ($expiring->take(30) as $e) {
-            $this->line(sprintf("  id=%-5d obj=%-7d type=%-15s end=%s", $e->id, $e->object_id, $e->embargo_type, $e->end_date ?? '-'));
+            $this->line(sprintf('  id=%-5d obj=%-7d type=%-15s end=%s', $e->id, $e->object_id, $e->embargo_type, $e->end_date ?? '-'));
         }
+
         return self::SUCCESS;
     }
 }

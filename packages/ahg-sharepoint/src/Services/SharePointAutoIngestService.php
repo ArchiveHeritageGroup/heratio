@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\DB;
 class SharePointAutoIngestService
 {
     private const LOCK_DIR = '/tmp';
+
     private const MAX_ITEMS_PER_RUN = 500;
+
     private const DEFAULT_MAPPINGS = [
         ['source' => 'Title', 'target' => 'title'],
         ['source' => 'Name', 'target' => 'title'],
@@ -29,8 +31,7 @@ class SharePointAutoIngestService
     public function __construct(
         private SharePointBrowserService $browser,
         private SharePointDriveRepository $drives,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<int, array>
@@ -42,6 +43,7 @@ class SharePointAutoIngestService
         foreach ($rules as $rule) {
             $results[] = $this->runRule((int) $rule->id, $dryRun);
         }
+
         return $results;
     }
 
@@ -50,12 +52,13 @@ class SharePointAutoIngestService
         $result = ['rule_id' => $ruleId, 'status' => 'pending', 'items_new' => 0, 'items_skipped' => 0];
 
         $rule = DB::table('sharepoint_ingest_rule')->where('id', $ruleId)->first();
-        if (!$rule) {
+        if (! $rule) {
             return $result + ['status' => 'error', 'error' => "Rule {$ruleId} not found"];
         }
         $drive = $this->drives->find((int) $rule->drive_id);
-        if (!$drive) {
+        if (! $drive) {
             $this->updateRuleStatus($ruleId, 'error');
+
             return $result + ['status' => 'error', 'error' => "Drive {$rule->drive_id} not found"];
         }
 
@@ -69,7 +72,8 @@ class SharePointAutoIngestService
             $newItems = [];
             foreach ($items as $item) {
                 if ($this->isAlreadyIngested((int) $rule->drive_id, $item['id'], (string) ($item['etag'] ?? ''))) {
-                    ++$result['items_skipped'];
+                    $result['items_skipped']++;
+
                     continue;
                 }
                 $newItems[] = $item;
@@ -78,10 +82,12 @@ class SharePointAutoIngestService
 
             if ($dryRun) {
                 $this->updateRuleStatus($ruleId, 'dry_run');
+
                 return $result + ['status' => 'dry_run'];
             }
             if (empty($newItems)) {
                 $this->updateRuleStatus($ruleId, 'ok');
+
                 return $result + ['status' => 'no_new_items'];
             }
 
@@ -97,7 +103,7 @@ class SharePointAutoIngestService
             $jobId = $this->dispatchCommit($sessionId);
 
             DB::table('sharepoint_ingest_rule')->where('id', $ruleId)->update([
-                'items_ingested' => DB::raw('items_ingested + ' . count($newItems)),
+                'items_ingested' => DB::raw('items_ingested + '.count($newItems)),
                 'last_run_at' => now(),
                 'last_run_status' => 'ok',
             ]);
@@ -106,6 +112,7 @@ class SharePointAutoIngestService
         } catch (\Throwable $e) {
             $this->updateRuleStatus($ruleId, 'error');
             $this->logError($ruleId, $e);
+
             return $result + ['status' => 'error', 'error' => $e->getMessage()];
         } finally {
             $this->releaseLock($lock);
@@ -121,13 +128,13 @@ class SharePointAutoIngestService
                 ->where('drive_id', $drivePk)
                 ->first();
         }
-        if (!$chosenTemplate) {
+        if (! $chosenTemplate) {
             $chosenTemplate = DB::table('sharepoint_mapping_template')
                 ->where('drive_id', $drivePk)
                 ->where('is_default', 1)
                 ->first();
         }
-        if (!$chosenTemplate) {
+        if (! $chosenTemplate) {
             $chosenTemplate = DB::table('sharepoint_mapping_template')
                 ->where('drive_id', $drivePk)
                 ->orderBy('id')
@@ -160,6 +167,7 @@ class SharePointAutoIngestService
                     'sort_order' => $i,
                 ]);
             }
+
             return count(self::DEFAULT_MAPPINGS);
         }
 
@@ -174,6 +182,7 @@ class SharePointAutoIngestService
                 'sort_order' => (int) ($t->sort_order ?? $i),
             ]);
         }
+
         return count($templates);
     }
 
@@ -183,15 +192,17 @@ class SharePointAutoIngestService
         if ($force) {
             return $rules;
         }
+
         return array_values(array_filter($rules, fn ($r) => $this->isCronDue($r->schedule_cron ?? '*/15 * * * *', $r->last_run_at)));
     }
 
     private function isCronDue(string $cron, ?string $lastRunAt): bool
     {
-        if (!$lastRunAt) {
+        if (! $lastRunAt) {
             return true;
         }
         $lastTs = strtotime($lastRunAt);
+
         return $lastTs === false || (time() - $lastTs) >= ($this->inferIntervalMinutes($cron) * 60);
     }
 
@@ -203,6 +214,7 @@ class SharePointAutoIngestService
         if (preg_match('#^0\s+\*/(\d+)\s+\*\s+\*\s+\*$#', trim($cron), $m)) {
             return max(60, (int) $m[1] * 60);
         }
+
         return 15;
     }
 
@@ -216,19 +228,20 @@ class SharePointAutoIngestService
         $visited = 0;
         $maxNodes = 5000;
 
-        while (!empty($stack) && $visited < $maxNodes) {
+        while (! empty($stack) && $visited < $maxNodes) {
             $itemId = array_pop($stack);
-            ++$visited;
+            $visited++;
             $children = $this->browser->listChildren($tenantId, $driveId, $itemId);
             foreach ($children as $child) {
                 if ($child['isFolder']) {
                     $stack[] = $child['id'];
+
                     continue;
                 }
-                if (!$this->matchesPattern($child['name'], $patterns)) {
+                if (! $this->matchesPattern($child['name'], $patterns)) {
                     continue;
                 }
-                if (!$this->matchesRetentionLabel($child['retentionLabel'] ?? null, $requiredLabels)) {
+                if (! $this->matchesRetentionLabel($child['retentionLabel'] ?? null, $requiredLabels)) {
                     continue;
                 }
                 $collected[] = $child;
@@ -237,6 +250,7 @@ class SharePointAutoIngestService
                 }
             }
         }
+
         return $collected;
     }
 
@@ -249,6 +263,7 @@ class SharePointAutoIngestService
             return [];
         }
         $parts = array_map(fn ($s) => strtolower(trim((string) $s)), explode(',', $csv));
+
         return array_values(array_filter($parts, fn ($s) => $s !== ''));
     }
 
@@ -260,6 +275,7 @@ class SharePointAutoIngestService
         if ($itemLabel === null || $itemLabel === '') {
             return false;
         }
+
         return in_array(strtolower($itemLabel), $requiredLabels, true);
     }
 
@@ -268,7 +284,8 @@ class SharePointAutoIngestService
         if ($folderPath === null || $folderPath === '' || $folderPath === '/') {
             return 'root';
         }
-        return 'root:/' . trim($folderPath, '/') . ':';
+
+        return 'root:/'.trim($folderPath, '/').':';
     }
 
     private function parsePatterns(?string $patternCsv): array
@@ -276,6 +293,7 @@ class SharePointAutoIngestService
         if ($patternCsv === null || trim($patternCsv) === '') {
             return ['*'];
         }
+
         return array_values(array_filter(array_map('trim', explode(',', $patternCsv))));
     }
 
@@ -286,6 +304,7 @@ class SharePointAutoIngestService
                 return true;
             }
         }
+
         return false;
     }
 
@@ -298,12 +317,14 @@ class SharePointAutoIngestService
         if ($etag !== '') {
             $q->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(sidecar_json, '$.sp_etag')) = ?", [$etag]);
         }
+
         return $q->exists();
     }
 
     private function createSession(int $ruleId, object $rule, object $drive): int
     {
         $title = sprintf('SharePoint auto-ingest: %s [%s]', $rule->name, now()->format('Y-m-d H:i'));
+
         return DB::table('ingest_session')->insertGetId([
             'user_id' => $this->systemUserId(),
             'title' => $title,
@@ -350,19 +371,19 @@ class SharePointAutoIngestService
     private function downloadAndRegister(int $sessionId, int $tenantId, string $driveId, array $items): void
     {
         $baseDir = $this->sessionDownloadDir($sessionId);
-        if (!is_dir($baseDir)) {
+        if (! is_dir($baseDir)) {
             mkdir($baseDir, 0775, true);
         }
 
         $rowNum = 0;
         foreach ($items as $item) {
-            ++$rowNum;
+            $rowNum++;
             $safeName = $this->sanitizeFilename($item['name'] ?: $item['id']);
-            $itemDir = $baseDir . '/' . $item['id'];
-            if (!is_dir($itemDir)) {
+            $itemDir = $baseDir.'/'.$item['id'];
+            if (! is_dir($itemDir)) {
                 mkdir($itemDir, 0775, true);
             }
-            $destPath = $itemDir . '/' . $safeName;
+            $destPath = $itemDir.'/'.$safeName;
             $this->browser->downloadItem($tenantId, $driveId, $item['id'], $destPath);
 
             $listFields = [];
@@ -415,6 +436,7 @@ class SharePointAutoIngestService
             $ingest->updateSessionStatus($sessionId, 'commit');
             $jobId = $commit->startJob($sessionId);
             $commit->executeJob($jobId);
+
             return $jobId;
         }
 
@@ -427,6 +449,7 @@ class SharePointAutoIngestService
             'created_at' => now(),
         ]);
         \Log::info("SharePoint auto-ingest queued ingest_job id={$jobId} (no IngestService bound)");
+
         return $jobId;
     }
 
@@ -436,28 +459,32 @@ class SharePointAutoIngestService
             return $default;
         }
         $decoded = json_decode($jsonFlags, true);
-        if (!is_array($decoded)) {
+        if (! is_array($decoded)) {
             return $default;
         }
-        return !empty($decoded[$key]) ? 1 : $default;
+
+        return ! empty($decoded[$key]) ? 1 : $default;
     }
 
     private function sessionDownloadDir(int $sessionId): string
     {
         $base = config('ahg-ingest.upload_dir', storage_path('app/ingest'));
-        return rtrim($base, '/') . '/' . $sessionId;
+
+        return rtrim($base, '/').'/'.$sessionId;
     }
 
     private function sanitizeFilename(string $name): string
     {
         $name = preg_replace('#[\\\\/]+#', '_', $name);
         $name = preg_replace('#[^A-Za-z0-9._ \-]#', '_', $name);
+
         return substr($name, 0, 200);
     }
 
     private function systemUserId(): int
     {
         $u = DB::table('users')->orderBy('id')->first();
+
         return (int) ($u->id ?? 1);
     }
 
@@ -471,22 +498,24 @@ class SharePointAutoIngestService
 
     private function logError(int $ruleId, \Throwable $e): void
     {
-        \Log::error("SharePoint auto-ingest rule={$ruleId} failed: " . $e->getMessage(), [
+        \Log::error("SharePoint auto-ingest rule={$ruleId} failed: ".$e->getMessage(), [
             'trace' => $e->getTraceAsString(),
         ]);
     }
 
     private function acquireLock(int $ruleId)
     {
-        $path = self::LOCK_DIR . "/sp-rule-{$ruleId}.lock";
+        $path = self::LOCK_DIR."/sp-rule-{$ruleId}.lock";
         $fh = fopen($path, 'c');
-        if (!$fh) {
+        if (! $fh) {
             return false;
         }
-        if (!flock($fh, LOCK_EX | LOCK_NB)) {
+        if (! flock($fh, LOCK_EX | LOCK_NB)) {
             fclose($fh);
+
             return false;
         }
+
         return $fh;
     }
 

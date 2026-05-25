@@ -52,7 +52,7 @@ class SettingHelper
             $value = DB::table('setting')
                 ->leftJoin('setting_i18n', function ($j) use ($culture) {
                     $j->on('setting.id', '=', 'setting_i18n.id')
-                      ->where('setting_i18n.culture', '=', $culture);
+                        ->where('setting_i18n.culture', '=', $culture);
                 })
                 ->where('setting.name', $name)
                 ->whereNull('setting.scope')
@@ -88,7 +88,7 @@ class SettingHelper
         $value = DB::table('setting')
             ->leftJoin('setting_i18n', function ($j) use ($culture) {
                 $j->on('setting.id', '=', 'setting_i18n.id')
-                  ->where('setting_i18n.culture', '=', $culture);
+                    ->where('setting_i18n.culture', '=', $culture);
             })
             ->where('setting.name', $name)
             ->where('setting.scope', $scope)
@@ -105,9 +105,8 @@ class SettingHelper
      * If the user is authenticated (or running CLI), the field is always visible.
      * Otherwise, check the element_visibility setting value.
      *
-     * @param string $fieldName  The setting name (e.g. 'isad_identity_area')
-     * @param array  $options    Optional: ['public' => true] to always check the setting
-     * @return bool
+     * @param  string  $fieldName  The setting name (e.g. 'isad_identity_area')
+     * @param  array  $options  Optional: ['public' => true] to always check the setting
      */
     public static function checkFieldVisibility(string $fieldName, array $options = []): bool
     {
@@ -115,7 +114,7 @@ class SettingHelper
         $configValue = config("atom.element_visibility.{$fieldName}", true);
 
         // If 'public' option is set, always check the config value regardless of auth
-        if (!empty($options['public'])) {
+        if (! empty($options['public'])) {
             return (bool) $configValue;
         }
 
@@ -137,7 +136,7 @@ class SettingHelper
             $settings = DB::table('setting')
                 ->leftJoin('setting_i18n', function ($j) use ($culture) {
                     $j->on('setting.id', '=', 'setting_i18n.id')
-                      ->where('setting_i18n.culture', '=', $culture);
+                        ->where('setting_i18n.culture', '=', $culture);
                 })
                 ->where('setting.scope', 'element_visibility')
                 ->select('setting.name', 'setting_i18n.value')
@@ -175,10 +174,11 @@ class SettingHelper
     {
         $template = self::getScoped('default_template', $entityType, $defaultTemplate);
         $template = trim($template) !== '' ? trim($template) : $defaultTemplate;
-        $candidate = $viewBase . '-' . $template;
+        $candidate = $viewBase.'-'.$template;
         if (\Illuminate\Support\Facades\View::exists($candidate)) {
             return $candidate;
         }
+
         return $viewBase;
     }
 
@@ -193,7 +193,7 @@ class SettingHelper
                 $value = DB::table('setting')
                     ->leftJoin('setting_i18n', function ($j) {
                         $j->on('setting.id', '=', 'setting_i18n.id')
-                          ->where('setting_i18n.culture', '=', 'en');
+                            ->where('setting_i18n.culture', '=', 'en');
                     })
                     ->where('setting.name', 'audit_log_enabled')
                     ->value('setting_i18n.value');
@@ -201,6 +201,7 @@ class SettingHelper
                 $value = null;
             }
         }
+
         // Default to true if the setting does not exist
         return $value === '' || $value === null || (bool) (int) $value;
     }

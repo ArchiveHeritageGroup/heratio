@@ -51,12 +51,12 @@ class TenantScope
     public static function getActiveRepoId(): ?int
     {
         try {
-            if (!app()->bound('tenant.current')) {
+            if (! app()->bound('tenant.current')) {
                 return null;
             }
 
             $enforce = AhgSettingsService::get('tenant_enforce_filter', 'false');
-            if (!($enforce === 'true' || $enforce === '1' || $enforce === 1 || $enforce === true)) {
+            if (! ($enforce === 'true' || $enforce === '1' || $enforce === 1 || $enforce === true)) {
                 return null;
             }
 

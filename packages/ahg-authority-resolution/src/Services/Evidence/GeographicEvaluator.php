@@ -65,7 +65,7 @@ class GeographicEvaluator implements EvaluatorInterface
     public function evaluate(object $mention, object $context, object $candidate): array
     {
         $candSource = (string) ($candidate->candidate_source ?? '');
-        if (!in_array($candSource, ['mysql_actor', 'fuseki_agent'], true)) {
+        if (! in_array($candSource, ['mysql_actor', 'fuseki_agent'], true)) {
             return EvidenceSignal::make(EvidenceSignal::ABSENT, ['reason' => 'candidate_source_not_actor']);
         }
 
@@ -100,7 +100,7 @@ class GeographicEvaluator implements EvaluatorInterface
         }
 
         $overlaps = [];
-        $candKnownLower = array_map(fn($s) => mb_strtolower($s), $candKnown);
+        $candKnownLower = array_map(fn ($s) => mb_strtolower($s), $candKnown);
         foreach ($nearbyPlaces as $place) {
             $placeLower = mb_strtolower($place);
             foreach ($candKnownLower as $idx => $kLower) {
@@ -117,7 +117,7 @@ class GeographicEvaluator implements EvaluatorInterface
             }
         }
 
-        if (!empty($overlaps)) {
+        if (! empty($overlaps)) {
             return EvidenceSignal::make(EvidenceSignal::MATCH, [
                 'overlaps' => $overlaps,
                 'candidate_locations' => $candKnown,
@@ -138,7 +138,7 @@ class GeographicEvaluator implements EvaluatorInterface
     private function extractPlaceNames($nearbyPlacesJson): array
     {
         $rows = EvidenceDateUtil::decodeJsonish($nearbyPlacesJson);
-        if (!is_array($rows)) {
+        if (! is_array($rows)) {
             return [];
         }
         $names = [];
@@ -147,6 +147,7 @@ class GeographicEvaluator implements EvaluatorInterface
                 $names[] = (string) $row['value'];
             }
         }
+
         return array_values(array_unique($names));
     }
 
@@ -161,13 +162,13 @@ class GeographicEvaluator implements EvaluatorInterface
             ->join('term', 'term.id', '=', 'otr.term_id')
             ->join('term_i18n', function ($join) {
                 $join->on('term_i18n.id', '=', 'term.id')
-                     ->where('term_i18n.culture', '=', 'en');
+                    ->where('term_i18n.culture', '=', 'en');
             })
             ->where('term.taxonomy_id', 42)  // places taxonomy
             ->pluck('term_i18n.name')
             ->all();
 
-        return array_values(array_filter(array_map('strval', $rows), fn($s) => $s !== ''));
+        return array_values(array_filter(array_map('strval', $rows), fn ($s) => $s !== ''));
     }
 
     private function candidatePlacesText(int $actorId): array
@@ -177,7 +178,7 @@ class GeographicEvaluator implements EvaluatorInterface
             ->orderByRaw("CASE WHEN culture = 'en' THEN 0 ELSE 1 END")
             ->first(['places']);
 
-        if (!$row) {
+        if (! $row) {
             return [];
         }
         $text = trim((string) ($row->places ?? ''));
@@ -193,6 +194,7 @@ class GeographicEvaluator implements EvaluatorInterface
                 $out[] = $p;
             }
         }
+
         return $out;
     }
 }

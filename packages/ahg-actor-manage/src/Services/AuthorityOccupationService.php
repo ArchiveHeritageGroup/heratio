@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -61,13 +59,13 @@ class AuthorityOccupationService
     public function save(int $actorId, array $data, int $occupationId = 0): int
     {
         $row = [
-            'actor_id'        => $actorId,
-            'term_id'         => !empty($data['term_id']) ? (int) $data['term_id'] : null,
+            'actor_id' => $actorId,
+            'term_id' => ! empty($data['term_id']) ? (int) $data['term_id'] : null,
             'occupation_text' => $data['occupation_text'] ?? null,
-            'date_from'       => $data['date_from'] ?? null,
-            'date_to'         => $data['date_to'] ?? null,
-            'notes'           => $data['notes'] ?? null,
-            'sort_order'      => (int) ($data['sort_order'] ?? 0),
+            'date_from' => $data['date_from'] ?? null,
+            'date_to' => $data['date_to'] ?? null,
+            'notes' => $data['notes'] ?? null,
+            'sort_order' => (int) ($data['sort_order'] ?? 0),
         ];
 
         if ($occupationId > 0) {
@@ -100,7 +98,7 @@ class AuthorityOccupationService
     {
         $taxonomyId = $this->getOccupationTaxonomyId();
 
-        if (!$taxonomyId) {
+        if (! $taxonomyId) {
             return [];
         }
 
@@ -110,8 +108,8 @@ class AuthorityOccupationService
             ->where('ti.culture', 'en')
             ->select('t.id', 'ti.name');
 
-        if (!empty($search)) {
-            $query->where('ti.name', 'like', '%' . $search . '%');
+        if (! empty($search)) {
+            $query->where('ti.name', 'like', '%'.$search.'%');
         }
 
         return $query->orderBy('ti.name')
@@ -166,9 +164,9 @@ class AuthorityOccupationService
         $uniqueActors = DB::table('ahg_actor_occupation')->distinct('actor_id')->count('actor_id');
 
         return [
-            'total'         => $total,
-            'with_terms'    => $withTerms,
-            'free_text'     => $freeText,
+            'total' => $total,
+            'with_terms' => $withTerms,
+            'free_text' => $freeText,
             'unique_actors' => $uniqueActors,
         ];
     }

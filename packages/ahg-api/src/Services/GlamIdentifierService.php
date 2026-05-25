@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgApi\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -39,23 +37,39 @@ use Illuminate\Support\Facades\Schema;
 class GlamIdentifierService
 {
     public const TYPE_ISBN13 = 'isbn13';
+
     public const TYPE_ISBN10 = 'isbn10';
+
     public const TYPE_ISSN = 'issn';
+
     public const TYPE_LCCN = 'lccn';
+
     public const TYPE_DOI = 'doi';
+
     public const TYPE_REFERENCE_CODE = 'reference_code';
+
     public const TYPE_IDENTIFIER = 'identifier';
+
     public const TYPE_ACCESSION = 'accession_number';
+
     public const TYPE_OBJECT_NUMBER = 'object_number';
+
     public const TYPE_ARTWORK_ID = 'artwork_id';
+
     public const TYPE_CATALOGUE_NUMBER = 'catalogue_number';
+
     public const TYPE_ASSET_ID = 'asset_id';
+
     public const TYPE_BARCODE = 'barcode';
 
     public const SECTOR_LIBRARY = 'library';
+
     public const SECTOR_ARCHIVE = 'archive';
+
     public const SECTOR_MUSEUM = 'museum';
+
     public const SECTOR_GALLERY = 'gallery';
+
     public const SECTOR_DAM = 'dam';
 
     private array $sectorIdentifiers = [
@@ -114,8 +128,8 @@ class GlamIdentifierService
             self::TYPE_ISSN => $this->validateIssn($value),
             self::TYPE_DOI => $this->validateDoi($value),
             default => [
-                'valid' => !empty(trim($value)),
-                'message' => !empty(trim($value)) ? 'Valid' : 'Cannot be empty',
+                'valid' => ! empty(trim($value)),
+                'message' => ! empty(trim($value)) ? 'Valid' : 'Cannot be empty',
                 'normalized' => trim($value),
             ]
         };
@@ -127,7 +141,7 @@ class GlamIdentifierService
         $clean = preg_replace('/[\s-]/', '', $isbn);
         $result['normalized'] = $clean;
 
-        if (strlen($clean) !== 13 || !ctype_digit($clean)) {
+        if (strlen($clean) !== 13 || ! ctype_digit($clean)) {
             $result['message'] = 'ISBN-13 must be exactly 13 digits';
 
             return $result;
@@ -157,7 +171,7 @@ class GlamIdentifierService
         $clean = preg_replace('/[\s-]/', '', strtoupper($isbn));
         $result['normalized'] = $clean;
 
-        if (strlen($clean) !== 10 || !preg_match('/^[0-9]{9}[0-9X]$/', $clean)) {
+        if (strlen($clean) !== 10 || ! preg_match('/^[0-9]{9}[0-9X]$/', $clean)) {
             $result['message'] = 'ISBN-10 must be 9 digits + check digit';
 
             return $result;
@@ -186,9 +200,9 @@ class GlamIdentifierService
     {
         $result = ['valid' => false, 'message' => '', 'normalized' => ''];
         $clean = preg_replace('/[\s-]/', '', strtoupper($issn));
-        $result['normalized'] = substr($clean, 0, 4) . '-' . substr($clean, 4);
+        $result['normalized'] = substr($clean, 0, 4).'-'.substr($clean, 4);
 
-        if (strlen($clean) !== 8 || !preg_match('/^[0-9]{7}[0-9X]$/', $clean)) {
+        if (strlen($clean) !== 8 || ! preg_match('/^[0-9]{7}[0-9X]$/', $clean)) {
             $result['message'] = 'ISSN must be 8 characters (NNNN-NNNC)';
 
             return $result;
@@ -220,7 +234,7 @@ class GlamIdentifierService
         $clean = preg_replace('/^doi:\s*/i', '', $clean);
         $result['normalized'] = $clean;
 
-        if (!preg_match('/^10\.\d{4,}\/\S+$/', $clean)) {
+        if (! preg_match('/^10\.\d{4,}\/\S+$/', $clean)) {
             $result['message'] = 'DOI must be in format 10.XXXX/identifier';
 
             return $result;
@@ -235,12 +249,12 @@ class GlamIdentifierService
     public function convertIsbn10ToIsbn13(string $isbn10): ?string
     {
         $validation = $this->validateIsbn10($isbn10);
-        if (!$validation['valid']) {
+        if (! $validation['valid']) {
             return null;
         }
 
         $clean = $validation['normalized'];
-        $base = '978' . substr($clean, 0, 9);
+        $base = '978'.substr($clean, 0, 9);
 
         $sum = 0;
         for ($i = 0; $i < 12; $i++) {
@@ -248,7 +262,7 @@ class GlamIdentifierService
         }
         $checkDigit = (10 - ($sum % 10)) % 10;
 
-        return $base . $checkDigit;
+        return $base.$checkDigit;
     }
 
     public function detectIdentifierType(string $value): ?string
@@ -314,11 +328,11 @@ class GlamIdentifierService
             ->where('io.id', $objectId)
             ->first(['io.*', 'i18n.title']);
 
-        if (!$object) {
+        if (! $object) {
             return null;
         }
 
-        if (!$sector) {
+        if (! $sector) {
             $sector = $this->detectObjectSector($objectId);
         }
 
@@ -326,7 +340,7 @@ class GlamIdentifierService
 
         foreach ($priorityOrder as $type) {
             $value = $this->getIdentifierValue($objectId, $type);
-            if (!empty($value)) {
+            if (! empty($value)) {
                 return [
                     'type' => $type,
                     'value' => $value,
@@ -336,7 +350,7 @@ class GlamIdentifierService
             }
         }
 
-        if (!empty($object->identifier)) {
+        if (! empty($object->identifier)) {
             return [
                 'type' => self::TYPE_IDENTIFIER,
                 'value' => $object->identifier,
@@ -410,9 +424,10 @@ class GlamIdentifierService
     public function getMintedDoi(int $objectId): ?string
     {
         try {
-            if (!Schema::hasTable('ahg_doi')) {
+            if (! Schema::hasTable('ahg_doi')) {
                 return null;
             }
+
             return DB::table('ahg_doi')
                 ->where('information_object_id', $objectId)
                 ->whereIn('status', ['findable', 'registered', 'draft'])
@@ -425,9 +440,10 @@ class GlamIdentifierService
     public function hasMintedDoi(int $objectId): bool
     {
         try {
-            if (!Schema::hasTable('ahg_doi')) {
+            if (! Schema::hasTable('ahg_doi')) {
                 return false;
             }
+
             return DB::table('ahg_doi')
                 ->where('information_object_id', $objectId)
                 ->whereIn('status', ['findable', 'registered', 'draft'])
@@ -440,7 +456,7 @@ class GlamIdentifierService
     public function getDoiRecord(int $objectId): ?object
     {
         try {
-            if (!Schema::hasTable('ahg_doi')) {
+            if (! Schema::hasTable('ahg_doi')) {
                 return null;
             }
             $doi = DB::table('ahg_doi')
@@ -448,7 +464,7 @@ class GlamIdentifierService
                 ->first(['doi', 'status', 'minted_at', 'last_sync_at']);
 
             if ($doi) {
-                $doi->url = 'https://doi.org/' . $doi->doi;
+                $doi->url = 'https://doi.org/'.$doi->doi;
             }
 
             return $doi;
@@ -461,7 +477,7 @@ class GlamIdentifierService
     {
         $record = $this->getDoiRecord($objectId);
 
-        if (!$record) {
+        if (! $record) {
             return null;
         }
 
@@ -476,7 +492,7 @@ class GlamIdentifierService
 
     public function getAllIdentifiers(int $objectId, ?string $sector = null): array
     {
-        if (!$sector) {
+        if (! $sector) {
             $sector = $this->detectObjectSector($objectId);
         }
 
@@ -485,7 +501,7 @@ class GlamIdentifierService
 
         foreach ($types as $type => $config) {
             $value = $this->getIdentifierValue($objectId, $type);
-            if (!empty($value)) {
+            if (! empty($value)) {
                 $identifiers[] = [
                     'type' => $type,
                     'value' => $value,
@@ -497,7 +513,7 @@ class GlamIdentifierService
         }
 
         // Always include minted DOI if not already included
-        if (!in_array(self::TYPE_DOI, array_column($identifiers, 'type'))) {
+        if (! in_array(self::TYPE_DOI, array_column($identifiers, 'type'))) {
             $mintedDoi = $this->getMintedDoi($objectId);
             if ($mintedDoi) {
                 $identifiers[] = [

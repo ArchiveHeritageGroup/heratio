@@ -9,6 +9,7 @@ class DigitalObject extends Model
     protected $table = 'digital_object';
 
     public $timestamps = false;
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -47,6 +48,6 @@ class DigitalObject extends Model
      */
     public function getFullPath(string $uploadsDir = '/usr/share/nginx/archive'): string
     {
-        return rtrim($uploadsDir, '/') . '/' . ltrim($this->path, '/') . $this->name;
+        return rtrim($uploadsDir, '/').'/'.ltrim($this->path, '/').$this->name;
     }
 }

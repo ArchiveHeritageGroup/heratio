@@ -21,8 +21,9 @@ class IntegrityScheduleCommand extends Command
 
     public function handle(): int
     {
-        if (!Schema::hasTable('integrity_schedule')) {
+        if (! Schema::hasTable('integrity_schedule')) {
             $this->error('Table integrity_schedule does not exist.');
+
             return 1;
         }
 
@@ -51,6 +52,7 @@ class IntegrityScheduleCommand extends Command
         }
 
         $this->info('Use --list, --status, --run-due, --run-id=N, --enable=N, or --disable=N.');
+
         return 0;
     }
 
@@ -60,6 +62,7 @@ class IntegrityScheduleCommand extends Command
 
         if ($schedules->isEmpty()) {
             $this->info('No schedules configured.');
+
             return 0;
         }
 
@@ -93,11 +96,12 @@ class IntegrityScheduleCommand extends Command
 
         if ($schedules->isEmpty()) {
             $this->info('No schedules configured.');
+
             return 0;
         }
 
         foreach ($schedules as $s) {
-            $this->info('=== ' . $s->name . ' (ID: ' . $s->id . ') ===');
+            $this->info('=== '.$s->name.' (ID: '.$s->id.') ===');
 
             $lastRun = null;
             if (Schema::hasTable('integrity_run')) {
@@ -127,8 +131,9 @@ class IntegrityScheduleCommand extends Command
     private function toggleSchedule(int $id, bool $enable): int
     {
         $schedule = DB::table('integrity_schedule')->where('id', $id)->first();
-        if (!$schedule) {
-            $this->error('Schedule #' . $id . ' not found.');
+        if (! $schedule) {
+            $this->error('Schedule #'.$id.' not found.');
+
             return 1;
         }
 
@@ -137,31 +142,33 @@ class IntegrityScheduleCommand extends Command
             'updated_at' => now(),
         ]);
 
-        $this->info('Schedule #' . $id . ' (' . $schedule->name . ') ' . ($enable ? 'enabled' : 'disabled') . '.');
+        $this->info('Schedule #'.$id.' ('.$schedule->name.') '.($enable ? 'enabled' : 'disabled').'.');
+
         return 0;
     }
 
     private function runSchedule(int $id): int
     {
         $schedule = DB::table('integrity_schedule')->where('id', $id)->first();
-        if (!$schedule) {
-            $this->error('Schedule #' . $id . ' not found.');
+        if (! $schedule) {
+            $this->error('Schedule #'.$id.' not found.');
+
             return 1;
         }
 
-        $this->info('Running schedule: ' . $schedule->name . ' (ID: ' . $id . ')...');
+        $this->info('Running schedule: '.$schedule->name.' (ID: '.$id.')...');
 
         $exitCode = Artisan::call('ahg:integrity-verify', [
             '--schedule-id' => $id,
-            '--limit'       => $schedule->batch_size,
+            '--limit' => $schedule->batch_size,
         ], $this->output);
 
         // Update schedule tracking
         DB::table('integrity_schedule')->where('id', $id)->update([
             'last_run_at' => now(),
             'next_run_at' => $this->calculateNextRun($schedule),
-            'total_runs'  => $schedule->total_runs + 1,
-            'updated_at'  => now(),
+            'total_runs' => $schedule->total_runs + 1,
+            'updated_at' => now(),
         ]);
 
         return $exitCode;
@@ -179,10 +186,11 @@ class IntegrityScheduleCommand extends Command
 
         if ($dueSchedules->isEmpty()) {
             $this->info('No schedules are due to run.');
+
             return 0;
         }
 
-        $this->info('Found ' . $dueSchedules->count() . ' due schedule(s).');
+        $this->info('Found '.$dueSchedules->count().' due schedule(s).');
 
         $totalExit = 0;
         foreach ($dueSchedules as $schedule) {
@@ -207,6 +215,7 @@ class IntegrityScheduleCommand extends Command
             try {
                 if (class_exists(\Cron\CronExpression::class)) {
                     $cron = new \Cron\CronExpression($schedule->cron_expression);
+
                     return $cron->getNextRunDate($now)->format('Y-m-d H:i:s');
                 }
             } catch (\Throwable $e) {
@@ -216,11 +225,11 @@ class IntegrityScheduleCommand extends Command
 
         // Simple frequency mapping
         return match ($schedule->frequency) {
-            'hourly'  => $now->addHour()->format('Y-m-d H:i:s'),
-            'daily'   => $now->addDay()->format('Y-m-d H:i:s'),
-            'weekly'  => $now->addWeek()->format('Y-m-d H:i:s'),
+            'hourly' => $now->addHour()->format('Y-m-d H:i:s'),
+            'daily' => $now->addDay()->format('Y-m-d H:i:s'),
+            'weekly' => $now->addWeek()->format('Y-m-d H:i:s'),
             'monthly' => $now->addMonth()->format('Y-m-d H:i:s'),
-            default   => $now->addWeek()->format('Y-m-d H:i:s'),
+            default => $now->addWeek()->format('Y-m-d H:i:s'),
         };
     }
 }

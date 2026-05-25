@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgExhibition\Controllers;
 
 use AhgExhibition\Services\ExhibitionService;
@@ -172,7 +170,7 @@ class ExhibitionController extends Controller
 
         return response($csv, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="exhibition_objects_' . $id . '.csv"',
+            'Content-Disposition' => 'attachment; filename="exhibition_objects_'.$id.'.csv"',
         ]);
     }
 

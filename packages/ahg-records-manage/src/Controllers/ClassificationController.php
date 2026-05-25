@@ -16,28 +16,26 @@ use Illuminate\Support\Facades\DB;
 
 class ClassificationController extends Controller
 {
-    public function __construct(protected ClassificationRuleService $svc)
-    {
-    }
+    public function __construct(protected ClassificationRuleService $svc) {}
 
     /** GET /admin/records/classification */
     public function index(Request $request)
     {
         $filters = [
-            'rule_type'        => $request->query('rule_type'),
-            'is_active'        => $request->query('is_active', ''),
+            'rule_type' => $request->query('rule_type'),
+            'is_active' => $request->query('is_active', ''),
             'fileplan_node_id' => $request->query('fileplan_node_id'),
         ];
-        $rules     = $this->svc->listRules($filters);
-        $counts    = $this->svc->counts();
-        $stats     = $this->svc->ruleStats();
+        $rules = $this->svc->listRules($filters);
+        $counts = $this->svc->counts();
+        $stats = $this->svc->ruleStats();
         $ruleTypes = $this->ruleTypeOptions();
 
         return view('ahg-records::classification.index', [
-            'rules'     => $rules,
-            'counts'    => $counts,
-            'stats'     => $stats,
-            'filters'   => $filters,
+            'rules' => $rules,
+            'counts' => $counts,
+            'stats' => $stats,
+            'filters' => $filters,
             'ruleTypes' => $ruleTypes,
         ]);
     }
@@ -46,10 +44,10 @@ class ClassificationController extends Controller
     public function create()
     {
         return view('ahg-records::classification.edit', [
-            'rule'             => null,
-            'ruleTypes'        => $this->ruleTypeOptions(),
-            'fileplanNodes'    => $this->fileplanOptions(),
-            'disposalClasses'  => $this->disposalClassOptions(),
+            'rule' => null,
+            'ruleTypes' => $this->ruleTypeOptions(),
+            'fileplanNodes' => $this->fileplanOptions(),
+            'disposalClasses' => $this->disposalClassOptions(),
         ]);
     }
 
@@ -57,7 +55,8 @@ class ClassificationController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate($this->validationRules());
-        $id   = $this->svc->createRule($data, auth()->id() ?? 0);
+        $id = $this->svc->createRule($data, auth()->id() ?? 0);
+
         return redirect()->route('records.classification.show', $id)
             ->with('success', 'Classification rule created.');
     }
@@ -83,9 +82,9 @@ class ClassificationController extends Controller
             ->get();
 
         return view('ahg-records::classification.show', [
-            'rule'      => $rule,
-            'logCount'  => $logCount,
-            'recent'    => $recent,
+            'rule' => $rule,
+            'logCount' => $logCount,
+            'recent' => $recent,
             'ruleTypes' => $this->ruleTypeOptions(),
         ]);
     }
@@ -97,10 +96,11 @@ class ClassificationController extends Controller
         if (! $rule) {
             abort(404, 'Rule not found');
         }
+
         return view('ahg-records::classification.edit', [
-            'rule'            => $rule,
-            'ruleTypes'       => $this->ruleTypeOptions(),
-            'fileplanNodes'   => $this->fileplanOptions(),
+            'rule' => $rule,
+            'ruleTypes' => $this->ruleTypeOptions(),
+            'fileplanNodes' => $this->fileplanOptions(),
             'disposalClasses' => $this->disposalClassOptions(),
         ]);
     }
@@ -110,6 +110,7 @@ class ClassificationController extends Controller
     {
         $data = $request->validate($this->validationRules());
         $this->svc->updateRule($id, $data);
+
         return redirect()->route('records.classification.show', $id)
             ->with('success', 'Rule updated.');
     }
@@ -118,6 +119,7 @@ class ClassificationController extends Controller
     public function destroy(int $id)
     {
         $this->svc->deleteRule($id);
+
         return redirect()->route('records.classification.index')
             ->with('success', 'Rule deleted.');
     }
@@ -127,17 +129,18 @@ class ClassificationController extends Controller
     {
         $meta = [
             'folder_path' => (string) $request->input('folder_path', ''),
-            'workspace'   => (string) $request->input('workspace', ''),
-            'department'  => (string) $request->input('department', ''),
-            'mime_type'   => (string) $request->input('mime_type', ''),
-            'tags'        => array_filter(array_map('trim', explode(',', (string) $request->input('tags', '')))),
-            'custom'      => [],
+            'workspace' => (string) $request->input('workspace', ''),
+            'department' => (string) $request->input('department', ''),
+            'mime_type' => (string) $request->input('mime_type', ''),
+            'tags' => array_filter(array_map('trim', explode(',', (string) $request->input('tags', '')))),
+            'custom' => [],
         ];
         if ($request->filled('custom_key')) {
             $meta['custom'][trim((string) $request->input('custom_key'))] = (string) $request->input('custom_value', '');
         }
 
         $result = $this->svc->testRule($id, $meta);
+
         return redirect()->route('records.classification.show', $id)
             ->with('test_result', $result)
             ->with('test_meta', $meta);
@@ -148,6 +151,7 @@ class ClassificationController extends Controller
     {
         $limit = (int) $request->input('limit', 1000);
         $r = $this->svc->classifyBatch(max(1, min($limit, 5000)));
+
         return redirect()->route('records.classification.index')
             ->with('success', "Batch run: classified={$r['classified']}, skipped={$r['skipped']}, failed={$r['failed']}");
     }
@@ -160,6 +164,7 @@ class ClassificationController extends Controller
             return redirect()->back()->with('success',
                 "Classified IO #{$ioId} via rule #{$r['rule_id']} → file plan node #{$r['fileplan_node_id']}");
         }
+
         return redirect()->back()->with('error', "No rule matched IO #{$ioId}.");
     }
 
@@ -191,15 +196,15 @@ class ClassificationController extends Controller
     private function validationRules(): array
     {
         return [
-            'name'              => 'required|string|max:255',
-            'description'       => 'nullable|string',
-            'rule_type'         => 'required|string|max:30',
-            'match_pattern'     => 'required|string|max:1024',
-            'fileplan_node_id'  => 'required|integer|exists:rm_fileplan_node,id',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'rule_type' => 'required|string|max:30',
+            'match_pattern' => 'required|string|max:1024',
+            'fileplan_node_id' => 'required|integer|exists:rm_fileplan_node,id',
             'disposal_class_id' => 'nullable|integer|exists:rm_disposal_class,id',
-            'priority'          => 'nullable|integer',
-            'is_active'         => 'nullable|boolean',
-            'apply_on'          => 'nullable|string|in:upload,declare,both',
+            'priority' => 'nullable|integer',
+            'is_active' => 'nullable|boolean',
+            'apply_on' => 'nullable|string|in:upload,declare,both',
         ];
     }
 }

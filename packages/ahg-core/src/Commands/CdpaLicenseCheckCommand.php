@@ -35,9 +35,13 @@ class CdpaLicenseCheckCommand extends Command
         $this->info("expired (status not yet flipped): {$expired->count()}");
         $this->info("expiring within {$window} days (no reminder sent yet): {$expiring->count()}");
 
-        if ($this->option('report') || (!$this->option('mark-sent'))) {
-            foreach ($expired as $r) $this->line(sprintf("  EXPIRED  #%-5d  %s  %s  expiry=%s", $r->id, $r->license_number, mb_strimwidth((string)$r->organization_name, 0, 30, '...'), $r->expiry_date));
-            foreach ($expiring as $r) $this->line(sprintf("  EXPIRING #%-5d  %s  %s  expiry=%s", $r->id, $r->license_number, mb_strimwidth((string)$r->organization_name, 0, 30, '...'), $r->expiry_date));
+        if ($this->option('report') || (! $this->option('mark-sent'))) {
+            foreach ($expired as $r) {
+                $this->line(sprintf('  EXPIRED  #%-5d  %s  %s  expiry=%s', $r->id, $r->license_number, mb_strimwidth((string) $r->organization_name, 0, 30, '...'), $r->expiry_date));
+            }
+            foreach ($expiring as $r) {
+                $this->line(sprintf('  EXPIRING #%-5d  %s  %s  expiry=%s', $r->id, $r->license_number, mb_strimwidth((string) $r->organization_name, 0, 30, '...'), $r->expiry_date));
+            }
         }
 
         if ($this->option('mark-sent')) {
@@ -54,6 +58,7 @@ class CdpaLicenseCheckCommand extends Command
                 ->update(['status' => 'expired']);
             $this->info("flipped {$flipped} licenses to status=expired");
         }
+
         return self::SUCCESS;
     }
 }

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgSecurityClearance\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -129,6 +127,7 @@ class SecurityClearanceService
     public function getUserClearanceLevel(int $userId): int
     {
         $clearance = $this->getUserClearance($userId);
+
         return $clearance ? $clearance->level : 0;
     }
 
@@ -175,12 +174,12 @@ class SecurityClearanceService
                 ->first();
 
             $data = [
-                'user_id'           => $userId,
+                'user_id' => $userId,
                 'classification_id' => $classificationId,
-                'granted_by'        => $grantedBy,
-                'granted_at'        => now(),
-                'expires_at'        => $expiresAt ?: null,
-                'notes'             => $notes,
+                'granted_by' => $grantedBy,
+                'granted_at' => now(),
+                'expires_at' => $expiresAt ?: null,
+                'notes' => $notes,
             ];
 
             if ($previous) {
@@ -197,9 +196,11 @@ class SecurityClearanceService
             }
 
             DB::commit();
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
+
             return false;
         }
     }
@@ -225,9 +226,11 @@ class SecurityClearanceService
             }
 
             DB::commit();
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
+
             return false;
         }
     }
@@ -243,6 +246,7 @@ class SecurityClearanceService
                 $successCount++;
             }
         }
+
         return $successCount;
     }
 
@@ -252,7 +256,7 @@ class SecurityClearanceService
      */
     public function getClearanceHistory(int $userId): array
     {
-        if (!Schema::hasTable('user_security_clearance_log')) {
+        if (! Schema::hasTable('user_security_clearance_log')) {
             return [];
         }
 
@@ -283,17 +287,17 @@ class SecurityClearanceService
 
     private function logClearanceChange(int $userId, string $action, ?int $previousClassificationId, ?int $classificationId, int $changedBy, ?string $notes): void
     {
-        if (!Schema::hasTable('user_security_clearance_log')) {
+        if (! Schema::hasTable('user_security_clearance_log')) {
             return;
         }
 
         $row = [
-            'user_id'           => $userId,
-            'action'            => $action,
+            'user_id' => $userId,
+            'action' => $action,
             'classification_id' => $classificationId,
-            'changed_by'        => $changedBy,
-            'notes'             => $notes,
-            'created_at'        => now(),
+            'changed_by' => $changedBy,
+            'notes' => $notes,
+            'created_at' => now(),
         ];
 
         // Only include previous_classification_id if the column exists
@@ -337,13 +341,13 @@ class SecurityClearanceService
                 ->update(['active' => 0]);
 
             DB::table('object_security_classification')->insert([
-                'object_id'         => $objectId,
+                'object_id' => $objectId,
                 'classification_id' => $classificationId,
-                'classified_by'     => $userId,
-                'classified_at'     => now(),
-                'reason'            => $reason,
-                'active'            => 1,
-                'created_at'        => now(),
+                'classified_by' => $userId,
+                'classified_at' => now(),
+                'reason' => $reason,
+                'active' => 1,
+                'created_at' => now(),
             ]);
 
             // Assign compartments if provided
@@ -354,10 +358,10 @@ class SecurityClearanceService
 
                 foreach ($compartmentIds as $compId) {
                     DB::table('object_compartment_access')->insert([
-                        'object_id'      => $objectId,
+                        'object_id' => $objectId,
                         'compartment_id' => (int) $compId,
-                        'granted_by'     => $userId,
-                        'created_at'     => now(),
+                        'granted_by' => $userId,
+                        'created_at' => now(),
                     ]);
                 }
             }
@@ -369,9 +373,11 @@ class SecurityClearanceService
             ]);
 
             DB::commit();
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
+
             return false;
         }
     }
@@ -389,13 +395,13 @@ class SecurityClearanceService
 
             if ($newClassificationId) {
                 DB::table('object_security_classification')->insert([
-                    'object_id'         => $objectId,
+                    'object_id' => $objectId,
                     'classification_id' => $newClassificationId,
-                    'classified_by'     => $userId,
-                    'classified_at'     => now(),
-                    'reason'            => $reason ?? 'Declassified',
-                    'active'            => 1,
-                    'created_at'        => now(),
+                    'classified_by' => $userId,
+                    'classified_at' => now(),
+                    'reason' => $reason ?? 'Declassified',
+                    'active' => 1,
+                    'created_at' => now(),
                 ]);
             }
 
@@ -406,9 +412,11 @@ class SecurityClearanceService
             ]);
 
             DB::commit();
+
             return true;
         } catch (\Exception $e) {
             DB::rollBack();
+
             return false;
         }
     }
@@ -426,7 +434,7 @@ class SecurityClearanceService
 
     public function getCompartmentUserCounts(): array
     {
-        if (!Schema::hasTable('user_compartment_access')) {
+        if (! Schema::hasTable('user_compartment_access')) {
             return [];
         }
 
@@ -439,7 +447,7 @@ class SecurityClearanceService
 
     public function getCompartmentAccessGrants(): \Illuminate\Support\Collection
     {
-        if (!Schema::hasTable('user_compartment_access')) {
+        if (! Schema::hasTable('user_compartment_access')) {
             return collect();
         }
 
@@ -484,16 +492,17 @@ class SecurityClearanceService
     {
         try {
             DB::table('security_access_request')->insert([
-                'user_id'        => $userId,
-                'object_id'      => $objectId,
-                'request_type'   => $requestType,
-                'justification'  => $justification,
-                'priority'       => $priority,
+                'user_id' => $userId,
+                'object_id' => $objectId,
+                'request_type' => $requestType,
+                'justification' => $justification,
+                'priority' => $priority,
                 'duration_hours' => $durationHours,
-                'status'         => 'pending',
-                'created_at'     => now(),
-                'updated_at'     => now(),
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
+
             return true;
         } catch (\Exception $e) {
             return false;
@@ -504,11 +513,11 @@ class SecurityClearanceService
     {
         try {
             $data = [
-                'status'       => $decision,
-                'reviewed_by'  => $reviewerId,
-                'reviewed_at'  => now(),
+                'status' => $decision,
+                'reviewed_by' => $reviewerId,
+                'reviewed_at' => now(),
                 'review_notes' => $notes,
-                'updated_at'   => now(),
+                'updated_at' => now(),
             ];
 
             if ($decision === 'approved' && $durationHours) {
@@ -523,10 +532,10 @@ class SecurityClearanceService
             $req = DB::table('security_access_request')->where('id', $requestId)->first();
             if ($req && Schema::hasTable('security_access_log')) {
                 DB::table('security_access_log')->insert([
-                    'user_id'    => $req->user_id,
-                    'object_id'  => $req->object_id,
-                    'action'     => $decision === 'approved' ? 'access_granted' : 'access_denied',
-                    'details'    => json_encode(['request_id' => $requestId, 'reviewer' => $reviewerId]),
+                    'user_id' => $req->user_id,
+                    'object_id' => $req->object_id,
+                    'action' => $decision === 'approved' ? 'access_granted' : 'access_denied',
+                    'details' => json_encode(['request_id' => $requestId, 'reviewer' => $reviewerId]),
                     'created_at' => now(),
                 ]);
             }
@@ -547,11 +556,12 @@ class SecurityClearanceService
                 DB::table('object_access_grant')
                     ->where('id', $grantId)
                     ->update([
-                        'active'     => 0,
+                        'active' => 0,
                         'revoked_by' => $revokedBy,
                         'revoked_at' => now(),
                     ]);
             }
+
             return true;
         } catch (\Exception $e) {
             return false;
@@ -563,7 +573,7 @@ class SecurityClearanceService
      */
     public function getUserAccessGrants(int $userId): array
     {
-        if (!Schema::hasTable('object_access_grant')) {
+        if (! Schema::hasTable('object_access_grant')) {
             return [];
         }
 
@@ -593,12 +603,12 @@ class SecurityClearanceService
     public function getDashboardStatistics(): array
     {
         $stats = [
-            'pending_requests'   => 0,
+            'pending_requests' => 0,
             'expiring_clearances' => 0,
-            'recent_denials'     => 0,
-            'reviews_due'        => 0,
+            'recent_denials' => 0,
+            'reviews_due' => 0,
             'clearances_by_level' => [],
-            'objects_by_level'    => [],
+            'objects_by_level' => [],
         ];
 
         try {
@@ -696,7 +706,7 @@ class SecurityClearanceService
 
     public function getDueDeclassifications(int $limit = 10): array
     {
-        if (!Schema::hasTable('object_declassification_schedule')) {
+        if (! Schema::hasTable('object_declassification_schedule')) {
             return [];
         }
 
@@ -735,8 +745,8 @@ class SecurityClearanceService
         $since = now()->sub(\DateInterval::createFromDateString($period));
 
         $clearanceStats = [
-            'total_users'       => DB::table('user')->where('active', 1)->count(),
-            'with_clearance'    => DB::table('user_security_clearance')->distinct('user_id')->count('user_id'),
+            'total_users' => DB::table('user')->where('active', 1)->count(),
+            'with_clearance' => DB::table('user_security_clearance')->distinct('user_id')->count('user_id'),
             'without_clearance' => DB::table('user')
                 ->where('active', 1)
                 ->whereNotIn('id', function ($q) {
@@ -766,12 +776,12 @@ class SecurityClearanceService
         }
 
         $requestStats = [
-            'pending'  => DB::table('security_access_request')->where('status', 'pending')->count(),
+            'pending' => DB::table('security_access_request')->where('status', 'pending')->count(),
             'approved' => DB::table('security_access_request')
                 ->where('status', 'approved')
                 ->where('updated_at', '>=', $since)
                 ->count(),
-            'denied'   => DB::table('security_access_request')
+            'denied' => DB::table('security_access_request')
                 ->where('status', 'denied')
                 ->where('updated_at', '>=', $since)
                 ->count(),
@@ -788,9 +798,9 @@ class SecurityClearanceService
     {
         $stats = [
             'classified_objects' => 0,
-            'pending_reviews'    => 0,
-            'cleared_users'      => 0,
-            'access_logs_today'  => 0,
+            'pending_reviews' => 0,
+            'cleared_users' => 0,
+            'access_logs_today' => 0,
         ];
 
         try {
@@ -812,7 +822,7 @@ class SecurityClearanceService
 
     public function getRecentComplianceLogs(int $limit = 10): array
     {
-        if (!Schema::hasTable('user_security_clearance_log')) {
+        if (! Schema::hasTable('user_security_clearance_log')) {
             return [];
         }
 
@@ -833,16 +843,16 @@ class SecurityClearanceService
             $username = DB::table('user')->where('id', $userId)->value('username');
 
             DB::table('security_audit_log')->insert([
-                'object_id'       => $objectId,
-                'object_type'     => 'information_object',
-                'user_id'         => $userId,
-                'user_name'       => $username,
-                'action'          => $action,
+                'object_id' => $objectId,
+                'object_type' => 'information_object',
+                'user_id' => $userId,
+                'user_name' => $username,
+                'action' => $action,
                 'action_category' => 'security',
-                'details'         => json_encode($details),
-                'ip_address'      => request()->ip(),
-                'user_agent'      => request()->userAgent(),
-                'created_at'      => now(),
+                'details' => json_encode($details),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'created_at' => now(),
             ]);
         }
     }
@@ -858,20 +868,20 @@ class SecurityClearanceService
             })
             ->leftJoin('slug', 'sal.object_id', '=', 'slug.object_id');
 
-        if (!empty($filters['user_name'])) {
-            $query->where('sal.user_name', 'LIKE', '%' . $filters['user_name'] . '%');
+        if (! empty($filters['user_name'])) {
+            $query->where('sal.user_name', 'LIKE', '%'.$filters['user_name'].'%');
         }
-        if (!empty($filters['action'])) {
+        if (! empty($filters['action'])) {
             $query->where('sal.action', $filters['action']);
         }
-        if (!empty($filters['category'])) {
-            $query->where('sal.action_category', 'LIKE', '%' . $filters['category'] . '%');
+        if (! empty($filters['category'])) {
+            $query->where('sal.action_category', 'LIKE', '%'.$filters['category'].'%');
         }
-        if (!empty($filters['date_from'])) {
-            $query->where('sal.created_at', '>=', $filters['date_from'] . ' 00:00:00');
+        if (! empty($filters['date_from'])) {
+            $query->where('sal.created_at', '>=', $filters['date_from'].' 00:00:00');
         }
-        if (!empty($filters['date_to'])) {
-            $query->where('sal.created_at', '<=', $filters['date_to'] . ' 23:59:59');
+        if (! empty($filters['date_to'])) {
+            $query->where('sal.created_at', '<=', $filters['date_to'].' 23:59:59');
         }
 
         $total = $query->count();

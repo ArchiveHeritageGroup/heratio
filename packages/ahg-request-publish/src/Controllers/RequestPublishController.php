@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgRequestPublish\Controllers;
 
 use AhgCore\Pagination\SimplePager;
@@ -40,7 +38,9 @@ class RequestPublishController extends Controller
      * Status ID constants from AtoM term table.
      */
     protected const STATUS_APPROVED = 219;
+
     protected const STATUS_PENDING = 220;
+
     protected const STATUS_REJECTED = 221;
 
     /**
@@ -49,7 +49,7 @@ class RequestPublishController extends Controller
     public function browse(Request $request)
     {
         // Gracefully handle missing table
-        if (!Schema::hasTable('request_to_publish') || !Schema::hasTable('request_to_publish_i18n')) {
+        if (! Schema::hasTable('request_to_publish') || ! Schema::hasTable('request_to_publish_i18n')) {
             return view('ahg-request-publish::browse', [
                 'tableExists' => false,
             ]);
@@ -122,7 +122,7 @@ class RequestPublishController extends Controller
 
         // Non-admin users: only see their own requests
         $user = Auth::user();
-        if ($user && !$user->is_admin) {
+        if ($user && ! $user->is_admin) {
             $query->where('i18n.unique_identifier', $user->id);
         }
 
@@ -237,7 +237,7 @@ class RequestPublishController extends Controller
             )
             ->first();
 
-        if (!$record) {
+        if (! $record) {
             abort(404, 'Publication request not found.');
         }
 
@@ -254,7 +254,7 @@ class RequestPublishController extends Controller
         $culture = app()->getLocale();
 
         $request->validate([
-            'status_id' => 'required|in:' . self::STATUS_APPROVED . ',' . self::STATUS_PENDING . ',' . self::STATUS_REJECTED,
+            'status_id' => 'required|in:'.self::STATUS_APPROVED.','.self::STATUS_PENDING.','.self::STATUS_REJECTED,
             'rtp_admin_notes' => 'nullable|string',
         ]);
 
@@ -306,9 +306,18 @@ class RequestPublishController extends Controller
         };
     }
 
-    public function destroy(int $id) { return view('ahg-request-publish::delete', ['record' => (object)['id'=>$id]]); }
+    public function destroy(int $id)
+    {
+        return view('ahg-request-publish::delete', ['record' => (object) ['id' => $id]]);
+    }
 
-    public function submit(Request $request, string $slug) { return view('ahg-request-publish::submit'); }
+    public function submit(Request $request, string $slug)
+    {
+        return view('ahg-request-publish::submit');
+    }
 
-    public function editRequest(Request $request, int $id) { return view('ahg-request-publish::edit-request', ['record' => (object)['id'=>$id]]); }
+    public function editRequest(Request $request, int $id)
+    {
+        return view('ahg-request-publish::edit-request', ['record' => (object) ['id' => $id]]);
+    }
 }

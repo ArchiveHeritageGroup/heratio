@@ -32,7 +32,7 @@ class MysqlDescriptionRepository implements DescriptionRepository
     public function getParent(int $id): ?object
     {
         $io = DB::table('information_object')->where('id', $id)->first();
-        if (!$io || !$io->parent_id || $io->parent_id <= 1) {
+        if (! $io || ! $io->parent_id || $io->parent_id <= 1) {
             return null;
         }
 
@@ -67,7 +67,9 @@ class MysqlDescriptionRepository implements DescriptionRepository
                 ->select('io.id', 'io.parent_id', 'ioi.title', 'slug.slug')
                 ->first();
 
-            if (!$parent) break;
+            if (! $parent) {
+                break;
+            }
             array_unshift($ancestors, $parent);
             $current = $parent;
         }
@@ -80,7 +82,7 @@ class MysqlDescriptionRepository implements DescriptionRepository
         return DB::table('relation')
             ->leftJoin('information_object_i18n as ioi', function ($j) use ($id) {
                 $j->on(DB::raw("CASE WHEN relation.subject_id = {$id} THEN relation.object_id ELSE relation.subject_id END"), '=', 'ioi.id')
-                  ->where('ioi.culture', 'en');
+                    ->where('ioi.culture', 'en');
             })
             ->leftJoin('slug', DB::raw("CASE WHEN relation.subject_id = {$id} THEN relation.object_id ELSE relation.subject_id END"), '=', 'slug.object_id')
             ->leftJoin('term_i18n as ti', function ($j) {

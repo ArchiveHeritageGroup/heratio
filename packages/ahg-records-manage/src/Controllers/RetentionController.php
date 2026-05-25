@@ -2,14 +2,15 @@
 
 namespace AhgRecordsManage\Controllers;
 
+use AhgRecordsManage\Services\DisposalClassService;
+use AhgRecordsManage\Services\RetentionScheduleService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use AhgRecordsManage\Services\RetentionScheduleService;
-use AhgRecordsManage\Services\DisposalClassService;
 
 class RetentionController extends Controller
 {
     protected RetentionScheduleService $scheduleService;
+
     protected DisposalClassService $classService;
 
     public function __construct(RetentionScheduleService $scheduleService, DisposalClassService $classService)
@@ -31,16 +32,16 @@ class RetentionController extends Controller
     {
         $stats = [
             'retention_schedules' => \Illuminate\Support\Facades\DB::table('rm_retention_schedule')->count(),
-            'disposal_classes'    => \Illuminate\Support\Facades\DB::table('rm_disposal_class')->where('is_active', 1)->count(),
-            'fileplan_nodes'      => \Illuminate\Support\Facades\DB::table('rm_fileplan_node')->where('status', 'active')->count(),
-            'pending_disposal'    => \Illuminate\Support\Facades\DB::table('rm_disposal_action')->whereIn('status', ['pending', 'recommended'])->count(),
-            'overdue_reviews'     => \Illuminate\Support\Facades\Schema::hasTable('rm_review_schedule')
+            'disposal_classes' => \Illuminate\Support\Facades\DB::table('rm_disposal_class')->where('is_active', 1)->count(),
+            'fileplan_nodes' => \Illuminate\Support\Facades\DB::table('rm_fileplan_node')->where('status', 'active')->count(),
+            'pending_disposal' => \Illuminate\Support\Facades\DB::table('rm_disposal_action')->whereIn('status', ['pending', 'recommended'])->count(),
+            'overdue_reviews' => \Illuminate\Support\Facades\Schema::hasTable('rm_review_schedule')
                 ? \Illuminate\Support\Facades\DB::table('rm_review_schedule')->where('status', 'pending')->where('review_due_date', '<=', now()->toDateString())->count()
                 : 0,
-            'captured_emails'     => \Illuminate\Support\Facades\Schema::hasTable('rm_email_capture')
+            'captured_emails' => \Illuminate\Support\Facades\Schema::hasTable('rm_email_capture')
                 ? \Illuminate\Support\Facades\DB::table('rm_email_capture')->count()
                 : 0,
-            'classified_records'  => \Illuminate\Support\Facades\Schema::hasTable('rm_classification_log')
+            'classified_records' => \Illuminate\Support\Facades\Schema::hasTable('rm_classification_log')
                 ? \Illuminate\Support\Facades\DB::table('rm_classification_log')->count()
                 : 0,
             'compliance_assessments' => \Illuminate\Support\Facades\Schema::hasTable('rm_compliance_assessment')
@@ -73,13 +74,13 @@ class RetentionController extends Controller
         $jurisdictions = $this->scheduleService->getJurisdictions();
 
         return view('ahg-records::retention.schedules', [
-            'items'         => $result['data'],
-            'total'         => $result['total'],
-            'page'          => $result['page'],
-            'perPage'       => $result['per_page'],
-            'stats'         => $stats,
+            'items' => $result['data'],
+            'total' => $result['total'],
+            'page' => $result['page'],
+            'perPage' => $result['per_page'],
+            'stats' => $stats,
             'jurisdictions' => $jurisdictions,
-            'filters'       => $filters,
+            'filters' => $filters,
         ]);
     }
 
@@ -97,14 +98,14 @@ class RetentionController extends Controller
     public function scheduleStore(Request $request)
     {
         $validated = $request->validate([
-            'schedule_ref'   => 'required|string|max:100|unique:rm_retention_schedule,schedule_ref',
-            'title'          => 'required|string|max:255',
-            'description'    => 'nullable|string',
-            'authority'      => 'nullable|string|max:255',
-            'jurisdiction'   => 'nullable|string|max:100',
+            'schedule_ref' => 'required|string|max:100|unique:rm_retention_schedule,schedule_ref',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'authority' => 'nullable|string|max:255',
+            'jurisdiction' => 'nullable|string|max:100',
             'effective_date' => 'nullable|date',
-            'review_date'    => 'nullable|date',
-            'expiry_date'    => 'nullable|date',
+            'review_date' => 'nullable|date',
+            'expiry_date' => 'nullable|date',
         ]);
 
         $validated['created_by'] = auth()->id();
@@ -121,7 +122,7 @@ class RetentionController extends Controller
     public function scheduleShow(int $id)
     {
         $schedule = $this->scheduleService->getById($id);
-        if (!$schedule) {
+        if (! $schedule) {
             abort(404, 'Retention schedule not found.');
         }
 
@@ -129,7 +130,7 @@ class RetentionController extends Controller
 
         return view('ahg-records::retention.schedule-show', [
             'schedule' => $schedule,
-            'classes'  => $classes,
+            'classes' => $classes,
         ]);
     }
 
@@ -139,7 +140,7 @@ class RetentionController extends Controller
     public function scheduleEdit(int $id)
     {
         $schedule = $this->scheduleService->getById($id);
-        if (!$schedule) {
+        if (! $schedule) {
             abort(404, 'Retention schedule not found.');
         }
 
@@ -154,19 +155,19 @@ class RetentionController extends Controller
     public function scheduleUpdate(Request $request, int $id)
     {
         $schedule = $this->scheduleService->getById($id);
-        if (!$schedule) {
+        if (! $schedule) {
             abort(404, 'Retention schedule not found.');
         }
 
         $validated = $request->validate([
-            'schedule_ref'   => 'required|string|max:100|unique:rm_retention_schedule,schedule_ref,' . $id,
-            'title'          => 'required|string|max:255',
-            'description'    => 'nullable|string',
-            'authority'      => 'nullable|string|max:255',
-            'jurisdiction'   => 'nullable|string|max:100',
+            'schedule_ref' => 'required|string|max:100|unique:rm_retention_schedule,schedule_ref,'.$id,
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'authority' => 'nullable|string|max:255',
+            'jurisdiction' => 'nullable|string|max:100',
             'effective_date' => 'nullable|date',
-            'review_date'    => 'nullable|date',
-            'expiry_date'    => 'nullable|date',
+            'review_date' => 'nullable|date',
+            'expiry_date' => 'nullable|date',
         ]);
 
         $this->scheduleService->update($id, $validated);
@@ -181,7 +182,7 @@ class RetentionController extends Controller
     public function scheduleApprove(int $id)
     {
         $schedule = $this->scheduleService->getById($id);
-        if (!$schedule) {
+        if (! $schedule) {
             abort(404, 'Retention schedule not found.');
         }
 
@@ -204,7 +205,7 @@ class RetentionController extends Controller
     public function classCreate(int $id)
     {
         $schedule = $this->scheduleService->getById($id);
-        if (!$schedule) {
+        if (! $schedule) {
             abort(404, 'Retention schedule not found.');
         }
 
@@ -219,22 +220,22 @@ class RetentionController extends Controller
     public function classStore(Request $request, int $id)
     {
         $schedule = $this->scheduleService->getById($id);
-        if (!$schedule) {
+        if (! $schedule) {
             abort(404, 'Retention schedule not found.');
         }
 
         $validated = $request->validate([
-            'class_ref'                      => 'required|string|max:100',
-            'title'                          => 'required|string|max:255',
-            'description'                    => 'nullable|string',
-            'retention_period_years'         => 'nullable|integer|min:0',
-            'retention_period_months'        => 'nullable|integer|min:0|max:11',
-            'retention_trigger'              => 'required|string|max:50',
-            'disposal_action'                => 'required|string|max:30',
+            'class_ref' => 'required|string|max:100',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'retention_period_years' => 'nullable|integer|min:0',
+            'retention_period_months' => 'nullable|integer|min:0|max:11',
+            'retention_trigger' => 'required|string|max:50',
+            'disposal_action' => 'required|string|max:30',
             'disposal_confirmation_required' => 'nullable|boolean',
-            'review_required'                => 'nullable|boolean',
-            'citation'                       => 'nullable|string',
-            'sort_order'                     => 'nullable|integer|min:0',
+            'review_required' => 'nullable|boolean',
+            'citation' => 'nullable|string',
+            'sort_order' => 'nullable|integer|min:0',
         ]);
 
         $validated['created_by'] = auth()->id();
@@ -253,18 +254,18 @@ class RetentionController extends Controller
     public function classEdit(int $id, int $classId)
     {
         $schedule = $this->scheduleService->getById($id);
-        if (!$schedule) {
+        if (! $schedule) {
             abort(404, 'Retention schedule not found.');
         }
 
         $class = $this->classService->getById($classId);
-        if (!$class || (int) $class->retention_schedule_id !== $id) {
+        if (! $class || (int) $class->retention_schedule_id !== $id) {
             abort(404, 'Disposal class not found.');
         }
 
         return view('ahg-records::retention.class-edit', [
             'schedule' => $schedule,
-            'class'    => $class,
+            'class' => $class,
         ]);
     }
 
@@ -274,28 +275,28 @@ class RetentionController extends Controller
     public function classUpdate(Request $request, int $id, int $classId)
     {
         $schedule = $this->scheduleService->getById($id);
-        if (!$schedule) {
+        if (! $schedule) {
             abort(404, 'Retention schedule not found.');
         }
 
         $class = $this->classService->getById($classId);
-        if (!$class || (int) $class->retention_schedule_id !== $id) {
+        if (! $class || (int) $class->retention_schedule_id !== $id) {
             abort(404, 'Disposal class not found.');
         }
 
         $validated = $request->validate([
-            'class_ref'                      => 'required|string|max:100',
-            'title'                          => 'required|string|max:255',
-            'description'                    => 'nullable|string',
-            'retention_period_years'         => 'nullable|integer|min:0',
-            'retention_period_months'        => 'nullable|integer|min:0|max:11',
-            'retention_trigger'              => 'required|string|max:50',
-            'disposal_action'                => 'required|string|max:30',
+            'class_ref' => 'required|string|max:100',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'retention_period_years' => 'nullable|integer|min:0',
+            'retention_period_months' => 'nullable|integer|min:0|max:11',
+            'retention_trigger' => 'required|string|max:50',
+            'disposal_action' => 'required|string|max:30',
             'disposal_confirmation_required' => 'nullable|boolean',
-            'review_required'                => 'nullable|boolean',
-            'citation'                       => 'nullable|string',
-            'is_active'                      => 'nullable|boolean',
-            'sort_order'                     => 'nullable|integer|min:0',
+            'review_required' => 'nullable|boolean',
+            'citation' => 'nullable|string',
+            'is_active' => 'nullable|boolean',
+            'sort_order' => 'nullable|integer|min:0',
         ]);
 
         $validated['disposal_confirmation_required'] = $request->has('disposal_confirmation_required') ? 1 : 0;
@@ -314,7 +315,7 @@ class RetentionController extends Controller
     public function classDelete(int $id, int $classId)
     {
         $schedule = $this->scheduleService->getById($id);
-        if (!$schedule) {
+        if (! $schedule) {
             abort(404, 'Retention schedule not found.');
         }
 
@@ -336,8 +337,8 @@ class RetentionController extends Controller
     {
         $validated = $request->validate([
             'information_object_id' => 'required|integer',
-            'disposal_class_id'     => 'required|integer',
-            'retention_start_date'  => 'nullable|date',
+            'disposal_class_id' => 'required|integer',
+            'retention_start_date' => 'nullable|date',
         ]);
 
         $this->classService->assignToRecord(
@@ -366,9 +367,9 @@ class RetentionController extends Controller
             ->value('title') ?? 'Unknown';
 
         return view('ahg-records::retention.assign-class', [
-            'ioId'          => $ioId,
-            'ioTitle'       => $ioTitle,
-            'assignment'    => $assignment,
+            'ioId' => $ioId,
+            'ioTitle' => $ioTitle,
+            'assignment' => $assignment,
             'activeClasses' => $activeClasses,
         ]);
     }

@@ -2,9 +2,8 @@
 
 namespace AhgRecordsManage\Services;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DisposalClassService
 {
@@ -16,22 +15,22 @@ class DisposalClassService
         $now = Carbon::now();
 
         return (int) DB::table('rm_disposal_class')->insertGetId([
-            'retention_schedule_id'        => $scheduleId,
-            'class_ref'                    => $data['class_ref'],
-            'title'                        => $data['title'],
-            'description'                  => $data['description'] ?? null,
-            'retention_period_years'       => $data['retention_period_years'] ?? null,
-            'retention_period_months'      => $data['retention_period_months'] ?? null,
-            'retention_trigger'            => $data['retention_trigger'] ?? 'creation_date',
-            'disposal_action'              => $data['disposal_action'],
+            'retention_schedule_id' => $scheduleId,
+            'class_ref' => $data['class_ref'],
+            'title' => $data['title'],
+            'description' => $data['description'] ?? null,
+            'retention_period_years' => $data['retention_period_years'] ?? null,
+            'retention_period_months' => $data['retention_period_months'] ?? null,
+            'retention_trigger' => $data['retention_trigger'] ?? 'creation_date',
+            'disposal_action' => $data['disposal_action'],
             'disposal_confirmation_required' => $data['disposal_confirmation_required'] ?? 1,
-            'review_required'              => $data['review_required'] ?? 1,
-            'citation'                     => $data['citation'] ?? null,
-            'is_active'                    => $data['is_active'] ?? 1,
-            'sort_order'                   => $data['sort_order'] ?? 0,
-            'created_by'                   => $data['created_by'],
-            'created_at'                   => $now,
-            'updated_at'                   => $now,
+            'review_required' => $data['review_required'] ?? 1,
+            'citation' => $data['citation'] ?? null,
+            'is_active' => $data['is_active'] ?? 1,
+            'sort_order' => $data['sort_order'] ?? 0,
+            'created_by' => $data['created_by'],
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
     }
 
@@ -45,9 +44,9 @@ class DisposalClassService
         ];
 
         $fields = ['class_ref', 'title', 'description', 'retention_period_years',
-                    'retention_period_months', 'retention_trigger', 'disposal_action',
-                    'disposal_confirmation_required', 'review_required', 'citation',
-                    'is_active', 'sort_order'];
+            'retention_period_months', 'retention_trigger', 'disposal_action',
+            'disposal_confirmation_required', 'review_required', 'citation',
+            'is_active', 'sort_order'];
 
         foreach ($fields as $field) {
             if (array_key_exists($field, $data)) {
@@ -78,7 +77,7 @@ class DisposalClassService
             ])
             ->first();
 
-        if (!$class) {
+        if (! $class) {
             return null;
         }
 
@@ -122,14 +121,14 @@ class DisposalClassService
         $now = Carbon::now();
 
         return (int) DB::table('rm_record_disposal_class')->insertGetId([
-            'information_object_id'   => $ioId,
-            'disposal_class_id'       => $classId,
-            'assigned_by'             => $userId,
-            'assigned_at'             => $now,
-            'retention_start_date'    => $startDate,
+            'information_object_id' => $ioId,
+            'disposal_class_id' => $classId,
+            'assigned_by' => $userId,
+            'assigned_at' => $now,
+            'retention_start_date' => $startDate,
             'calculated_disposal_date' => $disposalDate,
-            'override_disposal_date'  => null,
-            'override_reason'         => null,
+            'override_disposal_date' => null,
+            'override_reason' => null,
         ]);
     }
 
@@ -173,9 +172,9 @@ class DisposalClassService
             ->toArray();
 
         return [
-            'data'     => $data,
-            'total'    => $total,
-            'page'     => $page,
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
             'per_page' => $perPage,
         ];
     }
@@ -186,11 +185,11 @@ class DisposalClassService
     public function calculateDisposalDate(int $classId, ?string $startDate = null): ?string
     {
         $class = DB::table('rm_disposal_class')->where('id', $classId)->first();
-        if (!$class) {
+        if (! $class) {
             return null;
         }
 
-        if (!$class->retention_period_years && !$class->retention_period_months) {
+        if (! $class->retention_period_years && ! $class->retention_period_months) {
             return null;
         }
 

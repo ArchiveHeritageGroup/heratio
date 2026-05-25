@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -61,7 +59,7 @@ class AuthorityLookupService
      */
     public function isSourceEnabled(string $source): bool
     {
-        return $this->getConfig($source . '_enabled', '0') === '1';
+        return $this->getConfig($source.'_enabled', '0') === '1';
     }
 
     // =========================================================================
@@ -73,37 +71,37 @@ class AuthorityLookupService
      */
     public function searchWikidata(string $query, string $language = 'en', int $limit = 10): array
     {
-        if (!$this->isSourceEnabled('wikidata')) {
+        if (! $this->isSourceEnabled('wikidata')) {
             return ['error' => 'Wikidata is not enabled'];
         }
 
-        $url = 'https://www.wikidata.org/w/api.php?' . http_build_query([
-            'action'   => 'wbsearchentities',
-            'search'   => $query,
+        $url = 'https://www.wikidata.org/w/api.php?'.http_build_query([
+            'action' => 'wbsearchentities',
+            'search' => $query,
             'language' => $language,
-            'limit'    => $limit,
-            'format'   => 'json',
-            'type'     => 'item',
+            'limit' => $limit,
+            'format' => 'json',
+            'type' => 'item',
         ]);
 
         $response = $this->httpGet($url);
-        if (!$response) {
+        if (! $response) {
             return ['error' => 'Failed to connect to Wikidata'];
         }
 
         $data = json_decode($response, true);
-        if (!isset($data['search'])) {
+        if (! isset($data['search'])) {
             return ['results' => []];
         }
 
         $results = [];
         foreach ($data['search'] as $item) {
             $results[] = [
-                'id'          => $item['id'] ?? '',
-                'label'       => $item['label'] ?? '',
+                'id' => $item['id'] ?? '',
+                'label' => $item['label'] ?? '',
                 'description' => $item['description'] ?? '',
-                'uri'         => $item['concepturi'] ?? sprintf('https://www.wikidata.org/wiki/%s', $item['id']),
-                'source'      => 'wikidata',
+                'uri' => $item['concepturi'] ?? sprintf('https://www.wikidata.org/wiki/%s', $item['id']),
+                'source' => 'wikidata',
             ];
         }
 
@@ -119,21 +117,21 @@ class AuthorityLookupService
      */
     public function searchViaf(string $query, int $limit = 10): array
     {
-        if (!$this->isSourceEnabled('viaf')) {
+        if (! $this->isSourceEnabled('viaf')) {
             return ['error' => 'VIAF is not enabled'];
         }
 
-        $url = 'https://viaf.org/viaf/AutoSuggest?' . http_build_query([
+        $url = 'https://viaf.org/viaf/AutoSuggest?'.http_build_query([
             'query' => $query,
         ]);
 
         $response = $this->httpGet($url);
-        if (!$response) {
+        if (! $response) {
             return ['error' => 'Failed to connect to VIAF'];
         }
 
         $data = json_decode($response, true);
-        if (!isset($data['result'])) {
+        if (! isset($data['result'])) {
             return ['results' => []];
         }
 
@@ -141,11 +139,11 @@ class AuthorityLookupService
         foreach (array_slice($data['result'], 0, $limit) as $item) {
             $viafId = $item['viafid'] ?? '';
             $results[] = [
-                'id'          => $viafId,
-                'label'       => $item['term'] ?? '',
+                'id' => $viafId,
+                'label' => $item['term'] ?? '',
                 'description' => $item['nametype'] ?? '',
-                'uri'         => 'https://viaf.org/viaf/' . $viafId,
-                'source'      => 'viaf',
+                'uri' => 'https://viaf.org/viaf/'.$viafId,
+                'source' => 'viaf',
             ];
         }
 
@@ -161,7 +159,7 @@ class AuthorityLookupService
      */
     public function searchUlan(string $query, int $limit = 10): array
     {
-        if (!$this->isSourceEnabled('ulan')) {
+        if (! $this->isSourceEnabled('ulan')) {
             return ['error' => 'ULAN is not enabled'];
         }
 
@@ -176,12 +174,12 @@ class AuthorityLookupService
             $limit
         );
 
-        $url = 'https://vocab.getty.edu/sparql.json?' . http_build_query([
+        $url = 'https://vocab.getty.edu/sparql.json?'.http_build_query([
             'query' => $sparql,
         ]);
 
         $response = $this->httpGet($url);
-        if (!$response) {
+        if (! $response) {
             return ['error' => 'Failed to connect to ULAN'];
         }
 
@@ -191,13 +189,13 @@ class AuthorityLookupService
         $results = [];
         foreach ($bindings as $item) {
             $uri = $item['subject']['value'] ?? '';
-            $id  = basename($uri);
+            $id = basename($uri);
             $results[] = [
-                'id'          => $id,
-                'label'       => $item['name']['value'] ?? '',
+                'id' => $id,
+                'label' => $item['name']['value'] ?? '',
                 'description' => $item['bio']['value'] ?? '',
-                'uri'         => $uri,
-                'source'      => 'ulan',
+                'uri' => $uri,
+                'source' => 'ulan',
             ];
         }
 
@@ -213,17 +211,17 @@ class AuthorityLookupService
      */
     public function searchLcnaf(string $query, int $limit = 10): array
     {
-        if (!$this->isSourceEnabled('lcnaf')) {
+        if (! $this->isSourceEnabled('lcnaf')) {
             return ['error' => 'LCNAF is not enabled'];
         }
 
-        $url = 'https://id.loc.gov/authorities/names/suggest2?' . http_build_query([
-            'q'      => $query,
-            'count'  => $limit,
+        $url = 'https://id.loc.gov/authorities/names/suggest2?'.http_build_query([
+            'q' => $query,
+            'count' => $limit,
         ]);
 
         $response = $this->httpGet($url);
-        if (!$response) {
+        if (! $response) {
             return ['error' => 'Failed to connect to LCNAF'];
         }
 
@@ -233,11 +231,11 @@ class AuthorityLookupService
         $results = [];
         foreach ($hits as $item) {
             $results[] = [
-                'id'          => $item['token'] ?? basename($item['uri'] ?? ''),
-                'label'       => $item['aLabel'] ?? '',
+                'id' => $item['token'] ?? basename($item['uri'] ?? ''),
+                'label' => $item['aLabel'] ?? '',
                 'description' => $item['vLabel'] ?? '',
-                'uri'         => $item['uri'] ?? '',
-                'source'      => 'lcnaf',
+                'uri' => $item['uri'] ?? '',
+                'source' => 'lcnaf',
             ];
         }
 
@@ -255,9 +253,9 @@ class AuthorityLookupService
     {
         $ctx = stream_context_create([
             'http' => [
-                'method'  => 'GET',
+                'method' => 'GET',
                 'timeout' => $this->timeout,
-                'header'  => "Accept: application/json\r\nUser-Agent: Heratio/1.0\r\n",
+                'header' => "Accept: application/json\r\nUser-Agent: Heratio/1.0\r\n",
             ],
             'ssl' => [
                 'verify_peer' => true,

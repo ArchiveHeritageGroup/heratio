@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Schema;
 class NotificationService
 {
     protected const TABLE = 'ahg_notification';
+
     protected const ADMIN_GROUP_ID = 100;
 
     /**
@@ -40,7 +41,10 @@ class NotificationService
         ?int $actorUserId = null,
         ?string $actorName = null
     ): int {
-        if (! Schema::hasTable(self::TABLE)) return 0;
+        if (! Schema::hasTable(self::TABLE)) {
+            return 0;
+        }
+
         return (int) DB::table(self::TABLE)->insertGetId([
             'user_id' => $userId,
             'type' => $type,
@@ -69,7 +73,9 @@ class NotificationService
         ?int $actorUserId = null,
         ?string $actorName = null
     ): int {
-        if (! Schema::hasTable(self::TABLE)) return 0;
+        if (! Schema::hasTable(self::TABLE)) {
+            return 0;
+        }
         $admins = DB::table('acl_user_group as g')
             ->join('user as u', 'u.id', '=', 'g.user_id')
             ->where('g.group_id', self::ADMIN_GROUP_ID)
@@ -80,16 +86,22 @@ class NotificationService
 
         $count = 0;
         foreach ($admins as $adminId) {
-            if ($actorUserId && (int) $adminId === (int) $actorUserId) continue;
+            if ($actorUserId && (int) $adminId === (int) $actorUserId) {
+                continue;
+            }
             $this->notify((int) $adminId, $type, $title, $message, $link, $relatedType, $relatedId, $actorUserId, $actorName);
             $count++;
         }
+
         return $count;
     }
 
     public function unreadCount(int $userId): int
     {
-        if (! Schema::hasTable(self::TABLE)) return 0;
+        if (! Schema::hasTable(self::TABLE)) {
+            return 0;
+        }
+
         return DB::table(self::TABLE)
             ->where('user_id', $userId)
             ->where('is_read', 0)
@@ -99,37 +111,57 @@ class NotificationService
 
     public function listForUser(int $userId, int $limit = 20, bool $unreadOnly = false): \Illuminate\Support\Collection
     {
-        if (! Schema::hasTable(self::TABLE)) return collect();
+        if (! Schema::hasTable(self::TABLE)) {
+            return collect();
+        }
         $q = DB::table(self::TABLE)
             ->where('user_id', $userId)
             ->where('is_dismissed', 0)
             ->orderByDesc('created_at')
             ->limit($limit);
-        if ($unreadOnly) $q->where('is_read', 0);
+        if ($unreadOnly) {
+            $q->where('is_read', 0);
+        }
+
         return $q->get();
     }
 
     public function markRead(int $notificationId, ?int $userId = null): bool
     {
-        if (! Schema::hasTable(self::TABLE)) return false;
+        if (! Schema::hasTable(self::TABLE)) {
+            return false;
+        }
         $q = DB::table(self::TABLE)->where('id', $notificationId);
-        if ($userId) $q->where('user_id', $userId);
+        if ($userId) {
+            $q->where('user_id', $userId);
+        }
+
         return (bool) $q->update(['is_read' => 1, 'read_at' => now()]);
     }
 
     public function markAllRead(int $userId, ?string $type = null): int
     {
-        if (! Schema::hasTable(self::TABLE)) return 0;
+        if (! Schema::hasTable(self::TABLE)) {
+            return 0;
+        }
         $q = DB::table(self::TABLE)->where('user_id', $userId)->where('is_read', 0);
-        if ($type) $q->where('type', $type);
+        if ($type) {
+            $q->where('type', $type);
+        }
+
         return (int) $q->update(['is_read' => 1, 'read_at' => now()]);
     }
 
     public function dismiss(int $notificationId, ?int $userId = null): bool
     {
-        if (! Schema::hasTable(self::TABLE)) return false;
+        if (! Schema::hasTable(self::TABLE)) {
+            return false;
+        }
         $q = DB::table(self::TABLE)->where('id', $notificationId);
-        if ($userId) $q->where('user_id', $userId);
+        if ($userId) {
+            $q->where('user_id', $userId);
+        }
+
         return (bool) $q->update(['is_dismissed' => 1]);
     }
 }

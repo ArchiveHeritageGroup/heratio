@@ -30,12 +30,12 @@ class NazClosureCheckCommand extends Command
             ->where('end_date', '<', $now->copy()->addDays(90)->toDateString())
             ->get(['id', 'information_object_id', 'closure_type', 'end_date']);
 
-        $this->info("=== NAZ closure periods ===");
+        $this->info('=== NAZ closure periods ===');
         $this->line("  expired (still active):   {$expired->count()}");
         $this->line("  expiring within 90 days:  {$expiringSoon->count()}");
 
         foreach ($expired->take(20) as $r) {
-            $this->line(sprintf("  EXPIRED  #%-5d obj=%-7d type=%-12s end=%s", $r->id, $r->information_object_id, $r->closure_type, $r->end_date));
+            $this->line(sprintf('  EXPIRED  #%-5d obj=%-7d type=%-12s end=%s', $r->id, $r->information_object_id, $r->closure_type, $r->end_date));
         }
 
         if ($this->option('auto-release') && $expired->isNotEmpty()) {
@@ -43,13 +43,14 @@ class NazClosureCheckCommand extends Command
             $released = (int) DB::table('naz_closure_period')
                 ->whereIn('id', $expired->pluck('id'))
                 ->update([
-                    'status'        => 'released',
-                    'released_by'   => $userId,
-                    'released_at'   => $now,
+                    'status' => 'released',
+                    'released_by' => $userId,
+                    'released_at' => $now,
                     'release_notes' => 'auto-released at end_date',
                 ]);
             $this->info("auto-released {$released} closures");
         }
+
         return self::SUCCESS;
     }
 }

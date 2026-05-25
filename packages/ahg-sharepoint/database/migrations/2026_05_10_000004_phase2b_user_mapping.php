@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Schema;
  * Phase 2.B — sharepoint_user_mapping table.
  * Mirror of atom-ahg-plugins/ahgSharePointPlugin/database/migrations/20260510_phase2b_user_mapping.sql.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         if (Schema::hasTable('sharepoint_user_mapping')) {

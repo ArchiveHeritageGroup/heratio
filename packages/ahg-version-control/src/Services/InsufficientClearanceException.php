@@ -8,6 +8,4 @@
 
 namespace AhgVersionControl\Services;
 
-class InsufficientClearanceException extends \RuntimeException
-{
-}
+class InsufficientClearanceException extends \RuntimeException {}

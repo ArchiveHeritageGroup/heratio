@@ -48,13 +48,13 @@ class ViafAdapter extends AbstractLookupAdapter
             ])
             ->get(self::URL, ['query' => $query]);
 
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             return [];
         }
 
         $json = $response->json();
         $results = $json['result'] ?? null;
-        if (!is_array($results)) {
+        if (! is_array($results)) {
             return [];
         }
 
@@ -66,7 +66,7 @@ class ViafAdapter extends AbstractLookupAdapter
         foreach ($results as $hit) {
             $viafId = $hit['viafid'] ?? null;
             $name = $hit['term'] ?? $hit['displayForm'] ?? null;
-            if (!$viafId || !$name) {
+            if (! $viafId || ! $name) {
                 continue;
             }
             // Best-effort entity-type filter: VIAF nametype is "personal" /
@@ -74,17 +74,17 @@ class ViafAdapter extends AbstractLookupAdapter
             $nameType = strtolower((string) ($hit['nametype'] ?? ''));
             $isPerson = $nameType === '' || str_contains($nameType, 'personal');
             $isOrg = str_contains($nameType, 'corporate');
-            if ($entityType === 'PERSON' && !$isPerson) {
+            if ($entityType === 'PERSON' && ! $isPerson) {
                 continue;
             }
-            if ($entityType === 'ORG' && !$isOrg) {
+            if ($entityType === 'ORG' && ! $isOrg) {
                 continue;
             }
 
             $candidates[] = [
                 'source' => $this->source(),
                 'external_id' => (string) $viafId,
-                'external_uri' => 'https://viaf.org/viaf/' . $viafId . '/',
+                'external_uri' => 'https://viaf.org/viaf/'.$viafId.'/',
                 'authorized_name' => (string) $name,
                 'dates_of_existence' => $this->extractDates($hit),
                 'history_snippet' => null,
@@ -114,11 +114,12 @@ class ViafAdapter extends AbstractLookupAdapter
     {
         $term = (string) ($hit['term'] ?? '');
         if (preg_match('/(\d{3,4})\s*-\s*(\d{3,4})/', $term, $m)) {
-            return $m[1] . '-' . $m[2];
+            return $m[1].'-'.$m[2];
         }
         if (preg_match('/(\d{3,4})\s*-/', $term, $m)) {
-            return $m[1] . '-';
+            return $m[1].'-';
         }
+
         return null;
     }
 }

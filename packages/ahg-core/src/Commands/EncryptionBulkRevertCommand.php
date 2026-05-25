@@ -40,14 +40,16 @@ class EncryptionBulkRevertCommand extends Command
 
     public function handle(EncryptionService $svc): int
     {
-        if (!$this->option('dry-run') && !$this->option('force')) {
+        if (! $this->option('dry-run') && ! $this->option('force')) {
             $this->error('Reverting writes plaintext back to columns. Pass --force to confirm, or --dry-run to preview.');
+
             return self::FAILURE;
         }
 
         $fields = $svc->listRegisteredFields($this->option('category'));
         if (empty($fields)) {
             $this->warn('No registered fields match.');
+
             return self::SUCCESS;
         }
 
@@ -57,11 +59,12 @@ class EncryptionBulkRevertCommand extends Command
         foreach ($fields as $f) {
             $idCol = 'id';
             $count = DB::table($f->table_name)
-                ->where($f->column_name, 'LIKE', EncryptionService::SENTINEL . '%')
+                ->where($f->column_name, 'LIKE', EncryptionService::SENTINEL.'%')
                 ->count();
 
             if ($this->option('dry-run')) {
                 $this->info(sprintf('  - dry-run: would decrypt %d row(s) of %s.%s', $count, $f->table_name, $f->column_name));
+
                 continue;
             }
 
@@ -69,7 +72,7 @@ class EncryptionBulkRevertCommand extends Command
 
             DB::table($f->table_name)
                 ->select($idCol, $f->column_name)
-                ->where($f->column_name, 'LIKE', EncryptionService::SENTINEL . '%')
+                ->where($f->column_name, 'LIKE', EncryptionService::SENTINEL.'%')
                 ->orderBy($idCol)
                 ->chunk(500, function ($rows) use ($svc, $f, $idCol, &$totalDecrypted, &$totalErrors) {
                     foreach ($rows as $row) {
@@ -102,6 +105,7 @@ class EncryptionBulkRevertCommand extends Command
 
         $this->line('');
         $this->info(sprintf('Done. decrypted=%d errors=%d', $totalDecrypted, $totalErrors));
+
         return $totalErrors === 0 ? self::SUCCESS : self::FAILURE;
     }
 }

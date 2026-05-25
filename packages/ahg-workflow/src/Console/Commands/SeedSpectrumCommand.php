@@ -31,14 +31,16 @@ class SeedSpectrumCommand extends Command
     public function handle(): int
     {
         $jsonPath = base_path('packages/ahg-workflow/database/spectrum_procedures.json');
-        if (!is_file($jsonPath)) {
+        if (! is_file($jsonPath)) {
             $this->error("Seed file not found: {$jsonPath}");
+
             return self::FAILURE;
         }
 
         $raw = json_decode((string) file_get_contents($jsonPath), true);
-        if (!is_array($raw) || empty($raw['procedures'])) {
+        if (! is_array($raw) || empty($raw['procedures'])) {
             $this->error("Seed file is malformed (no 'procedures' key).");
+
             return self::FAILURE;
         }
 
@@ -52,26 +54,27 @@ class SeedSpectrumCommand extends Command
         if ($overwrite) {
             $this->warn('OVERWRITE mode — existing Spectrum workflow steps will be REPLACED. Hand-customised steps for those procedures will be lost.');
         }
-        if (!empty($onlyCodes)) {
-            $this->info('Limited to: ' . implode(', ', $onlyCodes));
+        if (! empty($onlyCodes)) {
+            $this->info('Limited to: '.implode(', ', $onlyCodes));
         }
 
         $stats = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'invalid_code' => 0];
         $catalogCodes = SpectrumProcedureCatalog::codes();
 
         foreach ($raw['procedures'] as $code => $procedure) {
-            if (!empty($onlyCodes) && !in_array($code, $onlyCodes, true)) {
+            if (! empty($onlyCodes) && ! in_array($code, $onlyCodes, true)) {
                 continue;
             }
-            if (!in_array($code, $catalogCodes, true)) {
+            if (! in_array($code, $catalogCodes, true)) {
                 $this->warn("  ✗ {$code}: not in catalog (skipping)");
                 $stats['invalid_code']++;
+
                 continue;
             }
 
             $result = $this->seedProcedure($code, $procedure, $overwrite, $dryRun);
             $stats[$result['action']]++;
-            $this->line("  " . $result['icon'] . " {$code}: " . $result['message']);
+            $this->line('  '.$result['icon']." {$code}: ".$result['message']);
         }
 
         $this->newLine();
@@ -93,34 +96,37 @@ class SeedSpectrumCommand extends Command
         if ($existing === null) {
             // CREATE — workflow doesn't exist yet
             if ($dryRun) {
-                return ['action' => 'created', 'icon' => '+', 'message' => 'would CREATE workflow + ' . count($procedure['steps'] ?? []) . ' steps'];
+                return ['action' => 'created', 'icon' => '+', 'message' => 'would CREATE workflow + '.count($procedure['steps'] ?? []).' steps'];
             }
             // Spectrum#B v1.65.1 — wrap create+steps in a transaction so a mid-insert
             // failure (e.g. column truncation) doesn't leave behind a partial workflow.
             [$workflowId, $stepCount] = DB::transaction(function () use ($code, $procedure) {
                 $wfId = $this->createWorkflow($code, $procedure);
                 $count = $this->insertSteps($wfId, $procedure['steps'] ?? []);
+
                 return [$wfId, $count];
             });
+
             return ['action' => 'created', 'icon' => '+', 'message' => "created workflow id={$workflowId} with {$stepCount} steps"];
         }
 
         // EXISTS
-        if (!$overwrite) {
+        if (! $overwrite) {
             return ['action' => 'skipped', 'icon' => '=', 'message' => "exists (id={$existing->id}), no --overwrite — skipping"];
         }
 
         // OVERWRITE — update metadata + replace steps
         if ($dryRun) {
             $existingStepCount = DB::table('ahg_workflow_step')->where('workflow_id', $existing->id)->count();
-            return ['action' => 'updated', 'icon' => '~', 'message' => "would UPDATE workflow id={$existing->id} and REPLACE {$existingStepCount} existing steps with " . count($procedure['steps'] ?? []) . ' seed steps'];
+
+            return ['action' => 'updated', 'icon' => '~', 'message' => "would UPDATE workflow id={$existing->id} and REPLACE {$existingStepCount} existing steps with ".count($procedure['steps'] ?? []).' seed steps'];
         }
 
         DB::transaction(function () use ($existing, $procedure) {
             DB::table('ahg_workflow')->where('id', $existing->id)->update([
-                'name'        => $procedure['name'] ?? $existing->name,
+                'name' => $procedure['name'] ?? $existing->name,
                 'description' => $procedure['description'] ?? $existing->description,
-                'updated_at'  => now(),
+                'updated_at' => now(),
             ]);
             DB::table('ahg_workflow_step')->where('workflow_id', $existing->id)->delete();
             $this->insertSteps((int) $existing->id, $procedure['steps'] ?? []);
@@ -132,19 +138,19 @@ class SeedSpectrumCommand extends Command
     private function createWorkflow(string $code, array $procedure): int
     {
         return (int) DB::table('ahg_workflow')->insertGetId([
-            'name'                 => $procedure['name'] ?? "Spectrum: {$code}",
-            'description'          => $procedure['description'] ?? null,
-            'scope_type'           => 'global',
-            'trigger_event'        => 'submit',
-            'applies_to'           => 'information_object',
-            'is_active'            => 1,
-            'is_default'           => 0,
-            'require_all_steps'    => 1,
-            'allow_parallel'       => 0,
+            'name' => $procedure['name'] ?? "Spectrum: {$code}",
+            'description' => $procedure['description'] ?? null,
+            'scope_type' => 'global',
+            'trigger_event' => 'submit',
+            'applies_to' => 'information_object',
+            'is_active' => 1,
+            'is_default' => 0,
+            'require_all_steps' => 1,
+            'allow_parallel' => 0,
             'notification_enabled' => 1,
-            'spectrum_procedure'   => $code,
-            'created_at'           => now(),
-            'updated_at'           => now(),
+            'spectrum_procedure' => $code,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
@@ -153,20 +159,21 @@ class SeedSpectrumCommand extends Command
         $count = 0;
         foreach (array_values($steps) as $i => $step) {
             DB::table('ahg_workflow_step')->insert([
-                'workflow_id'      => $workflowId,
-                'name'             => $step['name'] ?? 'Step ' . ($i + 1),
-                'description'      => $step['description'] ?? null,
-                'step_order'       => $i + 1,
-                'step_type'        => $step['step_type'] ?? 'review',
-                'action_required'  => $step['action_required'] ?? 'approve_reject',
-                'instructions'     => $step['instructions'] ?? null,
-                'is_optional'      => $step['is_optional'] ?? 0,
-                'is_active'        => 1,
-                'created_at'       => now(),
-                'updated_at'       => now(),
+                'workflow_id' => $workflowId,
+                'name' => $step['name'] ?? 'Step '.($i + 1),
+                'description' => $step['description'] ?? null,
+                'step_order' => $i + 1,
+                'step_type' => $step['step_type'] ?? 'review',
+                'action_required' => $step['action_required'] ?? 'approve_reject',
+                'instructions' => $step['instructions'] ?? null,
+                'is_optional' => $step['is_optional'] ?? 0,
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
             $count++;
         }
+
         return $count;
     }
 }

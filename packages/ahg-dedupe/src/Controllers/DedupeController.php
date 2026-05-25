@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgDedupe\Controllers;
 
 use AhgCore\Pagination\SimplePager;
@@ -53,16 +51,16 @@ class DedupeController extends Controller
      */
     public function index()
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return view('ahg-dedupe::not-configured');
         }
 
         $totalDetected = DB::table('ahg_duplicate_detection')->count();
-        $pending       = DB::table('ahg_duplicate_detection')->where('status', 'pending')->count();
-        $confirmed     = DB::table('ahg_duplicate_detection')->where('status', 'confirmed')->count();
-        $merged        = DB::table('ahg_duplicate_detection')->where('status', 'merged')->count();
-        $dismissed     = DB::table('ahg_duplicate_detection')->where('status', 'dismissed')->count();
-        $activeRules   = DB::table('ahg_duplicate_rule')->where('is_enabled', 1)->count();
+        $pending = DB::table('ahg_duplicate_detection')->where('status', 'pending')->count();
+        $confirmed = DB::table('ahg_duplicate_detection')->where('status', 'confirmed')->count();
+        $merged = DB::table('ahg_duplicate_detection')->where('status', 'merged')->count();
+        $dismissed = DB::table('ahg_duplicate_detection')->where('status', 'dismissed')->count();
+        $activeRules = DB::table('ahg_duplicate_rule')->where('is_enabled', 1)->count();
 
         $culture = app()->getLocale();
 
@@ -103,15 +101,15 @@ class DedupeController extends Controller
 
         return view('ahg-dedupe::index', [
             'stats' => [
-                'total'       => $totalDetected,
-                'pending'     => $pending,
-                'confirmed'   => $confirmed,
-                'merged'      => $merged,
-                'dismissed'   => $dismissed,
+                'total' => $totalDetected,
+                'pending' => $pending,
+                'confirmed' => $confirmed,
+                'merged' => $merged,
+                'dismissed' => $dismissed,
                 'activeRules' => $activeRules,
             ],
-            'topPending'   => $topPending,
-            'recentScans'  => $recentScans,
+            'topPending' => $topPending,
+            'recentScans' => $recentScans,
             'methodCounts' => $methodCounts,
         ]);
     }
@@ -121,15 +119,15 @@ class DedupeController extends Controller
      */
     public function browse(Request $request)
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return view('ahg-dedupe::not-configured');
         }
 
-        $culture  = app()->getLocale();
-        $page     = max(1, (int) $request->get('page', 1));
-        $limit    = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
-        $status   = $request->get('status', '');
-        $method   = $request->get('method', '');
+        $culture = app()->getLocale();
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
+        $status = $request->get('status', '');
+        $method = $request->get('method', '');
         $minScore = $request->get('min_score', '');
 
         $query = DB::table('ahg_duplicate_detection as d')
@@ -174,9 +172,9 @@ class DedupeController extends Controller
             ->toArray();
 
         $pager = new SimplePager([
-            'hits'  => $rows,
+            'hits' => $rows,
             'total' => $total,
-            'page'  => $page,
+            'page' => $page,
             'limit' => $limit,
         ]);
 
@@ -188,11 +186,11 @@ class DedupeController extends Controller
             ->toArray();
 
         return view('ahg-dedupe::browse', [
-            'pager'         => $pager,
+            'pager' => $pager,
             'currentStatus' => $status,
             'currentMethod' => $method,
-            'currentScore'  => $minScore,
-            'methods'       => $methods,
+            'currentScore' => $minScore,
+            'methods' => $methods,
         ]);
     }
 
@@ -201,7 +199,7 @@ class DedupeController extends Controller
      */
     public function compare(int $id)
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return view('ahg-dedupe::not-configured');
         }
 
@@ -209,7 +207,7 @@ class DedupeController extends Controller
 
         $duplicate = DB::table('ahg_duplicate_detection')->where('id', $id)->first();
 
-        if (!$duplicate) {
+        if (! $duplicate) {
             abort(404);
         }
 
@@ -271,16 +269,16 @@ class DedupeController extends Controller
             $valB = $recordB ? ($recordB->$field ?? '') : '';
             $comparison[] = [
                 'label' => ucwords(str_replace('_', ' ', $field)),
-                'a'     => $valA,
-                'b'     => $valB,
+                'a' => $valA,
+                'b' => $valB,
                 'match' => trim((string) $valA) !== '' && trim((string) $valA) === trim((string) $valB),
             ];
         }
 
         return view('ahg-dedupe::compare', [
-            'duplicate'  => $duplicate,
-            'recordA'    => $recordA,
-            'recordB'    => $recordB,
+            'duplicate' => $duplicate,
+            'recordA' => $recordA,
+            'recordB' => $recordB,
             'comparison' => $comparison,
         ]);
     }
@@ -290,20 +288,20 @@ class DedupeController extends Controller
      */
     public function dismiss(Request $request, int $id)
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return response()->json(['error' => 'Duplicate detection tables not configured.'], 500);
         }
 
         $duplicate = DB::table('ahg_duplicate_detection')->where('id', $id)->first();
 
-        if (!$duplicate) {
+        if (! $duplicate) {
             return response()->json(['error' => 'Duplicate record not found.'], 404);
         }
 
         DB::table('ahg_duplicate_detection')
             ->where('id', $id)
             ->update([
-                'status'      => 'dismissed',
+                'status' => 'dismissed',
                 'reviewed_by' => Auth::id(),
                 'reviewed_at' => now(),
             ]);
@@ -316,7 +314,7 @@ class DedupeController extends Controller
      */
     public function rules()
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return view('ahg-dedupe::not-configured');
         }
 
@@ -342,7 +340,7 @@ class DedupeController extends Controller
      */
     public function scan()
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return view('ahg-dedupe::not-configured');
         }
 
@@ -367,19 +365,19 @@ class DedupeController extends Controller
      */
     public function scanStart(Request $request)
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return redirect()->route('dedupe.index');
         }
 
         DB::table('ahg_dedupe_scan')->insert([
-            'scope'             => $request->input('scope', 'all'),
-            'repository_id'     => $request->input('scope') === 'repository' ? $request->input('repository_id') : null,
-            'status'            => 'pending',
+            'scope' => $request->input('scope', 'all'),
+            'repository_id' => $request->input('scope') === 'repository' ? $request->input('repository_id') : null,
+            'status' => 'pending',
             'processed_records' => 0,
-            'total_records'     => 0,
-            'duplicates_found'  => 0,
-            'created_at'        => now(),
-            'updated_at'        => now(),
+            'total_records' => 0,
+            'duplicates_found' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return redirect()->route('dedupe.index')->with('notice', 'Scan job created. Run the CLI command to process it.');
@@ -390,14 +388,14 @@ class DedupeController extends Controller
      */
     public function merge(int $id)
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return view('ahg-dedupe::not-configured');
         }
 
         $culture = app()->getLocale();
 
         $duplicate = DB::table('ahg_duplicate_detection')->where('id', $id)->first();
-        if (!$duplicate) {
+        if (! $duplicate) {
             abort(404);
         }
 
@@ -453,8 +451,8 @@ class DedupeController extends Controller
 
         return view('ahg-dedupe::merge', [
             'duplicate' => $duplicate,
-            'recordA'   => $recordA,
-            'recordB'   => $recordB,
+            'recordA' => $recordA,
+            'recordB' => $recordB,
         ]);
     }
 
@@ -463,12 +461,12 @@ class DedupeController extends Controller
      */
     public function mergeExecute(Request $request, int $id)
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return redirect()->route('dedupe.index');
         }
 
         $duplicate = DB::table('ahg_duplicate_detection')->where('id', $id)->first();
-        if (!$duplicate) {
+        if (! $duplicate) {
             abort(404);
         }
 
@@ -478,7 +476,7 @@ class DedupeController extends Controller
         DB::table('ahg_duplicate_detection')
             ->where('id', $id)
             ->update([
-                'status'      => 'merged',
+                'status' => 'merged',
                 'reviewed_by' => Auth::id(),
                 'reviewed_at' => now(),
             ]);
@@ -491,7 +489,7 @@ class DedupeController extends Controller
      */
     public function ruleCreate()
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return view('ahg-dedupe::not-configured');
         }
 
@@ -509,8 +507,8 @@ class DedupeController extends Controller
         $defaultThreshold = (float) AhgSettingsService::get('authority_dedup_threshold', '0.80');
 
         return view('ahg-dedupe::rule-create', [
-            'ruleTypes'        => $this->getRuleTypes(),
-            'repositories'     => $repositories,
+            'ruleTypes' => $this->getRuleTypes(),
+            'repositories' => $repositories,
             'defaultThreshold' => $defaultThreshold,
         ]);
     }
@@ -520,27 +518,27 @@ class DedupeController extends Controller
      */
     public function ruleStore(Request $request)
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return redirect()->route('dedupe.index');
         }
 
         $request->validate([
-            'name'      => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'rule_type' => 'required|string|max:50',
             'threshold' => 'required|numeric|min:0|max:1',
         ]);
 
         DB::table('ahg_duplicate_rule')->insert([
-            'name'          => $request->input('name'),
-            'rule_type'     => $request->input('rule_type'),
-            'threshold'     => $request->input('threshold'),
-            'priority'      => (int) $request->input('priority', 100),
+            'name' => $request->input('name'),
+            'rule_type' => $request->input('rule_type'),
+            'threshold' => $request->input('threshold'),
+            'priority' => (int) $request->input('priority', 100),
             'repository_id' => $request->input('repository_id') ?: null,
-            'config_json'   => $request->input('config_json') ?: null,
-            'is_enabled'    => $request->has('is_enabled') ? 1 : 0,
-            'is_blocking'   => $request->has('is_blocking') ? 1 : 0,
-            'created_at'    => now(),
-            'updated_at'    => now(),
+            'config_json' => $request->input('config_json') ?: null,
+            'is_enabled' => $request->has('is_enabled') ? 1 : 0,
+            'is_blocking' => $request->has('is_blocking') ? 1 : 0,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return redirect()->route('dedupe.rules')->with('notice', 'Detection rule created.');
@@ -551,12 +549,12 @@ class DedupeController extends Controller
      */
     public function ruleEdit(int $id)
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return view('ahg-dedupe::not-configured');
         }
 
         $rule = DB::table('ahg_duplicate_rule')->where('id', $id)->first();
-        if (!$rule) {
+        if (! $rule) {
             abort(404);
         }
 
@@ -572,8 +570,8 @@ class DedupeController extends Controller
             ->get();
 
         return view('ahg-dedupe::rule-edit', [
-            'rule'         => $rule,
-            'ruleTypes'    => $this->getRuleTypes(),
+            'rule' => $rule,
+            'ruleTypes' => $this->getRuleTypes(),
             'repositories' => $repositories,
         ]);
     }
@@ -583,26 +581,26 @@ class DedupeController extends Controller
      */
     public function ruleUpdate(Request $request, int $id)
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return redirect()->route('dedupe.index');
         }
 
         $request->validate([
-            'name'      => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'rule_type' => 'required|string|max:50',
             'threshold' => 'required|numeric|min:0|max:1',
         ]);
 
         DB::table('ahg_duplicate_rule')->where('id', $id)->update([
-            'name'          => $request->input('name'),
-            'rule_type'     => $request->input('rule_type'),
-            'threshold'     => $request->input('threshold'),
-            'priority'      => (int) $request->input('priority', 100),
+            'name' => $request->input('name'),
+            'rule_type' => $request->input('rule_type'),
+            'threshold' => $request->input('threshold'),
+            'priority' => (int) $request->input('priority', 100),
             'repository_id' => $request->input('repository_id') ?: null,
-            'config_json'   => $request->input('config_json') ?: null,
-            'is_enabled'    => $request->has('is_enabled') ? 1 : 0,
-            'is_blocking'   => $request->has('is_blocking') ? 1 : 0,
-            'updated_at'    => now(),
+            'config_json' => $request->input('config_json') ?: null,
+            'is_enabled' => $request->has('is_enabled') ? 1 : 0,
+            'is_blocking' => $request->has('is_blocking') ? 1 : 0,
+            'updated_at' => now(),
         ]);
 
         return redirect()->route('dedupe.rules')->with('notice', 'Detection rule updated.');
@@ -613,7 +611,7 @@ class DedupeController extends Controller
      */
     public function ruleDelete(int $id)
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return redirect()->route('dedupe.index');
         }
 
@@ -631,10 +629,10 @@ class DedupeController extends Controller
             'title_similarity' => 'Title Similarity',
             'identifier_exact' => 'Identifier Exact Match',
             'identifier_fuzzy' => 'Identifier Fuzzy Match',
-            'date_creator'     => 'Date + Creator Match',
-            'checksum'         => 'File Checksum',
-            'combined'         => 'Combined Analysis',
-            'custom'           => 'Custom Rule',
+            'date_creator' => 'Date + Creator Match',
+            'checksum' => 'File Checksum',
+            'combined' => 'Combined Analysis',
+            'custom' => 'Custom Rule',
         ];
     }
 
@@ -643,7 +641,7 @@ class DedupeController extends Controller
      */
     public function report()
     {
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return view('ahg-dedupe::not-configured');
         }
 
@@ -676,7 +674,7 @@ class DedupeController extends Controller
             ->get();
 
         $totalDetected = DB::table('ahg_duplicate_detection')->count();
-        $totalMerged   = DB::table('ahg_duplicate_detection')->where('status', 'merged')->count();
+        $totalMerged = DB::table('ahg_duplicate_detection')->where('status', 'merged')->count();
         $totalDismissed = DB::table('ahg_duplicate_detection')->where('status', 'dismissed')->count();
         $falsePositiveRate = $totalDetected > 0 ? round(($totalDismissed / $totalDetected) * 100, 1) : 0;
 
@@ -693,35 +691,66 @@ class DedupeController extends Controller
             ->get();
 
         return view('ahg-dedupe::report', [
-            'monthlyStats'    => $monthlyStats,
+            'monthlyStats' => $monthlyStats,
             'methodBreakdown' => $methodBreakdown,
-            'efficiency'      => [
-                'total_detected'     => $totalDetected,
-                'total_merged'       => $totalMerged,
-                'total_dismissed'    => $totalDismissed,
+            'efficiency' => [
+                'total_detected' => $totalDetected,
+                'total_merged' => $totalMerged,
+                'total_dismissed' => $totalDismissed,
                 'false_positive_rate' => $falsePositiveRate,
             ],
             'topClusters' => $topClusters,
         ]);
     }
 
-    public function config(Request $request) { return view('ahg-dedupe::config', ['record' => (object)[]]); }
+    public function config(Request $request)
+    {
+        return view('ahg-dedupe::config', ['record' => (object) []]);
+    }
 
-    public function contact(int $id) { $record = DB::table('actor')->join('actor_i18n','actor.id','=','actor_i18n.id')->where('actor.id',$id)->where('actor_i18n.culture','en')->first(); return view('ahg-dedupe::contact', ['record' => $record ?? (object)[]]); }
+    public function contact(int $id)
+    {
+        $record = DB::table('actor')->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')->where('actor.id', $id)->where('actor_i18n.culture', 'en')->first();
 
-    public function dashboard() { return view('ahg-dedupe::authority-dashboard', ['totalCount'=>0,'dupeCount'=>0,'mergedCount'=>0,'avgCompleteness'=>0]); }
+        return view('ahg-dedupe::contact', ['record' => $record ?? (object) []]);
+    }
 
-    public function functionBrowse(Request $request) { return view('ahg-dedupe::function-browse', ['rows' => collect()]); }
+    public function dashboard()
+    {
+        return view('ahg-dedupe::authority-dashboard', ['totalCount' => 0, 'dupeCount' => 0, 'mergedCount' => 0, 'avgCompleteness' => 0]);
+    }
 
-    public function functions(int $id) { return view('ahg-dedupe::functions', ['rows' => collect()]); }
+    public function functionBrowse(Request $request)
+    {
+        return view('ahg-dedupe::function-browse', ['rows' => collect()]);
+    }
 
-    public function identifiers(Request $request) { return view('ahg-dedupe::identifiers', ['rows' => collect()]); }
+    public function functions(int $id)
+    {
+        return view('ahg-dedupe::functions', ['rows' => collect()]);
+    }
 
-    public function occupations(Request $request) { return view('ahg-dedupe::occupations', ['rows' => collect()]); }
+    public function identifiers(Request $request)
+    {
+        return view('ahg-dedupe::identifiers', ['rows' => collect()]);
+    }
 
-    public function split(Request $request, int $id) { $authority = DB::table('actor')->join('actor_i18n','actor.id','=','actor_i18n.id')->where('actor.id',$id)->where('actor_i18n.culture','en')->first(); return view('ahg-dedupe::split', ['authority' => $authority ?? (object)[]]); }
+    public function occupations(Request $request)
+    {
+        return view('ahg-dedupe::occupations', ['rows' => collect()]);
+    }
 
-    public function workqueue(Request $request) { return view('ahg-dedupe::workqueue', ['rows' => collect()]); }
+    public function split(Request $request, int $id)
+    {
+        $authority = DB::table('actor')->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')->where('actor.id', $id)->where('actor_i18n.culture', 'en')->first();
+
+        return view('ahg-dedupe::split', ['authority' => $authority ?? (object) []]);
+    }
+
+    public function workqueue(Request $request)
+    {
+        return view('ahg-dedupe::workqueue', ['rows' => collect()]);
+    }
 
     /**
      * API: Real-time duplicate check during data entry.
@@ -735,7 +764,7 @@ class DedupeController extends Controller
             return response()->json(['matches' => []]);
         }
 
-        if (!$this->tablesExist()) {
+        if (! $this->tablesExist()) {
             return response()->json(['matches' => []]);
         }
 
@@ -748,7 +777,7 @@ class DedupeController extends Controller
                     ->where('ioi.culture', '=', $culture);
             })
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
-            ->where('ioi.title', 'LIKE', '%' . $title . '%')
+            ->where('ioi.title', 'LIKE', '%'.$title.'%')
             ->select([
                 'io.id',
                 'io.identifier',
@@ -761,6 +790,7 @@ class DedupeController extends Controller
                 // Calculate simple similarity score
                 similar_text(strtolower($title), strtolower($row->title ?? ''), $percent);
                 $row->similarity_score = round($percent, 1);
+
                 return $row;
             })
             ->sortByDesc('similarity_score')

@@ -30,7 +30,8 @@ class RegenDerivativesCommand extends Command
         $this->info("regenerating derivatives for {$masters->count()} masters");
 
         $results = [];
-        $ok = 0; $failed = 0;
+        $ok = 0;
+        $failed = 0;
         foreach ($masters as $m) {
             try {
                 $r = $derivatives->regenerateDerivatives((int) $m->id);
@@ -47,6 +48,7 @@ class RegenDerivativesCommand extends Command
         } else {
             $this->info("ok={$ok} failed={$failed}");
         }
+
         return $failed === 0 ? self::SUCCESS : self::FAILURE;
     }
 
@@ -57,6 +59,7 @@ class RegenDerivativesCommand extends Command
             $ioId = DB::table('slug')->where('slug', $slug)->value('object_id');
             if (! $ioId) {
                 $this->error("slug not found: {$slug}");
+
                 return collect();
             }
             $q->where('do.object_id', $ioId);
@@ -64,6 +67,7 @@ class RegenDerivativesCommand extends Command
         if ($this->option('only-externals')) {
             $q->whereNotNull('do.path')->where('do.path', 'like', 'http%');
         }
+
         return $q->select('do.id', 'do.object_id', 'do.path', 'do.name')->get();
     }
 }

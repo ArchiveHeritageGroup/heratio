@@ -34,8 +34,8 @@ interface SearchStrategyInterface
     /**
      * Execute the strategy.
      *
-     * @param string $query    User query (already trimmed)
-     * @param array  $context  Per-request context: ['culture'=>'en', 'limit'=>100, 'expanded'=>['original'=>..,'all'=>[..]], ...]
+     * @param  string  $query  User query (already trimmed)
+     * @param  array  $context  Per-request context: ['culture'=>'en', 'limit'=>100, 'expanded'=>['original'=>..,'all'=>[..]], ...]
      * @return array<int, array{object_id:int, score:float, source:string}>
      */
     public function search(string $query, array $context): array;

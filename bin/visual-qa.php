@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * Phase 13: Visual QA — compare AtoM Heratio (psis) vs Heratio page by page.
  *
@@ -10,7 +11,6 @@
  *        php bin/visual-qa.php /plaas-welgelegen
  *        php bin/visual-qa.php --all
  */
-
 $atomBase = 'https://psis.theahg.co.za/index.php';
 $heratioBase = 'https://heratio.theahg.co.za';
 
@@ -50,7 +50,8 @@ $pages = [
     '/jobs/browse' => '/jobs/browse',
 ];
 
-function fetchPage($url) {
+function fetchPage($url)
+{
     $ch = curl_init();
     curl_setopt_array($ch, [
         CURLOPT_URL => $url,
@@ -63,13 +64,17 @@ function fetchPage($url) {
     $html = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+
     return ['html' => $html ?: '', 'code' => $code];
 }
 
-function extractStructure($html) {
-    if (empty($html)) return ['headings' => [], 'links' => [], 'buttons' => [], 'sections' => [], 'forms' => []];
+function extractStructure($html)
+{
+    if (empty($html)) {
+        return ['headings' => [], 'links' => [], 'buttons' => [], 'sections' => [], 'forms' => []];
+    }
 
-    $doc = new DOMDocument();
+    $doc = new DOMDocument;
     @$doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'), LIBXML_NOERROR);
     $xpath = new DOMXPath($doc);
 
@@ -78,7 +83,9 @@ function extractStructure($html) {
     foreach (['h1', 'h2', 'h3', 'h4', 'h5'] as $tag) {
         foreach ($xpath->query("//{$tag}") as $node) {
             $text = trim(preg_replace('/\s+/', ' ', $node->textContent));
-            if ($text && strlen($text) < 200) $headings[] = $text;
+            if ($text && strlen($text) < 200) {
+                $headings[] = $text;
+            }
         }
     }
 
@@ -87,8 +94,8 @@ function extractStructure($html) {
     foreach ($xpath->query('//a[@href]') as $node) {
         $href = $node->getAttribute('href');
         $text = trim(preg_replace('/\s+/', ' ', $node->textContent));
-        if ($href && !str_starts_with($href, '#') && !str_starts_with($href, 'javascript:')
-            && !str_starts_with($href, 'mailto:') && !str_starts_with($href, 'tel:')
+        if ($href && ! str_starts_with($href, '#') && ! str_starts_with($href, 'javascript:')
+            && ! str_starts_with($href, 'mailto:') && ! str_starts_with($href, 'tel:')
             && strlen($text) < 100) {
             // Normalize URL
             $href = preg_replace('/^https?:\/\/[^\/]+/', '', $href);
@@ -101,14 +108,18 @@ function extractStructure($html) {
     $buttons = [];
     foreach ($xpath->query('//button|//input[@type="submit"]') as $node) {
         $text = trim($node->textContent ?: $node->getAttribute('value'));
-        if ($text) $buttons[] = $text;
+        if ($text) {
+            $buttons[] = $text;
+        }
     }
 
     // Sections (cards, accordions)
     $sections = [];
     foreach ($xpath->query('//*[contains(@class,"card-header") or contains(@class,"accordion-header") or contains(@class,"atom-section-header")]') as $node) {
         $text = trim(preg_replace('/\s+/', ' ', $node->textContent));
-        if ($text && strlen($text) < 150) $sections[] = $text;
+        if ($text && strlen($text) < 150) {
+            $sections[] = $text;
+        }
     }
 
     // Forms
@@ -122,7 +133,8 @@ function extractStructure($html) {
     return compact('headings', 'links', 'buttons', 'sections', 'forms');
 }
 
-function compareArrays($atomArr, $heratioArr, $label) {
+function compareArrays($atomArr, $heratioArr, $label)
+{
     $atomSet = array_map('strtolower', array_unique($atomArr));
     $heratioSet = array_map('strtolower', array_unique($heratioArr));
 
@@ -136,6 +148,7 @@ function compareArrays($atomArr, $heratioArr, $label) {
     foreach ($extra as $item) {
         $issues[] = "  EXTRA   {$label}: {$item}";
     }
+
     return $issues;
 }
 
@@ -143,7 +156,7 @@ function compareArrays($atomArr, $heratioArr, $label) {
 $targetPath = $argv[1] ?? '--all';
 
 echo "# PHASE 13: VISUAL QA — AtoM Heratio vs Heratio\n";
-echo "# Generated: " . date('Y-m-d H:i:s') . "\n";
+echo '# Generated: '.date('Y-m-d H:i:s')."\n";
 echo "# AtoM: {$atomBase}\n";
 echo "# Heratio: {$heratioBase}\n\n";
 
@@ -158,8 +171,8 @@ $results = [];
 
 foreach ($pagesToCheck as $atomPath => $heratioPath) {
     $totalPages++;
-    $atomUrl = $atomBase . $atomPath;
-    $heratioUrl = $heratioBase . $heratioPath;
+    $atomUrl = $atomBase.$atomPath;
+    $heratioUrl = $heratioBase.$heratioPath;
 
     echo "## Page: {$heratioPath}\n";
     echo "   AtoM:    {$atomUrl}\n";
@@ -172,6 +185,7 @@ foreach ($pagesToCheck as $atomPath => $heratioPath) {
 
     if ($atom['code'] >= 400 || $heratio['code'] >= 400) {
         echo "   ⚠ SKIPPED — one or both returned error\n\n";
+
         continue;
     }
 
@@ -180,8 +194,8 @@ foreach ($pagesToCheck as $atomPath => $heratioPath) {
 
     $issues = [];
     $issues = array_merge($issues, compareArrays(
-        array_map(fn($h) => $h, $atomStruct['headings']),
-        array_map(fn($h) => $h, $heratioStruct['headings']),
+        array_map(fn ($h) => $h, $atomStruct['headings']),
+        array_map(fn ($h) => $h, $heratioStruct['headings']),
         'heading'
     ));
     $issues = array_merge($issues, compareArrays(
@@ -196,23 +210,23 @@ foreach ($pagesToCheck as $atomPath => $heratioPath) {
     ));
 
     // Compare link texts (not URLs — URLs will differ)
-    $atomLinkTexts = array_filter(array_map(fn($l) => $l['text'], $atomStruct['links']));
-    $heratioLinkTexts = array_filter(array_map(fn($l) => $l['text'], $heratioStruct['links']));
+    $atomLinkTexts = array_filter(array_map(fn ($l) => $l['text'], $atomStruct['links']));
+    $heratioLinkTexts = array_filter(array_map(fn ($l) => $l['text'], $heratioStruct['links']));
     $issues = array_merge($issues, compareArrays($atomLinkTexts, $heratioLinkTexts, 'link'));
 
-    echo "   Counts:  AtoM(h=" . count($atomStruct['headings']) . " l=" . count($atomStruct['links']) . " b=" . count($atomStruct['buttons']) . " s=" . count($atomStruct['sections']) . ")";
-    echo " Heratio(h=" . count($heratioStruct['headings']) . " l=" . count($heratioStruct['links']) . " b=" . count($heratioStruct['buttons']) . " s=" . count($heratioStruct['sections']) . ")\n";
+    echo '   Counts:  AtoM(h='.count($atomStruct['headings']).' l='.count($atomStruct['links']).' b='.count($atomStruct['buttons']).' s='.count($atomStruct['sections']).')';
+    echo ' Heratio(h='.count($heratioStruct['headings']).' l='.count($heratioStruct['links']).' b='.count($heratioStruct['buttons']).' s='.count($heratioStruct['sections']).")\n";
 
     if (empty($issues)) {
         echo "   ✓ No structural differences found\n";
     } else {
         $totalIssues += count($issues);
-        echo "   ✗ " . count($issues) . " differences:\n";
+        echo '   ✗ '.count($issues)." differences:\n";
         foreach (array_slice($issues, 0, 20) as $issue) {
             echo "   {$issue}\n";
         }
         if (count($issues) > 20) {
-            echo "   ... and " . (count($issues) - 20) . " more\n";
+            echo '   ... and '.(count($issues) - 20)." more\n";
         }
     }
 

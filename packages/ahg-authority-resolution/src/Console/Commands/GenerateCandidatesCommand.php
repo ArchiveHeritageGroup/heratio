@@ -55,6 +55,7 @@ class GenerateCandidatesCommand extends Command
         $top = $this->option('top') !== null ? (int) $this->option('top') : null;
         if ($top !== null && $top <= 0) {
             $this->error('--top must be a positive integer.');
+
             return self::FAILURE;
         }
 
@@ -63,6 +64,7 @@ class GenerateCandidatesCommand extends Command
 
         if ($objectId === null && $mentionId === null) {
             $this->error('Provide a mention_id argument or --object-id=N.');
+
             return self::FAILURE;
         }
 
@@ -80,8 +82,9 @@ class GenerateCandidatesCommand extends Command
             ->where('m.id', $mentionId)
             ->first(['m.id', 'm.entity_type', 'm.object_id', 'n.entity_value']);
 
-        if (!$mention) {
+        if (! $mention) {
             $this->error("Mention #{$mentionId} not found.");
+
             return self::FAILURE;
         }
 
@@ -112,6 +115,7 @@ class GenerateCandidatesCommand extends Command
 
         if ($mentions->isEmpty()) {
             $this->error("No resolvable mentions found for object_id={$objectId}.");
+
             return self::FAILURE;
         }
 
@@ -127,6 +131,7 @@ class GenerateCandidatesCommand extends Command
         }
 
         $this->info("Done. {$total} candidate rows persisted across {$mentions->count()} mentions.");
+
         return self::SUCCESS;
     }
 
@@ -137,7 +142,7 @@ class GenerateCandidatesCommand extends Command
             ->where('m.id', $mentionId)
             ->first(['m.id', 'm.entity_type', 'n.entity_value']);
 
-        if (!$mention) {
+        if (! $mention) {
             return;
         }
 
@@ -159,6 +164,7 @@ class GenerateCandidatesCommand extends Command
 
         if ($rows->isEmpty()) {
             $this->line('  (no candidates)');
+
             return;
         }
 
@@ -174,7 +180,7 @@ class GenerateCandidatesCommand extends Command
                 number_format((float) $r->composite_score, 4),
                 $uri
             ));
-            $this->line('       name : ' . (string) $r->candidate_display_name);
+            $this->line('       name : '.(string) $r->candidate_display_name);
         }
     }
 }

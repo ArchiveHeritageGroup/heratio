@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgSearch\Controllers;
 
 use AhgCore\Pagination\SimplePager;
@@ -48,50 +46,50 @@ class SearchController extends Controller
      */
     public function search(Request $request)
     {
-        $query   = trim($request->input('q', ''));
-        $page    = max(1, (int) $request->input('page', 1));
-        $limit   = 30;
-        $repo    = $request->input('repository') ? (int) $request->input('repository') : null;
-        $level   = $request->input('level') ? (int) $request->input('level') : null;
+        $query = trim($request->input('q', ''));
+        $page = max(1, (int) $request->input('page', 1));
+        $limit = 30;
+        $repo = $request->input('repository') ? (int) $request->input('repository') : null;
+        $level = $request->input('level') ? (int) $request->input('level') : null;
         $dateFrom = $request->input('dateFrom') ?: null;
-        $dateTo  = $request->input('dateTo') ?: null;
-        $hasDo   = $request->has('hasDigitalObject') ? (bool) $request->input('hasDigitalObject') : null;
+        $dateTo = $request->input('dateTo') ?: null;
+        $hasDo = $request->has('hasDigitalObject') ? (bool) $request->input('hasDigitalObject') : null;
         $mediaType = $request->input('mediaType') ? (int) $request->input('mediaType') : null;
-        $sort    = $request->input('sort', 'relevance');
+        $sort = $request->input('sort', 'relevance');
 
         $hasFilters = $repo || $level || $dateFrom || $dateTo || $hasDo !== null || $mediaType;
 
         // If no query and no filters, show empty search page
-        if ($query === '' && !$hasFilters) {
+        if ($query === '' && ! $hasFilters) {
             return view('ahg-search::search', [
-                'query'        => '',
-                'pager'        => new SimplePager(['hits' => [], 'total' => 0, 'page' => 1, 'limit' => $limit]),
+                'query' => '',
+                'pager' => new SimplePager(['hits' => [], 'total' => 0, 'page' => 1, 'limit' => $limit]),
                 'aggregations' => [],
                 'activeFilters' => [],
-                'sort'         => $sort,
-                'suggestion'   => null,
-                'suggestUrl'   => null,
+                'sort' => $sort,
+                'suggestion' => null,
+                'suggestUrl' => null,
             ]);
         }
 
         // Use advanced search with facets
         $results = $this->elasticsearch->advancedSearch([
-            'query'           => $query,
-            'repository'      => $repo,
-            'level'           => $level,
-            'dateFrom'        => $dateFrom,
-            'dateTo'          => $dateTo,
+            'query' => $query,
+            'repository' => $repo,
+            'level' => $level,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
             'hasDigitalObject' => $hasDo,
-            'mediaType'       => $mediaType,
-            'sort'            => $sort,
-            'page'            => $page,
-            'limit'           => $limit,
+            'mediaType' => $mediaType,
+            'sort' => $sort,
+            'page' => $page,
+            'limit' => $limit,
         ]);
 
         $pager = new SimplePager([
-            'hits'  => $results['hits'],
+            'hits' => $results['hits'],
             'total' => $results['total'],
-            'page'  => $page,
+            'page' => $page,
             'limit' => $limit,
         ]);
 
@@ -117,13 +115,13 @@ class SearchController extends Controller
         }
 
         return view('ahg-search::search', [
-            'query'        => $query,
-            'pager'        => $pager,
+            'query' => $query,
+            'pager' => $pager,
             'aggregations' => $results['aggregations'] ?? [],
             'activeFilters' => $activeFilters,
-            'sort'         => $sort,
-            'suggestion'   => $suggestion,
-            'suggestUrl'   => $suggestUrl,
+            'sort' => $sort,
+            'suggestion' => $suggestion,
+            'suggestUrl' => $suggestUrl,
         ]);
     }
 
@@ -133,31 +131,31 @@ class SearchController extends Controller
     public function advanced(Request $request)
     {
         $repositories = $this->elasticsearch->getRepositoryList();
-        $levels       = $this->elasticsearch->getLevelsOfDescription();
-        $mediaTypes   = $this->elasticsearch->getMediaTypes();
+        $levels = $this->elasticsearch->getLevelsOfDescription();
+        $mediaTypes = $this->elasticsearch->getMediaTypes();
 
         // If the form was submitted, redirect to the main search with params
         if ($request->has('submitted')) {
             $params = array_filter([
-                'q'               => $request->input('q'),
-                'repository'      => $request->input('repository'),
-                'level'           => $request->input('level'),
-                'dateFrom'        => $request->input('dateFrom'),
-                'dateTo'          => $request->input('dateTo'),
+                'q' => $request->input('q'),
+                'repository' => $request->input('repository'),
+                'level' => $request->input('level'),
+                'dateFrom' => $request->input('dateFrom'),
+                'dateTo' => $request->input('dateTo'),
                 'hasDigitalObject' => $request->input('hasDigitalObject'),
-                'mediaType'       => $request->input('mediaType'),
-                'sort'            => $request->input('sort'),
-            ], fn($v) => $v !== null && $v !== '');
+                'mediaType' => $request->input('mediaType'),
+                'sort' => $request->input('sort'),
+            ], fn ($v) => $v !== null && $v !== '');
 
             return redirect()->route('search', $params);
         }
 
         return view('ahg-search::advanced', [
             'repositories' => $repositories,
-            'levels'       => $levels,
-            'mediaTypes'   => $mediaTypes,
-            'query'        => $request->input('q', ''),
-            'sort'         => $request->input('sort', 'relevance'),
+            'levels' => $levels,
+            'mediaTypes' => $mediaTypes,
+            'query' => $request->input('q', ''),
+            'sort' => $request->input('sort', 'relevance'),
         ]);
     }
 
@@ -181,9 +179,9 @@ class SearchController extends Controller
             $i18n = $source['i18n']['en'] ?? [];
 
             $results[] = [
-                'title'      => $i18n['title'] ?? $i18n['authorizedFormOfName'] ?? '[Untitled]',
-                'slug'       => $source['slug'] ?? '',
-                'type'       => $type,
+                'title' => $i18n['title'] ?? $i18n['authorizedFormOfName'] ?? '[Untitled]',
+                'slug' => $source['slug'] ?? '',
+                'type' => $type,
                 'identifier' => $source['identifier'] ?? null,
             ];
         }
@@ -197,39 +195,39 @@ class SearchController extends Controller
     public function descriptionUpdates(Request $request)
     {
         // Require authenticated admin user
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
-        if (!AclService::canAdmin(Auth::id())) {
+        if (! AclService::canAdmin(Auth::id())) {
             abort(403, 'Insufficient permissions');
         }
 
-        $className         = (string) $request->input('className', '');
-        $dateStart         = (string) $request->input('dateStart', '');
-        $dateEnd           = (string) $request->input('dateEnd', '');
-        $dateOf            = (string) $request->input('dateOf', 'updated'); // created or updated
+        $className = (string) $request->input('className', '');
+        $dateStart = (string) $request->input('dateStart', '');
+        $dateEnd = (string) $request->input('dateEnd', '');
+        $dateOf = (string) $request->input('dateOf', 'updated'); // created or updated
         $publicationStatus = (string) $request->input('publicationStatus', '');
-        $userName          = (string) $request->input('user', '');
-        $page            = max(1, (int) $request->input('page', 1));
-        $limit           = SettingHelper::hitsPerPage();
+        $userName = (string) $request->input('user', '');
+        $page = max(1, (int) $request->input('page', 1));
+        $limit = SettingHelper::hitsPerPage();
 
         // Map className filter to class_name values in object table
         $classNameMap = [
             'QubitInformationObject' => 'QubitInformationObject',
-            'QubitActor'             => 'QubitActor',
-            'QubitRepository'        => 'QubitRepository',
-            'QubitTerm'              => 'QubitTerm',
-            'QubitFunction'          => 'QubitFunction',
+            'QubitActor' => 'QubitActor',
+            'QubitRepository' => 'QubitRepository',
+            'QubitTerm' => 'QubitTerm',
+            'QubitFunction' => 'QubitFunction',
         ];
 
         // Entity type dropdown options for the view
         $entityTypes = [
-            ''                       => 'All',
-            'QubitInformationObject'  => 'Information objects',
-            'QubitActor'              => 'Authority records',
-            'QubitRepository'         => 'Repositories',
-            'QubitTerm'               => 'Terms',
-            'QubitFunction'           => 'Functions',
+            '' => 'All',
+            'QubitInformationObject' => 'Information objects',
+            'QubitActor' => 'Authority records',
+            'QubitRepository' => 'Repositories',
+            'QubitTerm' => 'Terms',
+            'QubitFunction' => 'Functions',
         ];
 
         // Try ahg_audit_log first, fall back to object table
@@ -260,21 +258,21 @@ class SearchController extends Controller
             ->where('user.username', '!=', '')
             ->orderBy('display_name')
             ->get()
-            ->filter(fn ($u) => !empty(trim((string) $u->display_name)))
+            ->filter(fn ($u) => ! empty(trim((string) $u->display_name)))
             ->pluck('display_name', 'id')
             ->toArray();
 
         return view('ahg-search::description-updates', [
-            'results'           => $results['items'],
-            'pager'             => $results['pager'],
-            'entityTypes'       => $entityTypes,
-            'users'             => $users,
-            'className'         => $className,
-            'dateStart'         => $dateStart,
-            'dateEnd'           => $dateEnd,
-            'dateOf'            => $dateOf,
+            'results' => $results['items'],
+            'pager' => $results['pager'],
+            'entityTypes' => $entityTypes,
+            'users' => $users,
+            'className' => $className,
+            'dateStart' => $dateStart,
+            'dateEnd' => $dateEnd,
+            'dateOf' => $dateOf,
             'publicationStatus' => $publicationStatus,
-            'userName'          => $userName,
+            'userName' => $userName,
         ]);
     }
 
@@ -288,10 +286,10 @@ class SearchController extends Controller
         // Map class names to audit log entity_type values
         $auditEntityMap = [
             'QubitInformationObject' => 'ioManage',
-            'QubitActor'             => 'actor',
-            'QubitRepository'        => 'Institution',
-            'QubitTerm'              => 'term',
-            'QubitFunction'          => 'functionManage',
+            'QubitActor' => 'actor',
+            'QubitRepository' => 'Institution',
+            'QubitTerm' => 'term',
+            'QubitFunction' => 'functionManage',
         ];
 
         $query = DB::table('ahg_audit_log')
@@ -313,11 +311,11 @@ class SearchController extends Controller
         }
 
         if ($dateStart) {
-            $query->where('ahg_audit_log.created_at', '>=', $dateStart . ' 00:00:00');
+            $query->where('ahg_audit_log.created_at', '>=', $dateStart.' 00:00:00');
         }
 
         if ($dateEnd) {
-            $query->where('ahg_audit_log.created_at', '<=', $dateEnd . ' 23:59:59');
+            $query->where('ahg_audit_log.created_at', '<=', $dateEnd.' 23:59:59');
         }
 
         if ($userName) {
@@ -333,22 +331,23 @@ class SearchController extends Controller
 
         $items = $rows->map(function ($row) use ($reverseEntityMap) {
             $entityClass = $reverseEntityMap[$row->entity_type] ?? $row->entity_type;
+
             return (object) [
-                'title'       => $row->entity_title ?: '[Untitled]',
-                'slug'        => $row->entity_slug,
+                'title' => $row->entity_title ?: '[Untitled]',
+                'slug' => $row->entity_slug,
                 'entity_type' => $this->humanEntityType($entityClass),
-                'class_name'  => $entityClass,
-                'repository'  => '',
-                'date'        => $row->created_at,
-                'username'    => $row->username ?: '',
-                'action'      => $row->action,
+                'class_name' => $entityClass,
+                'repository' => '',
+                'date' => $row->created_at,
+                'username' => $row->username ?: '',
+                'action' => $row->action,
             ];
         });
 
         $pager = new SimplePager([
-            'hits'  => $items->toArray(),
+            'hits' => $items->toArray(),
             'total' => $total,
-            'page'  => $page,
+            'page' => $page,
             'limit' => $limit,
         ]);
 
@@ -381,11 +380,11 @@ class SearchController extends Controller
         }
 
         if ($dateStart) {
-            $query->where($dateColumn, '>=', $dateStart . ' 00:00:00');
+            $query->where($dateColumn, '>=', $dateStart.' 00:00:00');
         }
 
         if ($dateEnd) {
-            $query->where($dateColumn, '<=', $dateEnd . ' 23:59:59');
+            $query->where($dateColumn, '<=', $dateEnd.' 23:59:59');
         }
 
         // Publication status filter (applies to information objects only, status type_id=158)
@@ -393,13 +392,13 @@ class SearchController extends Controller
             $statusId = $publicationStatus === 'published' ? 160 : 159; // 160=published, 159=draft
             $query->where(function ($q) use ($statusId) {
                 $q->where('object.class_name', '!=', 'QubitInformationObject')
-                  ->orWhereExists(function ($sub) use ($statusId) {
-                      $sub->select(DB::raw(1))
-                          ->from('status')
-                          ->whereColumn('status.object_id', 'object.id')
-                          ->where('status.type_id', 158)
-                          ->where('status.status_id', $statusId);
-                  });
+                    ->orWhereExists(function ($sub) use ($statusId) {
+                        $sub->select(DB::raw(1))
+                            ->from('status')
+                            ->whereColumn('status.object_id', 'object.id')
+                            ->where('status.type_id', 158)
+                            ->where('status.status_id', $statusId);
+                    });
             });
         }
 
@@ -410,24 +409,24 @@ class SearchController extends Controller
         // Now enrich rows with names via i18n tables
         $items = $rows->map(function ($row) {
             $title = $this->getEntityTitle($row->id, $row->class_name);
-            $slug  = DB::table('slug')->where('object_id', $row->id)->value('slug') ?? '';
+            $slug = DB::table('slug')->where('object_id', $row->id)->value('slug') ?? '';
 
             return (object) [
-                'title'       => $title ?: '[Untitled]',
-                'slug'        => $slug,
+                'title' => $title ?: '[Untitled]',
+                'slug' => $slug,
                 'entity_type' => $this->humanEntityType($row->class_name),
-                'class_name'  => $row->class_name,
-                'repository'  => '',
-                'date'        => $row->updated_at,
-                'username'    => '',
-                'action'      => '',
+                'class_name' => $row->class_name,
+                'repository' => '',
+                'date' => $row->updated_at,
+                'username' => '',
+                'action' => '',
             ];
         });
 
         $pager = new SimplePager([
-            'hits'  => $items->toArray(),
+            'hits' => $items->toArray(),
             'total' => $total,
-            'page'  => $page,
+            'page' => $page,
             'limit' => $limit,
         ]);
 
@@ -457,11 +456,11 @@ class SearchController extends Controller
     {
         return match ($className) {
             'QubitInformationObject' => 'Archival description',
-            'QubitActor'             => 'Authority record',
-            'QubitRepository'        => 'Repository',
-            'QubitTerm'              => 'Term',
-            'QubitFunction'          => 'Function',
-            default                  => $className,
+            'QubitActor' => 'Authority record',
+            'QubitRepository' => 'Repository',
+            'QubitTerm' => 'Term',
+            'QubitFunction' => 'Function',
+            default => $className,
         };
     }
 
@@ -471,59 +470,59 @@ class SearchController extends Controller
     public function globalReplace(Request $request)
     {
         // Require authenticated admin user
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
-        if (!AclService::canAdmin(Auth::id())) {
+        if (! AclService::canAdmin(Auth::id())) {
             abort(403, 'Insufficient permissions');
         }
 
         // Available i18n columns for replacement
         $columns = [
-            'title'                              => 'Title',
-            'alternate_title'                    => 'Alternate title',
-            'edition'                            => 'Edition',
-            'extent_and_medium'                  => 'Extent and medium',
-            'archival_history'                   => 'Archival history',
-            'acquisition'                        => 'Acquisition',
-            'scope_and_content'                  => 'Scope and content',
-            'appraisal'                          => 'Appraisal',
-            'accruals'                           => 'Accruals',
-            'arrangement'                        => 'Arrangement',
-            'access_conditions'                  => 'Access conditions',
-            'reproduction_conditions'            => 'Reproduction conditions',
-            'physical_characteristics'           => 'Physical characteristics',
-            'finding_aids'                       => 'Finding aids',
-            'location_of_originals'              => 'Location of originals',
-            'location_of_copies'                 => 'Location of copies',
-            'related_units_of_description'       => 'Related units of description',
-            'institution_responsible_identifier'  => 'Institution responsible identifier',
-            'rules'                              => 'Rules',
-            'sources'                            => 'Sources',
-            'revision_history'                   => 'Revision history',
+            'title' => 'Title',
+            'alternate_title' => 'Alternate title',
+            'edition' => 'Edition',
+            'extent_and_medium' => 'Extent and medium',
+            'archival_history' => 'Archival history',
+            'acquisition' => 'Acquisition',
+            'scope_and_content' => 'Scope and content',
+            'appraisal' => 'Appraisal',
+            'accruals' => 'Accruals',
+            'arrangement' => 'Arrangement',
+            'access_conditions' => 'Access conditions',
+            'reproduction_conditions' => 'Reproduction conditions',
+            'physical_characteristics' => 'Physical characteristics',
+            'finding_aids' => 'Finding aids',
+            'location_of_originals' => 'Location of originals',
+            'location_of_copies' => 'Location of copies',
+            'related_units_of_description' => 'Related units of description',
+            'institution_responsible_identifier' => 'Institution responsible identifier',
+            'rules' => 'Rules',
+            'sources' => 'Sources',
+            'revision_history' => 'Revision history',
         ];
 
         if ($request->isMethod('get')) {
             return view('ahg-search::global-replace', [
-                'columns'  => $columns,
-                'results'  => null,
+                'columns' => $columns,
+                'results' => null,
                 'replaced' => false,
-                'count'    => 0,
+                'count' => 0,
             ]);
         }
 
         // POST — either preview or execute
         $request->validate([
-            'column'      => 'required|in:' . implode(',', array_keys($columns)),
-            'pattern'     => 'required|string|min:1',
+            'column' => 'required|in:'.implode(',', array_keys($columns)),
+            'pattern' => 'required|string|min:1',
             'replacement' => 'present|string',
         ]);
 
-        $column        = $request->input('column');
-        $pattern       = $request->input('pattern');
-        $replacement   = $request->input('replacement', '');
+        $column = $request->input('column');
+        $pattern = $request->input('pattern');
+        $replacement = $request->input('replacement', '');
         $caseSensitive = $request->boolean('caseSensitive', true);
-        $confirm       = $request->boolean('confirm', false);
+        $confirm = $request->boolean('confirm', false);
 
         // Build the LIKE clause
         $likeOperator = $caseSensitive ? 'LIKE BINARY' : 'LIKE';
@@ -532,7 +531,7 @@ class SearchController extends Controller
         $affected = DB::table('information_object_i18n')
             ->join('slug', 'slug.object_id', '=', 'information_object_i18n.id')
             ->where('information_object_i18n.culture', 'en')
-            ->whereRaw("information_object_i18n.`{$column}` {$likeOperator} ?", ['%' . $pattern . '%'])
+            ->whereRaw("information_object_i18n.`{$column}` {$likeOperator} ?", ['%'.$pattern.'%'])
             ->select([
                 'information_object_i18n.id',
                 'information_object_i18n.title',
@@ -544,7 +543,7 @@ class SearchController extends Controller
 
         $totalAffected = DB::table('information_object_i18n')
             ->where('culture', 'en')
-            ->whereRaw("`{$column}` {$likeOperator} ?", ['%' . $pattern . '%'])
+            ->whereRaw("`{$column}` {$likeOperator} ?", ['%'.$pattern.'%'])
             ->count();
 
         if ($confirm && $totalAffected > 0) {
@@ -552,18 +551,18 @@ class SearchController extends Controller
             if ($caseSensitive) {
                 $updatedCount = DB::table('information_object_i18n')
                     ->where('culture', 'en')
-                    ->whereRaw("`{$column}` LIKE BINARY ?", ['%' . $pattern . '%'])
+                    ->whereRaw("`{$column}` LIKE BINARY ?", ['%'.$pattern.'%'])
                     ->update([
-                        $column => DB::raw("REPLACE(`{$column}`, " . DB::getPdo()->quote($pattern) . ", " . DB::getPdo()->quote($replacement) . ")"),
+                        $column => DB::raw("REPLACE(`{$column}`, ".DB::getPdo()->quote($pattern).', '.DB::getPdo()->quote($replacement).')'),
                     ]);
             } else {
                 // Case-insensitive replace using REPLACE() — MySQL REPLACE is case-sensitive,
                 // so we find rows case-insensitively then apply replace
                 $updatedCount = DB::table('information_object_i18n')
                     ->where('culture', 'en')
-                    ->whereRaw("`{$column}` LIKE ?", ['%' . $pattern . '%'])
+                    ->whereRaw("`{$column}` LIKE ?", ['%'.$pattern.'%'])
                     ->update([
-                        $column => DB::raw("REPLACE(`{$column}`, " . DB::getPdo()->quote($pattern) . ", " . DB::getPdo()->quote($replacement) . ")"),
+                        $column => DB::raw("REPLACE(`{$column}`, ".DB::getPdo()->quote($pattern).', '.DB::getPdo()->quote($replacement).')'),
                     ]);
             }
 
@@ -572,31 +571,31 @@ class SearchController extends Controller
         }
 
         // Preview mode — show affected records with snippets
-        $previewResults = $affected->map(function ($row) use ($column, $pattern, $replacement) {
+        $previewResults = $affected->map(function ($row) use ($pattern, $replacement) {
             $currentValue = $row->field_value ?? '';
             $snippet = mb_strlen($currentValue) > 200
-                ? '...' . mb_substr($currentValue, max(0, mb_strpos(mb_strtolower($currentValue), mb_strtolower($pattern)) - 50), 200) . '...'
+                ? '...'.mb_substr($currentValue, max(0, mb_strpos(mb_strtolower($currentValue), mb_strtolower($pattern)) - 50), 200).'...'
                 : $currentValue;
             $newSnippet = str_ireplace($pattern, $replacement, $snippet);
 
             return (object) [
-                'id'            => $row->id,
-                'title'         => $row->title ?: '[Untitled]',
-                'slug'          => $row->slug ?? '',
+                'id' => $row->id,
+                'title' => $row->title ?: '[Untitled]',
+                'slug' => $row->slug ?? '',
                 'current_value' => $snippet,
-                'new_value'     => $newSnippet,
+                'new_value' => $newSnippet,
             ];
         });
 
         return view('ahg-search::global-replace', [
-            'columns'        => $columns,
-            'results'        => $previewResults,
-            'replaced'       => false,
-            'count'          => $totalAffected,
-            'column'         => $column,
-            'pattern'        => $pattern,
-            'replacement'    => $replacement,
-            'caseSensitive'  => $caseSensitive,
+            'columns' => $columns,
+            'results' => $previewResults,
+            'replaced' => false,
+            'count' => $totalAffected,
+            'column' => $column,
+            'pattern' => $pattern,
+            'replacement' => $replacement,
+            'caseSensitive' => $caseSensitive,
         ]);
     }
 
@@ -622,7 +621,7 @@ class SearchController extends Controller
                 $repos = $this->elasticsearch->getRepositoryList();
                 $label = $repos[$repo] ?? $label;
             }
-            $filters[] = ['param' => 'repository', 'label' => 'Repository: ' . $label];
+            $filters[] = ['param' => 'repository', 'label' => 'Repository: '.$label];
         }
 
         if ($level) {
@@ -637,15 +636,15 @@ class SearchController extends Controller
                 $levels = $this->elasticsearch->getLevelsOfDescription();
                 $label = $levels[$level] ?? $label;
             }
-            $filters[] = ['param' => 'level', 'label' => 'Level: ' . $label];
+            $filters[] = ['param' => 'level', 'label' => 'Level: '.$label];
         }
 
         if ($dateFrom) {
-            $filters[] = ['param' => 'dateFrom', 'label' => 'From: ' . $dateFrom];
+            $filters[] = ['param' => 'dateFrom', 'label' => 'From: '.$dateFrom];
         }
 
         if ($dateTo) {
-            $filters[] = ['param' => 'dateTo', 'label' => 'To: ' . $dateTo];
+            $filters[] = ['param' => 'dateTo', 'label' => 'To: '.$dateTo];
         }
 
         if ($hasDo !== null) {
@@ -660,7 +659,7 @@ class SearchController extends Controller
                     break;
                 }
             }
-            $filters[] = ['param' => 'mediaType', 'label' => 'Media: ' . $label];
+            $filters[] = ['param' => 'mediaType', 'label' => 'Media: '.$label];
         }
 
         return $filters;

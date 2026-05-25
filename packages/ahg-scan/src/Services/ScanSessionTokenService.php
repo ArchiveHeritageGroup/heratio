@@ -22,7 +22,7 @@ class ScanSessionTokenService
     {
         $ingestSessionId = DB::table('ingest_session')->insertGetId([
             'user_id' => $userId ?? 1,
-            'title' => ($defaults['title'] ?? 'Scan API session') . ' ' . date('Y-m-d H:i'),
+            'title' => ($defaults['title'] ?? 'Scan API session').' '.date('Y-m-d H:i'),
             'entity_type' => 'description',
             'sector' => $defaults['sector'] ?? 'archive',
             'standard' => $defaults['standard'] ?? 'isadg',
@@ -54,7 +54,7 @@ class ScanSessionTokenService
 
         // Link the token back as source_ref so watchers/admin UI can find it.
         DB::table('ingest_session')->where('id', $ingestSessionId)
-            ->update(['source_ref' => 'scan-api:' . $token]);
+            ->update(['source_ref' => 'scan-api:'.$token]);
 
         return ['token' => $token, 'ingest_session_id' => $ingestSessionId];
     }
@@ -66,11 +66,14 @@ class ScanSessionTokenService
             ->where('t.token', $token)
             ->select('t.*', 's.parent_id', 's.repository_id', 's.sector', 's.standard', 's.auto_commit', 's.status as session_status')
             ->first();
-        if (!$row) { return null; }
+        if (! $row) {
+            return null;
+        }
         if ($row->status === 'open' && $row->expires_at && strtotime($row->expires_at) < time()) {
             DB::table('scan_session_token')->where('token', $token)->update(['status' => 'expired']);
             $row->status = 'expired';
         }
+
         return $row;
     }
 

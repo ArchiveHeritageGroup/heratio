@@ -54,8 +54,8 @@ class KeygenCommand extends Command
         }
 
         $this->info('Ed25519 inference-signing keypair generated.');
-        $this->line('  signer_key_id: ' . $keyId);
-        $this->line('  location:      ' . storage_path('app/ai-signing') . '  (gitignored)');
+        $this->line('  signer_key_id: '.$keyId);
+        $this->line('  location:      '.storage_path('app/ai-signing').'  (gitignored)');
         $this->newLine();
         $this->warn('Keep ed25519.private safe and backed up - it is not in git and not in the database.');
 

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AclUserGroup extends Model
 {
     protected $table = 'acl_user_group';
+
     public $timestamps = false;
 
     protected $fillable = ['user_id', 'group_id', 'serial_number'];

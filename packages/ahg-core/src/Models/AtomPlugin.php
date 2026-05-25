@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AtomPlugin extends Model
 {
     protected $table = 'atom_plugin';
+
     public $timestamps = true;
 
     protected $fillable = [

@@ -44,21 +44,21 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(InferenceService::class, function ($app) {
-            return new InferenceService();
+            return new InferenceService;
         });
         $this->app->singleton(OverrideService::class, function ($app) {
-            return new OverrideService();
+            return new OverrideService;
         });
     }
 
     public function boot(): void
     {
         $this->ensureSchema();
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
+        $this->loadRoutesFrom(__DIR__.'/../../routes/api.php');
 
         // heratio#137 - AI Inventory & Governance dashboard.
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-provenance-ai');
+        $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-provenance-ai');
 
         // #62 Fuseki replay command + 5-min schedule. The command itself
         // is a no-op when there are no NULL-URI rows queued, so the
@@ -80,6 +80,7 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
                             $v = \Illuminate\Support\Facades\DB::table('ahg_settings')
                                 ->where('setting_key', 'fuseki_sync_enabled')
                                 ->value('setting_value');
+
                             return $v === null ? true : (bool) intval($v);
                         } catch (\Throwable $e) {
                             return false;
@@ -101,8 +102,8 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
     protected function ensureSchema(): void
     {
         try {
-            if (!Schema::hasTable('ahg_ai_inference') || !Schema::hasTable('ahg_ai_override')) {
-                $sql = @file_get_contents(__DIR__ . '/../../database/install.sql');
+            if (! Schema::hasTable('ahg_ai_inference') || ! Schema::hasTable('ahg_ai_override')) {
+                $sql = @file_get_contents(__DIR__.'/../../database/install.sql');
                 if (is_string($sql) && $sql !== '') {
                     DB::unprepared($sql);
                 }
@@ -110,7 +111,7 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
             // heratio#136 - Ed25519 signature columns. install.sql uses
             // CREATE TABLE IF NOT EXISTS, so an already-created table needs
             // an explicit, idempotent ALTER for the new columns.
-            if (Schema::hasTable('ahg_ai_inference') && !Schema::hasColumn('ahg_ai_inference', 'signature')) {
+            if (Schema::hasTable('ahg_ai_inference') && ! Schema::hasColumn('ahg_ai_inference', 'signature')) {
                 Schema::table('ahg_ai_inference', function ($table) {
                     $table->text('signature')->nullable()->after('fuseki_graph_uri');
                     $table->string('signer_key_id', 64)->nullable()->after('signature');
@@ -118,24 +119,24 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
             }
             // heratio#135 - structured model-provenance manifest (JSON), on
             // the inference row and on the model config it snapshots from.
-            if (Schema::hasTable('ahg_ai_inference') && !Schema::hasColumn('ahg_ai_inference', 'model_manifest')) {
+            if (Schema::hasTable('ahg_ai_inference') && ! Schema::hasColumn('ahg_ai_inference', 'model_manifest')) {
                 Schema::table('ahg_ai_inference', function ($table) {
                     $table->json('model_manifest')->nullable();
                 });
             }
             // heratio#141 - RAG-guardrail verdict column, same idempotent pattern.
-            if (Schema::hasTable('ahg_ai_inference') && !Schema::hasColumn('ahg_ai_inference', 'guardrail')) {
+            if (Schema::hasTable('ahg_ai_inference') && ! Schema::hasColumn('ahg_ai_inference', 'guardrail')) {
                 Schema::table('ahg_ai_inference', function ($table) {
                     $table->json('guardrail')->nullable();
                 });
             }
-            if (Schema::hasTable('ahg_llm_config') && !Schema::hasColumn('ahg_llm_config', 'model_manifest')) {
+            if (Schema::hasTable('ahg_llm_config') && ! Schema::hasColumn('ahg_llm_config', 'model_manifest')) {
                 Schema::table('ahg_llm_config', function ($table) {
                     $table->json('model_manifest')->nullable();
                 });
             }
         } catch (\Throwable $e) {
-            \Log::warning('[ahg-provenance-ai] auto-install failed: ' . $e->getMessage());
+            \Log::warning('[ahg-provenance-ai] auto-install failed: '.$e->getMessage());
         }
     }
 }

@@ -65,7 +65,7 @@ class AnnotationsController extends Controller
 
         $projectId = $request->query('projectId');
         $visibility = $request->query('visibility');
-        $authorId   = $request->query('createdBy');
+        $authorId = $request->query('createdBy');
 
         $q = DB::table('ahg_iiif_annotation')
             ->where('target_iri', $targetId)
@@ -90,7 +90,8 @@ class AnnotationsController extends Controller
         // canonical URL so the client uses the right id for PUT/DELETE.
         $resources = $rows->map(function ($row) {
             $body = json_decode($row->body_json, true) ?: [];
-            $body['id'] = url('/api/annotations/' . $row->uuid);
+            $body['id'] = url('/api/annotations/'.$row->uuid);
+
             return $this->expandSelector($body);
         })->all();
 
@@ -100,12 +101,13 @@ class AnnotationsController extends Controller
     public function show(string $uuid): JsonResponse
     {
         $row = DB::table('ahg_iiif_annotation')->where('uuid', $uuid)->first();
-        if (!$row) {
+        if (! $row) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
         $body = json_decode($row->body_json, true) ?: [];
-        $body['id'] = url('/api/annotations/' . $uuid);
+        $body['id'] = url('/api/annotations/'.$uuid);
+
         return response()->json($this->expandSelector($body));
     }
 
@@ -128,12 +130,16 @@ class AnnotationsController extends Controller
     private function expandSelector(array $body): array
     {
         $svg = $body['maeData']['target']['svg'] ?? null;
-        if (!$svg) return $body;
+        if (! $svg) {
+            return $body;
+        }
 
         $targetSource = is_string($body['target'] ?? null)
             ? $body['target']
             : ($body['target']['source'] ?? $body['target']['id'] ?? null);
-        if (!$targetSource) return $body;
+        if (! $targetSource) {
+            return $body;
+        }
 
         // Preserve any existing selector entries (e.g. FragmentSelector
         // from older saves) and append our SvgSelector.
@@ -144,17 +150,17 @@ class AnnotationsController extends Controller
 
         $hasSvg = false;
         foreach ($existingArr as $sel) {
-            if (is_array($sel) && ($sel['type'] ?? null) === 'SvgSelector' && !empty($sel['value'])) {
+            if (is_array($sel) && ($sel['type'] ?? null) === 'SvgSelector' && ! empty($sel['value'])) {
                 $hasSvg = true;
                 break;
             }
         }
-        if (!$hasSvg) {
+        if (! $hasSvg) {
             $existingArr[] = ['type' => 'SvgSelector', 'value' => $svg];
         }
 
         $body['target'] = [
-            'source'   => $targetSource,
+            'source' => $targetSource,
             'selector' => count($existingArr) === 1 ? $existingArr[0] : $existingArr,
         ];
 
@@ -166,7 +172,7 @@ class AnnotationsController extends Controller
         // Return JSON 401 instead of redirecting unauthenticated callers to
         // /login (the auth.required group does that by default and the
         // mirador-annotation-editor's adapter chokes on HTML responses).
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json(['error' => 'Authentication required to save annotations.'], 401);
         }
 
@@ -187,32 +193,32 @@ class AnnotationsController extends Controller
         // first boot via the service provider, but a fresh deployment that
         // hasn't booted the provider yet would 500 instead of returning a
         // tidy error.
-        if (!Schema::hasTable('ahg_iiif_annotation')) {
+        if (! Schema::hasTable('ahg_iiif_annotation')) {
             return response()->json(['error' => 'Annotations storage not initialised'], 503);
         }
 
         // Annotot+Mirador set body.id to the eventual server URL after
         // create. We'll patch it in the saved JSON to point at our route
         // before storing, so re-fetches round-trip without rewriting.
-        $body['id'] = url('/api/annotations/' . $uuid);
+        $body['id'] = url('/api/annotations/'.$uuid);
 
-        $projectId  = $request->query('projectId') ?: ($body['_heratio']['project_id']  ?? null);
+        $projectId = $request->query('projectId') ?: ($body['_heratio']['project_id'] ?? null);
         $visibility = $request->query('visibility') ?: ($body['_heratio']['visibility'] ?? 'private');
-        if (!in_array($visibility, ['private', 'project', 'public'], true)) {
+        if (! in_array($visibility, ['private', 'project', 'public'], true)) {
             $visibility = 'private';
         }
 
         DB::table('ahg_iiif_annotation')->insert([
-            'uuid'                  => $uuid,
-            'target_iri'            => $targetIri,
+            'uuid' => $uuid,
+            'target_iri' => $targetIri,
             'information_object_id' => $this->resolveIoIdFromTarget($targetIri),
-            'project_id'            => $projectId ? (int) $projectId : null,
-            'visibility'            => $visibility,
-            'body_json'             => json_encode($body, JSON_UNESCAPED_SLASHES),
-            'created_by'            => $userId,
-            'updated_by'            => $userId,
-            'created_at'            => now(),
-            'updated_at'            => now(),
+            'project_id' => $projectId ? (int) $projectId : null,
+            'visibility' => $visibility,
+            'body_json' => json_encode($body, JSON_UNESCAPED_SLASHES),
+            'created_by' => $userId,
+            'updated_by' => $userId,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return response()->json($body, 201);
@@ -220,11 +226,11 @@ class AnnotationsController extends Controller
 
     public function update(Request $request, string $uuid): JsonResponse
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json(['error' => 'Authentication required to save annotations.'], 401);
         }
         $row = DB::table('ahg_iiif_annotation')->where('uuid', $uuid)->first();
-        if (!$row) {
+        if (! $row) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
@@ -235,14 +241,14 @@ class AnnotationsController extends Controller
 
         // Allow target.id change (rare, but legitimate for cross-canvas moves).
         $targetIri = $this->extractTargetIri($body) ?: $row->target_iri;
-        $body['id'] = url('/api/annotations/' . $uuid);
+        $body['id'] = url('/api/annotations/'.$uuid);
 
         DB::table('ahg_iiif_annotation')->where('uuid', $uuid)->update([
-            'target_iri'            => $targetIri,
+            'target_iri' => $targetIri,
             'information_object_id' => $this->resolveIoIdFromTarget($targetIri) ?? $row->information_object_id,
-            'body_json'             => json_encode($body, JSON_UNESCAPED_SLASHES),
-            'updated_by'            => Auth::id(),
-            'updated_at'            => now(),
+            'body_json' => json_encode($body, JSON_UNESCAPED_SLASHES),
+            'updated_by' => Auth::id(),
+            'updated_at' => now(),
         ]);
 
         return response()->json($body);
@@ -250,13 +256,14 @@ class AnnotationsController extends Controller
 
     public function destroy(string $uuid): JsonResponse
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json(['error' => 'Authentication required to save annotations.'], 401);
         }
         $deleted = DB::table('ahg_iiif_annotation')->where('uuid', $uuid)->delete();
-        if (!$deleted) {
+        if (! $deleted) {
             return response()->json(['error' => 'Not found'], 404);
         }
+
         return response()->json(['deleted' => true]);
     }
 
@@ -269,20 +276,33 @@ class AnnotationsController extends Controller
     private function extractTargetIri(array $body): string
     {
         $t = $body['target'] ?? null;
-        if (is_string($t)) return $t;
+        if (is_string($t)) {
+            return $t;
+        }
         if (is_array($t)) {
             // Single target as object
-            if (isset($t['id']) && is_string($t['id'])) return $t['id'];
-            if (isset($t['source']) && is_string($t['source'])) return $t['source'];
+            if (isset($t['id']) && is_string($t['id'])) {
+                return $t['id'];
+            }
+            if (isset($t['source']) && is_string($t['source'])) {
+                return $t['source'];
+            }
             // Array of targets: take the first parseable
             foreach ($t as $entry) {
-                if (is_string($entry)) return $entry;
+                if (is_string($entry)) {
+                    return $entry;
+                }
                 if (is_array($entry)) {
-                    if (isset($entry['id']) && is_string($entry['id'])) return $entry['id'];
-                    if (isset($entry['source']) && is_string($entry['source'])) return $entry['source'];
+                    if (isset($entry['id']) && is_string($entry['id'])) {
+                        return $entry['id'];
+                    }
+                    if (isset($entry['source']) && is_string($entry['source'])) {
+                        return $entry['source'];
+                    }
                 }
             }
         }
+
         return '';
     }
 

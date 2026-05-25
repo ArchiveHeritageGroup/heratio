@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Menu extends Model
 {
     protected $table = 'menu';
+
     public $timestamps = true;
 
     protected $fillable = [
@@ -39,15 +40,21 @@ class Menu extends Model
     {
         if (is_array($culture)) {
             $cur = (string) app()->getLocale();
-            $fb  = (string) config('app.fallback_locale', 'en');
+            $fb = (string) config('app.fallback_locale', 'en');
             $label = $this->i18n()->where('culture', $cur)->first()?->label;
-            if ($label !== null && $label !== '') return $label;
+            if ($label !== null && $label !== '') {
+                return $label;
+            }
             if ($cur !== $fb) {
                 $label = $this->i18n()->where('culture', $fb)->first()?->label;
-                if ($label !== null && $label !== '') return $label;
+                if ($label !== null && $label !== '') {
+                    return $label;
+                }
             }
+
             return $this->name;
         }
+
         return $this->i18n()->where('culture', $culture)->first()?->label;
     }
 
@@ -69,8 +76,13 @@ class Menu extends Model
     public function getPath($options = []): string
     {
         $path = (string) $this->path;
-        if ($path === '') return '/';
-        if ($path[0] !== '/') $path = '/' . $path;
+        if ($path === '') {
+            return '/';
+        }
+        if ($path[0] !== '/') {
+            $path = '/'.$path;
+        }
+
         return $path;
     }
 }

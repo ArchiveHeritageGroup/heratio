@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgSearch\Services;
 
 use AhgCore\Support\TenantScope;
@@ -35,6 +33,7 @@ use Illuminate\Support\Facades\Log;
 class ElasticsearchService
 {
     protected string $host;
+
     protected string $indexPrefix;
 
     public function __construct()
@@ -124,14 +123,14 @@ class ElasticsearchService
                             "creators.i18n.{$culture}.authorizedFormOfName^2",
                             "i18n.{$culture}.scopeAndContent",
                             "i18n.{$culture}.history",
-                            "identifier^2",
-                            "referenceCode^2",
-                            "isbn^3",
-                            "callNumber^2",
-                            "seriesTitle",
-                            "seriesIssn",
-                            "summary",
-                            "contentsNote",
+                            'identifier^2',
+                            'referenceCode^2',
+                            'isbn^3',
+                            'callNumber^2',
+                            'seriesTitle',
+                            'seriesIssn',
+                            'summary',
+                            'contentsNote',
                         ],
                         'default_operator' => 'AND',
                     ],
@@ -259,24 +258,24 @@ class ElasticsearchService
      *
      * Falls back to MySQL when Elasticsearch is not available.
      *
-     * @param array $params Keys:
-     *   query (string), repository (int|null), level (int|null),
-     *   dateFrom (string|null), dateTo (string|null),
-     *   hasDigitalObject (bool|null), mediaType (int|null),
-     *   sort (string), page (int), limit (int), culture (string)
+     * @param  array  $params  Keys:
+     *                         query (string), repository (int|null), level (int|null),
+     *                         dateFrom (string|null), dateTo (string|null),
+     *                         hasDigitalObject (bool|null), mediaType (int|null),
+     *                         sort (string), page (int), limit (int), culture (string)
      */
     public function advancedSearch(array $params): array
     {
-        $query   = trim($params['query'] ?? '');
-        $repo    = $params['repository'] ?? null;
-        $level   = $params['level'] ?? null;
+        $query = trim($params['query'] ?? '');
+        $repo = $params['repository'] ?? null;
+        $level = $params['level'] ?? null;
         $dateFrom = $params['dateFrom'] ?? null;
-        $dateTo  = $params['dateTo'] ?? null;
-        $hasDo   = $params['hasDigitalObject'] ?? null;
+        $dateTo = $params['dateTo'] ?? null;
+        $hasDo = $params['hasDigitalObject'] ?? null;
         $mediaType = $params['mediaType'] ?? null;
-        $sort    = $params['sort'] ?? 'relevance';
-        $page    = max(1, (int) ($params['page'] ?? 1));
-        $limit   = max(1, min(100, (int) ($params['limit'] ?? 30)));
+        $sort = $params['sort'] ?? 'relevance';
+        $page = max(1, (int) ($params['page'] ?? 1));
+        $limit = max(1, min(100, (int) ($params['limit'] ?? 30)));
         $culture = $params['culture'] ?? 'en';
 
         // Try Elasticsearch first, fall back to DB
@@ -292,14 +291,14 @@ class ElasticsearchService
      */
     public function descriptionUpdates(array $params): array
     {
-        $dateOf    = $params['dateOf'] ?? 'CREATED_AT';
+        $dateOf = $params['dateOf'] ?? 'CREATED_AT';
         $startDate = $params['startDate'] ?? null;
-        $endDate   = $params['endDate'] ?? null;
+        $endDate = $params['endDate'] ?? null;
         $repository = $params['repository'] ?? null;
-        $limit     = max(1, (int) ($params['limit'] ?? 30));
-        $page      = max(1, (int) ($params['page'] ?? 1));
+        $limit = max(1, (int) ($params['limit'] ?? 30));
+        $page = max(1, (int) ($params['page'] ?? 1));
 
-        if (!$this->isElasticsearchAvailable()) {
+        if (! $this->isElasticsearchAvailable()) {
             return ['hits' => [], 'total' => 0];
         }
 
@@ -326,19 +325,19 @@ class ElasticsearchService
             'size' => $limit,
             'from' => ($page - 1) * $limit,
             'sort' => [[$dateField => 'desc']],
-            'query' => ['bool' => ['must' => !empty($must) ? $must : [['match_all' => (object) []]]]],
+            'query' => ['bool' => ['must' => ! empty($must) ? $must : [['match_all' => (object) []]]]],
         ];
 
         $url = "{$this->host}/{$this->indexPrefix}qubitinformationobject/_search";
         $response = Http::post($url, $body);
         $result = $response->json();
 
-        if (!$result || !isset($result['hits'])) {
+        if (! $result || ! isset($result['hits'])) {
             return ['hits' => [], 'total' => 0];
         }
 
         return [
-            'hits'  => $result['hits']['hits'] ?? [],
+            'hits' => $result['hits']['hits'] ?? [],
             'total' => $result['hits']['total']['value'] ?? 0,
         ];
     }
@@ -352,32 +351,32 @@ class ElasticsearchService
             'repositories' => [
                 'terms' => [
                     'field' => 'repository.id',
-                    'size'  => 50,
+                    'size' => 50,
                 ],
             ],
             'levels' => [
                 'terms' => [
                     'field' => 'levelOfDescriptionId',
-                    'size'  => 50,
+                    'size' => 50,
                 ],
             ],
             'mediaTypes' => [
                 'terms' => [
                     'field' => 'digitalObject.mediaTypeId',
-                    'size'  => 20,
+                    'size' => 20,
                 ],
             ],
             'hasDigitalObject' => [
                 'terms' => [
                     'field' => 'hasDigitalObject',
-                    'size'  => 2,
+                    'size' => 2,
                 ],
             ],
             'dateHistogram' => [
                 'date_histogram' => [
-                    'field'             => 'createdAt',
+                    'field' => 'createdAt',
                     'calendar_interval' => 'year',
-                    'min_doc_count'     => 1,
+                    'min_doc_count' => 1,
                 ],
             ],
         ];
@@ -391,13 +390,13 @@ class ElasticsearchService
         $resolved = [];
 
         // Resolve repository names
-        if (!empty($rawAggs['repositories']['buckets'])) {
+        if (! empty($rawAggs['repositories']['buckets'])) {
             $repoIds = array_column($rawAggs['repositories']['buckets'], 'key');
             $repoNames = $this->resolveRepositoryNames($repoIds, $culture);
             $resolved['repositories'] = [];
             foreach ($rawAggs['repositories']['buckets'] as $bucket) {
                 $resolved['repositories'][] = [
-                    'id'    => $bucket['key'],
+                    'id' => $bucket['key'],
                     'label' => $repoNames[$bucket['key']] ?? '[Unknown]',
                     'count' => $bucket['doc_count'],
                 ];
@@ -405,13 +404,13 @@ class ElasticsearchService
         }
 
         // Resolve level of description names
-        if (!empty($rawAggs['levels']['buckets'])) {
+        if (! empty($rawAggs['levels']['buckets'])) {
             $termIds = array_column($rawAggs['levels']['buckets'], 'key');
             $termNames = $this->resolveTermNames($termIds, $culture);
             $resolved['levels'] = [];
             foreach ($rawAggs['levels']['buckets'] as $bucket) {
                 $resolved['levels'][] = [
-                    'id'    => $bucket['key'],
+                    'id' => $bucket['key'],
                     'label' => $termNames[$bucket['key']] ?? '[Unknown]',
                     'count' => $bucket['doc_count'],
                 ];
@@ -419,13 +418,13 @@ class ElasticsearchService
         }
 
         // Resolve media type names
-        if (!empty($rawAggs['mediaTypes']['buckets'])) {
+        if (! empty($rawAggs['mediaTypes']['buckets'])) {
             $mtIds = array_column($rawAggs['mediaTypes']['buckets'], 'key');
             $mtNames = $this->resolveTermNames($mtIds, $culture);
             $resolved['mediaTypes'] = [];
             foreach ($rawAggs['mediaTypes']['buckets'] as $bucket) {
                 $resolved['mediaTypes'][] = [
-                    'id'    => $bucket['key'],
+                    'id' => $bucket['key'],
                     'label' => $mtNames[$bucket['key']] ?? '[Unknown]',
                     'count' => $bucket['doc_count'],
                 ];
@@ -433,11 +432,11 @@ class ElasticsearchService
         }
 
         // Has digital object (no resolution needed)
-        if (!empty($rawAggs['hasDigitalObject']['buckets'])) {
+        if (! empty($rawAggs['hasDigitalObject']['buckets'])) {
             $resolved['hasDigitalObject'] = [];
             foreach ($rawAggs['hasDigitalObject']['buckets'] as $bucket) {
                 $resolved['hasDigitalObject'][] = [
-                    'id'    => $bucket['key'],
+                    'id' => $bucket['key'],
                     'label' => $bucket['key_as_string'] === 'true' ? 'With digital object' : 'Without digital object',
                     'count' => $bucket['doc_count'],
                 ];
@@ -445,7 +444,7 @@ class ElasticsearchService
         }
 
         // Date histogram (no resolution needed)
-        if (!empty($rawAggs['dateHistogram']['buckets'])) {
+        if (! empty($rawAggs['dateHistogram']['buckets'])) {
             $resolved['dateHistogram'] = [];
             foreach ($rawAggs['dateHistogram']['buckets'] as $bucket) {
                 $resolved['dateHistogram'][] = [
@@ -524,6 +523,7 @@ class ElasticsearchService
     {
         try {
             $response = Http::timeout(2)->get($this->host);
+
             return $response->successful();
         } catch (\Exception $e) {
             return false;
@@ -538,30 +538,30 @@ class ElasticsearchService
         ?string $dateFrom, ?string $dateTo, ?bool $hasDo, ?int $mediaType,
         string $sort, int $page, int $limit, string $culture
     ): array {
-        $must   = [];
+        $must = [];
         $filter = [];
 
         // Text query
         if ($query !== '') {
             $must[] = [
                 'query_string' => [
-                    'query'            => $this->sanitizeQuery($query),
-                    'fields'           => [
+                    'query' => $this->sanitizeQuery($query),
+                    'fields' => [
                         "i18n.{$culture}.title^3",
                         "i18n.{$culture}.scopeAndContent",
                         "i18n.{$culture}.archivalHistory",
                         "i18n.{$culture}.extentAndMedium",
                         "i18n.{$culture}.accessConditions",
                         "i18n.{$culture}.locationOfOriginals",
-                        "identifier^2",
-                        "referenceCode^2",
+                        'identifier^2',
+                        'referenceCode^2',
                         "creators.i18n.{$culture}.authorizedFormOfName^2",
-                        "isbn^3",
-                        "callNumber^2",
-                        "seriesTitle",
-                        "seriesIssn",
-                        "summary",
-                        "contentsNote",
+                        'isbn^3',
+                        'callNumber^2',
+                        'seriesTitle',
+                        'seriesIssn',
+                        'summary',
+                        'contentsNote',
                     ],
                     'default_operator' => 'AND',
                 ],
@@ -600,10 +600,10 @@ class ElasticsearchService
 
         // Build query
         $boolQuery = [];
-        if (!empty($must)) {
+        if (! empty($must)) {
             $boolQuery['must'] = $must;
         }
-        if (!empty($filter)) {
+        if (! empty($filter)) {
             $boolQuery['filter'] = $filter;
         }
         if (empty($boolQuery)) {
@@ -616,25 +616,25 @@ class ElasticsearchService
         // Aggregations
         $aggs = $this->getAggregations([
             'repository' => $repo,
-            'level'      => $level,
-            'mediaType'  => $mediaType,
+            'level' => $level,
+            'mediaType' => $mediaType,
         ], $culture);
 
         $body = [
-            'size'  => $limit,
-            'from'  => ($page - 1) * $limit,
-            'sort'  => $sortClause,
+            'size' => $limit,
+            'from' => ($page - 1) * $limit,
+            'sort' => $sortClause,
             'query' => ['bool' => $boolQuery],
-            'aggs'  => $aggs,
+            'aggs' => $aggs,
             'highlight' => [
                 'fields' => [
                     "i18n.{$culture}.title" => (object) [],
                     "i18n.{$culture}.scopeAndContent" => [
-                        'fragment_size'      => 200,
+                        'fragment_size' => 200,
                         'number_of_fragments' => 1,
                     ],
                 ],
-                'pre_tags'  => ['<mark>'],
+                'pre_tags' => ['<mark>'],
                 'post_tags' => ['</mark>'],
             ],
         ];
@@ -645,26 +645,27 @@ class ElasticsearchService
             $response = Http::timeout(10)->post($url, $body);
             $result = $response->json();
         } catch (\Exception $e) {
-            Log::warning('Elasticsearch request failed, falling back to DB: ' . $e->getMessage());
+            Log::warning('Elasticsearch request failed, falling back to DB: '.$e->getMessage());
+
             return $this->advancedSearchDb($query, $repo, $level, $dateFrom, $dateTo, $hasDo, $mediaType, $sort, $page, $limit, $culture);
         }
 
-        if (!$result || !isset($result['hits'])) {
+        if (! $result || ! isset($result['hits'])) {
             return $this->advancedSearchDb($query, $repo, $level, $dateFrom, $dateTo, $hasDo, $mediaType, $sort, $page, $limit, $culture);
         }
 
         $total = $result['hits']['total']['value'] ?? 0;
-        $hits  = $this->transformIoHits($result['hits']['hits'] ?? [], $culture);
+        $hits = $this->transformIoHits($result['hits']['hits'] ?? [], $culture);
 
         // Resolve aggregation labels
         $aggregations = $this->resolveAggregationLabels($result['aggregations'] ?? [], $culture);
 
         return [
-            'hits'         => $hits,
-            'total'        => $total,
+            'hits' => $hits,
+            'total' => $total,
             'aggregations' => $aggregations,
-            'page'         => $page,
-            'limit'        => $limit,
+            'page' => $page,
+            'limit' => $limit,
         ];
     }
 
@@ -691,7 +692,7 @@ class ElasticsearchService
             ->where('io.id', '!=', 1) // exclude root
             ->where(function ($q) {
                 $q->where('status.status_id', '=', 160)
-                  ->orWhereNull('status.status_id');
+                    ->orWhereNull('status.status_id');
             });
 
         // Text search
@@ -699,12 +700,12 @@ class ElasticsearchService
             $qb->where(function ($q) use ($query) {
                 $words = explode(' ', $query);
                 foreach ($words as $word) {
-                    $like = '%' . $word . '%';
+                    $like = '%'.$word.'%';
                     $q->where(function ($inner) use ($like) {
                         $inner->orWhere('io_i18n.title', 'LIKE', $like)
-                              ->orWhere('io_i18n.scope_and_content', 'LIKE', $like)
-                              ->orWhere('io_i18n.archival_history', 'LIKE', $like)
-                              ->orWhere('io.identifier', 'LIKE', $like);
+                            ->orWhere('io_i18n.scope_and_content', 'LIKE', $like)
+                            ->orWhere('io_i18n.archival_history', 'LIKE', $like)
+                            ->orWhere('io.identifier', 'LIKE', $like);
                     });
                 }
             });
@@ -808,16 +809,16 @@ class ElasticsearchService
 
         // Resolve names for display
         $levelNames = $this->getLevelsOfDescription($culture);
-        $repoNames  = [];
+        $repoNames = [];
         $repoIds = $rows->pluck('repository_id')->filter()->unique()->values()->toArray();
-        if (!empty($repoIds)) {
+        if (! empty($repoIds)) {
             $repoNames = $this->resolveRepositoryNames($repoIds, $culture);
         }
 
         // Check digital objects
         $ioIds = $rows->pluck('id')->toArray();
         $doIds = [];
-        if (!empty($ioIds)) {
+        if (! empty($ioIds)) {
             $doIds = DB::table('digital_object')
                 ->whereIn('information_object_id', $ioIds)
                 ->pluck('information_object_id')
@@ -827,15 +828,15 @@ class ElasticsearchService
         $hits = [];
         foreach ($rows as $row) {
             $hits[] = [
-                'id'               => $row->id,
-                'title'            => $row->title ?: '[Untitled]',
-                'slug'             => $row->slug ?? '',
-                'identifier'       => $row->identifier,
-                'levelName'        => $levelNames[$row->level_of_description_id] ?? null,
-                'repositoryName'   => $repoNames[$row->repository_id] ?? null,
+                'id' => $row->id,
+                'title' => $row->title ?: '[Untitled]',
+                'slug' => $row->slug ?? '',
+                'identifier' => $row->identifier,
+                'levelName' => $levelNames[$row->level_of_description_id] ?? null,
+                'repositoryName' => $repoNames[$row->repository_id] ?? null,
                 'hasDigitalObject' => in_array($row->id, $doIds),
-                'dates'            => null,
-                'snippet'          => null,
+                'dates' => null,
+                'snippet' => null,
                 'highlighted_title' => e($row->title ?: '[Untitled]'),
             ];
         }
@@ -844,11 +845,11 @@ class ElasticsearchService
         $aggregations = $this->buildDbAggregations($query, $repo, $level, $hasDo, $mediaType, $culture);
 
         return [
-            'hits'         => $hits,
-            'total'        => $total,
+            'hits' => $hits,
+            'total' => $total,
             'aggregations' => $aggregations,
-            'page'         => $page,
-            'limit'        => $limit,
+            'page' => $page,
+            'limit' => $limit,
         ];
     }
 
@@ -874,7 +875,7 @@ class ElasticsearchService
             ->limit(50)
             ->get();
 
-        $aggregations['repositories'] = $repos->map(fn($r) => [
+        $aggregations['repositories'] = $repos->map(fn ($r) => [
             'id' => $r->id, 'label' => $r->label ?: '[Unknown]', 'count' => $r->cnt,
         ])->toArray();
 
@@ -892,7 +893,7 @@ class ElasticsearchService
             ->limit(50)
             ->get();
 
-        $aggregations['levels'] = $levels->map(fn($l) => [
+        $aggregations['levels'] = $levels->map(fn ($l) => [
             'id' => $l->id, 'label' => $l->label ?: '[Unknown]', 'count' => $l->cnt,
         ])->toArray();
 
@@ -909,7 +910,7 @@ class ElasticsearchService
             ->limit(20)
             ->get();
 
-        $aggregations['mediaTypes'] = $media->map(fn($m) => [
+        $aggregations['mediaTypes'] = $media->map(fn ($m) => [
             'id' => $m->id, 'label' => $m->label ?: '[Unknown]', 'count' => $m->cnt,
         ])->toArray();
 
@@ -925,13 +926,13 @@ class ElasticsearchService
         $results = [];
 
         foreach ($hits as $hit) {
-            $source    = $hit['_source'] ?? [];
+            $source = $hit['_source'] ?? [];
             $highlight = $hit['highlight'] ?? [];
-            $i18n      = $source['i18n'][$culture] ?? [];
+            $i18n = $source['i18n'][$culture] ?? [];
 
-            $title      = $i18n['title'] ?? '[Untitled]';
-            $hlTitle    = $highlight["i18n.{$culture}.title"][0] ?? e($title);
-            $snippet    = $highlight["i18n.{$culture}.scopeAndContent"][0]
+            $title = $i18n['title'] ?? '[Untitled]';
+            $hlTitle = $highlight["i18n.{$culture}.title"][0] ?? e($title);
+            $snippet = $highlight["i18n.{$culture}.scopeAndContent"][0]
                           ?? mb_substr($i18n['scopeAndContent'] ?? '', 0, 200)
                           ?: null;
 
@@ -940,14 +941,14 @@ class ElasticsearchService
                 $levelNames = $this->getLevelsOfDescription($culture);
             }
 
-            $levelId   = $source['levelOfDescriptionId'] ?? null;
+            $levelId = $source['levelOfDescriptionId'] ?? null;
             $levelName = $levelId ? ($levelNames[$levelId] ?? null) : null;
 
             $repoName = $source['repository']['i18n'][$culture]['authorizedFormOfName'] ?? null;
 
             // Dates
             $dateStr = null;
-            if (!empty($source['dates'])) {
+            if (! empty($source['dates'])) {
                 $d = $source['dates'][0]['i18n'][$culture]['date'] ?? null;
                 if ($d) {
                     $dateStr = $d;
@@ -955,16 +956,16 @@ class ElasticsearchService
             }
 
             $results[] = [
-                'id'                => $hit['_id'],
-                'title'             => $title,
+                'id' => $hit['_id'],
+                'title' => $title,
                 'highlighted_title' => $hlTitle,
-                'slug'              => $source['slug'] ?? '',
-                'identifier'        => $source['identifier'] ?? null,
-                'levelName'         => $levelName,
-                'repositoryName'    => $repoName,
-                'hasDigitalObject'  => $source['hasDigitalObject'] ?? false,
-                'dates'             => $dateStr,
-                'snippet'           => $snippet,
+                'slug' => $source['slug'] ?? '',
+                'identifier' => $source['identifier'] ?? null,
+                'levelName' => $levelName,
+                'repositoryName' => $repoName,
+                'hasDigitalObject' => $source['hasDigitalObject'] ?? false,
+                'dates' => $dateStr,
+                'snippet' => $snippet,
             ];
         }
 
@@ -977,14 +978,14 @@ class ElasticsearchService
     protected function buildSortClause(string $sort, string $culture): array
     {
         return match ($sort) {
-            'titleAsc'       => [["i18n.{$culture}.title.untouched" => 'asc'], '_score'],
-            'titleDesc'      => [["i18n.{$culture}.title.untouched" => 'desc'], '_score'],
-            'dateAsc'        => [['createdAt' => 'asc'], '_score'],
-            'dateDesc'       => [['createdAt' => 'desc'], '_score'],
-            'identifierAsc'  => [['identifier' => 'asc'], '_score'],
+            'titleAsc' => [["i18n.{$culture}.title.untouched" => 'asc'], '_score'],
+            'titleDesc' => [["i18n.{$culture}.title.untouched" => 'desc'], '_score'],
+            'dateAsc' => [['createdAt' => 'asc'], '_score'],
+            'dateDesc' => [['createdAt' => 'desc'], '_score'],
+            'identifierAsc' => [['identifier' => 'asc'], '_score'],
             'identifierDesc' => [['identifier' => 'desc'], '_score'],
-            'lastUpdated'    => [['updatedAt' => 'desc'], '_score'],
-            default          => ['_score', ['createdAt' => 'desc']],
+            'lastUpdated' => [['updatedAt' => 'desc'], '_score'],
+            default => ['_score', ['createdAt' => 'desc']],
         };
     }
 
@@ -998,9 +999,9 @@ class ElasticsearchService
      * query, or null otherwise. Safe to call even when ES is down — any
      * failure short-circuits to null so the caller never explodes.
      *
-     * @param string $query  Raw user query (will be lower-cased for compare).
-     * @param string $culture 2-letter culture for the title field.
-     * @return string|null   Suggested phrase or null.
+     * @param  string  $query  Raw user query (will be lower-cased for compare).
+     * @param  string  $culture  2-letter culture for the title field.
+     * @return string|null Suggested phrase or null.
      */
     public function suggest(string $query, string $culture = 'en'): ?string
     {
@@ -1009,7 +1010,7 @@ class ElasticsearchService
             return null;
         }
 
-        if (!$this->isElasticsearchAvailable()) {
+        if (! $this->isElasticsearchAvailable()) {
             return null;
         }
 
@@ -1021,11 +1022,11 @@ class ElasticsearchService
                 'text' => $query,
                 'title_suggest' => [
                     'phrase' => [
-                        'field'     => $field,
-                        'size'      => 1,
+                        'field' => $field,
+                        'size' => 1,
                         'gram_size' => 3,
                         'direct_generator' => [[
-                            'field'        => $field,
+                            'field' => $field,
                             'suggest_mode' => 'always',
                         ]],
                     ],
@@ -1039,7 +1040,8 @@ class ElasticsearchService
             $response = Http::timeout(5)->post($url, $body);
             $result = $response->json();
         } catch (\Exception $e) {
-            Log::debug('Elasticsearch suggester request failed: ' . $e->getMessage());
+            Log::debug('Elasticsearch suggester request failed: '.$e->getMessage());
+
             return null;
         }
 

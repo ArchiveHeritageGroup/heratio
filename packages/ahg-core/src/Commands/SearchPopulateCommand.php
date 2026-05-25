@@ -20,6 +20,7 @@ class SearchPopulateCommand extends Command
         $count = DB::table('information_object')->count();
         $this->info("Found {$count} information objects to index.");
         $this->info('Search index population complete.');
+
         return 0;
     }
 }

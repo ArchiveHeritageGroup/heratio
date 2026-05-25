@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class PremisObject extends Model
 {
     protected $table = 'premis_object';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [

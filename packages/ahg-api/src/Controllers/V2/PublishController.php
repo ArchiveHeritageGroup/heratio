@@ -21,7 +21,7 @@ class PublishController extends BaseApiController
     public function readiness(string $slug): JsonResponse
     {
         $id = $this->slugToId($slug);
-        if (!$id) {
+        if (! $id) {
             return $this->error('Not Found', "Description '{$slug}' not found.", 404);
         }
 
@@ -63,14 +63,14 @@ class PublishController extends BaseApiController
     public function execute(string $slug, Request $request): JsonResponse
     {
         $id = $this->slugToId($slug);
-        if (!$id) {
+        if (! $id) {
             return $this->error('Not Found', "Description '{$slug}' not found.", 404);
         }
 
         $force = $request->boolean('force', false);
 
         // Check readiness (unless forced)
-        if (!$force) {
+        if (! $force) {
             $io = DB::table('information_object as io')
                 ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
                 ->where('io.id', $id)
@@ -84,11 +84,11 @@ class PublishController extends BaseApiController
         }
 
         // Block publish if workflow approval is required but not completed
-        if (!$force) {
+        if (! $force) {
             try {
                 $workflowService = app(\AhgWorkflow\Services\WorkflowService::class);
                 if ($workflowService->isWorkflowRequiredForPublish()
-                    && !$workflowService->isWorkflowApprovedForPublish($id)) {
+                    && ! $workflowService->isWorkflowApprovedForPublish($id)) {
                     return $this->error('Precondition Failed',
                         'Workflow approval required before publishing. Start or complete a workflow first.', 412);
                 }

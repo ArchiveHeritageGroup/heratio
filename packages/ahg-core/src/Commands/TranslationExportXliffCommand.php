@@ -42,11 +42,12 @@ class TranslationExportXliffCommand extends Command
         $untranslatedOnly = (bool) $this->option('untranslated-only');
 
         $langDir = base_path('lang');
-        $sourcePath = $langDir . '/' . $sourceLocale . '.json';
-        $targetPath = $langDir . '/' . $culture . '.json';
+        $sourcePath = $langDir.'/'.$sourceLocale.'.json';
+        $targetPath = $langDir.'/'.$culture.'.json';
 
         if (! is_file($sourcePath)) {
             $this->error("Source locale file not found: {$sourcePath}");
+
             return self::FAILURE;
         }
 
@@ -71,7 +72,7 @@ class TranslationExportXliffCommand extends Command
             }
 
             $units[] = [
-                'id'     => sha1($key),
+                'id' => sha1($key),
                 'source' => $sourceText,
                 'target' => $isTranslated ? $targetText : '',
             ];
@@ -88,16 +89,17 @@ class TranslationExportXliffCommand extends Command
 
         // Resolve output path
         if ($to = $this->option('to')) {
-            $outDir = rtrim($to, '/') . '/' . $culture;
+            $outDir = rtrim($to, '/').'/'.$culture;
             if (! is_dir($outDir)) {
                 if (! @mkdir($outDir, 0755, true)) {
                     $this->error("Could not create directory: {$outDir}");
+
                     return self::FAILURE;
                 }
             }
-            $outPath = $outDir . '/messages.xml';
+            $outPath = $outDir.'/messages.xml';
         } else {
-            $outPath = (string) ($this->option('output') ?: ($langDir . '/' . $culture . '.xml'));
+            $outPath = (string) ($this->option('output') ?: ($langDir.'/'.$culture.'.xml'));
         }
 
         file_put_contents($outPath, $xliff);

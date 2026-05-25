@@ -1,10 +1,10 @@
 <?php
 
-use AhgRightsHolderManage\Controllers\RightsHolderController;
 use AhgRightsHolderManage\Controllers\EmbargoController;
 use AhgRightsHolderManage\Controllers\ExtendedRightsController;
-use AhgRightsHolderManage\Controllers\RightsController;
 use AhgRightsHolderManage\Controllers\RightsAdminController;
+use AhgRightsHolderManage\Controllers\RightsController;
+use AhgRightsHolderManage\Controllers\RightsHolderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/rightsholder/browse', [RightsHolderController::class, 'browse'])->name('rightsholder.browse');

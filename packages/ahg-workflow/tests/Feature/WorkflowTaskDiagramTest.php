@@ -24,7 +24,7 @@ class WorkflowTaskDiagramTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->svc = new WorkflowDiagramService();
+        $this->svc = new WorkflowDiagramService;
     }
 
     public function test_render_for_task_returns_empty_state_for_nonexistent_task(): void
@@ -64,11 +64,11 @@ class WorkflowTaskDiagramTest extends TestCase
 
         $payload = $this->svc->renderForTask($task2Id);
         $this->assertSame('completed', $payload['statusMap'][$sId1]);
-        $this->assertSame('current',   $payload['statusMap'][$sId2]);
+        $this->assertSame('current', $payload['statusMap'][$sId2]);
         $this->assertArrayNotHasKey($sId3, $payload['statusMap']);
 
         $this->assertStringContainsString('wfdiag-status-completed', $payload['svg']);
-        $this->assertStringContainsString('wfdiag-status-current',   $payload['svg']);
+        $this->assertStringContainsString('wfdiag-status-current', $payload['svg']);
     }
 
     public function test_rejected_step_overrides_completed_on_same_step(): void
@@ -120,27 +120,27 @@ class WorkflowTaskDiagramTest extends TestCase
     private function makeWorkflow(string $name = 'Test workflow'): int
     {
         return (int) DB::table('ahg_workflow')->insertGetId([
-            'name'          => $name,
-            'scope_type'    => 'global',
+            'name' => $name,
+            'scope_type' => 'global',
             'trigger_event' => 'submit',
-            'applies_to'    => 'information_object',
-            'is_active'     => 1,
-            'created_at'    => now(),
-            'updated_at'    => now(),
+            'applies_to' => 'information_object',
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
     private function makeStep(int $workflowId, string $name, int $order): int
     {
         return (int) DB::table('ahg_workflow_step')->insertGetId([
-            'workflow_id'     => $workflowId,
-            'name'            => $name,
-            'step_order'      => $order,
-            'step_type'       => 'review',
+            'workflow_id' => $workflowId,
+            'name' => $name,
+            'step_order' => $order,
+            'step_type' => 'review',
             'action_required' => 'approve_reject',
-            'is_active'       => 1,
-            'created_at'      => now(),
-            'updated_at'      => now(),
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
@@ -153,17 +153,17 @@ class WorkflowTaskDiagramTest extends TestCase
         string $objectType = 'information_object',
     ): int {
         return (int) DB::table('ahg_workflow_task')->insertGetId([
-            'workflow_id'      => $workflowId,
+            'workflow_id' => $workflowId,
             'workflow_step_id' => $stepId,
-            'object_id'        => $objectId,
-            'object_type'      => $objectType,
-            'status'           => $status,
-            'priority'         => 'normal',
-            'submitted_by'     => 1,
-            'decision'         => $decision,
-            'retry_count'      => 0,
-            'created_at'       => now(),
-            'updated_at'       => now(),
+            'object_id' => $objectId,
+            'object_type' => $objectType,
+            'status' => $status,
+            'priority' => 'normal',
+            'submitted_by' => 1,
+            'decision' => $decision,
+            'retry_count' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }

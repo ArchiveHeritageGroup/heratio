@@ -26,7 +26,7 @@ class DestructionCertificateService
      */
     public function generateCertificate(int $dispositionId, string $authorizedBy, string $method, ?string $witness = null): array
     {
-        if (!Schema::hasTable('destruction_certificate')) {
+        if (! Schema::hasTable('destruction_certificate')) {
             throw new \RuntimeException('Table destruction_certificate does not exist.');
         }
 
@@ -35,8 +35,8 @@ class DestructionCertificateService
             ->where('id', $dispositionId)
             ->first();
 
-        if (!$disposition) {
-            throw new \RuntimeException('Disposition queue item #' . $dispositionId . ' not found.');
+        if (! $disposition) {
+            throw new \RuntimeException('Disposition queue item #'.$dispositionId.' not found.');
         }
 
         $culture = app()->getLocale();
@@ -74,52 +74,52 @@ class DestructionCertificateService
 
         // Build metadata
         $metadata = [
-            'io_title'        => $ioTitle,
+            'io_title' => $ioTitle,
             'repository_name' => $repoName,
-            'disposition_id'  => $dispositionId,
+            'disposition_id' => $dispositionId,
             'digital_object_id' => $disposition->digital_object_id,
         ];
 
         $certId = DB::table('destruction_certificate')->insertGetId([
-            'disposition_queue_id'  => $dispositionId,
+            'disposition_queue_id' => $dispositionId,
             'information_object_id' => $ioId,
-            'certificate_number'    => $certNumber,
-            'destruction_date'      => $destructionDate,
-            'destruction_method'    => $method,
-            'authorized_by'         => $authorizedBy,
-            'witness'               => $witness,
-            'content_hash'          => $contentHash,
-            'metadata'              => json_encode($metadata),
-            'created_at'            => now(),
+            'certificate_number' => $certNumber,
+            'destruction_date' => $destructionDate,
+            'destruction_method' => $method,
+            'authorized_by' => $authorizedBy,
+            'witness' => $witness,
+            'content_hash' => $contentHash,
+            'metadata' => json_encode($metadata),
+            'created_at' => now(),
         ]);
 
         // Update disposition queue status
         DB::table('integrity_disposition_queue')
             ->where('id', $dispositionId)
             ->update([
-                'status'      => 'destroyed',
+                'status' => 'destroyed',
                 'reviewed_by' => $authorizedBy,
                 'reviewed_at' => now(),
             ]);
 
         // Generate printable HTML
         $html = $this->renderCertificateHtml([
-            'id'                 => $certId,
+            'id' => $certId,
             'certificate_number' => $certNumber,
-            'destruction_date'   => $destructionDate->format('Y-m-d H:i:s'),
+            'destruction_date' => $destructionDate->format('Y-m-d H:i:s'),
             'destruction_method' => $method,
-            'authorized_by'      => $authorizedBy,
-            'witness'            => $witness,
-            'content_hash'       => $contentHash,
-            'io_title'           => $ioTitle,
-            'repository_name'    => $repoName,
+            'authorized_by' => $authorizedBy,
+            'witness' => $witness,
+            'content_hash' => $contentHash,
+            'io_title' => $ioTitle,
+            'repository_name' => $repoName,
             'information_object_id' => $ioId,
         ]);
 
         return [
-            'id'                 => $certId,
+            'id' => $certId,
             'certificate_number' => $certNumber,
-            'html'               => $html,
+            'html' => $html,
         ];
     }
 
@@ -129,14 +129,14 @@ class DestructionCertificateService
     public function getCertificateNumber(): string
     {
         $year = date('Y');
-        $prefix = 'DC-' . $year . '-';
+        $prefix = 'DC-'.$year.'-';
 
-        if (!Schema::hasTable('destruction_certificate')) {
-            return $prefix . '00001';
+        if (! Schema::hasTable('destruction_certificate')) {
+            return $prefix.'00001';
         }
 
         $lastCert = DB::table('destruction_certificate')
-            ->where('certificate_number', 'LIKE', $prefix . '%')
+            ->where('certificate_number', 'LIKE', $prefix.'%')
             ->orderBy('certificate_number', 'desc')
             ->value('certificate_number');
 
@@ -147,7 +147,7 @@ class DestructionCertificateService
             $nextNum = 1;
         }
 
-        return $prefix . str_pad($nextNum, 5, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($nextNum, 5, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -155,7 +155,7 @@ class DestructionCertificateService
      */
     public function getCertificates(int $page = 1, int $perPage = 25): array
     {
-        if (!Schema::hasTable('destruction_certificate')) {
+        if (! Schema::hasTable('destruction_certificate')) {
             return ['data' => [], 'total' => 0, 'page' => $page, 'perPage' => $perPage];
         }
 
@@ -179,9 +179,9 @@ class DestructionCertificateService
             ->toArray();
 
         return [
-            'data'    => $data,
-            'total'   => $total,
-            'page'    => $page,
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
             'perPage' => $perPage,
         ];
     }
@@ -191,7 +191,7 @@ class DestructionCertificateService
      */
     public function getCertificate(int $id): ?object
     {
-        if (!Schema::hasTable('destruction_certificate')) {
+        if (! Schema::hasTable('destruction_certificate')) {
             return null;
         }
 
@@ -222,13 +222,13 @@ class DestructionCertificateService
      */
     private function renderCertificateHtml(array $data): string
     {
-        $witness = $data['witness'] ? '<tr><td><strong>Witness</strong></td><td>' . e($data['witness']) . '</td></tr>' : '';
+        $witness = $data['witness'] ? '<tr><td><strong>Witness</strong></td><td>'.e($data['witness']).'</td></tr>' : '';
 
         return '<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Destruction Certificate ' . e($data['certificate_number']) . '</title>
+<title>Destruction Certificate '.e($data['certificate_number']).'</title>
 <style>
 body { font-family: "Times New Roman", serif; max-width: 800px; margin: 40px auto; padding: 20px; }
 h1 { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
@@ -246,15 +246,15 @@ td:first-child { width: 200px; background: #f5f5f5; font-weight: bold; }
 </head>
 <body>
 <h1>Certificate of Destruction</h1>
-<p class="cert-number">' . e($data['certificate_number']) . '</p>
+<p class="cert-number">'.e($data['certificate_number']).'</p>
 <table>
-<tr><td><strong>Information Object</strong></td><td>' . e($data['io_title']) . ' (ID: ' . e($data['information_object_id']) . ')</td></tr>
-<tr><td><strong>Repository</strong></td><td>' . e($data['repository_name']) . '</td></tr>
-<tr><td><strong>Destruction Date</strong></td><td>' . e($data['destruction_date']) . '</td></tr>
-<tr><td><strong>Method of Destruction</strong></td><td>' . e($data['destruction_method']) . '</td></tr>
-<tr><td><strong>Authorized By</strong></td><td>' . e($data['authorized_by']) . '</td></tr>
-' . $witness . '
-<tr><td><strong>Content Hash</strong></td><td class="hash">' . e($data['content_hash']) . '</td></tr>
+<tr><td><strong>Information Object</strong></td><td>'.e($data['io_title']).' (ID: '.e($data['information_object_id']).')</td></tr>
+<tr><td><strong>Repository</strong></td><td>'.e($data['repository_name']).'</td></tr>
+<tr><td><strong>Destruction Date</strong></td><td>'.e($data['destruction_date']).'</td></tr>
+<tr><td><strong>Method of Destruction</strong></td><td>'.e($data['destruction_method']).'</td></tr>
+<tr><td><strong>Authorized By</strong></td><td>'.e($data['authorized_by']).'</td></tr>
+'.$witness.'
+<tr><td><strong>Content Hash</strong></td><td class="hash">'.e($data['content_hash']).'</td></tr>
 </table>
 <p>This certificate confirms that the above-described records have been destroyed in accordance with the applicable retention policy and authorization procedures.</p>
 <div class="signatures">

@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * URL Audit: Check ALL href= values in ALL Heratio blade views.
  * Flags links that should be record-scoped but appear generic.
@@ -13,7 +14,6 @@
  * This script flags cases where a link TEXT implies record context
  * (e.g., "Reports", "Browse as list", "Inventory") but the URL is generic.
  */
-
 $base = '/usr/share/nginx/heratio/packages';
 
 // Links that MUST be scoped when on a show/view page
@@ -52,10 +52,12 @@ $it = new RecursiveIteratorIterator(
 );
 
 foreach ($it as $file) {
-    if (!preg_match('/\.blade\.php$/', $file->getFilename())) continue;
+    if (! preg_match('/\.blade\.php$/', $file->getFilename())) {
+        continue;
+    }
 
     $path = $file->getPathname();
-    $rel = str_replace($base . '/', '', $path);
+    $rel = str_replace($base.'/', '', $path);
     $content = file_get_contents($path);
 
     // Only check show pages for must-be-scoped links
@@ -71,8 +73,12 @@ foreach ($it as $file) {
             $text = trim(strip_tags($m[2]));
             $stats['total_links']++;
 
-            if (!$text || strlen($text) < 2) continue;
-            if ($href === '#' || $href === '') continue;
+            if (! $text || strlen($text) < 2) {
+                continue;
+            }
+            if ($href === '#' || $href === '') {
+                continue;
+            }
 
             // Check if link is scoped (contains a variable)
             $isScoped = false;
@@ -112,17 +118,23 @@ foreach ($it as $file) {
             $stats['total_links']++;
             $isScoped = false;
             foreach ($scopedPatterns as $pat) {
-                if (preg_match($pat, $action)) { $isScoped = true; break; }
+                if (preg_match($pat, $action)) {
+                    $isScoped = true;
+                    break;
+                }
             }
-            if ($isScoped) $stats['scoped']++;
-            else $stats['generic']++;
+            if ($isScoped) {
+                $stats['scoped']++;
+            } else {
+                $stats['generic']++;
+            }
         }
     }
 }
 
 // Output
 echo "# URL AUDIT: All Heratio Blade Views\n";
-echo "# Generated: " . date('Y-m-d H:i:s') . "\n";
+echo '# Generated: '.date('Y-m-d H:i:s')."\n";
 echo "# Files scanned: {$stats['files']}\n";
 echo "# Total links/actions: {$stats['total_links']}\n";
 echo "# Scoped (include record var): {$stats['scoped']}\n";
@@ -133,13 +145,13 @@ if (empty($issues)) {
     echo "All context-sensitive links are properly scoped. ✓\n";
 } else {
     echo "## MISMATCHES — Links that should be record-scoped but are generic\n\n";
-    echo str_pad('File', 55) . str_pad('Link Text', 25) . str_pad('Reason', 50) . "\n";
-    echo str_repeat('─', 130) . "\n";
+    echo str_pad('File', 55).str_pad('Link Text', 25).str_pad('Reason', 50)."\n";
+    echo str_repeat('─', 130)."\n";
     foreach ($issues as $iss) {
         echo str_pad($iss['file'], 55)
-           . str_pad($iss['text'], 25)
-           . str_pad($iss['reason'], 50)
-           . "\n";
+           .str_pad($iss['text'], 25)
+           .str_pad($iss['reason'], 50)
+           ."\n";
         echo "  href: {$iss['href']}\n\n";
     }
 }
@@ -152,15 +164,20 @@ $it2 = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator($base, RecursiveDirectoryIterator::SKIP_DOTS)
 );
 foreach ($it2 as $file) {
-    if (!preg_match('/\.blade\.php$/', $file->getFilename())) continue;
+    if (! preg_match('/\.blade\.php$/', $file->getFilename())) {
+        continue;
+    }
     $content = file_get_contents($file->getPathname());
     if (preg_match_all('/<a\s[^>]*href\s*=\s*["\']([^"\']+)["\']/i', $content, $m)) {
         foreach ($m[1] as $href) {
             $isScoped = false;
             foreach ($scopedPatterns as $pat) {
-                if (preg_match($pat, $href)) { $isScoped = true; break; }
+                if (preg_match($pat, $href)) {
+                    $isScoped = true;
+                    break;
+                }
             }
-            if (!$isScoped && $href !== '#' && $href !== '') {
+            if (! $isScoped && $href !== '#' && $href !== '') {
                 // Normalize route calls
                 $normalized = preg_replace('/\{\{.*?\}\}/', '...', $href);
                 $genericHrefs[$normalized] = ($genericHrefs[$normalized] ?? 0) + 1;
@@ -171,5 +188,5 @@ foreach ($it2 as $file) {
 arsort($genericHrefs);
 $top = array_slice($genericHrefs, 0, 30, true);
 foreach ($top as $href => $count) {
-    echo str_pad($count . 'x', 6) . $href . "\n";
+    echo str_pad($count.'x', 6).$href."\n";
 }

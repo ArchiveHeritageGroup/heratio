@@ -34,6 +34,7 @@ class BackfillCommand extends Command
         );
         if (empty($entities)) {
             $this->error('--entity must be information_object, actor, or both');
+
             return self::FAILURE;
         }
         $batch = max(50, (int) $this->option('batch'));
@@ -49,9 +50,9 @@ class BackfillCommand extends Command
             $this->info("backfill: {$entityType} — scanning…");
 
             $todo = DB::table($cfg['base'])
-                ->leftJoin($cfg['ver'], $cfg['ver'] . '.' . $cfg['fk'], '=', $cfg['base'] . '.id')
-                ->whereNull($cfg['ver'] . '.' . $cfg['fk'])
-                ->pluck($cfg['base'] . '.id')
+                ->leftJoin($cfg['ver'], $cfg['ver'].'.'.$cfg['fk'], '=', $cfg['base'].'.id')
+                ->whereNull($cfg['ver'].'.'.$cfg['fk'])
+                ->pluck($cfg['base'].'.id')
                 ->all();
             $total = count($todo);
             $this->info("backfill: {$entityType} — {$total} entity/entities to backfill");
@@ -61,6 +62,7 @@ class BackfillCommand extends Command
             }
             if ($dryRun) {
                 $this->warn('[dry-run] — no rows would be written');
+
                 continue;
             }
 
@@ -89,7 +91,7 @@ class BackfillCommand extends Command
                 $elapsed = microtime(true) - $startedAt;
                 $rate = $elapsed > 0 ? round($processed / $elapsed, 1) : 0;
                 $this->line(sprintf(
-                    "backfill: %s — batch %d/%d · processed=%d · errors=%d · rate=%.1f/s",
+                    'backfill: %s — batch %d/%d · processed=%d · errors=%d · rate=%.1f/s',
                     $entityType, $chunkIdx + 1, count($chunks), $processed, $errors, $rate,
                 ));
             }
@@ -97,7 +99,7 @@ class BackfillCommand extends Command
             $elapsed = microtime(true) - $startedAt;
             $rate = $elapsed > 0 ? round($processed / $elapsed, 1) : 0;
             $this->info(sprintf(
-                "backfill: %s — DONE · processed=%d · errors=%d · total=%.1fs · rate=%.1f/s",
+                'backfill: %s — DONE · processed=%d · errors=%d · total=%.1fs · rate=%.1f/s',
                 $entityType, $processed, $errors, $elapsed, $rate,
             ));
         }

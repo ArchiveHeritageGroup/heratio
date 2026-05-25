@@ -57,19 +57,17 @@ class PromoteToMentionService
      * Returns the ahg_mention.id on success (or the existing one if already
      * promoted), or null if the ner_entity row is missing.
      *
-     * @param int         $nerEntityId
-     * @param string|null $sourceText  Exact text NER was run against (full match rate). If
-     *                                 null, falls back to IO i18n concatenation (lossy
-     *                                 when NER ran against digital-object content).
-     * @param array{start:int,end:int}|null $knownOffset  Exact character offsets from the
-     *                                                    upstream NER API (entities_v2). When
-     *                                                    given, context derivation skips the
-     *                                                    lossy stripos scan. Null = legacy path.
-     * @param float|null  $realConfidence  Per-entity confidence score from the upstream API
-     *                                     (entities_v2 score). Written to
-     *                                     ahg_mention_context.real_confidence. Null when the
-     *                                     API exposes no per-entity score (spaCy default).
-     * @return int|null
+     * @param  string|null  $sourceText  Exact text NER was run against (full match rate). If
+     *                                   null, falls back to IO i18n concatenation (lossy
+     *                                   when NER ran against digital-object content).
+     * @param  array{start:int,end:int}|null  $knownOffset  Exact character offsets from the
+     *                                                      upstream NER API (entities_v2). When
+     *                                                      given, context derivation skips the
+     *                                                      lossy stripos scan. Null = legacy path.
+     * @param  float|null  $realConfidence  Per-entity confidence score from the upstream API
+     *                                      (entities_v2 score). Written to
+     *                                      ahg_mention_context.real_confidence. Null when the
+     *                                      API exposes no per-entity score (spaCy default).
      */
     public function promote(
         int $nerEntityId,
@@ -78,7 +76,7 @@ class PromoteToMentionService
         ?float $realConfidence = null
     ): ?int {
         $entity = DB::table('ahg_ner_entity')->where('id', $nerEntityId)->first();
-        if (!$entity) {
+        if (! $entity) {
             return null;
         }
 
@@ -153,9 +151,10 @@ class PromoteToMentionService
                 $this->promote((int) $id);
                 $newCount++;
             } catch (\Throwable $e) {
-                Log::warning('PromoteToMentionService::promoteAllForObject failed for ner_entity_id=' . $id . ': ' . $e->getMessage());
+                Log::warning('PromoteToMentionService::promoteAllForObject failed for ner_entity_id='.$id.': '.$e->getMessage());
             }
         }
+
         return $newCount;
     }
 
@@ -179,6 +178,7 @@ class PromoteToMentionService
                 }
             }
         }
+
         return implode("\n\n", $parts);
     }
 
@@ -191,7 +191,7 @@ class PromoteToMentionService
             ->where('object_id', $objectId)
             ->where('id', '!=', $excludeNerEntityId)
             ->get(['id', 'entity_type', 'entity_value'])
-            ->map(fn($r) => [
+            ->map(fn ($r) => [
                 'ner_entity_id' => (int) $r->id,
                 'type' => (string) $r->entity_type,
                 'value' => (string) $r->entity_value,
@@ -209,11 +209,12 @@ class PromoteToMentionService
             ->where('setting_key', 'authority_resolution.role_language_tokens')
             ->first();
 
-        if (!$row || empty($row->setting_value)) {
+        if (! $row || empty($row->setting_value)) {
             return [];
         }
 
         $decoded = json_decode($row->setting_value, true);
+
         return is_array($decoded) ? $decoded : [];
     }
 }

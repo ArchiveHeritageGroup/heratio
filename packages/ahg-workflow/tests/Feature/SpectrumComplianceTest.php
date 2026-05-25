@@ -25,7 +25,7 @@ class SpectrumComplianceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->svc = new SpectrumComplianceService();
+        $this->svc = new SpectrumComplianceService;
     }
 
     public function test_compute_status_not_started_when_no_task(): void
@@ -126,9 +126,9 @@ class SpectrumComplianceTest extends TestCase
     {
         $id = $this->svc->saveChainRule([
             'from_procedure' => 'acquisition',
-            'to_procedure'   => 'cataloguing',
-            'trigger_event'  => 'on_complete',
-            'is_active'      => true,
+            'to_procedure' => 'cataloguing',
+            'trigger_event' => 'on_complete',
+            'is_active' => true,
         ]);
         $this->assertGreaterThan(0, $id);
         $this->assertSame(1, $this->svc->getChainRules()->count());
@@ -142,7 +142,7 @@ class SpectrumComplianceTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->svc->saveChainRule([
             'from_procedure' => 'cataloguing',
-            'to_procedure'   => 'cataloguing',
+            'to_procedure' => 'cataloguing',
         ]);
     }
 
@@ -151,7 +151,7 @@ class SpectrumComplianceTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->svc->saveChainRule([
             'from_procedure' => 'parsecs',   // invalid
-            'to_procedure'   => 'cataloguing',
+            'to_procedure' => 'cataloguing',
         ]);
     }
 
@@ -169,9 +169,9 @@ class SpectrumComplianceTest extends TestCase
         // Chain rule
         $this->svc->saveChainRule([
             'from_procedure' => 'acquisition',
-            'to_procedure'   => 'cataloguing',
-            'trigger_event'  => 'on_complete',
-            'is_active'      => true,
+            'to_procedure' => 'cataloguing',
+            'trigger_event' => 'on_complete',
+            'is_active' => true,
         ]);
 
         $before = DB::table('ahg_workflow_task')->where('workflow_id', $catId)->count();
@@ -231,46 +231,46 @@ class SpectrumComplianceTest extends TestCase
     private function makeSpectrumWorkflow(string $procedure): int
     {
         return (int) DB::table('ahg_workflow')->insertGetId([
-            'name'               => 'Spectrum: '.$procedure,
-            'scope_type'         => 'global',
-            'trigger_event'      => 'submit',
-            'applies_to'         => 'information_object',
-            'is_active'          => 1,
+            'name' => 'Spectrum: '.$procedure,
+            'scope_type' => 'global',
+            'trigger_event' => 'submit',
+            'applies_to' => 'information_object',
+            'is_active' => 1,
             'spectrum_procedure' => $procedure,
-            'created_at'         => now(),
-            'updated_at'         => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
     private function makeStep(int $workflowId, string $name, int $order): int
     {
         return (int) DB::table('ahg_workflow_step')->insertGetId([
-            'workflow_id'     => $workflowId,
-            'name'            => $name,
-            'step_order'      => $order,
-            'step_type'       => 'review',
+            'workflow_id' => $workflowId,
+            'name' => $name,
+            'step_order' => $order,
+            'step_type' => 'review',
             'action_required' => 'approve_reject',
-            'is_active'       => 1,
-            'created_at'      => now(),
-            'updated_at'      => now(),
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
     private function makeTask(int $workflowId, int $stepId, int $objectId, string $status, string $decision): int
     {
         return (int) DB::table('ahg_workflow_task')->insertGetId([
-            'workflow_id'      => $workflowId,
+            'workflow_id' => $workflowId,
             'workflow_step_id' => $stepId,
-            'object_id'        => $objectId,
-            'object_type'      => 'information_object',
-            'status'           => $status,
-            'priority'         => 'normal',
-            'submitted_by'     => 1,
-            'decision'         => $decision,
-            'decision_at'      => $decision === 'approved' || $decision === 'rejected' ? now() : null,
-            'retry_count'      => 0,
-            'created_at'       => now(),
-            'updated_at'       => now(),
+            'object_id' => $objectId,
+            'object_type' => 'information_object',
+            'status' => $status,
+            'priority' => 'normal',
+            'submitted_by' => 1,
+            'decision' => $decision,
+            'decision_at' => $decision === 'approved' || $decision === 'rejected' ? now() : null,
+            'retry_count' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }

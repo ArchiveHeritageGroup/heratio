@@ -48,6 +48,11 @@ return Application::configure(basePath: dirname(__DIR__))
             // show pages. Silent no-op when the user is anonymous, lacks
             // share_link.create ACL, or the response isn't HTML.
             \AhgShareLink\Http\Middleware\ShareLinkInjector::class,
+            // Phase 1 of #670 SEO: injects Schema.org JSON-LD into the
+            // <head> of info-object / actor / repository show pages so
+            // Google + Bing can discover archival records via structured
+            // data. Silent no-op on non-HTML responses or unknown slugs.
+            \AhgInformationObjectManage\Http\Middleware\SchemaJsonLdInjector::class,
         ]);
 
         $middleware->alias([
@@ -138,7 +143,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (\Throwable $e, Request $request) {
-            if ($request->is('api/*') && !app()->hasDebugModeEnabled()) {
+            if ($request->is('api/*') && ! app()->hasDebugModeEnabled()) {
                 return response()->json([
                     'error' => 'Internal Server Error',
                     'message' => 'An unexpected error occurred.',

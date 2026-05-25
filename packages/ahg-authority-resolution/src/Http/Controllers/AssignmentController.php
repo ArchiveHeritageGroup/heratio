@@ -61,7 +61,7 @@ class AssignmentController extends Controller
             $reason !== '' ? $reason : null
         );
 
-        if (!$result['ok']) {
+        if (! $result['ok']) {
             return back()->withErrors(['assign' => $result['error'] ?? 'Assignment failed.']);
         }
 
@@ -106,9 +106,10 @@ class AssignmentController extends Controller
 
         if ($result['assigned'] === 0) {
             $msg = 'No mentions were assigned.';
-            if (!empty($result['errors'])) {
-                $msg .= ' ' . implode(' ', array_slice($result['errors'], 0, 5));
+            if (! empty($result['errors'])) {
+                $msg .= ' '.implode(' ', array_slice($result['errors'], 0, 5));
             }
+
             return back()->withErrors(['assign' => $msg]);
         }
 
@@ -120,7 +121,7 @@ class AssignmentController extends Controller
         );
 
         $redirect = back()->with('notice', $notice);
-        if (!empty($result['errors'])) {
+        if (! empty($result['errors'])) {
             $redirect->withErrors(['assign' => implode(' ', array_slice($result['errors'], 0, 5))]);
         }
 
@@ -153,13 +154,14 @@ class AssignmentController extends Controller
             ->select('user.username', 'actor_i18n.authorized_form_of_name as display_name')
             ->first();
 
-        if (!$row) {
-            return 'User #' . $userId;
+        if (! $row) {
+            return 'User #'.$userId;
         }
         $name = trim((string) ($row->display_name ?? ''));
         if ($name === '') {
             $name = trim((string) ($row->username ?? ''));
         }
-        return $name !== '' ? $name : ('User #' . $userId);
+
+        return $name !== '' ? $name : ('User #'.$userId);
     }
 }

@@ -54,18 +54,17 @@ class WatchedFolderService
     /**
      * Create a scan_folder and its backing ingest_session in one transaction.
      *
-     * @param array $data  code, label, path, layout, parent_id, repository_id,
-     *                     sector, standard, auto_commit, derivative_*, process_*
-     * @param int   $userId  creator
-     *
-     * @return int  scan_folder.id
+     * @param  array  $data  code, label, path, layout, parent_id, repository_id,
+     *                       sector, standard, auto_commit, derivative_*, process_*
+     * @param  int  $userId  creator
+     * @return int scan_folder.id
      */
     public function create(array $data, int $userId): int
     {
         return DB::transaction(function () use ($data, $userId) {
             $sessionId = DB::table('ingest_session')->insertGetId([
                 'user_id' => $userId,
-                'title' => $data['label'] . ' (watched folder)',
+                'title' => $data['label'].' (watched folder)',
                 'entity_type' => 'description',
                 'sector' => $data['sector'] ?? 'archive',
                 'standard' => $data['standard'] ?? 'isadg',
@@ -107,7 +106,7 @@ class WatchedFolderService
     {
         DB::transaction(function () use ($id, $data) {
             $folder = $this->find($id);
-            if (!$folder) {
+            if (! $folder) {
                 throw new \RuntimeException("scan_folder {$id} not found");
             }
 
@@ -123,7 +122,7 @@ class WatchedFolderService
                 'notify_on_failure' => array_key_exists('notify_on_failure', $data) ? (int) $data['notify_on_failure'] : $folder->notify_on_failure,
             ]);
 
-            if (!empty($folder->ingest_session_id)) {
+            if (! empty($folder->ingest_session_id)) {
                 $sessionUpdates = array_filter([
                     'sector' => $data['sector'] ?? null,
                     'standard' => $data['standard'] ?? null,
@@ -134,7 +133,7 @@ class WatchedFolderService
                     'derivative_reference' => isset($data['derivative_reference']) ? (int) $data['derivative_reference'] : null,
                     'process_virus_scan' => isset($data['process_virus_scan']) ? (int) $data['process_virus_scan'] : null,
                     'process_ocr' => isset($data['process_ocr']) ? (int) $data['process_ocr'] : null,
-                ], fn($v) => $v !== null);
+                ], fn ($v) => $v !== null);
 
                 if ($sessionUpdates) {
                     $sessionUpdates['updated_at'] = now();
@@ -147,14 +146,14 @@ class WatchedFolderService
     public function delete(int $id): void
     {
         $folder = $this->find($id);
-        if (!$folder) {
+        if (! $folder) {
             return;
         }
         DB::transaction(function () use ($folder) {
             DB::table('scan_folder')->where('id', $folder->id)->delete();
             // Leave the ingest_session + its ingest_file history in place for audit.
             // Mark the session cancelled instead.
-            if (!empty($folder->ingest_session_id)) {
+            if (! empty($folder->ingest_session_id)) {
                 DB::table('ingest_session')->where('id', $folder->ingest_session_id)
                     ->update(['status' => 'cancelled', 'updated_at' => now()]);
             }

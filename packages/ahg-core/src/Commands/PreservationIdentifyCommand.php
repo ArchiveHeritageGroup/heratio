@@ -19,18 +19,23 @@ class PreservationIdentifyCommand extends Command
         if ($this->option('risk')) {
             $dist = $svc->riskDistribution();   // [{risk_level, count}, ...]
             $this->info('=== PRONOM risk distribution ===');
-            foreach ($dist as $row) $this->line(sprintf("  %-15s %d", $row->risk_level ?? '-', (int) ($row->count ?? 0)));
+            foreach ($dist as $row) {
+                $this->line(sprintf('  %-15s %d', $row->risk_level ?? '-', (int) ($row->count ?? 0)));
+            }
+
             return self::SUCCESS;
         }
 
         if ($doId = $this->option('digital-object-id')) {
             $r = $svc->identifyDigitalObject((int) $doId);
-            $this->info("do={$doId} pronom=" . ($r['pronom_id'] ?? '?') . " risk=" . ($r['risk_level'] ?? '?'));
+            $this->info("do={$doId} pronom=".($r['pronom_id'] ?? '?').' risk='.($r['risk_level'] ?? '?'));
+
             return self::SUCCESS;
         }
 
         $r = $svc->batchIdentify((int) $this->option('limit'));
-        $this->info("done; processed=" . ($r['processed'] ?? 0) . " identified=" . ($r['identified'] ?? 0) . " failed=" . ($r['failed'] ?? 0));
+        $this->info('done; processed='.($r['processed'] ?? 0).' identified='.($r['identified'] ?? 0).' failed='.($r['failed'] ?? 0));
+
         return self::SUCCESS;
     }
 }

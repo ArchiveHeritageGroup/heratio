@@ -45,7 +45,7 @@ class AccessRequestDeniedMail extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Access request denied - #' . $this->request->id);
+        return new Envelope(subject: 'Access request denied - #'.$this->request->id);
     }
 
     public function content(): Content
@@ -53,5 +53,8 @@ class AccessRequestDeniedMail extends Mailable implements ShouldQueue
         return new Content(view: 'ahg-access-request::emails.denied');
     }
 
-    public function attachments(): array { return []; }
+    public function attachments(): array
+    {
+        return [];
+    }
 }

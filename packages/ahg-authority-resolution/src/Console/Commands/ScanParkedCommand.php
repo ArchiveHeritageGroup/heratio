@@ -37,6 +37,7 @@ class ScanParkedCommand extends Command
         $parkedTotal = (int) DB::table('ahg_mention_park')->count();
         if ($parkedTotal === 0) {
             $this->info('No parked mentions - nothing to scan.');
+
             return self::SUCCESS;
         }
 
@@ -56,6 +57,7 @@ class ScanParkedCommand extends Command
             foreach ($byEntity as $type => $c) {
                 $this->line(sprintf('  %-8s  %d', $type, $c));
             }
+
             return self::SUCCESS;
         }
 

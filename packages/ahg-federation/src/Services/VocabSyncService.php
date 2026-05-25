@@ -32,36 +32,52 @@ use Illuminate\Support\Facades\DB;
 class VocabSyncService
 {
     public const DIRECTION_PULL = 'pull';
+
     public const DIRECTION_PUSH = 'push';
+
     public const DIRECTION_BIDIRECTIONAL = 'bidirectional';
 
     public const CONFLICT_PREFER_LOCAL = 'prefer_local';
+
     public const CONFLICT_PREFER_REMOTE = 'prefer_remote';
+
     public const CONFLICT_SKIP = 'skip';
+
     public const CONFLICT_MERGE = 'merge';
 
     public const STATUS_RUNNING = 'running';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_FAILED = 'failed';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     public const MAPPING_MATCHED = 'matched';
+
     public const MAPPING_CREATED = 'created';
+
     public const MAPPING_CONFLICT = 'conflict';
+
     public const MAPPING_SKIPPED = 'skipped';
 
     public const CHANGE_TERM_ADDED = 'term_added';
+
     public const CHANGE_TERM_UPDATED = 'term_updated';
+
     public const CHANGE_TERM_DELETED = 'term_deleted';
+
     public const CHANGE_TERM_MOVED = 'term_moved';
+
     public const CHANGE_RELATION_ADDED = 'relation_added';
+
     public const CHANGE_RELATION_REMOVED = 'relation_removed';
 
     protected TermService $termService;
 
     public function __construct(?TermService $termService = null)
     {
-        $this->termService = $termService ?? new TermService();
+        $this->termService = $termService ?? new TermService;
     }
 
     // ─── EXPORT ──────────────────────────────────────────────────────────
@@ -83,7 +99,7 @@ class VocabSyncService
             ->select('t.id', 't.usage', 'ti.name')
             ->first();
 
-        if (!$taxonomy) {
+        if (! $taxonomy) {
             throw new \RuntimeException("Taxonomy not found: $taxonomyId");
         }
 
@@ -99,7 +115,7 @@ class VocabSyncService
         // Pull every translation for these terms in one query.
         $termIds = $terms->pluck('id')->all();
         $translationsByTerm = [];
-        if (!empty($termIds)) {
+        if (! empty($termIds)) {
             $rows = DB::table('term_i18n')->whereIn('id', $termIds)->get();
             foreach ($rows as $row) {
                 $translationsByTerm[$row->id][$row->culture] = $row->name;
@@ -165,7 +181,7 @@ class VocabSyncService
             'errors' => [],
         ];
 
-        if (!$targetTaxonomyId) {
+        if (! $targetTaxonomyId) {
             $existing = DB::table('taxonomy_i18n')
                 ->where('name', $data['taxonomy']['name'])
                 ->where('culture', $culture)
@@ -206,7 +222,7 @@ class VocabSyncService
 
                 $stats[$result['statKey']] = ($stats[$result['statKey']] ?? 0) + 1;
 
-                if (!empty($termData['children']) && $result['termId']) {
+                if (! empty($termData['children']) && $result['termId']) {
                     $this->importTermsRecursive(
                         $termData['children'],
                         $taxonomyId,
@@ -238,7 +254,7 @@ class VocabSyncService
         ?int $peerId,
     ): array {
         $name = $termData['name'] ?? null;
-        if (!$name) {
+        if (! $name) {
             return ['statKey' => 'skipped', 'termId' => null];
         }
 
@@ -258,20 +274,24 @@ class VocabSyncService
                 case self::CONFLICT_SKIP:
                 case self::CONFLICT_PREFER_LOCAL:
                     $this->recordMapping($peerId, $existingId, $termData, $taxonomyId, self::MAPPING_MATCHED);
+
                     return ['statKey' => 'skipped', 'termId' => $existingId];
 
                 case self::CONFLICT_PREFER_REMOTE:
                     $this->updateTerm($existingId, $termData, $culture);
                     $this->recordMapping($peerId, $existingId, $termData, $taxonomyId, self::MAPPING_MATCHED);
+
                     return ['statKey' => 'updated', 'termId' => $existingId];
 
                 case self::CONFLICT_MERGE:
                     $this->mergeTerm($existingId, $termData);
                     $this->recordMapping($peerId, $existingId, $termData, $taxonomyId, self::MAPPING_MATCHED);
+
                     return ['statKey' => 'updated', 'termId' => $existingId];
 
                 default:
                     $this->recordMapping($peerId, $existingId, $termData, $taxonomyId, self::MAPPING_CONFLICT);
+
                     return ['statKey' => 'conflicts', 'termId' => $existingId];
             }
         }
@@ -284,9 +304,11 @@ class VocabSyncService
         ], $culture);
 
         // Apply remaining culture translations beyond the create-culture row.
-        if (!empty($termData['translations'])) {
+        if (! empty($termData['translations'])) {
             foreach ($termData['translations'] as $cult => $translation) {
-                if ($cult === $culture) continue;
+                if ($cult === $culture) {
+                    continue;
+                }
                 $this->upsertTermI18n($newId, $cult, $translation);
             }
         }
@@ -299,14 +321,18 @@ class VocabSyncService
     protected function updateTerm(int $termId, array $termData, string $culture): void
     {
         $update = [];
-        if (!empty($termData['code'])) { $update['code'] = $termData['code']; }
-        if (!empty($termData['name'])) { $update['name'] = $termData['name']; }
+        if (! empty($termData['code'])) {
+            $update['code'] = $termData['code'];
+        }
+        if (! empty($termData['name'])) {
+            $update['name'] = $termData['name'];
+        }
 
         if ($update) {
             $this->termService->update($termId, $update, $culture);
         }
 
-        if (!empty($termData['translations'])) {
+        if (! empty($termData['translations'])) {
             foreach ($termData['translations'] as $cult => $translation) {
                 $this->upsertTermI18n($termId, $cult, $translation);
             }
@@ -321,7 +347,7 @@ class VocabSyncService
         }
         foreach ($termData['translations'] as $cult => $translation) {
             $exists = DB::table('term_i18n')->where('id', $termId)->where('culture', $cult)->exists();
-            if (!$exists) {
+            if (! $exists) {
                 $this->upsertTermI18n($termId, $cult, $translation);
             }
         }
@@ -359,7 +385,7 @@ class VocabSyncService
 
     protected function recordMapping(?int $peerId, int $localTermId, array $termData, int $taxonomyId, string $status): void
     {
-        if (!$peerId) {
+        if (! $peerId) {
             return;
         }
         $remoteId = (string) ($termData['id'] ?? '');
@@ -392,12 +418,12 @@ class VocabSyncService
             ->where('peer_id', $peerId)
             ->where('taxonomy_id', $taxonomyId)
             ->first();
-        if (!$config) {
+        if (! $config) {
             throw new \RuntimeException('Vocabulary sync not configured for this peer/taxonomy.');
         }
 
         $peer = DB::table('federation_peer')->where('id', $peerId)->first();
-        if (!$peer || !$peer->is_active) {
+        if (! $peer || ! $peer->is_active) {
             throw new \RuntimeException('Peer not found or inactive.');
         }
 
@@ -433,11 +459,11 @@ class VocabSyncService
 
     protected function pullFromPeer(object $peer, int $taxonomyId, string $conflictResolution): VocabSyncResult
     {
-        $url = rtrim($peer->base_url, '/') . '/api/federation/vocab/' . $taxonomyId;
+        $url = rtrim($peer->base_url, '/').'/api/federation/vocab/'.$taxonomyId;
 
         $headers = ['Accept: application/json'];
-        if (!empty($peer->api_key)) {
-            $headers[] = 'X-API-Key: ' . $peer->api_key;
+        if (! empty($peer->api_key)) {
+            $headers[] = 'X-API-Key: '.$peer->api_key;
         }
 
         $ch = curl_init($url);
@@ -455,11 +481,11 @@ class VocabSyncService
         curl_close($ch);
 
         if ($body === false || $httpCode !== 200) {
-            throw new \RuntimeException("Peer fetch failed (HTTP $httpCode): " . ($error ?: 'no body'));
+            throw new \RuntimeException("Peer fetch failed (HTTP $httpCode): ".($error ?: 'no body'));
         }
 
         $data = json_decode((string) $body, true);
-        if (!is_array($data) || empty($data['taxonomy'])) {
+        if (! is_array($data) || empty($data['taxonomy'])) {
             throw new \RuntimeException('Peer returned invalid vocabulary envelope.');
         }
 
@@ -530,15 +556,19 @@ class VocabSyncService
 
     public function markPropagated(array $changeIds, int $peerId): void
     {
-        if (empty($changeIds)) return;
+        if (empty($changeIds)) {
+            return;
+        }
 
         $rows = DB::table('federation_vocab_change')->whereIn('id', $changeIds)->get();
         foreach ($rows as $change) {
             $list = $change->propagated_to_peers
                 ? json_decode($change->propagated_to_peers, true)
                 : [];
-            if (!is_array($list)) { $list = []; }
-            if (!in_array($peerId, $list, true)) {
+            if (! is_array($list)) {
+                $list = [];
+            }
+            if (! in_array($peerId, $list, true)) {
                 $list[] = $peerId;
                 DB::table('federation_vocab_change')
                     ->where('id', $change->id)
@@ -579,7 +609,9 @@ class VocabSyncService
             ->where('vs.peer_id', $peerId)
             ->select('vs.*', 'ti.name as taxonomy_name');
 
-        if ($taxonomyId) { $q->where('vs.taxonomy_id', $taxonomyId); }
+        if ($taxonomyId) {
+            $q->where('vs.taxonomy_id', $taxonomyId);
+        }
 
         return $q->get();
     }

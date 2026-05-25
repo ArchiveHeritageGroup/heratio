@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgSemanticSearch\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -80,8 +78,8 @@ class SemanticSearchService
     {
         $query = DB::table('ahg_thesaurus_term');
 
-        if (!empty($filters['search'])) {
-            $query->where('term', 'LIKE', '%' . $filters['search'] . '%');
+        if (! empty($filters['search'])) {
+            $query->where('term', 'LIKE', '%'.$filters['search'].'%');
         }
         if (isset($filters['is_active'])) {
             $query->where('is_active', $filters['is_active']);
@@ -112,6 +110,7 @@ class SemanticSearchService
     public function deleteTerm(int $id): bool
     {
         DB::table('ahg_thesaurus_synonym')->where('term_id', $id)->delete();
+
         return DB::table('ahg_thesaurus_term')->where('id', $id)->delete() > 0;
     }
 
@@ -143,18 +142,19 @@ class SemanticSearchService
                         ->exists();
                     if ($exists) {
                         $skipped++;
+
                         continue;
                     }
                     DB::table('ahg_thesaurus_term')->insert([
-                        'term'            => (string) $row->name,
+                        'term' => (string) $row->name,
                         'normalized_term' => mb_strtolower((string) $row->name),
-                        'language'        => app()->getLocale(),
-                        'source'          => 'atom',
-                        'source_id'       => (string) $row->id,
-                        'domain'          => $row->taxonomy_id ? ('taxonomy_' . $row->taxonomy_id) : null,
-                        'is_active'       => 1,
-                        'created_at'      => now(),
-                        'updated_at'      => now(),
+                        'language' => app()->getLocale(),
+                        'source' => 'atom',
+                        'source_id' => (string) $row->id,
+                        'domain' => $row->taxonomy_id ? ('taxonomy_'.$row->taxonomy_id) : null,
+                        'is_active' => 1,
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ]);
                     $synced++;
                 }
@@ -165,21 +165,21 @@ class SemanticSearchService
         // Canonical `ahg_thesaurus_sync_log` schema: source, sync_type, status,
         // terms_processed, terms_added, terms_updated, started_at, completed_at.
         DB::table('ahg_thesaurus_sync_log')->insert([
-            'source'          => 'atom',
-            'sync_type'       => 'term_import',
-            'status'          => 'success',
+            'source' => 'atom',
+            'sync_type' => 'term_import',
+            'status' => 'success',
             'terms_processed' => $synced + $skipped,
-            'terms_added'     => $synced,
-            'terms_updated'   => 0,
-            'started_at'      => $startedAt,
-            'completed_at'    => now(),
-            'created_at'      => now(),
+            'terms_added' => $synced,
+            'terms_updated' => 0,
+            'started_at' => $startedAt,
+            'completed_at' => now(),
+            'created_at' => now(),
         ]);
 
         return [
-            'success'     => true,
-            'synced'      => $synced,
-            'skipped'     => $skipped,
+            'success' => true,
+            'synced' => $synced,
+            'skipped' => $skipped,
             'duration_ms' => $durationMs,
         ];
     }
@@ -190,6 +190,7 @@ class SemanticSearchService
         if ($userId !== null) {
             $query->where('user_id', $userId);
         }
+
         return $query->delete();
     }
 
@@ -198,11 +199,11 @@ class SemanticSearchService
     {
         $query = DB::table('saved_search_log');
 
-        if (!empty($filters['start_date'])) {
+        if (! empty($filters['start_date'])) {
             $query->where('executed_at', '>=', $filters['start_date']);
         }
-        if (!empty($filters['end_date'])) {
-            $query->where('executed_at', '<=', $filters['end_date'] . ' 23:59:59');
+        if (! empty($filters['end_date'])) {
+            $query->where('executed_at', '<=', $filters['end_date'].' 23:59:59');
         }
 
         return $query->orderByDesc('executed_at')->limit(500)->get();
@@ -282,7 +283,7 @@ class SemanticSearchService
 
             $synonyms = $this->getThesaurusSynonyms($word, $language, $minWeight, $expansionLimit);
 
-            if (!empty($synonyms)) {
+            if (! empty($synonyms)) {
                 $expandedTerms[$word] = array_column($synonyms, 'text');
             }
         }
@@ -294,8 +295,8 @@ class SemanticSearchService
         $allSynonyms = array_unique($allSynonyms);
 
         $expandedQuery = $query;
-        if (!empty($allSynonyms)) {
-            $expandedQuery .= ' ' . implode(' ', $allSynonyms);
+        if (! empty($allSynonyms)) {
+            $expandedQuery .= ' '.implode(' ', $allSynonyms);
         }
 
         return [
@@ -350,7 +351,7 @@ class SemanticSearchService
             ->get();
 
         foreach ($reverse as $rev) {
-            if (!isset($synonyms[$rev->text])) {
+            if (! isset($synonyms[$rev->text])) {
                 $synonyms[$rev->text] = [
                     'text' => $rev->text,
                     'weight' => (float) $rev->weight,
@@ -358,7 +359,7 @@ class SemanticSearchService
             }
         }
 
-        uasort($synonyms, fn($a, $b) => $b['weight'] <=> $a['weight']);
+        uasort($synonyms, fn ($a, $b) => $b['weight'] <=> $a['weight']);
 
         return array_slice(array_values($synonyms), 0, $limit);
     }
@@ -371,7 +372,7 @@ class SemanticSearchService
 
         $stopWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'];
 
-        return array_filter($words, fn($w) => !in_array(strtolower($w), $stopWords));
+        return array_filter($words, fn ($w) => ! in_array(strtolower($w), $stopWords));
     }
 
     // History

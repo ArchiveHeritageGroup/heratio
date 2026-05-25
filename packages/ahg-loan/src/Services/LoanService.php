@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgLoan\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -40,40 +38,40 @@ class LoanService
      * Valid status transitions for loans.
      */
     public const STATUS_TRANSITIONS = [
-        'draft'            => ['submitted', 'cancelled'],
-        'submitted'        => ['under_review', 'cancelled'],
-        'under_review'     => ['approved', 'rejected', 'cancelled'],
-        'approved'         => ['preparing', 'cancelled'],
-        'preparing'        => ['dispatched', 'cancelled'],
-        'dispatched'       => ['in_transit', 'cancelled'],
-        'in_transit'       => ['received', 'cancelled'],
-        'received'         => ['on_loan', 'cancelled'],
-        'on_loan'          => ['return_requested', 'cancelled'],
+        'draft' => ['submitted', 'cancelled'],
+        'submitted' => ['under_review', 'cancelled'],
+        'under_review' => ['approved', 'rejected', 'cancelled'],
+        'approved' => ['preparing', 'cancelled'],
+        'preparing' => ['dispatched', 'cancelled'],
+        'dispatched' => ['in_transit', 'cancelled'],
+        'in_transit' => ['received', 'cancelled'],
+        'received' => ['on_loan', 'cancelled'],
+        'on_loan' => ['return_requested', 'cancelled'],
         'return_requested' => ['returned', 'cancelled'],
-        'returned'         => ['closed', 'cancelled'],
-        'rejected'         => ['cancelled'],
-        'closed'           => [],
-        'cancelled'        => [],
+        'returned' => ['closed', 'cancelled'],
+        'rejected' => ['cancelled'],
+        'closed' => [],
+        'cancelled' => [],
     ];
 
     /**
      * Status badge colour map.
      */
     public const STATUS_COLOURS = [
-        'draft'            => 'secondary',
-        'submitted'        => 'info',
-        'under_review'     => 'warning',
-        'approved'         => 'success',
-        'rejected'         => 'danger',
-        'preparing'        => 'primary',
-        'dispatched'       => 'primary',
-        'in_transit'       => 'primary',
-        'received'         => 'info',
-        'on_loan'          => 'success',
+        'draft' => 'secondary',
+        'submitted' => 'info',
+        'under_review' => 'warning',
+        'approved' => 'success',
+        'rejected' => 'danger',
+        'preparing' => 'primary',
+        'dispatched' => 'primary',
+        'in_transit' => 'primary',
+        'received' => 'info',
+        'on_loan' => 'success',
         'return_requested' => 'warning',
-        'returned'         => 'info',
-        'closed'           => 'dark',
-        'cancelled'        => 'danger',
+        'returned' => 'info',
+        'closed' => 'dark',
+        'cancelled' => 'danger',
     ];
 
     /**
@@ -88,46 +86,46 @@ class LoanService
             );
 
         // Filter: loan_type
-        if (!empty($params['type'])) {
+        if (! empty($params['type'])) {
             $query->where('l.loan_type', $params['type']);
         }
 
         // Filter: status
-        if (!empty($params['status'])) {
+        if (! empty($params['status'])) {
             $query->where('l.status', $params['status']);
         }
 
         // Filter: search (loan_number, title, partner_institution)
-        if (!empty($params['search'])) {
-            $search = '%' . $params['search'] . '%';
+        if (! empty($params['search'])) {
+            $search = '%'.$params['search'].'%';
             $query->where(function ($q) use ($search) {
                 $q->where('l.loan_number', 'LIKE', $search)
-                  ->orWhere('l.title', 'LIKE', $search)
-                  ->orWhere('l.partner_institution', 'LIKE', $search);
+                    ->orWhere('l.title', 'LIKE', $search)
+                    ->orWhere('l.partner_institution', 'LIKE', $search);
             });
         }
 
         // Filter: overdue
-        if (!empty($params['overdue'])) {
+        if (! empty($params['overdue'])) {
             $query->where('l.end_date', '<', now()->toDateString())
-                  ->whereIn('l.status', ['on_loan', 'dispatched', 'in_transit', 'received']);
+                ->whereIn('l.status', ['on_loan', 'dispatched', 'in_transit', 'received']);
         }
 
         // Filter: sector
-        if (!empty($params['sector'])) {
+        if (! empty($params['sector'])) {
             $query->where('l.sector', $params['sector']);
         }
 
         $sort = $params['sort'] ?? 'updated_at';
-        $dir  = $params['dir'] ?? 'desc';
+        $dir = $params['dir'] ?? 'desc';
         $allowedSorts = ['loan_number', 'title', 'partner_institution', 'start_date', 'end_date', 'status', 'created_at', 'updated_at'];
-        if (!in_array($sort, $allowedSorts)) {
+        if (! in_array($sort, $allowedSorts)) {
             $sort = 'updated_at';
         }
         $query->orderBy("l.{$sort}", $dir === 'asc' ? 'asc' : 'desc');
 
         $perPage = (int) ($params['per_page'] ?? 25);
-        $page    = (int) ($params['page'] ?? 1);
+        $page = (int) ($params['page'] ?? 1);
 
         return $query->paginate($perPage, ['*'], 'page', $page);
     }
@@ -138,18 +136,18 @@ class LoanService
     public function get(int $id): ?object
     {
         $loan = DB::table('ahg_loan')->where('id', $id)->first();
-        if (!$loan) {
+        if (! $loan) {
             return null;
         }
 
-        $loan->objects          = $this->getObjects($id);
-        $loan->documents        = $this->getDocuments($id);
-        $loan->extensions       = $this->getExtensions($id);
-        $loan->status_history   = $this->getStatusHistory($id);
+        $loan->objects = $this->getObjects($id);
+        $loan->documents = $this->getDocuments($id);
+        $loan->extensions = $this->getExtensions($id);
+        $loan->status_history = $this->getStatusHistory($id);
         $loan->condition_reports = $this->getConditionReports($id);
         $loan->facility_reports = $this->getFacilityReports($id);
-        $loan->shipments        = $this->getShipments($id);
-        $loan->costs            = $this->getCosts($id);
+        $loan->shipments = $this->getShipments($id);
+        $loan->costs = $this->getCosts($id);
 
         return $loan;
     }
@@ -162,43 +160,43 @@ class LoanService
         $loanNumber = $this->generateLoanNumber($data['loan_type'] ?? 'out');
 
         $id = DB::table('ahg_loan')->insertGetId([
-            'loan_number'             => $loanNumber,
-            'loan_type'               => $data['loan_type'] ?? 'out',
-            'sector'                  => $data['sector'] ?? 'museum',
-            'title'                   => $data['title'] ?? null,
-            'description'             => $data['description'] ?? null,
-            'purpose'                 => $data['purpose'] ?? 'exhibition',
-            'partner_institution'     => $data['partner_institution'],
-            'partner_contact_name'    => $data['partner_contact_name'] ?? null,
-            'partner_contact_email'   => $data['partner_contact_email'] ?? null,
-            'partner_contact_phone'   => $data['partner_contact_phone'] ?? null,
-            'partner_address'         => $data['partner_address'] ?? null,
-            'request_date'            => $data['request_date'] ?? now(),
-            'start_date'              => $data['start_date'] ?? null,
-            'end_date'                => $data['end_date'] ?? null,
-            'insurance_type'          => $data['insurance_type'] ?? 'borrower',
-            'insurance_value'         => $data['insurance_value'] ?? null,
-            'insurance_currency'      => $data['insurance_currency'] ?? 'ZAR',
+            'loan_number' => $loanNumber,
+            'loan_type' => $data['loan_type'] ?? 'out',
+            'sector' => $data['sector'] ?? 'museum',
+            'title' => $data['title'] ?? null,
+            'description' => $data['description'] ?? null,
+            'purpose' => $data['purpose'] ?? 'exhibition',
+            'partner_institution' => $data['partner_institution'],
+            'partner_contact_name' => $data['partner_contact_name'] ?? null,
+            'partner_contact_email' => $data['partner_contact_email'] ?? null,
+            'partner_contact_phone' => $data['partner_contact_phone'] ?? null,
+            'partner_address' => $data['partner_address'] ?? null,
+            'request_date' => $data['request_date'] ?? now(),
+            'start_date' => $data['start_date'] ?? null,
+            'end_date' => $data['end_date'] ?? null,
+            'insurance_type' => $data['insurance_type'] ?? 'borrower',
+            'insurance_value' => $data['insurance_value'] ?? null,
+            'insurance_currency' => $data['insurance_currency'] ?? 'ZAR',
             'insurance_policy_number' => $data['insurance_policy_number'] ?? null,
-            'insurance_provider'      => $data['insurance_provider'] ?? null,
-            'loan_fee'                => $data['loan_fee'] ?? null,
-            'loan_fee_currency'       => $data['loan_fee_currency'] ?? 'ZAR',
-            'status'                  => 'draft',
-            'repository_id'           => $data['repository_id'] ?? null,
-            'notes'                   => $data['notes'] ?? null,
-            'created_by'              => $userId,
-            'updated_by'              => $userId,
-            'created_at'              => now(),
-            'updated_at'              => now(),
+            'insurance_provider' => $data['insurance_provider'] ?? null,
+            'loan_fee' => $data['loan_fee'] ?? null,
+            'loan_fee_currency' => $data['loan_fee_currency'] ?? 'ZAR',
+            'status' => 'draft',
+            'repository_id' => $data['repository_id'] ?? null,
+            'notes' => $data['notes'] ?? null,
+            'created_by' => $userId,
+            'updated_by' => $userId,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         // Log initial status
         DB::table('ahg_loan_status_history')->insert([
-            'loan_id'    => $id,
+            'loan_id' => $id,
             'from_status' => null,
-            'to_status'  => 'draft',
+            'to_status' => 'draft',
             'changed_by' => $userId,
-            'comment'    => 'Loan created',
+            'comment' => 'Loan created',
             'created_at' => now(),
         ]);
 
@@ -300,17 +298,17 @@ class LoanService
             ->first();
 
         return DB::table('ahg_loan_object')->insertGetId([
-            'loan_id'               => $loanId,
+            'loan_id' => $loanId,
             'information_object_id' => $objectId,
-            'object_title'          => $io->title ?? ($data['object_title'] ?? null),
-            'object_identifier'     => $ioBase->identifier ?? ($data['object_identifier'] ?? null),
-            'object_type'           => $data['object_type'] ?? null,
-            'insurance_value'       => $data['insurance_value'] ?? null,
-            'special_requirements'  => $data['special_requirements'] ?? null,
-            'display_requirements'  => $data['display_requirements'] ?? null,
-            'status'                => 'pending',
-            'created_at'            => now(),
-            'updated_at'            => now(),
+            'object_title' => $io->title ?? ($data['object_title'] ?? null),
+            'object_identifier' => $ioBase->identifier ?? ($data['object_identifier'] ?? null),
+            'object_type' => $data['object_type'] ?? null,
+            'insurance_value' => $data['insurance_value'] ?? null,
+            'special_requirements' => $data['special_requirements'] ?? null,
+            'display_requirements' => $data['display_requirements'] ?? null,
+            'status' => 'pending',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
@@ -333,7 +331,7 @@ class LoanService
         return DB::table('ahg_loan_object as lo')
             ->leftJoin('information_object_i18n as ioi', function ($join) {
                 $join->on('lo.information_object_id', '=', 'ioi.id')
-                     ->where('ioi.culture', '=', 'en');
+                    ->where('ioi.culture', '=', 'en');
             })
             ->where('lo.loan_id', $loanId)
             ->select('lo.*', 'ioi.title as io_title')
@@ -348,19 +346,19 @@ class LoanService
     public function transition(int $loanId, string $newStatus, int $userId, ?string $comment = null): bool
     {
         $loan = DB::table('ahg_loan')->where('id', $loanId)->first();
-        if (!$loan) {
+        if (! $loan) {
             return false;
         }
 
         $currentStatus = $loan->status;
         $allowed = self::STATUS_TRANSITIONS[$currentStatus] ?? [];
 
-        if (!in_array($newStatus, $allowed)) {
+        if (! in_array($newStatus, $allowed)) {
             return false;
         }
 
         DB::table('ahg_loan')->where('id', $loanId)->update([
-            'status'     => $newStatus,
+            'status' => $newStatus,
             'updated_at' => now(),
             'updated_by' => $userId,
         ]);
@@ -369,17 +367,17 @@ class LoanService
         if ($newStatus === 'approved') {
             DB::table('ahg_loan')->where('id', $loanId)->update([
                 'internal_approver_id' => $userId,
-                'approved_date'        => now(),
+                'approved_date' => now(),
             ]);
         }
 
         DB::table('ahg_loan_status_history')->insert([
-            'loan_id'     => $loanId,
+            'loan_id' => $loanId,
             'from_status' => $currentStatus,
-            'to_status'   => $newStatus,
-            'changed_by'  => $userId,
-            'comment'     => $comment,
-            'created_at'  => now(),
+            'to_status' => $newStatus,
+            'changed_by' => $userId,
+            'comment' => $comment,
+            'created_at' => now(),
         ]);
 
         return true;
@@ -391,21 +389,21 @@ class LoanService
     public function extend(int $loanId, string $newEndDate, string $reason, int $userId): bool
     {
         $loan = DB::table('ahg_loan')->where('id', $loanId)->first();
-        if (!$loan) {
+        if (! $loan) {
             return false;
         }
 
         DB::table('ahg_loan_extension')->insert([
-            'loan_id'           => $loanId,
+            'loan_id' => $loanId,
             'previous_end_date' => $loan->end_date,
-            'new_end_date'      => $newEndDate,
-            'reason'            => $reason,
-            'approved_by'       => $userId,
-            'created_at'        => now(),
+            'new_end_date' => $newEndDate,
+            'reason' => $reason,
+            'approved_by' => $userId,
+            'created_at' => now(),
         ]);
 
         DB::table('ahg_loan')->where('id', $loanId)->update([
-            'end_date'   => $newEndDate,
+            'end_date' => $newEndDate,
             'updated_at' => now(),
             'updated_by' => $userId,
         ]);
@@ -420,8 +418,8 @@ class LoanService
     {
         DB::table('ahg_loan')->where('id', $loanId)->update([
             'return_date' => $returnDate,
-            'updated_at'  => now(),
-            'updated_by'  => $userId,
+            'updated_at' => now(),
+            'updated_by' => $userId,
         ]);
 
         $this->transition($loanId, 'returned', $userId, $notes ?? 'Loan returned');
@@ -466,13 +464,13 @@ class LoanService
             ->count();
 
         return [
-            'active'           => $active,
-            'overdue'          => $overdue,
-            'due_soon'         => $dueSoon,
-            'total_insurance'  => $totalInsurance,
-            'by_status'        => $byStatus,
-            'by_purpose'       => $byPurpose,
-            'total'            => DB::table('ahg_loan')->count(),
+            'active' => $active,
+            'overdue' => $overdue,
+            'due_soon' => $dueSoon,
+            'total_insurance' => $totalInsurance,
+            'by_status' => $byStatus,
+            'by_purpose' => $byPurpose,
+            'total' => DB::table('ahg_loan')->count(),
         ];
     }
 
@@ -509,7 +507,7 @@ class LoanService
     public function generateLoanNumber(string $type = 'out'): string
     {
         $prefix = $type === 'in' ? 'MUS-LI' : 'MUS-LO';
-        $year   = date('Y');
+        $year = date('Y');
         $pattern = "{$prefix}-{$year}-%";
 
         $last = DB::table('ahg_loan')
@@ -519,7 +517,7 @@ class LoanService
 
         if ($last) {
             $parts = explode('-', $last);
-            $seq   = (int) end($parts) + 1;
+            $seq = (int) end($parts) + 1;
         } else {
             $seq = 1;
         }
@@ -545,27 +543,27 @@ class LoanService
     public function uploadDocument(int $loanId, $file, string $type, int $userId): int
     {
         $loan = DB::table('ahg_loan')->where('id', $loanId)->first();
-        $dir  = config('heratio.uploads_path') . '/loans/' . $loan->loan_number;
+        $dir = config('heratio.uploads_path').'/loans/'.$loan->loan_number;
 
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
 
         $originalName = $file->getClientOriginalName();
-        $extension    = $file->getClientOriginalExtension();
-        $storedName   = $type . '_' . time() . '.' . $extension;
+        $extension = $file->getClientOriginalExtension();
+        $storedName = $type.'_'.time().'.'.$extension;
 
         $file->move($dir, $storedName);
 
         return DB::table('ahg_loan_document')->insertGetId([
-            'loan_id'       => $loanId,
+            'loan_id' => $loanId,
             'document_type' => $type,
-            'file_path'     => $dir . '/' . $storedName,
-            'file_name'     => $originalName,
-            'mime_type'     => $file->getClientMimeType() ?? mime_content_type($dir . '/' . $storedName),
-            'file_size'     => filesize($dir . '/' . $storedName),
-            'uploaded_by'   => $userId,
-            'created_at'    => now(),
+            'file_path' => $dir.'/'.$storedName,
+            'file_name' => $originalName,
+            'mime_type' => $file->getClientMimeType() ?? mime_content_type($dir.'/'.$storedName),
+            'file_size' => filesize($dir.'/'.$storedName),
+            'uploaded_by' => $userId,
+            'created_at' => now(),
         ]);
     }
 
@@ -578,7 +576,7 @@ class LoanService
             ->leftJoin('user as u', 'sh.changed_by', '=', 'u.id')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('u.id', '=', 'ai.id')
-                     ->where('ai.culture', '=', 'en');
+                    ->where('ai.culture', '=', 'en');
             })
             ->where('sh.loan_id', $loanId)
             ->select('sh.*', 'ai.authorized_form_of_name as changed_by_name')
@@ -595,7 +593,7 @@ class LoanService
         return DB::table('ahg_loan_condition_report as cr')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('cr.examiner_id', '=', 'ai.id')
-                     ->where('ai.culture', '=', 'en');
+                    ->where('ai.culture', '=', 'en');
             })
             ->where('cr.loan_id', $loanId)
             ->select('cr.*', 'ai.authorized_form_of_name as examiner_display_name')
@@ -613,7 +611,7 @@ class LoanService
             ->leftJoin('user as u', 'ex.approved_by', '=', 'u.id')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('u.id', '=', 'ai.id')
-                     ->where('ai.culture', '=', 'en');
+                    ->where('ai.culture', '=', 'en');
             })
             ->where('ex.loan_id', $loanId)
             ->select('ex.*', 'ai.authorized_form_of_name as approved_by_name')
@@ -675,16 +673,16 @@ class LoanService
      */
     public function searchObjects(string $query, int $limit = 20): array
     {
-        $search = '%' . $query . '%';
+        $search = '%'.$query.'%';
 
         return DB::table('information_object as io')
             ->join('information_object_i18n as ioi', function ($join) {
                 $join->on('io.id', '=', 'ioi.id')
-                     ->where('ioi.culture', '=', 'en');
+                    ->where('ioi.culture', '=', 'en');
             })
             ->where(function ($q) use ($search) {
                 $q->where('ioi.title', 'LIKE', $search)
-                  ->orWhere('io.identifier', 'LIKE', $search);
+                    ->orWhere('io.identifier', 'LIKE', $search);
             })
             ->select('io.id', 'ioi.title', 'io.identifier')
             ->orderBy('ioi.title')

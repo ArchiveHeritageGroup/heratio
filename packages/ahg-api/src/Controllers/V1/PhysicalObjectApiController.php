@@ -68,7 +68,7 @@ class PhysicalObjectApiController extends Controller
             ->select('po.*', 'po_i18n.*', 'type_term.name as type_name', 'slug.slug', 'object.created_at', 'object.updated_at')
             ->first();
 
-        if (!$po) {
+        if (! $po) {
             return response()->json(['error' => 'Not found'], 404);
         }
 

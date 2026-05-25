@@ -2,9 +2,9 @@
 
 namespace AhgIntegrity\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Carbon\Carbon;
 
 class VitalRecordService
 {
@@ -35,6 +35,7 @@ class VitalRecordService
                         'next_review_date' => $nextReview,
                         'updated_at' => $now,
                     ]);
+
                 return (int) $existing->id;
             }
         }
@@ -56,7 +57,7 @@ class VitalRecordService
      */
     public function unflagVital(int $ioId, int $userId): bool
     {
-        if (!Schema::hasTable('vital_record')) {
+        if (! Schema::hasTable('vital_record')) {
             return false;
         }
 
@@ -76,7 +77,7 @@ class VitalRecordService
      */
     public function isVital(int $ioId): bool
     {
-        if (!Schema::hasTable('vital_record')) {
+        if (! Schema::hasTable('vital_record')) {
             return false;
         }
 
@@ -91,7 +92,7 @@ class VitalRecordService
      */
     public function getVitalRecords(?int $repositoryId, int $page = 1, int $perPage = 25): array
     {
-        if (!Schema::hasTable('vital_record')) {
+        if (! Schema::hasTable('vital_record')) {
             return ['data' => [], 'total' => 0, 'page' => $page, 'per_page' => $perPage];
         }
 
@@ -112,10 +113,10 @@ class VitalRecordService
         $total = $query->count();
 
         $data = $query->select([
-                'vr.*',
-                'io_i18n.title as io_title',
-                'io.repository_id',
-            ])
+            'vr.*',
+            'io_i18n.title as io_title',
+            'io.repository_id',
+        ])
             ->orderBy('vr.next_review_date', 'asc')
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
@@ -135,7 +136,7 @@ class VitalRecordService
      */
     public function getOverdueReviews(): array
     {
-        if (!Schema::hasTable('vital_record')) {
+        if (! Schema::hasTable('vital_record')) {
             return [];
         }
 
@@ -162,12 +163,12 @@ class VitalRecordService
      */
     public function reviewVitalRecord(int $vitalRecordId, int $userId): bool
     {
-        if (!Schema::hasTable('vital_record')) {
+        if (! Schema::hasTable('vital_record')) {
             return false;
         }
 
         $record = DB::table('vital_record')->where('id', $vitalRecordId)->first();
-        if (!$record || !$record->is_active) {
+        if (! $record || ! $record->is_active) {
             return false;
         }
 

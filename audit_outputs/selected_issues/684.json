@@ -1,0 +1,1 @@
+{"body":"## Audit findings for ahg-translation\n\n- Translation quality issues\n- Language detection problems\n- Missing locale files\n\n### Recommendations\n\n1. Improve quality control\n2. Fix detection\n3. Add locales","createdAt":"2026-05-24T06:24:40Z","labels":[],"number":684,"title":"Audit: ahg-translation"}

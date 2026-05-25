@@ -45,9 +45,7 @@ use AhgRic\Services\SparqlQueryService;
 
 class FusekiAgentAdapter implements CandidateAdapterInterface
 {
-    public function __construct(private SparqlQueryService $sparql)
-    {
-    }
+    public function __construct(private SparqlQueryService $sparql) {}
 
     public function supports(string $entityType): bool
     {
@@ -56,7 +54,7 @@ class FusekiAgentAdapter implements CandidateAdapterInterface
 
     public function search(string $query, string $entityType, int $limit): array
     {
-        if (!$this->supports($entityType)) {
+        if (! $this->supports($entityType)) {
             return [];
         }
 
@@ -73,7 +71,7 @@ class FusekiAgentAdapter implements CandidateAdapterInterface
 
             // SparqlQueryService normalises to ['bindings' => [...], 'head' => [...]].
             $bindings = $result['bindings'] ?? ($result['results']['bindings'] ?? []);
-            if (!is_array($bindings) || $bindings === []) {
+            if (! is_array($bindings) || $bindings === []) {
                 return [];
             }
 
@@ -82,10 +80,10 @@ class FusekiAgentAdapter implements CandidateAdapterInterface
             foreach ($bindings as $row) {
                 $uri = $row['s']['value'] ?? null;
                 $name = $row['name']['value'] ?? null;
-                if (!is_string($uri) || $uri === '') {
+                if (! is_string($uri) || $uri === '') {
                     continue;
                 }
-                if (!is_string($name)) {
+                if (! is_string($name)) {
                     continue;
                 }
                 $name = trim($name);

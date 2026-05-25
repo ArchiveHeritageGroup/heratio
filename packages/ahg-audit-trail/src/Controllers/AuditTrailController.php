@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgAuditTrail\Controllers;
 
 use AhgCore\Services\SettingHelper;
@@ -75,46 +73,46 @@ class AuditTrailController extends Controller
             if ($userFilter) {
                 $query->where(function ($q) use ($userFilter) {
                     $q->where('username', 'like', "%{$userFilter}%")
-                      ->orWhere('user_email', 'like', "%{$userFilter}%");
+                        ->orWhere('user_email', 'like', "%{$userFilter}%");
                 });
             }
             if ($fromFilter) {
-                $query->where('created_at', '>=', $fromFilter . ' 00:00:00');
+                $query->where('created_at', '>=', $fromFilter.' 00:00:00');
             }
             if ($toFilter) {
-                $query->where('created_at', '<=', $toFilter . ' 23:59:59');
+                $query->where('created_at', '<=', $toFilter.' 23:59:59');
             }
 
             $total = $query->count();
 
             $entries = $query->select([
-                    'id',
-                    'uuid',
-                    'user_id',
-                    'username',
-                    'user_email',
-                    'ip_address',
-                    'user_agent',
-                    'session_id',
-                    'action',
-                    'entity_type',
-                    'entity_id',
-                    'entity_slug',
-                    'entity_title',
-                    'module',
-                    'action_name',
-                    'request_method',
-                    'request_uri',
-                    'old_values',
-                    'new_values',
-                    'changed_fields',
-                    'metadata',
-                    'security_classification',
-                    'status',
-                    'error_message',
-                    'created_at',
-                    'culture_id',
-                ])
+                'id',
+                'uuid',
+                'user_id',
+                'username',
+                'user_email',
+                'ip_address',
+                'user_agent',
+                'session_id',
+                'action',
+                'entity_type',
+                'entity_id',
+                'entity_slug',
+                'entity_title',
+                'module',
+                'action_name',
+                'request_method',
+                'request_uri',
+                'old_values',
+                'new_values',
+                'changed_fields',
+                'metadata',
+                'security_classification',
+                'status',
+                'error_message',
+                'created_at',
+                'culture_id',
+            ])
                 ->orderBy('created_at', 'desc')
                 ->offset(($page - 1) * $limit)
                 ->limit($limit)
@@ -152,32 +150,32 @@ class AuditTrailController extends Controller
                 $query->where('username', 'like', "%{$userFilter}%");
             }
             if ($fromFilter) {
-                $query->where('created_at', '>=', $fromFilter . ' 00:00:00');
+                $query->where('created_at', '>=', $fromFilter.' 00:00:00');
             }
             if ($toFilter) {
-                $query->where('created_at', '<=', $toFilter . ' 23:59:59');
+                $query->where('created_at', '<=', $toFilter.' 23:59:59');
             }
 
             $total = $query->count();
 
             $entries = $query->select([
-                    'id',
-                    'table_name',
-                    'record_id',
-                    'action',
-                    'field_name',
-                    'old_value',
-                    'new_value',
-                    'old_record',
-                    'new_record',
-                    'user_id',
-                    'username',
-                    'ip_address',
-                    'user_agent',
-                    'module',
-                    'action_description',
-                    'created_at',
-                ])
+                'id',
+                'table_name',
+                'record_id',
+                'action',
+                'field_name',
+                'old_value',
+                'new_value',
+                'old_record',
+                'new_record',
+                'user_id',
+                'username',
+                'ip_address',
+                'user_agent',
+                'module',
+                'action_description',
+                'created_at',
+            ])
                 ->orderBy('created_at', 'desc')
                 ->offset(($page - 1) * $limit)
                 ->limit($limit)
@@ -337,7 +335,7 @@ class AuditTrailController extends Controller
                 ->first();
         }
 
-        if (!$entry) {
+        if (! $entry) {
             abort(404);
         }
 
@@ -354,7 +352,7 @@ class AuditTrailController extends Controller
     {
         $table = $this->resolveTable();
         $days = (int) $request->get('days', 30);
-        if (!in_array($days, [7, 30, 90])) {
+        if (! in_array($days, [7, 30, 90])) {
             $days = 30;
         }
         $fromDate = Carbon::now()->subDays($days)->startOfDay();
@@ -389,7 +387,7 @@ class AuditTrailController extends Controller
         if (Schema::hasColumn($table, 'status')) {
             $failedQuery->where(function ($q) {
                 $q->where('status', 'error')
-                  ->orWhere('action', 'failed');
+                    ->orWhere('action', 'failed');
             });
         } else {
             $failedQuery->where('action', 'failed');
@@ -483,13 +481,15 @@ class AuditTrailController extends Controller
     public function authentication(Request $request)
     {
         $recentLogins = DB::table('audit_log')->where('action', 'login')->orderByDesc('created_at')->limit(50)->get();
-        $suspiciousActivity = DB::table('audit_log')->whereIn('action', ['failed_login','locked'])->orderByDesc('created_at')->limit(50)->get();
+        $suspiciousActivity = DB::table('audit_log')->whereIn('action', ['failed_login', 'locked'])->orderByDesc('created_at')->limit(50)->get();
+
         return view('ahg-audit-trail::authentication', compact('recentLogins', 'suspiciousActivity'));
     }
 
     public function entityHistory(int $id)
     {
         $rows = DB::table('audit_log')->where('entity_id', $id)->orderByDesc('created_at')->get();
+
         return view('ahg-audit-trail::entity-history', ['rows' => $rows]);
     }
 
@@ -509,7 +509,7 @@ class AuditTrailController extends Controller
         $table = $this->resolveTable();
 
         $format = strtolower((string) $request->get('format', 'csv'));
-        if (!in_array($format, ['csv', 'json'], true)) {
+        if (! in_array($format, ['csv', 'json'], true)) {
             $format = 'csv';
         }
 
@@ -540,7 +540,7 @@ class AuditTrailController extends Controller
         // PSIS export caps at 10,000 rows per getFiltered() call.
         $logs = $query->limit(10000)->get();
 
-        $filename = 'audit_log_export_' . date('Y-m-d_His');
+        $filename = 'audit_log_export_'.date('Y-m-d_His');
 
         if ($format === 'json') {
             $payload = $logs->map(fn ($row) => (array) $row)->toArray();
@@ -558,7 +558,7 @@ class AuditTrailController extends Controller
             'action', 'entity_type', 'entity_id', 'entity_slug', 'entity_title', 'status',
         ];
 
-        $csv = implode(',', $columns) . "\n";
+        $csv = implode(',', $columns)."\n";
         foreach ($logs as $log) {
             $log = (array) $log;
             // Map legacy audit_log column names onto PSIS schema.
@@ -573,19 +573,19 @@ class AuditTrailController extends Controller
 
             $row = [
                 (string) ($log['id'] ?? ''),
-                '"' . ($log['uuid'] ?? '') . '"',
-                '"' . ($log['created_at'] ?? '') . '"',
+                '"'.($log['uuid'] ?? '').'"',
+                '"'.($log['created_at'] ?? '').'"',
                 (string) ($log['user_id'] ?? ''),
-                '"' . addslashes((string) ($log['username'] ?? '')) . '"',
-                '"' . ($log['ip_address'] ?? '') . '"',
-                '"' . ($log['action'] ?? '') . '"',
-                '"' . ($log['entity_type'] ?? '') . '"',
+                '"'.addslashes((string) ($log['username'] ?? '')).'"',
+                '"'.($log['ip_address'] ?? '').'"',
+                '"'.($log['action'] ?? '').'"',
+                '"'.($log['entity_type'] ?? '').'"',
                 (string) ($log['entity_id'] ?? ''),
-                '"' . addslashes((string) ($log['entity_slug'] ?? '')) . '"',
-                '"' . addslashes((string) ($log['entity_title'] ?? '')) . '"',
-                '"' . ($log['status'] ?? '') . '"',
+                '"'.addslashes((string) ($log['entity_slug'] ?? '')).'"',
+                '"'.addslashes((string) ($log['entity_title'] ?? '')).'"',
+                '"'.($log['status'] ?? '').'"',
             ];
-            $csv .= implode(',', $row) . "\n";
+            $csv .= implode(',', $row)."\n";
         }
 
         return response($csv, 200, [
@@ -594,9 +594,15 @@ class AuditTrailController extends Controller
         ]);
     }
 
-    public function securityAccess(Request $request) { return view('ahg-audit-trail::security-access', ['rows' => collect()]); }
+    public function securityAccess(Request $request)
+    {
+        return view('ahg-audit-trail::security-access', ['rows' => collect()]);
+    }
 
-    public function userActivity(Request $request) { return view('ahg-audit-trail::user-activity', ['rows' => collect()]); }
+    public function userActivity(Request $request)
+    {
+        return view('ahg-audit-trail::user-activity', ['rows' => collect()]);
+    }
 
     /**
      * Compare old/new data for a specific audit entry.
@@ -615,7 +621,7 @@ class AuditTrailController extends Controller
                 ->first();
         }
 
-        if (!$entry) {
+        if (! $entry) {
             abort(404);
         }
 
@@ -683,11 +689,12 @@ class AuditTrailController extends Controller
             $output = trim(\Illuminate\Support\Facades\Artisan::output());
             $rows = (int) (DB::table('ahg_settings')->where('setting_key', 'audit_last_pruned_rows')->value('setting_value') ?: 0);
             $when = (string) DB::table('ahg_settings')->where('setting_key', 'audit_last_pruned_at')->value('setting_value');
+
             return redirect()->route('settings.ahg.compliance')
                 ->with('success', "Audit prune complete: {$rows} row(s) removed (last run {$when}).");
         } catch (\Throwable $e) {
             return redirect()->route('settings.ahg.compliance')
-                ->with('error', 'Audit prune failed: ' . $e->getMessage());
+                ->with('error', 'Audit prune failed: '.$e->getMessage());
         }
     }
 }

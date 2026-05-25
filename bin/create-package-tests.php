@@ -3,11 +3,11 @@
 
 /**
  * Package Test Template Generator
- * 
+ *
  * Usage: php bin/create-package-tests.php {package-name}
- * 
+ *
  * Creates the standard test directory structure for a new package.
- * 
+ *
  * Required structure:
  *   packages/{name}/tests/
  *   packages/{name}/tests/TestCase.php
@@ -16,10 +16,9 @@
  *   packages/{name}/tests/Feature/
  *   packages/{name}/tests/Feature/Integration/
  */
-
 $packageName = $argv[1] ?? null;
 
-if (!$packageName) {
+if (! $packageName) {
     echo "Error: Package name required\n";
     echo "Usage: php bin/create-package-tests.php {package-name}\n";
     exit(1);
@@ -28,19 +27,19 @@ if (!$packageName) {
 // Convert kebab-case to PascalCase for class names
 $pascalCase = str_replace('-', '', ucwords($packageName, '-'));
 
-$testsDir = __DIR__ . '/../packages/' . $packageName . '/tests';
+$testsDir = __DIR__.'/../packages/'.$packageName.'/tests';
 
 // Create directories
 $directories = [
     $testsDir,
-    $testsDir . '/Unit',
-    $testsDir . '/Unit/Services',
-    $testsDir . '/Feature',
-    $testsDir . '/Feature/Integration',
+    $testsDir.'/Unit',
+    $testsDir.'/Unit/Services',
+    $testsDir.'/Feature',
+    $testsDir.'/Feature/Integration',
 ];
 
 foreach ($directories as $dir) {
-    if (!is_dir($dir)) {
+    if (! is_dir($dir)) {
         mkdir($dir, 0755, true);
         echo "Created: $dir\n";
     }
@@ -63,7 +62,7 @@ class TestCase extends PackageTestCase
 }
 PHP;
 
-file_put_contents($testsDir . '/TestCase.php', $testCaseContent);
+file_put_contents($testsDir.'/TestCase.php', $testCaseContent);
 echo "Created: {$testsDir}/TestCase.php\n";
 
 // Create bootstrap.php
@@ -97,7 +96,7 @@ if (!class_exists(\$providerClass)) {
 }
 PHP;
 
-file_put_contents($testsDir . '/bootstrap.php', $bootstrapContent);
+file_put_contents($testsDir.'/bootstrap.php', $bootstrapContent);
 echo "Created: {$testsDir}/bootstrap.php\n";
 
 // Create BootstrapTest.php
@@ -146,7 +145,7 @@ class BootstrapTest extends TestCase
 }
 PHP;
 
-file_put_contents($testsDir . '/Feature/Integration/BootstrapTest.php', $bootstrapTestContent);
+file_put_contents($testsDir.'/Feature/Integration/BootstrapTest.php', $bootstrapTestContent);
 echo "Created: {$testsDir}/Feature/Integration/BootstrapTest.php\n";
 
 // Create SampleServiceTest.php
@@ -191,7 +190,7 @@ class SampleServiceTest extends TestCase
 }
 PHP;
 
-file_put_contents($testsDir . '/Unit/Services/SampleServiceTest.php', $serviceTestContent);
+file_put_contents($testsDir.'/Unit/Services/SampleServiceTest.php', $serviceTestContent);
 echo "Created: {$testsDir}/Unit/Services/SampleServiceTest.php\n";
 
 echo "\n";

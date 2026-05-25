@@ -40,7 +40,7 @@ class QueueCleanupCommand extends Command
             return self::SUCCESS;
         }
 
-        if (! $this->confirm("Remove " . count($jobIds) . " completed/failed job(s)?")) {
+        if (! $this->confirm('Remove '.count($jobIds).' completed/failed job(s)?')) {
             return self::SUCCESS;
         }
 

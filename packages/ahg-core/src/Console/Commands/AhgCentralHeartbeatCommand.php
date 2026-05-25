@@ -38,24 +38,28 @@ use Illuminate\Console\Command;
 class AhgCentralHeartbeatCommand extends Command
 {
     protected $signature = 'ahg:central-heartbeat';
+
     protected $description = 'Send a daily heartbeat to the configured AHG Central endpoint.';
 
     public function handle(): int
     {
         $svc = app(AhgCentralService::class);
-        if (!$svc->isEnabled()) {
+        if (! $svc->isEnabled()) {
             $this->line('[ahg-central-heartbeat] disabled - skipping.');
+
             return self::SUCCESS;
         }
 
         $result = $svc->heartbeat();
         if ($result['ok']) {
-            $this->info('[ahg-central-heartbeat] OK (HTTP ' . $result['http'] . ')');
+            $this->info('[ahg-central-heartbeat] OK (HTTP '.$result['http'].')');
+
             return self::SUCCESS;
         }
 
-        $msg = $result['error'] ?? ('HTTP ' . $result['http']);
-        $this->warn('[ahg-central-heartbeat] non-2xx: ' . $msg);
+        $msg = $result['error'] ?? ('HTTP '.$result['http']);
+        $this->warn('[ahg-central-heartbeat] non-2xx: '.$msg);
+
         // Heartbeat failures are non-fatal - the schedule keeps trying.
         return self::SUCCESS;
     }

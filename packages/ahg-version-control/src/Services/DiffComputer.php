@@ -21,30 +21,30 @@ class DiffComputer
     private const BASE_NOISE_FIELDS = ['lft', 'rgt', 'oai_local_identifier'];
 
     /**
-     * @param array<string,mixed> $old
-     * @param array<string,mixed> $new
+     * @param  array<string,mixed>  $old
+     * @param  array<string,mixed>  $new
      * @return array<string,mixed>
      */
     public function diff(array $old, array $new): array
     {
         return [
-            'scalar_changes'           => $this->diffBase($old['base'] ?? [], $new['base'] ?? []),
-            'i18n_changes'             => $this->diffI18n($old['i18n'] ?? [], $new['i18n'] ?? []),
-            'access_points_added'      => $this->setDiff($old['access_points'] ?? [], $new['access_points'] ?? [], 'add'),
-            'access_points_removed'    => $this->setDiff($old['access_points'] ?? [], $new['access_points'] ?? [], 'remove'),
-            'events_added'             => $this->setDiff($old['events'] ?? [], $new['events'] ?? [], 'add'),
-            'events_removed'           => $this->setDiff($old['events'] ?? [], $new['events'] ?? [], 'remove'),
-            'relations_added'          => $this->setDiff($old['relations'] ?? [], $new['relations'] ?? [], 'add'),
-            'relations_removed'        => $this->setDiff($old['relations'] ?? [], $new['relations'] ?? [], 'remove'),
-            'physical_objects_added'   => $this->setDiff($old['physical_objects'] ?? [], $new['physical_objects'] ?? [], 'add'),
+            'scalar_changes' => $this->diffBase($old['base'] ?? [], $new['base'] ?? []),
+            'i18n_changes' => $this->diffI18n($old['i18n'] ?? [], $new['i18n'] ?? []),
+            'access_points_added' => $this->setDiff($old['access_points'] ?? [], $new['access_points'] ?? [], 'add'),
+            'access_points_removed' => $this->setDiff($old['access_points'] ?? [], $new['access_points'] ?? [], 'remove'),
+            'events_added' => $this->setDiff($old['events'] ?? [], $new['events'] ?? [], 'add'),
+            'events_removed' => $this->setDiff($old['events'] ?? [], $new['events'] ?? [], 'remove'),
+            'relations_added' => $this->setDiff($old['relations'] ?? [], $new['relations'] ?? [], 'add'),
+            'relations_removed' => $this->setDiff($old['relations'] ?? [], $new['relations'] ?? [], 'remove'),
+            'physical_objects_added' => $this->setDiff($old['physical_objects'] ?? [], $new['physical_objects'] ?? [], 'add'),
             'physical_objects_removed' => $this->setDiff($old['physical_objects'] ?? [], $new['physical_objects'] ?? [], 'remove'),
-            'custom_fields_changes'    => $this->diffCustomFields($old['custom_fields'] ?? [], $new['custom_fields'] ?? []),
+            'custom_fields_changes' => $this->diffCustomFields($old['custom_fields'] ?? [], $new['custom_fields'] ?? []),
         ];
     }
 
     /**
-     * @param array<string,mixed> $old
-     * @param array<string,mixed> $new
+     * @param  array<string,mixed>  $old
+     * @param  array<string,mixed>  $new
      * @return array<int,array<string,mixed>>
      */
     private function diffBase(array $old, array $new): array
@@ -65,12 +65,13 @@ class DiffComputer
             $row = $this->maybeAttachLongTextDiff($row);
             $out[] = $row;
         }
+
         return $out;
     }
 
     /**
-     * @param array<int,array<string,mixed>> $old
-     * @param array<int,array<string,mixed>> $new
+     * @param  array<int,array<string,mixed>>  $old
+     * @param  array<int,array<string,mixed>>  $new
      * @return array<int,array<string,mixed>>
      */
     private function diffI18n(array $old, array $new): array
@@ -94,6 +95,7 @@ class DiffComputer
                         'culture' => $culture, 'field' => $field, 'old' => null, 'new' => $val, 'change_kind' => 'culture_added',
                     ]);
                 }
+
                 continue;
             }
             if ($oldRow !== null && $newRow === null) {
@@ -105,6 +107,7 @@ class DiffComputer
                         'culture' => $culture, 'field' => $field, 'old' => $val, 'new' => null, 'change_kind' => 'culture_removed',
                     ]);
                 }
+
                 continue;
             }
             $fields = array_unique(array_merge(array_keys($oldRow ?? []), array_keys($newRow ?? [])));
@@ -123,13 +126,14 @@ class DiffComputer
                 ]);
             }
         }
+
         return $out;
     }
 
     /**
-     * @param array<int,array<string,mixed>> $old
-     * @param array<int,array<string,mixed>> $new
-     * @param 'add'|'remove' $direction
+     * @param  array<int,array<string,mixed>>  $old
+     * @param  array<int,array<string,mixed>>  $new
+     * @param  'add'|'remove'  $direction
      * @return array<int,array<string,mixed>>
      */
     private function setDiff(array $old, array $new, string $direction): array
@@ -144,21 +148,22 @@ class DiffComputer
         }
         if ($direction === 'add') {
             $diffKeys = array_diff(array_keys($newMap), array_keys($oldMap));
+
             return array_values(array_map(fn ($k) => $newMap[$k], $diffKeys));
         }
         $diffKeys = array_diff(array_keys($oldMap), array_keys($newMap));
+
         return array_values(array_map(fn ($k) => $oldMap[$k], $diffKeys));
     }
 
     /**
-     * @param array<int,array<string,mixed>> $old
-     * @param array<int,array<string,mixed>> $new
+     * @param  array<int,array<string,mixed>>  $old
+     * @param  array<int,array<string,mixed>>  $new
      * @return array<int,array<string,mixed>>
      */
     private function diffCustomFields(array $old, array $new): array
     {
-        $key = fn (array $r): string =>
-            ($r['field_definition_id'] ?? '') . ':' . ($r['sequence'] ?? '');
+        $key = fn (array $r): string => ($r['field_definition_id'] ?? '').':'.($r['sequence'] ?? '');
         $oldMap = [];
         foreach ($old as $r) {
             $oldMap[$key((array) $r)] = (array) $r;
@@ -178,16 +183,17 @@ class DiffComputer
             }
             $out[] = [
                 'field_definition_id' => $o['field_definition_id'] ?? ($n['field_definition_id'] ?? null),
-                'sequence'            => $o['sequence'] ?? ($n['sequence'] ?? null),
+                'sequence' => $o['sequence'] ?? ($n['sequence'] ?? null),
                 'old' => $o,
                 'new' => $n,
             ];
         }
+
         return $out;
     }
 
     /**
-     * @param array<string,mixed> $row
+     * @param  array<string,mixed>  $row
      * @return array<string,mixed>
      */
     private function maybeAttachLongTextDiff(array $row): array
@@ -198,6 +204,7 @@ class DiffComputer
             return $row;
         }
         $row['long_text_diff'] = $this->inlineWordDiff($old, $new);
+
         return $row;
     }
 
@@ -209,8 +216,8 @@ class DiffComputer
         $m = count($b);
 
         if ($n * $m > 1_000_000) {
-            return '<del>' . htmlspecialchars($old, ENT_QUOTES | ENT_HTML5, 'UTF-8') . '</del>'
-                . '<ins>' . htmlspecialchars($new, ENT_QUOTES | ENT_HTML5, 'UTF-8') . '</ins>';
+            return '<del>'.htmlspecialchars($old, ENT_QUOTES | ENT_HTML5, 'UTF-8').'</del>'
+                .'<ins>'.htmlspecialchars($new, ENT_QUOTES | ENT_HTML5, 'UTF-8').'</ins>';
         }
 
         $lcs = array_fill(0, $n + 1, array_fill(0, $m + 1, 0));
@@ -223,11 +230,13 @@ class DiffComputer
         }
 
         $ops = [];
-        $i = $n; $j = $m;
+        $i = $n;
+        $j = $m;
         while ($i > 0 && $j > 0) {
             if ($a[$i - 1] === $b[$j - 1]) {
                 array_unshift($ops, ['eq', $a[$i - 1]]);
-                $i--; $j--;
+                $i--;
+                $j--;
             } elseif ($lcs[$i - 1][$j] >= $lcs[$i][$j - 1]) {
                 array_unshift($ops, ['del', $a[$i - 1]]);
                 $i--;
@@ -252,6 +261,7 @@ class DiffComputer
             if ($kind === null || $buf === '') {
                 $buf = '';
                 $kind = null;
+
                 return;
             }
             $esc = htmlspecialchars($buf, ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -267,6 +277,7 @@ class DiffComputer
             $buf .= $token;
         }
         $flush();
+
         return $out;
     }
 
@@ -279,11 +290,12 @@ class DiffComputer
             return [];
         }
         preg_match_all('/(\s+|[^\s]+)/u', $text, $matches);
+
         return $matches[0] ?? [];
     }
 
     /**
-     * @param array<int,array<string,mixed>> $rows
+     * @param  array<int,array<string,mixed>>  $rows
      * @return array<string,array<string,mixed>>
      */
     private function indexByCulture(array $rows): array
@@ -295,6 +307,7 @@ class DiffComputer
                 $out[$culture] = (array) $row;
             }
         }
+
         return $out;
     }
 
@@ -302,16 +315,18 @@ class DiffComputer
     {
         if (is_array($value)) {
             if (array_is_list($value)) {
-                return '[' . implode(',', array_map(fn ($v) => $this->canonicalJson($v), $value)) . ']';
+                return '['.implode(',', array_map(fn ($v) => $this->canonicalJson($v), $value)).']';
             }
             ksort($value);
             $parts = [];
             foreach ($value as $k => $v) {
                 $parts[] = json_encode((string) $k, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-                    . ':' . $this->canonicalJson($v);
+                    .':'.$this->canonicalJson($v);
             }
-            return '{' . implode(',', $parts) . '}';
+
+            return '{'.implode(',', $parts).'}';
         }
+
         return json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 }

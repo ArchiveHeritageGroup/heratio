@@ -1,16 +1,16 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * Phase 3: Field-by-field parity check for edit/create forms.
  * Compares name= attributes between AtoM templates and Heratio blades.
  */
-
 $heratioBase = '/usr/share/nginx/heratio/packages';
 $atomBase = '/usr/share/nginx/archive';
 
 // Include the mapping without executing the full audit
 // We extract findAtomEquivalent by loading just that function
-eval('namespace ParityCheck; ' . preg_replace(
+eval('namespace ParityCheck; '.preg_replace(
     ['/^<\?php/', '/echo\s/', '/\$allResults/', '/\$totals/'],
     ['', '//echo ', '//$allResults', '//$totals'],
     ''
@@ -133,41 +133,55 @@ $mapping = [
     ],
 ];
 
-function findAtom(string $pkg, string $viewBase): array {
+function findAtom(string $pkg, string $viewBase): array
+{
     global $atomBase, $mapping;
-    if (!isset($mapping[$pkg])) return [];
+    if (! isset($mapping[$pkg])) {
+        return [];
+    }
 
     $viewMap = [
         'edit' => ['editSuccess', 'updateSuccess'],
         'create' => ['createSuccess', 'addSuccess', 'newSuccess', 'editSuccess'],
     ];
-    $candidates = $viewMap[$viewBase] ?? [$viewBase . 'Success'];
+    $candidates = $viewMap[$viewBase] ?? [$viewBase.'Success'];
 
     $found = [];
     foreach ($mapping[$pkg] as $dir) {
         $fullDir = "$atomBase/$dir";
-        if (!is_dir($fullDir)) continue;
+        if (! is_dir($fullDir)) {
+            continue;
+        }
         foreach ($candidates as $c) {
             $f = "$fullDir/$c.php";
-            if (file_exists($f)) $found[] = $f;
+            if (file_exists($f)) {
+                $found[] = $f;
+            }
         }
     }
+
     return $found;
 }
 
-function extractFields(string $content): array {
+function extractFields(string $content): array
+{
     $fields = [];
     if (preg_match_all('/\bname\s*=\s*["\']([^"\']+)["\']/i', $content, $m)) {
         foreach ($m[1] as $name) {
             $name = preg_replace('/\w+\[\d+\]\[(\w+)\]/', '$1', $name);
             $name = preg_replace('/\w+\[(\w+)\]/', '$1', $name);
-            if (in_array($name, ['_token','_method','sf_method','next','csrf_token','MAX_FILE_SIZE','topLod','sort'])) continue;
+            if (in_array($name, ['_token', '_method', 'sf_method', 'next', 'csrf_token', 'MAX_FILE_SIZE', 'topLod', 'sort'])) {
+                continue;
+            }
             $fields[] = $name;
         }
     }
     if (preg_match_all('/render_field\(\$form->(\w+)/', $content, $m)) {
-        foreach ($m[1] as $f) $fields[] = $f;
+        foreach ($m[1] as $f) {
+            $fields[] = $f;
+        }
     }
+
     return array_values(array_unique($fields));
 }
 
@@ -181,23 +195,33 @@ $totalMissing = 0;
 foreach ($packages as $pkgPath) {
     $pkg = basename($pkgPath);
     $viewDir = "$pkgPath/resources/views";
-    if (!is_dir($viewDir)) continue;
+    if (! is_dir($viewDir)) {
+        continue;
+    }
 
     $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($viewDir, RecursiveDirectoryIterator::SKIP_DOTS));
     foreach ($it as $f) {
-        if (!preg_match('/\.blade\.php$/', $f->getFilename())) continue;
-        $viewName = str_replace([$viewDir . '/', '.blade.php'], '', $f->getPathname());
+        if (! preg_match('/\.blade\.php$/', $f->getFilename())) {
+            continue;
+        }
+        $viewName = str_replace([$viewDir.'/', '.blade.php'], '', $f->getPathname());
         $viewBase = basename($viewName);
-        if (!in_array($viewBase, ['edit', 'create'])) continue;
+        if (! in_array($viewBase, ['edit', 'create'])) {
+            continue;
+        }
 
         $hContent = file_get_contents($f->getPathname());
         $hFields = extractFields($hContent);
 
         $atomFiles = findAtom($pkg, $viewBase);
-        if (empty($atomFiles)) continue; // skip unmapped
+        if (empty($atomFiles)) {
+            continue;
+        } // skip unmapped
 
         $aContent = '';
-        foreach ($atomFiles as $af) $aContent .= file_get_contents($af) . "\n";
+        foreach ($atomFiles as $af) {
+            $aContent .= file_get_contents($af)."\n";
+        }
         $aFields = extractFields($aContent);
 
         $missing = array_values(array_diff($aFields, $hFields));
@@ -210,29 +234,29 @@ foreach ($packages as $pkgPath) {
             'a' => count($aFields),
             'missing' => $missing,
             'extra' => $extra,
-            'atom' => array_map(fn($f) => str_replace($atomBase.'/', '', $f), $atomFiles),
+            'atom' => array_map(fn ($f) => str_replace($atomBase.'/', '', $f), $atomFiles),
         ];
         $totalMissing += count($missing);
     }
 }
 
 echo "# FIELD PARITY: Edit/Create Forms (AtoM vs Heratio)\n";
-echo "# Generated: " . date('Y-m-d H:i:s') . "\n";
-echo "# Forms compared: " . count($results) . "\n";
+echo '# Generated: '.date('Y-m-d H:i:s')."\n";
+echo '# Forms compared: '.count($results)."\n";
 echo "# Total missing fields: $totalMissing\n\n";
 
-echo str_pad('Package', 35) . str_pad('View', 20) . str_pad('H-Fld', 7) . str_pad('A-Fld', 7) . str_pad('Miss', 6) . str_pad('Extra', 6) . "\n";
-echo str_repeat('─', 81) . "\n";
+echo str_pad('Package', 35).str_pad('View', 20).str_pad('H-Fld', 7).str_pad('A-Fld', 7).str_pad('Miss', 6).str_pad('Extra', 6)."\n";
+echo str_repeat('─', 81)."\n";
 
 foreach ($results as $r) {
     $status = count($r['missing']) === 0 ? '✓' : '✗';
-    echo str_pad($r['pkg'], 35) . str_pad($r['view'], 20)
-       . str_pad($r['h'], 7) . str_pad($r['a'], 7)
-       . str_pad(count($r['missing']), 6) . str_pad(count($r['extra']), 6)
-       . " $status\n";
+    echo str_pad($r['pkg'], 35).str_pad($r['view'], 20)
+       .str_pad($r['h'], 7).str_pad($r['a'], 7)
+       .str_pad(count($r['missing']), 6).str_pad(count($r['extra']), 6)
+       ." $status\n";
 
-    if (!empty($r['missing'])) {
-        echo "  MISSING: " . implode(', ', $r['missing']) . "\n";
+    if (! empty($r['missing'])) {
+        echo '  MISSING: '.implode(', ', $r['missing'])."\n";
     }
-    echo "  AtoM: " . implode(', ', $r['atom']) . "\n\n";
+    echo '  AtoM: '.implode(', ', $r['atom'])."\n\n";
 }

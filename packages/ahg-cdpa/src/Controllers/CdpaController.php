@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCdpa\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -44,13 +42,13 @@ class CdpaController extends Controller
     {
         if (Schema::hasTable('cdpa_audit_log')) {
             DB::table('cdpa_audit_log')->insert([
-                'action_type'  => $action,
-                'entity_type'  => $entityType,
-                'entity_id'    => $entityId,
-                'user_id'      => Auth::id(),
-                'details'      => $details ? json_encode($details) : null,
-                'ip_address'   => request()->ip(),
-                'created_at'   => now(),
+                'action_type' => $action,
+                'entity_type' => $entityType,
+                'entity_id' => $entityId,
+                'user_id' => Auth::id(),
+                'details' => $details ? json_encode($details) : null,
+                'ip_address' => request()->ip(),
+                'created_at' => now(),
             ]);
         }
     }
@@ -61,11 +59,12 @@ class CdpaController extends Controller
     protected function nextRef(string $table, string $column, string $prefix): string
     {
         $last = DB::table($table)->max($column);
-        $seq  = 1;
+        $seq = 1;
         if ($last && preg_match('/(\d+)$/', $last, $m)) {
             $seq = (int) $m[1] + 1;
         }
-        return $prefix . str_pad($seq, 6, '0', STR_PAD_LEFT);
+
+        return $prefix.str_pad($seq, 6, '0', STR_PAD_LEFT);
     }
 
     // ─── dashboard ────────────────────────────────────────────────────
@@ -75,15 +74,15 @@ class CdpaController extends Controller
         $stats = [];
 
         if (Schema::hasTable('cdpa_processing_activity')) {
-            $stats['processing_total']  = DB::table('cdpa_processing_activity')->count();
+            $stats['processing_total'] = DB::table('cdpa_processing_activity')->count();
             $stats['processing_active'] = DB::table('cdpa_processing_activity')->where('is_active', 1)->count();
         }
         if (Schema::hasTable('cdpa_consent')) {
-            $stats['consent_total']  = DB::table('cdpa_consent')->count();
+            $stats['consent_total'] = DB::table('cdpa_consent')->count();
             $stats['consent_active'] = DB::table('cdpa_consent')->where('is_active', 1)->whereNull('withdrawal_date')->count();
         }
         if (Schema::hasTable('cdpa_data_subject_request')) {
-            $stats['requests_total']   = DB::table('cdpa_data_subject_request')->count();
+            $stats['requests_total'] = DB::table('cdpa_data_subject_request')->count();
             $stats['requests_pending'] = DB::table('cdpa_data_subject_request')->where('status', 'pending')->count();
             $stats['requests_overdue'] = DB::table('cdpa_data_subject_request')
                 ->where('status', '!=', 'completed')
@@ -92,14 +91,14 @@ class CdpaController extends Controller
         }
         if (Schema::hasTable('cdpa_dpia')) {
             $stats['dpia_total'] = DB::table('cdpa_dpia')->count();
-            $stats['dpia_due']   = DB::table('cdpa_dpia')
+            $stats['dpia_due'] = DB::table('cdpa_dpia')
                 ->where('next_review_date', '<=', now()->addDays(30)->toDateString())
                 ->where('status', '!=', 'completed')
                 ->count();
         }
         if (Schema::hasTable('cdpa_breach')) {
             $stats['breaches_total'] = DB::table('cdpa_breach')->count();
-            $stats['breaches_open']  = DB::table('cdpa_breach')->where('status', '!=', 'closed')->count();
+            $stats['breaches_open'] = DB::table('cdpa_breach')->where('status', '!=', 'closed')->count();
         }
         if (Schema::hasTable('cdpa_dpo')) {
             $stats['dpo_active'] = DB::table('cdpa_dpo')->where('is_active', 1)->count();
@@ -135,7 +134,7 @@ class CdpaController extends Controller
                     ['setting_key' => $key],
                     [
                         'setting_value' => $value,
-                        'updated_at'    => now(),
+                        'updated_at' => now(),
                     ]
                 );
             }
@@ -171,27 +170,27 @@ class CdpaController extends Controller
 
     public function dpoEdit(Request $request)
     {
-        $id  = $request->query('id');
+        $id = $request->query('id');
         $dpo = $id ? DB::table('cdpa_dpo')->where('id', $id)->first() : null;
 
         if ($request->isMethod('post')) {
             $validated = $request->validate([
-                'name'               => 'required|string|max:255',
-                'email'              => 'required|email|max:255',
-                'phone'              => 'nullable|string|max:50',
-                'qualifications'     => 'nullable|string',
-                'hit_cert_number'    => 'nullable|string|max:100',
-                'appointment_date'   => 'required|date',
-                'term_end_date'      => 'nullable|date|after_or_equal:appointment_date',
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'phone' => 'nullable|string|max:50',
+                'qualifications' => 'nullable|string',
+                'hit_cert_number' => 'nullable|string|max:100',
+                'appointment_date' => 'required|date',
+                'term_end_date' => 'nullable|date|after_or_equal:appointment_date',
                 'form_dp2_submitted' => 'nullable|boolean',
-                'form_dp2_date'      => 'nullable|date',
-                'form_dp2_ref'       => 'nullable|string|max:100',
-                'is_active'          => 'nullable|boolean',
+                'form_dp2_date' => 'nullable|date',
+                'form_dp2_ref' => 'nullable|string|max:100',
+                'is_active' => 'nullable|boolean',
             ]);
 
             $validated['form_dp2_submitted'] = $request->has('form_dp2_submitted') ? 1 : 0;
-            $validated['is_active']          = $request->has('is_active') ? 1 : 0;
-            $validated['updated_at']         = now();
+            $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+            $validated['updated_at'] = now();
 
             if ($id) {
                 DB::table('cdpa_dpo')->where('id', $id)->update($validated);
@@ -238,33 +237,33 @@ class CdpaController extends Controller
     {
         if ($request->isMethod('post')) {
             $validated = $request->validate([
-                'name'                   => 'required|string|max:255',
-                'category'               => 'required|string|max:100',
-                'data_types'             => 'required|string',
-                'purpose'                => 'required|string',
-                'legal_basis'            => 'required|string|max:94',
-                'storage_location'       => 'nullable|string|max:37',
-                'international_country'  => 'nullable|string|max:100',
-                'retention_period'       => 'nullable|string|max:100',
-                'safeguards'             => 'nullable|string',
-                'cross_border'           => 'nullable|boolean',
-                'cross_border_safeguards'=> 'nullable|string',
-                'automated_decision'     => 'nullable|boolean',
-                'children_data'          => 'nullable|boolean',
-                'biometric_data'         => 'nullable|boolean',
-                'health_data'            => 'nullable|boolean',
-                'is_active'              => 'nullable|boolean',
+                'name' => 'required|string|max:255',
+                'category' => 'required|string|max:100',
+                'data_types' => 'required|string',
+                'purpose' => 'required|string',
+                'legal_basis' => 'required|string|max:94',
+                'storage_location' => 'nullable|string|max:37',
+                'international_country' => 'nullable|string|max:100',
+                'retention_period' => 'nullable|string|max:100',
+                'safeguards' => 'nullable|string',
+                'cross_border' => 'nullable|boolean',
+                'cross_border_safeguards' => 'nullable|string',
+                'automated_decision' => 'nullable|boolean',
+                'children_data' => 'nullable|boolean',
+                'biometric_data' => 'nullable|boolean',
+                'health_data' => 'nullable|boolean',
+                'is_active' => 'nullable|boolean',
             ]);
 
-            $validated['cross_border']       = $request->has('cross_border') ? 1 : 0;
+            $validated['cross_border'] = $request->has('cross_border') ? 1 : 0;
             $validated['automated_decision'] = $request->has('automated_decision') ? 1 : 0;
-            $validated['children_data']      = $request->has('children_data') ? 1 : 0;
-            $validated['biometric_data']     = $request->has('biometric_data') ? 1 : 0;
-            $validated['health_data']        = $request->has('health_data') ? 1 : 0;
-            $validated['is_active']          = $request->has('is_active') ? 1 : 0;
-            $validated['created_by']         = Auth::id();
-            $validated['created_at']         = now();
-            $validated['updated_at']         = now();
+            $validated['children_data'] = $request->has('children_data') ? 1 : 0;
+            $validated['biometric_data'] = $request->has('biometric_data') ? 1 : 0;
+            $validated['health_data'] = $request->has('health_data') ? 1 : 0;
+            $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+            $validated['created_by'] = Auth::id();
+            $validated['created_at'] = now();
+            $validated['updated_at'] = now();
 
             $newId = DB::table('cdpa_processing_activity')->insertGetId($validated);
             $this->audit('processing_created', 'cdpa_processing_activity', $newId, $validated);
@@ -278,41 +277,41 @@ class CdpaController extends Controller
 
     public function processingEdit(Request $request)
     {
-        $id       = $request->query('id');
+        $id = $request->query('id');
         $activity = $id ? DB::table('cdpa_processing_activity')->where('id', $id)->first() : null;
 
-        if (!$activity) {
+        if (! $activity) {
             return redirect()->route('ahgcdpa.processing')
                 ->with('error', 'Processing activity not found.');
         }
 
         if ($request->isMethod('post')) {
             $validated = $request->validate([
-                'name'                   => 'required|string|max:255',
-                'category'               => 'required|string|max:100',
-                'data_types'             => 'required|string',
-                'purpose'                => 'required|string',
-                'legal_basis'            => 'required|string|max:94',
-                'storage_location'       => 'nullable|string|max:37',
-                'international_country'  => 'nullable|string|max:100',
-                'retention_period'       => 'nullable|string|max:100',
-                'safeguards'             => 'nullable|string',
-                'cross_border'           => 'nullable|boolean',
-                'cross_border_safeguards'=> 'nullable|string',
-                'automated_decision'     => 'nullable|boolean',
-                'children_data'          => 'nullable|boolean',
-                'biometric_data'         => 'nullable|boolean',
-                'health_data'            => 'nullable|boolean',
-                'is_active'              => 'nullable|boolean',
+                'name' => 'required|string|max:255',
+                'category' => 'required|string|max:100',
+                'data_types' => 'required|string',
+                'purpose' => 'required|string',
+                'legal_basis' => 'required|string|max:94',
+                'storage_location' => 'nullable|string|max:37',
+                'international_country' => 'nullable|string|max:100',
+                'retention_period' => 'nullable|string|max:100',
+                'safeguards' => 'nullable|string',
+                'cross_border' => 'nullable|boolean',
+                'cross_border_safeguards' => 'nullable|string',
+                'automated_decision' => 'nullable|boolean',
+                'children_data' => 'nullable|boolean',
+                'biometric_data' => 'nullable|boolean',
+                'health_data' => 'nullable|boolean',
+                'is_active' => 'nullable|boolean',
             ]);
 
-            $validated['cross_border']       = $request->has('cross_border') ? 1 : 0;
+            $validated['cross_border'] = $request->has('cross_border') ? 1 : 0;
             $validated['automated_decision'] = $request->has('automated_decision') ? 1 : 0;
-            $validated['children_data']      = $request->has('children_data') ? 1 : 0;
-            $validated['biometric_data']     = $request->has('biometric_data') ? 1 : 0;
-            $validated['health_data']        = $request->has('health_data') ? 1 : 0;
-            $validated['is_active']          = $request->has('is_active') ? 1 : 0;
-            $validated['updated_at']         = now();
+            $validated['children_data'] = $request->has('children_data') ? 1 : 0;
+            $validated['biometric_data'] = $request->has('biometric_data') ? 1 : 0;
+            $validated['health_data'] = $request->has('health_data') ? 1 : 0;
+            $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+            $validated['updated_at'] = now();
 
             DB::table('cdpa_processing_activity')->where('id', $id)->update($validated);
             $this->audit('processing_updated', 'cdpa_processing_activity', (int) $id, $validated);
@@ -336,11 +335,11 @@ class CdpaController extends Controller
             $query->where('cdpa_consent.is_active', $request->input('is_active'));
         }
         if ($request->filled('search')) {
-            $search = '%' . $request->input('search') . '%';
+            $search = '%'.$request->input('search').'%';
             $query->where(function ($q) use ($search) {
                 $q->where('cdpa_consent.data_subject_name', 'like', $search)
-                  ->orWhere('cdpa_consent.data_subject_email', 'like', $search)
-                  ->orWhere('cdpa_consent.purpose', 'like', $search);
+                    ->orWhere('cdpa_consent.data_subject_email', 'like', $search)
+                    ->orWhere('cdpa_consent.purpose', 'like', $search);
             });
         }
 
@@ -362,11 +361,11 @@ class CdpaController extends Controller
             $query->where('request_type', $request->input('request_type'));
         }
         if ($request->filled('search')) {
-            $search = '%' . $request->input('search') . '%';
+            $search = '%'.$request->input('search').'%';
             $query->where(function ($q) use ($search) {
                 $q->where('data_subject_name', 'like', $search)
-                  ->orWhere('reference_number', 'like', $search)
-                  ->orWhere('data_subject_email', 'like', $search);
+                    ->orWhere('reference_number', 'like', $search)
+                    ->orWhere('data_subject_email', 'like', $search);
             });
         }
 
@@ -391,28 +390,28 @@ class CdpaController extends Controller
     {
         if ($request->isMethod('post')) {
             $validated = $request->validate([
-                'request_type'           => 'required|string|max:69',
-                'data_subject_name'      => 'required|string|max:255',
-                'data_subject_email'     => 'nullable|email|max:255',
-                'data_subject_phone'     => 'nullable|string|max:50',
+                'request_type' => 'required|string|max:69',
+                'data_subject_name' => 'required|string|max:255',
+                'data_subject_email' => 'nullable|email|max:255',
+                'data_subject_phone' => 'nullable|string|max:50',
                 'data_subject_id_number' => 'nullable|string|max:50',
-                'request_date'           => 'required|date',
-                'due_date'               => 'required|date|after_or_equal:request_date',
-                'description'            => 'nullable|string',
-                'verification_method'    => 'nullable|string|max:100',
+                'request_date' => 'required|date',
+                'due_date' => 'required|date|after_or_equal:request_date',
+                'description' => 'nullable|string',
+                'verification_method' => 'nullable|string|max:100',
             ]);
 
             $validated['reference_number'] = $this->nextRef('cdpa_data_subject_request', 'reference_number', 'DSR-');
-            $validated['status']           = 'pending';
-            $validated['handled_by']       = Auth::id();
-            $validated['created_at']       = now();
-            $validated['updated_at']       = now();
+            $validated['status'] = 'pending';
+            $validated['handled_by'] = Auth::id();
+            $validated['created_at'] = now();
+            $validated['updated_at'] = now();
 
             $newId = DB::table('cdpa_data_subject_request')->insertGetId($validated);
             $this->audit('request_created', 'cdpa_data_subject_request', $newId, $validated);
 
             return redirect()->route('ahgcdpa.requests')
-                ->with('success', 'Data subject request created. Ref: ' . $validated['reference_number']);
+                ->with('success', 'Data subject request created. Ref: '.$validated['reference_number']);
         }
 
         return view('cdpa::request-create');
@@ -420,10 +419,10 @@ class CdpaController extends Controller
 
     public function requestView(Request $request)
     {
-        $id  = $request->query('id');
+        $id = $request->query('id');
         $dsr = DB::table('cdpa_data_subject_request')->where('id', $id)->first();
 
-        if (!$dsr) {
+        if (! $dsr) {
             return redirect()->route('ahgcdpa.requests')
                 ->with('error', 'Data subject request not found.');
         }
@@ -431,11 +430,11 @@ class CdpaController extends Controller
         // Handle status update via POST
         if ($request->isMethod('post')) {
             $validated = $request->validate([
-                'status'           => 'required|string|max:57',
-                'response_notes'   => 'nullable|string',
+                'status' => 'required|string|max:57',
+                'response_notes' => 'nullable|string',
                 'rejection_reason' => 'nullable|string',
                 'extension_reason' => 'nullable|string',
-                'completed_date'   => 'nullable|date',
+                'completed_date' => 'nullable|date',
             ]);
 
             if ($validated['status'] === 'completed' && empty($validated['completed_date'])) {
@@ -490,28 +489,28 @@ class CdpaController extends Controller
     {
         if ($request->isMethod('post')) {
             $validated = $request->validate([
-                'name'                    => 'required|string|max:255',
-                'processing_activity_id'  => 'nullable|integer|exists:cdpa_processing_activity,id',
-                'description'             => 'nullable|string',
-                'necessity_assessment'    => 'nullable|string',
-                'risk_level'              => 'nullable|string|max:34',
-                'assessment_date'         => 'required|date',
-                'assessor_name'           => 'nullable|string|max:255',
-                'next_review_date'        => 'nullable|date|after_or_equal:assessment_date',
-                'status'                  => 'nullable|string|max:46',
-                'risks_identified'        => 'nullable|string',
-                'mitigation_measures'     => 'nullable|string',
-                'residual_risk_level'     => 'nullable|string|max:34',
-                'dpo_approval'            => 'nullable|boolean',
-                'dpo_approval_date'       => 'nullable|date',
-                'dpo_comments'            => 'nullable|string',
+                'name' => 'required|string|max:255',
+                'processing_activity_id' => 'nullable|integer|exists:cdpa_processing_activity,id',
+                'description' => 'nullable|string',
+                'necessity_assessment' => 'nullable|string',
+                'risk_level' => 'nullable|string|max:34',
+                'assessment_date' => 'required|date',
+                'assessor_name' => 'nullable|string|max:255',
+                'next_review_date' => 'nullable|date|after_or_equal:assessment_date',
+                'status' => 'nullable|string|max:46',
+                'risks_identified' => 'nullable|string',
+                'mitigation_measures' => 'nullable|string',
+                'residual_risk_level' => 'nullable|string|max:34',
+                'dpo_approval' => 'nullable|boolean',
+                'dpo_approval_date' => 'nullable|date',
+                'dpo_comments' => 'nullable|string',
             ]);
 
             $validated['dpo_approval'] = $request->has('dpo_approval') ? 1 : 0;
-            $validated['status']       = $validated['status'] ?? 'draft';
-            $validated['created_by']   = Auth::id();
-            $validated['created_at']   = now();
-            $validated['updated_at']   = now();
+            $validated['status'] = $validated['status'] ?? 'draft';
+            $validated['created_by'] = Auth::id();
+            $validated['created_at'] = now();
+            $validated['updated_at'] = now();
 
             $newId = DB::table('cdpa_dpia')->insertGetId($validated);
             $this->audit('dpia_created', 'cdpa_dpia', $newId, $validated);
@@ -530,14 +529,14 @@ class CdpaController extends Controller
 
     public function dpiaView(Request $request)
     {
-        $id   = $request->query('id');
+        $id = $request->query('id');
         $dpia = DB::table('cdpa_dpia')
             ->leftJoin('cdpa_processing_activity', 'cdpa_dpia.processing_activity_id', '=', 'cdpa_processing_activity.id')
             ->select('cdpa_dpia.*', 'cdpa_processing_activity.name as activity_name')
             ->where('cdpa_dpia.id', $id)
             ->first();
 
-        if (!$dpia) {
+        if (! $dpia) {
             return redirect()->route('ahgcdpa.dpia')
                 ->with('error', 'DPIA not found.');
         }
@@ -545,19 +544,19 @@ class CdpaController extends Controller
         // Handle status / approval update via POST
         if ($request->isMethod('post')) {
             $validated = $request->validate([
-                'status'              => 'nullable|string|max:46',
-                'risk_level'          => 'nullable|string|max:34',
+                'status' => 'nullable|string|max:46',
+                'risk_level' => 'nullable|string|max:34',
                 'residual_risk_level' => 'nullable|string|max:34',
-                'risks_identified'    => 'nullable|string',
+                'risks_identified' => 'nullable|string',
                 'mitigation_measures' => 'nullable|string',
-                'dpo_approval'        => 'nullable|boolean',
-                'dpo_approval_date'   => 'nullable|date',
-                'dpo_comments'        => 'nullable|string',
-                'next_review_date'    => 'nullable|date',
+                'dpo_approval' => 'nullable|boolean',
+                'dpo_approval_date' => 'nullable|date',
+                'dpo_comments' => 'nullable|string',
+                'next_review_date' => 'nullable|date',
             ]);
 
             $validated['dpo_approval'] = $request->has('dpo_approval') ? 1 : 0;
-            $validated['updated_at']   = now();
+            $validated['updated_at'] = now();
 
             DB::table('cdpa_dpia')->where('id', $id)->update($validated);
             $this->audit('dpia_updated', 'cdpa_dpia', (int) $id, $validated);
@@ -588,10 +587,10 @@ class CdpaController extends Controller
             $query->where('severity', $request->input('severity'));
         }
         if ($request->filled('search')) {
-            $search = '%' . $request->input('search') . '%';
+            $search = '%'.$request->input('search').'%';
             $query->where(function ($q) use ($search) {
                 $q->where('reference_number', 'like', $search)
-                  ->orWhere('description', 'like', $search);
+                    ->orWhere('description', 'like', $search);
             });
         }
 
@@ -610,31 +609,31 @@ class CdpaController extends Controller
     {
         if ($request->isMethod('post')) {
             $validated = $request->validate([
-                'incident_date'          => 'required|date',
-                'discovery_date'         => 'required|date',
-                'description'            => 'required|string',
-                'breach_type'            => 'required|string|max:92',
-                'data_affected'          => 'nullable|string',
-                'records_affected'       => 'nullable|integer|min:0',
+                'incident_date' => 'required|date',
+                'discovery_date' => 'required|date',
+                'description' => 'required|string',
+                'breach_type' => 'required|string|max:92',
+                'data_affected' => 'nullable|string',
+                'records_affected' => 'nullable|integer|min:0',
                 'data_subjects_affected' => 'nullable|integer|min:0',
-                'severity'               => 'nullable|string|max:34',
-                'root_cause'             => 'nullable|string',
-                'remediation'            => 'nullable|string',
-                'prevention_measures'    => 'nullable|string',
+                'severity' => 'nullable|string|max:34',
+                'root_cause' => 'nullable|string',
+                'remediation' => 'nullable|string',
+                'prevention_measures' => 'nullable|string',
             ]);
 
             $validated['reference_number'] = $this->nextRef('cdpa_breach', 'reference_number', 'BRE-');
-            $validated['status']           = 'investigating';
-            $validated['severity']         = $validated['severity'] ?? 'medium';
-            $validated['reported_by']      = Auth::id();
-            $validated['created_at']       = now();
-            $validated['updated_at']       = now();
+            $validated['status'] = 'investigating';
+            $validated['severity'] = $validated['severity'] ?? 'medium';
+            $validated['reported_by'] = Auth::id();
+            $validated['created_at'] = now();
+            $validated['updated_at'] = now();
 
             $newId = DB::table('cdpa_breach')->insertGetId($validated);
             $this->audit('breach_created', 'cdpa_breach', $newId, $validated);
 
             return redirect()->route('ahgcdpa.breaches')
-                ->with('success', 'Breach reported. Ref: ' . $validated['reference_number']);
+                ->with('success', 'Breach reported. Ref: '.$validated['reference_number']);
         }
 
         return view('cdpa::breach-create');
@@ -642,10 +641,10 @@ class CdpaController extends Controller
 
     public function breachView(Request $request)
     {
-        $id     = $request->query('id');
+        $id = $request->query('id');
         $breach = DB::table('cdpa_breach')->where('id', $id)->first();
 
-        if (!$breach) {
+        if (! $breach) {
             return redirect()->route('ahgcdpa.breaches')
                 ->with('error', 'Breach record not found.');
         }
@@ -653,20 +652,20 @@ class CdpaController extends Controller
         // Handle status / notification update via POST
         if ($request->isMethod('post')) {
             $validated = $request->validate([
-                'status'                 => 'nullable|string|max:50',
-                'potraz_notified'        => 'nullable|boolean',
-                'potraz_notified_date'   => 'nullable|date',
-                'potraz_reference'       => 'nullable|string|max:100',
-                'subjects_notified'      => 'nullable|boolean',
+                'status' => 'nullable|string|max:50',
+                'potraz_notified' => 'nullable|boolean',
+                'potraz_notified_date' => 'nullable|date',
+                'potraz_reference' => 'nullable|string|max:100',
+                'subjects_notified' => 'nullable|boolean',
                 'subjects_notified_date' => 'nullable|date',
-                'notification_method'    => 'nullable|string',
-                'root_cause'             => 'nullable|string',
-                'remediation'            => 'nullable|string',
-                'prevention_measures'    => 'nullable|string',
-                'closed_date'            => 'nullable|date',
+                'notification_method' => 'nullable|string',
+                'root_cause' => 'nullable|string',
+                'remediation' => 'nullable|string',
+                'prevention_measures' => 'nullable|string',
+                'closed_date' => 'nullable|date',
             ]);
 
-            $validated['potraz_notified']   = $request->has('potraz_notified') ? 1 : 0;
+            $validated['potraz_notified'] = $request->has('potraz_notified') ? 1 : 0;
             $validated['subjects_notified'] = $request->has('subjects_notified') ? 1 : 0;
 
             if ($validated['status'] === 'closed' && empty($validated['closed_date'])) {
@@ -704,27 +703,27 @@ class CdpaController extends Controller
 
     public function licenseEdit(Request $request)
     {
-        $id      = $request->query('id');
+        $id = $request->query('id');
         $license = $id ? DB::table('cdpa_controller_license')->where('id', $id)->first() : null;
 
         if ($request->isMethod('post')) {
             $validated = $request->validate([
-                'license_number'        => 'required|string|max:100',
-                'tier'                  => 'required|string|max:33',
-                'organization_name'     => 'required|string|max:255',
-                'registration_date'     => 'required|date',
-                'issue_date'            => 'required|date',
-                'expiry_date'           => 'required|date|after_or_equal:issue_date',
-                'potraz_ref'            => 'nullable|string|max:100',
-                'certificate_path'      => 'nullable|string|max:500',
-                'data_subjects_count'   => 'nullable|integer|min:0',
-                'status'                => 'nullable|string|max:50',
-                'notes'                 => 'nullable|string',
+                'license_number' => 'required|string|max:100',
+                'tier' => 'required|string|max:33',
+                'organization_name' => 'required|string|max:255',
+                'registration_date' => 'required|date',
+                'issue_date' => 'required|date',
+                'expiry_date' => 'required|date|after_or_equal:issue_date',
+                'potraz_ref' => 'nullable|string|max:100',
+                'certificate_path' => 'nullable|string|max:500',
+                'data_subjects_count' => 'nullable|integer|min:0',
+                'status' => 'nullable|string|max:50',
+                'notes' => 'nullable|string',
             ]);
 
             $validated['renewal_reminder_sent'] = $request->has('renewal_reminder_sent') ? 1 : 0;
-            $validated['status']                = $validated['status'] ?? 'active';
-            $validated['updated_at']            = now();
+            $validated['status'] = $validated['status'] ?? 'active';
+            $validated['updated_at'] = now();
 
             if ($id) {
                 DB::table('cdpa_controller_license')->where('id', $id)->update($validated);
@@ -748,7 +747,7 @@ class CdpaController extends Controller
     public function reports(Request $request)
     {
         $dateFrom = $request->input('date_from', now()->subYear()->toDateString());
-        $dateTo   = $request->input('date_to', now()->toDateString());
+        $dateTo = $request->input('date_to', now()->toDateString());
 
         // Processing activities summary
         $processingByCategory = DB::table('cdpa_processing_activity')
@@ -767,11 +766,11 @@ class CdpaController extends Controller
 
         // Consent statistics
         $consentStats = [
-            'total'     => DB::table('cdpa_consent')->count(),
-            'active'    => DB::table('cdpa_consent')->where('is_active', 1)->whereNull('withdrawal_date')->count(),
+            'total' => DB::table('cdpa_consent')->count(),
+            'active' => DB::table('cdpa_consent')->where('is_active', 1)->whereNull('withdrawal_date')->count(),
             'withdrawn' => DB::table('cdpa_consent')->whereNotNull('withdrawal_date')->count(),
             'biometric' => DB::table('cdpa_consent')->where('is_biometric', 1)->count(),
-            'children'  => DB::table('cdpa_consent')->where('is_children', 1)->count(),
+            'children' => DB::table('cdpa_consent')->where('is_children', 1)->count(),
         ];
 
         // DSR statistics
@@ -822,11 +821,11 @@ class CdpaController extends Controller
 
         // Special data flags
         $specialDataFlags = [
-            'cross_border'      => DB::table('cdpa_processing_activity')->where('cross_border', 1)->where('is_active', 1)->count(),
-            'automated_decision'=> DB::table('cdpa_processing_activity')->where('automated_decision', 1)->where('is_active', 1)->count(),
-            'children_data'     => DB::table('cdpa_processing_activity')->where('children_data', 1)->where('is_active', 1)->count(),
-            'biometric_data'    => DB::table('cdpa_processing_activity')->where('biometric_data', 1)->where('is_active', 1)->count(),
-            'health_data'       => DB::table('cdpa_processing_activity')->where('health_data', 1)->where('is_active', 1)->count(),
+            'cross_border' => DB::table('cdpa_processing_activity')->where('cross_border', 1)->where('is_active', 1)->count(),
+            'automated_decision' => DB::table('cdpa_processing_activity')->where('automated_decision', 1)->where('is_active', 1)->count(),
+            'children_data' => DB::table('cdpa_processing_activity')->where('children_data', 1)->where('is_active', 1)->count(),
+            'biometric_data' => DB::table('cdpa_processing_activity')->where('biometric_data', 1)->where('is_active', 1)->count(),
+            'health_data' => DB::table('cdpa_processing_activity')->where('health_data', 1)->where('is_active', 1)->count(),
         ];
 
         return view('cdpa::reports', compact(

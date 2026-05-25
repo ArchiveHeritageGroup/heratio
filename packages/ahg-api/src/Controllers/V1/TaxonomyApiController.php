@@ -40,7 +40,7 @@ class TaxonomyApiController extends Controller
         // Count terms per taxonomy
         $taxonomyIds = $taxonomies->pluck('id')->toArray();
         $termCounts = [];
-        if (!empty($taxonomyIds)) {
+        if (! empty($taxonomyIds)) {
             $termCounts = DB::table('term')
                 ->whereIn('taxonomy_id', $taxonomyIds)
                 ->select('taxonomy_id', DB::raw('COUNT(*) as cnt'))
@@ -72,7 +72,7 @@ class TaxonomyApiController extends Controller
      *
      * List all terms in a taxonomy.
      */
-    public function terms(int $taxonomyId = null): JsonResponse
+    public function terms(?int $taxonomyId = null): JsonResponse
     {
         // If no taxonomyId, list all terms
         if ($taxonomyId === null) {
@@ -120,7 +120,7 @@ class TaxonomyApiController extends Controller
             ->select('taxonomy.id', 'taxonomy_i18n.name')
             ->first();
 
-        if (!$taxonomy) {
+        if (! $taxonomy) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Taxonomy ID {$taxonomyId} not found.",
@@ -170,11 +170,11 @@ class TaxonomyApiController extends Controller
     public function search(Request $request): JsonResponse
     {
         $query = $request->get('q', '');
-        
+
         if (empty($query) || strlen($query) < 2) {
             return response()->json(['data' => []]);
         }
-        
+
         $results = DB::table('term')
             ->leftJoin('term_i18n', function ($j) {
                 $j->on('term.id', '=', 'term_i18n.id')
@@ -190,14 +190,14 @@ class TaxonomyApiController extends Controller
             ])
             ->limit(20)
             ->get();
-        
-        $data = $results->map(fn($row) => [
+
+        $data = $results->map(fn ($row) => [
             'id' => $row->id,
             'taxonomy_id' => $row->taxonomy_id,
             'name' => $row->name,
             'code' => $row->code,
         ]);
-        
+
         return response()->json(['data' => $data->values()]);
     }
 
@@ -209,7 +209,7 @@ class TaxonomyApiController extends Controller
     public function show(string $id): JsonResponse
     {
         $termId = (int) $id;
-        
+
         $term = DB::table('term')
             ->leftJoin('term_i18n', function ($j) {
                 $j->on('term.id', '=', 'term_i18n.id')
@@ -226,7 +226,7 @@ class TaxonomyApiController extends Controller
             ])
             ->first();
 
-        if (!$term) {
+        if (! $term) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Term ID {$id} not found.",
@@ -257,15 +257,15 @@ class TaxonomyApiController extends Controller
             'parent_id' => 'nullable|integer',
             'code' => 'nullable|string|max:100',
         ]);
-        
+
         // Verify taxonomy exists
-        if (!DB::table('taxonomy')->where('id', $validated['taxonomy_id'])->exists()) {
+        if (! DB::table('taxonomy')->where('id', $validated['taxonomy_id'])->exists()) {
             return response()->json([
                 'error' => 'Bad Request',
                 'message' => "Taxonomy ID {$validated['taxonomy_id']} not found.",
             ], 400);
         }
-        
+
         try {
             return DB::transaction(function () use ($validated) {
                 // Create base object
@@ -274,7 +274,7 @@ class TaxonomyApiController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-                
+
                 // Create term record
                 DB::table('term')->insert([
                     'id' => $objectId,
@@ -283,14 +283,14 @@ class TaxonomyApiController extends Controller
                     'code' => $validated['code'] ?? null,
                     'source_culture' => $this->culture,
                 ]);
-                
+
                 // Create i18n record
                 DB::table('term_i18n')->insert([
                     'id' => $objectId,
                     'culture' => $this->culture,
                     'name' => $validated['name'],
                 ]);
-                
+
                 return response()->json([
                     'data' => [
                         'id' => $objectId,
@@ -319,16 +319,16 @@ class TaxonomyApiController extends Controller
             'parent_id' => 'nullable|integer',
             'code' => 'nullable|string|max:100',
         ]);
-        
+
         $termId = (int) $id;
-        
-        if (!DB::table('term')->where('id', $termId)->exists()) {
+
+        if (! DB::table('term')->where('id', $termId)->exists()) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Term ID {$id} not found.",
             ], 404);
         }
-        
+
         try {
             // Update term record
             if (isset($validated['parent_id']) || isset($validated['code'])) {
@@ -337,9 +337,9 @@ class TaxonomyApiController extends Controller
                     ->update(array_filter([
                         'parent_id' => $validated['parent_id'] ?? null,
                         'code' => $validated['code'] ?? null,
-                    ], fn($v) => $v !== null));
+                    ], fn ($v) => $v !== null));
             }
-            
+
             // Update i18n record
             if (isset($validated['name'])) {
                 DB::table('term_i18n')
@@ -347,7 +347,7 @@ class TaxonomyApiController extends Controller
                     ->where('culture', $this->culture)
                     ->update(['name' => $validated['name']]);
             }
-            
+
             return response()->json([
                 'data' => [
                     'id' => $termId,
@@ -370,21 +370,21 @@ class TaxonomyApiController extends Controller
     public function destroy(string $id): JsonResponse
     {
         $termId = (int) $id;
-        
-        if (!DB::table('term')->where('id', $termId)->exists()) {
+
+        if (! DB::table('term')->where('id', $termId)->exists()) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Term ID {$id} not found.",
             ], 404);
         }
-        
+
         try {
             // Delete related records
             DB::table('term_i18n')->where('id', $termId)->delete();
             DB::table('object_term_relation')->where('term_id', $termId)->delete();
             DB::table('term')->where('id', $termId)->delete();
             DB::table('object')->where('id', $termId)->delete();
-            
+
             return response()->json(null, 204);
         } catch (\Exception $e) {
             return response()->json([

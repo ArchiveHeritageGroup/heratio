@@ -18,16 +18,18 @@ class AuditPurgeCommand extends Command
     public function handle(): int
     {
         $table = (string) $this->option('table');
-        $days  = max(1, (int) $this->option('older-than'));
-        $dry   = (bool) $this->option('dry-run');
+        $days = max(1, (int) $this->option('older-than'));
+        $dry = (bool) $this->option('dry-run');
 
         if (! Schema::hasTable($table)) {
             $this->error("Table {$table} does not exist.");
+
             return self::FAILURE;
         }
         // Only allow tables whose name looks like an audit table — defence against typos.
         if (! preg_match('/audit/i', $table)) {
             $this->error("Refusing to purge {$table} — name does not contain 'audit'.");
+
             return self::FAILURE;
         }
 
@@ -36,16 +38,20 @@ class AuditPurgeCommand extends Command
               : (Schema::hasColumn($table, 'occurred_at') ? 'occurred_at' : null));
         if (! $tsCol) {
             $this->error("Table {$table} has no created_at/logged_at/occurred_at column — cannot determine age.");
+
             return self::FAILURE;
         }
 
         $cutoff = now()->subDays($days);
         $eligible = (int) DB::table($table)->where($tsCol, '<', $cutoff)->count();
-        $this->info("[{$table}] cutoff={$cutoff->toIso8601String()} eligible={$eligible}" . ($dry ? ' (dry-run)' : ''));
-        if ($dry || $eligible === 0) return self::SUCCESS;
+        $this->info("[{$table}] cutoff={$cutoff->toIso8601String()} eligible={$eligible}".($dry ? ' (dry-run)' : ''));
+        if ($dry || $eligible === 0) {
+            return self::SUCCESS;
+        }
 
         $deleted = (int) DB::table($table)->where($tsCol, '<', $cutoff)->delete();
         $this->info("deleted={$deleted}");
+
         return self::SUCCESS;
     }
 }

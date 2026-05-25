@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgTermTaxonomy\Services;
 
 use AhgCore\Services\BrowseService;
@@ -90,7 +88,7 @@ class TermBrowseService extends BrowseService
 
     protected function applySort($query, string $sort, string $sortDir)
     {
-        $name = "COALESCE(term_cur.name, term_fb.name)";
+        $name = 'COALESCE(term_cur.name, term_fb.name)';
         switch ($sort) {
             case 'alphabetic':
                 $query->orderByRaw("{$name} {$sortDir}");
@@ -100,9 +98,9 @@ class TermBrowseService extends BrowseService
                 $query->orderBy('object.updated_at', $sortDir);
                 break;
         }
+
         return $query;
     }
-
 
     public function browse(array $params): array
     {
@@ -130,10 +128,11 @@ class TermBrowseService extends BrowseService
         // we switched to LEFT JOIN cur + LEFT JOIN fb.
         if ($subquery !== '') {
             $query->whereRaw(
-                "COALESCE(term_cur.name, term_fb.name) LIKE ?",
+                'COALESCE(term_cur.name, term_fb.name) LIKE ?',
                 ["%{$subquery}%"]
             );
         }
+
         return $query;
     }
 

@@ -23,13 +23,11 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgStaticPage\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StaticPageController extends Controller
 {
@@ -66,7 +64,7 @@ class StaticPageController extends Controller
         $culture = app()->getLocale();
 
         $slugRow = DB::table('slug')->where('slug', $slug)->first();
-        if (!$slugRow) {
+        if (! $slugRow) {
             abort(404);
         }
 
@@ -86,7 +84,7 @@ class StaticPageController extends Controller
             ->select('static_page.id', 'static_page_i18n.title')
             ->first();
 
-        if (!$page) {
+        if (! $page) {
             abort(404);
         }
 
@@ -107,7 +105,7 @@ class StaticPageController extends Controller
         }
 
         $slugRow = DB::table('slug')->where('slug', $slug)->first();
-        if (!$slugRow) {
+        if (! $slugRow) {
             abort(404);
         }
 
@@ -115,7 +113,7 @@ class StaticPageController extends Controller
 
         // Verify the static page exists
         $exists = DB::table('static_page')->where('id', $id)->exists();
-        if (!$exists) {
+        if (! $exists) {
             abort(404);
         }
 
@@ -184,7 +182,7 @@ class StaticPageController extends Controller
         $culture = app()->getLocale();
 
         $slugRow = DB::table('slug')->where('slug', $slug)->first();
-        if (!$slugRow) {
+        if (! $slugRow) {
             abort(404);
         }
 
@@ -197,7 +195,7 @@ class StaticPageController extends Controller
             ->select('static_page.id', 'static_page_i18n.title', 'static_page_i18n.content')
             ->first();
 
-        if (!$page) {
+        if (! $page) {
             abort(404);
         }
 
@@ -222,7 +220,7 @@ class StaticPageController extends Controller
         $culture = app()->getLocale();
 
         $slugRow = DB::table('slug')->where('slug', $slug)->first();
-        if (!$slugRow) {
+        if (! $slugRow) {
             abort(404);
         }
 
@@ -252,7 +250,7 @@ class StaticPageController extends Controller
             // Update slug if changed and not protected
             $newSlug = $request->input('slug');
             $protectedSlugs = ['home', 'about', 'contact', 'privacy', 'terms'];
-            if ($newSlug !== $slug && !in_array($slug, $protectedSlugs)) {
+            if ($newSlug !== $slug && ! in_array($slug, $protectedSlugs)) {
                 DB::table('slug')->where('object_id', $id)->update(['slug' => $newSlug]);
             }
 
@@ -278,7 +276,7 @@ class StaticPageController extends Controller
             ->where('slug', $slug)
             ->first();
 
-        if (!$slugRow) {
+        if (! $slugRow) {
             abort(404);
         }
 
@@ -293,11 +291,11 @@ class StaticPageController extends Controller
                 'static_page.source_culture',
                 'static_page_i18n.title',
                 'static_page_i18n.content',
-                DB::raw("'" . addslashes($slug) . "' as slug"),
+                DB::raw("'".addslashes($slug)."' as slug"),
             ])
             ->first();
 
-        if (!$page) {
+        if (! $page) {
             abort(404);
         }
 
@@ -323,7 +321,7 @@ class StaticPageController extends Controller
             ->where('setting.name', 'markdown_enabled')->whereNull('setting.scope')
             ->value('setting_i18n.value');
 
-        if ($markdownEnabled !== '0' && !empty($page->content)) {
+        if ($markdownEnabled !== '0' && ! empty($page->content)) {
             // Convert literal \n to actual newlines (DB may store escaped newlines)
             $content = str_replace(['\\n', '\n'], "\n", $page->content);
             // GFM converter — handles pipe tables, task lists, autolinks; plain CommonMark

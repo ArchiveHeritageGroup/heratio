@@ -2,8 +2,6 @@
 
 namespace AhgCore\Models;
 
-use AhgCore\Traits\HasI18n;
-
 class Repository extends Actor
 {
     protected $table = 'repository';

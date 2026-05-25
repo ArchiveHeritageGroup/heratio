@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgWorkflow\Controllers;
 
 use AhgWorkflow\Services\SpectrumComplianceService;
@@ -99,7 +97,7 @@ class WorkflowController extends Controller
     {
         $task = $this->service->getTask($id);
 
-        if (!$task) {
+        if (! $task) {
             abort(404, 'Task not found');
         }
 
@@ -154,7 +152,7 @@ class WorkflowController extends Controller
         if ($result) {
             // Spectrum Phase C2 — apply cross-procedure chain rules
             try {
-                $svc = new SpectrumComplianceService();
+                $svc = new SpectrumComplianceService;
                 $chain = $svc->applyChainOnTaskApproved($id);
                 if (($chain['spawned'] ?? 0) > 0) {
                     return redirect()->route('workflow.my-tasks')->with('success', "Task approved. Spectrum chain spawned {$chain['spawned']} downstream task(s).");
@@ -162,6 +160,7 @@ class WorkflowController extends Controller
             } catch (\Throwable $e) {
                 // chain spawn is best-effort — don't block approval
             }
+
             return redirect()->route('workflow.my-tasks')->with('success', 'Task approved successfully.');
         }
 
@@ -304,7 +303,7 @@ class WorkflowController extends Controller
     {
         $workflow = $this->service->getWorkflow($id);
 
-        if (!$workflow) {
+        if (! $workflow) {
             abort(404, 'Workflow not found');
         }
 
@@ -344,14 +343,15 @@ class WorkflowController extends Controller
     public function diagram(int $id)
     {
         $workflow = $this->service->getWorkflow($id);
-        if (!$workflow) {
+        if (! $workflow) {
             abort(404, 'Workflow not found');
         }
 
-        $svc = new WorkflowDiagramService();
+        $svc = new WorkflowDiagramService;
+
         return view('ahg-workflow::diagram', [
             'workflow' => $workflow,
-            'svg'      => $svc->render((int) $id),
+            'svg' => $svc->render((int) $id),
             'fallback' => $svc->textFallback((int) $id),
             'spectrumLabel' => SpectrumProcedureCatalog::label($workflow->spectrum_procedure ?? null),
         ]);
@@ -373,9 +373,10 @@ class WorkflowController extends Controller
         try {
             \Illuminate\Support\Facades\Artisan::call('workflow:seed-spectrum', $args);
             $output = \Illuminate\Support\Facades\Artisan::output();
-            return redirect()->route('workflow.admin')->with('success', 'Spectrum procedure pack installed. ' . trim(strrchr($output, "\n") ?: $output));
+
+            return redirect()->route('workflow.admin')->with('success', 'Spectrum procedure pack installed. '.trim(strrchr($output, "\n") ?: $output));
         } catch (\Throwable $e) {
-            return redirect()->route('workflow.admin')->with('error', 'Install failed: ' . $e->getMessage());
+            return redirect()->route('workflow.admin')->with('error', 'Install failed: '.$e->getMessage());
         }
     }
 
@@ -385,7 +386,7 @@ class WorkflowController extends Controller
     public function designer(int $id)
     {
         $workflow = $this->service->getWorkflow($id);
-        if (!$workflow) {
+        if (! $workflow) {
             abort(404, 'Workflow not found');
         }
 
@@ -395,12 +396,12 @@ class WorkflowController extends Controller
             ->orderBy('id')
             ->get(['id', 'name', 'step_order', 'step_type', 'is_optional']);
 
-        $edges = (new WorkflowEdgeService())->getEdges($id);
+        $edges = (new WorkflowEdgeService)->getEdges($id);
 
         return view('ahg-workflow::designer', [
             'workflow' => $workflow,
-            'steps'    => $steps,
-            'edges'    => $edges,
+            'steps' => $steps,
+            'edges' => $edges,
         ]);
     }
 
@@ -411,28 +412,29 @@ class WorkflowController extends Controller
     public function designerSave(Request $request, int $id)
     {
         $workflow = $this->service->getWorkflow($id);
-        if (!$workflow) {
+        if (! $workflow) {
             return response()->json(['ok' => false, 'errors' => ['Workflow not found.']], 404);
         }
 
         $raw = $request->input('edges', []);
-        if (!is_array($raw)) {
+        if (! is_array($raw)) {
             return response()->json(['ok' => false, 'errors' => ['edges must be an array.']], 422);
         }
 
         $edges = [];
         foreach ($raw as $e) {
-            if (!is_array($e)) {
+            if (! is_array($e)) {
                 continue;
             }
             $edges[] = [
-                'from_step_id'   => (int) ($e['from_step_id'] ?? 0),
-                'to_step_id'     => (int) ($e['to_step_id'] ?? 0),
+                'from_step_id' => (int) ($e['from_step_id'] ?? 0),
+                'to_step_id' => (int) ($e['to_step_id'] ?? 0),
                 'condition_expr' => isset($e['condition_expr']) ? (string) $e['condition_expr'] : null,
             ];
         }
 
-        $result = (new WorkflowEdgeService())->replaceEdges($id, $edges);
+        $result = (new WorkflowEdgeService)->replaceEdges($id, $edges);
+
         return response()->json($result, $result['ok'] ? 200 : 422);
     }
 
@@ -442,20 +444,20 @@ class WorkflowController extends Controller
     public function taskDiagram(int $taskId)
     {
         $task = $this->service->getTask($taskId);
-        if (!$task) {
+        if (! $task) {
             abort(404, 'Task not found');
         }
 
-        $svc = new WorkflowDiagramService();
+        $svc = new WorkflowDiagramService;
         $payload = $svc->renderForTask($taskId);
         $workflow = $this->service->getWorkflow((int) $task->workflow_id);
 
         return view('ahg-workflow::task-diagram', [
-            'task'      => $task,
-            'workflow'  => $workflow,
-            'svg'       => $payload['svg'],
+            'task' => $task,
+            'workflow' => $workflow,
+            'svg' => $payload['svg'],
             'statusMap' => $payload['statusMap'],
-            'fallback'  => $svc->textFallback((int) $task->workflow_id),
+            'fallback' => $svc->textFallback((int) $task->workflow_id),
             'spectrumLabel' => SpectrumProcedureCatalog::label($workflow->spectrum_procedure ?? null),
         ]);
     }
@@ -504,7 +506,7 @@ class WorkflowController extends Controller
     {
         $step = \Illuminate\Support\Facades\DB::table('ahg_workflow_step')->where('id', $id)->first();
 
-        if (!$step) {
+        if (! $step) {
             abort(404, 'Step not found');
         }
 
@@ -520,7 +522,7 @@ class WorkflowController extends Controller
     {
         $evaluation = $this->service->evaluateGates($objectId);
 
-        if (!$evaluation['object']) {
+        if (! $evaluation['object']) {
             abort(404, 'Object not found');
         }
 
@@ -584,19 +586,40 @@ class WorkflowController extends Controller
         return redirect()->route('workflow.gates.admin')->with('success', 'Gate rule deleted.');
     }
 
-    public function addStepForm(Request $request, int $workflowId) { return view('ahg-workflow::add-step', ['record' => (object)[]]); }
+    public function addStepForm(Request $request, int $workflowId)
+    {
+        return view('ahg-workflow::add-step', ['record' => (object) []]);
+    }
 
-    public function editStepForm(Request $request, int $id) { return view('ahg-workflow::edit-step', ['record' => (object)['id'=>$id]]); }
+    public function editStepForm(Request $request, int $id)
+    {
+        return view('ahg-workflow::edit-step', ['record' => (object) ['id' => $id]]);
+    }
 
-    public function bulkPreview(Request $request) { return view('ahg-workflow::bulk-preview', ['rows' => collect()]); }
+    public function bulkPreview(Request $request)
+    {
+        return view('ahg-workflow::bulk-preview', ['rows' => collect()]);
+    }
 
-    public function myWork(Request $request) { return view('ahg-workflow::my-work', ['rows' => collect()]); }
+    public function myWork(Request $request)
+    {
+        return view('ahg-workflow::my-work', ['rows' => collect()]);
+    }
 
-    public function publishSimulate(int $objectId) { return view('ahg-workflow::publish-simulate', ['gates' => collect(), 'allPassed' => false]); }
+    public function publishSimulate(int $objectId)
+    {
+        return view('ahg-workflow::publish-simulate', ['gates' => collect(), 'allPassed' => false]);
+    }
 
-    public function teamWork(Request $request) { return view('ahg-workflow::team-work', ['rows' => collect()]); }
+    public function teamWork(Request $request)
+    {
+        return view('ahg-workflow::team-work', ['rows' => collect()]);
+    }
 
-    public function timeline(int $id) { return view('ahg-workflow::timeline', ['events' => collect()]); }
+    public function timeline(int $id)
+    {
+        return view('ahg-workflow::timeline', ['events' => collect()]);
+    }
 
     // =========================================================================
     // Spectrum Phase C — compliance dashboard, chain rules, per-object, export
@@ -604,24 +627,25 @@ class WorkflowController extends Controller
 
     public function spectrumDashboard(Request $request)
     {
-        $svc = new SpectrumComplianceService();
+        $svc = new SpectrumComplianceService;
         $overdueDays = (int) $request->input('overdue_days', 30);
+
         return view('ahg-workflow::spectrum-dashboard', [
-            'heatmap'     => $svc->heatmap('information_object', $overdueDays),
+            'heatmap' => $svc->heatmap('information_object', $overdueDays),
             'overdueDays' => $overdueDays,
-            'statuses'    => SpectrumComplianceService::STATUSES,
+            'statuses' => SpectrumComplianceService::STATUSES,
         ]);
     }
 
     public function spectrumExportCsv(Request $request)
     {
-        $svc = new SpectrumComplianceService();
+        $svc = new SpectrumComplianceService;
         $overdueDays = (int) $request->input('overdue_days', 30);
         $heatmap = $svc->heatmap('information_object', $overdueDays);
 
         $filename = 'spectrum_compliance_'.date('Y-m-d').'.csv';
         $headers = [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ];
 
@@ -649,25 +673,27 @@ class WorkflowController extends Controller
 
     public function spectrumChainRules()
     {
-        $svc = new SpectrumComplianceService();
+        $svc = new SpectrumComplianceService;
+
         return view('ahg-workflow::spectrum-chain-rules', [
-            'rules'      => $svc->getChainRules(),
+            'rules' => $svc->getChainRules(),
             'procedures' => SpectrumProcedureCatalog::all(),
         ]);
     }
 
     public function spectrumChainSave(Request $request)
     {
-        $svc = new SpectrumComplianceService();
+        $svc = new SpectrumComplianceService;
         try {
             $svc->saveChainRule([
-                'id'             => $request->input('id'),
+                'id' => $request->input('id'),
                 'from_procedure' => $request->input('from_procedure'),
-                'to_procedure'   => $request->input('to_procedure'),
-                'trigger_event'  => $request->input('trigger_event', 'on_complete'),
-                'is_active'      => $request->has('is_active'),
-                'notes'          => $request->input('notes'),
+                'to_procedure' => $request->input('to_procedure'),
+                'trigger_event' => $request->input('trigger_event', 'on_complete'),
+                'is_active' => $request->has('is_active'),
+                'notes' => $request->input('notes'),
             ]);
+
             return redirect()->route('workflow.spectrum.chain')->with('success', 'Chain rule saved.');
         } catch (\Throwable $e) {
             return redirect()->route('workflow.spectrum.chain')->with('error', $e->getMessage());
@@ -676,8 +702,9 @@ class WorkflowController extends Controller
 
     public function spectrumChainDelete(Request $request, int $id)
     {
-        $svc = new SpectrumComplianceService();
+        $svc = new SpectrumComplianceService;
         $svc->deleteChainRule($id);
+
         return redirect()->route('workflow.spectrum.chain')->with('success', 'Chain rule deleted.');
     }
 }

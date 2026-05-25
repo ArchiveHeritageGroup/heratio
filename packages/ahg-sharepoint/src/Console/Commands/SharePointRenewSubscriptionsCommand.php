@@ -15,12 +15,14 @@ use Illuminate\Console\Command;
 class SharePointRenewSubscriptionsCommand extends Command
 {
     protected $signature = 'sharepoint:renew-subscriptions';
+
     protected $description = 'Renew Graph webhook subscriptions expiring within 12h';
 
     public function handle(SharePointSubscriptionService $svc): int
     {
         $result = $svc->renewExpiring();
         $this->info("renewed={$result['renewed']} errors={$result['errors']}");
+
         return $result['errors'] > 0 ? self::FAILURE : self::SUCCESS;
     }
 }

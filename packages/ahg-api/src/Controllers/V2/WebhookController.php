@@ -29,6 +29,7 @@ class WebhookController extends BaseApiController
                 $w->events = json_decode($w->events, true);
                 $w->entity_types = json_decode($w->entity_types, true);
                 unset($w->secret);
+
                 return $w;
             });
 
@@ -48,9 +49,9 @@ class WebhookController extends BaseApiController
             'name' => 'required|string|max:100',
             'url' => 'required|url|max:500',
             'events' => 'required|array|min:1',
-            'events.*' => 'in:' . implode(',', $validEvents),
+            'events.*' => 'in:'.implode(',', $validEvents),
             'entity_types' => 'required|array|min:1',
-            'entity_types.*' => 'in:' . implode(',', $validTypes),
+            'entity_types.*' => 'in:'.implode(',', $validTypes),
         ]);
 
         $secret = Str::random(64);
@@ -89,7 +90,7 @@ class WebhookController extends BaseApiController
             ->where('user_id', $this->apiUserId($request))
             ->first();
 
-        if (!$webhook) {
+        if (! $webhook) {
             return $this->error('Not Found', 'Webhook not found.', 404);
         }
 
@@ -110,7 +111,7 @@ class WebhookController extends BaseApiController
             ->where('user_id', $this->apiUserId($request))
             ->first();
 
-        if (!$webhook) {
+        if (! $webhook) {
             return $this->error('Not Found', 'Webhook not found.', 404);
         }
 
@@ -121,18 +122,28 @@ class WebhookController extends BaseApiController
             'name' => 'nullable|string|max:100',
             'url' => 'nullable|url|max:500',
             'events' => 'nullable|array|min:1',
-            'events.*' => 'in:' . implode(',', $validEvents),
+            'events.*' => 'in:'.implode(',', $validEvents),
             'entity_types' => 'nullable|array|min:1',
-            'entity_types.*' => 'in:' . implode(',', $validTypes),
+            'entity_types.*' => 'in:'.implode(',', $validTypes),
             'is_active' => 'nullable|boolean',
         ]);
 
         $update = ['updated_at' => now()];
-        if (isset($input['name'])) $update['name'] = $input['name'];
-        if (isset($input['url'])) $update['url'] = $input['url'];
-        if (isset($input['events'])) $update['events'] = json_encode($input['events']);
-        if (isset($input['entity_types'])) $update['entity_types'] = json_encode($input['entity_types']);
-        if (isset($input['is_active'])) $update['is_active'] = $input['is_active'];
+        if (isset($input['name'])) {
+            $update['name'] = $input['name'];
+        }
+        if (isset($input['url'])) {
+            $update['url'] = $input['url'];
+        }
+        if (isset($input['events'])) {
+            $update['events'] = json_encode($input['events']);
+        }
+        if (isset($input['entity_types'])) {
+            $update['entity_types'] = json_encode($input['entity_types']);
+        }
+        if (isset($input['is_active'])) {
+            $update['is_active'] = $input['is_active'];
+        }
 
         DB::table('ahg_webhook')->where('id', $id)->update($update);
 
@@ -149,7 +160,7 @@ class WebhookController extends BaseApiController
             ->where('user_id', $this->apiUserId($request))
             ->delete();
 
-        if (!$deleted) {
+        if (! $deleted) {
             return $this->error('Not Found', 'Webhook not found.', 404);
         }
 
@@ -167,7 +178,7 @@ class WebhookController extends BaseApiController
             ->where('user_id', $this->apiUserId($request))
             ->first();
 
-        if (!$webhook) {
+        if (! $webhook) {
             return $this->error('Not Found', 'Webhook not found.', 404);
         }
 
@@ -195,7 +206,7 @@ class WebhookController extends BaseApiController
             ->where('user_id', $this->apiUserId($request))
             ->first();
 
-        if (!$webhook) {
+        if (! $webhook) {
             return $this->error('Not Found', 'Webhook not found.', 404);
         }
 

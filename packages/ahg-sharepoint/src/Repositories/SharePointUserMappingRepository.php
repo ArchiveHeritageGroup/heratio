@@ -30,6 +30,7 @@ class SharePointUserMappingRepository
     public function create(array $attributes): int
     {
         $attributes['created_at'] ??= now();
+
         return (int) DB::table('sharepoint_user_mapping')->insertGetId($attributes);
     }
 

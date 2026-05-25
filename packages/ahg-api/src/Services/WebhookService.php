@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgApi\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -54,6 +52,7 @@ class WebhookService
             ->filter(function ($webhook) use ($event, $entityType) {
                 $events = json_decode($webhook->events, true) ?: [];
                 $types = json_decode($webhook->entity_types, true) ?: [];
+
                 return in_array($event, $events) && in_array($entityType, $types);
             });
 
@@ -89,12 +88,12 @@ class WebhookService
     public function deliver(int $deliveryId): bool
     {
         $delivery = DB::table('ahg_webhook_delivery')->where('id', $deliveryId)->first();
-        if (!$delivery) {
+        if (! $delivery) {
             return false;
         }
 
         $webhook = DB::table('ahg_webhook')->where('id', $delivery->webhook_id)->first();
-        if (!$webhook) {
+        if (! $webhook) {
             return false;
         }
 
@@ -143,6 +142,7 @@ class WebhookService
                 'next_retry_at' => $this->nextRetryTime($delivery->attempt_count + 1),
             ]);
             $this->handleFailure($webhook, $delivery);
+
             return false;
         }
     }
@@ -163,6 +163,7 @@ class WebhookService
         }
         $delays = [60, 120, 240, 480, 960];
         $seconds = $delays[$attempt - 1] ?? 960;
+
         return now()->addSeconds($seconds)->toDateTimeString();
     }
 
@@ -198,6 +199,7 @@ class WebhookService
             'secret' => $secret,
             'updated_at' => now(),
         ]);
+
         return $secret;
     }
 

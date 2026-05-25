@@ -14,8 +14,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/researcher/browse', [ResearcherSubmissionController::class, 'researcherBrowse'])->name('researcher.browse');
-    Route::match(['get','post'], '/researcher/add', [ResearcherSubmissionController::class, 'researcherAdd'])->name('researcher.add');
-    Route::match(['get','post'], '/researcher/{id}/edit', [ResearcherSubmissionController::class, 'researcherEdit'])->name('researcher.edit')->whereNumber('id');
+    Route::match(['get', 'post'], '/researcher/add', [ResearcherSubmissionController::class, 'researcherAdd'])->name('researcher.add');
+    Route::match(['get', 'post'], '/researcher/{id}/edit', [ResearcherSubmissionController::class, 'researcherEdit'])->name('researcher.edit')->whereNumber('id');
     Route::get('/researcher/{id}/view', [ResearcherSubmissionController::class, 'researcherView'])->name('researcher.view')->whereNumber('id');
     Route::get('/researcher/submission/{id}', [ResearcherSubmissionController::class, 'submissionView'])->name('researcher.submission.view')->whereNumber('id');
 });
@@ -25,7 +25,13 @@ Route::middleware('admin')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::match(['get','post'], '/api-upload', function() { return view('researchermanage::api-upload'); })->name('researcher.apiUpload');
-    Route::match(['get','post'], '/api-delete-file', function() { return view('researchermanage::api-delete-file'); })->name('researcher.apiDeleteFile');
-    Route::match(['get','post'], '/api-autocomplete', function() { return view('researchermanage::api-autocomplete'); })->name('researcher.apiAutocomplete');
+    Route::match(['get', 'post'], '/api-upload', function () {
+        return view('researchermanage::api-upload');
+    })->name('researcher.apiUpload');
+    Route::match(['get', 'post'], '/api-delete-file', function () {
+        return view('researchermanage::api-delete-file');
+    })->name('researcher.apiDeleteFile');
+    Route::match(['get', 'post'], '/api-autocomplete', function () {
+        return view('researchermanage::api-autocomplete');
+    })->name('researcher.apiAutocomplete');
 });

@@ -26,11 +26,11 @@
 namespace AhgNarssa\Services;
 
 use Illuminate\Support\Facades\DB;
-use RuntimeException;
 use InvalidArgumentException;
-use XMLWriter;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use RuntimeException;
+use XMLWriter;
 
 class TransferPackageService
 {
@@ -41,20 +41,20 @@ class TransferPackageService
         }
         $ref = $this->allocateReference();
         $workDir = $this->workDir($ref);
-        @mkdir($workDir . '/items', 0775, true);
+        @mkdir($workDir.'/items', 0775, true);
 
         $now = date('Y-m-d H:i:s');
 
         $transferId = (int) DB::table('narssa_transfer')->insertGetId([
             'transfer_reference' => $ref,
-            'title'              => $title ?? ('NARSSA transfer ' . $ref),
-            'description'        => $description,
-            'initiated_by'       => $initiatedBy,
-            'item_count'         => 0,
-            'total_size_bytes'   => 0,
-            'status'             => 'draft',
-            'created_at'         => $now,
-            'updated_at'         => $now,
+            'title' => $title ?? ('NARSSA transfer '.$ref),
+            'description' => $description,
+            'initiated_by' => $initiatedBy,
+            'item_count' => 0,
+            'total_size_bytes' => 0,
+            'status' => 'draft',
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
 
         $manifestRows = [['archival_reference', 'title', 'schedule_code', 'digital_object_count', 'bytes', 'sha256']];
@@ -67,25 +67,25 @@ class TransferPackageService
         foreach ($informationObjectIds as $ioId) {
             $ioId = (int) $ioId;
             $detail = $this->loadIoDetail($ioId, $culture);
-            if (!$detail) {
+            if (! $detail) {
                 continue;
             }
 
-            $itemDir = $workDir . '/items/' . $this->sanitiseRef($detail['identifier'] ?: 'IO-' . $ioId);
-            @mkdir($itemDir . '/digital_objects', 0775, true);
+            $itemDir = $workDir.'/items/'.$this->sanitiseRef($detail['identifier'] ?: 'IO-'.$ioId);
+            @mkdir($itemDir.'/digital_objects', 0775, true);
 
             file_put_contents(
-                $itemDir . '/description.xml',
+                $itemDir.'/description.xml',
                 $this->buildEad2002($detail),
             );
 
-            $doInfo = $this->copyDigitalObjects($ioId, $itemDir . '/digital_objects');
+            $doInfo = $this->copyDigitalObjects($ioId, $itemDir.'/digital_objects');
 
             $itemSha = $this->hashDirectory($itemDir);
-            file_put_contents($itemDir . '/checksums.sha256', $itemSha . '  ' . basename($itemDir) . "\n");
+            file_put_contents($itemDir.'/checksums.sha256', $itemSha.'  '.basename($itemDir)."\n");
 
             $totalBytes += $doInfo['bytes'];
-            $totalDOs   += $doInfo['count'];
+            $totalDOs += $doInfo['count'];
 
             $scheduleCode = $detail['schedule_code'] ?: '';
             if ($scheduleCode !== '') {
@@ -93,8 +93,8 @@ class TransferPackageService
             }
 
             $manifestRows[] = [
-                $detail['identifier'] ?: ('IO-' . $ioId),
-                $detail['title']      ?: 'Untitled',
+                $detail['identifier'] ?: ('IO-'.$ioId),
+                $detail['title'] ?: 'Untitled',
                 $scheduleCode,
                 (string) $doInfo['count'],
                 (string) $doInfo['bytes'],
@@ -102,29 +102,29 @@ class TransferPackageService
             ];
 
             $items[] = [
-                'transfer_id'           => $transferId,
+                'transfer_id' => $transferId,
                 'information_object_id' => $ioId,
-                'disposal_action_id'    => $detail['disposal_action_id'],
-                'archival_reference'    => $detail['identifier'],
-                'title_snapshot'        => mb_substr((string) ($detail['title'] ?? ''), 0, 500),
-                'schedule_code'         => $scheduleCode,
-                'digital_object_count'  => $doInfo['count'],
-                'digital_object_bytes'  => $doInfo['bytes'],
-                'sha256'                => $itemSha,
-                'created_at'            => $now,
+                'disposal_action_id' => $detail['disposal_action_id'],
+                'archival_reference' => $detail['identifier'],
+                'title_snapshot' => mb_substr((string) ($detail['title'] ?? ''), 0, 500),
+                'schedule_code' => $scheduleCode,
+                'digital_object_count' => $doInfo['count'],
+                'digital_object_bytes' => $doInfo['bytes'],
+                'sha256' => $itemSha,
+                'created_at' => $now,
             ];
         }
 
-        $manifestPath = $workDir . '/manifest.csv';
+        $manifestPath = $workDir.'/manifest.csv';
         $fp = fopen($manifestPath, 'w');
         foreach ($manifestRows as $row) {
             fputcsv($fp, $row);
         }
         fclose($fp);
 
-        file_put_contents($workDir . '/transfer.xml', $this->buildMets($ref, $items));
+        file_put_contents($workDir.'/transfer.xml', $this->buildMets($ref, $items));
 
-        $tarPath = dirname($workDir) . '/' . $ref . '.tar.gz';
+        $tarPath = dirname($workDir).'/'.$ref.'.tar.gz';
         $cwd = dirname($workDir);
         $base = basename($workDir);
         $cmd = sprintf('cd %s && tar -czf %s %s 2>&1', escapeshellarg($cwd), escapeshellarg($tarPath), escapeshellarg($base));
@@ -132,53 +132,53 @@ class TransferPackageService
         $exit = 0;
         exec($cmd, $output, $exit);
         if ($exit !== 0) {
-            throw new RuntimeException('tar failed: ' . implode("\n", $output));
+            throw new RuntimeException('tar failed: '.implode("\n", $output));
         }
 
         $pkgSha = hash_file('sha256', $tarPath);
 
         DB::table('narssa_transfer')->where('id', $transferId)->update([
-            'item_count'       => count($items),
+            'item_count' => count($items),
             'total_size_bytes' => $totalBytes,
-            'package_path'     => $tarPath,
-            'package_sha256'   => $pkgSha,
-            'schedule_codes'   => implode(',', array_keys($scheduleCodes)),
-            'status'           => 'packaged',
-            'updated_at'       => date('Y-m-d H:i:s'),
+            'package_path' => $tarPath,
+            'package_sha256' => $pkgSha,
+            'schedule_codes' => implode(',', array_keys($scheduleCodes)),
+            'status' => 'packaged',
+            'updated_at' => date('Y-m-d H:i:s'),
         ]);
-        if (!empty($items)) {
+        if (! empty($items)) {
             DB::table('narssa_transfer_item')->insert($items);
         }
 
         try {
             DB::table('ahg_audit_log')->insert([
-                'uuid'        => $this->generateUuid(),
-                'action'      => 'narssa_transfer_packaged',
+                'uuid' => $this->generateUuid(),
+                'action' => 'narssa_transfer_packaged',
                 'entity_type' => 'narssa_transfer',
-                'entity_id'   => $transferId,
-                'user_id'     => $initiatedBy,
-                'new_values'  => json_encode([
-                    'reference'    => $ref,
-                    'item_count'   => count($items),
-                    'bytes'        => $totalBytes,
-                    'package_sha'  => $pkgSha,
+                'entity_id' => $transferId,
+                'user_id' => $initiatedBy,
+                'new_values' => json_encode([
+                    'reference' => $ref,
+                    'item_count' => count($items),
+                    'bytes' => $totalBytes,
+                    'package_sha' => $pkgSha,
                     'package_path' => $tarPath,
                 ]),
-                'created_at'  => date('Y-m-d H:i:s'),
+                'created_at' => date('Y-m-d H:i:s'),
             ]);
         } catch (\Throwable $e) {
             // non-fatal: audit table may be absent in trimmed installs
         }
 
         return [
-            'transfer_id'     => $transferId,
-            'reference'       => $ref,
-            'package_path'    => $tarPath,
-            'package_sha256'  => $pkgSha,
-            'item_count'      => count($items),
-            'total_bytes'     => $totalBytes,
+            'transfer_id' => $transferId,
+            'reference' => $ref,
+            'package_path' => $tarPath,
+            'package_sha256' => $pkgSha,
+            'item_count' => count($items),
+            'total_bytes' => $totalBytes,
             'digital_objects' => $totalDOs,
-            'work_dir'        => $workDir,
+            'work_dir' => $workDir,
         ];
     }
 
@@ -199,9 +199,10 @@ class TransferPackageService
         foreach ($rows as $r) {
             DB::table('disposal_action')->where('id', $r->id)->update([
                 'transfer_manifest_path' => $result['package_path'],
-                'updated_at'             => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
             ]);
         }
+
         return $result;
     }
 
@@ -211,16 +212,18 @@ class TransferPackageService
         $count = (int) DB::table('narssa_transfer')
             ->where('transfer_reference', 'LIKE', "NARSSA-{$year}-%")
             ->count();
+
         return sprintf('NARSSA-%s-%03d', $year, $count + 1);
     }
 
     private function workDir(string $ref): string
     {
         $base = rtrim((string) config('heratio.uploads_path', base_path('uploads')), '/');
-        $dir = $base . '/narssa/' . $ref;
-        if (!is_dir($dir)) {
+        $dir = $base.'/narssa/'.$ref;
+        if (! is_dir($dir)) {
             @mkdir($dir, 0775, true);
         }
+
         return $dir;
     }
 
@@ -234,8 +237,8 @@ class TransferPackageService
             ->leftJoin('retention_schedule as rs', 'ra.retention_schedule_id', '=', 'rs.id')
             ->leftJoin('disposal_action as da', function ($j) {
                 $j->on('io.id', '=', 'da.information_object_id')
-                  ->where('da.action_type', '=', 'transfer_narssa')
-                  ->whereIn('da.status', ['approved', 'executed']);
+                    ->where('da.action_type', '=', 'transfer_narssa')
+                    ->whereIn('da.status', ['approved', 'executed']);
             })
             ->where('io.id', $ioId)
             ->select(
@@ -249,6 +252,7 @@ class TransferPackageService
                 'da.id as disposal_action_id'
             )
             ->first();
+
         return $row ? (array) $row : null;
     }
 
@@ -262,22 +266,23 @@ class TransferPackageService
             if (empty($do->path)) {
                 continue;
             }
-            $src = $uploadsBase . '/' . ltrim((string) $do->path, '/') . '/' . (string) $do->name;
-            if (!is_file($src)) {
+            $src = $uploadsBase.'/'.ltrim((string) $do->path, '/').'/'.(string) $do->name;
+            if (! is_file($src)) {
                 continue;
             }
-            $dst = $destDir . '/' . basename($do->name);
+            $dst = $destDir.'/'.basename($do->name);
             if (copy($src, $dst)) {
                 $bytes += filesize($dst);
                 $count++;
             }
         }
+
         return ['count' => $count, 'bytes' => $bytes];
     }
 
     private function buildEad2002(array $detail): string
     {
-        $w = new XMLWriter();
+        $w = new XMLWriter;
         $w->openMemory();
         $w->setIndent(true);
         $w->setIndentString('  ');
@@ -306,16 +311,16 @@ class TransferPackageService
         $w->startElement('did');
         $w->writeElement('unitid', (string) ($detail['identifier'] ?? ''));
         $w->writeElement('unittitle', (string) ($detail['title'] ?? 'Untitled'));
-        if (!empty($detail['extent_and_medium'])) {
+        if (! empty($detail['extent_and_medium'])) {
             $w->writeElement('physdesc', strip_tags((string) $detail['extent_and_medium']));
         }
         $w->endElement();
-        if (!empty($detail['scope_and_content'])) {
+        if (! empty($detail['scope_and_content'])) {
             $w->startElement('scopecontent');
             $w->writeElement('p', strip_tags((string) $detail['scope_and_content']));
             $w->endElement();
         }
-        if (!empty($detail['schedule_code'])) {
+        if (! empty($detail['schedule_code'])) {
             $w->startElement('processinfo');
             $w->writeElement('p', sprintf('Retention schedule: %s - %s', $detail['schedule_code'], $detail['schedule_title'] ?? ''));
             $w->endElement();
@@ -323,12 +328,13 @@ class TransferPackageService
         $w->endElement();
         $w->endElement();
         $w->endDocument();
+
         return $w->outputMemory();
     }
 
     private function buildMets(string $ref, array $items): string
     {
-        $w = new XMLWriter();
+        $w = new XMLWriter;
         $w->openMemory();
         $w->setIndent(true);
         $w->setIndentString('  ');
@@ -336,7 +342,7 @@ class TransferPackageService
         $w->startElement('mets');
         $w->writeAttribute('xmlns', 'http://www.loc.gov/METS/');
         $w->writeAttribute('OBJID', $ref);
-        $w->writeAttribute('LABEL', 'NARSSA transfer ' . $ref);
+        $w->writeAttribute('LABEL', 'NARSSA transfer '.$ref);
         $w->writeAttribute('TYPE', 'archive-transfer');
 
         $w->startElement('metsHdr');
@@ -348,14 +354,14 @@ class TransferPackageService
         $w->writeAttribute('USE', 'archival-items');
         foreach ($items as $i => $it) {
             $w->startElement('file');
-            $w->writeAttribute('ID', 'item-' . ($i + 1));
+            $w->writeAttribute('ID', 'item-'.($i + 1));
             $w->writeAttribute('CHECKSUM', (string) $it['sha256']);
             $w->writeAttribute('CHECKSUMTYPE', 'SHA-256');
             $w->writeAttribute('SIZE', (string) $it['digital_object_bytes']);
             $w->startElement('FLocat');
             $w->writeAttribute('LOCTYPE', 'OTHER');
             $w->writeAttribute('OTHERLOCTYPE', 'tar-path');
-            $w->writeAttribute('xlink:href', 'items/' . $this->sanitiseRef($it['archival_reference'] ?? ('IO-' . $it['information_object_id'])));
+            $w->writeAttribute('xlink:href', 'items/'.$this->sanitiseRef($it['archival_reference'] ?? ('IO-'.$it['information_object_id'])));
             $w->endElement();
             $w->endElement();
         }
@@ -363,6 +369,7 @@ class TransferPackageService
         $w->endElement();
         $w->endElement();
         $w->endDocument();
+
         return $w->outputMemory();
     }
 
@@ -378,15 +385,17 @@ class TransferPackageService
         sort($files);
         $hash = hash_init('sha256');
         foreach ($files as $f) {
-            hash_update($hash, basename($f) . ':');
+            hash_update($hash, basename($f).':');
             hash_update_file($hash, $f);
         }
+
         return hash_final($hash);
     }
 
     private function sanitiseRef(string $s): string
     {
         $s = preg_replace('/[^a-zA-Z0-9_\-\.]+/', '_', $s);
+
         return trim((string) $s, '_') ?: 'unknown';
     }
 
@@ -402,8 +411,9 @@ class TransferPackageService
     private function generateUuid(): string
     {
         $d = random_bytes(16);
-        $d[6] = chr(ord($d[6]) & 0x0f | 0x40);
-        $d[8] = chr(ord($d[8]) & 0x3f | 0x80);
+        $d[6] = chr(ord($d[6]) & 0x0F | 0x40);
+        $d[8] = chr(ord($d[8]) & 0x3F | 0x80);
+
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($d), 4));
     }
 }

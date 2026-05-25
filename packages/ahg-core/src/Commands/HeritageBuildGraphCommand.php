@@ -25,8 +25,10 @@ class HeritageBuildGraphCommand extends Command
         // Pull IOs that don't yet have a heritage_entity_cache row.
         $ios = DB::connection('atom')->table('information_object as i')
             ->leftJoin(
-                DB::connection('heratio')->getDatabaseName() . '.heritage_entity_cache as hec',
-                function ($j) { $j->on('hec.entity_type', '=', DB::raw("'io'"))->on('hec.entity_id', '=', 'i.id'); }
+                DB::connection('heratio')->getDatabaseName().'.heritage_entity_cache as hec',
+                function ($j) {
+                    $j->on('hec.entity_type', '=', DB::raw("'io'"))->on('hec.entity_id', '=', 'i.id');
+                }
             )
             ->whereNull('hec.id')
             ->limit($limit)
@@ -35,12 +37,12 @@ class HeritageBuildGraphCommand extends Command
 
         $written = 0;
         foreach ($ios->chunk(500) as $chunk) {
-            $rows = $chunk->map(fn($r) => [
-                'entity_type'       => 'io',
-                'entity_id'         => $r->id,
-                'repository_id'     => $r->repository_id,
-                'level_id'          => $r->level_of_description_id,
-                'cached_at'         => now(),
+            $rows = $chunk->map(fn ($r) => [
+                'entity_type' => 'io',
+                'entity_id' => $r->id,
+                'repository_id' => $r->repository_id,
+                'level_id' => $r->level_of_description_id,
+                'cached_at' => now(),
             ])->all();
             DB::table('heritage_entity_cache')->insert($rows);
             $written += count($rows);
@@ -59,6 +61,7 @@ class HeritageBuildGraphCommand extends Command
             ");
             $this->info('queued Getty AAT links (where exact term name matches pref_label)');
         }
+
         return self::SUCCESS;
     }
 }

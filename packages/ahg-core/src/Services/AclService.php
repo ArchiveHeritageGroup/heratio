@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCore\Services;
 
 use AhgCore\Constants\TermId;
@@ -42,7 +40,9 @@ use Illuminate\Support\Facades\DB;
 class AclService
 {
     public const GRANT = 1;
+
     public const DENY = 0;
+
     public const INHERIT = -1;
 
     public static array $ACTIONS = [
@@ -61,6 +61,7 @@ class AclService
     ];
 
     private static ?object $user = null;
+
     private static ?array $userGroups = null;
 
     public static function setUser(?object $user): void

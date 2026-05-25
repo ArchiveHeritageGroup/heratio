@@ -26,6 +26,7 @@ class TriposrPreloadCommand extends Command
     {
         if (! AhgSettingsService::getBool('triposr_enabled', false)) {
             $this->warn('TripoSR is disabled in settings; nothing to preload.');
+
             return self::SUCCESS;
         }
 
@@ -34,28 +35,38 @@ class TriposrPreloadCommand extends Command
             ? AhgSettingsService::get('triposr_remote_url', '')
             : AhgSettingsService::get('triposr_api_url', 'http://127.0.0.1:5050');
         $apiKey = $mode === 'remote' ? AhgSettingsService::get('triposr_remote_api_key', '') : null;
-        if (! $url) { $this->error('TripoSR URL not configured'); return self::FAILURE; }
+        if (! $url) {
+            $this->error('TripoSR URL not configured');
 
-        $endpoint = rtrim($url, '/') . '/preload';
+            return self::FAILURE;
+        }
+
+        $endpoint = rtrim($url, '/').'/preload';
         $retries = max(1, (int) $this->option('retries'));
 
         for ($i = 1; $i <= $retries; $i++) {
             try {
                 $req = Http::timeout(60);
-                if ($apiKey) $req = $req->withHeaders(['X-API-Key' => $apiKey]);
+                if ($apiKey) {
+                    $req = $req->withHeaders(['X-API-Key' => $apiKey]);
+                }
                 $resp = $req->post($endpoint);
                 if ($resp->ok()) {
                     $body = $resp->json() ?: [];
-                    $this->info("preloaded ({$endpoint}): " . ($body['status'] ?? 'ok'));
+                    $this->info("preloaded ({$endpoint}): ".($body['status'] ?? 'ok'));
+
                     return self::SUCCESS;
                 }
                 $this->warn("attempt {$i}/{$retries}: HTTP {$resp->status()}");
             } catch (\Throwable $e) {
-                $this->warn("attempt {$i}/{$retries}: " . $e->getMessage());
+                $this->warn("attempt {$i}/{$retries}: ".$e->getMessage());
             }
-            if ($i < $retries) sleep(min(5 * $i, 15));
+            if ($i < $retries) {
+                sleep(min(5 * $i, 15));
+            }
         }
         $this->error("preload failed after {$retries} attempts");
+
         return self::FAILURE;
     }
 }

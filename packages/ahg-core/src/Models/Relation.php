@@ -10,7 +10,9 @@ class Relation extends Model
     use HasI18n;
 
     protected $table = 'relation';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [

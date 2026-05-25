@@ -26,7 +26,9 @@ class LibrarySerialExpectedCommand extends Command
     public function handle(): int
     {
         if (! Schema::hasTable('library_subscription') || ! Schema::hasTable('library_serial_issue')) {
-            $this->warn('library_subscription/library_serial_issue missing'); return self::SUCCESS;
+            $this->warn('library_subscription/library_serial_issue missing');
+
+            return self::SUCCESS;
         }
         $months = max(1, (int) $this->option('months'));
         $dry = (bool) $this->option('dry-run');
@@ -36,14 +38,17 @@ class LibrarySerialExpectedCommand extends Command
         $created = 0;
         foreach ($subs as $s) {
             $stepDays = $this->frequencyDays((string) ($s->frequency ?? 'monthly'));
-            if ($stepDays <= 0) continue;
+            if ($stepDays <= 0) {
+                continue;
+            }
             $last = DB::table('library_serial_issue')->where('subscription_id', $s->id)->orderByDesc('expected_date')->first();
             $next = $last && $last->expected_date
                 ? Carbon::parse($last->expected_date)->addDays($stepDays)
                 : Carbon::now();
             while ($next->lessThanOrEqualTo($until)) {
-                if ($dry) { $created++; }
-                else {
+                if ($dry) {
+                    $created++;
+                } else {
                     DB::table('library_serial_issue')->insert([
                         'subscription_id' => $s->id,
                         'library_item_id' => $s->library_item_id,
@@ -57,22 +62,23 @@ class LibrarySerialExpectedCommand extends Command
                 $next->addDays($stepDays);
             }
         }
-        $this->info("expected_issues={$created}" . ($dry ? ' (dry-run)' : ''));
+        $this->info("expected_issues={$created}".($dry ? ' (dry-run)' : ''));
+
         return self::SUCCESS;
     }
 
     protected function frequencyDays(string $freq): int
     {
         return match (strtolower($freq)) {
-            'daily'      => 1,
-            'weekly'     => 7,
+            'daily' => 1,
+            'weekly' => 7,
             'biweekly', 'fortnightly' => 14,
-            'monthly'    => 30,
+            'monthly' => 30,
             'bimonthly', 'two-monthly' => 60,
-            'quarterly'  => 91,
+            'quarterly' => 91,
             'biannual', 'semiannual' => 182,
             'annual', 'yearly' => 365,
-            default      => 0,
+            default => 0,
         };
     }
 }

@@ -50,20 +50,19 @@ class AssignmentService
      * plugin. Idempotent in the sense that re-assigning an already-assigned
      * mention re-targets the existing task instead of creating a new one.
      *
-     * @param string|null $reason  Optional archivist reason / message. Stored
-     *                             as the workflow task's assignment comment -
-     *                             a ahg_workflow_history row written by
-     *                             WorkflowService::assignToUser(). No schema
-     *                             change: the history row already exists for
-     *                             every assignment, the reason just replaces
-     *                             its default "Assigned to user #N" note.
-     *
+     * @param  string|null  $reason  Optional archivist reason / message. Stored
+     *                               as the workflow task's assignment comment -
+     *                               a ahg_workflow_history row written by
+     *                               WorkflowService::assignToUser(). No schema
+     *                               change: the history row already exists for
+     *                               every assignment, the reason just replaces
+     *                               its default "Assigned to user #N" note.
      * @return array{ok:bool, workflow_task_id:?int, error:?string}
      */
     public function assign(int $mentionId, int $archivistUserId, int $byUserId, ?string $reason = null): array
     {
         $mention = DB::table('ahg_mention')->where('id', $mentionId)->first();
-        if (!$mention) {
+        if (! $mention) {
             return ['ok' => false, 'workflow_task_id' => null, 'error' => "Mention #{$mentionId} not found."];
         }
         if ($archivistUserId <= 0) {
@@ -83,14 +82,14 @@ class AssignmentService
                     if ($taskId) {
                         // Re-assign the existing task to the new archivist.
                         $ok = $workflow->assignToUser($taskId, $archivistUserId, $byUserId, $reason);
-                        if (!$ok) {
+                        if (! $ok) {
                             // The task row vanished (deleted workflow?); fall
                             // through and start a fresh one.
                             $taskId = null;
                         }
                     }
 
-                    if (!$taskId) {
+                    if (! $taskId) {
                         $workflowId = $this->resolveWorkflowId();
                         if ($workflowId === null) {
                             return [
@@ -133,7 +132,8 @@ class AssignmentService
                 'archivist_user_id' => $archivistUserId,
                 'error' => $e->getMessage(),
             ]);
-            return ['ok' => false, 'workflow_task_id' => null, 'error' => 'Assignment failed: ' . $e->getMessage()];
+
+            return ['ok' => false, 'workflow_task_id' => null, 'error' => 'Assignment failed: '.$e->getMessage()];
         }
     }
 
@@ -142,8 +142,8 @@ class AssignmentService
      * independently - one failure does not abort the rest.
      *
      * @param  list<int>  $mentionIds
-     * @param  string|null $reason  Optional reason / message applied to every
-     *                              mention in the batch.
+     * @param  string|null  $reason  Optional reason / message applied to every
+     *                               mention in the batch.
      * @return array{assigned:int, failed:int, errors:list<string>}
      */
     public function assignBatch(array $mentionIds, int $archivistUserId, int $byUserId, ?string $reason = null): array
@@ -162,7 +162,7 @@ class AssignmentService
             } else {
                 $failed++;
                 if ($result['error']) {
-                    $errors[] = "Mention #{$mentionId}: " . $result['error'];
+                    $errors[] = "Mention #{$mentionId}: ".$result['error'];
                 }
             }
         }
@@ -196,7 +196,7 @@ class AssignmentService
             ->orderBy('actor_i18n.authorized_form_of_name')
             ->orderBy('user.username');
 
-        if ($eligibleIds !== null && !empty($eligibleIds)) {
+        if ($eligibleIds !== null && ! empty($eligibleIds)) {
             $q->whereIn('user.id', $eligibleIds);
         }
 
@@ -206,8 +206,9 @@ class AssignmentService
                 $name = trim((string) ($row->username ?? ''));
             }
             if ($name === '') {
-                $name = 'User #' . (int) $row->id;
+                $name = 'User #'.(int) $row->id;
             }
+
             return [
                 'id' => (int) $row->id,
                 'name' => $name,
@@ -231,7 +232,7 @@ class AssignmentService
             // are the assignment-eligible roles.
             $hasTables = \Illuminate\Support\Facades\Schema::hasTable('acl_user_group')
                 && \Illuminate\Support\Facades\Schema::hasTable('acl_group_i18n');
-            if (!$hasTables) {
+            if (! $hasTables) {
                 return null;
             }
 
@@ -245,12 +246,12 @@ class AssignmentService
                 })
                 ->distinct()
                 ->pluck('ug.user_id')
-                ->map(fn($v) => (int) $v)
+                ->map(fn ($v) => (int) $v)
                 ->all();
 
             // If the ACL groups exist but nobody matched (unusual install),
             // fall back to all users rather than returning an empty picker.
-            return !empty($ids) ? $ids : null;
+            return ! empty($ids) ? $ids : null;
         } catch (\Throwable $e) {
             return null;
         }
@@ -274,7 +275,7 @@ class AssignmentService
      */
     private function workflowAvailable(): bool
     {
-        if (!class_exists(\AhgWorkflow\Services\WorkflowService::class)) {
+        if (! class_exists(\AhgWorkflow\Services\WorkflowService::class)) {
             return false;
         }
         try {

@@ -1,0 +1,1 @@
+{"body":"## Audit findings for ahg-static-page\n\n- Missing access controls\n- Outdated dependencies\n- Incomplete test coverage\n\n### Recommendations\n\n1. Add authentication\n2. Upgrade packages\n3. Write unit tests","createdAt":"2026-05-24T06:24:35Z","labels":[],"number":679,"title":"Audit: ahg-static-page"}

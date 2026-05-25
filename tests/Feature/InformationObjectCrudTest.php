@@ -7,7 +7,6 @@ use AhgCore\Models\InformationObjectI18n;
 use Database\Factories\ActorFactory;
 use Database\Factories\EventFactory;
 use Database\Factories\InformationObjectFactory;
-use Database\Factories\TermFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 

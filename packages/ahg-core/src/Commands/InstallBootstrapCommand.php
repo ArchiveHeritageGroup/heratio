@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Heratio — heratio:install-bootstrap artisan command
  *
@@ -34,10 +35,11 @@ class InstallBootstrapCommand extends Command
     public function handle(): int
     {
         $packagesRoot = $this->option('packages-root') ?: base_path('packages');
-        $passes       = (int) $this->option('pass');
+        $passes = (int) $this->option('pass');
 
-        if (!is_dir($packagesRoot)) {
+        if (! is_dir($packagesRoot)) {
             $this->error("packages-root not a directory: {$packagesRoot}");
+
             return self::FAILURE;
         }
 

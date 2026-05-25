@@ -28,18 +28,31 @@ class StatisticsAggregateCommand extends Command
 
     public function handle(): int
     {
-        if (! Schema::hasTable('ahg_usage_event')) { $this->warn('ahg_usage_event missing'); return self::SUCCESS; }
+        if (! Schema::hasTable('ahg_usage_event')) {
+            $this->warn('ahg_usage_event missing');
+
+            return self::SUCCESS;
+        }
 
         $doDaily = $this->option('daily') || $this->option('all');
         $doMonthly = $this->option('monthly') || $this->option('all');
-        if (! $doDaily && ! $doMonthly && ! $this->option('cleanup')) $doDaily = true;
+        if (! $doDaily && ! $doMonthly && ! $this->option('cleanup')) {
+            $doDaily = true;
+        }
 
         $from = $this->option('backfill') ? Carbon::parse((string) $this->option('backfill'))->startOfDay() : Carbon::yesterday();
         $to = Carbon::now()->endOfDay();
 
-        if ($doDaily) $this->info('daily: rolled ' . $this->rollDaily($from, $to) . ' rows');
-        if ($doMonthly) $this->info('monthly: rolled ' . $this->rollMonthly($from, $to) . ' rows');
-        if ($this->option('cleanup')) $this->info('cleanup: deleted ' . $this->cleanup((int) $this->option('days')) . ' raw events');
+        if ($doDaily) {
+            $this->info('daily: rolled '.$this->rollDaily($from, $to).' rows');
+        }
+        if ($doMonthly) {
+            $this->info('monthly: rolled '.$this->rollMonthly($from, $to).' rows');
+        }
+        if ($this->option('cleanup')) {
+            $this->info('cleanup: deleted '.$this->cleanup((int) $this->option('days')).' raw events');
+        }
+
         return self::SUCCESS;
     }
 
@@ -57,12 +70,13 @@ class StatisticsAggregateCommand extends Command
         foreach ($rows as $r) {
             DB::table('ahg_statistics_daily')->updateOrInsert(
                 ['stat_date' => $r->d, 'event_type' => $r->event_type, 'object_type' => $r->object_type,
-                 'object_id' => $r->object_id, 'repository_id' => $r->repository_id, 'country_code' => $r->country_code],
+                    'object_id' => $r->object_id, 'repository_id' => $r->repository_id, 'country_code' => $r->country_code],
                 ['total_count' => $r->total, 'unique_visitors' => $r->uniq,
-                 'authenticated_count' => $r->auth, 'bot_count' => $r->bots, 'updated_at' => now()],
+                    'authenticated_count' => $r->auth, 'bot_count' => $r->bots, 'updated_at' => now()],
             );
             $n++;
         }
+
         return $n;
     }
 
@@ -79,19 +93,21 @@ class StatisticsAggregateCommand extends Command
         foreach ($rows as $r) {
             DB::table('ahg_statistics_monthly')->updateOrInsert(
                 ['stat_year' => $r->y, 'stat_month' => $r->m, 'event_type' => $r->event_type,
-                 'object_type' => $r->object_type, 'object_id' => $r->object_id,
-                 'repository_id' => $r->repository_id, 'country_code' => $r->country_code],
+                    'object_type' => $r->object_type, 'object_id' => $r->object_id,
+                    'repository_id' => $r->repository_id, 'country_code' => $r->country_code],
                 ['total_count' => $r->total, 'peak_count' => $r->peak_count, 'peak_day' => $r->peak_day,
-                 'unique_visitors' => $r->uniq, 'updated_at' => now()],
+                    'unique_visitors' => $r->uniq, 'updated_at' => now()],
             );
             $n++;
         }
+
         return $n;
     }
 
     protected function cleanup(int $days): int
     {
         $cutoff = Carbon::now()->subDays(max(1, $days));
+
         return DB::table('ahg_usage_event')->where('created_at', '<', $cutoff)->delete();
     }
 }

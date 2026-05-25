@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Heratio — atom-fixture-to-sql
  *
@@ -28,7 +29,7 @@
  * AGPL-3.0-or-later.
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -36,19 +37,19 @@ use Symfony\Component\Yaml\Yaml;
 // Most map by "drop Qubit prefix, snake_case" but we list explicitly so the
 // converter is total: any unknown top-level model causes a hard error.
 const MODEL_MAP = [
-    'QubitTaxonomy'      => 'taxonomy',
-    'QubitTerm'          => 'term',
-    'QubitMenu'          => 'menu',
-    'QubitSetting'       => 'setting',
-    'QubitAclGroup'      => 'acl_group',
+    'QubitTaxonomy' => 'taxonomy',
+    'QubitTerm' => 'term',
+    'QubitMenu' => 'menu',
+    'QubitSetting' => 'setting',
+    'QubitAclGroup' => 'acl_group',
     'QubitAclPermission' => 'acl_permission',
-    'QubitStaticPage'    => 'static_page',
-    'QubitNote'          => 'note',
-    'QubitRelation'      => 'relation',
-    'QubitStatus'        => 'status',
-    'QubitUser'          => 'user',
+    'QubitStaticPage' => 'static_page',
+    'QubitNote' => 'note',
+    'QubitRelation' => 'relation',
+    'QubitStatus' => 'status',
+    'QubitUser' => 'user',
     'QubitContactInformation' => 'contact_information',
-    'QubitRepository'    => 'repository',
+    'QubitRepository' => 'repository',
 ];
 
 // Recognised culture codes — present as keys under an i18n field.
@@ -62,26 +63,26 @@ const CULTURE_CODES = [
 
 // ----- argv -----------------------------------------------------------------
 [$_, $inFile, $outFile] = array_pad($argv, 3, null);
-if (!$inFile || !$outFile) {
+if (! $inFile || ! $outFile) {
     fwrite(STDERR, "Usage: php atom-fixture-to-sql.php <input.yml> <output.sql>\n");
     exit(2);
 }
-if (!is_readable($inFile)) {
+if (! is_readable($inFile)) {
     fwrite(STDERR, "ERROR: input not readable: $inFile\n");
     exit(2);
 }
 
 $data = Yaml::parseFile($inFile);
-if (!is_array($data) || empty($data)) {
-    file_put_contents($outFile, headerComment($inFile) . "-- (input file had no fixture data — empty stub)\n");
+if (! is_array($data) || empty($data)) {
+    file_put_contents($outFile, headerComment($inFile)."-- (input file had no fixture data — empty stub)\n");
     fwrite(STDERR, "wrote empty stub to $outFile (input parsed empty)\n");
     exit(0);
 }
 
 // Empty model wrappers (e.g. fixtures.yml is all comments) → write a stub.
-$modelCount = count(array_filter($data, fn($v) => is_array($v) && !empty($v)));
+$modelCount = count(array_filter($data, fn ($v) => is_array($v) && ! empty($v)));
 if ($modelCount === 0) {
-    file_put_contents($outFile, headerComment($inFile) . "-- (input file had no fixture data — empty stub)\n");
+    file_put_contents($outFile, headerComment($inFile)."-- (input file had no fixture data — empty stub)\n");
     fwrite(STDERR, "wrote empty stub to $outFile\n");
     exit(0);
 }
@@ -92,17 +93,24 @@ $symbolToId = [];           // symbol -> numeric id
 $nextSyntheticId = [];      // model -> next id to assign for entries lacking one
 
 foreach ($data as $model => $entries) {
-    if (!is_array($entries)) continue;
-    if (!isset(MODEL_MAP[$model])) {
+    if (! is_array($entries)) {
+        continue;
+    }
+    if (! isset(MODEL_MAP[$model])) {
         fwrite(STDERR, "WARN: unknown model $model — skipping\n");
+
         continue;
     }
     $maxId = 0;
     foreach ($entries as $symbol => $row) {
-        if (!is_array($row)) continue;
+        if (! is_array($row)) {
+            continue;
+        }
         if (isset($row['id']) && is_int($row['id'])) {
             $symbolToId[$symbol] = $row['id'];
-            if ($row['id'] > $maxId) $maxId = $row['id'];
+            if ($row['id'] > $maxId) {
+                $maxId = $row['id'];
+            }
         }
     }
     // Reserve a high range above the max for synthetic IDs so they don't
@@ -114,17 +122,28 @@ foreach ($data as $model => $entries) {
 // payload but no explicit id. AtoM's symfony loader auto-increments; we
 // pre-assign deterministically so re-runs are stable.
 foreach ($data as $model => $entries) {
-    if (!is_array($entries) || !isset(MODEL_MAP[$model])) continue;
+    if (! is_array($entries) || ! isset(MODEL_MAP[$model])) {
+        continue;
+    }
     foreach ($entries as $symbol => $row) {
-        if (!is_array($row)) continue;
-        if (isset($row['id'])) continue;
+        if (! is_array($row)) {
+            continue;
+        }
+        if (isset($row['id'])) {
+            continue;
+        }
         // Only assign if the row has any payload to insert.
         $hasPayload = false;
         foreach ($row as $k => $v) {
-            if ($k === 'id') continue;
-            $hasPayload = true; break;
+            if ($k === 'id') {
+                continue;
+            }
+            $hasPayload = true;
+            break;
         }
-        if (!$hasPayload) continue;
+        if (! $hasPayload) {
+            continue;
+        }
         $assigned = $nextSyntheticId[$model]++;
         $symbolToId[$symbol] = $assigned;
         $data[$model][$symbol]['id'] = $assigned;
@@ -136,11 +155,12 @@ foreach ($data as $model => $entries) {
 //   - QubitSetting.value is a scalar in YAML but lives in setting_i18n.value
 //   - QubitStaticPage.slug isn't on static_page; the slug table holds it
 // Returns: ['drop' => [fields to drop from base], 'forceI18n' => [field => col]]
-function modelOverrides(string $model): array {
+function modelOverrides(string $model): array
+{
     return match ($model) {
-        'QubitSetting'    => ['drop' => [], 'forceI18n' => ['value' => 'value']],
+        'QubitSetting' => ['drop' => [], 'forceI18n' => ['value' => 'value']],
         'QubitStaticPage' => ['drop' => ['slug', 'user_id'], 'forceI18n' => []],
-        default           => ['drop' => [], 'forceI18n' => []],
+        default => ['drop' => [], 'forceI18n' => []],
     };
 }
 
@@ -164,9 +184,11 @@ $totalRows = 0;
 $totalI18n = 0;
 
 foreach ($data as $model => $entries) {
-    if (!is_array($entries) || !isset(MODEL_MAP[$model])) continue;
+    if (! is_array($entries) || ! isset(MODEL_MAP[$model])) {
+        continue;
+    }
     $baseTable = MODEL_MAP[$model];
-    $i18nTable = $baseTable . '_i18n';
+    $i18nTable = $baseTable.'_i18n';
 
     fwrite($out, "-- =========================================================\n");
     fwrite($out, "-- $model -> $baseTable\n");
@@ -175,7 +197,9 @@ foreach ($data as $model => $entries) {
     $overrides = modelOverrides($model);
 
     foreach ($entries as $symbol => $row) {
-        if (!is_array($row)) continue;
+        if (! is_array($row)) {
+            continue;
+        }
 
         $baseFields = [];
         $i18nByCulture = [];
@@ -189,6 +213,7 @@ foreach ($data as $model => $entries) {
                 // Scalar that belongs in i18n under source_culture.
                 $i18nCol = $overrides['forceI18n'][$field];
                 $i18nByCulture[$sourceCulture][$i18nCol] = is_array($value) ? json_encode($value) : $value;
+
                 continue;
             }
             if (is_array($value) && isI18nValue($value)) {
@@ -203,7 +228,7 @@ foreach ($data as $model => $entries) {
         // -- if this is an object-backed model, emit `object` row first
         if (in_array($model, OBJECT_BACKED_MODELS, true) && isset($baseFields['id'])) {
             fwrite($out, sqlInsertOne('object', [
-                'id'         => $baseFields['id'],
+                'id' => $baseFields['id'],
                 'class_name' => $model,
                 'created_at' => '2026-01-01 00:00:00',
                 'updated_at' => '2026-01-01 00:00:00',
@@ -214,21 +239,22 @@ foreach ($data as $model => $entries) {
         }
 
         // -- emit base row
-        if (!empty($baseFields)) {
+        if (! empty($baseFields)) {
             fwrite($out, sqlInsertOne($baseTable, $baseFields));
             fwrite($out, "\n");
             $totalRows++;
         }
 
         // -- emit i18n rows (one per culture) --
-        if (!empty($i18nByCulture)) {
+        if (! empty($i18nByCulture)) {
             $idValue = $baseFields['id'] ?? ($symbolToId[$symbol] ?? null);
             if ($idValue === null) {
                 fwrite(STDERR, "WARN: $symbol has i18n but no id — skipping i18n emit\n");
+
                 continue;
             }
             foreach ($i18nByCulture as $culture => $localFields) {
-                $localFields['id']      = $idValue;
+                $localFields['id'] = $idValue;
                 $localFields['culture'] = $culture;
                 fwrite($out, sqlInsertOne($i18nTable, $localFields));
                 fwrite($out, "\n");
@@ -246,14 +272,15 @@ fclose($out);
 fwrite(STDERR, "wrote $outFile  ($totalRows base + $totalI18n i18n rows)\n");
 exit(0);
 
-
 // ============================================================================
 // helpers
 // ============================================================================
 
-function headerComment(string $inFile): string {
+function headerComment(string $inFile): string
+{
     $bn = basename($inFile);
     $now = date('Y-m-d');
+
     return <<<HDR
     -- ============================================================================
     -- Heratio standalone install — seed data
@@ -269,35 +296,57 @@ function headerComment(string $inFile): string {
 }
 
 /** True when an associative array's keys look like culture codes. */
-function isI18nValue(array $value): bool {
-    if (empty($value)) return false;
+function isI18nValue(array $value): bool
+{
+    if (empty($value)) {
+        return false;
+    }
     $keys = array_keys($value);
-    if (count(array_filter($keys, 'is_string')) !== count($keys)) return false;
+    if (count(array_filter($keys, 'is_string')) !== count($keys)) {
+        return false;
+    }
     $hits = array_intersect($keys, CULTURE_CODES);
+
     return count($hits) > 0;
 }
 
 /** Resolve a symbolic ref like `QubitTaxonomy_root` to its numeric id; otherwise return $value as-is. */
-function resolveSymbolRef($value, array $symbolToId) {
+function resolveSymbolRef($value, array $symbolToId)
+{
     if (is_string($value) && isset($symbolToId[$value])) {
         return $symbolToId[$value];
     }
+
     return $value;
 }
 
-function sqlInsertOne(string $table, array $fields): string {
-    $cols   = array_keys($fields);
+function sqlInsertOne(string $table, array $fields): string
+{
+    $cols = array_keys($fields);
     $values = array_map('sqlValue', array_values($fields));
-    $colSql = '`' . implode('`, `', $cols) . '`';
+    $colSql = '`'.implode('`, `', $cols).'`';
     $valSql = implode(', ', $values);
+
     return "INSERT IGNORE INTO `$table` ($colSql) VALUES ($valSql);";
 }
 
-function sqlValue($v): string {
-    if ($v === null)   return 'NULL';
-    if (is_bool($v))   return $v ? '1' : '0';
-    if (is_int($v))    return (string) $v;
-    if (is_float($v))  return (string) $v;
-    if (is_array($v))  return "'" . addslashes(json_encode($v, JSON_UNESCAPED_UNICODE)) . "'";
-    return "'" . str_replace(['\\', "'", "\0", "\n", "\r"], ['\\\\', "''", '\\0', '\\n', '\\r'], (string) $v) . "'";
+function sqlValue($v): string
+{
+    if ($v === null) {
+        return 'NULL';
+    }
+    if (is_bool($v)) {
+        return $v ? '1' : '0';
+    }
+    if (is_int($v)) {
+        return (string) $v;
+    }
+    if (is_float($v)) {
+        return (string) $v;
+    }
+    if (is_array($v)) {
+        return "'".addslashes(json_encode($v, JSON_UNESCAPED_UNICODE))."'";
+    }
+
+    return "'".str_replace(['\\', "'", "\0", "\n", "\r"], ['\\\\', "''", '\\0', '\\n', '\\r'], (string) $v)."'";
 }

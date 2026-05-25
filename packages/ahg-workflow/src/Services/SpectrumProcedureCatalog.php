@@ -23,27 +23,27 @@ class SpectrumProcedureCatalog
      * ahg_workflow.spectrum_procedure column.
      */
     public const PROCEDURES = [
-        'object_entry'        => 'Object entry',
-        'acquisition'         => 'Acquisition and accessioning',
-        'inventory'           => 'Inventory',
-        'location_movement'   => 'Location and movement control',
-        'cataloguing'         => 'Cataloguing',
-        'object_exit'         => 'Object exit',
-        'loans_in'            => 'Loans in (borrowing)',
-        'loans_out'           => 'Loans out (lending)',
-        'insurance'           => 'Insurance and indemnity',
-        'damage_loss'         => 'Damage and loss',
-        'conservation'        => 'Conservation and collections care',
-        'audit'               => 'Audit',
-        'condition_check'     => 'Object condition checking and technical assessment',
-        'valuation'           => 'Object valuation',
-        'risk_management'     => 'Risk management',
-        'emergency_planning'  => 'Emergency planning for collections',
-        'use_of_collections'  => 'Use of collections',
-        'rights_management'   => 'Rights management',
-        'reproduction'        => 'Reproduction',
-        'deaccessioning'      => 'Deaccessioning and disposal',
-        'retrospective_doc'   => 'Retrospective documentation',
+        'object_entry' => 'Object entry',
+        'acquisition' => 'Acquisition and accessioning',
+        'inventory' => 'Inventory',
+        'location_movement' => 'Location and movement control',
+        'cataloguing' => 'Cataloguing',
+        'object_exit' => 'Object exit',
+        'loans_in' => 'Loans in (borrowing)',
+        'loans_out' => 'Loans out (lending)',
+        'insurance' => 'Insurance and indemnity',
+        'damage_loss' => 'Damage and loss',
+        'conservation' => 'Conservation and collections care',
+        'audit' => 'Audit',
+        'condition_check' => 'Object condition checking and technical assessment',
+        'valuation' => 'Object valuation',
+        'risk_management' => 'Risk management',
+        'emergency_planning' => 'Emergency planning for collections',
+        'use_of_collections' => 'Use of collections',
+        'rights_management' => 'Rights management',
+        'reproduction' => 'Reproduction',
+        'deaccessioning' => 'Deaccessioning and disposal',
+        'retrospective_doc' => 'Retrospective documentation',
     ];
 
     /** @return array<string,string> */
@@ -67,6 +67,7 @@ class SpectrumProcedureCatalog
         if ($code === null || $code === '') {
             return '';
         }
+
         return self::PROCEDURES[$code] ?? $code;
     }
 
@@ -81,6 +82,7 @@ class SpectrumProcedureCatalog
             return null;
         }
         $code = trim((string) $code);
+
         return isset(self::PROCEDURES[$code]) ? $code : null;
     }
 }

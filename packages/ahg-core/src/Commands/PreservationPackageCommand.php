@@ -30,30 +30,47 @@ class PreservationPackageCommand extends Command
         try {
             switch ($type) {
                 case 'sip':
-                    if (! $oid) { $this->error('--object-id is required for type=sip'); return self::FAILURE; }
+                    if (! $oid) {
+                        $this->error('--object-id is required for type=sip');
+
+                        return self::FAILURE;
+                    }
                     $id = $svc->createSip((int) $oid, $opts, $createdBy);
                     $this->info("created SIP package id={$id}");
+
                     return self::SUCCESS;
 
                 case 'aip':
-                    if (! $oid) { $this->error('--object-id is required for type=aip'); return self::FAILURE; }
+                    if (! $oid) {
+                        $this->error('--object-id is required for type=aip');
+
+                        return self::FAILURE;
+                    }
                     $r = $svc->createAipFromIO((int) $oid, $opts, $createdBy);
-                    $this->info("created AIP package id=" . ($r['package_id'] ?? '?') . " bag=" . ($r['bag_path'] ?? '?'));
+                    $this->info('created AIP package id='.($r['package_id'] ?? '?').' bag='.($r['bag_path'] ?? '?'));
+
                     return self::SUCCESS;
 
                 case 'dip':
                     $aipId = $this->option('from-aip');
-                    if (! $aipId) { $this->error('--from-aip=<id> is required for type=dip'); return self::FAILURE; }
+                    if (! $aipId) {
+                        $this->error('--from-aip=<id> is required for type=dip');
+
+                        return self::FAILURE;
+                    }
                     $r = $svc->createDipFromAip((int) $aipId, $opts, $createdBy);
-                    $this->info("created DIP package id=" . ($r['package_id'] ?? '?'));
+                    $this->info('created DIP package id='.($r['package_id'] ?? '?'));
+
                     return self::SUCCESS;
 
                 default:
                     $this->error("unknown --type={$type} (expected sip|aip|dip)");
+
                     return self::FAILURE;
             }
         } catch (\Throwable $e) {
-            $this->error('package failed: ' . $e->getMessage());
+            $this->error('package failed: '.$e->getMessage());
+
             return self::FAILURE;
         }
     }

@@ -51,8 +51,8 @@ class GovernanceController extends Controller
     public function index()
     {
         return view('ahg-provenance-ai::governance.index', [
-            'stats'      => $this->stats(),
-            'models'     => $this->modelRows(),
+            'stats' => $this->stats(),
+            'models' => $this->modelRows(),
             'inferences' => $this->inferenceRows(self::RECENT_LIMIT),
         ]);
     }
@@ -103,6 +103,7 @@ class GovernanceController extends Controller
                 $row->model_manifest = is_string($row->model_manifest ?? null)
                     ? json_decode($row->model_manifest, true)
                     : null;
+
                 return $row;
             })
             ->values()
@@ -127,7 +128,8 @@ class GovernanceController extends Controller
             ])
             ->map(function ($row) {
                 // heratio#136 - signed once an Ed25519 signature was recorded.
-                $row->signed = !empty($row->signer_key_id);
+                $row->signed = ! empty($row->signer_key_id);
+
                 return $row;
             })
             ->values()
@@ -140,13 +142,13 @@ class GovernanceController extends Controller
     private function stats(): array
     {
         return [
-            'models_total'     => (int) DB::table('ahg_llm_config')->count(),
-            'models_active'    => (int) DB::table('ahg_llm_config')->where('is_active', 1)->count(),
+            'models_total' => (int) DB::table('ahg_llm_config')->count(),
+            'models_active' => (int) DB::table('ahg_llm_config')->where('is_active', 1)->count(),
             'inferences_total' => (int) DB::table('ahg_ai_inference')->count(),
-            'inferences_7d'    => (int) DB::table('ahg_ai_inference')
+            'inferences_7d' => (int) DB::table('ahg_ai_inference')
                 ->where('occurred_at', '>=', now()->subDays(7))
                 ->count(),
-            'avg_confidence'   => DB::table('ahg_ai_inference')
+            'avg_confidence' => DB::table('ahg_ai_inference')
                 ->whereNotNull('confidence')
                 ->avg('confidence'),
         ];

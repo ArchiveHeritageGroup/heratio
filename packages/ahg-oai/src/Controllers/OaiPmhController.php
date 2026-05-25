@@ -23,7 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 namespace AhgOai\Controllers;
 
 use AhgMetadataExport\Services\Exporters\Ead2002Serializer;
@@ -31,7 +30,6 @@ use AhgMetadataExport\Services\Exporters\Ead3Serializer;
 use AhgMetadataExport\Services\Exporters\MarcxmlSerializer;
 use AhgMetadataExport\Services\Exporters\ModsSerializer;
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
@@ -50,14 +48,14 @@ class OaiPmhController extends Controller
      * OAI-PMH error messages keyed by error code.
      */
     private const ERRORS = [
-        'badArgument'              => 'The request includes illegal arguments, is missing required arguments, includes a repeated argument, or values for arguments have an illegal syntax.',
-        'badResumptionToken'       => 'The value of the resumptionToken argument is invalid or expired.',
-        'badVerb'                  => 'Value of the verb argument is not a legal OAI-PMH verb, the verb argument is missing, or the verb argument is repeated.',
-        'cannotDisseminateFormat'  => 'The metadata format identified by the value given for the metadataPrefix argument is not supported by the item or by the repository.',
-        'idDoesNotExist'           => 'The value of the identifier argument is unknown or illegal in this repository.',
-        'noRecordsMatch'           => 'The combination of the values of the from, until, set and metadataPrefix arguments results in an empty list.',
-        'noMetadataFormats'        => 'There are no metadata formats available for the specified item.',
-        'noSetHierarchy'           => 'The repository does not support sets.',
+        'badArgument' => 'The request includes illegal arguments, is missing required arguments, includes a repeated argument, or values for arguments have an illegal syntax.',
+        'badResumptionToken' => 'The value of the resumptionToken argument is invalid or expired.',
+        'badVerb' => 'Value of the verb argument is not a legal OAI-PMH verb, the verb argument is missing, or the verb argument is repeated.',
+        'cannotDisseminateFormat' => 'The metadata format identified by the value given for the metadataPrefix argument is not supported by the item or by the repository.',
+        'idDoesNotExist' => 'The value of the identifier argument is unknown or illegal in this repository.',
+        'noRecordsMatch' => 'The combination of the values of the from, until, set and metadataPrefix arguments results in an empty list.',
+        'noMetadataFormats' => 'There are no metadata formats available for the specified item.',
+        'noSetHierarchy' => 'The repository does not support sets.',
     ];
 
     /**
@@ -72,12 +70,12 @@ class OaiPmhController extends Controller
      * Allowed and mandatory parameters per verb.
      */
     private const VERB_PARAMS = [
-        'Identify'            => ['allowed' => ['verb'], 'mandatory' => ['verb']],
+        'Identify' => ['allowed' => ['verb'], 'mandatory' => ['verb']],
         'ListMetadataFormats' => ['allowed' => ['verb', 'identifier'], 'mandatory' => ['verb']],
-        'ListSets'            => ['allowed' => ['verb', 'resumptionToken'], 'mandatory' => ['verb']],
-        'ListIdentifiers'     => ['allowed' => ['verb', 'metadataPrefix', 'from', 'until', 'set', 'resumptionToken'], 'mandatory' => ['verb', 'metadataPrefix']],
-        'ListRecords'         => ['allowed' => ['verb', 'metadataPrefix', 'from', 'until', 'set', 'resumptionToken'], 'mandatory' => ['verb', 'metadataPrefix']],
-        'GetRecord'           => ['allowed' => ['verb', 'identifier', 'metadataPrefix'], 'mandatory' => ['verb', 'identifier', 'metadataPrefix']],
+        'ListSets' => ['allowed' => ['verb', 'resumptionToken'], 'mandatory' => ['verb']],
+        'ListIdentifiers' => ['allowed' => ['verb', 'metadataPrefix', 'from', 'until', 'set', 'resumptionToken'], 'mandatory' => ['verb', 'metadataPrefix']],
+        'ListRecords' => ['allowed' => ['verb', 'metadataPrefix', 'from', 'until', 'set', 'resumptionToken'], 'mandatory' => ['verb', 'metadataPrefix']],
+        'GetRecord' => ['allowed' => ['verb', 'identifier', 'metadataPrefix'], 'mandatory' => ['verb', 'identifier', 'metadataPrefix']],
     ];
 
     /**
@@ -93,23 +91,23 @@ class OaiPmhController extends Controller
      */
     private const METADATA_FORMATS = [
         'oai_dc' => [
-            'schema'    => 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
+            'schema' => 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
             'namespace' => 'http://www.openarchives.org/OAI/2.0/oai_dc/',
         ],
         'oai_ead' => [
-            'schema'    => 'http://www.loc.gov/ead/ead.xsd',
+            'schema' => 'http://www.loc.gov/ead/ead.xsd',
             'namespace' => 'urn:isbn:1-931666-22-9',
         ],
         'oai_ead3' => [
-            'schema'    => 'https://www.loc.gov/ead/ead3.xsd',
+            'schema' => 'https://www.loc.gov/ead/ead3.xsd',
             'namespace' => 'http://ead3.archivists.org/schema/',
         ],
         'mods' => [
-            'schema'    => 'http://www.loc.gov/standards/mods/v3/mods-3-5.xsd',
+            'schema' => 'http://www.loc.gov/standards/mods/v3/mods-3-5.xsd',
             'namespace' => 'http://www.loc.gov/mods/v3',
         ],
         'marcxml' => [
-            'schema'    => 'http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd',
+            'schema' => 'http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd',
             'namespace' => 'http://www.loc.gov/MARC21/slim',
         ],
     ];
@@ -135,6 +133,7 @@ class OaiPmhController extends Controller
                 ->all();
         }
         $v = $cache[$key] ?? null;
+
         return ($v === null || $v === '') ? $default : $v;
     }
 
@@ -142,6 +141,7 @@ class OaiPmhController extends Controller
     private function pageSize(): int
     {
         $v = (int) $this->setting('resumption_token_limit', self::PAGE_SIZE);
+
         return $v > 0 ? $v : self::PAGE_SIZE;
     }
 
@@ -170,8 +170,9 @@ class OaiPmhController extends Controller
     private function formatOaiIdentifier(int $oaiLocalId): string
     {
         $code = trim((string) $this->setting('oai_repository_code', ''));
-        $localPart = $code !== '' ? $code . '-' . $oaiLocalId : (string) $oaiLocalId;
-        return 'oai:' . $this->getRepositoryIdentifier() . ':' . $localPart;
+        $localPart = $code !== '' ? $code.'-'.$oaiLocalId : (string) $oaiLocalId;
+
+        return 'oai:'.$this->getRepositoryIdentifier().':'.$localPart;
     }
 
     /**
@@ -230,14 +231,14 @@ class OaiPmhController extends Controller
                     ->first();
                 if ($row) {
                     $scopes = json_decode((string) ($row->scopes ?? '[]'), true);
-                    if (!is_array($scopes) || empty($scopes)) {
+                    if (! is_array($scopes) || empty($scopes)) {
                         $valid = true; // unrestricted key
                     } else {
                         $valid = in_array('oai', $scopes, true) || in_array('*', $scopes, true);
                     }
                 }
             }
-            if (!$valid) {
+            if (! $valid) {
                 // OAI-PMH has no native auth verb; surface as an HTTP 401
                 // with a short text body so harvesters fail fast.
                 return new Response('OAI authentication required (X-API-Key, Bearer, or ?api= with oai scope).', 401, ['Content-Type' => 'text/plain']);
@@ -256,7 +257,7 @@ class OaiPmhController extends Controller
         $verb = $allParams['verb'] ?? null;
 
         // Check verb is present and valid
-        if (empty($verb) || !in_array($verb, self::VERBS)) {
+        if (empty($verb) || ! in_array($verb, self::VERBS)) {
             return $this->errorResponse($request, 'badVerb');
         }
 
@@ -281,13 +282,13 @@ class OaiPmhController extends Controller
             $verbConfig = self::VERB_PARAMS[$verb];
 
             foreach ($queryKeys as $key) {
-                if (!in_array($key, $verbConfig['allowed'])) {
+                if (! in_array($key, $verbConfig['allowed'])) {
                     return $this->errorResponse($request, 'badArgument');
                 }
             }
 
             foreach ($verbConfig['mandatory'] as $mandatoryKey) {
-                if (!in_array($mandatoryKey, $queryKeys)) {
+                if (! in_array($mandatoryKey, $queryKeys)) {
                     return $this->errorResponse($request, 'badArgument');
                 }
             }
@@ -295,13 +296,13 @@ class OaiPmhController extends Controller
 
         // Check metadataPrefix is one of the registered formats.
         $metadataPrefix = $params['metadataPrefix'] ?? null;
-        if ($metadataPrefix !== null && $metadataPrefix !== '' && !isset(self::METADATA_FORMATS[$metadataPrefix])) {
+        if ($metadataPrefix !== null && $metadataPrefix !== '' && ! isset(self::METADATA_FORMATS[$metadataPrefix])) {
             return $this->errorResponse($request, 'cannotDisseminateFormat');
         }
 
         // Validate date parameters
         foreach (['from', 'until'] as $dateParam) {
-            if (isset($params[$dateParam]) && $params[$dateParam] !== '' && !$this->isValidDate($params[$dateParam])) {
+            if (isset($params[$dateParam]) && $params[$dateParam] !== '' && ! $this->isValidDate($params[$dateParam])) {
                 return $this->errorResponse($request, 'badArgument');
             }
         }
@@ -344,42 +345,44 @@ class OaiPmhController extends Controller
         $adminEmailsRaw = (string) $this->setting('oai_admin_emails', '');
         $adminEmails = array_values(array_unique(array_filter(array_map('trim', explode(',', $adminEmailsRaw)))));
         if (empty($adminEmails)) {
-            $adminEmails = [config('mail.from.address', 'admin@' . $request->getHost())];
+            $adminEmails = [config('mail.from.address', 'admin@'.$request->getHost())];
         }
         // Sample identifier shown in <sampleIdentifier>. ahg_settings holds
         // the operator's chosen example local-id (e.g. '100002'). When set
         // we use it directly; when not, we still emit the legacy '100002'
         // hardcode so the Identify response stays well-formed.
         $sampleLocalId = (int) $this->setting('sample_oai_identifier', 100002);
-        if ($sampleLocalId <= 0) $sampleLocalId = 100002;
+        if ($sampleLocalId <= 0) {
+            $sampleLocalId = 100002;
+        }
 
         $xml = $this->xmlHeader($request);
-        $xml .= '  <Identify>' . "\n";
-        $xml .= '    <repositoryName>' . $this->esc($repositoryName) . '</repositoryName>' . "\n";
-        $xml .= '    <baseURL>' . $this->esc($baseUrl) . '</baseURL>' . "\n";
-        $xml .= '    <protocolVersion>2.0</protocolVersion>' . "\n";
+        $xml .= '  <Identify>'."\n";
+        $xml .= '    <repositoryName>'.$this->esc($repositoryName).'</repositoryName>'."\n";
+        $xml .= '    <baseURL>'.$this->esc($baseUrl).'</baseURL>'."\n";
+        $xml .= '    <protocolVersion>2.0</protocolVersion>'."\n";
         foreach ($adminEmails as $email) {
-            $xml .= '    <adminEmail>' . $this->esc($email) . '</adminEmail>' . "\n";
+            $xml .= '    <adminEmail>'.$this->esc($email).'</adminEmail>'."\n";
         }
-        $xml .= '    <earliestDatestamp>' . $earliestDatestamp . '</earliestDatestamp>' . "\n";
+        $xml .= '    <earliestDatestamp>'.$earliestDatestamp.'</earliestDatestamp>'."\n";
         // "transient" advertises that we keep tombstones for deleted records
         // for an indefinite-but-not-guaranteed-forever period. Backed by the
         // oai_deleted_record table populated via `php artisan oai:mark-deleted`.
         // Falls back to "no" if the table is missing so a half-installed
         // upgrade keeps producing valid Identify responses.
         $deletedPolicy = \Illuminate\Support\Facades\Schema::hasTable('oai_deleted_record') ? 'transient' : 'no';
-        $xml .= '    <deletedRecord>' . $deletedPolicy . '</deletedRecord>' . "\n";
-        $xml .= '    <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>' . "\n";
-        $xml .= '    <description>' . "\n";
-        $xml .= '      <oai-identifier xmlns="http://www.openarchives.org/OAI/2.0/oai-identifier"' . "\n";
-        $xml .= '                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' . "\n";
-        $xml .= '                      xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai-identifier http://www.openarchives.org/OAI/2.0/oai-identifier.xsd">' . "\n";
-        $xml .= '        <scheme>oai</scheme>' . "\n";
-        $xml .= '        <repositoryIdentifier>' . $this->esc($this->getRepositoryIdentifier()) . '</repositoryIdentifier>' . "\n";
-        $xml .= '        <delimiter>:</delimiter>' . "\n";
-        $xml .= '        <sampleIdentifier>' . $this->formatOaiIdentifier($sampleLocalId) . '</sampleIdentifier>' . "\n";
-        $xml .= '      </oai-identifier>' . "\n";
-        $xml .= '    </description>' . "\n";
+        $xml .= '    <deletedRecord>'.$deletedPolicy.'</deletedRecord>'."\n";
+        $xml .= '    <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>'."\n";
+        $xml .= '    <description>'."\n";
+        $xml .= '      <oai-identifier xmlns="http://www.openarchives.org/OAI/2.0/oai-identifier"'."\n";
+        $xml .= '                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'."\n";
+        $xml .= '                      xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai-identifier http://www.openarchives.org/OAI/2.0/oai-identifier.xsd">'."\n";
+        $xml .= '        <scheme>oai</scheme>'."\n";
+        $xml .= '        <repositoryIdentifier>'.$this->esc($this->getRepositoryIdentifier()).'</repositoryIdentifier>'."\n";
+        $xml .= '        <delimiter>:</delimiter>'."\n";
+        $xml .= '        <sampleIdentifier>'.$this->formatOaiIdentifier($sampleLocalId).'</sampleIdentifier>'."\n";
+        $xml .= '      </oai-identifier>'."\n";
+        $xml .= '    </description>'."\n";
 
         // <friends> container — OAI-PMH friends.xsd lists other OAI repos this
         // server knows about. Sourced from ahg-federation's federation_peer
@@ -387,19 +390,19 @@ class OaiPmhController extends Controller
         // Empty <friends> is permitted; we just omit the element when the
         // federation_peer table is absent or holds no active OAI peers.
         $friends = $this->getOaiFriends();
-        if (!empty($friends)) {
-            $xml .= '    <description>' . "\n";
-            $xml .= '      <friends xmlns="http://www.openarchives.org/OAI/2.0/friends/"' . "\n";
-            $xml .= '               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' . "\n";
-            $xml .= '               xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/friends/ http://www.openarchives.org/OAI/2.0/friends.xsd">' . "\n";
+        if (! empty($friends)) {
+            $xml .= '    <description>'."\n";
+            $xml .= '      <friends xmlns="http://www.openarchives.org/OAI/2.0/friends/"'."\n";
+            $xml .= '               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'."\n";
+            $xml .= '               xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/friends/ http://www.openarchives.org/OAI/2.0/friends.xsd">'."\n";
             foreach ($friends as $url) {
-                $xml .= '        <baseURL>' . $this->esc($url) . '</baseURL>' . "\n";
+                $xml .= '        <baseURL>'.$this->esc($url).'</baseURL>'."\n";
             }
-            $xml .= '      </friends>' . "\n";
-            $xml .= '    </description>' . "\n";
+            $xml .= '      </friends>'."\n";
+            $xml .= '    </description>'."\n";
         }
 
-        $xml .= '  </Identify>' . "\n";
+        $xml .= '  </Identify>'."\n";
         $xml .= $this->xmlFooter();
 
         return $this->xmlResponse($xml);
@@ -411,9 +414,10 @@ class OaiPmhController extends Controller
      */
     private function getOaiFriends(): array
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('federation_peer')) {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('federation_peer')) {
             return [];
         }
+
         return DB::table('federation_peer')
             ->where('peer_type', 'oai_pmh')
             ->where('is_active', 1)
@@ -445,21 +449,21 @@ class OaiPmhController extends Controller
             $exists = DB::table('information_object')
                 ->where('oai_local_identifier', $oaiLocalId)
                 ->exists();
-            if (!$exists) {
+            if (! $exists) {
                 return $this->errorResponse($request, 'idDoesNotExist');
             }
         }
 
         $xml = $this->xmlHeader($request);
-        $xml .= '  <ListMetadataFormats>' . "\n";
+        $xml .= '  <ListMetadataFormats>'."\n";
         foreach (self::METADATA_FORMATS as $prefix => $spec) {
-            $xml .= '    <metadataFormat>' . "\n";
-            $xml .= '      <metadataPrefix>' . $prefix . '</metadataPrefix>' . "\n";
-            $xml .= '      <schema>' . $this->esc($spec['schema']) . '</schema>' . "\n";
-            $xml .= '      <metadataNamespace>' . $this->esc($spec['namespace']) . '</metadataNamespace>' . "\n";
-            $xml .= '    </metadataFormat>' . "\n";
+            $xml .= '    <metadataFormat>'."\n";
+            $xml .= '      <metadataPrefix>'.$prefix.'</metadataPrefix>'."\n";
+            $xml .= '      <schema>'.$this->esc($spec['schema']).'</schema>'."\n";
+            $xml .= '      <metadataNamespace>'.$this->esc($spec['namespace']).'</metadataNamespace>'."\n";
+            $xml .= '    </metadataFormat>'."\n";
         }
-        $xml .= '  </ListMetadataFormats>' . "\n";
+        $xml .= '  </ListMetadataFormats>'."\n";
         $xml .= $this->xmlFooter();
 
         return $this->xmlResponse($xml);
@@ -482,16 +486,16 @@ class OaiPmhController extends Controller
         $culture = $record->source_culture ?? 'en';
         switch ($metadataPrefix) {
             case 'oai_ead':
-                $body = (new Ead2002Serializer())->serializeRecord((int) $record->id, $culture, true);
+                $body = (new Ead2002Serializer)->serializeRecord((int) $record->id, $culture, true);
                 break;
             case 'oai_ead3':
-                $body = (new Ead3Serializer())->serializeRecord((int) $record->id, $culture, true);
+                $body = (new Ead3Serializer)->serializeRecord((int) $record->id, $culture, true);
                 break;
             case 'mods':
-                $body = (new ModsSerializer())->serializeRecord((int) $record->id, $culture);
+                $body = (new ModsSerializer)->serializeRecord((int) $record->id, $culture);
                 break;
             case 'marcxml':
-                $body = (new MarcxmlSerializer())->serializeRecord((int) $record->id, $culture);
+                $body = (new MarcxmlSerializer)->serializeRecord((int) $record->id, $culture);
                 break;
         }
 
@@ -501,8 +505,9 @@ class OaiPmhController extends Controller
 
         // Indent each line by 8 spaces so the body sits inside <metadata>.
         $lines = explode("\n", $body);
-        $padded = array_map(fn ($line) => $line === '' ? '' : '        ' . $line, $lines);
-        return implode("\n", $padded) . "\n";
+        $padded = array_map(fn ($line) => $line === '' ? '' : '        '.$line, $lines);
+
+        return implode("\n", $padded)."\n";
     }
 
     /**
@@ -524,11 +529,11 @@ class OaiPmhController extends Controller
             ->join('object as o', 'io.id', '=', 'o.id')
             ->join('information_object_i18n as ioi', function ($join) {
                 $join->on('io.id', '=', 'ioi.id')
-                     ->where('ioi.culture', '=', 'en');
+                    ->where('ioi.culture', '=', 'en');
             })
             ->join('status as st', function ($join) {
                 $join->on('io.id', '=', 'st.object_id')
-                     ->where('st.type_id', '=', 158);
+                    ->where('st.type_id', '=', 158);
             })
             ->where('st.status_id', '=', 160)
             ->select('io.id', 'io.oai_local_identifier', 'ioi.title')
@@ -546,13 +551,13 @@ class OaiPmhController extends Controller
         }
 
         $xml = $this->xmlHeader($request);
-        $xml .= '  <ListSets>' . "\n";
+        $xml .= '  <ListSets>'."\n";
 
         foreach ($sets as $set) {
-            $xml .= '    <set>' . "\n";
-            $xml .= '      <setSpec>' . $this->formatOaiIdentifier($set->oai_local_identifier) . '</setSpec>' . "\n";
-            $xml .= '      <setName>' . $this->esc($set->title ?? '') . '</setName>' . "\n";
-            $xml .= '    </set>' . "\n";
+            $xml .= '    <set>'."\n";
+            $xml .= '      <setSpec>'.$this->formatOaiIdentifier($set->oai_local_identifier).'</setSpec>'."\n";
+            $xml .= '      <setName>'.$this->esc($set->title ?? '').'</setName>'."\n";
+            $xml .= '    </set>'."\n";
         }
 
         $remaining = $totalCount - $cursor - $sets->count();
@@ -560,10 +565,10 @@ class OaiPmhController extends Controller
             $token = $this->encodeResumptionToken([
                 'cursor' => $cursor + $pageSize,
             ]);
-            $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
+            $xml .= '    <resumptionToken>'.$token.'</resumptionToken>'."\n";
         }
 
-        $xml .= '  </ListSets>' . "\n";
+        $xml .= '  </ListSets>'."\n";
         $xml .= $this->xmlFooter();
 
         return $this->xmlResponse($xml);
@@ -604,11 +609,12 @@ class OaiPmhController extends Controller
             if (empty($tombstones)) {
                 return $this->errorResponse($request, 'noRecordsMatch');
             }
+
             return $this->listIdentifiersDeleted($request, 0, $from, $until, $set, $metadataPrefix, $pageSize);
         }
 
         $xml = $this->xmlHeader($request);
-        $xml .= '  <ListIdentifiers>' . "\n";
+        $xml .= '  <ListIdentifiers>'."\n";
 
         foreach ($records as $record) {
             $xml .= $this->renderHeader($record);
@@ -624,11 +630,11 @@ class OaiPmhController extends Controller
                 'until' => $until ?? '',
                 'set' => $set ?? '',
             ]);
-            $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
+            $xml .= '    <resumptionToken>'.$token.'</resumptionToken>'."\n";
         } else {
             // Live records exhausted — bridge to deleted-records phase if
             // any tombstones fall in this from/until range.
-            $hasTombstones = !empty($this->getTombstones($from, $until, 0, 1));
+            $hasTombstones = ! empty($this->getTombstones($from, $until, 0, 1));
             if ($hasTombstones) {
                 $token = $this->encodeResumptionToken([
                     'phase' => 'deleted',
@@ -638,11 +644,11 @@ class OaiPmhController extends Controller
                     'until' => $until ?? '',
                     'set' => $set ?? '',
                 ]);
-                $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
+                $xml .= '    <resumptionToken>'.$token.'</resumptionToken>'."\n";
             }
         }
 
-        $xml .= '  </ListIdentifiers>' . "\n";
+        $xml .= '  </ListIdentifiers>'."\n";
         $xml .= $this->xmlFooter();
 
         return $this->xmlResponse($xml);
@@ -659,7 +665,7 @@ class OaiPmhController extends Controller
         }
 
         $xml = $this->xmlHeader($request);
-        $xml .= '  <ListIdentifiers>' . "\n";
+        $xml .= '  <ListIdentifiers>'."\n";
 
         foreach ($tombstones as $t) {
             $xml .= $this->renderTombstoneHeader((int) $t->oai_local_identifier, (string) $t->deleted_at, 4);
@@ -676,10 +682,10 @@ class OaiPmhController extends Controller
                 'until' => $until ?? '',
                 'set' => $set ?? '',
             ]);
-            $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
+            $xml .= '    <resumptionToken>'.$token.'</resumptionToken>'."\n";
         }
 
-        $xml .= '  </ListIdentifiers>' . "\n";
+        $xml .= '  </ListIdentifiers>'."\n";
         $xml .= $this->xmlFooter();
 
         return $this->xmlResponse($xml);
@@ -714,19 +720,20 @@ class OaiPmhController extends Controller
             if (empty($tombstones)) {
                 return $this->errorResponse($request, 'noRecordsMatch');
             }
+
             return $this->listRecordsDeleted($request, 0, $from, $until, $set, $metadataPrefix, $pageSize);
         }
 
         $xml = $this->xmlHeader($request);
-        $xml .= '  <ListRecords>' . "\n";
+        $xml .= '  <ListRecords>'."\n";
 
         foreach ($records as $record) {
-            $xml .= '    <record>' . "\n";
+            $xml .= '    <record>'."\n";
             $xml .= $this->renderHeader($record, 6);
-            $xml .= '      <metadata>' . "\n";
+            $xml .= '      <metadata>'."\n";
             $xml .= $this->renderMetadata($record, $metadataPrefix);
-            $xml .= '      </metadata>' . "\n";
-            $xml .= '    </record>' . "\n";
+            $xml .= '      </metadata>'."\n";
+            $xml .= '    </record>'."\n";
         }
 
         $remaining = $totalCount - $cursor - $records->count();
@@ -739,9 +746,9 @@ class OaiPmhController extends Controller
                 'until' => $until ?? '',
                 'set' => $set ?? '',
             ]);
-            $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
+            $xml .= '    <resumptionToken>'.$token.'</resumptionToken>'."\n";
         } else {
-            $hasTombstones = !empty($this->getTombstones($from, $until, 0, 1));
+            $hasTombstones = ! empty($this->getTombstones($from, $until, 0, 1));
             if ($hasTombstones) {
                 $token = $this->encodeResumptionToken([
                     'phase' => 'deleted',
@@ -751,11 +758,11 @@ class OaiPmhController extends Controller
                     'until' => $until ?? '',
                     'set' => $set ?? '',
                 ]);
-                $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
+                $xml .= '    <resumptionToken>'.$token.'</resumptionToken>'."\n";
             }
         }
 
-        $xml .= '  </ListRecords>' . "\n";
+        $xml .= '  </ListRecords>'."\n";
         $xml .= $this->xmlFooter();
 
         return $this->xmlResponse($xml);
@@ -773,12 +780,12 @@ class OaiPmhController extends Controller
         }
 
         $xml = $this->xmlHeader($request);
-        $xml .= '  <ListRecords>' . "\n";
+        $xml .= '  <ListRecords>'."\n";
 
         foreach ($tombstones as $t) {
-            $xml .= '    <record>' . "\n";
+            $xml .= '    <record>'."\n";
             $xml .= $this->renderTombstoneHeader((int) $t->oai_local_identifier, (string) $t->deleted_at, 6);
-            $xml .= '    </record>' . "\n";
+            $xml .= '    </record>'."\n";
         }
 
         $totalDeleted = $this->countTombstones($from, $until);
@@ -792,10 +799,10 @@ class OaiPmhController extends Controller
                 'until' => $until ?? '',
                 'set' => $set ?? '',
             ]);
-            $xml .= '    <resumptionToken>' . $token . '</resumptionToken>' . "\n";
+            $xml .= '    <resumptionToken>'.$token.'</resumptionToken>'."\n";
         }
 
-        $xml .= '  </ListRecords>' . "\n";
+        $xml .= '  </ListRecords>'."\n";
         $xml .= $this->xmlFooter();
 
         return $this->xmlResponse($xml);
@@ -820,12 +827,13 @@ class OaiPmhController extends Controller
         $tomb = $this->getTombstone($oaiLocalId);
         if ($tomb !== null) {
             $xml = $this->xmlHeader($request);
-            $xml .= '  <GetRecord>' . "\n";
-            $xml .= '    <record>' . "\n";
+            $xml .= '  <GetRecord>'."\n";
+            $xml .= '    <record>'."\n";
             $xml .= $this->renderTombstoneHeader($oaiLocalId, (string) $tomb->deleted_at, 6);
-            $xml .= '    </record>' . "\n";
-            $xml .= '  </GetRecord>' . "\n";
+            $xml .= '    </record>'."\n";
+            $xml .= '  </GetRecord>'."\n";
             $xml .= $this->xmlFooter();
+
             return $this->xmlResponse($xml);
         }
 
@@ -833,11 +841,11 @@ class OaiPmhController extends Controller
             ->join('object as o', 'io.id', '=', 'o.id')
             ->join('information_object_i18n as ioi', function ($join) {
                 $join->on('io.id', '=', 'ioi.id')
-                     ->where('ioi.culture', '=', 'en');
+                    ->where('ioi.culture', '=', 'en');
             })
             ->join('status as st', function ($join) {
                 $join->on('io.id', '=', 'st.object_id')
-                     ->where('st.type_id', '=', 158);
+                    ->where('st.type_id', '=', 158);
             })
             ->where('io.oai_local_identifier', '=', $oaiLocalId)
             ->where('st.status_id', '=', 160)
@@ -874,19 +882,19 @@ class OaiPmhController extends Controller
             )
             ->first();
 
-        if (!$record) {
+        if (! $record) {
             return $this->errorResponse($request, 'idDoesNotExist');
         }
 
         $xml = $this->xmlHeader($request);
-        $xml .= '  <GetRecord>' . "\n";
-        $xml .= '    <record>' . "\n";
+        $xml .= '  <GetRecord>'."\n";
+        $xml .= '    <record>'."\n";
         $xml .= $this->renderHeader($record, 6);
-        $xml .= '      <metadata>' . "\n";
+        $xml .= '      <metadata>'."\n";
         $xml .= $this->renderMetadata($record, $metadataPrefix);
-        $xml .= '      </metadata>' . "\n";
-        $xml .= '    </record>' . "\n";
-        $xml .= '  </GetRecord>' . "\n";
+        $xml .= '      </metadata>'."\n";
+        $xml .= '    </record>'."\n";
+        $xml .= '  </GetRecord>'."\n";
         $xml .= $this->xmlFooter();
 
         return $this->xmlResponse($xml);
@@ -905,11 +913,11 @@ class OaiPmhController extends Controller
             ->join('object as o', 'io.id', '=', 'o.id')
             ->join('information_object_i18n as ioi', function ($join) {
                 $join->on('io.id', '=', 'ioi.id')
-                     ->where('ioi.culture', '=', 'en');
+                    ->where('ioi.culture', '=', 'en');
             })
             ->join('status as st', function ($join) {
                 $join->on('io.id', '=', 'st.object_id')
-                     ->where('st.type_id', '=', 158);
+                    ->where('st.type_id', '=', 158);
             })
             ->where('st.status_id', '=', 160)
             ->whereNotNull('io.parent_id')
@@ -979,17 +987,17 @@ class OaiPmhController extends Controller
     private function renderHeader(object $record, int $indent = 4): string
     {
         $pad = str_repeat(' ', $indent);
-        $xml  = $pad . '<header>' . "\n";
-        $xml .= $pad . '  <identifier>' . $this->formatOaiIdentifier($record->oai_local_identifier) . '</identifier>' . "\n";
-        $xml .= $pad . '  <datestamp>' . $this->getDate($record->updated_at) . '</datestamp>' . "\n";
+        $xml = $pad.'<header>'."\n";
+        $xml .= $pad.'  <identifier>'.$this->formatOaiIdentifier($record->oai_local_identifier).'</identifier>'."\n";
+        $xml .= $pad.'  <datestamp>'.$this->getDate($record->updated_at).'</datestamp>'."\n";
 
         // Find the collection root (top-level ancestor) for setSpec
         $collectionRoot = $this->getCollectionRoot($record);
         if ($collectionRoot) {
-            $xml .= $pad . '  <setSpec>' . $this->formatOaiIdentifier($collectionRoot->oai_local_identifier) . '</setSpec>' . "\n";
+            $xml .= $pad.'  <setSpec>'.$this->formatOaiIdentifier($collectionRoot->oai_local_identifier).'</setSpec>'."\n";
         }
 
-        $xml .= $pad . '</header>' . "\n";
+        $xml .= $pad.'</header>'."\n";
 
         return $xml;
     }
@@ -1003,10 +1011,11 @@ class OaiPmhController extends Controller
     private function renderTombstoneHeader(int $oaiLocalId, string $deletedAt, int $indent = 4): string
     {
         $pad = str_repeat(' ', $indent);
-        $xml  = $pad . '<header status="deleted">' . "\n";
-        $xml .= $pad . '  <identifier>' . $this->formatOaiIdentifier($oaiLocalId) . '</identifier>' . "\n";
-        $xml .= $pad . '  <datestamp>' . $this->getDate($deletedAt) . '</datestamp>' . "\n";
-        $xml .= $pad . '</header>' . "\n";
+        $xml = $pad.'<header status="deleted">'."\n";
+        $xml .= $pad.'  <identifier>'.$this->formatOaiIdentifier($oaiLocalId).'</identifier>'."\n";
+        $xml .= $pad.'  <datestamp>'.$this->getDate($deletedAt).'</datestamp>'."\n";
+        $xml .= $pad.'</header>'."\n";
+
         return $xml;
     }
 
@@ -1015,9 +1024,10 @@ class OaiPmhController extends Controller
      */
     private function getTombstone(int $oaiLocalId): ?object
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('oai_deleted_record')) {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('oai_deleted_record')) {
             return null;
         }
+
         return DB::table('oai_deleted_record')
             ->where('oai_local_identifier', $oaiLocalId)
             ->select('oai_local_identifier', 'deleted_at', 'reason')
@@ -1029,7 +1039,7 @@ class OaiPmhController extends Controller
      */
     private function getTombstones(?string $from, ?string $until, int $cursor, int $limit): array
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('oai_deleted_record')) {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('oai_deleted_record')) {
             return [];
         }
         $q = DB::table('oai_deleted_record')
@@ -1042,12 +1052,13 @@ class OaiPmhController extends Controller
         if ($until) {
             $q->where('deleted_at', '<=', $this->mysqlDate($until));
         }
+
         return $q->offset($cursor)->limit($limit)->get()->all();
     }
 
     private function countTombstones(?string $from, ?string $until): int
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('oai_deleted_record')) {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('oai_deleted_record')) {
             return 0;
         }
         $q = DB::table('oai_deleted_record');
@@ -1057,6 +1068,7 @@ class OaiPmhController extends Controller
         if ($until) {
             $q->where('deleted_at', '<=', $this->mysqlDate($until));
         }
+
         return (int) $q->count();
     }
 
@@ -1065,23 +1077,23 @@ class OaiPmhController extends Controller
      */
     private function renderDublinCore(object $record): string
     {
-        $xml  = '        <oai_dc:dc' . "\n";
-        $xml .= '            xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"' . "\n";
-        $xml .= '            xmlns:dc="http://purl.org/dc/elements/1.1/"' . "\n";
-        $xml .= '            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' . "\n";
-        $xml .= '            xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/' . "\n";
-        $xml .= '            http://www.openarchives.org/OAI/2.0/oai_dc.xsd">' . "\n";
+        $xml = '        <oai_dc:dc'."\n";
+        $xml .= '            xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"'."\n";
+        $xml .= '            xmlns:dc="http://purl.org/dc/elements/1.1/"'."\n";
+        $xml .= '            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'."\n";
+        $xml .= '            xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/'."\n";
+        $xml .= '            http://www.openarchives.org/OAI/2.0/oai_dc.xsd">'."\n";
 
         // dc:title
-        if (!empty($record->title)) {
-            $xml .= '          <dc:title>' . $this->esc($record->title) . '</dc:title>' . "\n";
+        if (! empty($record->title)) {
+            $xml .= '          <dc:title>'.$this->esc($record->title).'</dc:title>'."\n";
         }
 
         // dc:creator — from events table (type_id=111 = Creation)
         $creators = DB::table('event as e')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('e.actor_id', '=', 'ai.id')
-                     ->where('ai.culture', '=', 'en');
+                    ->where('ai.culture', '=', 'en');
             })
             ->where('e.object_id', '=', $record->id)
             ->where('e.type_id', '=', 111)
@@ -1090,8 +1102,8 @@ class OaiPmhController extends Controller
             ->get();
 
         foreach ($creators as $creator) {
-            if (!empty($creator->authorized_form_of_name)) {
-                $xml .= '          <dc:creator>' . $this->esc($creator->authorized_form_of_name) . '</dc:creator>' . "\n";
+            if (! empty($creator->authorized_form_of_name)) {
+                $xml .= '          <dc:creator>'.$this->esc($creator->authorized_form_of_name).'</dc:creator>'."\n";
             }
         }
 
@@ -1100,7 +1112,7 @@ class OaiPmhController extends Controller
             ->join('term as t', 'otr.term_id', '=', 't.id')
             ->join('term_i18n as ti', function ($join) {
                 $join->on('t.id', '=', 'ti.id')
-                     ->where('ti.culture', '=', 'en');
+                    ->where('ti.culture', '=', 'en');
             })
             ->where('otr.object_id', '=', $record->id)
             ->where('t.taxonomy_id', '=', 35) // Subject taxonomy
@@ -1108,21 +1120,21 @@ class OaiPmhController extends Controller
             ->get();
 
         foreach ($subjects as $subject) {
-            if (!empty($subject->name)) {
-                $xml .= '          <dc:subject>' . $this->esc($subject->name) . '</dc:subject>' . "\n";
+            if (! empty($subject->name)) {
+                $xml .= '          <dc:subject>'.$this->esc($subject->name).'</dc:subject>'."\n";
             }
         }
 
         // dc:description
-        if (!empty($record->scope_and_content)) {
-            $xml .= '          <dc:description>' . $this->esc(strip_tags($record->scope_and_content)) . '</dc:description>' . "\n";
+        if (! empty($record->scope_and_content)) {
+            $xml .= '          <dc:description>'.$this->esc(strip_tags($record->scope_and_content)).'</dc:description>'."\n";
         }
 
         // dc:publisher — from events (publishers)
         $publishers = DB::table('event as e')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('e.actor_id', '=', 'ai.id')
-                     ->where('ai.culture', '=', 'en');
+                    ->where('ai.culture', '=', 'en');
             })
             ->where('e.object_id', '=', $record->id)
             ->where('e.type_id', '=', 114) // Publication event type
@@ -1131,8 +1143,8 @@ class OaiPmhController extends Controller
             ->get();
 
         foreach ($publishers as $publisher) {
-            if (!empty($publisher->authorized_form_of_name)) {
-                $xml .= '          <dc:publisher>' . $this->esc($publisher->authorized_form_of_name) . '</dc:publisher>' . "\n";
+            if (! empty($publisher->authorized_form_of_name)) {
+                $xml .= '          <dc:publisher>'.$this->esc($publisher->authorized_form_of_name).'</dc:publisher>'."\n";
             }
         }
 
@@ -1140,7 +1152,7 @@ class OaiPmhController extends Controller
         $contributors = DB::table('event as e')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('e.actor_id', '=', 'ai.id')
-                     ->where('ai.culture', '=', 'en');
+                    ->where('ai.culture', '=', 'en');
             })
             ->where('e.object_id', '=', $record->id)
             ->where('e.type_id', '=', 113) // Contribution event type
@@ -1149,8 +1161,8 @@ class OaiPmhController extends Controller
             ->get();
 
         foreach ($contributors as $contributor) {
-            if (!empty($contributor->authorized_form_of_name)) {
-                $xml .= '          <dc:contributor>' . $this->esc($contributor->authorized_form_of_name) . '</dc:contributor>' . "\n";
+            if (! empty($contributor->authorized_form_of_name)) {
+                $xml .= '          <dc:contributor>'.$this->esc($contributor->authorized_form_of_name).'</dc:contributor>'."\n";
             }
         }
 
@@ -1162,12 +1174,12 @@ class OaiPmhController extends Controller
             ->get();
 
         foreach ($dates as $date) {
-            if (!empty($date->start_date)) {
+            if (! empty($date->start_date)) {
                 $dateStr = $date->start_date;
-                if (!empty($date->end_date) && $date->end_date !== $date->start_date) {
-                    $dateStr .= '/' . $date->end_date;
+                if (! empty($date->end_date) && $date->end_date !== $date->start_date) {
+                    $dateStr .= '/'.$date->end_date;
                 }
-                $xml .= '          <dc:date>' . $this->esc($dateStr) . '</dc:date>' . "\n";
+                $xml .= '          <dc:date>'.$this->esc($dateStr).'</dc:date>'."\n";
             }
         }
 
@@ -1175,7 +1187,7 @@ class OaiPmhController extends Controller
         $eventDates = DB::table('event as e')
             ->join('event_i18n as ei', function ($join) {
                 $join->on('e.id', '=', 'ei.id')
-                     ->where('ei.culture', '=', 'en');
+                    ->where('ei.culture', '=', 'en');
             })
             ->where('e.object_id', '=', $record->id)
             ->where('e.type_id', '=', 111)
@@ -1186,25 +1198,25 @@ class OaiPmhController extends Controller
 
         if ($dates->isEmpty()) {
             foreach ($eventDates as $eventDate) {
-                $xml .= '          <dc:date>' . $this->esc($eventDate->date) . '</dc:date>' . "\n";
+                $xml .= '          <dc:date>'.$this->esc($eventDate->date).'</dc:date>'."\n";
             }
         }
 
         // dc:type — level of description
-        if (!empty($record->level_of_description_id)) {
+        if (! empty($record->level_of_description_id)) {
             $levelTerm = DB::table('term_i18n')
                 ->where('id', '=', $record->level_of_description_id)
                 ->where('culture', '=', 'en')
                 ->value('name');
 
             if ($levelTerm) {
-                $xml .= '          <dc:type>' . $this->esc($levelTerm) . '</dc:type>' . "\n";
+                $xml .= '          <dc:type>'.$this->esc($levelTerm).'</dc:type>'."\n";
             }
         }
 
         // dc:format — from extent_and_medium
-        if (!empty($record->extent_and_medium)) {
-            $xml .= '          <dc:format>' . $this->esc(strip_tags($record->extent_and_medium)) . '</dc:format>' . "\n";
+        if (! empty($record->extent_and_medium)) {
+            $xml .= '          <dc:format>'.$this->esc(strip_tags($record->extent_and_medium)).'</dc:format>'."\n";
         }
 
         // dc:identifier — URL and reference code
@@ -1213,25 +1225,25 @@ class OaiPmhController extends Controller
             ->value('slug');
 
         if ($slug) {
-            $xml .= '          <dc:identifier>' . $this->esc(url('/' . $slug)) . '</dc:identifier>' . "\n";
+            $xml .= '          <dc:identifier>'.$this->esc(url('/'.$slug)).'</dc:identifier>'."\n";
         }
 
-        if (!empty($record->identifier)) {
-            $xml .= '          <dc:identifier>' . $this->esc($record->identifier) . '</dc:identifier>' . "\n";
+        if (! empty($record->identifier)) {
+            $xml .= '          <dc:identifier>'.$this->esc($record->identifier).'</dc:identifier>'."\n";
         }
 
         // dc:source — location of originals
-        if (!empty($record->location_of_originals)) {
-            $xml .= '          <dc:source>' . $this->esc(strip_tags($record->location_of_originals)) . '</dc:source>' . "\n";
+        if (! empty($record->location_of_originals)) {
+            $xml .= '          <dc:source>'.$this->esc(strip_tags($record->location_of_originals)).'</dc:source>'."\n";
         }
 
         // dc:language
-        if (!empty($record->source_culture)) {
-            $xml .= '          <dc:language>' . $this->esc($record->source_culture) . '</dc:language>' . "\n";
+        if (! empty($record->source_culture)) {
+            $xml .= '          <dc:language>'.$this->esc($record->source_culture).'</dc:language>'."\n";
         }
 
         // dc:relation — repository
-        if (!empty($record->repository_id)) {
+        if (! empty($record->repository_id)) {
             $repo = DB::table('actor_i18n')
                 ->where('id', '=', $record->repository_id)
                 ->where('culture', '=', 'en')
@@ -1242,10 +1254,10 @@ class OaiPmhController extends Controller
                 ->value('slug');
 
             if ($repoSlug) {
-                $xml .= '          <dc:relation>' . $this->esc(url('/' . $repoSlug)) . '</dc:relation>' . "\n";
+                $xml .= '          <dc:relation>'.$this->esc(url('/'.$repoSlug)).'</dc:relation>'."\n";
             }
             if ($repo) {
-                $xml .= '          <dc:relation>' . $this->esc($repo) . '</dc:relation>' . "\n";
+                $xml .= '          <dc:relation>'.$this->esc($repo).'</dc:relation>'."\n";
             }
         }
 
@@ -1254,7 +1266,7 @@ class OaiPmhController extends Controller
             ->join('term as t', 'otr.term_id', '=', 't.id')
             ->join('term_i18n as ti', function ($join) {
                 $join->on('t.id', '=', 'ti.id')
-                     ->where('ti.culture', '=', 'en');
+                    ->where('ti.culture', '=', 'en');
             })
             ->where('otr.object_id', '=', $record->id)
             ->where('t.taxonomy_id', '=', 42) // Place taxonomy
@@ -1262,17 +1274,17 @@ class OaiPmhController extends Controller
             ->get();
 
         foreach ($places as $place) {
-            if (!empty($place->name)) {
-                $xml .= '          <dc:coverage>' . $this->esc($place->name) . '</dc:coverage>' . "\n";
+            if (! empty($place->name)) {
+                $xml .= '          <dc:coverage>'.$this->esc($place->name).'</dc:coverage>'."\n";
             }
         }
 
         // dc:rights
-        if (!empty($record->access_conditions)) {
-            $xml .= '          <dc:rights>' . $this->esc(strip_tags($record->access_conditions)) . '</dc:rights>' . "\n";
+        if (! empty($record->access_conditions)) {
+            $xml .= '          <dc:rights>'.$this->esc(strip_tags($record->access_conditions)).'</dc:rights>'."\n";
         }
 
-        $xml .= '        </oai_dc:dc>' . "\n";
+        $xml .= '        </oai_dc:dc>'."\n";
 
         return $xml;
     }
@@ -1292,7 +1304,7 @@ class OaiPmhController extends Controller
             ->first();
 
         // If the record itself is top-level
-        if (!$root && $record->parent_id == 1) {
+        if (! $root && $record->parent_id == 1) {
             return (object) [
                 'oai_local_identifier' => $record->oai_local_identifier,
             ];
@@ -1320,7 +1332,7 @@ class OaiPmhController extends Controller
         }
 
         $data = json_decode($json, true);
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return false;
         }
 
@@ -1341,12 +1353,12 @@ class OaiPmhController extends Controller
         if ($T_pos = strpos($parts[2], 'T')) {
             $time = substr($parts[2], $T_pos);
             $parts[2] = substr($parts[2], 0, $T_pos);
-            if (!preg_match('/^T(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$/i', $time)) {
+            if (! preg_match('/^T(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z$/i', $time)) {
                 return false;
             }
         }
 
-        if (!@checkdate((int) $parts[1], (int) $parts[2], (int) $parts[0])) {
+        if (! @checkdate((int) $parts[1], (int) $parts[2], (int) $parts[0])) {
             return false;
         }
 
@@ -1388,18 +1400,18 @@ class OaiPmhController extends Controller
         $reqParams = $request->all();
         unset($reqParams['_token'], $reqParams['_method']);
         foreach ($reqParams as $key => $value) {
-            if (!is_scalar($value)) {
+            if (! is_scalar($value)) {
                 continue;
             }
-            $attrs .= ' ' . $key . '="' . $this->esc((string) $value) . '"';
+            $attrs .= ' '.$key.'="'.$this->esc((string) $value).'"';
         }
 
-        $xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"' . "\n";
-        $xml .= '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' . "\n";
-        $xml .= '         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">' . "\n";
-        $xml .= '  <responseDate>' . $date . '</responseDate>' . "\n";
-        $xml .= '  <request' . $attrs . '>' . $this->esc($requestUrl) . '</request>' . "\n";
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        $xml .= '<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"'."\n";
+        $xml .= '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'."\n";
+        $xml .= '         xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">'."\n";
+        $xml .= '  <responseDate>'.$date.'</responseDate>'."\n";
+        $xml .= '  <request'.$attrs.'>'.$this->esc($requestUrl).'</request>'."\n";
 
         return $xml;
     }
@@ -1409,7 +1421,7 @@ class OaiPmhController extends Controller
      */
     private function xmlFooter(): string
     {
-        return '</OAI-PMH>' . "\n";
+        return '</OAI-PMH>'."\n";
     }
 
     /**
@@ -1420,7 +1432,7 @@ class OaiPmhController extends Controller
         $errorMsg = self::ERRORS[$errorCode] ?? 'Unknown error.';
 
         $xml = $this->xmlHeader($request);
-        $xml .= '  <error code="' . $errorCode . '">' . $this->esc($errorMsg) . '</error>' . "\n";
+        $xml .= '  <error code="'.$errorCode.'">'.$this->esc($errorMsg).'</error>'."\n";
         $xml .= $this->xmlFooter();
 
         return $this->xmlResponse($xml);

@@ -40,6 +40,7 @@ class FunctionsDocsController extends Controller
     public function index()
     {
         $catalogues = $this->service->index();
+
         return view('ahg-functions-docs::index', [
             'catalogues' => $catalogues,
         ]);
@@ -48,28 +49,28 @@ class FunctionsDocsController extends Controller
     /** Show one catalogue, paginated and filterable. */
     public function show(Request $request, string $kind)
     {
-        if (!array_key_exists($kind, FunctionsDocsService::FILES)) {
+        if (! array_key_exists($kind, FunctionsDocsService::FILES)) {
             abort(404);
         }
 
         $summary = $this->service->summary($kind);
         if (empty($summary['available'])) {
             return view('ahg-functions-docs::missing', [
-                'kind'    => $kind,
+                'kind' => $kind,
                 'summary' => $summary,
             ]);
         }
 
-        $page   = max(1, (int) $request->query('page', 1));
+        $page = max(1, (int) $request->query('page', 1));
         $filter = trim((string) $request->query('q', ''));
 
         $rendered = $this->service->render($kind, $page, $filter !== '' ? $filter : null);
 
         return view('ahg-functions-docs::show', [
-            'kind'     => $kind,
-            'summary'  => $summary,
+            'kind' => $kind,
+            'summary' => $summary,
             'rendered' => $rendered,
-            'filter'   => $filter,
+            'filter' => $filter,
         ]);
     }
 }

@@ -39,14 +39,20 @@ class ScanNotifier
             )
             ->first();
 
-        if (!$row) { return; }
-        if (empty($row->notify_on_failure) || empty($row->notify_emails)) { return; }
+        if (! $row) {
+            return;
+        }
+        if (empty($row->notify_on_failure) || empty($row->notify_emails)) {
+            return;
+        }
 
         $recipients = array_filter(array_map('trim', explode(',', $row->notify_emails)));
-        if (empty($recipients)) { return; }
+        if (empty($recipients)) {
+            return;
+        }
 
-        $subject = "[Heratio scanner] {$row->folder_code}: ingest failed — " . $row->original_name;
-        $inboxUrl = rtrim(config('app.url') ?: '', '/') . '/admin/scan/inbox/' . $row->id;
+        $subject = "[Heratio scanner] {$row->folder_code}: ingest failed — ".$row->original_name;
+        $inboxUrl = rtrim(config('app.url') ?: '', '/').'/admin/scan/inbox/'.$row->id;
 
         $body = <<<TXT
 A scanner-ingest pipeline has failed after all retries.
@@ -73,7 +79,7 @@ TXT;
                 $message->to($recipients)->subject($subject);
             });
         } catch (\Throwable $e) {
-            Log::warning('[ahg-scan] notifier failed for ingest_file ' . $fileId . ': ' . $e->getMessage());
+            Log::warning('[ahg-scan] notifier failed for ingest_file '.$fileId.': '.$e->getMessage());
         }
     }
 }

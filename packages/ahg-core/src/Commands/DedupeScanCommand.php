@@ -23,10 +23,10 @@ class DedupeScanCommand extends Command
         // Open a scan row.
         $scanId = DB::table('ahg_dedupe_scan')->insertGetId([
             'repository_id' => $repoId ? (int) $repoId : null,
-            'status'        => 'in_progress',
-            'started_at'    => now(),
-            'created_at'    => now(),
-            'scope'         => $repoId ? "repo={$repoId}" : 'all',
+            'status' => 'in_progress',
+            'started_at' => now(),
+            'created_at' => now(),
+            'scope' => $repoId ? "repo={$repoId}" : 'all',
         ]);
         $this->info("opened ahg_dedupe_scan id={$scanId}");
 
@@ -34,7 +34,8 @@ class DedupeScanCommand extends Command
             $q = DB::connection($conn)->table('information_object_i18n')
                 ->where('culture', 'en')
                 ->whereNotNull('title');
-            $totalScanned = 0; $duplicateGroups = 0;
+            $totalScanned = 0;
+            $duplicateGroups = 0;
 
             $sub = $q->selectRaw('LOWER(TRIM(title)) AS norm, COUNT(*) AS n, GROUP_CONCAT(id ORDER BY id) AS ids')
                 ->groupBy('norm')
@@ -47,22 +48,24 @@ class DedupeScanCommand extends Command
             }
 
             DB::table('ahg_dedupe_scan')->where('id', $scanId)->update([
-                'status'             => 'completed',
-                'total_records'      => $totalScanned,
-                'processed_records'  => $totalScanned,
-                'duplicates_found'   => $duplicateGroups,
-                'completed_at'       => now(),
-                'updated_at'         => now(),
+                'status' => 'completed',
+                'total_records' => $totalScanned,
+                'processed_records' => $totalScanned,
+                'duplicates_found' => $duplicateGroups,
+                'completed_at' => now(),
+                'updated_at' => now(),
             ]);
             $this->info("done; scanned={$totalScanned} duplicate_groups={$duplicateGroups}");
+
             return self::SUCCESS;
         } catch (\Throwable $e) {
             DB::table('ahg_dedupe_scan')->where('id', $scanId)->update([
-                'status'        => 'failed',
+                'status' => 'failed',
                 'error_message' => $e->getMessage(),
-                'completed_at'  => now(),
+                'completed_at' => now(),
             ]);
             $this->error("scan failed: {$e->getMessage()}");
+
             return self::FAILURE;
         }
     }

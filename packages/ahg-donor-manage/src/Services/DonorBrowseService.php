@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgDonorManage\Services;
 
 use AhgCore\Services\BrowseService;

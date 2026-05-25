@@ -24,7 +24,7 @@ class WorkflowDiagramTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->svc = new WorkflowDiagramService();
+        $this->svc = new WorkflowDiagramService;
     }
 
     public function test_render_returns_empty_state_for_nonexistent_workflow(): void
@@ -75,7 +75,7 @@ class WorkflowDiagramTest extends TestCase
     {
         $wfId = $this->makeWorkflow('With optional step');
         $this->makeStep($wfId, 'Required', 1, false);
-        $this->makeStep($wfId, 'Maybe',    2, true);   // optional
+        $this->makeStep($wfId, 'Maybe', 2, true);   // optional
 
         $html = $this->svc->render($wfId);
         $this->assertStringContainsString('wfdiag-optional', $html);
@@ -86,10 +86,10 @@ class WorkflowDiagramTest extends TestCase
     public function test_parallel_steps_share_a_row_and_fan_in_fan_out(): void
     {
         $wfId = $this->makeWorkflow('Parallel');
-        $this->makeStep($wfId, 'Start',   1);
+        $this->makeStep($wfId, 'Start', 1);
         $this->makeStep($wfId, 'Branch1', 2);
         $this->makeStep($wfId, 'Branch2', 2);   // same step_order = parallel
-        $this->makeStep($wfId, 'Merge',   3);
+        $this->makeStep($wfId, 'Merge', 3);
 
         $html = $this->svc->render($wfId);
         $this->assertSame(4, substr_count($html, '<circle'));
@@ -118,9 +118,9 @@ class WorkflowDiagramTest extends TestCase
     public function test_text_fallback_lists_steps_in_order(): void
     {
         $wfId = $this->makeWorkflow('Fallback');
-        $this->makeStep($wfId, 'First',  1);
+        $this->makeStep($wfId, 'First', 1);
         $this->makeStep($wfId, 'Second', 2, true);
-        $this->makeStep($wfId, 'Third',  3);
+        $this->makeStep($wfId, 'Third', 3);
 
         $lines = $this->svc->textFallback($wfId);
         $this->assertCount(3, $lines);
@@ -145,28 +145,28 @@ class WorkflowDiagramTest extends TestCase
     private function makeWorkflow(string $name): int
     {
         return (int) DB::table('ahg_workflow')->insertGetId([
-            'name'          => $name,
-            'scope_type'    => 'global',
+            'name' => $name,
+            'scope_type' => 'global',
             'trigger_event' => 'submit',
-            'applies_to'    => 'information_object',
-            'is_active'     => 1,
-            'created_at'    => now(),
-            'updated_at'    => now(),
+            'applies_to' => 'information_object',
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
     private function makeStep(int $workflowId, string $name, int $order, bool $optional = false): int
     {
         return (int) DB::table('ahg_workflow_step')->insertGetId([
-            'workflow_id'     => $workflowId,
-            'name'            => $name,
-            'step_order'      => $order,
-            'step_type'       => 'review',
+            'workflow_id' => $workflowId,
+            'name' => $name,
+            'step_order' => $order,
+            'step_type' => 'review',
             'action_required' => 'approve_reject',
-            'is_optional'     => $optional ? 1 : 0,
-            'is_active'       => 1,
-            'created_at'      => now(),
-            'updated_at'      => now(),
+            'is_optional' => $optional ? 1 : 0,
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }

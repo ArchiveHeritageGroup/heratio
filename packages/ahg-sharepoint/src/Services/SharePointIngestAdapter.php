@@ -6,7 +6,6 @@ use AhgSharePoint\Repositories\SharePointDriveRepository;
 use AhgSharePoint\Repositories\SharePointEventRepository;
 use AhgSharePoint\Repositories\SharePointTenantRepository;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Mirror of AtomExtensions\SharePoint\Services\SharePointIngestAdapter.
@@ -16,8 +15,11 @@ use Illuminate\Support\Facades\Storage;
 class SharePointIngestAdapter
 {
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_FAILED = 'failed';
+
     public const STATUS_SKIPPED_DUPLICATE = 'skipped_duplicate';
+
     public const STATUS_SKIPPED_NOT_ALLOWLISTED = 'skipped_not_allowlisted';
 
     public function __construct(
@@ -27,8 +29,7 @@ class SharePointIngestAdapter
         private SharePointEventRepository $events,
         private SharePointMappingService $mapping,
         private SharePointRetentionMapper $retention,
-    ) {
-    }
+    ) {}
 
     public function ingest(int $eventId): string
     {
@@ -48,6 +49,7 @@ class SharePointIngestAdapter
                 $eventId,
             )) {
                 $this->events->markStatus($eventId, self::STATUS_SKIPPED_DUPLICATE);
+
                 return self::STATUS_SKIPPED_DUPLICATE;
             }
 
@@ -74,8 +76,9 @@ class SharePointIngestAdapter
                 $event->sp_item_id,
             );
 
-            if (!$this->isAllowlisted($drive, $listItemFields)) {
+            if (! $this->isAllowlisted($drive, $listItemFields)) {
                 $this->events->markStatus($eventId, self::STATUS_SKIPPED_NOT_ALLOWLISTED);
+
                 return self::STATUS_SKIPPED_NOT_ALLOWLISTED;
             }
 
@@ -117,13 +120,14 @@ class SharePointIngestAdapter
             return false;
         }
         $allowed = json_decode($raw, true);
-        if (!is_array($allowed) || count($allowed) === 0) {
+        if (! is_array($allowed) || count($allowed) === 0) {
             return false;
         }
         $tag = $listItemFields['_ComplianceTag'] ?? null;
         if ($tag === null || $tag === '') {
             return false;
         }
+
         return in_array($tag, $allowed, true);
     }
 
@@ -140,12 +144,13 @@ class SharePointIngestAdapter
                 $out[$dst] = $disposition[$src];
             }
         }
-        if (!empty($disposition['compliance_tag'])) {
+        if (! empty($disposition['compliance_tag'])) {
             $out['_compliance_tag'] = $disposition['compliance_tag'];
         }
-        if (!empty($disposition['is_record'])) {
+        if (! empty($disposition['is_record'])) {
             $out['_is_record'] = true;
         }
+
         return $out;
     }
 
@@ -155,7 +160,7 @@ class SharePointIngestAdapter
         $relPath = "sharepoint/{$eventId}/{$name}";
         $absPath = storage_path("app/{$relPath}");
         $dir = dirname($absPath);
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
         $this->graph->downloadDriveItem(
@@ -165,12 +170,14 @@ class SharePointIngestAdapter
             $event->sp_item_id,
             $absPath,
         );
+
         return $absPath;
     }
 
     private function safeFileName(string $raw): string
     {
         $clean = preg_replace('/[^A-Za-z0-9._-]+/', '_', $raw) ?? 'item';
+
         return substr($clean, 0, 200);
     }
 
@@ -178,7 +185,7 @@ class SharePointIngestAdapter
     {
         return (int) DB::table('ingest_session')->insertGetId([
             'user_id' => 1,
-            'title' => 'SharePoint auto-ingest event ' . $eventId,
+            'title' => 'SharePoint auto-ingest event '.$eventId,
             'sector' => 'archive',
             'standard' => 'isadg',
             'source' => 'sharepoint_auto',
@@ -223,10 +230,11 @@ class SharePointIngestAdapter
         // Heratio's ahg-ingest package exposes its commit service via the
         // service container. The exact service name is confirmed during
         // integration; this is the documented hand-off point.
-        if (!class_exists('\\AhgIngest\\Services\\IngestCommitService')) {
+        if (! class_exists('\\AhgIngest\\Services\\IngestCommitService')) {
             throw new \RuntimeException('AhgIngest IngestCommitService not registered. Verify ahg/ingest is installed.');
         }
         $svc = app(\AhgIngest\Services\IngestCommitService::class);
+
         return (int) $svc->startJob($sessionId);
     }
 
@@ -236,12 +244,13 @@ class SharePointIngestAdapter
         if ($row === null) {
             return null;
         }
+
         return isset($row->primary_object_id) ? (int) $row->primary_object_id : null;
     }
 
     private function auditIngest(int $eventId, ?int $ioId, object $event, object $drive): void
     {
-        if (!class_exists('\\AhgAuditTrail\\Services\\AuditService')) {
+        if (! class_exists('\\AhgAuditTrail\\Services\\AuditService')) {
             return;
         }
         try {

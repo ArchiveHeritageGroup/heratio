@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgAccessionManage\Controllers;
 
 use AhgAccessionManage\Services\AccessionBrowseService;
@@ -52,7 +50,7 @@ class AccessionController extends Controller
         $rows = DB::table('accession')
             ->join('accession_i18n', function ($j) use ($culture) {
                 $j->on('accession.id', '=', 'accession_i18n.id')
-                  ->where('accession_i18n.culture', '=', $culture);
+                    ->where('accession_i18n.culture', '=', $culture);
             })
             ->join('object', 'accession.id', '=', 'object.id')
             ->leftJoin('slug', function ($j) {
@@ -60,11 +58,11 @@ class AccessionController extends Controller
             })
             ->leftJoin('term_i18n as status_term', function ($j) use ($culture) {
                 $j->on('accession.processing_status_id', '=', 'status_term.id')
-                  ->where('status_term.culture', '=', $culture);
+                    ->where('status_term.culture', '=', $culture);
             })
             ->leftJoin('term_i18n as priority_term', function ($j) use ($culture) {
                 $j->on('accession.processing_priority_id', '=', 'priority_term.id')
-                  ->where('priority_term.culture', '=', $culture);
+                    ->where('priority_term.culture', '=', $culture);
             })
             ->whereNotIn('accession.processing_status_id', function ($q) {
                 // Exclude "Complete" status (term 163 in default AtoM taxonomy)
@@ -98,7 +96,7 @@ class AccessionController extends Controller
         $byStatus = DB::table('accession')
             ->leftJoin('term_i18n', function ($j) use ($culture) {
                 $j->on('accession.processing_status_id', '=', 'term_i18n.id')
-                  ->where('term_i18n.culture', '=', $culture);
+                    ->where('term_i18n.culture', '=', $culture);
             })
             ->select(DB::raw('COALESCE(term_i18n.name, "Unassigned") as status_name'), DB::raw('COUNT(*) as cnt'))
             ->groupBy('status_name')
@@ -108,7 +106,7 @@ class AccessionController extends Controller
         $byPriority = DB::table('accession')
             ->leftJoin('term_i18n', function ($j) use ($culture) {
                 $j->on('accession.processing_priority_id', '=', 'term_i18n.id')
-                  ->where('term_i18n.culture', '=', $culture);
+                    ->where('term_i18n.culture', '=', $culture);
             })
             ->select(DB::raw('COALESCE(term_i18n.name, "Unassigned") as priority_name'), DB::raw('COUNT(*) as cnt'))
             ->groupBy('priority_name')
@@ -135,7 +133,7 @@ class AccessionController extends Controller
         $rows = DB::table('accession')
             ->join('accession_i18n', function ($j) use ($culture) {
                 $j->on('accession.id', '=', 'accession_i18n.id')
-                  ->where('accession_i18n.culture', '=', $culture);
+                    ->where('accession_i18n.culture', '=', $culture);
             })
             ->join('object', 'accession.id', '=', 'object.id')
             ->leftJoin('slug', function ($j) {
@@ -143,7 +141,7 @@ class AccessionController extends Controller
             })
             ->leftJoin('term_i18n as type_term', function ($j) use ($culture) {
                 $j->on('accession.acquisition_type_id', '=', 'type_term.id')
-                  ->where('type_term.culture', '=', $culture);
+                    ->where('type_term.culture', '=', $culture);
             })
             ->select([
                 'accession.id',
@@ -200,11 +198,11 @@ class AccessionController extends Controller
             ->join('object', 'accession.id', '=', 'object.id')
             ->leftJoin('term_i18n as status_term', function ($j) use ($culture) {
                 $j->on('accession.processing_status_id', '=', 'status_term.id')
-                  ->where('status_term.culture', '=', $culture);
+                    ->where('status_term.culture', '=', $culture);
             })
             ->leftJoin('term_i18n as priority_term', function ($j) use ($culture) {
                 $j->on('accession.processing_priority_id', '=', 'priority_term.id')
-                  ->where('priority_term.culture', '=', $culture);
+                    ->where('priority_term.culture', '=', $culture);
             })
             ->where('accession_i18n.culture', $culture)
             ->select([
@@ -236,14 +234,14 @@ class AccessionController extends Controller
             fclose($out);
         }, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="accessions-' . date('Ymd') . '.csv"',
+            'Content-Disposition' => 'attachment; filename="accessions-'.date('Ymd').'.csv"',
         ]);
     }
 
     public function show(Request $request, string $slug)
     {
         $accession = $this->service->getBySlug($slug);
-        if (!$accession) {
+        if (! $accession) {
             abort(404);
         }
 
@@ -346,15 +344,15 @@ class AccessionController extends Controller
     public function finalise(Request $request, string $slug)
     {
         $accession = $this->service->getBySlug($slug);
-        if (!$accession) {
+        if (! $accession) {
             abort(404);
         }
 
         $blockers = $this->service->finalisationBlockers($accession->id);
-        if (!empty($blockers)) {
+        if (! empty($blockers)) {
             return redirect()
                 ->route('accession.show', $slug)
-                ->with('error', 'Cannot finalise: ' . implode('; ', $blockers));
+                ->with('error', 'Cannot finalise: '.implode('; ', $blockers));
         }
 
         $current = DB::table('accession_v2')
@@ -372,7 +370,7 @@ class AccessionController extends Controller
         }
 
         $this->service->upsertWorkflow($accession->id, [
-            'status'      => 'accepted',
+            'status' => 'accepted',
             'accepted_at' => now(),
         ]);
 
@@ -395,13 +393,13 @@ class AccessionController extends Controller
     public function createInformationObject(Request $request, string $slug)
     {
         $accession = $this->service->getBySlug($slug);
-        if (!$accession) {
+        if (! $accession) {
             abort(404);
         }
 
         $newIoId = \AhgInformationObjectManage\Services\InformationObjectService::create([
-            'title'             => $accession->title ?? $accession->identifier,
-            'identifier'        => $accession->identifier,
+            'title' => $accession->title ?? $accession->identifier,
+            'identifier' => $accession->identifier,
             'scope_and_content' => $accession->scope_and_content ?? null,
         ]);
 
@@ -414,10 +412,10 @@ class AccessionController extends Controller
             'updated_at' => now(),
         ]);
         DB::table('relation')->insert([
-            'id'             => $relationId,
-            'subject_id'     => $newIoId,
-            'object_id'      => $accession->id,
-            'type_id'        => \AhgCore\Constants\TermId::RELATION_ACCESSION,
+            'id' => $relationId,
+            'subject_id' => $newIoId,
+            'object_id' => $accession->id,
+            'type_id' => \AhgCore\Constants\TermId::RELATION_ACCESSION,
             'source_culture' => app()->getLocale(),
         ]);
 
@@ -430,6 +428,7 @@ class AccessionController extends Controller
         if ($rightsApplied > 0) {
             $msg .= " Inherited {$rightsApplied} rights record(s) from this accession.";
         }
+
         return redirect()
             ->route('informationobject.edit', $newSlug)
             ->with('success', $msg);
@@ -456,7 +455,7 @@ class AccessionController extends Controller
     public function edit(string $slug)
     {
         $accession = $this->service->getBySlug($slug);
-        if (!$accession) {
+        if (! $accession) {
             abort(404);
         }
 
@@ -466,7 +465,7 @@ class AccessionController extends Controller
             $donorContact = DB::table('contact_information')
                 ->leftJoin('contact_information_i18n', function ($j) {
                     $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                      ->where('contact_information_i18n.culture', '=', app()->getLocale());
+                        ->where('contact_information_i18n.culture', '=', app()->getLocale());
                 })
                 ->where('contact_information.actor_id', $donor->id ?? 0)
                 ->select('contact_information.*', 'contact_information_i18n.*')
@@ -524,8 +523,8 @@ class AccessionController extends Controller
         if ($this->service->autoAssignEnabled() && auth()->id()) {
             $this->service->upsertWorkflow($id, [
                 'assigned_to' => auth()->id(),
-                'status'      => 'draft',
-                'priority'    => 'normal',
+                'status' => 'draft',
+                'priority' => 'normal',
             ]);
         }
 
@@ -537,12 +536,12 @@ class AccessionController extends Controller
     public function update(Request $request, string $slug)
     {
         $accession = $this->service->getBySlug($slug);
-        if (!$accession) {
+        if (! $accession) {
             abort(404);
         }
 
         $request->validate([
-            'identifier' => 'required|string|max:255|unique:accession,identifier,' . $accession->id,
+            'identifier' => 'required|string|max:255|unique:accession,identifier,'.$accession->id,
             'title' => 'nullable|string|max:1024',
             'date' => 'nullable|date',
             'acquisition_type_id' => 'nullable|integer|exists:term,id',
@@ -578,7 +577,7 @@ class AccessionController extends Controller
     public function confirmDelete(string $slug)
     {
         $accession = $this->service->getBySlug($slug);
-        if (!$accession) {
+        if (! $accession) {
             abort(404);
         }
 
@@ -598,7 +597,7 @@ class AccessionController extends Controller
     public function destroy(Request $request, string $slug)
     {
         $accession = $this->service->getBySlug($slug);
-        if (!$accession) {
+        if (! $accession) {
             abort(404);
         }
 
@@ -620,8 +619,11 @@ class AccessionController extends Controller
             ->where('accession_i18n.culture', app()->getLocale())
             ->select('accession.*', 'accession_i18n.title', 'slug.slug')
             ->first();
-        if (!$accession) abort(404);
+        if (! $accession) {
+            abort(404);
+        }
         $currentAppraisal = null;
+
         return view('ahg-accession-manage::appraisal', compact('accession', 'currentAppraisal'));
     }
 
@@ -633,6 +635,7 @@ class AccessionController extends Controller
     public function appraisalTemplates()
     {
         $templates = collect();
+
         return view('ahg-accession-manage::appraisal-templates', compact('templates'));
     }
 
@@ -645,9 +648,12 @@ class AccessionController extends Controller
             ->where('accession_i18n.culture', app()->getLocale())
             ->select('accession.*', 'accession_i18n.title', 'slug.slug')
             ->first();
-        if (!$accession) abort(404);
+        if (! $accession) {
+            abort(404);
+        }
         $currentValuation = null;
         $valuations = collect();
+
         return view('ahg-accession-manage::valuation', compact('accession', 'currentValuation', 'valuations'));
     }
 
@@ -662,8 +668,11 @@ class AccessionController extends Controller
             ->where('accession_i18n.culture', app()->getLocale())
             ->select('accession.*', 'accession_i18n.title', 'slug.slug')
             ->first();
-        if (!$accession) abort(404);
+        if (! $accession) {
+            abort(404);
+        }
         $containers = collect();
+
         return view('ahg-accession-manage::containers', compact('accession', 'containers'));
     }
 
@@ -676,8 +685,11 @@ class AccessionController extends Controller
             ->where('accession_i18n.culture', app()->getLocale())
             ->select('accession.*', 'accession_i18n.title', 'slug.slug')
             ->first();
-        if (!$accession) abort(404);
+        if (! $accession) {
+            abort(404);
+        }
         $rights = collect();
+
         return view('ahg-accession-manage::rights', compact('accession', 'rights'));
     }
 
@@ -692,8 +704,11 @@ class AccessionController extends Controller
             ->where('accession_i18n.culture', app()->getLocale())
             ->select('accession.*', 'accession_i18n.title', 'slug.slug')
             ->first();
-        if (!$accession) abort(404);
+        if (! $accession) {
+            abort(404);
+        }
         $attachments = collect();
+
         return view('ahg-accession-manage::attachments', compact('accession', 'attachments'));
     }
 
@@ -711,8 +726,11 @@ class AccessionController extends Controller
             ->where('accession_i18n.culture', app()->getLocale())
             ->select('accession.*', 'accession_i18n.title', 'slug.slug')
             ->first();
-        if (!$accession) abort(404);
+        if (! $accession) {
+            abort(404);
+        }
         $checklistItems = collect();
+
         return view('ahg-accession-manage::checklist', compact('accession', 'checklistItems'));
     }
 
@@ -726,6 +744,7 @@ class AccessionController extends Controller
         $config = (object) ['default_status_id' => null, 'default_priority_id' => null, 'prefix' => '', 'next_number' => 1];
         $statuses = collect();
         $priorities = collect();
+
         return view('ahg-accession-manage::intake-config', compact('config', 'statuses', 'priorities'));
     }
 
@@ -737,6 +756,7 @@ class AccessionController extends Controller
     public function numbering()
     {
         $numbering = (object) ['format' => 'yyyy-nnn', 'prefix' => '', 'next_number' => 1];
+
         return view('ahg-accession-manage::numbering', compact('numbering'));
     }
 
@@ -748,6 +768,7 @@ class AccessionController extends Controller
     public function queue(Request $request)
     {
         $rows = collect();
+
         return view('ahg-accession-manage::queue', compact('rows'));
     }
 
@@ -760,7 +781,10 @@ class AccessionController extends Controller
             ->where('accession_i18n.culture', app()->getLocale())
             ->select('accession.*', 'accession_i18n.title', 'slug.slug')
             ->first();
-        if (!$accession) abort(404);
+        if (! $accession) {
+            abort(404);
+        }
+
         return view('ahg-accession-manage::queue-detail', compact('accession'));
     }
 
@@ -773,8 +797,11 @@ class AccessionController extends Controller
             ->where('accession_i18n.culture', app()->getLocale())
             ->select('accession.*', 'accession_i18n.title', 'slug.slug')
             ->first();
-        if (!$accession) abort(404);
+        if (! $accession) {
+            abort(404);
+        }
         $events = collect();
+
         return view('ahg-accession-manage::timeline', compact('accession', 'events'));
     }
 }

@@ -5,7 +5,6 @@ namespace AhgApi\Controllers\V2;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class UploadController extends BaseApiController
 {
@@ -33,22 +32,24 @@ class UploadController extends BaseApiController
         $errors = [];
 
         $files = $request->file('files', []);
-        if (!is_array($files)) {
+        if (! is_array($files)) {
             $files = [$files];
         }
 
         foreach ($files as $file) {
-            if (!$file || !$file->isValid()) {
+            if (! $file || ! $file->isValid()) {
                 $errors[] = ['error' => 'Invalid file upload.'];
+
                 continue;
             }
 
             $mime = $file->getMimeType();
-            if (!in_array($mime, $this->allowedMimeTypes)) {
+            if (! in_array($mime, $this->allowedMimeTypes)) {
                 $errors[] = [
                     'filename' => $file->getClientOriginalName(),
                     'error' => "MIME type '{$mime}' not allowed.",
                 ];
+
                 continue;
             }
 
@@ -80,7 +81,7 @@ class UploadController extends BaseApiController
     public function uploadForDescription(string $slug, Request $request): JsonResponse
     {
         $objectId = $this->slugToId($slug);
-        if (!$objectId) {
+        if (! $objectId) {
             return $this->error('Not Found', "Description '{$slug}' not found.", 404);
         }
 

@@ -24,8 +24,7 @@ class SharePointPushController extends Controller
         private GraphTokenValidatorService $validator,
         private SharePointPushService $push,
         private SharePointUserMappingService $userMapping,
-    ) {
-    }
+    ) {}
 
     /** POST /api/v2/sharepoint/push/projection */
     public function projection(Request $request): JsonResponse
@@ -44,6 +43,7 @@ class SharePointPushController extends Controller
                 return response()->json(['error' => 'aad_user_not_mapped'], 403);
             }
             $jobId = $this->push->commit($body, $userId, $claims);
+
             return response()->json(['ingest_job_id' => $jobId], 201);
         });
     }
@@ -59,6 +59,7 @@ class SharePointPushController extends Controller
         if ($row === null) {
             return response()->json(['error' => 'not_found'], 404);
         }
+
         return response()->json([
             'id' => (int) $row->id,
             'status' => $row->status ?? null,
@@ -75,7 +76,7 @@ class SharePointPushController extends Controller
             return response()->json(['error' => 'unauthorized'], 401);
         }
         $body = $request->json()->all();
-        if (!is_array($body)) {
+        if (! is_array($body)) {
             return response()->json(['error' => 'invalid_json'], 400);
         }
         try {
@@ -88,7 +89,7 @@ class SharePointPushController extends Controller
     private function bearerClaims(Request $request): ?array
     {
         $auth = $request->header('Authorization');
-        if (!$auth || stripos($auth, 'Bearer ') !== 0) {
+        if (! $auth || stripos($auth, 'Bearer ') !== 0) {
             return null;
         }
         $token = trim(substr($auth, 7));

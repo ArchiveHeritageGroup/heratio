@@ -114,7 +114,7 @@ class AhgCentralService
         $host = strtolower((string) (gethostname() ?: 'unknown'));
         $host = preg_replace('/[^a-z0-9._-]/', '-', $host) ?: 'unknown';
 
-        return 'heratio-' . $host;
+        return 'heratio-'.$host;
     }
 
     /**
@@ -123,7 +123,7 @@ class AhgCentralService
      */
     public function ping(): array
     {
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             return ['ok' => false, 'http' => 0, 'error' => 'ahg_central_enabled is off'];
         }
         if ($this->apiUrl() === '') {
@@ -140,7 +140,7 @@ class AhgCentralService
      */
     public function heartbeat(): array
     {
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             return ['ok' => false, 'http' => 0, 'error' => 'ahg_central_enabled is off'];
         }
         if ($this->apiUrl() === '' || $this->siteId() === '') {
@@ -150,11 +150,12 @@ class AhgCentralService
         $version = '';
         try {
             $version = (string) (json_decode((string) @file_get_contents(base_path('version.json')), true)['version'] ?? '');
-        } catch (\Throwable $e) { /* version best-effort */ }
+        } catch (\Throwable $e) { /* version best-effort */
+        }
 
         return $this->request('POST', '/heartbeat', [
-            'site_id'   => $this->siteId(),
-            'version'   => $version,
+            'site_id' => $this->siteId(),
+            'version' => $version,
             'timestamp' => now()->toIso8601String(),
         ]);
     }
@@ -177,10 +178,10 @@ class AhgCentralService
      */
     public function syncErrors(int $batch = 500): array
     {
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             return ['ok' => false, 'sent' => 0, 'error' => 'ahg_central_enabled is off'];
         }
-        if (!$this->errorSyncEnabled()) {
+        if (! $this->errorSyncEnabled()) {
             return ['ok' => false, 'sent' => 0, 'error' => 'ahg_central_error_sync is off'];
         }
         if ($this->apiUrl() === '' || $this->siteId() === '') {
@@ -206,18 +207,18 @@ class AhgCentralService
         $payload = [];
         foreach ($rows as $r) {
             $payload[] = [
-                'occurred_at'     => (string) ($r->created_at ?? ''),
-                'level'           => (string) ($r->level ?? ''),
-                'status_code'     => isset($r->status_code) && $r->status_code !== null ? (int) $r->status_code : null,
-                'message'         => $this->redact((string) ($r->message ?? '')),
+                'occurred_at' => (string) ($r->created_at ?? ''),
+                'level' => (string) ($r->level ?? ''),
+                'status_code' => isset($r->status_code) && $r->status_code !== null ? (int) $r->status_code : null,
+                'message' => $this->redact((string) ($r->message ?? '')),
                 'exception_class' => (string) ($r->exception_class ?? ''),
-                'file'            => (string) ($r->file ?? ''),
-                'line'            => isset($r->line) && $r->line !== null ? (int) $r->line : null,
-                'url'             => $this->redact($this->stripQuery((string) ($r->url ?? ''))),
-                'http_method'     => (string) ($r->http_method ?? ''),
-                'hostname'        => (string) ($r->hostname ?? ''),
+                'file' => (string) ($r->file ?? ''),
+                'line' => isset($r->line) && $r->line !== null ? (int) $r->line : null,
+                'url' => $this->redact($this->stripQuery((string) ($r->url ?? ''))),
+                'http_method' => (string) ($r->http_method ?? ''),
+                'hostname' => (string) ($r->hostname ?? ''),
                 // Stable dedup key on the Central side - the origin row id.
-                'fingerprint'     => (string) $r->id,
+                'fingerprint' => (string) $r->id,
             ];
         }
 
@@ -225,18 +226,18 @@ class AhgCentralService
         // exactly the open set posted here. An empty set therefore clears the
         // site, which is correct when every error has been resolved.
         $result = $this->request('POST', '/errors', ['errors' => $payload, 'replace' => true]);
-        if (!empty($result['ok'])) {
+        if (! empty($result['ok'])) {
             return [
-                'ok'   => true,
+                'ok' => true,
                 'sent' => count($payload),
                 'http' => (int) ($result['http'] ?? 0),
             ];
         }
 
         return [
-            'ok'    => false,
-            'sent'  => 0,
-            'http'  => (int) ($result['http'] ?? 0),
+            'ok' => false,
+            'sent' => 0,
+            'http' => (int) ($result['http'] ?? 0),
             'error' => 'POST /errors returned non-2xx',
         ];
     }
@@ -284,17 +285,17 @@ class AhgCentralService
 
     private function request(string $method, string $path, ?array $jsonBody = null): array
     {
-        $url = $this->apiUrl() . $path;
+        $url = $this->apiUrl().$path;
 
         $ch = curl_init($url);
         $headers = [
-            'Authorization: Bearer ' . $this->apiKey(),
-            'X-Heratio-Site-Id: ' . $this->siteId(),
+            'Authorization: Bearer '.$this->apiKey(),
+            'X-Heratio-Site-Id: '.$this->siteId(),
         ];
         $opts = [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 15,
-            CURLOPT_CUSTOMREQUEST  => $method,
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_CUSTOMREQUEST => $method,
         ];
         if ($jsonBody !== null) {
             $opts[CURLOPT_POSTFIELDS] = json_encode($jsonBody);
@@ -315,7 +316,7 @@ class AhgCentralService
         }
 
         $ok = $httpCode >= 200 && $httpCode < 300;
-        if (!$ok) {
+        if (! $ok) {
             Log::info('[ahg-central] non-2xx response', ['url' => $url, 'method' => $method, 'http' => $httpCode]);
         }
 
@@ -346,7 +347,7 @@ class AhgCentralService
                 ['setting_value' => $value]
             );
         } catch (\Throwable $e) {
-            Log::warning('[ahg-central] could not persist ' . $key, ['error' => $e->getMessage()]);
+            Log::warning('[ahg-central] could not persist '.$key, ['error' => $e->getMessage()]);
         }
     }
 }

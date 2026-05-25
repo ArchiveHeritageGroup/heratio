@@ -40,7 +40,9 @@ use Illuminate\Support\Facades\Log;
 class FieldProvenanceWriter
 {
     public const DEFAULT_GRAPH_URI = 'urn:heratio:auth-res:graph:field-provenance';
+
     public const NS_PROV = 'http://www.w3.org/ns/prov#';
+
     public const NS_AUTH_RES = 'https://heratio.theahg.co.za/ontology/auth-res#';
 
     public function __construct(private SparqlUpdateService $sparql) {}
@@ -51,8 +53,8 @@ class FieldProvenanceWriter
      * produced by PrefillEngine::merge_fields() and `$mergedFields` is
      * the corresponding value map (without the `_provenance` key).
      *
-     * @param array<string,string|null|int|float> $mergedFields
-     * @param array<string,array{source:string,uri:?string,licence:?string,licence_url:?string,retrieved_at:?string}> $prefillProvenance
+     * @param  array<string,string|null|int|float>  $mergedFields
+     * @param  array<string,array{source:string,uri:?string,licence:?string,licence_url:?string,retrieved_at:?string}>  $prefillProvenance
      * @return array{ok:bool, triple_count:int, graph?:string, turtle?:string, status?:int, error?:string}
      */
     public function writeForCreation(
@@ -62,7 +64,7 @@ class FieldProvenanceWriter
         array $prefillProvenance,
         ?string $graphUri = null
     ): array {
-        if (!in_array($authorityType, ['actor', 'term'], true)) {
+        if (! in_array($authorityType, ['actor', 'term'], true)) {
             return ['ok' => false, 'triple_count' => 0, 'error' => "authorityType must be 'actor' or 'term'"];
         }
 
@@ -83,7 +85,7 @@ class FieldProvenanceWriter
                 continue;
             }
             $prov = $prefillProvenance[$field] ?? null;
-            if (!is_array($prov)) {
+            if (! is_array($prov)) {
                 continue;
             }
             $turtleChunks[] = $this->buildOneFieldTurtle(
@@ -101,7 +103,7 @@ class FieldProvenanceWriter
 
         $turtleBody = implode("\n\n", $turtleChunks);
         $sparqlUpdate = $this->buildPrefixes()
-            . "\nINSERT DATA {\n  GRAPH <{$graphUri}> {\n{$turtleBody}\n  }\n}";
+            ."\nINSERT DATA {\n  GRAPH <{$graphUri}> {\n{$turtleBody}\n  }\n}";
 
         try {
             $result = $this->sparql->executeUpdate($sparqlUpdate);
@@ -110,6 +112,7 @@ class FieldProvenanceWriter
                 'authority_id' => $authorityId,
                 'error' => $e->getMessage(),
             ]);
+
             return [
                 'ok' => false,
                 'triple_count' => $tripleCount,
@@ -147,41 +150,41 @@ class FieldProvenanceWriter
 
     private function buildOneFieldTurtle(string $subjectUri, string $field, string $value, array $prov): string
     {
-        $assertion = "{$subjectUri} auth_res:hasField " . $this->literal($field);
+        $assertion = "{$subjectUri} auth_res:hasField ".$this->literal($field);
         $reified = "<< {$assertion} >>";
 
         $sourceUri = isset($prov['uri']) && is_string($prov['uri']) && trim($prov['uri']) !== ''
-            ? '<' . $prov['uri'] . '>'
+            ? '<'.$prov['uri'].'>'
             : null;
         $sourceName = (string) ($prov['source'] ?? 'unknown');
         $licence = isset($prov['licence']) ? (string) $prov['licence'] : null;
         $licenceUrl = isset($prov['licence_url']) && is_string($prov['licence_url']) && trim($prov['licence_url']) !== ''
-            ? '<' . $prov['licence_url'] . '>'
+            ? '<'.$prov['licence_url'].'>'
             : null;
         $retrievedAt = isset($prov['retrieved_at']) ? (string) $prov['retrieved_at'] : gmdate('Y-m-d\TH:i:s\Z');
 
         $parts = [];
-        $parts[] = 'auth_res:fieldValue ' . $this->literal($value);
+        $parts[] = 'auth_res:fieldValue '.$this->literal($value);
         if ($sourceUri !== null) {
-            $parts[] = 'prov:wasDerivedFrom ' . $sourceUri;
+            $parts[] = 'prov:wasDerivedFrom '.$sourceUri;
         }
         $parts[] = "prov:generatedAtTime \"{$retrievedAt}\"^^xsd:dateTime";
-        $parts[] = 'auth_res:source ' . $this->literal($sourceName);
+        $parts[] = 'auth_res:source '.$this->literal($sourceName);
         if ($licence !== null && $licence !== '') {
-            $parts[] = 'auth_res:licence ' . $this->literal($licence);
+            $parts[] = 'auth_res:licence '.$this->literal($licence);
         }
         if ($licenceUrl !== null) {
-            $parts[] = 'auth_res:licenceUrl ' . $licenceUrl;
+            $parts[] = 'auth_res:licenceUrl '.$licenceUrl;
         }
 
-        return $reified . "\n    " . implode(" ;\n    ", $parts) . " .";
+        return $reified."\n    ".implode(" ;\n    ", $parts).' .';
     }
 
     private function buildPrefixes(): string
     {
         return implode("\n", [
-            'PREFIX prov: <' . self::NS_PROV . '>',
-            'PREFIX auth_res: <' . self::NS_AUTH_RES . '>',
+            'PREFIX prov: <'.self::NS_PROV.'>',
+            'PREFIX auth_res: <'.self::NS_AUTH_RES.'>',
             'PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>',
         ]);
     }
@@ -198,6 +201,7 @@ class FieldProvenanceWriter
         } catch (\Throwable $e) {
             // fall through
         }
+
         return self::DEFAULT_GRAPH_URI;
     }
 
@@ -211,7 +215,8 @@ class FieldProvenanceWriter
             ['\\\\', '\\"', '\\n', '\\r', '\\t'],
             $s
         );
-        return '"' . $escaped . '"';
+
+        return '"'.$escaped.'"';
     }
 
     private function stringify($value): string
@@ -222,6 +227,7 @@ class FieldProvenanceWriter
         if (is_array($value)) {
             return json_encode($value, JSON_UNESCAPED_UNICODE);
         }
+
         return '';
     }
 }

@@ -14,7 +14,7 @@ class AhgExhibitionServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Illuminate\Support\Facades\Route::middleware('web')
-            ->group(__DIR__ . '/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-exhibition');
+            ->group(__DIR__.'/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-exhibition');
     }
 }

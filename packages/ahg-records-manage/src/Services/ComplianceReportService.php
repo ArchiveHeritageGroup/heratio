@@ -36,6 +36,7 @@ class ComplianceReportService
         if (! empty($filters['status'])) {
             $q->where('status', $filters['status']);
         }
+
         return $q->orderByDesc('assessed_at')->limit(200)->get()->all();
     }
 
@@ -47,15 +48,15 @@ class ComplianceReportService
     public function create(array $data, int $userId): int
     {
         return DB::table('rm_compliance_assessment')->insertGetId([
-            'framework'       => $data['framework'],
-            'assessment_ref'  => $data['assessment_ref'],
-            'title'           => $data['title'],
-            'scope'           => $data['scope'] ?? null,
-            'period_start'    => $data['period_start'] ?? null,
-            'period_end'      => $data['period_end'] ?? null,
-            'status'          => 'in_progress',
-            'assessed_by'     => $userId,
-            'assessed_at'     => now(),
+            'framework' => $data['framework'],
+            'assessment_ref' => $data['assessment_ref'],
+            'title' => $data['title'],
+            'scope' => $data['scope'] ?? null,
+            'period_start' => $data['period_start'] ?? null,
+            'period_end' => $data['period_end'] ?? null,
+            'status' => 'in_progress',
+            'assessed_by' => $userId,
+            'assessed_at' => now(),
         ]);
     }
 
@@ -71,17 +72,17 @@ class ComplianceReportService
         }
 
         $checks = match ($assessment->framework) {
-            'iso_15489'  => $this->checksIso15489(),
-            'iso_16175'  => $this->checksIso16175(),
-            'moreq2010'  => $this->checksMoreq2010(),
+            'iso_15489' => $this->checksIso15489(),
+            'iso_16175' => $this->checksIso16175(),
+            'moreq2010' => $this->checksMoreq2010(),
             'dod_5015_2' => $this->checksDod50152(),
-            'iso_30300'  => $this->checksIso30300(),
-            'iso_23081'  => $this->checksIso23081(),
-            default      => [],
+            'iso_30300' => $this->checksIso30300(),
+            'iso_23081' => $this->checksIso23081(),
+            default => [],
         };
 
         $weightTotal = array_sum(array_column($checks, 'weight'));
-        $weightPass  = 0;
+        $weightPass = 0;
         $recommendations = [];
         foreach ($checks as $c) {
             if ($c['status'] === 'pass') {
@@ -95,17 +96,17 @@ class ComplianceReportService
         }
 
         DB::table('rm_compliance_assessment')->where('id', $id)->update([
-            'findings_json'        => json_encode($checks, JSON_UNESCAPED_SLASHES),
+            'findings_json' => json_encode($checks, JSON_UNESCAPED_SLASHES),
             'recommendations_json' => json_encode($recommendations, JSON_UNESCAPED_SLASHES),
-            'score_total'          => $weightPass,
-            'score_max'            => $weightTotal ?: 0,
+            'score_total' => $weightPass,
+            'score_max' => $weightTotal ?: 0,
         ]);
 
         Log::info('rm: compliance checks run', [
-            'id'        => $id,
+            'id' => $id,
             'framework' => $assessment->framework,
-            'checks'    => count($checks),
-            'score'     => $weightPass . '/' . $weightTotal,
+            'checks' => count($checks),
+            'score' => $weightPass.'/'.$weightTotal,
         ]);
 
         return true;
@@ -114,14 +115,14 @@ class ComplianceReportService
     public function finalize(int $id, string $signedOffBy, int $userId): bool
     {
         return DB::table('rm_compliance_assessment')->where('id', $id)->update([
-            'status'        => 'finalised',
+            'status' => 'finalised',
             'signed_off_by' => $signedOffBy,
             'signed_off_at' => now(),
         ]) > 0;
     }
 
     /* -------------------------------------------------------------------- */
-    /*  Framework check sets                                                 */
+    /*  Framework check sets */
     /* -------------------------------------------------------------------- */
 
     private function checksIso15489(): array
@@ -260,11 +261,11 @@ class ComplianceReportService
     private function check(string $ref, string $label, bool $passed, string $finding, string $recommendation, int $weight): array
     {
         return [
-            'check_ref'      => $ref,
-            'label'          => $label,
-            'weight'         => $weight,
-            'status'         => $passed ? 'pass' : 'fail',
-            'finding'        => $passed ? 'OK' : $finding,
+            'check_ref' => $ref,
+            'label' => $label,
+            'weight' => $weight,
+            'status' => $passed ? 'pass' : 'fail',
+            'finding' => $passed ? 'OK' : $finding,
             'recommendation' => $passed ? null : $recommendation,
         ];
     }

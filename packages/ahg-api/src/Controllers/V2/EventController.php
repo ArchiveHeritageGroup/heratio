@@ -53,7 +53,7 @@ class EventController extends BaseApiController
             ->select('d.*', 'w.name as webhook_name', 'w.url as webhook_url')
             ->first();
 
-        if (!$event) {
+        if (! $event) {
             return $this->error('Not Found', 'Event not found.', 404);
         }
 
@@ -74,6 +74,7 @@ class EventController extends BaseApiController
             ->get()
             ->map(function ($e) {
                 $e->payload = json_decode($e->payload, true);
+
                 return $e;
             });
 

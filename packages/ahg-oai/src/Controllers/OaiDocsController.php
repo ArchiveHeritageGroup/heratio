@@ -26,6 +26,7 @@ class OaiDocsController extends Controller
     public function index(Request $request)
     {
         $baseUrl = url('/oai');
+
         return view('ahg-oai::docs', compact('baseUrl'));
     }
 }

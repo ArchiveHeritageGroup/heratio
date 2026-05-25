@@ -40,7 +40,7 @@ class ScanWatchCommand extends Command
         do {
             $list = $folders->enabledFolders();
             if ($onlyCode) {
-                $list = array_values(array_filter($list, fn($f) => $f->code === $onlyCode));
+                $list = array_values(array_filter($list, fn ($f) => $f->code === $onlyCode));
             }
 
             foreach ($list as $folder) {
@@ -55,7 +55,7 @@ class ScanWatchCommand extends Command
                         $this->closeJob($folder, (int) $jobId);
                     }
                 } catch (\Throwable $e) {
-                    $this->error("[{$folder->code}] " . $e->getMessage());
+                    $this->error("[{$folder->code}] ".$e->getMessage());
                     if ($jobId) {
                         DB::table('ingest_job')->where('id', $jobId)->update([
                             'status' => 'failed',
@@ -66,17 +66,17 @@ class ScanWatchCommand extends Command
                 }
             }
 
-            if (!$once) {
+            if (! $once) {
                 sleep($interval);
             }
-        } while (!$once);
+        } while (! $once);
 
         return self::SUCCESS;
     }
 
     protected function scanOne(object $folder, ?int &$jobId = null): int
     {
-        if (!is_dir($folder->path)) {
+        if (! is_dir($folder->path)) {
             throw new \RuntimeException("Watched path is not a directory: {$folder->path}");
         }
 
@@ -92,7 +92,7 @@ class ScanWatchCommand extends Command
 
         foreach ($rii as $fileInfo) {
             /** @var \SplFileInfo $fileInfo */
-            if (!$fileInfo->isFile()) {
+            if (! $fileInfo->isFile()) {
                 continue;
             }
 
@@ -123,25 +123,28 @@ class ScanWatchCommand extends Command
             if (\AhgScan\Services\BagItIngestService::isBag($full)) {
                 try {
                     $result = \AhgScan\Services\BagItIngestService::ingest($full, $folder);
-                    if ($result['enqueued'] > 0 || !empty($result['warnings'])) {
-                        $wmsg = $result['warnings'] ? (' warnings=' . count($result['warnings'])) : '';
+                    if ($result['enqueued'] > 0 || ! empty($result['warnings'])) {
+                        $wmsg = $result['warnings'] ? (' warnings='.count($result['warnings'])) : '';
                         $this->info("[{$folder->code}] BagIt: enqueued {$result['enqueued']} from {$fileInfo->getFilename()}{$wmsg}");
                     }
                     // Move the bag off so we don't re-process it next pass.
                     if ($folder->disposition_success === 'move') {
-                        $archive = rtrim(config('heratio.scan.archive_path'), '/') . '/' . date('Y/m');
-                        if (!is_dir($archive)) { @mkdir($archive, 0775, true); }
-                        @rename($full, $archive . '/' . basename($full));
+                        $archive = rtrim(config('heratio.scan.archive_path'), '/').'/'.date('Y/m');
+                        if (! is_dir($archive)) {
+                            @mkdir($archive, 0775, true);
+                        }
+                        @rename($full, $archive.'/'.basename($full));
                     }
                 } catch (\Throwable $e) {
-                    $this->warn("[{$folder->code}] BagIt ingest failed for {$fileInfo->getFilename()}: " . $e->getMessage());
+                    $this->warn("[{$folder->code}] BagIt ingest failed for {$fileInfo->getFilename()}: ".$e->getMessage());
                 }
+
                 continue;
             }
 
             // Dedupe: skip if already staged for this session
             $hash = @hash_file('sha256', $full);
-            if (!$hash) {
+            if (! $hash) {
                 continue;
             }
             $already = DB::table('ingest_file')
@@ -190,6 +193,7 @@ class ScanWatchCommand extends Command
     protected function classifyFile(string $path): string
     {
         $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
         return match ($ext) {
             'xml' => 'sidecar',
             'csv', 'tsv' => 'csv',
@@ -219,11 +223,12 @@ class ScanWatchCommand extends Command
             $candidates[] = $m[1];
         }
         foreach ($candidates as $s) {
-            $candidate = $dir . '/' . $s . '.xml';
+            $candidate = $dir.'/'.$s.'.xml';
             if (is_file($candidate)) {
                 return $candidate;
             }
         }
+
         return null;
     }
 
@@ -234,7 +239,9 @@ class ScanWatchCommand extends Command
     protected function closeJob(object $folder, int $jobId): void
     {
         $job = DB::table('ingest_job')->where('id', $jobId)->first();
-        if (!$job) { return; }
+        if (! $job) {
+            return;
+        }
 
         $files = DB::table('ingest_file')
             ->where('session_id', $folder->ingest_session_id)

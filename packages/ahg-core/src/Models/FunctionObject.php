@@ -10,7 +10,9 @@ class FunctionObject extends Model
     use HasI18n;
 
     protected $table = 'function_object';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [

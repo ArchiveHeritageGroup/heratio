@@ -12,7 +12,7 @@ class FilePlanService
      */
     public function getTree(?int $parentId = null): array
     {
-        if (!Schema::hasTable('rm_fileplan_node')) {
+        if (! Schema::hasTable('rm_fileplan_node')) {
             return [];
         }
 
@@ -41,7 +41,7 @@ class FilePlanService
      */
     public function getTreeFlat(): array
     {
-        if (!Schema::hasTable('rm_fileplan_node')) {
+        if (! Schema::hasTable('rm_fileplan_node')) {
             return [];
         }
 
@@ -51,6 +51,7 @@ class FilePlanService
             ->get()
             ->map(function ($node) {
                 $node->record_count = $this->getRecordCountForNode($node->id);
+
                 return $node;
             })
             ->toArray();
@@ -61,7 +62,7 @@ class FilePlanService
      */
     public function getNode(int $id): ?object
     {
-        if (!Schema::hasTable('rm_fileplan_node')) {
+        if (! Schema::hasTable('rm_fileplan_node')) {
             return null;
         }
 
@@ -75,7 +76,7 @@ class FilePlanService
             ->where('n.id', $id)
             ->first();
 
-        if (!$node) {
+        if (! $node) {
             return null;
         }
 
@@ -186,7 +187,7 @@ class FilePlanService
         $node = DB::table('rm_fileplan_node')->where('id', $nodeId)->first();
         $parent = DB::table('rm_fileplan_node')->where('id', $newParentId)->first();
 
-        if (!$node || !$parent) {
+        if (! $node || ! $parent) {
             return false;
         }
 
@@ -215,7 +216,7 @@ class FilePlanService
     public function getRecordsInNode(int $nodeId, int $page = 1, int $perPage = 25): array
     {
         $node = DB::table('rm_fileplan_node')->where('id', $nodeId)->first();
-        if (!$node) {
+        if (! $node) {
             return ['data' => [], 'total' => 0, 'page' => $page, 'perPage' => $perPage];
         }
 
@@ -233,7 +234,7 @@ class FilePlanService
             });
         } else {
             // Fallback: match IO identifier to file plan code
-            $query->where('io.identifier', 'LIKE', $node->code . '%');
+            $query->where('io.identifier', 'LIKE', $node->code.'%');
         }
 
         $total = $query->count();
@@ -309,7 +310,7 @@ class FilePlanService
      */
     public function getStats(): array
     {
-        if (!Schema::hasTable('rm_fileplan_node')) {
+        if (! Schema::hasTable('rm_fileplan_node')) {
             return [
                 'total_nodes' => 0,
                 'by_type' => [],
@@ -406,7 +407,7 @@ class FilePlanService
     private function getRecordCountForNode(int $nodeId): int
     {
         $node = DB::table('rm_fileplan_node')->where('id', $nodeId)->first();
-        if (!$node) {
+        if (! $node) {
             return 0;
         }
 
@@ -417,7 +418,7 @@ class FilePlanService
         }
 
         return DB::table('information_object')
-            ->where('identifier', 'LIKE', $node->code . '%')
+            ->where('identifier', 'LIKE', $node->code.'%')
             ->count();
     }
 }

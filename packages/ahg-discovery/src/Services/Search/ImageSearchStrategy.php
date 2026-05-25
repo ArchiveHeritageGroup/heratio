@@ -38,9 +38,7 @@ use Throwable;
 
 class ImageSearchStrategy implements SearchStrategyInterface
 {
-    public function __construct(protected VectorSearchService $vector)
-    {
-    }
+    public function __construct(protected VectorSearchService $vector) {}
 
     public function name(): string
     {
@@ -68,6 +66,7 @@ class ImageSearchStrategy implements SearchStrategyInterface
         if (! empty($context['image_path'])) {
             return $this->searchByImagePath((string) $context['image_path'], (int) ($context['limit'] ?? 50));
         }
+
         return [];
     }
 
@@ -83,6 +82,7 @@ class ImageSearchStrategy implements SearchStrategyInterface
         if ($vec === null) {
             return [];
         }
+
         return $this->searchByVector($vec, $limit, $objectId);
     }
 
@@ -100,6 +100,7 @@ class ImageSearchStrategy implements SearchStrategyInterface
         if ($vec === null) {
             return [];
         }
+
         return $this->searchByVector($vec, $limit);
     }
 
@@ -111,8 +112,8 @@ class ImageSearchStrategy implements SearchStrategyInterface
     public function searchByVector(array $vector, int $limit = 50, ?int $excludeId = null): array
     {
         $collection = $this->collection();
-        $minScore   = (float) $this->setting('ahg_discovery_image_min_score', '0.30');
-        $pool       = max(1, min(200, $limit));
+        $minScore = (float) $this->setting('ahg_discovery_image_min_score', '0.30');
+        $pool = max(1, min(200, $limit));
 
         $hits = $this->vector->qdrantSearch($collection, $vector, $pool);
         if ($hits === null) {
@@ -121,7 +122,7 @@ class ImageSearchStrategy implements SearchStrategyInterface
 
         $out = [];
         foreach ($hits as $h) {
-            $id    = (int) ($h['id'] ?? 0);
+            $id = (int) ($h['id'] ?? 0);
             $score = (float) ($h['score'] ?? 0);
             if ($id <= 0 || $score < $minScore) {
                 continue;
@@ -131,12 +132,13 @@ class ImageSearchStrategy implements SearchStrategyInterface
             }
             $out[] = [
                 'object_id' => $id,
-                'score'     => round($score, 6),
-                'source'    => 'image',
-                'slug'      => $h['slug'] ?? null,
-                'title'     => $h['title'] ?? null,
+                'score' => round($score, 6),
+                'source' => 'image',
+                'slug' => $h['slug'] ?? null,
+                'title' => $h['title'] ?? null,
             ];
         }
+
         return $out;
     }
 
@@ -155,7 +157,7 @@ class ImageSearchStrategy implements SearchStrategyInterface
      */
     protected function embedImage(string $imagePath): ?array
     {
-        $url   = rtrim((string) $this->setting('ahg_discovery_image_embed_url', 'http://192.168.0.78:11434'), '/');
+        $url = rtrim((string) $this->setting('ahg_discovery_image_embed_url', 'http://192.168.0.78:11434'), '/');
         $model = (string) $this->setting('ahg_discovery_image_embed_model', 'clip-vit-b-32');
         $timeout = (int) $this->setting('semantic_timeout_ms', '5000');
 
@@ -164,31 +166,33 @@ class ImageSearchStrategy implements SearchStrategyInterface
             return null;
         }
         $payload = json_encode([
-            'model'  => $model,
+            'model' => $model,
             'prompt' => '',
             'images' => [base64_encode($bytes)],
         ]);
 
-        $ch = curl_init($url . '/api/embeddings');
+        $ch = curl_init($url.'/api/embeddings');
         curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER  => true,
-            CURLOPT_POSTFIELDS      => $payload,
-            CURLOPT_HTTPHEADER      => ['Content-Type: application/json', 'Accept: application/json'],
-            CURLOPT_TIMEOUT_MS      => max(1000, $timeout * 4),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: application/json'],
+            CURLOPT_TIMEOUT_MS => max(1000, $timeout * 4),
             CURLOPT_CONNECTTIMEOUT_MS => max(500, min(2000, $timeout)),
-            CURLOPT_CUSTOMREQUEST   => 'POST',
+            CURLOPT_CUSTOMREQUEST => 'POST',
         ]);
         $resp = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         if ($resp === false || $code < 200 || $code >= 300) {
-            Log::debug('Discovery image embed failed: ' . $url . ' code=' . $code);
+            Log::debug('Discovery image embed failed: '.$url.' code='.$code);
+
             return null;
         }
         $decoded = json_decode((string) $resp, true);
         if (! is_array($decoded) || empty($decoded['embedding']) || ! is_array($decoded['embedding'])) {
             return null;
         }
+
         return array_map('floatval', $decoded['embedding']);
     }
 
@@ -201,6 +205,7 @@ class ImageSearchStrategy implements SearchStrategyInterface
             }
         } catch (Throwable $e) {
         }
+
         return $default;
     }
 }

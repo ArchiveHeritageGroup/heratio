@@ -41,6 +41,7 @@ class WorkflowTaskApprovedMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         $name = $this->context['workflow_name'] ?? 'Workflow';
+
         return new Envelope(subject: "Approved: $name");
     }
 
@@ -49,5 +50,8 @@ class WorkflowTaskApprovedMail extends Mailable implements ShouldQueue
         return new Content(view: 'ahg-workflow::emails.task-approved');
     }
 
-    public function attachments(): array { return []; }
+    public function attachments(): array
+    {
+        return [];
+    }
 }

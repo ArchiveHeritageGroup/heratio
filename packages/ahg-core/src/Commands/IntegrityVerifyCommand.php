@@ -37,8 +37,9 @@ class IntegrityVerifyCommand extends Command
         // entirely; on-demand --object-id and --all still run because the
         // operator explicitly invoked the command (matches the
         // FixityService::verifyObject convention).
-        if (!IntegritySettings::enabled() && $this->option('schedule-id') && !$this->option('object-id') && !$this->option('all')) {
+        if (! IntegritySettings::enabled() && $this->option('schedule-id') && ! $this->option('object-id') && ! $this->option('all')) {
             $this->warn('integrity_enabled is off; scheduled scan skipping.');
+
             return self::SUCCESS;
         }
 
@@ -57,7 +58,7 @@ class IntegrityVerifyCommand extends Command
         $maxRuntimeSeconds = IntegritySettings::defaultMaxRuntimeSeconds();
         $startedAt = microtime(true);
         $maxMemoryMb = IntegritySettings::defaultMaxMemoryMb();
-        @ini_set('memory_limit', $maxMemoryMb . 'M');
+        @ini_set('memory_limit', $maxMemoryMb.'M');
 
         // Determine schedule if provided
         $schedule = null;
@@ -66,8 +67,9 @@ class IntegrityVerifyCommand extends Command
             if (Schema::hasTable('integrity_schedule')) {
                 $schedule = DB::table('integrity_schedule')->where('id', $scheduleId)->first();
             }
-            if (!$schedule) {
-                $this->error('Schedule #' . $scheduleId . ' not found.');
+            if (! $schedule) {
+                $this->error('Schedule #'.$scheduleId.' not found.');
+
                 return 1;
             }
             // Per-schedule overrides win over the global defaults.
@@ -96,17 +98,19 @@ class IntegrityVerifyCommand extends Command
 
         if (empty($objectIds)) {
             $this->info('No objects to verify.');
+
             return 0;
         }
 
-        $this->info('Verifying ' . count($objectIds) . ' object(s) with ' . $algorithm . ($dryRun ? ' [DRY RUN]' : '') . '...');
+        $this->info('Verifying '.count($objectIds).' object(s) with '.$algorithm.($dryRun ? ' [DRY RUN]' : '').'...');
 
         if ($dryRun) {
             foreach ($objectIds as $id) {
                 $path = $fixity->getDigitalObjectPath($id);
-                $this->line('  [DRY] Would verify digital_object #' . $id . ' => ' . ($path ?? 'no path'));
+                $this->line('  [DRY] Would verify digital_object #'.$id.' => '.($path ?? 'no path'));
             }
-            $this->info('Dry run complete. ' . count($objectIds) . ' object(s) would be verified.');
+            $this->info('Dry run complete. '.count($objectIds).' object(s) would be verified.');
+
             return 0;
         }
 
@@ -114,21 +118,21 @@ class IntegrityVerifyCommand extends Command
         $runId = null;
         if (Schema::hasTable('integrity_run')) {
             $runId = DB::table('integrity_run')->insertGetId([
-                'schedule_id'       => $schedule->id ?? null,
-                'status'            => 'running',
-                'algorithm'         => $algorithm,
-                'objects_scanned'   => 0,
-                'objects_passed'    => 0,
-                'objects_failed'    => 0,
-                'objects_missing'   => 0,
-                'objects_error'     => 0,
-                'objects_skipped'   => 0,
-                'bytes_scanned'     => 0,
-                'triggered_by'     => $schedule ? 'schedule' : 'manual',
+                'schedule_id' => $schedule->id ?? null,
+                'status' => 'running',
+                'algorithm' => $algorithm,
+                'objects_scanned' => 0,
+                'objects_passed' => 0,
+                'objects_failed' => 0,
+                'objects_missing' => 0,
+                'objects_error' => 0,
+                'objects_skipped' => 0,
+                'bytes_scanned' => 0,
+                'triggered_by' => $schedule ? 'schedule' : 'manual',
                 'triggered_by_user' => 'CLI',
-                'lock_token'        => bin2hex(random_bytes(16)),
-                'started_at'        => now(),
-                'created_at'        => now(),
+                'lock_token' => bin2hex(random_bytes(16)),
+                'started_at' => now(),
+                'created_at' => now(),
             ]);
         }
 
@@ -175,22 +179,22 @@ class IntegrityVerifyCommand extends Command
             // Insert ledger entry
             if (Schema::hasTable('integrity_ledger')) {
                 $ledgerData = [
-                    'run_id'            => $runId,
+                    'run_id' => $runId,
                     'digital_object_id' => $doId,
                     'information_object_id' => $ioId,
-                    'repository_id'     => $repoId,
-                    'file_path'         => $result['file_path'],
-                    'file_size'         => $result['file_size'],
-                    'file_exists'       => $result['file_exists'] ? 1 : 0,
-                    'file_readable'     => $result['file_readable'] ? 1 : 0,
-                    'algorithm'         => $algorithm,
-                    'expected_hash'     => $result['expected'],
-                    'computed_hash'     => $result['actual'],
-                    'hash_match'        => $result['passed'] ? 1 : 0,
-                    'outcome'           => $result['outcome'],
-                    'error_detail'      => $result['error'],
-                    'duration_ms'       => $result['duration_ms'],
-                    'verified_at'       => now(),
+                    'repository_id' => $repoId,
+                    'file_path' => $result['file_path'],
+                    'file_size' => $result['file_size'],
+                    'file_exists' => $result['file_exists'] ? 1 : 0,
+                    'file_readable' => $result['file_readable'] ? 1 : 0,
+                    'algorithm' => $algorithm,
+                    'expected_hash' => $result['expected'],
+                    'computed_hash' => $result['actual'],
+                    'hash_match' => $result['passed'] ? 1 : 0,
+                    'outcome' => $result['outcome'],
+                    'error_detail' => $result['error'],
+                    'duration_ms' => $result['duration_ms'],
+                    'verified_at' => now(),
                 ];
 
                 if (Schema::hasColumn('integrity_ledger', 'previous_hash')) {
@@ -248,15 +252,15 @@ class IntegrityVerifyCommand extends Command
         // Update run record
         if ($runId && Schema::hasTable('integrity_run')) {
             DB::table('integrity_run')->where('id', $runId)->update([
-                'status'          => $finalStatus,
+                'status' => $finalStatus,
                 'objects_scanned' => count($objectIds),
-                'objects_passed'  => $passed,
-                'objects_failed'  => $failed,
+                'objects_passed' => $passed,
+                'objects_failed' => $failed,
                 'objects_missing' => $missing,
-                'objects_error'   => $errors,
+                'objects_error' => $errors,
                 'objects_skipped' => $skipped,
-                'bytes_scanned'   => $bytesScanned,
-                'completed_at'    => now(),
+                'bytes_scanned' => $bytesScanned,
+                'completed_at' => now(),
             ]);
         }
 
@@ -269,15 +273,16 @@ class IntegrityVerifyCommand extends Command
         }
 
         $this->info("Verification complete: {$passed} passed, {$failed} failed, {$missing} missing, {$errors} errors, {$skipped} skipped.");
-        $this->info('Bytes scanned: ' . number_format($bytesScanned));
+        $this->info('Bytes scanned: '.number_format($bytesScanned));
 
         return ($failed > 0 || $errors > 0) ? 1 : 0;
     }
 
     private function showStatus(): int
     {
-        if (!Schema::hasTable('integrity_ledger')) {
+        if (! Schema::hasTable('integrity_ledger')) {
             $this->warn('No integrity_ledger table found.');
+
             return 0;
         }
 
@@ -300,8 +305,8 @@ class IntegrityVerifyCommand extends Command
                 ['Passed', number_format($passCount)],
                 ['Failed', number_format($failCount)],
                 ['Missing', number_format($missingCount)],
-                ['Pass rate', $passRate . '%'],
-                ['Last run', $lastRun ? $lastRun->started_at . ' (' . $lastRun->status . ')' : 'Never'],
+                ['Pass rate', $passRate.'%'],
+                ['Last run', $lastRun ? $lastRun->started_at.' ('.$lastRun->status.')' : 'Never'],
             ]
         );
 
@@ -310,7 +315,7 @@ class IntegrityVerifyCommand extends Command
 
     private function upsertDeadLetter(int $doId, string $failureType, string $errorDetail, ?int $runId): void
     {
-        if (!Schema::hasTable('integrity_dead_letter')) {
+        if (! Schema::hasTable('integrity_dead_letter')) {
             return;
         }
 
@@ -324,26 +329,26 @@ class IntegrityVerifyCommand extends Command
                 ->where('id', $existing->id)
                 ->update([
                     'consecutive_failures' => $existing->consecutive_failures + 1,
-                    'last_failure_at'      => now(),
-                    'last_error_detail'    => $errorDetail,
-                    'last_run_id'          => $runId,
-                    'retry_count'          => $existing->retry_count + 1,
-                    'updated_at'           => now(),
+                    'last_failure_at' => now(),
+                    'last_error_detail' => $errorDetail,
+                    'last_run_id' => $runId,
+                    'retry_count' => $existing->retry_count + 1,
+                    'updated_at' => now(),
                 ]);
         } else {
             DB::table('integrity_dead_letter')->insert([
-                'digital_object_id'    => $doId,
-                'failure_type'         => $failureType,
-                'status'               => 'open',
+                'digital_object_id' => $doId,
+                'failure_type' => $failureType,
+                'status' => 'open',
                 'consecutive_failures' => 1,
-                'first_failure_at'     => now(),
-                'last_failure_at'      => now(),
-                'last_error_detail'    => $errorDetail,
-                'last_run_id'          => $runId,
-                'retry_count'          => 0,
-                'max_retries'          => 3,
-                'created_at'           => now(),
-                'updated_at'           => now(),
+                'first_failure_at' => now(),
+                'last_failure_at' => now(),
+                'last_error_detail' => $errorDetail,
+                'last_run_id' => $runId,
+                'retry_count' => 0,
+                'max_retries' => 3,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
     }

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgHelp\Controllers;
 
 use AhgHelp\Services\HelpArticleService;
@@ -127,12 +125,12 @@ class HelpController extends Controller
     public function article(string $slug)
     {
         $article = HelpArticleService::getBySlug($slug);
-        if (!$article) {
+        if (! $article) {
             abort(404);
         }
 
         $toc = [];
-        if (!empty($article['toc_json'])) {
+        if (! empty($article['toc_json'])) {
             $toc = json_decode($article['toc_json'], true) ?: [];
         }
 

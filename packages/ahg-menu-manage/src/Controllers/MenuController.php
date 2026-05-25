@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgMenuManage\Controllers;
 
 use AhgMenuManage\Services\MenuService;
@@ -60,7 +58,7 @@ class MenuController extends Controller
     {
         $menu = $this->service->getById($id);
 
-        if (!$menu) {
+        if (! $menu) {
             abort(404);
         }
 
@@ -115,7 +113,7 @@ class MenuController extends Controller
     {
         $menu = $this->service->getById($id);
 
-        if (!$menu) {
+        if (! $menu) {
             abort(404);
         }
 
@@ -162,7 +160,7 @@ class MenuController extends Controller
     {
         $menu = $this->service->getById($id);
 
-        if (!$menu) {
+        if (! $menu) {
             abort(404);
         }
 
@@ -196,7 +194,7 @@ class MenuController extends Controller
     {
         $menu = $this->service->getById($id);
 
-        if (!$menu) {
+        if (! $menu) {
             abort(404);
         }
 
@@ -212,7 +210,7 @@ class MenuController extends Controller
     {
         $menu = $this->service->getById($id);
 
-        if (!$menu) {
+        if (! $menu) {
             abort(404);
         }
 
@@ -235,7 +233,7 @@ class MenuController extends Controller
     public function moveUp(int $id)
     {
         $menu = \Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->first();
-        if (!$menu) {
+        if (! $menu) {
             abort(404);
         }
 
@@ -266,7 +264,7 @@ class MenuController extends Controller
     public function moveDown(int $id)
     {
         $menu = \Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->first();
-        if (!$menu) {
+        if (! $menu) {
             abort(404);
         }
 

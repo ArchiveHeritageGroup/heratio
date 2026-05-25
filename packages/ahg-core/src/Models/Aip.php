@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Aip extends Model
 {
     protected $table = 'aip';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [

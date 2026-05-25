@@ -42,24 +42,27 @@ class TransferPackageCommand extends Command
     public function handle(TransferPackageService $service): int
     {
         $initiatedBy = $this->option('user-id') !== null ? (int) $this->option('user-id') : null;
-        $title       = $this->option('title');
+        $title = $this->option('title');
         $description = $this->option('description');
 
         if ($this->option('from-approved')) {
             $result = $service->buildFromApprovedDisposals($initiatedBy);
             if (empty($result['transfer_id'])) {
                 $this->info($result['message'] ?? 'Nothing to package.');
+
                 return self::SUCCESS;
             }
         } else {
             $raw = (string) $this->option('io-ids');
             if ($raw === '') {
                 $this->error('Provide --io-ids=N,N,... or --from-approved');
+
                 return self::FAILURE;
             }
             $ioIds = array_filter(array_map('intval', explode(',', $raw)));
             if (empty($ioIds)) {
                 $this->error('No valid information_object_id values supplied.');
+
                 return self::FAILURE;
             }
             $result = $service->build($ioIds, $initiatedBy, $title, $description);
@@ -73,7 +76,7 @@ class TransferPackageCommand extends Command
             $result['total_bytes'],
             $result['package_sha256']
         ));
-        $this->line('Package: ' . $result['package_path']);
+        $this->line('Package: '.$result['package_path']);
 
         return self::SUCCESS;
     }

@@ -14,9 +14,7 @@ use Illuminate\Support\Facades\DB;
  */
 class SharePointUserMappingController extends Controller
 {
-    public function __construct(private SharePointUserMappingRepository $mappings)
-    {
-    }
+    public function __construct(private SharePointUserMappingRepository $mappings) {}
 
     public function index()
     {
@@ -28,8 +26,10 @@ class SharePointUserMappingController extends Controller
         $mapping = DB::table('sharepoint_user_mapping')->where('id', $id)->first();
         if ($request->isMethod('POST') && $request->input('form_action') === 'delete') {
             $this->mappings->delete($id);
+
             return redirect()->route('sharepoint.user-mappings');
         }
+
         return view('ahg-sharepoint::user-mapping-edit', ['mapping' => $mapping]);
     }
 }

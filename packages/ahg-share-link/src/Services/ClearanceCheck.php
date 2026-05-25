@@ -28,6 +28,7 @@ class ClearanceCheck
             if ($entityLevel === null) {
                 return true;
             }
+
             return $this->resolveUserClearanceLevel($userId) >= $entityLevel;
         } catch (\Throwable $e) {
             return true;
@@ -41,6 +42,7 @@ class ClearanceCheck
             ->where('osc.object_id', $entityId)
             ->where('osc.active', 1)
             ->value('sc.level');
+
         return $level !== null ? (int) $level : null;
     }
 
@@ -51,6 +53,7 @@ class ClearanceCheck
             $row = DB::table('security_classification')->where('level', $level)->first();
             $entityClass = $row ? "{$row->name} (level {$level})" : "level {$level}";
             $userLevel = $userId !== null ? $this->resolveUserClearanceLevel($userId) : 0;
+
             return "This record is classified {$entityClass}; your clearance level is {$userLevel}. You cannot issue a share link for it.";
         } catch (\Throwable $e) {
             return 'Insufficient security clearance to issue a share link for this record.';
@@ -79,6 +82,7 @@ class ClearanceCheck
                 $q->whereNull('usc.expires_at')->orWhere('usc.expires_at', '>=', $today);
             })
             ->max('sc.level');
+
         return (int) ($level ?? 0);
     }
 }

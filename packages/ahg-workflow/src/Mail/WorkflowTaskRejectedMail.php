@@ -41,6 +41,7 @@ class WorkflowTaskRejectedMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         $name = $this->context['workflow_name'] ?? 'Workflow';
+
         return new Envelope(subject: "Action required: $name was rejected");
     }
 
@@ -49,5 +50,8 @@ class WorkflowTaskRejectedMail extends Mailable implements ShouldQueue
         return new Content(view: 'ahg-workflow::emails.task-rejected');
     }
 
-    public function attachments(): array { return []; }
+    public function attachments(): array
+    {
+        return [];
+    }
 }

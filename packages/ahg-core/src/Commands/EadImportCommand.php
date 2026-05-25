@@ -34,6 +34,7 @@ class EadImportCommand extends Command
         $source = (string) $this->option('source');
         if (! $source || (! is_file($source) && ! is_dir($source))) {
             $this->error("--source not readable: {$source}");
+
             return self::FAILURE;
         }
         $schema = (string) $this->option('schema');
@@ -47,12 +48,13 @@ class EadImportCommand extends Command
                 ->where('s.slug', $repoSlug)->value('r.id');
             if (! $repoId) {
                 $this->error("repository slug not found: {$repoSlug}");
+
                 return self::FAILURE;
             }
         }
 
         $files = is_dir($source)
-            ? array_filter(glob(rtrim($source, '/') . '/*.xml') ?: [], 'is_file')
+            ? array_filter(glob(rtrim($source, '/').'/*.xml') ?: [], 'is_file')
             : [$source];
 
         $stats = ['files' => 0, 'created' => 0, 'children' => 0, 'errors' => 0];
@@ -60,7 +62,9 @@ class EadImportCommand extends Command
             $stats['files']++;
             try {
                 $xml = @simplexml_load_file($file);
-                if (! $xml) throw new \RuntimeException('parse error');
+                if (! $xml) {
+                    throw new \RuntimeException('parse error');
+                }
                 [$created, $children] = $this->importDoc($xml, $schema, $repoId, $dry);
                 $stats['created'] += $created;
                 $stats['children'] += $children;
@@ -78,13 +82,16 @@ class EadImportCommand extends Command
             file_put_contents($out, json_encode($stats, JSON_PRETTY_PRINT));
             $this->info("report -> {$out}");
         }
+
         return $stats['errors'] === 0 ? self::SUCCESS : self::FAILURE;
     }
 
     protected function importDoc(\SimpleXMLElement $xml, string $schema, ?int $repoId, bool $dry): array
     {
         $archdesc = $xml->archdesc ?? null;
-        if (! $archdesc) return [0, 0];
+        if (! $archdesc) {
+            return [0, 0];
+        }
 
         $title = (string) ($archdesc->did->unittitle ?? '');
         $scope = trim((string) ($archdesc->scopecontent->p ?? ''));
@@ -92,7 +99,9 @@ class EadImportCommand extends Command
         $access = trim((string) ($archdesc->accessrestrict->p ?? ''));
         $unitId = (string) ($archdesc->did->unitid ?? '');
 
-        if ($dry) return [1, count($archdesc->dsc->c ?? [])];
+        if ($dry) {
+            return [1, count($archdesc->dsc->c ?? [])];
+        }
 
         $rootId = $this->createIo($repoId, null, $title, $unitId, [
             'scope_and_content' => $scope,
@@ -108,6 +117,7 @@ class EadImportCommand extends Command
             ]);
             $children++;
         }
+
         return [1, $children];
     }
 
@@ -130,9 +140,12 @@ class EadImportCommand extends Command
             ['id' => $objectId, 'culture' => 'en', 'title' => $title ?: '(untitled)'],
             array_filter($i18n, fn ($v) => $v !== '' && $v !== null),
         ));
-        $slug = Str::slug($title) ?: ('ead-' . $objectId);
-        if (DB::table('slug')->where('slug', $slug)->exists()) $slug .= '-' . $objectId;
+        $slug = Str::slug($title) ?: ('ead-'.$objectId);
+        if (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug .= '-'.$objectId;
+        }
         DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
+
         return $objectId;
     }
 }

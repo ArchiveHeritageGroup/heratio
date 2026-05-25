@@ -26,25 +26,37 @@ class ThreeDDerivativesCommand extends Command
 
         if ($id = $this->option('id')) {
             $obj = DB::table('digital_object')->where('id', (int) $id)->first();
-            if (! $obj) { $this->error("digital_object #{$id} not found"); return self::FAILURE; }
-            if (! $thumbs->is3DModel($obj->name ?? '')) {
-                $this->error("digital_object #{$id} is not a 3D model ({$obj->name})");
+            if (! $obj) {
+                $this->error("digital_object #{$id} not found");
+
                 return self::FAILURE;
             }
-            if ($dry) { $this->info("would generate derivatives for #{$id}"); return self::SUCCESS; }
+            if (! $thumbs->is3DModel($obj->name ?? '')) {
+                $this->error("digital_object #{$id} is not a 3D model ({$obj->name})");
+
+                return self::FAILURE;
+            }
+            if ($dry) {
+                $this->info("would generate derivatives for #{$id}");
+
+                return self::SUCCESS;
+            }
             $ok = $thumbs->createDerivatives((int) $id);
             $this->info($ok ? "generated derivatives for #{$id}" : "failed: #{$id}");
+
             return $ok ? self::SUCCESS : self::FAILURE;
         }
 
         if ($dry) {
             $this->info('dry-run: scanning for 3D models without thumbnails');
+
             return self::SUCCESS;
         }
 
         $r = $thumbs->batchProcessExisting();
         $this->info(sprintf('processed=%d success=%d failed=%d',
             $r['processed'] ?? 0, $r['success'] ?? 0, $r['failed'] ?? 0));
+
         return ($r['failed'] ?? 0) === 0 ? self::SUCCESS : self::FAILURE;
     }
 }

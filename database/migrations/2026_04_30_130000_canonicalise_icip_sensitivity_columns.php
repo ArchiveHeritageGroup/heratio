@@ -27,7 +27,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         // 1. information_object.icip_sensitivity
@@ -66,7 +67,8 @@ return new class extends Migration {
             Schema::table('museum_metadata', function (Blueprint $table) {
                 try {
                     $table->dropIndex('idx_museum_metadata_icip');
-                } catch (\Throwable $e) { /* index may have been removed already */ }
+                } catch (\Throwable $e) { /* index may have been removed already */
+                }
                 $table->dropColumn('icip_sensitivity');
             });
         }
@@ -92,13 +94,19 @@ return new class extends Migration {
 
         if (Schema::hasColumn('information_object', 'icip_sensitivity')) {
             Schema::table('information_object', function (Blueprint $table) {
-                try { $table->dropIndex('idx_io_icip'); } catch (\Throwable $e) {}
+                try {
+                    $table->dropIndex('idx_io_icip');
+                } catch (\Throwable $e) {
+                }
                 $table->dropColumn('icip_sensitivity');
             });
         }
         if (Schema::hasColumn('actor', 'icip_sensitivity')) {
             Schema::table('actor', function (Blueprint $table) {
-                try { $table->dropIndex('idx_actor_icip'); } catch (\Throwable $e) {}
+                try {
+                    $table->dropIndex('idx_actor_icip');
+                } catch (\Throwable $e) {
+                }
                 $table->dropColumn('icip_sensitivity');
             });
         }

@@ -36,10 +36,12 @@ class LoadDigitalObjectsCommand extends Command
 
         if (! $path || ! is_dir($path)) {
             $this->error("--path must be a readable directory: {$path}");
+
             return self::FAILURE;
         }
         if (! $slug) {
             $this->error('--attach-to (parent slug) is required');
+
             return self::FAILURE;
         }
 
@@ -50,31 +52,40 @@ class LoadDigitalObjectsCommand extends Command
             ->first();
         if (! $parent) {
             $this->error("parent slug not found: {$slug}");
+
             return self::FAILURE;
         }
 
         $files = [];
         foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS)) as $f) {
-            if ($f->isFile()) $files[] = $f->getPathname();
-            if (count($files) >= $limit) break;
+            if ($f->isFile()) {
+                $files[] = $f->getPathname();
+            }
+            if (count($files) >= $limit) {
+                break;
+            }
         }
         sort($files);
-        $this->info("loading " . count($files) . " files under #{$parent->id} ({$slug})");
+        $this->info('loading '.count($files)." files under #{$parent->id} ({$slug})");
 
-        $loaded = 0; $failed = 0;
+        $loaded = 0;
+        $failed = 0;
         foreach ($files as $file) {
             try {
                 $childId = $this->createChildIo($file, $parent);
                 $upload = new UploadedFile($file, basename($file), null, null, true);
                 DigitalObjectService::upload($childId, $upload);
                 $loaded++;
-                if ($loaded % 50 === 0) $this->line("  …{$loaded}/" . count($files));
+                if ($loaded % 50 === 0) {
+                    $this->line("  …{$loaded}/".count($files));
+                }
             } catch (\Throwable $e) {
                 $failed++;
                 $this->warn(sprintf('  FAIL %s — %s', basename($file), $e->getMessage()));
             }
         }
         $this->info("loaded={$loaded} failed={$failed}");
+
         return $failed === 0 ? self::SUCCESS : self::FAILURE;
     }
 
@@ -102,9 +113,12 @@ class LoadDigitalObjectsCommand extends Command
             'culture' => 'en',
             'title' => $title,
         ]);
-        $slug = Str::slug($title) ?: ('item-' . $objectId);
-        if (DB::table('slug')->where('slug', $slug)->exists()) $slug .= '-' . $objectId;
+        $slug = Str::slug($title) ?: ('item-'.$objectId);
+        if (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug .= '-'.$objectId;
+        }
         DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
+
         return $objectId;
     }
 }

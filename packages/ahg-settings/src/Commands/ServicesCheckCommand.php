@@ -47,17 +47,19 @@ class ServicesCheckCommand extends Command
         $checks = [
             $this->probeMysql(),
             $this->probeHttp('elasticsearch', config('services.elasticsearch.host', env('ELASTICSEARCH_HOST', 'http://localhost:9200')), '/', $timeout),
-            $this->probeHttp('qdrant',        AhgSettingsService::get('semantic_qdrant_url', 'http://localhost:6333'), '/readyz', $timeout),
-            $this->probeHttp('ollama_embed',  AhgSettingsService::get('semantic_embedding_url'), '/api/tags', $timeout),
-            $this->probeHttp('ollama_image',  AhgSettingsService::get('voice_local_llm_url'),    '/api/tags', $timeout),
+            $this->probeHttp('qdrant', AhgSettingsService::get('semantic_qdrant_url', 'http://localhost:6333'), '/readyz', $timeout),
+            $this->probeHttp('ollama_embed', AhgSettingsService::get('semantic_embedding_url'), '/api/tags', $timeout),
+            $this->probeHttp('ollama_image', AhgSettingsService::get('voice_local_llm_url'), '/api/tags', $timeout),
             $this->probeTriposr($timeout),
-            $this->probeHttp('iiif',          AhgSettingsService::get('iiif_server_url'),        '/iiif/3', $timeout),
-            $this->probeHttp('ai_condition',  AhgSettingsService::get('ai_condition_service_url'), '/health', $timeout),
+            $this->probeHttp('iiif', AhgSettingsService::get('iiif_server_url'), '/iiif/3', $timeout),
+            $this->probeHttp('ai_condition', AhgSettingsService::get('ai_condition_service_url'), '/health', $timeout),
         ];
 
         $checks = array_values(array_filter($checks));
 
-        if ($this->option('alert')) $this->logAlerts($checks);
+        if ($this->option('alert')) {
+            $this->logAlerts($checks);
+        }
 
         $unhealthy = array_filter($checks, fn ($c) => $c['status'] === 'down');
 
@@ -79,6 +81,7 @@ class ServicesCheckCommand extends Command
         $t0 = microtime(true);
         try {
             DB::connection()->getPdo()->query('SELECT 1')->fetchAll();
+
             return $this->ok('mysql', config('database.default'), $t0);
         } catch (\Throwable $e) {
             return $this->down('mysql', config('database.default'), $e->getMessage(), $t0);
@@ -87,14 +90,17 @@ class ServicesCheckCommand extends Command
 
     protected function probeHttp(string $name, ?string $url, string $path, int $timeout): ?array
     {
-        if (! $url) return $this->skipped($name, 'not configured');
-        $endpoint = rtrim($url, '/') . $path;
+        if (! $url) {
+            return $this->skipped($name, 'not configured');
+        }
+        $endpoint = rtrim($url, '/').$path;
         $t0 = microtime(true);
         try {
             $resp = Http::timeout($timeout)->get($endpoint);
+
             return $resp->successful()
                 ? $this->ok($name, $endpoint, $t0, ['http_code' => $resp->status()])
-                : $this->down($name, $endpoint, 'HTTP ' . $resp->status(), $t0);
+                : $this->down($name, $endpoint, 'HTTP '.$resp->status(), $t0);
         } catch (\Throwable $e) {
             return $this->down($name, $endpoint, $e->getMessage(), $t0);
         }
@@ -109,19 +115,20 @@ class ServicesCheckCommand extends Command
         $url = $mode === 'remote'
             ? AhgSettingsService::get('triposr_remote_url')
             : AhgSettingsService::get('triposr_api_url', 'http://127.0.0.1:5050');
+
         return $this->probeHttp('triposr', $url, '/health', $timeout);
     }
 
     protected function ok(string $name, string $target, float $t0, array $extra = []): array
     {
         return ['service' => $name, 'status' => 'up', 'target' => $target,
-                'latency_ms' => $this->ms($t0), 'detail' => null] + $extra;
+            'latency_ms' => $this->ms($t0), 'detail' => null] + $extra;
     }
 
     protected function down(string $name, string $target, string $reason, float $t0): array
     {
         return ['service' => $name, 'status' => 'down', 'target' => $target,
-                'latency_ms' => $this->ms($t0), 'detail' => $reason];
+            'latency_ms' => $this->ms($t0), 'detail' => $reason];
     }
 
     protected function skipped(string $name, string $why): array
@@ -136,7 +143,9 @@ class ServicesCheckCommand extends Command
 
     protected function logAlerts(array $checks): void
     {
-        if (! Schema::hasTable('ahg_alert_log')) return;
+        if (! Schema::hasTable('ahg_alert_log')) {
+            return;
+        }
         $down = array_filter($checks, fn ($c) => $c['status'] === 'down');
         foreach ($down as $c) {
             DB::table('ahg_alert_log')->insert([
@@ -154,8 +163,8 @@ class ServicesCheckCommand extends Command
         $this->info(sprintf('=== services-check %s ===', now()->toDateTimeString()));
         foreach ($checks as $c) {
             $tag = match ($c['status']) {
-                'up'      => '<info>UP     </info>',
-                'down'    => '<error>DOWN   </error>',
+                'up' => '<info>UP     </info>',
+                'down' => '<error>DOWN   </error>',
                 'skipped' => '<comment>SKIP   </comment>',
             };
             $latency = $c['latency_ms'] !== null ? sprintf('%4dms', $c['latency_ms']) : '   --';
@@ -163,7 +172,10 @@ class ServicesCheckCommand extends Command
             $this->line(sprintf('  %s %-16s %s  %s%s', $tag, $c['service'], $latency, $c['target'], $detail));
         }
         $down = count(array_filter($checks, fn ($c) => $c['status'] === 'down'));
-        if ($down > 0) $this->error("{$down} service(s) unhealthy");
-        else $this->info('all enabled services healthy');
+        if ($down > 0) {
+            $this->error("{$down} service(s) unhealthy");
+        } else {
+            $this->info('all enabled services healthy');
+        }
     }
 }

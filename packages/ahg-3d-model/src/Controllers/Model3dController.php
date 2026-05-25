@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace Ahg3dModel\Controllers;
 
 use Ahg3dModel\Services\ThreeDThumbnailService;
@@ -33,7 +31,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -130,7 +127,7 @@ class Model3dController extends Controller
 
         foreach ($models as $model) {
             $maDir = $this->thumbnailService->getMultiAngleDir($model->id);
-            $model->has_multiangle = is_dir($maDir) && count(glob($maDir . '/*.png')) >= 6;
+            $model->has_multiangle = is_dir($maDir) && count(glob($maDir.'/*.png')) >= 6;
             $model->has_thumbnail = $model->derivative_count > 0;
             $model->format = strtoupper(pathinfo($model->name, PATHINFO_EXTENSION));
         }
@@ -158,12 +155,12 @@ class Model3dController extends Controller
             ->whereNull('parent_id')
             ->first();
 
-        if (!$digitalObject) {
+        if (! $digitalObject) {
             return redirect()->route('admin.3d-models.browse')
                 ->with('error', 'Digital object not found.');
         }
 
-        if (!$this->thumbnailService->is3DModel($digitalObject->name)) {
+        if (! $this->thumbnailService->is3DModel($digitalObject->name)) {
             return redirect()->route('admin.3d-models.browse')
                 ->with('error', 'Not a recognised 3D model file.');
         }
@@ -190,25 +187,25 @@ class Model3dController extends Controller
             ->whereNull('parent_id')
             ->first();
 
-        if (!$digitalObject) {
+        if (! $digitalObject) {
             return redirect()->route('admin.3d-models.browse')
                 ->with('error', 'Digital object not found.');
         }
 
-        if (!$this->thumbnailService->is3DModel($digitalObject->name)) {
+        if (! $this->thumbnailService->is3DModel($digitalObject->name)) {
             return redirect()->route('admin.3d-models.browse')
                 ->with('error', 'Not a recognised 3D model file.');
         }
 
         $uploadsBase = config('heratio.uploads_path');
-        $masterPath = $uploadsBase . $digitalObject->path . $digitalObject->name;
+        $masterPath = $uploadsBase.$digitalObject->path.$digitalObject->name;
         $outputDir = $this->thumbnailService->getMultiAngleDir($id);
 
         $results = $this->thumbnailService->generateMultiAngle($masterPath, $outputDir);
 
         if (count($results) > 0) {
             return redirect()->route('admin.3d-models.browse')
-                ->with('success', 'Multi-angle renders generated (' . count($results) . '/6 views) for: ' . $digitalObject->name);
+                ->with('success', 'Multi-angle renders generated ('.count($results).'/6 views) for: '.$digitalObject->name);
         }
 
         return redirect()->route('admin.3d-models.browse')
@@ -257,11 +254,11 @@ class Model3dController extends Controller
         $models = DB::table('object_3d_model as m')
             ->leftJoin('object_3d_model_i18n as i18n', function ($join) {
                 $join->on('m.id', '=', 'i18n.model_id')
-                     ->where('i18n.culture', '=', 'en');
+                    ->where('i18n.culture', '=', 'en');
             })
             ->leftJoin('information_object_i18n as ioi', function ($join) {
                 $join->on('m.object_id', '=', 'ioi.id')
-                     ->where('ioi.culture', '=', 'en');
+                    ->where('ioi.culture', '=', 'en');
             })
             ->leftJoin('slug', 'm.object_id', '=', 'slug.object_id')
             ->orderBy('m.created_at', 'desc')
@@ -296,20 +293,20 @@ class Model3dController extends Controller
         $model = DB::table('object_3d_model as m')
             ->leftJoin('object_3d_model_i18n as i18n', function ($join) {
                 $join->on('m.id', '=', 'i18n.model_id')
-                     ->where('i18n.culture', '=', 'en');
+                    ->where('i18n.culture', '=', 'en');
             })
             ->where('m.id', $id)
             ->select('m.*', 'i18n.title as model_title', 'i18n.description', 'i18n.alt_text')
             ->first();
 
-        if (!$model) {
+        if (! $model) {
             abort(404);
         }
 
         $hotspots = DB::table('object_3d_hotspot as h')
             ->leftJoin('object_3d_hotspot_i18n as i18n', function ($join) {
                 $join->on('h.id', '=', 'i18n.hotspot_id')
-                     ->where('i18n.culture', '=', 'en');
+                    ->where('i18n.culture', '=', 'en');
             })
             ->where('h.model_id', $id)
             ->where('h.is_visible', 1)
@@ -320,7 +317,7 @@ class Model3dController extends Controller
         $object = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as ioi', function ($join) {
                 $join->on('io.id', '=', 'ioi.id')
-                     ->where('ioi.culture', '=', 'en');
+                    ->where('ioi.culture', '=', 'en');
             })
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.id', $model->object_id)
@@ -346,20 +343,20 @@ class Model3dController extends Controller
         $model = DB::table('object_3d_model as m')
             ->leftJoin('object_3d_model_i18n as i18n', function ($join) {
                 $join->on('m.id', '=', 'i18n.model_id')
-                     ->where('i18n.culture', '=', 'en');
+                    ->where('i18n.culture', '=', 'en');
             })
             ->where('m.id', $id)
             ->select('m.*', 'i18n.title as model_title', 'i18n.description', 'i18n.alt_text')
             ->first();
 
-        if (!$model) {
+        if (! $model) {
             abort(404);
         }
 
         $hotspots = DB::table('object_3d_hotspot as h')
             ->leftJoin('object_3d_hotspot_i18n as i18n', function ($join) {
                 $join->on('h.id', '=', 'i18n.hotspot_id')
-                     ->where('i18n.culture', '=', 'en');
+                    ->where('i18n.culture', '=', 'en');
             })
             ->where('h.model_id', $id)
             ->orderBy('h.display_order')
@@ -418,21 +415,21 @@ class Model3dController extends Controller
         $model = DB::table('object_3d_model as m')
             ->leftJoin('object_3d_model_i18n as i18n', function ($join) {
                 $join->on('m.id', '=', 'i18n.model_id')
-                     ->where('i18n.culture', '=', 'en');
+                    ->where('i18n.culture', '=', 'en');
             })
             ->where('m.id', $id)
             ->where('m.is_public', 1)
             ->select('m.*', 'i18n.title as model_title', 'i18n.description', 'i18n.alt_text')
             ->first();
 
-        if (!$model) {
+        if (! $model) {
             abort(404);
         }
 
         $hotspots = DB::table('object_3d_hotspot as h')
             ->leftJoin('object_3d_hotspot_i18n as i18n', function ($join) {
                 $join->on('h.id', '=', 'i18n.hotspot_id')
-                     ->where('i18n.culture', '=', 'en');
+                    ->where('i18n.culture', '=', 'en');
             })
             ->where('h.model_id', $id)
             ->where('h.is_visible', 1)
@@ -455,14 +452,14 @@ class Model3dController extends Controller
         $object = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as ioi', function ($join) {
                 $join->on('io.id', '=', 'ioi.id')
-                     ->where('ioi.culture', '=', 'en');
+                    ->where('ioi.culture', '=', 'en');
             })
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.id', $objectId)
             ->select('io.id', 'ioi.title', 'slug.slug')
             ->first();
 
-        if (!$object) {
+        if (! $object) {
             abort(404);
         }
 
@@ -496,9 +493,9 @@ class Model3dController extends Controller
             $file = $request->file('model_file');
             $ext = strtolower($file->getClientOriginalExtension());
 
-            if (!in_array($ext, $allowedFormats)) {
+            if (! in_array($ext, $allowedFormats)) {
                 return redirect()->back()
-                    ->with('error', 'Invalid file format. Allowed: ' . implode(', ', $allowedFormats));
+                    ->with('error', 'Invalid file format. Allowed: '.implode(', ', $allowedFormats));
             }
 
             $maxBytes = $maxFileSize * 1024 * 1024;
@@ -507,12 +504,12 @@ class Model3dController extends Controller
                     ->with('error', "File too large. Maximum: {$maxFileSize} MB");
             }
 
-            $uploadDir = config('heratio.uploads_path') . '/3d/' . $objectId;
-            if (!is_dir($uploadDir)) {
+            $uploadDir = config('heratio.uploads_path').'/3d/'.$objectId;
+            if (! is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
 
-            $filename = uniqid() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
+            $filename = uniqid().'_'.preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
             $file->move($uploadDir, $filename);
 
             $mimeTypes = [
@@ -532,7 +529,7 @@ class Model3dController extends Controller
                 'object_id' => $objectId,
                 'filename' => $filename,
                 'original_filename' => $file->getClientOriginalName(),
-                'file_path' => '3d/' . $objectId . '/' . $filename,
+                'file_path' => '3d/'.$objectId.'/'.$filename,
                 'file_size' => $file->getSize(),
                 'mime_type' => $mimeTypes[$ext] ?? 'application/octet-stream',
                 'format' => $ext,
@@ -583,7 +580,7 @@ class Model3dController extends Controller
     public function delete(Request $request, int $id): RedirectResponse
     {
         $model = DB::table('object_3d_model')->where('id', $id)->first();
-        if (!$model) {
+        if (! $model) {
             abort(404);
         }
 
@@ -591,12 +588,12 @@ class Model3dController extends Controller
 
         // Delete file
         $uploadsBase = config('heratio.uploads_path');
-        $filePath = $uploadsBase . '/' . $model->file_path;
+        $filePath = $uploadsBase.'/'.$model->file_path;
         if (file_exists($filePath)) {
             unlink($filePath);
         }
         if ($model->poster_image) {
-            $posterPath = $uploadsBase . '/' . $model->poster_image;
+            $posterPath = $uploadsBase.'/'.$model->poster_image;
             if (file_exists($posterPath)) {
                 unlink($posterPath);
             }
@@ -618,7 +615,7 @@ class Model3dController extends Controller
 
         $slug = DB::table('slug')->where('object_id', $objectId)->value('slug');
 
-        return redirect('/' . ($slug ?: ''))
+        return redirect('/'.($slug ?: ''))
             ->with('success', '3D model deleted.');
     }
 
@@ -859,7 +856,7 @@ class Model3dController extends Controller
     public function deleteHotspot(Request $request, int $hotspotId): JsonResponse
     {
         $hotspot = DB::table('object_3d_hotspot')->where('id', $hotspotId)->first();
-        if (!$hotspot) {
+        if (! $hotspot) {
             return response()->json(['success' => false, 'error' => 'Not found'], 404);
         }
 
@@ -880,21 +877,21 @@ class Model3dController extends Controller
         $model = DB::table('object_3d_model as m')
             ->leftJoin('object_3d_model_i18n as i18n', function ($join) {
                 $join->on('m.id', '=', 'i18n.model_id')
-                     ->where('i18n.culture', '=', 'en');
+                    ->where('i18n.culture', '=', 'en');
             })
             ->where('m.id', $id)
             ->where('m.is_public', 1)
             ->select('m.*', 'i18n.title as model_title', 'i18n.description', 'i18n.alt_text')
             ->first();
 
-        if (!$model) {
+        if (! $model) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
         $hotspots = DB::table('object_3d_hotspot as h')
             ->leftJoin('object_3d_hotspot_i18n as i18n', function ($join) {
                 $join->on('h.id', '=', 'i18n.hotspot_id')
-                     ->where('i18n.culture', '=', 'en');
+                    ->where('i18n.culture', '=', 'en');
             })
             ->where('h.model_id', $id)
             ->where('h.is_visible', 1)
@@ -903,25 +900,25 @@ class Model3dController extends Controller
             ->get();
 
         $baseUrl = $request->getSchemeAndHttpHost();
-        $modelUrl = $baseUrl . '/uploads/' . $model->file_path;
+        $modelUrl = $baseUrl.'/uploads/'.$model->file_path;
 
         $manifest = [
             '@context' => [
                 'http://iiif.io/api/presentation/3/context.json',
                 'http://iiif.io/api/extension/3d/context.json',
             ],
-            'id' => $baseUrl . '/iiif/3d/' . $id . '/manifest.json',
+            'id' => $baseUrl.'/iiif/3d/'.$id.'/manifest.json',
             'type' => 'Manifest',
             'label' => ['en' => [$model->model_title ?: 'Untitled 3D Model']],
             'metadata' => [
                 ['label' => ['en' => ['Format']], 'value' => ['en' => [strtoupper($model->format)]]],
-                ['label' => ['en' => ['File Size']], 'value' => ['en' => [number_format($model->file_size / 1048576, 2) . ' MB']]],
+                ['label' => ['en' => ['File Size']], 'value' => ['en' => [number_format($model->file_size / 1048576, 2).' MB']]],
             ],
             'items' => [[
-                'id' => $baseUrl . '/iiif/3d/' . $id . '/scene/1',
+                'id' => $baseUrl.'/iiif/3d/'.$id.'/scene/1',
                 'type' => 'Scene',
                 'items' => [[
-                    'id' => $baseUrl . '/iiif/3d/' . $id . '/annotation/1',
+                    'id' => $baseUrl.'/iiif/3d/'.$id.'/annotation/1',
                     'type' => 'Annotation',
                     'motivation' => 'painting',
                     'body' => [
@@ -929,7 +926,7 @@ class Model3dController extends Controller
                         'type' => 'Model',
                         'format' => $model->mime_type,
                     ],
-                    'target' => $baseUrl . '/iiif/3d/' . $id . '/scene/1',
+                    'target' => $baseUrl.'/iiif/3d/'.$id.'/scene/1',
                 ]],
             ]],
             'extensions' => [
@@ -953,12 +950,12 @@ class Model3dController extends Controller
             $annotations = [];
             foreach ($hotspots as $hotspot) {
                 $annotations[] = [
-                    'id' => $baseUrl . '/iiif/3d/' . $id . '/hotspot/' . $hotspot->id,
+                    'id' => $baseUrl.'/iiif/3d/'.$id.'/hotspot/'.$hotspot->id,
                     'type' => 'Annotation',
                     'motivation' => 'commenting',
                     'body' => [
                         'type' => 'TextualBody',
-                        'value' => ($hotspot->hotspot_title ?: '') . ($hotspot->hotspot_description ? ': ' . $hotspot->hotspot_description : ''),
+                        'value' => ($hotspot->hotspot_title ?: '').($hotspot->hotspot_description ? ': '.$hotspot->hotspot_description : ''),
                         'format' => 'text/plain',
                     ],
                     'target' => [
@@ -970,7 +967,7 @@ class Model3dController extends Controller
                 ];
             }
             $manifest['annotations'] = [[
-                'id' => $baseUrl . '/iiif/3d/' . $id . '/annotations/1',
+                'id' => $baseUrl.'/iiif/3d/'.$id.'/annotations/1',
                 'type' => 'AnnotationPage',
                 'items' => $annotations,
             ]];
@@ -991,7 +988,7 @@ class Model3dController extends Controller
         $models = DB::table('object_3d_model as m')
             ->leftJoin('object_3d_model_i18n as i18n', function ($join) {
                 $join->on('m.id', '=', 'i18n.model_id')
-                     ->where('i18n.culture', '=', 'en');
+                    ->where('i18n.culture', '=', 'en');
             })
             ->where('m.object_id', $objectId)
             ->where('m.is_public', 1)
@@ -1014,7 +1011,7 @@ class Model3dController extends Controller
         $hotspots = DB::table('object_3d_hotspot as h')
             ->leftJoin('object_3d_hotspot_i18n as i18n', function ($join) {
                 $join->on('h.id', '=', 'i18n.hotspot_id')
-                     ->where('i18n.culture', '=', 'en');
+                    ->where('i18n.culture', '=', 'en');
             })
             ->where('h.model_id', $modelId)
             ->where('h.is_visible', 1)
@@ -1042,7 +1039,7 @@ class Model3dController extends Controller
                 'user_id' => auth()->id(),
                 'user_name' => auth()->user()?->username ?? 'system',
                 'action' => $action,
-                'details' => !empty($details) ? json_encode($details) : null,
+                'details' => ! empty($details) ? json_encode($details) : null,
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
                 'created_at' => now(),
@@ -1065,7 +1062,7 @@ class Model3dController extends Controller
         }
 
         try {
-            $ch = curl_init($apiUrl . '/health');
+            $ch = curl_init($apiUrl.'/health');
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT => 5,
@@ -1077,11 +1074,12 @@ class Model3dController extends Controller
             curl_close($ch);
 
             if ($error || $httpCode !== 200) {
-                return ['status' => 'error', 'message' => $error ?: 'HTTP ' . $httpCode];
+                return ['status' => 'error', 'message' => $error ?: 'HTTP '.$httpCode];
             }
 
             $data = json_decode($response, true) ?: [];
             $data['status'] = 'ok';
+
             return $data;
         } catch (\Exception $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
@@ -1101,6 +1099,7 @@ class Model3dController extends Controller
         } catch (\Throwable $e) {
             return false;
         }
+
         return ((string) ($rows['triposr_enabled'] ?? '0')) === '1'
             && ((string) ($rows['enable_2d_to_3d_user_button'] ?? '1')) === '1';
     }
@@ -1117,13 +1116,14 @@ class Model3dController extends Controller
      */
     public function userGenerate3d(Request $request, int $ioId)
     {
-        if (!self::is2dTo3dUserButtonEnabled()) {
+        if (! self::is2dTo3dUserButtonEnabled()) {
             session()->flash('error', '3D generation is currently disabled by the administrator.');
+
             return redirect()->back();
         }
 
         $io = DB::table('information_object')->where('id', $ioId)->first(['id']);
-        if (!$io) {
+        if (! $io) {
             abort(404);
         }
 
@@ -1131,6 +1131,7 @@ class Model3dController extends Controller
         $existing = DB::table('object_3d_model')->where('object_id', $ioId)->first(['id']);
         if ($existing) {
             session()->flash('notice', 'This object already has a 3D model.');
+
             return redirect()->back();
         }
 
@@ -1138,22 +1139,24 @@ class Model3dController extends Controller
         $sourceDo = DB::table('digital_object')
             ->where('object_id', $ioId)
             ->where('mime_type', 'like', 'image/%')
-            ->orderByRaw("FIELD(usage_id, 140, 141, 142)")
+            ->orderByRaw('FIELD(usage_id, 140, 141, 142)')
             ->first(['id', 'name', 'path']);
 
-        if (!$sourceDo) {
+        if (! $sourceDo) {
             session()->flash('error', 'No image found for this object. Upload an image first.');
+
             return redirect()->back();
         }
 
         $base = rtrim((string) config('heratio.uploads_path', ''), '/');
         $rel = preg_replace('#^/uploads/r?/?#', '', (string) $sourceDo->path);
-        $sourcePath = $base . '/' . trim($rel, '/') . '/' . $sourceDo->name;
-        if (!is_file($sourcePath)) {
-            $sourcePath = $base . '/' . $ioId . '/' . $sourceDo->name;
+        $sourcePath = $base.'/'.trim($rel, '/').'/'.$sourceDo->name;
+        if (! is_file($sourcePath)) {
+            $sourcePath = $base.'/'.$ioId.'/'.$sourceDo->name;
         }
-        if (!is_file($sourcePath)) {
+        if (! is_file($sourcePath)) {
             session()->flash('error', 'Could not locate the source image on disk.');
+
             return redirect()->back();
         }
 
@@ -1166,7 +1169,7 @@ class Model3dController extends Controller
             $output = \Illuminate\Support\Facades\Artisan::output();
 
             // Parse the marker line we emit in the command
-            if (!preg_match('/^TRIPOSR_OUTPUT=(.+)$/m', $output, $m)) {
+            if (! preg_match('/^TRIPOSR_OUTPUT=(.+)$/m', $output, $m)) {
                 Log::warning('[userGenerate3d] no TRIPOSR_OUTPUT marker', ['out' => $output]);
                 // Surface only the first error line so the flash isn't a wall of text.
                 $errLine = '';
@@ -1174,12 +1177,14 @@ class Model3dController extends Controller
                     $errLine = trim($em[0]);
                 }
                 $errLine = $errLine ?: 'TripoSR did not return a model. Check /admin/3d-models/settings.';
-                session()->flash('error', '3D generation failed: ' . $errLine);
+                session()->flash('error', '3D generation failed: '.$errLine);
+
                 return redirect()->back();
             }
             $stagedPath = trim($m[1]);
-            if (!is_file($stagedPath)) {
+            if (! is_file($stagedPath)) {
                 session()->flash('error', '3D generation completed but the staged file is missing.');
+
                 return redirect()->back();
             }
 
@@ -1189,7 +1194,7 @@ class Model3dController extends Controller
             // and opens the preview modal automatically.
             session()->put('triposr_preview', [
                 'io_id' => $ioId,
-                'path'  => $stagedPath,
+                'path' => $stagedPath,
                 'filename' => basename($stagedPath),
                 'created_at' => now()->toIso8601String(),
                 'is_demo' => $isDemo,
@@ -1199,7 +1204,7 @@ class Model3dController extends Controller
                 : '3D preview ready — review and click Save to attach it.');
         } catch (\Throwable $e) {
             Log::error('[userGenerate3d] failed', ['io' => $ioId, 'err' => $e->getMessage()]);
-            session()->flash('error', '3D generation failed: ' . $e->getMessage());
+            session()->flash('error', '3D generation failed: '.$e->getMessage());
         }
 
         return redirect()->back();
@@ -1209,20 +1214,22 @@ class Model3dController extends Controller
     public function confirmAttach3d(Request $request, int $ioId)
     {
         $preview = session('triposr_preview');
-        if (!$preview || (int) ($preview['io_id'] ?? 0) !== $ioId) {
+        if (! $preview || (int) ($preview['io_id'] ?? 0) !== $ioId) {
             session()->flash('error', 'No matching 3D preview to save.');
+
             return redirect()->back();
         }
-        $importer = new \Ahg3dModel\Services\TriposrImportService();
+        $importer = new \Ahg3dModel\Services\TriposrImportService;
         $result = $importer->importGlb((string) $preview['path'], $ioId);
         session()->forget('triposr_preview');
         @unlink((string) $preview['path']);
 
-        if (!empty($result['success'])) {
+        if (! empty($result['success'])) {
             session()->flash('notice', '3D model attached to this object.');
         } else {
-            session()->flash('error', 'Could not save the 3D model: ' . ($result['error'] ?? 'unknown'));
+            session()->flash('error', 'Could not save the 3D model: '.($result['error'] ?? 'unknown'));
         }
+
         return redirect()->back();
     }
 
@@ -1231,11 +1238,12 @@ class Model3dController extends Controller
     {
         $preview = session('triposr_preview');
         if ($preview && (int) ($preview['io_id'] ?? 0) === $ioId) {
-            $importer = new \Ahg3dModel\Services\TriposrImportService();
+            $importer = new \Ahg3dModel\Services\TriposrImportService;
             $importer->discardStaged((string) ($preview['path'] ?? ''));
         }
         session()->forget('triposr_preview');
         session()->flash('notice', '3D preview discarded.');
+
         return redirect()->back();
     }
 
@@ -1247,9 +1255,10 @@ class Model3dController extends Controller
     public function previewFile(Request $request)
     {
         $preview = session('triposr_preview');
-        if (!$preview || empty($preview['path']) || !is_file($preview['path'])) {
+        if (! $preview || empty($preview['path']) || ! is_file($preview['path'])) {
             abort(404);
         }
+
         return response()->file($preview['path'], [
             'Content-Type' => 'model/gltf-binary',
             'Cache-Control' => 'no-store',

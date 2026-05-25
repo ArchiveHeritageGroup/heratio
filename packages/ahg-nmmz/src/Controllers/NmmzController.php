@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgNmmz\Controllers;
 
 use AhgNmmz\Services\NmmzService;
@@ -37,7 +35,7 @@ class NmmzController extends Controller
 
     public function __construct()
     {
-        $this->service = new NmmzService();
+        $this->service = new NmmzService;
     }
 
     public function index()

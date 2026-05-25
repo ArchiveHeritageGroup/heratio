@@ -26,14 +26,14 @@ class ImportCsvCommand extends Command
 
         $this->info("Importing CSV: {$filename}");
 
-        $cmd = 'php /usr/share/nginx/archive/bin/atom import:csv ' . escapeshellarg($filename);
+        $cmd = 'php /usr/share/nginx/archive/bin/atom import:csv '.escapeshellarg($filename);
 
         if ($sourceName = $this->option('source-name')) {
-            $cmd .= ' --source-name=' . escapeshellarg($sourceName);
+            $cmd .= ' --source-name='.escapeshellarg($sourceName);
         }
 
         if ($parentId = $this->option('default-legacy-parent-id')) {
-            $cmd .= ' --default-legacy-parent-id=' . escapeshellarg($parentId);
+            $cmd .= ' --default-legacy-parent-id='.escapeshellarg($parentId);
         }
 
         if ($this->option('skip-nested-set-build')) {
@@ -45,7 +45,7 @@ class ImportCsvCommand extends Command
         if ($exitCode === 0) {
             $this->info('CSV import completed successfully.');
         } else {
-            $this->error('CSV import failed with exit code: ' . $exitCode);
+            $this->error('CSV import failed with exit code: '.$exitCode);
         }
 
         return $exitCode === 0 ? self::SUCCESS : self::FAILURE;

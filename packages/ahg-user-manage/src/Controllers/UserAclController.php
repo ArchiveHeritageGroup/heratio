@@ -53,6 +53,7 @@ use Illuminate\Support\Facades\DB;
 class UserAclController extends Controller
 {
     private UserService $users;
+
     private AclService $acl;
 
     public function __construct(UserService $users, AclService $acl)
@@ -117,16 +118,23 @@ class UserAclController extends Controller
     // _acl-menu partial links here; the edit form already shows current
     // perms in a table, which is enough for v1. AtoM's denormalised
     // "permissions across groups" matrix view can ship as an enhancement.
-    public function indexInformationObjectAcl(Request $request, string $slug) {
+    public function indexInformationObjectAcl(Request $request, string $slug)
+    {
         return redirect()->route('user.editInformationObjectAcl', ['slug' => $slug]);
     }
-    public function indexActorAcl(Request $request, string $slug) {
+
+    public function indexActorAcl(Request $request, string $slug)
+    {
         return redirect()->route('user.editActorAcl', ['slug' => $slug]);
     }
-    public function indexRepositoryAcl(Request $request, string $slug) {
+
+    public function indexRepositoryAcl(Request $request, string $slug)
+    {
         return redirect()->route('user.editRepositoryAcl', ['slug' => $slug]);
     }
-    public function indexTermAcl(Request $request, string $slug) {
+
+    public function indexTermAcl(Request $request, string $slug)
+    {
         return redirect()->route('user.editTermAcl', ['slug' => $slug]);
     }
 
@@ -147,7 +155,9 @@ class UserAclController extends Controller
         string $successMessage,
     ) {
         $user = $this->users->getBySlug($slug);
-        if (!$user) abort(404, 'User not found.');
+        if (! $user) {
+            abort(404, 'User not found.');
+        }
 
         if ($request->isMethod('post')) {
             $this->acl->applyUserAclForm(
@@ -156,6 +166,7 @@ class UserAclController extends Controller
                 $allowedActions,
                 $className,
             );
+
             return redirect()->route($editRouteName, ['slug' => $user->slug])
                 ->with('success', $successMessage);
         }
@@ -173,10 +184,10 @@ class UserAclController extends Controller
             ->get();
 
         return view($view, [
-            'user'         => $user,
-            'permissions'  => $permissions,
+            'user' => $user,
+            'permissions' => $permissions,
             'repositories' => $repositories,
-            'entityLabel'  => $entityLabel,
+            'entityLabel' => $entityLabel,
             'allowedActions' => $allowedActions,
         ]);
     }

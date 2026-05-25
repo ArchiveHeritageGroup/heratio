@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCore\Services;
 
 use Carbon\Carbon;
@@ -46,11 +44,11 @@ class CronSchedulerService
             ->where('is_enabled', 1)
             ->where(function ($q) {
                 $q->whereNull('next_run_at')
-                  ->orWhere('next_run_at', '<=', Carbon::now());
+                    ->orWhere('next_run_at', '<=', Carbon::now());
             })
             ->where(function ($q) {
                 $q->whereNull('last_run_status')
-                  ->orWhere('last_run_status', '!=', 'running');
+                    ->orWhere('last_run_status', '!=', 'running');
             })
             ->orderBy('sort_order')
             ->get();
@@ -62,7 +60,7 @@ class CronSchedulerService
     public function runDueSchedules(): array
     {
         // Gate: check if background jobs are enabled
-        if (!$this->isJobsEnabled()) {
+        if (! $this->isJobsEnabled()) {
             return [['status' => 'skipped', 'reason' => 'jobs_enabled is false']];
         }
 
@@ -74,6 +72,7 @@ class CronSchedulerService
         foreach ($due as $schedule) {
             if ($running >= $maxConcurrent) {
                 $results[] = ['id' => $schedule->id, 'slug' => $schedule->slug, 'status' => 'deferred', 'reason' => 'max_concurrent reached'];
+
                 continue;
             }
             $results[] = $this->runSingle($schedule);
@@ -101,7 +100,7 @@ class CronSchedulerService
 
         // Pre-flight: confirm the artisan command is actually registered.
         // Protects against orphan seeds whose backing commands were removed.
-        if (!$this->artisanCommandExists($schedule->artisan_command)) {
+        if (! $this->artisanCommandExists($schedule->artisan_command)) {
             $status = 'failed';
             $output = "Command not registered: '{$schedule->artisan_command}'. Remove this schedule or implement the command.";
         } else {
@@ -123,7 +122,7 @@ class CronSchedulerService
 
         // Truncate output to last 5000 chars for storage
         if (strlen($output) > 5000) {
-            $output = '... (truncated) ...' . substr($output, -5000);
+            $output = '... (truncated) ...'.substr($output, -5000);
         }
 
         $updateData = [
@@ -177,6 +176,7 @@ class CronSchedulerService
     public function computeNextRun(string $cronExpression): Carbon
     {
         $cron = new CronExpression($cronExpression);
+
         return Carbon::instance($cron->getNextRunDate());
     }
 
@@ -276,7 +276,7 @@ class CronSchedulerService
                 );
             } else {
                 $exists = DB::table($this->table)->where('slug', $entry['slug'])->exists();
-                if (!$exists) {
+                if (! $exists) {
                     DB::table($this->table)->insert(array_merge($entry, [
                         'next_run_at' => $this->computeNextRun($entry['cron_expression']),
                         'created_at' => Carbon::now(),
@@ -504,6 +504,7 @@ class CronSchedulerService
                 $cache = [];
             }
         }
+
         return $cache[$key] ?? $default;
     }
 
@@ -540,9 +541,9 @@ class CronSchedulerService
         try {
             \Illuminate\Support\Facades\Mail::raw(
                 "Job failed: {$schedule->name} ({$schedule->slug})\n\n"
-                . "Command: {$schedule->artisan_command}\n"
-                . "Time: " . now()->toDateTimeString() . "\n\n"
-                . "Output:\n{$output}",
+                ."Command: {$schedule->artisan_command}\n"
+                .'Time: '.now()->toDateTimeString()."\n\n"
+                ."Output:\n{$output}",
                 function ($message) use ($email, $schedule) {
                     $message->to($email)
                         ->subject("[Heratio] Job Failed: {$schedule->name}");
@@ -550,7 +551,7 @@ class CronSchedulerService
             );
         } catch (\Throwable $e) {
             // Don't let notification failure break the scheduler
-            \Log::warning("Failed to send job failure notification: " . $e->getMessage());
+            \Log::warning('Failed to send job failure notification: '.$e->getMessage());
         }
     }
 }

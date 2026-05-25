@@ -53,9 +53,6 @@ class EacCpf2Serializer
      */
     public const SCHEMA_LOCATION = 'https://archivists.org/ns/eac/v2 https://eac.staatsbibliothek-berlin.de/schema/v2/eac.xsd';
 
-    /**
-     * @var \DOMDocument
-     */
     protected \DOMDocument $dom;
 
     /**
@@ -86,9 +83,8 @@ class EacCpf2Serializer
     /**
      * Serialize an actor record to EAC-CPF 2.0 XML.
      *
-     * @param int    $actorId  The actor ID.
-     * @param string $culture  The i18n culture code.
-     *
+     * @param  int  $actorId  The actor ID.
+     * @param  string  $culture  The i18n culture code.
      * @return string The EAC-CPF 2.0 XML document.
      */
     public function serializeActor(int $actorId, string $culture = 'en'): string
@@ -101,7 +97,7 @@ class EacCpf2Serializer
             ->where('id', $actorId)
             ->first();
 
-        if (!$actor) {
+        if (! $actor) {
             return $this->emptyDocument('Actor not found');
         }
 
@@ -111,7 +107,7 @@ class EacCpf2Serializer
             ->where('culture', $culture)
             ->first();
 
-        if (!$actorI18n) {
+        if (! $actorI18n) {
             // Fallback to source culture
             $actorI18n = DB::table('actor_i18n')
                 ->where('id', $actorId)
@@ -119,7 +115,7 @@ class EacCpf2Serializer
                 ->first();
         }
 
-        if (!$actorI18n) {
+        if (! $actorI18n) {
             return $this->emptyDocument('Actor i18n data not found');
         }
 
@@ -141,7 +137,7 @@ class EacCpf2Serializer
         $otherNames = DB::table('other_name')
             ->join('other_name_i18n', function ($join) use ($culture) {
                 $join->on('other_name.id', '=', 'other_name_i18n.id')
-                     ->where('other_name_i18n.culture', '=', $culture);
+                    ->where('other_name_i18n.culture', '=', $culture);
             })
             ->where('other_name.object_id', $actorId)
             ->select(
@@ -199,7 +195,7 @@ class EacCpf2Serializer
         $control = $this->el('control');
 
         // <recordId>
-        $recordId = $slug ?? ('actor-' . $actorId);
+        $recordId = $slug ?? ('actor-'.$actorId);
         $control->appendChild($this->el('recordId', $recordId));
 
         // <maintenanceStatus>
@@ -245,7 +241,7 @@ class EacCpf2Serializer
         $control->appendChild($maintenanceHistory);
 
         // <sources> from actor_i18n
-        if (!empty($actorI18n->sources)) {
+        if (! empty($actorI18n->sources)) {
             $sources = $this->el('sources');
             $source = $this->el('source');
             $sourceEntry = $this->el('sourceEntry', $actorI18n->sources);
@@ -307,7 +303,7 @@ class EacCpf2Serializer
         $identity->appendChild($entityType);
 
         // <nameEntry> for authorized form
-        if (!empty($actorI18n->authorized_form_of_name)) {
+        if (! empty($actorI18n->authorized_form_of_name)) {
             $nameEntry = $this->el('nameEntry');
             $nameEntry->setAttribute('status', 'authorized');
             $nameEntry->setAttribute('languageOfElement', $culture);
@@ -335,9 +331,9 @@ class EacCpf2Serializer
         }
 
         // <descriptiveNote> with corporate body identifiers
-        if (!empty($actor->corporate_body_identifiers)) {
+        if (! empty($actor->corporate_body_identifiers)) {
             $descriptiveNote = $this->el('descriptiveNote');
-            $p = $this->el('p', 'Identifiers: ' . $actor->corporate_body_identifiers);
+            $p = $this->el('p', 'Identifiers: '.$actor->corporate_body_identifiers);
             $descriptiveNote->appendChild($p);
             $identity->appendChild($descriptiveNote);
         }
@@ -353,7 +349,7 @@ class EacCpf2Serializer
         $description = $this->el('description');
 
         // <existDates>
-        if (!empty($actorI18n->dates_of_existence)) {
+        if (! empty($actorI18n->dates_of_existence)) {
             $existDates = $this->el('existDates');
             $dateRange = $this->el('dateRange');
             $fromDate = $this->el('fromDate', $actorI18n->dates_of_existence);
@@ -363,7 +359,7 @@ class EacCpf2Serializer
         }
 
         // <places>
-        if (!empty($actorI18n->places)) {
+        if (! empty($actorI18n->places)) {
             $places = $this->el('places');
             $place = $this->el('place');
             $placeEntry = $this->el('placeEntry', $actorI18n->places);
@@ -373,7 +369,7 @@ class EacCpf2Serializer
         }
 
         // <legalStatuses>
-        if (!empty($actorI18n->legal_status)) {
+        if (! empty($actorI18n->legal_status)) {
             $legalStatuses = $this->el('legalStatuses');
             $legalStatus = $this->el('legalStatus');
             $term = $this->el('term', $actorI18n->legal_status);
@@ -383,7 +379,7 @@ class EacCpf2Serializer
         }
 
         // <functions>
-        if (!empty($actorI18n->functions)) {
+        if (! empty($actorI18n->functions)) {
             $functionsEl = $this->el('functions');
             $functionEl = $this->el('function');
             $term = $this->el('term', $actorI18n->functions);
@@ -393,7 +389,7 @@ class EacCpf2Serializer
         }
 
         // <mandates>
-        if (!empty($actorI18n->mandates)) {
+        if (! empty($actorI18n->mandates)) {
             $mandates = $this->el('mandates');
             $mandate = $this->el('mandate');
             $term = $this->el('term', $actorI18n->mandates);
@@ -403,7 +399,7 @@ class EacCpf2Serializer
         }
 
         // <structureOrGenealogy>
-        if (!empty($actorI18n->internal_structures)) {
+        if (! empty($actorI18n->internal_structures)) {
             $structureOrGenealogy = $this->el('structureOrGenealogy');
             $p = $this->el('p', $actorI18n->internal_structures);
             $structureOrGenealogy->appendChild($p);
@@ -411,7 +407,7 @@ class EacCpf2Serializer
         }
 
         // <generalContext>
-        if (!empty($actorI18n->general_context)) {
+        if (! empty($actorI18n->general_context)) {
             $generalContext = $this->el('generalContext');
             $p = $this->el('p', $actorI18n->general_context);
             $generalContext->appendChild($p);
@@ -419,7 +415,7 @@ class EacCpf2Serializer
         }
 
         // <biogHist>
-        if (!empty($actorI18n->history)) {
+        if (! empty($actorI18n->history)) {
             $biogHist = $this->el('biogHist');
             $p = $this->el('p', $actorI18n->history);
             $biogHist->appendChild($p);
@@ -443,7 +439,7 @@ class EacCpf2Serializer
                 ->where('culture', $culture)
                 ->first();
 
-            if (!$relatedActorI18n || empty($relatedActorI18n->authorized_form_of_name)) {
+            if (! $relatedActorI18n || empty($relatedActorI18n->authorized_form_of_name)) {
                 continue;
             }
 
@@ -502,7 +498,7 @@ class EacCpf2Serializer
                 ->where('culture', $culture)
                 ->first();
 
-            if (!$relatedActorI18n || empty($relatedActorI18n->authorized_form_of_name)) {
+            if (! $relatedActorI18n || empty($relatedActorI18n->authorized_form_of_name)) {
                 continue;
             }
 
@@ -561,7 +557,7 @@ class EacCpf2Serializer
      */
     protected function mapRelationType(?string $typeName): string
     {
-        if (!$typeName) {
+        if (! $typeName) {
             return 'associative';
         }
 
@@ -608,7 +604,7 @@ class EacCpf2Serializer
         $root = $dom->createElementNS(self::NS_EAC, 'eac');
         $dom->appendChild($root);
 
-        $comment = $dom->createComment(' ' . $message . ' ');
+        $comment = $dom->createComment(' '.$message.' ');
         $root->appendChild($comment);
 
         return $dom->saveXML();

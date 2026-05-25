@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgFtpUpload\Controllers;
 
 use AhgFtpUpload\Services\FtpService;
@@ -103,7 +101,7 @@ class FtpUploadController extends Controller
      */
     public function uploadChunk(Request $request)
     {
-        if (!$request->isMethod('post')) {
+        if (! $request->isMethod('post')) {
             return response()->json(['success' => false, 'message' => 'POST required']);
         }
 
@@ -121,22 +119,22 @@ class FtpUploadController extends Controller
             return response()->json(['success' => false, 'message' => 'Missing chunk metadata']);
         }
 
-        if (!$request->hasFile('file') || !$request->file('file')->isValid()) {
+        if (! $request->hasFile('file') || ! $request->file('file')->isValid()) {
             return response()->json(['success' => false, 'message' => 'Chunk upload error']);
         }
 
         // Create chunk directory for this upload
-        $uploadDir = self::CHUNK_DIR . '/' . $uploadId;
-        if (!is_dir($uploadDir)) {
+        $uploadDir = self::CHUNK_DIR.'/'.$uploadId;
+        if (! is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
 
         // Save chunk to disk
-        $chunkPath = $uploadDir . '/chunk_' . str_pad($chunkIndex, 6, '0', STR_PAD_LEFT);
-        $request->file('file')->move($uploadDir, 'chunk_' . str_pad($chunkIndex, 6, '0', STR_PAD_LEFT));
+        $chunkPath = $uploadDir.'/chunk_'.str_pad($chunkIndex, 6, '0', STR_PAD_LEFT);
+        $request->file('file')->move($uploadDir, 'chunk_'.str_pad($chunkIndex, 6, '0', STR_PAD_LEFT));
 
         // Save metadata on first chunk
-        $metaPath = $uploadDir . '/meta.json';
+        $metaPath = $uploadDir.'/meta.json';
         if ($chunkIndex === 0) {
             file_put_contents($metaPath, json_encode([
                 'fileName' => $fileName,
@@ -147,7 +145,7 @@ class FtpUploadController extends Controller
         }
 
         // Count received chunks
-        $receivedChunks = count(glob($uploadDir . '/chunk_*'));
+        $receivedChunks = count(glob($uploadDir.'/chunk_*'));
 
         // Not all chunks received yet — acknowledge this chunk
         if ($receivedChunks < $totalChunks) {
@@ -168,11 +166,11 @@ class FtpUploadController extends Controller
      */
     public function upload(Request $request)
     {
-        if (!$request->isMethod('post')) {
+        if (! $request->isMethod('post')) {
             return response()->json(['success' => false, 'message' => 'POST required']);
         }
 
-        if (!$request->hasFile('file') || !$request->file('file')->isValid()) {
+        if (! $request->hasFile('file') || ! $request->file('file')->isValid()) {
             return response()->json(['success' => false, 'message' => 'No file uploaded or upload error']);
         }
 
@@ -209,13 +207,13 @@ class FtpUploadController extends Controller
      */
     public function deleteFile(Request $request)
     {
-        if (!$request->isMethod('post')) {
+        if (! $request->isMethod('post')) {
             return response()->json(['success' => false, 'message' => 'POST required']);
         }
 
         $data = $request->json()->all() ?: [];
         $filename = $data['filename'] ?? $request->input('filename', '');
-        $dir      = $data['dir']      ?? $request->input('dir', '');
+        $dir = $data['dir'] ?? $request->input('dir', '');
 
         if (empty($filename)) {
             return response()->json(['success' => false, 'message' => 'No filename specified']);
@@ -237,31 +235,31 @@ class FtpUploadController extends Controller
      */
     protected function assembleAndUpload(string $uploadId, string $uploadDir, string $fileName, int $totalChunks, string $relativePath = '')
     {
-        $assembledPath = self::CHUNK_DIR . '/' . $uploadId . '_assembled';
+        $assembledPath = self::CHUNK_DIR.'/'.$uploadId.'_assembled';
 
         try {
             $out = fopen($assembledPath, 'wb');
-            if (!$out) {
+            if (! $out) {
                 $this->cleanupChunks($uploadDir, $assembledPath);
 
                 return response()->json(['success' => false, 'message' => 'Failed to create assembled file']);
             }
 
             for ($i = 0; $i < $totalChunks; $i++) {
-                $chunkPath = $uploadDir . '/chunk_' . str_pad($i, 6, '0', STR_PAD_LEFT);
-                if (!file_exists($chunkPath)) {
+                $chunkPath = $uploadDir.'/chunk_'.str_pad($i, 6, '0', STR_PAD_LEFT);
+                if (! file_exists($chunkPath)) {
                     fclose($out);
                     $this->cleanupChunks($uploadDir, $assembledPath);
 
-                    return response()->json(['success' => false, 'message' => 'Missing chunk ' . $i]);
+                    return response()->json(['success' => false, 'message' => 'Missing chunk '.$i]);
                 }
 
                 $in = fopen($chunkPath, 'rb');
-                if (!$in) {
+                if (! $in) {
                     fclose($out);
                     $this->cleanupChunks($uploadDir, $assembledPath);
 
-                    return response()->json(['success' => false, 'message' => 'Cannot read chunk ' . $i]);
+                    return response()->json(['success' => false, 'message' => 'Cannot read chunk '.$i]);
                 }
 
                 stream_copy_to_stream($in, $out);
@@ -295,7 +293,7 @@ class FtpUploadController extends Controller
         } catch (\Exception $e) {
             $this->cleanupChunks($uploadDir, $assembledPath);
 
-            return response()->json(['success' => false, 'message' => 'Assembly failed: ' . $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Assembly failed: '.$e->getMessage()]);
         }
     }
 
@@ -305,7 +303,7 @@ class FtpUploadController extends Controller
     protected function cleanupChunks(string $uploadDir, string $assembledPath = ''): void
     {
         if (is_dir($uploadDir)) {
-            $files = glob($uploadDir . '/*');
+            $files = glob($uploadDir.'/*');
             if ($files) {
                 foreach ($files as $f) {
                     @unlink($f);

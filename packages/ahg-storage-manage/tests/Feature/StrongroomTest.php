@@ -28,7 +28,7 @@ class StrongroomTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new StrongroomService();
+        $this->service = new StrongroomService;
     }
 
     // -----------------------------------------------------------------
@@ -38,11 +38,11 @@ class StrongroomTest extends TestCase
     public function test_create_and_retrieve_by_slug_and_id(): void
     {
         $id = $this->service->create([
-            'name'                 => 'Test Room Alpha',
-            'capacity_value'       => 100,
-            'capacity_unit'        => 'linear_meters',
+            'name' => 'Test Room Alpha',
+            'capacity_value' => 100,
+            'capacity_unit' => 'linear_meters',
             'location_description' => 'Basement, north wing',
-            'notes'                => 'unit-test row',
+            'notes' => 'unit-test row',
         ]);
         $this->assertGreaterThan(0, $id);
 
@@ -72,7 +72,7 @@ class StrongroomTest extends TestCase
     public function test_create_normalises_invalid_capacity_unit(): void
     {
         $id = $this->service->create([
-            'name'          => 'Unit Coercion',
+            'name' => 'Unit Coercion',
             'capacity_unit' => 'parsecs',
         ]);
         $this->assertSame('linear_meters', $this->service->getById($id)->capacity_unit);
@@ -90,8 +90,8 @@ class StrongroomTest extends TestCase
         $originalSlug = $this->service->getById($id)->slug;
 
         $this->service->update($id, [
-            'name'           => 'Renamed',
-            'capacity_unit'  => 'parsecs',
+            'name' => 'Renamed',
+            'capacity_unit' => 'parsecs',
             'capacity_value' => 50,
         ]);
 
@@ -249,7 +249,7 @@ class StrongroomTest extends TestCase
             'updated_at' => $now,
         ]);
         DB::table('physical_object')->insert([
-            'id'             => $id,
+            'id' => $id,
             'source_culture' => 'en',
         ]);
 

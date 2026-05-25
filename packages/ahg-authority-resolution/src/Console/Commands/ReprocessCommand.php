@@ -62,8 +62,9 @@ class ReprocessCommand extends Command
         $allPending = (bool) $this->option('all-pending');
         $limit = (int) $this->option('limit');
 
-        if ($mentionId === null && !$allPending) {
+        if ($mentionId === null && ! $allPending) {
             $this->error('Provide --mention-id=N or --all-pending.');
+
             return self::FAILURE;
         }
 
@@ -82,6 +83,7 @@ class ReprocessCommand extends Command
 
         if ($rows->isEmpty()) {
             $this->info('No pending mentions to reprocess.');
+
             return self::SUCCESS;
         }
 
@@ -97,14 +99,16 @@ class ReprocessCommand extends Command
             }
         }
         $this->info(sprintf('Done. %d reprocessed, %d failed.', $okCount, $errCount));
+
         return self::SUCCESS;
     }
 
     private function reprocessOne(CandidateGeneratorService $generator, EvidenceScorer $scorer, int $mentionId): int
     {
         $exists = DB::table('ahg_mention')->where('id', $mentionId)->exists();
-        if (!$exists) {
+        if (! $exists) {
             $this->error("Mention #{$mentionId} not found.");
+
             return self::FAILURE;
         }
 
@@ -118,9 +122,11 @@ class ReprocessCommand extends Command
                 count($candidateIds),
                 $scoredCount
             ));
+
             return self::SUCCESS;
         } catch (\Throwable $e) {
             $this->error(sprintf('Mention %d: %s', $mentionId, $e->getMessage()));
+
             return self::FAILURE;
         }
     }

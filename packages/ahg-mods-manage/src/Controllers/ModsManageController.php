@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgModsManage\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -41,7 +39,6 @@ class ModsManageController extends Controller
      * placeAccessPoints, nameAccessPoints, title, type (MODS resource type taxonomy 63),
      * repository, scopeAndContent.
      */
-
     public function edit(Request $request, string $slug)
     {
         $culture = app()->getLocale();
@@ -93,7 +90,7 @@ class ModsManageController extends Controller
             ])
             ->first();
 
-        if (!$io) {
+        if (! $io) {
             abort(404);
         }
 
@@ -107,9 +104,9 @@ class ModsManageController extends Controller
             DB::table('information_object')
                 ->where('id', $io->id)
                 ->update([
-                    'identifier'       => $request->input('identifier'),
-                    'repository_id'    => $request->input('repository_id') ?: null,
-                    'source_standard'  => 'MODS version 3.3',
+                    'identifier' => $request->input('identifier'),
+                    'repository_id' => $request->input('repository_id') ?: null,
+                    'source_standard' => 'MODS version 3.3',
                 ]);
 
             if ($request->has('display_standard_id')) {
@@ -123,7 +120,7 @@ class ModsManageController extends Controller
                 ->where('id', $io->id)
                 ->where('culture', $culture)
                 ->update([
-                    'title'            => $request->input('title'),
+                    'title' => $request->input('title'),
                     'scope_and_content' => $request->input('scope_and_content'),
                     'access_conditions' => $request->input('access_conditions'),
                 ]);
@@ -180,10 +177,10 @@ class ModsManageController extends Controller
                         'updated_at' => now(),
                     ]);
                     DB::table('relation')->insert([
-                        'id'             => $relObjectId,
-                        'subject_id'     => $io->id,
-                        'object_id'      => (int) $actorId,
-                        'type_id'        => 161,
+                        'id' => $relObjectId,
+                        'subject_id' => $io->id,
+                        'object_id' => (int) $actorId,
+                        'type_id' => 161,
                         'source_culture' => $culture,
                     ]);
                 }
@@ -272,7 +269,7 @@ class ModsManageController extends Controller
 
         // Parent info
         $parentTitle = null;
-        $parentSlug  = null;
+        $parentSlug = null;
         if ($io->parent_id && $io->parent_id != 1) {
             $parent = DB::table('information_object')
                 ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
@@ -283,22 +280,22 @@ class ModsManageController extends Controller
                 ->first();
             if ($parent) {
                 $parentTitle = $parent->title;
-                $parentSlug  = $parent->slug;
+                $parentSlug = $parent->slug;
             }
         }
 
         return view('mods-manage::edit', array_merge(
             [
-                'io'                  => $io,
-                'events'              => $events,
-                'subjects'            => $subjects,
-                'places'              => $places,
-                'nameAccessPoints'    => $nameAccessPoints,
-                'modsTypes'           => $modsTypes,
+                'io' => $io,
+                'events' => $events,
+                'subjects' => $subjects,
+                'places' => $places,
+                'nameAccessPoints' => $nameAccessPoints,
+                'modsTypes' => $modsTypes,
                 'publicationStatusId' => $publicationStatusId,
-                'materialLanguages'   => $materialLanguages,
-                'parentTitle'         => $parentTitle,
-                'parentSlug'          => $parentSlug,
+                'materialLanguages' => $materialLanguages,
+                'parentTitle' => $parentTitle,
+                'parentSlug' => $parentSlug,
             ],
             $dropdowns
         ));
@@ -378,16 +375,16 @@ class ModsManageController extends Controller
                 ->where('id', $existing->id)
                 ->where('culture', $culture)
                 ->update(['value' => $serialized]);
-        } elseif (!empty($values)) {
+        } elseif (! empty($values)) {
             $propId = DB::table('property')->insertGetId([
-                'object_id'      => $objectId,
-                'name'           => $name,
+                'object_id' => $objectId,
+                'name' => $name,
                 'source_culture' => $culture,
             ]);
             DB::table('property_i18n')->insert([
-                'id'      => $propId,
+                'id' => $propId,
                 'culture' => $culture,
-                'value'   => $serialized,
+                'value' => $serialized,
             ]);
         }
     }

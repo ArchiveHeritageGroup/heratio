@@ -24,7 +24,9 @@ class ExportBulkCommand extends Command
         @mkdir($path, 0775, true);
 
         $q = DB::connection('atom')->table('information_object as i')->select('i.id');
-        if (! empty($criteria['repository_id'])) $q->where('i.repository_id', (int) $criteria['repository_id']);
+        if (! empty($criteria['repository_id'])) {
+            $q->where('i.repository_id', (int) $criteria['repository_id']);
+        }
         if (! empty($criteria['level'])) {
             $q->join('term_i18n as ti', function ($j) use ($criteria) {
                 $j->on('ti.id', '=', 'i.level_of_description_id')->where('ti.culture', '=', 'en')->where('ti.name', '=', $criteria['level']);
@@ -39,13 +41,18 @@ class ExportBulkCommand extends Command
         foreach ($ids as $oid) {
             $rc = Artisan::call('ahg:metadata-export', [
                 '--object-id' => (int) $oid,
-                '--format'    => $format,
-                '--output'    => $path . "/{$oid}.{$format}.xml",
+                '--format' => $format,
+                '--output' => $path."/{$oid}.{$format}.xml",
             ]);
-            if ($rc === 0) $written++;
-            if ($written % 100 === 0 && $written > 0) $this->line("  exported {$written}/{$ids->count()}");
+            if ($rc === 0) {
+                $written++;
+            }
+            if ($written % 100 === 0 && $written > 0) {
+                $this->line("  exported {$written}/{$ids->count()}");
+            }
         }
         $this->info("done; written={$written} dir={$path}");
+
         return self::SUCCESS;
     }
 }

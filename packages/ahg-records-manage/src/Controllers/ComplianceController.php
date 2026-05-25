@@ -12,28 +12,25 @@ namespace AhgRecordsManage\Controllers;
 use AhgRecordsManage\Services\ComplianceReportService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ComplianceController extends Controller
 {
-    public function __construct(protected ComplianceReportService $compliance)
-    {
-    }
+    public function __construct(protected ComplianceReportService $compliance) {}
 
     /** GET /admin/records/compliance */
     public function index(Request $request)
     {
         $filters = [
             'framework' => $request->query('framework'),
-            'status'    => $request->query('status'),
+            'status' => $request->query('status'),
         ];
-        $rows       = $this->compliance->listAssessments($filters);
+        $rows = $this->compliance->listAssessments($filters);
         // Issue #59 Tier 3 - culture-aware via the COALESCE helper.
         $frameworks = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('rm_compliance_framework');
 
         return view('ahg-records::compliance.index', [
-            'rows'       => $rows,
-            'filters'    => $filters,
+            'rows' => $rows,
+            'filters' => $filters,
             'frameworks' => $frameworks,
         ]);
     }
@@ -43,6 +40,7 @@ class ComplianceController extends Controller
     {
         // Issue #59 Tier 3 - culture-aware via the COALESCE helper.
         $frameworks = \AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('rm_compliance_framework');
+
         return view('ahg-records::compliance.create', ['frameworks' => $frameworks]);
     }
 
@@ -50,12 +48,12 @@ class ComplianceController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'framework'      => 'required|string|max:50',
+            'framework' => 'required|string|max:50',
             'assessment_ref' => 'required|string|max:100|unique:rm_compliance_assessment,assessment_ref',
-            'title'          => 'required|string|max:255',
-            'scope'          => 'nullable|string',
-            'period_start'   => 'nullable|date',
-            'period_end'     => 'nullable|date',
+            'title' => 'required|string|max:255',
+            'scope' => 'nullable|string',
+            'period_start' => 'nullable|date',
+            'period_end' => 'nullable|date',
         ]);
 
         $id = $this->compliance->create($data, auth()->id() ?? 0);
@@ -73,12 +71,12 @@ class ComplianceController extends Controller
             abort(404, 'Assessment not found');
         }
 
-        $checks          = $assessment->findings_json ? json_decode($assessment->findings_json, true) : [];
+        $checks = $assessment->findings_json ? json_decode($assessment->findings_json, true) : [];
         $recommendations = $assessment->recommendations_json ? json_decode($assessment->recommendations_json, true) : [];
 
         return view('ahg-records::compliance.show', [
-            'assessment'      => $assessment,
-            'checks'          => $checks,
+            'assessment' => $assessment,
+            'checks' => $checks,
             'recommendations' => $recommendations,
         ]);
     }
@@ -87,6 +85,7 @@ class ComplianceController extends Controller
     public function runChecks(int $id)
     {
         $ok = $this->compliance->runChecks($id);
+
         return redirect()->route('records.compliance.show', $id)
             ->with($ok ? 'success' : 'error', $ok ? 'Checks re-run.' : 'Could not run checks.');
     }
@@ -98,6 +97,7 @@ class ComplianceController extends Controller
             'signed_off_by' => 'required|string|max:255',
         ]);
         $this->compliance->finalize($id, $data['signed_off_by'], auth()->id() ?? 0);
+
         return redirect()->route('records.compliance.show', $id)->with('success', 'Assessment finalised.');
     }
 }

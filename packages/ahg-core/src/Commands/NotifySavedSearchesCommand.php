@@ -39,8 +39,9 @@ class NotifySavedSearchesCommand extends Command
         $dry = (bool) $this->option('dry-run');
         $onlyUser = $this->option('user');
 
-        if (!Schema::hasTable('saved_search')) {
+        if (! Schema::hasTable('saved_search')) {
             $this->warn('saved_search table not present; skipping.');
+
             return self::SUCCESS;
         }
 
@@ -50,9 +51,9 @@ class NotifySavedSearchesCommand extends Command
         // Approximate windows — daily=22h (DST safety), weekly=6d, monthly=27d.
         $windowMap = [
             'immediate' => 60,                  // 1 minute
-            'daily'     => 22 * 3600,           // 22 hours
-            'weekly'    => 6 * 24 * 3600,       // 6 days
-            'monthly'   => 27 * 24 * 3600,      // 27 days
+            'daily' => 22 * 3600,           // 22 hours
+            'weekly' => 6 * 24 * 3600,       // 6 days
+            'monthly' => 27 * 24 * 3600,      // 27 days
         ];
         $cutoff = date('Y-m-d H:i:s', time() - ($windowMap[$freq] ?? $windowMap['daily']));
 
@@ -61,13 +62,13 @@ class NotifySavedSearchesCommand extends Command
             ->where('notification_frequency', $freq)
             ->where(function ($q) use ($cutoff) {
                 $q->whereNull('last_notification_at')
-                  ->orWhere('last_notification_at', '<', $cutoff);
+                    ->orWhere('last_notification_at', '<', $cutoff);
             });
         if ($onlyUser) {
             $q->where('user_id', (int) $onlyUser);
         }
         $rows = $q->select('id', 'user_id', 'name', 'search_params', 'entity_type',
-                          'search_url', 'last_result_count', 'last_notification_at')
+            'search_url', 'last_result_count', 'last_notification_at')
             ->orderBy('id')
             ->get();
 
@@ -77,9 +78,10 @@ class NotifySavedSearchesCommand extends Command
         $skipped = 0;
         foreach ($rows as $row) {
             $params = $this->decodeParams($row->search_params);
-            if (!$params) {
+            if (! $params) {
                 $this->line("  saved_search={$row->id}: invalid search_params, skipping");
                 $skipped++;
+
                 continue;
             }
 
@@ -90,6 +92,7 @@ class NotifySavedSearchesCommand extends Command
             if ($currentCount === null) {
                 $this->line("  saved_search={$row->id}: ES unavailable or query failed, skipping");
                 $skipped++;
+
                 continue;
             }
 
@@ -98,42 +101,47 @@ class NotifySavedSearchesCommand extends Command
 
             if ($newMatches === 0) {
                 // Update last_result_count even when nothing new (track decay)
-                if (!$dry) {
+                if (! $dry) {
                     DB::table('saved_search')->where('id', $row->id)
                         ->update(['last_result_count' => $currentCount]);
                 }
                 $this->line("  saved_search={$row->id}: no new matches (count={$currentCount})");
+
                 continue;
             }
 
             // New matches present — notify
-            if (!$dry) {
+            if (! $dry) {
                 $this->dropWorkbenchNotification($row, $currentCount, $newMatches);
                 DB::table('saved_search')->where('id', $row->id)
                     ->update([
                         'last_notification_at' => now(),
-                        'last_result_count'    => $currentCount,
+                        'last_result_count' => $currentCount,
                     ]);
                 // Log the notification
                 DB::table('saved_search_log')->insert([
-                    'saved_search_id'  => $row->id,
-                    'user_id'          => $row->user_id,
-                    'result_count'     => $currentCount,
-                    'executed_at'      => now(),
-                    'user_agent'       => 'cron:notify-saved-searches',
+                    'saved_search_id' => $row->id,
+                    'user_id' => $row->user_id,
+                    'result_count' => $currentCount,
+                    'executed_at' => now(),
+                    'user_agent' => 'cron:notify-saved-searches',
                 ]);
             }
             $notified++;
             $this->info("  saved_search={$row->id} user={$row->user_id} '{$row->name}': +{$newMatches} new (total={$currentCount})");
         }
-        $this->info("notified={$notified} skipped={$skipped}" . ($dry ? ' [dry-run]' : ''));
+        $this->info("notified={$notified} skipped={$skipped}".($dry ? ' [dry-run]' : ''));
+
         return self::SUCCESS;
     }
 
     private function decodeParams($raw): ?array
     {
-        if (!$raw) return null;
+        if (! $raw) {
+            return null;
+        }
         $decoded = is_array($raw) ? $raw : (json_decode((string) $raw, true) ?: null);
+
         return is_array($decoded) ? $decoded : null;
     }
 
@@ -150,22 +158,22 @@ class NotifySavedSearchesCommand extends Command
             // mirroring the SearchController query builder — deferred to
             // a follow-up phase.
             $q = trim((string) ($params['q'] ?? $params['query'] ?? ''));
-            if (!$q) {
+            if (! $q) {
                 return null;
             }
-            if (!class_exists(\AhgSearch\Services\ElasticsearchService::class)) {
+            if (! class_exists(\AhgSearch\Services\ElasticsearchService::class)) {
                 return null;
             }
-            $es = new \AhgSearch\Services\ElasticsearchService();
+            $es = new \AhgSearch\Services\ElasticsearchService;
             // Index conventionally is "qubit{entityType}" per existing
             // ElasticsearchService::search() callers
             $index = $this->indexFor($entityType);
             $body = [
                 'query' => [
                     'multi_match' => [
-                        'query'  => $q,
+                        'query' => $q,
                         'fields' => ['*'],
-                        'type'   => 'best_fields',
+                        'type' => 'best_fields',
                     ],
                 ],
                 'track_total_hits' => true,
@@ -173,6 +181,7 @@ class NotifySavedSearchesCommand extends Command
             $hits = $es->search($index, $body, 0, 1);
             // ElasticsearchService::search returns the raw ES response shape
             $total = $hits['hits']['total']['value'] ?? $hits['hits']['total'] ?? null;
+
             return is_numeric($total) ? (int) $total : null;
         } catch (\Throwable $exc) {
             return null;
@@ -182,12 +191,12 @@ class NotifySavedSearchesCommand extends Command
     private function indexFor(string $entityType): string
     {
         return match ($entityType) {
-            'actor'             => 'qubitactor',
-            'repository'        => 'qubitrepository',
-            'function'          => 'qubitfunction',
-            'term'              => 'qubitterm',
-            'accession'         => 'qubitaccession',
-            default             => 'qubitinformationobject',
+            'actor' => 'qubitactor',
+            'repository' => 'qubitrepository',
+            'function' => 'qubitfunction',
+            'term' => 'qubitterm',
+            'accession' => 'qubitaccession',
+            default => 'qubitinformationobject',
         };
     }
 
@@ -199,20 +208,20 @@ class NotifySavedSearchesCommand extends Command
     {
         $inboxRaw = getenv('WORKBENCH_NOTIFICATIONS_INBOX');
         $inbox = $inboxRaw ?: '/var/spool/workbench/notifications';
-        if (!is_dir($inbox) || !is_writable($inbox)) {
+        if (! is_dir($inbox) || ! is_writable($inbox)) {
             return;
         }
         $username = DB::table('user')->where('id', $row->user_id)->value('username')
-            ?: ('user-' . $row->user_id);
+            ?: ('user-'.$row->user_id);
         $webLink = $row->search_url ?: '/search';
         $payload = [
-            'username'  => $username,
-            'title'     => "{$newMatches} new result(s): " . substr((string) $row->name, 0, 100),
-            'message'   => "Your saved search \"{$row->name}\" has {$newMatches} new match(es). Total now: {$currentCount}.",
+            'username' => $username,
+            'title' => "{$newMatches} new result(s): ".substr((string) $row->name, 0, 100),
+            'message' => "Your saved search \"{$row->name}\" has {$newMatches} new match(es). Total now: {$currentCount}.",
             'eventType' => 'saved_search',
-            'webLink'   => $webLink,
+            'webLink' => $webLink,
         ];
         $fname = sprintf('%s/saved-search-%d-%d.json', $inbox, $row->id, time());
-        @file_put_contents($fname, json_encode($payload, JSON_UNESCAPED_UNICODE) . "\n");
+        @file_put_contents($fname, json_encode($payload, JSON_UNESCAPED_UNICODE)."\n");
     }
 }

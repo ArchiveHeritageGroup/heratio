@@ -36,6 +36,7 @@ use Illuminate\Console\Command;
 class AhgCentralPingCommand extends Command
 {
     protected $signature = 'ahg:central-ping';
+
     protected $description = 'Ping the configured AHG Central endpoint and report HTTP status.';
 
     public function handle(): int
@@ -44,12 +45,14 @@ class AhgCentralPingCommand extends Command
         $result = $svc->ping();
 
         if ($result['ok']) {
-            $this->info('[ahg-central-ping] OK (HTTP ' . $result['http'] . ') against ' . $svc->apiUrl());
+            $this->info('[ahg-central-ping] OK (HTTP '.$result['http'].') against '.$svc->apiUrl());
+
             return self::SUCCESS;
         }
 
-        $msg = $result['error'] ?? ('HTTP ' . $result['http']);
-        $this->error('[ahg-central-ping] FAILED: ' . $msg . ' (url=' . ($svc->apiUrl() ?: '(unset)') . ')');
+        $msg = $result['error'] ?? ('HTTP '.$result['http']);
+        $this->error('[ahg-central-ping] FAILED: '.$msg.' (url='.($svc->apiUrl() ?: '(unset)').')');
+
         return self::FAILURE;
     }
 }

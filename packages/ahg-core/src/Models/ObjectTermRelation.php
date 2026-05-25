@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class ObjectTermRelation extends Model
 {
     protected $table = 'object_term_relation';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = ['id', 'object_id', 'term_id', 'start_date', 'end_date'];

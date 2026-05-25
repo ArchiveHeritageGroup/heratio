@@ -17,10 +17,8 @@
 namespace AhgActorManage\Services;
 
 use AhgCore\Services\AhgSettingsService;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 
 class AuthorityReconciliationService
 {
@@ -29,39 +27,39 @@ class AuthorityReconciliationService
     private const SOURCES = [
         'wikidata' => [
             'setting' => 'authority_wikidata_enabled',
-            'label'   => 'Wikidata',
-            'search'  => 'https://www.wikidata.org/w/api.php',
-            'uri'     => 'https://www.wikidata.org/wiki/%s',
+            'label' => 'Wikidata',
+            'search' => 'https://www.wikidata.org/w/api.php',
+            'uri' => 'https://www.wikidata.org/wiki/%s',
         ],
         'viaf' => [
             'setting' => 'authority_viaf_enabled',
-            'label'   => 'VIAF',
-            'search'  => 'https://viaf.org/viaf/AutoSuggest',
-            'uri'     => 'https://viaf.org/viaf/%s',
+            'label' => 'VIAF',
+            'search' => 'https://viaf.org/viaf/AutoSuggest',
+            'uri' => 'https://viaf.org/viaf/%s',
         ],
         'ulan' => [
             'setting' => 'authority_ulan_enabled',
-            'label'   => 'Getty ULAN',
-            'search'  => 'https://vocab.getty.edu/sparql.json',
-            'uri'     => 'https://vocab.getty.edu/ulan/%s',
+            'label' => 'Getty ULAN',
+            'search' => 'https://vocab.getty.edu/sparql.json',
+            'uri' => 'https://vocab.getty.edu/ulan/%s',
         ],
         'lcnaf' => [
             'setting' => 'authority_lcnaf_enabled',
-            'label'   => 'LCNAF',
-            'search'  => 'https://id.loc.gov/authorities/names/suggest2',
-            'uri'     => 'https://id.loc.gov/authorities/names/%s',
+            'label' => 'LCNAF',
+            'search' => 'https://id.loc.gov/authorities/names/suggest2',
+            'uri' => 'https://id.loc.gov/authorities/names/%s',
         ],
         'isni' => [
             'setting' => 'authority_isni_enabled',
-            'label'   => 'ISNI',
-            'search'  => 'https://isni.org/isni/search',
-            'uri'     => 'https://isni.org/isni/%s',
+            'label' => 'ISNI',
+            'search' => 'https://isni.org/isni/search',
+            'uri' => 'https://isni.org/isni/%s',
         ],
     ];
 
     public function __construct()
     {
-        $this->identifierService = new AuthorityIdentifierService();
+        $this->identifierService = new AuthorityIdentifierService;
     }
 
     /**
@@ -75,6 +73,7 @@ class AuthorityReconciliationService
                 $enabled[$key] = $source;
             }
         }
+
         return $enabled;
     }
 
@@ -90,10 +89,11 @@ class AuthorityReconciliationService
             try {
                 $results[$key] = $this->searchSource($key, $name);
             } catch (\Throwable $e) {
-                Log::warning("Authority reconciliation failed for {$key}: " . $e->getMessage());
+                Log::warning("Authority reconciliation failed for {$key}: ".$e->getMessage());
                 $results[$key] = ['error' => $e->getMessage()];
             }
         }
+
         return $results;
     }
 
@@ -106,11 +106,11 @@ class AuthorityReconciliationService
     {
         return match ($source) {
             'wikidata' => $this->searchWikidata($name),
-            'viaf'     => $this->searchViaf($name),
-            'ulan'     => $this->searchUlan($name),
-            'lcnaf'    => $this->searchLcnaf($name),
-            'isni'     => $this->searchIsni($name),
-            default    => [],
+            'viaf' => $this->searchViaf($name),
+            'ulan' => $this->searchUlan($name),
+            'lcnaf' => $this->searchLcnaf($name),
+            'isni' => $this->searchIsni($name),
+            default => [],
         };
     }
 
@@ -127,14 +127,14 @@ class AuthorityReconciliationService
         $autoVerify = ($source === 'wikidata' && AhgSettingsService::getBool('authority_auto_verify_wikidata', false));
 
         $id = $this->identifierService->save($actorId, [
-            'identifier_type'  => $source,
+            'identifier_type' => $source,
             'identifier_value' => $identifierValue,
-            'uri'              => $uri,
-            'label'            => $label,
-            'source'           => 'reconciliation',
-            'is_verified'      => $autoVerify ? 1 : 0,
-            'verified_at'      => $autoVerify ? now() : null,
-            'verified_by'      => $autoVerify ? auth()->id() : null,
+            'uri' => $uri,
+            'label' => $label,
+            'source' => 'reconciliation',
+            'is_verified' => $autoVerify ? 1 : 0,
+            'verified_at' => $autoVerify ? now() : null,
+            'verified_by' => $autoVerify ? auth()->id() : null,
         ]);
 
         return $id;
@@ -145,26 +145,29 @@ class AuthorityReconciliationService
     private function searchWikidata(string $name): array
     {
         $response = Http::timeout(10)->get('https://www.wikidata.org/w/api.php', [
-            'action'   => 'wbsearchentities',
-            'search'   => $name,
+            'action' => 'wbsearchentities',
+            'search' => $name,
             'language' => 'en',
-            'format'   => 'json',
-            'limit'    => 10,
-            'type'     => 'item',
+            'format' => 'json',
+            'limit' => 10,
+            'type' => 'item',
         ]);
 
-        if (!$response->successful()) return [];
+        if (! $response->successful()) {
+            return [];
+        }
 
         $data = $response->json();
         $results = [];
         foreach ($data['search'] ?? [] as $item) {
             $results[] = [
-                'id'          => $item['id'],
-                'label'       => $item['label'] ?? $item['id'],
+                'id' => $item['id'],
+                'label' => $item['label'] ?? $item['id'],
                 'description' => $item['description'] ?? '',
-                'uri'         => sprintf(self::SOURCES['wikidata']['uri'], $item['id']),
+                'uri' => sprintf(self::SOURCES['wikidata']['uri'], $item['id']),
             ];
         }
+
         return $results;
     }
 
@@ -174,32 +177,39 @@ class AuthorityReconciliationService
             'query' => $name,
         ]);
 
-        if (!$response->successful()) return [];
+        if (! $response->successful()) {
+            return [];
+        }
 
         $data = $response->json();
         $results = [];
         foreach ($data['result'] ?? [] as $item) {
             $viafId = $item['viafid'] ?? null;
-            if (!$viafId) continue;
+            if (! $viafId) {
+                continue;
+            }
             $results[] = [
-                'id'          => $viafId,
-                'label'       => $item['term'] ?? $viafId,
+                'id' => $viafId,
+                'label' => $item['term'] ?? $viafId,
                 'description' => $item['nametype'] ?? '',
-                'uri'         => sprintf(self::SOURCES['viaf']['uri'], $viafId),
+                'uri' => sprintf(self::SOURCES['viaf']['uri'], $viafId),
             ];
         }
+
         return $results;
     }
 
     private function searchUlan(string $name): array
     {
-        $sparql = "SELECT ?s ?name WHERE { ?s a gvp:PersonConcept; gvp:prefLabelGVP/xl:literalForm ?name. FILTER(CONTAINS(LCASE(?name), LCASE(\"" . addslashes($name) . "\"))) } LIMIT 10";
+        $sparql = 'SELECT ?s ?name WHERE { ?s a gvp:PersonConcept; gvp:prefLabelGVP/xl:literalForm ?name. FILTER(CONTAINS(LCASE(?name), LCASE("'.addslashes($name).'"))) } LIMIT 10';
 
         $response = Http::timeout(15)->get('https://vocab.getty.edu/sparql.json', [
             'query' => $sparql,
         ]);
 
-        if (!$response->successful()) return [];
+        if (! $response->successful()) {
+            return [];
+        }
 
         $data = $response->json();
         $results = [];
@@ -207,12 +217,13 @@ class AuthorityReconciliationService
             $uri = $row['s']['value'] ?? '';
             $ulanId = basename($uri);
             $results[] = [
-                'id'          => $ulanId,
-                'label'       => $row['name']['value'] ?? $ulanId,
+                'id' => $ulanId,
+                'label' => $row['name']['value'] ?? $ulanId,
                 'description' => 'Getty ULAN',
-                'uri'         => $uri,
+                'uri' => $uri,
             ];
         }
+
         return $results;
     }
 
@@ -222,7 +233,9 @@ class AuthorityReconciliationService
             'q' => $name,
         ]);
 
-        if (!$response->successful()) return [];
+        if (! $response->successful()) {
+            return [];
+        }
 
         $data = $response->json();
         $results = [];
@@ -230,33 +243,38 @@ class AuthorityReconciliationService
             $uri = $hit['uri'] ?? '';
             $lcnafId = basename($uri);
             $results[] = [
-                'id'          => $lcnafId,
-                'label'       => $hit['aLabel'] ?? $lcnafId,
+                'id' => $lcnafId,
+                'label' => $hit['aLabel'] ?? $lcnafId,
                 'description' => $hit['vLabel'] ?? '',
-                'uri'         => $uri ?: sprintf(self::SOURCES['lcnaf']['uri'], $lcnafId),
+                'uri' => $uri ?: sprintf(self::SOURCES['lcnaf']['uri'], $lcnafId),
             ];
         }
+
         return $results;
     }
 
     private function searchIsni(string $name): array
     {
         // ISNI doesn't have a free public JSON API — use the SRU endpoint
-        $query = 'pica.nw="' . addslashes($name) . '"';
+        $query = 'pica.nw="'.addslashes($name).'"';
         $response = Http::timeout(10)->get('https://isni.org/sru/', [
-            'query'          => $query,
-            'operation'      => 'searchRetrieve',
-            'recordSchema'   => 'isni-b',
+            'query' => $query,
+            'operation' => 'searchRetrieve',
+            'recordSchema' => 'isni-b',
             'maximumRecords' => 10,
         ]);
 
-        if (!$response->successful()) return [];
+        if (! $response->successful()) {
+            return [];
+        }
 
         // Parse XML response
         $results = [];
         try {
             $xml = simplexml_load_string($response->body());
-            if (!$xml) return [];
+            if (! $xml) {
+                return [];
+            }
             $ns = $xml->getNamespaces(true);
             foreach ($xml->xpath('//srw:record') ?: $xml->xpath('//record') ?: [] as $record) {
                 $data = (string) ($record->recordData ?? '');
@@ -265,18 +283,18 @@ class AuthorityReconciliationService
                     $isniId = preg_replace('/[^0-9X]/', '', $isniId);
                     $label = $name; // ISNI SRU doesn't always return the name cleanly
                     if (preg_match('/forename[^>]*>([^<]+)/', $data, $fn) && preg_match('/surname[^>]*>([^<]+)/', $data, $sn)) {
-                        $label = trim($fn[1]) . ' ' . trim($sn[1]);
+                        $label = trim($fn[1]).' '.trim($sn[1]);
                     }
                     $results[] = [
-                        'id'          => $isniId,
-                        'label'       => $label,
+                        'id' => $isniId,
+                        'label' => $label,
                         'description' => 'ISNI',
-                        'uri'         => sprintf(self::SOURCES['isni']['uri'], $isniId),
+                        'uri' => sprintf(self::SOURCES['isni']['uri'], $isniId),
                     ];
                 }
             }
         } catch (\Throwable $e) {
-            Log::warning("ISNI XML parse error: " . $e->getMessage());
+            Log::warning('ISNI XML parse error: '.$e->getMessage());
         }
 
         return $results;

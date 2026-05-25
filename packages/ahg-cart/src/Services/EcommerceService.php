@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCart\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -34,9 +32,10 @@ class EcommerceService
 {
     public function isEcommerceEnabled(): bool
     {
-        if (!Schema::hasTable('ahg_ecommerce_settings')) {
+        if (! Schema::hasTable('ahg_ecommerce_settings')) {
             return false;
         }
+
         return (bool) DB::table('ahg_ecommerce_settings')
             ->where('is_enabled', 1)
             ->exists();
@@ -53,6 +52,7 @@ class EcommerceService
         if ($activeOnly) {
             $query->where('is_active', 1);
         }
+
         return $query->orderBy('sort_order')->get();
     }
 
@@ -62,9 +62,10 @@ class EcommerceService
         if ($activeOnly) {
             $query->where('is_active', 1);
         }
+
         return $query
             ->when($repositoryId, fn ($q) => $q->where('repository_id', $repositoryId))
-            ->when(!$repositoryId, fn ($q) => $q->whereNull('repository_id'))
+            ->when(! $repositoryId, fn ($q) => $q->whereNull('repository_id'))
             ->orderBy('product_type_id')
             ->get();
     }
@@ -113,6 +114,7 @@ class EcommerceService
             $item->unit_price = $unitPrice;
             $item->line_total = $lineTotal;
             $item->product_name = $price->name ?? '';
+
             return $item;
         });
 
@@ -131,7 +133,7 @@ class EcommerceService
 
     public function createOrderFromCart(array $data, \Illuminate\Support\Collection $cartItems): int
     {
-        $orderNumber = 'ORD-' . date('Ymd') . '-' . str_pad(
+        $orderNumber = 'ORD-'.date('Ymd').'-'.str_pad(
             DB::table('ahg_order')->whereDate('created_at', today())->count() + 1,
             4, '0', STR_PAD_LEFT
         );

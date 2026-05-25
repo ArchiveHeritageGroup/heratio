@@ -26,17 +26,25 @@ class ImportJob implements ShouldQueue
 
     // Job status IDs (term_i18n)
     const STATUS_IN_PROGRESS = 183;
+
     const STATUS_COMPLETED = 184;
+
     const STATUS_ERROR = 185;
 
     protected string $filePath;
+
     protected string $importType;   // 'xml' or 'csv'
+
     protected string $objectType;   // e.g. 'informationObject'
+
     protected string $updateType;   // 'create', 'match-and-update', 'delete-and-replace'
+
     protected ?string $parentSlug;
 
     protected int $jobRecordId = 0;
+
     protected array $errors = [];
+
     protected int $importedCount = 0;
 
     public function __construct(
@@ -59,11 +67,12 @@ class ImportJob implements ShouldQueue
         $this->log("Starting {$this->importType} import: {$this->objectType} (update: {$this->updateType})");
 
         try {
-            $fullPath = storage_path('app/' . $this->filePath);
+            $fullPath = storage_path('app/'.$this->filePath);
 
-            if (!file_exists($fullPath)) {
+            if (! file_exists($fullPath)) {
                 $this->logError("Import file not found: {$fullPath}");
                 $this->markFailed();
+
                 return;
             }
 
@@ -79,7 +88,7 @@ class ImportJob implements ShouldQueue
                 $this->log("Import complete. {$this->importedCount} record(s) imported.");
                 $this->markCompleted();
             } else {
-                $this->log("Import finished with " . count($this->errors) . " error(s). {$this->importedCount} record(s) imported.");
+                $this->log('Import finished with '.count($this->errors)." error(s). {$this->importedCount} record(s) imported.");
                 if ($this->importedCount > 0) {
                     $this->markCompleted();
                 } else {
@@ -107,9 +116,10 @@ class ImportJob implements ShouldQueue
         if ($xml === false) {
             $xmlErrors = libxml_get_errors();
             foreach ($xmlErrors as $err) {
-                $this->logError("XML parse error line {$err->line}: " . trim($err->message));
+                $this->logError("XML parse error line {$err->line}: ".trim($err->message));
             }
             libxml_clear_errors();
+
             return;
         }
 
@@ -118,8 +128,9 @@ class ImportJob implements ShouldQueue
 
         // Find archdesc element
         $archdesc = $xml->archdesc ?? null;
-        if (!$archdesc) {
+        if (! $archdesc) {
             $this->logError('No <archdesc> element found in EAD XML.');
+
             return;
         }
 
@@ -128,8 +139,9 @@ class ImportJob implements ShouldQueue
         // Import the top-level archival description
         $topId = $this->importEadComponent($archdesc, $parentId, $culture);
 
-        if (!$topId) {
+        if (! $topId) {
             $this->logError('Failed to import top-level <archdesc> element.');
+
             return;
         }
 
@@ -270,7 +282,7 @@ class ImportJob implements ShouldQueue
     protected function extractText(\SimpleXMLElement $node, string $element): string
     {
         $el = $node->{$element} ?? null;
-        if (!$el) {
+        if (! $el) {
             return '';
         }
         // Get text from <p> children or direct content
@@ -281,6 +293,7 @@ class ImportJob implements ShouldQueue
         if (empty($texts)) {
             $texts[] = trim((string) $el);
         }
+
         return implode("\n\n", array_filter($texts));
     }
 
@@ -289,8 +302,9 @@ class ImportJob implements ShouldQueue
     protected function importCsv(string $path, int $parentId): void
     {
         $handle = fopen($path, 'r');
-        if (!$handle) {
+        if (! $handle) {
             $this->logError("Cannot open CSV file: {$path}");
+
             return;
         }
 
@@ -298,48 +312,49 @@ class ImportJob implements ShouldQueue
 
         // Read header row
         $headers = fgetcsv($handle);
-        if (!$headers) {
+        if (! $headers) {
             $this->logError('CSV file is empty or has no header row.');
             fclose($handle);
+
             return;
         }
 
         // Normalise headers: trim whitespace, lowercase
-        $headers = array_map(fn($h) => strtolower(trim($h)), $headers);
+        $headers = array_map(fn ($h) => strtolower(trim($h)), $headers);
 
         // Map CSV column names to database fields
         $columnMap = [
-            'legacyid'                       => '_legacy_id',
-            'parentid'                       => '_parent_legacy_id',
-            'identifier'                     => 'identifier',
-            'title'                          => 'title',
-            'levelofdescription'             => '_level_name',
-            'extentandmedium'                => 'extent_and_medium',
-            'repository'                     => '_repository_name',
-            'archivalhistory'                => 'archival_history',
-            'acquisition'                    => 'acquisition',
-            'scopeandcontent'                => 'scope_and_content',
-            'appraisal'                      => 'appraisal',
-            'accruals'                       => 'accruals',
-            'arrangement'                    => 'arrangement',
-            'accessconditions'               => 'access_conditions',
-            'reproductionconditions'         => 'reproduction_conditions',
-            'physicalcharacteristics'         => 'physical_characteristics',
-            'findingaids'                    => 'finding_aids',
-            'locationoforiginals'            => 'location_of_originals',
-            'locationofcopies'               => 'location_of_copies',
-            'relatedunitsofdescription'      => 'related_units_of_description',
-            'rules'                          => 'rules',
-            'sources'                        => 'sources',
-            'revisionhistory'                => 'revision_history',
+            'legacyid' => '_legacy_id',
+            'parentid' => '_parent_legacy_id',
+            'identifier' => 'identifier',
+            'title' => 'title',
+            'levelofdescription' => '_level_name',
+            'extentandmedium' => 'extent_and_medium',
+            'repository' => '_repository_name',
+            'archivalhistory' => 'archival_history',
+            'acquisition' => 'acquisition',
+            'scopeandcontent' => 'scope_and_content',
+            'appraisal' => 'appraisal',
+            'accruals' => 'accruals',
+            'arrangement' => 'arrangement',
+            'accessconditions' => 'access_conditions',
+            'reproductionconditions' => 'reproduction_conditions',
+            'physicalcharacteristics' => 'physical_characteristics',
+            'findingaids' => 'finding_aids',
+            'locationoforiginals' => 'location_of_originals',
+            'locationofcopies' => 'location_of_copies',
+            'relatedunitsofdescription' => 'related_units_of_description',
+            'rules' => 'rules',
+            'sources' => 'sources',
+            'revisionhistory' => 'revision_history',
             'institutionresponsibleidentifier' => 'institution_responsible_identifier',
-            'alternatetitle'                 => 'alternate_title',
-            'edition'                        => 'edition',
-            'eventdates'                     => '_event_dates',
-            'eventstarddates'                => '_event_start_dates',
-            'eventenddates'                  => '_event_end_dates',
-            'culture'                        => '_culture',
-            'qubitparentslug'                => '_parent_slug',
+            'alternatetitle' => 'alternate_title',
+            'edition' => 'edition',
+            'eventdates' => '_event_dates',
+            'eventstarddates' => '_event_start_dates',
+            'eventenddates' => '_event_end_dates',
+            'culture' => '_culture',
+            'qubitparentslug' => '_parent_slug',
         ];
 
         $rowNum = 1;
@@ -349,7 +364,8 @@ class ImportJob implements ShouldQueue
             $rowNum++;
 
             if (count($row) !== count($headers)) {
-                $this->logError("Row {$rowNum}: column count mismatch (expected " . count($headers) . ", got " . count($row) . "). Skipping.");
+                $this->logError("Row {$rowNum}: column count mismatch (expected ".count($headers).', got '.count($row).'). Skipping.');
+
                 continue;
             }
 
@@ -363,13 +379,13 @@ class ImportJob implements ShouldQueue
                     }
                 }
 
-                $rowCulture = !empty($mapped['_culture']) ? $mapped['_culture'] : $culture;
+                $rowCulture = ! empty($mapped['_culture']) ? $mapped['_culture'] : $culture;
                 $legacyId = $mapped['_legacy_id'] ?? null;
                 $parentLegacyId = $mapped['_parent_legacy_id'] ?? null;
 
                 // Determine parent
                 $rowParentId = $parentId;
-                if (!empty($mapped['_parent_slug'])) {
+                if (! empty($mapped['_parent_slug'])) {
                     $slugRow = DB::table('slug')->where('slug', $mapped['_parent_slug'])->first();
                     if ($slugRow) {
                         $rowParentId = $slugRow->object_id;
@@ -380,26 +396,27 @@ class ImportJob implements ShouldQueue
 
                 // Resolve level of description
                 $levelId = null;
-                if (!empty($mapped['_level_name'])) {
+                if (! empty($mapped['_level_name'])) {
                     $levelId = $this->resolveLevelId($mapped['_level_name'], $rowCulture);
                 }
 
                 // Handle update types
-                if ($this->updateType === 'match-and-update' && !empty($mapped['identifier'])) {
+                if ($this->updateType === 'match-and-update' && ! empty($mapped['identifier'])) {
                     $existingId = $this->findByIdentifier($mapped['identifier']);
                     if ($existingId) {
                         $this->updateExisting($existingId, array_merge(
-                            array_filter($mapped, fn($k) => !str_starts_with($k, '_'), ARRAY_FILTER_USE_KEY),
+                            array_filter($mapped, fn ($k) => ! str_starts_with($k, '_'), ARRAY_FILTER_USE_KEY),
                             ['level_of_description_id' => $levelId]
                         ), $rowCulture);
                         if ($legacyId) {
                             $legacyIdMap[$legacyId] = $existingId;
                         }
+
                         continue;
                     }
                 }
 
-                if ($this->updateType === 'delete-and-replace' && !empty($mapped['identifier'])) {
+                if ($this->updateType === 'delete-and-replace' && ! empty($mapped['identifier'])) {
                     $existingId = $this->findByIdentifier($mapped['identifier']);
                     if ($existingId) {
                         $this->deleteRecord($existingId);
@@ -460,8 +477,9 @@ class ImportJob implements ShouldQueue
                     ->select('rgt')
                     ->first();
 
-                if (!$parent) {
+                if (! $parent) {
                     $this->logError("Parent ID {$parentId} not found.");
+
                     return null;
                 }
 
@@ -528,7 +546,7 @@ class ImportJob implements ShouldQueue
                 $slug = $baseSlug;
                 $counter = 1;
                 while (DB::table('slug')->where('slug', $slug)->exists()) {
-                    $slug = $baseSlug . '-' . $counter;
+                    $slug = $baseSlug.'-'.$counter;
                     $counter++;
                 }
 
@@ -570,10 +588,12 @@ class ImportJob implements ShouldQueue
                 }
 
                 $this->importedCount++;
+
                 return $objectId;
             });
         } catch (\Throwable $e) {
             $this->logError("Create record failed: {$e->getMessage()}");
+
             return null;
         }
     }
@@ -590,7 +610,7 @@ class ImportJob implements ShouldQueue
                     $ioUpdate[$field] = $data[$field];
                 }
             }
-            if (!empty($ioUpdate)) {
+            if (! empty($ioUpdate)) {
                 DB::table('information_object')->where('id', $id)->update($ioUpdate);
             }
 
@@ -612,7 +632,7 @@ class ImportJob implements ShouldQueue
                 }
             }
 
-            if (!empty($i18nUpdate)) {
+            if (! empty($i18nUpdate)) {
                 $exists = DB::table('information_object_i18n')
                     ->where('id', $id)
                     ->where('culture', $culture)
@@ -651,7 +671,7 @@ class ImportJob implements ShouldQueue
                 ->select('lft', 'rgt')
                 ->first();
 
-            if (!$record) {
+            if (! $record) {
                 return;
             }
 
@@ -679,7 +699,7 @@ class ImportJob implements ShouldQueue
                 ->where('rgt', '>', $record->rgt)
                 ->decrement('rgt', $width);
 
-            $this->log("Deleted record ID {$id} and " . (count($descendantIds) - 1) . " descendant(s).");
+            $this->log("Deleted record ID {$id} and ".(count($descendantIds) - 1).' descendant(s).');
         } catch (\Throwable $e) {
             $this->logError("Delete record {$id} failed: {$e->getMessage()}");
         }
@@ -708,7 +728,7 @@ class ImportJob implements ShouldQueue
         ];
 
         $normalized = $map[strtolower($levelName)] ?? $levelName;
-        if (!$normalized) {
+        if (! $normalized) {
             return null;
         }
 
@@ -753,7 +773,7 @@ class ImportJob implements ShouldQueue
         if ($this->jobRecordId) {
             $existing = DB::table('job')->where('id', $this->jobRecordId)->value('output') ?? '';
             DB::table('job')->where('id', $this->jobRecordId)->update([
-                'output' => $existing . $message . "\n",
+                'output' => $existing.$message."\n",
             ]);
         }
         Log::info("ImportJob: {$message}");

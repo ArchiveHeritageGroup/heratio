@@ -29,6 +29,7 @@ class IiifSettings
     public static function viewer(): string
     {
         $v = (string) AhgSettingsService::get('iiif_viewer', 'openseadragon');
+
         return $v !== '' ? $v : 'openseadragon';
     }
 
@@ -43,12 +44,14 @@ class IiifSettings
     public static function defaultZoom(): float
     {
         $z = (float) AhgSettingsService::get('iiif_default_zoom', '1');
+
         return $z > 0 ? $z : 1.0;
     }
 
     public static function maxZoom(): float
     {
         $z = (float) AhgSettingsService::get('iiif_max_zoom', '10');
+
         return $z > 0 ? $z : 10.0;
     }
 
@@ -81,15 +84,15 @@ class IiifSettings
     public static function payload(): array
     {
         return [
-            'enabled'             => self::enabled(),
-            'viewer'              => self::viewer(),
-            'server_url'          => self::serverUrl(),
-            'default_zoom'        => self::defaultZoom(),
-            'max_zoom'            => self::maxZoom(),
-            'show_navigator'      => self::showNavigator(),
-            'show_fullscreen'     => self::showFullscreen(),
-            'show_rotation'       => self::showRotation(),
-            'enable_annotations'  => self::enableAnnotations(),
+            'enabled' => self::enabled(),
+            'viewer' => self::viewer(),
+            'server_url' => self::serverUrl(),
+            'default_zoom' => self::defaultZoom(),
+            'max_zoom' => self::maxZoom(),
+            'show_navigator' => self::showNavigator(),
+            'show_fullscreen' => self::showFullscreen(),
+            'show_rotation' => self::showRotation(),
+            'enable_annotations' => self::enableAnnotations(),
         ];
     }
 }

@@ -38,6 +38,7 @@ class PruneCommand extends Command
         );
         if (empty($entities)) {
             $this->error('--entity must be information_object, actor, or both');
+
             return self::FAILURE;
         }
 
@@ -56,6 +57,7 @@ class PruneCommand extends Command
 
         if ($retainCount <= 0 && $retainDays <= 0) {
             $this->warn('Both retention rules are 0 — nothing to do.');
+
             return self::SUCCESS;
         }
 
@@ -66,7 +68,7 @@ class PruneCommand extends Command
 
             $this->line("prune: {$entityType} — scanning…");
             $deleted = $this->prune($cfg['table'], $cfg['fk'], $retainCount, $retainDays, $dryRun);
-            $this->info("prune: {$entityType} — " . ($dryRun ? 'would prune' : 'pruned') . " {$deleted} row(s)");
+            $this->info("prune: {$entityType} — ".($dryRun ? 'would prune' : 'pruned')." {$deleted} row(s)");
         }
 
         return self::SUCCESS;
@@ -76,6 +78,7 @@ class PruneCommand extends Command
     {
         try {
             $v = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
+
             return is_string($v) ? $v : $default;
         } catch (\Throwable $e) {
             return $default;
@@ -106,7 +109,7 @@ class PruneCommand extends Command
 
             if ($cutoffCount !== null && $cutoff !== null) {
                 $q->where('version_number', '<=', $cutoffCount)
-                  ->where('created_at', '<', $cutoff);
+                    ->where('created_at', '<', $cutoff);
             } elseif ($cutoffCount !== null) {
                 $q->where('version_number', '<=', $cutoffCount);
             } elseif ($cutoff !== null) {
@@ -129,6 +132,7 @@ class PruneCommand extends Command
         foreach (array_chunk($toDelete, 1000) as $chunk) {
             $deleted += DB::table($table)->whereIn('id', $chunk)->delete();
         }
+
         return $deleted;
     }
 }

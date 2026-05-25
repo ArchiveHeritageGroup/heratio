@@ -19,6 +19,7 @@ class ApiAuthenticate
             $request->attributes->set('api_key_id', null);
             $request->attributes->set('api_user_id', $request->user()->id ?? null);
             $request->attributes->set('api_scopes', ['read', 'write', 'delete', 'batch', 'publish:write']);
+
             return $this->checkScopes($request, $next, $requiredScopes);
         }
 
@@ -27,7 +28,7 @@ class ApiAuthenticate
             ?? $request->header('X-REST-API-Key')
             ?? $this->bearerToken($request);
 
-        if (!$rawKey) {
+        if (! $rawKey) {
             return response()->json([
                 'success' => false,
                 'error' => 'Unauthorized',
@@ -42,7 +43,7 @@ class ApiAuthenticate
             ->where('is_active', 1)
             ->first();
 
-        if (!$apiKey) {
+        if (! $apiKey) {
             return response()->json([
                 'success' => false,
                 'error' => 'Unauthorized',
@@ -81,7 +82,7 @@ class ApiAuthenticate
 
         $scopes = $request->attributes->get('api_scopes', []);
         foreach ($requiredScopes as $scope) {
-            if (!in_array($scope, $scopes)) {
+            if (! in_array($scope, $scopes)) {
                 return response()->json([
                     'success' => false,
                     'error' => 'Forbidden',
@@ -99,6 +100,7 @@ class ApiAuthenticate
         if (str_starts_with($header, 'Bearer ')) {
             return substr($header, 7);
         }
+
         return null;
     }
 }

@@ -8,7 +8,7 @@ Route::get('/css/ahg-theme-dynamic.css', [SettingsController::class, 'dynamicCss
 
 // Legacy AtoM URL aliases
 Route::get('/ahgSettings', fn () => redirect('/admin/settings'));
-Route::get('/ahgSettings/{action}', fn (string $action) => redirect('/admin/settings/' . \Illuminate\Support\Str::kebab($action)));
+Route::get('/ahgSettings/{action}', fn (string $action) => redirect('/admin/settings/'.\Illuminate\Support\Str::kebab($action)));
 
 Route::middleware('admin')->group(function () {
     // Dedicated settings pages (alphabetical, BEFORE catch-all)
@@ -90,7 +90,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ahgSettings/aiServices', [SettingsController::class, 'aiServices'])->name('settings.ai-services');
     // Same-origin proxies for the Test Connection buttons on the aiServices page.
     // Server-side test bypasses browser CORS + mixed-content + localhost-mismatch.
-    Route::post('/admin/ahgSettings/aiServices/test',    [SettingsController::class, 'aiServicesTest'])->name('settings.ai-services.test');
+    Route::post('/admin/ahgSettings/aiServices/test', [SettingsController::class, 'aiServicesTest'])->name('settings.ai-services.test');
     Route::post('/admin/ahgSettings/aiServices/test-mt', [SettingsController::class, 'aiServicesTestMt'])->name('settings.ai-services.test-mt');
     Route::match(['get', 'post'], '/admin/ahgSettings/audit', [SettingsController::class, 'auditSettings'])->name('settings.ahg.audit');
     Route::match(['get', 'post'], '/admin/ahgSettings/authority', [SettingsController::class, 'authority'])->name('settings.authority');
@@ -156,4 +156,3 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/settings/{section}', [SettingsController::class, 'section'])->name('settings.section');
     Route::get('/admin/settings', [SettingsController::class, 'index'])->name('settings.index');
 });
-

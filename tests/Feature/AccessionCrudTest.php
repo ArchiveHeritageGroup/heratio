@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use AhgCore\Models\Accession;
 use AhgCore\Models\AccessionI18n;
 use Database\Factories\AccessionFactory;
-use Database\Factories\InformationObjectFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 

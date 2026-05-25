@@ -18,18 +18,22 @@ class PreservationMigrateCommand extends Command
     public function handle(): int
     {
         $plans = DB::table('preservation_migration_plan')->where('status', 'active');
-        if ($id = $this->option('plan-id')) $plans->where('id', (int) $id);
+        if ($id = $this->option('plan-id')) {
+            $plans->where('id', (int) $id);
+        }
         $plans = $plans->get();
 
         if ($plans->isEmpty()) {
             $this->info('no active migration plans');
+
             return self::SUCCESS;
         }
 
         $limit = max(1, (int) $this->option('limit'));
         $dry = (bool) $this->option('dry-run');
 
-        $totalMigrated = 0; $totalFail = 0;
+        $totalMigrated = 0;
+        $totalFail = 0;
         foreach ($plans as $plan) {
             $this->info("--- plan id={$plan->id} from={$plan->source_pronom_id} to={$plan->target_pronom_id} ---");
 
@@ -38,10 +42,14 @@ class PreservationMigrateCommand extends Command
                 ->where('status', 'pending')
                 ->limit($limit)
                 ->get(['id', 'digital_object_id']);
-            $this->info("  pending objects: {$objects->count()}" . ($dry ? ' (dry-run)' : ''));
+            $this->info("  pending objects: {$objects->count()}".($dry ? ' (dry-run)' : ''));
 
             foreach ($objects as $obj) {
-                if ($dry) { $totalMigrated++; continue; }
+                if ($dry) {
+                    $totalMigrated++;
+
+                    continue;
+                }
                 // Mark as in_progress; the actual conversion is delegated to the per-format
                 // tool registry (PreservationService::getConversionTools). Recording the queue
                 // intent here makes the workflow auditable; the worker that executes the tool
@@ -51,15 +59,16 @@ class PreservationMigrateCommand extends Command
                     ->update(['status' => 'in_progress', 'started_at' => now()]);
                 DB::table('preservation_event')->insert([
                     'digital_object_id' => $obj->digital_object_id,
-                    'event_type'        => 'migration_queued',
-                    'detail'            => json_encode(['plan_id' => $plan->id, 'plan_object_id' => $obj->id]),
-                    'outcome'           => 'pending',
-                    'occurred_at'       => now(),
+                    'event_type' => 'migration_queued',
+                    'detail' => json_encode(['plan_id' => $plan->id, 'plan_object_id' => $obj->id]),
+                    'outcome' => 'pending',
+                    'occurred_at' => now(),
                 ]);
                 $totalMigrated++;
             }
         }
         $this->info("done; queued={$totalMigrated} fail={$totalFail}");
+
         return self::SUCCESS;
     }
 }

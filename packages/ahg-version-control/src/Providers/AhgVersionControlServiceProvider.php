@@ -34,9 +34,9 @@ class AhgVersionControlServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(SnapshotBuilder::class, fn () => new SnapshotBuilder());
-        $this->app->singleton(VersionWriter::class, fn () => new VersionWriter());
-        $this->app->singleton(DiffComputer::class, fn () => new DiffComputer());
+        $this->app->singleton(SnapshotBuilder::class, fn () => new SnapshotBuilder);
+        $this->app->singleton(VersionWriter::class, fn () => new VersionWriter);
+        $this->app->singleton(DiffComputer::class, fn () => new DiffComputer);
         $this->app->singleton(RestoreService::class, fn ($app) => new RestoreService(
             $app->make(SnapshotBuilder::class),
             $app->make(VersionWriter::class),
@@ -45,9 +45,9 @@ class AhgVersionControlServiceProvider extends ServiceProvider
 
     public function boot(Router $router): void
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-version-control');
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
+        $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-version-control');
 
         if ($this->app->runningInConsole()) {
             $this->commands([

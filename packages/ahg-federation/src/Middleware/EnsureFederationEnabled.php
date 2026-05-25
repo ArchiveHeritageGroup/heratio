@@ -2,8 +2,8 @@
 
 namespace AhgFederation\Middleware;
 
-use Closure;
 use AhgFederation\Services\FederationService;
+use Closure;
 use Illuminate\Http\Request;
 
 /**
@@ -23,7 +23,7 @@ class EnsureFederationEnabled
 
     public function handle(Request $request, Closure $next)
     {
-        if (!$this->service->isEnabled()) {
+        if (! $this->service->isEnabled()) {
             // Feature is disabled — present 404 to avoid exposing plugin UI.
             abort(404);
         }

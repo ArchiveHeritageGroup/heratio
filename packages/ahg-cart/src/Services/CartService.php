@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCart\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -36,7 +34,7 @@ class CartService
         // Prevent duplicates within the same kind
         $exists = DB::table('cart')
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
-            ->when(!$userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->where('kind', 'reproduction')
             ->where('archival_description_id', $objectId)
             ->whereNull('completed_at')
@@ -68,7 +66,7 @@ class CartService
     public function addListingToCart(?int $userId, ?string $sessionId, int $listingId): bool
     {
         $listing = DB::table('marketplace_listing')->where('id', $listingId)->first();
-        if (!$listing) {
+        if (! $listing) {
             return false;
         }
         if ($listing->status !== 'active') {
@@ -77,7 +75,7 @@ class CartService
 
         $exists = DB::table('cart')
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
-            ->when(!$userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->where('kind', 'marketplace')
             ->where('listing_id', $listingId)
             ->whereNull('completed_at')
@@ -114,7 +112,7 @@ class CartService
             ->join('marketplace_listing as l', 'l.id', '=', 'c.listing_id')
             ->leftJoin('marketplace_seller as s', 's.id', '=', 'l.seller_id')
             ->when($userId, fn ($q) => $q->where('c.user_id', $userId))
-            ->when(!$userId, fn ($q) => $q->where('c.session_id', $sessionId))
+            ->when(! $userId, fn ($q) => $q->where('c.session_id', $sessionId))
             ->where('c.kind', 'marketplace')
             ->whereNull('c.completed_at')
             ->select(
@@ -142,7 +140,7 @@ class CartService
         // Reproduction kind only — marketplace listings have their own getter.
         return DB::table('cart')
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
-            ->when(!$userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->where('kind', 'reproduction')
             ->whereNull('completed_at')
             ->orderByDesc('created_at')
@@ -154,7 +152,7 @@ class CartService
         // Combined count across both kinds — used for badge displays.
         return DB::table('cart')
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
-            ->when(!$userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->whereNull('completed_at')
             ->count();
     }
@@ -192,9 +190,10 @@ class CartService
             ->where('user_id', $userId)
             ->where('kind', 'marketplace')
             ->whereNull('completed_at');
-        if (!empty($listingIds)) {
+        if (! empty($listingIds)) {
             $q->whereIn('listing_id', $listingIds);
         }
+
         return $q->pluck('listing_id')->map(fn ($v) => (int) $v)->all();
     }
 
@@ -202,7 +201,7 @@ class CartService
     {
         return DB::table('cart')
             ->when($userId, fn ($q) => $q->where('user_id', $userId))
-            ->when(!$userId, fn ($q) => $q->where('session_id', $sessionId))
+            ->when(! $userId, fn ($q) => $q->where('session_id', $sessionId))
             ->whereNull('completed_at')
             ->delete();
     }
@@ -222,7 +221,7 @@ class CartService
                 ->whereNull('completed_at')
                 ->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 DB::table('cart')
                     ->where('id', $item->id)
                     ->update(['user_id' => $userId, 'session_id' => null]);

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgRightsHolderManage\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -37,7 +35,9 @@ class RightsController extends Controller
     {
         $culture = app()->getLocale();
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId) abort(404);
+        if (! $objectId) {
+            abort(404);
+        }
 
         $resource = DB::table('information_object')
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
@@ -46,22 +46,24 @@ class RightsController extends Controller
             ->where('information_object_i18n.culture', $culture)
             ->select('information_object.id', 'information_object.level_of_description_id', 'information_object_i18n.title', 'slug.slug')
             ->first();
-        if (!$resource) abort(404);
+        if (! $resource) {
+            abort(404);
+        }
 
         $rights = DB::table('rights')
             ->join('relation', function ($j) use ($objectId) {
                 $j->on('rights.id', '=', 'relation.subject_id')
-                   ->where('relation.object_id', '=', $objectId)
-                   ->where('relation.type_id', '=', 168);
+                    ->where('relation.object_id', '=', $objectId)
+                    ->where('relation.type_id', '=', 168);
             })
             ->leftJoin('rights_i18n', function ($j) use ($culture) {
                 $j->on('rights.id', '=', 'rights_i18n.id')->where('rights_i18n.culture', '=', $culture);
             })
             ->select('rights.*', 'rights_i18n.rights_note', 'rights_i18n.copyright_note',
-                     'rights_i18n.license_terms', 'rights_i18n.license_note',
-                     'rights_i18n.statute_note',
-                     'rights_i18n.identifier_type', 'rights_i18n.identifier_value', 'rights_i18n.identifier_role',
-                     'rights_i18n.statute_jurisdiction')
+                'rights_i18n.license_terms', 'rights_i18n.license_note',
+                'rights_i18n.statute_note',
+                'rights_i18n.identifier_type', 'rights_i18n.identifier_value', 'rights_i18n.identifier_role',
+                'rights_i18n.statute_jurisdiction')
             ->get()
             ->map(function ($r) use ($culture) {
                 $row = (array) $r;
@@ -82,8 +84,10 @@ class RightsController extends Controller
                     ->map(function ($gr) use ($culture) {
                         $arr = (array) $gr;
                         $arr['act'] = $gr->act_id ? DB::table('term_i18n')->where('id', $gr->act_id)->where('culture', $culture)->value('name') : '';
+
                         return $arr;
                     })->toArray();
+
                 return $row;
             })->toArray();
 
@@ -124,13 +128,17 @@ class RightsController extends Controller
     {
         $culture = app()->getLocale();
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId) abort(404);
+        if (! $objectId) {
+            abort(404);
+        }
 
         $io = DB::table('information_object')
             ->where('id', $objectId)
             ->select('id', 'level_of_description_id')
             ->first();
-        if (!$io) abort(404);
+        if (! $io) {
+            abort(404);
+        }
 
         $request->validate([
             'basis_id' => 'required|integer',
@@ -226,7 +234,9 @@ class RightsController extends Controller
 
             if (is_array($grantedActs)) {
                 foreach ($grantedActs as $i => $actId) {
-                    if (empty($actId)) continue;
+                    if (empty($actId)) {
+                        continue;
+                    }
 
                     $restriction = $grantedRestrictions[$i] ?? 1;
 
@@ -234,9 +244,9 @@ class RightsController extends Controller
                         'rights_id' => $rightsObjectId,
                         'act_id' => (int) $actId,
                         'restriction' => (int) $restriction,
-                        'start_date' => !empty($grantedStartDates[$i]) ? $grantedStartDates[$i] : null,
-                        'end_date' => !empty($grantedEndDates[$i]) ? $grantedEndDates[$i] : null,
-                        'notes' => !empty($grantedNotes[$i]) ? $grantedNotes[$i] : null,
+                        'start_date' => ! empty($grantedStartDates[$i]) ? $grantedStartDates[$i] : null,
+                        'end_date' => ! empty($grantedEndDates[$i]) ? $grantedEndDates[$i] : null,
+                        'notes' => ! empty($grantedNotes[$i]) ? $grantedNotes[$i] : null,
                         'serial_number' => 0,
                     ]);
                 }
@@ -254,9 +264,9 @@ class RightsController extends Controller
 
             $sectorRoutes = [
                 'library' => 'library.show',
-                'museum'  => 'museum.show',
+                'museum' => 'museum.show',
                 'gallery' => 'gallery.show',
-                'dam'     => 'dam.show',
+                'dam' => 'dam.show',
             ];
 
             if ($sector && isset($sectorRoutes[$sector])) {

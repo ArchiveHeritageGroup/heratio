@@ -12,11 +12,15 @@ use Illuminate\Support\Facades\DB;
 
 class AclCheck
 {
-    public const ACTION_CREATE                  = 'share_link.create';
-    public const ACTION_CREATE_CLASSIFIED       = 'share_link.create_classified';
+    public const ACTION_CREATE = 'share_link.create';
+
+    public const ACTION_CREATE_CLASSIFIED = 'share_link.create_classified';
+
     public const ACTION_CREATE_UNLIMITED_EXPIRY = 'share_link.create_unlimited_expiry';
-    public const ACTION_LIST_ALL                = 'share_link.list_all';
-    public const ACTION_REVOKE_OTHERS           = 'share_link.revoke_others';
+
+    public const ACTION_LIST_ALL = 'share_link.list_all';
+
+    public const ACTION_REVOKE_OTHERS = 'share_link.revoke_others';
 
     private const ACL_GROUP_ADMINISTRATOR = 100;
 
@@ -51,6 +55,7 @@ class AclCheck
             if ($groupGrant) {
                 return true;
             }
+
             return DB::table('acl_permission')
                 ->whereIn('group_id', $groups)
                 ->whereNull('action')
@@ -75,6 +80,7 @@ class AclCheck
         } catch (\Throwable $e) {
             self::$groupCache[$userId] = [];
         }
+
         return self::$groupCache[$userId];
     }
 }

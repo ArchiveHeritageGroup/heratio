@@ -55,7 +55,7 @@ class GeoNamesAdapter extends AbstractLookupAdapter
                 'style' => 'MEDIUM',
             ]);
 
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             return [];
         }
 
@@ -66,7 +66,7 @@ class GeoNamesAdapter extends AbstractLookupAdapter
             return [];
         }
         $hits = $json['geonames'] ?? [];
-        if (!is_array($hits)) {
+        if (! is_array($hits)) {
             return [];
         }
 
@@ -78,7 +78,7 @@ class GeoNamesAdapter extends AbstractLookupAdapter
         foreach ($hits as $hit) {
             $gid = $hit['geonameId'] ?? null;
             $name = $hit['name'] ?? $hit['toponymName'] ?? null;
-            if (!$gid || !$name) {
+            if (! $gid || ! $name) {
                 continue;
             }
             $lat = isset($hit['lat']) ? (float) $hit['lat'] : null;
@@ -89,10 +89,10 @@ class GeoNamesAdapter extends AbstractLookupAdapter
             $candidates[] = [
                 'source' => $this->source(),
                 'external_id' => (string) $gid,
-                'external_uri' => 'https://www.geonames.org/' . $gid,
+                'external_uri' => 'https://www.geonames.org/'.$gid,
                 'authorized_name' => (string) $name,
                 'dates_of_existence' => null,
-                'history_snippet' => trim(($adminName ? $adminName . ', ' : '') . ($countryName ?? '')) ?: null,
+                'history_snippet' => trim(($adminName ? $adminName.', ' : '').($countryName ?? '')) ?: null,
                 'fields' => [
                     'name' => (string) $name,
                     'latitude' => $lat,

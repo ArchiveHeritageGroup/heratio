@@ -57,11 +57,11 @@ class EscapeQueriesHelper
 
     public static function escapeForElasticsearch(string $raw): string
     {
-        if (!GlobalSettings::escapeQueries()) {
+        if (! GlobalSettings::escapeQueries()) {
             return $raw;
         }
 
-        $replace = array_map(static fn (string $c): string => '\\' . $c, self::LUCENE_SPECIAL);
+        $replace = array_map(static fn (string $c): string => '\\'.$c, self::LUCENE_SPECIAL);
 
         return str_replace(self::LUCENE_SPECIAL, $replace, $raw);
     }
@@ -73,7 +73,7 @@ class EscapeQueriesHelper
      */
     public static function escapeForLike(string $raw): string
     {
-        if (!GlobalSettings::escapeQueries()) {
+        if (! GlobalSettings::escapeQueries()) {
             return $raw;
         }
 

@@ -81,18 +81,21 @@ Route::prefix('icip')->middleware(['web', 'auth'])->group(function () {
     // 5-6. icip/community/{id}/edit → communityEdit (edit)
     Route::match(['get', 'post'], '/community/{id}/edit', function ($id) {
         request()->merge(['id' => $id]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->communityEdit(request());
     });
 
     // 7. icip/community/{id} → communityView
     Route::get('/community/{id}', function ($id) {
         request()->merge(['id' => $id]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->communityView(request());
     });
 
     // 8. icip/community/{id}/delete → communityDelete
     Route::post('/community/{id}/delete', function ($id) {
         request()->merge(['id' => $id]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->communityDelete(request());
     })->middleware('acl:delete');
 
@@ -105,12 +108,14 @@ Route::prefix('icip')->middleware(['web', 'auth'])->group(function () {
     // 12-13. icip/consent/{id}/edit → consentEdit (edit)
     Route::match(['get', 'post'], '/consent/{id}/edit', function ($id) {
         request()->merge(['id' => $id]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->consentEdit(request());
     });
 
     // 14. icip/consent/{id} → consentView
     Route::get('/consent/{id}', function ($id) {
         request()->merge(['id' => $id]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->consentView(request());
     });
 
@@ -123,12 +128,14 @@ Route::prefix('icip')->middleware(['web', 'auth'])->group(function () {
     // 18-19. icip/consultation/{id}/edit → consultationEdit (edit)
     Route::match(['get', 'post'], '/consultation/{id}/edit', function ($id) {
         request()->merge(['id' => $id]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->consultationEdit(request());
     });
 
     // 20. icip/consultation/{id} → consultationView
     Route::get('/consultation/{id}', function ($id) {
         request()->merge(['id' => $id]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->consultationView(request());
     });
 
@@ -156,24 +163,28 @@ Route::prefix('icip')->middleware(['web', 'auth'])->group(function () {
     // 28. icip/reports/community/{id} → reportCommunity
     Route::get('/reports/community/{id}', function ($id) {
         request()->merge(['id' => $id]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->reportCommunity(request());
     });
 
     // 29. icip/acknowledge/{notice_id} → acknowledge
     Route::post('/acknowledge/{notice_id}', function ($noticeId) {
         request()->merge(['notice_id' => $noticeId]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->acknowledge(request());
     })->middleware('acl:create');
 
     // 30. icip/api/summary/{object_id} → apiSummary (JSON)
     Route::get('/api/summary/{object_id}', function ($objectId) {
         request()->merge(['object_id' => $objectId]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->apiSummary(request());
     });
 
     // 31. icip/api/check-access/{object_id} → apiCheckAccess (JSON)
     Route::get('/api/check-access/{object_id}', function ($objectId) {
         request()->merge(['object_id' => $objectId]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->apiCheckAccess(request());
     });
 });
@@ -187,36 +198,42 @@ Route::prefix('object/{slug}/icip')->middleware(['web', 'auth'])->group(function
     // object/{slug}/icip → objectIcip
     Route::get('/', function ($slug) {
         request()->merge(['slug' => $slug]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->objectIcip(request());
     });
 
     // object/{slug}/icip/consent → objectConsent (GET + POST)
     Route::match(['get', 'post'], '/consent', function ($slug) {
         request()->merge(['slug' => $slug]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->objectConsent(request());
     });
 
     // object/{slug}/icip/notices → objectNotices (GET + POST)
     Route::match(['get', 'post'], '/notices', function ($slug) {
         request()->merge(['slug' => $slug]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->objectNotices(request());
     });
 
     // object/{slug}/icip/labels → objectLabels (GET + POST)
     Route::match(['get', 'post'], '/labels', function ($slug) {
         request()->merge(['slug' => $slug]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->objectLabels(request());
     });
 
     // object/{slug}/icip/restrictions → objectRestrictions (GET + POST)
     Route::match(['get', 'post'], '/restrictions', function ($slug) {
         request()->merge(['slug' => $slug]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->objectRestrictions(request());
     });
 
     // object/{slug}/icip/consultations → objectConsultations
     Route::get('/consultations', function ($slug) {
         request()->merge(['slug' => $slug]);
+
         return app(\AhgIcip\Controllers\IcipController::class)->objectConsultations(request());
     });
 });

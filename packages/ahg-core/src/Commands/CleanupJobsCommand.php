@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Schema;
 class CleanupJobsCommand extends Command
 {
     protected $signature = 'ahg:cleanup-jobs {--days= : Override cleanup days}';
+
     protected $description = 'Delete completed/failed jobs older than the configured retention period (jobs_cleanup_days setting)';
 
     public function handle(): int
@@ -32,6 +33,7 @@ class CleanupJobsCommand extends Command
 
         if ($days < 1) {
             $this->warn('Cleanup days must be at least 1.');
+
             return 1;
         }
 

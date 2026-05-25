@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCustomFields\Controllers;
 
 use AhgCustomFields\Services\CustomFieldService;
@@ -113,7 +111,7 @@ class CustomFieldAdminController extends Controller
         $definitions = $this->service->getDefinitions();
 
         $output = fopen('php://temp', 'r+');
-        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
         fputcsv($output, ['ID', 'Name', 'Field Type', 'Entity Type', 'Is Active']);
 
         foreach ($definitions as $def) {

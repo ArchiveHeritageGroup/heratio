@@ -31,12 +31,12 @@ class AnimationService
      */
     public function generate(string $sourceImage, string $destMp4, array $opts = []): array
     {
-        if (!is_file($sourceImage)) {
+        if (! is_file($sourceImage)) {
             throw new RuntimeException("Source image not found: {$sourceImage}");
         }
         $opts = array_merge($this->defaults(), $opts);
 
-        $url = rtrim($opts['server_url'], '/') . '/animate';
+        $url = rtrim($opts['server_url'], '/').'/animate';
         $timeout = max(60, (int) $opts['request_timeout']);
 
         $fields = [
@@ -47,11 +47,15 @@ class AnimationService
             'motion_bucket_id' => (int) $opts['motion_bucket_id'],
             'seed' => (int) $opts['seed'],
         ];
-        if (!empty($opts['prompt'])) {
+        if (! empty($opts['prompt'])) {
             $fields['prompt'] = (string) $opts['prompt'];
         }
-        if (!empty($opts['width']))  { $fields['width']  = (int) $opts['width']; }
-        if (!empty($opts['height'])) { $fields['height'] = (int) $opts['height']; }
+        if (! empty($opts['width'])) {
+            $fields['width'] = (int) $opts['width'];
+        }
+        if (! empty($opts['height'])) {
+            $fields['height'] = (int) $opts['height'];
+        }
 
         @mkdir(dirname($destMp4), 0775, true);
 
@@ -68,6 +72,7 @@ class AnimationService
                     [$k, $v] = explode(':', $hdr, 2);
                     $headersOut[strtolower(trim($k))] = trim($v);
                 }
+
                 return strlen($hdr);
             },
         ]);
@@ -83,7 +88,7 @@ class AnimationService
             $msg = is_string($body) ? substr($body, 0, 500) : '';
             throw new RuntimeException("AI server returned HTTP {$httpCode}: {$msg}");
         }
-        if (!is_string($body) || strlen($body) < 1024) {
+        if (! is_string($body) || strlen($body) < 1024) {
             throw new RuntimeException('AI server returned an empty / suspiciously small body.');
         }
         if (file_put_contents($destMp4, $body) === false) {
@@ -112,15 +117,16 @@ class AnimationService
         } catch (\Throwable $e) {
             // table may not exist yet
         }
+
         return [
-            'server_url'        => (string) ($rows['ar_server_url']       ?? 'http://192.168.0.78:5052'),
-            'model'             => (string) ($rows['ar_model']            ?? 'svd'),
-            'num_frames'        => (int)    ($rows['ar_num_frames']       ?? 14),
-            'fps'               => (int)    ($rows['ar_fps']              ?? 7),
-            'motion_bucket_id'  => (int)    ($rows['ar_motion_bucket_id'] ?? 127),
-            'seed'              => (int)    ($rows['ar_seed']             ?? 0),
-            'prompt'            => (string) ($rows['ar_default_prompt']   ?? ''),
-            'request_timeout'   => (int)    ($rows['ar_request_timeout']  ?? 900),
+            'server_url' => (string) ($rows['ar_server_url'] ?? 'http://192.168.0.78:5052'),
+            'model' => (string) ($rows['ar_model'] ?? 'svd'),
+            'num_frames' => (int) ($rows['ar_num_frames'] ?? 14),
+            'fps' => (int) ($rows['ar_fps'] ?? 7),
+            'motion_bucket_id' => (int) ($rows['ar_motion_bucket_id'] ?? 127),
+            'seed' => (int) ($rows['ar_seed'] ?? 0),
+            'prompt' => (string) ($rows['ar_default_prompt'] ?? ''),
+            'request_timeout' => (int) ($rows['ar_request_timeout'] ?? 900),
         ];
     }
 
@@ -133,6 +139,7 @@ class AnimationService
         } catch (\Throwable $e) {
             return false;
         }
+
         return ((string) ($rows['ar_enabled'] ?? '0')) === '1'
             && ((string) ($rows['ar_user_button'] ?? '1')) === '1';
     }
@@ -142,7 +149,7 @@ class AnimationService
      */
     public function health(): ?array
     {
-        $url = rtrim($this->defaults()['server_url'], '/') . '/health';
+        $url = rtrim($this->defaults()['server_url'], '/').'/health';
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
@@ -152,10 +159,11 @@ class AnimationService
         $body = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        if ($code !== 200 || !is_string($body)) {
+        if ($code !== 200 || ! is_string($body)) {
             return null;
         }
         $data = json_decode($body, true);
+
         return is_array($data) ? $data : null;
     }
 }

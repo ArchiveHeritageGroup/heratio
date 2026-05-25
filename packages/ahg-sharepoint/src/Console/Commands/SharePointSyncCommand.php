@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 class SharePointSyncCommand extends Command
 {
     protected $signature = 'sharepoint:sync {--drive=} {--full} {--limit=0}';
+
     protected $description = 'Delta-poll one or all ingest-enabled SharePoint drives';
 
     public function handle(GraphClientService $graph, SharePointDriveRepository $drives): int
@@ -38,9 +39,10 @@ class SharePointSyncCommand extends Command
                     ['drive_id' => (int) $drive->id],
                     ['last_status' => 'error', 'last_error' => substr($e->getMessage(), 0, 65000), 'last_run_at' => now()],
                 );
-                $this->error("  -> ERROR: " . $e->getMessage());
+                $this->error('  -> ERROR: '.$e->getMessage());
             }
         }
+
         return self::SUCCESS;
     }
 
@@ -48,7 +50,7 @@ class SharePointSyncCommand extends Command
     {
         $tenantId = (int) $drive->tenant_id;
         $stateRow = DB::table('sharepoint_sync_state')->where('drive_id', $drive->id)->first();
-        $deltaLink = (!$full && $stateRow !== null) ? $stateRow->delta_link : null;
+        $deltaLink = (! $full && $stateRow !== null) ? $stateRow->delta_link : null;
 
         DB::table('sharepoint_sync_state')->updateOrInsert(
             ['drive_id' => (int) $drive->id],
@@ -86,9 +88,10 @@ class SharePointSyncCommand extends Command
                 'last_status' => 'ok',
                 'last_error' => null,
                 'last_run_at' => now(),
-                'items_processed' => DB::raw('items_processed + ' . $processed),
+                'items_processed' => DB::raw('items_processed + '.$processed),
             ],
         );
+
         return $processed;
     }
 

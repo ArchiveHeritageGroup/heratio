@@ -70,17 +70,17 @@ return [
         // need direct DB access. Override DISCOVERY_DB_DATABASE in .env if the
         // ANC corpus name changes per environment.
         'atom' => [
-            'driver'      => 'mysql',
-            'host'        => env('DB_HOST', '127.0.0.1'),
-            'port'        => env('DB_PORT', '3306'),
-            'database'    => env('DISCOVERY_DB_DATABASE', 'atom'),
-            'username'    => env('DB_USERNAME', 'root'),
-            'password'    => env('DB_PASSWORD', ''),
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DISCOVERY_DB_DATABASE', 'atom'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
-            'charset'     => env('DB_CHARSET', 'utf8mb4'),
-            'collation'   => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
-            'prefix'      => '',
-            'strict'      => true,
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'strict' => true,
         ],
 
         'mariadb' => [

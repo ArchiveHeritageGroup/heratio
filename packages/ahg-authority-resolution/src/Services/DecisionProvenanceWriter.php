@@ -43,7 +43,9 @@ use Illuminate\Support\Facades\Log;
 class DecisionProvenanceWriter
 {
     public const DEFAULT_GRAPH_URI = 'urn:heratio:auth-res:graph:decisions';
+
     public const NS_PROV = 'http://www.w3.org/ns/prov#';
+
     public const NS_AUTH_RES = 'https://heratio.theahg.co.za/ontology/auth-res#';
 
     private const PLACE_TYPES = ['GPE', 'LOC', 'PLACE', 'ISAD_PLACE'];
@@ -60,7 +62,7 @@ class DecisionProvenanceWriter
     public function write(int $decisionId, ?string $graphUri = null): array
     {
         $decision = $this->loadDecision($decisionId);
-        if (!$decision) {
+        if (! $decision) {
             return ['ok' => false, 'error' => "decision #{$decisionId} not found"];
         }
 
@@ -69,7 +71,7 @@ class DecisionProvenanceWriter
         // SPARQL UPDATE expects PREFIX declarations outside the INSERT DATA wrapper,
         // not Turtle's @prefix syntax. executeUpdate takes the full statement;
         // insertRdfStar only wraps in INSERT DATA which would put @prefix in the wrong place.
-        $sparqlUpdate = $this->buildPrefixes() . "\nINSERT DATA {\n  GRAPH <{$graphUri}> {\n{$turtle}\n  }\n}";
+        $sparqlUpdate = $this->buildPrefixes()."\nINSERT DATA {\n  GRAPH <{$graphUri}> {\n{$turtle}\n  }\n}";
 
         $result = $this->sparql->executeUpdate($sparqlUpdate);
 
@@ -77,6 +79,7 @@ class DecisionProvenanceWriter
             DB::table('ahg_mention_decision')
                 ->where('id', $decisionId)
                 ->update(['fuseki_graph_uri' => $graphUri]);
+
             return [
                 'ok' => true,
                 'graph' => $graphUri,
@@ -119,42 +122,42 @@ class DecisionProvenanceWriter
         $triples[] = "{$reified}";
         $triples[] = "    prov:wasAttributedTo {$userUri} ;";
         $triples[] = "    prov:generatedAtTime \"{$timestamp}\"^^xsd:dateTime ;";
-        $triples[] = "    auth_res:decisionType " . $this->literal($decision->decision_type) . " ;";
-        $triples[] = "    auth_res:mentionValue " . $this->literal($decision->entity_value ?? '') . " ;";
-        $triples[] = "    auth_res:mentionEntityType " . $this->literal($decision->entity_type ?? '') . ($decision->original_system_top_score !== null ? ' ;' : ' .');
+        $triples[] = '    auth_res:decisionType '.$this->literal($decision->decision_type).' ;';
+        $triples[] = '    auth_res:mentionValue '.$this->literal($decision->entity_value ?? '').' ;';
+        $triples[] = '    auth_res:mentionEntityType '.$this->literal($decision->entity_type ?? '').($decision->original_system_top_score !== null ? ' ;' : ' .');
 
         if ($decision->original_system_top_score !== null) {
-            $triples[] = "    auth_res:originalSystemConfidence \"{$decision->original_system_top_score}\"^^xsd:decimal" . ($decision->fuseki_graph_uri || true ? ' .' : ' .');
+            $triples[] = "    auth_res:originalSystemConfidence \"{$decision->original_system_top_score}\"^^xsd:decimal".($decision->fuseki_graph_uri || true ? ' .' : ' .');
         }
 
         // Candidate annotations
         $candidates = $this->decodeJson($decision->candidates_visible_snapshot ?? null);
         $candidatesTurtle = '';
-        if (is_array($candidates) && !empty($candidates)) {
+        if (is_array($candidates) && ! empty($candidates)) {
             $candidateUris = [];
             foreach ($candidates as $c) {
                 $cid = $c['candidate_id'] ?? $c['id'] ?? null;
-                if (!$cid) {
+                if (! $cid) {
                     continue;
                 }
                 $candidateUris[] = "<{$base}/auth-res/candidate/{$cid}>";
             }
-            if (!empty($candidateUris)) {
-                $triples[count($triples) - 1] = rtrim($triples[count($triples) - 1], '.') . ';';
-                $triples[] = '    auth_res:hadCandidate ' . implode(', ', $candidateUris) . ' .';
+            if (! empty($candidateUris)) {
+                $triples[count($triples) - 1] = rtrim($triples[count($triples) - 1], '.').';';
+                $triples[] = '    auth_res:hadCandidate '.implode(', ', $candidateUris).' .';
             }
 
-            $candidatesTurtle = "\n" . $this->buildCandidateTriples($candidates, $base);
+            $candidatesTurtle = "\n".$this->buildCandidateTriples($candidates, $base);
         }
 
         // Evidence snapshot (frozen JSON literal, if present)
         $evidence = $this->decodeJson($decision->evidence_snapshot ?? null);
         $evidenceTurtle = '';
-        if (is_array($evidence) && !empty($evidence)) {
-            $evidenceTurtle = "\n{$reified}\n    auth_res:evidenceSnapshot " . $this->literal(json_encode($evidence, JSON_UNESCAPED_UNICODE)) . " .";
+        if (is_array($evidence) && ! empty($evidence)) {
+            $evidenceTurtle = "\n{$reified}\n    auth_res:evidenceSnapshot ".$this->literal(json_encode($evidence, JSON_UNESCAPED_UNICODE)).' .';
         }
 
-        $body = implode("\n", $triples) . $candidatesTurtle . $evidenceTurtle;
+        $body = implode("\n", $triples).$candidatesTurtle.$evidenceTurtle;
 
         // No @prefix here — buildSparqlUpdate emits PREFIX (SPARQL syntax) outside
         // the INSERT DATA wrapper. Returning just the triples body.
@@ -170,16 +173,18 @@ class DecisionProvenanceWriter
                 $predicate = $decision->decision_type === 'link_different'
                     ? 'auth_res:linkedToDifferent'
                     : 'auth_res:linkedTo';
+
                 return "{$mentionUri} {$predicate} {$authorityUri}";
             case 'create_new':
                 $authorityUri = $this->authorityUri($decision, $base);
+
                 return "{$mentionUri} auth_res:linkedToNew {$authorityUri}";
             case 'park':
                 return "{$mentionUri} auth_res:parked \"true\"^^xsd:boolean";
             case 'reject':
                 return "{$mentionUri} auth_res:rejected \"true\"^^xsd:boolean";
             default:
-                return "{$mentionUri} auth_res:decision " . $this->literal($decision->decision_type);
+                return "{$mentionUri} auth_res:decision ".$this->literal($decision->decision_type);
         }
     }
 
@@ -192,6 +197,7 @@ class DecisionProvenanceWriter
         if (in_array($decision->entity_type, self::PLACE_TYPES, true)) {
             return "<{$base}/place/{$id}>";
         }
+
         return "<{$base}/actor/{$id}>";
     }
 
@@ -200,7 +206,7 @@ class DecisionProvenanceWriter
         $lines = [];
         foreach ($candidates as $c) {
             $cid = $c['candidate_id'] ?? $c['id'] ?? null;
-            if (!$cid) {
+            if (! $cid) {
                 continue;
             }
             $uri = "<{$base}/auth-res/candidate/{$cid}>";
@@ -209,12 +215,12 @@ class DecisionProvenanceWriter
                 $rank = (int) ($c['rank'] ?? $c['rank_position']);
                 $parts[] = "auth_res:rank \"{$rank}\"^^xsd:integer";
             }
-            if (!empty($c['display_name'])) {
-                $parts[] = 'auth_res:displayName ' . $this->literal((string) $c['display_name']);
+            if (! empty($c['display_name'])) {
+                $parts[] = 'auth_res:displayName '.$this->literal((string) $c['display_name']);
             }
-            if (!empty($c['source']) || !empty($c['candidate_source'])) {
+            if (! empty($c['source']) || ! empty($c['candidate_source'])) {
                 $src = (string) ($c['source'] ?? $c['candidate_source']);
-                $parts[] = 'auth_res:source ' . $this->literal($src);
+                $parts[] = 'auth_res:source '.$this->literal($src);
             }
             if (isset($c['name_similarity_score']) || isset($c['nameSimilarity'])) {
                 $score = (float) ($c['name_similarity_score'] ?? $c['nameSimilarity']);
@@ -223,8 +229,9 @@ class DecisionProvenanceWriter
             if (empty($parts)) {
                 continue;
             }
-            $lines[] = $uri . "\n    " . implode(" ;\n    ", $parts) . " .";
+            $lines[] = $uri."\n    ".implode(" ;\n    ", $parts).' .';
         }
+
         return implode("\n\n", $lines);
     }
 
@@ -233,8 +240,8 @@ class DecisionProvenanceWriter
         // SPARQL PREFIX syntax (no @, no trailing dot). Different from Turtle's
         // @prefix. Used outside the INSERT DATA wrapper in buildSparqlUpdate.
         return implode("\n", [
-            'PREFIX prov: <' . self::NS_PROV . '>',
-            'PREFIX auth_res: <' . self::NS_AUTH_RES . '>',
+            'PREFIX prov: <'.self::NS_PROV.'>',
+            'PREFIX auth_res: <'.self::NS_AUTH_RES.'>',
             'PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>',
         ]);
     }
@@ -274,6 +281,7 @@ class DecisionProvenanceWriter
         } catch (\Throwable $e) {
             // fall through to default
         }
+
         return self::DEFAULT_GRAPH_URI;
     }
 
@@ -283,6 +291,7 @@ class DecisionProvenanceWriter
             return null;
         }
         $decoded = json_decode($json, true);
+
         return is_array($decoded) ? $decoded : null;
     }
 
@@ -290,6 +299,7 @@ class DecisionProvenanceWriter
     {
         try {
             $dt = new \DateTimeImmutable($mysqlDateTime, new \DateTimeZone('UTC'));
+
             return $dt->format('Y-m-d\TH:i:s\Z');
         } catch (\Throwable $e) {
             return gmdate('Y-m-d\TH:i:s\Z');
@@ -310,6 +320,7 @@ class DecisionProvenanceWriter
             ['\\\\', '\\"', '\\n', '\\r', '\\t'],
             $s
         );
-        return '"' . $escaped . '"';
+
+        return '"'.$escaped.'"';
     }
 }

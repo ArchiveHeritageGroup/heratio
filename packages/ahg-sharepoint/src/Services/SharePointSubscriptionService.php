@@ -14,6 +14,7 @@ use AhgSharePoint\Repositories\SharePointTenantRepository;
 class SharePointSubscriptionService
 {
     private const RENEWAL_DURATION_HOURS = 24 * 28;
+
     private const RENEW_BEFORE_HOURS = 24;
 
     public function __construct(
@@ -21,8 +22,7 @@ class SharePointSubscriptionService
         private SharePointTenantRepository $tenants,
         private SharePointDriveRepository $drives,
         private SharePointSubscriptionRepository $subscriptions,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array{drive_item:int, list:int}
@@ -33,7 +33,7 @@ class SharePointSubscriptionService
         if ($drive === null) {
             throw new \InvalidArgumentException("Drive {$driveId} not found");
         }
-        if (!$drive->ingest_enabled) {
+        if (! $drive->ingest_enabled) {
             throw new \DomainException("Drive {$driveId} is not ingest_enabled");
         }
         $tenant = $this->tenants->find((int) $drive->tenant_id);
@@ -58,7 +58,7 @@ class SharePointSubscriptionService
      */
     public function renewExpiring(): array
     {
-        $expiring = $this->subscriptions->expiringWithin('INTERVAL ' . self::RENEW_BEFORE_HOURS . ' HOUR');
+        $expiring = $this->subscriptions->expiringWithin('INTERVAL '.self::RENEW_BEFORE_HOURS.' HOUR');
         $renewed = 0;
         $errors = 0;
         foreach ($expiring as $sub) {
@@ -70,6 +70,7 @@ class SharePointSubscriptionService
                 $this->subscriptions->update((int) $sub->id, ['status' => 'error']);
             }
         }
+
         return ['renewed' => $renewed, 'errors' => $errors];
     }
 
@@ -95,7 +96,7 @@ class SharePointSubscriptionService
 
     private function createOne(object $tenant, object $drive, string $resourcePath, string $publicWebhookUrl): int
     {
-        $expiresAt = new \DateTimeImmutable('+' . self::RENEWAL_DURATION_HOURS . ' hours');
+        $expiresAt = new \DateTimeImmutable('+'.self::RENEWAL_DURATION_HOURS.' hours');
 
         $body = [
             'changeType' => 'updated',
@@ -107,7 +108,7 @@ class SharePointSubscriptionService
 
         $response = $this->graph->post((int) $tenant->id, '/subscriptions', $body);
         if (empty($response['id'])) {
-            throw new \RuntimeException('Graph subscription create returned no id: ' . json_encode($response));
+            throw new \RuntimeException('Graph subscription create returned no id: '.json_encode($response));
         }
 
         return $this->subscriptions->create([
@@ -131,15 +132,17 @@ class SharePointSubscriptionService
         $drive = $this->drives->find((int) $sub->drive_id);
         if ($drive === null) {
             $this->subscriptions->markStatus($subscriptionRowId, 'error');
+
             return;
         }
         $tenant = $this->tenants->find((int) $drive->tenant_id);
         if ($tenant === null) {
             $this->subscriptions->markStatus($subscriptionRowId, 'error');
+
             return;
         }
 
-        $newExpiry = new \DateTimeImmutable('+' . self::RENEWAL_DURATION_HOURS . ' hours');
+        $newExpiry = new \DateTimeImmutable('+'.self::RENEWAL_DURATION_HOURS.' hours');
         $this->graph->patch((int) $tenant->id, "/subscriptions/{$sub->subscription_id}", [
             'expirationDateTime' => $newExpiry->format(\DateTimeInterface::ATOM),
         ]);
@@ -155,6 +158,7 @@ class SharePointSubscriptionService
         if (empty($resp['id'])) {
             throw new \RuntimeException("Cannot resolve list id for drive {$drive->drive_id}");
         }
+
         return "/sites/{$drive->site_id}/lists/{$resp['id']}";
     }
 }

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgRightsHolderManage\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -58,6 +56,7 @@ class EmbargoController extends Controller
                 ->get()
                 ->map(function ($e) {
                     $e->days_remaining = (int) now()->diffInDays($e->end_date, false);
+
                     return $e;
                 });
         }
@@ -73,10 +72,12 @@ class EmbargoController extends Controller
             ->where('information_object.id', $objectId)
             ->where('information_object_i18n.culture', app()->getLocale())
             ->select('information_object.id', 'information_object_i18n.title', 'slug.slug',
-                     'information_object.lft', 'information_object.rgt')
+                'information_object.lft', 'information_object.rgt')
             ->first();
 
-        if (!$resource) abort(404);
+        if (! $resource) {
+            abort(404);
+        }
 
         $descendantCount = DB::table('information_object')
             ->where('lft', '>', $resource->lft ?? 0)
@@ -125,7 +126,9 @@ class EmbargoController extends Controller
                 $embargo['audit_log'] = [];
             }
         }
-        if (empty($embargo)) abort(404);
+        if (empty($embargo)) {
+            abort(404);
+        }
 
         return view('ahg-rights-holder-manage::embargo.view', compact('embargo'));
     }
@@ -146,7 +149,9 @@ class EmbargoController extends Controller
                     ->first();
             }
         }
-        if (!$embargo) abort(404);
+        if (! $embargo) {
+            abort(404);
+        }
 
         return view('ahg-rights-holder-manage::embargo.lift', compact('embargo', 'resource'));
     }

@@ -43,7 +43,9 @@ namespace AhgMetadataExport\Services\Exporters;
 class Marc21BinaryEncoder
 {
     private const FIELD_TERMINATOR = "\x1E";
+
     private const RECORD_TERMINATOR = "\x1D";
+
     private const SUBFIELD_DELIMITER = "\x1F";
 
     public function getFormat(): string
@@ -58,10 +60,10 @@ class Marc21BinaryEncoder
      */
     public function encodeFromMarcxml(string $marcxml): string
     {
-        $dom = new \DOMDocument();
+        $dom = new \DOMDocument;
         // Tolerate the XML declaration the MarcxmlSerializer emits.
         $loaded = @$dom->loadXML($marcxml);
-        if (!$loaded) {
+        if (! $loaded) {
             throw new \RuntimeException('Marc21BinaryEncoder: invalid MARCXML input');
         }
         $xpath = new \DOMXPath($dom);
@@ -78,7 +80,7 @@ class Marc21BinaryEncoder
             foreach ($controlFields as $cf) {
                 $tag = $cf->getAttribute('tag');
                 $value = $cf->textContent;
-                $field = $value . self::FIELD_TERMINATOR;
+                $field = $value.self::FIELD_TERMINATOR;
                 $directory .= $this->directoryEntry($tag, strlen($field), $offset);
                 $body .= $field;
                 $offset += strlen($field);
@@ -94,17 +96,17 @@ class Marc21BinaryEncoder
                 // Indicators are always single chars; empty becomes space.
                 $ind1 = $ind1 === '' ? ' ' : substr($ind1, 0, 1);
                 $ind2 = $ind2 === '' ? ' ' : substr($ind2, 0, 1);
-                $fieldBody = $ind1 . $ind2;
+                $fieldBody = $ind1.$ind2;
 
                 $subfields = $xpath->query('marc:subfield', $df);
                 if ($subfields !== false) {
                     foreach ($subfields as $sf) {
                         $code = $sf->getAttribute('code') ?: 'a';
                         $val = $sf->textContent;
-                        $fieldBody .= self::SUBFIELD_DELIMITER . $code . $val;
+                        $fieldBody .= self::SUBFIELD_DELIMITER.$code.$val;
                     }
                 }
-                $field = $fieldBody . self::FIELD_TERMINATOR;
+                $field = $fieldBody.self::FIELD_TERMINATOR;
                 $directory .= $this->directoryEntry($tag, strlen($field), $offset);
                 $body .= $field;
                 $offset += strlen($field);
@@ -119,7 +121,7 @@ class Marc21BinaryEncoder
 
         $leader = $this->buildLeader($recordLength, $baseAddress);
 
-        return $leader . $directory . $body . self::RECORD_TERMINATOR;
+        return $leader.$directory.$body.self::RECORD_TERMINATOR;
     }
 
     /**
@@ -131,24 +133,25 @@ class Marc21BinaryEncoder
         // MARC tags are 3 chars (digits or alpha — alphas are rare). Pad
         // or truncate defensively.
         $tag = str_pad(substr($tag, 0, 3), 3);
+
         return $tag
-            . str_pad((string) $length, 4, '0', STR_PAD_LEFT)
-            . str_pad((string) $offset, 5, '0', STR_PAD_LEFT);
+            .str_pad((string) $length, 4, '0', STR_PAD_LEFT)
+            .str_pad((string) $offset, 5, '0', STR_PAD_LEFT);
     }
 
     private function buildLeader(int $recordLength, int $baseAddress): string
     {
         return str_pad((string) $recordLength, 5, '0', STR_PAD_LEFT)
-             . 'n'   // pos 05 record status
-             . 'a'   // pos 06 type of record (language material)
-             . 'c'   // pos 07 bibliographic level (collection)
-             . ' '   // pos 08 type of control
-             . 'a'   // pos 09 character coding (UTF-8/UCS)
-             . '22'  // pos 10-11 indicator + subfield code counts
-             . str_pad((string) $baseAddress, 5, '0', STR_PAD_LEFT)
-             . 'u'   // pos 17 encoding level (unknown)
-             . 'i'   // pos 18 descriptive cataloguing form (ISBD)
-             . ' '   // pos 19 multipart resource level
-             . '4500'; // pos 20-23 entry map
+             .'n'   // pos 05 record status
+             .'a'   // pos 06 type of record (language material)
+             .'c'   // pos 07 bibliographic level (collection)
+             .' '   // pos 08 type of control
+             .'a'   // pos 09 character coding (UTF-8/UCS)
+             .'22'  // pos 10-11 indicator + subfield code counts
+             .str_pad((string) $baseAddress, 5, '0', STR_PAD_LEFT)
+             .'u'   // pos 17 encoding level (unknown)
+             .'i'   // pos 18 descriptive cataloguing form (ISBD)
+             .' '   // pos 19 multipart resource level
+             .'4500'; // pos 20-23 entry map
     }
 }

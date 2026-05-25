@@ -16,14 +16,16 @@ use Illuminate\Support\Facades\Http;
 class GraphClientService
 {
     private const TOKEN_URL = 'https://login.microsoftonline.com/%s/oauth2/v2.0/token';
+
     private const GRAPH_DEFAULT_SCOPE = 'https://graph.microsoft.com/.default';
+
     private const DOWNLOAD_TIMEOUT_SECONDS = 60;
 
     public function __construct(
         private GraphTokenCache $cache,
         private ?SharePointTenantRepository $tenants = null,
     ) {
-        $this->tenants = $this->tenants ?? new SharePointTenantRepository();
+        $this->tenants = $this->tenants ?? new SharePointTenantRepository;
     }
 
     public function acquireToken(int $tenantId): string
@@ -49,9 +51,9 @@ class GraphClientService
             ],
         );
 
-        if (!$resp->successful()) {
+        if (! $resp->successful()) {
             $this->tenants->update($tenantId, [
-                'last_error' => substr('token acquire failed: HTTP ' . $resp->status() . ' ' . $resp->body(), 0, 65000),
+                'last_error' => substr('token acquire failed: HTTP '.$resp->status().' '.$resp->body(), 0, 65000),
                 'status' => 'error',
             ]);
             throw new \RuntimeException(
@@ -60,7 +62,7 @@ class GraphClientService
         }
 
         $payload = $resp->json();
-        if (!is_array($payload) || empty($payload['access_token'])) {
+        if (! is_array($payload) || empty($payload['access_token'])) {
             throw new \RuntimeException('Token response malformed');
         }
 
@@ -97,13 +99,14 @@ class GraphClientService
             ],
         );
 
-        if (!$resp->successful()) {
+        if (! $resp->successful()) {
             throw new \RuntimeException("OBO token exchange failed: HTTP {$resp->status()} {$resp->body()}");
         }
         $payload = $resp->json();
-        if (!is_array($payload) || empty($payload['access_token'])) {
+        if (! is_array($payload) || empty($payload['access_token'])) {
             throw new \RuntimeException('OBO token response malformed');
         }
+
         return (string) $payload['access_token'];
     }
 
@@ -131,10 +134,10 @@ class GraphClientService
     {
         $token = $this->acquireToken($tenantId);
         $url = $this->resolveBase($tenantId)
-            . "/sites/{$siteId}/drives/{$driveId}/items/{$itemId}/content";
+            ."/sites/{$siteId}/drives/{$driveId}/items/{$itemId}/content";
 
         $dir = dirname($destinationPath);
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
 
@@ -144,7 +147,7 @@ class GraphClientService
             ->withOptions(['sink' => $destinationPath, 'allow_redirects' => true])
             ->get($url);
 
-        if (!$resp->successful()) {
+        if (! $resp->successful()) {
             throw new \RuntimeException(
                 "downloadDriveItem failed: HTTP {$resp->status()} for {$url}",
             );
@@ -159,10 +162,10 @@ class GraphClientService
     {
         $token = $this->acquireToken($tenantId);
         $url = $this->resolveBase($tenantId)
-            . "/drives/{$driveId}/items/{$itemId}/content";
+            ."/drives/{$driveId}/items/{$itemId}/content";
 
         $dir = dirname($destinationPath);
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
 
@@ -171,7 +174,7 @@ class GraphClientService
             ->withOptions(['sink' => $destinationPath, 'allow_redirects' => true])
             ->get($url);
 
-        if (!$resp->successful()) {
+        if (! $resp->successful()) {
             throw new \RuntimeException(
                 "downloadDriveItemByDriveId failed: HTTP {$resp->status()} for {$url}",
             );
@@ -184,13 +187,14 @@ class GraphClientService
             $tenantId,
             "/sites/{$siteId}/drives/{$driveId}/items/{$itemId}/listItem?\$expand=fields",
         );
+
         return is_array($resp['fields'] ?? null) ? $resp['fields'] : [];
     }
 
     private function request(int $tenantId, string $method, string $path, ?array $body, array $headers, bool $expectJson = true): array
     {
         $token = $this->acquireToken($tenantId);
-        $url = $this->resolveBase($tenantId) . $this->ensureLeadingSlash($path);
+        $url = $this->resolveBase($tenantId).$this->ensureLeadingSlash($path);
 
         $client = Http::withToken($token)
             ->withHeaders(array_merge(['Accept' => 'application/json'], $headers))
@@ -211,16 +215,17 @@ class GraphClientService
                 : $client->send($method, $url);
         }
 
-        if (!$resp->successful()) {
+        if (! $resp->successful()) {
             throw new \RuntimeException(
-                "Graph {$method} {$path} failed: HTTP {$resp->status()} " . substr($resp->body(), 0, 1000),
+                "Graph {$method} {$path} failed: HTTP {$resp->status()} ".substr($resp->body(), 0, 1000),
             );
         }
 
-        if (!$expectJson || $resp->body() === '') {
+        if (! $expectJson || $resp->body() === '') {
             return [];
         }
         $decoded = $resp->json();
+
         return is_array($decoded) ? $decoded : [];
     }
 
@@ -228,11 +233,12 @@ class GraphClientService
     {
         $tenant = $this->tenants->find($tenantId);
         $base = (string) ($tenant->graph_endpoint ?? 'https://graph.microsoft.com/v1.0');
+
         return rtrim($base, '/');
     }
 
     private function ensureLeadingSlash(string $path): string
     {
-        return str_starts_with($path, '/') ? $path : '/' . $path;
+        return str_starts_with($path, '/') ? $path : '/'.$path;
     }
 }

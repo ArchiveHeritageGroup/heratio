@@ -34,7 +34,7 @@ class MysqlFunctionRepository implements FunctionRepository
         return DB::table('relation')
             ->join('information_object_i18n as ioi', function ($j) use ($id) {
                 $j->on(DB::raw("CASE WHEN relation.subject_id = {$id} THEN relation.object_id ELSE relation.subject_id END"), '=', 'ioi.id')
-                  ->where('ioi.culture', 'en');
+                    ->where('ioi.culture', 'en');
             })
             ->leftJoin('slug', DB::raw("CASE WHEN relation.subject_id = {$id} THEN relation.object_id ELSE relation.subject_id END"), '=', 'slug.object_id')
             ->where(function ($q) use ($id) {

@@ -21,12 +21,12 @@ class AuthorityCompletenessScanCommand extends Command
             : null;
         if ($autoRecalc === '0') {
             $this->info('completeness_auto_recalc disabled in ahg_authority_config — skipping.');
+
             return self::SUCCESS;
         }
 
         $conn = (string) $this->option('connection');
         $limit = (int) $this->option('limit');
-
 
         // Score each actor by % of ISAAR(CPF) fields populated in actor + actor_i18n.
         // Real column names per atom.actor_i18n: history, places, legal_status,
@@ -36,9 +36,12 @@ class AuthorityCompletenessScanCommand extends Command
                 $j->on('a.id', '=', 'ai18n.id')->where('ai18n.culture', '=', 'en');
             });
         $total = (clone $base)->count();
-        if ($limit > 0) $base->limit($limit);
+        if ($limit > 0) {
+            $base->limit($limit);
+        }
 
-        $scanned = 0; $sumScore = 0.0;
+        $scanned = 0;
+        $sumScore = 0.0;
         foreach ($base->select(
             'a.id',
             'ai18n.authorized_form_of_name',
@@ -55,14 +58,17 @@ class AuthorityCompletenessScanCommand extends Command
                 $row->legal_status, $row->functions, $row->mandates,
                 $row->internal_structures, $row->general_context,
             ];
-            $populated = count(array_filter($cells, fn($v) => trim((string) $v) !== ''));
+            $populated = count(array_filter($cells, fn ($v) => trim((string) $v) !== ''));
             $score = $populated / count($cells);
             $sumScore += $score;
             $scanned++;
-            if ($scanned % 1000 === 0) $this->line("  scanned {$scanned}/{$total}");
+            if ($scanned % 1000 === 0) {
+                $this->line("  scanned {$scanned}/{$total}");
+            }
         }
         $avg = $scanned > 0 ? round($sumScore / $scanned, 3) : 0.0;
         $this->info("done; actors_scanned={$scanned}/{$total} avg_completeness={$avg}");
+
         return self::SUCCESS;
     }
 }

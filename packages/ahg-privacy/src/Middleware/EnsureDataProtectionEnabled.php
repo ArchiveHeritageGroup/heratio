@@ -33,9 +33,10 @@ class EnsureDataProtectionEnabled
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!DataProtectionSettings::enabled()) {
+        if (! DataProtectionSettings::enabled()) {
             abort(404);
         }
+
         return $next($request);
     }
 }

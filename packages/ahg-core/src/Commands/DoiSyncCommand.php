@@ -21,29 +21,47 @@ class DoiSyncCommand extends Command
     public function handle(DoiService $svc): int
     {
         $q = DB::table('ahg_doi');
-        if ($this->option('id')) $q->where('doi', (string) $this->option('id'));
-        if ($this->option('status')) $q->where('status', (string) $this->option('status'));
+        if ($this->option('id')) {
+            $q->where('doi', (string) $this->option('id'));
+        }
+        if ($this->option('status')) {
+            $q->where('status', (string) $this->option('status'));
+        }
         if (! $this->option('all') && ! $this->option('id')) {
             $q->where('last_sync_at', '<', now()->subHours(24));
         }
         $limit = max(1, (int) $this->option('limit'));
         $rows = $q->orderBy('last_sync_at')->limit($limit)->get(['doi', 'information_object_id']);
 
-        $this->info("syncing " . $rows->count() . " DOIs" . ($this->option('dry-run') ? ' (dry-run)' : ''));
+        $this->info('syncing '.$rows->count().' DOIs'.($this->option('dry-run') ? ' (dry-run)' : ''));
         if ($this->option('queue')) {
-            foreach ($rows as $r) $svc->enqueue((int) $r->information_object_id, 'update');
-            $this->info("enqueued " . $rows->count() . " update jobs");
+            foreach ($rows as $r) {
+                $svc->enqueue((int) $r->information_object_id, 'update');
+            }
+            $this->info('enqueued '.$rows->count().' update jobs');
+
             return self::SUCCESS;
         }
 
-        $ok = 0; $fail = 0;
+        $ok = 0;
+        $fail = 0;
         foreach ($rows as $r) {
-            if ($this->option('dry-run')) { $this->line("  would sync {$r->doi}"); $ok++; continue; }
+            if ($this->option('dry-run')) {
+                $this->line("  would sync {$r->doi}");
+                $ok++;
+
+                continue;
+            }
             $res = $svc->update($r->doi);
-            if ($res['success']) $ok++;
-            else { $fail++; $this->line("  fail {$r->doi}: {$res['error']}"); }
+            if ($res['success']) {
+                $ok++;
+            } else {
+                $fail++;
+                $this->line("  fail {$r->doi}: {$res['error']}");
+            }
         }
         $this->info("done; ok={$ok} fail={$fail}");
+
         return $fail === 0 ? self::SUCCESS : self::FAILURE;
     }
 }

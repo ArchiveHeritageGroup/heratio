@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgApi\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -77,6 +75,7 @@ class ApiKeyService
             ->get()
             ->map(function ($key) {
                 $key->scopes = json_decode($key->scopes, true) ?: [];
+
                 return $key;
             })
             ->toArray();

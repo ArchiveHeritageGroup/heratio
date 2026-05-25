@@ -42,14 +42,14 @@ Route::get('/physicalobject/{slug}', [StorageController::class, 'show'])
 Route::get('/strongroom/browse', [StrongroomController::class, 'browse'])->name('strongroom.browse');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/strongroom/add',          [StrongroomController::class, 'create'])->name('strongroom.create');
-    Route::post('/strongroom/add',         [StrongroomController::class, 'store'])->name('strongroom.store')->middleware('acl:create');
-    Route::get('/strongroom/{slug}/edit',  [StrongroomController::class, 'edit'])->name('strongroom.edit');
+    Route::get('/strongroom/add', [StrongroomController::class, 'create'])->name('strongroom.create');
+    Route::post('/strongroom/add', [StrongroomController::class, 'store'])->name('strongroom.store')->middleware('acl:create');
+    Route::get('/strongroom/{slug}/edit', [StrongroomController::class, 'edit'])->name('strongroom.edit');
     Route::post('/strongroom/{slug}/edit', [StrongroomController::class, 'update'])->name('strongroom.update')->middleware('acl:update');
 });
 
 Route::middleware('admin')->group(function () {
-    Route::get('/strongroom/{slug}/delete',    [StrongroomController::class, 'confirmDelete'])->name('strongroom.confirmDelete');
+    Route::get('/strongroom/{slug}/delete', [StrongroomController::class, 'confirmDelete'])->name('strongroom.confirmDelete');
     Route::delete('/strongroom/{slug}/delete', [StrongroomController::class, 'destroy'])->name('strongroom.destroy')->middleware('acl:delete');
 });
 

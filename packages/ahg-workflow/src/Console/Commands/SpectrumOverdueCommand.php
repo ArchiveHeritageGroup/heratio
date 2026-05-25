@@ -40,7 +40,7 @@ class SpectrumOverdueCommand extends Command
         $inbox = (string) ($this->option('inbox') ?: '/var/spool/workbench/notifications');
         $dryRun = (bool) $this->option('dry-run');
 
-        $svc = new SpectrumComplianceService();
+        $svc = new SpectrumComplianceService;
         $overdue = $svc->findOverdue($days);
 
         $this->info(sprintf('Found %d overdue Spectrum task(s) past %d-day threshold.', count($overdue), $days));
@@ -53,6 +53,7 @@ class SpectrumOverdueCommand extends Command
                 ));
             }
             $this->warn('DRY RUN — no notifications written.');
+
             return self::SUCCESS;
         }
 
@@ -62,11 +63,13 @@ class SpectrumOverdueCommand extends Command
 
         if ($username === '') {
             $this->warn('No --notify=<username> set; skipping notification drop. Run with --notify=<name> to send notifications.');
+
             return self::SUCCESS;
         }
 
-        if (!is_dir($inbox)) {
+        if (! is_dir($inbox)) {
             $this->error("Workbench inbox directory does not exist: $inbox");
+
             return self::FAILURE;
         }
 
@@ -83,14 +86,14 @@ class SpectrumOverdueCommand extends Command
             $oldest = collect($rows)->min('created_at');
 
             $payload = [
-                'username'     => $username,
-                'title'        => sprintf('Spectrum overdue: %s (%d task%s)', $label, $count, $count === 1 ? '' : 's'),
-                'message'      => sprintf(
+                'username' => $username,
+                'title' => sprintf('Spectrum overdue: %s (%d task%s)', $label, $count, $count === 1 ? '' : 's'),
+                'message' => sprintf(
                     'There %s %d %s task%s past the %d-day overdue threshold. Oldest started %s.',
                     $count === 1 ? 'is' : 'are', $count, $label, $count === 1 ? '' : 's', $days, $oldest
                 ),
-                'eventType'    => 'spectrum_overdue',
-                'webLink'      => sprintf('/spectrum/dashboard?overdue_days=%d', $days),
+                'eventType' => 'spectrum_overdue',
+                'webLink' => sprintf('/spectrum/dashboard?overdue_days=%d', $days),
                 'deadlineHint' => null,
             ];
 
@@ -104,6 +107,7 @@ class SpectrumOverdueCommand extends Command
         }
 
         $this->info("Wrote $written notification(s) to $inbox");
+
         return self::SUCCESS;
     }
 }

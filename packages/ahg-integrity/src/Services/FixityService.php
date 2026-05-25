@@ -36,7 +36,7 @@ class FixityService
         if ($algorithm === '') {
             $algorithm = IntegritySettings::defaultAlgorithm();
         }
-        if (!file_exists($filePath) || !is_readable($filePath)) {
+        if (! file_exists($filePath) || ! is_readable($filePath)) {
             return null;
         }
 
@@ -58,18 +58,18 @@ class FixityService
         $startTime = microtime(true);
 
         $filePath = $this->getDigitalObjectPath($digitalObjectId);
-        if (!$filePath) {
+        if (! $filePath) {
             return [
-                'passed'      => false,
-                'outcome'     => 'missing',
-                'expected'    => null,
-                'actual'      => null,
+                'passed' => false,
+                'outcome' => 'missing',
+                'expected' => null,
+                'actual' => null,
                 'duration_ms' => (int) ((microtime(true) - $startTime) * 1000),
-                'file_path'   => null,
-                'file_size'   => null,
+                'file_path' => null,
+                'file_size' => null,
                 'file_exists' => false,
                 'file_readable' => false,
-                'error'       => 'Digital object not found or has no path.',
+                'error' => 'Digital object not found or has no path.',
             ];
         }
 
@@ -77,33 +77,33 @@ class FixityService
         $fileReadable = $fileExists && is_readable($filePath);
         $fileSize = $fileExists ? filesize($filePath) : null;
 
-        if (!$fileExists) {
+        if (! $fileExists) {
             return [
-                'passed'      => false,
-                'outcome'     => 'missing',
-                'expected'    => null,
-                'actual'      => null,
+                'passed' => false,
+                'outcome' => 'missing',
+                'expected' => null,
+                'actual' => null,
                 'duration_ms' => (int) ((microtime(true) - $startTime) * 1000),
-                'file_path'   => $filePath,
-                'file_size'   => null,
+                'file_path' => $filePath,
+                'file_size' => null,
                 'file_exists' => false,
                 'file_readable' => false,
-                'error'       => 'File does not exist on disk.',
+                'error' => 'File does not exist on disk.',
             ];
         }
 
-        if (!$fileReadable) {
+        if (! $fileReadable) {
             return [
-                'passed'      => false,
-                'outcome'     => 'error',
-                'expected'    => null,
-                'actual'      => null,
+                'passed' => false,
+                'outcome' => 'error',
+                'expected' => null,
+                'actual' => null,
                 'duration_ms' => (int) ((microtime(true) - $startTime) * 1000),
-                'file_path'   => $filePath,
-                'file_size'   => $fileSize,
+                'file_path' => $filePath,
+                'file_size' => $fileSize,
                 'file_exists' => true,
                 'file_readable' => false,
-                'error'       => 'File exists but is not readable.',
+                'error' => 'File exists but is not readable.',
             ];
         }
 
@@ -120,7 +120,7 @@ class FixityService
         }
 
         // Fall back to digital_object.checksum if preservation_checksum not available
-        if (!$expected) {
+        if (! $expected) {
             $do = DB::table('digital_object')->where('id', $digitalObjectId)->first();
             if ($do && $do->checksum && strtolower($do->checksum_type ?? '') === strtolower($algorithm)) {
                 $expected = $do->checksum;
@@ -131,13 +131,13 @@ class FixityService
 
         $passed = $expected && $actual && hash_equals($expected, $actual);
         $outcome = 'pass';
-        if (!$expected) {
+        if (! $expected) {
             $outcome = 'no_baseline';
             $passed = false;
-        } elseif (!$actual) {
+        } elseif (! $actual) {
             $outcome = 'error';
             $passed = false;
-        } elseif (!$passed) {
+        } elseif (! $passed) {
             $outcome = 'fail';
         }
 
@@ -148,7 +148,7 @@ class FixityService
             DB::table('preservation_checksum')
                 ->where('id', $checksumRow->id)
                 ->update([
-                    'verified_at'         => now(),
+                    'verified_at' => now(),
                     'verification_status' => $passed ? 'verified' : 'failed',
                 ]);
         }
@@ -158,19 +158,19 @@ class FixityService
         // the next scan still reports outcome='no_baseline' until an operator
         // explicitly creates one.
         if (Schema::hasTable('preservation_checksum')
-            && !isset($checksumRow)
+            && ! isset($checksumRow)
             && $actual
             && IntegritySettings::autoBaseline()
         ) {
             DB::table('preservation_checksum')->insert([
-                'digital_object_id'   => $digitalObjectId,
-                'algorithm'           => $algorithm,
-                'checksum_value'      => $actual,
-                'file_size'           => $fileSize,
-                'generated_at'        => now(),
-                'verified_at'         => now(),
+                'digital_object_id' => $digitalObjectId,
+                'algorithm' => $algorithm,
+                'checksum_value' => $actual,
+                'file_size' => $fileSize,
+                'generated_at' => now(),
+                'verified_at' => now(),
                 'verification_status' => 'verified',
-                'created_at'          => now(),
+                'created_at' => now(),
             ]);
         }
 
@@ -184,7 +184,7 @@ class FixityService
                 ? \AhgIntegrity\Services\IntegrityNotifier::ACTION_MISMATCH
                 : \AhgIntegrity\Services\IntegrityNotifier::ACTION_FAILURE;
             try {
-                (new IntegrityNotifier())->notify($action, [
+                (new IntegrityNotifier)->notify($action, [
                     'digital_object_id' => $digitalObjectId,
                     'algorithm' => $algorithm,
                     'expected' => $expected,
@@ -201,16 +201,16 @@ class FixityService
         }
 
         return [
-            'passed'        => $passed,
-            'outcome'       => $outcome,
-            'expected'      => $expected,
-            'actual'        => $actual,
-            'duration_ms'   => $durationMs,
-            'file_path'     => $filePath,
-            'file_size'     => $fileSize,
-            'file_exists'   => true,
+            'passed' => $passed,
+            'outcome' => $outcome,
+            'expected' => $expected,
+            'actual' => $actual,
+            'duration_ms' => $durationMs,
+            'file_path' => $filePath,
+            'file_size' => $fileSize,
+            'file_exists' => true,
             'file_readable' => true,
-            'error'         => null,
+            'error' => null,
         ];
     }
 
@@ -221,10 +221,10 @@ class FixityService
      * per-schedule overrides keep working.
      *
      * @param  ?int  $deadlineUnixTs  Optional wall-clock deadline (Unix ts).
-     *   When set, the loop breaks before the next iteration once `time()`
-     *   reaches it; honours integrity_default_max_runtime in scheduled
-     *   callers without forcing every consumer to thread their own check.
-     *   Returned array contains only objects processed before the deadline.
+     *                                When set, the loop breaks before the next iteration once `time()`
+     *                                reaches it; honours integrity_default_max_runtime in scheduled
+     *                                callers without forcing every consumer to thread their own check.
+     *                                Returned array contains only objects processed before the deadline.
      */
     public function batchVerify(array $objectIds, string $algorithm = '', int $throttleMs = -1, ?int $deadlineUnixTs = null): array
     {
@@ -301,7 +301,7 @@ class FixityService
             ->where('id', $digitalObjectId)
             ->first(['path']);
 
-        if (!$do || !$do->path) {
+        if (! $do || ! $do->path) {
             return null;
         }
 
@@ -312,6 +312,6 @@ class FixityService
             return $path;
         }
 
-        return rtrim(config('heratio.uploads_path', self::UPLOAD_ROOT), '/') . '/' . ltrim($path, '/');
+        return rtrim(config('heratio.uploads_path', self::UPLOAD_ROOT), '/').'/'.ltrim($path, '/');
     }
 }

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgExhibition\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -42,19 +40,19 @@ class ExhibitionService
     {
         $query = DB::table('exhibition');
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
-        if (!empty($filters['exhibition_type'])) {
+        if (! empty($filters['exhibition_type'])) {
             $query->where('exhibition_type', $filters['exhibition_type']);
         }
-        if (!empty($filters['year'])) {
+        if (! empty($filters['year'])) {
             $query->whereYear('start_date', $filters['year']);
         }
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
-                $q->where('title', 'LIKE', '%' . $filters['search'] . '%')
-                    ->orWhere('description', 'LIKE', '%' . $filters['search'] . '%');
+                $q->where('title', 'LIKE', '%'.$filters['search'].'%')
+                    ->orWhere('description', 'LIKE', '%'.$filters['search'].'%');
             });
         }
 
@@ -245,7 +243,7 @@ class ExhibitionService
      */
     public function getPendingChecklists(int $limit = 10): array
     {
-        if (!DB::getSchemaBuilder()->hasTable('exhibition_checklist')) {
+        if (! DB::getSchemaBuilder()->hasTable('exhibition_checklist')) {
             return [];
         }
 
@@ -271,7 +269,7 @@ class ExhibitionService
      */
     public function getRecentActivity(int $limit = 10): array
     {
-        if (!DB::getSchemaBuilder()->hasTable('exhibition_status_history')) {
+        if (! DB::getSchemaBuilder()->hasTable('exhibition_status_history')) {
             return [];
         }
 

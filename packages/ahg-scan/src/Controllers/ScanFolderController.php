@@ -9,7 +9,6 @@
 
 namespace AhgScan\Controllers;
 
-use AhgScan\Console\ScanWatchCommand;
 use AhgScan\Services\WatchedFolderService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -23,6 +22,7 @@ class ScanFolderController extends Controller
     public function index()
     {
         $folders = $this->service->list();
+
         return view('ahg-scan::admin.scan.folders.index', compact('folders'));
     }
 
@@ -42,6 +42,7 @@ class ScanFolderController extends Controller
         ];
         $parents = $this->parentOptions();
         $repositories = $this->repositoryOptions();
+
         return view('ahg-scan::admin.scan.folders.edit', compact('folder', 'parents', 'repositories'));
     }
 
@@ -50,6 +51,7 @@ class ScanFolderController extends Controller
         $data = $this->validateInput($request);
         $userId = (int) ($request->user()->id ?? 0);
         $id = $this->service->create($data, $userId);
+
         return redirect()->route('scan.folders.index')->with('notice', 'Watched folder created.');
     }
 
@@ -69,6 +71,7 @@ class ScanFolderController extends Controller
         abort_unless($folder, 404);
         $parents = $this->parentOptions();
         $repositories = $this->repositoryOptions();
+
         return view('ahg-scan::admin.scan.folders.edit', compact('folder', 'parents', 'repositories'));
     }
 
@@ -76,12 +79,14 @@ class ScanFolderController extends Controller
     {
         $data = $this->validateInput($request, $id);
         $this->service->update($id, $data);
+
         return redirect()->route('scan.folders.index')->with('notice', 'Watched folder updated.');
     }
 
     public function destroy(int $id)
     {
         $this->service->delete($id);
+
         return redirect()->route('scan.folders.index')->with('notice', 'Watched folder removed.');
     }
 
@@ -90,6 +95,7 @@ class ScanFolderController extends Controller
         $folder = $this->service->find($id);
         abort_unless($folder, 404);
         Artisan::call('ahg:scan-watch', ['--once' => true, '--folder' => $folder->code]);
+
         return redirect()->route('scan.folders.index')->with('notice', "Scan run for '{$folder->code}' completed.");
     }
 
@@ -114,7 +120,7 @@ class ScanFolderController extends Controller
             'notify_emails' => 'nullable|string|max:1024',
             'notify_on_failure' => 'nullable|boolean',
         ];
-        if (!$existingId) {
+        if (! $existingId) {
             $rules['code'] .= '|unique:scan_folder,code';
         }
         $data = $request->validate($rules);
@@ -138,9 +144,9 @@ class ScanFolderController extends Controller
             ->orderBy('i18n.title')
             ->limit(500)
             ->get()
-            ->map(fn($r) => [
+            ->map(fn ($r) => [
                 'id' => $r->id,
-                'label' => trim(($r->identifier ? "[{$r->identifier}] " : '') . ($r->title ?: 'Untitled')),
+                'label' => trim(($r->identifier ? "[{$r->identifier}] " : '').($r->title ?: 'Untitled')),
             ])
             ->toArray();
     }
@@ -154,7 +160,7 @@ class ScanFolderController extends Controller
             ->select('r.id', 'a.authorized_form_of_name as name')
             ->orderBy('a.authorized_form_of_name')
             ->get()
-            ->map(fn($r) => ['id' => $r->id, 'label' => $r->name ?: "Repo #{$r->id}"])
+            ->map(fn ($r) => ['id' => $r->id, 'label' => $r->name ?: "Repo #{$r->id}"])
             ->toArray();
     }
 }

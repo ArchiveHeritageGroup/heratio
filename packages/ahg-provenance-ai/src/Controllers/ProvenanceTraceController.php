@@ -84,12 +84,13 @@ use Illuminate\Support\Facades\DB;
 class ProvenanceTraceController extends Controller
 {
     private InferenceService $inferences;
-    private OverrideService  $overrides;
+
+    private OverrideService $overrides;
 
     public function __construct(InferenceService $inferences, OverrideService $overrides)
     {
         $this->inferences = $inferences;
-        $this->overrides  = $overrides;
+        $this->overrides = $overrides;
     }
 
     /**
@@ -124,14 +125,14 @@ class ProvenanceTraceController extends Controller
         ksort($byField);
 
         return response()->json([
-            'ok'      => true,
-            'entity'  => ['type' => $entityType, 'id' => $id],
+            'ok' => true,
+            'entity' => ['type' => $entityType, 'id' => $id],
             'summary' => [
-                'inference_count'  => count($inferences),
-                'override_count'   => $totalOverrides,
-                'fields_touched'   => count($byField),
+                'inference_count' => count($inferences),
+                'override_count' => $totalOverrides,
+                'fields_touched' => count($byField),
             ],
-            'fields'  => $byField,
+            'fields' => $byField,
         ]);
     }
 
@@ -156,14 +157,14 @@ class ProvenanceTraceController extends Controller
             ->get();
 
         return response()->json([
-            'ok'    => true,
+            'ok' => true,
             'since' => $since->toIso8601ZuluString(),
-            'days'  => $days,
+            'days' => $days,
             'by_service' => $rows->map(fn ($r) => [
-                'service'         => $r->service_name,
-                'count'           => (int) $r->n,
-                'avg_confidence'  => $r->avg_confidence !== null ? (float) $r->avg_confidence : null,
-                'fuseki_pending'  => (int) $r->fuseki_pending,
+                'service' => $r->service_name,
+                'count' => (int) $r->n,
+                'avg_confidence' => $r->avg_confidence !== null ? (float) $r->avg_confidence : null,
+                'fuseki_pending' => (int) $r->fuseki_pending,
             ])->all(),
         ]);
     }
@@ -171,37 +172,37 @@ class ProvenanceTraceController extends Controller
     private function shapeInference(object $r): array
     {
         return [
-            'id'              => (int) $r->id,
-            'uuid'            => $r->uuid,
-            'service'         => $r->service_name,
-            'model'           => $r->model_name,
-            'version'         => $r->model_version,
-            'confidence'      => $r->confidence !== null ? (float) $r->confidence : null,
-            'standard'        => $r->standard,
-            'input_hash'      => $r->input_hash,
-            'output_hash'     => $r->output_hash,
-            'input_excerpt'   => $r->input_excerpt,
-            'output_excerpt'  => $r->output_excerpt,
-            'endpoint'        => $r->endpoint,
-            'elapsed_ms'      => $r->elapsed_ms !== null ? (int) $r->elapsed_ms : null,
-            'occurred_at'     => $r->occurred_at,
-            'fuseki_graph_uri'=> $r->fuseki_graph_uri,
-            'user_id'         => $r->user_id !== null ? (int) $r->user_id : null,
+            'id' => (int) $r->id,
+            'uuid' => $r->uuid,
+            'service' => $r->service_name,
+            'model' => $r->model_name,
+            'version' => $r->model_version,
+            'confidence' => $r->confidence !== null ? (float) $r->confidence : null,
+            'standard' => $r->standard,
+            'input_hash' => $r->input_hash,
+            'output_hash' => $r->output_hash,
+            'input_excerpt' => $r->input_excerpt,
+            'output_excerpt' => $r->output_excerpt,
+            'endpoint' => $r->endpoint,
+            'elapsed_ms' => $r->elapsed_ms !== null ? (int) $r->elapsed_ms : null,
+            'occurred_at' => $r->occurred_at,
+            'fuseki_graph_uri' => $r->fuseki_graph_uri,
+            'user_id' => $r->user_id !== null ? (int) $r->user_id : null,
         ];
     }
 
     private function shapeOverride(object $r): array
     {
         return [
-            'id'                 => (int) $r->id,
-            'uuid'               => $r->uuid,
-            'reviewer_user_id'   => (int) $r->reviewer_user_id,
-            'reason'             => $r->reason,
-            'original'           => $r->original_value,
-            'new'                => $r->override_value,
-            'status'             => $r->status,
-            'occurred_at'        => $r->occurred_at,
-            'fuseki_override_uri'=> $r->fuseki_override_uri,
+            'id' => (int) $r->id,
+            'uuid' => $r->uuid,
+            'reviewer_user_id' => (int) $r->reviewer_user_id,
+            'reason' => $r->reason,
+            'original' => $r->original_value,
+            'new' => $r->override_value,
+            'status' => $r->status,
+            'occurred_at' => $r->occurred_at,
+            'fuseki_override_uri' => $r->fuseki_override_uri,
         ];
     }
 
@@ -213,10 +214,12 @@ class ProvenanceTraceController extends Controller
     private function effectiveValue(object $inference, array $overrides): ?string
     {
         $applied = array_values(array_filter($overrides, fn ($o) => $o->status === 'applied'));
-        if (!empty($applied)) {
+        if (! empty($applied)) {
             $last = end($applied);
+
             return $last->override_value;
         }
+
         return $inference->output_excerpt;
     }
 
@@ -228,6 +231,7 @@ class ProvenanceTraceController extends Controller
     {
         $allowed = ['information_object', 'actor', 'repository', 'term', 'museum_metadata'];
         $entityType = strtolower($entityType);
+
         return in_array($entityType, $allowed, true) ? $entityType : null;
     }
 }

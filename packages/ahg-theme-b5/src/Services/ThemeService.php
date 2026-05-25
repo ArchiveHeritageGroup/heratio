@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgThemeB5\Services;
 
 use AhgCore\Services\AclService;
@@ -141,7 +139,7 @@ class ThemeService
 
         // Strip leading "public/" — DB occasionally stores it but the served URL must not include it
         $webPath = preg_replace('#^public/#', '', $logoPath);
-        $webPath = '/' . ltrim($webPath, '/');
+        $webPath = '/'.ltrim($webPath, '/');
 
         // 1. File under this install's public/
         if (file_exists(public_path(ltrim($webPath, '/')))) {
@@ -151,7 +149,7 @@ class ThemeService
         // 2. File under HERATIO_UPLOADS_PATH (served by nginx via /uploads/ alias)
         if (str_starts_with($webPath, '/uploads/')) {
             $uploadsBase = rtrim((string) config('heratio.uploads_path', ''), '/');
-            if ($uploadsBase && file_exists($uploadsBase . '/' . substr($webPath, strlen('/uploads/')))) {
+            if ($uploadsBase && file_exists($uploadsBase.'/'.substr($webPath, strlen('/uploads/')))) {
                 return $webPath;
             }
         }
@@ -166,11 +164,11 @@ class ThemeService
      */
     private function findBundle(string $subdir, string $pattern): ?string
     {
-        $distPath = public_path('vendor/ahg-theme-b5/dist/' . $subdir);
-        $files = glob($distPath . '/' . $pattern);
+        $distPath = public_path('vendor/ahg-theme-b5/dist/'.$subdir);
+        $files = glob($distPath.'/'.$pattern);
 
         if (! empty($files)) {
-            return '/vendor/ahg-theme-b5/dist/' . $subdir . '/' . basename($files[0]);
+            return '/vendor/ahg-theme-b5/dist/'.$subdir.'/'.basename($files[0]);
         }
 
         return null;

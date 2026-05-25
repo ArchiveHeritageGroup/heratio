@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgRightsHolderManage\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -41,6 +39,7 @@ class RightsAdminController extends Controller
             'active_embargoes' => Schema::hasTable('embargo') ? DB::table('embargo')->where('is_active', true)->count() : 0,
             'orphan_works' => Schema::hasTable('rights_orphan_work') ? DB::table('rights_orphan_work')->count() : 0,
         ];
+
         return view('ahg-rights-holder-manage::rightsAdmin.index', compact('stats'));
     }
 
@@ -52,19 +51,23 @@ class RightsAdminController extends Controller
             $embargoes = DB::table('embargo')
                 ->leftJoin('information_object_i18n', function ($j) use ($culture) {
                     $j->on('embargo.object_id', '=', 'information_object_i18n.id')
-                      ->where('information_object_i18n.culture', '=', $culture);
+                        ->where('information_object_i18n.culture', '=', $culture);
                 })
                 ->select('embargo.*', 'information_object_i18n.title')
                 ->orderBy('embargo.created_at', 'desc')
                 ->get();
         }
+
         return view('ahg-rights-holder-manage::rightsAdmin.embargoes', compact('embargoes'));
     }
 
     public function embargoEdit(int $id)
     {
         $embargo = Schema::hasTable('embargo') ? DB::table('embargo')->where('id', $id)->first() : null;
-        if (!$embargo) abort(404);
+        if (! $embargo) {
+            abort(404);
+        }
+
         return view('ahg-rights-holder-manage::rightsAdmin.embargo-edit', compact('embargo'));
     }
 
@@ -81,19 +84,24 @@ class RightsAdminController extends Controller
                 'updated_at' => now(),
             ]);
         }
+
         return redirect()->route('rights-admin.embargoes')->with('success', 'Embargo updated.');
     }
 
     public function orphanWorks()
     {
         $orphanWorks = Schema::hasTable('rights_orphan_work') ? DB::table('rights_orphan_work')->orderBy('created_at', 'desc')->get() : collect();
+
         return view('ahg-rights-holder-manage::rightsAdmin.orphan-works', compact('orphanWorks'));
     }
 
     public function orphanWorkEdit(int $id)
     {
         $orphanWork = Schema::hasTable('rights_orphan_work') ? DB::table('rights_orphan_work')->where('id', $id)->first() : null;
-        if (!$orphanWork) abort(404);
+        if (! $orphanWork) {
+            abort(404);
+        }
+
         return view('ahg-rights-holder-manage::rightsAdmin.orphan-work-edit', compact('orphanWork'));
     }
 
@@ -104,11 +112,12 @@ class RightsAdminController extends Controller
         if (Schema::hasTable('rights_orphan_work')) {
             DB::table('rights_orphan_work')->where('id', $id)->update([
                 'search_started_date' => $request->input('designation_date'),
-                'status'              => $request->input('search_status'),
-                'contact_response'    => $request->input('search_notes'),
-                'updated_at'          => now(),
+                'status' => $request->input('search_status'),
+                'contact_response' => $request->input('search_notes'),
+                'updated_at' => now(),
             ]);
         }
+
         return redirect()->route('rights-admin.orphan-works')->with('success', 'Orphan work updated.');
     }
 
@@ -157,12 +166,14 @@ class RightsAdminController extends Controller
     public function statements()
     {
         $statements = Schema::hasTable('rights_statement') ? DB::table('rights_statement')->orderBy('sort_order')->get() : collect();
+
         return view('ahg-rights-holder-manage::rightsAdmin.statements', compact('statements'));
     }
 
     public function tkLabels()
     {
         $tkLabels = Schema::hasTable('rights_tk_label') ? DB::table('rights_tk_label')->orderBy('sort_order')->get() : collect();
+
         return view('ahg-rights-holder-manage::rightsAdmin.tk-labels', compact('tkLabels'));
     }
 }

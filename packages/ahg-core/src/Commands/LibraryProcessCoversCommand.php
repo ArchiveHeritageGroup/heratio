@@ -24,19 +24,30 @@ class LibraryProcessCoversCommand extends Command
 
     public function handle(): int
     {
-        if (! Schema::hasTable('library_item')) { $this->warn('library_item missing'); return self::SUCCESS; }
+        if (! Schema::hasTable('library_item')) {
+            $this->warn('library_item missing');
+
+            return self::SUCCESS;
+        }
         $limit = $this->option('limit') ? max(1, (int) $this->option('limit')) : 200;
 
         $q = DB::table('library_item')->whereNotNull('isbn');
-        if ($this->option('missing-only')) $q->whereNull('cover_url');
+        if ($this->option('missing-only')) {
+            $q->whereNull('cover_url');
+        }
 
         $rows = $q->limit($limit)->get(['id', 'isbn']);
         $this->info("processing {$rows->count()} items");
 
-        $found = 0; $missing = 0;
+        $found = 0;
+        $missing = 0;
         foreach ($rows as $r) {
             $isbn = preg_replace('/[^0-9Xx]/', '', (string) $r->isbn);
-            if (strlen($isbn) < 10) { $missing++; continue; }
+            if (strlen($isbn) < 10) {
+                $missing++;
+
+                continue;
+            }
             $url = "https://covers.openlibrary.org/b/isbn/{$isbn}-L.jpg?default=false";
             try {
                 $resp = Http::timeout(8)->head($url);
@@ -50,9 +61,12 @@ class LibraryProcessCoversCommand extends Command
                 } else {
                     $missing++;
                 }
-            } catch (\Throwable $e) { $missing++; }
+            } catch (\Throwable $e) {
+                $missing++;
+            }
         }
         $this->info("found={$found} missing={$missing}");
+
         return self::SUCCESS;
     }
 }

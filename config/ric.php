@@ -8,8 +8,8 @@ return [
     |--------------------------------------------------------------------------
     */
     'fuseki' => [
-        'url'      => env('FUSEKI_URL', 'http://localhost:3030/ric'),
-        'user'     => env('FUSEKI_USER', ''),
+        'url' => env('FUSEKI_URL', 'http://localhost:3030/ric'),
+        'user' => env('FUSEKI_USER', ''),
         'password' => env('FUSEKI_PASSWORD', ''),
     ],
 
@@ -19,7 +19,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'qdrant' => [
-        'url'        => env('QDRANT_URL', 'http://localhost:6333'),
+        'url' => env('QDRANT_URL', 'http://localhost:6333'),
         'collection' => env('QDRANT_COLLECTION', 'archive_records'),
     ],
 
@@ -50,8 +50,8 @@ return [
     | cookie for auth. When api_url points at a different host (post-split),
     | Heratio switches to X-API-Key auth using service_key.
     */
-    'api_url'      => env('RIC_API_URL'),
-    'service_key'  => env('RIC_SERVICE_API_KEY'),
+    'api_url' => env('RIC_API_URL'),
+    'service_key' => env('RIC_SERVICE_API_KEY'),
     'http_timeout' => (int) env('RIC_HTTP_TIMEOUT', 5),
 
 ];

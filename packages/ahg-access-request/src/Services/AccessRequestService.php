@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgAccessRequest\Services;
 
 use AhgAccessRequest\Mail\AccessRequestApprovedMail;
@@ -32,7 +30,6 @@ use AhgAccessRequest\Mail\AccessRequestDeniedMail;
 use AhgAccessRequest\Mail\AccessRequestPendingMail;
 use AhgAccessRequest\Mail\AccessRequestSubmittedMail;
 use AhgCore\Services\AhgSettingsService;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -58,7 +55,7 @@ class AccessRequestService
      */
     private function trySend(string $email, $mailable, string $context): void
     {
-        if (!$this->notificationsEnabled() || empty($email)) {
+        if (! $this->notificationsEnabled() || empty($email)) {
             return;
         }
         try {
@@ -94,9 +91,9 @@ class AccessRequestService
             ->where('u.id', $userId)
             ->select('u.email', 'a.authorized_form_of_name as name')
             ->first();
-        return $row->name ?? $row->email ?? ('User #' . $userId);
-    }
 
+        return $row->name ?? $row->email ?? ('User #'.$userId);
+    }
 
     /**
      * Browse all access requests (admin view).
@@ -107,7 +104,7 @@ class AccessRequestService
             ->leftJoin('user', 'access_request.user_id', '=', 'user.id')
             ->leftJoin('actor_i18n', function ($join) {
                 $join->on('user.id', '=', 'actor_i18n.id')
-                     ->where('actor_i18n.culture', '=', 'en');
+                    ->where('actor_i18n.culture', '=', 'en');
             })
             ->select(
                 'access_request.*',
@@ -126,7 +123,7 @@ class AccessRequestService
             ->leftJoin('user', 'access_request.user_id', '=', 'user.id')
             ->leftJoin('actor_i18n', function ($join) {
                 $join->on('user.id', '=', 'actor_i18n.id')
-                     ->where('actor_i18n.culture', '=', 'en');
+                    ->where('actor_i18n.culture', '=', 'en');
             })
             ->where('access_request.status', '=', 'pending')
             ->select(
@@ -157,7 +154,7 @@ class AccessRequestService
             ->leftJoin('user', 'access_request.user_id', '=', 'user.id')
             ->leftJoin('actor_i18n', function ($join) {
                 $join->on('user.id', '=', 'actor_i18n.id')
-                     ->where('actor_i18n.culture', '=', 'en');
+                    ->where('actor_i18n.culture', '=', 'en');
             })
             ->where('access_request.id', $id)
             ->select('access_request.*', 'actor_i18n.authorized_form_of_name as user_name')
@@ -173,7 +170,7 @@ class AccessRequestService
             ->join('user', 'access_request_approver.user_id', '=', 'user.id')
             ->leftJoin('actor_i18n', function ($join) {
                 $join->on('user.id', '=', 'actor_i18n.id')
-                     ->where('actor_i18n.culture', '=', 'en');
+                    ->where('actor_i18n.culture', '=', 'en');
             })
             ->select(
                 'access_request_approver.*',
@@ -196,11 +193,11 @@ class AccessRequestService
         // Combine subject + reason + justification into the single justification
         // column (the security_access_request schema is flatter than access_request).
         $justificationParts = [];
-        if (!empty($data['reason'])) {
+        if (! empty($data['reason'])) {
             $justificationParts[] = $data['reason'];
         }
-        if (!empty($data['justification'])) {
-            $justificationParts[] = "Justification: " . $data['justification'];
+        if (! empty($data['justification'])) {
+            $justificationParts[] = 'Justification: '.$data['justification'];
         }
         $justification = implode("\n\n", $justificationParts) ?: '(no details provided)';
 
@@ -208,15 +205,15 @@ class AccessRequestService
         $priority = $data['urgency'] ?? 'normal';
 
         $newId = DB::table('security_access_request')->insertGetId([
-            'user_id'           => $userId,
-            'request_type'      => $data['request_type'] ?? 'clearance',
+            'user_id' => $userId,
+            'request_type' => $data['request_type'] ?? 'clearance',
             'classification_id' => $data['object_id'] ?? null,
-            'object_id'         => $data['target_object_id'] ?? null,
-            'justification'     => $justification,
-            'priority'          => $priority,
-            'status'            => 'pending',
-            'created_at'        => now(),
-            'updated_at'        => now(),
+            'object_id' => $data['target_object_id'] ?? null,
+            'justification' => $justification,
+            'priority' => $priority,
+            'status' => 'pending',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         // #95: notify requester (acknowledgement) + every active approver
@@ -238,7 +235,7 @@ class AccessRequestService
 
             $requesterName = $this->displayNameFor($userId);
             foreach ($this->getApprovers() as $approver) {
-                if (!empty($approver->email)) {
+                if (! empty($approver->email)) {
                     $this->trySend(
                         (string) $approver->email,
                         new AccessRequestPendingMail($created, $requesterName),
@@ -260,11 +257,11 @@ class AccessRequestService
         $affected = DB::table('access_request')
             ->where('id', $id)
             ->update([
-                'status'       => 'approved',
-                'reviewed_by'  => $reviewerId,
-                'reviewed_at'  => $reviewedAt,
+                'status' => 'approved',
+                'reviewed_by' => $reviewerId,
+                'reviewed_at' => $reviewedAt,
                 'review_notes' => $notes,
-                'updated_at'   => $reviewedAt,
+                'updated_at' => $reviewedAt,
             ]) > 0;
 
         // #95: notify the requester their request was approved. Look up the
@@ -289,7 +286,7 @@ class AccessRequestService
             ->where('user_id', $userId)
             ->whereIn('status', ['pending', 'approved'])
             ->update([
-                'status'     => 'cancelled',
+                'status' => 'cancelled',
                 'updated_at' => now(),
             ]) > 0;
     }
@@ -303,11 +300,11 @@ class AccessRequestService
         $affected = DB::table('access_request')
             ->where('id', $id)
             ->update([
-                'status'       => 'denied',
-                'reviewed_by'  => $reviewerId,
-                'reviewed_at'  => $reviewedAt,
+                'status' => 'denied',
+                'reviewed_by' => $reviewerId,
+                'reviewed_at' => $reviewedAt,
                 'review_notes' => $reason,
-                'updated_at'   => $reviewedAt,
+                'updated_at' => $reviewedAt,
             ]) > 0;
 
         // #95: notify the requester their request was denied + the reason.
@@ -329,8 +326,8 @@ class AccessRequestService
     public function addApprover(int $userId): int
     {
         return DB::table('access_request_approver')->insertGetId([
-            'user_id'    => $userId,
-            'active'     => 1,
+            'user_id' => $userId,
+            'active' => 1,
             'created_at' => now(),
         ]);
     }

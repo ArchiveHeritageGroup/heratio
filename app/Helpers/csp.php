@@ -16,7 +16,6 @@
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
  */
-
 if (! function_exists('csp_nonce')) {
     function csp_nonce(): string
     {

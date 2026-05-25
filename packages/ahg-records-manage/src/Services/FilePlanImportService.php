@@ -51,7 +51,7 @@ class FilePlanImportService
             $allCodes = [];
             foreach ($rows as $row) {
                 $codeCol = $columnMapping['code'] ?? null;
-                if ($codeCol && !empty($row[$codeCol])) {
+                if ($codeCol && ! empty($row[$codeCol])) {
                     $allCodes[] = trim((string) $row[$codeCol]);
                 }
             }
@@ -75,7 +75,8 @@ class FilePlanImportService
                 }
 
                 if (empty($code)) {
-                    $errors[] = "Row " . ($rowIdx + 2) . ": Missing code";
+                    $errors[] = 'Row '.($rowIdx + 2).': Missing code';
+
                     continue;
                 }
 
@@ -100,6 +101,7 @@ class FilePlanImportService
                 if ($aDepth === $bDepth) {
                     return strcmp($a['code'], $b['code']);
                 }
+
                 return $aDepth - $bDepth;
             });
 
@@ -126,7 +128,7 @@ class FilePlanImportService
                         array_pop($ancestorCodes); // Remove the current code
 
                         foreach ($ancestorCodes as $ancestorCode) {
-                            if (!isset($codeToId[$ancestorCode])) {
+                            if (! isset($codeToId[$ancestorCode])) {
                                 $ancestorParentCode = $this->getParentCode($ancestorCode, $separator);
                                 $ancestorParentId = $ancestorParentCode ? ($codeToId[$ancestorParentCode] ?? null) : null;
 
@@ -170,6 +172,7 @@ class FilePlanImportService
                             'import_session_id' => $sessionId,
                             'updated_at' => now(),
                         ]);
+
                     continue;
                 }
 
@@ -209,11 +212,11 @@ class FilePlanImportService
                     'status' => 'completed',
                     'total_nodes' => count($dataRows),
                     'imported_nodes' => $importedCount,
-                    'errors_json' => !empty($errors) ? json_encode($errors) : null,
+                    'errors_json' => ! empty($errors) ? json_encode($errors) : null,
                     'completed_at' => now(),
                 ]);
         } catch (\Exception $e) {
-            $errors[] = 'Import failed: ' . $e->getMessage();
+            $errors[] = 'Import failed: '.$e->getMessage();
 
             DB::table('rm_fileplan_import_session')
                 ->where('id', $sessionId)
@@ -255,7 +258,7 @@ class FilePlanImportService
         $importedCount = 0;
 
         try {
-            if (!is_dir($directoryPath)) {
+            if (! is_dir($directoryPath)) {
                 throw new \RuntimeException("Directory not found: {$directoryPath}");
             }
 
@@ -272,7 +275,7 @@ class FilePlanImportService
                     'completed_at' => now(),
                 ]);
         } catch (\Exception $e) {
-            $errors[] = 'Import failed: ' . $e->getMessage();
+            $errors[] = 'Import failed: '.$e->getMessage();
 
             DB::table('rm_fileplan_import_session')
                 ->where('id', $sessionId)
@@ -313,20 +316,20 @@ class FilePlanImportService
                 continue;
             }
 
-            $fullPath = $path . '/' . $entry;
+            $fullPath = $path.'/'.$entry;
 
-            if (!is_dir($fullPath)) {
+            if (! is_dir($fullPath)) {
                 continue;
             }
 
             $position++;
             $parsed = $this->parseFolderName($entry);
-            $code = $parsed['code'] ?: ($codePrefix ? $codePrefix . '/' . $position : (string) $position);
+            $code = $parsed['code'] ?: ($codePrefix ? $codePrefix.'/'.$position : (string) $position);
             $title = $parsed['title'] ?: $entry;
 
             // Count files in this folder
             $fileCount = count(array_filter(scandir($fullPath), function ($f) use ($fullPath) {
-                return $f !== '.' && $f !== '..' && is_file($fullPath . '/' . $f);
+                return $f !== '.' && $f !== '..' && is_file($fullPath.'/'.$f);
             }));
 
             $nodeId = DB::table('rm_fileplan_node')->insertGetId([
@@ -370,6 +373,7 @@ class FilePlanImportService
         // Pattern: "code - title"
         if (str_contains($name, ' - ')) {
             $parts = explode(' - ', $name, 2);
+
             return ['code' => trim($parts[0]), 'title' => trim($parts[1])];
         }
 
@@ -405,7 +409,7 @@ class FilePlanImportService
         $importedCount = 0;
 
         try {
-            $dom = new \DOMDocument();
+            $dom = new \DOMDocument;
             $dom->load($filePath);
 
             if ($format === 'ead') {
@@ -425,7 +429,7 @@ class FilePlanImportService
                     'completed_at' => now(),
                 ]);
         } catch (\Exception $e) {
-            $errors[] = 'XML import failed: ' . $e->getMessage();
+            $errors[] = 'XML import failed: '.$e->getMessage();
 
             DB::table('rm_fileplan_import_session')
                 ->where('id', $sessionId)
@@ -501,7 +505,7 @@ class FilePlanImportService
             }
 
             if (empty($code)) {
-                $code = 'ead-' . ($importedCount + 1);
+                $code = 'ead-'.($importedCount + 1);
             }
             if (empty($title)) {
                 $title = $code;
@@ -552,13 +556,14 @@ class FilePlanImportService
         $targetTags = ['node', 'item', 'class', 'series', 'record', 'category', 'entry'];
 
         foreach ($parentElement->childNodes as $child) {
-            if (!($child instanceof \DOMElement)) {
+            if (! ($child instanceof \DOMElement)) {
                 continue;
             }
 
-            if (!in_array(strtolower($child->tagName), $targetTags)) {
+            if (! in_array(strtolower($child->tagName), $targetTags)) {
                 // Recurse into non-target elements to find nested targets
                 $this->importGenericXmlNodes($dom, $sessionId, $department, $agencyCode, $userId, $importedCount, $errors, $child, $parentId, $depth);
+
                 continue;
             }
 
@@ -581,7 +586,7 @@ class FilePlanImportService
             }
 
             if (empty($code)) {
-                $code = 'xml-' . ($importedCount + 1);
+                $code = 'xml-'.($importedCount + 1);
             }
             if (empty($title)) {
                 $title = $code;
@@ -621,7 +626,7 @@ class FilePlanImportService
         $current = '';
 
         foreach ($segments as $i => $segment) {
-            $current = $i === 0 ? $segment : $current . $separator . $segment;
+            $current = $i === 0 ? $segment : $current.$separator.$segment;
             $result[] = $current;
         }
 
@@ -638,6 +643,7 @@ class FilePlanImportService
             return null;
         }
         array_pop($segments);
+
         return implode($separator, $segments);
     }
 
@@ -724,7 +730,7 @@ class FilePlanImportService
                 $errors[] = "Row {$rowNum}: Missing title";
             }
 
-            if (!empty($code)) {
+            if (! empty($code)) {
                 if (in_array($code, $codes)) {
                     $errors[] = "Row {$rowNum}: Duplicate code '{$code}'";
                 }
@@ -733,14 +739,14 @@ class FilePlanImportService
         }
 
         // Check parent codes exist
-        if (!empty($codes)) {
+        if (! empty($codes)) {
             $separator = $this->detectSeparator($codes);
             foreach ($codes as $code) {
                 $parentCode = $this->getParentCode($code, $separator);
-                if ($parentCode !== null && !in_array($parentCode, $codes)) {
+                if ($parentCode !== null && ! in_array($parentCode, $codes)) {
                     // Check if parent exists in DB
                     $existing = DB::table('rm_fileplan_node')->where('code', $parentCode)->exists();
-                    if (!$existing) {
+                    if (! $existing) {
                         $errors[] = "Code '{$code}': parent code '{$parentCode}' not found (will be auto-created as placeholder)";
                     }
                 }
@@ -764,7 +770,7 @@ class FilePlanImportService
         foreach ($nodes as $node) {
             // Find IOs whose identifier starts with the node's code
             $matchingIos = DB::table('information_object')
-                ->where('identifier', 'LIKE', $node->code . '%')
+                ->where('identifier', 'LIKE', $node->code.'%')
                 ->pluck('id');
 
             if ($matchingIos->isEmpty()) {
@@ -779,7 +785,7 @@ class FilePlanImportService
                         ->where('disposal_class_id', $node->disposal_class_id)
                         ->exists();
 
-                    if (!$exists) {
+                    if (! $exists) {
                         DB::table('rm_record_disposal_class')->insert([
                             'information_object_id' => $ioId,
                             'disposal_class_id' => $node->disposal_class_id,

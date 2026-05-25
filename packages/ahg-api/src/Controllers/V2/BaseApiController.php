@@ -51,10 +51,10 @@ abstract class BaseApiController extends Controller
 
         $links = ['self' => "{$baseUrl}?page={$page}&limit={$limit}"];
         if ($page < $lastPage) {
-            $links['next'] = "{$baseUrl}?page=" . ($page + 1) . "&limit={$limit}";
+            $links['next'] = "{$baseUrl}?page=".($page + 1)."&limit={$limit}";
         }
         if ($page > 1) {
-            $links['prev'] = "{$baseUrl}?page=" . ($page - 1) . "&limit={$limit}";
+            $links['prev'] = "{$baseUrl}?page=".($page - 1)."&limit={$limit}";
         }
 
         return response()->json([
@@ -90,9 +90,10 @@ abstract class BaseApiController extends Controller
      */
     protected function termName(?int $termId): ?string
     {
-        if (!$termId) {
+        if (! $termId) {
             return null;
         }
+
         return DB::table('term_i18n')
             ->where('id', $termId)
             ->where('culture', $this->culture)
@@ -121,6 +122,7 @@ abstract class BaseApiController extends Controller
     protected function hasScope(Request $request, string $scope): bool
     {
         $scopes = $request->attributes->get('api_scopes', []);
+
         return in_array($scope, $scopes);
     }
 

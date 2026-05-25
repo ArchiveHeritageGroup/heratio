@@ -34,12 +34,16 @@ class ScanInboxController extends Controller
                 'sf.code as folder_code', 'sf.label as folder_label'
             );
 
-        if ($status) { $query->where('f.status', $status); }
-        if ($folder) { $query->where('sf.code', $folder); }
+        if ($status) {
+            $query->where('f.status', $status);
+        }
+        if ($folder) {
+            $query->where('sf.code', $folder);
+        }
         if ($q) {
             $query->where(function ($w) use ($q) {
                 $w->where('f.original_name', 'like', "%{$q}%")
-                  ->orWhere('f.stored_path', 'like', "%{$q}%");
+                    ->orWhere('f.stored_path', 'like', "%{$q}%");
             });
         }
 
@@ -126,6 +130,7 @@ class ScanInboxController extends Controller
             'completed_at' => null,
         ]);
         \AhgScan\Jobs\ProcessScanFile::dispatch($id, null);
+
         return redirect()->route('scan.inbox.show', $id)->with('notice', 'File restored from quarantine; retry dispatched.');
     }
 
@@ -137,7 +142,7 @@ class ScanInboxController extends Controller
     {
         $ids = $request->input('ids', []);
         $action = $request->input('action', '');
-        if (!is_array($ids) || empty($ids)) {
+        if (! is_array($ids) || empty($ids)) {
             return redirect()->back()->with('error', 'No files selected.');
         }
         $ids = array_values(array_filter(array_map('intval', $ids)));
@@ -147,13 +152,16 @@ class ScanInboxController extends Controller
             case 'retry':
                 foreach ($ids as $id) {
                     $f = DB::table('ingest_file')->where('id', $id)->first();
-                    if (!$f || !in_array($f->status, ['failed', 'pending', 'quarantined'])) { continue; }
+                    if (! $f || ! in_array($f->status, ['failed', 'pending', 'quarantined'])) {
+                        continue;
+                    }
                     DB::table('ingest_file')->where('id', $id)->update([
                         'status' => 'pending', 'stage' => null, 'error_message' => null, 'completed_at' => null,
                     ]);
                     \AhgScan\Jobs\ProcessScanFile::dispatch($id, null);
                     $count++;
                 }
+
                 return redirect()->route('scan.inbox.index', $request->except(['ids', 'action', '_token']))
                     ->with('notice', "Dispatched {$count} retry(s).");
 
@@ -167,11 +175,12 @@ class ScanInboxController extends Controller
                         'error_message' => 'Discarded by admin (bulk)',
                         'completed_at' => now(),
                     ]);
+
                 return redirect()->route('scan.inbox.index', $request->except(['ids', 'action', '_token']))
                     ->with('notice', "Discarded {$count} file(s).");
 
             default:
-                return redirect()->back()->with('error', 'Unknown bulk action: ' . $action);
+                return redirect()->back()->with('error', 'Unknown bulk action: '.$action);
         }
     }
 
@@ -202,9 +211,10 @@ class ScanInboxController extends Controller
         } catch (\Throwable $e) {
             DB::table('ingest_file')->where('id', $id)->update([
                 'status' => 'failed',
-                'error_message' => 'Resume failed: ' . $e->getMessage(),
+                'error_message' => 'Resume failed: '.$e->getMessage(),
             ]);
-            return redirect()->route('scan.inbox.show', $id)->with('error', 'Resume failed: ' . $e->getMessage());
+
+            return redirect()->route('scan.inbox.show', $id)->with('error', 'Resume failed: '.$e->getMessage());
         }
 
         return redirect()->route('scan.inbox.show', $id)->with('notice', 'Rights released; pipeline resumed.');

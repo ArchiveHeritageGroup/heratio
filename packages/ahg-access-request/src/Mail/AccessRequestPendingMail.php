@@ -44,7 +44,7 @@ class AccessRequestPendingMail extends Mailable implements ShouldQueue
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Access request pending review - #' . $this->request->id);
+        return new Envelope(subject: 'Access request pending review - #'.$this->request->id);
     }
 
     public function content(): Content
@@ -52,5 +52,8 @@ class AccessRequestPendingMail extends Mailable implements ShouldQueue
         return new Content(view: 'ahg-access-request::emails.pending');
     }
 
-    public function attachments(): array { return []; }
+    public function attachments(): array
+    {
+        return [];
+    }
 }

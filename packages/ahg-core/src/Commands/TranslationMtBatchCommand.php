@@ -66,6 +66,7 @@ class TranslationMtBatchCommand extends Command
         if ($this->option('all-enabled')) {
             if (! Schema::hasTable('setting')) {
                 $this->error('setting table not found.');
+
                 return self::FAILURE;
             }
             $locales = DB::table('setting')
@@ -77,11 +78,13 @@ class TranslationMtBatchCommand extends Command
             $locales = [$single];
         } else {
             $this->error('Pass a locale or --all-enabled.');
+
             return self::FAILURE;
         }
         $locales = array_values(array_diff($locales, $skip));
         if (empty($locales)) {
             $this->warn('No locales to process after skip filter.');
+
             return self::SUCCESS;
         }
 
@@ -91,13 +94,14 @@ class TranslationMtBatchCommand extends Command
         $timeout = (int) (DB::table('ahg_translation_settings')->where('setting_key', 'mt.timeout_seconds')->value('setting_value') ?? 30);
 
         $this->info("MT endpoint: {$endpoint}  (timeout={$timeout}s)");
-        $this->info('Locales to process: ' . implode(', ', $locales) . ($dryRun ? '  (DRY RUN)' : ''));
+        $this->info('Locales to process: '.implode(', ', $locales).($dryRun ? '  (DRY RUN)' : ''));
         $this->newLine();
 
         // Load source locale
         $sourcePath = base_path("lang/{$sourceLocale}.json");
         if (! is_file($sourcePath)) {
             $this->error("Source locale file not found: {$sourcePath}");
+
             return self::FAILURE;
         }
         $source = json_decode(file_get_contents($sourcePath), true) ?? [];
@@ -107,10 +111,10 @@ class TranslationMtBatchCommand extends Command
         if ($heratioOnly) {
             $atomKeys = $this->scanAtomXliffKeys($atomDir);
             $heratioOnlyKeys = array_diff_key($source, $atomKeys);
-            $this->info('Heratio-only keys (absent from AtoM XLIFFs): ' . count($heratioOnlyKeys));
+            $this->info('Heratio-only keys (absent from AtoM XLIFFs): '.count($heratioOnlyKeys));
         } else {
             $heratioOnlyKeys = $source;
-            $this->info('Translating ALL missing keys (not just Heratio-only): ' . count($source));
+            $this->info('Translating ALL missing keys (not just Heratio-only): '.count($source));
         }
         $this->newLine();
 
@@ -140,6 +144,7 @@ class TranslationMtBatchCommand extends Command
         if (! $dryRun) {
             $this->info('Run `php artisan view:clear` to bust cached views.');
         }
+
         return self::SUCCESS;
     }
 
@@ -171,13 +176,14 @@ class TranslationMtBatchCommand extends Command
         }
         $todo = array_slice($todo, 0, $remainingBudget, true);
 
-        $this->line("→ <comment>{$locale}</comment>: " . count($todo) . ' keys to translate');
+        $this->line("→ <comment>{$locale}</comment>: ".count($todo).' keys to translate');
         if (empty($todo)) {
             return [0, 0];
         }
         if ($dryRun) {
             $sample = array_slice(array_keys($todo), 0, 3);
-            $this->line('  sample: ' . implode(' | ', $sample));
+            $this->line('  sample: '.implode(' | ', $sample));
+
             return [count($todo), 0];
         }
 
@@ -207,7 +213,7 @@ class TranslationMtBatchCommand extends Command
         ksort($merged);
         file_put_contents(
             $jsonPath,
-            json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n"
+            json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n"
         );
 
         // Update _meta.json with per-key machine-translated flags so a future
@@ -221,11 +227,12 @@ class TranslationMtBatchCommand extends Command
             $meta['locales'][$locale]['mt_batch_count'] = ($meta['locales'][$locale]['mt_batch_count'] ?? 0) + $ok;
             file_put_contents(
                 $metaPath,
-                json_encode($meta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n"
+                json_encode($meta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n"
             );
         }
 
         $this->info("  ✓ {$ok} translated, {$fail} failed → lang/{$locale}.json");
+
         return [$ok, $fail];
     }
 
@@ -266,6 +273,7 @@ class TranslationMtBatchCommand extends Command
         if (! is_array($data)) {
             return null;
         }
+
         return (string) ($data['translatedText'] ?? $data['translation'] ?? '') ?: null;
     }
 
@@ -277,18 +285,27 @@ class TranslationMtBatchCommand extends Command
             return $keys;
         }
         foreach (scandir($sourceDir) as $e) {
-            if ($e === '.' || $e === '..') continue;
-            $xliff = $sourceDir . '/' . $e . '/messages.xml';
-            if (! is_file($xliff)) continue;
+            if ($e === '.' || $e === '..') {
+                continue;
+            }
+            $xliff = $sourceDir.'/'.$e.'/messages.xml';
+            if (! is_file($xliff)) {
+                continue;
+            }
             $prev = libxml_use_internal_errors(true);
             $xml = @simplexml_load_file($xliff, 'SimpleXMLElement', LIBXML_NONET | LIBXML_NOENT);
             libxml_use_internal_errors($prev);
-            if ($xml === false) continue;
+            if ($xml === false) {
+                continue;
+            }
             foreach ($xml->xpath('//trans-unit') ?: [] as $u) {
                 $src = trim((string) ($u->source ?? ''));
-                if ($src !== '') $keys[$src] = true;
+                if ($src !== '') {
+                    $keys[$src] = true;
+                }
             }
         }
+
         return $keys;
     }
 }

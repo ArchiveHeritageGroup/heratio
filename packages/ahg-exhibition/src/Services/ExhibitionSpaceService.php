@@ -20,18 +20,18 @@ use Illuminate\Support\Str;
 class ExhibitionSpaceService
 {
     public const SPACE_TYPES = [
-        'gallery'      => 'Gallery',
-        'hall'         => 'Hall',
+        'gallery' => 'Gallery',
+        'hall' => 'Hall',
         'display_case' => 'Display case',
-        'plinth'       => 'Plinth',
-        'vitrine'      => 'Vitrine',
+        'plinth' => 'Plinth',
+        'vitrine' => 'Vitrine',
     ];
 
     public const CAPACITY_UNITS = [
         'linear_wall_meters' => 'Linear wall metres',
-        'display_cases'      => 'Display cases',
-        'plinths'            => 'Plinths',
-        'square_meters'      => 'Square metres',
+        'display_cases' => 'Display cases',
+        'plinths' => 'Plinths',
+        'square_meters' => 'Square metres',
     ];
 
     // -------- Read --------
@@ -70,10 +70,10 @@ class ExhibitionSpaceService
             )
             ->groupBy('sp.id', 'sp.slug', 'sp.name', 'sp.space_type', 'sp.building', 'sp.floor', 'sp.capacity_value', 'sp.capacity_unit');
 
-        if ('' !== $search) {
+        if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('sp.name', 'like', '%'.$search.'%')
-                  ->orWhere('sp.building', 'like', '%'.$search.'%');
+                    ->orWhere('sp.building', 'like', '%'.$search.'%');
             });
         }
 
@@ -88,6 +88,7 @@ class ExhibitionSpaceService
             $unit = self::CAPACITY_UNITS[$r->capacity_unit] ?? $r->capacity_unit;
             $out[(int) $r->id] = $r->name.' ('.$unit.')';
         }
+
         return $out;
     }
 
@@ -121,15 +122,17 @@ class ExhibitionSpaceService
         $q = DB::table('ahg_exhibition_placement')
             ->where('exhibition_space_id', $exhibitionSpaceId);
         $this->applyDateOverlap($q, $startsAt, $endsAt);
+
         return (float) ($q->sum('size_units_used') ?? 0);
     }
 
     public function getRemainingCapacity(int $exhibitionSpaceId, ?string $startsAt = null, ?string $endsAt = null): ?float
     {
         $space = $this->getById($exhibitionSpaceId);
-        if (!$space || $space->capacity_value === null) {
+        if (! $space || $space->capacity_value === null) {
             return null;
         }
+
         return max(0, ((float) $space->capacity_value) - $this->getUsedCapacity($exhibitionSpaceId, $startsAt, $endsAt));
     }
 
@@ -141,7 +144,7 @@ class ExhibitionSpaceService
     public function capacityOverflow(int $exhibitionSpaceId, float $newSize, string $startsAt, string $endsAt, ?int $excludePlacementId = null): ?float
     {
         $space = $this->getById($exhibitionSpaceId);
-        if (!$space || $space->capacity_value === null) {
+        if (! $space || $space->capacity_value === null) {
             return null;
         }
 
@@ -154,6 +157,7 @@ class ExhibitionSpaceService
         $used = (float) ($q->sum('size_units_used') ?? 0);
 
         $overflow = ($used + $newSize) - (float) $space->capacity_value;
+
         return $overflow > 0 ? $overflow : 0.0;
     }
 
@@ -175,40 +179,43 @@ class ExhibitionSpaceService
     public function create(array $data): int
     {
         $name = trim((string) ($data['name'] ?? ''));
-        if ('' === $name) {
+        if ($name === '') {
             throw new \InvalidArgumentException('Exhibition space name is required.');
         }
         $now = now();
+
         return (int) DB::table('ahg_exhibition_space')->insertGetId([
-            'slug'                => $this->generateUniqueSlug($name),
-            'name'                => $name,
-            'space_type'          => $this->normalizeSpaceType($data['space_type'] ?? null),
-            'building'            => $data['building'] ?? null,
-            'floor'               => $data['floor'] ?? null,
-            'capacity_value'      => isset($data['capacity_value']) && $data['capacity_value'] !== '' ? (float) $data['capacity_value'] : null,
-            'capacity_unit'       => $this->normalizeCapacityUnit($data['capacity_unit'] ?? null),
+            'slug' => $this->generateUniqueSlug($name),
+            'name' => $name,
+            'space_type' => $this->normalizeSpaceType($data['space_type'] ?? null),
+            'building' => $data['building'] ?? null,
+            'floor' => $data['floor'] ?? null,
+            'capacity_value' => isset($data['capacity_value']) && $data['capacity_value'] !== '' ? (float) $data['capacity_value'] : null,
+            'capacity_unit' => $this->normalizeCapacityUnit($data['capacity_unit'] ?? null),
             'lighting_lux_target' => isset($data['lighting_lux_target']) && $data['lighting_lux_target'] !== '' ? (float) $data['lighting_lux_target'] : null,
-            'notes'               => $data['notes'] ?? null,
-            'created_at'          => $now,
-            'updated_at'          => $now,
+            'notes' => $data['notes'] ?? null,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
     }
 
     public function update(int $id, array $data): void
     {
         $payload = [
-            'name'                => $data['name'] ?? null,
-            'space_type'          => isset($data['space_type']) ? $this->normalizeSpaceType($data['space_type']) : null,
-            'building'            => $data['building'] ?? null,
-            'floor'               => $data['floor'] ?? null,
-            'capacity_value'      => isset($data['capacity_value']) && $data['capacity_value'] !== '' ? (float) $data['capacity_value'] : null,
-            'capacity_unit'       => isset($data['capacity_unit']) ? $this->normalizeCapacityUnit($data['capacity_unit']) : null,
+            'name' => $data['name'] ?? null,
+            'space_type' => isset($data['space_type']) ? $this->normalizeSpaceType($data['space_type']) : null,
+            'building' => $data['building'] ?? null,
+            'floor' => $data['floor'] ?? null,
+            'capacity_value' => isset($data['capacity_value']) && $data['capacity_value'] !== '' ? (float) $data['capacity_value'] : null,
+            'capacity_unit' => isset($data['capacity_unit']) ? $this->normalizeCapacityUnit($data['capacity_unit']) : null,
             'lighting_lux_target' => isset($data['lighting_lux_target']) && $data['lighting_lux_target'] !== '' ? (float) $data['lighting_lux_target'] : null,
-            'notes'               => $data['notes'] ?? null,
-            'updated_at'          => now(),
+            'notes' => $data['notes'] ?? null,
+            'updated_at' => now(),
         ];
         $payload = array_filter($payload, fn ($v) => $v !== null || in_array($payload, ['notes', 'lighting_lux_target', 'capacity_value', 'building', 'floor'], true));
-        if (empty($payload)) return;
+        if (empty($payload)) {
+            return;
+        }
         DB::table('ahg_exhibition_space')->where('id', $id)->update($payload);
     }
 
@@ -251,20 +258,22 @@ class ExhibitionSpaceService
 
         $payload = [
             'information_object_id' => $ioId,
-            'exhibition_space_id'   => $spaceId,
-            'exhibition_id'         => isset($data['exhibition_id']) && $data['exhibition_id'] !== '' ? (int) $data['exhibition_id'] : null,
-            'size_units_used'       => $size,
-            'starts_at'             => $startsAt,
-            'ends_at'               => $endsAt,
-            'notes'                 => $data['notes'] ?? null,
-            'updated_at'            => now(),
+            'exhibition_space_id' => $spaceId,
+            'exhibition_id' => isset($data['exhibition_id']) && $data['exhibition_id'] !== '' ? (int) $data['exhibition_id'] : null,
+            'size_units_used' => $size,
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
+            'notes' => $data['notes'] ?? null,
+            'updated_at' => now(),
         ];
 
         if ($placementId > 0) {
             DB::table('ahg_exhibition_placement')->where('id', $placementId)->update($payload);
+
             return $placementId;
         }
         $payload['created_at'] = now();
+
         return (int) DB::table('ahg_exhibition_placement')->insertGetId($payload);
     }
 
@@ -278,26 +287,35 @@ class ExhibitionSpaceService
     private function generateUniqueSlug(string $name): string
     {
         $base = Str::slug($name);
-        if ('' === $base) $base = 'exhibition-space';
+        if ($base === '') {
+            $base = 'exhibition-space';
+        }
         $slug = $base;
         $i = 2;
         while (DB::table('ahg_exhibition_space')->where('slug', $slug)->exists()) {
             $slug = $base.'-'.$i++;
         }
+
         return $slug;
     }
 
     private function normalizeSpaceType(?string $type): string
     {
-        if ($type === null || trim((string) $type) === '') return 'gallery';
+        if ($type === null || trim((string) $type) === '') {
+            return 'gallery';
+        }
         $type = trim((string) $type);
+
         return isset(self::SPACE_TYPES[$type]) ? $type : 'gallery';
     }
 
     private function normalizeCapacityUnit(?string $unit): string
     {
-        if ($unit === null || trim((string) $unit) === '') return 'linear_wall_meters';
+        if ($unit === null || trim((string) $unit) === '') {
+            return 'linear_wall_meters';
+        }
         $unit = trim((string) $unit);
+
         return isset(self::CAPACITY_UNITS[$unit]) ? $unit : 'linear_wall_meters';
     }
 }

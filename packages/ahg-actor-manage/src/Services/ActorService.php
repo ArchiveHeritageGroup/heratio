@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Services;
 
 use AhgCore\Constants\TermId;
@@ -49,7 +47,7 @@ class ActorService
     public function getBySlug(string $slug): ?object
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId) {
+        if (! $objectId) {
             return null;
         }
 
@@ -108,7 +106,7 @@ class ActorService
      */
     public function getEntityTypeName(?int $typeId): ?string
     {
-        if (!$typeId) {
+        if (! $typeId) {
             return null;
         }
 
@@ -338,9 +336,9 @@ class ActorService
         $items = (clone $baseQuery)->offset($offset)->limit($perPage)->get();
 
         return [
-            'items'    => $items,
-            'total'    => $total,
-            'page'     => $page,
+            'items' => $items,
+            'total' => $total,
+            'page' => $page,
             'lastPage' => $lastPage,
         ];
     }
@@ -527,9 +525,9 @@ class ActorService
         $items = (clone $baseQuery)->offset($offset)->limit($perPage)->get();
 
         return [
-            'items'    => $items,
-            'total'    => $total,
-            'page'     => $page,
+            'items' => $items,
+            'total' => $total,
+            'page' => $page,
             'lastPage' => $lastPage,
         ];
     }
@@ -548,7 +546,7 @@ class ActorService
             ->where('property.name', 'language')
             ->value('property_i18n.value');
 
-        if (!$row) {
+        if (! $row) {
             return [];
         }
 
@@ -575,7 +573,7 @@ class ActorService
             ->where('property.name', 'script')
             ->value('property_i18n.value');
 
-        if (!$row) {
+        if (! $row) {
             return [];
         }
 
@@ -705,7 +703,7 @@ class ActorService
         $result = [];
         foreach ($typeIds as $typeId) {
             $term = DB::table('term')->where('id', $typeId)->first();
-            if (!$term || !$term->parent_id) {
+            if (! $term || ! $term->parent_id) {
                 continue;
             }
 
@@ -768,7 +766,7 @@ class ActorService
             $slug = $baseSlug;
             $counter = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter;
+                $slug = $baseSlug.'-'.$counter;
                 $counter++;
             }
             DB::table('slug')->insert([
@@ -789,7 +787,9 @@ class ActorService
             $resolvedIdentifier = $data['description_identifier'] ?? null;
             if (empty($resolvedIdentifier)) {
                 $generated = \AhgCore\Services\SectorIdentifierService::next('actor');
-                if ($generated !== null) $resolvedIdentifier = $generated;
+                if ($generated !== null) {
+                    $resolvedIdentifier = $generated;
+                }
             }
 
             // 3. Create actor record
@@ -829,17 +829,17 @@ class ActorService
             ]);
 
             // 5. Save contact information if provided
-            if (!empty($data['contacts'])) {
+            if (! empty($data['contacts'])) {
                 $this->saveContacts($id, $data['contacts']);
             }
 
             // 6. Save other names if provided
-            if (!empty($data['other_names'])) {
+            if (! empty($data['other_names'])) {
                 $this->saveOtherNames($id, $data['other_names']);
             }
 
             // 7. Save maintenance notes if provided
-            if (!empty($data['maintenance_notes'])) {
+            if (! empty($data['maintenance_notes'])) {
                 $this->saveMaintenanceNote($id, $data['maintenance_notes']);
             }
 
@@ -847,6 +847,7 @@ class ActorService
         });
 
         \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'actor', $this->auditSnapshot((int) $newId));
+
         return (int) $newId;
     }
 
@@ -869,6 +870,7 @@ class ActorService
             ->select('authorized_form_of_name', 'history', 'mandates', 'rules',
                 'general_context', 'institution_responsible_identifier')
             ->first() ?? []);
+
         return array_merge($a, $i18n);
     }
 
@@ -893,7 +895,7 @@ class ActorService
                     $actorUpdate[$field] = $value;
                 }
             }
-            if (!empty($actorUpdate)) {
+            if (! empty($actorUpdate)) {
                 DB::table('actor')->where('id', $id)->update($actorUpdate);
             }
 
@@ -910,7 +912,7 @@ class ActorService
                     $i18nData[$field] = $data[$field];
                 }
             }
-            if (!empty($i18nData)) {
+            if (! empty($i18nData)) {
                 // Issue #61 Phase 3c: snapshot before, run update, detect overrides.
                 $beforeI18n = (array) (DB::table('actor_i18n')
                     ->where('id', $id)->where('culture', $this->culture)
@@ -934,7 +936,9 @@ class ActorService
                 try {
                     app(\AhgProvenanceAi\Services\OverrideService::class)
                         ->detectOverridesFromForm('actor', (int) $id, $beforeI18n, $i18nData, (int) (auth()->id() ?? 0));
-                } catch (\Throwable $e) { \Log::warning('ActorService update: override detection failed: ' . $e->getMessage()); }
+                } catch (\Throwable $e) {
+                    \Log::warning('ActorService update: override detection failed: '.$e->getMessage());
+                }
             }
 
             // 3. Save contacts if provided
@@ -973,7 +977,7 @@ class ActorService
         DB::transaction(function () use ($id) {
             // 1. Delete events where this actor is the creator/subject
             $eventIds = DB::table('event')->where('actor_id', $id)->pluck('id')->toArray();
-            if (!empty($eventIds)) {
+            if (! empty($eventIds)) {
                 DB::table('event_i18n')->whereIn('id', $eventIds)->delete();
                 DB::table('event')->whereIn('id', $eventIds)->delete();
                 // Delete event object records
@@ -987,7 +991,7 @@ class ActorService
                 ->orWhere('object_id', $id)
                 ->pluck('id')
                 ->toArray();
-            if (!empty($relationIds)) {
+            if (! empty($relationIds)) {
                 DB::table('relation_i18n')->whereIn('id', $relationIds)->delete();
                 DB::table('relation')->whereIn('id', $relationIds)->delete();
                 DB::table('slug')->whereIn('object_id', $relationIds)->delete();
@@ -996,7 +1000,7 @@ class ActorService
 
             // 3. Delete contact information (including extended data)
             $contactIds = DB::table('contact_information')->where('actor_id', $id)->pluck('id')->toArray();
-            if (!empty($contactIds)) {
+            if (! empty($contactIds)) {
                 DB::table('contact_information_extended')->whereIn('contact_information_id', $contactIds)->delete();
                 DB::table('contact_information_i18n')->whereIn('id', $contactIds)->delete();
                 DB::table('contact_information')->whereIn('id', $contactIds)->delete();
@@ -1004,7 +1008,7 @@ class ActorService
 
             // 4. Delete other names
             $otherNameIds = DB::table('other_name')->where('object_id', $id)->pluck('id')->toArray();
-            if (!empty($otherNameIds)) {
+            if (! empty($otherNameIds)) {
                 DB::table('other_name_i18n')->whereIn('id', $otherNameIds)->delete();
                 DB::table('other_name')->whereIn('id', $otherNameIds)->delete();
                 DB::table('object')->whereIn('id', $otherNameIds)->delete();
@@ -1012,7 +1016,7 @@ class ActorService
 
             // 5. Delete notes
             $noteIds = DB::table('note')->where('object_id', $id)->pluck('id')->toArray();
-            if (!empty($noteIds)) {
+            if (! empty($noteIds)) {
                 DB::table('note_i18n')->whereIn('id', $noteIds)->delete();
                 DB::table('note')->whereIn('id', $noteIds)->delete();
                 DB::table('object')->whereIn('id', $noteIds)->delete();
@@ -1045,7 +1049,7 @@ class ActorService
 
             $contactId = DB::table('contact_information')->insertGetId([
                 'actor_id' => $actorId,
-                'primary_contact' => !empty($contactData['primary_contact']) ? 1 : 0,
+                'primary_contact' => ! empty($contactData['primary_contact']) ? 1 : 0,
                 'contact_person' => $contactData['contact_person'] ?? null,
                 'street_address' => $contactData['street_address'] ?? null,
                 'website' => $contactData['website'] ?? null,
@@ -1084,10 +1088,11 @@ class ActorService
     {
         foreach ($contacts as $contactData) {
             // Handle deletion
-            if (!empty($contactData['delete']) && !empty($contactData['id'])) {
+            if (! empty($contactData['delete']) && ! empty($contactData['id'])) {
                 $this->deleteExtendedContactData($contactData['id']);
                 DB::table('contact_information_i18n')->where('id', $contactData['id'])->delete();
                 DB::table('contact_information')->where('id', $contactData['id'])->delete();
+
                 continue;
             }
 
@@ -1095,12 +1100,12 @@ class ActorService
                 continue;
             }
 
-            if (!empty($contactData['id'])) {
+            if (! empty($contactData['id'])) {
                 // Update existing contact
                 DB::table('contact_information')
                     ->where('id', $contactData['id'])
                     ->update([
-                        'primary_contact' => !empty($contactData['primary_contact']) ? 1 : 0,
+                        'primary_contact' => ! empty($contactData['primary_contact']) ? 1 : 0,
                         'contact_person' => $contactData['contact_person'] ?? null,
                         'street_address' => $contactData['street_address'] ?? null,
                         'website' => $contactData['website'] ?? null,
@@ -1185,7 +1190,7 @@ class ActorService
     {
         // Delete existing other names
         $existingIds = DB::table('other_name')->where('object_id', $actorId)->pluck('id')->toArray();
-        if (!empty($existingIds)) {
+        if (! empty($existingIds)) {
             DB::table('other_name_i18n')->whereIn('id', $existingIds)->delete();
             DB::table('other_name')->whereIn('id', $existingIds)->delete();
         }
@@ -1211,7 +1216,7 @@ class ActorService
             DB::table('object')->where('id', $existingNoteId)->delete();
         }
 
-        if (!empty($content)) {
+        if (! empty($content)) {
             $noteObjectId = DB::table('object')->insertGetId([
                 'class_name' => 'QubitNote',
                 'created_at' => now(),
@@ -1251,7 +1256,7 @@ class ActorService
         ];
 
         foreach ($fields as $field) {
-            if (!empty($data[$field])) {
+            if (! empty($data[$field])) {
                 return false;
             }
         }
@@ -1276,7 +1281,7 @@ class ActorService
             ->where('contact_information_id', $contactId)
             ->first();
 
-        if (!$row) {
+        if (! $row) {
             return [];
         }
 
@@ -1351,45 +1356,45 @@ class ActorService
      */
     public const IDENTIFIER_URI_PATTERNS = [
         'wikidata' => 'https://www.wikidata.org/wiki/%s',
-        'viaf'     => 'https://viaf.org/viaf/%s',
-        'ulan'     => 'https://vocab.getty.edu/ulan/%s',
-        'lcnaf'    => 'https://id.loc.gov/authorities/names/%s',
-        'isni'     => 'https://isni.org/isni/%s',
-        'orcid'    => 'https://orcid.org/%s',
-        'gnd'      => 'https://d-nb.info/gnd/%s',
+        'viaf' => 'https://viaf.org/viaf/%s',
+        'ulan' => 'https://vocab.getty.edu/ulan/%s',
+        'lcnaf' => 'https://id.loc.gov/authorities/names/%s',
+        'isni' => 'https://isni.org/isni/%s',
+        'orcid' => 'https://orcid.org/%s',
+        'gnd' => 'https://d-nb.info/gnd/%s',
     ];
 
     /**
      * ISAAR(CPF) field weights for completeness score calculation.
      */
     public const COMPLETENESS_WEIGHTS = [
-        'authorized_name'   => 15,
-        'entity_type'       => 5,
-        'dates_existence'   => 10,
-        'history'           => 10,
-        'places'            => 5,
-        'legal_status'      => 3,
-        'functions'         => 5,
-        'mandates'          => 3,
-        'internal_struct'   => 3,
-        'general_context'   => 3,
-        'description_id'    => 3,
-        'sources'           => 3,
+        'authorized_name' => 15,
+        'entity_type' => 5,
+        'dates_existence' => 10,
+        'history' => 10,
+        'places' => 5,
+        'legal_status' => 3,
+        'functions' => 5,
+        'mandates' => 3,
+        'internal_struct' => 3,
+        'general_context' => 3,
+        'description_id' => 3,
+        'sources' => 3,
         'maintenance_notes' => 2,
-        'external_ids'      => 10,
-        'relations'         => 10,
-        'resources'         => 5,
-        'contacts'          => 5,
+        'external_ids' => 10,
+        'relations' => 10,
+        'resources' => 5,
+        'contacts' => 5,
     ];
 
     /**
      * Completeness level thresholds.
      */
     public const COMPLETENESS_LEVELS = [
-        'stub'    => [0, 24],
+        'stub' => [0, 24],
         'minimal' => [25, 49],
         'partial' => [50, 74],
-        'full'    => [75, 100],
+        'full' => [75, 100],
     ];
 
     /**
@@ -1446,22 +1451,22 @@ class ActorService
             ->first();
 
         // Check basic ISAAR fields
-        $fieldScores['authorized_name'] = (!empty($actorI18n->authorized_form_of_name)) ? 1 : 0;
-        $fieldScores['history'] = (!empty($actorI18n->history)) ? 1 : 0;
-        $fieldScores['places'] = (!empty($actorI18n->places)) ? 1 : 0;
-        $fieldScores['legal_status'] = (!empty($actorI18n->legal_status)) ? 1 : 0;
-        $fieldScores['functions'] = (!empty($actorI18n->functions)) ? 1 : 0;
-        $fieldScores['mandates'] = (!empty($actorI18n->mandates)) ? 1 : 0;
-        $fieldScores['internal_struct'] = (!empty($actorI18n->internal_structures)) ? 1 : 0;
-        $fieldScores['general_context'] = (!empty($actorI18n->general_context)) ? 1 : 0;
-        $fieldScores['description_id'] = (!empty($actorI18n->description_identifier)) ? 1 : 0;
-        $fieldScores['sources'] = (!empty($actorI18n->sources)) ? 1 : 0;
-        $fieldScores['maintenance_notes'] = (!empty($actorI18n->revision_history)) ? 1 : 0;
-        $fieldScores['dates_existence'] = (!empty($actorI18n->dates_of_existence)) ? 1 : 0;
+        $fieldScores['authorized_name'] = (! empty($actorI18n->authorized_form_of_name)) ? 1 : 0;
+        $fieldScores['history'] = (! empty($actorI18n->history)) ? 1 : 0;
+        $fieldScores['places'] = (! empty($actorI18n->places)) ? 1 : 0;
+        $fieldScores['legal_status'] = (! empty($actorI18n->legal_status)) ? 1 : 0;
+        $fieldScores['functions'] = (! empty($actorI18n->functions)) ? 1 : 0;
+        $fieldScores['mandates'] = (! empty($actorI18n->mandates)) ? 1 : 0;
+        $fieldScores['internal_struct'] = (! empty($actorI18n->internal_structures)) ? 1 : 0;
+        $fieldScores['general_context'] = (! empty($actorI18n->general_context)) ? 1 : 0;
+        $fieldScores['description_id'] = (! empty($actorI18n->description_identifier)) ? 1 : 0;
+        $fieldScores['sources'] = (! empty($actorI18n->sources)) ? 1 : 0;
+        $fieldScores['maintenance_notes'] = (! empty($actorI18n->revision_history)) ? 1 : 0;
+        $fieldScores['dates_existence'] = (! empty($actorI18n->dates_of_existence)) ? 1 : 0;
 
         // Check actor entity type
         $actor = DB::table('actor')->where('id', $actorId)->first();
-        $fieldScores['entity_type'] = ($actor && !empty($actor->entity_type_id)) ? 1 : 0;
+        $fieldScores['entity_type'] = ($actor && ! empty($actor->entity_type_id)) ? 1 : 0;
 
         // Check external identifiers
         $hasIds = DB::table('ahg_actor_identifier')
@@ -1503,20 +1508,20 @@ class ActorService
         $record = [
             'completeness_level' => $level,
             'completeness_score' => $percentage,
-            'field_scores'       => json_encode($fieldScores),
-            'has_external_ids'   => $fieldScores['external_ids'],
-            'has_relations'      => $fieldScores['relations'],
-            'has_resources'      => $fieldScores['resources'],
-            'has_contacts'       => $fieldScores['contacts'],
-            'scored_at'          => now(),
-            'updated_at'         => now(),
+            'field_scores' => json_encode($fieldScores),
+            'has_external_ids' => $fieldScores['external_ids'],
+            'has_relations' => $fieldScores['relations'],
+            'has_resources' => $fieldScores['resources'],
+            'has_contacts' => $fieldScores['contacts'],
+            'scored_at' => now(),
+            'updated_at' => now(),
         ];
 
         // Allow manual override fields from data
-        if (!empty($data['manual_override'])) {
+        if (! empty($data['manual_override'])) {
             $record['manual_override'] = 1;
         }
-        if (!empty($data['assigned_to'])) {
+        if (! empty($data['assigned_to'])) {
             $record['assigned_to'] = $data['assigned_to'];
             $record['assigned_at'] = now();
         }
@@ -1569,24 +1574,24 @@ class ActorService
                 continue;
             }
 
-            $type  = $idData['identifier_type'];
+            $type = $idData['identifier_type'];
             $value = trim($idData['identifier_value']);
 
             // Auto-construct URI if not provided
             $uri = $idData['uri'] ?? null;
-            if (empty($uri) && isset(self::IDENTIFIER_URI_PATTERNS[$type]) && !empty($value)) {
+            if (empty($uri) && isset(self::IDENTIFIER_URI_PATTERNS[$type]) && ! empty($value)) {
                 $uri = sprintf(self::IDENTIFIER_URI_PATTERNS[$type], $value);
             }
 
             DB::table('ahg_actor_identifier')->insert([
-                'actor_id'         => $actorId,
-                'identifier_type'  => $type,
+                'actor_id' => $actorId,
+                'identifier_type' => $type,
                 'identifier_value' => $value,
-                'uri'              => $uri,
-                'label'            => $idData['label'] ?? null,
-                'source'           => $idData['source'] ?? 'manual',
-                'created_at'       => now(),
-                'updated_at'       => now(),
+                'uri' => $uri,
+                'label' => $idData['label'] ?? null,
+                'source' => $idData['source'] ?? 'manual',
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
     }
@@ -1607,14 +1612,14 @@ class ActorService
             }
 
             DB::table('ahg_actor_occupation')->insert([
-                'actor_id'        => $actorId,
-                'term_id'         => !empty($occData['term_id']) ? (int) $occData['term_id'] : null,
+                'actor_id' => $actorId,
+                'term_id' => ! empty($occData['term_id']) ? (int) $occData['term_id'] : null,
                 'occupation_text' => $occData['occupation_text'] ?? null,
-                'date_from'       => $occData['date_from'] ?? null,
-                'date_to'         => $occData['date_to'] ?? null,
-                'notes'           => $occData['notes'] ?? null,
-                'sort_order'      => (int) ($occData['sort_order'] ?? $idx),
-                'created_at'      => now(),
+                'date_from' => $occData['date_from'] ?? null,
+                'date_to' => $occData['date_to'] ?? null,
+                'notes' => $occData['notes'] ?? null,
+                'sort_order' => (int) ($occData['sort_order'] ?? $idx),
+                'created_at' => now(),
             ]);
         }
     }

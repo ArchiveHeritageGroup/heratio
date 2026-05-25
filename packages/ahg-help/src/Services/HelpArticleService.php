@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgHelp\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -40,7 +38,7 @@ class HelpArticleService
 
     protected static function applyAdminFilter($query): void
     {
-        if (!self::isAdmin()) {
+        if (! self::isAdmin()) {
             $query->whereNotIn('category', self::ADMIN_CATEGORIES);
         }
     }
@@ -66,12 +64,13 @@ class HelpArticleService
         self::applyAdminFilter($query);
 
         $row = $query->first();
+
         return $row ? (array) $row : null;
     }
 
     public static function getByCategory(string $category): array
     {
-        if (!self::isAdmin() && in_array($category, self::ADMIN_CATEGORIES)) {
+        if (! self::isAdmin() && in_array($category, self::ADMIN_CATEGORIES)) {
             return [];
         }
 
@@ -96,6 +95,7 @@ class HelpArticleService
     {
         $s = strtolower(trim($name));
         $s = preg_replace('/[^a-z0-9]+/', '-', $s) ?? '';
+
         return trim($s, '-');
     }
 
@@ -112,6 +112,7 @@ class HelpArticleService
                 return $row['category'];
             }
         }
+
         return $slug;
     }
 
@@ -121,14 +122,14 @@ class HelpArticleService
 
         $q = DB::table('help_article')
             ->where('is_published', 1)
-            ->whereRaw('MATCH(title, body_text) AGAINST(? IN BOOLEAN MODE)', [$query . '*']);
+            ->whereRaw('MATCH(title, body_text) AGAINST(? IN BOOLEAN MODE)', [$query.'*']);
         self::applyAdminFilter($q);
 
         return $q->select(
-                'id', 'slug', 'title', 'category', 'subcategory', 'word_count',
-                DB::raw("MATCH(title, body_text) AGAINST('{$escaped}*' IN BOOLEAN MODE) AS relevance"),
-                DB::raw('SUBSTRING(body_text, 1, 300) AS snippet')
-            )
+            'id', 'slug', 'title', 'category', 'subcategory', 'word_count',
+            DB::raw("MATCH(title, body_text) AGAINST('{$escaped}*' IN BOOLEAN MODE) AS relevance"),
+            DB::raw('SUBSTRING(body_text, 1, 300) AS snippet')
+        )
             ->orderByDesc('relevance')
             ->limit($limit)
             ->get()
@@ -143,18 +144,18 @@ class HelpArticleService
         $q = DB::table('help_section as hs')
             ->join('help_article as ha', 'hs.article_id', '=', 'ha.id')
             ->where('ha.is_published', 1)
-            ->whereRaw('MATCH(hs.heading, hs.body_text) AGAINST(? IN BOOLEAN MODE)', [$query . '*']);
+            ->whereRaw('MATCH(hs.heading, hs.body_text) AGAINST(? IN BOOLEAN MODE)', [$query.'*']);
 
-        if (!self::isAdmin()) {
+        if (! self::isAdmin()) {
             $q->whereNotIn('ha.category', self::ADMIN_CATEGORIES);
         }
 
         return $q->select(
-                'ha.slug', 'ha.title as article_title', 'ha.category',
-                'hs.heading', 'hs.anchor', 'hs.level',
-                DB::raw("MATCH(hs.heading, hs.body_text) AGAINST('{$escaped}*' IN BOOLEAN MODE) AS relevance"),
-                DB::raw('SUBSTRING(hs.body_text, 1, 200) AS snippet')
-            )
+            'ha.slug', 'ha.title as article_title', 'ha.category',
+            'hs.heading', 'hs.anchor', 'hs.level',
+            DB::raw("MATCH(hs.heading, hs.body_text) AGAINST('{$escaped}*' IN BOOLEAN MODE) AS relevance"),
+            DB::raw('SUBSTRING(hs.body_text, 1, 200) AS snippet')
+        )
             ->orderByDesc('relevance')
             ->limit($limit)
             ->get()
@@ -165,7 +166,7 @@ class HelpArticleService
     public static function getAdjacentArticles(int $id, string $category): array
     {
         $current = DB::table('help_article')->where('id', $id)->first();
-        if (!$current) {
+        if (! $current) {
             return ['prev' => null, 'next' => null];
         }
 

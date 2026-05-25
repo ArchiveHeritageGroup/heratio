@@ -66,12 +66,12 @@ trait WithCultureFallback
      * given i18n table. Returns the two aliases as a [current, fallback]
      * tuple — pass them into coalesceI18n() below.
      *
-     * @param  Builder  $query        The query being built (mutated in place).
-     * @param  string   $i18nTable    e.g. 'information_object_i18n'
-     * @param  string   $parentTable  e.g. 'information_object'
-     * @param  string   $parentColumn e.g. 'id' (the join column on the parent)
-     * @param  string   $i18nForeign  e.g. 'id' (the join column on the i18n table)
-     * @param  string|null $aliasPrefix  Override the auto-generated alias prefix
+     * @param  Builder  $query  The query being built (mutated in place).
+     * @param  string  $i18nTable  e.g. 'information_object_i18n'
+     * @param  string  $parentTable  e.g. 'information_object'
+     * @param  string  $parentColumn  e.g. 'id' (the join column on the parent)
+     * @param  string  $i18nForeign  e.g. 'id' (the join column on the i18n table)
+     * @param  string|null  $aliasPrefix  Override the auto-generated alias prefix
      *                                    (default: i18n table name minus '_i18n')
      * @return array{0: string, 1: string} [current alias, fallback alias]
      */
@@ -110,8 +110,8 @@ trait WithCultureFallback
      * Build COALESCE(cur.col, fb.col) AS col expressions for each given column.
      * Returns an array suitable for splatting into ->select([...]).
      *
-     * @param  string  $cur      Current-culture alias (from joinI18nWithFallback)
-     * @param  string  $fb       Fallback-culture alias (from joinI18nWithFallback)
+     * @param  string  $cur  Current-culture alias (from joinI18nWithFallback)
+     * @param  string  $fb  Fallback-culture alias (from joinI18nWithFallback)
      * @param  string[]  $columns  i18n column names to fall back
      * @return array<int, \Illuminate\Database\Query\Expression>
      */

@@ -14,8 +14,7 @@ class SharePointUserMappingService
 {
     public function __construct(
         private SharePointUserMappingRepository $mappings,
-    ) {
-    }
+    ) {}
 
     public function resolve(array $claims): ?int
     {
@@ -27,10 +26,11 @@ class SharePointUserMappingService
         $mapping = $this->mappings->findByAadOid($oid);
         if ($mapping !== null) {
             $this->mappings->touchLastSeen((int) $mapping->id);
+
             return (int) $mapping->atom_user_id;
         }
 
-        if (!$this->autoCreateEnabled()) {
+        if (! $this->autoCreateEnabled()) {
             return null;
         }
 
@@ -60,6 +60,7 @@ class SharePointUserMappingService
         if ($row === null) {
             return true; // default true per locked decision
         }
+
         return (string) $row->setting_value === 'true' || (string) $row->setting_value === '1';
     }
 
@@ -77,7 +78,7 @@ class SharePointUserMappingService
         //   3. Return user.id.
         throw new \RuntimeException(
             'SharePointUserMappingService::createHeratioUser not implemented yet — '
-            . 'wire to Heratio\'s user provisioning service in ahg-acl.'
+            .'wire to Heratio\'s user provisioning service in ahg-acl.'
         );
     }
 }

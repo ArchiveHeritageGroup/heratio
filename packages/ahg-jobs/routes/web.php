@@ -23,8 +23,8 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use Illuminate\Support\Facades\Route;
 use Ahg\Jobs\Http\Controllers\JobsController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------

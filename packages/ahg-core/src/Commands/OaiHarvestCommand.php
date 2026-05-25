@@ -36,8 +36,15 @@ class OaiHarvestCommand extends Command
         $url = (string) $this->option('url');
         if (! $url) {
             $rows = DB::table('oai_repository')->whereNotNull('uri')->get(['id', 'name', 'uri']);
-            if ($rows->isEmpty()) { $this->error('No --url given and oai_repository is empty.'); return self::FAILURE; }
-            foreach ($rows as $r) $this->harvestOne($r->id, $r->uri);
+            if ($rows->isEmpty()) {
+                $this->error('No --url given and oai_repository is empty.');
+
+                return self::FAILURE;
+            }
+            foreach ($rows as $r) {
+                $this->harvestOne($r->id, $r->uri);
+            }
+
             return self::SUCCESS;
         }
 
@@ -51,6 +58,7 @@ class OaiHarvestCommand extends Command
                 'serial_number' => 0,
             ]);
         }
+
         return $this->harvestOne($repoId, $url);
     }
 
@@ -73,19 +81,38 @@ class OaiHarvestCommand extends Command
         ]);
 
         $params = ['verb' => 'ListRecords', 'metadataPrefix' => $prefix];
-        if ($set)   $params['set'] = $set;
-        if ($from)  $params['from'] = $from;
-        if ($until) $params['until'] = $until;
+        if ($set) {
+            $params['set'] = $set;
+        }
+        if ($from) {
+            $params['from'] = $from;
+        }
+        if ($until) {
+            $params['until'] = $until;
+        }
 
-        $page = 0; $total = 0; $errors = 0; $resumption = null;
+        $page = 0;
+        $total = 0;
+        $errors = 0;
+        $resumption = null;
         while (true) {
             $page++;
             try {
                 $resp = Http::timeout(30)->get($url, $resumption ? ['verb' => 'ListRecords', 'resumptionToken' => $resumption] : $params);
-                if (! $resp->ok()) { $errors++; break; }
+                if (! $resp->ok()) {
+                    $errors++;
+                    break;
+                }
                 $xml = @simplexml_load_string($resp->body());
-                if (! $xml) { $errors++; break; }
-                if (isset($xml->error)) { $this->warn("OAI error: {$xml->error}"); $errors++; break; }
+                if (! $xml) {
+                    $errors++;
+                    break;
+                }
+                if (isset($xml->error)) {
+                    $this->warn("OAI error: {$xml->error}");
+                    $errors++;
+                    break;
+                }
 
                 foreach ($xml->ListRecords->record ?? [] as $rec) {
                     $identifier = (string) $rec->header->identifier;
@@ -99,8 +126,13 @@ class OaiHarvestCommand extends Command
                     $total++;
                 }
                 $resumption = (string) ($xml->ListRecords->resumptionToken ?? '');
-                if (! $resumption) break;
-                if ($page >= $maxPages) { $this->warn('max-pages reached, stopping.'); break; }
+                if (! $resumption) {
+                    break;
+                }
+                if ($page >= $maxPages) {
+                    $this->warn('max-pages reached, stopping.');
+                    break;
+                }
             } catch (\Throwable $e) {
                 $errors++;
                 $this->warn($e->getMessage());
@@ -115,6 +147,7 @@ class OaiHarvestCommand extends Command
             'last_harvest_attempt' => $end,
         ]);
         $this->info(sprintf('repo=%d harvested=%d pages=%d errors=%d', $repoId, $total, $page, $errors));
+
         return $errors === 0 ? self::SUCCESS : self::FAILURE;
     }
 }

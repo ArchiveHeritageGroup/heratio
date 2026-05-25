@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgUserManage\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -51,7 +49,7 @@ class UserService
             ->select(['slug.object_id'])
             ->first();
 
-        if (!$row) {
+        if (! $row) {
             return null;
         }
 
@@ -90,7 +88,7 @@ class UserService
             ])
             ->first();
 
-        if (!$user) {
+        if (! $user) {
             return null;
         }
 
@@ -134,7 +132,7 @@ class UserService
             ->join('acl_group', 'acl_user_group.group_id', '=', 'acl_group.id')
             ->leftJoin('acl_group_i18n', function ($join) {
                 $join->on('acl_group.id', '=', 'acl_group_i18n.id')
-                     ->where('acl_group_i18n.culture', '=', $this->culture);
+                    ->where('acl_group_i18n.culture', '=', $this->culture);
             })
             ->where('acl_user_group.user_id', $userId)
             ->select(['acl_group.id', 'acl_group_i18n.name'])
@@ -152,7 +150,7 @@ class UserService
             ->where('action', 'translate')
             ->first();
 
-        if (!$row) {
+        if (! $row) {
             return [];
         }
 
@@ -171,6 +169,7 @@ class UserService
         }
 
         $data = json_decode($source, true);
+
         return is_array($data) ? ($data['languages'] ?? $data) : [];
     }
 
@@ -189,14 +188,15 @@ class UserService
             ->pluck('name')
             ->toArray();
 
-        if (!empty($cultures)) {
+        if (! empty($cultures)) {
             return $cultures;
         }
 
         // Fallback: filenames in /lang/*.json (matches /set-locale fallback).
         $files = glob(base_path('lang/*.json')) ?: [];
         $cultures = array_map(fn ($f) => pathinfo($f, PATHINFO_FILENAME), $files);
-        return !empty($cultures) ? $cultures : [$this->culture];
+
+        return ! empty($cultures) ? $cultures : [$this->culture];
     }
 
     /**
@@ -207,7 +207,7 @@ class UserService
         return DB::table('acl_group')
             ->leftJoin('acl_group_i18n', function ($join) {
                 $join->on('acl_group.id', '=', 'acl_group_i18n.id')
-                     ->where('acl_group_i18n.culture', '=', $this->culture);
+                    ->where('acl_group_i18n.culture', '=', $this->culture);
             })
             ->where('acl_group.id', '>', 99)
             ->select(['acl_group.id', 'acl_group_i18n.name'])
@@ -235,7 +235,7 @@ class UserService
             $slug = $baseSlug;
             $counter = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter++;
+                $slug = $baseSlug.'-'.$counter++;
             }
             DB::table('slug')->insert(['object_id' => $id, 'slug' => $slug]);
 
@@ -247,7 +247,7 @@ class UserService
             ]);
 
             // Actor i18n (display name)
-            if (!empty($data['authorized_form_of_name'])) {
+            if (! empty($data['authorized_form_of_name'])) {
                 DB::table('actor_i18n')->insert([
                     'id' => $id,
                     'culture' => $this->culture,
@@ -256,8 +256,8 @@ class UserService
             }
 
             // Hash password using dual-layer approach (matching existing system)
-            $salt = md5(rand(100000, 999999) . ($data['email'] ?? ''));
-            $sha1Hash = sha1($salt . ($data['password'] ?? ''));
+            $salt = md5(rand(100000, 999999).($data['email'] ?? ''));
+            $sha1Hash = sha1($salt.($data['password'] ?? ''));
             $hashAlgo = defined('PASSWORD_ARGON2I') ? PASSWORD_ARGON2I : PASSWORD_DEFAULT;
             $passwordHash = password_hash($sha1Hash, $hashAlgo);
 
@@ -278,7 +278,7 @@ class UserService
             ]);
 
             // Assign selected groups
-            if (!empty($data['groups'])) {
+            if (! empty($data['groups'])) {
                 foreach ($data['groups'] as $groupId) {
                     $groupId = (int) $groupId;
                     if ($groupId > 99) {
@@ -319,15 +319,15 @@ class UserService
             }
 
             // Update password only if provided
-            if (!empty($data['password'])) {
-                $salt = md5(rand(100000, 999999) . ($data['email'] ?? ''));
-                $sha1Hash = sha1($salt . $data['password']);
+            if (! empty($data['password'])) {
+                $salt = md5(rand(100000, 999999).($data['email'] ?? ''));
+                $sha1Hash = sha1($salt.$data['password']);
                 $hashAlgo = defined('PASSWORD_ARGON2I') ? PASSWORD_ARGON2I : PASSWORD_DEFAULT;
                 $updateFields['password_hash'] = password_hash($sha1Hash, $hashAlgo);
                 $updateFields['salt'] = $salt;
             }
 
-            if (!empty($updateFields)) {
+            if (! empty($updateFields)) {
                 DB::table('user')->where('id', $id)->update($updateFields);
             }
 
@@ -409,19 +409,19 @@ class UserService
         // Check if any contact field is provided
         $hasContact = false;
         foreach (array_keys($contactFields) as $formField) {
-            if (!empty($data[$formField])) {
+            if (! empty($data[$formField])) {
                 $hasContact = true;
                 break;
             }
         }
         foreach (array_keys($i18nFields) as $formField) {
-            if (!empty($data[$formField])) {
+            if (! empty($data[$formField])) {
                 $hasContact = true;
                 break;
             }
         }
 
-        if (!$hasContact) {
+        if (! $hasContact) {
             return;
         }
 
@@ -468,7 +468,7 @@ class UserService
             ->where('action', 'translate')
             ->delete();
 
-        if (!empty($languages)) {
+        if (! empty($languages)) {
             DB::table('acl_permission')->insert([
                 'user_id' => $userId,
                 'group_id' => null,
@@ -498,7 +498,7 @@ class UserService
 
             // Delete properties and their i18n (API keys etc.)
             $propertyIds = DB::table('property')->where('object_id', $id)->pluck('id')->toArray();
-            if (!empty($propertyIds)) {
+            if (! empty($propertyIds)) {
                 DB::table('property_i18n')->whereIn('id', $propertyIds)->delete();
                 DB::table('property')->whereIn('id', $propertyIds)->delete();
             }

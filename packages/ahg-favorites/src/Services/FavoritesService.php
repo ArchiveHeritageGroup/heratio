@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgFavorites\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -81,12 +79,12 @@ class FavoritesService
                     ->whereColumn('digital_object.object_id', 'favorites.archival_description_id')
                     ->where(function ($q) {
                         $q->whereIn('digital_object.usage_id', [142, 141])
-                          ->orWhere(function ($q2) {
-                              $q2->where('digital_object.usage_id', 140)
-                                 ->whereIn('digital_object.mime_type', [
-                                     'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-                                 ]);
-                          });
+                            ->orWhere(function ($q2) {
+                                $q2->where('digital_object.usage_id', 140)
+                                    ->whereIn('digital_object.mime_type', [
+                                        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+                                    ]);
+                            });
                     })
                     ->orderByRaw('FIELD(usage_id, 142, 141, 140)')
                     ->limit(1)
@@ -149,10 +147,12 @@ class FavoritesService
                 ->where('archival_description_id', $objectId)
                 ->where('object_type', $objectType)
                 ->delete();
+
             return false; // Removed
         }
 
         $this->addToFavorites($userId, $objectId, $title, $slug, $objectType);
+
         return true; // Added
     }
 
@@ -221,7 +221,7 @@ class FavoritesService
                 ]);
             }
             fclose($out);
-        }, 'favorites-' . date('Y-m-d') . '.csv', ['Content-Type' => 'text/csv']);
+        }, 'favorites-'.date('Y-m-d').'.csv', ['Content-Type' => 'text/csv']);
     }
 
     public function exportJson(int $userId, ?int $folderId = null): \Illuminate\Http\JsonResponse
@@ -230,6 +230,7 @@ class FavoritesService
         if ($folderId) {
             $query->where('folder_id', $folderId);
         }
+
         return response()->json($query->orderBy('created_at', 'desc')->get());
     }
 
@@ -240,10 +241,14 @@ class FavoritesService
 
         foreach ($lines as $line) {
             $slug = trim($line);
-            if (empty($slug) || $slug === 'slug') continue;
+            if (empty($slug) || $slug === 'slug') {
+                continue;
+            }
 
             $slugRow = DB::table('slug')->where('slug', $slug)->first();
-            if (!$slugRow) continue;
+            if (! $slugRow) {
+                continue;
+            }
 
             $title = DB::table('information_object_i18n')
                 ->where('id', $slugRow->object_id)

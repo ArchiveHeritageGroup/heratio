@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgSemanticSearch\Controllers;
 
 use AhgSemanticSearch\Services\SemanticSearchService;
@@ -37,7 +35,7 @@ class SemanticSearchController extends Controller
 
     public function __construct()
     {
-        $this->service = new SemanticSearchService();
+        $this->service = new SemanticSearchService;
     }
 
     // Admin Dashboard
@@ -127,7 +125,7 @@ class SemanticSearchController extends Controller
     public function adminTemplateEdit(Request $request, ?int $id = null)
     {
         $template = $id ? $this->service->getTemplate($id) : null;
-        $isNew = !$template;
+        $isNew = ! $template;
 
         if ($request->isMethod('post')) {
             $data = $request->only(['name', 'slug', 'description', 'template_type', 'config', 'is_active']);

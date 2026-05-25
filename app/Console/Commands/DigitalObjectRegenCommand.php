@@ -20,7 +20,7 @@ class DigitalObjectRegenCommand extends Command
         $cmd = 'php /usr/share/nginx/archive/symfony digitalobject:regen-derivatives';
 
         if ($slug = $this->option('slug')) {
-            $cmd .= ' --slug=' . escapeshellarg($slug);
+            $cmd .= ' --slug='.escapeshellarg($slug);
         }
 
         if ($this->option('force')) {
@@ -36,7 +36,7 @@ class DigitalObjectRegenCommand extends Command
         if ($exitCode === 0) {
             $this->info('Derivative regeneration completed.');
         } else {
-            $this->error('Derivative regeneration failed with exit code: ' . $exitCode);
+            $this->error('Derivative regeneration failed with exit code: '.$exitCode);
         }
 
         return $exitCode === 0 ? self::SUCCESS : self::FAILURE;

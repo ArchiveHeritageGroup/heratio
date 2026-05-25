@@ -33,8 +33,9 @@ class OaiMarkDeletedCommand extends Command
 
     public function handle(): int
     {
-        if (!Schema::hasTable('oai_deleted_record')) {
+        if (! Schema::hasTable('oai_deleted_record')) {
             $this->error('oai_deleted_record table is missing. Run `php artisan migrate` first.');
+
             return self::FAILURE;
         }
 
@@ -49,6 +50,7 @@ class OaiMarkDeletedCommand extends Command
         $id = $this->argument('oai_local_identifier');
         if ($id === null || $id === '') {
             $this->error('Provide an oai_local_identifier, or use --all-unpublished / --list.');
+
             return self::INVALID;
         }
 
@@ -60,10 +62,12 @@ class OaiMarkDeletedCommand extends Command
         $rows = DB::table('oai_deleted_record')->orderBy('deleted_at', 'desc')->limit(50)->get();
         if ($rows->isEmpty()) {
             $this->info('No tombstones recorded.');
+
             return self::SUCCESS;
         }
         $this->table(['oai_local_id', 'deleted_at', 'reason'],
             $rows->map(fn ($r) => [$r->oai_local_identifier, $r->deleted_at, $r->reason ?? ''])->all());
+
         return self::SUCCESS;
     }
 
@@ -83,6 +87,7 @@ class OaiMarkDeletedCommand extends Command
             ]);
         }
         $this->info("Tombstone recorded for oai_local_identifier={$oaiLocalId}.");
+
         return self::SUCCESS;
     }
 
@@ -108,6 +113,7 @@ class OaiMarkDeletedCommand extends Command
 
         if ($candidates->isEmpty()) {
             $this->info('No unpublished records need tombstoning.');
+
             return self::SUCCESS;
         }
 
@@ -118,7 +124,8 @@ class OaiMarkDeletedCommand extends Command
             'reason' => 'unpublished',
         ])->all();
         DB::table('oai_deleted_record')->insert($inserts);
-        $this->info('Recorded ' . count($inserts) . ' tombstones for unpublished records.');
+        $this->info('Recorded '.count($inserts).' tombstones for unpublished records.');
+
         return self::SUCCESS;
     }
 }

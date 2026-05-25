@@ -17,6 +17,7 @@ use Illuminate\Console\Command;
 class SnapshotSmokeCommand extends Command
 {
     protected $signature = 'ahg:version-snapshot {--entity=information_object : information_object | actor} {--id= : Entity primary key} {--pretty : Pretty-print JSON}';
+
     protected $description = 'Print a SnapshotBuilder JSON snapshot for an entity (smoke test)';
 
     public function handle(): int
@@ -25,17 +26,19 @@ class SnapshotSmokeCommand extends Command
         $id = (int) $this->option('id');
         if ($id <= 0) {
             $this->error('--id is required and must be > 0');
+
             return self::FAILURE;
         }
 
-        $builder = new SnapshotBuilder();
+        $builder = new SnapshotBuilder;
         $snapshot = match ($entity) {
             'information_object' => $builder->buildForInformationObject($id),
-            'actor'              => $builder->buildForActor($id),
-            default              => null,
+            'actor' => $builder->buildForActor($id),
+            default => null,
         };
         if ($snapshot === null) {
             $this->error("Unknown entity: {$entity}");
+
             return self::FAILURE;
         }
 
@@ -44,6 +47,7 @@ class SnapshotSmokeCommand extends Command
             $flags |= JSON_PRETTY_PRINT;
         }
         $this->line(json_encode($snapshot, $flags));
+
         return self::SUCCESS;
     }
 }

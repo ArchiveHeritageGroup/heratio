@@ -65,7 +65,7 @@ class DonorApiController extends Controller
             ->select('donor.id', 'actor_i18n.*', 'slug.slug', 'object.created_at', 'object.updated_at')
             ->first();
 
-        if (!$donor) {
+        if (! $donor) {
             return response()->json(['error' => 'Not found'], 404);
         }
 

@@ -5,6 +5,4 @@ namespace AhgShareLink\Services;
 /**
  * @phase C
  */
-class ShareLinkException extends \RuntimeException
-{
-}
+class ShareLinkException extends \RuntimeException {}

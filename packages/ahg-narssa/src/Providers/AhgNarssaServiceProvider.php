@@ -35,14 +35,14 @@ class AhgNarssaServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(TransferPackageService::class, fn () => new TransferPackageService());
+        $this->app->singleton(TransferPackageService::class, fn () => new TransferPackageService);
     }
 
     public function boot(): void
     {
         try {
-            if (!Schema::hasTable('narssa_transfer')) {
-                $sql = file_get_contents(__DIR__ . '/../../database/install.sql');
+            if (! Schema::hasTable('narssa_transfer')) {
+                $sql = file_get_contents(__DIR__.'/../../database/install.sql');
                 if ($sql !== false) {
                     DB::unprepared($sql);
                 }
@@ -51,8 +51,8 @@ class AhgNarssaServiceProvider extends ServiceProvider
             // installation may be cold; auto-seed is best-effort
         }
 
-        if (file_exists(__DIR__ . '/../../routes/web.php')) {
-            $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+        if (file_exists(__DIR__.'/../../routes/web.php')) {
+            $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
         }
 
         if ($this->app->runningInConsole()) {

@@ -30,9 +30,13 @@ use Illuminate\Support\Facades\DB;
 class FederationProvenance
 {
     public const SCOPE = 'federation';
+
     public const PROP_SOURCE_PEER_ID = 'source_peer_id';
+
     public const PROP_SOURCE_OAI_IDENTIFIER = 'source_oai_identifier';
+
     public const PROP_HARVEST_DATE = 'harvest_date';
+
     public const PROP_METADATA_FORMAT = 'metadata_format';
 
     public function recordHarvest(
@@ -79,7 +83,7 @@ class FederationProvenance
             ->where('value', $sourceIdentifier)
             ->value('id');
 
-        if (!$matchedObjectId) {
+        if (! $matchedObjectId) {
             return null;
         }
 
@@ -95,7 +99,7 @@ class FederationProvenance
             ->where('name', self::PROP_SOURCE_PEER_ID)
             ->first();
 
-        if (!$peerProperty) {
+        if (! $peerProperty) {
             return null;
         }
 
@@ -113,7 +117,7 @@ class FederationProvenance
     public function getProvenance(int $objectId): ?array
     {
         $peerId = $this->getProperty($objectId, self::PROP_SOURCE_PEER_ID);
-        if (!$peerId) {
+        if (! $peerId) {
             return null;
         }
 
@@ -250,6 +254,7 @@ class FederationProvenance
                     'value' => $value,
                 ]);
             }
+
             return;
         }
 
@@ -277,7 +282,7 @@ class FederationProvenance
             ->where('name', $name)
             ->first();
 
-        if (!$property) {
+        if (! $property) {
             return null;
         }
 

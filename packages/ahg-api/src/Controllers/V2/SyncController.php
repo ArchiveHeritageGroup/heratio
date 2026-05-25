@@ -129,7 +129,7 @@ class SyncController extends BaseApiController
                         'slug' => $body['data']['slug'] ?? null,
                     ];
                     $success++;
-                } elseif ($op['action'] === 'update' && !empty($op['slug'])) {
+                } elseif ($op['action'] === 'update' && ! empty($op['slug'])) {
                     $subRequest = Request::create('/', 'PUT', $op['data']);
                     $subRequest->attributes = $request->attributes;
                     $ctrl = app(DescriptionController::class);

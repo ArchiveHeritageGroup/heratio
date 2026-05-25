@@ -31,9 +31,9 @@ class RightsEnforcementService
     /**
      * Apply the parsed rights block to an IO. Returns ['needsReview'=>bool, 'warnings'=>string[]].
      *
-     * @param int    $ioId       target information_object.id
-     * @param array  $rights     parsed sidecar rights block (may be empty)
-     * @param object $session    ingest_session row (for security_classification_id)
+     * @param  int  $ioId  target information_object.id
+     * @param  array  $rights  parsed sidecar rights block (may be empty)
+     * @param  object  $session  ingest_session row (for security_classification_id)
      */
     public function apply(int $ioId, array $rights, object $session): array
     {
@@ -41,35 +41,35 @@ class RightsEnforcementService
         $anythingApplied = false;
 
         // Rights statement (RightsStatements.org URI)
-        if (!empty($rights['statement_uri'])) {
+        if (! empty($rights['statement_uri'])) {
             $stmtId = $this->findOrCreateRightsStatement($rights['statement_uri']);
             if ($stmtId) {
                 $this->linkObjectRightsStatement($ioId, $stmtId);
                 $anythingApplied = true;
             } else {
-                $warnings[] = "Could not resolve rights statement URI: " . $rights['statement_uri'];
+                $warnings[] = 'Could not resolve rights statement URI: '.$rights['statement_uri'];
             }
         }
 
         // Creative Commons licence
-        if (!empty($rights['cc_license'])) {
+        if (! empty($rights['cc_license'])) {
             $ccId = $this->findOrCreateCcLicense($rights['cc_license']);
             if ($ccId) {
                 $this->linkCcLicense($ioId, $ccId);
                 $anythingApplied = true;
             } else {
-                $warnings[] = "Unknown CC licence code: " . $rights['cc_license'];
+                $warnings[] = 'Unknown CC licence code: '.$rights['cc_license'];
             }
         }
 
         // Embargo
-        if (!empty($rights['embargo_until'])) {
+        if (! empty($rights['embargo_until'])) {
             $this->applyEmbargo($ioId, $rights['embargo_until'], $rights['embargo_reason'] ?? null, $session);
             $anythingApplied = true;
         }
 
         // ODRL policy
-        if (!empty($rights['odrl_policy'])) {
+        if (! empty($rights['odrl_policy'])) {
             $this->linkOdrlPolicy($ioId, $rights['odrl_policy'], $warnings);
             $anythingApplied = true;
         }
@@ -79,19 +79,19 @@ class RightsEnforcementService
             if ($this->linkTkLabel($ioId, $tkCode)) {
                 $anythingApplied = true;
             } else {
-                $warnings[] = "Unknown Traditional Knowledge label code: " . $tkCode;
+                $warnings[] = 'Unknown Traditional Knowledge label code: '.$tkCode;
             }
         }
 
         // Rights holder
-        if (!empty($rights['rights_holder'])) {
+        if (! empty($rights['rights_holder'])) {
             $this->linkRightsHolder($ioId, $rights['rights_holder']);
             $anythingApplied = true;
         }
 
         // Security classification: require *some* rights record when set.
         $needsReview = false;
-        if (!empty($session->security_classification_id) && !$anythingApplied) {
+        if (! empty($session->security_classification_id) && ! $anythingApplied) {
             $needsReview = true;
             $warnings[] = 'Session has a security classification but sidecar supplied no rights block — held for review.';
         }
@@ -106,7 +106,9 @@ class RightsEnforcementService
     protected function findOrCreateRightsStatement(string $uri): ?int
     {
         $id = DB::table('rights_statement')->where('uri', $uri)->value('id');
-        if ($id) { return (int) $id; }
+        if ($id) {
+            return (int) $id;
+        }
 
         try {
             $code = $this->deriveCodeFromUri($uri, 'rightsstatements.org', 'rights_statement');
@@ -120,6 +122,7 @@ class RightsEnforcementService
                     default => 'other-rights-status',
                 };
             }
+
             return (int) DB::table('rights_statement')->insertGetId([
                 'code' => $code,
                 'uri' => $uri,
@@ -128,7 +131,8 @@ class RightsEnforcementService
                 'created_at' => now(),
             ]);
         } catch (\Throwable $e) {
-            Log::warning('[ahg-scan] rights_statement insert failed: ' . $e->getMessage());
+            Log::warning('[ahg-scan] rights_statement insert failed: '.$e->getMessage());
+
             return null;
         }
     }
@@ -137,7 +141,9 @@ class RightsEnforcementService
     {
         $exists = DB::table('object_rights_statement')
             ->where('object_id', $ioId)->where('rights_statement_id', $stmtId)->exists();
-        if ($exists) { return; }
+        if ($exists) {
+            return;
+        }
         DB::table('object_rights_statement')->insert([
             'object_id' => $ioId,
             'rights_statement_id' => $stmtId,
@@ -154,32 +160,38 @@ class RightsEnforcementService
         // Sidecar can supply either code ('cc-by-4.0') or URI ('https://creativecommons.org/...')
         if (str_starts_with($codeOrUri, 'http')) {
             $id = DB::table('rights_cc_license')->where('uri', $codeOrUri)->value('id');
-            if ($id) { return (int) $id; }
+            if ($id) {
+                return (int) $id;
+            }
             // Derive code from URI: https://creativecommons.org/licenses/by-nc/4.0/ → cc-by-nc-4.0
             $code = $this->deriveCcCodeFromUri($codeOrUri);
             $uri = $codeOrUri;
         } else {
             $code = strtolower($codeOrUri);
             $id = DB::table('rights_cc_license')->where('code', $code)->value('id');
-            if ($id) { return (int) $id; }
+            if ($id) {
+                return (int) $id;
+            }
             $uri = $this->deriveCcUriFromCode($code);
         }
 
         try {
             $version = preg_match('/(\d+\.\d+)$/', $code, $m) ? $m[1] : '4.0';
+
             return (int) DB::table('rights_cc_license')->insertGetId([
                 'code' => $code,
                 'version' => $version,
                 'uri' => $uri,
-                'allows_commercial' => !str_contains($code, '-nc-') ? 1 : 0,
-                'allows_derivatives' => !str_contains($code, '-nd-') ? 1 : 0,
+                'allows_commercial' => ! str_contains($code, '-nc-') ? 1 : 0,
+                'allows_derivatives' => ! str_contains($code, '-nd-') ? 1 : 0,
                 'requires_share_alike' => str_contains($code, '-sa-') ? 1 : 0,
                 'requires_attribution' => str_starts_with($code, 'cc-by') ? 1 : 0,
                 'is_active' => 1,
                 'created_at' => now(),
             ]);
         } catch (\Throwable $e) {
-            Log::warning('[ahg-scan] rights_cc_license insert failed: ' . $e->getMessage());
+            Log::warning('[ahg-scan] rights_cc_license insert failed: '.$e->getMessage());
+
             return null;
         }
     }
@@ -190,7 +202,7 @@ class RightsEnforcementService
         // record on object_rights_statement with notes describing the CC code, so
         // ODRL + rights-statement enforcement both see it uniformly.
         $code = DB::table('rights_cc_license')->where('id', $ccId)->value('code');
-        $stmtId = $this->findOrCreateRightsStatement('cc:' . $code);
+        $stmtId = $this->findOrCreateRightsStatement('cc:'.$code);
         if ($stmtId) {
             $this->linkObjectRightsStatement($ioId, $stmtId);
         }
@@ -200,8 +212,9 @@ class RightsEnforcementService
     {
         // Strip trailing slash and protocol, e.g. licenses/by-nc/4.0 → cc-by-nc-4.0
         if (preg_match('#creativecommons\.org/licenses/([^/]+)/([^/]+)#', $uri, $m)) {
-            return 'cc-' . strtolower($m[1]) . '-' . $m[2];
+            return 'cc-'.strtolower($m[1]).'-'.$m[2];
         }
+
         return 'cc-unknown';
     }
 
@@ -211,6 +224,7 @@ class RightsEnforcementService
         if (preg_match('/^cc-([a-z-]+?)-(\d+\.\d+)$/', $code, $m)) {
             return "https://creativecommons.org/licenses/{$m[1]}/{$m[2]}/";
         }
+
         return "https://creativecommons.org/licenses/{$code}/";
     }
 
@@ -221,9 +235,11 @@ class RightsEnforcementService
     protected function applyEmbargo(int $ioId, string $endDate, ?string $reason, object $session): void
     {
         // Normalise YYYY-MM-DD
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
             $ts = strtotime($endDate);
-            if (!$ts) { return; }
+            if (! $ts) {
+                return;
+            }
             $endDate = date('Y-m-d', $ts);
         }
 
@@ -266,8 +282,9 @@ class RightsEnforcementService
                 ->where('id', $templateId)
                 ->whereIn('target_type', ['template', 'information_object'])
                 ->first();
-            if (!$template) {
+            if (! $template) {
                 $warnings[] = "ODRL policy template #{$slugOrId} not found";
+
                 return;
             }
             // Copy the template row binding to this IO (target_type=information_object).
@@ -293,16 +310,21 @@ class RightsEnforcementService
     protected function linkTkLabel(int $ioId, string $code): bool
     {
         $tkId = DB::table('rights_tk_label')->where('code', $code)->where('is_active', 1)->value('id');
-        if (!$tkId) { return false; }
+        if (! $tkId) {
+            return false;
+        }
         $exists = DB::table('rights_object_tk_label')
             ->where('object_id', $ioId)->where('tk_label_id', $tkId)->exists();
-        if ($exists) { return true; }
+        if ($exists) {
+            return true;
+        }
         DB::table('rights_object_tk_label')->insert([
             'object_id' => $ioId,
             'tk_label_id' => $tkId,
             'verified' => 0,
             'created_at' => now(),
         ]);
+
         return true;
     }
 
@@ -317,7 +339,7 @@ class RightsEnforcementService
             ->where('actor_i18n.authorized_form_of_name', $name)
             ->value('donor.id');
 
-        if (!$donorId) {
+        if (! $donorId) {
             // Don't auto-create donor here — creating a rights-holder record
             // has stronger implications than a plain actor. Caller gets a
             // warning via return-value; we just skip.
@@ -326,7 +348,9 @@ class RightsEnforcementService
 
         $exists = DB::table('object_rights_holder')
             ->where('object_id', $ioId)->where('donor_id', $donorId)->exists();
-        if ($exists) { return; }
+        if ($exists) {
+            return;
+        }
         DB::table('object_rights_holder')->insert([
             'object_id' => $ioId,
             'donor_id' => $donorId,
@@ -348,8 +372,10 @@ class RightsEnforcementService
     {
         if (preg_match('#([^/]+)/?$#', rtrim($uri, '/'), $m)) {
             $slug = Str::slug($m[1]);
-            return substr($tablePrefix . '-' . $slug, 0, 60);
+
+            return substr($tablePrefix.'-'.$slug, 0, 60);
         }
-        return substr($tablePrefix . '-' . substr(md5($uri), 0, 8), 0, 60);
+
+        return substr($tablePrefix.'-'.substr(md5($uri), 0, 8), 0, 60);
     }
 }

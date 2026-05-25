@@ -63,6 +63,7 @@ class StatusCommand extends Command
         $this->nerFeedback();
         $this->lookupCache();
         $this->fusekiGraphs();
+
         return self::SUCCESS;
     }
 
@@ -77,10 +78,11 @@ class StatusCommand extends Command
         $this->line('ahg_mention rows by state:');
         if ($rows->isEmpty()) {
             $this->line('    (none)');
+
             return;
         }
         foreach ($rows as $r) {
-            $this->line(sprintf('    %-20s %d', (string) $r->state . ':', (int) $r->c));
+            $this->line(sprintf('    %-20s %d', (string) $r->state.':', (int) $r->c));
         }
     }
 
@@ -95,10 +97,11 @@ class StatusCommand extends Command
         $this->line('ahg_mention rows by entity_type:');
         if ($rows->isEmpty()) {
             $this->line('    (none)');
+
             return;
         }
         foreach ($rows as $r) {
-            $this->line(sprintf('    %-10s %d', (string) $r->entity_type . ':', (int) $r->c));
+            $this->line(sprintf('    %-10s %d', (string) $r->entity_type.':', (int) $r->c));
         }
     }
 
@@ -129,10 +132,11 @@ class StatusCommand extends Command
         $this->line('ahg_mention_decision rows by type:');
         if ($rows->isEmpty()) {
             $this->line('    (none)');
+
             return;
         }
         foreach ($rows as $r) {
-            $this->line(sprintf('    %-20s %d', (string) $r->decision_type . ':', (int) $r->c));
+            $this->line(sprintf('    %-20s %d', (string) $r->decision_type.':', (int) $r->c));
         }
     }
 
@@ -173,12 +177,13 @@ class StatusCommand extends Command
 
         if ($bySource->isEmpty()) {
             $this->line('ahg_authority_lookup_cache rows: 0');
+
             return;
         }
 
         $parts = [];
         foreach ($bySource as $r) {
-            $parts[] = (string) $r->source . '=' . (int) $r->c;
+            $parts[] = (string) $r->source.'='.(int) $r->c;
         }
         $this->line(sprintf(
             'ahg_authority_lookup_cache rows: %d (by source: %s)',
@@ -190,8 +195,9 @@ class StatusCommand extends Command
     private function fusekiGraphs(): void
     {
         $serviceClass = '\\AhgRic\\Services\\SparqlQueryService';
-        if (!class_exists($serviceClass)) {
+        if (! class_exists($serviceClass)) {
             $this->line('Fuseki provenance graphs: (skipped: AhgRic\\Services\\SparqlQueryService not installed)');
+
             return;
         }
 
@@ -199,7 +205,8 @@ class StatusCommand extends Command
             /** @var object $service */
             $service = app($serviceClass);
         } catch (\Throwable $e) {
-            $this->line('Fuseki provenance graphs: (skipped: ' . $e->getMessage() . ')');
+            $this->line('Fuseki provenance graphs: (skipped: '.$e->getMessage().')');
+
             return;
         }
 

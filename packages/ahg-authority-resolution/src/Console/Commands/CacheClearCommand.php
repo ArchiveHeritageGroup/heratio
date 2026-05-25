@@ -58,17 +58,19 @@ class CacheClearCommand extends Command
         $all = (bool) $this->option('all');
         $force = (bool) $this->option('force');
 
-        if ($source === null && !$all) {
+        if ($source === null && ! $all) {
             $this->error('Provide --source=NAME or --all.');
+
             return self::FAILURE;
         }
         if ($source !== null && $all) {
             $this->error('--source and --all are mutually exclusive.');
+
             return self::FAILURE;
         }
 
         $q = DB::table('ahg_authority_lookup_cache');
-        if (!$all) {
+        if (! $all) {
             $q->where('source', $source);
         }
 
@@ -76,20 +78,23 @@ class CacheClearCommand extends Command
         if ($count === 0) {
             $label = $all ? 'all sources' : "source={$source}";
             $this->info("ahg_authority_lookup_cache: 0 rows match {$label}; nothing to do.");
+
             return self::SUCCESS;
         }
 
         $label = $all ? 'ALL sources' : "source={$source}";
-        if (!$force) {
+        if (! $force) {
             $confirmed = $this->confirm("Delete {$count} row(s) from ahg_authority_lookup_cache ({$label})?", false);
-            if (!$confirmed) {
+            if (! $confirmed) {
                 $this->info('Aborted.');
+
                 return self::SUCCESS;
             }
         }
 
         $deleted = (int) $q->delete();
         $this->info(sprintf('Deleted %d row(s) from ahg_authority_lookup_cache (%s).', $deleted, $label));
+
         return self::SUCCESS;
     }
 }

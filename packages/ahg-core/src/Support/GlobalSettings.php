@@ -48,6 +48,7 @@ class GlobalSettings
     public static function defaultPublicationStatusId(int $fallbackDraftId): int
     {
         $raw = SettingHelper::get('defaultPubStatus', '');
+
         return $raw !== '' && ctype_digit($raw) ? (int) $raw : $fallbackDraftId;
     }
 
@@ -85,6 +86,7 @@ class GlobalSettings
     public static function siteBaseUrl(): string
     {
         $val = trim((string) SettingHelper::get('siteBaseUrl', ''));
+
         return $val !== '' ? rtrim($val, '/') : rtrim((string) config('app.url', ''), '/');
     }
 
@@ -115,18 +117,21 @@ class GlobalSettings
     public static function sortBrowserAnonymous(): string
     {
         $val = trim((string) SettingHelper::get('sort_browser_anonymous', 'lastUpdated'));
+
         return $val !== '' ? $val : 'lastUpdated';
     }
 
     public static function sortBrowserUser(): string
     {
         $val = trim((string) SettingHelper::get('sort_browser_user', 'lastUpdated'));
+
         return $val !== '' ? $val : 'lastUpdated';
     }
 
     public static function sortTreeviewInformationObject(): string
     {
         $val = trim((string) SettingHelper::get('sort_treeview_informationobject', 'manual'));
+
         return $val !== '' ? $val : 'manual';
     }
 
@@ -135,6 +140,7 @@ class GlobalSettings
     public static function treeviewType(): string
     {
         $val = trim((string) SettingHelper::get('treeview_type', 'sidebar'));
+
         return $val !== '' ? $val : 'sidebar';
     }
 
@@ -154,10 +160,11 @@ class GlobalSettings
         if ($name === null || $name === '') {
             return $name;
         }
-        if (!self::stripExtensions()) {
+        if (! self::stripExtensions()) {
             return $name;
         }
         $stem = pathinfo($name, PATHINFO_FILENAME);
+
         return $stem !== '' ? $stem : $name;
     }
 
@@ -182,12 +189,15 @@ class GlobalSettings
         $raw = trim((string) SettingHelper::get('single_repo_id', ''));
         if ($raw !== '' && ctype_digit($raw)) {
             $explicit = (int) $raw;
-            if ($explicit > 0) return $explicit;
+            if ($explicit > 0) {
+                return $explicit;
+            }
         }
         try {
             $first = \Illuminate\Support\Facades\DB::table('repository')
                 ->orderBy('id')
                 ->value('id');
+
             return $first ? (int) $first : null;
         } catch (\Throwable $e) {
             return null;
@@ -218,6 +228,7 @@ class GlobalSettings
         if ($raw === '') {
             return -1.0;
         }
+
         return is_numeric($raw) ? (float) $raw : -1.0;
     }
 
@@ -232,6 +243,7 @@ class GlobalSettings
         if ($gb < 0) {
             return null;
         }
+
         // 1 GB = 1024^3 bytes (binary GiB - matches how disk_total_space and
         // most disk-quota tools report). The form label says "GB" without
         // disambiguation; binary is the convention in storage-tooling and
@@ -244,12 +256,14 @@ class GlobalSettings
     public static function findingAidFormat(): string
     {
         $val = trim((string) SettingHelper::get('findingAidFormat', 'pdf'));
+
         return $val !== '' ? $val : 'pdf';
     }
 
     public static function findingAidModel(): string
     {
         $val = trim((string) SettingHelper::get('findingAidModel', 'inventory-summary'));
+
         return $val !== '' ? $val : 'inventory-summary';
     }
 
@@ -258,6 +272,7 @@ class GlobalSettings
     protected static function asBool(string $val): bool
     {
         $v = strtolower(trim($val));
+
         return $v === '1' || $v === 'true' || $v === 'yes' || $v === 'on';
     }
 }

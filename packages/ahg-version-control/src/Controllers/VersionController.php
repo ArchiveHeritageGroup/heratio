@@ -26,17 +26,17 @@ class VersionController extends Controller
     private const ENTITY_TABLE_MAP = [
         'information_object' => [
             'version_table' => 'information_object_version',
-            'fk'            => 'information_object_id',
-            'parent_table'  => 'information_object',
-            'i18n_table'    => 'information_object_i18n',
-            'title_field'   => 'title',
+            'fk' => 'information_object_id',
+            'parent_table' => 'information_object',
+            'i18n_table' => 'information_object_i18n',
+            'title_field' => 'title',
         ],
         'actor' => [
             'version_table' => 'actor_version',
-            'fk'            => 'actor_id',
-            'parent_table'  => 'actor',
-            'i18n_table'    => 'actor_i18n',
-            'title_field'   => 'authorized_form_of_name',
+            'fk' => 'actor_id',
+            'parent_table' => 'actor',
+            'i18n_table' => 'actor_i18n',
+            'title_field' => 'authorized_form_of_name',
         ],
     ];
 
@@ -52,34 +52,34 @@ class VersionController extends Controller
         $total = (int) DB::table($config['version_table'])->where($config['fk'], $id)->count();
 
         $versions = DB::table($config['version_table'])
-            ->leftJoin('user', 'user.id', '=', $config['version_table'] . '.created_by')
+            ->leftJoin('user', 'user.id', '=', $config['version_table'].'.created_by')
             ->where($config['fk'], $id)
             ->orderBy('version_number', 'desc')
             ->offset(($page - 1) * self::PAGE_SIZE)
             ->limit(self::PAGE_SIZE)
             ->select(
-                $config['version_table'] . '.id',
-                $config['version_table'] . '.version_number',
-                $config['version_table'] . '.change_summary',
-                $config['version_table'] . '.changed_fields',
-                $config['version_table'] . '.created_by',
-                $config['version_table'] . '.created_at',
-                $config['version_table'] . '.is_restore',
-                $config['version_table'] . '.restored_from_version',
+                $config['version_table'].'.id',
+                $config['version_table'].'.version_number',
+                $config['version_table'].'.change_summary',
+                $config['version_table'].'.changed_fields',
+                $config['version_table'].'.created_by',
+                $config['version_table'].'.created_at',
+                $config['version_table'].'.is_restore',
+                $config['version_table'].'.restored_from_version',
                 'user.username AS created_by_username',
             )
             ->get();
 
         return view('ahg-version-control::list', [
-            'entityType'  => $entity,
-            'entityId'    => $id,
+            'entityType' => $entity,
+            'entityId' => $id,
             'entityTitle' => $this->resolveTitle($entity, $id),
-            'entitySlug'  => $this->resolveSlug($id),
-            'versions'    => $versions,
-            'totalCount'  => $total,
-            'page'        => $page,
-            'pageSize'    => self::PAGE_SIZE,
-            'totalPages'  => max(1, (int) ceil($total / self::PAGE_SIZE)),
+            'entitySlug' => $this->resolveSlug($id),
+            'versions' => $versions,
+            'totalCount' => $total,
+            'page' => $page,
+            'pageSize' => self::PAGE_SIZE,
+            'totalPages' => max(1, (int) ceil($total / self::PAGE_SIZE)),
         ]);
     }
 
@@ -90,25 +90,25 @@ class VersionController extends Controller
         $config = self::ENTITY_TABLE_MAP[$entity];
 
         $row = DB::table($config['version_table'])
-            ->leftJoin('user', 'user.id', '=', $config['version_table'] . '.created_by')
+            ->leftJoin('user', 'user.id', '=', $config['version_table'].'.created_by')
             ->where($config['fk'], $id)
             ->where('version_number', $number)
-            ->select($config['version_table'] . '.*', 'user.username AS created_by_username')
+            ->select($config['version_table'].'.*', 'user.username AS created_by_username')
             ->first();
 
-        if (!$row) {
+        if (! $row) {
             abort(404);
         }
 
         return view('ahg-version-control::show', [
-            'entityType'    => $entity,
-            'entityId'      => $id,
+            'entityType' => $entity,
+            'entityId' => $id,
             'versionNumber' => $number,
-            'version'       => $row,
-            'snapshot'      => is_string($row->snapshot) ? (json_decode($row->snapshot, true) ?? []) : [],
+            'version' => $row,
+            'snapshot' => is_string($row->snapshot) ? (json_decode($row->snapshot, true) ?? []) : [],
             'changedFields' => is_string($row->changed_fields) ? (json_decode($row->changed_fields, true) ?? []) : [],
-            'entityTitle'   => $this->resolveTitle($entity, $id),
-            'entitySlug'    => $this->resolveSlug($id),
+            'entityTitle' => $this->resolveTitle($entity, $id),
+            'entitySlug' => $this->resolveSlug($id),
         ]);
     }
 
@@ -135,13 +135,14 @@ class VersionController extends Controller
                 targetVersionNumber: $number,
                 userId: (int) auth()->id() ?: null,
             );
+
             return redirect()->route('version-control.list', ['entity' => $entity, 'id' => $id])
                 ->with('notice', sprintf(__('Restored from v%1$d. New version v%2$d created.'), $number, $newVersion));
         } catch (InsufficientClearanceException $e) {
             abort(403, $e->getMessage());
         } catch (\Throwable $e) {
             return redirect()->route('version-control.list', ['entity' => $entity, 'id' => $id])
-                ->with('error', __('Restore failed: ') . $e->getMessage());
+                ->with('error', __('Restore failed: ').$e->getMessage());
         }
     }
 
@@ -151,8 +152,8 @@ class VersionController extends Controller
     private function requireAclAction(string $action): void
     {
         $userId = (int) (auth()->id() ?? 0) ?: null;
-        $check = new AclCheck();
-        if (!$check->canUserDo($userId, $action)) {
+        $check = new AclCheck;
+        if (! $check->canUserDo($userId, $action)) {
             abort(403);
         }
     }
@@ -165,25 +166,25 @@ class VersionController extends Controller
 
         $snap1 = DB::table($config['version_table'])->where($config['fk'], $id)->where('version_number', $v1)->value('snapshot');
         $snap2 = DB::table($config['version_table'])->where($config['fk'], $id)->where('version_number', $v2)->value('snapshot');
-        if (!is_string($snap1) || !is_string($snap2)) {
+        if (! is_string($snap1) || ! is_string($snap2)) {
             abort(404);
         }
 
         $diff = $computer->diff(json_decode($snap1, true) ?? [], json_decode($snap2, true) ?? []);
 
         return view('ahg-version-control::diff', [
-            'entityType'  => $entity,
-            'entityId'    => $id,
+            'entityType' => $entity,
+            'entityId' => $id,
             'entityTitle' => $this->resolveTitle($entity, $id),
-            'v1'          => $v1,
-            'v2'          => $v2,
-            'diff'        => $diff,
+            'v1' => $v1,
+            'v2' => $v2,
+            'diff' => $diff,
         ]);
     }
 
     private function assertEntity(string $entity, int $id): void
     {
-        if (!isset(self::ENTITY_TABLE_MAP[$entity]) || $id <= 0) {
+        if (! isset(self::ENTITY_TABLE_MAP[$entity]) || $id <= 0) {
             abort(404);
         }
     }
@@ -203,12 +204,14 @@ class VersionController extends Controller
             ->where('id', $id)
             ->orderBy('culture')
             ->value($config['title_field']);
+
         return is_string($title) && $title !== '' ? $title : "#{$id}";
     }
 
     private function resolveSlug(int $objectId): ?string
     {
         $slug = DB::table('slug')->where('object_id', $objectId)->value('slug');
+
         return is_string($slug) ? $slug : null;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Api;
 
-use AhgCore\Models\Term;
 use Database\Factories\TermFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;

@@ -32,8 +32,10 @@ class DisplayReindexCommand extends Command
 
     /** Subject taxonomy id. */
     private const TAX_SUBJECT = 35;
+
     /** Place taxonomy id. */
     private const TAX_PLACE = 42;
+
     /** Genre taxonomy id. */
     private const TAX_GENRE = 78;
 
@@ -51,8 +53,9 @@ class DisplayReindexCommand extends Command
         $targets = $only ? [$only] : self::FACETS;
 
         foreach ($targets as $facet) {
-            if (!in_array($facet, self::FACETS, true)) {
-                $this->warn("Unknown facet '{$facet}'. Supported: " . implode(', ', self::FACETS));
+            if (! in_array($facet, self::FACETS, true)) {
+                $this->warn("Unknown facet '{$facet}'. Supported: ".implode(', ', self::FACETS));
+
                 continue;
             }
             $this->info("Rebuilding facet: {$facet}");
@@ -60,6 +63,7 @@ class DisplayReindexCommand extends Command
         }
 
         $this->info('Done.');
+
         return 0;
     }
 
@@ -67,7 +71,7 @@ class DisplayReindexCommand extends Command
     {
         // Wipe both variants for this facet.
         DB::table('display_facet_cache')
-            ->whereIn('facet_type', [$facet, $facet . '_all'])
+            ->whereIn('facet_type', [$facet, $facet.'_all'])
             ->delete();
 
         $publishedRows = $this->computeFacet($facet, $culture, true, $limit);
@@ -81,7 +85,7 @@ class DisplayReindexCommand extends Command
         foreach ($allRows as $r) {
             $insert[] = $this->shape($facet, $r, $now, true);
         }
-        if (!empty($insert)) {
+        if (! empty($insert)) {
             // Chunk to avoid placeholder limits on very wide facets (place can hit ~150 rows).
             foreach (array_chunk($insert, 500) as $chunk) {
                 DB::table('display_facet_cache')->insert($chunk);
@@ -204,8 +208,9 @@ class DisplayReindexCommand extends Command
     private function shape(string $facet, $row, $now, bool $isAllVariant): array
     {
         $useNameOnly = in_array($facet, ['glam_type', 'media_type'], true);
+
         return [
-            'facet_type' => $isAllVariant ? $facet . '_all' : $facet,
+            'facet_type' => $isAllVariant ? $facet.'_all' : $facet,
             'term_id' => $useNameOnly ? 0 : (int) $row->facet_id,
             'term_name' => (string) ($row->facet_name ?? ''),
             'count' => (int) $row->cnt,

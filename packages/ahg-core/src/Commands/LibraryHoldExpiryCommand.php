@@ -22,7 +22,11 @@ class LibraryHoldExpiryCommand extends Command
 
     public function handle(): int
     {
-        if (! Schema::hasTable('library_hold')) { $this->warn('library_hold missing'); return self::SUCCESS; }
+        if (! Schema::hasTable('library_hold')) {
+            $this->warn('library_hold missing');
+
+            return self::SUCCESS;
+        }
         $dry = (bool) $this->option('dry-run');
 
         $eligible = DB::table('library_hold')
@@ -31,11 +35,14 @@ class LibraryHoldExpiryCommand extends Command
             ->where('expiry_date', '<', now()->toDateString());
 
         $n = (clone $eligible)->count();
-        $this->info("expiring {$n} unfulfilled holds" . ($dry ? ' (dry-run)' : ''));
-        if ($dry || $n === 0) return self::SUCCESS;
+        $this->info("expiring {$n} unfulfilled holds".($dry ? ' (dry-run)' : ''));
+        if ($dry || $n === 0) {
+            return self::SUCCESS;
+        }
 
         $updated = $eligible->update(['status' => 'expired', 'cancelled_date' => now(), 'cancel_reason' => 'expiry_date passed']);
         $this->info("expired={$updated}");
+
         return self::SUCCESS;
     }
 }

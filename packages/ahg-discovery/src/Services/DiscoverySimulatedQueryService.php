@@ -21,7 +21,6 @@
 namespace AhgDiscovery\Services;
 
 use Illuminate\Support\Facades\DB;
-use Throwable;
 
 class DiscoverySimulatedQueryService
 {
@@ -54,8 +53,8 @@ class DiscoverySimulatedQueryService
      *   'expected_object_ids' => [int, ...],   // ground truth
      * ]
      *
-     * @param array{title?:int,subject?:int,scope_np?:int,typo?:int} $counts
-     * @param int $seed RNG seed for reproducibility
+     * @param  array{title?:int,subject?:int,scope_np?:int,typo?:int}  $counts
+     * @param  int  $seed  RNG seed for reproducibility
      */
     public function generate(array $counts = [], int $seed = 42): array
     {
@@ -65,10 +64,18 @@ class DiscoverySimulatedQueryService
         $records = [];
         $i = 0;
 
-        foreach ($this->titleQueries($counts['title']) as $r)    { $records[] = $this->withId(++$i, $r); }
-        foreach ($this->subjectQueries($counts['subject']) as $r){ $records[] = $this->withId(++$i, $r); }
-        foreach ($this->scopeNpQueries($counts['scope_np']) as $r){ $records[] = $this->withId(++$i, $r); }
-        foreach ($this->typoQueries($counts['typo']) as $r)      { $records[] = $this->withId(++$i, $r); }
+        foreach ($this->titleQueries($counts['title']) as $r) {
+            $records[] = $this->withId(++$i, $r);
+        }
+        foreach ($this->subjectQueries($counts['subject']) as $r) {
+            $records[] = $this->withId(++$i, $r);
+        }
+        foreach ($this->scopeNpQueries($counts['scope_np']) as $r) {
+            $records[] = $this->withId(++$i, $r);
+        }
+        foreach ($this->typoQueries($counts['typo']) as $r) {
+            $records[] = $this->withId(++$i, $r);
+        }
 
         return $records;
     }
@@ -85,7 +92,9 @@ class DiscoverySimulatedQueryService
      */
     private function titleQueries(int $n): array
     {
-        if ($n <= 0) return [];
+        if ($n <= 0) {
+            return [];
+        }
 
         // Sample non-trivial titles — exclude the bulk-loaded BOX/FLR/ITEM
         // identifier-style titles which are essentially identifier strings.
@@ -106,16 +115,21 @@ class DiscoverySimulatedQueryService
         $out = [];
         foreach ($rows as $r) {
             $words = preg_split('/\s+/', trim((string) $r->title)) ?: [];
-            $words = array_values(array_filter($words, fn($w) => strlen($w) >= 3));
-            if (count($words) < 2) continue;
+            $words = array_values(array_filter($words, fn ($w) => strlen($w) >= 3));
+            if (count($words) < 2) {
+                continue;
+            }
             $slice = implode(' ', array_slice($words, 0, min(3, count($words))));
             $out[] = [
                 'query_text' => $slice,
                 'query_type' => 'title',
                 'expected_object_ids' => [(int) $r->id],
             ];
-            if (count($out) >= $n) break;
+            if (count($out) >= $n) {
+                break;
+            }
         }
+
         return $out;
     }
 
@@ -125,7 +139,9 @@ class DiscoverySimulatedQueryService
      */
     private function subjectQueries(int $n): array
     {
-        if ($n <= 0) return [];
+        if ($n <= 0) {
+            return [];
+        }
 
         $rows = DB::connection('atom')->select(
             "SELECT otr.term_id, ti.name, COUNT(*) AS uses
@@ -149,13 +165,14 @@ class DiscoverySimulatedQueryService
                 ->table('object_term_relation')
                 ->where('term_id', (int) $r->term_id)
                 ->limit(50)   // cap ground-truth set per query
-                ->pluck('object_id')->map(fn($v) => (int) $v)->all();
+                ->pluck('object_id')->map(fn ($v) => (int) $v)->all();
             $out[] = [
                 'query_text' => trim((string) $r->name),
                 'query_type' => 'subject',
                 'expected_object_ids' => $tagged,
             ];
         }
+
         return $out;
     }
 
@@ -166,7 +183,9 @@ class DiscoverySimulatedQueryService
      */
     private function scopeNpQueries(int $n): array
     {
-        if ($n <= 0) return [];
+        if ($n <= 0) {
+            return [];
+        }
 
         $rows = DB::connection('atom')->select(
             "SELECT i.id, i18n.scope_and_content AS scope
@@ -183,14 +202,19 @@ class DiscoverySimulatedQueryService
         $out = [];
         foreach ($rows as $r) {
             $np = $this->extractNounPhrase((string) $r->scope);
-            if ($np === null) continue;
+            if ($np === null) {
+                continue;
+            }
             $out[] = [
                 'query_text' => $np,
                 'query_type' => 'scope_np',
                 'expected_object_ids' => [(int) $r->id],
             ];
-            if (count($out) >= $n) break;
+            if (count($out) >= $n) {
+                break;
+            }
         }
+
         return $out;
     }
 
@@ -214,12 +238,16 @@ class DiscoverySimulatedQueryService
             if (preg_match('/^(Box|Folder|File|Item|Page|Reel|Series)\b/i', $c)) {
                 return false;
             }
+
             return true;
         });
         $candidates = array_values($candidates);
-        if (empty($candidates)) return null;
+        if (empty($candidates)) {
+            return null;
+        }
         // Deterministic pick: shortest 2–3 word phrase (better signal-to-noise).
-        usort($candidates, fn($a, $b) => str_word_count($a) <=> str_word_count($b));
+        usort($candidates, fn ($a, $b) => str_word_count($a) <=> str_word_count($b));
+
         return $candidates[0];
     }
 
@@ -230,7 +258,9 @@ class DiscoverySimulatedQueryService
      */
     private function typoQueries(int $n): array
     {
-        if ($n <= 0) return [];
+        if ($n <= 0) {
+            return [];
+        }
 
         $pairs = self::TYPO_PAIRS;
         $keys = array_keys($pairs);
@@ -252,17 +282,18 @@ class DiscoverySimulatedQueryService
                 ->table('information_object_i18n')
                 ->where('culture', 'en')
                 ->where(function ($q) use ($canonical) {
-                    $q->where('title', 'LIKE', '%' . $canonical . '%')
-                      ->orWhere('scope_and_content', 'LIKE', '%' . $canonical . '%');
+                    $q->where('title', 'LIKE', '%'.$canonical.'%')
+                        ->orWhere('scope_and_content', 'LIKE', '%'.$canonical.'%');
                 })
                 ->limit(50)
-                ->pluck('id')->map(fn($v) => (int) $v)->all();
+                ->pluck('id')->map(fn ($v) => (int) $v)->all();
             $out[] = [
                 'query_text' => $variant,
                 'query_type' => 'typo',
                 'expected_object_ids' => $expected,
             ];
         }
+
         return $out;
     }
 }

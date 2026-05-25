@@ -19,14 +19,16 @@ class HeritageInstallCommand extends Command
     {
         if (! Schema::hasTable('heritage_accounting_standard')) {
             $this->error('heritage_accounting_standard missing — run base ahg-heritage-manage migration first.');
+
             return self::FAILURE;
         }
         if ($this->option('list')) {
-            $rows = DB::table('heritage_accounting_standard')->get(['id','code','name','jurisdiction','is_installed','is_active']);
+            $rows = DB::table('heritage_accounting_standard')->get(['id', 'code', 'name', 'jurisdiction', 'is_installed', 'is_active']);
             foreach ($rows as $r) {
                 $marker = $r->is_installed ? ($r->is_active ? 'ACTIVE  ' : 'inst.   ') : '-       ';
-                $this->line(sprintf("  %s  %-12s  %-30s  %s", $marker, $r->code, $r->name, $r->jurisdiction));
+                $this->line(sprintf('  %s  %-12s  %-30s  %s', $marker, $r->code, $r->name, $r->jurisdiction));
             }
+
             return self::SUCCESS;
         }
 
@@ -36,12 +38,17 @@ class HeritageInstallCommand extends Command
         } elseif ($r = $this->option('region')) {
             $regions = array_map('trim', explode(',', $r));
         }
-        if (empty($regions)) { $this->error('--region or --all-regions required'); return self::FAILURE; }
+        if (empty($regions)) {
+            $this->error('--region or --all-regions required');
+
+            return self::FAILURE;
+        }
 
         $installed = (int) DB::table('heritage_accounting_standard')
             ->whereIn('code', $regions)
             ->update(['is_installed' => 1, 'is_active' => 1, 'installed_at' => now()]);
         $this->info("installed/activated {$installed} region(s)");
+
         return self::SUCCESS;
     }
 }

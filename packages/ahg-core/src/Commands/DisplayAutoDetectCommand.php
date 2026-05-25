@@ -25,11 +25,14 @@ class DisplayAutoDetectCommand extends Command
         $q = DB::connection($conn)->table('information_object as i')
             ->whereNull('i.display_type')
             ->select('i.id', 'i.repository_id', 'i.level_of_description_id', 'i.material_type_id');
-        if ($repo = $this->option('repository')) $q->where('i.repository_id', (int) $repo);
+        if ($repo = $this->option('repository')) {
+            $q->where('i.repository_id', (int) $repo);
+        }
         $rows = $q->limit($limit)->get();
-        $this->info("scanning {$rows->count()} IOs without display_type" . ($dry ? ' (dry-run)' : ''));
+        $this->info("scanning {$rows->count()} IOs without display_type".($dry ? ' (dry-run)' : ''));
 
-        $byType = []; $written = 0;
+        $byType = [];
+        $written = 0;
         foreach ($rows as $r) {
             $type = $detector->detect((array) $r);
             $byType[$type] = ($byType[$type] ?? 0) + 1;
@@ -39,8 +42,11 @@ class DisplayAutoDetectCommand extends Command
             }
         }
 
-        foreach ($byType as $t => $n) $this->line(sprintf("  %-15s %d", $t, $n));
+        foreach ($byType as $t => $n) {
+            $this->line(sprintf('  %-15s %d', $t, $n));
+        }
         $this->info("wrote {$written}");
+
         return self::SUCCESS;
     }
 }

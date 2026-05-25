@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgAcl\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -39,7 +37,7 @@ class AclService
         return DB::table('acl_group as g')
             ->leftJoin('acl_group_i18n as gi', function ($join) {
                 $join->on('gi.id', '=', 'g.id')
-                     ->where('gi.culture', '=', 'en');
+                    ->where('gi.culture', '=', 'en');
             })
             ->leftJoin(DB::raw('(SELECT group_id, COUNT(*) as member_count FROM acl_user_group GROUP BY group_id) as mc'), 'mc.group_id', '=', 'g.id')
             ->select(
@@ -65,7 +63,7 @@ class AclService
         $group = DB::table('acl_group as g')
             ->leftJoin('acl_group_i18n as gi', function ($join) {
                 $join->on('gi.id', '=', 'g.id')
-                     ->where('gi.culture', '=', 'en');
+                    ->where('gi.culture', '=', 'en');
             })
             ->select(
                 'g.id',
@@ -80,7 +78,7 @@ class AclService
             ->where('g.id', $id)
             ->first();
 
-        if (!$group) {
+        if (! $group) {
             return null;
         }
 
@@ -89,7 +87,7 @@ class AclService
             ->join('user as u', 'u.id', '=', 'ug.user_id')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('ai.id', '=', 'u.id')
-                     ->where('ai.culture', '=', 'en');
+                    ->where('ai.culture', '=', 'en');
             })
             ->select(
                 'ug.id as membership_id',
@@ -139,25 +137,25 @@ class AclService
             DB::table('acl_permission')
                 ->where('id', $existing->id)
                 ->update([
-                    'grant_deny'  => $data['grant_deny'] ?? 0,
+                    'grant_deny' => $data['grant_deny'] ?? 0,
                     'conditional' => $data['conditional'] ?? null,
-                    'constants'   => $data['constants'] ?? null,
-                    'updated_at'  => $now,
+                    'constants' => $data['constants'] ?? null,
+                    'updated_at' => $now,
                 ]);
 
             return $existing->id;
         }
 
         return DB::table('acl_permission')->insertGetId([
-            'user_id'      => $data['user_id'] ?? null,
-            'group_id'     => $data['group_id'] ?? null,
-            'object_id'    => $data['object_id'] ?? null,
-            'action'       => $data['action'] ?? null,
-            'grant_deny'   => $data['grant_deny'] ?? 0,
-            'conditional'  => $data['conditional'] ?? null,
-            'constants'    => $data['constants'] ?? null,
-            'created_at'   => $now,
-            'updated_at'   => $now,
+            'user_id' => $data['user_id'] ?? null,
+            'group_id' => $data['group_id'] ?? null,
+            'object_id' => $data['object_id'] ?? null,
+            'action' => $data['action'] ?? null,
+            'grant_deny' => $data['grant_deny'] ?? 0,
+            'conditional' => $data['conditional'] ?? null,
+            'constants' => $data['constants'] ?? null,
+            'created_at' => $now,
+            'updated_at' => $now,
             'serial_number' => 0,
         ]);
     }
@@ -173,21 +171,21 @@ class AclService
     // ─── Per-entity ACL editor support (issue #50) ──────────────────────────
 
     public const IO_ACTIONS = [
-        'read'           => 'Read',
-        'create'         => 'Create',
-        'update'         => 'Update',
-        'delete'         => 'Delete',
-        'viewDraft'      => 'View draft',
-        'publish'        => 'Publish',
-        'readMaster'     => 'Access master',
-        'readReference'  => 'Access reference',
-        'readThumbnail'  => 'Access thumbnail',
+        'read' => 'Read',
+        'create' => 'Create',
+        'update' => 'Update',
+        'delete' => 'Delete',
+        'viewDraft' => 'View draft',
+        'publish' => 'Publish',
+        'readMaster' => 'Access master',
+        'readReference' => 'Access reference',
+        'readThumbnail' => 'Access thumbnail',
     ];
 
     public const ACTOR_ACTIONS = self::IO_ACTIONS;
 
     public const REPOSITORY_ACTIONS = [
-        'read'   => 'Read',
+        'read' => 'Read',
         'create' => 'Create',
         'update' => 'Update',
         'delete' => 'Delete',
@@ -211,37 +209,37 @@ class AclService
         $existing = DB::table('acl_group_i18n')->where('id', $groupId)->where('culture', 'en')->first();
         if ($existing) {
             DB::table('acl_group_i18n')->where('id', $groupId)->where('culture', 'en')->update([
-                'name'        => $data['name'] ?? null,
+                'name' => $data['name'] ?? null,
                 'description' => $data['description'] ?? null,
             ]);
         } else {
             DB::table('acl_group_i18n')->insert([
-                'id'          => $groupId,
-                'culture'     => 'en',
-                'name'        => $data['name'] ?? null,
+                'id' => $groupId,
+                'culture' => 'en',
+                'name' => $data['name'] ?? null,
                 'description' => $data['description'] ?? null,
                 'serial_number' => 0,
             ]);
         }
         DB::table('acl_group')->where('id', $groupId)->update(['updated_at' => $now]);
 
-        $translate = !empty($data['translate']);
+        $translate = ! empty($data['translate']);
         $translateRow = DB::table('acl_permission')
             ->where('group_id', $groupId)
             ->where('action', 'translate')
             ->whereNull('object_id')
             ->first();
 
-        if ($translate && !$translateRow) {
+        if ($translate && ! $translateRow) {
             DB::table('acl_permission')->insert([
-                'group_id'      => $groupId,
-                'action'        => 'translate',
-                'grant_deny'    => 1,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'group_id' => $groupId,
+                'action' => 'translate',
+                'grant_deny' => 1,
+                'created_at' => $now,
+                'updated_at' => $now,
                 'serial_number' => 0,
             ]);
-        } elseif (!$translate && $translateRow) {
+        } elseif (! $translate && $translateRow) {
             DB::table('acl_permission')->where('id', $translateRow->id)->delete();
         }
     }
@@ -265,11 +263,11 @@ class AclService
     public function getGroupTabsMenu(int $groupId): array
     {
         return [
-            ['label' => __('Profile'),               'url' => route('acl.edit-group',                 ['id' => $groupId])],
-            ['label' => __('Archival Description'),  'url' => route('acl.editInformationObjectAcl',   ['id' => $groupId])],
-            ['label' => __('Authority Record'),      'url' => route('acl.editActorAcl',               ['id' => $groupId])],
-            ['label' => __('Archival Institution'),  'url' => route('acl.editRepositoryAcl',          ['id' => $groupId])],
-            ['label' => __('Taxonomy'),              'url' => route('acl.editTermAcl',                ['id' => $groupId])],
+            ['label' => __('Profile'),               'url' => route('acl.edit-group', ['id' => $groupId])],
+            ['label' => __('Archival Description'),  'url' => route('acl.editInformationObjectAcl', ['id' => $groupId])],
+            ['label' => __('Authority Record'),      'url' => route('acl.editActorAcl', ['id' => $groupId])],
+            ['label' => __('Archival Institution'),  'url' => route('acl.editRepositoryAcl', ['id' => $groupId])],
+            ['label' => __('Taxonomy'),              'url' => route('acl.editTermAcl', ['id' => $groupId])],
         ];
     }
 
@@ -285,7 +283,7 @@ class AclService
             ->where('p.group_id', $groupId)
             ->where(function ($q) use ($className) {
                 $q->whereNull('p.object_id')
-                  ->orWhere('o.class_name', $className);
+                    ->orWhere('o.class_name', $className);
             })
             ->select('p.id', 'p.object_id', 'p.action', 'p.grant_deny as grantDeny', 'p.constants', 'o.class_name')
             ->orderBy('p.object_id')
@@ -299,10 +297,12 @@ class AclService
      */
     public function bucketIoPermissions(\Illuminate\Support\Collection $perms): array
     {
-        $root = []; $repos = []; $objs = [];
+        $root = [];
+        $repos = [];
+        $objs = [];
         foreach ($perms as $p) {
             $repoSlug = null;
-            if (!empty($p->constants)) {
+            if (! empty($p->constants)) {
                 $c = json_decode($p->constants, true) ?: [];
                 $repoSlug = $c['repository'] ?? null;
             }
@@ -314,6 +314,7 @@ class AclService
                 $objs[$p->object_id][$p->action] = $p;
             }
         }
+
         return ['root' => $root, 'repositories' => $repos, 'objects' => $objs];
     }
 
@@ -338,7 +339,7 @@ class AclService
             // Existing-perm rows: numeric integer key → DB id
             if (ctype_digit((string) $key)) {
                 $permId = (int) $key;
-                if (!$existing->has($permId)) {
+                if (! $existing->has($permId)) {
                     continue;
                 }
                 if ($value === self::INHERIT) {
@@ -349,14 +350,15 @@ class AclService
                         'updated_at' => $now,
                     ]);
                 }
+
                 continue;
             }
             // New-perm rows: <action>_<scopeKey>
-            if (!preg_match('/^([a-zA-Z]+)_(.+)$/', $key, $m)) {
+            if (! preg_match('/^([a-zA-Z]+)_(.+)$/', $key, $m)) {
                 continue;
             }
             [$_full, $action, $scopeKey] = $m;
-            if (!isset($allowedActions[$action])) {
+            if (! isset($allowedActions[$action])) {
                 continue;
             }
             if ($value !== self::GRANT && $value !== self::DENY) {
@@ -373,19 +375,19 @@ class AclService
             } else {
                 // Per-object scope: scopeKey is a slug → resolve to object.id
                 $obj = DB::table('slug')->where('slug', $scopeKey)->first();
-                if (!$obj) {
+                if (! $obj) {
                     continue;
                 }
                 $objectId = $obj->object_id;
             }
             DB::table('acl_permission')->insert([
-                'group_id'      => $groupId,
-                'object_id'     => $objectId,
-                'action'        => $action,
-                'grant_deny'    => $value,
-                'constants'     => $constants,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'group_id' => $groupId,
+                'object_id' => $objectId,
+                'action' => $action,
+                'grant_deny' => $value,
+                'constants' => $constants,
+                'created_at' => $now,
+                'updated_at' => $now,
                 'serial_number' => 0,
             ]);
         }
@@ -410,7 +412,7 @@ class AclService
             ->where('p.user_id', $userId)
             ->where(function ($q) use ($className) {
                 $q->whereNull('p.object_id')
-                  ->orWhere('o.class_name', $className);
+                    ->orWhere('o.class_name', $className);
             })
             ->select('p.id', 'p.object_id', 'p.action', 'p.grant_deny as grantDeny', 'p.constants', 'o.class_name')
             ->orderBy('p.object_id')
@@ -433,7 +435,9 @@ class AclService
             $value = (int) $value;
             if (ctype_digit((string) $key)) {
                 $permId = (int) $key;
-                if (!$existing->has($permId)) continue;
+                if (! $existing->has($permId)) {
+                    continue;
+                }
                 if ($value === self::INHERIT) {
                     DB::table('acl_permission')->where('id', $permId)->delete();
                 } elseif (in_array($value, [self::GRANT, self::DENY], true)) {
@@ -442,12 +446,19 @@ class AclService
                         'updated_at' => $now,
                     ]);
                 }
+
                 continue;
             }
-            if (!preg_match('/^([a-zA-Z]+)_(.+)$/', $key, $m)) continue;
+            if (! preg_match('/^([a-zA-Z]+)_(.+)$/', $key, $m)) {
+                continue;
+            }
             [$_full, $action, $scopeKey] = $m;
-            if (!isset($allowedActions[$action])) continue;
-            if ($value !== self::GRANT && $value !== self::DENY) continue;
+            if (! isset($allowedActions[$action])) {
+                continue;
+            }
+            if ($value !== self::GRANT && $value !== self::DENY) {
+                continue;
+            }
 
             $objectId = null;
             $constants = null;
@@ -457,17 +468,19 @@ class AclService
                 $constants = json_encode(['repository' => substr($scopeKey, 5)]);
             } else {
                 $obj = DB::table('slug')->where('slug', $scopeKey)->first();
-                if (!$obj) continue;
+                if (! $obj) {
+                    continue;
+                }
                 $objectId = $obj->object_id;
             }
             DB::table('acl_permission')->insert([
-                'user_id'       => $userId,
-                'object_id'     => $objectId,
-                'action'        => $action,
-                'grant_deny'    => $value,
-                'constants'     => $constants,
-                'created_at'    => $now,
-                'updated_at'    => $now,
+                'user_id' => $userId,
+                'object_id' => $objectId,
+                'action' => $action,
+                'grant_deny' => $value,
+                'constants' => $constants,
+                'created_at' => $now,
+                'updated_at' => $now,
                 'serial_number' => 0,
             ]);
         }
@@ -479,7 +492,10 @@ class AclService
      */
     public function hydrateRepositoryEntities(array $repoSlugs): array
     {
-        if (empty($repoSlugs)) return [];
+        if (empty($repoSlugs)) {
+            return [];
+        }
+
         return DB::table('repository as r')
             ->join('slug as s', 's.object_id', '=', 'r.id')
             ->leftJoin('actor_i18n as ai', function ($j) {
@@ -494,7 +510,10 @@ class AclService
 
     public function hydrateInformationObjectEntities(array $ids): array
     {
-        if (empty($ids)) return [];
+        if (empty($ids)) {
+            return [];
+        }
+
         return DB::table('information_object as io')
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->leftJoin('information_object_i18n as ii', function ($j) {
@@ -509,7 +528,10 @@ class AclService
 
     public function hydrateActorEntities(array $ids): array
     {
-        if (empty($ids)) return [];
+        if (empty($ids)) {
+            return [];
+        }
+
         return DB::table('actor as a')
             ->leftJoin('slug as s', 's.object_id', '=', 'a.id')
             ->leftJoin('actor_i18n as ai', function ($j) {
@@ -524,7 +546,10 @@ class AclService
 
     public function hydrateTaxonomyEntities(array $ids): array
     {
-        if (empty($ids)) return [];
+        if (empty($ids)) {
+            return [];
+        }
+
         return DB::table('taxonomy as t')
             ->leftJoin('slug as s', 's.object_id', '=', 't.id')
             ->leftJoin('taxonomy_i18n as ti', function ($j) {
@@ -541,8 +566,10 @@ class AclService
      * AclService::GRANT|DENY|INHERIT mirror so the per-entity package can
      * reference local constants without depending on ahg-core.
      */
-    public const GRANT   = 1;
-    public const DENY    = 0;
+    public const GRANT = 1;
+
+    public const DENY = 0;
+
     public const INHERIT = -1;
 
     /**
@@ -554,7 +581,7 @@ class AclService
             ->join('acl_group as g', 'g.id', '=', 'ug.group_id')
             ->leftJoin('acl_group_i18n as gi', function ($join) {
                 $join->on('gi.id', '=', 'g.id')
-                     ->where('gi.culture', '=', 'en');
+                    ->where('gi.culture', '=', 'en');
             })
             ->select(
                 'ug.id as membership_id',
@@ -584,8 +611,8 @@ class AclService
         }
 
         return DB::table('acl_user_group')->insertGetId([
-            'user_id'       => $userId,
-            'group_id'      => $groupId,
+            'user_id' => $userId,
+            'group_id' => $groupId,
             'serial_number' => 0,
         ]);
     }
@@ -652,16 +679,16 @@ class AclService
             ->update(['active' => 0, 'updated_at' => $now]);
 
         return DB::table('object_security_classification')->insertGetId([
-            'object_id'         => $objectId,
+            'object_id' => $objectId,
             'classification_id' => $classificationId,
-            'classified_by'     => $userId,
-            'classified_at'     => $now,
-            'assigned_by'       => $userId,
-            'assigned_at'       => $now,
+            'classified_by' => $userId,
+            'classified_at' => $now,
+            'assigned_by' => $userId,
+            'assigned_at' => $now,
             'inherit_to_children' => 1,
-            'active'            => 1,
-            'created_at'        => $now,
-            'updated_at'        => $now,
+            'active' => 1,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
     }
 
@@ -675,7 +702,7 @@ class AclService
             ->leftJoin('user as u', 'u.id', '=', 'uc.granted_by')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('ai.id', '=', 'u.id')
-                     ->where('ai.culture', '=', 'en');
+                    ->where('ai.culture', '=', 'en');
             })
             ->select(
                 'uc.*',
@@ -706,28 +733,28 @@ class AclService
                 ->where('user_id', $userId)
                 ->update([
                     'classification_id' => $classificationId,
-                    'granted_by'        => $grantedBy,
-                    'granted_at'        => $now,
+                    'granted_by' => $grantedBy,
+                    'granted_at' => $now,
                 ]);
             $action = 'clearance_updated';
         } else {
             DB::table('user_security_clearance')->insert([
-                'user_id'           => $userId,
+                'user_id' => $userId,
                 'classification_id' => $classificationId,
-                'granted_by'        => $grantedBy,
-                'granted_at'        => $now,
+                'granted_by' => $grantedBy,
+                'granted_at' => $now,
             ]);
             $action = 'clearance_granted';
         }
 
         // Log the change
         DB::table('user_security_clearance_log')->insert([
-            'user_id'           => $userId,
+            'user_id' => $userId,
             'classification_id' => $classificationId,
-            'action'            => $action,
-            'changed_by'        => $grantedBy,
-            'notes'             => null,
-            'created_at'        => $now,
+            'action' => $action,
+            'changed_by' => $grantedBy,
+            'notes' => null,
+            'created_at' => $now,
         ]);
     }
 
@@ -740,7 +767,7 @@ class AclService
             ->leftJoin('user as u', 'u.id', '=', 'sar.user_id')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('ai.id', '=', 'u.id')
-                     ->where('ai.culture', '=', 'en');
+                    ->where('ai.culture', '=', 'en');
             })
             ->leftJoin('security_classification as sc', 'sc.id', '=', 'sar.classification_id')
             ->select(
@@ -769,11 +796,11 @@ class AclService
         return DB::table('security_access_request')
             ->where('id', $id)
             ->update([
-                'status'       => 'approved',
-                'reviewed_by'  => $reviewerId,
-                'reviewed_at'  => $now,
+                'status' => 'approved',
+                'reviewed_by' => $reviewerId,
+                'reviewed_at' => $now,
                 'review_notes' => $notes,
-                'updated_at'   => $now,
+                'updated_at' => $now,
             ]) > 0;
     }
 
@@ -787,11 +814,11 @@ class AclService
         return DB::table('security_access_request')
             ->where('id', $id)
             ->update([
-                'status'       => 'denied',
-                'reviewed_by'  => $reviewerId,
-                'reviewed_at'  => $now,
+                'status' => 'denied',
+                'reviewed_by' => $reviewerId,
+                'reviewed_at' => $now,
                 'review_notes' => $notes,
-                'updated_at'   => $now,
+                'updated_at' => $now,
             ]) > 0;
     }
 
@@ -804,7 +831,7 @@ class AclService
             ->leftJoin('user as u', 'u.id', '=', 'sal.user_id')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('ai.id', '=', 'u.id')
-                     ->where('ai.culture', '=', 'en');
+                    ->where('ai.culture', '=', 'en');
             })
             ->select(
                 'sal.id',
@@ -849,13 +876,13 @@ class AclService
             ->where('action', $action)
             ->where(function ($q) use ($userId, $groupIds) {
                 $q->whereIn('group_id', $groupIds)
-                  ->orWhere('user_id', $userId);
+                    ->orWhere('user_id', $userId);
             });
 
         if ($objectId !== null) {
             $query->where(function ($q) use ($objectId) {
                 $q->where('object_id', $objectId)
-                  ->orWhereNull('object_id');
+                    ->orWhereNull('object_id');
             });
         }
 
@@ -884,7 +911,7 @@ class AclService
         return DB::table('user as u')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('ai.id', '=', 'u.id')
-                     ->where('ai.culture', '=', 'en');
+                    ->where('ai.culture', '=', 'en');
             })
             ->select(
                 'u.id',

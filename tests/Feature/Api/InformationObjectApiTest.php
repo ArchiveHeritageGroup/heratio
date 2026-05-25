@@ -2,11 +2,8 @@
 
 namespace Tests\Feature\Api;
 
-use AhgCore\Models\InformationObject;
 use Database\Factories\ActorFactory;
-use Database\Factories\EventFactory;
 use Database\Factories\InformationObjectFactory;
-use Database\Factories\TermFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -54,16 +51,16 @@ class InformationObjectApiTest extends TestCase
     {
         // Create an actor first, then add it to the repository table
         $actor = ActorFactory::new()->corporateBody()->create();
-        
+
         // Add to repository table (required FK relationship)
         \Illuminate\Support\Facades\DB::table('repository')->insert([
             'id' => $actor->id,
             'source_culture' => 'en',
         ]);
-        
+
         InformationObjectFactory::new()->count(3)->create(['repository_id' => $actor->id]);
 
-        $response = $this->getJson('/api/records?repository=' . $actor->id);
+        $response = $this->getJson('/api/records?repository='.$actor->id);
 
         $response->assertStatus(200);
     }

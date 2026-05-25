@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCore\Services;
 
 use AhgCore\Models\ClipboardSave;
@@ -39,9 +37,9 @@ class ClipboardService
      */
     protected static array $typeMap = [
         'informationObject' => 'QubitInformationObject',
-        'actor'             => 'QubitActor',
-        'repository'        => 'QubitRepository',
-        'accession'         => 'QubitAccession',
+        'actor' => 'QubitActor',
+        'repository' => 'QubitRepository',
+        'accession' => 'QubitAccession',
     ];
 
     /**
@@ -67,8 +65,8 @@ class ClipboardService
 
                 $items = [
                     'informationObject' => [],
-                    'actor'             => [],
-                    'repository'        => [],
+                    'actor' => [],
+                    'repository' => [],
                 ];
 
                 foreach ($savedItems as $si) {
@@ -93,11 +91,11 @@ class ClipboardService
     {
         $items = Session::get('clipboard_items', []);
 
-        if (!isset($items[$type])) {
+        if (! isset($items[$type])) {
             $items[$type] = [];
         }
 
-        if (!in_array($slug, $items[$type])) {
+        if (! in_array($slug, $items[$type])) {
             $items[$type][] = $slug;
         }
 
@@ -231,14 +229,14 @@ class ClipboardService
 
         // Generate unique password
         $password = $this->getUniquePassword();
-        if (!$password) {
+        if (! $password) {
             return ['error' => 'Clipboard ID generation failure. Please try again.'];
         }
 
         // Create clipboard save record
         $save = ClipboardSave::create([
-            'user_id'    => $userId,
-            'password'   => $password,
+            'user_id' => $userId,
+            'password' => $password,
             'created_at' => now(),
         ]);
 
@@ -247,19 +245,19 @@ class ClipboardService
         foreach ($validatedSlugs as $type => $slugs) {
             foreach ($slugs as $slug) {
                 ClipboardSaveItem::create([
-                    'save_id'         => $save->id,
+                    'save_id' => $save->id,
                     'item_class_name' => self::$typeMap[$type] ?? 'QubitInformationObject',
-                    'slug'            => $slug,
+                    'slug' => $slug,
                 ]);
                 $itemsCount++;
             }
         }
 
         return [
-            'success'  => true,
+            'success' => true,
             'password' => $password,
-            'count'    => $itemsCount,
-            'message'  => "Clipboard saved with {$itemsCount} item(s). Clipboard ID is <b>{$password}</b>. Please write this number down. When you want to reload this clipboard in the future, open the Clipboard menu, select Load clipboard, and enter this number in the Clipboard ID field.",
+            'count' => $itemsCount,
+            'message' => "Clipboard saved with {$itemsCount} item(s). Clipboard ID is <b>{$password}</b>. Please write this number down. When you want to reload this clipboard in the future, open the Clipboard menu, select Load clipboard, and enter this number in the Clipboard ID field.",
         ];
     }
 
@@ -270,7 +268,7 @@ class ClipboardService
     {
         $clipboardSave = ClipboardSave::where('password', $password)->first();
 
-        if (!$clipboardSave) {
+        if (! $clipboardSave) {
             return ['error' => 'Clipboard ID not found.'];
         }
 
@@ -278,15 +276,15 @@ class ClipboardService
 
         $clipboard = [
             'informationObject' => [],
-            'actor'             => [],
-            'repository'        => [],
+            'actor' => [],
+            'repository' => [],
         ];
 
         $addedCount = 0;
 
         foreach ($items as $item) {
             // Verify the slug still exists
-            $exists = DB::selectOne("SELECT COUNT(*) AS cnt FROM slug WHERE slug = ?", [$item->slug]);
+            $exists = DB::selectOne('SELECT COUNT(*) AS cnt FROM slug WHERE slug = ?', [$item->slug]);
 
             if ($exists && $exists->cnt > 0) {
                 $type = lcfirst(str_replace('Qubit', '', $item->item_class_name));
@@ -301,10 +299,10 @@ class ClipboardService
         $actionDesc = ($mode === 'replace') ? 'added' : 'merged with current clipboard';
 
         return [
-            'success'   => true,
+            'success' => true,
             'clipboard' => $clipboard,
-            'count'     => $addedCount,
-            'message'   => "Clipboard {$password} loaded, {$addedCount} records {$actionDesc}.",
+            'count' => $addedCount,
+            'message' => "Clipboard {$password} loaded, {$addedCount} records {$actionDesc}.",
         ];
     }
 
@@ -361,7 +359,7 @@ class ClipboardService
         $validated = [];
 
         foreach ($allSlugs as $type => $slugs) {
-            if (empty($slugs) || !isset(self::$typeMap[$type])) {
+            if (empty($slugs) || ! isset(self::$typeMap[$type])) {
                 continue;
             }
 
@@ -369,12 +367,12 @@ class ClipboardService
             $validated[$type] = [];
 
             foreach ($slugs as $slug) {
-                $count = DB::selectOne("
+                $count = DB::selectOne('
                     SELECT COUNT(s.id) AS cnt
                     FROM slug s
                     JOIN object o ON s.object_id = o.id
                     WHERE s.slug = ? AND o.class_name = ?
-                ", [$slug, $className]);
+                ', [$slug, $className]);
 
                 if ($count && $count->cnt > 0) {
                     $validated[$type][] = $slug;
@@ -385,7 +383,7 @@ class ClipboardService
         // Check we have at least one validated slug
         $hasItems = false;
         foreach ($validated as $slugs) {
-            if (!empty($slugs)) {
+            if (! empty($slugs)) {
                 $hasItems = true;
                 break;
             }
@@ -403,7 +401,7 @@ class ClipboardService
             $password = str_pad((string) mt_rand(0, 9999999), 7, '0', STR_PAD_LEFT);
 
             $exists = ClipboardSave::where('password', $password)->exists();
-            if (!$exists) {
+            if (! $exists) {
                 return $password;
             }
         }

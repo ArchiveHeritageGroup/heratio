@@ -10,6 +10,7 @@ class Note extends Model
     use HasI18n;
 
     protected $table = 'note';
+
     public $timestamps = false;
 
     protected $fillable = ['object_id', 'type_id', 'scope', 'user_id', 'source_culture', 'serial_number'];

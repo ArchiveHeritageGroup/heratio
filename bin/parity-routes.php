@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * Heratio Parity Routes — AtoM vs Heratio Route Comparison
  *
@@ -19,14 +20,14 @@
 
 // ── Configuration ────────────────────────────────────────────────────────────
 
-$atomBase         = '/usr/share/nginx/archive';
-$atomPluginsDir   = $atomBase . '/atom-ahg-plugins';
-$atomBaseRouting  = $atomBase . '/apps/qubit/config/routing.yml';
-$heratioRoot      = '/usr/share/nginx/heratio';
-$outputFile       = '/tmp/parity-routes-report.html';
-$jsonOutput       = false;
-$pluginFilter     = '';
-$missingOnly      = false;
+$atomBase = '/usr/share/nginx/archive';
+$atomPluginsDir = $atomBase.'/atom-ahg-plugins';
+$atomBaseRouting = $atomBase.'/apps/qubit/config/routing.yml';
+$heratioRoot = '/usr/share/nginx/heratio';
+$outputFile = '/tmp/parity-routes-report.html';
+$jsonOutput = false;
+$pluginFilter = '';
+$missingOnly = false;
 
 // ── Parse CLI arguments ──────────────────────────────────────────────────────
 
@@ -46,7 +47,7 @@ for ($i = 0; $i < count($args); $i++) {
             $missingOnly = true;
             break;
         case '--help':
-            echo <<<HELP
+            echo <<<'HELP'
 Heratio Parity Routes — AtoM vs Heratio Route Comparison
 
 Usage: php bin/parity-routes.php [OPTIONS]
@@ -65,18 +66,18 @@ HELP;
 
 // ── Colors (terminal) ────────────────────────────────────────────────────────
 
-define('RED',    "\033[0;31m");
-define('GREEN',  "\033[0;32m");
+define('RED', "\033[0;31m");
+define('GREEN', "\033[0;32m");
 define('YELLOW', "\033[1;33m");
-define('BLUE',   "\033[0;34m");
-define('CYAN',   "\033[0;36m");
-define('BOLD',   "\033[1m");
-define('DIM',    "\033[2m");
-define('NC',     "\033[0m");
+define('BLUE', "\033[0;34m");
+define('CYAN', "\033[0;36m");
+define('BOLD', "\033[1m");
+define('DIM', "\033[2m");
+define('NC', "\033[0m");
 
 // ── Step 1: Get Heratio routes ──────────────────────────────────────────────
 
-echo BLUE . "Loading Heratio routes..." . NC . "\n";
+echo BLUE.'Loading Heratio routes...'.NC."\n";
 
 $routeJson = shell_exec("php {$heratioRoot}/artisan route:list --json 2>/dev/null");
 $heratioRoutes = json_decode($routeJson, true) ?: [];
@@ -94,18 +95,18 @@ foreach ($heratioRoutes as $route) {
     $normalized = preg_replace('/\{([^}]+)\}/', ':$1', $uri);
     $heratioLookup[$normalized] = [
         'method' => $method,
-        'uri'    => $uri,
-        'name'   => $name,
+        'uri' => $uri,
+        'name' => $name,
         'action' => $action,
     ];
     $heratioUris[] = $normalized;
 }
 
-echo GREEN . "  Found " . count($heratioRoutes) . " Heratio routes" . NC . "\n";
+echo GREEN.'  Found '.count($heratioRoutes).' Heratio routes'.NC."\n";
 
 // ── Step 2: Parse AtoM routing.yml files ────────────────────────────────────
 
-echo BLUE . "Loading AtoM routes..." . NC . "\n";
+echo BLUE.'Loading AtoM routes...'.NC."\n";
 
 /**
  * Parse a Symfony 1.x routing.yml and extract route definitions.
@@ -113,7 +114,7 @@ echo BLUE . "Loading AtoM routes..." . NC . "\n";
  */
 function parseRoutingYml(string $filePath): array
 {
-    if (!file_exists($filePath)) {
+    if (! file_exists($filePath)) {
         return [];
     }
 
@@ -140,6 +141,7 @@ function parseRoutingYml(string $filePath): array
             $currentRoute = $m[1];
             $currentData = ['url' => '', 'module' => '', 'action' => '', 'class' => ''];
             $inParam = false;
+
             continue;
         }
 
@@ -150,12 +152,14 @@ function parseRoutingYml(string $filePath): array
         // Parse url
         if (preg_match('/^\s+url:\s*(.+)/', $line, $m)) {
             $currentData['url'] = trim($m[1]);
+
             continue;
         }
 
         // Parse class
         if (preg_match('/^\s+class:\s*(.+)/', $line, $m)) {
             $currentData['class'] = trim($m[1]);
+
             continue;
         }
 
@@ -164,12 +168,14 @@ function parseRoutingYml(string $filePath): array
             $params = parseInlineYamlHash($m[1]);
             $currentData['module'] = $params['module'] ?? '';
             $currentData['action'] = $params['action'] ?? '';
+
             continue;
         }
 
         // Parse param block start
         if (preg_match('/^\s+param:\s*$/', $line)) {
             $inParam = true;
+
             continue;
         }
 
@@ -183,12 +189,14 @@ function parseRoutingYml(string $filePath): array
             } else {
                 $currentData[$m[1]] = $val;
             }
+
             continue;
         }
 
         // Requirements or other nested blocks end param
         if (preg_match('/^\s+requirements:/', $line)) {
             $inParam = false;
+
             continue;
         }
     }
@@ -215,6 +223,7 @@ function parseInlineYamlHash(string $str): array
             $result[$m[1]] = trim($m[2]);
         }
     }
+
     return $result;
 }
 
@@ -226,6 +235,7 @@ function parseInlineYamlHash(string $str): array
 function normalizeAtomUrl(string $url): string
 {
     $url = ltrim(trim($url), '/');
+
     return $url;
 }
 
@@ -239,7 +249,7 @@ foreach ($baseRoutes as $name => $data) {
 }
 
 // AHG plugin routing files
-$pluginDirs = glob($atomPluginsDir . '/*/config/routing.yml');
+$pluginDirs = glob($atomPluginsDir.'/*/config/routing.yml');
 foreach ($pluginDirs as $routingFile) {
     // Extract plugin name
     preg_match('#/atom-ahg-plugins/([^/]+)/#', $routingFile, $m);
@@ -262,12 +272,12 @@ foreach ($programmaticRoutes as $name => $data) {
     if ($pluginFilter && isset($data['source']) && stripos($data['source'], $pluginFilter) === false) {
         continue;
     }
-    if (!isset($atomRoutes[$name])) {
+    if (! isset($atomRoutes[$name])) {
         $atomRoutes[$name] = $data;
     }
 }
 
-echo GREEN . "  Found " . count($atomRoutes) . " AtoM routes" . NC . "\n";
+echo GREEN.'  Found '.count($atomRoutes).' AtoM routes'.NC."\n";
 
 /**
  * Extract routes documented in comments of routing.yml files
@@ -276,7 +286,7 @@ echo GREEN . "  Found " . count($atomRoutes) . " AtoM routes" . NC . "\n";
 function extractProgrammaticRoutes(string $pluginsDir): array
 {
     $routes = [];
-    $files = glob($pluginsDir . '/*/config/routing.yml');
+    $files = glob($pluginsDir.'/*/config/routing.yml');
 
     foreach ($files as $file) {
         $content = file_get_contents($file);
@@ -289,13 +299,13 @@ function extractProgrammaticRoutes(string $pluginsDir): array
                 $method = $match[1];
                 $url = ltrim($match[2], '/');
                 $desc = trim($match[3]);
-                $routeName = 'prog_' . preg_replace('/[^a-z0-9]+/', '_', strtolower($url));
+                $routeName = 'prog_'.preg_replace('/[^a-z0-9]+/', '_', strtolower($url));
                 $routes[$routeName] = [
-                    'url'    => '/' . $url,
+                    'url' => '/'.$url,
                     'module' => $desc,
                     'action' => $method,
-                    'class'  => 'programmatic',
-                    'source' => $pluginName . ' (programmatic)',
+                    'class' => 'programmatic',
+                    'source' => $pluginName.' (programmatic)',
                 ];
             }
         }
@@ -306,19 +316,19 @@ function extractProgrammaticRoutes(string $pluginsDir): array
 
 // ── Step 3: Compare routes ──────────────────────────────────────────────────
 
-echo BLUE . "\nComparing routes..." . NC . "\n\n";
+echo BLUE."\nComparing routes...".NC."\n\n";
 
 $results = [
-    'matched'    => [],
-    'missing'    => [],
-    'extra'      => [],
-    'dynamic'    => [], // AtoM routes with :slug/:module patterns (hard to match)
+    'matched' => [],
+    'missing' => [],
+    'extra' => [],
+    'dynamic' => [], // AtoM routes with :slug/:module patterns (hard to match)
 ];
 
 // Known URL mapping: AtoM URL pattern => Heratio URI pattern
 $urlMappings = [
-    'user/list'         => 'user/browse',
-    'physicalobject'    => 'physicalobject',
+    'user/list' => 'user/browse',
+    'physicalobject' => 'physicalobject',
 ];
 
 foreach ($atomRoutes as $routeName => $data) {
@@ -329,12 +339,13 @@ foreach ($atomRoutes as $routeName => $data) {
         ':slug;:template', ':slug;:module', ':module/:action/id/:id',
         ':module/copy', ':module/add', ':slug/edit', ':slug/:action'])) {
         $results['dynamic'][] = [
-            'atom_name'   => $routeName,
-            'atom_url'    => $atomUrl,
-            'module'      => $data['module'] ?? '',
-            'action'      => $data['action'] ?? '',
-            'source'      => $data['source'] ?? '',
+            'atom_name' => $routeName,
+            'atom_url' => $atomUrl,
+            'module' => $data['module'] ?? '',
+            'action' => $data['action'] ?? '',
+            'source' => $data['source'] ?? '',
         ];
+
         continue;
     }
 
@@ -353,7 +364,7 @@ foreach ($atomRoutes as $routeName => $data) {
     }
 
     // Try with URL mappings
-    if (!$found) {
+    if (! $found) {
         foreach ($urlMappings as $atomPattern => $heratioPattern) {
             $mapped = str_replace($atomPattern, $heratioPattern, $compareUrl);
             if ($mapped !== $compareUrl && isset($heratioLookup[$mapped])) {
@@ -365,7 +376,7 @@ foreach ($atomRoutes as $routeName => $data) {
     }
 
     // Try fuzzy match: strip leading entity prefix and check
-    if (!$found) {
+    if (! $found) {
         // Try matching by checking if any Heratio route contains the same path
         foreach ($heratioUris as $hUri) {
             // Normalize both for comparison (replace :param with *)
@@ -381,19 +392,19 @@ foreach ($atomRoutes as $routeName => $data) {
 
     if ($found) {
         $results['matched'][] = [
-            'atom_name'   => $routeName,
-            'atom_url'    => $atomUrl,
+            'atom_name' => $routeName,
+            'atom_url' => $atomUrl,
             'heratio_uri' => $matchedHeratio['uri'] ?? '',
-            'heratio_name'=> $matchedHeratio['name'] ?? '',
-            'source'      => $data['source'] ?? '',
+            'heratio_name' => $matchedHeratio['name'] ?? '',
+            'source' => $data['source'] ?? '',
         ];
     } else {
         $results['missing'][] = [
-            'atom_name'   => $routeName,
-            'atom_url'    => $atomUrl,
-            'module'      => $data['module'] ?? '',
-            'action'      => $data['action'] ?? '',
-            'source'      => $data['source'] ?? '',
+            'atom_name' => $routeName,
+            'atom_url' => $atomUrl,
+            'module' => $data['module'] ?? '',
+            'action' => $data['action'] ?? '',
+            'source' => $data['source'] ?? '',
         ];
     }
 }
@@ -413,7 +424,7 @@ foreach ($heratioLookup as $normalized => $hRoute) {
     }
 
     // Fuzzy match
-    if (!$foundInAtom) {
+    if (! $foundInAtom) {
         $hNorm = preg_replace('/:[\w]+/', '*', $normalized);
         foreach ($atomUrls as $aUrl) {
             $aNorm = preg_replace('/:[\w]+/', '*', $aUrl);
@@ -425,7 +436,7 @@ foreach ($heratioLookup as $normalized => $hRoute) {
     }
 
     // Check dynamic catch-all routes that could match
-    if (!$foundInAtom) {
+    if (! $foundInAtom) {
         // AtoM's /:slug and /:module/:action can match almost anything
         // Don't report these as "extra" - they are likely matched by catch-all
         $parts = explode('/', $normalized);
@@ -435,9 +446,9 @@ foreach ($heratioLookup as $normalized => $hRoute) {
         }
     }
 
-    if (!$foundInAtom) {
+    if (! $foundInAtom) {
         $results['extra'][] = [
-            'heratio_uri'  => $hRoute['uri'],
+            'heratio_uri' => $hRoute['uri'],
             'heratio_name' => $hRoute['name'],
             'heratio_action' => $hRoute['action'],
         ];
@@ -447,7 +458,7 @@ foreach ($heratioLookup as $normalized => $hRoute) {
 // ── Step 4: Output results ──────────────────────────────────────────────────
 
 if ($jsonOutput) {
-    echo json_encode($results, JSON_PRETTY_PRINT) . "\n";
+    echo json_encode($results, JSON_PRETTY_PRINT)."\n";
     exit(0);
 }
 
@@ -459,20 +470,20 @@ $missingCount = count($results['missing']);
 $extraCount = count($results['extra']);
 $dynamicCount = count($results['dynamic']);
 
-echo BOLD . CYAN . "=== Route Comparison Summary ===" . NC . "\n";
-echo DIM . str_repeat('─', 64) . NC . "\n";
-echo "  AtoM routes (explicit):     " . BOLD . $totalAtom . NC . "\n";
-echo "  Heratio routes:             " . BOLD . $totalHeratio . NC . "\n";
-echo "  " . GREEN . "Matched:                    " . $matchedCount . NC . "\n";
-echo "  " . RED . "Missing from Heratio:       " . $missingCount . NC . "\n";
-echo "  " . YELLOW . "Extra in Heratio:           " . $extraCount . NC . "\n";
-echo "  " . DIM . "Dynamic/catch-all (skipped):" . $dynamicCount . NC . "\n";
-echo DIM . str_repeat('─', 64) . NC . "\n\n";
+echo BOLD.CYAN.'=== Route Comparison Summary ==='.NC."\n";
+echo DIM.str_repeat('─', 64).NC."\n";
+echo '  AtoM routes (explicit):     '.BOLD.$totalAtom.NC."\n";
+echo '  Heratio routes:             '.BOLD.$totalHeratio.NC."\n";
+echo '  '.GREEN.'Matched:                    '.$matchedCount.NC."\n";
+echo '  '.RED.'Missing from Heratio:       '.$missingCount.NC."\n";
+echo '  '.YELLOW.'Extra in Heratio:           '.$extraCount.NC."\n";
+echo '  '.DIM.'Dynamic/catch-all (skipped):'.$dynamicCount.NC."\n";
+echo DIM.str_repeat('─', 64).NC."\n\n";
 
 // Missing routes (grouped by source plugin)
 if ($missingCount > 0) {
-    echo BOLD . RED . "Missing from Heratio:" . NC . "\n";
-    echo DIM . str_repeat('─', 64) . NC . "\n";
+    echo BOLD.RED.'Missing from Heratio:'.NC."\n";
+    echo DIM.str_repeat('─', 64).NC."\n";
 
     // Group by source
     $bySource = [];
@@ -483,9 +494,9 @@ if ($missingCount > 0) {
     ksort($bySource);
 
     foreach ($bySource as $source => $routes) {
-        echo "\n  " . BOLD . YELLOW . $source . NC . " (" . count($routes) . " routes)\n";
+        echo "\n  ".BOLD.YELLOW.$source.NC.' ('.count($routes)." routes)\n";
         foreach ($routes as $r) {
-            printf("    " . RED . "%-45s" . NC . " " . DIM . "%-20s %s" . NC . "\n",
+            printf('    '.RED.'%-45s'.NC.' '.DIM.'%-20s %s'.NC."\n",
                 $r['atom_url'], $r['module'], $r['action']);
         }
     }
@@ -493,32 +504,32 @@ if ($missingCount > 0) {
 }
 
 // Matched routes (only in verbose / not missing-only mode)
-if (!$missingOnly && $matchedCount > 0) {
-    echo BOLD . GREEN . "Matched routes:" . NC . "\n";
-    echo DIM . str_repeat('─', 64) . NC . "\n";
+if (! $missingOnly && $matchedCount > 0) {
+    echo BOLD.GREEN.'Matched routes:'.NC."\n";
+    echo DIM.str_repeat('─', 64).NC."\n";
 
     foreach ($results['matched'] as $r) {
-        printf("  " . GREEN . "%-40s" . NC . " => " . DIM . "%-40s" . NC . "\n",
+        printf('  '.GREEN.'%-40s'.NC.' => '.DIM.'%-40s'.NC."\n",
             $r['atom_url'], $r['heratio_uri']);
     }
     echo "\n";
 }
 
 // Extra Heratio routes
-if (!$missingOnly && $extraCount > 0) {
-    echo BOLD . YELLOW . "Extra in Heratio (no AtoM equivalent):" . NC . "\n";
-    echo DIM . str_repeat('─', 64) . NC . "\n";
+if (! $missingOnly && $extraCount > 0) {
+    echo BOLD.YELLOW.'Extra in Heratio (no AtoM equivalent):'.NC."\n";
+    echo DIM.str_repeat('─', 64).NC."\n";
 
     foreach ($results['extra'] as $r) {
-        printf("  " . YELLOW . "%-45s" . NC . " " . DIM . "%s" . NC . "\n",
-            '/' . $r['heratio_uri'], $r['heratio_name']);
+        printf('  '.YELLOW.'%-45s'.NC.' '.DIM.'%s'.NC."\n",
+            '/'.$r['heratio_uri'], $r['heratio_name']);
     }
     echo "\n";
 }
 
 // ── Step 5: Generate HTML report ────────────────────────────────────────────
 
-echo BLUE . "Generating HTML report: {$outputFile}" . NC . "\n";
+echo BLUE."Generating HTML report: {$outputFile}".NC."\n";
 
 $timestamp = date('Y-m-d H:i:s');
 
@@ -583,7 +594,7 @@ HTML;
 $coveragePct = $totalAtom > 0 ? round(($matchedCount / ($matchedCount + $missingCount)) * 100, 1) : 0;
 $html .= "<p style='margin-bottom:2rem;'><strong>Route Coverage:</strong> {$coveragePct}% ";
 $html .= "<span class='pct-bar pct-green' style='width:{$coveragePct}px;'></span>";
-$html .= "<span class='pct-bar pct-red' style='width:" . (100 - $coveragePct) . "px;'></span></p>\n";
+$html .= "<span class='pct-bar pct-red' style='width:".(100 - $coveragePct)."px;'></span></p>\n";
 
 // Missing routes section
 if ($missingCount > 0) {
@@ -592,8 +603,9 @@ if ($missingCount > 0) {
     $html .= "<table id='missingTable'>\n<thead><tr><th>AtoM URL</th><th>Route Name</th><th>Module</th><th>Action</th><th>Source Plugin</th></tr></thead>\n<tbody>\n";
 
     // Sort by source then URL
-    usort($results['missing'], function($a, $b) {
+    usort($results['missing'], function ($a, $b) {
         $c = strcmp($a['source'], $b['source']);
+
         return $c !== 0 ? $c : strcmp($a['atom_url'], $b['atom_url']);
     });
 
@@ -655,7 +667,7 @@ if ($dynamicCount > 0) {
     $html .= "</tbody></table>\n";
 }
 
-$html .= <<<HTML
+$html .= <<<'HTML'
 
 <script>
 function filterRows(tableId, inputId) {
@@ -671,5 +683,5 @@ function filterRows(tableId, inputId) {
 HTML;
 
 file_put_contents($outputFile, $html);
-echo GREEN . "HTML report written to: {$outputFile}" . NC . "\n\n";
-echo BOLD . "Done." . NC . "\n";
+echo GREEN."HTML report written to: {$outputFile}".NC."\n\n";
+echo BOLD.'Done.'.NC."\n";

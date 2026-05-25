@@ -20,6 +20,7 @@ class SharePointEventRepository
     {
         $attributes['received_at'] ??= now();
         $attributes['status'] ??= 'received';
+
         return (int) DB::table('sharepoint_event')->insertGetId($attributes);
     }
 
@@ -50,6 +51,7 @@ class SharePointEventRepository
         if ($itemId === null || $etag === null) {
             return false;
         }
+
         return DB::table('sharepoint_event')
             ->where('drive_id', $driveId)
             ->where('sp_item_id', $itemId)
@@ -71,6 +73,7 @@ class SharePointEventRepository
         foreach ($rows as $row) {
             $out[$row->status] = (int) $row->n;
         }
+
         return $out;
     }
 }

@@ -15,11 +15,12 @@ class DatabaseBackupCommand extends Command
 
     public function handle(): int
     {
-        $database = $this->option('database') ?: config('database.connections.' . config('database.default') . '.database');
+        $database = $this->option('database') ?: config('database.connections.'.config('database.default').'.database');
         $backupsDir = rtrim((string) config('heratio.backups_path', base_path('backups')), '/');
         if (! is_dir($backupsDir)) {
             if (! @mkdir($backupsDir, 0775, true)) {
                 $this->error("cannot create {$backupsDir}");
+
                 return self::FAILURE;
             }
         }
@@ -32,25 +33,31 @@ class DatabaseBackupCommand extends Command
         // mysqldump with --single-transaction for InnoDB consistency without long locks.
         // Credentials come from MySQL socket auth (no password on CLI).
         $cmd = sprintf('mysqldump --single-transaction --quick --triggers --routines --events %s', escapeshellarg((string) $database));
-        if ($gzip) $cmd .= ' | gzip --best';
-        $cmd .= ' > ' . escapeshellarg($file) . ' 2>/tmp/heratio-backup.err';
+        if ($gzip) {
+            $cmd .= ' | gzip --best';
+        }
+        $cmd .= ' > '.escapeshellarg($file).' 2>/tmp/heratio-backup.err';
 
         if ($this->option('dry-run')) {
             $this->info("would run: {$cmd}");
+
             return self::SUCCESS;
         }
 
         $t0 = microtime(true);
-        $rc = 0; system($cmd, $rc);
+        $rc = 0;
+        system($cmd, $rc);
         $elapsed = round(microtime(true) - $t0, 1);
 
         if ($rc !== 0) {
             $err = is_readable('/tmp/heratio-backup.err') ? trim((string) file_get_contents('/tmp/heratio-backup.err')) : '';
             $this->error("mysqldump exited {$rc}: {$err}");
+
             return self::FAILURE;
         }
         $size = is_file($file) ? filesize($file) : 0;
         $this->info(sprintf('ok %s (%s bytes, %.1f s)', $file, number_format($size), $elapsed));
+
         return self::SUCCESS;
     }
 }

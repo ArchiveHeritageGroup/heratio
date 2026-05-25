@@ -39,7 +39,7 @@ class ResetPasswordCommand extends Command
 
         // Generate new salt and hash (SHA-1 with salt)
         $salt = bin2hex(random_bytes(16)); // 32-char hex salt
-        $passwordHash = sha1($salt . $password);
+        $passwordHash = sha1($salt.$password);
 
         try {
             DB::table('user')
@@ -53,7 +53,7 @@ class ResetPasswordCommand extends Command
 
             return self::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Failed to reset password: ' . $e->getMessage());
+            $this->error('Failed to reset password: '.$e->getMessage());
 
             return self::FAILURE;
         }

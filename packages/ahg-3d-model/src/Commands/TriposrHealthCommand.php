@@ -41,19 +41,24 @@ class TriposrHealthCommand extends Command
 
         if (! $url) {
             $report['error'] = 'no URL configured';
+
             return $this->emit($report);
         }
 
-        $health = rtrim($url, '/') . '/health';
+        $health = rtrim($url, '/').'/health';
         $request = Http::timeout(min($timeout, 10));
-        if ($apiKey) $request = $request->withHeaders(['X-API-Key' => $apiKey]);
+        if ($apiKey) {
+            $request = $request->withHeaders(['X-API-Key' => $apiKey]);
+        }
         try {
             $start = microtime(true);
             $resp = $request->get($health);
             $report['latency_ms'] = (int) round((microtime(true) - $start) * 1000);
             $report['status_code'] = $resp->status();
             $report['reachable'] = $resp->ok();
-            if (! $resp->ok()) $report['error'] = 'HTTP ' . $resp->status();
+            if (! $resp->ok()) {
+                $report['error'] = 'HTTP '.$resp->status();
+            }
         } catch (\Throwable $e) {
             $report['error'] = $e->getMessage();
         }
@@ -67,8 +72,11 @@ class TriposrHealthCommand extends Command
             $this->line(json_encode($r, JSON_PRETTY_PRINT));
         } else {
             $this->info('=== TripoSR health ===');
-            foreach ($r as $k => $v) $this->line(sprintf('  %-12s %s', $k, is_bool($v) ? ($v ? 'true' : 'false') : (string) $v));
+            foreach ($r as $k => $v) {
+                $this->line(sprintf('  %-12s %s', $k, is_bool($v) ? ($v ? 'true' : 'false') : (string) $v));
+            }
         }
+
         return ($r['reachable'] && $r['enabled']) ? self::SUCCESS : self::FAILURE;
     }
 }

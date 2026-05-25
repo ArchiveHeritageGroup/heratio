@@ -22,8 +22,8 @@ class DoiProcessQueueCommand extends Command
                 ->where('status', 'failed')
                 ->whereColumn('attempts', '<', 'max_attempts')
                 ->update([
-                    'status'       => 'pending',
-                    'last_error'   => null,
+                    'status' => 'pending',
+                    'last_error' => null,
                     'scheduled_at' => now(),
                 ]);
             $this->info("requeued {$reset} previously-failed rows");
@@ -36,11 +36,13 @@ class DoiProcessQueueCommand extends Command
             foreach ($next as $r) {
                 $this->line("  oid={$r->information_object_id} action={$r->action} priority={$r->priority} attempts={$r->attempts}");
             }
+
             return self::SUCCESS;
         }
 
         $r = $svc->processQueue($limit);
         $this->info("processed={$r['processed']} ok={$r['ok']} fail={$r['fail']}");
+
         return $r['fail'] === 0 ? self::SUCCESS : self::FAILURE;
     }
 }

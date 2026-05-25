@@ -35,7 +35,7 @@ class ShareLinkAdminController extends Controller
     public function index(Request $request)
     {
         $userId = (int) (Auth::id() ?? 0);
-        if (!$this->canList($userId)) {
+        if (! $this->canList($userId)) {
             abort(403, __('You do not have permission to view share links'));
         }
 
@@ -45,25 +45,25 @@ class ShareLinkAdminController extends Controller
         [$tokens, $total] = $this->queryList($filters, $page, self::PAGE_SIZE);
 
         return view('ahg-share-link::admin.index', [
-            'tokens'     => $tokens,
+            'tokens' => $tokens,
             'totalCount' => $total,
-            'page'       => $page,
-            'pageSize'   => self::PAGE_SIZE,
+            'page' => $page,
+            'pageSize' => self::PAGE_SIZE,
             'totalPages' => (int) ceil(max(1, $total) / self::PAGE_SIZE),
-            'filters'    => $filters,
-            'issuers'    => $this->fetchIssuerOptions(),
+            'filters' => $filters,
+            'issuers' => $this->fetchIssuerOptions(),
         ]);
     }
 
     public function show(int $id)
     {
         $userId = (int) (Auth::id() ?? 0);
-        if (!$this->canList($userId)) {
+        if (! $this->canList($userId)) {
             abort(403, __('You do not have permission to view share links'));
         }
 
         $row = DB::table('information_object_share_token')->where('id', $id)->first();
-        if (!$row) {
+        if (! $row) {
             abort(404);
         }
 
@@ -76,13 +76,13 @@ class ShareLinkAdminController extends Controller
             ->get();
 
         return view('ahg-share-link::admin.show', [
-            'tokenRow'    => $row,
-            'issuerName'  => $issuer ? ($issuer->username ?: ('user #' . $row->issued_by)) : '(unknown)',
+            'tokenRow' => $row,
+            'issuerName' => $issuer ? ($issuer->username ?: ('user #'.$row->issued_by)) : '(unknown)',
             'issuerEmail' => $issuer->email ?? null,
-            'ioTitle'     => $i18n->title ?? ('#' . $row->information_object_id),
-            'accessLog'   => $accessLog,
-            'status'      => $this->resolveStatus($row),
-            'publicUrl'   => url('/share/' . $row->token),
+            'ioTitle' => $i18n->title ?? ('#'.$row->information_object_id),
+            'accessLog' => $accessLog,
+            'status' => $this->resolveStatus($row),
+            'publicUrl' => url('/share/'.$row->token),
         ]);
     }
 
@@ -97,7 +97,7 @@ class ShareLinkAdminController extends Controller
     public function revoke(int $id, Request $request, RevokeService $revokeService): RedirectResponse
     {
         $userId = (int) (Auth::id() ?? 0);
-        if (!$this->canList($userId)) {
+        if (! $this->canList($userId)) {
             abort(403, __('You do not have permission to revoke share links'));
         }
 
@@ -131,7 +131,7 @@ class ShareLinkAdminController extends Controller
             return false;
         }
         try {
-            return (new AclCheck())->canUserDo($userId, AclCheck::ACTION_LIST_ALL);
+            return (new AclCheck)->canUserDo($userId, AclCheck::ACTION_LIST_ALL);
         } catch (\Throwable $e) {
             return false;
         }
@@ -139,7 +139,7 @@ class ShareLinkAdminController extends Controller
 
     private function resolveStatus(object $row): string
     {
-        if (!empty($row->revoked_at)) {
+        if (! empty($row->revoked_at)) {
             return 'revoked';
         }
         if (strtotime((string) $row->expires_at) <= time()) {
@@ -148,6 +148,7 @@ class ShareLinkAdminController extends Controller
         if ($row->max_access !== null && (int) $row->access_count >= (int) $row->max_access) {
             return 'exhausted';
         }
+
         return 'active';
     }
 
@@ -157,12 +158,13 @@ class ShareLinkAdminController extends Controller
     private function parseFilters(Request $request): array
     {
         $status = (string) $request->input('status', 'active');
-        if (!in_array($status, ['active', 'expired', 'revoked', 'exhausted', 'all'], true)) {
+        if (! in_array($status, ['active', 'expired', 'revoked', 'exhausted', 'all'], true)) {
             $status = 'active';
         }
         $q = trim((string) $request->input('q', ''));
         $issuer = $request->input('issuer');
         $issuerId = ($issuer !== null && $issuer !== '' && is_numeric($issuer)) ? (int) $issuer : null;
+
         return ['status' => $status, 'q' => $q, 'issuer' => $issuerId];
     }
 
@@ -229,13 +231,14 @@ class ShareLinkAdminController extends Controller
             $q->where('t.issued_by', $filters['issuer']);
         }
         if ($filters['q'] !== '') {
-            $needle = '%' . $filters['q'] . '%';
+            $needle = '%'.$filters['q'].'%';
             $q->where(function ($qq) use ($needle) {
                 $qq->where('t.token', 'like', $needle)
                     ->orWhere('t.recipient_email', 'like', $needle)
                     ->orWhere('i18n.title', 'like', $needle);
             });
         }
+
         return $q;
     }
 

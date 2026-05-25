@@ -6,7 +6,7 @@ use Tests\CriticalPath\TestCase;
 
 /**
  * Critical path test: Package Boot Integrity
- * 
+ *
  * @group critical
  * @group boot
  */

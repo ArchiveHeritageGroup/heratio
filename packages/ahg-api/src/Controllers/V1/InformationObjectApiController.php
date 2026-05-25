@@ -91,7 +91,7 @@ class InformationObjectApiController extends Controller
         // Resolve level names
         $levelIds = $rows->pluck('level_of_description_id')->filter()->unique()->values()->toArray();
         $levelNames = [];
-        if (!empty($levelIds)) {
+        if (! empty($levelIds)) {
             $levelNames = DB::table('term_i18n')
                 ->whereIn('id', $levelIds)
                 ->where('culture', $this->culture)
@@ -102,7 +102,7 @@ class InformationObjectApiController extends Controller
         // Resolve repository names
         $repoIds = $rows->pluck('repository_id')->filter()->unique()->values()->toArray();
         $repoNames = [];
-        if (!empty($repoIds)) {
+        if (! empty($repoIds)) {
             $repoNames = DB::table('actor_i18n')
                 ->whereIn('id', $repoIds)
                 ->where('culture', $this->culture)
@@ -146,7 +146,7 @@ class InformationObjectApiController extends Controller
         $limit = min(100, max(1, (int) $request->get('limit', 10)));
         $offset = ($page - 1) * $limit;
 
-        $searchTerm = '%' . $queryStr . '%';
+        $searchTerm = '%'.$queryStr.'%';
 
         $query = DB::table('information_object')
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
@@ -178,7 +178,7 @@ class InformationObjectApiController extends Controller
                 'object.updated_at',
                 'slug.slug',
             ])
-            ->orderByRaw("CASE WHEN information_object_i18n.title LIKE ? THEN 0 ELSE 1 END", [$searchTerm])
+            ->orderByRaw('CASE WHEN information_object_i18n.title LIKE ? THEN 0 ELSE 1 END', [$searchTerm])
             ->orderBy('object.updated_at', 'desc')
             ->offset($offset)
             ->limit($limit)
@@ -187,7 +187,7 @@ class InformationObjectApiController extends Controller
         // Resolve level names
         $levelIds = $rows->pluck('level_of_description_id')->filter()->unique()->values()->toArray();
         $levelNames = [];
-        if (!empty($levelIds)) {
+        if (! empty($levelIds)) {
             $levelNames = DB::table('term_i18n')
                 ->whereIn('id', $levelIds)
                 ->where('culture', $this->culture)
@@ -217,11 +217,11 @@ class InformationObjectApiController extends Controller
     public function show(string $idOrSlug): JsonResponse
     {
         // Try to resolve ID - check if it's numeric first, then look up slug
-        $objectId = is_numeric($idOrSlug) 
-            ? (int) $idOrSlug 
+        $objectId = is_numeric($idOrSlug)
+            ? (int) $idOrSlug
             : DB::table('slug')->where('slug', $idOrSlug)->value('object_id');
-        
-        if (!$objectId) {
+
+        if (! $objectId) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Description '{$idOrSlug}' not found.",
@@ -277,7 +277,7 @@ class InformationObjectApiController extends Controller
             ])
             ->first();
 
-        if (!$io) {
+        if (! $io) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Description '{$idOrSlug}' not found.",
@@ -326,7 +326,7 @@ class InformationObjectApiController extends Controller
         // Resolve event type names
         $eventTypeIds = $events->pluck('type_id')->filter()->unique()->values()->toArray();
         $eventTypeNames = [];
-        if (!empty($eventTypeIds)) {
+        if (! empty($eventTypeIds)) {
             $eventTypeNames = DB::table('term_i18n')
                 ->whereIn('id', $eventTypeIds)
                 ->where('culture', $this->culture)
@@ -337,7 +337,7 @@ class InformationObjectApiController extends Controller
         // Resolve actor names for events
         $actorIds = $events->pluck('actor_id')->filter()->unique()->values()->toArray();
         $actorNames = [];
-        if (!empty($actorIds)) {
+        if (! empty($actorIds)) {
             $actorNames = DB::table('actor_i18n')
                 ->whereIn('id', $actorIds)
                 ->where('culture', $this->culture)
@@ -445,7 +445,7 @@ class InformationObjectApiController extends Controller
 
         $noteTypeIds = $notes->pluck('type_id')->filter()->unique()->values()->toArray();
         $noteTypeNames = [];
-        if (!empty($noteTypeIds)) {
+        if (! empty($noteTypeIds)) {
             $noteTypeNames = DB::table('term_i18n')
                 ->whereIn('id', $noteTypeIds)
                 ->where('culture', $this->culture)
@@ -557,15 +557,15 @@ class InformationObjectApiController extends Controller
 
         // Resolve parent
         $parentId = $input['parent_id'] ?? 1;
-        if (!empty($input['parent_slug'])) {
+        if (! empty($input['parent_slug'])) {
             $parentId = DB::table('slug')->where('slug', $input['parent_slug'])->value('object_id');
-            if (!$parentId) {
+            if (! $parentId) {
                 return response()->json(['error' => 'Parent not found.'], 400);
             }
         }
 
         $parent = DB::table('information_object')->where('id', $parentId)->first();
-        if (!$parent) {
+        if (! $parent) {
             return response()->json(['error' => 'Parent not found.'], 400);
         }
 
@@ -586,7 +586,7 @@ class InformationObjectApiController extends Controller
 
                 // Validate level_of_description_id if provided
                 $lodId = $input['level_of_description_id'] ?? null;
-                if ($lodId && !DB::table('term')->where('id', $lodId)->exists()) {
+                if ($lodId && ! DB::table('term')->where('id', $lodId)->exists()) {
                     $lodId = null; // Fall back to null if invalid
                 }
 
@@ -635,7 +635,7 @@ class InformationObjectApiController extends Controller
                 ], 201);
             });
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Create failed: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Create failed: '.$e->getMessage()], 500);
         }
     }
 
@@ -646,12 +646,12 @@ class InformationObjectApiController extends Controller
     public function update(string $slugOrId, Request $request): JsonResponse
     {
         // Resolve object ID from slug or numeric ID
-        $id = is_numeric($slugOrId) 
-            ? (int) $slugOrId 
+        $id = is_numeric($slugOrId)
+            ? (int) $slugOrId
             : DB::table('slug')->where('slug', $slugOrId)->value('object_id');
-        
+
         // Verify the record exists
-        if (!$id || !DB::table('information_object')->where('id', $id)->exists()) {
+        if (! $id || ! DB::table('information_object')->where('id', $id)->exists()) {
             return response()->json(['error' => 'Not found.'], 404);
         }
 
@@ -684,14 +684,14 @@ class InformationObjectApiController extends Controller
             DB::transaction(function () use ($id, $input) {
                 $baseFields = ['identifier', 'repository_id'];
                 $baseUpdate = array_intersect_key($input, array_flip($baseFields));
-                if (!empty($baseUpdate)) {
+                if (! empty($baseUpdate)) {
                     DB::table('information_object')->where('id', $id)->update($baseUpdate);
                 }
-                
+
                 // Handle level_of_description_id separately with validation
                 if (isset($input['level_of_description_id'])) {
                     $lodId = $input['level_of_description_id'];
-                    if ($lodId && !DB::table('term')->where('id', $lodId)->exists()) {
+                    if ($lodId && ! DB::table('term')->where('id', $lodId)->exists()) {
                         $lodId = null;
                     }
                     DB::table('information_object')->where('id', $id)->update(['level_of_description_id' => $lodId]);
@@ -703,7 +703,7 @@ class InformationObjectApiController extends Controller
                     'location_of_originals', 'location_of_copies', 'related_units_of_description',
                     'rules', 'sources', 'revision_history'];
                 $i18nUpdate = array_intersect_key($input, array_flip($i18nFields));
-                if (!empty($i18nUpdate)) {
+                if (! empty($i18nUpdate)) {
                     DB::table('information_object_i18n')->where('id', $id)->where('culture', $this->culture)->update($i18nUpdate);
                 }
 
@@ -715,7 +715,7 @@ class InformationObjectApiController extends Controller
                 DB::table('object')->where('id', $id)->update(['updated_at' => now()]);
             });
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Update failed: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Update failed: '.$e->getMessage()], 500);
         }
 
         return response()->json(['id' => $id, 'parent_id' => DB::table('information_object')->where('id', $id)->value('parent_id')]);
@@ -729,16 +729,16 @@ class InformationObjectApiController extends Controller
     {
         try {
             // Resolve object ID from slug or numeric ID
-            $id = is_numeric($slugOrId) 
-                ? (int) $slugOrId 
+            $id = is_numeric($slugOrId)
+                ? (int) $slugOrId
                 : DB::table('slug')->where('slug', $slugOrId)->value('object_id');
-            
-            if (!$id) {
+
+            if (! $id) {
                 return response()->json(['error' => 'Not found.'], 404);
             }
 
             $io = DB::table('information_object')->where('id', $id)->first();
-            if (!$io) {
+            if (! $io) {
                 return response()->json(['error' => 'Not found.'], 404);
             }
 
@@ -769,7 +769,7 @@ class InformationObjectApiController extends Controller
 
             return response()->json(null, 204);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Delete failed: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Delete failed: '.$e->getMessage()], 500);
         }
     }
 
@@ -779,7 +779,7 @@ class InformationObjectApiController extends Controller
     public function digitalObject(string $slug): \Symfony\Component\HttpFoundation\Response
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId) {
+        if (! $objectId) {
             return response()->json(['error' => 'Not found.'], 404);
         }
 
@@ -788,20 +788,20 @@ class InformationObjectApiController extends Controller
             ->where('usage_id', 166) // Master
             ->first();
 
-        if (!$do || !$do->path) {
+        if (! $do || ! $do->path) {
             return response()->json(['error' => 'No digital object found.'], 404);
         }
 
         // Try public storage first, then absolute path
-        $storagePath = storage_path('app/public/' . $do->path);
-        if (!file_exists($storagePath)) {
+        $storagePath = storage_path('app/public/'.$do->path);
+        if (! file_exists($storagePath)) {
             $storagePath = $do->path; // Absolute path
         }
-        if (!file_exists($storagePath)) {
+        if (! file_exists($storagePath)) {
             // Try uploads directory
-            $storagePath = config('heratio.uploads_path') . '/' . $do->path;
+            $storagePath = config('heratio.uploads_path').'/'.$do->path;
         }
-        if (!file_exists($storagePath)) {
+        if (! file_exists($storagePath)) {
             return response()->json(['error' => 'Digital object file not found on disk.'], 404);
         }
 
@@ -816,12 +816,12 @@ class InformationObjectApiController extends Controller
     public function tree(string $slug): JsonResponse
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId) {
+        if (! $objectId) {
             return response()->json(['error' => 'Not found.'], 404);
         }
 
         $io = DB::table('information_object')->where('id', $objectId)->first();
-        if (!$io) {
+        if (! $io) {
             return response()->json(['error' => 'Not found.'], 404);
         }
 
@@ -837,7 +837,9 @@ class InformationObjectApiController extends Controller
                 ->select('io.id', 'io.parent_id', 'io.level_of_description_id', 'ioi.title', 'slug.slug')
                 ->first();
 
-            if (!$ancestor) break;
+            if (! $ancestor) {
+                break;
+            }
             array_unshift($ancestors, [
                 'id' => $ancestor->id,
                 'slug' => $ancestor->slug,
@@ -894,30 +896,30 @@ class InformationObjectApiController extends Controller
     public function children(string $slug): JsonResponse
     {
         // Resolve object ID from slug or numeric ID
-        $objectId = is_numeric($slug) 
-            ? (int) $slug 
+        $objectId = is_numeric($slug)
+            ? (int) $slug
             : DB::table('slug')->where('slug', $slug)->value('object_id');
-        
-        if (!$objectId) {
+
+        if (! $objectId) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Record '{$slug}' not found.",
             ], 404);
         }
-        
+
         $io = DB::table('information_object')->where('id', $objectId)->first();
-        if (!$io) {
+        if (! $io) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Record '{$slug}' not found.",
             ], 404);
         }
-        
+
         // Get immediate children
         $children = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
-            ->leftJoin('status', function ($j) use ($io) {
+            ->leftJoin('status', function ($j) {
                 $j->on('io.id', '=', 'status.object_id')
                     ->where('status.type_id', '=', 158);
             })
@@ -936,7 +938,7 @@ class InformationObjectApiController extends Controller
                     'publication_status_id' => $child->status_id,
                 ];
             });
-        
+
         return response()->json([
             'data' => $children->values(),
             'meta' => [
@@ -951,7 +953,7 @@ class InformationObjectApiController extends Controller
      */
     protected function termName(?int $termId): ?string
     {
-        if (!$termId) {
+        if (! $termId) {
             return null;
         }
 
@@ -971,10 +973,10 @@ class InformationObjectApiController extends Controller
 
         $links = ['self' => "{$baseUrl}?page={$page}&limit={$limit}"];
         if ($page < $lastPage) {
-            $links['next'] = "{$baseUrl}?page=" . ($page + 1) . "&limit={$limit}";
+            $links['next'] = "{$baseUrl}?page=".($page + 1)."&limit={$limit}";
         }
         if ($page > 1) {
-            $links['prev'] = "{$baseUrl}?page=" . ($page - 1) . "&limit={$limit}";
+            $links['prev'] = "{$baseUrl}?page=".($page - 1)."&limit={$limit}";
         }
         $links['first'] = "{$baseUrl}?page=1&limit={$limit}";
         $links['last'] = "{$baseUrl}?page={$lastPage}&limit={$limit}";

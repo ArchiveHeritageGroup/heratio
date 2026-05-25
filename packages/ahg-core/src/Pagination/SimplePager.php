@@ -5,8 +5,11 @@ namespace AhgCore\Pagination;
 class SimplePager
 {
     protected array $results = [];
+
     protected int $total = 0;
+
     protected int $page = 1;
+
     protected int $limit = 30;
 
     public function __construct(array $data)

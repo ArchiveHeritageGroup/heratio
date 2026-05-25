@@ -63,28 +63,28 @@ class InferenceService
         $modelManifest = $this->buildModelManifest($r);
 
         $id = DB::table('ahg_ai_inference')->insertGetId([
-            'uuid'                => $uuid,
-            'service_name'        => $r->serviceName,
-            'model_name'          => $r->modelName,
-            'model_version'       => $r->modelVersion,
-            'endpoint'            => $r->endpoint,
-            'input_hash'          => $r->inputHash,
-            'input_excerpt'       => $r->inputExcerpt,
-            'output_hash'         => $r->outputHash,
-            'output_excerpt'      => $r->outputExcerpt,
-            'confidence'          => $r->confidence,
-            'standard'            => $r->standard,
-            'target_entity_type'  => $r->targetEntityType,
-            'target_entity_id'    => $r->targetEntityId,
-            'target_field'        => $r->targetField,
-            'elapsed_ms'          => $r->elapsedMs,
-            'fuseki_graph_uri'    => null,
-            'model_manifest'      => json_encode($modelManifest),
-            'guardrail'           => $r->guardrail !== null ? json_encode($r->guardrail) : null,
-            'user_id'             => $r->userId,
-            'occurred_at'         => $now,
-            'created_at'          => $now,
-            'updated_at'          => $now,
+            'uuid' => $uuid,
+            'service_name' => $r->serviceName,
+            'model_name' => $r->modelName,
+            'model_version' => $r->modelVersion,
+            'endpoint' => $r->endpoint,
+            'input_hash' => $r->inputHash,
+            'input_excerpt' => $r->inputExcerpt,
+            'output_hash' => $r->outputHash,
+            'output_excerpt' => $r->outputExcerpt,
+            'confidence' => $r->confidence,
+            'standard' => $r->standard,
+            'target_entity_type' => $r->targetEntityType,
+            'target_entity_id' => $r->targetEntityId,
+            'target_field' => $r->targetField,
+            'elapsed_ms' => $r->elapsedMs,
+            'fuseki_graph_uri' => null,
+            'model_manifest' => json_encode($modelManifest),
+            'guardrail' => $r->guardrail !== null ? json_encode($r->guardrail) : null,
+            'user_id' => $r->userId,
+            'occurred_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
 
         // heratio#136 - Ed25519-sign the canonical manifest of this inference.
@@ -92,16 +92,16 @@ class InferenceService
         // keypair. Best-effort and self-contained - like the Fuseki write
         // below, a signing failure must never poison the AI service caller.
         try {
-            $signer    = app(InferenceSigner::class);
+            $signer = app(InferenceSigner::class);
             $signature = $signer->sign($this->buildManifest($id, $uuid, $now, $r, $modelManifest));
             if ($signature !== null) {
                 DB::table('ahg_ai_inference')->where('id', $id)->update([
-                    'signature'     => $signature,
+                    'signature' => $signature,
                     'signer_key_id' => $signer->keyId(),
                 ]);
             }
         } catch (\Throwable $e) {
-            Log::warning('[ahg-provenance-ai] inference signing failed: ' . $e->getMessage(), [
+            Log::warning('[ahg-provenance-ai] inference signing failed: '.$e->getMessage(), [
                 'inference_id' => $id,
             ]);
         }
@@ -126,17 +126,17 @@ class InferenceService
     private function buildManifest(int $id, string $uuid, $occurredAt, InferenceRecord $r, array $modelManifest): array
     {
         return [
-            'id'             => $id,
-            'uuid'           => $uuid,
-            'occurred_at'    => (string) $occurredAt,
-            'service_name'   => $r->serviceName,
-            'model_name'     => $r->modelName,
-            'model_version'  => $r->modelVersion,
-            'input_hash'     => $r->inputHash,
-            'output_hash'    => $r->outputHash,
-            'confidence'     => $r->confidence,
+            'id' => $id,
+            'uuid' => $uuid,
+            'occurred_at' => (string) $occurredAt,
+            'service_name' => $r->serviceName,
+            'model_name' => $r->modelName,
+            'model_version' => $r->modelVersion,
+            'input_hash' => $r->inputHash,
+            'output_hash' => $r->outputHash,
+            'confidence' => $r->confidence,
             'model_manifest' => $modelManifest,
-            'target'         => $r->targetEntityType . ':' . $r->targetEntityId . ':' . $r->targetField,
+            'target' => $r->targetEntityType.':'.$r->targetEntityId.':'.$r->targetField,
         ];
     }
 
@@ -177,12 +177,13 @@ class InferenceService
         ?array $configManifest
     ): array {
         $manifest = is_array($configManifest) ? $configManifest : [];
-        $manifest['model_name']    = $modelName;
+        $manifest['model_name'] = $modelName;
         $manifest['model_version'] = $modelVersion;
-        $manifest['service_name']  = $serviceName;
-        if (!isset($manifest['model_id']) || $manifest['model_id'] === '') {
-            $manifest['model_id'] = $modelName . '@' . $modelVersion;
+        $manifest['service_name'] = $serviceName;
+        if (! isset($manifest['model_id']) || $manifest['model_id'] === '') {
+            $manifest['model_id'] = $modelName.'@'.$modelVersion;
         }
+
         return $manifest;
     }
 
@@ -204,7 +205,7 @@ class InferenceService
             return; // can't compare without a score
         }
 
-        $threshold = $this->setting('ai_provenance.' . strtolower($r->serviceName) . '.confidence_review_threshold');
+        $threshold = $this->setting('ai_provenance.'.strtolower($r->serviceName).'.confidence_review_threshold');
         if ($threshold === null) {
             return; // not configured; deployment opts in by setting the key
         }
@@ -214,7 +215,7 @@ class InferenceService
         }
 
         $workflowId = $this->setting('ai_provenance.review_workflow_id');
-        $stepId     = $this->setting('ai_provenance.review_step_id');
+        $stepId = $this->setting('ai_provenance.review_step_id');
         if ($workflowId === null || $stepId === null) {
             Log::info('[ahg-provenance-ai] inference below threshold but no review workflow configured', [
                 'inference_id' => $inferenceId,
@@ -222,35 +223,36 @@ class InferenceService
                 'confidence' => $r->confidence,
                 'threshold' => $threshold,
             ]);
+
             return;
         }
 
         try {
             DB::table('ahg_workflow_task')->insert([
-                'workflow_id'      => (int) $workflowId,
+                'workflow_id' => (int) $workflowId,
                 'workflow_step_id' => (int) $stepId,
-                'object_id'        => $r->targetEntityId,
-                'object_type'      => $r->targetEntityType,
-                'status'           => 'pending',
-                'priority'         => 'normal',
-                'submitted_by'     => $r->userId ?? 0,
-                'metadata'         => json_encode([
-                    'kind'            => 'ai_inference_review',
-                    'inference_id'    => $inferenceId,
-                    'service'         => $r->serviceName,
-                    'model'           => $r->modelName,
-                    'model_version'   => $r->modelVersion,
-                    'confidence'      => $r->confidence,
-                    'threshold'       => $threshold,
-                    'standard'        => $r->standard,
-                    'target_field'    => $r->targetField,
-                    'output_excerpt'  => $r->outputExcerpt,
+                'object_id' => $r->targetEntityId,
+                'object_type' => $r->targetEntityType,
+                'status' => 'pending',
+                'priority' => 'normal',
+                'submitted_by' => $r->userId ?? 0,
+                'metadata' => json_encode([
+                    'kind' => 'ai_inference_review',
+                    'inference_id' => $inferenceId,
+                    'service' => $r->serviceName,
+                    'model' => $r->modelName,
+                    'model_version' => $r->modelVersion,
+                    'confidence' => $r->confidence,
+                    'threshold' => $threshold,
+                    'standard' => $r->standard,
+                    'target_field' => $r->targetField,
+                    'output_excerpt' => $r->outputExcerpt,
                 ], JSON_UNESCAPED_UNICODE),
-                'created_at'       => now(),
-                'updated_at'       => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         } catch (\Throwable $e) {
-            Log::warning('[ahg-provenance-ai] failed to enqueue review task: ' . $e->getMessage(), [
+            Log::warning('[ahg-provenance-ai] failed to enqueue review task: '.$e->getMessage(), [
                 'inference_id' => $inferenceId,
             ]);
         }
@@ -263,6 +265,7 @@ class InferenceService
     {
         try {
             $v = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
+
             return ($v !== null && $v !== '') ? $v : null;
         } catch (\Throwable $e) {
             return null;
@@ -291,6 +294,7 @@ class InferenceService
         if ($field !== null) {
             $q->where('target_field', $field);
         }
+
         return $q->orderByDesc('occurred_at')->get()->all();
     }
 
@@ -315,9 +319,9 @@ class InferenceService
     protected function writeRdfStarAnnotation(int $inferenceId, string $uuid, InferenceRecord $r): void
     {
         try {
-            $tenant   = config('heratio.ld.tenant', 'ahg');
-            $graphUri = "urn:{$tenant}:provenance-ai:inference:" . $uuid;
-            $turtle   = $this->buildInferenceTurtle($uuid, $r);
+            $tenant = config('heratio.ld.tenant', 'ahg');
+            $graphUri = "urn:{$tenant}:provenance-ai:inference:".$uuid;
+            $turtle = $this->buildInferenceTurtle($uuid, $r);
 
             // Delegate to FusekiSyncService so settings (enable/queue) are honoured.
             // (Repair: the previous AI-diff-as-content corruption that #108's
@@ -326,21 +330,21 @@ class InferenceService
             $sync = app(\AhgRic\Services\FusekiSyncService::class);
             $result = $sync->insertRdfStar($graphUri, $turtle);
 
-            if (!empty($result['ok'])) {
+            if (! empty($result['ok'])) {
                 DB::table('ahg_ai_inference')->where('id', $inferenceId)
                     ->update(['fuseki_graph_uri' => $graphUri]);
             } else {
                 Log::warning('[ahg-provenance-ai] Fuseki RDF-Star write deferred for replay', [
                     'inference_id' => $inferenceId,
-                    'uuid'         => $uuid,
-                    'http_status'  => $result['status']  ?? null,
-                    'error'        => $result['error']   ?? null,
+                    'uuid' => $uuid,
+                    'http_status' => $result['status'] ?? null,
+                    'error' => $result['error'] ?? null,
                 ]);
             }
         } catch (\Throwable $e) {
             // The SQL row is already committed; Fuseki failure must never
             // poison the AI service's caller. Replay job will retry.
-            Log::warning('[ahg-provenance-ai] Fuseki write threw, queued for replay: ' . $e->getMessage(), [
+            Log::warning('[ahg-provenance-ai] Fuseki write threw, queued for replay: '.$e->getMessage(), [
                 'inference_id' => $inferenceId,
             ]);
         }
@@ -363,12 +367,12 @@ class InferenceService
         $tenant = config('heratio.ld.tenant', 'ahg');
         $provNs = config('heratio.ld.provenance_ns');
         $prefixes = "@prefix prov: <http://www.w3.org/ns/prov#> .\n"
-                  . "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
-                  . "@prefix ex: <{$provNs}> .\n"
-                  . "@prefix ric: <https://www.ica.org/standards/RiC/ontology#> .\n";
+                  ."@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
+                  ."@prefix ex: <{$provNs}> .\n"
+                  ."@prefix ric: <https://www.ica.org/standards/RiC/ontology#> .\n";
 
         $inference = "<urn:{$tenant}:provenance-ai:inference:{$uuid}>";
-        $target    = $this->targetUri($r);
+        $target = $this->targetUri($r);
 
         // The "thing being asserted" - we anchor the meta-assertion on the
         // generated triple <target ex:hasGenerated <output-hash>> so the
@@ -379,20 +383,20 @@ class InferenceService
 
         $generatedAt = now()->toIso8601ZuluString();
         $body = $prefixes
-              . "{$inference} a prov:Activity ;\n"
-              . "    prov:atTime \"{$generatedAt}\"^^xsd:dateTime ;\n"
-              . "    ex:service \"" . $this->esc($r->serviceName) . "\" ;\n"
-              . "    ex:model \"" . $this->esc($r->modelName) . "\" ;\n"
-              . "    ex:modelVersion \"" . $this->esc($r->modelVersion) . "\" ;\n"
-              . "    ex:inputHash \"" . $this->esc($r->inputHash) . "\" ;\n"
-              . "    ex:outputHash \"" . $this->esc($r->outputHash) . "\" ;\n"
-              . ($r->confidence !== null ? "    ex:confidence \"{$r->confidence}\"^^xsd:decimal ;\n" : '')
-              . ($r->standard   !== null ? "    ex:standard \"" . $this->esc($r->standard) . "\" ;\n" : '')
-              . ($r->endpoint   !== null ? "    ex:endpoint \"" . $this->esc($r->endpoint) . "\" ;\n" : '')
-              . "    prov:generated {$outputNode} .\n\n"
+              ."{$inference} a prov:Activity ;\n"
+              ."    prov:atTime \"{$generatedAt}\"^^xsd:dateTime ;\n"
+              .'    ex:service "'.$this->esc($r->serviceName)."\" ;\n"
+              .'    ex:model "'.$this->esc($r->modelName)."\" ;\n"
+              .'    ex:modelVersion "'.$this->esc($r->modelVersion)."\" ;\n"
+              .'    ex:inputHash "'.$this->esc($r->inputHash)."\" ;\n"
+              .'    ex:outputHash "'.$this->esc($r->outputHash)."\" ;\n"
+              .($r->confidence !== null ? "    ex:confidence \"{$r->confidence}\"^^xsd:decimal ;\n" : '')
+              .($r->standard !== null ? '    ex:standard "'.$this->esc($r->standard)."\" ;\n" : '')
+              .($r->endpoint !== null ? '    ex:endpoint "'.$this->esc($r->endpoint)."\" ;\n" : '')
+              ."    prov:generated {$outputNode} .\n\n"
               // RDF-Star meta-assertion: the generated triple itself carries
               // a back-pointer to the inference activity that produced it.
-              . "<<{$target} ex:hasGenerated {$outputNode}>> prov:wasGeneratedBy {$inference} .\n";
+              ."<<{$target} ex:hasGenerated {$outputNode}>> prov:wasGeneratedBy {$inference} .\n";
 
         return $body;
     }
@@ -404,9 +408,10 @@ class InferenceService
     protected function targetUri(InferenceRecord $r): string
     {
         $tenant = config('heratio.ld.tenant', 'ahg');
-        $type   = rawurlencode($r->targetEntityType);
-        $id     = (int) $r->targetEntityId;
-        $field  = rawurlencode($r->targetField);
+        $type = rawurlencode($r->targetEntityType);
+        $id = (int) $r->targetEntityId;
+        $field = rawurlencode($r->targetField);
+
         return "<urn:{$tenant}:entity:{$type}:{$id}:{$field}>";
     }
 
@@ -418,7 +423,7 @@ class InferenceService
     {
         return strtr($s, [
             '\\' => '\\\\',
-            '"'  => '\\"',
+            '"' => '\\"',
             "\n" => '\\n',
             "\r" => '\\r',
         ]);

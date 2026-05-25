@@ -28,7 +28,9 @@ class LibraryProcessFinesCommand extends Command
     public function handle(): int
     {
         if (! Schema::hasTable('library_checkout') || ! Schema::hasTable('library_fine')) {
-            $this->warn('library_checkout or library_fine missing'); return self::SUCCESS;
+            $this->warn('library_checkout or library_fine missing');
+
+            return self::SUCCESS;
         }
         $dry = (bool) $this->option('dry-run');
         $today = Carbon::today();
@@ -42,23 +44,34 @@ class LibraryProcessFinesCommand extends Command
             ->select('c.id', 'c.patron_id', 'c.due_date', 'li.material_type')
             ->get();
 
-        $accrued = 0; $totalAmount = 0.0;
+        $accrued = 0;
+        $totalAmount = 0.0;
         foreach ($rows as $r) {
             $rule = ($rules[$r->material_type] ?? collect())->first()
                  ?? ($rules['*'] ?? collect())->first();
             $rate = (float) ($rule->fine_per_day ?? 1.0);
-            $cap  = $rule->fine_cap ? (float) $rule->fine_cap : null;
+            $cap = $rule->fine_cap ? (float) $rule->fine_cap : null;
             $grace = (int) ($rule->grace_period_days ?? 0);
 
             $due = Carbon::parse($r->due_date)->addDays($grace);
-            if ($today->lessThanOrEqualTo($due)) continue;
+            if ($today->lessThanOrEqualTo($due)) {
+                continue;
+            }
             $days = $today->diffInDays($due);
             $amount = round($days * $rate, 2);
-            if ($cap !== null) $amount = min($amount, $cap);
-            if ($amount <= 0) continue;
+            if ($cap !== null) {
+                $amount = min($amount, $cap);
+            }
+            if ($amount <= 0) {
+                continue;
+            }
 
             $totalAmount += $amount;
-            if ($dry) { $accrued++; continue; }
+            if ($dry) {
+                $accrued++;
+
+                continue;
+            }
 
             $existing = DB::table('library_fine')
                 ->where('checkout_id', $r->id)
@@ -75,7 +88,7 @@ class LibraryProcessFinesCommand extends Command
                 // #74 encryption_field_financial_data: encrypt-on-write so
                 // command-driven inserts pass through the same gate the
                 // bulk-apply safety net uses. No-op when the category is off.
-                $enc = new \AhgCore\Services\EncryptionService();
+                $enc = new \AhgCore\Services\EncryptionService;
                 $description = $enc->encrypt(
                     \AhgCore\Services\EncryptionService::CATEGORY_FINANCIAL_DATA,
                     "auto-accrued {$days}d × {$rate}",
@@ -101,6 +114,7 @@ class LibraryProcessFinesCommand extends Command
             $accrued++;
         }
         $this->info(sprintf('accrued=%d total=%s%s', $accrued, number_format($totalAmount, 2), $dry ? ' (dry-run)' : ''));
+
         return self::SUCCESS;
     }
 }

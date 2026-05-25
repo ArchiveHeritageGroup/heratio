@@ -43,10 +43,10 @@ class IdentifierController extends BaseApiController
             $result = match ($type) {
                 'isbn' => $lookupService->lookupByIsbn($value),
                 'issn' => $lookupService->lookupByIssn($value),
-                default => throw new \InvalidArgumentException('Unsupported type: ' . $type),
+                default => throw new \InvalidArgumentException('Unsupported type: '.$type),
             };
 
-            if (!$result) {
+            if (! $result) {
                 return $this->success([
                     'found' => false,
                     'message' => 'No results found',
@@ -132,19 +132,19 @@ class IdentifierController extends BaseApiController
 
         // Verify object exists
         $object = DB::table('information_object')->where('id', $objectId)->first();
-        if (!$object) {
+        if (! $object) {
             return $this->error('Not Found', 'Object not found.', 404);
         }
 
         try {
             $identifier = $this->identifierService->getBestBarcodeIdentifier($objectId);
 
-            if (!$identifier) {
+            if (! $identifier) {
                 return $this->error('Bad Request', 'No valid identifier found for barcode generation.', 400);
             }
 
             $slug = DB::table('slug')->where('object_id', $objectId)->value('slug');
-            $qrUrl = url('/' . ($slug ?? ''));
+            $qrUrl = url('/'.($slug ?? ''));
 
             return $this->success([
                 'barcode' => [
@@ -183,7 +183,7 @@ class IdentifierController extends BaseApiController
         }
 
         $object = DB::table('information_object')->where('id', $objectId)->first();
-        if (!$object) {
+        if (! $object) {
             return $this->error('Not Found', 'Object not found.', 404);
         }
 
@@ -213,7 +213,7 @@ class IdentifierController extends BaseApiController
         }
 
         $object = DB::table('information_object')->where('id', $objectId)->first();
-        if (!$object) {
+        if (! $object) {
             return $this->error('Not Found', 'Object not found.', 404);
         }
 

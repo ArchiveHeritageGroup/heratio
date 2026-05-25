@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -9,20 +8,21 @@ use Illuminate\Support\Facades\Schema;
  * reuse the wizard pipeline without losing origin.
  * Mirrored in atom-ahg-plugins/ahgSharePointPlugin/database/migrations/.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
-        if (!Schema::hasTable('ingest_session')) {
+        if (! Schema::hasTable('ingest_session')) {
             // ahg-ingest hasn't been installed yet; defer.
             return;
         }
-        if (!Schema::hasColumn('ingest_session', 'source')) {
+        if (! Schema::hasColumn('ingest_session', 'source')) {
             Schema::table('ingest_session', function ($table) {
                 $table->string('source', 20)->default('wizard')
                     ->comment('wizard, sharepoint, api');
             });
         }
-        if (!Schema::hasColumn('ingest_session', 'source_id')) {
+        if (! Schema::hasColumn('ingest_session', 'source_id')) {
             Schema::table('ingest_session', function ($table) {
                 $table->integer('source_id')->nullable()
                     ->comment('Origin record id (e.g., sharepoint_event.id)');
@@ -32,7 +32,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        if (!Schema::hasTable('ingest_session')) {
+        if (! Schema::hasTable('ingest_session')) {
             return;
         }
         Schema::table('ingest_session', function ($table) {

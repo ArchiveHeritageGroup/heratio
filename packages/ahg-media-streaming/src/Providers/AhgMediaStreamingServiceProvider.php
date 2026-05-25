@@ -11,7 +11,7 @@ class AhgMediaStreamingServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(TranscodingService::class, function () {
-            return new TranscodingService();
+            return new TranscodingService;
         });
 
         $this->app->singleton(StreamingService::class, function ($app) {
@@ -22,6 +22,6 @@ class AhgMediaStreamingServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \Illuminate\Support\Facades\Route::middleware('web')
-            ->group(__DIR__ . '/../../routes/web.php');
+            ->group(__DIR__.'/../../routes/web.php');
     }
 }

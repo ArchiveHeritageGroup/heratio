@@ -67,6 +67,7 @@ class WriteProvenanceCommand extends Command
             $decisionId = (int) $this->argument('decision_id');
             if ($decisionId <= 0) {
                 $this->error('Provide a decision_id argument, or --simulate-link=mention_id.');
+
                 return self::FAILURE;
             }
         }
@@ -79,16 +80,18 @@ class WriteProvenanceCommand extends Command
             $this->line($result['turtle'] ?? '(no turtle returned)');
             $this->line('--- end turtle ---');
             $this->line('');
-            $this->line('  graph_uri  : ' . ($result['graph'] ?? '(default)'));
-            $this->line('  http_status: ' . ($result['status'] ?? '?'));
+            $this->line('  graph_uri  : '.($result['graph'] ?? '(default)'));
+            $this->line('  http_status: '.($result['status'] ?? '?'));
         }
 
-        if (!($result['ok'] ?? false)) {
-            $this->error('Fuseki write FAILED: ' . ($result['error'] ?? 'unknown error'));
+        if (! ($result['ok'] ?? false)) {
+            $this->error('Fuseki write FAILED: '.($result['error'] ?? 'unknown error'));
+
             return self::FAILURE;
         }
 
-        $this->info("Provenance written for decision #{$decisionId}. Graph: " . ($result['graph'] ?? '?'));
+        $this->info("Provenance written for decision #{$decisionId}. Graph: ".($result['graph'] ?? '?'));
+
         return self::SUCCESS;
     }
 
@@ -99,8 +102,9 @@ class WriteProvenanceCommand extends Command
             ->where('m.id', $mentionId)
             ->first(['m.id', 'm.entity_type', 'n.entity_value']);
 
-        if (!$mention) {
+        if (! $mention) {
             $this->error("Mention #{$mentionId} not found.");
+
             return null;
         }
 
@@ -108,6 +112,7 @@ class WriteProvenanceCommand extends Command
 
         if ($actorId === null) {
             $this->error("Could not find a candidate actor for entity_value='{$mention->entity_value}', entity_type='{$mention->entity_type}'. Use --actor-id=N to override.");
+
             return null;
         }
 
@@ -119,7 +124,7 @@ class WriteProvenanceCommand extends Command
             ->whereNotNull('ai.authorized_form_of_name')
             ->limit(3)
             ->get(['a.id', 'ai.authorized_form_of_name'])
-            ->map(fn($r, $i) => [
+            ->map(fn ($r, $i) => [
                 'candidate_id' => null,
                 'rank' => $i + 1,
                 'display_name' => (string) $r->authorized_form_of_name,
@@ -149,7 +154,7 @@ class WriteProvenanceCommand extends Command
         $row = DB::table('actor as a')
             ->join('actor_i18n as ai', 'ai.id', '=', 'a.id')
             ->where('a.entity_type_id', $entityTypeId)
-            ->where('ai.authorized_form_of_name', 'like', '%' . $value . '%')
+            ->where('ai.authorized_form_of_name', 'like', '%'.$value.'%')
             ->orderByRaw('LENGTH(ai.authorized_form_of_name)')
             ->limit(1)
             ->first(['a.id']);
@@ -162,6 +167,7 @@ class WriteProvenanceCommand extends Command
             ->orderBy('id')
             ->limit(1)
             ->first(['id']);
+
         return $row ? (int) $row->id : null;
     }
 }

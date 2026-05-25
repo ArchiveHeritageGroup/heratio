@@ -48,12 +48,14 @@ class IntegritySettings
     {
         $algo = strtolower((string) AhgSettingsService::get('integrity_default_algorithm', 'sha256'));
         $available = hash_algos();
+
         return in_array($algo, $available, true) ? $algo : 'sha256';
     }
 
     public static function defaultBatchSize(): int
     {
         $n = AhgSettingsService::getInt('integrity_default_batch_size', 200);
+
         return max(1, min($n, 10000));
     }
 

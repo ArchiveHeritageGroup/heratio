@@ -2,17 +2,17 @@
 
 namespace AhgRecordsManage\Controllers;
 
-use AhgRecordsManage\Services\FilePlanService;
 use AhgRecordsManage\Services\FilePlanImportService;
+use AhgRecordsManage\Services\FilePlanService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class FilePlanController extends Controller
 {
     private FilePlanService $filePlanService;
+
     private FilePlanImportService $importService;
 
     public function __construct(FilePlanService $filePlanService, FilePlanImportService $importService)
@@ -38,6 +38,7 @@ class FilePlanController extends Controller
     public function treeJson()
     {
         $tree = $this->filePlanService->getTree();
+
         return response()->json($tree);
     }
 
@@ -72,13 +73,13 @@ class FilePlanController extends Controller
         // Check for duplicate code
         $existing = $this->filePlanService->getNodeByCode($validated['code']);
         if ($existing) {
-            return redirect()->back()->withInput()->with('error', 'A node with code "' . $validated['code'] . '" already exists.');
+            return redirect()->back()->withInput()->with('error', 'A node with code "'.$validated['code'].'" already exists.');
         }
 
         $validated['created_by'] = Auth::id() ?? 1;
 
         // Calculate depth from parent
-        if (!empty($validated['parent_id'])) {
+        if (! empty($validated['parent_id'])) {
             $parent = $this->filePlanService->getNode($validated['parent_id']);
             $validated['depth'] = $parent ? $parent->depth + 1 : 0;
         }
@@ -94,7 +95,7 @@ class FilePlanController extends Controller
     public function show(int $id, Request $request)
     {
         $node = $this->filePlanService->getNode($id);
-        if (!$node) {
+        if (! $node) {
             abort(404, 'File plan node not found.');
         }
 
@@ -112,7 +113,7 @@ class FilePlanController extends Controller
     public function edit(int $id)
     {
         $node = $this->filePlanService->getNode($id);
-        if (!$node) {
+        if (! $node) {
             abort(404, 'File plan node not found.');
         }
 
@@ -127,7 +128,7 @@ class FilePlanController extends Controller
     public function update(Request $request, int $id)
     {
         $node = $this->filePlanService->getNode($id);
-        if (!$node) {
+        if (! $node) {
             abort(404, 'File plan node not found.');
         }
 
@@ -146,7 +147,7 @@ class FilePlanController extends Controller
         // Check for duplicate code (exclude self)
         $existing = $this->filePlanService->getNodeByCode($validated['code']);
         if ($existing && $existing->id !== $id) {
-            return redirect()->back()->withInput()->with('error', 'A node with code "' . $validated['code'] . '" already exists.');
+            return redirect()->back()->withInput()->with('error', 'A node with code "'.$validated['code'].'" already exists.');
         }
 
         $this->filePlanService->updateNode($id, $validated);
@@ -160,12 +161,12 @@ class FilePlanController extends Controller
     public function destroy(int $id)
     {
         $node = $this->filePlanService->getNode($id);
-        if (!$node) {
+        if (! $node) {
             abort(404, 'File plan node not found.');
         }
 
         $deleted = $this->filePlanService->deleteNode($id);
-        if (!$deleted) {
+        if (! $deleted) {
             return redirect()->route('records.fileplan.show', $id)
                 ->with('error', 'Cannot delete node: it has child nodes or linked records.');
         }
@@ -183,7 +184,7 @@ class FilePlanController extends Controller
         ]);
 
         $moved = $this->filePlanService->moveNode($id, $request->input('new_parent_id'));
-        if (!$moved) {
+        if (! $moved) {
             return redirect()->route('records.fileplan.show', $id)
                 ->with('error', 'Cannot move node to the specified parent.');
         }
@@ -223,7 +224,7 @@ class FilePlanController extends Controller
 
             $file = $request->file('import_file');
             $storedPath = $file->store('fileplan-imports', 'local');
-            $fullPath = storage_path('app/private/' . $storedPath);
+            $fullPath = storage_path('app/private/'.$storedPath);
 
             // Detect columns
             $spreadsheet = IOFactory::load($fullPath);
@@ -251,8 +252,8 @@ class FilePlanController extends Controller
             ]);
 
             $dirPath = $request->input('directory_path');
-            if (!is_dir($dirPath)) {
-                return redirect()->back()->withInput()->with('error', 'Directory not found: ' . $dirPath);
+            if (! is_dir($dirPath)) {
+                return redirect()->back()->withInput()->with('error', 'Directory not found: '.$dirPath);
             }
 
             $userId = Auth::id() ?? 1;
@@ -270,7 +271,7 @@ class FilePlanController extends Controller
 
             $file = $request->file('import_file');
             $storedPath = $file->store('fileplan-imports', 'local');
-            $fullPath = storage_path('app/private/' . $storedPath);
+            $fullPath = storage_path('app/private/'.$storedPath);
 
             $userId = Auth::id() ?? 1;
             $format = $request->input('xml_format', 'generic');
@@ -296,7 +297,7 @@ class FilePlanController extends Controller
         ]);
 
         $filePath = $request->input('file_path');
-        $fullPath = storage_path('app/private/' . $filePath);
+        $fullPath = storage_path('app/private/'.$filePath);
         $mapping = $request->input('mapping');
         $department = $request->input('department');
         $agencyCode = $request->input('agency_code');
@@ -318,7 +319,7 @@ class FilePlanController extends Controller
         foreach (array_slice($dataRows, 0, 50) as $row) {
             $code = isset($mapping['code']) ? trim((string) ($row[$mapping['code']] ?? '')) : '';
             $title = isset($mapping['title']) ? trim((string) ($row[$mapping['title']] ?? '')) : '';
-            if (!empty($code)) {
+            if (! empty($code)) {
                 $allCodes[] = $code;
                 $previewNodes[] = [
                     'code' => $code,
@@ -368,7 +369,7 @@ class FilePlanController extends Controller
         ]);
 
         $filePath = $request->input('file_path');
-        $fullPath = storage_path('app/private/' . $filePath);
+        $fullPath = storage_path('app/private/'.$filePath);
         $mapping = $request->input('mapping');
         $department = $request->input('department');
         $agencyCode = $request->input('agency_code');
@@ -382,13 +383,13 @@ class FilePlanController extends Controller
             $userId
         );
 
-        if (!empty($result['errors'])) {
+        if (! empty($result['errors'])) {
             return redirect()->route('records.fileplan.import.status', $result['session_id'])
-                ->with('warning', 'Import completed with ' . count($result['errors']) . ' warning(s).');
+                ->with('warning', 'Import completed with '.count($result['errors']).' warning(s).');
         }
 
         return redirect()->route('records.fileplan.import.status', $result['session_id'])
-            ->with('success', 'Import completed: ' . $result['imported'] . ' nodes imported.');
+            ->with('success', 'Import completed: '.$result['imported'].' nodes imported.');
     }
 
     /**
@@ -397,7 +398,7 @@ class FilePlanController extends Controller
     public function importStatus(int $sessionId)
     {
         $session = $this->importService->getImportSession($sessionId);
-        if (!$session) {
+        if (! $session) {
             abort(404, 'Import session not found.');
         }
 
@@ -412,7 +413,7 @@ class FilePlanController extends Controller
     public function linkRecords(int $sessionId)
     {
         $session = $this->importService->getImportSession($sessionId);
-        if (!$session) {
+        if (! $session) {
             abort(404, 'Import session not found.');
         }
 

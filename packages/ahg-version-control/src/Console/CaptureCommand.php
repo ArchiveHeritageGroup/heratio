@@ -19,6 +19,7 @@ use Illuminate\Console\Command;
 class CaptureCommand extends Command
 {
     protected $signature = 'ahg:version-capture {--entity=information_object} {--id=} {--summary=} {--user-id=}';
+
     protected $description = 'Build snapshot + write as the next version for an entity (smoke/backfill)';
 
     public function handle(SnapshotBuilder $builder, VersionWriter $writer): int
@@ -27,16 +28,18 @@ class CaptureCommand extends Command
         $id = (int) $this->option('id');
         if ($id <= 0) {
             $this->error('--id is required and must be > 0');
+
             return self::FAILURE;
         }
 
         $snapshot = match ($entity) {
             'information_object' => $builder->buildForInformationObject($id),
-            'actor'              => $builder->buildForActor($id),
-            default              => null,
+            'actor' => $builder->buildForActor($id),
+            default => null,
         };
         if ($snapshot === null) {
             $this->error("Unknown entity: {$entity}");
+
             return self::FAILURE;
         }
 
@@ -49,6 +52,7 @@ class CaptureCommand extends Command
         );
 
         $this->line("version_number={$version} entity_type={$entity} entity_id={$id}");
+
         return self::SUCCESS;
     }
 }

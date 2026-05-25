@@ -107,8 +107,8 @@ class ScaleEvaluator implements EvaluatorInterface
 
     public function evaluate(object $mention, object $context, object $candidate): array
     {
-        $surrounding = ((string) ($context->surrounding_text_before ?? '')) . ' '
-                     . ((string) ($context->surrounding_text_after ?? ''));
+        $surrounding = ((string) ($context->surrounding_text_before ?? '')).' '
+                     .((string) ($context->surrounding_text_after ?? ''));
         $textTokens = $this->detectTokens(mb_strtolower($surrounding));
 
         $candName = (string) ($candidate->candidate_display_name ?? '');
@@ -127,11 +127,11 @@ class ScaleEvaluator implements EvaluatorInterface
             ]);
         }
 
-        $textFamilies = array_unique(array_map(fn($t) => self::SCALE_FAMILY[$t], $textTokens));
-        $candFamilies = array_unique(array_map(fn($t) => self::SCALE_FAMILY[$t], $candTokens));
+        $textFamilies = array_unique(array_map(fn ($t) => self::SCALE_FAMILY[$t], $textTokens));
+        $candFamilies = array_unique(array_map(fn ($t) => self::SCALE_FAMILY[$t], $candTokens));
 
         $overlap = array_values(array_intersect($textFamilies, $candFamilies));
-        if (!empty($overlap)) {
+        if (! empty($overlap)) {
             return EvidenceSignal::make(EvidenceSignal::MATCH, [
                 'aligned_families' => $overlap,
                 'text_tokens' => $textTokens,
@@ -144,7 +144,7 @@ class ScaleEvaluator implements EvaluatorInterface
         // If one side is "facility" and the other is a place family, that's a conflict
         // ("kingdom of X" mentions don't fit a term named "X Bookshop").
         $isFacilityContradiction = in_array('facility', $candFamilies, true)
-            && !empty(array_intersect($textFamilies, ['settlement', 'subregion', 'nation', 'continent']));
+            && ! empty(array_intersect($textFamilies, ['settlement', 'subregion', 'nation', 'continent']));
 
         if ($isFacilityContradiction) {
             return EvidenceSignal::make(EvidenceSignal::CONFLICT, [
@@ -164,7 +164,7 @@ class ScaleEvaluator implements EvaluatorInterface
     }
 
     /**
-     * @return list<string>  Distinct scale tokens detected in $haystack (lowercased)
+     * @return list<string> Distinct scale tokens detected in $haystack (lowercased)
      */
     private function detectTokens(string $haystack): array
     {
@@ -174,10 +174,11 @@ class ScaleEvaluator implements EvaluatorInterface
         $found = [];
         foreach (array_keys(self::SCALE_FAMILY) as $token) {
             // word boundary on both sides; Unicode word chars
-            if (preg_match('/(?<![\p{L}\p{N}])' . preg_quote($token, '/') . '(?![\p{L}\p{N}])/u', $haystack)) {
+            if (preg_match('/(?<![\p{L}\p{N}])'.preg_quote($token, '/').'(?![\p{L}\p{N}])/u', $haystack)) {
                 $found[] = $token;
             }
         }
+
         return array_values(array_unique($found));
     }
 }

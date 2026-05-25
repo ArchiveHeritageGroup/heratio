@@ -62,7 +62,7 @@ class SharePointTenantRepository
         try {
             return \Illuminate\Support\Facades\Crypt::decryptString((string) $row->setting_value);
         } catch (\Throwable $e) {
-            throw new \RuntimeException('Failed to decrypt client_secret: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('Failed to decrypt client_secret: '.$e->getMessage(), 0, $e);
         }
     }
 
@@ -77,6 +77,7 @@ class SharePointTenantRepository
         );
 
         $this->update($tenantId, ['client_secret_ref' => $ref]);
+
         return $ref;
     }
 }

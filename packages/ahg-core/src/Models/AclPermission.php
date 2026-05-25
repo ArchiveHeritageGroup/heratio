@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AclPermission extends Model
 {
     protected $table = 'acl_permission';
+
     public $timestamps = true;
 
     protected $fillable = [
@@ -29,6 +30,8 @@ class AclPermission extends Model
     }
 
     const GRANT = 1;
+
     const DENY = 0;
+
     const INHERIT = -1;
 }

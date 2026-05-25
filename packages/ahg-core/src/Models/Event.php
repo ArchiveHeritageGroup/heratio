@@ -10,7 +10,9 @@ class Event extends Model
     use HasI18n;
 
     protected $table = 'event';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -44,6 +46,8 @@ class Event extends Model
     }
 
     const CREATION_ID = 111;
+
     const ACCUMULATION_ID = 113;
+
     const CONTRIBUTION_ID = 114;
 }

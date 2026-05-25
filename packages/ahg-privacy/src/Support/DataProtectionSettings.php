@@ -55,6 +55,7 @@ class DataProtectionSettings
     public static function defaultRegulation(): string
     {
         $r = trim((string) AhgSettingsService::get('dp_default_regulation', 'popia'));
+
         return $r !== '' ? strtolower($r) : 'popia';
     }
 
@@ -87,7 +88,7 @@ class DataProtectionSettings
         // Per-jurisdiction setting wins. Sanitise the slug so no malicious
         // jurisdiction string can build a setting key with metacharacters.
         if (preg_match('/^[a-z0-9_]{1,30}$/', $j)) {
-            $key  = "dp_{$j}_response_days";
+            $key = "dp_{$j}_response_days";
             $days = AhgSettingsService::getInt($key, 0);
             if ($days > 0) {
                 return $days;
@@ -99,6 +100,7 @@ class DataProtectionSettings
                 return (int) $row->dsar_days;
             }
         }
+
         return 30;
     }
 
@@ -118,6 +120,7 @@ class DataProtectionSettings
             return null;
         }
         $f = (float) $raw;
+
         return $f > 0 ? $f : null;
     }
 
@@ -125,13 +128,13 @@ class DataProtectionSettings
     public static function payload(): array
     {
         return [
-            'enabled'             => self::enabled(),
-            'default_regulation'  => self::defaultRegulation(),
-            'notify_email'        => self::notifyEmail(),
-            'notify_overdue'      => self::notifyOverdue(),
+            'enabled' => self::enabled(),
+            'default_regulation' => self::defaultRegulation(),
+            'notify_email' => self::notifyEmail(),
+            'notify_overdue' => self::notifyOverdue(),
             'popia_response_days' => self::responseDaysFor('popia'),
-            'popia_fee'           => self::feeFor('popia', false),
-            'popia_fee_special'   => self::feeFor('popia', true),
+            'popia_fee' => self::feeFor('popia', false),
+            'popia_fee_special' => self::feeFor('popia', true),
         ];
     }
 }

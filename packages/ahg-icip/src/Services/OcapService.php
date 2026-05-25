@@ -42,10 +42,13 @@ use Illuminate\Support\Facades\Schema;
  */
 class OcapService
 {
-    public const STATUS_GREEN  = 'green';
-    public const STATUS_AMBER  = 'amber';
-    public const STATUS_RED    = 'red';
-    public const STATUS_NA     = 'n/a';
+    public const STATUS_GREEN = 'green';
+
+    public const STATUS_AMBER = 'amber';
+
+    public const STATUS_RED = 'red';
+
+    public const STATUS_NA = 'n/a';
 
     public const PRINCIPLES = [
         'ownership',
@@ -57,9 +60,12 @@ class OcapService
     public function isEnabled(): bool
     {
         try {
-            if (!Schema::hasTable('icip_config')) return false;
+            if (! Schema::hasTable('icip_config')) {
+                return false;
+            }
             $val = DB::table('icip_config')->where('config_key', 'ocap_enabled')->value('config_value');
-            return (string)$val === '1';
+
+            return (string) $val === '1';
         } catch (\Throwable $e) {
             return false;
         }
@@ -82,7 +88,7 @@ class OcapService
                 ->whereNotNull('community_id')
                 ->exists();
             $ownership = $hasOwnerLink ? self::STATUS_GREEN : self::STATUS_AMBER;
-            if (!$hasOwnerLink) {
+            if (! $hasOwnerLink) {
                 $reasons['ownership'] = 'No community linked to this record.';
             }
         }
@@ -95,21 +101,21 @@ class OcapService
                 ->orderByDesc('id')
                 ->select('consent_status', 'consent_expiry_date')
                 ->first();
-            if (!$latest) {
+            if (! $latest) {
                 $control = self::STATUS_RED;
                 $reasons['control'] = 'No consent record on file.';
             } elseif ($latest->consent_expiry_date && $latest->consent_expiry_date < now()->toDateString()) {
                 $control = self::STATUS_RED;
-                $reasons['control'] = 'Consent has expired (' . $latest->consent_expiry_date . ').';
+                $reasons['control'] = 'Consent has expired ('.$latest->consent_expiry_date.').';
             } else {
                 $control = match (strtolower($latest->consent_status ?? '')) {
-                    'granted'      => self::STATUS_GREEN,
-                    'conditional'  => self::STATUS_AMBER,
+                    'granted' => self::STATUS_GREEN,
+                    'conditional' => self::STATUS_AMBER,
                     'denied', 'pending' => self::STATUS_RED,
-                    default        => self::STATUS_AMBER,
+                    default => self::STATUS_AMBER,
                 };
                 if ($control !== self::STATUS_GREEN) {
-                    $reasons['control'] = 'Consent status: ' . ($latest->consent_status ?: 'unknown') . '.';
+                    $reasons['control'] = 'Consent status: '.($latest->consent_status ?: 'unknown').'.';
                 }
             }
         }
@@ -156,7 +162,9 @@ class OcapService
      */
     public function rollup(int $limit = 250): array
     {
-        if (!Schema::hasTable('icip_object_summary')) return [];
+        if (! Schema::hasTable('icip_object_summary')) {
+            return [];
+        }
 
         $rows = DB::table('icip_object_summary as s')
             ->leftJoin('information_object_i18n as i', function ($j) {
@@ -170,18 +178,19 @@ class OcapService
 
         $out = [];
         foreach ($rows as $r) {
-            $a = $this->assessForIO((int)$r->io_id);
+            $a = $this->assessForIO((int) $r->io_id);
             $out[] = [
-                'io_id'      => (int)$r->io_id,
-                'title'      => $r->title ?: '(untitled)',
-                'slug'       => $r->slug,
-                'ownership'  => $a['ownership'],
-                'control'    => $a['control'],
-                'access'     => $a['access'],
+                'io_id' => (int) $r->io_id,
+                'title' => $r->title ?: '(untitled)',
+                'slug' => $r->slug,
+                'ownership' => $a['ownership'],
+                'control' => $a['control'],
+                'access' => $a['access'],
                 'possession' => $a['possession'],
-                'overall'    => $a['overall'],
+                'overall' => $a['overall'],
             ];
         }
+
         return $out;
     }
 
@@ -204,11 +213,12 @@ class OcapService
                 $byPrinciple[$p][$row[$p]] = ($byPrinciple[$p][$row[$p]] ?? 0) + 1;
             }
         }
+
         return [
             'green' => $tally['green'],
             'amber' => $tally['amber'],
-            'red'   => $tally['red'],
-            'na'    => $tally['n/a'],
+            'red' => $tally['red'],
+            'na' => $tally['n/a'],
             'total' => count($rollup),
             'by_principle' => $byPrinciple,
         ];
@@ -216,9 +226,16 @@ class OcapService
 
     private static function worstOf(array $statuses): string
     {
-        if (in_array(self::STATUS_RED, $statuses, true))   return self::STATUS_RED;
-        if (in_array(self::STATUS_AMBER, $statuses, true)) return self::STATUS_AMBER;
-        if (in_array(self::STATUS_GREEN, $statuses, true)) return self::STATUS_GREEN;
+        if (in_array(self::STATUS_RED, $statuses, true)) {
+            return self::STATUS_RED;
+        }
+        if (in_array(self::STATUS_AMBER, $statuses, true)) {
+            return self::STATUS_AMBER;
+        }
+        if (in_array(self::STATUS_GREEN, $statuses, true)) {
+            return self::STATUS_GREEN;
+        }
+
         return self::STATUS_NA;
     }
 }

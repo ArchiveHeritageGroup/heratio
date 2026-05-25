@@ -26,7 +26,7 @@ class ShareLinkRecipientController extends Controller
             userAgent: $request->header('User-Agent'),
         );
 
-        if (!$result->allowed) {
+        if (! $result->allowed) {
             return response()
                 ->view('ahg-share-link::denied', [
                     'result' => $result,
@@ -40,7 +40,7 @@ class ShareLinkRecipientController extends Controller
 
         // Issuer name
         $issuer = DB::table('user')->where('id', $tokenRow->issued_by)->first();
-        $issuerName = $issuer ? ($issuer->username ?: ('user #' . $tokenRow->issued_by)) : '(unknown)';
+        $issuerName = $issuer ? ($issuer->username ?: ('user #'.$tokenRow->issued_by)) : '(unknown)';
 
         // Title + scope
         $culture = app()->getLocale();
@@ -49,13 +49,13 @@ class ShareLinkRecipientController extends Controller
 
         return response()
             ->view('ahg-share-link::recipient', [
-                'tokenRow'            => $tokenRow,
+                'tokenRow' => $tokenRow,
                 'informationObjectId' => $ioId,
-                'expiresAt'           => $tokenRow->expires_at,
-                'issuerName'          => $issuerName,
-                'title'               => $i18n->title ?? ('#' . $ioId),
-                'scopeAndContent'     => $i18n->scope_and_content ?? null,
-                'identifier'          => DB::table('information_object')->where('id', $ioId)->value('identifier'),
+                'expiresAt' => $tokenRow->expires_at,
+                'issuerName' => $issuerName,
+                'title' => $i18n->title ?? ('#'.$ioId),
+                'scopeAndContent' => $i18n->scope_and_content ?? null,
+                'identifier' => DB::table('information_object')->where('id', $ioId)->value('identifier'),
             ], 200)
             ->header('Referrer-Policy', 'no-referrer');
     }

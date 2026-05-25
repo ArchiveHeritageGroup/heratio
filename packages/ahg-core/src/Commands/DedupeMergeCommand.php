@@ -27,18 +27,30 @@ class DedupeMergeCommand extends Command
         if (! $keep || ! $remove) {
             // Without explicit pair, refuse — bulk merge from a scan needs admin curation.
             $this->error('Provide --keep=ID and --remove=ID to merge a single pair. Bulk merge from --scan-id requires admin-curated pairs (manual review UI), not a CLI default.');
+
             return self::FAILURE;
         }
-        $keep = (int) $keep; $remove = (int) $remove;
-        if ($keep === $remove) { $this->error('keep and remove must differ'); return self::FAILURE; }
+        $keep = (int) $keep;
+        $remove = (int) $remove;
+        if ($keep === $remove) {
+            $this->error('keep and remove must differ');
+
+            return self::FAILURE;
+        }
 
         $db = DB::connection($conn);
         $w = $db->table('information_object')->where('id', $keep)->first();
         $l = $db->table('information_object')->where('id', $remove)->first();
-        if (! $w || ! $l) { $this->error('one or both IOs not found'); return self::FAILURE; }
+        if (! $w || ! $l) {
+            $this->error('one or both IOs not found');
 
-        $this->info("merge plan: keep={$keep} remove={$remove}" . ($dry ? ' (dry-run)' : ''));
-        if ($dry) return self::SUCCESS;
+            return self::FAILURE;
+        }
+
+        $this->info("merge plan: keep={$keep} remove={$remove}".($dry ? ' (dry-run)' : ''));
+        if ($dry) {
+            return self::SUCCESS;
+        }
 
         $db->beginTransaction();
         try {
@@ -48,7 +60,7 @@ class DedupeMergeCommand extends Command
             $doCount = (int) $db->table('digital_object')->where('object_id', $remove)->update(['object_id' => $keep]);
             // 3) move relation rows (subject + object)
             $relS = (int) $db->table('relation')->where('subject_id', $remove)->update(['subject_id' => $keep]);
-            $relO = (int) $db->table('relation')->where('object_id',  $remove)->update(['object_id'  => $keep]);
+            $relO = (int) $db->table('relation')->where('object_id', $remove)->update(['object_id' => $keep]);
             // 4) keep the loser slug as a redirect to the winner: AtoM convention is to keep
             //    the slug row but flip its object_id to the winner. Without a `redirect` column
             //    on slug, the simplest approach is to delete the loser-slug rows.
@@ -59,10 +71,12 @@ class DedupeMergeCommand extends Command
 
             $db->commit();
             $this->info("merged: children_reparented={$childCount} digital_objects_moved={$doCount} relations_subj={$relS} relations_obj={$relO} slugs_deleted={$slugDel} i18n_deleted={$i18nDel} io_deleted={$ioDel}");
+
             return self::SUCCESS;
         } catch (\Throwable $e) {
             $db->rollBack();
             $this->error("merge failed: {$e->getMessage()}");
+
             return self::FAILURE;
         }
     }

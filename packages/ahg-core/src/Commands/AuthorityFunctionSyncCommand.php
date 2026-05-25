@@ -20,6 +20,7 @@ class AuthorityFunctionSyncCommand extends Command
         $db = DB::connection($conn);
         if (! Schema::connection($conn)->hasTable('relation')) {
             $this->warn("[{$conn}] no relation table");
+
             return self::SUCCESS;
         }
 
@@ -36,14 +37,15 @@ class AuthorityFunctionSyncCommand extends Command
             ->select('r.id', 'r.subject_id', 'r.object_id')
             ->limit(1000)->get();
 
-        $this->info("orphaned subject_id (no matching actor): " . $orphanedSubjects->count());
-        $this->info("orphaned object_id  (no matching actor): " . $orphanedObjects->count());
+        $this->info('orphaned subject_id (no matching actor): '.$orphanedSubjects->count());
+        $this->info('orphaned object_id  (no matching actor): '.$orphanedObjects->count());
 
         if ($this->option('clean')) {
             $ids = $orphanedSubjects->pluck('id')->merge($orphanedObjects->pluck('id'))->unique();
             $deleted = $db->table('relation')->whereIn('id', $ids)->delete();
             $this->info("cleaned {$deleted} orphaned relation rows");
         }
+
         return self::SUCCESS;
     }
 }

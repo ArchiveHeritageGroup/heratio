@@ -32,7 +32,9 @@ use Illuminate\Support\Facades\Log;
 class HarvestService
 {
     protected HarvestClient $client;
+
     protected FederationProvenance $provenance;
+
     protected array $stats;
 
     /**
@@ -42,8 +44,8 @@ class HarvestService
 
     public function __construct(?HarvestClient $client = null, ?FederationProvenance $provenance = null)
     {
-        $this->client = $client ?? new HarvestClient();
-        $this->provenance = $provenance ?? new FederationProvenance();
+        $this->client = $client ?? new HarvestClient;
+        $this->provenance = $provenance ?? new FederationProvenance;
         $this->resetStats();
     }
 
@@ -63,22 +65,22 @@ class HarvestService
     /**
      * Harvest records from a single peer.
      *
-     * @param array $options from / until / set / metadataPrefix / fullHarvest / sessionId
+     * @param  array  $options  from / until / set / metadataPrefix / fullHarvest / sessionId
      */
     public function harvestPeer(int $peerId, array $options = []): HarvestResult
     {
         $this->resetStats();
 
         $peer = DB::table('federation_peer')->where('id', $peerId)->first();
-        if (!$peer) {
+        if (! $peer) {
             throw new HarvestException("Peer not found: $peerId");
         }
-        if (!$peer->is_active) {
+        if (! $peer->is_active) {
             throw new HarvestException("Peer is not active: {$peer->name}");
         }
 
         $metadataPrefix = $options['metadataPrefix'] ?? null;
-        if (!$metadataPrefix) {
+        if (! $metadataPrefix) {
             $metadataPrefix = $this->detectBestFormat($peer->base_url);
         }
 
@@ -88,14 +90,20 @@ class HarvestService
         if (empty($options['fullHarvest']) && $peer->last_harvest_at) {
             $from = gmdate('Y-m-d\TH:i:s\Z', strtotime($peer->last_harvest_at));
         }
-        if (!empty($options['from'])) {
+        if (! empty($options['from'])) {
             $from = $options['from'];
         }
 
         $harvestParams = ['metadataPrefix' => $metadataPrefix];
-        if ($from) { $harvestParams['from'] = $from; }
-        if ($until) { $harvestParams['until'] = $until; }
-        if (!empty($options['set'])) { $harvestParams['set'] = $options['set']; }
+        if ($from) {
+            $harvestParams['from'] = $from;
+        }
+        if ($until) {
+            $harvestParams['until'] = $until;
+        }
+        if (! empty($options['set'])) {
+            $harvestParams['set'] = $options['set'];
+        }
 
         $startTime = microtime(true);
 
@@ -106,7 +114,7 @@ class HarvestService
                     $this->processRecord($oaiRecord, $peerId, $metadataPrefix);
                 } catch (\Throwable $e) {
                     $this->stats['errors']++;
-                    $this->stats['errorMessages'][] = ($oaiRecord['header']['identifier'] ?? '?') . ': ' . $e->getMessage();
+                    $this->stats['errorMessages'][] = ($oaiRecord['header']['identifier'] ?? '?').': '.$e->getMessage();
                     Log::warning('[federation] record processing failed', [
                         'peer_id' => $peerId,
                         'identifier' => $oaiRecord['header']['identifier'] ?? null,
@@ -125,7 +133,7 @@ class HarvestService
                 ]);
         } catch (HarvestException $e) {
             $this->stats['errors']++;
-            $this->stats['errorMessages'][] = 'Harvest failed: ' . $e->getMessage();
+            $this->stats['errorMessages'][] = 'Harvest failed: '.$e->getMessage();
 
             DB::table('federation_peer')
                 ->where('id', $peerId)
@@ -156,11 +164,13 @@ class HarvestService
 
         if (($header['status'] ?? 'active') === 'deleted') {
             $this->handleDeletedRecord($identifier, $peerId);
+
             return;
         }
 
         if (empty($oaiRecord['metadata'])) {
             $this->stats['skipped']++;
+
             return;
         }
 
@@ -191,6 +201,7 @@ class HarvestService
         );
 
         $this->stats['created']++;
+
         return $newId;
     }
 
@@ -214,8 +225,9 @@ class HarvestService
     protected function handleDeletedRecord(string $identifier, int $peerId): void
     {
         $existingId = $this->provenance->findBySourceIdentifier($peerId, $identifier);
-        if (!$existingId) {
+        if (! $existingId) {
             $this->stats['skipped']++;
+
             return;
         }
 
@@ -249,17 +261,33 @@ class HarvestService
     protected function mapHeritage(array $m): array
     {
         $data = [];
-        if (!empty($m['title']))                $data['title']                       = $m['title'];
-        if (!empty($m['description']))          $data['scope_and_content']           = $m['description'];
-        if (!empty($m['referenceCode']))        $data['identifier']                  = $m['referenceCode'];
-        if (!empty($m['extent']))               $data['extent_and_medium']           = $m['extent'];
-        if (!empty($m['accessConditions']))     $data['access_conditions']           = $m['accessConditions'];
-        if (!empty($m['provenance']))           $data['archival_history']            = $m['provenance'];
-        if (!empty($m['arrangement']))          $data['arrangement']                 = $m['arrangement'];
+        if (! empty($m['title'])) {
+            $data['title'] = $m['title'];
+        }
+        if (! empty($m['description'])) {
+            $data['scope_and_content'] = $m['description'];
+        }
+        if (! empty($m['referenceCode'])) {
+            $data['identifier'] = $m['referenceCode'];
+        }
+        if (! empty($m['extent'])) {
+            $data['extent_and_medium'] = $m['extent'];
+        }
+        if (! empty($m['accessConditions'])) {
+            $data['access_conditions'] = $m['accessConditions'];
+        }
+        if (! empty($m['provenance'])) {
+            $data['archival_history'] = $m['provenance'];
+        }
+        if (! empty($m['arrangement'])) {
+            $data['arrangement'] = $m['arrangement'];
+        }
 
-        if (!empty($m['levelOfDescription'])) {
+        if (! empty($m['levelOfDescription'])) {
             $levelId = $this->resolveTermId($m['levelOfDescription'], InformationObjectService::TAXONOMY_LEVELS_OF_DESCRIPTION);
-            if ($levelId) { $data['level_of_description_id'] = $levelId; }
+            if ($levelId) {
+                $data['level_of_description_id'] = $levelId;
+            }
         }
 
         return $data;
@@ -269,16 +297,16 @@ class HarvestService
     {
         $data = [];
 
-        if (!empty($m['title'])) {
+        if (! empty($m['title'])) {
             $data['title'] = is_array($m['title']) ? ($m['title'][0] ?? null) : $m['title'];
         }
 
-        if (!empty($m['description'])) {
+        if (! empty($m['description'])) {
             $description = is_array($m['description']) ? implode("\n\n", $m['description']) : $m['description'];
             $data['scope_and_content'] = $description;
         }
 
-        if (!empty($m['identifier'])) {
+        if (! empty($m['identifier'])) {
             // Use the first non-URL identifier as the local reference code.
             foreach ((array) $m['identifier'] as $identifier) {
                 if (strpos($identifier, 'http') !== 0) {
@@ -288,19 +316,21 @@ class HarvestService
             }
         }
 
-        if (!empty($m['rights'])) {
+        if (! empty($m['rights'])) {
             $rights = is_array($m['rights']) ? implode("\n", $m['rights']) : $m['rights'];
             $data['access_conditions'] = $rights;
         }
 
-        if (!empty($m['format'])) {
+        if (! empty($m['format'])) {
             $format = is_array($m['format']) ? implode('; ', $m['format']) : $m['format'];
             $data['extent_and_medium'] = $format;
         }
 
-        if (!empty($m['source'])) {
+        if (! empty($m['source'])) {
             $source = is_array($m['source']) ? ($m['source'][0] ?? null) : $m['source'];
-            if ($source) { $data['sources'] = $source; }
+            if ($source) {
+                $data['sources'] = $source;
+            }
         }
 
         return $data;
@@ -344,8 +374,15 @@ class HarvestService
         return 'oai_dc';
     }
 
-    public function getClient(): HarvestClient { return $this->client; }
-    public function getProvenance(): FederationProvenance { return $this->provenance; }
+    public function getClient(): HarvestClient
+    {
+        return $this->client;
+    }
+
+    public function getProvenance(): FederationProvenance
+    {
+        return $this->provenance;
+    }
 }
 
 class HarvestResult

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Slug extends Model
 {
     protected $table = 'slug';
+
     public $timestamps = false;
 
     protected $fillable = ['object_id', 'slug', 'serial_number'];

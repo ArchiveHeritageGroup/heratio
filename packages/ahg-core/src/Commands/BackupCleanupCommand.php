@@ -19,6 +19,7 @@ class BackupCleanupCommand extends Command
         $backupsDir = rtrim((string) config('heratio.backups_path', base_path('backups')), '/');
         if (! is_dir($backupsDir)) {
             $this->info("[backup-cleanup] {$backupsDir} does not exist — nothing to clean.");
+
             return self::SUCCESS;
         }
 
@@ -30,9 +31,13 @@ class BackupCleanupCommand extends Command
         $cutoff = time() - ($days * 86400);
         $dry = (bool) $this->option('dry-run');
 
-        $removed = 0; $bytes = 0; $kept = 0;
+        $removed = 0;
+        $bytes = 0;
+        $kept = 0;
         foreach (new \DirectoryIterator($backupsDir) as $entry) {
-            if ($entry->isDot() || ! $entry->isFile()) continue;
+            if ($entry->isDot() || ! $entry->isFile()) {
+                continue;
+            }
             // Only sweep recognisable backup artefacts; never touch unknown files.
             $name = $entry->getFilename();
             if (! preg_match('/\.(sql|sql\.gz|tar|tar\.gz|zip|dump|bak)$/i', $name)) {
@@ -40,18 +45,21 @@ class BackupCleanupCommand extends Command
             }
             if ($entry->getMTime() >= $cutoff) {
                 $kept++;
+
                 continue;
             }
             $size = $entry->getSize();
             if ($dry) {
-                $this->line("  would remove: {$entry->getPathname()} (" . number_format($size) . " bytes, " . date('Y-m-d', $entry->getMTime()) . ")");
+                $this->line("  would remove: {$entry->getPathname()} (".number_format($size).' bytes, '.date('Y-m-d', $entry->getMTime()).')');
             } else {
                 @unlink($entry->getPathname());
             }
-            $removed++; $bytes += $size;
+            $removed++;
+            $bytes += $size;
         }
 
-        $this->info("[backup-cleanup] dir={$backupsDir} keep_days={$days} kept={$kept} removed={$removed} bytes_freed=" . number_format($bytes) . ($dry ? ' (dry-run)' : ''));
+        $this->info("[backup-cleanup] dir={$backupsDir} keep_days={$days} kept={$kept} removed={$removed} bytes_freed=".number_format($bytes).($dry ? ' (dry-run)' : ''));
+
         return self::SUCCESS;
     }
 }

@@ -16,6 +16,6 @@ abstract class PackageTestCase extends BaseTestCase
      */
     protected function getPackagePath(): string
     {
-        return __DIR__ . '/../packages/' . $this->getPackageName();
+        return __DIR__.'/../packages/'.$this->getPackageName();
     }
 }

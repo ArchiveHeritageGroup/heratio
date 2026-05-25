@@ -37,7 +37,10 @@ class MetadataExportCommand extends Command
     public function handle(): int
     {
         if ($this->option('list')) {
-            foreach ($this->formats as $f) $this->line("  - {$f}");
+            foreach ($this->formats as $f) {
+                $this->line("  - {$f}");
+            }
+
             return self::SUCCESS;
         }
 
@@ -46,25 +49,28 @@ class MetadataExportCommand extends Command
         foreach ($formats as $f) {
             if (! in_array($f, $this->formats, true)) {
                 $this->error("unknown format: {$f}");
+
                 return self::FAILURE;
             }
         }
 
         $out = rtrim((string) $this->option('output'), '/');
-        if (! is_dir($out)) @mkdir($out, 0775, true);
+        if (! is_dir($out)) {
+            @mkdir($out, 0775, true);
+        }
 
         $rows = $this->collectIos();
-        $this->info("exporting {$rows->count()} IOs in [" . implode(',', $formats) . "]");
+        $this->info("exporting {$rows->count()} IOs in [".implode(',', $formats).']');
 
         $written = 0;
         foreach ($rows as $r) {
             foreach ($formats as $f) {
                 $body = match ($f) {
-                    'ead3'     => $this->renderEad3($r),
-                    'lido'     => $this->renderLido($r),
-                    'marc21'   => $this->renderMarc21($r),
-                    'rico'     => $this->renderRiCo($r),
-                    'premis'   => $this->renderPremis($r),
+                    'ead3' => $this->renderEad3($r),
+                    'lido' => $this->renderLido($r),
+                    'marc21' => $this->renderMarc21($r),
+                    'rico' => $this->renderRiCo($r),
+                    'premis' => $this->renderPremis($r),
                     'bibframe' => $this->renderBibframe($r),
                 };
                 $ext = $f === 'rico' ? 'jsonld' : 'xml';
@@ -81,6 +87,7 @@ class MetadataExportCommand extends Command
             ]);
         }
         $this->info("written={$written} -> {$out}");
+
         return self::SUCCESS;
     }
 
@@ -96,7 +103,9 @@ class MetadataExportCommand extends Command
         if ($slug = $this->option('slug')) {
             $q->join('slug as s', 's.object_id', '=', 'i.id')->where('s.slug', $slug);
             $base = $q->first();
-            if (! $base) return collect();
+            if (! $base) {
+                return collect();
+            }
             if ($this->option('include-children')) {
                 return DB::table('information_object as i')
                     ->leftJoin('information_object_i18n as i18n', function ($j) {
@@ -107,6 +116,7 @@ class MetadataExportCommand extends Command
                         'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium')
                     ->get();
             }
+
             return collect([$base]);
         }
         if ($repoSlug = $this->option('repository')) {
@@ -114,6 +124,7 @@ class MetadataExportCommand extends Command
                 ->where('s.slug', $repoSlug)->value('r.id');
             $q->where('i.repository_id', $repoId);
         }
+
         return $q->limit(2000)->get();
     }
 
@@ -121,36 +132,45 @@ class MetadataExportCommand extends Command
     {
         $t = e($r->title ?: '(untitled)');
         $sc = e($r->scope_and_content ?? '');
-        return "<?xml version='1.0' encoding='UTF-8'?>\n<ead xmlns='http://ead3.archivists.org/schema/'><archdesc level='collection'><did><unitid>" . e($r->identifier ?? '') . "</unitid><unittitle>{$t}</unittitle></did><scopecontent><p>{$sc}</p></scopecontent></archdesc></ead>";
+
+        return "<?xml version='1.0' encoding='UTF-8'?>\n<ead xmlns='http://ead3.archivists.org/schema/'><archdesc level='collection'><did><unitid>".e($r->identifier ?? '')."</unitid><unittitle>{$t}</unittitle></did><scopecontent><p>{$sc}</p></scopecontent></archdesc></ead>";
     }
+
     protected function renderLido(object $r): string
     {
         $t = e($r->title ?: '(untitled)');
+
         return "<?xml version='1.0' encoding='UTF-8'?>\n<lido xmlns='http://www.lido-schema.org'><lidoRecID>{$r->id}</lidoRecID><descriptiveMetadata><objectIdentificationWrap><titleWrap><titleSet><appellationValue>{$t}</appellationValue></titleSet></titleWrap></objectIdentificationWrap></descriptiveMetadata></lido>";
     }
+
     protected function renderMarc21(object $r): string
     {
         $t = e($r->title ?: '(untitled)');
+
         return "<?xml version='1.0' encoding='UTF-8'?>\n<record xmlns='http://www.loc.gov/MARC21/slim'><leader>     ngm a22     uu 4500</leader><controlfield tag='001'>{$r->id}</controlfield><datafield tag='245' ind1='1' ind2='0'><subfield code='a'>{$t}</subfield></datafield></record>";
     }
+
     protected function renderRiCo(object $r): string
     {
         return json_encode([
             '@context' => 'https://www.ica.org/standards/RiC/ontology',
-            '@id' => 'urn:ric:io:' . $r->id,
+            '@id' => 'urn:ric:io:'.$r->id,
             '@type' => 'rico:Record',
             'rico:hasIdentifier' => $r->identifier,
             'rico:title' => $r->title,
             'rico:scopeAndContent' => $r->scope_and_content,
         ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     }
+
     protected function renderPremis(object $r): string
     {
         return "<?xml version='1.0' encoding='UTF-8'?>\n<premis xmlns='http://www.loc.gov/premis/v3' version='3.0'><object><objectIdentifier><objectIdentifierType>local</objectIdentifierType><objectIdentifierValue>{$r->id}</objectIdentifierValue></objectIdentifier></object></premis>";
     }
+
     protected function renderBibframe(object $r): string
     {
         $t = e($r->title ?: '(untitled)');
+
         return "<?xml version='1.0' encoding='UTF-8'?>\n<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:bf='http://id.loc.gov/ontologies/bibframe/'><bf:Work rdf:about='urn:heratio:io:{$r->id}'><bf:title><bf:Title><bf:mainTitle>{$t}</bf:mainTitle></bf:Title></bf:title></bf:Work></rdf:RDF>";
     }
 }

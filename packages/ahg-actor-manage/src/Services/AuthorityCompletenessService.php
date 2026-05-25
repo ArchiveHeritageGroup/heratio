@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Services;
 
 use AhgCore\Services\AhgSettingsService;
@@ -43,33 +41,33 @@ class AuthorityCompletenessService
      * ISAAR(CPF) field weights for score calculation.
      */
     public const FIELD_WEIGHTS = [
-        'authorized_name'   => 15,
-        'entity_type'       => 5,
-        'dates_existence'   => 10,
-        'history'           => 10,
-        'places'            => 5,
-        'legal_status'      => 3,
-        'functions'         => 5,
-        'mandates'          => 3,
-        'internal_struct'   => 3,
-        'general_context'   => 3,
-        'description_id'    => 3,
-        'sources'           => 3,
+        'authorized_name' => 15,
+        'entity_type' => 5,
+        'dates_existence' => 10,
+        'history' => 10,
+        'places' => 5,
+        'legal_status' => 3,
+        'functions' => 5,
+        'mandates' => 3,
+        'internal_struct' => 3,
+        'general_context' => 3,
+        'description_id' => 3,
+        'sources' => 3,
         'maintenance_notes' => 2,
-        'external_ids'      => 10,
-        'relations'         => 10,
-        'resources'         => 5,
-        'contacts'          => 5,
+        'external_ids' => 10,
+        'relations' => 10,
+        'resources' => 5,
+        'contacts' => 5,
     ];
 
     /**
      * Level thresholds.
      */
     public const LEVELS = [
-        'stub'    => [0, 24],
+        'stub' => [0, 24],
         'minimal' => [25, 49],
         'partial' => [50, 74],
-        'full'    => [75, 100],
+        'full' => [75, 100],
     ];
 
     /**
@@ -77,7 +75,7 @@ class AuthorityCompletenessService
      */
     public function calculateScore(int $actorId): array
     {
-        if (!AhgSettingsService::getBool('authority_completeness_auto_recalc', true)) {
+        if (! AhgSettingsService::getBool('authority_completeness_auto_recalc', true)) {
             return ['score' => 0, 'level' => 'stub', 'field_scores' => []];
         }
 
@@ -92,24 +90,24 @@ class AuthorityCompletenessService
             ->first();
 
         // Check basic fields
-        $fieldScores['authorized_name'] = (!empty($actorI18n->authorized_form_of_name)) ? 1 : 0;
-        $fieldScores['history'] = (!empty($actorI18n->history)) ? 1 : 0;
-        $fieldScores['places'] = (!empty($actorI18n->places)) ? 1 : 0;
-        $fieldScores['legal_status'] = (!empty($actorI18n->legal_status)) ? 1 : 0;
-        $fieldScores['functions'] = (!empty($actorI18n->functions)) ? 1 : 0;
-        $fieldScores['mandates'] = (!empty($actorI18n->mandates)) ? 1 : 0;
-        $fieldScores['internal_struct'] = (!empty($actorI18n->internal_structures)) ? 1 : 0;
-        $fieldScores['general_context'] = (!empty($actorI18n->general_context)) ? 1 : 0;
-        $fieldScores['description_id'] = (!empty($actorI18n->description_identifier)) ? 1 : 0;
-        $fieldScores['sources'] = (!empty($actorI18n->sources)) ? 1 : 0;
-        $fieldScores['maintenance_notes'] = (!empty($actorI18n->revision_history)) ? 1 : 0;
+        $fieldScores['authorized_name'] = (! empty($actorI18n->authorized_form_of_name)) ? 1 : 0;
+        $fieldScores['history'] = (! empty($actorI18n->history)) ? 1 : 0;
+        $fieldScores['places'] = (! empty($actorI18n->places)) ? 1 : 0;
+        $fieldScores['legal_status'] = (! empty($actorI18n->legal_status)) ? 1 : 0;
+        $fieldScores['functions'] = (! empty($actorI18n->functions)) ? 1 : 0;
+        $fieldScores['mandates'] = (! empty($actorI18n->mandates)) ? 1 : 0;
+        $fieldScores['internal_struct'] = (! empty($actorI18n->internal_structures)) ? 1 : 0;
+        $fieldScores['general_context'] = (! empty($actorI18n->general_context)) ? 1 : 0;
+        $fieldScores['description_id'] = (! empty($actorI18n->description_identifier)) ? 1 : 0;
+        $fieldScores['sources'] = (! empty($actorI18n->sources)) ? 1 : 0;
+        $fieldScores['maintenance_notes'] = (! empty($actorI18n->revision_history)) ? 1 : 0;
 
         // Check actor entity type
         $actor = DB::table('actor')->where('id', $actorId)->first();
-        $fieldScores['entity_type'] = ($actor && !empty($actor->entity_type_id)) ? 1 : 0;
+        $fieldScores['entity_type'] = ($actor && ! empty($actor->entity_type_id)) ? 1 : 0;
 
         // Check dates of existence
-        $fieldScores['dates_existence'] = (!empty($actorI18n->dates_of_existence)) ? 1 : 0;
+        $fieldScores['dates_existence'] = (! empty($actorI18n->dates_of_existence)) ? 1 : 0;
 
         // Check external identifiers
         $hasIds = DB::table('ahg_actor_identifier')
@@ -157,13 +155,13 @@ class AuthorityCompletenessService
         $record = [
             'completeness_level' => $level,
             'completeness_score' => $percentage,
-            'field_scores'       => json_encode($fieldScores),
-            'has_external_ids'   => $fieldScores['external_ids'],
-            'has_relations'      => $fieldScores['relations'],
-            'has_resources'      => $fieldScores['resources'],
-            'has_contacts'       => $fieldScores['contacts'],
-            'scored_at'          => date('Y-m-d H:i:s'),
-            'updated_at'         => date('Y-m-d H:i:s'),
+            'field_scores' => json_encode($fieldScores),
+            'has_external_ids' => $fieldScores['external_ids'],
+            'has_relations' => $fieldScores['relations'],
+            'has_resources' => $fieldScores['resources'],
+            'has_contacts' => $fieldScores['contacts'],
+            'scored_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
         ];
 
         $existing = DB::table('ahg_actor_completeness')
@@ -184,8 +182,8 @@ class AuthorityCompletenessService
         }
 
         return [
-            'score'        => $percentage,
-            'level'        => $level,
+            'score' => $percentage,
+            'level' => $level,
             'field_scores' => $fieldScores,
         ];
     }
@@ -242,13 +240,13 @@ class AuthorityCompletenessService
             ->count();
 
         return [
-            'total_actors'    => $totalActors,
-            'total_scored'    => $totalScored,
-            'unscored'        => $unscored,
-            'avg_score'       => round($avgScore, 1),
-            'by_level'        => $byLevel,
-            'with_external'   => $withExternalIds,
-            'with_relations'  => $withRelations,
+            'total_actors' => $totalActors,
+            'total_scored' => $totalScored,
+            'unscored' => $unscored,
+            'avg_score' => round($avgScore, 1),
+            'by_level' => $byLevel,
+            'with_external' => $withExternalIds,
+            'with_relations' => $withRelations,
         ];
     }
 
@@ -269,21 +267,21 @@ class AuthorityCompletenessService
                 'slug.slug'
             );
 
-        if (!empty($filters['level'])) {
+        if (! empty($filters['level'])) {
             $query->where('c.completeness_level', $filters['level']);
         }
 
-        if (!empty($filters['assigned_to'])) {
+        if (! empty($filters['assigned_to'])) {
             $query->where('c.assigned_to', $filters['assigned_to']);
         } elseif (isset($filters['unassigned']) && $filters['unassigned']) {
             $query->whereNull('c.assigned_to');
         }
 
-        if (!empty($filters['min_score'])) {
+        if (! empty($filters['min_score'])) {
             $query->where('c.completeness_score', '>=', $filters['min_score']);
         }
 
-        if (!empty($filters['max_score'])) {
+        if (! empty($filters['max_score'])) {
             $query->where('c.completeness_score', '<=', $filters['max_score']);
         }
 
@@ -307,7 +305,7 @@ class AuthorityCompletenessService
             ->update([
                 'assigned_to' => $assigneeId,
                 'assigned_at' => date('Y-m-d H:i:s'),
-                'updated_at'  => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
             ]);
     }
 

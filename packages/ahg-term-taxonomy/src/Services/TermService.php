@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgTermTaxonomy\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -73,11 +71,11 @@ class TermService
         return DB::table('term')
             ->leftJoin('term_i18n as ti_cur', function ($j) use ($culture) {
                 $j->on('term.id', '=', 'ti_cur.id')
-                  ->where('ti_cur.culture', '=', $culture);
+                    ->where('ti_cur.culture', '=', $culture);
             })
             ->leftJoin('term_i18n as ti_fb', function ($j) {
                 $j->on('term.id', '=', 'ti_fb.id')
-                  ->where('ti_fb.culture', '=', 'en');
+                    ->where('ti_fb.culture', '=', 'en');
             })
             ->join('slug', 'term.id', '=', 'slug.object_id')
             ->join('object', 'term.id', '=', 'object.id')
@@ -251,7 +249,7 @@ class TermService
             $slug = $baseSlug;
             $counter = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter;
+                $slug = $baseSlug.'-'.$counter;
                 $counter++;
             }
 
@@ -276,7 +274,7 @@ class TermService
             if (array_key_exists('code', $data)) {
                 $termUpdate['code'] = $data['code'];
             }
-            if (!empty($termUpdate)) {
+            if (! empty($termUpdate)) {
                 DB::table('term')
                     ->where('id', $termId)
                     ->update($termUpdate);
@@ -298,7 +296,7 @@ class TermService
                 $existingOtherNameIds = DB::table('other_name')
                     ->where('object_id', $termId)
                     ->pluck('id')->toArray();
-                if (!empty($existingOtherNameIds)) {
+                if (! empty($existingOtherNameIds)) {
                     DB::table('other_name_i18n')->whereIn('id', $existingOtherNameIds)->delete();
                     DB::table('other_name')->whereIn('id', $existingOtherNameIds)->delete();
                 }
@@ -338,7 +336,7 @@ class TermService
                         ->where('object_id', $termId)
                         ->where('type_id', $typeId)
                         ->pluck('id')->toArray();
-                    if (!empty($existingNoteIds)) {
+                    if (! empty($existingNoteIds)) {
                         DB::table('note_i18n')->whereIn('id', $existingNoteIds)->delete();
                         DB::table('note')->whereIn('id', $existingNoteIds)->delete();
                     }
@@ -374,7 +372,7 @@ class TermService
             }
 
             // Update narrow terms (create new child terms from newline/comma-separated text)
-            if (!empty($data['narrow_terms'])) {
+            if (! empty($data['narrow_terms'])) {
                 $narrowText = trim($data['narrow_terms']);
                 if ($narrowText !== '') {
                     // Split on newlines or commas
@@ -430,7 +428,7 @@ class TermService
                         $slug = $baseSlug;
                         $counter = 1;
                         while (DB::table('slug')->where('slug', $slug)->exists()) {
-                            $slug = $baseSlug . '-' . $counter;
+                            $slug = $baseSlug.'-'.$counter;
                             $counter++;
                         }
                         DB::table('slug')->insert([
@@ -465,7 +463,7 @@ class TermService
                 ->select('id', 'taxonomy_id', 'lft', 'rgt')
                 ->first();
 
-            if (!$term) {
+            if (! $term) {
                 return;
             }
 
@@ -484,7 +482,7 @@ class TermService
                 ->pluck('id')
                 ->toArray();
 
-            if (!empty($noteIds)) {
+            if (! empty($noteIds)) {
                 DB::table('note_i18n')
                     ->whereIn('id', $noteIds)
                     ->delete();

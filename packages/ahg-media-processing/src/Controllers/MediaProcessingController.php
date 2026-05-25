@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgMediaProcessing\Controllers;
 
 use AhgMediaProcessing\Services\DerivativeService;
@@ -37,6 +35,7 @@ use Illuminate\Support\Facades\DB;
 class MediaProcessingController extends Controller
 {
     private DerivativeService $derivativeService;
+
     private WatermarkService $watermarkService;
 
     public function __construct(DerivativeService $derivativeService, WatermarkService $watermarkService)
@@ -63,13 +62,13 @@ class MediaProcessingController extends Controller
 
         // System tools availability
         $tools = [
-            'ffmpeg'    => $this->checkTool('/usr/bin/ffmpeg'),
-            'ffprobe'   => $this->checkTool('/usr/bin/ffprobe'),
+            'ffmpeg' => $this->checkTool('/usr/bin/ffmpeg'),
+            'ffprobe' => $this->checkTool('/usr/bin/ffprobe'),
             'mediainfo' => $this->checkTool('/usr/bin/mediainfo'),
-            'exiftool'  => $this->checkTool('/usr/bin/exiftool'),
-            'whisper'   => $this->checkTool('/usr/local/bin/whisper') || $this->checkTool('/usr/bin/whisper'),
-            'convert'   => $this->checkTool('/usr/bin/convert'),
-            'pdfinfo'   => $this->checkTool('/usr/bin/pdfinfo'),
+            'exiftool' => $this->checkTool('/usr/bin/exiftool'),
+            'whisper' => $this->checkTool('/usr/local/bin/whisper') || $this->checkTool('/usr/bin/whisper'),
+            'convert' => $this->checkTool('/usr/bin/convert'),
+            'pdfinfo' => $this->checkTool('/usr/bin/pdfinfo'),
         ];
 
         // Media processing settings grouped
@@ -84,11 +83,11 @@ class MediaProcessingController extends Controller
 
         // Group labels for display
         $groupLabels = [
-            'thumbnail'     => 'Thumbnail Generation',
-            'preview'       => 'Preview Clips',
-            'waveform'      => 'Audio Waveform',
-            'poster'        => 'Video Posters',
-            'audio'         => 'Audio Processing',
+            'thumbnail' => 'Thumbnail Generation',
+            'preview' => 'Preview Clips',
+            'waveform' => 'Audio Waveform',
+            'poster' => 'Video Posters',
+            'audio' => 'Audio Processing',
             'transcription' => 'Speech Transcription',
         ];
 
@@ -119,9 +118,9 @@ class MediaProcessingController extends Controller
         if ($result['reference']) {
             $messages[] = 'Reference image generated successfully.';
         }
-        if (!empty($result['errors'])) {
+        if (! empty($result['errors'])) {
             return redirect()->route('media-processing.index')
-                ->with('error', 'Derivative generation errors: ' . implode(' ', $result['errors']));
+                ->with('error', 'Derivative generation errors: '.implode(' ', $result['errors']));
         }
 
         return redirect()->route('media-processing.index')
@@ -134,7 +133,7 @@ class MediaProcessingController extends Controller
     public function batchRegenerate(Request $request)
     {
         $type = $request->input('type', 'all'); // 'all', 'thumbnail', 'reference'
-        $limit = (int)$request->input('limit', 100);
+        $limit = (int) $request->input('limit', 100);
 
         $masters = $this->derivativeService->getMastersWithMissingDerivatives($limit);
 
@@ -143,10 +142,10 @@ class MediaProcessingController extends Controller
         $errors = [];
 
         foreach ($masters as $master) {
-            $needsThumb = !$master->has_thumbnail && in_array($type, ['all', 'thumbnail']);
-            $needsRef = !$master->has_reference && in_array($type, ['all', 'reference']);
+            $needsThumb = ! $master->has_thumbnail && in_array($type, ['all', 'thumbnail']);
+            $needsRef = ! $master->has_reference && in_array($type, ['all', 'reference']);
 
-            if (!$needsThumb && !$needsRef) {
+            if (! $needsThumb && ! $needsRef) {
                 continue;
             }
 
@@ -155,10 +154,10 @@ class MediaProcessingController extends Controller
             if ($result['thumbnail'] || $result['reference']) {
                 $successCount++;
             }
-            if (!empty($result['errors'])) {
+            if (! empty($result['errors'])) {
                 $errorCount++;
                 $errors = array_merge($errors, array_map(
-                    fn($e) => "DO #{$master->id}: {$e}",
+                    fn ($e) => "DO #{$master->id}: {$e}",
                     $result['errors']
                 ));
             }
@@ -167,6 +166,7 @@ class MediaProcessingController extends Controller
         $message = "Batch regeneration complete: {$successCount} objects processed successfully.";
         if ($errorCount > 0) {
             $message .= " {$errorCount} objects had errors.";
+
             return redirect()->route('media-processing.index')
                 ->with('warning', $message)
                 ->with('batch_errors', array_slice($errors, 0, 20));
@@ -234,7 +234,7 @@ class MediaProcessingController extends Controller
 
         // Handle unchecked checkboxes
         foreach ($booleanKeys as $key) {
-            if (!isset($settings[$key])) {
+            if (! isset($settings[$key])) {
                 DB::table('media_processor_settings')
                     ->where('setting_key', $key)
                     ->update(['setting_value' => '0', 'updated_at' => now()]);
@@ -350,9 +350,9 @@ class MediaProcessingController extends Controller
                 }
 
                 $settings[$row->setting_key] = [
-                    'value'       => $value,
-                    'type'        => $row->setting_type,
-                    'group'       => $row->setting_group,
+                    'value' => $value,
+                    'type' => $row->setting_type,
+                    'group' => $row->setting_group,
                     'description' => $row->description,
                 ];
             }
@@ -396,9 +396,9 @@ class MediaProcessingController extends Controller
             ->value('setting_i18n.value');
 
         return [
-            'pdf_page_number'        => $pdfPage ?: '1',
+            'pdf_page_number' => $pdfPage ?: '1',
             'reference_image_maxwidth' => $maxWidth ?: '480',
-            'pdfinfo_available'      => $this->checkTool('/usr/bin/pdfinfo'),
+            'pdfinfo_available' => $this->checkTool('/usr/bin/pdfinfo'),
         ];
     }
 
@@ -436,7 +436,7 @@ class MediaProcessingController extends Controller
                 $request->file('custom_watermark_file'),
                 $request->input('custom_watermark_name', 'Custom Watermark'),
                 $request->input('custom_watermark_position', 'center'),
-                (float)$request->input('custom_watermark_opacity', 0.40),
+                (float) $request->input('custom_watermark_opacity', 0.40),
                 Auth::id()
             );
 
@@ -451,7 +451,8 @@ class MediaProcessingController extends Controller
 
         // Handle delete custom watermark
         if ($request->filled('delete_custom_watermark')) {
-            $this->watermarkService->deleteCustomWatermark((int)$request->input('delete_custom_watermark'));
+            $this->watermarkService->deleteCustomWatermark((int) $request->input('delete_custom_watermark'));
+
             return redirect()->route('media-processing.watermark-settings')
                 ->with('success', 'Custom watermark deleted.');
         }

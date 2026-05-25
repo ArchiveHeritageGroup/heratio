@@ -34,15 +34,15 @@ class ResolveTenantMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!$this->multiTenancyEnabled()) {
+        if (! $this->multiTenancyEnabled()) {
             return $next($request);
         }
 
-        $service = new TenantService();
+        $service = new TenantService;
 
         $tenant = $service->getTenantByDomain($request->getHost());
 
-        if (!$tenant) {
+        if (! $tenant) {
             $tenant = $service->getCurrentTenant();
         }
 
@@ -58,7 +58,7 @@ class ResolveTenantMiddleware
     private function multiTenancyEnabled(): bool
     {
         try {
-            if (!Schema::hasTable('ahg_tenant') || !Schema::hasTable('ahg_settings')) {
+            if (! Schema::hasTable('ahg_tenant') || ! Schema::hasTable('ahg_settings')) {
                 return false;
             }
 

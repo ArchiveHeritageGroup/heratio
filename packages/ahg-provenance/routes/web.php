@@ -23,4 +23,3 @@ Route::middleware('auth')->group(function () {
     Route::post('/provenance/deleteEvent', [ProvenanceController::class, 'deleteEventLegacy'])->name('provenance.deleteEvent.legacy');
     Route::post('/provenance/deleteDocument/{id}', [ProvenanceController::class, 'deleteDocument'])->name('provenance.deleteDocument.legacy')->where('id', '[0-9]+');
 });
-

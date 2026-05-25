@@ -62,7 +62,7 @@ class RelationalEvaluator implements EvaluatorInterface
     public function evaluate(object $mention, object $context, object $candidate): array
     {
         $candSource = (string) ($candidate->candidate_source ?? '');
-        if (!in_array($candSource, ['mysql_actor', 'fuseki_agent'], true)) {
+        if (! in_array($candSource, ['mysql_actor', 'fuseki_agent'], true)) {
             return EvidenceSignal::make(EvidenceSignal::ABSENT, ['reason' => 'candidate_source_not_actor']);
         }
 
@@ -93,7 +93,7 @@ class RelationalEvaluator implements EvaluatorInterface
         }
 
         $overlaps = [];
-        $assocLower = array_map(fn($s) => mb_strtolower($s), $associates);
+        $assocLower = array_map(fn ($s) => mb_strtolower($s), $associates);
         foreach ($cooccurNames as $cName) {
             $cLower = mb_strtolower($cName);
             foreach ($assocLower as $idx => $aLower) {
@@ -109,7 +109,7 @@ class RelationalEvaluator implements EvaluatorInterface
             }
         }
 
-        if (!empty($overlaps)) {
+        if (! empty($overlaps)) {
             return EvidenceSignal::make(EvidenceSignal::MATCH, [
                 'overlaps' => $overlaps,
                 'candidate_associates' => $associates,
@@ -125,21 +125,21 @@ class RelationalEvaluator implements EvaluatorInterface
     }
 
     /**
-     * @return list<string>  PERSON / ORG co-occurring entity values
+     * @return list<string> PERSON / ORG co-occurring entity values
      */
     private function coOccurringPersonOrgNames($cooccurringJson): array
     {
         $rows = EvidenceDateUtil::decodeJsonish($cooccurringJson);
-        if (!is_array($rows)) {
+        if (! is_array($rows)) {
             return [];
         }
         $names = [];
         foreach ($rows as $row) {
-            if (!is_array($row)) {
+            if (! is_array($row)) {
                 continue;
             }
             $type = (string) ($row['type'] ?? '');
-            if (!in_array($type, self::PERSON_ORG_TYPES, true)) {
+            if (! in_array($type, self::PERSON_ORG_TYPES, true)) {
                 continue;
             }
             $value = (string) ($row['value'] ?? '');
@@ -148,20 +148,21 @@ class RelationalEvaluator implements EvaluatorInterface
             }
             $names[] = $value;
         }
+
         return array_values(array_unique($names));
     }
 
     /**
      * Pull actor-to-actor relations only (both sides resolve to an actor row).
      *
-     * @return list<string>  authorized_form_of_name of every known associate
+     * @return list<string> authorized_form_of_name of every known associate
      */
     private function candidateAssociates(int $actorId): array
     {
         // Subject_id = candidate -> object_id is the other side
         $outgoing = DB::table('relation as r')
             ->join('actor as a_subj', 'a_subj.id', '=', 'r.subject_id')
-            ->join('actor as a_obj',  'a_obj.id',  '=', 'r.object_id')
+            ->join('actor as a_obj', 'a_obj.id', '=', 'r.object_id')
             ->leftJoin('actor_i18n as ai', function ($j) {
                 $j->on('ai.id', '=', 'a_obj.id')->where('ai.culture', '=', 'en');
             })
@@ -172,7 +173,7 @@ class RelationalEvaluator implements EvaluatorInterface
         // Object_id = candidate -> subject_id is the other side
         $incoming = DB::table('relation as r')
             ->join('actor as a_subj', 'a_subj.id', '=', 'r.subject_id')
-            ->join('actor as a_obj',  'a_obj.id',  '=', 'r.object_id')
+            ->join('actor as a_obj', 'a_obj.id', '=', 'r.object_id')
             ->leftJoin('actor_i18n as ai', function ($j) {
                 $j->on('ai.id', '=', 'a_subj.id')->where('ai.culture', '=', 'en');
             })
@@ -180,7 +181,8 @@ class RelationalEvaluator implements EvaluatorInterface
             ->pluck('ai.authorized_form_of_name')
             ->all();
 
-        $all = array_filter(array_map('strval', array_merge($outgoing, $incoming)), fn($s) => $s !== '');
+        $all = array_filter(array_map('strval', array_merge($outgoing, $incoming)), fn ($s) => $s !== '');
+
         return array_values(array_unique($all));
     }
 }

@@ -10,6 +10,7 @@ class Property extends Model
     use HasI18n;
 
     protected $table = 'property';
+
     public $timestamps = false;
 
     protected $fillable = ['object_id', 'scope', 'name', 'source_culture', 'serial_number'];

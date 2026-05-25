@@ -38,6 +38,7 @@ use Illuminate\Support\Facades\Log;
 class ThreeDThumbnailService
 {
     private string $toolPath;
+
     private string $logPath;
 
     private array $supported3DExtensions = [
@@ -56,7 +57,7 @@ class ThreeDThumbnailService
 
     public function __construct()
     {
-        $this->toolPath = __DIR__ . '/../../tools/3d-thumbnail';
+        $this->toolPath = __DIR__.'/../../tools/3d-thumbnail';
         $this->logPath = storage_path('logs/3d-thumbnail.log');
     }
 
@@ -115,15 +116,15 @@ class ThreeDThumbnailService
         int $width = 512,
         int $height = 512,
     ): bool {
-        if (!file_exists($inputPath)) {
+        if (! file_exists($inputPath)) {
             $this->log("Input file not found: {$inputPath}", 'ERROR');
 
             return false;
         }
 
-        $script = $this->toolPath . '/generate-thumbnail.sh';
+        $script = $this->toolPath.'/generate-thumbnail.sh';
 
-        if (!file_exists($script)) {
+        if (! file_exists($script)) {
             $this->log("Thumbnail script not found: {$script}", 'ERROR');
 
             return false;
@@ -131,7 +132,7 @@ class ThreeDThumbnailService
 
         // Ensure output directory exists
         $outputDir = dirname($outputPath);
-        if (!is_dir($outputDir)) {
+        if (! is_dir($outputDir)) {
             @mkdir($outputDir, 0775, true);
         }
 
@@ -174,7 +175,7 @@ class ThreeDThumbnailService
     ): array {
         $views = ['front', 'back', 'left', 'right', 'top', 'detail'];
 
-        if (!file_exists($inputPath)) {
+        if (! file_exists($inputPath)) {
             $this->log("Multi-angle input not found: {$inputPath}", 'ERROR');
 
             return [];
@@ -184,8 +185,8 @@ class ThreeDThumbnailService
         $allExist = true;
         $cached = [];
         foreach ($views as $view) {
-            $png = rtrim($outputDir, '/') . '/' . $view . '.png';
-            if (!file_exists($png)) {
+            $png = rtrim($outputDir, '/').'/'.$view.'.png';
+            if (! file_exists($png)) {
                 $allExist = false;
                 break;
             }
@@ -199,13 +200,13 @@ class ThreeDThumbnailService
         }
 
         // Create output directory
-        if (!is_dir($outputDir)) {
+        if (! is_dir($outputDir)) {
             @mkdir($outputDir, 0775, true);
         }
 
-        $script = $this->toolPath . '/generate-multiangle.sh';
+        $script = $this->toolPath.'/generate-multiangle.sh';
 
-        if (!file_exists($script)) {
+        if (! file_exists($script)) {
             $this->log("Multi-angle script not found: {$script}", 'ERROR');
 
             return [];
@@ -225,7 +226,7 @@ class ThreeDThumbnailService
 
         $results = [];
         foreach ($views as $view) {
-            $png = rtrim($outputDir, '/') . '/' . $view . '.png';
+            $png = rtrim($outputDir, '/').'/'.$view.'.png';
             if (file_exists($png) && filesize($png) > 500) {
                 $results[$view] = $png;
                 @chown($png, 'www-data');
@@ -234,7 +235,7 @@ class ThreeDThumbnailService
         }
 
         if (count($results) > 0) {
-            $this->log('Multi-angle generated ' . count($results) . " views for: {$inputPath}");
+            $this->log('Multi-angle generated '.count($results)." views for: {$inputPath}");
         } else {
             $this->log("Multi-angle generation failed for: {$inputPath}", 'WARNING');
         }
@@ -255,35 +256,35 @@ class ThreeDThumbnailService
             ->where('id', $digitalObjectId)
             ->first();
 
-        if (!$digitalObject) {
+        if (! $digitalObject) {
             $this->log("Digital object not found: {$digitalObjectId}", 'ERROR');
 
             return false;
         }
 
-        if (!$this->is3DModel($digitalObject->name)) {
+        if (! $this->is3DModel($digitalObject->name)) {
             $this->log("Not a 3D model: {$digitalObject->name}", 'DEBUG');
 
             return false;
         }
 
         $uploadsBase = config('heratio.uploads_path');
-        $masterPath = $uploadsBase . $digitalObject->path . $digitalObject->name;
+        $masterPath = $uploadsBase.$digitalObject->path.$digitalObject->name;
 
-        if (!file_exists($masterPath)) {
+        if (! file_exists($masterPath)) {
             $this->log("Master file not found: {$masterPath}", 'ERROR');
 
             return false;
         }
 
         $baseName = pathinfo($digitalObject->name, PATHINFO_FILENAME);
-        $derivativePath = dirname($masterPath) . '/';
+        $derivativePath = dirname($masterPath).'/';
 
-        $referenceName = $baseName . '_reference.png';
-        $thumbnailName = $baseName . '_thumbnail.png';
+        $referenceName = $baseName.'_reference.png';
+        $thumbnailName = $baseName.'_thumbnail.png';
 
-        $referencePath = $derivativePath . $referenceName;
-        $thumbnailPath = $derivativePath . $thumbnailName;
+        $referencePath = $derivativePath.$referenceName;
+        $thumbnailPath = $derivativePath.$thumbnailName;
 
         // Generate reference image (larger)
         $refSuccess = $this->generateThumbnail($masterPath, $referencePath, 480, 480);
@@ -291,7 +292,7 @@ class ThreeDThumbnailService
         // Generate thumbnail (smaller)
         $thumbSuccess = $this->generateThumbnail($masterPath, $thumbnailPath, 150, 150);
 
-        if (!$refSuccess && !$thumbSuccess) {
+        if (! $refSuccess && ! $thumbSuccess) {
             return false;
         }
 
@@ -299,10 +300,10 @@ class ThreeDThumbnailService
         $referenceUsageId = $this->getTermId('Reference');
         $thumbnailUsageId = $this->getTermId('Thumbnail');
 
-        if (!$referenceUsageId) {
+        if (! $referenceUsageId) {
             $referenceUsageId = $this->getTermId('reference image');
         }
-        if (!$thumbnailUsageId) {
+        if (! $thumbnailUsageId) {
             $thumbnailUsageId = $this->getTermId('thumbnail image');
         }
 
@@ -352,14 +353,14 @@ class ThreeDThumbnailService
             ->where('id', $digitalObjectId)
             ->first();
 
-        if (!$digitalObject) {
+        if (! $digitalObject) {
             return '';
         }
 
         $uploadsBase = config('heratio.uploads_path');
-        $masterDir = dirname($uploadsBase . $digitalObject->path . $digitalObject->name);
+        $masterDir = dirname($uploadsBase.$digitalObject->path.$digitalObject->name);
 
-        return $masterDir . '/multiangle';
+        return $masterDir.'/multiangle';
     }
 
     /**
@@ -384,7 +385,7 @@ class ThreeDThumbnailService
             ->select('do.id', 'do.name', 'do.path')
             ->get();
 
-        $this->log('Found ' . count($objects) . ' 3D objects without thumbnails');
+        $this->log('Found '.count($objects).' 3D objects without thumbnails');
 
         foreach ($objects as $obj) {
             $results['processed']++;
@@ -397,7 +398,7 @@ class ThreeDThumbnailService
                 }
             } catch (\Exception $e) {
                 $results['failed']++;
-                $this->log('Exception: ' . $e->getMessage(), 'ERROR');
+                $this->log('Exception: '.$e->getMessage(), 'ERROR');
             }
         }
 
@@ -483,7 +484,7 @@ class ThreeDThumbnailService
         $line = "[{$timestamp}] [{$level}] {$message}\n";
 
         $dir = dirname($this->logPath);
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             @mkdir($dir, 0775, true);
         }
 

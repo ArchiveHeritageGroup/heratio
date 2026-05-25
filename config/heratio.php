@@ -30,11 +30,11 @@ return [
     'uploads_path' => env('HERATIO_UPLOADS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads'))),
 
     // Backups path — independently configurable.
-    'backups_path' => env('HERATIO_BACKUPS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')) . '/backups'),
+    'backups_path' => env('HERATIO_BACKUPS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/backups'),
 
     // OAIS package storage — where SIP/AIP/DIP bundles are assembled and
     // exported to. Sessions can override via ingest_session.output_*_path.
-    'packages_path' => env('HERATIO_PACKAGES_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')) . '/packages'),
+    'packages_path' => env('HERATIO_PACKAGES_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/packages'),
 
     // Ingest wizard — at or above this row count, commit dispatches to the
     // queue worker instead of running synchronously on the web request.
@@ -83,9 +83,9 @@ return [
     | failures to quarantine_path.
     */
     'scan' => [
-        'staging_path' => env('HERATIO_SCAN_STAGING', env('HERATIO_STORAGE_PATH', base_path('uploads')) . '/.scan_staging'),
-        'quarantine_path' => env('HERATIO_SCAN_QUARANTINE', env('HERATIO_STORAGE_PATH', base_path('uploads')) . '/.scan_quarantine'),
-        'archive_path' => env('HERATIO_SCAN_ARCHIVE', env('HERATIO_STORAGE_PATH', base_path('uploads')) . '/.scan_archived'),
+        'staging_path' => env('HERATIO_SCAN_STAGING', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/.scan_staging'),
+        'quarantine_path' => env('HERATIO_SCAN_QUARANTINE', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/.scan_quarantine'),
+        'archive_path' => env('HERATIO_SCAN_ARCHIVE', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/.scan_archived'),
         'min_quiet_seconds' => (int) env('HERATIO_SCAN_MIN_QUIET', 10),
         'max_attempts' => (int) env('HERATIO_SCAN_MAX_ATTEMPTS', 5),
         // Exponential backoff ladder (minutes per attempt); comma-separated.
@@ -116,8 +116,8 @@ return [
     */
     'ld' => [
         'tenant' => env('LD_TENANT', 'ahg'),
-        'provenance_ns' => env('LD_PROVENANCE_NS', rtrim(env('APP_URL', 'http://localhost'), '/') . '/ns/provenance-ai#'),
-        'ric_ns'        => env('LD_RIC_NS',        rtrim(env('APP_URL', 'http://localhost'), '/') . '/ns/ric-profile#'),
+        'provenance_ns' => env('LD_PROVENANCE_NS', rtrim(env('APP_URL', 'http://localhost'), '/').'/ns/provenance-ai#'),
+        'ric_ns' => env('LD_RIC_NS', rtrim(env('APP_URL', 'http://localhost'), '/').'/ns/ric-profile#'),
     ],
 
     /*
@@ -135,7 +135,7 @@ return [
     |                         Flask server, not a CLI query tool (heratio#138).
     |
     */
-    'fuseki_endpoint'       => env('FUSEKI_ENDPOINT', 'http://localhost:3030/openric-model'),
+    'fuseki_endpoint' => env('FUSEKI_ENDPOINT', 'http://localhost:3030/openric-model'),
     'ric_sparql_via_python' => env('RIC_SPARQL_VIA_PYTHON', false),
 
     /*

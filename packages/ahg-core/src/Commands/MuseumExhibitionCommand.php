@@ -18,6 +18,7 @@ class MuseumExhibitionCommand extends Command
     {
         if (! Schema::hasTable('exhibition')) {
             $this->warn('exhibition table missing.');
+
             return self::SUCCESS;
         }
         $now = now()->toDateString();
@@ -40,10 +41,11 @@ class MuseumExhibitionCommand extends Command
         $this->info("open → closed:     {$finishedCount}");
 
         if ($this->option('process')) {
-            $opened = (int) (clone $startedToday)->update(['status' => 'open',   'opened_at'  => now()]);
+            $opened = (int) (clone $startedToday)->update(['status' => 'open',   'opened_at' => now()]);
             $closed = (int) (clone $finishedToday)->update(['status' => 'closed', 'closed_at' => now()]);
             $this->info("processed: opened={$opened} closed={$closed}");
         }
+
         return self::SUCCESS;
     }
 }

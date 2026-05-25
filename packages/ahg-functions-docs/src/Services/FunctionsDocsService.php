@@ -42,19 +42,19 @@ class FunctionsDocsService
 {
     /** Catalogue kind -> source file path on the host. */
     public const FILES = [
-        'php'    => '/opt/ai/km/auto_functions_kb.md',
-        'js'     => '/opt/ai/km/auto_functions_kb_js.md',
-        'blade'  => '/opt/ai/km/auto_functions_kb_blade.md',
-        'py'     => '/opt/ai/km/auto_functions_kb_py.md',
+        'php' => '/opt/ai/km/auto_functions_kb.md',
+        'js' => '/opt/ai/km/auto_functions_kb_js.md',
+        'blade' => '/opt/ai/km/auto_functions_kb_blade.md',
+        'py' => '/opt/ai/km/auto_functions_kb_py.md',
         'routes' => '/opt/ai/km/auto_functions_kb_routes.md',
     ];
 
     /** Display metadata per kind. */
     public const META = [
-        'php'    => ['label' => 'PHP classes & methods',  'icon' => 'bi-filetype-php',   'group_label' => 'class',      'paginate' => true,  'page_size' => 40],
-        'js'     => ['label' => 'JavaScript modules',     'icon' => 'bi-filetype-js',    'group_label' => 'file',       'paginate' => false, 'page_size' => 0],
-        'blade'  => ['label' => 'Blade templates',        'icon' => 'bi-filetype-html',  'group_label' => 'template',   'paginate' => true,  'page_size' => 60],
-        'py'     => ['label' => 'Python helpers',         'icon' => 'bi-filetype-py',    'group_label' => 'module',     'paginate' => false, 'page_size' => 0],
+        'php' => ['label' => 'PHP classes & methods',  'icon' => 'bi-filetype-php',   'group_label' => 'class',      'paginate' => true,  'page_size' => 40],
+        'js' => ['label' => 'JavaScript modules',     'icon' => 'bi-filetype-js',    'group_label' => 'file',       'paginate' => false, 'page_size' => 0],
+        'blade' => ['label' => 'Blade templates',        'icon' => 'bi-filetype-html',  'group_label' => 'template',   'paginate' => true,  'page_size' => 60],
+        'py' => ['label' => 'Python helpers',         'icon' => 'bi-filetype-py',    'group_label' => 'module',     'paginate' => false, 'page_size' => 0],
         'routes' => ['label' => 'HTTP routes',            'icon' => 'bi-signpost-2',     'group_label' => 'controller', 'paginate' => true,  'page_size' => 30],
     ];
 
@@ -71,6 +71,7 @@ class FunctionsDocsService
         foreach (self::FILES as $kind => $path) {
             $out[$kind] = $this->summary($kind);
         }
+
         return $out;
     }
 
@@ -78,41 +79,41 @@ class FunctionsDocsService
     public function summary(string $kind): array
     {
         $path = self::FILES[$kind] ?? null;
-        $meta = self::META[$kind]   ?? null;
-        if (!$path || !$meta) {
+        $meta = self::META[$kind] ?? null;
+        if (! $path || ! $meta) {
             return ['kind' => $kind, 'available' => false, 'reason' => 'unknown kind'];
         }
-        if (!is_readable($path)) {
+        if (! is_readable($path)) {
             return [
-                'kind'      => $kind,
+                'kind' => $kind,
                 'available' => false,
-                'reason'    => 'source file unreadable: ' . $path,
-                'label'     => $meta['label'],
-                'icon'      => $meta['icon'],
-                'paginate'  => $meta['paginate'],
+                'reason' => 'source file unreadable: '.$path,
+                'label' => $meta['label'],
+                'icon' => $meta['icon'],
+                'paginate' => $meta['paginate'],
             ];
         }
 
         $mtime = filemtime($path) ?: 0;
-        $size  = filesize($path)  ?: 0;
-        $cacheKey = 'fnDocs:summary:' . $kind . ':' . $mtime;
+        $size = filesize($path) ?: 0;
+        $cacheKey = 'fnDocs:summary:'.$kind.':'.$mtime;
 
         $count = Cache::remember($cacheKey, self::CACHE_TTL, function () use ($path) {
             return $this->countH1($path);
         });
 
         return [
-            'kind'           => $kind,
-            'available'      => true,
-            'label'          => $meta['label'],
-            'icon'           => $meta['icon'],
-            'group_label'    => $meta['group_label'],
-            'paginate'       => $meta['paginate'],
-            'page_size'      => $meta['page_size'],
-            'path'           => $path,
-            'byte_size'      => $size,
-            'mtime'          => $mtime,
-            'section_count'  => $count,
+            'kind' => $kind,
+            'available' => true,
+            'label' => $meta['label'],
+            'icon' => $meta['icon'],
+            'group_label' => $meta['group_label'],
+            'paginate' => $meta['paginate'],
+            'page_size' => $meta['page_size'],
+            'path' => $path,
+            'byte_size' => $size,
+            'mtime' => $mtime,
+            'section_count' => $count,
         ];
     }
 
@@ -121,7 +122,7 @@ class FunctionsDocsService
     {
         $n = 0;
         $fh = @fopen($path, 'r');
-        if (!$fh) {
+        if (! $fh) {
             return 0;
         }
         try {
@@ -133,6 +134,7 @@ class FunctionsDocsService
         } finally {
             fclose($fh);
         }
+
         return $n;
     }
 
@@ -144,17 +146,18 @@ class FunctionsDocsService
     public function sections(string $kind): array
     {
         $path = self::FILES[$kind] ?? null;
-        if (!$path || !is_readable($path)) {
+        if (! $path || ! is_readable($path)) {
             return [];
         }
         $mtime = filemtime($path) ?: 0;
-        $cacheKey = 'fnDocs:sections:' . $kind . ':' . $mtime;
+        $cacheKey = 'fnDocs:sections:'.$kind.':'.$mtime;
 
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($path) {
             $raw = @file_get_contents($path);
             if ($raw === false) {
                 return [];
             }
+
             return $this->splitOnH1($raw);
         });
     }
@@ -175,9 +178,9 @@ class FunctionsDocsService
                 }
                 $title = trim(substr($line, 2));
                 $current = [
-                    'title'  => $title,
+                    'title' => $title,
                     'anchor' => $this->anchor($title),
-                    'body'   => '',
+                    'body' => '',
                     'body_lines' => [],
                 ];
             } elseif ($current === null) {
@@ -198,7 +201,7 @@ class FunctionsDocsService
         unset($s);
 
         return [
-            'intro'    => trim(implode("\n", $intro)),
+            'intro' => trim(implode("\n", $intro)),
             'sections' => $sections,
         ];
     }
@@ -209,6 +212,7 @@ class FunctionsDocsService
         $slug = strtolower($title);
         $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
         $slug = trim($slug, '-');
+
         return $slug !== '' ? $slug : 'section';
     }
 
@@ -219,8 +223,8 @@ class FunctionsDocsService
     public function render(string $kind, int $page = 1, ?string $filter = null): array
     {
         $parsed = $this->sections($kind);
-        $meta   = self::META[$kind] ?? null;
-        if (!$meta) {
+        $meta = self::META[$kind] ?? null;
+        if (! $meta) {
             return ['intro_html' => '', 'sections' => [], 'page' => 1, 'pages' => 1, 'total' => 0, 'filtered' => 0];
         }
 
@@ -253,15 +257,15 @@ class FunctionsDocsService
         // body contains backtick-delimited HTTP method / path tokens and pipe
         // tables don't appear, but GFM handles those equally.
         $converter = new GithubFlavoredMarkdownConverter([
-            'html_input'         => 'escape',
+            'html_input' => 'escape',
             'allow_unsafe_links' => false,
         ]);
 
         $rendered = [];
         foreach ($slice as $s) {
             $rendered[] = [
-                'title'     => $s['title'],
-                'anchor'    => $s['anchor'],
+                'title' => $s['title'],
+                'anchor' => $s['anchor'],
                 'body_html' => (string) $converter->convert($s['body']),
             ];
         }
@@ -270,12 +274,12 @@ class FunctionsDocsService
 
         return [
             'intro_html' => $introHtml,
-            'sections'   => $rendered,
-            'page'       => $page,
-            'pages'      => $pages,
-            'total'      => $total,
-            'filtered'   => $filter !== null && $filter !== '' ? $total : 0,
-            'toc'        => array_map(function ($s) {
+            'sections' => $rendered,
+            'page' => $page,
+            'pages' => $pages,
+            'total' => $total,
+            'filtered' => $filter !== null && $filter !== '' ? $total : 0,
+            'toc' => array_map(function ($s) {
                 return ['title' => $s['title'], 'anchor' => $s['anchor']];
             }, $slice),
         ];

@@ -16,14 +16,14 @@ class SharePointWebhookHandler
     public function __construct(
         private SharePointSubscriptionRepository $subscriptions,
         private SharePointEventRepository $events,
-    ) {
-    }
+    ) {}
 
     public function handleValidationToken(?string $validationToken): ?string
     {
         if ($validationToken === null || $validationToken === '') {
             return null;
         }
+
         return $validationToken;
     }
 
@@ -43,8 +43,9 @@ class SharePointWebhookHandler
             $resourceData = $note['resourceData'] ?? [];
 
             $sub = $this->subscriptions->findBySubscriptionId($subscriptionId);
-            if ($sub === null || !hash_equals((string) $sub->client_state, $clientState)) {
+            if ($sub === null || ! hash_equals((string) $sub->client_state, $clientState)) {
                 $dropped++;
+
                 continue;
             }
 
@@ -74,7 +75,7 @@ class SharePointWebhookHandler
             IngestSharePointEventJob::dispatch($eventId)->onQueue('integrations');
             $this->events->update($eventId, ['status' => 'queued']);
         } catch (\Throwable $e) {
-            $this->events->update($eventId, ['last_error' => 'queue dispatch failed: ' . $e->getMessage()]);
+            $this->events->update($eventId, ['last_error' => 'queue dispatch failed: '.$e->getMessage()]);
         }
     }
 }

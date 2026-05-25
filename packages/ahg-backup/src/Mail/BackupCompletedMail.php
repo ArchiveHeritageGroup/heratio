@@ -62,7 +62,7 @@ class BackupCompletedMail extends Mailable implements ShouldQueue
             : '';
 
         return new Envelope(
-            subject: 'Heratio backup completed: ' . $when . $suffix
+            subject: 'Heratio backup completed: '.$when.$suffix
         );
     }
 

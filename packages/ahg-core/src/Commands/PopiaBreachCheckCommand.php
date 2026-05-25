@@ -19,20 +19,21 @@ class PopiaBreachCheckCommand extends Command
         $deadline = $now->copy()->subHours(72);
 
         $rows = DB::table('privacy_breach_incident')
-            ->select('id','reference','breach_type','severity','discovered_date','regulator_notified','subjects_notified','individuals_affected','notification_date')
+            ->select('id', 'reference', 'breach_type', 'severity', 'discovered_date', 'regulator_notified', 'subjects_notified', 'individuals_affected', 'notification_date')
             ->orderBy('discovered_date', 'desc')
             ->limit(200)
             ->get();
 
-        $overdueRegulator = $rows->filter(fn($r) => ! $r->regulator_notified && $r->discovered_date && $r->discovered_date < $deadline);
-        $overdueSubjects  = $rows->filter(fn($r) => ! $r->subjects_notified && ($r->severity ?? '') === 'high' && $r->discovered_date && $r->discovered_date < $now->copy()->subDays(7));
+        $overdueRegulator = $rows->filter(fn ($r) => ! $r->regulator_notified && $r->discovered_date && $r->discovered_date < $deadline);
+        $overdueSubjects = $rows->filter(fn ($r) => ! $r->subjects_notified && ($r->severity ?? '') === 'high' && $r->discovered_date && $r->discovered_date < $now->copy()->subDays(7));
 
         if ($this->option('json')) {
             $this->line(json_encode([
-                'recent'             => $rows,
-                'overdue_regulator'  => array_values($overdueRegulator->all()),
-                'overdue_subjects'   => array_values($overdueSubjects->all()),
+                'recent' => $rows,
+                'overdue_regulator' => array_values($overdueRegulator->all()),
+                'overdue_subjects' => array_values($overdueSubjects->all()),
             ], JSON_PRETTY_PRINT));
+
             return self::SUCCESS;
         }
 
@@ -44,16 +45,17 @@ class PopiaBreachCheckCommand extends Command
         if ($overdueRegulator->isNotEmpty()) {
             $this->warn("\nincidents past 72-hour deadline without regulator notification:");
             foreach ($overdueRegulator as $r) {
-                $this->line(sprintf("  #%-5d %s  %s  severity=%s discovered=%s individuals=%d",
+                $this->line(sprintf('  #%-5d %s  %s  severity=%s discovered=%s individuals=%d',
                     $r->id, $r->reference, $r->breach_type, $r->severity ?? '-', $r->discovered_date, $r->individuals_affected ?? 0));
             }
         }
         if ($overdueSubjects->isNotEmpty()) {
             $this->warn("\nhigh-severity incidents without subject notification (>7 days old):");
             foreach ($overdueSubjects as $r) {
-                $this->line(sprintf("  #%-5d %s  individuals=%d", $r->id, $r->reference, $r->individuals_affected ?? 0));
+                $this->line(sprintf('  #%-5d %s  individuals=%d', $r->id, $r->reference, $r->individuals_affected ?? 0));
             }
         }
+
         return $overdueRegulator->isEmpty() ? self::SUCCESS : self::FAILURE;
     }
 }

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgStatistics\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -35,16 +33,16 @@ class StatisticsService
     {
         $views = DB::table('ahg_usage_event')
             ->where('event_type', 'view')
-            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->count();
 
         $downloads = DB::table('ahg_usage_event')
             ->where('event_type', 'download')
-            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->count();
 
         $uniqueVisitors = DB::table('ahg_usage_event')
-            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->distinct('ip_address')
             ->count('ip_address');
 
@@ -66,7 +64,7 @@ class StatisticsService
             })
             ->leftJoin('slug as s', 'e.object_id', '=', 's.object_id')
             ->where('e.event_type', $eventType)
-            ->whereBetween('e.created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->whereBetween('e.created_at', [$startDate, $endDate.' 23:59:59'])
             ->whereNotNull('e.object_id')
             ->select('e.object_id', 'ioi.title', 's.slug', DB::raw('COUNT(*) as count'))
             ->groupBy('e.object_id', 'ioi.title', 's.slug')
@@ -79,7 +77,7 @@ class StatisticsService
     {
         // Real columns are `country_code` (ISO 2-letter) + `country_name`.
         return DB::table('ahg_usage_event')
-            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->whereNotNull('country_code')
             ->select('country_code as country', 'country_name', DB::raw('COUNT(*) as count'))
             ->groupBy('country_code', 'country_name')
@@ -94,7 +92,7 @@ class StatisticsService
 
         return DB::table('ahg_usage_event')
             ->where('event_type', 'view')
-            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->select(DB::raw("DATE_FORMAT(created_at, '{$format}') as period"), DB::raw('COUNT(*) as count'))
             ->groupBy('period')
             ->orderBy('period')
@@ -106,7 +104,7 @@ class StatisticsService
     {
         return DB::table('ahg_usage_event')
             ->where('event_type', 'download')
-            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->select(DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as period"), DB::raw('COUNT(*) as count'))
             ->groupBy('period')
             ->orderBy('period')
@@ -120,12 +118,12 @@ class StatisticsService
             'views' => DB::table('ahg_usage_event')
                 ->where('object_id', $objectId)
                 ->where('event_type', 'view')
-                ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+                ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
                 ->count(),
             'downloads' => DB::table('ahg_usage_event')
                 ->where('object_id', $objectId)
                 ->where('event_type', 'download')
-                ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+                ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
                 ->count(),
         ];
     }
@@ -140,12 +138,12 @@ class StatisticsService
             'views' => DB::table('ahg_usage_event')
                 ->whereIn('object_id', $objectIds)
                 ->where('event_type', 'view')
-                ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+                ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
                 ->count(),
             'downloads' => DB::table('ahg_usage_event')
                 ->whereIn('object_id', $objectIds)
                 ->where('event_type', 'download')
-                ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+                ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
                 ->count(),
             'total_objects' => $objectIds->count(),
         ];
@@ -241,18 +239,18 @@ class StatisticsService
         foreach ($buckets as $b) {
             DB::table('ahg_statistics_daily')->updateOrInsert(
                 [
-                    'stat_date'     => $b->event_date,
-                    'event_type'    => $b->event_type,
-                    'object_type'   => $b->object_type,
+                    'stat_date' => $b->event_date,
+                    'event_type' => $b->event_type,
+                    'object_type' => $b->object_type,
                     'repository_id' => $b->repository_id,
-                    'country_code'  => $b->country_code,
+                    'country_code' => $b->country_code,
                 ],
                 [
-                    'total_count'         => (int) $b->total_count,
-                    'unique_visitors'     => (int) $b->unique_visitors,
+                    'total_count' => (int) $b->total_count,
+                    'unique_visitors' => (int) $b->unique_visitors,
                     'authenticated_count' => (int) $b->authenticated_count,
-                    'bot_count'           => (int) $b->bot_count,
-                    'updated_at'          => now(),
+                    'bot_count' => (int) $b->bot_count,
+                    'updated_at' => now(),
                 ]
             );
             $dates[$b->event_date] = true;

@@ -81,7 +81,7 @@ class AccessionApiController extends Controller
             )
             ->first();
 
-        if (!$accession) {
+        if (! $accession) {
             return response()->json(['error' => 'Not found'], 404);
         }
 

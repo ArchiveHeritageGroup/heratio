@@ -70,7 +70,7 @@ class AuthorityController extends BaseApiController
             ->select('actor.*', 'actor_i18n.*', 'object.created_at', 'object.updated_at', 'slug.slug')
             ->first();
 
-        if (!$actor) {
+        if (! $actor) {
             return $this->error('Not Found', "Authority '{$slug}' not found.", 404);
         }
 
@@ -150,8 +150,8 @@ class AuthorityController extends BaseApiController
             'general_context' => 'nullable|string',
         ]);
 
-        if (!empty($validated['entity_type_id'])
-            && !DB::table('term')->where('id', $validated['entity_type_id'])->exists()) {
+        if (! empty($validated['entity_type_id'])
+            && ! DB::table('term')->where('id', $validated['entity_type_id'])->exists()) {
             return $this->error('Invalid entity_type_id', "Entity type {$validated['entity_type_id']} does not exist.", 422);
         }
 
@@ -190,7 +190,7 @@ class AuthorityController extends BaseApiController
                 $slug = $slugBase;
                 $counter = 1;
                 while (DB::table('slug')->where('slug', $slug)->exists()) {
-                    $slug = $slugBase . '-' . $counter++;
+                    $slug = $slugBase.'-'.$counter++;
                 }
                 DB::table('slug')->insert(['slug' => $slug, 'object_id' => $objectId]);
 
@@ -205,7 +205,8 @@ class AuthorityController extends BaseApiController
                 ], 201);
             });
         } catch (\Throwable $e) {
-            \Log::error('Authority create failed: ' . $e->getMessage());
+            \Log::error('Authority create failed: '.$e->getMessage());
+
             return $this->error('Failed to create authority', config('app.debug') ? $e->getMessage() : 'Internal server error', 500);
         }
     }
@@ -216,7 +217,7 @@ class AuthorityController extends BaseApiController
     public function update(string $slug, Request $request): JsonResponse
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId || !DB::table('actor')->where('id', $objectId)->exists()) {
+        if (! $objectId || ! DB::table('actor')->where('id', $objectId)->exists()) {
             return $this->error('Not Found', "Authority '{$slug}' not found.", 404);
         }
 
@@ -263,7 +264,7 @@ class AuthorityController extends BaseApiController
     public function destroy(string $slug): JsonResponse
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId || !DB::table('actor')->where('id', $objectId)->exists()) {
+        if (! $objectId || ! DB::table('actor')->where('id', $objectId)->exists()) {
             return $this->error('Not Found', "Authority '{$slug}' not found.", 404);
         }
 
@@ -276,6 +277,7 @@ class AuthorityController extends BaseApiController
                 DB::table('actor')->where('id', $objectId)->delete();
                 DB::table('object')->where('id', $objectId)->delete();
             });
+
             return response()->json(null, 204);
         } catch (\Throwable $e) {
             return $this->error('Failed to delete authority', $e->getMessage(), 500);
@@ -285,7 +287,10 @@ class AuthorityController extends BaseApiController
     protected function resolveTermNames($ids): array
     {
         $ids = $ids->filter()->unique()->values()->toArray();
-        if (empty($ids)) return [];
+        if (empty($ids)) {
+            return [];
+        }
+
         return DB::table('term_i18n')->whereIn('id', $ids)->where('culture', $this->culture)->pluck('name', 'id')->toArray();
     }
 }

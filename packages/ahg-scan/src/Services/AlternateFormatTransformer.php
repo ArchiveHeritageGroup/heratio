@@ -45,32 +45,34 @@ class AlternateFormatTransformer
      */
     public static function detectAndTransform(string $sidecarPath): ?array
     {
-        if (!is_file($sidecarPath)) { return null; }
+        if (! is_file($sidecarPath)) {
+            return null;
+        }
 
         $format = self::detectFormat($sidecarPath);
-        if (!$format || $format === 'heratioScan') {
+        if (! $format || $format === 'heratioScan') {
             return null;
         }
 
         $stylesheet = self::STYLESHEETS[$format] ?? null;
-        if (!$stylesheet) {
+        if (! $stylesheet) {
             return ['format' => $format, 'transformed_path' => null, 'pending' => true];
         }
 
-        $xslPath = __DIR__ . '/../../resources/transforms/' . $stylesheet;
-        if (!is_file($xslPath)) {
+        $xslPath = __DIR__.'/../../resources/transforms/'.$stylesheet;
+        if (! is_file($xslPath)) {
             return ['format' => $format, 'transformed_path' => null, 'pending' => true];
         }
 
         try {
-            $xml = new \DOMDocument();
+            $xml = new \DOMDocument;
             libxml_use_internal_errors(true);
             $xml->load($sidecarPath);
 
-            $xsl = new \DOMDocument();
+            $xsl = new \DOMDocument;
             $xsl->load($xslPath);
 
-            $proc = new \XSLTProcessor();
+            $proc = new \XSLTProcessor;
             $proc->importStyleSheet($xsl);
 
             $out = $proc->transformToXml($xml);
@@ -80,11 +82,13 @@ class AlternateFormatTransformer
                 return ['format' => $format, 'transformed_path' => null, 'pending' => true];
             }
 
-            $tmp = sys_get_temp_dir() . '/heratio-sidecar-' . bin2hex(random_bytes(6)) . '.xml';
+            $tmp = sys_get_temp_dir().'/heratio-sidecar-'.bin2hex(random_bytes(6)).'.xml';
             file_put_contents($tmp, $out);
+
             return ['format' => $format, 'transformed_path' => $tmp, 'pending' => false];
         } catch (\Throwable $e) {
-            Log::warning('[ahg-scan] XSLT transform failed for ' . $sidecarPath . ': ' . $e->getMessage());
+            Log::warning('[ahg-scan] XSLT transform failed for '.$sidecarPath.': '.$e->getMessage());
+
             return ['format' => $format, 'transformed_path' => null, 'pending' => true];
         }
     }
@@ -96,8 +100,10 @@ class AlternateFormatTransformer
      */
     protected static function detectFormat(string $path): ?string
     {
-        $reader = new \XMLReader();
-        if (!$reader->open($path)) { return null; }
+        $reader = new \XMLReader;
+        if (! $reader->open($path)) {
+            return null;
+        }
         while ($reader->read()) {
             if ($reader->nodeType === \XMLReader::ELEMENT) {
                 $local = $reader->localName;
@@ -113,20 +119,36 @@ class AlternateFormatTransformer
                     return 'ead';
                 }
                 // MARC21 XML
-                if ($local === 'record' && str_contains($ns, 'loc.gov/MARC21')) { return 'marc21'; }
-                if ($local === 'collection' && str_contains($ns, 'loc.gov/MARC21')) { return 'marc21'; }
+                if ($local === 'record' && str_contains($ns, 'loc.gov/MARC21')) {
+                    return 'marc21';
+                }
+                if ($local === 'collection' && str_contains($ns, 'loc.gov/MARC21')) {
+                    return 'marc21';
+                }
                 // MODS
-                if ($local === 'mods' && str_contains($ns, 'loc.gov/mods')) { return 'mods'; }
-                if ($local === 'modsCollection' && str_contains($ns, 'loc.gov/mods')) { return 'mods'; }
+                if ($local === 'mods' && str_contains($ns, 'loc.gov/mods')) {
+                    return 'mods';
+                }
+                if ($local === 'modsCollection' && str_contains($ns, 'loc.gov/mods')) {
+                    return 'mods';
+                }
                 // LIDO
-                if ($local === 'lido' && str_contains($ns, 'lido-schema.org')) { return 'lido'; }
-                if ($local === 'lidoWrap') { return 'lido'; }
+                if ($local === 'lido' && str_contains($ns, 'lido-schema.org')) {
+                    return 'lido';
+                }
+                if ($local === 'lidoWrap') {
+                    return 'lido';
+                }
                 // METS — wrapper that can carry DC/MODS/etc. inside dmdSec
-                if ($local === 'mets' && str_contains($ns, 'loc.gov/METS')) { return 'mets'; }
+                if ($local === 'mets' && str_contains($ns, 'loc.gov/METS')) {
+                    return 'mets';
+                }
+
                 return null;
             }
         }
         $reader->close();
+
         return null;
     }
 }

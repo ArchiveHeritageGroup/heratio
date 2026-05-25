@@ -81,7 +81,7 @@ class CacheStatsCommand extends Command
             $printed[$name] = true;
         }
         foreach ($byName as $name => $row) {
-            if (!isset($printed[$name])) {
+            if (! isset($printed[$name])) {
                 $this->printSource($name, $row);
             }
         }
@@ -92,12 +92,13 @@ class CacheStatsCommand extends Command
     private function printSource(string $name, ?object $row): void
     {
         if ($row === null || (int) $row->c === 0) {
-            $this->line(sprintf('  %-9s 0 entries', $name . ':'));
+            $this->line(sprintf('  %-9s 0 entries', $name.':'));
+
             return;
         }
         $this->line(sprintf(
             '  %-9s %d entries, oldest %s, newest %s, types %s',
-            $name . ':',
+            $name.':',
             (int) $row->c,
             $this->formatDate((string) ($row->oldest ?? '')),
             $this->formatDate((string) ($row->newest ?? '')),
@@ -114,6 +115,7 @@ class CacheStatsCommand extends Command
         if (preg_match('/^(\d{4}-\d{2}-\d{2})/', $dt, $m)) {
             return $m[1];
         }
+
         return $dt;
     }
 }

@@ -46,6 +46,7 @@ use Illuminate\Support\Facades\DB;
 class CoOccurringPersonEvaluator implements EvaluatorInterface
 {
     private const PLACE_TYPES = ['GPE', 'PLACE', 'LOC'];
+
     private const PERSON_ORG_TYPES = ['PERSON', 'ORG'];
 
     public function dimension(): string
@@ -129,16 +130,16 @@ class CoOccurringPersonEvaluator implements EvaluatorInterface
     private function coOccurringPersonOrgNames($cooccurringJson): array
     {
         $rows = EvidenceDateUtil::decodeJsonish($cooccurringJson);
-        if (!is_array($rows)) {
+        if (! is_array($rows)) {
             return [];
         }
         $names = [];
         foreach ($rows as $row) {
-            if (!is_array($row)) {
+            if (! is_array($row)) {
                 continue;
             }
             $type = (string) ($row['type'] ?? '');
-            if (!in_array($type, self::PERSON_ORG_TYPES, true)) {
+            if (! in_array($type, self::PERSON_ORG_TYPES, true)) {
                 continue;
             }
             $value = (string) ($row['value'] ?? '');
@@ -147,6 +148,7 @@ class CoOccurringPersonEvaluator implements EvaluatorInterface
             }
             $names[] = $value;
         }
+
         return array_values(array_unique($names));
     }
 }

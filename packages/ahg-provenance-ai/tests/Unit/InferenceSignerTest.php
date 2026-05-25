@@ -38,18 +38,18 @@ class InferenceSignerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->tmpDir = sys_get_temp_dir() . '/ahg-sign-test-' . bin2hex(random_bytes(6));
+        $this->tmpDir = sys_get_temp_dir().'/ahg-sign-test-'.bin2hex(random_bytes(6));
     }
 
     protected function tearDown(): void
     {
-        foreach (glob($this->tmpDir . '/*') ?: [] as $f) {
+        foreach (glob($this->tmpDir.'/*') ?: [] as $f) {
             @unlink($f);
         }
         @rmdir($this->tmpDir);
     }
 
-    public function testSigningIsOptInAndReturnsNullBeforeKeygen(): void
+    public function test_signing_is_opt_in_and_returns_null_before_keygen(): void
     {
         $signer = new InferenceSigner($this->tmpDir);
 
@@ -58,10 +58,10 @@ class InferenceSignerTest extends TestCase
         $this->assertNull($signer->sign(['id' => 1]));
     }
 
-    public function testGenerateSignVerifyRoundTrip(): void
+    public function test_generate_sign_verify_round_trip(): void
     {
         $signer = new InferenceSigner($this->tmpDir);
-        $keyId  = $signer->generateKeypair();
+        $keyId = $signer->generateKeypair();
 
         $this->assertStringStartsWith('ed25519:', $keyId);
         $this->assertTrue($signer->isEnabled());
@@ -77,31 +77,31 @@ class InferenceSignerTest extends TestCase
         $this->assertTrue($signer->verify($signature, $manifest, $signer->publicKey()));
     }
 
-    public function testVerifyFailsOnTamperedManifest(): void
+    public function test_verify_fails_on_tampered_manifest(): void
     {
         $signer = new InferenceSigner($this->tmpDir);
         $signer->generateKeypair();
 
-        $manifest  = ['id' => 42, 'output_hash' => 'bb'];
+        $manifest = ['id' => 42, 'output_hash' => 'bb'];
         $signature = $signer->sign($manifest);
 
         $tampered = ['id' => 42, 'output_hash' => 'CC'];
         $this->assertFalse($signer->verify($signature, $tampered, $signer->publicKey()));
     }
 
-    public function testVerifyFailsAgainstWrongPublicKey(): void
+    public function test_verify_fails_against_wrong_public_key(): void
     {
         $signer = new InferenceSigner($this->tmpDir);
         $signer->generateKeypair();
 
-        $manifest  = ['id' => 7];
+        $manifest = ['id' => 7];
         $signature = $signer->sign($manifest);
 
         $wrongPublicKey = sodium_crypto_sign_publickey(sodium_crypto_sign_keypair());
         $this->assertFalse($signer->verify($signature, $manifest, $wrongPublicKey));
     }
 
-    public function testCanonicalizeIsKeyOrderIndependent(): void
+    public function test_canonicalize_is_key_order_independent(): void
     {
         $signer = new InferenceSigner($this->tmpDir);
 
@@ -111,10 +111,10 @@ class InferenceSignerTest extends TestCase
         );
     }
 
-    public function testKeygenRefusesToClobberExistingKeyWithoutForce(): void
+    public function test_keygen_refuses_to_clobber_existing_key_without_force(): void
     {
         $signer = new InferenceSigner($this->tmpDir);
-        $first  = $signer->generateKeypair();
+        $first = $signer->generateKeypair();
 
         try {
             $signer->generateKeypair();

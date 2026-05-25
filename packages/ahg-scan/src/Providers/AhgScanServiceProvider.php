@@ -39,9 +39,9 @@ class AhgScanServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware('web')->group(__DIR__ . '/../../routes/web.php');
-        Route::middleware('api')->group(__DIR__ . '/../../routes/api.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-scan');
+        Route::middleware('web')->group(__DIR__.'/../../routes/web.php');
+        Route::middleware('api')->group(__DIR__.'/../../routes/api.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-scan');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -54,8 +54,8 @@ class AhgScanServiceProvider extends ServiceProvider
 
         $this->app->booted(function () {
             try {
-                if (!Schema::hasTable('scan_folder')
-                    || (Schema::hasTable('ahg_dropdown') && !DB::table('ahg_dropdown')->where('taxonomy', 'scan_folder_layout')->exists())) {
+                if (! Schema::hasTable('scan_folder')
+                    || (Schema::hasTable('ahg_dropdown') && ! DB::table('ahg_dropdown')->where('taxonomy', 'scan_folder_layout')->exists())) {
                     \Illuminate\Support\Facades\Artisan::call('ahg:scan-install');
                 }
             } catch (\Throwable $e) {

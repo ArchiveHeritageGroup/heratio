@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgLandingPage\Controllers;
 
 use AhgLandingPage\Services\LandingPageService;
@@ -37,7 +35,7 @@ class LandingPageController extends Controller
 
     public function __construct()
     {
-        $this->service = new LandingPageService();
+        $this->service = new LandingPageService;
     }
 
     // Public
@@ -233,7 +231,7 @@ class LandingPageController extends Controller
         if ($action === 'toggle_active' && $id) {
             $page = $this->service->getPage($id);
             if ($page) {
-                $this->service->updatePage($id, ['is_active' => !$page->is_active], auth()->id());
+                $this->service->updatePage($id, ['is_active' => ! $page->is_active], auth()->id());
             }
 
             return redirect()->route('landing-page.list')->with('notice', 'Page status updated.');

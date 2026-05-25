@@ -18,6 +18,7 @@ class NestedSetRebuildCommand extends Command
         $table = (string) $this->option('model');
         if (! in_array($table, ['information_object', 'term'], true)) {
             $this->error("Refusing to rebuild '{$table}' — only information_object and term are supported.");
+
             return self::FAILURE;
         }
         $conn = (string) $this->option('connection');
@@ -29,19 +30,26 @@ class NestedSetRebuildCommand extends Command
             $pid = (int) ($r->parent_id ?? 0);
             $children[$pid][] = (int) $r->id;
         }
-        $this->info("loaded " . $rows->count() . " {$table} rows");
+        $this->info('loaded '.$rows->count()." {$table} rows");
 
-        $counter = 0; $bounds = [];
+        $counter = 0;
+        $bounds = [];
         $walk = function (int $id) use (&$walk, &$counter, &$bounds, $children) {
-            $counter++; $left = $counter;
-            foreach ($children[$id] ?? [] as $childId) $walk($childId);
-            $counter++; $right = $counter;
+            $counter++;
+            $left = $counter;
+            foreach ($children[$id] ?? [] as $childId) {
+                $walk($childId);
+            }
+            $counter++;
+            $right = $counter;
             $bounds[$id] = [$left, $right];
         };
 
         $roots = $children[0] ?? $children[1] ?? [];
-        foreach ($roots as $root) $walk($root);
-        $this->info("walked " . count($bounds) . " rows; max counter={$counter}");
+        foreach ($roots as $root) {
+            $walk($root);
+        }
+        $this->info('walked '.count($bounds)." rows; max counter={$counter}");
 
         $written = 0;
         foreach (array_chunk($bounds, 1000, true) as $chunk) {
@@ -49,9 +57,10 @@ class NestedSetRebuildCommand extends Command
                 $db->table($table)->where('id', $id)->update(['lft' => $l, 'rgt' => $r]);
                 $written++;
             }
-            $this->line("  written {$written}/" . count($bounds));
+            $this->line("  written {$written}/".count($bounds));
         }
-        $this->info("done");
+        $this->info('done');
+
         return self::SUCCESS;
     }
 }

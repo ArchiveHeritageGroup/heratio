@@ -19,11 +19,12 @@ class ApiKeyController extends BaseApiController
     public function index(Request $request): JsonResponse
     {
         $userId = $this->apiUserId($request);
-        if (!$userId) {
+        if (! $userId) {
             return $this->error('Unauthorized', 'Authentication required.', 401);
         }
 
         $keys = $this->keyService->listKeys($userId);
+
         return $this->success(['keys' => $keys]);
     }
 
@@ -33,7 +34,7 @@ class ApiKeyController extends BaseApiController
     public function store(Request $request): JsonResponse
     {
         $userId = $this->apiUserId($request);
-        if (!$userId) {
+        if (! $userId) {
             return $this->error('Unauthorized', 'Authentication required.', 401);
         }
 
@@ -62,12 +63,12 @@ class ApiKeyController extends BaseApiController
     public function destroy(int $id, Request $request): JsonResponse
     {
         $userId = $this->apiUserId($request);
-        if (!$userId) {
+        if (! $userId) {
             return $this->error('Unauthorized', 'Authentication required.', 401);
         }
 
         $deleted = $this->keyService->deleteKey($id, $userId);
-        if (!$deleted) {
+        if (! $deleted) {
             return $this->error('Not Found', 'API key not found or not owned by you.', 404);
         }
 

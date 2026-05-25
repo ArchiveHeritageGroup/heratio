@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgGis\Controllers;
 
 use Illuminate\Http\Request;
@@ -49,11 +47,11 @@ class GisController extends Controller
             ->join('information_object as io', 'io.id', '=', 'g.information_object_id')
             ->leftJoin('information_object_i18n', function ($join) {
                 $join->on('io.id', '=', 'information_object_i18n.id')
-                     ->where('information_object_i18n.culture', '=', 'en');
+                    ->where('information_object_i18n.culture', '=', 'en');
             })
             ->leftJoin('slug', function ($join) {
                 $join->on('io.id', '=', 'slug.object_id')
-                     ->where('slug.slug', '!=', '');
+                    ->where('slug.slug', '!=', '');
             })
             ->whereNotNull('g.latitude')
             ->whereNotNull('g.longitude')
@@ -93,11 +91,11 @@ class GisController extends Controller
             ->join('information_object as io', 'io.id', '=', 'g.information_object_id')
             ->leftJoin('information_object_i18n', function ($join) {
                 $join->on('io.id', '=', 'information_object_i18n.id')
-                     ->where('information_object_i18n.culture', '=', 'en');
+                    ->where('information_object_i18n.culture', '=', 'en');
             })
             ->leftJoin('slug', function ($join) {
                 $join->on('io.id', '=', 'slug.object_id')
-                     ->where('slug.slug', '!=', '');
+                    ->where('slug.slug', '!=', '');
             })
             ->whereNotNull('g.latitude')
             ->whereNotNull('g.longitude')
@@ -114,7 +112,7 @@ class GisController extends Controller
         if ($request->wantsJson()) {
             $geojson = [
                 'type' => 'FeatureCollection',
-                'features' => $features->map(fn($f) => [
+                'features' => $features->map(fn ($f) => [
                     'type' => 'Feature',
                     'geometry' => [
                         'type' => 'Point',
@@ -127,6 +125,7 @@ class GisController extends Controller
                     ],
                 ])->values()->all(),
             ];
+
             return response()->json($geojson);
         }
 

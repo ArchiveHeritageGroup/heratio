@@ -27,16 +27,20 @@ class WorkflowProcessCommand extends Command
             })
             ->limit($limit)
             ->get();
-        $this->info("pending tasks to process: {$pending->count()}" . ($dry ? ' (dry-run)' : ''));
+        $this->info("pending tasks to process: {$pending->count()}".($dry ? ' (dry-run)' : ''));
 
         $claimed = 0;
         foreach ($pending as $t) {
-            if ($dry) continue;
+            if ($dry) {
+                continue;
+            }
             $updated = (int) DB::table('ahg_workflow_task')
                 ->where('id', $t->id)
                 ->where('status', 'pending')
                 ->update(['status' => 'in_progress', 'started_at' => now()]);
-            if ($updated) $claimed++;
+            if ($updated) {
+                $claimed++;
+            }
         }
         $this->info("claimed={$claimed}");
 
@@ -48,6 +52,7 @@ class WorkflowProcessCommand extends Command
                 ->update(['status' => 'escalated', 'escalated_at' => now()]);
             $this->info("escalated={$escalated}");
         }
+
         return self::SUCCESS;
     }
 }

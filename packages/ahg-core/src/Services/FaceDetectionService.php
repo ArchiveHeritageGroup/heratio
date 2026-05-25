@@ -60,9 +60,12 @@ use Illuminate\Support\Facades\Log;
 class FaceDetectionService
 {
     public const BACKEND_FACE_RECOGNITION = 'face_recognition';
-    public const BACKEND_DLIB             = 'dlib';
-    public const BACKEND_AZURE            = 'azure';
-    public const BACKEND_NOOP             = 'noop';
+
+    public const BACKEND_DLIB = 'dlib';
+
+    public const BACKEND_AZURE = 'azure';
+
+    public const BACKEND_NOOP = 'noop';
 
     public function isEnabled(): bool
     {
@@ -79,6 +82,7 @@ class FaceDetectionService
             self::BACKEND_AZURE,
             self::BACKEND_NOOP,
         ];
+
         return in_array($b, $allowed, true) ? $b : self::BACKEND_FACE_RECOGNITION;
     }
 
@@ -91,17 +95,17 @@ class FaceDetectionService
      */
     public function detectAndStore(int $digitalObjectId): int
     {
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             return 0;
         }
 
         $do = DB::table('digital_object')->where('id', $digitalObjectId)->first();
-        if (!$do || empty($do->path) || empty($do->name)) {
+        if (! $do || empty($do->path) || empty($do->name)) {
             return 0;
         }
 
         $localPath = $this->resolveOnDiskPath($do->path, $do->name);
-        if (!is_file($localPath) || !is_readable($localPath)) {
+        if (! is_file($localPath) || ! is_readable($localPath)) {
             return 0;
         }
 
@@ -109,6 +113,7 @@ class FaceDetectionService
 
         if ($backend === self::BACKEND_NOOP) {
             Log::info('[face-detect] noop backend - skipping', ['do_id' => $digitalObjectId]);
+
             return 0;
         }
 
@@ -124,10 +129,13 @@ class FaceDetectionService
                 'backend' => $backend,
                 'error' => $e->getMessage(),
             ]);
+
             return 0;
         }
 
-        if (empty($faces)) return 0;
+        if (empty($faces)) {
+            return 0;
+        }
 
         // Persist: one row per face into digital_object_faces. Schema is
         // operator-managed so tolerate column drift (use Schema::hasColumn
@@ -137,20 +145,21 @@ class FaceDetectionService
             try {
                 DB::table('digital_object_faces')->insert([
                     'digital_object_id' => $digitalObjectId,
-                    'bbox_x'      => (int)   ($face['bbox']['x'] ?? 0),
-                    'bbox_y'      => (int)   ($face['bbox']['y'] ?? 0),
-                    'bbox_w'      => (int)   ($face['bbox']['w'] ?? 0),
-                    'bbox_h'      => (int)   ($face['bbox']['h'] ?? 0),
-                    'embedding'   => isset($face['embedding']) ? json_encode($face['embedding']) : null,
-                    'confidence'  => isset($face['confidence']) ? (float) $face['confidence'] : null,
-                    'backend'     => $backend,
-                    'created_at'  => now(),
+                    'bbox_x' => (int) ($face['bbox']['x'] ?? 0),
+                    'bbox_y' => (int) ($face['bbox']['y'] ?? 0),
+                    'bbox_w' => (int) ($face['bbox']['w'] ?? 0),
+                    'bbox_h' => (int) ($face['bbox']['h'] ?? 0),
+                    'embedding' => isset($face['embedding']) ? json_encode($face['embedding']) : null,
+                    'confidence' => isset($face['confidence']) ? (float) $face['confidence'] : null,
+                    'backend' => $backend,
+                    'created_at' => now(),
                 ]);
                 $count++;
             } catch (\Throwable $e) {
                 Log::warning('[face-detect] persist row failed', ['err' => $e->getMessage()]);
             }
         }
+
         return $count;
     }
 
@@ -174,17 +183,20 @@ class FaceDetectionService
         }
         if ($url === '') {
             Log::info('[face-detect] no endpoint available', ['backend' => $backend]);
+
             return [];
         }
 
         $resp = Http::timeout(60)->attach('image', file_get_contents($imagePath), basename($imagePath))
-            ->post(rtrim($url, '/') . '/detect', ['backend' => $backend]);
+            ->post(rtrim($url, '/').'/detect', ['backend' => $backend]);
 
-        if (!$resp->successful()) {
+        if (! $resp->successful()) {
             Log::info('[face-detect] backend non-2xx', ['http' => $resp->status(), 'url' => $url]);
+
             return [];
         }
         $body = $resp->json();
+
         return $body['faces'] ?? [];
     }
 
@@ -195,34 +207,40 @@ class FaceDetectionService
     private function detectAzure(string $imagePath): array
     {
         $endpoint = (string) AhgSettingsService::get('azure_face_endpoint', '');
-        $key      = (string) AhgSettingsService::get('azure_face_key', '');
+        $key = (string) AhgSettingsService::get('azure_face_key', '');
         if ($endpoint === '' || $key === '') {
             Log::info('[face-detect] azure backend selected but endpoint/key not configured');
+
             return [];
         }
 
         $resp = Http::withHeaders([
-                'Ocp-Apim-Subscription-Key' => $key,
-                'Content-Type' => 'application/octet-stream',
-            ])
+            'Ocp-Apim-Subscription-Key' => $key,
+            'Content-Type' => 'application/octet-stream',
+        ])
             ->withBody(file_get_contents($imagePath), 'application/octet-stream')
             ->timeout(30)
-            ->post(rtrim($endpoint, '/') . '/face/v1.0/detect?returnFaceLandmarks=false&recognitionModel=recognition_04');
+            ->post(rtrim($endpoint, '/').'/face/v1.0/detect?returnFaceLandmarks=false&recognitionModel=recognition_04');
 
-        if (!$resp->successful()) return [];
+        if (! $resp->successful()) {
+            return [];
+        }
 
         // Normalise Azure's response shape to the same structure the local
         // backends return: each face {bbox: {x,y,w,h}, embedding?, confidence}.
         $out = [];
         foreach ($resp->json() ?: [] as $f) {
             $r = $f['faceRectangle'] ?? null;
-            if (!$r) continue;
+            if (! $r) {
+                continue;
+            }
             $out[] = [
                 'bbox' => ['x' => $r['left'], 'y' => $r['top'], 'w' => $r['width'], 'h' => $r['height']],
                 'confidence' => 1.0, // Azure doesn't return per-detection score on detect
                 'backend' => 'azure',
             ];
         }
+
         return $out;
     }
 
@@ -236,6 +254,7 @@ class FaceDetectionService
         $base = rtrim((string) config('heratio.uploads_path'), '/');
         $rel = preg_replace('#^/uploads/#', '', $path);
         $rel = ltrim((string) $rel, '/');
-        return $base . '/' . $rel . $name;
+
+        return $base.'/'.$rel.$name;
     }
 }

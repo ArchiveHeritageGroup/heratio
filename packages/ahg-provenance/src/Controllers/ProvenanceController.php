@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgProvenance\Controllers;
 
 use AhgProvenance\Services\ProvenanceService;
@@ -105,7 +103,7 @@ class ProvenanceController extends Controller
                     ->where('actor_i18n.culture', '=', $culture);
             })
             ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
-            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%' . $term . '%')
+            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%'.$term.'%')
             ->where('actor.id', '!=', 3) // Root actor ID
             ->select([
                 'actor.id',
@@ -128,7 +126,7 @@ class ProvenanceController extends Controller
 
         $this->service->update($slug, $request->all());
 
-        return redirect('/' . $slug)->with('notice', 'Provenance updated.');
+        return redirect('/'.$slug)->with('notice', 'Provenance updated.');
     }
 
     /**

@@ -25,8 +25,7 @@ class InformationObjectSnapshotObserver
     public function __construct(
         private readonly SnapshotBuilder $builder,
         private readonly VersionWriter $writer,
-    ) {
-    }
+    ) {}
 
     public function saved(InformationObject $io): void
     {
@@ -38,8 +37,8 @@ class InformationObjectSnapshotObserver
         }
 
         try {
-            $userId  = VersionContext::takeUserId() ?? auth()->id();
-            $summary = VersionContext::takeSummary() ?? 'Saved via ' . request()->path();
+            $userId = VersionContext::takeUserId() ?? auth()->id();
+            $summary = VersionContext::takeSummary() ?? 'Saved via '.request()->path();
             $this->writer->write(
                 entityType: 'information_object',
                 entityId: (int) $io->id,

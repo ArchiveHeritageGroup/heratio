@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgWorkflow\Services;
 
 use AhgCore\Services\AhgSettingsService;
@@ -192,7 +190,7 @@ class WorkflowService
     {
         return DB::transaction(function () use ($taskId, $userId) {
             $task = DB::table('ahg_workflow_task')->where('id', $taskId)->lockForUpdate()->first();
-            if (!$task || $task->assigned_to !== null) {
+            if (! $task || $task->assigned_to !== null) {
                 return false;
             }
 
@@ -219,17 +217,17 @@ class WorkflowService
      * of the AtoM-side WorkflowService::assignToUser() - existing methods
      * are untouched.
      *
-     * @param string|null $comment  Optional archivist reason / message. When
-     *                              given, it becomes the history row's comment
-     *                              so the assignee sees why the task came to
-     *                              them. Null falls back to the default
-     *                              "Assigned to user #N" note.
+     * @param  string|null  $comment  Optional archivist reason / message. When
+     *                                given, it becomes the history row's comment
+     *                                so the assignee sees why the task came to
+     *                                them. Null falls back to the default
+     *                                "Assigned to user #N" note.
      */
     public function assignToUser(int $taskId, int $userId, int $performedBy, ?string $comment = null): bool
     {
         return DB::transaction(function () use ($taskId, $userId, $performedBy, $comment) {
             $task = DB::table('ahg_workflow_task')->where('id', $taskId)->lockForUpdate()->first();
-            if (!$task) {
+            if (! $task) {
                 return false;
             }
 
@@ -244,7 +242,7 @@ class WorkflowService
 
             $note = ($comment !== null && trim($comment) !== '')
                 ? trim($comment)
-                : ('Assigned to user #' . $userId);
+                : ('Assigned to user #'.$userId);
 
             // 'reassigned' is the workflow_history_action taxonomy code for a
             // delegated assignment (an assign-to-another-user, vs the
@@ -269,7 +267,7 @@ class WorkflowService
     {
         return DB::transaction(function () use ($taskId, $userId, $comment) {
             $task = DB::table('ahg_workflow_task')->where('id', $taskId)->first();
-            if (!$task || (int) $task->assigned_to !== $userId) {
+            if (! $task || (int) $task->assigned_to !== $userId) {
                 return false;
             }
 
@@ -296,7 +294,7 @@ class WorkflowService
         $hadNextStep = false;
         $result = DB::transaction(function () use ($taskId, $userId, $comment, &$hadNextStep) {
             $task = DB::table('ahg_workflow_task')->where('id', $taskId)->lockForUpdate()->first();
-            if (!$task) {
+            if (! $task) {
                 return false;
             }
 
@@ -349,7 +347,7 @@ class WorkflowService
                         null,
                         'pending',
                         $userId,
-                        'Auto-created from approval of task #' . $taskId
+                        'Auto-created from approval of task #'.$taskId
                     );
                 }
             }
@@ -371,7 +369,7 @@ class WorkflowService
     {
         $result = DB::transaction(function () use ($taskId, $userId, $comment) {
             $task = DB::table('ahg_workflow_task')->where('id', $taskId)->lockForUpdate()->first();
-            if (!$task) {
+            if (! $task) {
                 return false;
             }
 
@@ -410,7 +408,7 @@ class WorkflowService
         bool $approved,
         bool $hadNextStep,
     ): void {
-        if (!AhgSettingsService::getBool('workflow_email_notifications', true)) {
+        if (! AhgSettingsService::getBool('workflow_email_notifications', true)) {
             return;
         }
 
@@ -434,7 +432,7 @@ class WorkflowService
 
             $decisionByName = DB::table('user')->where('id', $decisionByUserId)->value('username');
 
-            if (!$row || empty($row->recipient_email)) {
+            if (! $row || empty($row->recipient_email)) {
                 return;
             }
 
@@ -471,7 +469,7 @@ class WorkflowService
     {
         return DB::transaction(function () use ($workflowId, $objectId, $objectType, $userId) {
             $workflow = DB::table('ahg_workflow')->where('id', $workflowId)->where('is_active', 1)->first();
-            if (!$workflow) {
+            if (! $workflow) {
                 return null;
             }
 
@@ -481,7 +479,7 @@ class WorkflowService
                 ->orderBy('step_order')
                 ->first();
 
-            if (!$firstStep) {
+            if (! $firstStep) {
                 return null;
             }
 
@@ -507,7 +505,7 @@ class WorkflowService
                 null,
                 'pending',
                 $userId,
-                'Workflow started: ' . $workflow->name
+                'Workflow started: '.$workflow->name
             );
 
             return $taskId;
@@ -620,6 +618,7 @@ class WorkflowService
             DB::table('ahg_workflow_task')->where('workflow_id', $id)->delete();
             // Delete steps
             DB::table('ahg_workflow_step')->where('workflow_id', $id)->delete();
+
             // Delete workflow
             return (bool) DB::table('ahg_workflow')->where('id', $id)->delete();
         });
@@ -838,10 +837,12 @@ class WorkflowService
 
         if ($id) {
             DB::table('ahg_publish_gate_rule')->where('id', $id)->update($row);
+
             return $id;
         }
 
         $row['created_at'] = now();
+
         return DB::table('ahg_publish_gate_rule')->insertGetId($row);
     }
 
@@ -851,6 +852,7 @@ class WorkflowService
     public function deleteGateRule(int $id): bool
     {
         DB::table('ahg_publish_gate_result')->where('rule_id', $id)->delete();
+
         return (bool) DB::table('ahg_publish_gate_rule')->where('id', $id)->delete();
     }
 
@@ -869,7 +871,7 @@ class WorkflowService
             ->select('information_object.*', 'information_object_i18n.title', 'information_object_i18n.scope_and_content')
             ->first();
 
-        if (!$io) {
+        if (! $io) {
             return ['object' => null, 'results' => [], 'summary' => ['pass' => 0, 'fail' => 0, 'warning' => 0]];
         }
 
@@ -942,11 +944,12 @@ class WorkflowService
         switch ($rule->rule_type) {
             case 'required_field':
                 $fieldName = $rule->field_name;
-                if (!$fieldName) {
+                if (! $fieldName) {
                     return 'pass';
                 }
                 $value = $io->$fieldName ?? null;
-                return (!empty($value) && trim((string) $value) !== '') ? 'pass' : ($rule->severity === 'warning' ? 'warning' : 'fail');
+
+                return (! empty($value) && trim((string) $value) !== '') ? 'pass' : ($rule->severity === 'warning' ? 'warning' : 'fail');
 
             case 'workflow_completed':
                 // Check if all workflow tasks for this object are completed
@@ -954,12 +957,14 @@ class WorkflowService
                     ->where('object_id', $io->id)
                     ->whereIn('status', ['pending', 'claimed', 'in_progress'])
                     ->count();
+
                 return $pending === 0 ? 'pass' : ($rule->severity === 'warning' ? 'warning' : 'fail');
 
             case 'digital_object_required':
                 $hasDo = DB::table('digital_object')
                     ->where('information_object_id', $io->id)
                     ->exists();
+
                 return $hasDo ? 'pass' : ($rule->severity === 'warning' ? 'warning' : 'fail');
 
             case 'min_description_length':
@@ -967,18 +972,21 @@ class WorkflowService
                 $minLength = $config['min_length'] ?? 100;
                 $fieldName = $rule->field_name ?? 'scope_and_content';
                 $value = $io->$fieldName ?? '';
+
                 return (mb_strlen((string) $value) >= $minLength) ? 'pass' : ($rule->severity === 'warning' ? 'warning' : 'fail');
 
             case 'custom_sql':
                 $config = json_decode($rule->rule_config, true);
-                if (!empty($config['sql'])) {
+                if (! empty($config['sql'])) {
                     try {
                         $result = DB::select($config['sql'], ['object_id' => $io->id]);
-                        return (!empty($result) && ($result[0]->result ?? 0)) ? 'pass' : ($rule->severity === 'warning' ? 'warning' : 'fail');
+
+                        return (! empty($result) && ($result[0]->result ?? 0)) ? 'pass' : ($rule->severity === 'warning' ? 'warning' : 'fail');
                     } catch (\Exception $e) {
                         return 'fail';
                     }
                 }
+
                 return 'pass';
 
             default:

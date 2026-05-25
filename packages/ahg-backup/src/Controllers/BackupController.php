@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgBackup\Controllers;
 
 use AhgBackup\Mail\BackupCompletedMail;
@@ -36,8 +34,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class BackupController extends Controller
 {
@@ -56,7 +52,7 @@ class BackupController extends Controller
     {
         $path = $this->getBackupPath();
 
-        if (!File::isDirectory($path)) {
+        if (! File::isDirectory($path)) {
             return [];
         }
 
@@ -149,7 +145,7 @@ class BackupController extends Controller
         // Scheduled backups
         $schedules = [];
         $scheduleData = AhgSettingsService::getGroup('backup_schedule');
-        if (!empty($scheduleData)) {
+        if (! empty($scheduleData)) {
             foreach ($scheduleData as $key => $value) {
                 if (str_starts_with($key, 'backup_schedule_')) {
                     $decoded = json_decode($value, true);
@@ -198,13 +194,13 @@ class BackupController extends Controller
         $backupPath = $this->getBackupPath();
 
         // Ensure backup directory exists
-        if (!File::isDirectory($backupPath)) {
+        if (! File::isDirectory($backupPath)) {
             try {
                 File::makeDirectory($backupPath, 0755, true);
             } catch (\Exception $e) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to create backup directory: ' . $e->getMessage(),
+                    'message' => 'Failed to create backup directory: '.$e->getMessage(),
                 ], 500);
             }
         }
@@ -224,23 +220,23 @@ class BackupController extends Controller
             $dbSocket = $dbConfig['unix_socket'] ?? '';
 
             $filename = "database_{$dbName}_{$timestamp}.sql.gz";
-            $filepath = $backupPath . '/' . $filename;
+            $filepath = $backupPath.'/'.$filename;
 
             // Build mysqldump command
             $cmd = 'mysqldump';
             if ($dbSocket) {
-                $cmd .= ' --socket=' . escapeshellarg($dbSocket);
+                $cmd .= ' --socket='.escapeshellarg($dbSocket);
             } else {
-                $cmd .= ' --host=' . escapeshellarg($dbHost);
-                $cmd .= ' --port=' . escapeshellarg($dbPort);
+                $cmd .= ' --host='.escapeshellarg($dbHost);
+                $cmd .= ' --port='.escapeshellarg($dbPort);
             }
-            $cmd .= ' --user=' . escapeshellarg($dbUser);
+            $cmd .= ' --user='.escapeshellarg($dbUser);
             if ($dbPass) {
-                $cmd .= ' --password=' . escapeshellarg($dbPass);
+                $cmd .= ' --password='.escapeshellarg($dbPass);
             }
             $cmd .= ' --single-transaction --routines --triggers --events';
-            $cmd .= ' ' . escapeshellarg($dbName);
-            $cmd .= ' 2>&1 | gzip > ' . escapeshellarg($filepath);
+            $cmd .= ' '.escapeshellarg($dbName);
+            $cmd .= ' 2>&1 | gzip > '.escapeshellarg($filepath);
 
             exec($cmd, $output, $returnCode);
 
@@ -255,7 +251,7 @@ class BackupController extends Controller
                 if (File::exists($filepath)) {
                     File::delete($filepath);
                 }
-                $errorMsg = !empty($output) ? implode("\n", $output) : 'mysqldump failed with exit code ' . $returnCode;
+                $errorMsg = ! empty($output) ? implode("\n", $output) : 'mysqldump failed with exit code '.$returnCode;
                 $errors[] = "Database backup failed: {$errorMsg}";
             }
         }
@@ -264,10 +260,10 @@ class BackupController extends Controller
         if (in_array('uploads', $components)) {
             $uploadsPath = config('heratio.uploads_path');
             $filename = "uploads_{$timestamp}.tar.gz";
-            $filepath = $backupPath . '/' . $filename;
+            $filepath = $backupPath.'/'.$filename;
 
             if (File::isDirectory($uploadsPath)) {
-                $cmd = 'tar -czf ' . escapeshellarg($filepath) . ' -C ' . escapeshellarg(dirname($uploadsPath)) . ' ' . escapeshellarg(basename($uploadsPath)) . ' 2>&1';
+                $cmd = 'tar -czf '.escapeshellarg($filepath).' -C '.escapeshellarg(dirname($uploadsPath)).' '.escapeshellarg(basename($uploadsPath)).' 2>&1';
                 exec($cmd, $output, $returnCode);
 
                 if ($returnCode === 0 && File::exists($filepath)) {
@@ -280,7 +276,7 @@ class BackupController extends Controller
                     if (File::exists($filepath)) {
                         File::delete($filepath);
                     }
-                    $errors[] = 'Uploads backup failed: tar returned exit code ' . $returnCode;
+                    $errors[] = 'Uploads backup failed: tar returned exit code '.$returnCode;
                 }
             } else {
                 $errors[] = "Uploads directory not found: {$uploadsPath}";
@@ -291,10 +287,10 @@ class BackupController extends Controller
         if (in_array('plugins', $components)) {
             $pluginsPath = base_path('packages');
             $filename = "plugins_{$timestamp}.tar.gz";
-            $filepath = $backupPath . '/' . $filename;
+            $filepath = $backupPath.'/'.$filename;
 
             if (File::isDirectory($pluginsPath)) {
-                $cmd = 'tar -czf ' . escapeshellarg($filepath) . ' -C ' . escapeshellarg(base_path()) . ' packages 2>&1';
+                $cmd = 'tar -czf '.escapeshellarg($filepath).' -C '.escapeshellarg(base_path()).' packages 2>&1';
                 exec($cmd, $output, $returnCode);
 
                 if ($returnCode === 0 && File::exists($filepath)) {
@@ -307,7 +303,7 @@ class BackupController extends Controller
                     if (File::exists($filepath)) {
                         File::delete($filepath);
                     }
-                    $errors[] = 'Plugins backup failed: tar returned exit code ' . $returnCode;
+                    $errors[] = 'Plugins backup failed: tar returned exit code '.$returnCode;
                 }
             } else {
                 $errors[] = 'Packages directory not found';
@@ -317,10 +313,10 @@ class BackupController extends Controller
         // Framework backup
         if (in_array('framework', $components)) {
             $filename = "framework_{$timestamp}.tar.gz";
-            $filepath = $backupPath . '/' . $filename;
+            $filepath = $backupPath.'/'.$filename;
 
             $excludes = '--exclude=vendor --exclude=node_modules --exclude=storage/logs --exclude=.git --exclude=packages';
-            $cmd = 'tar -czf ' . escapeshellarg($filepath) . ' ' . $excludes . ' -C ' . escapeshellarg(dirname(base_path())) . ' ' . escapeshellarg(basename(base_path())) . ' 2>&1';
+            $cmd = 'tar -czf '.escapeshellarg($filepath).' '.$excludes.' -C '.escapeshellarg(dirname(base_path())).' '.escapeshellarg(basename(base_path())).' 2>&1';
             exec($cmd, $output, $returnCode);
 
             if ($returnCode === 0 && File::exists($filepath)) {
@@ -333,7 +329,7 @@ class BackupController extends Controller
                 if (File::exists($filepath)) {
                     File::delete($filepath);
                 }
-                $errors[] = 'Framework backup failed: tar returned exit code ' . $returnCode;
+                $errors[] = 'Framework backup failed: tar returned exit code '.$returnCode;
             }
         }
 
@@ -346,7 +342,7 @@ class BackupController extends Controller
         foreach ($createdFiles as $f) {
             // $createdFiles entries have a 'size' human string; recompute bytes
             // from the on-disk file for accuracy.
-            $candidate = $backupPath . '/' . ($f['filename'] ?? '');
+            $candidate = $backupPath.'/'.($f['filename'] ?? '');
             if (File::exists($candidate)) {
                 $totalSize += File::size($candidate);
             }
@@ -354,16 +350,16 @@ class BackupController extends Controller
         $completedAt = now()->toIso8601String();
 
         // Wire up notifications (Phase 2 of #671).
-        if (!empty($createdFiles) && empty($errors)) {
+        if (! empty($createdFiles) && empty($errors)) {
             $payload = [
-                'id'           => 'run-' . $timestamp,
-                'components'   => $components,
-                'files'        => $createdFiles,
-                'size_bytes'   => $totalSize,
-                'size_human'   => $this->humanFileSize($totalSize),
-                'duration_ms'  => $durationMs,
-                'status'       => 'success',
-                'warnings'     => [],
+                'id' => 'run-'.$timestamp,
+                'components' => $components,
+                'files' => $createdFiles,
+                'size_bytes' => $totalSize,
+                'size_human' => $this->humanFileSize($totalSize),
+                'duration_ms' => $durationMs,
+                'status' => 'success',
+                'warnings' => [],
                 'completed_at' => $completedAt,
             ];
             $this->notifyBackupSuccess($payload);
@@ -373,16 +369,16 @@ class BackupController extends Controller
                 'message' => 'Backup completed successfully.',
                 'files' => $createdFiles,
             ]);
-        } elseif (!empty($createdFiles) && !empty($errors)) {
+        } elseif (! empty($createdFiles) && ! empty($errors)) {
             $payload = [
-                'id'           => 'run-' . $timestamp,
-                'components'   => $components,
-                'files'        => $createdFiles,
-                'size_bytes'   => $totalSize,
-                'size_human'   => $this->humanFileSize($totalSize),
-                'duration_ms'  => $durationMs,
-                'status'       => 'success_with_warnings',
-                'warnings'     => $errors,
+                'id' => 'run-'.$timestamp,
+                'components' => $components,
+                'files' => $createdFiles,
+                'size_bytes' => $totalSize,
+                'size_human' => $this->humanFileSize($totalSize),
+                'duration_ms' => $durationMs,
+                'status' => 'success_with_warnings',
+                'warnings' => $errors,
                 'completed_at' => $completedAt,
             ];
             $this->notifyBackupSuccess($payload);
@@ -395,13 +391,13 @@ class BackupController extends Controller
             ]);
         } else {
             $payload = [
-                'id'            => 'failed-' . $timestamp,
-                'components'    => $components,
+                'id' => 'failed-'.$timestamp,
+                'components' => $components,
                 'partial_files' => $createdFiles,
-                'errors'        => $errors,
-                'duration_ms'   => $durationMs,
-                'status'        => 'failed',
-                'completed_at'  => $completedAt,
+                'errors' => $errors,
+                'duration_ms' => $durationMs,
+                'status' => 'failed',
+                'completed_at' => $completedAt,
             ];
             $this->notifyBackupFailure($payload);
 
@@ -420,13 +416,13 @@ class BackupController extends Controller
      */
     private function notifyBackupSuccess(array $payload): void
     {
-        if (!AhgSettingsService::getBool('backup_notify_on_success', true)) {
+        if (! AhgSettingsService::getBool('backup_notify_on_success', true)) {
             return;
         }
 
         $email = AhgSettingsService::get('backup_notification_email')
             ?: config('mail.from.address');
-        if (!empty($email)) {
+        if (! empty($email)) {
             try {
                 Mail::to($email)->queue(new BackupCompletedMail($payload));
             } catch (\Throwable $e) {
@@ -446,7 +442,7 @@ class BackupController extends Controller
             implode('+', $payload['components'] ?? []),
             $payload['size_human'] ?? '?',
             isset($payload['duration_ms'])
-                ? number_format($payload['duration_ms'] / 1000, 1) . 's'
+                ? number_format($payload['duration_ms'] / 1000, 1).'s'
                 : '?'
         );
         $eventType = $payload['status'] === 'success_with_warnings' ? 'warning' : 'success';
@@ -458,13 +454,13 @@ class BackupController extends Controller
      */
     private function notifyBackupFailure(array $payload): void
     {
-        if (!AhgSettingsService::getBool('backup_notify_on_failure', true)) {
+        if (! AhgSettingsService::getBool('backup_notify_on_failure', true)) {
             return;
         }
 
         $email = AhgSettingsService::get('backup_notification_email')
             ?: config('mail.from.address');
-        if (!empty($email)) {
+        if (! empty($email)) {
             try {
                 Mail::to($email)->queue(new BackupFailedMail($payload));
             } catch (\Throwable $e) {
@@ -498,23 +494,24 @@ class BackupController extends Controller
     {
         $inbox = '/var/spool/workbench/notifications';
 
-        if (!is_dir($inbox) || !is_writable($inbox)) {
+        if (! is_dir($inbox) || ! is_writable($inbox)) {
             Log::info('[ahg-backup] workbench notification skipped (inbox unavailable)', [
                 'inbox' => $inbox,
                 'title' => $title,
             ]);
+
             return;
         }
 
         $payload = [
-            'username'  => $username,
-            'title'     => $title,
-            'message'   => $message,
+            'username' => $username,
+            'title' => $title,
+            'message' => $message,
             'eventType' => $eventType,
-            'webLink'   => url('/admin/backup'),
+            'webLink' => url('/admin/backup'),
         ];
 
-        $filename = $inbox . '/' . uniqid('heratio-backup-', true) . '.json';
+        $filename = $inbox.'/'.uniqid('heratio-backup-', true).'.json';
         try {
             $bytes = @file_put_contents($filename, json_encode($payload, JSON_PRETTY_PRINT));
             if ($bytes === false) {
@@ -611,18 +608,18 @@ class BackupController extends Controller
      */
     public function restore()
     {
-        $dbConfig   = config('database.connections.mysql');
+        $dbConfig = config('database.connections.mysql');
         $backupPath = $this->getBackupPath();
-        $backups    = $this->listBackups();
-        $totalSize  = array_sum(array_column($backups, 'size'));
+        $backups = $this->listBackups();
+        $totalSize = array_sum(array_column($backups, 'size'));
 
-        $maxBackups        = AhgSettingsService::getInt('backup_max_backups', 10);
-        $retentionDays     = AhgSettingsService::getInt('backup_retention_days', 30);
+        $maxBackups = AhgSettingsService::getInt('backup_max_backups', 10);
+        $retentionDays = AhgSettingsService::getInt('backup_retention_days', 30);
         $notificationEmail = AhgSettingsService::get('backup_notification_email', '');
 
         $schedules = [];
         $scheduleData = AhgSettingsService::getGroup('backup_schedule');
-        if (!empty($scheduleData)) {
+        if (! empty($scheduleData)) {
             foreach ($scheduleData as $key => $value) {
                 if (str_starts_with($key, 'backup_schedule_')) {
                     $decoded = json_decode($value, true);
@@ -641,16 +638,16 @@ class BackupController extends Controller
         }
 
         return view('ahg-backup::restore', [
-            'dbConfig'          => $dbConfig,
-            'dbConnected'       => $dbConnected,
-            'backupPath'        => $backupPath,
-            'backups'           => $backups,
-            'backupCount'       => count($backups),
-            'totalSize'         => $this->humanFileSize($totalSize),
-            'maxBackups'        => $maxBackups,
-            'retentionDays'     => $retentionDays,
+            'dbConfig' => $dbConfig,
+            'dbConnected' => $dbConnected,
+            'backupPath' => $backupPath,
+            'backups' => $backups,
+            'backupCount' => count($backups),
+            'totalSize' => $this->humanFileSize($totalSize),
+            'maxBackups' => $maxBackups,
+            'retentionDays' => $retentionDays,
             'notificationEmail' => $notificationEmail,
-            'schedules'         => $schedules,
+            'schedules' => $schedules,
         ]);
     }
 
@@ -671,7 +668,7 @@ class BackupController extends Controller
 
         // Find the backup by ID
         $backup = collect($backups)->firstWhere('id', $backupId);
-        if (!$backup) {
+        if (! $backup) {
             return response()->json([
                 'success' => false,
                 'message' => 'Backup file not found.',
@@ -695,25 +692,25 @@ class BackupController extends Controller
                 $dbPass = $dbConfig['password'] ?? '';
                 $dbSocket = $dbConfig['unix_socket'] ?? '';
 
-                $cmd = 'gunzip -c ' . escapeshellarg($filePath) . ' | mysql';
+                $cmd = 'gunzip -c '.escapeshellarg($filePath).' | mysql';
                 if ($dbSocket) {
-                    $cmd .= ' --socket=' . escapeshellarg($dbSocket);
+                    $cmd .= ' --socket='.escapeshellarg($dbSocket);
                 } else {
-                    $cmd .= ' --host=' . escapeshellarg($dbHost);
-                    $cmd .= ' --port=' . escapeshellarg($dbPort);
+                    $cmd .= ' --host='.escapeshellarg($dbHost);
+                    $cmd .= ' --port='.escapeshellarg($dbPort);
                 }
-                $cmd .= ' --user=' . escapeshellarg($dbUser);
+                $cmd .= ' --user='.escapeshellarg($dbUser);
                 if ($dbPass) {
-                    $cmd .= ' --password=' . escapeshellarg($dbPass);
+                    $cmd .= ' --password='.escapeshellarg($dbPass);
                 }
-                $cmd .= ' ' . escapeshellarg($dbName) . ' 2>&1';
+                $cmd .= ' '.escapeshellarg($dbName).' 2>&1';
 
                 exec($cmd, $output, $returnCode);
 
                 if ($returnCode === 0) {
                     $restored[] = 'database';
                 } else {
-                    $errorMsg = !empty($output) ? implode("\n", $output) : 'mysql import failed with exit code ' . $returnCode;
+                    $errorMsg = ! empty($output) ? implode("\n", $output) : 'mysql import failed with exit code '.$returnCode;
                     $errors[] = "Database restore failed: {$errorMsg}";
                 }
             } else {
@@ -726,13 +723,13 @@ class BackupController extends Controller
             $filePath = $backup['path'];
             if (str_contains($backup['filename'], 'uploads') && str_ends_with($filePath, '.tar.gz')) {
                 $uploadsPath = config('heratio.uploads_path');
-                $cmd = 'tar -xzf ' . escapeshellarg($filePath) . ' -C ' . escapeshellarg(dirname($uploadsPath)) . ' 2>&1';
+                $cmd = 'tar -xzf '.escapeshellarg($filePath).' -C '.escapeshellarg(dirname($uploadsPath)).' 2>&1';
                 exec($cmd, $output, $returnCode);
 
                 if ($returnCode === 0) {
                     $restored[] = 'uploads';
                 } else {
-                    $errors[] = 'Uploads restore failed: tar returned exit code ' . $returnCode;
+                    $errors[] = 'Uploads restore failed: tar returned exit code '.$returnCode;
                 }
             } else {
                 $errors[] = 'Selected backup does not contain uploads data.';
@@ -743,13 +740,13 @@ class BackupController extends Controller
         if (in_array('plugins', $components) && in_array('plugins', $backup['components'])) {
             $filePath = $backup['path'];
             if (str_contains($backup['filename'], 'plugins') && str_ends_with($filePath, '.tar.gz')) {
-                $cmd = 'tar -xzf ' . escapeshellarg($filePath) . ' -C ' . escapeshellarg(base_path()) . ' 2>&1';
+                $cmd = 'tar -xzf '.escapeshellarg($filePath).' -C '.escapeshellarg(base_path()).' 2>&1';
                 exec($cmd, $output, $returnCode);
 
                 if ($returnCode === 0) {
                     $restored[] = 'plugins';
                 } else {
-                    $errors[] = 'Plugins restore failed: tar returned exit code ' . $returnCode;
+                    $errors[] = 'Plugins restore failed: tar returned exit code '.$returnCode;
                 }
             } else {
                 $errors[] = 'Selected backup does not contain plugins data.';
@@ -760,26 +757,26 @@ class BackupController extends Controller
         if (in_array('framework', $components) && in_array('framework', $backup['components'])) {
             $filePath = $backup['path'];
             if (str_contains($backup['filename'], 'framework') && str_ends_with($filePath, '.tar.gz')) {
-                $cmd = 'tar -xzf ' . escapeshellarg($filePath) . ' -C ' . escapeshellarg(dirname(base_path())) . ' 2>&1';
+                $cmd = 'tar -xzf '.escapeshellarg($filePath).' -C '.escapeshellarg(dirname(base_path())).' 2>&1';
                 exec($cmd, $output, $returnCode);
 
                 if ($returnCode === 0) {
                     $restored[] = 'framework';
                 } else {
-                    $errors[] = 'Framework restore failed: tar returned exit code ' . $returnCode;
+                    $errors[] = 'Framework restore failed: tar returned exit code '.$returnCode;
                 }
             } else {
                 $errors[] = 'Selected backup does not contain framework data.';
             }
         }
 
-        if (!empty($restored) && empty($errors)) {
+        if (! empty($restored) && empty($errors)) {
             return response()->json([
                 'success' => true,
                 'message' => 'Restore completed successfully.',
                 'restored' => $restored,
             ]);
-        } elseif (!empty($restored) && !empty($errors)) {
+        } elseif (! empty($restored) && ! empty($errors)) {
             return response()->json([
                 'success' => true,
                 'message' => 'Restore completed with warnings.',
@@ -803,7 +800,7 @@ class BackupController extends Controller
         $backups = $this->listBackups();
         $backup = collect($backups)->firstWhere('id', $id);
 
-        if (!$backup || !File::exists($backup['path'])) {
+        if (! $backup || ! File::exists($backup['path'])) {
             abort(404, 'Backup file not found.');
         }
 
@@ -818,7 +815,7 @@ class BackupController extends Controller
         $backups = $this->listBackups();
         $backup = collect($backups)->firstWhere('id', $id);
 
-        if (!$backup || !File::exists($backup['path'])) {
+        if (! $backup || ! File::exists($backup['path'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Backup file not found.',
@@ -835,7 +832,7 @@ class BackupController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete backup: ' . $e->getMessage(),
+                'message' => 'Failed to delete backup: '.$e->getMessage(),
             ], 500);
         }
     }

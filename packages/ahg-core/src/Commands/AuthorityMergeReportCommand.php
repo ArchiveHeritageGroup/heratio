@@ -20,6 +20,7 @@ class AuthorityMergeReportCommand extends Command
 
         if (! Schema::hasTable('audit_log')) {
             $this->warn('audit_log missing — nothing to report.');
+
             return self::SUCCESS;
         }
 
@@ -28,18 +29,19 @@ class AuthorityMergeReportCommand extends Command
             ->whereIn('action', ['merge', 'split', 'redirect'])
             ->where('created_at', '>=', $cutoff)
             ->orderBy('created_at', 'desc')
-            ->get(['id','record_id','action','user_id','username','action_description','created_at']);
+            ->get(['id', 'record_id', 'action', 'user_id', 'username', 'action_description', 'created_at']);
 
         $this->info("=== authority merge/split since {$cutoff->toDateString()} (n={$rows->count()}) ===");
         foreach ($rows as $r) {
-            $this->line(sprintf("  %s  actor=%-7s  %-8s  by=%-20s  %s",
+            $this->line(sprintf('  %s  actor=%-7s  %-8s  by=%-20s  %s',
                 $r->created_at, $r->record_id, $r->action, $r->username ?: $r->user_id, $r->action_description ?? ''));
         }
 
         $this->info("\nsummary by action:");
         foreach ($rows->groupBy('action') as $action => $group) {
-            $this->line(sprintf("  %-8s  %d", $action, $group->count()));
+            $this->line(sprintf('  %-8s  %d', $action, $group->count()));
         }
+
         return self::SUCCESS;
     }
 }

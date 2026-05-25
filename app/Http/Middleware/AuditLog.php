@@ -39,7 +39,7 @@ class AuditLog
 
     private function logRequest(Request $request, $response): void
     {
-        if (!Schema::hasTable('security_audit_log') || !Schema::hasTable('ahg_settings')) {
+        if (! Schema::hasTable('security_audit_log') || ! Schema::hasTable('ahg_settings')) {
             return;
         }
 
@@ -62,18 +62,18 @@ class AuditLog
         }
 
         $action = $this->classifyAction($request);
-        if (!$action) {
+        if (! $action) {
             return;
         }
 
         // Check per-category toggles
         $category = $action['category'];
         $categorySettingMap = [
-            'access'   => 'audit_views',
-            'search'   => 'audit_searches',
+            'access' => 'audit_views',
+            'search' => 'audit_searches',
             'download' => 'audit_downloads',
-            'api'      => 'audit_api_requests',
-            'auth'     => 'audit_authentication',
+            'api' => 'audit_api_requests',
+            'auth' => 'audit_authentication',
             'security' => 'audit_sensitive_access',
         ];
         $settingKey = $categorySettingMap[$category] ?? null;
@@ -93,7 +93,8 @@ class AuditLog
         if ($userId) {
             try {
                 $userName = DB::table('user')->where('id', $userId)->value('username');
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
         }
 
         $ip = $request->ip();
@@ -112,7 +113,7 @@ class AuditLog
         // keeps the audit log to one row per request — the middleware
         // row gets enriched rather than competing with a service row.
         $diff = $request->attributes->get('audit.diff');
-        if (is_array($diff) && !empty($diff)) {
+        if (is_array($diff) && ! empty($diff)) {
             $decoded = is_string($details) ? (json_decode($details, true) ?: []) : (is_array($details) ? $details : []);
             $details = json_encode(array_merge($decoded, $diff));
             if (empty($action['object_id']) && $request->attributes->has('audit.object_id')) {
@@ -124,7 +125,7 @@ class AuditLog
             // Sub-entity endpoints set mutation_action = 'event_create',
             // 'attachment_delete' etc. so the audit log distinguishes them
             // from generic 'update' rows on the parent IO/accession.
-            if (!empty($diff['mutation_action'])) {
+            if (! empty($diff['mutation_action'])) {
                 $action['action'] = (string) $diff['mutation_action'];
             }
         }
@@ -150,16 +151,16 @@ class AuditLog
         }
 
         DB::table('security_audit_log')->insert([
-            'action'          => $action['action'],
+            'action' => $action['action'],
             'action_category' => $category,
-            'object_id'       => $action['object_id'] ?? null,
-            'object_type'     => $action['object_type'] ?? null,
-            'user_id'         => $userId,
-            'user_name'       => $userName,
-            'details'         => is_string($details) ? $details : ($details ? json_encode($details) : null),
-            'ip_address'      => $ip,
-            'user_agent'      => $request->userAgent(),
-            'created_at'      => now(),
+            'object_id' => $action['object_id'] ?? null,
+            'object_type' => $action['object_type'] ?? null,
+            'user_id' => $userId,
+            'user_name' => $userName,
+            'details' => is_string($details) ? $details : ($details ? json_encode($details) : null),
+            'ip_address' => $ip,
+            'user_agent' => $request->userAgent(),
+            'created_at' => now(),
         ]);
     }
 
@@ -198,23 +199,27 @@ class AuditLog
         // Downloads / exports
         if (str_contains($path, '/export/') || str_contains($path, '/download') || str_contains($path, 'findingaid/download')) {
             $objectId = $this->extractObjectId($path);
+
             return ['action' => 'download', 'category' => 'download', 'object_id' => $objectId, 'object_type' => 'information_object', 'details' => json_encode(['path' => $path])];
         }
 
         // API requests
         if (str_starts_with($path, 'api/')) {
-            return ['action' => 'api_' . $method, 'category' => 'api', 'details' => json_encode(['path' => $path, 'method' => $method])];
+            return ['action' => 'api_'.$method, 'category' => 'api', 'details' => json_encode(['path' => $path, 'method' => $method])];
         }
 
         // CRUD operations (POST/PUT/DELETE on entity routes)
         if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
             $objectType = $this->extractObjectType($path);
             if ($objectType) {
-                $action = match($method) { 'POST' => 'create', 'PUT' => 'update', 'DELETE' => 'delete', default => 'modify' };
+                $action = match ($method) {
+                    'POST' => 'create', 'PUT' => 'update', 'DELETE' => 'delete', default => 'modify'
+                };
                 // Distinguish update from create: POST to /entity/slug/edit is update
                 if ($method === 'POST' && str_contains($path, '/edit')) {
                     $action = 'update';
                 }
+
                 return ['action' => $action, 'category' => 'admin', 'object_type' => $objectType, 'details' => json_encode(['path' => $path])];
             }
         }
@@ -222,7 +227,7 @@ class AuditLog
         // View events (GET on entity show pages) — only log for authenticated users
         if ($method === 'GET' && auth()->check()) {
             $objectType = $this->extractObjectType($path);
-            if ($objectType && !str_contains($path, '/browse') && !str_contains($path, '/add') && !str_contains($path, '/edit')) {
+            if ($objectType && ! str_contains($path, '/browse') && ! str_contains($path, '/add') && ! str_contains($path, '/edit')) {
                 return ['action' => 'view', 'category' => 'access', 'object_type' => $objectType, 'details' => json_encode(['path' => $path])];
             }
         }
@@ -234,25 +239,26 @@ class AuditLog
     {
         $map = [
             'informationobject' => 'information_object',
-            'actor'             => 'actor',
-            'repository'        => 'repository',
-            'accession'         => 'accession',
-            'donor'             => 'donor',
-            'physicalobject'    => 'physical_object',
-            'term'              => 'term',
-            'function'          => 'function',
-            'digitalobject'     => 'digital_object',
-            'user'              => 'user',
+            'actor' => 'actor',
+            'repository' => 'repository',
+            'accession' => 'accession',
+            'donor' => 'donor',
+            'physicalobject' => 'physical_object',
+            'term' => 'term',
+            'function' => 'function',
+            'digitalobject' => 'digital_object',
+            'user' => 'user',
         ];
         foreach ($map as $prefix => $type) {
-            if (str_starts_with($path, $prefix . '/') || str_starts_with($path, $prefix . 's/')) {
+            if (str_starts_with($path, $prefix.'/') || str_starts_with($path, $prefix.'s/')) {
                 return $type;
             }
         }
         // Catch-all for slug-based IO show pages
-        if (preg_match('/^[a-z0-9][a-z0-9-]+$/', $path) && !str_contains($path, '/')) {
+        if (preg_match('/^[a-z0-9][a-z0-9-]+$/', $path) && ! str_contains($path, '/')) {
             return 'information_object';
         }
+
         return null;
     }
 
@@ -261,6 +267,7 @@ class AuditLog
         if (preg_match('/\/(\d+)(?:\/|$)/', $path, $m)) {
             return (int) $m[1];
         }
+
         return null;
     }
 }

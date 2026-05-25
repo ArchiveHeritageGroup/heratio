@@ -28,9 +28,19 @@ Route::middleware('admin')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::match(['get','post'], '/search-enhancement/admin-templates', function() { return view('search::admin-templates'); })->name('searchEnhancement.adminTemplates');
-    Route::match(['get','post'], '/search-enhancement/saved-searches', function() { return view('search::saved-searches'); })->name('searchEnhancement.savedSearches');
-    Route::match(['get','post'], '/search-enhancement/history', function() { return view('search::history'); })->name('searchEnhancement.history');
-    Route::match(['get','post'], '/semantic-search-admin/test-expand', function() { return view('search::test-expand'); })->name('semanticSearchAdmin.testExpand');
-    Route::match(['get','post'], '/search-enhancement/save-search', function() { return view('search::save-search'); })->name('searchEnhancement.saveSearch');
+    Route::match(['get', 'post'], '/search-enhancement/admin-templates', function () {
+        return view('search::admin-templates');
+    })->name('searchEnhancement.adminTemplates');
+    Route::match(['get', 'post'], '/search-enhancement/saved-searches', function () {
+        return view('search::saved-searches');
+    })->name('searchEnhancement.savedSearches');
+    Route::match(['get', 'post'], '/search-enhancement/history', function () {
+        return view('search::history');
+    })->name('searchEnhancement.history');
+    Route::match(['get', 'post'], '/semantic-search-admin/test-expand', function () {
+        return view('search::test-expand');
+    })->name('semanticSearchAdmin.testExpand');
+    Route::match(['get', 'post'], '/search-enhancement/save-search', function () {
+        return view('search::save-search');
+    })->name('searchEnhancement.saveSearch');
 });

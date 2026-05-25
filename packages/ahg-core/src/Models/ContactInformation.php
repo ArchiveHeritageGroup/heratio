@@ -10,6 +10,7 @@ class ContactInformation extends Model
     use HasI18n;
 
     protected $table = 'contact_information';
+
     public $timestamps = true;
 
     protected $fillable = [

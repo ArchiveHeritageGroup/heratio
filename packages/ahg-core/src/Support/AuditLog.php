@@ -35,12 +35,14 @@ class AuditLog
     public static function captureEdit(int $objectId, string $objectType, array $before, array $after): void
     {
         $changed = self::diffFields($before, $after);
-        if (empty($changed)) return;
+        if (empty($changed)) {
+            return;
+        }
 
         $payload = [
             'changed_fields' => array_values($changed),
             'before' => self::pickKeys($before, $changed),
-            'after'  => self::pickKeys($after, $changed),
+            'after' => self::pickKeys($after, $changed),
         ];
 
         self::stash($objectId, $objectType, $payload);
@@ -69,7 +71,7 @@ class AuditLog
     public static function captureDelete(int $objectId, string $objectType, array $before): void
     {
         $payload = [
-            'before'  => $before,
+            'before' => $before,
             'deleted' => true,
         ];
         self::stash($objectId, $objectType, $payload);
@@ -145,10 +147,17 @@ class AuditLog
             $a = $after[$k] ?? null;
             // Normalise both sides to strings for comparison so '5' and 5
             // count as equal, but distinct array shapes stay distinct.
-            if (is_array($b)) $b = json_encode($b);
-            if (is_array($a)) $a = json_encode($a);
-            if ((string) $b !== (string) $a) $changed[] = $k;
+            if (is_array($b)) {
+                $b = json_encode($b);
+            }
+            if (is_array($a)) {
+                $a = json_encode($a);
+            }
+            if ((string) $b !== (string) $a) {
+                $changed[] = $k;
+            }
         }
+
         return $changed;
     }
 
@@ -156,30 +165,35 @@ class AuditLog
     {
         $out = [];
         foreach ($keys as $k) {
-            if (array_key_exists($k, $arr)) $out[$k] = $arr[$k];
+            if (array_key_exists($k, $arr)) {
+                $out[$k] = $arr[$k];
+            }
         }
+
         return $out;
     }
 
     private static function writeDirect(int $objectId, string $objectType, array $payload): void
     {
-        if (!Schema::hasTable('security_audit_log')) return;
+        if (! Schema::hasTable('security_audit_log')) {
+            return;
+        }
         $userId = auth()->id();
         $userName = $userId ? DB::table('user')->where('id', $userId)->value('username') : null;
-        $action = !empty($payload['mutation_action']) ? (string) $payload['mutation_action']
-                : (!empty($payload['created']) ? 'create'
-                : (!empty($payload['deleted']) ? 'delete' : 'update'));
+        $action = ! empty($payload['mutation_action']) ? (string) $payload['mutation_action']
+                : (! empty($payload['created']) ? 'create'
+                : (! empty($payload['deleted']) ? 'delete' : 'update'));
         DB::table('security_audit_log')->insert([
-            'object_id'       => $objectId,
-            'object_type'     => $objectType,
-            'user_id'         => $userId,
-            'user_name'       => $userName,
-            'action'          => $action,
+            'object_id' => $objectId,
+            'object_type' => $objectType,
+            'user_id' => $userId,
+            'user_name' => $userName,
+            'action' => $action,
             'action_category' => 'admin',
-            'details'         => json_encode($payload),
-            'ip_address'      => null,
-            'user_agent'      => null,
-            'created_at'      => now(),
+            'details' => json_encode($payload),
+            'ip_address' => null,
+            'user_agent' => null,
+            'created_at' => now(),
         ]);
     }
 }

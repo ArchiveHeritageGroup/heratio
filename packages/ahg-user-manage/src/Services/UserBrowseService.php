@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgUserManage\Services;
 
 use AhgCore\Services\BrowseService;
@@ -145,7 +143,7 @@ class UserBrowseService extends BrowseService
                 'limit' => $limit,
             ];
         } catch (\Exception $e) {
-            \Log::error(static::class . ' browse error: ' . $e->getMessage());
+            \Log::error(static::class.' browse error: '.$e->getMessage());
 
             return [
                 'hits' => [],

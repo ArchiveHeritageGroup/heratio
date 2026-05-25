@@ -15,7 +15,7 @@ class VersionCommand extends Command
         $versionFile = base_path('version.json');
 
         if (! file_exists($versionFile)) {
-            $this->error('version.json not found at: ' . $versionFile);
+            $this->error('version.json not found at: '.$versionFile);
 
             return self::FAILURE;
         }

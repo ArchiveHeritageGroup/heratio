@@ -22,18 +22,18 @@ class TenantRoleService
 {
     /** Role action capability matrix. Add finer-grained actions as needed. */
     private const ROLE_ACTIONS = [
-        'owner'       => ['read', 'create', 'update', 'delete', 'publish', 'translate', 'manage_users', 'manage_branding', 'manage_settings'],
-        'super_user'  => ['read', 'create', 'update', 'delete', 'publish', 'translate', 'manage_users', 'manage_branding'],
-        'editor'      => ['read', 'create', 'update', 'publish', 'translate'],
+        'owner' => ['read', 'create', 'update', 'delete', 'publish', 'translate', 'manage_users', 'manage_branding', 'manage_settings'],
+        'super_user' => ['read', 'create', 'update', 'delete', 'publish', 'translate', 'manage_users', 'manage_branding'],
+        'editor' => ['read', 'create', 'update', 'publish', 'translate'],
         'contributor' => ['read', 'create', 'update'],
-        'viewer'      => ['read'],
+        'viewer' => ['read'],
     ];
 
     private AclService $acl;
 
     public function __construct(?AclService $acl = null)
     {
-        $this->acl = $acl ?? new AclService();
+        $this->acl = $acl ?? new AclService;
     }
 
     /**
@@ -45,7 +45,7 @@ class TenantRoleService
     public function check(int $userId, int $tenantId, string $action, ?int $objectId = null): bool
     {
         $aclAction = $this->mapActionToAclVerb($action);
-        if (!$this->acl->check($userId, $aclAction, $objectId)) {
+        if (! $this->acl->check($userId, $aclAction, $objectId)) {
             return false;
         }
 

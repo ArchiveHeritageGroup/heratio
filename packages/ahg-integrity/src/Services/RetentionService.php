@@ -2,9 +2,9 @@
 
 namespace AhgIntegrity\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Carbon\Carbon;
 
 class RetentionService
 {
@@ -14,7 +14,7 @@ class RetentionService
      */
     public function scanEligible(?int $policyId = null): int
     {
-        if (!Schema::hasTable('integrity_retention_policy') || !Schema::hasTable('integrity_disposition_queue')) {
+        if (! Schema::hasTable('integrity_retention_policy') || ! Schema::hasTable('integrity_disposition_queue')) {
             return 0;
         }
 
@@ -49,7 +49,7 @@ class RetentionService
 
             } elseif (str_starts_with($policy->trigger_type, 'event')) {
                 // Check retention_trigger_event for matching event_type
-                if (!Schema::hasTable('retention_trigger_event')) {
+                if (! Schema::hasTable('retention_trigger_event')) {
                     continue;
                 }
 
@@ -122,7 +122,7 @@ class RetentionService
      */
     public function fireRetentionEvent(int $ioId, string $eventType, int $userId, ?string $notes = null): void
     {
-        if (!Schema::hasTable('retention_trigger_event')) {
+        if (! Schema::hasTable('retention_trigger_event')) {
             return;
         }
 
@@ -141,7 +141,7 @@ class RetentionService
      */
     public function getEligibleRecords(?int $policyId, int $page = 1, int $perPage = 25): array
     {
-        if (!Schema::hasTable('integrity_disposition_queue')) {
+        if (! Schema::hasTable('integrity_disposition_queue')) {
             return ['data' => [], 'total' => 0, 'page' => $page, 'per_page' => $perPage];
         }
 
@@ -161,10 +161,10 @@ class RetentionService
         $total = $query->count();
 
         $data = $query->select([
-                'dq.*',
-                'io_i18n.title as io_title',
-                'rp.name as policy_name',
-            ])
+            'dq.*',
+            'io_i18n.title as io_title',
+            'rp.name as policy_name',
+        ])
             ->orderBy('dq.eligible_at', 'desc')
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
@@ -184,7 +184,7 @@ class RetentionService
      */
     public function getRetentionPolicies(): array
     {
-        if (!Schema::hasTable('integrity_retention_policy')) {
+        if (! Schema::hasTable('integrity_retention_policy')) {
             return [];
         }
 
@@ -199,7 +199,7 @@ class RetentionService
      */
     public function getEventTypes(): array
     {
-        if (!Schema::hasTable('retention_trigger_event')) {
+        if (! Schema::hasTable('retention_trigger_event')) {
             return [];
         }
 
@@ -216,7 +216,7 @@ class RetentionService
      */
     public function getRetentionEvents(int $page = 1, int $perPage = 50): array
     {
-        if (!Schema::hasTable('retention_trigger_event')) {
+        if (! Schema::hasTable('retention_trigger_event')) {
             return ['data' => [], 'total' => 0, 'page' => $page, 'per_page' => $perPage];
         }
 
@@ -231,9 +231,9 @@ class RetentionService
         $total = $query->count();
 
         $data = $query->select([
-                'rte.*',
-                'io_i18n.title as io_title',
-            ])
+            'rte.*',
+            'io_i18n.title as io_title',
+        ])
             ->orderBy('rte.event_date', 'desc')
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)

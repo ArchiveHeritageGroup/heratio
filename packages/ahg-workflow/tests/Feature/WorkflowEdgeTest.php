@@ -25,7 +25,7 @@ class WorkflowEdgeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->svc = new WorkflowEdgeService();
+        $this->svc = new WorkflowEdgeService;
     }
 
     public function test_workflow_without_edges_returns_false_for_has_edges(): void
@@ -139,10 +139,10 @@ class WorkflowEdgeTest extends TestCase
     public function test_topological_rows_groups_parallel_siblings(): void
     {
         $wfId = $this->makeWorkflow();
-        $s1 = $this->makeStep($wfId, 'Start',   1);
+        $s1 = $this->makeStep($wfId, 'Start', 1);
         $s2 = $this->makeStep($wfId, 'BranchA', 2);
         $s3 = $this->makeStep($wfId, 'BranchB', 2);
-        $s4 = $this->makeStep($wfId, 'Merge',   3);
+        $s4 = $this->makeStep($wfId, 'Merge', 3);
 
         $this->svc->replaceEdges($wfId, [
             ['from_step_id' => $s1, 'to_step_id' => $s2],
@@ -170,7 +170,7 @@ class WorkflowEdgeTest extends TestCase
             ['from_step_id' => $s1, 'to_step_id' => $s3],
         ]);
 
-        $diag = new WorkflowDiagramService();
+        $diag = new WorkflowDiagramService;
         $svg = $diag->render($wfId);
 
         // 3 nodes still rendered (B exists as a step) but only ONE edge (A→C)
@@ -185,7 +185,7 @@ class WorkflowEdgeTest extends TestCase
         $this->makeStep($wfId, 'B', 2);
         $this->makeStep($wfId, 'C', 3);
 
-        $diag = new WorkflowDiagramService();
+        $diag = new WorkflowDiagramService;
         $svg = $diag->render($wfId);
 
         $this->assertFalse($this->svc->hasEdges($wfId));
@@ -196,27 +196,27 @@ class WorkflowEdgeTest extends TestCase
     private function makeWorkflow(string $name = 'Test'): int
     {
         return (int) DB::table('ahg_workflow')->insertGetId([
-            'name'          => $name,
-            'scope_type'    => 'global',
+            'name' => $name,
+            'scope_type' => 'global',
             'trigger_event' => 'submit',
-            'applies_to'    => 'information_object',
-            'is_active'     => 1,
-            'created_at'    => now(),
-            'updated_at'    => now(),
+            'applies_to' => 'information_object',
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 
     private function makeStep(int $workflowId, string $name, int $order): int
     {
         return (int) DB::table('ahg_workflow_step')->insertGetId([
-            'workflow_id'     => $workflowId,
-            'name'            => $name,
-            'step_order'      => $order,
-            'step_type'       => 'review',
+            'workflow_id' => $workflowId,
+            'name' => $name,
+            'step_order' => $order,
+            'step_type' => 'review',
             'action_required' => 'approve_reject',
-            'is_active'       => 1,
-            'created_at'      => now(),
-            'updated_at'      => now(),
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }

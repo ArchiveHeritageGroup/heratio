@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgMediaStreaming\Services;
 
 use AhgCore\Models\DigitalObject;

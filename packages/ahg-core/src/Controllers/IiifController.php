@@ -48,7 +48,7 @@ class IiifController extends Controller
     public function getSettings(Request $request)
     {
         return response()->json([
-            'success'  => true,
+            'success' => true,
             'settings' => IiifSettings::payload(),
         ]);
     }

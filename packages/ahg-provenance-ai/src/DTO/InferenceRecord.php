@@ -47,16 +47,16 @@ final class InferenceRecord
         public readonly string $inputHash,          // sha256 hex
         public readonly string $outputHash,         // sha256 hex
         public readonly string $targetEntityType,   // 'information_object', 'actor', 'museum_metadata', etc.
-        public readonly int    $targetEntityId,
+        public readonly int $targetEntityId,
         public readonly string $targetField,        // RDF predicate / column being touched
-        public readonly ?float  $confidence  = null, // 0.0-1.0; null when model does not expose
-        public readonly ?string $standard    = null, // 'ICIP', 'ISAD(G)', 'Spectrum-5.1', etc.
-        public readonly ?string $endpoint    = null, // URL the inference was performed against
-        public readonly ?string $inputExcerpt  = null,
+        public readonly ?float $confidence = null, // 0.0-1.0; null when model does not expose
+        public readonly ?string $standard = null, // 'ICIP', 'ISAD(G)', 'Spectrum-5.1', etc.
+        public readonly ?string $endpoint = null, // URL the inference was performed against
+        public readonly ?string $inputExcerpt = null,
         public readonly ?string $outputExcerpt = null,
-        public readonly ?int    $elapsedMs   = null,
-        public readonly ?int    $userId      = null, // triggering user; null for batch / cron
-        public readonly ?array  $guardrail   = null, // #141 - RAG-guardrail verdict for this inference
+        public readonly ?int $elapsedMs = null,
+        public readonly ?int $userId = null, // triggering user; null for batch / cron
+        public readonly ?array $guardrail = null, // #141 - RAG-guardrail verdict for this inference
     ) {}
 
     /**
@@ -71,6 +71,7 @@ final class InferenceRecord
         $excerpt = mb_strlen($text) > $excerptLen
             ? mb_substr($text, 0, $excerptLen)
             : $text;
+
         return [$hash, $excerpt];
     }
 }

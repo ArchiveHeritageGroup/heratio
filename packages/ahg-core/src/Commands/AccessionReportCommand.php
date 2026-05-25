@@ -27,13 +27,24 @@ class AccessionReportCommand extends Command
 
     public function handle(): int
     {
-        if (! Schema::hasTable('accession')) { $this->warn('accession table missing.'); return self::SUCCESS; }
+        if (! Schema::hasTable('accession')) {
+            $this->warn('accession table missing.');
+
+            return self::SUCCESS;
+        }
 
         $base = DB::table('accession');
-        if ($from = $this->option('date-from')) $base->where('date', '>=', $from);
-        if ($to = $this->option('date-to'))     $base->where('date', '<=', $to);
+        if ($from = $this->option('date-from')) {
+            $base->where('date', '>=', $from);
+        }
+        if ($to = $this->option('date-to')) {
+            $base->where('date', '<=', $to);
+        }
 
-        if ($this->option('valuation')) return $this->valuation($base);
+        if ($this->option('valuation')) {
+            return $this->valuation($base);
+        }
+
         return $this->status($base);
     }
 
@@ -48,12 +59,18 @@ class AccessionReportCommand extends Command
 
         if ($this->option('export-csv')) {
             $this->line('status,count,earliest,latest');
-            foreach ($rows as $r) $this->line("{$r->status},{$r->n},{$r->earliest},{$r->latest}");
+            foreach ($rows as $r) {
+                $this->line("{$r->status},{$r->n},{$r->earliest},{$r->latest}");
+            }
+
             return self::SUCCESS;
         }
         $this->info('=== accession status report ===');
-        foreach ($rows as $r) $this->line(sprintf('  %-20s %5d   %s — %s', $r->status, $r->n, $r->earliest ?: 'n/a', $r->latest ?: 'n/a'));
-        $this->info('total: ' . (clone $base)->count());
+        foreach ($rows as $r) {
+            $this->line(sprintf('  %-20s %5d   %s — %s', $r->status, $r->n, $r->earliest ?: 'n/a', $r->latest ?: 'n/a'));
+        }
+        $this->info('total: '.(clone $base)->count());
+
         return self::SUCCESS;
     }
 
@@ -61,6 +78,7 @@ class AccessionReportCommand extends Command
     {
         if (! Schema::hasTable('accession_valuation_history')) {
             $this->warn('accession_valuation_history not present.');
+
             return self::SUCCESS;
         }
         $rows = DB::table('accession_valuation_history')
@@ -68,11 +86,17 @@ class AccessionReportCommand extends Command
             ->groupBy('y')->orderBy('y')->get();
         if ($this->option('export-csv')) {
             $this->line('year,count,total,avg');
-            foreach ($rows as $r) $this->line("{$r->y},{$r->n}," . round((float) $r->total, 2) . ',' . round((float) $r->avg, 2));
+            foreach ($rows as $r) {
+                $this->line("{$r->y},{$r->n},".round((float) $r->total, 2).','.round((float) $r->avg, 2));
+            }
+
             return self::SUCCESS;
         }
         $this->info('=== accession valuation by year ===');
-        foreach ($rows as $r) $this->line(sprintf('  %s  count=%-5d total=%-12s avg=%s', $r->y, $r->n, number_format((float) $r->total, 2), number_format((float) $r->avg, 2)));
+        foreach ($rows as $r) {
+            $this->line(sprintf('  %s  count=%-5d total=%-12s avg=%s', $r->y, $r->n, number_format((float) $r->total, 2), number_format((float) $r->avg, 2)));
+        }
+
         return self::SUCCESS;
     }
 }

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCore\Controllers;
 
 use AhgCore\Services\ClipboardService;
@@ -38,7 +36,7 @@ class ClipboardController extends Controller
 
     public function __construct()
     {
-        $this->service = new ClipboardService();
+        $this->service = new ClipboardService;
     }
 
     /**
@@ -54,21 +52,21 @@ class ClipboardController extends Controller
 
         // Filter details by type if requested
         if ($type !== 'all') {
-            $details = array_filter($details, fn($item) => $item->type === $type);
+            $details = array_filter($details, fn ($item) => $item->type === $type);
             $details = array_values($details);
         }
 
         $counts = [
             'informationObject' => count($items['informationObject'] ?? []),
-            'actor'             => count($items['actor'] ?? []),
-            'repository'        => count($items['repository'] ?? []),
+            'actor' => count($items['actor'] ?? []),
+            'repository' => count($items['repository'] ?? []),
         ];
         $totalCount = array_sum($counts);
 
         $uiLabels = [
             'informationObject' => 'Archival descriptions',
-            'actor'             => 'Authority records',
-            'repository'        => 'Archival institutions',
+            'actor' => 'Authority records',
+            'repository' => 'Archival institutions',
         ];
 
         return view('ahg-core::clipboard.index', compact(
@@ -85,7 +83,7 @@ class ClipboardController extends Controller
         $slug = $request->input('slug');
         $type = $request->input('type', 'informationObject');
 
-        if (!$slug) {
+        if (! $slug) {
             return response()->json(['error' => 'Slug is required.'], 400);
         }
 
@@ -93,7 +91,7 @@ class ClipboardController extends Controller
 
         return response()->json([
             'success' => true,
-            'count'   => $this->service->count($this->getUserId()),
+            'count' => $this->service->count($this->getUserId()),
         ]);
     }
 
@@ -106,7 +104,7 @@ class ClipboardController extends Controller
         $slug = $request->input('slug');
         $type = $request->input('type', 'informationObject');
 
-        if (!$slug) {
+        if (! $slug) {
             return response()->json(['error' => 'Slug is required.'], 400);
         }
 
@@ -114,7 +112,7 @@ class ClipboardController extends Controller
 
         return response()->json([
             'success' => true,
-            'count'   => $this->service->count($this->getUserId()),
+            'count' => $this->service->count($this->getUserId()),
         ]);
     }
 
@@ -130,7 +128,7 @@ class ClipboardController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'count'   => 0,
+                'count' => 0,
             ]);
         }
 
@@ -148,7 +146,7 @@ class ClipboardController extends Controller
 
         return response()->json([
             'success' => true,
-            'count'   => $this->service->count($this->getUserId()),
+            'count' => $this->service->count($this->getUserId()),
         ]);
     }
 
@@ -171,6 +169,7 @@ class ClipboardController extends Controller
             if (isset($result['error'])) {
                 return response()->json(['error' => $result['error']], 400);
             }
+
             return response()->json($result);
         }
 
@@ -203,6 +202,7 @@ class ClipboardController extends Controller
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Clipboard ID is required.'], 400);
             }
+
             return redirect()->route('clipboard.load')->with('error', 'Clipboard ID is required.');
         }
 
@@ -212,6 +212,7 @@ class ClipboardController extends Controller
             if (isset($result['error'])) {
                 return response()->json(['error' => $result['error']], 404);
             }
+
             return response()->json($result);
         }
 
@@ -243,10 +244,10 @@ class ClipboardController extends Controller
 
         $csv = $this->service->exportCsv($items, $culture);
 
-        $filename = 'clipboard_export_' . date('Y-m-d_His') . '.csv';
+        $filename = 'clipboard_export_'.date('Y-m-d_His').'.csv';
 
         return response($csv, 200, [
-            'Content-Type'        => 'text/csv',
+            'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }

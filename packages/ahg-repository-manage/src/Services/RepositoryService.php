@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgRepositoryManage\Services;
 
 use AhgCore\Constants\TermId;
@@ -50,7 +48,7 @@ class RepositoryService
     public function getBySlug(string $slug): ?object
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId) {
+        if (! $objectId) {
             return null;
         }
 
@@ -163,12 +161,12 @@ class RepositoryService
         // rows (no sentinel prefix) so legacy data + freshly-typed inserts both
         // read correctly. Errors here are logged via EncryptionService and
         // re-thrown only on integrity failure (key mismatch / tampered cipher).
-        $enc = new EncryptionService();
+        $enc = new EncryptionService;
         foreach ($rows as $r) {
-            if (!empty($r->email)) {
+            if (! empty($r->email)) {
                 $r->email = $enc->decrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, (string) $r->email, 'contact_information', 'email', $r->id);
             }
-            if (!empty($r->city)) {
+            if (! empty($r->city)) {
                 $r->city = $enc->decrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, (string) $r->city, 'contact_information_i18n', 'city', $r->id);
             }
         }
@@ -200,7 +198,7 @@ class RepositoryService
      */
     public function getTermName(?int $termId): ?string
     {
-        if (!$termId) {
+        if (! $termId) {
             return null;
         }
 
@@ -260,7 +258,7 @@ class RepositoryService
             ->where('property.name', 'language')
             ->value('property_i18n.value');
 
-        if (!$row) {
+        if (! $row) {
             return [];
         }
 
@@ -286,7 +284,7 @@ class RepositoryService
             ->where('property.name', 'script')
             ->value('property_i18n.value');
 
-        if (!$row) {
+        if (! $row) {
             return [];
         }
 
@@ -347,8 +345,6 @@ class RepositoryService
 
     /**
      * Get paginated top-level holdings (information objects) for a repository.
-     *
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getHoldingsPaginated(int $repoId, int $perPage = 10, int $page = 1): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
@@ -374,7 +370,7 @@ class RepositoryService
      * Get maintained actors (authority records) for a repository,
      * i.e. actors whose maintaining_repository_id = this repo.
      *
-     * @return array  ['label' => string, 'moreUrl' => string, 'dataUrl' => string, 'pager' => LengthAwarePaginator, 'items' => Collection]
+     * @return array ['label' => string, 'moreUrl' => string, 'dataUrl' => string, 'pager' => LengthAwarePaginator, 'items' => Collection]
      */
     public function getMaintainedActors(int $repoId, int $perPage = 10, int $page = 1): ?array
     {
@@ -394,13 +390,13 @@ class RepositoryService
                         ->from('actor')
                         ->where('parent_id', $repoId);
                 })
-                ->orWhereIn('actor.id', function ($sub) use ($repoId) {
-                    $sub->select('object_id')
-                        ->from('property')
-                        ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
-                        ->where('property.name', 'maintainingRepositoryId')
-                        ->where('property_i18n.value', (string) $repoId);
-                });
+                    ->orWhereIn('actor.id', function ($sub) use ($repoId) {
+                        $sub->select('object_id')
+                            ->from('property')
+                            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+                            ->where('property.name', 'maintainingRepositoryId')
+                            ->where('property_i18n.value', (string) $repoId);
+                    });
             })
             ->where('actor.id', '!=', 3) // Exclude ROOT actor
             ->select(
@@ -470,7 +466,7 @@ class RepositoryService
             $slug = $baseSlug;
             $counter = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter;
+                $slug = $baseSlug.'-'.$counter;
                 $counter++;
             }
             DB::table('slug')->insert(['object_id' => $id, 'slug' => $slug]);
@@ -493,7 +489,9 @@ class RepositoryService
             $resolvedIdentifier = $data['identifier'] ?? null;
             if (empty($resolvedIdentifier)) {
                 $generated = \AhgCore\Services\SectorIdentifierService::next('repository');
-                if ($generated !== null) $resolvedIdentifier = $generated;
+                if ($generated !== null) {
+                    $resolvedIdentifier = $generated;
+                }
             }
 
             // 4. Create repository record
@@ -548,22 +546,22 @@ class RepositoryService
             ]);
 
             // 7. Save parallel name(s) (other_name table, type_id 148)
-            if (!empty($data['parallel_name'])) {
+            if (! empty($data['parallel_name'])) {
                 $this->saveOtherName($id, $data['parallel_name'], 148);
             }
 
             // 8. Save other name(s) (other_name table, type_id 149)
-            if (!empty($data['other_name'])) {
+            if (! empty($data['other_name'])) {
                 $this->saveOtherName($id, $data['other_name'], 149);
             }
 
             // 9. Save maintenance notes (note table, type_id 174)
-            if (!empty($data['maintenance_notes'])) {
+            if (! empty($data['maintenance_notes'])) {
                 $this->saveMaintenanceNotes($id, $data['maintenance_notes']);
             }
 
             // 10. Save contacts if provided
-            if (!empty($data['contacts'])) {
+            if (! empty($data['contacts'])) {
                 $this->saveContacts($id, $data['contacts']);
             }
 
@@ -571,6 +569,7 @@ class RepositoryService
         });
 
         \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'repository', $this->auditSnapshot((int) $newId));
+
         return (int) $newId;
     }
 
@@ -597,6 +596,7 @@ class RepositoryService
             ->where('culture', $this->culture)
             ->first() ?? []);
         unset($rep_i18n['id'], $rep_i18n['culture'], $rep_i18n['created_at'], $rep_i18n['updated_at']);
+
         return array_merge($r, $a, $i18n, $rep_i18n);
     }
 
@@ -612,7 +612,7 @@ class RepositoryService
                     $repoUpdate[$field] = $data[$field];
                 }
             }
-            if (!empty($repoUpdate)) {
+            if (! empty($repoUpdate)) {
                 DB::table('repository')->where('id', $id)->update($repoUpdate);
             }
 
@@ -639,7 +639,7 @@ class RepositoryService
                     $actorI18n[$field] = $data[$field];
                 }
             }
-            if (!empty($actorI18n)) {
+            if (! empty($actorI18n)) {
                 // Issue #61 Phase 3c: snapshot before, run upsert, detect overrides.
                 $beforeActorI18n = (array) (DB::table('actor_i18n')
                     ->where('id', $id)->where('culture', $this->culture ?? 'en')
@@ -648,7 +648,9 @@ class RepositoryService
                 try {
                     app(\AhgProvenanceAi\Services\OverrideService::class)
                         ->detectOverridesFromForm('actor', (int) $id, $beforeActorI18n, $actorI18n, (int) (auth()->id() ?? 0));
-                } catch (\Throwable $e) { \Log::warning('RepositoryService update (actor_i18n): override detection failed: ' . $e->getMessage()); }
+                } catch (\Throwable $e) {
+                    \Log::warning('RepositoryService update (actor_i18n): override detection failed: '.$e->getMessage());
+                }
             }
 
             // 3. Update repository_i18n (ISDIAH fields) — upsert
@@ -664,7 +666,7 @@ class RepositoryService
                     $repoI18n[$field] = $data[$field];
                 }
             }
-            if (!empty($repoI18n)) {
+            if (! empty($repoI18n)) {
                 // Issue #61 Phase 3c: snapshot before, run upsert, detect overrides.
                 $beforeRepoI18n = (array) (DB::table('repository_i18n')
                     ->where('id', $id)->where('culture', $this->culture ?? 'en')
@@ -673,7 +675,9 @@ class RepositoryService
                 try {
                     app(\AhgProvenanceAi\Services\OverrideService::class)
                         ->detectOverridesFromForm('repository', (int) $id, $beforeRepoI18n, $repoI18n, (int) (auth()->id() ?? 0));
-                } catch (\Throwable $e) { \Log::warning('RepositoryService update (repository_i18n): override detection failed: ' . $e->getMessage()); }
+                } catch (\Throwable $e) {
+                    \Log::warning('RepositoryService update (repository_i18n): override detection failed: '.$e->getMessage());
+                }
             }
 
             // 4. Sync parallel name(s) (other_name table, type_id 148)
@@ -717,7 +721,7 @@ class RepositoryService
         DB::transaction(function () use ($id) {
             // 1. Delete contact information
             $contactIds = DB::table('contact_information')->where('actor_id', $id)->pluck('id')->toArray();
-            if (!empty($contactIds)) {
+            if (! empty($contactIds)) {
                 DB::table('contact_information_i18n')->whereIn('id', $contactIds)->delete();
                 DB::table('contact_information')->whereIn('id', $contactIds)->delete();
             }
@@ -726,7 +730,7 @@ class RepositoryService
             $relationIds = DB::table('relation')
                 ->where('subject_id', $id)->orWhere('object_id', $id)
                 ->pluck('id')->toArray();
-            if (!empty($relationIds)) {
+            if (! empty($relationIds)) {
                 DB::table('relation_i18n')->whereIn('id', $relationIds)->delete();
                 DB::table('relation')->whereIn('id', $relationIds)->delete();
                 DB::table('slug')->whereIn('object_id', $relationIds)->delete();
@@ -735,14 +739,14 @@ class RepositoryService
 
             // 3. Delete other names (parallel, other forms)
             $otherNameIds = DB::table('other_name')->where('object_id', $id)->pluck('id')->toArray();
-            if (!empty($otherNameIds)) {
+            if (! empty($otherNameIds)) {
                 DB::table('other_name_i18n')->whereIn('id', $otherNameIds)->delete();
                 DB::table('other_name')->whereIn('id', $otherNameIds)->delete();
             }
 
             // 4. Delete notes
             $noteIds = DB::table('note')->where('object_id', $id)->pluck('id')->toArray();
-            if (!empty($noteIds)) {
+            if (! empty($noteIds)) {
                 DB::table('note_i18n')->whereIn('id', $noteIds)->delete();
                 DB::table('note')->whereIn('id', $noteIds)->delete();
                 DB::table('object')->whereIn('id', $noteIds)->delete();
@@ -804,12 +808,12 @@ class RepositoryService
                 continue;
             }
 
-            $enc = new EncryptionService();
+            $enc = new EncryptionService;
             $emailEnc = $enc->encrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, $contactData['email'] ?? null, 'contact_information', 'email', null);
 
             $contactId = DB::table('contact_information')->insertGetId([
                 'actor_id' => $repoId,
-                'primary_contact' => !empty($contactData['primary_contact']) ? 1 : 0,
+                'primary_contact' => ! empty($contactData['primary_contact']) ? 1 : 0,
                 'contact_person' => $contactData['contact_person'] ?? null,
                 'street_address' => $contactData['street_address'] ?? null,
                 'website' => $contactData['website'] ?? null,
@@ -846,9 +850,10 @@ class RepositoryService
     protected function syncContacts(int $repoId, array $contacts): void
     {
         foreach ($contacts as $contactData) {
-            if (!empty($contactData['delete']) && !empty($contactData['id'])) {
+            if (! empty($contactData['delete']) && ! empty($contactData['id'])) {
                 DB::table('contact_information_i18n')->where('id', $contactData['id'])->delete();
                 DB::table('contact_information')->where('id', $contactData['id'])->delete();
+
                 continue;
             }
 
@@ -856,12 +861,12 @@ class RepositoryService
                 continue;
             }
 
-            if (!empty($contactData['id'])) {
-                $enc = new EncryptionService();
+            if (! empty($contactData['id'])) {
+                $enc = new EncryptionService;
                 $emailEnc = $enc->encrypt(EncryptionService::CATEGORY_CONTACT_DETAILS, $contactData['email'] ?? null, 'contact_information', 'email', $contactData['id']);
 
                 DB::table('contact_information')->where('id', $contactData['id'])->update([
-                    'primary_contact' => !empty($contactData['primary_contact']) ? 1 : 0,
+                    'primary_contact' => ! empty($contactData['primary_contact']) ? 1 : 0,
                     'contact_person' => $contactData['contact_person'] ?? null,
                     'street_address' => $contactData['street_address'] ?? null,
                     'website' => $contactData['website'] ?? null,
@@ -930,6 +935,7 @@ class RepositoryService
                 DB::table('other_name_i18n')->where('id', $existing->id)->delete();
                 DB::table('other_name')->where('id', $existing->id)->delete();
             }
+
             return;
         }
 
@@ -1007,6 +1013,7 @@ class RepositoryService
                 DB::table('note')->where('id', $existing->id)->delete();
                 DB::table('object')->where('id', $existing->id)->delete();
             }
+
             return;
         }
 
@@ -1035,10 +1042,11 @@ class RepositoryService
     protected function isContactEmpty(array $data): bool
     {
         foreach (['contact_person', 'street_address', 'website', 'email', 'telephone', 'fax', 'city', 'region', 'postal_code', 'country_code', 'contact_type', 'note'] as $field) {
-            if (!empty($data[$field])) {
+            if (! empty($data[$field])) {
                 return false;
             }
         }
+
         return true;
     }
 
@@ -1060,12 +1068,12 @@ class RepositoryService
 
             // Handle file uploads (banner and logo) if present
             if ($request && $request->hasFile('banner')) {
-                $path = $request->file('banner')->store('repository/' . $id, 'uploads');
+                $path = $request->file('banner')->store('repository/'.$id, 'uploads');
                 $this->upsertSetting($id, 'banner', $path);
             }
 
             if ($request && $request->hasFile('logo')) {
-                $path = $request->file('logo')->store('repository/' . $id, 'uploads');
+                $path = $request->file('logo')->store('repository/'.$id, 'uploads');
                 $this->upsertSetting($id, 'logo', $path);
             }
 
@@ -1084,7 +1092,7 @@ class RepositoryService
     {
         $existing = DB::table('setting')
             ->where('name', $name)
-            ->where('scope', 'repository_' . $repositoryId)
+            ->where('scope', 'repository_'.$repositoryId)
             ->first();
 
         if ($existing) {
@@ -1104,7 +1112,7 @@ class RepositoryService
             DB::table('setting')->insert([
                 'id' => $objectId,
                 'name' => $name,
-                'scope' => 'repository_' . $repositoryId,
+                'scope' => 'repository_'.$repositoryId,
                 'editable' => 1,
                 'deleteable' => 1,
                 'source_culture' => $this->culture,
@@ -1126,10 +1134,10 @@ class RepositoryService
         return DB::table('setting')
             ->join('setting_i18n', function ($j) {
                 $j->on('setting.id', '=', 'setting_i18n.id')
-                  ->where('setting_i18n.culture', '=', $this->culture);
+                    ->where('setting_i18n.culture', '=', $this->culture);
             })
             ->where('setting.name', $name)
-            ->where('setting.scope', 'repository_' . $repositoryId)
+            ->where('setting.scope', 'repository_'.$repositoryId)
             ->value('setting_i18n.value');
     }
 }

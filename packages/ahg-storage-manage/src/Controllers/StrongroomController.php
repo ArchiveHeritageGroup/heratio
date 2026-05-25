@@ -36,7 +36,7 @@ class StrongroomController extends Controller
 
     public function __construct()
     {
-        $this->service = new StrongroomService();
+        $this->service = new StrongroomService;
     }
 
     public function browse(Request $request)
@@ -45,8 +45,8 @@ class StrongroomController extends Controller
         $rooms = $this->service->browse($search, 25);
 
         return view('ahg-storage-manage::strongroom.browse', [
-            'rooms'         => $rooms,
-            'search'        => $search,
+            'rooms' => $rooms,
+            'search' => $search,
             'capacityUnits' => StrongroomService::CAPACITY_UNITS,
         ]);
     }
@@ -54,17 +54,17 @@ class StrongroomController extends Controller
     public function show(string $slug)
     {
         $room = $this->service->getBySlug($slug);
-        if (null === $room) {
+        if ($room === null) {
             abort(404, 'Strongroom not found');
         }
 
         $used = $this->service->getUsedCapacity((int) $room->id);
 
         return view('ahg-storage-manage::strongroom.show', [
-            'room'          => $room,
-            'occupants'     => $this->service->getOccupants((int) $room->id),
-            'usedUnits'     => $used,
-            'remainingUnits' => null === $room->capacity_value
+            'room' => $room,
+            'occupants' => $this->service->getOccupants((int) $room->id),
+            'usedUnits' => $used,
+            'remainingUnits' => $room->capacity_value === null
                 ? null
                 : (float) $room->capacity_value - $used,
             'capacityUnits' => StrongroomService::CAPACITY_UNITS,
@@ -74,7 +74,7 @@ class StrongroomController extends Controller
     public function create()
     {
         return view('ahg-storage-manage::strongroom.edit', [
-            'room'          => null,
+            'room' => null,
             'capacityUnits' => StrongroomService::CAPACITY_UNITS,
         ]);
     }
@@ -94,12 +94,12 @@ class StrongroomController extends Controller
     public function edit(string $slug)
     {
         $room = $this->service->getBySlug($slug);
-        if (null === $room) {
+        if ($room === null) {
             abort(404, 'Strongroom not found');
         }
 
         return view('ahg-storage-manage::strongroom.edit', [
-            'room'          => $room,
+            'room' => $room,
             'capacityUnits' => StrongroomService::CAPACITY_UNITS,
         ]);
     }
@@ -107,7 +107,7 @@ class StrongroomController extends Controller
     public function update(Request $request, string $slug)
     {
         $room = $this->service->getBySlug($slug);
-        if (null === $room) {
+        if ($room === null) {
             abort(404, 'Strongroom not found');
         }
 
@@ -122,12 +122,12 @@ class StrongroomController extends Controller
     public function confirmDelete(string $slug)
     {
         $room = $this->service->getBySlug($slug);
-        if (null === $room) {
+        if ($room === null) {
             abort(404, 'Strongroom not found');
         }
 
         return view('ahg-storage-manage::strongroom.delete', [
-            'room'          => $room,
+            'room' => $room,
             'occupantCount' => $this->service->getOccupants((int) $room->id)->count(),
         ]);
     }
@@ -135,7 +135,7 @@ class StrongroomController extends Controller
     public function destroy(string $slug)
     {
         $room = $this->service->getBySlug($slug);
-        if (null === $room) {
+        if ($room === null) {
             abort(404, 'Strongroom not found');
         }
 
@@ -155,11 +155,11 @@ class StrongroomController extends Controller
     private function validated(Request $request): array
     {
         $request->validate([
-            'name'                 => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'location_description' => 'nullable|string|max:65535',
-            'capacity_value'       => 'nullable|numeric|min:0',
-            'capacity_unit'        => 'nullable|string|in:' . implode(',', array_keys(StrongroomService::CAPACITY_UNITS)),
-            'notes'                => 'nullable|string|max:65535',
+            'capacity_value' => 'nullable|numeric|min:0',
+            'capacity_unit' => 'nullable|string|in:'.implode(',', array_keys(StrongroomService::CAPACITY_UNITS)),
+            'notes' => 'nullable|string|max:65535',
         ]);
 
         return $request->only(['name', 'location_description', 'capacity_value', 'capacity_unit', 'notes']);

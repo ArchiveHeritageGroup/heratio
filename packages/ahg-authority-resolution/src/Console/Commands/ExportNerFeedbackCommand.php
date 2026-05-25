@@ -33,8 +33,9 @@ class ExportNerFeedbackCommand extends Command
     public function handle(NerFeedbackService $feedback): int
     {
         $format = strtolower((string) $this->option('format'));
-        if (!in_array($format, ['jsonl', 'conll'], true)) {
+        if (! in_array($format, ['jsonl', 'conll'], true)) {
             $this->error("Unknown --format='{$format}'. Use jsonl or conll.");
+
             return self::FAILURE;
         }
 
@@ -44,7 +45,8 @@ class ExportNerFeedbackCommand extends Command
         try {
             $result = $feedback->exportUnexported($format);
         } catch (\Throwable $e) {
-            $this->error('Export failed: ' . $e->getMessage());
+            $this->error('Export failed: '.$e->getMessage());
+
             return self::FAILURE;
         }
 
@@ -52,10 +54,10 @@ class ExportNerFeedbackCommand extends Command
 
         if ($result['count'] > 0 && is_file($result['path'])) {
             $size = filesize($result['path']);
-            $this->line('  size: ' . number_format((int) $size) . ' bytes');
+            $this->line('  size: '.number_format((int) $size).' bytes');
             $head = (string) @file_get_contents($result['path'], false, null, 0, 200);
             if ($head !== '') {
-                $this->line('  head: ' . trim($head));
+                $this->line('  head: '.trim($head));
             }
         }
 

@@ -37,8 +37,9 @@ class ScanProcessCommand extends Command
 
         if ($folderCode = $this->option('folder')) {
             $folder = DB::table('scan_folder')->where('code', $folderCode)->first();
-            if (!$folder) {
+            if (! $folder) {
                 $this->error("No scan_folder with code '{$folderCode}'.");
+
                 return self::FAILURE;
             }
             $ids = DB::table('ingest_file')
@@ -59,6 +60,7 @@ class ScanProcessCommand extends Command
 
         if ($ids->isEmpty()) {
             $this->info('Nothing to do.');
+
             return self::SUCCESS;
         }
 
@@ -75,10 +77,12 @@ class ScanProcessCommand extends Command
         try {
             ProcessScanFile::runSync($fileId);
             $row = DB::table('ingest_file')->where('id', $fileId)->first();
-            $this->info("  → status={$row->status}" . ($row->resolved_io_id ? ", io={$row->resolved_io_id}, do={$row->resolved_do_id}" : ''));
+            $this->info("  → status={$row->status}".($row->resolved_io_id ? ", io={$row->resolved_io_id}, do={$row->resolved_do_id}" : ''));
+
             return self::SUCCESS;
         } catch (\Throwable $e) {
-            $this->error("  ✗ " . $e->getMessage());
+            $this->error('  ✗ '.$e->getMessage());
+
             return self::FAILURE;
         }
     }

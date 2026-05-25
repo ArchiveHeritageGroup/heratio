@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Mail;
 class IntegrityNotifier
 {
     public const ACTION_FAILURE = 'failure';
+
     public const ACTION_MISMATCH = 'mismatch';
 
     /**
@@ -43,7 +44,7 @@ class IntegrityNotifier
      */
     public function notify(string $action, array $context): void
     {
-        if (!$this->shouldNotify($action)) {
+        if (! $this->shouldNotify($action)) {
             return;
         }
 
@@ -73,6 +74,7 @@ class IntegrityNotifier
     protected function subjectFor(string $action, array $context): string
     {
         $object = $context['digital_object_id'] ?? $context['object_id'] ?? '?';
+
         return $action === self::ACTION_MISMATCH
             ? "[Heratio integrity] Checksum mismatch on object #$object"
             : "[Heratio integrity] Fixity failure on object #$object";
@@ -80,15 +82,16 @@ class IntegrityNotifier
 
     protected function bodyFor(string $action, array $context): string
     {
-        $lines = ["A fixity event was raised by Heratio."];
+        $lines = ['A fixity event was raised by Heratio.'];
         $lines[] = "Action: $action";
         foreach (['digital_object_id', 'object_id', 'algorithm', 'expected', 'actual', 'path', 'error'] as $k) {
-            if (!empty($context[$k])) {
+            if (! empty($context[$k])) {
                 $lines[] = sprintf('%s: %s', ucfirst(str_replace('_', ' ', $k)), $context[$k]);
             }
         }
         $lines[] = '';
-        $lines[] = 'Sent by ' . config('app.name', 'Heratio') . ' integrity monitoring.';
+        $lines[] = 'Sent by '.config('app.name', 'Heratio').' integrity monitoring.';
+
         return implode("\n", $lines);
     }
 
@@ -120,7 +123,7 @@ class IntegrityNotifier
     {
         try {
             $payload = json_encode([
-                'event' => 'integrity.' . $action,
+                'event' => 'integrity.'.$action,
                 'summary' => $summary,
                 'context' => $context,
                 'timestamp' => date('c'),

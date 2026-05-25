@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgFtpUpload\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -39,11 +37,17 @@ use Illuminate\Support\Facades\DB;
 class FtpService
 {
     protected string $protocol;
+
     protected string $host;
+
     protected int $port;
+
     protected string $username;
+
     protected string $password;
+
     protected string $remotePath;
+
     protected bool $passiveMode;
 
     /** @var resource|null FTP connection */
@@ -125,14 +129,14 @@ class FtpService
             if ($relativeDir === '') {
                 return ['success' => false, 'message' => 'Invalid folder path'];
             }
-            $remoteDir = $this->remotePath . '/' . $relativeDir;
+            $remoteDir = $this->remotePath.'/'.$relativeDir;
             $mk = $this->ensureRemoteDir($remoteDir);
-            if (!$mk['success']) {
+            if (! $mk['success']) {
                 return $mk;
             }
         }
 
-        $remoteFull = $remoteDir . '/' . $remoteFilename;
+        $remoteFull = $remoteDir.'/'.$remoteFilename;
 
         if ($this->protocol === 'sftp') {
             return $this->sftpUpload($localPath, $remoteFull);
@@ -209,10 +213,10 @@ class FtpService
             if ($sanitised === '') {
                 return ['success' => false, 'message' => 'Invalid folder path'];
             }
-            $remoteDir = $this->remotePath . '/' . $sanitised;
+            $remoteDir = $this->remotePath.'/'.$sanitised;
         }
 
-        $remoteFull = $remoteDir . '/' . $filename;
+        $remoteFull = $remoteDir.'/'.$filename;
 
         if ($this->protocol === 'sftp') {
             return $this->sftpDelete($remoteFull);
@@ -245,7 +249,7 @@ class FtpService
      */
     public function isConfigured(): bool
     {
-        return !empty($this->host);
+        return ! empty($this->host);
     }
 
     // =========================================================================
@@ -255,11 +259,11 @@ class FtpService
     protected function connectFtp(): array
     {
         $conn = @ftp_connect($this->host, $this->port, 10);
-        if (!$conn) {
+        if (! $conn) {
             return ['success' => false, 'message' => "Cannot connect to {$this->host}:{$this->port}"];
         }
 
-        if (!@ftp_login($conn, $this->username, $this->password)) {
+        if (! @ftp_login($conn, $this->username, $this->password)) {
             @ftp_close($conn);
 
             return ['success' => false, 'message' => 'FTP login failed — check credentials'];
@@ -277,7 +281,7 @@ class FtpService
     protected function testFtp(): array
     {
         $result = $this->connectFtp();
-        if (!$result['success']) {
+        if (! $result['success']) {
             return $result;
         }
 
@@ -288,20 +292,20 @@ class FtpService
             return ['success' => false, 'message' => "Connected but remote path '{$this->remotePath}' is not accessible"];
         }
 
-        return ['success' => true, 'message' => 'Connection successful! Remote path accessible. ' . count($list) . ' file(s) found.'];
+        return ['success' => true, 'message' => 'Connection successful! Remote path accessible. '.count($list).' file(s) found.'];
     }
 
     protected function ftpUpload(string $localPath, string $remoteFull): array
     {
         $result = $this->connectFtp();
-        if (!$result['success']) {
+        if (! $result['success']) {
             return $result;
         }
 
         $ok = @ftp_put($this->ftpConn, $remoteFull, $localPath, FTP_BINARY);
         $this->disconnect();
 
-        if (!$ok) {
+        if (! $ok) {
             return ['success' => false, 'message' => 'FTP upload failed'];
         }
 
@@ -311,11 +315,11 @@ class FtpService
     protected function ftpListFiles(string $relativeDir = ''): array
     {
         $result = $this->connectFtp();
-        if (!$result['success']) {
+        if (! $result['success']) {
             return ['success' => false, 'message' => $result['message'], 'files' => [], 'folders' => [], 'dir' => $relativeDir];
         }
 
-        $listPath = $this->remotePath . ($relativeDir !== '' ? '/' . $relativeDir : '');
+        $listPath = $this->remotePath.($relativeDir !== '' ? '/'.$relativeDir : '');
         $rawList = @ftp_rawlist($this->ftpConn, $listPath);
         $this->disconnect();
 
@@ -352,14 +356,14 @@ class FtpService
     protected function ftpDelete(string $remoteFull): array
     {
         $result = $this->connectFtp();
-        if (!$result['success']) {
+        if (! $result['success']) {
             return $result;
         }
 
         $ok = @ftp_delete($this->ftpConn, $remoteFull);
         $this->disconnect();
 
-        if (!$ok) {
+        if (! $ok) {
             return ['success' => false, 'message' => 'FTP delete failed'];
         }
 
@@ -373,7 +377,7 @@ class FtpService
     protected function ftpEnsureDir(string $remoteAbs): array
     {
         $result = $this->connectFtp();
-        if (!$result['success']) {
+        if (! $result['success']) {
             return $result;
         }
 
@@ -385,7 +389,7 @@ class FtpService
             if ($seg === '') {
                 continue;
             }
-            $cursor .= '/' . $seg;
+            $cursor .= '/'.$seg;
             // If the dir already exists, ftp_chdir will succeed silently.
             if (@ftp_chdir($this->ftpConn, $cursor)) {
                 continue;
@@ -393,7 +397,7 @@ class FtpService
             // Otherwise create it. ftp_mkdir returns false on "already exists" too,
             // so we re-test with chdir afterwards.
             @ftp_mkdir($this->ftpConn, $cursor);
-            if (!@ftp_chdir($this->ftpConn, $cursor)) {
+            if (! @ftp_chdir($this->ftpConn, $cursor)) {
                 $this->disconnect();
 
                 return ['success' => false, 'message' => "Cannot create remote folder: {$cursor}"];
@@ -424,7 +428,7 @@ class FtpService
     {
         $prefix = $this->sshpassPrefix();
         $opts = $this->sshOpts();
-        $userHost = escapeshellarg($this->username . '@' . $this->host);
+        $userHost = escapeshellarg($this->username.'@'.$this->host);
         $port = (int) $this->port;
 
         $cmd = "{$prefix} sftp -P {$port} {$opts} {$userHost} 2>&1 <<SFTPEOF
@@ -445,7 +449,7 @@ SFTPEOF";
                 return ['success' => false, 'message' => "Connection refused on {$this->host}:{$port}"];
             }
 
-            return ['success' => false, 'message' => 'SFTP connection failed: ' . $error];
+            return ['success' => false, 'message' => 'SFTP connection failed: '.$error];
         }
 
         return ['success' => true, 'message' => 'SFTP connection successful! Remote path accessible.'];
@@ -457,7 +461,7 @@ SFTPEOF";
         $opts = $this->sshOpts();
         $port = (int) $this->port;
         $local = escapeshellarg($localPath);
-        $target = escapeshellarg($this->username . '@' . $this->host . ':' . $remoteFull);
+        $target = escapeshellarg($this->username.'@'.$this->host.':'.$remoteFull);
 
         $cmd = "{$prefix} scp -P {$port} {$opts} {$local} {$target} 2>&1";
 
@@ -466,7 +470,7 @@ SFTPEOF";
         exec($cmd, $output, $exitCode);
 
         if ($exitCode !== 0) {
-            return ['success' => false, 'message' => 'SFTP upload failed: ' . implode(' ', $output)];
+            return ['success' => false, 'message' => 'SFTP upload failed: '.implode(' ', $output)];
         }
 
         return ['success' => true, 'message' => 'File uploaded successfully'];
@@ -477,9 +481,9 @@ SFTPEOF";
         $prefix = $this->sshpassPrefix();
         $opts = $this->sshOpts();
         $port = (int) $this->port;
-        $userHost = escapeshellarg($this->username . '@' . $this->host);
+        $userHost = escapeshellarg($this->username.'@'.$this->host);
 
-        $listPath = $this->remotePath . ($relativeDir !== '' ? '/' . $relativeDir : '');
+        $listPath = $this->remotePath.($relativeDir !== '' ? '/'.$relativeDir : '');
         // Wrap the listing path in double-quotes so spaces survive (the
         // sanitiser already blocks " \ \0 \r \n $ ` so this is safe).
         $cmd = "{$prefix} sftp -P {$port} {$opts} {$userHost} 2>/dev/null <<SFTPEOF\nls -l \"{$listPath}\"\nbye\nSFTPEOF";
@@ -560,7 +564,7 @@ SFTPEOF";
     protected function sftpEnsureDir(string $remoteAbs): array
     {
         $base = rtrim($this->remotePath, '/');
-        if (!str_starts_with($remoteAbs, $base)) {
+        if (! str_starts_with($remoteAbs, $base)) {
             return ['success' => false, 'message' => 'Path is not under remote root'];
         }
         $rel = ltrim(substr($remoteAbs, strlen($base)), '/');
@@ -575,21 +579,21 @@ SFTPEOF";
             if ($seg === '') {
                 continue;
             }
-            $cumulative .= '/' . $seg;
-            $lines[] = '-mkdir "' . $cumulative . '"';
+            $cumulative .= '/'.$seg;
+            $lines[] = '-mkdir "'.$cumulative.'"';
         }
         // Final verification — `cd` into the deepest path. sftp's `cd` is
         // silent on success and prints `Couldn't change directory to ...`
         // on failure (with no leading dash, so we DO want to know about
         // failure here). This works for empty dirs too, unlike `ls`.
-        $lines[] = 'cd "' . $cumulative . '"';
+        $lines[] = 'cd "'.$cumulative.'"';
         $lines[] = 'bye';
         $body = implode("\n", $lines);
 
         $prefix = $this->sshpassPrefix();
         $opts = $this->sshOpts();
         $port = (int) $this->port;
-        $userHost = escapeshellarg($this->username . '@' . $this->host);
+        $userHost = escapeshellarg($this->username.'@'.$this->host);
 
         $cmd = "{$prefix} sftp -P {$port} {$opts} {$userHost} 2>&1 <<SFTPEOF\n{$body}\nSFTPEOF";
 
@@ -601,11 +605,22 @@ SFTPEOF";
         // echo) from any user-facing error message.
         $informational = function (string $line): bool {
             $l = trim($line);
-            if ($l === '') return true;
-            if (stripos($l, 'Permanently added') !== false) return true;
-            if (stripos($l, 'Warning: ') === 0) return true;
-            if (stripos($l, 'Connected to ') === 0) return true;
-            if (stripos($l, 'sftp>') === 0) return true;
+            if ($l === '') {
+                return true;
+            }
+            if (stripos($l, 'Permanently added') !== false) {
+                return true;
+            }
+            if (stripos($l, 'Warning: ') === 0) {
+                return true;
+            }
+            if (stripos($l, 'Connected to ') === 0) {
+                return true;
+            }
+            if (stripos($l, 'sftp>') === 0) {
+                return true;
+            }
+
             return false;
         };
 
@@ -618,11 +633,12 @@ SFTPEOF";
                 break;
             }
         }
-        if (!$connected) {
-            $real = array_values(array_filter($output, fn ($line) => !$informational($line)));
+        if (! $connected) {
+            $real = array_values(array_filter($output, fn ($line) => ! $informational($line)));
+
             return [
                 'success' => false,
-                'message' => 'Cannot create remote folder: ' . trim(implode(' ', $real ?: $output)),
+                'message' => 'Cannot create remote folder: '.trim(implode(' ', $real ?: $output)),
             ];
         }
 
@@ -634,15 +650,19 @@ SFTPEOF";
         // success, "Couldn't change directory to ..." on failure.
         foreach ($output as $line) {
             $l = trim($line);
-            if ($informational($l)) continue;
-            if (str_contains($l, 'remote mkdir')) continue; // dash-suppressed
+            if ($informational($l)) {
+                continue;
+            }
+            if (str_contains($l, 'remote mkdir')) {
+                continue;
+            } // dash-suppressed
             // The cd verification failed → the dir really doesn't exist.
             if (stripos($l, "Couldn't change directory") !== false ||
                 stripos($l, "Couldn't canonicalize") !== false ||
                 stripos($l, 'No such file') !== false) {
                 return [
                     'success' => false,
-                    'message' => 'Cannot create remote folder: ' . $l,
+                    'message' => 'Cannot create remote folder: '.$l,
                 ];
             }
         }
@@ -655,7 +675,7 @@ SFTPEOF";
         $prefix = $this->sshpassPrefix();
         $opts = $this->sshOpts();
         $port = (int) $this->port;
-        $userHost = escapeshellarg($this->username . '@' . $this->host);
+        $userHost = escapeshellarg($this->username.'@'.$this->host);
 
         $cmd = "{$prefix} sftp -P {$port} {$opts} {$userHost} 2>&1 <<SFTPEOF\nrm {$remoteFull}\nbye\nSFTPEOF";
 
@@ -665,11 +685,11 @@ SFTPEOF";
 
         $outputStr = implode(' ', $output);
         if (stripos($outputStr, 'No such file') !== false || stripos($outputStr, 'Couldn\'t') !== false) {
-            return ['success' => false, 'message' => 'SFTP delete failed: ' . $outputStr];
+            return ['success' => false, 'message' => 'SFTP delete failed: '.$outputStr];
         }
 
         if ($exitCode !== 0) {
-            return ['success' => false, 'message' => 'SFTP delete failed: ' . $outputStr];
+            return ['success' => false, 'message' => 'SFTP delete failed: '.$outputStr];
         }
 
         return ['success' => true, 'message' => 'File deleted successfully'];
@@ -711,7 +731,7 @@ SFTPEOF";
         // would otherwise expand them as parameter / command substitution).
         if (str_contains($path, "\0") || str_contains($path, '\\') || str_contains($path, '"') ||
             str_contains($path, "\r") || str_contains($path, "\n") ||
-            str_contains($path, '$')  || str_contains($path, '`')) {
+            str_contains($path, '$') || str_contains($path, '`')) {
             return '';
         }
         $path = trim($path, '/');
@@ -739,6 +759,6 @@ SFTPEOF";
         $pow = $bytes > 0 ? floor(log($bytes, 1024)) : 0;
         $pow = min($pow, count($units) - 1);
 
-        return round($bytes / pow(1024, $pow), $precision) . ' ' . $units[$pow];
+        return round($bytes / pow(1024, $pow), $precision).' '.$units[$pow];
     }
 }

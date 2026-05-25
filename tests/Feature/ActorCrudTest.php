@@ -4,8 +4,6 @@ namespace Tests\Feature;
 
 use AhgCore\Models\Actor;
 use AhgCore\Models\ActorI18n;
-use AhgCore\Models\Event;
-use AhgCore\Models\InformationObject;
 use Database\Factories\ActorFactory;
 use Database\Factories\EventFactory;
 use Database\Factories\InformationObjectFactory;

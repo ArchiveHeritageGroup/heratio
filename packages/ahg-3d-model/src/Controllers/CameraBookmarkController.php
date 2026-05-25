@@ -22,7 +22,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class CameraBookmarkController extends Controller
 {
@@ -36,7 +35,7 @@ class CameraBookmarkController extends Controller
     public function index(int $modelId): JsonResponse
     {
         $model = $this->loadAccessibleModel($modelId);
-        if (!$model) {
+        if (! $model) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
@@ -69,18 +68,18 @@ class CameraBookmarkController extends Controller
      */
     public function store(Request $request, int $modelId): JsonResponse
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
         $model = $this->loadAccessibleModel($modelId);
-        if (!$model) {
+        if (! $model) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
         $data = $this->validateInput($request);
 
-        $bookmark = new Object3dCameraBookmark();
+        $bookmark = new Object3dCameraBookmark;
         $bookmark->object_3d_id = $modelId;
         // user_id always comes from the session; client cannot impersonate.
         // Shared bookmarks (user_id NULL) are admin-only.
@@ -104,16 +103,16 @@ class CameraBookmarkController extends Controller
      */
     public function update(Request $request, int $modelId, int $id): JsonResponse
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
         $bookmark = Object3dCameraBookmark::where('object_3d_id', $modelId)->find($id);
-        if (!$bookmark) {
+        if (! $bookmark) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
-        if (!$this->canMutate($bookmark)) {
+        if (! $this->canMutate($bookmark)) {
             return response()->json(['error' => 'Forbidden'], 403);
         }
 
@@ -138,16 +137,16 @@ class CameraBookmarkController extends Controller
      */
     public function destroy(Request $request, int $modelId, int $id): JsonResponse
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
         $bookmark = Object3dCameraBookmark::where('object_3d_id', $modelId)->find($id);
-        if (!$bookmark) {
+        if (! $bookmark) {
             return response()->json(['error' => 'Not found'], 404);
         }
 
-        if (!$this->canMutate($bookmark)) {
+        if (! $this->canMutate($bookmark)) {
             return response()->json(['error' => 'Forbidden'], 403);
         }
 
@@ -169,12 +168,13 @@ class CameraBookmarkController extends Controller
     private function loadAccessibleModel(int $modelId): ?object
     {
         $model = DB::table('object_3d_model')->where('id', $modelId)->first();
-        if (!$model) {
+        if (! $model) {
             return null;
         }
-        if (!Auth::check() && empty($model->is_public)) {
+        if (! Auth::check() && empty($model->is_public)) {
             return null;
         }
+
         return $model;
     }
 
@@ -211,7 +211,7 @@ class CameraBookmarkController extends Controller
         $userId = (int) Auth::id();
 
         // Personal bookmarks: must be owner.
-        if (!is_null($bookmark->user_id)) {
+        if (! is_null($bookmark->user_id)) {
             return $bookmark->user_id === $userId;
         }
 
@@ -228,7 +228,7 @@ class CameraBookmarkController extends Controller
     private function isAdmin(): bool
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 

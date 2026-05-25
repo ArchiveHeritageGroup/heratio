@@ -21,8 +21,11 @@ class PreservationVirusScanCommand extends Command
         if ($this->option('report')) {
             $rows = $svc->getVirusScans(50);
             $this->info('=== recent virus scans (50) ===');
-            foreach ($rows as $r) $this->line(sprintf("  %s do=%-7s status=%-10s detail=%s",
-                $r->scanned_at ?? '-', $r->digital_object_id ?? '-', $r->status ?? '-', mb_strimwidth((string) ($r->detail ?? ''), 0, 80, '...')));
+            foreach ($rows as $r) {
+                $this->line(sprintf('  %s do=%-7s status=%-10s detail=%s',
+                    $r->scanned_at ?? '-', $r->digital_object_id ?? '-', $r->status ?? '-', mb_strimwidth((string) ($r->detail ?? ''), 0, 80, '...')));
+            }
+
             return self::SUCCESS;
         }
 
@@ -30,9 +33,10 @@ class PreservationVirusScanCommand extends Command
         $check = @shell_exec("{$bin} --version 2>/dev/null");
         if (! $check) {
             $this->error("ClamAV binary '{$bin}' not found in PATH. Install clamav or pass --clamav-binary=/full/path.");
+
             return self::FAILURE;
         }
-        $this->line("ClamAV: " . trim($check));
+        $this->line('ClamAV: '.trim($check));
 
         // Pick targets: digital_objects with no scan event yet (when --unscanned), capped to --limit.
         $limit = max(1, (int) $this->option('limit'));
@@ -45,17 +49,26 @@ class PreservationVirusScanCommand extends Command
         $rows = $q->limit($limit)->get();
         $this->info("scanning {$rows->count()} digital_objects");
 
-        $clean = 0; $infected = 0; $skipped = 0;
+        $clean = 0;
+        $infected = 0;
+        $skipped = 0;
         foreach ($rows as $r) {
-            $full = rtrim((string) config('heratio.uploads_path', ''), '/') . $r->path . $r->name;
-            if (! is_file($full)) { $skipped++; continue; }
-            $out = @shell_exec(escapeshellcmd($bin) . ' --no-summary ' . escapeshellarg($full) . ' 2>&1');
+            $full = rtrim((string) config('heratio.uploads_path', ''), '/').$r->path.$r->name;
+            if (! is_file($full)) {
+                $skipped++;
+
+                continue;
+            }
+            $out = @shell_exec(escapeshellcmd($bin).' --no-summary '.escapeshellarg($full).' 2>&1');
             $ok = $out !== null && str_contains((string) $out, ': OK');
             $svc->logEvent((int) $r->id, null, 'virus_scan', trim((string) $out), $ok ? 'clean' : 'infected');
             $ok ? $clean++ : $infected++;
-            if (! $ok) $this->line("  INFECTED do={$r->id} path={$full}");
+            if (! $ok) {
+                $this->line("  INFECTED do={$r->id} path={$full}");
+            }
         }
         $this->info("done; clean={$clean} infected={$infected} skipped={$skipped}");
+
         return $infected === 0 ? self::SUCCESS : self::FAILURE;
     }
 }

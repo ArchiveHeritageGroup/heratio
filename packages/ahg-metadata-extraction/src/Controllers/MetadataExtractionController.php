@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgMetadataExtraction\Controllers;
 
 use AhgMetadataExtraction\Services\MetadataExtractionService;
@@ -55,22 +53,22 @@ class MetadataExtractionController extends Controller
 
         // Tool availability
         $exifToolAvailable = $this->service->isExifToolAvailable();
-        $ffprobeAvailable  = $this->service->isFfprobeAvailable();
-        $pdfinfoAvailable  = $this->service->isPdfinfoAvailable();
+        $ffprobeAvailable = $this->service->isFfprobeAvailable();
+        $pdfinfoAvailable = $this->service->isPdfinfoAvailable();
 
         // Versions
         $exifToolVersion = $this->service->getExifToolVersion();
-        $ffprobeVersion  = $this->service->getFfprobeVersion();
+        $ffprobeVersion = $this->service->getFfprobeVersion();
 
         // Statistics
         $stats = $this->service->getStatistics();
 
         // Filter parameters
-        $filterMimeType  = $request->get('mime_type', '');
+        $filterMimeType = $request->get('mime_type', '');
         $filterExtracted = $request->get('extracted', '');
-        $page            = max(1, (int) $request->get('page', 1));
-        $limit           = 25;
-        $offset          = ($page - 1) * $limit;
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = 25;
+        $offset = ($page - 1) * $limit;
 
         // Build digital objects query
         $query = DB::table('digital_object as do')
@@ -90,8 +88,8 @@ class MetadataExtractionController extends Controller
             )
             ->whereNotNull('do.path');
 
-        if (!empty($filterMimeType)) {
-            $query->where('do.mime_type', 'LIKE', $filterMimeType . '%');
+        if (! empty($filterMimeType)) {
+            $query->where('do.mime_type', 'LIKE', $filterMimeType.'%');
         }
 
         $totalCount = $query->count();
@@ -172,7 +170,7 @@ class MetadataExtractionController extends Controller
             )
             ->first();
 
-        if (!$digitalObject) {
+        if (! $digitalObject) {
             abort(404, 'Digital object not found');
         }
 
@@ -181,11 +179,11 @@ class MetadataExtractionController extends Controller
         // Group metadata by category prefix (e.g. "EXIF:ImageWidth" -> group "EXIF")
         $groupedMetadata = [];
         foreach ($metadata as $meta) {
-            $parts     = explode(':', $meta->name, 2);
-            $group     = count($parts) > 1 ? $parts[0] : 'General';
+            $parts = explode(':', $meta->name, 2);
+            $group = count($parts) > 1 ? $parts[0] : 'General';
             $fieldName = count($parts) > 1 ? $parts[1] : $meta->name;
 
-            if (!isset($groupedMetadata[$group])) {
+            if (! isset($groupedMetadata[$group])) {
                 $groupedMetadata[$group] = [];
             }
 
@@ -195,9 +193,9 @@ class MetadataExtractionController extends Controller
                 ->value('value');
 
             $groupedMetadata[$group][] = (object) [
-                'name'      => $fieldName,
+                'name' => $fieldName,
                 'full_name' => $meta->name,
-                'value'     => $i18nValue ?? $meta->name,
+                'value' => $i18nValue ?? $meta->name,
             ];
         }
 
@@ -220,7 +218,7 @@ class MetadataExtractionController extends Controller
 
             $flat = [];
             array_walk_recursive($metadata, function ($v, $k) use (&$flat) {
-                if (!is_array($v)) {
+                if (! is_array($v)) {
                     $flat[$k] = $v;
                 }
             });
@@ -234,7 +232,7 @@ class MetadataExtractionController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => "Extracted {$count} metadata fields",
-                    'count'   => $count,
+                    'count' => $count,
                 ]);
             }
 
@@ -246,7 +244,7 @@ class MetadataExtractionController extends Controller
             }
 
             return redirect()->route('metadata-extraction.index')
-                ->with('error', 'Extraction failed: ' . $e->getMessage());
+                ->with('error', 'Extraction failed: '.$e->getMessage());
         }
     }
 
@@ -273,7 +271,7 @@ class MetadataExtractionController extends Controller
      */
     public function batchExtract()
     {
-        if (!$this->service->isExifToolAvailable()) {
+        if (! $this->service->isExifToolAvailable()) {
             return redirect()->route('metadata-extraction.index')
                 ->with('error', 'ExifTool is not installed on this system');
         }
@@ -282,7 +280,7 @@ class MetadataExtractionController extends Controller
 
         if ($result['remaining'] > 0) {
             $msg = "Processed {$result['processed']} files ({$result['errors']} errors). "
-                 . "{$result['remaining']} remaining - run again to continue.";
+                 ."{$result['remaining']} remaining - run again to continue.";
         } else {
             $msg = "Batch extraction complete. Processed {$result['processed']} files ({$result['errors']} errors).";
         }
@@ -319,11 +317,11 @@ class MetadataExtractionController extends Controller
     public function status()
     {
         $exifToolAvailable = $this->service->isExifToolAvailable();
-        $ffprobeAvailable  = $this->service->isFfprobeAvailable();
-        $pdfinfoAvailable  = $this->service->isPdfinfoAvailable();
+        $ffprobeAvailable = $this->service->isFfprobeAvailable();
+        $pdfinfoAvailable = $this->service->isPdfinfoAvailable();
 
         $exifToolVersion = $this->service->getExifToolVersion();
-        $ffprobeVersion  = $this->service->getFfprobeVersion();
+        $ffprobeVersion = $this->service->getFfprobeVersion();
 
         $stats = $this->service->getStatistics();
 

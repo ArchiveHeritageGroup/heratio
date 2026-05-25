@@ -53,7 +53,7 @@ class DigitalObjectApiController extends Controller
         ]);
 
         $parentId = DB::table('slug')->where('slug', $request->get('object_slug'))->value('object_id');
-        if (!$parentId) {
+        if (! $parentId) {
             return response()->json(['error' => 'Parent information object not found.'], 404);
         }
 

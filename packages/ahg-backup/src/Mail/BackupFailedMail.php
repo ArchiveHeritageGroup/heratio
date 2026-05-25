@@ -56,7 +56,7 @@ class BackupFailedMail extends Mailable implements ShouldQueue
         $when = $this->backup['completed_at'] ?? gmdate('Y-m-d H:i \U\T\C');
 
         return new Envelope(
-            subject: 'Heratio backup FAILED: ' . $when
+            subject: 'Heratio backup FAILED: '.$when
         );
     }
 

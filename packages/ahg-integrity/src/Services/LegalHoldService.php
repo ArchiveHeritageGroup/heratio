@@ -26,7 +26,7 @@ class LegalHoldService
      */
     public function placeHold(int $ioId, string $reason, int $userId): int
     {
-        if (!Schema::hasTable('integrity_legal_hold')) {
+        if (! Schema::hasTable('integrity_legal_hold')) {
             throw new \RuntimeException('Table integrity_legal_hold does not exist.');
         }
 
@@ -36,15 +36,15 @@ class LegalHoldService
                     ->where('actor_i18n.culture', '=', 'en');
             })
             ->where('user.id', $userId)
-            ->value('actor_i18n.authorized_form_of_name') ?? 'User #' . $userId;
+            ->value('actor_i18n.authorized_form_of_name') ?? 'User #'.$userId;
 
         $holdId = DB::table('integrity_legal_hold')->insertGetId([
             'information_object_id' => $ioId,
-            'reason'               => $reason,
-            'placed_by'            => $username,
-            'placed_at'            => now(),
-            'status'               => 'active',
-            'created_at'           => now(),
+            'reason' => $reason,
+            'placed_by' => $username,
+            'placed_at' => now(),
+            'status' => 'active',
+            'created_at' => now(),
         ]);
 
         return $holdId;
@@ -55,7 +55,7 @@ class LegalHoldService
      */
     public function releaseHold(int $holdId, int $userId, string $reason): bool
     {
-        if (!Schema::hasTable('integrity_legal_hold')) {
+        if (! Schema::hasTable('integrity_legal_hold')) {
             return false;
         }
 
@@ -65,7 +65,7 @@ class LegalHoldService
                     ->where('actor_i18n.culture', '=', 'en');
             })
             ->where('user.id', $userId)
-            ->value('actor_i18n.authorized_form_of_name') ?? 'User #' . $userId;
+            ->value('actor_i18n.authorized_form_of_name') ?? 'User #'.$userId;
 
         $updated = DB::table('integrity_legal_hold')
             ->where('id', $holdId)
@@ -73,7 +73,7 @@ class LegalHoldService
             ->update([
                 'released_by' => $username,
                 'released_at' => now(),
-                'status'      => 'released',
+                'status' => 'released',
             ]);
 
         return $updated > 0;
@@ -84,7 +84,7 @@ class LegalHoldService
      */
     public function isUnderHold(int $ioId): bool
     {
-        if (!Schema::hasTable('integrity_legal_hold')) {
+        if (! Schema::hasTable('integrity_legal_hold')) {
             return false;
         }
 
@@ -99,7 +99,7 @@ class LegalHoldService
      */
     public function getActiveHolds(?int $repositoryId = null, int $page = 1, int $perPage = 25): array
     {
-        if (!Schema::hasTable('integrity_legal_hold')) {
+        if (! Schema::hasTable('integrity_legal_hold')) {
             return ['data' => [], 'total' => 0, 'page' => $page, 'perPage' => $perPage];
         }
 
@@ -132,9 +132,9 @@ class LegalHoldService
             ->toArray();
 
         return [
-            'data'    => $data,
-            'total'   => $total,
-            'page'    => $page,
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
             'perPage' => $perPage,
         ];
     }
@@ -144,7 +144,7 @@ class LegalHoldService
      */
     public function getHoldHistory(int $ioId): array
     {
-        if (!Schema::hasTable('integrity_legal_hold')) {
+        if (! Schema::hasTable('integrity_legal_hold')) {
             return [];
         }
 
@@ -160,7 +160,7 @@ class LegalHoldService
      */
     public function getHoldCounts(): array
     {
-        if (!Schema::hasTable('integrity_legal_hold')) {
+        if (! Schema::hasTable('integrity_legal_hold')) {
             return ['active' => 0, 'released' => 0, 'total' => 0];
         }
 
@@ -173,9 +173,9 @@ class LegalHoldService
             ->first();
 
         return [
-            'active'   => (int) ($counts->active_count ?? 0),
+            'active' => (int) ($counts->active_count ?? 0),
             'released' => (int) ($counts->released_count ?? 0),
-            'total'    => (int) ($counts->total_count ?? 0),
+            'total' => (int) ($counts->total_count ?? 0),
         ];
     }
 }

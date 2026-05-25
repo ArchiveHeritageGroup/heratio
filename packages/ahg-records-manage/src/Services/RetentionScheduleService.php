@@ -2,9 +2,8 @@
 
 namespace AhgRecordsManage\Services;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class RetentionScheduleService
 {
@@ -16,23 +15,23 @@ class RetentionScheduleService
         $now = Carbon::now();
 
         return (int) DB::table('rm_retention_schedule')->insertGetId([
-            'schedule_ref'        => $data['schedule_ref'],
-            'title'               => $data['title'],
-            'description'         => $data['description'] ?? null,
-            'authority'           => $data['authority'] ?? null,
-            'jurisdiction'        => $data['jurisdiction'] ?? null,
-            'effective_date'      => $data['effective_date'] ?? null,
-            'review_date'         => $data['review_date'] ?? null,
-            'expiry_date'         => $data['expiry_date'] ?? null,
-            'status'              => 'draft',
-            'version'             => 1,
+            'schedule_ref' => $data['schedule_ref'],
+            'title' => $data['title'],
+            'description' => $data['description'] ?? null,
+            'authority' => $data['authority'] ?? null,
+            'jurisdiction' => $data['jurisdiction'] ?? null,
+            'effective_date' => $data['effective_date'] ?? null,
+            'review_date' => $data['review_date'] ?? null,
+            'expiry_date' => $data['expiry_date'] ?? null,
+            'status' => 'draft',
+            'version' => 1,
             'previous_version_id' => null,
-            'naz_schedule_id'     => $data['naz_schedule_id'] ?? null,
-            'approved_by'         => null,
-            'approved_at'         => null,
-            'created_by'          => $data['created_by'],
-            'created_at'          => $now,
-            'updated_at'          => $now,
+            'naz_schedule_id' => $data['naz_schedule_id'] ?? null,
+            'approved_by' => null,
+            'approved_at' => null,
+            'created_by' => $data['created_by'],
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
     }
 
@@ -46,7 +45,7 @@ class RetentionScheduleService
         ];
 
         $fields = ['schedule_ref', 'title', 'description', 'authority', 'jurisdiction',
-                    'effective_date', 'review_date', 'expiry_date', 'naz_schedule_id'];
+            'effective_date', 'review_date', 'expiry_date', 'naz_schedule_id'];
 
         foreach ($fields as $field) {
             if (array_key_exists($field, $data)) {
@@ -70,7 +69,7 @@ class RetentionScheduleService
             ->where('id', $id)
             ->first();
 
-        if (!$schedule) {
+        if (! $schedule) {
             return null;
         }
 
@@ -93,16 +92,16 @@ class RetentionScheduleService
                 DB::raw('COALESCE(dc_counts.class_count, 0) as class_count'),
             ]);
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('rs.status', $filters['status']);
         }
-        if (!empty($filters['jurisdiction'])) {
+        if (! empty($filters['jurisdiction'])) {
             $query->where('rs.jurisdiction', $filters['jurisdiction']);
         }
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
-                $q->where('rs.title', 'LIKE', '%' . $filters['search'] . '%')
-                  ->orWhere('rs.schedule_ref', 'LIKE', '%' . $filters['search'] . '%');
+                $q->where('rs.title', 'LIKE', '%'.$filters['search'].'%')
+                    ->orWhere('rs.schedule_ref', 'LIKE', '%'.$filters['search'].'%');
             });
         }
 
@@ -116,9 +115,9 @@ class RetentionScheduleService
             ->toArray();
 
         return [
-            'data'     => $data,
-            'total'    => $total,
-            'page'     => $page,
+            'data' => $data,
+            'total' => $total,
+            'page' => $page,
             'per_page' => $perPage,
         ];
     }
@@ -134,10 +133,10 @@ class RetentionScheduleService
             ->where('id', $id)
             ->where('status', 'draft')
             ->update([
-                'status'      => 'active',
+                'status' => 'active',
                 'approved_by' => $approvedBy,
                 'approved_at' => $now,
-                'updated_at'  => $now,
+                'updated_at' => $now,
             ]);
 
         return $affected > 0;
@@ -154,13 +153,13 @@ class RetentionScheduleService
             ->where('id', $newId)
             ->update([
                 'previous_version_id' => $id,
-                'updated_at'          => $now,
+                'updated_at' => $now,
             ]);
 
         $affected = DB::table('rm_retention_schedule')
             ->where('id', $id)
             ->update([
-                'status'     => 'superseded',
+                'status' => 'superseded',
                 'updated_at' => $now,
             ]);
 
@@ -173,7 +172,7 @@ class RetentionScheduleService
     public function delete(int $id): bool
     {
         $schedule = DB::table('rm_retention_schedule')->where('id', $id)->first();
-        if (!$schedule || $schedule->status !== 'draft') {
+        if (! $schedule || $schedule->status !== 'draft') {
             return false;
         }
 
@@ -193,7 +192,7 @@ class RetentionScheduleService
             ->where('id', $rmScheduleId)
             ->update([
                 'naz_schedule_id' => $nazScheduleId,
-                'updated_at'      => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ]);
     }
 
@@ -211,12 +210,12 @@ class RetentionScheduleService
         $totalClasses = DB::table('rm_disposal_class')->count();
 
         return [
-            'draft'      => $statusCounts['draft'] ?? 0,
-            'active'     => $statusCounts['active'] ?? 0,
+            'draft' => $statusCounts['draft'] ?? 0,
+            'active' => $statusCounts['active'] ?? 0,
             'superseded' => $statusCounts['superseded'] ?? 0,
-            'expired'    => $statusCounts['expired'] ?? 0,
+            'expired' => $statusCounts['expired'] ?? 0,
             'total_schedules' => array_sum($statusCounts),
-            'total_classes'   => $totalClasses,
+            'total_classes' => $totalClasses,
         ];
     }
 

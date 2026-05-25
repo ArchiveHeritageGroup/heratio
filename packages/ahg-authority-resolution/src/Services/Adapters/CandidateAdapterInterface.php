@@ -38,17 +38,16 @@ interface CandidateAdapterInterface
     /**
      * Does this adapter handle the given entity_type?
      *
-     * @param string $entityType One of PERSON, ORG, GPE, PLACE, LOC
+     * @param  string  $entityType  One of PERSON, ORG, GPE, PLACE, LOC
      */
     public function supports(string $entityType): bool;
 
     /**
      * Search the underlying authority store for candidates matching $query.
      *
-     * @param string $query      The mention's entity_value to look up.
-     * @param string $entityType One of PERSON, ORG, GPE, PLACE, LOC.
-     * @param int    $limit      Soft cap on rows returned.
-     *
+     * @param  string  $query  The mention's entity_value to look up.
+     * @param  string  $entityType  One of PERSON, ORG, GPE, PLACE, LOC.
+     * @param  int  $limit  Soft cap on rows returned.
      * @return list<array{
      *     source: string,
      *     authority_id: int|null,

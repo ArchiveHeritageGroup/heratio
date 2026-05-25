@@ -24,7 +24,11 @@ class LibraryOverdueCheckCommand extends Command
 
     public function handle(): int
     {
-        if (! Schema::hasTable('library_checkout')) { $this->warn('library_checkout missing'); return self::SUCCESS; }
+        if (! Schema::hasTable('library_checkout')) {
+            $this->warn('library_checkout missing');
+
+            return self::SUCCESS;
+        }
         $days = max(0, (int) $this->option('days'));
         $cutoff = now()->copy()->subDays($days)->toDateString();
 
@@ -35,7 +39,9 @@ class LibraryOverdueCheckCommand extends Command
 
         $rows = (clone $eligible)->get(['id', 'patron_id', 'copy_id', 'due_date']);
         $this->info("flagging {$rows->count()} overdue checkouts");
-        if ($rows->isEmpty()) return self::SUCCESS;
+        if ($rows->isEmpty()) {
+            return self::SUCCESS;
+        }
 
         $eligible->update(['status' => 'overdue']);
 
@@ -52,9 +58,10 @@ class LibraryOverdueCheckCommand extends Command
             ])->filter(fn ($p) => $p['user_id'] !== null)->values()->toArray();
             if (! empty($payload)) {
                 DB::table('research_notification')->insert($payload);
-                $this->info('queued ' . count($payload) . ' patron notifications');
+                $this->info('queued '.count($payload).' patron notifications');
             }
         }
+
         return self::SUCCESS;
     }
 

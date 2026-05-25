@@ -41,7 +41,7 @@ class IndexHelper
 {
     public static function add(string $table, string $index, string $column): void
     {
-        if (!Schema::hasTable($table) || !Schema::hasColumn($table, $column)) {
+        if (! Schema::hasTable($table) || ! Schema::hasColumn($table, $column)) {
             return;
         }
 

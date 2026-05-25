@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgApi\Services;
 
 use Illuminate\Support\Facades\Http;
@@ -39,14 +37,16 @@ use Illuminate\Support\Facades\Http;
 class IsbnLookupService
 {
     private const OPEN_LIBRARY_API = 'https://openlibrary.org/api/books';
+
     private const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
 
     private GlamIdentifierService $identifierService;
+
     private ?string $googleApiKey;
 
     public function __construct(?string $googleApiKey = null)
     {
-        $this->identifierService = new GlamIdentifierService();
+        $this->identifierService = new GlamIdentifierService;
         $this->googleApiKey = $googleApiKey;
     }
 
@@ -54,7 +54,7 @@ class IsbnLookupService
     {
         $type = $this->identifierService->detectIdentifierType($isbn);
 
-        if (!in_array($type, [GlamIdentifierService::TYPE_ISBN10, GlamIdentifierService::TYPE_ISBN13])) {
+        if (! in_array($type, [GlamIdentifierService::TYPE_ISBN10, GlamIdentifierService::TYPE_ISBN13])) {
             throw new \InvalidArgumentException('Invalid ISBN format');
         }
 
@@ -62,7 +62,7 @@ class IsbnLookupService
             ? $this->identifierService->validateIsbn13($isbn)
             : $this->identifierService->validateIsbn10($isbn);
 
-        if (!$validation['valid']) {
+        if (! $validation['valid']) {
             throw new \InvalidArgumentException($validation['message']);
         }
 
@@ -73,7 +73,7 @@ class IsbnLookupService
 
         $result = $this->lookupOpenLibrary($isbn13 ?? $normalizedIsbn);
 
-        if (!$result) {
+        if (! $result) {
             $result = $this->lookupGoogleBooks($isbn13 ?? $normalizedIsbn);
         }
 
@@ -90,17 +90,17 @@ class IsbnLookupService
     {
         try {
             $response = Http::timeout(10)->get(self::OPEN_LIBRARY_API, [
-                'bibkeys' => 'ISBN:' . $isbn,
+                'bibkeys' => 'ISBN:'.$isbn,
                 'format' => 'json',
                 'jscmd' => 'data',
             ]);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return null;
             }
 
             $data = $response->json();
-            $key = 'ISBN:' . $isbn;
+            $key = 'ISBN:'.$isbn;
 
             if (empty($data[$key])) {
                 return null;
@@ -112,19 +112,19 @@ class IsbnLookupService
                 'source' => 'openlibrary',
                 'title' => $book['title'] ?? null,
                 'subtitle' => $book['subtitle'] ?? null,
-                'authors' => array_map(fn($a) => $a['name'] ?? $a, $book['authors'] ?? []),
+                'authors' => array_map(fn ($a) => $a['name'] ?? $a, $book['authors'] ?? []),
                 'publishers' => array_map(
-                    fn($p) => is_array($p) ? ($p['name'] ?? '') : $p,
+                    fn ($p) => is_array($p) ? ($p['name'] ?? '') : $p,
                     $book['publishers'] ?? []
                 ),
                 'publish_date' => $book['publish_date'] ?? null,
                 'publish_places' => array_map(
-                    fn($p) => is_array($p) ? ($p['name'] ?? '') : $p,
+                    fn ($p) => is_array($p) ? ($p['name'] ?? '') : $p,
                     $book['publish_places'] ?? []
                 ),
                 'number_of_pages' => $book['number_of_pages'] ?? null,
                 'subjects' => array_map(
-                    fn($s) => is_array($s) ? ($s['name'] ?? '') : $s,
+                    fn ($s) => is_array($s) ? ($s['name'] ?? '') : $s,
                     $book['subjects'] ?? []
                 ),
                 'cover_url' => $book['cover']['medium'] ?? $book['cover']['small'] ?? null,
@@ -144,14 +144,14 @@ class IsbnLookupService
     private function lookupGoogleBooks(string $isbn): ?array
     {
         try {
-            $params = ['q' => 'isbn:' . $isbn];
+            $params = ['q' => 'isbn:'.$isbn];
             if ($this->googleApiKey) {
                 $params['key'] = $this->googleApiKey;
             }
 
             $response = Http::timeout(10)->get(self::GOOGLE_BOOKS_API, $params);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return null;
             }
 
@@ -192,16 +192,16 @@ class IsbnLookupService
     public function lookupByIssn(string $issn): ?array
     {
         $validation = $this->identifierService->validateIssn($issn);
-        if (!$validation['valid']) {
+        if (! $validation['valid']) {
             throw new \InvalidArgumentException($validation['message']);
         }
 
         try {
             $response = Http::timeout(10)->get('https://openlibrary.org/search.json', [
-                'q' => 'issn:' . $validation['normalized'],
+                'q' => 'issn:'.$validation['normalized'],
             ]);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return null;
             }
 
@@ -236,7 +236,7 @@ class IsbnLookupService
             'date_of_publication' => $lookupResult['publish_date'] ?? '',
             'place_of_publication' => implode('; ', $lookupResult['publish_places'] ?? []),
             'extent' => $lookupResult['number_of_pages']
-                ? $lookupResult['number_of_pages'] . ' pages'
+                ? $lookupResult['number_of_pages'].' pages'
                 : '',
             'isbn' => $lookupResult['isbn13'] ?? $lookupResult['normalized_isbn'] ?? '',
             'lccn' => $lookupResult['identifiers']['lccn'][0] ?? '',

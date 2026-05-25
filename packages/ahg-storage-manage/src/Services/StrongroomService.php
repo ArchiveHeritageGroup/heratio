@@ -41,9 +41,9 @@ class StrongroomService
     /** Allowed capacity units (stored as VARCHAR, normalised on write). */
     public const CAPACITY_UNITS = [
         'linear_meters' => 'Linear meters',
-        'shelves'       => 'Shelves',
-        'boxes'         => 'Boxes',
-        'cubic_meters'  => 'Cubic meters',
+        'shelves' => 'Shelves',
+        'boxes' => 'Boxes',
+        'cubic_meters' => 'Cubic meters',
     ];
 
     // ---------- Read --------------------------------------------------
@@ -76,7 +76,7 @@ class StrongroomService
                 'sr.capacity_value', 'sr.capacity_unit'
             );
 
-        if ('' !== $search) {
+        if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->where('sr.name', 'LIKE', "%{$search}%")
                     ->orWhere('sr.location_description', 'LIKE', "%{$search}%");
@@ -122,7 +122,7 @@ class StrongroomService
     public function getRemainingCapacity(int $strongroomId): ?float
     {
         $room = $this->getById($strongroomId);
-        if (null === $room || null === $room->capacity_value) {
+        if ($room === null || $room->capacity_value === null) {
             return null;
         }
 
@@ -138,12 +138,12 @@ class StrongroomService
     public function capacityOverflow(int $strongroomId, float $newSize, ?int $excludePhysicalObjectId = null): ?float
     {
         $room = $this->getById($strongroomId);
-        if (null === $room || null === $room->capacity_value) {
+        if ($room === null || $room->capacity_value === null) {
             return null;
         }
 
         $q = DB::table('ahg_physical_object_storage')->where('strongroom_id', $strongroomId);
-        if (null !== $excludePhysicalObjectId) {
+        if ($excludePhysicalObjectId !== null) {
             $q->where('physical_object_id', '!=', $excludePhysicalObjectId);
         }
         $usedByOthers = (float) $q->sum('size_units_used');
@@ -162,7 +162,7 @@ class StrongroomService
         $out = [];
         foreach ($rows as $row) {
             $unitLabel = self::CAPACITY_UNITS[$row->capacity_unit] ?? $row->capacity_unit;
-            $out[(int) $row->id] = $row->name . ' (' . $unitLabel . ')';
+            $out[(int) $row->id] = $row->name.' ('.$unitLabel.')';
         }
 
         return $out;
@@ -177,21 +177,21 @@ class StrongroomService
     public function create(array $data): int
     {
         $name = trim((string) ($data['name'] ?? ''));
-        if ('' === $name) {
+        if ($name === '') {
             throw new \InvalidArgumentException('Strongroom name is required');
         }
 
         $now = now();
 
         return DB::table('ahg_strongroom')->insertGetId([
-            'slug'                 => $this->generateUniqueSlug($name),
-            'name'                 => $name,
+            'slug' => $this->generateUniqueSlug($name),
+            'name' => $name,
             'location_description' => $data['location_description'] ?? null,
-            'capacity_value'       => $this->nullableDecimal($data['capacity_value'] ?? null),
-            'capacity_unit'        => $this->normalizeCapacityUnit($data['capacity_unit'] ?? 'linear_meters'),
-            'notes'                => $data['notes'] ?? null,
-            'created_at'           => $now,
-            'updated_at'           => $now,
+            'capacity_value' => $this->nullableDecimal($data['capacity_value'] ?? null),
+            'capacity_unit' => $this->normalizeCapacityUnit($data['capacity_unit'] ?? 'linear_meters'),
+            'notes' => $data['notes'] ?? null,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
     }
 
@@ -200,7 +200,7 @@ class StrongroomService
     {
         $update = ['updated_at' => now()];
 
-        if (isset($data['name']) && '' !== trim((string) $data['name'])) {
+        if (isset($data['name']) && trim((string) $data['name']) !== '') {
             $update['name'] = trim((string) $data['name']);
         }
         foreach (['location_description', 'notes'] as $key) {
@@ -251,10 +251,10 @@ class StrongroomService
         DB::table('ahg_physical_object_storage')->updateOrInsert(
             ['physical_object_id' => $physicalObjectId],
             [
-                'strongroom_id'   => $strongroomId,
+                'strongroom_id' => $strongroomId,
                 'size_units_used' => max(0.0, $sizeUnitsUsed),
-                'updated_at'      => now(),
-                'created_at'      => DB::raw('COALESCE(created_at, NOW())'),
+                'updated_at' => now(),
+                'created_at' => DB::raw('COALESCE(created_at, NOW())'),
             ]
         );
     }
@@ -292,14 +292,14 @@ class StrongroomService
     private function generateUniqueSlug(string $name): string
     {
         $base = Str::slug($name);
-        if ('' === $base) {
+        if ($base === '') {
             $base = 'strongroom';
         }
         $slug = $base;
         $n = 2;
         while (DB::table('ahg_strongroom')->where('slug', $slug)->exists()) {
-            $slug = $base . '-' . $n;
-            ++$n;
+            $slug = $base.'-'.$n;
+            $n++;
         }
 
         return $slug;
@@ -312,10 +312,10 @@ class StrongroomService
 
     private function nullableDecimal($value): ?float
     {
-        if (null === $value || '' === $value || false === $value) {
+        if ($value === null || $value === '' || $value === false) {
             return null;
         }
-        if (!is_numeric($value)) {
+        if (! is_numeric($value)) {
             return null;
         }
         $v = (float) $value;

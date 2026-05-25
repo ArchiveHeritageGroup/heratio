@@ -9,7 +9,9 @@ class Accession extends BaseObject
     use HasI18n;
 
     protected $table = 'accession';
+
     public $incrementing = false;
+
     public $timestamps = true;
 
     protected $fillable = [

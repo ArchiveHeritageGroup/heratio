@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgApiPlugin\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -57,8 +55,8 @@ class ApiPluginController extends Controller
                 ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
                 ->where(function ($q) use ($query) {
                     $q->where('ioi.title', 'like', "%{$query}%")
-                      ->orWhere('io.identifier', 'like', "%{$query}%")
-                      ->orWhere('ioi.scope_and_content', 'like', "%{$query}%");
+                        ->orWhere('io.identifier', 'like', "%{$query}%")
+                        ->orWhere('ioi.scope_and_content', 'like', "%{$query}%");
                 })
                 ->where('io.id', '!=', 1);
 

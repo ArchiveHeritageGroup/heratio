@@ -23,15 +23,13 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgStorageManage\Controllers;
 
+use AhgCore\Pagination\SimplePager;
+use AhgCore\Services\SettingHelper;
 use AhgStorageManage\Services\StorageBrowseService;
 use AhgStorageManage\Services\StorageService;
 use AhgStorageManage\Services\StrongroomService;
-use AhgCore\Pagination\SimplePager;
-use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -90,7 +88,7 @@ class StorageController extends Controller
     public function show(string $slug)
     {
         $storage = $this->service->getBySlug($slug);
-        if (!$storage) {
+        if (! $storage) {
             abort(404);
         }
 
@@ -119,7 +117,7 @@ class StorageController extends Controller
     public function edit(string $slug)
     {
         $storage = $this->service->getBySlug($slug);
-        if (!$storage) {
+        if (! $storage) {
             abort(404);
         }
 
@@ -136,6 +134,7 @@ class StorageController extends Controller
         $id = $this->service->create($request->only($this->baseFields()));
         $this->service->saveExtendedData($id, $request->only($this->extendedFields()));
         $this->applyStrongroomAssignment($request, $id);
+
         return redirect()
             ->route('physicalobject.show', $this->service->getSlug($id))
             ->with('success', 'Physical storage created successfully.');
@@ -144,7 +143,7 @@ class StorageController extends Controller
     public function update(Request $request, string $slug)
     {
         $storage = $this->service->getBySlug($slug);
-        if (!$storage) {
+        if (! $storage) {
             abort(404);
         }
 
@@ -152,6 +151,7 @@ class StorageController extends Controller
         $this->service->update($storage->id, $request->only($this->baseFields()));
         $this->service->saveExtendedData($storage->id, $request->only($this->extendedFields()));
         $this->applyStrongroomAssignment($request, $storage->id);
+
         return redirect()
             ->route('physicalobject.show', $slug)
             ->with('success', 'Physical storage updated successfully.');
@@ -163,10 +163,11 @@ class StorageController extends Controller
      */
     private function strongroomViewData(?int $physicalObjectId): array
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_strongroom')) {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_strongroom')) {
             return ['strongroomChoices' => [], 'currentAssignment' => null];
         }
-        $svc = new StrongroomService();
+        $svc = new StrongroomService;
+
         return [
             'strongroomChoices' => $svc->dropdownChoices(),
             'currentAssignment' => $physicalObjectId ? $svc->getAssignment($physicalObjectId) : null,
@@ -179,17 +180,18 @@ class StorageController extends Controller
      */
     private function applyStrongroomAssignment(Request $request, int $physicalObjectId): void
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_strongroom')) {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_strongroom')) {
             return;
         }
-        $svc = new StrongroomService();
+        $svc = new StrongroomService;
         $action = (string) $request->input('strongroom_action', '');
 
-        if ('unassign' === $action) {
+        if ($action === 'unassign') {
             $svc->unassign($physicalObjectId);
+
             return;
         }
-        if ('assign' === $action) {
+        if ($action === 'assign') {
             $roomId = (int) $request->input('strongroom_id', 0);
             $size = (float) $request->input('size_units_used', 0);
             if ($roomId > 0) {
@@ -201,7 +203,7 @@ class StorageController extends Controller
     public function confirmDelete(string $slug)
     {
         $storage = $this->service->getBySlug($slug);
-        if (!$storage) {
+        if (! $storage) {
             abort(404);
         }
 
@@ -227,12 +229,13 @@ class StorageController extends Controller
     public function destroy(string $slug)
     {
         $storage = $this->service->getBySlug($slug);
-        if (!$storage) {
+        if (! $storage) {
             abort(404);
         }
 
         $this->service->deleteExtendedData($storage->id);
         $this->service->delete($storage->id);
+
         return redirect()
             ->route('physicalobject.browse')
             ->with('success', 'Physical storage deleted successfully.');
@@ -245,7 +248,7 @@ class StorageController extends Controller
             ->join('physical_object_i18n', 'physical_object.id', '=', 'physical_object_i18n.id')
             ->leftJoin('term_i18n', function ($j) use ($culture) {
                 $j->on('physical_object.type_id', '=', 'term_i18n.id')
-                  ->where('term_i18n.culture', '=', $culture);
+                    ->where('term_i18n.culture', '=', $culture);
             })
             ->where('physical_object_i18n.culture', $culture)
             ->select('physical_object_i18n.name', 'term_i18n.name as type', 'physical_object_i18n.location')
@@ -259,7 +262,7 @@ class StorageController extends Controller
                 fputcsv($out, [$r->name, $r->type ?? '', $r->location ?? '']);
             }
             fclose($out);
-        }, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="storage-report-' . date('Ymd') . '.csv"']);
+        }, 200, ['Content-Type' => 'text/csv', 'Content-Disposition' => 'attachment; filename="storage-report-'.date('Ymd').'.csv"']);
     }
 
     private function baseFields(): array
@@ -281,7 +284,13 @@ class StorageController extends Controller
         ];
     }
 
-    public function autocomplete(Request $request) { $q = $request->input('query', ''); $results = DB::table('physical_object')->join('physical_object_i18n','physical_object.id','=','physical_object_i18n.id')->where('physical_object_i18n.name','LIKE','%'.$q.'%')->where('physical_object_i18n.culture','en')->limit(10)->select('physical_object.id','physical_object_i18n.name')->get(); return response()->json($results); }
+    public function autocomplete(Request $request)
+    {
+        $q = $request->input('query', '');
+        $results = DB::table('physical_object')->join('physical_object_i18n', 'physical_object.id', '=', 'physical_object_i18n.id')->where('physical_object_i18n.name', 'LIKE', '%'.$q.'%')->where('physical_object_i18n.culture', 'en')->limit(10)->select('physical_object.id', 'physical_object_i18n.name')->get();
+
+        return response()->json($results);
+    }
 
     public function boxList(Request $request)
     {
@@ -374,7 +383,7 @@ class StorageController extends Controller
                 ->select('identifier', 'parent_id', 'repository_id')
                 ->first();
 
-            if (!$row) {
+            if (! $row) {
                 break;
             }
 
@@ -413,7 +422,7 @@ class StorageController extends Controller
         while ($currentId && $currentId != $rootId) {
             $lastValidId = $currentId;
             $parentId = DB::table('information_object')->where('id', $currentId)->value('parent_id');
-            if (!$parentId || $parentId == $rootId) {
+            if (! $parentId || $parentId == $rootId) {
                 break;
             }
             $currentId = $parentId;
@@ -440,20 +449,22 @@ class StorageController extends Controller
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->join('information_object_i18n', function ($j) use ($culture) {
                 $j->on('information_object.id', '=', 'information_object_i18n.id')
-                   ->where('information_object_i18n.culture', $culture);
+                    ->where('information_object_i18n.culture', $culture);
             })
             ->where('slug.slug', $slug)
             ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
             ->first();
 
-        if (!$io) abort(404);
+        if (! $io) {
+            abort(404);
+        }
 
         // Current linked containers
         $linked = DB::table('relation')
             ->join('physical_object', 'relation.subject_id', '=', 'physical_object.id')
             ->leftJoin('physical_object_i18n', function ($j) use ($culture) {
                 $j->on('physical_object.id', '=', 'physical_object_i18n.id')
-                   ->where('physical_object_i18n.culture', $culture);
+                    ->where('physical_object_i18n.culture', $culture);
             })
             ->leftJoin('physical_object_extended as poe', 'physical_object.id', '=', 'poe.physical_object_id')
             ->leftJoin('slug as po_slug', 'physical_object.id', '=', 'po_slug.object_id')
@@ -492,7 +503,9 @@ class StorageController extends Controller
     {
         $culture = app()->getLocale();
         $ioId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$ioId) abort(404);
+        if (! $ioId) {
+            abort(404);
+        }
 
         $action = $request->input('action');
 
@@ -505,7 +518,7 @@ class StorageController extends Controller
                     ->where('subject_id', $poId)
                     ->where('type_id', 161)
                     ->exists();
-                if (!$exists) {
+                if (! $exists) {
                     DB::table('relation')->insert([
                         'object_id' => $ioId,
                         'subject_id' => $poId,
@@ -535,9 +548,11 @@ class StorageController extends Controller
             ]);
 
             // Generate slug
-            $nameSlug = \Illuminate\Support\Str::slug($request->input('name', 'container-' . $objectId));
+            $nameSlug = \Illuminate\Support\Str::slug($request->input('name', 'container-'.$objectId));
             $slugExists = DB::table('slug')->where('slug', $nameSlug)->exists();
-            if ($slugExists) $nameSlug .= '-' . $objectId;
+            if ($slugExists) {
+                $nameSlug .= '-'.$objectId;
+            }
             DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $nameSlug]);
 
             // Extended data
@@ -557,7 +572,7 @@ class StorageController extends Controller
                 'climate_controlled' => $request->has('climate_controlled') ? 1 : 0,
                 'security_level' => $request->input('security_level') ?: null,
                 'status' => 'active',
-            ], fn($v) => $v !== null));
+            ], fn ($v) => $v !== null));
 
             // Link to IO
             DB::table('relation')->insert([
@@ -576,7 +591,9 @@ class StorageController extends Controller
     public function unlink(Request $request, int $relationId)
     {
         $relation = DB::table('relation')->where('id', $relationId)->first();
-        if (!$relation) abort(404);
+        if (! $relation) {
+            abort(404);
+        }
 
         $slug = DB::table('slug')->where('object_id', $relation->object_id)->value('slug');
 

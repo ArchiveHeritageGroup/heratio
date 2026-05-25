@@ -79,14 +79,14 @@ class SeedSpectrumCommandTest extends TestCase
 
         // Add a hand-customised step
         DB::table('ahg_workflow_step')->insert([
-            'workflow_id'     => $wf->id,
-            'name'            => 'Hand-customised step that --overwrite must remove',
-            'step_order'      => 99,
-            'step_type'       => 'review',
+            'workflow_id' => $wf->id,
+            'name' => 'Hand-customised step that --overwrite must remove',
+            'step_order' => 99,
+            'step_type' => 'review',
             'action_required' => 'approve_reject',
-            'is_active'       => 1,
-            'created_at'      => now(),
-            'updated_at'      => now(),
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
         $this->assertTrue(
             DB::table('ahg_workflow_step')->where('workflow_id', $wf->id)->where('name', 'like', 'Hand-customised%')->exists()

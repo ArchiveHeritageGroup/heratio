@@ -48,9 +48,20 @@ class InferenceSigner
         $this->keyDir = $keyDir ?? storage_path('app/ai-signing');
     }
 
-    private function privatePath(): string { return $this->keyDir . '/ed25519.private'; }
-    private function publicPath(): string  { return $this->keyDir . '/ed25519.public'; }
-    private function keyIdPath(): string   { return $this->keyDir . '/key_id'; }
+    private function privatePath(): string
+    {
+        return $this->keyDir.'/ed25519.private';
+    }
+
+    private function publicPath(): string
+    {
+        return $this->keyDir.'/ed25519.public';
+    }
+
+    private function keyIdPath(): string
+    {
+        return $this->keyDir.'/key_id';
+    }
 
     /**
      * Generate the Ed25519 keypair. Refuses to overwrite an existing key
@@ -58,19 +69,19 @@ class InferenceSigner
      */
     public function generateKeypair(bool $force = false): string
     {
-        if (!is_dir($this->keyDir) && !@mkdir($this->keyDir, 0700, true) && !is_dir($this->keyDir)) {
-            throw new \RuntimeException('Could not create key directory: ' . $this->keyDir);
+        if (! is_dir($this->keyDir) && ! @mkdir($this->keyDir, 0700, true) && ! is_dir($this->keyDir)) {
+            throw new \RuntimeException('Could not create key directory: '.$this->keyDir);
         }
-        if (!$force && is_file($this->privatePath())) {
+        if (! $force && is_file($this->privatePath())) {
             throw new \RuntimeException(
-                'A signing keypair already exists at ' . $this->keyDir . ' - pass --force to replace it.'
+                'A signing keypair already exists at '.$this->keyDir.' - pass --force to replace it.'
             );
         }
 
         $keypair = sodium_crypto_sign_keypair();
-        $secret  = sodium_crypto_sign_secretkey($keypair);
-        $public  = sodium_crypto_sign_publickey($keypair);
-        $keyId   = $this->deriveKeyId($public);
+        $secret = sodium_crypto_sign_secretkey($keypair);
+        $public = sodium_crypto_sign_publickey($keypair);
+        $keyId = $this->deriveKeyId($public);
 
         file_put_contents($this->privatePath(), base64_encode($secret));
         @chmod($this->privatePath(), 0600);
@@ -79,6 +90,7 @@ class InferenceSigner
         file_put_contents($this->keyIdPath(), $keyId);
 
         sodium_memzero($secret);
+
         return $keyId;
     }
 
@@ -97,10 +109,11 @@ class InferenceSigner
     /** Raw (decoded) public key bytes, or null if no key. */
     public function publicKey(): ?string
     {
-        if (!is_file($this->publicPath())) {
+        if (! is_file($this->publicPath())) {
             return null;
         }
         $k = base64_decode(trim((string) file_get_contents($this->publicPath())), true);
+
         return $k === false ? null : $k;
     }
 
@@ -111,7 +124,7 @@ class InferenceSigner
      */
     public function sign(array $manifest): ?string
     {
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             return null;
         }
         $secret = base64_decode(trim((string) file_get_contents($this->privatePath())), true);
@@ -163,6 +176,6 @@ class InferenceSigner
     /** A short, stable reference derived from the public key. */
     private function deriveKeyId(string $publicKey): string
     {
-        return 'ed25519:' . substr(hash('sha256', $publicKey), 0, 16);
+        return 'ed25519:'.substr(hash('sha256', $publicKey), 0, 16);
     }
 }

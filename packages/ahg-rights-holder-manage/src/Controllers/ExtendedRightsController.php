@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgRightsHolderManage\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -47,13 +45,16 @@ class ExtendedRightsController extends Controller
     public function dashboard()
     {
         $stats = $this->getStats();
+
         return view('ahg-rights-holder-manage::extendedRights.dashboard', compact('stats'));
     }
 
     public function view(string $slug)
     {
         $resource = DB::table('slug')->where('slug', $slug)->first();
-        if (!$resource) abort(404);
+        if (! $resource) {
+            abort(404);
+        }
         $resource = (object) ['slug' => $slug, 'id' => $resource->object_id];
 
         $rightsData = ['has_rights' => false, 'badges' => [], 'primary' => null];
@@ -105,7 +106,9 @@ class ExtendedRightsController extends Controller
     public function clear(string $slug)
     {
         $resource = DB::table('slug')->where('slug', $slug)->first();
-        if (!$resource) abort(404);
+        if (! $resource) {
+            abort(404);
+        }
         $resource = (object) ['slug' => $slug, 'id' => $resource->object_id];
         $currentRights = (object) ['rights_statement' => null, 'cc_license' => null, 'tk_labels' => [], 'rights_holder' => null];
 
@@ -120,6 +123,7 @@ class ExtendedRightsController extends Controller
     public function embargoBlocked()
     {
         $embargoInfo = ['type_label' => 'Access Restricted', 'public_message' => '', 'is_perpetual' => false, 'end_date' => null];
+
         return view('ahg-rights-holder-manage::extendedRights.embargo-blocked', compact('embargoInfo'));
     }
 
@@ -130,6 +134,7 @@ class ExtendedRightsController extends Controller
         if ($objectId && Schema::hasTable('embargo')) {
             $embargo = DB::table('embargo')->where('object_id', $objectId)->where('is_active', true)->first();
         }
+
         return view('ahg-rights-holder-manage::extendedRights.embargo-status', compact('objectId', 'embargo'));
     }
 
@@ -141,13 +146,14 @@ class ExtendedRightsController extends Controller
                 ->where('is_active', true)
                 ->leftJoin('information_object_i18n', function ($j) {
                     $j->on('embargo.object_id', '=', 'information_object_i18n.id')
-                      ->where('information_object_i18n.culture', '=', app()->getLocale());
+                        ->where('information_object_i18n.culture', '=', app()->getLocale());
                 })
                 ->leftJoin('slug', 'embargo.object_id', '=', 'slug.object_id')
                 ->select('embargo.*', 'information_object_i18n.title', 'slug.slug')
                 ->orderBy('embargo.created_at', 'desc')
                 ->get();
         }
+
         return view('ahg-rights-holder-manage::extendedRights.embargoes', compact('embargoes'));
     }
 
@@ -163,7 +169,7 @@ class ExtendedRightsController extends Controller
                 ->where('end_date', '<=', now()->addDays($days))
                 ->leftJoin('information_object_i18n', function ($j) {
                     $j->on('embargo.object_id', '=', 'information_object_i18n.id')
-                      ->where('information_object_i18n.culture', '=', app()->getLocale());
+                        ->where('information_object_i18n.culture', '=', app()->getLocale());
                 })
                 ->leftJoin('slug', 'embargo.object_id', '=', 'slug.object_id')
                 ->select('embargo.*', 'information_object_i18n.title', 'slug.slug')
@@ -171,9 +177,11 @@ class ExtendedRightsController extends Controller
                 ->get()
                 ->map(function ($e) {
                     $e->days_remaining = (int) now()->diffInDays($e->end_date, false);
+
                     return $e;
                 })->toArray();
         }
+
         return view('ahg-rights-holder-manage::extendedRights.expiring-embargoes', compact('embargoes', 'days'));
     }
 
@@ -190,6 +198,7 @@ class ExtendedRightsController extends Controller
             ->get();
 
         $stats = ['total_with_rights' => 0, 'inherited_rights' => 0];
+
         return view('ahg-rights-holder-manage::extendedRights.export', compact('topLevelRecords', 'stats'));
     }
 
@@ -203,6 +212,7 @@ class ExtendedRightsController extends Controller
                 'updated_at' => now(),
             ]);
         }
+
         return redirect()->route('extended-rights.embargoes')->with('success', 'Embargo lifted successfully.');
     }
 

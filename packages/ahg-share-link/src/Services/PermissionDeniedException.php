@@ -5,6 +5,4 @@ namespace AhgShareLink\Services;
 /**
  * @phase C
  */
-class PermissionDeniedException extends ShareLinkException
-{
-}
+class PermissionDeniedException extends ShareLinkException {}

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Schema;
 class PrivacyController extends BaseApiController
 {
     protected string $dsarTable = 'privacy_dsar';
+
     protected string $breachTable = 'privacy_breach';
 
     /**
@@ -17,7 +18,7 @@ class PrivacyController extends BaseApiController
      */
     public function dsarIndex(Request $request): JsonResponse
     {
-        if (!$this->tableExists($this->dsarTable)) {
+        if (! $this->tableExists($this->dsarTable)) {
             return $this->success(['dsars' => [], 'message' => 'Privacy module not installed.']);
         }
 
@@ -42,7 +43,7 @@ class PrivacyController extends BaseApiController
      */
     public function dsarStore(Request $request): JsonResponse
     {
-        if (!$this->tableExists($this->dsarTable)) {
+        if (! $this->tableExists($this->dsarTable)) {
             return $this->error('Not Available', 'Privacy module not installed.', 501);
         }
 
@@ -69,12 +70,12 @@ class PrivacyController extends BaseApiController
      */
     public function dsarShow(int $id): JsonResponse
     {
-        if (!$this->tableExists($this->dsarTable)) {
+        if (! $this->tableExists($this->dsarTable)) {
             return $this->error('Not Available', 'Privacy module not installed.', 501);
         }
 
         $dsar = DB::table($this->dsarTable)->where('id', $id)->first();
-        if (!$dsar) {
+        if (! $dsar) {
             return $this->error('Not Found', 'DSAR not found.', 404);
         }
 
@@ -86,12 +87,12 @@ class PrivacyController extends BaseApiController
      */
     public function dsarUpdate(int $id, Request $request): JsonResponse
     {
-        if (!$this->tableExists($this->dsarTable)) {
+        if (! $this->tableExists($this->dsarTable)) {
             return $this->error('Not Available', 'Privacy module not installed.', 501);
         }
 
         $dsar = DB::table($this->dsarTable)->where('id', $id)->first();
-        if (!$dsar) {
+        if (! $dsar) {
             return $this->error('Not Found', 'DSAR not found.', 404);
         }
 
@@ -112,7 +113,7 @@ class PrivacyController extends BaseApiController
      */
     public function breachIndex(Request $request): JsonResponse
     {
-        if (!$this->tableExists($this->breachTable)) {
+        if (! $this->tableExists($this->breachTable)) {
             return $this->success(['breaches' => [], 'message' => 'Privacy module not installed.']);
         }
 
@@ -134,7 +135,7 @@ class PrivacyController extends BaseApiController
      */
     public function breachStore(Request $request): JsonResponse
     {
-        if (!$this->tableExists($this->breachTable)) {
+        if (! $this->tableExists($this->breachTable)) {
             return $this->error('Not Available', 'Privacy module not installed.', 501);
         }
 

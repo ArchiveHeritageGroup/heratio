@@ -49,13 +49,15 @@ class CheckOverdueDsarsCommand extends Command
 
     public function handle(): int
     {
-        if (!DataProtectionSettings::enabled()) {
+        if (! DataProtectionSettings::enabled()) {
             $this->info('Data Protection module disabled (dp_enabled=false). Skipping.');
+
             return self::SUCCESS;
         }
 
-        if (!Schema::hasTable('privacy_dsar')) {
+        if (! Schema::hasTable('privacy_dsar')) {
             $this->warn('privacy_dsar table missing. Skipping.');
+
             return self::SUCCESS;
         }
 
@@ -72,19 +74,22 @@ class CheckOverdueDsarsCommand extends Command
             return self::SUCCESS;
         }
 
-        if (!DataProtectionSettings::notifyOverdue()) {
+        if (! DataProtectionSettings::notifyOverdue()) {
             $this->info('dp_notify_overdue=false; not emailing. (Listed above for diagnostic only.)');
+
             return self::SUCCESS;
         }
 
         $to = DataProtectionSettings::notifyEmail();
         if ($to === '') {
             $this->warn('dp_notify_email not set; cannot dispatch overdue notification.');
+
             return self::SUCCESS;
         }
 
         if ($this->option('dry-run')) {
             $this->info(sprintf('[dry-run] Would email %s with %d overdue DSAR(s).', $to, $overdue->count()));
+
             return self::SUCCESS;
         }
 
@@ -108,8 +113,9 @@ class CheckOverdueDsarsCommand extends Command
             });
             $this->info(sprintf('Emailed %s.', $to));
         } catch (\Throwable $e) {
-            Log::warning('[ahg-privacy] overdue DSAR notification failed: ' . $e->getMessage());
-            $this->error('Mail dispatch failed: ' . $e->getMessage());
+            Log::warning('[ahg-privacy] overdue DSAR notification failed: '.$e->getMessage());
+            $this->error('Mail dispatch failed: '.$e->getMessage());
+
             return self::FAILURE;
         }
 

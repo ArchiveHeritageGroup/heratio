@@ -55,7 +55,7 @@ class RoleEvaluator implements EvaluatorInterface
     public function evaluate(object $mention, object $context, object $candidate): array
     {
         $candSource = (string) ($candidate->candidate_source ?? '');
-        if (!in_array($candSource, ['mysql_actor', 'fuseki_agent'], true)) {
+        if (! in_array($candSource, ['mysql_actor', 'fuseki_agent'], true)) {
             return EvidenceSignal::make(EvidenceSignal::ABSENT, ['reason' => 'candidate_source_not_actor']);
         }
 
@@ -97,7 +97,7 @@ class RoleEvaluator implements EvaluatorInterface
             }
         }
 
-        if (!empty($hits)) {
+        if (! empty($hits)) {
             return EvidenceSignal::make(EvidenceSignal::MATCH, [
                 'matched_tokens' => array_values(array_unique($hits)),
                 'all_role_tokens' => $roleTokens,
@@ -111,12 +111,12 @@ class RoleEvaluator implements EvaluatorInterface
     }
 
     /**
-     * @return list<string>  Role-language tokens (kinship / witness / location / etc.)
+     * @return list<string> Role-language tokens (kinship / witness / location / etc.)
      */
     private function extractRoleTokens($roleTokensJson): array
     {
         $rows = EvidenceDateUtil::decodeJsonish($roleTokensJson);
-        if (!is_array($rows)) {
+        if (! is_array($rows)) {
             return [];
         }
         $toks = [];
@@ -127,6 +127,7 @@ class RoleEvaluator implements EvaluatorInterface
                 $toks[] = $row;
             }
         }
+
         return array_values(array_unique($toks));
     }
 
@@ -137,7 +138,7 @@ class RoleEvaluator implements EvaluatorInterface
             ->orderByRaw("CASE WHEN culture = 'en' THEN 0 ELSE 1 END")
             ->first(['history', 'functions', 'mandates', 'legal_status']);
 
-        if (!$row) {
+        if (! $row) {
             return null;
         }
         $parts = [
@@ -146,7 +147,8 @@ class RoleEvaluator implements EvaluatorInterface
             (string) ($row->mandates ?? ''),
             (string) ($row->legal_status ?? ''),
         ];
-        $combined = trim(implode(' ', array_filter($parts, fn($p) => $p !== '')));
+        $combined = trim(implode(' ', array_filter($parts, fn ($p) => $p !== '')));
+
         return $combined === '' ? null : $combined;
     }
 }

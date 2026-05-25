@@ -19,15 +19,16 @@ class ExhibitionSpaceController extends Controller
 
     public function __construct()
     {
-        $this->service = new ExhibitionSpaceService();
+        $this->service = new ExhibitionSpaceService;
     }
 
     public function browse(Request $request)
     {
         $search = trim((string) $request->input('subquery', ''));
         $pager = $this->service->browse($search, 25);
+
         return view('ahg-exhibition::exhibition-space.browse', [
-            'pager'  => $pager,
+            'pager' => $pager,
             'search' => $search,
         ]);
     }
@@ -35,22 +36,23 @@ class ExhibitionSpaceController extends Controller
     public function show(string $slug)
     {
         $space = $this->service->getBySlug($slug);
-        if (!$space) {
+        if (! $space) {
             abort(404);
         }
+
         return view('ahg-exhibition::exhibition-space.show', [
-            'space'        => $space,
-            'placements'   => $this->service->getPlacements((int) $space->id),
-            'spaceTypes'   => ExhibitionSpaceService::SPACE_TYPES,
-            'capacityUnits'=> ExhibitionSpaceService::CAPACITY_UNITS,
+            'space' => $space,
+            'placements' => $this->service->getPlacements((int) $space->id),
+            'spaceTypes' => ExhibitionSpaceService::SPACE_TYPES,
+            'capacityUnits' => ExhibitionSpaceService::CAPACITY_UNITS,
         ]);
     }
 
     public function create()
     {
         return view('ahg-exhibition::exhibition-space.edit', [
-            'space'         => null,
-            'spaceTypes'    => ExhibitionSpaceService::SPACE_TYPES,
+            'space' => null,
+            'spaceTypes' => ExhibitionSpaceService::SPACE_TYPES,
             'capacityUnits' => ExhibitionSpaceService::CAPACITY_UNITS,
         ]);
     }
@@ -61,6 +63,7 @@ class ExhibitionSpaceController extends Controller
         try {
             $id = $this->service->create($validated);
             $space = $this->service->getById($id);
+
             return redirect()->route('exhibition-space.show', ['slug' => $space->slug])
                 ->with('success', 'Exhibition space created.');
         } catch (\InvalidArgumentException $e) {
@@ -71,10 +74,13 @@ class ExhibitionSpaceController extends Controller
     public function edit(string $slug)
     {
         $space = $this->service->getBySlug($slug);
-        if (!$space) abort(404);
+        if (! $space) {
+            abort(404);
+        }
+
         return view('ahg-exhibition::exhibition-space.edit', [
-            'space'         => $space,
-            'spaceTypes'    => ExhibitionSpaceService::SPACE_TYPES,
+            'space' => $space,
+            'spaceTypes' => ExhibitionSpaceService::SPACE_TYPES,
             'capacityUnits' => ExhibitionSpaceService::CAPACITY_UNITS,
         ]);
     }
@@ -82,9 +88,12 @@ class ExhibitionSpaceController extends Controller
     public function update(Request $request, string $slug)
     {
         $space = $this->service->getBySlug($slug);
-        if (!$space) abort(404);
+        if (! $space) {
+            abort(404);
+        }
         $validated = $this->validated($request);
         $this->service->update((int) $space->id, $validated);
+
         return redirect()->route('exhibition-space.show', ['slug' => $space->slug])
             ->with('success', 'Exhibition space updated.');
     }
@@ -92,10 +101,13 @@ class ExhibitionSpaceController extends Controller
     public function confirmDelete(string $slug)
     {
         $space = $this->service->getBySlug($slug);
-        if (!$space) abort(404);
+        if (! $space) {
+            abort(404);
+        }
         $placementCount = count($this->service->getPlacements((int) $space->id));
+
         return view('ahg-exhibition::exhibition-space.delete', [
-            'space'          => $space,
+            'space' => $space,
             'placementCount' => $placementCount,
         ]);
     }
@@ -103,9 +115,12 @@ class ExhibitionSpaceController extends Controller
     public function destroy(string $slug)
     {
         $space = $this->service->getBySlug($slug);
-        if (!$space) abort(404);
+        if (! $space) {
+            abort(404);
+        }
         try {
             $this->service->delete((int) $space->id);
+
             return redirect()->route('exhibition-space.browse')->with('success', 'Exhibition space deleted.');
         } catch (\RuntimeException $e) {
             return redirect()->route('exhibition-space.show', ['slug' => $slug])->with('error', $e->getMessage());
@@ -115,24 +130,27 @@ class ExhibitionSpaceController extends Controller
     public function placePlacement(Request $request, string $slug)
     {
         $space = $this->service->getBySlug($slug);
-        if (!$space) abort(404);
+        if (! $space) {
+            abort(404);
+        }
         $request->validate([
             'information_object_id' => 'required|integer|min:1',
-            'size_units_used'       => 'nullable|numeric|min:0',
-            'starts_at'             => 'nullable|date',
-            'ends_at'               => 'nullable|date',
+            'size_units_used' => 'nullable|numeric|min:0',
+            'starts_at' => 'nullable|date',
+            'ends_at' => 'nullable|date',
         ]);
         try {
             $this->service->placePlacement([
-                'id'                    => $request->input('placement_id'),
-                'exhibition_space_id'   => (int) $space->id,
+                'id' => $request->input('placement_id'),
+                'exhibition_space_id' => (int) $space->id,
                 'information_object_id' => (int) $request->input('information_object_id'),
-                'size_units_used'       => (float) $request->input('size_units_used', 0),
-                'starts_at'             => $request->input('starts_at'),
-                'ends_at'               => $request->input('ends_at'),
-                'exhibition_id'         => $request->input('exhibition_id'),
-                'notes'                 => $request->input('notes'),
+                'size_units_used' => (float) $request->input('size_units_used', 0),
+                'starts_at' => $request->input('starts_at'),
+                'ends_at' => $request->input('ends_at'),
+                'exhibition_id' => $request->input('exhibition_id'),
+                'notes' => $request->input('notes'),
             ]);
+
             return redirect()->route('exhibition-space.show', ['slug' => $slug])
                 ->with('success', 'Placement saved.');
         } catch (\Throwable $e) {
@@ -144,10 +162,13 @@ class ExhibitionSpaceController extends Controller
     public function removePlacement(int $placementId)
     {
         $row = \Illuminate\Support\Facades\DB::table('ahg_exhibition_placement')->where('id', $placementId)->first();
-        if (!$row) abort(404);
+        if (! $row) {
+            abort(404);
+        }
         $space = $this->service->getById((int) $row->exhibition_space_id);
         $this->service->removePlacement($placementId);
         $slug = $space ? $space->slug : '';
+
         return redirect()->route('exhibition-space.show', ['slug' => $slug])
             ->with('success', 'Placement removed.');
     }
@@ -155,11 +176,12 @@ class ExhibitionSpaceController extends Controller
     private function validated(Request $request): array
     {
         $request->validate([
-            'name'           => 'required|string|max:255',
-            'space_type'     => 'nullable|string|max:20',
+            'name' => 'required|string|max:255',
+            'space_type' => 'nullable|string|max:20',
             'capacity_value' => 'nullable|numeric|min:0',
-            'capacity_unit'  => 'nullable|string|max:20',
+            'capacity_unit' => 'nullable|string|max:20',
         ]);
+
         return $request->only([
             'name', 'space_type', 'building', 'floor',
             'capacity_value', 'capacity_unit',

@@ -64,7 +64,7 @@ class AtomUserProvider implements UserProvider
         $password = $credentials['password'] ?? '';
 
         // Dual-layer: SHA1(salt + password) -> password_verify(sha1Hash, storedHash)
-        $sha1Hash = sha1($user->salt . $password);
+        $sha1Hash = sha1($user->salt.$password);
 
         return password_verify($sha1Hash, $user->password_hash);
     }

@@ -42,9 +42,6 @@ class EacFSerializer
      */
     public const NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance';
 
-    /**
-     * @var \DOMDocument
-     */
     protected \DOMDocument $dom;
 
     /**
@@ -66,9 +63,8 @@ class EacFSerializer
     /**
      * Serialize a function record to EAC-F XML.
      *
-     * @param int    $functionId The function_object ID.
-     * @param string $culture    The i18n culture code.
-     *
+     * @param  int  $functionId  The function_object ID.
+     * @param  string  $culture  The i18n culture code.
      * @return string The EAC-F XML document.
      */
     public function serializeFunction(int $functionId, string $culture = 'en'): string
@@ -81,7 +77,7 @@ class EacFSerializer
             ->where('id', $functionId)
             ->first();
 
-        if (!$func) {
+        if (! $func) {
             return $this->emptyDocument('Function not found');
         }
 
@@ -91,14 +87,14 @@ class EacFSerializer
             ->where('culture', $culture)
             ->first();
 
-        if (!$funcI18n) {
+        if (! $funcI18n) {
             $funcI18n = DB::table('function_object_i18n')
                 ->where('id', $functionId)
                 ->where('culture', $func->source_culture)
                 ->first();
         }
 
-        if (!$funcI18n) {
+        if (! $funcI18n) {
             return $this->emptyDocument('Function i18n data not found');
         }
 
@@ -132,7 +128,7 @@ class EacFSerializer
                 $ricActivities = DB::table('ric_activity')
                     ->leftJoin('ric_activity_i18n', function ($join) use ($culture) {
                         $join->on('ric_activity.id', '=', 'ric_activity_i18n.id')
-                             ->where('ric_activity_i18n.culture', '=', $culture);
+                            ->where('ric_activity_i18n.culture', '=', $culture);
                     })
                     ->whereIn('ric_activity.id', $ricActivityIds->toArray())
                     ->select(
@@ -164,7 +160,7 @@ class EacFSerializer
         $eacf->setAttributeNS(
             self::NS_XSI,
             'xsi:schemaLocation',
-            self::NS_EACF . ' https://archivists.org/ns/eac-f/v1/eac-f.xsd'
+            self::NS_EACF.' https://archivists.org/ns/eac-f/v1/eac-f.xsd'
         );
 
         // <control>
@@ -186,7 +182,7 @@ class EacFSerializer
         $control = $this->el('control');
 
         // <recordId>
-        $recordId = $slug ?? ('function-' . $functionId);
+        $recordId = $slug ?? ('function-'.$functionId);
         $control->appendChild($this->el('recordId', $recordId));
 
         // <maintenanceStatus>
@@ -227,7 +223,7 @@ class EacFSerializer
         $control->appendChild($maintenanceHistory);
 
         // <sources>
-        if (!empty($funcI18n->sources)) {
+        if (! empty($funcI18n->sources)) {
             $sources = $this->el('sources');
             $source = $this->el('source');
             $source->appendChild($this->el('sourceEntry', $funcI18n->sources));
@@ -285,7 +281,7 @@ class EacFSerializer
         }
 
         // <nameEntry> for authorized form
-        if (!empty($funcI18n->authorized_form_of_name)) {
+        if (! empty($funcI18n->authorized_form_of_name)) {
             $nameEntry = $this->el('nameEntry');
             $nameEntry->setAttribute('status', 'authorized');
 
@@ -296,15 +292,15 @@ class EacFSerializer
         }
 
         // <classification>
-        if (!empty($funcI18n->classification)) {
+        if (! empty($funcI18n->classification)) {
             $classification = $this->el('classification', $funcI18n->classification);
             $identity->appendChild($classification);
         }
 
         // <descriptiveNote> with description identifier
-        if (!empty($func->description_identifier)) {
+        if (! empty($func->description_identifier)) {
             $descriptiveNote = $this->el('descriptiveNote');
-            $p = $this->el('p', 'Identifier: ' . $func->description_identifier);
+            $p = $this->el('p', 'Identifier: '.$func->description_identifier);
             $descriptiveNote->appendChild($p);
             $identity->appendChild($descriptiveNote);
         }
@@ -320,7 +316,7 @@ class EacFSerializer
         $description = $this->el('description');
 
         // <existDates> from function dates
-        if (!empty($funcI18n->dates)) {
+        if (! empty($funcI18n->dates)) {
             $existDates = $this->el('existDates');
             $dateRange = $this->el('dateRange');
             $fromDate = $this->el('fromDate', $funcI18n->dates);
@@ -330,7 +326,7 @@ class EacFSerializer
         }
 
         // <functionDescription> textual description
-        if (!empty($funcI18n->description)) {
+        if (! empty($funcI18n->description)) {
             $descriptionText = $this->el('descriptiveNote');
             $p = $this->el('p', $funcI18n->description);
             $descriptionText->appendChild($p);
@@ -338,7 +334,7 @@ class EacFSerializer
         }
 
         // <history>
-        if (!empty($funcI18n->history)) {
+        if (! empty($funcI18n->history)) {
             $history = $this->el('history');
             $p = $this->el('p', $funcI18n->history);
             $history->appendChild($p);
@@ -346,7 +342,7 @@ class EacFSerializer
         }
 
         // <legislation>
-        if (!empty($funcI18n->legislation)) {
+        if (! empty($funcI18n->legislation)) {
             $legislation = $this->el('legislation');
             $p = $this->el('p', $funcI18n->legislation);
             $legislation->appendChild($p);
@@ -357,17 +353,17 @@ class EacFSerializer
         foreach ($ricActivities as $activity) {
             $activityEl = $this->el('activity');
 
-            if (!empty($activity->activity_name)) {
+            if (! empty($activity->activity_name)) {
                 $activityEl->appendChild($this->el('activityName', $activity->activity_name));
             }
 
-            if (!empty($activity->activity_description)) {
+            if (! empty($activity->activity_description)) {
                 $actNote = $this->el('descriptiveNote');
                 $actNote->appendChild($this->el('p', $activity->activity_description));
                 $activityEl->appendChild($actNote);
             }
 
-            if (!empty($activity->date_display)) {
+            if (! empty($activity->date_display)) {
                 $actDates = $this->el('existDates');
                 $actDateRange = $this->el('dateRange');
                 $actDateRange->appendChild($this->el('fromDate', $activity->date_display));
@@ -462,7 +458,7 @@ class EacFSerializer
                 }
             }
 
-            if (!$relatedName) {
+            if (! $relatedName) {
                 continue;
             }
 
@@ -548,7 +544,7 @@ class EacFSerializer
         $root = $dom->createElementNS(self::NS_EACF, 'eac-f');
         $dom->appendChild($root);
 
-        $comment = $dom->createComment(' ' . $message . ' ');
+        $comment = $dom->createComment(' '.$message.' ');
         $root->appendChild($comment);
 
         return $dom->saveXML();

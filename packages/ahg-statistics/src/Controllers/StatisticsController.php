@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgStatistics\Controllers;
 
 use AhgStatistics\Services\StatisticsService;
@@ -37,7 +35,7 @@ class StatisticsController extends Controller
 
     public function __construct()
     {
-        $this->service = new StatisticsService();
+        $this->service = new StatisticsService;
     }
 
     public function dashboard(Request $request)

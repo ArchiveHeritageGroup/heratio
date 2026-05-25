@@ -19,7 +19,7 @@ class JobWorkerCommand extends Command
         $sleep = (int) $this->option('sleep');
         $processed = 0;
 
-        $this->info("Processing Heratio jobs...");
+        $this->info('Processing Heratio jobs...');
 
         while (true) {
             // Check for pending jobs (completed_at IS NULL and status is not error/completed)

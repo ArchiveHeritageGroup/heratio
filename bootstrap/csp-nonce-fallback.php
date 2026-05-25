@@ -25,6 +25,7 @@ if (! function_exists('csp_nonce')) {
         } catch (\Throwable $e) {
             // fall through
         }
+
         return '';
     }
 }

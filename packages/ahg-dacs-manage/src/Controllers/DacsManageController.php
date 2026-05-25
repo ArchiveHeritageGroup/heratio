@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgDacsManage\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -37,7 +35,6 @@ class DacsManageController extends Controller
      * DACS field names from AtoM arDacsPlugin.
      * Source standard: "DACS 2nd edition"
      */
-
     public function edit(Request $request, string $slug)
     {
         $culture = app()->getLocale();
@@ -89,7 +86,7 @@ class DacsManageController extends Controller
             ])
             ->first();
 
-        if (!$io) {
+        if (! $io) {
             abort(404);
         }
 
@@ -103,13 +100,13 @@ class DacsManageController extends Controller
             DB::table('information_object')
                 ->where('id', $io->id)
                 ->update([
-                    'identifier'              => $request->input('identifier'),
+                    'identifier' => $request->input('identifier'),
                     'level_of_description_id' => $request->input('level_of_description_id') ?: null,
-                    'repository_id'           => $request->input('repository_id') ?: null,
-                    'description_status_id'   => $request->input('description_status_id') ?: null,
-                    'description_detail_id'   => $request->input('description_detail_id') ?: null,
-                    'description_identifier'  => $request->input('description_identifier'),
-                    'source_standard'         => 'DACS 2nd edition',
+                    'repository_id' => $request->input('repository_id') ?: null,
+                    'description_status_id' => $request->input('description_status_id') ?: null,
+                    'description_detail_id' => $request->input('description_detail_id') ?: null,
+                    'description_identifier' => $request->input('description_identifier'),
+                    'source_standard' => 'DACS 2nd edition',
                 ]);
 
             if ($request->has('display_standard_id')) {
@@ -123,27 +120,27 @@ class DacsManageController extends Controller
                 ->where('id', $io->id)
                 ->where('culture', $culture)
                 ->update([
-                    'title'                    => $request->input('title'),
-                    'alternate_title'          => $request->input('alternate_title'),
-                    'edition'                  => $request->input('edition'),
-                    'extent_and_medium'        => $request->input('extent_and_medium'),
-                    'archival_history'         => $request->input('archival_history'),
-                    'acquisition'              => $request->input('acquisition'),
-                    'scope_and_content'        => $request->input('scope_and_content'),
-                    'appraisal'                => $request->input('appraisal'),
-                    'accruals'                 => $request->input('accruals'),
-                    'arrangement'              => $request->input('arrangement'),
-                    'access_conditions'        => $request->input('access_conditions'),
-                    'reproduction_conditions'  => $request->input('reproduction_conditions'),
+                    'title' => $request->input('title'),
+                    'alternate_title' => $request->input('alternate_title'),
+                    'edition' => $request->input('edition'),
+                    'extent_and_medium' => $request->input('extent_and_medium'),
+                    'archival_history' => $request->input('archival_history'),
+                    'acquisition' => $request->input('acquisition'),
+                    'scope_and_content' => $request->input('scope_and_content'),
+                    'appraisal' => $request->input('appraisal'),
+                    'accruals' => $request->input('accruals'),
+                    'arrangement' => $request->input('arrangement'),
+                    'access_conditions' => $request->input('access_conditions'),
+                    'reproduction_conditions' => $request->input('reproduction_conditions'),
                     'physical_characteristics' => $request->input('physical_characteristics'),
-                    'finding_aids'             => $request->input('finding_aids'),
-                    'location_of_originals'    => $request->input('location_of_originals'),
-                    'location_of_copies'       => $request->input('location_of_copies'),
+                    'finding_aids' => $request->input('finding_aids'),
+                    'location_of_originals' => $request->input('location_of_originals'),
+                    'location_of_copies' => $request->input('location_of_copies'),
                     'related_units_of_description' => $request->input('related_units_of_description'),
                     'institution_responsible_identifier' => $request->input('institution_responsible_identifier'),
-                    'rules'                    => $request->input('rules'),
-                    'sources'                  => $request->input('sources'),
-                    'revision_history'         => $request->input('revision_history'),
+                    'rules' => $request->input('rules'),
+                    'sources' => $request->input('sources'),
+                    'revision_history' => $request->input('revision_history'),
                 ]);
 
             // DACS-specific properties: languageNotes, technicalAccess
@@ -160,21 +157,23 @@ class DacsManageController extends Controller
                 DB::table('event')->where('object_id', $io->id)->where('type_id', 111)->delete();
                 foreach ($creatorIds as $actorId) {
                     $actorId = (int) $actorId;
-                    if ($actorId <= 0) continue;
+                    if ($actorId <= 0) {
+                        continue;
+                    }
                     $eventObjectId = DB::table('object')->insertGetId([
                         'class_name' => 'QubitEvent',
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
                     DB::table('event')->insert([
-                        'id'             => $eventObjectId,
-                        'object_id'      => $io->id,
-                        'actor_id'       => $actorId,
-                        'type_id'        => 111,
+                        'id' => $eventObjectId,
+                        'object_id' => $io->id,
+                        'actor_id' => $actorId,
+                        'type_id' => 111,
                         'source_culture' => $culture,
                     ]);
                     DB::table('event_i18n')->insert([
-                        'id'      => $eventObjectId,
+                        'id' => $eventObjectId,
                         'culture' => $culture,
                     ]);
                 }
@@ -229,10 +228,10 @@ class DacsManageController extends Controller
                         'updated_at' => now(),
                     ]);
                     DB::table('relation')->insert([
-                        'id'             => $relObjectId,
-                        'subject_id'     => $io->id,
-                        'object_id'      => (int) $actorId,
-                        'type_id'        => 161,
+                        'id' => $relObjectId,
+                        'subject_id' => $io->id,
+                        'object_id' => (int) $actorId,
+                        'type_id' => 161,
                         'source_culture' => $culture,
                     ]);
                 }
@@ -248,10 +247,10 @@ class DacsManageController extends Controller
                         'updated_at' => now(),
                     ]);
                     DB::table('relation')->insert([
-                        'id'             => $relObjectId,
-                        'subject_id'     => $io->id,
-                        'object_id'      => (int) $relId,
-                        'type_id'        => 173,
+                        'id' => $relObjectId,
+                        'subject_id' => $io->id,
+                        'object_id' => (int) $relId,
+                        'type_id' => 173,
                         'source_culture' => $culture,
                     ]);
                 }
@@ -309,8 +308,8 @@ class DacsManageController extends Controller
             ->select('note.id', 'note.type_id', 'note_i18n.content')
             ->get();
         $publicationNotes = $notes->where('type_id', 220)->values();
-        $archivistNotes   = $notes->where('type_id', 174)->values();
-        $generalNotes     = $notes->whereNotIn('type_id', [220, 174])->values();
+        $archivistNotes = $notes->where('type_id', 174)->values();
+        $generalNotes = $notes->whereNotIn('type_id', [220, 174])->values();
 
         // Subject access points (taxonomy 35)
         $subjects = DB::table('object_term_relation')
@@ -369,10 +368,10 @@ class DacsManageController extends Controller
 
         // Languages/scripts of material
         $materialLanguages = $this->loadSerializedProperty($io->id, 'language', $culture);
-        $materialScripts   = $this->loadSerializedProperty($io->id, 'script', $culture);
+        $materialScripts = $this->loadSerializedProperty($io->id, 'script', $culture);
 
         // DACS-specific properties: languageNotes, technicalAccess
-        $languageNotes  = $this->loadProperty($io->id, 'languageNotes', $culture);
+        $languageNotes = $this->loadProperty($io->id, 'languageNotes', $culture);
         $technicalAccess = $this->loadProperty($io->id, 'technicalAccess', $culture);
 
         // Related material descriptions
@@ -386,11 +385,12 @@ class DacsManageController extends Controller
                 ->where('information_object_i18n.culture', $culture)
                 ->select('relation.object_id as id', 'information_object_i18n.title', 'slug.slug')
                 ->get();
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         // Parent info
         $parentTitle = null;
-        $parentSlug  = null;
+        $parentSlug = null;
         if ($io->parent_id && $io->parent_id != 1) {
             $parent = DB::table('information_object')
                 ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
@@ -401,31 +401,31 @@ class DacsManageController extends Controller
                 ->first();
             if ($parent) {
                 $parentTitle = $parent->title;
-                $parentSlug  = $parent->slug;
+                $parentSlug = $parent->slug;
             }
         }
 
         return view('dacs-manage::edit', array_merge(
             [
-                'io'                          => $io,
-                'events'                      => $events,
-                'creators'                    => $creators,
-                'notes'                       => $generalNotes,
-                'publicationNotes'            => $publicationNotes,
-                'archivistNotes'              => $archivistNotes,
-                'subjects'                    => $subjects,
-                'places'                      => $places,
-                'genres'                      => $genres,
-                'nameAccessPoints'            => $nameAccessPoints,
-                'alternativeIdentifiers'      => $alternativeIdentifiers,
-                'publicationStatusId'         => $publicationStatusId,
-                'materialLanguages'           => $materialLanguages,
-                'materialScripts'             => $materialScripts,
-                'languageNotes'               => $languageNotes,
-                'technicalAccess'             => $technicalAccess,
+                'io' => $io,
+                'events' => $events,
+                'creators' => $creators,
+                'notes' => $generalNotes,
+                'publicationNotes' => $publicationNotes,
+                'archivistNotes' => $archivistNotes,
+                'subjects' => $subjects,
+                'places' => $places,
+                'genres' => $genres,
+                'nameAccessPoints' => $nameAccessPoints,
+                'alternativeIdentifiers' => $alternativeIdentifiers,
+                'publicationStatusId' => $publicationStatusId,
+                'materialLanguages' => $materialLanguages,
+                'materialScripts' => $materialScripts,
+                'languageNotes' => $languageNotes,
+                'technicalAccess' => $technicalAccess,
                 'relatedMaterialDescriptions' => $relatedMaterialDescriptions,
-                'parentTitle'                 => $parentTitle,
-                'parentSlug'                  => $parentSlug,
+                'parentTitle' => $parentTitle,
+                'parentSlug' => $parentSlug,
             ],
             $dropdowns
         ));
@@ -511,14 +511,14 @@ class DacsManageController extends Controller
                 ->update(['value' => $value]);
         } elseif ($value !== null && $value !== '') {
             $propId = DB::table('property')->insertGetId([
-                'object_id'      => $objectId,
-                'name'           => $name,
+                'object_id' => $objectId,
+                'name' => $name,
                 'source_culture' => $culture,
             ]);
             DB::table('property_i18n')->insert([
-                'id'      => $propId,
+                'id' => $propId,
                 'culture' => $culture,
-                'value'   => $value,
+                'value' => $value,
             ]);
         }
     }
@@ -556,16 +556,16 @@ class DacsManageController extends Controller
                 ->where('id', $existing->id)
                 ->where('culture', $culture)
                 ->update(['value' => $serialized]);
-        } elseif (!empty($values)) {
+        } elseif (! empty($values)) {
             $propId = DB::table('property')->insertGetId([
-                'object_id'      => $objectId,
-                'name'           => $name,
+                'object_id' => $objectId,
+                'name' => $name,
                 'source_culture' => $culture,
             ]);
             DB::table('property_i18n')->insert([
-                'id'      => $propId,
+                'id' => $propId,
                 'culture' => $culture,
-                'value'   => $serialized,
+                'value' => $serialized,
             ]);
         }
     }

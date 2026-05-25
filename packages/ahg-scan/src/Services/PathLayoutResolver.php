@@ -26,18 +26,17 @@ use Illuminate\Support\Facades\DB;
 class PathLayoutResolver
 {
     /**
-     * @param object $folder  scan_folder row
-     * @param string $absPath absolute path to the detected file
-     *
+     * @param  object  $folder  scan_folder row
+     * @param  string  $absPath  absolute path to the detected file
      * @return array{parent_id:int,identifier:?string,title:?string,sequence:?int,relative:string}|null
-     *              null if the path cannot be resolved (caller should quarantine).
+     *                                                                                                  null if the path cannot be resolved (caller should quarantine).
      */
     public function resolve(object $folder, string $absPath): ?array
     {
         $root = rtrim($folder->path, '/');
         $full = realpath($absPath) ?: $absPath;
 
-        if (strpos($full, $root . '/') !== 0) {
+        if (strpos($full, $root.'/') !== 0) {
             return null;
         }
 
@@ -52,13 +51,14 @@ class PathLayoutResolver
 
         $parentSlug = $parts[0];
         $parentId = $this->resolveParentSlug($parentSlug);
-        if (!$parentId) {
+        if (! $parentId) {
             return null;
         }
 
         if (count($parts) === 2) {
             // <parent_slug>/<identifier>.ext — single-file item
             $stem = pathinfo($parts[1], PATHINFO_FILENAME);
+
             return [
                 'parent_id' => $parentId,
                 'identifier' => $stem,
@@ -86,6 +86,7 @@ class PathLayoutResolver
     protected function resolveParentSlug(string $slug): ?int
     {
         $row = DB::table('slug')->where('slug', $slug)->first();
+
         return $row ? (int) $row->object_id : null;
     }
 
@@ -99,6 +100,7 @@ class PathLayoutResolver
         if (preg_match('/(\d{1,6})$/', $stem, $m)) {
             return (int) $m[1];
         }
+
         return null;
     }
 }

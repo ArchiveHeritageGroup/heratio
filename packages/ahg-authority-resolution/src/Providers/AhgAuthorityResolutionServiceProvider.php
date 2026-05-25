@@ -50,17 +50,8 @@ use AhgAuthorityResolution\Services\CandidateGeneratorService;
 use AhgAuthorityResolution\Services\ContextDerivationService;
 use AhgAuthorityResolution\Services\DecisionProvenanceWriter;
 use AhgAuthorityResolution\Services\DecisionRecorder;
-use AhgAuthorityResolution\Services\FieldProvenanceWriter;
-use AhgAuthorityResolution\Services\Lookup\Adapters\GeoNamesAdapter;
-use AhgAuthorityResolution\Services\Lookup\Adapters\GndAdapter;
-use AhgAuthorityResolution\Services\Lookup\Adapters\IsniAdapter;
-use AhgAuthorityResolution\Services\Lookup\Adapters\SagncAdapter;
-use AhgAuthorityResolution\Services\Lookup\Adapters\TgnAdapter;
-use AhgAuthorityResolution\Services\Lookup\Adapters\ViafAdapter;
-use AhgAuthorityResolution\Services\Lookup\Adapters\WikidataAdapter;
-use AhgAuthorityResolution\Services\Lookup\PrefillEngine;
-use AhgAuthorityResolution\Services\Evidence\CoOccurringPersonEvaluator;
 use AhgAuthorityResolution\Services\Evidence\ConflictEvaluator;
+use AhgAuthorityResolution\Services\Evidence\CoOccurringPersonEvaluator;
 use AhgAuthorityResolution\Services\Evidence\DocumentPriorService;
 use AhgAuthorityResolution\Services\Evidence\GeographicEvaluator;
 use AhgAuthorityResolution\Services\Evidence\HierarchicalEvaluator;
@@ -71,6 +62,15 @@ use AhgAuthorityResolution\Services\Evidence\RoleEvaluator;
 use AhgAuthorityResolution\Services\Evidence\ScaleEvaluator;
 use AhgAuthorityResolution\Services\Evidence\TemporalEvaluator;
 use AhgAuthorityResolution\Services\EvidenceScorer;
+use AhgAuthorityResolution\Services\FieldProvenanceWriter;
+use AhgAuthorityResolution\Services\Lookup\Adapters\GeoNamesAdapter;
+use AhgAuthorityResolution\Services\Lookup\Adapters\GndAdapter;
+use AhgAuthorityResolution\Services\Lookup\Adapters\IsniAdapter;
+use AhgAuthorityResolution\Services\Lookup\Adapters\SagncAdapter;
+use AhgAuthorityResolution\Services\Lookup\Adapters\TgnAdapter;
+use AhgAuthorityResolution\Services\Lookup\Adapters\ViafAdapter;
+use AhgAuthorityResolution\Services\Lookup\Adapters\WikidataAdapter;
+use AhgAuthorityResolution\Services\Lookup\PrefillEngine;
 use AhgAuthorityResolution\Services\NerFeedbackService;
 use AhgAuthorityResolution\Services\ParkQueueService;
 use AhgAuthorityResolution\Services\PromoteToMentionService;
@@ -207,8 +207,8 @@ class AhgAuthorityResolutionServiceProvider extends ServiceProvider
         }
 
         // Task 5: Review UI - admin routes + Blade views.
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/admin.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'auth-res');
+        $this->loadRoutesFrom(__DIR__.'/../../routes/admin.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'auth-res');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -244,8 +244,8 @@ class AhgAuthorityResolutionServiceProvider extends ServiceProvider
             return;
         }
 
-        $sqlPath = __DIR__ . '/../../database/seed_lookup_settings.sql';
-        if (!is_file($sqlPath)) {
+        $sqlPath = __DIR__.'/../../database/seed_lookup_settings.sql';
+        if (! is_file($sqlPath)) {
             return;
         }
         $sql = file_get_contents($sqlPath);
@@ -265,7 +265,7 @@ class AhgAuthorityResolutionServiceProvider extends ServiceProvider
                 continue;
             }
             try {
-                DB::unprepared($stmt . ';');
+                DB::unprepared($stmt.';');
             } catch (\Throwable $e) {
                 // One bad row should not abort the rest.
             }
@@ -279,12 +279,13 @@ class AhgAuthorityResolutionServiceProvider extends ServiceProvider
         $inBody = false;
         foreach ($lines as $line) {
             $trim = ltrim($line);
-            if (!$inBody && ($trim === '' || str_starts_with($trim, '--'))) {
+            if (! $inBody && ($trim === '' || str_starts_with($trim, '--'))) {
                 continue;
             }
             $inBody = true;
             $out[] = $line;
         }
+
         return trim(implode("\n", $out));
     }
 
@@ -304,7 +305,7 @@ class AhgAuthorityResolutionServiceProvider extends ServiceProvider
             return;
         }
 
-        $sqlPath = __DIR__ . '/../../database/seed_workflow.sql';
+        $sqlPath = __DIR__.'/../../database/seed_workflow.sql';
         if (is_file($sqlPath)) {
             $sql = file_get_contents($sqlPath);
             if ($sql !== false && trim($sql) !== '') {
@@ -316,7 +317,7 @@ class AhgAuthorityResolutionServiceProvider extends ServiceProvider
                         continue;
                     }
                     try {
-                        DB::unprepared($stmt . ';');
+                        DB::unprepared($stmt.';');
                     } catch (\Throwable $e) {
                         // One bad statement should not abort the rest.
                     }

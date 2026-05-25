@@ -60,7 +60,7 @@ class ConflictEvaluator implements EvaluatorInterface
     public function evaluate(object $mention, object $context, object $candidate): array
     {
         $candSource = (string) ($candidate->candidate_source ?? '');
-        if (!in_array($candSource, ['mysql_actor', 'fuseki_agent'], true)) {
+        if (! in_array($candSource, ['mysql_actor', 'fuseki_agent'], true)) {
             return EvidenceSignal::make(EvidenceSignal::ABSENT, ['reason' => 'candidate_source_not_actor']);
         }
 
@@ -101,7 +101,7 @@ class ConflictEvaluator implements EvaluatorInterface
             }
         }
 
-        if (!empty($violations)) {
+        if (! empty($violations)) {
             return EvidenceSignal::make(EvidenceSignal::CONFLICT, [
                 'candidate_span' => $span,
                 'candidate_text' => $candText,

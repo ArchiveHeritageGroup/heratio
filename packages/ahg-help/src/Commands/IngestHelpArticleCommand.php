@@ -48,25 +48,28 @@ class IngestHelpArticleCommand extends Command
     public function handle(): int
     {
         $pathOpt = (string) $this->option('path');
-        $slug    = (string) $this->option('slug');
+        $slug = (string) $this->option('slug');
 
         if ($pathOpt === '' || $slug === '') {
             $this->error('Both --path and --slug are required.');
+
             return self::FAILURE;
         }
 
         $path = $pathOpt;
-        if (!str_starts_with($path, '/')) {
+        if (! str_starts_with($path, '/')) {
             $path = base_path($path);
         }
-        if (!is_file($path) || !is_readable($path)) {
+        if (! is_file($path) || ! is_readable($path)) {
             $this->error("Source file not readable: {$path}");
+
             return self::FAILURE;
         }
 
         $markdown = file_get_contents($path);
         if ($markdown === false || $markdown === '') {
             $this->error("Source file is empty: {$path}");
+
             return self::FAILURE;
         }
 
@@ -80,7 +83,7 @@ class IngestHelpArticleCommand extends Command
         }
 
         $converter = new GithubFlavoredMarkdownConverter([
-            'html_input'         => 'allow',
+            'html_input' => 'allow',
             'allow_unsafe_links' => false,
         ]);
         $html = (string) $converter->convert($markdown);
@@ -90,29 +93,29 @@ class IngestHelpArticleCommand extends Command
         $wordCount = $text === '' ? 0 : str_word_count($text);
 
         $sections = $this->extractSections($markdown);
-        $tocJson  = json_encode(array_map(
+        $tocJson = json_encode(array_map(
             fn ($s) => ['level' => $s['level'], 'text' => $s['heading'], 'anchor' => $s['anchor']],
             $sections
         ), JSON_UNESCAPED_SLASHES);
 
         $sourceFile = $this->relativeSourceFile($path);
-        $now        = Carbon::now();
+        $now = Carbon::now();
 
         $payload = [
-            'title'          => $title,
-            'category'       => (string) $this->option('category'),
-            'subcategory'    => $this->option('subcategory') ?: null,
-            'source_file'    => $sourceFile,
-            'body_markdown'  => $markdown,
-            'body_html'      => $html,
-            'body_text'      => $text,
-            'toc_json'       => $tocJson,
-            'word_count'     => $wordCount,
-            'sort_order'     => (int) $this->option('sort-order'),
-            'is_published'   => $this->option('unpublish') ? 0 : 1,
+            'title' => $title,
+            'category' => (string) $this->option('category'),
+            'subcategory' => $this->option('subcategory') ?: null,
+            'source_file' => $sourceFile,
+            'body_markdown' => $markdown,
+            'body_html' => $html,
+            'body_text' => $text,
+            'toc_json' => $tocJson,
+            'word_count' => $wordCount,
+            'sort_order' => (int) $this->option('sort-order'),
+            'is_published' => $this->option('unpublish') ? 0 : 1,
             'related_plugin' => $this->option('related-plugin') ?: null,
-            'tags'           => $this->option('tags') ?: null,
-            'updated_at'     => $now,
+            'tags' => $this->option('tags') ?: null,
+            'updated_at' => $now,
         ];
 
         $existing = DB::table('help_article')->where('slug', $slug)->first();
@@ -122,7 +125,7 @@ class IngestHelpArticleCommand extends Command
             $this->info("Updated help article #{$articleId} ({$slug})");
         } else {
             $articleId = (int) DB::table('help_article')->insertGetId(array_merge($payload, [
-                'slug'       => $slug,
+                'slug' => $slug,
                 'created_at' => $now,
             ]));
             $this->info("Inserted help article #{$articleId} ({$slug})");
@@ -132,14 +135,14 @@ class IngestHelpArticleCommand extends Command
         foreach ($sections as $i => $s) {
             DB::table('help_section')->insert([
                 'article_id' => $articleId,
-                'heading'    => $s['heading'],
-                'anchor'     => $s['anchor'],
-                'level'      => $s['level'],
-                'body_text'  => $s['body_text'],
+                'heading' => $s['heading'],
+                'anchor' => $s['anchor'],
+                'level' => $s['level'],
+                'body_text' => $s['body_text'],
                 'sort_order' => $i,
             ]);
         }
-        $this->info('Section count: ' . count($sections));
+        $this->info('Section count: '.count($sections));
 
         return self::SUCCESS;
     }
@@ -151,7 +154,7 @@ class IngestHelpArticleCommand extends Command
     {
         $lines = preg_split("/\r\n|\n|\r/", $markdown) ?: [];
         $sections = [];
-        $current  = null;
+        $current = null;
 
         foreach ($lines as $line) {
             if (preg_match('/^(#{2,4})\s+(.+?)\s*$/', $line, $m)) {
@@ -159,18 +162,19 @@ class IngestHelpArticleCommand extends Command
                     $current['body_text'] = trim($current['body_text']);
                     $sections[] = $current;
                 }
-                $level   = strlen($m[1]);
+                $level = strlen($m[1]);
                 $heading = trim($m[2]);
                 $current = [
-                    'heading'   => $heading,
-                    'anchor'    => $this->slugify($heading),
-                    'level'     => $level,
+                    'heading' => $heading,
+                    'anchor' => $this->slugify($heading),
+                    'level' => $level,
                     'body_text' => '',
                 ];
+
                 continue;
             }
             if ($current !== null) {
-                $current['body_text'] .= $line . "\n";
+                $current['body_text'] .= $line."\n";
             }
         }
 
@@ -178,6 +182,7 @@ class IngestHelpArticleCommand extends Command
             $current['body_text'] = trim($current['body_text']);
             $sections[] = $current;
         }
+
         return $sections;
     }
 
@@ -185,6 +190,7 @@ class IngestHelpArticleCommand extends Command
     {
         $s = strtolower($s);
         $s = preg_replace('/[^a-z0-9]+/', '-', $s) ?? '';
+
         return trim($s, '-');
     }
 
@@ -197,17 +203,18 @@ class IngestHelpArticleCommand extends Command
         return preg_replace_callback(
             '/<(h[1-6])\b([^>]*)>(.*?)<\/\1>/is',
             function (array $m): string {
-                $tag   = $m[1];
+                $tag = $m[1];
                 $attrs = $m[2];
                 $inner = $m[3];
                 if (preg_match('/\bid\s*=/i', $attrs)) {
                     return $m[0];
                 }
-                $text   = trim(html_entity_decode(strip_tags($inner), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+                $text = trim(html_entity_decode(strip_tags($inner), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
                 $anchor = $this->slugify($text);
                 if ($anchor === '') {
                     return $m[0];
                 }
+
                 return "<{$tag} id=\"{$anchor}\"{$attrs}>{$inner}</{$tag}>";
             },
             $html
@@ -216,10 +223,11 @@ class IngestHelpArticleCommand extends Command
 
     private function relativeSourceFile(string $absolute): string
     {
-        $base = base_path() . '/';
+        $base = base_path().'/';
         if (str_starts_with($absolute, $base)) {
             return substr($absolute, strlen($base));
         }
+
         return $absolute;
     }
 }

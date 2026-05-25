@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use AhgPrivacy\Controllers\PrivacyController;
+use Illuminate\Support\Facades\Route;
 
 // Legacy AtoM URL alias
 Route::get('/privacyAdmin', fn () => redirect('/admin/privacy/index'));
-Route::get('/privacyAdmin/{action}', fn (string $action) => redirect('/admin/privacy/' . \Illuminate\Support\Str::kebab($action)));
+Route::get('/privacyAdmin/{action}', fn (string $action) => redirect('/admin/privacy/'.\Illuminate\Support\Str::kebab($action)));
 
 Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(function () {
     Route::get('/complaint-confirmation', [PrivacyController::class, 'complaintConfirmation'])->name('ahgprivacy.complaint-confirmation');

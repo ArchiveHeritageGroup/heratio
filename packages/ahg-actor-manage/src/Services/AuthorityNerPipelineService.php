@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Services;
 
 use AhgCore\Services\AhgSettingsService;
@@ -55,16 +53,16 @@ class AuthorityNerPipelineService
                 'ioi.title as source_title'
             );
 
-        if (!empty($filters['entity_type'])) {
+        if (! empty($filters['entity_type'])) {
             $query->where('ne.entity_type', $filters['entity_type']);
         }
 
-        if (!empty($filters['min_confidence'])) {
+        if (! empty($filters['min_confidence'])) {
             $query->where('ne.confidence', '>=', $filters['min_confidence']);
         }
 
-        if (!empty($filters['search'])) {
-            $query->where('ne.entity_value', 'like', '%' . $filters['search'] . '%');
+        if (! empty($filters['search'])) {
+            $query->where('ne.entity_value', 'like', '%'.$filters['search'].'%');
         }
 
         $sort = $filters['sort'] ?? 'ne.confidence';
@@ -99,11 +97,11 @@ class AuthorityNerPipelineService
                 'slug.slug'
             );
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('s.status', $filters['status']);
         }
 
-        if (!empty($filters['entity_type'])) {
+        if (! empty($filters['entity_type'])) {
             $query->where('s.entity_type', $filters['entity_type']);
         }
 
@@ -125,7 +123,7 @@ class AuthorityNerPipelineService
         return DB::table('actor_i18n as ai')
             ->leftJoin('slug', 'ai.id', '=', 'slug.object_id')
             ->where('ai.culture', 'en')
-            ->where('ai.authorized_form_of_name', 'like', '%' . $entityValue . '%')
+            ->where('ai.authorized_form_of_name', 'like', '%'.$entityValue.'%')
             ->select('ai.id', 'ai.authorized_form_of_name as name', 'slug.slug')
             ->limit($limit)
             ->get()
@@ -138,7 +136,7 @@ class AuthorityNerPipelineService
     public function createStub(int $nerEntityId, int $userId): ?int
     {
         // Gate: auto-stub creation must be enabled
-        if (!AhgSettingsService::getBool('authority_ner_auto_stub_enabled', false)) {
+        if (! AhgSettingsService::getBool('authority_ner_auto_stub_enabled', false)) {
             return null;
         }
 
@@ -146,7 +144,7 @@ class AuthorityNerPipelineService
             ->where('id', $nerEntityId)
             ->first();
 
-        if (!$entity) {
+        if (! $entity) {
             return null;
         }
 
@@ -174,34 +172,34 @@ class AuthorityNerPipelineService
 
         // `description_identifier` lives on the `actor` table, not `actor_i18n`.
         DB::table('actor')->insert([
-            'id'                     => $objectId,
-            'entity_type_id'         => $this->getEntityTypeId($entity->entity_type),
-            'description_identifier' => 'NER-STUB-' . $nerEntityId,
-            'source_culture'         => 'en',
+            'id' => $objectId,
+            'entity_type_id' => $this->getEntityTypeId($entity->entity_type),
+            'description_identifier' => 'NER-STUB-'.$nerEntityId,
+            'source_culture' => 'en',
         ]);
 
         DB::table('actor_i18n')->insert([
-            'id'                       => $objectId,
-            'culture'                  => 'en',
-            'authorized_form_of_name'  => $entity->entity_value,
-            'sources'                  => 'Created from NER extraction',
+            'id' => $objectId,
+            'culture' => 'en',
+            'authorized_form_of_name' => $entity->entity_value,
+            'sources' => 'Created from NER extraction',
         ]);
 
         $slug = $this->generateSlug($entity->entity_value);
         DB::table('slug')->insert([
             'object_id' => $objectId,
-            'slug'      => $slug,
+            'slug' => $slug,
         ]);
 
         DB::table('ahg_ner_authority_stub')->insert([
-            'ner_entity_id'   => $nerEntityId,
-            'actor_id'        => $objectId,
+            'ner_entity_id' => $nerEntityId,
+            'actor_id' => $objectId,
             'source_object_id' => $entity->object_id,
-            'entity_type'     => $entity->entity_type,
-            'entity_value'    => $entity->entity_value,
-            'confidence'      => $entity->confidence ?? 1.0,
-            'status'          => 'stub',
-            'created_at'      => date('Y-m-d H:i:s'),
+            'entity_type' => $entity->entity_type,
+            'entity_value' => $entity->entity_value,
+            'confidence' => $entity->confidence ?? 1.0,
+            'status' => 'stub',
+            'created_at' => date('Y-m-d H:i:s'),
         ]);
 
         return $objectId;
@@ -215,7 +213,7 @@ class AuthorityNerPipelineService
         return DB::table('ahg_ner_authority_stub')
             ->where('id', $stubId)
             ->update([
-                'status'      => 'promoted',
+                'status' => 'promoted',
                 'promoted_by' => $userId,
                 'promoted_at' => date('Y-m-d H:i:s'),
             ]) > 0;
@@ -229,7 +227,7 @@ class AuthorityNerPipelineService
         return DB::table('ahg_ner_authority_stub')
             ->where('id', $stubId)
             ->update([
-                'status'      => 'rejected',
+                'status' => 'rejected',
                 'promoted_by' => $userId,
                 'promoted_at' => date('Y-m-d H:i:s'),
             ]) > 0;
@@ -272,8 +270,8 @@ class AuthorityNerPipelineService
 
         return [
             'pending_entities' => $pendingEntities,
-            'by_status'        => $byStatus,
-            'total_stubs'      => $totalStubs,
+            'by_status' => $byStatus,
+            'total_stubs' => $totalStubs,
         ];
     }
 
@@ -309,7 +307,7 @@ class AuthorityNerPipelineService
         $base = $slug;
         $counter = 1;
         while (DB::table('slug')->where('slug', $slug)->exists()) {
-            $slug = $base . '-' . $counter;
+            $slug = $base.'-'.$counter;
             $counter++;
         }
 

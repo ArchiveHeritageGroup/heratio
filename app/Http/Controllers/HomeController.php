@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
@@ -93,7 +92,7 @@ class HomeController extends Controller
                 ->get()
                 ->map(function ($row) use ($culture, $fallback) {
                     $obj = DB::table('object')->where('id', $row->object_id)->first();
-                    if (!$obj) {
+                    if (! $obj) {
                         return null;
                     }
 
@@ -105,16 +104,16 @@ class HomeController extends Controller
                     // i18n table off class_name. Mirrors the entity-service pattern.
                     $i18nTable = match ($obj->class_name) {
                         'QubitInformationObject' => 'information_object_i18n',
-                        'QubitRepository'        => 'repository_i18n',
-                        'QubitActor'             => 'actor_i18n',
-                        default                  => null,
+                        'QubitRepository' => 'repository_i18n',
+                        'QubitActor' => 'actor_i18n',
+                        default => null,
                     };
                     $titleColumn = $obj->class_name === 'QubitInformationObject' ? 'title' : 'authorized_form_of_name';
                     $module = match ($obj->class_name) {
                         'QubitInformationObject' => 'informationobject',
-                        'QubitRepository'        => 'repository',
-                        'QubitActor'             => 'actor',
-                        default                  => null,
+                        'QubitRepository' => 'repository',
+                        'QubitActor' => 'actor',
+                        default => null,
                     };
                     if ($i18nTable) {
                         $title = DB::table($i18nTable)
@@ -124,7 +123,7 @@ class HomeController extends Controller
                             ->value($titleColumn);
                     }
 
-                    if (!$title || !$slug) {
+                    if (! $title || ! $slug) {
                         return null;
                     }
 
@@ -181,12 +180,12 @@ class HomeController extends Controller
             }
 
             $collectionId = $settings['homepage_collection_id'] ?? null;
-            if (!$collectionId) {
+            if (! $collectionId) {
                 return [];
             }
 
             $collection = DB::table('iiif_collection')->where('id', $collectionId)->first();
-            if (!$collection) {
+            if (! $collection) {
                 return [];
             }
 
@@ -274,10 +273,10 @@ class HomeController extends Controller
                 $hasImageDerivative = $reference || $thumbnail;
 
                 // Skip non-displayable items
-                if (($isAudio || $isVideo) && !$hasImageDerivative) {
+                if (($isAudio || $isVideo) && ! $hasImageDerivative) {
                     continue;
                 }
-                if (!$isImage && !$isAudio && !$isVideo) {
+                if (! $isImage && ! $isAudio && ! $isVideo) {
                     continue;
                 }
 
@@ -285,30 +284,30 @@ class HomeController extends Controller
                 $imageThumb = null;
 
                 if ($reference) {
-                    $imageLarge = rtrim($reference->path, '/') . '/' . $reference->name;
+                    $imageLarge = rtrim($reference->path, '/').'/'.$reference->name;
                 }
                 if ($thumbnail) {
-                    $imageThumb = rtrim($thumbnail->path, '/') . '/' . $thumbnail->name;
+                    $imageThumb = rtrim($thumbnail->path, '/').'/'.$thumbnail->name;
                 }
 
                 // IIIF fallback for images without derivatives
                 $iiifFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/tiff', 'image/jp2'];
-                if (!$imageLarge && $isImage && in_array($item->mime_type, $iiifFormats)) {
+                if (! $imageLarge && $isImage && in_array($item->mime_type, $iiifFormats)) {
                     $imagePath = ltrim($item->filepath, '/');
-                    $cantaloupeId = str_replace('/', '_SL_', $imagePath) . $item->filename;
+                    $cantaloupeId = str_replace('/', '_SL_', $imagePath).$item->filename;
                     $imageLarge = "{$baseUrl}/iiif/2/{$cantaloupeId}/full/1200,/0/default.jpg";
-                    if (!$imageThumb) {
+                    if (! $imageThumb) {
                         $imageThumb = "{$baseUrl}/iiif/2/{$cantaloupeId}/full/200,/0/default.jpg";
                     }
                 }
 
-                if (!$imageLarge && $imageThumb) {
+                if (! $imageLarge && $imageThumb) {
                     $imageLarge = $imageThumb;
                 }
-                if (!$imageLarge) {
+                if (! $imageLarge) {
                     continue;
                 }
-                if (!$imageThumb) {
+                if (! $imageThumb) {
                     $imageThumb = $imageLarge;
                 }
 
@@ -319,7 +318,7 @@ class HomeController extends Controller
                     'slug' => $item->slug,
                     'image_large' => $imageLarge,
                     'image_thumb' => $imageThumb,
-                    'link' => '/' . $item->slug,
+                    'link' => '/'.$item->slug,
                     'media_type' => $isImage ? 'image' : ($isVideo ? 'video' : ($isAudio ? 'audio' : 'other')),
                 ];
             }

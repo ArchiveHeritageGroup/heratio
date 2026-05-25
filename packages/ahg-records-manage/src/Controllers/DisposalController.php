@@ -2,8 +2,8 @@
 
 namespace AhgRecordsManage\Controllers;
 
-use AhgRecordsManage\Services\DisposalWorkflowService;
 use AhgRecordsManage\Services\DisposalExecutionService;
+use AhgRecordsManage\Services\DisposalWorkflowService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Schema;
 class DisposalController extends Controller
 {
     protected DisposalWorkflowService $workflowService;
+
     protected DisposalExecutionService $executionService;
 
     public function __construct(DisposalWorkflowService $workflowService, DisposalExecutionService $executionService)
@@ -62,7 +63,7 @@ class DisposalController extends Controller
             ->select('information_object.id', 'information_object_i18n.title')
             ->first();
 
-        if (!$io) {
+        if (! $io) {
             abort(404, 'Information object not found.');
         }
 
@@ -137,7 +138,7 @@ class DisposalController extends Controller
     public function show(int $id)
     {
         $action = $this->workflowService->getAction($id);
-        if (!$action) {
+        if (! $action) {
             abort(404, 'Disposal action not found.');
         }
 
@@ -231,7 +232,7 @@ class DisposalController extends Controller
     public function execute(Request $request, int $id)
     {
         $action = $this->workflowService->getAction($id);
-        if (!$action) {
+        if (! $action) {
             abort(404, 'Disposal action not found.');
         }
 
@@ -250,7 +251,7 @@ class DisposalController extends Controller
             $result = $this->executionService->executeRetain($id, $userId, $reason);
         } else {
             return redirect()->route('records.disposal.show', $id)
-                ->with('error', 'Unknown action type: ' . $action->action_type);
+                ->with('error', 'Unknown action type: '.$action->action_type);
         }
 
         if ($result['success'] ?? false) {
@@ -268,7 +269,7 @@ class DisposalController extends Controller
     public function verify(int $id)
     {
         $action = $this->workflowService->getAction($id);
-        if (!$action) {
+        if (! $action) {
             abort(404, 'Disposal action not found.');
         }
 
@@ -294,7 +295,7 @@ class DisposalController extends Controller
         $completedStatuses = ['executed', 'cancelled', 'rejected', 'retained'];
 
         // Re-query with completed statuses if no specific status filter
-        if (!$request->input('status')) {
+        if (! $request->input('status')) {
             $culture = app()->getLocale();
             $query = DB::table('rm_disposal_action as da')
                 ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
@@ -310,10 +311,10 @@ class DisposalController extends Controller
 
             $total = $query->count();
             $items = $query->select([
-                    'da.*',
-                    'io_i18n.title as io_title',
-                    'init_actor.authorized_form_of_name as initiated_by_name',
-                ])
+                'da.*',
+                'io_i18n.title as io_title',
+                'init_actor.authorized_form_of_name as initiated_by_name',
+            ])
                 ->orderBy('da.updated_at', 'desc')
                 ->offset(($page - 1) * 25)
                 ->limit(25)

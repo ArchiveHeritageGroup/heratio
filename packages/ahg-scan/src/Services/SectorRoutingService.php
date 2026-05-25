@@ -45,8 +45,8 @@ class SectorRoutingService
      * a no-op except for archive sector (which is already fully handled by
      * IngestService::ingestFile).
      *
-     * @param array  $parsed  SidecarParser output (see SidecarParser::parse docblock)
-     * @return string[]       Non-fatal warning messages for operators
+     * @param  array  $parsed  SidecarParser output (see SidecarParser::parse docblock)
+     * @return string[] Non-fatal warning messages for operators
      */
     public function route(int $ioId, int $doId, ?array $parsed, object $session): array
     {
@@ -54,7 +54,7 @@ class SectorRoutingService
         $sector = $parsed['sector'] ?? $session->sector ?? 'archive';
 
         // 1. DAM augmentation (all sectors)
-        if (!empty($parsed['dam_augmentation']) && is_array($parsed['dam_augmentation'])) {
+        if (! empty($parsed['dam_augmentation']) && is_array($parsed['dam_augmentation'])) {
             $this->mergeDamAugmentation((int) $ioId, $parsed['dam_augmentation']);
         }
 
@@ -75,11 +75,11 @@ class SectorRoutingService
                 case 'museum':
                     $this->routeMuseum($ioId, $profile, $session, $warnings);
                     break;
-                // 'archive' → covered by IngestService; nothing sector-specific to add
+                    // 'archive' → covered by IngestService; nothing sector-specific to add
             }
         } catch (\Throwable $e) {
-            Log::warning("[ahg-scan] sector routing ({$sector}) failed for IO {$ioId}: " . $e->getMessage());
-            $warnings[] = "Sector routing failure: " . $e->getMessage();
+            Log::warning("[ahg-scan] sector routing ({$sector}) failed for IO {$ioId}: ".$e->getMessage());
+            $warnings[] = 'Sector routing failure: '.$e->getMessage();
         }
 
         return $warnings;
@@ -114,14 +114,16 @@ class SectorRoutingService
             'lccn' => $this->flat($profile['lccn'] ?? null),
             'oclc_number' => $this->flat($profile['oclc'] ?? null),
             'doi' => $this->flat($profile['doi'] ?? null),
-        ], fn($v) => $v !== null && $v !== ''));
+        ], fn ($v) => $v !== null && $v !== ''));
 
         $libraryItemId = (int) DB::getPdo()->lastInsertId();
 
         // Creators
         foreach ($this->iterate($profile['creators']['creator'] ?? $profile['creator'] ?? null) as $sortOrder => $c) {
             $name = $this->creatorName($c);
-            if (!$name) { continue; }
+            if (! $name) {
+                continue;
+            }
             DB::table('library_item_creator')->insert([
                 'library_item_id' => $libraryItemId,
                 'name' => $name,
@@ -136,7 +138,9 @@ class SectorRoutingService
         // Subjects
         foreach ($this->iterate($profile['subjects']['subject'] ?? $profile['subject'] ?? null) as $s) {
             $heading = $this->flat(is_array($s) ? ($s['value'] ?? '') : $s);
-            if (!$heading) { continue; }
+            if (! $heading) {
+                continue;
+            }
             $uri = $this->attr($s, 'uri');
             $vocab = $this->attr($s, 'vocab');
             DB::table('library_item_subject')->insert([
@@ -148,7 +152,7 @@ class SectorRoutingService
                 'created_at' => now(),
             ]);
             $this->touchLibrarySubject($heading);
-            if ($vocab && !$this->vocabKnown($vocab)) {
+            if ($vocab && ! $this->vocabKnown($vocab)) {
                 $warnings[] = "Unknown vocabulary '{$vocab}' on library subject '{$heading}'";
             }
         }
@@ -165,7 +169,7 @@ class SectorRoutingService
                 'status' => $attrs['status'] ?? 'available',
                 'created_at' => now(),
                 'updated_at' => now(),
-            ], fn($v) => $v !== null && $v !== ''));
+            ], fn ($v) => $v !== null && $v !== ''));
         }
     }
 
@@ -220,10 +224,13 @@ class SectorRoutingService
         // 3. Artist(s): find-or-create actor + gallery_artist + creation event.
         foreach ($this->iterate($profile['artist'] ?? null) as $artistNode) {
             $name = $this->creatorName($artistNode);
-            if (!$name) { continue; }
+            if (! $name) {
+                continue;
+            }
             $actorId = $this->findOrCreateActor($name, $this->attr($artistNode, 'uri'), (bool) ($session->output_create_authorities ?? 1));
-            if (!$actorId) {
+            if (! $actorId) {
                 $warnings[] = "Artist '{$name}' not found and auto-create disabled";
+
                 continue;
             }
             $this->upsertGalleryArtist($actorId, $name, $artistNode);
@@ -232,14 +239,14 @@ class SectorRoutingService
 
         // 4. Valuation (optional).
         $val = $profile['valuation'] ?? null;
-        if (is_array($val) && !empty($val['@attributes']['amount'] ?? null)) {
+        if (is_array($val) && ! empty($val['@attributes']['amount'] ?? null)) {
             $a = $val['@attributes'];
             DB::table('gallery_valuation')->insert([
                 'object_id' => $ioId,
                 'valuation_type' => $a['type'] ?? 'insurance',
                 'value_amount' => $a['amount'],
                 'currency' => $a['currency'] ?? 'ZAR',
-                'valuation_date' => !empty($a['date']) ? $a['date'] : now()->toDateString(),
+                'valuation_date' => ! empty($a['date']) ? $a['date'] : now()->toDateString(),
                 'is_current' => 1,
                 'created_at' => now(),
             ]);
@@ -259,7 +266,7 @@ class SectorRoutingService
                 'medium_specialty' => $this->child($artistNode, 'mediumSpecialty'),
                 'movement_style' => $this->child($artistNode, 'movementStyle'),
                 'nationality' => $this->child($artistNode, 'nationality'),
-            ]), fn($v) => $v !== null);
+            ]), fn ($v) => $v !== null);
         }
         if ($existing) {
             DB::table('gallery_artist')->where('id', $existing->id)->update($row);
@@ -286,7 +293,7 @@ class SectorRoutingService
             'identifier' => $this->flat($profile['identifier'] ?? null),
             'object_number' => $objectNumber,
             'title' => $this->flat($profile['title'] ?? null),
-        ], fn($v) => $v !== null && $v !== '');
+        ], fn ($v) => $v !== null && $v !== '');
 
         if ($existing) {
             DB::table('museum_object')->where('id', $existing->id)->update(array_merge($museumObjectRow, ['updated_at' => now()]));
@@ -306,7 +313,7 @@ class SectorRoutingService
         // Darwin Core natural-history block: currently stored as JSON in
         // museum_metadata.physical_appearance when present. Full taxonomy
         // resolution is out of P3 scope (plan P7).
-        if (!empty($profile['darwinCore'])) {
+        if (! empty($profile['darwinCore'])) {
             DB::table('museum_metadata')->where('object_id', $ioId)->update([
                 'physical_appearance' => json_encode($profile['darwinCore'], JSON_UNESCAPED_SLASHES),
             ]);
@@ -316,17 +323,19 @@ class SectorRoutingService
     protected function enterSpectrumWorkflow(int $ioId, array $profile, object $session): void
     {
         $spectrum = $profile['spectrum'] ?? null;
-        if (!is_array($spectrum)) { return; }
+        if (! is_array($spectrum)) {
+            return;
+        }
 
-        $entryNumber = 'scan-' . $ioId;
+        $entryNumber = 'scan-'.$ioId;
         $exists = DB::table('spectrum_object_entry')->where('object_id', $ioId)->exists();
-        if (!$exists) {
+        if (! $exists) {
             DB::table('spectrum_object_entry')->insert([
                 'object_id' => $ioId,
                 'entry_number' => $entryNumber,
                 'entry_date' => $this->child($spectrum, 'entryDate') ?: now()->toDateString(),
                 'entry_method' => $this->child($spectrum, 'acquisitionMethod') ?: 'scan-ingest',
-                'entry_reason' => 'Auto-enter from scanner ingest session ' . $session->id,
+                'entry_reason' => 'Auto-enter from scanner ingest session '.$session->id,
                 'received_by' => 'heratio-scan',
                 'workflow_state' => 'received',
                 'created_at' => now(),
@@ -337,10 +346,10 @@ class SectorRoutingService
         $accession = $this->child($spectrum, 'acquisitionMethod');
         if ($accession) {
             $exists = DB::table('spectrum_acquisition')->where('object_id', $ioId)->exists();
-            if (!$exists) {
+            if (! $exists) {
                 DB::table('spectrum_acquisition')->insert([
                     'object_id' => $ioId,
-                    'acquisition_number' => 'scan-' . $ioId,
+                    'acquisition_number' => 'scan-'.$ioId,
                     'acquisition_date' => $this->child($spectrum, 'acquisitionDate') ?: now()->toDateString(),
                     'acquisition_method' => $accession,
                     'created_at' => now(),
@@ -374,8 +383,10 @@ class SectorRoutingService
             'cultural_context' => $this->childLabel($profile['culturalAffiliation'] ?? null, 255),
             'current_location' => $this->child($profile['spectrum'] ?? null, 'currentLocation')
                 ?? $this->flat($profile['physicalLocation'] ?? null),
-        ], fn($v) => $v !== null && $v !== '');
-        if (empty($row)) { return; }
+        ], fn ($v) => $v !== null && $v !== '');
+        if (empty($row)) {
+            return;
+        }
 
         $existing = DB::table('museum_metadata')->where('object_id', $ioId)->exists();
         if ($existing) {
@@ -404,12 +415,16 @@ class SectorRoutingService
             if ($v !== null && $v !== '') {
                 if ($dbCol === 'date_created') {
                     $v = $this->normalizeDate($v);
-                    if (!$v) { continue; }
+                    if (! $v) {
+                        continue;
+                    }
                 }
                 $update[$dbCol] = $v;
             }
         }
-        if (empty($update)) { return; }
+        if (empty($update)) {
+            return;
+        }
 
         $exists = DB::table('dam_iptc_metadata')->where('object_id', $ioId)->exists();
         if ($exists) {
@@ -439,9 +454,11 @@ class SectorRoutingService
             ->where('authorized_form_of_name', $name)
             ->where('culture', 'en')
             ->value('id');
-        if ($existing) { return (int) $existing; }
+        if ($existing) {
+            return (int) $existing;
+        }
 
-        if (!$canCreate) {
+        if (! $canCreate) {
             return null;
         }
 
@@ -466,13 +483,14 @@ class SectorRoutingService
                 'authorized_form_of_name' => $name,
             ]);
             // Slug
-            $base = Str::slug($name) ?: 'actor-' . $objectId;
+            $base = Str::slug($name) ?: 'actor-'.$objectId;
             $slug = $base;
             $n = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $base . '-' . $n++;
+                $slug = $base.'-'.$n++;
             }
             DB::table('slug')->insert(['object_id' => $objectId, 'slug' => $slug]);
+
             return $objectId;
         });
     }
@@ -485,7 +503,9 @@ class SectorRoutingService
             ->where('actor_id', $actorId)
             ->where('type_id', self::EVENT_TYPE_CREATION)
             ->exists();
-        if ($exists) { return; }
+        if ($exists) {
+            return;
+        }
 
         // Class-table inheritance: event.id must match the parent object.id.
         $now = now();
@@ -509,30 +529,45 @@ class SectorRoutingService
 
     protected function flat($v): ?string
     {
-        if ($v === null || $v === '') { return null; }
-        if (is_array($v)) {
-            if (isset($v['value'])) { return (string) $v['value']; }
-            if (array_is_list($v)) { return implode('; ', array_map('strval', $v)); }
+        if ($v === null || $v === '') {
             return null;
         }
+        if (is_array($v)) {
+            if (isset($v['value'])) {
+                return (string) $v['value'];
+            }
+            if (array_is_list($v)) {
+                return implode('; ', array_map('strval', $v));
+            }
+
+            return null;
+        }
+
         return (string) $v;
     }
 
     protected function attr($node, string $attr): ?string
     {
-        if (!is_array($node)) { return null; }
+        if (! is_array($node)) {
+            return null;
+        }
+
         return $node['@attributes'][$attr] ?? null;
     }
 
     protected function child($node, string $key): ?string
     {
-        if (!is_array($node)) { return null; }
+        if (! is_array($node)) {
+            return null;
+        }
+
         return $this->flat($node[$key] ?? null);
     }
 
     protected function childLabel($node, int $maxLen): ?string
     {
         $v = $this->flat($node);
+
         return $v ? mb_substr($v, 0, $maxLen) : null;
     }
 
@@ -541,9 +576,12 @@ class SectorRoutingService
      */
     protected function iterate($raw): iterable
     {
-        if ($raw === null) { return; }
-        if (is_string($raw) || (is_array($raw) && !array_is_list($raw))) {
+        if ($raw === null) {
+            return;
+        }
+        if (is_string($raw) || (is_array($raw) && ! array_is_list($raw))) {
             yield 0 => $raw;
+
             return;
         }
         foreach ((array) $raw as $i => $item) {
@@ -553,67 +591,92 @@ class SectorRoutingService
 
     protected function creatorName($node): ?string
     {
-        if (is_string($node)) { return trim($node) ?: null; }
-        if (!is_array($node)) { return null; }
+        if (is_string($node)) {
+            return trim($node) ?: null;
+        }
+        if (! is_array($node)) {
+            return null;
+        }
         // Text content of the element (if any).
-        if (!empty($node['value']) && is_string($node['value'])) {
+        if (! empty($node['value']) && is_string($node['value'])) {
             return trim($node['value']);
         }
         // Element-children named displayName.
-        if (!empty($node['displayName']) && is_string($node['displayName'])) {
+        if (! empty($node['displayName']) && is_string($node['displayName'])) {
             return trim($node['displayName']);
         }
         // Attribute-only form: <artist displayName="..." vocab="ulan"/>
         $attr = $this->attr($node, 'displayName');
+
         return $attr ? trim($attr) : null;
     }
 
     protected function listChildren($raw): ?string
     {
-        if ($raw === null) { return null; }
+        if ($raw === null) {
+            return null;
+        }
         $out = [];
         foreach ($this->iterate($raw) as $item) {
             $v = $this->flat($item);
-            if ($v) { $out[] = $v; }
+            if ($v) {
+                $out[] = $v;
+            }
         }
+
         return $out ? implode('; ', $out) : null;
     }
 
     protected function measurementsString($raw): ?string
     {
-        if ($raw === null) { return null; }
+        if ($raw === null) {
+            return null;
+        }
         $out = [];
         foreach ($this->iterate($raw) as $m) {
             $type = $this->attr($m, 'type');
             $value = $this->attr($m, 'value');
             $unit = $this->attr($m, 'unit');
             if ($value !== null) {
-                $out[] = trim(($type ? "$type: " : '') . $value . ($unit ? " $unit" : ''));
+                $out[] = trim(($type ? "$type: " : '').$value.($unit ? " $unit" : ''));
             }
         }
+
         return $out ? implode(' × ', $out) : null;
     }
 
     protected function provenanceString($raw): ?string
     {
-        if ($raw === null) { return null; }
+        if ($raw === null) {
+            return null;
+        }
         $out = [];
         foreach ($this->iterate($raw) as $entry) {
             $date = $this->attr($entry, 'date') ?: '';
             $owner = $this->attr($entry, 'owner') ?: '';
             $acq = $this->attr($entry, 'acquisition') ?: '';
             $parts = array_filter([$date, $owner, $acq]);
-            if ($parts) { $out[] = implode(' — ', $parts); }
+            if ($parts) {
+                $out[] = implode(' — ', $parts);
+            }
         }
+
         return $out ? implode("\n", $out) : null;
     }
 
     protected function normalizeDate(?string $raw): ?string
     {
-        if (!$raw) { return null; }
-        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw)) { return $raw; }
-        if (preg_match('/^(\d{4})$/', $raw)) { return "{$raw}-01-01"; }
+        if (! $raw) {
+            return null;
+        }
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw)) {
+            return $raw;
+        }
+        if (preg_match('/^(\d{4})$/', $raw)) {
+            return "{$raw}-01-01";
+        }
         $ts = strtotime($raw);
+
         return $ts ? date('Y-m-d', $ts) : null;
     }
 

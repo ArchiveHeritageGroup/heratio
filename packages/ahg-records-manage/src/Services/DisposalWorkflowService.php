@@ -2,9 +2,9 @@
 
 namespace AhgRecordsManage\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Carbon\Carbon;
 
 class DisposalWorkflowService
 {
@@ -45,7 +45,7 @@ class DisposalWorkflowService
                 ->where('is_active', 1)
                 ->where(function ($q) {
                     $q->where('name', 'LIKE', '%disposal%')
-                      ->orWhere('trigger_event', 'disposal');
+                        ->orWhere('trigger_event', 'disposal');
                 })
                 ->first();
 
@@ -61,7 +61,7 @@ class DisposalWorkflowService
                     }
                 } catch (\Throwable $e) {
                     // Workflow integration is optional; log but don't block
-                    \Log::warning('Disposal workflow start failed: ' . $e->getMessage());
+                    \Log::warning('Disposal workflow start failed: '.$e->getMessage());
                 }
             }
         }
@@ -80,7 +80,7 @@ class DisposalWorkflowService
      */
     public function getDisposalQueue(array $filters = [], int $page = 1, int $perPage = 25): array
     {
-        if (!Schema::hasTable('rm_disposal_action')) {
+        if (! Schema::hasTable('rm_disposal_action')) {
             return ['data' => [], 'total' => 0, 'page' => $page, 'per_page' => $perPage];
         }
 
@@ -98,29 +98,29 @@ class DisposalWorkflowService
             });
 
         // Apply filters
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('da.status', $filters['status']);
         }
 
-        if (!empty($filters['action_type'])) {
+        if (! empty($filters['action_type'])) {
             $query->where('da.action_type', $filters['action_type']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('da.initiated_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
-            $query->where('da.initiated_at', '<=', $filters['date_to'] . ' 23:59:59');
+        if (! empty($filters['date_to'])) {
+            $query->where('da.initiated_at', '<=', $filters['date_to'].' 23:59:59');
         }
 
         $total = $query->count();
 
         $data = $query->select([
-                'da.*',
-                'io_i18n.title as io_title',
-                'init_actor.authorized_form_of_name as initiated_by_name',
-            ])
+            'da.*',
+            'io_i18n.title as io_title',
+            'init_actor.authorized_form_of_name as initiated_by_name',
+        ])
             ->orderBy('da.initiated_at', 'desc')
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
@@ -141,7 +141,7 @@ class DisposalWorkflowService
     public function recommend(int $disposalActionId, int $userId, ?string $comment = null): bool
     {
         $action = DB::table('rm_disposal_action')->where('id', $disposalActionId)->first();
-        if (!$action || $action->status !== 'pending') {
+        if (! $action || $action->status !== 'pending') {
             return false;
         }
 
@@ -149,7 +149,7 @@ class DisposalWorkflowService
             'recommended_by' => $userId,
             'recommended_at' => Carbon::now(),
             'status' => 'recommended',
-            'notes' => $comment ? ($action->notes ? $action->notes . "\n" . $comment : $comment) : $action->notes,
+            'notes' => $comment ? ($action->notes ? $action->notes."\n".$comment : $comment) : $action->notes,
             'updated_at' => Carbon::now(),
         ]);
 
@@ -166,7 +166,7 @@ class DisposalWorkflowService
     public function approve(int $disposalActionId, int $userId, ?string $comment = null): bool
     {
         $action = DB::table('rm_disposal_action')->where('id', $disposalActionId)->first();
-        if (!$action || !in_array($action->status, ['pending', 'recommended'])) {
+        if (! $action || ! in_array($action->status, ['pending', 'recommended'])) {
             return false;
         }
 
@@ -174,7 +174,7 @@ class DisposalWorkflowService
             'approved_by' => $userId,
             'approved_at' => Carbon::now(),
             'status' => 'approved',
-            'notes' => $comment ? ($action->notes ? $action->notes . "\n" . $comment : $comment) : $action->notes,
+            'notes' => $comment ? ($action->notes ? $action->notes."\n".$comment : $comment) : $action->notes,
             'updated_at' => Carbon::now(),
         ]);
 
@@ -184,7 +184,7 @@ class DisposalWorkflowService
                 $workflowService = app(\AhgWorkflow\Services\WorkflowService::class);
                 $workflowService->approveTask($action->workflow_task_id, $userId, $comment);
             } catch (\Throwable $e) {
-                \Log::warning('Disposal workflow approve failed: ' . $e->getMessage());
+                \Log::warning('Disposal workflow approve failed: '.$e->getMessage());
             }
         }
 
@@ -201,7 +201,7 @@ class DisposalWorkflowService
     public function clearLegal(int $disposalActionId, int $userId): bool
     {
         $action = DB::table('rm_disposal_action')->where('id', $disposalActionId)->first();
-        if (!$action || !in_array($action->status, ['approved'])) {
+        if (! $action || ! in_array($action->status, ['approved'])) {
             return false;
         }
 
@@ -236,13 +236,13 @@ class DisposalWorkflowService
     public function reject(int $disposalActionId, int $userId, string $reason): bool
     {
         $action = DB::table('rm_disposal_action')->where('id', $disposalActionId)->first();
-        if (!$action || in_array($action->status, ['executed', 'cancelled'])) {
+        if (! $action || in_array($action->status, ['executed', 'cancelled'])) {
             return false;
         }
 
         DB::table('rm_disposal_action')->where('id', $disposalActionId)->update([
             'status' => 'rejected',
-            'notes' => $action->notes ? $action->notes . "\nRejected: " . $reason : "Rejected: " . $reason,
+            'notes' => $action->notes ? $action->notes."\nRejected: ".$reason : 'Rejected: '.$reason,
             'updated_at' => Carbon::now(),
         ]);
 
@@ -252,7 +252,7 @@ class DisposalWorkflowService
                 $workflowService = app(\AhgWorkflow\Services\WorkflowService::class);
                 $workflowService->rejectTask($action->workflow_task_id, $userId, $reason);
             } catch (\Throwable $e) {
-                \Log::warning('Disposal workflow reject failed: ' . $e->getMessage());
+                \Log::warning('Disposal workflow reject failed: '.$e->getMessage());
             }
         }
 
@@ -269,13 +269,13 @@ class DisposalWorkflowService
     public function cancel(int $disposalActionId, int $userId, string $reason): bool
     {
         $action = DB::table('rm_disposal_action')->where('id', $disposalActionId)->first();
-        if (!$action || !in_array($action->status, ['pending', 'recommended'])) {
+        if (! $action || ! in_array($action->status, ['pending', 'recommended'])) {
             return false;
         }
 
         DB::table('rm_disposal_action')->where('id', $disposalActionId)->update([
             'status' => 'cancelled',
-            'notes' => $action->notes ? $action->notes . "\nCancelled: " . $reason : "Cancelled: " . $reason,
+            'notes' => $action->notes ? $action->notes."\nCancelled: ".$reason : 'Cancelled: '.$reason,
             'updated_at' => Carbon::now(),
         ]);
 
@@ -430,7 +430,7 @@ class DisposalWorkflowService
      */
     public function getStats(): array
     {
-        if (!Schema::hasTable('rm_disposal_action')) {
+        if (! Schema::hasTable('rm_disposal_action')) {
             return [
                 'by_status' => [],
                 'by_action_type' => [],
@@ -460,7 +460,7 @@ class DisposalWorkflowService
      */
     private function auditLog(int $userId, string $action, string $entityType, int $entityId, string $title, array $metadata = []): void
     {
-        if (!Schema::hasTable('ahg_audit_log')) {
+        if (! Schema::hasTable('ahg_audit_log')) {
             return;
         }
 
@@ -489,7 +489,7 @@ class DisposalWorkflowService
             'action_name' => $action,
             'request_method' => request()->method(),
             'request_uri' => request()->getRequestUri(),
-            'metadata' => !empty($metadata) ? json_encode($metadata) : null,
+            'metadata' => ! empty($metadata) ? json_encode($metadata) : null,
             'status' => 'success',
             'created_at' => Carbon::now(),
         ]);

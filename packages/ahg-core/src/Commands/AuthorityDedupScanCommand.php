@@ -35,10 +35,11 @@ class AuthorityDedupScanCommand extends Command
         $this->info("=== authority dedup candidates (top {$limit} groups by name collision count) ===");
         $totalDups = 0;
         foreach ($rows as $r) {
-            $this->line(sprintf("  n=%-3d  ids=[%s]  name=%s", $r->dup_count, $r->actor_ids, $r->norm_name));
+            $this->line(sprintf('  n=%-3d  ids=[%s]  name=%s', $r->dup_count, $r->actor_ids, $r->norm_name));
             $totalDups += $r->dup_count - 1;
         }
         $this->info("\ngroups={$rows->count()} total_excess_records={$totalDups}");
+
         return self::SUCCESS;
     }
 }

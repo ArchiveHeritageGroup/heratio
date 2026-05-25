@@ -37,8 +37,11 @@ class DoiService
         $q = DB::table('ahg_doi_config')->where('is_active', 1);
         if ($repositoryId !== null) {
             $row = (clone $q)->where('repository_id', $repositoryId)->first();
-            if ($row) return $row;
+            if ($row) {
+                return $row;
+            }
         }
+
         return $q->whereNull('repository_id')->first();
     }
 
@@ -54,6 +57,7 @@ class DoiService
             [$repoCode, $year, (string) $objectId],
             (string) $config->suffix_pattern
         );
+
         // DataCite requires URL-safe; strip anything else.
         return preg_replace('/[^A-Za-z0-9._\/-]/', '-', $suffix);
     }
@@ -69,15 +73,17 @@ class DoiService
             ->where('action', $action)
             ->whereIn('status', ['pending', 'in_progress'])
             ->exists();
-        if ($exists) return 0;
+        if ($exists) {
+            return 0;
+        }
 
         return (int) DB::table('ahg_doi_queue')->insertGetId([
             'information_object_id' => $objectId,
-            'action'                => $action,
-            'status'                => 'pending',
-            'priority'              => $priority,
-            'created_at'            => now(),
-            'scheduled_at'          => now(),
+            'action' => $action,
+            'status' => 'pending',
+            'priority' => $priority,
+            'created_at' => now(),
+            'scheduled_at' => now(),
         ]);
     }
 
@@ -120,11 +126,11 @@ class DoiService
             })
             ->where('i.id', $objectId)
             ->select('i.id', 'i.identifier', 'i.source_culture',
-                    'i18n.title', 'i18n.scope_and_content',
-                    'i18n.archival_history', 'i18n.acquisition')
+                'i18n.title', 'i18n.scope_and_content',
+                'i18n.archival_history', 'i18n.acquisition')
             ->first();
 
-        $title = $row->title ?? ('Information object ' . $objectId);
+        $title = $row->title ?? ('Information object '.$objectId);
         $publisher = $config->default_publisher ?: 'The Archive and Heritage Group';
         $resourceType = $config->default_resource_type ?: 'Text';
 
@@ -137,23 +143,23 @@ class DoiService
         $stripTagsClean = static function (?string $s): string {
             return trim(preg_replace('/\s+/', ' ', strip_tags((string) $s)));
         };
-        if (!empty($row->scope_and_content)) {
+        if (! empty($row->scope_and_content)) {
             $descriptions[] = [
-                'description'      => $stripTagsClean($row->scope_and_content),
-                'descriptionType'  => 'Abstract',
+                'description' => $stripTagsClean($row->scope_and_content),
+                'descriptionType' => 'Abstract',
             ];
         }
-        if (!empty($row->archival_history)) {
+        if (! empty($row->archival_history)) {
             $descriptions[] = [
-                'description'      => $stripTagsClean($row->archival_history),
-                'descriptionType'  => 'Other',
+                'description' => $stripTagsClean($row->archival_history),
+                'descriptionType' => 'Other',
                 'descriptionTypeGeneral' => 'CustodialHistory',
             ];
         }
-        if (!empty($row->acquisition)) {
+        if (! empty($row->acquisition)) {
             $descriptions[] = [
-                'description'      => $stripTagsClean($row->acquisition),
-                'descriptionType'  => 'Other',
+                'description' => $stripTagsClean($row->acquisition),
+                'descriptionType' => 'Other',
                 'descriptionTypeGeneral' => 'AcquisitionInfo',
             ];
         }
@@ -172,8 +178,8 @@ class DoiService
             ->get()
             ->map(function ($s) {
                 return [
-                    'subject'         => (string) $s->name,
-                    'subjectScheme'   => 'AHG Subjects',
+                    'subject' => (string) $s->name,
+                    'subjectScheme' => 'AHG Subjects',
                 ];
             })
             ->all();
@@ -193,7 +199,7 @@ class DoiService
         foreach ($events as $ev) {
             $dateValue = null;
             if ($ev->start_date && $ev->end_date && $ev->start_date !== $ev->end_date) {
-                $dateValue = $ev->start_date . '/' . $ev->end_date;  // DataCite range syntax
+                $dateValue = $ev->start_date.'/'.$ev->end_date;  // DataCite range syntax
             } elseif ($ev->start_date) {
                 $dateValue = (string) $ev->start_date;
             } elseif ($ev->date_display) {
@@ -214,44 +220,44 @@ class DoiService
         $publicationYear = $earliestYear ?: (int) date('Y');
 
         // Language — from source_culture (ISO 639-1 2-letter code)
-        $language = !empty($row->source_culture) ? (string) $row->source_culture : null;
+        $language = ! empty($row->source_culture) ? (string) $row->source_culture : null;
 
         // Compose the final attributes block. Only include enrichment keys
         // when their data is non-empty so DataCite doesn't reject the
         // record on a "subjects must be non-empty array" validation.
         $attributes = [
-            'doi'             => $doi,
-            'titles'          => [['title' => $title]],
-            'creators'        => [['name' => $publisher]],
-            'publisher'       => $publisher,
+            'doi' => $doi,
+            'titles' => [['title' => $title]],
+            'creators' => [['name' => $publisher]],
+            'publisher' => $publisher,
             'publicationYear' => $publicationYear,
-            'types'           => ['resourceTypeGeneral' => $resourceType],
-            'url'             => rtrim(config('app.url', 'http://localhost'), '/') . '/informationobject/' . $objectId,
-            'event'           => 'publish',
+            'types' => ['resourceTypeGeneral' => $resourceType],
+            'url' => rtrim(config('app.url', 'http://localhost'), '/').'/informationobject/'.$objectId,
+            'event' => 'publish',
         ];
-        if (!empty($descriptions)) {
+        if (! empty($descriptions)) {
             $attributes['descriptions'] = $descriptions;
         }
-        if (!empty($subjects)) {
+        if (! empty($subjects)) {
             $attributes['subjects'] = $subjects;
         }
-        if (!empty($dates)) {
+        if (! empty($dates)) {
             $attributes['dates'] = $dates;
         }
         if ($language) {
             $attributes['language'] = $language;
         }
-        if (!empty($row->identifier)) {
+        if (! empty($row->identifier)) {
             $attributes['alternateIdentifiers'] = [[
-                'alternateIdentifier'     => (string) $row->identifier,
+                'alternateIdentifier' => (string) $row->identifier,
                 'alternateIdentifierType' => 'Local',
             ]];
         }
 
         return [
             'data' => [
-                'id'         => $doi,
-                'type'       => 'dois',
+                'id' => $doi,
+                'type' => 'dois',
                 'attributes' => $attributes,
             ],
         ];
@@ -278,7 +284,7 @@ class DoiService
             }
 
             $suffix = $this->buildDoiSuffix($config, $objectId);
-            $doi    = rtrim($config->datacite_prefix, '/') . '/' . ltrim($suffix, '/');
+            $doi = rtrim($config->datacite_prefix, '/').'/'.ltrim($suffix, '/');
             $payload = $this->buildMetadata($objectId, $config, $doi);
 
             if ($dryRun) {
@@ -288,20 +294,22 @@ class DoiService
             $resp = $this->dataciteRequest($config, 'POST', '/dois', $payload);
             if (! $resp['ok']) {
                 $this->log($objectId, null, 'mint', null, null, ['error' => $resp['error']]);
+
                 return ['success' => false, 'doi' => null, 'error' => $resp['error']];
             }
 
             $rowId = DB::table('ahg_doi')->insertGetId([
                 'information_object_id' => $objectId,
-                'doi'                   => $doi,
-                'status'                => 'findable',
-                'minted_at'             => now(),
-                'datacite_response'     => json_encode($resp['body']),
-                'metadata_json'         => json_encode($payload),
-                'last_sync_at'          => now(),
-                'created_at'            => now(),
+                'doi' => $doi,
+                'status' => 'findable',
+                'minted_at' => now(),
+                'datacite_response' => json_encode($resp['body']),
+                'metadata_json' => json_encode($payload),
+                'last_sync_at' => now(),
+                'created_at' => now(),
             ]);
             $this->log($objectId, $rowId, 'mint', null, 'findable', ['doi' => $doi]);
+
             return ['success' => true, 'doi' => $doi, 'error' => null];
         } catch (Throwable $e) {
             return ['success' => false, 'doi' => null, 'error' => $e->getMessage()];
@@ -314,21 +322,27 @@ class DoiService
     public function verify(string $doi): array
     {
         $row = DB::table('ahg_doi')->where('doi', $doi)->first();
-        if (! $row) return ['success' => false, 'error' => 'unknown DOI'];
+        if (! $row) {
+            return ['success' => false, 'error' => 'unknown DOI'];
+        }
         $config = $this->configFor(null);
-        if (! $config) return ['success' => false, 'error' => 'no config'];
+        if (! $config) {
+            return ['success' => false, 'error' => 'no config'];
+        }
 
-        $resp = $this->dataciteRequest($config, 'GET', '/dois/' . urlencode($doi));
+        $resp = $this->dataciteRequest($config, 'GET', '/dois/'.urlencode($doi));
         if (! $resp['ok']) {
             $this->log($row->information_object_id, $row->id, 'verify', $row->status, $row->status, ['error' => $resp['error']]);
+
             return ['success' => false, 'error' => $resp['error']];
         }
         $state = $resp['body']['data']['attributes']['state'] ?? $row->status;
         DB::table('ahg_doi')->where('id', $row->id)->update([
-            'status'        => $state,
-            'last_sync_at'  => now(),
+            'status' => $state,
+            'last_sync_at' => now(),
         ]);
         $this->log($row->information_object_id, $row->id, 'verify', $row->status, $state, []);
+
         return ['success' => true, 'state' => $state];
     }
 
@@ -338,21 +352,27 @@ class DoiService
     public function update(string $doi): array
     {
         $row = DB::table('ahg_doi')->where('doi', $doi)->first();
-        if (! $row) return ['success' => false, 'error' => 'unknown DOI'];
+        if (! $row) {
+            return ['success' => false, 'error' => 'unknown DOI'];
+        }
         $config = $this->configFor(null);
-        if (! $config) return ['success' => false, 'error' => 'no config'];
+        if (! $config) {
+            return ['success' => false, 'error' => 'no config'];
+        }
         $payload = $this->buildMetadata((int) $row->information_object_id, $config, $doi);
 
-        $resp = $this->dataciteRequest($config, 'PUT', '/dois/' . urlencode($doi), $payload);
+        $resp = $this->dataciteRequest($config, 'PUT', '/dois/'.urlencode($doi), $payload);
         if (! $resp['ok']) {
             $this->log($row->information_object_id, $row->id, 'update', $row->status, $row->status, ['error' => $resp['error']]);
+
             return ['success' => false, 'error' => $resp['error']];
         }
         DB::table('ahg_doi')->where('id', $row->id)->update([
             'metadata_json' => json_encode($payload),
-            'last_sync_at'  => now(),
+            'last_sync_at' => now(),
         ]);
         $this->log($row->information_object_id, $row->id, 'update', $row->status, $row->status, []);
+
         return ['success' => true];
     }
 
@@ -363,19 +383,26 @@ class DoiService
     public function deactivate(string $doi, string $reason = 'admin tombstone'): array
     {
         $row = DB::table('ahg_doi')->where('doi', $doi)->first();
-        if (! $row) return ['success' => false, 'error' => 'unknown DOI'];
+        if (! $row) {
+            return ['success' => false, 'error' => 'unknown DOI'];
+        }
         $config = $this->configFor(null);
-        if (! $config) return ['success' => false, 'error' => 'no config'];
+        if (! $config) {
+            return ['success' => false, 'error' => 'no config'];
+        }
 
         $payload = ['data' => ['type' => 'dois', 'attributes' => ['event' => 'hide']]];
-        $resp = $this->dataciteRequest($config, 'PUT', '/dois/' . urlencode($doi), $payload);
-        if (! $resp['ok']) return ['success' => false, 'error' => $resp['error']];
+        $resp = $this->dataciteRequest($config, 'PUT', '/dois/'.urlencode($doi), $payload);
+        if (! $resp['ok']) {
+            return ['success' => false, 'error' => $resp['error']];
+        }
 
         DB::table('ahg_doi')->where('id', $row->id)->update([
-            'status'        => 'tombstone',
-            'last_sync_at'  => now(),
+            'status' => 'tombstone',
+            'last_sync_at' => now(),
         ]);
         $this->log($row->information_object_id, $row->id, 'deactivate', $row->status, 'tombstone', ['reason' => $reason]);
+
         return ['success' => true];
     }
 
@@ -385,20 +412,21 @@ class DoiService
     public function processQueue(int $limit = 50, bool $dryRun = false): array
     {
         $rows = $this->nextBatch($limit);
-        $ok = 0; $fail = 0;
+        $ok = 0;
+        $fail = 0;
         foreach ($rows as $r) {
             DB::table('ahg_doi_queue')->where('id', $r->id)->update([
-                'status'     => 'in_progress',
+                'status' => 'in_progress',
                 'started_at' => now(),
-                'attempts'   => $r->attempts + 1,
+                'attempts' => $r->attempts + 1,
             ]);
             try {
                 $result = match ($r->action) {
-                    'mint'       => $this->mint((int) $r->information_object_id, null, $dryRun),
-                    'update'     => $this->updateByObject((int) $r->information_object_id),
-                    'verify'     => $this->verifyByObject((int) $r->information_object_id),
+                    'mint' => $this->mint((int) $r->information_object_id, null, $dryRun),
+                    'update' => $this->updateByObject((int) $r->information_object_id),
+                    'verify' => $this->verifyByObject((int) $r->information_object_id),
                     'deactivate' => $this->deactivateByObject((int) $r->information_object_id),
-                    default      => ['success' => false, 'error' => 'unknown action: ' . $r->action],
+                    default => ['success' => false, 'error' => 'unknown action: '.$r->action],
                 };
             } catch (Throwable $e) {
                 $result = ['success' => false, 'error' => $e->getMessage()];
@@ -406,32 +434,33 @@ class DoiService
 
             if ($result['success']) {
                 DB::table('ahg_doi_queue')->where('id', $r->id)->update([
-                    'status'        => 'completed',
-                    'completed_at'  => now(),
+                    'status' => 'completed',
+                    'completed_at' => now(),
                 ]);
                 $ok++;
             } else {
                 $status = ($r->attempts + 1) >= $r->max_attempts ? 'failed' : 'pending';
                 DB::table('ahg_doi_queue')->where('id', $r->id)->update([
-                    'status'      => $status,
-                    'last_error'  => substr($result['error'] ?? 'unknown', 0, 65535),
-                    'started_at'  => null,
+                    'status' => $status,
+                    'last_error' => substr($result['error'] ?? 'unknown', 0, 65535),
+                    'started_at' => null,
                     // Backoff: linear minutes per attempt.
-                    'scheduled_at'=> now()->addMinutes(5 * ($r->attempts + 1)),
+                    'scheduled_at' => now()->addMinutes(5 * ($r->attempts + 1)),
                 ]);
                 $fail++;
             }
         }
+
         return ['ok' => $ok, 'fail' => $fail, 'processed' => $rows->count()];
     }
 
     public function reportSummary(): array
     {
         return [
-            'total'      => (int) DB::table('ahg_doi')->count(),
-            'by_status'  => DB::table('ahg_doi')->selectRaw('status, COUNT(*) AS n')->groupBy('status')->pluck('n','status')->toArray(),
-            'queue'      => DB::table('ahg_doi_queue')->selectRaw('status, COUNT(*) AS n')->groupBy('status')->pluck('n','status')->toArray(),
-            'last_log'   => DB::table('ahg_doi_log')->orderByDesc('id')->limit(20)->get(),
+            'total' => (int) DB::table('ahg_doi')->count(),
+            'by_status' => DB::table('ahg_doi')->selectRaw('status, COUNT(*) AS n')->groupBy('status')->pluck('n', 'status')->toArray(),
+            'queue' => DB::table('ahg_doi_queue')->selectRaw('status, COUNT(*) AS n')->groupBy('status')->pluck('n', 'status')->toArray(),
+            'last_log' => DB::table('ahg_doi_log')->orderByDesc('id')->limit(20)->get(),
         ];
     }
 
@@ -440,24 +469,27 @@ class DoiService
     public function updateByObject(int $oid): array
     {
         $row = DB::table('ahg_doi')->where('information_object_id', $oid)->first();
+
         return $row ? $this->update($row->doi) : ['success' => false, 'error' => 'no DOI for object'];
     }
 
     public function verifyByObject(int $oid): array
     {
         $row = DB::table('ahg_doi')->where('information_object_id', $oid)->first();
+
         return $row ? $this->verify($row->doi) : ['success' => false, 'error' => 'no DOI for object'];
     }
 
     public function deactivateByObject(int $oid): array
     {
         $row = DB::table('ahg_doi')->where('information_object_id', $oid)->first();
+
         return $row ? $this->deactivate($row->doi) : ['success' => false, 'error' => 'no DOI for object'];
     }
 
     protected function dataciteRequest(object $config, string $method, string $path, array $body = []): array
     {
-        $url = rtrim($config->datacite_url, '/') . $path;
+        $url = rtrim($config->datacite_url, '/').$path;
         try {
             $req = Http::withBasicAuth($config->datacite_repo_id, (string) $config->datacite_password)
                 ->acceptJson()
@@ -470,9 +502,11 @@ class DoiService
             if ($resp->successful()) {
                 return ['ok' => true, 'body' => $resp->json(), 'error' => null];
             }
-            return ['ok' => false, 'body' => $resp->json(), 'error' => 'HTTP ' . $resp->status() . ': ' . $resp->body()];
+
+            return ['ok' => false, 'body' => $resp->json(), 'error' => 'HTTP '.$resp->status().': '.$resp->body()];
         } catch (Throwable $e) {
-            Log::warning('DataCite request failed: ' . $e->getMessage());
+            Log::warning('DataCite request failed: '.$e->getMessage());
+
             return ['ok' => false, 'body' => null, 'error' => $e->getMessage()];
         }
     }
@@ -481,16 +515,16 @@ class DoiService
     {
         try {
             DB::table('ahg_doi_log')->insert([
-                'doi_id'                => $doiId,
+                'doi_id' => $doiId,
                 'information_object_id' => $oid,
-                'action'                => $action,
-                'status_before'         => $before,
-                'status_after'          => $after,
-                'details'               => json_encode($details),
-                'performed_at'          => now(),
+                'action' => $action,
+                'status_before' => $before,
+                'status_after' => $after,
+                'details' => json_encode($details),
+                'performed_at' => now(),
             ]);
         } catch (Throwable $e) {
-            Log::warning('ahg_doi_log insert failed: ' . $e->getMessage());
+            Log::warning('ahg_doi_log insert failed: '.$e->getMessage());
         }
     }
 }

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgStorageManage\Services;
 
 use AhgCore\Constants\TermId;
@@ -43,7 +41,7 @@ class StorageService
     public function getBySlug(string $slug): ?object
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId) {
+        if (! $objectId) {
             return null;
         }
 
@@ -134,7 +132,7 @@ class StorageService
 
     public function getTermName(?int $termId): ?string
     {
-        if (!$termId) {
+        if (! $termId) {
             return null;
         }
 
@@ -158,7 +156,7 @@ class StorageService
             $slug = $baseSlug;
             $counter = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter++;
+                $slug = $baseSlug.'-'.$counter++;
             }
             DB::table('slug')->insert(['object_id' => $id, 'slug' => $slug]);
 
@@ -188,7 +186,7 @@ class StorageService
             if (array_key_exists('type_id', $data)) {
                 $baseUpdate['type_id'] = $data['type_id'];
             }
-            if (!empty($baseUpdate)) {
+            if (! empty($baseUpdate)) {
                 DB::table('physical_object')->where('id', $id)->update($baseUpdate);
             }
 
@@ -200,7 +198,7 @@ class StorageService
                     $i18n[$f] = $data[$f];
                 }
             }
-            if (!empty($i18n)) {
+            if (! empty($i18n)) {
                 $exists = DB::table('physical_object_i18n')
                     ->where('id', $id)
                     ->where('culture', $this->culture)
@@ -234,7 +232,7 @@ class StorageService
                 ->pluck('id')
                 ->toArray();
 
-            if (!empty($relationIds)) {
+            if (! empty($relationIds)) {
                 DB::table('relation_i18n')->whereIn('id', $relationIds)->delete();
                 DB::table('relation')->whereIn('id', $relationIds)->delete();
                 DB::table('slug')->whereIn('object_id', $relationIds)->delete();
@@ -243,7 +241,7 @@ class StorageService
 
             // Delete notes
             $noteIds = DB::table('note')->where('object_id', $id)->pluck('id')->toArray();
-            if (!empty($noteIds)) {
+            if (! empty($noteIds)) {
                 DB::table('note_i18n')->whereIn('id', $noteIds)->delete();
                 DB::table('note')->whereIn('id', $noteIds)->delete();
                 DB::table('object')->whereIn('id', $noteIds)->delete();
@@ -281,7 +279,7 @@ class StorageService
             ->where('physical_object_id', $physicalObjectId)
             ->first();
 
-        if (!$row) {
+        if (! $row) {
             return [];
         }
 
@@ -300,7 +298,7 @@ class StorageService
                 }
                 // climate_controlled is boolean
                 if ($field === 'climate_controlled') {
-                    $value = !empty($data[$field]) ? 1 : 0;
+                    $value = ! empty($data[$field]) ? 1 : 0;
                 }
                 $values[$field] = $value;
             }

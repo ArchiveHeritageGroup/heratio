@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * discovery-qrels-lint — validate a discovery qrels CSV against the schema
  * defined in GitHub issue #16.
@@ -30,7 +31,6 @@
  *
  * Exit: 0 = clean. 1 = hard-fail. 2 = usage error.
  */
-
 const EXPECTED_HEADER = ['query_id', 'query_text', 'query_type', 'object_id', 'relevance'];
 // query_type enum.
 // Curated set (#16): known_item, person, place, topical, hierarchical.
@@ -58,7 +58,7 @@ $warnings = [];
 // Rule 1 — header row matches exactly.
 if ($header !== EXPECTED_HEADER) {
     $errors[] = sprintf(
-        "Rule 1: header mismatch. expected=%s got=%s",
+        'Rule 1: header mismatch. expected=%s got=%s',
         json_encode(EXPECTED_HEADER),
         json_encode($header)
     );
@@ -73,24 +73,25 @@ $lineNo = 1;
 while (($row = fgetcsv($fh)) !== false) {
     $lineNo++;
     if (count($row) !== 5) {
-        $errors[] = "line {$lineNo}: expected 5 columns, got " . count($row);
+        $errors[] = "line {$lineNo}: expected 5 columns, got ".count($row);
+
         continue;
     }
     [$qid, $qtext, $qtype, $oid, $rel] = $row;
 
     if (! in_array($qtype, VALID_QUERY_TYPES, true)) {
-        $errors[] = "line {$lineNo}: Rule 2: query_type '{$qtype}' not in " . json_encode(VALID_QUERY_TYPES);
+        $errors[] = "line {$lineNo}: Rule 2: query_type '{$qtype}' not in ".json_encode(VALID_QUERY_TYPES);
     }
 
     if (! ctype_digit((string) $rel) || ! in_array((int) $rel, VALID_RELEVANCES, true)) {
-        $errors[] = "line {$lineNo}: Rule 3: relevance '{$rel}' not in " . json_encode(VALID_RELEVANCES);
+        $errors[] = "line {$lineNo}: Rule 3: relevance '{$rel}' not in ".json_encode(VALID_RELEVANCES);
     }
 
     if (! ctype_digit((string) $oid)) {
         $errors[] = "line {$lineNo}: object_id '{$oid}' is not a positive integer";
     }
 
-    $pairKey = $qid . '|' . $oid;
+    $pairKey = $qid.'|'.$oid;
     if (isset($pairs[$pairKey])) {
         $errors[] = "line {$lineNo}: Rule 5: duplicate (query_id={$qid}, object_id={$oid}) — first seen on line {$pairs[$pairKey]}";
     } else {
@@ -147,7 +148,6 @@ if ($checkDb) {
 report($path, $errors, $warnings);
 exit($errors ? 1 : 0);
 
-
 function parseArgs(array $argv): array
 {
     $path = null;
@@ -157,8 +157,16 @@ function parseArgs(array $argv): array
             echo "Usage: php bin/discovery-qrels-lint.php <path> [--no-db]\n";
             exit(0);
         }
-        if ($arg === '--no-db') { $checkDb = false; continue; }
-        if ($path === null) { $path = $arg; continue; }
+        if ($arg === '--no-db') {
+            $checkDb = false;
+
+            continue;
+        }
+        if ($path === null) {
+            $path = $arg;
+
+            continue;
+        }
         fwrite(STDERR, "ERROR: unexpected argument: {$arg}\n");
         exit(2);
     }
@@ -166,12 +174,13 @@ function parseArgs(array $argv): array
         fwrite(STDERR, "Usage: php bin/discovery-qrels-lint.php <path> [--no-db]\n");
         exit(2);
     }
+
     return [$path, $checkDb];
 }
 
 function checkAtomIds(array $oids): array
 {
-    $oids = array_unique(array_filter($oids, fn($o) => $o > 0));
+    $oids = array_unique(array_filter($oids, fn ($o) => $o > 0));
     if (empty($oids)) {
         return [];
     }
@@ -179,7 +188,7 @@ function checkAtomIds(array $oids): array
     // Prefix sentinel UNION row so we can distinguish "DB returned 0 rows" from
     // "DB unreachable" — shell_exec returns null in both cases.
     $sql = "SELECT 'OK_PROBE' AS id UNION ALL SELECT CAST(id AS CHAR) FROM information_object WHERE id IN ({$list})";
-    $cmd = "mysql -u root atom -N -e " . escapeshellarg($sql) . " 2>/dev/null";
+    $cmd = 'mysql -u root atom -N -e '.escapeshellarg($sql).' 2>/dev/null';
     $out = shell_exec($cmd);
     if ($out === null || strpos($out, 'OK_PROBE') === false) {
         // DB unreachable — skip silently. Issue #16 marks Rule 7 as warn-only.
@@ -188,9 +197,12 @@ function checkAtomIds(array $oids): array
     $tokens = preg_split('/\s+/', trim($out)) ?: [];
     $present = [];
     foreach ($tokens as $tok) {
-        if ($tok === '' || $tok === 'OK_PROBE') continue;
+        if ($tok === '' || $tok === 'OK_PROBE') {
+            continue;
+        }
         $present[] = (int) $tok;
     }
+
     return array_values(array_diff($oids, $present));
 }
 
@@ -199,6 +211,7 @@ function report(string $path, array $errors, array $warnings): void
     $rel = realpath($path) ?: $path;
     if (empty($errors) && empty($warnings)) {
         echo "OK  {$rel}: no issues\n";
+
         return;
     }
     foreach ($warnings as $w) {
@@ -207,6 +220,6 @@ function report(string $path, array $errors, array $warnings): void
     foreach ($errors as $e) {
         echo "FAIL  {$e}\n";
     }
-    $sum = sprintf("%d error(s), %d warning(s)", count($errors), count($warnings));
-    echo ($errors ? "FAIL" : "OK") . "  {$rel}: {$sum}\n";
+    $sum = sprintf('%d error(s), %d warning(s)', count($errors), count($warnings));
+    echo ($errors ? 'FAIL' : 'OK')."  {$rel}: {$sum}\n";
 }

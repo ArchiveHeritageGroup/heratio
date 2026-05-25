@@ -21,7 +21,6 @@ namespace AhgSearch\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class EsReindexCommand extends Command
 {
@@ -35,14 +34,16 @@ class EsReindexCommand extends Command
     protected $description = 'Populate Heratio Elasticsearch indices from MySQL or clone from another prefix';
 
     protected string $host;
+
     protected string $prefix;
+
     protected int $batchSize;
 
     protected array $indexMap = [
         'informationobject' => 'qubitinformationobject',
-        'actor'             => 'qubitactor',
-        'term'              => 'qubitterm',
-        'repository'        => 'qubitrepository',
+        'actor' => 'qubitactor',
+        'term' => 'qubitterm',
+        'repository' => 'qubitrepository',
     ];
 
     protected array $cultures = ['en', 'af', 'es', 'fr', 'pt', 'nl', 'zu'];
@@ -56,12 +57,14 @@ class EsReindexCommand extends Command
         // Check ES is available
         try {
             $r = Http::timeout(5)->get($this->host);
-            if (!$r->successful()) {
+            if (! $r->successful()) {
                 $this->error("Cannot connect to Elasticsearch at {$this->host}");
+
                 return 1;
             }
         } catch (\Exception $e) {
-            $this->error("Cannot connect to Elasticsearch at {$this->host}: " . $e->getMessage());
+            $this->error("Cannot connect to Elasticsearch at {$this->host}: ".$e->getMessage());
+
             return 1;
         }
 
@@ -72,18 +75,19 @@ class EsReindexCommand extends Command
         $only = $this->option('index');
         $indices = $only ? [$only => $this->indexMap[$only] ?? null] : $this->indexMap;
 
-        if ($only && !isset($this->indexMap[$only])) {
-            $this->error("Unknown index: {$only}. Valid: " . implode(', ', array_keys($this->indexMap)));
+        if ($only && ! isset($this->indexMap[$only])) {
+            $this->error("Unknown index: {$only}. Valid: ".implode(', ', array_keys($this->indexMap)));
+
             return 1;
         }
 
         $cloneFrom = $this->option('clone-from');
 
         foreach ($indices as $key => $esName) {
-            $targetIndex = $this->prefix . $esName;
+            $targetIndex = $this->prefix.$esName;
 
             if ($cloneFrom) {
-                $this->cloneIndex($cloneFrom . $esName, $targetIndex);
+                $this->cloneIndex($cloneFrom.$esName, $targetIndex);
             } else {
                 $this->reindexFromMysql($key, $targetIndex);
             }
@@ -106,6 +110,7 @@ class EsReindexCommand extends Command
         $exists = Http::head("{$this->host}/{$source}");
         if ($exists->status() === 404) {
             $this->warn("  Source index {$source} does not exist, skipping.");
+
             return;
         }
 
@@ -118,8 +123,9 @@ class EsReindexCommand extends Command
         $mappingResp = Http::get("{$this->host}/{$source}/_mapping");
         $settingsResp = Http::get("{$this->host}/{$source}/_settings");
 
-        if (!$mappingResp->successful() || !$settingsResp->successful()) {
+        if (! $mappingResp->successful() || ! $settingsResp->successful()) {
             $this->error("  Failed to get mapping/settings from {$source}");
+
             return;
         }
 
@@ -131,12 +137,12 @@ class EsReindexCommand extends Command
             'number_of_shards' => $rawSettings['number_of_shards'] ?? 4,
             'number_of_replicas' => $rawSettings['number_of_replicas'] ?? 1,
         ];
-        if (!empty($rawSettings['mapping'])) {
+        if (! empty($rawSettings['mapping'])) {
             $settings['mapping'] = $rawSettings['mapping'];
         } else {
             $settings['mapping'] = ['total_fields' => ['limit' => 3000]];
         }
-        if (!empty($rawSettings['analysis'])) {
+        if (! empty($rawSettings['analysis'])) {
             $settings['analysis'] = $rawSettings['analysis'];
         }
 
@@ -146,12 +152,13 @@ class EsReindexCommand extends Command
             'mappings' => $mapping,
         ]);
 
-        if (!$createResp->successful()) {
+        if (! $createResp->successful()) {
             $err = $createResp->json()['error']['reason'] ?? $createResp->body();
             if (str_contains($err, 'already exists')) {
                 $this->warn("  Target {$target} already exists, reindexing into it.");
             } else {
                 $this->error("  Failed to create {$target}: {$err}");
+
                 return;
             }
         } else {
@@ -168,7 +175,7 @@ class EsReindexCommand extends Command
             $total = $reindexResp->json()['total'] ?? 0;
             $this->info("  Reindexed {$total} documents from {$source} → {$target}");
         } else {
-            $this->error("  Reindex failed: " . $reindexResp->body());
+            $this->error('  Reindex failed: '.$reindexResp->body());
         }
     }
 
@@ -187,7 +194,7 @@ class EsReindexCommand extends Command
         $exists = Http::head("{$this->host}/{$targetIndex}");
         if ($exists->status() === 404) {
             $this->info("  Index {$targetIndex} doesn't exist, cloning mapping from archive_...");
-            $sourceIndex = 'archive_' . $this->indexMap[$type];
+            $sourceIndex = 'archive_'.$this->indexMap[$type];
             $srcExists = Http::head("{$this->host}/{$sourceIndex}");
             if ($srcExists->status() === 200) {
                 $this->createIndexFromMapping($sourceIndex, $targetIndex);
@@ -197,7 +204,7 @@ class EsReindexCommand extends Command
             }
         }
 
-        $method = 'reindex' . ucfirst($type);
+        $method = 'reindex'.ucfirst($type);
         if (method_exists($this, $method)) {
             $this->$method($targetIndex);
         } else {
@@ -220,7 +227,7 @@ class EsReindexCommand extends Command
             'number_of_shards' => $rawSettings['number_of_shards'] ?? 4,
             'number_of_replicas' => $rawSettings['number_of_replicas'] ?? 1,
         ];
-        if (!empty($rawSettings['analysis'])) {
+        if (! empty($rawSettings['analysis'])) {
             $settings['analysis'] = $rawSettings['analysis'];
         }
 
@@ -240,13 +247,17 @@ class EsReindexCommand extends Command
         $onlyId = $this->option('id') ? (int) $this->option('id') : null;
 
         $countQuery = DB::table('information_object')->where('id', '!=', 1);
-        if ($onlyId) { $countQuery->where('id', $onlyId); }
+        if ($onlyId) {
+            $countQuery->where('id', $onlyId);
+        }
         $total = $countQuery->count();
         $this->info("  Found {$total} information objects");
         $bar = $this->output->createProgressBar($total);
 
         $rowQuery = DB::table('information_object')->where('id', '!=', 1)->orderBy('id');
-        if ($onlyId) { $rowQuery->where('id', $onlyId); }
+        if ($onlyId) {
+            $rowQuery->where('id', $onlyId);
+        }
         $rowQuery
             ->chunk($this->batchSize, function ($rows) use ($index, $bar) {
                 $ids = $rows->pluck('id')->toArray();
@@ -277,7 +288,7 @@ class EsReindexCommand extends Command
                 // Batch-load repository info
                 $repoIds = $rows->pluck('repository_id')->filter()->unique()->toArray();
                 $repos = [];
-                if (!empty($repoIds)) {
+                if (! empty($repoIds)) {
                     $repoSlugs = DB::table('slug')->whereIn('object_id', $repoIds)->pluck('slug', 'object_id');
                     $repoI18n = DB::table('actor_i18n')->whereIn('id', $repoIds)->get()->groupBy('id');
                     foreach ($repoIds as $rid) {
@@ -320,7 +331,9 @@ class EsReindexCommand extends Command
                     $libByItemId = $libraryItems->keyBy('id');
                     foreach ($libraryCreatorRows as $lc) {
                         $libItem = $libByItemId[$lc->library_item_id] ?? null;
-                        if (!$libItem) continue;
+                        if (! $libItem) {
+                            continue;
+                        }
                         $ioId = (int) $libItem->information_object_id;
                         $libraryCreators[$ioId] = $libraryCreators->get($ioId, collect())->push($lc);
                     }
@@ -331,7 +344,7 @@ class EsReindexCommand extends Command
                     ->unique()
                     ->toArray();
                 $creatorI18n = [];
-                if (!empty($creatorActorIds)) {
+                if (! empty($creatorActorIds)) {
                     $creatorI18n = DB::table('actor_i18n')
                         ->whereIn('id', $creatorActorIds)
                         ->get()
@@ -366,7 +379,9 @@ class EsReindexCommand extends Command
                     }
                     if ($libraryCreators->has($row->id)) {
                         foreach ($libraryCreators->get($row->id) as $lc) {
-                            if ($lc->actor_id && isset($seenActorIds[$lc->actor_id])) continue;
+                            if ($lc->actor_id && isset($seenActorIds[$lc->actor_id])) {
+                                continue;
+                            }
                             if ($lc->actor_id) {
                                 $ci = $creatorI18n[$lc->actor_id] ?? collect();
                                 $ioCreators[] = [
@@ -397,8 +412,8 @@ class EsReindexCommand extends Command
                         'levelOfDescriptionId' => $row->level_of_description_id,
                         'publicationStatusId' => $pubStatus ?? 159,
                         'hasDigitalObject' => $do !== null,
-                        'createdAt' => !empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
-                        'updatedAt' => !empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
+                        'createdAt' => ! empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
+                        'updatedAt' => ! empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
                         'sourceCulture' => $row->source_culture ?? 'en',
                         'lft' => $row->lft,
                         'i18n' => $this->buildI18n($i18nGroup, [
@@ -436,8 +451,8 @@ class EsReindexCommand extends Command
                         ];
                     }
 
-                    $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]]) . "\n";
-                    $bulk .= json_encode($doc) . "\n";
+                    $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]])."\n";
+                    $bulk .= json_encode($doc)."\n";
                     $bar->advance();
                 }
 
@@ -490,8 +505,8 @@ class EsReindexCommand extends Command
                         'entityTypeId' => $row->entity_type_id,
                         'corporateBodyIdentifiers' => $row->corporate_body_identifiers,
                         'hasDigitalObject' => $do !== null,
-                        'createdAt' => !empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
-                        'updatedAt' => !empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
+                        'createdAt' => ! empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
+                        'updatedAt' => ! empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
                         'sourceCulture' => $row->source_culture ?? 'en',
                         'i18n' => $this->buildI18n($i18nGroup, [
                             'authorizedFormOfName' => 'authorized_form_of_name',
@@ -513,8 +528,8 @@ class EsReindexCommand extends Command
                         ];
                     }
 
-                    $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]]) . "\n";
-                    $bulk .= json_encode($doc) . "\n";
+                    $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]])."\n";
+                    $bulk .= json_encode($doc)."\n";
                     $bar->advance();
                 }
 
@@ -560,14 +575,14 @@ class EsReindexCommand extends Command
                         'taxonomyId' => $row->taxonomy_id,
                         'code' => $row->code ?? null,
                         'isProtected' => (bool) ($row->source_culture === 'en'),
-                        'createdAt' => !empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
-                        'updatedAt' => !empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
+                        'createdAt' => ! empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
+                        'updatedAt' => ! empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
                         'sourceCulture' => $row->source_culture ?? 'en',
                         'i18n' => $this->buildI18n($i18nGroup, ['name' => 'name']),
                     ];
 
-                    $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]]) . "\n";
-                    $bulk .= json_encode($doc) . "\n";
+                    $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]])."\n";
+                    $bulk .= json_encode($doc)."\n";
                     $bar->advance();
                 }
 
@@ -656,8 +671,8 @@ class EsReindexCommand extends Command
                         ])->toArray();
                     }
 
-                    $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]]) . "\n";
-                    $bulk .= json_encode($doc) . "\n";
+                    $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]])."\n";
+                    $bulk .= json_encode($doc)."\n";
                     $bar->advance();
                 }
 
@@ -683,7 +698,7 @@ class EsReindexCommand extends Command
 
         foreach ($rows as $row) {
             $culture = $row->culture ?? 'en';
-            if (!in_array($culture, $this->cultures)) {
+            if (! in_array($culture, $this->cultures)) {
                 continue;
             }
 
@@ -712,6 +727,7 @@ class EsReindexCommand extends Command
         if ($row->identifier) {
             return $row->identifier;
         }
+
         return null;
     }
 
@@ -725,8 +741,8 @@ class EsReindexCommand extends Command
                 ->withBody($body, 'application/x-ndjson')
                 ->post("{$this->host}/_bulk");
 
-            if (!$response->successful()) {
-                $this->warn("  Bulk index warning: " . substr($response->body(), 0, 200));
+            if (! $response->successful()) {
+                $this->warn('  Bulk index warning: '.substr($response->body(), 0, 200));
             } else {
                 $result = $response->json();
                 if ($result['errors'] ?? false) {
@@ -739,7 +755,7 @@ class EsReindexCommand extends Command
                 }
             }
         } catch (\Exception $e) {
-            $this->error("  Bulk index failed: " . $e->getMessage());
+            $this->error('  Bulk index failed: '.$e->getMessage());
         }
     }
 

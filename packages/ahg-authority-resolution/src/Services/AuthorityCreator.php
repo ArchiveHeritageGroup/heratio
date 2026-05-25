@@ -34,14 +34,16 @@ use Illuminate\Support\Str;
 class AuthorityCreator
 {
     private const CORPORATE_BODY_ID = 131;
+
     private const PERSON_ID = 132;
+
     private const TAXONOMY_PLACE_ID = 42;
 
     public function createPerson(array $form, int $userId, string $culture = 'en'): int
     {
         $this->assertIsaarCpf($form, false);
 
-        return DB::transaction(function () use ($form, $userId, $culture) {
+        return DB::transaction(function () use ($form, $culture) {
             return $this->insertActor($form, self::PERSON_ID, $culture);
         });
     }
@@ -50,7 +52,7 @@ class AuthorityCreator
     {
         $this->assertIsaarCpf($form, true);
 
-        return DB::transaction(function () use ($form, $userId, $culture) {
+        return DB::transaction(function () use ($form, $culture) {
             return $this->insertActor($form, self::CORPORATE_BODY_ID, $culture);
         });
     }
@@ -142,14 +144,14 @@ class AuthorityCreator
     {
         $missing = [];
         foreach (['authorized_form_of_name', 'dates_of_existence', 'history'] as $key) {
-            if (!isset($form[$key]) || trim((string) $form[$key]) === '') {
+            if (! isset($form[$key]) || trim((string) $form[$key]) === '') {
                 $missing[] = $key;
             }
         }
-        if (!empty($missing)) {
+        if (! empty($missing)) {
             throw new \InvalidArgumentException(
-                'Missing ISAAR-CPF mandatory field(s) for ' . ($isOrg ? 'organisation' : 'person')
-                . ': ' . implode(', ', $missing)
+                'Missing ISAAR-CPF mandatory field(s) for '.($isOrg ? 'organisation' : 'person')
+                .': '.implode(', ', $missing)
             );
         }
     }
@@ -163,14 +165,15 @@ class AuthorityCreator
         $base = $slug;
         $counter = 1;
         while (DB::table('slug')->where('slug', $slug)->exists()) {
-            $slug = $base . '-' . $counter;
+            $slug = $base.'-'.$counter;
             $counter++;
             if ($counter > 1000) {
                 // Defensive: append a random suffix rather than loop forever.
-                $slug = $base . '-' . substr(bin2hex(random_bytes(4)), 0, 6);
+                $slug = $base.'-'.substr(bin2hex(random_bytes(4)), 0, 6);
                 break;
             }
         }
+
         return $slug;
     }
 }

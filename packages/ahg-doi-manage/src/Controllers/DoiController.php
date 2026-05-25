@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgDoiManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
@@ -41,23 +39,23 @@ class DoiController extends Controller
      */
     public function index()
     {
-        if (!Schema::hasTable('ahg_doi')) {
+        if (! Schema::hasTable('ahg_doi')) {
             return view('ahg-doi-manage::index', ['tablesExist' => false]);
         }
 
         $culture = app()->getLocale();
 
-        $totalCount    = DB::table('ahg_doi')->count();
+        $totalCount = DB::table('ahg_doi')->count();
         $findableCount = DB::table('ahg_doi')->where('status', 'findable')->count();
         $registeredCount = DB::table('ahg_doi')->where('status', 'registered')->count();
-        $draftCount    = DB::table('ahg_doi')->where('status', 'draft')->count();
+        $draftCount = DB::table('ahg_doi')->where('status', 'draft')->count();
         $doiFailedCount = DB::table('ahg_doi')->where('status', 'failed')->count();
 
         $queuePending = 0;
-        $queueFailed  = 0;
+        $queueFailed = 0;
         if (Schema::hasTable('ahg_doi_queue')) {
             $queuePending = DB::table('ahg_doi_queue')->where('status', 'pending')->count();
-            $queueFailed  = DB::table('ahg_doi_queue')->where('status', 'failed')->count();
+            $queueFailed = DB::table('ahg_doi_queue')->where('status', 'failed')->count();
         }
 
         $recentDois = DB::table('ahg_doi')
@@ -82,12 +80,12 @@ class DoiController extends Controller
         return view('ahg-doi-manage::index', [
             'tablesExist' => true,
             'stats' => [
-                'total'      => $totalCount,
-                'findable'   => $findableCount,
+                'total' => $totalCount,
+                'findable' => $findableCount,
                 'registered' => $registeredCount,
-                'draft'      => $draftCount,
-                'pending'    => $queuePending,
-                'failed'     => $doiFailedCount + $queueFailed,
+                'draft' => $draftCount,
+                'pending' => $queuePending,
+                'failed' => $doiFailedCount + $queueFailed,
             ],
             'recentDois' => $recentDois,
         ]);
@@ -98,14 +96,14 @@ class DoiController extends Controller
      */
     public function browse(Request $request)
     {
-        if (!Schema::hasTable('ahg_doi')) {
+        if (! Schema::hasTable('ahg_doi')) {
             return view('ahg-doi-manage::browse', ['tablesExist' => false]);
         }
 
         $culture = app()->getLocale();
-        $page    = max(1, (int) $request->get('page', 1));
-        $limit   = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
-        $status  = $request->get('status', '');
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
+        $status = $request->get('status', '');
 
         $query = DB::table('ahg_doi')
             ->leftJoin('information_object_i18n', function ($join) use ($culture) {
@@ -120,13 +118,13 @@ class DoiController extends Controller
         $total = $query->count();
 
         $dois = $query->select([
-                'ahg_doi.id',
-                'ahg_doi.doi',
-                'ahg_doi.information_object_id',
-                'ahg_doi.status',
-                'ahg_doi.minted_at',
-                'information_object_i18n.title as record_title',
-            ])
+            'ahg_doi.id',
+            'ahg_doi.doi',
+            'ahg_doi.information_object_id',
+            'ahg_doi.status',
+            'ahg_doi.minted_at',
+            'information_object_i18n.title as record_title',
+        ])
             ->orderByDesc('ahg_doi.minted_at')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
@@ -135,15 +133,15 @@ class DoiController extends Controller
             ->toArray();
 
         $pager = new SimplePager([
-            'hits'  => $dois,
+            'hits' => $dois,
             'total' => $total,
-            'page'  => $page,
+            'page' => $page,
             'limit' => $limit,
         ]);
 
         return view('ahg-doi-manage::browse', [
-            'tablesExist'   => true,
-            'pager'         => $pager,
+            'tablesExist' => true,
+            'pager' => $pager,
             'currentStatus' => $status,
         ]);
     }
@@ -153,21 +151,21 @@ class DoiController extends Controller
      */
     public function queue(Request $request)
     {
-        if (!Schema::hasTable('ahg_doi_queue')) {
+        if (! Schema::hasTable('ahg_doi_queue')) {
             return view('ahg-doi-manage::queue', ['tablesExist' => false]);
         }
 
         $culture = app()->getLocale();
-        $page    = max(1, (int) $request->get('page', 1));
-        $limit   = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
-        $status  = $request->get('status', '');
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = max(1, (int) $request->get('limit', SettingHelper::hitsPerPage()));
+        $status = $request->get('status', '');
 
         // Counts per status
         $statusCounts = [
-            'pending'    => DB::table('ahg_doi_queue')->where('status', 'pending')->count(),
+            'pending' => DB::table('ahg_doi_queue')->where('status', 'pending')->count(),
             'processing' => DB::table('ahg_doi_queue')->where('status', 'processing')->count(),
-            'failed'     => DB::table('ahg_doi_queue')->where('status', 'failed')->count(),
-            'completed'  => DB::table('ahg_doi_queue')->where('status', 'completed')->count(),
+            'failed' => DB::table('ahg_doi_queue')->where('status', 'failed')->count(),
+            'completed' => DB::table('ahg_doi_queue')->where('status', 'completed')->count(),
         ];
 
         $query = DB::table('ahg_doi_queue')
@@ -183,16 +181,16 @@ class DoiController extends Controller
         $total = $query->count();
 
         $items = $query->select([
-                'ahg_doi_queue.id',
-                'ahg_doi_queue.information_object_id',
-                'ahg_doi_queue.action',
-                'ahg_doi_queue.status',
-                'ahg_doi_queue.attempts',
-                'ahg_doi_queue.scheduled_at',
-                'ahg_doi_queue.last_error as error_message',
-                'ahg_doi_queue.created_at',
-                'information_object_i18n.title as record_title',
-            ])
+            'ahg_doi_queue.id',
+            'ahg_doi_queue.information_object_id',
+            'ahg_doi_queue.action',
+            'ahg_doi_queue.status',
+            'ahg_doi_queue.attempts',
+            'ahg_doi_queue.scheduled_at',
+            'ahg_doi_queue.last_error as error_message',
+            'ahg_doi_queue.created_at',
+            'information_object_i18n.title as record_title',
+        ])
             ->orderByDesc('ahg_doi_queue.created_at')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
@@ -201,16 +199,16 @@ class DoiController extends Controller
             ->toArray();
 
         $pager = new SimplePager([
-            'hits'  => $items,
+            'hits' => $items,
             'total' => $total,
-            'page'  => $page,
+            'page' => $page,
             'limit' => $limit,
         ]);
 
         return view('ahg-doi-manage::queue', [
-            'tablesExist'   => true,
-            'pager'         => $pager,
-            'statusCounts'  => $statusCounts,
+            'tablesExist' => true,
+            'pager' => $pager,
+            'statusCounts' => $statusCounts,
             'currentStatus' => $status,
         ]);
     }
@@ -220,7 +218,7 @@ class DoiController extends Controller
      */
     public function view(int $id)
     {
-        if (!Schema::hasTable('ahg_doi')) {
+        if (! Schema::hasTable('ahg_doi')) {
             return view('ahg-doi-manage::view', ['tablesExist' => false]);
         }
 
@@ -244,7 +242,7 @@ class DoiController extends Controller
             ])
             ->first();
 
-        if (!$doi) {
+        if (! $doi) {
             abort(404);
         }
 
@@ -260,8 +258,8 @@ class DoiController extends Controller
 
         return view('ahg-doi-manage::view', [
             'tablesExist' => true,
-            'doi'         => $doi,
-            'logs'        => $logs,
+            'doi' => $doi,
+            'logs' => $logs,
         ]);
     }
 
@@ -288,17 +286,17 @@ class DoiController extends Controller
     public function configSave(Request $request)
     {
         $request->validate([
-            'datacite_prefix'        => 'nullable|string|max:255',
+            'datacite_prefix' => 'nullable|string|max:255',
             'datacite_repository_id' => 'nullable|string|max:255',
-            'datacite_password'      => 'nullable|string|max:255',
-            'datacite_url'           => 'nullable|url|max:500',
-            'datacite_environment'   => 'nullable|in:test,production',
-            'auto_mint'              => 'nullable|in:0,1',
-            'default_publisher'      => 'nullable|string|max:500',
-            'default_resource_type'  => 'nullable|string|max:255',
+            'datacite_password' => 'nullable|string|max:255',
+            'datacite_url' => 'nullable|url|max:500',
+            'datacite_environment' => 'nullable|in:test,production',
+            'auto_mint' => 'nullable|in:0,1',
+            'default_publisher' => 'nullable|string|max:500',
+            'default_resource_type' => 'nullable|string|max:255',
         ]);
 
-        if (!Schema::hasTable('ahg_settings')) {
+        if (! Schema::hasTable('ahg_settings')) {
             return redirect()->route('doi.config')
                 ->with('error', 'Settings table does not exist.');
         }
@@ -331,7 +329,7 @@ class DoiController extends Controller
      */
     public function report()
     {
-        if (!Schema::hasTable('ahg_doi')) {
+        if (! Schema::hasTable('ahg_doi')) {
             return view('ahg-doi-manage::report', ['tablesExist' => false]);
         }
 
@@ -340,8 +338,8 @@ class DoiController extends Controller
         // Monthly stats
         $monthlyStats = DB::table('ahg_doi')
             ->selectRaw("DATE_FORMAT(minted_at, '%Y-%m') as `month`")
-            ->selectRaw("SUM(CASE WHEN minted_at IS NOT NULL THEN 1 ELSE 0 END) as minted_count")
-            ->selectRaw("SUM(CASE WHEN updated_at > created_at THEN 1 ELSE 0 END) as updated_count")
+            ->selectRaw('SUM(CASE WHEN minted_at IS NOT NULL THEN 1 ELSE 0 END) as minted_count')
+            ->selectRaw('SUM(CASE WHEN updated_at > created_at THEN 1 ELSE 0 END) as updated_count')
             ->whereNotNull('minted_at')
             ->groupByRaw("DATE_FORMAT(minted_at, '%Y-%m')")
             ->orderByDesc('month')
@@ -362,7 +360,7 @@ class DoiController extends Controller
                     ->where('actor_i18n.culture', '=', $culture);
             })
             ->selectRaw("COALESCE(actor_i18n.authorized_form_of_name, '[No repository]') as repository_name")
-            ->selectRaw("COUNT(ahg_doi.id) as doi_count")
+            ->selectRaw('COUNT(ahg_doi.id) as doi_count')
             ->groupByRaw("COALESCE(actor_i18n.authorized_form_of_name, '[No repository]')")
             ->orderByDesc('doi_count')
             ->get()
@@ -370,7 +368,7 @@ class DoiController extends Controller
             ->toArray();
 
         return view('ahg-doi-manage::report', [
-            'tablesExist'  => true,
+            'tablesExist' => true,
             'monthlyStats' => $monthlyStats,
             'byRepository' => $byRepository,
         ]);
@@ -385,7 +383,7 @@ class DoiController extends Controller
             }
             $ids = array_values(array_filter(array_map('intval', (array) $ids)));
             $state = $request->input('state', 'findable');
-            if (!in_array($state, ['findable', 'registered', 'draft'], true)) {
+            if (! in_array($state, ['findable', 'registered', 'draft'], true)) {
                 $state = 'findable';
             }
 
@@ -393,14 +391,15 @@ class DoiController extends Controller
             if (\Illuminate\Support\Facades\Schema::hasTable('ahg_doi_queue')) {
                 foreach ($ids as $objectId) {
                     \Illuminate\Support\Facades\DB::table('ahg_doi_queue')->insert([
-                        'object_id'  => $objectId,
-                        'state'      => $state,
-                        'status'     => 'pending',
+                        'object_id' => $objectId,
+                        'state' => $state,
+                        'status' => 'pending',
                         'created_at' => now(),
                     ]);
                     $queued++;
                 }
             }
+
             return redirect()->route('doi.batch-mint')
                 ->with('success', "{$queued} record(s) queued for DOI minting ({$state}).");
         }
@@ -420,14 +419,23 @@ class DoiController extends Controller
         }
 
         return view('ahg-doi-manage::batch-mint', [
-            'records'    => $records,
+            'records' => $records,
             'formAction' => route('doi.batch-mint'),
         ]);
     }
 
-    public function deactivate(int $id) { return view('ahg-doi-manage::deactivate', ['record' => (object)['id'=>$id]]); }
+    public function deactivate(int $id)
+    {
+        return view('ahg-doi-manage::deactivate', ['record' => (object) ['id' => $id]]);
+    }
 
-    public function mint(int $id) { return view('ahg-doi-manage::mint'); }
+    public function mint(int $id)
+    {
+        return view('ahg-doi-manage::mint');
+    }
 
-    public function sync(Request $request) { return view('ahg-doi-manage::sync'); }
+    public function sync(Request $request)
+    {
+        return view('ahg-doi-manage::sync');
+    }
 }

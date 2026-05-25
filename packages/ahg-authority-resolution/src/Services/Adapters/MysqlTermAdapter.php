@@ -46,7 +46,7 @@ class MysqlTermAdapter implements CandidateAdapterInterface
 
     public function search(string $query, string $entityType, int $limit): array
     {
-        if (!$this->supports($entityType)) {
+        if (! $this->supports($entityType)) {
             return [];
         }
 
@@ -61,7 +61,7 @@ class MysqlTermAdapter implements CandidateAdapterInterface
             ->join('term_i18n as ti', 'ti.id', '=', 't.id')
             ->where('t.taxonomy_id', self::PLACES_TAXONOMY_ID)
             ->whereNotNull('ti.name')
-            ->where('ti.name', 'like', '%' . $query . '%')
+            ->where('ti.name', 'like', '%'.$query.'%')
             ->orderByRaw('CASE WHEN ti.culture = t.source_culture THEN 0 ELSE 1 END')
             ->orderBy('t.id')
             ->limit($limit)

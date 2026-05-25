@@ -47,13 +47,14 @@ use Illuminate\Support\Facades\DB;
 class CandidateGeneratorService
 {
     private const DEFAULT_TOP_N = 5;
+
     private const PER_ADAPTER_LIMIT = 50;
 
     /** @var list<CandidateAdapterInterface> */
     private array $adapters;
 
     /**
-     * @param iterable<CandidateAdapterInterface> $adapters
+     * @param  iterable<CandidateAdapterInterface>  $adapters
      */
     public function __construct(iterable $adapters)
     {
@@ -77,7 +78,7 @@ class CandidateGeneratorService
             ->where('m.id', $mentionId)
             ->first(['m.id', 'm.entity_type', 'n.entity_value']);
 
-        if (!$mention) {
+        if (! $mention) {
             return [];
         }
 
@@ -88,7 +89,7 @@ class CandidateGeneratorService
         // Gather raw candidates from every adapter that supports the type.
         $raw = [];
         foreach ($this->adapters as $adapter) {
-            if (!$adapter->supports($entityType)) {
+            if (! $adapter->supports($entityType)) {
                 continue;
             }
             $rows = $adapter->search($entityValue, $entityType, self::PER_ADAPTER_LIMIT);
@@ -115,6 +116,7 @@ class CandidateGeneratorService
             if ($a['score'] === $b['score']) {
                 return strcmp($a['display_name'], $b['display_name']);
             }
+
             return $a['score'] < $b['score'] ? 1 : -1;
         });
 
@@ -171,6 +173,7 @@ class CandidateGeneratorService
         if ($q === $c) {
             $score = 1.0;
         }
+
         return round($score, 4);
     }
 
@@ -181,11 +184,12 @@ class CandidateGeneratorService
             ->where('setting_key', 'authority_resolution.candidate_top_n')
             ->first();
 
-        if (!$row || $row->setting_value === null || $row->setting_value === '') {
+        if (! $row || $row->setting_value === null || $row->setting_value === '') {
             return self::DEFAULT_TOP_N;
         }
 
         $parsed = (int) $row->setting_value;
+
         return $parsed > 0 ? $parsed : self::DEFAULT_TOP_N;
     }
 }

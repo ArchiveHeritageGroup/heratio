@@ -12,18 +12,18 @@ class AhgPdfToolsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(PdfTextExtractService::class, function () {
-            return new PdfTextExtractService();
+            return new PdfTextExtractService;
         });
 
         $this->app->singleton(TiffPdfMergeService::class, function () {
-            return new TiffPdfMergeService();
+            return new TiffPdfMergeService;
         });
     }
 
     public function boot(): void
     {
         Route::middleware('web')
-            ->group(__DIR__ . '/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-pdf-tools');
+            ->group(__DIR__.'/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-pdf-tools');
     }
 }

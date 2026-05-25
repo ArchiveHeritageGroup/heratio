@@ -1,11 +1,11 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * Pass 2: Fix remaining labels without badges.
  * Catches: <label class="form-label"> patterns across multiple lines,
  * labels without form-label class, and accordion-button labels.
  */
-
 $base = '/usr/share/nginx/heratio/packages';
 $stats = ['files_changed' => 0, 'badges_added' => 0];
 
@@ -31,9 +31,13 @@ foreach ($bladeFiles as $path) {
         '/<label\b([^>]*class="[^"]*form-label[^"]*"[^>]*)>([^<]*(?:<span class="text-danger">\*<\/span>[^<]*)?)<\/label>/',
         function ($m) use (&$badgesAdded, $path) {
             // Skip if already has badge
-            if (strpos($m[0], 'badge bg-') !== false) return $m[0];
+            if (strpos($m[0], 'badge bg-') !== false) {
+                return $m[0];
+            }
             // Skip form-check-label
-            if (strpos($m[1], 'form-check-label') !== false) return $m[0];
+            if (strpos($m[1], 'form-check-label') !== false) {
+                return $m[0];
+            }
 
             $hasRequired = strpos($m[0], 'text-danger') !== false || strpos($m[0], '*</span>') !== false;
 
@@ -47,7 +51,8 @@ foreach ($bladeFiles as $path) {
             }
 
             $badgesAdded++;
-            return '<label' . $m[1] . '>' . $m[2] . ' ' . $badge . '</label>';
+
+            return '<label'.$m[1].'>'.$m[2].' '.$badge.'</label>';
         },
         $content
     );
@@ -61,13 +66,13 @@ foreach ($bladeFiles as $path) {
 
         // Match: <label ...form-label...>SomeText (no </label> on this line, no badge)
         if (preg_match('/<label\b[^>]*form-label[^>]*>[^<]+$/', $line)
-            && !preg_match('/badge\s+bg-/', $line)
-            && !preg_match('/form-check-label/', $line)
-            && !preg_match('/<\/label>/', $line)) {
+            && ! preg_match('/badge\s+bg-/', $line)
+            && ! preg_match('/form-check-label/', $line)
+            && ! preg_match('/<\/label>/', $line)) {
 
             // Check if the next line or two have </label>
             $nextChunk = implode("\n", array_slice($lines, $i + 1, 5));
-            $hasRequired = (bool)preg_match('/\brequired\b/', $nextChunk);
+            $hasRequired = (bool) preg_match('/\brequired\b/', $nextChunk);
 
             if (preg_match('/text-danger.*\*/', $line)) {
                 $hasRequired = true;
@@ -78,7 +83,7 @@ foreach ($bladeFiles as $path) {
                 : '<span class="badge bg-secondary ms-1">Optional</span>';
 
             // Add badge at end of label text on this line
-            $line = rtrim($line) . ' ' . $badge;
+            $line = rtrim($line).' '.$badge;
             $badgesAdded++;
         }
 
@@ -95,7 +100,7 @@ foreach ($bladeFiles as $path) {
         file_put_contents($path, $content);
         $stats['files_changed']++;
         $stats['badges_added'] += $badgesAdded;
-        $rel = str_replace($base . '/', '', $path);
+        $rel = str_replace($base.'/', '', $path);
         echo "  FIXED: $rel (+$badgesAdded badges)\n";
     }
 }

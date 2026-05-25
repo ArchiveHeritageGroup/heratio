@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Schema;
 class SharePointInstallCommand extends Command
 {
     protected $signature = 'sharepoint:install';
+
     protected $description = 'Install ahg-sharepoint schema (idempotent). Run package migrations.';
 
     public function handle(): int
@@ -39,6 +40,7 @@ class SharePointInstallCommand extends Command
         }
 
         $this->info('Done.');
+
         return self::SUCCESS;
     }
 }

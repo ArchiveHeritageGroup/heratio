@@ -10,7 +10,9 @@ class PhysicalObject extends Model
     use HasI18n;
 
     protected $table = 'physical_object';
+
     public $incrementing = false;
+
     public $timestamps = false;
 
     protected $fillable = ['id', 'type_id', 'source_culture'];

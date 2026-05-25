@@ -25,11 +25,10 @@
 
 namespace Ahg\Jobs\Http\Controllers;
 
+use Ahg\Jobs\Services\JobsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Ahg\Jobs\Services\JobsService;
 
 class JobsController extends Controller
 {
@@ -58,9 +57,9 @@ class JobsController extends Controller
 
         return view('ahg-jobs::browse', [
             'pager' => (object) [
-                'items' => fn() => collect($result['data']),
-                'hasPages' => fn() => $result['total_pages'] > 1,
-                'links' => fn() => '',
+                'items' => fn () => collect($result['data']),
+                'hasPages' => fn () => $result['total_pages'] > 1,
+                'links' => fn () => '',
             ],
             'stats' => $stats,
             'filters' => $filters,
@@ -78,7 +77,7 @@ class JobsController extends Controller
     {
         $job = $this->jobsService->find($id);
 
-        if (!$job) {
+        if (! $job) {
             abort(404);
         }
 

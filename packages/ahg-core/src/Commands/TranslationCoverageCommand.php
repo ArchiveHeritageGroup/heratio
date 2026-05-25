@@ -41,10 +41,11 @@ class TranslationCoverageCommand extends Command
         $langDir = base_path('lang');
         if (! is_dir($langDir)) {
             $this->error('lang/ directory not found.');
+
             return self::FAILURE;
         }
 
-        $langFiles = glob($langDir . '/*.json') ?: [];
+        $langFiles = glob($langDir.'/*.json') ?: [];
         $locales = array_map(
             fn ($f) => pathinfo($f, PATHINFO_FILENAME),
             $langFiles
@@ -60,7 +61,7 @@ class TranslationCoverageCommand extends Command
         if ($heratioOnly) {
             $atomDir = (string) $this->option('atom-source');
             $atomKeys = $this->scanAtomXliffKeys($atomDir);
-            $this->info('AtoM XLIFF keys (excluded under --heratio-only): ' . count($atomKeys));
+            $this->info('AtoM XLIFF keys (excluded under --heratio-only): '.count($atomKeys));
         }
 
         $referenceKeys = $heratioOnly
@@ -80,7 +81,7 @@ class TranslationCoverageCommand extends Command
         $worst = 100.0;
 
         foreach ($locales as $locale) {
-            $jsonPath = $langDir . '/' . $locale . '.json';
+            $jsonPath = $langDir.'/'.$locale.'.json';
             $data = json_decode(@file_get_contents($jsonPath) ?: '{}', true) ?? [];
 
             $jsonKeys = count($data);
@@ -108,9 +109,9 @@ class TranslationCoverageCommand extends Command
                 $locale,
                 $jsonKeys,
                 $translated,
-                $pctTranslated . ' %',
+                $pctTranslated.' %',
                 "{$covered} / {$referenceTotal}",
-                $pctCoverage . ' %',
+                $pctCoverage.' %',
             ];
         }
 
@@ -125,6 +126,7 @@ class TranslationCoverageCommand extends Command
                 $worst,
                 $failBelow
             ));
+
             return self::FAILURE;
         }
 
@@ -139,17 +141,27 @@ class TranslationCoverageCommand extends Command
         $roots = [base_path('packages'), base_path('app')];
         $keys = [];
         foreach ($roots as $root) {
-            if (! is_dir($root)) continue;
+            if (! is_dir($root)) {
+                continue;
+            }
             $rii = new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS)
             );
             foreach ($rii as $file) {
                 $path = $file->getPathname();
-                if (str_contains($path, '/worktree/')) continue;
-                if (str_contains($path, '/vendor/')) continue;
-                if (! preg_match('/\.(blade\.php|php)$/', $path)) continue;
+                if (str_contains($path, '/worktree/')) {
+                    continue;
+                }
+                if (str_contains($path, '/vendor/')) {
+                    continue;
+                }
+                if (! preg_match('/\.(blade\.php|php)$/', $path)) {
+                    continue;
+                }
                 $contents = @file_get_contents($path);
-                if ($contents === false) continue;
+                if ($contents === false) {
+                    continue;
+                }
                 if (preg_match_all("/__\(\s*['\"]([^'\"]{1,500})['\"]/", $contents, $matches)) {
                     foreach ($matches[1] as $k) {
                         $keys[$k] = true;
@@ -157,6 +169,7 @@ class TranslationCoverageCommand extends Command
                 }
             }
         }
+
         return $keys;
     }
 
@@ -171,13 +184,19 @@ class TranslationCoverageCommand extends Command
             return $keys;
         }
         foreach (scandir($sourceDir) as $e) {
-            if ($e === '.' || $e === '..') continue;
-            $xliff = $sourceDir . '/' . $e . '/messages.xml';
-            if (! is_file($xliff)) continue;
+            if ($e === '.' || $e === '..') {
+                continue;
+            }
+            $xliff = $sourceDir.'/'.$e.'/messages.xml';
+            if (! is_file($xliff)) {
+                continue;
+            }
             $prev = libxml_use_internal_errors(true);
             $xml = simplexml_load_file($xliff, 'SimpleXMLElement', LIBXML_NONET | LIBXML_NOENT);
             libxml_use_internal_errors($prev);
-            if ($xml === false) continue;
+            if ($xml === false) {
+                continue;
+            }
             foreach ($xml->xpath('//trans-unit') ?: [] as $u) {
                 $source = trim((string) ($u->source ?? ''));
                 if ($source !== '') {
@@ -185,6 +204,7 @@ class TranslationCoverageCommand extends Command
                 }
             }
         }
+
         return $keys;
     }
 }

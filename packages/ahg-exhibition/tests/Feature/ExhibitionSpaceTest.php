@@ -23,7 +23,7 @@ class ExhibitionSpaceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->svc = new ExhibitionSpaceService();
+        $this->svc = new ExhibitionSpaceService;
     }
 
     public function test_create_with_minimal_data_succeeds(): void
@@ -170,6 +170,7 @@ class ExhibitionSpaceTest extends TestCase
         DB::table('information_object')->insert([
             'id' => $id, 'source_culture' => 'en',
         ]);
+
         return $id;
     }
 }

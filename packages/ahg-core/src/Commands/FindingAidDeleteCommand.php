@@ -26,6 +26,7 @@ class FindingAidDeleteCommand extends Command
     {
         if (! Schema::hasTable('finding_aid')) {
             $this->warn('finding_aid table not present.');
+
             return self::SUCCESS;
         }
         $dry = (bool) $this->option('dry-run');
@@ -40,24 +41,28 @@ class FindingAidDeleteCommand extends Command
             $q->where('fa.created_at', '<', $cutoff);
         } else {
             $this->error('Specify --slug or --older-than');
+
             return self::FAILURE;
         }
 
         $rows = $q->get();
-        $this->info("eligible: {$rows->count()}" . ($dry ? ' (dry-run)' : ''));
+        $this->info("eligible: {$rows->count()}".($dry ? ' (dry-run)' : ''));
 
         $base = config('heratio.uploads_path', storage_path('app/uploads'));
         $deleted = 0;
         foreach ($rows as $r) {
-            $candidate = rtrim((string) $base, '/') . '/findingaid/' . $r->information_object_id . '.pdf';
+            $candidate = rtrim((string) $base, '/').'/findingaid/'.$r->information_object_id.'.pdf';
             if (! $dry) {
-                if (is_file($candidate)) @unlink($candidate);
+                if (is_file($candidate)) {
+                    @unlink($candidate);
+                }
                 DB::table('finding_aid')->where('id', $r->id)->delete();
             }
             $deleted++;
             $this->line(sprintf('  %s #%d (%s)', $dry ? 'would-delete' : 'deleted', $r->id, $r->slug ?: 'no-slug'));
         }
         $this->info("deleted={$deleted}");
+
         return self::SUCCESS;
     }
 }

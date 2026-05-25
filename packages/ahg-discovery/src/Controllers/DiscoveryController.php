@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgDiscovery\Controllers;
 
 use AhgCore\Constants\TermId;
@@ -69,15 +67,15 @@ class DiscoveryController extends Controller
      * a fresh install with no settings rows behaves identically to pre-#21.
      */
     private const FUSION_DEFAULTS = [
-        'weight_keyword_3way'  => 0.35,  // when keyword + entity + hier all present
-        'weight_entity_3way'   => 0.40,
-        'weight_hier_3way'     => 0.25,
-        'weight_keyword_2way'  => 0.70,  // when entity absent (keyword + hier only)
-        'weight_hier_2way'     => 0.30,
-        'hier_sibling_score'   => 0.5,
-        'hier_child_score'     => 0.3,
-        'multi_source_bonus'   => 0.10,  // per-extra-source multiplier (1 + (n-1)*bonus)
-        'rrf_k'                => 60,    // Cormack et al. SIGIR 2009 default
+        'weight_keyword_3way' => 0.35,  // when keyword + entity + hier all present
+        'weight_entity_3way' => 0.40,
+        'weight_hier_3way' => 0.25,
+        'weight_keyword_2way' => 0.70,  // when entity absent (keyword + hier only)
+        'weight_hier_2way' => 0.30,
+        'hier_sibling_score' => 0.5,
+        'hier_child_score' => 0.3,
+        'multi_source_bonus' => 0.10,  // per-extra-source multiplier (1 + (n-1)*bonus)
+        'rrf_k' => 60,    // Cormack et al. SIGIR 2009 default
     ];
 
     /**
@@ -94,8 +92,10 @@ class DiscoveryController extends Controller
     protected function termIds(int $taxonomyId, array $names): array
     {
         $names = array_values(array_filter(array_map('strval', $names)));
-        if (empty($names)) return [];
-        $cacheKey = $taxonomyId . ':' . implode(',', $names);
+        if (empty($names)) {
+            return [];
+        }
+        $cacheKey = $taxonomyId.':'.implode(',', $names);
         if (array_key_exists($cacheKey, $this->termIdCache)) {
             return $this->termIdCache[$cacheKey];
         }
@@ -105,7 +105,8 @@ class DiscoveryController extends Controller
                 ->where('term.taxonomy_id', $taxonomyId)
                 ->whereIn(DB::raw('LOWER(term_i18n.name)'), array_map('strtolower', $names))
                 ->where('term_i18n.culture', 'en')
-                ->pluck('term.id')->map(fn($v) => (int) $v)->toArray();
+                ->pluck('term.id')->map(fn ($v) => (int) $v)->toArray();
+
             return $this->termIdCache[$cacheKey] = $ids;
         } catch (\Throwable $e) {
             return $this->termIdCache[$cacheKey] = [];
@@ -119,6 +120,7 @@ class DiscoveryController extends Controller
     protected function termId(int $taxonomyId, array $names, ?int $default = null): ?int
     {
         $ids = $this->termIds($taxonomyId, $names);
+
         return $ids[0] ?? $default;
     }
 
@@ -158,6 +160,7 @@ class DiscoveryController extends Controller
         } catch (\Throwable $e) {
             // Settings unreadable — defaults stand.
         }
+
         return $this->fusionConfig = $cfg;
     }
 
@@ -198,7 +201,6 @@ class DiscoveryController extends Controller
      *     mode=semantic | vector   → keyword + entity + hierarchical + vector
      *
      * @param  string|array|null  $strategiesInput
-     * @param  string             $mode
      * @return string[]
      */
     public static function resolveEnabledStrategies($strategiesInput, string $mode): array
@@ -321,7 +323,7 @@ class DiscoveryController extends Controller
         $limit = min(50, max(5, (int) $request->input('limit', 20)));
         $mode = $request->input('mode', 'standard');
 
-        if (!in_array($mode, ['standard', 'semantic', 'vector'])) {
+        if (! in_array($mode, ['standard', 'semantic', 'vector'])) {
             $mode = 'standard';
         }
 
@@ -354,11 +356,12 @@ class DiscoveryController extends Controller
         // measure the actual retrieval pipeline rather than cached responses.
         $bypassCache = $request->boolean('nocache');
         $strategiesKey = implode(',', $enabledStrategies);
-        $cacheKey = md5($query . '|' . $culture . '|' . $page . '|' . $limit . '|' . $mode . '|' . $strategiesKey);
+        $cacheKey = md5($query.'|'.$culture.'|'.$page.'|'.$limit.'|'.$mode.'|'.$strategiesKey);
         if (! $bypassCache) {
             $cached = $this->getFromCache($cacheKey);
             if ($cached !== null) {
                 $this->logSearch($query, $cached['expanded'] ?? null, $cached['total'] ?? 0, $startTime);
+
                 return response()->json($cached);
             }
         }
@@ -368,11 +371,11 @@ class DiscoveryController extends Controller
         // across configs — disabled strategies still appear in the log row
         // with zero hits/ms instead of being absent.
         $strategyResults = [
-            'keyword'      => ['hits' => [], 'ms' => 0],
-            'entity'       => ['hits' => [], 'ms' => 0],
+            'keyword' => ['hits' => [], 'ms' => 0],
+            'entity' => ['hits' => [], 'ms' => 0],
             'hierarchical' => ['hits' => [], 'ms' => 0],
-            'vector'       => ['hits' => [], 'ms' => 0],
-            'image'        => ['hits' => [], 'ms' => 0],
+            'vector' => ['hits' => [], 'ms' => 0],
+            'image' => ['hits' => [], 'ms' => 0],
         ];
 
         // Step 1: Query Expansion (always — not a retrieval strategy, just preprocessing)
@@ -473,15 +476,15 @@ class DiscoveryController extends Controller
         // Rich telemetry — captures per-strategy timings + ranks for ablation.
         try {
             $logId = app(\AhgDiscovery\Services\DiscoveryQueryLogger::class)->logQuery([
-                'query'            => $query,
-                'user_id'          => auth()->id(),
-                'session_id'       => $request->session()->getId(),
-                'expanded'         => $expanded,
-                'keywords'         => $expanded['keywords'] ?? [],
+                'query' => $query,
+                'user_id' => auth()->id(),
+                'session_id' => $request->session()->getId(),
+                'expanded' => $expanded,
+                'keywords' => $expanded['keywords'] ?? [],
                 'strategy_results' => $strategyResults,
-                'merged_ids'       => array_column($merged, 'object_id'),
-                'final_ids'        => array_column($enrichedResults, 'object_id'),
-                'response_ms'      => (int) ((microtime(true) - $startTime) * 1000),
+                'merged_ids' => array_column($merged, 'object_id'),
+                'final_ids' => array_column($enrichedResults, 'object_id'),
+                'response_ms' => (int) ((microtime(true) - $startTime) * 1000),
             ]);
             if ($logId) {
                 $response['log_id'] = $logId; // exposed so the JS click handler can correlate
@@ -500,8 +503,8 @@ class DiscoveryController extends Controller
      *
      * Standard RRF k=60 (Cormack et al., SIGIR 2009).
      *
-     * @param array $merged          Output of {@see mergeResults()}
-     * @param array $vectorResults   Output of VectorSearchStrategy::search()
+     * @param  array  $merged  Output of {@see mergeResults()}
+     * @param  array  $vectorResults  Output of VectorSearchStrategy::search()
      * @return array reordered merged-results array
      */
     private function rrfBoostWithVector(array $merged, array $vectorResults): array
@@ -523,11 +526,11 @@ class DiscoveryController extends Controller
             $id = (int) $v['object_id'];
             if (! isset($existingSet[$id])) {
                 $merged[] = [
-                    'object_id'     => $id,
-                    'score'         => 0.0,
+                    'object_id' => $id,
+                    'score' => 0.0,
                     'match_reasons' => ['VECTOR'],
-                    'highlights'    => [],
-                    'slug'          => $v['slug'] ?? null,
+                    'highlights' => [],
+                    'slug' => $v['slug'] ?? null,
                 ];
             }
         }
@@ -544,7 +547,8 @@ class DiscoveryController extends Controller
         }
         unset($row);
 
-        usort($merged, fn($a, $b) => $b['score'] <=> $a['score']);
+        usort($merged, fn ($a, $b) => $b['score'] <=> $a['score']);
+
         return $merged;
     }
 
@@ -572,7 +576,7 @@ class DiscoveryController extends Controller
             ->where('ioi.title', 'like', "%{$query}%")
             ->where('ioi.id', '!=', 1)
             ->select('ioi.title as label', 'slug.slug', DB::raw("'Archival description' as type"))
-            ->orderByRaw("CASE WHEN ioi.title LIKE ? THEN 0 ELSE 1 END", [$query . '%'])
+            ->orderByRaw('CASE WHEN ioi.title LIKE ? THEN 0 ELSE 1 END', [$query.'%'])
             ->limit(5)->get();
         $suggestions = $suggestions->merge($ios);
 
@@ -613,11 +617,11 @@ class DiscoveryController extends Controller
      */
     public function click(Request $request)
     {
-        $query     = trim($request->input('query', ''));
-        $objectId  = (int) $request->input('object_id', 0);
+        $query = trim($request->input('query', ''));
+        $objectId = (int) $request->input('object_id', 0);
         $sessionId = $request->input('session_id', '');
-        $logId     = (int) $request->input('log_id', 0);
-        $dwellMs   = $request->has('dwell_ms') ? (int) $request->input('dwell_ms') : null;
+        $logId = (int) $request->input('log_id', 0);
+        $dwellMs = $request->has('dwell_ms') ? (int) $request->input('dwell_ms') : null;
 
         if ($objectId <= 0) {
             return response()->json(['success' => false, 'error' => 'Missing object_id'], 400);
@@ -643,7 +647,7 @@ class DiscoveryController extends Controller
                     ->limit(1)
                     ->update([
                         'clicked_object' => $objectId,
-                        'clicked_at'     => now(),
+                        'clicked_at' => now(),
                     ]);
             } catch (\Throwable $e) {
                 // Table may not exist yet
@@ -665,6 +669,7 @@ class DiscoveryController extends Controller
     public function popular(Request $request)
     {
         $limit = min(20, max(1, (int) $request->input('limit', 8)));
+
         return response()->json([
             'success' => true,
             'topics' => $this->getPopularTopics($limit),
@@ -687,8 +692,8 @@ class DiscoveryController extends Controller
         $results = [];
         $totalMatches = 0;
 
-        if (!empty($query)) {
-            $service = new \AhgDiscovery\Services\PageIndexService();
+        if (! empty($query)) {
+            $service = new \AhgDiscovery\Services\PageIndexService;
             $objectType = ($type && $type !== 'all') ? $type : null;
             $searchResult = $service->searchAll($query, $objectType);
             $results = $searchResult['results'] ?? [];
@@ -759,7 +764,7 @@ class DiscoveryController extends Controller
             return response()->json(['success' => false, 'error' => 'Query is required'], 400);
         }
 
-        $service = new \AhgDiscovery\Services\PageIndexService();
+        $service = new \AhgDiscovery\Services\PageIndexService;
         $userId = auth()->id();
 
         if ($treeId > 0) {
@@ -769,11 +774,11 @@ class DiscoveryController extends Controller
             return response()->json($result);
         }
 
-        if ($objectId > 0 && !empty($objectType)) {
+        if ($objectId > 0 && ! empty($objectType)) {
             // Find tree for this object, then query it
             $status = $service->getStatus($objectId, $objectType);
 
-            if (!$status || $status['status'] !== 'ready') {
+            if (! $status || $status['status'] !== 'ready') {
                 return response()->json([
                     'success' => false,
                     'error' => 'No ready index found for this object. Build the index first.',
@@ -819,7 +824,7 @@ class DiscoveryController extends Controller
                 ->with('error', 'Object ID is required.');
         }
 
-        $service = new \AhgDiscovery\Services\PageIndexService();
+        $service = new \AhgDiscovery\Services\PageIndexService;
         $status = $service->getStatus($objectId, $objectType);
         $tree = null;
 
@@ -862,11 +867,11 @@ class DiscoveryController extends Controller
             return response()->json(['success' => false, 'error' => 'Object ID is required'], 400);
         }
 
-        if (!in_array($objectType, ['ead', 'pdf', 'rico'], true)) {
+        if (! in_array($objectType, ['ead', 'pdf', 'rico'], true)) {
             return response()->json(['success' => false, 'error' => 'Invalid object type'], 400);
         }
 
-        $service = new \AhgDiscovery\Services\PageIndexService();
+        $service = new \AhgDiscovery\Services\PageIndexService;
         $culture = app()->getLocale();
         $result = $service->buildTree($objectId, $objectType, $culture);
 
@@ -887,13 +892,13 @@ class DiscoveryController extends Controller
             ->where('io.id', '!=', 1)
             ->where(function ($q) use ($query) {
                 $q->where('ioi.title', 'like', "%{$query}%")
-                  ->orWhere('io.identifier', 'like', "%{$query}%")
-                  ->orWhere('ioi.scope_and_content', 'like', "%{$query}%");
+                    ->orWhere('io.identifier', 'like', "%{$query}%")
+                    ->orWhere('ioi.scope_and_content', 'like', "%{$query}%");
             });
 
         $total = (clone $base)->count();
         $results = $base->select('io.id', 'io.identifier', 'ioi.title as label', 'slug.slug',
-                                 DB::raw("'Archival description' as entity_type"))
+            DB::raw("'Archival description' as entity_type"))
             ->orderBy('ioi.title')->offset($offset)->limit($limit)->get();
 
         return ['results' => $results, 'total' => $total];
@@ -911,7 +916,7 @@ class DiscoveryController extends Controller
 
         $total = (clone $base)->count();
         $results = $base->select('a.id', 'ai.authorized_form_of_name as label', 'slug.slug',
-                                 DB::raw("'Authority record' as entity_type"))
+            DB::raw("'Authority record' as entity_type"))
             ->orderBy('ai.authorized_form_of_name')->offset($offset)->limit($limit)->get();
 
         return ['results' => $results, 'total' => $total];
@@ -928,7 +933,7 @@ class DiscoveryController extends Controller
 
         $total = (clone $base)->count();
         $results = $base->select('r.id', 'ai.authorized_form_of_name as label', 'slug.slug',
-                                 DB::raw("'Repository' as entity_type"))
+            DB::raw("'Repository' as entity_type"))
             ->orderBy('ai.authorized_form_of_name')->offset($offset)->limit($limit)->get();
 
         return ['results' => $results, 'total' => $total];
@@ -986,11 +991,13 @@ class DiscoveryController extends Controller
     private function extractDateRange(string $text): ?array
     {
         if (preg_match('/\b(\d{3})0s\b/', $text, $m)) {
-            $decade = (int) ($m[1] . '0');
+            $decade = (int) ($m[1].'0');
+
             return ['start' => $decade, 'end' => $decade + 9, 'label' => $m[0]];
         }
         if (preg_match('/\b(\d{1,2})(st|nd|rd|th)\s+century\b/i', $text, $m)) {
             $c = (int) $m[1];
+
             return ['start' => ($c - 1) * 100, 'end' => ($c * 100) - 1, 'label' => $m[0]];
         }
         if (preg_match('/\b(\d{4})\s*[-\x{2013}\x{2014}]\s*(\d{4})\b/u', $text, $m) ||
@@ -1006,6 +1013,7 @@ class DiscoveryController extends Controller
         if (preg_match('/\b(1[0-9]{3}|20[0-2]\d)\b/', $text, $m)) {
             return ['start' => (int) $m[1], 'end' => (int) $m[1], 'label' => $m[0]];
         }
+
         return null;
     }
 
@@ -1018,11 +1026,12 @@ class DiscoveryController extends Controller
         if (preg_match_all('/\b([A-Z][a-z]+(?:\s+(?:[A-Z][a-z]+|of|the|and|for|in|de|van|von|du))*\s+[A-Z][a-z]+)\b/', $text, $matches)) {
             foreach ($matches[1] as $phrase) {
                 $capCount = preg_match_all('/[A-Z][a-z]+/', $phrase);
-                if ($capCount >= 2 && !in_array($phrase, $phrases)) {
+                if ($capCount >= 2 && ! in_array($phrase, $phrases)) {
                     $phrases[] = $phrase;
                 }
             }
         }
+
         return array_values(array_unique($phrases));
     }
 
@@ -1043,6 +1052,7 @@ class DiscoveryController extends Controller
             }
             $keywords[] = $token;
         }
+
         return array_values(array_unique($keywords));
     }
 
@@ -1055,16 +1065,20 @@ class DiscoveryController extends Controller
         $words = preg_split('/\s+/', $original);
         for ($i = 1; $i < count($words); $i++) {
             $word = trim($words[$i], '.,;:!?"\'()[]');
-            if (strlen($word) > 2 && preg_match('/^[A-Z]/', $word) && !in_array(strtolower($word), self::STOP_WORDS)) {
+            if (strlen($word) > 2 && preg_match('/^[A-Z]/', $word) && ! in_array(strtolower($word), self::STOP_WORDS)) {
                 $inPhrase = false;
                 foreach ($phrases as $phrase) {
-                    if (stripos($phrase, $word) !== false) { $inPhrase = true; break; }
+                    if (stripos($phrase, $word) !== false) {
+                        $inPhrase = true;
+                        break;
+                    }
                 }
-                if (!$inPhrase) {
+                if (! $inPhrase) {
                     $terms[] = ['value' => $word, 'type' => null];
                 }
             }
         }
+
         return $terms;
     }
 
@@ -1085,7 +1099,7 @@ class DiscoveryController extends Controller
                     continue;
                 }
                 $termRow = DB::table('ahg_thesaurus_term')->where('term', $term)->first();
-                if (!$termRow) {
+                if (! $termRow) {
                     continue;
                 }
                 $syns = DB::table('ahg_thesaurus_synonym')
@@ -1094,7 +1108,7 @@ class DiscoveryController extends Controller
                     ->orderByDesc('weight')->limit(5)->get();
                 foreach ($syns as $syn) {
                     $synTerm = DB::table('ahg_thesaurus_term')->where('id', $syn->synonym_term_id)->value('term');
-                    if ($synTerm && !in_array($synTerm, $synonyms) && !in_array($synTerm, $terms)) {
+                    if ($synTerm && ! in_array($synTerm, $synonyms) && ! in_array($synTerm, $terms)) {
                         $synonyms[] = $synTerm;
                     }
                 }
@@ -1104,11 +1118,12 @@ class DiscoveryController extends Controller
                     ->orderByDesc('weight')->limit(5)->get();
                 foreach ($reverseSyns as $syn) {
                     $synTerm = DB::table('ahg_thesaurus_term')->where('id', $syn->term_id)->value('term');
-                    if ($synTerm && !in_array($synTerm, $synonyms) && !in_array($synTerm, $terms)) {
+                    if ($synTerm && ! in_array($synTerm, $synonyms) && ! in_array($synTerm, $terms)) {
                         $synonyms[] = $synTerm;
                     }
                 }
             }
+
             return $synonyms;
         } catch (\Exception $e) {
             return [];
@@ -1146,12 +1161,12 @@ class DiscoveryController extends Controller
             $body = [
                 'query' => [
                     'query_string' => [
-                        'query'            => $queryString,
-                        'fields'           => [
+                        'query' => $queryString,
+                        'fields' => [
                             "i18n.{$culture}.title^3",
                             "i18n.{$culture}.scopeAndContent",
                             "i18n.{$culture}.history",
-                            "identifier^2",
+                            'identifier^2',
                         ],
                         'default_operator' => 'OR',
                     ],
@@ -1159,13 +1174,13 @@ class DiscoveryController extends Controller
                 '_source' => ['slug', "i18n.{$culture}.title"],
                 'highlight' => [
                     'fields' => [
-                        "i18n.{$culture}.title"            => (object) [],
-                        "i18n.{$culture}.scopeAndContent"  => [
-                            'fragment_size'       => 200,
+                        "i18n.{$culture}.title" => (object) [],
+                        "i18n.{$culture}.scopeAndContent" => [
+                            'fragment_size' => 200,
                             'number_of_fragments' => 1,
                         ],
                     ],
-                    'pre_tags'  => ['<mark>'],
+                    'pre_tags' => ['<mark>'],
                     'post_tags' => ['</mark>'],
                 ],
             ];
@@ -1175,12 +1190,13 @@ class DiscoveryController extends Controller
             $hits = [];
             foreach (($resp['hits']['hits'] ?? []) as $hit) {
                 $hits[] = [
-                    'object_id'  => (int) ($hit['_id'] ?? 0),
-                    'es_score'   => (float) ($hit['_score'] ?? 0),
+                    'object_id' => (int) ($hit['_id'] ?? 0),
+                    'es_score' => (float) ($hit['_score'] ?? 0),
                     'highlights' => $hit['highlight'] ?? [],
-                    'slug'       => $hit['_source']['slug'] ?? null,
+                    'slug' => $hit['_source']['slug'] ?? null,
                 ];
             }
+
             return $hits;
         } catch (\Throwable $e) {
             // ES unavailable — let the pipeline carry on with the other strategies.
@@ -1205,21 +1221,21 @@ class DiscoveryController extends Controller
     private function entitySearch(array $expanded, int $limit = 200): array
     {
         $searchTerms = [];
-        if (!empty($expanded['entityTerms'])) {
+        if (! empty($expanded['entityTerms'])) {
             foreach ($expanded['entityTerms'] as $entity) {
                 $searchTerms[] = $entity['value'];
             }
         }
-        if (!empty($expanded['phrases'])) {
+        if (! empty($expanded['phrases'])) {
             foreach ($expanded['phrases'] as $phrase) {
-                if (!in_array($phrase, $searchTerms)) {
+                if (! in_array($phrase, $searchTerms)) {
                     $searchTerms[] = $phrase;
                 }
             }
         }
-        if (!empty($expanded['keywords'])) {
+        if (! empty($expanded['keywords'])) {
             foreach ($expanded['keywords'] as $keyword) {
-                if (strlen($keyword) > 4 && !in_array($keyword, $searchTerms)) {
+                if (strlen($keyword) > 4 && ! in_array($keyword, $searchTerms)) {
                     $searchTerms[] = $keyword;
                 }
             }
@@ -1245,14 +1261,14 @@ class DiscoveryController extends Controller
             $body = [
                 'query' => [
                     'bool' => [
-                        'should'               => $should,
+                        'should' => $should,
                         'minimum_should_match' => 1,
                     ],
                 ],
                 '_source' => ['nerEntityTypes', 'nerEntityValues'],
                 'highlight' => [
-                    'fields'    => ['nerEntityValues' => (object) []],
-                    'pre_tags'  => ['<mark>'],
+                    'fields' => ['nerEntityValues' => (object) []],
+                    'pre_tags' => ['<mark>'],
                     'post_tags' => ['</mark>'],
                 ],
             ];
@@ -1276,13 +1292,14 @@ class DiscoveryController extends Controller
                     }
                 }
                 $hits[] = [
-                    'object_id'      => (int) ($hit['_id'] ?? 0),
+                    'object_id' => (int) ($hit['_id'] ?? 0),
                     // ES BM25 score → keep raw; merger normalises against max.
-                    'match_count'    => (float) ($hit['_score'] ?? 0),
-                    'entity_types'   => implode(',', (array) ($hit['_source']['nerEntityTypes'] ?? [])),
+                    'match_count' => (float) ($hit['_score'] ?? 0),
+                    'entity_types' => implode(',', (array) ($hit['_source']['nerEntityTypes'] ?? [])),
                     'matched_values' => $matchedValues,
                 ];
             }
+
             return $hits;
         } catch (\Exception $e) {
             return [];
@@ -1327,7 +1344,7 @@ class DiscoveryController extends Controller
 
             // Collect parents to fetch siblings against, and high-level node IDs
             // whose children we want to enumerate.
-            $parentIds       = [];
+            $parentIds = [];
             $highLevelNodeIds = [];
             foreach ($nodes as $node) {
                 $objectId = (int) $node->id;
@@ -1389,7 +1406,9 @@ class DiscoveryController extends Controller
             foreach ($nodes as $node) {
                 $objectId = (int) $node->id;
                 $parentId = (int) $node->parent_id;
-                if ($parentId <= 1) continue;
+                if ($parentId <= 1) {
+                    continue;
+                }
 
                 foreach ($siblingsByParent[$parentId] ?? [] as $sibId) {
                     if (! isset($processed[$sibId])) {
@@ -1410,6 +1429,7 @@ class DiscoveryController extends Controller
         } catch (\Exception $e) {
             // Degrade gracefully
         }
+
         return $results;
     }
 
@@ -1434,10 +1454,12 @@ class DiscoveryController extends Controller
             // a fresh install where these IDs aren't fonds-level — log a warning.
             \Illuminate\Support\Facades\Log::warning(
                 'DiscoveryController::getHighLevelIds() — no high-level terms in taxonomy 34; '
-                . 'falling back to AtoM-default IDs. This is incorrect on this install.'
+                .'falling back to AtoM-default IDs. This is incorrect on this install.'
             );
+
             return [227, 228, 229, 231];
         }
+
         return $ids;
     }
 
@@ -1451,34 +1473,40 @@ class DiscoveryController extends Controller
 
         foreach ($keywordResults as $r) {
             $id = $r['object_id'];
-            if (!isset($map[$id])) {
+            if (! isset($map[$id])) {
                 $map[$id] = ['sources' => [], 'reasons' => [], 'data' => []];
             }
             $map[$id]['sources']['keyword'] = $r;
             $map[$id]['reasons'][] = 'KEYWORD';
-            if (!empty($r['highlights'])) { $map[$id]['data']['highlights'] = $r['highlights']; }
-            if (!empty($r['slug'])) { $map[$id]['data']['slug'] = $r['slug']; }
+            if (! empty($r['highlights'])) {
+                $map[$id]['data']['highlights'] = $r['highlights'];
+            }
+            if (! empty($r['slug'])) {
+                $map[$id]['data']['slug'] = $r['slug'];
+            }
         }
 
         foreach ($entityResults as $r) {
             $id = $r['object_id'];
-            if (!isset($map[$id])) {
+            if (! isset($map[$id])) {
                 $map[$id] = ['sources' => [], 'reasons' => [], 'data' => []];
             }
             $map[$id]['sources']['entity'] = $r;
-            if (!empty($r['matched_values'])) {
+            if (! empty($r['matched_values'])) {
                 foreach (array_slice($r['matched_values'], 0, 3) as $val) {
-                    $reason = 'ENTITY:' . $val;
-                    if (!in_array($reason, $map[$id]['reasons'])) { $map[$id]['reasons'][] = $reason; }
+                    $reason = 'ENTITY:'.$val;
+                    if (! in_array($reason, $map[$id]['reasons'])) {
+                        $map[$id]['reasons'][] = $reason;
+                    }
                 }
-            } elseif (!in_array('ENTITY', $map[$id]['reasons'])) {
+            } elseif (! in_array('ENTITY', $map[$id]['reasons'])) {
                 $map[$id]['reasons'][] = 'ENTITY';
             }
         }
 
         foreach ($hierarchicalResults as $r) {
             $id = $r['object_id'];
-            if (!isset($map[$id])) {
+            if (! isset($map[$id])) {
                 $map[$id] = ['sources' => [], 'reasons' => [], 'data' => []];
             }
             $map[$id]['sources']['hierarchical'] = $r;
@@ -1496,13 +1524,13 @@ class DiscoveryController extends Controller
         // Fusion weights from ahg_settings (issue #21); fallback defaults match
         // the historical AtoM ResultMerger constants.
         $cfg = $this->fusionConfig();
-        $hasEntity = !empty($entityResults);
-        $wKeyword   = $hasEntity ? $cfg['weight_keyword_3way'] : $cfg['weight_keyword_2way'];
-        $wEntity    = $hasEntity ? $cfg['weight_entity_3way']  : 0.0;
-        $wHierarchy = $hasEntity ? $cfg['weight_hier_3way']    : $cfg['weight_hier_2way'];
-        $sibScore   = $cfg['hier_sibling_score'];
+        $hasEntity = ! empty($entityResults);
+        $wKeyword = $hasEntity ? $cfg['weight_keyword_3way'] : $cfg['weight_keyword_2way'];
+        $wEntity = $hasEntity ? $cfg['weight_entity_3way'] : 0.0;
+        $wHierarchy = $hasEntity ? $cfg['weight_hier_3way'] : $cfg['weight_hier_2way'];
+        $sibScore = $cfg['hier_sibling_score'];
         $childScore = $cfg['hier_child_score'];
-        $bonus      = $cfg['multi_source_bonus'];
+        $bonus = $cfg['multi_source_bonus'];
 
         $scored = [];
         foreach ($map as $objectId => $entry) {
@@ -1528,7 +1556,8 @@ class DiscoveryController extends Controller
             ];
         }
 
-        usort($scored, fn($a, $b) => $b['score'] <=> $a['score']);
+        usort($scored, fn ($a, $b) => $b['score'] <=> $a['score']);
+
         return $scored;
     }
 
@@ -1596,26 +1625,31 @@ class DiscoveryController extends Controller
         $entities = [];
         try {
             $exists = $db->select("SHOW TABLES LIKE 'ahg_ner_entity'");
-            if (!empty($exists)) {
+            if (! empty($exists)) {
                 $entRows = $db->table('ahg_ner_entity')
                     ->select('object_id', 'entity_type', 'entity_value')
                     ->whereIn('object_id', $ids)->whereIn('status', ['approved', 'pending'])->get();
                 foreach ($entRows as $row) {
                     $oid = (int) $row->object_id;
-                    if (!isset($entities[$oid])) { $entities[$oid] = []; }
+                    if (! isset($entities[$oid])) {
+                        $entities[$oid] = [];
+                    }
                     if (count($entities[$oid]) < 10) {
                         $entities[$oid][] = ['type' => $row->entity_type, 'value' => $row->entity_value];
                     }
                 }
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         foreach ($results as &$result) {
             $id = $result['object_id'];
             $titleRow = $titles->get($id);
             $result['title'] = $titleRow ? ($titleRow->title ?: 'Untitled') : 'Untitled';
             $result['scope_and_content'] = $titleRow ? $this->trimToSentences($titleRow->scope_and_content ?? '', 2) : '';
-            if (empty($result['slug'])) { $result['slug'] = $slugs[$id] ?? ''; }
+            if (empty($result['slug'])) {
+                $result['slug'] = $slugs[$id] ?? '';
+            }
             $result['level_of_description'] = $levels[$id] ?? '';
             $result['creator'] = $creators[$id] ?? '';
             $result['repository'] = $repos[$id] ?? '';
@@ -1625,12 +1659,12 @@ class DiscoveryController extends Controller
                 $d = $dates[$id];
                 $s = $d->start_date ? substr($d->start_date, 0, 4) : '';
                 $e = $d->end_date ? substr($d->end_date, 0, 4) : '';
-                $result['date_range'] = ($s && $e && $s !== $e) ? ($s . "\u{2013}" . $e) : $s;
+                $result['date_range'] = ($s && $e && $s !== $e) ? ($s."\u{2013}".$e) : $s;
             }
             $result['thumbnail_url'] = null;
             if (isset($thumbnails[$id])) {
                 $t = $thumbnails[$id];
-                $result['thumbnail_url'] = '/uploads/' . ltrim($t->path, '/') . $t->name;
+                $result['thumbnail_url'] = '/uploads/'.ltrim($t->path, '/').$t->name;
             }
         }
 
@@ -1643,7 +1677,7 @@ class DiscoveryController extends Controller
         foreach ($results as $result) {
             $fonds = $this->findRootFonds($result['object_id'], $culture);
             $key = $fonds ? $fonds['id'] : 0;
-            if (!isset($groups[$key])) {
+            if (! isset($groups[$key])) {
                 $groups[$key] = [
                     'fonds_id' => $fonds['id'] ?? 0,
                     'fonds_title' => $fonds['title'] ?? 'Ungrouped',
@@ -1653,6 +1687,7 @@ class DiscoveryController extends Controller
             }
             $groups[$key]['records'][] = $result;
         }
+
         return array_values($groups);
     }
 
@@ -1668,26 +1703,32 @@ class DiscoveryController extends Controller
             $maxDepth = 20;
             while ($maxDepth-- > 0) {
                 $node = $db->table('information_object')->select('id', 'parent_id')->where('id', $current)->first();
-                if (!$node || (int) $node->parent_id <= 1) {
+                if (! $node || (int) $node->parent_id <= 1) {
                     $title = $db->table('information_object_i18n')->where('id', $current)->where('culture', $culture)->value('title');
                     $slug = $db->table('slug')->where('object_id', $current)->value('slug');
                     $result = ['id' => (int) $current, 'title' => $title ?: 'Untitled', 'slug' => $slug ?: ''];
                     $cache[$objectId] = $result;
+
                     return $result;
                 }
                 $current = (int) $node->parent_id;
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
+
         return null;
     }
 
     private function trimToSentences(string $text, int $count): string
     {
-        if (empty($text)) { return ''; }
+        if (empty($text)) {
+            return '';
+        }
         $text = strip_tags($text);
         $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
         $text = trim($text);
         $sentences = preg_split('/(?<=[.!?])\s+/', $text, $count + 1);
+
         return count($sentences) <= $count ? $text : implode(' ', array_slice($sentences, 0, $count));
     }
 
@@ -1699,16 +1740,18 @@ class DiscoveryController extends Controller
     {
         try {
             $exists = DB::select("SHOW TABLES LIKE 'ahg_discovery_log'");
-            if (empty($exists)) { return []; }
+            if (empty($exists)) {
+                return [];
+            }
 
             return DB::table('ahg_discovery_log')
                 ->select('query_text', DB::raw('COUNT(*) as search_count'), DB::raw('AVG(result_count) as avg_results'))
-                ->where('created_at', '>=', DB::raw("DATE_SUB(NOW(), INTERVAL 30 DAY)"))
+                ->where('created_at', '>=', DB::raw('DATE_SUB(NOW(), INTERVAL 30 DAY)'))
                 ->groupBy('query_text')
                 ->having('search_count', '>=', 2)
                 ->orderByDesc('search_count')
                 ->limit($limit)->get()
-                ->map(fn($row) => [
+                ->map(fn ($row) => [
                     'query' => $row->query_text,
                     'count' => (int) $row->search_count,
                     'avg_results' => (int) $row->avg_results,
@@ -1722,9 +1765,12 @@ class DiscoveryController extends Controller
     {
         try {
             $exists = DB::select("SHOW TABLES LIKE 'ahg_discovery_cache'");
-            if (empty($exists)) { return null; }
+            if (empty($exists)) {
+                return null;
+            }
             $row = DB::table('ahg_discovery_cache')
                 ->where('query_hash', $hash)->where('expires_at', '>', DB::raw('NOW()'))->first();
+
             return $row ? json_decode($row->result_json, true) : null;
         } catch (\Exception $e) {
             return null;
@@ -1735,7 +1781,9 @@ class DiscoveryController extends Controller
     {
         try {
             $exists = DB::select("SHOW TABLES LIKE 'ahg_discovery_cache'");
-            if (empty($exists)) { return; }
+            if (empty($exists)) {
+                return;
+            }
             DB::table('ahg_discovery_cache')->updateOrInsert(
                 ['query_hash' => $hash],
                 [
@@ -1743,17 +1791,20 @@ class DiscoveryController extends Controller
                     'result_json' => json_encode($response),
                     'result_count' => $response['total'] ?? 0,
                     'created_at' => DB::raw('NOW()'),
-                    'expires_at' => DB::raw('DATE_ADD(NOW(), INTERVAL ' . self::CACHE_TTL . ' SECOND)'),
+                    'expires_at' => DB::raw('DATE_ADD(NOW(), INTERVAL '.self::CACHE_TTL.' SECOND)'),
                 ]
             );
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 
     private function logSearch(string $query, ?array $expanded, int $resultCount, float $startTime): void
     {
         try {
             $exists = DB::select("SHOW TABLES LIKE 'ahg_discovery_log'");
-            if (empty($exists)) { return; }
+            if (empty($exists)) {
+                return;
+            }
             DB::table('ahg_discovery_log')->insert([
                 'user_id' => auth()->id(),
                 'query_text' => mb_substr($query, 0, 500),
@@ -1767,6 +1818,7 @@ class DiscoveryController extends Controller
                 'session_id' => session()->getId() ?: null,
                 'created_at' => DB::raw('NOW()'),
             ]);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 }

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCore\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -59,10 +57,10 @@ abstract class BrowseService
         $table = $this->getTable();
 
         return $query
-            ->join($this->getI18nTable(), "{$table}.id", '=', $this->getI18nTable() . '.id')
+            ->join($this->getI18nTable(), "{$table}.id", '=', $this->getI18nTable().'.id')
             ->join('object', "{$table}.id", '=', 'object.id')
             ->join('slug', "{$table}.id", '=', 'slug.object_id')
-            ->where($this->getI18nTable() . '.culture', $this->culture);
+            ->where($this->getI18nTable().'.culture', $this->culture);
     }
 
     protected function getBaseSelect(): array
@@ -130,7 +128,7 @@ abstract class BrowseService
         // an explicit empty-string default (controllers do `?? ''`) still
         // falls back to the canonical default.
         $sort = ($params['sort'] ?? '') ?: 'lastUpdated';
-        $sortDir = !empty($params['sortDir']) ? $params['sortDir'] : (($sort === 'lastUpdated') ? 'desc' : 'asc');
+        $sortDir = ! empty($params['sortDir']) ? $params['sortDir'] : (($sort === 'lastUpdated') ? 'desc' : 'asc');
         $subquery = trim($params['subquery'] ?? '');
 
         try {
@@ -158,7 +156,7 @@ abstract class BrowseService
                 'limit' => $limit,
             ];
         } catch (\Exception $e) {
-            \Log::error(static::class . ' browse error: ' . $e->getMessage());
+            \Log::error(static::class.' browse error: '.$e->getMessage());
 
             return [
                 'hits' => [],

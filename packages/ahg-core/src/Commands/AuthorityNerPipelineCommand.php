@@ -21,6 +21,7 @@ class AuthorityNerPipelineCommand extends Command
     {
         if (! Schema::hasTable('ahg_ner_authority_stub')) {
             $this->warn('ahg_ner_authority_stub missing.');
+
             return self::SUCCESS;
         }
 
@@ -42,28 +43,36 @@ class AuthorityNerPipelineCommand extends Command
             ->whereNull('linked_actor_id')
             ->orderByDesc('confidence')
             ->limit($limit * 5)
-            ->get(['id','object_id','entity_type','entity_value','confidence']);
+            ->get(['id', 'object_id', 'entity_type', 'entity_value', 'confidence']);
 
-        $created = 0; $skipped = 0;
+        $created = 0;
+        $skipped = 0;
         foreach ($candidates as $c) {
-            if (isset($existing[$c->id])) { $skipped++; continue; }
+            if (isset($existing[$c->id])) {
+                $skipped++;
+
+                continue;
+            }
             if (! $dry) {
                 DB::table('ahg_ner_authority_stub')->insert([
-                    'ner_entity_id'    => $c->id,
-                    'actor_id'         => 0,                  // placeholder — set when admin promotes the stub
+                    'ner_entity_id' => $c->id,
+                    'actor_id' => 0,                  // placeholder — set when admin promotes the stub
                     'source_object_id' => $c->object_id,
-                    'entity_type'      => $c->entity_type,
-                    'entity_value'     => mb_substr($c->entity_value, 0, 500),
-                    'confidence'       => $c->confidence,
-                    'status'           => 'stub',
-                    'created_at'       => now(),
+                    'entity_type' => $c->entity_type,
+                    'entity_value' => mb_substr($c->entity_value, 0, 500),
+                    'confidence' => $c->confidence,
+                    'status' => 'stub',
+                    'created_at' => now(),
                 ]);
             }
             $created++;
-            if ($created >= $limit) break;
+            if ($created >= $limit) {
+                break;
+            }
         }
-        $this->info(sprintf("done; created=%d skipped=%d (already-stubbed) threshold=%.2f types=%s%s",
+        $this->info(sprintf('done; created=%d skipped=%d (already-stubbed) threshold=%.2f types=%s%s',
             $created, $skipped, $threshold, implode(',', $types), $dry ? ' (dry-run)' : ''));
+
         return self::SUCCESS;
     }
 }

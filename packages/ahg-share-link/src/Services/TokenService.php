@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 class TokenService
 {
     private const SECRET_SETTING_KEY = 'share_link.hmac_secret';
+
     private const HMAC_ALGO = 'sha256';
 
     public function generate(int $informationObjectId, \DateTimeInterface $expiresAt, ?string $recipientEmail = null): string
@@ -30,6 +31,7 @@ class TokenService
             $nonce,
         );
         $digest = hash_hmac(self::HMAC_ALGO, $input, $this->getSecret(), true);
+
         return $this->base64urlEncode($digest);
     }
 
@@ -41,12 +43,14 @@ class TokenService
         if (preg_match('#^[A-Za-z0-9_\-]{32,64}$#', trim($url))) {
             return trim($url);
         }
+
         return null;
     }
 
     public function lookup(string $token): ?object
     {
         $row = DB::table('information_object_share_token')->where('token', $token)->first();
+
         return $row ?: null;
     }
 
@@ -61,14 +65,15 @@ class TokenService
             ['setting_key' => self::SECRET_SETTING_KEY],
             [
                 'setting_value' => $secret,
-                'setting_type'  => 'string',
+                'setting_type' => 'string',
                 'setting_group' => 'share_link',
-                'description'   => 'Auto-generated HMAC secret used by the TokenService. Rotate via secret-rotation runbook (future enhancement).',
-                'is_sensitive'  => 1,
-                'created_at'    => now(),
-                'updated_at'    => now(),
+                'description' => 'Auto-generated HMAC secret used by the TokenService. Rotate via secret-rotation runbook (future enhancement).',
+                'is_sensitive' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         );
+
         return $secret;
     }
 

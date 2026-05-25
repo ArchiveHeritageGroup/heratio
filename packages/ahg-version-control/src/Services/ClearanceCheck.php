@@ -35,6 +35,7 @@ class ClearanceCheck
             if ($entityLevel === null) {
                 return true;
             }
+
             return $this->resolveUserClearanceLevel($userId) >= $entityLevel;
         } catch (\Throwable $e) {
             // ahgSecurityClearancePlugin not installed → fail OPEN.
@@ -52,6 +53,7 @@ class ClearanceCheck
             $row = DB::table('security_classification')->where('level', $level)->first();
             $entityClass = $row ? "{$row->name} (level {$level})" : "level {$level}";
             $userLevel = $userId !== null ? $this->resolveUserClearanceLevel($userId) : 0;
+
             return "This record is classified {$entityClass}; your clearance level is {$userLevel}. Restore is not permitted.";
         } catch (\Throwable $e) {
             return 'Insufficient security clearance to restore this record.';
@@ -80,6 +82,7 @@ class ClearanceCheck
             ->where('osc.object_id', $entityId)
             ->where('osc.active', 1)
             ->value('sc.level');
+
         return $level !== null ? (int) $level : null;
     }
 
@@ -93,6 +96,7 @@ class ClearanceCheck
                 $q->whereNull('usc.expires_at')->orWhere('usc.expires_at', '>=', $today);
             })
             ->max('sc.level');
+
         return (int) ($level ?? 0);
     }
 }

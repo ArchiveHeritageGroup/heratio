@@ -8,7 +8,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/audit/statistics', [AuditTrailController::class, 'statistics'])->name('audit.statistics');
     Route::match(['get', 'post'], '/admin/audit/settings', [AuditTrailController::class, 'settings'])->name('audit.settings');
     Route::get('/admin/audit/authentication', [AuditTrailController::class, 'authentication'])->name('audit.authentication');
-    Route::match(['get','post'], '/admin/audit/export', [AuditTrailController::class, 'export'])->name('audit.export');
+    Route::match(['get', 'post'], '/admin/audit/export', [AuditTrailController::class, 'export'])->name('audit.export');
     Route::post('/admin/audit/prune', [AuditTrailController::class, 'pruneNow'])->name('audit.prune');
 });
 

@@ -25,8 +25,8 @@
 
 namespace Ahg\AuditTrail\Services;
 
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AuditService
 {
@@ -34,17 +34,29 @@ class AuditService
      * Action types
      */
     public const ACTION_CREATE = 'create';
+
     public const ACTION_UPDATE = 'update';
+
     public const ACTION_DELETE = 'delete';
+
     public const ACTION_VIEW = 'view';
+
     public const ACTION_DOWNLOAD = 'download';
+
     public const ACTION_EXPORT = 'export';
+
     public const ACTION_IMPORT = 'import';
+
     public const ACTION_LOGIN = 'login';
+
     public const ACTION_LOGOUT = 'logout';
+
     public const ACTION_APPROVE = 'approve';
+
     public const ACTION_REJECT = 'reject';
+
     public const ACTION_PUBLISH = 'publish';
+
     public const ACTION_UNPUBLISH = 'unpublish';
 
     /**
@@ -57,7 +69,7 @@ class AuditService
     public function log(string $action, ?int $objectId = null, ?int $userId = null, array $details = []): int
     {
         // Check if audit logging is globally enabled
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             return 0;
         }
 
@@ -67,7 +79,8 @@ class AuditService
             if ($uid) {
                 $userName = DB::table('user')->where('id', $uid)->value('username');
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         $ip = $details['ip_address'] ?? request()->ip();
 
@@ -77,16 +90,16 @@ class AuditService
         }
 
         return DB::table('security_audit_log')->insertGetId([
-            'action'          => $action,
+            'action' => $action,
             'action_category' => $details['action_category'] ?? $this->categorize($action),
-            'object_id'       => $objectId,
-            'object_type'     => $details['object_type'] ?? null,
-            'user_id'         => $userId ?? auth()->id(),
-            'user_name'       => $userName,
-            'details'         => !empty($details['details']) ? json_encode($details['details']) : null,
-            'ip_address'      => $ip,
-            'user_agent'      => $details['user_agent'] ?? request()->userAgent(),
-            'created_at'      => now(),
+            'object_id' => $objectId,
+            'object_type' => $details['object_type'] ?? null,
+            'user_id' => $userId ?? auth()->id(),
+            'user_name' => $userName,
+            'details' => ! empty($details['details']) ? json_encode($details['details']) : null,
+            'ip_address' => $ip,
+            'user_agent' => $details['user_agent'] ?? request()->userAgent(),
+            'created_at' => now(),
         ]);
     }
 
@@ -103,16 +116,19 @@ class AuditService
      */
     public function isCategoryEnabled(string $category): bool
     {
-        if (!$this->isEnabled()) return false;
+        if (! $this->isEnabled()) {
+            return false;
+        }
         $map = [
-            'view'    => 'audit_views',
-            'search'  => 'audit_searches',
-            'download'=> 'audit_downloads',
-            'api'     => 'audit_api_requests',
-            'auth'    => 'audit_authentication',
-            'access'  => 'audit_sensitive_access',
+            'view' => 'audit_views',
+            'search' => 'audit_searches',
+            'download' => 'audit_downloads',
+            'api' => 'audit_api_requests',
+            'auth' => 'audit_authentication',
+            'access' => 'audit_sensitive_access',
         ];
         $key = $map[$category] ?? null;
+
         return $key ? $this->getSetting($key, '0') === '1' : true;
     }
 
@@ -132,6 +148,7 @@ class AuditService
                 $cache = [];
             }
         }
+
         return $cache[$key] ?? $default;
     }
 
@@ -140,12 +157,25 @@ class AuditService
      */
     private function categorize(string $action): string
     {
-        if (in_array($action, ['login', 'logout', 'login_failed'])) return 'auth';
-        if (in_array($action, ['view', 'browse', 'search'])) return 'access';
-        if (in_array($action, ['create', 'update', 'delete', 'publish', 'unpublish'])) return 'admin';
-        if (in_array($action, ['download', 'export'])) return 'access';
-        if (str_starts_with($action, 'api_')) return 'api';
-        if (in_array($action, ['clearance_grant', 'clearance_revoke', 'access_request'])) return 'security';
+        if (in_array($action, ['login', 'logout', 'login_failed'])) {
+            return 'auth';
+        }
+        if (in_array($action, ['view', 'browse', 'search'])) {
+            return 'access';
+        }
+        if (in_array($action, ['create', 'update', 'delete', 'publish', 'unpublish'])) {
+            return 'admin';
+        }
+        if (in_array($action, ['download', 'export'])) {
+            return 'access';
+        }
+        if (str_starts_with($action, 'api_')) {
+            return 'api';
+        }
+        if (in_array($action, ['clearance_grant', 'clearance_revoke', 'access_request'])) {
+            return 'security';
+        }
+
         return 'access';
     }
 
@@ -159,30 +189,30 @@ class AuditService
             ->orderBy('created_at', 'desc');
 
         // User filter
-        if (!empty($filters['user_id'])) {
+        if (! empty($filters['user_id'])) {
             $query->where('user_id', $filters['user_id']);
         }
 
         // Action filter
-        if (!empty($filters['action'])) {
+        if (! empty($filters['action'])) {
             $query->where('action', $filters['action']);
         }
 
         // Object type filter
-        if (!empty($filters['object_type'])) {
+        if (! empty($filters['object_type'])) {
             $query->where('object_type', $filters['object_type']);
         }
 
         // Object ID filter
-        if (!empty($filters['object_id'])) {
+        if (! empty($filters['object_id'])) {
             $query->where('object_id', $filters['object_id']);
         }
 
         // Date range
-        if (!empty($filters['from_date'])) {
+        if (! empty($filters['from_date'])) {
             $query->where('created_at', '>=', $filters['from_date']);
         }
-        if (!empty($filters['to_date'])) {
+        if (! empty($filters['to_date'])) {
             $query->where('created_at', '<=', $filters['to_date']);
         }
 
@@ -197,7 +227,7 @@ class AuditService
             ->toArray();
 
         return [
-            'data' => array_map(fn($l) => $this->formatLog($l), $logs),
+            'data' => array_map(fn ($l) => $this->formatLog($l), $logs),
             'total' => $total,
             'page' => $page,
             'limit' => $limit,
@@ -220,7 +250,7 @@ class AuditService
         return $query->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get()
-            ->map(fn($l) => $this->formatLog($l))
+            ->map(fn ($l) => $this->formatLog($l))
             ->toArray();
     }
 
@@ -234,7 +264,7 @@ class AuditService
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get()
-            ->map(fn($l) => $this->formatLog($l))
+            ->map(fn ($l) => $this->formatLog($l))
             ->toArray();
     }
 
@@ -245,10 +275,10 @@ class AuditService
     {
         $query = DB::table('security_audit_log');
 
-        if (!empty($filters['from_date'])) {
+        if (! empty($filters['from_date'])) {
             $query->where('created_at', '>=', $filters['from_date']);
         }
-        if (!empty($filters['to_date'])) {
+        if (! empty($filters['to_date'])) {
             $query->where('created_at', '<=', $filters['to_date']);
         }
 
@@ -317,11 +347,11 @@ class AuditService
     protected function formatLog(object $log): array
     {
         $data = (array) $log;
-        
+
         // Decode JSON fields
         $data['old_values'] = $data['old_values'] ? json_decode($data['old_values'], true) : null;
         $data['new_values'] = $data['new_values'] ? json_decode($data['new_values'], true) : null;
-        
+
         return $data;
     }
 }

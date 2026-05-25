@@ -46,10 +46,10 @@ class SubjectAccessPointService
      * Attach a list of subject headings (strings) to an information_object
      * as access points. Creates terms as needed; idempotent for relations.
      *
-     * @param int      $informationObjectId  parent IO that owns the access points
-     * @param string[] $headings             subject heading strings
-     * @param string   $culture              source culture for the term_i18n row
-     * @return int     count of NEW object_term_relation rows inserted
+     * @param  int  $informationObjectId  parent IO that owns the access points
+     * @param  string[]  $headings  subject heading strings
+     * @param  string  $culture  source culture for the term_i18n row
+     * @return int count of NEW object_term_relation rows inserted
      */
     public static function attach(int $informationObjectId, array $headings, string $culture = 'en'): int
     {
@@ -62,22 +62,32 @@ class SubjectAccessPointService
         $clean = [];
         foreach ($headings as $h) {
             $h = trim((string) $h);
-            if ($h === '') continue;
+            if ($h === '') {
+                continue;
+            }
             $key = mb_strtolower($h);
-            if (!isset($clean[$key])) $clean[$key] = $h;
+            if (! isset($clean[$key])) {
+                $clean[$key] = $h;
+            }
         }
-        if (empty($clean)) return 0;
+        if (empty($clean)) {
+            return 0;
+        }
 
         $inserted = 0;
         foreach ($clean as $heading) {
             $termId = self::findOrCreateTerm($heading, self::TAXONOMY_SUBJECT, $culture);
-            if ($termId <= 0) continue;
+            if ($termId <= 0) {
+                continue;
+            }
 
             $exists = DB::table('object_term_relation')
                 ->where('object_id', $informationObjectId)
                 ->where('term_id', $termId)
                 ->exists();
-            if ($exists) continue;
+            if ($exists) {
+                continue;
+            }
 
             // The base table is `relation` (CTI: object_term_relation IS-A
             // QubitObject row whose class_name='QubitObjectTermRelation').
@@ -90,9 +100,9 @@ class SubjectAccessPointService
                 'serial_number' => 0,
             ]);
             DB::table('object_term_relation')->insert([
-                'id'           => $relationObjectId,
-                'object_id'    => $informationObjectId,
-                'term_id'      => $termId,
+                'id' => $relationObjectId,
+                'object_id' => $informationObjectId,
+                'term_id' => $termId,
                 'source_culture' => $culture,
             ]);
             $inserted++;
@@ -111,7 +121,9 @@ class SubjectAccessPointService
      */
     public static function detachAll(int $informationObjectId): int
     {
-        if ($informationObjectId <= 0) return 0;
+        if ($informationObjectId <= 0) {
+            return 0;
+        }
 
         $relationIds = DB::table('object_term_relation as otr')
             ->join('term', 'term.id', '=', 'otr.term_id')
@@ -119,7 +131,9 @@ class SubjectAccessPointService
             ->where('term.taxonomy_id', self::TAXONOMY_SUBJECT)
             ->pluck('otr.id')
             ->all();
-        if (empty($relationIds)) return 0;
+        if (empty($relationIds)) {
+            return 0;
+        }
 
         DB::table('object_term_relation')->whereIn('id', $relationIds)->delete();
         DB::table('object')->whereIn('id', $relationIds)
@@ -133,11 +147,12 @@ class SubjectAccessPointService
      * blow away then re-attach. Mirrors syncSubjects() semantics in
      * LibraryService.
      *
-     * @return int  count of NEW relations after the resync
+     * @return int count of NEW relations after the resync
      */
     public static function sync(int $informationObjectId, array $headings, string $culture = 'en'): int
     {
         self::detachAll($informationObjectId);
+
         return self::attach($informationObjectId, $headings, $culture);
     }
 
@@ -149,7 +164,9 @@ class SubjectAccessPointService
     private static function findOrCreateTerm(string $name, int $taxonomyId, string $culture): int
     {
         $name = trim($name);
-        if ($name === '') return 0;
+        if ($name === '') {
+            return 0;
+        }
 
         $existing = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
@@ -157,7 +174,9 @@ class SubjectAccessPointService
             ->where('term_i18n.culture', $culture)
             ->whereRaw('LOWER(term_i18n.name) = ?', [mb_strtolower($name)])
             ->value('term.id');
-        if ($existing) return (int) $existing;
+        if ($existing) {
+            return (int) $existing;
+        }
 
         $parentId = (int) (DB::table('term')
             ->where('taxonomy_id', $taxonomyId)
@@ -174,23 +193,24 @@ class SubjectAccessPointService
             'serial_number' => 0,
         ]);
         DB::table('term')->insert([
-            'id'             => $termId,
-            'taxonomy_id'    => $taxonomyId,
-            'parent_id'      => $parentId,
-            'lft'            => null,
-            'rgt'            => null,
+            'id' => $termId,
+            'taxonomy_id' => $taxonomyId,
+            'parent_id' => $parentId,
+            'lft' => null,
+            'rgt' => null,
             'source_culture' => $culture,
         ]);
         DB::table('term_i18n')->insert([
-            'id'      => $termId,
+            'id' => $termId,
             'culture' => $culture,
-            'name'    => $name,
+            'name' => $name,
         ]);
 
-        $base = \Illuminate\Support\Str::slug($name) ?: ('term-' . $termId);
-        $slug = $base; $n = 1;
+        $base = \Illuminate\Support\Str::slug($name) ?: ('term-'.$termId);
+        $slug = $base;
+        $n = 1;
         while (DB::table('slug')->where('slug', $slug)->exists()) {
-            $slug = $base . '-' . $n++;
+            $slug = $base.'-'.$n++;
         }
         DB::table('slug')->insert(['object_id' => $termId, 'slug' => $slug]);
 

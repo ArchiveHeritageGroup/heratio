@@ -34,6 +34,7 @@ class CronStatusCommand extends Command
 
         if ($schedules->isEmpty()) {
             $this->info('No schedules found matching the filter.');
+
             return self::SUCCESS;
         }
 
@@ -49,8 +50,8 @@ class CronStatusCommand extends Command
 
             $duration = $s->last_run_duration_ms !== null
                 ? ($s->last_run_duration_ms >= 1000
-                    ? round($s->last_run_duration_ms / 1000, 1) . 's'
-                    : $s->last_run_duration_ms . 'ms')
+                    ? round($s->last_run_duration_ms / 1000, 1).'s'
+                    : $s->last_run_duration_ms.'ms')
                 : '—';
 
             return [

@@ -42,8 +42,12 @@ class AhgCoreServiceProvider extends ServiceProvider
             $fallback = config('app.fallback_locale', 'en');
             try {
                 $rows = \Illuminate\Support\Facades\DB::table('setting as s')
-                    ->leftJoin('setting_i18n as si',    function ($j) use ($culture)  { $j->on('s.id', '=', 'si.id')->where('si.culture', '=', $culture); })
-                    ->leftJoin('setting_i18n as si_fb', function ($j) use ($fallback) { $j->on('s.id', '=', 'si_fb.id')->where('si_fb.culture', '=', $fallback); })
+                    ->leftJoin('setting_i18n as si', function ($j) use ($culture) {
+                        $j->on('s.id', '=', 'si.id')->where('si.culture', '=', $culture);
+                    })
+                    ->leftJoin('setting_i18n as si_fb', function ($j) use ($fallback) {
+                        $j->on('s.id', '=', 'si_fb.id')->where('si_fb.culture', '=', $fallback);
+                    })
                     ->where('s.scope', 'ui_label')
                     ->select('s.name', 'si.value as cur', 'si_fb.value as fb')
                     ->get();
@@ -51,7 +55,9 @@ class AhgCoreServiceProvider extends ServiceProvider
                 foreach ($rows as $r) {
                     $val = ($r->cur !== null && $r->cur !== '') ? $r->cur : $r->fb;
                     $val = $val !== null ? strtr((string) $val, ['&nbsp;' => ' ']) : '';
-                    if ($val === '') continue;
+                    if ($val === '') {
+                        continue;
+                    }
 
                     // a) config('app.ui_label_*') — used wherever code calls config()
                     config(["app.ui_label_{$r->name}" => $val]);
@@ -66,7 +72,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                         $translatorOverrides[$en] = $val;
                     }
                 }
-                if (!empty($translatorOverrides)) {
+                if (! empty($translatorOverrides)) {
                     app('translator')->addLines($translatorOverrides, app()->getLocale(), '*');
                 }
             } catch (\Throwable $e) {
@@ -80,10 +86,10 @@ class AhgCoreServiceProvider extends ServiceProvider
 
         // Load routes
         \Illuminate\Support\Facades\Route::middleware('web')
-            ->group(__DIR__ . '/../../routes/web.php');
+            ->group(__DIR__.'/../../routes/web.php');
 
         // Load views
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-core');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-core');
 
         // Register artisan commands
         if ($this->app->runningInConsole()) {
@@ -257,7 +263,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                     ->withoutOverlapping(60)
                     ->when(function () {
                         try {
-                            return (new \AhgCore\Services\EncryptionService())->isEnabled();
+                            return (new \AhgCore\Services\EncryptionService)->isEnabled();
                         } catch (\Throwable $e) {
                             return false;
                         }
@@ -290,7 +296,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                     ->withoutOverlapping(120)
                     ->when(function () {
                         try {
-                            return (new \AhgCore\Services\EncryptionService())->shouldEncryptDerivatives();
+                            return (new \AhgCore\Services\EncryptionService)->shouldEncryptDerivatives();
                         } catch (\Throwable $e) {
                             return false;
                         }
@@ -338,11 +344,11 @@ class AhgCoreServiceProvider extends ServiceProvider
                     $host = preg_replace('/[^a-z0-9._-]/', '-', $host) ?: 'unknown';
 
                     $centralDefaults = [
-                        'ahg_central_enabled'       => $centralKey !== '' ? '1' : '0',
-                        'ahg_central_api_url'       => $centralUrl,
-                        'ahg_central_api_key'       => $centralKey,
-                        'ahg_central_site_id'       => 'heratio-' . $host,
-                        'ahg_central_error_sync'    => '0',
+                        'ahg_central_enabled' => $centralKey !== '' ? '1' : '0',
+                        'ahg_central_api_url' => $centralUrl,
+                        'ahg_central_api_key' => $centralKey,
+                        'ahg_central_site_id' => 'heratio-'.$host,
+                        'ahg_central_error_sync' => '0',
                         'ahg_central_last_error_id' => '0',
                     ];
                     $existing = \Illuminate\Support\Facades\DB::table('ahg_settings')
@@ -354,11 +360,11 @@ class AhgCoreServiceProvider extends ServiceProvider
                             continue;
                         }
                         \Illuminate\Support\Facades\DB::table('ahg_settings')->insert([
-                            'setting_key'   => $key,
+                            'setting_key' => $key,
                             'setting_value' => $value,
-                            'setting_type'  => in_array($key, ['ahg_central_enabled', 'ahg_central_error_sync'], true) ? 'boolean' : 'string',
+                            'setting_type' => in_array($key, ['ahg_central_enabled', 'ahg_central_error_sync'], true) ? 'boolean' : 'string',
                             'setting_group' => 'ahg_central',
-                            'is_locked'     => 0,
+                            'is_locked' => 0,
                         ]);
                     }
                 }
@@ -375,8 +381,8 @@ class AhgCoreServiceProvider extends ServiceProvider
         // package:discover before any DB is wired in CI; Laravel's default
         // sqlite fallback would otherwise throw and break composer install.
         try {
-            if (!\Illuminate\Support\Facades\Schema::hasTable('voice_usage')) {
-                $sql = file_get_contents(__DIR__ . '/../../database/install_voice_usage.sql');
+            if (! \Illuminate\Support\Facades\Schema::hasTable('voice_usage')) {
+                $sql = file_get_contents(__DIR__.'/../../database/install_voice_usage.sql');
                 if (is_string($sql) && trim($sql) !== '') {
                     \Illuminate\Support\Facades\DB::unprepared($sql);
                 }
@@ -385,7 +391,7 @@ class AhgCoreServiceProvider extends ServiceProvider
             // No DB connection or install hiccup — VoiceLLMService fails
             // open (no enforcement) when the table is missing; install
             // retries on next boot.
-            \Log::warning('[ahg-core] voice_usage install failed: ' . $e->getMessage());
+            \Log::warning('[ahg-core] voice_usage install failed: '.$e->getMessage());
         }
     }
 }

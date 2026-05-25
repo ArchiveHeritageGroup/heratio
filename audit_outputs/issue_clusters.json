@@ -1,0 +1,402 @@
+[
+  {
+    "cluster_id": 1,
+    "size": 7,
+    "representative": "iiif mirador api heratio manifest background",
+    "members": [
+      {
+        "number": 715,
+        "title": "PSIS OCR text download (TXT/ALTO/hOCR/PAGE-XML) parity with Heratio v1.78.0 (#665)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T06:56:09Z",
+        "snippet": "## Background  [#665](https://github.com/ArchiveHeritageGroup/heratio/issues/665) Phase 3 shipped on Heratio (v1.78.0, 2026-05-25): TXT / ALTO / hOCR / PAGE-XML download per information_object. New `OcrExportService` reads `iiif_ocr_text` ("
+      },
+      {
+        "number": 694,
+        "title": "IIIF Content Search API 2.0 — service block + per-canvas highlight annotations",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-24T19:24:00Z",
+        "snippet": "## Background  Sub-issue of #646 (IIIF spec gap closure). The Heratio IIIF surface in `packages/ahg-iiif-collection` has no [IIIF Content Search API 2.0](https://iiif.io/api/search/2.0/) endpoints. Mirador can't search inside scanned docume"
+      },
+      {
+        "number": 700,
+        "title": "Mirador — comparison glass / dual-pane slider overlay",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-24T19:24:10Z",
+        "snippet": "## Background  Sub-issue of #647. Heratio already exposes a side-by-side Mirador compare view at `/iiif-compare` (`packages/ahg-iiif-collection/resources/views/iiif/compare.blade.php`) — multi-manifest URLs go in as `?manifest=URL1&manifest"
+      },
+      {
+        "number": 696,
+        "title": "IIIF Content State API + Authorization Flow 2.0 (five services + clearance propagation)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-24T19:24:04Z",
+        "snippet": "## Background  Sub-issue of #646. Two independent IIIF specs grouped here because both touch the viewer + access flow without depending on each other:  1. **IIIF Content State API 1.0** — serialise current viewer state (manifest + canvas + "
+      },
+      {
+        "number": 695,
+        "title": "IIIF A/V + Presentation 3.0 migration + Change Discovery API",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-24T19:24:02Z",
+        "snippet": "## Background  Sub-issue of #646. Two related gaps under one umbrella because both depend on the same Presentation API 3.0 migration:  1. **A/V (audio/video) support** — Heratio's object manifest still emits **Presentation API 2.1** (collec"
+      },
+      {
+        "number": 701,
+        "title": "Mirador — A/V plugin bundling + manifest detection + transcript panel",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-24T19:24:11Z",
+        "snippet": "## Background  Sub-issue of #647. Audio + video records on Heratio are rendered via standalone HTML5 players (`_show-audio.blade.php`, `_show-video.blade.php`) using `ahg-media-player.js`. **Mirador never even attempts to show them** — `ahg"
+      },
+      {
+        "number": 698,
+        "title": "Mirador — scalebar + magnifier plugins + MUI theming + Pres 3 manifest emission",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-24T19:24:07Z",
+        "snippet": "## Background  Sub-issue of #647 (Mirador feature gaps). Heratio bundles **Mirador 4.0.0** (webpack at `tools/mirador-build/`) with 3 plugins loaded: - ✓ `mirador-image-tools@1.0.0` (rotate, flip, brightness, contrast, saturation, invert) -"
+      }
+    ]
+  },
+  {
+    "cluster_id": 2,
+    "size": 3,
+    "representative": "heratio build plan glam dam document",
+    "members": [
+      {
+        "number": 693,
+        "title": "EU AI Act Article 12 Logging",
+        "labels": [],
+        "createdAt": "2026-05-24T16:41:59Z",
+        "snippet": "# Heratio EU AI Act Article 12 Logging: Investigation and Build Plan  **Document status:** Build planning draft   **Target system:** Heratio / AtoM-compatible GLAM-DAM platform   **Focus:** AI event logging, traceability, auditability, and "
+      },
+      {
+        "number": 691,
+        "title": "OCFL",
+        "labels": [],
+        "createdAt": "2026-05-24T16:34:07Z",
+        "snippet": "# Heratio OCFL Preservation Storage Build Plan **Document type:** Comprehensive build plan   **Target platform:** Heratio / AtoM-compatible GLAM-DAM preservation architecture   **Primary standard:** Oxford Common File Layout (OCFL) v1.1   *"
+      },
+      {
+        "number": 692,
+        "title": "C2PA",
+        "labels": [],
+        "createdAt": "2026-05-24T16:35:07Z",
+        "snippet": "# Heratio / AHG GLAM-DAM C2PA Content Credentials Build Plan **Document status:** Build planning document   **Prepared for:** The Archive and Heritage Group / Heratio / OpenRiC roadmap   **Prepared date:** 2026-05-24   **Primary objective:*"
+      }
+    ]
+  },
+  {
+    "cluster_id": 3,
+    "size": 2,
+    "representative": "agent every any host ingest claude",
+    "members": [
+      {
+        "number": 716,
+        "title": "KM cross-agent endpoint: HTTP API + ingest + Workbench/ahg-ai integration",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T06:56:47Z",
+        "snippet": "## Background  Per the `feedback_always_update_km` durable rule (2026-05-25), KM must become the **single cross-agent read/write knowledge bus** — not just for Claude. Every agent + every project + every automation should publish to + query"
+      },
+      {
+        "number": 710,
+        "title": "KM ingest endpoint: watched folder + km_ingest_doc MCP tool",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T06:30:28Z",
+        "snippet": "## Background  Per the new `feedback_always_update_km` durable rule (2026-05-25), every meaningful Heratio release / closed issue / non-trivial decision should flow into the central KM (`<internal-host>:5050` / km.theahg.co.za) so it's disc"
+      }
+    ]
+  },
+  {
+    "cluster_id": 4,
+    "size": 2,
+    "representative": "queue heratio psis worker dispatch 674",
+    "members": [
+      {
+        "number": 709,
+        "title": "PSIS email queue dispatch parity with Heratio v1.72.1 (#674)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T05:50:59Z",
+        "snippet": "## Background  [#674](https://github.com/ArchiveHeritageGroup/heratio/issues/674) Phase 1 shipped on Heratio (v1.72.1, 2026-05-25): changed 5 `->send()` dispatch sites to `->queue()` + added `ShouldQueue` to 10 Mailables. Together with v1.7"
+      },
+      {
+        "number": 706,
+        "title": "PSIS jobs:worker daemon configs parity with Heratio v1.70.0 (#672)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T05:50:48Z",
+        "snippet": "## Background  [#672](https://github.com/ArchiveHeritageGroup/heratio/issues/672) Phase 1 shipped on Heratio (v1.70.0, 2026-05-25): supervisord + systemd template configs for the Laravel queue worker daemon, plus a `docs/queue-worker-deploy"
+      }
+    ]
+  },
+  {
+    "cluster_id": 5,
+    "size": 1,
+    "representative": "heratio 654 datacite subjects psis enrichment",
+    "members": [
+      {
+        "number": 718,
+        "title": "PSIS DataCite enrichment parity with Heratio v1.80.0 (#654)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T07:52:19Z",
+        "snippet": "## Background  [#654](https://github.com/ArchiveHeritageGroup/heratio/issues/654) Phase 1 shipped on Heratio (v1.80.0, 2026-05-25): DataCite mint payloads now include `descriptions[]` (scope_and_content + archival_history + acquisition), `s"
+      }
+    ]
+  },
+  {
+    "cluster_id": 6,
+    "size": 1,
+    "representative": "new audit heratio 676 old helper",
+    "members": [
+      {
+        "number": 717,
+        "title": "PSIS audit-logger old/new value capture parity with Heratio v1.79.0 (#676)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T07:52:15Z",
+        "snippet": "## Background  [#676](https://github.com/ArchiveHeritageGroup/heratio/issues/676) Phase 4 shipped on Heratio (v1.79.0, 2026-05-25): new `AuditLogger` helper class in ahg-audit-trail that populates `old_values` + `new_values` + `changed_fiel"
+      }
+    ]
+  },
+  {
+    "cluster_id": 7,
+    "size": 1,
+    "representative": "psis skos heratio 661 export turtle",
+    "members": [
+      {
+        "number": 714,
+        "title": "PSIS multi-format SKOS export (Turtle/N-Triples/JSON-LD) parity with Heratio v1.77.0 (#661)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T06:56:05Z",
+        "snippet": "## Background  [#661](https://github.com/ArchiveHeritageGroup/heratio/issues/661) Phase 2 shipped on Heratio (v1.77.0, 2026-05-25): Turtle / N-Triples / JSON-LD download alongside the existing SKOS RDF/XML export. Single data walk reused ac"
+      }
+    ]
+  },
+  {
+    "cluster_id": 8,
+    "size": 1,
+    "representative": "psis suggester heratio 650 search did",
+    "members": [
+      {
+        "number": 713,
+        "title": "PSIS search 'Did you mean…?' suggester parity with Heratio v1.76.0 (#650)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T06:56:01Z",
+        "snippet": "## Background  [#650](https://github.com/ArchiveHeritageGroup/heratio/issues/650) Phase 1 shipped on Heratio (v1.76.0, 2026-05-25): \"Did you mean…?\" phrase suggester banner above search results. Calls Elasticsearch `phrase_suggester` on `ti"
+      }
+    ]
+  },
+  {
+    "cluster_id": 9,
+    "size": 1,
+    "representative": "language accept heratio 675 content dir",
+    "members": [
+      {
+        "number": 712,
+        "title": "PSIS i18n Accept-Language + Content-Language + dir parity with Heratio v1.74.0 (#675)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T06:55:58Z",
+        "snippet": "## Background  [#675](https://github.com/ArchiveHeritageGroup/heratio/issues/675) Phase 1+2 shipped on Heratio (v1.74.0, 2026-05-25): Accept-Language fallback in `SetLocale` middleware (step 4 of 5: URL → session → cookie → Accept-Language "
+      }
+    ]
+  },
+  {
+    "cluster_id": 10,
+    "size": 1,
+    "representative": "backup notifications heratio 671 workbench psis",
+    "members": [
+      {
+        "number": 711,
+        "title": "PSIS backup notifications parity with Heratio v1.73.0 (#671)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T06:55:54Z",
+        "snippet": "## Background  [#671](https://github.com/ArchiveHeritageGroup/heratio/issues/671) Phase 2 shipped on Heratio (v1.73.0, 2026-05-25): backup email + Workbench notifications. `BackupCompletedMail` / `BackupFailedMail` Mailables (`ShouldQueue`)"
+      }
+    ]
+  },
+  {
+    "cluster_id": 11,
+    "size": 1,
+    "representative": "camera heratio 666 phase viewer animation",
+    "members": [
+      {
+        "number": 708,
+        "title": "PSIS 3D viewer animation + camera bookmarks parity with Heratio v1.72.0 (#666)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T05:50:55Z",
+        "snippet": "## Background  [#666](https://github.com/ArchiveHeritageGroup/heratio/issues/666) Phase 1+2 shipped on Heratio (v1.72.0, 2026-05-25):  - **Phase 1**: animation toolbar (play/pause/scrub/time display) for `<model-viewer>` when model has anim"
+      }
+    ]
+  },
+  {
+    "cluster_id": 12,
+    "size": 1,
+    "representative": "rico occupation heratio 660 psis entity",
+    "members": [
+      {
+        "number": 707,
+        "title": "PSIS rico:Occupation entity parity with Heratio v1.71.0 (#660)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T05:50:52Z",
+        "snippet": "## Background  [#660](https://github.com/ArchiveHeritageGroup/heratio/issues/660) Phase 1 shipped on Heratio (v1.71.0, 2026-05-25): added `rico:Occupation` entity — new `ric_occupation` table, Eloquent model, admin CRUD UI under `/admin/ric"
+      }
+    ]
+  },
+  {
+    "cluster_id": 13,
+    "size": 1,
+    "representative": "heratio 656 wcag outline form password",
+    "members": [
+      {
+        "number": 705,
+        "title": "PSIS WCAG quick wins parity with Heratio v1.69.2 (#656)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T05:50:45Z",
+        "snippet": "## Background  [#656](https://github.com/ArchiveHeritageGroup/heratio/issues/656) Phase 1 shipped on Heratio (v1.69.2, 2026-05-25): restored `outline: 3px solid var(--ahg-secondary)` on `.form-item .form-control:focus` (was `outline: 0` — W"
+      }
+    ]
+  },
+  {
+    "cluster_id": 14,
+    "size": 1,
+    "representative": "cron heratio 673 psis registry sharepoint",
+    "members": [
+      {
+        "number": 704,
+        "title": "PSIS cron registry parity with Heratio v1.69.1 (#673)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-25T05:50:41Z",
+        "snippet": "## Background  [#673](https://github.com/ArchiveHeritageGroup/heratio/issues/673) shipped on Heratio (v1.69.1, 2026-05-25): registered `spectrum:overdue` + `sharepoint:auto-ingest` + `sharepoint:renew-subscriptions` in the Heratio cron regi"
+      }
+    ]
+  },
+  {
+    "cluster_id": 15,
+    "size": 1,
+    "representative": "full library create system",
+    "members": [
+      {
+        "number": 703,
+        "title": "Full library",
+        "labels": [],
+        "createdAt": "2026-05-24T19:45:44Z",
+        "snippet": "Create full library system "
+      }
+    ]
+  },
+  {
+    "cluster_id": 16,
+    "size": 1,
+    "representative": "heratio 663 psis marc21 marcxml issue",
+    "members": [
+      {
+        "number": 702,
+        "title": "PSIS MARC21/MARCXML parity with Heratio v1.69.0 (#663)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-24T19:24:13Z",
+        "snippet": "## Background  [#663 Phase 1](https://github.com/ArchiveHeritageGroup/heratio/issues/663) shipped on Heratio (v1.69.0, 2026-05-24): MARC21 in MARCXML envelope + ISO 2709 binary `.mrc` standalone export from the information-object show page "
+      }
+    ]
+  },
+  {
+    "cluster_id": 17,
+    "size": 1,
+    "representative": "state mirador per user workspace persistence",
+    "members": [
+      {
+        "number": 699,
+        "title": "Mirador — workspace persistence (localStorage + per-user DB-backed)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-24T19:24:08Z",
+        "snippet": "## Background  Sub-issue of #647. Mirador 4 stores workspace state (open windows, zoom, annotations panel) in Redux but **doesn't persist it** — refresh and everything resets. No `redux-persist` middleware configured. No per-user DB-backed "
+      }
+    ]
+  },
+  {
+    "cluster_id": 18,
+    "size": 1,
+    "representative": "ner iiif entity scanned ahg linked",
+    "members": [
+      {
+        "number": 697,
+        "title": "IIIF NER → annotation bridge (entity highlights on scanned canvases)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-24T19:24:05Z",
+        "snippet": "## Background  Sub-issue of #646. NER entities extracted by `ahg-ai-services` (`ahg_ner_entity` table) should appear as IIIF annotations on the manifest so Mirador can highlight people/places/organisations directly on scanned pages — clicka"
+      }
+    ]
+  },
+  {
+    "cluster_id": 19,
+    "size": 1,
+    "representative": "mfa implement",
+    "members": [
+      {
+        "number": 690,
+        "title": "MFA",
+        "labels": [],
+        "createdAt": "2026-05-24T16:32:45Z",
+        "snippet": "Implement MFA"
+      }
+    ]
+  },
+  {
+    "cluster_id": 20,
+    "size": 1,
+    "representative": "psis heratio oai pmh 655 issues",
+    "members": [
+      {
+        "number": 689,
+        "title": "PSIS OAI-PMH parity with Heratio v1.68.0 (Phases 1-5)",
+        "labels": [
+          "enhancement"
+        ],
+        "createdAt": "2026-05-24T09:53:19Z",
+        "snippet": "## Background  [#655 Phase 1-5](https://github.com/ArchiveHeritageGroup/heratio/issues/655) shipped on Heratio (v1.67.0 + v1.68.0, 2026-05-24): 5 metadata formats, POST verb, `<friends>`, tombstones, rate-limit, docs page.  **PSIS hasn't be"
+      }
+    ]
+  }
+]

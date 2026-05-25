@@ -19,8 +19,7 @@ class ActorSnapshotObserver
     public function __construct(
         private readonly SnapshotBuilder $builder,
         private readonly VersionWriter $writer,
-    ) {
-    }
+    ) {}
 
     public function saved(Actor $actor): void
     {
@@ -32,8 +31,8 @@ class ActorSnapshotObserver
         }
 
         try {
-            $userId  = VersionContext::takeUserId() ?? auth()->id();
-            $summary = VersionContext::takeSummary() ?? 'Saved via ' . request()->path();
+            $userId = VersionContext::takeUserId() ?? auth()->id();
+            $summary = VersionContext::takeSummary() ?? 'Saved via '.request()->path();
             $this->writer->write(
                 entityType: 'actor',
                 entityId: (int) $actor->id,

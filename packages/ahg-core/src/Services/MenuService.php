@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCore\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -155,8 +153,8 @@ class MenuService
         static $globalCache = null;
         static $perUserCache = [];
 
-        if (null === $userId) {
-            if (null !== $globalCache) {
+        if ($userId === null) {
+            if ($globalCache !== null) {
                 return $globalCache;
             }
             try {
@@ -167,6 +165,7 @@ class MenuService
             } catch (\Exception $e) {
                 $globalCache = [];
             }
+
             return $globalCache;
         }
 
@@ -174,17 +173,17 @@ class MenuService
             return $perUserCache[$userId];
         }
 
-        $global    = self::getEnabledPlugins(null);
-        $isAdmin   = self::userIsAdmin($userId);
+        $global = self::getEnabledPlugins(null);
+        $isAdmin = self::userIsAdmin($userId);
         $adminOnly = self::adminOnlyPlugins();
 
         // Pull this user's per-grant rows once
         try {
-            $grants  = DB::table('user_plugin_grant')
+            $grants = DB::table('user_plugin_grant')
                 ->where('user_id', $userId)
                 ->whereIn('mode', ['allow', 'deny'])
                 ->get(['plugin_name', 'mode']);
-            $denied  = $grants->where('mode', 'deny')->pluck('plugin_name')->toArray();
+            $denied = $grants->where('mode', 'deny')->pluck('plugin_name')->toArray();
             $allowed = $grants->where('mode', 'allow')->pluck('plugin_name')->toArray();
         } catch (\Exception $e) {
             $denied = $allowed = [];
@@ -217,6 +216,7 @@ class MenuService
         }
 
         $perUserCache[$userId] = $effective;
+
         return $effective;
     }
 
@@ -232,8 +232,11 @@ class MenuService
      */
     public static function isPluginAccessible(string $name, ?int $userId = null): bool
     {
-        if (null === $userId && function_exists('auth')) {
-            try { $userId = auth()->user()?->id; } catch (\Throwable $e) {}
+        if ($userId === null && function_exists('auth')) {
+            try {
+                $userId = auth()->user()?->id;
+            } catch (\Throwable $e) {
+            }
         }
 
         if ($userId === null) {
@@ -254,17 +257,22 @@ class MenuService
         // admin_only check fires BEFORE the explicit grant — even an
         // explicitly-allowed non-admin can't see an admin-only plugin.
         $isAdmin = self::userIsAdmin($userId);
-        if (!$isAdmin && in_array($name, self::adminOnlyPlugins(), true)) {
+        if (! $isAdmin && in_array($name, self::adminOnlyPlugins(), true)) {
             return false;
         }
 
-        if ($grant === 'allow') return true;
-        if ($grant === 'deny')  return false;
+        if ($grant === 'allow') {
+            return true;
+        }
+        if ($grant === 'deny') {
+            return false;
+        }
 
         // No explicit grant → admin gets the global state, non-admin gets nothing.
         if ($isAdmin) {
             return in_array($name, self::getEnabledPlugins(null), true);
         }
+
         return false;
     }
 
@@ -275,7 +283,9 @@ class MenuService
     private static function adminOnlyPlugins(): array
     {
         static $cache = null;
-        if (null !== $cache) return $cache;
+        if ($cache !== null) {
+            return $cache;
+        }
         try {
             // Detect the column once; absence = legacy schema, no admin-only filter.
             $hasCol = DB::selectOne(
@@ -284,7 +294,9 @@ class MenuService
                    AND TABLE_NAME   = 'atom_plugin'
                    AND COLUMN_NAME  = 'admin_only'"
             )->n ?? 0;
-            if (!$hasCol) return $cache = [];
+            if (! $hasCol) {
+                return $cache = [];
+            }
             $cache = DB::table('atom_plugin')
                 ->where('admin_only', 1)
                 ->pluck('name')
@@ -292,6 +304,7 @@ class MenuService
         } catch (\Throwable $e) {
             $cache = [];
         }
+
         return $cache;
     }
 
@@ -303,13 +316,16 @@ class MenuService
     private static function userIsAdmin(int $userId): bool
     {
         static $adminCache = [];
-        if (isset($adminCache[$userId])) return $adminCache[$userId];
+        if (isset($adminCache[$userId])) {
+            return $adminCache[$userId];
+        }
 
         try {
             $is = \AhgCore\Services\AclService::canAdmin($userId);
         } catch (\Throwable $e) {
             $is = false;
         }
+
         return $adminCache[$userId] = (bool) $is;
     }
 
@@ -318,7 +334,7 @@ class MenuService
      */
     public static function isPluginEnabled(string $name, ?int $userId = null): bool
     {
-        if (null === $userId && function_exists('auth')) {
+        if ($userId === null && function_exists('auth')) {
             try {
                 $u = auth()->user();
                 $userId = $u?->id;
@@ -326,6 +342,7 @@ class MenuService
                 // auth unavailable (CLI / boot) — fall through to global only.
             }
         }
+
         return in_array($name, self::getEnabledPlugins($userId), true);
     }
 
@@ -381,7 +398,7 @@ class MenuService
 
             $lookup[$item->id] = $item;
 
-            if (null === $item->parentId || ! isset($lookup[$item->parentId])) {
+            if ($item->parentId === null || ! isset($lookup[$item->parentId])) {
                 $tree[] = $item;
             } else {
                 $lookup[$item->parentId]->children[] = $item;
@@ -435,13 +452,13 @@ class MenuService
             try {
                 return route($routeName);
             } catch (\Exception $e) {
-                return '/' . str_replace('_', '/', $routeName);
+                return '/'.str_replace('_', '/', $routeName);
             }
         }
 
         // Ensure leading slash
         if (! str_starts_with($path, '/')) {
-            return '/' . $path;
+            return '/'.$path;
         }
 
         return $path;

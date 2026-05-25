@@ -29,7 +29,6 @@ use AhgShareLink\Services\InvalidRequestException;
 use AhgShareLink\Services\IssueService;
 use AhgShareLink\Services\NotAuthenticatedException;
 use AhgShareLink\Services\PermissionDeniedException;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -44,7 +43,7 @@ class ShareLinkIssueController extends Controller
         $wantsJson = $this->wantsJson($request);
 
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return $this->error('not_authenticated', 'Authentication required', 401, $wantsJson, $request);
         }
         $userId = (int) ($user->id ?? 0);
@@ -68,14 +67,14 @@ class ShareLinkIssueController extends Controller
         }
 
         $recipientEmail = trim((string) $request->input('recipient_email')) ?: null;
-        if ($recipientEmail !== null && !filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {
+        if ($recipientEmail !== null && ! filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {
             return $this->error('invalid_request', 'recipient_email is not a valid email address', 422, $wantsJson, $request);
         }
         $recipientNote = trim((string) $request->input('recipient_note')) ?: null;
         $maxAccessRaw = $request->input('max_access');
         $maxAccess = null;
         if ($maxAccessRaw !== null && $maxAccessRaw !== '') {
-            if (!is_numeric($maxAccessRaw) || (int) $maxAccessRaw < 1) {
+            if (! is_numeric($maxAccessRaw) || (int) $maxAccessRaw < 1) {
                 return $this->error('invalid_request', 'max_access must be a positive integer', 422, $wantsJson, $request);
             }
             $maxAccess = (int) $maxAccessRaw;
@@ -92,15 +91,15 @@ class ShareLinkIssueController extends Controller
             );
 
             $absolute = $result['public_url'] ?? null;
-            if ($absolute === null || !preg_match('#^https?://#i', (string) $absolute)) {
-                $absolute = $request->getSchemeAndHttpHost() . '/share/' . $result['token'];
+            if ($absolute === null || ! preg_match('#^https?://#i', (string) $absolute)) {
+                $absolute = $request->getSchemeAndHttpHost().'/share/'.$result['token'];
             }
 
             if ($wantsJson) {
                 return response()->json([
-                    'ok'         => true,
-                    'token'      => $result['token'],
-                    'token_id'   => $result['token_id'],
+                    'ok' => true,
+                    'token' => $result['token'],
+                    'token_id' => $result['token_id'],
                     'expires_at' => $result['expires_at'],
                     'public_url' => $absolute,
                 ], 201);
@@ -120,7 +119,8 @@ class ShareLinkIssueController extends Controller
         } catch (InvalidRequestException $e) {
             return $this->error('invalid_request', $e->getMessage(), 422, $wantsJson, $request);
         } catch (\Throwable $e) {
-            \Log::error('ahg-share-link issue unexpected: ' . $e->getMessage(), ['exception' => $e]);
+            \Log::error('ahg-share-link issue unexpected: '.$e->getMessage(), ['exception' => $e]);
+
             return $this->error('server_error', 'An unexpected error occurred', 500, $wantsJson, $request);
         }
     }
@@ -135,26 +135,26 @@ class ShareLinkIssueController extends Controller
         $record = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as ioi', function ($j) {
                 $j->on('io.id', '=', 'ioi.id')
-                  ->where('ioi.culture', '=', app()->getLocale() ?: 'en');
+                    ->where('ioi.culture', '=', app()->getLocale() ?: 'en');
             })
             ->where('io.id', $ioId)
             ->select('io.id', 'io.slug', 'ioi.title', 'io.security_classification_id')
             ->first();
-        if (!$record) {
+        if (! $record) {
             abort(404);
         }
 
         $defaultExpiryDays = (int) $this->readSetting('share_link.default_expiry_days', '14');
-        $maxExpiryDays     = (int) $this->readSetting('share_link.max_expiry_days', '90');
+        $maxExpiryDays = (int) $this->readSetting('share_link.max_expiry_days', '90');
 
         return view('ahg-share-link::new', [
             'informationObjectId' => $ioId,
-            'recordTitle'         => $record->title ?: ('IO #' . $ioId),
-            'recordSlug'          => $record->slug,
-            'defaultExpiryDays'   => $defaultExpiryDays,
-            'maxExpiryDays'       => $maxExpiryDays,
+            'recordTitle' => $record->title ?: ('IO #'.$ioId),
+            'recordSlug' => $record->slug,
+            'defaultExpiryDays' => $defaultExpiryDays,
+            'maxExpiryDays' => $maxExpiryDays,
             'classificationLevel' => $record->security_classification_id !== null ? (int) $record->security_classification_id : null,
-            'errorMessage'        => session('error'),
+            'errorMessage' => session('error'),
         ]);
     }
 
@@ -164,7 +164,7 @@ class ShareLinkIssueController extends Controller
             ->leftJoin('information_object as io', 'io.id', '=', 't.information_object_id')
             ->leftJoin('information_object_i18n as ioi', function ($j) {
                 $j->on('ioi.id', '=', 'io.id')
-                  ->where('ioi.culture', '=', app()->getLocale() ?: 'en');
+                    ->where('ioi.culture', '=', app()->getLocale() ?: 'en');
             })
             ->where('t.id', $tokenId)
             ->select(
@@ -178,22 +178,22 @@ class ShareLinkIssueController extends Controller
                 'ioi.title as record_title'
             )
             ->first();
-        if (!$token) {
+        if (! $token) {
             abort(404);
         }
 
-        $publicUrl = $request->getSchemeAndHttpHost() . '/share/' . $token->token;
+        $publicUrl = $request->getSchemeAndHttpHost().'/share/'.$token->token;
 
         return view('ahg-share-link::issue', [
-            'tokenId'             => (int) $token->token_id,
-            'token'               => $token->token,
-            'publicUrl'           => $publicUrl,
-            'expiresAt'           => (string) $token->expires_at,
+            'tokenId' => (int) $token->token_id,
+            'token' => $token->token,
+            'publicUrl' => $publicUrl,
+            'expiresAt' => (string) $token->expires_at,
             'informationObjectId' => (int) $token->information_object_id,
-            'recordTitle'         => $token->record_title ?: ('IO #' . $token->information_object_id),
-            'recordSlug'          => $token->record_slug,
-            'recipientEmail'      => $token->recipient_email,
-            'maxAccess'           => $token->max_access !== null ? (int) $token->max_access : null,
+            'recordTitle' => $token->record_title ?: ('IO #'.$token->information_object_id),
+            'recordSlug' => $token->record_slug,
+            'recipientEmail' => $token->recipient_email,
+            'maxAccess' => $token->max_access !== null ? (int) $token->max_access : null,
         ]);
     }
 
@@ -203,6 +203,7 @@ class ShareLinkIssueController extends Controller
         if (str_contains($accept, 'application/json')) {
             return true;
         }
+
         return $request->isJson() || $request->ajax();
     }
 
@@ -210,6 +211,7 @@ class ShareLinkIssueController extends Controller
     {
         try {
             $value = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
+
             return $value !== null ? (string) $value : $default;
         } catch (\Throwable $e) {
             return $default;
@@ -228,6 +230,7 @@ class ShareLinkIssueController extends Controller
                 ->withInput()
                 ->with('error', $message);
         }
+
         return redirect()->back()->withInput()->with('error', $message);
     }
 }

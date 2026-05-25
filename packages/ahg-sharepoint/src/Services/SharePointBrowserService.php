@@ -17,8 +17,7 @@ class SharePointBrowserService
 
     public function __construct(
         private GraphClientService $graph,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<int, array{id:string,displayName:string,name:?string,webUrl:string,description:?string}>
@@ -26,7 +25,7 @@ class SharePointBrowserService
     public function listSites(int $tenantId, ?string $search = null): array
     {
         $query = $search !== null && $search !== ''
-            ? '/sites?search=' . rawurlencode($search) . '&$top=200'
+            ? '/sites?search='.rawurlencode($search).'&$top=200'
             : '/sites?search=*&$top=200';
 
         return $this->collect($tenantId, $query, fn (array $row) => [
@@ -44,6 +43,7 @@ class SharePointBrowserService
     public function listDrives(int $tenantId, string $siteId): array
     {
         $siteId = rawurlencode($siteId);
+
         return $this->collect($tenantId, "/sites/{$siteId}/drives?\$top=200", fn (array $row) => [
             'id' => (string) ($row['id'] ?? ''),
             'name' => (string) ($row['name'] ?? ''),
@@ -60,9 +60,10 @@ class SharePointBrowserService
         $driveId = rawurlencode($driveId);
         $itemId = rawurlencode($itemId);
         $select = 'id,name,size,file,folder,eTag,cTag,webUrl,lastModifiedDateTime,createdDateTime,parentReference,retentionLabel';
+
         return $this->collect(
             $tenantId,
-            "/drives/{$driveId}/items/{$itemId}/children?\$top=500&\$select=" . rawurlencode($select),
+            "/drives/{$driveId}/items/{$itemId}/children?\$top=500&\$select=".rawurlencode($select),
             fn (array $row) => $this->mapDriveItem($row),
         );
     }
@@ -70,6 +71,7 @@ class SharePointBrowserService
     public function downloadItem(int $tenantId, string $driveId, string $itemId, string $destPath): string
     {
         $this->graph->downloadDriveItemByDriveId($tenantId, $driveId, $itemId, $destPath);
+
         return $destPath;
     }
 
@@ -97,7 +99,7 @@ class SharePointBrowserService
         $systemLookup = array_flip(self::SP_SYSTEM_COLUMNS);
         $out = [];
         foreach (($resp['value'] ?? []) as $col) {
-            if (!is_array($col)) {
+            if (! is_array($col)) {
                 continue;
             }
             $type = 'text';
@@ -122,6 +124,7 @@ class SharePointBrowserService
                 'columnGroup' => $columnGroup,
             ];
         }
+
         return $out;
     }
 
@@ -137,18 +140,19 @@ class SharePointBrowserService
             $path .= '?$expand=listItem(expand=fields)';
         }
         $raw = $this->graph->get($tenantId, $path);
+
         return $this->mapDriveItem($raw) + ['_raw' => $raw];
     }
 
     /**
-     * @param callable(array):array $mapper
+     * @param  callable(array):array  $mapper
      * @return array<int, array>
      */
     private function collect(int $tenantId, string $initialPath, callable $mapper): array
     {
         $out = [];
         $path = $initialPath;
-        for ($page = 0; $page < self::MAX_PAGES; ++$page) {
+        for ($page = 0; $page < self::MAX_PAGES; $page++) {
             $resp = $this->graph->get($tenantId, $path);
             foreach (($resp['value'] ?? []) as $row) {
                 if (is_array($row)) {
@@ -156,19 +160,21 @@ class SharePointBrowserService
                 }
             }
             $next = $resp['@odata.nextLink'] ?? null;
-            if (!is_string($next) || $next === '') {
+            if (! is_string($next) || $next === '') {
                 break;
             }
             $path = $this->stripGraphBase($next);
         }
+
         return $out;
     }
 
     private function stripGraphBase(string $absoluteUrl): string
     {
         $parsed = parse_url($absoluteUrl);
-        $relative = ($parsed['path'] ?? '/') . (isset($parsed['query']) ? '?' . $parsed['query'] : '');
+        $relative = ($parsed['path'] ?? '/').(isset($parsed['query']) ? '?'.$parsed['query'] : '');
         $relative = preg_replace('#^/(v1\.0|beta)#', '', $relative);
+
         return $relative === '' ? '/' : $relative;
     }
 
@@ -182,6 +188,7 @@ class SharePointBrowserService
             $retentionLabel = isset($row['retentionLabel']['name']) ? (string) $row['retentionLabel']['name'] : null;
             $retentionLabelAppliedAt = $row['retentionLabel']['labelAppliedDateTime'] ?? null;
         }
+
         return [
             'id' => (string) ($row['id'] ?? ''),
             'name' => (string) ($row['name'] ?? ''),

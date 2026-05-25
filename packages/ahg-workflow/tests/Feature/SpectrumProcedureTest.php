@@ -79,7 +79,7 @@ class SpectrumProcedureTest extends TestCase
 
     public function test_workflow_service_persists_valid_spectrum_procedure(): void
     {
-        $svc = new WorkflowService();
+        $svc = new WorkflowService;
         $id = $svc->createWorkflow([
             'name' => 'Spectrum: Cataloguing test',
             'spectrum_procedure' => 'cataloguing',
@@ -91,7 +91,7 @@ class SpectrumProcedureTest extends TestCase
 
     public function test_workflow_service_normalises_unknown_spectrum_to_null(): void
     {
-        $svc = new WorkflowService();
+        $svc = new WorkflowService;
         $id = $svc->createWorkflow([
             'name' => 'Bogus spectrum',
             'spectrum_procedure' => 'parsecs',   // invalid
@@ -103,7 +103,7 @@ class SpectrumProcedureTest extends TestCase
 
     public function test_get_workflows_filter_by_spectrum_procedure(): void
     {
-        $svc = new WorkflowService();
+        $svc = new WorkflowService;
         $idA = $svc->createWorkflow(['name' => 'WF-A', 'spectrum_procedure' => 'object_entry']);
         $idB = $svc->createWorkflow(['name' => 'WF-B', 'spectrum_procedure' => 'cataloguing']);
         $idC = $svc->createWorkflow(['name' => 'WF-C', 'spectrum_procedure' => 'object_entry']);

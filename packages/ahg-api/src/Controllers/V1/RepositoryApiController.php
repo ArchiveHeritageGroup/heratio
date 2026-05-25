@@ -67,7 +67,7 @@ class RepositoryApiController extends Controller
         // Get holdings count for each repository
         $repoIds = $rows->pluck('id')->toArray();
         $holdingsCounts = [];
-        if (!empty($repoIds)) {
+        if (! empty($repoIds)) {
             $holdingsCounts = DB::table('information_object')
                 ->whereIn('repository_id', $repoIds)
                 ->where('id', '!=', 1)
@@ -100,7 +100,7 @@ class RepositoryApiController extends Controller
     public function show(string $slug): JsonResponse
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-        if (!$objectId) {
+        if (! $objectId) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Repository '{$slug}' not found.",
@@ -169,7 +169,7 @@ class RepositoryApiController extends Controller
             ])
             ->first();
 
-        if (!$repo) {
+        if (! $repo) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Repository '{$slug}' not found.",
@@ -268,7 +268,7 @@ class RepositoryApiController extends Controller
      */
     protected function termName(?int $termId): ?string
     {
-        if (!$termId) {
+        if (! $termId) {
             return null;
         }
 
@@ -288,10 +288,10 @@ class RepositoryApiController extends Controller
 
         $links = ['self' => "{$baseUrl}?page={$page}&limit={$limit}"];
         if ($page < $lastPage) {
-            $links['next'] = "{$baseUrl}?page=" . ($page + 1) . "&limit={$limit}";
+            $links['next'] = "{$baseUrl}?page=".($page + 1)."&limit={$limit}";
         }
         if ($page > 1) {
-            $links['prev'] = "{$baseUrl}?page=" . ($page - 1) . "&limit={$limit}";
+            $links['prev'] = "{$baseUrl}?page=".($page - 1)."&limit={$limit}";
         }
         $links['first'] = "{$baseUrl}?page=1&limit={$limit}";
         $links['last'] = "{$baseUrl}?page={$lastPage}&limit={$limit}";

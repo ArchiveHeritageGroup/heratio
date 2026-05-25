@@ -1,10 +1,10 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * Create blade views for all unmapped AtoM plugin packages.
  * Reads AtoM templates, creates matching Heratio blades with theme CSS.
  */
-
 $atomBase = '/usr/share/nginx/archive/atom-ahg-plugins';
 $heratioBase = '/usr/share/nginx/heratio/packages';
 
@@ -66,13 +66,17 @@ foreach ($plugins as $pluginName => $config) {
 
     foreach ($config['modules'] as $module) {
         $tplDir = "$atomBase/$pluginName/modules/$module/templates";
-        if (!is_dir($tplDir)) continue;
+        if (! is_dir($tplDir)) {
+            continue;
+        }
 
         foreach (glob("$tplDir/*.php") as $tpl) {
             $filename = basename($tpl, '.php');
 
             // Skip .blade.php duplicates
-            if (str_ends_with($filename, '.blade')) continue;
+            if (str_ends_with($filename, '.blade')) {
+                continue;
+            }
 
             // Normalize name
             $rawName = preg_replace('/Success$/', '', $filename);
@@ -85,7 +89,9 @@ foreach ($plugins as $pluginName => $config) {
             if ($isPartial) {
                 $bladeFile = "$viewDir/_$bladeName.blade.php";
             }
-            if (file_exists($bladeFile)) continue;
+            if (file_exists($bladeFile)) {
+                continue;
+            }
 
             // Read AtoM template to get title/purpose
             $atomContent = file_get_contents($tpl);
@@ -160,8 +166,8 @@ foreach ($plugins as $pluginName => $config) {
                 $bladeContent .= "@endsection\n";
 
                 // Add route entry
-                $routeName = strtolower(str_replace('-', '', $pkg)) . '.' . $bladeName;
-                $routeEntries[] = "Route::get('/$bladeName', [\\{$controllerClass}::class, '" . lcfirst(str_replace('-', '', ucwords($bladeName, '-'))) . "'])->name('$routeName');";
+                $routeName = strtolower(str_replace('-', '', $pkg)).'.'.$bladeName;
+                $routeEntries[] = "Route::get('/$bladeName', [\\{$controllerClass}::class, '".lcfirst(str_replace('-', '', ucwords($bladeName, '-')))."'])->name('$routeName');";
 
                 $methodName = lcfirst(str_replace('-', '', ucwords($bladeName, '-')));
                 $controllerMethods[] = "    public function $methodName() { return view('{$viewNamespace}::$bladeName'); }";
@@ -176,10 +182,10 @@ foreach ($plugins as $pluginName => $config) {
     // Create/update routes file
     $pkgSlug = str_replace('ahg-', '', $pkg);
     $viewNamespace = $pkgSlug;
-    $controllerClass = 'Ahg' . str_replace('-', '', ucwords($pkgSlug, '-')) . '\\Controllers\\' . str_replace('-', '', ucwords($pkgSlug, '-')) . 'Controller';
+    $controllerClass = 'Ahg'.str_replace('-', '', ucwords($pkgSlug, '-')).'\\Controllers\\'.str_replace('-', '', ucwords($pkgSlug, '-')).'Controller';
 
     $routesFile = "$pkgDir/routes/web.php";
-    if (!file_exists($routesFile) || filesize($routesFile) < 10) {
+    if (! file_exists($routesFile) || filesize($routesFile) < 10) {
         $routeContent = "<?php\n\nuse Illuminate\\Support\\Facades\\Route;\n\n";
         $routeContent .= "Route::prefix('admin/$pkgSlug')->middleware(['web'])->group(function () {\n";
         foreach ($routeEntries as $r) {
@@ -192,8 +198,8 @@ foreach ($plugins as $pluginName => $config) {
     // Create controller if doesn't exist or is empty
     $ctrlName = str_replace('-', '', ucwords($pkgSlug, '-'));
     $ctrlFile = "$pkgDir/src/Controllers/{$ctrlName}Controller.php";
-    if (!file_exists($ctrlFile) || filesize($ctrlFile) < 100) {
-        $ns = 'Ahg' . $ctrlName;
+    if (! file_exists($ctrlFile) || filesize($ctrlFile) < 100) {
+        $ns = 'Ahg'.$ctrlName;
         $ctrlContent = "<?php\n\nnamespace $ns\\Controllers;\n\nuse App\\Http\\Controllers\\Controller;\n\nclass {$ctrlName}Controller extends Controller\n{\n";
         foreach ($controllerMethods as $m) {
             $ctrlContent .= "$m\n\n";
@@ -204,8 +210,8 @@ foreach ($plugins as $pluginName => $config) {
 
     // Create ServiceProvider if doesn't exist
     $spFile = "$pkgDir/src/Providers/Ahg{$ctrlName}ServiceProvider.php";
-    if (!file_exists($spFile)) {
-        $ns = 'Ahg' . $ctrlName;
+    if (! file_exists($spFile)) {
+        $ns = 'Ahg'.$ctrlName;
         $spContent = "<?php\n\nnamespace $ns\\Providers;\n\nuse Illuminate\\Support\\ServiceProvider;\n\n";
         $spContent .= "class Ahg{$ctrlName}ServiceProvider extends ServiceProvider\n{\n";
         $spContent .= "    public function boot(): void\n    {\n";
@@ -217,8 +223,8 @@ foreach ($plugins as $pluginName => $config) {
 
     // Create composer.json if doesn't exist
     $composerFile = "$pkgDir/composer.json";
-    if (!file_exists($composerFile)) {
-        $ns = 'Ahg' . $ctrlName;
+    if (! file_exists($composerFile)) {
+        $ns = 'Ahg'.$ctrlName;
         $composerContent = json_encode([
             'name' => "ahg/$pkg",
             'description' => "Heratio $ctrlName package (migrated from $pluginName)",
@@ -233,4 +239,4 @@ foreach ($plugins as $pluginName => $config) {
     }
 }
 
-echo "\n=== TOTAL: $totalCreated views created across " . count($plugins) . " packages ===\n";
+echo "\n=== TOTAL: $totalCreated views created across ".count($plugins)." packages ===\n";

@@ -33,8 +33,8 @@ class AhgIcipServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'icip');
+        $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'icip');
         $this->ensureOcapColumns();
     }
 
@@ -50,21 +50,21 @@ class AhgIcipServiceProvider extends ServiceProvider
     private function ensureOcapColumns(): void
     {
         try {
-            if (Schema::hasTable('icip_community') && !Schema::hasColumn('icip_community', 'ocap_assertion')) {
+            if (Schema::hasTable('icip_community') && ! Schema::hasColumn('icip_community', 'ocap_assertion')) {
                 DB::statement('ALTER TABLE icip_community ADD COLUMN ocap_assertion JSON NULL AFTER notes');
             }
-            if (Schema::hasTable('icip_object_summary') && !Schema::hasColumn('icip_object_summary', 'possession_assertion')) {
-                DB::statement("ALTER TABLE icip_object_summary ADD COLUMN possession_assertion VARCHAR(50) NULL AFTER community_ids");
+            if (Schema::hasTable('icip_object_summary') && ! Schema::hasColumn('icip_object_summary', 'possession_assertion')) {
+                DB::statement('ALTER TABLE icip_object_summary ADD COLUMN possession_assertion VARCHAR(50) NULL AFTER community_ids');
             }
             if (Schema::hasTable('icip_config')) {
                 $exists = DB::table('icip_config')->where('config_key', 'ocap_enabled')->exists();
-                if (!$exists) {
+                if (! $exists) {
                     DB::table('icip_config')->insert([
-                        'config_key'   => 'ocap_enabled',
+                        'config_key' => 'ocap_enabled',
                         'config_value' => '0',
-                        'description'  => 'Enable OCAP® overlay (Ownership, Control, Access, Possession). Pluggable per-market — typical First Nations data sovereignty markets: Canada (CAN), Australia (AUS), Aotearoa (NZL).',
-                        'created_at'   => now(),
-                        'updated_at'   => now(),
+                        'description' => 'Enable OCAP® overlay (Ownership, Control, Access, Possession). Pluggable per-market — typical First Nations data sovereignty markets: Canada (CAN), Australia (AUS), Aotearoa (NZL).',
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ]);
                 }
             }

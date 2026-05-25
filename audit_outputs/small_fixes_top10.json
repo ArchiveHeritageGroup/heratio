@@ -1,0 +1,87 @@
+{
+  "generatedAt": "2026-05-25T08:23:53.754795Z",
+  "top": [
+    {
+      "number": 690,
+      "title": "MFA",
+      "labels": [],
+      "createdAt": "2026-05-24T16:32:45Z",
+      "length": 17,
+      "note": "Small \u2014 likely trivial change (docs, config, short fix)."
+    },
+    {
+      "number": 703,
+      "title": "Full library",
+      "labels": [
+        "cluster:full-library"
+      ],
+      "createdAt": "2026-05-24T19:45:44Z",
+      "length": 39,
+      "note": "Small \u2014 likely trivial change (docs, config, short fix)."
+    },
+    {
+      "number": 686,
+      "title": "Audit: ahg-vendor",
+      "labels": [],
+      "createdAt": "2026-05-24T06:24:42Z",
+      "length": 208,
+      "note": "Moderate \u2014 small code or test change likely."
+    },
+    {
+      "number": 683,
+      "title": "Audit: ahg-theme-b5",
+      "labels": [],
+      "createdAt": "2026-05-24T06:24:39Z",
+      "length": 208,
+      "note": "Moderate \u2014 small code or test change likely."
+    },
+    {
+      "number": 688,
+      "title": "Audit: ahg-workflow",
+      "labels": [],
+      "createdAt": "2026-05-24T06:24:44Z",
+      "length": 216,
+      "note": "Moderate \u2014 small code or test change likely."
+    },
+    {
+      "number": 681,
+      "title": "Audit: ahg-storage-manage",
+      "labels": [],
+      "createdAt": "2026-05-24T06:24:37Z",
+      "length": 219,
+      "note": "Moderate \u2014 small code or test change likely."
+    },
+    {
+      "number": 679,
+      "title": "Audit: ahg-static-page",
+      "labels": [],
+      "createdAt": "2026-05-24T06:24:35Z",
+      "length": 222,
+      "note": "Moderate \u2014 small code or test change likely."
+    },
+    {
+      "number": 684,
+      "title": "Audit: ahg-translation",
+      "labels": [],
+      "createdAt": "2026-05-24T06:24:40Z",
+      "length": 224,
+      "note": "Moderate \u2014 small code or test change likely."
+    },
+    {
+      "number": 687,
+      "title": "Audit: ahg-version-control",
+      "labels": [],
+      "createdAt": "2026-05-24T06:24:43Z",
+      "length": 226,
+      "note": "Moderate \u2014 small code or test change likely."
+    },
+    {
+      "number": 685,
+      "title": "Audit: ahg-user-manage",
+      "labels": [],
+      "createdAt": "2026-05-24T06:24:41Z",
+      "length": 229,
+      "note": "Moderate \u2014 small code or test change likely."
+    }
+  ]
+}

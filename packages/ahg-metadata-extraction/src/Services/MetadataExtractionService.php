@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgMetadataExtraction\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -42,38 +40,38 @@ class MetadataExtractionService
 {
     /** MIME type to category mapping */
     private const MIME_CATEGORIES = [
-        'image/jpeg'      => 'image',
-        'image/png'       => 'image',
-        'image/tiff'      => 'image',
-        'image/webp'      => 'image',
-        'image/gif'       => 'image',
-        'image/bmp'       => 'image',
+        'image/jpeg' => 'image',
+        'image/png' => 'image',
+        'image/tiff' => 'image',
+        'image/webp' => 'image',
+        'image/gif' => 'image',
+        'image/bmp' => 'image',
         'application/pdf' => 'pdf',
-        'video/mp4'       => 'video',
-        'video/webm'      => 'video',
-        'video/ogg'       => 'video',
+        'video/mp4' => 'video',
+        'video/webm' => 'video',
+        'video/ogg' => 'video',
         'video/quicktime' => 'video',
         'video/x-msvideo' => 'video',
-        'video/x-matroska'=> 'video',
-        'audio/mpeg'      => 'audio',
-        'audio/mp3'       => 'audio',
-        'audio/wav'       => 'audio',
-        'audio/ogg'       => 'audio',
-        'audio/flac'      => 'audio',
-        'audio/aac'       => 'audio',
-        'audio/x-m4a'     => 'audio',
+        'video/x-matroska' => 'video',
+        'audio/mpeg' => 'audio',
+        'audio/mp3' => 'audio',
+        'audio/wav' => 'audio',
+        'audio/ogg' => 'audio',
+        'audio/flac' => 'audio',
+        'audio/aac' => 'audio',
+        'audio/x-m4a' => 'audio',
     ];
 
     /** Extension to category fallback */
     private const EXT_CATEGORIES = [
-        'jpg'  => 'image', 'jpeg' => 'image', 'png' => 'image',
-        'tif'  => 'image', 'tiff' => 'image', 'webp' => 'image',
-        'gif'  => 'image', 'bmp'  => 'image',
-        'pdf'  => 'pdf',
-        'mp4'  => 'video', 'webm' => 'video', 'ogv' => 'video',
-        'mov'  => 'video', 'avi'  => 'video', 'mkv' => 'video',
-        'mp3'  => 'audio', 'wav'  => 'audio', 'ogg' => 'audio',
-        'flac' => 'audio', 'aac'  => 'audio', 'm4a' => 'audio',
+        'jpg' => 'image', 'jpeg' => 'image', 'png' => 'image',
+        'tif' => 'image', 'tiff' => 'image', 'webp' => 'image',
+        'gif' => 'image', 'bmp' => 'image',
+        'pdf' => 'pdf',
+        'mp4' => 'video', 'webm' => 'video', 'ogv' => 'video',
+        'mov' => 'video', 'avi' => 'video', 'mkv' => 'video',
+        'mp3' => 'audio', 'wav' => 'audio', 'ogg' => 'audio',
+        'flac' => 'audio', 'aac' => 'audio', 'm4a' => 'audio',
     ];
 
     // ------------------------------------------------------------------
@@ -88,7 +86,7 @@ class MetadataExtractionService
      */
     public function extract(string $filePath): array
     {
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             throw new \RuntimeException("File not found: {$filePath}");
         }
 
@@ -97,13 +95,13 @@ class MetadataExtractionService
 
         $metadata = [
             'file' => [
-                'path'      => $filePath,
-                'name'      => basename($filePath),
-                'size'      => filesize($filePath),
+                'path' => $filePath,
+                'name' => basename($filePath),
+                'size' => filesize($filePath),
                 'mime_type' => $mimeType,
-                'category'  => $category,
+                'category' => $category,
                 'extension' => strtolower(pathinfo($filePath, PATHINFO_EXTENSION)),
-                'modified'  => date('Y-m-d H:i:s', filemtime($filePath)),
+                'modified' => date('Y-m-d H:i:s', filemtime($filePath)),
             ],
         ];
 
@@ -111,8 +109,8 @@ class MetadataExtractionService
             case 'image':
                 $metadata['exif'] = $this->extractExif($filePath);
                 $metadata['iptc'] = $this->extractIptc($filePath);
-                $metadata['xmp']  = $this->extractXmp($filePath);
-                if (!empty($metadata['exif'])) {
+                $metadata['xmp'] = $this->extractXmp($filePath);
+                if (! empty($metadata['exif'])) {
                     $metadata['gps'] = $this->extractGpsFromExif($metadata['exif']);
                 }
                 break;
@@ -143,22 +141,23 @@ class MetadataExtractionService
      */
     public function extractExif(string $filePath): array
     {
-        if (!function_exists('exif_read_data')) {
+        if (! function_exists('exif_read_data')) {
             Log::warning('MetadataExtraction: PHP EXIF extension not available');
+
             return [];
         }
 
         $supportedTypes = [IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM];
         $imageType = @exif_imagetype($filePath);
 
-        if (!in_array($imageType, $supportedTypes)) {
+        if (! in_array($imageType, $supportedTypes)) {
             return [];
         }
 
         try {
             $exif = @exif_read_data($filePath, 'ANY_TAG', true);
 
-            if (!$exif || !is_array($exif)) {
+            if (! $exif || ! is_array($exif)) {
                 return [];
             }
 
@@ -167,7 +166,7 @@ class MetadataExtractionService
             foreach ($exif as $section => $data) {
                 if (is_array($data)) {
                     foreach ($data as $key => $value) {
-                        if (is_string($value) && !mb_check_encoding($value, 'UTF-8')) {
+                        if (is_string($value) && ! mb_check_encoding($value, 'UTF-8')) {
                             $value = '[Binary Data]';
                         }
                         $flat[$key] = $value;
@@ -180,6 +179,7 @@ class MetadataExtractionService
             return $flat;
         } catch (\Throwable $e) {
             Log::warning("MetadataExtraction: EXIF read failed: {$e->getMessage()}");
+
             return [];
         }
     }
@@ -190,16 +190,16 @@ class MetadataExtractionService
     public function extractIptc(string $filePath): array
     {
         $info = [];
-        if (!@getimagesize($filePath, $info)) {
+        if (! @getimagesize($filePath, $info)) {
             return [];
         }
 
-        if (!isset($info['APP13'])) {
+        if (! isset($info['APP13'])) {
             return [];
         }
 
         $iptcRaw = @iptcparse($info['APP13']);
-        if (!$iptcRaw || !is_array($iptcRaw)) {
+        if (! $iptcRaw || ! is_array($iptcRaw)) {
             return [];
         }
 
@@ -254,7 +254,7 @@ class MetadataExtractionService
     {
         // Try native XMP parsing first
         $content = @file_get_contents($filePath, false, null, 0, 1024 * 512); // first 512 KB
-        if (!$content) {
+        if (! $content) {
             return [];
         }
 
@@ -312,24 +312,24 @@ class MetadataExtractionService
         // Normalise key names
         $normalised = [];
         $keyMap = [
-            'title'           => 'title',
-            'author'          => 'author',
-            'subject'         => 'subject',
-            'keywords'        => 'keywords',
-            'creator'         => 'creator',
-            'producer'        => 'producer',
-            'creationdate'    => 'creation_date',
-            'creation_date'   => 'creation_date',
-            'moddate'         => 'modification_date',
-            'mod_date'        => 'modification_date',
-            'pages'           => 'pages',
-            'page_size'       => 'page_size',
-            'file_size'       => 'file_size',
-            'pdf_version'     => 'pdf_version',
-            'encrypted'       => 'encrypted',
-            'page_rot'        => 'page_rotation',
-            'tagged'          => 'tagged',
-            'optimized'       => 'optimized',
+            'title' => 'title',
+            'author' => 'author',
+            'subject' => 'subject',
+            'keywords' => 'keywords',
+            'creator' => 'creator',
+            'producer' => 'producer',
+            'creationdate' => 'creation_date',
+            'creation_date' => 'creation_date',
+            'moddate' => 'modification_date',
+            'mod_date' => 'modification_date',
+            'pages' => 'pages',
+            'page_size' => 'page_size',
+            'file_size' => 'file_size',
+            'pdf_version' => 'pdf_version',
+            'encrypted' => 'encrypted',
+            'page_rot' => 'page_rotation',
+            'tagged' => 'tagged',
+            'optimized' => 'optimized',
         ];
 
         foreach ($result as $k => $v) {
@@ -347,8 +347,9 @@ class MetadataExtractionService
      */
     public function extractVideoInfo(string $filePath): array
     {
-        if (!$this->isFfprobeAvailable()) {
+        if (! $this->isFfprobeAvailable()) {
             Log::warning('MetadataExtraction: ffprobe not available');
+
             return [];
         }
 
@@ -361,33 +362,33 @@ class MetadataExtractionService
 
         // Format-level info
         $format = $probe['format'] ?? [];
-        $result['duration']    = isset($format['duration']) ? round((float) $format['duration'], 2) : null;
-        $result['bitrate']     = isset($format['bit_rate']) ? (int) $format['bit_rate'] : null;
+        $result['duration'] = isset($format['duration']) ? round((float) $format['duration'], 2) : null;
+        $result['bitrate'] = isset($format['bit_rate']) ? (int) $format['bit_rate'] : null;
         $result['format_name'] = $format['format_name'] ?? null;
         $result['format_long'] = $format['format_long_name'] ?? null;
-        $result['size']        = isset($format['size']) ? (int) $format['size'] : null;
+        $result['size'] = isset($format['size']) ? (int) $format['size'] : null;
 
         // Format tags
         $tags = $format['tags'] ?? [];
-        $result['title']         = $tags['title'] ?? $tags['TITLE'] ?? null;
-        $result['artist']        = $tags['artist'] ?? $tags['ARTIST'] ?? null;
+        $result['title'] = $tags['title'] ?? $tags['TITLE'] ?? null;
+        $result['artist'] = $tags['artist'] ?? $tags['ARTIST'] ?? null;
         $result['creation_time'] = $tags['creation_time'] ?? null;
-        $result['encoder']       = $tags['encoder'] ?? $tags['ENCODER'] ?? null;
+        $result['encoder'] = $tags['encoder'] ?? $tags['ENCODER'] ?? null;
 
         // Video stream info
         $streams = $probe['streams'] ?? [];
         foreach ($streams as $stream) {
             if (($stream['codec_type'] ?? '') === 'video') {
-                $result['video_codec']      = $stream['codec_name'] ?? null;
+                $result['video_codec'] = $stream['codec_name'] ?? null;
                 $result['video_codec_long'] = $stream['codec_long_name'] ?? null;
-                $result['width']            = $stream['width'] ?? null;
-                $result['height']           = $stream['height'] ?? null;
-                $result['resolution']       = isset($stream['width'], $stream['height'])
-                    ? $stream['width'] . 'x' . $stream['height']
+                $result['width'] = $stream['width'] ?? null;
+                $result['height'] = $stream['height'] ?? null;
+                $result['resolution'] = isset($stream['width'], $stream['height'])
+                    ? $stream['width'].'x'.$stream['height']
                     : null;
-                $result['frame_rate']       = $this->parseFrameRate($stream['r_frame_rate'] ?? null);
-                $result['pixel_format']     = $stream['pix_fmt'] ?? null;
-                $result['video_bitrate']    = isset($stream['bit_rate']) ? (int) $stream['bit_rate'] : null;
+                $result['frame_rate'] = $this->parseFrameRate($stream['r_frame_rate'] ?? null);
+                $result['pixel_format'] = $stream['pix_fmt'] ?? null;
+                $result['video_bitrate'] = isset($stream['bit_rate']) ? (int) $stream['bit_rate'] : null;
                 break;
             }
         }
@@ -395,10 +396,10 @@ class MetadataExtractionService
         // Audio stream info within the video
         foreach ($streams as $stream) {
             if (($stream['codec_type'] ?? '') === 'audio') {
-                $result['audio_codec']       = $stream['codec_name'] ?? null;
+                $result['audio_codec'] = $stream['codec_name'] ?? null;
                 $result['audio_sample_rate'] = isset($stream['sample_rate']) ? (int) $stream['sample_rate'] : null;
-                $result['audio_channels']    = $stream['channels'] ?? null;
-                $result['audio_bitrate']     = isset($stream['bit_rate']) ? (int) $stream['bit_rate'] : null;
+                $result['audio_channels'] = $stream['channels'] ?? null;
+                $result['audio_bitrate'] = isset($stream['bit_rate']) ? (int) $stream['bit_rate'] : null;
                 break;
             }
         }
@@ -413,8 +414,9 @@ class MetadataExtractionService
      */
     public function extractAudioInfo(string $filePath): array
     {
-        if (!$this->isFfprobeAvailable()) {
+        if (! $this->isFfprobeAvailable()) {
             Log::warning('MetadataExtraction: ffprobe not available');
+
             return [];
         }
 
@@ -427,20 +429,20 @@ class MetadataExtractionService
 
         // Format-level info
         $format = $probe['format'] ?? [];
-        $result['duration']    = isset($format['duration']) ? round((float) $format['duration'], 2) : null;
-        $result['bitrate']     = isset($format['bit_rate']) ? (int) $format['bit_rate'] : null;
+        $result['duration'] = isset($format['duration']) ? round((float) $format['duration'], 2) : null;
+        $result['bitrate'] = isset($format['bit_rate']) ? (int) $format['bit_rate'] : null;
         $result['format_name'] = $format['format_name'] ?? null;
         $result['format_long'] = $format['format_long_name'] ?? null;
-        $result['size']        = isset($format['size']) ? (int) $format['size'] : null;
+        $result['size'] = isset($format['size']) ? (int) $format['size'] : null;
 
         // Tags (ID3, Vorbis, etc.)
         $tags = $format['tags'] ?? [];
-        $result['title']   = $tags['title'] ?? $tags['TITLE'] ?? null;
-        $result['artist']  = $tags['artist'] ?? $tags['ARTIST'] ?? null;
-        $result['album']   = $tags['album'] ?? $tags['ALBUM'] ?? null;
-        $result['genre']   = $tags['genre'] ?? $tags['GENRE'] ?? null;
-        $result['date']    = $tags['date'] ?? $tags['DATE'] ?? null;
-        $result['track']   = $tags['track'] ?? $tags['TRACKNUMBER'] ?? null;
+        $result['title'] = $tags['title'] ?? $tags['TITLE'] ?? null;
+        $result['artist'] = $tags['artist'] ?? $tags['ARTIST'] ?? null;
+        $result['album'] = $tags['album'] ?? $tags['ALBUM'] ?? null;
+        $result['genre'] = $tags['genre'] ?? $tags['GENRE'] ?? null;
+        $result['date'] = $tags['date'] ?? $tags['DATE'] ?? null;
+        $result['track'] = $tags['track'] ?? $tags['TRACKNUMBER'] ?? null;
         $result['comment'] = $tags['comment'] ?? $tags['COMMENT'] ?? null;
         $result['encoder'] = $tags['encoder'] ?? $tags['ENCODER'] ?? null;
 
@@ -448,13 +450,13 @@ class MetadataExtractionService
         $streams = $probe['streams'] ?? [];
         foreach ($streams as $stream) {
             if (($stream['codec_type'] ?? '') === 'audio') {
-                $result['codec']         = $stream['codec_name'] ?? null;
-                $result['codec_long']    = $stream['codec_long_name'] ?? null;
-                $result['sample_rate']   = isset($stream['sample_rate']) ? (int) $stream['sample_rate'] : null;
-                $result['channels']      = $stream['channels'] ?? null;
+                $result['codec'] = $stream['codec_name'] ?? null;
+                $result['codec_long'] = $stream['codec_long_name'] ?? null;
+                $result['sample_rate'] = isset($stream['sample_rate']) ? (int) $stream['sample_rate'] : null;
+                $result['channels'] = $stream['channels'] ?? null;
                 $result['channel_layout'] = $stream['channel_layout'] ?? null;
                 $result['bits_per_sample'] = $stream['bits_per_sample'] ?? null;
-                $result['stream_bitrate']  = isset($stream['bit_rate']) ? (int) $stream['bit_rate'] : null;
+                $result['stream_bitrate'] = isset($stream['bit_rate']) ? (int) $stream['bit_rate'] : null;
                 break;
             }
         }
@@ -483,11 +485,12 @@ class MetadataExtractionService
      */
     public function getExifToolVersion(): ?string
     {
-        if (!$this->isExifToolAvailable()) {
+        if (! $this->isExifToolAvailable()) {
             return null;
         }
         $output = [];
         exec('exiftool -ver 2>&1', $output);
+
         return $output[0] ?? null;
     }
 
@@ -496,7 +499,7 @@ class MetadataExtractionService
      */
     public function getFfprobeVersion(): ?string
     {
-        if (!$this->isFfprobeAvailable()) {
+        if (! $this->isFfprobeAvailable()) {
             return null;
         }
         $output = [];
@@ -505,6 +508,7 @@ class MetadataExtractionService
         if (preg_match('/ffprobe version (\S+)/', $line, $m)) {
             return $m[1];
         }
+
         return $line ?: null;
     }
 
@@ -529,19 +533,19 @@ class MetadataExtractionService
     {
         $digitalObject = DB::table('digital_object')->where('id', $digitalObjectId)->first();
 
-        if (!$digitalObject) {
+        if (! $digitalObject) {
             throw new \RuntimeException("Digital object {$digitalObjectId} not found");
         }
 
         $uploadsPath = config('heratio.uploads_path');
-        $filePath = rtrim($uploadsPath, '/') . '/' . ltrim($digitalObject->path, '/');
+        $filePath = rtrim($uploadsPath, '/').'/'.ltrim($digitalObject->path, '/');
 
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             // Try web dir fallback
             $filePath = public_path($digitalObject->path);
         }
 
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             throw new \RuntimeException("File not found for digital object {$digitalObjectId}: {$digitalObject->path}");
         }
 
@@ -659,10 +663,10 @@ class MetadataExtractionService
             ->get();
 
         return [
-            'total_digital_objects'  => $totalDigitalObjects,
-            'objects_with_metadata'  => $objectsWithMetadata,
-            'total_metadata_fields'  => $totalMetadataFields,
-            'mime_type_breakdown'    => $mimeTypeBreakdown,
+            'total_digital_objects' => $totalDigitalObjects,
+            'objects_with_metadata' => $objectsWithMetadata,
+            'total_metadata_fields' => $totalMetadataFields,
+            'mime_type_breakdown' => $mimeTypeBreakdown,
         ];
     }
 
@@ -684,20 +688,20 @@ class MetadataExtractionService
      */
     private const SECTOR_COLUMN_RESOLVER = [
         'dam' => [
-            'creator'         => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'creator'],
-            'caption'         => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'caption'],
-            'keywords'        => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'keywords'],
-            'dateCreated'     => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'date_created'],
-            'date_created'    => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'date_created'],
+            'creator' => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'creator'],
+            'caption' => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'caption'],
+            'keywords' => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'keywords'],
+            'dateCreated' => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'date_created'],
+            'date_created' => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'date_created'],
             'copyrightNotice' => ['type' => 'column', 'table' => 'dam_iptc_metadata', 'column' => 'copyright_notice'],
-            'gpsLocation'     => ['type' => 'gps_components', 'table' => 'dam_iptc_metadata'],
-            'technicalInfo'   => ['type' => 'skip', 'reason' => 'no dedicated column on dam_iptc_metadata; raw values land in property table via extractFromDigitalObject'],
-            'title'           => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
+            'gpsLocation' => ['type' => 'gps_components', 'table' => 'dam_iptc_metadata'],
+            'technicalInfo' => ['type' => 'skip', 'reason' => 'no dedicated column on dam_iptc_metadata; raw values land in property table via extractFromDigitalObject'],
+            'title' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
         ],
         'isad' => [
-            'title'                => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
-            'scopeAndContent'      => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'scope_and_content'],
-            'accessConditions'     => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'access_conditions'],
+            'title' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
+            'scopeAndContent' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'scope_and_content'],
+            'accessConditions' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'access_conditions'],
             'physicalCharacteristics' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'physical_characteristics'],
             // Phase 3 (#86): match-only-skip strategy. We split EXIF strings
             // on common separators (semicolon, comma) and look up each token
@@ -705,23 +709,23 @@ class MetadataExtractionService
             // inserted. Not found = surfaced in skipped[] with the unmatched
             // token list, NEVER auto-created (would contaminate authority
             // files with arbitrary EXIF artist names).
-            'nameAccessPoints'     => ['type' => 'actor_relation',  'relation_type_id' => 161],
-            'subjectAccessPoints'  => ['type' => 'term_relation',   'taxonomy_id' => 35],
-            'placeAccessPoints'    => ['type' => 'term_relation',   'taxonomy_id' => 42],
+            'nameAccessPoints' => ['type' => 'actor_relation',  'relation_type_id' => 161],
+            'subjectAccessPoints' => ['type' => 'term_relation',   'taxonomy_id' => 35],
+            'placeAccessPoints' => ['type' => 'term_relation',   'taxonomy_id' => 42],
             // Phase 4 (#86): dedupe-then-insert. If the IO already has a
             // creation event we skip; otherwise insert with the parsed date
             // (ISO YYYY-MM-DD or partial). type_id=111 = 'Creation'.
-            'creationEvent'        => ['type' => 'creation_event',  'type_id' => 111],
+            'creationEvent' => ['type' => 'creation_event',  'type_id' => 111],
         ],
         'museum' => [
-            'title'                  => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
-            'briefDescription'       => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'scope_and_content'],
-            'productionDate'         => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'creation_date_earliest'],
-            'productionPerson'       => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'creator_identity'],
-            'rightsNotes'            => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'rights_remarks'],
-            'objectCategory'         => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'object_category'],
-            'technicalDescription'   => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'techniques'],
-            'fieldCollectionPlace'   => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'discovery_place'],
+            'title' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
+            'briefDescription' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'scope_and_content'],
+            'productionDate' => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'creation_date_earliest'],
+            'productionPerson' => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'creator_identity'],
+            'rightsNotes' => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'rights_remarks'],
+            'objectCategory' => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'object_category'],
+            'technicalDescription' => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'techniques'],
+            'fieldCollectionPlace' => ['type' => 'column', 'table' => 'museum_metadata', 'column' => 'discovery_place'],
         ],
         'library' => [
             'title' => ['type' => 'i18n', 'table' => 'information_object_i18n', 'column' => 'title'],
@@ -736,9 +740,16 @@ class MetadataExtractionService
     public function resolveSector(?string $sourceStandard): string
     {
         $s = strtolower(trim((string) $sourceStandard));
-        if ($s === 'dam') return 'dam';
-        if ($s === 'library') return 'library';
-        if (str_contains($s, 'cco') || str_contains($s, 'museum')) return 'museum';
+        if ($s === 'dam') {
+            return 'dam';
+        }
+        if ($s === 'library') {
+            return 'library';
+        }
+        if (str_contains($s, 'cco') || str_contains($s, 'museum')) {
+            return 'museum';
+        }
+
         return 'isad';
     }
 
@@ -758,32 +769,44 @@ class MetadataExtractionService
         $raw = $this->extract($filePath);
         $exif = $raw['exif'] ?? [];
         $iptc = $raw['iptc'] ?? [];
-        $xmp  = $raw['xmp']  ?? [];
-        $pdf  = $raw['pdf']  ?? [];
+        $xmp = $raw['xmp'] ?? [];
+        $pdf = $raw['pdf'] ?? [];
         $exiftool = $raw['exiftool'] ?? [];
 
         // Toggles: default values seeded in ahg_settings (false for IPTC/XMP/GPS,
         // i.e. opt-in). Operators flip them on per-instance.
         $iptcEnabled = $this->settingBool('meta_extract_iptc', false);
-        $xmpEnabled  = $this->settingBool('meta_extract_xmp', false);
-        $gpsEnabled  = $this->settingBool('meta_extract_gps', false);
+        $xmpEnabled = $this->settingBool('meta_extract_xmp', false);
+        $gpsEnabled = $this->settingBool('meta_extract_gps', false);
 
-        if (!$iptcEnabled) $iptc = [];
-        if (!$xmpEnabled)  $xmp  = [];
+        if (! $iptcEnabled) {
+            $iptc = [];
+        }
+        if (! $xmpEnabled) {
+            $xmp = [];
+        }
 
         $first = function (...$values) {
             foreach ($values as $v) {
                 if (is_array($v)) {
-                    foreach ($v as $vv) if ($vv !== null && $vv !== '') return is_array($vv) ? implode('; ', $vv) : (string) $vv;
+                    foreach ($v as $vv) {
+                        if ($vv !== null && $vv !== '') {
+                            return is_array($vv) ? implode('; ', $vv) : (string) $vv;
+                        }
+                    }
+
                     continue;
                 }
-                if ($v !== null && $v !== '') return (string) $v;
+                if ($v !== null && $v !== '') {
+                    return (string) $v;
+                }
             }
+
             return null;
         };
 
         $normalised = [
-            'title'       => $first(
+            'title' => $first(
                 $xmp['title'] ?? null,
                 $iptc['object_name'] ?? null,
                 $iptc['headline'] ?? null,
@@ -791,14 +814,14 @@ class MetadataExtractionService
                 $exif['ImageDescription'] ?? null,
                 $exiftool['XMP-dc:Title'] ?? $exiftool['IPTC:ObjectName'] ?? null
             ),
-            'creator'     => $first(
+            'creator' => $first(
                 is_array($xmp['creator'] ?? null) ? $xmp['creator'] : ($xmp['creator'] ?? null),
                 $iptc['byline'] ?? null,
                 $exif['Artist'] ?? null,
                 $pdf['author'] ?? null,
                 $exiftool['XMP-dc:Creator'] ?? $exiftool['EXIF:Artist'] ?? $exiftool['IPTC:By-line'] ?? null
             ),
-            'date'        => $first(
+            'date' => $first(
                 $exif['DateTimeOriginal'] ?? null,
                 $xmp['date_time_original'] ?? $xmp['create_date'] ?? null,
                 $iptc['date_created'] ?? null,
@@ -813,26 +836,26 @@ class MetadataExtractionService
                 $exif['UserComment'] ?? null,
                 $exiftool['XMP-dc:Description'] ?? $exiftool['IPTC:Caption-Abstract'] ?? null
             ),
-            'copyright'   => $first(
+            'copyright' => $first(
                 $xmp['rights'] ?? null,
                 $iptc['copyright'] ?? null,
                 $exif['Copyright'] ?? null,
                 $exiftool['XMP-dc:Rights'] ?? $exiftool['EXIF:Copyright'] ?? null
             ),
-            'keywords'    => $first(
+            'keywords' => $first(
                 is_array($xmp['keywords'] ?? null) ? implode(', ', $xmp['keywords']) : null,
                 is_array($iptc['keywords'] ?? null) ? implode(', ', $iptc['keywords']) : ($iptc['keywords'] ?? null),
                 $pdf['keywords'] ?? null,
                 $exiftool['XMP-dc:Subject'] ?? $exiftool['IPTC:Keywords'] ?? null
             ),
-            'technical'   => $first(
+            'technical' => $first(
                 $exif['Make'] ?? null,
                 $exif['Model'] ?? null,
                 $exiftool['EXIF:Make'] ?? $exiftool['EXIF:Model'] ?? null
             ),
         ];
 
-        if ($gpsEnabled && !empty($raw['gps'])) {
+        if ($gpsEnabled && ! empty($raw['gps'])) {
             $normalised['gps'] = $raw['gps']; // {latitude, longitude, decimal[, altitude]}
         }
 
@@ -864,8 +887,11 @@ class MetadataExtractionService
         $out = [];
         foreach ($keys as $field => $key) {
             $v = $rows[$key] ?? null;
-            if ($v !== null && $v !== '') $out[$field] = $v;
+            if ($v !== null && $v !== '') {
+                $out[$field] = $v;
+            }
         }
+
         return $out;
     }
 
@@ -890,46 +916,55 @@ class MetadataExtractionService
     {
         $sector = strtolower($sector);
         $resolver = self::SECTOR_COLUMN_RESOLVER[$sector] ?? self::SECTOR_COLUMN_RESOLVER['isad'];
-        $mapping  = $this->getMappingForSector($sector);
+        $mapping = $this->getMappingForSector($sector);
         $overwrite = $options['overwrite'] ?? $this->settingBool('meta_overwrite_existing', false);
-        $culture   = $options['culture'] ?? app()->getLocale();
+        $culture = $options['culture'] ?? app()->getLocale();
 
         $written = [];
         $skipped = [];
 
         foreach ($normalised as $field => $value) {
             $atomKey = $mapping[$field] ?? null;
-            if (!$atomKey) {
+            if (! $atomKey) {
                 $skipped[$field] = 'no mapping configured for sector';
+
                 continue;
             }
             $rule = $resolver[$atomKey] ?? null;
-            if (!$rule) {
+            if (! $rule) {
                 $skipped[$field] = "atom-key '{$atomKey}' not resolvable for sector '{$sector}'";
+
                 continue;
             }
             if (in_array($rule['type'], ['skip'], true)) {
                 $skipped[$field] = $rule['reason'] ?? "type={$rule['type']}";
+
                 continue;
             }
 
             $strValue = is_array($value) ? json_encode($value) : (string) $value;
             $strValue = trim($strValue);
-            if ($strValue === '') continue;
+            if ($strValue === '') {
+                continue;
+            }
             // Truncate to a reasonable length so a stray giant XMP blob can't
             // overflow varchar columns and break the upload transaction.
-            if (mb_strlen($strValue) > 4000) $strValue = mb_substr($strValue, 0, 4000);
+            if (mb_strlen($strValue) > 4000) {
+                $strValue = mb_substr($strValue, 0, 4000);
+            }
 
             try {
                 if ($rule['type'] === 'column') {
                     $row = DB::table($rule['table'])->where('object_id', $objectId)->first();
-                    if (!$row) {
+                    if (! $row) {
                         $skipped[$field] = "no {$rule['table']} row for object_id={$objectId}";
+
                         continue;
                     }
                     $current = $row->{$rule['column']} ?? null;
-                    if (!$overwrite && $current !== null && $current !== '') {
-                        $skipped[$field] = "column has value, overwrite=false";
+                    if (! $overwrite && $current !== null && $current !== '') {
+                        $skipped[$field] = 'column has value, overwrite=false';
+
                         continue;
                     }
                     DB::table($rule['table'])
@@ -939,13 +974,15 @@ class MetadataExtractionService
                 } elseif ($rule['type'] === 'i18n') {
                     $row = DB::table($rule['table'])
                         ->where('id', $objectId)->where('culture', $culture)->first();
-                    if (!$row) {
+                    if (! $row) {
                         $skipped[$field] = "no {$rule['table']} row for id={$objectId}/{$culture}";
+
                         continue;
                     }
                     $current = $row->{$rule['column']} ?? null;
-                    if (!$overwrite && $current !== null && $current !== '') {
-                        $skipped[$field] = "i18n column has value, overwrite=false";
+                    if (! $overwrite && $current !== null && $current !== '') {
+                        $skipped[$field] = 'i18n column has value, overwrite=false';
+
                         continue;
                     }
                     DB::table($rule['table'])
@@ -966,21 +1003,21 @@ class MetadataExtractionService
                     [$matched, $unmatched] = $this->matchTermsByName($tokens, $rule['taxonomy_id'], $culture);
                     $insertedIds = [];
                     foreach ($matched as $termId) {
-                        if (!$this->relationExists($termId, $objectId, null)) {
+                        if (! $this->relationExists($termId, $objectId, null)) {
                             $insertedIds[] = $this->insertRelation($termId, $objectId, null, $culture);
                         }
                     }
-                    if (!empty($insertedIds)) {
+                    if (! empty($insertedIds)) {
                         $written[$field] = sprintf(
                             'relation x %d (subject=term[taxonomy=%d], object=io)',
                             count($insertedIds), $rule['taxonomy_id']
                         );
                     }
-                    if (!empty($unmatched)) {
+                    if (! empty($unmatched)) {
                         $skipped[$field] = sprintf(
                             'unmatched in taxonomy %d (match-only policy, no auto-create): %s',
                             $rule['taxonomy_id'],
-                            implode(', ', array_slice($unmatched, 0, 5)) . (count($unmatched) > 5 ? ', …' : '')
+                            implode(', ', array_slice($unmatched, 0, 5)).(count($unmatched) > 5 ? ', …' : '')
                         );
                     }
                 } elseif ($rule['type'] === 'actor_relation') {
@@ -988,20 +1025,20 @@ class MetadataExtractionService
                     [$matched, $unmatched] = $this->matchActorsByName($tokens, $culture);
                     $insertedIds = [];
                     foreach ($matched as $actorId) {
-                        if (!$this->relationExists($actorId, $objectId, $rule['relation_type_id'])) {
+                        if (! $this->relationExists($actorId, $objectId, $rule['relation_type_id'])) {
                             $insertedIds[] = $this->insertRelation($actorId, $objectId, $rule['relation_type_id'], $culture);
                         }
                     }
-                    if (!empty($insertedIds)) {
+                    if (! empty($insertedIds)) {
                         $written[$field] = sprintf(
                             'relation x %d (subject=actor, object=io, type=%d)',
                             count($insertedIds), $rule['relation_type_id']
                         );
                     }
-                    if (!empty($unmatched)) {
+                    if (! empty($unmatched)) {
                         $skipped[$field] = sprintf(
                             'unmatched actor names (match-only policy, no auto-create): %s',
-                            implode(', ', array_slice($unmatched, 0, 5)) . (count($unmatched) > 5 ? ', …' : '')
+                            implode(', ', array_slice($unmatched, 0, 5)).(count($unmatched) > 5 ? ', …' : '')
                         );
                     }
                 } elseif ($rule['type'] === 'creation_event') {
@@ -1022,7 +1059,7 @@ class MetadataExtractionService
                     }
                 }
             } catch (\Throwable $e) {
-                $skipped[$field] = 'write failed: ' . $e->getMessage();
+                $skipped[$field] = 'write failed: '.$e->getMessage();
             }
         }
 
@@ -1037,6 +1074,7 @@ class MetadataExtractionService
     private function splitMultiValue(string $value): array
     {
         $parts = preg_split('/\s*[;,]\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
+
         return array_values(array_filter(array_map('trim', $parts ?: []), fn ($v) => $v !== ''));
     }
 
@@ -1065,6 +1103,7 @@ class MetadataExtractionService
                 $unmatched[] = $n;
             }
         }
+
         return [array_values(array_unique($matched)), $unmatched];
     }
 
@@ -1090,6 +1129,7 @@ class MetadataExtractionService
                 $unmatched[] = $n;
             }
         }
+
         return [array_values(array_unique($matched)), $unmatched];
     }
 
@@ -1100,6 +1140,7 @@ class MetadataExtractionService
         if ($typeId !== null) {
             $q->where('type_id', $typeId);
         }
+
         return $q->exists();
     }
 
@@ -1118,10 +1159,11 @@ class MetadataExtractionService
         DB::table('relation')->insert([
             'id' => $relId,
             'subject_id' => $subjectId,
-            'object_id'  => $objectId,
-            'type_id'    => $typeId,
+            'object_id' => $objectId,
+            'type_id' => $typeId,
             'source_culture' => $culture,
         ]);
+
         return $relId;
     }
 
@@ -1143,6 +1185,7 @@ class MetadataExtractionService
             'start_date' => $isoDate,
             'source_culture' => $culture,
         ]);
+
         return $eventId;
     }
 
@@ -1156,7 +1199,9 @@ class MetadataExtractionService
     private function normaliseIsoDate(string $value): ?string
     {
         $value = trim($value);
-        if ($value === '') return null;
+        if ($value === '') {
+            return null;
+        }
         // EXIF DateTime: 2021:02:05 15:04:54
         if (preg_match('/^(\d{4}):(\d{2}):(\d{2})/', $value, $m)) {
             return "{$m[1]}-{$m[2]}-{$m[3]}";
@@ -1174,6 +1219,7 @@ class MetadataExtractionService
         if ($t !== false && $t > 0) {
             return date('Y-m-d', $t);
         }
+
         return null;
     }
 
@@ -1185,10 +1231,10 @@ class MetadataExtractionService
      */
     public function extractAndApplyOnUpload(int $objectId, string $filePath, array $options = []): array
     {
-        if (!$this->settingBool('meta_extract_on_upload', true)) {
+        if (! $this->settingBool('meta_extract_on_upload', true)) {
             return ['written' => [], 'skipped' => ['_disabled' => 'meta_extract_on_upload=false']];
         }
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             return ['written' => [], 'skipped' => ['_disabled' => "file not found: {$filePath}"]];
         }
         $sourceStandard = (string) DB::table('information_object')
@@ -1202,6 +1248,7 @@ class MetadataExtractionService
         $result = $this->applyToSector($objectId, $sector, $normalised, $options);
         $result['sector'] = $sector;
         $result['extracted_fields'] = array_keys($normalised);
+
         return $result;
     }
 
@@ -1211,8 +1258,11 @@ class MetadataExtractionService
     private function settingBool(string $key, bool $default): bool
     {
         $v = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
-        if ($v === null) return $default;
+        if ($v === null) {
+            return $default;
+        }
         $s = strtolower(trim((string) $v));
+
         return in_array($s, ['1', 'true', 'yes', 'on'], true);
     }
 
@@ -1236,7 +1286,8 @@ class MetadataExtractionService
         exec($command, $output, $returnCode);
 
         if ($returnCode !== 0) {
-            Log::warning("MetadataExtraction: exiftool failed (code {$returnCode}): " . implode("\n", $output));
+            Log::warning("MetadataExtraction: exiftool failed (code {$returnCode}): ".implode("\n", $output));
+
             return [];
         }
 
@@ -1244,7 +1295,8 @@ class MetadataExtractionService
         $data = json_decode($json, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            Log::warning('MetadataExtraction: Failed to parse exiftool JSON: ' . json_last_error_msg());
+            Log::warning('MetadataExtraction: Failed to parse exiftool JSON: '.json_last_error_msg());
+
             return [];
         }
 
@@ -1268,6 +1320,7 @@ class MetadataExtractionService
 
         if ($returnCode !== 0) {
             Log::warning("MetadataExtraction: ffprobe failed (code {$returnCode})");
+
             return [];
         }
 
@@ -1275,7 +1328,8 @@ class MetadataExtractionService
         $data = json_decode($json, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            Log::warning('MetadataExtraction: Failed to parse ffprobe JSON: ' . json_last_error_msg());
+            Log::warning('MetadataExtraction: Failed to parse ffprobe JSON: '.json_last_error_msg());
+
             return [];
         }
 
@@ -1298,13 +1352,13 @@ class MetadataExtractionService
         }
         if (preg_match_all('/<dc:creator[^>]*>.*?<rdf:Seq[^>]*>(.*?)<\/rdf:Seq>/s', $xmpData, $matches)) {
             preg_match_all('/<rdf:li[^>]*>([^<]+)<\/rdf:li>/', $matches[1][0] ?? '', $creators);
-            if (!empty($creators[1])) {
+            if (! empty($creators[1])) {
                 $parsed['creator'] = array_map([$this, 'cleanString'], $creators[1]);
             }
         }
         if (preg_match_all('/<dc:subject[^>]*>.*?<rdf:Bag[^>]*>(.*?)<\/rdf:Bag>/s', $xmpData, $matches)) {
             preg_match_all('/<rdf:li[^>]*>([^<]+)<\/rdf:li>/', $matches[1][0] ?? '', $keywords);
-            if (!empty($keywords[1])) {
+            if (! empty($keywords[1])) {
                 $parsed['keywords'] = array_map([$this, 'cleanString'], $keywords[1]);
             }
         }
@@ -1343,7 +1397,7 @@ class MetadataExtractionService
      */
     private function extractGpsFromExif(array $exif): ?array
     {
-        if (!isset($exif['GPSLatitude'], $exif['GPSLongitude'])) {
+        if (! isset($exif['GPSLatitude'], $exif['GPSLongitude'])) {
             return null;
         }
 
@@ -1355,9 +1409,9 @@ class MetadataExtractionService
         }
 
         $gps = [
-            'latitude'  => $lat,
+            'latitude' => $lat,
             'longitude' => $lon,
-            'decimal'   => sprintf('%.6f, %.6f', $lat, $lon),
+            'decimal' => sprintf('%.6f, %.6f', $lat, $lon),
         ];
 
         if (isset($exif['GPSAltitude'])) {
@@ -1376,7 +1430,7 @@ class MetadataExtractionService
      */
     private function gpsToDecimal($coordinate, string $ref): ?float
     {
-        if (!is_array($coordinate) || count($coordinate) !== 3) {
+        if (! is_array($coordinate) || count($coordinate) !== 3) {
             return null;
         }
 
@@ -1422,7 +1476,7 @@ class MetadataExtractionService
     private function extractPdfHeaderManual(string $filePath): array
     {
         $handle = @fopen($filePath, 'rb');
-        if (!$handle) {
+        if (! $handle) {
             return [];
         }
 
@@ -1467,6 +1521,7 @@ class MetadataExtractionService
         // Strip BOM and nulls (UTF-16)
         $decoded = str_replace("\x00", '', $decoded);
         $decoded = preg_replace('/[\x00-\x1f]/', '', $decoded);
+
         return trim($decoded) ?: null;
     }
 
@@ -1475,7 +1530,7 @@ class MetadataExtractionService
      */
     private function parseFrameRate(?string $rate): ?float
     {
-        if (!$rate) {
+        if (! $rate) {
             return null;
         }
         if (str_contains($rate, '/')) {
@@ -1484,6 +1539,7 @@ class MetadataExtractionService
                 return round((float) $num / (float) $den, 3);
             }
         }
+
         return is_numeric($rate) ? (float) $rate : null;
     }
 
@@ -1526,18 +1582,18 @@ class MetadataExtractionService
 
         // AtoM `property` has no created_at/updated_at — timestamps live on `object`.
         DB::table('property')->insert([
-            'id'             => $propertyObjectId,
-            'object_id'      => $objectId,
-            'name'           => $name,
-            'scope'          => 'metadata_extraction',
+            'id' => $propertyObjectId,
+            'object_id' => $objectId,
+            'name' => $name,
+            'scope' => 'metadata_extraction',
             'source_culture' => $culture,
         ]);
 
         // Create i18n entry
         DB::table('property_i18n')->insert([
-            'id'      => $propertyObjectId,
+            'id' => $propertyObjectId,
             'culture' => $culture,
-            'value'   => $value,
+            'value' => $value,
         ]);
     }
 
@@ -1575,6 +1631,7 @@ class MetadataExtractionService
         }
 
         $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
         return self::EXT_CATEGORIES[$ext] ?? null;
     }
 
@@ -1584,7 +1641,8 @@ class MetadataExtractionService
     private function isCommandAvailable(string $command): bool
     {
         $result = shell_exec("which {$command} 2>/dev/null");
-        return !empty(trim($result ?? ''));
+
+        return ! empty(trim($result ?? ''));
     }
 
     /**
@@ -1592,11 +1650,11 @@ class MetadataExtractionService
      */
     private function cleanString($value): string
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return (string) $value;
         }
 
-        if (!mb_check_encoding($value, 'UTF-8')) {
+        if (! mb_check_encoding($value, 'UTF-8')) {
             $value = mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
         }
 

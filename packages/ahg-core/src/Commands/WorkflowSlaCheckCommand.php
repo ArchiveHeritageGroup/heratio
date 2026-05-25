@@ -21,13 +21,15 @@ class WorkflowSlaCheckCommand extends Command
             ->whereIn('t.status', ['pending', 'in_progress'])
             ->whereRaw('TIMESTAMPDIFF(HOUR, t.created_at, NOW()) > p.sla_hours')
             ->select('t.id', 't.queue', 't.status', 't.created_at', 'p.sla_hours');
-        if ($queue = $this->option('queue')) $q->where('t.queue', $queue);
+        if ($queue = $this->option('queue')) {
+            $q->where('t.queue', $queue);
+        }
         $breaches = $q->limit(500)->get();
         $this->info("SLA breaches: {$breaches->count()}");
 
         foreach ($breaches->take(20) as $b) {
             $hours = round((time() - strtotime((string) $b->created_at)) / 3600, 1);
-            $this->line(sprintf("  task=#%-5d queue=%-20s status=%-12s age=%.1fh limit=%dh", $b->id, $b->queue, $b->status, $hours, $b->sla_hours));
+            $this->line(sprintf('  task=#%-5d queue=%-20s status=%-12s age=%.1fh limit=%dh', $b->id, $b->queue, $b->status, $hours, $b->sla_hours));
         }
 
         if (! $this->option('dry-run') && $breaches->isNotEmpty()) {
@@ -36,6 +38,7 @@ class WorkflowSlaCheckCommand extends Command
                 ->update(['sla_breach' => 1, 'sla_breach_at' => $now]);
             $this->info("flagged {$breaches->count()} tasks with sla_breach=1");
         }
+
         return self::SUCCESS;
     }
 }

@@ -26,7 +26,7 @@ class TenantController extends Controller
 
     public function __construct()
     {
-        $this->service = new TenantService();
+        $this->service = new TenantService;
     }
 
     public function index()
@@ -134,7 +134,7 @@ class TenantController extends Controller
         $id = (int) $request->input('tenant_id');
         $tenant = $this->service->getTenant($id);
 
-        if (!$tenant || !$tenant->is_active) {
+        if (! $tenant || ! $tenant->is_active) {
             return redirect()->back()->with('error', __('Tenant not available'));
         }
 
@@ -146,7 +146,7 @@ class TenantController extends Controller
             ->where('user_id', $userId)
             ->exists();
 
-        if (!$isAssigned && !(auth()->user()->is_admin ?? false)) {
+        if (! $isAssigned && ! (auth()->user()->is_admin ?? false)) {
             return redirect()->back()->with('error', __('Not authorised for that tenant'));
         }
 

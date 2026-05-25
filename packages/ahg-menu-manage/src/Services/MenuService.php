@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgMenuManage\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -142,7 +140,7 @@ class MenuService
             )
             ->first();
 
-        if (!$menu) {
+        if (! $menu) {
             return null;
         }
 
@@ -183,7 +181,7 @@ class MenuService
         foreach ($tree as $item) {
             $indent = str_repeat('-- ', $item['depth']);
             $label = $item['label'] ?: $item['name'] ?: '(unnamed)';
-            $choices[$item['id']] = $indent . $label;
+            $choices[$item['id']] = $indent.$label;
         }
 
         return $choices;
@@ -202,7 +200,7 @@ class MenuService
             ->where('id', $id)
             ->value('name');
 
-        if (!$name) {
+        if (! $name) {
             return false;
         }
 
@@ -228,7 +226,7 @@ class MenuService
                 ->select('id', 'lft', 'rgt')
                 ->first();
 
-            if (!$parent) {
+            if (! $parent) {
                 throw new \RuntimeException('Parent menu not found.');
             }
 
@@ -289,20 +287,20 @@ class MenuService
                 ->select('id', 'parent_id', 'name', 'path', 'lft', 'rgt')
                 ->first();
 
-            if (!$current) {
+            if (! $current) {
                 throw new \RuntimeException('Menu item not found.');
             }
 
             // Update menu fields (only non-protected fields)
             $menuUpdate = [];
-            if (isset($data['name']) && !$this->isProtected($id)) {
+            if (isset($data['name']) && ! $this->isProtected($id)) {
                 $menuUpdate['name'] = $data['name'];
             }
             if (array_key_exists('path', $data)) {
                 $menuUpdate['path'] = $data['path'];
             }
 
-            if (!empty($menuUpdate)) {
+            if (! empty($menuUpdate)) {
                 $menuUpdate['updated_at'] = date('Y-m-d H:i:s');
                 $menuUpdate['serial_number'] = DB::raw('serial_number + 1');
                 DB::table('menu')->where('id', $id)->update($menuUpdate);
@@ -321,7 +319,7 @@ class MenuService
             if (array_key_exists('description', $data)) {
                 $i18nData['description'] = $data['description'];
             }
-            if (!empty($i18nData)) {
+            if (! empty($i18nData)) {
                 $exists = DB::table('menu_i18n')
                     ->where('id', $id)
                     ->where('culture', $this->culture)
@@ -366,7 +364,7 @@ class MenuService
                 ->select('id', 'lft', 'rgt')
                 ->first();
 
-            if (!$node) {
+            if (! $node) {
                 throw new \RuntimeException('Menu item not found.');
             }
 
@@ -380,7 +378,7 @@ class MenuService
                 ->all();
 
             // Step 1: Delete i18n records for all nodes in subtree
-            if (!empty($subtreeIds)) {
+            if (! empty($subtreeIds)) {
                 DB::table('menu_i18n')->whereIn('id', $subtreeIds)->delete();
             }
 
@@ -408,9 +406,8 @@ class MenuService
     /**
      * Move a node to a different parent (append as last child).
      *
-     * @param int $id          Node ID to move
-     * @param int $newParentId New parent ID
-     *
+     * @param  int  $id  Node ID to move
+     * @param  int  $newParentId  New parent ID
      * @return bool True on success
      */
     private function moveToParent(int $id, int $newParentId): bool
@@ -420,7 +417,7 @@ class MenuService
             ->select('id', 'lft', 'rgt', 'parent_id')
             ->first();
 
-        if (!$node) {
+        if (! $node) {
             return false;
         }
 
@@ -429,7 +426,7 @@ class MenuService
             ->select('id', 'lft', 'rgt')
             ->first();
 
-        if (!$newParent) {
+        if (! $newParent) {
             return false;
         }
 
@@ -480,8 +477,8 @@ class MenuService
         DB::table('menu')
             ->where('lft', '<', 0)
             ->update([
-                'lft' => DB::raw('(lft * -1) + ' . $offset),
-                'rgt' => DB::raw('(rgt * -1) + ' . $offset),
+                'lft' => DB::raw('(lft * -1) + '.$offset),
+                'rgt' => DB::raw('(rgt * -1) + '.$offset),
             ]);
 
         // Step 5: Update parent_id

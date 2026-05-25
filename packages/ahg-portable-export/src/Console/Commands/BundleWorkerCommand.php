@@ -38,8 +38,8 @@ namespace AhgPortableExport\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class BundleWorkerCommand extends Command
 {
@@ -54,6 +54,7 @@ class BundleWorkerCommand extends Command
         $rows = $this->pickRows();
         if ($rows->isEmpty()) {
             $this->info('No pending rows.');
+
             return self::SUCCESS;
         }
 
@@ -62,8 +63,9 @@ class BundleWorkerCommand extends Command
         $enabled = (string) DB::table('ahg_settings')
             ->where('setting_key', 'portable_export_enabled')
             ->value('setting_value') ?: 'true';
-        if (!in_array(strtolower($enabled), ['1','true','yes','on'], true)) {
-            $this->info('portable_export_enabled is off - leaving ' . $rows->count() . ' row(s) pending.');
+        if (! in_array(strtolower($enabled), ['1', 'true', 'yes', 'on'], true)) {
+            $this->info('portable_export_enabled is off - leaving '.$rows->count().' row(s) pending.');
+
             return self::SUCCESS;
         }
 
@@ -72,24 +74,27 @@ class BundleWorkerCommand extends Command
             try {
                 $this->processOne($row);
             } catch (\Throwable $e) {
-                Log::error('Portable-export worker failed for id=' . $row->id . ': ' . $e->getMessage(), [
-                    'trace' => $e->getFile() . ':' . $e->getLine(),
+                Log::error('Portable-export worker failed for id='.$row->id.': '.$e->getMessage(), [
+                    'trace' => $e->getFile().':'.$e->getLine(),
                 ]);
                 DB::table('portable_export')->where('id', $row->id)->update([
                     'status' => 'failed',
                     'error_message' => substr($e->getMessage(), 0, 1000),
                     'completed_at' => now(),
                 ]);
-                $this->error('id=' . $row->id . ' FAILED: ' . $e->getMessage());
+                $this->error('id='.$row->id.' FAILED: '.$e->getMessage());
                 $exitCode = self::FAILURE;
             }
         }
+
         return $exitCode;
     }
 
     private function pickRows(): \Illuminate\Support\Collection
     {
-        if (!Schema::hasTable('portable_export')) return collect();
+        if (! Schema::hasTable('portable_export')) {
+            return collect();
+        }
         $q = DB::table('portable_export')->where('status', 'pending')->orderBy('id');
         $id = $this->option('id');
         if ($id) {
@@ -98,12 +103,13 @@ class BundleWorkerCommand extends Command
         if ($this->option('all-pending')) {
             return $q->get();
         }
+
         return $q->limit(1)->get();
     }
 
     private function processOne(object $row): void
     {
-        $this->info('id=' . $row->id . ' "' . $row->title . '" (' . $row->scope_type . '/' . $row->mode . ')');
+        $this->info('id='.$row->id.' "'.$row->title.'" ('.$row->scope_type.'/'.$row->mode.')');
         DB::table('portable_export')->where('id', $row->id)->update([
             'status' => 'running',
             'started_at' => now(),
@@ -112,11 +118,11 @@ class BundleWorkerCommand extends Command
 
         // Resolve scope -> IO id list
         $ioIds = $this->resolveScopeIoIds($row);
-        $this->line('  ' . count($ioIds) . ' IOs in scope');
+        $this->line('  '.count($ioIds).' IOs in scope');
 
-        $workDir = sys_get_temp_dir() . '/heratio-portable-' . $row->id . '-' . substr(md5(microtime()), 0, 6);
-        @mkdir($workDir . '/data', 0775, true);
-        @mkdir($workDir . '/assets', 0775, true);
+        $workDir = sys_get_temp_dir().'/heratio-portable-'.$row->id.'-'.substr(md5(microtime()), 0, 6);
+        @mkdir($workDir.'/data', 0775, true);
+        @mkdir($workDir.'/assets', 0775, true);
 
         $stats = $this->dumpData($workDir, $row, $ioIds);
         DB::table('portable_export')->where('id', $row->id)->update(['progress' => 40,
@@ -126,7 +132,7 @@ class BundleWorkerCommand extends Command
 
         $copied = $this->copyAssets($workDir, $row, $ioIds);
         DB::table('portable_export')->where('id', $row->id)->update(['progress' => 70]);
-        $this->line('  copied ' . $copied . ' asset file(s)');
+        $this->line('  copied '.$copied.' asset file(s)');
 
         if (in_array($row->mode, ['read_only', 'editable'], true)) {
             $this->emitViewer($workDir, $row, $stats);
@@ -137,7 +143,7 @@ class BundleWorkerCommand extends Command
         $outDir = dirname((string) $row->output_path) ?: sys_get_temp_dir();
         @mkdir($outDir, 0775, true);
         $outPath = $row->output_path
-            ?: ($outDir . '/' . preg_replace('/[^A-Za-z0-9_-]/', '-', $row->title) . '-' . $row->id . '.zip');
+            ?: ($outDir.'/'.preg_replace('/[^A-Za-z0-9_-]/', '-', $row->title).'-'.$row->id.'.zip');
         $this->zipDir($workDir, $outPath);
         $size = filesize($outPath) ?: 0;
 
@@ -152,7 +158,7 @@ class BundleWorkerCommand extends Command
             'completed_at' => now(),
             'expires_at' => now()->addDays((int) (DB::table('ahg_settings')->where('setting_key', 'portable_export_retention_days')->value('setting_value') ?: 30)),
         ]);
-        $this->info('  -> ' . $outPath . ' (' . round($size/1048576, 1) . ' MB)');
+        $this->info('  -> '.$outPath.' ('.round($size / 1048576, 1).' MB)');
     }
 
     /**
@@ -191,12 +197,16 @@ class BundleWorkerCommand extends Command
             case 'clipboard':
                 $items = json_decode((string) ($row->scope_items ?? ''), true);
                 $slugs = is_array($items['items'] ?? null) ? $items['items'] : [];
-                if (empty($slugs)) return [];
+                if (empty($slugs)) {
+                    return [];
+                }
+
                 return DB::table('slug')->whereIn('slug', $slugs)->pluck('object_id')->all();
             case 'all':
             default:
                 break;
         }
+
         return $ioQ->pluck('id')->all();
     }
 
@@ -231,7 +241,7 @@ class BundleWorkerCommand extends Command
             )
             ->orderBy('io.lft')
             ->get();
-        file_put_contents($workDir . '/data/ios.json', json_encode($ios, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+        file_put_contents($workDir.'/data/ios.json', json_encode($ios, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $stats['descriptions'] = $ios->count();
 
         // Repositories referenced by these IOs
@@ -243,13 +253,15 @@ class BundleWorkerCommand extends Command
             ->whereIn('r.id', $repoIds)
             ->select('r.id', 'ai.authorized_form_of_name as name', 'ai.history')
             ->get();
-        file_put_contents($workDir . '/data/repositories.json', json_encode($repos, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+        file_put_contents($workDir.'/data/repositories.json', json_encode($repos, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $stats['repositories'] = $repos->count();
 
         // Actors related via the relation table (creators, name access points)
         $actorIds = empty($ioIds) ? collect() : DB::table('relation')
             ->whereIn('object_id', $ioIds)
-            ->whereIn('subject_id', function ($q) { $q->select('id')->from('actor'); })
+            ->whereIn('subject_id', function ($q) {
+                $q->select('id')->from('actor');
+            })
             ->pluck('subject_id')->unique()->values();
         $actors = $actorIds->isEmpty() ? collect() : DB::table('actor as a')
             ->leftJoin('actor_i18n as ai', function ($j) use ($culture) {
@@ -259,7 +271,7 @@ class BundleWorkerCommand extends Command
             ->whereIn('a.id', $actorIds)
             ->select('a.id', 'slug.slug', 'ai.authorized_form_of_name as name', 'ai.dates_of_existence', 'ai.history')
             ->get();
-        file_put_contents($workDir . '/data/actors.json', json_encode($actors, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+        file_put_contents($workDir.'/data/actors.json', json_encode($actors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $stats['actors'] = $actors->count();
 
         // Digital objects (metadata only, regardless of include_objects -
@@ -270,7 +282,7 @@ class BundleWorkerCommand extends Command
             ->select('id', 'object_id', 'usage_id', 'mime_type', 'media_type_id', 'name', 'path', 'byte_size', 'parent_id')
             ->orderBy('object_id')->orderBy('usage_id')
             ->get();
-        file_put_contents($workDir . '/data/digital_objects.json', json_encode($dos, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+        file_put_contents($workDir.'/data/digital_objects.json', json_encode($dos, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $stats['digital_objects'] = $dos->count();
 
         // Manifest (also includes the row's own metadata so the viewer can
@@ -278,15 +290,15 @@ class BundleWorkerCommand extends Command
         $branding = json_decode((string) ($row->branding ?? ''), true) ?: [];
         $manifest = [
             'export_id' => (int) $row->id,
-            'title'     => (string) $row->title,
-            'mode'      => (string) $row->mode,
-            'culture'   => $culture,
-            'scope'     => (string) $row->scope_type,
-            'created'   => (string) ($row->created_at ?? now()),
-            'branding'  => $branding,
-            'counts'    => $stats,
+            'title' => (string) $row->title,
+            'mode' => (string) $row->mode,
+            'culture' => $culture,
+            'scope' => (string) $row->scope_type,
+            'created' => (string) ($row->created_at ?? now()),
+            'branding' => $branding,
+            'counts' => $stats,
         ];
-        file_put_contents($workDir . '/data/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+        file_put_contents($workDir.'/data/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
         return $stats;
     }
@@ -298,14 +310,26 @@ class BundleWorkerCommand extends Command
      */
     private function copyAssets(string $workDir, object $row, array $ioIds): int
     {
-        if (empty($ioIds)) return 0;
-        if (!(int) ($row->include_objects ?? 1)) return 0; // master switch on the include set
+        if (empty($ioIds)) {
+            return 0;
+        }
+        if (! (int) ($row->include_objects ?? 1)) {
+            return 0;
+        } // master switch on the include set
 
         $usagesToCopy = [];
-        if ((int) $row->include_thumbnails) $usagesToCopy[142] = 'thumb';
-        if ((int) $row->include_references) $usagesToCopy[141] = 'ref';
-        if ((int) $row->include_masters)    $usagesToCopy[140] = 'master';
-        if (empty($usagesToCopy)) return 0;
+        if ((int) $row->include_thumbnails) {
+            $usagesToCopy[142] = 'thumb';
+        }
+        if ((int) $row->include_references) {
+            $usagesToCopy[141] = 'ref';
+        }
+        if ((int) $row->include_masters) {
+            $usagesToCopy[140] = 'master';
+        }
+        if (empty($usagesToCopy)) {
+            return 0;
+        }
 
         $uploadsBase = rtrim((string) config('heratio.uploads_path', '/tmp'), '/');
         $copied = 0;
@@ -314,19 +338,30 @@ class BundleWorkerCommand extends Command
             ->select('id', 'object_id', 'usage_id', 'name', 'path')->get();
         foreach ($dos as $do) {
             $usageDir = $usagesToCopy[$do->usage_id] ?? null;
-            if (!$usageDir) continue;
-            $src = $uploadsBase . '/' . ltrim((string) $do->path, '/') . $do->name;
-            // Same path resolution as DigitalObjectController::upload (handle dir-with-name shape)
-            if (!file_exists($src)) {
-                $alt = $uploadsBase . '/' . ltrim((string) $do->path, '/');
-                if (is_dir($alt)) $src = rtrim($alt, '/') . '/' . $do->name;
+            if (! $usageDir) {
+                continue;
             }
-            if (!file_exists($src)) continue;
-            $destDir = $workDir . '/assets/' . $usageDir . '/' . $do->object_id;
-            if (!is_dir($destDir)) @mkdir($destDir, 0775, true);
-            $destName = $do->name ?: ('file-' . $do->id);
-            if (@copy($src, $destDir . '/' . $destName)) $copied++;
+            $src = $uploadsBase.'/'.ltrim((string) $do->path, '/').$do->name;
+            // Same path resolution as DigitalObjectController::upload (handle dir-with-name shape)
+            if (! file_exists($src)) {
+                $alt = $uploadsBase.'/'.ltrim((string) $do->path, '/');
+                if (is_dir($alt)) {
+                    $src = rtrim($alt, '/').'/'.$do->name;
+                }
+            }
+            if (! file_exists($src)) {
+                continue;
+            }
+            $destDir = $workDir.'/assets/'.$usageDir.'/'.$do->object_id;
+            if (! is_dir($destDir)) {
+                @mkdir($destDir, 0775, true);
+            }
+            $destName = $do->name ?: ('file-'.$do->id);
+            if (@copy($src, $destDir.'/'.$destName)) {
+                $copied++;
+            }
         }
+
         return $copied;
     }
 
@@ -496,20 +531,24 @@ footer{background:#234;color:#fff;padding:.6rem 1.25rem;font-size:.8rem;opacity:
 </body>
 </html>
 HTML;
-        file_put_contents($workDir . '/index.html', $html);
+        file_put_contents($workDir.'/index.html', $html);
     }
 
     private function zipDir(string $srcDir, string $outPath): void
     {
-        if (file_exists($outPath)) @unlink($outPath);
-        $zip = new \ZipArchive();
+        if (file_exists($outPath)) {
+            @unlink($outPath);
+        }
+        $zip = new \ZipArchive;
         if ($zip->open($outPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
-            throw new \RuntimeException('Could not open zip for writing: ' . $outPath);
+            throw new \RuntimeException('Could not open zip for writing: '.$outPath);
         }
         $base = realpath($srcDir);
         $rii = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($base, \FilesystemIterator::SKIP_DOTS));
         foreach ($rii as $f) {
-            if ($f->isDir()) continue;
+            if ($f->isDir()) {
+                continue;
+            }
             $abs = $f->getRealPath();
             $rel = ltrim(substr($abs, strlen($base)), '/\\');
             $zip->addFile($abs, $rel);
@@ -519,14 +558,19 @@ HTML;
 
     private function rrmdir(string $dir): void
     {
-        if (!is_dir($dir)) return;
+        if (! is_dir($dir)) {
+            return;
+        }
         $rii = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::CHILD_FIRST
         );
         foreach ($rii as $f) {
-            if ($f->isDir()) @rmdir($f->getRealPath());
-            else @unlink($f->getRealPath());
+            if ($f->isDir()) {
+                @rmdir($f->getRealPath());
+            } else {
+                @unlink($f->getRealPath());
+            }
         }
         @rmdir($dir);
     }

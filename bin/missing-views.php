@@ -1,10 +1,10 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * Phase 4: Find AtoM templates with NO Heratio blade equivalent.
  * Lists every AtoM template file and checks if a matching Heratio view exists.
  */
-
 $atomBase = '/usr/share/nginx/archive';
 $heratioBase = '/usr/share/nginx/heratio/packages';
 
@@ -12,8 +12,10 @@ $heratioBase = '/usr/share/nginx/heratio/packages';
 $heratioViews = [];
 $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($heratioBase, RecursiveDirectoryIterator::SKIP_DOTS));
 foreach ($it as $f) {
-    if (!preg_match('/\.blade\.php$/', $f->getFilename())) continue;
-    $rel = str_replace($heratioBase . '/', '', $f->getPathname());
+    if (! preg_match('/\.blade\.php$/', $f->getFilename())) {
+        continue;
+    }
+    $rel = str_replace($heratioBase.'/', '', $f->getPathname());
     $pkg = explode('/', $rel)[0];
     $viewName = str_replace('.blade.php', '', $f->getFilename());
     $heratioViews[$pkg][] = strtolower($viewName);
@@ -119,53 +121,53 @@ $pluginMap = [
 // modules/actor/templates/browseSuccess.php, it should map to ahg-actor-manage,
 // NOT to ahg-theme-b5 or ahg-core.
 $modulePackageMap = [
-    'accession'          => 'ahg-accession-manage',
-    'actor'              => 'ahg-actor-manage',
-    'repository'         => 'ahg-repository-manage',
-    'informationobject'  => 'ahg-information-object-manage',
-    'physicalobject'     => 'ahg-storage-manage',
-    'function'           => 'ahg-function-manage',
-    'rightsholder'       => 'ahg-rights-holder-manage',
-    'term'               => 'ahg-term-taxonomy',
-    'taxonomy'           => 'ahg-term-taxonomy',
-    'user'               => 'ahg-user-manage',
-    'aclGroup'           => 'ahg-acl',
-    'jobs'               => 'ahg-jobs-manage',
-    'search'             => 'ahg-search',
-    'staticpage'         => 'ahg-static-page',
-    'menu'               => 'ahg-menu-manage',
-    'settings'           => 'ahg-settings',
-    'digitalobject'      => 'ahg-information-object-manage',
-    'default'            => 'ahg-core',
-    'object'             => 'ahg-core',
+    'accession' => 'ahg-accession-manage',
+    'actor' => 'ahg-actor-manage',
+    'repository' => 'ahg-repository-manage',
+    'informationobject' => 'ahg-information-object-manage',
+    'physicalobject' => 'ahg-storage-manage',
+    'function' => 'ahg-function-manage',
+    'rightsholder' => 'ahg-rights-holder-manage',
+    'term' => 'ahg-term-taxonomy',
+    'taxonomy' => 'ahg-term-taxonomy',
+    'user' => 'ahg-user-manage',
+    'aclGroup' => 'ahg-acl',
+    'jobs' => 'ahg-jobs-manage',
+    'search' => 'ahg-search',
+    'staticpage' => 'ahg-static-page',
+    'menu' => 'ahg-menu-manage',
+    'settings' => 'ahg-settings',
+    'digitalobject' => 'ahg-information-object-manage',
+    'default' => 'ahg-core',
+    'object' => 'ahg-core',
     'contactinformation' => 'ahg-core',
-    'right'              => 'ahg-rights-holder-manage',
-    'deaccession'        => 'ahg-accession-manage',
-    'clipboard'          => 'ahg-cart',
-    'admin'              => 'ahg-core',
-    'browse'             => 'ahg-core',
-    'event'              => 'ahg-core',
-    'relation'           => 'ahg-core',
-    'tts'                => 'ahg-core',
-    'ahgVoice'           => 'ahg-core',
-    'import'             => 'ahg-data-migration',
-    'savedSearch'        => 'ahg-search',
-    'extendedRights'     => 'ahg-rights-holder-manage',
-    'sfIsadPlugin'       => 'ahg-information-object-manage',
-    'sfIsaarPlugin'      => 'ahg-actor-manage',
-    'sfIsdiahPlugin'     => 'ahg-repository-manage',
-    'sfIsdfPlugin'       => 'ahg-function-manage',
-    'sfDcPlugin'         => 'ahg-information-object-manage',
-    'sfRadPlugin'        => 'ahg-information-object-manage',
-    'sfModsPlugin'       => 'ahg-information-object-manage',
-    'sfAHGPlugin'        => 'ahg-display',
+    'right' => 'ahg-rights-holder-manage',
+    'deaccession' => 'ahg-accession-manage',
+    'clipboard' => 'ahg-cart',
+    'admin' => 'ahg-core',
+    'browse' => 'ahg-core',
+    'event' => 'ahg-core',
+    'relation' => 'ahg-core',
+    'tts' => 'ahg-core',
+    'ahgVoice' => 'ahg-core',
+    'import' => 'ahg-data-migration',
+    'savedSearch' => 'ahg-search',
+    'extendedRights' => 'ahg-rights-holder-manage',
+    'sfIsadPlugin' => 'ahg-information-object-manage',
+    'sfIsaarPlugin' => 'ahg-actor-manage',
+    'sfIsdiahPlugin' => 'ahg-repository-manage',
+    'sfIsdfPlugin' => 'ahg-function-manage',
+    'sfDcPlugin' => 'ahg-information-object-manage',
+    'sfRadPlugin' => 'ahg-information-object-manage',
+    'sfModsPlugin' => 'ahg-information-object-manage',
+    'sfAHGPlugin' => 'ahg-display',
     'sfPluginAdminPlugin' => 'ahg-settings',
-    'sfSkosPlugin'       => 'ahg-term-taxonomy',
-    'sfTranslatePlugin'  => 'ahg-core',
-    'arDacsPlugin'       => 'ahg-information-object-manage',
-    'arStorageService'   => 'ahg-storage-manage',
+    'sfSkosPlugin' => 'ahg-term-taxonomy',
+    'sfTranslatePlugin' => 'ahg-core',
+    'arDacsPlugin' => 'ahg-information-object-manage',
+    'arStorageService' => 'ahg-storage-manage',
     'arStorageServiceSettings' => 'ahg-settings',
-    'heritage.bak'       => 'ahg-heritage-manage',
+    'heritage.bak' => 'ahg-heritage-manage',
 ];
 
 // Plugins that use module overrides — their templates should be checked
@@ -179,7 +181,8 @@ $matched = 0;
 $total = 0;
 
 // Helper: check if a normalized view name exists in a package's view list
-function checkViewExists($rawName, $viewsList) {
+function checkViewExists($rawName, $viewsList)
+{
     $normalized = strtolower($rawName);
     $normalizedNoUnderscore = preg_replace('/^_/', '', $normalized);
     $kebab = strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', preg_replace('/^_/', '', $rawName)));
@@ -193,12 +196,12 @@ function checkViewExists($rawName, $viewsList) {
     return in_array($normalizedNoUnderscore, $viewsList)
         || in_array(str_replace('_', '-', $normalizedNoUnderscore), $viewsList)
         || in_array($kebab, $viewsList)
-        || ($isPartial && in_array('_' . $kebab, $viewsList))
+        || ($isPartial && in_array('_'.$kebab, $viewsList))
         || in_array($normalized, $viewsList)
         || in_array($kebabFull, $viewsList)
         || in_array($normalizedFull, $viewsList)
-        || ($isPartial && in_array('_' . $kebabFull, $viewsList))
-        || ($isPartial && in_array('_' . $normalizedFull, $viewsList));
+        || ($isPartial && in_array('_'.$kebabFull, $viewsList))
+        || ($isPartial && in_array('_'.$normalizedFull, $viewsList));
 }
 
 // Scan all AtoM plugin templates
@@ -217,8 +220,9 @@ foreach (glob("$atomPluginDir/*/modules/*/templates/*.php") as $tpl) {
 
     $heratioPkg = $pluginMap[$plugin] ?? null;
 
-    if (!$heratioPkg) {
+    if (! $heratioPkg) {
         $noPackage[$plugin][] = "$module/$file";
+
         continue;
     }
 
@@ -234,14 +238,14 @@ foreach (glob("$atomPluginDir/*/modules/*/templates/*.php") as $tpl) {
             }
         }
         // 2. Check the plugin-mapped package (ahg-theme-b5 or ahg-core)
-        if (!$found) {
+        if (! $found) {
             $views = $heratioViews[$heratioPkg] ?? [];
             if (checkViewExists($rawName, $views)) {
                 $found = true;
             }
         }
         // 3. Check ALL packages as final fallback
-        if (!$found) {
+        if (! $found) {
             foreach ($heratioViews as $pkg => $pViews) {
                 if (checkViewExists($rawName, $pViews)) {
                     $found = true;
@@ -250,7 +254,7 @@ foreach (glob("$atomPluginDir/*/modules/*/templates/*.php") as $tpl) {
             }
         }
         // Report missing against the module-mapped package (not the plugin package)
-        if (!$found) {
+        if (! $found) {
             $targetPkg = $modulePkg ?? $heratioPkg;
             $missing[$targetPkg][] = "$module/$file.php";
         }
@@ -260,7 +264,7 @@ foreach (glob("$atomPluginDir/*/modules/*/templates/*.php") as $tpl) {
         if (checkViewExists($rawName, $views)) {
             $found = true;
         }
-        if (!$found) {
+        if (! $found) {
             $missing[$heratioPkg][] = "$module/$file.php";
         }
     }
@@ -272,25 +276,31 @@ foreach (glob("$atomPluginDir/*/modules/*/templates/*.php") as $tpl) {
 
 // Output
 echo "# MISSING VIEWS: AtoM templates without Heratio equivalent\n";
-echo "# Generated: " . date('Y-m-d H:i:s') . "\n";
+echo '# Generated: '.date('Y-m-d H:i:s')."\n";
 echo "# Total AtoM templates scanned: $total\n";
 echo "# Matched to Heratio: $matched\n";
-echo "# Missing in Heratio: " . ($total - $matched - array_sum(array_map('count', $noPackage))) . "\n";
-echo "# No Heratio package: " . array_sum(array_map('count', $noPackage)) . "\n\n";
+echo '# Missing in Heratio: '.($total - $matched - array_sum(array_map('count', $noPackage)))."\n";
+echo '# No Heratio package: '.array_sum(array_map('count', $noPackage))."\n\n";
 
 echo "## MISSING VIEWS BY PACKAGE\n\n";
 ksort($missing);
 foreach ($missing as $pkg => $templates) {
-    echo "### $pkg (" . count($templates) . " missing)\n";
-    foreach ($templates as $t) echo "  - $t\n";
+    echo "### $pkg (".count($templates)." missing)\n";
+    foreach ($templates as $t) {
+        echo "  - $t\n";
+    }
     echo "\n";
 }
 
 echo "\n## AtoM PLUGINS WITHOUT HERATIO PACKAGE\n\n";
 ksort($noPackage);
 foreach ($noPackage as $plugin => $templates) {
-    echo "### $plugin (" . count($templates) . " templates)\n";
-    foreach (array_slice($templates, 0, 10) as $t) echo "  - $t\n";
-    if (count($templates) > 10) echo "  ... and " . (count($templates) - 10) . " more\n";
+    echo "### $plugin (".count($templates)." templates)\n";
+    foreach (array_slice($templates, 0, 10) as $t) {
+        echo "  - $t\n";
+    }
+    if (count($templates) > 10) {
+        echo '  ... and '.(count($templates) - 10)." more\n";
+    }
     echo "\n";
 }

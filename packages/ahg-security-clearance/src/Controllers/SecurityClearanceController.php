@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgSecurityClearance\Controllers;
 
 use AhgSecurityClearance\Services\SecurityClearanceService;
@@ -96,9 +94,9 @@ class SecurityClearanceController extends Controller
         $classifications = $this->service->getClassificationLevels();
 
         $stats = [
-            'total_users'   => DB::table('user')->count(),
+            'total_users' => DB::table('user')->count(),
             'with_clearance' => DB::table('user_security_clearance')->count(),
-            'top_secret'    => DB::table('user_security_clearance as usc')
+            'top_secret' => DB::table('user_security_clearance as usc')
                 ->join('security_classification as sc', 'usc.classification_id', '=', 'sc.id')
                 ->where('sc.level', '>=', 4)
                 ->count(),
@@ -115,7 +113,7 @@ class SecurityClearanceController extends Controller
     {
         $targetUser = DB::table('user')->where('id', $id)->first();
 
-        if (!$targetUser) {
+        if (! $targetUser) {
             abort(404, 'User not found');
         }
 
@@ -134,7 +132,7 @@ class SecurityClearanceController extends Controller
     public function grant(Request $request)
     {
         $request->validate([
-            'user_id'           => 'required|integer',
+            'user_id' => 'required|integer',
             'classification_id' => 'required|integer',
         ]);
 
@@ -178,8 +176,8 @@ class SecurityClearanceController extends Controller
     public function bulkGrant(Request $request)
     {
         $request->validate([
-            'user_ids'          => 'required|array',
-            'user_ids.*'        => 'integer',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'integer',
             'classification_id' => 'required|integer',
         ]);
 
@@ -293,6 +291,7 @@ class SecurityClearanceController extends Controller
             \Log::warning('2FA verify attempted but TOTP backend not implemented', [
                 'user_id' => $userId, 'ip' => $request->ip(),
             ]);
+
             return redirect()->route('security-clearance.two-factor', ['return' => $returnUrl])
                 ->with('error', __('Two-factor authentication is not yet available on this deployment.'));
         }
@@ -307,12 +306,12 @@ class SecurityClearanceController extends Controller
             if (Schema::hasTable('security_2fa_session')) {
                 DB::table('security_2fa_session')->where('user_id', $userId)->delete();
                 DB::table('security_2fa_session')->insert([
-                    'user_id'     => $userId,
-                    'session_id'  => session()->getId(),
+                    'user_id' => $userId,
+                    'session_id' => session()->getId(),
                     'verified_at' => now(),
-                    'expires_at'  => now()->addHours(8),
-                    'ip_address'  => $request->ip(),
-                    'created_at'  => now(),
+                    'expires_at' => now()->addHours(8),
+                    'ip_address' => $request->ip(),
+                    'created_at' => now(),
                 ]);
             }
 
@@ -353,12 +352,12 @@ class SecurityClearanceController extends Controller
             if (Schema::hasTable('security_2fa_session')) {
                 DB::table('security_2fa_session')->where('user_id', $userId)->delete();
                 DB::table('security_2fa_session')->insert([
-                    'user_id'     => $userId,
-                    'session_id'  => session()->getId(),
+                    'user_id' => $userId,
+                    'session_id' => session()->getId(),
                     'verified_at' => now(),
-                    'expires_at'  => now()->addHours(8),
-                    'ip_address'  => $request->ip(),
-                    'created_at'  => now(),
+                    'expires_at' => now()->addHours(8),
+                    'ip_address' => $request->ip(),
+                    'created_at' => now(),
                 ]);
             }
 
@@ -378,7 +377,7 @@ class SecurityClearanceController extends Controller
         $userId = auth()->id();
         $email = DB::table('user')->where('id', $userId)->value('email');
 
-        if (!$email) {
+        if (! $email) {
             return response()->json(['error' => 'No email address on file'], 400);
         }
 
@@ -388,8 +387,8 @@ class SecurityClearanceController extends Controller
         if (Schema::hasTable('security_email_code')) {
             DB::table('security_email_code')->where('user_id', $userId)->delete();
             DB::table('security_email_code')->insert([
-                'user_id'    => $userId,
-                'code'       => $code,
+                'user_id' => $userId,
+                'code' => $code,
                 'expires_at' => now()->addMinutes(10),
                 'created_at' => now(),
             ]);
@@ -397,8 +396,8 @@ class SecurityClearanceController extends Controller
 
         $subject = 'Heratio — Your verification code';
         $body = "Your two-factor verification code is: {$code}\n\nThis code expires in 10 minutes.\n\nIf you did not request this code, please ignore this email.";
-        $headers = "From: noreply@" . ($request->getHost() ?? 'localhost') . "\r\n"
-                 . "Content-Type: text/plain; charset=UTF-8\r\n";
+        $headers = 'From: noreply@'.($request->getHost() ?? 'localhost')."\r\n"
+                 ."Content-Type: text/plain; charset=UTF-8\r\n";
 
         $sent = @mail($email, $subject, $body, $headers);
 
@@ -453,7 +452,7 @@ class SecurityClearanceController extends Controller
             ->select('u.*', 'a.entity_type_id', 'ai.authorized_form_of_name', 'slug.slug')
             ->first();
 
-        if (!$targetUser) {
+        if (! $targetUser) {
             abort(404, 'User not found');
         }
 
@@ -475,7 +474,7 @@ class SecurityClearanceController extends Controller
             ->select('u.id', 'slug.slug')
             ->first();
 
-        if (!$targetUser) {
+        if (! $targetUser) {
             abort(404, 'User not found');
         }
 
@@ -511,12 +510,12 @@ class SecurityClearanceController extends Controller
     public function watermarkSettings()
     {
         $settings = [
-            'default_enabled'  => '1',
-            'default_type'     => 'COPYRIGHT',
-            'apply_on_view'    => '1',
+            'default_enabled' => '1',
+            'default_type' => 'COPYRIGHT',
+            'apply_on_view' => '1',
             'apply_on_download' => '1',
             'security_override' => '1',
-            'min_size'         => '200',
+            'min_size' => '200',
         ];
 
         // AtoM stores setting values on `setting_i18n.value`, keyed to `setting.id`.
@@ -526,7 +525,7 @@ class SecurityClearanceController extends Controller
                     ->leftJoin('setting_i18n as si', function ($j) {
                         $j->on('si.id', '=', 's.id')->where('si.culture', '=', app()->getLocale());
                     })
-                    ->where('s.name', 'watermark_' . $key)
+                    ->where('s.name', 'watermark_'.$key)
                     ->value('si.value');
                 if ($dbVal !== null) {
                     $value = $dbVal;
@@ -568,7 +567,7 @@ class SecurityClearanceController extends Controller
         if (Schema::hasTable('setting')) {
             $culture = app()->getLocale();
             foreach ($fields as $field) {
-                $name  = 'watermark_' . $field;
+                $name = 'watermark_'.$field;
                 $value = $request->input($field, '0');
 
                 $existing = DB::table('setting')->where('name', $name)->first();
@@ -579,14 +578,14 @@ class SecurityClearanceController extends Controller
                     );
                 } else {
                     $id = DB::table('setting')->insertGetId([
-                        'name'           => $name,
-                        'scope'          => 'global',
+                        'name' => $name,
+                        'scope' => 'global',
                         'source_culture' => $culture,
                     ]);
                     DB::table('setting_i18n')->insert([
-                        'id'      => $id,
+                        'id' => $id,
                         'culture' => $culture,
-                        'value'   => $value,
+                        'value' => $value,
                     ]);
                 }
             }
@@ -616,7 +615,7 @@ class SecurityClearanceController extends Controller
     public function classifyStore(Request $request)
     {
         $request->validate([
-            'object_id'         => 'required|integer',
+            'object_id' => 'required|integer',
             'classification_id' => 'required|integer',
         ]);
 
@@ -675,9 +674,9 @@ class SecurityClearanceController extends Controller
         $requests = $this->service->getAccessRequests($status ?: null);
 
         $stats = [
-            'pending'          => DB::table('security_access_request')->where('status', 'pending')->count(),
-            'approved_today'   => DB::table('security_access_request')->where('status', 'approved')->whereDate('reviewed_at', today())->count(),
-            'denied_today'     => DB::table('security_access_request')->where('status', 'denied')->whereDate('reviewed_at', today())->count(),
+            'pending' => DB::table('security_access_request')->where('status', 'pending')->count(),
+            'approved_today' => DB::table('security_access_request')->where('status', 'approved')->whereDate('reviewed_at', today())->count(),
+            'denied_today' => DB::table('security_access_request')->where('status', 'denied')->whereDate('reviewed_at', today())->count(),
             'total_this_month' => DB::table('security_access_request')->whereYear('created_at', now()->year)->whereMonth('created_at', now()->month)->count(),
         ];
 
@@ -740,7 +739,7 @@ class SecurityClearanceController extends Controller
             )
             ->first();
 
-        if (!$accessRequest) {
+        if (! $accessRequest) {
             abort(404, 'Access request not found');
         }
 
@@ -753,8 +752,8 @@ class SecurityClearanceController extends Controller
     public function submitAccessRequest(Request $request)
     {
         $request->validate([
-            'object_id'     => 'required|integer',
-            'request_type'  => 'required|string',
+            'object_id' => 'required|integer',
+            'request_type' => 'required|string',
             'justification' => 'required|string|max:1000',
         ]);
 
@@ -856,13 +855,13 @@ class SecurityClearanceController extends Controller
         $since = now()->sub(\DateInterval::createFromDateString($period));
 
         $stats = [
-            'total_events'    => 0,
+            'total_events' => 0,
             'security_events' => 0,
-            'by_user'         => collect(),
-            'by_action'       => collect(),
-            'by_day'          => collect(),
-            'top_objects'     => collect(),
-            'since'           => $since->format('M j, Y H:i'),
+            'by_user' => collect(),
+            'by_action' => collect(),
+            'by_day' => collect(),
+            'top_objects' => collect(),
+            'since' => $since->format('M j, Y H:i'),
         ];
 
         if (Schema::hasTable('security_audit_log')) {
@@ -906,10 +905,10 @@ class SecurityClearanceController extends Controller
     {
         $filters = [
             'user_name' => $request->input('user'),
-            'action'    => $request->input('log_action'),
-            'category'  => $request->input('category'),
+            'action' => $request->input('log_action'),
+            'category' => $request->input('category'),
             'date_from' => $request->input('date_from'),
-            'date_to'   => $request->input('date_to'),
+            'date_to' => $request->input('date_to'),
         ];
         $filters = array_filter($filters);
 
@@ -939,7 +938,7 @@ class SecurityClearanceController extends Controller
     public function auditExport()
     {
         $logs = $this->service->exportAuditLog();
-        $filename = 'security_audit_' . date('Y-m-d_His') . '.csv';
+        $filename = 'security_audit_'.date('Y-m-d_His').'.csv';
 
         return response()->streamDownload(function () use ($logs) {
             $output = fopen('php://output', 'w');
@@ -981,7 +980,7 @@ class SecurityClearanceController extends Controller
             ->select('io.id', 'io.identifier', 'ioi.title', 'slug.slug')
             ->first();
 
-        if (!$object && $objectId) {
+        if (! $object && $objectId) {
             return redirect()->route('security-clearance.audit-dashboard')
                 ->with('error', 'Object not found.');
         }

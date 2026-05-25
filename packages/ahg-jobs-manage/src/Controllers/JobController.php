@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgJobsManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
@@ -164,7 +162,7 @@ class JobController extends Controller
             ])
             ->first();
 
-        if (!$job) {
+        if (! $job) {
             abort(404);
         }
 
@@ -177,7 +175,7 @@ class JobController extends Controller
     {
         $job = DB::table('job')->where('id', $id)->first();
 
-        if (!$job || !in_array($job->status_id, [184, 185])) {
+        if (! $job || ! in_array($job->status_id, [184, 185])) {
             return redirect()->route('job.browse')->with('error', 'Only completed or failed jobs can be deleted.');
         }
 
@@ -253,11 +251,25 @@ class JobController extends Controller
         }, 200, $headers);
     }
 
-    public function queueBatches(Request $request) { return view('ahg-jobs-manage::queue-batches', ['rows' => collect()]); }
+    public function queueBatches(Request $request)
+    {
+        return view('ahg-jobs-manage::queue-batches', ['rows' => collect()]);
+    }
 
-    public function queueBrowse(Request $request) { return view('ahg-jobs-manage::queue-browse', ['rows' => collect()]); }
+    public function queueBrowse(Request $request)
+    {
+        return view('ahg-jobs-manage::queue-browse', ['rows' => collect()]);
+    }
 
-    public function queueDetail(int $id) { $record = DB::table('job')->where('id', $id)->first(); return view('ahg-jobs-manage::queue-detail', ['record' => $record ?? (object)[]]); }
+    public function queueDetail(int $id)
+    {
+        $record = DB::table('job')->where('id', $id)->first();
 
-    public function report() { return view('ahg-jobs-manage::report', ['totalJobs'=>0,'completedJobs'=>0,'failedJobs'=>0,'avgDuration'=>'0s']); }
+        return view('ahg-jobs-manage::queue-detail', ['record' => $record ?? (object) []]);
+    }
+
+    public function report()
+    {
+        return view('ahg-jobs-manage::report', ['totalJobs' => 0, 'completedJobs' => 0, 'failedJobs' => 0, 'avgDuration' => '0s']);
+    }
 }

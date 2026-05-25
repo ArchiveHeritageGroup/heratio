@@ -19,6 +19,7 @@ use AhgApi\Controllers\V2\BatchController;
 use AhgApi\Controllers\V2\ConditionController;
 use AhgApi\Controllers\V2\DescriptionController;
 use AhgApi\Controllers\V2\EventController;
+use AhgApi\Controllers\V2\IdentifierController;
 use AhgApi\Controllers\V2\PrivacyController;
 use AhgApi\Controllers\V2\PublishController;
 use AhgApi\Controllers\V2\RepositoryController as V2RepositoryController;
@@ -26,7 +27,6 @@ use AhgApi\Controllers\V2\SearchController;
 use AhgApi\Controllers\V2\SyncController;
 use AhgApi\Controllers\V2\TaxonomyController as V2TaxonomyController;
 use AhgApi\Controllers\V2\UploadController;
-use AhgApi\Controllers\V2\IdentifierController;
 use AhgApi\Controllers\V2\WebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -224,14 +224,14 @@ Route::prefix('api')->middleware(['throttle:60,1', 'api.cors'])->group(function 
     Route::post('actor', [ActorApiController::class, 'store'])->name('api.actor.store');
     Route::put('actor/{id}', [ActorApiController::class, 'update'])->name('api.actor.update');
     Route::delete('actor/{id}', [ActorApiController::class, 'destroy'])->name('api.actor.destroy');
-    
+
     Route::get('term', [TaxonomyApiController::class, 'terms'])->name('api.term.index');
     Route::get('term/search', [TaxonomyApiController::class, 'search'])->name('api.term.search');
     Route::get('term/{id}', [TaxonomyApiController::class, 'show'])->name('api.term.show');
     Route::post('term', [TaxonomyApiController::class, 'store'])->name('api.term.store');
     Route::put('term/{id}', [TaxonomyApiController::class, 'update'])->name('api.term.update');
     Route::delete('term/{id}', [TaxonomyApiController::class, 'destroy'])->name('api.term.destroy');
-    
+
     Route::get('records', [InformationObjectApiController::class, 'index'])->name('api.records.index');
     Route::get('records/search', [InformationObjectApiController::class, 'search'])->name('api.records.search');
     Route::get('records/{slug}', [InformationObjectApiController::class, 'show'])->name('api.records.show');
@@ -239,7 +239,7 @@ Route::prefix('api')->middleware(['throttle:60,1', 'api.cors'])->group(function 
     Route::post('records', [InformationObjectApiController::class, 'store'])->name('api.records.store');
     Route::put('records/{slug}', [InformationObjectApiController::class, 'update'])->name('api.records.update');
     Route::delete('records/{slug}', [InformationObjectApiController::class, 'destroy'])->name('api.records.destroy');
-    
+
     Route::match(['get', 'post'], 'search/io', [LegacyApiController::class, 'searchIo']);
     Route::match(['get', 'post'], 'autocomplete/glam', [LegacyApiController::class, 'autocompleteGlam']);
     Route::get('export-preview', [LegacyApiController::class, 'exportPreview']);
@@ -257,7 +257,7 @@ Route::fallback(function (\Illuminate\Http\Request $request) {
         return response()->json([
             'success' => false,
             'error' => 'Not Found',
-            'message' => 'API endpoint not found: /' . $request->path(),
+            'message' => 'API endpoint not found: /'.$request->path(),
             'timestamp' => now()->toIso8601String(),
         ], 404);
     }

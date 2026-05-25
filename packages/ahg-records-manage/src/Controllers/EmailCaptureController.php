@@ -16,9 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class EmailCaptureController extends Controller
 {
-    public function __construct(protected EmailCaptureService $emails)
-    {
-    }
+    public function __construct(protected EmailCaptureService $emails) {}
 
     /** GET /admin/records/emails */
     public function index(Request $request)
@@ -26,19 +24,19 @@ class EmailCaptureController extends Controller
         $filters = [
             'status' => $request->query('status'),
             'source' => $request->query('source'),
-            'q'      => $request->query('q'),
-            'limit'  => (int) $request->query('limit', 100),
+            'q' => $request->query('q'),
+            'limit' => (int) $request->query('limit', 100),
             'offset' => (int) $request->query('offset', 0),
         ];
 
-        $page   = $this->emails->listQueue($filters);
+        $page = $this->emails->listQueue($filters);
         $counts = $this->emails->counts();
 
         return view('ahg-records::emails.index', [
-            'rows'    => $page['rows'],
-            'total'   => $page['total'],
+            'rows' => $page['rows'],
+            'total' => $page['total'],
             'filters' => $filters,
-            'counts'  => $counts,
+            'counts' => $counts,
         ]);
     }
 
@@ -59,12 +57,13 @@ class EmailCaptureController extends Controller
             $result = $this->emails->captureFromEml($request->file('eml_file'), auth()->id() ?? 0);
         } catch (\Throwable $e) {
             return redirect()->route('records.emails.upload-form')
-                ->with('error', 'Could not parse EML: ' . $e->getMessage());
+                ->with('error', 'Could not parse EML: '.$e->getMessage());
         }
 
         $msg = $result['duplicate']
             ? 'This message was already captured (Message-ID match) — opened existing record.'
             : 'Email captured.';
+
         return redirect()->route('records.emails.show', $result['id'])->with('success', $msg);
     }
 
@@ -88,8 +87,8 @@ class EmailCaptureController extends Controller
             ->get(['id', 'class_ref', 'title', 'retention_period_years', 'disposal_action']);
 
         return view('ahg-records::emails.show', [
-            'email'           => $email,
-            'fileplanNodes'   => $fileplanNodes,
+            'email' => $email,
+            'fileplanNodes' => $fileplanNodes,
             'disposalClasses' => $disposalClasses,
         ]);
     }
@@ -98,7 +97,7 @@ class EmailCaptureController extends Controller
     public function classify(Request $request, int $id)
     {
         $data = $request->validate([
-            'fileplan_node_id'  => 'required|integer',
+            'fileplan_node_id' => 'required|integer',
             'disposal_class_id' => 'nullable|integer',
         ]);
 
@@ -115,6 +114,7 @@ class EmailCaptureController extends Controller
         if ($ioId === null) {
             return redirect()->route('records.emails.show', $id)->with('error', 'Could not declare this email as a record.');
         }
+
         return redirect()->route('records.emails.show', $id)->with('success', "Declared as information_object #{$ioId}.");
     }
 }

@@ -34,7 +34,7 @@ class AddSuperuserCommand extends Command
 
         // Generate password hash (SHA-1 with salt)
         $salt = bin2hex(random_bytes(16)); // 32-char hex salt
-        $passwordHash = sha1($salt . $password);
+        $passwordHash = sha1($salt.$password);
 
         try {
             DB::beginTransaction();
@@ -75,7 +75,7 @@ class AddSuperuserCommand extends Command
             $counter = 2;
 
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter;
+                $slug = $baseSlug.'-'.$counter;
                 $counter++;
             }
 
@@ -97,7 +97,7 @@ class AddSuperuserCommand extends Command
             return self::SUCCESS;
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->error('Failed to create superuser: ' . $e->getMessage());
+            $this->error('Failed to create superuser: '.$e->getMessage());
 
             return self::FAILURE;
         }

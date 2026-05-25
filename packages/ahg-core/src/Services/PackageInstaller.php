@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Heratio — PackageInstaller
  *
@@ -58,43 +59,50 @@ class PackageInstaller
     public static function autoInstall(string $packageRoot, bool $force = false, ?string $sqlFile = null): bool
     {
         self::$lastError = '';
-        $sqlFile = $sqlFile ?? (rtrim($packageRoot, '/') . '/database/install.sql');
-        if (!is_readable($sqlFile)) {
+        $sqlFile = $sqlFile ?? (rtrim($packageRoot, '/').'/database/install.sql');
+        if (! is_readable($sqlFile)) {
             self::$lastError = "not readable: {$sqlFile}";
+
             return false;
         }
 
-        if (!$force) {
+        if (! $force) {
             $sentinel = self::firstTableName($sqlFile);
             if ($sentinel === null) {
-                self::$lastError = "no CREATE TABLE found (sentinel)";
+                self::$lastError = 'no CREATE TABLE found (sentinel)';
+
                 return false;
             }
 
             try {
                 if (Schema::hasTable($sentinel)) {
                     self::$lastError = "sentinel table {$sentinel} exists";
+
                     return false;
                 }
             } catch (\Throwable $e) {
-                self::$lastError = "Schema::hasTable threw: " . $e->getMessage();
+                self::$lastError = 'Schema::hasTable threw: '.$e->getMessage();
+
                 return false;
             }
         }
 
         $sql = file_get_contents($sqlFile);
         if ($sql === false || $sql === '') {
-            self::$lastError = "empty or unreadable file";
+            self::$lastError = 'empty or unreadable file';
+
             return false;
         }
 
         try {
-            DB::unprepared("SET FOREIGN_KEY_CHECKS = 0;\n" . $sql . "\nSET FOREIGN_KEY_CHECKS = 1;\n");
-            Log::info("PackageInstaller: ran {$sqlFile} (force=" . ($force ? 'true' : 'false') . ')');
+            DB::unprepared("SET FOREIGN_KEY_CHECKS = 0;\n".$sql."\nSET FOREIGN_KEY_CHECKS = 1;\n");
+            Log::info("PackageInstaller: ran {$sqlFile} (force=".($force ? 'true' : 'false').')');
+
             return true;
         } catch (\Throwable $e) {
-            self::$lastError = "DB::unprepared threw: " . $e->getMessage();
-            Log::warning("PackageInstaller: run of {$sqlFile} failed: " . $e->getMessage());
+            self::$lastError = 'DB::unprepared threw: '.$e->getMessage();
+            Log::warning("PackageInstaller: run of {$sqlFile} failed: ".$e->getMessage());
+
             return false;
         }
     }
@@ -121,13 +129,13 @@ class PackageInstaller
         $skipped = 0;
         $files = [];
 
-        $dirs = glob(rtrim($packagesRoot, '/') . '/*/database/install*.sql');
+        $dirs = glob(rtrim($packagesRoot, '/').'/*/database/install*.sql');
         sort($dirs);
 
         foreach ($dirs as $sqlFile) {
             $packageRoot = dirname(dirname($sqlFile));
             $packageName = basename($packageRoot);
-            $fileLabel   = basename($sqlFile);
+            $fileLabel = basename($sqlFile);
             // Per-package + per-file key so install.sql + install_*.sql for
             // the same package both appear in the result map.
             $reportKey = $fileLabel === 'install.sql' ? $packageName : "{$packageName}/{$fileLabel}";
@@ -136,7 +144,7 @@ class PackageInstaller
             // the verbose listing of `heratio:install-bootstrap` so CI can see
             // why a package didn't install (otherwise the warning is hidden in
             // storage/logs/laravel.log which CI doesn't expose).
-            $files[$reportKey] = $didRun ? 'installed' : ('skipped — ' . self::$lastError);
+            $files[$reportKey] = $didRun ? 'installed' : ('skipped — '.self::$lastError);
             $didRun ? $ran++ : $skipped++;
         }
 
@@ -163,6 +171,7 @@ class PackageInstaller
         } finally {
             fclose($fh);
         }
+
         return null;
     }
 }

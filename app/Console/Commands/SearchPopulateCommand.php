@@ -17,7 +17,7 @@ class SearchPopulateCommand extends Command
         $cmd = 'php /usr/share/nginx/archive/symfony search:populate';
 
         if ($exclude = $this->option('exclude-types')) {
-            $cmd .= ' --exclude-types=' . escapeshellarg($exclude);
+            $cmd .= ' --exclude-types='.escapeshellarg($exclude);
         }
 
         passthru($cmd, $exitCode);
@@ -25,7 +25,7 @@ class SearchPopulateCommand extends Command
         if ($exitCode === 0) {
             $this->info('Search indices populated successfully.');
         } else {
-            $this->error('Search population failed with exit code: ' . $exitCode);
+            $this->error('Search population failed with exit code: '.$exitCode);
         }
 
         return $exitCode === 0 ? self::SUCCESS : self::FAILURE;

@@ -56,7 +56,9 @@ use Illuminate\Support\Facades\Schema;
 class AhgGpuPoolService
 {
     public const TABLE = 'ahg_gpu_endpoint';
+
     public const SETTING_STRATEGY = 'ai_gpu_pool_strategy';
+
     public const SETTING_RR_CURSOR = 'ai_gpu_pool_rr_cursor';
 
     /** Round-robin cursor stored in ahg_settings to survive restarts. */
@@ -72,6 +74,7 @@ class AhgGpuPoolService
     {
         if (Schema::hasTable(self::TABLE)) {
             self::seedFromLegacySettings();
+
             return;
         }
         Schema::create(self::TABLE, function ($t) {
@@ -126,11 +129,11 @@ class AhgGpuPoolService
                 // that ask for translation route here.
                 $seed[] = self::seedRow('legacy-translate', $mtEndpoint, 'translate-adapter', 50, $now);
             }
-            if (!empty($seed)) {
+            if (! empty($seed)) {
                 DB::table(self::TABLE)->insertOrIgnore($seed);
             }
         } catch (\Throwable $e) {
-            Log::warning('[ahg-gpu-pool] seed-from-legacy failed: ' . $e->getMessage());
+            Log::warning('[ahg-gpu-pool] seed-from-legacy failed: '.$e->getMessage());
         }
     }
 
@@ -141,8 +144,12 @@ class AhgGpuPoolService
         //   192.168.0.115 = incoming GPU (20GB)
         //   anything else = conservative 8GB fallback (operator can edit)
         $vram = 8;
-        if (str_contains($url, '192.168.0.78'))  $vram = 8;
-        if (str_contains($url, '192.168.0.115')) $vram = 20;
+        if (str_contains($url, '192.168.0.78')) {
+            $vram = 8;
+        }
+        if (str_contains($url, '192.168.0.115')) {
+            $vram = 20;
+        }
 
         return [
             'name' => $name,
@@ -182,7 +189,9 @@ class AhgGpuPoolService
             ->value('setting_value') ?: 'priority');
 
         $candidates = self::activeCandidates($model, $minVramGb);
-        if (empty($candidates)) return null;
+        if (empty($candidates)) {
+            return null;
+        }
 
         if ($strategy === 'round-robin') {
             // Persist the cursor so successive PHP-FPM workers rotate together.
@@ -195,6 +204,7 @@ class AhgGpuPoolService
                 ['setting_key' => self::SETTING_RR_CURSOR],
                 ['setting_value' => (string) ($cursor + 1), 'setting_group' => 'ai_pool']
             );
+
             return rtrim($row->url, '/');
         }
 
@@ -218,7 +228,7 @@ class AhgGpuPoolService
         // the next health check flips it - run health() to refresh.
         $q->where(function ($w) {
             $w->whereNull('last_healthcheck_status')
-              ->orWhere('last_healthcheck_status', '!=', 'down');
+                ->orWhere('last_healthcheck_status', '!=', 'down');
         });
 
         if ($model !== null && $model !== '') {
@@ -228,7 +238,7 @@ class AhgGpuPoolService
             // manage manually.
             $q->where(function ($w) use ($model) {
                 $w->whereNull('models_supported')
-                  ->orWhere('models_supported', 'LIKE', '%' . $model . '%');
+                    ->orWhere('models_supported', 'LIKE', '%'.$model.'%');
             });
         }
 
@@ -259,7 +269,7 @@ class AhgGpuPoolService
             $probe = $isAdapter ? '/healthz' : '/api/tags';
 
             try {
-                $resp = Http::timeout(3)->get($url . $probe);
+                $resp = Http::timeout(3)->get($url.$probe);
                 $ok = $resp->successful();
             } catch (\Throwable $e) {
                 $ok = false;
@@ -283,6 +293,7 @@ class AhgGpuPoolService
     public static function registerEndpoint(string $name, string $url, string $modelsCsv = '', int $priority = 100, int $vramGb = 8, ?string $notes = null): int
     {
         self::ensureTable();
+
         return (int) DB::table(self::TABLE)->updateOrInsert(
             ['name' => $name],
             [

@@ -23,14 +23,12 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgUserManage\Controllers;
 
-use AhgUserManage\Services\UserBrowseService;
-use AhgUserManage\Services\UserService;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
+use AhgUserManage\Services\UserBrowseService;
+use AhgUserManage\Services\UserService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -75,7 +73,7 @@ class UserController extends Controller
     public function show(Request $request, string $slug)
     {
         $user = $this->service->getBySlug($slug);
-        if (!$user) {
+        if (! $user) {
             abort(404);
         }
 
@@ -125,7 +123,7 @@ class UserController extends Controller
     public function edit(string $slug)
     {
         $user = $this->service->getBySlug($slug);
-        if (!$user) {
+        if (! $user) {
             abort(404);
         }
 
@@ -176,13 +174,13 @@ class UserController extends Controller
     public function update(Request $request, string $slug)
     {
         $user = $this->service->getBySlug($slug);
-        if (!$user) {
+        if (! $user) {
             abort(404);
         }
 
         $request->validate([
-            'username' => 'required|string|max:255|unique:user,username,' . $user->id,
-            'email' => 'required|email|max:255|unique:user,email,' . $user->id,
+            'username' => 'required|string|max:255|unique:user,username,'.$user->id,
+            'email' => 'required|email|max:255|unique:user,email,'.$user->id,
             'password' => 'nullable|string|min:6',
             'confirm_password' => 'nullable|same:password',
             'authorized_form_of_name' => 'nullable|string|max:1024',
@@ -240,6 +238,7 @@ class UserController extends Controller
                 DB::table('property')->where('id', $existing->id)->delete();
                 DB::table('object')->where('id', $existing->id)->delete();
             }
+
             return;
         }
 
@@ -267,6 +266,7 @@ class UserController extends Controller
                     'value' => $newKey,
                 ]);
             }
+
             return;
         }
 
@@ -296,7 +296,7 @@ class UserController extends Controller
     public function confirmDelete(string $slug)
     {
         $user = $this->service->getBySlug($slug);
-        if (!$user) {
+        if (! $user) {
             abort(404);
         }
 
@@ -306,7 +306,7 @@ class UserController extends Controller
     public function destroy(string $slug)
     {
         $user = $this->service->getBySlug($slug);
-        if (!$user) {
+        if (! $user) {
             abort(404);
         }
 
@@ -323,7 +323,7 @@ class UserController extends Controller
         $rows = collect();
         $groups = collect();
 
-        if ($statusFilter && !in_array($statusFilter, ['pending', 'verified', 'approved', 'rejected', 'expired'])) {
+        if ($statusFilter && ! in_array($statusFilter, ['pending', 'verified', 'approved', 'rejected', 'expired'])) {
             $statusFilter = null;
         }
 
@@ -344,7 +344,7 @@ class UserController extends Controller
             $groups = \DB::table('acl_group')
                 ->leftJoin('acl_group_i18n', function ($join) use ($culture) {
                     $join->on('acl_group.id', '=', 'acl_group_i18n.id')
-                         ->where('acl_group_i18n.culture', '=', $culture);
+                        ->where('acl_group_i18n.culture', '=', $culture);
                 })
                 ->where('acl_group.id', '>', 99)
                 ->select(['acl_group.id', 'acl_group_i18n.name'])
@@ -372,7 +372,7 @@ class UserController extends Controller
             if (\Schema::hasTable('user_registration_request')) {
                 $regRequest = \DB::table('user_registration_request')->where('id', $requestId)->first();
 
-                if (!$regRequest) {
+                if (! $regRequest) {
                     return response()->json(['success' => false, 'error' => 'Registration request not found']);
                 }
 
@@ -409,7 +409,7 @@ class UserController extends Controller
                     $originalSlug = $slug;
                     $counter = 1;
                     while (\DB::table('slug')->where('slug', $slug)->exists()) {
-                        $slug = $originalSlug . '-' . $counter++;
+                        $slug = $originalSlug.'-'.$counter++;
                     }
                     \DB::table('slug')->insert([
                         'object_id' => $objectId,
@@ -436,7 +436,8 @@ class UserController extends Controller
                     }
                 } catch (\Exception $e) {
                     \DB::rollBack();
-                    return response()->json(['success' => false, 'error' => 'Failed to create user: ' . $e->getMessage()]);
+
+                    return response()->json(['success' => false, 'error' => 'Failed to create user: '.$e->getMessage()]);
                 }
 
                 // Update registration request
@@ -456,6 +457,7 @@ class UserController extends Controller
             }
         } catch (\Exception $e) {
             \DB::rollBack();
+
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
 
@@ -472,7 +474,7 @@ class UserController extends Controller
             if (\Schema::hasTable('user_registration_request')) {
                 $regRequest = \DB::table('user_registration_request')->where('id', $requestId)->first();
 
-                if (!$regRequest) {
+                if (! $regRequest) {
                     return response()->json(['success' => false, 'error' => 'Registration request not found']);
                 }
 
@@ -494,11 +496,20 @@ class UserController extends Controller
         return response()->json(['success' => false, 'error' => 'Registration table not available']);
     }
 
-    public function register(Request $request) { return view('ahg-user-manage::registration-register'); }
+    public function register(Request $request)
+    {
+        return view('ahg-user-manage::registration-register');
+    }
 
-    public function verify(string $token) { return view('ahg-user-manage::registration-verify'); }
+    public function verify(string $token)
+    {
+        return view('ahg-user-manage::registration-verify');
+    }
 
-    public function userView(string $slug) { return $this->show(request(), $slug); }
+    public function userView(string $slug)
+    {
+        return $this->show(request(), $slug);
+    }
 
     /**
      * User profile page (self-service).
@@ -506,7 +517,7 @@ class UserController extends Controller
     public function profile()
     {
         $user = $this->service->getById(auth()->id());
-        if (!$user) {
+        if (! $user) {
             abort(404);
         }
 
@@ -520,9 +531,10 @@ class UserController extends Controller
     public function profileEdit()
     {
         $user = $this->service->getById(auth()->id());
-        if (!$user || empty($user->slug)) {
+        if (! $user || empty($user->slug)) {
             abort(404);
         }
+
         return redirect()->route('user.edit', $user->slug);
     }
 
@@ -547,7 +559,7 @@ class UserController extends Controller
             ]);
 
             $user = \Illuminate\Support\Facades\DB::table('user')->where('id', auth()->id())->first();
-            if (!$user || !password_verify($request->input('current_password'), $user->password_hash)) {
+            if (! $user || ! password_verify($request->input('current_password'), $user->password_hash)) {
                 return redirect()->back()->with('error', 'Current password is incorrect.');
             }
 
@@ -586,7 +598,7 @@ class UserController extends Controller
     private function buildAclData(string $slug, string $className): array
     {
         $user = $this->service->getBySlug($slug);
-        if (!$user) {
+        if (! $user) {
             abort(404);
         }
 
@@ -619,11 +631,11 @@ class UserController extends Controller
             ->leftJoin('object', 'acl_permission.object_id', '=', 'object.id')
             ->where(function ($q) use ($user, $userGroups) {
                 $q->where('acl_permission.user_id', $user->id)
-                  ->orWhereIn('acl_permission.group_id', $userGroups);
+                    ->orWhereIn('acl_permission.group_id', $userGroups);
             })
             ->where(function ($q) use ($className) {
                 $q->where('object.class_name', $className)
-                  ->orWhereNull('acl_permission.object_id');
+                    ->orWhereNull('acl_permission.object_id');
             })
             ->orderBy('acl_permission.object_id')
             ->orderBy('acl_permission.user_id')
@@ -647,7 +659,7 @@ class UserController extends Controller
 
         // Get object names
         $objectNames = [];
-        if (!empty($objectIds)) {
+        if (! empty($objectIds)) {
             // Try actor_i18n for actors, information_object_i18n for IOs, etc.
             $nameRows = \Illuminate\Support\Facades\DB::table('actor_i18n')
                 ->whereIn('id', $objectIds)
@@ -697,7 +709,7 @@ class UserController extends Controller
     private function buildEditAclData(string $slug, string $className): array
     {
         $user = $this->service->getBySlug($slug);
-        if (!$user) {
+        if (! $user) {
             abort(404);
         }
 
@@ -708,7 +720,7 @@ class UserController extends Controller
             ->where('acl_permission.user_id', $user->id)
             ->where(function ($q) use ($className) {
                 $q->where('object.class_name', $className)
-                  ->orWhereNull('acl_permission.object_id');
+                    ->orWhereNull('acl_permission.object_id');
             })
             ->select('acl_permission.*')
             ->get();
@@ -720,12 +732,12 @@ class UserController extends Controller
                 $name = \Illuminate\Support\Facades\DB::table('actor_i18n')
                     ->where('id', $perm->object_id)->where('culture', $culture)
                     ->value('authorized_form_of_name');
-                if (!$name) {
+                if (! $name) {
                     $name = \Illuminate\Support\Facades\DB::table('information_object_i18n')
                         ->where('id', $perm->object_id)->where('culture', $culture)
                         ->value('title');
                 }
-                if (!$name) {
+                if (! $name) {
                     $name = \Illuminate\Support\Facades\DB::table('term_i18n')
                         ->where('id', $perm->object_id)->where('culture', $culture)
                         ->value('name');
@@ -780,6 +792,7 @@ class UserController extends Controller
     {
         $data = $this->buildAclData($slug, 'QubitActor');
         $data['actorNames'] = $data['objectNames'];
+
         return view('ahg-user-manage::index-actor-acl', $data);
     }
 
@@ -789,6 +802,7 @@ class UserController extends Controller
 
         if ($request->isMethod('post')) {
             $this->saveAclPermissions($request, $data['user']);
+
             return redirect()->route('user.indexActorAcl', ['slug' => $slug])
                 ->with('success', __('Actor permissions saved.'));
         }
@@ -797,7 +811,7 @@ class UserController extends Controller
         $data['actors'] = \Illuminate\Support\Facades\DB::table('actor')
             ->join('actor_i18n', function ($j) {
                 $j->on('actor.id', '=', 'actor_i18n.id')
-                  ->where('actor_i18n.culture', app()->getLocale());
+                    ->where('actor_i18n.culture', app()->getLocale());
             })
             ->whereNotNull('actor_i18n.authorized_form_of_name')
             ->orderBy('actor_i18n.authorized_form_of_name')
@@ -814,6 +828,7 @@ class UserController extends Controller
     {
         $data = $this->buildAclData($slug, 'QubitInformationObject');
         $data['ioNames'] = $data['objectNames'];
+
         return view('ahg-user-manage::index-information-object-acl', $data);
     }
 
@@ -823,6 +838,7 @@ class UserController extends Controller
 
         if ($request->isMethod('post')) {
             $this->saveAclPermissions($request, $data['user']);
+
             return redirect()->route('user.indexInformationObjectAcl', ['slug' => $slug])
                 ->with('success', __('Information object permissions saved.'));
         }
@@ -836,6 +852,7 @@ class UserController extends Controller
     {
         $data = $this->buildAclData($slug, 'QubitRepository');
         $data['repoNames'] = $data['objectNames'];
+
         return view('ahg-user-manage::index-repository-acl', $data);
     }
 
@@ -845,6 +862,7 @@ class UserController extends Controller
 
         if ($request->isMethod('post')) {
             $this->saveAclPermissions($request, $data['user']);
+
             return redirect()->route('user.indexRepositoryAcl', ['slug' => $slug])
                 ->with('success', __('Repository permissions saved.'));
         }
@@ -852,7 +870,7 @@ class UserController extends Controller
         $data['repositories'] = \Illuminate\Support\Facades\DB::table('repository')
             ->join('actor_i18n', function ($j) {
                 $j->on('repository.id', '=', 'actor_i18n.id')
-                  ->where('actor_i18n.culture', app()->getLocale());
+                    ->where('actor_i18n.culture', app()->getLocale());
             })
             ->whereNotNull('actor_i18n.authorized_form_of_name')
             ->orderBy('actor_i18n.authorized_form_of_name')
@@ -869,6 +887,7 @@ class UserController extends Controller
     {
         $data = $this->buildAclData($slug, 'QubitTerm');
         $data['termNames'] = $data['objectNames'];
+
         return view('ahg-user-manage::index-term-acl', $data);
     }
 
@@ -878,6 +897,7 @@ class UserController extends Controller
 
         if ($request->isMethod('post')) {
             $this->saveAclPermissions($request, $data['user']);
+
             return redirect()->route('user.indexTermAcl', ['slug' => $slug])
                 ->with('success', __('Taxonomy permissions saved.'));
         }
@@ -890,7 +910,7 @@ class UserController extends Controller
     public function editResearcherAcl(Request $request, string $slug)
     {
         $user = $this->service->getBySlug($slug);
-        if (!$user) {
+        if (! $user) {
             abort(404);
         }
 
@@ -900,7 +920,7 @@ class UserController extends Controller
             ->where('user_id', $user->id)
             ->where(function ($q) {
                 $q->where('action', 'LIKE', 'research%')
-                  ->orWhere('action', 'LIKE', 'researcher%');
+                    ->orWhere('action', 'LIKE', 'researcher%');
             })
             ->get();
 
@@ -910,6 +930,7 @@ class UserController extends Controller
 
         if ($request->isMethod('post')) {
             $this->saveAclPermissions($request, $user);
+
             return redirect()->route('user.show', ['slug' => $slug])
                 ->with('success', __('Researcher permissions saved.'));
         }
@@ -929,11 +950,11 @@ class UserController extends Controller
     public function pluginPreferences()
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
         // Admin or Editor only — non-privileged users can't manage their own nav.
-        if (!\AhgCore\Services\AclService::isAdministrator() && !\AhgCore\Services\AclService::isEditor()) {
+        if (! \AhgCore\Services\AclService::isAdministrator() && ! \AhgCore\Services\AclService::isEditor()) {
             abort(403, 'Insufficient permissions');
         }
 
@@ -950,7 +971,7 @@ class UserController extends Controller
 
         return view('ahg-user-manage::plugin-preferences', [
             'plugins' => $allEnabled,
-            'hidden'  => $hidden,
+            'hidden' => $hidden,
         ]);
     }
 
@@ -965,7 +986,9 @@ class UserController extends Controller
         // slugs from the slug table (e.g. b3pp-2ggp-tmez) work, not just
         // username/email lookups.
         $target = $this->service->getBySlug($slug);
-        if (!$target) abort(404);
+        if (! $target) {
+            abort(404);
+        }
 
         $allEnabled = \Illuminate\Support\Facades\DB::table('atom_plugin')
             ->orderBy('category')->orderBy('name')
@@ -977,10 +1000,10 @@ class UserController extends Controller
             ->toArray();
 
         return view('ahg-user-manage::plugin-grants', [
-            'target'  => $target,
-            'slug'    => $slug,    // pass the URL slug back so the form posts cleanly
+            'target' => $target,
+            'slug' => $slug,    // pass the URL slug back so the form posts cleanly
             'plugins' => $allEnabled,
-            'grants'  => $grants,
+            'grants' => $grants,
         ]);
     }
 
@@ -988,10 +1011,12 @@ class UserController extends Controller
     public function savePluginGrants(Request $request, string $slug)
     {
         $target = $this->service->getBySlug($slug);
-        if (!$target) abort(404);
+        if (! $target) {
+            abort(404);
+        }
 
         $validated = $request->validate([
-            'grants'   => 'array',
+            'grants' => 'array',
             'grants.*' => 'in:inherit,allow,deny',
         ]);
         $grants = $validated['grants'] ?? [];
@@ -999,8 +1024,8 @@ class UserController extends Controller
         $globallyKnown = \Illuminate\Support\Facades\DB::table('atom_plugin')
             ->pluck('name')->toArray();
 
-        $now      = now();
-        $adminId  = auth()->id();
+        $now = now();
+        $adminId = auth()->id();
 
         // Replace ALL grants for this target user. Cleaner than per-row diff.
         \Illuminate\Support\Facades\DB::table('user_plugin_grant')
@@ -1009,15 +1034,19 @@ class UserController extends Controller
 
         $rows = [];
         foreach ($grants as $name => $mode) {
-            if (!in_array($name, $globallyKnown, true)) continue;
-            if ($mode === 'inherit') continue;     // row absence = inherit
+            if (! in_array($name, $globallyKnown, true)) {
+                continue;
+            }
+            if ($mode === 'inherit') {
+                continue;
+            }     // row absence = inherit
             $rows[] = [
-                'user_id'     => $target->id,
+                'user_id' => $target->id,
                 'plugin_name' => $name,
-                'mode'        => $mode,
-                'granted_by'  => $adminId,
-                'created_at'  => $now,
-                'updated_at'  => $now,
+                'mode' => $mode,
+                'granted_by' => $adminId,
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
         if ($rows) {
@@ -1025,7 +1054,7 @@ class UserController extends Controller
         }
 
         return redirect()->route('user.plugin-grants', $slug)
-            ->with('status', "Plugin grants updated for " . ($target->username ?? $target->email ?? $slug) . ".");
+            ->with('status', 'Plugin grants updated for '.($target->username ?? $target->email ?? $slug).'.');
     }
 
     /**
@@ -1035,15 +1064,15 @@ class UserController extends Controller
     public function savePluginPreferences(Request $request)
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
-        if (!\AhgCore\Services\AclService::isAdministrator() && !\AhgCore\Services\AclService::isEditor()) {
+        if (! \AhgCore\Services\AclService::isAdministrator() && ! \AhgCore\Services\AclService::isEditor()) {
             abort(403, 'Insufficient permissions');
         }
 
         $validated = $request->validate([
-            'hidden'   => 'array',
+            'hidden' => 'array',
             'hidden.*' => 'string|max:255',
         ]);
         $hidden = $validated['hidden'] ?? [];
@@ -1061,15 +1090,15 @@ class UserController extends Controller
         $now = now();
         $rows = [];
         foreach ($hidden as $name) {
-            if (!in_array($name, $globallyEnabled, true)) {
+            if (! in_array($name, $globallyEnabled, true)) {
                 continue;   // sanitise — only allow real plugin names
             }
             $rows[] = [
-                'user_id'     => $user->id,
+                'user_id' => $user->id,
                 'plugin_name' => $name,
-                'is_hidden'   => 1,
-                'created_at'  => $now,
-                'updated_at'  => $now,
+                'is_hidden' => 1,
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
         if ($rows) {

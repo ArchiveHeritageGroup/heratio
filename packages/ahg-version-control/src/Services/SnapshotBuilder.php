@@ -33,16 +33,16 @@ class SnapshotBuilder
 
         return [
             'schema_version' => self::SCHEMA_VERSION,
-            'entity_type'    => 'information_object',
-            'entity_id'      => $id,
-            'captured_at'    => gmdate('Y-m-d\TH:i:s\Z'),
-            'base'           => $this->normaliseRow($base),
-            'i18n'           => $this->fetchI18n('information_object_i18n', 'id', $id),
-            'access_points'  => $this->fetchAccessPoints($id),
-            'events'         => $this->fetchEventsForObject($id),
-            'relations'      => $this->fetchRelationsForObject($id),
+            'entity_type' => 'information_object',
+            'entity_id' => $id,
+            'captured_at' => gmdate('Y-m-d\TH:i:s\Z'),
+            'base' => $this->normaliseRow($base),
+            'i18n' => $this->fetchI18n('information_object_i18n', 'id', $id),
+            'access_points' => $this->fetchAccessPoints($id),
+            'events' => $this->fetchEventsForObject($id),
+            'relations' => $this->fetchRelationsForObject($id),
             'physical_objects' => $this->fetchPhysicalObjects($id),
-            'custom_fields'  => $this->fetchCustomFields($id),
+            'custom_fields' => $this->fetchCustomFields($id),
         ];
     }
 
@@ -58,14 +58,14 @@ class SnapshotBuilder
 
         return [
             'schema_version' => self::SCHEMA_VERSION,
-            'entity_type'    => 'actor',
-            'entity_id'      => $id,
-            'captured_at'    => gmdate('Y-m-d\TH:i:s\Z'),
-            'base'           => $this->normaliseRow($base),
-            'i18n'           => $this->fetchI18n('actor_i18n', 'id', $id),
-            'events'         => $this->fetchEventsForActor($id),
-            'relations'      => $this->fetchRelationsForActor($id),
-            'custom_fields'  => $this->fetchCustomFields($id),
+            'entity_type' => 'actor',
+            'entity_id' => $id,
+            'captured_at' => gmdate('Y-m-d\TH:i:s\Z'),
+            'base' => $this->normaliseRow($base),
+            'i18n' => $this->fetchI18n('actor_i18n', 'id', $id),
+            'events' => $this->fetchEventsForActor($id),
+            'relations' => $this->fetchRelationsForActor($id),
+            'custom_fields' => $this->fetchCustomFields($id),
         ];
     }
 
@@ -75,6 +75,7 @@ class SnapshotBuilder
     private function fetchI18n(string $table, string $fkColumn, int $id): array
     {
         $rows = DB::table($table)->where($fkColumn, $id)->orderBy('culture')->get();
+
         return array_map(fn ($row) => $this->normaliseRow((array) $row), $rows->all());
     }
 
@@ -88,6 +89,7 @@ class SnapshotBuilder
             ->orderBy('term_id')
             ->orderBy('id')
             ->get(['term_id', 'start_date', 'end_date']);
+
         return array_map(fn ($row) => $this->normaliseRow((array) $row), $rows->all());
     }
 
@@ -100,6 +102,7 @@ class SnapshotBuilder
             ->where('object_id', $objectId)
             ->orderBy('id')
             ->get(['type_id', 'actor_id', 'start_date', 'end_date', 'start_time', 'end_time', 'source_culture']);
+
         return array_map(fn ($row) => $this->normaliseRow((array) $row), $rows->all());
     }
 
@@ -112,6 +115,7 @@ class SnapshotBuilder
             ->where('actor_id', $actorId)
             ->orderBy('id')
             ->get(['type_id', 'object_id', 'start_date', 'end_date', 'start_time', 'end_time', 'source_culture']);
+
         return array_map(fn ($row) => $this->normaliseRow((array) $row), $rows->all());
     }
 
@@ -126,6 +130,7 @@ class SnapshotBuilder
             ->orderBy('type_id')
             ->orderBy('id')
             ->get(['subject_id', 'type_id', 'start_date', 'end_date', 'source_culture']);
+
         return array_map(fn ($row) => $this->normaliseRow((array) $row), $rows->all());
     }
 
@@ -143,6 +148,7 @@ class SnapshotBuilder
             ->orderBy('type_id')
             ->orderBy('id')
             ->get(['subject_id', 'object_id', 'type_id', 'start_date', 'end_date', 'source_culture']);
+
         return array_map(fn ($row) => $this->normaliseRow((array) $row), $rows->all());
     }
 
@@ -160,6 +166,7 @@ class SnapshotBuilder
                 'physical_object.type_id',
                 'physical_object.source_culture',
             ]);
+
         return array_map(fn ($row) => $this->normaliseRow((array) $row), $rows->all());
     }
 
@@ -178,6 +185,7 @@ class SnapshotBuilder
                 ->orderBy('sequence')
                 ->orderBy('id')
                 ->get(['field_definition_id', 'value_text', 'value_number', 'value_date', 'value_boolean', 'value_dropdown', 'sequence']);
+
             return array_map(fn ($row) => $this->normaliseRow((array) $row), $rows->all());
         } catch (\Throwable $e) {
             return [];
@@ -185,7 +193,7 @@ class SnapshotBuilder
     }
 
     /**
-     * @param array<string,mixed> $row
+     * @param  array<string,mixed>  $row
      * @return array<string,mixed>
      */
     private function normaliseRow(array $row): array
@@ -198,6 +206,7 @@ class SnapshotBuilder
                 $row[$key] = (string) $value;
             }
         }
+
         return $row;
     }
 }

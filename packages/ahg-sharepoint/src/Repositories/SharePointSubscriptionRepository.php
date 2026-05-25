@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 class SharePointSubscriptionRepository
 {
     public const RESOURCE_DRIVE_ITEM = 'driveItem';
+
     public const RESOURCE_LIST = 'list';
 
     public function find(int $id): ?object

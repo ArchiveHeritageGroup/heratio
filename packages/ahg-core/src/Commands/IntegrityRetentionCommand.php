@@ -2,11 +2,11 @@
 
 namespace AhgCore\Commands;
 
+use AhgIntegrity\Services\RetentionService;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use AhgIntegrity\Services\RetentionService;
-use Carbon\Carbon;
 
 class IntegrityRetentionCommand extends Command
 {
@@ -49,13 +49,15 @@ class IntegrityRetentionCommand extends Command
         }
 
         $this->info('Use --list, --status, --scan-eligible, --process-queue, --hold=N, or --release=N');
+
         return 0;
     }
 
     private function listPolicies(): int
     {
-        if (!Schema::hasTable('integrity_retention_policy')) {
+        if (! Schema::hasTable('integrity_retention_policy')) {
             $this->error('Table integrity_retention_policy does not exist.');
+
             return 1;
         }
 
@@ -63,6 +65,7 @@ class IntegrityRetentionCommand extends Command
 
         if ($policies->isEmpty()) {
             $this->info('No retention policies found.');
+
             return 0;
         }
 
@@ -70,15 +73,15 @@ class IntegrityRetentionCommand extends Command
         foreach ($policies as $p) {
             $scope = 'Global';
             if ($p->repository_id) {
-                $scope = 'Repository #' . $p->repository_id;
+                $scope = 'Repository #'.$p->repository_id;
             } elseif ($p->information_object_id) {
-                $scope = 'IO #' . $p->information_object_id;
+                $scope = 'IO #'.$p->information_object_id;
             }
 
             $rows[] = [
                 $p->id,
                 $p->name,
-                $p->retention_period_days . ' days',
+                $p->retention_period_days.' days',
                 $p->trigger_type,
                 $scope,
                 $p->is_enabled ? 'Yes' : 'No',
@@ -86,7 +89,8 @@ class IntegrityRetentionCommand extends Command
         }
 
         $this->table(['ID', 'Name', 'Retention Period', 'Trigger Type', 'Scope', 'Enabled'], $rows);
-        $this->info('Total: ' . count($rows) . ' policies');
+        $this->info('Total: '.count($rows).' policies');
+
         return 0;
     }
 
@@ -94,13 +98,14 @@ class IntegrityRetentionCommand extends Command
     {
         $this->info('=== Retention Status ===');
 
-        if (!Schema::hasTable('integrity_retention_policy')) {
+        if (! Schema::hasTable('integrity_retention_policy')) {
             $this->error('Table integrity_retention_policy does not exist.');
+
             return 1;
         }
 
         $policies = DB::table('integrity_retention_policy')->where('is_enabled', 1)->get();
-        $this->info('Active policies: ' . $policies->count());
+        $this->info('Active policies: '.$policies->count());
 
         if (Schema::hasTable('integrity_disposition_queue')) {
             $queueTotal = DB::table('integrity_disposition_queue')->count();
@@ -108,10 +113,10 @@ class IntegrityRetentionCommand extends Command
             $ready = DB::table('integrity_disposition_queue')->where('status', 'ready')->count();
             $disposed = DB::table('integrity_disposition_queue')->where('status', 'disposed')->count();
 
-            $this->info('Disposition queue total: ' . $queueTotal);
-            $this->info('  Eligible: ' . $eligible);
-            $this->info('  Ready: ' . $ready);
-            $this->info('  Disposed: ' . $disposed);
+            $this->info('Disposition queue total: '.$queueTotal);
+            $this->info('  Eligible: '.$eligible);
+            $this->info('  Ready: '.$ready);
+            $this->info('  Disposed: '.$disposed);
 
             // Per-policy breakdown
             foreach ($policies as $p) {
@@ -129,7 +134,7 @@ class IntegrityRetentionCommand extends Command
 
         if (Schema::hasTable('integrity_legal_hold')) {
             $activeHolds = DB::table('integrity_legal_hold')->where('status', 'active')->count();
-            $this->info('Active legal holds: ' . $activeHolds);
+            $this->info('Active legal holds: '.$activeHolds);
         }
 
         return 0;
@@ -146,7 +151,8 @@ class IntegrityRetentionCommand extends Command
             $count = $service->scanEligible($policyId);
             $this->info("Scan complete. {$count} new records added to disposition queue.");
         } catch (\Throwable $e) {
-            $this->error('Scan failed: ' . $e->getMessage());
+            $this->error('Scan failed: '.$e->getMessage());
+
             return 1;
         }
 
@@ -155,8 +161,9 @@ class IntegrityRetentionCommand extends Command
 
     private function processQueue(): int
     {
-        if (!Schema::hasTable('integrity_disposition_queue') || !Schema::hasTable('integrity_legal_hold')) {
+        if (! Schema::hasTable('integrity_disposition_queue') || ! Schema::hasTable('integrity_legal_hold')) {
             $this->error('Required tables do not exist.');
+
             return 1;
         }
 
@@ -178,6 +185,7 @@ class IntegrityRetentionCommand extends Command
 
             if ($hasHold) {
                 $heldCount++;
+
                 continue;
             }
 
@@ -191,6 +199,7 @@ class IntegrityRetentionCommand extends Command
         }
 
         $this->info("Processed {$eligibleItems->count()} items: {$movedCount} moved to ready, {$heldCount} skipped (held).");
+
         return 0;
     }
 
@@ -199,8 +208,9 @@ class IntegrityRetentionCommand extends Command
         $ioId = (int) $this->option('hold');
         $reason = $this->option('reason') ?? 'CLI hold';
 
-        if (!Schema::hasTable('integrity_legal_hold')) {
+        if (! Schema::hasTable('integrity_legal_hold')) {
             $this->error('Table integrity_legal_hold does not exist.');
+
             return 1;
         }
 
@@ -212,6 +222,7 @@ class IntegrityRetentionCommand extends Command
 
         if ($existing) {
             $this->warn("IO #{$ioId} is already under an active legal hold.");
+
             return 1;
         }
 
@@ -225,6 +236,7 @@ class IntegrityRetentionCommand extends Command
         ]);
 
         $this->info("Legal hold placed on IO #{$ioId}. Reason: {$reason}");
+
         return 0;
     }
 
@@ -232,8 +244,9 @@ class IntegrityRetentionCommand extends Command
     {
         $ioId = (int) $this->option('release');
 
-        if (!Schema::hasTable('integrity_legal_hold')) {
+        if (! Schema::hasTable('integrity_legal_hold')) {
             $this->error('Table integrity_legal_hold does not exist.');
+
             return 1;
         }
 

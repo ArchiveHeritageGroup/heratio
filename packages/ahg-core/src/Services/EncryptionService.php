@@ -40,9 +40,13 @@ class EncryptionService
     public const SENTINEL = 'ENC2:';
 
     public const CATEGORY_ACCESS_RESTRICTIONS = 'access_restrictions';
+
     public const CATEGORY_CONTACT_DETAILS = 'contact_details';
+
     public const CATEGORY_DONOR_INFORMATION = 'donor_information';
+
     public const CATEGORY_FINANCIAL_DATA = 'financial_data';
+
     public const CATEGORY_PERSONAL_NOTES = 'personal_notes';
 
     /**
@@ -61,10 +65,11 @@ class EncryptionService
      */
     public function shouldEncryptCategory(string $category): bool
     {
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             return false;
         }
-        return AhgSettingsService::getBool('encryption_field_' . $category, false);
+
+        return AhgSettingsService::getBool('encryption_field_'.$category, false);
     }
 
     /**
@@ -99,7 +104,7 @@ class EncryptionService
         if ($plain === null || $plain === '') {
             return $plain;
         }
-        if (!$this->shouldEncryptCategory($category)) {
+        if (! $this->shouldEncryptCategory($category)) {
             return $plain;
         }
         if ($this->isCiphertext($plain)) {
@@ -107,8 +112,9 @@ class EncryptionService
         }
 
         try {
-            $cipher = self::SENTINEL . Crypt::encryptString($plain);
+            $cipher = self::SENTINEL.Crypt::encryptString($plain);
             $this->writeAudit('encrypt', $category, $targetTable, $targetColumn, $targetId, 'success');
+
             return $cipher;
         } catch (\Throwable $e) {
             $this->writeAudit('encrypt', $category, $targetTable, $targetColumn, $targetId, 'error', $e->getMessage());
@@ -137,13 +143,14 @@ class EncryptionService
         if ($stored === null || $stored === '') {
             return $stored;
         }
-        if (!$this->isCiphertext($stored)) {
+        if (! $this->isCiphertext($stored)) {
             return $stored;
         }
 
         try {
             $plain = Crypt::decryptString(substr($stored, strlen(self::SENTINEL)));
             $this->writeAudit('decrypt', $category, $targetTable, $targetColumn, $targetId, 'success');
+
             return $plain;
         } catch (DecryptException $e) {
             $this->writeAudit('decrypt', $category, $targetTable, $targetColumn, $targetId, 'error', $e->getMessage());
@@ -184,6 +191,7 @@ class EncryptionService
         if ($category !== null) {
             $q->where('category', $category);
         }
+
         return $q->orderBy('table_name')->orderBy('column_name')->get()->all();
     }
 
@@ -236,34 +244,47 @@ class EncryptionService
      */
     public function encryptFile(string $path): bool
     {
-        if (!$this->shouldEncryptDerivatives()) return false;
-        if (!is_file($path) || !is_readable($path)) return false;
-        if ($this->isFileEncrypted($path)) return true; // Already done
+        if (! $this->shouldEncryptDerivatives()) {
+            return false;
+        }
+        if (! is_file($path) || ! is_readable($path)) {
+            return false;
+        }
+        if ($this->isFileEncrypted($path)) {
+            return true;
+        } // Already done
 
         try {
             $plain = @file_get_contents($path);
-            if ($plain === false) return false;
+            if ($plain === false) {
+                return false;
+            }
 
             // Crypt::encryptString returns base64; the FILE_SENTINEL gives us
             // a cheap is-this-already-encrypted check without decrypting.
-            $encrypted = self::FILE_SENTINEL . Crypt::encryptString($plain);
+            $encrypted = self::FILE_SENTINEL.Crypt::encryptString($plain);
 
             // Atomic write via tmp + rename so a crash mid-write doesn't leave
             // a half-encrypted file on disk.
-            $tmp = $path . '.enc.tmp';
-            if (@file_put_contents($tmp, $encrypted) === false) return false;
-            if (!@rename($tmp, $path)) {
+            $tmp = $path.'.enc.tmp';
+            if (@file_put_contents($tmp, $encrypted) === false) {
+                return false;
+            }
+            if (! @rename($tmp, $path)) {
                 @unlink($tmp);
+
                 return false;
             }
 
             $this->writeAudit('encrypt', 'derivatives', null, null, $path, 'success');
+
             return true;
         } catch (\Throwable $e) {
             $this->writeAudit('encrypt', 'derivatives', null, null, $path, 'error', $e->getMessage());
             \Illuminate\Support\Facades\Log::warning('[encryption] file encrypt failed', [
                 'path' => $path, 'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -275,29 +296,40 @@ class EncryptionService
      */
     public function decryptFile(string $path): bool
     {
-        if (!is_file($path) || !is_readable($path)) return false;
-        if (!$this->isFileEncrypted($path)) return true; // Already plain
+        if (! is_file($path) || ! is_readable($path)) {
+            return false;
+        }
+        if (! $this->isFileEncrypted($path)) {
+            return true;
+        } // Already plain
 
         try {
             $body = @file_get_contents($path);
-            if ($body === false) return false;
+            if ($body === false) {
+                return false;
+            }
             $cipher = substr($body, strlen(self::FILE_SENTINEL));
             $plain = Crypt::decryptString($cipher);
 
-            $tmp = $path . '.dec.tmp';
-            if (@file_put_contents($tmp, $plain) === false) return false;
-            if (!@rename($tmp, $path)) {
+            $tmp = $path.'.dec.tmp';
+            if (@file_put_contents($tmp, $plain) === false) {
+                return false;
+            }
+            if (! @rename($tmp, $path)) {
                 @unlink($tmp);
+
                 return false;
             }
 
             $this->writeAudit('decrypt', 'derivatives', null, null, $path, 'success');
+
             return true;
         } catch (\Throwable $e) {
             $this->writeAudit('decrypt', 'derivatives', null, null, $path, 'error', $e->getMessage());
             \Illuminate\Support\Facades\Log::warning('[encryption] file decrypt failed', [
                 'path' => $path, 'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -311,9 +343,12 @@ class EncryptionService
     {
         $len = strlen(self::FILE_SENTINEL);
         $fp = @fopen($path, 'rb');
-        if (!$fp) return false;
+        if (! $fp) {
+            return false;
+        }
         $head = fread($fp, $len);
         fclose($fp);
+
         return $head === self::FILE_SENTINEL;
     }
 
@@ -332,18 +367,26 @@ class EncryptionService
      */
     public function streamFileDecrypted(string $path): ?string
     {
-        if (!is_file($path) || !is_readable($path)) return null;
-        if (!$this->isFileEncrypted($path)) return null;
+        if (! is_file($path) || ! is_readable($path)) {
+            return null;
+        }
+        if (! $this->isFileEncrypted($path)) {
+            return null;
+        }
 
         try {
             $body = @file_get_contents($path);
-            if ($body === false) return null;
+            if ($body === false) {
+                return null;
+            }
             $cipher = substr($body, strlen(self::FILE_SENTINEL));
+
             return Crypt::decryptString($cipher);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('[encryption] streamFileDecrypted failed', [
                 'path' => $path, 'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }

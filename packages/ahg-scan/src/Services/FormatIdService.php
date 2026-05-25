@@ -51,8 +51,9 @@ class FormatIdService
             'warning' => null,
         ];
 
-        if (!is_file($filePath)) {
+        if (! is_file($filePath)) {
             $result['warning'] = 'File does not exist';
+
             return $result;
         }
 
@@ -64,7 +65,7 @@ class FormatIdService
             // 2. file command — fallback, no PUID, just MIME
             $file = trim((string) @shell_exec('command -v file 2>/dev/null'));
             if ($file !== '') {
-                $mime = trim((string) @shell_exec($file . ' --mime-type --brief ' . escapeshellarg($filePath) . ' 2>/dev/null'));
+                $mime = trim((string) @shell_exec($file.' --mime-type --brief '.escapeshellarg($filePath).' 2>/dev/null'));
                 if ($mime !== '') {
                     $result['mime'] = $mime;
                     $result['tool'] = 'file';
@@ -93,15 +94,16 @@ class FormatIdService
     {
         $out = [];
         $exit = 0;
-        exec($binary . ' -json ' . escapeshellarg($filePath) . ' 2>/dev/null', $out, $exit);
+        exec($binary.' -json '.escapeshellarg($filePath).' 2>/dev/null', $out, $exit);
         if ($exit !== 0 || empty($out)) {
-            return ['tool' => 'none', 'warning' => 'siegfried exit ' . $exit];
+            return ['tool' => 'none', 'warning' => 'siegfried exit '.$exit];
         }
         $json = json_decode(implode("\n", $out), true);
-        if (!is_array($json) || empty($json['files'][0]['matches'][0])) {
+        if (! is_array($json) || empty($json['files'][0]['matches'][0])) {
             return ['tool' => 'siegfried', 'warning' => 'siegfried produced no match'];
         }
         $m = $json['files'][0]['matches'][0];
+
         return [
             'puid' => $m['id'] ?? 'UNKNOWN',
             'mime' => $m['mime'] ?? null,
@@ -120,11 +122,15 @@ class FormatIdService
     {
         if ($puid && $puid !== 'UNKNOWN') {
             $row = DB::table('preservation_format')->where('puid', $puid)->first();
-            if ($row) { return $row; }
+            if ($row) {
+                return $row;
+            }
         }
         if ($mime) {
             $row = DB::table('preservation_format')->where('mime_type', $mime)->first();
-            if ($row) { return $row; }
+            if ($row) {
+                return $row;
+            }
         }
 
         // Create a stub row so curators can enrich later.
@@ -139,9 +145,11 @@ class FormatIdService
                 'preservation_action' => 'monitor',
                 'created_at' => now(),
             ]);
+
             return DB::table('preservation_format')->where('id', $id)->first();
         } catch (\Throwable $e) {
-            Log::warning('[ahg-scan] preservation_format insert failed: ' . $e->getMessage());
+            Log::warning('[ahg-scan] preservation_format insert failed: '.$e->getMessage());
+
             return null;
         }
     }
@@ -176,7 +184,7 @@ class FormatIdService
                 ]);
             }
         } catch (\Throwable $e) {
-            Log::warning('[ahg-scan] preservation_format_obsolescence update failed: ' . $e->getMessage());
+            Log::warning('[ahg-scan] preservation_format_obsolescence update failed: '.$e->getMessage());
         }
     }
 }

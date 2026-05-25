@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgVendor\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -128,15 +126,15 @@ class VendorController extends Controller
                 DB::raw('(SELECT COUNT(*) FROM ahg_vendor_transactions WHERE vendor_id = ahg_vendors.id AND status NOT IN ("returned", "cancelled")) as active_transactions'),
             ]);
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('ahg_vendors.status', $filters['status']);
         }
 
-        if (!empty($filters['vendor_type'])) {
+        if (! empty($filters['vendor_type'])) {
             $query->where('ahg_vendors.vendor_type', $filters['vendor_type']);
         }
 
-        if (!empty($filters['service_type_id'])) {
+        if (! empty($filters['service_type_id'])) {
             $query->whereExists(function ($q) use ($filters) {
                 $q->select(DB::raw(1))
                     ->from('ahg_vendor_services')
@@ -145,8 +143,8 @@ class VendorController extends Controller
             });
         }
 
-        if (!empty($filters['search'])) {
-            $search = '%' . $filters['search'] . '%';
+        if (! empty($filters['search'])) {
+            $search = '%'.$filters['search'].'%';
             $query->where(function ($q) use ($search) {
                 $q->where('ahg_vendors.name', 'LIKE', $search)
                     ->orWhere('ahg_vendors.vendor_code', 'LIKE', $search)
@@ -155,7 +153,7 @@ class VendorController extends Controller
             });
         }
 
-        if (!empty($filters['has_insurance'])) {
+        if (! empty($filters['has_insurance'])) {
             $query->where('ahg_vendors.has_insurance', 1)
                 ->where('ahg_vendors.insurance_expiry_date', '>=', date('Y-m-d'));
         }
@@ -193,7 +191,7 @@ class VendorController extends Controller
     {
         $vendor = DB::table('ahg_vendors')->where('slug', $slug)->first();
 
-        if (!$vendor) {
+        if (! $vendor) {
             abort(404, 'Vendor not found');
         }
 
@@ -302,7 +300,7 @@ class VendorController extends Controller
     {
         $vendor = DB::table('ahg_vendors')->where('slug', $slug)->first();
 
-        if (!$vendor) {
+        if (! $vendor) {
             abort(404, 'Vendor not found');
         }
 
@@ -373,7 +371,7 @@ class VendorController extends Controller
     {
         $vendor = DB::table('ahg_vendors')->where('slug', $slug)->first();
 
-        if (!$vendor) {
+        if (! $vendor) {
             abort(404, 'Vendor not found');
         }
 
@@ -411,7 +409,7 @@ class VendorController extends Controller
     {
         $vendor = DB::table('ahg_vendors')->where('slug', $slug)->first();
 
-        if (!$vendor) {
+        if (! $vendor) {
             abort(404, 'Vendor not found');
         }
 
@@ -526,34 +524,34 @@ class VendorController extends Controller
                 DB::raw('(SELECT COUNT(*) FROM ahg_vendor_transaction_items WHERE transaction_id = ahg_vendor_transactions.id) as item_count'),
             ]);
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('ahg_vendor_transactions.status', $filters['status']);
         }
 
-        if (!empty($filters['vendor_id'])) {
+        if (! empty($filters['vendor_id'])) {
             $query->where('ahg_vendor_transactions.vendor_id', $filters['vendor_id']);
         }
 
-        if (!empty($filters['service_type_id'])) {
+        if (! empty($filters['service_type_id'])) {
             $query->where('ahg_vendor_transactions.service_type_id', $filters['service_type_id']);
         }
 
-        if (!empty($filters['overdue'])) {
+        if (! empty($filters['overdue'])) {
             $query->where('ahg_vendor_transactions.expected_return_date', '<', date('Y-m-d'))
                 ->whereNull('ahg_vendor_transactions.actual_return_date')
                 ->whereNotIn('ahg_vendor_transactions.status', ['returned', 'cancelled']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->where('ahg_vendor_transactions.request_date', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->where('ahg_vendor_transactions.request_date', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['search'])) {
-            $search = '%' . $filters['search'] . '%';
+        if (! empty($filters['search'])) {
+            $search = '%'.$filters['search'].'%';
             $query->where(function ($q) use ($search) {
                 $q->where('ahg_vendor_transactions.transaction_number', 'LIKE', $search)
                     ->orWhere('ahg_vendors.name', 'LIKE', $search);
@@ -606,7 +604,7 @@ class VendorController extends Controller
             ])
             ->first();
 
-        if (!$transaction) {
+        if (! $transaction) {
             abort(404, 'Transaction not found');
         }
 
@@ -715,7 +713,7 @@ class VendorController extends Controller
                     $ratings = $request->input('condition_ratings', []);
 
                     foreach ($informationObjectIds as $index => $ioId) {
-                        if (!empty($ioId)) {
+                        if (! empty($ioId)) {
                             $this->addTransactionItemRecord(
                                 $transactionId,
                                 (int) $ioId,
@@ -763,7 +761,7 @@ class VendorController extends Controller
             ])
             ->first();
 
-        if (!$transaction) {
+        if (! $transaction) {
             abort(404, 'Transaction not found');
         }
 
@@ -822,7 +820,7 @@ class VendorController extends Controller
     {
         $transaction = DB::table('ahg_vendor_transactions')->where('id', $id)->first();
 
-        if (!$transaction) {
+        if (! $transaction) {
             abort(404, 'Transaction not found');
         }
 
@@ -830,7 +828,7 @@ class VendorController extends Controller
         $notes = $request->input('notes');
         $validStatuses = array_keys($this->loadDropdown('vendor_transaction_status'));
 
-        if (!in_array($status, $validStatuses)) {
+        if (! in_array($status, $validStatuses)) {
             return redirect()
                 ->route('ahgvendor.view-transaction', ['id' => $id])
                 ->with('error', 'Invalid status');
@@ -964,6 +962,7 @@ class VendorController extends Controller
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
+
                         return redirect()
                             ->route('ahgvendor.service-types')
                             ->with('success', 'Service type added successfully.');
@@ -982,6 +981,7 @@ class VendorController extends Controller
                             'is_active' => $isActive,
                             'updated_at' => now(),
                         ]);
+
                         return redirect()
                             ->route('ahgvendor.service-types')
                             ->with('success', 'Service type updated successfully.');
@@ -993,6 +993,7 @@ class VendorController extends Controller
                                 ->with('error', 'Invalid request.');
                         }
                         DB::table('ahg_vendor_service_types')->where('id', $id)->delete();
+
                         return redirect()
                             ->route('ahgvendor.service-types')
                             ->with('success', 'Service type deleted successfully.');
@@ -1000,7 +1001,7 @@ class VendorController extends Controller
             } catch (\Exception $e) {
                 return redirect()
                     ->route('ahgvendor.service-types')
-                    ->with('error', 'Error: ' . $e->getMessage());
+                    ->with('error', 'Error: '.$e->getMessage());
             }
 
             return redirect()->route('ahgvendor.service-types');
@@ -1070,7 +1071,7 @@ class VendorController extends Controller
             $errors['name'] = 'Vendor name is required';
         }
 
-        if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        if (! empty($data['email']) && ! filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Invalid email address';
         }
 
@@ -1138,7 +1139,7 @@ class VendorController extends Controller
 
         // Add new
         foreach ($serviceIds as $serviceId) {
-            if (!in_array((int) $serviceId, $currentIds)) {
+            if (! in_array((int) $serviceId, $currentIds)) {
                 DB::table('ahg_vendor_services')->insert([
                     'vendor_id' => $vendorId,
                     'service_type_id' => (int) $serviceId,
@@ -1150,7 +1151,7 @@ class VendorController extends Controller
         // Remove old
         $serviceIdsInt = array_map('intval', $serviceIds);
         foreach ($currentIds as $currentId) {
-            if (!in_array($currentId, $serviceIdsInt)) {
+            if (! in_array($currentId, $serviceIdsInt)) {
                 DB::table('ahg_vendor_services')
                     ->where('vendor_id', $vendorId)
                     ->where('service_type_id', $currentId)
@@ -1221,10 +1222,10 @@ class VendorController extends Controller
             if ($excludeId) {
                 $query->where('id', '!=', $excludeId);
             }
-            if (!$query->exists()) {
+            if (! $query->exists()) {
                 break;
             }
-            $slug = $originalSlug . '-' . $counter++;
+            $slug = $originalSlug.'-'.$counter++;
         }
 
         return $slug;
@@ -1248,7 +1249,7 @@ class VendorController extends Controller
             $num = 1;
         }
 
-        return $prefix . $year . str_pad($num, 4, '0', STR_PAD_LEFT);
+        return $prefix.$year.str_pad($num, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -1271,7 +1272,7 @@ class VendorController extends Controller
             $num = 1;
         }
 
-        return $prefix . '-' . $year . $month . '-' . str_pad($num, 4, '0', STR_PAD_LEFT);
+        return $prefix.'-'.$year.$month.'-'.str_pad($num, 4, '0', STR_PAD_LEFT);
     }
 
     /**

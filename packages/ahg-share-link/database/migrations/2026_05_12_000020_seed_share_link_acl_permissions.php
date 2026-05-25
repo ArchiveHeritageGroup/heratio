@@ -22,10 +22,11 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
-        if (!DB::getSchemaBuilder()->hasTable('acl_permission')) {
+        if (! DB::getSchemaBuilder()->hasTable('acl_permission')) {
             // Heratio without legacy AtoM tables — silently skip.
             return;
         }
@@ -47,10 +48,10 @@ return new class extends Migration {
                 continue;
             }
             DB::table('acl_permission')->insert([
-                'user_id'    => null,
-                'group_id'   => $groupId,
-                'object_id'  => null,
-                'action'     => $action,
+                'user_id' => null,
+                'group_id' => $groupId,
+                'object_id' => null,
+                'action' => $action,
                 'grant_deny' => 1,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -60,7 +61,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        if (!DB::getSchemaBuilder()->hasTable('acl_permission')) {
+        if (! DB::getSchemaBuilder()->hasTable('acl_permission')) {
             return;
         }
         DB::table('acl_permission')->where('action', 'like', 'share_link.%')->delete();

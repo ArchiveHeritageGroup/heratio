@@ -105,13 +105,13 @@ class GenerateSlugsCommand extends Command
         // Fallback: use class name + ID
         if (! $name) {
             $shortClass = str_replace('Qubit', '', $className);
-            $name = Str::kebab($shortClass) . '-' . $objectId;
+            $name = Str::kebab($shortClass).'-'.$objectId;
         }
 
         $baseSlug = Str::slug($name);
 
         if (empty($baseSlug)) {
-            $baseSlug = 'item-' . $objectId;
+            $baseSlug = 'item-'.$objectId;
         }
 
         // Ensure uniqueness
@@ -119,7 +119,7 @@ class GenerateSlugsCommand extends Command
         $counter = 2;
 
         while (DB::table('slug')->where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
+            $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
 

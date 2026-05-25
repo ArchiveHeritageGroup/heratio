@@ -6,7 +6,7 @@ use Tests\TestCase as BaseTestCase;
 
 /**
  * Base test case for critical path tests.
- * 
+ *
  * @group critical
  */
 abstract class TestCase extends BaseTestCase

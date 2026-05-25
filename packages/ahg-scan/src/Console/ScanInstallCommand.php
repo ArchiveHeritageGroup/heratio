@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Schema;
 class ScanInstallCommand extends Command
 {
     protected $signature = 'ahg:scan-install';
+
     protected $description = 'Apply ahg-scan schema + dropdown seed (idempotent)';
 
     public function handle(): int
@@ -30,6 +31,7 @@ class ScanInstallCommand extends Command
         $this->installSchema();
         $this->installDropdowns();
         $this->installCron();
+
         return self::SUCCESS;
     }
 
@@ -44,51 +46,51 @@ class ScanInstallCommand extends Command
         $this->addColumn('ingest_session', 'session_kind',
             "ALTER TABLE ingest_session ADD COLUMN session_kind VARCHAR(32) NOT NULL DEFAULT 'wizard' AFTER entity_type, ADD KEY ix_session_kind (session_kind)");
         $this->addColumn('ingest_session', 'auto_commit',
-            "ALTER TABLE ingest_session ADD COLUMN auto_commit TINYINT(1) NOT NULL DEFAULT 0 AFTER session_kind");
+            'ALTER TABLE ingest_session ADD COLUMN auto_commit TINYINT(1) NOT NULL DEFAULT 0 AFTER session_kind');
         $this->addColumn('ingest_session', 'source_ref',
-            "ALTER TABLE ingest_session ADD COLUMN source_ref VARCHAR(255) NULL AFTER auto_commit");
+            'ALTER TABLE ingest_session ADD COLUMN source_ref VARCHAR(255) NULL AFTER auto_commit');
 
         $this->addColumn('ingest_file', 'status',
             "ALTER TABLE ingest_file ADD COLUMN status VARCHAR(32) NOT NULL DEFAULT 'pending' AFTER extracted_path, ADD KEY ix_ingest_file_status (status)");
         $this->addColumn('ingest_file', 'stage',
-            "ALTER TABLE ingest_file ADD COLUMN stage VARCHAR(32) NULL AFTER status");
+            'ALTER TABLE ingest_file ADD COLUMN stage VARCHAR(32) NULL AFTER status');
         $this->addColumn('ingest_file', 'source_hash',
-            "ALTER TABLE ingest_file ADD COLUMN source_hash CHAR(64) NULL AFTER stage, ADD KEY ix_ingest_file_hash (source_hash)");
+            'ALTER TABLE ingest_file ADD COLUMN source_hash CHAR(64) NULL AFTER stage, ADD KEY ix_ingest_file_hash (source_hash)');
         $this->addColumn('ingest_file', 'error_message',
-            "ALTER TABLE ingest_file ADD COLUMN error_message TEXT NULL AFTER source_hash");
+            'ALTER TABLE ingest_file ADD COLUMN error_message TEXT NULL AFTER source_hash');
         $this->addColumn('ingest_file', 'attempts',
-            "ALTER TABLE ingest_file ADD COLUMN attempts INT NOT NULL DEFAULT 0 AFTER error_message");
+            'ALTER TABLE ingest_file ADD COLUMN attempts INT NOT NULL DEFAULT 0 AFTER error_message');
         $this->addColumn('ingest_file', 'resolved_io_id',
-            "ALTER TABLE ingest_file ADD COLUMN resolved_io_id INT NULL AFTER attempts, ADD KEY ix_ingest_file_io (resolved_io_id)");
+            'ALTER TABLE ingest_file ADD COLUMN resolved_io_id INT NULL AFTER attempts, ADD KEY ix_ingest_file_io (resolved_io_id)');
         $this->addColumn('ingest_file', 'resolved_do_id',
-            "ALTER TABLE ingest_file ADD COLUMN resolved_do_id INT NULL AFTER resolved_io_id");
+            'ALTER TABLE ingest_file ADD COLUMN resolved_do_id INT NULL AFTER resolved_io_id');
         $this->addColumn('ingest_file', 'completed_at',
-            "ALTER TABLE ingest_file ADD COLUMN completed_at DATETIME NULL AFTER resolved_do_id");
+            'ALTER TABLE ingest_file ADD COLUMN completed_at DATETIME NULL AFTER resolved_do_id');
 
         // P5: per-file sidecar tracking
         $this->addColumn('ingest_file', 'sidecar_path',
-            "ALTER TABLE ingest_file ADD COLUMN sidecar_path VARCHAR(1024) NULL AFTER completed_at");
+            'ALTER TABLE ingest_file ADD COLUMN sidecar_path VARCHAR(1024) NULL AFTER completed_at');
         $this->addColumn('ingest_file', 'sidecar_json',
-            "ALTER TABLE ingest_file ADD COLUMN sidecar_json JSON NULL AFTER sidecar_path");
+            'ALTER TABLE ingest_file ADD COLUMN sidecar_json JSON NULL AFTER sidecar_path');
 
         // P3: sector routing flags (plan §12 Q#7 + Q#8)
         $this->addColumn('ingest_session', 'spectrum_auto_enter',
-            "ALTER TABLE ingest_session ADD COLUMN spectrum_auto_enter TINYINT(1) NOT NULL DEFAULT 0 AFTER source_ref");
+            'ALTER TABLE ingest_session ADD COLUMN spectrum_auto_enter TINYINT(1) NOT NULL DEFAULT 0 AFTER source_ref');
         $this->addColumn('ingest_session', 'output_create_authorities',
-            "ALTER TABLE ingest_session ADD COLUMN output_create_authorities TINYINT(1) NOT NULL DEFAULT 1 AFTER spectrum_auto_enter");
+            'ALTER TABLE ingest_session ADD COLUMN output_create_authorities TINYINT(1) NOT NULL DEFAULT 1 AFTER spectrum_auto_enter');
 
         // P6: per-folder notification settings
         $this->addColumn('scan_folder', 'notify_emails',
-            "ALTER TABLE scan_folder ADD COLUMN notify_emails VARCHAR(1024) NULL AFTER last_scanned_at");
+            'ALTER TABLE scan_folder ADD COLUMN notify_emails VARCHAR(1024) NULL AFTER last_scanned_at');
         $this->addColumn('scan_folder', 'notify_on_failure',
-            "ALTER TABLE scan_folder ADD COLUMN notify_on_failure TINYINT(1) NOT NULL DEFAULT 0 AFTER notify_emails");
+            'ALTER TABLE scan_folder ADD COLUMN notify_on_failure TINYINT(1) NOT NULL DEFAULT 0 AFTER notify_emails');
 
         // P6: retry/backoff — track when we last attempted a file so the
         // scheduler can compute whether its next-attempt window has elapsed.
         $this->addColumn('ingest_file', 'last_attempt_at',
-            "ALTER TABLE ingest_file ADD COLUMN last_attempt_at DATETIME NULL AFTER attempts");
+            'ALTER TABLE ingest_file ADD COLUMN last_attempt_at DATETIME NULL AFTER attempts');
 
-        $this->createTable('scan_folder', <<<SQL
+        $this->createTable('scan_folder', <<<'SQL'
 CREATE TABLE `scan_folder` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `code` VARCHAR(64) NOT NULL,
@@ -112,7 +114,7 @@ SQL
         );
 
         // P5: scan_session_token for Mode B (Scan API)
-        $this->createTable('scan_session_token', <<<SQL
+        $this->createTable('scan_session_token', <<<'SQL'
 CREATE TABLE `scan_session_token` (
   `token` VARCHAR(64) NOT NULL,
   `ingest_session_id` INT NOT NULL,
@@ -133,19 +135,21 @@ SQL
 
     protected function addColumn(string $table, string $column, string $alterSql): void
     {
-        if (!Schema::hasTable($table)) {
+        if (! Schema::hasTable($table)) {
             $this->warn("  skip {$table}.{$column} — table missing");
+
             return;
         }
         if (Schema::hasColumn($table, $column)) {
             $this->line("  {$table}.{$column} exists");
+
             return;
         }
         try {
             DB::statement($alterSql);
             $this->info("  + {$table}.{$column} added");
         } catch (\Throwable $e) {
-            $this->error("  ! {$table}.{$column}: " . $e->getMessage());
+            $this->error("  ! {$table}.{$column}: ".$e->getMessage());
         }
     }
 
@@ -153,13 +157,14 @@ SQL
     {
         if (Schema::hasTable($table)) {
             $this->line("  {$table} exists");
+
             return;
         }
         try {
             DB::statement($createSql);
             $this->info("  + {$table} created");
         } catch (\Throwable $e) {
-            $this->error("  ! {$table}: " . $e->getMessage());
+            $this->error("  ! {$table}: ".$e->getMessage());
         }
     }
 
@@ -173,7 +178,7 @@ SQL
 
     protected function installCron(): void
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('cron_schedule')) {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('cron_schedule')) {
             return;
         }
         $this->line('Cron:');
@@ -191,11 +196,12 @@ SQL
         foreach ($entries as $e) {
             $exists = DB::table('cron_schedule')->where('slug', $e['slug'])->exists();
             if ($exists) {
-                $this->line('  ' . $e['slug'] . ' exists');
+                $this->line('  '.$e['slug'].' exists');
+
                 continue;
             }
             DB::table('cron_schedule')->insert($e + ['is_enabled' => 1, 'timeout_minutes' => 30]);
-            $this->info('  + ' . $e['slug'] . ' registered');
+            $this->info('  + '.$e['slug'].' registered');
         }
     }
 
@@ -203,8 +209,9 @@ SQL
     {
         $this->line('Dropdowns:');
 
-        if (!Schema::hasTable('ahg_dropdown')) {
+        if (! Schema::hasTable('ahg_dropdown')) {
             $this->warn('  skip — ahg_dropdown table missing');
+
             return;
         }
 

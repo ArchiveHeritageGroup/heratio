@@ -25,18 +25,21 @@ class SecuritySettings
     public static function lockoutMaxAttempts(): int
     {
         $n = AhgSettingsService::getInt('security_lockout_max_attempts', 5);
+
         return $n > 0 ? $n : 5;
     }
 
     public static function lockoutDurationMinutes(): int
     {
         $n = AhgSettingsService::getInt('security_lockout_duration_minutes', 15);
+
         return $n > 0 ? $n : 15;
     }
 
     public static function loginAttemptCleanupHours(): int
     {
         $n = AhgSettingsService::getInt('security_login_attempt_cleanup_hours', 24);
+
         return $n > 0 ? $n : 24;
     }
 
@@ -53,6 +56,7 @@ class SecuritySettings
     public static function passwordHistoryCount(): int
     {
         $n = AhgSettingsService::getInt('password_history_count', 5);
+
         return $n >= 0 ? $n : 5;
     }
 
@@ -70,7 +74,9 @@ class SecuritySettings
     public static function forcePasswordChangeBaseline(): ?\Carbon\Carbon
     {
         $stamp = AhgSettingsService::get('security_force_password_change_baseline', '');
-        if (!$stamp) return null;
+        if (! $stamp) {
+            return null;
+        }
         try {
             return \Carbon\Carbon::parse($stamp);
         } catch (\Throwable $e) {
@@ -86,12 +92,14 @@ class SecuritySettings
     public static function passwordExpiryWarnDays(): int
     {
         $n = AhgSettingsService::getInt('security_password_expiry_warn_days', 14);
+
         return $n > 0 ? $n : 14;
     }
 
     public static function sessionTimeoutMinutes(): int
     {
         $n = AhgSettingsService::getInt('security_session_timeout_minutes', 30);
+
         return $n > 0 ? $n : 30;
     }
 }

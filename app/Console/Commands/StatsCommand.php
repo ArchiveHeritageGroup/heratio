@@ -34,11 +34,11 @@ class StatsCommand extends Command
 
             $total = array_sum($stats);
             $this->newLine();
-            $this->info('Total records (excluding system objects): ' . number_format($total));
+            $this->info('Total records (excluding system objects): '.number_format($total));
 
             return self::SUCCESS;
         } catch (\Exception $e) {
-            $this->error('Failed to gather statistics: ' . $e->getMessage());
+            $this->error('Failed to gather statistics: '.$e->getMessage());
 
             return self::FAILURE;
         }

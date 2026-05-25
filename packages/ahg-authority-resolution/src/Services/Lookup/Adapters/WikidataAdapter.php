@@ -59,13 +59,13 @@ class WikidataAdapter extends AbstractLookupAdapter
                 'limit' => max(1, min(20, $limit + 5)),
             ]);
 
-        if (!$response->ok()) {
+        if (! $response->ok()) {
             return [];
         }
 
         $json = $response->json();
         $hits = $json['search'] ?? [];
-        if (!is_array($hits)) {
+        if (! is_array($hits)) {
             return [];
         }
 
@@ -79,7 +79,7 @@ class WikidataAdapter extends AbstractLookupAdapter
         foreach ($hits as $hit) {
             $qid = $hit['id'] ?? null;
             $label = $hit['label'] ?? $hit['title'] ?? null;
-            if (!$qid || !$label) {
+            if (! $qid || ! $label) {
                 continue;
             }
             $desc = $hit['description'] ?? null;
@@ -87,7 +87,7 @@ class WikidataAdapter extends AbstractLookupAdapter
             $candidates[] = [
                 'source' => $this->source(),
                 'external_id' => (string) $qid,
-                'external_uri' => 'https://www.wikidata.org/wiki/' . $qid,
+                'external_uri' => 'https://www.wikidata.org/wiki/'.$qid,
                 'authorized_name' => (string) $label,
                 'dates_of_existence' => null,
                 'history_snippet' => $desc !== null ? (string) $desc : null,

@@ -17,13 +17,15 @@ class LocalContextsHubService
     public function isEnabled(): bool
     {
         try {
-            if (!\Illuminate\Support\Facades\Schema::hasTable('icip_config')) {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('icip_config')) {
                 return false;
             }
             $val = DB::table('icip_config')->where('config_key', 'local_contexts_hub_enabled')->value('config_value');
+
             return (int) $val === 1;
         } catch (\Throwable $e) {
-            Log::warning('LocalContextsHubService::isEnabled error: ' . $e->getMessage());
+            Log::warning('LocalContextsHubService::isEnabled error: '.$e->getMessage());
+
             return false;
         }
     }
@@ -31,12 +33,14 @@ class LocalContextsHubService
     public function getApiKey(): ?string
     {
         try {
-            if (!\Illuminate\Support\Facades\Schema::hasTable('icip_config')) {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('icip_config')) {
                 return null;
             }
+
             return DB::table('icip_config')->where('config_key', 'local_contexts_api_key')->value('config_value') ?: null;
         } catch (\Throwable $e) {
-            Log::warning('LocalContextsHubService::getApiKey error: ' . $e->getMessage());
+            Log::warning('LocalContextsHubService::getApiKey error: '.$e->getMessage());
+
             return null;
         }
     }
@@ -47,13 +51,14 @@ class LocalContextsHubService
      */
     public function query(string $q, array $opts = []): array
     {
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             return [];
         }
         $apiKey = $this->getApiKey();
-        if (!$apiKey) {
+        if (! $apiKey) {
             return [];
         }
+
         // Real integration would call external API here. For now return empty.
         return [];
     }

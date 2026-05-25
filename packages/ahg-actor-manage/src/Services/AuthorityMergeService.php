@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Services;
 
 use AhgCore\Services\AhgSettingsService;
@@ -56,7 +54,7 @@ class AuthorityMergeService
         return DB::table('ahg_actor_merge')
             ->where(function ($q) use ($actorId) {
                 $q->where('primary_actor_id', $actorId)
-                    ->orWhereRaw("JSON_CONTAINS(secondary_actor_ids, ?)", [json_encode($actorId)]);
+                    ->orWhereRaw('JSON_CONTAINS(secondary_actor_ids, ?)', [json_encode($actorId)]);
             })
             ->orderBy('created_at', 'desc')
             ->get()
@@ -81,9 +79,9 @@ class AuthorityMergeService
         $comparison = [];
         foreach ($fields as $field) {
             $comparison[$field] = [
-                'primary'   => $primary->$field ?? '',
+                'primary' => $primary->$field ?? '',
                 'secondary' => $secondary->$field ?? '',
-                'match'     => ($primary->$field ?? '') === ($secondary->$field ?? ''),
+                'match' => ($primary->$field ?? '') === ($secondary->$field ?? ''),
             ];
         }
 
@@ -106,14 +104,14 @@ class AuthorityMergeService
         $secondaryIds = DB::table('ahg_actor_identifier')->where('actor_id', $secondaryId)->get()->all();
 
         return [
-            'primary'              => $primary,
-            'secondary'            => $secondary,
-            'comparison'           => $comparison,
-            'primary_relations'    => $primaryRelations,
-            'secondary_relations'  => $secondaryRelations,
-            'primary_resources'    => $primaryResources,
-            'secondary_resources'  => $secondaryResources,
-            'primary_identifiers'  => $primaryIds,
+            'primary' => $primary,
+            'secondary' => $secondary,
+            'comparison' => $comparison,
+            'primary_relations' => $primaryRelations,
+            'secondary_relations' => $secondaryRelations,
+            'primary_resources' => $primaryResources,
+            'secondary_resources' => $secondaryResources,
+            'primary_identifiers' => $primaryIds,
             'secondary_identifiers' => $secondaryIds,
         ];
     }
@@ -133,17 +131,17 @@ class AuthorityMergeService
         $status = $requireApproval ? 'pending' : 'approved';
 
         $mergeId = (int) DB::table('ahg_actor_merge')->insertGetId([
-            'merge_type'          => 'merge',
-            'primary_actor_id'    => $primaryId,
+            'merge_type' => 'merge',
+            'primary_actor_id' => $primaryId,
             'secondary_actor_ids' => json_encode($secondaryIds),
-            'field_choices'       => json_encode($fieldChoices),
-            'status'              => $status,
-            'notes'               => $notes,
-            'performed_by'        => $userId,
-            'created_at'          => date('Y-m-d H:i:s'),
+            'field_choices' => json_encode($fieldChoices),
+            'status' => $status,
+            'notes' => $notes,
+            'performed_by' => $userId,
+            'created_at' => date('Y-m-d H:i:s'),
         ]);
 
-        if (!$requireApproval) {
+        if (! $requireApproval) {
             $this->executeMerge($mergeId, $userId);
         }
 
@@ -156,7 +154,7 @@ class AuthorityMergeService
     public function executeMerge(int $mergeId, int $userId): bool
     {
         $merge = $this->getMerge($mergeId);
-        if (!$merge || !in_array($merge->status, ['approved', 'pending'])) {
+        if (! $merge || ! in_array($merge->status, ['approved', 'pending'])) {
             return false;
         }
 
@@ -181,14 +179,14 @@ class AuthorityMergeService
         DB::table('ahg_actor_merge')
             ->where('id', $mergeId)
             ->update([
-                'status'                 => 'completed',
-                'relations_transferred'  => $relationsTransferred,
-                'resources_transferred'  => $resourcesTransferred,
-                'contacts_transferred'   => $contactsTransferred,
+                'status' => 'completed',
+                'relations_transferred' => $relationsTransferred,
+                'resources_transferred' => $resourcesTransferred,
+                'contacts_transferred' => $contactsTransferred,
                 'identifiers_transferred' => $identifiersTransferred,
-                'performed_at'           => date('Y-m-d H:i:s'),
-                'approved_by'            => $userId,
-                'approved_at'            => date('Y-m-d H:i:s'),
+                'performed_at' => date('Y-m-d H:i:s'),
+                'approved_by' => $userId,
+                'approved_at' => date('Y-m-d H:i:s'),
             ]);
 
         return true;
@@ -205,17 +203,17 @@ class AuthorityMergeService
         ?string $notes = null
     ): int {
         return (int) DB::table('ahg_actor_merge')->insertGetId([
-            'merge_type'          => 'split',
-            'primary_actor_id'    => $sourceActorId,
+            'merge_type' => 'split',
+            'primary_actor_id' => $sourceActorId,
             'secondary_actor_ids' => json_encode([]),
-            'field_choices'       => json_encode([
-                'fields_to_move'    => $fieldsToMove,
+            'field_choices' => json_encode([
+                'fields_to_move' => $fieldsToMove,
                 'relations_to_move' => $relationsToMove,
             ]),
-            'status'              => 'pending',
-            'notes'               => $notes,
-            'performed_by'        => $userId,
-            'created_at'          => date('Y-m-d H:i:s'),
+            'status' => 'pending',
+            'notes' => $notes,
+            'performed_by' => $userId,
+            'created_at' => date('Y-m-d H:i:s'),
         ]);
     }
 
@@ -227,17 +225,17 @@ class AuthorityMergeService
             ->where('culture', 'en')
             ->first();
 
-        if (!$secondaryI18n) {
+        if (! $secondaryI18n) {
             return;
         }
 
         foreach ($choices as $field => $source) {
-            if ($source === 'secondary_' . $secondaryId && isset($secondaryI18n->$field)) {
+            if ($source === 'secondary_'.$secondaryId && isset($secondaryI18n->$field)) {
                 $updates[$field] = $secondaryI18n->$field;
             }
         }
 
-        if (!empty($updates)) {
+        if (! empty($updates)) {
             DB::table('actor_i18n')
                 ->where('id', $primaryId)
                 ->where('culture', 'en')
@@ -294,7 +292,7 @@ class AuthorityMergeService
                 ->where('identifier_type', $ident->identifier_type)
                 ->exists();
 
-            if (!$existing) {
+            if (! $existing) {
                 DB::table('ahg_actor_identifier')
                     ->where('id', $ident->id)
                     ->update(['actor_id' => $primaryId, 'updated_at' => date('Y-m-d H:i:s')]);

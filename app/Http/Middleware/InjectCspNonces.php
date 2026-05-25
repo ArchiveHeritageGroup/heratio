@@ -56,7 +56,8 @@ class InjectCspNonces
             if (stripos($m[2], 'nonce=') !== false) {
                 return $m[0];
             }
-            return '<' . $m[1] . $m[2] . ' nonce="' . $nonce . '">';
+
+            return '<'.$m[1].$m[2].' nonce="'.$nonce.'">';
         }, $content);
 
         if (is_string($injected) && $injected !== $content) {

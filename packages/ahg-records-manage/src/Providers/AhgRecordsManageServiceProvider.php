@@ -28,8 +28,8 @@ class AhgRecordsManageServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware('web')->group(__DIR__ . '/../../routes/web.php');
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-records');
+        Route::middleware('web')->group(__DIR__.'/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-records');
 
         $this->bootInstallIfNeeded();
     }
@@ -47,7 +47,7 @@ class AhgRecordsManageServiceProvider extends ServiceProvider
     {
         try {
             if (! Schema::hasTable('rm_retention_schedule')) {
-                $sql = @file_get_contents(__DIR__ . '/../../database/install.sql');
+                $sql = @file_get_contents(__DIR__.'/../../database/install.sql');
                 if ($sql !== false && trim($sql) !== '') {
                     DB::unprepared($sql);
                     Log::info('ahg-records-manage: install.sql applied (first-boot)');
@@ -60,7 +60,7 @@ class AhgRecordsManageServiceProvider extends ServiceProvider
                 ->exists();
 
             if (! $hasSeed) {
-                $seed = @file_get_contents(__DIR__ . '/../../database/seed_dropdowns.sql');
+                $seed = @file_get_contents(__DIR__.'/../../database/seed_dropdowns.sql');
                 if ($seed !== false && trim($seed) !== '') {
                     DB::unprepared($seed);
                     Log::info('ahg-records-manage: seed_dropdowns.sql applied (first-boot)');
@@ -68,7 +68,7 @@ class AhgRecordsManageServiceProvider extends ServiceProvider
             }
         } catch (\Throwable $e) {
             // Never block boot on install failure — log and continue.
-            Log::warning('ahg-records-manage boot install skipped: ' . $e->getMessage());
+            Log::warning('ahg-records-manage boot install skipped: '.$e->getMessage());
         }
     }
 }

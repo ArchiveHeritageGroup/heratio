@@ -55,10 +55,10 @@ interface EvaluatorInterface
     /**
      * Compute the evidence signal for one (mention, candidate) pair.
      *
-     * @param object $mention   Row from ahg_mention join ahg_ner_entity
-     * @param object $context   Row from ahg_mention_context (JSON columns already decoded by caller, OR raw - evaluator must cope with both)
-     * @param object $candidate Row from ahg_mention_candidate
-     * @return array{signal:string,data:array<string,mixed>}  Use EvidenceSignal::make()
+     * @param  object  $mention  Row from ahg_mention join ahg_ner_entity
+     * @param  object  $context  Row from ahg_mention_context (JSON columns already decoded by caller, OR raw - evaluator must cope with both)
+     * @param  object  $candidate  Row from ahg_mention_candidate
+     * @return array{signal:string,data:array<string,mixed>} Use EvidenceSignal::make()
      */
     public function evaluate(object $mention, object $context, object $candidate): array;
 }

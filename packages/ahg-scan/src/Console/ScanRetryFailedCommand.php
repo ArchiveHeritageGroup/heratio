@@ -41,6 +41,7 @@ class ScanRetryFailedCommand extends Command
         $backoff = $this->parseBackoff((string) config('heratio.scan.retry_backoff_minutes', '15,60,240,1440,4320'));
         if (empty($backoff)) {
             $this->warn('No retry backoff configured — command is a no-op.');
+
             return self::SUCCESS;
         }
 
@@ -57,7 +58,9 @@ class ScanRetryFailedCommand extends Command
         $retried = 0;
         $now = time();
         foreach ($candidates as $row) {
-            if ($retried >= $limit) { break; }
+            if ($retried >= $limit) {
+                break;
+            }
             $attempt = max(1, (int) $row->attempts);
             $backoffMin = $backoff[min($attempt - 1, count($backoff) - 1)];
             $nextAllowed = strtotime($row->last_attempt_at) + ($backoffMin * 60);
@@ -66,23 +69,25 @@ class ScanRetryFailedCommand extends Command
             }
 
             if ($dry) {
-                $this->line("  would retry ingest_file #{$row->id} (attempt " . ($attempt + 1) . "/{$maxAttempts})");
+                $this->line("  would retry ingest_file #{$row->id} (attempt ".($attempt + 1)."/{$maxAttempts})");
             } else {
                 ProcessScanFile::dispatch((int) $row->id, null);
                 $retried++;
-                $this->info("retry ingest_file #{$row->id} (attempt " . ($attempt + 1) . "/{$maxAttempts})");
+                $this->info("retry ingest_file #{$row->id} (attempt ".($attempt + 1)."/{$maxAttempts})");
             }
         }
 
-        if ($retried === 0 && !$dry) {
+        if ($retried === 0 && ! $dry) {
             $this->line('Nothing to retry.');
         }
+
         return self::SUCCESS;
     }
 
     protected function parseBackoff(string $raw): array
     {
         $parts = array_filter(array_map('trim', explode(',', $raw)), 'strlen');
-        return array_values(array_map(fn($v) => max(1, (int) $v), $parts));
+
+        return array_values(array_map(fn ($v) => max(1, (int) $v), $parts));
     }
 }

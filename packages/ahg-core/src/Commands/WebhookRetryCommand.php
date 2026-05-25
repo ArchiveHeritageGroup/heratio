@@ -32,42 +32,45 @@ class WebhookRetryCommand extends Command
             ->get();
         $this->info("retrying {$rows->count()} delivery rows (max_attempts={$maxAttempts})");
 
-        $ok = 0; $fail = 0; $perm = 0;
+        $ok = 0;
+        $fail = 0;
+        $perm = 0;
         foreach ($rows as $r) {
             $attempts = (int) $r->attempts + 1;
             $signature = $r->secret ? hash_hmac('sha256', (string) $r->payload, (string) $r->secret) : null;
             try {
                 $resp = Http::timeout(15)
                     ->withHeaders(array_filter([
-                        'Content-Type'   => 'application/json',
+                        'Content-Type' => 'application/json',
                         'X-AHG-Signature' => $signature,
                     ]))
                     ->withBody((string) $r->payload, 'application/json')
                     ->send('POST', (string) $r->url);
                 if ($resp->successful()) {
                     DB::table('ahg_webhook_delivery')->where('id', $r->id)->update([
-                        'status'          => 'delivered',
-                        'attempts'        => $attempts,
-                        'last_response'   => $resp->status(),
-                        'delivered_at'    => now(),
+                        'status' => 'delivered',
+                        'attempts' => $attempts,
+                        'last_response' => $resp->status(),
+                        'delivered_at' => now(),
                     ]);
                     $ok++;
                 } else {
-                    throw new \RuntimeException('HTTP ' . $resp->status());
+                    throw new \RuntimeException('HTTP '.$resp->status());
                 }
             } catch (\Throwable $e) {
                 $next = now()->addMinutes(5 * $attempts);
                 $newStatus = $attempts >= $maxAttempts ? 'permanently_failed' : 'failed';
                 DB::table('ahg_webhook_delivery')->where('id', $r->id)->update([
-                    'status'        => $newStatus,
-                    'attempts'      => $attempts,
-                    'last_error'    => $e->getMessage(),
+                    'status' => $newStatus,
+                    'attempts' => $attempts,
+                    'last_error' => $e->getMessage(),
                     'next_retry_at' => $newStatus === 'failed' ? $next : null,
                 ]);
                 $newStatus === 'failed' ? $fail++ : $perm++;
             }
         }
         $this->info("delivered={$ok} retry-later={$fail} permanently_failed={$perm}");
+
         return self::SUCCESS;
     }
 }

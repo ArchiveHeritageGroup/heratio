@@ -15,7 +15,7 @@ class ApiRateLimit
     public function handle(Request $request, Closure $next)
     {
         $apiKeyId = $request->attributes->get('api_key_id');
-        if (!$apiKeyId) {
+        if (! $apiKeyId) {
             return $next($request); // Session auth — no rate limiting
         }
 
@@ -31,6 +31,7 @@ class ApiRateLimit
 
         if ($row && $row->request_count >= $rateLimit) {
             $retryAfter = now()->endOfHour()->diffInSeconds(now());
+
             return response()->json([
                 'success' => false,
                 'error' => 'Too Many Requests',

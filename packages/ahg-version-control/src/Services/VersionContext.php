@@ -17,7 +17,9 @@ namespace AhgVersionControl\Services;
 final class VersionContext
 {
     private static bool $skipped = false;
+
     private static ?string $pendingSummary = null;
+
     private static ?int $pendingUserId = null;
 
     public static function skip(): void
@@ -44,6 +46,7 @@ final class VersionContext
     {
         $s = self::$pendingSummary;
         self::$pendingSummary = null;
+
         return $s;
     }
 
@@ -56,6 +59,7 @@ final class VersionContext
     {
         $u = self::$pendingUserId;
         self::$pendingUserId = null;
+
         return $u;
     }
 

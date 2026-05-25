@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCore\Services;
 
 use Illuminate\Http\UploadedFile;
@@ -35,14 +33,20 @@ class DigitalObjectService
 {
     // Usage term IDs (taxonomy 47)
     const USAGE_MASTER = 140;
+
     const USAGE_REFERENCE = 141;
+
     const USAGE_THUMBNAIL = 142;
 
     // Media type term IDs (taxonomy 46)
     const MEDIA_AUDIO = 135;
+
     const MEDIA_IMAGE = 136;
+
     const MEDIA_TEXT = 137;
+
     const MEDIA_VIDEO = 138;
+
     const MEDIA_OTHER = 139;
 
     // Upload base directory
@@ -69,7 +73,7 @@ class DigitalObjectService
 
         // AtoM stores some uploads with usage_id=142 (thumbnail) instead of 140 (master).
         // Treat the first direct digital object as master when no usage_id=140 exists.
-        if (!$master) {
+        if (! $master) {
             $master = $all->first();
         }
 
@@ -98,11 +102,11 @@ class DigitalObjectService
      */
     public static function getUrl($digitalObject): string
     {
-        if (!$digitalObject) {
+        if (! $digitalObject) {
             return '';
         }
 
-        return rtrim($digitalObject->path, '/') . '/' . $digitalObject->name;
+        return rtrim($digitalObject->path, '/').'/'.$digitalObject->name;
     }
 
     /**
@@ -110,10 +114,10 @@ class DigitalObjectService
      */
     public static function getDisplayUrl(array $objects): string
     {
-        if (!empty($objects['reference'])) {
+        if (! empty($objects['reference'])) {
             return self::getUrl($objects['reference']);
         }
-        if (!empty($objects['master'])) {
+        if (! empty($objects['master'])) {
             return self::getUrl($objects['master']);
         }
 
@@ -125,7 +129,7 @@ class DigitalObjectService
      */
     public static function getThumbnailUrl(array $objects): string
     {
-        if (!empty($objects['thumbnail'])) {
+        if (! empty($objects['thumbnail'])) {
             return self::getUrl($objects['thumbnail']);
         }
 
@@ -138,7 +142,7 @@ class DigitalObjectService
      */
     public static function getMediaType($digitalObject): string
     {
-        if (!$digitalObject) {
+        if (! $digitalObject) {
             return 'unknown';
         }
 
@@ -146,7 +150,7 @@ class DigitalObjectService
             return match ((int) $digitalObject->media_type_id) {
                 self::MEDIA_AUDIO => 'audio',   // 135
                 self::MEDIA_IMAGE => 'image',   // 136
-                self::MEDIA_TEXT  => 'text',     // 137
+                self::MEDIA_TEXT => 'text',     // 137
                 self::MEDIA_VIDEO => 'video',   // 138
                 self::MEDIA_OTHER => 'other',   // 139
                 default => 'other',
@@ -155,10 +159,18 @@ class DigitalObjectService
 
         // Fallback: detect from mime_type
         $mime = $digitalObject->mime_type ?? '';
-        if (str_starts_with($mime, 'audio/')) return 'audio';
-        if (str_starts_with($mime, 'image/')) return 'image';
-        if (str_starts_with($mime, 'video/')) return 'video';
-        if ($mime === 'application/pdf') return 'text';
+        if (str_starts_with($mime, 'audio/')) {
+            return 'audio';
+        }
+        if (str_starts_with($mime, 'image/')) {
+            return 'image';
+        }
+        if (str_starts_with($mime, 'video/')) {
+            return 'video';
+        }
+        if ($mime === 'application/pdf') {
+            return 'text';
+        }
 
         // Fallback: detect from file extension
         $ext = strtolower(pathinfo($digitalObject->name ?? '', PATHINFO_EXTENSION));
@@ -178,9 +190,8 @@ class DigitalObjectService
      * Creates master record + reference and thumbnail derivatives.
      * Uses GD for image resizing. Non-image files get generic derivatives.
      *
-     * @param int          $objectId Information object ID
-     * @param UploadedFile $file     Uploaded file
-     *
+     * @param  int  $objectId  Information object ID
+     * @param  UploadedFile  $file  Uploaded file
      * @return int Master digital object ID
      *
      * @throws \RuntimeException on failure
@@ -192,8 +203,8 @@ class DigitalObjectService
         $mediaTypeId = self::resolveMediaTypeId($mimeType);
 
         // Create upload directory
-        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . $objectId;
-        if (!is_dir($uploadDir)) {
+        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.$objectId;
+        if (! is_dir($uploadDir)) {
             mkdir($uploadDir, 0775, true);
         }
 
@@ -202,13 +213,13 @@ class DigitalObjectService
         $baseName = pathinfo($originalName, PATHINFO_FILENAME);
         $safeName = preg_replace('/[^a-zA-Z0-9_.-]/', '_', $baseName);
 
-        $masterFilename = 'master_' . $safeName . '.' . $extension;
+        $masterFilename = 'master_'.$safeName.'.'.$extension;
 
         // Store master file
         $file->move($uploadDir, $masterFilename);
-        $masterPath = $uploadDir . '/' . $masterFilename;
+        $masterPath = $uploadDir.'/'.$masterFilename;
 
-        if (!file_exists($masterPath)) {
+        if (! file_exists($masterPath)) {
             throw new \RuntimeException('Failed to store uploaded file.');
         }
 
@@ -226,7 +237,7 @@ class DigitalObjectService
         // logged and the upload continues with the file at rest as
         // plaintext (the daily bulk-apply will retry).
         try {
-            (new \AhgCore\Services\EncryptionService())->encryptFile($masterPath);
+            (new \AhgCore\Services\EncryptionService)->encryptFile($masterPath);
         } catch (\Throwable $__e) {
             \Illuminate\Support\Facades\Log::warning('[encryption] master encrypt-on-write failed', [
                 'path' => $masterPath, 'error' => $__e->getMessage(),
@@ -243,7 +254,7 @@ class DigitalObjectService
         ]);
 
         // Web-relative path for DB storage
-        $webPath = '/uploads/r/' . $objectId . '/';
+        $webPath = '/uploads/r/'.$objectId.'/';
 
         // Create master digital_object record
         DB::table('digital_object')->insert([
@@ -284,7 +295,7 @@ class DigitalObjectService
     public static function linkExternalUrl(int $objectId, string $url, ?string $displayName = null): int
     {
         $url = trim($url);
-        if (!preg_match('#^(https?|ftp)://#i', $url)) {
+        if (! preg_match('#^(https?|ftp)://#i', $url)) {
             throw new \RuntimeException('External URL must start with http://, https:// or ftp://.');
         }
 
@@ -323,6 +334,7 @@ class DigitalObjectService
     protected static function guessMimeFromUrl(string $url): string
     {
         $ext = strtolower(pathinfo(parse_url($url, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION));
+
         return match ($ext) {
             'jpg', 'jpeg' => 'image/jpeg',
             'png' => 'image/png',
@@ -349,8 +361,7 @@ class DigitalObjectService
      *
      * Removes files from disk and database records.
      *
-     * @param int $digitalObjectId Digital object ID
-     *
+     * @param  int  $digitalObjectId  Digital object ID
      * @return bool True on success
      */
     public static function delete(int $digitalObjectId): bool
@@ -368,12 +379,12 @@ class DigitalObjectService
 
             foreach ($objects as $obj) {
                 // Try to delete file from disk
-                $filePath = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . ($obj->object_id ?: '') . '/' . $obj->name;
+                $filePath = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.($obj->object_id ?: '').'/'.$obj->name;
 
                 // Also try via path field
-                if (!empty($obj->path) && !empty($obj->name)) {
+                if (! empty($obj->path) && ! empty($obj->name)) {
                     // Path may be web-relative; try to find actual file
-                    $altPath = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . ltrim($obj->path, '/') . $obj->name;
+                    $altPath = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.ltrim($obj->path, '/').$obj->name;
                     if (file_exists($altPath)) {
                         @unlink($altPath);
                     }
@@ -393,7 +404,7 @@ class DigitalObjectService
             // Clean up empty directory
             $master = $objects->firstWhere('usage_id', self::USAGE_MASTER);
             if ($master && $master->object_id) {
-                $dir = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . $master->object_id;
+                $dir = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.$master->object_id;
                 if (is_dir($dir) && count(scandir($dir)) <= 2) {
                     @rmdir($dir);
                 }
@@ -413,8 +424,7 @@ class DigitalObjectService
     /**
      * Get extended metadata from digital_object_metadata table.
      *
-     * @param int $digitalObjectId Digital object ID
-     *
+     * @param  int  $digitalObjectId  Digital object ID
      * @return array Metadata key-value pairs (empty if table missing or no data)
      */
     public static function getMetadata(int $digitalObjectId): array
@@ -424,7 +434,7 @@ class DigitalObjectService
                 ->where('digital_object_id', $digitalObjectId)
                 ->first();
 
-            if (!$meta) {
+            if (! $meta) {
                 return [];
             }
 
@@ -440,9 +450,8 @@ class DigitalObjectService
      *
      * Reads displayAsCompound and digitalObjectAltText from property/property_i18n.
      *
-     * @param int    $objectId Information object ID
-     * @param string $culture  Culture code
-     *
+     * @param  int  $objectId  Information object ID
+     * @param  string  $culture  Culture code
      * @return array ['displayAsCompound' => bool, 'altText' => string]
      */
     public static function getProperties(int $objectId, string $culture = 'en'): array
@@ -463,16 +472,16 @@ class DigitalObjectService
                 ->where('culture', $culture)
                 ->value('value');
 
-            if (null === $value) {
+            if ($value === null) {
                 $value = DB::table('property_i18n')
                     ->where('id', $prop->id)
                     ->orderBy('culture')
                     ->value('value');
             }
 
-            if ('displayAsCompound' === $prop->name) {
+            if ($prop->name === 'displayAsCompound') {
                 $result['displayAsCompound'] = (bool) $value;
-            } elseif ('digitalObjectAltText' === $prop->name) {
+            } elseif ($prop->name === 'digitalObjectAltText') {
                 $result['altText'] = $value ?? '';
             }
         }
@@ -483,14 +492,13 @@ class DigitalObjectService
     /**
      * Get a human-readable media type name from term_i18n (taxonomy 46).
      *
-     * @param int|null $mediaTypeId Media type term ID
-     * @param string   $culture     Culture code
-     *
+     * @param  int|null  $mediaTypeId  Media type term ID
+     * @param  string  $culture  Culture code
      * @return string Media type name or empty string
      */
     public static function getMediaTypeName(?int $mediaTypeId, string $culture = 'en'): string
     {
-        if (!$mediaTypeId) {
+        if (! $mediaTypeId) {
             return '';
         }
 
@@ -503,14 +511,13 @@ class DigitalObjectService
     /**
      * Get a human-readable usage type name from term_i18n.
      *
-     * @param int|null $usageId Usage term ID
-     * @param string   $culture Culture code
-     *
+     * @param  int|null  $usageId  Usage term ID
+     * @param  string  $culture  Culture code
      * @return string Usage name or empty string
      */
     public static function getUsageName(?int $usageId, string $culture = 'en'): string
     {
-        if (!$usageId) {
+        if (! $usageId) {
             return '';
         }
 
@@ -523,13 +530,12 @@ class DigitalObjectService
     /**
      * Format byte size for human-readable display.
      *
-     * @param int|null $bytes Byte count
-     *
+     * @param  int|null  $bytes  Byte count
      * @return string Formatted size (e.g. "1.5 MB")
      */
     public static function formatFileSize(?int $bytes): string
     {
-        if (null === $bytes || $bytes <= 0) {
+        if ($bytes === null || $bytes <= 0) {
             return '0 B';
         }
 
@@ -539,10 +545,10 @@ class DigitalObjectService
 
         while ($size >= 1024 && $i < count($units) - 1) {
             $size /= 1024;
-            ++$i;
+            $i++;
         }
 
-        return round($size, 2) . ' ' . $units[$i];
+        return round($size, 2).' '.$units[$i];
     }
 
     /**
@@ -565,8 +571,7 @@ class DigitalObjectService
     /**
      * Resolve media type ID from MIME type.
      *
-     * @param string $mimeType MIME type string
-     *
+     * @param  string  $mimeType  MIME type string
      * @return int Media type term ID
      */
     protected static function resolveMediaTypeId(string $mimeType): int
@@ -620,24 +625,24 @@ class DigitalObjectService
     public static function extractMetadataForMaster(int $masterId): void
     {
         $master = DB::table('digital_object')->where('id', $masterId)->first();
-        if (!$master || !$master->object_id) {
+        if (! $master || ! $master->object_id) {
             return;
         }
 
-        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . $master->object_id;
-        $filePath = $uploadDir . '/' . $master->name;
-        if (!is_file($filePath)) {
+        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.$master->object_id;
+        $filePath = $uploadDir.'/'.$master->name;
+        if (! is_file($filePath)) {
             return;
         }
 
         // Always record a checksum row when one is present on digital_object.
-        if (!empty($master->checksum) && !empty($master->checksum_type)) {
+        if (! empty($master->checksum) && ! empty($master->checksum_type)) {
             $existing = DB::table('preservation_checksum')
                 ->where('digital_object_id', $masterId)
                 ->where('algorithm', $master->checksum_type)
                 ->where('checksum_value', $master->checksum)
                 ->exists();
-            if (!$existing) {
+            if (! $existing) {
                 DB::table('preservation_checksum')->insert([
                     'digital_object_id' => $masterId,
                     'algorithm' => $master->checksum_type,
@@ -653,17 +658,18 @@ class DigitalObjectService
         // ExifTool extraction — optional; if not installed, skip without failing.
         $binary = trim((string) @shell_exec('command -v exiftool 2>/dev/null'));
         if ($binary === '') {
-            Log::info('[DigitalObjectService] exiftool not found; skipping metadata extraction for DO ' . $masterId);
+            Log::info('[DigitalObjectService] exiftool not found; skipping metadata extraction for DO '.$masterId);
+
             return;
         }
 
-        $cmd = $binary . ' -j -n -api largefilesupport=1 ' . escapeshellarg($filePath) . ' 2>/dev/null';
+        $cmd = $binary.' -j -n -api largefilesupport=1 '.escapeshellarg($filePath).' 2>/dev/null';
         $json = @shell_exec($cmd);
-        if (!$json) {
+        if (! $json) {
             return;
         }
         $decoded = json_decode($json, true);
-        if (!is_array($decoded) || empty($decoded[0])) {
+        if (! is_array($decoded) || empty($decoded[0])) {
             return;
         }
         $meta = $decoded[0];
@@ -718,7 +724,7 @@ class DigitalObjectService
             'extraction_date' => now(),
             'extraction_method' => 'exiftool',
         ];
-        $row = array_filter($row, fn($v) => $v !== null);
+        $row = array_filter($row, fn ($v) => $v !== null);
 
         $existing = DB::table('digital_object_metadata')->where('digital_object_id', $doId)->exists();
         if ($existing) {
@@ -768,7 +774,7 @@ class DigitalObjectService
             'raw_metadata' => json_encode($meta, JSON_UNESCAPED_SLASHES),
             'extracted_at' => now(),
         ];
-        $row = array_filter($row, fn($v) => $v !== null);
+        $row = array_filter($row, fn ($v) => $v !== null);
 
         $existing = DB::table('media_metadata')->where('digital_object_id', $doId)->exists();
         if ($existing) {
@@ -792,7 +798,7 @@ class DigitalObjectService
         $keywords = self::pickKeywords($meta);
         $copyright = self::pick($meta, ['CopyrightNotice', 'Copyright', 'Rights']);
 
-        if (!$creator && !$headline && !$caption && !$keywords && !$copyright) {
+        if (! $creator && ! $headline && ! $caption && ! $keywords && ! $copyright) {
             return;
         }
 
@@ -835,7 +841,7 @@ class DigitalObjectService
             'gps_longitude' => self::pickFloat($meta, ['GPSLongitude']),
             'gps_altitude' => self::pickFloat($meta, ['GPSAltitude']),
         ];
-        $row = array_filter($row, fn($v) => $v !== null);
+        $row = array_filter($row, fn ($v) => $v !== null);
 
         $existing = DB::table('dam_iptc_metadata')->where('object_id', $ioId)->exists();
         if ($existing) {
@@ -854,9 +860,11 @@ class DigitalObjectService
         foreach ($keys as $k) {
             if (array_key_exists($k, $meta) && $meta[$k] !== null && $meta[$k] !== '') {
                 $v = is_array($meta[$k]) ? implode(', ', $meta[$k]) : (string) $meta[$k];
+
                 return mb_substr($v, 0, 500);
             }
         }
+
         return null;
     }
 
@@ -867,6 +875,7 @@ class DigitalObjectService
                 return (int) $meta[$k];
             }
         }
+
         return null;
     }
 
@@ -877,28 +886,31 @@ class DigitalObjectService
                 return (float) $meta[$k];
             }
         }
+
         return null;
     }
 
     protected static function pickKeywords(array $meta): ?string
     {
         foreach (['Keywords', 'Subject', 'XMP:Subject'] as $k) {
-            if (!empty($meta[$k])) {
+            if (! empty($meta[$k])) {
                 return is_array($meta[$k]) ? implode('; ', $meta[$k]) : (string) $meta[$k];
             }
         }
+
         return null;
     }
 
     protected static function pickFlash(array $meta): ?int
     {
-        if (!array_key_exists('Flash', $meta)) {
+        if (! array_key_exists('Flash', $meta)) {
             return null;
         }
         $v = $meta['Flash'];
         if (is_numeric($v)) {
             return ((int) $v & 1) ? 1 : 0;
         }
+
         return stripos((string) $v, 'fired') !== false ? 1 : 0;
     }
 
@@ -906,6 +918,7 @@ class DigitalObjectService
     {
         $w = self::pickInt($meta, ['ImageWidth', 'VideoFrameWidth']);
         $h = self::pickInt($meta, ['ImageHeight', 'VideoFrameHeight']);
+
         return ($w && $h) ? "{$w}x{$h}" : null;
     }
 
@@ -913,23 +926,28 @@ class DigitalObjectService
     {
         $lat = self::pickFloat($meta, ['GPSLatitude']);
         $lon = self::pickFloat($meta, ['GPSLongitude']);
+
         return ($lat !== null && $lon !== null) ? sprintf('%.6f,%.6f', $lat, $lon) : null;
     }
 
     protected static function normalizeDate(?string $raw): ?string
     {
-        if (!$raw) return null;
+        if (! $raw) {
+            return null;
+        }
         // ExifTool emits "2026:04:24 07:27:42" — convert to ISO date.
         if (preg_match('/^(\d{4}):(\d{2}):(\d{2})/', $raw, $m)) {
             return "{$m[1]}-{$m[2]}-{$m[3]}";
         }
         $ts = strtotime($raw);
+
         return $ts ? date('Y-m-d', $ts) : null;
     }
 
     protected static function classifyByMime(string $mime): string
     {
         $class = explode('/', $mime)[0] ?: 'other';
+
         return match ($class) {
             'image' => 'image',
             'audio' => 'audio',
@@ -945,20 +963,19 @@ class DigitalObjectService
      * already exists on disk + in the DB. Used by the scanner pipeline and
      * any other non-HTTP-upload ingest path (e.g. data-migration).
      *
-     * @param int         $masterId  digital_object.id of the master
-     * @param bool|null   $makeReference  null = honour session flag upstream
-     * @param bool|null   $makeThumbnail
+     * @param  int  $masterId  digital_object.id of the master
+     * @param  bool|null  $makeReference  null = honour session flag upstream
      */
     public static function generateDerivativesForMaster(int $masterId, ?bool $makeReference = true, ?bool $makeThumbnail = true): void
     {
         $master = DB::table('digital_object')->where('id', $masterId)->first();
-        if (!$master || !$master->object_id) {
+        if (! $master || ! $master->object_id) {
             return;
         }
 
-        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . $master->object_id;
-        $masterPath = $uploadDir . '/' . $master->name;
-        if (!is_file($masterPath)) {
+        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.$master->object_id;
+        $masterPath = $uploadDir.'/'.$master->name;
+        if (! is_file($masterPath)) {
             return;
         }
 
@@ -969,17 +986,17 @@ class DigitalObjectService
         if (str_starts_with($safeName, 'master_')) {
             $safeName = substr($safeName, 7);
         }
-        $webPath = $master->path ?: ('/uploads/r/' . $master->object_id . '/');
+        $webPath = $master->path ?: ('/uploads/r/'.$master->object_id.'/');
 
         $isImage = in_array($mediaTypeId, [self::MEDIA_IMAGE]);
 
         if ($isImage && extension_loaded('gd') && ($makeReference || $makeThumbnail)) {
             $imageInfo = @getimagesize($masterPath);
-            if (!$imageInfo) {
+            if (! $imageInfo) {
                 return;
             }
             $srcImage = self::createGdImage($masterPath, $imageInfo[2]);
-            if (!$srcImage) {
+            if (! $srcImage) {
                 return;
             }
             $srcWidth = imagesx($srcImage);
@@ -988,8 +1005,8 @@ class DigitalObjectService
             if ($makeReference) {
                 self::createDerivative(
                     $srcImage, $srcWidth, $srcHeight, 480,
-                    $uploadDir . '/reference_' . $safeName . '.jpg',
-                    'reference_' . $safeName . '.jpg',
+                    $uploadDir.'/reference_'.$safeName.'.jpg',
+                    'reference_'.$safeName.'.jpg',
                     $masterId, $master->object_id, $webPath,
                     self::USAGE_REFERENCE
                 );
@@ -997,8 +1014,8 @@ class DigitalObjectService
             if ($makeThumbnail) {
                 self::createDerivative(
                     $srcImage, $srcWidth, $srcHeight, 100,
-                    $uploadDir . '/thumbnail_' . $safeName . '.jpg',
-                    'thumbnail_' . $safeName . '.jpg',
+                    $uploadDir.'/thumbnail_'.$safeName.'.jpg',
+                    'thumbnail_'.$safeName.'.jpg',
                     $masterId, $master->object_id, $webPath,
                     self::USAGE_THUMBNAIL
                 );
@@ -1019,16 +1036,16 @@ class DigitalObjectService
         string $safeName,
         string $webPath
     ): void {
-        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR) . '/' . $objectId;
+        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.$objectId;
 
         // Load source image
         $imageInfo = @getimagesize($masterPath);
-        if (!$imageInfo) {
+        if (! $imageInfo) {
             return;
         }
 
         $srcImage = self::createGdImage($masterPath, $imageInfo[2]);
-        if (!$srcImage) {
+        if (! $srcImage) {
             return;
         }
 
@@ -1039,8 +1056,8 @@ class DigitalObjectService
         self::createDerivative(
             $srcImage, $srcWidth, $srcHeight,
             480,
-            $uploadDir . '/reference_' . $safeName . '.jpg',
-            'reference_' . $safeName . '.jpg',
+            $uploadDir.'/reference_'.$safeName.'.jpg',
+            'reference_'.$safeName.'.jpg',
             $masterId, $objectId, $webPath,
             self::USAGE_REFERENCE
         );
@@ -1049,8 +1066,8 @@ class DigitalObjectService
         self::createDerivative(
             $srcImage, $srcWidth, $srcHeight,
             100,
-            $uploadDir . '/thumbnail_' . $safeName . '.jpg',
-            'thumbnail_' . $safeName . '.jpg',
+            $uploadDir.'/thumbnail_'.$safeName.'.jpg',
+            'thumbnail_'.$safeName.'.jpg',
             $masterId, $objectId, $webPath,
             self::USAGE_THUMBNAIL
         );
@@ -1098,7 +1115,7 @@ class DigitalObjectService
         imagejpeg($dstImage, $outputPath, 85);
         imagedestroy($dstImage);
 
-        if (!file_exists($outputPath)) {
+        if (! file_exists($outputPath)) {
             return;
         }
 
@@ -1132,9 +1149,8 @@ class DigitalObjectService
     /**
      * Create a GD image resource from file path and image type.
      *
-     * @param string $path      File path
-     * @param int    $imageType IMAGETYPE_* constant
-     *
+     * @param  string  $path  File path
+     * @param  int  $imageType  IMAGETYPE_* constant
      * @return \GdImage|false
      */
     protected static function createGdImage(string $path, int $imageType)
@@ -1169,7 +1185,7 @@ class DigitalObjectService
         $iconSuffix = self::getGenericIconSuffix($mimeType);
 
         foreach ([self::USAGE_REFERENCE => 'reference', self::USAGE_THUMBNAIL => 'thumbnail'] as $usageId => $prefix) {
-            $filename = $prefix . '_' . $safeName . '_' . $iconSuffix . '.png';
+            $filename = $prefix.'_'.$safeName.'_'.$iconSuffix.'.png';
 
             // Create a simple colored placeholder image using GD
             $size = $usageId === self::USAGE_REFERENCE ? 480 : 100;
@@ -1185,11 +1201,11 @@ class DigitalObjectService
                 $textX = (int) (($size - $textWidth) / 2);
                 $textY = (int) ($size / 2 - imagefontheight($fontSize) / 2);
                 imagestring($img, $fontSize, $textX, $textY, $label, $textColor);
-                imagepng($img, $uploadDir . '/' . $filename);
+                imagepng($img, $uploadDir.'/'.$filename);
                 imagedestroy($img);
             }
 
-            $byteSize = file_exists($uploadDir . '/' . $filename) ? filesize($uploadDir . '/' . $filename) : 0;
+            $byteSize = file_exists($uploadDir.'/'.$filename) ? filesize($uploadDir.'/'.$filename) : 0;
 
             $derivObjectId = DB::table('object')->insertGetId([
                 'class_name' => 'QubitDigitalObject',
@@ -1207,7 +1223,7 @@ class DigitalObjectService
                 'name' => $filename,
                 'path' => $webPath,
                 'byte_size' => $byteSize,
-                'checksum' => $byteSize ? md5_file($uploadDir . '/' . $filename) : '',
+                'checksum' => $byteSize ? md5_file($uploadDir.'/'.$filename) : '',
                 'checksum_type' => 'md5',
                 'parent_id' => $masterId,
             ]);
@@ -1234,8 +1250,7 @@ class DigitalObjectService
     /**
      * Parse PHP ini size value (e.g. "8M") to bytes.
      *
-     * @param string $value INI size string
-     *
+     * @param  string  $value  INI size string
      * @return int Size in bytes
      */
     protected static function parseIniSize(string $value): int

@@ -62,8 +62,9 @@ class ReprocessParkedCommand extends Command
         $limit = (int) $this->option('limit');
         $userId = (int) $this->option('user-id');
 
-        if ($since !== null && $since !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $since)) {
+        if ($since !== null && $since !== '' && ! preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $since)) {
             $this->error('--since must be YYYY-MM-DD.');
+
             return self::FAILURE;
         }
 
@@ -71,7 +72,7 @@ class ReprocessParkedCommand extends Command
             ->select('mention_id', 'parked_at', 'reason')
             ->orderBy('parked_at');
         if ($since !== null && $since !== '') {
-            $q->where('parked_at', '>=', $since . ' 00:00:00');
+            $q->where('parked_at', '>=', $since.' 00:00:00');
         }
         if ($limit > 0) {
             $q->limit($limit);
@@ -81,6 +82,7 @@ class ReprocessParkedCommand extends Command
         if ($rows->isEmpty()) {
             $sinceLabel = $since !== null && $since !== '' ? "since {$since}" : '(all)';
             $this->info("No parked mentions found {$sinceLabel}.");
+
             return self::SUCCESS;
         }
 
@@ -118,6 +120,7 @@ class ReprocessParkedCommand extends Command
             $errCount,
             $newCandidateFlagged
         ));
+
         return self::SUCCESS;
     }
 }

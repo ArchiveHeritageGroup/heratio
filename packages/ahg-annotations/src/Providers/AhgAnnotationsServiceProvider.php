@@ -46,7 +46,7 @@ class AhgAnnotationsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware('web')->group(__DIR__ . '/../../routes/web.php');
+        Route::middleware('web')->group(__DIR__.'/../../routes/web.php');
 
         // Guard the hasTable() call itself — composer's post-autoload-dump
         // runs `php artisan package:discover` in CI before any DB is wired,
@@ -54,7 +54,7 @@ class AhgAnnotationsServiceProvider extends ServiceProvider
         // absent. Skip silently in that case; install retries on next boot
         // once a real DB is reachable.
         try {
-            if (!Schema::hasTable('ahg_iiif_annotation')) {
+            if (! Schema::hasTable('ahg_iiif_annotation')) {
                 $this->installSchema();
             }
         } catch (\Throwable $e) {
@@ -64,8 +64,10 @@ class AhgAnnotationsServiceProvider extends ServiceProvider
 
     private function installSchema(): void
     {
-        $sql = file_get_contents(__DIR__ . '/../../database/install.sql');
-        if ($sql === false || trim($sql) === '') return;
+        $sql = file_get_contents(__DIR__.'/../../database/install.sql');
+        if ($sql === false || trim($sql) === '') {
+            return;
+        }
         try {
             DB::unprepared($sql);
         } catch (\Throwable $e) {
@@ -73,7 +75,7 @@ class AhgAnnotationsServiceProvider extends ServiceProvider
             // table may have been created by a parallel boot or by a manual
             // mysql import. Log and move on. Hits the standard exception
             // handler and lands in ahg_error_log for follow-up.
-            \Log::warning('[ahg-annotations] schema install failed: ' . $e->getMessage());
+            \Log::warning('[ahg-annotations] schema install failed: '.$e->getMessage());
         }
     }
 }

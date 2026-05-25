@@ -4,7 +4,6 @@ namespace AhgCore\Commands;
 
 use AhgForms\Services\FormService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class FormsExportCommand extends Command
 {
@@ -24,13 +23,16 @@ class FormsExportCommand extends Command
             $bundle['templates'][] = $svc->exportTemplate((int) $id);
         } else {
             $templates = $svc->getTemplates($this->option('type'));
-            foreach ($templates as $t) $bundle['templates'][] = $svc->exportTemplate((int) $t->id);
+            foreach ($templates as $t) {
+                $bundle['templates'][] = $svc->exportTemplate((int) $t->id);
+            }
         }
 
         $path = base_path((string) $out);
         @mkdir(dirname($path), 0775, true);
         file_put_contents($path, json_encode($bundle, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-        $this->info("wrote " . count($bundle['templates']) . " templates → {$path}");
+        $this->info('wrote '.count($bundle['templates'])." templates → {$path}");
+
         return self::SUCCESS;
     }
 }

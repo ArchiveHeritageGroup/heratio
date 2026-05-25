@@ -42,7 +42,9 @@ use Illuminate\Support\Facades\DB;
 class HierarchicalEvaluator implements EvaluatorInterface
 {
     private const PLACE_TYPES = ['GPE', 'PLACE', 'LOC'];
+
     private const MAX_DEPTH = 16;
+
     private const PLACE_TAXONOMY_ROOT_ID = 110;  // AtoM convention; never a useful "ancestor"
 
     public function dimension(): string
@@ -87,7 +89,7 @@ class HierarchicalEvaluator implements EvaluatorInterface
         }
 
         $overlaps = [];
-        $ancestorsLower = array_map(fn($a) => mb_strtolower($a['name']), $ancestors);
+        $ancestorsLower = array_map(fn ($a) => mb_strtolower($a['name']), $ancestors);
         foreach ($nearby as $place) {
             $pLower = mb_strtolower($place);
             foreach ($ancestorsLower as $idx => $aLower) {
@@ -102,7 +104,7 @@ class HierarchicalEvaluator implements EvaluatorInterface
             }
         }
 
-        if (!empty($overlaps)) {
+        if (! empty($overlaps)) {
             return EvidenceSignal::make(EvidenceSignal::MATCH, [
                 'overlaps' => $overlaps,
                 'ancestors' => $ancestors,
@@ -123,7 +125,7 @@ class HierarchicalEvaluator implements EvaluatorInterface
     private function extractPlaceNames($nearbyPlacesJson): array
     {
         $rows = EvidenceDateUtil::decodeJsonish($nearbyPlacesJson);
-        if (!is_array($rows)) {
+        if (! is_array($rows)) {
             return [];
         }
         $names = [];
@@ -132,18 +134,19 @@ class HierarchicalEvaluator implements EvaluatorInterface
                 $names[] = (string) $row['value'];
             }
         }
+
         return array_values(array_unique($names));
     }
 
     /**
-     * @return list<array{id:int,name:string}>  In order from immediate parent up
+     * @return list<array{id:int,name:string}> In order from immediate parent up
      */
     private function walkAncestors(int $termId): array
     {
         $ancestors = [];
         $seen = [$termId];
         $current = DB::table('term')->where('id', $termId)->first(['id', 'parent_id']);
-        if (!$current) {
+        if (! $current) {
             return [];
         }
         $parentId = $current->parent_id !== null ? (int) $current->parent_id : null;
@@ -165,7 +168,7 @@ class HierarchicalEvaluator implements EvaluatorInterface
                 })
                 ->where('t.id', $parentId)
                 ->first(['t.id', 't.parent_id', 'ti.name']);
-            if (!$row) {
+            if (! $row) {
                 break;
             }
             $name = trim((string) ($row->name ?? ''));

@@ -71,7 +71,7 @@ class ActorApiController extends Controller
         // Resolve entity type names
         $typeIds = $rows->pluck('entity_type_id')->filter()->unique()->values()->toArray();
         $typeNames = [];
-        if (!empty($typeIds)) {
+        if (! empty($typeIds)) {
             $typeNames = DB::table('term_i18n')
                 ->whereIn('id', $typeIds)
                 ->where('culture', $this->culture)
@@ -103,11 +103,11 @@ class ActorApiController extends Controller
     public function show(string $idOrSlug): JsonResponse
     {
         // Try to resolve ID - check if it's numeric first, then look up slug
-        $objectId = is_numeric($idOrSlug) 
+        $objectId = is_numeric($idOrSlug)
             ? (int) $idOrSlug
             : DB::table('slug')->where('slug', $idOrSlug)->value('object_id');
-        
-        if (!$objectId) {
+
+        if (! $objectId) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Authority record '{$idOrSlug}' not found.",
@@ -115,7 +115,7 @@ class ActorApiController extends Controller
         }
 
         // Check if actor exists
-        if (!DB::table('actor')->where('id', $objectId)->exists()) {
+        if (! DB::table('actor')->where('id', $objectId)->exists()) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Authority record '{$idOrSlug}' not found.",
@@ -159,7 +159,7 @@ class ActorApiController extends Controller
             ])
             ->first();
 
-        if (!$actor) {
+        if (! $actor) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Authority record '{$idOrSlug}' not found.",
@@ -289,11 +289,11 @@ class ActorApiController extends Controller
     public function search(Request $request): JsonResponse
     {
         $query = $request->get('q', '');
-        
+
         if (empty($query) || strlen($query) < 2) {
             return response()->json(['data' => []]);
         }
-        
+
         $results = DB::table('actor')
             ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
             ->join('object', 'actor.id', '=', 'object.id')
@@ -309,13 +309,13 @@ class ActorApiController extends Controller
             ])
             ->limit(20)
             ->get();
-        
-        $data = $results->map(fn($row) => [
+
+        $data = $results->map(fn ($row) => [
             'id' => $row->id,
             'authorized_form_of_name' => $row->authorized_form_of_name,
             'slug' => $row->slug,
         ]);
-        
+
         return response()->json(['data' => $data->values()]);
     }
 
@@ -332,11 +332,11 @@ class ActorApiController extends Controller
             'dates_of_existence' => 'nullable|string|max:255',
             'history' => 'nullable|string',
         ]);
-        
+
         try {
             // Validate entity_type exists if provided
-            if (!empty($validated['entity_type_id'])) {
-                if (!DB::table('term')->where('id', $validated['entity_type_id'])->exists()) {
+            if (! empty($validated['entity_type_id'])) {
+                if (! DB::table('term')->where('id', $validated['entity_type_id'])->exists()) {
                     return response()->json([
                         'error' => 'Invalid entity_type_id',
                         'message' => "Entity type with ID {$validated['entity_type_id']} does not exist.",
@@ -351,7 +351,7 @@ class ActorApiController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-                
+
                 // Create actor record (use NULL for parent_id as there's no root actor with id=0)
                 DB::table('actor')->insert([
                     'id' => $objectId,
@@ -359,7 +359,7 @@ class ActorApiController extends Controller
                     'source_culture' => $this->culture,
                     'parent_id' => null,
                 ]);
-                
+
                 // Create i18n record
                 DB::table('actor_i18n')->insert([
                     'id' => $objectId,
@@ -368,19 +368,19 @@ class ActorApiController extends Controller
                     'dates_of_existence' => $validated['dates_of_existence'] ?? null,
                     'history' => $validated['history'] ?? null,
                 ]);
-                
+
                 // Create slug
                 $slugBase = \Illuminate\Support\Str::slug($validated['authorized_form_of_name']);
                 $slug = $slugBase;
                 $counter = 1;
                 while (DB::table('slug')->where('slug', $slug)->exists()) {
-                    $slug = $slugBase . '-' . $counter++;
+                    $slug = $slugBase.'-'.$counter++;
                 }
                 DB::table('slug')->insert([
                     'slug' => $slug,
                     'object_id' => $objectId,
                 ]);
-                
+
                 return response()->json([
                     'data' => [
                         'id' => $objectId,
@@ -390,10 +390,11 @@ class ActorApiController extends Controller
                 ], 201);
             });
         } catch (\Exception $e) {
-            \Log::error('Actor creation failed: ' . $e->getMessage(), [
+            \Log::error('Actor creation failed: '.$e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'validated' => $validated,
             ]);
+
             return response()->json([
                 'error' => 'Failed to create actor',
                 'message' => config('app.debug') ? $e->getMessage() : 'Internal server error',
@@ -415,16 +416,16 @@ class ActorApiController extends Controller
             'dates_of_existence' => 'nullable|string|max:255',
             'history' => 'nullable|string',
         ]);
-        
+
         $objectId = is_numeric($id) ? (int) $id : DB::table('slug')->where('slug', $id)->value('object_id');
-        
-        if (!$objectId || !DB::table('actor')->where('id', $objectId)->exists()) {
+
+        if (! $objectId || ! DB::table('actor')->where('id', $objectId)->exists()) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Actor '{$id}' not found.",
             ], 404);
         }
-        
+
         try {
             // Update i18n record
             DB::table('actor_i18n')
@@ -434,20 +435,20 @@ class ActorApiController extends Controller
                     'authorized_form_of_name' => $validated['authorized_form_of_name'] ?? null,
                     'dates_of_existence' => $validated['dates_of_existence'] ?? null,
                     'history' => $validated['history'] ?? null,
-                ], fn($v) => $v !== null));
-            
+                ], fn ($v) => $v !== null));
+
             // Update actor record
             if (isset($validated['entity_type_id'])) {
                 DB::table('actor')
                     ->where('id', $objectId)
                     ->update(['entity_type_id' => $validated['entity_type_id']]);
             }
-            
+
             // Update object timestamp
             DB::table('object')
                 ->where('id', $objectId)
                 ->update(['updated_at' => now()]);
-            
+
             return response()->json([
                 'data' => [
                     'id' => $objectId,
@@ -470,14 +471,14 @@ class ActorApiController extends Controller
     public function destroy(string $id): JsonResponse
     {
         $objectId = is_numeric($id) ? (int) $id : DB::table('slug')->where('slug', $id)->value('object_id');
-        
-        if (!$objectId || !DB::table('actor')->where('id', $objectId)->exists()) {
+
+        if (! $objectId || ! DB::table('actor')->where('id', $objectId)->exists()) {
             return response()->json([
                 'error' => 'Not Found',
                 'message' => "Actor '{$id}' not found.",
             ], 404);
         }
-        
+
         try {
             // Delete related records
             DB::table('actor_i18n')->where('id', $objectId)->delete();
@@ -486,7 +487,7 @@ class ActorApiController extends Controller
             DB::table('slug')->where('object_id', $objectId)->delete();
             DB::table('actor')->where('id', $objectId)->delete();
             DB::table('object')->where('id', $objectId)->delete();
-            
+
             return response()->json(null, 204);
         } catch (\Exception $e) {
             return response()->json([
@@ -501,7 +502,7 @@ class ActorApiController extends Controller
      */
     protected function termName(?int $termId): ?string
     {
-        if (!$termId) {
+        if (! $termId) {
             return null;
         }
 
@@ -521,10 +522,10 @@ class ActorApiController extends Controller
 
         $links = ['self' => "{$baseUrl}?page={$page}&limit={$limit}"];
         if ($page < $lastPage) {
-            $links['next'] = "{$baseUrl}?page=" . ($page + 1) . "&limit={$limit}";
+            $links['next'] = "{$baseUrl}?page=".($page + 1)."&limit={$limit}";
         }
         if ($page > 1) {
-            $links['prev'] = "{$baseUrl}?page=" . ($page - 1) . "&limit={$limit}";
+            $links['prev'] = "{$baseUrl}?page=".($page - 1)."&limit={$limit}";
         }
         $links['first'] = "{$baseUrl}?page=1&limit={$limit}";
         $links['last'] = "{$baseUrl}?page={$lastPage}&limit={$limit}";

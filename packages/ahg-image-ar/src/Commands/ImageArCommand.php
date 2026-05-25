@@ -35,23 +35,27 @@ class ImageArCommand extends Command
     {
         if ($this->option('health')) {
             $h = $ai->health();
-            if (!$h) {
+            if (! $h) {
                 $this->error('AI server unreachable.');
+
                 return 1;
             }
             $this->line(json_encode($h, JSON_PRETTY_PRINT));
+
             return 0;
         }
 
         $ioId = (int) $this->option('object-id');
-        if (!$ioId) {
+        if (! $ioId) {
             $this->error('Provide --object-id (or use --health).');
+
             return 1;
         }
 
-        if (!$this->option('force')) {
+        if (! $this->option('force')) {
             if (DB::table('object_image_ar')->where('object_id', $ioId)->exists()) {
                 $this->info("IO #{$ioId} already has an animation (use --force to rebuild).");
+
                 return 0;
             }
         }
@@ -61,26 +65,28 @@ class ImageArCommand extends Command
             ->where('mime_type', 'like', 'image/%')
             ->whereNull('parent_id')
             ->first(['id', 'name', 'path']);
-        if (!$do) {
+        if (! $do) {
             $this->error("No master image for IO #{$ioId}.");
+
             return 1;
         }
 
         $base = rtrim((string) config('heratio.uploads_path', ''), '/');
         $rel = preg_replace('#^/uploads/r?/?#', '', (string) $do->path);
-        $sourcePath = $base . '/' . trim($rel, '/') . '/' . $do->name;
-        if (!is_file($sourcePath)) {
-            $sourcePath = $base . '/' . $ioId . '/' . $do->name;
+        $sourcePath = $base.'/'.trim($rel, '/').'/'.$do->name;
+        if (! is_file($sourcePath)) {
+            $sourcePath = $base.'/'.$ioId.'/'.$do->name;
         }
-        if (!is_file($sourcePath)) {
+        if (! is_file($sourcePath)) {
             $this->error("Source image not on disk: {$sourcePath}");
+
             return 1;
         }
 
         $opts = $ai->defaults();
         foreach (['prompt' => 'prompt', 'model' => 'model',
-                  'num_frames' => 'frames', 'fps' => 'fps',
-                  'motion_bucket_id' => 'motion', 'seed' => 'seed'] as $optKey => $cliKey) {
+            'num_frames' => 'frames', 'fps' => 'fps',
+            'motion_bucket_id' => 'motion', 'seed' => 'seed'] as $optKey => $cliKey) {
             $val = $this->option($cliKey);
             if ($val !== null && $val !== '') {
                 $opts[$optKey] = $val;
@@ -91,9 +97,9 @@ class ImageArCommand extends Command
         $stem = pathinfo($do->name, PATHINFO_FILENAME);
         $stamp = substr((string) time(), -6);
         $modelTag = preg_replace('/[^a-z0-9]+/i', '', (string) $opts['model']) ?: 'ai';
-        $mp4Filename = $modelTag . '_' . $stem . '_' . $stamp . '.mp4';
-        $mp4Abs = $storage . '/uploads/ar/' . $ioId . '/' . $mp4Filename;
-        $mp4Web = '/uploads/ar/' . $ioId . '/' . $mp4Filename;
+        $mp4Filename = $modelTag.'_'.$stem.'_'.$stamp.'.mp4';
+        $mp4Abs = $storage.'/uploads/ar/'.$ioId.'/'.$mp4Filename;
+        $mp4Web = '/uploads/ar/'.$ioId.'/'.$mp4Filename;
 
         $this->info(sprintf(
             "Sending to AI server (%s, model=%s, %d frames @ %d fps, motion=%d)…\nThis can take 3–8 minutes on the 8 GB card.",
@@ -103,7 +109,8 @@ class ImageArCommand extends Command
         try {
             $stats = $ai->generate($sourcePath, $mp4Abs, $opts);
         } catch (\Throwable $e) {
-            $this->error('Generation failed: ' . $e->getMessage());
+            $this->error('Generation failed: '.$e->getMessage());
+
             return 1;
         }
 
@@ -117,7 +124,7 @@ class ImageArCommand extends Command
             'mp4_size' => $stats['size'],
             'mp4_duration_secs' => $duration,
             'mp4_fps' => $stats['fps'],
-            'mp4_motion' => 'ai-' . $stats['model'],
+            'mp4_motion' => 'ai-'.$stats['model'],
             'ai_model' => $stats['model'],
             'ai_prompt' => $stats['prompt'],
             'ai_seed' => $stats['seed'],
@@ -128,6 +135,7 @@ class ImageArCommand extends Command
         ]);
 
         $this->info(sprintf('Done — %d KB in %.0f s at %s', (int) ($stats['size'] / 1024), $stats['generation_secs'], $mp4Web));
+
         return 0;
     }
 }

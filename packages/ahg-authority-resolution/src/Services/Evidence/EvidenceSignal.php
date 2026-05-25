@@ -39,8 +39,11 @@ namespace AhgAuthorityResolution\Services\Evidence;
 class EvidenceSignal
 {
     public const MATCH = 'match';
+
     public const CONFLICT = 'conflict';
+
     public const SILENT = 'silent';
+
     public const ABSENT = 'absent';
 
     public const VALID = [
@@ -64,15 +67,16 @@ class EvidenceSignal
     /**
      * Build a uniform Signal array shape.
      *
-     * @param string $signal  One of the constants above
-     * @param array<string,mixed> $data  Evidence-specific raw data for the UI / audit
+     * @param  string  $signal  One of the constants above
+     * @param  array<string,mixed>  $data  Evidence-specific raw data for the UI / audit
      * @return array{signal:string,data:array<string,mixed>}
      */
     public static function make(string $signal, array $data = []): array
     {
-        if (!in_array($signal, self::VALID, true)) {
+        if (! in_array($signal, self::VALID, true)) {
             $signal = self::ABSENT;
         }
+
         return ['signal' => $signal, 'data' => $data];
     }
 }

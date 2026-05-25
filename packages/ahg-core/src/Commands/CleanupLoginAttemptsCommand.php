@@ -18,6 +18,7 @@ class CleanupLoginAttemptsCommand extends Command
     {
         if (! Schema::hasTable('login_attempt')) {
             $this->warn('login_attempt table missing — nothing to do.');
+
             return self::SUCCESS;
         }
 
@@ -26,12 +27,15 @@ class CleanupLoginAttemptsCommand extends Command
         $dry = (bool) $this->option('dry-run');
 
         $eligible = (int) DB::table('login_attempt')->where('attempted_at', '<', $cutoff)->count();
-        $this->info("[login_attempt] cutoff={$cutoff->toIso8601String()} eligible={$eligible}" . ($dry ? ' (dry-run)' : ''));
+        $this->info("[login_attempt] cutoff={$cutoff->toIso8601String()} eligible={$eligible}".($dry ? ' (dry-run)' : ''));
 
-        if ($dry || $eligible === 0) return self::SUCCESS;
+        if ($dry || $eligible === 0) {
+            return self::SUCCESS;
+        }
 
         $deleted = DB::table('login_attempt')->where('attempted_at', '<', $cutoff)->delete();
         $this->info("deleted={$deleted}");
+
         return self::SUCCESS;
     }
 }

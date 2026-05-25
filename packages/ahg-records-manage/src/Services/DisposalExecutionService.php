@@ -2,9 +2,9 @@
 
 namespace AhgRecordsManage\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Carbon\Carbon;
 
 class DisposalExecutionService
 {
@@ -14,12 +14,12 @@ class DisposalExecutionService
     public function executeDestroy(int $disposalActionId, int $userId): array
     {
         $action = DB::table('rm_disposal_action')->where('id', $disposalActionId)->first();
-        if (!$action) {
+        if (! $action) {
             return ['success' => false, 'error' => 'Disposal action not found.'];
         }
 
         if ($action->status !== 'cleared') {
-            return ['success' => false, 'error' => 'Disposal action must be in "cleared" status to execute. Current status: ' . $action->status];
+            return ['success' => false, 'error' => 'Disposal action must be in "cleared" status to execute. Current status: '.$action->status];
         }
 
         // Verify no active legal hold
@@ -76,7 +76,7 @@ class DisposalExecutionService
             }
 
             // Generate combined content hash for certificate
-            $combinedHash = !empty($contentHashes) ? hash('sha256', implode('', $contentHashes)) : null;
+            $combinedHash = ! empty($contentHashes) ? hash('sha256', implode('', $contentHashes)) : null;
 
             // Generate destruction certificate
             $certificateNumber = $this->generateCertificateNumber();
@@ -90,7 +90,7 @@ class DisposalExecutionService
                 ->select('user.username', 'actor_i18n.authorized_form_of_name')
                 ->first();
 
-            $authorizedBy = $user->authorized_form_of_name ?? $user->username ?? 'User #' . $userId;
+            $authorizedBy = $user->authorized_form_of_name ?? $user->username ?? 'User #'.$userId;
 
             $certificateId = DB::table('destruction_certificate')->insertGetId([
                 'information_object_id' => $ioId,
@@ -148,12 +148,12 @@ class DisposalExecutionService
     public function executeTransfer(int $disposalActionId, string $destination, int $userId): array
     {
         $action = DB::table('rm_disposal_action')->where('id', $disposalActionId)->first();
-        if (!$action) {
+        if (! $action) {
             return ['success' => false, 'error' => 'Disposal action not found.'];
         }
 
         if ($action->status !== 'cleared') {
-            return ['success' => false, 'error' => 'Disposal action must be in "cleared" status to execute. Current status: ' . $action->status];
+            return ['success' => false, 'error' => 'Disposal action must be in "cleared" status to execute. Current status: '.$action->status];
         }
 
         $ioId = $action->information_object_id;
@@ -164,24 +164,24 @@ class DisposalExecutionService
         // off to a third party out-of-band; the AIP is only meaningful when the destination is
         // the in-house preservation store.
         $aipResult = null;
-        $aipError  = null;
+        $aipError = null;
         if ($action->action_type === 'transfer_archives') {
             try {
                 $oais = app(\AhgPreservation\Services\OaisLifecycleService::class);
                 $aipResult = $oais->createAipFromIO((int) $ioId, [
-                    'description'         => 'Transfer to archives via disposal action #' . $disposalActionId,
+                    'description' => 'Transfer to archives via disposal action #'.$disposalActionId,
                     'source_organization' => 'Heratio',
-                    'submission_agreement'=> 'Disposal action #' . $disposalActionId,
+                    'submission_agreement' => 'Disposal action #'.$disposalActionId,
                     'include_descendants' => true,
-                    'zip'                 => true,
-                ], 'disposal-action-' . $disposalActionId);
+                    'zip' => true,
+                ], 'disposal-action-'.$disposalActionId);
             } catch (\Throwable $e) {
                 $aipError = $e->getMessage();
             }
             if ($aipError !== null) {
                 return [
                     'success' => false,
-                    'error'   => 'AIP build failed during transfer: ' . $aipError,
+                    'error' => 'AIP build failed during transfer: '.$aipError,
                 ];
             }
         }
@@ -199,17 +199,17 @@ class DisposalExecutionService
                     $aipResult['bag_path'])
                 : null;
 
-            $newNotes = trim(($existingNotes !== '' ? $existingNotes . "\n" : '') . ($aipLine ?? ''));
+            $newNotes = trim(($existingNotes !== '' ? $existingNotes."\n" : '').($aipLine ?? ''));
 
             DB::table('rm_disposal_action')->where('id', $disposalActionId)->update([
-                'status'               => 'executed',
-                'executed_by'          => $userId,
-                'executed_at'          => Carbon::now(),
+                'status' => 'executed',
+                'executed_by' => $userId,
+                'executed_at' => Carbon::now(),
                 'transfer_destination' => $aipResult
                     ? sprintf('Heratio archives (AIP #%d)', $aipResult['aip_id'])
                     : $destination,
-                'notes'                => $newNotes !== '' ? $newNotes : null,
-                'updated_at'           => Carbon::now(),
+                'notes' => $newNotes !== '' ? $newNotes : null,
+                'updated_at' => Carbon::now(),
             ]);
 
             // Update record_declaration if exists
@@ -224,20 +224,20 @@ class DisposalExecutionService
 
             // Audit log
             $this->auditLog($userId, 'update', 'rm_disposal_action', $disposalActionId, 'Disposal executed: transfer', [
-                'destination'           => $destination,
+                'destination' => $destination,
                 'information_object_id' => $ioId,
-                'aip_package_id'        => $aipResult['aip_id'] ?? null,
-                'aip_files'             => $aipResult['payload_files'] ?? null,
-                'aip_bytes'             => $aipResult['total_size'] ?? null,
+                'aip_package_id' => $aipResult['aip_id'] ?? null,
+                'aip_files' => $aipResult['payload_files'] ?? null,
+                'aip_bytes' => $aipResult['total_size'] ?? null,
             ]);
 
             return [
-                'success'        => true,
-                'destination'    => $destination,
+                'success' => true,
+                'destination' => $destination,
                 'aip_package_id' => $aipResult['aip_id'] ?? null,
-                'aip_files'      => $aipResult['payload_files'] ?? null,
-                'aip_bytes'      => $aipResult['total_size'] ?? null,
-                'aip_bag_path'   => $aipResult['bag_path'] ?? null,
+                'aip_files' => $aipResult['payload_files'] ?? null,
+                'aip_bytes' => $aipResult['total_size'] ?? null,
+                'aip_bag_path' => $aipResult['bag_path'] ?? null,
             ];
         });
     }
@@ -248,12 +248,12 @@ class DisposalExecutionService
     public function executeRetain(int $disposalActionId, int $userId, string $reason): array
     {
         $action = DB::table('rm_disposal_action')->where('id', $disposalActionId)->first();
-        if (!$action) {
+        if (! $action) {
             return ['success' => false, 'error' => 'Disposal action not found.'];
         }
 
-        if (!in_array($action->status, ['cleared', 'approved'])) {
-            return ['success' => false, 'error' => 'Disposal action must be in "cleared" or "approved" status to retain. Current status: ' . $action->status];
+        if (! in_array($action->status, ['cleared', 'approved'])) {
+            return ['success' => false, 'error' => 'Disposal action must be in "cleared" or "approved" status to retain. Current status: '.$action->status];
         }
 
         return DB::transaction(function () use ($action, $disposalActionId, $userId, $reason) {
@@ -262,7 +262,7 @@ class DisposalExecutionService
                 'status' => 'retained',
                 'executed_by' => $userId,
                 'executed_at' => Carbon::now(),
-                'notes' => $action->notes ? $action->notes . "\nRetained: " . $reason : "Retained: " . $reason,
+                'notes' => $action->notes ? $action->notes."\nRetained: ".$reason : 'Retained: '.$reason,
                 'updated_at' => Carbon::now(),
             ]);
 
@@ -285,7 +285,7 @@ class DisposalExecutionService
     public function verifyDestruction(int $disposalActionId): array
     {
         $action = DB::table('rm_disposal_action')->where('id', $disposalActionId)->first();
-        if (!$action) {
+        if (! $action) {
             return ['verified' => false, 'checks' => [], 'failures' => ['Disposal action not found.']];
         }
 
@@ -309,11 +309,11 @@ class DisposalExecutionService
                 $checks[] = ['name' => 'Certificate number valid', 'passed' => true];
             } else {
                 $checks[] = ['name' => 'Certificate number valid', 'passed' => false];
-                $failures[] = 'Certificate number format invalid: ' . $certificate->certificate_number;
+                $failures[] = 'Certificate number format invalid: '.$certificate->certificate_number;
             }
 
             // 3. Check: content_hash is populated
-            if (!empty($certificate->content_hash)) {
+            if (! empty($certificate->content_hash)) {
                 $checks[] = ['name' => 'Content hash recorded', 'passed' => true];
             } else {
                 $checks[] = ['name' => 'Content hash recorded', 'passed' => false];
@@ -335,7 +335,7 @@ class DisposalExecutionService
         foreach ($digitalObjects as $do) {
             if ($do->path && file_exists($do->path)) {
                 $allFilesGone = false;
-                $failures[] = 'File still exists on disk: ' . $do->path;
+                $failures[] = 'File still exists on disk: '.$do->path;
             }
         }
         $checks[] = ['name' => 'Digital object files removed from disk', 'passed' => $allFilesGone];
@@ -379,10 +379,10 @@ class DisposalExecutionService
     private function generateCertificateNumber(): string
     {
         $year = date('Y');
-        $prefix = 'DC-' . $year . '-';
+        $prefix = 'DC-'.$year.'-';
 
         $lastCert = DB::table('destruction_certificate')
-            ->where('certificate_number', 'LIKE', $prefix . '%')
+            ->where('certificate_number', 'LIKE', $prefix.'%')
             ->orderBy('certificate_number', 'desc')
             ->value('certificate_number');
 
@@ -393,7 +393,7 @@ class DisposalExecutionService
             $nextNum = 1;
         }
 
-        return $prefix . str_pad($nextNum, 5, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($nextNum, 5, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -401,7 +401,7 @@ class DisposalExecutionService
      */
     private function auditLog(int $userId, string $action, string $entityType, int $entityId, string $title, array $metadata = []): void
     {
-        if (!Schema::hasTable('ahg_audit_log')) {
+        if (! Schema::hasTable('ahg_audit_log')) {
             return;
         }
 
@@ -430,7 +430,7 @@ class DisposalExecutionService
             'action_name' => $action,
             'request_method' => request()->method(),
             'request_uri' => request()->getRequestUri(),
-            'metadata' => !empty($metadata) ? json_encode($metadata) : null,
+            'metadata' => ! empty($metadata) ? json_encode($metadata) : null,
             'status' => 'success',
             'created_at' => Carbon::now(),
         ]);

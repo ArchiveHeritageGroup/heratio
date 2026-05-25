@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCart\Controllers;
 
 use AhgCart\Services\CartService;
@@ -37,6 +35,7 @@ use Illuminate\Support\Facades\DB;
 class CartController extends Controller
 {
     private CartService $cartService;
+
     private EcommerceService $ecommerceService;
 
     public function __construct(CartService $cartService, EcommerceService $ecommerceService)
@@ -72,10 +71,11 @@ class CartController extends Controller
     public function addListing(Request $request, int $listingId)
     {
         $userId = Auth::id();
-        if (!$userId) {
+        if (! $userId) {
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['ok' => false, 'reason' => 'unauthenticated'], 401);
             }
+
             return redirect()->route('login');
         }
 
@@ -84,17 +84,18 @@ class CartController extends Controller
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
-                'ok'         => true,
-                'added'      => $added,
-                'already'    => !$added,
+                'ok' => true,
+                'added' => $added,
+                'already' => ! $added,
                 'cart_count' => $count,
-                'message'    => $added ? 'Listing added to your cart.' : 'Already in your cart (or no longer active).',
+                'message' => $added ? 'Listing added to your cart.' : 'Already in your cart (or no longer active).',
             ]);
         }
 
         if ($added) {
             return redirect()->route('cart.browse')->with('success', 'Listing added to your cart.');
         }
+
         return redirect()->route('cart.browse')->with('info', 'That listing is already in your cart (or no longer active).');
     }
 
@@ -111,7 +112,7 @@ class CartController extends Controller
     public function marketplaceCheckout(Request $request)
     {
         $userId = Auth::id();
-        if (!$userId) {
+        if (! $userId) {
             return redirect()->route('login');
         }
 
@@ -130,7 +131,7 @@ class CartController extends Controller
         foreach ($cart['items'] as $i => $item) {
             // Skip self-buy
             $listing = $marketplace->getListingById((int) $item->listing_id);
-            if (!$listing) {
+            if (! $listing) {
                 continue;
             }
             $sellerForBuyer = $marketplace->getSellerByUserId($userId);
@@ -139,15 +140,15 @@ class CartController extends Controller
             }
 
             $result = $marketplace->createTransaction([
-                'source'     => 'fixed_price',
+                'source' => 'fixed_price',
                 'listing_id' => (int) $item->listing_id,
-                'buyer_id'   => $userId,
+                'buyer_id' => $userId,
             ]);
             if (empty($result['success'])) {
                 continue;
             }
             $txnId = (int) ($result['transaction_id'] ?? ($result['transaction']->id ?? 0));
-            if (!$txnId) {
+            if (! $txnId) {
                 continue;
             }
 
@@ -172,17 +173,17 @@ class CartController extends Controller
         // a friendly item_name.
         $firstListing = $marketplace->getListingById($listingsCovered[0]);
         $syntheticTxn = (object) [
-            'id'                 => 0,
+            'id' => 0,
             'transaction_number' => $groupId,
-            'grand_total'        => number_format($grandTotal, 2, '.', ''),
-            'currency'           => $cart['currency'],
+            'grand_total' => number_format($grandTotal, 2, '.', ''),
+            'currency' => $cart['currency'],
         ];
         $itemTitle = count($createdTxnIds) === 1
             ? ($firstListing->title ?? 'Marketplace purchase')
-            : 'Marketplace cart (' . count($createdTxnIds) . ' items)';
+            : 'Marketplace cart ('.count($createdTxnIds).' items)';
         $syntheticListing = (object) [
             'title' => $itemTitle,
-            'description' => 'Combined PayFast checkout for ' . count($createdTxnIds) . ' marketplace listing(s).',
+            'description' => 'Combined PayFast checkout for '.count($createdTxnIds).' marketplace listing(s).',
         ];
 
         $userRow = DB::table('users')->where('id', $userId)->first(['name', 'email']);
@@ -192,7 +193,7 @@ class CartController extends Controller
         try {
             $url = $payments->buildProcessUrl($syntheticTxn, $syntheticListing, $name, $email);
         } catch (\Throwable $e) {
-            return redirect()->route('cart.browse')->with('error', 'Payment gateway is not configured: ' . $e->getMessage());
+            return redirect()->route('cart.browse')->with('error', 'Payment gateway is not configured: '.$e->getMessage());
         }
 
         return redirect()->away($url);
@@ -208,13 +209,14 @@ class CartController extends Controller
     public function marketplaceDemoCheckout(Request $request)
     {
         $userId = Auth::id();
-        if (!$userId) {
+        if (! $userId) {
             return redirect()->route('login');
         }
 
         $ecommerce = app(\AhgCart\Services\EcommerceService::class);
         if ($ecommerce->isEcommerceEnabled()) {
             session()->flash('error', 'E-commerce is enabled — use the real PayFast checkout.');
+
             return redirect()->route('cart.browse');
         }
 
@@ -228,7 +230,7 @@ class CartController extends Controller
 
         foreach ($cart['items'] as $item) {
             $listing = $marketplace->getListingById((int) $item->listing_id);
-            if (!$listing) {
+            if (! $listing) {
                 continue;
             }
             $sellerForBuyer = $marketplace->getSellerByUserId($userId);
@@ -237,15 +239,15 @@ class CartController extends Controller
             }
 
             $result = $marketplace->createTransaction([
-                'source'     => 'fixed_price',
+                'source' => 'fixed_price',
                 'listing_id' => (int) $item->listing_id,
-                'buyer_id'   => $userId,
+                'buyer_id' => $userId,
             ]);
             if (empty($result['success'])) {
                 continue;
             }
             $txnId = (int) ($result['transaction_id'] ?? ($result['transaction']->id ?? 0));
-            if (!$txnId) {
+            if (! $txnId) {
                 continue;
             }
 
@@ -254,12 +256,12 @@ class CartController extends Controller
             DB::table('marketplace_transaction')
                 ->where('id', $txnId)
                 ->update([
-                    'payment_status'         => 'paid',
-                    'payment_gateway'        => 'demo',
-                    'payment_transaction_id' => 'TXN-DEMO-' . random_int(10000, 99999),
-                    'gateway_response'       => json_encode(['demo' => true, 'note' => 'simulated payment — e-commerce disabled']),
-                    'paid_at'                => now(),
-                    'updated_at'             => now(),
+                    'payment_status' => 'paid',
+                    'payment_gateway' => 'demo',
+                    'payment_transaction_id' => 'TXN-DEMO-'.random_int(10000, 99999),
+                    'gateway_response' => json_encode(['demo' => true, 'note' => 'simulated payment — e-commerce disabled']),
+                    'paid_at' => now(),
+                    'updated_at' => now(),
                 ]);
             $createdTxns[] = $txnId;
 
@@ -299,6 +301,7 @@ class CartController extends Controller
             $cart['currency'],
             number_format($total, 2)
         ));
+
         return redirect()->route('cart.browse');
     }
 
@@ -306,14 +309,15 @@ class CartController extends Controller
     {
         $date = date('Ymd');
         $last = DB::table('marketplace_transaction')
-            ->where('cart_group_id', 'LIKE', 'CART-' . $date . '-%')
+            ->where('cart_group_id', 'LIKE', 'CART-'.$date.'-%')
             ->orderByDesc('id')
             ->first();
         $seq = 1;
-        if ($last && !empty($last->cart_group_id)) {
+        if ($last && ! empty($last->cart_group_id)) {
             $parts = explode('-', $last->cart_group_id);
             $seq = (int) end($parts) + 1;
         }
+
         return sprintf('CART-%s-%04d', $date, $seq);
     }
 
@@ -323,7 +327,7 @@ class CartController extends Controller
 
         // Resolve object from slug
         $slugRow = DB::table('slug')->where('slug', $slug)->first();
-        if (!$slugRow) {
+        if (! $slugRow) {
             return redirect()->back()->with('error', 'Item not found.');
         }
 
@@ -347,6 +351,7 @@ class CartController extends Controller
     public function remove(Request $request, int $id)
     {
         $this->cartService->removeItem($id, Auth::id());
+
         return redirect()->route('cart.browse')->with('success', 'Item removed from cart.');
     }
 
@@ -357,29 +362,32 @@ class CartController extends Controller
     public function removeListing(Request $request, int $listingId)
     {
         $userId = Auth::id();
-        if (!$userId) {
+        if (! $userId) {
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json(['ok' => false, 'reason' => 'unauthenticated'], 401);
             }
+
             return redirect()->route('login');
         }
 
         $removed = $this->cartService->removeListingFromCart($userId, $listingId);
-        $count   = $this->cartService->getCartCount($userId, null);
+        $count = $this->cartService->getCartCount($userId, null);
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
-                'ok'         => true,
-                'removed'    => $removed,
+                'ok' => true,
+                'removed' => $removed,
                 'cart_count' => $count,
             ]);
         }
+
         return redirect()->route('cart.browse')->with('success', 'Listing removed from cart.');
     }
 
     public function clear(Request $request)
     {
         $this->cartService->clearAll(Auth::id(), $request->session()->getId());
+
         return redirect()->route('cart.browse')->with('success', 'Cart cleared.');
     }
 
@@ -399,6 +407,7 @@ class CartController extends Controller
             if ($isEcommerce) {
                 return $this->processEcommerceCheckout($request, $items);
             }
+
             return $this->processStandardCheckout($request, $items);
         }
 
@@ -451,20 +460,22 @@ class CartController extends Controller
 
     public function orders()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
         $orders = $this->ecommerceService->getUserOrders(Auth::id());
+
         return view('ahg-cart::orders', compact('orders'));
     }
 
     public function orderConfirmation(int $id)
     {
         $order = $this->ecommerceService->getOrder($id);
-        if (!$order) {
+        if (! $order) {
             abort(404);
         }
         $items = $this->ecommerceService->getOrderItems($id);
+
         return view('ahg-cart::order-confirmation', compact('order', 'items'));
     }
 
@@ -480,6 +491,7 @@ class CartController extends Controller
         $status = $request->get('status');
         $data = $this->ecommerceService->getAllOrders($page, 20, $status);
         $stats = $this->ecommerceService->getOrderStats();
+
         return view('ahg-cart::admin.orders', array_merge($data, ['stats' => $stats, 'filterStatus' => $status]));
     }
 
@@ -490,6 +502,7 @@ class CartController extends Controller
 
             if ($actionType === 'save_pricing') {
                 $this->savePricing($request);
+
                 return redirect()->route('cart.admin.settings', ['tab' => 'pricing'])->with('success', 'Product pricing updated.');
             }
 
@@ -512,6 +525,7 @@ class CartController extends Controller
                         'updated_at' => now(),
                     ]);
             }
+
             return redirect()->route('cart.admin.settings')->with('success', 'E-commerce settings saved.');
         }
 
@@ -519,6 +533,7 @@ class CartController extends Controller
         $productTypes = $this->ecommerceService->getProductTypes(false);
         $pricing = $this->ecommerceService->getProductPricing(null, false);
         $activeTab = $request->get('tab', 'general');
+
         return view('ahg-cart::admin.settings', compact('settings', 'productTypes', 'pricing', 'activeTab'));
     }
 
@@ -532,14 +547,17 @@ class CartController extends Controller
             $pt = $productTypes->firstWhere('id', $typeId);
             $this->ecommerceService->savePricing([
                 'product_type_id' => $typeId,
-                'name' => $pt->name ?? 'Product ' . $typeId,
+                'name' => $pt->name ?? 'Product '.$typeId,
                 'price' => floatval($price),
                 'is_active' => isset($active[$typeId]) ? 1 : 0,
             ]);
         }
     }
 
-    public function payment(int $id) { return view('ahg-cart::payment'); }
+    public function payment(int $id)
+    {
+        return view('ahg-cart::payment');
+    }
 
     /**
      * Download a cart export via token authentication.
@@ -551,12 +569,12 @@ class CartController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$download) {
+        if (! $download) {
             abort(404, 'Download link has expired or is invalid.');
         }
 
         $filePath = $download->file_path ?? null;
-        if (!$filePath || !file_exists($filePath)) {
+        if (! $filePath || ! file_exists($filePath)) {
             abort(404, 'File not found.');
         }
 
@@ -585,7 +603,7 @@ class CartController extends Controller
         ]);
 
         // Update order status if we have a valid order
-        if (!empty($data['m_payment_id']) && ($data['payment_status'] ?? '') === 'COMPLETE') {
+        if (! empty($data['m_payment_id']) && ($data['payment_status'] ?? '') === 'COMPLETE') {
             DB::table('ahg_order')
                 ->where('id', $data['m_payment_id'])
                 ->update([

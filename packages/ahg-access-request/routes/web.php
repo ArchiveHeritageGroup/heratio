@@ -46,4 +46,3 @@ Route::get('/security/approvers', [AccessRequestController::class, 'approvers'])
 Route::post('/security/approvers/add', [AccessRequestController::class, 'addApprover'])->middleware('admin')->name('accessRequest.legacyAddApprover');
 Route::post('/security/approvers/{id}/remove', [AccessRequestController::class, 'removeApprover'])->middleware('admin')->name('accessRequest.legacyRemoveApprover')->where('id', '[0-9]+');
 Route::get('/security/requests', fn () => redirect()->route('accessRequest.pending', [], 301));
-

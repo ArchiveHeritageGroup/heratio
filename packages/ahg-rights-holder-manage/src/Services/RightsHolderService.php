@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgRightsHolderManage\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -42,6 +40,7 @@ class RightsHolderService
     public function getBySlug(string $slug): ?object
     {
         $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
+
         return $objectId ? $this->getById($objectId) : null;
     }
 
@@ -113,7 +112,10 @@ class RightsHolderService
 
     public function getTermNames(array $ids): array
     {
-        if (empty($ids)) return [];
+        if (empty($ids)) {
+            return [];
+        }
+
         return DB::table('term_i18n')->whereIn('id', $ids)->where('culture', $this->culture)->pluck('name', 'id')->toArray();
     }
 
@@ -131,7 +133,7 @@ class RightsHolderService
             ->where('culture', $this->culture)
             ->value('authorized_form_of_name');
 
-        if (!$rhName) {
+        if (! $rhName) {
             return collect();
         }
 
@@ -197,7 +199,7 @@ class RightsHolderService
         $now = date('Y-m-d H:i:s');
 
         // If is_primary, unset any existing primary for this object
-        if (!empty($data['is_primary'])) {
+        if (! empty($data['is_primary'])) {
             DB::table('extended_rights')
                 ->where('object_id', $objectId)
                 ->where('is_primary', 1)
@@ -205,37 +207,37 @@ class RightsHolderService
         }
 
         $id = DB::table('extended_rights')->insertGetId([
-            'object_id'                   => $objectId,
-            'rights_statement_id'         => $data['rights_statement_id'] ?? null,
+            'object_id' => $objectId,
+            'rights_statement_id' => $data['rights_statement_id'] ?? null,
             'creative_commons_license_id' => $data['creative_commons_license_id'] ?? null,
-            'rights_date'                 => $data['rights_date'] ?? null,
-            'expiry_date'                 => $data['expiry_date'] ?? null,
-            'rights_holder'               => $data['rights_holder'] ?? null,
-            'rights_holder_uri'           => $data['rights_holder_uri'] ?? null,
-            'is_primary'                  => $data['is_primary'] ?? 1,
-            'created_by'                  => $userId,
-            'updated_by'                  => $userId,
-            'created_at'                  => $now,
-            'updated_at'                  => $now,
+            'rights_date' => $data['rights_date'] ?? null,
+            'expiry_date' => $data['expiry_date'] ?? null,
+            'rights_holder' => $data['rights_holder'] ?? null,
+            'rights_holder_uri' => $data['rights_holder_uri'] ?? null,
+            'is_primary' => $data['is_primary'] ?? 1,
+            'created_by' => $userId,
+            'updated_by' => $userId,
+            'created_at' => $now,
+            'updated_at' => $now,
         ]);
 
         // Insert i18n row
         DB::table('extended_rights_i18n')->insert([
             'extended_rights_id' => $id,
-            'culture'            => $this->culture,
-            'rights_note'        => $data['rights_note'] ?? null,
-            'usage_conditions'   => $data['usage_conditions'] ?? null,
-            'copyright_notice'   => $data['copyright_notice'] ?? null,
+            'culture' => $this->culture,
+            'rights_note' => $data['rights_note'] ?? null,
+            'usage_conditions' => $data['usage_conditions'] ?? null,
+            'copyright_notice' => $data['copyright_notice'] ?? null,
         ]);
 
         // Insert TK labels
-        if (!empty($data['tk_label_ids'])) {
+        if (! empty($data['tk_label_ids'])) {
             foreach ($data['tk_label_ids'] as $tkLabelId) {
                 DB::table('extended_rights_tk_label')->insert([
                     'extended_rights_id' => $id,
-                    'tk_label_id'        => (int) $tkLabelId,
-                    'created_at'         => $now,
-                    'updated_at'         => $now,
+                    'tk_label_id' => (int) $tkLabelId,
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ]);
             }
         }
@@ -255,7 +257,7 @@ class RightsHolderService
             $slug = $baseSlug;
             $counter = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
-                $slug = $baseSlug . '-' . $counter++;
+                $slug = $baseSlug.'-'.$counter++;
             }
             DB::table('slug')->insert(['object_id' => $id, 'slug' => $slug]);
 
@@ -281,7 +283,7 @@ class RightsHolderService
                 'revision_history' => $data['revision_history'] ?? null,
             ]);
 
-            if (!empty($data['contacts'])) {
+            if (! empty($data['contacts'])) {
                 $this->saveContacts($id, $data['contacts']);
             }
 
@@ -294,9 +296,13 @@ class RightsHolderService
         DB::transaction(function () use ($id, $data) {
             $actorUpdate = [];
             foreach (['entity_type_id', 'description_identifier', 'corporate_body_identifiers'] as $f) {
-                if (array_key_exists($f, $data)) $actorUpdate[$f] = $data[$f];
+                if (array_key_exists($f, $data)) {
+                    $actorUpdate[$f] = $data[$f];
+                }
             }
-            if (!empty($actorUpdate)) DB::table('actor')->where('id', $id)->update($actorUpdate);
+            if (! empty($actorUpdate)) {
+                DB::table('actor')->where('id', $id)->update($actorUpdate);
+            }
 
             $i18nFields = [
                 'authorized_form_of_name', 'dates_of_existence', 'history', 'places',
@@ -305,15 +311,22 @@ class RightsHolderService
             ];
             $i18n = [];
             foreach ($i18nFields as $f) {
-                if (array_key_exists($f, $data)) $i18n[$f] = $data[$f];
+                if (array_key_exists($f, $data)) {
+                    $i18n[$f] = $data[$f];
+                }
             }
-            if (!empty($i18n)) {
+            if (! empty($i18n)) {
                 $exists = DB::table('actor_i18n')->where('id', $id)->where('culture', $this->culture)->exists();
-                if ($exists) DB::table('actor_i18n')->where('id', $id)->where('culture', $this->culture)->update($i18n);
-                else DB::table('actor_i18n')->insert(array_merge(['id' => $id, 'culture' => $this->culture], $i18n));
+                if ($exists) {
+                    DB::table('actor_i18n')->where('id', $id)->where('culture', $this->culture)->update($i18n);
+                } else {
+                    DB::table('actor_i18n')->insert(array_merge(['id' => $id, 'culture' => $this->culture], $i18n));
+                }
             }
 
-            if (array_key_exists('contacts', $data)) $this->syncContacts($id, $data['contacts']);
+            if (array_key_exists('contacts', $data)) {
+                $this->syncContacts($id, $data['contacts']);
+            }
 
             DB::table('object')->where('id', $id)->update(['updated_at' => now(), 'serial_number' => DB::raw('serial_number + 1')]);
         });
@@ -323,19 +336,19 @@ class RightsHolderService
     {
         DB::transaction(function () use ($id) {
             $contactIds = DB::table('contact_information')->where('actor_id', $id)->pluck('id')->toArray();
-            if (!empty($contactIds)) {
+            if (! empty($contactIds)) {
                 DB::table('contact_information_i18n')->whereIn('id', $contactIds)->delete();
                 DB::table('contact_information')->whereIn('id', $contactIds)->delete();
             }
             $relationIds = DB::table('relation')->where('subject_id', $id)->orWhere('object_id', $id)->pluck('id')->toArray();
-            if (!empty($relationIds)) {
+            if (! empty($relationIds)) {
                 DB::table('relation_i18n')->whereIn('id', $relationIds)->delete();
                 DB::table('relation')->whereIn('id', $relationIds)->delete();
                 DB::table('slug')->whereIn('object_id', $relationIds)->delete();
                 DB::table('object')->whereIn('id', $relationIds)->delete();
             }
             $noteIds = DB::table('note')->where('object_id', $id)->pluck('id')->toArray();
-            if (!empty($noteIds)) {
+            if (! empty($noteIds)) {
                 DB::table('note_i18n')->whereIn('id', $noteIds)->delete();
                 DB::table('note')->whereIn('id', $noteIds)->delete();
                 DB::table('object')->whereIn('id', $noteIds)->delete();
@@ -357,9 +370,11 @@ class RightsHolderService
     protected function saveContacts(int $actorId, array $contacts): void
     {
         foreach ($contacts as $c) {
-            if ($this->isContactEmpty($c)) continue;
+            if ($this->isContactEmpty($c)) {
+                continue;
+            }
             $cid = DB::table('contact_information')->insertGetId([
-                'actor_id' => $actorId, 'primary_contact' => !empty($c['primary_contact']) ? 1 : 0,
+                'actor_id' => $actorId, 'primary_contact' => ! empty($c['primary_contact']) ? 1 : 0,
                 'contact_person' => $c['contact_person'] ?? null, 'street_address' => $c['street_address'] ?? null,
                 'website' => $c['website'] ?? null, 'email' => $c['email'] ?? null,
                 'telephone' => $c['telephone'] ?? null, 'fax' => $c['fax'] ?? null,
@@ -379,15 +394,18 @@ class RightsHolderService
     protected function syncContacts(int $actorId, array $contacts): void
     {
         foreach ($contacts as $c) {
-            if (!empty($c['delete']) && !empty($c['id'])) {
+            if (! empty($c['delete']) && ! empty($c['id'])) {
                 DB::table('contact_information_i18n')->where('id', $c['id'])->delete();
                 DB::table('contact_information')->where('id', $c['id'])->delete();
+
                 continue;
             }
-            if ($this->isContactEmpty($c)) continue;
-            if (!empty($c['id'])) {
+            if ($this->isContactEmpty($c)) {
+                continue;
+            }
+            if (! empty($c['id'])) {
                 DB::table('contact_information')->where('id', $c['id'])->update([
-                    'primary_contact' => !empty($c['primary_contact']) ? 1 : 0,
+                    'primary_contact' => ! empty($c['primary_contact']) ? 1 : 0,
                     'contact_person' => $c['contact_person'] ?? null, 'street_address' => $c['street_address'] ?? null,
                     'website' => $c['website'] ?? null, 'email' => $c['email'] ?? null,
                     'telephone' => $c['telephone'] ?? null, 'fax' => $c['fax'] ?? null,
@@ -398,8 +416,11 @@ class RightsHolderService
                 ]);
                 $i18n = ['contact_type' => $c['contact_type'] ?? null, 'city' => $c['city'] ?? null, 'region' => $c['region'] ?? null, 'note' => $c['note'] ?? null];
                 $exists = DB::table('contact_information_i18n')->where('id', $c['id'])->where('culture', $this->culture)->exists();
-                if ($exists) DB::table('contact_information_i18n')->where('id', $c['id'])->where('culture', $this->culture)->update($i18n);
-                else DB::table('contact_information_i18n')->insert(array_merge(['id' => $c['id'], 'culture' => $this->culture], $i18n));
+                if ($exists) {
+                    DB::table('contact_information_i18n')->where('id', $c['id'])->where('culture', $this->culture)->update($i18n);
+                } else {
+                    DB::table('contact_information_i18n')->insert(array_merge(['id' => $c['id'], 'culture' => $this->culture], $i18n));
+                }
             } else {
                 $this->saveContacts($actorId, [$c]);
             }
@@ -409,8 +430,11 @@ class RightsHolderService
     protected function isContactEmpty(array $d): bool
     {
         foreach (['contact_person', 'street_address', 'website', 'email', 'telephone', 'fax', 'city', 'region', 'postal_code', 'country_code'] as $f) {
-            if (!empty($d[$f])) return false;
+            if (! empty($d[$f])) {
+                return false;
+            }
         }
+
         return true;
     }
 }

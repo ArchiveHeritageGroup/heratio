@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -42,12 +40,12 @@ class AuthorityIdentifierService
      */
     public const URI_PATTERNS = [
         'wikidata' => 'https://www.wikidata.org/wiki/%s',
-        'viaf'     => 'https://viaf.org/viaf/%s',
-        'ulan'     => 'https://vocab.getty.edu/ulan/%s',
-        'lcnaf'    => 'https://id.loc.gov/authorities/names/%s',
-        'isni'     => 'https://isni.org/isni/%s',
-        'orcid'    => 'https://orcid.org/%s',
-        'gnd'      => 'https://d-nb.info/gnd/%s',
+        'viaf' => 'https://viaf.org/viaf/%s',
+        'ulan' => 'https://vocab.getty.edu/ulan/%s',
+        'lcnaf' => 'https://id.loc.gov/authorities/names/%s',
+        'isni' => 'https://isni.org/isni/%s',
+        'orcid' => 'https://orcid.org/%s',
+        'gnd' => 'https://d-nb.info/gnd/%s',
     ];
 
     /**
@@ -77,23 +75,23 @@ class AuthorityIdentifierService
      */
     public function save(int $actorId, array $data): int
     {
-        $type  = $data['identifier_type'] ?? '';
+        $type = $data['identifier_type'] ?? '';
         $value = trim($data['identifier_value'] ?? '');
 
         // Auto-construct URI if not provided
         $uri = $data['uri'] ?? null;
-        if (empty($uri) && isset(self::URI_PATTERNS[$type]) && !empty($value)) {
+        if (empty($uri) && isset(self::URI_PATTERNS[$type]) && ! empty($value)) {
             $uri = sprintf(self::URI_PATTERNS[$type], $value);
         }
 
         $row = [
-            'actor_id'         => $actorId,
-            'identifier_type'  => $type,
+            'actor_id' => $actorId,
+            'identifier_type' => $type,
             'identifier_value' => $value,
-            'uri'              => $uri,
-            'label'            => $data['label'] ?? null,
-            'source'           => $data['source'] ?? 'manual',
-            'updated_at'       => date('Y-m-d H:i:s'),
+            'uri' => $uri,
+            'label' => $data['label'] ?? null,
+            'source' => $data['source'] ?? 'manual',
+            'updated_at' => date('Y-m-d H:i:s'),
         ];
 
         // Upsert: unique on (actor_id, identifier_type)
@@ -136,7 +134,7 @@ class AuthorityIdentifierService
                 'is_verified' => 1,
                 'verified_at' => date('Y-m-d H:i:s'),
                 'verified_by' => $userId,
-                'updated_at'  => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
             ]) > 0;
     }
 
@@ -168,7 +166,7 @@ class AuthorityIdentifierService
      */
     public static function buildUri(string $type, string $value): ?string
     {
-        if (isset(self::URI_PATTERNS[$type]) && !empty($value)) {
+        if (isset(self::URI_PATTERNS[$type]) && ! empty($value)) {
             return sprintf(self::URI_PATTERNS[$type], $value);
         }
 

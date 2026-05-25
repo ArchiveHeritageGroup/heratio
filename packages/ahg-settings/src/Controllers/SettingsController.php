@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgSettings\Controllers;
 
 use AhgSettings\Services\SettingsService;
@@ -140,7 +138,7 @@ class SettingsController extends Controller
                 'key' => $scope,
                 'label' => $this->scopeLabels[$scope] ?? ucfirst(str_replace('_', ' ', $scope)),
                 'icon' => $this->scopeIcons[$scope] ?? 'fa-sliders-h',
-                'description' => $this->scopeDescriptions[$scope] ?? 'Manage ' . strtolower($this->scopeLabels[$scope] ?? str_replace('_', ' ', $scope)) . '.',
+                'description' => $this->scopeDescriptions[$scope] ?? 'Manage '.strtolower($this->scopeLabels[$scope] ?? str_replace('_', ' ', $scope)).'.',
                 'count' => DB::table('setting')
                     ->where('editable', 1)
                     ->when($scope === '_global', fn ($q) => $q->whereNull('scope'), fn ($q) => $q->where('scope', $scope))
@@ -217,7 +215,8 @@ class SettingsController extends Controller
                     ['value' => $value]
                 );
             }
-            return redirect()->route('settings.section', $section)->with('success', $sectionLabel . ' settings saved.');
+
+            return redirect()->route('settings.section', $section)->with('success', $sectionLabel.' settings saved.');
         }
 
         return view('ahg-settings::section', compact('settings', 'section', 'sectionLabel'));
@@ -248,6 +247,7 @@ class SettingsController extends Controller
                     ['value' => $value]
                 );
             }
+
             return redirect()->route('settings.default-template')->with('success', 'Default templates saved.');
         }
 
@@ -276,10 +276,12 @@ class SettingsController extends Controller
 
         if ($request->isMethod('post')) {
             $this->service->saveGlobalSettings($request->input('settings', []), $culture);
+
             return redirect()->route('settings.global')->with('success', 'Global settings saved.');
         }
 
         $settings = $this->service->getGlobalSettings($culture);
+
         return view('ahg-settings::global', compact('settings', 'menu'));
     }
 
@@ -292,10 +294,12 @@ class SettingsController extends Controller
             foreach (['siteTitle', 'siteDescription', 'siteBaseUrl'] as $name) {
                 $this->service->saveSetting($name, null, $request->input($name, ''), $culture);
             }
+
             return redirect()->route('settings.site-information')->with('success', 'Site information saved.');
         }
 
         $settings = $this->service->getSiteInformation($culture);
+
         return view('ahg-settings::site-information', compact('settings', 'menu'));
     }
 
@@ -308,10 +312,12 @@ class SettingsController extends Controller
             foreach (['limit_admin_ip', 'require_ssl_admin', 'require_strong_passwords'] as $name) {
                 $this->service->saveSetting($name, null, $request->input($name, ''), $culture);
             }
+
             return redirect()->route('settings.security')->with('success', 'Security settings saved.');
         }
 
         $settings = $this->service->getSecuritySettings($culture);
+
         return view('ahg-settings::security', compact('settings', 'menu'));
     }
 
@@ -324,10 +330,12 @@ class SettingsController extends Controller
             foreach ($request->input('settings', []) as $name => $value) {
                 $this->service->saveSetting($name, null, $value ?? '', $culture);
             }
+
             return redirect()->route('settings.identifier')->with('success', 'Identifier settings saved.');
         }
 
         $settings = $this->service->getIdentifierSettings($culture);
+
         return view('ahg-settings::identifier', compact('settings', 'menu'));
     }
 
@@ -341,6 +349,7 @@ class SettingsController extends Controller
                 $request->input('settings', []),
                 $request->input('notif_toggles', [])
             );
+
             return redirect()->route('settings.email')->with('success', 'Email settings saved.');
         }
 
@@ -362,10 +371,12 @@ class SettingsController extends Controller
             foreach ($request->input('settings', []) as $name => $value) {
                 $this->service->saveSetting($name, null, $value ?? '', $culture);
             }
+
             return redirect()->route('settings.treeview')->with('success', 'Treeview settings saved.');
         }
 
         $settings = $this->service->getTreeviewSettings($culture);
+
         return view('ahg-settings::treeview', compact('settings', 'menu'));
     }
 
@@ -378,10 +389,12 @@ class SettingsController extends Controller
             foreach ($request->input('settings', []) as $name => $value) {
                 $this->service->saveSetting($name, null, $value ?? '', $culture);
             }
+
             return redirect()->route('settings.digital-objects')->with('success', 'Digital object settings saved.');
         }
 
         $settings = $this->service->getDigitalObjectSettings($culture);
+
         return view('ahg-settings::digital-objects', compact('settings', 'menu'));
     }
 
@@ -402,9 +415,15 @@ class SettingsController extends Controller
                 ->orderBy('name')
                 ->pluck('name')
                 ->toArray();
-        } catch (\Throwable $e) { $cultures = ['en']; }
-        if (empty($cultures)) $cultures = ['en'];
-        if (!in_array($culture, $cultures, true)) $culture = 'en';
+        } catch (\Throwable $e) {
+            $cultures = ['en'];
+        }
+        if (empty($cultures)) {
+            $cultures = ['en'];
+        }
+        if (! in_array($culture, $cultures, true)) {
+            $culture = 'en';
+        }
 
         if ($request->isMethod('post')) {
             // Look up the en value for each setting so we can mirror writes
@@ -438,6 +457,7 @@ class SettingsController extends Controller
             // Bust SettingHelper's static cache + the booted-config snapshot
             // so the new label is visible on the next request.
             \AhgCore\Services\SettingHelper::flush();
+
             return redirect()->route('settings.interface-labels', ['culture' => $culture])
                 ->with('success', "Interface labels saved for {$culture}.");
         }
@@ -446,7 +466,7 @@ class SettingsController extends Controller
         //   - source value (the en row, always — so editor sees the canonical)
         //   - target value (the row for the selected culture, or NULL if not yet translated)
         $settings = DB::table('setting as s')
-            ->leftJoin('setting_i18n as si_en',  function ($j) {
+            ->leftJoin('setting_i18n as si_en', function ($j) {
                 $j->on('s.id', '=', 'si_en.id')->where('si_en.culture', '=', 'en');
             })
             ->leftJoin('setting_i18n as si_cur', function ($j) use ($culture) {
@@ -486,6 +506,7 @@ class SettingsController extends Controller
                     ['value' => $value]
                 );
             }
+
             return redirect()->route('settings.visible-elements')->with('success', 'Visible elements saved.');
         }
 
@@ -523,7 +544,7 @@ class SettingsController extends Controller
                     ->where('scope', 'i18n_languages')
                     ->where('name', $code)
                     ->exists();
-                if (!$exists) {
+                if (! $exists) {
                     $id = DB::table('setting')->insertGetId([
                         'name' => $code,
                         'scope' => 'i18n_languages',
@@ -537,10 +558,13 @@ class SettingsController extends Controller
                         'culture' => $culture,
                         'value' => $code,
                     ]);
+
                     return redirect()->route('settings.languages')->with('success', "Language '{$code}' added.");
                 }
+
                 return redirect()->route('settings.languages')->with('error', "Language '{$code}' already exists.");
             }
+
             return redirect()->route('settings.languages')->with('error', 'Invalid language code. Use 2-3 lowercase letters (e.g. en, fr, af).');
         }
 
@@ -550,8 +574,10 @@ class SettingsController extends Controller
             if ($setting && $setting->deleteable) {
                 DB::table('setting_i18n')->where('id', $deleteId)->delete();
                 DB::table('setting')->where('id', $deleteId)->delete();
+
                 return redirect()->route('settings.languages')->with('success', 'Language removed.');
             }
+
             return redirect()->route('settings.languages')->with('error', 'This language cannot be deleted.');
         }
 
@@ -573,10 +599,12 @@ class SettingsController extends Controller
                     );
                 }
             }
+
             return redirect()->route('settings.oai')->with('success', 'OAI repository settings saved.');
         }
 
         $settings = $this->service->getOaiSettings($culture);
+
         return view('ahg-settings::oai', compact('settings', 'menu'));
     }
 
@@ -584,6 +612,7 @@ class SettingsController extends Controller
     {
         $menu = $this->buildMenu('system-info');
         $info = $this->service->getSystemInfo();
+
         return view('ahg-settings::system-info', compact('info', 'menu'));
     }
 
@@ -610,7 +639,7 @@ class SettingsController extends Controller
             curl_close($ch);
             if ($httpCode === 200) {
                 $health = json_decode($response, true);
-                $serviceChecks['Elasticsearch'] = ['status' => $health['status'] ?? 'ok', 'message' => 'Cluster: ' . ($health['cluster_name'] ?? 'unknown') . ' (' . ($health['status'] ?? 'unknown') . ')'];
+                $serviceChecks['Elasticsearch'] = ['status' => $health['status'] ?? 'ok', 'message' => 'Cluster: '.($health['cluster_name'] ?? 'unknown').' ('.($health['status'] ?? 'unknown').')'];
             } else {
                 $serviceChecks['Elasticsearch'] = ['status' => 'warning', 'message' => "HTTP {$httpCode}"];
             }
@@ -624,7 +653,7 @@ class SettingsController extends Controller
         $usedPct = round((1 - $free / $total) * 100, 1);
         $serviceChecks['Disk space'] = [
             'status' => $usedPct > 90 ? 'error' : ($usedPct > 75 ? 'warning' : 'ok'),
-            'message' => round($free / 1073741824, 1) . ' GB free (' . $usedPct . '% used)',
+            'message' => round($free / 1073741824, 1).' GB free ('.$usedPct.'% used)',
         ];
 
         // Check uploads directory
@@ -667,6 +696,7 @@ class SettingsController extends Controller
                     ->update(['setting_value' => $value]);
             }
             $this->regenerateThemeCss();
+
             return redirect()->route('settings.themes')->with('success', 'Theme settings saved.');
         }
 
@@ -702,7 +732,7 @@ class SettingsController extends Controller
         // Also write to the dynamic CSS path served by nginx
         $dynamicPath = public_path('css/ahg-theme-dynamic.css');
         $dir = dirname($dynamicPath);
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
         file_put_contents($dynamicPath, $css);
@@ -717,14 +747,14 @@ class SettingsController extends Controller
         $css = "/* AHG Theme - Dynamic CSS */\n:root {\n";
         $vars = $this->getThemeVars();
         foreach ($vars as $key => [$var, $default]) {
-            $css .= "    {$var}: " . ($rows[$key] ?? $default) . ";\n";
+            $css .= "    {$var}: ".($rows[$key] ?? $default).";\n";
         }
         $css .= "}\n";
         $css .= $this->getThemeRules();
 
         $customCss = $rows['ahg_custom_css'] ?? '';
-        if (!empty(trim($customCss))) {
-            $css .= "\n/* Custom CSS */\n" . $customCss . "\n";
+        if (! empty(trim($customCss))) {
+            $css .= "\n/* Custom CSS */\n".$customCss."\n";
         }
 
         return response($css, 200)->header('Content-Type', 'text/css');
@@ -755,9 +785,9 @@ class SettingsController extends Controller
             // through alerts, badges and `bg-success-subtle` automatically. The themes admin
             // page still lets the operator override each one with an explicit hex.
             'ahg_success_color' => ['--ahg-success', 'var(--ahg-primary)'],
-            'ahg_danger_color'  => ['--ahg-danger',  '#dc3545'],
+            'ahg_danger_color' => ['--ahg-danger',  '#dc3545'],
             'ahg_warning_color' => ['--ahg-warning', '#ffc107'],
-            'ahg_info_color'    => ['--ahg-info',    'var(--ahg-secondary)'],
+            'ahg_info_color' => ['--ahg-info',    'var(--ahg-secondary)'],
             'ahg_light_color' => ['--ahg-light', '#f8f9fa'],
             'ahg_dark_color' => ['--ahg-dark', '#343a40'],
             'ahg_muted_color' => ['--ahg-muted', '#6c757d'],
@@ -771,52 +801,52 @@ class SettingsController extends Controller
     private function getThemeRules(): string
     {
         return ".card-header { background-color: var(--ahg-card-header-bg) !important; color: var(--ahg-card-header-text) !important; }\n"
-            . ".card-header * { color: var(--ahg-card-header-text) !important; }\n"
-            . ".btn-primary { background-color: var(--ahg-btn-bg) !important; border-color: var(--ahg-btn-bg) !important; color: var(--ahg-btn-text) !important; }\n"
-            . ".btn-primary:hover, .btn-primary:focus { filter: brightness(0.9); }\n"
-            . "a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }\n"
-            . ".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n"
-            . ":root { --ahg-background-white: var(--ahg-background-light); --bs-body-bg: var(--ahg-background-light); "
+            .".card-header * { color: var(--ahg-card-header-text) !important; }\n"
+            .".btn-primary { background-color: var(--ahg-btn-bg) !important; border-color: var(--ahg-btn-bg) !important; color: var(--ahg-btn-text) !important; }\n"
+            .".btn-primary:hover, .btn-primary:focus { filter: brightness(0.9); }\n"
+            ."a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }\n"
+            .".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n"
+            .':root { --ahg-background-white: var(--ahg-background-light); --bs-body-bg: var(--ahg-background-light); '
               // Legacy bundled-CSS aliases — the AtoM-era theme bundle ships with hardcoded
               // green defaults on a parallel set of variable names (`--ahg-primary-color`,
               // `--ahg-accent-color`, etc.). Aliasing them onto the live theme palette neutralises
               // every rule that reads them — dropdown-hovers, action bars, toolbars and so on.
-              . "--ahg-primary-color: var(--ahg-primary); --ahg-primary-dark: var(--ahg-secondary);"
-              . "--ahg-accent-color: var(--ahg-primary); --ahg-accent-dark: var(--ahg-secondary);"
-              . "--ahg-border-color: #dee2e6;"
+              .'--ahg-primary-color: var(--ahg-primary); --ahg-primary-dark: var(--ahg-secondary);'
+              .'--ahg-accent-color: var(--ahg-primary); --ahg-accent-dark: var(--ahg-secondary);'
+              .'--ahg-border-color: #dee2e6;'
               // Bootstrap list-group active state: bundle defaults are #dee2e6 light-grey bg
               // with dark text, but blades add `text-white` (looks unreadable). Override so
               // the .list-group-item.active state matches the configured palette.
-              . "--bs-list-group-active-bg: var(--ahg-primary);"
-              . "--bs-list-group-active-color: #fff;"
-              . "--bs-list-group-active-border-color: var(--ahg-primary);"
+              .'--bs-list-group-active-bg: var(--ahg-primary);'
+              .'--bs-list-group-active-color: #fff;'
+              .'--bs-list-group-active-border-color: var(--ahg-primary);'
               // Bootstrap 5 "success" subtle tints — re-derive from the configured success
               // colour (defaults to --ahg-primary). Themes admin's "Success color" field still
               // wins when the operator sets it explicitly.
-              . "--bs-success-bg-subtle: color-mix(in srgb, var(--ahg-success) 12%, #fff);"
-              . "--bs-success-border-subtle: color-mix(in srgb, var(--ahg-success) 35%, #fff);"
-              . "--bs-success-text-emphasis: color-mix(in srgb, var(--ahg-success) 60%, #000);"
-              . "--bs-success: var(--ahg-success);"
-              . "}\n"
+              .'--bs-success-bg-subtle: color-mix(in srgb, var(--ahg-success) 12%, #fff);'
+              .'--bs-success-border-subtle: color-mix(in srgb, var(--ahg-success) 35%, #fff);'
+              .'--bs-success-text-emphasis: color-mix(in srgb, var(--ahg-success) 60%, #000);'
+              .'--bs-success: var(--ahg-success);'
+              ."}\n"
             // Direct .alert-success fallback for browsers that skip color-mix(); also kicks
             // in when a downstream stylesheet overrides --bs-success-bg-subtle.
-            . ".alert-success { background-color: color-mix(in srgb, var(--ahg-success) 12%, #fff) !important; "
-              . "border-color: color-mix(in srgb, var(--ahg-success) 35%, #fff) !important; "
-              . "color: color-mix(in srgb, var(--ahg-success) 60%, #000) !important; }\n"
+            .'.alert-success { background-color: color-mix(in srgb, var(--ahg-success) 12%, #fff) !important; '
+              .'border-color: color-mix(in srgb, var(--ahg-success) 35%, #fff) !important; '
+              ."color: color-mix(in srgb, var(--ahg-success) 60%, #000) !important; }\n"
             // Defuse the bundle's aggressive `div[class*=action]` rule — that selector matches
             // way too broadly (e.g. .actions-row, .row-actions, .action-icons) and was painting
             // every action-related container green. Reset to transparent and let the .actions
             // bar's own grey background remain.
-            . "div[class*=\"action\"] { background-color: transparent !important; }\n"
-            . ".actions { background-color: var(--ahg-card-header-bg, #495057) !important; }\n"
-            . ".action-bar, .button-bar, .toolbar, .record-actions, .item-actions, .btn-toolbar, .action-buttons { background: transparent !important; }\n"
-            . "#wrapper { background: var(--ahg-background-light) !important; color: var(--ahg-body-text); }\n"
-            . "body { background-color: var(--ahg-background-light) !important; color: var(--ahg-body-text) !important; }\n"
-            . "#top-bar { background-color: var(--ahg-header-bg) !important; color: var(--ahg-header-text) !important; }\n"
-            . "#top-bar, #top-bar .navbar-brand, #top-bar .nav-link, #top-bar .nav-link i { color: var(--ahg-header-text) !important; }\n"
+            ."div[class*=\"action\"] { background-color: transparent !important; }\n"
+            .".actions { background-color: var(--ahg-card-header-bg, #495057) !important; }\n"
+            .".action-bar, .button-bar, .toolbar, .record-actions, .item-actions, .btn-toolbar, .action-buttons { background: transparent !important; }\n"
+            ."#wrapper { background: var(--ahg-background-light) !important; color: var(--ahg-body-text); }\n"
+            ."body { background-color: var(--ahg-background-light) !important; color: var(--ahg-body-text) !important; }\n"
+            ."#top-bar { background-color: var(--ahg-header-bg) !important; color: var(--ahg-header-text) !important; }\n"
+            ."#top-bar, #top-bar .navbar-brand, #top-bar .nav-link, #top-bar .nav-link i { color: var(--ahg-header-text) !important; }\n"
             // Site description bar — entirely driven by themes settings (no inline-style fallback in master.blade)
-            . ".ahg-description-bar { background-color: var(--ahg-descbar-bg) !important; color: var(--ahg-descbar-text) !important; text-align: var(--ahg-descbar-align, left); }\n"
-            . ".ahg-description-bar a { color: var(--ahg-descbar-text) !important; text-decoration: underline; }\n"
+            .".ahg-description-bar { background-color: var(--ahg-descbar-bg) !important; color: var(--ahg-descbar-text) !important; text-align: var(--ahg-descbar-align, left); }\n"
+            .".ahg-description-bar a { color: var(--ahg-descbar-text) !important; text-decoration: underline; }\n"
 
             // ── Theme-wide overrides: re-tint Bootstrap "success/green" classes to the
             // configured primary so legacy blades that hardcode btn-success / bg-success
@@ -826,34 +856,34 @@ class SettingsController extends Controller
             // (`--bs-btn-bg`, `--bs-btn-color`, `--bs-btn-hover-bg`, etc.). Overriding only
             // `background-color` leaves the hover/active states green; we therefore set the
             // entire variable family on each success-style selector.
-            . ".btn-success, .btn.btn-success {"
-              . "--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-success); --bs-btn-border-color: var(--ahg-success);"
-              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);"
-              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);"
-              . "filter: none;"
-            . "}\n"
-            . ".btn-outline-success, .atom-btn-outline-success {"
-              . "--bs-btn-color: var(--ahg-success); --bs-btn-border-color: var(--ahg-success);"
-              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);"
-              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);"
-              . "color: var(--ahg-success) !important; border-color: var(--ahg-success) !important;"
-            . "}\n"
-            . ".btn-outline-success:hover, .btn-outline-success:focus, .atom-btn-outline-success:hover, .atom-btn-outline-success:focus {"
-              . "background-color: var(--ahg-success) !important; color: #fff !important; border-color: var(--ahg-success) !important;"
-            . "}\n"
-            . ".atom-btn-success, .btn.atom-btn-success {"
-              . "--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-success); --bs-btn-border-color: var(--ahg-success);"
-              . "--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);"
-              . "--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);"
-              . "background-color: var(--ahg-success) !important; color: #fff !important; border-color: var(--ahg-success) !important;"
-            . "}\n"
-            . ".bg-success { background-color: var(--ahg-success) !important; color: #fff !important; }\n"
-            . ".text-success { color: var(--ahg-success) !important; }\n"
-            . ".border-success { border-color: var(--ahg-success) !important; }\n"
-            . ".badge.bg-success { background-color: var(--ahg-success) !important; color: #fff !important; }\n"
+            .'.btn-success, .btn.btn-success {'
+              .'--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-success); --bs-btn-border-color: var(--ahg-success);'
+              .'--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);'
+              .'--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);'
+              .'filter: none;'
+            ."}\n"
+            .'.btn-outline-success, .atom-btn-outline-success {'
+              .'--bs-btn-color: var(--ahg-success); --bs-btn-border-color: var(--ahg-success);'
+              .'--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);'
+              .'--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);'
+              .'color: var(--ahg-success) !important; border-color: var(--ahg-success) !important;'
+            ."}\n"
+            .'.btn-outline-success:hover, .btn-outline-success:focus, .atom-btn-outline-success:hover, .atom-btn-outline-success:focus {'
+              .'background-color: var(--ahg-success) !important; color: #fff !important; border-color: var(--ahg-success) !important;'
+            ."}\n"
+            .'.atom-btn-success, .btn.atom-btn-success {'
+              .'--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-success); --bs-btn-border-color: var(--ahg-success);'
+              .'--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);'
+              .'--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);'
+              .'background-color: var(--ahg-success) !important; color: #fff !important; border-color: var(--ahg-success) !important;'
+            ."}\n"
+            .".bg-success { background-color: var(--ahg-success) !important; color: #fff !important; }\n"
+            .".text-success { color: var(--ahg-success) !important; }\n"
+            .".border-success { border-color: var(--ahg-success) !important; }\n"
+            .".badge.bg-success { background-color: var(--ahg-success) !important; color: #fff !important; }\n"
 
             // Dropdown headers inherit the primary tint
-            . ".dropdown-header { color: var(--ahg-primary) !important; font-weight: 600; }\n";
+            .".dropdown-header { color: var(--ahg-primary) !important; font-weight: 600; }\n";
     }
 
     public function ahgSection(Request $request, string $group)
@@ -944,11 +974,11 @@ class SettingsController extends Controller
             // 'basic' / 'enhanced' values still accepted by App\Support\
             // MediaSettings::playerType() and remapped to 'heratio').
             'media_player_type' => [
-                'heratio'         => 'Heratio (Recommended)',
+                'heratio' => 'Heratio (Recommended)',
                 'heratio-minimal' => 'Heratio-minimal',
-                'plyr'            => 'Plyr',
-                'videojs'         => 'Video.js',
-                'native'          => 'Native HTML5',
+                'plyr' => 'Plyr',
+                'videojs' => 'Video.js',
+                'native' => 'Native HTML5',
             ],
             'photo_max_upload_size' => ['5242880' => '5 MB', '10485760' => '10 MB', '20971520' => '20 MB', '52428800' => '50 MB'],
             'dp_default_regulation' => ['popia' => 'POPIA (South Africa)', 'gdpr' => 'GDPR (EU)', 'paia' => 'PAIA (South Africa)', 'ccpa' => 'CCPA (California)'],
@@ -1002,7 +1032,8 @@ class SettingsController extends Controller
             if ($group === 'general') {
                 $this->regenerateThemeCss();
             }
-            return redirect()->route('settings.ahg', $group)->with('success', ucfirst(str_replace('_', ' ', $group)) . ' settings saved.');
+
+            return redirect()->route('settings.ahg', $group)->with('success', ucfirst(str_replace('_', ' ', $group)).' settings saved.');
         }
 
         $settings = DB::table('ahg_settings')
@@ -1089,6 +1120,7 @@ class SettingsController extends Controller
                 $value = $request->input("settings.{$name}", '');
                 $this->service->saveSetting($name, null, $value, $culture);
             }
+
             return redirect()->route('settings.clipboard')->with('success', 'Clipboard settings saved.');
         }
 
@@ -1109,6 +1141,7 @@ class SettingsController extends Controller
         if ($request->isMethod('post')) {
             $value = $request->input('settings.csv_validator_default_import_behaviour', '0');
             $this->service->saveSetting('csv_validator_default_import_behaviour', null, $value, $culture);
+
             return redirect()->route('settings.csv-validator')->with('success', 'CSV Validator settings saved.');
         }
 
@@ -1159,6 +1192,7 @@ class SettingsController extends Controller
         if ($request->isMethod('post')) {
             $value = $request->input('settings.stripExtensions', '0');
             $this->service->saveSetting('stripExtensions', null, $value, $culture);
+
             return redirect()->route('settings.dip-upload')->with('success', 'DIP upload settings saved.');
         }
 
@@ -1194,6 +1228,7 @@ class SettingsController extends Controller
                 $value = $request->input("finding_aid.{$formKey}", $request->input("settings.{$formKey}", ''));
                 $this->service->saveSetting($dbName, null, $value, $culture);
             }
+
             return redirect()->route('settings.finding-aid')->with('success', 'Finding aid settings saved.');
         }
 
@@ -1224,7 +1259,7 @@ class SettingsController extends Controller
         // Get currently selected levels
         $currentValue = $this->service->getSetting('inventory_levels', null, $culture) ?? '';
         $selectedLevels = [];
-        if (!empty($currentValue)) {
+        if (! empty($currentValue)) {
             $unserialized = @unserialize($currentValue);
             if (is_array($unserialized)) {
                 $selectedLevels = $unserialized;
@@ -1235,6 +1270,7 @@ class SettingsController extends Controller
             $selected = $request->input('settings.levels', []);
             $serialized = serialize($selected);
             $this->service->saveSetting('inventory_levels', null, $serialized, $culture);
+
             return redirect()->route('settings.inventory')->with('success', 'Inventory settings saved.');
         }
 
@@ -1250,6 +1286,7 @@ class SettingsController extends Controller
         if ($request->isMethod('post')) {
             $value = $request->input('settings.enabled', '1');
             $this->service->saveSetting('markdown_enabled', null, $value, $culture);
+
             return redirect()->route('settings.markdown')->with('success', 'Markdown settings saved.');
         }
 
@@ -1356,6 +1393,7 @@ class SettingsController extends Controller
         if ($request->isMethod('post')) {
             $this->service->saveSetting('privacy_notification_enabled', null, $request->input('settings.privacy_notification_enabled', '0'), $culture);
             $this->service->saveSetting('privacy_notification', null, $request->input('settings.privacy_notification', ''), $culture);
+
             return redirect()->route('settings.privacy-notification')->with('success', 'Privacy notification settings saved.');
         }
 
@@ -1391,6 +1429,7 @@ class SettingsController extends Controller
                 $value = $request->input("settings.{$name}", '');
                 $this->service->saveSetting($name, null, $value, $culture);
             }
+
             return redirect()->route('settings.uploads')->with('success', 'Uploads settings saved.');
         }
 
@@ -1422,7 +1461,7 @@ class SettingsController extends Controller
             }
 
             // Ensure uploads directory exists
-            if (!is_dir($staticDir)) {
+            if (! is_dir($staticDir)) {
                 mkdir($staticDir, 0755, true);
             }
 
@@ -1441,14 +1480,14 @@ class SettingsController extends Controller
                 if (in_array($mime, ['image/x-icon', 'image/vnd.microsoft.icon', 'image/ico', 'image/icon'])) {
                     $faviconFile->move($staticDir, 'favicon.ico');
                     // Also copy to public root for direct access
-                    copy($staticDir . DIRECTORY_SEPARATOR . 'favicon.ico', public_path('favicon.ico'));
+                    copy($staticDir.DIRECTORY_SEPARATOR.'favicon.ico', public_path('favicon.ico'));
                 }
             }
 
             // Handle restore default logo
             if ($request->input('restore_logo')) {
                 $defaultLogoPath = public_path('vendor/ahg-theme-b5/images/logo.png');
-                $logoImgPath = $staticDir . DIRECTORY_SEPARATOR . 'logo.png';
+                $logoImgPath = $staticDir.DIRECTORY_SEPARATOR.'logo.png';
                 if (file_exists($defaultLogoPath)) {
                     copy($defaultLogoPath, $logoImgPath);
                 } else {
@@ -1459,7 +1498,7 @@ class SettingsController extends Controller
             // Handle restore default favicon
             if ($request->input('restore_favicon')) {
                 $defaultFaviconPath = resource_path('defaults/favicon.ico');
-                $faviconImgPath = $staticDir . DIRECTORY_SEPARATOR . 'favicon.ico';
+                $faviconImgPath = $staticDir.DIRECTORY_SEPARATOR.'favicon.ico';
                 // Try multiple fallback locations for the default favicon
                 $fallbackPaths = [
                     $defaultFaviconPath,
@@ -1474,7 +1513,7 @@ class SettingsController extends Controller
                         break;
                     }
                 }
-                if (!$restored) {
+                if (! $restored) {
                     // Remove custom favicon to fall back to default
                     if (file_exists($faviconImgPath)) {
                         unlink($faviconImgPath);
@@ -1509,6 +1548,7 @@ class SettingsController extends Controller
                 $value = $request->input("settings.{$name}", '');
                 $this->service->saveSetting($name, null, $value, $culture);
             }
+
             return redirect()->route('settings.web-analytics')->with('success', 'Web analytics settings saved.');
         }
 
@@ -1622,7 +1662,7 @@ class SettingsController extends Controller
     {
         $wantsJson = $request->expectsJson() || $request->ajax();
 
-        if (!Schema::hasTable('ahg_ai_condition_client')) {
+        if (! Schema::hasTable('ahg_ai_condition_client')) {
             return $wantsJson
                 ? response()->json(['success' => false, 'error' => 'Client table not provisioned.'], 500)
                 : back()->with('error', 'AI condition client table not provisioned.');
@@ -1637,7 +1677,7 @@ class SettingsController extends Controller
         }
 
         try {
-            $apiKey = 'ahgaic_' . bin2hex(random_bytes(24));
+            $apiKey = 'ahgaic_'.bin2hex(random_bytes(24));
             $id = DB::table('ahg_ai_condition_client')->insertGetId([
                 'name' => $name,
                 'organization' => $request->input('organization') ?: null,
@@ -1654,13 +1694,15 @@ class SettingsController extends Controller
             if ($wantsJson) {
                 return response()->json(['success' => true, 'id' => $id, 'api_key' => $apiKey]);
             }
+
             return redirect()->route('settings.ai-condition')
-                ->with('notice', 'API client created. Key: ' . $apiKey);
+                ->with('notice', 'API client created. Key: '.$apiKey);
         } catch (\Throwable $e) {
-            \Log::error('aiConditionClientSave failed: ' . $e->getMessage());
+            \Log::error('aiConditionClientSave failed: '.$e->getMessage());
+
             return $wantsJson
                 ? response()->json(['success' => false, 'error' => $e->getMessage()], 500)
-                : back()->with('error', 'Failed to create client: ' . $e->getMessage());
+                : back()->with('error', 'Failed to create client: '.$e->getMessage());
         }
     }
 
@@ -1670,10 +1712,11 @@ class SettingsController extends Controller
     public function aiConditionClientRevoke(Request $request)
     {
         $id = (int) $request->input('id');
-        if (!$id || !Schema::hasTable('ahg_ai_condition_client')) {
+        if (! $id || ! Schema::hasTable('ahg_ai_condition_client')) {
             return response()->json(['success' => false, 'error' => 'Invalid request.'], 422);
         }
         DB::table('ahg_ai_condition_client')->where('id', $id)->update(['is_active' => 0, 'updated_at' => now()]);
+
         return response()->json(['success' => true]);
     }
 
@@ -1684,13 +1727,14 @@ class SettingsController extends Controller
     {
         $id = (int) $request->input('id');
         $enabled = (int) $request->input('enabled') ? 1 : 0;
-        if (!$id || !Schema::hasTable('ahg_ai_condition_client')) {
+        if (! $id || ! Schema::hasTable('ahg_ai_condition_client')) {
             return response()->json(['success' => false, 'error' => 'Invalid request.'], 422);
         }
         DB::table('ahg_ai_condition_client')->where('id', $id)->update([
             'can_contribute_training' => $enabled,
             'updated_at' => now(),
         ]);
+
         return response()->json(['success' => true]);
     }
 
@@ -1710,11 +1754,12 @@ class SettingsController extends Controller
         }
 
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(5)->get(rtrim($url, '/') . '/health');
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->get(rtrim($url, '/').'/health');
             if ($response->successful()) {
                 return response()->json(['success' => true, 'data' => $response->json()]);
             }
-            return response()->json(['success' => false, 'error' => 'Service returned HTTP ' . $response->status()]);
+
+            return response()->json(['success' => false, 'error' => 'Service returned HTTP '.$response->status()]);
         } catch (\Throwable $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
@@ -1805,6 +1850,7 @@ class SettingsController extends Controller
                     ['setting_value' => $value]
                 );
             }
+
             return redirect()->route('settings.ahg.audit')
                 ->with('success', 'Audit Trail settings saved.');
         }
@@ -1844,6 +1890,7 @@ class SettingsController extends Controller
                     ['setting_value' => $value]
                 );
             }
+
             return redirect()->route('settings.ahg.jobs')
                 ->with('success', 'Background Jobs settings saved.');
         }
@@ -1870,6 +1917,7 @@ class SettingsController extends Controller
                 $value = $request->input("settings.{$name}", '');
                 $this->service->saveSetting($name, null, $value, $culture);
             }
+
             return redirect()->route('settings.storage-service')->with('success', 'Storage service settings saved.');
         }
 
@@ -1894,6 +1942,7 @@ class SettingsController extends Controller
                 DB::table('ahg_error_log')
                     ->where('id', $request->input('resolve_id'))
                     ->update(['resolved_at' => now(), 'resolved_by' => $authUser, 'is_read' => 1]);
+
                 return redirect()->route('settings.error-log')->with('success', 'Error resolved.');
             }
 
@@ -1901,6 +1950,7 @@ class SettingsController extends Controller
                 DB::table('ahg_error_log')
                     ->where('id', $request->input('reopen_id'))
                     ->update(['resolved_at' => null, 'resolved_by' => null]);
+
                 return redirect()->route('settings.error-log')->with('success', 'Error reopened.');
             }
 
@@ -1908,6 +1958,7 @@ class SettingsController extends Controller
                 DB::table('ahg_error_log')
                     ->where('is_read', 0)
                     ->update(['is_read' => 1]);
+
                 return redirect()->route('settings.error-log')->with('success', 'All errors marked as read.');
             }
 
@@ -1915,6 +1966,7 @@ class SettingsController extends Controller
                 DB::table('ahg_error_log')
                     ->whereNull('resolved_at')
                     ->update(['resolved_at' => now(), 'resolved_by' => $authUser, 'is_read' => 1]);
+
                 return redirect()->route('settings.error-log')->with('success', 'All open errors resolved.');
             }
 
@@ -1923,6 +1975,7 @@ class SettingsController extends Controller
                 DB::table('ahg_error_log')
                     ->where('created_at', '<', DB::raw("DATE_SUB(NOW(), INTERVAL {$days} DAY)"))
                     ->delete();
+
                 return redirect()->route('settings.error-log')->with('success', "Errors older than {$days} days cleared.");
             }
 
@@ -1930,6 +1983,7 @@ class SettingsController extends Controller
                 DB::table('ahg_error_log')
                     ->where('id', $request->input('delete_id'))
                     ->delete();
+
                 return redirect()->route('settings.error-log')->with('success', 'Error deleted.');
             }
 
@@ -1944,7 +1998,7 @@ class SettingsController extends Controller
         $limit = 25;
 
         $query = DB::table('ahg_error_log')
-            ->where('url', 'LIKE', '%' . $request->getHost() . '%');
+            ->where('url', 'LIKE', '%'.$request->getHost().'%');
 
         if ($statusFilter === 'open') {
             $query->whereNull('resolved_at');
@@ -1960,9 +2014,9 @@ class SettingsController extends Controller
         if ($searchFilter) {
             $query->where(function ($q) use ($searchFilter) {
                 $q->where('message', 'like', "%{$searchFilter}%")
-                  ->orWhere('url', 'like', "%{$searchFilter}%")
-                  ->orWhere('file', 'like', "%{$searchFilter}%")
-                  ->orWhere('exception_class', 'like', "%{$searchFilter}%");
+                    ->orWhere('url', 'like', "%{$searchFilter}%")
+                    ->orWhere('file', 'like', "%{$searchFilter}%")
+                    ->orWhere('exception_class', 'like', "%{$searchFilter}%");
             });
         }
 
@@ -1976,7 +2030,7 @@ class SettingsController extends Controller
             ->get();
 
         // Stats (scoped to this instance)
-        $hostFilter = fn ($q) => $q->where('url', 'LIKE', '%' . $request->getHost() . '%');
+        $hostFilter = fn ($q) => $q->where('url', 'LIKE', '%'.$request->getHost().'%');
         $openCount = DB::table('ahg_error_log')->where($hostFilter)->whereNull('resolved_at')->count();
         $resolvedCount = DB::table('ahg_error_log')->where($hostFilter)->whereNotNull('resolved_at')->count();
         $unreadCount = DB::table('ahg_error_log')->where($hostFilter)->where('is_read', 0)->count();
@@ -2014,16 +2068,18 @@ class SettingsController extends Controller
                 if ($plugin && $action === 'enable') {
                     DB::table('atom_plugin')->where('name', $pluginName)
                         ->update(['is_enabled' => 1, 'enabled_at' => now(), 'updated_at' => now()]);
+
                     return redirect()->route('settings.plugins')->with('success', "Plugin '{$pluginName}' enabled.");
                 }
 
                 if ($plugin && $action === 'disable') {
                     if ($plugin->is_core || $plugin->is_locked) {
                         return redirect()->route('settings.plugins')
-                            ->with('error', "Cannot disable '{$pluginName}': " . ($plugin->is_core ? 'core plugin' : 'plugin is locked'));
+                            ->with('error', "Cannot disable '{$pluginName}': ".($plugin->is_core ? 'core plugin' : 'plugin is locked'));
                     }
                     DB::table('atom_plugin')->where('name', $pluginName)
                         ->update(['is_enabled' => 0, 'disabled_at' => now(), 'updated_at' => now()]);
+
                     return redirect()->route('settings.plugins')->with('success', "Plugin '{$pluginName}' disabled.");
                 }
 
@@ -2033,8 +2089,9 @@ class SettingsController extends Controller
                     $adminOnly = $action === 'lock-to-admins' ? 1 : 0;
                     DB::table('atom_plugin')->where('name', $pluginName)
                         ->update(['admin_only' => $adminOnly, 'updated_at' => now()]);
-                    $msg = $adminOnly ? "now admin-only — non-admins will not see it"
-                                      : "available to non-admins (subject to per-user grants)";
+                    $msg = $adminOnly ? 'now admin-only — non-admins will not see it'
+                                      : 'available to non-admins (subject to per-user grants)';
+
                     return redirect()->route('settings.plugins')
                         ->with('success', "Plugin '{$pluginName}' is {$msg}.");
                 }
@@ -2045,9 +2102,10 @@ class SettingsController extends Controller
 
         $plugins = DB::table('atom_plugin')->orderBy('name')->get()->map(function ($p) {
             $p->category = $p->category ?? 'other';
-            if (str_starts_with($p->name, 'ahg') && !in_array($p->category, ['core', 'theme'])) {
+            if (str_starts_with($p->name, 'ahg') && ! in_array($p->category, ['core', 'theme'])) {
                 $p->category = 'ahg';
             }
+
             return $p;
         });
 
@@ -2068,6 +2126,7 @@ class SettingsController extends Controller
         // Sort alphabetically by label, but pin the index ('AHG Settings') to the top.
         $nodes = collect($this->menuNodes)->map(function ($node) use ($active) {
             $node['active'] = ($node['action'] === $active);
+
             return $node;
         });
 
@@ -2097,11 +2156,11 @@ class SettingsController extends Controller
     public function cronJobToggle(\Illuminate\Http\Request $request, int $id, \AhgCore\Services\CronSchedulerService $service)
     {
         $schedule = $service->find($id);
-        if (!$schedule) {
+        if (! $schedule) {
             return back()->with('error', 'Schedule not found.');
         }
 
-        $service->toggleEnabled($id, !$schedule->is_enabled);
+        $service->toggleEnabled($id, ! $schedule->is_enabled);
         $state = $schedule->is_enabled ? 'disabled' : 'enabled';
 
         return back()->with('success', "Job \"{$schedule->name}\" {$state}.");
@@ -2113,7 +2172,7 @@ class SettingsController extends Controller
     public function cronJobUpdate(\Illuminate\Http\Request $request, int $id, \AhgCore\Services\CronSchedulerService $service)
     {
         $schedule = $service->find($id);
-        if (!$schedule) {
+        if (! $schedule) {
             return back()->with('error', 'Schedule not found.');
         }
 
@@ -2137,7 +2196,7 @@ class SettingsController extends Controller
     public function cronJobRunNow(\Illuminate\Http\Request $request, int $id, \AhgCore\Services\CronSchedulerService $service)
     {
         $schedule = $service->find($id);
-        if (!$schedule) {
+        if (! $schedule) {
             return back()->with('error', 'Schedule not found.');
         }
 
@@ -2159,6 +2218,7 @@ class SettingsController extends Controller
         $count = $service->seedDefaults($reset);
 
         $msg = $reset ? "Reset {$count} schedules to defaults." : "Seeded {$count} schedule entries (new only).";
+
         return back()->with('success', $msg);
     }
 
@@ -2174,6 +2234,7 @@ class SettingsController extends Controller
             foreach ($settingNames as $name) {
                 $this->service->saveSetting($name, null, $request->input("settings.{$name}", ''), $culture);
             }
+
             return redirect()->route('settings.ldap')->with('success', 'LDAP settings saved.');
         }
 
@@ -2196,7 +2257,7 @@ class SettingsController extends Controller
         $availableSectors = ['archive', 'museum', 'library', 'gallery', 'dam'];
 
         $currentSector = $request->input('sector', 'archive');
-        if (!in_array($currentSector, $availableSectors)) {
+        if (! in_array($currentSector, $availableSectors)) {
             $currentSector = 'archive';
         }
 
@@ -2248,12 +2309,13 @@ class SettingsController extends Controller
                 $order = 10;
                 foreach ($levelIds as $levelId) {
                     DB::table('level_of_description_sector')->insert([
-                        'term_id'       => (int) $levelId,
-                        'sector'        => $currentSector,
+                        'term_id' => (int) $levelId,
+                        'sector' => $currentSector,
                         'display_order' => $order,
                     ]);
                     $order += 10;
                 }
+
                 return redirect()->route('settings.levels', ['sector' => $currentSector])
                     ->with('success', 'Sector levels updated successfully.');
             }
@@ -2266,6 +2328,7 @@ class SettingsController extends Controller
                         ->where('sector', $currentSector)
                         ->update(['display_order' => (int) $order]);
                 }
+
                 return redirect()->route('settings.levels', ['sector' => $currentSector])
                     ->with('success', 'Display order updated.');
             }
@@ -2288,6 +2351,7 @@ class SettingsController extends Controller
             foreach ($settingNames as $name) {
                 $this->service->saveSetting($name, null, $request->input("settings.{$name}", ''), $culture);
             }
+
             return redirect()->route('settings.paths')->with('success', 'Paths saved.');
         }
 
@@ -2333,10 +2397,12 @@ class SettingsController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+
                 return redirect()->route('settings.webhooks')->with('success', 'Webhook created.');
             }
             $webhooks = DB::table('ahg_webhook')->orderBy('name')->get()->map(function ($w) {
                 $w->events = json_decode($w->events, true) ?: [];
+
                 return $w;
             });
         }
@@ -2364,6 +2430,7 @@ class SettingsController extends Controller
                     ['setting_value' => $value]
                 );
             }
+
             return redirect()->route('settings.tts')->with('success', 'Text-to-Speech settings saved.');
         }
 
@@ -2395,15 +2462,15 @@ class SettingsController extends Controller
         // Defaults mirror the form's existing fallbacks so empty rows stay
         // operator-equivalent.
         $keyDefaults = [
-            'enable_public_notices'              => '0',
-            'enable_staff_notices'               => '0',
-            'require_acknowledgement_default'    => '0',
-            'require_community_consent'          => '0',
-            'consent_expiry_warning_days'        => '90',
+            'enable_public_notices' => '0',
+            'enable_staff_notices' => '0',
+            'require_acknowledgement_default' => '0',
+            'require_community_consent' => '0',
+            'consent_expiry_warning_days' => '90',
             'default_consultation_follow_up_days' => '30',
-            'local_contexts_hub_enabled'         => '0',
-            'local_contexts_api_key'             => '',
-            'audit_all_icip_access'              => '0',
+            'local_contexts_hub_enabled' => '0',
+            'local_contexts_api_key' => '',
+            'audit_all_icip_access' => '0',
         ];
 
         if ($request->isMethod('post')) {
@@ -2416,6 +2483,7 @@ class SettingsController extends Controller
                     ['config_value' => $value, 'updated_at' => now()]
                 );
             }
+
             return redirect()->route('settings.icip-settings')->with('success', 'ICIP settings saved.');
         }
 
@@ -2495,7 +2563,7 @@ class SettingsController extends Controller
                     // silently dropped on the floor.
                     DB::transaction(function () use ($name, $culture) {
                         $existing = DB::table('setting')->whereNull('scope')->where('name', $name)->first();
-                        if (!$existing) {
+                        if (! $existing) {
                             $objId = DB::table('object')->insertGetId([
                                 'class_name' => 'QubitSetting',
                                 'created_at' => now(),
@@ -2515,6 +2583,7 @@ class SettingsController extends Controller
                     $this->service->saveSetting($name, null, (string) $val, $culture);
                 }
             }
+
             return redirect()->route('settings.sector-numbering')->with('success', 'Sector numbering saved.');
         }
 
@@ -2549,7 +2618,7 @@ class SettingsController extends Controller
         $previews = [];
         $schemeId = $id;
 
-        if (!$isNew && Schema::hasTable('numbering_scheme')) {
+        if (! $isNew && Schema::hasTable('numbering_scheme')) {
             $scheme = DB::table('numbering_scheme')->find($id);
         }
 
@@ -2571,6 +2640,7 @@ class SettingsController extends Controller
             } else {
                 DB::table('numbering_scheme')->where('id', $id)->update($data);
             }
+
             return redirect()->route('settings.numbering-schemes')->with('success', 'Numbering scheme saved.');
         }
 
@@ -2639,7 +2709,7 @@ class SettingsController extends Controller
             'qdrant_min_score' => '0.25',
         ];
         foreach ($defaults as $k => $v) {
-            if (!isset($settings[$k])) {
+            if (! isset($settings[$k])) {
                 $settings[$k] = $v;
             }
         }
@@ -2801,7 +2871,7 @@ class SettingsController extends Controller
             // Entity types (checkboxes to JSON)
             $entityTypes = [];
             foreach (['PERSON', 'ORG', 'GPE', 'DATE'] as $type) {
-                if ($request->input('entity_' . $type)) {
+                if ($request->input('entity_'.$type)) {
                     $entityTypes[] = $type;
                 }
             }
@@ -2813,7 +2883,7 @@ class SettingsController extends Controller
             // Spellcheck fields (checkboxes to JSON)
             $spellFields = [];
             foreach (['title', 'scopeAndContent', 'abstract', 'archivalHistory', 'acquisition'] as $f) {
-                if ($request->input('spellcheck_field_' . $f)) {
+                if ($request->input('spellcheck_field_'.$f)) {
                     $spellFields[] = $f;
                 }
             }
@@ -2834,10 +2904,10 @@ class SettingsController extends Controller
             $translateFields = [];
             $fieldMappings = [];
             foreach ($allTranslateFields as $f) {
-                if ($request->input('translate_field_' . $f)) {
+                if ($request->input('translate_field_'.$f)) {
                     $translateFields[] = $f;
                 }
-                $target = $request->input('translate_target_' . $f, $f);
+                $target = $request->input('translate_target_'.$f, $f);
                 if ($target !== $f) {
                     $fieldMappings[$f] = $target;
                 }
@@ -2888,41 +2958,42 @@ class SettingsController extends Controller
      */
     public function aiServicesTest(Request $request)
     {
-        $url    = trim((string) $request->input('url', ''));
+        $url = trim((string) $request->input('url', ''));
         $apiKey = trim((string) $request->input('api_key', ''));
 
         if ($url === '') {
             return response()->json(['success' => false, 'error' => 'URL is empty'], 422);
         }
 
-        $health = rtrim($url, '/') . '/health';
+        $health = rtrim($url, '/').'/health';
         $ch = curl_init($health);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_TIMEOUT => 10,
             CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_HTTPHEADER     => array_filter([
+            CURLOPT_HTTPHEADER => array_filter([
                 'Accept: application/json',
-                $apiKey !== '' ? 'X-API-Key: ' . $apiKey : null,
+                $apiKey !== '' ? 'X-API-Key: '.$apiKey : null,
             ]),
         ]);
         $body = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err  = curl_error($ch);
+        $err = curl_error($ch);
         curl_close($ch);
 
         if ($body === false || $code === 0) {
             return response()->json(['success' => false, 'error' => $err ?: 'no response'], 200);
         }
         if ($code >= 400) {
-            return response()->json(['success' => false, 'error' => 'HTTP ' . $code], 200);
+            return response()->json(['success' => false, 'error' => 'HTTP '.$code], 200);
         }
 
         $data = json_decode((string) $body, true) ?: [];
+
         return response()->json([
             'success' => true,
-            'data'    => [
-                'ner_model'        => $data['ner_model']        ?? ($data['models']['ner']        ?? null),
+            'data' => [
+                'ner_model' => $data['ner_model'] ?? ($data['models']['ner'] ?? null),
                 'summarizer_model' => $data['summarizer_model'] ?? ($data['models']['summarizer'] ?? null),
             ],
         ]);
@@ -2935,36 +3006,36 @@ class SettingsController extends Controller
     public function aiServicesTestMt(Request $request)
     {
         $endpoint = trim((string) $request->input('endpoint', ''));
-        $apiKey   = trim((string) $request->input('api_key', ''));
+        $apiKey = trim((string) $request->input('api_key', ''));
 
         if ($endpoint === '') {
             return response()->json(['success' => false, 'error' => 'Endpoint is empty'], 422);
         }
 
-        $base    = preg_replace('#/translate/?$#', '', $endpoint);
+        $base = preg_replace('#/translate/?$#', '', $endpoint);
         $headers = array_filter([
             'Content-Type: application/json',
             'Accept: application/json',
-            $apiKey !== '' ? 'X-API-Key: ' . $apiKey : null,
+            $apiKey !== '' ? 'X-API-Key: '.$apiKey : null,
         ]);
 
-        $ch = curl_init(rtrim($base, '/') . '/health');
+        $ch = curl_init(rtrim($base, '/').'/health');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_TIMEOUT => 10,
             CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_HTTPHEADER => $headers,
         ]);
         $body = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err  = curl_error($ch);
+        $err = curl_error($ch);
         curl_close($ch);
 
         if ($body === false || $code === 0) {
             return response()->json(['success' => false, 'error' => $err ?: 'no response'], 200);
         }
         if ($code >= 400) {
-            return response()->json(['success' => false, 'error' => 'HTTP ' . $code . ' on /health'], 200);
+            return response()->json(['success' => false, 'error' => 'HTTP '.$code.' on /health'], 200);
         }
 
         $health = json_decode((string) $body, true) ?: [];
@@ -2972,32 +3043,33 @@ class SettingsController extends Controller
         $ch = curl_init($endpoint);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_TIMEOUT => 30,
             CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_POST           => true,
-            CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_POSTFIELDS     => json_encode([
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_POSTFIELDS => json_encode([
                 'source' => 'en', 'target' => 'af', 'text' => 'Hello, how are you?',
             ]),
         ]);
         $tBody = curl_exec($ch);
         $tCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $tErr  = curl_error($ch);
+        $tErr = curl_error($ch);
         curl_close($ch);
 
         if ($tBody === false || $tCode >= 400) {
             return response()->json([
                 'success' => false,
-                'error'   => $tErr ?: ('translate returned HTTP ' . $tCode),
+                'error' => $tErr ?: ('translate returned HTTP '.$tCode),
             ], 200);
         }
 
         $t = json_decode((string) $tBody, true) ?: [];
+
         return response()->json([
             'success' => true,
-            'data'    => [
-                'status'     => $health['status']                ?? 'ok',
-                'translator' => $health['models']['translator']  ?? ($health['model'] ?? null),
+            'data' => [
+                'status' => $health['status'] ?? 'ok',
+                'translator' => $health['models']['translator'] ?? ($health['model'] ?? null),
                 'translated' => $t['translated'] ?? $t['translatedText'] ?? null,
             ],
         ]);
@@ -3011,7 +3083,7 @@ class SettingsController extends Controller
         $status = ['service' => false, 'version' => '', 'collections' => [], 'collection_status' => ''];
 
         try {
-            $ch = curl_init(rtrim($url, '/') . '/healthz');
+            $ch = curl_init(rtrim($url, '/').'/healthz');
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT => 2,
@@ -3022,12 +3094,12 @@ class SettingsController extends Controller
             curl_close($ch);
             $status['service'] = ($code === 200);
 
-            if (!$status['service']) {
+            if (! $status['service']) {
                 return $status;
             }
 
             // Get version
-            $ch = curl_init(rtrim($url, '/') . '/');
+            $ch = curl_init(rtrim($url, '/').'/');
             curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 2]);
             $resp = curl_exec($ch);
             curl_close($ch);
@@ -3035,7 +3107,7 @@ class SettingsController extends Controller
             $status['version'] = $data['version'] ?? '';
 
             // List collections
-            $ch = curl_init(rtrim($url, '/') . '/collections');
+            $ch = curl_init(rtrim($url, '/').'/collections');
             curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 2]);
             $resp = curl_exec($ch);
             curl_close($ch);
@@ -3043,7 +3115,7 @@ class SettingsController extends Controller
             if (isset($data['result']['collections'])) {
                 foreach ($data['result']['collections'] as $col) {
                     $colName = $col['name'];
-                    $ch2 = curl_init(rtrim($url, '/') . '/collections/' . $colName);
+                    $ch2 = curl_init(rtrim($url, '/').'/collections/'.$colName);
                     curl_setopt_array($ch2, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 2]);
                     $resp2 = curl_exec($ch2);
                     curl_close($ch2);
@@ -3077,8 +3149,10 @@ class SettingsController extends Controller
                         ['setting_value' => is_array($value) ? json_encode($value) : $value]
                     );
                 }
+
                 return redirect()->route('settings.ahg-import')->with('success', 'Settings imported successfully.');
             }
+
             return redirect()->route('settings.ahg-import')->with('error', 'Invalid JSON file.');
         }
 
@@ -3113,16 +3187,18 @@ class SettingsController extends Controller
             }
 
             foreach ($settingNames as $name) {
-                if (in_array($name, $lockedKeys, true)) continue;
+                if (in_array($name, $lockedKeys, true)) {
+                    continue;
+                }
                 $this->service->saveSetting($name, null, $request->input("settings.{$name}", ''), $culture);
             }
 
             if ($request->input('action') === 'test') {
                 $testResult = ['success' => false, 'message' => 'Connection test not yet implemented.'];
                 $url = $request->input('settings.ahg_central_api_url', '');
-                if (!empty($url)) {
+                if (! empty($url)) {
                     try {
-                        $ch = curl_init($url . '/ping');
+                        $ch = curl_init($url.'/ping');
                         curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 5]);
                         $resp = curl_exec($ch);
                         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -3224,6 +3300,7 @@ class SettingsController extends Controller
                     ]);
                 }
             }
+
             return redirect()->route('settings.page-elements')
                 ->with('success', 'Default page elements saved.');
         }
@@ -3286,9 +3363,9 @@ class SettingsController extends Controller
             $firstRow = DB::table('ahg_dropdown')->where('taxonomy', $taxonomy)->first();
             if ($firstRow) {
                 $dropdown = (object) [
-                    'id'          => $taxonomy,
-                    'name'        => $firstRow->taxonomy_label,
-                    'slug'        => $firstRow->taxonomy,
+                    'id' => $taxonomy,
+                    'name' => $firstRow->taxonomy_label,
+                    'slug' => $firstRow->taxonomy,
                     'description' => $firstRow->taxonomy_section,
                 ];
                 $values = DB::table('ahg_dropdown')
@@ -3297,14 +3374,14 @@ class SettingsController extends Controller
                     ->pluck('label');
             }
         }
-        if (!$dropdown) {
+        if (! $dropdown) {
             $dropdown = (object) ['id' => null, 'name' => '', 'slug' => '', 'description' => ''];
         }
 
         if ($request->isMethod('post') && Schema::hasTable('ahg_dropdown')) {
             $newTaxonomy = $request->input('slug', '') ?: \Illuminate\Support\Str::slug((string) $request->input('name', ''));
-            $label       = (string) $request->input('name', '');
-            $section     = (string) $request->input('description', '');
+            $label = (string) $request->input('name', '');
+            $section = (string) $request->input('description', '');
 
             // Replace the full set of values for this taxonomy.
             if ($taxonomy) {
@@ -3316,16 +3393,17 @@ class SettingsController extends Controller
                     continue;
                 }
                 DB::table('ahg_dropdown')->insert([
-                    'taxonomy'         => $newTaxonomy,
-                    'taxonomy_label'   => $label,
+                    'taxonomy' => $newTaxonomy,
+                    'taxonomy_label' => $label,
                     'taxonomy_section' => $section ?: null,
-                    'code'             => \Illuminate\Support\Str::slug($val, '_'),
-                    'label'            => $val,
-                    'sort_order'       => $i,
-                    'is_active'        => 1,
-                    'created_at'       => now(),
+                    'code' => \Illuminate\Support\Str::slug($val, '_'),
+                    'label' => $val,
+                    'sort_order' => $i,
+                    'is_active' => 1,
+                    'created_at' => now(),
                 ]);
             }
+
             return redirect()->route('settings.dropdown.index')->with('success', 'Dropdown saved.');
         }
 
@@ -3338,6 +3416,7 @@ class SettingsController extends Controller
     public function library(Request $request)
     {
         $menu = $this->buildMenu('library');
+
         return view('ahg-settings::library', compact('menu'));
     }
 
@@ -3383,6 +3462,7 @@ class SettingsController extends Controller
                     ['setting_value' => $value]
                 );
             }
+
             return redirect()->route('settings.authority')
                 ->with('success', 'Authority Records settings saved.');
         }
@@ -3586,6 +3666,7 @@ class SettingsController extends Controller
 
     /**
      * SharePoint Integration Settings — Mirror of AtoM ahgSettingsPlugin
+     *
      * @case('sharepoint'). Backed by ahg/sharepoint package.
      */
     public function sharePointSettings(Request $request)
@@ -3717,12 +3798,20 @@ class SettingsController extends Controller
             $posted = $request->input('settings', []);
             $allKeys = array_keys($settings);
             // Include any posted keys not yet in DB
-            foreach (array_keys($posted) as $pk) { if (!in_array($pk, $allKeys)) $allKeys[] = $pk; }
+            foreach (array_keys($posted) as $pk) {
+                if (! in_array($pk, $allKeys)) {
+                    $allKeys[] = $pk;
+                }
+            }
             // #119: also include declared checkbox keys that are neither in DB
             // nor in $posted (the unchecked-on-fresh-install case). Without this
             // the foreach below skips them and the operator's "uncheck + save"
             // never persists.
-            foreach ($checkboxKeys as $ck) { if (!in_array($ck, $allKeys, true)) $allKeys[] = $ck; }
+            foreach ($checkboxKeys as $ck) {
+                if (! in_array($ck, $allKeys, true)) {
+                    $allKeys[] = $ck;
+                }
+            }
             // #119: a checkbox is identified either by the explicit allow-list
             // OR by an existing DB value of literal 'true'/'false'. Without
             // auto-detect an existing-row checkbox that the operator unchecks
@@ -3745,78 +3834,89 @@ class SettingsController extends Controller
                     ['setting_value' => $value]
                 );
             }
+
             return redirect()->route("settings.ahg.{$group}")->with('success', "{$title} settings saved.");
         }
+
         return view("ahg-settings::{$viewName}", compact('menu', 'settings'));
     }
 
-    public function spectrumSettings(Request $request) {
+    public function spectrumSettings(Request $request)
+    {
         return $this->buildGroupSettings($request, 'spectrum', 'spectrum-settings', 'Spectrum / Collections', [
-            'spectrum_enabled','spectrum_auto_create_movement','spectrum_require_photos',
-            'spectrum_email_notifications','spectrum_enable_barcodes','spectrum_auto_numbering',
-            'spectrum_require_insurance','spectrum_require_valuation',
+            'spectrum_enabled', 'spectrum_auto_create_movement', 'spectrum_require_photos',
+            'spectrum_email_notifications', 'spectrum_enable_barcodes', 'spectrum_auto_numbering',
+            'spectrum_require_insurance', 'spectrum_require_valuation',
         ]);
     }
 
-    public function photosSettings(Request $request) {
+    public function photosSettings(Request $request)
+    {
         return $this->buildGroupSettings($request, 'photos', 'photos-settings', 'Condition Photos', [
-            'photo_create_thumbnails','photo_extract_exif','photo_auto_rotate',
-            'photo_auto_orient','photo_exif_strip','photo_watermark_enabled',
+            'photo_create_thumbnails', 'photo_extract_exif', 'photo_auto_rotate',
+            'photo_auto_orient', 'photo_exif_strip', 'photo_watermark_enabled',
         ]);
     }
 
-    public function mediaSettings(Request $request) {
+    public function mediaSettings(Request $request)
+    {
         return $this->buildGroupSettings($request, 'media', 'media-settings', 'Media Player', [
-            'media_autoplay','media_show_controls','media_loop','media_show_waveform',
-            'media_transcription_enabled','media_show_download',
+            'media_autoplay', 'media_show_controls', 'media_loop', 'media_show_waveform',
+            'media_transcription_enabled', 'media_show_download',
         ]);
     }
 
-    public function metadataSettings(Request $request) {
+    public function metadataSettings(Request $request)
+    {
         return $this->buildGroupSettings($request, 'metadata', 'metadata-settings', 'Metadata Extraction', [
-            'meta_extract_on_upload','meta_auto_populate','meta_images','meta_pdf','meta_office',
-            'meta_video','meta_audio','meta_extract_gps','meta_extract_technical',
-            'meta_extract_xmp','meta_extract_iptc','meta_overwrite_existing',
-            'meta_create_access_points','meta_field_mappings',
-            'meta_dam_batch_mode','meta_dam_preserve_filename','meta_dam_extract_color',
-            'meta_dam_extract_faces','meta_dam_auto_tag','meta_dam_generate_thumbnail',
-            'meta_dam_thumb_small','meta_dam_thumb_medium','meta_dam_thumb_large','meta_dam_thumb_preview',
-            'map_title_dam','map_creator_dam','map_keywords_dam','map_description_dam',
-            'map_date_dam','map_copyright_dam','map_technical_dam','map_gps_dam',
-            'meta_replace_placeholders','meta_extract_images','meta_extract_pdf',
-            'meta_extract_office','meta_extract_video','meta_extract_audio',
+            'meta_extract_on_upload', 'meta_auto_populate', 'meta_images', 'meta_pdf', 'meta_office',
+            'meta_video', 'meta_audio', 'meta_extract_gps', 'meta_extract_technical',
+            'meta_extract_xmp', 'meta_extract_iptc', 'meta_overwrite_existing',
+            'meta_create_access_points', 'meta_field_mappings',
+            'meta_dam_batch_mode', 'meta_dam_preserve_filename', 'meta_dam_extract_color',
+            'meta_dam_extract_faces', 'meta_dam_auto_tag', 'meta_dam_generate_thumbnail',
+            'meta_dam_thumb_small', 'meta_dam_thumb_medium', 'meta_dam_thumb_large', 'meta_dam_thumb_preview',
+            'map_title_dam', 'map_creator_dam', 'map_keywords_dam', 'map_description_dam',
+            'map_date_dam', 'map_copyright_dam', 'map_technical_dam', 'map_gps_dam',
+            'meta_replace_placeholders', 'meta_extract_images', 'meta_extract_pdf',
+            'meta_extract_office', 'meta_extract_video', 'meta_extract_audio',
         ]);
     }
 
-    public function ingestSettings(Request $request) {
+    public function ingestSettings(Request $request)
+    {
         return $this->buildGroupSettings($request, 'ingest', 'ingest-settings', 'Data Ingest', [
-            'ingest_ner','ingest_ocr','ingest_virus_scan','ingest_summarize',
-            'ingest_spellcheck','ingest_translate','ingest_format_id','ingest_face_detect',
-            'ingest_create_records','ingest_generate_sip','ingest_generate_aip','ingest_generate_dip',
-            'ingest_thumbnails','ingest_reference',
+            'ingest_ner', 'ingest_ocr', 'ingest_virus_scan', 'ingest_summarize',
+            'ingest_spellcheck', 'ingest_translate', 'ingest_format_id', 'ingest_face_detect',
+            'ingest_create_records', 'ingest_generate_sip', 'ingest_generate_aip', 'ingest_generate_dip',
+            'ingest_thumbnails', 'ingest_reference',
         ]);
     }
 
-    public function integritySettings(Request $request) {
+    public function integritySettings(Request $request)
+    {
         return $this->buildGroupSettings($request, 'integrity', 'integrity-settings', 'Integrity', [
-            'integrity_enabled','integrity_auto_baseline','integrity_notify_on_failure','integrity_notify_on_mismatch',
+            'integrity_enabled', 'integrity_auto_baseline', 'integrity_notify_on_failure', 'integrity_notify_on_mismatch',
         ]);
     }
 
-    public function voiceAiSettings(Request $request) {
+    public function voiceAiSettings(Request $request)
+    {
         return $this->buildGroupSettings($request, 'voice_ai', 'voice-ai-settings', 'Voice & AI', [
-            'voice_enabled','voice_continuous_listening','voice_show_floating_btn',
-            'voice_hover_read_enabled','voice_audit_ai_calls',
+            'voice_enabled', 'voice_continuous_listening', 'voice_show_floating_btn',
+            'voice_hover_read_enabled', 'voice_audit_ai_calls',
         ]);
     }
 
-    public function iiifGroupSettings(Request $request) {
+    public function iiifGroupSettings(Request $request)
+    {
         return $this->buildGroupSettings($request, 'iiif', 'iiif-group-settings', 'IIIF Viewer', [
-            'iiif_enabled','iiif_show_navigator','iiif_show_rotation','iiif_show_fullscreen','iiif_enable_annotations',
+            'iiif_enabled', 'iiif_show_navigator', 'iiif_show_rotation', 'iiif_show_fullscreen', 'iiif_enable_annotations',
         ]);
     }
 
-    public function securitySettings(Request $request) {
+    public function securitySettings(Request $request)
+    {
         // Stamp security_force_password_change_baseline whenever the operator
         // flips security_force_password_change from off to on. The login
         // gate in App\Http\Controllers\Auth\LoginController uses this
@@ -3840,11 +3940,12 @@ class SettingsController extends Controller
         }
 
         return $this->buildGroupSettings($request, 'security', 'security-settings', 'Security', [
-            'security_lockout_enabled','security_force_password_change','security_password_expiry_notify',
+            'security_lockout_enabled', 'security_force_password_change', 'security_password_expiry_notify',
         ]);
     }
 
-    public function librarySettings(Request $request) {
+    public function librarySettings(Request $request)
+    {
         // #119: explicit checkbox list so a fresh-install operator can persist
         // an unchecked default-true switch on first save (no DB row exists yet,
         // so the auto-detect fallback in buildGroupSettings can't fire).
@@ -3856,21 +3957,24 @@ class SettingsController extends Controller
         ]);
     }
 
-    public function multiTenantSettings(Request $request) {
+    public function multiTenantSettings(Request $request)
+    {
         return $this->buildGroupSettings($request, 'multi_tenant', 'multi-tenant-settings', 'Multi-Tenancy', [
-            'tenant_enabled','tenant_enforce_filter','tenant_show_switcher','tenant_allow_branding',
+            'tenant_enabled', 'tenant_enforce_filter', 'tenant_show_switcher', 'tenant_allow_branding',
         ]);
     }
 
-    public function portableExportSettings(Request $request) {
+    public function portableExportSettings(Request $request)
+    {
         return $this->buildGroupSettings($request, 'portable_export', 'portable-export-settings', 'Portable Export', [
-            'portable_export_enabled','portable_export_include_objects',
-            'portable_export_include_thumbnails','portable_export_include_references',
-            'portable_export_include_masters','portable_export_description_button','portable_export_clipboard_button',
+            'portable_export_enabled', 'portable_export_include_objects',
+            'portable_export_include_thumbnails', 'portable_export_include_references',
+            'portable_export_include_masters', 'portable_export_description_button', 'portable_export_clipboard_button',
         ]);
     }
 
-    public function complianceSettings(Request $request) {
+    public function complianceSettings(Request $request)
+    {
         return $this->buildGroupSettings($request, 'compliance', 'compliance-settings', 'Compliance', []);
     }
 }

@@ -17,6 +17,7 @@ class PortableCleanupCommand extends Command
     {
         if (! Schema::hasTable('portable_export')) {
             $this->warn('portable_export table missing — nothing to do.');
+
             return self::SUCCESS;
         }
         $dry = (bool) $this->option('dry-run');
@@ -24,7 +25,7 @@ class PortableCleanupCommand extends Command
         $expired = DB::table('portable_export')
             ->where(function ($q) {
                 $q->whereNotNull('expires_at')
-                  ->where('expires_at', '<', now());
+                    ->where('expires_at', '<', now());
             })
             ->orWhere(function ($q) {
                 // Also reap completed packages whose retention has elapsed via settings.
@@ -32,17 +33,21 @@ class PortableCleanupCommand extends Command
                     ->where('setting_key', 'portable_export_retention_days')
                     ->value('setting_value') ?? 30);
                 $q->where('status', 'completed')
-                  ->where('completed_at', '<', now()->subDays(max(1, $days)));
+                    ->where('completed_at', '<', now()->subDays(max(1, $days)));
             })
-            ->get(['id','output_path']);
+            ->get(['id', 'output_path']);
 
-        $this->info("[portable_export] expired_rows=" . $expired->count() . ($dry ? ' (dry-run)' : ''));
-        if ($dry || $expired->isEmpty()) return self::SUCCESS;
+        $this->info('[portable_export] expired_rows='.$expired->count().($dry ? ' (dry-run)' : ''));
+        if ($dry || $expired->isEmpty()) {
+            return self::SUCCESS;
+        }
 
-        $files = 0; $rows = 0;
+        $files = 0;
+        $rows = 0;
         foreach ($expired as $r) {
             if (! empty($r->output_path) && is_file($r->output_path)) {
-                @unlink($r->output_path); $files++;
+                @unlink($r->output_path);
+                $files++;
             }
             DB::table('portable_export')->where('id', $r->id)->delete();
             // Cascade share/token rows if present.
@@ -55,6 +60,7 @@ class PortableCleanupCommand extends Command
             $rows++;
         }
         $this->info("deleted_rows={$rows} unlinked_files={$files}");
+
         return self::SUCCESS;
     }
 }

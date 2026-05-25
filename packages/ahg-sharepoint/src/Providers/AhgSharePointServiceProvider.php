@@ -44,14 +44,14 @@ class AhgSharePointServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Routes
-        Route::middleware('web')->group(__DIR__ . '/../../routes/web.php');
-        Route::prefix('api')->middleware('api')->group(__DIR__ . '/../../routes/api.php');
+        Route::middleware('web')->group(__DIR__.'/../../routes/web.php');
+        Route::prefix('api')->middleware('api')->group(__DIR__.'/../../routes/api.php');
 
         // Migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
 
         // Views (Phase 1 admin UI templates)
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-sharepoint');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-sharepoint');
 
         // CLI commands
         if ($this->app->runningInConsole()) {

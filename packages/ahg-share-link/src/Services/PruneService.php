@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\DB;
 class PruneService
 {
     public const DEFAULT_TOKEN_RETAIN_DAYS = 365;
+
     public const DEFAULT_ACCESS_LOG_RETAIN_DAYS = 180;
 
     public const AUDIT_ACTION_PRUNE = 'share_link_prune';
@@ -85,14 +86,14 @@ class PruneService
         }
 
         $summary = [
-            'tokens_deleted'         => $tokensDeleted,
-            'access_rows_deleted'    => $accessDeleted,
-            'token_retain_days'      => $tokenDays,
+            'tokens_deleted' => $tokensDeleted,
+            'access_rows_deleted' => $accessDeleted,
+            'token_retain_days' => $tokenDays,
             'access_log_retain_days' => $accessDays,
-            'dry_run'                => $dryRun,
+            'dry_run' => $dryRun,
         ];
 
-        if (!$dryRun && ($tokensDeleted > 0 || $accessDeleted > 0)) {
+        if (! $dryRun && ($tokensDeleted > 0 || $accessDeleted > 0)) {
             $this->writeAudit($summary);
         }
 
@@ -103,6 +104,7 @@ class PruneService
     {
         try {
             $v = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
+
             return is_string($v) && $v !== '' ? $v : $default;
         } catch (\Throwable $e) {
             return $default;
@@ -113,29 +115,30 @@ class PruneService
     {
         try {
             DB::table('ahg_audit_log')->insert([
-                'uuid'           => $this->generateUuid(),
-                'user_id'        => null,
-                'username'       => 'cron',
-                'action'         => self::AUDIT_ACTION_PRUNE,
-                'entity_type'    => 'information_object_share_token',
-                'entity_id'      => null,
-                'module'         => 'share_link',
-                'action_name'    => 'prune',
+                'uuid' => $this->generateUuid(),
+                'user_id' => null,
+                'username' => 'cron',
+                'action' => self::AUDIT_ACTION_PRUNE,
+                'entity_type' => 'information_object_share_token',
+                'entity_id' => null,
+                'module' => 'share_link',
+                'action_name' => 'prune',
                 'request_method' => 'CLI',
-                'metadata'       => json_encode($summary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                'status'         => 'success',
-                'created_at'     => date('Y-m-d H:i:s'),
+                'metadata' => json_encode($summary, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'status' => 'success',
+                'created_at' => date('Y-m-d H:i:s'),
             ]);
         } catch (\Throwable $e) {
-            error_log('ahgTimeLimitedShareLinkPlugin prune audit failed: ' . $e->getMessage());
+            error_log('ahgTimeLimitedShareLinkPlugin prune audit failed: '.$e->getMessage());
         }
     }
 
     private function generateUuid(): string
     {
         $b = random_bytes(16);
-        $b[6] = chr((ord($b[6]) & 0x0f) | 0x40);
-        $b[8] = chr((ord($b[8]) & 0x3f) | 0x80);
+        $b[6] = chr((ord($b[6]) & 0x0F) | 0x40);
+        $b[8] = chr((ord($b[8]) & 0x3F) | 0x80);
+
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($b), 4));
     }
 }

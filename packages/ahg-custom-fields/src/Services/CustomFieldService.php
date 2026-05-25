@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgCustomFields\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -65,6 +63,7 @@ class CustomFieldService
         }
         $row['created_at'] = now();
         $row['updated_at'] = now();
+
         return (int) DB::table('custom_field_definition')->insertGetId($row);
     }
 
@@ -82,12 +81,14 @@ class CustomFieldService
             }
         }
         $row['updated_at'] = now();
+
         return DB::table('custom_field_definition')->where('id', $id)->update($row) >= 0;
     }
 
     public function deleteDefinition(int $id): bool
     {
         DB::table('custom_field_value')->where('definition_id', $id)->delete();
+
         return DB::table('custom_field_definition')->where('id', $id)->delete() > 0;
     }
 

@@ -25,7 +25,6 @@
 namespace AhgScan\Services;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class BagItIngestService
 {
@@ -35,20 +34,24 @@ class BagItIngestService
     public static function isBag(string $path): bool
     {
         if (is_dir($path)) {
-            return is_file($path . '/bagit.txt');
+            return is_file($path.'/bagit.txt');
         }
         if (is_file($path) && strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'zip') {
-            $zip = new \ZipArchive();
-            if ($zip->open($path) !== true) { return false; }
+            $zip = new \ZipArchive;
+            if ($zip->open($path) !== true) {
+                return false;
+            }
             for ($i = 0; $i < $zip->numFiles; $i++) {
                 $name = $zip->getNameIndex($i);
                 if (str_ends_with($name, '/bagit.txt') || $name === 'bagit.txt') {
                     $zip->close();
+
                     return true;
                 }
             }
             $zip->close();
         }
+
         return false;
     }
 
@@ -56,8 +59,8 @@ class BagItIngestService
      * Extract a zip bag into a working directory, verify checksums, and
      * enqueue each data/ file. Returns ['enqueued' => int, 'warnings' => string[]].
      *
-     * @param string $bagPath  Path to the bag (zip or dir)
-     * @param object $folder   scan_folder row
+     * @param  string  $bagPath  Path to the bag (zip or dir)
+     * @param  object  $folder  scan_folder row
      */
     public static function ingest(string $bagPath, object $folder): array
     {
@@ -69,7 +72,7 @@ class BagItIngestService
             } else {
                 $bagRoot = $bagPath;
             }
-            if (!$bagRoot) {
+            if (! $bagRoot) {
                 throw new \RuntimeException('Could not locate bagit.txt in container');
             }
 
@@ -79,15 +82,19 @@ class BagItIngestService
 
             $enqueued = 0;
             foreach ($manifests as $relPath => $expected) {
-                if (strpos($relPath, 'data/') !== 0) { continue; }
-                $abs = $bagRoot . '/' . $relPath;
-                if (!is_file($abs)) {
+                if (strpos($relPath, 'data/') !== 0) {
+                    continue;
+                }
+                $abs = $bagRoot.'/'.$relPath;
+                if (! is_file($abs)) {
                     $warnings[] = "Manifest file missing on disk: {$relPath}";
+
                     continue;
                 }
                 $actual = hash_file($expected['alg'], $abs);
                 if ($actual !== strtolower($expected['hash'])) {
                     $warnings[] = "Checksum mismatch for {$relPath}: expected {$expected['hash']}, got {$actual}";
+
                     continue;
                 }
 
@@ -95,9 +102,10 @@ class BagItIngestService
                 // it on its next pass, with bag-info + computed identifier
                 // applied as the sidecar_json.
                 $stagingName = self::deriveIngestName($relPath, $bagInfo);
-                $targetPath = rtrim($folder->path, '/') . '/' . $stagingName;
-                if (!@copy($abs, $targetPath)) {
+                $targetPath = rtrim($folder->path, '/').'/'.$stagingName;
+                if (! @copy($abs, $targetPath)) {
                     $warnings[] = "Failed to stage into folder: {$relPath}";
+
                     continue;
                 }
                 @chmod($targetPath, 0644);
@@ -123,7 +131,7 @@ class BagItIngestService
                     'status' => 'pending',
                     'source_hash' => $hash,
                     'attempts' => 0,
-                    'sidecar_json' => json_encode(array_filter($inlineJson, fn($v) => $v !== null)),
+                    'sidecar_json' => json_encode(array_filter($inlineJson, fn ($v) => $v !== null)),
                     'created_at' => now(),
                 ]);
 
@@ -150,35 +158,43 @@ class BagItIngestService
 
     protected static function extractZip(string $zipPath): string
     {
-        $tmp = sys_get_temp_dir() . '/heratio-bagit-' . bin2hex(random_bytes(6));
+        $tmp = sys_get_temp_dir().'/heratio-bagit-'.bin2hex(random_bytes(6));
         mkdir($tmp, 0755, true);
-        $zip = new \ZipArchive();
+        $zip = new \ZipArchive;
         if ($zip->open($zipPath) !== true) {
             throw new \RuntimeException("Cannot open zip: {$zipPath}");
         }
         $zip->extractTo($tmp);
         $zip->close();
+
         return $tmp;
     }
 
     protected static function findBagRoot(string $dir): ?string
     {
-        if (is_file($dir . '/bagit.txt')) { return $dir; }
+        if (is_file($dir.'/bagit.txt')) {
+            return $dir;
+        }
         // One level deeper (zips often wrap the bag in a single directory).
         foreach (scandir($dir) ?: [] as $entry) {
-            if ($entry === '.' || $entry === '..') { continue; }
-            $sub = $dir . '/' . $entry;
-            if (is_dir($sub) && is_file($sub . '/bagit.txt')) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+            $sub = $dir.'/'.$entry;
+            if (is_dir($sub) && is_file($sub.'/bagit.txt')) {
                 return $sub;
             }
         }
+
         return null;
     }
 
     protected static function parseBagInfo(string $bagRoot): array
     {
-        $file = $bagRoot . '/bag-info.txt';
-        if (!is_file($file)) { return []; }
+        $file = $bagRoot.'/bag-info.txt';
+        if (! is_file($file)) {
+            return [];
+        }
         $out = [];
         $currentKey = null;
         foreach (file($file, FILE_IGNORE_NEW_LINES) ?: [] as $line) {
@@ -186,9 +202,10 @@ class BagItIngestService
                 $currentKey = $m[1];
                 $out[$currentKey] = trim($m[2]);
             } elseif ($currentKey && preg_match('/^\s+(.+)$/', $line, $m)) {
-                $out[$currentKey] .= ' ' . trim($m[1]);
+                $out[$currentKey] .= ' '.trim($m[1]);
             }
         }
+
         return $out;
     }
 
@@ -201,45 +218,54 @@ class BagItIngestService
         $out = [];
         $priority = ['sha512', 'sha256', 'sha1', 'md5'];
         foreach ($priority as $alg) {
-            $file = $bagRoot . '/manifest-' . $alg . '.txt';
-            if (!is_file($file)) { continue; }
+            $file = $bagRoot.'/manifest-'.$alg.'.txt';
+            if (! is_file($file)) {
+                continue;
+            }
             foreach (file($file, FILE_IGNORE_NEW_LINES) ?: [] as $line) {
                 if (preg_match('/^([a-f0-9]+)\s+(.+)$/i', $line, $m)) {
                     $path = trim($m[2]);
-                    if (!isset($out[$path])) {
+                    if (! isset($out[$path])) {
                         $out[$path] = ['alg' => $alg, 'hash' => strtolower($m[1])];
                     }
                 }
             }
         }
+
         return $out;
     }
 
     protected static function baseIdentifier(array $bagInfo, string $relPath): ?string
     {
-        if (!empty($bagInfo['External-Identifier'])) {
+        if (! empty($bagInfo['External-Identifier'])) {
             return $bagInfo['External-Identifier'];
         }
         // Fall back to the filename stem if no External-Identifier supplied.
         $stem = pathinfo($relPath, PATHINFO_FILENAME);
+
         return $stem ?: null;
     }
 
     protected static function deriveIngestName(string $relPath, array $bagInfo): string
     {
         $base = basename($relPath);
-        $prefix = !empty($bagInfo['External-Identifier'])
-            ? preg_replace('/[^a-zA-Z0-9_.-]/', '_', $bagInfo['External-Identifier']) . '_'
+        $prefix = ! empty($bagInfo['External-Identifier'])
+            ? preg_replace('/[^a-zA-Z0-9_.-]/', '_', $bagInfo['External-Identifier']).'_'
             : '';
-        return $prefix . $base;
+
+        return $prefix.$base;
     }
 
     protected static function rmdirRecursive(string $dir): void
     {
-        if (!is_dir($dir)) { return; }
+        if (! is_dir($dir)) {
+            return;
+        }
         foreach (scandir($dir) ?: [] as $entry) {
-            if ($entry === '.' || $entry === '..') { continue; }
-            $path = $dir . '/' . $entry;
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+            $path = $dir.'/'.$entry;
             if (is_dir($path)) {
                 self::rmdirRecursive($path);
             } else {

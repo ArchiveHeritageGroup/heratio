@@ -20,8 +20,7 @@ class GraphTokenValidatorService
 
     public function __construct(
         private SharePointTenantRepository $tenants,
-    ) {
-    }
+    ) {}
 
     public function validate(string $bearerToken, int $expectedTenantId): array
     {
@@ -36,7 +35,7 @@ class GraphTokenValidatorService
         try {
             $decoded = (array) JWT::decode($bearerToken, $keys);
         } catch (\Throwable $e) {
-            throw new \RuntimeException('JWT decode failed: ' . $e->getMessage(), 0, $e);
+            throw new \RuntimeException('JWT decode failed: '.$e->getMessage(), 0, $e);
         }
 
         $tid = (string) ($decoded['tid'] ?? '');
@@ -46,12 +45,12 @@ class GraphTokenValidatorService
 
         $expectedAudience = $this->expectedAudience($tenant);
         $aud = $decoded['aud'] ?? '';
-        if (!$this->audienceMatches($aud, $expectedAudience)) {
+        if (! $this->audienceMatches($aud, $expectedAudience)) {
             throw new \RuntimeException('JWT audience mismatch');
         }
 
         $expectedIssuer = "https://login.microsoftonline.com/{$tid}/v2.0";
-        if (!isset($decoded['iss']) || (string) $decoded['iss'] !== $expectedIssuer) {
+        if (! isset($decoded['iss']) || (string) $decoded['iss'] !== $expectedIssuer) {
             throw new \RuntimeException('JWT issuer mismatch');
         }
 
@@ -77,9 +76,10 @@ class GraphTokenValidatorService
             ->where('setting_group', 'sharepoint')
             ->where('setting_key', 'expected_jwt_audience')
             ->first();
-        if ($row !== null && !empty($row->setting_value)) {
+        if ($row !== null && ! empty($row->setting_value)) {
             return (string) $row->setting_value;
         }
+
         return "api://{$tenant->client_id}";
     }
 
@@ -88,6 +88,7 @@ class GraphTokenValidatorService
         if (is_array($audClaim)) {
             return in_array($expected, $audClaim, true);
         }
+
         return (string) $audClaim === $expected;
     }
 
@@ -95,21 +96,22 @@ class GraphTokenValidatorService
     {
         $cacheKey = "sharepoint.jwks.{$tenantId}";
         $cached = Cache::get($cacheKey);
-        if (is_array($cached) && !empty($cached)) {
+        if (is_array($cached) && ! empty($cached)) {
             return $cached;
         }
 
         $url = "https://login.microsoftonline.com/{$tenantId}/discovery/v2.0/keys";
         $resp = Http::timeout(5)->get($url);
-        if (!$resp->successful()) {
-            throw new \RuntimeException('Cannot fetch AAD JWKS at ' . $url);
+        if (! $resp->successful()) {
+            throw new \RuntimeException('Cannot fetch AAD JWKS at '.$url);
         }
         $jwks = $resp->json();
-        if (!is_array($jwks) || empty($jwks['keys'])) {
+        if (! is_array($jwks) || empty($jwks['keys'])) {
             throw new \RuntimeException('AAD JWKS body malformed');
         }
 
         Cache::put($cacheKey, $jwks, self::JWKS_TTL_SECONDS);
+
         return $jwks;
     }
 }

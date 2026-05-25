@@ -72,6 +72,7 @@ class ScoreEvidenceCommand extends Command
         $supplied = (int) ($mentionId !== null) + (int) ($candidateId !== null) + (int) ($objectId !== null);
         if ($supplied !== 1) {
             $this->error('Provide exactly one of: mention_id arg, --candidate-id=, --object-id=.');
+
             return self::FAILURE;
         }
 
@@ -81,6 +82,7 @@ class ScoreEvidenceCommand extends Command
         if ($objectId !== null) {
             return $this->handleObject($scorer, $objectId, $show, $async);
         }
+
         return $this->handleMention($scorer, (int) $mentionId, $show, $async);
     }
 
@@ -89,6 +91,7 @@ class ScoreEvidenceCommand extends Command
         $result = $scorer->scoreCandidate($candidateId);
         if ($result === null) {
             $this->error("Candidate #{$candidateId} not found.");
+
             return self::FAILURE;
         }
         $this->info(sprintf(
@@ -101,6 +104,7 @@ class ScoreEvidenceCommand extends Command
         if ($show) {
             $this->printSignalTable([$result]);
         }
+
         return self::SUCCESS;
     }
 
@@ -110,8 +114,9 @@ class ScoreEvidenceCommand extends Command
             ->join('ahg_ner_entity as n', 'n.id', '=', 'm.ner_entity_id')
             ->where('m.id', $mentionId)
             ->first(['m.id', 'm.object_id', 'm.entity_type', 'n.entity_value']);
-        if (!$mention) {
+        if (! $mention) {
             $this->error("Mention #{$mentionId} not found.");
+
             return self::FAILURE;
         }
 
@@ -126,6 +131,7 @@ class ScoreEvidenceCommand extends Command
                 $mention->entity_value
             ));
             $this->warn('Reminder: queue worker (`php artisan queue:work`) must be running for async jobs to flush.');
+
             return self::SUCCESS;
         }
 
@@ -141,6 +147,7 @@ class ScoreEvidenceCommand extends Command
 
         if ($result['scored_count'] === 0) {
             $this->warn('No candidates exist for this mention. Run auth-res:generate-candidates first.');
+
             return self::SUCCESS;
         }
 
@@ -150,6 +157,7 @@ class ScoreEvidenceCommand extends Command
         if ($show) {
             $this->printSignalTable($result['results']);
         }
+
         return self::SUCCESS;
     }
 
@@ -160,11 +168,12 @@ class ScoreEvidenceCommand extends Command
             ->where('m.object_id', $objectId)
             ->distinct()
             ->pluck('c.mention_id')
-            ->map(fn($v) => (int) $v)
+            ->map(fn ($v) => (int) $v)
             ->all();
 
         if (empty($mentionIds)) {
             $this->error("No mentions with candidates found for object_id={$objectId}.");
+
             return self::FAILURE;
         }
 
@@ -174,6 +183,7 @@ class ScoreEvidenceCommand extends Command
             if ($async) {
                 ScoreMentionEvidenceJob::dispatch($mid);
                 $this->line("  mention #{$mid}: job dispatched.");
+
                 continue;
             }
             $r = $scorer->scoreAllForMention($mid);
@@ -184,7 +194,7 @@ class ScoreEvidenceCommand extends Command
                     ->where('m.id', $mid)
                     ->first(['m.entity_type', 'n.entity_value']);
                 $this->line(sprintf(
-                    "  mention #%d [%s] \"%s\": %d scored",
+                    '  mention #%d [%s] "%s": %d scored',
                     $mid,
                     $mention->entity_type ?? '?',
                     $mention->entity_value ?? '?',
@@ -193,12 +203,13 @@ class ScoreEvidenceCommand extends Command
                 $this->printSignalTable($r['results']);
             }
         }
-        $this->info($async ? 'All jobs dispatched.' : "Done. {$totalScored} candidate(s) scored across " . count($mentionIds) . ' mention(s).');
+        $this->info($async ? 'All jobs dispatched.' : "Done. {$totalScored} candidate(s) scored across ".count($mentionIds).' mention(s).');
+
         return self::SUCCESS;
     }
 
     /**
-     * @return array<int,int>  candidate_id => rank_position
+     * @return array<int,int> candidate_id => rank_position
      */
     private function snapshotRanks(int $mentionId): array
     {
@@ -209,12 +220,13 @@ class ScoreEvidenceCommand extends Command
         foreach ($rows as $r) {
             $out[(int) $r->id] = (int) $r->rank_position;
         }
+
         return $out;
     }
 
     /**
-     * @param array<int,int> $before
-     * @param array<int,int> $after
+     * @param  array<int,int>  $before
+     * @param  array<int,int>  $after
      */
     private function printRankChange(array $before, array $after): void
     {
@@ -226,7 +238,7 @@ class ScoreEvidenceCommand extends Command
             }
             $changes[] = sprintf('  cand #%d: rank %d -> %d', $cid, $old, $newRank);
         }
-        if (!empty($changes)) {
+        if (! empty($changes)) {
             $this->line('Rank changes:');
             foreach ($changes as $c) {
                 $this->line($c);
@@ -237,7 +249,7 @@ class ScoreEvidenceCommand extends Command
     }
 
     /**
-     * @param list<array<string,mixed>> $results
+     * @param  list<array<string,mixed>>  $results
      */
     private function printSignalTable(array $results): void
     {
@@ -248,7 +260,7 @@ class ScoreEvidenceCommand extends Command
                 'candidate_authority_id', 'candidate_display_name',
                 'name_similarity_score', 'composite_score',
             ]);
-            if (!$row) {
+            if (! $row) {
                 continue;
             }
             $this->newLine();
@@ -266,6 +278,7 @@ class ScoreEvidenceCommand extends Command
             $data = is_array($res['data'] ?? null) ? $res['data'] : [];
             if (empty($signals)) {
                 $this->line('    (no evaluators ran)');
+
                 continue;
             }
             foreach ($signals as $dim => $sig) {
@@ -276,7 +289,7 @@ class ScoreEvidenceCommand extends Command
     }
 
     /**
-     * @param array<string,mixed> $data
+     * @param  array<string,mixed>  $data
      */
     private function summariseData(array $data): string
     {
@@ -291,16 +304,17 @@ class ScoreEvidenceCommand extends Command
                 break;
             }
             if (is_array($v)) {
-                $pairs[] = $k . '=[' . count($v) . ']';
+                $pairs[] = $k.'=['.count($v).']';
             } elseif (is_scalar($v) || $v === null) {
                 $s = (string) $v;
                 if (mb_strlen($s) > 50) {
-                    $s = mb_substr($s, 0, 47) . '...';
+                    $s = mb_substr($s, 0, 47).'...';
                 }
-                $pairs[] = $k . '=' . $s;
+                $pairs[] = $k.'='.$s;
             }
             $count++;
         }
+
         return implode('  ', $pairs);
     }
 }

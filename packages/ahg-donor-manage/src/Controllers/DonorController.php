@@ -23,14 +23,12 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgDonorManage\Controllers;
 
-use AhgDonorManage\Services\DonorBrowseService;
-use AhgDonorManage\Services\DonorService;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
+use AhgDonorManage\Services\DonorBrowseService;
+use AhgDonorManage\Services\DonorService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -69,7 +67,9 @@ class DonorController extends Controller
     public function show(string $slug)
     {
         $donor = $this->service->getBySlug($slug);
-        if (!$donor) abort(404);
+        if (! $donor) {
+            abort(404);
+        }
 
         return view('ahg-donor-manage::show', [
             'donor' => $donor,
@@ -91,7 +91,9 @@ class DonorController extends Controller
     public function edit(string $slug)
     {
         $donor = $this->service->getBySlug($slug);
-        if (!$donor) abort(404);
+        if (! $donor) {
+            abort(404);
+        }
 
         $contacts = $this->service->getContacts($donor->id);
         if ($contacts->isEmpty()) {
@@ -112,33 +114,43 @@ class DonorController extends Controller
         if ($request->has('information_objects')) {
             $this->service->syncInformationObjects($id, (array) $request->input('information_objects', []));
         }
+
         return redirect()->route('donor.show', $this->service->getSlug($id))->with('success', 'Donor created successfully.');
     }
 
     public function update(Request $request, string $slug)
     {
         $donor = $this->service->getBySlug($slug);
-        if (!$donor) abort(404);
+        if (! $donor) {
+            abort(404);
+        }
         $request->validate(['authorized_form_of_name' => 'required|string|max:1024']);
         $this->service->update($donor->id, $request->only($this->fields()));
         if ($request->has('information_objects')) {
             $this->service->syncInformationObjects($donor->id, (array) $request->input('information_objects', []));
         }
+
         return redirect()->route('donor.show', $slug)->with('success', 'Donor updated successfully.');
     }
 
     public function confirmDelete(string $slug)
     {
         $donor = $this->service->getBySlug($slug);
-        if (!$donor) abort(404);
+        if (! $donor) {
+            abort(404);
+        }
+
         return view('ahg-donor-manage::delete', ['donor' => $donor]);
     }
 
     public function destroy(string $slug)
     {
         $donor = $this->service->getBySlug($slug);
-        if (!$donor) abort(404);
+        if (! $donor) {
+            abort(404);
+        }
         $this->service->delete($donor->id);
+
         return redirect()->route('donor.browse')->with('success', 'Donor deleted successfully.');
     }
 
@@ -171,21 +183,21 @@ class DonorController extends Controller
     public function agreementDashboard(Request $request)
     {
         $filters = [
-            'search'   => trim((string) $request->get('q', '')),
-            'status'   => (string) $request->get('status', ''),
-            'type'     => (string) $request->get('type', ''),
+            'search' => trim((string) $request->get('q', '')),
+            'status' => (string) $request->get('status', ''),
+            'type' => (string) $request->get('type', ''),
             'expiring' => (string) $request->get('expiring', ''),
         ];
 
         $agreements = [];
-        $total      = 0;
-        $types      = [];
-        $statuses   = [
-            'draft'            => 'Draft',
+        $total = 0;
+        $types = [];
+        $statuses = [
+            'draft' => 'Draft',
             'pending_approval' => 'Pending Approval',
-            'active'           => 'Active',
-            'expired'          => 'Expired',
-            'terminated'       => 'Terminated',
+            'active' => 'Active',
+            'expired' => 'Expired',
+            'terminated' => 'Terminated',
         ];
 
         try {
@@ -214,11 +226,11 @@ class DonorController extends Controller
                     );
 
                 if ($filters['search'] !== '') {
-                    $term = '%' . $filters['search'] . '%';
+                    $term = '%'.$filters['search'].'%';
                     $q->where(function ($w) use ($term) {
                         $w->where('da.agreement_number', 'like', $term)
-                          ->orWhere('da.title', 'like', $term)
-                          ->orWhere('da.donor_name', 'like', $term);
+                            ->orWhere('da.title', 'like', $term)
+                            ->orWhere('da.donor_name', 'like', $term);
                     });
                 }
                 if ($filters['status'] !== '') {
@@ -229,14 +241,14 @@ class DonorController extends Controller
                 }
                 if (in_array($filters['expiring'], ['7', '30', '90'], true)) {
                     $q->whereNotNull('da.expiry_date')
-                      ->whereBetween('da.expiry_date', [now()->toDateString(), now()->addDays((int) $filters['expiring'])->toDateString()]);
+                        ->whereBetween('da.expiry_date', [now()->toDateString(), now()->addDays((int) $filters['expiring'])->toDateString()]);
                 }
 
-                $total      = (clone $q)->count();
+                $total = (clone $q)->count();
                 $agreements = $q->orderByDesc('da.agreement_date')->limit(100)->get();
             }
         } catch (\Exception $e) {
-            \Log::warning('agreementDashboard: ' . $e->getMessage());
+            \Log::warning('agreementDashboard: '.$e->getMessage());
         }
 
         $result = ['total' => $total];
@@ -286,7 +298,7 @@ class DonorController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->route('donor.agreements')
-                ->with('error', 'Failed to create agreement: ' . $e->getMessage());
+                ->with('error', 'Failed to create agreement: '.$e->getMessage());
         }
 
         return redirect()->route('donor.agreements');
@@ -308,10 +320,10 @@ class DonorController extends Controller
                     ->first();
 
                 if ($record) {
-                    if (empty($record->title) && !empty($record->i18n_title)) {
+                    if (empty($record->title) && ! empty($record->i18n_title)) {
                         $record->title = $record->i18n_title;
                     }
-                    if (empty($record->description) && !empty($record->i18n_description)) {
+                    if (empty($record->description) && ! empty($record->i18n_description)) {
                         $record->description = $record->i18n_description;
                     }
                 }
@@ -320,7 +332,7 @@ class DonorController extends Controller
             // Table may not exist
         }
 
-        if (!$record) {
+        if (! $record) {
             $record = (object) ['id' => $id];
         }
 
@@ -351,10 +363,10 @@ class DonorController extends Controller
                     ->first();
 
                 if ($record) {
-                    if (empty($record->title) && !empty($record->i18n_title)) {
+                    if (empty($record->title) && ! empty($record->i18n_title)) {
                         $record->title = $record->i18n_title;
                     }
-                    if (empty($record->description) && !empty($record->i18n_description)) {
+                    if (empty($record->description) && ! empty($record->i18n_description)) {
                         $record->description = $record->i18n_description;
                     }
                 }
@@ -402,7 +414,7 @@ class DonorController extends Controller
             // Table may not exist
         }
 
-        if (!$record) {
+        if (! $record) {
             abort(404, 'Agreement not found');
         }
 
@@ -481,8 +493,9 @@ class DonorController extends Controller
                 ->with('success', 'Agreement updated successfully.');
         } catch (\Exception $e) {
             \DB::rollBack();
+
             return redirect()->route('donor.agreement.edit', $id)
-                ->with('error', 'Error updating agreement: ' . $e->getMessage());
+                ->with('error', 'Error updating agreement: '.$e->getMessage());
         }
     }
 
@@ -515,7 +528,7 @@ class DonorController extends Controller
                     ->with('success', 'Agreement deleted successfully.');
             } catch (\Exception $e) {
                 return redirect()->route('donor.agreements')
-                    ->with('error', 'Error deleting agreement: ' . $e->getMessage());
+                    ->with('error', 'Error deleting agreement: '.$e->getMessage());
             }
         }
 
@@ -529,7 +542,7 @@ class DonorController extends Controller
             // ignore
         }
 
-        if (!$record) {
+        if (! $record) {
             abort(404, 'Agreement not found');
         }
 
@@ -569,7 +582,7 @@ class DonorController extends Controller
                     })
                     ->where(function ($q) use ($query) {
                         $q->where('a.identifier', 'LIKE', "%{$query}%")
-                          ->orWhere('ai.title', 'LIKE', "%{$query}%");
+                            ->orWhere('ai.title', 'LIKE', "%{$query}%");
                     })
                     ->select(['a.id', 'a.identifier', 'ai.title'])
                     ->limit(20)
@@ -598,7 +611,7 @@ class DonorController extends Controller
                     ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
                     ->where(function ($q) use ($query) {
                         $q->where('io.identifier', 'LIKE', "%{$query}%")
-                          ->orWhere('ioi.title', 'LIKE', "%{$query}%");
+                            ->orWhere('ioi.title', 'LIKE', "%{$query}%");
                     })
                     ->select(['io.id', 'io.identifier', 'ioi.title', 's.slug'])
                     ->limit(20)
@@ -612,7 +625,13 @@ class DonorController extends Controller
         return response()->json($results);
     }
 
-    public function donorIndex(Request $request) { return view('ahg-donor-manage::donor-index', ['rows' => collect()]); }
+    public function donorIndex(Request $request)
+    {
+        return view('ahg-donor-manage::donor-index', ['rows' => collect()]);
+    }
 
-    public function donorView(string $slug) { return view('ahg-donor-manage::donor-view', ['record' => (object)['slug'=>$slug]]); }
+    public function donorView(string $slug)
+    {
+        return view('ahg-donor-manage::donor-view', ['record' => (object) ['slug' => $slug]]);
+    }
 }

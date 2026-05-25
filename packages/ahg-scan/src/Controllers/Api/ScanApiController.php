@@ -44,13 +44,15 @@ class ScanApiController extends Controller
             ->where('io.id', '>', 1)
             ->select('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'sl.slug');
 
-        if ($parent > 0) { $query->where('io.parent_id', $parent); }
+        if ($parent > 0) {
+            $query->where('io.parent_id', $parent);
+        }
         if ($q !== '') {
-            $like = '%' . $q . '%';
+            $like = '%'.$q.'%';
             $query->where(function ($w) use ($like) {
                 $w->where('io.identifier', 'like', $like)
-                  ->orWhere('i18n.title', 'like', $like)
-                  ->orWhere('sl.slug', 'like', $like);
+                    ->orWhere('i18n.title', 'like', $like)
+                    ->orWhere('sl.slug', 'like', $like);
             });
         }
 
@@ -59,7 +61,7 @@ class ScanApiController extends Controller
         return response()->json([
             'success' => true,
             'count' => $rows->count(),
-            'data' => $rows->map(fn($r) => [
+            'data' => $rows->map(fn ($r) => [
                 'id' => $r->id,
                 'parent_id' => $r->parent_id,
                 'identifier' => $r->identifier,
@@ -97,8 +99,8 @@ class ScanApiController extends Controller
                 'token' => $result['token'],
                 'ingest_session_id' => $result['ingest_session_id'],
                 'expires_in_hours' => 24,
-                'upload_url' => url('/api/v2/scan/sessions/' . $result['token'] . '/files'),
-                'commit_url' => url('/api/v2/scan/sessions/' . $result['token'] . '/commit'),
+                'upload_url' => url('/api/v2/scan/sessions/'.$result['token'].'/files'),
+                'commit_url' => url('/api/v2/scan/sessions/'.$result['token'].'/commit'),
             ],
         ], 201);
     }
@@ -111,7 +113,7 @@ class ScanApiController extends Controller
     public function showSession(string $token): JsonResponse
     {
         $session = $this->tokens->find($token);
-        if (!$session) {
+        if (! $session) {
             return response()->json(['success' => false, 'error' => 'Not found'], 404);
         }
 
@@ -155,11 +157,11 @@ class ScanApiController extends Controller
     public function uploadFile(Request $request, string $token): JsonResponse
     {
         $session = $this->tokens->find($token);
-        if (!$session) {
+        if (! $session) {
             return response()->json(['success' => false, 'error' => 'Session not found'], 404);
         }
         if ($session->status !== 'open') {
-            return response()->json(['success' => false, 'error' => 'Session is ' . $session->status], 400);
+            return response()->json(['success' => false, 'error' => 'Session is '.$session->status], 400);
         }
 
         $request->validate([
@@ -180,8 +182,8 @@ class ScanApiController extends Controller
             ], 413);
         }
 
-        $stagingRoot = rtrim(config('heratio.scan.staging_path'), '/') . '/' . $token;
-        if (!is_dir($stagingRoot) && !@mkdir($stagingRoot, 0775, true) && !is_dir($stagingRoot)) {
+        $stagingRoot = rtrim(config('heratio.scan.staging_path'), '/').'/'.$token;
+        if (! is_dir($stagingRoot) && ! @mkdir($stagingRoot, 0775, true) && ! is_dir($stagingRoot)) {
             return response()->json(['success' => false, 'error' => 'Cannot create staging dir'], 500);
         }
         // Ensure the ClamAV daemon (runs as a different user) can read staged
@@ -195,12 +197,12 @@ class ScanApiController extends Controller
         // mid-request. copy() is a single syscall and never re-resolves the source.
         $originalName = $file->getClientOriginalName() ?: 'upload.bin';
         $safeName = preg_replace('/[^a-zA-Z0-9_.-]/', '_', $originalName);
-        $storedPath = $stagingRoot . '/' . $safeName;
+        $storedPath = $stagingRoot.'/'.$safeName;
         $seq = 1;
         while (file_exists($storedPath)) {
-            $storedPath = $stagingRoot . '/' . $seq++ . '_' . $safeName;
+            $storedPath = $stagingRoot.'/'.$seq++.'_'.$safeName;
         }
-        if (!@copy($file->getRealPath(), $storedPath)) {
+        if (! @copy($file->getRealPath(), $storedPath)) {
             return response()->json(['success' => false, 'error' => 'Failed to stage uploaded file'], 500);
         }
         @chmod($storedPath, 0644);
@@ -208,9 +210,10 @@ class ScanApiController extends Controller
         $sidecarPath = null;
         if ($sidecarUpload) {
             $sidecarName = preg_replace('/[^a-zA-Z0-9_.-]/', '_', $sidecarUpload->getClientOriginalName() ?: 'sidecar.xml');
-            $sidecarPath = $stagingRoot . '/' . $sidecarName;
-            if (!@copy($sidecarUpload->getRealPath(), $sidecarPath)) {
+            $sidecarPath = $stagingRoot.'/'.$sidecarName;
+            if (! @copy($sidecarUpload->getRealPath(), $sidecarPath)) {
                 @unlink($storedPath);
+
                 return response()->json(['success' => false, 'error' => 'Failed to stage sidecar'], 500);
             }
             @chmod($sidecarPath, 0644);
@@ -222,7 +225,9 @@ class ScanApiController extends Controller
         $inlineMeta = [];
         if ($request->filled('metadata')) {
             $decoded = json_decode((string) $request->input('metadata'), true);
-            if (is_array($decoded)) { $inlineMeta = $decoded; }
+            if (is_array($decoded)) {
+                $inlineMeta = $decoded;
+            }
         }
 
         $hash = @hash_file('sha256', $storedPath) ?: null;
@@ -253,7 +258,7 @@ class ScanApiController extends Controller
             'data' => [
                 'ingest_file_id' => $fileId,
                 'auto_dispatched' => $dispatched,
-                'status_url' => url('/api/v2/scan/sessions/' . $token),
+                'status_url' => url('/api/v2/scan/sessions/'.$token),
             ],
         ], 201);
     }
@@ -268,11 +273,11 @@ class ScanApiController extends Controller
     public function commit(string $token): JsonResponse
     {
         $session = $this->tokens->find($token);
-        if (!$session) {
+        if (! $session) {
             return response()->json(['success' => false, 'error' => 'Session not found'], 404);
         }
         if ($session->status !== 'open') {
-            return response()->json(['success' => false, 'error' => 'Session is ' . $session->status], 400);
+            return response()->json(['success' => false, 'error' => 'Session is '.$session->status], 400);
         }
 
         $pending = DB::table('ingest_file')
@@ -291,7 +296,7 @@ class ScanApiController extends Controller
             'data' => [
                 'token' => $token,
                 'dispatched' => $pending->count(),
-                'status_url' => url('/api/v2/scan/sessions/' . $token),
+                'status_url' => url('/api/v2/scan/sessions/'.$token),
             ],
         ]);
     }
@@ -305,7 +310,7 @@ class ScanApiController extends Controller
     public function abandon(string $token): JsonResponse
     {
         $session = $this->tokens->find($token);
-        if (!$session) {
+        if (! $session) {
             return response()->json(['success' => false, 'error' => 'Not found'], 404);
         }
 
@@ -330,7 +335,7 @@ class ScanApiController extends Controller
 
         $this->tokens->abandon($token);
 
-        $stagingRoot = rtrim(config('heratio.scan.staging_path'), '/') . '/' . $token;
+        $stagingRoot = rtrim(config('heratio.scan.staging_path'), '/').'/'.$token;
         if (is_dir($stagingRoot) && count(@scandir($stagingRoot) ?: []) <= 2) {
             @rmdir($stagingRoot);
         }

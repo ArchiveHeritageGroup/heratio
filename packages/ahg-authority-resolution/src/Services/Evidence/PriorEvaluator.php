@@ -44,7 +44,9 @@ namespace AhgAuthorityResolution\Services\Evidence;
 class PriorEvaluator implements EvaluatorInterface
 {
     private const PLACE_TYPES = ['GPE', 'PLACE', 'LOC'];
+
     private const TOP_N = 3;
+
     private const MIN_HITS = 2;
 
     public function __construct(private DocumentPriorService $prior) {}

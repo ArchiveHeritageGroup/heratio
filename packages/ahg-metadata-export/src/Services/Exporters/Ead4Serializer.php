@@ -46,9 +46,6 @@ class Ead4Serializer
      */
     public const NS_XLINK = 'http://www.w3.org/1999/xlink';
 
-    /**
-     * @var \DOMDocument
-     */
     protected \DOMDocument $dom;
 
     /**
@@ -93,10 +90,9 @@ class Ead4Serializer
     /**
      * Serialize an information object record to EAD 4 XML.
      *
-     * @param int    $objectId        The information_object ID.
-     * @param string $culture         The i18n culture code.
-     * @param bool   $includeChildren Whether to include child descriptions recursively.
-     *
+     * @param  int  $objectId  The information_object ID.
+     * @param  string  $culture  The i18n culture code.
+     * @param  bool  $includeChildren  Whether to include child descriptions recursively.
      * @return string The EAD 4 XML document.
      */
     public function serializeRecord(int $objectId, string $culture = 'en', bool $includeChildren = true): string
@@ -109,7 +105,7 @@ class Ead4Serializer
             ->where('id', $objectId)
             ->first();
 
-        if (!$io) {
+        if (! $io) {
             return $this->emptyDocument('Information object not found');
         }
 
@@ -119,14 +115,14 @@ class Ead4Serializer
             ->where('culture', $culture)
             ->first();
 
-        if (!$ioI18n) {
+        if (! $ioI18n) {
             $ioI18n = DB::table('information_object_i18n')
                 ->where('id', $objectId)
                 ->where('culture', $io->source_culture)
                 ->first();
         }
 
-        if (!$ioI18n) {
+        if (! $ioI18n) {
             return $this->emptyDocument('Information object i18n data not found');
         }
 
@@ -157,7 +153,7 @@ class Ead4Serializer
         $pubStatus = DB::table('status')
             ->join('term_i18n', function ($join) use ($culture) {
                 $join->on('status.status_id', '=', 'term_i18n.id')
-                     ->where('term_i18n.culture', '=', $culture);
+                    ->where('term_i18n.culture', '=', $culture);
             })
             ->where('status.object_id', $objectId)
             ->where('status.type_id', 158)
@@ -167,15 +163,15 @@ class Ead4Serializer
         $events = DB::table('event')
             ->leftJoin('event_i18n', function ($join) use ($culture) {
                 $join->on('event.id', '=', 'event_i18n.id')
-                     ->where('event_i18n.culture', '=', $culture);
+                    ->where('event_i18n.culture', '=', $culture);
             })
             ->leftJoin('actor_i18n', function ($join) use ($culture) {
                 $join->on('event.actor_id', '=', 'actor_i18n.id')
-                     ->where('actor_i18n.culture', '=', $culture);
+                    ->where('actor_i18n.culture', '=', $culture);
             })
             ->leftJoin('term_i18n as event_type', function ($join) use ($culture) {
                 $join->on('event.type_id', '=', 'event_type.id')
-                     ->where('event_type.culture', '=', $culture);
+                    ->where('event_type.culture', '=', $culture);
             })
             ->where('event.object_id', $objectId)
             ->select(
@@ -207,7 +203,7 @@ class Ead4Serializer
         $ead->setAttributeNS(
             self::NS_XSI,
             'xsi:schemaLocation',
-            self::NS_EAD . ' https://archivists.org/ns/ead/v4/ead4.xsd'
+            self::NS_EAD.' https://archivists.org/ns/ead/v4/ead4.xsd'
         );
 
         // <control>
@@ -229,13 +225,13 @@ class Ead4Serializer
         $control = $this->el('control');
 
         // <recordId>
-        $recordId = $slug ?? ($io->identifier ?? ('io-' . $io->id));
+        $recordId = $slug ?? ($io->identifier ?? ('io-'.$io->id));
         $control->appendChild($this->el('recordId', $recordId));
 
         // <filedesc>
         $filedesc = $this->el('filedesc');
         $titlestmt = $this->el('titlestmt');
-        if (!empty($ioI18n->title)) {
+        if (! empty($ioI18n->title)) {
             $titlestmt->appendChild($this->el('titleproper', $ioI18n->title));
         }
         $filedesc->appendChild($titlestmt);
@@ -316,7 +312,7 @@ class Ead4Serializer
                     ->where('id', $event->actor_id)
                     ->where('culture', $culture)
                     ->value('history');
-                if (!empty($actorHistory)) {
+                if (! empty($actorHistory)) {
                     $bioghist = $this->el('bioghist');
                     $bioghist->appendChild($this->el('p', $actorHistory));
                     $archdesc->appendChild($bioghist);
@@ -326,91 +322,91 @@ class Ead4Serializer
         }
 
         // <scopecontent>
-        if (!empty($ioI18n->scope_and_content)) {
+        if (! empty($ioI18n->scope_and_content)) {
             $scopecontent = $this->el('scopecontent');
             $scopecontent->appendChild($this->el('p', $ioI18n->scope_and_content));
             $archdesc->appendChild($scopecontent);
         }
 
         // <arrangement>
-        if (!empty($ioI18n->arrangement)) {
+        if (! empty($ioI18n->arrangement)) {
             $arrangement = $this->el('arrangement');
             $arrangement->appendChild($this->el('p', $ioI18n->arrangement));
             $archdesc->appendChild($arrangement);
         }
 
         // <accessrestrict>
-        if (!empty($ioI18n->access_conditions)) {
+        if (! empty($ioI18n->access_conditions)) {
             $accessrestrict = $this->el('accessrestrict');
             $accessrestrict->appendChild($this->el('p', $ioI18n->access_conditions));
             $archdesc->appendChild($accessrestrict);
         }
 
         // <userestrict>
-        if (!empty($ioI18n->reproduction_conditions)) {
+        if (! empty($ioI18n->reproduction_conditions)) {
             $userestrict = $this->el('userestrict');
             $userestrict->appendChild($this->el('p', $ioI18n->reproduction_conditions));
             $archdesc->appendChild($userestrict);
         }
 
         // <phystech>
-        if (!empty($ioI18n->physical_characteristics)) {
+        if (! empty($ioI18n->physical_characteristics)) {
             $phystech = $this->el('phystech');
             $phystech->appendChild($this->el('p', $ioI18n->physical_characteristics));
             $archdesc->appendChild($phystech);
         }
 
         // <otherfindaid>
-        if (!empty($ioI18n->finding_aids)) {
+        if (! empty($ioI18n->finding_aids)) {
             $otherfindaid = $this->el('otherfindaid');
             $otherfindaid->appendChild($this->el('p', $ioI18n->finding_aids));
             $archdesc->appendChild($otherfindaid);
         }
 
         // <originalsloc>
-        if (!empty($ioI18n->location_of_originals)) {
+        if (! empty($ioI18n->location_of_originals)) {
             $originalsloc = $this->el('originalsloc');
             $originalsloc->appendChild($this->el('p', $ioI18n->location_of_originals));
             $archdesc->appendChild($originalsloc);
         }
 
         // <altformavail>
-        if (!empty($ioI18n->location_of_copies)) {
+        if (! empty($ioI18n->location_of_copies)) {
             $altformavail = $this->el('altformavail');
             $altformavail->appendChild($this->el('p', $ioI18n->location_of_copies));
             $archdesc->appendChild($altformavail);
         }
 
         // <relatedmaterial>
-        if (!empty($ioI18n->related_units_of_description)) {
+        if (! empty($ioI18n->related_units_of_description)) {
             $relatedmaterial = $this->el('relatedmaterial');
             $relatedmaterial->appendChild($this->el('p', $ioI18n->related_units_of_description));
             $archdesc->appendChild($relatedmaterial);
         }
 
         // <custodhist> (archival history)
-        if (!empty($ioI18n->archival_history)) {
+        if (! empty($ioI18n->archival_history)) {
             $custodhist = $this->el('custodhist');
             $custodhist->appendChild($this->el('p', $ioI18n->archival_history));
             $archdesc->appendChild($custodhist);
         }
 
         // <acqinfo> (acquisition)
-        if (!empty($ioI18n->acquisition)) {
+        if (! empty($ioI18n->acquisition)) {
             $acqinfo = $this->el('acqinfo');
             $acqinfo->appendChild($this->el('p', $ioI18n->acquisition));
             $archdesc->appendChild($acqinfo);
         }
 
         // <appraisal>
-        if (!empty($ioI18n->appraisal)) {
+        if (! empty($ioI18n->appraisal)) {
             $appraisal = $this->el('appraisal');
             $appraisal->appendChild($this->el('p', $ioI18n->appraisal));
             $archdesc->appendChild($appraisal);
         }
 
         // <accruals>
-        if (!empty($ioI18n->accruals)) {
+        if (! empty($ioI18n->accruals)) {
             $accruals = $this->el('accruals');
             $accruals->appendChild($this->el('p', $ioI18n->accruals));
             $archdesc->appendChild($accruals);
@@ -428,13 +424,13 @@ class Ead4Serializer
                 $dao = $this->el('dao');
                 $dao->setAttribute('daotype', 'derived');
 
-                if (!empty($dobj->path)) {
+                if (! empty($dobj->path)) {
                     $dao->setAttributeNS(self::NS_XLINK, 'xlink:href', $dobj->path);
                     $dao->setAttributeNS(self::NS_XLINK, 'xlink:actuate', 'onRequest');
                     $dao->setAttributeNS(self::NS_XLINK, 'xlink:show', 'new');
                 }
 
-                if (!empty($dobj->mime_type)) {
+                if (! empty($dobj->mime_type)) {
                     $dao->setAttribute('otherdaotype', $dobj->mime_type);
                 }
 
@@ -464,12 +460,12 @@ class Ead4Serializer
         $did = $this->el('did');
 
         // <unitid>
-        if (!empty($io->identifier)) {
+        if (! empty($io->identifier)) {
             $did->appendChild($this->el('unitid', $io->identifier));
         }
 
         // <unittitle>
-        if (!empty($ioI18n->title)) {
+        if (! empty($ioI18n->title)) {
             $did->appendChild($this->el('unittitle', $ioI18n->title));
         }
 
@@ -477,7 +473,7 @@ class Ead4Serializer
         foreach ($events as $event) {
             $unitdate = $this->el('unitdate');
 
-            if (!empty($event->date_display)) {
+            if (! empty($event->date_display)) {
                 $unitdate->appendChild($this->dom->createTextNode($event->date_display));
             }
 
@@ -486,7 +482,7 @@ class Ead4Serializer
                 $unitdate->setAttribute('normal', $normalDate);
             }
 
-            if (!empty($event->event_type_name)) {
+            if (! empty($event->event_type_name)) {
                 $unitdate->setAttribute('datechar', strtolower($event->event_type_name));
             }
 
@@ -494,7 +490,7 @@ class Ead4Serializer
         }
 
         // <physdesc> (extent and medium)
-        if (!empty($ioI18n->extent_and_medium)) {
+        if (! empty($ioI18n->extent_and_medium)) {
             $physdescstructured = $this->el('physdescstructured');
             $physdescstructured->setAttribute('coverage', 'whole');
             $physdescstructured->setAttribute('physdescstructuredtype', 'materialtype');
@@ -510,7 +506,7 @@ class Ead4Serializer
 
         // <origination> from events with actors (creators)
         foreach ($events as $event) {
-            if (!empty($event->actor_name)) {
+            if (! empty($event->actor_name)) {
                 $origination = $this->el('origination');
                 $origination->setAttribute('label', 'Creator');
 
@@ -534,7 +530,7 @@ class Ead4Serializer
         }
 
         // <abstract> from alternate title
-        if (!empty($ioI18n->alternate_title)) {
+        if (! empty($ioI18n->alternate_title)) {
             $did->appendChild($this->el('abstract', $ioI18n->alternate_title));
         }
 
@@ -550,7 +546,7 @@ class Ead4Serializer
         $subjects = DB::table('object_term_relation')
             ->join('term_i18n', function ($join) use ($culture) {
                 $join->on('object_term_relation.term_id', '=', 'term_i18n.id')
-                     ->where('term_i18n.culture', '=', $culture);
+                    ->where('term_i18n.culture', '=', $culture);
             })
             ->where('object_term_relation.object_id', $objectId)
             ->select('term_i18n.name')
@@ -561,7 +557,7 @@ class Ead4Serializer
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->join('term_i18n', function ($join) use ($culture) {
                 $join->on('term.id', '=', 'term_i18n.id')
-                     ->where('term_i18n.culture', '=', $culture);
+                    ->where('term_i18n.culture', '=', $culture);
             })
             ->where('object_term_relation.object_id', $objectId)
             ->where('term.taxonomy_id', 42)
@@ -575,7 +571,7 @@ class Ead4Serializer
         $controlaccess = $this->el('controlaccess');
 
         foreach ($subjects as $subject) {
-            if (!empty($subject->name)) {
+            if (! empty($subject->name)) {
                 $subjectEl = $this->el('subject');
                 $subjectEl->appendChild($this->el('part', $subject->name));
                 $controlaccess->appendChild($subjectEl);
@@ -583,7 +579,7 @@ class Ead4Serializer
         }
 
         foreach ($places as $place) {
-            if (!empty($place->name)) {
+            if (! empty($place->name)) {
                 $geogname = $this->el('geogname');
                 $geogname->appendChild($this->el('part', $place->name));
                 $controlaccess->appendChild($geogname);
@@ -598,7 +594,7 @@ class Ead4Serializer
      */
     protected function addChildComponents(\DOMElement $parent, object $io, string $culture): void
     {
-        if (!$io->lft || !$io->rgt) {
+        if (! $io->lft || ! $io->rgt) {
             return;
         }
 
@@ -606,7 +602,7 @@ class Ead4Serializer
         $children = DB::table('information_object')
             ->leftJoin('information_object_i18n', function ($join) use ($culture) {
                 $join->on('information_object.id', '=', 'information_object_i18n.id')
-                     ->where('information_object_i18n.culture', '=', $culture);
+                    ->where('information_object_i18n.culture', '=', $culture);
             })
             ->where('information_object.parent_id', $io->id)
             ->orderBy('information_object.lft')
@@ -691,10 +687,10 @@ class Ead4Serializer
         // <did>
         $did = $this->el('did');
 
-        if (!empty($child->identifier)) {
+        if (! empty($child->identifier)) {
             $did->appendChild($this->el('unitid', $child->identifier));
         }
-        if (!empty($child->title)) {
+        if (! empty($child->title)) {
             $did->appendChild($this->el('unittitle', $child->title));
         }
 
@@ -702,7 +698,7 @@ class Ead4Serializer
         $events = DB::table('event')
             ->leftJoin('event_i18n', function ($join) use ($culture) {
                 $join->on('event.id', '=', 'event_i18n.id')
-                     ->where('event_i18n.culture', '=', $culture);
+                    ->where('event_i18n.culture', '=', $culture);
             })
             ->where('event.object_id', $child->id)
             ->select('event.start_date', 'event.end_date', 'event_i18n.date as date_display')
@@ -710,7 +706,7 @@ class Ead4Serializer
 
         foreach ($events as $event) {
             $unitdate = $this->el('unitdate');
-            if (!empty($event->date_display)) {
+            if (! empty($event->date_display)) {
                 $unitdate->appendChild($this->dom->createTextNode($event->date_display));
             }
             $normalDate = $this->formatDateNormal($event->start_date, $event->end_date);
@@ -720,7 +716,7 @@ class Ead4Serializer
             $did->appendChild($unitdate);
         }
 
-        if (!empty($child->extent_and_medium)) {
+        if (! empty($child->extent_and_medium)) {
             $physdescstructured = $this->el('physdescstructured');
             $physdescstructured->setAttribute('coverage', 'whole');
             $physdescstructured->setAttribute('physdescstructuredtype', 'materialtype');
@@ -732,25 +728,25 @@ class Ead4Serializer
         $c->appendChild($did);
 
         // Optional elements
-        if (!empty($child->scope_and_content)) {
+        if (! empty($child->scope_and_content)) {
             $scopecontent = $this->el('scopecontent');
             $scopecontent->appendChild($this->el('p', $child->scope_and_content));
             $c->appendChild($scopecontent);
         }
 
-        if (!empty($child->arrangement)) {
+        if (! empty($child->arrangement)) {
             $arrangement = $this->el('arrangement');
             $arrangement->appendChild($this->el('p', $child->arrangement));
             $c->appendChild($arrangement);
         }
 
-        if (!empty($child->access_conditions)) {
+        if (! empty($child->access_conditions)) {
             $accessrestrict = $this->el('accessrestrict');
             $accessrestrict->appendChild($this->el('p', $child->access_conditions));
             $c->appendChild($accessrestrict);
         }
 
-        if (!empty($child->reproduction_conditions)) {
+        if (! empty($child->reproduction_conditions)) {
             $userestrict = $this->el('userestrict');
             $userestrict->appendChild($this->el('p', $child->reproduction_conditions));
             $c->appendChild($userestrict);
@@ -769,7 +765,7 @@ class Ead4Serializer
             foreach ($digitalObjects as $dobj) {
                 $dao = $this->el('dao');
                 $dao->setAttribute('daotype', 'derived');
-                if (!empty($dobj->path)) {
+                if (! empty($dobj->path)) {
                     $dao->setAttributeNS(self::NS_XLINK, 'xlink:href', $dobj->path);
                     $dao->setAttributeNS(self::NS_XLINK, 'xlink:actuate', 'onRequest');
                     $dao->setAttributeNS(self::NS_XLINK, 'xlink:show', 'new');
@@ -786,7 +782,7 @@ class Ead4Serializer
         $grandchildren = DB::table('information_object')
             ->leftJoin('information_object_i18n', function ($join) use ($culture) {
                 $join->on('information_object.id', '=', 'information_object_i18n.id')
-                     ->where('information_object_i18n.culture', '=', $culture);
+                    ->where('information_object_i18n.culture', '=', $culture);
             })
             ->where('information_object.parent_id', $child->id)
             ->orderBy('information_object.lft')
@@ -833,7 +829,7 @@ class Ead4Serializer
      */
     protected function mapLevel(?string $level): string
     {
-        if (!$level) {
+        if (! $level) {
             return 'otherlevel';
         }
 
@@ -849,7 +845,7 @@ class Ead4Serializer
         $end = $endDate ? (string) $endDate : null;
 
         if ($start && $end && $start !== $end) {
-            return $start . '/' . $end;
+            return $start.'/'.$end;
         }
 
         return $start ?? $end;
@@ -881,7 +877,7 @@ class Ead4Serializer
         $root = $dom->createElementNS(self::NS_EAD, 'ead');
         $dom->appendChild($root);
 
-        $comment = $dom->createComment(' ' . $message . ' ');
+        $comment = $dom->createComment(' '.$message.' ');
         $root->appendChild($comment);
 
         return $dom->saveXML();

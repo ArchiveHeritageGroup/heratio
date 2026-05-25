@@ -34,15 +34,29 @@ class AccessionIntakeCommand extends Command
     {
         if (! Schema::hasTable('accession')) {
             $this->warn('accession table not found.');
+
             return self::SUCCESS;
         }
 
-        if ($id = $this->option('accept'))   return $this->setStatus((int) $id, 'accepted', (string) $this->option('reason'));
-        if ($id = $this->option('reject'))   return $this->setStatus((int) $id, 'rejected', (string) $this->option('reason'));
-        if ($id = $this->option('assign'))   return $this->assign((int) $id, (int) $this->option('user'));
-        if ($id = $this->option('checklist'))return $this->runChecklist((int) $id);
-        if ($id = $this->option('timeline')) return $this->showTimeline((int) $id);
-        if ($this->option('stats'))          return $this->showStats();
+        if ($id = $this->option('accept')) {
+            return $this->setStatus((int) $id, 'accepted', (string) $this->option('reason'));
+        }
+        if ($id = $this->option('reject')) {
+            return $this->setStatus((int) $id, 'rejected', (string) $this->option('reason'));
+        }
+        if ($id = $this->option('assign')) {
+            return $this->assign((int) $id, (int) $this->option('user'));
+        }
+        if ($id = $this->option('checklist')) {
+            return $this->runChecklist((int) $id);
+        }
+        if ($id = $this->option('timeline')) {
+            return $this->showTimeline((int) $id);
+        }
+        if ($this->option('stats')) {
+            return $this->showStats();
+        }
+
         return $this->showQueue();
     }
 
@@ -53,7 +67,10 @@ class AccessionIntakeCommand extends Command
             ->selectRaw('COALESCE(t.code, "unset") as label, COUNT(*) AS n')
             ->groupBy('label')->pluck('n', 'label')->toArray();
         $this->info('=== accession intake stats ===');
-        foreach ($byStatus as $s => $n) $this->line(sprintf('  %-20s %d', $s, $n));
+        foreach ($byStatus as $s => $n) {
+            $this->line(sprintf('  %-20s %d', $s, $n));
+        }
+
         return self::SUCCESS;
     }
 
@@ -66,8 +83,12 @@ class AccessionIntakeCommand extends Command
             ->leftJoin('term as st', 'st.id', '=', 'accession.processing_status_id')
             ->leftJoin('term as pt', 'pt.id', '=', 'accession.processing_priority_id')
             ->select('accession.id', 'accession.identifier', 'ai.title', 'st.code as status', 'pt.code as priority', 'accession.date');
-        if ($s = $this->option('status'))   $q->where('st.code', $s);
-        if ($p = $this->option('priority')) $q->where('pt.code', $p);
+        if ($s = $this->option('status')) {
+            $q->where('st.code', $s);
+        }
+        if ($p = $this->option('priority')) {
+            $q->where('pt.code', $p);
+        }
         $rows = $q->orderByDesc('accession.id')->limit(50)->get();
         $this->info("=== intake queue ({$rows->count()}) ===");
         foreach ($rows as $r) {
@@ -77,6 +98,7 @@ class AccessionIntakeCommand extends Command
                 mb_strimwidth((string) ($r->priority ?? '-'), 0, 11, '..'),
                 mb_strimwidth((string) ($r->title ?? ''), 0, 60, '..')));
         }
+
         return self::SUCCESS;
     }
 
@@ -107,18 +129,25 @@ class AccessionIntakeCommand extends Command
             ]);
         }
         $this->info("accession #{$id}: status -> {$code}");
+
         return self::SUCCESS;
     }
 
     protected function assign(int $id, int $userId): int
     {
-        if ($userId <= 0) { $this->error('--user is required for --assign'); return self::FAILURE; }
+        if ($userId <= 0) {
+            $this->error('--user is required for --assign');
+
+            return self::FAILURE;
+        }
         if (! Schema::hasColumn('accession', 'assigned_user_id')) {
             $this->warn('accession.assigned_user_id column not present.');
+
             return self::SUCCESS;
         }
         DB::table('accession')->where('id', $id)->update(['assigned_user_id' => $userId, 'updated_at' => now()]);
         $this->info("accession #{$id} assigned to user {$userId}");
+
         return self::SUCCESS;
     }
 
@@ -126,6 +155,7 @@ class AccessionIntakeCommand extends Command
     {
         if (! Schema::hasTable('accession_intake_checklist')) {
             $this->warn('accession_intake_checklist not found.');
+
             return self::SUCCESS;
         }
         $items = DB::table('accession_intake_checklist')->where('accession_id', $id)->get();
@@ -134,6 +164,7 @@ class AccessionIntakeCommand extends Command
             $mark = ! empty($i->is_complete) ? '[x]' : '[ ]';
             $this->line(sprintf('  %s %s', $mark, $i->item_text ?? ($i->item_key ?? '?')));
         }
+
         return self::SUCCESS;
     }
 
@@ -141,6 +172,7 @@ class AccessionIntakeCommand extends Command
     {
         if (! Schema::hasTable('accession_timeline')) {
             $this->warn('accession_timeline not found.');
+
             return self::SUCCESS;
         }
         $rows = DB::table('accession_timeline')->where('accession_id', $id)->orderBy('occurred_at')->get();
@@ -148,6 +180,7 @@ class AccessionIntakeCommand extends Command
         foreach ($rows as $r) {
             $this->line(sprintf('  %s  %-15s  %s', $r->occurred_at, $r->event_type, mb_strimwidth((string) ($r->notes ?? ''), 0, 60, '..')));
         }
+
         return self::SUCCESS;
     }
 }

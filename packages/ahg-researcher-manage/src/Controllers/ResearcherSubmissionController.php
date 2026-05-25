@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgResearcherManage\Controllers;
 
 use AhgCore\Pagination\SimplePager;
@@ -46,14 +44,14 @@ class ResearcherSubmissionController extends Controller
         $isAdmin = AclService::isAdministrator($user);
 
         $baseQuery = DB::table('researcher_submission');
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $baseQuery->where('user_id', $user->id);
         }
 
         $stats = [
-            'total'    => (clone $baseQuery)->count(),
-            'draft'    => (clone $baseQuery)->where('status', 'draft')->count(),
-            'pending'  => (clone $baseQuery)->whereIn('status', ['submitted', 'under_review'])->count(),
+            'total' => (clone $baseQuery)->count(),
+            'draft' => (clone $baseQuery)->where('status', 'draft')->count(),
+            'pending' => (clone $baseQuery)->whereIn('status', ['submitted', 'under_review'])->count(),
             'approved' => (clone $baseQuery)->where('status', 'approved')->count(),
             'published' => (clone $baseQuery)->where('status', 'published')->count(),
             'returned' => (clone $baseQuery)->where('status', 'returned')->count(),
@@ -82,7 +80,7 @@ class ResearcherSubmissionController extends Controller
             ->orderBy('researcher_submission.updated_at', 'desc')
             ->limit(10);
 
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $recentQuery->where('researcher_submission.user_id', $user->id);
         }
 
@@ -129,7 +127,7 @@ class ResearcherSubmissionController extends Controller
                     ->where('actor_i18n.culture', '=', app()->getLocale());
             });
 
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $query->where('researcher_submission.user_id', $user->id);
         }
 
@@ -155,13 +153,13 @@ class ResearcherSubmissionController extends Controller
             ->offset(($page - 1) * $limit)
             ->limit($limit)
             ->get()
-            ->map(fn($row) => (array) $row)
+            ->map(fn ($row) => (array) $row)
             ->toArray();
 
         $pager = new SimplePager([
-            'hits'  => $submissions,
+            'hits' => $submissions,
             'total' => $total,
-            'page'  => $page,
+            'page' => $page,
             'limit' => $limit,
         ]);
 
@@ -190,7 +188,7 @@ class ResearcherSubmissionController extends Controller
             })
             ->whereIn('researcher_submission.status', ['submitted', 'under_review']);
 
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $query->where('researcher_submission.user_id', $user->id);
         }
 
@@ -212,13 +210,13 @@ class ResearcherSubmissionController extends Controller
             ->offset(($page - 1) * $limit)
             ->limit($limit)
             ->get()
-            ->map(fn($row) => (array) $row)
+            ->map(fn ($row) => (array) $row)
             ->toArray();
 
         $pager = new SimplePager([
-            'hits'  => $submissions,
+            'hits' => $submissions,
             'total' => $total,
-            'page'  => $page,
+            'page' => $page,
             'limit' => $limit,
         ]);
 
@@ -253,7 +251,7 @@ class ResearcherSubmissionController extends Controller
             ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
             ->orderBy('actor_i18n.authorized_form_of_name', 'asc')
             ->get()
-            ->map(fn($row) => (array) $row)
+            ->map(fn ($row) => (array) $row)
             ->toArray();
 
         $result = session('import_result');
@@ -280,11 +278,11 @@ class ResearcherSubmissionController extends Controller
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             return redirect()->route('researcher.import')
-                ->withErrors(['exchange_file' => 'Invalid JSON file: ' . json_last_error_msg()]);
+                ->withErrors(['exchange_file' => 'Invalid JSON file: '.json_last_error_msg()]);
         }
 
         // Validate expected structure
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return redirect()->route('researcher.import')
                 ->withErrors(['exchange_file' => 'JSON file must contain a valid object.']);
         }
@@ -303,36 +301,36 @@ class ResearcherSubmissionController extends Controller
         $title = $data['title'] ?? ($data['source'] ?? 'Imported exchange');
 
         // Store the original file
-        $storagePath = 'researcher-imports/' . $user->id;
-        $filename = date('Y-m-d_His') . '_' . $file->getClientOriginalName();
+        $storagePath = 'researcher-imports/'.$user->id;
+        $filename = date('Y-m-d_His').'_'.$file->getClientOriginalName();
         $file->storeAs($storagePath, $filename, 'local');
 
         // Create the draft submission
         $submissionId = DB::table('researcher_submission')->insertGetId([
-            'user_id'          => $user->id,
-            'title'            => $title,
-            'description'      => $data['description'] ?? null,
-            'repository_id'    => $repositoryId,
+            'user_id' => $user->id,
+            'title' => $title,
+            'description' => $data['description'] ?? null,
+            'repository_id' => $repositoryId,
             'parent_object_id' => null,
-            'project_id'       => null,
-            'source_type'      => 'online',
-            'source_file'      => $storagePath . '/' . $filename,
-            'status'           => 'draft',
-            'total_items'      => $items + $collections,
-            'total_files'      => $files,
-            'created_at'       => now(),
-            'updated_at'       => now(),
+            'project_id' => null,
+            'source_type' => 'online',
+            'source_file' => $storagePath.'/'.$filename,
+            'status' => 'draft',
+            'total_items' => $items + $collections,
+            'total_files' => $files,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         $result = [
             'submission_id' => $submissionId,
-            'title'         => $title,
-            'notes'         => $notes,
-            'files'         => $files,
-            'items'         => $items,
-            'creators'      => $creators,
-            'repos'         => $repos,
-            'collections'   => $collections,
+            'title' => $title,
+            'notes' => $notes,
+            'files' => $files,
+            'items' => $items,
+            'creators' => $creators,
+            'repos' => $repos,
+            'collections' => $collections,
         ];
 
         return redirect()->route('researcher.import')
@@ -423,15 +421,33 @@ class ResearcherSubmissionController extends Controller
         }
     }
 
-    public function researcherBrowse(Request $request) { return view('ahg-researcher-manage::researcher-browse', ['rows' => collect()]); }
+    public function researcherBrowse(Request $request)
+    {
+        return view('ahg-researcher-manage::researcher-browse', ['rows' => collect()]);
+    }
 
-    public function researcherAdd(Request $request) { return view('ahg-researcher-manage::researcher-add', ['record' => (object)[]]); }
+    public function researcherAdd(Request $request)
+    {
+        return view('ahg-researcher-manage::researcher-add', ['record' => (object) []]);
+    }
 
-    public function researcherEdit(Request $request, int $id) { return view('ahg-researcher-manage::researcher-edit', ['record' => (object)['id'=>$id]]); }
+    public function researcherEdit(Request $request, int $id)
+    {
+        return view('ahg-researcher-manage::researcher-edit', ['record' => (object) ['id' => $id]]);
+    }
 
-    public function researcherView(int $id) { return view('ahg-researcher-manage::researcher-view', ['record' => (object)['id'=>$id]]); }
+    public function researcherView(int $id)
+    {
+        return view('ahg-researcher-manage::researcher-view', ['record' => (object) ['id' => $id]]);
+    }
 
-    public function researcherDelete(int $id) { return view('ahg-researcher-manage::researcher-delete', ['record' => (object)['id'=>$id]]); }
+    public function researcherDelete(int $id)
+    {
+        return view('ahg-researcher-manage::researcher-delete', ['record' => (object) ['id' => $id]]);
+    }
 
-    public function submissionView(int $id) { return view('ahg-researcher-manage::submission-view', ['record' => (object)['id'=>$id]]); }
+    public function submissionView(int $id)
+    {
+        return view('ahg-researcher-manage::submission-view', ['record' => (object) ['id' => $id]]);
+    }
 }

@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgFavorites\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -44,6 +42,7 @@ class FolderService
                     ->where('user_id', $userId)
                     ->where('folder_id', $folder->id)
                     ->count();
+
                 return $folder;
             });
     }
@@ -119,7 +118,9 @@ class FolderService
                 'updated_at' => now(),
             ]);
 
-        if (!$updated) return null;
+        if (! $updated) {
+            return null;
+        }
 
         DB::table('favorites_share')->insert([
             'folder_id' => $id,

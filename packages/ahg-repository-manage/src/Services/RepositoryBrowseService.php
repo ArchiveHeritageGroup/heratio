@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgRepositoryManage\Services;
 
 use AhgCore\Services\BrowseService;
@@ -88,10 +86,10 @@ class RepositoryBrowseService extends BrowseService
             ->where(function ($q) {
                 $q->where(function ($qq) {
                     $qq->whereNotNull('actor_cur.authorized_form_of_name')
-                       ->where('actor_cur.authorized_form_of_name', '!=', '');
+                        ->where('actor_cur.authorized_form_of_name', '!=', '');
                 })->orWhere(function ($qq) {
                     $qq->whereNotNull('actor_fb.authorized_form_of_name')
-                       ->where('actor_fb.authorized_form_of_name', '!=', '');
+                        ->where('actor_fb.authorized_form_of_name', '!=', '');
                 });
             })
             ->where('repository.id', '!=', 6); // Exclude root repository
@@ -99,9 +97,9 @@ class RepositoryBrowseService extends BrowseService
 
     protected function applySort($query, string $sort, string $sortDir)
     {
-        $name   = "COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name)";
-        $region = "COALESCE(ci_cur.region, ci_fb.region)";
-        $city   = "COALESCE(ci_cur.city, ci_fb.city)";
+        $name = 'COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name)';
+        $region = 'COALESCE(ci_cur.region, ci_fb.region)';
+        $city = 'COALESCE(ci_cur.city, ci_fb.city)';
         switch ($sort) {
             case 'alphabetic':
                 $query->orderByRaw("{$name} {$sortDir}");
@@ -123,18 +121,20 @@ class RepositoryBrowseService extends BrowseService
                 $query->orderBy('object.updated_at', $sortDir);
                 break;
         }
+
         return $query;
     }
 
     protected function applySearch($query, string $subquery)
     {
         if ($subquery !== '') {
-            $name = "COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name)";
+            $name = 'COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name)';
             $query->where(function ($q) use ($subquery, $name) {
                 $q->whereRaw("{$name} LIKE ?", ["%{$subquery}%"])
-                  ->orWhere('actor.description_identifier', 'LIKE', "%{$subquery}%");
+                    ->orWhere('actor.description_identifier', 'LIKE', "%{$subquery}%");
             });
         }
+
         return $query;
     }
 
@@ -147,7 +147,7 @@ class RepositoryBrowseService extends BrowseService
                 ->join('term', 'object_term_relation.term_id', '=', 'term.id')
                 ->join('term_i18n', function ($j) {
                     $j->on('term.id', '=', 'term_i18n.id')
-                      ->where('term_i18n.culture', '=', $this->culture);
+                        ->where('term_i18n.culture', '=', $this->culture);
                 })
                 ->where('object_term_relation.object_id', $row->id)
                 ->where('term.taxonomy_id', 72)
@@ -156,8 +156,8 @@ class RepositoryBrowseService extends BrowseService
         }
 
         // Check for logo
-        $logoPath = '/uploads/r/' . ($row->slug ?? '') . '/conf/logo.png';
-        $hasLogo = $row->slug && file_exists('/usr/share/nginx/archive/uploads/r/' . $row->slug . '/conf/logo.png');
+        $logoPath = '/uploads/r/'.($row->slug ?? '').'/conf/logo.png';
+        $hasLogo = $row->slug && file_exists('/usr/share/nginx/archive/uploads/r/'.$row->slug.'/conf/logo.png');
 
         return [
             'id' => $row->id,
@@ -182,7 +182,7 @@ class RepositoryBrowseService extends BrowseService
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->join('term_i18n', function ($j) {
                 $j->on('term.id', '=', 'term_i18n.id')
-                  ->where('term_i18n.culture', '=', $this->culture);
+                    ->where('term_i18n.culture', '=', $this->culture);
             })
             ->where('term.taxonomy_id', 72) // Thematic area taxonomy
             ->where('repository.id', '!=', 6)
@@ -195,6 +195,7 @@ class RepositoryBrowseService extends BrowseService
         foreach ($rows as $row) {
             $facets[$row->id] = ['name' => $row->name, 'count' => $row->cnt];
         }
+
         return $facets;
     }
 
@@ -207,7 +208,7 @@ class RepositoryBrowseService extends BrowseService
             ->join('contact_information', 'repository.id', '=', 'contact_information.actor_id')
             ->join('contact_information_i18n', function ($j) {
                 $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                  ->where('contact_information_i18n.culture', '=', $this->culture);
+                    ->where('contact_information_i18n.culture', '=', $this->culture);
             })
             ->where('repository.id', '!=', 6)
             ->whereNotNull('contact_information_i18n.region')
@@ -230,7 +231,7 @@ class RepositoryBrowseService extends BrowseService
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->join('term_i18n', function ($j) {
                 $j->on('term.id', '=', 'term_i18n.id')
-                  ->where('term_i18n.culture', '=', $this->culture);
+                    ->where('term_i18n.culture', '=', $this->culture);
             })
             ->where('term.taxonomy_id', 38) // Repository type taxonomy
             ->where('repository.id', '!=', 6)
@@ -245,6 +246,7 @@ class RepositoryBrowseService extends BrowseService
                 $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt];
             }
         }
+
         return $facets;
     }
 
@@ -258,7 +260,7 @@ class RepositoryBrowseService extends BrowseService
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->join('term_i18n', function ($j) {
                 $j->on('term.id', '=', 'term_i18n.id')
-                  ->where('term_i18n.culture', '=', $this->culture);
+                    ->where('term_i18n.culture', '=', $this->culture);
             })
             ->where('term.taxonomy_id', 73) // Geographic subregion taxonomy
             ->where('repository.id', '!=', 6)
@@ -273,6 +275,7 @@ class RepositoryBrowseService extends BrowseService
                 $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt];
             }
         }
+
         return $facets;
     }
 
@@ -298,6 +301,7 @@ class RepositoryBrowseService extends BrowseService
             $langName = locale_get_display_language($r->culture, 'en') ?: $r->culture;
             $facets[$r->culture] = ['name' => ucfirst($langName), 'count' => $r->cnt];
         }
+
         return $facets;
     }
 
@@ -310,7 +314,7 @@ class RepositoryBrowseService extends BrowseService
             ->join('contact_information', 'repository.id', '=', 'contact_information.actor_id')
             ->join('contact_information_i18n', function ($j) {
                 $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                  ->where('contact_information_i18n.culture', '=', $this->culture);
+                    ->where('contact_information_i18n.culture', '=', $this->culture);
             })
             ->where('repository.id', '!=', 6)
             ->whereNotNull('contact_information_i18n.city')
@@ -324,6 +328,7 @@ class RepositoryBrowseService extends BrowseService
         foreach ($rows as $r) {
             $facets[$r->locality] = ['name' => $r->locality, 'count' => $r->cnt];
         }
+
         return $facets;
     }
 
@@ -336,7 +341,7 @@ class RepositoryBrowseService extends BrowseService
         $limit = max(1, min(100, (int) ($params['limit'] ?? 30)));
         $skip = ($page - 1) * $limit;
         $sort = $params['sort'] ?: 'alphabetic';
-        $sortDir = !empty($params['sortDir']) ? $params['sortDir'] : (($sort === 'lastUpdated') ? 'desc' : 'asc');
+        $sortDir = ! empty($params['sortDir']) ? $params['sortDir'] : (($sort === 'lastUpdated') ? 'desc' : 'asc');
         $subquery = trim($params['subquery'] ?? '');
 
         try {
@@ -347,7 +352,7 @@ class RepositoryBrowseService extends BrowseService
             $query = $this->applySearch($query, $subquery);
 
             // Thematic area filter
-            if (!empty($params['thematicArea'])) {
+            if (! empty($params['thematicArea'])) {
                 $query->whereExists(function ($sub) use ($params) {
                     $sub->select(DB::raw(1))
                         ->from('object_term_relation')
@@ -357,13 +362,13 @@ class RepositoryBrowseService extends BrowseService
             }
 
             // Region filter
-            if (!empty($params['region'])) {
+            if (! empty($params['region'])) {
                 $query->whereExists(function ($sub) use ($params) {
                     $sub->select(DB::raw(1))
                         ->from('contact_information')
                         ->join('contact_information_i18n', function ($j) {
                             $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                              ->where('contact_information_i18n.culture', '=', $this->culture);
+                                ->where('contact_information_i18n.culture', '=', $this->culture);
                         })
                         ->whereColumn('contact_information.actor_id', 'repository.id')
                         ->where('contact_information_i18n.region', $params['region']);
@@ -371,21 +376,21 @@ class RepositoryBrowseService extends BrowseService
             }
 
             // Locality filter
-            if (!empty($params['locality'])) {
+            if (! empty($params['locality'])) {
                 $query->whereExists(function ($sub) use ($params) {
                     $sub->select(DB::raw(1))
                         ->from('contact_information')
                         ->join('contact_information_i18n', function ($j) {
                             $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                              ->where('contact_information_i18n.culture', '=', $this->culture);
+                                ->where('contact_information_i18n.culture', '=', $this->culture);
                         })
                         ->whereColumn('contact_information.actor_id', 'repository.id')
-                        ->where('contact_information_i18n.city', 'LIKE', '%' . $params['locality'] . '%');
+                        ->where('contact_information_i18n.city', 'LIKE', '%'.$params['locality'].'%');
                 });
             }
 
             // Archive type filter
-            if (!empty($params['archiveType'])) {
+            if (! empty($params['archiveType'])) {
                 $query->whereExists(function ($sub) use ($params) {
                     $sub->select(DB::raw(1))
                         ->from('object_term_relation')
@@ -395,7 +400,7 @@ class RepositoryBrowseService extends BrowseService
             }
 
             // Geographic subregion filter
-            if (!empty($params['subregion'])) {
+            if (! empty($params['subregion'])) {
                 $query->whereExists(function ($sub) use ($params) {
                     $sub->select(DB::raw(1))
                         ->from('object_term_relation')
@@ -405,7 +410,7 @@ class RepositoryBrowseService extends BrowseService
             }
 
             // Has digital object filter
-            if (!empty($params['hasDigitalObject'])) {
+            if (! empty($params['hasDigitalObject'])) {
                 $query->whereExists(function ($sub) {
                     $sub->select(DB::raw(1))
                         ->from('digital_object')
@@ -424,7 +429,8 @@ class RepositoryBrowseService extends BrowseService
 
             return ['hits' => $hits, 'total' => $total, 'page' => $page, 'limit' => $limit];
         } catch (\Exception $e) {
-            \Log::error(static::class . ' browseAdvanced error: ' . $e->getMessage());
+            \Log::error(static::class.' browseAdvanced error: '.$e->getMessage());
+
             return ['hits' => [], 'total' => 0, 'page' => $page, 'limit' => $limit];
         }
     }

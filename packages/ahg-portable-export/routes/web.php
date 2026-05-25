@@ -21,5 +21,5 @@ Route::middleware('admin')->group(function () {
     // Legacy aliases
     Route::get('/portableExport/index', [PortableExportController::class, 'index']);
     Route::post('/portableExport/export', [PortableExportController::class, 'export']);
-    Route::match(['get','post'], '/portableExport/import', [PortableExportController::class, 'import']);
+    Route::match(['get', 'post'], '/portableExport/import', [PortableExportController::class, 'import']);
 });

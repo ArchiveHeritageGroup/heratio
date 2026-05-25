@@ -64,10 +64,12 @@ class VocabularyMirrorCommand extends Command
 
         if ($vocab === '') {
             $this->error('--vocabulary is required (e.g. lcsh, lcnaf, aat, icip)');
+
             return self::FAILURE;
         }
         if (! preg_match('/^[a-z][a-z0-9-]*$/i', $vocab)) {
             $this->error("--vocabulary must be a short slug (alphanumeric + dashes): got '{$vocab}'");
+
             return self::FAILURE;
         }
 
@@ -75,6 +77,7 @@ class VocabularyMirrorCommand extends Command
         if (! $dryRun && ! is_dir($targetDir)) {
             if (! mkdir($targetDir, 0775, true) && ! is_dir($targetDir)) {
                 $this->error("Could not create target dir: {$targetDir}");
+
                 return self::FAILURE;
             }
         }
@@ -93,17 +96,17 @@ class VocabularyMirrorCommand extends Command
         $this->line("source     : {$source}");
         $this->line("mirror     : {$mirrorPath}");
         $this->line("format     : {$format}");
-        $this->line("rate limit : " . ($rateLimit !== '' ? $rateLimit : '(none)'));
-        $this->line('mode       : ' . ($isUrl ? 'remote fetch' : 'local copy'));
+        $this->line('rate limit : '.($rateLimit !== '' ? $rateLimit : '(none)'));
+        $this->line('mode       : '.($isUrl ? 'remote fetch' : 'local copy'));
         $this->newLine();
 
         if ($isUrl) {
             $needsFetch = $force || $this->remoteIsNewer($source, $mirrorPath);
             if (! $needsFetch) {
-                $this->info("Local mirror is current — skipping download (use --force to override).");
+                $this->info('Local mirror is current — skipping download (use --force to override).');
             } else {
                 if ($dryRun) {
-                    $this->warn('DRY RUN — would download ' . $source . ' to ' . $mirrorPath);
+                    $this->warn('DRY RUN — would download '.$source.' to '.$mirrorPath);
                 } else {
                     $ok = $this->downloadWithCurl($source, $mirrorPath, $rateLimit);
                     if (! $ok) {
@@ -117,6 +120,7 @@ class VocabularyMirrorCommand extends Command
             // target dir, no-op; otherwise copy.
             if (! is_file($source)) {
                 $this->error("Local source not found: {$source}");
+
                 return self::FAILURE;
             }
             $absSource = realpath($source);
@@ -127,17 +131,19 @@ class VocabularyMirrorCommand extends Command
                 } else {
                     if (! @copy($source, $mirrorPath)) {
                         $this->error("Copy failed: {$source} → {$mirrorPath}");
+
                         return self::FAILURE;
                     }
                     $this->info("Copied to {$mirrorPath}");
                 }
             } else {
-                $this->info("Source already at mirror path; nothing to copy.");
+                $this->info('Source already at mirror path; nothing to copy.');
             }
         }
 
         if ($dryRun) {
             $this->warn('DRY RUN — skipping ahg:vocabulary-import.');
+
             return self::SUCCESS;
         }
 
@@ -150,6 +156,7 @@ class VocabularyMirrorCommand extends Command
                 $this->info("Decompressing {$mirrorPath} → {$importPath}");
                 if (! $this->gunzip($mirrorPath, $importPath)) {
                     $this->error('Decompression failed.');
+
                     return self::FAILURE;
                 }
             }
@@ -158,6 +165,7 @@ class VocabularyMirrorCommand extends Command
         if ($noImport) {
             $this->info('Fetched. Skipping import (--no-import).');
             $this->line("Run: php artisan ahg:vocabulary-import {$importPath} --vocabulary={$vocab} --format={$format}");
+
             return self::SUCCESS;
         }
 
@@ -165,10 +173,11 @@ class VocabularyMirrorCommand extends Command
         $this->newLine();
         $this->info('Chaining into ahg:vocabulary-import…');
         $exit = $this->call('ahg:vocabulary-import', [
-            'source'       => $importPath,
+            'source' => $importPath,
             '--vocabulary' => $vocab,
-            '--format'     => $format,
+            '--format' => $format,
         ]);
+
         return $exit === 0 ? self::SUCCESS : self::FAILURE;
     }
 
@@ -187,22 +196,25 @@ class VocabularyMirrorCommand extends Command
             $resp = Http::timeout(20)->head($url);
         } catch (\Throwable $e) {
             $this->warn("HEAD probe failed ({$e->getMessage()}); assuming stale and redownloading.");
+
             return true;
         }
         if (! $resp->successful()) {
             $this->warn("HEAD returned HTTP {$resp->status()}; assuming stale and redownloading.");
+
             return true;
         }
         $remoteLen = (int) ($resp->header('Content-Length') ?: 0);
         $localLen = (int) filesize($mirrorPath);
         if ($remoteLen > 0 && $remoteLen === $localLen) {
             $remoteEtag = trim((string) $resp->header('ETag'));
-            $sidecar = $mirrorPath . '.etag';
+            $sidecar = $mirrorPath.'.etag';
             $localEtag = is_file($sidecar) ? trim((string) file_get_contents($sidecar)) : '';
             if ($remoteEtag === '' || $localEtag === '' || $remoteEtag === $localEtag) {
                 return false;
             }
         }
+
         return true;
     }
 
@@ -213,7 +225,7 @@ class VocabularyMirrorCommand extends Command
      */
     private function downloadWithCurl(string $url, string $mirrorPath, string $rateLimit): bool
     {
-        $tmp = $mirrorPath . '.partial';
+        $tmp = $mirrorPath.'.partial';
         $cmd = ['curl', '-sSL', '--fail', '-o', $tmp];
         if ($rateLimit !== '') {
             $cmd[] = '--limit-rate';
@@ -226,32 +238,35 @@ class VocabularyMirrorCommand extends Command
         }
         // Capture ETag for the sidecar so the next run can short-circuit.
         $cmd[] = '-D';
-        $cmd[] = $mirrorPath . '.headers';
+        $cmd[] = $mirrorPath.'.headers';
         $cmd[] = $url;
 
-        $this->info('curl ' . implode(' ', array_map('escapeshellarg', $cmd)));
+        $this->info('curl '.implode(' ', array_map('escapeshellarg', $cmd)));
         $start = microtime(true);
         $proc = proc_open($cmd, [], $pipes);
         if ($proc === false) {
             $this->error('Could not spawn curl.');
+
             return false;
         }
         $exit = proc_close($proc);
         if ($exit !== 0) {
             $this->error("curl exited {$exit}; partial left at {$tmp}.");
+
             return false;
         }
 
         // Promote partial → final, write ETag sidecar from headers.
         if (! @rename($tmp, $mirrorPath)) {
             $this->error("Could not move {$tmp} → {$mirrorPath}");
+
             return false;
         }
-        $headersPath = $mirrorPath . '.headers';
+        $headersPath = $mirrorPath.'.headers';
         if (is_file($headersPath)) {
             $headers = (string) file_get_contents($headersPath);
             if (preg_match('/^ETag:\s*(\S+)/im', $headers, $m)) {
-                file_put_contents($mirrorPath . '.etag', $m[1]);
+                file_put_contents($mirrorPath.'.etag', $m[1]);
             }
             @unlink($headersPath);
         }
@@ -264,22 +279,32 @@ class VocabularyMirrorCommand extends Command
             $secs,
             $this->humanBytes(($bytes ?: 0) / $secs)
         ));
+
         return true;
     }
 
     private function gunzip(string $gzPath, string $outPath): bool
     {
         $in = @gzopen($gzPath, 'rb');
-        if (! $in) return false;
+        if (! $in) {
+            return false;
+        }
         $out = @fopen($outPath, 'wb');
-        if (! $out) { gzclose($in); return false; }
+        if (! $out) {
+            gzclose($in);
+
+            return false;
+        }
         while (! gzeof($in)) {
             $chunk = gzread($in, 1 << 20);
-            if ($chunk === false) break;
+            if ($chunk === false) {
+                break;
+            }
             fwrite($out, $chunk);
         }
         gzclose($in);
         fclose($out);
+
         return true;
     }
 
@@ -294,6 +319,7 @@ class VocabularyMirrorCommand extends Command
         if (preg_match('/\.([a-z0-9.]+)$/i', $base, $m)) {
             return strtolower($m[1]);
         }
+
         return match ($formatHint) {
             'turtle' => 'ttl',
             'ntriples' => 'nt',
@@ -312,6 +338,7 @@ class VocabularyMirrorCommand extends Command
             $bytes /= 1024;
             $i++;
         }
+
         return sprintf('%.1f%s', $bytes, $units[$i]);
     }
 }

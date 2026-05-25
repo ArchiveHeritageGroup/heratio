@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgFederation\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -144,8 +142,6 @@ class FederationService
      * Is federation feature enabled in settings?
      *
      * Reads the existing `federation_enabled` setting (seeded by the plugin).
-     *
-     * @return bool
      */
     public function isEnabled(): bool
     {
@@ -156,7 +152,10 @@ class FederationService
         // row has scope='federation' (not null) so SettingHelper::get (which
         // filters whereNull(scope)) misses it — must use ::getScoped.
         $val = \AhgCore\Services\SettingHelper::getScoped('federation', 'federation_enabled', '1');
-        if ($val === '') return false;
+        if ($val === '') {
+            return false;
+        }
+
         return (bool) intval($val);
     }
 }

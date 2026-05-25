@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgLabel\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -42,7 +40,7 @@ class LabelController extends Controller
 
         // Resolve slug to object
         $slugRow = DB::table('slug')->where('slug', $slug)->first();
-        if (!$slugRow) {
+        if (! $slugRow) {
             abort(404);
         }
 
@@ -77,7 +75,7 @@ class LabelController extends Controller
                 ->first();
         }
 
-        if (!$entity) {
+        if (! $entity) {
             abort(404);
         }
 
@@ -120,7 +118,7 @@ class LabelController extends Controller
         $barcodeSources = [];
 
         // 1. Identifier (always available)
-        if (!empty($identifier)) {
+        if (! empty($identifier)) {
             $barcodeSources['identifier'] = [
                 'label' => 'Identifier',
                 'value' => $identifier,
@@ -134,7 +132,7 @@ class LabelController extends Controller
                 ->first();
 
             if ($libraryItem) {
-                if (!empty($libraryItem->isbn)) {
+                if (! empty($libraryItem->isbn)) {
                     $barcodeSources['isbn'] = [
                         'label' => 'ISBN',
                         'value' => $libraryItem->isbn,
@@ -142,35 +140,35 @@ class LabelController extends Controller
                     $sector = 'library';
                 }
 
-                if (!empty($libraryItem->issn)) {
+                if (! empty($libraryItem->issn)) {
                     $barcodeSources['issn'] = [
                         'label' => 'ISSN',
                         'value' => $libraryItem->issn,
                     ];
                 }
 
-                if (!empty($libraryItem->lccn)) {
+                if (! empty($libraryItem->lccn)) {
                     $barcodeSources['lccn'] = [
                         'label' => 'LCCN',
                         'value' => $libraryItem->lccn,
                     ];
                 }
 
-                if (!empty($libraryItem->openlibrary_id)) {
+                if (! empty($libraryItem->openlibrary_id)) {
                     $barcodeSources['openlibrary'] = [
                         'label' => 'OpenLibrary ID',
                         'value' => $libraryItem->openlibrary_id,
                     ];
                 }
 
-                if (!empty($libraryItem->barcode)) {
+                if (! empty($libraryItem->barcode)) {
                     $barcodeSources['barcode'] = [
                         'label' => 'Barcode',
                         'value' => $libraryItem->barcode,
                     ];
                 }
 
-                if (!empty($libraryItem->call_number)) {
+                if (! empty($libraryItem->call_number)) {
                     $barcodeSources['call_number'] = [
                         'label' => 'Call Number',
                         'value' => $libraryItem->call_number,
@@ -183,7 +181,7 @@ class LabelController extends Controller
         }
 
         // Accession number for accession entities
-        if ($entityType === 'accession' && !empty($entity->identifier)) {
+        if ($entityType === 'accession' && ! empty($entity->identifier)) {
             $barcodeSources['accession'] = [
                 'label' => 'Accession Number',
                 'value' => $entity->identifier,
@@ -191,7 +189,7 @@ class LabelController extends Controller
         }
 
         // Title as last option
-        if (!empty($title)) {
+        if (! empty($title)) {
             $barcodeSources['title'] = [
                 'label' => 'Title',
                 'value' => $title,
@@ -202,7 +200,7 @@ class LabelController extends Controller
         $defaultBarcodeData = '';
         $preferredOrder = ['isbn', 'issn', 'barcode', 'accession', 'identifier', 'title'];
         foreach ($preferredOrder as $key) {
-            if (!empty($barcodeSources[$key]['value'])) {
+            if (! empty($barcodeSources[$key]['value'])) {
                 $defaultBarcodeData = $barcodeSources[$key]['value'];
                 break;
             }
@@ -213,7 +211,7 @@ class LabelController extends Controller
         if ($entityType === 'information_object') {
             $repoId = $entity->repository_id ?? null;
             // Walk up tree if no direct repository
-            if (!$repoId && isset($entity->parent_id) && $entity->parent_id > 1) {
+            if (! $repoId && isset($entity->parent_id) && $entity->parent_id > 1) {
                 $ancestorId = $entity->parent_id;
                 $maxDepth = 50;
                 while ($ancestorId && $ancestorId > 1 && $maxDepth-- > 0) {
@@ -221,7 +219,7 @@ class LabelController extends Controller
                         ->where('id', $ancestorId)
                         ->select('repository_id', 'parent_id')
                         ->first();
-                    if (!$ancestor) {
+                    if (! $ancestor) {
                         break;
                     }
                     if ($ancestor->repository_id) {
@@ -240,13 +238,13 @@ class LabelController extends Controller
         }
 
         // QR URL
-        $qrUrl = url('/' . $slug);
+        $qrUrl = url('/'.$slug);
 
         // Sector labels
         $sectorLabels = [
             'library' => 'Library Item',
             'archive' => 'Archival Record',
-            'museum'  => 'Museum Object',
+            'museum' => 'Museum Object',
             'gallery' => 'Gallery Artwork',
         ];
         $sectorLabel = $sectorLabels[$sector] ?? 'Record';
@@ -272,13 +270,13 @@ class LabelController extends Controller
     public function generate(Request $request)
     {
         $validated = $request->validate([
-            'slug'           => 'required|string|max:255',
+            'slug' => 'required|string|max:255',
             'barcode_source' => 'required|string|max:500',
-            'label_size'     => 'required|in:200,300,400',
-            'show_barcode'   => 'sometimes|boolean',
-            'show_qr'        => 'sometimes|boolean',
-            'show_title'     => 'sometimes|boolean',
-            'show_repo'      => 'sometimes|boolean',
+            'label_size' => 'required|in:200,300,400',
+            'show_barcode' => 'sometimes|boolean',
+            'show_qr' => 'sometimes|boolean',
+            'show_title' => 'sometimes|boolean',
+            'show_repo' => 'sometimes|boolean',
         ]);
 
         // Redirect back to label page with selected options as query params
@@ -292,14 +290,14 @@ class LabelController extends Controller
     public function batchPrint(Request $request)
     {
         $validated = $request->validate([
-            'slugs'          => 'required|array|min:1|max:100',
-            'slugs.*'        => 'required|string|max:255',
+            'slugs' => 'required|array|min:1|max:100',
+            'slugs.*' => 'required|string|max:255',
             'barcode_source' => 'sometimes|string|max:50',
-            'label_size'     => 'sometimes|in:200,300,400',
-            'show_barcode'   => 'sometimes|boolean',
-            'show_qr'        => 'sometimes|boolean',
-            'show_title'     => 'sometimes|boolean',
-            'show_repo'      => 'sometimes|boolean',
+            'label_size' => 'sometimes|in:200,300,400',
+            'show_barcode' => 'sometimes|boolean',
+            'show_qr' => 'sometimes|boolean',
+            'show_title' => 'sometimes|boolean',
+            'show_repo' => 'sometimes|boolean',
         ]);
 
         $culture = app()->getLocale() ?? 'en';
@@ -307,7 +305,7 @@ class LabelController extends Controller
 
         foreach ($validated['slugs'] as $slug) {
             $slugRow = DB::table('slug')->where('slug', $slug)->first();
-            if (!$slugRow) {
+            if (! $slugRow) {
                 continue;
             }
 
@@ -330,9 +328,9 @@ class LabelController extends Controller
                 $libraryItem = DB::table('library_item')
                     ->where('information_object_id', $objectId)
                     ->first();
-                if ($libraryItem && !empty($libraryItem->isbn)) {
+                if ($libraryItem && ! empty($libraryItem->isbn)) {
                     $identifier = $libraryItem->isbn;
-                } elseif ($libraryItem && !empty($libraryItem->barcode)) {
+                } elseif ($libraryItem && ! empty($libraryItem->barcode)) {
                     $identifier = $libraryItem->barcode;
                 }
 
@@ -365,16 +363,16 @@ class LabelController extends Controller
 
             // Override barcode source if specified
             $barcodeData = $identifier ?: $title;
-            if (!empty($validated['barcode_source']) && $validated['barcode_source'] === 'title') {
+            if (! empty($validated['barcode_source']) && $validated['barcode_source'] === 'title') {
                 $barcodeData = $title;
             }
 
             $labels[] = [
-                'slug'       => $slug,
-                'title'      => $title,
+                'slug' => $slug,
+                'title' => $title,
                 'identifier' => $identifier,
                 'barcodeData' => $barcodeData,
-                'qrUrl'      => url('/' . $slug),
+                'qrUrl' => url('/'.$slug),
                 'repository' => $repoName ?? '',
             ];
         }

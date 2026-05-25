@@ -48,13 +48,14 @@ class EvidenceDateUtil
      */
     public static function parseYearSpan(string $freeText): ?array
     {
-        if (!preg_match_all('/\b(1[0-9]{3}|20[0-9]{2})\b/', $freeText, $matches)) {
+        if (! preg_match_all('/\b(1[0-9]{3}|20[0-9]{2})\b/', $freeText, $matches)) {
             return null;
         }
         $years = array_map('intval', $matches[1]);
         if (empty($years)) {
             return null;
         }
+
         return [
             'start' => min($years),
             'end' => max($years),
@@ -62,13 +63,13 @@ class EvidenceDateUtil
     }
 
     /**
-     * @param mixed $nearbyDatesJson  raw json string OR decoded array OR null
+     * @param  mixed  $nearbyDatesJson  raw json string OR decoded array OR null
      * @return list<int> sorted unique 4-digit years
      */
     public static function collectYearsFromNearbyDates($nearbyDatesJson): array
     {
         $rows = self::decodeJsonish($nearbyDatesJson);
-        if (!is_array($rows)) {
+        if (! is_array($rows)) {
             return [];
         }
 
@@ -92,11 +93,12 @@ class EvidenceDateUtil
 
         $years = array_values(array_unique($years));
         sort($years);
+
         return $years;
     }
 
     /**
-     * @param mixed $value
+     * @param  mixed  $value
      * @return mixed
      */
     public static function decodeJsonish($value)
@@ -109,8 +111,10 @@ class EvidenceDateUtil
         }
         if (is_string($value)) {
             $decoded = json_decode($value, true);
+
             return $decoded === null && json_last_error() !== JSON_ERROR_NONE ? null : $decoded;
         }
+
         return null;
     }
 }

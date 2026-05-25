@@ -56,6 +56,7 @@ class PromoteSampleCommand extends Command
 
         if ($entityCount === 0) {
             $this->error("No PERSON/ORG/GPE entities found for object_id={$objectId} in ahg_ner_entity.");
+
             return self::FAILURE;
         }
 
@@ -108,8 +109,8 @@ class PromoteSampleCommand extends Command
             $this->line("  offsets       : {$row->character_offset_start}-{$row->character_offset_end}");
             $before = trim((string) $row->surrounding_text_before);
             $after = trim((string) $row->surrounding_text_after);
-            $this->line("  before (~150) : " . $this->truncate($before, 120));
-            $this->line("  after  (~150) : " . $this->truncate($after, 120));
+            $this->line('  before (~150) : '.$this->truncate($before, 120));
+            $this->line('  after  (~150) : '.$this->truncate($after, 120));
             $this->printJsonList('co_occurring ', $row->co_occurring_entities);
             $this->printJsonList('nearby_dates ', $row->nearby_dates);
             $this->printJsonList('nearby_places', $row->nearby_places);
@@ -120,8 +121,9 @@ class PromoteSampleCommand extends Command
     private function printJsonList(string $label, ?string $json): void
     {
         $items = json_decode((string) $json, true);
-        if (!is_array($items) || empty($items)) {
+        if (! is_array($items) || empty($items)) {
             $this->line("  {$label} : (empty)");
+
             return;
         }
         $count = count($items);
@@ -134,11 +136,13 @@ class PromoteSampleCommand extends Command
                 $v = $item['value'] ?? '';
                 $t = $item['type'] ?? '';
                 $d = $item['distance_chars'] ?? '?';
+
                 return "[{$t}] '{$v}' (d={$d})";
             }
+
             return (string) $item;
         }, $preview);
-        $more = $count > 5 ? "  ... +" . ($count - 5) . " more" : '';
+        $more = $count > 5 ? '  ... +'.($count - 5).' more' : '';
         $this->line("  {$label} : {$count} items");
         foreach ($summary as $s) {
             $this->line("                  - {$s}");
@@ -154,6 +158,7 @@ class PromoteSampleCommand extends Command
         if (strlen($s) <= $max) {
             return $s;
         }
-        return substr($s, 0, $max - 3) . '...';
+
+        return substr($s, 0, $max - 3).'...';
     }
 }

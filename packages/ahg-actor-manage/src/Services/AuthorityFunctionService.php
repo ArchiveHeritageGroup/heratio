@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -42,11 +40,11 @@ class AuthorityFunctionService
      * Relation types for actor-function links.
      */
     public const RELATION_TYPES = [
-        'responsible'  => 'Is/was responsible for',
+        'responsible' => 'Is/was responsible for',
         'participates' => 'Participates in',
-        'authorizes'   => 'Authorizes',
-        'oversees'     => 'Oversees',
-        'administers'  => 'Administers',
+        'authorizes' => 'Authorizes',
+        'oversees' => 'Oversees',
+        'administers' => 'Administers',
     ];
 
     /**
@@ -99,13 +97,13 @@ class AuthorityFunctionService
     public function save(int $actorId, array $data, int $linkId = 0): int
     {
         $row = [
-            'actor_id'      => $actorId,
-            'function_id'   => (int) ($data['function_id'] ?? 0),
+            'actor_id' => $actorId,
+            'function_id' => (int) ($data['function_id'] ?? 0),
             'relation_type' => $data['relation_type'] ?? 'responsible',
-            'date_from'     => $data['date_from'] ?? null,
-            'date_to'       => $data['date_to'] ?? null,
-            'notes'         => $data['notes'] ?? null,
-            'sort_order'    => (int) ($data['sort_order'] ?? 0),
+            'date_from' => $data['date_from'] ?? null,
+            'date_to' => $data['date_to'] ?? null,
+            'notes' => $data['notes'] ?? null,
+            'sort_order' => (int) ($data['sort_order'] ?? 0),
         ];
 
         if ($linkId > 0) {
@@ -144,7 +142,7 @@ class AuthorityFunctionService
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->join('object', 'io.id', '=', 'object.id')
             ->where('object.class_name', 'QubitFunction')
-            ->where('ioi.title', 'like', '%' . $query . '%')
+            ->where('ioi.title', 'like', '%'.$query.'%')
             ->select('io.id', 'ioi.title', 'slug.slug')
             ->limit($limit)
             ->get()
@@ -184,8 +182,8 @@ class AuthorityFunctionService
     public function getStats(): array
     {
         return [
-            'total_links'      => DB::table('ahg_actor_function_link')->count(),
-            'unique_actors'    => DB::table('ahg_actor_function_link')->distinct('actor_id')->count('actor_id'),
+            'total_links' => DB::table('ahg_actor_function_link')->count(),
+            'unique_actors' => DB::table('ahg_actor_function_link')->distinct('actor_id')->count('actor_id'),
             'unique_functions' => DB::table('ahg_actor_function_link')->distinct('function_id')->count('function_id'),
         ];
     }

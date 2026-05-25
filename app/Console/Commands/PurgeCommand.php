@@ -41,7 +41,7 @@ class PurgeCommand extends Command
             // Also clear Laravel caches
             $this->call('cache:clear');
         } else {
-            $this->error('Purge failed with exit code: ' . $exitCode);
+            $this->error('Purge failed with exit code: '.$exitCode);
         }
 
         return $exitCode === 0 ? self::SUCCESS : self::FAILURE;

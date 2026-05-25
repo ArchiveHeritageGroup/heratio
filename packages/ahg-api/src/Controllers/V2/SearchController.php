@@ -26,7 +26,7 @@ class SearchController extends BaseApiController
         $queryStr = $input['query'];
         $limit = min(100, $input['limit'] ?? 10);
         $skip = $input['skip'] ?? 0;
-        $searchTerm = '%' . $queryStr . '%';
+        $searchTerm = '%'.$queryStr.'%';
 
         $query = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
@@ -47,13 +47,13 @@ class SearchController extends BaseApiController
 
         // Filters
         $filters = $input['filters'] ?? [];
-        if (!empty($filters['repository'])) {
+        if (! empty($filters['repository'])) {
             $repoId = is_numeric($filters['repository']) ? $filters['repository'] : $this->slugToId($filters['repository']);
             if ($repoId) {
                 $query->where('io.repository_id', $repoId);
             }
         }
-        if (!empty($filters['level'])) {
+        if (! empty($filters['level'])) {
             $query->where('io.level_of_description_id', $filters['level']);
         }
 
@@ -61,7 +61,7 @@ class SearchController extends BaseApiController
 
         $rows = $query
             ->select('io.id', 'io.identifier', 'io.level_of_description_id', 'ioi.title', 'slug.slug')
-            ->orderByRaw("CASE WHEN ioi.title LIKE ? THEN 0 ELSE 1 END", [$searchTerm])
+            ->orderByRaw('CASE WHEN ioi.title LIKE ? THEN 0 ELSE 1 END', [$searchTerm])
             ->orderByDesc('object.updated_at')
             ->offset($skip)
             ->limit($limit)
@@ -69,7 +69,7 @@ class SearchController extends BaseApiController
 
         $levelNames = [];
         $levelIds = $rows->pluck('level_of_description_id')->filter()->unique()->values()->toArray();
-        if (!empty($levelIds)) {
+        if (! empty($levelIds)) {
             $levelNames = DB::table('term_i18n')->whereIn('id', $levelIds)->where('culture', $this->culture)->pluck('name', 'id')->toArray();
         }
 

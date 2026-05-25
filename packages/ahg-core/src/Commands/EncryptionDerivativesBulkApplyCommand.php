@@ -47,22 +47,26 @@ class EncryptionDerivativesBulkApplyCommand extends Command
     protected $signature = 'ahg:encryption-derivatives-bulk-apply
                             {--usage= : Limit to one usage_id (e.g. master, reference, thumbnail)}
                             {--dry-run : Count files without writing}';
+
     protected $description = 'Encrypt every digital_object derivative file when encryption_encrypt_derivatives is on.';
 
     public function handle(EncryptionService $svc): int
     {
-        if (!$svc->shouldEncryptDerivatives()) {
+        if (! $svc->shouldEncryptDerivatives()) {
             $this->error('encryption_encrypt_derivatives is off (or master encryption_enabled is off); refusing to run.');
+
             return self::FAILURE;
         }
-        if (!Schema::hasTable('digital_object')) {
+        if (! Schema::hasTable('digital_object')) {
             $this->warn('digital_object table missing; nothing to do.');
+
             return self::SUCCESS;
         }
 
         $uploadsBase = (string) config('heratio.uploads_path');
         if ($uploadsBase === '') {
             $this->error('heratio.uploads_path config is empty; cannot resolve files.');
+
             return self::FAILURE;
         }
         $uploadsBase = rtrim($uploadsBase, '/');
@@ -76,7 +80,7 @@ class EncryptionDerivativesBulkApplyCommand extends Command
                 $query->where('usage_id', (int) $usage);
             } else {
                 $usageMap = [
-                    'master'    => \AhgCore\Services\DigitalObjectService::USAGE_MASTER ?? 1,
+                    'master' => \AhgCore\Services\DigitalObjectService::USAGE_MASTER ?? 1,
                     'reference' => 3,
                     'thumbnail' => 2,
                 ];
@@ -87,7 +91,7 @@ class EncryptionDerivativesBulkApplyCommand extends Command
         }
 
         $rows = $query->get(['id', 'path', 'name', 'usage_id']);
-        $this->line('[derivatives-bulk-apply] candidates=' . $rows->count());
+        $this->line('[derivatives-bulk-apply] candidates='.$rows->count());
 
         $encrypted = 0;
         $alreadyEncrypted = 0;
@@ -97,16 +101,19 @@ class EncryptionDerivativesBulkApplyCommand extends Command
 
         foreach ($rows as $r) {
             $local = self::resolveOnDiskPath($uploadsBase, (string) $r->path, (string) $r->name);
-            if (!is_file($local)) {
+            if (! is_file($local)) {
                 $missing++;
+
                 continue;
             }
             if ($svc->isFileEncrypted($local)) {
                 $alreadyEncrypted++;
+
                 continue;
             }
             if ($dry) {
                 $encrypted++; // Would-encrypt count under dry-run.
+
                 continue;
             }
             if ($svc->encryptFile($local)) {
@@ -121,6 +128,7 @@ class EncryptionDerivativesBulkApplyCommand extends Command
             $dry ? 'DRY-RUN' : 'live',
             $encrypted, $alreadyEncrypted, $missing, $errors
         ));
+
         return self::SUCCESS;
     }
 
@@ -134,6 +142,7 @@ class EncryptionDerivativesBulkApplyCommand extends Command
         // disk path is uploads_base + the rest.
         $rel = preg_replace('#^/uploads/#', '', $path);
         $rel = ltrim($rel, '/');
-        return $uploadsBase . '/' . $rel . $name;
+
+        return $uploadsBase.'/'.$rel.$name;
     }
 }

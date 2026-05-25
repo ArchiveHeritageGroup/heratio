@@ -67,6 +67,7 @@ class SharePointController extends Controller
         $rows = \Illuminate\Support\Facades\DB::table('sharepoint_subscription')
             ->orderBy('expires_at')
             ->get();
+
         return view('ahg-sharepoint::subscriptions', ['subscriptions' => $rows]);
     }
 
@@ -79,6 +80,7 @@ class SharePointController extends Controller
         if ($status) {
             $query->where('status', $status);
         }
+
         return view('ahg-sharepoint::events', [
             'events' => $query->get(),
             'statusFilter' => $status,
@@ -96,8 +98,10 @@ class SharePointController extends Controller
             \Illuminate\Support\Facades\DB::table('sharepoint_event')
                 ->where('id', $id)
                 ->update(['status' => 'queued', 'last_error' => null]);
+
             return redirect()->route('sharepoint.events.detail', ['id' => $id]);
         }
+
         return view('ahg-sharepoint::event-detail', ['event' => $event]);
     }
 
@@ -113,6 +117,7 @@ class SharePointController extends Controller
         $drives = \Illuminate\Support\Facades\DB::table('sharepoint_drive')
             ->orderBy('site_title')
             ->get();
+
         return view('ahg-sharepoint::rules', compact('rules', 'drives'));
     }
 
@@ -124,12 +129,12 @@ class SharePointController extends Controller
             : null;
         $drives = \Illuminate\Support\Facades\DB::table('sharepoint_drive')->orderBy('site_title')->get();
         $parentLabel = null;
-        if ($rule && !empty($rule->parent_id)) {
+        if ($rule && ! empty($rule->parent_id)) {
             $culture = app()->getLocale();
             $parentLabel = \Illuminate\Support\Facades\DB::table('information_object')
                 ->join('information_object_i18n', function ($j) use ($culture) {
                     $j->on('information_object.id', '=', 'information_object_i18n.id')
-                      ->where('information_object_i18n.culture', '=', $culture);
+                        ->where('information_object_i18n.culture', '=', $culture);
                 })
                 ->where('information_object.id', (int) $rule->parent_id)
                 ->select('information_object.id', 'information_object.identifier', 'information_object_i18n.title as name')
@@ -141,6 +146,7 @@ class SharePointController extends Controller
             ->orderBy('name')
             ->get()
             ->groupBy('drive_id');
+
         return view('ahg-sharepoint::rule-edit', compact('rule', 'drives', 'parentLabel', 'templatesByDrive'));
     }
 
@@ -149,7 +155,7 @@ class SharePointController extends Controller
         $id = (int) $request->input('id');
         $processFlags = [];
         foreach (['virus_scan', 'ocr', 'ner', 'summarize', 'spellcheck', 'translate', 'format_id', 'face_detect'] as $f) {
-            $processFlags[$f] = $request->input('process_' . $f) ? 1 : 0;
+            $processFlags[$f] = $request->input('process_'.$f) ? 1 : 0;
         }
         $attrs = [
             'drive_id' => (int) $request->input('drive_id'),
@@ -174,12 +180,14 @@ class SharePointController extends Controller
         } else {
             \Illuminate\Support\Facades\DB::table('sharepoint_ingest_rule')->insert($attrs);
         }
+
         return redirect()->route('sharepoint.rules')->with('notice', __('Rule saved.'));
     }
 
     public function ruleDelete(int $id)
     {
         \Illuminate\Support\Facades\DB::table('sharepoint_ingest_rule')->where('id', $id)->delete();
+
         return redirect()->route('sharepoint.rules')->with('notice', __('Rule deleted.'));
     }
 
@@ -188,8 +196,9 @@ class SharePointController extends Controller
         // Fire the artisan task in the background.
         $bin = base_path('artisan');
         $log = storage_path('logs/sp-autoingest.log');
-        $cmd = "nohup php " . escapeshellarg($bin) . " sharepoint:auto-ingest --rule=" . (int) $id . " --force >> " . escapeshellarg($log) . " 2>&1 &";
+        $cmd = 'nohup php '.escapeshellarg($bin).' sharepoint:auto-ingest --rule='.(int) $id.' --force >> '.escapeshellarg($log).' 2>&1 &';
         @exec($cmd);
+
         return redirect()->route('sharepoint.rules')->with('notice', __("Rule #{$id} scheduled to run in background."));
     }
 
@@ -209,11 +218,11 @@ class SharePointController extends Controller
                 ->orderByDesc('is_default')
                 ->orderBy('name')
                 ->get();
-            if (!$isNew) {
+            if (! $isNew) {
                 if ($templateId > 0) {
                     $selectedTemplate = $templates->firstWhere('id', $templateId);
                 }
-                if (!$selectedTemplate) {
+                if (! $selectedTemplate) {
                     $selectedTemplate = $templates->firstWhere('is_default', 1) ?: $templates->first();
                 }
                 if ($selectedTemplate) {
@@ -225,6 +234,7 @@ class SharePointController extends Controller
             }
         }
         $targetFieldsByStandard = self::buildTargetFieldsByStandard();
+
         return view('ahg-sharepoint::mappings', compact('drives', 'templates', 'selectedTemplate', 'mappings', 'driveId', 'targetFieldsByStandard'));
     }
 
@@ -235,11 +245,12 @@ class SharePointController extends Controller
     {
         $driveId = (int) $request->query('drive_id');
         $drive = \Illuminate\Support\Facades\DB::table('sharepoint_drive')->where('id', $driveId)->first();
-        if (!$drive) {
+        if (! $drive) {
             return response()->json(['error' => 'drive not found'], 404);
         }
         try {
             $browser = app(\AhgSharePoint\Services\SharePointBrowserService::class);
+
             return response()->json(['columns' => $browser->listColumns((int) $drive->tenant_id, $drive->drive_id)]);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -313,6 +324,7 @@ class SharePointController extends Controller
                 ]);
             }
         });
+
         return redirect()->route('sharepoint.mappings', ['drive_id' => $driveId, 'template_id' => $templateId])->with('notice', __('Mapping template saved.'));
     }
 
@@ -374,6 +386,7 @@ class SharePointController extends Controller
         foreach ($extras as $code => $extra) {
             $out[$code] = array_merge($common, $extra);
         }
+
         return $out;
     }
 
@@ -387,6 +400,7 @@ class SharePointController extends Controller
                 ->where('drive_id', $driveId)
                 ->delete();
         }
+
         return redirect()->route('sharepoint.mappings', ['drive_id' => $driveId])->with('notice', __('Template deleted.'));
     }
 }

@@ -28,8 +28,11 @@ namespace AhgFederation\Services;
 class HarvestClient
 {
     protected string $userAgent = 'Heratio-Federation-Harvester/1.0';
+
     protected int $timeout = 60;
+
     protected int $maxRetries = 3;
+
     protected int $retryDelay = 5;
 
     public function identify(string $baseUrl): array
@@ -38,7 +41,7 @@ class HarvestClient
         $xml = $this->parseResponse($response);
 
         $identify = $xml->Identify;
-        if (!$identify) {
+        if (! $identify) {
             throw new HarvestException('Invalid Identify response');
         }
 
@@ -95,7 +98,7 @@ class HarvestClient
                 if ($errorCode === 'noSetHierarchy') {
                     return [];
                 }
-                throw new HarvestException("OAI error: $errorCode - " . (string) $xml->error);
+                throw new HarvestException("OAI error: $errorCode - ".(string) $xml->error);
             }
 
             foreach ($xml->ListSets->set as $set) {
@@ -123,7 +126,7 @@ class HarvestClient
             'metadataPrefix' => $params['metadataPrefix'] ?? 'oai_dc',
         ];
         foreach (['from', 'until', 'set'] as $opt) {
-            if (!empty($params[$opt])) {
+            if (! empty($params[$opt])) {
                 $requestParams[$opt] = $params[$opt];
             }
         }
@@ -143,7 +146,7 @@ class HarvestClient
                 if ($errorCode === 'noRecordsMatch') {
                     return;
                 }
-                throw new HarvestException("OAI error: $errorCode - " . (string) $xml->error);
+                throw new HarvestException("OAI error: $errorCode - ".(string) $xml->error);
             }
 
             foreach ($xml->ListRecords->record as $record) {
@@ -163,7 +166,7 @@ class HarvestClient
             'metadataPrefix' => $params['metadataPrefix'] ?? 'oai_dc',
         ];
         foreach (['from', 'until', 'set'] as $opt) {
-            if (!empty($params[$opt])) {
+            if (! empty($params[$opt])) {
                 $requestParams[$opt] = $params[$opt];
             }
         }
@@ -183,7 +186,7 @@ class HarvestClient
                 if ($errorCode === 'noRecordsMatch') {
                     return;
                 }
-                throw new HarvestException("OAI error: $errorCode - " . (string) $xml->error);
+                throw new HarvestException("OAI error: $errorCode - ".(string) $xml->error);
             }
 
             foreach ($xml->ListIdentifiers->header as $header) {
@@ -208,7 +211,7 @@ class HarvestClient
 
         if (isset($xml->error)) {
             $errorCode = (string) $xml->error['code'];
-            throw new HarvestException("OAI error: $errorCode - " . (string) $xml->error);
+            throw new HarvestException("OAI error: $errorCode - ".(string) $xml->error);
         }
 
         return $this->parseRecord($xml->GetRecord->record, $metadataPrefix);
@@ -216,7 +219,7 @@ class HarvestClient
 
     protected function request(string $baseUrl, array $params): string
     {
-        $url = $baseUrl . '?' . http_build_query($params);
+        $url = $baseUrl.'?'.http_build_query($params);
 
         // SSRF protection: block cloud metadata endpoints + private/reserved IPs.
         $parsed = parse_url($baseUrl);
@@ -224,14 +227,14 @@ class HarvestClient
 
         $blockedHosts = ['169.254.169.254', 'metadata.google.internal', 'metadata.internal'];
         if (in_array(strtolower($host), $blockedHosts, true)) {
-            throw new HarvestException('Blocked host (metadata endpoint): ' . $host);
+            throw new HarvestException('Blocked host (metadata endpoint): '.$host);
         }
 
         $resolvedIps = @gethostbynamel($host);
         if ($resolvedIps !== false) {
             foreach ($resolvedIps as $ip) {
                 if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-                    throw new HarvestException('OAI endpoint resolves to private/reserved IP: ' . $ip);
+                    throw new HarvestException('OAI endpoint resolves to private/reserved IP: '.$ip);
                 }
             }
         }
@@ -252,8 +255,8 @@ class HarvestClient
         ];
 
         // Pin resolved IP to defeat DNS rebinding attacks.
-        if ($resolvedIps !== false && !empty($resolvedIps)) {
-            $curlOpts[CURLOPT_RESOLVE] = [$host . ':' . $port . ':' . $resolvedIps[0]];
+        if ($resolvedIps !== false && ! empty($resolvedIps)) {
+            $curlOpts[CURLOPT_RESOLVE] = [$host.':'.$port.':'.$resolvedIps[0]];
         }
 
         curl_setopt_array($ch, $curlOpts);
@@ -273,6 +276,7 @@ class HarvestClient
                 if ($httpCode === 503) {
                     $retries++;
                     sleep($this->retryDelay * $retries);
+
                     continue;
                 }
                 curl_close($ch);
@@ -301,7 +305,7 @@ class HarvestClient
         if ($xml === false) {
             $errors = libxml_get_errors();
             libxml_clear_errors();
-            throw new HarvestException('Failed to parse XML response: ' . $this->formatXmlErrors($errors));
+            throw new HarvestException('Failed to parse XML response: '.$this->formatXmlErrors($errors));
         }
 
         $xml->registerXPathNamespace('oai', 'http://www.openarchives.org/OAI/2.0/');
@@ -362,14 +366,14 @@ class HarvestClient
     protected function parseDublinCore(\SimpleXMLElement $metadata): array
     {
         $dc = $metadata->children('http://www.openarchives.org/OAI/2.0/oai_dc/');
-        if (!$dc->dc) {
+        if (! $dc->dc) {
             $dc = $metadata->children('http://purl.org/dc/elements/1.1/');
         }
 
         $result = [];
         foreach ($dc->children('http://purl.org/dc/elements/1.1/') as $element) {
             $name = $element->getName();
-            if (!isset($result[$name])) {
+            if (! isset($result[$name])) {
                 $result[$name] = [];
             }
             $result[$name][] = (string) $element;
@@ -494,15 +498,37 @@ class HarvestClient
         foreach ($errors as $error) {
             $messages[] = sprintf('Line %d: %s', $error->line, trim($error->message));
         }
+
         return implode('; ', $messages);
     }
 
-    public function setTimeout(int $seconds): self { $this->timeout = $seconds; return $this; }
-    public function setMaxRetries(int $retries): self { $this->maxRetries = $retries; return $this; }
-    public function setRetryDelay(int $seconds): self { $this->retryDelay = $seconds; return $this; }
-    public function setUserAgent(string $userAgent): self { $this->userAgent = $userAgent; return $this; }
+    public function setTimeout(int $seconds): self
+    {
+        $this->timeout = $seconds;
+
+        return $this;
+    }
+
+    public function setMaxRetries(int $retries): self
+    {
+        $this->maxRetries = $retries;
+
+        return $this;
+    }
+
+    public function setRetryDelay(int $seconds): self
+    {
+        $this->retryDelay = $seconds;
+
+        return $this;
+    }
+
+    public function setUserAgent(string $userAgent): self
+    {
+        $this->userAgent = $userAgent;
+
+        return $this;
+    }
 }
 
-class HarvestException extends \Exception
-{
-}
+class HarvestException extends \Exception {}

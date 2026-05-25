@@ -23,8 +23,6 @@
  * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace AhgActorManage\Services;
 
 use AhgCore\Constants\TermId;
@@ -59,7 +57,7 @@ class ActorBrowseService extends BrowseService
      */
     protected function applySort($query, string $sort, string $sortDir)
     {
-        $coalesceName = "COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name)";
+        $coalesceName = 'COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name)';
         switch ($sort) {
             case 'alphabetic':
                 $query->orderByRaw("{$coalesceName} {$sortDir}");
@@ -73,6 +71,7 @@ class ActorBrowseService extends BrowseService
                 $query->orderBy('object.updated_at', $sortDir);
                 break;
         }
+
         return $query;
     }
 
@@ -80,10 +79,11 @@ class ActorBrowseService extends BrowseService
     {
         if ($subquery !== '') {
             $query->whereRaw(
-                "COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name) LIKE ?",
+                'COALESCE(actor_cur.authorized_form_of_name, actor_fb.authorized_form_of_name) LIKE ?',
                 ["%{$subquery}%"]
             );
         }
+
         return $query;
     }
 
@@ -124,15 +124,15 @@ class ActorBrowseService extends BrowseService
             ->where(function ($q) {
                 $q->where(function ($qq) {
                     $qq->whereNotNull('actor_cur.authorized_form_of_name')
-                       ->where('actor_cur.authorized_form_of_name', '!=', '');
+                        ->where('actor_cur.authorized_form_of_name', '!=', '');
                 })->orWhere(function ($qq) {
                     $qq->whereNotNull('actor_fb.authorized_form_of_name')
-                       ->where('actor_fb.authorized_form_of_name', '!=', '');
+                        ->where('actor_fb.authorized_form_of_name', '!=', '');
                 });
             });
 
         // Hide stub actors from public (unauthenticated) users
-        if (AhgSettingsService::getBool('authority_hide_stubs_from_public', true) && !auth()->check()) {
+        if (AhgSettingsService::getBool('authority_hide_stubs_from_public', true) && ! auth()->check()) {
             $query->whereNotExists(function ($sub) {
                 $sub->select(DB::raw(1))
                     ->from('ahg_actor_completeness')
@@ -149,10 +149,10 @@ class ActorBrowseService extends BrowseService
         $result = parent::browse($params);
 
         // Batch resolve entity type names
-        if (!empty($result['hits'])) {
+        if (! empty($result['hits'])) {
             $entityTypeIds = array_filter(array_unique(array_column($result['hits'], 'entity_type_id')));
             $entityTypeNames = [];
-            if (!empty($entityTypeIds)) {
+            if (! empty($entityTypeIds)) {
                 $names = DB::table('term_i18n')
                     ->whereIn('id', $entityTypeIds)
                     ->where('culture', $this->culture)
@@ -192,6 +192,7 @@ class ActorBrowseService extends BrowseService
                 'count' => $r->cnt,
             ];
         }
+
         return $facets;
     }
 
@@ -242,7 +243,7 @@ class ActorBrowseService extends BrowseService
         $rows = DB::table('relation')
             ->join('actor_i18n as repo_name', function ($j) {
                 $j->on('relation.object_id', '=', 'repo_name.id')
-                  ->where('repo_name.culture', '=', $this->culture);
+                    ->where('repo_name.culture', '=', $this->culture);
             })
             ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT) // isMaintenanceAgencyOf
             ->select('relation.object_id as id', 'repo_name.authorized_form_of_name as name', DB::raw('COUNT(DISTINCT relation.subject_id) as cnt'))
@@ -250,7 +251,12 @@ class ActorBrowseService extends BrowseService
             ->orderBy('repo_name.authorized_form_of_name')
             ->get();
         $facets = [];
-        foreach ($rows as $r) { if ($r->name) $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt]; }
+        foreach ($rows as $r) {
+            if ($r->name) {
+                $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt];
+            }
+        }
+
         return $facets;
     }
 
@@ -273,7 +279,12 @@ class ActorBrowseService extends BrowseService
             ->orderBy('term_i18n.name')
             ->get();
         $facets = [];
-        foreach ($rows as $r) { if ($r->name) $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt]; }
+        foreach ($rows as $r) {
+            if ($r->name) {
+                $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt];
+            }
+        }
+
         return $facets;
     }
 
@@ -296,7 +307,12 @@ class ActorBrowseService extends BrowseService
             ->limit(20)
             ->get();
         $facets = [];
-        foreach ($rows as $r) { if ($r->name) $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt]; }
+        foreach ($rows as $r) {
+            if ($r->name) {
+                $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt];
+            }
+        }
+
         return $facets;
     }
 
@@ -319,7 +335,12 @@ class ActorBrowseService extends BrowseService
             ->limit(20)
             ->get();
         $facets = [];
-        foreach ($rows as $r) { if ($r->name) $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt]; }
+        foreach ($rows as $r) {
+            if ($r->name) {
+                $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt];
+            }
+        }
+
         return $facets;
     }
 
@@ -332,7 +353,7 @@ class ActorBrowseService extends BrowseService
             ->join('actor', 'digital_object.object_id', '=', 'actor.id')
             ->join('term_i18n', function ($j) {
                 $j->on('digital_object.media_type_id', '=', 'term_i18n.id')
-                  ->where('term_i18n.culture', '=', $this->culture);
+                    ->where('term_i18n.culture', '=', $this->culture);
             })
             ->where('actor.id', '!=', 3)->where('actor.id', '!=', 4)
             ->select('digital_object.media_type_id as id', 'term_i18n.name', DB::raw('COUNT(*) as cnt'))
@@ -340,7 +361,12 @@ class ActorBrowseService extends BrowseService
             ->orderBy('term_i18n.name')
             ->get();
         $facets = [];
-        foreach ($rows as $r) { if ($r->name) $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt]; }
+        foreach ($rows as $r) {
+            if ($r->name) {
+                $facets[$r->id] = ['name' => $r->name, 'count' => $r->cnt];
+            }
+        }
+
         return $facets;
     }
 
@@ -384,12 +410,12 @@ class ActorBrowseService extends BrowseService
     protected function applyFilters($query, array $params)
     {
         // Entity type filter
-        if (!empty($params['entityType'])) {
+        if (! empty($params['entityType'])) {
             $query->where('actor.entity_type_id', (int) $params['entityType']);
         }
 
         // Repository filter — actors related to a specific repository via event table
-        if (!empty($params['repository'])) {
+        if (! empty($params['repository'])) {
             $repoId = (int) $params['repository'];
             $query->whereExists(function ($sub) use ($repoId) {
                 $sub->select(DB::raw(1))
@@ -401,7 +427,7 @@ class ActorBrowseService extends BrowseService
         }
 
         // Has digital object
-        if (!empty($params['hasDigitalObject'])) {
+        if (! empty($params['hasDigitalObject'])) {
             $query->whereExists(function ($sub) {
                 $sub->select(DB::raw(1))
                     ->from('digital_object')
@@ -410,20 +436,20 @@ class ActorBrowseService extends BrowseService
         }
 
         // Empty field filter
-        if (!empty($params['emptyField'])) {
+        if (! empty($params['emptyField'])) {
             $field = $params['emptyField'];
             $allowed = ['authorized_form_of_name', 'dates_of_existence', 'history', 'places',
-                        'legal_status', 'general_context', 'description_identifier'];
+                'legal_status', 'general_context', 'description_identifier'];
             if (in_array($field, $allowed)) {
                 if ($field === 'description_identifier') {
                     $query->where(function ($q) {
                         $q->whereNull('actor.description_identifier')
-                          ->orWhere('actor.description_identifier', '');
+                            ->orWhere('actor.description_identifier', '');
                     });
                 } else {
                     $query->where(function ($q) use ($field) {
                         $q->whereNull("actor_i18n.{$field}")
-                          ->orWhere("actor_i18n.{$field}", '');
+                            ->orWhere("actor_i18n.{$field}", '');
                     });
                 }
             }
@@ -432,7 +458,9 @@ class ActorBrowseService extends BrowseService
         // Advanced search criteria (sq0, sf0, so0, sq1, sf1, so1, ...)
         for ($i = 0; $i < 10; $i++) {
             $term = trim($params["sq{$i}"] ?? '');
-            if ($term === '') continue;
+            if ($term === '') {
+                continue;
+            }
 
             $field = $params["sf{$i}"] ?? '';
             $bool = $params["so{$i}"] ?? 'and';
@@ -443,11 +471,11 @@ class ActorBrowseService extends BrowseService
                 // Search all text fields
                 $query->{$method}(function ($q) use ($term) {
                     $q->where('actor_i18n.authorized_form_of_name', 'LIKE', "%{$term}%")
-                      ->orWhere('actor_i18n.history', 'LIKE', "%{$term}%")
-                      ->orWhere('actor_i18n.places', 'LIKE', "%{$term}%")
-                      ->orWhere('actor_i18n.legal_status', 'LIKE', "%{$term}%")
-                      ->orWhere('actor_i18n.general_context', 'LIKE', "%{$term}%")
-                      ->orWhere('actor_i18n.sources', 'LIKE', "%{$term}%");
+                        ->orWhere('actor_i18n.history', 'LIKE', "%{$term}%")
+                        ->orWhere('actor_i18n.places', 'LIKE', "%{$term}%")
+                        ->orWhere('actor_i18n.legal_status', 'LIKE', "%{$term}%")
+                        ->orWhere('actor_i18n.general_context', 'LIKE', "%{$term}%")
+                        ->orWhere('actor_i18n.sources', 'LIKE', "%{$term}%");
                 });
             } else {
                 $colMap = [
@@ -516,7 +544,7 @@ class ActorBrowseService extends BrowseService
             // Batch resolve entity type names
             $entityTypeIds = array_filter(array_unique(array_column($hits, 'entity_type_id')));
             $entityTypeNames = [];
-            if (!empty($entityTypeIds)) {
+            if (! empty($entityTypeIds)) {
                 $names = DB::table('term_i18n')
                     ->whereIn('id', $entityTypeIds)
                     ->where('culture', $this->culture)
@@ -527,7 +555,8 @@ class ActorBrowseService extends BrowseService
 
             return $result;
         } catch (\Exception $e) {
-            \Log::error(static::class . ' browseAdvanced error: ' . $e->getMessage());
+            \Log::error(static::class.' browseAdvanced error: '.$e->getMessage());
+
             return ['hits' => [], 'total' => 0, 'page' => $page, 'limit' => $limit, 'entityTypeNames' => []];
         }
     }

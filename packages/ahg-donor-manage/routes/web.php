@@ -22,9 +22,9 @@ Route::get('/donor/{slug}', [DonorController::class, 'show'])->name('donor.show'
 
 Route::middleware('auth')->group(function () {
     Route::get('/donor/agreements', [DonorController::class, 'agreementDashboard'])->name('donor.agreements');
-    Route::match(['get','post'], '/donor/agreement/add', [DonorController::class, 'agreementAdd'])->name('donor.agreement.add'); // ACL check in controller for POST only
-    Route::match(['get','post'], '/donor/agreement/{id}/edit', [DonorController::class, 'agreementEdit'])->name('donor.agreement.edit')->whereNumber('id'); // ACL check in controller for POST only
-    Route::match(['get','post','delete'], '/donor/agreement/{id}/delete', [DonorController::class, 'agreementDelete'])->name('donor.agreement.delete')->whereNumber('id'); // ACL check in controller for POST/DELETE only
+    Route::match(['get', 'post'], '/donor/agreement/add', [DonorController::class, 'agreementAdd'])->name('donor.agreement.add'); // ACL check in controller for POST only
+    Route::match(['get', 'post'], '/donor/agreement/{id}/edit', [DonorController::class, 'agreementEdit'])->name('donor.agreement.edit')->whereNumber('id'); // ACL check in controller for POST only
+    Route::match(['get', 'post', 'delete'], '/donor/agreement/{id}/delete', [DonorController::class, 'agreementDelete'])->name('donor.agreement.delete')->whereNumber('id'); // ACL check in controller for POST/DELETE only
     Route::get('/donor/agreement/reminders', [DonorController::class, 'agreementReminders'])->name('donor.agreement.reminders');
     Route::get('/donor/agreement/{id}', [DonorController::class, 'agreementView'])->name('donor.agreement.view')->whereNumber('id');
     Route::get('/donor/agreement/autocomplete-accessions', [DonorController::class, 'agreementAutocompleteAccessions'])->name('donor.agreement.autocomplete-accessions');

@@ -25,29 +25,29 @@
 
 namespace Ahg\Jobs\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Ahg\Jobs\Services\JobsService;
+use Illuminate\Support\ServiceProvider;
 
 class AhgJobsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         $this->app->singleton(JobsService::class, function ($app) {
-            return new JobsService();
+            return new JobsService;
         });
     }
 
     public function boot(): void
     {
         // Load routes
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
 
         // Load views
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-jobs');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-jobs');
 
         // Publish assets
         $this->publishes([
-            __DIR__ . '/../../resources/views' => resource_path('views/vendor/ahg-jobs'),
+            __DIR__.'/../../resources/views' => resource_path('views/vendor/ahg-jobs'),
         ], 'ahg-jobs-views');
     }
 }

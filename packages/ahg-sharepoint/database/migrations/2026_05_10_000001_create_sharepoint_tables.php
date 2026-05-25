@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Schema;
  * batch with DB::unprepared(), and a post-run check fails the migration loudly
  * if any expected table is missing.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     /** Tables install.sql is expected to create. */
     private const TABLES = [
         'sharepoint_tenant',
@@ -32,7 +33,7 @@ return new class extends Migration {
 
     public function up(): void
     {
-        $sql = file_get_contents(__DIR__ . '/../install.sql');
+        $sql = file_get_contents(__DIR__.'/../install.sql');
         if ($sql === false) {
             throw new \RuntimeException('Cannot read ahg-sharepoint install.sql');
         }
@@ -47,11 +48,11 @@ return new class extends Migration {
         // never silently recorded as Ran (heratio#130).
         $missing = array_values(array_filter(
             self::TABLES,
-            static fn ($table) => !Schema::hasTable($table)
+            static fn ($table) => ! Schema::hasTable($table)
         ));
         if ($missing !== []) {
             throw new \RuntimeException(
-                'ahg-sharepoint install.sql did not create: ' . implode(', ', $missing)
+                'ahg-sharepoint install.sql did not create: '.implode(', ', $missing)
             );
         }
     }

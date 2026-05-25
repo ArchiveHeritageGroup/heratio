@@ -41,9 +41,6 @@ class EagSerializer
      */
     public const NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance';
 
-    /**
-     * @var \DOMDocument
-     */
     protected \DOMDocument $dom;
 
     /**
@@ -65,9 +62,8 @@ class EagSerializer
     /**
      * Serialize a repository record to EAG 3.0 XML.
      *
-     * @param int    $repositoryId The repository ID.
-     * @param string $culture      The i18n culture code.
-     *
+     * @param  int  $repositoryId  The repository ID.
+     * @param  string  $culture  The i18n culture code.
      * @return string The EAG 3.0 XML document.
      */
     public function serializeRepository(int $repositoryId, string $culture = 'en'): string
@@ -80,7 +76,7 @@ class EagSerializer
             ->where('id', $repositoryId)
             ->first();
 
-        if (!$repo) {
+        if (! $repo) {
             return $this->emptyDocument('Repository not found');
         }
 
@@ -95,7 +91,7 @@ class EagSerializer
             ->where('culture', $culture)
             ->first();
 
-        if (!$actorI18n) {
+        if (! $actorI18n) {
             $sourceCulture = $actor->source_culture ?? $repo->source_culture ?? 'en';
             $actorI18n = DB::table('actor_i18n')
                 ->where('id', $repositoryId)
@@ -103,7 +99,7 @@ class EagSerializer
                 ->first();
         }
 
-        if (!$actorI18n) {
+        if (! $actorI18n) {
             return $this->emptyDocument('Repository actor i18n data not found');
         }
 
@@ -113,7 +109,7 @@ class EagSerializer
             ->where('culture', $culture)
             ->first();
 
-        if (!$repoI18n) {
+        if (! $repoI18n) {
             $repoI18n = DB::table('repository_i18n')
                 ->where('id', $repositoryId)
                 ->where('culture', $repo->source_culture)
@@ -129,7 +125,7 @@ class EagSerializer
         $contacts = DB::table('contact_information')
             ->leftJoin('contact_information_i18n', function ($join) use ($culture) {
                 $join->on('contact_information.id', '=', 'contact_information_i18n.id')
-                     ->where('contact_information_i18n.culture', '=', $culture);
+                    ->where('contact_information_i18n.culture', '=', $culture);
             })
             ->where('contact_information.actor_id', $repositoryId)
             ->select(
@@ -173,7 +169,7 @@ class EagSerializer
         $otherNames = DB::table('other_name')
             ->join('other_name_i18n', function ($join) use ($culture) {
                 $join->on('other_name.id', '=', 'other_name_i18n.id')
-                     ->where('other_name_i18n.culture', '=', $culture);
+                    ->where('other_name_i18n.culture', '=', $culture);
             })
             ->where('other_name.object_id', $repositoryId)
             ->select('other_name_i18n.name', 'other_name.type_id')
@@ -187,7 +183,7 @@ class EagSerializer
         $eag->setAttributeNS(
             self::NS_XSI,
             'xsi:schemaLocation',
-            self::NS_EAG . ' https://archivists.org/ns/eag/v3/eag3.xsd'
+            self::NS_EAG.' https://archivists.org/ns/eag/v3/eag3.xsd'
         );
 
         // <control>
@@ -219,11 +215,11 @@ class EagSerializer
         $control = $this->el('control');
 
         // <recordId>
-        $recordId = $slug ?? ($repo->identifier ?? ('repo-' . $repositoryId));
+        $recordId = $slug ?? ($repo->identifier ?? ('repo-'.$repositoryId));
         $control->appendChild($this->el('recordId', $recordId));
 
         // <otherRecordId> for the repository identifier
-        if (!empty($repo->identifier)) {
+        if (! empty($repo->identifier)) {
             $otherRecordId = $this->el('otherRecordId', $repo->identifier);
             $otherRecordId->setAttribute('localType', 'repositoryIdentifier');
             $control->appendChild($otherRecordId);
@@ -267,7 +263,7 @@ class EagSerializer
         $control->appendChild($maintenanceHistory);
 
         // <sources>
-        if (!empty($actorI18n->sources)) {
+        if (! empty($actorI18n->sources)) {
             $sources = $this->el('sources');
             $source = $this->el('source');
             $source->appendChild($this->el('sourceEntry', $actorI18n->sources));
@@ -325,7 +321,7 @@ class EagSerializer
         $identity->appendChild($repositoryType);
 
         // <nameEntry> authorized
-        if (!empty($actorI18n->authorized_form_of_name)) {
+        if (! empty($actorI18n->authorized_form_of_name)) {
             $nameEntry = $this->el('nameEntry');
             $nameEntry->setAttribute('status', 'authorized');
 
@@ -349,7 +345,7 @@ class EagSerializer
         }
 
         // <repositoryId> from identifier
-        if (!empty($repo->identifier)) {
+        if (! empty($repo->identifier)) {
             $repositoryId = $this->el('repositoryId', $repo->identifier);
             $identity->appendChild($repositoryId);
         }
@@ -373,98 +369,98 @@ class EagSerializer
         $desc = $this->el('desc');
 
         // <repositoryHistory> from actor_i18n.history
-        if (!empty($actorI18n->history)) {
+        if (! empty($actorI18n->history)) {
             $repositoryHistory = $this->el('repositoryHistory');
             $repositoryHistory->appendChild($this->el('p', $actorI18n->history));
             $desc->appendChild($repositoryHistory);
         }
 
         // <geoculturalContext> from repository_i18n
-        if ($repoI18n && !empty($repoI18n->geocultural_context)) {
+        if ($repoI18n && ! empty($repoI18n->geocultural_context)) {
             $geoculturalContext = $this->el('geoculturalContext');
             $geoculturalContext->appendChild($this->el('p', $repoI18n->geocultural_context));
             $desc->appendChild($geoculturalContext);
         }
 
         // <mandates> from actor_i18n
-        if (!empty($actorI18n->mandates)) {
+        if (! empty($actorI18n->mandates)) {
             $mandates = $this->el('mandates');
             $mandates->appendChild($this->el('p', $actorI18n->mandates));
             $desc->appendChild($mandates);
         }
 
         // <buildingDescription> from repository_i18n.buildings
-        if ($repoI18n && !empty($repoI18n->buildings)) {
+        if ($repoI18n && ! empty($repoI18n->buildings)) {
             $buildingDescription = $this->el('buildingDescription');
             $buildingDescription->appendChild($this->el('p', $repoI18n->buildings));
             $desc->appendChild($buildingDescription);
         }
 
         // <holdingsDescription> from repository_i18n.holdings
-        if ($repoI18n && !empty($repoI18n->holdings)) {
+        if ($repoI18n && ! empty($repoI18n->holdings)) {
             $holdingsDescription = $this->el('holdingsDescription');
             $holdingsDescription->appendChild($this->el('p', $repoI18n->holdings));
             $desc->appendChild($holdingsDescription);
         }
 
         // <findingAids> from repository_i18n
-        if ($repoI18n && !empty($repoI18n->finding_aids)) {
+        if ($repoI18n && ! empty($repoI18n->finding_aids)) {
             $findingAids = $this->el('findingAids');
             $findingAids->appendChild($this->el('p', $repoI18n->finding_aids));
             $desc->appendChild($findingAids);
         }
 
         // <collectingPolicies>
-        if ($repoI18n && !empty($repoI18n->collecting_policies)) {
+        if ($repoI18n && ! empty($repoI18n->collecting_policies)) {
             $collectingPolicies = $this->el('collectingPolicies');
             $collectingPolicies->appendChild($this->el('p', $repoI18n->collecting_policies));
             $desc->appendChild($collectingPolicies);
         }
 
         // <openingTimes>
-        if ($repoI18n && !empty($repoI18n->opening_times)) {
+        if ($repoI18n && ! empty($repoI18n->opening_times)) {
             $openingTimes = $this->el('openingTimes');
             $openingTimes->appendChild($this->el('p', $repoI18n->opening_times));
             $desc->appendChild($openingTimes);
         }
 
         // <accessConditions>
-        if ($repoI18n && !empty($repoI18n->access_conditions)) {
+        if ($repoI18n && ! empty($repoI18n->access_conditions)) {
             $accessConditions = $this->el('accessConditions');
             $accessConditions->appendChild($this->el('p', $repoI18n->access_conditions));
             $desc->appendChild($accessConditions);
         }
 
         // <disabledAccess>
-        if ($repoI18n && !empty($repoI18n->disabled_access)) {
+        if ($repoI18n && ! empty($repoI18n->disabled_access)) {
             $disabledAccess = $this->el('disabledAccess');
             $disabledAccess->appendChild($this->el('p', $repoI18n->disabled_access));
             $desc->appendChild($disabledAccess);
         }
 
         // <researchServices>
-        if ($repoI18n && !empty($repoI18n->research_services)) {
+        if ($repoI18n && ! empty($repoI18n->research_services)) {
             $researchServices = $this->el('researchServices');
             $researchServices->appendChild($this->el('p', $repoI18n->research_services));
             $desc->appendChild($researchServices);
         }
 
         // <reproductionServices>
-        if ($repoI18n && !empty($repoI18n->reproduction_services)) {
+        if ($repoI18n && ! empty($repoI18n->reproduction_services)) {
             $reproductionServices = $this->el('reproductionServices');
             $reproductionServices->appendChild($this->el('p', $repoI18n->reproduction_services));
             $desc->appendChild($reproductionServices);
         }
 
         // <publicFacilities>
-        if ($repoI18n && !empty($repoI18n->public_facilities)) {
+        if ($repoI18n && ! empty($repoI18n->public_facilities)) {
             $publicFacilities = $this->el('publicFacilities');
             $publicFacilities->appendChild($this->el('p', $repoI18n->public_facilities));
             $desc->appendChild($publicFacilities);
         }
 
         // <places> from actor_i18n.places
-        if (!empty($actorI18n->places)) {
+        if (! empty($actorI18n->places)) {
             $places = $this->el('places');
             $place = $this->el('place');
             $place->appendChild($this->el('placeEntry', $actorI18n->places));
@@ -473,14 +469,14 @@ class EagSerializer
         }
 
         // <legalStatus> from actor_i18n.legal_status
-        if (!empty($actorI18n->legal_status)) {
+        if (! empty($actorI18n->legal_status)) {
             $legalStatus = $this->el('legalStatus');
             $legalStatus->appendChild($this->el('term', $actorI18n->legal_status));
             $desc->appendChild($legalStatus);
         }
 
         // <functions> from actor_i18n.functions
-        if (!empty($actorI18n->functions)) {
+        if (! empty($actorI18n->functions)) {
             $functions = $this->el('functions');
             $functionEl = $this->el('function');
             $functionEl->appendChild($this->el('term', $actorI18n->functions));
@@ -489,14 +485,14 @@ class EagSerializer
         }
 
         // <internalStructures> from actor_i18n
-        if (!empty($actorI18n->internal_structures)) {
+        if (! empty($actorI18n->internal_structures)) {
             $internalStructures = $this->el('internalStructures');
             $internalStructures->appendChild($this->el('p', $actorI18n->internal_structures));
             $desc->appendChild($internalStructures);
         }
 
         // <generalContext> from actor_i18n
-        if (!empty($actorI18n->general_context)) {
+        if (! empty($actorI18n->general_context)) {
             $generalContext = $this->el('generalContext');
             $generalContext->appendChild($this->el('p', $actorI18n->general_context));
             $desc->appendChild($generalContext);
@@ -509,44 +505,44 @@ class EagSerializer
 
             // Address
             $addressParts = [];
-            if (!empty($contact->street_address)) {
+            if (! empty($contact->street_address)) {
                 $addressParts[] = $contact->street_address;
             }
-            if (!empty($contact->city)) {
+            if (! empty($contact->city)) {
                 $addressParts[] = $contact->city;
             }
-            if (!empty($contact->region)) {
+            if (! empty($contact->region)) {
                 $addressParts[] = $contact->region;
             }
-            if (!empty($contact->postal_code)) {
+            if (! empty($contact->postal_code)) {
                 $addressParts[] = $contact->postal_code;
             }
-            if (!empty($contact->country_code)) {
+            if (! empty($contact->country_code)) {
                 $addressParts[] = $contact->country_code;
             }
 
-            if (!empty($addressParts)) {
+            if (! empty($addressParts)) {
                 $address = $this->el('address');
 
-                if (!empty($contact->street_address)) {
+                if (! empty($contact->street_address)) {
                     $address->appendChild($this->el('addressLine', $contact->street_address));
                 }
-                if (!empty($contact->city)) {
+                if (! empty($contact->city)) {
                     $cityEl = $this->el('addressLine', $contact->city);
                     $cityEl->setAttribute('localType', 'city');
                     $address->appendChild($cityEl);
                 }
-                if (!empty($contact->region)) {
+                if (! empty($contact->region)) {
                     $regionEl = $this->el('addressLine', $contact->region);
                     $regionEl->setAttribute('localType', 'region');
                     $address->appendChild($regionEl);
                 }
-                if (!empty($contact->postal_code)) {
+                if (! empty($contact->postal_code)) {
                     $postalEl = $this->el('addressLine', $contact->postal_code);
                     $postalEl->setAttribute('localType', 'postalCode');
                     $address->appendChild($postalEl);
                 }
-                if (!empty($contact->country_code)) {
+                if (! empty($contact->country_code)) {
                     $countryEl = $this->el('addressLine', $contact->country_code);
                     $countryEl->setAttribute('localType', 'country');
                     $address->appendChild($countryEl);
@@ -556,31 +552,31 @@ class EagSerializer
             }
 
             // Telephone
-            if (!empty($contact->telephone)) {
+            if (! empty($contact->telephone)) {
                 $telephone = $this->el('telephone', $contact->telephone);
                 $location->appendChild($telephone);
             }
 
             // Fax
-            if (!empty($contact->fax)) {
+            if (! empty($contact->fax)) {
                 $faxEl = $this->el('fax', $contact->fax);
                 $location->appendChild($faxEl);
             }
 
             // Email
-            if (!empty($contact->email)) {
+            if (! empty($contact->email)) {
                 $emailEl = $this->el('email', $contact->email);
                 $location->appendChild($emailEl);
             }
 
             // Website
-            if (!empty($contact->website)) {
+            if (! empty($contact->website)) {
                 $webpage = $this->el('webpage', $contact->website);
                 $location->appendChild($webpage);
             }
 
             // Contact person
-            if (!empty($contact->contact_person)) {
+            if (! empty($contact->contact_person)) {
                 $contactPersonEl = $this->el('contactPerson', $contact->contact_person);
                 $location->appendChild($contactPersonEl);
             }
@@ -594,7 +590,7 @@ class EagSerializer
             }
 
             // Note
-            if (!empty($contact->note)) {
+            if (! empty($contact->note)) {
                 $noteEl = $this->el('descriptiveNote');
                 $noteEl->appendChild($this->el('p', $contact->note));
                 $location->appendChild($noteEl);
@@ -619,27 +615,27 @@ class EagSerializer
             $hasDescControl = true;
         }
 
-        if (!empty($repo->desc_identifier)) {
+        if (! empty($repo->desc_identifier)) {
             $descControl->appendChild($this->el('descriptionIdentifier', $repo->desc_identifier));
             $hasDescControl = true;
         }
 
-        if ($repoI18n && !empty($repoI18n->desc_institution_identifier)) {
+        if ($repoI18n && ! empty($repoI18n->desc_institution_identifier)) {
             $descControl->appendChild($this->el('institutionIdentifier', $repoI18n->desc_institution_identifier));
             $hasDescControl = true;
         }
 
-        if ($repoI18n && !empty($repoI18n->desc_rules)) {
+        if ($repoI18n && ! empty($repoI18n->desc_rules)) {
             $descControl->appendChild($this->el('rules', $repoI18n->desc_rules));
             $hasDescControl = true;
         }
 
-        if ($repoI18n && !empty($repoI18n->desc_sources)) {
+        if ($repoI18n && ! empty($repoI18n->desc_sources)) {
             $descControl->appendChild($this->el('sources', $repoI18n->desc_sources));
             $hasDescControl = true;
         }
 
-        if ($repoI18n && !empty($repoI18n->desc_revision_history)) {
+        if ($repoI18n && ! empty($repoI18n->desc_revision_history)) {
             $descControl->appendChild($this->el('revisionHistory', $repoI18n->desc_revision_history));
             $hasDescControl = true;
         }
@@ -674,7 +670,7 @@ class EagSerializer
                 ->where('culture', $culture)
                 ->value('authorized_form_of_name');
 
-            if (!$relatedName) {
+            if (! $relatedName) {
                 continue;
             }
 
@@ -752,7 +748,7 @@ class EagSerializer
         $root = $dom->createElementNS(self::NS_EAG, 'eag');
         $dom->appendChild($root);
 
-        $comment = $dom->createComment(' ' . $message . ' ');
+        $comment = $dom->createComment(' '.$message.' ');
         $root->appendChild($comment);
 
         return $dom->saveXML();

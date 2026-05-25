@@ -20,14 +20,14 @@ class VersionWriter
 {
     private const TABLE_MAP = [
         'information_object' => ['table' => 'information_object_version', 'fk' => 'information_object_id', 'parent' => 'information_object'],
-        'actor'              => ['table' => 'actor_version',              'fk' => 'actor_id',              'parent' => 'actor'],
+        'actor' => ['table' => 'actor_version',              'fk' => 'actor_id',              'parent' => 'actor'],
     ];
 
     /** Retry budget for deadlocks (SQLSTATE 40001) and rare unique-key races. */
     private const MAX_RETRIES = 3;
 
     /**
-     * @param array<string,mixed> $snapshot
+     * @param  array<string,mixed>  $snapshot
      */
     public function write(
         string $entityType,
@@ -38,7 +38,7 @@ class VersionWriter
         bool $isRestore = false,
         ?int $restoredFromVersion = null,
     ): int {
-        if (!isset(self::TABLE_MAP[$entityType])) {
+        if (! isset(self::TABLE_MAP[$entityType])) {
             throw new \RuntimeException("VersionWriter: unsupported entity_type '{$entityType}'");
         }
         $table = self::TABLE_MAP[$entityType]['table'];
@@ -47,7 +47,7 @@ class VersionWriter
 
         $attempt = 0;
         while (true) {
-            ++$attempt;
+            $attempt++;
             try {
                 return DB::transaction(function () use (
                     $entityType, $parent, $table, $fk, $entityId, $snapshot,
@@ -83,14 +83,14 @@ class VersionWriter
                     }
 
                     $versionRowId = DB::table($table)->insertGetId([
-                        $fk                     => $entityId,
-                        'version_number'        => $nextVersion,
-                        'snapshot'              => json_encode($snapshot, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                        'change_summary'        => $changeSummary,
-                        'changed_fields'        => $changedFields !== null ? json_encode($changedFields) : null,
-                        'created_by'            => $userId,
-                        'created_at'            => now(),
-                        'is_restore'            => $isRestore ? 1 : 0,
+                        $fk => $entityId,
+                        'version_number' => $nextVersion,
+                        'snapshot' => json_encode($snapshot, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                        'change_summary' => $changeSummary,
+                        'changed_fields' => $changedFields !== null ? json_encode($changedFields) : null,
+                        'created_by' => $userId,
+                        'created_at' => now(),
+                        'is_restore' => $isRestore ? 1 : 0,
                         'restored_from_version' => $restoredFromVersion,
                     ]);
 
@@ -108,6 +108,7 @@ class VersionWriter
                 $isDupKey = str_contains($e->getMessage(), 'Duplicate entry');
                 if (($isDeadlock || $isDupKey) && $attempt < self::MAX_RETRIES) {
                     usleep(50_000 * $attempt); // 50/100/150 ms backoff
+
                     continue;
                 }
                 throw $e;
@@ -154,31 +155,31 @@ class VersionWriter
             }
 
             $metadata = [
-                'version_number'        => $versionNumber,
-                'version_row_id'        => $versionRowId,
-                'version_table'         => $versionTable,
-                'is_restore'            => $isRestore,
+                'version_number' => $versionNumber,
+                'version_row_id' => $versionRowId,
+                'version_table' => $versionTable,
+                'is_restore' => $isRestore,
                 'restored_from_version' => $restoredFromVersion,
-                'change_summary'        => $changeSummary,
-                'parent_entity_type'    => $entityType,
-                'parent_entity_id'      => $entityId,
+                'change_summary' => $changeSummary,
+                'parent_entity_type' => $entityType,
+                'parent_entity_id' => $entityId,
             ];
 
             DB::table('ahg_audit_log')->insert([
-                'uuid'           => $this->generateUuid(),
-                'user_id'        => $userId,
-                'username'       => $username,
-                'user_email'     => $userEmail,
-                'action'         => $isRestore ? 'version_restored' : 'version_created',
-                'entity_type'    => $versionTable,
-                'entity_id'      => $entityId,
-                'entity_title'   => $entityTitle,
-                'module'         => 'version_control',
-                'action_name'    => $isRestore ? 'restore' : 'create',
+                'uuid' => $this->generateUuid(),
+                'user_id' => $userId,
+                'username' => $username,
+                'user_email' => $userEmail,
+                'action' => $isRestore ? 'version_restored' : 'version_created',
+                'entity_type' => $versionTable,
+                'entity_id' => $entityId,
+                'entity_title' => $entityTitle,
+                'module' => 'version_control',
+                'action_name' => $isRestore ? 'restore' : 'create',
                 'request_method' => 'INTERNAL',
-                'metadata'       => json_encode($metadata, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-                'status'         => 'success',
-                'created_at'     => now(),
+                'metadata' => json_encode($metadata, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'status' => 'success',
+                'created_at' => now(),
             ]);
         } catch (\Throwable $e) {
             \Log::warning('ahg-version-control audit dual-write failed', ['error' => $e->getMessage()]);
@@ -188,8 +189,9 @@ class VersionWriter
     private function generateUuid(): string
     {
         $b = random_bytes(16);
-        $b[6] = chr((ord($b[6]) & 0x0f) | 0x40);
-        $b[8] = chr((ord($b[8]) & 0x3f) | 0x80);
+        $b[6] = chr((ord($b[6]) & 0x0F) | 0x40);
+        $b[8] = chr((ord($b[8]) & 0x3F) | 0x80);
+
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($b), 4));
     }
 
@@ -224,10 +226,12 @@ class VersionWriter
             $newRow = $newI18n[$culture] ?? null;
             if ($oldRow === null && $newRow !== null) {
                 $changed[] = "i18n.{$culture}";
+
                 continue;
             }
             if ($oldRow !== null && $newRow === null) {
                 $changed[] = "i18n.{$culture}";
+
                 continue;
             }
             $oldArr = (array) $oldRow;
@@ -249,6 +253,7 @@ class VersionWriter
         }
 
         sort($changed);
+
         return $changed;
     }
 
@@ -261,21 +266,23 @@ class VersionWriter
     {
         if (is_array($value)) {
             if (array_is_list($value)) {
-                return '[' . implode(',', array_map(fn ($v) => $this->canonicalJson($v), $value)) . ']';
+                return '['.implode(',', array_map(fn ($v) => $this->canonicalJson($v), $value)).']';
             }
             ksort($value);
             $parts = [];
             foreach ($value as $k => $v) {
                 $parts[] = json_encode((string) $k, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-                    . ':' . $this->canonicalJson($v);
+                    .':'.$this->canonicalJson($v);
             }
-            return '{' . implode(',', $parts) . '}';
+
+            return '{'.implode(',', $parts).'}';
         }
+
         return json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     /**
-     * @param array<int,array<string,mixed>> $rows
+     * @param  array<int,array<string,mixed>>  $rows
      * @return array<string,array<string,mixed>>
      */
     private function indexByCulture(array $rows): array
@@ -287,6 +294,7 @@ class VersionWriter
                 $out[$culture] = $row;
             }
         }
+
         return $out;
     }
 }

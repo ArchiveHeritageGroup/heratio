@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 class SharePointSubscribeCommand extends Command
 {
     protected $signature = 'sharepoint:subscribe {--drive= : sharepoint_drive.id} {--webhook-url= : Public webhook URL}';
+
     protected $description = 'Create Graph webhook subscriptions (driveItem + list) for a drive';
 
     public function handle(SharePointSubscriptionService $svc): int
@@ -23,16 +24,19 @@ class SharePointSubscribeCommand extends Command
         $driveId = (int) $this->option('drive');
         if ($driveId <= 0) {
             $this->error('--drive=<id> required');
+
             return self::INVALID;
         }
         $webhookUrl = $this->option('webhook-url') ?: $this->resolveWebhookUrl();
         if ($webhookUrl === null) {
             $this->error('No webhook URL configured. Pass --webhook-url=<url> or set ahg_settings sharepoint.webhook_public_url.');
+
             return self::INVALID;
         }
 
         $result = $svc->subscribeDrive($driveId, $webhookUrl);
         $this->info("Subscribed drive {$driveId}: driveItem sub={$result['drive_item']}, list sub={$result['list']}");
+
         return self::SUCCESS;
     }
 
@@ -42,6 +46,7 @@ class SharePointSubscribeCommand extends Command
             ->where('setting_group', 'sharepoint')
             ->where('setting_key', 'webhook_public_url')
             ->first();
+
         return $row->setting_value ?? null;
     }
 }

@@ -19,8 +19,7 @@ class SharePointPushService
         private SharePointDriveRepository $drives,
         private SharePointMappingService $mapping,
         private SharePointRetentionMapper $retention,
-    ) {
-    }
+    ) {}
 
     /** @return array<int, array<string, mixed>> */
     public function project(array $request, array $userClaims): array
@@ -41,7 +40,7 @@ class SharePointPushService
             $driveItem = $this->graph->get(
                 $tenantId,
                 "/sites/{$item['site_id']}/drives/{$item['drive_id']}/items/{$item['item_id']}",
-                ['Authorization' => 'Bearer ' . $oboToken],
+                ['Authorization' => 'Bearer '.$oboToken],
             );
             $fields = $this->graph->getListItemFields(
                 $tenantId, $item['site_id'], $item['drive_id'], $item['item_id'],
@@ -76,7 +75,7 @@ class SharePointPushService
 
         $sessionId = (int) DB::table('ingest_session')->insertGetId([
             'user_id' => $heratioUserId,
-            'title' => 'SharePoint manual push by user ' . $heratioUserId,
+            'title' => 'SharePoint manual push by user '.$heratioUserId,
             'sector' => $driveRow->sector,
             'standard' => 'isadg',
             'source' => 'sharepoint_push',
@@ -98,7 +97,7 @@ class SharePointPushService
             $driveItem = $this->graph->get(
                 $tenantId,
                 "/sites/{$item['site_id']}/drives/{$item['drive_id']}/items/{$item['item_id']}",
-                ['Authorization' => 'Bearer ' . $oboToken],
+                ['Authorization' => 'Bearer '.$oboToken],
             );
 
             $localPath = $this->downloadItemAsUser(
@@ -134,18 +133,19 @@ class SharePointPushService
     private function downloadItemAsUser(int $tenantId, string $oboToken, string $siteId, string $driveId, string $itemId, int $sessionId, string $name): string
     {
         $dir = storage_path("app/sharepoint/push/{$sessionId}");
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
         $clean = preg_replace('/[^A-Za-z0-9._-]+/', '_', $name) ?? 'item';
-        $absPath = $dir . '/' . substr($clean, 0, 200);
+        $absPath = $dir.'/'.substr($clean, 0, 200);
         $this->graph->downloadDriveItem($tenantId, $siteId, $driveId, $itemId, $absPath);
+
         return $absPath;
     }
 
     private function dispatchCommit(int $sessionId, array $userClaims): int
     {
-        if (!class_exists('\\AhgIngest\\Services\\IngestCommitService')) {
+        if (! class_exists('\\AhgIngest\\Services\\IngestCommitService')) {
             throw new \RuntimeException('AhgIngest\\Services\\IngestCommitService not registered.');
         }
         $svc = app(\AhgIngest\Services\IngestCommitService::class);

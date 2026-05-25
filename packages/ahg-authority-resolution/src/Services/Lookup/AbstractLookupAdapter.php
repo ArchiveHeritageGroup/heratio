@@ -51,11 +51,11 @@ abstract class AbstractLookupAdapter implements LookupAdapterInterface
     public function search(string $query, string $entityType, int $limit = 5): array
     {
         $query = trim($query);
-        if ($query === '' || !$this->supports($entityType)) {
+        if ($query === '' || ! $this->supports($entityType)) {
             return [];
         }
 
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             return [];
         }
 
@@ -64,8 +64,9 @@ abstract class AbstractLookupAdapter implements LookupAdapterInterface
             return array_slice($cached, 0, $limit);
         }
 
-        if (!$this->withinRateLimit()) {
+        if (! $this->withinRateLimit()) {
             Log::info('AuthRes lookup: rate limited', ['source' => $this->source(), 'query' => $query]);
+
             return [];
         }
 
@@ -95,6 +96,7 @@ abstract class AbstractLookupAdapter implements LookupAdapterInterface
             $val = DB::table('ahg_settings')
                 ->where('setting_key', $key)
                 ->value('setting_value');
+
             return $val === null ? $default : $val;
         } catch (\Throwable $e) {
             return $default;
@@ -103,28 +105,30 @@ abstract class AbstractLookupAdapter implements LookupAdapterInterface
 
     protected function isEnabled(): bool
     {
-        return (int) $this->settingValue('lookup.' . $this->source() . '.enabled', 0) === 1;
+        return (int) $this->settingValue('lookup.'.$this->source().'.enabled', 0) === 1;
     }
 
     protected function rateLimit(): int
     {
-        return max(1, (int) $this->settingValue('lookup.' . $this->source() . '.rate_limit', 60));
+        return max(1, (int) $this->settingValue('lookup.'.$this->source().'.rate_limit', 60));
     }
 
     protected function cacheTtl(): int
     {
-        return max(60, (int) $this->settingValue('lookup.' . $this->source() . '.cache_ttl', 604800));
+        return max(60, (int) $this->settingValue('lookup.'.$this->source().'.cache_ttl', 604800));
     }
 
     protected function licenceNote(): ?string
     {
-        $v = $this->settingValue('lookup.' . $this->source() . '.license_note');
+        $v = $this->settingValue('lookup.'.$this->source().'.license_note');
+
         return is_string($v) && trim($v) !== '' ? $v : null;
     }
 
     protected function licenceUrl(): ?string
     {
-        $v = $this->settingValue('lookup.' . $this->source() . '.license_url');
+        $v = $this->settingValue('lookup.'.$this->source().'.license_url');
+
         return is_string($v) && trim($v) !== '' ? $v : null;
     }
 
@@ -159,6 +163,7 @@ abstract class AbstractLookupAdapter implements LookupAdapterInterface
     public function lastCallAt(): ?int
     {
         $log = self::$callLog[$this->source()] ?? [];
+
         return empty($log) ? null : max($log);
     }
 
@@ -175,7 +180,7 @@ abstract class AbstractLookupAdapter implements LookupAdapterInterface
         } catch (\Throwable $e) {
             return null;
         }
-        if (!$row) {
+        if (! $row) {
             return null;
         }
         $age = time() - strtotime((string) $row->retrieved_at);
@@ -183,6 +188,7 @@ abstract class AbstractLookupAdapter implements LookupAdapterInterface
             return null;
         }
         $decoded = json_decode((string) $row->payload, true);
+
         return is_array($decoded) ? $decoded : null;
     }
 
