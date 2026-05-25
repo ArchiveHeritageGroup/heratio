@@ -59,13 +59,45 @@ class DonutService
     public function extract(string $filePath): ?array
     {
         try {
+            $t0 = microtime(true);
             $response = Http::timeout(60)
                 ->attach('file', fopen($filePath, 'r'), basename($filePath))
                 ->post("{$this->baseUrl}/extract");
-            return $response->successful() ? $response->json() : null;
+            if (!$response->successful()) {
+                return null;
+            }
+            $body = $response->json();
+            $this->logInferenceReceipt(
+                'donut',
+                (string) ($body['model'] ?? 'donut-gateway'),
+                $body['model_version'] ?? null,
+                'file:' . basename($filePath) . ':' . (is_readable($filePath) ? (string) filesize($filePath) : '?'),
+                is_array($body) ? json_encode($body, JSON_UNESCAPED_UNICODE) : (string) $body,
+                ['latency_ms' => (int) round((microtime(true) - $t0) * 1000)],
+            );
+            return $body;
         } catch (\Exception $e) {
             Log::error('Donut extract failed: ' . $e->getMessage());
             return null;
+        }
+    }
+
+    private function logInferenceReceipt(
+        string $service,
+        string $modelId,
+        ?string $modelVersion,
+        string $input,
+        string $output,
+        array $extra = [],
+    ): void {
+        if (!class_exists(\AhgAiCompliance\Services\InferenceLogger::class)) {
+            return;
+        }
+        try {
+            app(\AhgAiCompliance\Services\InferenceLogger::class)
+                ->log($service, $modelId, $modelVersion, $input, $output, $extra);
+        } catch (\Throwable) {
+            // chain failure must not abort inference
         }
     }
 

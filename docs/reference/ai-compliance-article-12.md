@@ -136,18 +136,17 @@ Response shape:
 - [x] `/.well-known/ai-inference-pubkey` endpoint
 - [x] 49 unit tests + conformance suite skeleton (nobulex vectors)
 
-## Phase 2 deliverables (this release)
+## Phase 2 deliverables (complete)
 
 - [x] LlmService::complete() instrumented (both cloud-override and local-provider paths)
+- [x] LlmService::completeFull() instrumented (second LLM entry point)
+- [x] LlmService::translate() MzansiLM direct-call path instrumented (SA-language translation; bypasses complete())
 - [x] HtrService::extract() instrumented
 - [x] NerService::extract() instrumented (API path; LLM fallback inherits from LlmService receipt)
+- [x] DonutService::extract() instrumented (layout extraction)
+- [x] GuardrailService::inspect() instrumented (policy enforcement decisions, including block events at every early-return path)
 
-## Phase 2 follow-ups
-
-- [ ] DonutService::extract() instrumentation
-- [ ] GuardrailService::summarize() instrumentation
-- [ ] LlmService::completeFull() (a second entry point separate from complete())
-- [ ] LlmService::translate() direct-MzansiLM path (not via complete())
+Note: Guardrail logging targets `inspect()` (the actual policy decision point) rather than `summarize()` (a pure folder over the inspect result). Every guardrail evaluation - allow, mask, or block - writes one receipt. `inspect()` is called from `LlmService::complete()` cloud-mode override, so a single LLM call may produce two receipts (one guardrail, one LLM). That is by design: the guardrail decision is a separate compliance-relevant event from the inference itself.
 
 ## Threat model
 

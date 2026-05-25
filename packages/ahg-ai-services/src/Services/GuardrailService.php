@@ -162,6 +162,7 @@ class GuardrailService
                 $out['action'] = 'block';
                 $out['reason'] = "Purpose '{$purpose}' is not in the sanctioned set";
 
+                $this->logInspectDecision($provider, $system, $user, $out);
                 return $out;
             }
         }
@@ -176,6 +177,7 @@ class GuardrailService
                     $out['action'] = 'block';
                     $out['reason'] = "Data scope '{$scope}' may not be sent to cloud provider '{$provider}'";
 
+                    $this->logInspectDecision($provider, $system, $user, $out);
                     return $out;
                 }
             }
@@ -196,7 +198,48 @@ class GuardrailService
             }
         }
 
+        $this->logInspectDecision($provider, $system, $user, $out);
         return $out;
+    }
+
+    private function logInspectDecision(string $provider, string $system, string $user, array $out): void
+    {
+        $this->logInferenceReceipt(
+            'guardrail',
+            $provider !== '' ? $provider : 'guardrail-policy',
+            null,
+            ($system === '' ? '' : "system:{$system}\n") . "user:{$user}",
+            (string) json_encode([
+                'action'             => $out['action'],
+                'reason'             => $out['reason'],
+                'mode'               => $out['mode'],
+                'data_scope'         => $out['data_scope'],
+                'purpose'            => $out['purpose'],
+                'purpose_sanctioned' => $out['purpose_sanctioned'],
+                'pii_masked'         => $out['pii_masked'],
+                'flags'              => $out['flags'],
+            ], JSON_UNESCAPED_UNICODE),
+            [],
+        );
+    }
+
+    private function logInferenceReceipt(
+        string $service,
+        string $modelId,
+        ?string $modelVersion,
+        string $input,
+        string $output,
+        array $extra = [],
+    ): void {
+        if (!class_exists(\AhgAiCompliance\Services\InferenceLogger::class)) {
+            return;
+        }
+        try {
+            app(\AhgAiCompliance\Services\InferenceLogger::class)
+                ->log($service, $modelId, $modelVersion, $input, $output, $extra);
+        } catch (\Throwable) {
+            // chain failure must not abort inference
+        }
     }
 
     /**

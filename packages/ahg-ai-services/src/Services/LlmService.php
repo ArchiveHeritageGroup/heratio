@@ -585,7 +585,23 @@ class LlmService
             ];
         }
 
-        return $this->dispatchToProviderFull($config, $systemPrompt, $userPrompt, $options);
+        $result = $this->dispatchToProviderFull($config, $systemPrompt, $userPrompt, $options);
+
+        if (!empty($result['success']) && isset($result['text']) && is_string($result['text']) && $result['text'] !== '') {
+            $this->logInferenceReceipt(
+                'llm',
+                (string) ($result['model'] ?? ($config->name ?? 'unknown')),
+                $config->model_version ?? null,
+                ($systemPrompt === '' ? '' : "system:{$systemPrompt}\n") . "user:{$userPrompt}",
+                $result['text'],
+                [
+                    'tokens_in'  => $result['tokens_used'] ?? null,
+                    'latency_ms' => isset($result['generation_time_ms']) ? (int) $result['generation_time_ms'] : null,
+                ],
+            );
+        }
+
+        return $result;
     }
 
     /**
@@ -705,6 +721,7 @@ class LlmService
         }
 
         try {
+            $t0 = microtime(true);
             $resp = \Illuminate\Support\Facades\Http::timeout($aiSet::mzansilmTimeout())
                 ->asJson()
                 ->post(rtrim($endpoint, '/') . '/chat/completions', [
@@ -720,6 +737,14 @@ class LlmService
             if ($resp->ok()) {
                 $out = $resp->json()['choices'][0]['message']['content'] ?? null;
                 if (is_string($out) && trim($out) !== '') {
+                    $this->logInferenceReceipt(
+                        'translate',
+                        (string) $aiSet::mzansilmModel(),
+                        'mzansilm',
+                        "lang:{$targetLang}\n{$text}",
+                        $out,
+                        ['latency_ms' => (int) round((microtime(true) - $t0) * 1000)],
+                    );
                     return $out;
                 }
             }
