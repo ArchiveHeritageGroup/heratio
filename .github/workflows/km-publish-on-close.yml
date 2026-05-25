@@ -4,8 +4,8 @@ name: KM publish on issue close
 # closed (or a PR is merged). Implements Phase 6 of the KM cross-agent
 # endpoint rollout — see /root/.claude/CLAUDE.md "KM auto-publish rule".
 #
-# The doc lands in km_agent_docs (project=heratio) and becomes queryable
-# from every agent (Claude / Workbench / ahg-ai) via km_ask.
+# The doc lands in km_agent_docs (project=<repo-short>) and becomes
+# queryable from every agent (Claude / Workbench / ahg-ai) via km_ask.
 #
 # REQUIRED SECRETS on the repo:
 #   KM_BASE_URL    e.g. https://km.theahg.co.za
@@ -45,37 +45,37 @@ jobs:
           fi
           REPO="${{ github.repository }}"
           REPO_SHORT="${REPO##*/}"
-
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           DOC_TITLE="$EVENT_TYPE #$NUM closed: $TITLE"
-          DOC_BODY=$(cat <<EOF
-**Closed:** $EVENT_TYPE #$NUM in $REPO
-**Title:** $TITLE
-**URL:** $URL
-**Closed by:** @$CLOSED_BY
-**Labels:** $LABELS
-**Closed at:** $(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
----
-
-$BODY
-EOF
-          )
-
-          # jq-encode for the curl payload
+          # Compose body + final payload via jq (heredocs collide with the
+          # YAML literal block-scalar indent — that's what broke the 2026-05-25
+          # first cut). All inputs flow in via --arg, jq does the concat.
           jq -n \
-            --arg title "$DOC_TITLE" \
-            --arg body  "$DOC_BODY" \
-            --arg project "$REPO_SHORT" \
-            --arg source_url "$URL" \
-            --arg event "$EVENT_TYPE" \
-            --arg labels "$LABELS" \
+            --arg title      "$DOC_TITLE" \
+            --arg event_type "$EVENT_TYPE" \
+            --arg num        "$NUM" \
+            --arg orig_title "$TITLE" \
+            --arg body_in    "$BODY" \
+            --arg url        "$URL" \
+            --arg closed_by  "$CLOSED_BY" \
+            --arg labels     "$LABELS" \
+            --arg repo       "$REPO" \
+            --arg repo_short "$REPO_SHORT" \
+            --arg now        "$NOW" \
             '{
-              title: $title,
-              body: $body,
-              project: $project,
-              source_url: $source_url,
-              author: ("gh:" + ($source_url | sub("^https://github.com/"; "") | split("/")[0])),
-              tags: ([$event, "github-actions", "auto-publish"] + ($labels | split(",") | map(select(length>0))))
+              title:      $title,
+              body:       ("**Closed:** " + $event_type + " #" + $num + " in " + $repo + "\n" +
+                           "**Title:** "  + $orig_title + "\n" +
+                           "**URL:** "    + $url + "\n" +
+                           "**Closed by:** @" + $closed_by + "\n" +
+                           "**Labels:** " + $labels + "\n" +
+                           "**Closed at:** " + $now + "\n\n---\n\n" + $body_in),
+              project:    $repo_short,
+              source_url: $url,
+              author:     ("gh:" + ($url | sub("^https://github.com/"; "") | split("/")[0])),
+              tags:       ([$event_type, "github-actions", "auto-publish"] +
+                           ($labels | split(",") | map(select(length>0))))
             }' > /tmp/km_payload.json
 
           echo "Payload:" && cat /tmp/km_payload.json
