@@ -145,6 +145,25 @@ class ExportController extends Controller
     }
 
     /**
+     * Export the preservation event history of an information object as
+     * W3C PROV-JSON. Phase 3 of #658 (METS + PROV-O audit).
+     * Uses ProvOSerializer from ahg-metadata-export.
+     */
+    public function provo(string $slug)
+    {
+        $culture = app()->getLocale();
+        $io = $this->getIO($slug, $culture);
+        if (!$io) {
+            abort(404);
+        }
+        $serializer = new \AhgMetadataExport\Services\Exporters\ProvOSerializer();
+        $body = $serializer->serializeRecord((int) $io->id, $culture);
+        return response($body, 200)
+            ->header('Content-Type', 'application/json; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '.provo.json"');
+    }
+
+    /**
      * Export an information object as MARC21 in MARCXML envelope.
      * Uses MarcxmlSerializer from ahg-metadata-export (shipped v1.67.0 for OAI-PMH).
      */
@@ -864,6 +883,17 @@ class ExportController extends Controller
 
     private function buildDcXml($io, $repository, $events, $creators, $subjects, $places, $genres, $levelName, $languages, string $culture): string
     {
+        // Phase 1 of #662 — Dublin Core qualified element variants.
+        // The xmlns:dcterms was already declared; now we actually emit
+        // `dcterms:*` refinements alongside the basic `dc:*` elements:
+        //   - dcterms:created  / dcterms:issued / dcterms:modified  (from event.type_id)
+        //   - dcterms:abstract                                      (scope_and_content)
+        //   - dcterms:provenance                                    (archival_history)
+        //   - dcterms:extent                                        (extent_and_medium)
+        //   - dcterms:isPartOf                                      (parent slug → URL)
+        //   - dcterms:spatial                                       (places, taxonomy 42)
+        //   - dcterms:rightsHolder                                  (repository acting as holder)
+        // The basic dc:* set stays for harvesters expecting Simple DC.
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/">' . "\n";
         $xml .= "  <dc:title>" . $this->e($io->title) . "</dc:title>\n";
@@ -878,17 +908,43 @@ class ExportController extends Controller
 
         if ($io->scope_and_content) {
             $xml .= "  <dc:description>" . $this->e($io->scope_and_content) . "</dc:description>\n";
+            // dcterms:abstract = refinement of dc:description
+            $xml .= "  <dcterms:abstract>" . $this->e($io->scope_and_content) . "</dcterms:abstract>\n";
+        }
+
+        if (!empty($io->archival_history)) {
+            $xml .= "  <dcterms:provenance>" . $this->e($io->archival_history) . "</dcterms:provenance>\n";
         }
 
         if ($repository) {
             $xml .= "  <dc:publisher>" . $this->e($repository->name) . "</dc:publisher>\n";
+            $xml .= "  <dcterms:rightsHolder>" . $this->e($repository->name) . "</dcterms:rightsHolder>\n";
         }
 
         foreach ($events as $event) {
             $dateVal = $event->date_display ?: ($event->start_date ?? '');
-            if ($dateVal) {
-                $xml .= "  <dc:date>" . $this->e($dateVal) . "</dc:date>\n";
+            if (!$dateVal) {
+                continue;
             }
+            $xml .= "  <dc:date>" . $this->e($dateVal) . "</dc:date>\n";
+            // dcterms:created (creation, event.type_id=111) vs
+            // dcterms:issued (publication, event.type_id=114) — qualified
+            // refinements of dc:date. Other event types fall through to
+            // dc:date only.
+            $typeId = (int) ($event->type_id ?? 0);
+            $tag = match ($typeId) {
+                111     => 'dcterms:created',
+                114     => 'dcterms:issued',
+                default => null,
+            };
+            if ($tag !== null) {
+                $xml .= "  <{$tag}>" . $this->e($dateVal) . "</{$tag}>\n";
+            }
+        }
+
+        // dcterms:modified = record's updated_at when present
+        if (!empty($io->updated_at)) {
+            $xml .= "  <dcterms:modified>" . $this->e((string) $io->updated_at) . "</dcterms:modified>\n";
         }
 
         if ($levelName) {
@@ -897,6 +953,8 @@ class ExportController extends Controller
 
         if ($io->extent_and_medium) {
             $xml .= "  <dc:format>" . $this->e($io->extent_and_medium) . "</dc:format>\n";
+            // dcterms:extent = refinement of dc:format
+            $xml .= "  <dcterms:extent>" . $this->e($io->extent_and_medium) . "</dcterms:extent>\n";
         }
 
         if ($io->identifier) {
@@ -905,12 +963,22 @@ class ExportController extends Controller
 
         $xml .= "  <dc:source>" . $this->e(url('/' . $io->slug)) . "</dc:source>\n";
 
+        // dcterms:isPartOf — parent IO URL when this is a child in a hierarchy
+        if (!empty($io->parent_id) && (int) $io->parent_id !== 1) {
+            $parentSlug = DB::table('slug')->where('object_id', $io->parent_id)->value('slug');
+            if ($parentSlug) {
+                $xml .= "  <dcterms:isPartOf>" . $this->e(url('/' . $parentSlug)) . "</dcterms:isPartOf>\n";
+            }
+        }
+
         foreach ($languages as $lang) {
             $xml .= "  <dc:language>" . $this->e($lang->name) . "</dc:language>\n";
         }
 
         foreach ($places as $p) {
             $xml .= "  <dc:coverage>" . $this->e($p->name) . "</dc:coverage>\n";
+            // dcterms:spatial = refinement of dc:coverage for places
+            $xml .= "  <dcterms:spatial>" . $this->e($p->name) . "</dcterms:spatial>\n";
         }
 
         if ($io->access_conditions) {
