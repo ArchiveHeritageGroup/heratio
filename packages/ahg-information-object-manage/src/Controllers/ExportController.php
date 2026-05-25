@@ -191,6 +191,94 @@ class ExportController extends Controller
     }
 
     /**
+     * Export OCR text for an information object as plain UTF-8 text,
+     * paginated with "--- page N ---" markers.
+     */
+    public function ocrTxt(string $slug)
+    {
+        $io = $this->getOcrIo($slug);
+        $body = $this->renderOcr($io, 'exportTxt');
+
+        return response($body, 200)
+            ->header('Content-Type', 'text/plain; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '_ocr.txt"');
+    }
+
+    /**
+     * Export OCR text for an information object as ALTO 4.x XML.
+     */
+    public function ocrAlto(string $slug)
+    {
+        $io = $this->getOcrIo($slug);
+        $body = $this->renderOcr($io, 'exportAlto');
+
+        return response($body, 200)
+            ->header('Content-Type', 'application/alto+xml; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '.alto.xml"');
+    }
+
+    /**
+     * Export OCR text for an information object as hOCR (HTML profile).
+     */
+    public function ocrHocr(string $slug)
+    {
+        $io = $this->getOcrIo($slug);
+        $body = $this->renderOcr($io, 'exportHocr');
+
+        return response($body, 200)
+            ->header('Content-Type', 'text/html; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '.hocr.html"');
+    }
+
+    /**
+     * Export OCR text for an information object as PRImA PAGE-XML.
+     */
+    public function ocrPageXml(string $slug)
+    {
+        $io = $this->getOcrIo($slug);
+        $body = $this->renderOcr($io, 'exportPageXml');
+
+        return response($body, 200)
+            ->header('Content-Type', 'application/vnd.prima.page+xml; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $io->slug . '.page.xml"');
+    }
+
+    /**
+     * Resolve the IO for an OCR export and 404 when missing.
+     * Centralises the slug→IO + "is there any OCR?" lookup so the four
+     * format methods stay trivial.
+     */
+    private function getOcrIo(string $slug)
+    {
+        $culture = app()->getLocale();
+        $io = $this->getIO($slug, $culture);
+        if (!$io) {
+            abort(404);
+        }
+        $hasOcr = DB::table('iiif_ocr_text')->where('object_id', $io->id)->exists();
+        if (!$hasOcr) {
+            abort(404);
+        }
+        return $io;
+    }
+
+    /**
+     * Invoke an OcrExportService method, translating its 404-class
+     * exception into an HTTP 404. Returned string is the document body.
+     */
+    private function renderOcr($io, string $method): string
+    {
+        $service = new \AhgIiifCollection\Services\OcrExportService();
+        try {
+            return $service->{$method}((int) $io->id);
+        } catch (\RuntimeException $e) {
+            abort(404);
+        }
+
+        return ''; // unreachable — abort() throws — but keeps the return type honest
+    }
+
+    /**
      * Export an information object as EAD 4 XML (draft).
      * Uses the Ead4Serializer from ahg-metadata-export.
      */

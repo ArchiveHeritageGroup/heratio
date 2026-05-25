@@ -81,6 +81,13 @@ Route::get('/informationobject/{slug}/export/marc', [ExportController::class, 'm
 Route::get('/informationobject/{slug}/export/csv', [ExportController::class, 'csv'])->name('informationobject.export.csv');
 Route::get('/informationobject/{slug}/export/rico', [ExportController::class, 'ricJsonLd'])->name('informationobject.export.rico');
 
+// OCR text export (#665 Phase 3) — 4 formats per IO. Each route 404s when
+// the IO has no rows in iiif_ocr_text.
+Route::get('/informationobject/{slug}/export/ocr/txt', [ExportController::class, 'ocrTxt'])->name('informationobject.export.ocr.txt');
+Route::get('/informationobject/{slug}/export/ocr/alto', [ExportController::class, 'ocrAlto'])->name('informationobject.export.ocr.alto');
+Route::get('/informationobject/{slug}/export/ocr/hocr', [ExportController::class, 'ocrHocr'])->name('informationobject.export.ocr.hocr');
+Route::get('/informationobject/{slug}/export/ocr/page', [ExportController::class, 'ocrPageXml'])->name('informationobject.export.ocr.page');
+
 // Auth-required features
 Route::middleware('auth')->group(function () {
     // Publication status update (GET = show form, POST = process)

@@ -103,6 +103,30 @@
         </a>
       </li>
     @endif
+
+    @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ocr.txt'))
+      <li><h6 class="dropdown-header small text-uppercase mt-2 mb-0">{{ __('OCR Text') }}</h6></li>
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.ocr.txt', $resource->slug) }}">
+          <i class="fas fa-fw fa-file-alt me-1" aria-hidden="true"></i>{{ __('Plain text (.txt)') }}
+        </a>
+      </li>
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.ocr.alto', $resource->slug) }}">
+          <i class="fas fa-fw fa-file-code me-1" aria-hidden="true"></i>{{ __('ALTO XML') }}
+        </a>
+      </li>
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.ocr.hocr', $resource->slug) }}">
+          <i class="fas fa-fw fa-file-code me-1" aria-hidden="true"></i>{{ __('hOCR (HTML)') }}
+        </a>
+      </li>
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.ocr.page', $resource->slug) }}">
+          <i class="fas fa-fw fa-file-code me-1" aria-hidden="true"></i>{{ __('PAGE-XML') }}
+        </a>
+      </li>
+    @endif
   </ul>
 
   @include('ahg-information-object-manage::_finding-aid-link', ['resource' => $resource, 'contextMenu' => true])

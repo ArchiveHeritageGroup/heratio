@@ -191,6 +191,30 @@ $searchRealm = session('search-realm');
       </li>
     @endif
 
+    @if(\Illuminate\Support\Facades\Route::has('informationobject.export.ocr.txt'))
+      <li><h6 class="dropdown-header small text-uppercase mt-2 mb-0">{{ __('OCR Text') }}</h6></li>
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.ocr.txt', $slug ?? '') }}">
+          <i class="fas fa-fw fa-file-alt me-1" aria-hidden="true"></i>{{ __('Plain text (.txt)') }}
+        </a>
+      </li>
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.ocr.alto', $slug ?? '') }}">
+          <i class="fas fa-fw fa-file-code me-1" aria-hidden="true"></i>{{ __('ALTO XML') }}
+        </a>
+      </li>
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.ocr.hocr', $slug ?? '') }}">
+          <i class="fas fa-fw fa-file-code me-1" aria-hidden="true"></i>{{ __('hOCR (HTML)') }}
+        </a>
+      </li>
+      <li>
+        <a class="atom-icon-link" href="{{ route('informationobject.export.ocr.page', $slug ?? '') }}">
+          <i class="fas fa-fw fa-file-code me-1" aria-hidden="true"></i>{{ __('PAGE-XML') }}
+        </a>
+      </li>
+    @endif
+
     @php
       // Closes audit issue #88: gate on portable_export_enabled AND
       // portable_export_description_button. Both default true so existing
