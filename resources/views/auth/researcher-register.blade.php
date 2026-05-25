@@ -39,7 +39,7 @@
               <div class="mb-3">
                 <label class="form-label">Username <span class="text-danger">*</span></label>
                 <input type="text" name="username" class="form-control @error('username') is-invalid @enderror"
-                       value="{{ old('username') }}" required minlength="3" placeholder="Choose a username">
+                       value="{{ old('username') }}" required minlength="3" placeholder="Choose a username" autocomplete="username">
                 <small class="text-muted">At least 3 characters, letters and numbers only</small>
                 @error('username')
                   <div class="invalid-feedback">{{ $message }}</div>
@@ -49,7 +49,7 @@
               <div class="mb-3">
                 <label class="form-label">Email Address <span class="text-danger">*</span></label>
                 <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
-                       value="{{ old('email') }}" required placeholder="your.email@example.com">
+                       value="{{ old('email') }}" required placeholder="your.email@example.com" autocomplete="email">
                 @error('email')
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -58,7 +58,7 @@
               <div class="mb-3">
                 <label class="form-label">Password <span class="text-danger">*</span></label>
                 <input type="password" name="password" class="form-control @error('password') is-invalid @enderror"
-                       required minlength="8" id="password">
+                       required minlength="8" id="password" autocomplete="new-password">
                 <small class="text-muted">At least 8 characters</small>
                 @error('password')
                   <div class="invalid-feedback">{{ $message }}</div>
@@ -67,7 +67,7 @@
 
               <div class="mb-3">
                 <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                <input type="password" name="password_confirmation" class="form-control" required minlength="8">
+                <input type="password" name="password_confirmation" class="form-control" required minlength="8" autocomplete="new-password">
               </div>
 
               <h5 class="mb-3 mt-4 border-bottom pb-2"><i class="fas fa-id-card me-2"></i>Identification</h5>

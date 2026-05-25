@@ -17,11 +17,14 @@ Heratio conforms to WCAG 2.1 Level AA. Accessibility features are globally injec
 
 ### Keyboard Navigation
 - All interactive elements reachable via **Tab**
-- **Visible focus indicators** (3px blue outline)
+- **Visible focus indicators** (3px theme-accent outline with 2px offset, WCAG 2.4.7)
 - **Skip navigation** link at top of every page
 - **Escape key** closes modals and dropdowns
 - **Ctrl+Shift+V** — toggle voice commands
 - **Ctrl+Shift+H** — open voice help
+
+### Identify Input Purpose (WCAG 1.3.5)
+- Login, registration, and password-reset forms expose programmatic input purpose via `autocomplete` (`email`, `username`, `current-password`, `new-password`) so assistive tech and password managers can autofill correctly.
 
 ### Visual Accessibility
 - Colour contrast meets AA minimum (4.5:1)

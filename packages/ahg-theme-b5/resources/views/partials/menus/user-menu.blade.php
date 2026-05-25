@@ -230,11 +230,11 @@
         @csrf
         <div class="mb-3">
           <label class="form-label" for="nav-email">Email<span aria-hidden="true" class="text-primary ms-1" title="{{ __('This field is required.') }}"><strong>*</strong></span><span class="visually-hidden">{{ __('This field is required.') }}</span></label>
-          <input type="text" name="email" class="form-control-sm form-control" id="nav-email" required>
+          <input type="email" name="email" class="form-control-sm form-control" id="nav-email" required autocomplete="email">
         </div>
         <div class="mb-3">
           <label class="form-label" for="nav-password">Password<span aria-hidden="true" class="text-primary ms-1" title="{{ __('This field is required.') }}"><strong>*</strong></span><span class="visually-hidden">{{ __('This field is required.') }}</span></label>
-          <input type="password" name="password" class="form-control-sm form-control" id="nav-password" required autocomplete="off">
+          <input type="password" name="password" class="form-control-sm form-control" id="nav-password" required autocomplete="current-password">
         </div>
         <button class="btn btn-sm atom-btn-secondary w-100 mt-2" type="submit">{{ __('Log in') }}</button>
       </form>

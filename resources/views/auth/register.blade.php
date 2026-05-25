@@ -30,7 +30,7 @@
             <div class="mb-3">
               <label for="username" class="form-label">User name</label>
               <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username"
-                     value="{{ old('username') }}" required>
+                     value="{{ old('username') }}" required autocomplete="username">
               @error('username')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
@@ -39,7 +39,7 @@
             <div class="mb-3">
               <label for="email" class="form-label">Email</label>
               <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email"
-                     value="{{ old('email') }}" required>
+                     value="{{ old('email') }}" required autocomplete="email">
               @error('email')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
@@ -66,7 +66,7 @@
                 <div class="mb-3">
                   <label for="password" class="form-label">Password</label>
                   <input type="password" class="form-control password-strength @error('password') is-invalid @enderror"
-                         id="password" name="password" required>
+                         id="password" name="password" required autocomplete="new-password">
                   @error('password')
                     <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -74,7 +74,7 @@
 
                 <div class="mb-3">
                   <label for="password_confirmation" class="form-label">Confirm password</label>
-                  <input type="password" class="form-control password-confirm" id="password_confirmation" name="password_confirmation" required>
+                  <input type="password" class="form-control password-confirm" id="password_confirmation" name="password_confirmation" required autocomplete="new-password">
                 </div>
               </div>
               <div class="col-md-6 template" hidden>

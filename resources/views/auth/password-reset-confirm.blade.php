@@ -48,7 +48,7 @@
                 <div class="mb-3">
                   <label for="password" class="form-label">New Password</label>
                   <input type="password" class="form-control password-strength @error('password') is-invalid @enderror"
-                         id="password" name="password" required>
+                         id="password" name="password" required autocomplete="new-password">
                   @error('password')
                     <div class="invalid-feedback">{{ $message }}</div>
                   @enderror
@@ -57,7 +57,7 @@
                 <div class="mb-3">
                   <label for="password_confirmation" class="form-label">Confirm Password</label>
                   <input type="password" class="form-control password-confirm"
-                         id="password_confirmation" name="password_confirmation" required>
+                         id="password_confirmation" name="password_confirmation" required autocomplete="new-password">
                 </div>
               </div>
               <div class="col-md-6 template" hidden>
