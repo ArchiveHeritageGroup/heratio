@@ -30,6 +30,17 @@ Route::get('/taxonomy/autocomplete', [TermController::class, 'taxonomyAutocomple
 Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/term/import/skos', [TermController::class, 'importSkos'])->name('term.import.skos');
 });
+
+// Legacy + multi-format SKOS export (#661 Phase 2)
+// The unsuffixed endpoint defaults to RDF/XML for backward compatibility.
 Route::get('/term/export/skos', [TermController::class, 'exportSkos'])->name('term.export.skos');
+Route::get('/term/export/skos/rdf-xml', [TermController::class, 'exportSkos'])
+    ->defaults('format', 'rdfxml')->name('term.export.skos.rdfxml');
+Route::get('/term/export/skos/turtle', [TermController::class, 'exportSkos'])
+    ->defaults('format', 'turtle')->name('term.export.skos.turtle');
+Route::get('/term/export/skos/ntriples', [TermController::class, 'exportSkos'])
+    ->defaults('format', 'ntriples')->name('term.export.skos.ntriples');
+Route::get('/term/export/skos/jsonld', [TermController::class, 'exportSkos'])
+    ->defaults('format', 'jsonld')->name('term.export.skos.jsonld');
 
 Route::get('/term/{slug}', [TermController::class, 'show'])->name('term.show');

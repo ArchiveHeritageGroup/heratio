@@ -119,6 +119,48 @@ if [[ -n "$ISSUE_ARG" ]]; then
 ${FIXES}"
 fi
 
+# Auto-generate the per-release session log so docs/sessions/ is a complete
+# audit timeline of every release. The KM indexer crawls this tree; until the
+# central `/var/spool/km-ingest/` watched folder ships, this in-repo file is
+# the canonical KM publish surface. See /root/.claude/CLAUDE.md "KM
+# auto-publish rule". The file is written BEFORE `git add -A` so it lands in
+# the same commit that this release creates.
+SESSION_LOG_DIR="docs/sessions"
+SESSION_LOG_FILE="${SESSION_LOG_DIR}/${DATE}-${TAG}.md"
+mkdir -p "${SESSION_LOG_DIR}"
+{
+    echo "# ${TAG} (${DATE})"
+    echo
+    echo "${MSG}"
+    echo
+    if [[ -n "$ISSUE_ARG" ]]; then
+        echo "## Closes"
+        IFS=',' read -ra _ISSUES <<< "$ISSUE_ARG"
+        for _issue in "${_ISSUES[@]}"; do
+            _issue=$(echo "$_issue" | tr -d ' ')
+            echo "- [#${_issue}](https://github.com/ArchiveHeritageGroup/heratio/issues/${_issue})"
+        done
+        echo
+    fi
+    echo "## Files in this release"
+    echo
+    echo '```'
+    git diff --cached --stat 2>/dev/null | head -100
+    git ls-files --others --exclude-standard 2>/dev/null | head -100 | sed 's/^/A  /'
+    echo '```'
+    echo
+    echo "## Release link"
+    echo
+    echo "https://github.com/ArchiveHeritageGroup/heratio/releases/tag/${TAG}"
+} > "${SESSION_LOG_FILE}"
+
+# Best-effort drop into the KM ingest spool when it exists. Never fail the
+# release because the spool isn't there.
+if [[ -d /var/spool/km-ingest ]]; then
+    cp "${SESSION_LOG_FILE}" "/var/spool/km-ingest/heratio-${TAG}-$(date +%s).md" 2>/dev/null \
+        || echo -e "${YELLOW}(KM spool drop skipped — permission)${NC}"
+fi
+
 git add -A
 git commit -m "$COMMIT_MSG"
 

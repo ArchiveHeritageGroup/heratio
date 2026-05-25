@@ -506,7 +506,19 @@ class TermController extends Controller
     }
 
     /**
-     * Export taxonomy terms as SKOS RDF/XML.
+     * Export taxonomy terms as SKOS in one of four serialisations.
+     *
+     * Format dispatch happens here: the data walk is shared, only the
+     * serialisation layer differs. Supported formats:
+     *   - rdfxml    (.rdf,     application/rdf+xml)        — original endpoint
+     *   - turtle    (.ttl,     text/turtle)                — #661 Phase 2
+     *   - ntriples  (.nt,      application/n-triples)      — #661 Phase 2
+     *   - jsonld    (.jsonld,  application/ld+json)        — #661 Phase 2
+     *
+     * Format is selected via the `format` route default OR ?format=… query
+     * param. Defaults to rdfxml so the legacy `/term/export/skos` URL keeps
+     * working byte-for-byte.
+     *
      * Migrated from AtoM sfSkosPlugin export action.
      */
     public function exportSkos(Request $request)
@@ -514,6 +526,12 @@ class TermController extends Controller
         $taxonomyId = (int) $request->input('taxonomy');
         if (!$taxonomyId) {
             abort(400, 'taxonomy parameter is required');
+        }
+
+        $format = strtolower((string) ($request->route('format') ?? $request->input('format', 'rdfxml')));
+        $allowed = ['rdfxml', 'turtle', 'ntriples', 'jsonld'];
+        if (!in_array($format, $allowed, true)) {
+            $format = 'rdfxml';
         }
 
         $culture = app()->getLocale();
@@ -531,47 +549,254 @@ class TermController extends Controller
         $baseUri = url('/term') . '/';
         $schemeUri = url('/taxonomy/' . $taxonomyId);
 
+        // Build a normalised concept list ONCE — used by all serialisers.
+        $concepts = [];
+        foreach ($terms as $t) {
+            $uri = $baseUri . ($t->slug ?: $t->id);
+            $parentUri = null;
+            if ($t->parent_id) {
+                $parent = $terms->firstWhere('id', $t->parent_id);
+                if ($parent) {
+                    $parentUri = $baseUri . ($parent->slug ?: $parent->id);
+                }
+            }
+            $concepts[] = [
+                'uri' => $uri,
+                'prefLabel' => (string) $t->name,
+                'broader' => $parentUri,
+                'topConcept' => ($parentUri === null),
+                'notation' => $t->code ? (string) $t->code : null,
+            ];
+        }
+
+        $scheme = [
+            'uri' => $schemeUri,
+            'title' => $taxonomyName ?? 'Taxonomy',
+            'culture' => $culture,
+        ];
+
+        switch ($format) {
+            case 'turtle':
+                $body = $this->serialiseSkosTurtle($scheme, $concepts);
+                $contentType = 'text/turtle; charset=utf-8';
+                $ext = 'ttl';
+                break;
+            case 'ntriples':
+                $body = $this->serialiseSkosNTriples($scheme, $concepts);
+                $contentType = 'application/n-triples; charset=utf-8';
+                $ext = 'nt';
+                break;
+            case 'jsonld':
+                $body = $this->serialiseSkosJsonLd($scheme, $concepts);
+                $contentType = 'application/ld+json; charset=utf-8';
+                $ext = 'jsonld';
+                break;
+            case 'rdfxml':
+            default:
+                $body = $this->serialiseSkosRdfXml($scheme, $concepts);
+                $contentType = 'application/rdf+xml; charset=utf-8';
+                $ext = 'rdf';
+                break;
+        }
+
+        $filename = 'skos-taxonomy-' . $taxonomyId . '.' . $ext;
+        return response($body, 200, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    /**
+     * Serialise concept scheme + concepts as SKOS RDF/XML.
+     * Byte-for-byte identical to the original exportSkos() output.
+     */
+    private function serialiseSkosRdfXml(array $scheme, array $concepts): string
+    {
+        $culture = $scheme['culture'];
+        $schemeUri = $scheme['uri'];
+
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"' . "\n";
         $xml .= '         xmlns:skos="http://www.w3.org/2004/02/skos/core#"' . "\n";
         $xml .= '         xmlns:dct="http://purl.org/dc/terms/">' . "\n\n";
 
-        // Concept scheme
         $xml .= '  <skos:ConceptScheme rdf:about="' . htmlspecialchars($schemeUri) . '">' . "\n";
-        $xml .= '    <dct:title>' . htmlspecialchars($taxonomyName ?? 'Taxonomy') . '</dct:title>' . "\n";
+        $xml .= '    <dct:title>' . htmlspecialchars($scheme['title']) . '</dct:title>' . "\n";
         $xml .= '  </skos:ConceptScheme>' . "\n\n";
 
-        // Concepts
-        foreach ($terms as $t) {
-            $uri = $baseUri . ($t->slug ?: $t->id);
-            $xml .= '  <skos:Concept rdf:about="' . htmlspecialchars($uri) . '">' . "\n";
-            $xml .= '    <skos:prefLabel xml:lang="' . $culture . '">' . htmlspecialchars($t->name) . '</skos:prefLabel>' . "\n";
+        foreach ($concepts as $c) {
+            $xml .= '  <skos:Concept rdf:about="' . htmlspecialchars($c['uri']) . '">' . "\n";
+            $xml .= '    <skos:prefLabel xml:lang="' . $culture . '">' . htmlspecialchars($c['prefLabel']) . '</skos:prefLabel>' . "\n";
             $xml .= '    <skos:inScheme rdf:resource="' . htmlspecialchars($schemeUri) . '"/>' . "\n";
 
-            if ($t->parent_id) {
-                $parent = $terms->firstWhere('id', $t->parent_id);
-                if ($parent) {
-                    $parentUri = $baseUri . ($parent->slug ?: $parent->id);
-                    $xml .= '    <skos:broader rdf:resource="' . htmlspecialchars($parentUri) . '"/>' . "\n";
-                }
+            if ($c['broader']) {
+                $xml .= '    <skos:broader rdf:resource="' . htmlspecialchars($c['broader']) . '"/>' . "\n";
             } else {
                 $xml .= '    <skos:topConceptOf rdf:resource="' . htmlspecialchars($schemeUri) . '"/>' . "\n";
             }
 
-            if ($t->code) {
-                $xml .= '    <skos:notation>' . htmlspecialchars($t->code) . '</skos:notation>' . "\n";
+            if ($c['notation']) {
+                $xml .= '    <skos:notation>' . htmlspecialchars($c['notation']) . '</skos:notation>' . "\n";
             }
 
             $xml .= '  </skos:Concept>' . "\n";
         }
 
         $xml .= '</rdf:RDF>' . "\n";
+        return $xml;
+    }
 
-        $filename = 'skos-taxonomy-' . $taxonomyId . '.rdf';
-        return response($xml, 200, [
-            'Content-Type' => 'application/rdf+xml; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    /**
+     * Serialise concept scheme + concepts as Turtle (.ttl).
+     * Spec: https://www.w3.org/TR/turtle/
+     */
+    private function serialiseSkosTurtle(array $scheme, array $concepts): string
+    {
+        $culture = $scheme['culture'];
+        $schemeUri = $scheme['uri'];
+
+        $ttl = "@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n";
+        $ttl .= "@prefix skos: <http://www.w3.org/2004/02/skos/core#> .\n";
+        $ttl .= "@prefix dct:  <http://purl.org/dc/terms/> .\n";
+        $ttl .= "@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .\n\n";
+
+        $ttl .= '<' . $schemeUri . '> a skos:ConceptScheme ;' . "\n";
+        $ttl .= '    dct:title ' . $this->ttlString($scheme['title']) . ' .' . "\n\n";
+
+        foreach ($concepts as $c) {
+            $ttl .= '<' . $c['uri'] . '> a skos:Concept ;' . "\n";
+            $ttl .= '    skos:prefLabel ' . $this->ttlLangString($c['prefLabel'], $culture) . ' ;' . "\n";
+            $ttl .= '    skos:inScheme <' . $schemeUri . '> ;' . "\n";
+            if ($c['broader']) {
+                $ttl .= '    skos:broader <' . $c['broader'] . '> ;' . "\n";
+            } else {
+                $ttl .= '    skos:topConceptOf <' . $schemeUri . '> ;' . "\n";
+            }
+            if ($c['notation']) {
+                $ttl .= '    skos:notation ' . $this->ttlString($c['notation']) . ' ;' . "\n";
+            }
+            // Replace trailing ' ;' with ' .'
+            $ttl = preg_replace('/ ;\n$/', " .\n", $ttl);
+            $ttl .= "\n";
+        }
+
+        return $ttl;
+    }
+
+    /**
+     * Serialise concept scheme + concepts as N-Triples (.nt).
+     * Spec: https://www.w3.org/TR/n-triples/
+     * Every line: <s> <p> <o> .
+     */
+    private function serialiseSkosNTriples(array $scheme, array $concepts): string
+    {
+        $culture = $scheme['culture'];
+        $schemeUri = $scheme['uri'];
+
+        $rdfType = '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>';
+        $skos = 'http://www.w3.org/2004/02/skos/core#';
+        $dct = 'http://purl.org/dc/terms/';
+
+        $nt = '';
+        $nt .= '<' . $schemeUri . '> ' . $rdfType . ' <' . $skos . 'ConceptScheme> .' . "\n";
+        $nt .= '<' . $schemeUri . '> <' . $dct . 'title> ' . $this->ntString($scheme['title']) . ' .' . "\n";
+
+        foreach ($concepts as $c) {
+            $nt .= '<' . $c['uri'] . '> ' . $rdfType . ' <' . $skos . 'Concept> .' . "\n";
+            $nt .= '<' . $c['uri'] . '> <' . $skos . 'prefLabel> ' . $this->ntLangString($c['prefLabel'], $culture) . ' .' . "\n";
+            $nt .= '<' . $c['uri'] . '> <' . $skos . 'inScheme> <' . $schemeUri . '> .' . "\n";
+            if ($c['broader']) {
+                $nt .= '<' . $c['uri'] . '> <' . $skos . 'broader> <' . $c['broader'] . '> .' . "\n";
+            } else {
+                $nt .= '<' . $c['uri'] . '> <' . $skos . 'topConceptOf> <' . $schemeUri . '> .' . "\n";
+            }
+            if ($c['notation']) {
+                $nt .= '<' . $c['uri'] . '> <' . $skos . 'notation> ' . $this->ntString($c['notation']) . ' .' . "\n";
+            }
+        }
+
+        return $nt;
+    }
+
+    /**
+     * Serialise concept scheme + concepts as JSON-LD (.jsonld).
+     * Spec: https://www.w3.org/TR/json-ld11/
+     * Compact form with @context + @graph array of nodes.
+     */
+    private function serialiseSkosJsonLd(array $scheme, array $concepts): string
+    {
+        $culture = $scheme['culture'];
+
+        $graph = [];
+        $graph[] = [
+            '@id' => $scheme['uri'],
+            '@type' => 'skos:ConceptScheme',
+            'dct:title' => $scheme['title'],
+        ];
+
+        foreach ($concepts as $c) {
+            $node = [
+                '@id' => $c['uri'],
+                '@type' => 'skos:Concept',
+                'skos:prefLabel' => ['@value' => $c['prefLabel'], '@language' => $culture],
+                'skos:inScheme' => ['@id' => $scheme['uri']],
+            ];
+            if ($c['broader']) {
+                $node['skos:broader'] = ['@id' => $c['broader']];
+            } else {
+                $node['skos:topConceptOf'] = ['@id' => $scheme['uri']];
+            }
+            if ($c['notation']) {
+                $node['skos:notation'] = $c['notation'];
+            }
+            $graph[] = $node;
+        }
+
+        $doc = [
+            '@context' => [
+                'skos' => 'http://www.w3.org/2004/02/skos/core#',
+                'dct' => 'http://purl.org/dc/terms/',
+                'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+            ],
+            '@graph' => $graph,
+        ];
+
+        return json_encode($doc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+    }
+
+    /**
+     * Escape a string for a Turtle/N-Triples literal.
+     * Per spec: \\, \", \n, \r, \t are escaped.
+     */
+    private function escapeRdfLiteral(string $s): string
+    {
+        return strtr($s, [
+            "\\" => "\\\\",
+            "\"" => "\\\"",
+            "\n" => "\\n",
+            "\r" => "\\r",
+            "\t" => "\\t",
         ]);
+    }
+
+    private function ttlString(string $s): string
+    {
+        return '"' . $this->escapeRdfLiteral($s) . '"';
+    }
+
+    private function ttlLangString(string $s, string $lang): string
+    {
+        return '"' . $this->escapeRdfLiteral($s) . '"@' . $lang;
+    }
+
+    private function ntString(string $s): string
+    {
+        return '"' . $this->escapeRdfLiteral($s) . '"';
+    }
+
+    private function ntLangString(string $s, string $lang): string
+    {
+        return '"' . $this->escapeRdfLiteral($s) . '"@' . $lang;
     }
 
     /**
