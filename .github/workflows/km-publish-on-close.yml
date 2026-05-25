@@ -1,0 +1,99 @@
+name: KM publish on issue close
+
+# Publishes a doc to the AHG cross-agent KM corpus whenever an issue is
+# closed (or a PR is merged). Implements Phase 6 of the KM cross-agent
+# endpoint rollout — see /root/.claude/CLAUDE.md "KM auto-publish rule".
+#
+# The doc lands in km_agent_docs (project=heratio) and becomes queryable
+# from every agent (Claude / Workbench / ahg-ai) via km_ask.
+#
+# REQUIRED SECRETS on the repo:
+#   KM_BASE_URL    e.g. https://km.theahg.co.za
+#   KM_API_KEY     bearer admin key (or a per-repo key if scoped later)
+
+on:
+  issues:
+    types: [closed]
+  pull_request:
+    types: [closed]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.action == 'closed' && (github.event.pull_request.merged || github.event_name == 'issues') }}
+    steps:
+      - name: Compose payload
+        id: payload
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "issues" ]; then
+            EVENT_TYPE="issue"
+            NUM="${{ github.event.issue.number }}"
+            TITLE="${{ github.event.issue.title }}"
+            BODY=$(jq -r '.issue.body // ""' "$GITHUB_EVENT_PATH")
+            URL="${{ github.event.issue.html_url }}"
+            CLOSED_BY="${{ github.event.issue.user.login }}"
+            LABELS=$(jq -r '[.issue.labels[].name] | join(",")' "$GITHUB_EVENT_PATH")
+          else
+            EVENT_TYPE="pr"
+            NUM="${{ github.event.pull_request.number }}"
+            TITLE="${{ github.event.pull_request.title }}"
+            BODY=$(jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH")
+            URL="${{ github.event.pull_request.html_url }}"
+            CLOSED_BY="${{ github.event.pull_request.user.login }}"
+            LABELS=$(jq -r '[.pull_request.labels[].name] | join(",")' "$GITHUB_EVENT_PATH")
+          fi
+          REPO="${{ github.repository }}"
+          REPO_SHORT="${REPO##*/}"
+
+          DOC_TITLE="$EVENT_TYPE #$NUM closed: $TITLE"
+          DOC_BODY=$(cat <<EOF
+**Closed:** $EVENT_TYPE #$NUM in $REPO
+**Title:** $TITLE
+**URL:** $URL
+**Closed by:** @$CLOSED_BY
+**Labels:** $LABELS
+**Closed at:** $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+---
+
+$BODY
+EOF
+          )
+
+          # jq-encode for the curl payload
+          jq -n \
+            --arg title "$DOC_TITLE" \
+            --arg body  "$DOC_BODY" \
+            --arg project "$REPO_SHORT" \
+            --arg source_url "$URL" \
+            --arg event "$EVENT_TYPE" \
+            --arg labels "$LABELS" \
+            '{
+              title: $title,
+              body: $body,
+              project: $project,
+              source_url: $source_url,
+              author: ("gh:" + ($source_url | sub("^https://github.com/"; "") | split("/")[0])),
+              tags: ([$event, "github-actions", "auto-publish"] + ($labels | split(",") | map(select(length>0))))
+            }' > /tmp/km_payload.json
+
+          echo "Payload:" && cat /tmp/km_payload.json
+      - name: Publish to KM
+        env:
+          KM_BASE_URL: ${{ secrets.KM_BASE_URL }}
+          KM_API_KEY: ${{ secrets.KM_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${KM_API_KEY:-}" ] || [ -z "${KM_BASE_URL:-}" ]; then
+            echo "::warning::KM_API_KEY or KM_BASE_URL secret missing — skipping publish"
+            exit 0
+          fi
+          # Never fail the workflow because KM is down
+          set +e
+          curl -sk -m 30 -X POST "${KM_BASE_URL%/}/api/ingest" \
+            -H "Authorization: Bearer $KM_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d @/tmp/km_payload.json \
+            -w "\nHTTP %{http_code}\n"
+          echo "::notice::Published close event to KM (best-effort)"
