@@ -989,6 +989,79 @@ class ElasticsearchService
     }
 
     /**
+     * "Did you mean ...?" phrase suggester (#650 Phase 1).
+     *
+     * Runs an ES `_suggest` query against the IO index using the
+     * phrase_suggester on `i18n.{culture}.title` (the field with the best
+     * recall for archival catalogues). Returns the top suggestion string
+     * when one exists and differs (case-insensitive) from the original
+     * query, or null otherwise. Safe to call even when ES is down — any
+     * failure short-circuits to null so the caller never explodes.
+     *
+     * @param string $query  Raw user query (will be lower-cased for compare).
+     * @param string $culture 2-letter culture for the title field.
+     * @return string|null   Suggested phrase or null.
+     */
+    public function suggest(string $query, string $culture = 'en'): ?string
+    {
+        $query = trim($query);
+        if ($query === '' || mb_strlen($query) < 3) {
+            return null;
+        }
+
+        if (!$this->isElasticsearchAvailable()) {
+            return null;
+        }
+
+        $field = "i18n.{$culture}.title";
+
+        $body = [
+            'size' => 0,
+            'suggest' => [
+                'text' => $query,
+                'title_suggest' => [
+                    'phrase' => [
+                        'field'     => $field,
+                        'size'      => 1,
+                        'gram_size' => 3,
+                        'direct_generator' => [[
+                            'field'        => $field,
+                            'suggest_mode' => 'always',
+                        ]],
+                    ],
+                ],
+            ],
+        ];
+
+        $url = "{$this->host}/{$this->indexPrefix}qubitinformationobject/_search";
+
+        try {
+            $response = Http::timeout(5)->post($url, $body);
+            $result = $response->json();
+        } catch (\Exception $e) {
+            Log::debug('Elasticsearch suggester request failed: ' . $e->getMessage());
+            return null;
+        }
+
+        $options = $result['suggest']['title_suggest'][0]['options'] ?? [];
+        if (empty($options)) {
+            return null;
+        }
+
+        $suggestion = trim((string) ($options[0]['text'] ?? ''));
+        if ($suggestion === '') {
+            return null;
+        }
+
+        // Only surface when meaningfully different from the original.
+        if (mb_strtolower($suggestion) === mb_strtolower($query)) {
+            return null;
+        }
+
+        return $suggestion;
+    }
+
+    /**
      * Sanitize query string for ES. Strips bare wildcards that would expand
      * to match-all (a UX foot-gun in user-typed queries) then defers to
      * EscapeQueriesHelper for the Lucene-reserved-char escape pass, which

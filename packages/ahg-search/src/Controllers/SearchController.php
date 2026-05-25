@@ -69,6 +69,8 @@ class SearchController extends Controller
                 'aggregations' => [],
                 'activeFilters' => [],
                 'sort'         => $sort,
+                'suggestion'   => null,
+                'suggestUrl'   => null,
             ]);
         }
 
@@ -96,12 +98,32 @@ class SearchController extends Controller
         // Build active filter labels for display
         $activeFilters = $this->buildActiveFilters($repo, $level, $dateFrom, $dateTo, $hasDo, $mediaType, $results['aggregations'] ?? []);
 
+        // "Did you mean ...?" phrase suggester (#650 Phase 1).
+        // Only ask ES for a suggestion when results are sparse - that's when
+        // the banner is most likely to be useful and avoids extra round-trips
+        // on queries that are already returning plenty.
+        $suggestion = null;
+        $suggestUrl = null;
+        $suggestThreshold = 5;
+        if ($query !== '' && ($results['total'] ?? 0) < $suggestThreshold) {
+            $suggestion = $this->elasticsearch->suggest($query);
+            if ($suggestion !== null) {
+                $suggestParams = array_merge(
+                    $request->except(['q', 'page']),
+                    ['q' => $suggestion]
+                );
+                $suggestUrl = route('search', $suggestParams);
+            }
+        }
+
         return view('ahg-search::search', [
             'query'        => $query,
             'pager'        => $pager,
             'aggregations' => $results['aggregations'] ?? [],
             'activeFilters' => $activeFilters,
             'sort'         => $sort,
+            'suggestion'   => $suggestion,
+            'suggestUrl'   => $suggestUrl,
         ]);
     }
 

@@ -68,6 +68,15 @@
     </div>
   </form>
 
+  {{-- "Did you mean ...?" suggester banner (#650 Phase 1) --}}
+  @if(!empty($suggestion ?? null) && !empty($suggestUrl ?? null))
+    <div class="alert alert-info py-2 mb-3 ahg-did-you-mean" role="status">
+      <i class="fas fa-lightbulb me-1" aria-hidden="true"></i>
+      {{ __('Did you mean') }}
+      <a href="{{ $suggestUrl }}" class="alert-link fw-bold">{{ $suggestion }}</a>?
+    </div>
+  @endif
+
   {{-- Active filter tags --}}
   @if(!empty($activeFilters))
     <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
