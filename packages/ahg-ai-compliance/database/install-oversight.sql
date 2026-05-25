@@ -1,11 +1,11 @@
 -- Heratio AI Compliance - EU AI Act Article 14 human oversight.
 --
 -- Three tables:
---   ai_oversight_policy     — one row per AI service; halt + review controls
---   ai_operator_attestation — annual user acknowledgement of automation-bias
---                             training; required to approve AI output
---   ai_review_decision      — every confirm/override/reject + Art. 14(5)
---                             countersignature; cross-linked to ai_inference_log
+--   ai_oversight_policy: one row per AI service, halt + review controls.
+--   ai_operator_attestation: annual user acknowledgement of automation-bias
+--     training, required to approve AI output.
+--   ai_review_decision: every confirm/override/reject plus Art. 14(5)
+--     countersignature, cross-linked to ai_inference_log.
 
 CREATE TABLE IF NOT EXISTS `ai_oversight_policy` (
     `id`                          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

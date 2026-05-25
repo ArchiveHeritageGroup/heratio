@@ -104,7 +104,7 @@ class MetricsRegistry
 
         return match ($driver) {
             'redis'    => self::buildRedisAdapter(),
-            'apcu'     => extension_loaded('apcu') ? new APC : new InMemory,
+            'apcu'     => self::apcuUsable() ? new APC : new InMemory,
             'inmemory' => new InMemory,
             default    => new InMemory,
         };
@@ -115,11 +115,24 @@ class MetricsRegistry
         if ((string) config('cache.default') === 'redis') {
             return 'redis';
         }
-        if (extension_loaded('apcu') && function_exists('apcu_fetch')) {
+        if (self::apcuUsable()) {
             return 'apcu';
         }
 
         return 'inmemory';
+    }
+
+    /**
+     * APCu is usable only if the extension is loaded AND turned on for the
+     * current SAPI (apc.enable / apc.enable_cli). CLI defaults to disabled,
+     * so `extension_loaded('apcu')` on its own is misleading and triggers
+     * a "APCu is not enabled" StorageException at boot. Probe properly.
+     */
+    private static function apcuUsable(): bool
+    {
+        return extension_loaded('apcu')
+            && function_exists('apcu_enabled')
+            && apcu_enabled();
     }
 
     private static function buildRedisAdapter(): Adapter

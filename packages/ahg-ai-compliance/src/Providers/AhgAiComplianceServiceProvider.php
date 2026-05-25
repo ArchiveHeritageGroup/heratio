@@ -123,7 +123,23 @@ final class AhgAiComplianceServiceProvider extends ServiceProvider
     private function runInstallSqlFile(string $path): void
     {
         $sql = (string) file_get_contents($path);
-        foreach (array_filter(array_map('trim', explode(';', $sql))) as $stmt) {
+
+        // Strip line comments before splitting so stray semicolons inside
+        // them do not fracture statements. SQL string literals can still
+        // legitimately contain `;` and `--`, but our install files only
+        // emit CREATE TABLE / INSERT IGNORE structures that never put
+        // either inside a quoted string.
+        $lines = preg_split('/\r?\n/', $sql) ?: [];
+        $stripped = '';
+        foreach ($lines as $line) {
+            $trimmed = ltrim($line);
+            if ($trimmed === '' || str_starts_with($trimmed, '--')) {
+                continue;
+            }
+            $stripped .= $line . "\n";
+        }
+
+        foreach (array_filter(array_map('trim', explode(';', $stripped))) as $stmt) {
             if ($stmt !== '') {
                 \DB::statement($stmt);
             }
