@@ -18,5 +18,17 @@
                 "AhgShareLink\\Providers\\AhgShareLinkServiceProvider"
             ]
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit -c phpunit.xml"
+    },
+    "repositories": {
+        "local": {
+            "type": "path",
+            "url": "../ahg-core"
+        }
     }
 }
