@@ -36,6 +36,21 @@ MANIFEST="${ROOT}/.locked-paths"
 # Resolve git dir (handles worktrees, where .git is a file not a directory).
 GITDIR=$(git rev-parse --git-dir 2>/dev/null || echo "${ROOT}/.git")
 UNLOCK_FILE="${GITDIR}/UNLOCKED"
+# Worktrees keep their own non-common gitdir, so .git/UNLOCKED in the main
+# repo isn't visible here by default. Fall back to the common gitdir when
+# the per-worktree UNLOCKED file is absent so unlocks declared in the main
+# repo are honoured across worktrees (matches the documented expectation
+# that unlocks are repo-wide).
+if [ ! -f "$UNLOCK_FILE" ] && [ -f "${GITDIR}/commondir" ]; then
+    COMMON_REL=$(cat "${GITDIR}/commondir")
+    case "$COMMON_REL" in
+        /*) COMMON_GITDIR="$COMMON_REL" ;;
+        *)  COMMON_GITDIR="${GITDIR}/${COMMON_REL}" ;;
+    esac
+    if [ -f "${COMMON_GITDIR}/UNLOCKED" ]; then
+        UNLOCK_FILE="${COMMON_GITDIR}/UNLOCKED"
+    fi
+fi
 
 if [ ! -f "$MANIFEST" ]; then
     # No manifest = no lock active.
