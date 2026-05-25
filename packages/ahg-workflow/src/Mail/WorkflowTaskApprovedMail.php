@@ -26,12 +26,13 @@
 namespace AhgWorkflow\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class WorkflowTaskApprovedMail extends Mailable
+class WorkflowTaskApprovedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

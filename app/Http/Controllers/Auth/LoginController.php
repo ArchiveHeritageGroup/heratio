@@ -227,7 +227,7 @@ class LoginController extends Controller
             try {
                 $this->configureMailFromDatabase();
                 $resetUrl = url('/user/password-reset/' . $token);
-                Mail::to($email)->send(new PasswordResetMail($resetUrl, $user->username ?? $email));
+                Mail::to($email)->queue(new PasswordResetMail($resetUrl, $user->username ?? $email));
             } catch (\Exception $e) {
                 // Log error but don't reveal to user
                 \Log::error('Password reset email failed: ' . $e->getMessage());

@@ -319,7 +319,7 @@ class ResearchService
                 return;
             }
 
-            Mail::to($booking->email)->send($mailableFactory($booking));
+            Mail::to($booking->email)->queue($mailableFactory($booking));
         } catch (\Throwable $e) {
             Log::warning('[research] booking mail failed', [
                 'booking_id' => $bookingId,

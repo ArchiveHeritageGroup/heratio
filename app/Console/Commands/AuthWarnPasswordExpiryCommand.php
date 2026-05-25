@@ -88,7 +88,7 @@ class AuthWarnPasswordExpiryCommand extends Command
                     'created_at' => now(),
                 ]);
                 $resetUrl = url('/user/password-reset/' . $token);
-                Mail::to($user->email)->send(new PasswordResetMail($resetUrl, $user->username ?? $user->email));
+                Mail::to($user->email)->queue(new PasswordResetMail($resetUrl, $user->username ?? $user->email));
                 $sent++;
             } catch (\Throwable $e) {
                 $this->warn("Failed to warn {$user->email}: " . $e->getMessage());

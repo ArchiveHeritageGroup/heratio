@@ -26,6 +26,7 @@
 namespace AhgAccessRequest\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -36,7 +37,7 @@ use Illuminate\Queue\SerializesModels;
  * denied. Carries the reviewer reason (if any) so the requester knows
  * why. Closes #95.
  */
-class AccessRequestDeniedMail extends Mailable
+class AccessRequestDeniedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

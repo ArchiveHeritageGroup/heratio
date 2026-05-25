@@ -26,6 +26,7 @@
 namespace AhgAccessRequest\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -35,7 +36,7 @@ use Illuminate\Queue\SerializesModels;
  * Sent to the requester when they submit a new access request.
  * Closes #95 (third gate of three).
  */
-class AccessRequestSubmittedMail extends Mailable
+class AccessRequestSubmittedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

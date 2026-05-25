@@ -455,7 +455,7 @@ class WorkflowService
                 ? new WorkflowTaskApprovedMail($context)
                 : new WorkflowTaskRejectedMail($context);
 
-            Mail::to($row->recipient_email)->send($mailable);
+            Mail::to($row->recipient_email)->queue($mailable);
         } catch (\Throwable $e) {
             Log::warning('[workflow] task-decision mail failed', [
                 'task_id' => $taskId,

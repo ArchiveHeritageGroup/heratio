@@ -52,7 +52,7 @@ class AccessRequestService
     }
 
     /**
-     * Wraps Mail::to(...)->send(...) in a try/catch that logs but never
+     * Wraps Mail::to(...)->queue(...) in a try/catch that logs but never
      * throws - mail-delivery failure must not roll back the surrounding
      * approval / denial / submission action that triggered it.
      */
@@ -62,7 +62,7 @@ class AccessRequestService
             return;
         }
         try {
-            Mail::to($email)->send($mailable);
+            Mail::to($email)->queue($mailable);
         } catch (\Throwable $e) {
             Log::warning('[access-request] mail send failed', [
                 'context' => $context,

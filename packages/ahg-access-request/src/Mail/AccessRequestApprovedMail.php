@@ -26,6 +26,7 @@
 namespace AhgAccessRequest\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -36,7 +37,7 @@ use Illuminate\Queue\SerializesModels;
  * approved. Carries the reviewer note (if any) so the requester sees the
  * approver's reasoning. Closes #95.
  */
-class AccessRequestApprovedMail extends Mailable
+class AccessRequestApprovedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
