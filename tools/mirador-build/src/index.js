@@ -3,6 +3,19 @@ import { miradorImageToolsPlugin } from 'mirador-image-tools';
 import miradorDlPlugin from 'mirador-dl-plugin';
 import maePlugins from 'mirador-annotation-editor';
 import 'mirador-annotation-editor/dist/index.css';
+// Heratio plugins - issue #698. Each module exports a Mirador 4
+// plugin-spec array; we concat them onto the base list further down.
+import heratioScalebarPlugin from './heratio-scalebar-plugin.js';
+import heratioMagnifierPlugin from './heratio-magnifier-plugin.js';
+import { resolveHeratioTheme } from './heratio-mui-theme.js';
+// Heratio workspace persistence (issue #699) - localStorage auto-save +
+// optional DB-backed per-user workspaces. Wraps the viewer factory.
+import { installPersistence as installHeratioWorkspacePersistence } from './heratio-workspace-persistence.js';
+// Issue #694 - Content Search 2.0 plugin (exposes window.HeratioSearchPlugin
+// helpers and reserves a spot in the plugins array for any future custom
+// SearchPanel overrides). The actual search UI is provided by Mirador 4
+// core, triggered by the SearchService2 service block in the manifest.
+import heratioSearchPlugins from './heratio-search-plugin.js';
 
 /**
  * HeratioAnnotationAdapter — Annotot-shaped storage adapter that round-
@@ -141,12 +154,96 @@ const plugins = [
   ...miradorImageToolsPlugin,
   ...miradorDlPlugin,
   ...maePlugins,
+  // ---- Heratio additions (issue #698) ----
+  ...heratioScalebarPlugin,
+  ...heratioMagnifierPlugin,
+  // ---- End Heratio additions ----
+  // Issue #694 - search-plugin contribution (currently empty array; the
+  // helpers are exposed on window.HeratioSearchPlugin for the host page
+  // to call before Mirador.viewer()).
+  ...heratioSearchPlugins,
 ];
 
-const wrappedViewer = (config, extraPlugins) => Mirador.viewer(
-  config,
-  Array.isArray(extraPlugins) ? plugins.concat(extraPlugins) : plugins,
-);
+/**
+ * Patch the OSD viewer's prototype so that every viewer Mirador
+ * spins up registers itself against window.__heratioMiradorOsdRegistry
+ * keyed by Mirador windowId. The scalebar + magnifier plugins look the
+ * viewer up there because the Mirador 4 redux state shape changed
+ * across minor versions and we don't want to chase the selector path.
+ *
+ * OSD is bundled inside Mirador; we monkey-patch via the Mirador module
+ * export which re-exports the OSD constructor on Mirador.OpenSeadragon.
+ */
+(function patchOsdRegistry() {
+  if (typeof window === 'undefined') return;
+  if (!window.__heratioMiradorOsdRegistry) window.__heratioMiradorOsdRegistry = {};
+  // Mirador's OpenSeadragonOSD wrapper appends a data-window-id to the
+  // viewer's root element. We sniff it from the OSD element on open.
+  const tryBind = (osdViewer) => {
+    if (!osdViewer || !osdViewer.element) return;
+    let el = osdViewer.element;
+    let wid = null;
+    while (el && el !== document.body) {
+      if (el.dataset && el.dataset.windowId) { wid = el.dataset.windowId; break; }
+      // Mirador uses data-test-id="window-<id>"
+      const tid = el.getAttribute && el.getAttribute('data-test-id');
+      if (tid && tid.indexOf('window-') === 0) { wid = tid.replace('window-', ''); break; }
+      el = el.parentElement;
+    }
+    if (wid) {
+      window.__heratioMiradorOsdRegistry[wid] = osdViewer;
+    }
+  };
+  // We hook OSD viewer's 'open' once it's exposed on the page. Mirador
+  // exposes the constructor lazily; poll briefly.
+  let tries = 0;
+  const i = setInterval(() => {
+    tries++;
+    if (window.OpenSeadragon && window.OpenSeadragon.Viewer && !window.OpenSeadragon.Viewer.__heratioHooked) {
+      const origAddHandler = window.OpenSeadragon.Viewer.prototype.addHandler;
+      const origOpen = window.OpenSeadragon.Viewer.prototype.open;
+      window.OpenSeadragon.Viewer.prototype.open = function (...args) {
+        const out = origOpen.apply(this, args);
+        try { tryBind(this); } catch (e) { /* swallow */ }
+        return out;
+      };
+      window.OpenSeadragon.Viewer.__heratioHooked = true;
+      clearInterval(i);
+    }
+    if (tries > 40) clearInterval(i); // ~10s timeout
+  }, 250);
+})();
+
+const wrappedViewer = (config, extraPlugins) => {
+  // Inject the resolved theme (window.AHG_IIIF.theme -> Mirador theme
+  // override). The caller's config.theme wins if supplied so explicit
+  // per-page overrides are still possible.
+  const themedConfig = Object.assign({},
+    config,
+    { theme: Object.assign({}, resolveHeratioTheme(), config && config.theme) }
+  );
+  // Stash the redux store reference on window so the scalebar plugin
+  // can read the current canvas's PhysicalDimensions service block.
+  // Mirador.viewer returns an object containing the store.
+  const instance = Mirador.viewer(
+    themedConfig,
+    Array.isArray(extraPlugins) ? plugins.concat(extraPlugins) : plugins,
+  );
+  if (instance && instance.store && typeof window !== 'undefined') {
+    window.__heratioMiradorStore = instance.store;
+  }
+  // Wire up workspace persistence (issue #699). Safe no-op if the
+  // instance failed to build (installPersistence checks for .store).
+  try {
+    installHeratioWorkspacePersistence(instance, {
+      scope: (config && config.id) || (window.location.pathname || 'default'),
+    });
+  } catch (e) {
+    // Persistence is best-effort - never block viewer creation on it.
+    console.warn('[HeratioWorkspacePersistence] install failed:', e);
+  }
+  return instance;
+};
 
 export default {
   ...Mirador,

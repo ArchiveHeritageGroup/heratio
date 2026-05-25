@@ -1,6 +1,8 @@
 <?php
 
 use AhgIiifCollection\Controllers\IiifCollectionController;
+use AhgIiifCollection\Controllers\IiifContentSearchController;
+use AhgIiifCollection\Controllers\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -8,6 +10,17 @@ Route::get('/manifest-collections', [IiifCollectionController::class, 'index'])-
 Route::get('/manifest-collection/{id}/view', [IiifCollectionController::class, 'view'])->name('iiif-collection.view');
 Route::get('/manifest-collection/{slug}/manifest.json', [IiifCollectionController::class, 'manifest'])->name('iiif-collection.manifest');
 Route::get('/iiif-manifest/{slug}', [IiifCollectionController::class, 'objectManifest'])->name('iiif-collection.object-manifest');
+
+// --- BEGIN issue #694: IIIF Content Search 2.0 ---
+// /iiif/{manifestId}/search per the spec lives under /iiif-manifest/{slug}/...
+// on this host because nginx routes /iiif/ to Cantaloupe (the Image API proxy).
+// The service block in the manifest advertises these URLs so harvesters /
+// Mirador discover them from the manifest itself.
+Route::get('/iiif-manifest/{slug}/search', [IiifContentSearchController::class, 'search'])
+    ->name('iiif-content-search.search');
+Route::get('/iiif-manifest/{slug}/autocomplete', [IiifContentSearchController::class, 'autocomplete'])
+    ->name('iiif-content-search.autocomplete');
+// --- END issue #694 ---
 
 // IIIF Auth endpoints (public, for IIIF Auth API)
 Route::get('/iiif-auth/access-service-close', function () { return view('ahg-iiif-collection::iiifAuth.access-service-close'); })->name('iiif-auth.access-service-close');
@@ -53,4 +66,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/iiif-3d-reports/models', [IiifCollectionController::class, 'threeDModels'])->name('iiif.three-d-reports.models');
     Route::get('/admin/iiif-3d-reports/settings', [IiifCollectionController::class, 'threeDSettings'])->name('iiif.three-d-reports.settings');
     Route::get('/admin/iiif-3d-reports/thumbnails', [IiifCollectionController::class, 'threeDThumbnails'])->name('iiif.three-d-reports.thumbnails');
+
+    // Mirador workspace persistence (issue #699) - admin page
+    Route::get('/iiif/workspaces', [WorkspaceController::class, 'adminIndex'])->name('iiif.workspaces.index');
+
+    // Mirador workspace persistence (issue #699) - REST API
+    // Session-auth gated; each user only ever sees their own rows.
+    Route::prefix('api/iiif/workspace')->group(function () {
+        Route::get('/', [WorkspaceController::class, 'index'])->name('iiif.workspace.api.index');
+        Route::post('/', [WorkspaceController::class, 'store'])->name('iiif.workspace.api.store');
+        Route::get('/{id}', [WorkspaceController::class, 'show'])->whereNumber('id')->name('iiif.workspace.api.show');
+        Route::put('/{id}', [WorkspaceController::class, 'update'])->whereNumber('id')->name('iiif.workspace.api.update');
+        Route::delete('/{id}', [WorkspaceController::class, 'destroy'])->whereNumber('id')->name('iiif.workspace.api.destroy');
+        Route::post('/{id}/load', [WorkspaceController::class, 'load'])->whereNumber('id')->name('iiif.workspace.api.load');
+    });
 });

@@ -257,9 +257,10 @@ class IiifCollectionController extends Controller
     }
 
     /**
-     * Output IIIF Collection JSON.
+     * Output IIIF Collection JSON. Pres 3 by default; ?version=2 emits
+     * the legacy v2 shape for Mirador 3 / older OSD consumers.
      */
-    public function manifest($slug)
+    public function manifest($slug, Request $request)
     {
         $collection = $this->service->getCollection($slug);
 
@@ -267,7 +268,8 @@ class IiifCollectionController extends Controller
             return response()->json(['error' => 'Collection not found'], 404);
         }
 
-        $json = $this->service->generateCollectionJson($collection->id);
+        $version = (int) $request->query('version', 3);
+        $json = $this->service->generateCollectionJson($collection->id, $version);
 
         return response()->json($json, 200, [
             'Content-Type' => 'application/ld+json',
@@ -276,12 +278,18 @@ class IiifCollectionController extends Controller
     }
 
     /**
-     * Output IIIF Presentation API 2.1 Manifest for an individual information object.
-     * Migrated from /usr/share/nginx/archive/atom-ahg-plugins/ahgIiifPlugin/bin/iiif-manifest.php
+     * Output IIIF Manifest for an individual information object.
+     *
+     * Default response is IIIF Presentation API 3.0 (spec-validated
+     * against https://presentation-validator.iiif.io/). The legacy v2
+     * shape - sequences + canvases + images - is still reachable via
+     * ?version=2 for older Mirador 3 / OSD viewers that haven't
+     * migrated. Issue #698.
      */
-    public function objectManifest($slug)
+    public function objectManifest($slug, Request $request)
     {
-        $json = $this->service->generateObjectManifest($slug);
+        $version = (int) $request->query('version', 3);
+        $json = $this->service->generateObjectManifest($slug, $version);
 
         if (!$json) {
             return response()->json(['error' => 'Object not found or has no digital objects'], 404);

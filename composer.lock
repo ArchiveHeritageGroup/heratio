@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "709ea2ab3de350dcafc9a944e59365f0",
+    "content-hash": "2866edaf615ba7af0ffee214334ba76a",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -157,6 +157,42 @@
                 }
             },
             "description": "Actor browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/ai-compliance",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-ai-compliance",
+                "reference": "77c0e896e243a3b0afe2e27f7409419db19d3f2f"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "ahg/inference-receipts": "@dev",
+                "illuminate/support": "^12.0",
+                "php": "^8.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgAiCompliance\\Providers\\AhgAiComplianceServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgAiCompliance\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0-or-later"
+            ],
+            "description": "EU AI Act Article 12 record-keeping for Heratio. Tamper-evident inference receipt chain, Ed25519 signing, public-key endpoint, verifier CLI, retention policy. Wraps ahg/inference-receipts for Laravel.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1360,6 +1396,72 @@
                 }
             },
             "description": "Browser-based AR overlay for Heratio — turns a flat 2D image into an image-target that triggers a Ken Burns MP4 overlay when scanned with a phone camera (MindAR + A-Frame). Artivive-style, zero-install.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/inference-receipts",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-inference-receipts",
+                "reference": "d3d8c19dcfb4f7fb9b6623c7a090054dccf6878d"
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "ext-sodium": "*",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^10.0|^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgInferenceReceipts\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "AhgInferenceReceipts\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Johan Pieterse",
+                    "email": "johan@plainsailingisystems.co.za",
+                    "homepage": "https://theahg.co.za"
+                }
+            ],
+            "description": "Tamper-evident receipts for AI inference calls: SHA-256 hash chain, RFC 8785 JCS canonicalization, Ed25519 signatures. Pure PHP, zero framework dependencies. EU AI Act Article 12 / NIST AI RMF aligned.",
+            "keywords": [
+                "ai-act",
+                "article-12",
+                "audit-log",
+                "compliance",
+                "ed25519",
+                "hash-chain",
+                "jcs",
+                "provenance",
+                "rfc8785",
+                "tamper-evident"
+            ],
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -12354,6 +12456,7 @@
         "ahg/accession-manage": 20,
         "ahg/acl": 20,
         "ahg/actor-manage": 20,
+        "ahg/ai-compliance": 20,
         "ahg/ai-services": 20,
         "ahg/annotations": 20,
         "ahg/api": 20,
@@ -12394,6 +12497,7 @@
         "ahg/icip": 20,
         "ahg/iiif-collection": 20,
         "ahg/image-ar": 20,
+        "ahg/inference-receipts": 20,
         "ahg/information-object-manage": 20,
         "ahg/ingest": 20,
         "ahg/integrity": 20,

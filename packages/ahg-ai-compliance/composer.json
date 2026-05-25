@@ -1,0 +1,24 @@
+{
+    "name": "ahg/ai-compliance",
+    "description": "EU AI Act Article 12 record-keeping for Heratio. Tamper-evident inference receipt chain, Ed25519 signing, public-key endpoint, verifier CLI, retention policy. Wraps ahg/inference-receipts for Laravel.",
+    "type": "library",
+    "license": "AGPL-3.0-or-later",
+    "require": {
+        "php": "^8.3",
+        "ahg/inference-receipts": "@dev",
+        "ahg/core": "@dev",
+        "illuminate/support": "^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgAiCompliance\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgAiCompliance\\Providers\\AhgAiComplianceServiceProvider"
+            ]
+        }
+    }
+}

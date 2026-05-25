@@ -20,9 +20,22 @@
 </div>
 <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon.min.js') }}"></script>
 <script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon-filtering.js') }}"></script>
+<script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon-heratio-scalebar.js') }}"></script>
+<script src="{{ asset('vendor/openseadragon/6.0.2/openseadragon-heratio-magnifier.js') }}"></script>
 <script>
 var manifest = @json($manifestUrl ?? '');
-OpenSeadragon({ id: 'iiif-viewer', tileSources: [manifest], prefixUrl: '/vendor/openseadragon/6.0.2/images/', showNavigator: true });
+var v = OpenSeadragon({ id: 'iiif-viewer', tileSources: [manifest], prefixUrl: '/vendor/openseadragon/6.0.2/images/', showNavigator: true, drawer: 'canvas' });
+v.addHeratioScalebar({ position: 'BOTTOM_LEFT' });
+var loupe = v.addHeratioMagnifier({ radius: 90, zoom: 3 });
+// Toolbar toggle for the magnifier in the standalone viewer page.
+var bar = document.createElement('div');
+bar.style.cssText = 'position:absolute;top:8px;right:8px;z-index:1100;';
+bar.innerHTML = '<button id="iiif-loupe-toggle" type="button" style="border:0;border-radius:4px;background:rgba(0,0,0,.65);color:#fff;cursor:pointer;padding:6px 10px;font-size:12px;"><i class="fas fa-search"></i> Magnifier</button>';
+document.getElementById('iiif-viewer').appendChild(bar);
+document.getElementById('iiif-loupe-toggle').addEventListener('click', function () {
+  var on = loupe.toggle();
+  this.style.background = on ? '#2c3e50' : 'rgba(0,0,0,.65)';
+});
 </script>
 </body>
 </html>

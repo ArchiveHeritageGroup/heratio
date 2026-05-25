@@ -81,6 +81,8 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                 // openseadragon-filtering rewrites pixels on the 2D canvas via
                 // tile-loaded; the WebGL drawer (OSD 6 default) never reads
                 // those pixels, so filters silently no-op. Force canvas.
+                // The Heratio magnifier loupe also needs the canvas
+                // drawer (reads source-canvas pixels via 2d context).
                 drawer: 'canvas',
                 gestureSettingsMouse: { clickToZoom: true, dblClickToZoom: true },
                 gestureSettingsTouch: { pinchToZoom: true },
@@ -94,7 +96,101 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode) {
                 crossOriginPolicy: 'Anonymous'
             });
             buildFilterToolbar();
+            // Issue #698 - scalebar + magnifier toolbar wiring.
+            wireHeratioScalebar();
+            wireHeratioMagnifier();
         }
+    }
+
+    // Lazy-load the Heratio OSD plugin scripts the first time we wire
+    // a scalebar / magnifier. The blades that already host the OSD
+    // bundle (object/library/redaction show pages) are locked, so we
+    // can't add a fresh <script> tag in their markup - we inject it
+    // here once per page instead.
+    var heratioOsdPluginPromise = null;
+    function ensureHeratioOsdPlugins() {
+        if (heratioOsdPluginPromise) return heratioOsdPluginPromise;
+        heratioOsdPluginPromise = new Promise(function (resolve) {
+            if (typeof OpenSeadragon === 'undefined') { resolve(false); return; }
+            // If already loaded (e.g. by a future blade update) skip
+            // both injections.
+            var hasScalebar = typeof OpenSeadragon.Viewer.prototype.addHeratioScalebar === 'function';
+            var hasMagnifier = typeof OpenSeadragon.Viewer.prototype.addHeratioMagnifier === 'function';
+            var toLoad = [];
+            if (!hasScalebar) toLoad.push('/vendor/openseadragon/6.0.2/openseadragon-heratio-scalebar.js');
+            if (!hasMagnifier) toLoad.push('/vendor/openseadragon/6.0.2/openseadragon-heratio-magnifier.js');
+            if (!toLoad.length) { resolve(true); return; }
+            var remaining = toLoad.length;
+            toLoad.forEach(function (src) {
+                var s = document.createElement('script');
+                s.src = src;
+                s.onload = function () { remaining--; if (!remaining) resolve(true); };
+                s.onerror = function () { remaining--; if (!remaining) resolve(false); };
+                document.head.appendChild(s);
+            });
+        });
+        return heratioOsdPluginPromise;
+    }
+
+    // Hook the OSD scalebar plugin onto the viewer. The OSD plugin
+    // reads info.json's service block automatically; for cases where
+    // physdim arrives via the Heratio manifest endpoint (not in the
+    // image-server info.json) callers can override
+    // window.AHG_IIIF.physdim = { physicalScale, physicalUnits } and
+    // we pass it in explicitly.
+    function wireHeratioScalebar() {
+        if (!osdViewer) return;
+        ensureHeratioOsdPlugins().then(function () {
+            if (typeof osdViewer.addHeratioScalebar !== 'function') return;
+            if (osdViewer.__heratioScalebar) return;
+            var explicit = (cfg.physdim && typeof cfg.physdim === 'object') ? cfg.physdim : null;
+            osdViewer.__heratioScalebar = osdViewer.addHeratioScalebar({
+                position: 'BOTTOM_LEFT',
+                service: explicit
+            });
+        });
+    }
+
+    function wireHeratioMagnifier() {
+        if (!osdViewer) return;
+        ensureHeratioOsdPlugins().then(function () {
+            if (typeof osdViewer.addHeratioMagnifier !== 'function') return;
+            if (osdViewer.__heratioMagnifier) return;
+            osdViewer.__heratioMagnifier = osdViewer.addHeratioMagnifier({
+                radius: 90,
+                zoom: 3
+            });
+            addMagnifierToggleButton();
+        });
+    }
+
+    function addMagnifierToggleButton() {
+        if (document.getElementById('btn-loupe-' + vid)) return;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = 'btn-loupe-' + vid;
+        btn.title = 'Toggle magnifier';
+        btn.setAttribute('aria-label', 'Toggle magnifier');
+        btn.className = 'osd-loupe-toggle';
+        btn.innerHTML = '<i class="bi bi-search"></i>';
+        // Style the button to match the existing filter toggle (top-right
+        // dark pill). Anchored just left of the filter toggle so the
+        // two never overlap.
+        var s = document.createElement('style');
+        if (!document.getElementById('osd-loupe-toggle-styles')) {
+            s.id = 'osd-loupe-toggle-styles';
+            s.textContent =
+                '.osd-loupe-toggle{position:absolute;top:8px;right:50px;z-index:1000;width:34px;height:34px;border:0;border-radius:4px;background:rgba(0,0,0,.65);color:#fff;cursor:pointer;}' +
+                '.osd-loupe-toggle:hover{background:rgba(0,0,0,.85);}' +
+                '.osd-loupe-toggle.active{background:#2c3e50;}';
+            document.head.appendChild(s);
+        }
+        btn.addEventListener('click', function () {
+            if (!osdViewer.__heratioMagnifier) return;
+            var on = osdViewer.__heratioMagnifier.toggle();
+            btn.classList.toggle('active', on);
+        });
+        osdEl.appendChild(btn);
     }
 
     // Filter toolbar: brightness / contrast / greyscale / invert / threshold.

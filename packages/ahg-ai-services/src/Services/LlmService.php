@@ -239,6 +239,7 @@ class LlmService
                         $body = $resp->json();
                         $text = $body['choices'][0]['message']['content'] ?? null;
                         if (is_string($text) && $text !== '') {
+                            $this->logInferenceReceipt('llm', $aiSet::apiUrl(), null, $prompt, $text, []);
                             return $text;
                         }
                     }
@@ -259,7 +260,43 @@ class LlmService
 
         $result = $this->dispatchToProvider($config, $prompt, $options);
 
+        if (!empty($result['success']) && isset($result['text']) && is_string($result['text']) && $result['text'] !== '') {
+            $this->logInferenceReceipt(
+                'llm',
+                (string) ($result['model'] ?? ($config->name ?? 'unknown')),
+                $config->model_version ?? null,
+                $prompt,
+                $result['text'],
+                ['tokens_in' => $result['tokens_used'] ?? null],
+            );
+        }
+
         return $result['success'] ? $result['text'] : null;
+    }
+
+    /**
+     * EU AI Act Article 12 - log one inference call to the tamper-evident
+     * chain. Fails soft: a logging failure must not abort the inference
+     * caller's request flow. See packages/ahg-ai-compliance/ for the chain
+     * implementation and packages/ahg-inference-receipts/ for the protocol.
+     */
+    private function logInferenceReceipt(
+        string $service,
+        string $modelId,
+        ?string $modelVersion,
+        string $input,
+        string $output,
+        array $extra = [],
+    ): void {
+        if (!class_exists(\AhgAiCompliance\Services\InferenceLogger::class)) {
+            return;
+        }
+        try {
+            app(\AhgAiCompliance\Services\InferenceLogger::class)
+                ->log($service, $modelId, $modelVersion, $input, $output, $extra);
+        } catch (\Throwable) {
+            // chain failure must not abort inference
+        }
     }
 
     // =====================================================================

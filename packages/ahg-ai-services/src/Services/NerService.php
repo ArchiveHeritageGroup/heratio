@@ -117,11 +117,41 @@ class NerService
 
         if ($apiResult !== null) {
             $this->captureDetailedEntities($apiResult);
-            return $this->normalizeApiResult($apiResult);
+            $normalised = $this->normalizeApiResult($apiResult);
+            $this->logInferenceReceipt(
+                'ner',
+                (string) ($apiResult['model'] ?? 'ner-gateway'),
+                $apiResult['model_version'] ?? null,
+                $text,
+                (string) json_encode($normalised, JSON_UNESCAPED_UNICODE),
+                [],
+            );
+            return $normalised;
         }
 
         // Fall back to LLM-based extraction (no per-entity offsets/scores).
+        // The LlmService::complete path already emits its own receipt, so we
+        // don't double-log here.
         return $this->llmService->extractEntities($text);
+    }
+
+    private function logInferenceReceipt(
+        string $service,
+        string $modelId,
+        ?string $modelVersion,
+        string $input,
+        string $output,
+        array $extra = [],
+    ): void {
+        if (!class_exists(\AhgAiCompliance\Services\InferenceLogger::class)) {
+            return;
+        }
+        try {
+            app(\AhgAiCompliance\Services\InferenceLogger::class)
+                ->log($service, $modelId, $modelVersion, $input, $output, $extra);
+        } catch (\Throwable) {
+            // chain failure must not abort inference
+        }
     }
 
     /**

@@ -243,10 +243,15 @@ class IiifCollectionService
     }
 
     /**
-     * Generate IIIF Collection JSON (Presentation API 3.0).
+     * Generate IIIF Collection JSON (Presentation API 3.0 by default;
+     * legacy v2 shape via $version = 2).
      */
-    public function generateCollectionJson(int $collectionId): array
+    public function generateCollectionJson(int $collectionId, int $version = 3): array
     {
+        if ($version === 2) {
+            return $this->generateCollectionJsonV2($collectionId);
+        }
+
         $collection = $this->getCollection($collectionId);
         if (!$collection) {
             throw new \Exception('Collection not found');
@@ -321,6 +326,75 @@ class IiifCollectionService
 
                 $json['items'][] = $manifestItem;
             }
+        }
+
+        return $json;
+    }
+
+    /**
+     * Legacy IIIF Presentation API 2.x Collection JSON. Mirador 3 and
+     * older OSD-based viewers consume this shape. New consumers should
+     * use the default v3 output.
+     */
+    public function generateCollectionJsonV2(int $collectionId): array
+    {
+        $collection = $this->getCollection($collectionId);
+        if (!$collection) {
+            throw new \Exception('Collection not found');
+        }
+
+        $baseUrl = rtrim(config('app.url'), '/');
+
+        $json = [
+            '@context' => 'http://iiif.io/api/presentation/2/context.json',
+            '@id' => $baseUrl . '/iiif/collection/' . $collection->slug,
+            '@type' => 'sc:Collection',
+            'label' => $collection->display_name,
+        ];
+
+        if ($collection->display_description) {
+            $json['description'] = $collection->display_description;
+        }
+        if ($collection->attribution) {
+            $json['attribution'] = $collection->attribution;
+        }
+        if ($collection->viewing_hint) {
+            $json['viewingHint'] = $collection->viewing_hint;
+        }
+
+        $collections = [];
+        foreach ($collection->subcollections as $sub) {
+            $collections[] = [
+                '@id' => $baseUrl . '/iiif/collection/' . $sub->slug,
+                '@type' => 'sc:Collection',
+                'label' => $sub->display_name,
+            ];
+        }
+        $manifests = [];
+        foreach ($collection->items as $item) {
+            if ($item->item_type === 'collection') {
+                $collections[] = [
+                    '@id' => $item->manifest_uri,
+                    '@type' => 'sc:Collection',
+                    'label' => $item->label ?: 'Collection',
+                ];
+            } else {
+                $manifestUri = $item->manifest_uri ?:
+                    ($item->slug ? $baseUrl . '/iiif-manifest/' . $item->slug . '?version=2' : null);
+                if ($manifestUri) {
+                    $manifests[] = [
+                        '@id' => $manifestUri,
+                        '@type' => 'sc:Manifest',
+                        'label' => $item->label ?: $item->object_title ?: 'Untitled',
+                    ];
+                }
+            }
+        }
+        if (!empty($collections)) {
+            $json['collections'] = $collections;
+        }
+        if (!empty($manifests)) {
+            $json['manifests'] = $manifests;
         }
 
         return $json;
@@ -463,44 +537,135 @@ class IiifCollectionService
     }
 
     /**
-     * Generate IIIF Presentation API 2.1 Manifest for an individual information object.
-     * Migrated from /usr/share/nginx/archive/atom-ahg-plugins/ahgIiifPlugin/bin/iiif-manifest.php
+     * Generate IIIF Manifest for an individual information object.
+     *
+     * Default output is Presentation API 3.0 (https://iiif.io/api/presentation/3.0/).
+     * Legacy callers can pass $version = 2 to receive the previous
+     * Presentation API 2.1 shape (sequences + canvases + images) which
+     * Mirador 3 and older OSD-based viewers still consume. Issue #698.
      */
-    public function generateObjectManifest(string $slug): ?array
+    public function generateObjectManifest(string $slug, int $version = 3): ?array
     {
-        // Look up the object by slug
-        $object = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($join) {
-                $join->on('io.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
-            ->where('s.slug', $slug)
-            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
-            ->first();
+        if ($version === 2) {
+            return $this->generateObjectManifestV2($slug);
+        }
+        return $this->generateObjectManifestV3($slug);
+    }
 
-        if (!$object) {
+    /**
+     * Presentation API 3.0 manifest for a single information object.
+     *
+     * Spec-correct shape:
+     *   - @context = http://iiif.io/api/presentation/3/context.json
+     *   - type = Manifest
+     *   - label, summary, metadata = language-map { "en": ["..."] }
+     *   - items = list of Canvas objects (no sequences wrapper)
+     *   - each Canvas has items = [AnnotationPage{ items: [Annotation] }]
+     *   - homepage, provider, requiredStatement, behavior populated where
+     *     we know the values.
+     *   - service block on the canvas resource carries PhysicalDimensions
+     *     when the digital_object exposes a physical scale; downstream
+     *     viewers (Mirador / OSD scalebar plugin) read it from there.
+     */
+    public function generateObjectManifestV3(string $slug): ?array
+    {
+        $ctx = $this->loadObjectAndDigitalObjects($slug);
+        if (!$ctx) {
             return null;
         }
-
-        // Get digital object(s)
-        $digitalObjects = DB::table('digital_object as do')
-            ->where('do.object_id', $object->id)
-            ->orderBy('do.id')
-            ->select('do.id', 'do.name', 'do.path', 'do.mime_type', 'do.byte_size')
-            ->get();
-
-        if ($digitalObjects->isEmpty()) {
-            return null;
-        }
+        $object = $ctx['object'];
+        $digitalObjects = $ctx['digitalObjects'];
 
         $baseUrl = rtrim(config('app.url'), '/');
         $label = $object->title ?: $object->identifier ?: 'Untitled';
         $manifestId = $baseUrl . '/iiif-manifest/' . $object->slug;
 
-        // Cantaloupe direct access URL (server-side info.json lookup)
-        $cantaloupeBaseUrl = 'http://127.0.0.1:8182';
+        $canvases = $this->buildCanvasesV3($manifestId, $baseUrl, $digitalObjects);
+        if (empty($canvases)) {
+            return null;
+        }
 
+        $manifest = [
+            '@context' => 'http://iiif.io/api/presentation/3/context.json',
+            'id' => $manifestId,
+            'type' => 'Manifest',
+            'label' => ['en' => [$label]],
+            'metadata' => [],
+            'items' => $canvases,
+        ];
+
+        // homepage points back at the Heratio show page so a manifest
+        // consumer (Mirador, Universal Viewer) has a deep link to the
+        // source archival description.
+        $manifest['homepage'] = [[
+            'id' => $baseUrl . '/' . $object->slug,
+            'type' => 'Text',
+            'label' => ['en' => [$label]],
+            'format' => 'text/html',
+        ]];
+
+        // provider block carries Heratio's organisation metadata. The
+        // operator can override with config('heratio.iiif_provider').
+        $providerName = config('heratio.iiif_provider_name', config('app.name', 'Heratio'));
+        $providerHomepage = config('heratio.iiif_provider_homepage', $baseUrl);
+        $manifest['provider'] = [[
+            'id' => $providerHomepage,
+            'type' => 'Agent',
+            'label' => ['en' => [$providerName]],
+            'homepage' => [[
+                'id' => $providerHomepage,
+                'type' => 'Text',
+                'label' => ['en' => [$providerName]],
+                'format' => 'text/html',
+            ]],
+        ]];
+
+        if ($object->identifier) {
+            $manifest['metadata'][] = [
+                'label' => ['en' => ['Identifier']],
+                'value' => ['en' => [$object->identifier]],
+            ];
+        }
+
+        // Multi-canvas archival objects often represent paged content
+        // (multi-page TIFFs, scanned books). "paged" tells the viewer
+        // to render a two-page spread; "individuals" is the safer
+        // default when we have a single canvas or unrelated images.
+        $manifest['behavior'] = count($canvases) > 1 ? ['paged'] : ['individuals'];
+
+        if (!empty($canvases)) {
+            // Thumbnail is the first canvas's painting target at 200px
+            // wide. Pres 3 thumbnails take id/type/format/width/height.
+            $first = $canvases[0];
+            $painting = $first['items'][0]['items'][0]['body'] ?? null;
+            if ($painting && isset($painting['id'])) {
+                $thumbId = str_replace('/full/max/', '/full/200,/', $painting['id']);
+                $thumbId = str_replace('/full/full/', '/full/200,/', $thumbId);
+                $thumb = [
+                    'id' => $thumbId,
+                    'type' => 'Image',
+                    'format' => 'image/jpeg',
+                ];
+                if (isset($painting['service'])) {
+                    $thumb['service'] = $painting['service'];
+                }
+                $manifest['thumbnail'] = [$thumb];
+            }
+        }
+
+        return $manifest;
+    }
+
+    /**
+     * Build the Pres 3 canvas list for an object's digital objects.
+     * Each canvas carries one AnnotationPage with one painting
+     * Annotation pointing at a IIIF Image API service. PhysicalDimensions
+     * arrives via the service array on the painting body when the
+     * digital_object exposes a physical scale.
+     */
+    private function buildCanvasesV3(string $manifestId, string $baseUrl, $digitalObjects): array
+    {
+        $cantaloupeBaseUrl = 'http://127.0.0.1:8182';
         $canvases = [];
         $canvasIndex = 1;
 
@@ -508,7 +673,6 @@ class IiifCollectionService
             $imagePath = ltrim($do->path, '/');
             $cantaloupeId = str_replace('/', '_SL_', $imagePath) . $do->name;
 
-            // Check if this is a multi-page TIFF
             $isMultiPageTiff = false;
             $pageCount = 1;
             $mimeType = strtolower($do->mime_type ?? '');
@@ -517,7 +681,6 @@ class IiifCollectionService
             if ($mimeType === 'image/tiff' || preg_match('/\.tiff?$/i', $fileName)) {
                 $page2InfoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$cantaloupeId};2/info.json";
                 $page2Info = @file_get_contents($page2InfoUrl);
-
                 if ($page2Info !== false) {
                     $isMultiPageTiff = true;
                     $pageCount = 2;
@@ -536,52 +699,255 @@ class IiifCollectionService
             if ($isMultiPageTiff) {
                 for ($pageNum = 1; $pageNum <= $pageCount; $pageNum++) {
                     $pageCantaloupeId = "{$cantaloupeId};{$pageNum}";
-                    $pageImageApiBase = "{$baseUrl}/iiif/2/{$pageCantaloupeId}";
-
-                    $pageInfoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$pageCantaloupeId}/info.json";
-                    $pageInfoJson = @file_get_contents($pageInfoUrl);
-
-                    $width = 1000;
-                    $height = 1000;
-                    if ($pageInfoJson) {
-                        $pageInfo = json_decode($pageInfoJson, true);
-                        $width = $pageInfo['width'] ?? 1000;
-                        $height = $pageInfo['height'] ?? 1000;
-                    }
-
-                    $canvasId = "{$manifestId}/canvas/{$canvasIndex}";
-                    $canvases[] = [
-                        '@type' => 'sc:Canvas',
-                        '@id' => $canvasId,
-                        'label' => ($do->name ?: 'Image') . " - Page {$pageNum}",
-                        'width' => $width,
-                        'height' => $height,
-                        'images' => [[
-                            '@type' => 'oa:Annotation',
-                            'motivation' => 'sc:painting',
-                            'resource' => [
-                                '@id' => "{$pageImageApiBase}/full/full/0/default.jpg",
-                                '@type' => 'dctypes:Image',
-                                'format' => 'image/jpeg',
-                                'width' => $width,
-                                'height' => $height,
-                                'service' => [
-                                    '@context' => 'http://iiif.io/api/image/2/context.json',
-                                    '@id' => $pageImageApiBase,
-                                    'profile' => 'http://iiif.io/api/image/2/level2.json',
-                                ],
-                            ],
-                            'on' => $canvasId,
-                        ]],
-                    ];
+                    $canvases[] = $this->buildSingleCanvasV3(
+                        $manifestId,
+                        $baseUrl,
+                        $canvasIndex,
+                        $pageCantaloupeId,
+                        ($do->name ?: 'Image') . " - Page {$pageNum}",
+                        $cantaloupeBaseUrl,
+                        $do
+                    );
                     $canvasIndex++;
                 }
             } else {
-                $imageApiBase = "{$baseUrl}/iiif/2/{$cantaloupeId}";
+                $canvases[] = $this->buildSingleCanvasV3(
+                    $manifestId,
+                    $baseUrl,
+                    $canvasIndex,
+                    $cantaloupeId,
+                    $do->name ?: "Image {$canvasIndex}",
+                    $cantaloupeBaseUrl,
+                    $do
+                );
+                $canvasIndex++;
+            }
+        }
 
-                $localInfoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$cantaloupeId}/info.json";
-                $infoJson = @file_get_contents($localInfoUrl);
+        return $canvases;
+    }
 
+    /**
+     * Build a single Pres 3 Canvas + AnnotationPage + Annotation.
+     */
+    private function buildSingleCanvasV3(
+        string $manifestId,
+        string $baseUrl,
+        int $canvasIndex,
+        string $imageApiId,
+        string $label,
+        string $cantaloupeBaseUrl,
+        $digitalObject
+    ): array {
+        // Heratio's Cantaloupe is wired on IIIF Image API 2 today
+        // (see public/vendor/openseadragon/...). We still emit a Pres 3
+        // manifest because the manifest spec doesn't constrain the
+        // image-api version of its painting service.
+        $imageApiBase = "{$baseUrl}/iiif/2/{$imageApiId}";
+        $infoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$imageApiId}/info.json";
+        $infoJson = @file_get_contents($infoUrl);
+        $width = 1000;
+        $height = 1000;
+        if ($infoJson) {
+            $info = json_decode($infoJson, true);
+            $width = $info['width'] ?? 1000;
+            $height = $info['height'] ?? 1000;
+        }
+
+        $canvasId = "{$manifestId}/canvas/{$canvasIndex}";
+        $pageId = "{$canvasId}/page/1";
+        $annId = "{$canvasId}/annotation/1";
+
+        $body = [
+            'id' => "{$imageApiBase}/full/max/0/default.jpg",
+            'type' => 'Image',
+            'format' => 'image/jpeg',
+            'width' => $width,
+            'height' => $height,
+            'service' => [[
+                'id' => $imageApiBase,
+                'type' => 'ImageService2',
+                'profile' => 'http://iiif.io/api/image/2/level2.json',
+            ]],
+        ];
+
+        // PhysicalDimensions service block - emitted whenever the
+        // digital_object (or its derived metadata) exposes a physical
+        // scale. We pull it from the digital_object_property table if
+        // present, falling back to nothing rather than guessing.
+        $physdim = $this->resolvePhysDim($digitalObject);
+        if ($physdim) {
+            $body['service'][] = [
+                '@context' => 'http://iiif.io/api/annex/services/physdim/1/context.json',
+                'profile' => 'http://iiif.io/api/annex/services/physdim',
+                'type' => 'PhysicalDimensions',
+                'physicalScale' => (float) $physdim['physicalScale'],
+                'physicalUnits' => $physdim['physicalUnits'],
+            ];
+        }
+
+        return [
+            'id' => $canvasId,
+            'type' => 'Canvas',
+            'label' => ['en' => [$label]],
+            'width' => $width,
+            'height' => $height,
+            'items' => [[
+                'id' => $pageId,
+                'type' => 'AnnotationPage',
+                'items' => [[
+                    'id' => $annId,
+                    'type' => 'Annotation',
+                    'motivation' => 'painting',
+                    'body' => $body,
+                    'target' => $canvasId,
+                ]],
+            ]],
+        ];
+    }
+
+    /**
+     * Resolve physical-dimensions metadata for a digital object.
+     *
+     * Lookup order:
+     *   1. digital_object_property where name='physicalScale' or 'physical_scale'
+     *   2. ahg_settings (iiif_default_physical_scale + iiif_default_physical_units)
+     *   3. null - no scalebar emitted
+     */
+    private function resolvePhysDim($digitalObject): ?array
+    {
+        $scale = null;
+        $units = null;
+
+        try {
+            if (\Schema::hasTable('digital_object_property')) {
+                $props = DB::table('digital_object_property')
+                    ->where('object_id', $digitalObject->id ?? 0)
+                    ->whereIn('name', ['physicalScale', 'physical_scale', 'physicalUnits', 'physical_units'])
+                    ->pluck('value', 'name');
+                if (isset($props['physicalScale']) || isset($props['physical_scale'])) {
+                    $scale = $props['physicalScale'] ?? $props['physical_scale'];
+                }
+                if (isset($props['physicalUnits']) || isset($props['physical_units'])) {
+                    $units = $props['physicalUnits'] ?? $props['physical_units'];
+                }
+            }
+        } catch (\Throwable $e) {
+            // best-effort - no scalebar rather than crash the manifest
+        }
+
+        if (!$scale) {
+            try {
+                if (\Schema::hasTable('ahg_settings')) {
+                    $rows = DB::table('ahg_settings')
+                        ->whereIn('setting_key', ['iiif_default_physical_scale', 'iiif_default_physical_units'])
+                        ->pluck('setting_value', 'setting_key');
+                    if (!empty($rows['iiif_default_physical_scale'])) {
+                        $scale = $rows['iiif_default_physical_scale'];
+                        $units = $rows['iiif_default_physical_units'] ?? 'mm';
+                    }
+                }
+            } catch (\Throwable $e) {
+                // best-effort
+            }
+        }
+
+        if ($scale === null || $scale === '' || !is_numeric($scale)) {
+            return null;
+        }
+        return [
+            'physicalScale' => (float) $scale,
+            'physicalUnits' => $units ?: 'mm',
+        ];
+    }
+
+    /**
+     * Common loader for object + digital objects. Used by both v2 and
+     * v3 manifest generators.
+     */
+    private function loadObjectAndDigitalObjects(string $slug): ?array
+    {
+        $object = DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as i18n', function ($join) {
+                $join->on('io.id', '=', 'i18n.id')
+                    ->where('i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
+            ->where('s.slug', $slug)
+            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+            ->first();
+
+        if (!$object) {
+            return null;
+        }
+
+        $digitalObjects = DB::table('digital_object as do')
+            ->where('do.object_id', $object->id)
+            ->orderBy('do.id')
+            ->select('do.id', 'do.name', 'do.path', 'do.mime_type', 'do.byte_size')
+            ->get();
+
+        if ($digitalObjects->isEmpty()) {
+            return null;
+        }
+
+        return ['object' => $object, 'digitalObjects' => $digitalObjects];
+    }
+
+    /**
+     * Legacy IIIF Presentation API 2.1 manifest. Kept for any consumer
+     * that explicitly requests ?version=2. New consumers should use
+     * the default v3 output.
+     */
+    public function generateObjectManifestV2(string $slug): ?array
+    {
+        $ctx = $this->loadObjectAndDigitalObjects($slug);
+        if (!$ctx) {
+            return null;
+        }
+        $object = $ctx['object'];
+        $digitalObjects = $ctx['digitalObjects'];
+
+        $baseUrl = rtrim(config('app.url'), '/');
+        $label = $object->title ?: $object->identifier ?: 'Untitled';
+        $manifestId = $baseUrl . '/iiif-manifest/' . $object->slug;
+        $cantaloupeBaseUrl = 'http://127.0.0.1:8182';
+
+        $canvases = [];
+        $canvasIndex = 1;
+
+        foreach ($digitalObjects as $do) {
+            $imagePath = ltrim($do->path, '/');
+            $cantaloupeId = str_replace('/', '_SL_', $imagePath) . $do->name;
+            $isMultiPageTiff = false;
+            $pageCount = 1;
+            $mimeType = strtolower($do->mime_type ?? '');
+            $fileName = strtolower($do->name ?? '');
+
+            if ($mimeType === 'image/tiff' || preg_match('/\.tiff?$/i', $fileName)) {
+                $page2InfoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$cantaloupeId};2/info.json";
+                $page2Info = @file_get_contents($page2InfoUrl);
+                if ($page2Info !== false) {
+                    $isMultiPageTiff = true;
+                    $pageCount = 2;
+                    for ($i = 3; $i <= 100; $i++) {
+                        $pageInfoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$cantaloupeId};{$i}/info.json";
+                        $ctx2 = stream_context_create(['http' => ['timeout' => 1]]);
+                        $pageInfo = @file_get_contents($pageInfoUrl, false, $ctx2);
+                        if ($pageInfo === false) {
+                            break;
+                        }
+                        $pageCount = $i;
+                    }
+                }
+            }
+
+            $loopMax = $isMultiPageTiff ? $pageCount : 1;
+            for ($p = 1; $p <= $loopMax; $p++) {
+                $imageId = $isMultiPageTiff ? "{$cantaloupeId};{$p}" : $cantaloupeId;
+                $imageApiBase = "{$baseUrl}/iiif/2/{$imageId}";
+                $infoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$imageId}/info.json";
+                $infoJson = @file_get_contents($infoUrl);
                 $width = 1000;
                 $height = 1000;
                 if ($infoJson) {
@@ -591,10 +957,14 @@ class IiifCollectionService
                 }
 
                 $canvasId = "{$manifestId}/canvas/{$canvasIndex}";
+                $canvasLabel = $isMultiPageTiff
+                    ? (($do->name ?: 'Image') . " - Page {$p}")
+                    : ($do->name ?: "Image {$canvasIndex}");
+
                 $canvases[] = [
                     '@type' => 'sc:Canvas',
                     '@id' => $canvasId,
-                    'label' => $do->name ?: "Image {$canvasIndex}",
+                    'label' => $canvasLabel,
                     'width' => $width,
                     'height' => $height,
                     'images' => [[
@@ -619,7 +989,6 @@ class IiifCollectionService
             }
         }
 
-        // Build IIIF Presentation API 2.1 Manifest
         $manifest = [
             '@context' => 'http://iiif.io/api/presentation/2/context.json',
             '@type' => 'sc:Manifest',
@@ -641,7 +1010,6 @@ class IiifCollectionService
             ];
         }
 
-        // Add thumbnail from first canvas
         if (!empty($canvases)) {
             $firstCanvas = $canvases[0];
             $manifest['thumbnail'] = [
@@ -650,7 +1018,35 @@ class IiifCollectionService
             ];
         }
 
+        // Issue #694 - advertise Content Search 2.0 + AutoComplete 2 so
+        // Mirador's search box discovers the endpoints from the manifest.
+        // Kept in a helper method so the in-flight Presentation 3 emitter
+        // (#698) can call the same hook without re-implementing the block.
+        self::appendSearchService($manifest, $object->slug);
+
         return $manifest;
+    }
+
+    /**
+     * Attach the IIIF Content Search 2.0 service block (and its nested
+     * AutoCompleteService2) to the supplied manifest array in-place. Safe
+     * to call on either a Presentation 2 manifest (sc:Manifest, uses the
+     * `service` key as an array) or a Presentation 3 manifest (Manifest,
+     * uses `service`). The block delegate is owned by
+     * IiifContentSearchService::buildServiceBlock() so the URL layout is
+     * defined in one place.
+     *
+     * @param array<string,mixed> $manifest passed by reference
+     */
+    public static function appendSearchService(array &$manifest, string $slug): void
+    {
+        $svc = (new IiifContentSearchService())->buildServiceBlock($slug);
+        if (!isset($manifest['service']) || !is_array($manifest['service'])) {
+            $manifest['service'] = [];
+        }
+        foreach ($svc as $entry) {
+            $manifest['service'][] = $entry;
+        }
     }
 
     /**
