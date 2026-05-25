@@ -3,6 +3,7 @@
 use AhgRic\Controllers\RdfImportController;
 use AhgRic\Controllers\RicController;
 use AhgRic\Controllers\RicEntityController;
+use AhgRic\Http\Controllers\RicOccupationController;
 use Illuminate\Support\Facades\Route;
 
 // Public RiC API — web middleware for session support (view-mode toggle needs session)
@@ -109,6 +110,29 @@ Route::middleware('web')->group(function () {
 
     // Global relations browse (G8)
     Route::get('/admin/ric/relations', [RicEntityController::class, 'browseRelations'])->name('ric.relations.browse');
+
+    // ============================================================
+    // rico:Occupation CRUD (issue #660 Phase 1) — role/profession
+    // held by an actor over a time-span (ISAAR(CPF) 5.2.6).
+    // ============================================================
+    Route::get('/admin/ric/occupations', [RicOccupationController::class, 'index'])
+        ->name('ric.occupations.index');
+    Route::get('/admin/ric/occupations/create', [RicOccupationController::class, 'create'])
+        ->name('ric.occupations.create');
+    Route::post('/admin/ric/occupations', [RicOccupationController::class, 'store'])
+        ->middleware('acl:create')
+        ->name('ric.occupations.store');
+    Route::get('/admin/ric/occupations/{id}/edit', [RicOccupationController::class, 'edit'])
+        ->where('id', '[0-9]+')
+        ->name('ric.occupations.edit');
+    Route::put('/admin/ric/occupations/{id}', [RicOccupationController::class, 'update'])
+        ->where('id', '[0-9]+')
+        ->middleware('acl:update')
+        ->name('ric.occupations.update');
+    Route::delete('/admin/ric/occupations/{id}', [RicOccupationController::class, 'destroy'])
+        ->where('id', '[0-9]+')
+        ->middleware('acl:delete')
+        ->name('ric.occupations.destroy');
 
     // Capture workflow moved to https://capture.openric.org — the neutral
     // browser-only client. Old URL preserved as a 302 for any bookmarks/links.

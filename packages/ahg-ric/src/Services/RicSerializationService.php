@@ -29,6 +29,7 @@ use AhgCore\Constants\TermId;
 use AhgCore\Services\SettingHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Service for serializing AtoM entities to RiC-O JSON-LD format.
@@ -299,8 +300,13 @@ class RicSerializationService
             $agent['rico:performs'] = $functions;
         }
 
-        // Occupation
-        if (!empty($actor->occupation)) {
+        // Occupation — structured rico:Occupation nodes (issue #660 Phase 1),
+        // with legacy single-string actor.occupation as a fallback for instances
+        // that have not yet migrated their occupation data.
+        $occupations = $this->getOccupationsForActor($actorId);
+        if (!empty($occupations)) {
+            $agent['rico:hasOrHadOccupation'] = $occupations;
+        } elseif (!empty($actor->occupation)) {
             $agent['rico:hasOccupation'] = $actor->occupation;
         }
 
@@ -1089,6 +1095,53 @@ class RicSerializationService
                 'rico:name' => $func->authorized_form_of_name,
             ])
             ->toArray();
+    }
+
+    /**
+     * Get structured rico:Occupation nodes for an actor (issue #660 Phase 1).
+     *
+     * Guarded with Schema::hasTable so a half-installed instance (model code
+     * deployed but migration not yet run) does not crash the agent serializer.
+     *
+     * @return array<int, array<string,mixed>>
+     */
+    private function getOccupationsForActor(int $actorId): array
+    {
+        if (!Schema::hasTable('ric_occupation')) {
+            return [];
+        }
+
+        $rows = DB::table('ric_occupation')
+            ->where('actor_id', $actorId)
+            ->orderByDesc('is_current')
+            ->orderByDesc('start_date')
+            ->get();
+
+        $out = [];
+        foreach ($rows as $row) {
+            $node = [
+                '@id' => $this->baseUri . '/occupation/' . $row->id,
+                '@type' => self::RICO_NS . 'Occupation',
+                'rdfs:label' => $row->title,
+            ];
+
+            if (!empty($row->start_date)) {
+                $node['rico:beginningDate'] = $row->start_date;
+            }
+            if (!empty($row->end_date)) {
+                $node['rico:endDate'] = $row->end_date;
+            }
+            if (!empty($row->description)) {
+                $node['rico:descriptiveNote'] = $row->description;
+            }
+            if (!empty($row->is_current)) {
+                $node['rico:isCurrent'] = true;
+            }
+
+            $out[] = $node;
+        }
+
+        return $out;
     }
 
     /**

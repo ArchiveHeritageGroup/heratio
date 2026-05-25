@@ -268,6 +268,151 @@
           }
         }
       }
+    },
+    "/occupations": {
+      "get": {
+        "summary": "List all occupations",
+        "description": "Returns all rico:Occupation entities (roles/professions held by actors over time-spans, per ISAAR(CPF) section 5.2.6).",
+        "tags": ["Occupations (RiC-O)"],
+        "responses": {
+          "200": {
+            "description": "List of occupations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Occupation" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new occupation",
+        "tags": ["Occupations (RiC-O)"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OccupationInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Occupation" }
+              }
+            }
+          },
+          "422": { "description": "Validation error" }
+        }
+      }
+    },
+    "/occupations/{id}": {
+      "get": {
+        "summary": "Get occupation by id",
+        "tags": ["Occupations (RiC-O)"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Occupation",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Occupation" }
+              }
+            }
+          },
+          "404": { "description": "Occupation not found" }
+        }
+      },
+      "put": {
+        "summary": "Update an occupation",
+        "tags": ["Occupations (RiC-O)"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OccupationInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Occupation" }
+              }
+            }
+          },
+          "404": { "description": "Occupation not found" },
+          "422": { "description": "Validation error" }
+        }
+      },
+      "delete": {
+        "summary": "Delete an occupation",
+        "tags": ["Occupations (RiC-O)"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Deleted" },
+          "404": { "description": "Occupation not found" }
+        }
+      }
+    },
+    "/agents/{slug}/occupations": {
+      "get": {
+        "summary": "List occupations for an agent",
+        "description": "All rico:Occupation entries linked to the given agent via rico:hasOrHadOccupation.",
+        "tags": ["Occupations (RiC-O)"],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Occupations for agent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Occupation" }
+                }
+              }
+            }
+          },
+          "404": { "description": "Agent not found" }
+        }
+      }
     }
   },
   "components": {
@@ -309,6 +454,35 @@
           "rico:name": {"type": "string"},
           "rico:location": {"type": "string"}
         }
+      },
+      "Occupation": {
+        "type": "object",
+        "description": "rico:Occupation — a role, profession, or position held by an actor over a time-span (ISAAR(CPF) 5.2.6).",
+        "properties": {
+          "@id": {"type": "string"},
+          "@type": {"type": "string", "example": "rico:Occupation"},
+          "id": {"type": "integer"},
+          "actor_id": {"type": "integer"},
+          "rdfs:label": {"type": "string", "description": "Occupation title (e.g. 'Conservator')"},
+          "rico:beginningDate": {"type": "string", "format": "date", "nullable": true},
+          "rico:endDate": {"type": "string", "format": "date", "nullable": true},
+          "rico:descriptiveNote": {"type": "string", "nullable": true},
+          "rico:isCurrent": {"type": "boolean"}
+        },
+        "required": ["@id", "@type", "rdfs:label", "actor_id"]
+      },
+      "OccupationInput": {
+        "type": "object",
+        "properties": {
+          "actor_id": {"type": "integer"},
+          "title": {"type": "string", "maxLength": 255},
+          "description": {"type": "string", "nullable": true},
+          "start_date": {"type": "string", "format": "date", "nullable": true},
+          "end_date": {"type": "string", "format": "date", "nullable": true},
+          "is_current": {"type": "boolean"},
+          "source_culture": {"type": "string", "maxLength": 16, "nullable": true}
+        },
+        "required": ["actor_id", "title"]
       }
     }
   }
