@@ -1,20 +1,36 @@
 {
-    "name": "ahg/user-manage",
-    "description": "User browse and management for Heratio",
-    "type": "library",
-    "require": {
-        "ahg/core": "@dev"
-    },
-    "autoload": {
-        "psr-4": {
-            "AhgUserManage\\": "src/"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "AhgUserManage\\Providers\\AhgUserManageServiceProvider"
-            ]
-        }
+  "name": "ahg/user-manage",
+  "description": "User browse and management for Heratio",
+  "type": "library",
+  "require": {
+    "ahg/core": "@dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "AhgUserManage\\": "src/"
     }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "AhgUserManage\\Providers\\AhgUserManageServiceProvider"
+      ]
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11.0",
+    "orchestra/testbench": "^10.0"
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit -c phpunit.xml"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "/tmp/heratio-audit-ekvEfC/packages/ahg-core",
+      "options": {
+        "symlink": true
+      }
+    }
+  ]
 }
