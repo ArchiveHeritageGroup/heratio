@@ -88,6 +88,7 @@
         "ahg/naz": "@dev",
         "ahg/nmmz": "@dev",
         "ahg/oai": "@dev",
+        "ahg/observability": "@dev",
         "ahg/pdf-tools": "@dev",
         "ahg/portable-export": "@dev",
         "ahg/preservation": "@dev",

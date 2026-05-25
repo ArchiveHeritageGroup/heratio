@@ -28,6 +28,13 @@ return Application::configure(basePath: dirname(__DIR__))
             // in this request has the request_id. Generates UUID per
             // request, binds to container, echoes as X-Request-Id header.
             \App\Http\Middleware\RequestIdMiddleware::class,
+            // Phase 3 of #677 - Prometheus instrumentation. Runs AFTER the
+            // request-id middleware (so terminate() has the id in scope if
+            // we ever want to label by it) but BEFORE any auth middleware,
+            // so we see and count anonymous / blocked / 401 requests too.
+            // Counts are pushed in terminate() so the response is flushed
+            // first; a registry blip cannot affect the response.
+            \AhgObservability\Http\Middleware\PrometheusHttpMiddleware::class,
             \App\Http\Middleware\SessionTimeout::class,
         ]);
 

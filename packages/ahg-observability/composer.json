@@ -1,0 +1,22 @@
+{
+    "name": "ahg/observability",
+    "description": "Prometheus metrics exporter and request instrumentation for Heratio (issue #677 Phase 3)",
+    "type": "library",
+    "license": "AGPL-3.0-or-later",
+    "require": {
+        "php": "^8.3",
+        "promphp/prometheus_client_php": "^2.13"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgObservability\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgObservability\\Providers\\AhgObservabilityServiceProvider"
+            ]
+        }
+    }
+}
