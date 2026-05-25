@@ -149,6 +149,59 @@ async function kmHealth() {
   }
 }
 
+// ---------- tool: km_ingest_doc ----------
+// Write a doc into the cross-agent KM corpus (km_agent_docs). Used by Claude
+// to persist findings/decisions so other agents (Workbench, ahg-ai, future
+// MCPs) and future sessions can discover them via km_ask.
+async function kmIngestDoc(args) {
+  const title = (args.title || '').trim();
+  const body = (args.body || '').trim();
+  if (!title || !body) {
+    throw new Error('km_ingest_doc requires non-empty `title` and `body`');
+  }
+  const payload = {
+    title,
+    body,
+    project: (args.project || 'general').toLowerCase(),
+    source_url: args.source_url || '',
+    author: args.author || 'claude',
+    authored_at: args.authored_at || '',
+    tags: Array.isArray(args.tags) ? args.tags : [],
+    visibility: args.visibility || 'external',
+  };
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 30000);
+  try {
+    const resp = await fetch(`${KM_BASE_URL}/api/ingest`, {
+      method: 'POST',
+      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: ctrl.signal,
+    });
+    if (!resp.ok) {
+      throw new Error(`km_ingest_doc HTTP ${resp.status}: ${await resp.text().catch(() => '')}`);
+    }
+    return await resp.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// ---------- tool: km_sources ----------
+// List the projects + per-project doc counts currently in the cross-agent
+// corpus. Useful for "what does KM know about heratio so far?".
+async function kmSources() {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    const resp = await fetch(`${KM_BASE_URL}/api/sources`, { headers: authHeaders(), signal: ctrl.signal });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // ---------- MCP wiring ----------
 const TOOLS = [
   {
@@ -170,7 +223,30 @@ const TOOLS = [
   },
   {
     name: 'km_health',
-    description: 'Check KM liveness — returns the status of the underlying Ollama + Qdrant services.',
+    description: 'Check KM liveness - returns the status of the underlying Ollama + Qdrant services.',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+  },
+  {
+    name: 'km_ingest_doc',
+    description: 'Write a doc into the cross-agent KM corpus (km_agent_docs collection on km.theahg.co.za). Use this to persist findings, decisions, release notes, audit results, or anything else future Claude sessions / Workbench / ahg-ai should be able to discover via km_ask. Required: title, body. Optional: project (e.g. "heratio", "psis", "atom-framework"), source_url, author, authored_at (ISO 8601), tags (array of strings), visibility ("external" default, "internal" for admin-key-only reads). Returns { doc_id, indexed_at, url, collection, project }.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', description: 'Short title (will be embedded for semantic search; aim for descriptive headings).' },
+        body: { type: 'string', description: 'Full doc body in markdown. Max 200kb.' },
+        project: { type: 'string', description: 'Logical project label. Lowercase a-z 0-9 _- only.', default: 'general' },
+        source_url: { type: 'string', description: 'Optional canonical URL for the doc (e.g. GitHub release tag, commit, PR).' },
+        author: { type: 'string', description: 'Who is publishing this. Defaults to "claude".' },
+        authored_at: { type: 'string', description: 'ISO 8601 timestamp. Defaults to now.' },
+        tags: { type: 'array', items: { type: 'string' }, description: 'Up to 32 lowercase tags for filtering.' },
+        visibility: { type: 'string', enum: ['external', 'internal'], description: 'external = web key can read; internal = admin only.', default: 'external' },
+      },
+      required: ['title', 'body'],
+    },
+  },
+  {
+    name: 'km_sources',
+    description: 'List the projects + per-project doc counts currently in the cross-agent KM corpus (km_agent_docs).',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
 ];
@@ -189,6 +265,8 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     if (name === 'km_ask') result = await kmAsk(args || {});
     else if (name === 'km_stats') result = await kmStats();
     else if (name === 'km_health') result = await kmHealth();
+    else if (name === 'km_ingest_doc') result = await kmIngestDoc(args || {});
+    else if (name === 'km_sources') result = await kmSources();
     else throw new Error(`Unknown tool: ${name}`);
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
   } catch (err) {

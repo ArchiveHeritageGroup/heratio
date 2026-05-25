@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use AhgSecurityClearance\Services\TotpService;
 use App\Auth\SecuritySettings;
 use App\Http\Controllers\Controller;
 use App\Mail\PasswordResetMail;
@@ -98,6 +99,19 @@ class LoginController extends Controller
             $next = $request->input('next', '/');
             if (empty($next) || str_contains($next, '/login') || str_contains($next, '/logout')) {
                 $next = '/';
+            }
+
+            // Issue #690 — MFA gate. If the user has opt-in TOTP enabled,
+            // flag the session as pending_mfa and redirect to the verify
+            // page. RequireMfaCompletion middleware blocks every other
+            // authenticated route until the second factor clears.
+            $totp = app(TotpService::class);
+            if ($totp->userHasMfa(Auth::id())) {
+                $request->session()->put('pending_mfa', true);
+                $request->session()->put('mfa_return_url', $next);
+
+                return redirect()->route('security-clearance.two-factor', ['return' => $next])
+                    ->withCookie(cookie('atom_authenticated', '1', 43200, '/', null, false, false));
             }
 
             // Password-policy gates after successful auth (issue #90):

@@ -9,6 +9,8 @@ Exposes the Heratio Knowledge Base at https://km.theahg.co.za (an Ollama + Qdran
 | `km_ask` | POST to `/api/ask`, consume the SSE stream, return concatenated answer + cited references. Cold-start can take up to 2 minutes while Ollama loads the LLM. |
 | `km_stats` | Doc count, available LLM models, current default model, status. |
 | `km_health` | Live status of the underlying Ollama + Qdrant. |
+| `km_ingest_doc` | POST to `/api/ingest`, write a doc into the cross-agent KM corpus (`km_agent_docs`). Required: `title`, `body`. Optional: `project`, `source_url`, `author`, `authored_at`, `tags[]`, `visibility`. Use to persist findings, decisions, release notes, audit results so future sessions + other agents (Workbench, ahg-ai) can discover them via `km_ask`. |
+| `km_sources` | GET `/api/sources`. List projects + per-project doc counts in the cross-agent corpus. |
 
 In Claude they appear as `mcp__heratio-km__km_ask`, etc.
 
@@ -49,8 +51,10 @@ node test.js --ask           # also runs a sample km_ask query (slow)
 | `KM_TIMEOUT_MS` | `120000` | Per-request timeout for `km_ask`. Cold start is ~2 min so 180s is recommended. |
 | `KM_API_KEY` | _(none)_ | Optional bearer token if you put auth in front of the KM endpoint. |
 
-## Why three tools and not "memory get/put"?
+## Why these tools and not "memory get/put"?
 
-The original brief was a key-value memory store. km.theahg.co.za turned out to be a Q&A interface instead - RAG over a corpus, not a KV store. So the right shape is question/answer rather than get/put. The corpus is updated on the KM side (Heratio docs, AHG plugins, AtoM core code, RiC spec) - Claude reads via `km_ask`, doesn't write.
+The original brief was a key-value memory store. km.theahg.co.za turned out to be a Q&A interface instead - RAG over a corpus, not a KV store. So the read shape is question/answer rather than get/put.
 
-If a true KV memory layer is needed alongside, that's a separate MCP server with `memory_get` / `memory_put` tools backed by a real KV store. The local file-based memory at `/root/.claude/projects/.../memory/` already plays that role per-session.
+The cross-agent write path (`km_ingest_doc` + `km_sources`) was added later via Phase 3 of heratio#716 so Claude can persist non-trivial findings into a shared `km_agent_docs` corpus that Workbench (`set_km_doc` agent tool), ahg-ai (`km_client.py`), and GitHub Actions (`km-publish-on-close.yml`) all read+write to. This makes KM the durable cross-agent knowledge bus, not just a per-session KV scratch.
+
+The local file-based memory at `/root/.claude/projects/.../memory/` still plays the per-session role - facts about *this* user / project that don't belong in a shared corpus.

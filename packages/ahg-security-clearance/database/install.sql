@@ -429,14 +429,44 @@ INSERT IGNORE INTO `security_classification` VALUES (7,'TOP_SECRET',5,'Top Secre
 
 UNLOCK TABLES;
 
+-- ────────────────────────────────────────────────────────────────────────────
+-- TOTP MFA (issue #690) — opt-in per user.
+--
+-- user_totp_secret: one row per user with an enrolled authenticator app.
+--   secret      = base32 TOTP shared secret (RFC 6238).
+--   enabled_at  = set when confirmTwoFactor accepts the first valid code.
+--   last_used_at = updated on every successful verify (anti-replay window).
+--   recovery_codes_generated_at = when the current batch was minted.
+--
+-- user_mfa_recovery_code: 10 single-use backup codes per enrolment. Each
+--   row stores a bcrypt hash; the plaintext is only ever shown once at
+--   enrolment time. used_at is set on first redemption.
+--
+-- Distinct from `security_2fa_session` (above), which is the post-verify
+-- session marker that tracks "this browser session has cleared the 2FA gate".
+-- ────────────────────────────────────────────────────────────────────────────
 
+CREATE TABLE IF NOT EXISTS `user_totp_secret` (
+  `user_id` int unsigned NOT NULL,
+  `secret` varchar(64) NOT NULL,
+  `enabled_at` timestamp NULL DEFAULT NULL,
+  `last_used_at` timestamp NULL DEFAULT NULL,
+  `recovery_codes_generated_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`),
+  KEY `idx_enabled_at` (`enabled_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
-
-
-
-
-
-
+CREATE TABLE IF NOT EXISTS `user_mfa_recovery_code` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int unsigned NOT NULL,
+  `code_hash` varchar(255) NOT NULL,
+  `used_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_user_unused` (`user_id`, `used_at`),
+  CONSTRAINT `fk_mfa_recovery_user` FOREIGN KEY (`user_id`) REFERENCES `user_totp_secret`(`user_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;

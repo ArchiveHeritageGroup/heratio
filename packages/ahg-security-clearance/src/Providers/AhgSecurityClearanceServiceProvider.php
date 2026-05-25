@@ -2,6 +2,9 @@
 
 namespace AhgSecurityClearance\Providers;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AhgSecurityClearanceServiceProvider extends ServiceProvider
@@ -13,8 +16,24 @@ class AhgSecurityClearanceServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        \Illuminate\Support\Facades\Route::middleware('web')
+        Route::middleware('web')
             ->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-security-clearance');
+
+        // Issue #690 — auto-install user_totp_secret + user_mfa_recovery_code
+        // (added 2026-05-25) without requiring a manual mysql import. Probe +
+        // install live inside one try/catch so the CI sqlite stub doesn't
+        // 500 the boot.
+        try {
+            if (! Schema::hasTable('user_totp_secret')
+                || ! Schema::hasTable('user_mfa_recovery_code')) {
+                $sql = file_get_contents(__DIR__.'/../../database/install.sql');
+                if ($sql !== false && trim($sql) !== '') {
+                    DB::unprepared($sql);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-security-clearance] schema install skipped: '.$e->getMessage());
+        }
     }
 }

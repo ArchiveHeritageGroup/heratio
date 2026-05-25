@@ -123,9 +123,11 @@
         "ahg/vendor": "@dev",
         "ahg/version-control": "@dev",
         "ahg/workflow": "@dev",
+        "bacon/bacon-qr-code": "^3.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "phpoffice/phpspreadsheet": "^5.5",
+        "pragmarx/google2fa": "^8.0",
         "spatie/laravel-csp": "^3.23"
     },
     "require-dev": {

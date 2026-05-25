@@ -16,18 +16,17 @@
           @endif
 
           <div class="text-center mb-4">
-            <p>Scan the QR code below with your authenticator app (Google Authenticator, Authy, etc.).</p>
+            <p>{{ __('Scan the QR code below with your authenticator app (Google Authenticator, Authy, 1Password, etc.).') }}</p>
 
-            {{-- QR Code placeholder - in production this would be generated --}}
-            <div class="border rounded p-4 d-inline-block mb-3" style="background: #f8f9fa;">
-              <div style="width: 200px; height: 200px; background: #eee; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                <i class="fas fa-qrcode" style="font-size: 80px; color: #aaa;"></i>
-              </div>
+            <div class="border rounded p-3 d-inline-block mb-3 bg-white">
+              <img src="{{ $qrSvgDataUri }}" alt="{{ __('TOTP enrolment QR code') }}"
+                   style="width:220px; height:220px;" />
             </div>
 
-            <p class="small text-muted">Can't scan? Enter this key manually:</p>
-            <code class="d-block p-2 bg-light border rounded" style="letter-spacing: 2px; font-size: 1.1em;">
-              XXXX-XXXX-XXXX-XXXX
+            <p class="small text-muted mb-1">{{ __("Can't scan? Enter this key manually:") }}</p>
+            <code class="d-block p-2 bg-light border rounded user-select-all"
+                  style="letter-spacing: 2px; font-size: 1.1em; word-break: break-all;">
+              {{ $secret }}
             </code>
           </div>
 

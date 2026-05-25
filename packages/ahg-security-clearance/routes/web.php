@@ -161,20 +161,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/security-clearance/denied', [SecurityClearanceController::class, 'accessDenied'])
         ->name('security-clearance.access-denied');
 
-    // 2FA routes
+    // 2FA / TOTP MFA routes (issue #690)
     Route::get('/security-clearance/two-factor', [SecurityClearanceController::class, 'twoFactor'])
         ->name('security-clearance.two-factor');
     Route::post('/security-clearance/verify-2fa', [SecurityClearanceController::class, 'verifyTwoFactor'])
-        ->name('security-clearance.verify-2fa')
-        ->middleware('acl:update');
+        ->name('security-clearance.verify-2fa');
     Route::get('/security-clearance/setup-2fa', [SecurityClearanceController::class, 'setupTwoFactor'])
         ->name('security-clearance.setup-2fa');
     Route::post('/security-clearance/confirm-2fa', [SecurityClearanceController::class, 'confirmTwoFactor'])
-        ->name('security-clearance.confirm-2fa')
-        ->middleware('acl:create');
+        ->name('security-clearance.confirm-2fa');
     Route::post('/security-clearance/send-email-code', [SecurityClearanceController::class, 'sendEmailCode'])
         ->name('security-clearance.send-email-code')
         ->middleware('acl:create');
+
+    Route::get('/security-clearance/recovery-codes', [SecurityClearanceController::class, 'showRecoveryCodes'])
+        ->name('security-clearance.recovery-codes');
+    Route::post('/security-clearance/recovery-codes/regenerate', [SecurityClearanceController::class, 'regenerateRecoveryCodes'])
+        ->name('security-clearance.regenerate-recovery-codes');
+
+    Route::get('/security-clearance/disable-2fa', [SecurityClearanceController::class, 'showDisableTwoFactor'])
+        ->name('security-clearance.disable-2fa');
+    Route::post('/security-clearance/disable-2fa', [SecurityClearanceController::class, 'disableTwoFactor'])
+        ->name('security-clearance.disable-2fa.confirm');
 });
 
 // ── Legacy redirects (ahgSecurityClearancePlugin compatibility) ─────────────

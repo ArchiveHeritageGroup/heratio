@@ -279,6 +279,46 @@
     </section>
   @endif
 
+  {{-- ===== Two-factor authentication (issue #690) ===== --}}
+  @auth
+    @if(class_exists(\AhgSecurityClearance\Services\TotpService::class))
+      @php
+        $isOwnProfile = (int) auth()->id() === (int) $user->id;
+        $userHasMfa = app(\AhgSecurityClearance\Services\TotpService::class)->userHasMfa((int) $user->id);
+      @endphp
+      <section class="section border-bottom" id="twoFactorAuth">
+        <h2 class="h5 mb-0 atom-section-header">
+          <div class="d-flex p-3 border-bottom text-primary">{{ __('Two-factor authentication') }}</div>
+        </h2>
+        <div>
+          <div class="field row g-0">
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Status') }}</h3>
+            <div class="col-9 p-2">
+              @if($userHasMfa)
+                <span class="badge bg-success">{{ __('Enabled') }}</span>
+                @if($isOwnProfile)
+                  <a href="{{ route('security-clearance.recovery-codes') }}" class="btn btn-sm atom-btn-outline-light ms-2">{{ __('Recovery codes') }}</a>
+                  <a href="{{ route('security-clearance.disable-2fa') }}" class="btn btn-sm btn-outline-danger ms-1">{{ __('Disable') }}</a>
+                @elseif(auth()->user()->is_admin ?? false)
+                  <form method="POST" action="{{ route('security-clearance.remove-2fa', ['id' => $user->id]) }}" class="d-inline ms-2"
+                        onsubmit="return confirm('{{ __('Force-remove two-factor for this user? They will sign in with password only until they re-enrol.') }}')">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-warning">{{ __('Force remove (admin)') }}</button>
+                  </form>
+                @endif
+              @else
+                <span class="badge bg-secondary">{{ __('Disabled') }}</span>
+                @if($isOwnProfile)
+                  <a href="{{ route('security-clearance.setup-2fa') }}" class="btn btn-sm atom-btn-outline-light ms-2">{{ __('Set up') }}</a>
+                @endif
+              @endif
+            </div>
+          </div>
+        </div>
+      </section>
+    @endif
+  @endauth
+
   {{-- ===== Administration area (admin only) ===== --}}
   @auth
     @if(auth()->user()->is_admin && ($user->created_at || $user->updated_at))

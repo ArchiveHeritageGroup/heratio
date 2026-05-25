@@ -1,0 +1,258 @@
+#!/bin/bash
+#===============================================================================
+# gh-km-close — close a GitHub issue/PR AND publish the close-event to KM
+#===============================================================================
+# Phase 7 fallback for the cross-agent KM auto-publish pipeline. Use this
+# when the GitHub Actions workflow .github/workflows/km-publish-on-close.yml
+# can't reach km.theahg.co.za (private repos with restricted egress,
+# self-hosted runners blocked, local-only repos, manual closures from a
+# workstation that should still surface in KM).
+#
+# Behaviour:
+#   1. Closes the issue/PR on GitHub via `gh`.
+#   2. POSTs the same payload shape the Actions workflow produces to
+#      ${KM_BASE_URL}/api/ingest.
+#   3. Best-effort: a failed KM POST does NOT roll back the GH close.
+#   4. Idempotent: maintains a local ledger at
+#      ~/.cache/gh-km-close/published.txt and refuses to re-post if the same
+#      repo+type+number is already there.
+#
+# Usage:
+#   bin/gh-km-close 123 --comment "resolved by reverting to v1.84.2"
+#   bin/gh-km-close 456 --pr --comment "merged via release v1.88.0"
+#   bin/gh-km-close 789 --dry-run                  # show payload, no writes
+#
+# Required env:
+#   KM_BASE_URL   e.g. https://km.theahg.co.za
+#   KM_API_KEY    bearer admin key (same secret the Actions workflow uses)
+#
+# Optional env:
+#   KM_LEDGER     override the ledger path
+#                 (default: ~/.cache/gh-km-close/published.txt)
+#
+# Exit codes:
+#   0 = GH close OK + KM publish OK (or KM publish skipped per ledger)
+#   1 = invalid invocation / missing dep / missing env
+#   2 = GH close failed (KM publish not attempted)
+#   3 = GH close OK but KM publish failed (best-effort warning)
+#
+# Repo detection: works against the current git repo. Use --repo OWNER/NAME
+# to target a different repo without `cd`ing first.
+#
+# Copyright (C) 2026 Johan Pieterse / Plain Sailing iSystems
+# AGPL-3.0-or-later. See <https://www.gnu.org/licenses/>.
+#===============================================================================
+
+set -euo pipefail
+
+# ── ANSI ────────────────────────────────────────────────────────────────
+if [ -t 2 ]; then
+  R='\033[0;31m'; G='\033[0;32m'; Y='\033[1;33m'; C='\033[0;36m'; N='\033[0m'
+else
+  R=''; G=''; Y=''; C=''; N=''
+fi
+
+err()  { printf '%berror:%b %s\n'   "$R" "$N" "$*" >&2; }
+warn() { printf '%bwarning:%b %s\n' "$Y" "$N" "$*" >&2; }
+ok()   { printf '%bok:%b %s\n'      "$G" "$N" "$*" >&2; }
+inf()  { printf '%b>>%b %s\n'       "$C" "$N" "$*" >&2; }
+
+# ── deps ────────────────────────────────────────────────────────────────
+for bin in gh jq curl; do
+  if ! command -v "$bin" >/dev/null 2>&1; then
+    err "missing dependency: $bin"
+    exit 1
+  fi
+done
+
+# ── parse args ──────────────────────────────────────────────────────────
+NUM=""
+COMMENT=""
+IS_PR=0
+DRY_RUN=0
+REPO_OVERRIDE=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --pr)        IS_PR=1; shift ;;
+    --dry-run)   DRY_RUN=1; shift ;;
+    --comment)   COMMENT="${2:-}"; shift 2 ;;
+    --comment=*) COMMENT="${1#*=}"; shift ;;
+    --repo)      REPO_OVERRIDE="${2:-}"; shift 2 ;;
+    --repo=*)    REPO_OVERRIDE="${1#*=}"; shift ;;
+    -h|--help)
+      sed -n '2,40p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0 ;;
+    -*) err "unknown flag: $1"; exit 1 ;;
+    *)
+      if [ -z "$NUM" ]; then NUM="$1"; shift
+      else err "unexpected positional: $1"; exit 1
+      fi ;;
+  esac
+done
+
+if [ -z "$NUM" ] || ! [[ "$NUM" =~ ^[0-9]+$ ]]; then
+  err "usage: $(basename "$0") <number> [--pr] [--comment TEXT] [--repo OWNER/NAME] [--dry-run]"
+  exit 1
+fi
+
+# ── env ─────────────────────────────────────────────────────────────────
+KM_BASE_URL="${KM_BASE_URL:-}"
+KM_API_KEY="${KM_API_KEY:-}"
+LEDGER="${KM_LEDGER:-$HOME/.cache/gh-km-close/published.txt}"
+
+if [ -z "$KM_BASE_URL" ] || [ -z "$KM_API_KEY" ]; then
+  warn "KM_BASE_URL or KM_API_KEY not set — will close on GH but skip KM publish"
+fi
+
+# ── resolve repo ────────────────────────────────────────────────────────
+if [ -n "$REPO_OVERRIDE" ]; then
+  REPO="$REPO_OVERRIDE"
+else
+  REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)"
+  if [ -z "$REPO" ]; then
+    err "could not detect repo (not inside a git tree?). use --repo OWNER/NAME"
+    exit 1
+  fi
+fi
+REPO_SHORT="${REPO##*/}"
+
+# ── fetch issue/PR ──────────────────────────────────────────────────────
+EVENT_TYPE=$([ "$IS_PR" = 1 ] && echo "pr" || echo "issue")
+inf "fetching $EVENT_TYPE #$NUM from $REPO"
+
+if [ "$IS_PR" = 1 ]; then
+  GH_FETCH=$(gh pr view "$NUM" --repo "$REPO" --json number,title,body,url,author,labels,state 2>&1) || {
+    err "gh pr view failed: $GH_FETCH"
+    exit 1
+  }
+else
+  GH_FETCH=$(gh issue view "$NUM" --repo "$REPO" --json number,title,body,url,author,labels,state 2>&1) || {
+    err "gh issue view failed: $GH_FETCH"
+    exit 1
+  }
+fi
+
+TITLE=$(echo "$GH_FETCH"        | jq -r '.title')
+BODY=$(echo "$GH_FETCH"         | jq -r '.body // ""')
+URL=$(echo "$GH_FETCH"          | jq -r '.url')
+AUTHOR=$(echo "$GH_FETCH"       | jq -r '.author.login // ""')
+LABELS=$(echo "$GH_FETCH"       | jq -r '[.labels[].name] | join(",")')
+STATE=$(echo "$GH_FETCH"        | jq -r '.state')
+
+CLOSER=$(gh api user -q .login 2>/dev/null || echo "$AUTHOR")
+NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+DOC_TITLE="$EVENT_TYPE #$NUM closed: $TITLE"
+
+# ── ledger check (idempotency) ──────────────────────────────────────────
+LEDGER_KEY="$REPO#$EVENT_TYPE/$NUM"
+mkdir -p "$(dirname "$LEDGER")"
+touch "$LEDGER"
+
+PUBLISHED_ALREADY=0
+if grep -Fxq "$LEDGER_KEY" "$LEDGER" 2>/dev/null; then
+  PUBLISHED_ALREADY=1
+fi
+
+# ── compose payload ─────────────────────────────────────────────────────
+HEADER="**Closed:** $EVENT_TYPE #$NUM in $REPO
+**Title:** $TITLE
+**URL:** $URL
+**Closed by:** @$CLOSER
+**Labels:** $LABELS
+**Closed at:** $NOW
+**Source:** bin/gh-km-close (Phase 7 CLI wrapper)"
+
+if [ -n "$COMMENT" ]; then
+  HEADER="$HEADER
+**Close comment:** $COMMENT"
+fi
+
+PAYLOAD=$(jq -n \
+  --arg title      "$DOC_TITLE" \
+  --arg body       "$HEADER
+
+---
+
+$BODY" \
+  --arg project    "$REPO_SHORT" \
+  --arg source_url "$URL" \
+  --arg author     "gh:$CLOSER" \
+  --arg labels     "$LABELS" \
+  --arg event      "$EVENT_TYPE" \
+  '{
+     title:      $title,
+     body:       $body,
+     project:    $project,
+     source_url: $source_url,
+     author:     $author,
+     tags:       ([$event, "cli", "gh-km-close"] +
+                  ($labels | split(",") | map(select(length > 0))))
+   }')
+
+# ── dry-run? ────────────────────────────────────────────────────────────
+if [ "$DRY_RUN" = 1 ]; then
+  inf "DRY RUN — no GH close, no KM publish"
+  printf '%s\n' "$PAYLOAD"
+  if [ "$PUBLISHED_ALREADY" = 1 ]; then
+    warn "ledger says $LEDGER_KEY already published (KM step would be skipped)"
+  fi
+  exit 0
+fi
+
+# ── close on GitHub ─────────────────────────────────────────────────────
+if [ "$STATE" = "CLOSED" ] || [ "$STATE" = "MERGED" ]; then
+  inf "already $STATE on GitHub — skipping close step"
+else
+  inf "closing $EVENT_TYPE #$NUM on GitHub"
+  CLOSE_ARGS=("$NUM" "--repo" "$REPO")
+  if [ -n "$COMMENT" ]; then
+    CLOSE_ARGS+=("--comment" "$COMMENT")
+  fi
+  if [ "$IS_PR" = 1 ]; then
+    if ! gh pr close "${CLOSE_ARGS[@]}"; then
+      err "gh pr close failed"
+      exit 2
+    fi
+  else
+    if ! gh issue close "${CLOSE_ARGS[@]}"; then
+      err "gh issue close failed"
+      exit 2
+    fi
+  fi
+  ok "GitHub: $EVENT_TYPE #$NUM closed"
+fi
+
+# ── publish to KM ───────────────────────────────────────────────────────
+if [ -z "$KM_BASE_URL" ] || [ -z "$KM_API_KEY" ]; then
+  warn "skipping KM publish (KM_BASE_URL / KM_API_KEY unset)"
+  exit 0
+fi
+
+if [ "$PUBLISHED_ALREADY" = 1 ]; then
+  inf "ledger: $LEDGER_KEY already published — skipping KM POST"
+  exit 0
+fi
+
+inf "publishing to KM at ${KM_BASE_URL%/}/api/ingest"
+HTTP_OUT=$(mktemp)
+HTTP_CODE=$(curl -sk -m 30 \
+  -o "$HTTP_OUT" \
+  -w "%{http_code}" \
+  -X POST "${KM_BASE_URL%/}/api/ingest" \
+  -H "Authorization: Bearer $KM_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d "$PAYLOAD" || echo "000")
+
+if [[ "$HTTP_CODE" =~ ^2 ]]; then
+  ok "KM publish ok (HTTP $HTTP_CODE)"
+  printf '%s\n' "$LEDGER_KEY" >> "$LEDGER"
+  cat "$HTTP_OUT" 2>/dev/null || true
+  rm -f "$HTTP_OUT"
+  exit 0
+else
+  warn "KM publish failed (HTTP $HTTP_CODE) — GH close already done, ledger NOT updated, safe to retry"
+  cat "$HTTP_OUT" 2>/dev/null >&2 || true
+  rm -f "$HTTP_OUT"
+  exit 3
+fi

@@ -40,6 +40,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            // Issue #690 — enforces post-login MFA verify when the session
+            // carries the `pending_mfa` flag. No-op for users without MFA
+            // and for users who have already verified this session.
+            \App\Http\Middleware\RequireMfaCompletion::class,
             \App\Http\Middleware\AuditLog::class,
             \App\Http\Middleware\SecurityHeaders::class,
             \Spatie\Csp\AddCspHeaders::class,

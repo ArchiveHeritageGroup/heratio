@@ -15,7 +15,7 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
           @endif
 
-          <p class="text-muted text-center">Enter the 6-digit code from your authenticator app.</p>
+          <p class="text-muted text-center">{{ __('Enter the 6-digit code from your authenticator app, or paste one of your recovery codes.') }}</p>
 
           @if($clearance)
             <div class="alert alert-info text-center">
@@ -28,10 +28,14 @@
             <input type="hidden" name="return" value="{{ $returnUrl }}">
 
             <div class="mb-3">
-              <label class="form-label">{{ __('Verification Code') }}</label>
-              <input type="text" name="code" class="form-control form-control-lg text-center" maxlength="6"
-                     pattern="[0-9]{6}" placeholder="000000" autofocus required
-                     style="letter-spacing: 0.5em; font-size: 1.5em;">
+              <label class="form-label">{{ __('Verification or recovery code') }}</label>
+              <input type="text" name="code" class="form-control form-control-lg text-center" maxlength="16"
+                     pattern="[0-9A-Za-z\-]{6,16}" placeholder="000000" autofocus required
+                     autocomplete="one-time-code"
+                     style="letter-spacing: 0.3em; font-size: 1.25em;">
+              <div class="form-text text-center">
+                {{ __('Lost your authenticator? Enter any one of the recovery codes printed at enrolment.') }}
+              </div>
             </div>
 
             <div class="d-grid">

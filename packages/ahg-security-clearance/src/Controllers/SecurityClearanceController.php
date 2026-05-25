@@ -26,6 +26,7 @@
 namespace AhgSecurityClearance\Controllers;
 
 use AhgSecurityClearance\Services\SecurityClearanceService;
+use AhgSecurityClearance\Services\TotpService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -74,10 +75,12 @@ use Illuminate\Support\Facades\Schema;
 class SecurityClearanceController extends Controller
 {
     private SecurityClearanceService $service;
+    private TotpService $totp;
 
-    public function __construct(SecurityClearanceService $service)
+    public function __construct(SecurityClearanceService $service, TotpService $totp)
     {
         $this->service = $service;
+        $this->totp = $totp;
     }
 
     // =========================================================================
@@ -273,7 +276,9 @@ class SecurityClearanceController extends Controller
 
     /**
      * #11 — 2FA verification POST.
-     * AtoM: securityClearance/executeVerifyTwoFactor
+     * Accepts a 6-digit TOTP code OR a single-use recovery code; on success,
+     * clears the post-login pending_mfa session flag and creates the
+     * security_2fa_session marker so subsequent requests aren't re-prompted.
      */
     public function verifyTwoFactor(Request $request)
     {
@@ -281,91 +286,167 @@ class SecurityClearanceController extends Controller
 
         $userId = auth()->id();
         $code = trim($request->input('code'));
-        $returnUrl = $request->input('return', '/');
+        $returnUrl = $request->input('return', $request->session()->pull('mfa_return_url', '/'));
 
-        // SECURITY: real TOTP verification is not yet wired (no pragmarx/google2fa,
-        // no user_2fa_secret table). Until that lands, this endpoint accepts any
-        // 6-digit code in non-production environments only, and hard-rejects in
-        // production so a half-built 2FA flow can't ship as security theatre.
-        if (app()->environment('production')) {
-            \Log::warning('2FA verify attempted but TOTP backend not implemented', [
-                'user_id' => $userId, 'ip' => $request->ip(),
-            ]);
+        if (! $this->totp->verifyCode($userId, $code)) {
+            \Log::info('mfa.verify.failed', ['user_id' => $userId, 'ip' => $request->ip()]);
 
             return redirect()->route('security-clearance.two-factor', ['return' => $returnUrl])
-                ->with('error', __('Two-factor authentication is not yet available on this deployment.'));
+                ->with('error', __('Invalid verification code. Please try again.'));
         }
 
-        $verified = (bool) preg_match('/^\d{6}$/', $code);
-        if ($verified) {
-            \Log::info('2FA bypass accepted (non-production)', ['user_id' => $userId, 'env' => app()->environment()]);
+        $request->session()->forget('pending_mfa');
+
+        if (Schema::hasTable('security_2fa_session')) {
+            DB::table('security_2fa_session')->where('user_id', $userId)->delete();
+            DB::table('security_2fa_session')->insert([
+                'user_id' => $userId,
+                'session_id' => session()->getId(),
+                'verified_at' => now(),
+                'expires_at' => now()->addHours(8),
+                'ip_address' => $request->ip(),
+                'created_at' => now(),
+            ]);
         }
 
-        if ($verified) {
-            // Create 2FA session
-            if (Schema::hasTable('security_2fa_session')) {
-                DB::table('security_2fa_session')->where('user_id', $userId)->delete();
-                DB::table('security_2fa_session')->insert([
-                    'user_id' => $userId,
-                    'session_id' => session()->getId(),
-                    'verified_at' => now(),
-                    'expires_at' => now()->addHours(8),
-                    'ip_address' => $request->ip(),
-                    'created_at' => now(),
-                ]);
-            }
-
-            return redirect($returnUrl)->with('success', 'Two-factor authentication verified.');
+        $remaining = $this->totp->unusedRecoveryCodeCount($userId);
+        if ($remaining > 0 && $remaining <= 2) {
+            $request->session()->flash('warning',
+                __('You have :n recovery code(s) remaining. Regenerate them from your security settings.', ['n' => $remaining])
+            );
         }
 
-        return redirect()->route('security-clearance.two-factor', ['return' => $returnUrl])
-            ->with('error', 'Invalid verification code. Please try again.');
+        return redirect($returnUrl)->with('success', __('Two-factor authentication verified.'));
     }
 
     /**
-     * #12 — 2FA setup page.
-     * AtoM: securityClearance/executeSetupTwoFactor
+     * #12 — 2FA setup page (begins enrolment, renders QR + secret).
+     * Generates a pending TOTP secret (enabled_at IS NULL) and passes the
+     * otpauth QR data-URI + secret to the view. Idempotent: each visit
+     * regenerates the pending secret until the user confirms.
      */
     public function setupTwoFactor(Request $request)
     {
+        $userId = auth()->id();
         $returnUrl = $request->input('return', '/');
 
-        return view('ahg-security-clearance::twofactor.setup', compact('returnUrl'));
+        if ($this->totp->userHasMfa($userId)) {
+            return redirect($returnUrl)
+                ->with('info', __('Two-factor authentication is already enabled on your account.'));
+        }
+
+        $user = DB::table('user')->where('id', $userId)->first();
+        $identifier = $user->email ?? $user->username ?? "user-{$userId}";
+        $issuer = config('app.name', 'Heratio');
+
+        $enrolment = $this->totp->beginEnrolment($userId, $identifier, $issuer);
+
+        return view('ahg-security-clearance::twofactor.setup', [
+            'returnUrl' => $returnUrl,
+            'secret' => $enrolment['secret'],
+            'qrSvgDataUri' => $enrolment['qr_svg_data_uri'],
+            'otpauthUri' => $enrolment['otpauth_uri'],
+        ]);
     }
 
     /**
      * #13 — Confirm 2FA setup POST.
-     * AtoM: securityClearance/executeConfirmTwoFactor
+     * Validates the first TOTP code against the pending secret. On success
+     * the secret becomes active, a batch of recovery codes is minted, and
+     * the codes are flashed to the recovery-codes view for one-time display.
      */
     public function confirmTwoFactor(Request $request)
     {
-        $request->validate(['code' => 'required|string']);
+        $request->validate(['code' => 'required|string|size:6']);
 
         $userId = auth()->id();
         $code = trim($request->input('code'));
         $returnUrl = $request->input('return', '/');
 
-        // Placeholder verification
-        $verified = preg_match('/^\d{6}$/', $code);
+        $result = $this->totp->confirmEnrolment($userId, $code);
 
-        if ($verified) {
-            if (Schema::hasTable('security_2fa_session')) {
-                DB::table('security_2fa_session')->where('user_id', $userId)->delete();
-                DB::table('security_2fa_session')->insert([
-                    'user_id' => $userId,
-                    'session_id' => session()->getId(),
-                    'verified_at' => now(),
-                    'expires_at' => now()->addHours(8),
-                    'ip_address' => $request->ip(),
-                    'created_at' => now(),
-                ]);
-            }
-
-            return redirect($returnUrl)->with('success', 'Two-factor authentication has been set up successfully.');
+        if (! $result['ok']) {
+            return redirect()->route('security-clearance.setup-2fa', ['return' => $returnUrl])
+                ->with('error', __('Invalid code. Re-scan the QR code and enter the current code from your authenticator app.'));
         }
 
-        return redirect()->route('security-clearance.setup-2fa', ['return' => $returnUrl])
-            ->with('error', 'Invalid code. Please scan the QR code again and enter the current code.');
+        \Log::info('mfa.enrolled', ['user_id' => $userId]);
+
+        return redirect()->route('security-clearance.recovery-codes', ['return' => $returnUrl])
+            ->with('mfa_recovery_codes', $result['recovery_codes'])
+            ->with('success', __('Two-factor authentication is now active. Save your recovery codes — they will not be shown again.'));
+    }
+
+    /**
+     * Render recovery codes once. Reads from flash session only; reloading
+     * the page after the flash clears returns an empty list (no leak from DB).
+     */
+    public function showRecoveryCodes(Request $request)
+    {
+        $codes = $request->session()->get('mfa_recovery_codes', []);
+        $returnUrl = $request->input('return', '/');
+
+        return view('ahg-security-clearance::twofactor.recovery-codes', [
+            'codes' => $codes,
+            'returnUrl' => $returnUrl,
+            'remainingCount' => $this->totp->unusedRecoveryCodeCount(auth()->id()),
+        ]);
+    }
+
+    /**
+     * Regenerate recovery codes (user lost their printed sheet). Mints a
+     * fresh batch of 10, invalidates all previous codes, flashes the new
+     * plaintext set to the recovery-codes view.
+     */
+    public function regenerateRecoveryCodes(Request $request)
+    {
+        $userId = auth()->id();
+        $returnUrl = $request->input('return', '/');
+
+        $codes = $this->totp->regenerateRecoveryCodes($userId);
+        if (empty($codes)) {
+            return redirect($returnUrl)
+                ->with('error', __('You do not have two-factor authentication enabled.'));
+        }
+
+        \Log::info('mfa.recovery_codes_regenerated', ['user_id' => $userId]);
+
+        return redirect()->route('security-clearance.recovery-codes', ['return' => $returnUrl])
+            ->with('mfa_recovery_codes', $codes)
+            ->with('success', __('New recovery codes generated. Save them — your previous codes are no longer valid.'));
+    }
+
+    /**
+     * User-initiated MFA disable. Requires a current TOTP code or recovery
+     * code to confirm the user still has the second factor — guards against
+     * an attacker with a stolen session removing MFA without the factor.
+     */
+    public function disableTwoFactor(Request $request)
+    {
+        $request->validate(['code' => 'required|string']);
+
+        $userId = auth()->id();
+
+        if (! $this->totp->verifyCode($userId, trim($request->input('code')))) {
+            return redirect()->route('security-clearance.disable-2fa')
+                ->with('error', __('Invalid verification code. Disable cancelled.'));
+        }
+
+        $this->totp->disable($userId);
+        if (Schema::hasTable('security_2fa_session')) {
+            DB::table('security_2fa_session')->where('user_id', $userId)->delete();
+        }
+
+        \Log::info('mfa.disabled.self', ['user_id' => $userId]);
+
+        return redirect('/user/profile')
+            ->with('success', __('Two-factor authentication has been disabled.'));
+    }
+
+    /** Render the disable-2FA confirmation form (asks for current code). */
+    public function showDisableTwoFactor()
+    {
+        return view('ahg-security-clearance::twofactor.disable');
     }
 
     /**
@@ -409,19 +490,21 @@ class SecurityClearanceController extends Controller
 
     /**
      * #15 — Admin: Remove 2FA enrollment for a user.
-     * AtoM: securityClearance/executeRemoveTwoFactor
+     * Used when a user has lost both their authenticator AND every recovery
+     * code. Admin overrides via this endpoint; the audit log records who
+     * cleared whom.
      */
     public function removeTwoFactor(int $id)
     {
+        $this->totp->disable($id);
         if (Schema::hasTable('security_2fa_session')) {
             DB::table('security_2fa_session')->where('user_id', $id)->delete();
         }
-        if (Schema::hasTable('user_totp_secret')) {
-            DB::table('user_totp_secret')->where('user_id', $id)->delete();
-        }
+
+        \Log::info('mfa.disabled.admin', ['target_user_id' => $id, 'admin_user_id' => auth()->id()]);
 
         return redirect()->route('security-clearance.view', ['id' => $id])
-            ->with('success', 'Two-factor authentication removed for user.');
+            ->with('success', __('Two-factor authentication removed for user.'));
     }
 
     /**
