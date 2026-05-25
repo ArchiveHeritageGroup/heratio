@@ -1,0 +1,52 @@
+{
+    "name": "ahg/inference-receipts",
+    "description": "Tamper-evident receipts for AI inference calls: SHA-256 hash chain, RFC 8785 JCS canonicalization, Ed25519 signatures. Pure PHP, zero framework dependencies. EU AI Act Article 12 / NIST AI RMF aligned.",
+    "type": "library",
+    "license": "Apache-2.0",
+    "keywords": [
+        "ai-act",
+        "article-12",
+        "compliance",
+        "hash-chain",
+        "tamper-evident",
+        "ed25519",
+        "jcs",
+        "rfc8785",
+        "audit-log",
+        "provenance"
+    ],
+    "authors": [
+        {
+            "name": "Johan Pieterse",
+            "email": "johan@plainsailingisystems.co.za",
+            "homepage": "https://theahg.co.za"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "ext-sodium": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0|^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgInferenceReceipts\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AhgInferenceReceipts\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    }
+}

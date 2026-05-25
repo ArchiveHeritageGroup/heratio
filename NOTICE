@@ -1,0 +1,11 @@
+ahg/inference-receipts
+Copyright 2026 Johan Pieterse / Plain Sailing iSystems
+              The Archive and Heritage Group (Pty) Ltd
+
+This product includes software developed by
+Johan Pieterse (https://theahg.co.za).
+
+Designed for EU AI Act Article 12 record-keeping conformance.
+Receipt format is byte-compatible with the test vectors published by
+the nobulex project (https://github.com/arian-gogani/nobulex) where
+the receipt shape overlaps.
