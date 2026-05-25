@@ -24,6 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // cookie issuance. prepend() puts it at the top of the web stack,
         // ahead of Laravel's built-ins. Closes audit issue #90.
         $middleware->web(prepend: [
+            // Phase 2 of #677 — must run FIRST so every downstream log line
+            // in this request has the request_id. Generates UUID per
+            // request, binds to container, echoes as X-Request-Id header.
+            \App\Http\Middleware\RequestIdMiddleware::class,
             \App\Http\Middleware\SessionTimeout::class,
         ]);
 

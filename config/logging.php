@@ -73,6 +73,23 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Phase 1+2 of #677 — structured JSON logging.
+        // Each line is a single JSON object with consistent keys:
+        //   timestamp, level, message, channel, plus the extras from
+        //   App\Logging\RequestContextProcessor: request_id, user_id,
+        //   username, tenant_id, http.method, http.path, host, pid.
+        // Pair with LOG_CHANNEL=json or LOG_STACK=daily,json in .env to
+        // get both human-readable + machine-parseable streams.
+        'json' => [
+            'driver'       => 'daily',
+            'path'         => storage_path('logs/laravel-json.log'),
+            'level'        => env('LOG_LEVEL', 'debug'),
+            'days'         => env('LOG_DAILY_DAYS', 14),
+            'formatter'    => \Monolog\Formatter\JsonFormatter::class,
+            'tap'          => [\App\Logging\TapJsonProcessors::class],
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
