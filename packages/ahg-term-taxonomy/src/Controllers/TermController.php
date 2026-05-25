@@ -549,6 +549,49 @@ class TermController extends Controller
         $baseUri = url('/term') . '/';
         $schemeUri = url('/taxonomy/' . $taxonomyId);
 
+        // -------- #661 Phase 1: SKOS label/note types completeness ---------
+        // Pre-fetch the per-term additional labels + notes in 2 batched
+        // queries so the per-term loop below stays O(N) — avoids N+1.
+        $termIds = $terms->pluck('id')->all();
+        $altLabelsByTerm = [];
+        $hiddenLabelsByTerm = [];
+        $scopeNotesByTerm = [];
+        $historyNotesByTerm = [];
+
+        if (!empty($termIds)) {
+            // other_name → skos:altLabel. Match the same culture filter as
+            // prefLabel above so we don't emit one altLabel per supported
+            // locale when only the requested culture is wanted. Phase 2
+            // can drop the filter when SKOS-XL labels per locale are added.
+            $otherNames = DB::table('other_name')
+                ->join('other_name_i18n', 'other_name.id', '=', 'other_name_i18n.id')
+                ->whereIn('other_name.object_id', $termIds)
+                ->where('other_name_i18n.culture', $culture)
+                ->select('other_name.object_id', 'other_name_i18n.name')
+                ->get();
+            foreach ($otherNames as $on) {
+                $name = trim((string) $on->name);
+                if ($name === '') continue;
+                $altLabelsByTerm[$on->object_id][] = ['lang' => $culture, 'name' => $name];
+            }
+
+            // note → skos:scopeNote. Filtered to the export culture to
+            // avoid N-cultures × N-notes output explosion. Phase 2 can
+            // distinguish scopeNote / historyNote / changeNote based on
+            // note.type_id once that mapping is documented.
+            $notes = DB::table('note')
+                ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+                ->whereIn('note.object_id', $termIds)
+                ->where('note_i18n.culture', $culture)
+                ->select('note.object_id', 'note_i18n.content')
+                ->get();
+            foreach ($notes as $n) {
+                $content = trim((string) $n->content);
+                if ($content === '') continue;
+                $scopeNotesByTerm[$n->object_id][] = ['lang' => $culture, 'text' => $content];
+            }
+        }
+
         // Build a normalised concept list ONCE — used by all serialisers.
         $concepts = [];
         foreach ($terms as $t) {
@@ -566,6 +609,10 @@ class TermController extends Controller
                 'broader' => $parentUri,
                 'topConcept' => ($parentUri === null),
                 'notation' => $t->code ? (string) $t->code : null,
+                'altLabels'    => $altLabelsByTerm[$t->id] ?? [],
+                'hiddenLabels' => $hiddenLabelsByTerm[$t->id] ?? [],
+                'scopeNotes'   => $scopeNotesByTerm[$t->id] ?? [],
+                'historyNotes' => $historyNotesByTerm[$t->id] ?? [],
             ];
         }
 
@@ -639,6 +686,20 @@ class TermController extends Controller
                 $xml .= '    <skos:notation>' . htmlspecialchars($c['notation']) . '</skos:notation>' . "\n";
             }
 
+            // #661 Phase 1 additions — altLabel / hiddenLabel / scopeNote / historyNote
+            foreach (($c['altLabels'] ?? []) as $alt) {
+                $xml .= '    <skos:altLabel xml:lang="' . htmlspecialchars($alt['lang']) . '">' . htmlspecialchars($alt['name']) . '</skos:altLabel>' . "\n";
+            }
+            foreach (($c['hiddenLabels'] ?? []) as $hid) {
+                $xml .= '    <skos:hiddenLabel xml:lang="' . htmlspecialchars($hid['lang']) . '">' . htmlspecialchars($hid['name']) . '</skos:hiddenLabel>' . "\n";
+            }
+            foreach (($c['scopeNotes'] ?? []) as $sn) {
+                $xml .= '    <skos:scopeNote xml:lang="' . htmlspecialchars($sn['lang']) . '">' . htmlspecialchars($sn['text']) . '</skos:scopeNote>' . "\n";
+            }
+            foreach (($c['historyNotes'] ?? []) as $hn) {
+                $xml .= '    <skos:historyNote xml:lang="' . htmlspecialchars($hn['lang']) . '">' . htmlspecialchars($hn['text']) . '</skos:historyNote>' . "\n";
+            }
+
             $xml .= '  </skos:Concept>' . "\n";
         }
 
@@ -674,6 +735,19 @@ class TermController extends Controller
             }
             if ($c['notation']) {
                 $ttl .= '    skos:notation ' . $this->ttlString($c['notation']) . ' ;' . "\n";
+            }
+            // #661 Phase 1 additions
+            foreach (($c['altLabels'] ?? []) as $alt) {
+                $ttl .= '    skos:altLabel ' . $this->ttlLangString($alt['name'], $alt['lang']) . ' ;' . "\n";
+            }
+            foreach (($c['hiddenLabels'] ?? []) as $hid) {
+                $ttl .= '    skos:hiddenLabel ' . $this->ttlLangString($hid['name'], $hid['lang']) . ' ;' . "\n";
+            }
+            foreach (($c['scopeNotes'] ?? []) as $sn) {
+                $ttl .= '    skos:scopeNote ' . $this->ttlLangString($sn['text'], $sn['lang']) . ' ;' . "\n";
+            }
+            foreach (($c['historyNotes'] ?? []) as $hn) {
+                $ttl .= '    skos:historyNote ' . $this->ttlLangString($hn['text'], $hn['lang']) . ' ;' . "\n";
             }
             // Replace trailing ' ;' with ' .'
             $ttl = preg_replace('/ ;\n$/', " .\n", $ttl);
@@ -713,6 +787,19 @@ class TermController extends Controller
             if ($c['notation']) {
                 $nt .= '<' . $c['uri'] . '> <' . $skos . 'notation> ' . $this->ntString($c['notation']) . ' .' . "\n";
             }
+            // #661 Phase 1 additions
+            foreach (($c['altLabels'] ?? []) as $alt) {
+                $nt .= '<' . $c['uri'] . '> <' . $skos . 'altLabel> ' . $this->ntLangString($alt['name'], $alt['lang']) . ' .' . "\n";
+            }
+            foreach (($c['hiddenLabels'] ?? []) as $hid) {
+                $nt .= '<' . $c['uri'] . '> <' . $skos . 'hiddenLabel> ' . $this->ntLangString($hid['name'], $hid['lang']) . ' .' . "\n";
+            }
+            foreach (($c['scopeNotes'] ?? []) as $sn) {
+                $nt .= '<' . $c['uri'] . '> <' . $skos . 'scopeNote> ' . $this->ntLangString($sn['text'], $sn['lang']) . ' .' . "\n";
+            }
+            foreach (($c['historyNotes'] ?? []) as $hn) {
+                $nt .= '<' . $c['uri'] . '> <' . $skos . 'historyNote> ' . $this->ntLangString($hn['text'], $hn['lang']) . ' .' . "\n";
+            }
         }
 
         return $nt;
@@ -748,6 +835,26 @@ class TermController extends Controller
             }
             if ($c['notation']) {
                 $node['skos:notation'] = $c['notation'];
+            }
+            // #661 Phase 1 additions — emit as arrays when ≥1 entry
+            $mapTo = function (array $entries, string $textKey): array {
+                $out = [];
+                foreach ($entries as $e) {
+                    $out[] = ['@value' => $e[$textKey], '@language' => $e['lang']];
+                }
+                return $out;
+            };
+            if (!empty($c['altLabels'])) {
+                $node['skos:altLabel'] = $mapTo($c['altLabels'], 'name');
+            }
+            if (!empty($c['hiddenLabels'])) {
+                $node['skos:hiddenLabel'] = $mapTo($c['hiddenLabels'], 'name');
+            }
+            if (!empty($c['scopeNotes'])) {
+                $node['skos:scopeNote'] = $mapTo($c['scopeNotes'], 'text');
+            }
+            if (!empty($c['historyNotes'])) {
+                $node['skos:historyNote'] = $mapTo($c['historyNotes'], 'text');
             }
             $graph[] = $node;
         }
