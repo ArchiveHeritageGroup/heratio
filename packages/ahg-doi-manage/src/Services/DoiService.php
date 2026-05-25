@@ -98,9 +98,19 @@ class DoiService
 
     /**
      * Build a DataCite Kernel-4 metadata payload (JSON:API form) for an IO.
-     * This is intentionally minimal — title, creator, publisher, year,
-     * resourceType, identifier — enough to register a findable DOI. Richer
-     * metadata (subjects, dates, relatedIdentifiers) follows in a later pass.
+     *
+     * Phase 1 enrichment (#654, 2026-05-25): in addition to the minimum
+     * required attributes (title, creator, publisher, year, resourceType,
+     * url) we now emit:
+     *   - descriptions[]    — scope_and_content as Abstract
+     *   - subjects[]        — taxonomy 35 (Subject) access points
+     *   - dates[]           — start/end from event table, dateType=Created
+     *   - language          — i.source_culture
+     *   - publicationYear   — derived from earliest event start_date (falls
+     *                          back to current year when no events exist)
+     *
+     * Follow-up phases will add Creator ORCID + ROR + RelatedIdentifier +
+     * GeoLocation + FundingReference + DataCite Events API integration.
      */
     public function buildMetadata(int $objectId, object $config, string $doi): array
     {
@@ -109,27 +119,140 @@ class DoiService
                 $j->on('i.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
             })
             ->where('i.id', $objectId)
-            ->select('i.id', 'i.identifier', 'i18n.title')
+            ->select('i.id', 'i.identifier', 'i.source_culture',
+                    'i18n.title', 'i18n.scope_and_content',
+                    'i18n.archival_history', 'i18n.acquisition')
             ->first();
 
         $title = $row->title ?? ('Information object ' . $objectId);
         $publisher = $config->default_publisher ?: 'The Archive and Heritage Group';
         $resourceType = $config->default_resource_type ?: 'Text';
 
+        // ----- Phase 1 enrichment -----
+
+        // Descriptions: prefer scope_and_content as Abstract. Add
+        // archival_history + acquisition as additional Other descriptions
+        // when present (DataCite supports multi-description per record).
+        $descriptions = [];
+        $stripTagsClean = static function (?string $s): string {
+            return trim(preg_replace('/\s+/', ' ', strip_tags((string) $s)));
+        };
+        if (!empty($row->scope_and_content)) {
+            $descriptions[] = [
+                'description'      => $stripTagsClean($row->scope_and_content),
+                'descriptionType'  => 'Abstract',
+            ];
+        }
+        if (!empty($row->archival_history)) {
+            $descriptions[] = [
+                'description'      => $stripTagsClean($row->archival_history),
+                'descriptionType'  => 'Other',
+                'descriptionTypeGeneral' => 'CustodialHistory',
+            ];
+        }
+        if (!empty($row->acquisition)) {
+            $descriptions[] = [
+                'description'      => $stripTagsClean($row->acquisition),
+                'descriptionType'  => 'Other',
+                'descriptionTypeGeneral' => 'AcquisitionInfo',
+            ];
+        }
+
+        // Subjects from taxonomy 35 (Subject access points)
+        $subjects = DB::connection('atom')->table('object_term_relation as r')
+            ->join('term as t', 'r.term_id', '=', 't.id')
+            ->join('term_i18n as ti', function ($j) {
+                $j->on('t.id', '=', 'ti.id')->where('ti.culture', '=', 'en');
+            })
+            ->where('r.object_id', $objectId)
+            ->where('t.taxonomy_id', 35)
+            ->whereNotNull('ti.name')
+            ->where('ti.name', '!=', '')
+            ->select('ti.name')
+            ->get()
+            ->map(function ($s) {
+                return [
+                    'subject'         => (string) $s->name,
+                    'subjectScheme'   => 'AHG Subjects',
+                ];
+            })
+            ->all();
+
+        // Dates from event table — keep earliest start_date for publicationYear
+        $events = DB::connection('atom')->table('event as e')
+            ->leftJoin('event_i18n as ei', function ($j) {
+                $j->on('e.id', '=', 'ei.id')->where('ei.culture', '=', 'en');
+            })
+            ->where('e.object_id', $objectId)
+            ->whereIn('e.type_id', [111, 114])  // Creation + Publication event types
+            ->select('e.type_id', 'e.start_date', 'e.end_date', 'ei.date as date_display')
+            ->get();
+
+        $dates = [];
+        $earliestYear = null;
+        foreach ($events as $ev) {
+            $dateValue = null;
+            if ($ev->start_date && $ev->end_date && $ev->start_date !== $ev->end_date) {
+                $dateValue = $ev->start_date . '/' . $ev->end_date;  // DataCite range syntax
+            } elseif ($ev->start_date) {
+                $dateValue = (string) $ev->start_date;
+            } elseif ($ev->date_display) {
+                $dateValue = trim((string) $ev->date_display);
+            }
+            if ($dateValue) {
+                $dateType = ((int) $ev->type_id === 114) ? 'Issued' : 'Created';
+                $dates[] = ['date' => $dateValue, 'dateType' => $dateType];
+                // Track earliest year for publicationYear
+                if ($ev->start_date) {
+                    $year = (int) substr((string) $ev->start_date, 0, 4);
+                    if ($year > 0 && ($earliestYear === null || $year < $earliestYear)) {
+                        $earliestYear = $year;
+                    }
+                }
+            }
+        }
+        $publicationYear = $earliestYear ?: (int) date('Y');
+
+        // Language — from source_culture (ISO 639-1 2-letter code)
+        $language = !empty($row->source_culture) ? (string) $row->source_culture : null;
+
+        // Compose the final attributes block. Only include enrichment keys
+        // when their data is non-empty so DataCite doesn't reject the
+        // record on a "subjects must be non-empty array" validation.
+        $attributes = [
+            'doi'             => $doi,
+            'titles'          => [['title' => $title]],
+            'creators'        => [['name' => $publisher]],
+            'publisher'       => $publisher,
+            'publicationYear' => $publicationYear,
+            'types'           => ['resourceTypeGeneral' => $resourceType],
+            'url'             => rtrim(config('app.url', 'http://localhost'), '/') . '/informationobject/' . $objectId,
+            'event'           => 'publish',
+        ];
+        if (!empty($descriptions)) {
+            $attributes['descriptions'] = $descriptions;
+        }
+        if (!empty($subjects)) {
+            $attributes['subjects'] = $subjects;
+        }
+        if (!empty($dates)) {
+            $attributes['dates'] = $dates;
+        }
+        if ($language) {
+            $attributes['language'] = $language;
+        }
+        if (!empty($row->identifier)) {
+            $attributes['alternateIdentifiers'] = [[
+                'alternateIdentifier'     => (string) $row->identifier,
+                'alternateIdentifierType' => 'Local',
+            ]];
+        }
+
         return [
             'data' => [
                 'id'         => $doi,
                 'type'       => 'dois',
-                'attributes' => [
-                    'doi'             => $doi,
-                    'titles'          => [['title' => $title]],
-                    'creators'        => [['name' => $publisher]],
-                    'publisher'       => $publisher,
-                    'publicationYear' => (int) date('Y'),
-                    'types'           => ['resourceTypeGeneral' => $resourceType],
-                    'url'             => rtrim(config('app.url', 'http://localhost'), '/') . '/informationobject/' . $objectId,
-                    'event'           => 'publish',
-                ],
+                'attributes' => $attributes,
             ],
         ];
     }
