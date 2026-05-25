@@ -1,5 +1,6 @@
 <?php
 
+use Ahg3dModel\Controllers\CameraBookmarkController;
 use Ahg3dModel\Controllers\Model3dController;
 use Illuminate\Support\Facades\Route;
 
@@ -89,6 +90,30 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/3d-models/api/hotspots/{modelId}', [Model3dController::class, 'apiHotspots'])
         ->whereNumber('modelId')
         ->name('admin.3d-models.api.hotspots');
+});
+
+// ------------------------------------------------------------------
+// Camera bookmarks (#666 Phase 2)
+// ------------------------------------------------------------------
+// GET is public for published models; writes need an authenticated user.
+Route::middleware('web')->group(function () {
+    Route::get('/3d/{model_id}/bookmarks', [CameraBookmarkController::class, 'index'])
+        ->whereNumber('model_id')
+        ->name('ahg.3d.bookmarks.index');
+});
+
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::post('/3d/{model_id}/bookmarks', [CameraBookmarkController::class, 'store'])
+        ->whereNumber('model_id')
+        ->name('ahg.3d.bookmarks.store');
+
+    Route::put('/3d/{model_id}/bookmarks/{id}', [CameraBookmarkController::class, 'update'])
+        ->whereNumber('model_id')->whereNumber('id')
+        ->name('ahg.3d.bookmarks.update');
+
+    Route::delete('/3d/{model_id}/bookmarks/{id}', [CameraBookmarkController::class, 'destroy'])
+        ->whereNumber('model_id')->whereNumber('id')
+        ->name('ahg.3d.bookmarks.destroy');
 });
 
 // IIIF 3D manifest (public)
