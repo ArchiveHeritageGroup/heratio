@@ -103,6 +103,9 @@ return Application::configure(basePath: dirname(__DIR__))
             // token; the endpoint enforces its own auth via optional
             // X-API-Key when ahg_settings.oai_authentication_enabled='1'.
             'oai',
+            // #674 Phase 2 - upstream mail provider webhook. HMAC-validated
+            // against ahg_settings.email_bounce_webhook_secret; no session.
+            'webhooks/email/bounce',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

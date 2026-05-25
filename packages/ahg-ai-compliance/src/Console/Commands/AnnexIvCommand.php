@@ -37,7 +37,8 @@ final class AnnexIvCommand extends Command
 
     protected $signature = 'ai-compliance:annex-iv
         {--service= : Restrict to a single service (llm|htr|ner|donut|guardrail|translate)}
-        {--out= : Output directory (default: storage/ai-compliance/annex-iv)}';
+        {--out= : Output directory (default: storage/ai-compliance/annex-iv)}
+        {--pdf : Also emit a PDF rendering alongside each Markdown bundle (requires dompdf/dompdf)}';
 
     protected $description = 'Generate EU AI Act Annex IV technical-documentation bundles per AI service';
 
@@ -94,10 +95,79 @@ final class AnnexIvCommand extends Command
         // Best-effort write; preserves any earlier hash mismatch for diff.
         File::put($path, $doc);
 
-        // Fingerprint the bundle into the Article 12 chain.
+        // Fingerprint the bundle into the Article 12 chain (against the
+        // Markdown source - PDFs are derived renderings, not the canonical
+        // artifact).
         $this->writeReceiptForBundle($service, $model, $doc, $path);
 
+        if ($this->option('pdf')) {
+            $pdfPath = $this->renderPdf($doc, $path);
+            if ($pdfPath !== null) {
+                $this->info("  wrote {$pdfPath}");
+            }
+        }
+
         return $path;
+    }
+
+    /**
+     * Render the Markdown bundle to PDF via dompdf/dompdf. The PDF lands at
+     * the same path as the Markdown source with a .pdf extension. PDFs are
+     * derived artifacts and are NOT chain-fingerprinted - operators can
+     * always re-render from the canonical Markdown.
+     */
+    private function renderPdf(string $markdown, string $mdPath): ?string
+    {
+        if (!class_exists(\Dompdf\Dompdf::class)) {
+            $this->warn('  --pdf requested but dompdf/dompdf is not installed; skipping PDF render');
+            return null;
+        }
+        if (!class_exists(\League\CommonMark\GithubFlavoredMarkdownConverter::class)) {
+            $this->warn('  --pdf requested but league/commonmark is not installed; skipping PDF render');
+            return null;
+        }
+
+        try {
+            $converter = new \League\CommonMark\GithubFlavoredMarkdownConverter([
+                'html_input'         => 'escape',
+                'allow_unsafe_links' => false,
+            ]);
+            $html = (string) $converter->convert($markdown);
+
+            $document = '<!doctype html><html><head><meta charset="utf-8">'
+                . '<style>'
+                . 'body { font-family: DejaVu Sans, Helvetica, Arial, sans-serif; font-size: 10pt; line-height: 1.4; color: #111; }'
+                . 'h1 { font-size: 16pt; border-bottom: 2px solid #333; padding-bottom: 4px; margin-top: 18pt; }'
+                . 'h2 { font-size: 13pt; border-bottom: 1px solid #999; padding-bottom: 2px; margin-top: 14pt; }'
+                . 'h3 { font-size: 11pt; margin-top: 12pt; }'
+                . 'table { border-collapse: collapse; width: 100%; margin: 8pt 0; }'
+                . 'th, td { border: 1px solid #999; padding: 4pt 6pt; vertical-align: top; }'
+                . 'th { background: #eee; text-align: left; font-weight: bold; }'
+                . 'code { background: #f4f4f4; padding: 1pt 3pt; font-family: DejaVu Sans Mono, monospace; font-size: 9pt; }'
+                . 'pre { background: #f4f4f4; padding: 6pt; border: 1px solid #ddd; font-family: DejaVu Sans Mono, monospace; font-size: 9pt; white-space: pre-wrap; }'
+                . 'hr { border: 0; border-top: 1px solid #ccc; margin: 12pt 0; }'
+                . 'blockquote { border-left: 3px solid #999; padding: 2pt 8pt; color: #555; margin: 8pt 0; }'
+                . '@page { margin: 18mm 14mm; }'
+                . '</style></head><body>'
+                . $html
+                . '</body></html>';
+
+            $dompdf = new \Dompdf\Dompdf([
+                'isRemoteEnabled'      => false,
+                'isHtml5ParserEnabled' => true,
+                'defaultFont'          => 'DejaVu Sans',
+            ]);
+            $dompdf->loadHtml($document, 'UTF-8');
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            $pdfPath = preg_replace('/\.md$/', '.pdf', $mdPath);
+            File::put($pdfPath, $dompdf->output());
+            return $pdfPath;
+        } catch (Throwable $e) {
+            $this->warn('  PDF render failed for ' . basename($mdPath) . ': ' . $e->getMessage());
+            return null;
+        }
     }
 
     private function renderDeclarationOfConformity(string $service, AiModelRegistry $model): string

@@ -240,11 +240,22 @@ class LoginController extends Controller
                 'created_at' => now(),
             ]);
 
-            // Send email
+            // Send email (#674 Phase 2: gate on bounce list + thread the
+            // recipient's preferred_locale so the Mailable picks the right
+            // template).
             try {
                 $this->configureMailFromDatabase();
                 $resetUrl = url('/user/password-reset/'.$token);
-                Mail::to($email)->queue(new PasswordResetMail($resetUrl, $user->username ?? $email));
+                if (! \App\Services\EmailSuppressionGate::isSuppressed($email)) {
+                    Mail::to($email)->queue(new PasswordResetMail(
+                        $resetUrl,
+                        $user->username ?? $email,
+                        $email,
+                        $user->preferred_locale ?? null,
+                    ));
+                } else {
+                    \Log::info('Password reset suppressed (bounced address)', ['email' => $email]);
+                }
             } catch (\Exception $e) {
                 // Log error but don't reveal to user
                 \Log::error('Password reset email failed: '.$e->getMessage());

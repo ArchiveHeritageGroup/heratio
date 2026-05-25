@@ -127,6 +127,16 @@ Route::get('/version', function () {
     return response()->json($data)->header('Cache-Control', 'no-store, max-age=0');
 })->name('version');
 
+// #674 Phase 2 - mail provider bounce webhook (HMAC-validated, no auth/session)
+Route::post('/webhooks/email/bounce', [\App\Http\Controllers\EmailBounceController::class, 'receive'])
+    ->name('webhooks.email.bounce');
+
+// #674 Phase 2 - per-tenant email branding admin UI
+Route::middleware(['auth.required', 'admin'])->group(function () {
+    Route::get('/admin/email/branding', [\App\Http\Controllers\EmailBrandingController::class, 'index'])->name('admin.email.branding');
+    Route::post('/admin/email/branding', [\App\Http\Controllers\EmailBrandingController::class, 'save'])->name('admin.email.branding.save');
+});
+
 // Homepage
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/homepage', [App\Http\Controllers\HomeController::class, 'index'])->name('homepage'); // AtoM alias

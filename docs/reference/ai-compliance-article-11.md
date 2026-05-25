@@ -105,9 +105,27 @@ Bundles in `storage/ai-compliance/annex-iv/` are **never auto-pruned**. The `ai-
 
 If the storage volume hosting `storage/ai-compliance/` is rotated, operators must copy the entire `annex-iv/` directory to the new volume. Document this in the operator runbook.
 
+## PDF emission
+
+Markdown is the canonical artifact (chain-fingerprinted). PDF rendering is a derived view, opt-in via the `--pdf` flag:
+
+```bash
+php artisan ai-compliance:annex-iv --pdf                            # all services, both formats
+php artisan ai-compliance:annex-iv --service=htr --pdf              # one service, both formats
+php artisan ai-compliance:annex-iv --service=htr --pdf --out=/tmp   # custom output dir
+```
+
+PDF rendering pipeline:
+1. Markdown -> HTML via `league/commonmark` (GitHub-Flavored, escaped HTML, no unsafe links)
+2. HTML wrapped in a minimal print stylesheet (DejaVu Sans body, A4, 18mm / 14mm margins, table borders, code blocks)
+3. HTML -> PDF via `dompdf/dompdf` v3, no remote-resource fetch, HTML5 parser on
+4. Output lands at the same path with `.pdf` extension
+
+The PDF is NOT chain-fingerprinted - operators can always re-render from the canonical Markdown. If the regulator wants a signed PDF, that's a separate signing pass over the rendered bytes (Phase 2 follow-up below).
+
 ## Phase 2 follow-ups (deferred)
 
-- **PDF emission** - the issue body mentions PDF + Markdown; Phase 1 ships Markdown only. PDF rendering will hook into the existing `ahg-reports` PDF pipeline.
+- **Signed PDFs** - sign the rendered PDF bytes (PAdES / CAdES) so the print artifact carries its own non-repudiation. Today the chain receipt covers only the Markdown source.
 - **Post-market monitoring loop** - section 9 lists the plan; automated anomaly detection on `ai_inference_log` and an archivist-override capture path are not yet built.
 - **Annual regeneration cron** - currently operator-triggered. A scheduled artisan run on each anniversary of deployment is the obvious next step.
 - **Per-collection accuracy metrics** - `accuracy_metrics_json` accepts free-form JSON today; structured per-collection back-fill from held-out test sets is future work.

@@ -243,10 +243,36 @@ class AuditLogger
                 'created_at' => now(),
             ], $cols);
 
-            return (int) DB::table('ahg_audit_log')->insertGetId($row);
+            // Issue #676 Phase 5 - route through ChainedAuditWriter so each
+            // new row joins the Ed25519/JCS hash chain. Falls back to a
+            // plain unsigned insert if the signing key is unavailable so the
+            // historical "never break the call path" contract still holds.
+            $writer = $this->resolveWriter();
+            return $writer->append($row);
         } catch (\Throwable $e) {
             // Never let audit break the calling code path
             return null;
         }
+    }
+
+    /**
+     * Resolve the chain writer via the service container when possible so the
+     * singleton picks up the shared key resolution + warn-once state, but
+     * happily fall back to a fresh instance for contexts (early-boot, tests,
+     * CLI install scripts) where the container is not yet wired up.
+     */
+    private function resolveWriter(): ChainedAuditWriter
+    {
+        try {
+            if (function_exists('app')) {
+                $app = app();
+                if ($app !== null && $app->bound(ChainedAuditWriter::class)) {
+                    return $app->make(ChainedAuditWriter::class);
+                }
+            }
+        } catch (\Throwable $e) {
+            // fall through
+        }
+        return new ChainedAuditWriter();
     }
 }
