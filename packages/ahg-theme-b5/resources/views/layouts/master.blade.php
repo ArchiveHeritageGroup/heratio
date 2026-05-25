@@ -5,7 +5,15 @@
   $cspNonce = function_exists('csp_nonce') ? csp_nonce() : '';
 @endphp
 <!DOCTYPE html>
-<html lang="{{ $themeData['culture'] ?? 'en' }}" dir="ltr">
+@php
+  // #675 Phase 2: emit lang + dir from the live App locale so the HTML root
+  // always reflects whatever SetLocale resolved (URL / session / cookie /
+  // Accept-Language / fallback). $themeData['culture'] preserved as a
+  // belt-and-braces fallback for legacy renders that bypass the middleware.
+  $__pageLocale = app()->getLocale() ?: ($themeData['culture'] ?? 'en');
+  $__pageDir = in_array($__pageLocale, ['ar', 'he', 'fa', 'ur'], true) ? 'rtl' : 'ltr';
+@endphp
+<html lang="{{ $__pageLocale }}" dir="{{ $__pageDir }}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

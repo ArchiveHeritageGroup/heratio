@@ -13,9 +13,12 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next)
     {
-        // Resolution order (matches AtoM): URL param > session > cookie.
-        // Both URL-param switches (?sf_culture=) and the POST /set-locale route
-        // queue a year-long cookie so the choice survives logout / new sessions.
+        // Resolution order (matches AtoM, extended with #675 Accept-Language fallback):
+        //   1. URL param      ?sf_culture=xx  (explicit override, also seeds cookie)
+        //   2. Session         session('locale')
+        //   3. Cookie          request->cookie('locale')  (365-day persistence)
+        //   4. Accept-Language HTTP header     (first-time visitor heuristic, #675 Phase 1)
+        //   5. App default     config('app.locale')       (Laravel's existing fallback)
         $culture = $request->query('sf_culture');
 
         if ($culture && $this->isValidCulture($culture)) {
@@ -32,6 +35,15 @@ class SetLocale
                 App::setLocale($cookieLocale);
                 session(['locale' => $cookieLocale]);
             }
+        } elseif ($acceptLocale = $this->resolveFromAcceptLanguage($request)) {
+            // #675 Phase 1: only triggers when URL/session/cookie ALL missing —
+            // i.e. first-time anonymous visitor. We DON'T persist via cookie
+            // here; cookies are reserved for explicit user choices so a Chrome
+            // sending Accept-Language: de doesn't lock the device into German
+            // forever. The user's explicit menu switch (which goes through the
+            // ?sf_culture path) still wins on the next request.
+            App::setLocale($acceptLocale);
+            session(['locale' => $acceptLocale]);
         }
 
         // Hydrate ui_label overrides AFTER the locale is set so config('app.ui_label_*')
@@ -40,8 +52,186 @@ class SetLocale
         // booted-once hydrator in AhgCoreServiceProvider can't see the request culture.
         $this->hydrateUiLabels(App::getLocale());
 
-        return $next($request);
+        /** @var \Symfony\Component\HttpFoundation\Response $response */
+        $response = $next($request);
+
+        // #675 Phase 2: advertise the active locale to clients/proxies/CDNs
+        // (RFC 7231 §3.1.3.2). Set on every response so caches key correctly
+        // and screen readers announce content with the right pronunciation.
+        $response->headers->set('Content-Language', App::getLocale());
+
+        return $response;
     }
+
+    /**
+     * Parse the Accept-Language header and return the highest-Q supported
+     * locale, or null when no supported locale matches.
+     *
+     * Handles RFC 7231 Q-values:
+     *   Accept-Language: fr-CA,fr;q=0.9,en;q=0.8
+     * Picks fr-CA (implicit q=1.0); if fr-CA isn't supported, falls back to
+     * fr (q=0.9), then en (q=0.8). Region-tagged codes (fr-CA → fr_CA) and
+     * 2-letter prefixes (fr-CA → fr) are both probed against the supported
+     * set. Matching is case-insensitive on the locale code.
+     *
+     * @internal #675 Phase 1
+     */
+    private function resolveFromAcceptLanguage(Request $request): ?string
+    {
+        $header = (string) $request->header('Accept-Language', '');
+        if ($header === '') {
+            return null;
+        }
+
+        $supported = $this->getSupportedLocales();
+        if (empty($supported)) {
+            return null;
+        }
+
+        // Build a lower-cased lookup keyed on bare locale codes so we can
+        // match "fr-CA" against "fr_CA" or "fr".
+        $supportedLower = [];
+        foreach ($supported as $code) {
+            $supportedLower[strtolower((string) $code)] = $code;
+        }
+
+        $parsed = [];
+        foreach (explode(',', $header) as $token) {
+            $token = trim($token);
+            if ($token === '') {
+                continue;
+            }
+            $parts = array_map('trim', explode(';', $token));
+            $tag = strtolower(array_shift($parts));
+            if ($tag === '' || $tag === '*') {
+                continue;
+            }
+            $q = 1.0;
+            foreach ($parts as $param) {
+                if (stripos($param, 'q=') === 0) {
+                    $candidate = (float) substr($param, 2);
+                    if ($candidate >= 0.0 && $candidate <= 1.0) {
+                        $q = $candidate;
+                    }
+                }
+            }
+            if ($q <= 0.0) {
+                continue;
+            }
+            // Preserve original order for stable sort on tied Q-values.
+            $parsed[] = ['tag' => $tag, 'q' => $q, 'order' => count($parsed)];
+        }
+
+        if (empty($parsed)) {
+            return null;
+        }
+
+        usort($parsed, function ($a, $b) {
+            if ($a['q'] === $b['q']) {
+                return $a['order'] <=> $b['order'];
+            }
+            return $b['q'] <=> $a['q'];
+        });
+
+        foreach ($parsed as $entry) {
+            $tag = $entry['tag'];
+
+            // Direct hit ("fr" → fr, "ar" → ar).
+            if (isset($supportedLower[$tag])) {
+                $code = $supportedLower[$tag];
+                if ($this->isValidCulture($code)) {
+                    return $code;
+                }
+            }
+
+            // RFC tag uses "-"; Laravel/AtoM tags use "_" for region.
+            $underscored = str_replace('-', '_', $tag);
+            if ($underscored !== $tag && isset($supportedLower[$underscored])) {
+                $code = $supportedLower[$underscored];
+                if ($this->isValidCulture($code)) {
+                    return $code;
+                }
+            }
+
+            // Region-tag fallback: "fr-CA" → "fr".
+            $dash = strpos($tag, '-');
+            if ($dash !== false) {
+                $primary = substr($tag, 0, $dash);
+                if (isset($supportedLower[$primary])) {
+                    $code = $supportedLower[$primary];
+                    if ($this->isValidCulture($code)) {
+                        return $code;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Discover the set of locales this Heratio instance speaks. Cached on
+     * the middleware instance so a single request only pays the lookup cost
+     * once even if handle() is invoked multiple times in tests.
+     *
+     * Source priority:
+     *   1. config('app.supported_locales') if the operator has populated it
+     *   2. enabled `setting` rows with scope=i18n_languages (matches isValidCulture)
+     *   3. lang/*.json directory listing (final fallback)
+     *
+     * @internal #675 Phase 1
+     * @return array<int,string>
+     */
+    private function getSupportedLocales(): array
+    {
+        if ($this->cachedSupportedLocales !== null) {
+            return $this->cachedSupportedLocales;
+        }
+
+        // 1. Explicit config-supplied list (if any operator added it).
+        $configured = config('app.supported_locales');
+        if (is_array($configured) && !empty($configured)) {
+            $configured = array_values(array_filter(array_map('strval', $configured)));
+            if (!empty($configured)) {
+                return $this->cachedSupportedLocales = $configured;
+            }
+        }
+
+        // 2. DB-managed enabled languages (same source used by isValidCulture()).
+        try {
+            if (Schema::hasTable('setting')) {
+                $enabled = DB::table('setting')
+                    ->where('scope', 'i18n_languages')
+                    ->where('editable', 1)
+                    ->pluck('name')
+                    ->all();
+                if (!empty($enabled)) {
+                    return $this->cachedSupportedLocales = array_values(array_map('strval', $enabled));
+                }
+            }
+        } catch (\Throwable $e) {
+            // Boot-time, missing tables, etc — fall through to lang/ scan.
+        }
+
+        // 3. lang/*.json fallback (single source-of-truth for a fresh install
+        //    where no DB or config has been seeded yet).
+        $locales = [];
+        $langDir = base_path('lang');
+        if (is_dir($langDir)) {
+            foreach (glob($langDir . '/*.json') ?: [] as $path) {
+                $name = basename($path, '.json');
+                if ($name === '' || $name[0] === '_' || $name[0] === '.') {
+                    continue; // skip _meta.json, .lock siblings, etc.
+                }
+                $locales[] = $name;
+            }
+        }
+
+        return $this->cachedSupportedLocales = $locales;
+    }
+
+    /** @var array<int,string>|null cached per-request supported-locale list */
+    private ?array $cachedSupportedLocales = null;
 
     /** Mirrors the boot-time hydrator in AhgCoreServiceProvider but is keyed
      *  on the just-resolved request culture. Cheap (one query per request). */
