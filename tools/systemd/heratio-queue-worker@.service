@@ -1,0 +1,46 @@
+[Unit]
+# -----------------------------------------------------------------------------
+# Heratio queue worker — systemd template unit
+# -----------------------------------------------------------------------------
+#
+# Install:
+#   sudo cp /usr/share/nginx/heratio/tools/systemd/heratio-queue-worker@.service \
+#          /etc/systemd/system/heratio-queue-worker@.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now heratio-queue-worker@1.service \
+#                               heratio-queue-worker@2.service
+#
+# Verify:
+#   sudo systemctl status heratio-queue-worker@1.service
+#   sudo journalctl -u heratio-queue-worker@1.service -f
+#
+# See: docs/queue-worker-deployment.md
+# -----------------------------------------------------------------------------
+Description=Heratio queue worker (instance %i)
+After=network.target mysql.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/usr/share/nginx/heratio
+ExecStart=/usr/bin/php8.3 -d memory_limit=512M /usr/share/nginx/heratio/artisan queue:work --queue=default,integrations --sleep=3 --tries=3 --timeout=60 --memory=512
+Restart=always
+RestartSec=10s
+KillSignal=SIGTERM
+TimeoutStopSec=60
+StandardOutput=append:/var/log/heratio-queue-worker-%i.log
+StandardError=append:/var/log/heratio-queue-worker-%i.log
+
+# Hardening — keep storage paths writable for the worker
+ProtectSystem=full
+ReadWritePaths=/usr/share/nginx/heratio/storage
+ReadWritePaths=/usr/share/nginx/heratio/bootstrap/cache
+ReadWritePaths=/var/log
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+DefaultInstance=1
