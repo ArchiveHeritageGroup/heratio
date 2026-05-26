@@ -1,6 +1,7 @@
 <?php
 
 use AhgAiServices\Controllers\AiController;
+use AhgAiServices\Controllers\PhaseOneController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -130,6 +131,17 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::get('/htr/training', [AiController::class, 'htrTraining'])->name('admin.ai.htr.training');
     Route::post('/htr/training/start', [AiController::class, 'htrStartTraining'])->name('admin.ai.htr.startTraining');
     Route::get('/htr/training/status', [AiController::class, 'htrTrainingStatus'])->name('admin.ai.htr.trainingStatus');
+
+    // --- Issue #667 Phase 1: Quotas / Cost / TM / Custom NER (admin/ai-services/*) ---
+    Route::get('/services/quotas',                  [PhaseOneController::class, 'quotas'])->name('admin.ai-services.quotas');
+    Route::post('/services/quotas/save',            [PhaseOneController::class, 'quotasSave'])->name('admin.ai-services.quotas.save');
+    Route::get('/services/cost',                    [PhaseOneController::class, 'costs'])->name('admin.ai-services.cost');
+    Route::get('/services/translation-memory',      [PhaseOneController::class, 'translationMemory'])->name('admin.ai-services.tm');
+    Route::post('/services/translation-memory/delete', [PhaseOneController::class, 'translationMemoryDelete'])->name('admin.ai-services.tm.delete');
+    Route::get('/services/ner-entities',            [PhaseOneController::class, 'nerCustom'])->name('admin.ai-services.ner-entities');
+    Route::post('/services/ner-entities/save',      [PhaseOneController::class, 'nerCustomSave'])->name('admin.ai-services.ner-entities.save');
+    Route::post('/services/ner-entities/delete',    [PhaseOneController::class, 'nerCustomDelete'])->name('admin.ai-services.ner-entities.delete');
+    Route::get('/services/face-detect',             [PhaseOneController::class, 'faceDetect'])->name('admin.ai-services.face-detect');
 
     // --- Donut (Document Understanding) ---
     Route::post('/donut/prefill', [AiController::class, 'donutPrefill'])->name('admin.ai.donut.prefill');

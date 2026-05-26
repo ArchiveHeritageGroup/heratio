@@ -558,4 +558,44 @@ CREATE TABLE IF NOT EXISTS `ahg_otp_challenge` (
   KEY `idx_otp_challenge_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- ────────────────────────────────────────────────────────────────────────────
+-- Per-tenant MFA enforcement policy (issue #723) — layers on top of the
+-- opt-in TOTP / WebAuthn / OTP factors shipped in #690 / #721 / #722.
+--
+-- One row per tenant; tenant_id NULL is the global default (used when no
+-- tenant-specific policy exists). Resolution order in MfaPolicyService:
+--     1. tenant-specific row
+--     2. tenant_id IS NULL global default row
+--     3. hardcoded fallback (enforcement='optional', grace_period_days=7)
+--
+-- enforcement is stored as VARCHAR(32) (never a MySQL ENUM, per CLAUDE.md).
+-- Valid values live in ahg_dropdown taxonomy 'mfa_enforcement' and are
+-- seeded on first boot by the service provider:
+--     - 'off'                  factor enrolment disabled / hidden
+--     - 'optional'             users choose; no enforcement (default)
+--     - 'required_for_admins'  admin + editor groups must enrol
+--     - 'required'             every authenticated user must enrol
+--
+-- grace_period_days is the window after a policy first applies to a user
+-- during which they can defer enrolment (yellow banner instead of hard
+-- redirect). Calculated from MAX(policy.updated_at, user.created_at).
+-- ────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS `ahg_mfa_policy` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `tenant_id` int DEFAULT NULL,
+  `enforcement` varchar(32) NOT NULL DEFAULT 'optional',
+  `grace_period_days` int NOT NULL DEFAULT 7,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_mfa_policy_tenant` (`tenant_id`),
+  KEY `idx_mfa_policy_enforcement` (`enforcement`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Seed the global default row (tenant_id IS NULL). INSERT IGNORE skips on
+-- re-run; the unique key on tenant_id covers NULL via MySQL's "one NULL is
+-- still distinct from another NULL" semantics — so we guard with a probe
+-- instead and rely on the service provider to insert only when missing.
+
 SET FOREIGN_KEY_CHECKS = 1;
