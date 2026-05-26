@@ -2,6 +2,7 @@
     "name": "ahg/user-manage",
     "description": "User browse and management for Heratio",
     "type": "library",
+    "license": "AGPL-3.0-or-later",
     "require": {
         "ahg/core": "@dev"
     },

@@ -2,6 +2,7 @@
     "name": "ahg/workflow",
     "description": "Workflow management, task approval, SLA tracking, and publish gates for Heratio",
     "type": "library",
+    "license": "AGPL-3.0-or-later",
     "require": {
         "ahg/core": "@dev"
     },

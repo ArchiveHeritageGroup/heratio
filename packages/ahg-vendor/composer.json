@@ -1,6 +1,11 @@
 {
     "name": "ahg/vendor",
     "description": "Heratio Vendor package (migrated from ahgVendorPlugin)",
+    "type": "library",
+    "license": "AGPL-3.0-or-later",
+    "require": {
+        "ahg/core": "@dev"
+    },
     "autoload": {
         "psr-4": {
             "AhgVendor\\": "src/"

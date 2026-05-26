@@ -2,7 +2,7 @@
     "name": "ahg/version-control",
     "description": "Version history with diff and restore for information_object and actor entities. Mirrors the AHG version-snapshot pattern used by reports, landing pages and heritage contributions.",
     "type": "library",
-    "license": "proprietary",
+    "license": "AGPL-3.0-or-later",
     "require": {
         "ahg/core": "@dev",
         "php": ">=8.1"
