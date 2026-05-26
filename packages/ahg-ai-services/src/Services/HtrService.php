@@ -90,6 +90,18 @@ class HtrService
      */
     public function extract(string $filePath, string $docType = 'auto', string $format = 'all'): ?array
     {
+        // #667 Phase 1 - per-tenant quota gate. Bubble the quota
+        // exception so the caller can surface a real "rate limited"
+        // signal instead of just an empty result.
+        try {
+            app(\AhgAiServices\Services\QuotaService::class)->consume('htr');
+        } catch (\AhgAiServices\Exceptions\QuotaExceededException $e) {
+            Log::info('[ahg-ai] HTR blocked by quota', $e->toArray());
+            throw $e;
+        } catch (\Throwable) {
+            // soft-fail
+        }
+
         try {
             $t0 = microtime(true);
             $response = $this->http()->timeout(60)
@@ -102,14 +114,23 @@ class HtrService
                 return null;
             }
             $body = $response->json();
+            $modelId = (string) ($body['model'] ?? 'htr-gateway');
+            $durationMs = (int) round((microtime(true) - $t0) * 1000);
             $this->logInferenceReceipt(
                 'htr',
-                (string) ($body['model'] ?? 'htr-gateway'),
+                $modelId,
                 $body['model_version'] ?? null,
                 'file:' . basename($filePath) . ':' . (is_readable($filePath) ? (string) filesize($filePath) : '?'),
                 is_array($body) ? json_encode($body, JSON_UNESCAPED_UNICODE) : (string) $body,
-                ['latency_ms' => (int) round((microtime(true) - $t0) * 1000)],
+                ['latency_ms' => $durationMs],
             );
+            try {
+                app(\AhgAiServices\Services\CostService::class)->record('htr', $modelId, [
+                    'duration_ms' => $durationMs,
+                ]);
+            } catch (\Throwable) {
+                // never block inference
+            }
             return $body;
         } catch (\Exception $e) {
             Log::error('HTR extract failed: ' . $e->getMessage());

@@ -662,6 +662,13 @@ class IiifCollectionService
      * Annotation pointing at a IIIF Image API service. PhysicalDimensions
      * arrives via the service array on the painting body when the
      * digital_object exposes a physical scale.
+     *
+     * Issue #695 widens the emitter to audio + video. A/V canvases carry
+     * a `duration` (seconds), the painting body has `type` = Sound or
+     * Video, the body's `format` is the source mime type, and a service
+     * block advertises MediaFragmentSelector so consumers know they can
+     * request `#t=ss,ee` ranges. A poster-frame thumbnail is emitted on
+     * the canvas when one is available.
      */
     private function buildCanvasesV3(string $manifestId, string $baseUrl, $digitalObjects): array
     {
@@ -670,13 +677,30 @@ class IiifCollectionService
         $canvasIndex = 1;
 
         foreach ($digitalObjects as $do) {
+            $mimeType = strtolower($do->mime_type ?? '');
+            $fileName = strtolower($do->name ?? '');
+
+            // A/V branch (issue #695). Audio + Video digital objects don't
+            // route through Cantaloupe; the painting body points at the
+            // direct media URL with the correct Pres 3 type. We still emit
+            // one canvas per digital object so multi-track works.
+            if ($this->isAudioMime($mimeType, $fileName) || $this->isVideoMime($mimeType, $fileName)) {
+                $canvases[] = $this->buildAvCanvasV3(
+                    $manifestId,
+                    $baseUrl,
+                    $canvasIndex,
+                    $do,
+                    $this->isVideoMime($mimeType, $fileName) ? 'Video' : 'Sound'
+                );
+                $canvasIndex++;
+                continue;
+            }
+
             $imagePath = ltrim($do->path, '/');
             $cantaloupeId = str_replace('/', '_SL_', $imagePath) . $do->name;
 
             $isMultiPageTiff = false;
             $pageCount = 1;
-            $mimeType = strtolower($do->mime_type ?? '');
-            $fileName = strtolower($do->name ?? '');
 
             if ($mimeType === 'image/tiff' || preg_match('/\.tiff?$/i', $fileName)) {
                 $page2InfoUrl = "{$cantaloupeBaseUrl}/iiif/2/{$cantaloupeId};2/info.json";
@@ -1047,6 +1071,186 @@ class IiifCollectionService
         foreach ($svc as $entry) {
             $manifest['service'][] = $entry;
         }
+    }
+
+    /**
+     * Detect audio media. Mime types are authoritative when present;
+     * the filename fallback covers digital_object rows imported before
+     * mime sniffing was wired into the ingest pipeline.
+     */
+    private function isAudioMime(string $mime, string $fileName): bool
+    {
+        if (str_starts_with($mime, 'audio/')) {
+            return true;
+        }
+        return (bool) preg_match('/\.(mp3|wav|ogg|oga|flac|m4a|aac|opus)$/i', $fileName);
+    }
+
+    /**
+     * Detect video media (same fallback rules as isAudioMime()).
+     */
+    private function isVideoMime(string $mime, string $fileName): bool
+    {
+        if (str_starts_with($mime, 'video/')) {
+            return true;
+        }
+        return (bool) preg_match('/\.(mp4|webm|mov|m4v|mkv|avi|ogv)$/i', $fileName);
+    }
+
+    /**
+     * Build a Pres 3 Canvas for an audio or video digital object (#695).
+     *
+     * The painting body's `type` field is Sound for audio, Video for
+     * video. Canvas `duration` is in seconds; we read it from
+     * digital_object_property when populated, fall back to a sensible
+     * default rather than crashing the manifest. The MediaFragmentSelector
+     * service block tells consumers they can request `#t=start,end`
+     * ranges - that is the W3C-spec way to address a temporal slice on
+     * a IIIF A/V canvas, and Mirador 4 / UV 4 honour it.
+     *
+     * Poster frame: digital_object_property name='poster_url' takes
+     * precedence; absent that, we leave the thumbnail empty rather than
+     * fabricate one.
+     */
+    private function buildAvCanvasV3(
+        string $manifestId,
+        string $baseUrl,
+        int $canvasIndex,
+        $digitalObject,
+        string $type
+    ): array {
+        $imagePath = ltrim($digitalObject->path ?? '', '/');
+        $mediaUrl = $baseUrl . '/' . $imagePath . $digitalObject->name;
+        $format = $digitalObject->mime_type ?: ($type === 'Video' ? 'video/mp4' : 'audio/mpeg');
+
+        // Look up duration + poster, best-effort. digital_object_property
+        // is the canonical sidecar table for AV metadata in Heratio.
+        $duration = 0.0;
+        $posterUrl = null;
+        try {
+            if (\Schema::hasTable('digital_object_property')) {
+                $props = DB::table('digital_object_property')
+                    ->where('object_id', $digitalObject->id ?? 0)
+                    ->whereIn('name', ['duration', 'duration_seconds', 'poster_url', 'poster_frame'])
+                    ->pluck('value', 'name');
+                if (!empty($props['duration'])) {
+                    $duration = (float) $props['duration'];
+                } elseif (!empty($props['duration_seconds'])) {
+                    $duration = (float) $props['duration_seconds'];
+                }
+                if (!empty($props['poster_url'])) {
+                    $posterUrl = (string) $props['poster_url'];
+                } elseif (!empty($props['poster_frame'])) {
+                    $posterUrl = (string) $props['poster_frame'];
+                }
+            }
+        } catch (\Throwable $e) {
+            // best-effort - emit a canvas with duration=0 rather than 500
+        }
+        if ($duration <= 0) {
+            // Pres 3 requires duration on a temporal Canvas. We emit a
+            // placeholder of 1.0s so the manifest still validates;
+            // operators should populate digital_object_property.duration
+            // during ingest for accurate ranges.
+            $duration = 1.0;
+        }
+
+        $canvasId = "{$manifestId}/canvas/{$canvasIndex}";
+        $pageId = "{$canvasId}/page/1";
+        $annId = "{$canvasId}/annotation/1";
+
+        $body = [
+            'id' => $mediaUrl,
+            'type' => $type,
+            'format' => $format,
+            'duration' => $duration,
+            'service' => [[
+                '@context' => 'http://www.w3.org/ns/anno.jsonld',
+                'type' => 'MediaFragmentSelector',
+                'conformsTo' => 'http://www.w3.org/TR/media-frags/',
+            ]],
+        ];
+        if ($type === 'Video') {
+            // Video canvases also carry width/height. We don't probe the
+            // actual stream (no ffprobe round-trip in the manifest hot
+            // path); operators populate it via digital_object_property
+            // when accuracy matters. 1920x1080 is the spec-validator-safe
+            // default for an unknown video.
+            $w = 1920;
+            $h = 1080;
+            try {
+                if (\Schema::hasTable('digital_object_property')) {
+                    $dims = DB::table('digital_object_property')
+                        ->where('object_id', $digitalObject->id ?? 0)
+                        ->whereIn('name', ['width', 'height'])
+                        ->pluck('value', 'name');
+                    if (!empty($dims['width'])) {
+                        $w = (int) $dims['width'];
+                    }
+                    if (!empty($dims['height'])) {
+                        $h = (int) $dims['height'];
+                    }
+                }
+            } catch (\Throwable $e) {
+                // best-effort
+            }
+            $body['width'] = $w;
+            $body['height'] = $h;
+        }
+
+        $canvas = [
+            'id' => $canvasId,
+            'type' => 'Canvas',
+            'label' => ['en' => [$digitalObject->name ?: "Track {$canvasIndex}"]],
+            'duration' => $duration,
+            'items' => [[
+                'id' => $pageId,
+                'type' => 'AnnotationPage',
+                'items' => [[
+                    'id' => $annId,
+                    'type' => 'Annotation',
+                    'motivation' => 'painting',
+                    'body' => $body,
+                    'target' => $canvasId,
+                ]],
+            ]],
+        ];
+        if ($type === 'Video') {
+            $canvas['width'] = $body['width'];
+            $canvas['height'] = $body['height'];
+        }
+        if ($posterUrl) {
+            $canvas['thumbnail'] = [[
+                'id' => $posterUrl,
+                'type' => 'Image',
+                'format' => 'image/jpeg',
+            ]];
+            // Place the poster frame at the natural start of the timeline.
+            // Mirador 4 reads `placeholderCanvas` for the still that appears
+            // before the user hits play.
+            $canvas['placeholderCanvas'] = [
+                'id' => $canvasId . '/placeholder',
+                'type' => 'Canvas',
+                'label' => ['en' => ['Poster frame']],
+                'items' => [[
+                    'id' => $canvasId . '/placeholder/page/1',
+                    'type' => 'AnnotationPage',
+                    'items' => [[
+                        'id' => $canvasId . '/placeholder/annotation/1',
+                        'type' => 'Annotation',
+                        'motivation' => 'painting',
+                        'body' => [
+                            'id' => $posterUrl,
+                            'type' => 'Image',
+                            'format' => 'image/jpeg',
+                        ],
+                        'target' => $canvasId . '/placeholder',
+                    ]],
+                ]],
+            ];
+        }
+
+        return $canvas;
     }
 
     /**

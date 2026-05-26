@@ -197,6 +197,27 @@ class LlmService
      */
     public function complete(string $prompt, array $options = []): ?string
     {
+        // #667 Phase 1 - per-tenant quota gate. Runs BEFORE every dispatch
+        // path (cloud-mode override + local provider table). Throws
+        // QuotaExceededException up to the caller when the limit is hit;
+        // the caller (controller / job) is responsible for translating
+        // that into an HTTP 429 or batch-failure event.
+        // When a caller higher up the stack has already debited the
+        // bucket (e.g. translate() called us with skip_quota_gate=true),
+        // we record cost only.
+        if (empty($options['skip_quota_gate'])) {
+            try {
+                app(\AhgAiServices\Services\QuotaService::class)->consume($options['quota_service'] ?? 'llm');
+            } catch (\AhgAiServices\Exceptions\QuotaExceededException $e) {
+                Log::info('[ahg-ai] LLM call blocked by quota gate', $e->toArray());
+                throw $e;
+            } catch (\Throwable $e) {
+                // service not registered or DB hiccup - never block the call
+                Log::warning('[ahg-ai] quota gate soft-failed: ' . $e->getMessage());
+            }
+        }
+        $t0 = microtime(true);
+
         // #69: ai_services_processing_mode + api_url/key/timeout drive a master
         // 'cloud' override that bypasses the per-provider config table. Used
         // when the operator wants a single hosted endpoint to handle all calls
@@ -240,6 +261,11 @@ class LlmService
                         $text = $body['choices'][0]['message']['content'] ?? null;
                         if (is_string($text) && $text !== '') {
                             $this->logInferenceReceipt('llm', $aiSet::apiUrl(), null, $prompt, $text, []);
+                            $this->recordCost('llm', $aiSet::apiUrl(), [
+                                'tokens_in'   => (int) ($body['usage']['prompt_tokens'] ?? 0),
+                                'tokens_out'  => (int) ($body['usage']['completion_tokens'] ?? 0),
+                                'duration_ms' => (int) round((microtime(true) - $t0) * 1000),
+                            ]);
                             return $text;
                         }
                     }
@@ -261,17 +287,39 @@ class LlmService
         $result = $this->dispatchToProvider($config, $prompt, $options);
 
         if (!empty($result['success']) && isset($result['text']) && is_string($result['text']) && $result['text'] !== '') {
+            $modelId = (string) ($result['model'] ?? ($config->name ?? 'unknown'));
             $this->logInferenceReceipt(
                 'llm',
-                (string) ($result['model'] ?? ($config->name ?? 'unknown')),
+                $modelId,
                 $config->model_version ?? null,
                 $prompt,
                 $result['text'],
                 ['tokens_in' => $result['tokens_used'] ?? null],
             );
+            $this->recordCost('llm', $modelId, [
+                'tokens_in'   => (int) ($result['tokens_in']  ?? $result['tokens_used'] ?? 0),
+                'tokens_out'  => (int) ($result['tokens_out'] ?? 0),
+                'duration_ms' => (int) round((microtime(true) - $t0) * 1000),
+            ]);
         }
 
         return $result['success'] ? $result['text'] : null;
+    }
+
+    /**
+     * #667 Phase 1 - persist one cost-ledger row. Mirrors logInferenceReceipt
+     * in that it fails soft: a cost-ledger insert must never abort the
+     * inference dispatch.
+     *
+     * @param array{tokens_in?:int,tokens_out?:int,duration_ms?:int} $meta
+     */
+    private function recordCost(string $service, string $modelId, array $meta = []): void
+    {
+        try {
+            app(\AhgAiServices\Services\CostService::class)->record($service, $modelId, $meta);
+        } catch (\Throwable) {
+            // never block inference
+        }
     }
 
     /**
@@ -632,7 +680,7 @@ class LlmService
     /**
      * Translate text to the target language.
      */
-    public function translate(string $text, string $targetLang): ?string
+    public function translate(string $text, string $targetLang, string $sourceLang = ''): ?string
     {
         if (empty(trim($text))) {
             return null;
@@ -645,12 +693,40 @@ class LlmService
             return null;
         }
 
+        // #667 Phase 1 - translation-memory cache lookup. On hit we skip
+        // every dispatch path entirely; the call is free + instant. On
+        // miss we fall through, then store the result at the end.
+        $tm = null;
+        try {
+            $tm = app(\AhgAiServices\Services\TranslationMemoryService::class);
+            $cached = $tm->lookup($text, $sourceLang, $targetLang);
+            if ($cached !== null) {
+                return $cached;
+            }
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] TM lookup unavailable: ' . $e->getMessage());
+        }
+
+        // #667 Phase 1 - quota gate for translate (separate from the llm
+        // bucket so operators can throttle translate independently).
+        try {
+            app(\AhgAiServices\Services\QuotaService::class)->consume('translate');
+        } catch (\AhgAiServices\Exceptions\QuotaExceededException $e) {
+            Log::info('[ahg-ai] translate blocked by quota', $e->toArray());
+            throw $e;
+        } catch (\Throwable) {
+            // soft-fail
+        }
+
         // #128: SA-language targets route to MzansiLM when the operator has
         // enabled it - qwen3 produces Dutch-flavoured / hallucinated output for
         // those languages. Returns null (fall through to the MT/LLM path) when
         // MzansiLM is not configured for this locale or the call fails.
         $viaMzansi = $this->translateViaMzansiLm($text, $targetLang);
         if ($viaMzansi !== null) {
+            if ($tm !== null) {
+                try { $tm->store($text, $sourceLang, $targetLang, $viaMzansi, 'mzansilm', null); } catch (\Throwable) {}
+            }
             return $viaMzansi;
         }
 
@@ -667,6 +743,9 @@ class LlmService
                 if ($resp->ok()) {
                     $body = $resp->json();
                     if (is_array($body) && isset($body['translation']) && is_string($body['translation'])) {
+                        if ($tm !== null) {
+                            try { $tm->store($text, $sourceLang, $targetLang, $body['translation'], 'mt', null); } catch (\Throwable) {}
+                        }
                         return $body['translation'];
                     }
                 }
@@ -683,7 +762,15 @@ class LlmService
             . "Output only the translation, no preamble.\n\n"
             . "Text:\n{$text}";
 
-        return $this->complete($prompt);
+        // The translate gate has already debited one unit above; tell the
+        // downstream complete() to not double-debit by tagging the bucket
+        // explicitly. complete() will use 'translate' (a known bucket) and
+        // the per-call accounting will still record the right service.
+        $out = $this->complete($prompt, ['skip_quota_gate' => true]);
+        if ($out !== null && $tm !== null) {
+            try { $tm->store($text, $sourceLang, $targetLang, $out, 'machine', null); } catch (\Throwable) {}
+        }
+        return $out;
     }
 
     /**
@@ -837,7 +924,7 @@ class LlmService
      *
      * @return array Array of ['original' => string, 'suggestion' => string, 'position' => int]
      */
-    public function spellcheck(string $text): array
+    public function spellcheck(string $text, array $options = []): array
     {
         if (empty(trim($text))) {
             return [];
@@ -849,18 +936,35 @@ class LlmService
         if ($aiSet && !$aiSet::spellcheckEnabled()) {
             return [];
         }
-        $lang = $aiSet ? $aiSet::spellcheckLanguage() : 'en';
+        $lang = $options['lang'] ?? ($aiSet ? $aiSet::spellcheckLanguage() : 'en');
 
+        // #667 Phase 1 - quota gate for spellcheck.
+        try {
+            app(\AhgAiServices\Services\QuotaService::class)->consume('spellcheck');
+        } catch (\AhgAiServices\Exceptions\QuotaExceededException $e) {
+            Log::info('[ahg-ai] spellcheck blocked by quota', $e->toArray());
+            throw $e;
+        } catch (\Throwable) {
+            // soft-fail
+        }
+
+        // #667 Phase 1 - inline mode. The legacy contract returned
+        // {original, suggestion, position} per error; inline mode now
+        // also includes {position_start, position_end} computed from the
+        // first exact-match search of `original` in the input text. The
+        // original keys remain for backward compatibility.
         $prompt = "Check the following text in language '{$lang}' for spelling and grammar errors. "
+            . "Preserve formatting (line breaks, punctuation) - do not rewrite the text. "
             . "Return ONLY a valid JSON array of corrections. Each item must have:\n"
-            . "- \"original\": the misspelled/incorrect word or phrase\n"
+            . "- \"original\": the misspelled/incorrect word or phrase as it appears verbatim in the text\n"
             . "- \"suggestion\": the corrected version\n"
+            . "- \"suggestions\": (optional) array of alternative corrections\n"
             . "- \"position\": approximate character position in the text (0-based)\n\n"
             . "If there are no errors, return an empty array: []\n\n"
             . "Text:\n{$text}\n\n"
             . "JSON:";
 
-        $result = $this->complete($prompt, ['temperature' => 0.1]);
+        $result = $this->complete($prompt, ['temperature' => 0.1, 'skip_quota_gate' => true]);
 
         if (!$result) {
             return [];
@@ -880,16 +984,38 @@ class LlmService
             return [];
         }
 
-        // Validate structure of each correction
+        // Validate structure of each correction + compute inline offsets.
         $corrections = [];
         foreach ($parsed as $item) {
-            if (isset($item['original'], $item['suggestion'])) {
-                $corrections[] = [
-                    'original'   => $item['original'],
-                    'suggestion' => $item['suggestion'],
-                    'position'   => (int) ($item['position'] ?? 0),
-                ];
+            if (!isset($item['original'], $item['suggestion'])) {
+                continue;
             }
+            $original   = (string) $item['original'];
+            $suggestion = (string) $item['suggestion'];
+
+            // Hint: start search from the LLM's reported position so we
+            // pick the right occurrence in a doc with the same misspelling
+            // multiple times.
+            $hint = max(0, (int) ($item['position'] ?? 0) - 16);
+            $start = stripos($text, $original, $hint);
+            if ($start === false) {
+                $start = stripos($text, $original);
+            }
+            $end = ($start === false) ? null : $start + strlen($original);
+
+            $suggestions = $item['suggestions'] ?? [$suggestion];
+            if (!is_array($suggestions)) {
+                $suggestions = [$suggestion];
+            }
+
+            $corrections[] = [
+                'original'       => $original,
+                'suggestion'     => $suggestion,
+                'suggestions'    => array_values(array_filter($suggestions, 'is_string')),
+                'position'       => (int) ($item['position'] ?? 0),
+                'position_start' => $start === false ? null : (int) $start,
+                'position_end'   => $end,
+            ];
         }
 
         return $corrections;

@@ -246,4 +246,136 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+-- =====================================================
+-- Phase 1 #703 - ILL / Serials / Acquisitions / ISBN providers
+-- =====================================================
+
+-- Interlibrary loan requests (both borrow and lend directions)
+CREATE TABLE IF NOT EXISTS library_ill_request (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    ill_number VARCHAR(50) NOT NULL,
+    type VARCHAR(20) NOT NULL DEFAULT 'borrow' COMMENT 'borrow|lend',
+    title VARCHAR(500) NOT NULL DEFAULT '',
+    author VARCHAR(255) NOT NULL DEFAULT '',
+    isbn VARCHAR(32) NOT NULL DEFAULT '',
+    library_name VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Counterparty library',
+    patron_id BIGINT UNSIGNED NULL COMMENT 'FK to library_patron (borrow direction)',
+    request_date DATE NULL,
+    due_date DATE NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'pending' COMMENT 'pending|requested|shipped|received|returned|cancelled',
+    notes TEXT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    UNIQUE KEY uk_library_ill_number (ill_number),
+    INDEX idx_library_ill_status (status),
+    INDEX idx_library_ill_type (type),
+    INDEX idx_library_ill_patron (patron_id),
+    INDEX idx_library_ill_request_date (request_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Serial titles (library holdings of journals / periodicals)
+CREATE TABLE IF NOT EXISTS library_serial (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(500) NOT NULL,
+    issn VARCHAR(20) NOT NULL DEFAULT '',
+    frequency VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'Monthly, Quarterly, Annual, etc.',
+    publisher VARCHAR(255) NOT NULL DEFAULT '',
+    status VARCHAR(32) NOT NULL DEFAULT 'active' COMMENT 'active|ceased|suspended',
+    notes TEXT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    INDEX idx_library_serial_title (title),
+    INDEX idx_library_serial_issn (issn),
+    INDEX idx_library_serial_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Per-issue holdings against a serial title
+CREATE TABLE IF NOT EXISTS library_serial_issue (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    serial_id BIGINT UNSIGNED NOT NULL,
+    volume VARCHAR(32) NOT NULL DEFAULT '',
+    issue_number VARCHAR(32) NOT NULL DEFAULT '',
+    issue_date DATE NULL,
+    received_at DATE NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'received' COMMENT 'received|claimed|missing',
+    notes TEXT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    INDEX idx_library_serial_issue_serial (serial_id),
+    INDEX idx_library_serial_issue_date (issue_date),
+    CONSTRAINT fk_library_serial_issue_serial FOREIGN KEY (serial_id)
+        REFERENCES library_serial(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Acquisition budgets (fiscal-year allocations, spent is derived from orders)
+CREATE TABLE IF NOT EXISTS library_acquisition_budget (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    fiscal_year SMALLINT UNSIGNED NOT NULL,
+    allocated DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    notes TEXT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    INDEX idx_library_budget_year (fiscal_year),
+    INDEX idx_library_budget_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Acquisition orders (vendor purchase orders)
+CREATE TABLE IF NOT EXISTS library_acquisition_order (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_number VARCHAR(50) NOT NULL,
+    vendor_name VARCHAR(255) NOT NULL DEFAULT '',
+    order_date DATE NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'draft' COMMENT 'draft|ordered|received|cancelled',
+    budget_id BIGINT UNSIGNED NULL,
+    notes TEXT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    UNIQUE KEY uk_library_order_number (order_number),
+    INDEX idx_library_order_status (status),
+    INDEX idx_library_order_vendor (vendor_name),
+    INDEX idx_library_order_budget (budget_id),
+    INDEX idx_library_order_date (order_date),
+    CONSTRAINT fk_library_order_budget FOREIGN KEY (budget_id)
+        REFERENCES library_acquisition_budget(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Line items on an acquisition order
+CREATE TABLE IF NOT EXISTS library_acquisition_order_line (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT UNSIGNED NOT NULL,
+    isbn VARCHAR(32) NOT NULL DEFAULT '',
+    title VARCHAR(500) NOT NULL DEFAULT '',
+    quantity INT UNSIGNED NOT NULL DEFAULT 1,
+    unit_price DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    INDEX idx_library_order_line_order (order_id),
+    INDEX idx_library_order_line_isbn (isbn),
+    CONSTRAINT fk_library_order_line_order FOREIGN KEY (order_id)
+        REFERENCES library_acquisition_order(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Persisted ISBN lookup provider registry (Open Library + Google Books + WorldCat)
+CREATE TABLE IF NOT EXISTS library_isbn_provider (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    api_url VARCHAR(500) NOT NULL DEFAULT '',
+    api_key VARCHAR(255) NOT NULL DEFAULT '',
+    priority INT UNSIGNED NOT NULL DEFAULT 0,
+    active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    UNIQUE KEY uk_library_isbn_provider_name (name),
+    INDEX idx_library_isbn_provider_priority (priority, active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed: default provider order. INSERT IGNORE keeps existing rows untouched on
+-- re-run; LibraryIsbnProviderService also runs the same seed on first list().
+INSERT IGNORE INTO library_isbn_provider (name, api_url, api_key, priority, active, created_at, updated_at)
+VALUES
+    ('Open Library', 'https://openlibrary.org/api/books', '', 10, 1, NOW(), NOW()),
+    ('Google Books', 'https://www.googleapis.com/books/v1/volumes', '', 20, 0, NOW(), NOW()),
+    ('WorldCat',     'https://www.worldcat.org/webservices/catalog/content', '', 30, 0, NOW(), NOW());
+
 SET FOREIGN_KEY_CHECKS = 1;

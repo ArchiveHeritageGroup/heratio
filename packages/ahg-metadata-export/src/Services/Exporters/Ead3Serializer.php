@@ -56,6 +56,8 @@ class Ead3Serializer
         $genres = $this->fetchAccessPoints($io, 78, $culture);
         $levelName = $this->fetchLevelName($io, $culture);
         $children = $includeChildren ? $this->fetchDescendants($io, $culture) : collect();
+        $relations = $this->fetchIoRelations($io);
+        $legalStatus = $this->fetchLegalStatus($io);
 
         $eadLevel = $this->mapLevelToEad($levelName);
         $dateNormal = gmdate('Y-m-d');
@@ -170,6 +172,14 @@ class Ead3Serializer
             $xml .= '  <relatedmaterial><p>'.$this->escXml($io->related_units_of_description)."</p></relatedmaterial>\n";
         }
 
+        // <legalstatus> - publication / disclosure status. Mapped from the
+        // status table (type_id=158 publication status) when present so
+        // EAD3 harvesters can distinguish Published vs Draft. EAD3 schema
+        // requires <legalstatus> to live inside <accessrestrict>.
+        if ($legalStatus !== null) {
+            $xml .= '  <accessrestrict><legalstatus>'.$this->escXml($legalStatus)."</legalstatus></accessrestrict>\n";
+        }
+
         if ($subjects->isNotEmpty() || $places->isNotEmpty() || $genres->isNotEmpty()) {
             $xml .= "  <controlaccess>\n";
             foreach ($subjects as $s) {
@@ -182,6 +192,23 @@ class Ead3Serializer
                 $xml .= '    <genreform><part>'.$this->escXml($g->name)."</part></genreform>\n";
             }
             $xml .= "  </controlaccess>\n";
+        }
+
+        // <relations> - EAD3 cross-references between IOs. Sourced from
+        // the generic `relation` table (subject_id -> object_id). Each row
+        // emits a <relation relationtype="otherrelationtype" href="...">
+        // pointing at the slug of the related object.
+        if (! empty($relations)) {
+            $xml .= "  <relations>\n";
+            foreach ($relations as $r) {
+                $type = $r->relationtype ?: 'otherrelationtype';
+                $href = $r->slug ? '/'.$r->slug : ('#io-'.$r->related_id);
+                $label = $r->related_title ?: $r->related_identifier ?: ('IO #'.$r->related_id);
+                $xml .= '    <relation relationtype="'.$this->escXml($type).'" href="'.$this->escXml($href).'">';
+                $xml .= '<relationentry>'.$this->escXml($label).'</relationentry>';
+                $xml .= "</relation>\n";
+            }
+            $xml .= "  </relations>\n";
         }
 
         if ($includeChildren && $children->isNotEmpty()) {
@@ -224,5 +251,103 @@ class Ead3Serializer
         $xml .= "</archdesc>\n</ead>";
 
         return $xml;
+    }
+
+    /**
+     * Fetch IO-to-IO cross-references from the generic `relation` table.
+     * Returns rows shaped {related_id, related_title, related_identifier,
+     * slug, relationtype}. Empty array when the relation table is missing
+     * or holds no IO links for this object.
+     *
+     * Skipped when the schema isn't present so callers in test envs
+     * without a DB still serialize cleanly.
+     *
+     * @return array<int, object>
+     */
+    protected function fetchIoRelations($io): array
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('relation')) {
+                return [];
+            }
+            // Both directions: where the IO is the subject OR the object.
+            $forward = DB::table('relation as r')
+                ->join('information_object as io2', 'io2.id', '=', 'r.object_id')
+                ->leftJoin('information_object_i18n as i18n', function ($j) {
+                    $j->on('i18n.id', '=', 'io2.id')->where('i18n.culture', 'en');
+                })
+                ->leftJoin('slug as s', 's.object_id', '=', 'io2.id')
+                ->leftJoin('term_i18n as ti', function ($j) {
+                    $j->on('ti.id', '=', 'r.type_id')->where('ti.culture', 'en');
+                })
+                ->where('r.subject_id', $io->id)
+                ->select(
+                    'io2.id as related_id',
+                    'i18n.title as related_title',
+                    'io2.identifier as related_identifier',
+                    's.slug',
+                    'ti.name as relationtype'
+                )
+                ->get();
+            $reverse = DB::table('relation as r')
+                ->join('information_object as io2', 'io2.id', '=', 'r.subject_id')
+                ->leftJoin('information_object_i18n as i18n', function ($j) {
+                    $j->on('i18n.id', '=', 'io2.id')->where('i18n.culture', 'en');
+                })
+                ->leftJoin('slug as s', 's.object_id', '=', 'io2.id')
+                ->leftJoin('term_i18n as ti', function ($j) {
+                    $j->on('ti.id', '=', 'r.type_id')->where('ti.culture', 'en');
+                })
+                ->where('r.object_id', $io->id)
+                ->select(
+                    'io2.id as related_id',
+                    'i18n.title as related_title',
+                    'io2.identifier as related_identifier',
+                    's.slug',
+                    'ti.name as relationtype'
+                )
+                ->get();
+            return $forward->concat($reverse)->all();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Map this IO's publication status (status table, type_id=158) to a
+     * short EAD3 legalstatus string. Returns null when no published-status
+     * row exists or the schema isn't reachable.
+     */
+    protected function fetchLegalStatus($io): ?string
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('status')) {
+                return null;
+            }
+            $row = DB::table('status as s')
+                ->leftJoin('term_i18n as ti', function ($j) {
+                    $j->on('ti.id', '=', 's.status_id')->where('ti.culture', 'en');
+                })
+                ->where('s.object_id', $io->id)
+                ->where('s.type_id', 158)
+                ->select('s.status_id', 'ti.name')
+                ->first();
+            if (! $row) {
+                return null;
+            }
+            // Status 160 = Published, 159 = Draft. EAD3 legalstatus is
+            // free text but harvesters tend to expect a small enumerated
+            // vocabulary, so we normalise the two known values.
+            $sid = (int) $row->status_id;
+            if ($sid === 160) {
+                return 'Published';
+            }
+            if ($sid === 159) {
+                return 'Draft';
+            }
+            return $row->name ?: null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }

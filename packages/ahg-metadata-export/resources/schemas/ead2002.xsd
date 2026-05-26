@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ead2002.xsd - permissive local stand-in for the EAD 2002 schema.
+
+  Same rationale as the ead3.xsd sibling: structural-only validator
+  (root is <ead> in urn:isbn:1-931666-22-9, accepts any well-formed
+  content inside). Replace with the full upstream EAD 2002 XSD from
+  https://www.loc.gov/ead/ead.xsd if strict validation is needed.
+
+  Vendored: 2026-05-26 for issue #657 Phase 1.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="urn:isbn:1-931666-22-9"
+           targetNamespace="urn:isbn:1-931666-22-9"
+           elementFormDefault="qualified">
+
+  <xs:element name="ead">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+      </xs:sequence>
+      <xs:anyAttribute processContents="skip"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

@@ -408,4 +408,28 @@ INSERT IGNORE INTO `iiif_auth_service` (`name`, `profile`, `auth_version`, `acce
 ('restricted-v2', 'login', '2.0', 'active', 'Restricted Access', 'This resource has restricted access', 'Request Access', 'Restricted Content', 'This content is restricted. Please contact the repository for access.', 'Restricted Content', 'This content is restricted. Contact the archive for access.')
 ON DUPLICATE KEY UPDATE `label` = VALUES(`label`);
 
+-- =============================================================================
+-- IIIF Change Discovery 1.0 (issue #695)
+-- Activity-stream log of manifest lifecycle events. One row per
+-- Create / Update / Delete; emitted at /iiif/discovery/changes as a
+-- W3C Activity Streams 2.0 OrderedCollection + OrderedCollectionPage so
+-- harvesters can do ResourceSync-style change tracking on IIIF resources.
+-- Spec: https://iiif.io/api/discovery/1.0/
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS `iiif_manifest_change` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `object_id` INT NOT NULL COMMENT 'information_object.id the manifest is generated from',
+    `slug` VARCHAR(255) NOT NULL COMMENT 'manifest slug at the time of the event',
+    `manifest_uri` VARCHAR(1024) NOT NULL COMMENT 'full IIIF manifest IRI',
+    `change_type` VARCHAR(16) NOT NULL COMMENT 'Create | Update | Delete',
+    `actor` VARCHAR(255) DEFAULT NULL COMMENT 'username or system actor that triggered the change',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_object` (`object_id`),
+    KEY `idx_slug` (`slug`),
+    KEY `idx_change_type` (`change_type`),
+    KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

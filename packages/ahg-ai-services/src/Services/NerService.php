@@ -112,27 +112,93 @@ class NerService
             return $default;
         }
 
+        // #667 Phase 1 - per-tenant quota gate. The gate runs BEFORE both
+        // dispatch paths (API + LLM fallback) so an over-budget tenant
+        // cannot side-step it by toggling settings.
+        try {
+            app(\AhgAiServices\Services\QuotaService::class)->consume('ner');
+        } catch (\AhgAiServices\Exceptions\QuotaExceededException $e) {
+            Log::info('[ahg-ai] NER blocked by quota', $e->toArray());
+            throw $e;
+        } catch (\Throwable) {
+            // soft-fail
+        }
+        $t0 = microtime(true);
+
+        // #667 Phase 1 - gazetteer pre-pass. Custom entities the operator
+        // has curated are tagged BEFORE the ML model runs so high-value
+        // local labels (project codes, micro-places, etc.) are never
+        // missed by the ML pipeline.
+        $gazetteer = [
+            'buckets' => ['persons' => [], 'organizations' => [], 'places' => [], 'dates' => [], 'customs' => []],
+            'detailed' => [],
+        ];
+        try {
+            $gazetteer = app(\AhgAiServices\Services\NerGazetteerService::class)->scan($text);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] NER gazetteer pre-pass failed: ' . $e->getMessage());
+        }
+
         // Try the dedicated AI API first
         $apiResult = $this->extractViaApi($text);
 
         if ($apiResult !== null) {
             $this->captureDetailedEntities($apiResult);
+            // Splice gazetteer hits into the detailed list so downstream
+            // overlays render them with the same shape as ML hits.
+            foreach ($gazetteer['detailed'] as $rec) {
+                $this->lastDetailedEntities[] = [
+                    'value'        => $rec['value'],
+                    'type'         => $rec['type'],
+                    'offset_start' => $rec['offset_start'],
+                    'offset_end'   => $rec['offset_end'],
+                    'score'        => null,
+                ];
+            }
             $normalised = $this->normalizeApiResult($apiResult);
+            $merged = $this->mergeGazetteer($normalised, $gazetteer['buckets']);
+            $modelId = (string) ($apiResult['model'] ?? 'ner-gateway');
             $this->logInferenceReceipt(
                 'ner',
-                (string) ($apiResult['model'] ?? 'ner-gateway'),
+                $modelId,
                 $apiResult['model_version'] ?? null,
                 $text,
-                (string) json_encode($normalised, JSON_UNESCAPED_UNICODE),
+                (string) json_encode($merged, JSON_UNESCAPED_UNICODE),
                 [],
             );
-            return $normalised;
+            try {
+                app(\AhgAiServices\Services\CostService::class)->record('ner', $modelId, [
+                    'duration_ms' => (int) round((microtime(true) - $t0) * 1000),
+                ]);
+            } catch (\Throwable) {
+                // never block inference
+            }
+            return $merged;
         }
 
         // Fall back to LLM-based extraction (no per-entity offsets/scores).
         // The LlmService::complete path already emits its own receipt, so we
-        // don't double-log here.
-        return $this->llmService->extractEntities($text);
+        // don't double-log here. Tell the downstream LLM gate to skip
+        // re-debiting the bucket - we've already debited 'ner' above.
+        $llm = $this->llmService->extractEntities($text);
+        return $this->mergeGazetteer($llm, $gazetteer['buckets']);
+    }
+
+    /**
+     * #667 Phase 1 - merge gazetteer hits into ML buckets. Gazetteer wins
+     * on dedup (case-insensitive). Returns the canonical NER bucket shape.
+     *
+     * @param array<string,list<string>> $ml
+     * @param array<string,list<string>> $gaz
+     * @return array<string,list<string>>
+     */
+    private function mergeGazetteer(array $ml, array $gaz): array
+    {
+        try {
+            return app(\AhgAiServices\Services\NerGazetteerService::class)->merge($ml, $gaz);
+        } catch (\Throwable) {
+            return $ml;
+        }
     }
 
     private function logInferenceReceipt(

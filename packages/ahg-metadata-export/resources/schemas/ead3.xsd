@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ead3.xsd - permissive local stand-in for the full EAD 3 schema.
+
+  The full EAD 3 schema from the Society of American Archivists is ~200KB
+  and pulls in xml.xsd, xlink.xsd, etc. For Heratio's import pipeline we
+  only need a structural validator that:
+
+    - confirms the root element is <ead> in the EAD3 namespace
+    - accepts anything inside (the importer is field-tolerant by design)
+
+  Operators who need full schema-level validation can replace this file
+  with the upstream copy from https://www.loc.gov/ead/ead3.xsd. The
+  importer reads whatever lives at this path - no code change needed.
+
+  Reference: https://www.loc.gov/ead/EAD3taglib/
+  Vendored: 2026-05-26 for issue #657 Phase 1.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://ead3.archivists.org/schema/"
+           targetNamespace="http://ead3.archivists.org/schema/"
+           elementFormDefault="qualified">
+
+  <xs:element name="ead">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+      </xs:sequence>
+      <xs:anyAttribute processContents="skip"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

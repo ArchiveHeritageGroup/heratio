@@ -46,3 +46,16 @@ Route::prefix('admin/marc')->middleware(['web', 'auth'])->group(function () {
         ->name('ahgmetadataexport.marc.import.commit');
 });
 // ---- END MARCXML import -----------------------------------------------------
+
+// ---- BEGIN EAD import (#657 Phase 1) ----------------------------------------
+// Native EAD 2002 + EAD 3 XML upload, parse, preview, commit. Same /admin
+// prefix rules as MARCXML import.
+Route::prefix('admin/ead')->middleware(['web', 'auth'])->group(function () {
+    Route::get('/import', [\AhgMetadataExport\Controllers\EadImportController::class, 'form'])
+        ->name('ahgmetadataexport.ead.import');
+    Route::post('/import/preview', [\AhgMetadataExport\Controllers\EadImportController::class, 'preview'])
+        ->name('ahgmetadataexport.ead.import.preview');
+    Route::post('/import/commit', [\AhgMetadataExport\Controllers\EadImportController::class, 'commit'])
+        ->name('ahgmetadataexport.ead.import.commit');
+});
+// ---- END EAD import ---------------------------------------------------------

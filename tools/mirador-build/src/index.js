@@ -16,6 +16,14 @@ import { installPersistence as installHeratioWorkspacePersistence } from './hera
 // SearchPanel overrides). The actual search UI is provided by Mirador 4
 // core, triggered by the SearchService2 service block in the manifest.
 import heratioSearchPlugins from './heratio-search-plugin.js';
+// ---- Heratio additions (issues #700 + #701) ----
+// Comparison glass / dual-pane slider (issue #700) and A/V playback +
+// transcript panel (issue #701). Each plugin lives in its own file;
+// only the import + the plugins[] append below should be touched when
+// either issue gets revised.
+import heratioComparisonPlugin from './heratio-comparison-plugin.js';
+import heratioAvPlugin from './heratio-av-plugin.js';
+// ---- End Heratio additions (#700 + #701) ----
 
 /**
  * HeratioAnnotationAdapter — Annotot-shaped storage adapter that round-
@@ -162,6 +170,10 @@ const plugins = [
   // helpers are exposed on window.HeratioSearchPlugin for the host page
   // to call before Mirador.viewer()).
   ...heratioSearchPlugins,
+  // ---- Heratio additions (issues #700 + #701) ----
+  ...heratioComparisonPlugin,
+  ...heratioAvPlugin,
+  // ---- End Heratio additions (#700 + #701) ----
 ];
 
 /**

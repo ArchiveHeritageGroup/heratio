@@ -632,4 +632,136 @@ INSERT IGNORE INTO ahg_ai_settings (feature, setting_key, setting_value) VALUES
     ('ocr', 'ocr_llm_correction_min_confidence', '70'),
     ('ocr', 'ocr_premis_events_enabled',         '1');
 
+-- ============================================================================
+-- SECTION 7: Issue #667 Phase 1 — quotas, cost tracking, translation memory,
+-- custom NER entities, face detection placeholder
+-- ============================================================================
+
+-- Per-tenant quotas. `tenant_id = 0` represents the global default ("any
+-- tenant"); the service auto-seeds one row per service with daily/monthly
+-- limits of 0 meaning "unlimited". Operators override per tenant.
+CREATE TABLE IF NOT EXISTS ahg_ai_quota (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    tenant_id INT NOT NULL DEFAULT 0,
+    service VARCHAR(32) NOT NULL,
+    daily_limit INT NOT NULL DEFAULT 0,
+    monthly_limit INT NOT NULL DEFAULT 0,
+    used_today INT NOT NULL DEFAULT 0,
+    used_this_month INT NOT NULL DEFAULT 0,
+    reset_day TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    last_reset_at TIMESTAMP NULL DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_quota_tenant_service (tenant_id, service),
+    INDEX idx_quota_service (service)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Per-call cost ledger. One row per inference dispatch, cross-linked into
+-- the inference-receipt chain via `request_id`. cost_usd is computed from
+-- ahg_ai_pricing at insert time; null = no pricing row for this model.
+CREATE TABLE IF NOT EXISTS ahg_ai_call_cost (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    tenant_id INT NOT NULL DEFAULT 0,
+    service VARCHAR(32) NOT NULL,
+    model_id VARCHAR(128) NOT NULL,
+    tokens_in INT NOT NULL DEFAULT 0,
+    tokens_out INT NOT NULL DEFAULT 0,
+    cost_usd DECIMAL(10,4) NULL,
+    duration_ms INT NULL,
+    request_id VARCHAR(64) NULL,
+    called_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_call_cost_tenant (tenant_id),
+    INDEX idx_call_cost_service (service),
+    INDEX idx_call_cost_called_at (called_at),
+    INDEX idx_call_cost_request (request_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Per-model pricing reference. Tokens-per-1k convention matches OpenAI /
+-- Anthropic published rates. currency defaults to USD; operator may extend
+-- to ZAR/EUR/etc. The cost service falls back to NULL cost_usd when no row
+-- matches the model_id.
+CREATE TABLE IF NOT EXISTS ahg_ai_pricing (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    model_id VARCHAR(128) NOT NULL,
+    input_cost_per_1k_tokens DECIMAL(10,6) NOT NULL DEFAULT 0,
+    output_cost_per_1k_tokens DECIMAL(10,6) NOT NULL DEFAULT 0,
+    currency CHAR(3) NOT NULL DEFAULT 'USD',
+    notes VARCHAR(255) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_pricing_model (model_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Translation memory. SHA-256 of (source_text || '\0' || source_lang ||
+-- '\0' || target_lang) is the lookup key. Provenance distinguishes human
+-- review from machine, gateway from local, etc.
+CREATE TABLE IF NOT EXISTS ahg_translation_memory (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    source_text_hash CHAR(64) NOT NULL,
+    source_lang CHAR(8) NOT NULL DEFAULT '',
+    target_lang CHAR(8) NOT NULL,
+    source_text TEXT NOT NULL,
+    target_text TEXT NOT NULL,
+    provenance VARCHAR(32) NOT NULL DEFAULT 'machine',
+    confidence FLOAT NULL,
+    hit_count INT UNSIGNED NOT NULL DEFAULT 0,
+    last_used_at TIMESTAMP NULL DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_tm_hash_target (source_text_hash, target_lang),
+    INDEX idx_tm_target (target_lang),
+    INDEX idx_tm_provenance (provenance)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Operator-curated NER gazetteer. NerService::extract() does an
+-- exact + alias substring pre-pass against this table before invoking the
+-- ML model so high-value local labels (project names, place names, etc.)
+-- are never missed by the ML side.
+CREATE TABLE IF NOT EXISTS ahg_ner_custom_entity (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    entity_type VARCHAR(64) NOT NULL,
+    label VARCHAR(255) NOT NULL,
+    aliases JSON NULL,
+    definition TEXT NULL,
+    target_uri VARCHAR(512) NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_ner_custom_type (entity_type),
+    INDEX idx_ner_custom_label (label),
+    INDEX idx_ner_custom_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed default quotas (unlimited) for the seven gated services on the
+-- global tenant row. Operators override per tenant via the admin UI.
+INSERT IGNORE INTO ahg_ai_quota (tenant_id, service, daily_limit, monthly_limit) VALUES
+    (0, 'llm',         0, 0),
+    (0, 'ner',         0, 0),
+    (0, 'htr',         0, 0),
+    (0, 'donut',       0, 0),
+    (0, 'translate',   0, 0),
+    (0, 'spellcheck',  0, 0),
+    (0, 'face_detect', 0, 0);
+
+-- Seed common pricing rows so cost tracking has something to read on day 1.
+-- Operators update via the admin UI; rates here are 2026-Q1 published.
+INSERT IGNORE INTO ahg_ai_pricing (model_id, input_cost_per_1k_tokens, output_cost_per_1k_tokens, currency, notes) VALUES
+    ('local',                0.000000, 0.000000, 'USD', 'local Ollama / vLLM endpoint - amortised, not metered'),
+    ('gpt-4o-mini',          0.000150, 0.000600, 'USD', 'OpenAI gpt-4o-mini Q1-2026'),
+    ('gpt-4o',               0.002500, 0.010000, 'USD', 'OpenAI gpt-4o Q1-2026'),
+    ('claude-3-5-sonnet',    0.003000, 0.015000, 'USD', 'Anthropic Claude 3.5 Sonnet Q1-2026'),
+    ('claude-3-5-haiku',     0.000800, 0.004000, 'USD', 'Anthropic Claude 3.5 Haiku Q1-2026'),
+    ('qwen3:14b',            0.000000, 0.000000, 'USD', 'self-hosted Ollama'),
+    ('qwen3:8b',             0.000000, 0.000000, 'USD', 'self-hosted Ollama'),
+    ('htr-gateway',          0.000000, 0.000000, 'USD', 'AHG HTR gateway - amortised'),
+    ('donut-gateway',        0.000000, 0.000000, 'USD', 'AHG Donut gateway - amortised'),
+    ('ner-gateway',          0.000000, 0.000000, 'USD', 'AHG NER gateway - amortised');
+
+-- Face detection settings.
+INSERT IGNORE INTO ahg_ai_settings (feature, setting_key, setting_value) VALUES
+    ('face_detect', 'enabled',        '0'),
+    ('face_detect', 'driver',         'null'),
+    ('face_detect', 'api_url',        ''),
+    ('face_detect', 'api_key',        ''),
+    ('face_detect', 'min_confidence', '0.70');
+
 SET FOREIGN_KEY_CHECKS = 1;

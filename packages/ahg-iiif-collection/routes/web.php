@@ -1,7 +1,10 @@
 <?php
 
+use AhgIiifCollection\Controllers\IiifAuthFlow2Controller;
+use AhgIiifCollection\Controllers\IiifChangeDiscoveryController;
 use AhgIiifCollection\Controllers\IiifCollectionController;
 use AhgIiifCollection\Controllers\IiifContentSearchController;
+use AhgIiifCollection\Controllers\IiifContentStateController;
 use AhgIiifCollection\Controllers\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +36,27 @@ Route::get('/iiif-auth/logout-success', function () { return view('ahg-iiif-coll
 // IIIF viewer/compare/validation (public) — use /iiif-viewer prefix to avoid nginx /iiif/ proxy
 Route::get('/iiif-viewer/{slug}', [IiifCollectionController::class, 'viewer'])->name('iiif.viewer');
 Route::get('/iiif-compare', [IiifCollectionController::class, 'compare'])->name('iiif.compare');
+
+// --- BEGIN issue #695: IIIF Change Discovery 1.0 ---
+// Activity-streams OrderedCollection of manifest lifecycle changes.
+// nginx routes /iiif/ to Cantaloupe, but /iiif/discovery/ is anchored
+// at this Laravel app via a path-prefix exemption in the nginx config.
+Route::get('/iiif/discovery/changes', [IiifChangeDiscoveryController::class, 'changes'])
+    ->name('iiif.discovery.changes');
+// --- END issue #695 ---
+
+// --- BEGIN issue #696: IIIF Content State + Auth 2.0 ---
+Route::post('/iiif/content-state/encode', [IiifContentStateController::class, 'encode'])
+    ->name('iiif.content-state.encode');
+Route::get('/iiif/content-state/decode', [IiifContentStateController::class, 'decode'])
+    ->name('iiif.content-state.decode');
+Route::get('/iiif/auth/2/probe', [IiifAuthFlow2Controller::class, 'probe'])
+    ->name('iiif.auth2.probe');
+Route::get('/iiif/auth/2/access', [IiifAuthFlow2Controller::class, 'access'])
+    ->name('iiif.auth2.access');
+Route::get('/iiif/auth/2/token', [IiifAuthFlow2Controller::class, 'token'])
+    ->name('iiif.auth2.token');
+// --- END issue #696 ---
 
 // Authenticated routes
 Route::middleware('auth')->group(function () {

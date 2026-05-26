@@ -58,6 +58,16 @@ class DonutService
      */
     public function extract(string $filePath): ?array
     {
+        // #667 Phase 1 - per-tenant quota gate.
+        try {
+            app(\AhgAiServices\Services\QuotaService::class)->consume('donut');
+        } catch (\AhgAiServices\Exceptions\QuotaExceededException $e) {
+            Log::info('[ahg-ai] Donut blocked by quota', $e->toArray());
+            throw $e;
+        } catch (\Throwable) {
+            // soft-fail
+        }
+
         try {
             $t0 = microtime(true);
             $response = Http::timeout(60)
@@ -67,14 +77,23 @@ class DonutService
                 return null;
             }
             $body = $response->json();
+            $modelId = (string) ($body['model'] ?? 'donut-gateway');
+            $durationMs = (int) round((microtime(true) - $t0) * 1000);
             $this->logInferenceReceipt(
                 'donut',
-                (string) ($body['model'] ?? 'donut-gateway'),
+                $modelId,
                 $body['model_version'] ?? null,
                 'file:' . basename($filePath) . ':' . (is_readable($filePath) ? (string) filesize($filePath) : '?'),
                 is_array($body) ? json_encode($body, JSON_UNESCAPED_UNICODE) : (string) $body,
-                ['latency_ms' => (int) round((microtime(true) - $t0) * 1000)],
+                ['latency_ms' => $durationMs],
             );
+            try {
+                app(\AhgAiServices\Services\CostService::class)->record('donut', $modelId, [
+                    'duration_ms' => $durationMs,
+                ]);
+            } catch (\Throwable) {
+                // never block inference
+            }
             return $body;
         } catch (\Exception $e) {
             Log::error('Donut extract failed: ' . $e->getMessage());

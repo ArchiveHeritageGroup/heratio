@@ -40,6 +40,10 @@ class LibraryController extends Controller
     protected \AhgLibrary\Services\LibraryCirculationService $circ;
     protected \AhgLibrary\Services\LibraryPatronService $patrons;
     protected \AhgLibrary\Services\LibraryOpacService $opac;
+    protected \AhgLibrary\Services\LibraryIllService $ill;
+    protected \AhgLibrary\Services\LibrarySerialService $serial;
+    protected \AhgLibrary\Services\LibraryAcquisitionService $acq;
+    protected \AhgLibrary\Services\LibraryIsbnProviderService $isbnProvider;
 
     public function __construct()
     {
@@ -47,6 +51,10 @@ class LibraryController extends Controller
         $this->circ = new \AhgLibrary\Services\LibraryCirculationService();
         $this->patrons = new \AhgLibrary\Services\LibraryPatronService();
         $this->opac = new \AhgLibrary\Services\LibraryOpacService();
+        $this->ill = new \AhgLibrary\Services\LibraryIllService();
+        $this->serial = new \AhgLibrary\Services\LibrarySerialService();
+        $this->acq = new \AhgLibrary\Services\LibraryAcquisitionService();
+        $this->isbnProvider = new \AhgLibrary\Services\LibraryIsbnProviderService();
     }
 
     public function browse(Request $request)
@@ -535,30 +543,133 @@ class LibraryController extends Controller
 
     public function isbnProviders()
     {
-        $providers = collect();
-        return view('ahg-library::library.isbn-providers', compact('providers'));
+        return view('ahg-library::library.isbn-providers', [
+            'providers' => collect($this->isbnProvider->list()),
+        ]);
     }
 
     public function isbnProviderEdit(int $id)
     {
-        $provider = (object) ['id' => $id, 'name' => '', 'api_url' => '', 'api_key' => '', 'priority' => 0, 'active' => true];
+        $provider = $this->isbnProvider->get($id)
+            ?? (object) ['id' => $id, 'name' => '', 'api_url' => '', 'api_key' => '', 'priority' => 0, 'active' => true];
         return view('ahg-library::library.isbn-provider-edit', compact('provider'));
     }
 
     public function isbnProviderStore(Request $request, int $id)
     {
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'api_url'  => 'nullable|string|max:500',
+            'api_key'  => 'nullable|string|max:255',
+            'priority' => 'nullable|integer|min:0',
+            'active'   => 'nullable',
+        ]);
+        $validated['active'] = $request->boolean('active');
+        $this->isbnProvider->save($id, $validated);
         return redirect()->route('library.isbn-providers')->with('success', 'Provider saved.');
     }
 
     // ── Acquisition ────────────────────────────────────────────────
 
-    public function acquisitions() { return view('ahg-library::acquisition.index', ['orders' => collect()]); }
-    public function batchCapture(Request $request) { return view('ahg-library::acquisition.batch-capture', ['orders' => collect(), 'selectedOrderId' => 0, 'rawIsbns' => '']); }
-    public function batchCaptureLookup(Request $request) { return redirect()->route('library.batch-capture')->with('success', 'Lookup complete.'); }
-    public function budgets() { return view('ahg-library::acquisition.budgets', ['budgets' => collect()]); }
-    public function acquisitionOrder(int $id) { $order = (object)['id' => $id, 'order_number' => '', 'vendor_name' => '', 'order_date' => '', 'status' => '']; return view('ahg-library::acquisition.order', ['order' => $order, 'lines' => collect()]); }
-    public function acquisitionOrderEdit(int $id) { $order = (object)['id' => $id, 'order_number' => '', 'vendor_name' => '', 'order_date' => '', 'status' => 'draft']; return view('ahg-library::acquisition.order-edit', compact('order')); }
-    public function acquisitionOrderStore(Request $request, int $id) { return redirect()->route('library.acquisitions')->with('success', 'Order saved.'); }
+    public function acquisitions(Request $request)
+    {
+        return view('ahg-library::acquisition.index', [
+            'orders' => collect($this->acq->listOrders([
+                'status' => $request->query('status'),
+                'search' => $request->query('q'),
+            ])),
+        ]);
+    }
+
+    public function batchCapture(Request $request)
+    {
+        $orders = collect($this->acq->listOrders(['status' => 'draft']));
+        return view('ahg-library::acquisition.batch-capture', [
+            'orders'          => $orders,
+            'selectedOrderId' => (int) $request->query('order_id', 0),
+            'rawIsbns'        => '',
+        ]);
+    }
+
+    public function batchCaptureLookup(Request $request)
+    {
+        $validated = $request->validate([
+            'isbns'    => 'nullable|string',
+            'order_id' => 'nullable|integer|min:0',
+        ]);
+
+        $orderId = (int) ($validated['order_id'] ?? 0);
+        $isbns = preg_split('/[\s,;]+/', (string) ($validated['isbns'] ?? ''), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $added = 0;
+
+        if ($orderId > 0 && $this->acq->getOrder($orderId)) {
+            foreach ($isbns as $raw) {
+                $isbn = preg_replace('/[\s\-]/', '', $raw);
+                if ($isbn === '' || strlen($isbn) > 32) {
+                    continue;
+                }
+                $this->acq->addLine($orderId, [
+                    'isbn'       => $isbn,
+                    'title'      => '',
+                    'quantity'   => 1,
+                    'unit_price' => 0,
+                ]);
+                $added++;
+            }
+        }
+
+        $msg = $added > 0
+            ? "Added $added line(s) to order."
+            : 'Lookup complete.';
+
+        return redirect()->route('library.batch-capture', ['order_id' => $orderId])->with('success', $msg);
+    }
+
+    public function budgets()
+    {
+        return view('ahg-library::acquisition.budgets', [
+            'budgets' => collect($this->acq->listBudgets()),
+        ]);
+    }
+
+    public function acquisitionOrder(int $id)
+    {
+        $order = $this->acq->getOrder($id)
+            ?? (object) ['id' => $id, 'order_number' => '', 'vendor_name' => '', 'order_date' => '', 'status' => ''];
+        return view('ahg-library::acquisition.order', [
+            'order' => $order,
+            'lines' => collect($this->acq->getOrderLines($id)),
+        ]);
+    }
+
+    public function acquisitionOrderEdit(int $id)
+    {
+        $order = $this->acq->getOrder($id)
+            ?? (object) ['id' => $id, 'order_number' => '', 'vendor_name' => '', 'order_date' => '', 'status' => 'draft'];
+        return view('ahg-library::acquisition.order-edit', compact('order'));
+    }
+
+    public function acquisitionOrderStore(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'order_number' => 'required|string|max:50',
+            'vendor_name'  => 'nullable|string|max:255',
+            'order_date'   => 'nullable|date',
+            'status'       => 'nullable|in:draft,ordered,received,cancelled',
+            'budget_id'    => 'nullable|integer|min:0',
+            'notes'        => 'nullable|string',
+        ]);
+
+        if ($id > 0 && $this->acq->getOrder($id)) {
+            $this->acq->updateOrder($id, $validated);
+        } else {
+            $id = $this->acq->createOrder($validated);
+        }
+
+        return $id > 0
+            ? redirect()->route('library.acquisition-order', $id)->with('success', 'Order saved.')
+            : redirect()->route('library.acquisitions')->with('success', 'Order saved.');
+    }
 
     // ── Circulation ────────────────────────────────────────────────
 
@@ -585,8 +696,27 @@ class LibraryController extends Controller
 
     // ── ILL ────────────────────────────────────────────────────────
 
-    public function ill() { return view('ahg-library::ill.index', ['requests' => collect()]); }
-    public function illView(int $id) { $request = (object)['id' => $id, 'ill_number' => '', 'type' => '', 'title' => '', 'author' => '', 'isbn' => '', 'library_name' => '', 'request_date' => '', 'status' => '']; return view('ahg-library::ill.view', ['request' => $request]); }
+    public function ill(Request $request)
+    {
+        return view('ahg-library::ill.index', [
+            'requests' => collect($this->ill->list([
+                'status' => $request->query('status'),
+                'type'   => $request->query('type'),
+                'search' => $request->query('q'),
+            ])),
+        ]);
+    }
+
+    public function illView(int $id)
+    {
+        $req = $this->ill->get($id)
+            ?? (object) [
+                'id' => $id, 'ill_number' => '', 'type' => '', 'title' => '',
+                'author' => '', 'isbn' => '', 'library_name' => '',
+                'request_date' => '', 'status' => '',
+            ];
+        return view('ahg-library::ill.view', ['request' => $req]);
+    }
 
     // ── ISBN ────────────────────────────────────────────────────────
 
@@ -672,8 +802,26 @@ class LibraryController extends Controller
 
     // ── Serials ────────────────────────────────────────────────────
 
-    public function serials() { return view('ahg-library::serial.index', ['serials' => collect()]); }
-    public function serialView(int $id) { $serial = (object)['id' => $id, 'title' => '', 'issn' => '', 'frequency' => '', 'publisher' => '', 'status' => '']; return view('ahg-library::serial.view', compact('serial')); }
+    public function serials(Request $request)
+    {
+        return view('ahg-library::serial.index', [
+            'serials' => collect($this->serial->list([
+                'status' => $request->query('status'),
+                'search' => $request->query('q'),
+            ])),
+        ]);
+    }
+
+    public function serialView(int $id)
+    {
+        $serial = $this->serial->get($id)
+            ?? (object) [
+                'id' => $id, 'title' => '', 'issn' => '',
+                'frequency' => '', 'publisher' => '', 'status' => '',
+                'issues' => [],
+            ];
+        return view('ahg-library::serial.view', compact('serial'));
+    }
 
     // ── OPAC ───────────────────────────────────────────────────────
 

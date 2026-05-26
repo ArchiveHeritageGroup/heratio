@@ -30,6 +30,9 @@
   <a href="{{ route('ahgmetadataexport.marc.import') }}" class="btn btn-outline-primary">
     <i class="bi bi-file-earmark-arrow-up"></i> {{ __('MARCXML Import') }}
   </a>
+  <a href="{{ route('ahgmetadataexport.ead.import') }}" class="btn btn-outline-primary">
+    <i class="bi bi-file-earmark-arrow-up"></i> {{ __('EAD Import (EAD 2002 / EAD 3)') }}
+  </a>
 </div>
 
 <div class="row">

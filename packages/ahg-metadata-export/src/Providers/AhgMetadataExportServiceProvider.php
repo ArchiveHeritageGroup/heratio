@@ -29,6 +29,13 @@ class AhgMetadataExportServiceProvider extends ServiceProvider
             ->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-metadata-export');
 
+        // EAD PDF finding-aid generator (#657 Phase 1, item 4).
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgMetadataExport\Console\Commands\EadFindingAidCommand::class,
+            ]);
+        }
+
         // Best-effort install for the RAD + DACS sidecar tables introduced
         // by #662 Phase 3. Wrap the whole thing in one outer try/catch so
         // CI environments without a DB don't blow up boot - mirrors the
