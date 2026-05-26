@@ -1,7 +1,8 @@
 {
     "name": "ahg/translation",
-    "description": "Translation management and settings for Heratio",
+    "description": "UI-string translation + locale registry for Heratio (DbAwareLoader override layer)",
     "type": "library",
+    "license": "AGPL-3.0-or-later",
     "require": {
         "ahg/core": "@dev"
     },
