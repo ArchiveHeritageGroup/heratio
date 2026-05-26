@@ -38,8 +38,15 @@ trait LocaleAwareMailable
     /**
      * Explicit override. Set in the constructor or by the dispatcher when
      * the recipient is not a Heratio user (e.g. ad-hoc researcher).
+     *
+     * NOTE: declared as a mixed `public $locale` (no scalar type) so the
+     * trait composes cleanly with Laravel's Illuminate\Mail\Mailable,
+     * which declares the same property as `public $locale` on the parent
+     * class. PHP 8.2+ raises a fatal "incompatible property declaration"
+     * if the trait narrows the type. Treated as ?string everywhere it is
+     * read in resolveEmailLocale().
      */
-    public ?string $locale = null;
+    public $locale = null;
 
     /**
      * Optional - free-form recipient email used for the user lookup when

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Vendored copy of the MARC21 slim XML schema published by the Library of
+  Congress at https://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd.
+
+  Vendored 2026-05-26 for #663 Phase 2 so the MARCXML importer can validate
+  uploads offline. The canonical schema is stable; refresh by replacing this
+  file with the latest copy from the LoC URL above.
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="http://www.loc.gov/MARC21/slim"
+            targetNamespace="http://www.loc.gov/MARC21/slim"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+  <xsd:annotation>
+    <xsd:documentation>MARC21slim - Library of Congress, MARCXML Network Development.</xsd:documentation>
+  </xsd:annotation>
+
+  <xsd:element name="collection">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="record" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="id" type="xsd:ID" use="optional"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="record" type="recordType"/>
+
+  <xsd:complexType name="recordType">
+    <xsd:sequence>
+      <xsd:element name="leader" type="leaderFieldType" minOccurs="0"/>
+      <xsd:element name="controlfield" type="controlFieldType" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="datafield" type="dataFieldType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="type" use="optional">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:NMTOKEN">
+          <xsd:enumeration value="Bibliographic"/>
+          <xsd:enumeration value="Authority"/>
+          <xsd:enumeration value="Holdings"/>
+          <xsd:enumeration value="Classification"/>
+          <xsd:enumeration value="Community"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="id" type="xsd:ID" use="optional"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="leaderFieldType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="id" type="xsd:ID" use="optional"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="controlFieldType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="id" type="xsd:ID" use="optional"/>
+        <xsd:attribute name="tag" type="controltagDataType" use="required"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="dataFieldType">
+    <xsd:sequence>
+      <xsd:element name="subfield" type="subfieldatafieldType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID" use="optional"/>
+    <xsd:attribute name="tag" type="tagDataType" use="required"/>
+    <xsd:attribute name="ind1" type="indicatorDataType" use="required"/>
+    <xsd:attribute name="ind2" type="indicatorDataType" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="subfieldatafieldType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="id" type="xsd:ID" use="optional"/>
+        <xsd:attribute name="code" type="subfieldcodeDataType" use="required"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+  <xsd:simpleType name="controltagDataType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="00[1-9A-Za-z]{1}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="tagDataType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="(0([1-9A-Z][0-9A-Z])|0([1-9a-z][0-9a-z]))|(([1-9A-Z][0-9A-Z]{2})|([1-9a-z][0-9a-z]{2}))"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="indicatorDataType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[0-9A-Za-z ]{0,1}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="subfieldcodeDataType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[0-9a-z!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?{}_^`~\[\]\\]{1}"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+</xsd:schema>

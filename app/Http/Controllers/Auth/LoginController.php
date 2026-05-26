@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use AhgSecurityClearance\Services\OtpService;
 use AhgSecurityClearance\Services\TotpService;
 use AhgSecurityClearance\Services\WebAuthnService;
 use App\Auth\SecuritySettings;
@@ -102,20 +103,34 @@ class LoginController extends Controller
                 $next = '/';
             }
 
-            // Issue #690 / #721 — MFA gate. If the user has opt-in TOTP or a
-            // WebAuthn passkey (or both) enrolled, flag the session as
-            // pending_mfa and redirect to /security-clearance/two-factor,
-            // which itself routes to the chooser / TOTP verify / passkey
-            // verify based on what's enrolled. RequireMfaCompletion
-            // middleware blocks every other authenticated route until the
-            // second factor clears.
+            // Issue #690 / #721 / #722 — MFA gate. If the user has opt-in
+            // TOTP, a WebAuthn passkey, or an enrolled email/SMS OTP
+            // destination (any combination), flag the session as pending_mfa
+            // and redirect to /security-clearance/two-factor, which routes
+            // to the chooser / TOTP verify / passkey verify / OTP verify
+            // based on what's enrolled. RequireMfaCompletion middleware
+            // blocks every other authenticated route until the second
+            // factor clears.
             $totp = app(TotpService::class);
             $webauthn = app(WebAuthnService::class);
+            $otp = app(OtpService::class);
             $userId = Auth::id();
 
-            if ($totp->userHasMfa($userId) || $webauthn->userHasCredential($userId)) {
+            $hasTotp = $totp->userHasMfa($userId);
+            $hasPasskey = $webauthn->userHasCredential($userId);
+            $hasOtp = $otp->userHasOtp($userId);
+
+            if ($hasTotp || $hasPasskey || $hasOtp) {
                 $request->session()->put('pending_mfa', true);
                 $request->session()->put('mfa_return_url', $next);
+
+                // Skip the TOTP-default landing when the user only has an
+                // OTP factor enrolled — route them directly to the OTP
+                // verify page so they don't get the wrong code-entry form.
+                if ($hasOtp && ! $hasTotp && ! $hasPasskey) {
+                    return redirect()->route('security-clearance.otp.verify', ['return' => $next])
+                        ->withCookie(cookie('atom_authenticated', '1', 43200, '/', null, false, false));
+                }
 
                 return redirect()->route('security-clearance.two-factor', ['return' => $next])
                     ->withCookie(cookie('atom_authenticated', '1', 43200, '/', null, false, false));

@@ -43,9 +43,19 @@
 
 namespace AhgMetadataExport\Services\Exporters;
 
+use AhgMetadataExport\Services\Rda\RdaCarrierMapper;
+use Illuminate\Support\Facades\DB;
+
 class MarcxmlSerializer
 {
     use InformationObjectFetcher;
+
+    private RdaCarrierMapper $rda;
+
+    public function __construct(?RdaCarrierMapper $rda = null)
+    {
+        $this->rda = $rda ?: new RdaCarrierMapper();
+    }
 
     public function getFormat(): string
     {
@@ -100,13 +110,36 @@ class MarcxmlSerializer
         $controlId = $io->identifier ?: (string) $io->id;
         $xml .= '  <controlfield tag="001">'.$this->escXml($controlId)."</controlfield>\n";
 
-        // 003 control number identifier
-        $xml .= '  <controlfield tag="003">'.$this->escXml(config('app.name', 'Heratio'))."</controlfield>\n";
+        // 003 control number identifier - operator-configurable via
+        // ahg_settings.marc_003_control_number_identifier. Falls back to the
+        // app name so a fresh install still emits a valid 003.
+        $cni = $this->lookupSetting('marc_003_control_number_identifier')
+            ?: config('app.name', 'Heratio');
+        $xml .= '  <controlfield tag="003">'.$this->escXml($cni)."</controlfield>\n";
 
         // 005 date of latest transaction (YYYYMMDDhhmmss.f)
         $tsSource = $io->updated_at ?: $io->created_at ?: gmdate('Y-m-d H:i:s');
         $ts = strtotime($tsSource);
         $xml .= '  <controlfield tag="005">'.gmdate('YmdHis', $ts).".0</controlfield>\n";
+
+        // 006 / 007 - additional material/physical-description coded data.
+        // For Heratio we only emit these when we have a digital_object: the
+        // 007 "computer" positional code group is the most useful target.
+        $digitalObject = $this->fetchDigitalObject((int) $io->id);
+        if ($digitalObject) {
+            // 006 - additional material characteristics (40 chars).
+            // pos 00 = 'm' (computer file), 06 = 'a' (electronic)
+            $fixed006 = 'm     a                                 ';
+            $fixed006 = str_pad(substr($fixed006, 0, 18), 18);
+            $xml .= '  <controlfield tag="006">'.$this->escXml($fixed006)."</controlfield>\n";
+
+            // 007 - physical description fixed (14 chars).
+            // pos 00 = 'c' (electronic resource)
+            // pos 01 = 'r' (remote) for served-from-Heratio resources
+            $fixed007 = 'cr';
+            $fixed007 = str_pad($fixed007, 14);
+            $xml .= '  <controlfield tag="007">'.$this->escXml($fixed007)."</controlfield>\n";
+        }
 
         // 008 fixed-length data elements (40 chars; minimally populated)
         //   pos 00-05 = entry date (YYMMDD)
@@ -198,11 +231,19 @@ class MarcxmlSerializer
             $xml .= "  </datafield>\n";
         }
 
-        // 336 RDA content type
-        $xml .= '  <datafield tag="336" ind1=" " ind2=" ">'."\n";
-        $xml .= '    <subfield code="a">text</subfield>'."\n";
-        $xml .= '    <subfield code="2">rdacontent</subfield>'."\n";
-        $xml .= "  </datafield>\n";
+        // 336 / 337 / 338 RDA carrier characteristics. The mapper consults
+        // ahg_marc_rda_mapping so operators can override per jurisdiction
+        // without code changes.
+        $rdaTriple = $digitalObject
+            ? $this->rda->mapByMime($digitalObject->mime_type ?? '')
+            : $this->rda->mapByCarrier($this->lookupSetting('marc_physical_carrier_default') ?: 'volume');
+        foreach ([336, 337, 338] as $tag) {
+            $subs = $rdaTriple[$tag];
+            $xml .= '  <datafield tag="'.$tag.'" ind1=" " ind2=" ">'."\n";
+            $xml .= '    <subfield code="a">'.$this->escXml($subs['a'])."</subfield>\n";
+            $xml .= '    <subfield code="2">'.$this->escXml($subs['2'])."</subfield>\n";
+            $xml .= "  </datafield>\n";
+        }
 
         // 506 restrictions on access
         if ($io->access_conditions) {
@@ -319,5 +360,39 @@ class MarcxmlSerializer
         ];
 
         return $map[$c] ?? 'und';
+    }
+
+    /**
+     * Look up an ahg_settings key. Returns null when the table is missing
+     * (fresh install) or the key has no value. Wrapped in try/catch so the
+     * serializer keeps producing valid MARC21 even if the settings package
+     * has not booted yet.
+     */
+    private function lookupSetting(string $key): ?string
+    {
+        try {
+            $v = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
+            return $v === null || $v === '' ? null : (string) $v;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Fetch the primary digital_object for an IO (first by sequence).
+     * Returns null when the IO has no digital surrogate.
+     */
+    private function fetchDigitalObject(int $objectId): ?object
+    {
+        try {
+            return DB::table('digital_object')
+                ->where('object_id', $objectId)
+                ->whereNull('parent_id')
+                ->orderBy('sequence')
+                ->select('id', 'mime_type', 'name', 'path', 'byte_size')
+                ->first();
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }

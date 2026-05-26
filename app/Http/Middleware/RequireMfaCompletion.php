@@ -46,6 +46,8 @@ class RequireMfaCompletion
      *
      * Issue #721 added the chooser + WebAuthn assertion endpoints so users
      * with a passkey can clear the gate without an authenticator-app code.
+     * Issue #722 added the email / SMS OTP assertion endpoints so users with
+     * only an enrolled OTP destination can complete sign-in.
      */
     private const ALLOWED_PATHS = [
         'security-clearance/two-factor',
@@ -54,6 +56,9 @@ class RequireMfaCompletion
         'security/2fa/webauthn/verify',
         'security/2fa/webauthn/assert/begin',
         'security/2fa/webauthn/assert/complete',
+        'security/2fa/otp/verify',
+        'security/2fa/otp/assert/begin',
+        'security/2fa/otp/assert/complete',
         'logout',
     ];
 

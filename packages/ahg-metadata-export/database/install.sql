@@ -99,4 +99,61 @@ WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
 GROUP BY DATE(created_at), format_code
 ORDER BY export_date DESC, format_code;
 
+-- ============================================================================
+-- Phase 2 of #663: MARC21 RDA carrier mapping (336/337/338)
+-- ============================================================================
+-- Operator-extensible MIME / carrier -> RDA tag mapping. The importer +
+-- exporter both consult this table so jurisdictional variants can be added
+-- without code changes. Defaults follow the RDA Toolkit value vocabularies
+-- (rdacontent / rdamedia / rdacarrier).
+CREATE TABLE IF NOT EXISTS ahg_marc_rda_mapping (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    -- match_kind = mime_prefix / mime_exact / carrier (physical IO carrier code)
+    match_kind VARCHAR(20) NOT NULL,
+    match_value VARCHAR(100) NOT NULL,
+    -- RDA 336 content type term + 2 (source vocabulary)
+    content_type_term VARCHAR(60) DEFAULT NULL,
+    content_type_source VARCHAR(20) DEFAULT 'rdacontent',
+    -- RDA 337 media type term
+    media_type_term VARCHAR(60) DEFAULT NULL,
+    media_type_source VARCHAR(20) DEFAULT 'rdamedia',
+    -- RDA 338 carrier type term
+    carrier_type_term VARCHAR(60) DEFAULT NULL,
+    carrier_type_source VARCHAR(20) DEFAULT 'rdacarrier',
+    sort_order INT DEFAULT 100,
+    is_active TINYINT(1) DEFAULT 1,
+    notes VARCHAR(255) DEFAULT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_marc_rda_match (match_kind, match_value),
+    INDEX idx_marc_rda_active (is_active, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='MARC21 RDA 336/337/338 mapping (operator-extensible)';
+
+-- Default mapping seeds. MIME-prefix rules are tried in sort_order before
+-- the catch-all "*" fallback. carrier-* rows feed physical-object IOs.
+INSERT IGNORE INTO ahg_marc_rda_mapping
+    (match_kind, match_value, content_type_term, media_type_term, carrier_type_term, sort_order, notes)
+VALUES
+    ('mime_prefix', 'text/',         'text',                       'computer', 'online resource', 10, 'plain/HTML/PDF text bodies'),
+    ('mime_exact',  'application/pdf','text',                      'computer', 'online resource', 11, 'PDF documents'),
+    ('mime_prefix', 'image/',        'still image',                'computer', 'online resource', 20, 'photographs, scans, derivatives'),
+    ('mime_prefix', 'audio/',        'spoken word',                'computer', 'online resource', 30, 'default for audio - operators may switch to performed music'),
+    ('mime_prefix', 'video/',        'two-dimensional moving image','computer','online resource', 40, 'film, video, born-digital moving images'),
+    ('mime_prefix', 'model/',        'three-dimensional moving image','computer','online resource',50, '3D models and scenes (GLTF, OBJ, STL)'),
+    ('mime_prefix', 'application/x-3d','three-dimensional moving image','computer','online resource',51, '3D vendor-prefixed MIME'),
+    ('mime_prefix', 'application/',  'computer dataset',           'computer', 'online resource', 90, 'generic application/* fallback'),
+    ('mime_exact',  '*',             'computer dataset',           'computer', 'online resource', 999,'catch-all when no MIME matches'),
+    ('carrier',     'volume',        'text',                       'unmediated','volume',          200, 'physical bound volume'),
+    ('carrier',     'sheet',         'text',                       'unmediated','sheet',           210, 'physical loose sheet'),
+    ('carrier',     'box',           'text',                       'unmediated','object',          220, 'physical archival box'),
+    ('carrier',     'audio-cassette','spoken word',                'audio',     'audiocassette',   300, 'physical audio cassette'),
+    ('carrier',     'audio-disc',    'performed music',            'audio',     'audio disc',      310, 'physical audio disc (vinyl, CD)'),
+    ('carrier',     'film-reel',     'two-dimensional moving image','video',    'film reel',       400, 'physical motion picture reel'),
+    ('carrier',     'videotape',     'two-dimensional moving image','video',    'videocassette',   410, 'physical videotape')
+ON DUPLICATE KEY UPDATE
+    content_type_term = VALUES(content_type_term),
+    media_type_term = VALUES(media_type_term),
+    carrier_type_term = VALUES(carrier_type_term);
+
 SET FOREIGN_KEY_CHECKS = 1;

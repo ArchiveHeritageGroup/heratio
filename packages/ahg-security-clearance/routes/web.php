@@ -1,5 +1,6 @@
 <?php
 
+use AhgSecurityClearance\Controllers\OtpController;
 use AhgSecurityClearance\Controllers\SecurityClearanceController;
 use AhgSecurityClearance\Controllers\WebAuthnController;
 use Illuminate\Support\Facades\Route;
@@ -214,6 +215,38 @@ Route::middleware('auth')->group(function () {
     // Chooser shown when both TOTP + WebAuthn are enrolled.
     Route::get('/security-clearance/two-factor/choose', [SecurityClearanceController::class, 'twoFactorChooser'])
         ->name('security-clearance.two-factor-choose');
+
+    // Email / SMS OTP MFA routes (issue #722).
+    // /security/2fa/otp/* — third sibling factor next to TOTP + WebAuthn.
+    // Enrolment management.
+    Route::get('/security/2fa/otp', [OtpController::class, 'list'])
+        ->name('security-clearance.otp.list');
+    Route::get('/security/2fa/otp/add', [OtpController::class, 'setupPage'])
+        ->name('security-clearance.otp.setup');
+    Route::post('/security/2fa/otp/enrol', [OtpController::class, 'enrol'])
+        ->name('security-clearance.otp.enrol');
+    Route::get('/security/2fa/otp/{factor}/verify-enrolment', [OtpController::class, 'verifyEnrolmentPage'])
+        ->name('security-clearance.otp.verify-enrolment')
+        ->where('factor', '[0-9]+');
+    Route::post('/security/2fa/otp/{factor}/verify-enrolment', [OtpController::class, 'verifyEnrolment'])
+        ->name('security-clearance.otp.verify-enrolment-submit')
+        ->where('factor', '[0-9]+');
+    Route::post('/security/2fa/otp/{factor}/resend-enrolment', [OtpController::class, 'resendEnrolment'])
+        ->name('security-clearance.otp.resend-enrolment')
+        ->where('factor', '[0-9]+');
+    Route::post('/security/2fa/otp/{factor}/delete', [OtpController::class, 'delete'])
+        ->name('security-clearance.otp.delete')
+        ->where('factor', '[0-9]+');
+    Route::get('/security/2fa/otp/factors.json', [OtpController::class, 'listJson'])
+        ->name('security-clearance.otp.list-json');
+
+    // Login-time assertion endpoints (pending_mfa session flag set).
+    Route::get('/security/2fa/otp/verify', [OtpController::class, 'verifyPage'])
+        ->name('security-clearance.otp.verify');
+    Route::post('/security/2fa/otp/assert/begin', [OtpController::class, 'assertBegin'])
+        ->name('security-clearance.otp.assert-begin');
+    Route::post('/security/2fa/otp/assert/complete', [OtpController::class, 'assertComplete'])
+        ->name('security-clearance.otp.assert-complete');
 });
 
 // ── Legacy redirects (ahgSecurityClearancePlugin compatibility) ─────────────

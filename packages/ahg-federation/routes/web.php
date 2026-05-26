@@ -1,5 +1,6 @@
 <?php
 
+use AhgFederation\Controllers\EuropeanaController;
 use AhgFederation\Controllers\FederationController;
 use AhgFederation\Middleware\EnsureFederationEnabled;
 use Illuminate\Support\Facades\Route;
@@ -33,4 +34,20 @@ Route::middleware(['auth', 'admin', EnsureFederationEnabled::class])->group(func
     Route::post('/admin/federation/harvest', [FederationController::class, 'runHarvest'])->name('federation.api.harvest');
     // GET /admin/federation/harvest/ — legacy page URL (AtoM used admin prefix)
     Route::get('/admin/federation/harvest', [FederationController::class, 'harvest'])->name('federation.harvest.legacy');
+});
+
+// Europeana EDM publish - #670 Phase 4. New, unlocked controller; lives
+// at /federation/europeana to sit alongside the rest of the federation
+// admin surface but is wired through its own controller class so the
+// locked F3 FederationController stays untouched.
+Route::middleware(['auth', 'admin', EnsureFederationEnabled::class])->prefix('federation/europeana')->group(function () {
+    Route::get('/', [EuropeanaController::class, 'index'])->name('federation.europeana.index');
+    Route::post('/run', [EuropeanaController::class, 'run'])->name('federation.europeana.run');
+    Route::get('/download', [EuropeanaController::class, 'download'])->name('federation.europeana.download');
+});
+
+// Legacy /admin/federation/europeana alias for parity with the rest of
+// the admin URL family.
+Route::middleware(['auth', 'admin', EnsureFederationEnabled::class])->group(function () {
+    Route::get('/admin/federation/europeana', [EuropeanaController::class, 'index'])->name('federation.europeana.legacy');
 });

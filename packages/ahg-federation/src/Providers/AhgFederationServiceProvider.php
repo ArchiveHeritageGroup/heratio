@@ -25,12 +25,15 @@
 
 namespace AhgFederation\Providers;
 
+use AhgFederation\Console\EuropeanaExportCommand;
 use AhgFederation\Console\HarvestCommand;
 use AhgFederation\Console\SearchCacheCleanCommand;
 use AhgFederation\Console\VocabSyncCommand;
 use AhgFederation\Services\FederationService;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AhgFederationServiceProvider extends ServiceProvider
@@ -47,8 +50,27 @@ class AhgFederationServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-federation');
 
+        // Auto-seed the Europeana export tracking table on first boot.
+        // Wrapped in a single try/catch (Schema::hasTable + install run)
+        // per reference_ci_schema_hastable.md so CI without a DB stays
+        // green.
+        try {
+            if (! Schema::hasTable('ahg_europeana_export')) {
+                $sqlPath = __DIR__.'/../../database/install_europeana.sql';
+                if (is_file($sqlPath)) {
+                    $sql = file_get_contents($sqlPath);
+                    DB::unprepared($sql);
+                }
+            }
+        } catch (\Throwable $e) {
+            // CI / fresh-install before the connection is ready;
+            // tables get created by `php artisan ahg:install` or first
+            // real boot.
+        }
+
         if ($this->app->runningInConsole()) {
             $this->commands([
+                EuropeanaExportCommand::class,
                 HarvestCommand::class,
                 SearchCacheCleanCommand::class,
                 VocabSyncCommand::class,
@@ -77,6 +99,14 @@ class AhgFederationServiceProvider extends ServiceProvider
                 $schedule->command('ahg:federation-vocab-sync')
                     ->dailyAt('03:00')
                     ->withoutOverlapping(60)
+                    ->when($enabled);
+
+                // Europeana EDM publish - weekly Sunday 02:00 SAST per
+                // #670 Phase 4 cadence. Gated on federation_enabled so
+                // the global toggle still kills the schedule.
+                $schedule->command('europeana:export')
+                    ->weeklyOn(0, '02:00')
+                    ->withoutOverlapping(180)
                     ->when($enabled);
             });
         }

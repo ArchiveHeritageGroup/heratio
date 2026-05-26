@@ -509,4 +509,53 @@ CREATE TABLE IF NOT EXISTS `ahg_webauthn_credential` (
   KEY `idx_webauthn_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- ────────────────────────────────────────────────────────────────────────────
+-- Email / SMS OTP MFA (issue #722) — third opt-in factor, sibling to TOTP and
+-- WebAuthn. A user can enrol any combination of email and SMS destinations.
+-- Each enrolment requires the user to prove they own the destination by
+-- entering the first delivered code (verified_at is set on success).
+--
+-- ahg_otp_factor: per-user enrolled destinations.
+--   factor_type  = 'email' or 'sms'.
+--   destination  = email address (lowercased) or E.164 phone number.
+--   label        = user-friendly nickname (e.g. "Work email", "Cellphone").
+--   verified_at  = timestamp the user proved destination ownership; null
+--                  while still pending.
+--   last_used_at = updated on every successful login-time verify.
+--
+-- ahg_otp_challenge: short-lived codes. The 6-digit plaintext is NEVER
+-- stored — code_hash is SHA-256(code) (fast; the code is rotated within
+-- minutes so we do not need bcrypt). attempts is incremented on every
+-- verify call so 5-strikes-and-it-locks works; the cache layer also tracks
+-- a per-factor lockout window.
+-- ────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS `ahg_otp_factor` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int unsigned NOT NULL,
+  `factor_type` varchar(16) NOT NULL,
+  `destination` varchar(255) NOT NULL,
+  `label` varchar(255) NOT NULL DEFAULT '',
+  `verified_at` datetime DEFAULT NULL,
+  `last_used_at` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_otp_factor_user` (`user_id`),
+  KEY `idx_otp_factor_user_type` (`user_id`, `factor_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE IF NOT EXISTS `ahg_otp_challenge` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int unsigned NOT NULL,
+  `factor_id` int unsigned NOT NULL,
+  `code_hash` char(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `attempts` int NOT NULL DEFAULT 0,
+  `consumed_at` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_otp_challenge_factor` (`factor_id`, `consumed_at`, `expires_at`),
+  KEY `idx_otp_challenge_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

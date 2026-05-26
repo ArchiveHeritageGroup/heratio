@@ -30,6 +30,7 @@
         <testsuite name="Package">
             <directory>packages/ahg-ric/tests</directory>
             <directory>packages/ahg-doi-manage/tests</directory>
+            <directory>packages/ahg-security-clearance/tests</directory>
             <!-- Additional packages will be added here as tests are created -->
             <!-- See docs/package-classification.md for priority order -->
         </testsuite>

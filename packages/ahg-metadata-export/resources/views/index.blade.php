@@ -26,6 +26,12 @@
   <div class="alert alert-success">{{ session('notice') }}</div>
 @endif
 
+<div class="mb-3">
+  <a href="{{ route('ahgmetadataexport.marc.import') }}" class="btn btn-outline-primary">
+    <i class="bi bi-file-earmark-arrow-up"></i> {{ __('MARCXML Import') }}
+  </a>
+</div>
+
 <div class="row">
   <div class="col-md-8">
     <h2>{{ __('Select Export Format') }}</h2>

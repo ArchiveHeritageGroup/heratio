@@ -21,3 +21,16 @@ Route::prefix('admin/metadata-export')->middleware(['web', 'auth'])->group(funct
 Route::match(['get', 'post'], '/admin/sparql', [\AhgMetadataExport\Controllers\SparqlController::class, 'handle'])
     ->middleware('web')
     ->name('ahgmetadataexport.sparql');
+
+// ---- BEGIN MARCXML import (#663 Phase 2) ------------------------------------
+// Upload + preview + commit flow. Kept inside /admin so the IO slug catch-all
+// regex in ahg-information-object-manage cannot intercept these URLs.
+Route::prefix('admin/marc')->middleware(['web', 'auth'])->group(function () {
+    Route::get('/import', [\AhgMetadataExport\Controllers\MarcImportController::class, 'form'])
+        ->name('ahgmetadataexport.marc.import');
+    Route::post('/import/preview', [\AhgMetadataExport\Controllers\MarcImportController::class, 'preview'])
+        ->name('ahgmetadataexport.marc.import.preview');
+    Route::post('/import/commit', [\AhgMetadataExport\Controllers\MarcImportController::class, 'commit'])
+        ->name('ahgmetadataexport.marc.import.commit');
+});
+// ---- END MARCXML import -----------------------------------------------------
