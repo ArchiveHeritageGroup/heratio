@@ -5,6 +5,7 @@ use AhgIiifCollection\Controllers\IiifChangeDiscoveryController;
 use AhgIiifCollection\Controllers\IiifCollectionController;
 use AhgIiifCollection\Controllers\IiifContentSearchController;
 use AhgIiifCollection\Controllers\IiifContentStateController;
+use AhgIiifCollection\Controllers\IiifNerAnnotationsController;
 use AhgIiifCollection\Controllers\WorkspaceController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,25 @@ Route::get('/iiif-compare', [IiifCollectionController::class, 'compare'])->name(
 Route::get('/iiif/discovery/changes', [IiifChangeDiscoveryController::class, 'changes'])
     ->name('iiif.discovery.changes');
 // --- END issue #695 ---
+
+// --- BEGIN issue #697 finishing pass: NER -> IIIF annotation surface ---
+// Canvas-scoped AnnotationPage of NER-tagged rows from ahg_iiif_annotation.
+// Mounted under /iiif-manifest/ so it's picked up by the slug catch-all
+// exemption list in ahg-information-object-manage. odrl:use middleware
+// honours the same ODRL access policy as the IO show page so private
+// records don't leak entity tags. The {n} parameter must be numeric so
+// it doesn't shadow the /iiif-manifest/{slug}/search route.
+Route::get('/iiif-manifest/{slug}/canvas/{n}/annotations', [IiifNerAnnotationsController::class, 'canvasAnnotations'])
+    ->whereNumber('n')
+    ->middleware('odrl:use')
+    ->name('iiif.canvas.annotations');
+
+// AI -> Heratio ingestion. API-key auth (X-API-Key, Authorization: Bearer)
+// or a logged-in session via the api.auth alias from ahg-api.
+Route::post('/api/iiif/annotations/from-ner', [IiifNerAnnotationsController::class, 'ingestFromNer'])
+    ->middleware('api.auth')
+    ->name('iiif.annotations.from-ner');
+// --- END issue #697 finishing pass ---
 
 // --- BEGIN issue #696: IIIF Content State + Auth 2.0 ---
 Route::post('/iiif/content-state/encode', [IiifContentStateController::class, 'encode'])

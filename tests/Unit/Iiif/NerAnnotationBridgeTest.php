@@ -400,23 +400,86 @@ class NerAnnotationBridgeTest extends TestCase
     }
 
     /**
-     * Deduplication of same-text-same-position emissions inside one
-     * run is NOT implemented in the current bridge: the job emits one
-     * annotation per (entity, matching block), so two NER entities
-     * with the same value (e.g. duplicate API hits) against the same
-     * block would persist two rows. The cross-run case is handled
-     * separately via the embedded run_id (admin tooling can
-     * delete-by-run); intra-run dedup is the issue #697 follow-up.
-     *
-     * The test stays in the suite as a skipped placeholder so the
-     * gap is visible in test output rather than hidden.
+     * Intra-run dedup landed in the #697 finishing pass: the bridge keys
+     * the second emission of the same (canvas, xywh, body value) against
+     * an in-memory set on the job instance and silently drops it. Cross-run
+     * dedup remains admin-driven via the embedded run_id (and now the
+     * ner_run_id column).
      */
     public function test_intra_run_dedup_same_text_same_position(): void
     {
-        $this->markTestSkipped(
-            'Intra-run dedup is a follow-up to #697. The current bridge is append-only '.
-            'within a single run; cross-run dedup is admin-driven via the embedded run_id. '.
-            'Re-enable this test once a (target_iri, x, y, w, h, body_value) guard is added.'
+        $this->ensureBridgeStorageAvailable();
+        [$job, $canvasInfo] = $this->makeJobAndCanvasInfo();
+
+        // Same entity, same OCR block - two identical matches inside a
+        // single emit pass. The dedup guard must collapse them to one
+        // persisted row.
+        $entities = [
+            'persons'       => ['Mandela', 'Mandela'],
+            'organizations' => [],
+            'places'        => [],
+            'dates'         => [],
+        ];
+        $blocks = [[
+            'id' => 7, 'page_number' => 1, 'text' => 'Mandela',
+            'x' => 33, 'y' => 44, 'width' => 70, 'height' => 20,
+            'confidence' => 88.0, 'block_order' => 1,
+        ]];
+
+        $emitted = $this->invokeEmit($job, $canvasInfo, $entities, $blocks);
+        $this->assertSame(
+            1,
+            $emitted,
+            'Second emission of identical (canvas, xywh, value) must be deduped within one run.'
         );
+
+        $count = DB::table('ahg_iiif_annotation')
+            ->where('target_iri', self::TEST_CANVAS)
+            ->count();
+        $this->assertSame(
+            1,
+            $count,
+            'Only one row should be persisted for the duplicate entity pair.'
+        );
+    }
+
+    /**
+     * The ingestion endpoint surfaces persistAnnotation directly. The
+     * dedup guard must hold when called twice with identical args, even
+     * across HTTP boundary semantics.
+     */
+    public function test_persist_annotation_dedup_via_public_helper(): void
+    {
+        $this->ensureBridgeStorageAvailable();
+        $job = new BuildNerAnnotationsForCanvas(ioId: 9999998, digitalObjectId: null);
+
+        $first = $job->persistAnnotation(
+            self::TEST_CANVAS,
+            'Acme Holdings',
+            'Organization',
+            null,
+            ['x' => 10, 'y' => 10, 'w' => 100, 'h' => 30],
+            'en',
+            0,
+            0.92
+        );
+        $second = $job->persistAnnotation(
+            self::TEST_CANVAS,
+            'Acme Holdings',
+            'Organization',
+            null,
+            ['x' => 10, 'y' => 10, 'w' => 100, 'h' => 30],
+            'en',
+            1,
+            0.92
+        );
+
+        $this->assertTrue($first, 'First persist must insert.');
+        $this->assertFalse($second, 'Second identical persist must be deduped.');
+
+        $count = DB::table('ahg_iiif_annotation')
+            ->where('target_iri', self::TEST_CANVAS)
+            ->count();
+        $this->assertSame(1, $count);
     }
 }

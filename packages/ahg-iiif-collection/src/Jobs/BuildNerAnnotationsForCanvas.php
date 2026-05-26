@@ -85,6 +85,18 @@ class BuildNerAnnotationsForCanvas implements ShouldQueue
     public string $runId;
 
     /**
+     * Intra-run dedup guard. Keyed by sha1("{canvas}|{x}|{y}|{w}|{h}|{value}")
+     * so the second emission of the same entity text against the same
+     * pixel box during a single job invocation is silently dropped.
+     * Issue #697 follow-up: prevents duplicate API-bounce inputs from
+     * spawning duplicate rows. NOT serialized - the job rebuilds the
+     * set on every handle() call.
+     *
+     * @var array<string,bool>
+     */
+    private array $emittedKeys = [];
+
+    /**
      * @param int $ioId information_object.id
      * @param int|null $digitalObjectId limit to a single digital_object
      *                                  when not null
@@ -237,7 +249,10 @@ class BuildNerAnnotationsForCanvas implements ShouldQueue
                         continue;
                     }
 
-                    $this->persistAnnotation(
+                    $confidence = (is_array($entry) && isset($entry['confidence']) && is_numeric($entry['confidence']))
+                        ? max(0.0, min(1.0, (float) $entry['confidence']))
+                        : null;
+                    $persisted = $this->persistAnnotation(
                         $canvasIri,
                         $value,
                         $entityType,
@@ -249,8 +264,15 @@ class BuildNerAnnotationsForCanvas implements ShouldQueue
                             'h' => (int) $block->height,
                         ],
                         $language,
-                        $entityIndex
+                        $entityIndex,
+                        $confidence
                     );
+                    if (! $persisted) {
+                        // Intra-run dedup hit - same (canvas, xywh, value)
+                        // already emitted this run. Skip silently; do not
+                        // count toward the per-type cap.
+                        continue;
+                    }
                     $perTypeCount++;
                     $emitted++;
                 }
@@ -265,17 +287,38 @@ class BuildNerAnnotationsForCanvas implements ShouldQueue
      * because we're inside a job - bypassing the HTTP layer keeps the
      * job synchronous and side-effect-free for queue replay.
      *
+     * Returns true when a row was inserted, false when the intra-run
+     * dedup guard suppressed it. Issue #697 follow-up: the guard keys
+     * off (canvas, xywh, value) and lives on $this->emittedKeys.
+     *
      * @param array{x:int,y:int,w:int,h:int} $bbox
      */
-    private function persistAnnotation(
+    public function persistAnnotation(
         string $canvasIri,
         string $entityValue,
         string $entityType,
         ?string $entityUri,
         array $bbox,
         string $language,
-        int $entityIndex
-    ): void {
+        int $entityIndex,
+        ?float $confidence = null
+    ): bool {
+        // Intra-run dedup: same canvas + same xywh + same body label
+        // collapses to a single row inside one job invocation. Cross-run
+        // dedup stays admin-driven via ner_run_id.
+        $dedupKey = sha1(implode('|', [
+            $canvasIri,
+            (string) $bbox['x'],
+            (string) $bbox['y'],
+            (string) $bbox['w'],
+            (string) $bbox['h'],
+            mb_strtolower($entityValue),
+        ]));
+        if (isset($this->emittedKeys[$dedupKey])) {
+            return false;
+        }
+        $this->emittedKeys[$dedupKey] = true;
+
         $uuid = (string) Str::uuid();
         $now = now();
 
@@ -326,39 +369,57 @@ class BuildNerAnnotationsForCanvas implements ShouldQueue
                 ],
             ],
             // Provenance markers so admin tooling can find / reset every
-            // annotation produced by a given run.
+            // annotation produced by a given run. Mirrored into the
+            // ner_* top-level columns by the insert below for fast
+            // run-id / entity-type filtering without JSON_EXTRACT.
             '_heratio' => [
                 'source' => 'ner',
                 'run_id' => $this->runId,
                 'entity_index' => $entityIndex,
                 'entity_type' => $entityType,
+                'confidence' => $confidence,
             ],
         ];
 
         $bodyJson = json_encode($annotation, JSON_UNESCAPED_SLASHES);
         $etag = sha1($bodyJson . '|' . $now->toIso8601String());
 
+        // Build the insert payload. The ner_* columns are denormalised
+        // mirrors of body_json._heratio.* - cheap to query, kept in
+        // sync at write time. When the table predates the columns
+        // (Schema::hasColumn false) we drop them so older installs
+        // keep working until the service-provider re-runs the install.
+        $payload = [
+            'uuid' => $uuid,
+            'target_iri' => $canvasIri,
+            'information_object_id' => $this->ioId,
+            'project_id' => null,
+            'visibility' => 'public',
+            'body_json' => $bodyJson,
+            'body_selector_json' => null,
+            'etag' => $etag,
+            'created_by' => null,
+            'updated_by' => null,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+        if (Schema::hasColumn('ahg_iiif_annotation', 'ner_run_id')) {
+            $payload['ner_run_id'] = $this->runId;
+            $payload['ner_entity_type'] = $entityType;
+            $payload['ner_confidence'] = $confidence;
+        }
+
         try {
-            DB::table('ahg_iiif_annotation')->insert([
-                'uuid' => $uuid,
-                'target_iri' => $canvasIri,
-                'information_object_id' => $this->ioId,
-                'project_id' => null,
-                'visibility' => 'public',
-                'body_json' => $bodyJson,
-                'body_selector_json' => null,
-                'etag' => $etag,
-                'created_by' => null,
-                'updated_by' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
+            DB::table('ahg_iiif_annotation')->insert($payload);
         } catch (\Throwable $e) {
             Log::warning('[iiif-ner] persist failed: ' . $e->getMessage(), [
                 'canvas' => $canvasIri,
                 'entity' => $entityValue,
             ]);
+            return false;
         }
+
+        return true;
     }
 
     /**

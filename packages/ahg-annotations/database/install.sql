@@ -44,26 +44,16 @@ CREATE TABLE IF NOT EXISTS `ahg_iiif_annotation` (
     KEY `visibility_idx` (`visibility`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Idempotent column adds for older installs that already created the
--- annotation table without the project/visibility scope.
-ALTER TABLE `ahg_iiif_annotation`
-    ADD COLUMN IF NOT EXISTS `project_id` INT NULL AFTER `information_object_id`,
-    ADD COLUMN IF NOT EXISTS `visibility` VARCHAR(20) NOT NULL DEFAULT 'private' AFTER `project_id`,
-    ADD KEY IF NOT EXISTS `project_idx` (`project_id`),
-    ADD KEY IF NOT EXISTS `visibility_idx` (`visibility`);
-
--- Phase 1 of #648: W3C Web Annotation compliance widening.
---   * body_selector_json stores the selector attached to a SpecificResource
---     body (e.g. a TextQuoteSelector against the body's source URL). Distinct
---     from the body_json document because we need to find/filter by the body's
---     selector independently of the full annotation envelope, and exploding
---     it into separate columns is too rigid for the selector zoo (FragmentSelector,
---     TextQuoteSelector, TextPositionSelector, TimeSelector, GeoSelector,
---     MediaFragmentSelector, RangeSelector, SvgSelector, ...).
---   * etag is a stable hash of the annotation envelope + updated_at. We
---     emit it as the HTTP ETag header so WAP clients can do If-Match /
---     If-None-Match optimistic concurrency. Recomputed on every write.
-ALTER TABLE `ahg_iiif_annotation`
-    ADD COLUMN IF NOT EXISTS `body_selector_json` JSON NULL AFTER `body_json`,
-    ADD COLUMN IF NOT EXISTS `etag` CHAR(40) NULL AFTER `body_selector_json`,
-    ADD KEY IF NOT EXISTS `etag_idx` (`etag`);
+-- Additive columns for older installs live in PHP (Schema builder) so
+-- the install runs portably across MySQL 8 (which doesn't support
+-- ADD KEY IF NOT EXISTS) and MariaDB. See
+-- AhgAnnotationsServiceProvider::backfillSchema().
+--
+-- Columns added there:
+--   project_id              | INT NULL                            (#100 follow-up)
+--   visibility              | VARCHAR(20) NOT NULL DEFAULT 'private'
+--   body_selector_json      | JSON NULL                           (#648 Phase 1)
+--   etag                    | CHAR(40) NULL
+--   ner_entity_type         | VARCHAR(64) NULL                    (#697 finishing pass)
+--   ner_confidence          | DECIMAL(5,4) NULL
+--   ner_run_id              | VARCHAR(64) NULL

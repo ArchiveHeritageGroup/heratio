@@ -810,7 +810,7 @@ class IiifCollectionService
             ];
         }
 
-        return [
+        $canvas = [
             'id' => $canvasId,
             'type' => 'Canvas',
             'label' => ['en' => [$label]],
@@ -828,6 +828,50 @@ class IiifCollectionService
                 ]],
             ]],
         ];
+
+        // Issue #697 finishing pass: attach IIIF Presentation 3 §3.3
+        // `annotations` array pointing at the canvas-scoped AnnotationPage
+        // ONLY when at least one NER (or other Web Annotation) row exists
+        // for the canvas. Empty `annotations` arrays are not valid Pres 3
+        // and confuse strict validators, so we probe first.
+        //
+        // Mirador picks up the same rows via /api/annotations/search
+        // today, but a spec-strict client (Tify, Clover, Hyperion) only
+        // reads canvas.annotations[]. Wiring it here closes that gap
+        // without changing the URL the read endpoint already serves
+        // from - both the search endpoint and the new
+        // /iiif-manifest/{slug}/canvas/{n}/annotations endpoint
+        // dereference into ahg_iiif_annotation.
+        if ($this->canvasHasAnnotations($canvasId)) {
+            $canvas['annotations'] = [[
+                'id' => "{$canvasId}/annotations",
+                'type' => 'AnnotationPage',
+            ]];
+        }
+
+        return $canvas;
+    }
+
+    /**
+     * Quick existence probe for ahg_iiif_annotation rows pinned to a
+     * canvas. Used by buildSingleCanvasV3 to decide whether to attach
+     * the Pres 3 §3.3 `annotations` array.
+     *
+     * Defensive: returns false if the table is missing (older installs
+     * that have not booted the ahg-annotations package).
+     */
+    private function canvasHasAnnotations(string $canvasIri): bool
+    {
+        try {
+            if (! \Schema::hasTable('ahg_iiif_annotation')) {
+                return false;
+            }
+            return DB::table('ahg_iiif_annotation')
+                ->where('target_iri', $canvasIri)
+                ->exists();
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
@@ -1248,6 +1292,16 @@ class IiifCollectionService
                     ]],
                 ]],
             ];
+        }
+
+        // Pres 3 §3.3 annotations array - wired in parity with
+        // buildSingleCanvasV3 so AV transcript-derived NER annotations
+        // surface in spec-strict viewers.
+        if ($this->canvasHasAnnotations($canvasId)) {
+            $canvas['annotations'] = [[
+                'id' => "{$canvasId}/annotations",
+                'type' => 'AnnotationPage',
+            ]];
         }
 
         return $canvas;
