@@ -1,0 +1,100 @@
+# OpenTelemetry Collector example config for Heratio (issue #677 Phase 5)
+#
+# Drop this on the host running Heratio (or a sidecar) and start the
+# collector with:
+#
+#   otelcol --config /etc/otel-collector/otel-collector.yaml
+#
+# Then point Heratio at it by setting in .env:
+#
+#   OBSERVABILITY_OTEL_EXPORTER=otlp
+#   OBSERVABILITY_OTEL_ENDPOINT=http://127.0.0.1:4317
+#   OBSERVABILITY_OTEL_PROTOCOL=grpc
+#
+# The collector takes Heratio's OTLP spans on :4317 (gRPC) and :4318
+# (HTTP), and ships them onward to one of: Jaeger, Tempo, Honeycomb,
+# Datadog, or any other OTLP-compatible backend. Pick exactly one of the
+# `exporters` blocks below by adding it to the `pipelines.traces.exporters`
+# list; comment the rest out.
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  # Batch spans before shipping to reduce the number of outbound HTTP
+  # calls to your backend. 1s timeout + 512-span max batch is a good
+  # default for medium-volume Heratio installs.
+  batch:
+    timeout: 1s
+    send_batch_size: 512
+
+  # Drop the `db.statement` attribute if it looks like it carries
+  # bound parameters with sensitive data (emails, IDs, tokens). The
+  # statement hash (`db.statement.sha256`) is still emitted by Heratio
+  # so fingerprinting works without the raw text.
+  #
+  # Uncomment if your archival data is sensitive (POPIA/GDPR/PIPA):
+  #
+  # attributes/redact:
+  #   actions:
+  #     - key: db.statement
+  #       action: delete
+
+  # Tag every span with the source environment so a multi-deploy backend
+  # (dev + staging + prod feeding the same Tempo) can filter cleanly.
+  resource:
+    attributes:
+      - key: heratio.collector
+        value: otelcol-self
+        action: insert
+
+exporters:
+  # === Pick one (or more) of these and reference it in pipelines below ===
+
+  # Jaeger (OTLP-native since v1.35; do NOT use the legacy jaeger exporter).
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
+  # Grafana Tempo (recommended for Loki+Grafana stacks - aligns with Phase 4).
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  # Honeycomb (managed SaaS).
+  # otlp/honeycomb:
+  #   endpoint: api.honeycomb.io:443
+  #   headers:
+  #     x-honeycomb-team: ${HONEYCOMB_API_KEY}
+
+  # Datadog (via the OTel collector's contrib datadog exporter).
+  # datadog:
+  #   api:
+  #     key: ${DD_API_KEY}
+  #     site: datadoghq.com
+
+  # Log to stdout (dev / smoke-test only).
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+service:
+  telemetry:
+    logs:
+      level: info
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch, resource]
+      # Swap this list for the exporter(s) you actually want to ship to.
+      # Start with `debug` to validate the wiring, then move to a real
+      # backend once spans are flowing.
+      exporters: [otlp/tempo]

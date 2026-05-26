@@ -100,4 +100,48 @@ return [
     |
     */
     'textfile_dir' => env('OBSERVABILITY_TEXTFILE_DIR', '/var/lib/node_exporter/textfile_collector'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | OpenTelemetry tracing (issue #677 Phase 5)
+    |--------------------------------------------------------------------------
+    |
+    | Exporter modes:
+    |   "otlp"    - export via OTLP gRPC (default) or HTTP/protobuf to an
+    |               OpenTelemetry collector listening at `otel_endpoint`.
+    |   "console" - dump spans to stderr (development).
+    |   "null"    - no-op exporter (tracing disabled). This is what you get
+    |               when there is no collector reachable - the SDK silently
+    |               swallows spans and Heratio keeps serving requests.
+    |
+    | The collector itself is operator-managed. Run one alongside Heratio
+    | (see docs/observability/otel-collector.yaml.example) and point it at
+    | Jaeger / Tempo / Honeycomb / Datadog / etc.
+    |
+    | Sample ratio is parent-based: when the inbound traceparent carries
+    | a sampling decision we honour it, otherwise we apply this ratio to
+    | the root span. 0.0 = drop everything, 1.0 = trace everything.
+    |
+    */
+    'otel_exporter'      => env('OBSERVABILITY_OTEL_EXPORTER', 'null'),
+    'otel_endpoint'      => env('OBSERVABILITY_OTEL_ENDPOINT', 'http://localhost:4317'),
+    'otel_protocol'      => env('OBSERVABILITY_OTEL_PROTOCOL', 'grpc'), // grpc | http/protobuf | http/json
+    'otel_service_name'  => env('OBSERVABILITY_OTEL_SERVICE_NAME', 'heratio'),
+    'otel_environment'   => env('OBSERVABILITY_OTEL_ENVIRONMENT', env('APP_ENV', 'production')),
+    'otel_sample_ratio'  => (float) env('OBSERVABILITY_OTEL_SAMPLE_RATIO', '1.0'),
+
+    /*
+    | DB queries faster than this threshold (in milliseconds) are NOT
+    | promoted to child spans - this keeps the span volume reasonable on
+    | pages that fire dozens of fast lookups. Set to 0 to record every
+    | query (expensive, useful for diagnostics).
+    */
+    'otel_db_slow_query_ms' => (int) env('OBSERVABILITY_OTEL_DB_SLOW_QUERY_MS', '50'),
+
+    /*
+    | When false, outbound `Http::` calls won't emit child spans even if
+    | tracing is otherwise enabled. Lets operators dial down volume on
+    | hosts that make thousands of small HTTP calls per request.
+    */
+    'otel_http_client_enabled' => (bool) env('OBSERVABILITY_OTEL_HTTP_CLIENT_ENABLED', true),
 ];

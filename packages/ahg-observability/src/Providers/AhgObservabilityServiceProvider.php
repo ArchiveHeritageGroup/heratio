@@ -43,11 +43,19 @@ use AhgObservability\Console\Commands\EmitAiComplianceMetricsCommand;
 use AhgObservability\Console\Commands\RecordQueueDepthCommand;
 use AhgObservability\Listeners\RecordDbQuery;
 use AhgObservability\Services\MetricsRegistry;
+use AhgObservability\Tracing\Listeners\TraceDbQuery;
+use AhgObservability\Tracing\Listeners\TraceHttpClient;
+use AhgObservability\Tracing\TracerProvider as HeratioTracerProvider;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Http\Client\Events\ConnectionFailed as HttpClientConnectionFailed;
+use Illuminate\Http\Client\Events\RequestSending as HttpClientRequestSending;
+use Illuminate\Http\Client\Events\ResponseReceived as HttpClientResponseReceived;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use OpenTelemetry\API\Trace\TracerInterface;
+use OpenTelemetry\API\Trace\TracerProviderInterface;
 
 class AhgObservabilityServiceProvider extends ServiceProvider
 {
@@ -61,6 +69,27 @@ class AhgObservabilityServiceProvider extends ServiceProvider
         $this->app->singleton(MetricsRegistry::class, function () {
             return new MetricsRegistry;
         });
+
+        // ---- Phase 5: OpenTelemetry tracer (#677) ----
+        //
+        // One process-wide TracerProvider, lazily built. The Trace helper
+        // and TraceMiddleware pull `otel.tracer` from the container.
+        $this->app->singleton('otel.tracerprovider', function ($app) {
+            $config = (array) $app['config']->get('observability', []);
+            $version = $this->readAppVersion();
+
+            return HeratioTracerProvider::build($config, $version);
+        });
+
+        $this->app->singleton(TracerProviderInterface::class, fn ($app) => $app->make('otel.tracerprovider'));
+
+        $this->app->singleton('otel.tracer', function ($app) {
+            $provider = $app->make('otel.tracerprovider');
+
+            return $provider->getTracer('ahg/observability', $this->readAppVersion());
+        });
+
+        $this->app->singleton(TracerInterface::class, fn ($app) => $app->make('otel.tracer'));
     }
 
     public function boot(): void
@@ -73,6 +102,44 @@ class AhgObservabilityServiceProvider extends ServiceProvider
         // QueryExecuted fires on every DB query (including raw selects) -
         // subscribing it once at boot is cheaper than per-request wiring.
         Event::listen(QueryExecuted::class, [RecordDbQuery::class, 'handle']);
+
+        // ---- Phase 5 tracing wiring (#677) ----
+        //
+        // We only actually subscribe the tracing listeners when the
+        // exporter is configured to do something; otherwise the listener
+        // would be invoked on every query/HTTP call and do a noop trip
+        // through the helper. Cheap, but pointless.
+        $exporter = strtolower((string) config('observability.otel_exporter', 'null'));
+        $tracingEnabled = ! in_array($exporter, ['', 'null', 'noop', 'off'], true);
+
+        if ($tracingEnabled) {
+            $slowMs = (int) config('observability.otel_db_slow_query_ms', 50);
+            $this->app->singleton(TraceDbQuery::class, fn () => new TraceDbQuery($slowMs));
+            Event::listen(QueryExecuted::class, [TraceDbQuery::class, 'handle']);
+
+            if ((bool) config('observability.otel_http_client_enabled', true)
+                && class_exists(HttpClientRequestSending::class)) {
+                $this->app->singleton(TraceHttpClient::class);
+                Event::listen(HttpClientRequestSending::class, [TraceHttpClient::class, 'handleSending']);
+                Event::listen(HttpClientResponseReceived::class, [TraceHttpClient::class, 'handleReceived']);
+                Event::listen(HttpClientConnectionFailed::class, [TraceHttpClient::class, 'handleFailed']);
+            }
+
+            // Flush spans on app shutdown so CLI / queue runs get their
+            // traces exported even when there's no terminate() hook.
+            $this->app->terminating(function () {
+                try {
+                    $provider = $this->app->make('otel.tracerprovider');
+                    if (method_exists($provider, 'shutdown')) {
+                        $provider->shutdown();
+                    } elseif (method_exists($provider, 'forceFlush')) {
+                        $provider->forceFlush();
+                    }
+                } catch (\Throwable) {
+                    // never let exporter shutdown bubble
+                }
+            });
+        }
 
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -94,6 +161,27 @@ class AhgObservabilityServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../../config/observability.php' => config_path('observability.php'),
             ], 'observability-config');
+        }
+    }
+
+    /**
+     * Read the running Heratio version from version.json. Falls back to
+     * "0.0.0-dev" when the file is missing or unparseable - traces will
+     * still attribute on service.version, just with a sentinel value.
+     */
+    protected function readAppVersion(): string
+    {
+        try {
+            $path = base_path('version.json');
+            if (! is_file($path)) {
+                return '0.0.0-dev';
+            }
+            $json = json_decode((string) file_get_contents($path), true);
+            $v = is_array($json) ? ($json['version'] ?? null) : null;
+
+            return is_string($v) && $v !== '' ? $v : '0.0.0-dev';
+        } catch (\Throwable) {
+            return '0.0.0-dev';
         }
     }
 }

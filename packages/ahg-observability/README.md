@@ -67,6 +67,26 @@ If Prometheus runs on the same host as Heratio, drop the token and just lean on 
 php artisan observability:record-queue-depth
 ```
 
+## Distributed tracing (Phase 5)
+
+OpenTelemetry distributed tracing ships in Phase 5. See
+`docs/reference/observability-phase-5-tracing.md` for the full
+reference. Brief summary:
+
+- `AhgObservability\Tracing\TracerProvider` configures the OTel SDK
+  at boot, exporting via OTLP gRPC/HTTP to a collector at
+  `observability.otel_endpoint`.
+- `AhgObservability\Tracing\Trace` is the manual span helper:
+  `Trace::span('foo', fn () => doWork(), ['attr' => 'val'])`.
+- `RequestIdMiddleware` opens the parent `http.server.request` span.
+- `TraceDbQuery` listener emits child spans for slow DB queries.
+- `TraceHttpClient` listener emits child spans for outbound `Http::`
+  calls.
+
+Tracing is OFF by default (`otel_exporter=null`). Set
+`OBSERVABILITY_OTEL_EXPORTER=otlp` + `OBSERVABILITY_OTEL_ENDPOINT=...`
+in `.env` once a collector is reachable.
+
 ## Tests
 
 ```bash

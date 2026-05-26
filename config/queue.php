@@ -154,6 +154,7 @@ return [
         'email_send'       => (int) env('QUEUE_RATE_LIMIT_EMAIL_SEND', 100),
         'sms_send'         => (int) env('QUEUE_RATE_LIMIT_SMS_SEND', 30),
         'webhook_dispatch' => (int) env('QUEUE_RATE_LIMIT_WEBHOOK', 60),
+        'datacite_events'  => (int) env('QUEUE_RATE_LIMIT_DATACITE_EVENTS', 30),
 
         // Background indexing / housekeeping.
         'es_reindex'       => (int) env('QUEUE_RATE_LIMIT_ES_REINDEX', 120),

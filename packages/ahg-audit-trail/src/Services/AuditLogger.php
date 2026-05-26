@@ -32,6 +32,31 @@ use Illuminate\Support\Str;
 
 class AuditLogger
 {
+    /**
+     * Optional explicit tenant override. Set via constructor or with()
+     * for callers that need to pin the row to a specific tenant regardless
+     * of the request / auth context (e.g. background jobs running on behalf
+     * of a tenant they are not currently logged in as).
+     */
+    private ?int $tenantOverride;
+
+    public function __construct(?int $tenantId = null)
+    {
+        $this->tenantOverride = $tenantId;
+    }
+
+    /**
+     * Return a clone of this logger with a pinned tenant_id. Useful when a
+     * caller resolves a tenant out-of-band (e.g. from a job payload) and
+     * wants every subsequent log call to carry it.
+     */
+    public function withTenant(?int $tenantId): self
+    {
+        $clone = clone $this;
+        $clone->tenantOverride = $tenantId;
+        return $clone;
+    }
+
     public function logCreate(
         string $entityType,
         ?int $entityId = null,
@@ -227,9 +252,17 @@ class AuditLogger
                 // No request context
             }
 
+            // Issue #676 Phase 6 - resolve tenant_id from (in order):
+            //   1. explicit constructor / withTenant() override
+            //   2. config('ahg.tenant_id') / env('AHG_TENANT_ID')
+            //   3. Auth::user()->tenant_id when authenticated
+            //   4. NULL (single-tenant / unknown)
+            $tenantId = $this->resolveTenantId($userId !== null ? auth()->user() : null);
+
             $row = array_merge([
                 'uuid' => (string) Str::uuid(),
                 'user_id' => $userId,
+                'tenant_id' => $tenantId,
                 'username' => $username,
                 'user_email' => $userEmail,
                 'ip_address' => $ip,
@@ -243,6 +276,13 @@ class AuditLogger
                 'created_at' => now(),
             ], $cols);
 
+            // Drop the tenant_id key if the schema does not have it yet (fresh
+            // install before the install-tenant.sql probe has run). This keeps
+            // the writer safe across upgrade boundaries.
+            if (!Schema::hasColumn('ahg_audit_log', 'tenant_id')) {
+                unset($row['tenant_id']);
+            }
+
             // Issue #676 Phase 5 - route through ChainedAuditWriter so each
             // new row joins the Ed25519/JCS hash chain. Falls back to a
             // plain unsigned insert if the signing key is unavailable so the
@@ -253,6 +293,47 @@ class AuditLogger
             // Never let audit break the calling code path
             return null;
         }
+    }
+
+    /**
+     * Resolve the tenant_id following the documented precedence:
+     *   1. explicit constructor / withTenant() override
+     *   2. config('ahg.tenant_id') (env-backed via AHG_TENANT_ID)
+     *   3. authenticated user's tenant_id column
+     *   4. null
+     */
+    private function resolveTenantId($authUser): ?int
+    {
+        if ($this->tenantOverride !== null) {
+            return $this->tenantOverride;
+        }
+        try {
+            if (function_exists('config')) {
+                $cfg = config('ahg.tenant_id');
+                if ($cfg !== null && $cfg !== '') {
+                    return (int) $cfg;
+                }
+            }
+        } catch (\Throwable $e) {
+            // config() unreachable - fall through
+        }
+        try {
+            if (function_exists('env')) {
+                $envVal = env('AHG_TENANT_ID');
+                if ($envVal !== null && $envVal !== '') {
+                    return (int) $envVal;
+                }
+            }
+        } catch (\Throwable $e) {
+            // env() unreachable - fall through
+        }
+        if ($authUser !== null) {
+            $t = $authUser->tenant_id ?? null;
+            if ($t !== null && $t !== '') {
+                return (int) $t;
+            }
+        }
+        return null;
     }
 
     /**

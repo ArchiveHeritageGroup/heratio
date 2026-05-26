@@ -145,4 +145,68 @@ CREATE TABLE IF NOT EXISTS `ahg_backup_replication` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+--
+-- Table structure for table `ahg_backup_run`
+--
+-- Issue #671 Phase 4 - PITR coordinate map. One row per *full* backup
+-- (mysqldump) capturing the binary-log coordinates at dump time. PITR
+-- restore reads the row that ran most recently before the target time,
+-- replays mysqlbinlog from (`binlog_file`,`binlog_pos`) up to the
+-- target timestamp. `gtid_executed` is captured when GTID is enabled
+-- (preferred over file+pos when both are available).
+--
+-- Empty `binlog_file` is legitimate - it means binary logging was not
+-- enabled on the server when the dump ran, so PITR replay is not
+-- possible from this run. The PITR command refuses to use such rows.
+--
+
+CREATE TABLE IF NOT EXISTS `ahg_backup_run` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `backup_path` varchar(500) NOT NULL,
+  `backup_filename` varchar(255) NOT NULL,
+  `dumped_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `db_name` varchar(64) NOT NULL,
+  `binlog_file` varchar(255) DEFAULT NULL COMMENT 'mysql-bin.XXXXXX from SHOW MASTER STATUS at dump time',
+  `binlog_pos` bigint DEFAULT NULL,
+  `gtid_executed` text COMMENT 'GTID set from SHOW MASTER STATUS, when GTID is enabled',
+  `binlog_format` varchar(16) DEFAULT NULL COMMENT 'ROW (required for PITR), STATEMENT, MIXED',
+  `log_bin_enabled` tinyint(1) DEFAULT '0',
+  `notes` text,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_backup_filename` (`backup_filename`),
+  KEY `idx_dumped_at` (`dumped_at`),
+  KEY `idx_db_name` (`db_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+--
+-- Table structure for table `ahg_backup_binlog`
+--
+-- Issue #671 Phase 4 - archive of rotated binary-log files. The
+-- `backup:archive-binlogs` command runs hourly, executes
+-- `FLUSH BINARY LOGS`, copies the now-closed log files into
+-- `storage/backups/binlogs/`, and records one row per archived file
+-- here. The Phase 3 off-site replicator picks these up from the
+-- backups directory on its next sweep.
+--
+-- `archived_at` is the wall-clock time of the copy operation, which is
+-- also the upper bound of activity that can be recovered from this
+-- file via PITR.
+--
+
+CREATE TABLE IF NOT EXISTS `ahg_backup_binlog` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `binlog_file` varchar(255) NOT NULL,
+  `archive_path` varchar(500) NOT NULL,
+  `size_bytes` bigint DEFAULT '0',
+  `sha256` char(64) DEFAULT NULL,
+  `archived_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `first_event_at` datetime DEFAULT NULL COMMENT 'best-effort earliest event timestamp, when known',
+  `last_event_at` datetime DEFAULT NULL COMMENT 'best-effort latest event timestamp, when known',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_binlog_file` (`binlog_file`),
+  KEY `idx_archived_at` (`archived_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 SET FOREIGN_KEY_CHECKS = 1;

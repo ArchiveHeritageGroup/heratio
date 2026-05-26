@@ -25,8 +25,14 @@
 
 namespace AhgBackup\Providers;
 
+use AhgBackup\Console\Commands\ArchiveBinaryLogsCommand;
 use AhgBackup\Console\Commands\ReplicateBackupCommand;
+use AhgBackup\Console\Commands\RestoreInformationObjectCommand;
+use AhgBackup\Console\Commands\RestoreTableCommand;
+use AhgBackup\Console\Commands\RestoreToPointInTimeCommand;
 use AhgBackup\Console\Commands\VerifyBackupIntegrityCommand;
+use AhgBackup\Services\BinaryLogArchiver;
+use AhgBackup\Services\GranularRestoreService;
 use AhgBackup\Services\OffsiteReplicator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +47,12 @@ class AhgBackupServiceProvider extends ServiceProvider
         $this->app->singleton(OffsiteReplicator::class, function () {
             return new OffsiteReplicator();
         });
+        $this->app->singleton(BinaryLogArchiver::class, function () {
+            return new BinaryLogArchiver();
+        });
+        $this->app->singleton(GranularRestoreService::class, function () {
+            return new GranularRestoreService();
+        });
     }
 
     public function boot(): void
@@ -53,15 +65,21 @@ class AhgBackupServiceProvider extends ServiceProvider
             $this->commands([
                 ReplicateBackupCommand::class,
                 VerifyBackupIntegrityCommand::class,
+                ArchiveBinaryLogsCommand::class,
+                RestoreToPointInTimeCommand::class,
+                RestoreInformationObjectCommand::class,
+                RestoreTableCommand::class,
             ]);
 
             // Daily-cron schedule. The push runs at 03:15 (before the
             // default 03:30 audit-prune) and the integrity sweep runs
             // at 04:00 after the night's replication has had time to
-            // settle. Both honour `withoutOverlapping()`.
+            // settle. Binlog archiving runs hourly to bound the RPO
+            // to ~1 hour. All honour `withoutOverlapping()`.
             $this->app->afterResolving(\Illuminate\Console\Scheduling\Schedule::class, function (\Illuminate\Console\Scheduling\Schedule $schedule) {
                 $schedule->command('backup:replicate')->dailyAt('03:15')->withoutOverlapping();
                 $schedule->command('backup:verify-integrity')->dailyAt('04:00')->withoutOverlapping();
+                $schedule->command('backup:archive-binlogs')->hourly()->withoutOverlapping();
             });
         }
 
@@ -71,7 +89,10 @@ class AhgBackupServiceProvider extends ServiceProvider
         // database connection during a fresh install can't fault the
         // whole provider chain.
         try {
-            if (!Schema::hasTable('ahg_backup_replication')) {
+            $missing = !Schema::hasTable('ahg_backup_replication')
+                || !Schema::hasTable('ahg_backup_run')
+                || !Schema::hasTable('ahg_backup_binlog');
+            if ($missing) {
                 $this->seedReplicationTable();
             }
         } catch (\Throwable $e) {

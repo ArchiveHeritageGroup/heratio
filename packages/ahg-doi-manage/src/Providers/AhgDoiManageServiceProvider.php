@@ -3,9 +3,12 @@
 /**
  * AhgDoiManageServiceProvider
  *
- * Registers routes, views, and Phase 2 (#654) console command
- * doi:funding-import. Also auto-installs the ahg_io_funding sidecar
- * table on first boot if it is missing.
+ * Registers routes, views, console commands, and (Phase 3 of #654) the
+ * DataCite Events API hooks: domain events (DoiViewed / DoiDownload /
+ * DoiCitation) routed through RegisterDoiEventsListener, plus the
+ * RecordDoiView global middleware. Also auto-installs the ahg_io_funding
+ * (Phase 2) and ahg_datacite_event (Phase 3) sidecar tables on first boot
+ * if either is missing.
  *
  * @copyright 2026 Johan Pieterse / Plain Sailing Information Systems
  * @license   AGPL-3.0-or-later
@@ -13,8 +16,17 @@
 
 namespace AhgDoiManage\Providers;
 
+use AhgDoiManage\Console\DoiEventsFlushCommand;
 use AhgDoiManage\Console\DoiFundingImportCommand;
+use AhgDoiManage\Console\MetricsBackfillCommand;
+use AhgDoiManage\Events\DoiCitation;
+use AhgDoiManage\Events\DoiDownload;
+use AhgDoiManage\Events\DoiViewed;
+use AhgDoiManage\Http\Middleware\RecordDoiView;
+use AhgDoiManage\Listeners\RegisterDoiEventsListener;
+use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -36,21 +48,28 @@ class AhgDoiManageServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 DoiFundingImportCommand::class,
+                DoiEventsFlushCommand::class,
+                MetricsBackfillCommand::class,
             ]);
         }
 
-        $this->ensureFundingTable();
+        $this->ensureSchema();
+        $this->registerEventListeners();
+        $this->registerHttpMiddleware();
     }
 
     /**
-     * Idempotent first-boot install of ahg_io_funding. Wrapped end-to-end
-     * in try/catch (per reference_ci_schema_hastable.md) so a missing DB
-     * connection during CI bootstrap can never block boot.
+     * Per reference_ci_schema_hastable.md the probe + install is wrapped in
+     * one outer try/catch so a missing DB connection during CI bootstrap
+     * cannot block boot. Idempotent on subsequent runs (CREATE TABLE IF
+     * NOT EXISTS in the SQL file).
      */
-    protected function ensureFundingTable(): void
+    protected function ensureSchema(): void
     {
         try {
-            if (Schema::hasTable('ahg_io_funding')) {
+            $needFunding = ! Schema::hasTable('ahg_io_funding');
+            $needEvents  = ! Schema::hasTable('ahg_datacite_event');
+            if (! $needFunding && ! $needEvents) {
                 return;
             }
             $sql = @file_get_contents(__DIR__.'/../../database/install.sql');
@@ -58,15 +77,45 @@ class AhgDoiManageServiceProvider extends ServiceProvider
                 return;
             }
             foreach (preg_split('/;\s*\n/', $sql) as $stmt) {
-                $stmt = trim($stmt);
-                if ($stmt === '' || str_starts_with($stmt, '--')) {
+                // Strip any leading -- comment lines so the actual statement
+                // (CREATE TABLE / INSERT / etc.) is what reaches DB::statement.
+                $lines = preg_split("/\r?\n/", trim($stmt));
+                while ($lines && (trim($lines[0]) === '' || str_starts_with(ltrim($lines[0]), '--'))) {
+                    array_shift($lines);
+                }
+                $stmt = trim(implode("\n", $lines));
+                if ($stmt === '') {
                     continue;
                 }
                 DB::statement($stmt);
             }
         } catch (Throwable $e) {
-            // Never block boot - the doi:funding-import command will surface
-            // schema problems at run time when an operator actually uses it.
+            // Never block boot - the artisan commands surface schema problems at run time.
+        }
+    }
+
+    protected function registerEventListeners(): void
+    {
+        Event::listen(DoiViewed::class, [RegisterDoiEventsListener::class, 'handleDoiViewed']);
+        Event::listen(DoiDownload::class, [RegisterDoiEventsListener::class, 'handleDoiDownload']);
+        Event::listen(DoiCitation::class, [RegisterDoiEventsListener::class, 'handleDoiCitation']);
+    }
+
+    /**
+     * Push RecordDoiView onto the global stack so an IO show page (resolved
+     * via the slug catch-all in the locked ahg-information-object-manage
+     * package) fires a DoiViewed event without us having to edit that
+     * package's routes file.
+     */
+    protected function registerHttpMiddleware(): void
+    {
+        try {
+            $kernel = $this->app->make(HttpKernel::class);
+            if (method_exists($kernel, 'pushMiddleware')) {
+                $kernel->pushMiddleware(RecordDoiView::class);
+            }
+        } catch (Throwable $e) {
+            // Bootstrap-time only; never fatal.
         }
     }
 }

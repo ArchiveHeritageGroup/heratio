@@ -27,6 +27,7 @@ namespace AhgBackup\Controllers;
 
 use AhgBackup\Mail\BackupCompletedMail;
 use AhgBackup\Mail\BackupFailedMail;
+use AhgBackup\Services\BinaryLogArchiver;
 use AhgCore\Services\AhgSettingsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -246,6 +247,24 @@ class BackupController extends Controller
                     'filename' => $filename,
                     'size' => $this->humanFileSize(File::size($filepath)),
                 ];
+
+                // #671 Phase 4: record the binary-log coordinates at
+                // dump time so the PITR command knows where to start
+                // replay from. Failure here MUST NOT break the
+                // backup response - PITR will surface the gap.
+                try {
+                    app(BinaryLogArchiver::class)->recordDumpCoordinates(
+                        $filename,
+                        $filepath,
+                        $dbName,
+                        'Captured by BackupController::create()'
+                    );
+                } catch (\Throwable $e) {
+                    Log::warning('[ahg-backup] failed to record dump coordinates for PITR', [
+                        'filename' => $filename,
+                        'error'    => $e->getMessage(),
+                    ]);
+                }
             } else {
                 // Clean up failed file
                 if (File::exists($filepath)) {

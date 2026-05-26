@@ -58,6 +58,7 @@ class AhgAuditTrailServiceProvider extends ServiceProvider
             $this->commands([
                 \AhgAuditTrail\Console\Commands\PruneCommand::class,
                 \AhgAuditTrail\Console\Commands\VerifyChainCommand::class,
+                \AhgAuditTrail\Console\Commands\ReportCommand::class,
             ]);
 
             // Schedule a daily prune. Honours ahg_settings.audit_retention_days
@@ -81,6 +82,12 @@ class AhgAuditTrailServiceProvider extends ServiceProvider
                 if (!$this->triggerExists('ahg_audit_log_no_update_chained')
                     || !$this->triggerExists('ahg_audit_log_no_delete_chained')) {
                     $this->runSqlFileUnprepared(__DIR__.'/../../database/install-trigger.sql');
+                }
+                // Issue #676 Phase 6 - tenant_id column + composite index for
+                // tenant-scoped reports. Same schema-probe pattern so a fresh
+                // install / partial bootstrap can not fault the provider.
+                if (!Schema::hasColumn('ahg_audit_log', 'tenant_id')) {
+                    $this->runSqlFile(__DIR__.'/../../database/install-tenant.sql');
                 }
             }
         } catch (\Throwable $e) {
