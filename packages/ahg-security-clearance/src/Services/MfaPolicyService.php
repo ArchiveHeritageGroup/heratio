@@ -251,16 +251,21 @@ class MfaPolicyService
     private function resolveUserTenantId(User $user): ?int
     {
         if (Schema::hasTable('ahg_tenant_user')) {
-            $primary = DB::table('ahg_tenant_user')
-                ->where('user_id', $user->id)
-                ->where('is_primary', 1)
-                ->value('tenant_id');
-            if ($primary !== null) {
-                return (int) $primary;
+            if (Schema::hasColumn('ahg_tenant_user', 'is_primary')) {
+                $primary = DB::table('ahg_tenant_user')
+                    ->where('user_id', $user->id)
+                    ->where('is_primary', 1)
+                    ->value('tenant_id');
+                if ($primary !== null) {
+                    return (int) $primary;
+                }
             }
+            $orderCol = Schema::hasColumn('ahg_tenant_user', 'assigned_at')
+                ? 'assigned_at'
+                : (Schema::hasColumn('ahg_tenant_user', 'created_at') ? 'created_at' : 'id');
             $any = DB::table('ahg_tenant_user')
                 ->where('user_id', $user->id)
-                ->orderBy('assigned_at', 'asc')
+                ->orderBy($orderCol, 'asc')
                 ->value('tenant_id');
             if ($any !== null) {
                 return (int) $any;

@@ -595,7 +595,7 @@ CREATE TABLE IF NOT EXISTS `ahg_mfa_policy` (
 
 -- Seed the global default row (tenant_id IS NULL). INSERT IGNORE skips on
 -- re-run; the unique key on tenant_id covers NULL via MySQL's "one NULL is
--- still distinct from another NULL" semantics — so we guard with a probe
+-- still distinct from another NULL" semantics - so we guard with a probe
 -- instead and rely on the service provider to insert only when missing.
 
 SET FOREIGN_KEY_CHECKS = 1;

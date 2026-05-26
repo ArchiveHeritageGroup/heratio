@@ -4,11 +4,11 @@
 
 ## Files
 
-- `database/install.sql` — adds `ahg_mfa_policy` table.
-- `src/Services/MfaPolicyService.php` — `policyFor`, `requiresMfa`, `inGrace`, `setPolicy`, `resetToGlobalDefault`, `listAllForAdmin`.
-- `src/Http/Middleware/EnforceMfaPolicy.php` — wired into the web stack via `bootstrap/app.php`, just after `RequireMfaCompletion`.
-- `src/Controllers/MfaPolicyController.php` — admin UI at `/admin/security/mfa-policy`.
-- `resources/views/mfa-policy/{index,edit}.blade.php` — Bootstrap 5 + bi-* icons.
+- `database/install.sql` - adds `ahg_mfa_policy` table.
+- `src/Services/MfaPolicyService.php` - `policyFor`, `requiresMfa`, `inGrace`, `setPolicy`, `resetToGlobalDefault`, `listAllForAdmin`.
+- `src/Http/Middleware/EnforceMfaPolicy.php` - wired into the web stack via `bootstrap/app.php`, just after `RequireMfaCompletion`.
+- `src/Controllers/MfaPolicyController.php` - admin UI at `/admin/security/mfa-policy`.
+- `resources/views/mfa-policy/{index,edit}.blade.php` - Bootstrap 5 + bi-* icons.
 - `tests/Unit/MfaPolicyServiceTest.php` and `tests/Unit/EnforceMfaPolicyTest.php`.
 
 ## Table schema
