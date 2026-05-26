@@ -27,19 +27,25 @@ namespace AhgTermTaxonomy\Controllers;
 
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
+use AhgTermTaxonomy\Services\CrossMatchService;
 use AhgTermTaxonomy\Services\TermBrowseService;
 use AhgTermTaxonomy\Services\TermService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class TermController extends Controller
 {
     protected TermService $termService;
 
-    public function __construct(TermService $termService)
+    protected CrossMatchService $crossMatchService;
+
+    public function __construct(TermService $termService, CrossMatchService $crossMatchService)
     {
         $this->termService = $termService;
+        $this->crossMatchService = $crossMatchService;
     }
 
     /**
@@ -539,6 +545,9 @@ class TermController extends Controller
             $format = 'rdfxml';
         }
 
+        // #661 Phase 3: opt-in SKOS-XL emission alongside the plain literals.
+        $skosXl = (bool) $request->input('skos_xl', false);
+
         $culture = app()->getLocale();
         $taxonomyName = $this->termService->getTaxonomyName($taxonomyId, $culture);
 
@@ -601,7 +610,15 @@ class TermController extends Controller
             }
         }
 
-        // Build a normalised concept list ONCE — used by all serialisers.
+        // #661 Phase 3: cross-vocabulary mapping links per term. Single batched
+        // lookup avoids N+1 across the concept walk; collapses to empty list
+        // if the table hasn't been installed yet on legacy DBs.
+        $crossMatchesByTerm = [];
+        if (! empty($termIds) && Schema::hasTable('ahg_term_cross_match')) {
+            $crossMatchesByTerm = $this->crossMatchService->forTerms($termIds);
+        }
+
+        // Build a normalised concept list ONCE - used by all serialisers.
         $concepts = [];
         foreach ($terms as $t) {
             $uri = $baseUri.($t->slug ?: $t->id);
@@ -612,7 +629,20 @@ class TermController extends Controller
                     $parentUri = $baseUri.($parent->slug ?: $parent->id);
                 }
             }
+            // #661 Phase 3 - normalise the cross-match rows into a simple
+            // shape for the serialisers (we don't ship internal db ids out).
+            $crossMatches = [];
+            foreach (($crossMatchesByTerm[$t->id] ?? []) as $cm) {
+                $crossMatches[] = [
+                    'match_type' => (string) $cm->match_type,
+                    'target_uri' => (string) $cm->target_uri,
+                    'target_label' => $cm->target_label !== null ? (string) $cm->target_label : null,
+                    'target_vocab' => $cm->target_vocab !== null ? (string) $cm->target_vocab : null,
+                ];
+            }
+
             $concepts[] = [
+                'id' => (int) $t->id,
                 'uri' => $uri,
                 'prefLabel' => (string) $t->name,
                 'broader' => $parentUri,
@@ -622,6 +652,7 @@ class TermController extends Controller
                 'hiddenLabels' => $hiddenLabelsByTerm[$t->id] ?? [],
                 'scopeNotes' => $scopeNotesByTerm[$t->id] ?? [],
                 'historyNotes' => $historyNotesByTerm[$t->id] ?? [],
+                'crossMatches' => $crossMatches,
             ];
         }
 
@@ -629,6 +660,8 @@ class TermController extends Controller
             'uri' => $schemeUri,
             'title' => $taxonomyName ?? 'Taxonomy',
             'culture' => $culture,
+            'skos_xl' => $skosXl,
+            'base_uri' => $baseUri,
         ];
 
         switch ($format) {
@@ -671,11 +704,16 @@ class TermController extends Controller
     {
         $culture = $scheme['culture'];
         $schemeUri = $scheme['uri'];
+        $skosXl = (bool) ($scheme['skos_xl'] ?? false);
+        $baseUri = (string) ($scheme['base_uri'] ?? '');
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
         $xml .= '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"'."\n";
-        $xml .= '         xmlns:skos="http://www.w3.org/2004/02/skos/core#"'."\n";
-        $xml .= '         xmlns:dct="http://purl.org/dc/terms/">'."\n\n";
+        $xml .= '         xmlns:skos="http://www.w3.org/2004/02/skos/core#"';
+        if ($skosXl) {
+            $xml .= "\n".'         xmlns:skosxl="http://www.w3.org/2008/05/skos-xl#"';
+        }
+        $xml .= "\n".'         xmlns:dct="http://purl.org/dc/terms/">'."\n\n";
 
         $xml .= '  <skos:ConceptScheme rdf:about="'.htmlspecialchars($schemeUri).'">'."\n";
         $xml .= '    <dct:title>'.htmlspecialchars($scheme['title']).'</dct:title>'."\n";
@@ -696,7 +734,7 @@ class TermController extends Controller
                 $xml .= '    <skos:notation>'.htmlspecialchars($c['notation']).'</skos:notation>'."\n";
             }
 
-            // #661 Phase 1 additions — altLabel / hiddenLabel / scopeNote / historyNote
+            // #661 Phase 1 additions - altLabel / hiddenLabel / scopeNote / historyNote
             foreach (($c['altLabels'] ?? []) as $alt) {
                 $xml .= '    <skos:altLabel xml:lang="'.htmlspecialchars($alt['lang']).'">'.htmlspecialchars($alt['name']).'</skos:altLabel>'."\n";
             }
@@ -710,12 +748,63 @@ class TermController extends Controller
                 $xml .= '    <skos:historyNote xml:lang="'.htmlspecialchars($hn['lang']).'">'.htmlspecialchars($hn['text']).'</skos:historyNote>'."\n";
             }
 
+            // #661 Phase 3 - cross-vocab mapping links.
+            foreach (($c['crossMatches'] ?? []) as $cm) {
+                $pred = $this->mapPredicate($cm['match_type']);
+                $xml .= '    <skos:'.$pred.' rdf:resource="'.htmlspecialchars($cm['target_uri']).'"/>'."\n";
+            }
+
+            // #661 Phase 3 - SKOS-XL label references on the concept itself.
+            if ($skosXl) {
+                $xlPreUri = $this->xlLabelUri($baseUri, $c, $culture, 'pref', $c['prefLabel']);
+                $xml .= '    <skosxl:prefLabel rdf:resource="'.htmlspecialchars($xlPreUri).'"/>'."\n";
+                foreach (($c['altLabels'] ?? []) as $alt) {
+                    $xlUri = $this->xlLabelUri($baseUri, $c, $alt['lang'], 'alt', $alt['name']);
+                    $xml .= '    <skosxl:altLabel rdf:resource="'.htmlspecialchars($xlUri).'"/>'."\n";
+                }
+                foreach (($c['hiddenLabels'] ?? []) as $hid) {
+                    $xlUri = $this->xlLabelUri($baseUri, $c, $hid['lang'], 'hidden', $hid['name']);
+                    $xml .= '    <skosxl:hiddenLabel rdf:resource="'.htmlspecialchars($xlUri).'"/>'."\n";
+                }
+            }
+
             $xml .= '  </skos:Concept>'."\n";
+
+            // #661 Phase 3 - emit a full <skosxl:Label> resource for every
+            // referenced label URI. The concept block above only points at
+            // these by URI so we describe them once each here.
+            if ($skosXl) {
+                $xlPreUri = $this->xlLabelUri($baseUri, $c, $culture, 'pref', $c['prefLabel']);
+                $xml .= $this->rdfXmlXlLabel($xlPreUri, $c['prefLabel'], $culture);
+                foreach (($c['altLabels'] ?? []) as $alt) {
+                    $xlUri = $this->xlLabelUri($baseUri, $c, $alt['lang'], 'alt', $alt['name']);
+                    $xml .= $this->rdfXmlXlLabel($xlUri, $alt['name'], $alt['lang']);
+                }
+                foreach (($c['hiddenLabels'] ?? []) as $hid) {
+                    $xlUri = $this->xlLabelUri($baseUri, $c, $hid['lang'], 'hidden', $hid['name']);
+                    $xml .= $this->rdfXmlXlLabel($xlUri, $hid['name'], $hid['lang']);
+                }
+            }
         }
 
         $xml .= '</rdf:RDF>'."\n";
 
         return $xml;
+    }
+
+    /**
+     * Emit a single <skosxl:Label> resource for RDF/XML.
+     */
+    private function rdfXmlXlLabel(string $uri, string $literal, string $lang): string
+    {
+        $now = date('c');
+        $out = '  <skosxl:Label rdf:about="'.htmlspecialchars($uri).'">'."\n";
+        $out .= '    <skosxl:literalForm xml:lang="'.htmlspecialchars($lang).'">'.htmlspecialchars($literal).'</skosxl:literalForm>'."\n";
+        $out .= '    <dct:created>'.$now.'</dct:created>'."\n";
+        $out .= '    <dct:creator>heratio</dct:creator>'."\n";
+        $out .= '  </skosxl:Label>'."\n";
+
+        return $out;
     }
 
     /**
@@ -726,11 +815,16 @@ class TermController extends Controller
     {
         $culture = $scheme['culture'];
         $schemeUri = $scheme['uri'];
+        $skosXl = (bool) ($scheme['skos_xl'] ?? false);
+        $baseUri = (string) ($scheme['base_uri'] ?? '');
 
-        $ttl = "@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n";
-        $ttl .= "@prefix skos: <http://www.w3.org/2004/02/skos/core#> .\n";
-        $ttl .= "@prefix dct:  <http://purl.org/dc/terms/> .\n";
-        $ttl .= "@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .\n\n";
+        $ttl = "@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n";
+        $ttl .= "@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .\n";
+        if ($skosXl) {
+            $ttl .= "@prefix skosxl: <http://www.w3.org/2008/05/skos-xl#> .\n";
+        }
+        $ttl .= "@prefix dct:    <http://purl.org/dc/terms/> .\n";
+        $ttl .= "@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .\n\n";
 
         $ttl .= '<'.$schemeUri.'> a skos:ConceptScheme ;'."\n";
         $ttl .= '    dct:title '.$this->ttlString($scheme['title']).' .'."\n\n";
@@ -760,9 +854,57 @@ class TermController extends Controller
             foreach (($c['historyNotes'] ?? []) as $hn) {
                 $ttl .= '    skos:historyNote '.$this->ttlLangString($hn['text'], $hn['lang']).' ;'."\n";
             }
+            // #661 Phase 3 - cross-vocab mapping links
+            foreach (($c['crossMatches'] ?? []) as $cm) {
+                $pred = $this->mapPredicate($cm['match_type']);
+                $ttl .= '    skos:'.$pred.' <'.$cm['target_uri'].'> ;'."\n";
+            }
+            // #661 Phase 3 - SKOS-XL label references on the concept
+            if ($skosXl) {
+                $xlPreUri = $this->xlLabelUri($baseUri, $c, $culture, 'pref', $c['prefLabel']);
+                $ttl .= '    skosxl:prefLabel <'.$xlPreUri.'> ;'."\n";
+                foreach (($c['altLabels'] ?? []) as $alt) {
+                    $xlUri = $this->xlLabelUri($baseUri, $c, $alt['lang'], 'alt', $alt['name']);
+                    $ttl .= '    skosxl:altLabel <'.$xlUri.'> ;'."\n";
+                }
+                foreach (($c['hiddenLabels'] ?? []) as $hid) {
+                    $xlUri = $this->xlLabelUri($baseUri, $c, $hid['lang'], 'hidden', $hid['name']);
+                    $ttl .= '    skosxl:hiddenLabel <'.$xlUri.'> ;'."\n";
+                }
+            }
             // Replace trailing ' ;' with ' .'
             $ttl = preg_replace('/ ;\n$/', " .\n", $ttl);
             $ttl .= "\n";
+
+            // #661 Phase 3 - skosxl:Label resources for every referenced URI.
+            if ($skosXl) {
+                $now = date('c');
+                $writeLabel = function (string $uri, string $literal, string $lang) use (&$ttl, $now) {
+                    $ttl .= '<'.$uri.'> a skosxl:Label ;'."\n";
+                    $ttl .= '    skosxl:literalForm '.$this->ttlLangString($literal, $lang).' ;'."\n";
+                    $ttl .= '    dct:created "'.$now.'"^^xsd:dateTime ;'."\n";
+                    $ttl .= '    dct:creator '.$this->ttlString('heratio').' .'."\n\n";
+                };
+                $writeLabel(
+                    $this->xlLabelUri($baseUri, $c, $culture, 'pref', $c['prefLabel']),
+                    $c['prefLabel'],
+                    $culture
+                );
+                foreach (($c['altLabels'] ?? []) as $alt) {
+                    $writeLabel(
+                        $this->xlLabelUri($baseUri, $c, $alt['lang'], 'alt', $alt['name']),
+                        $alt['name'],
+                        $alt['lang']
+                    );
+                }
+                foreach (($c['hiddenLabels'] ?? []) as $hid) {
+                    $writeLabel(
+                        $this->xlLabelUri($baseUri, $c, $hid['lang'], 'hidden', $hid['name']),
+                        $hid['name'],
+                        $hid['lang']
+                    );
+                }
+            }
         }
 
         return $ttl;
@@ -777,9 +919,12 @@ class TermController extends Controller
     {
         $culture = $scheme['culture'];
         $schemeUri = $scheme['uri'];
+        $skosXl = (bool) ($scheme['skos_xl'] ?? false);
+        $baseUri = (string) ($scheme['base_uri'] ?? '');
 
         $rdfType = '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>';
         $skos = 'http://www.w3.org/2004/02/skos/core#';
+        $skosxl = 'http://www.w3.org/2008/05/skos-xl#';
         $dct = 'http://purl.org/dc/terms/';
 
         $nt = '';
@@ -811,6 +956,44 @@ class TermController extends Controller
             foreach (($c['historyNotes'] ?? []) as $hn) {
                 $nt .= '<'.$c['uri'].'> <'.$skos.'historyNote> '.$this->ntLangString($hn['text'], $hn['lang']).' .'."\n";
             }
+            // #661 Phase 3 - cross-vocab mapping links
+            foreach (($c['crossMatches'] ?? []) as $cm) {
+                $pred = $this->mapPredicate($cm['match_type']);
+                $nt .= '<'.$c['uri'].'> <'.$skos.$pred.'> <'.$cm['target_uri'].'> .'."\n";
+            }
+            // #661 Phase 3 - SKOS-XL references + label resources
+            if ($skosXl) {
+                $now = date('c');
+                $emitXl = function (string $uri, string $literal, string $lang, string $predicate) use (&$nt, $now, $c, $skosxl, $dct, $rdfType) {
+                    $nt .= '<'.$c['uri'].'> <'.$skosxl.$predicate.'> <'.$uri.'> .'."\n";
+                    $nt .= '<'.$uri.'> '.$rdfType.' <'.$skosxl.'Label> .'."\n";
+                    $nt .= '<'.$uri.'> <'.$skosxl.'literalForm> '.$this->ntLangString($literal, $lang).' .'."\n";
+                    $nt .= '<'.$uri.'> <'.$dct.'created> "'.$now.'"^^<http://www.w3.org/2001/XMLSchema#dateTime> .'."\n";
+                    $nt .= '<'.$uri.'> <'.$dct.'creator> '.$this->ntString('heratio').' .'."\n";
+                };
+                $emitXl(
+                    $this->xlLabelUri($baseUri, $c, $culture, 'pref', $c['prefLabel']),
+                    $c['prefLabel'],
+                    $culture,
+                    'prefLabel'
+                );
+                foreach (($c['altLabels'] ?? []) as $alt) {
+                    $emitXl(
+                        $this->xlLabelUri($baseUri, $c, $alt['lang'], 'alt', $alt['name']),
+                        $alt['name'],
+                        $alt['lang'],
+                        'altLabel'
+                    );
+                }
+                foreach (($c['hiddenLabels'] ?? []) as $hid) {
+                    $emitXl(
+                        $this->xlLabelUri($baseUri, $c, $hid['lang'], 'hidden', $hid['name']),
+                        $hid['name'],
+                        $hid['lang'],
+                        'hiddenLabel'
+                    );
+                }
+            }
         }
 
         return $nt;
@@ -824,6 +1007,8 @@ class TermController extends Controller
     private function serialiseSkosJsonLd(array $scheme, array $concepts): string
     {
         $culture = $scheme['culture'];
+        $skosXl = (bool) ($scheme['skos_xl'] ?? false);
+        $baseUri = (string) ($scheme['base_uri'] ?? '');
 
         $graph = [];
         $graph[] = [
@@ -831,6 +1016,8 @@ class TermController extends Controller
             '@type' => 'skos:ConceptScheme',
             'dct:title' => $scheme['title'],
         ];
+
+        $xlNodes = [];
 
         foreach ($concepts as $c) {
             $node = [
@@ -847,7 +1034,7 @@ class TermController extends Controller
             if ($c['notation']) {
                 $node['skos:notation'] = $c['notation'];
             }
-            // #661 Phase 1 additions — emit as arrays when ≥1 entry
+            // #661 Phase 1 additions - emit as arrays when >=1 entry
             $mapTo = function (array $entries, string $textKey): array {
                 $out = [];
                 foreach ($entries as $e) {
@@ -868,15 +1055,71 @@ class TermController extends Controller
             if (! empty($c['historyNotes'])) {
                 $node['skos:historyNote'] = $mapTo($c['historyNotes'], 'text');
             }
+            // #661 Phase 3 - cross-vocab mapping links (grouped by predicate)
+            $byPred = [];
+            foreach (($c['crossMatches'] ?? []) as $cm) {
+                $pred = $this->mapPredicate($cm['match_type']);
+                $byPred[$pred][] = ['@id' => $cm['target_uri']];
+            }
+            foreach ($byPred as $pred => $ids) {
+                $node['skos:'.$pred] = $ids;
+            }
+            // #661 Phase 3 - SKOS-XL emission alongside plain literals
+            if ($skosXl) {
+                $now = date('c');
+                $registerXl = function (string $uri, string $literal, string $lang) use (&$xlNodes, $now) {
+                    $xlNodes[] = [
+                        '@id' => $uri,
+                        '@type' => 'skosxl:Label',
+                        'skosxl:literalForm' => ['@value' => $literal, '@language' => $lang],
+                        'dct:created' => ['@value' => $now, '@type' => 'xsd:dateTime'],
+                        'dct:creator' => 'heratio',
+                    ];
+                };
+                $xlPreUri = $this->xlLabelUri($baseUri, $c, $culture, 'pref', $c['prefLabel']);
+                $node['skosxl:prefLabel'] = ['@id' => $xlPreUri];
+                $registerXl($xlPreUri, $c['prefLabel'], $culture);
+
+                $xlAlts = [];
+                foreach (($c['altLabels'] ?? []) as $alt) {
+                    $u = $this->xlLabelUri($baseUri, $c, $alt['lang'], 'alt', $alt['name']);
+                    $xlAlts[] = ['@id' => $u];
+                    $registerXl($u, $alt['name'], $alt['lang']);
+                }
+                if (! empty($xlAlts)) {
+                    $node['skosxl:altLabel'] = $xlAlts;
+                }
+
+                $xlHidden = [];
+                foreach (($c['hiddenLabels'] ?? []) as $hid) {
+                    $u = $this->xlLabelUri($baseUri, $c, $hid['lang'], 'hidden', $hid['name']);
+                    $xlHidden[] = ['@id' => $u];
+                    $registerXl($u, $hid['name'], $hid['lang']);
+                }
+                if (! empty($xlHidden)) {
+                    $node['skosxl:hiddenLabel'] = $xlHidden;
+                }
+            }
             $graph[] = $node;
         }
 
+        // Append the standalone skosxl:Label resources so they have full identity.
+        foreach ($xlNodes as $xn) {
+            $graph[] = $xn;
+        }
+
+        $context = [
+            'skos' => 'http://www.w3.org/2004/02/skos/core#',
+            'dct' => 'http://purl.org/dc/terms/',
+            'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+        ];
+        if ($skosXl) {
+            $context['skosxl'] = 'http://www.w3.org/2008/05/skos-xl#';
+            $context['xsd'] = 'http://www.w3.org/2001/XMLSchema#';
+        }
+
         $doc = [
-            '@context' => [
-                'skos' => 'http://www.w3.org/2004/02/skos/core#',
-                'dct' => 'http://purl.org/dc/terms/',
-                'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-            ],
+            '@context' => $context,
             '@graph' => $graph,
         ];
 
@@ -916,6 +1159,36 @@ class TermController extends Controller
     private function ntLangString(string $s, string $lang): string
     {
         return '"'.$this->escapeRdfLiteral($s).'"@'.$lang;
+    }
+
+    /**
+     * Normalise a cross-match type string to a bare SKOS predicate
+     * (e.g. "exactMatch", "closeMatch"). Falls back to closeMatch for
+     * anything outside the SKOS-defined set.
+     */
+    private function mapPredicate(string $matchType): string
+    {
+        $allowed = ['exactMatch', 'closeMatch', 'broadMatch', 'narrowMatch', 'relatedMatch'];
+        if (in_array($matchType, $allowed, true)) {
+            return $matchType;
+        }
+
+        return 'closeMatch';
+    }
+
+    /**
+     * Build a stable URI for a skosxl:Label resource.
+     * Shape: <base>/term/{id}/label/{lang}-{type}/{slug-of-literal}
+     */
+    private function xlLabelUri(string $baseUri, array $concept, string $lang, string $type, string $literal): string
+    {
+        $slug = Str::slug($literal, '-');
+        if ($slug === '') {
+            $slug = 'label';
+        }
+        $base = rtrim($baseUri, '/');
+
+        return $base.'/'.$concept['id'].'/label/'.$lang.'-'.$type.'/'.$slug;
     }
 
     /**
@@ -1167,12 +1440,17 @@ class TermController extends Controller
                     ->value('term_i18n.name');
             })->filter()->implode(', ');
 
-        // Narrower terms (children) — for display only, not pre-populated in the "add new" field
+        // Narrower terms (children) - for display only, not pre-populated in the "add new" field
         $narrowerTerms = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
             ->where('term.parent_id', $term->id)
             ->where('term_i18n.culture', $culture)
             ->pluck('term_i18n.name')->implode(', ');
+
+        // #661 Phase 3 - cross-vocab matches for the panel on the edit form.
+        $crossMatches = Schema::hasTable('ahg_term_cross_match')
+            ? $this->crossMatchService->forTerm((int) $term->id)
+            : [];
 
         return view('ahg-term-taxonomy::edit', [
             'term' => $term,
@@ -1188,6 +1466,9 @@ class TermController extends Controller
             'converseTerm' => $converseTerm,
             'relatedTerms' => $relatedTerms,
             'narrowerTerms' => $narrowerTerms,
+            'crossMatches' => $crossMatches,
+            'crossMatchTypes' => CrossMatchService::MATCH_TYPES,
+            'crossMatchSources' => CrossMatchService::SOURCES,
         ]);
     }
 
@@ -1222,6 +1503,13 @@ class TermController extends Controller
             'sourceNotes' => $request->input('sourceNotes', []),
             'displayNotes' => $request->input('displayNotes', []),
         ], $culture);
+
+        // #661 Phase 3 - persist the cross-vocab matches panel. Empty rows
+        // (no URI) drop on the floor; the service does per-row validation.
+        if (Schema::hasTable('ahg_term_cross_match')) {
+            $rows = (array) $request->input('crossMatches', []);
+            $this->crossMatchService->replaceAll((int) $term->id, $rows);
+        }
 
         return redirect()
             ->route('term.show', $slug)

@@ -204,11 +204,56 @@ class EsReindexCommand extends Command
             }
         }
 
+        // Phase 3 (#650): ensure the `gis` geo_point field is mapped on the IO
+        // index regardless of how the index was created (clone-from or
+        // dynamic). PUT mapping is idempotent and only adds the field when
+        // it's missing - safe to call on every reindex.
+        if ($type === 'informationobject') {
+            $this->ensureGeoPointMapping($targetIndex);
+        }
+
         $method = 'reindex'.ucfirst($type);
         if (method_exists($this, $method)) {
             $this->$method($targetIndex);
         } else {
             $this->warn("  No MySQL reindex method for {$type}, skipping.");
+        }
+    }
+
+    /**
+     * Phase 3 (#650) - guarantee the `gis` geo_point property exists on the
+     * target index. ES rejects a PUT-mapping that changes an existing field's
+     * type, but a no-op PUT when the field already matches is harmless. We
+     * inspect the current mapping first and only push the update when the
+     * field is missing.
+     */
+    protected function ensureGeoPointMapping(string $targetIndex): void
+    {
+        try {
+            $current = Http::get("{$this->host}/{$targetIndex}/_mapping")->json();
+        } catch (\Exception $e) {
+            $this->warn('  Could not read mapping for '.$targetIndex.': '.$e->getMessage());
+
+            return;
+        }
+
+        $props = $current[$targetIndex]['mappings']['properties'] ?? [];
+        if (isset($props['gis']) && ($props['gis']['type'] ?? null) === 'geo_point') {
+            return;
+        }
+
+        $resp = Http::put("{$this->host}/{$targetIndex}/_mapping", [
+            'properties' => [
+                'gis' => ['type' => 'geo_point'],
+                'gis_lat' => ['type' => 'float'],
+                'gis_lng' => ['type' => 'float'],
+            ],
+        ]);
+
+        if ($resp->successful()) {
+            $this->info('  Added geo_point mapping (gis / gis_lat / gis_lng) to '.$targetIndex);
+        } else {
+            $this->warn('  Failed to add geo_point mapping: '.$resp->body());
         }
     }
 
@@ -308,6 +353,48 @@ class EsReindexCommand extends Command
                     ->whereNotNull('actor_id')
                     ->get()
                     ->groupBy('object_id');
+
+                // Phase 3 (#650) - batch-load geo coordinates for these IOs.
+                // Places attach to IOs via the generic term-relation table
+                // (object_term_relation -> term [taxonomy_id=42 'Places']).
+                // ric_place.term_id links the term to a lat/lng record. We
+                // index the FIRST place with non-null coords per IO - it's
+                // good enough to pin the doc on a map and avoids dragging
+                // multi-geo arrays through every IO.
+                $ioCoords = [];
+                if (! empty($ids)) {
+                    $placeTermIds = DB::table('object_term_relation as otr')
+                        ->join('term as t', 't.id', '=', 'otr.term_id')
+                        ->where('t.taxonomy_id', 42)
+                        ->whereIn('otr.object_id', $ids)
+                        ->select('otr.object_id', 'otr.term_id')
+                        ->get();
+
+                    if ($placeTermIds->isNotEmpty()) {
+                        $allTermIds = $placeTermIds->pluck('term_id')->unique()->all();
+                        $coords = DB::table('ric_place')
+                            ->whereIn('term_id', $allTermIds)
+                            ->whereNotNull('latitude')
+                            ->whereNotNull('longitude')
+                            ->select('term_id', 'latitude', 'longitude')
+                            ->get()
+                            ->keyBy('term_id');
+
+                        foreach ($placeTermIds as $row) {
+                            $ioId = (int) $row->object_id;
+                            if (isset($ioCoords[$ioId])) {
+                                continue;
+                            }
+                            $c = $coords->get($row->term_id);
+                            if ($c) {
+                                $ioCoords[$ioId] = [
+                                    'lat' => (float) $c->latitude,
+                                    'lon' => (float) $c->longitude,
+                                ];
+                            }
+                        }
+                    }
+                }
 
                 // Batch-load library_item rows for these IOs (NULL for non-library IOs).
                 // ISBN, summary, series_title etc. live only on library_item and need to
@@ -430,6 +517,16 @@ class EsReindexCommand extends Command
                         'creators' => $ioCreators,
                         'inheritedCreators' => [],
                     ];
+
+                    // Phase 3 (#650) - emit gis_lat / gis_lng + the combined
+                    // geo_point `gis` field. Omitted when the IO has no place
+                    // with coordinates so we don't index null geo_points
+                    // (ES rejects those).
+                    if (isset($ioCoords[$row->id])) {
+                        $doc['gis_lat'] = $ioCoords[$row->id]['lat'];
+                        $doc['gis_lng'] = $ioCoords[$row->id]['lon'];
+                        $doc['gis'] = $ioCoords[$row->id];
+                    }
 
                     if ($libRow) {
                         $doc['isbn'] = $libRow->isbn ?: null;

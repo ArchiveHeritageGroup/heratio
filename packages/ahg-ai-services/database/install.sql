@@ -613,4 +613,23 @@ PREPARE migration_stmt FROM @migration_sql;
 EXECUTE migration_stmt;
 DEALLOCATE PREPARE migration_stmt;
 
+-- ============================================================================
+-- SECTION 13: OCR settings (#665 Phase 4 - multi-lang Tesseract + LLM post-correction)
+-- ============================================================================
+-- All keys live under feature='ocr'. Defaults are conservative:
+--   - LLM post-correction OFF until the operator opts in
+--   - Multi-language default = SA core (osd + eng + afr)
+--   - Min-confidence gate = 70 (only post-correct pages Tesseract was unsure about)
+-- The Tesseract binary path defaults to 'tesseract' so $PATH resolution works.
+-- `ahg:tesseract:list-languages` populates the *_languages* keys.
+
+INSERT IGNORE INTO ahg_ai_settings (feature, setting_key, setting_value) VALUES
+    ('ocr', 'ocr_tesseract_binary',              'tesseract'),
+    ('ocr', 'ocr_default_languages',             'osd+eng+afr'),
+    ('ocr', 'ocr_default_psm',                   '3'),
+    ('ocr', 'ocr_default_oem',                   '3'),
+    ('ocr', 'ocr_llm_correction_enabled',        '0'),
+    ('ocr', 'ocr_llm_correction_min_confidence', '70'),
+    ('ocr', 'ocr_premis_events_enabled',         '1');
+
 SET FOREIGN_KEY_CHECKS = 1;

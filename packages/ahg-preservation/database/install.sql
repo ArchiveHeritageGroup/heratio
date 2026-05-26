@@ -874,4 +874,29 @@ SELECT
 FROM preservation_format pf
 WHERE pf.risk_level IN ('high', 'critical') AND pf.puid IS NOT NULL;
 
+-- =============================================
+-- PREMIS RIGHTS (Issue #653 Phase 1)
+-- PREMIS 3.0 rightsStatement entity per IO. Sits alongside the existing
+-- ODRL policy table (research_rights_policy); PremisRightsService projects
+-- ODRL rows into this table so the PREMIS XML serializer has a clean
+-- normalised source. One row per granted-act / basis combination.
+-- =============================================
+CREATE TABLE IF NOT EXISTS ahg_premis_rights (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    information_object_id INT NOT NULL,
+    rights_basis VARCHAR(32) NOT NULL COMMENT 'copyright | license | statute | donor | policy | other',
+    rights_granted_act VARCHAR(64) NOT NULL COMMENT 'replicate | migrate | disseminate | delete | modify | use',
+    rights_granted_restriction TEXT,
+    applicable_dates_start DATE NULL,
+    applicable_dates_end DATE NULL,
+    source_xml LONGTEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_ahg_premis_rights_io (information_object_id),
+    INDEX idx_ahg_premis_rights_basis (rights_basis),
+    INDEX idx_ahg_premis_rights_act (rights_granted_act),
+
+    FOREIGN KEY (information_object_id) REFERENCES information_object(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

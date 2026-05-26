@@ -1,0 +1,67 @@
+# Note: Heritage - {{ standard }}
+
+**Reporting entity:** {{ reporting_entity }}
+**Reporting period:** {{ period_start }} to {{ period_end }}
+**Generated:** {{ generated_at }}
+
+## 1. Accounting policy
+
+Heritage items recognised by the entity are accounted for in accordance with IPSAS 45 *Property, Plant and Equipment*, paragraphs 67 to 79. A heritage item is recognised as an asset when it meets the recognition criteria in IPSAS 45.13 and its cost or fair value can be measured reliably (IPSAS 45.69).
+
+Heritage items recognised in the statement of financial position are held primarily for their cultural, environmental, historical, natural, scientific, technological, geophysical or artistic significance (IPSAS 45.67).
+
+Some heritage items, where the conditions of IPSAS 45.13 are not met (for example fair value cannot be measured reliably), are not recognised as assets and are instead disclosed only.
+
+## 2. Measurement basis
+
+After initial recognition, heritage items are carried at either cost less accumulated impairment, or at revalued amount in accordance with IPSAS 45.74. Distribution of measurement basis at the end of the reporting period:
+
+{{ measurement_basis_summary }}
+
+Where the revaluation model is applied, revaluations are performed with sufficient frequency to ensure the carrying amount does not differ materially from fair value at the reporting date.
+
+## 3. Carrying amount
+
+| Item                            | Value             |
+|---------------------------------|-------------------|
+| Recognised heritage items       | {{ asset_count }} |
+| Total carrying amount at period end | {{ total_carrying_amount }} |
+
+## 4. Reconciliation of movements
+
+| Movement                      | Amount                |
+|-------------------------------|-----------------------|
+| Revaluation increase          | {{ oci_revaluation_up }} |
+| Revaluation decrease          | {{ oci_revaluation_down }} |
+| Impairment loss               | {{ oci_impairment }} |
+| Reversal of impairment        | {{ oci_reversal }} |
+| Disposal                      | {{ oci_disposal }} |
+| Recognised in net assets / equity (revaluation surplus) | {{ movements_to_oci }} |
+| Recognised in surplus or deficit | {{ movements_to_pl }} |
+| Transferred to accumulated surpluses on derecognition | {{ movements_to_reserve }} |
+
+Transactions recorded during the period: {{ movement_count }}.
+
+In line with IPSAS 45.74-.78, revaluation increases are recognised in net assets / equity under the heading *revaluation surplus*. Revaluation decreases first reduce the revaluation surplus attributable to the same asset, with any residual recognised in surplus or deficit.
+
+## 5. Impairment
+
+Per IPSAS 45.79 read with IPSAS 21 (non-cash-generating assets) and IPSAS 26 (cash-generating assets), heritage items are tested for impairment when indicators are present. Reversals of prior impairments follow the same standards.
+
+## 6. Valuers
+
+Where revaluations during the reporting period were performed by external valuers, qualifications of those valuers are listed below:
+
+{{ valuer_list }}
+
+## 7. Heritage items not recognised
+
+Where the entity holds heritage items that are not recognised as assets (because fair value cannot be reliably measured, or for other reasons permitted by IPSAS 45.71), the existence of those items is disclosed in the heritage register and the reasons for non-recognition are documented per item.
+
+## 8. Restrictions
+
+Restrictions on disposal, use, or location attaching to recognised heritage items are documented on the heritage register and aggregated in the register summary report.
+
+---
+
+_This disclosure note was machine-generated from the live heritage register; review and adjust before signing._

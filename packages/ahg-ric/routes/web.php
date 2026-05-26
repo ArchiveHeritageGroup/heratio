@@ -1,5 +1,6 @@
 <?php
 
+use AhgRic\Controllers\CrmExportController;
 use AhgRic\Controllers\RdfImportController;
 use AhgRic\Controllers\RicController;
 use AhgRic\Controllers\RicEntityController;
@@ -80,6 +81,19 @@ Route::get('/ricExplorer/autocomplete', [RicController::class, 'autocomplete'])-
 // Read-only SPARQL proxy → Fuseki (SELECT / ASK / CONSTRUCT / DESCRIBE only).
 // Federated linked-data clients can query Heratio's RiC graph here.
 Route::match(['get', 'post'], '/api/sparql', [RdfImportController::class, 'sparqlProxy'])->name('ric.sparql-proxy');
+
+// CIDOC-CRM v7.1.3 per-record export (issue #659 Phase 1).
+// Sits under /admin/* to stay outside the locked /{slug} catch-all in
+// ahg-information-object-manage. Format follows Accept header (RDF/XML
+// default, text/turtle on request) and accepts ?format=turtle override.
+Route::middleware('web')->group(function () {
+    Route::get('/admin/export/crm/id/{id}', [CrmExportController::class, 'exportById'])
+        ->where('id', '[0-9]+')
+        ->name('ric.crm.export-by-id');
+    Route::get('/admin/export/crm/{slug}', [CrmExportController::class, 'exportBySlug'])
+        ->where('slug', '[A-Za-z0-9_-]+')
+        ->name('ric.crm.export');
+});
 
 // ================================================================
 // RiC Entity CRUD — Record-level AJAX + Standalone browse

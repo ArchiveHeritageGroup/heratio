@@ -1,6 +1,6 @@
 {
     "name": "ahg/annotations",
-    "description": "IIIF Web Annotation Storage backend (Annotot-shaped) for Heratio. Closes #100.",
+    "description": "W3C Web Annotation Data Model + Web Annotation Protocol persistence backend for Heratio. Closes #100; Phase 1 of #648.",
     "type": "library",
     "require": {
         "ahg/core": "@dev"

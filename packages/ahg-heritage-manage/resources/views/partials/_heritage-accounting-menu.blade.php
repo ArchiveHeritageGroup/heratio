@@ -17,6 +17,8 @@
             ['route' => 'heritage.hadmin.regions', 'icon' => 'fa-globe-africa', 'label' => 'Regions'],
             ['route' => 'heritage.hadmin.rule-list', 'icon' => 'fa-gavel', 'label' => 'Rules'],
             ['route' => 'heritage.hadmin.standard-list', 'icon' => 'fa-book', 'label' => 'Standards'],
+            ['route' => 'heritage.valuer.index', 'icon' => 'fa-user-tie', 'label' => 'Valuer Registry'],
+            ['route' => 'heritage.oci.index', 'icon' => 'fa-coins', 'label' => 'OCI Movements'],
         ],
         'Reports' => [
             ['route' => 'heritage.hreport.index', 'icon' => 'fa-chart-bar', 'label' => 'Reports Index'],

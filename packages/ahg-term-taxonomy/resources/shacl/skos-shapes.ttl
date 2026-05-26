@@ -1,0 +1,80 @@
+# SKOS SHACL Shapes - minimal subset for Heratio
+#
+# Adapted from the SKOS reference (https://www.w3.org/TR/skos-reference/),
+# the W3C SKOS-XL constraints note, and the common SHACL profile published
+# by the SKOS community (e.g. SKOS-RC, https://github.com/jakubklimek/skos-shacl).
+#
+# Heratio's ShaclValidator implements a focused subset of these constraints
+# in pure PHP (see src/Validation/ShaclValidator.php). Full SHACL evaluation
+# via pyshacl/easyrdf is queued for Phase 4. This file is the canonical
+# reference for the rules we enforce + a forward-compatibility hook for the
+# next phase.
+#
+# Rules enforced today by the pure-PHP validator:
+#
+#  S1. skos:Concept MUST have at least one skos:prefLabel.
+#      (skos:minPrefLabelCount, SKOS-RC S14)
+#
+#  S2. skos:Concept MUST NOT have more than one skos:prefLabel per language.
+#      (SKOS-RC S14)
+#
+#  S3. skos:Concept MUST NOT have a skos:prefLabel and skos:altLabel with
+#      the same literal value in the same language.
+#      (SKOS-RC S13)
+#
+#  S4. skos:broader / skos:narrower MUST NOT form a transitive cycle.
+#      (skos:broaderTransitive irreflexivity, SKOS-RC inferred)
+
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+#-----------------------------------------------------------------------
+# S1 + S2: prefLabel cardinality
+#-----------------------------------------------------------------------
+skos:ConceptShape
+    a sh:NodeShape ;
+    sh:targetClass skos:Concept ;
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:minCount 1 ;
+        sh:uniqueLang true ;
+        sh:message "Every skos:Concept must have at least one skos:prefLabel and at most one per language."@en ;
+        sh:severity sh:Violation ;
+    ] .
+
+#-----------------------------------------------------------------------
+# S3: prefLabel / altLabel disjointness on identical literal+language
+#-----------------------------------------------------------------------
+skos:LabelDisjointShape
+    a sh:NodeShape ;
+    sh:targetClass skos:Concept ;
+    sh:sparql [
+        sh:message "skos:prefLabel and skos:altLabel must not have the same literal value in the same language."@en ;
+        sh:prefixes skos: ;
+        sh:select """
+            SELECT $this ?value WHERE {
+              $this skos:prefLabel ?value .
+              $this skos:altLabel  ?value .
+            }
+        """ ;
+        sh:severity sh:Violation ;
+    ] .
+
+#-----------------------------------------------------------------------
+# S4: skos:broader must not produce cycles (transitive irreflexivity)
+#-----------------------------------------------------------------------
+skos:NoBroaderCyclesShape
+    a sh:NodeShape ;
+    sh:targetClass skos:Concept ;
+    sh:sparql [
+        sh:message "skos:broader / skos:narrower must not form a transitive cycle."@en ;
+        sh:prefixes skos: ;
+        sh:select """
+            SELECT $this WHERE {
+              $this skos:broader+ $this .
+            }
+        """ ;
+        sh:severity sh:Violation ;
+    ] .

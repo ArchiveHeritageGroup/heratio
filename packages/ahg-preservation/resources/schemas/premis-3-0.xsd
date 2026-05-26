@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PREMIS 3.0 XSD - Heratio vendored copy.
+
+  Issue #653 Phase 1.
+
+  Status: permissive Phase-1 stand-in. The official PREMIS 3.0 schema lives
+  at https://www.loc.gov/standards/premis/v3/premis.xsd and imports the
+  xlink namespace plus a substantial type hierarchy (~5000 lines, multiple
+  files). The Heratio Phase 1 serializer emits a stable subset of that
+  vocabulary; this stand-in accepts that subset offline so XSD validation
+  in PremisXmlSerializer::validate() can run without network access.
+
+  Upgrade path (Phase 2+): replace this file with the canonical LoC
+  schema bundle (premis.xsd plus its imported xlink.xsd) - the serializer
+  output is already namespace-correct, so no code changes will be needed.
+
+  The schema deliberately uses xsd:any with processContents="lax" so it
+  is permissive about ordering and unknown children. PREMIS 3.0 is a
+  loose container vocabulary; strict ordering enforcement is a Phase 2+
+  task once we vendor the full XSD bundle.
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="http://www.loc.gov/premis/v3"
+            xmlns:premis="http://www.loc.gov/premis/v3"
+            targetNamespace="http://www.loc.gov/premis/v3"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified"
+            version="3.0">
+
+  <xsd:annotation>
+    <xsd:documentation>
+      PREMIS Data Dictionary for Preservation Metadata, version 3.0.
+      Heratio vendored stand-in. See https://www.loc.gov/standards/premis/
+      for the canonical specification.
+    </xsd:documentation>
+  </xsd:annotation>
+
+  <!-- Root container -->
+  <xsd:element name="premis">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="premis:object"  minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="premis:event"   minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="premis:agent"   minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="premis:rights"  minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="version" type="xsd:string" use="optional"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- Object entity -->
+  <xsd:complexType name="objectComplexType">
+    <xsd:sequence>
+      <xsd:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:anyAttribute namespace="##any" processContents="lax"/>
+  </xsd:complexType>
+
+  <!-- Object subtypes referenced by xsi:type in our output -->
+  <xsd:complexType name="intellectualEntity">
+    <xsd:complexContent>
+      <xsd:extension base="objectComplexType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="representation">
+    <xsd:complexContent>
+      <xsd:extension base="objectComplexType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="file">
+    <xsd:complexContent>
+      <xsd:extension base="objectComplexType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:complexType name="bitstream">
+    <xsd:complexContent>
+      <xsd:extension base="objectComplexType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="object" type="objectComplexType"/>
+
+  <!-- Event entity -->
+  <xsd:element name="event">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:anyAttribute namespace="##any" processContents="lax"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- Agent entity -->
+  <xsd:element name="agent">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:anyAttribute namespace="##any" processContents="lax"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- Rights entity -->
+  <xsd:element name="rights">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:anyAttribute namespace="##any" processContents="lax"/>
+    </xsd:complexType>
+  </xsd:element>
+
+</xsd:schema>

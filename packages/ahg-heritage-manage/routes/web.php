@@ -5,6 +5,8 @@ use AhgHeritageManage\Controllers\HeritageAccountingController;
 use AhgHeritageManage\Controllers\GrapComplianceController;
 use AhgHeritageManage\Controllers\HeritageAdminController;
 use AhgHeritageManage\Controllers\HeritageReportController;
+use AhgHeritageManage\Controllers\OciMovementController;
+use AhgHeritageManage\Controllers\ValuerController;
 use Illuminate\Support\Facades\Route;
 
 // Public heritage landing page
@@ -150,6 +152,23 @@ Route::middleware('admin')->group(function () {
         Route::get('/standards', [HeritageAdminController::class, 'standardList'])->name('heritage.hadmin.standard-list');
         Route::get('/standard/add', [HeritageAdminController::class, 'standardAdd'])->name('heritage.hadmin.standard-add');
         Route::get('/standard/{id}/edit', [HeritageAdminController::class, 'standardEdit'])->name('heritage.hadmin.standard-edit');
+    });
+
+    // Valuer Registry (#668 Phase 2)
+    Route::prefix('admin/heritage/valuers')->group(function () {
+        Route::get('/', [ValuerController::class, 'index'])->name('heritage.valuer.index');
+        Route::get('/create', [ValuerController::class, 'create'])->name('heritage.valuer.create');
+        Route::post('/', [ValuerController::class, 'store'])->name('heritage.valuer.store')->middleware('acl:create');
+        Route::get('/{id}/edit', [ValuerController::class, 'edit'])->where('id', '[0-9]+')->name('heritage.valuer.edit');
+        Route::put('/{id}', [ValuerController::class, 'update'])->where('id', '[0-9]+')->name('heritage.valuer.update')->middleware('acl:update');
+        Route::delete('/{id}', [ValuerController::class, 'destroy'])->where('id', '[0-9]+')->name('heritage.valuer.destroy')->middleware('acl:delete');
+    });
+
+    // OCI / Revaluation Reserve ledger (#668 Phase 2)
+    Route::prefix('admin/heritage/oci')->group(function () {
+        Route::get('/', [OciMovementController::class, 'index'])->name('heritage.oci.index');
+        Route::get('/create', [OciMovementController::class, 'create'])->name('heritage.oci.create');
+        Route::post('/', [OciMovementController::class, 'store'])->name('heritage.oci.store')->middleware('acl:create');
     });
 
     // Heritage Reports

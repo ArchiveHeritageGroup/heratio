@@ -29,6 +29,8 @@ use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\AclService;
 use AhgCore\Services\SettingHelper;
 use AhgSearch\Services\ElasticsearchService;
+use AhgSearch\Services\SearchAnalyticsService;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -39,6 +41,7 @@ class SearchController extends Controller
 {
     public function __construct(
         protected ElasticsearchService $elasticsearch,
+        protected SearchAnalyticsService $analytics,
     ) {}
 
     /**
@@ -57,7 +60,13 @@ class SearchController extends Controller
         $mediaType = $request->input('mediaType') ? (int) $request->input('mediaType') : null;
         $sort = $request->input('sort', 'relevance');
 
-        $hasFilters = $repo || $level || $dateFrom || $dateTo || $hasDo !== null || $mediaType;
+        // #650 Phase 3 - cursor + geo. All opt-in; legacy ?page=N keeps working.
+        $cursor = $request->input('cursor');
+        $paging = $request->input('paging'); // 'cursor' to opt in without a token yet
+        $geo = $request->input('geo');       // ['center'=>'..','radius'=>'..'] or ['box'=>'..']
+
+        $hasFilters = $repo || $level || $dateFrom || $dateTo || $hasDo !== null || $mediaType
+            || ! empty($geo);
 
         // If no query and no filters, show empty search page
         if ($query === '' && ! $hasFilters) {
@@ -69,10 +78,14 @@ class SearchController extends Controller
                 'sort' => $sort,
                 'suggestion' => null,
                 'suggestUrl' => null,
+                'nextCursor' => null,
+                'prevCursor' => null,
+                'searchLogId' => null,
             ]);
         }
 
         // Use advanced search with facets
+        $startMs = microtime(true);
         $results = $this->elasticsearch->advancedSearch([
             'query' => $query,
             'repository' => $repo,
@@ -84,7 +97,11 @@ class SearchController extends Controller
             'sort' => $sort,
             'page' => $page,
             'limit' => $limit,
+            'cursor' => $cursor,
+            'paging' => $paging,
+            'geo' => is_array($geo) ? $geo : null,
         ]);
+        $elapsedMs = (microtime(true) - $startMs) * 1000.0;
 
         $pager = new SimplePager([
             'hits' => $results['hits'],
@@ -114,6 +131,25 @@ class SearchController extends Controller
             }
         }
 
+        // #650 Phase 3 - record this query for the analytics dashboard.
+        // Best-effort: any DB hiccup is swallowed by the service.
+        $searchLogId = $this->analytics->recordQuery(
+            $query,
+            array_filter([
+                'repository' => $repo,
+                'level' => $level,
+                'dateFrom' => $dateFrom,
+                'dateTo' => $dateTo,
+                'hasDigitalObject' => $hasDo,
+                'mediaType' => $mediaType,
+                'sort' => $sort,
+                'geo' => is_array($geo) ? $geo : null,
+            ], fn ($v) => $v !== null && $v !== ''),
+            (int) ($results['total'] ?? 0),
+            $elapsedMs,
+            $request->ip()
+        );
+
         return view('ahg-search::search', [
             'query' => $query,
             'pager' => $pager,
@@ -122,6 +158,58 @@ class SearchController extends Controller
             'sort' => $sort,
             'suggestion' => $suggestion,
             'suggestUrl' => $suggestUrl,
+            'nextCursor' => $results['next_cursor'] ?? null,
+            'prevCursor' => $results['prev_cursor'] ?? null,
+            'searchLogId' => $searchLogId,
+        ]);
+    }
+
+    /**
+     * Click-tracking POST. Frontend (search.blade.php inline JS) calls this
+     * when a user clicks a result. We update the click_position so the
+     * analytics dashboard can render CTR per query. Best-effort - any
+     * failure returns a 204 so the result link still opens.
+     *
+     * #650 Phase 3.
+     */
+    public function trackClick(Request $request): JsonResponse
+    {
+        $id = (int) $request->input('search_log_id', 0);
+        $position = (int) $request->input('position', 0);
+
+        $this->analytics->recordClick($id, $position);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Admin analytics dashboard - top queries, zero-result queries, CTR per
+     * query, plus a small totals strip. Bootstrap 5, no JS framework.
+     *
+     * #650 Phase 3.
+     */
+    public function analyticsDashboard(Request $request)
+    {
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+        if (! AclService::canAdmin(Auth::id())) {
+            abort(403, 'Insufficient permissions');
+        }
+
+        $days = max(1, min(365, (int) $request->input('days', 30)));
+        $since = CarbonImmutable::now()->subDays($days);
+
+        $totals = $this->analytics->totals($since);
+        $top = $this->analytics->topQueries($since, 20);
+        $zero = $this->analytics->zeroResultQueries($since, 20);
+
+        return view('ahg-search::analytics', [
+            'days' => $days,
+            'since' => $since,
+            'totals' => $totals,
+            'top' => $top,
+            'zero' => $zero,
         ]);
     }
 

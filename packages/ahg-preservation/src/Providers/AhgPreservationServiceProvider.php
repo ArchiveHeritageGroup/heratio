@@ -9,9 +9,14 @@
 
 namespace AhgPreservation\Providers;
 
+use AhgPreservation\Console\PremisExportCommand;
+use AhgPreservation\Console\PreservationScanCommand;
 use AhgPreservation\Console\RunFixitySchedulesCommand;
 use AhgPreservation\Services\BagItService;
+use AhgPreservation\Services\FixityScanService;
 use AhgPreservation\Services\OaisLifecycleService;
+use AhgPreservation\Services\PremisRightsService;
+use AhgPreservation\Services\PremisXmlSerializer;
 use AhgPreservation\Services\PreservationService;
 use AhgPreservation\Services\PronomIdentificationService;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +32,11 @@ class AhgPreservationServiceProvider extends ServiceProvider
         $this->app->singleton(BagItService::class);
         $this->app->singleton(OaisLifecycleService::class);
         $this->app->singleton(PronomIdentificationService::class);
+        $this->app->singleton(PremisRightsService::class);
+        $this->app->singleton(PremisXmlSerializer::class);
+        $this->app->singleton(FixityScanService::class, function ($app) {
+            return new FixityScanService($app->make(PreservationService::class));
+        });
     }
 
     public function boot(): void
@@ -37,10 +47,47 @@ class AhgPreservationServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 RunFixitySchedulesCommand::class,
+                PremisExportCommand::class,
+                PreservationScanCommand::class,
             ]);
         }
 
         $this->bootCronRegistration();
+        $this->bootPremisRightsTable();
+    }
+
+    /**
+     * Idempotent auto-seed of ahg_premis_rights (Issue #653 Phase 1).
+     *
+     * Mirrors the package convention: probe via Schema::hasTable and create
+     * the table if absent so fresh installs and overlay installs on legacy
+     * DBs never need manual SQL execution.
+     */
+    protected function bootPremisRightsTable(): void
+    {
+        try {
+            if (Schema::hasTable('ahg_premis_rights')) {
+                return;
+            }
+            DB::statement(<<<'SQL'
+                CREATE TABLE IF NOT EXISTS ahg_premis_rights (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    information_object_id INT NOT NULL,
+                    rights_basis VARCHAR(32) NOT NULL,
+                    rights_granted_act VARCHAR(64) NOT NULL,
+                    rights_granted_restriction TEXT,
+                    applicable_dates_start DATE NULL,
+                    applicable_dates_end DATE NULL,
+                    source_xml LONGTEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_ahg_premis_rights_io (information_object_id),
+                    INDEX idx_ahg_premis_rights_basis (rights_basis),
+                    INDEX idx_ahg_premis_rights_act (rights_granted_act)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            SQL);
+        } catch (\Throwable $e) {
+            // Never block boot.
+        }
     }
 
     /**

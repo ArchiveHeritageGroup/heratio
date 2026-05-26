@@ -21,10 +21,19 @@ Route::get('/api/search/semantic/similar/{ioId}', [VectorSearchController::class
     ->where('ioId', '[0-9]+')
     ->name('search.api.semantic.similar');
 
+// #650 Phase 3 - click-tracking endpoint. Public POST so anonymous searchers
+// also contribute CTR data; the body still ties back to an existing log row.
+Route::post('/search/track-click', [SearchController::class, 'trackClick'])
+    ->name('search.trackClick');
+
 // Admin search pages
 Route::middleware('admin')->group(function () {
     Route::get('/search/descriptionUpdates', [SearchController::class, 'descriptionUpdates'])->name('search.descriptionUpdates');
     Route::match(['get', 'post'], '/search/globalReplace', [SearchController::class, 'globalReplace'])->name('search.globalReplace');
+
+    // #650 Phase 3 - search analytics dashboard
+    Route::get('/admin/search/analytics', [SearchController::class, 'analyticsDashboard'])
+        ->name('search.analytics');
 });
 
 Route::middleware('auth')->group(function () {

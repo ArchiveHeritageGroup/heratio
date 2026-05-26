@@ -2,13 +2,13 @@
 --
 -- Each row is a single W3C Web Annotation (https://www.w3.org/TR/annotation-model).
 -- target_iri is the canvas IRI the annotation pins itself to (the manifest's
--- canvas @id, not the IO slug — annotations are canvas-scoped per the spec).
+-- canvas @id, not the IO slug - annotations are canvas-scoped per the spec).
 -- body_json holds the full annotation document so the W3C+IIIF flexibility
 -- (multiple bodies, motivation, selectors, target.selector with FragmentSelector,
 -- etc.) round-trips intact without exploding into N relational columns.
 --
 -- created_by + updated_by are user.id when authenticated; null for anonymous
--- (anonymous can READ; only authenticated users can write — gated in the
+-- (anonymous can READ; only authenticated users can write - gated in the
 -- AnnotationsController by the auth.required middleware on POST/PUT/DELETE).
 --
 -- The Mirador "annotations" companion window expects an Annotot-shaped REST
@@ -51,3 +51,19 @@ ALTER TABLE `ahg_iiif_annotation`
     ADD COLUMN IF NOT EXISTS `visibility` VARCHAR(20) NOT NULL DEFAULT 'private' AFTER `project_id`,
     ADD KEY IF NOT EXISTS `project_idx` (`project_id`),
     ADD KEY IF NOT EXISTS `visibility_idx` (`visibility`);
+
+-- Phase 1 of #648: W3C Web Annotation compliance widening.
+--   * body_selector_json stores the selector attached to a SpecificResource
+--     body (e.g. a TextQuoteSelector against the body's source URL). Distinct
+--     from the body_json document because we need to find/filter by the body's
+--     selector independently of the full annotation envelope, and exploding
+--     it into separate columns is too rigid for the selector zoo (FragmentSelector,
+--     TextQuoteSelector, TextPositionSelector, TimeSelector, GeoSelector,
+--     MediaFragmentSelector, RangeSelector, SvgSelector, ...).
+--   * etag is a stable hash of the annotation envelope + updated_at. We
+--     emit it as the HTTP ETag header so WAP clients can do If-Match /
+--     If-None-Match optimistic concurrency. Recomputed on every write.
+ALTER TABLE `ahg_iiif_annotation`
+    ADD COLUMN IF NOT EXISTS `body_selector_json` JSON NULL AFTER `body_json`,
+    ADD COLUMN IF NOT EXISTS `etag` CHAR(40) NULL AFTER `body_selector_json`,
+    ADD KEY IF NOT EXISTS `etag_idx` (`etag`);

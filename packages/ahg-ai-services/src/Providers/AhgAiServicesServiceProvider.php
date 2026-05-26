@@ -13,6 +13,16 @@ class AhgAiServicesServiceProvider extends ServiceProvider
         $this->app->singleton(LlmService::class);
         $this->app->singleton(NerService::class);
         $this->app->singleton(\AhgAiServices\Services\HtrService::class);
+        // #665 Phase 4 - OCR services
+        $this->app->singleton(\AhgAiServices\Services\OcrLlmCorrector::class, function ($app) {
+            return new \AhgAiServices\Services\OcrLlmCorrector($app->make(LlmService::class));
+        });
+        $this->app->singleton(\AhgAiServices\Services\OcrService::class, function ($app) {
+            return new \AhgAiServices\Services\OcrService(
+                $app->make(LlmService::class),
+                $app->make(\AhgAiServices\Services\OcrLlmCorrector::class),
+            );
+        });
     }
 
     public function boot(): void
@@ -38,6 +48,9 @@ class AhgAiServicesServiceProvider extends ServiceProvider
                 \AhgAiServices\Commands\QdrantIndexCommand::class,
                 \AhgAiServices\Commands\QdrantImageIndexCommand::class,
                 \AhgAiServices\Commands\LlmHealthCheckCommand::class,
+                // #665 Phase 4
+                \AhgAiServices\Commands\TesseractListLanguagesCommand::class,
+                \AhgAiServices\Commands\OcrPageCommand::class,
             ]);
         }
     }

@@ -1,0 +1,72 @@
+# Note: Heritage Assets - {{ standard }}
+
+**Reporting entity:** {{ reporting_entity }}
+**Reporting period:** {{ period_start }} to {{ period_end }}
+**Generated:** {{ generated_at }}
+
+## 1. Accounting policy
+
+Heritage assets are recognised and measured in accordance with the South African Standard of Generally Recognised Accounting Practice on Heritage Assets (GRAP 103).
+
+Heritage assets are recognised when:
+
+- the asset meets the definition of a heritage asset; and
+- the cost or fair value at the date of acquisition can be measured reliably.
+
+Heritage assets are not depreciated, on the basis that they have indefinite useful lives and that their values typically do not diminish over time. Each heritage asset is reviewed annually for impairment in terms of GRAP 21 / GRAP 26.
+
+## 2. Measurement basis
+
+After initial recognition, heritage assets are carried on either the cost model or the revaluation model. The distribution of measurement bases at the end of the reporting period is:
+
+{{ measurement_basis_summary }}
+
+Where the revaluation model is applied, revaluations are performed by an independent registered valuer with sufficient frequency to ensure carrying amounts do not differ materially from fair value at the reporting date (GRAP 103.43-.44).
+
+## 3. Carrying amount
+
+| Item                            | Value           |
+|---------------------------------|-----------------|
+| Number of recognised assets     | {{ asset_count }} |
+| Total carrying amount at period end | {{ total_carrying_amount }} |
+
+## 4. Movements during the period
+
+The following movements were posted to the heritage asset revaluation reserve and statement of financial performance during the period:
+
+| Movement type        | Amount         |
+|----------------------|----------------|
+| Revaluation surplus  | {{ oci_revaluation_up }} |
+| Revaluation deficit  | {{ oci_revaluation_down }} |
+| Impairment loss      | {{ oci_impairment }} |
+| Reversal of impairment | {{ oci_reversal }} |
+| Disposal             | {{ oci_disposal }} |
+| Total recognised in OCI / Revaluation Reserve | {{ movements_to_oci }} |
+| Total recognised in surplus or deficit (P&L) | {{ movements_to_pl }} |
+| Transferred to accumulated surplus on disposal | {{ movements_to_reserve }} |
+
+Total movement transactions recorded: {{ movement_count }}.
+
+Revaluation surpluses are credited to the revaluation reserve in net assets (OCI). Decreases first reduce any surplus accumulated for the same asset in the reserve, with the balance recognised in surplus or deficit (GRAP 103.51).
+
+## 5. Impairment
+
+The entity reviews heritage assets for indicators of impairment annually. Where an asset's recoverable amount is less than its carrying amount, the difference is recognised as an impairment loss against the revaluation reserve for that asset to the extent available, with the residual recognised in surplus or deficit (GRAP 103.62 read with GRAP 21 / GRAP 26).
+
+## 6. Valuers and credentials
+
+Valuations during the reporting period were performed by valuers listed below or, where the asset class permits, by suitably qualified internal staff. Independence and qualifications were considered before each engagement.
+
+{{ valuer_list }}
+
+## 7. Restrictions
+
+Where heritage assets are subject to restrictions on disposal, use, or location (donor restrictions, legal protection, repatriation claims, customary or community restrictions), these restrictions are recorded against the asset in the heritage register and are disclosed individually in Note (see register).
+
+## 8. Insurance and conservation
+
+The carrying amount of heritage assets does not include amounts attributable to insurance or replacement cost. Insurance values and conservation requirements are tracked separately on the heritage register.
+
+---
+
+_This disclosure note was machine-generated from the live heritage register; review and adjust before signing._

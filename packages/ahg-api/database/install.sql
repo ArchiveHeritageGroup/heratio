@@ -116,4 +116,31 @@ CREATE TABLE IF NOT EXISTS display_standard_sector (
     KEY idx_sector (sector)
 );
 
+-- ============================================================================
+-- Issue #652 Phase 1 — Idempotency-Key replay cache
+-- ============================================================================
+-- Stores the cached response for non-idempotent POST/PUT/PATCH calls so that
+-- a replay with the same Idempotency-Key + same body returns the cached
+-- response without re-executing the controller. Pruned daily via
+-- `php artisan api:prune-idempotency`.
+CREATE TABLE IF NOT EXISTS ahg_api_idempotency_key (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    idem_key VARCHAR(64) NOT NULL,
+    user_id INT NOT NULL DEFAULT 0,
+    route VARCHAR(255) NOT NULL,
+    request_hash CHAR(64) NOT NULL,
+    response_status INT NOT NULL,
+    response_body LONGBLOB DEFAULT NULL,
+    response_headers JSON DEFAULT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_user_key (user_id, idem_key),
+    KEY idx_expires_at (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed the visibility flag for /api/docs + /api/openapi.json (default OFF).
+-- Admins are always allowed; this flag opens the spec to anonymous callers.
+INSERT IGNORE INTO ahg_settings (setting_key, setting_value, setting_group, created_at, updated_at)
+VALUES ('openapi_public', '0', 'api', NOW(), NOW());
+
 SET FOREIGN_KEY_CHECKS = 1;

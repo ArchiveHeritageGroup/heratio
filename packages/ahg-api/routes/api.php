@@ -1,6 +1,7 @@
 <?php
 
 use AhgApi\Controllers\LegacyApiController;
+use AhgApi\Controllers\OpenApiController;
 use AhgApi\Controllers\V1\AccessionApiController;
 use AhgApi\Controllers\V1\ActorApiController;
 use AhgApi\Controllers\V1\DigitalObjectApiController;
@@ -32,11 +33,25 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
+| OpenAPI Spec + Swagger UI (Issue #652 Phase 1)
+|--------------------------------------------------------------------------
+| /api/openapi.json - OpenAPI 3.1 JSON document (cached 60s server-side).
+| /api/docs         - Swagger UI viewer.
+| Both endpoints honour ahg_settings.openapi_public; admins always allowed.
+*/
+
+Route::middleware(['api.cors', 'api.etag'])->group(function () {
+    Route::get('api/openapi.json', [OpenApiController::class, 'spec'])->name('api.openapi.spec');
+    Route::get('api/docs', [OpenApiController::class, 'docs'])->name('api.openapi.docs');
+});
+
+/*
+|--------------------------------------------------------------------------
 | API v1 Routes (read-only + CRUD)
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors'])->group(function () {
+Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors', 'api.etag', 'api.idempotency'])->group(function () {
 
     // Information Objects — READ
     Route::get('informationobjects/search', [InformationObjectApiController::class, 'search']);
@@ -105,7 +120,7 @@ Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors'])->group(functi
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit', 'api.log'])->group(function () {
+Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit', 'api.log', 'api.etag', 'api.idempotency'])->group(function () {
 
     // Root — endpoint listing
     Route::get('/', [ApiRootController::class, 'index'])->withoutMiddleware('api.auth:read');

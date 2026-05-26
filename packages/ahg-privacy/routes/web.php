@@ -1,5 +1,7 @@
 <?php
 
+use AhgPrivacy\Controllers\Article30Controller;
+use AhgPrivacy\Controllers\DpiaController;
 use AhgPrivacy\Controllers\PrivacyController;
 use Illuminate\Support\Facades\Route;
 
@@ -8,6 +10,26 @@ Route::get('/privacyAdmin', fn () => redirect('/admin/privacy/index'));
 Route::get('/privacyAdmin/{action}', fn (string $action) => redirect('/admin/privacy/'.\Illuminate\Support\Str::kebab($action)));
 
 Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(function () {
+    // ------------------------------------------------------------------
+    // Issue #669 Phase 1: Article 30 register + DPIA workflow
+    // ------------------------------------------------------------------
+    Route::get('/article-30',            [Article30Controller::class, 'index'])->name('ahgprivacy.article-30.index');
+    Route::get('/article-30/export',     [Article30Controller::class, 'export'])->name('ahgprivacy.article-30.export');
+    Route::get('/article-30/new',        [Article30Controller::class, 'create'])->name('ahgprivacy.article-30.create');
+    Route::post('/article-30',           [Article30Controller::class, 'store'])->name('ahgprivacy.article-30.store');
+    Route::get('/article-30/{id}/edit',  [Article30Controller::class, 'edit'])->name('ahgprivacy.article-30.edit')->whereNumber('id');
+    Route::put('/article-30/{id}',       [Article30Controller::class, 'update'])->name('ahgprivacy.article-30.update')->whereNumber('id');
+    Route::delete('/article-30/{id}',    [Article30Controller::class, 'destroy'])->name('ahgprivacy.article-30.destroy')->whereNumber('id');
+
+    Route::get('/dpia',                  [DpiaController::class, 'index'])->name('ahgprivacy.dpia.index');
+    Route::get('/dpia/new',              [DpiaController::class, 'create'])->name('ahgprivacy.dpia.create');
+    Route::post('/dpia',                 [DpiaController::class, 'store'])->name('ahgprivacy.dpia.store');
+    Route::get('/dpia/{id}/edit',        [DpiaController::class, 'edit'])->name('ahgprivacy.dpia.edit')->whereNumber('id');
+    Route::put('/dpia/{id}',             [DpiaController::class, 'update'])->name('ahgprivacy.dpia.update')->whereNumber('id');
+    Route::post('/dpia/{id}/review',     [DpiaController::class, 'moveToReview'])->name('ahgprivacy.dpia.review')->whereNumber('id');
+    Route::post('/dpia/{id}/signoff',    [DpiaController::class, 'signOff'])->name('ahgprivacy.dpia.signoff')->whereNumber('id');
+    Route::post('/dpia/{id}/archive',    [DpiaController::class, 'archive'])->name('ahgprivacy.dpia.archive')->whereNumber('id');
+
     Route::get('/complaint-confirmation', [PrivacyController::class, 'complaintConfirmation'])->name('ahgprivacy.complaint-confirmation');
     Route::get('/complaint', [PrivacyController::class, 'complaint'])->name('ahgprivacy.complaint');
     Route::get('/dashboard', [PrivacyController::class, 'dashboard'])->name('ahgprivacy.dashboard');

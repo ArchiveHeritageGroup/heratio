@@ -1,0 +1,61 @@
+# Note: First-Time Adoption - Heritage Assets (Transitional)
+
+**Reporting entity:** {{ reporting_entity }}
+**Reporting period:** {{ period_start }} to {{ period_end }}
+**Generated:** {{ generated_at }}
+
+This note describes the transitional relief applied by the entity on first-time recognition of heritage assets under GRAP 103 / IPSAS 45.
+
+## 1. Approach
+
+Where it was not practicable to determine the historical cost or fair value of heritage items previously held but not recognised, the entity has applied the transitional relief permitted by GRAP 103 / IPSAS 45 and has either:
+
+- recognised the items at deemed cost based on the best available evidence at the date of transition; or
+- not recognised the items as assets in the statement of financial position and instead disclosed their existence in the heritage register.
+
+## 2. Items recognised on transition
+
+| Item                                | Value             |
+|-------------------------------------|-------------------|
+| Heritage assets recognised to date  | {{ asset_count }} |
+| Total carrying amount               | {{ total_carrying_amount }} |
+| Distribution of measurement bases   | see below         |
+
+{{ measurement_basis_summary }}
+
+## 3. Items not yet recognised
+
+The entity continues to hold heritage items that have not yet been recognised as assets because their fair value cannot be measured reliably at this date. The existence and nature of those items are disclosed in the heritage register; recognition will be revisited at each reporting date as additional valuation evidence becomes available.
+
+## 4. Transitional movements
+
+Movements posted to the heritage asset accounts during the transitional reporting period:
+
+| Movement type        | Amount         |
+|----------------------|----------------|
+| Revaluation surplus  | {{ oci_revaluation_up }} |
+| Revaluation deficit  | {{ oci_revaluation_down }} |
+| Impairment loss      | {{ oci_impairment }} |
+| Reversal of impairment | {{ oci_reversal }} |
+| Disposal             | {{ oci_disposal }} |
+| Recognised in OCI / Revaluation Reserve | {{ movements_to_oci }} |
+| Recognised in surplus or deficit | {{ movements_to_pl }} |
+
+Total movement transactions: {{ movement_count }}.
+
+## 5. Valuers engaged for transitional valuations
+
+{{ valuer_list }}
+
+## 6. Plan for subsequent recognition
+
+The entity will, at each reporting date and at least annually:
+
+- review the population of heritage items not yet recognised;
+- consider whether new valuation evidence has emerged that would enable reliable measurement;
+- recognise additional heritage assets where the recognition criteria are met; and
+- update this transitional disclosure until the heritage register is materially complete.
+
+---
+
+_This transitional disclosure note was machine-generated from the live heritage register; review and adjust before signing._

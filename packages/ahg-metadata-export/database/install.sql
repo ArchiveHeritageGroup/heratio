@@ -156,4 +156,85 @@ ON DUPLICATE KEY UPDATE
     media_type_term = VALUES(media_type_term),
     carrier_type_term = VALUES(carrier_type_term);
 
+-- ============================================================================
+-- Phase 3 of #662: RAD + DACS per-standard sidecar tables
+-- ============================================================================
+-- RAD = Rules for Archival Description (Canadian national standard).
+-- One row per information_object whose preferred description standard is
+-- RAD. Mirrors RAD 1.0 / 2008-revision element groupings (1.1 Title and
+-- statement of responsibility / 1.2 Edition / 1.4 Date of creation /
+-- 1.5 Physical description / 1.7 Notes etc).
+CREATE TABLE IF NOT EXISTS ahg_io_rad (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    information_object_id INT NOT NULL,
+    title_proper VARCHAR(512) DEFAULT NULL COMMENT 'RAD 1.1B: title proper',
+    parallel_title VARCHAR(512) DEFAULT NULL COMMENT 'RAD 1.1D: parallel titles',
+    other_title_info TEXT DEFAULT NULL COMMENT 'RAD 1.1E: other title information',
+    statements_of_responsibility TEXT DEFAULT NULL COMMENT 'RAD 1.1F',
+    edition VARCHAR(255) DEFAULT NULL COMMENT 'RAD 1.2: edition',
+    dates_of_creation TEXT DEFAULT NULL COMMENT 'RAD 1.4: dates of creation, publication, distribution',
+    physical_description TEXT DEFAULT NULL COMMENT 'RAD 1.5: physical description',
+    custodial_history TEXT DEFAULT NULL COMMENT 'RAD 1.7B7a',
+    scope_and_content_rad TEXT DEFAULT NULL COMMENT 'RAD 1.7D',
+    system_of_arrangement TEXT DEFAULT NULL COMMENT 'RAD 3.3A1 (item-level arrangement)',
+    language_of_material TEXT DEFAULT NULL COMMENT 'RAD 1.7B8',
+    finding_aids TEXT DEFAULT NULL COMMENT 'RAD 1.7B10',
+    accruals TEXT DEFAULT NULL COMMENT 'RAD 1.7B12',
+    general_note TEXT DEFAULT NULL COMMENT 'RAD 1.7B22 (general note)',
+    archivist_note TEXT DEFAULT NULL COMMENT 'RAD 1.7B23 (archivist note)',
+    rules_or_conventions VARCHAR(255) DEFAULT 'RAD' COMMENT 'RAD 1.7B24',
+    date_of_descriptions DATE DEFAULT NULL COMMENT 'RAD 1.7B25',
+    status VARCHAR(32) DEFAULT NULL COMMENT 'draft / final / revised',
+    level_of_detail VARCHAR(32) DEFAULT NULL COMMENT 'minimum / partial / full',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_rad_io (information_object_id),
+    INDEX idx_rad_status (status),
+    INDEX idx_rad_level (level_of_detail)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Rules for Archival Description (Canadian) per-IO sidecar';
+
+-- DACS = Describing Archives: A Content Standard (United States). Element
+-- groupings follow DACS 2013 (Single-Level Optimum):
+--   Reference Code / Name and Location / Title / Date / Extent / Creator /
+--   Scope and Content / Conditions Governing Access / Languages /
+--   Biographical or Historical / Immediate Source of Acquisition /
+--   System of Arrangement / Related Archival Materials / Publication /
+--   Processing Information.
+CREATE TABLE IF NOT EXISTS ahg_io_dacs (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    information_object_id INT NOT NULL,
+    reference_code VARCHAR(255) DEFAULT NULL COMMENT 'DACS 2.1',
+    name_and_location TEXT DEFAULT NULL COMMENT 'DACS 2.2',
+    title_dacs VARCHAR(512) DEFAULT NULL COMMENT 'DACS 2.3',
+    date_dacs TEXT DEFAULT NULL COMMENT 'DACS 2.4',
+    extent TEXT DEFAULT NULL COMMENT 'DACS 2.5',
+    name_of_creator TEXT DEFAULT NULL COMMENT 'DACS 2.6',
+    scope_and_content_dacs TEXT DEFAULT NULL COMMENT 'DACS 3.1',
+    conditions_governing_access TEXT DEFAULT NULL COMMENT 'DACS 4.1',
+    languages_of_material TEXT DEFAULT NULL COMMENT 'DACS 4.5',
+    biographical_or_historical TEXT DEFAULT NULL COMMENT 'DACS 2.7',
+    immediate_source_of_acquisition TEXT DEFAULT NULL COMMENT 'DACS 5.2',
+    system_of_arrangement TEXT DEFAULT NULL COMMENT 'DACS 3.2',
+    related_archival_materials TEXT DEFAULT NULL COMMENT 'DACS 6.3',
+    publication_note TEXT DEFAULT NULL COMMENT 'DACS 6.4',
+    processing_information TEXT DEFAULT NULL COMMENT 'DACS 5.1',
+    dacs_rules VARCHAR(255) DEFAULT 'DACS 2013' COMMENT 'DACS edition / cataloging rules',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_dacs_io (information_object_id),
+    INDEX idx_dacs_ref (reference_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Describing Archives: A Content Standard (US) per-IO sidecar';
+
+-- Phase 3 also adds two metadata-export formats so operators see the
+-- new exporters in /admin/metadata-export. The seed is idempotent.
+INSERT IGNORE INTO metadata_export_config (format_code, format_name, is_enabled, default_options) VALUES
+('dcterms-qualified', 'Dublin Core Qualified (dcterms)', 1, '{"includeDigitalObjects": false}'),
+('rad', 'RAD (Canadian) XML', 1, '{"includeChildren": false}'),
+('dacs', 'DACS (US) XML', 1, '{"includeChildren": false}')
+ON DUPLICATE KEY UPDATE
+    format_name = VALUES(format_name),
+    default_options = VALUES(default_options);
+
 SET FOREIGN_KEY_CHECKS = 1;

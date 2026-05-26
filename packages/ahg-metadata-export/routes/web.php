@@ -6,6 +6,18 @@ Route::prefix('admin/metadata-export')->middleware(['web', 'auth'])->group(funct
     Route::get('/bulk', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'bulk'])->name('ahgmetadataexport.bulk');
     Route::get('/index', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'index'])->name('ahgmetadataexport.index');
     Route::get('/preview', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'preview'])->name('ahgmetadataexport.preview');
+
+    // #662 Phase 3 per-standard XML download (dcterms / mods / rad / dacs).
+    Route::get('/download/{format}', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadStandard'])
+        ->whereIn('format', ['dcterms', 'mods', 'rad', 'dacs'])
+        ->name('ahgmetadataexport.download');
+
+    // #662 Phase 3 RAD / DACS XML importer. POST with `xml_file` upload or
+    // `xml` body field. dryRun=1 (default) returns preview JSON; dryRun=0
+    // (or commit=1) persists into ahg_io_rad / ahg_io_dacs.
+    Route::post('/import/{format}', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'importStandard'])
+        ->whereIn('format', ['rad', 'dacs'])
+        ->name('ahgmetadataexport.import-standard');
 });
 
 // SPARQL 1.1 query endpoint over the PROV-O graph for a single

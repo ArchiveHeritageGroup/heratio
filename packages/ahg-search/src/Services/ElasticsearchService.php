@@ -26,6 +26,7 @@
 namespace AhgSearch\Services;
 
 use AhgCore\Support\TenantScope;
+use AhgSearch\Support\SearchCursor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -278,9 +279,19 @@ class ElasticsearchService
         $limit = max(1, min(100, (int) ($params['limit'] ?? 30)));
         $culture = $params['culture'] ?? 'en';
 
-        // Try Elasticsearch first, fall back to DB
+        // Phase 3 (#650): cursor paging + geo filters. Both are opt-in - omitting
+        // them leaves the legacy from/size + non-geo behaviour intact.
+        $cursor = $params['cursor'] ?? null;
+        $paging = $params['paging'] ?? null; // 'cursor' to force cursor mode even without a token
+        $geo = $params['geo'] ?? null;       // ['center' => 'lat,lng', 'radius' => '5km'] OR ['box' => 'lat1,lng1,lat2,lng2']
+
+        // Try Elasticsearch first, fall back to DB.
+        // The DB fallback ignores cursor + geo (degraded mode) - both require ES.
         if ($this->isElasticsearchAvailable()) {
-            return $this->advancedSearchEs($query, $repo, $level, $dateFrom, $dateTo, $hasDo, $mediaType, $sort, $page, $limit, $culture);
+            return $this->advancedSearchEs(
+                $query, $repo, $level, $dateFrom, $dateTo, $hasDo, $mediaType,
+                $sort, $page, $limit, $culture, $cursor, $paging, $geo
+            );
         }
 
         return $this->advancedSearchDb($query, $repo, $level, $dateFrom, $dateTo, $hasDo, $mediaType, $sort, $page, $limit, $culture);
@@ -536,7 +547,8 @@ class ElasticsearchService
     protected function advancedSearchEs(
         string $query, ?int $repo, ?int $level,
         ?string $dateFrom, ?string $dateTo, ?bool $hasDo, ?int $mediaType,
-        string $sort, int $page, int $limit, string $culture
+        string $sort, int $page, int $limit, string $culture,
+        ?string $cursor = null, ?string $paging = null, ?array $geo = null
     ): array {
         $must = [];
         $filter = [];
@@ -588,6 +600,13 @@ class ElasticsearchService
             $filter[] = ['range' => ['createdAt' => ['lte' => $dateTo]]];
         }
 
+        // Geo filter (#650 Phase 3). Centre+radius and bounding box are mutually
+        // exclusive - centre+radius wins when both are supplied. Bad coordinates
+        // are silently dropped (we don't want a malformed URL to 500 the page).
+        if ($geoClause = $this->buildGeoFilter($geo)) {
+            $filter[] = $geoClause;
+        }
+
         // Published only (status 160 = published)
         $filter[] = ['term' => ['publicationStatusId' => 160]];
 
@@ -610,8 +629,17 @@ class ElasticsearchService
             $boolQuery['must'] = [['match_all' => (object) []]];
         }
 
-        // Sorting
+        // Sorting. Always append `_id asc` as a unique tiebreaker so
+        // `search_after` cursors are stable - duplicate sort keys would otherwise
+        // skip / repeat hits across cursor pages. Harmless in legacy page-mode.
         $sortClause = $this->buildSortClause($sort, $culture);
+        $sortClause[] = ['_id' => 'asc'];
+
+        // Decide paging mode. Cursor mode kicks in when caller passes a token
+        // (forward or backward) OR when caller explicitly sets paging=cursor
+        // (lets the first page of a cursor-paged session emit a next_cursor).
+        $decoded = SearchCursor::decode($cursor);
+        $cursorMode = $decoded !== null || $paging === 'cursor';
 
         // Aggregations
         $aggs = $this->getAggregations([
@@ -622,7 +650,6 @@ class ElasticsearchService
 
         $body = [
             'size' => $limit,
-            'from' => ($page - 1) * $limit,
             'sort' => $sortClause,
             'query' => ['bool' => $boolQuery],
             'aggs' => $aggs,
@@ -638,6 +665,23 @@ class ElasticsearchService
                 'post_tags' => ['</mark>'],
             ],
         ];
+
+        if ($cursorMode) {
+            // search_after / search_before paging - no `from`, the cursor IS the
+            // offset. Backward cursors invert the sort so the result-set is the
+            // *previous* slice, which we re-reverse after the hit transform so
+            // the user-facing order stays consistent.
+            if ($decoded !== null) {
+                if ($decoded['direction'] === SearchCursor::DIR_PREV) {
+                    $body['sort'] = $this->reverseSortClause($sortClause);
+                    $body['search_after'] = $decoded['sort'];
+                } else {
+                    $body['search_after'] = $decoded['sort'];
+                }
+            }
+        } else {
+            $body['from'] = ($page - 1) * $limit;
+        }
 
         $url = "{$this->host}/{$this->indexPrefix}qubitinformationobject/_search";
 
@@ -655,18 +699,156 @@ class ElasticsearchService
         }
 
         $total = $result['hits']['total']['value'] ?? 0;
-        $hits = $this->transformIoHits($result['hits']['hits'] ?? [], $culture);
+        $rawHits = $result['hits']['hits'] ?? [];
+
+        // Backward cursor: ES returned the slice in reversed order. Flip it
+        // back so the caller sees results in the same direction as a forward
+        // page would have produced.
+        $reversed = $cursorMode
+            && $decoded !== null
+            && $decoded['direction'] === SearchCursor::DIR_PREV;
+        if ($reversed) {
+            $rawHits = array_reverse($rawHits);
+        }
+
+        $hits = $this->transformIoHits($rawHits, $culture);
 
         // Resolve aggregation labels
         $aggregations = $this->resolveAggregationLabels($result['aggregations'] ?? [], $culture);
 
-        return [
+        $response = [
             'hits' => $hits,
             'total' => $total,
             'aggregations' => $aggregations,
             'page' => $page,
             'limit' => $limit,
         ];
+
+        if ($cursorMode) {
+            // Emit next/prev cursors built from the boundary hits' sort values.
+            // - next_cursor is null when we got fewer hits than $limit (end of set)
+            //   AND we're moving forward, OR when there are no hits at all.
+            // - prev_cursor is null when no cursor was supplied (we're at start).
+            $first = $rawHits[0] ?? null;
+            $last = end($rawHits) ?: null;
+            reset($rawHits);
+
+            $atEnd = count($rawHits) < $limit;
+
+            $response['paging'] = 'cursor';
+            $response['next_cursor'] = ($last && ! $atEnd)
+                ? SearchCursor::encode($last['sort'] ?? [], SearchCursor::DIR_NEXT)
+                : null;
+            $response['prev_cursor'] = ($first && $decoded !== null)
+                ? SearchCursor::encode($first['sort'] ?? [], SearchCursor::DIR_PREV)
+                : null;
+        }
+
+        return $response;
+    }
+
+    /**
+     * Reverse every sort direction in an ES sort clause. Used by backward
+     * cursor paging so `search_before` semantics work via a flipped
+     * `search_after` query.
+     */
+    protected function reverseSortClause(array $sortClause): array
+    {
+        $flipped = [];
+        foreach ($sortClause as $entry) {
+            if (is_string($entry)) {
+                // `_score` - reverse means worst-first, which is a perfectly
+                // valid (if rarely useful) intent for a backward page.
+                $flipped[] = [$entry => 'asc'];
+                continue;
+            }
+            if (! is_array($entry)) {
+                $flipped[] = $entry;
+                continue;
+            }
+            $out = [];
+            foreach ($entry as $k => $v) {
+                if (is_string($v)) {
+                    $out[$k] = strtolower($v) === 'asc' ? 'desc' : 'asc';
+                } elseif (is_array($v) && isset($v['order'])) {
+                    $copy = $v;
+                    $copy['order'] = strtolower($v['order']) === 'asc' ? 'desc' : 'asc';
+                    $out[$k] = $copy;
+                } else {
+                    $out[$k] = $v;
+                }
+            }
+            $flipped[] = $out;
+        }
+
+        return $flipped;
+    }
+
+    /**
+     * Build an ES geo_distance or geo_bounding_box filter clause from the
+     * incoming `geo` parameter. Returns null when nothing useful is supplied.
+     *
+     * Accepted shapes (#650 Phase 3):
+     *   ['center' => 'lat,lng', 'radius' => '5km']
+     *   ['box' => 'lat1,lng1,lat2,lng2']  (top-left, bottom-right)
+     */
+    protected function buildGeoFilter(?array $geo): ?array
+    {
+        if (! is_array($geo)) {
+            return null;
+        }
+
+        // geo_distance wins when both are supplied.
+        if (! empty($geo['center'])) {
+            $parts = array_map('trim', explode(',', (string) $geo['center']));
+            if (count($parts) !== 2 || ! is_numeric($parts[0]) || ! is_numeric($parts[1])) {
+                return null;
+            }
+            $lat = (float) $parts[0];
+            $lng = (float) $parts[1];
+            if ($lat < -90.0 || $lat > 90.0 || $lng < -180.0 || $lng > 180.0) {
+                return null;
+            }
+            $radius = (string) ($geo['radius'] ?? '5km');
+            if (! preg_match('/^\d+(\.\d+)?(km|m|mi|yd|ft|in|nmi)$/i', $radius)) {
+                $radius = '5km';
+            }
+
+            return [
+                'geo_distance' => [
+                    'distance' => $radius,
+                    'gis' => ['lat' => $lat, 'lon' => $lng],
+                ],
+            ];
+        }
+
+        if (! empty($geo['box'])) {
+            $parts = array_map('trim', explode(',', (string) $geo['box']));
+            if (count($parts) !== 4) {
+                return null;
+            }
+            foreach ($parts as $p) {
+                if (! is_numeric($p)) {
+                    return null;
+                }
+            }
+            [$lat1, $lng1, $lat2, $lng2] = array_map('floatval', $parts);
+            if ($lat1 < -90 || $lat1 > 90 || $lat2 < -90 || $lat2 > 90
+                || $lng1 < -180 || $lng1 > 180 || $lng2 < -180 || $lng2 > 180) {
+                return null;
+            }
+
+            return [
+                'geo_bounding_box' => [
+                    'gis' => [
+                        'top_left' => ['lat' => $lat1, 'lon' => $lng1],
+                        'bottom_right' => ['lat' => $lat2, 'lon' => $lng2],
+                    ],
+                ],
+            ];
+        }
+
+        return null;
     }
 
     /**

@@ -239,6 +239,101 @@
           </div>
         </div>
       </div>
+
+      {{-- ===== Cross-vocabulary matches (SKOS #661 Phase 3) ===== --}}
+      @if(isset($crossMatchTypes))
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="crossmatches-heading">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#crossmatches-collapse" aria-expanded="false" aria-controls="crossmatches-collapse">
+            {{ __('Cross-vocabulary matches') }}
+          </button>
+        </h2>
+        <div id="crossmatches-collapse" class="accordion-collapse collapse" aria-labelledby="crossmatches-heading">
+          <div class="accordion-body">
+            <p class="text-muted small mb-2">{{ __('Link this term to concepts in other controlled vocabularies (LCSH, Getty AAT, Wikidata, etc.) via SKOS mapping predicates. Emitted on every taxonomy export.') }}</p>
+            <div class="table-responsive mb-2">
+              <table class="table table-bordered mb-0" id="crossmatches-table">
+                <thead class="table-light">
+                  <tr>
+                    <th>{{ __('Match type') }}</th>
+                    <th class="w-50">{{ __('Target URI') }}</th>
+                    <th>{{ __('Target label') }}</th>
+                    <th>{{ __('Vocabulary') }}</th>
+                    <th>{{ __('Source') }}</th>
+                    <th><span class="visually-hidden">{{ __('Delete') }}</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @php $cmRows = $crossMatches ?? []; @endphp
+                  @forelse($cmRows as $idx => $cm)
+                    <tr>
+                      <td>
+                        <select name="crossMatches[{{ $idx }}][match_type]" class="form-select form-select-sm">
+                          @foreach($crossMatchTypes as $mt)
+                            <option value="{{ $mt }}" @selected($cm->match_type === $mt)>{{ $mt }}</option>
+                          @endforeach
+                        </select>
+                      </td>
+                      <td><input type="url" name="crossMatches[{{ $idx }}][target_uri]" class="form-control form-control-sm" value="{{ $cm->target_uri }}"></td>
+                      <td><input type="text" name="crossMatches[{{ $idx }}][target_label]" class="form-control form-control-sm" value="{{ $cm->target_label }}"></td>
+                      <td><input type="text" name="crossMatches[{{ $idx }}][target_vocab]" class="form-control form-control-sm" value="{{ $cm->target_vocab }}" placeholder="LCSH"></td>
+                      <td>
+                        <select name="crossMatches[{{ $idx }}][source]" class="form-select form-select-sm">
+                          @foreach($crossMatchSources as $src)
+                            <option value="{{ $src }}" @selected($cm->source === $src)>{{ $src }}</option>
+                          @endforeach
+                        </select>
+                      </td>
+                      <td>
+                        <button type="button" class="btn atom-btn-white remove-crossmatch-row">
+                          <i class="fas fa-times" aria-hidden="true"></i>
+                          <span class="visually-hidden">{{ __('Delete row') }}</span>
+                        </button>
+                      </td>
+                    </tr>
+                  @empty
+                    <tr>
+                      <td>
+                        <select name="crossMatches[0][match_type]" class="form-select form-select-sm">
+                          @foreach($crossMatchTypes as $mt)
+                            <option value="{{ $mt }}">{{ $mt }}</option>
+                          @endforeach
+                        </select>
+                      </td>
+                      <td><input type="url" name="crossMatches[0][target_uri]" class="form-control form-control-sm" placeholder="https://id.loc.gov/authorities/subjects/sh85007034"></td>
+                      <td><input type="text" name="crossMatches[0][target_label]" class="form-control form-control-sm"></td>
+                      <td><input type="text" name="crossMatches[0][target_vocab]" class="form-control form-control-sm" placeholder="LCSH"></td>
+                      <td>
+                        <select name="crossMatches[0][source]" class="form-select form-select-sm">
+                          @foreach($crossMatchSources as $src)
+                            <option value="{{ $src }}">{{ $src }}</option>
+                          @endforeach
+                        </select>
+                      </td>
+                      <td>
+                        <button type="button" class="btn atom-btn-white remove-crossmatch-row">
+                          <i class="fas fa-times" aria-hidden="true"></i>
+                          <span class="visually-hidden">{{ __('Delete row') }}</span>
+                        </button>
+                      </td>
+                    </tr>
+                  @endforelse
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6">
+                      <button type="button" class="btn atom-btn-white" id="add-crossmatch-row">
+                        <i class="fas fa-plus me-1" aria-hidden="true"></i>{{ __('Add new') }}
+                      </button>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      @endif
     </div>
 
     <ul class="actions mb-3 nav gap-2">
@@ -300,13 +395,40 @@ document.addEventListener('DOMContentLoaded', function() {
   setupNoteTable('source-notes-table', 'add-sourcenote-row', 'remove-sourcenote-row', 'sourceNotes');
   setupNoteTable('display-notes-table', 'add-displaynote-row', 'remove-displaynote-row', 'displayNotes');
 
+  // #661 Phase 3 - cross-vocab matches add/remove
+  var cmTable = document.getElementById('crossmatches-table');
+  if (cmTable) {
+    var cmIdx = cmTable.querySelectorAll('tbody tr').length;
+    var matchTypes = @json($crossMatchTypes ?? []);
+    var sources = @json($crossMatchSources ?? []);
+    document.getElementById('add-crossmatch-row')?.addEventListener('click', function() {
+      var typeOpts = matchTypes.map(function(m){ return '<option value="'+m+'">'+m+'</option>'; }).join('');
+      var srcOpts = sources.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td><select name="crossMatches['+cmIdx+'][match_type]" class="form-select form-select-sm">'+typeOpts+'</select></td>' +
+        '<td><input type="url" name="crossMatches['+cmIdx+'][target_uri]" class="form-control form-control-sm"></td>' +
+        '<td><input type="text" name="crossMatches['+cmIdx+'][target_label]" class="form-control form-control-sm"></td>' +
+        '<td><input type="text" name="crossMatches['+cmIdx+'][target_vocab]" class="form-control form-control-sm"></td>' +
+        '<td><select name="crossMatches['+cmIdx+'][source]" class="form-select form-select-sm">'+srcOpts+'</select></td>' +
+        '<td><button type="button" class="btn atom-btn-white remove-crossmatch-row"><i class="fas fa-times" aria-hidden="true"></i><span class="visually-hidden">Delete row</span></button></td>';
+      cmTable.querySelector('tbody').appendChild(tr);
+      cmIdx++;
+    });
+  }
+
   // Remove row handler
   document.addEventListener('click', function(e) {
-    var btn = e.target.closest('.remove-scopenote-row, .remove-sourcenote-row, .remove-displaynote-row');
+    var btn = e.target.closest('.remove-scopenote-row, .remove-sourcenote-row, .remove-displaynote-row, .remove-crossmatch-row');
     if (btn) {
       var table = btn.closest('table');
       if (table.querySelectorAll('tbody tr').length > 1) {
         btn.closest('tr').remove();
+      } else {
+        // For cross-matches: clear inputs but keep one empty row.
+        if (btn.classList.contains('remove-crossmatch-row')) {
+          btn.closest('tr').querySelectorAll('input').forEach(function(i){ i.value = ''; });
+        }
       }
     }
   });
