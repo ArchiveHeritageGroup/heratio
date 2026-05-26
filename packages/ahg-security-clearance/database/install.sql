@@ -559,7 +559,7 @@ CREATE TABLE IF NOT EXISTS `ahg_otp_challenge` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ────────────────────────────────────────────────────────────────────────────
--- Per-tenant MFA enforcement policy (issue #723) — layers on top of the
+-- Per-tenant MFA enforcement policy (issue #723) - layers on top of the
 -- opt-in TOTP / WebAuthn / OTP factors shipped in #690 / #721 / #722.
 --
 -- One row per tenant; tenant_id NULL is the global default (used when no

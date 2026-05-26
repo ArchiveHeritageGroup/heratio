@@ -74,10 +74,12 @@ use Webauthn\PublicKeyCredentialParameters;
 use Webauthn\PublicKeyCredentialRequestOptions;
 use Webauthn\PublicKeyCredentialRpEntity;
 use Webauthn\PublicKeyCredentialSource;
-use Webauthn\PublicKeyCredentialSourceRepository;
 use Webauthn\PublicKeyCredentialUserEntity;
 
-class WebAuthnService implements PublicKeyCredentialSourceRepository
+// web-auth/webauthn-lib v5 removed the PublicKeyCredentialSourceRepository
+// interface; the three repository methods below are still implemented and
+// used directly by the v5 ceremony validators.
+class WebAuthnService
 {
     /** Session key under which the pending registration challenge is stashed. */
     private const SESSION_REGISTER_OPTIONS = 'webauthn_register_options';

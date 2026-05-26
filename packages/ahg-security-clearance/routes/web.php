@@ -1,5 +1,6 @@
 <?php
 
+use AhgSecurityClearance\Controllers\MfaPolicyController;
 use AhgSecurityClearance\Controllers\OtpController;
 use AhgSecurityClearance\Controllers\SecurityClearanceController;
 use AhgSecurityClearance\Controllers\WebAuthnController;
@@ -135,6 +136,21 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/security-clearance/access-requests/{id}', [SecurityClearanceController::class, 'viewRequest'])
         ->name('security-clearance.view-request')
         ->where('id', '[0-9]+');
+
+    // Per-tenant MFA enforcement policy (issue #723)
+    Route::get('/admin/security/mfa-policy', [MfaPolicyController::class, 'index'])
+        ->name('security-clearance.mfa-policy.index');
+    Route::get('/admin/security/mfa-policy/{tenantId}/edit', [MfaPolicyController::class, 'edit'])
+        ->name('security-clearance.mfa-policy.edit')
+        ->where('tenantId', '[0-9]+');
+    Route::post('/admin/security/mfa-policy/{tenantId}', [MfaPolicyController::class, 'update'])
+        ->name('security-clearance.mfa-policy.update')
+        ->where('tenantId', '[0-9]+')
+        ->middleware('acl:update');
+    Route::post('/admin/security/mfa-policy/{tenantId}/reset', [MfaPolicyController::class, 'reset'])
+        ->name('security-clearance.mfa-policy.reset')
+        ->where('tenantId', '[0-9]+')
+        ->middleware('acl:update');
 
     // Security Audit
     Route::get('/admin/security-clearance/audit/dashboard', [SecurityClearanceController::class, 'auditDashboard'])

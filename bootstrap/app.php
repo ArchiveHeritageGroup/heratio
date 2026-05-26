@@ -44,6 +44,12 @@ return Application::configure(basePath: dirname(__DIR__))
             // carries the `pending_mfa` flag. No-op for users without MFA
             // and for users who have already verified this session.
             \App\Http\Middleware\RequireMfaCompletion::class,
+            // Issue #723 — per-tenant MFA enforcement policy. Runs AFTER
+            // RequireMfaCompletion so a user who is mid-challenge for an
+            // already-enrolled factor is not bounced to the enrolment
+            // page. No-op when the tenant policy is 'off' or 'optional',
+            // or when the user already has a verified factor.
+            \AhgSecurityClearance\Http\Middleware\EnforceMfaPolicy::class,
             \App\Http\Middleware\AuditLog::class,
             \App\Http\Middleware\SecurityHeaders::class,
             \Spatie\Csp\AddCspHeaders::class,
