@@ -39,6 +39,7 @@
 
 namespace AhgObservability\Providers;
 
+use AhgObservability\Console\Commands\EmitAiComplianceMetricsCommand;
 use AhgObservability\Console\Commands\RecordQueueDepthCommand;
 use AhgObservability\Listeners\RecordDbQuery;
 use AhgObservability\Services\MetricsRegistry;
@@ -76,6 +77,7 @@ class AhgObservabilityServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 RecordQueueDepthCommand::class,
+                EmitAiComplianceMetricsCommand::class,
             ]);
 
             // Sample queue depth every minute. withoutOverlapping() keeps

@@ -1,0 +1,89 @@
+# alertmanager.yml.example - Heratio routing for the alerts in
+# packages/ahg-observability/config/alerts/heratio.rules.yml (issue #677 Phase 4).
+#
+# Two receivers are non-standard:
+#
+#   1. heratio-email          - posts via the email pipeline from issue #674
+#                               Phase 2 (templated + locale-aware).
+#   2. heratio-workbench-bell - drops a JSON file into the workbench
+#                               notification spool at
+#                               /var/spool/workbench/notifications/ which
+#                               the watcher picks up within 15s and surfaces
+#                               in the operator's bell + toast + chime.
+#
+# Routing by severity label (set in the rules file):
+#   - page : email + workbench bell        (wake somebody up)
+#   - warn : workbench bell only           (visible, not urgent)
+#   - info : log only                      (trend / audit, no notification)
+#
+# Copy to /etc/alertmanager/alertmanager.yml and edit the bracketed values.
+
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.example.org:587'
+  smtp_from: 'alerts@theahg.co.za'
+  smtp_auth_username: '[smtp-user]'
+  smtp_auth_password: '[smtp-password]'
+
+route:
+  receiver: heratio-log-only
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers:
+        - severity = "page"
+      receiver: heratio-page
+      continue: false
+      group_wait: 0s
+      repeat_interval: 1h
+
+    - matchers:
+        - severity = "warn"
+      receiver: heratio-workbench-bell
+      continue: false
+      repeat_interval: 12h
+
+    - matchers:
+        - severity = "info"
+      receiver: heratio-log-only
+      continue: false
+
+receivers:
+  # severity=page : email AND workbench bell.
+  - name: heratio-page
+    webhook_configs:
+      # Sends to the Heratio email pipeline (#674 Phase 2). The endpoint
+      # selects the locale + template from the alert labels; falls back to
+      # the generic "ops-alert" template if alertname is unknown.
+      - url: 'https://heratio.example.org/api/observability/alert-email'
+        send_resolved: true
+        http_config:
+          bearer_token: '[ops-email-token]'
+      # Drops the workbench-bell JSON. See the helper script described in
+      # docs/reference/observability-alerting.md (curl-to-jq one-liner).
+      - url: 'http://127.0.0.1:9099/workbench-bell'
+        send_resolved: true
+
+  # severity=warn : workbench bell only.
+  - name: heratio-workbench-bell
+    webhook_configs:
+      - url: 'http://127.0.0.1:9099/workbench-bell'
+        send_resolved: true
+
+  # severity=info : log only. Alertmanager keeps the alert in its UI; no
+  # external notification. Useful for trend rules that should not page.
+  - name: heratio-log-only
+    webhook_configs:
+      - url: 'http://127.0.0.1:9099/log-only'
+        send_resolved: false
+
+inhibit_rules:
+  # If the whole service is down (HighErrorRate paging), suppress the noisier
+  # SlowResponses warn that will almost certainly fire alongside it.
+  - source_matchers:
+      - alertname = "HighErrorRate"
+    target_matchers:
+      - alertname = "SlowResponses"
+    equal: ['service']

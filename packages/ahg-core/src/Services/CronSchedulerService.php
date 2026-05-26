@@ -27,13 +27,20 @@ namespace AhgCore\Services;
 
 use Carbon\Carbon;
 use Cron\CronExpression;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CronSchedulerService
 {
     protected string $table = 'cron_schedule';
+
+    public function __construct(protected ?CronRunTrackerService $tracker = null)
+    {
+        $this->tracker = $tracker ?? new CronRunTrackerService;
+    }
 
     /**
      * Get all schedules that are due to run now.
@@ -94,14 +101,21 @@ class CronSchedulerService
             'updated_at' => Carbon::now(),
         ]);
 
+        // #673 Phase 2: open a tracking row in ahg_cron_run so missed-run
+        // detection + Prometheus counters see DB-driven invocations too,
+        // not just Laravel Schedule-facade ones.
+        $runId = $this->tracker?->markStarted($schedule->artisan_command);
+
         $start = microtime(true);
         $status = 'success';
         $output = '';
+        $exitCode = 0;
 
         // Pre-flight: confirm the artisan command is actually registered.
         // Protects against orphan seeds whose backing commands were removed.
         if (! $this->artisanCommandExists($schedule->artisan_command)) {
             $status = 'failed';
+            $exitCode = 1;
             $output = "Command not registered: '{$schedule->artisan_command}'. Remove this schedule or implement the command.";
         } else {
             try {
@@ -113,12 +127,16 @@ class CronSchedulerService
                 }
             } catch (\Throwable $e) {
                 $status = 'failed';
+                $exitCode = 1;
                 $output = $e->getMessage();
             }
         }
 
         $durationMs = (int) ((microtime(true) - $start) * 1000);
         $nextRun = $this->computeNextRun($schedule->cron_expression);
+
+        // Close the tracking row + emit Prometheus metric.
+        $this->tracker?->markFinished($runId, $exitCode, $output);
 
         // Truncate output to last 5000 chars for storage
         if (strlen($output) > 5000) {
@@ -476,6 +494,117 @@ class CronSchedulerService
         }
 
         return $schedules;
+    }
+
+    // ─── #673 Phase 2 - Laravel Schedule Facade wiring ──────────────
+
+    /**
+     * Wire every default schedule into Laravel's native Schedule facade,
+     * wrapped with before()/after()/onFailure() hooks that drive the
+     * ahg_cron_run tracking row + Prometheus metric emission.
+     *
+     * Distributed locking: ->onOneServer() is added conditionally,
+     * gated on whether the active cache driver supports atomic locks.
+     * When it doesn't (file / array driver) we log once and skip the
+     * annotation rather than crashing schedule:run at boot.
+     *
+     * Called from AhgCoreServiceProvider::boot() inside an
+     * afterResolving(Schedule::class) block so the host application
+     * doesn't have to know about every command.
+     */
+    public function registerWithLaravelSchedule(Schedule $schedule): void
+    {
+        $tracker = $this->tracker;
+        $supportsLocks = $tracker?->supportsDistributedLocks() ?? false;
+
+        if (! $supportsLocks) {
+            // One-shot warning at boot - operators see this in the
+            // Laravel log + scheduler output, prompting a switch to a
+            // lock-capable cache driver if they want HA cron.
+            static $warned = false;
+            if (! $warned) {
+                Log::warning(
+                    '[ahg-core] cron-monitoring: cache driver "'
+                    .(string) config('cache.default', 'file')
+                    .'" does not support atomic locks - ->onOneServer() skipped. '
+                    .'Switch to redis/database/memcached/dynamodb for HA cron.'
+                );
+                $warned = true;
+            }
+        }
+
+        // Use a single closure-per-command so $runId persists across the
+        // before/after/onFailure trio for the same invocation.
+        foreach ($this->getDefaultSchedules() as $entry) {
+            $command = (string) $entry['artisan_command'];
+            $cron = (string) $entry['cron_expression'];
+
+            // Hold the in-flight tracking row id in a closure-scoped var.
+            $runIdHolder = ['id' => null];
+
+            $event = $schedule->exec('true')
+                ->cron($cron)
+                ->name('ahg-cron:'.$entry['slug']);
+
+            // Re-target: the exec('true') above is just a placeholder so
+            // we can attach hooks; the real work is dispatched in before().
+            // We can't ->command() here because we want every invocation
+            // - even success - to write to ahg_cron_run, and ->command()
+            // would launch the artisan process before before() fires on
+            // some Laravel versions.
+            $event->before(function () use ($command, $tracker, &$runIdHolder) {
+                $runIdHolder['id'] = $tracker?->markStarted($command);
+            });
+
+            $event->after(function () use ($command, $tracker, &$runIdHolder) {
+                // exec('true') always exits 0; the actual command runs
+                // here in-process via Artisan::call() so its real exit
+                // code lands in the tracking row.
+                try {
+                    $exitCode = Artisan::call($command);
+                    $output = Artisan::output();
+                    $tracker?->markFinished($runIdHolder['id'], $exitCode, $output);
+                } catch (\Throwable $e) {
+                    $tracker?->markFailed($runIdHolder['id'], $e);
+                }
+                $runIdHolder['id'] = null;
+            });
+
+            $event->onFailure(function () use ($tracker, &$runIdHolder) {
+                if ($runIdHolder['id'] !== null) {
+                    $tracker?->markFinished($runIdHolder['id'], 1, 'onFailure callback fired');
+                    $runIdHolder['id'] = null;
+                }
+            });
+
+            if ($supportsLocks) {
+                // ->onOneServer() requires ->name() (set above) + a
+                // lock-capable cache. Without those it throws at boot.
+                $event->onOneServer();
+            }
+        }
+
+        // The detector itself runs every 5 minutes. Embedded here so
+        // operators don't have to wire a second schedule entry by hand.
+        $detector = $schedule->command('cron:check-missed-runs')
+            ->everyFiveMinutes()
+            ->name('ahg-cron:check-missed-runs')
+            ->withoutOverlapping();
+
+        if ($supportsLocks) {
+            // The detector itself also benefits from single-server
+            // execution when multiple app boxes share the DB.
+            $detector->onOneServer();
+        }
+    }
+
+    /**
+     * Convenience accessor for the lazily-constructed tracker (used by
+     * tests + the missed-run detector command).
+     */
+    public function tracker(): CronRunTrackerService
+    {
+        return $this->tracker ??= new CronRunTrackerService;
     }
 
     // ─── Jobs Settings Helpers ──────────────────────────────────────

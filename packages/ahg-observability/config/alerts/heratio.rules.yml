@@ -1,0 +1,126 @@
+# heratio.rules.yml - Prometheus alerting rules for the Heratio platform.
+#
+# Issue #677 Phase 4. Pairs with the /metrics surface shipped in Phase 3
+# (see packages/ahg-observability/README.md) and the synthetic gauge
+# emitted by `ai-compliance:emit-metrics` (Phase 4 of #677).
+#
+# Load into Prometheus with `rule_files: ['/etc/prometheus/heratio.rules.yml']`
+# and route the resulting alerts through Alertmanager (sample config at
+# docs/observability/alertmanager.yml.example).
+#
+# Severity labels (used by Alertmanager routes):
+#   - page  : wake somebody up. Pager + email + workbench bell.
+#   - warn  : visible, not urgent. Workbench bell + email.
+#   - info  : trend / audit. Logged only.
+#
+# Team labels:
+#   - ops        : infra / availability
+#   - sre        : performance / capacity
+#   - compliance : Article 12 inference-chain integrity
+#
+# Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems.
+# GNU Affero General Public License v3.0 or later.
+
+groups:
+  - name: heratio-availability
+    interval: 30s
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(heratio_http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(heratio_http_requests_total[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: page
+          team: ops
+          service: heratio
+        annotations:
+          summary: "Heratio 5xx ratio above 5% for 5m"
+          description: |
+            More than 5% of HTTP responses over the last 5 minutes are 5xx.
+            Check `storage/logs/laravel-json-*.log`, the Loki "errors" panel,
+            and recent deploys. Runbook: docs/reference/observability-alerting.md
+          dashboard: "/d/heratio-overview"
+
+      - alert: SlowResponses
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum(rate(heratio_http_request_duration_seconds_bucket[5m])) by (le)
+          ) > 2
+        for: 10m
+        labels:
+          severity: warn
+          team: sre
+          service: heratio
+        annotations:
+          summary: "Heratio p99 latency above 2s for 10m"
+          description: |
+            99th percentile HTTP latency exceeded 2s for 10 minutes. Check the
+            slowest routes via the `heratio_http_request_duration_seconds`
+            histogram grouped by `route`. Common culprits: Elasticsearch
+            timeouts, IIIF tile generation, or unbounded reports.
+
+  - name: heratio-queues
+    interval: 1m
+    rules:
+      - alert: QueueBacklog
+        expr: heratio_queue_depth{queue="default"} > 100
+        for: 5m
+        labels:
+          severity: warn
+          team: ops
+          service: heratio
+        annotations:
+          summary: "Default queue backlog > 100 jobs for 5m"
+          description: |
+            The default queue has more than 100 unprocessed jobs for 5
+            consecutive minutes. Check `php artisan queue:work` is running
+            (supervisord status) and inspect failed_jobs for poison messages.
+
+  - name: heratio-database
+    interval: 30s
+    rules:
+      - alert: DbSlowQueries
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum(rate(heratio_db_query_duration_seconds_bucket[5m])) by (le)
+          ) > 1
+        for: 10m
+        labels:
+          severity: warn
+          team: sre
+          service: heratio
+        annotations:
+          summary: "Heratio p99 DB query latency above 1s for 10m"
+          description: |
+            99th percentile DB query duration exceeded 1s for 10 minutes.
+            Likely candidates: missing index, lock contention on
+            information_object, or runaway reindex. Check the slow query log
+            and `SHOW PROCESSLIST` first.
+
+  - name: heratio-compliance
+    interval: 5m
+    rules:
+      - alert: InferenceChainBroken
+        # Emitted by `ai-compliance:emit-metrics` (cron, hourly). 1 = PASS,
+        # 0 = FAIL. Missing samples treated as broken so a silent cron
+        # failure also pages compliance.
+        expr: ai_compliance_verify_status != 1
+        for: 1m
+        labels:
+          severity: page
+          team: compliance
+          service: heratio
+        annotations:
+          summary: "AI inference chain verification FAILED"
+          description: |
+            `ai-compliance:verify-inference-log` reported a broken hash chain
+            or signature. This is an Article 12 compliance incident. Do NOT
+            mutate ai_inference_log. Inspect the broken seq printed in
+            storage/logs/laravel-json-*.log and follow
+            docs/reference/observability-alerting.md.

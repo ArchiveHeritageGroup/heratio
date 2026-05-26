@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DoiService — DOI lifecycle integration with DataCite REST API.
+ * DoiService - DOI lifecycle integration with DataCite REST API.
  *
  * Wraps the canonical mint/update/verify/deactivate flow plus queue
  * processing, ported from atom-ahg-plugins/ahgDoiPlugin/lib/Services/DoiService.php
@@ -9,10 +9,10 @@
  * covering the operational surface that ahg-core's artisan commands need).
  *
  * Tables:
- *   ahg_doi          — one row per IO with a DOI assigned (state machine)
- *   ahg_doi_config   — DataCite credentials + prefix + suffix pattern (per-repo)
- *   ahg_doi_queue    — async work items (mint/update/verify/etc)
- *   ahg_doi_log      — append-only history of state transitions and errors
+ *   ahg_doi          - one row per IO with a DOI assigned (state machine)
+ *   ahg_doi_config   - DataCite credentials + prefix + suffix pattern (per-repo)
+ *   ahg_doi_queue    - async work items (mint/update/verify/etc)
+ *   ahg_doi_log      - append-only history of state transitions and errors
  *
  * @copyright 2026 Johan Pieterse / Plain Sailing Information Systems
  * @license   AGPL-3.0-or-later
@@ -20,9 +20,14 @@
 
 namespace AhgDoiManage\Services;
 
+use AhgDoiManage\Mail\DoiFailedMail;
+use AhgDoiManage\Mail\DoiMintedMail;
+use App\Services\EmailSuppressionGate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 class DoiService
@@ -108,11 +113,11 @@ class DoiService
      * Phase 1 enrichment (#654, 2026-05-25): in addition to the minimum
      * required attributes (title, creator, publisher, year, resourceType,
      * url) we now emit:
-     *   - descriptions[]    — scope_and_content as Abstract
-     *   - subjects[]        — taxonomy 35 (Subject) access points
-     *   - dates[]           — start/end from event table, dateType=Created
-     *   - language          — i.source_culture
-     *   - publicationYear   — derived from earliest event start_date (falls
+     *   - descriptions[]    - scope_and_content as Abstract
+     *   - subjects[]        - taxonomy 35 (Subject) access points
+     *   - dates[]           - start/end from event table, dateType=Created
+     *   - language          - i.source_culture
+     *   - publicationYear   - derived from earliest event start_date (falls
      *                          back to current year when no events exist)
      *
      * Follow-up phases will add Creator ORCID + ROR + RelatedIdentifier +
@@ -184,7 +189,7 @@ class DoiService
             })
             ->all();
 
-        // Dates from event table — keep earliest start_date for publicationYear
+        // Dates from event table - keep earliest start_date for publicationYear
         $events = DB::connection('atom')->table('event as e')
             ->leftJoin('event_i18n as ei', function ($j) {
                 $j->on('e.id', '=', 'ei.id')->where('ei.culture', '=', 'en');
@@ -219,7 +224,7 @@ class DoiService
         }
         $publicationYear = $earliestYear ?: (int) date('Y');
 
-        // Language — from source_culture (ISO 639-1 2-letter code)
+        // Language - from source_culture (ISO 639-1 2-letter code)
         $language = ! empty($row->source_culture) ? (string) $row->source_culture : null;
 
         // Compose the final attributes block. Only include enrichment keys
@@ -310,10 +315,152 @@ class DoiService
             ]);
             $this->log($objectId, $rowId, 'mint', null, 'findable', ['doi' => $doi]);
 
+            // Phase 3 of #674 - notify the IO owner that a DOI has been
+            // minted, and CC the ops mailbox on the operational success.
+            $this->dispatchMintedMail($objectId, $doi);
+
             return ['success' => true, 'doi' => $doi, 'error' => null];
         } catch (Throwable $e) {
+            // Phase 3 of #674 - notify on failure too. We send to the IO
+            // owner (so they can correct metadata) and to the configurable
+            // doi_failure_notify ops mailbox (so the team sees it).
+            $this->dispatchFailedMail($objectId, $e->getMessage());
+
             return ['success' => false, 'doi' => null, 'error' => $e->getMessage()];
         }
+    }
+
+    /**
+     * Notify the IO owner + ops mailbox that a DOI was minted.
+     * Best-effort; never propagates errors back to the caller.
+     */
+    protected function dispatchMintedMail(int $objectId, string $doi): void
+    {
+        try {
+            $title = $this->resolveObjectTitle($objectId);
+            $appUrl = rtrim((string) config('app.url', ''), '/');
+            $context = [
+                'doi' => $doi,
+                'title' => $title,
+                'object_url' => $appUrl.'/informationobject/'.$objectId,
+                'resolver_url' => 'https://doi.org/'.$doi,
+            ];
+
+            foreach ($this->resolveDoiRecipients($objectId) as $recipient) {
+                $ctx = $context + [
+                    'recipient_email' => $recipient['email'],
+                    'recipient_name' => $recipient['name'] ?? null,
+                    'preferred_locale' => $recipient['locale'] ?? null,
+                ];
+                if (! EmailSuppressionGate::canSend($recipient['email'], DoiMintedMail::class, 'DOI minted: '.$doi)) {
+                    continue;
+                }
+                Mail::to($recipient['email'])->queue(new DoiMintedMail($ctx));
+            }
+        } catch (Throwable $e) {
+            Log::warning('DoiMintedMail dispatch failed: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Notify the IO owner + ops mailbox that a DOI mint failed.
+     */
+    protected function dispatchFailedMail(int $objectId, string $error): void
+    {
+        try {
+            $title = $this->resolveObjectTitle($objectId);
+            $appUrl = rtrim((string) config('app.url', ''), '/');
+            $context = [
+                'title' => $title,
+                'object_url' => $appUrl.'/informationobject/'.$objectId,
+                'error_code' => null,
+                'error_message' => $error,
+                'attempted_at' => now()->toIso8601String(),
+                'retry_url' => $appUrl.'/admin/doi/retry/'.$objectId,
+            ];
+
+            foreach ($this->resolveDoiRecipients($objectId) as $recipient) {
+                $ctx = $context + [
+                    'recipient_email' => $recipient['email'],
+                    'recipient_name' => $recipient['name'] ?? null,
+                    'preferred_locale' => $recipient['locale'] ?? null,
+                ];
+                if (! EmailSuppressionGate::canSend($recipient['email'], DoiFailedMail::class, 'DOI mint failed: '.$title)) {
+                    continue;
+                }
+                Mail::to($recipient['email'])->queue(new DoiFailedMail($ctx));
+            }
+        } catch (Throwable $e) {
+            Log::warning('DoiFailedMail dispatch failed: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Build the recipient list for a DOI lifecycle email:
+     *   - IO creator (via information_object.created_by -> user.id)
+     *   - Configurable ops mailbox (ahg_settings.doi_failure_notify; supports
+     *     comma-separated multiple addresses)
+     *
+     * Returns deduplicated [['email','name'?,'locale'?], ...].
+     */
+    protected function resolveDoiRecipients(int $objectId): array
+    {
+        $out = [];
+        $seen = [];
+        $push = function (string $email, ?string $name = null, ?string $locale = null) use (&$out, &$seen) {
+            $key = strtolower(trim($email));
+            if ($key === '' || isset($seen[$key])) {
+                return;
+            }
+            $seen[$key] = true;
+            $out[] = ['email' => $key, 'name' => $name, 'locale' => $locale];
+        };
+
+        // IO owner / creator
+        try {
+            $owner = DB::connection('atom')->table('information_object as i')
+                ->leftJoin('user as u', 'u.id', '=', 'i.created_by')
+                ->where('i.id', $objectId)
+                ->select('u.email', 'u.username', 'u.preferred_locale')
+                ->first();
+            if ($owner && ! empty($owner->email)) {
+                $push($owner->email, $owner->username ?? null, $owner->preferred_locale ?? null);
+            }
+        } catch (Throwable $e) {
+            // IO connection missing or no created_by column - fall through
+        }
+
+        // Ops mailbox(es) from settings
+        if (Schema::hasTable('ahg_settings')) {
+            $row = DB::table('ahg_settings')->where('setting_key', 'doi_failure_notify')->first();
+            if ($row && trim((string) $row->setting_value) !== '') {
+                foreach (preg_split('/[,;\s]+/', (string) $row->setting_value) as $addr) {
+                    $addr = trim((string) $addr);
+                    if ($addr !== '' && filter_var($addr, FILTER_VALIDATE_EMAIL)) {
+                        $push($addr);
+                    }
+                }
+            }
+        }
+
+        return $out;
+    }
+
+    protected function resolveObjectTitle(int $objectId): string
+    {
+        try {
+            $row = DB::connection('atom')->table('information_object_i18n')
+                ->where('id', $objectId)
+                ->where('culture', 'en')
+                ->value('title');
+            if ($row) {
+                return (string) $row;
+            }
+        } catch (Throwable $e) {
+            // fall through
+        }
+
+        return 'Information object '.$objectId;
     }
 
     /**
@@ -377,7 +524,7 @@ class DoiService
     }
 
     /**
-     * Tombstone (deactivate) a DOI — keeps the identifier resolvable but flips
+     * Tombstone (deactivate) a DOI - keeps the identifier resolvable but flips
      * its event to "hide". DataCite preserves the metadata as a tombstone page.
      */
     public function deactivate(string $doi, string $reason = 'admin tombstone'): array

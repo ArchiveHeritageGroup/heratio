@@ -1,0 +1,154 @@
+{
+  "dashboard": {
+    "uid": "heratio-overview",
+    "title": "Heratio Overview",
+    "tags": ["heratio", "observability", "issue-677"],
+    "timezone": "browser",
+    "schemaVersion": 39,
+    "version": 1,
+    "refresh": "30s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "templating": {
+      "list": [
+        {
+          "name": "datasource_prometheus",
+          "type": "datasource",
+          "query": "prometheus",
+          "current": {
+            "text": "prometheus",
+            "value": "prometheus"
+          }
+        },
+        {
+          "name": "datasource_loki",
+          "type": "datasource",
+          "query": "loki",
+          "current": {
+            "text": "loki",
+            "value": "loki"
+          }
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "type": "timeseries",
+        "title": "HTTP request rate (req/s) by status",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource_prometheus}"
+        },
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps",
+            "custom": { "drawStyle": "line", "lineInterpolation": "smooth" }
+          }
+        },
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum(rate(heratio_http_requests_total[1m])) by (status)",
+            "legendFormat": "{{status}}"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "type": "timeseries",
+        "title": "Error rate (% of 5xx over 5m)",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource_prometheus}"
+        },
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percentunit",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "orange", "value": 0.01 },
+                { "color": "red", "value": 0.05 }
+              ]
+            }
+          }
+        },
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "sum(rate(heratio_http_requests_total{status=~\"5..\"}[5m])) / sum(rate(heratio_http_requests_total[5m]))",
+            "legendFormat": "5xx ratio"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "type": "timeseries",
+        "title": "p99 HTTP latency (seconds)",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource_prometheus}"
+        },
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "orange", "value": 1 },
+                { "color": "red", "value": 2 }
+              ]
+            }
+          }
+        },
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "histogram_quantile(0.99, sum(rate(heratio_http_request_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "p99"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "type": "timeseries",
+        "title": "Queue depth (default queue)",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource_prometheus}"
+        },
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "orange", "value": 50 },
+                { "color": "red", "value": 100 }
+              ]
+            }
+          }
+        },
+        "targets": [
+          {
+            "refId": "A",
+            "expr": "heratio_queue_depth{queue=\"default\"}",
+            "legendFormat": "{{connection}}/{{queue}}"
+          }
+        ]
+      }
+    ]
+  },
+  "overwrite": true,
+  "message": "Heratio overview dashboard - issue #677 Phase 4"
+}

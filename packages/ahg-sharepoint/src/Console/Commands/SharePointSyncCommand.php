@@ -3,10 +3,14 @@
 namespace AhgSharePoint\Console\Commands;
 
 use AhgSharePoint\Jobs\IngestSharePointEventJob;
+use AhgSharePoint\Mail\SharePointSyncErrorMail;
 use AhgSharePoint\Repositories\SharePointDriveRepository;
 use AhgSharePoint\Services\GraphClientService;
+use App\Services\EmailSuppressionGate;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Delta-poll one or all ingest-enabled drives.
@@ -40,10 +44,122 @@ class SharePointSyncCommand extends Command
                     ['last_status' => 'error', 'last_error' => substr($e->getMessage(), 0, 65000), 'last_run_at' => now()],
                 );
                 $this->error('  -> ERROR: '.$e->getMessage());
+
+                // Phase 3 of #674 - surface sync errors to the ops mailbox.
+                // Best-effort; never let a notification failure mask the
+                // original sync error.
+                try {
+                    $this->dispatchSyncErrorMail($drive, $e);
+                } catch (\Throwable $mailErr) {
+                    $this->warn('  -> notification dispatch failed: '.$mailErr->getMessage());
+                }
             }
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Dispatch SharePointSyncErrorMail to every configured ops address.
+     * Picks recipients from (in order):
+     *   - config('ahg.sharepoint.ops_email') / env('SHAREPOINT_OPS_EMAIL')
+     *   - ahg_settings.sharepoint_ops_email   (comma-separated)
+     *   - ahg_settings.sharepoint_admin_email (single)
+     *
+     * @phase 3
+     */
+    private function dispatchSyncErrorMail(object $drive, \Throwable $e): void
+    {
+        $recipients = $this->resolveOpsRecipients();
+        if (empty($recipients)) {
+            return;
+        }
+
+        $stateRow = DB::table('sharepoint_sync_state')->where('drive_id', (int) $drive->id)->first();
+        $context = [
+            'connection_name' => trim(($drive->site_title ?? '').' / '.($drive->drive_name ?? '')) ?: 'SharePoint',
+            'site_url' => $drive->site_url ?? null,
+            'error_kind' => $this->classifyError($e),
+            'error_message' => $e->getMessage(),
+            'failed_items' => (int) ($stateRow->failed_items ?? 0),
+            'last_success_at' => $stateRow->last_success_at ?? null,
+            'run_id' => (string) ($stateRow->id ?? ''),
+            'dashboard_url' => rtrim((string) config('app.url', ''), '/').'/admin/sharepoint',
+        ];
+
+        foreach ($recipients as $email) {
+            if (! EmailSuppressionGate::canSend(
+                $email,
+                SharePointSyncErrorMail::class,
+                'SharePoint sync error: '.$context['connection_name']
+            )) {
+                continue;
+            }
+            $ctx = $context + [
+                'recipient_email' => $email,
+                'recipient_name' => null,
+                'preferred_locale' => null,
+            ];
+            Mail::to($email)->queue(new SharePointSyncErrorMail($ctx));
+        }
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function resolveOpsRecipients(): array
+    {
+        $out = [];
+        $seen = [];
+        $push = function ($value) use (&$out, &$seen) {
+            foreach (preg_split('/[,;\s]+/', (string) $value) as $addr) {
+                $addr = strtolower(trim((string) $addr));
+                if ($addr === '' || isset($seen[$addr])) {
+                    continue;
+                }
+                if (! filter_var($addr, FILTER_VALIDATE_EMAIL)) {
+                    continue;
+                }
+                $seen[$addr] = true;
+                $out[] = $addr;
+            }
+        };
+
+        $push((string) (config('ahg.sharepoint.ops_email') ?? env('SHAREPOINT_OPS_EMAIL', '')));
+
+        try {
+            if (Schema::hasTable('ahg_settings')) {
+                foreach (['sharepoint_ops_email', 'sharepoint_admin_email'] as $key) {
+                    $row = DB::table('ahg_settings')->where('setting_key', $key)->first();
+                    if ($row && trim((string) $row->setting_value) !== '') {
+                        $push($row->setting_value);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // settings table missing - ignore
+        }
+
+        return $out;
+    }
+
+    private function classifyError(\Throwable $e): string
+    {
+        $msg = strtolower($e->getMessage());
+        if (str_contains($msg, '401') || str_contains($msg, 'unauthorized') || str_contains($msg, 'token')) {
+            return 'auth';
+        }
+        if (str_contains($msg, 'timeout') || str_contains($msg, 'connection') || str_contains($msg, 'curl')) {
+            return 'network';
+        }
+        if (str_contains($msg, 'quota') || str_contains($msg, '429') || str_contains($msg, 'throttle')) {
+            return 'quota';
+        }
+        if (str_contains($msg, 'conflict') || str_contains($msg, '409')) {
+            return 'conflict';
+        }
+
+        return 'other';
     }
 
     private function syncDrive(GraphClientService $graph, object $drive, bool $full, int $limit): int

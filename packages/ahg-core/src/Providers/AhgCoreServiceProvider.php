@@ -12,6 +12,7 @@ use AhgCore\Repositories\MysqlDescriptionRepository;
 use AhgCore\Repositories\MysqlFunctionRepository;
 use AhgCore\Repositories\MysqlPlaceRepository;
 use AhgCore\Repositories\MysqlRelationRepository;
+use AhgCore\Services\CronRunTrackerService;
 use AhgCore\Services\CronSchedulerService;
 use AhgCore\Services\SettingHelper;
 use Illuminate\Support\ServiceProvider;
@@ -20,6 +21,11 @@ class AhgCoreServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // #673 Phase 2: cron-monitoring config (high-priority commands +
+        // notification user + inbox path + miss-threshold multiplier).
+        $this->mergeConfigFrom(__DIR__.'/../../config/cron-monitoring.php', 'cron-monitoring');
+
+        $this->app->singleton(CronRunTrackerService::class);
         $this->app->singleton(CronSchedulerService::class);
 
         // Repository contracts → MySQL implementations
@@ -232,6 +238,9 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Commands\CronRunCommand::class,
                 \AhgCore\Commands\CronSeedCommand::class,
                 \AhgCore\Commands\CronStatusCommand::class,
+                // #673 Phase 2: missed-run detector (embedded 5-min schedule
+                // is registered in registerWithLaravelSchedule below).
+                \AhgCore\Commands\CheckMissedCronRunsCommand::class,
 
                 // Standalone install bootstrap (Phase 1 #6)
                 \AhgCore\Commands\InstallBootstrapCommand::class,
@@ -253,6 +262,18 @@ class AhgCoreServiceProvider extends ServiceProvider
 
             $this->app->booted(function () {
                 $schedule = $this->app->make(\Illuminate\Console\Scheduling\Schedule::class);
+
+                // #673 Phase 2: wrap every default schedule with the
+                // ahg_cron_run tracking decorator + onOneServer() when
+                // the cache driver supports atomic locks. Also embeds
+                // cron:check-missed-runs every 5 minutes.
+                try {
+                    $this->app->make(CronSchedulerService::class)
+                        ->registerWithLaravelSchedule($schedule);
+                } catch (\Throwable $e) {
+                    \Log::warning('[ahg-core] cron Schedule wiring failed: '.$e->getMessage());
+                }
+
                 // Daily safety net for unwrapped writers: walk every registered
                 // ahg_encrypted_fields row and encrypt anything still in
                 // plaintext. Per-service transparent wrappers (RepositoryService
@@ -392,6 +413,24 @@ class AhgCoreServiceProvider extends ServiceProvider
             // open (no enforcement) when the table is missing; install
             // retries on next boot.
             \Log::warning('[ahg-core] voice_usage install failed: '.$e->getMessage());
+        }
+
+        // #673 Phase 2: cron-monitoring tables (ahg_cron_run +
+        // ahg_cron_missed_run). Single outer try/catch around hasTable() +
+        // unprepared() per reference_ci_schema_hastable.md - the
+        // CI sqlite fallback otherwise crashes on package:discover before
+        // a real DB is wired.
+        try {
+            $needsInstall = ! \Illuminate\Support\Facades\Schema::hasTable('ahg_cron_run')
+                || ! \Illuminate\Support\Facades\Schema::hasTable('ahg_cron_missed_run');
+            if ($needsInstall) {
+                $sql = file_get_contents(__DIR__.'/../../database/install_cron_run.sql');
+                if (is_string($sql) && trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-core] cron-monitoring install failed: '.$e->getMessage());
         }
     }
 }

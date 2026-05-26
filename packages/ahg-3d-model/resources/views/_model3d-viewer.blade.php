@@ -2,13 +2,20 @@
   3D Model Partial - Include in digital object templates to display 3D models
   Usage: @include('ahg-3d-model::_model3d-viewer', ['resource' => $resource, 'models' => $models])
 
-  Phase 1 (#666): animation toolbar — Play/Pause + animation-name dropdown
+  Phase 1 (#666): animation toolbar - Play/Pause + animation-name dropdown
                   + scrub slider + time display. Visible only when the model
                   reports >= 1 animation at runtime.
-  Phase 2 (#666): camera bookmarks — Save current view / Views dropdown /
+  Phase 2 (#666): camera bookmarks - Save current view / Views dropdown /
                   Edit & Delete. Bookmarks come from
                   GET /3d/{model_id}/bookmarks, writes go to POST/PUT/DELETE
                   /3d/{model_id}/bookmarks[/id]. CSRF token via meta tag.
+  Phase 3 (#666): share-view URL - encode current camera/anim state in the
+                  hash so /the/url#3d-<id>=<base64> restores the exact pose.
+  Phase 4 (#666): measurement tool (bi-rulers), cross-section overlay
+                  (bi-scissors), and prefers-reduced-motion respect (suppress
+                  autoplay + auto-rotate + skip smooth tween on hash restore).
+                  Implementation lives in resources/js/heratio-3d-measure.js
+                  and resources/js/heratio-3d-cross-section.js; inlined below.
 --}}
 @props(['models' => collect(), 'resource' => null])
 
@@ -50,6 +57,10 @@
             alt="{{ e($model->alt_text ?? $model->model_title ?? 'Model') }}"
             camera-controls
             touch-action="pan-y"
+            data-auto-rotate-pref="{{ !empty($model->auto_rotate) ? '1' : '0' }}"
+            {{-- Phase 4 (#666): auto-rotate + autoplay are dropped at runtime
+                 when prefers-reduced-motion is set. The data-* attribute is the
+                 source of truth; the viewer JS toggles auto-rotate after load. --}}
             @if(!empty($model->auto_rotate)) auto-rotate @endif
             @if(!empty($model->ar_enabled)) ar ar-modes="webxr scene-viewer quick-look" @endif
             rotation-per-second="{{ $model->rotation_speed ?? 30 }}deg"
@@ -68,7 +79,7 @@
         </div>
       </div>
 
-      {{-- Phase 1 — animation playback toolbar.
+      {{-- Phase 1 - animation playback toolbar.
            Hidden by default; shown by JS once we confirm availableAnimations.length >= 1. --}}
       <div class="ahg-3d-anim-toolbar d-none align-items-center gap-2 mb-2 p-2 bg-light rounded"
            data-target="ahg-3d-viewer-{{ $model->id }}"
@@ -85,7 +96,7 @@
         <small class="text-muted ahg-3d-anim-time" style="min-width:80px;text-align:right;">00:00 / 00:00</small>
       </div>
 
-      {{-- Phase 2 — camera bookmark toolbar --}}
+      {{-- Phase 2 - camera bookmark toolbar --}}
       <div class="ahg-3d-bm-toolbar d-flex flex-wrap align-items-center gap-2 mb-2"
            data-target="ahg-3d-viewer-{{ $model->id }}"
            data-model-id="{{ $model->id }}"
@@ -106,12 +117,57 @@
             <i class="fas fa-bookmark me-1"></i>{{ __('Save current view') }}
           </button>
         @endauth
-        {{-- Phase 3 — share-view URL: copies a URL with the current camera
+        {{-- Phase 3 - share-view URL: copies a URL with the current camera
              state (orbit + target + fov + animation) encoded in the hash. --}}
         <button type="button" class="btn btn-sm atom-btn-white ahg-3d-share-view"
                 title="{{ __('Copy a link to this exact view') }}">
           <i class="fas fa-share-alt me-1"></i>{{ __('Share view') }}
         </button>
+      </div>
+
+      {{-- Phase 4 - measurement tool.
+           Click Measure, then click two points on the model; a distance label
+           appears between them. Esc cancels. Distance is in model units (metres
+           for glTF/glb by default). --}}
+      <div class="ahg-3d-measure-toolbar d-flex flex-wrap align-items-center gap-2 mb-2"
+           data-target="ahg-3d-viewer-{{ $model->id }}"
+           data-measure-units="m">
+        <button type="button" class="btn btn-sm atom-btn-white ahg-3d-measure-toggle"
+                aria-pressed="false"
+                title="{{ __('Measure distance between two points (Esc to cancel)') }}">
+          <i class="bi bi-rulers me-1"></i>{{ __('Measure') }}
+        </button>
+        <button type="button" class="btn btn-sm atom-btn-white ahg-3d-measure-clear"
+                title="{{ __('Clear measurement') }}">
+          <i class="bi bi-eraser me-1"></i>{{ __('Clear') }}
+        </button>
+        <small class="text-muted ahg-3d-measure-status" aria-live="polite"></small>
+      </div>
+
+      {{-- Phase 4 - cross-section view.
+           Activates a slice overlay along the chosen axis; slider moves the
+           slice along that axis. Esc deactivates and restores camera target. --}}
+      <div class="ahg-3d-cross-toolbar d-flex flex-wrap align-items-center gap-2 mb-2"
+           data-target="ahg-3d-viewer-{{ $model->id }}">
+        <button type="button" class="btn btn-sm atom-btn-white ahg-3d-cross-toggle"
+                aria-pressed="false"
+                title="{{ __('Cross-section view (Esc to cancel)') }}">
+          <i class="bi bi-scissors me-1"></i>{{ __('Cross-section') }}
+        </button>
+        <div class="ahg-3d-cross-controls d-none align-items-center gap-2 flex-grow-1">
+          <div class="btn-group btn-group-sm" role="group" aria-label="{{ __('Slice axis') }}">
+            <input type="radio" class="btn-check" name="ahg-3d-cross-axis-{{ $model->id }}" id="ahg-3d-cross-axis-{{ $model->id }}-x" value="x" checked>
+            <label class="btn btn-outline-secondary" for="ahg-3d-cross-axis-{{ $model->id }}-x">X</label>
+            <input type="radio" class="btn-check" name="ahg-3d-cross-axis-{{ $model->id }}" id="ahg-3d-cross-axis-{{ $model->id }}-y" value="y">
+            <label class="btn btn-outline-secondary" for="ahg-3d-cross-axis-{{ $model->id }}-y">Y</label>
+            <input type="radio" class="btn-check" name="ahg-3d-cross-axis-{{ $model->id }}" id="ahg-3d-cross-axis-{{ $model->id }}-z" value="z">
+            <label class="btn btn-outline-secondary" for="ahg-3d-cross-axis-{{ $model->id }}-z">Z</label>
+          </div>
+          <input type="range" class="form-range ahg-3d-cross-slider flex-grow-1"
+                 min="0" max="100" step="1" value="50"
+                 aria-label="{{ __('Slice position') }}" style="max-width:240px;">
+          <small class="text-muted ahg-3d-cross-value" aria-live="polite" style="min-width:120px;">X: +0.000 m</small>
+        </div>
       </div>
     @endif
 
@@ -161,6 +217,7 @@
                 src="/uploads/{{ $model->file_path }}"
                 alt="{{ e($model->alt_text ?? $model->model_title ?? 'Model') }}"
                 camera-controls touch-action="pan-y"
+                data-auto-rotate-pref="{{ !empty($model->auto_rotate) ? '1' : '0' }}"
                 @if(!empty($model->auto_rotate)) auto-rotate @endif
                 @if(!empty($model->ar_enabled)) ar ar-modes="webxr scene-viewer quick-look" @endif
                 style="width:100%; height:100%; background-color: {{ $model->background_color ?? '#f5f5f5' }};"
@@ -202,11 +259,49 @@
                 <i class="fas fa-bookmark me-1"></i>{{ __('Save current view') }}
               </button>
             @endauth
-            {{-- Phase 3 — share-view URL --}}
+            {{-- Phase 3 - share-view URL --}}
             <button type="button" class="btn btn-sm atom-btn-white ahg-3d-share-view"
                     title="{{ __('Copy a link to this exact view') }}">
               <i class="fas fa-share-alt me-1"></i>{{ __('Share view') }}
             </button>
+          </div>
+
+          {{-- Phase 4 - measurement + cross-section toolbars (tabbed branch) --}}
+          <div class="ahg-3d-measure-toolbar d-flex flex-wrap align-items-center gap-2 mb-2"
+               data-target="ahg-3d-viewer-{{ $model->id }}"
+               data-measure-units="m">
+            <button type="button" class="btn btn-sm atom-btn-white ahg-3d-measure-toggle"
+                    aria-pressed="false"
+                    title="{{ __('Measure distance between two points (Esc to cancel)') }}">
+              <i class="bi bi-rulers me-1"></i>{{ __('Measure') }}
+            </button>
+            <button type="button" class="btn btn-sm atom-btn-white ahg-3d-measure-clear"
+                    title="{{ __('Clear measurement') }}">
+              <i class="bi bi-eraser me-1"></i>{{ __('Clear') }}
+            </button>
+            <small class="text-muted ahg-3d-measure-status" aria-live="polite"></small>
+          </div>
+          <div class="ahg-3d-cross-toolbar d-flex flex-wrap align-items-center gap-2 mb-2"
+               data-target="ahg-3d-viewer-{{ $model->id }}">
+            <button type="button" class="btn btn-sm atom-btn-white ahg-3d-cross-toggle"
+                    aria-pressed="false"
+                    title="{{ __('Cross-section view (Esc to cancel)') }}">
+              <i class="bi bi-scissors me-1"></i>{{ __('Cross-section') }}
+            </button>
+            <div class="ahg-3d-cross-controls d-none align-items-center gap-2 flex-grow-1">
+              <div class="btn-group btn-group-sm" role="group" aria-label="{{ __('Slice axis') }}">
+                <input type="radio" class="btn-check" name="ahg-3d-cross-axis-{{ $model->id }}" id="ahg-3d-cross-axis-{{ $model->id }}-x" value="x" checked>
+                <label class="btn btn-outline-secondary" for="ahg-3d-cross-axis-{{ $model->id }}-x">X</label>
+                <input type="radio" class="btn-check" name="ahg-3d-cross-axis-{{ $model->id }}" id="ahg-3d-cross-axis-{{ $model->id }}-y" value="y">
+                <label class="btn btn-outline-secondary" for="ahg-3d-cross-axis-{{ $model->id }}-y">Y</label>
+                <input type="radio" class="btn-check" name="ahg-3d-cross-axis-{{ $model->id }}" id="ahg-3d-cross-axis-{{ $model->id }}-z" value="z">
+                <label class="btn btn-outline-secondary" for="ahg-3d-cross-axis-{{ $model->id }}-z">Z</label>
+              </div>
+              <input type="range" class="form-range ahg-3d-cross-slider flex-grow-1"
+                     min="0" max="100" step="1" value="50"
+                     aria-label="{{ __('Slice position') }}" style="max-width:240px;">
+              <small class="text-muted ahg-3d-cross-value" aria-live="polite" style="min-width:120px;">X: +0.000 m</small>
+            </div>
           </div>
 
           <small class="text-muted mt-1 d-block">
@@ -229,11 +324,29 @@ if (!customElements.get('model-viewer')) {
 }
 </script>
 
-{{-- Phase 1 + Phase 2 controller. Idempotent — guarded by a single global flag. --}}
+{{-- Phase 1 + Phase 2 controller. Idempotent - guarded by a single global flag. --}}
 <script>
 (function () {
   if (window.__ahg3dViewerInit) { return; }
   window.__ahg3dViewerInit = true;
+
+  // Phase 4 (#666): honour prefers-reduced-motion. We disable autoplay,
+  // auto-rotate, and snap-restore share-view instead of tweening.
+  var REDUCED_MOTION = (function () {
+    try {
+      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (e) { return false; }
+  })();
+  window.__ahg3dReducedMotion = REDUCED_MOTION;
+
+  function applyReducedMotion(viewer) {
+    if (!REDUCED_MOTION || !viewer) return;
+    try { viewer.removeAttribute('auto-rotate'); } catch (e) {}
+    try { viewer.removeAttribute('autoplay'); } catch (e) {}
+    try { viewer.autoRotate = false; } catch (e) {}
+    try { viewer.autoplay = false; } catch (e) {}
+    try { viewer.pause(); } catch (e) {}
+  }
 
   function csrfToken() {
     var m = document.querySelector('meta[name="csrf-token"]');
@@ -283,7 +396,7 @@ if (!customElements.get('model-viewer')) {
         nameSel.value = viewer.animationName || anims[0];
       }
 
-      // Start paused — user-driven playback.
+      // Start paused - user-driven playback.
       try { viewer.pause(); } catch (e) {}
       setPlayIcon(true);
       timeEl.textContent = '00:00 / ' + fmt(viewer.duration || 0);
@@ -362,7 +475,7 @@ if (!customElements.get('model-viewer')) {
         var label = escapeHtml(bm.name) + (bm.is_default ? ' <i class="fas fa-star text-warning ms-1"></i>' : '');
         var canEdit = (currentUserId !== null) &&
           ((bm.user_id !== null && bm.user_id === currentUserId) ||
-           (bm.user_id === null /* shared — admin will be allowed by server */));
+           (bm.user_id === null /* shared - admin will be allowed by server */));
         var del = canEdit
           ? ' <button type="button" class="btn btn-link btn-sm p-0 ms-2 text-danger ahg-3d-bm-del" data-id="' + bm.id + '" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button>'
           : '';
@@ -449,10 +562,24 @@ if (!customElements.get('model-viewer')) {
   }
   function applyState(viewer, state) {
     if (!state) return;
+    // Phase 4 (#666): under prefers-reduced-motion, snap to the pose instead
+    // of running model-viewer's smooth camera tween. We temporarily zero
+    // interpolationDecay (the default is ~50ms), apply, then restore so
+    // subsequent user-driven moves still tween normally.
+    var savedDecay = null;
+    if (REDUCED_MOTION) {
+      try { savedDecay = viewer.interpolationDecay; viewer.interpolationDecay = 0; } catch (e) {}
+    }
     if (state.orbit)  viewer.cameraOrbit  = state.orbit;
     if (state.target) viewer.cameraTarget = state.target;
     if (state.fov)    viewer.fieldOfView  = state.fov;
     if (state.anim)   viewer.animationName = state.anim;
+    if (REDUCED_MOTION && savedDecay !== null) {
+      // Restore on next frame so the snap is committed first.
+      window.requestAnimationFrame(function () {
+        try { viewer.interpolationDecay = savedDecay; } catch (e) {}
+      });
+    }
   }
   function encodeHash(modelId, state) {
     try {
@@ -512,6 +639,19 @@ if (!customElements.get('model-viewer')) {
   }
 
   function init() {
+    // Phase 4 (#666): suppress autoplay + auto-rotate on every viewer when
+    // the user has prefers-reduced-motion. We run this before any toolbar
+    // wiring so the animation toolbar sees the paused state and renders the
+    // play icon (it pauses on init anyway, but this also strips the
+    // auto-rotate attribute on the element itself for the share-view case).
+    Array.prototype.forEach.call(
+      document.querySelectorAll('model-viewer[data-model-id]'),
+      function (viewer) {
+        applyReducedMotion(viewer);
+        if (viewer.loaded) { applyReducedMotion(viewer); }
+        else { viewer.addEventListener('load', function () { applyReducedMotion(viewer); }, { once: true }); }
+      }
+    );
     Array.prototype.forEach.call(
       document.querySelectorAll('.ahg-3d-anim-toolbar'),
       wireAnimToolbar
@@ -533,4 +673,26 @@ if (!customElements.get('model-viewer')) {
   }
 })();
 </script>
+
+{{-- Phase 4 (#666): inline the measurement + cross-section JS so the package
+     works without `php artisan vendor:publish`. The canonical source-of-truth
+     stays in packages/ahg-3d-model/resources/js/heratio-3d-*.js - this just
+     embeds the bytes at render time. Both scripts are idempotent IIFEs guarded
+     by window.__ahg3dMeasureInit / window.__ahg3dCrossSectionInit, so embedding
+     them inline multiple times on a page (one per model) is harmless. --}}
+@php
+    $ahg3dJsBase = dirname(__DIR__) . '/js';
+    $ahg3dMeasureJs = @file_get_contents($ahg3dJsBase . '/heratio-3d-measure.js') ?: '';
+    $ahg3dCrossJs   = @file_get_contents($ahg3dJsBase . '/heratio-3d-cross-section.js') ?: '';
+@endphp
+@if($ahg3dMeasureJs !== '')
+<script id="ahg-3d-measure-inline">
+{!! $ahg3dMeasureJs !!}
+</script>
+@endif
+@if($ahg3dCrossJs !== '')
+<script id="ahg-3d-cross-section-inline">
+{!! $ahg3dCrossJs !!}
+</script>
+@endif
 @endif

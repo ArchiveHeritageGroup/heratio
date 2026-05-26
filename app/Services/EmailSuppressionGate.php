@@ -28,11 +28,49 @@
 
 namespace App\Services;
 
+use App\Events\MailSuppressed;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 
 class EmailSuppressionGate
 {
+    /**
+     * Phase 3 of #674. Audit-friendly wrapper around isSuppressed() -
+     * when the gate trips, emit a MailSuppressed event so EmailAuditListener
+     * can record a status=suppressed row in ahg_sent_email. Callers that
+     * need the audit trail (every Phase-2 Mailable dispatch site) should
+     * use this in preference to isSuppressed() directly.
+     *
+     * Returns true when the dispatch should proceed, false when blocked.
+     *
+     * Usage:
+     *   if (EmailSuppressionGate::canSend($email, MyMail::class, $subject)) {
+     *       Mail::to($email)->queue($mail);
+     *   }
+     */
+    public static function canSend(?string $email, ?string $mailableClass = null, ?string $subject = null, ?int $tenantId = null): bool
+    {
+        if (self::isSuppressed($email)) {
+            try {
+                Event::dispatch(new MailSuppressed(
+                    recipientEmail: (string) $email,
+                    mailableClass: $mailableClass,
+                    subject: $subject,
+                    reason: 'bounce/complaint suppression list',
+                    tenantId: $tenantId,
+                    locale: (string) app()->getLocale(),
+                ));
+            } catch (\Throwable $e) {
+                // never let audit failure block the caller
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
     public static function isSuppressed(?string $email): bool
     {
         $email = strtolower(trim((string) $email));

@@ -81,4 +81,23 @@ return [
     'queues' => [
         ['connection' => null, 'queue' => 'default'],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Prometheus textfile collector directory
+    |--------------------------------------------------------------------------
+    |
+    | Directory that node_exporter is configured to scan for *.prom files via
+    | its `--collector.textfile.directory=<dir>` flag. The
+    | `ai-compliance:emit-metrics` command writes
+    | `heratio_ai_compliance.prom` here so the synthetic
+    | `ai_compliance_verify_status` gauge (1=PASS, 0=FAIL) can drive the
+    | InferenceChainBroken alert (see config/alerts/heratio.rules.yml).
+    |
+    | Default `/var/lib/node_exporter/textfile_collector` matches the
+    | upstream Debian package; override via env on hosts that put it
+    | elsewhere.
+    |
+    */
+    'textfile_dir' => env('OBSERVABILITY_TEXTFILE_DIR', '/var/lib/node_exporter/textfile_collector'),
 ];
