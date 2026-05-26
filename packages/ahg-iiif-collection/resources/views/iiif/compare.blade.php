@@ -7,7 +7,7 @@
 </head>
 <body>
 <div id="mirador-compare"></div>
-<script src="{{ asset('vendor/mirador/mirador.min.js') }}"></script>
+<script src="{{ asset('vendor/ahg-theme-b5/js/vendor/mirador/mirador.min.js') }}"></script>
 <script>
 var manifests = @json($manifests ?? []);
 var windows = manifests.map(function(url) { return { manifestId: url, canvasIndex: 0 }; });

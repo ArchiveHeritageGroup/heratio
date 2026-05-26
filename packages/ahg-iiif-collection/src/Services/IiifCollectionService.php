@@ -653,6 +653,15 @@ class IiifCollectionService
             }
         }
 
+        // Issue #738 - advertise IIIF Content Search 2.0 + AutoComplete 2
+        // on the Pres 3 manifest as well. The V2 emitter already does this;
+        // omitting it on V3 breaks Mirador's content-search plugin auto-
+        // discovery (the search box never appears against a V3 manifest
+        // even though the /iiif-manifest/{slug}/search + /autocomplete
+        // endpoints are live). The same helper is reused so the URL layout
+        // stays defined in IiifContentSearchService::buildServiceBlock().
+        self::appendSearchService($manifest, $object->slug);
+
         return $manifest;
     }
 
