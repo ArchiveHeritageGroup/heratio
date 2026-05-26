@@ -43,10 +43,17 @@ class RequireMfaCompletion
      * Paths the user is allowed to hit while pending_mfa is set. Anything
      * else under the auth.required middleware group bounces back to the
      * verify page until they complete the second factor.
+     *
+     * Issue #721 added the chooser + WebAuthn assertion endpoints so users
+     * with a passkey can clear the gate without an authenticator-app code.
      */
     private const ALLOWED_PATHS = [
         'security-clearance/two-factor',
+        'security-clearance/two-factor/choose',
         'security-clearance/verify-2fa',
+        'security/2fa/webauthn/verify',
+        'security/2fa/webauthn/assert/begin',
+        'security/2fa/webauthn/assert/complete',
         'logout',
     ];
 

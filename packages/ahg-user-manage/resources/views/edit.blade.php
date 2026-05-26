@@ -205,6 +205,29 @@
         </div>
       </div>
 
+      {{-- Preferred locale (#675 Phase 3) --}}
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#preferredLocale-collapse" aria-expanded="true">{{ __('Preferred language') }}</button>
+        </h2>
+        <div id="preferredLocale-collapse" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            <div class="mb-3">
+              <label for="preferred_locale" class="form-label">{{ __('Preferred language') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <select name="preferred_locale" id="preferred_locale" class="form-select">
+                <option value="">{{ __('Use site default / browser preference') }}</option>
+                @foreach(($availableLanguages ?? []) as $lang)
+                  <option value="{{ $lang }}" {{ old('preferred_locale', $user->preferred_locale ?? '') === $lang ? 'selected' : '' }}>
+                    {{ locale_get_display_language($lang, app()->getLocale()) ?: strtoupper($lang) }} ({{ $lang }})
+                  </option>
+                @endforeach
+              </select>
+              <div class="form-text">{{ __('Heratio will display the UI in this language whenever you are signed in. Leave blank to fall back to the URL / cookie / browser preference chain.') }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {{-- Allowed languages for translation --}}
       <div class="accordion-item">
         <h2 class="accordion-header">

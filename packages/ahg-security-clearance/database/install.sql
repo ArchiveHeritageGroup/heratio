@@ -469,4 +469,44 @@ CREATE TABLE IF NOT EXISTS `user_mfa_recovery_code` (
   CONSTRAINT `fk_mfa_recovery_user` FOREIGN KEY (`user_id`) REFERENCES `user_totp_secret`(`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- ────────────────────────────────────────────────────────────────────────────
+-- WebAuthn / FIDO2 / passkeys (issue #721) — opt-in per user, sibling to TOTP.
+--
+-- A user can enrol any number of authenticators (platform passkey, hardware
+-- key, etc.) alongside TOTP. Login flow asks "TOTP or passkey?" when both are
+-- enrolled and routes to whichever the user picks.
+--
+-- credential_id   = the binary credential ID returned by the authenticator
+--                   (PublicKeyCredentialSource::publicKeyCredentialId). Stored
+--                   as VARBINARY so we can UNIQUE-index it.
+-- public_key      = the COSE-encoded PublicKeyCredentialSource serialised as
+--                   JSON (the webauthn-lib repository format). Restored on
+--                   assertion to recover the credential source.
+-- aaguid          = authenticator model identifier (UUID v4); empty for
+--                   non-attesting authenticators.
+-- sign_count      = monotonic counter from the authenticator; replay-detection
+--                   gate (assertion rejected if not strictly greater than
+--                   stored value, when both sides emit a counter).
+-- transports      = JSON array of "usb"/"nfc"/"ble"/"internal"/"hybrid" hints.
+-- label           = user-friendly name (e.g. "YubiKey 5C", "MacBook Touch ID").
+-- last_used_at    = updated on every successful assertion.
+-- ────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS `ahg_webauthn_credential` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int unsigned NOT NULL,
+  `credential_id` varbinary(512) NOT NULL,
+  `public_key` mediumblob NOT NULL,
+  `attestation_type` varchar(32) NOT NULL DEFAULT 'none',
+  `aaguid` char(36) DEFAULT NULL,
+  `sign_count` bigint unsigned NOT NULL DEFAULT '0',
+  `transports` json DEFAULT NULL,
+  `label` varchar(255) NOT NULL DEFAULT '',
+  `last_used_at` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_webauthn_credential_id` (`credential_id`),
+  KEY `idx_webauthn_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

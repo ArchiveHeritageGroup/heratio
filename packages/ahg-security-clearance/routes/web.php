@@ -1,6 +1,7 @@
 <?php
 
 use AhgSecurityClearance\Controllers\SecurityClearanceController;
+use AhgSecurityClearance\Controllers\WebAuthnController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -183,6 +184,36 @@ Route::middleware('auth')->group(function () {
         ->name('security-clearance.disable-2fa');
     Route::post('/security-clearance/disable-2fa', [SecurityClearanceController::class, 'disableTwoFactor'])
         ->name('security-clearance.disable-2fa.confirm');
+
+    // WebAuthn / FIDO2 / passkey MFA routes (issue #721)
+    // /security/2fa/webauthn/* — sibling factor to TOTP. A user with TOTP
+    // enrolled can also enrol a passkey; login flow asks which to use when
+    // both are present.
+    Route::get('/security/2fa/webauthn', [WebAuthnController::class, 'setupPage'])
+        ->name('security-clearance.webauthn.list');
+    Route::get('/security/2fa/webauthn/add', [WebAuthnController::class, 'addPage'])
+        ->name('security-clearance.webauthn.add');
+    Route::post('/security/2fa/webauthn/register/begin', [WebAuthnController::class, 'registerBegin'])
+        ->name('security-clearance.webauthn.register-begin');
+    Route::post('/security/2fa/webauthn/register/complete', [WebAuthnController::class, 'registerComplete'])
+        ->name('security-clearance.webauthn.register-complete');
+    Route::post('/security/2fa/webauthn/{id}/delete', [WebAuthnController::class, 'delete'])
+        ->name('security-clearance.webauthn.delete')
+        ->where('id', '[0-9]+');
+
+    // Login-time assertion endpoints (pending_mfa session flag set). These
+    // intentionally sit outside the admin-only block so the user can hit
+    // them while gated by RequireMfaCompletion.
+    Route::get('/security/2fa/webauthn/verify', [WebAuthnController::class, 'verifyPage'])
+        ->name('security-clearance.webauthn.verify');
+    Route::post('/security/2fa/webauthn/assert/begin', [WebAuthnController::class, 'assertBegin'])
+        ->name('security-clearance.webauthn.assert-begin');
+    Route::post('/security/2fa/webauthn/assert/complete', [WebAuthnController::class, 'assertComplete'])
+        ->name('security-clearance.webauthn.assert-complete');
+
+    // Chooser shown when both TOTP + WebAuthn are enrolled.
+    Route::get('/security-clearance/two-factor/choose', [SecurityClearanceController::class, 'twoFactorChooser'])
+        ->name('security-clearance.two-factor-choose');
 });
 
 // ── Legacy redirects (ahgSecurityClearancePlugin compatibility) ─────────────

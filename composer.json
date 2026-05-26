@@ -34,6 +34,7 @@
         "ahg/audit-trail": "@dev",
         "ahg/authority-resolution": "@dev",
         "ahg/backup": "@dev",
+        "ahg/c2pa": "@dev",
         "ahg/cart": "@dev",
         "ahg/cdpa": "@dev",
         "ahg/condition": "@dev",
@@ -91,6 +92,7 @@
         "ahg/nmmz": "@dev",
         "ahg/oai": "@dev",
         "ahg/observability": "@dev",
+        "ahg/ocfl": "@dev",
         "ahg/pdf-tools": "@dev",
         "ahg/portable-export": "@dev",
         "ahg/preservation": "@dev",
@@ -131,7 +133,8 @@
         "laravel/tinker": "^2.10.1",
         "phpoffice/phpspreadsheet": "^5.5",
         "pragmarx/google2fa": "^8.0",
-        "spatie/laravel-csp": "^3.23"
+        "spatie/laravel-csp": "^3.23",
+        "web-auth/webauthn-lib": "^5.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -149,7 +152,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/csp.php"
+            "app/Helpers/csp.php",
+            "app/Helpers/i18n.php"
         ]
     },
     "autoload-dev": {

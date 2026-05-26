@@ -1,0 +1,66 @@
+{
+    "name": "ahg/c2pa",
+    "description": "Heratio - C2PA 2.1 content provenance manifests for AI-touched archival content. Builds, signs (Ed25519), and emits manifests as sidecars or JUMBF-embedded JPEGs.",
+    "type": "library",
+    "license": "AGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Johan Pieterse",
+            "email": "johan@plainsailingisystems.co.za",
+            "homepage": "https://theahg.co.za"
+        }
+    ],
+    "keywords": [
+        "c2pa",
+        "content-provenance",
+        "ai-generated",
+        "manifest",
+        "ed25519",
+        "jcs",
+        "rfc8785",
+        "eu-ai-act",
+        "heratio"
+    ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../*",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "ext-sodium": "*",
+        "ext-json": "*",
+        "ahg/inference-receipts": "@dev",
+        "ahg/core": "@dev",
+        "illuminate/support": "^12.0"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "phpunit/phpunit": "^10.0|^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgC2pa\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AhgC2pa\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgC2pa\\Providers\\AhgC2paServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

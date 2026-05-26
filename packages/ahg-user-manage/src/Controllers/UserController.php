@@ -152,6 +152,8 @@ class UserController extends Controller
             'contact_website' => 'nullable|url|max:1024',
             'contact_note' => 'nullable|string',
             'translate' => 'nullable|array',
+            // #675 Phase 3 - blank = "no preference" (fall back to URL/cookie/browser).
+            'preferred_locale' => 'nullable|string|max:8|regex:/^[A-Za-z]{2}(_[A-Za-z]{2})?$/',
         ]);
 
         $data = $request->only([
@@ -159,6 +161,7 @@ class UserController extends Controller
             'contact_telephone', 'contact_fax', 'contact_street_address',
             'contact_city', 'contact_region', 'contact_postal_code',
             'contact_country_code', 'contact_website', 'contact_note',
+            'preferred_locale',
         ]);
         $data['active'] = $request->has('active') ? 1 : 0;
         $data['groups'] = $request->input('groups', []);
@@ -194,6 +197,8 @@ class UserController extends Controller
             'contact_website' => 'nullable|url|max:1024',
             'contact_note' => 'nullable|string',
             'translate' => 'nullable|array',
+            // #675 Phase 3 - blank = "no preference" (fall back to URL/cookie/browser).
+            'preferred_locale' => 'nullable|string|max:8|regex:/^[A-Za-z]{2}(_[A-Za-z]{2})?$/',
         ]);
 
         $data = $request->only([
@@ -201,7 +206,12 @@ class UserController extends Controller
             'contact_telephone', 'contact_fax', 'contact_street_address',
             'contact_city', 'contact_region', 'contact_postal_code',
             'contact_country_code', 'contact_website', 'contact_note',
+            'preferred_locale',
         ]);
+        // Normalise blank-string -> null so we don't write '' to a CHAR column.
+        if (array_key_exists('preferred_locale', $data) && $data['preferred_locale'] === '') {
+            $data['preferred_locale'] = null;
+        }
         $data['active'] = $request->has('active') ? 1 : 0;
         $data['groups'] = $request->input('groups', []);
         $data['translate'] = $request->input('translate', []);

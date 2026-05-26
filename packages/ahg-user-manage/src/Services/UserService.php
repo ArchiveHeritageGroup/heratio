@@ -61,6 +61,29 @@ class UserService
      */
     public function getById(int $id): ?object
     {
+        $select = [
+            'user.id',
+            'user.username',
+            'user.email',
+            'user.active',
+            'user.password_hash',
+            'user.salt',
+            'actor.entity_type_id',
+            'actor.parent_id',
+            'actor.source_culture',
+            'actor_i18n.authorized_form_of_name',
+            'object.created_at',
+            'object.updated_at',
+            'object.serial_number',
+            'slug.slug',
+        ];
+        // #675 Phase 3 - surface preferred_locale to views/services when the
+        // schema has the column (post-migration). Pre-migration installs just
+        // see a missing property; callers use `$user->preferred_locale ?? null`.
+        if (\Illuminate\Support\Facades\Schema::hasColumn('user', 'preferred_locale')) {
+            $select[] = 'user.preferred_locale';
+        }
+
         $user = DB::table('user')
             ->join('actor', 'user.id', '=', 'actor.id')
             ->join('object', 'user.id', '=', 'object.id')
@@ -70,22 +93,7 @@ class UserService
                     ->where('actor_i18n.culture', '=', $this->culture);
             })
             ->where('user.id', $id)
-            ->select([
-                'user.id',
-                'user.username',
-                'user.email',
-                'user.active',
-                'user.password_hash',
-                'user.salt',
-                'actor.entity_type_id',
-                'actor.parent_id',
-                'actor.source_culture',
-                'actor_i18n.authorized_form_of_name',
-                'object.created_at',
-                'object.updated_at',
-                'object.serial_number',
-                'slug.slug',
-            ])
+            ->select($select)
             ->first();
 
         if (! $user) {
@@ -262,14 +270,20 @@ class UserService
             $passwordHash = password_hash($sha1Hash, $hashAlgo);
 
             // User row
-            DB::table('user')->insert([
+            $userRow = [
                 'id' => $id,
                 'username' => $data['username'] ?? '',
                 'email' => $data['email'] ?? '',
                 'password_hash' => $passwordHash,
                 'salt' => $salt,
                 'active' => isset($data['active']) ? (int) $data['active'] : 1,
-            ]);
+            ];
+            // #675 Phase 3 - only set the column when present on the schema; older
+            // installs (before the 2026_05_25 / 2026_05_26 migrations) won't have it.
+            if (array_key_exists('preferred_locale', $data) && \Illuminate\Support\Facades\Schema::hasColumn('user', 'preferred_locale')) {
+                $userRow['preferred_locale'] = $data['preferred_locale'] ?: null;
+            }
+            DB::table('user')->insert($userRow);
 
             // Always assign 'Authenticated' group (99)
             DB::table('acl_user_group')->insert([
@@ -316,6 +330,11 @@ class UserService
             }
             if (isset($data['active'])) {
                 $updateFields['active'] = (int) $data['active'];
+            }
+            // #675 Phase 3 - preferred_locale. array_key_exists rather than isset
+            // so an explicit null (the user cleared their preference) goes through.
+            if (array_key_exists('preferred_locale', $data) && \Illuminate\Support\Facades\Schema::hasColumn('user', 'preferred_locale')) {
+                $updateFields['preferred_locale'] = $data['preferred_locale'] ?: null;
             }
 
             // Update password only if provided

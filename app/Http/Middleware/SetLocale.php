@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -13,12 +14,20 @@ class SetLocale
 {
     public function handle(Request $request, Closure $next)
     {
-        // Resolution order (matches AtoM, extended with #675 Accept-Language fallback):
-        //   1. URL param      ?sf_culture=xx  (explicit override, also seeds cookie)
-        //   2. Session         session('locale')
-        //   3. Cookie          request->cookie('locale')  (365-day persistence)
-        //   4. Accept-Language HTTP header     (first-time visitor heuristic, #675 Phase 1)
-        //   5. App default     config('app.locale')       (Laravel's existing fallback)
+        // Resolution order (#675 Phase 1+2+3):
+        //   1. URL param        ?sf_culture=xx  (explicit override, also seeds cookie)
+        //   2. Session           session('locale')
+        //   3. Cookie            request->cookie('locale')  (365-day persistence)
+        //   4. User preference   Auth::user()->preferred_locale  (#675 Phase 3)
+        //   5. Accept-Language   HTTP header                (#675 Phase 1)
+        //   6. App default       config('app.locale')       (Laravel's existing fallback)
+        //
+        // User preference (step 4) deliberately sits BELOW URL/session/cookie:
+        // those three express in-session intent ("I just clicked the language
+        // switcher / I have a sticky cookie from a previous visit"). The user
+        // preference is the durable per-account default - it kicks in when
+        // none of the in-session signals are set, which is typically the very
+        // first request after a fresh login on a new device.
         $culture = $request->query('sf_culture');
 
         if ($culture && $this->isValidCulture($culture)) {
@@ -35,6 +44,9 @@ class SetLocale
                 App::setLocale($cookieLocale);
                 session(['locale' => $cookieLocale]);
             }
+        } elseif ($userLocale = $this->resolveFromAuthenticatedUser()) {
+            App::setLocale($userLocale);
+            session(['locale' => $userLocale]);
         } elseif ($acceptLocale = $this->resolveFromAcceptLanguage($request)) {
             // #675 Phase 1: only triggers when URL/session/cookie ALL missing —
             // i.e. first-time anonymous visitor. We DON'T persist via cookie
@@ -61,6 +73,52 @@ class SetLocale
         $response->headers->set('Content-Language', App::getLocale());
 
         return $response;
+    }
+
+    /**
+     * Resolve the authenticated user's saved `preferred_locale`, falling
+     * through silently when:
+     *   - no user is logged in,
+     *   - the `user` table has no `preferred_locale` column (fresh install
+     *     before the #675 Phase 3 migration runs), or
+     *   - the saved value isn't in the supported / enabled set (operator may
+     *     have disabled a locale since the user picked it).
+     *
+     * The lookup uses Auth::id() + a single column query against the `user`
+     * table rather than reading $authUser->preferred_locale directly because
+     * AhgCore\Models\User extends Actor and does not auto-include the
+     * Phase-3 column in $appends. A 1-column DB::table hit is cheap and
+     * avoids forcing the model layer to know about this attribute.
+     *
+     * @internal #675 Phase 3
+     */
+    private function resolveFromAuthenticatedUser(): ?string
+    {
+        try {
+            if (! Auth::check()) {
+                return null;
+            }
+            $id = Auth::id();
+            if (! $id) {
+                return null;
+            }
+            if (! Schema::hasTable('user') || ! Schema::hasColumn('user', 'preferred_locale')) {
+                return null;
+            }
+            $value = DB::table('user')->where('id', $id)->value('preferred_locale');
+            if (! is_string($value) || $value === '') {
+                return null;
+            }
+            if (! $this->isValidCulture($value)) {
+                return null;
+            }
+
+            return $value;
+        } catch (\Throwable $e) {
+            // Auth facade not bound (CLI), DB unavailable (boot-time middleware
+            // dry-run), etc - silently fall through to the next resolution step.
+            return null;
+        }
     }
 
     /**

@@ -1,0 +1,46 @@
+{
+    "name": "ahg/ocfl",
+    "description": "OCFL v1.1 (Oxford Common File Layout) storage layer for Heratio - versioned, hash-addressable archival object store with sha512 fixity, deterministic inventory.json, and Laravel filesystem abstraction (local / S3 / Wasabi).",
+    "type": "library",
+    "license": "AGPL-3.0-or-later",
+    "keywords": [
+        "ocfl",
+        "preservation",
+        "digital-preservation",
+        "fixity",
+        "sha512",
+        "namaste",
+        "archival-storage"
+    ],
+    "authors": [
+        {
+            "name": "Johan Pieterse",
+            "email": "johan@plainsailingisystems.co.za",
+            "homepage": "https://theahg.co.za"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ahg/core": "@dev",
+        "paragonie/constant_time_encoding": "^2.6 || ^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgOcfl\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AhgOcfl\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgOcfl\\Providers\\AhgOcflServiceProvider"
+            ]
+        }
+    }
+}

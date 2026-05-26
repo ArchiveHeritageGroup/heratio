@@ -72,18 +72,92 @@ class MetsSerializerTest extends TestCase
         $this->assertSame(1, $xpath->query('//mets:fileSec')->length, 'expected exactly one <fileSec>');
         $this->assertGreaterThanOrEqual(1, $xpath->query('//mets:structMap')->length, 'expected at least one <structMap>');
 
-        // PROFILE attribute on the root element
+        // PROFILE attribute on the root element (default = AIP)
         $root = $dom->documentElement;
-        $this->assertSame(MetsSerializer::PROFILE, $root->getAttribute('PROFILE'));
+        $this->assertSame(MetsSerializer::PROFILE_AIP, $root->getAttribute('PROFILE'));
     }
 
     /**
-     * Constants stay stable — guard against silent renames.
+     * Phase 4: profile-aware emit. SIP / AIP / DIP each set the
+     * matching PROFILE URI on the root <mets> element and SIP / DIP
+     * adjust the amdSec + fileSec content.
+     */
+    public function test_profile_separation(): void
+    {
+        try {
+            if (! Schema::hasTable('information_object')) {
+                $this->markTestSkipped('information_object table not present in test DB');
+            }
+        } catch (\Throwable $e) {
+            $this->markTestSkipped('Database unavailable in test environment: '.$e->getMessage());
+        }
+
+        $row = DB::table('information_object as io')
+            ->join('information_object_i18n as i18n', function ($j) {
+                $j->on('io.id', '=', 'i18n.id');
+            })
+            ->where('io.id', '>', 1)
+            ->limit(1)
+            ->value('io.id');
+
+        if (! $row) {
+            $this->markTestSkipped('No information_object rows in test DB');
+        }
+
+        $serializer = new MetsSerializer();
+        $expected = [
+            'SIP' => MetsSerializer::PROFILE_SIP,
+            'AIP' => MetsSerializer::PROFILE_AIP,
+            'DIP' => MetsSerializer::PROFILE_DIP,
+        ];
+        foreach ($expected as $profile => $uri) {
+            $xml = $serializer->serializeRecord((int) $row, 'en', $profile);
+            $dom = new DOMDocument();
+            $this->assertTrue($dom->loadXML($xml), "{$profile} XML failed to parse");
+            $this->assertSame($uri, $dom->documentElement->getAttribute('PROFILE'), "{$profile} PROFILE URI mismatch");
+
+            $xpath = new DOMXPath($dom);
+            $xpath->registerNamespace('mets', MetsSerializer::NS_METS);
+
+            // DIP must NOT carry PREMIS digiprovMD - it's the sanitised
+            // public surface. SIP also omits digiprovMD (no forensic trace
+            // at submission). AIP keeps the full chain.
+            $digiprov = $xpath->query('//mets:digiprovMD')->length;
+            if ($profile === 'AIP') {
+                $this->assertGreaterThanOrEqual(0, $digiprov, 'AIP may include digiprovMD');
+            } else {
+                $this->assertSame(0, $digiprov, "{$profile} must not emit digiprovMD");
+            }
+
+            // rightsMD is always present across the three profiles
+            $this->assertGreaterThanOrEqual(1, $xpath->query('//mets:rightsMD')->length, "{$profile} missing rightsMD");
+        }
+    }
+
+    /**
+     * Constants stay stable - guard against silent renames.
      */
     public function test_namespace_constants(): void
     {
         $this->assertSame('http://www.loc.gov/METS/', MetsSerializer::NS_METS);
         $this->assertSame('http://www.w3.org/1999/xlink', MetsSerializer::NS_XLINK);
-        $this->assertSame('https://heratio.theahg.co.za/profiles/mets/io-v1', MetsSerializer::PROFILE);
+        $this->assertSame('https://heratio.theahg.co.za/profiles/mets/io-aip-v1', MetsSerializer::PROFILE_AIP);
+        $this->assertSame('https://heratio.theahg.co.za/profiles/mets/io-sip-v1', MetsSerializer::PROFILE_SIP);
+        $this->assertSame('https://heratio.theahg.co.za/profiles/mets/io-dip-v1', MetsSerializer::PROFILE_DIP);
+        // Back-compat alias still points at AIP for any old caller
+        $this->assertSame(MetsSerializer::PROFILE_AIP, MetsSerializer::PROFILE);
+    }
+
+    /**
+     * normaliseProfile coerces unknown / lower-case / blank inputs to AIP.
+     */
+    public function test_profile_normalisation(): void
+    {
+        $this->assertSame('AIP', MetsSerializer::normaliseProfile(null));
+        $this->assertSame('AIP', MetsSerializer::normaliseProfile(''));
+        $this->assertSame('AIP', MetsSerializer::normaliseProfile('xyz'));
+        $this->assertSame('SIP', MetsSerializer::normaliseProfile('sip'));
+        $this->assertSame('AIP', MetsSerializer::normaliseProfile('AIP'));
+        $this->assertSame('DIP', MetsSerializer::normaliseProfile(' Dip '));
     }
 }

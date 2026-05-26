@@ -27,6 +27,7 @@ namespace AhgSecurityClearance\Controllers;
 
 use AhgSecurityClearance\Services\SecurityClearanceService;
 use AhgSecurityClearance\Services\TotpService;
+use AhgSecurityClearance\Services\WebAuthnService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -76,11 +77,13 @@ class SecurityClearanceController extends Controller
 {
     private SecurityClearanceService $service;
     private TotpService $totp;
+    private WebAuthnService $webauthn;
 
-    public function __construct(SecurityClearanceService $service, TotpService $totp)
+    public function __construct(SecurityClearanceService $service, TotpService $totp, WebAuthnService $webauthn)
     {
         $this->service = $service;
         $this->totp = $totp;
+        $this->webauthn = $webauthn;
     }
 
     // =========================================================================
@@ -264,14 +267,47 @@ class SecurityClearanceController extends Controller
     /**
      * #10 — 2FA verification page.
      * AtoM: securityClearance/executeTwoFactor
+     *
+     * Updated for issue #721 — if both TOTP + WebAuthn are enrolled the user
+     * picks at the chooser; passkey-only goes straight to verifyPage; TOTP-
+     * only keeps the original behaviour (this view).
      */
     public function twoFactor(Request $request)
     {
         $returnUrl = $request->input('return', '/');
-        $userId = auth()->id();
+        $userId = (int) auth()->id();
+        $hasTotp = $this->totp->userHasMfa($userId);
+        $hasPasskey = $this->webauthn->userHasCredential($userId);
+        $forceTotp = (bool) $request->query('force_totp');
+
+        // Issue #721 — when both factors are enrolled, route through the
+        // chooser unless the user explicitly picked TOTP from it
+        // (?force_totp=1). Passkey-only users go straight to the WebAuthn
+        // verify page; TOTP-only users see the original 6-digit prompt.
+        if ($hasTotp && $hasPasskey && ! $forceTotp) {
+            return redirect()->route('security-clearance.two-factor-choose', ['return' => $returnUrl]);
+        }
+
+        if ($hasPasskey && ! $hasTotp) {
+            return redirect()->route('security-clearance.webauthn.verify', ['return' => $returnUrl]);
+        }
+
         $clearance = $this->service->getUserClearance($userId);
 
         return view('ahg-security-clearance::twofactor.verify', compact('returnUrl', 'clearance'));
+    }
+
+    /**
+     * Login-time chooser shown when the user has enrolled both TOTP and a
+     * WebAuthn passkey. Either factor can satisfy the MFA gate.
+     */
+    public function twoFactorChooser(Request $request)
+    {
+        $returnUrl = $request->input('return', '/');
+
+        return view('ahg-security-clearance::webauthn.chooser', [
+            'returnUrl' => $returnUrl,
+        ]);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use AhgSecurityClearance\Services\TotpService;
+use AhgSecurityClearance\Services\WebAuthnService;
 use App\Auth\SecuritySettings;
 use App\Http\Controllers\Controller;
 use App\Mail\PasswordResetMail;
@@ -101,12 +102,18 @@ class LoginController extends Controller
                 $next = '/';
             }
 
-            // Issue #690 — MFA gate. If the user has opt-in TOTP enabled,
-            // flag the session as pending_mfa and redirect to the verify
-            // page. RequireMfaCompletion middleware blocks every other
-            // authenticated route until the second factor clears.
+            // Issue #690 / #721 — MFA gate. If the user has opt-in TOTP or a
+            // WebAuthn passkey (or both) enrolled, flag the session as
+            // pending_mfa and redirect to /security-clearance/two-factor,
+            // which itself routes to the chooser / TOTP verify / passkey
+            // verify based on what's enrolled. RequireMfaCompletion
+            // middleware blocks every other authenticated route until the
+            // second factor clears.
             $totp = app(TotpService::class);
-            if ($totp->userHasMfa(Auth::id())) {
+            $webauthn = app(WebAuthnService::class);
+            $userId = Auth::id();
+
+            if ($totp->userHasMfa($userId) || $webauthn->userHasCredential($userId)) {
                 $request->session()->put('pending_mfa', true);
                 $request->session()->put('mfa_return_url', $next);
 

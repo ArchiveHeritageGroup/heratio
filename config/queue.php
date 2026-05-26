@@ -126,4 +126,38 @@ return [
         'table' => 'failed_jobs',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Rate Limits (Issue #672 Phase 2)
+    |--------------------------------------------------------------------------
+    |
+    | Named per-minute caps consulted by App\Jobs\Middleware\RateLimited.
+    | A Job's middleware() returns `new RateLimited('htr_extract', 10)` and
+    | the integer fallback (10) is overridden if a key by that name exists
+    | here. Keys are arbitrary short strings - keep them stable so deploy
+    | targets can tune without redeploying code.
+    |
+    | The limiter requires an atomic cache store (redis or database) when
+    | more than one worker process is sharing the counter.
+    |
+    */
+
+    'rate_limits' => [
+        // AI gateway / heavy inference - keep below upstream throughput.
+        'htr_extract'      => (int) env('QUEUE_RATE_LIMIT_HTR_EXTRACT', 10),
+        'llm_complete'     => (int) env('QUEUE_RATE_LIMIT_LLM_COMPLETE', 60),
+        'ner_extract'      => (int) env('QUEUE_RATE_LIMIT_NER_EXTRACT', 30),
+        'summarize'        => (int) env('QUEUE_RATE_LIMIT_SUMMARIZE', 30),
+        'translate'        => (int) env('QUEUE_RATE_LIMIT_TRANSLATE', 30),
+
+        // External transactional fan-out.
+        'email_send'       => (int) env('QUEUE_RATE_LIMIT_EMAIL_SEND', 100),
+        'sms_send'         => (int) env('QUEUE_RATE_LIMIT_SMS_SEND', 30),
+        'webhook_dispatch' => (int) env('QUEUE_RATE_LIMIT_WEBHOOK', 60),
+
+        // Background indexing / housekeeping.
+        'es_reindex'       => (int) env('QUEUE_RATE_LIMIT_ES_REINDEX', 120),
+        'thumbnail_gen'    => (int) env('QUEUE_RATE_LIMIT_THUMBNAIL', 60),
+    ],
+
 ];
