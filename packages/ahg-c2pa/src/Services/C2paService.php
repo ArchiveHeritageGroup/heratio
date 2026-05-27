@@ -14,6 +14,7 @@ namespace AhgC2pa\Services;
 use AhgC2pa\Manifest\Assertion;
 use AhgC2pa\Manifest\C2paSigner;
 use AhgC2pa\Manifest\ManifestBuilder;
+use AhgC2pa\Manifest\StandardMetadataLoader;
 use AhgInferenceReceipts\Signer as ReceiptSigner;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -75,6 +76,7 @@ final class C2paService
         string $output,
         ?string $assetPath = null,
         ?string $heratioVersion = null,
+        ?int $digitalObjectId = null,
     ): array {
         if (!in_array($action, ['ai-generated', 'ai-assisted'], true)) {
             throw new RuntimeException("C2paService: action must be ai-generated or ai-assisted, got '{$action}'");
@@ -96,6 +98,13 @@ final class C2paService
                 reason: 'AI-derived artefact in archival custody; downstream training requires explicit licence',
             ));
 
+        // Attach stds.exif / stds.iptc / stds.xmp when this AI run is
+        // anchored to a digital object whose sidecar metadata is on file.
+        // Empty payloads are silently skipped by the loader.
+        if ($digitalObjectId !== null) {
+            $builder->withStandardMetadata($digitalObjectId, $informationObjectId);
+        }
+
         if ($assetPath !== null) {
             $builder->withAssetFile($assetPath);
         } else {
@@ -103,6 +112,129 @@ final class C2paService
         }
 
         return $builder->build();
+    }
+
+    /**
+     * Build an unsigned C2PA manifest that wraps a digital object's host
+     * file plus its three Standard Metadata Assertions. Used by the DAM
+     * upload path to sign an asset's embedded EXIF/IPTC/XMP into the C2PA
+     * chain even when no AI run is involved.
+     *
+     * @return array<string,mixed>
+     */
+    public function manifestForDigitalObject(
+        int $informationObjectId,
+        int $digitalObjectId,
+        string $assetPath,
+        ?string $heratioVersion = null,
+        ?StandardMetadataLoader $loader = null,
+    ): array {
+        if (!is_readable($assetPath)) {
+            throw new RuntimeException("C2paService: asset not readable: {$assetPath}");
+        }
+
+        $builder = (new ManifestBuilder())
+            ->withTitle("Heratio digital object #{$digitalObjectId} (IO #{$informationObjectId})")
+            ->withFormat(self::mimeOfFile($assetPath))
+            ->withClaimGenerator('Heratio/' . ($heratioVersion ?? 'unknown') . ' c2pa-php/1.0')
+            ->withAssetFile($assetPath)
+            ->withStandardMetadata($digitalObjectId, $informationObjectId, $loader);
+
+        // ManifestBuilder requires at least one assertion. If the sidecar
+        // tables had nothing for this object we still want to be able to
+        // sign the file, so we fall back to a minimal "edited" action.
+        $built = $builder->build();
+        if ($built['assertions'] === []) {
+            $builder->addAssertion(Assertion::action('placed', [
+                'softwareAgent' => ['name' => 'Heratio', 'version' => $heratioVersion ?? 'unknown'],
+            ]));
+            $built = $builder->build();
+        }
+        return $built;
+    }
+
+    /**
+     * Verify a signed manifest end-to-end: re-hash every assertion against
+     * its claim-pinned hash, then verify the Ed25519 claim signature under
+     * the resolver-supplied public key.
+     *
+     * The verifier intentionally tolerates unknown assertion labels
+     * (forward-compat with future C2PA additions). It validates the
+     * hash binding and the signature, and the existence of the well-known
+     * top-level keys; it does not interpret label-specific semantics.
+     *
+     * @param array<string,mixed> $signedManifest as loaded from a .c2pa.json sidecar
+     * @param callable(string $kid): ?string $publicKeyResolver returns raw 32-byte key
+     * @return array{ok:bool, errors:list<string>, assertion_hashes:array<string,string>}
+     */
+    public static function verify(array $signedManifest, callable $publicKeyResolver): array
+    {
+        $errors = [];
+        $assertionHashes = [];
+
+        $assertions = $signedManifest['assertions'] ?? null;
+        $claimRefs  = $signedManifest['claim']['assertions'] ?? null;
+
+        if (!is_array($assertions)) {
+            $errors[] = 'missing assertions array';
+        }
+        if (!is_array($claimRefs)) {
+            $errors[] = 'missing claim.assertions array';
+        }
+
+        if (is_array($assertions) && is_array($claimRefs)) {
+            foreach ($assertions as $i => $a) {
+                if (!is_array($a) || !isset($a['label'], $a['data'])) {
+                    $errors[] = "assertion #{$i}: missing label or data";
+                    continue;
+                }
+                try {
+                    $obj = new Assertion(
+                        (string) $a['label'],
+                        is_array($a['data']) ? $a['data'] : [],
+                        (int) ($a['instance'] ?? 1),
+                    );
+                } catch (Throwable $e) {
+                    $errors[] = "assertion #{$i}: " . $e->getMessage();
+                    continue;
+                }
+                $hash = $obj->hashHex();
+                $assertionHashes[$obj->uri()] = $hash;
+
+                $found = false;
+                foreach ($claimRefs as $ref) {
+                    if (!is_array($ref)) {
+                        continue;
+                    }
+                    if (($ref['url'] ?? null) === $obj->uri()) {
+                        $found = true;
+                        if (($ref['hash'] ?? null) !== $hash) {
+                            $errors[] = "assertion {$obj->uri()}: hash mismatch (label '{$obj->label}' tampered)";
+                        }
+                        break;
+                    }
+                }
+                if (!$found) {
+                    $errors[] = "assertion {$obj->uri()}: not referenced by claim";
+                }
+            }
+        }
+
+        $sigOk = false;
+        try {
+            $sigOk = C2paSigner::verify($signedManifest, $publicKeyResolver);
+        } catch (Throwable $e) {
+            $errors[] = 'signature: ' . $e->getMessage();
+        }
+        if (!$sigOk) {
+            $errors[] = 'claim signature did not verify';
+        }
+
+        return [
+            'ok'                => $errors === [],
+            'errors'            => $errors,
+            'assertion_hashes'  => $assertionHashes,
+        ];
     }
 
     /**

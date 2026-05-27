@@ -31,6 +31,10 @@ use InvalidArgumentException;
  *   c2pa.actions.v2       - what happened (ai-generated, ai-assisted, edited, etc)
  *   c2pa.training-mining  - claimer's stance on AI training / data mining use
  *   c2pa.ingredients      - prior content this artefact was derived from
+ *   stds.exif             - EXIF subset extracted from the host asset
+ *                           (per C2PA 2.1 § Standard Metadata Assertions)
+ *   stds.iptc             - IPTC IIM/Photo Metadata subset
+ *   stds.xmp              - XMP (Dublin Core + xmpRights) subset
  *
  * See https://c2pa.org/specifications/specifications/2.1/specs/C2PA_Specification.html
  * for the full label registry.
@@ -154,5 +158,51 @@ final class Assertion
     public static function ingredients(array $ingredients): self
     {
         return new self('c2pa.ingredients', ['ingredients' => $ingredients]);
+    }
+
+    /**
+     * Standard Metadata Assertion - EXIF subset.
+     *
+     * Per C2PA 2.1 § Standard Metadata Assertions, the assertion data is
+     * a single object whose properties use standard Exif tag names with
+     * an "Exif/" prefix (e.g. "Exif/DateTimeOriginal", "Exif/Make").
+     *
+     * Spec: https://c2pa.org/specifications/specifications/2.1/specs/C2PA_Specification.html#_standard_metadata_assertions
+     *
+     * Throws no exception on empty input; callers that have nothing to
+     * declare should simply not build this assertion.
+     *
+     * @param array<string,mixed> $entries map of Exif/<TagName> => value
+     */
+    public static function stdsExif(array $entries): self
+    {
+        return new self('stds.exif', $entries);
+    }
+
+    /**
+     * Standard Metadata Assertion - IPTC IIM / Photo Metadata subset.
+     *
+     * Per C2PA 2.1 the property keys are unprefixed IPTC names
+     * (By-line, Copyright, Headline, Keywords, Caption-Abstract, ...).
+     *
+     * @param array<string,mixed> $entries
+     */
+    public static function stdsIptc(array $entries): self
+    {
+        return new self('stds.iptc', $entries);
+    }
+
+    /**
+     * Standard Metadata Assertion - XMP (Dublin Core + xmpRights) subset.
+     *
+     * Property keys use the standard XMP qualified-name form
+     * ("dc:creator", "dc:rights", "dc:title", "dc:subject",
+     *  "xmpRights:Marked", "xmpRights:UsageTerms", ...).
+     *
+     * @param array<string,mixed> $entries
+     */
+    public static function stdsXmp(array $entries): self
+    {
+        return new self('stds.xmp', $entries);
     }
 }

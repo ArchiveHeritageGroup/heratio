@@ -29,6 +29,7 @@ use AhgMetadataExport\Services\Exporters\Ead2002Serializer;
 use AhgMetadataExport\Services\Exporters\Ead3Serializer;
 use AhgMetadataExport\Services\Exporters\MarcxmlSerializer;
 use AhgMetadataExport\Services\Exporters\ModsSerializer;
+use AhgMetadataExport\Services\IptcFallbackResolver;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -1089,7 +1090,10 @@ class OaiPmhController extends Controller
             $xml .= '          <dc:title>'.$this->esc($record->title).'</dc:title>'."\n";
         }
 
-        // dc:creator — from events table (type_id=111 = Creation)
+        // dc:creator - from events table (type_id=111 = Creation), with
+        // IPTC By-line fallback (issue #752): if the ISAD(G) author slot
+        // is empty AND dam_iptc_metadata.creator carries a value, emit
+        // that instead so harvesters see the extracted attribution.
         $creators = DB::table('event as e')
             ->leftJoin('actor_i18n as ai', function ($join) {
                 $join->on('e.actor_id', '=', 'ai.id')
@@ -1101,13 +1105,18 @@ class OaiPmhController extends Controller
             ->select('ai.authorized_form_of_name')
             ->get();
 
-        foreach ($creators as $creator) {
-            if (! empty($creator->authorized_form_of_name)) {
-                $xml .= '          <dc:creator>'.$this->esc($creator->authorized_form_of_name).'</dc:creator>'."\n";
-            }
+        $canonicalCreators = $creators
+            ->pluck('authorized_form_of_name')
+            ->filter()
+            ->map(static fn ($v) => (string) $v)
+            ->all();
+        $resolver = new IptcFallbackResolver();
+        foreach ($resolver->resolveCreators((int) $record->id, $canonicalCreators) as $name) {
+            $xml .= '          <dc:creator>'.$this->esc($name).'</dc:creator>'."\n";
         }
 
-        // dc:subject — from object_term_relation joined to subject taxonomy terms
+        // dc:subject - from object_term_relation joined to subject
+        // taxonomy terms, with IPTC Keywords fallback (issue #752).
         $subjects = DB::table('object_term_relation as otr')
             ->join('term as t', 'otr.term_id', '=', 't.id')
             ->join('term_i18n as ti', function ($join) {
@@ -1119,10 +1128,13 @@ class OaiPmhController extends Controller
             ->select('ti.name')
             ->get();
 
-        foreach ($subjects as $subject) {
-            if (! empty($subject->name)) {
-                $xml .= '          <dc:subject>'.$this->esc($subject->name).'</dc:subject>'."\n";
-            }
+        $canonicalSubjects = $subjects
+            ->pluck('name')
+            ->filter()
+            ->map(static fn ($v) => (string) $v)
+            ->all();
+        foreach ($resolver->resolveSubjects((int) $record->id, $canonicalSubjects) as $name) {
+            $xml .= '          <dc:subject>'.$this->esc($name).'</dc:subject>'."\n";
         }
 
         // dc:description
@@ -1279,9 +1291,14 @@ class OaiPmhController extends Controller
             }
         }
 
-        // dc:rights
-        if (! empty($record->access_conditions)) {
-            $xml .= '          <dc:rights>'.$this->esc(strip_tags($record->access_conditions)).'</dc:rights>'."\n";
+        // dc:rights - access_conditions, falling back to the IPTC
+        // Copyright Notice when the ISAD field is blank (issue #752).
+        $canonicalRights = ! empty($record->access_conditions)
+            ? strip_tags((string) $record->access_conditions)
+            : null;
+        $rightsOut = $resolver->resolveRights((int) $record->id, $canonicalRights);
+        if ($rightsOut !== null && $rightsOut !== '') {
+            $xml .= '          <dc:rights>'.$this->esc($rightsOut).'</dc:rights>'."\n";
         }
 
         $xml .= '        </oai_dc:dc>'."\n";

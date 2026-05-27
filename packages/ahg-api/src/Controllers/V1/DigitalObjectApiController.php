@@ -2,6 +2,7 @@
 
 namespace AhgApi\Controllers\V1;
 
+use AhgApi\Services\EmbeddedMetadataService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -9,11 +10,17 @@ use Illuminate\Support\Facades\DB;
 
 class DigitalObjectApiController extends Controller
 {
+    public function __construct(protected ?EmbeddedMetadataService $embedded = null)
+    {
+        $this->embedded = $embedded ?? new EmbeddedMetadataService();
+    }
+
     public function index(Request $request): JsonResponse
     {
         $page = max(1, (int) $request->get('page', 1));
         $limit = min(100, max(1, (int) $request->get('limit', 10)));
         $mediaType = $request->get('media_type');
+        $includeEmbedded = $this->wantsEmbeddedMetadata($request);
 
         $query = DB::table('digital_object as do')
             ->join('object', 'do.id', '=', 'object.id')
@@ -39,7 +46,74 @@ class DigitalObjectApiController extends Controller
             ->limit($limit)
             ->get();
 
+        if ($includeEmbedded) {
+            $researcherId = $request->attributes->get('api_user_id');
+            $results = $results->map(function ($row) use ($researcherId) {
+                $block = $this->embedded->forDigitalObject((int) $row->id, $researcherId);
+                if ($block !== null) {
+                    $row->embedded_metadata = $block;
+                }
+
+                return $row;
+            });
+        }
+
         return response()->json(['total' => $total, 'page' => $page, 'limit' => $limit, 'results' => $results]);
+    }
+
+    /**
+     * GET /api/v1/digital-object/{id} - show a single digital_object plus optional
+     * embedded EXIF/IPTC/XMP block (issue #747). Honours `?include=embedded_metadata`.
+     */
+    public function show(int $id, Request $request): JsonResponse
+    {
+        $do = DB::table('digital_object as do')
+            ->join('object', 'do.id', '=', 'object.id')
+            ->leftJoin('slug', 'do.object_id', '=', 'slug.object_id')
+            ->where('do.id', $id)
+            ->select(
+                'do.id', 'do.object_id', 'do.usage_id',
+                'do.mime_type', 'do.media_type_id',
+                'do.byte_size', 'do.name as filename',
+                'do.path', 'do.checksum',
+                'slug.slug as parent_slug',
+                'object.created_at', 'object.updated_at'
+            )
+            ->first();
+
+        if (! $do) {
+            return response()->json(['error' => 'Digital object not found.'], 404);
+        }
+
+        $payload = (array) $do;
+
+        if ($this->wantsEmbeddedMetadata($request)) {
+            $researcherId = $request->attributes->get('api_user_id');
+            $block = $this->embedded->forDigitalObject((int) $do->id, $researcherId);
+            // null = ODRL denied; quietly drop the key rather than 403 (the
+            // base record is still legitimately visible).
+            if ($block !== null) {
+                $payload['embedded_metadata'] = $block;
+            }
+        }
+
+        return response()->json($payload);
+    }
+
+    /**
+     * The `?include=` flag follows JSON:API conventions - comma-delimited
+     * list of opt-in relationship names.
+     */
+    private function wantsEmbeddedMetadata(Request $request): bool
+    {
+        $include = (string) $request->query('include', '');
+        if ($include === '') {
+            return false;
+        }
+        $parts = array_map('trim', explode(',', $include));
+
+        return in_array('embedded_metadata', $parts, true)
+            || in_array('embedded-metadata', $parts, true);
     }
 
     /**

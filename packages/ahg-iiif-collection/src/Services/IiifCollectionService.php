@@ -627,6 +627,14 @@ class IiifCollectionService
             ];
         }
 
+        // Issue #748 - enrich manifest with IPTC sidecar + EXIF capture
+        // metadata. Both sources are best-effort: missing rows / NULL
+        // columns simply skip their respective metadata entries. ISAD-
+        // level fields (reproduction_conditions for rights, an ISAD
+        // dateCreated when present) always take precedence over the
+        // file-level IPTC / EXIF values.
+        $this->applyIptcExifEnrichment($manifest, $object, $digitalObjects);
+
         // Multi-canvas archival objects often represent paged content
         // (multi-page TIFFs, scanned books). "paged" tells the viewer
         // to render a two-page spread; "individuals" is the safer
@@ -884,6 +892,96 @@ class IiifCollectionService
     }
 
     /**
+     * Apply IPTC + EXIF sidecar metadata to a Pres 3 manifest in-place.
+     * Issue #748.
+     *
+     * Pulls one IPTC row from dam_iptc_metadata (keyed by IO id) and the
+     * raw_metadata JSON from digital_object_metadata for the first
+     * digital object. Both are optional - missing tables / NULL columns
+     * simply leave the manifest untouched. Wrapped in try/catch so an
+     * extraction failure (malformed sidecar, schema drift) never breaks
+     * manifest serving.
+     */
+    private function applyIptcExifEnrichment(array &$manifest, object $object, $digitalObjects): void
+    {
+        try {
+            $iptc = [];
+            if (\Schema::hasTable('dam_iptc_metadata')) {
+                $row = DB::table('dam_iptc_metadata')
+                    ->where('object_id', $object->id)
+                    ->first();
+                if ($row) {
+                    $iptc = (array) $row;
+                }
+            }
+
+            // requiredStatement: ISAD reproduction_conditions wins, else
+            // IPTC copyright_notice. Existing manifest values (none set
+            // by V3 today, but defensive in case earlier code populates)
+            // are not overwritten.
+            if (!isset($manifest['requiredStatement'])) {
+                $statement = IiifMetadataEnricher::buildRequiredStatement(
+                    $iptc,
+                    $object->reproduction_conditions ?? null
+                );
+                if ($statement !== null) {
+                    $manifest['requiredStatement'] = $statement;
+                }
+            }
+
+            // Provider promotion - if the manifest provider label is the
+            // default org name AND the IPTC has a byline, append a
+            // second provider agent so the creator is surfaced without
+            // displacing the publishing institution.
+            $byline = IiifMetadataEnricher::bylineFromIptc($iptc);
+            if ($byline !== null && !empty($manifest['provider'])) {
+                $baseUrl = rtrim(config('app.url'), '/');
+                $manifest['provider'][] = [
+                    'id' => $baseUrl . '/iiif/agent/creator/' . rawurlencode($byline),
+                    'type' => 'Agent',
+                    'label' => ['en' => [$byline]],
+                ];
+            }
+
+            // metadata rows from IPTC (Creator + Keywords).
+            foreach (IiifMetadataEnricher::fromIptc($iptc) as $row) {
+                $manifest['metadata'][] = $row;
+            }
+
+            // EXIF DateTimeOriginal from digital_object_metadata. The IO
+            // has no archival dateCreated column in Heratio, so we treat
+            // "ISAD date present" as false here - if the IO grows a
+            // dateCreated field later, swap this flag for the real value.
+            $ioHasDateCreated = false;
+            $firstDo = $digitalObjects->first();
+            if ($firstDo && \Schema::hasTable('digital_object_metadata')) {
+                $dom = DB::table('digital_object_metadata')
+                    ->where('digital_object_id', $firstDo->id)
+                    ->select('raw_metadata')
+                    ->first();
+                if ($dom && !empty($dom->raw_metadata)) {
+                    $exif = json_decode($dom->raw_metadata, true);
+                    if (is_array($exif)) {
+                        $dateRow = IiifMetadataEnricher::fromExifDateTimeOriginal(
+                            $exif,
+                            $ioHasDateCreated
+                        );
+                        if ($dateRow !== null) {
+                            $manifest['metadata'][] = $dateRow;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // Best effort - log + continue. Manifest serving must never
+            // 500 because IPTC / EXIF extraction failed.
+            Log::warning('IIIF manifest IPTC/EXIF enrichment skipped: ' . $e->getMessage(), [
+                'object_id' => $object->id ?? null,
+            ]);
+        }
+    }
+
+    /**
      * Resolve physical-dimensions metadata for a digital object.
      *
      * Lookup order:
@@ -951,7 +1049,13 @@ class IiifCollectionService
             })
             ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
             ->where('s.slug', $slug)
-            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+            ->select(
+                'io.id',
+                'io.identifier',
+                'i18n.title',
+                'i18n.reproduction_conditions',
+                's.slug'
+            )
             ->first();
 
         if (!$object) {

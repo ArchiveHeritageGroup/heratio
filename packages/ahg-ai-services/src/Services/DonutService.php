@@ -56,7 +56,7 @@ class DonutService
      * Returns: FS_RECORD_TYPE, FS_RECORD_TYPE_ID, EVENT_YEAR_ORIG,
      *          EVENT_PLACE_ORIG, non_genealogical, confidence, needs_review
      */
-    public function extract(string $filePath): ?array
+    public function extract(string $filePath, ?int $digitalObjectId = null): ?array
     {
         // #667 Phase 1 - per-tenant quota gate.
         try {
@@ -68,11 +68,18 @@ class DonutService
             // soft-fail
         }
 
+        // #750 - resolve embedded-metadata hints for prompt + audit injection.
+        $contextHints = $this->resolveContextHints($digitalObjectId);
+
         try {
             $t0 = microtime(true);
+            $payload = [];
+            if (!$contextHints->isEmpty()) {
+                $payload['context_hints'] = $contextHints->toPromptPrefix();
+            }
             $response = Http::timeout(60)
                 ->attach('file', fopen($filePath, 'r'), basename($filePath))
-                ->post("{$this->baseUrl}/extract");
+                ->post("{$this->baseUrl}/extract", $payload);
             if (!$response->successful()) {
                 return null;
             }
@@ -94,10 +101,44 @@ class DonutService
             } catch (\Throwable) {
                 // never block inference
             }
+            $this->logContextEventIfAny('donut', $digitalObjectId, $contextHints);
             return $body;
         } catch (\Exception $e) {
             Log::error('Donut extract failed: ' . $e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * #750 - resolve embedded-metadata hints. Safe no-op when no DO id.
+     */
+    private function resolveContextHints(?int $digitalObjectId): \AhgAiServices\DTO\AiContextHints
+    {
+        if ($digitalObjectId === null || $digitalObjectId <= 0) {
+            return \AhgAiServices\DTO\AiContextHints::empty();
+        }
+        try {
+            return app(\AhgAiServices\Services\EmbeddedMetadataContextService::class)
+                ->forDigitalObject($digitalObjectId);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] DonutService resolveContextHints failed: ' . $e->getMessage());
+            return \AhgAiServices\DTO\AiContextHints::empty();
+        }
+    }
+
+    /**
+     * #750 - emit inference_context_used audit event.
+     */
+    private function logContextEventIfAny(string $service, ?int $digitalObjectId, \AhgAiServices\DTO\AiContextHints $hints): void
+    {
+        if ($digitalObjectId === null || $digitalObjectId <= 0 || $hints->isEmpty()) {
+            return;
+        }
+        try {
+            app(\AhgAiServices\Services\EmbeddedMetadataContextService::class)
+                ->logContextEvent($service, $digitalObjectId, $hints);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] DonutService logContextEventIfAny failed: ' . $e->getMessage());
         }
     }
 

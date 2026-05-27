@@ -2,6 +2,7 @@
 
 namespace AhgApi\Controllers\V2;
 
+use AhgApi\Services\EmbeddedMetadataService;
 use AhgApi\Services\WebhookService;
 use AhgCore\Constants\TermId;
 use Illuminate\Http\JsonResponse;
@@ -10,9 +11,12 @@ use Illuminate\Support\Facades\DB;
 
 class DescriptionController extends BaseApiController
 {
-    public function __construct(protected WebhookService $webhooks)
+    protected EmbeddedMetadataService $embedded;
+
+    public function __construct(protected WebhookService $webhooks, ?EmbeddedMetadataService $embedded = null)
     {
         parent::__construct();
+        $this->embedded = $embedded ?? new EmbeddedMetadataService();
     }
 
     /**
@@ -115,7 +119,32 @@ class DescriptionController extends BaseApiController
             $data['children_count'] = $this->getChildrenCount($io->id);
         }
 
+        // Issue #747 - opt-in embedded EXIF/IPTC/XMP block. Default OFF to
+        // keep the description response lean for typical browse traffic.
+        if ($this->wantsEmbeddedMetadata($request)) {
+            $block = $this->embedded->forInformationObject((int) $io->id, $this->apiUserId($request));
+            if ($block !== null) {
+                $data['embedded_metadata'] = $block;
+            }
+        }
+
         return $this->success($data);
+    }
+
+    /**
+     * JSON:API style `?include=` opt-in: comma-delimited relationship names.
+     * Accepts both `embedded_metadata` and the hyphenated alias.
+     */
+    protected function wantsEmbeddedMetadata(Request $request): bool
+    {
+        $include = (string) $request->query('include', '');
+        if ($include === '') {
+            return false;
+        }
+        $parts = array_map('trim', explode(',', $include));
+
+        return in_array('embedded_metadata', $parts, true)
+            || in_array('embedded-metadata', $parts, true);
     }
 
     /**

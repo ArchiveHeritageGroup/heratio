@@ -72,6 +72,7 @@
 
 namespace AhgMetadataExport\Services\Exporters;
 
+use AhgMetadataExport\Services\IptcFallbackResolver;
 use Illuminate\Support\Facades\DB;
 
 class DublinCoreQualifiedSerializer

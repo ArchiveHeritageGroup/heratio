@@ -25,6 +25,7 @@
 
 namespace AhgMetadataExtraction\Services;
 
+use AhgMetadataExtraction\Events\EmbeddedMetadataExtracted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -560,6 +561,20 @@ class MetadataExtractionService
         // Save new metadata
         foreach ($flat as $key => $value) {
             $this->saveMetadataProperty($digitalObjectId, $key, (string) $value, $culture);
+        }
+
+        // Issue #751 - notify any listener (canonically ahg-privacy's
+        // ScanEmbeddedMetadataForPii) that EXIF / IPTC / XMP has just landed
+        // for this digital_object so embedded-PII scanning can kick off.
+        // Best-effort: a missing event facade or broken listener must not
+        // break the upload path, so the dispatch is guarded.
+        try {
+            event(new EmbeddedMetadataExtracted($digitalObjectId));
+        } catch (\Throwable $e) {
+            Log::warning('MetadataExtraction: EmbeddedMetadataExtracted dispatch failed', [
+                'digital_object_id' => $digitalObjectId,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         return $metadata;

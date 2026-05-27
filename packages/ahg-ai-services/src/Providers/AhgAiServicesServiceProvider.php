@@ -4,6 +4,7 @@ namespace AhgAiServices\Providers;
 
 use AhgAiServices\Contracts\FaceDetectorInterface;
 use AhgAiServices\Services\CostService;
+use AhgAiServices\Services\EmbeddedMetadataContextService;
 use AhgAiServices\Services\LlmService;
 use AhgAiServices\Services\NerGazetteerService;
 use AhgAiServices\Services\NerService;
@@ -41,6 +42,8 @@ class AhgAiServicesServiceProvider extends ServiceProvider
         });
         $this->app->singleton(TranslationMemoryService::class);
         $this->app->singleton(NerGazetteerService::class);
+        // #750 - per-request cache for embedded EXIF/IPTC/XMP context hints.
+        $this->app->singleton(EmbeddedMetadataContextService::class);
         $this->app->singleton(FaceDetectorInterface::class, function ($app) {
             return new NullFaceDetector(
                 $app->make(QuotaService::class),

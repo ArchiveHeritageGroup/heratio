@@ -35,6 +35,12 @@ final class Inventory
     /**
      * @param array<string, array<int, string>> $manifest digest => [content paths]
      * @param array<string, Version>            $versions "vN" => Version
+     * @param array<string, array<string, mixed>> $extensions OCFL v1.1 §3.7
+     *        extension name => block payload. Vendor-defined. Encoded into
+     *        inventory.json under the top-level `extensions` key only when
+     *        non-empty (omitted entirely when no extensions are registered,
+     *        which keeps the byte-for-byte determinism guarantee against
+     *        the OCFL spec examples).
      */
     public function __construct(
         public readonly string $id,
@@ -43,6 +49,7 @@ final class Inventory
         public readonly array $versions,
         public readonly string $digestAlgorithm = 'sha512',
         public readonly string $type = self::TYPE_URI,
+        public readonly array $extensions = [],
     ) {
         if ($id === '') {
             throw new InvalidArgumentException('Inventory: id cannot be empty');
@@ -95,7 +102,55 @@ final class Inventory
             versions:        $vs,
             digestAlgorithm: $this->digestAlgorithm,
             type:            $this->type,
+            extensions:      $this->extensions,
         );
+    }
+
+    /**
+     * Return a fresh inventory with an OCFL extension block registered /
+     * replaced. Passing null clears the named extension. Designed for the
+     * `ahg-embedded-metadata` extension and any future vendor blocks.
+     *
+     * Order is normalised at toJson() time so the on-disk inventory is
+     * byte-stable regardless of insertion order.
+     */
+    public function withExtension(string $name, ?array $payload): self
+    {
+        if ($name === '') {
+            throw new InvalidArgumentException('Inventory::withExtension: name cannot be empty');
+        }
+        $ext = $this->extensions;
+        if ($payload === null || $payload === []) {
+            unset($ext[$name]);
+        } else {
+            $ext[$name] = $payload;
+        }
+        return new self(
+            id:              $this->id,
+            head:            $this->head,
+            manifest:        $this->manifest,
+            versions:        $this->versions,
+            digestAlgorithm: $this->digestAlgorithm,
+            type:            $this->type,
+            extensions:      $ext,
+        );
+    }
+
+    /** True when a named extension block is registered + non-empty. */
+    public function hasExtension(string $name): bool
+    {
+        return isset($this->extensions[$name])
+            && is_array($this->extensions[$name])
+            && $this->extensions[$name] !== [];
+    }
+
+    /** Return the extension payload, or null when not registered. */
+    public function getExtension(string $name): ?array
+    {
+        if (! $this->hasExtension($name)) {
+            return null;
+        }
+        return $this->extensions[$name];
     }
 
     public function nextVersionId(): string

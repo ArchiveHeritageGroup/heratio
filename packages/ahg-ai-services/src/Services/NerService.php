@@ -92,11 +92,21 @@ class NerService
      *
      * Uses the AHG AI API if available, falls back to LLM-based extraction.
      *
+     * Issue #750: when $digitalObjectId is supplied, embedded EXIF / IPTC /
+     * XMP hints (date, place, creator, subjects) are fetched via
+     * EmbeddedMetadataContextService and prepended to the source text as a
+     * disambiguation prefix that the upstream NER API + LLM fallback both
+     * see. Empty or absent hints are a silent no-op.
+     *
      * @return array ['persons' => [], 'organizations' => [], 'places' => [], 'dates' => []]
      */
-    public function extract(string $text): array
+    public function extract(string $text, ?int $digitalObjectId = null): array
     {
         $default = ['persons' => [], 'organizations' => [], 'places' => [], 'dates' => []];
+
+        // #750 - resolve and inject embedded-metadata hints before any dispatch.
+        $contextHints = $this->resolveContextHints($digitalObjectId);
+        $text         = $this->prependContextHints($text, $contextHints);
 
         // Reset the per-call detailed-entity buffer up front so a caller that
         // reads lastDetailedEntities() after a gated/empty/LLM-fallback call
@@ -173,6 +183,7 @@ class NerService
             } catch (\Throwable) {
                 // never block inference
             }
+            $this->logContextEventIfAny('ner', $digitalObjectId, $contextHints);
             return $merged;
         }
 
@@ -181,7 +192,55 @@ class NerService
         // don't double-log here. Tell the downstream LLM gate to skip
         // re-debiting the bucket - we've already debited 'ner' above.
         $llm = $this->llmService->extractEntities($text);
+        $this->logContextEventIfAny('ner', $digitalObjectId, $contextHints);
         return $this->mergeGazetteer($llm, $gazetteer['buckets']);
+    }
+
+    /**
+     * #750 - resolve embedded-metadata hints for the given digital_object.
+     * Falls back to the empty DTO on any failure so inference never breaks.
+     */
+    private function resolveContextHints(?int $digitalObjectId): \AhgAiServices\DTO\AiContextHints
+    {
+        if ($digitalObjectId === null || $digitalObjectId <= 0) {
+            return \AhgAiServices\DTO\AiContextHints::empty();
+        }
+        try {
+            return app(\AhgAiServices\Services\EmbeddedMetadataContextService::class)
+                ->forDigitalObject($digitalObjectId);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] NerService resolveContextHints failed: ' . $e->getMessage());
+            return \AhgAiServices\DTO\AiContextHints::empty();
+        }
+    }
+
+    /**
+     * #750 - prepend the hint prefix to the prompt input. Idempotent: an
+     * empty hint set returns the text untouched.
+     */
+    private function prependContextHints(string $text, \AhgAiServices\DTO\AiContextHints $hints): string
+    {
+        if ($hints->isEmpty()) {
+            return $text;
+        }
+        return $hints->toPromptPrefix() . "\n\n" . $text;
+    }
+
+    /**
+     * #750 - audit hook. Logs "the AI saw these hints" to the inference
+     * receipt chain so operators can audit per-call context.
+     */
+    private function logContextEventIfAny(string $service, ?int $digitalObjectId, \AhgAiServices\DTO\AiContextHints $hints): void
+    {
+        if ($digitalObjectId === null || $digitalObjectId <= 0 || $hints->isEmpty()) {
+            return;
+        }
+        try {
+            app(\AhgAiServices\Services\EmbeddedMetadataContextService::class)
+                ->logContextEvent($service, $digitalObjectId, $hints);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] NerService logContextEventIfAny failed: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -322,10 +381,10 @@ class NerService
      *
      * Returns the same shape as extract() so callers swap one for the other.
      */
-    public function extractAndRecord(string $text, int $informationObjectId, ?int $userId = null): array
+    public function extractAndRecord(string $text, int $informationObjectId, ?int $userId = null, ?int $digitalObjectId = null): array
     {
         $t0 = microtime(true);
-        $entities = $this->extract($text);
+        $entities = $this->extract($text, $digitalObjectId);
         $elapsedMs = (int) round((microtime(true) - $t0) * 1000);
 
         try {

@@ -87,9 +87,17 @@ class HtrService
     /**
      * Extract handwriting from a document.
      * @param string $format  One of: all, json, csv, ilm, gedcom
+     *
+     * Issue #750: when $digitalObjectId is supplied, embedded EXIF / IPTC /
+     * XMP hints are forwarded to the upstream HTR service as a context_hints
+     * form-data field (ignored by HTR adapters that don't read it; consumed
+     * by future LLM-corrected HTR variants) AND emitted to the inference
+     * receipt chain as an inference_context_used audit event.
      */
-    public function extract(string $filePath, string $docType = 'auto', string $format = 'all'): ?array
+    public function extract(string $filePath, string $docType = 'auto', string $format = 'all', ?int $digitalObjectId = null): ?array
     {
+        $contextHints = $this->resolveContextHints($digitalObjectId);
+
         // #667 Phase 1 - per-tenant quota gate. Bubble the quota
         // exception so the caller can surface a real "rate limited"
         // signal instead of just an empty result.
@@ -104,12 +112,16 @@ class HtrService
 
         try {
             $t0 = microtime(true);
+            $payload = [
+                'doc_type' => $docType,
+                'format' => $format,
+            ];
+            if (!$contextHints->isEmpty()) {
+                $payload['context_hints'] = $contextHints->toPromptPrefix();
+            }
             $response = $this->http()->timeout(60)
                 ->attach('file', fopen($filePath, 'r'), basename($filePath))
-                ->post("{$this->baseUrl}/extract", [
-                    'doc_type' => $docType,
-                    'format' => $format,
-                ]);
+                ->post("{$this->baseUrl}/extract", $payload);
             if (!$response->successful()) {
                 return null;
             }
@@ -131,10 +143,44 @@ class HtrService
             } catch (\Throwable) {
                 // never block inference
             }
+            $this->logContextEventIfAny('htr', $digitalObjectId, $contextHints);
             return $body;
         } catch (\Exception $e) {
             Log::error('HTR extract failed: ' . $e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * #750 - resolve embedded-metadata hints. Safe no-op when no DO id.
+     */
+    private function resolveContextHints(?int $digitalObjectId): \AhgAiServices\DTO\AiContextHints
+    {
+        if ($digitalObjectId === null || $digitalObjectId <= 0) {
+            return \AhgAiServices\DTO\AiContextHints::empty();
+        }
+        try {
+            return app(\AhgAiServices\Services\EmbeddedMetadataContextService::class)
+                ->forDigitalObject($digitalObjectId);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] HtrService resolveContextHints failed: ' . $e->getMessage());
+            return \AhgAiServices\DTO\AiContextHints::empty();
+        }
+    }
+
+    /**
+     * #750 - emit inference_context_used audit event after a successful call.
+     */
+    private function logContextEventIfAny(string $service, ?int $digitalObjectId, \AhgAiServices\DTO\AiContextHints $hints): void
+    {
+        if ($digitalObjectId === null || $digitalObjectId <= 0 || $hints->isEmpty()) {
+            return;
+        }
+        try {
+            app(\AhgAiServices\Services\EmbeddedMetadataContextService::class)
+                ->logContextEvent($service, $digitalObjectId, $hints);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] HtrService logContextEventIfAny failed: ' . $e->getMessage());
         }
     }
 
@@ -167,11 +213,11 @@ class HtrService
      * 1 - CER when exposed (CER is error rate; flip to "higher is better"
      * to match the contract).
      */
-    public function extractAndRecord(string $filePath, int $informationObjectId, string $docType = 'auto', string $format = 'all', ?int $userId = null): ?array
+    public function extractAndRecord(string $filePath, int $informationObjectId, string $docType = 'auto', string $format = 'all', ?int $userId = null, ?int $digitalObjectId = null): ?array
     {
         $t0 = microtime(true);
         $imageBytes = @file_get_contents($filePath);
-        $result = $this->extract($filePath, $docType, $format);
+        $result = $this->extract($filePath, $docType, $format, $digitalObjectId);
         $elapsedMs = (int) round((microtime(true) - $t0) * 1000);
 
         try {

@@ -195,8 +195,16 @@ class LlmService
      *
      * @return array ['success' => bool, 'text' => ?string, 'tokens_used' => int, 'model' => ?string, 'error' => ?string]
      */
-    public function complete(string $prompt, array $options = []): ?string
+    public function complete(string $prompt, array $options = [], ?int $digitalObjectId = null): ?string
     {
+        // #750 - resolve embedded-metadata hints and inject as a system-prompt
+        // prefix before any dispatch path sees the prompt. Empty hint set is
+        // a silent no-op. The audit event is emitted on the success path.
+        $contextHints = $this->resolveContextHints($digitalObjectId);
+        if (!$contextHints->isEmpty()) {
+            $prompt = $contextHints->toPromptPrefix() . "\n\n" . $prompt;
+        }
+
         // #667 Phase 1 - per-tenant quota gate. Runs BEFORE every dispatch
         // path (cloud-mode override + local provider table). Throws
         // QuotaExceededException up to the caller when the limit is hit;
@@ -266,6 +274,7 @@ class LlmService
                                 'tokens_out'  => (int) ($body['usage']['completion_tokens'] ?? 0),
                                 'duration_ms' => (int) round((microtime(true) - $t0) * 1000),
                             ]);
+                            $this->logContextEventIfAny('llm', $digitalObjectId, $contextHints);
                             return $text;
                         }
                     }
@@ -301,9 +310,43 @@ class LlmService
                 'tokens_out'  => (int) ($result['tokens_out'] ?? 0),
                 'duration_ms' => (int) round((microtime(true) - $t0) * 1000),
             ]);
+            $this->logContextEventIfAny('llm', $digitalObjectId, $contextHints);
         }
 
         return $result['success'] ? $result['text'] : null;
+    }
+
+    /**
+     * #750 - resolve embedded-metadata hints. Safe no-op when no DO id.
+     */
+    private function resolveContextHints(?int $digitalObjectId): \AhgAiServices\DTO\AiContextHints
+    {
+        if ($digitalObjectId === null || $digitalObjectId <= 0) {
+            return \AhgAiServices\DTO\AiContextHints::empty();
+        }
+        try {
+            return app(\AhgAiServices\Services\EmbeddedMetadataContextService::class)
+                ->forDigitalObject($digitalObjectId);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] LlmService resolveContextHints failed: ' . $e->getMessage());
+            return \AhgAiServices\DTO\AiContextHints::empty();
+        }
+    }
+
+    /**
+     * #750 - audit event after a successful completion.
+     */
+    private function logContextEventIfAny(string $service, ?int $digitalObjectId, \AhgAiServices\DTO\AiContextHints $hints): void
+    {
+        if ($digitalObjectId === null || $digitalObjectId <= 0 || $hints->isEmpty()) {
+            return;
+        }
+        try {
+            app(\AhgAiServices\Services\EmbeddedMetadataContextService::class)
+                ->logContextEvent($service, $digitalObjectId, $hints);
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-ai] LlmService logContextEventIfAny failed: ' . $e->getMessage());
+        }
     }
 
     /**

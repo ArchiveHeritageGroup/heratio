@@ -2,6 +2,7 @@
 
 use AhgPrivacy\Controllers\Article30Controller;
 use AhgPrivacy\Controllers\DpiaController;
+use AhgPrivacy\Controllers\EmbeddedFindingsController;
 use AhgPrivacy\Controllers\PrivacyController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,13 @@ Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(functi
     Route::get('/article-30/{id}/edit',  [Article30Controller::class, 'edit'])->name('ahgprivacy.article-30.edit')->whereNumber('id');
     Route::put('/article-30/{id}',       [Article30Controller::class, 'update'])->name('ahgprivacy.article-30.update')->whereNumber('id');
     Route::delete('/article-30/{id}',    [Article30Controller::class, 'destroy'])->name('ahgprivacy.article-30.destroy')->whereNumber('id');
+
+    // ------------------------------------------------------------------
+    // Issue #751 Phase 2: PII findings over embedded image metadata
+    // (EXIF / IPTC / XMP) - admin review + resolution UI.
+    // ------------------------------------------------------------------
+    Route::get('/embedded-findings',                  [EmbeddedFindingsController::class, 'index'])->name('ahgprivacy.embedded-findings.index');
+    Route::post('/embedded-findings/{id}/resolve',    [EmbeddedFindingsController::class, 'resolve'])->name('ahgprivacy.embedded-findings.resolve')->whereNumber('id');
 
     Route::get('/dpia',                  [DpiaController::class, 'index'])->name('ahgprivacy.dpia.index');
     Route::get('/dpia/new',              [DpiaController::class, 'create'])->name('ahgprivacy.dpia.create');

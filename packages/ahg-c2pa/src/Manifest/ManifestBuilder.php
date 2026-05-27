@@ -115,6 +115,31 @@ final class ManifestBuilder
     }
 
     /**
+     * Attach the three Standard Metadata Assertions (stds.exif / stds.iptc /
+     * stds.xmp) for a given digital object, sourced from Heratio's sidecar
+     * tables (digital_object_metadata, dam_iptc_metadata, media_metadata).
+     *
+     * Any of the three is skipped silently when its sidecar row has no
+     * usable content - we don't emit empty assertions. If $loader is null
+     * a default StandardMetadataLoader is constructed (uses DB facade).
+     *
+     * Per C2PA 2.1 § Standard Metadata Assertions, this is the canonical
+     * way to surface embedded EXIF/IPTC/XMP through the C2PA hash chain
+     * without re-encoding the host asset.
+     */
+    public function withStandardMetadata(
+        int $digitalObjectId,
+        ?int $objectId = null,
+        ?StandardMetadataLoader $loader = null,
+    ): self {
+        $loader ??= new StandardMetadataLoader();
+        foreach ($loader->loadAssertions($digitalObjectId, $objectId) as $a) {
+            $this->assertions[] = $a;
+        }
+        return $this;
+    }
+
+    /**
      * Build the unsigned manifest dict.
      *
      * @return array{

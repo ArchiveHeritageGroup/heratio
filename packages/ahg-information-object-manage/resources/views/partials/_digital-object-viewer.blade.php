@@ -755,5 +755,13 @@
         @endauth
       @endif
 
+      {{-- Issue #746: image-typed DOs get an EXIF / IPTC / XMP panel. The
+           partial is self-suppressing when all three sidecar tables are
+           empty for this DO, so it is safe to include unconditionally for
+           non-media types. --}}
+      @if(!$isMediaFile)
+        @includeIf('ahg-information-object-manage::partials._image-metadata-panel', ['do' => $digitalObjects['master']])
+      @endif
+
     @endif
   @endif

@@ -2,8 +2,11 @@
 
 namespace AhgPrivacy\Providers;
 
+use AhgMetadataExtraction\Events\EmbeddedMetadataExtracted;
+use AhgPrivacy\Listeners\ScanEmbeddedMetadataForPii;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -33,11 +36,33 @@ class AhgPrivacyServiceProvider extends ServiceProvider
             ]);
         }
 
+        // Issue #751 - Phase 2 install probe runs alongside Phase 1. The
+        // probe + install live inside one outer try block per the
+        // reference_ci_schema_hastable rule.
+        try {
+            if (! Schema::hasTable('ahg_pii_finding_embedded')) {
+                $this->installSqlFile(__DIR__.'/../../database/install-phase2.sql');
+            }
+        } catch (Throwable $e) {
+            Log::warning('ahg-privacy: Phase 2 (embedded PII) install probe/install failed', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // Wire the embedded-PII scan listener onto the extraction event.
+        // We register unconditionally - the listener short-circuits cleanly
+        // when the Phase 2 schema isn't installed yet.
+        Event::listen(
+            EmbeddedMetadataExtracted::class,
+            ScanEmbeddedMetadataForPii::class
+        );
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgPrivacy\Console\Commands\CheckOverdueDsarsCommand::class,
                 \AhgPrivacy\Console\Commands\ScanIoCommand::class,
                 \AhgPrivacy\Console\Commands\Article30ExportCommand::class,
+                \AhgPrivacy\Console\Commands\ScanEmbeddedBackfillCommand::class,
             ]);
 
             // Daily 09:00 sweep — the command itself short-circuits when
@@ -58,7 +83,17 @@ class AhgPrivacyServiceProvider extends ServiceProvider
      */
     private function installPhase1Schema(): void
     {
-        $path = __DIR__.'/../../database/install-phase1.sql';
+        $this->installSqlFile(__DIR__.'/../../database/install-phase1.sql');
+    }
+
+    /**
+     * Generic idempotent SQL-file installer. Splits the file on top-level ;
+     * (no procedure bodies in our install files), runs each statement in
+     * isolation, and swallows the well-known "duplicate key name" benign
+     * re-run noise. Used by both Phase 1 and Phase 2 (#751) installs.
+     */
+    private function installSqlFile(string $path): void
+    {
         if (! is_readable($path)) {
             return;
         }
@@ -67,20 +102,19 @@ class AhgPrivacyServiceProvider extends ServiceProvider
             return;
         }
 
-        // Strip line comments and split on top-level ; - this matches the
-        // statement boundary inside the install file (no procedure bodies).
         $stripped = preg_replace('/^\s*--.*$/m', '', $sql) ?? $sql;
         $statements = array_filter(array_map('trim', explode(';', $stripped)), static fn ($s) => $s !== '');
         foreach ($statements as $stmt) {
             try {
                 DB::unprepared($stmt.';');
             } catch (Throwable $e) {
-                // Common in re-runs: ADD UNIQUE KEY clashes once the constraint
-                // already exists. Treat as benign on the install path.
-                if (str_contains(strtolower($e->getMessage()), 'duplicate key name')) {
+                $msg = strtolower($e->getMessage());
+                if (str_contains($msg, 'duplicate key name')
+                    || str_contains($msg, 'duplicate entry')) {
                     continue;
                 }
-                Log::warning('ahg-privacy: Phase 1 install statement failed', [
+                Log::warning('ahg-privacy: install statement failed', [
+                    'file'  => basename($path),
                     'error' => $e->getMessage(),
                     'sql'   => mb_substr($stmt, 0, 120),
                 ]);

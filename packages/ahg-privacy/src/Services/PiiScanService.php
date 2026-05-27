@@ -228,6 +228,239 @@ final class PiiScanService
     }
 
     // -----------------------------------------------------------------------
+    // Issue #751 - embedded image metadata (EXIF / IPTC / XMP) PII scan
+    // -----------------------------------------------------------------------
+
+    /**
+     * Columns that carry creator / contact / location PII on each of the three
+     * sidecar tables populated by ahg-metadata-extraction. Each entry pairs
+     * the source column with the canonical pii_type so the persistence layer
+     * stays consistent across tables.
+     *
+     * Jurisdiction-neutral on purpose: GPS coordinates and creator-contact
+     * data are PII in every market we ship to. Per-market overlays sit in
+     * the privacy_jurisdiction registry, not here.
+     *
+     * @var array<string,array<string,string>>
+     */
+    private const EMBEDDED_FIELD_MAP = [
+        // digital_object_metadata - generalist extraction sidecar.
+        'digital_object_metadata' => [
+            'gps_latitude'  => 'gps_coordinate',
+            'gps_longitude' => 'gps_coordinate',
+            'gps_altitude'  => 'gps_coordinate',
+            'creator'       => 'person_name',
+            'author'        => 'person_name',
+            'artist'        => 'person_name',
+            'date_created'  => 'sensitive_date',
+        ],
+        // dam_iptc_metadata - IPTC IIM + IPTC Core (PhotoMetadata) per-IO.
+        'dam_iptc_metadata' => [
+            'creator'             => 'person_name',
+            'creator_job_title'   => 'person_contact',
+            'creator_address'     => 'person_contact',
+            'creator_city'        => 'person_contact',
+            'creator_state'       => 'person_contact',
+            'creator_postal_code' => 'person_contact',
+            'creator_country'     => 'person_contact',
+            'creator_phone'       => 'person_contact',
+            'creator_email'       => 'person_contact',
+            'creator_website'     => 'person_contact',
+            'date_created'        => 'sensitive_date',
+            'broadcast_date'      => 'sensitive_date',
+        ],
+        // media_metadata - audio / video stream metadata.
+        'media_metadata' => [
+            'artist'          => 'person_name',
+            'gps_coordinates' => 'gps_coordinate',
+        ],
+    ];
+
+    /**
+     * Confidence floor per pii_type. GPS coordinates and explicit contact
+     * fields are unambiguous so they ship at 0.95. Names (any string lands
+     * in *creator*) get 0.85. Dates without a person attached are weakest at
+     * 0.55 - they're still surfaced because EXIF DateTimeOriginal frequently
+     * pins a person's presence to a place and time.
+     */
+    private const EMBEDDED_CONFIDENCE = [
+        'gps_coordinate' => 0.95,
+        'person_name'    => 0.85,
+        'person_contact' => 0.95,
+        'sensitive_date' => 0.55,
+    ];
+
+    /**
+     * Scan embedded image metadata for a digital object. Reads the three
+     * sidecar tables populated by MetadataExtractionService and returns a
+     * list of PII findings shaped to match scan()'s contract closely enough
+     * to share persistence + UI code.
+     *
+     * Returned shape (one entry per hit):
+     *   [
+     *     'field'         => 'gps_latitude',
+     *     'value'         => '-25.7461',
+     *     'pii_type'      => 'gps_coordinate',
+     *     'confidence'    => 0.95,
+     *     'source_table'  => 'digital_object_metadata',
+     *     'source_column' => 'gps_latitude',
+     *   ]
+     *
+     * Empty array is a clean "no PII" signal, NOT a failure - caller should
+     * still write a "no findings" audit row if it wants to record the scan
+     * happened.
+     *
+     * @return array<int,array{field:string,value:string,pii_type:string,confidence:float,source_table:string,source_column:string}>
+     */
+    public function scanEmbeddedMetadata(int $digitalObjectId): array
+    {
+        if ($digitalObjectId <= 0) {
+            return [];
+        }
+
+        $findings = [];
+
+        foreach (self::EMBEDDED_FIELD_MAP as $table => $columnMap) {
+            if (! Schema::hasTable($table)) {
+                continue;
+            }
+
+            // Each sidecar table keys to digital_object_id (or object_id for
+            // dam_iptc_metadata, which keys to information_object). For
+            // dam_iptc_metadata we additionally check: is this IO linked to
+            // the supplied digital_object?  If a caller passes a DO id, we
+            // map it back to the IO it points at and pull the per-IO IPTC
+            // row.
+            try {
+                if ($table === 'dam_iptc_metadata') {
+                    $row = $this->loadDamIptcForDigitalObject($digitalObjectId);
+                } else {
+                    $row = DB::table($table)
+                        ->where('digital_object_id', $digitalObjectId)
+                        ->first();
+                }
+            } catch (\Throwable $e) {
+                // A missing column or read failure on one table should not
+                // poison the whole scan. Skip the table and continue.
+                continue;
+            }
+
+            if (! $row) {
+                continue;
+            }
+
+            $row = (array) $row;
+            foreach ($columnMap as $column => $piiType) {
+                $raw = $row[$column] ?? null;
+                if ($raw === null) {
+                    continue;
+                }
+                $value = is_scalar($raw) ? (string) $raw : json_encode($raw, JSON_UNESCAPED_SLASHES);
+                $value = trim((string) $value);
+                if ($value === '' || $value === '0' || $value === '0.00000000') {
+                    continue;
+                }
+                $findings[] = [
+                    'field'         => $column,
+                    'value'         => $value,
+                    'pii_type'      => $piiType,
+                    'confidence'    => self::EMBEDDED_CONFIDENCE[$piiType] ?? 0.70,
+                    'source_table'  => $table,
+                    'source_column' => $column,
+                ];
+            }
+        }
+
+        return $findings;
+    }
+
+    /**
+     * Persist findings from scanEmbeddedMetadata into ahg_pii_finding_embedded.
+     * Returns the count of new rows actually inserted (the UNIQUE on
+     * (digital_object_id, pii_type, source_table, source_field) makes
+     * re-scans idempotent - duplicate hits are simply ignored).
+     *
+     * @param array<int,array<string,mixed>> $findings  Output of scanEmbeddedMetadata.
+     */
+    public function persistEmbeddedFindings(int $digitalObjectId, array $findings): int
+    {
+        if (! Schema::hasTable('ahg_pii_finding_embedded') || $findings === []) {
+            return 0;
+        }
+
+        $now = date('Y-m-d H:i:s');
+        $inserted = 0;
+
+        foreach ($findings as $f) {
+            try {
+                $existing = DB::table('ahg_pii_finding_embedded')
+                    ->where('digital_object_id', $digitalObjectId)
+                    ->where('pii_type',          $f['pii_type'])
+                    ->where('source_table',      $f['source_table'])
+                    ->where('source_field',      $f['source_column'])
+                    ->exists();
+                if ($existing) {
+                    // Refresh scanned_at so the operator can tell when the
+                    // last scan touched this row, but leave resolution_status
+                    // alone - a redacted/cleared finding stays resolved.
+                    DB::table('ahg_pii_finding_embedded')
+                        ->where('digital_object_id', $digitalObjectId)
+                        ->where('pii_type',          $f['pii_type'])
+                        ->where('source_table',      $f['source_table'])
+                        ->where('source_field',      $f['source_column'])
+                        ->update([
+                            'scanned_at'  => $now,
+                            'source_value' => mb_substr((string) $f['value'], 0, 4000),
+                            'confidence'  => (float) $f['confidence'],
+                        ]);
+                    continue;
+                }
+                DB::table('ahg_pii_finding_embedded')->insert([
+                    'digital_object_id' => $digitalObjectId,
+                    'pii_type'          => $f['pii_type'],
+                    'source_table'      => $f['source_table'],
+                    'source_field'      => $f['source_column'],
+                    'source_value'      => mb_substr((string) $f['value'], 0, 4000),
+                    'confidence'        => (float) $f['confidence'],
+                    'resolution_status' => 'pending',
+                    'scanned_at'        => $now,
+                    'created_at'        => $now,
+                    'updated_at'        => $now,
+                ]);
+                $inserted++;
+            } catch (\Throwable $e) {
+                // Schema not installed yet, or a transient write failure -
+                // skip this row and continue. The caller can re-run the
+                // backfill command once the schema is up.
+                continue;
+            }
+        }
+
+        return $inserted;
+    }
+
+    /**
+     * Look up dam_iptc_metadata for a digital_object_id by walking back to
+     * the parent information_object. dam_iptc_metadata.object_id stores the
+     * IO id, not the DO id.
+     */
+    private function loadDamIptcForDigitalObject(int $digitalObjectId): ?object
+    {
+        // digital_object.object_id points back to the parent information_object
+        // (CTI: digital_object is a subtype of object). dam_iptc_metadata.object_id
+        // is the IO id, so we join through digital_object to find it.
+        $objectId = DB::table('digital_object')
+            ->where('id', $digitalObjectId)
+            ->value('object_id');
+        if (! $objectId) {
+            return null;
+        }
+        return DB::table('dam_iptc_metadata')
+            ->where('object_id', $objectId)
+            ->first();
+    }
+
+    // -----------------------------------------------------------------------
     // Per-type collectors
     // -----------------------------------------------------------------------
 

@@ -19,6 +19,7 @@ use AhgApi\Controllers\V2\AuthorityController;
 use AhgApi\Controllers\V2\BatchController;
 use AhgApi\Controllers\V2\ConditionController;
 use AhgApi\Controllers\V2\DescriptionController;
+use AhgApi\Controllers\V2\DigitalObjectController as V2DigitalObjectController;
 use AhgApi\Controllers\V2\EventController;
 use AhgApi\Controllers\V2\IdentifierController;
 use AhgApi\Controllers\V2\MarketplaceController as V2MarketplaceController;
@@ -108,6 +109,9 @@ Route::prefix('api/v1')->middleware(['throttle:60,1', 'api.cors', 'api.etag', 'a
 
     // Digital Objects
     Route::get('digitalobjects', [DigitalObjectApiController::class, 'index']);
+    Route::get('digitalobjects/{id}', [DigitalObjectApiController::class, 'show'])->where('id', '[0-9]+');
+    // Hyphenated alias (issue #747) - matches the documented URL form.
+    Route::get('digital-object/{id}', [DigitalObjectApiController::class, 'show'])->where('id', '[0-9]+');
     Route::post('digitalobjects', [DigitalObjectApiController::class, 'store'])
         ->middleware('api.auth:write');
 
@@ -233,6 +237,9 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
     Route::post('marketplace/favourite',                    [V2MarketplaceController::class, 'favourite'])->middleware('api.auth:write');
     Route::get('marketplace/currencies',                    [V2MarketplaceController::class, 'currencies']);
     Route::get('marketplace/categories',                    [V2MarketplaceController::class, 'categories']);
+
+    // Digital Object - embedded metadata standalone endpoint (issue #747)
+    Route::get('digital-object/{id}/embedded-metadata', [V2DigitalObjectController::class, 'embeddedMetadata'])->where('id', '[0-9]+');
 
     // Spectrum public API (issue #737)
     Route::get('spectrum/statistics',                       [SpectrumApiController::class, 'statistics']);
