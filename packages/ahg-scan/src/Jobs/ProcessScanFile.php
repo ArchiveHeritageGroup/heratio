@@ -565,16 +565,10 @@ class ProcessScanFile implements ShouldQueue
             (bool) ($session->derivative_thumbnails ?? 1)
         );
 
-        // Non-image masters (audio / video / 3D) — delegate to the media
-        // derivative service. GD only handles still images, so these formats
-        // fell through silently before P7.
-        try {
-            \AhgCore\Services\MediaDerivativeService::generateForMaster((int) $file->resolved_do_id);
-        } catch (\Throwable $e) {
-            Log::info('[ahg-scan] media derivative generation skipped: '.$e->getMessage());
-        }
+        // #756: non-image masters (audio/video/3D/pyramid TIFF) queued so
+        // ffmpeg/ImageMagick/GLTF work does not block the scan pipeline.
+        \AhgCore\Jobs\GenerateMediaDerivativesJob::dispatch((int) $file->resolved_do_id);
 
-        // Emit one PREMIS creation(derivation) event per derivative generated.
         $derivatives = DB::table('digital_object')
             ->where('parent_id', $file->resolved_do_id)
             ->get(['id', 'name', 'usage_id']);
