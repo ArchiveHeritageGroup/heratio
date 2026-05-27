@@ -153,17 +153,19 @@ jobs:
       - name: Create database + load core schema + base seeds
         # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
         # tables: object, information_object, actor, term, slug, ...) and
-        # Stage 8 loads database/seeds/0*.sql (base taxonomies, including
+        # Stage 8 loads database/seeds/0[0-6]_*.sql (base taxonomies, including
         # term IDs 131/132/133 for Corporate body / Person / Family). Tests
         # need both: schema alone gives FK violations like
         # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
+        # 07_report_templates.sql is skipped because the report_template table
+        # is created by ahg-reports' install.sql at app boot, not in core schema.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
-          for f in database/seeds/0*.sql; do
+          for f in database/seeds/0[0-6]_*.sql; do
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
@@ -210,17 +212,19 @@ jobs:
       - name: Create database + load core schema + base seeds
         # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
         # tables: object, information_object, actor, term, slug, ...) and
-        # Stage 8 loads database/seeds/0*.sql (base taxonomies, including
+        # Stage 8 loads database/seeds/0[0-6]_*.sql (base taxonomies, including
         # term IDs 131/132/133 for Corporate body / Person / Family). Tests
         # need both: schema alone gives FK violations like
         # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
+        # 07_report_templates.sql is skipped because the report_template table
+        # is created by ahg-reports' install.sql at app boot, not in core schema.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
-          for f in database/seeds/0*.sql; do
+          for f in database/seeds/0[0-6]_*.sql; do
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
@@ -268,17 +272,19 @@ jobs:
       - name: Create database + load core schema + base seeds
         # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
         # tables: object, information_object, actor, term, slug, ...) and
-        # Stage 8 loads database/seeds/0*.sql (base taxonomies, including
+        # Stage 8 loads database/seeds/0[0-6]_*.sql (base taxonomies, including
         # term IDs 131/132/133 for Corporate body / Person / Family). Tests
         # need both: schema alone gives FK violations like
         # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
+        # 07_report_templates.sql is skipped because the report_template table
+        # is created by ahg-reports' install.sql at app boot, not in core schema.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
-          for f in database/seeds/0*.sql; do
+          for f in database/seeds/0[0-6]_*.sql; do
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
@@ -365,17 +371,19 @@ jobs:
       - name: Create database + load core schema + base seeds
         # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
         # tables: object, information_object, actor, term, slug, ...) and
-        # Stage 8 loads database/seeds/0*.sql (base taxonomies, including
+        # Stage 8 loads database/seeds/0[0-6]_*.sql (base taxonomies, including
         # term IDs 131/132/133 for Corporate body / Person / Family). Tests
         # need both: schema alone gives FK violations like
         # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
+        # 07_report_templates.sql is skipped because the report_template table
+        # is created by ahg-reports' install.sql at app boot, not in core schema.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
-          for f in database/seeds/0*.sql; do
+          for f in database/seeds/0[0-6]_*.sql; do
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
@@ -427,17 +435,19 @@ jobs:
       - name: Create database + load core schema + base seeds
         # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
         # tables: object, information_object, actor, term, slug, ...) and
-        # Stage 8 loads database/seeds/0*.sql (base taxonomies, including
+        # Stage 8 loads database/seeds/0[0-6]_*.sql (base taxonomies, including
         # term IDs 131/132/133 for Corporate body / Person / Family). Tests
         # need both: schema alone gives FK violations like
         # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
+        # 07_report_templates.sql is skipped because the report_template table
+        # is created by ahg-reports' install.sql at app boot, not in core schema.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
-          for f in database/seeds/0*.sql; do
+          for f in database/seeds/0[0-6]_*.sql; do
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
