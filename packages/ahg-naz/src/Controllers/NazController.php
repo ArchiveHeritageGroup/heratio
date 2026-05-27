@@ -26,12 +26,20 @@
 namespace AhgNaz\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgCore\Services\EncryptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class NazController extends Controller
 {
+    private EncryptionService $enc;
+
+    public function __construct()
+    {
+        $this->enc = new EncryptionService();
+    }
+
     // ─── helpers ──────────────────────────────────────────────────────
 
     /**
@@ -60,6 +68,88 @@ class NazController extends Controller
         $row = DB::table('naz_config')->where('config_key', $key)->first();
 
         return $row ? $row->config_value : $default;
+    }
+
+    // ─── PII encryption helpers ──────────────────────────────────────
+    //
+    // #754: naz_researcher PII stored unencrypted at rest.
+    // EncryptionService gates all writes (insert/update) and decrypts on
+    // read so the UI stays human-readable.  Each encrypt() call no-ops
+    // to plaintext when its category is off — the same gate ahg-research
+    // uses, so both modules share the same policy.
+    //
+    // PII columns: phone, passport_number, national_id, address (contact),
+    //              notes (personal).
+
+    /**
+     * Encrypt a PII field on write.  Idempotent — already-encrypted values
+     * pass through unchanged.  No-ops when the category gate is off.
+     */
+    private function encryptPii(string $category, ?string $value, ?string $table = 'naz_researcher', ?string $column = null, $id = null): ?string
+    {
+        return $this->enc->encrypt($category, $value, $table, $column, $id);
+    }
+
+    /**
+     * Decrypt a PII field on read.  Pass-through for plain (no sentinel)
+     * legacy rows so the view layer gets human-readable strings regardless
+     * of whether the operator has enabled encryption.
+     */
+    private function decryptPii(string $category, ?string $stored, $id = null): ?string
+    {
+        return $this->enc->decrypt($category, $stored, 'naz_researcher', null, $id);
+    }
+
+    /**
+     * Decrypt all PII columns on a naz_researcher row for display.  Returns
+     * a stdClass clone — the DB row is never modified.  Read-only.
+     */
+    private function decryptResearcherPii(object $row): object
+    {
+        $r = clone $row;
+        $id = $r->id ?? null;
+        if (isset($r->phone))           $r->phone           = $this->decryptPii(EncryptionService::CATEGORY_CONTACT_DETAILS, $r->phone, $id);
+        if (isset($r->passport_number)) $r->passport_number = $this->decryptPii(EncryptionService::CATEGORY_CONTACT_DETAILS, $r->passport_number, $id);
+        if (isset($r->national_id))     $r->national_id     = $this->decryptPii(EncryptionService::CATEGORY_CONTACT_DETAILS, $r->national_id, $id);
+        if (isset($r->address))         $r->address         = $this->decryptPii(EncryptionService::CATEGORY_CONTACT_DETAILS, $r->address, $id);
+        if (isset($r->notes))           $r->notes           = $this->decryptPii(EncryptionService::CATEGORY_PERSONAL_NOTES, $r->notes, $id);
+
+        return $r;
+    }
+
+    /**
+     * Encrypt PII fields present in a data array before a DB insert/update.
+     * Only fields that are array keys are encrypted — nulls and absent
+     * fields are left alone.  Mirrors the gate used by ahg-research so
+     * both modules share the same policy.
+     */
+    private function encryptResearcherPii(array $data, int $id = null): array
+    {
+        // CATEGORY_CONTACT_DETAILS: phone, passport_number, national_id, address
+        foreach (['phone', 'passport_number', 'national_id', 'address'] as $field) {
+            if (array_key_exists($field, $data) && $data[$field] !== null) {
+                $data[$field] = $this->enc->encrypt(
+                    EncryptionService::CATEGORY_CONTACT_DETAILS,
+                    (string) $data[$field],
+                    'naz_researcher',
+                    $field,
+                    $id
+                );
+            }
+        }
+
+        // CATEGORY_PERSONAL_NOTES: notes
+        if (array_key_exists('notes', $data) && $data['notes'] !== null) {
+            $data['notes'] = $this->enc->encrypt(
+                EncryptionService::CATEGORY_PERSONAL_NOTES,
+                (string) $data['notes'],
+                'naz_researcher',
+                'notes',
+                $id
+            );
+        }
+
+        return $data;
     }
 
     // ─── Dashboard ───────────────────────────────────────────────────
@@ -438,7 +528,6 @@ class NazController extends Controller
     {
         $schedule = DB::table('naz_records_schedule')->where('id', $id)->firstOrFail();
 
-        // Transfers linked to this schedule
         $transfers = DB::table('naz_transfer')
             ->where('schedule_id', $id)
             ->orderByDesc('proposed_date')
@@ -553,7 +642,6 @@ class NazController extends Controller
             'restrictions' => 'nullable|string',
         ]);
 
-        // collections_access stored as JSON
         if (isset($data['collections_access']) && is_string($data['collections_access'])) {
             $decoded = json_decode($data['collections_access'], true);
             $data['collections_access'] = $decoded !== null ? json_encode($decoded) : json_encode([]);
@@ -637,12 +725,12 @@ class NazController extends Controller
         }
         if ($search = $request->get('query')) {
             $query->where(function ($q) use ($search) {
+                // Search uses decrypted values; encrypted values are
+                // unsearchable until a full decryption sweep is run.
                 $q->where('first_name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('institution', 'like', "%{$search}%")
-                    ->orWhere('national_id', 'like', "%{$search}%")
-                    ->orWhere('passport_number', 'like', "%{$search}%");
+                    ->orWhere('institution', 'like', "%{$search}%");
             });
         }
 
@@ -692,6 +780,13 @@ class NazController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        // #754: encrypt sensitive PII before writing to DB.
+        // CATEGORY_CONTACT_DETAILS: phone, passport_number, national_id, address.
+        // CATEGORY_PERSONAL_NOTES: notes.
+        // Each call no-ops to plaintext when its category is off, so the
+        // same gate the bulk-apply safety-net uses protects direct inserts.
+        $data = $this->encryptResearcherPii($data);
+
         $data['created_by'] = Auth::id();
         $data['created_at'] = now();
         $data['updated_at'] = now();
@@ -705,15 +800,16 @@ class NazController extends Controller
 
     public function researcherView(int $id)
     {
-        $researcher = DB::table('naz_researcher')->where('id', $id)->firstOrFail();
+        $row = DB::table('naz_researcher')->where('id', $id)->firstOrFail();
+        // #754: decrypt PII for human-readable display.  isCiphertext guard
+        // ensures plain (no-sentinel) legacy rows pass through unchanged.
+        $researcher = $this->decryptResearcherPii($row);
 
-        // Permits for this researcher
         $permits = DB::table('naz_research_permit')
             ->where('researcher_id', $id)
             ->orderByDesc('start_date')
             ->get();
 
-        // Recent visits
         $visits = DB::table('naz_research_visit')
             ->where('researcher_id', $id)
             ->orderByDesc('visit_date')
@@ -748,6 +844,9 @@ class NazController extends Controller
             'status' => 'nullable|string|max:47',
             'notes' => 'nullable|string',
         ]);
+
+        // #754: encrypt sensitive PII on update — same gate as researcherStore().
+        $data = $this->encryptResearcherPii($data, $id);
 
         $data['updated_at'] = now();
 
@@ -845,7 +944,6 @@ class NazController extends Controller
 
         $id = DB::table('naz_transfer')->insertGetId($data);
 
-        // Insert transfer items if provided
         $items = $request->input('items', []);
         foreach ($items as $item) {
             if (empty($item['series_title'])) {
@@ -926,7 +1024,7 @@ class NazController extends Controller
         return redirect()->route('ahgnaz.transfer-view', $id)->with('success', 'Transfer updated.');
     }
 
-    // ─── Reports ────────────────────────────────────────────────────
+    // ─── Reports ───────────────────────────────────────────────────
 
     public function reports(Request $request)
     {
