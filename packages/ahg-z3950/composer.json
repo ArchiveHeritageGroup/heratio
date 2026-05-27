@@ -1,0 +1,30 @@
+{
+    "name": "ahg/z3950",
+    "description": "Z39.50 client and server for Heratio - search and serve bibliographic records via the Z39.50 protocol (bib-1 attr set).",
+    "type": "library",
+    "license": "AGPL-3.0",
+    "authors": [
+        {
+            "name": "Johan Pieterse",
+            "email": "johan@theahg.co.za"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "ahg/core": "@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AhgZ3950\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "AhgZ3950\\Providers\\AhgZ3950ServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

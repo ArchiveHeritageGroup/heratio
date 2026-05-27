@@ -1,6 +1,10 @@
 <?php
 
 use AhgLibrary\Controllers\LibraryController;
+use AhgLibrary\Controllers\KbartoController;
+use AhgLibrary\Controllers\KbartAdminController;
+use AhgLibrary\Controllers\LibraryUsageController;
+use AhgLibrary\Controllers\MarcEditorController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/library', [LibraryController::class, 'browse'])->name('library.browse');
@@ -78,7 +82,7 @@ Route::middleware('auth')->group(function () {
 
     // Patron-facing ILL (OPAC)
     Route::get('/opac/ill/create',  [LibraryController::class, 'opacIllCreate'])->name('library.opac-ill-create');
-    Route::post('/opac/ill/create',  [LibraryController::class, 'opacIllStore'])->name('library.opac-ill-store');
+    Route::post('/opac/ill/create',  [LibraryController::class, 'opacIllStore'])->name('library.ill-opac-store');
 
     // ISBN
     Route::get('/library-manage/isbn-lookup', [LibraryController::class, 'isbnLookup'])->name('library.isbn-lookup');
@@ -93,6 +97,19 @@ Route::middleware('auth')->group(function () {
     // Serials
     Route::get('/library-manage/serials', [LibraryController::class, 'serials'])->name('library.serials');
     Route::get('/library-manage/serial/{id}', [LibraryController::class, 'serialView'])->name('library.serial-view')->where('id', '[0-9]+');
+    Route::get('/library-manage/serial/add',  [LibraryController::class,'serialCreate'])->name('library.serial-create');
+    Route::post('/library-manage/serial/add', [LibraryController::class,'serialStore'])->name('library.serial-store');
+    Route::get('/library-manage/serial/{id}/edit',  [LibraryController::class,'serialEdit'])->name('library.serial-edit')->where('id', '[0-9]+');
+    Route::put('/library-manage/serial/{id}',  [LibraryController::class,'serialUpdate'])->name('library.serial-update')->where('id', '[0-9]+');
+    Route::delete('/library-manage/serial/{id}', [LibraryController::class,'serialDelete'])->name('library.serial-delete')->where('id', '[0-9]+');
+    Route::post('/library-manage/serial/{id}/issue', [LibraryController::class,'serialAddIssue'])->name('library.serial-add-issue')->where('id', '[0-9]+');
+    Route::get('/library-manage/serial/{id}/subscription', [LibraryController::class,'serialSubscription'])->name('library.serial-subscription')->where('id', '[0-9]+');
+    Route::post('/library-manage/serial/{id}/subscription', [LibraryController::class,'serialSubscriptionStore'])->name('library.serial-subscription-store')->where('id', '[0-9]+');
+    Route::get('/library-manage/serial/{id}/predict', [LibraryController::class,'serialPredict'])->name('library.serial-predict')->where('id', '[0-9]+');
+    Route::get('/library-manage/serial/{id}/coverage', [LibraryController::class,'serialCoverage'])->name('library.serial-coverage')->where('id', '[0-9]+');
+    Route::post('/library-manage/serial/{id}/clone', [LibraryController::class,'serialClone'])->name('library.serial-clone')->where('id', '[0-9]+');
+    Route::get('/library-manage/serial/overdue-claims', [LibraryController::class,'serialOverdueClaims'])->name('library.serial-overdue-claims');
+    Route::post('/library-manage/serial/{serialId}/claim/{issueId}',[LibraryController::class,'serialClaimIssue'])->name('library.serial-claim-issue')->where(['serialId'=>'[0-9]+','issueId'=>'[0-9]+']);
 
     // Reports
     Route::get('/library-manage/reports', [LibraryController::class, 'libraryReports'])->name('library.reports');
@@ -101,6 +118,46 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/reports/publishers', [LibraryController::class, 'reportPublishers'])->name('library.report-publishers');
     Route::get('/library-manage/reports/subjects', [LibraryController::class, 'reportSubjects'])->name('library.report-subjects');
     Route::get('/library-manage/reports/call-numbers', [LibraryController::class, 'reportCallNumbers'])->name('library.report-call-numbers');
+
+    // MARC Editor - batch import + in-place field editor
+    Route::get('/library-manage/marc', [MarcEditorController::class, 'index'])->name('library.marc-index');
+    Route::get('/library-manage/marc/import', [MarcEditorController::class, 'import'])->name('library.marc-import');
+    Route::post('/library-manage/marc/import/preview', [MarcEditorController::class, 'formImportPreview'])->name('library.marc-import-preview');
+    Route::post('/library-manage/marc/import/commit', [MarcEditorController::class, 'formImportCommit'])->name('library.marc-import-commit');
+    Route::get('/library-manage/marc/{id}/edit', [MarcEditorController::class, 'edit'])->name('library.marc-edit')->where('id', '[0-9]+');
+    Route::put('/library-manage/marc/{id}', [MarcEditorController::class, 'update'])->name('library.marc-update')->where('id', '[0-9]+');
+    Route::get('/library-manage/marc/{id}/download', [MarcEditorController::class, 'download'])->name('library.marc-download')->where('id', '[0-9]+');
+    Route::get('/library-manage/marc/{id}/download-binary', [MarcEditorController::class, 'downloadBinary'])->name('library.marc-download-binary')->where('id', '[0-9]+');
+
+    // KBART knowledge-base exchange (issue #765)
+    Route::get('/library-manage/kbart',              [KbartoController::class, 'index'])->name('library.kbart');
+    Route::get('/library-manage/kbart/export',        [KbartoController::class, 'export'])->name('library.kbart-export');
+    Route::get('/library-manage/kbart/export-csv',    [KbartoController::class, 'exportCsv'])->name('library.kbart-export-csv');
+    Route::get('/library-manage/kbart/import',        [KbartoController::class, 'import'])->name('library.kbart-import');
+    Route::post('/library-manage/kbart/preview',      [KbartoController::class, 'preview'])->name('library.kbart-preview');
+    Route::post('/library-manage/kbart/commit',       [KbartoController::class, 'commit'])->name('library.kbart-commit');
+    Route::get('/library-manage/kbart/template',      [KbartoController::class, 'template'])->name('library.kbart-template');
+
+    // KBART remote feeds — automated scheduled import (issue #768)
+    Route::get('/library-manage/kbart/remote',               [KbartAdminController::class, 'index'])->name('library.kbart-remote');
+    Route::get('/library-manage/kbart/remote/create',        [KbartAdminController::class, 'create'])->name('library.kbart-remote-create');
+    Route::post('/library-manage/kbart/remote',              [KbartAdminController::class, 'store'])->name('library.kbart-remote-store');
+    Route::get('/library-manage/kbart/remote/{feed}/edit',  [KbartAdminController::class, 'edit'])->name('library.kbart-remote-edit')->where('feed', '[0-9]+');
+    Route::put('/library-manage/kbart/remote/{feed}',        [KbartAdminController::class, 'update'])->name('library.kbart-remote-update')->where('feed', '[0-9]+');
+    Route::post('/library-manage/kbart/remote/{feed}/refresh', [KbartAdminController::class, 'refresh'])->name('library.kbart-remote-refresh')->where('feed', '[0-9]+');
+    Route::post('/library-manage/kbart/remote/{feed}/toggle',  [KbartAdminController::class, 'toggle'])->name('library.kbart-remote-toggle')->where('feed', '[0-9]+');
+    Route::delete('/library-manage/kbart/remote/{feed}',     [KbartAdminController::class, 'destroy'])->name('library.kbart-remote-destroy')->where('feed', '[0-9]+');
+    Route::post('/library-manage/kbart/remote/test-url',      [KbartAdminController::class, 'testUrl'])->name('library.kbart-remote-test-url');
+
+    // COUNTER 5 / SUSHI usage statistics (issue #766)
+    Route::get('/library-manage/usage',                    [LibraryUsageController::class, 'index'])->name('library.usage');
+    Route::get('/library-manage/usage/tr',                 [LibraryUsageController::class, 'titleReport'])->name('library.usage-tr');
+    Route::get('/library-manage/usage/dr',                 [LibraryUsageController::class, 'databaseReport'])->name('library.usage-dr');
+    Route::get('/library-manage/usage/harvest',            [LibraryUsageController::class, 'harvest'])->name('library.usage-harvest');
+    Route::get('/library-manage/usage/subscriptions',      [LibraryUsageController::class, 'subscriptions'])->name('library.usage-subscriptions');
+    Route::post('/library-manage/usage/subscriptions',     [LibraryUsageController::class, 'subscriptionsStore'])->name('library.usage-subscriptions-store');
+    Route::get('/library-manage/usage/subscriptions/test', [LibraryUsageController::class, 'testConnection'])->name('library.usage-subscriptions-test');
+    Route::get('/library-manage/usage/export/{type}',      [LibraryUsageController::class, 'export'])->name('library.usage-export')->where('type', 'PR|TR|DR');
 });
 
 // OPAC (public). Master gate: library_opac_enabled (404s the whole surface when off).

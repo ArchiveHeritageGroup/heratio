@@ -28,6 +28,7 @@ class AhgLibraryServiceProvider extends ServiceProvider
                 \AhgLibrary\Console\Commands\AutoExpirePatronsCommand::class,
                 \AhgLibrary\Console\Commands\CalculateFinesCommand::class,
                 \AhgLibrary\Console\Commands\BackfillLibraryAuthorsCommand::class,
+                \AhgLibrary\Console\Commands\KbartRefreshFeedsCommand::class,
             ]);
 
             $this->app->booted(function () {
@@ -38,6 +39,9 @@ class AhgLibraryServiceProvider extends ServiceProvider
                 $schedule->command('ahg:library-auto-expire-holds')->dailyAt('02:30')->withoutOverlapping(60);
                 $schedule->command('ahg:library-auto-expire-patrons')->dailyAt('02:45')->withoutOverlapping(60);
                 $schedule->command('ahg:library-calculate-fines')->dailyAt('03:15')->withoutOverlapping(60);
+                // Issue #768 - KBART remote feed refresh: daily at 01:00, before
+                // the circulation batch so feed metadata is updated before staff arrive.
+                $schedule->command('ahg:library-kbart-refresh')->dailyAt('01:00')->withoutOverlapping(60);
             });
         }
     }

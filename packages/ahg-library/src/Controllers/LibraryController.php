@@ -1477,4 +1477,136 @@ class LibraryController extends Controller
         $msg = $ok ? __('Patron reactivated.') : __('Patron could not be reactivated.');
         return redirect()->route('library.patron-view', $id)->with($ok ? 'success' : 'error', $msg);
     }
+
+    // ── Serial CRUD + advanced ─────────────────────────────────────────
+
+    public function serialCreate(): \Illuminate\View\View
+    {
+        $frequencies = \AhgLibrary\Services\LibrarySerialService::FREQUENCIES;
+        return view('ahg-library::serial.create', compact('frequencies'));
+    }
+
+    public function serialStore(\Illuminate\Http\Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $data = $request->validate([
+            'title'     => 'required|string|max:500',
+            'issn'      => 'nullable|string|max:20',
+            'frequency' => 'sometimes|string|max:20',
+            'publisher' => 'nullable|string|max:500',
+            'status'    => 'sometimes|in:active,ceased,suspended',
+            'notes'     => 'nullable|string',
+        ]);
+        $id = $this->serial->create($data);
+        return redirect()->route('library.serial-view', $id)->with('serial_success', 'Serial created.');
+    }
+
+    public function serialEdit(int $id): \Illuminate\View\View
+    {
+        $serial = $this->serial->get($id) ?? (object) ['id'=>$id,'title'=>'','issn'=>'','frequency'=>'','publisher'=>'','status'=>'active'];
+        $frequencies = \AhgLibrary\Services\LibrarySerialService::FREQUENCIES;
+        return view('ahg-library::serial.edit', compact('serial', 'frequencies'));
+    }
+
+    public function serialUpdate(\Illuminate\Http\Request $request, int $id): \Illuminate\Http\RedirectResponse
+    {
+        $data = $request->validate([
+            'title'     => 'required|string|max:500',
+            'issn'      => 'nullable|string|max:20',
+            'frequency' => 'sometimes|string|max:20',
+            'publisher' => 'nullable|string|max:500',
+            'status'    => 'sometimes|in:active,ceased,suspended',
+            'notes'     => 'nullable|string',
+        ]);
+        $this->serial->update($id, $data);
+        return redirect()->route('library.serial-view', $id)->with('serial_success', 'Serial updated.');
+    }
+
+    public function serialDelete(int $id): \Illuminate\Http\RedirectResponse
+    {
+        $this->serial->delete($id);
+        return redirect()->route('library.serials')->with('serial_success', 'Serial deleted.');
+    }
+
+    public function serialAddIssue(\Illuminate\Http\Request $request, int $id): \Illuminate\Http\RedirectResponse
+    {
+        $data = $request->validate([
+            'volume'        => 'nullable|string|max:50',
+            'issue_number' => 'nullable|string|max:20',
+            'issue_date'   => 'nullable|date',
+            'received_at'  => 'nullable|date',
+            'status'       => 'sometimes|in:received,claimed,missing',
+            'notes'        => 'nullable|string',
+        ]);
+        $this->serial->addIssue($id, $data);
+        return redirect()->back()->with('serial_success', 'Issue added.');
+    }
+
+    public function serialSubscription(int $serialId): \Illuminate\View\View
+    {
+        $serial = $this->serial->get($serialId);
+        if (!$serial) { abort(404); }
+        $frequencies = \AhgLibrary\Services\LibrarySerialService::FREQUENCIES;
+        return view('ahg-library::serial.subscription', compact('serial', 'frequencies'));
+    }
+
+    public function serialSubscriptionStore(\Illuminate\Http\Request $request, int $serialId): \Illuminate\Http\RedirectResponse
+    {
+        $data = $request->validate([
+            'subscription_start'  => 'nullable|date',
+            'subscription_end'     => 'nullable|date',
+            'subscription_cost'   => 'nullable|numeric|min:0',
+            'notification_email'  => 'nullable|email|max:255',
+            'auto_claim_max'      => 'nullable|integer|min:0|max:12',
+            'notes'               => 'nullable|string',
+        ]);
+        $this->serial->saveSubscription($serialId, $data);
+        return redirect()->route('library.serial-subscription', $serialId)->with('serial_success', 'Subscription saved.');
+    }
+
+    public function serialPredict(int $serialId): \Illuminate\Http\JsonResponse
+    {
+        $frequencies = \AhgLibrary\Services\LibrarySerialService::FREQUENCIES;
+        $serial = $this->serial->get($serialId);
+        if (!$serial) { abort(404); }
+        $nextDate = $this->serial->predictNextIssue($serialId);
+        $expected = $this->serial->getExpectedIssues($serialId, 6);
+        return response()->json([
+            'serial_id'       => $serialId,
+            'frequency'       => $serial->frequency,
+            'predictions'     => $expected,
+            'next_expected'   => $nextDate ? $nextDate->format('Y-m-d') : null,
+            'days_until_next' => $nextDate ? now()->diffInDays($nextDate, false) : null,
+            'frequency_label' => $frequencies[$serial->frequency] ?? $serial->frequency,
+        ]);
+    }
+
+    public function serialCoverage(int $serialId): \Illuminate\View\View
+    {
+        $serial = $this->serial->get($serialId);
+        if (!$serial) { abort(404); }
+        $stats = $this->serial->getCoverageStats($serialId);
+        $history = $this->serial->getIssueHistory($serialId);
+        return view('ahg-library::serial.coverage', compact('serial', 'stats', 'history'));
+    }
+
+    public function serialClone(int $serialId): \Illuminate\Http\RedirectResponse
+    {
+        $newId = $this->serial->cloneSerial($serialId);
+        return redirect()->route('library.serial-edit', $newId)->with('serial_success', 'Serial cloned. Review and save.');
+    }
+
+    public function serialOverdueClaims(): \Illuminate\View\View
+    {
+        $claims = collect($this->serial->listOverdueClaims());
+        return view('ahg-library::serial.overdue-claims', compact('claims'));
+    }
+
+    public function serialClaimIssue(int $serialId, int $issueId): \Illuminate\Http\RedirectResponse
+    {
+        DB::table('library_serial_issue')
+            ->where('id', $issueId)
+            ->where('serial_id', $serialId)
+            ->update(['status' => 'claimed', 'updated_at' => now()]);
+        return redirect()->back()->with('serial_success', 'Issue claimed.');
+    }
 }

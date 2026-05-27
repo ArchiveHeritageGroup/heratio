@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "23c3c9edec00f52f46bbad6506905ece",
+    "content-hash": "562197f32ebf8e9fed1f4a512ff89e7d",
     "packages": [
         {
             "name": "ahg/3d-model",
@@ -157,6 +157,39 @@
                 }
             },
             "description": "Actor browse and management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/ai-chatbot",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-ai-chatbot",
+                "reference": "24f7b98a405ddeae65050a498266724936621efa"
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "type": "heratio-plugin",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgAiChatbot\\Providers\\AhgAiChatbotServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgAiChatbot\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0"
+            ],
+            "description": "AHG AI chatbot — conversational LLM interface over the Heratio archival catalogue. Grounded responses via RAG over catalogue metadata and domain knowledge.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -415,6 +448,72 @@
                 }
             },
             "description": "Backup & Restore management for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/biblio-bf",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-biblio-bf",
+                "reference": "2c6dda836e1590fe9d833e94a79829e9ae0c5873"
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "type": "heratio-plugin",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgBiblioBf\\Providers\\AhgBiblioBfServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgBiblioBf\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0"
+            ],
+            "description": "AHG BIBFRAME integration - serialises bibliographic records to/from BIBFRAME 2.0 RDF via the OpenRiC RiC-O service layer.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/biblio-frbr",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-biblio-frbr",
+                "reference": "bc8255bfddad58997d4bbb2ab5d0ded115760ae2"
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "type": "heratio-plugin",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgBiblioFrbr\\Providers\\AhgBiblioFrbrServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgBiblioFrbr\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0"
+            ],
+            "description": "AHG FRBR integration - serialises bibliographic records to/from the FRBR conceptual model (Work, Expression, Item, Manifestation) via the OpenRiC RiC-O service layer.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -3343,6 +3442,46 @@
                 "AGPL-3.0-or-later"
             ],
             "description": "Workflow management, task approval, SLA tracking, and publish gates for Heratio",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "ahg/z3950",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/ahg-z3950",
+                "reference": "9ccdccdf150394ed39ec6a2661322d0664d6633c"
+            },
+            "require": {
+                "ahg/core": "@dev",
+                "php": "^8.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "AhgZ3950\\Providers\\AhgZ3950ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AhgZ3950\\": "src/"
+                }
+            },
+            "license": [
+                "AGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Johan Pieterse",
+                    "email": "johan@theahg.co.za"
+                }
+            ],
+            "description": "Z39.50 client and server for Heratio - search and serve bibliographic records via the Z39.50 protocol (bib-1 attr set).",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -14899,6 +15038,7 @@
         "ahg/accession-manage": 20,
         "ahg/acl": 20,
         "ahg/actor-manage": 20,
+        "ahg/ai-chatbot": 20,
         "ahg/ai-compliance": 20,
         "ahg/ai-services": 20,
         "ahg/annotations": 20,
@@ -14907,6 +15047,8 @@
         "ahg/audit-trail": 20,
         "ahg/authority-resolution": 20,
         "ahg/backup": 20,
+        "ahg/biblio-bf": 20,
+        "ahg/biblio-frbr": 20,
         "ahg/c2pa": 20,
         "ahg/cart": 20,
         "ahg/cdpa": 20,
@@ -14999,7 +15141,8 @@
         "ahg/user-manage": 20,
         "ahg/vendor": 20,
         "ahg/version-control": 20,
-        "ahg/workflow": 20
+        "ahg/workflow": 20,
+        "ahg/z3950": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

@@ -322,6 +322,12 @@ class AhgCoreServiceProvider extends ServiceProvider
                             return false;
                         }
                     });
+                // #755: RegenDerivativesCommand — regenerate thumbnails / reference
+                // copies from master files. Weekly Sunday 02:00 (same slot as the
+                // DB-driven cron_schedule entry so the two mechanisms stay in sync).
+                $schedule->command('ahg:regen-derivatives --type=all')
+                    ->weeklyOn(0, '02:00')
+                    ->withoutOverlapping(120);
             });
         }
 
