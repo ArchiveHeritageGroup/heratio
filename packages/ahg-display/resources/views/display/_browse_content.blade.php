@@ -615,6 +615,13 @@
                   <small class="text-muted text-truncate ms-2">{{ $objIdentifier }}</small>
                 @endif
               </div>
+              @if (!empty($obj->work_key) && !empty($obj->cluster_count) && $obj->cluster_count > 1)
+                <a href="{{ url('/library/work-cluster/' . $obj->work_key) }}"
+                   class="d-block small text-decoration-none mt-2">
+                  <i class="fas fa-layer-group"></i>
+                  {{ __('View all :count editions', ['count' => $obj->cluster_count]) }}
+                </a>
+              @endif
             </div>
           </div>
         </div>
@@ -667,6 +674,13 @@
                   <p class="card-text text-muted small mb-1">{{ Str::limit(strip_tags($objScope), 150) }}</p>
                 @endif
                 <span class="badge bg-{{ $otc['color'] }}">{{ $otc['label'] }}</span>
+                @if (!empty($obj->work_key) && !empty($obj->cluster_count) && $obj->cluster_count > 1)
+                  <a href="{{ url('/library/work-cluster/' . $obj->work_key) }}"
+                     class="ms-2 small text-decoration-none">
+                    <i class="fas fa-layer-group"></i>
+                    {{ __('View all :count editions', ['count' => $obj->cluster_count]) }}
+                  </a>
+                @endif
               </div>
             </div>
             <div class="col-md-1 d-flex flex-column align-items-center justify-content-center border-start gap-1">

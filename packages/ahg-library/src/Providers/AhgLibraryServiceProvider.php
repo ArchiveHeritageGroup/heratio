@@ -42,6 +42,7 @@ class AhgLibraryServiceProvider extends ServiceProvider
                 \AhgLibrary\Console\Commands\CalculateFinesCommand::class,
                 \AhgLibrary\Console\Commands\BackfillLibraryAuthorsCommand::class,
                 \AhgLibrary\Console\Commands\KbartRefreshFeedsCommand::class,
+                \AhgLibrary\Console\Commands\EmailUsageReportsCommand::class,
             ]);
 
             $this->app->booted(function () {
@@ -55,6 +56,12 @@ class AhgLibraryServiceProvider extends ServiceProvider
                 // Issue #768 - KBART remote feed refresh: daily at 01:00, before
                 // the circulation batch so feed metadata is updated before staff arrive.
                 $schedule->command('ahg:library-kbart-refresh')->dailyAt('01:00')->withoutOverlapping(60);
+                // Issue #766 - COUNTER R5 report email delivery: 1st of every
+                // month at 04:00 SAST. The command itself resolves the prior
+                // period and short-circuits when no recipients are configured.
+                $schedule->command('ahg:library-email-usage-reports')
+                    ->monthlyOn(1, '04:00')
+                    ->withoutOverlapping(120);
             });
         }
     }

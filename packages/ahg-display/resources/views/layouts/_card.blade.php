@@ -51,6 +51,17 @@
                     {{ Str::limit(strip_tags($fields['description']['description']['value']), 150) }}
                 </p>
                 @endif
+
+                {{-- #763 FRBR work-set cluster expander. Shows on cards
+                     representing a Work that has more than one manifestation
+                     in the catalogue. --}}
+                @if (!empty($object->work_key) && !empty($object->cluster_count) && $object->cluster_count > 1)
+                    <a href="{{ url('/library/work-cluster/' . $object->work_key) }}"
+                       class="d-inline-block mt-2 small text-decoration-none">
+                        <i class="fas fa-layer-group"></i>
+                        {{ __('View all :count editions', ['count' => $object->cluster_count]) }}
+                    </a>
+                @endif
             </div>
         </div>
     </div>

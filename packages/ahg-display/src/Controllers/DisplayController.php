@@ -374,13 +374,17 @@ class DisplayController extends Controller
             })
             ->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id')
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
+            // #763 FRBR work-set clustering: pull library_item.work_key into the
+            // hit-list so the renderer can collapse manifestations of the same
+            // Work into a single row with a 'View all editions' expander.
+            ->leftJoin('library_item as li_wk', 'io.id', '=', 'li_wk.information_object_id')
             ->where('io.id', '>', 1)
             ->select(
                 'io.id', 'io.identifier', 'io.parent_id',
                 DB::raw("COALESCE(NULLIF(i18n.title, ''), i18n_fb.title) AS title"),
                 DB::raw("COALESCE(NULLIF(i18n.scope_and_content, ''), i18n_fb.scope_and_content) AS scope_and_content"),
                 DB::raw("COALESCE(NULLIF(level.name, ''), level_fb.name) AS level_name"),
-                'doc.object_type', 'slug.slug'
+                'doc.object_type', 'slug.slug', 'li_wk.work_key'
             );
 
         // Apply all filters to main query
@@ -448,6 +452,46 @@ class DisplayController extends Controller
             ->limit($limit)
             ->get()
             ->toArray();
+
+        // #763 FRBR cluster collapse: when two rows on this page share a work_key,
+        // keep the first as the representative + record the sibling count. The
+        // expander link (/library/work-cluster/{workKey}) lists every edition
+        // including ones on other pages.
+        $seenWorkKeys = [];
+        $clusteredObjects = [];
+        $workKeysOnPage = [];
+        foreach ($objects as $obj) {
+            $key = $obj->work_key ?? null;
+            if (!$key) {
+                $obj->cluster_count = 1;
+                $clusteredObjects[] = $obj;
+                continue;
+            }
+            if (isset($seenWorkKeys[$key])) {
+                // non-representative - suppress this row, increment the rep's local count
+                $seenWorkKeys[$key]->__local_dupes = ($seenWorkKeys[$key]->__local_dupes ?? 0) + 1;
+                continue;
+            }
+            $seenWorkKeys[$key] = $obj;
+            $workKeysOnPage[] = $key;
+            $clusteredObjects[] = $obj;
+        }
+        // Cross-page sibling count - one query for all keys on this page.
+        if (!empty($workKeysOnPage)) {
+            $totalsByKey = DB::table('library_item')
+                ->whereIn('work_key', $workKeysOnPage)
+                ->select('work_key', DB::raw('COUNT(*) as total'))
+                ->groupBy('work_key')
+                ->pluck('total', 'work_key');
+            foreach ($clusteredObjects as $obj) {
+                if (!empty($obj->work_key) && $totalsByKey->has($obj->work_key)) {
+                    $obj->cluster_count = (int) $totalsByKey[$obj->work_key];
+                } else {
+                    $obj->cluster_count = 1;
+                }
+            }
+        }
+        $objects = $clusteredObjects;
 
         // Enrich results
         foreach ($objects as &$obj) {

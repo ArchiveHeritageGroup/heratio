@@ -12,6 +12,14 @@
         <a href="{{ route('informationobject.show', ['slug' => $object->slug]) }}">
             <strong>{{ $field['value'] }}</strong>
         </a>
+        {{-- #763 FRBR cluster expander on the title cell of clustered rows. --}}
+        @if (!empty($object->work_key) && !empty($object->cluster_count) && $object->cluster_count > 1)
+            <a href="{{ url('/library/work-cluster/' . $object->work_key) }}"
+               class="d-block small text-decoration-none mt-1">
+                <i class="fas fa-layer-group"></i>
+                {{ __('View all :count editions', ['count' => $object->cluster_count]) }}
+            </a>
+        @endif
         @else
         {!! format_field_value($field) !!}
         @endif
