@@ -28,7 +28,7 @@ No complete artefact set was produced. Please investigate as soon as possible.</
 </table>
 
 @if(!empty($backup['errors']))
-<h4>Errors</h4>
+<h4>{{ __('Errors') }}</h4>
 <ul>
   @foreach($backup['errors'] as $err)
     <li><code>{{ \Illuminate\Support\Str::limit($err, 500) }}</code></li>
@@ -37,7 +37,7 @@ No complete artefact set was produced. Please investigate as soon as possible.</
 @endif
 
 @if(!empty($backup['partial_files']))
-<h4>Partial artefacts on disk (may be incomplete)</h4>
+<h4>{{ __('Partial artefacts on disk (may be incomplete)') }}</h4>
 <ul>
   @foreach($backup['partial_files'] as $f)
     <li>{{ $f['component'] ?? '?' }} &mdash; {{ $f['filename'] ?? '?' }} ({{ $f['size'] ?? '?' }})</li>

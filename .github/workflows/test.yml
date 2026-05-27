@@ -150,15 +150,21 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database + load core schema
-        # bin/install Stage 6 loads database/core/0[0-3]_*.sql against a fresh
-        # database. Tests need the same ~995 tables (object, information_object,
-        # actor, term, slug, ...) — without this load, Feature/Package tests
-        # explode with "Table 'heratio_test.object' doesn't exist".
+      - name: Create database + load core schema + base seeds
+        # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
+        # tables: object, information_object, actor, term, slug, ...) and
+        # Stage 8 loads database/seeds/0*.sql (base taxonomies, including
+        # term IDs 131/132/133 for Corporate body / Person / Family). Tests
+        # need both: schema alone gives FK violations like
+        # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+          done
+          for f in database/seeds/0*.sql; do
+            echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
       - name: Run Unit Tests
@@ -201,15 +207,21 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database + load core schema
-        # bin/install Stage 6 loads database/core/0[0-3]_*.sql against a fresh
-        # database. Tests need the same ~995 tables (object, information_object,
-        # actor, term, slug, ...) — without this load, Feature/Package tests
-        # explode with "Table 'heratio_test.object' doesn't exist".
+      - name: Create database + load core schema + base seeds
+        # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
+        # tables: object, information_object, actor, term, slug, ...) and
+        # Stage 8 loads database/seeds/0*.sql (base taxonomies, including
+        # term IDs 131/132/133 for Corporate body / Person / Family). Tests
+        # need both: schema alone gives FK violations like
+        # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+          done
+          for f in database/seeds/0*.sql; do
+            echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
       - name: Run Feature Tests
@@ -253,15 +265,21 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database + load core schema
-        # bin/install Stage 6 loads database/core/0[0-3]_*.sql against a fresh
-        # database. Tests need the same ~995 tables (object, information_object,
-        # actor, term, slug, ...) — without this load, Feature/Package tests
-        # explode with "Table 'heratio_test.object' doesn't exist".
+      - name: Create database + load core schema + base seeds
+        # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
+        # tables: object, information_object, actor, term, slug, ...) and
+        # Stage 8 loads database/seeds/0*.sql (base taxonomies, including
+        # term IDs 131/132/133 for Corporate body / Person / Family). Tests
+        # need both: schema alone gives FK violations like
+        # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+          done
+          for f in database/seeds/0*.sql; do
+            echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
       - name: Run Tests with Coverage
@@ -344,15 +362,21 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database + load core schema
-        # bin/install Stage 6 loads database/core/0[0-3]_*.sql against a fresh
-        # database. Tests need the same ~995 tables (object, information_object,
-        # actor, term, slug, ...) — without this load, Feature/Package tests
-        # explode with "Table 'heratio_test.object' doesn't exist".
+      - name: Create database + load core schema + base seeds
+        # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
+        # tables: object, information_object, actor, term, slug, ...) and
+        # Stage 8 loads database/seeds/0*.sql (base taxonomies, including
+        # term IDs 131/132/133 for Corporate body / Person / Family). Tests
+        # need both: schema alone gives FK violations like
+        # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+          done
+          for f in database/seeds/0*.sql; do
+            echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
       - name: Check CriticalPath Tests
@@ -400,15 +424,21 @@ jobs:
           sed -i "s|^DB_DATABASE=.*|DB_DATABASE=heratio_test|" .env.testing
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
-      - name: Create database + load core schema
-        # bin/install Stage 6 loads database/core/0[0-3]_*.sql against a fresh
-        # database. Tests need the same ~995 tables (object, information_object,
-        # actor, term, slug, ...) — without this load, Feature/Package tests
-        # explode with "Table 'heratio_test.object' doesn't exist".
+      - name: Create database + load core schema + base seeds
+        # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
+        # tables: object, information_object, actor, term, slug, ...) and
+        # Stage 8 loads database/seeds/0*.sql (base taxonomies, including
+        # term IDs 131/132/133 for Corporate body / Person / Family). Tests
+        # need both: schema alone gives FK violations like
+        # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+          done
+          for f in database/seeds/0*.sql; do
+            echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
       - name: Discover Package Tests

@@ -30,7 +30,7 @@
 
             <div class="mb-3">
               <label class="form-label">{{ __('Channel') }}</label>
-              <div class="btn-group w-100" role="group" aria-label="OTP channel">
+              <div class="btn-group w-100" role="group" aria-label="{{ __('OTP channel') }}">
                 <input type="radio" class="btn-check" name="factor_type" id="ftEmail" value="email"
                        {{ old('factor_type', 'email') === 'email' ? 'checked' : '' }} required>
                 <label class="btn btn-outline-primary" for="ftEmail">
@@ -49,7 +49,7 @@
               <label for="destination" class="form-label">{{ __('Destination') }}</label>
               <input type="text" id="destination" name="destination" class="form-control"
                      value="{{ old('destination', $defaultEmail ?? '') }}"
-                     placeholder="email@example.com  or  +27821234567"
+                     placeholder="{{ __('email@example.com  or  +27821234567') }}"
                      maxlength="255" required>
               <div class="form-text">
                 {{ __('Email: any valid address. SMS: international format with + prefix (e.g. +27821234567).') }}

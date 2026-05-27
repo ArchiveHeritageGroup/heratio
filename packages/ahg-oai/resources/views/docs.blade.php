@@ -1,10 +1,10 @@
 @extends('theme::layouts.2col')
 
-@section('title', 'OAI-PMH Endpoint')
+@section('title', __('OAI-PMH Endpoint'))
 
 @section('content')
 <div class="container py-4">
-  <h1>OAI-PMH 2.0 Endpoint</h1>
+  <h1>{{ __('OAI-PMH 2.0 Endpoint') }}</h1>
   <p class="lead">
     Heratio exposes archival metadata for harvesting via the
     <a href="https://www.openarchives.org/OAI/openarchivesprotocol.html" target="_blank" rel="noopener">OAI-PMH 2.0</a>
@@ -15,7 +15,7 @@
     <code>{{ $baseUrl }}</code>
   </p>
 
-  <h2 class="h4 mt-4">Supported verbs</h2>
+  <h2 class="h4 mt-4">{{ __('Supported verbs') }}</h2>
   <ul>
     <li><code>Identify</code> — repository identification + admin contacts + linked friends</li>
     <li><code>ListMetadataFormats</code> — formats available for harvesting</li>
@@ -26,9 +26,9 @@
   </ul>
   <p class="small text-muted">Each verb accepts both GET and POST as required by the OAI-PMH spec.</p>
 
-  <h2 class="h4 mt-4">Metadata formats</h2>
+  <h2 class="h4 mt-4">{{ __('Metadata formats') }}</h2>
   <table class="table table-sm table-striped">
-    <thead><tr><th>metadataPrefix</th><th>Name</th><th>Schema</th></tr></thead>
+    <thead><tr><th>{{ __('metadataPrefix') }}</th><th>{{ __('Name') }}</th><th>{{ __('Schema') }}</th></tr></thead>
     <tbody>
       <tr>
         <td><code>oai_dc</code></td>
@@ -58,7 +58,7 @@
     </tbody>
   </table>
 
-  <h2 class="h4 mt-4">Sample queries</h2>
+  <h2 class="h4 mt-4">{{ __('Sample queries') }}</h2>
   <pre class="bg-light p-3 small"><code>{{ $baseUrl }}?verb=Identify
 {{ $baseUrl }}?verb=ListMetadataFormats
 {{ $baseUrl }}?verb=ListSets
@@ -67,26 +67,26 @@
 {{ $baseUrl }}?verb=ListRecords&amp;metadataPrefix=oai_ead3&amp;from=2026-01-01
 {{ $baseUrl }}?verb=GetRecord&amp;identifier=oai:host:LOCAL_ID&amp;metadataPrefix=marcxml</code></pre>
 
-  <h2 class="h4 mt-4">Deleted records</h2>
+  <h2 class="h4 mt-4">{{ __('Deleted records') }}</h2>
   <p>
     The endpoint advertises <code>&lt;deletedRecord&gt;transient&lt;/deletedRecord&gt;</code>.
     Records that have been deleted or permanently unpublished are returned
     with <code>&lt;header status="deleted"&gt;</code> so harvesters can purge their copy.
   </p>
 
-  <h2 class="h4 mt-4">Rate limiting</h2>
+  <h2 class="h4 mt-4">{{ __('Rate limiting') }}</h2>
   <p>
     The endpoint is rate-limited to <strong>120 requests per minute per IP</strong>.
     Harvesters honouring <code>resumptionToken</code> pagination will not normally hit the limit.
   </p>
 
-  <h2 class="h4 mt-4">Compression</h2>
+  <h2 class="h4 mt-4">{{ __('Compression') }}</h2>
   <p>
     Responses are gzipped at the nginx layer when the harvester sends
     <code>Accept-Encoding: gzip</code>. Set this header on your client to roughly halve transferred bytes.
   </p>
 
-  <h2 class="h4 mt-4">Authentication</h2>
+  <h2 class="h4 mt-4">{{ __('Authentication') }}</h2>
   <p>
     Anonymous harvesting is on by default. Operators can require API-key
     authentication by enabling <code>oai_authentication_enabled</code> in

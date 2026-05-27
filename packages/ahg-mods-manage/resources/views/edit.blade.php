@@ -138,7 +138,7 @@
               </div>
               <div class="mb-3">
                 <label class="form-label">{{ __('dateCreated (ISO 8601)') }}</label>
-                <input type="text" name="creation_start_date" class="form-control" value="{{ old('creation_start_date', $creationStartDate) }}" placeholder="YYYY-MM-DD">
+                <input type="text" name="creation_start_date" class="form-control" value="{{ old('creation_start_date', $creationStartDate) }}" placeholder="{{ __('YYYY-MM-DD') }}">
               </div>
             </div>
             <div class="col-md-6">
@@ -148,7 +148,7 @@
               </div>
               <div class="mb-3">
                 <label class="form-label">{{ __('dateIssued (ISO 8601)') }}</label>
-                <input type="text" name="publication_start_date" class="form-control" value="{{ old('publication_start_date', $publicationStartDate) }}" placeholder="YYYY-MM-DD">
+                <input type="text" name="publication_start_date" class="form-control" value="{{ old('publication_start_date', $publicationStartDate) }}" placeholder="{{ __('YYYY-MM-DD') }}">
               </div>
             </div>
           </div>

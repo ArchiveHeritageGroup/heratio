@@ -9,7 +9,7 @@
     $minDate       = (new \DateTime('+1 day'))->format('Y-m-d');
 @endphp
 
-<nav aria-label="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
         @if($recordSlug)
@@ -87,7 +87,7 @@
                 <div class="col-md-6">
                     <label for="sl-email" class="form-label">{{ __('Recipient email (optional)') }}</label>
                     <input type="email" name="recipient_email" id="sl-email"
-                           class="form-control" placeholder="researcher@example.com">
+                           class="form-control" placeholder="{{ __('researcher@example.com') }}">
                     <small class="text-muted">{{ __('Informational only; the token itself grants access.') }}</small>
                 </div>
 

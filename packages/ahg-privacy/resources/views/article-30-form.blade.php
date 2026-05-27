@@ -69,20 +69,20 @@
           <label class="form-label">{{ __('Categories of data') }}</label>
           <input type="text" name="categories_of_data" class="form-control"
             value="{{ old('categories_of_data', is_array($activity->categories_of_data) ? implode(', ', $activity->categories_of_data) : '') }}"
-            placeholder="contact, identifiers, financial">
+            placeholder="{{ __('contact, identifiers, financial') }}">
           <small class="form-text text-muted">{{ __('Comma- or semicolon-separated.') }}</small>
         </div>
         <div class="col-md-4">
           <label class="form-label">{{ __('Categories of subjects') }}</label>
           <input type="text" name="categories_of_subjects" class="form-control"
             value="{{ old('categories_of_subjects', is_array($activity->categories_of_subjects) ? implode(', ', $activity->categories_of_subjects) : '') }}"
-            placeholder="users, researchers, donors">
+            placeholder="{{ __('users, researchers, donors') }}">
         </div>
         <div class="col-md-4">
           <label class="form-label">{{ __('Recipients') }}</label>
           <input type="text" name="recipients" class="form-control"
             value="{{ old('recipients', is_array($activity->recipients) ? implode(', ', $activity->recipients) : '') }}"
-            placeholder="internal, processors">
+            placeholder="{{ __('internal, processors') }}">
         </div>
       </div>
     </div>

@@ -23,7 +23,7 @@
 @endphp
 <div class="container py-4">
 
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
                 <a href="{{ route('auth-res.queue') }}">{{ __('Authority Resolution') }}</a>
@@ -132,7 +132,7 @@
                                                name="settings[lookup.geonames.username]"
                                                value="{{ $gnUsername }}"
                                                class="form-control form-control-sm"
-                                               placeholder="archivist123">
+                                               placeholder="{{ __('archivist123') }}">
                                         <div class="form-text">
                                             {{ __("Register at geonames.org and replace 'demo'.") }}
                                             <a href="https://www.geonames.org/login" target="_blank" rel="noopener">geonames.org/login</a>

@@ -28,7 +28,7 @@
 @endphp
 <div class="container py-4">
 
-    <nav aria-label="breadcrumb" class="mb-3">
+    <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active">{{ __('Authority Resolution') }}</li>
         </ol>
@@ -108,7 +108,7 @@
                     <input type="number" name="object_id"
                            value="{{ $filterObjectId ?: '' }}"
                            class="form-control form-control-sm"
-                           placeholder="any">
+                           placeholder="{{ __('any') }}">
                 </div>
                 <div class="col-md-auto">
                     <button type="submit" class="btn btn-sm btn-primary">
@@ -310,7 +310,7 @@
                         <i class="bi bi-person-check me-2"></i>{{ __('Assign mention') }}
                         <span id="ar-queue-assign-mention-label" class="text-muted"></span>
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                 </div>
                 <div class="modal-body">
                     <p class="text-muted small">

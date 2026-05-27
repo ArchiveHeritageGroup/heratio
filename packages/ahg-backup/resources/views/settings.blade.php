@@ -81,7 +81,7 @@
       <div class="mb-3">
         <label for="backup_notify_workbench_username" class="form-label">Workbench Username <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" class="form-control @error('backup_notify_workbench_username') is-invalid @enderror" id="backup_notify_workbench_username" name="backup_notify_workbench_username"
-               value="{{ old('backup_notify_workbench_username', $settings['backup_notify_workbench_username']) }}" placeholder="admin" maxlength="64">
+               value="{{ old('backup_notify_workbench_username', $settings['backup_notify_workbench_username']) }}" placeholder="{{ __('admin') }}" maxlength="64">
         <div class="form-text">Workbench username for backup bell/toast notifications (drops a JSON file into <code>/var/spool/workbench/notifications/</code>). Defaults to <code>admin</code>.</div>
         @error('backup_notify_workbench_username')
           <div class="invalid-feedback">{{ $message }}</div>
@@ -94,7 +94,7 @@
             <input type="hidden" name="backup_notify_on_success" value="0">
             <input type="checkbox" class="form-check-input" id="backup_notify_on_success" name="backup_notify_on_success" value="1"
                    @checked(old('backup_notify_on_success', $settings['backup_notify_on_success']))>
-            <label class="form-check-label" for="backup_notify_on_success">Notify on success</label>
+            <label class="form-check-label" for="backup_notify_on_success">{{ __('Notify on success') }}</label>
             <div class="form-text">Send email + Workbench notification when a backup completes (with or without warnings).</div>
           </div>
         </div>
@@ -103,7 +103,7 @@
             <input type="hidden" name="backup_notify_on_failure" value="0">
             <input type="checkbox" class="form-check-input" id="backup_notify_on_failure" name="backup_notify_on_failure" value="1"
                    @checked(old('backup_notify_on_failure', $settings['backup_notify_on_failure']))>
-            <label class="form-check-label" for="backup_notify_on_failure">Notify on failure</label>
+            <label class="form-check-label" for="backup_notify_on_failure">{{ __('Notify on failure') }}</label>
             <div class="form-text">Send email + Workbench notification when a backup fails outright.</div>
           </div>
         </div>

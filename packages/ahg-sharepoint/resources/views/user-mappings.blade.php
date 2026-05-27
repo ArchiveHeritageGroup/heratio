@@ -8,7 +8,7 @@
     <div class="alert alert-info">{{ __('No mappings yet.') }}</div>
 @else
 <table class="table table-striped">
-    <thead><tr><th>ID</th><th>UPN</th><th>Email</th><th>{{ __('Heratio user') }}</th><th>{{ __('Created by') }}</th><th>{{ __('Last seen') }}</th><th></th></tr></thead>
+    <thead><tr><th>{{ __('ID') }}</th><th>{{ __('UPN') }}</th><th>{{ __('Email') }}</th><th>{{ __('Heratio user') }}</th><th>{{ __('Created by') }}</th><th>{{ __('Last seen') }}</th><th></th></tr></thead>
     <tbody>
     @foreach ($mappings as $m)
         <tr>

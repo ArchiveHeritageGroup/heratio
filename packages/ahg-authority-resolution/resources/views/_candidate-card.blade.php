@@ -99,7 +99,7 @@
         @if(!empty($signals))
             <table class="table table-sm mb-2">
                 <thead class="visually-hidden">
-                    <tr><th>Dimension</th><th>Signal</th><th>Detail</th></tr>
+                    <tr><th>{{ __('Dimension') }}</th><th>{{ __('Signal') }}</th><th>{{ __('Detail') }}</th></tr>
                 </thead>
                 <tbody>
                     @foreach($dimensions as $dim)

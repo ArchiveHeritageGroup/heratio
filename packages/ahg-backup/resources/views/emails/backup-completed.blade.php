@@ -37,7 +37,7 @@
 </table>
 
 @if(!empty($backup['files']))
-<h4>Files</h4>
+<h4>{{ __('Files') }}</h4>
 <ul>
   @foreach($backup['files'] as $f)
     <li>{{ $f['component'] ?? '?' }} &mdash; {{ $f['filename'] ?? '?' }} ({{ $f['size'] ?? '?' }})</li>
@@ -46,7 +46,7 @@
 @endif
 
 @if(!empty($backup['warnings']))
-<h4>Warnings</h4>
+<h4>{{ __('Warnings') }}</h4>
 <ul>
   @foreach($backup['warnings'] as $w)
     <li>{{ $w }}</li>

@@ -42,11 +42,11 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">{{ __('Folder path (optional)') }}</label>
-                    <input type="text" name="folder_path" class="form-control" placeholder="/Shared Documents/Archive" value="{{ $rule->folder_path ?? '' }}">
+                    <input type="text" name="folder_path" class="form-control" placeholder="{{ __('/Shared Documents/Archive') }}" value="{{ $rule->folder_path ?? '' }}">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">{{ __('File pattern (CSV of globs)') }}</label>
-                    <input type="text" name="file_pattern" class="form-control" placeholder="*.pdf,*.tif" value="{{ $rule->file_pattern ?? '' }}">
+                    <input type="text" name="file_pattern" class="form-control" placeholder="{{ __('*.pdf,*.tif') }}" value="{{ $rule->file_pattern ?? '' }}">
                 </div>
             </div>
             <div class="mb-3">

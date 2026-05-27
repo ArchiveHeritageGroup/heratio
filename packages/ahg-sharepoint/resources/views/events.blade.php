@@ -22,7 +22,7 @@ $map = [
 @endphp
 <table class="table table-sm table-striped">
     <thead>
-        <tr><th>ID</th><th>{{ __('Received') }}</th><th>{{ __('Drive') }}</th><th>{{ __('Item') }}</th><th>{{ __('Change') }}</th><th>{{ __('Status') }}</th><th>{{ __('Attempts') }}</th><th>IO</th><th></th></tr>
+        <tr><th>{{ __('ID') }}</th><th>{{ __('Received') }}</th><th>{{ __('Drive') }}</th><th>{{ __('Item') }}</th><th>{{ __('Change') }}</th><th>{{ __('Status') }}</th><th>{{ __('Attempts') }}</th><th>{{ __('IO') }}</th><th></th></tr>
     </thead>
     <tbody>
     @foreach ($events as $ev)

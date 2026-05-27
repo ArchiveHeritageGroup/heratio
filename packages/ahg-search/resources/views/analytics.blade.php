@@ -5,14 +5,14 @@
 --}}
 @extends('theme::layouts.1col')
 
-@section('title', 'Search analytics')
+@section('title', __('Search analytics'))
 @section('body-class', 'search admin search-analytics')
 
 @section('content')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="bi bi-graph-up me-3 fs-2" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Search analytics</h1>
+      <h1 class="mb-0">{{ __('Search analytics') }}</h1>
       <small class="text-muted">
         Since {{ $since->format('Y-m-d H:i') }} ({{ $days }} {{ $days === 1 ? 'day' : 'days' }})
       </small>
@@ -23,7 +23,7 @@
   <form method="get" action="{{ route('search.analytics') }}" class="card mb-4">
     <div class="card-body d-flex align-items-end gap-3">
       <div>
-        <label for="days" class="form-label mb-1">Window (days)</label>
+        <label for="days" class="form-label mb-1">{{ __('Window (days)') }}</label>
         <input type="number" id="days" name="days" min="1" max="365"
                class="form-control" style="width: 8rem;" value="{{ $days }}">
       </div>
@@ -80,13 +80,13 @@
       <table class="table table-sm table-striped mb-0">
         <thead>
           <tr>
-            <th>Query</th>
-            <th class="text-end">Count</th>
-            <th class="text-end">Clicks</th>
-            <th class="text-end">CTR</th>
-            <th class="text-end">Avg results</th>
-            <th>Last seen</th>
-            <th class="text-end">Action</th>
+            <th>{{ __('Query') }}</th>
+            <th class="text-end">{{ __('Count') }}</th>
+            <th class="text-end">{{ __('Clicks') }}</th>
+            <th class="text-end">{{ __('CTR') }}</th>
+            <th class="text-end">{{ __('Avg results') }}</th>
+            <th>{{ __('Last seen') }}</th>
+            <th class="text-end">{{ __('Action') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -101,7 +101,7 @@
             <td class="text-end">
               <a class="btn btn-sm btn-outline-secondary"
                  href="{{ route('search', ['q' => $row['query']]) }}"
-                 title="Run this query">
+                 title="{{ __('Run this query') }}">
                 <i class="bi bi-search" aria-hidden="true"></i>
               </a>
             </td>
@@ -128,10 +128,10 @@
       <table class="table table-sm table-striped mb-0">
         <thead>
           <tr>
-            <th>Query</th>
-            <th class="text-end">Count</th>
-            <th>Last seen</th>
-            <th class="text-end">Action</th>
+            <th>{{ __('Query') }}</th>
+            <th class="text-end">{{ __('Count') }}</th>
+            <th>{{ __('Last seen') }}</th>
+            <th class="text-end">{{ __('Action') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -143,7 +143,7 @@
             <td class="text-end">
               <a class="btn btn-sm btn-outline-secondary"
                  href="{{ route('search', ['q' => $row['query']]) }}"
-                 title="Re-run this query">
+                 title="{{ __('Re-run this query') }}">
                 <i class="bi bi-search" aria-hidden="true"></i>
               </a>
             </td>

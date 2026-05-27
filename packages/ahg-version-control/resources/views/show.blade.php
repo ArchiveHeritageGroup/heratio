@@ -57,7 +57,7 @@
                 @csrf
                 <div class="modal-header">
                     <h5 class="modal-title">{{ sprintf(__('Restore version %d?'), $versionNumber) }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                 </div>
                 <div class="modal-body">
                     <p>{!! sprintf(__('You are about to overwrite the current state of <strong>%s</strong> with the snapshot from v%d (captured %s).'), e($entityTitle), $versionNumber, e($version->created_at)) !!}</p>
