@@ -18,6 +18,9 @@
 
 namespace AhgOcfl\Layout;
 
+use AhgOcfl\Metadata\EmbeddedMetadataExtension;
+use AhgOcfl\Metadata\EmbeddedMetadataPiiGate;
+use AhgOcfl\Metadata\EmbeddedMetadataSource;
 use AhgOcfl\Storage\OcflStorageAdapter;
 use RuntimeException;
 
@@ -30,6 +33,22 @@ final class StorageRoot
     public readonly StorageLayout $layout;
     public readonly ContentAddressing $digester;
 
+    /**
+     * Optional resolver for the `ahg-embedded-metadata` extension. When set,
+     * write() consults it after staging content and emits an extensions
+     * block into the inventory.json. Null leaves inventories vanilla
+     * (preserves existing behaviour + keeps the test fixture lightweight).
+     */
+    private ?EmbeddedMetadataSource $embeddedMetadataSource = null;
+
+    /**
+     * Optional PII gate applied to the embedded-metadata block before it
+     * is written to the inventory. When the gate is set, GPS fields are
+     * stripped from the EXIF block if the gate reports a pending finding
+     * for the underlying source.
+     */
+    private ?EmbeddedMetadataPiiGate $piiGate = null;
+
     public function __construct(
         public readonly OcflStorageAdapter $adapter,
         string $layout = StorageLayout::FLAT_ID,
@@ -37,6 +56,33 @@ final class StorageRoot
     ) {
         $this->layout   = new StorageLayout($layout);
         $this->digester = new ContentAddressing($digestAlgorithm);
+    }
+
+    /**
+     * Wire (or clear) the embedded-metadata resolver. Returns $this for
+     * fluent setup (`(new StorageRoot(...))->withEmbeddedMetadataSource($src)`).
+     */
+    public function withEmbeddedMetadataSource(?EmbeddedMetadataSource $source): self
+    {
+        $this->embeddedMetadataSource = $source;
+        return $this;
+    }
+
+    /** Wire (or clear) the PII gate applied to embedded-metadata blocks. */
+    public function withPiiGate(?EmbeddedMetadataPiiGate $gate): self
+    {
+        $this->piiGate = $gate;
+        return $this;
+    }
+
+    public function embeddedMetadataSource(): ?EmbeddedMetadataSource
+    {
+        return $this->embeddedMetadataSource;
+    }
+
+    public function piiGate(): ?EmbeddedMetadataPiiGate
+    {
+        return $this->piiGate;
     }
 
     public function isInitialized(): bool
@@ -171,6 +217,12 @@ final class StorageRoot
             ? Inventory::initial($object->id, $version, $newManifest, $this->digester->algorithm)
             : $existing->withNewVersion($version, $newManifest);
 
+        // OCFL v1.1 §3.7 - inject the `ahg-embedded-metadata` extension
+        // block when a resolver is wired AND the sidecar has data for
+        // this object. Skipped entirely when no resolver is set (vanilla
+        // OCFL) or the resolver reports nothing (empty-sidecar case).
+        $inventory = $this->applyEmbeddedMetadataExtension($inventory, $object->id);
+
         // Write the version directory's own inventory.json (per OCFL
         // v1.1 §3.5: every version dir also gets a snapshot inventory).
         $invBytes = $inventory->toJson();
@@ -246,6 +298,53 @@ final class StorageRoot
     public function objectRoot(string $objectId): string
     {
         return $this->layout->pathFor($objectId);
+    }
+
+    /**
+     * Resolve the `ahg-embedded-metadata` block for an OCFL object and
+     * attach it to the inventory. Returns the inventory unchanged when
+     * either no resolver is wired or no sidecar data is available.
+     *
+     * Failures inside the resolver / extension builder never break the
+     * OCFL write - the extension is a preservation-enrichment, not a
+     * fixity-critical part of the spec. Errors are logged via the
+     * Laravel Log facade when available, swallowed otherwise so the
+     * package stays test-runnable without booting the framework.
+     */
+    public function applyEmbeddedMetadataExtension(Inventory $inventory, string $objectId): Inventory
+    {
+        if ($this->embeddedMetadataSource === null) {
+            return $inventory;
+        }
+        try {
+            $raw = $this->embeddedMetadataSource->fetch($objectId);
+            if ($raw === []) {
+                return $inventory;
+            }
+            $block = EmbeddedMetadataExtension::build($raw);
+            if ($block === null) {
+                return $inventory;
+            }
+            if ($this->piiGate !== null) {
+                $block = $this->piiGate->redact($objectId, $block);
+                if ($block === null || $block === []) {
+                    return $inventory;
+                }
+            }
+            return $inventory->withExtension(EmbeddedMetadataExtension::NAME, $block);
+        } catch (\Throwable $e) {
+            if (class_exists(\Illuminate\Support\Facades\Log::class)) {
+                try {
+                    \Illuminate\Support\Facades\Log::warning(
+                        'ahg-ocfl: applyEmbeddedMetadataExtension failed for '
+                        .$objectId.' - '.$e->getMessage()
+                    );
+                } catch (\Throwable) {
+                    // Logging is itself best-effort.
+                }
+            }
+            return $inventory;
+        }
     }
 
     /** OCFL sidecar format: `<digest> inventory.json` followed by newline. */

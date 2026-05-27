@@ -43,6 +43,7 @@ declare(strict_types=1);
 namespace AhgApi\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class EmbeddedMetadataService
@@ -148,11 +149,11 @@ class EmbeddedMetadataService
             return [];
         }
 
-        return [
+        return $this->applyPiiRedaction($digitalObjectId, [
             'exif' => $exif,
             'iptc' => $iptc,
             'xmp' => $xmp,
-        ];
+        ]);
     }
 
     /**
@@ -184,11 +185,11 @@ class EmbeddedMetadataService
             return [];
         }
 
-        return [
+        return $this->applyPiiRedaction((int) $do->id, [
             'exif' => $exif,
             'iptc' => $iptc,
             'xmp' => $xmp,
-        ];
+        ]);
     }
 
     /**
@@ -361,6 +362,109 @@ class EmbeddedMetadataService
         }
 
         return $out;
+    }
+
+    /**
+     * GPS keys we treat as PII when ahg_pii_finding_embedded has an open hit
+     * for the digital object. Matches the issue #751 PII scanner's surface
+     * area: anything that pinpoints capture location.
+     */
+    private const GPS_KEYS = [
+        'GPSLatitude',
+        'GPSLongitude',
+        'GPSAltitude',
+        'GPSCoordinates',
+        'GPSPosition',
+        'GPSTimeStamp',
+        'GPSDateStamp',
+    ];
+
+    /**
+     * PII redaction gate (issue #747 + #751). When `ahg_pii_finding_embedded`
+     * holds a pending (or escalated) GPS finding for the digital object, we
+     * replace every GPS-flavoured key in the exif/iptc/xmp blocks with null
+     * and add a sibling `_pii_redacted: true` marker so clients can tell the
+     * value was suppressed (vs simply absent).
+     *
+     * Defensive: if the privacy schema (#751) hasn't shipped yet, log a
+     * warning and pass the block through untouched. We never block read
+     * access on a missing gate table.
+     */
+    private function applyPiiRedaction(int $digitalObjectId, array $block): array
+    {
+        try {
+            if (! $this->hasTable('ahg_pii_finding_embedded')) {
+                Log::warning('[ahg-api] embedded-metadata PII gate: ahg_pii_finding_embedded missing - proceeding without redaction (issue #751 not yet shipped)');
+
+                return $block;
+            }
+
+            $hasPendingGps = DB::table('ahg_pii_finding_embedded')
+                ->where('digital_object_id', $digitalObjectId)
+                ->where('pii_type', 'gps_coordinate')
+                ->whereIn('resolution_status', ['pending', 'escalated'])
+                ->exists();
+
+            if (! $hasPendingGps) {
+                return $block;
+            }
+        } catch (\Throwable $e) {
+            // Fail open with a logged warning. A PII gate failure must not
+            // break the read API: the alternative (500) is worse for the
+            // operator than degrading to "no extra redaction this call".
+            Log::warning('[ahg-api] embedded-metadata PII gate probe failed: ' . $e->getMessage());
+
+            return $block;
+        }
+
+        return $this->redactGpsKeys($block);
+    }
+
+    /**
+     * Walk the three sub-blocks and null out any GPS-named keys, adding a
+     * `_pii_redacted: true` flag at the sub-block level. Keeps unrelated
+     * keys untouched so a client still sees Creator, Headline, etc.
+     */
+    private function redactGpsKeys(array $block): array
+    {
+        foreach (['exif', 'iptc', 'xmp'] as $section) {
+            if (! isset($block[$section]) || ! is_array($block[$section])) {
+                continue;
+            }
+            $touched = false;
+            foreach ($block[$section] as $key => $_value) {
+                if ($this->isGpsKey((string) $key)) {
+                    $block[$section][$key] = null;
+                    $touched = true;
+                }
+            }
+            if ($touched) {
+                $block[$section]['_pii_redacted'] = true;
+            }
+        }
+
+        return $block;
+    }
+
+    /**
+     * Returns true when the key (any case, any namespace prefix) looks like
+     * a GPS / location field. Covers EXIF (`GPSLatitude`), XMP
+     * (`exif:GPSLatitude`), IPTC IIM (`GPSLatitude`), and the free-form
+     * `GPSCoordinates` / `GPSPosition` keys some toolchains emit.
+     */
+    private function isGpsKey(string $key): bool
+    {
+        $stripped = $key;
+        if (($pos = strrpos($stripped, ':')) !== false) {
+            $stripped = substr($stripped, $pos + 1);
+        }
+        foreach (self::GPS_KEYS as $needle) {
+            if (strcasecmp($stripped, $needle) === 0) {
+                return true;
+            }
+        }
+        // Soft match - any key starting with "GPS" except the section flag.
+        return $stripped !== '_pii_redacted' && stripos($stripped, 'GPS') === 0;
     }
 
     /**

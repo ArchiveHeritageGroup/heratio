@@ -59,6 +59,39 @@ class Ead3Serializer
         $relations = $this->fetchIoRelations($io);
         $legalStatus = $this->fetchLegalStatus($io);
 
+        // IPTC fallback (issue #752). Mirrors the EAD2002 wiring - swap in
+        // IPTC By-line / Keywords / Copyright Notice when the ISAD(G)
+        // canonical fields are empty.
+        $iptcResolver = new \AhgMetadataExport\Services\IptcFallbackResolver();
+        $canonicalCreators = $creators
+            ->pluck('name')
+            ->filter()
+            ->map(static fn ($v) => (string) $v)
+            ->all();
+        $iptcCreatorNames = $iptcResolver->resolveCreatorsWithCanonical($objectId, $canonicalCreators);
+        if ($creators->isEmpty() && ! empty($iptcCreatorNames)) {
+            $creators = collect(array_map(static fn ($n) => (object) [
+                'name' => $n,
+                'entity_type_id' => null,
+                'actor_id' => null,
+            ], $iptcCreatorNames));
+        }
+
+        $canonicalSubjectNames = $subjects
+            ->pluck('name')
+            ->filter()
+            ->map(static fn ($v) => (string) $v)
+            ->all();
+        $resolvedSubjects = $iptcResolver->resolveSubjectsWithCanonical($objectId, $canonicalSubjectNames);
+        if ($subjects->isEmpty() && ! empty($resolvedSubjects)) {
+            $subjects = collect(array_map(static fn ($n) => (object) ['name' => $n], $resolvedSubjects));
+        }
+
+        $canonicalRights = ! empty($io->reproduction_conditions)
+            ? (string) $io->reproduction_conditions
+            : null;
+        $resolvedRights = $iptcResolver->resolveRightsWithCanonical($objectId, $canonicalRights);
+
         $eadLevel = $this->mapLevelToEad($levelName);
         $dateNormal = gmdate('Y-m-d');
 
@@ -141,8 +174,9 @@ class Ead3Serializer
         if ($io->access_conditions) {
             $xml .= '  <accessrestrict><p>'.$this->escXml($io->access_conditions)."</p></accessrestrict>\n";
         }
-        if ($io->reproduction_conditions) {
-            $xml .= '  <userestrict><p>'.$this->escXml($io->reproduction_conditions)."</p></userestrict>\n";
+        // <userestrict> = ISAD 3.4.2 with IPTC Copyright Notice fallback (#752).
+        if ($resolvedRights !== null && $resolvedRights !== '') {
+            $xml .= '  <userestrict><p>'.$this->escXml($resolvedRights)."</p></userestrict>\n";
         }
         if ($io->archival_history) {
             $xml .= '  <custodhist><p>'.$this->escXml($io->archival_history)."</p></custodhist>\n";

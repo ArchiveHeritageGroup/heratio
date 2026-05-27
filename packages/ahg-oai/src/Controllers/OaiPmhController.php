@@ -1111,7 +1111,7 @@ class OaiPmhController extends Controller
             ->map(static fn ($v) => (string) $v)
             ->all();
         $resolver = new IptcFallbackResolver();
-        foreach ($resolver->resolveCreators((int) $record->id, $canonicalCreators) as $name) {
+        foreach ($resolver->resolveCreatorsWithCanonical((int) $record->id, $canonicalCreators) as $name) {
             $xml .= '          <dc:creator>'.$this->esc($name).'</dc:creator>'."\n";
         }
 
@@ -1133,7 +1133,7 @@ class OaiPmhController extends Controller
             ->filter()
             ->map(static fn ($v) => (string) $v)
             ->all();
-        foreach ($resolver->resolveSubjects((int) $record->id, $canonicalSubjects) as $name) {
+        foreach ($resolver->resolveSubjectsWithCanonical((int) $record->id, $canonicalSubjects) as $name) {
             $xml .= '          <dc:subject>'.$this->esc($name).'</dc:subject>'."\n";
         }
 
@@ -1291,12 +1291,17 @@ class OaiPmhController extends Controller
             }
         }
 
-        // dc:rights - access_conditions, falling back to the IPTC
-        // Copyright Notice when the ISAD field is blank (issue #752).
-        $canonicalRights = ! empty($record->access_conditions)
-            ? strip_tags((string) $record->access_conditions)
-            : null;
-        $rightsOut = $resolver->resolveRights((int) $record->id, $canonicalRights);
+        // dc:rights - per issue #752 the canonical field is ISAD(G) 3.4.2
+        // reproduction_conditions; fall through to access_conditions for
+        // back-compat with previous OAI-DC harvests, then to the IPTC
+        // Copyright Notice when both ISAD fields are blank.
+        $canonicalRights = null;
+        if (! empty($record->reproduction_conditions)) {
+            $canonicalRights = strip_tags((string) $record->reproduction_conditions);
+        } elseif (! empty($record->access_conditions)) {
+            $canonicalRights = strip_tags((string) $record->access_conditions);
+        }
+        $rightsOut = $resolver->resolveRightsWithCanonical((int) $record->id, $canonicalRights);
         if ($rightsOut !== null && $rightsOut !== '') {
             $xml .= '          <dc:rights>'.$this->esc($rightsOut).'</dc:rights>'."\n";
         }

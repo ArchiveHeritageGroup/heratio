@@ -63,6 +63,44 @@ class Ead2002Serializer
         $levelName = $this->fetchLevelName($io, $culture);
         $children = $includeChildren ? $this->fetchDescendants($io, $culture) : collect();
 
+        // IPTC fallback (issue #752). When ISAD(G) author / reproduction-
+        // conditions / subject-access-points are empty but dam_iptc_metadata
+        // has values, fall through so harvesters see useful metadata. The
+        // resolver audit-logs to ahg_error_log for operator visibility.
+        $iptcResolver = new \AhgMetadataExport\Services\IptcFallbackResolver();
+        $canonicalCreators = $creators
+            ->pluck('name')
+            ->filter()
+            ->map(static fn ($v) => (string) $v)
+            ->all();
+        $iptcCreatorNames = $iptcResolver->resolveCreatorsWithCanonical($objectId, $canonicalCreators);
+        // If $creators is empty but IPTC produced a name, build a
+        // synthetic row so buildDidElement emits an <origination> with a
+        // generic <name> wrapper (we don't know the entity_type_id of an
+        // IPTC string, so map it to the default `name` tag).
+        if ($creators->isEmpty() && ! empty($iptcCreatorNames)) {
+            $creators = collect(array_map(static fn ($n) => (object) [
+                'name' => $n,
+                'entity_type_id' => null,
+                'actor_id' => null,
+            ], $iptcCreatorNames));
+        }
+
+        $canonicalSubjectNames = $subjects
+            ->pluck('name')
+            ->filter()
+            ->map(static fn ($v) => (string) $v)
+            ->all();
+        $resolvedSubjects = $iptcResolver->resolveSubjectsWithCanonical($objectId, $canonicalSubjectNames);
+        if ($subjects->isEmpty() && ! empty($resolvedSubjects)) {
+            $subjects = collect(array_map(static fn ($n) => (object) ['name' => $n], $resolvedSubjects));
+        }
+
+        $canonicalRights = ! empty($io->reproduction_conditions)
+            ? (string) $io->reproduction_conditions
+            : null;
+        $resolvedRights = $iptcResolver->resolveRightsWithCanonical($objectId, $canonicalRights);
+
         $eadLevel = $this->mapLevelToEad($levelName);
         $dateNormal = gmdate('Y-m-d');
         $date = gmdate('Y-m-d H:i e');
@@ -130,8 +168,10 @@ class Ead2002Serializer
         if ($io->access_conditions) {
             $xml .= '  <accessrestrict encodinganalog="3.4.1"><p>'.$this->escXml($io->access_conditions)."</p></accessrestrict>\n";
         }
-        if ($io->reproduction_conditions) {
-            $xml .= '  <userestrict encodinganalog="3.4.2"><p>'.$this->escXml($io->reproduction_conditions)."</p></userestrict>\n";
+        // <userestrict> = ISAD 3.4.2 reproduction_conditions, with IPTC
+        // Copyright Notice fallback (issue #752).
+        if ($resolvedRights !== null && $resolvedRights !== '') {
+            $xml .= '  <userestrict encodinganalog="3.4.2"><p>'.$this->escXml($resolvedRights)."</p></userestrict>\n";
         }
         if ($io->finding_aids) {
             $xml .= '  <otherfindaid encodinganalog="3.4.5"><p>'.$this->escXml($io->finding_aids)."</p></otherfindaid>\n";

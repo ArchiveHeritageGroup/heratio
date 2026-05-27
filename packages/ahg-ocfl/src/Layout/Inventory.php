@@ -192,6 +192,21 @@ final class Inventory
             'versions'        => $versionsOut,
         ];
 
+        // OCFL v1.1 §3.7: extensions is an optional top-level object. We
+        // only emit the key when at least one extension is registered so
+        // the byte-for-byte determinism guarantee against the spec
+        // examples is preserved when no vendor block is present. Keys
+        // inside are alpha-sorted to keep two registrations of the same
+        // extension byte-identical regardless of insertion order.
+        if ($this->extensions !== []) {
+            $sortedExtensions = $this->extensions;
+            ksort($sortedExtensions, SORT_STRING);
+            $payload['extensions'] = $sortedExtensions;
+            // Re-sort top-level keys so `extensions` slots in alphabetically
+            // between `digestAlgorithm` and `head`.
+            ksort($payload, SORT_STRING);
+        }
+
         // Top-level keys are already alpha-sorted by the array literal
         // above. We do NOT pass JSON_FORCE_OBJECT - PHP will emit `{}`
         // for an empty associative array correctly because we never have
@@ -218,6 +233,15 @@ final class Inventory
             $versions[(string) $k] = Version::fromInventoryArray((array) $v);
         }
 
+        $extensions = [];
+        if (isset($data['extensions']) && is_array($data['extensions'])) {
+            foreach ($data['extensions'] as $name => $payload) {
+                if (is_string($name) && $name !== '' && is_array($payload)) {
+                    $extensions[$name] = $payload;
+                }
+            }
+        }
+
         return new self(
             id:              (string) ($data['id'] ?? ''),
             head:            (string) ($data['head'] ?? ''),
@@ -225,6 +249,7 @@ final class Inventory
             versions:        $versions,
             digestAlgorithm: (string) ($data['digestAlgorithm'] ?? 'sha512'),
             type:            (string) ($data['type'] ?? self::TYPE_URI),
+            extensions:      $extensions,
         );
     }
 

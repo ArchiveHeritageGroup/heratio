@@ -147,6 +147,14 @@ class DublinCoreQualifiedSerializer
         $levelName = $this->fetchLevelName($io, $culture);
         $alternate = $this->fetchI18nField($objectId, 'alternate_title', $culture);
 
+        // IPTC fallback resolver (issue #752). When the ISAD(G) author /
+        // reproduction-conditions / subject-access-points are empty but
+        // dam_iptc_metadata carries the corresponding values, fall through
+        // to the IPTC payload so harvesters see something useful. The
+        // resolver also audit-logs to ahg_error_log so operators can spot
+        // descriptions that survived only because of IPTC.
+        $iptcResolver = new IptcFallbackResolver();
+
         // dc:title + dcterms:title (always emit both for backwards compat)
         $xml .= $this->emitBoth('title', $io->title);
 
@@ -154,14 +162,27 @@ class DublinCoreQualifiedSerializer
             $xml .= $this->qualified('alternative', $alternate);
         }
 
-        // Creators
-        foreach ($creators as $creator) {
-            $xml .= $this->emitBoth('creator', $creator->name);
+        // Creators - ISAD(G) authors first, IPTC By-line fallback when
+        // canonical is empty (issue #752).
+        $canonicalCreators = $creators
+            ->pluck('name')
+            ->filter()
+            ->map(static fn ($v) => (string) $v)
+            ->all();
+        $resolvedCreators = $iptcResolver->resolveCreatorsWithCanonical((int) $objectId, $canonicalCreators);
+        foreach ($resolvedCreators as $name) {
+            $xml .= $this->emitBoth('creator', $name);
         }
 
-        // Subject access points
-        foreach ($subjects as $s) {
-            $xml .= $this->emitBoth('subject', $s->name);
+        // Subject access points (taxonomy 35) with IPTC Keywords fallback.
+        $canonicalSubjects = $subjects
+            ->pluck('name')
+            ->filter()
+            ->map(static fn ($v) => (string) $v)
+            ->all();
+        $resolvedSubjects = $iptcResolver->resolveSubjectsWithCanonical((int) $objectId, $canonicalSubjects);
+        foreach ($resolvedSubjects as $name) {
+            $xml .= $this->emitBoth('subject', $name);
         }
 
         // Description / abstract
@@ -285,9 +306,18 @@ class DublinCoreQualifiedSerializer
             $xml .= $this->qualified('spatial', $place->name);
         }
 
-        // Rights
+        // Rights - the brief's resolveRights() canonical is ISAD(G) 3.4.2
+        // reproduction_conditions, falling back to IPTC Copyright Notice
+        // (issue #752). access_conditions feeds dcterms:accessRights (a
+        // different DC predicate) so we keep it on its own track.
+        $canonicalRights = ! empty($io->reproduction_conditions)
+            ? strip_tags((string) $io->reproduction_conditions)
+            : null;
+        $rightsOut = $iptcResolver->resolveRightsWithCanonical((int) $objectId, $canonicalRights);
+        if ($rightsOut !== null && $rightsOut !== '') {
+            $xml .= $this->emitBoth('rights', $rightsOut);
+        }
         if ($io->access_conditions) {
-            $xml .= $this->emitBoth('rights', strip_tags($io->access_conditions));
             $xml .= $this->qualified('accessRights', strip_tags($io->access_conditions));
         }
         if ($repository) {

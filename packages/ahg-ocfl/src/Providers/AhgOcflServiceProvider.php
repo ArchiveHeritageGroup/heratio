@@ -19,11 +19,16 @@
 
 namespace AhgOcfl\Providers;
 
+use AhgOcfl\Console\Commands\OcflBackfillEmbeddedMetadataExtensionCommand;
 use AhgOcfl\Console\Commands\OcflExportCommand;
 use AhgOcfl\Console\Commands\OcflIngestCommand;
 use AhgOcfl\Console\Commands\OcflInitCommand;
 use AhgOcfl\Console\Commands\OcflVerifyCommand;
 use AhgOcfl\Layout\StorageRoot;
+use AhgOcfl\Metadata\DbEmbeddedMetadataPiiGate;
+use AhgOcfl\Metadata\DbEmbeddedMetadataSource;
+use AhgOcfl\Metadata\EmbeddedMetadataPiiGate;
+use AhgOcfl\Metadata\EmbeddedMetadataSource;
 use AhgOcfl\Storage\OcflStorageAdapter;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\DB;
@@ -47,12 +52,34 @@ class AhgOcflServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(StorageRoot::class, function (Application $app) {
-            return new StorageRoot(
+            $root = new StorageRoot(
                 $app->make(OcflStorageAdapter::class),
                 (string) $app['config']->get('ocfl.storage_layout', 'flat-id'),
                 (string) $app['config']->get('ocfl.digest_algorithm', 'sha512'),
             );
+            // Auto-wire the embedded-metadata extension + PII gate so
+            // every ocfl:ingest call emits the block when sidecar
+            // tables have data. The gate fails open when #751 is
+            // absent (see DbEmbeddedMetadataPiiGate docstring).
+            try {
+                $root->withEmbeddedMetadataSource($app->make(EmbeddedMetadataSource::class));
+            } catch (\Throwable) {
+                // Container binding absent in degraded boot - skip.
+            }
+            try {
+                $root->withPiiGate($app->make(EmbeddedMetadataPiiGate::class));
+            } catch (\Throwable) {
+                // Gate absent - inventory still emits the block, just
+                // without redaction.
+            }
+            return $root;
         });
+
+        // Default bindings: concrete DB-backed implementations. Tests
+        // override these by re-binding the interface to a stub in the
+        // container before resolving StorageRoot.
+        $this->app->bind(EmbeddedMetadataSource::class, DbEmbeddedMetadataSource::class);
+        $this->app->bind(EmbeddedMetadataPiiGate::class, DbEmbeddedMetadataPiiGate::class);
     }
 
     public function boot(): void
@@ -67,6 +94,7 @@ class AhgOcflServiceProvider extends ServiceProvider
                 OcflIngestCommand::class,
                 OcflVerifyCommand::class,
                 OcflExportCommand::class,
+                OcflBackfillEmbeddedMetadataExtensionCommand::class,
             ]);
 
             $this->publishes([

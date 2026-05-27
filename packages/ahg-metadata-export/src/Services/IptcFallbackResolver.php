@@ -110,7 +110,7 @@ class IptcFallbackResolver
      * has a non-blank `creator` value, return a single-element list
      * containing the IPTC By-line. Otherwise return $canonical unchanged.
      */
-    public function resolveCreators(int $objectId, array $canonical): array
+    public function resolveCreatorsWithCanonical(int $objectId, array $canonical): array
     {
         $canonical = array_values(array_filter($canonical, static fn ($v) => is_string($v) && trim($v) !== ''));
         if (! empty($canonical)) {
@@ -134,7 +134,7 @@ class IptcFallbackResolver
      * IPTC Copyright Notice when $canonical (typically access_conditions
      * or a populated rights_statement) is blank.
      */
-    public function resolveRights(int $objectId, ?string $canonical): ?string
+    public function resolveRightsWithCanonical(int $objectId, ?string $canonical): ?string
     {
         $canonical = trim((string) $canonical);
         if ($canonical !== '') {
@@ -160,7 +160,7 @@ class IptcFallbackResolver
      * input is silently skipped so a corrupt IPTC payload can't poison
      * the harvest.
      */
-    public function resolveSubjects(int $objectId, array $canonical): array
+    public function resolveSubjectsWithCanonical(int $objectId, array $canonical): array
     {
         $canonical = array_values(array_filter(
             array_map(static fn ($v) => is_string($v) ? trim($v) : '', $canonical),
@@ -289,5 +289,121 @@ class IptcFallbackResolver
         self::$iptcCache = [];
         self::$auditCache = [];
         self::$errorLogAvailable = null;
+    }
+
+    // -----------------------------------------------------------------------
+    // Single-argument convenience methods (issue #752 brief surface).
+    //
+    // The plural / canonical-aware methods above are the workhorses called
+    // from the OAI controller and the per-format serializers, which already
+    // have the canonical ISAD(G) values in hand. The methods below fetch
+    // the canonical field themselves so a consumer that only knows the IO
+    // id can call a single helper.
+    //
+    // Precedence per the brief:
+    //   resolveCreator  - information_object_i18n author equivalent? No.
+    //                     Heratio stores creators in the `event` table
+    //                     (type_id=111 = Creation). We query that, then
+    //                     fall through to IPTC By-line.
+    //   resolveRights   - information_object_i18n.reproduction_conditions
+    //                     (ISAD 3.4.2), then IPTC Copyright Notice.
+    //   resolveSubjects - subject access points (taxonomy 35), then IPTC
+    //                     Keywords.
+    // -----------------------------------------------------------------------
+
+    /**
+     * Resolve a single creator string for an IO. Returns the first ISAD
+     * author (event type_id=111) when present, else the IPTC By-line, else
+     * null. Single-argument shape per the issue #752 brief - the resolver
+     * looks up the canonical value itself rather than having the caller
+     * pass it in.
+     */
+    public function resolveCreator(int $objectId): ?string
+    {
+        $canonical = [];
+        try {
+            if (Schema::hasTable('event') && Schema::hasTable('actor_i18n')) {
+                $rows = DB::table('event as e')
+                    ->leftJoin('actor_i18n as ai', function ($join) {
+                        $join->on('e.actor_id', '=', 'ai.id')
+                            ->where('ai.culture', '=', 'en');
+                    })
+                    ->where('e.object_id', '=', $objectId)
+                    ->where('e.type_id', '=', 111)
+                    ->whereNotNull('e.actor_id')
+                    ->select('ai.authorized_form_of_name')
+                    ->get();
+                foreach ($rows as $r) {
+                    if (! empty($r->authorized_form_of_name)) {
+                        $canonical[] = (string) $r->authorized_form_of_name;
+                    }
+                }
+            }
+        } catch (Throwable $e) {
+            // Fall through to the IPTC fallback path.
+        }
+        $resolved = $this->resolveCreatorsWithCanonical($objectId, $canonical);
+
+        return $resolved[0] ?? null;
+    }
+
+    /**
+     * Resolve a single rights statement for an IO. Returns ISAD(G) 3.4.2
+     * reproduction_conditions when set, else the IPTC Copyright Notice,
+     * else null. Single-argument shape per the issue #752 brief.
+     */
+    public function resolveRights(int $objectId): ?string
+    {
+        $canonical = null;
+        try {
+            if (Schema::hasTable('information_object_i18n')) {
+                $val = DB::table('information_object_i18n')
+                    ->where('id', $objectId)
+                    ->where('culture', 'en')
+                    ->value('reproduction_conditions');
+                if (! empty($val)) {
+                    $canonical = strip_tags((string) $val);
+                }
+            }
+        } catch (Throwable $e) {
+            // Fall through to the IPTC fallback path.
+        }
+
+        return $this->resolveRightsWithCanonical($objectId, $canonical);
+    }
+
+    /**
+     * Resolve the subject-keyword list for an IO. Returns ISAD(G) subject
+     * access points (taxonomy 35) when any exist, else the IPTC Keywords
+     * list, else []. Single-argument shape per the issue #752 brief.
+     *
+     * @return array<int, string>
+     */
+    public function resolveSubjects(int $objectId): array
+    {
+        $canonical = [];
+        try {
+            if (Schema::hasTable('object_term_relation') && Schema::hasTable('term_i18n')) {
+                $rows = DB::table('object_term_relation as otr')
+                    ->join('term as t', 'otr.term_id', '=', 't.id')
+                    ->join('term_i18n as ti', function ($join) {
+                        $join->on('t.id', '=', 'ti.id')
+                            ->where('ti.culture', '=', 'en');
+                    })
+                    ->where('otr.object_id', '=', $objectId)
+                    ->where('t.taxonomy_id', '=', 35)
+                    ->select('ti.name')
+                    ->get();
+                foreach ($rows as $r) {
+                    if (! empty($r->name)) {
+                        $canonical[] = (string) $r->name;
+                    }
+                }
+            }
+        } catch (Throwable $e) {
+            // Fall through to the IPTC fallback path.
+        }
+
+        return $this->resolveSubjectsWithCanonical($objectId, $canonical);
     }
 }

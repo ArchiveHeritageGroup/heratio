@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace AhgC2pa\Manifest;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
 
@@ -58,7 +59,15 @@ final class StandardMetadataLoader
      * EXIF). Falls back to media_metadata for video/audio assets that have
      * camera-make / model + duration but no image dims.
      *
-     * @return array<string,scalar> empty when no usable data was found.
+     * PII gate (issue #751): if `ahg_pii_finding_embedded` has any row for
+     * this digital object with `pii_type='gps_coordinate'` and
+     * `resolution_status IN ('pending','escalated')`, the GPS keys are
+     * stripped and a `_pii_redacted: true` marker is set on the payload so
+     * downstream verifiers can see the redaction was intentional. The gate
+     * is defensive - if the table is absent (Phase 2 not yet shipped on
+     * this install) we proceed without redaction and log a debug warning.
+     *
+     * @return array<string,scalar|bool> empty when no usable data was found.
      */
     public function loadExif(int $digitalObjectId): array
     {
@@ -103,7 +112,60 @@ final class StandardMetadataLoader
             }
         }
 
+        if ($this->hasPendingGpsFinding($digitalObjectId)) {
+            $hadGps = isset($out['Exif/GPSLatitude']) || isset($out['Exif/GPSLongitude']);
+            unset(
+                $out['Exif/GPSLatitude'],
+                $out['Exif/GPSLatitudeRef'],
+                $out['Exif/GPSLongitude'],
+                $out['Exif/GPSLongitudeRef'],
+            );
+            if ($hadGps) {
+                $out['_pii_redacted'] = true;
+            }
+        }
+
         return $out;
+    }
+
+    /**
+     * Returns true when ahg_pii_finding_embedded has a pending/escalated
+     * gps_coordinate finding for the digital object. False on any error or
+     * when the table is missing - the gate fails open so a fresh install
+     * pre-#751 doesn't break existing manifest issuance, but a warning is
+     * logged so the operator can spot the gap.
+     */
+    private function hasPendingGpsFinding(int $digitalObjectId): bool
+    {
+        if (!$this->tableExists('ahg_pii_finding_embedded')) {
+            // Defensive fail-open. Log once at debug-level - in production
+            // this means Phase 2 of #751 has not been deployed yet.
+            try {
+                Log::debug('c2pa.stds_exif: PII gate table absent, GPS not redacted', [
+                    'digital_object_id' => $digitalObjectId,
+                ]);
+            } catch (Throwable) {
+                // Log facade not bound - test harness without a logger.
+            }
+            return false;
+        }
+        try {
+            return DB::table('ahg_pii_finding_embedded')
+                ->where('digital_object_id', $digitalObjectId)
+                ->where('pii_type', 'gps_coordinate')
+                ->whereIn('resolution_status', ['pending', 'escalated'])
+                ->exists();
+        } catch (Throwable $e) {
+            try {
+                Log::warning('c2pa.stds_exif: PII gate query failed; proceeding without redaction', [
+                    'digital_object_id' => $digitalObjectId,
+                    'err'               => $e->getMessage(),
+                ]);
+            } catch (Throwable) {
+                // ignore - test harness
+            }
+            return false;
+        }
     }
 
     /**
