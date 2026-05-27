@@ -112,6 +112,10 @@ return Application::configure(basePath: dirname(__DIR__))
             // #674 Phase 2 - upstream mail provider webhook. HMAC-validated
             // against ahg_settings.email_bounce_webhook_secret; no session.
             'webhooks/email/bounce',
+            // #745 - public publish-request submission endpoint. Anonymous
+            // researchers POST from the IO show page; no session/CSRF token.
+            // Token receipt URL + best-effort email confirmation cover replay.
+            'publish-request',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

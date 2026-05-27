@@ -46,6 +46,13 @@
     <div class="d-flex flex-wrap gap-2 mb-3">
       <form id="inline-search" method="get" action="{{ route('term.browse') }}" class="d-flex" role="search" aria-label="{{ $taxonomyName }}">
         <input type="hidden" name="taxonomy" value="{{ $taxonomyId }}">
+        {{-- #743 browseTerm filters: persist parent + scope-note across searches --}}
+        @if(! empty($parentFilter))
+          <input type="hidden" name="parent" value="{{ $parentFilter }}">
+        @endif
+        @if(! empty($scopeNoteOnly))
+          <input type="hidden" name="scopeNoteOnly" value="1">
+        @endif
         <div class="input-group flex-nowrap">
           {{-- Search field selector --}}
           <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
@@ -110,6 +117,43 @@
           </ul>
         </div>
       </div>
+    </div>
+
+    {{-- #743 browseTerm filters: parent term + scope-note toggle. The parent
+         dropdown is populated from the same $treeTerms list the sidebar uses
+         so the operator can pick any top-level term as a sub-tree scope. --}}
+    <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+      <form id="browse-term-filters" method="get" action="{{ route('term.browse') }}" class="d-flex flex-wrap gap-2 align-items-center">
+        <input type="hidden" name="taxonomy" value="{{ $taxonomyId }}">
+        @if(request('subquery'))
+          <input type="hidden" name="subquery" value="{{ request('subquery') }}">
+        @endif
+
+        <label for="filter-parent" class="form-label small mb-0">{{ __('Parent term') }}</label>
+        <select id="filter-parent" name="parent" class="form-select form-select-sm" style="max-width:18rem;">
+          <option value="">{{ __('Any') }}</option>
+          @foreach($treeTerms as $tt)
+            <option value="{{ $tt->id }}" {{ (string)($parentFilter ?? '') === (string)$tt->id ? 'selected' : '' }}>{{ $tt->name }}</option>
+          @endforeach
+        </select>
+
+        <div class="form-check ms-2">
+          <input class="form-check-input" type="checkbox" name="scopeNoteOnly" id="filter-scope" value="1" {{ ! empty($scopeNoteOnly) ? 'checked' : '' }}>
+          <label class="form-check-label small" for="filter-scope">{{ __('Has scope note') }}</label>
+        </div>
+
+        <button type="submit" class="btn btn-sm atom-btn-white">{{ __('Apply') }}</button>
+
+        @if(! empty($parentFilter) || ! empty($scopeNoteOnly))
+          <a class="btn btn-sm atom-btn-white" href="{{ route('term.browse', ['taxonomy' => $taxonomyId]) }}">
+            <i class="fas fa-times me-1" aria-hidden="true"></i>{{ __('Clear filters') }}
+          </a>
+        @endif
+
+        <a class="btn btn-sm atom-btn-white ms-auto" href="{{ route('term.treeView', ['taxonomyId' => $taxonomyId]) }}">
+          <i class="fas fa-sitemap me-1" aria-hidden="true"></i>{{ __('Tree view') }}
+        </a>
+      </form>
     </div>
 @endsection
 

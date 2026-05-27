@@ -1,9 +1,20 @@
 <?php
 
 use AhgAcl\Controllers\AclController;
+use AhgAcl\Controllers\TermPermissionController;
+use AhgAcl\Controllers\TranslatePermissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('admin')->group(function () {
+    // Issue #744 - PSIS-parity ACL matrix pages.
+    Route::get('/admin/term-permissions', [TermPermissionController::class, 'index'])->name('admin.term-permissions');
+    Route::post('/admin/term-permissions', [TermPermissionController::class, 'update'])->name('admin.term-permissions.update');
+    Route::get('/admin/translate-permissions', [TranslatePermissionController::class, 'index'])->name('admin.translate-permissions');
+    Route::post('/admin/translate-permissions', [TranslatePermissionController::class, 'update'])->name('admin.translate-permissions.update');
+    // PSIS legacy URL aliases (camelCase) so existing bookmarks still resolve.
+    Route::get('/admin/termPermission', [TermPermissionController::class, 'index']);
+    Route::get('/admin/translatePermission', [TranslatePermissionController::class, 'index']);
+
     Route::get('/admin/acl', [AclController::class, 'groups'])->name('acl.groups');
     Route::match(['get', 'post'], '/admin/acl/group/{id}', [AclController::class, 'editGroup'])->name('acl.edit-group')->where('id', '[0-9]+');
     // Per-entity ACL editor tabs (issue #50)

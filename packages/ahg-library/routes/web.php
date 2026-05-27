@@ -7,6 +7,23 @@ Route::get('/library', [LibraryController::class, 'browse'])->name('library.brow
 // Dashboard URL alias under /library/browse (matches reports dashboard link)
 Route::get('/library/browse', [LibraryController::class, 'browse'])->name('library.browse.alias');
 
+// Issue #734 - PSIS-parity AJAX/proxy endpoints.
+// Cover proxy: server-side fetch + local disk cache so the OPAC and admin
+// thumbnails don't leak the patron's IP to the upstream cover service.
+Route::get('/library/cover-image/{isbn}', [LibraryController::class, 'coverImage'])
+    ->name('library.cover-image')
+    ->where('isbn', '[0-9Xx\-]{9,20}');
+
+// Slug preview: returns {slug: "kebab-case"} for the rename / edit form.
+Route::get('/library/slug-preview', [LibraryController::class, 'slugPreview'])
+    ->name('library.slug-preview')
+    ->middleware('auth');
+
+// AI subject suggestions (LlmService::complete behind the cloud-mode override).
+Route::post('/library/suggest-subjects', [LibraryController::class, 'suggestSubjects'])
+    ->name('library.suggest-subjects')
+    ->middleware('auth');
+
 Route::middleware('auth')->group(function () {
     Route::get('/library/add', [LibraryController::class, 'create'])->name('library.create');
     Route::post('/library/store', [LibraryController::class, 'store'])->name('library.store')->middleware('acl:create');
@@ -24,8 +41,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/{slug}/rename', [LibraryController::class, 'rename'])->name('library.rename');
     Route::post('/library-manage/{slug}/rename', [LibraryController::class, 'renameStore'])->name('library.rename-store')->middleware('acl:update');
     Route::get('/library-manage/isbn-providers', [LibraryController::class, 'isbnProviders'])->name('library.isbn-providers');
+    // Issue #734 - PSIS-parity alias requested in the brief. Same target as
+    // /library-manage/isbn-providers so existing deep links keep working.
+    Route::get('/admin/library/isbn-providers', [LibraryController::class, 'isbnProviders'])->name('library.isbn-providers.admin');
     Route::get('/library-manage/isbn-provider/{id}/edit', [LibraryController::class, 'isbnProviderEdit'])->name('library.isbn-provider-edit')->where('id', '[0-9]+');
     Route::post('/library-manage/isbn-provider/{id}', [LibraryController::class, 'isbnProviderStore'])->name('library.isbn-provider-store')->where('id', '[0-9]+')->middleware('acl:update');
+    // Issue #734 - toggle (enable/disable) + delete admin actions
+    Route::post('/library-manage/isbn-provider/{id}/toggle', [LibraryController::class, 'isbnProviderToggle'])->name('library.isbn-provider-toggle')->where('id', '[0-9]+')->middleware('acl:update');
+    Route::post('/library-manage/isbn-provider/{id}/delete', [LibraryController::class, 'isbnProviderDelete'])->name('library.isbn-provider-delete')->where('id', '[0-9]+')->middleware('acl:delete');
 
     // Acquisition
     Route::get('/library-manage/acquisitions', [LibraryController::class, 'acquisitions'])->name('library.acquisitions');
@@ -52,6 +75,8 @@ Route::middleware('auth')->group(function () {
     // Patrons
     Route::get('/library-manage/patrons', [LibraryController::class, 'patrons'])->name('library.patrons');
     Route::get('/library-manage/patron/{id}', [LibraryController::class, 'patronView'])->name('library.patron-view')->where('id', '[0-9]+');
+    // Issue #734 - patron reactivate (PSIS parity twin: ahgLibraryPlugin patron/reactivateAction)
+    Route::post('/library/patron/{id}/reactivate', [LibraryController::class, 'patronReactivate'])->name('library.patron-reactivate')->where('id', '[0-9]+')->middleware('acl:update');
 
     // Serials
     Route::get('/library-manage/serials', [LibraryController::class, 'serials'])->name('library.serials');

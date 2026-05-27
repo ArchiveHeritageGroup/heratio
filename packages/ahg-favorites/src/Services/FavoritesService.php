@@ -103,6 +103,8 @@ class FavoritesService
 
         return [
             'results' => $results,
+            // PSIS compatibility: the AJAX search action expects 'hits'.
+            'hits' => $results,
             'total' => $total,
             'page' => $page,
             'lastPage' => max(1, (int) ceil($total / $limit)),
@@ -110,7 +112,7 @@ class FavoritesService
         ];
     }
 
-    public function addToFavorites(int $userId, int $objectId, string $title, string $slug, string $objectType = 'information_object', ?string $referenceCode = null, ?int $folderId = null): bool
+    public function addToFavorites(int $userId, int $objectId, string $title, string $slug, string $objectType = 'information_object', ?string $referenceCode = null, ?int $folderId = null, ?string $url = null): bool
     {
         if ($this->isFavorited($userId, $objectId, $objectType)) {
             return false;
@@ -121,6 +123,7 @@ class FavoritesService
             'archival_description_id' => $objectId,
             'archival_description' => $title,
             'slug' => $slug,
+            'url' => $url,
             'object_type' => $objectType,
             'reference_code' => $referenceCode,
             'folder_id' => $folderId,
@@ -129,6 +132,35 @@ class FavoritesService
         ]);
 
         return true;
+    }
+
+    /**
+     * Toggle a non-information_object entity (research project/collection/
+     * journal, custom link, etc.). Mirror of PSIS ajaxToggleCustomAction.
+     */
+    public function toggleCustom(int $userId, int $objectId, string $objectType, string $title, ?string $url = null, ?int $folderId = null): array
+    {
+        if ($this->isFavorited($userId, $objectId, $objectType)) {
+            DB::table('favorites')
+                ->where('user_id', $userId)
+                ->where('archival_description_id', $objectId)
+                ->where('object_type', $objectType)
+                ->delete();
+
+            return [
+                'success' => true,
+                'favorited' => false,
+                'count' => $this->getCount($userId),
+            ];
+        }
+
+        $this->addToFavorites($userId, $objectId, $title, '', $objectType, null, $folderId, $url);
+
+        return [
+            'success' => true,
+            'favorited' => true,
+            'count' => $this->getCount($userId),
+        ];
     }
 
     public function removeFromFavorites(int $userId, int $id): bool
@@ -186,12 +218,42 @@ class FavoritesService
             ->delete();
     }
 
-    public function moveToFolder(int $userId, array $ids, ?int $folderId): int
+    /**
+     * Move favourites to a folder (or out of all folders if $folderId is null).
+     *
+     * Returns the PSIS-shaped result array so the AJAX move-to-folder picker
+     * can render a flash message.
+     */
+    public function moveToFolder(int $userId, array $ids, ?int $folderId): array
     {
-        return DB::table('favorites')
+        $ids = array_filter(array_map('intval', $ids));
+
+        if (empty($ids)) {
+            return ['success' => false, 'moved' => 0, 'message' => __('No items selected.')];
+        }
+
+        if ($folderId !== null) {
+            $owns = DB::table('favorites_folder')
+                ->where('id', $folderId)
+                ->where('user_id', $userId)
+                ->exists();
+            if (! $owns) {
+                return ['success' => false, 'moved' => 0, 'message' => __('Folder not found.')];
+            }
+        }
+
+        $moved = DB::table('favorites')
             ->where('user_id', $userId)
             ->whereIn('id', $ids)
             ->update(['folder_id' => $folderId, 'updated_at' => now()]);
+
+        return [
+            'success' => true,
+            'moved' => $moved,
+            'message' => $folderId
+                ? __('Moved :n items to folder.', ['n' => $moved])
+                : __('Moved :n items to Unfiled.', ['n' => $moved]),
+        ];
     }
 
     public function clearAll(int $userId): int

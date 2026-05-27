@@ -285,12 +285,25 @@ class ElasticsearchService
         $paging = $params['paging'] ?? null; // 'cursor' to force cursor mode even without a token
         $geo = $params['geo'] ?? null;       // ['center' => 'lat,lng', 'radius' => '5km'] OR ['box' => 'lat1,lng1,lat2,lng2']
 
+        // #730 - PSIS parity facets. Each is an optional click-through filter
+        // on a sidebar bucket. languages/collection ride on string ids; the
+        // others are integer term/actor ids.
+        $facets = [
+            'languages' => $params['languages'] ?? null,
+            'places' => $params['places'] ?? null,
+            'subjects' => $params['subjects'] ?? null,
+            'genres' => $params['genres'] ?? null,
+            'names' => $params['names'] ?? null,
+            'collection' => $params['collection'] ?? null,
+        ];
+
         // Try Elasticsearch first, fall back to DB.
-        // The DB fallback ignores cursor + geo (degraded mode) - both require ES.
+        // The DB fallback ignores cursor + geo + #730 facet filters (degraded
+        // mode) - all three require ES.
         if ($this->isElasticsearchAvailable()) {
             return $this->advancedSearchEs(
                 $query, $repo, $level, $dateFrom, $dateTo, $hasDo, $mediaType,
-                $sort, $page, $limit, $culture, $cursor, $paging, $geo
+                $sort, $page, $limit, $culture, $cursor, $paging, $geo, $facets
             );
         }
 
@@ -355,6 +368,14 @@ class ElasticsearchService
 
     /**
      * Build ES aggregation definitions for sidebar facets.
+     *
+     * Issue #730 (PSIS twin atom-ahg-plugins#76): mirrored the 6 facet
+     * buckets PSIS (apps/qubit/modules/informationobject/actions/browseAction.class.php)
+     * exposes that Heratio was missing - languages, places, subjects, genres,
+     * names (creators sit on the GLAM browse view already), and collection
+     * (partOf.id). PSIS aggregator total: 11 buckets. Heratio post-#730: 11
+     * buckets (the missing-6 list above + the original 5: repositories,
+     * levels, mediaTypes, hasDigitalObject, dateHistogram).
      */
     public function getAggregations(array $filters, string $culture = 'en'): array
     {
@@ -388,6 +409,46 @@ class ElasticsearchService
                     'field' => 'createdAt',
                     'calendar_interval' => 'year',
                     'min_doc_count' => 1,
+                ],
+            ],
+
+            // #730 - PSIS parity facets (the 6 buckets PSIS exposes that
+            // Heratio was missing). Sizes match PSIS ($AGGS in
+            // qubit/modules/informationobject/actions/browseAction.class.php).
+            'languages' => [
+                'terms' => [
+                    'field' => 'i18n.languages',
+                    'size' => 10,
+                ],
+            ],
+            'places' => [
+                'terms' => [
+                    'field' => 'places.id',
+                    'size' => 10,
+                ],
+            ],
+            'subjects' => [
+                'terms' => [
+                    'field' => 'subjects.id',
+                    'size' => 10,
+                ],
+            ],
+            'genres' => [
+                'terms' => [
+                    'field' => 'genres.id',
+                    'size' => 10,
+                ],
+            ],
+            'names' => [
+                'terms' => [
+                    'field' => 'names.id',
+                    'size' => 10,
+                ],
+            ],
+            'collection' => [
+                'terms' => [
+                    'field' => 'partOf.id',
+                    'size' => 10,
                 ],
             ],
         ];
@@ -460,6 +521,64 @@ class ElasticsearchService
             foreach ($rawAggs['dateHistogram']['buckets'] as $bucket) {
                 $resolved['dateHistogram'][] = [
                     'label' => substr($bucket['key_as_string'] ?? '', 0, 4),
+                    'count' => $bucket['doc_count'],
+                ];
+            }
+        }
+
+        // #730 - PSIS parity facets. Term-backed buckets (places, subjects,
+        // genres) use term_i18n.name; actor-backed (names) uses actor_i18n.
+        // collection resolves via information_object_i18n.title (partOf.id is
+        // an IO id). Languages keep their raw ISO code as the id and resolve
+        // to a human label via PHP's locale catalog.
+        foreach (['places', 'subjects', 'genres'] as $termAgg) {
+            if (! empty($rawAggs[$termAgg]['buckets'])) {
+                $termIds = array_column($rawAggs[$termAgg]['buckets'], 'key');
+                $termNames = $this->resolveTermNames($termIds, $culture);
+                $resolved[$termAgg] = [];
+                foreach ($rawAggs[$termAgg]['buckets'] as $bucket) {
+                    $resolved[$termAgg][] = [
+                        'id' => $bucket['key'],
+                        'label' => $termNames[$bucket['key']] ?? '[Unknown]',
+                        'count' => $bucket['doc_count'],
+                    ];
+                }
+            }
+        }
+
+        if (! empty($rawAggs['names']['buckets'])) {
+            $actorIds = array_column($rawAggs['names']['buckets'], 'key');
+            $actorNames = $this->resolveRepositoryNames($actorIds, $culture);
+            $resolved['names'] = [];
+            foreach ($rawAggs['names']['buckets'] as $bucket) {
+                $resolved['names'][] = [
+                    'id' => $bucket['key'],
+                    'label' => $actorNames[$bucket['key']] ?? '[Unknown]',
+                    'count' => $bucket['doc_count'],
+                ];
+            }
+        }
+
+        if (! empty($rawAggs['collection']['buckets'])) {
+            $ioIds = array_column($rawAggs['collection']['buckets'], 'key');
+            $ioTitles = $this->resolveIoTitles($ioIds, $culture);
+            $resolved['collection'] = [];
+            foreach ($rawAggs['collection']['buckets'] as $bucket) {
+                $resolved['collection'][] = [
+                    'id' => $bucket['key'],
+                    'label' => $ioTitles[$bucket['key']] ?? '[Unknown collection]',
+                    'count' => $bucket['doc_count'],
+                ];
+            }
+        }
+
+        if (! empty($rawAggs['languages']['buckets'])) {
+            $resolved['languages'] = [];
+            foreach ($rawAggs['languages']['buckets'] as $bucket) {
+                $code = (string) $bucket['key'];
+                $resolved['languages'][] = [
+                    'id' => $code,
+                    'label' => $this->resolveLanguageLabel($code, $culture),
                     'count' => $bucket['doc_count'],
                 ];
             }
@@ -548,7 +667,8 @@ class ElasticsearchService
         string $query, ?int $repo, ?int $level,
         ?string $dateFrom, ?string $dateTo, ?bool $hasDo, ?int $mediaType,
         string $sort, int $page, int $limit, string $culture,
-        ?string $cursor = null, ?string $paging = null, ?array $geo = null
+        ?string $cursor = null, ?string $paging = null, ?array $geo = null,
+        ?array $facets = null
     ): array {
         $must = [];
         $filter = [];
@@ -598,6 +718,29 @@ class ElasticsearchService
         }
         if ($dateTo) {
             $filter[] = ['range' => ['createdAt' => ['lte' => $dateTo]]];
+        }
+
+        // #730 - PSIS parity facet filters. Skipped silently when empty so the
+        // bucket can still come back in the aggs (sidebar always shows what's
+        // available to click). Term/actor/IO buckets cast to int; languages
+        // stays a string ISO code; collection is partOf.id.
+        if (! empty($facets['languages'])) {
+            $filter[] = ['term' => ['i18n.languages' => (string) $facets['languages']]];
+        }
+        if (! empty($facets['places'])) {
+            $filter[] = ['term' => ['places.id' => (int) $facets['places']]];
+        }
+        if (! empty($facets['subjects'])) {
+            $filter[] = ['term' => ['subjects.id' => (int) $facets['subjects']]];
+        }
+        if (! empty($facets['genres'])) {
+            $filter[] = ['term' => ['genres.id' => (int) $facets['genres']]];
+        }
+        if (! empty($facets['names'])) {
+            $filter[] = ['term' => ['names.id' => (int) $facets['names']]];
+        }
+        if (! empty($facets['collection'])) {
+            $filter[] = ['term' => ['partOf.id' => (int) $facets['collection']]];
         }
 
         // Geo filter (#650 Phase 3). Centre+radius and bounding box are mutually
@@ -1288,5 +1431,62 @@ class ElasticsearchService
             ->where('culture', '=', $culture)
             ->pluck('name', 'id')
             ->toArray();
+    }
+
+    /**
+     * Resolve information_object IDs to titles via DB. Used by the
+     * #730 collection facet (partOf.id buckets). Falls back to the
+     * source-culture row when the requested culture has no title.
+     */
+    protected function resolveIoTitles(array $ids, string $culture): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $titles = DB::table('information_object_i18n')
+            ->whereIn('id', $ids)
+            ->where('culture', '=', $culture)
+            ->pluck('title', 'id')
+            ->toArray();
+
+        // Fill blanks via source culture (matches PSIS/AtoM behaviour for
+        // i18n fallback - never show '[Unknown]' just because a row is
+        // missing the active culture).
+        $missing = array_diff($ids, array_keys($titles));
+        if (! empty($missing)) {
+            $fallback = DB::table('information_object_i18n as ioi')
+                ->join('information_object as io', 'io.id', '=', 'ioi.id')
+                ->whereIn('ioi.id', $missing)
+                ->whereColumn('ioi.culture', 'io.source_culture')
+                ->pluck('ioi.title', 'ioi.id')
+                ->toArray();
+            $titles = $titles + $fallback;
+        }
+
+        return $titles;
+    }
+
+    /**
+     * Resolve a language ISO code (e.g. 'en', 'af', 'zu') to a
+     * human-readable label in the active culture. Mirrors PSIS's
+     * sfCultureInfo::getLanguage() in browseAction.class.php.
+     */
+    protected function resolveLanguageLabel(string $code, string $culture = 'en'): string
+    {
+        if ($code === '') {
+            return '[Unknown language]';
+        }
+
+        // PHP's Locale extension is the cheapest path; fall back to the raw
+        // code if intl is unavailable in some weird container build.
+        if (class_exists(\Locale::class)) {
+            $label = \Locale::getDisplayLanguage($code, $culture);
+            if ($label !== '' && strcasecmp($label, $code) !== 0) {
+                return ucfirst($label);
+            }
+        }
+
+        return strtoupper($code);
     }
 }

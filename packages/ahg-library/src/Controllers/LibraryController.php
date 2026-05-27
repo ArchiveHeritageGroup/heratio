@@ -1044,4 +1044,232 @@ class LibraryController extends Controller
         } catch (\Throwable $e) {}
         return view('ahg-library::reports.call-numbers', compact('items'));
     }
+
+    // ── Issue #734: PSIS-parity actions ────────────────────────────
+
+    /**
+     * Toggle a provider's active flag. PSIS twin:
+     * ahgLibraryPlugin/modules/library/actions/isbnProviderToggleAction.
+     * Admin-only; honoured by the existing acl:update middleware on the route.
+     */
+    public function isbnProviderToggle(int $id)
+    {
+        $provider = $this->isbnProvider->get($id);
+        if (!$provider) {
+            return redirect()->route('library.isbn-providers')
+                ->with('error', __('Provider not found.'));
+        }
+        $this->isbnProvider->save($id, [
+            'name'     => $provider->name,
+            'api_url'  => $provider->api_url,
+            'api_key'  => $provider->api_key,
+            'priority' => (int) $provider->priority,
+            'active'   => empty($provider->active),
+        ]);
+        $label = empty($provider->active) ? __('enabled') : __('disabled');
+        return redirect()->route('library.isbn-providers')
+            ->with('success', __('Provider :name :state.', ['name' => $provider->name, 'state' => $label]));
+    }
+
+    /**
+     * Delete a provider. PSIS twin: isbnProviderDeleteAction. Refuses to
+     * delete the three seed providers (Open Library / Google Books /
+     * WorldCat) - operators toggle them off instead. This preserves the
+     * upstream "core providers" contract.
+     */
+    public function isbnProviderDelete(int $id)
+    {
+        $provider = $this->isbnProvider->get($id);
+        if (!$provider) {
+            return redirect()->route('library.isbn-providers')
+                ->with('error', __('Provider not found.'));
+        }
+        $protected = ['Open Library', 'Google Books', 'WorldCat'];
+        if (in_array($provider->name, $protected, true)) {
+            return redirect()->route('library.isbn-providers')
+                ->with('error', __('Core providers cannot be deleted - toggle them off instead.'));
+        }
+        $this->isbnProvider->delete($id);
+        return redirect()->route('library.isbn-providers')
+            ->with('success', __('Provider deleted.'));
+    }
+
+    /**
+     * Server-side cover image proxy. Mirrors PSIS coverProxyAction.
+     * - Strips ISBN to digits + X.
+     * - Caches the JPEG under HERATIO_STORAGE_PATH/cache/covers/<isbn>-<size>.jpg.
+     * - Falls through to upstream provider (currently Open Library) on miss.
+     * - Returns image/jpeg with 24h cache; 404 on miss or undersized payload.
+     */
+    public function coverImage(Request $request, string $isbn)
+    {
+        $isbn = strtoupper(preg_replace('/[^0-9Xx]/', '', $isbn));
+        $size = strtoupper((string) $request->query('size', 'M'));
+        if ($isbn === '' || !in_array($size, ['S', 'M', 'L'], true)) {
+            abort(404);
+        }
+
+        $storageRoot = (string) (config('heratio.storage_path') ?: storage_path('app'));
+        $cacheDir = rtrim($storageRoot, '/') . '/cache/covers';
+        if (!is_dir($cacheDir)) {
+            @mkdir($cacheDir, 0775, true);
+        }
+        $cacheFile = $cacheDir . '/' . $isbn . '-' . $size . '.jpg';
+
+        // Cache hit: stream from disk.
+        if (is_file($cacheFile) && filesize($cacheFile) > 0) {
+            return response()->file($cacheFile, [
+                'Content-Type'  => 'image/jpeg',
+                'Cache-Control' => 'public, max-age=86400',
+            ]);
+        }
+
+        // Miss: fetch from the highest-priority active provider that returns a
+        // resolvable cover URL. Today only Open Library exposes a no-key cover
+        // CDN so we map other providers to the same /b/isbn/ pattern.
+        $url = "https://covers.openlibrary.org/b/isbn/{$isbn}-{$size}.jpg";
+        try {
+            $resp = \Illuminate\Support\Facades\Http::timeout(10)
+                ->withHeaders(['User-Agent' => 'Heratio/LibraryPlugin'])
+                ->get($url);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[library] cover proxy fetch failed: ' . $e->getMessage());
+            abort(404);
+        }
+        $body = $resp->body();
+        if (!$resp->successful() || strlen($body) < 1000) {
+            abort(404);
+        }
+
+        // Best-effort cache write; failure here must not break the response.
+        @file_put_contents($cacheFile, $body);
+
+        return response($body, 200, [
+            'Content-Type'   => 'image/jpeg',
+            'Cache-Control'  => 'public, max-age=86400',
+            'Content-Length' => (string) strlen($body),
+        ]);
+    }
+
+    /**
+     * Returns {slug: "kebab-case"} for the title typed into the rename / add
+     * form. Pads with a numeric suffix when the slug is already taken so the
+     * UI can show the user what will actually be saved.
+     */
+    public function slugPreview(Request $request)
+    {
+        $title = (string) $request->query('title', '');
+        if ($title === '') {
+            return response()->json(['slug' => '', 'padded' => false]);
+        }
+        $base = \Illuminate\Support\Str::slug($title) ?: 'untitled';
+        $candidate = $base;
+        $padded = false;
+        $i = 1;
+        // Cap the pad loop so a poisoned slug table can't spin us forever.
+        while ($i < 50 && \Illuminate\Support\Facades\DB::table('slug')->where('slug', $candidate)->exists()) {
+            $candidate = $base . '-' . $i;
+            $padded = true;
+            $i++;
+        }
+        return response()->json(['slug' => $candidate, 'padded' => $padded]);
+    }
+
+    /**
+     * POST /library/suggest-subjects {title, description} -> {subjects: [...]}
+     *
+     * Calls LlmService::complete via the cloud-mode override (AI is
+     * remote-only per feedback_ai_remote_only). Returns up to 5 short
+     * subject-heading strings. Failures degrade to an empty array + an
+     * error string the caller can surface.
+     */
+    public function suggestSubjects(Request $request)
+    {
+        $validated = $request->validate([
+            'title'       => 'required|string|max:2048',
+            'description' => 'nullable|string|max:8000',
+        ]);
+
+        $title = trim($validated['title']);
+        $desc  = trim((string) ($validated['description'] ?? ''));
+
+        $prompt = "You are a cataloguing assistant. Propose 5 concise subject headings "
+            . "(2-4 words each, Library of Congress style where possible) for the resource below. "
+            . "Return ONLY a JSON array of strings, no prose, no markdown fences.\n\n"
+            . "Title: {$title}\n"
+            . ($desc !== '' ? "Description: {$desc}\n" : '');
+
+        $subjects = [];
+        $error = null;
+        try {
+            $llm = app(\AhgAiServices\Services\LlmService::class);
+            $raw = $llm->complete($prompt, ['temperature' => 0.2, 'purpose' => 'library.suggest_subjects']);
+            if (is_string($raw) && $raw !== '') {
+                // Trim common markdown fences then parse.
+                $clean = trim($raw);
+                $clean = preg_replace('/^```(?:json)?\s*|\s*```$/m', '', $clean) ?? $clean;
+                $decoded = json_decode($clean, true);
+                if (is_array($decoded)) {
+                    foreach ($decoded as $s) {
+                        if (is_string($s)) {
+                            $s = trim($s);
+                            if ($s !== '' && mb_strlen($s) <= 200) {
+                                $subjects[] = $s;
+                            }
+                        }
+                        if (count($subjects) >= 5) break;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[library] suggestSubjects failed: ' . $e->getMessage());
+            $error = 'LLM call failed.';
+        }
+
+        return response()->json([
+            'success'  => $error === null,
+            'subjects' => $subjects,
+            'error'    => $error,
+        ]);
+    }
+
+    /**
+     * POST /library/patron/{id}/reactivate - re-enable a suspended or
+     * expired patron and log the action to ahg_error_log (level=info) so
+     * the audit feed picks it up. PSIS twin:
+     * ahgLibraryPlugin patron/reactivateAction.
+     */
+    public function patronReactivate(Request $request, int $id)
+    {
+        $patron = $this->patrons->get($id);
+        if (!$patron) {
+            abort(404);
+        }
+        $previousStatus = (string) ($patron->borrowing_status ?? '');
+        $ok = $this->patrons->reactivate($id);
+
+        // Audit row in ahg_error_log (level=info is the convention used by
+        // other admin write-paths - the table doubles as an activity feed
+        // for the operator console).
+        try {
+            \Illuminate\Support\Facades\DB::table('ahg_error_log')->insert([
+                'level'           => 'info',
+                'message'         => 'Library patron reactivated (id=' . $id . ', was=' . $previousStatus . ')',
+                'exception_class' => '',
+                'file'            => __FILE__,
+                'line'            => __LINE__,
+                'url'             => $request->fullUrl(),
+                'http_method'     => 'POST',
+                'hostname'        => gethostname() ?: '',
+                'is_read'         => 0,
+                'created_at'      => now(),
+            ]);
+        } catch (\Throwable $e) {
+            // ahg_error_log is best-effort; never block the user response.
+            \Illuminate\Support\Facades\Log::warning('[library] patron reactivate audit log failed: ' . $e->getMessage());
+        }
+
+        $msg = $ok ? __('Patron reactivated.') : __('Patron could not be reactivated.');
+        return redirect()->route('library.patron-view', $id)->with($ok ? 'success' : 'error', $msg);
+    }
 }

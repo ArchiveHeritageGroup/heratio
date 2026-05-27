@@ -132,6 +132,20 @@ class LibraryPatronService
     }
 
     /**
+     * Re-enable a previously suspended or expired patron. PSIS twin:
+     * ahgLibraryPlugin/modules/patron/actions/reactivateAction.class.php.
+     * Clears suspension fields and flips borrowing_status back to 'active'.
+     */
+    public function reactivate(int $id): bool
+    {
+        return $this->update($id, [
+            'borrowing_status'  => 'active',
+            'suspension_reason' => null,
+            'suspension_until'  => null,
+        ]);
+    }
+
+    /**
      * Drop expired patrons to status='expired'. Run from the auto-expire
      * cron command. Honours the grace-period setting so a freshly-lapsed
      * patron isn't kicked out on day 1.

@@ -485,6 +485,9 @@ $canEdit = auth()->check() && auth()->user()->is_admin;
     </div>
 </div>
 
+{{-- #739 Museum vocabulary autocomplete (Getty AAT + ahg_dropdown + internal authorities). --}}
+@includeIf('ahg-museum::_autocomplete-script')
+
 @endsection
 
 @push('js')

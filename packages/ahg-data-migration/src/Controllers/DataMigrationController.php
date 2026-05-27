@@ -25,17 +25,22 @@
 
 namespace AhgDataMigration\Controllers;
 
+use AhgDataMigration\Services\DataMigrationService;
 use AtomExtensions\Repositories\DataMigrationRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class DataMigrationController extends \App\Http\Controllers\Controller
 {
     protected DataMigrationRepository $repo;
 
-    public function __construct(DataMigrationRepository $repo)
+    protected DataMigrationService $service;
+
+    public function __construct(DataMigrationRepository $repo, DataMigrationService $service)
     {
         $this->repo = $repo;
+        $this->service = $service;
     }
 
     // ── Existing: index ──────────────────────────────────────
@@ -464,11 +469,309 @@ class DataMigrationController extends \App\Http\Controllers\Controller
 
     public function previewData(Request $req)
     {
-        return view('ahg-data-migration::preview-data', ['rows' => collect()]);
+        $filePath = session('dm_file');
+        $mappings = json_decode((string) $req->input('mappings', '[]'), true) ?: [];
+        $limit = max(1, min(50, (int) $req->input('limit', 10)));
+
+        $rows = collect();
+        $headers = [];
+        if ($filePath && file_exists($filePath)) {
+            $result = $this->service->previewMapped($filePath, $mappings, $limit);
+            $rows = collect($result['preview']);
+            $headers = $result['headers'];
+        }
+
+        return view('ahg-data-migration::preview-data', compact('rows', 'headers'));
     }
 
-    public function sectorExport(Request $req)
+    // ════════════════════════════════════════════════════════
+    // Issue #740 — Data-migration exports parity (PSIS twin
+    // atom-ahg-plugins#86). Six new actions:
+    // exportEad, exportAhgCsv, sectorExport, detectSheets,
+    // renameMapping, getPreview.
+    // ════════════════════════════════════════════════════════
+
+    /**
+     * GET /admin/data-migration/export-ead.
+     *
+     * Streams an EAD 2002 XML download generated from the
+     * current session mapping + uploaded file.
+     */
+    public function exportEad(Request $req)
     {
-        return view('ahg-data-migration::sector-export', ['record' => (object) []]);
+        $filePath = session('dm_file');
+        $fileName = session('dm_filename', 'collection.csv');
+        $mappings = $this->resolveMappingsFromRequest($req);
+
+        if (! $filePath || ! file_exists($filePath)) {
+            return redirect()->route('data-migration.upload')
+                ->with('error', __('Session expired. Please upload a file again.'));
+        }
+
+        $parsed = $this->service->parseCSV($filePath, PHP_INT_MAX);
+        $records = $this->service->transformWithMapping(
+            $this->indexRows($parsed['rows'] ?? [], $parsed['headers'] ?? []),
+            $parsed['headers'] ?? [],
+            $mappings
+        );
+
+        $xml = $this->service->generateEadXml($records, $fileName);
+        $download = pathinfo($fileName, PATHINFO_FILENAME).'.ead.xml';
+
+        return response($xml, 200, [
+            'Content-Type' => 'application/xml; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$download.'"',
+            'Cache-Control' => 'no-cache, must-revalidate',
+        ]);
+    }
+
+    /**
+     * GET /admin/data-migration/export-ahg-csv.
+     *
+     * Streams the AHG Extended CSV (ISAD-G columns + AHG sidecar
+     * columns for security, rights, provenance, condition).
+     */
+    public function exportAhgCsv(Request $req)
+    {
+        $filePath = session('dm_file');
+        $fileName = session('dm_filename', 'export.csv');
+        $mappings = $this->resolveMappingsFromRequest($req);
+
+        if (! $filePath || ! file_exists($filePath)) {
+            return redirect()->route('data-migration.upload')
+                ->with('error', __('Session expired. Please upload a file again.'));
+        }
+        if (empty($mappings)) {
+            return redirect()->route('data-migration.map')
+                ->with('error', __('No field mapping available. Save a mapping first.'));
+        }
+
+        $parsed = $this->service->parseCSV($filePath, PHP_INT_MAX);
+        $records = $this->service->transformWithMapping(
+            $this->indexRows($parsed['rows'] ?? [], $parsed['headers'] ?? []),
+            $parsed['headers'] ?? [],
+            $mappings
+        );
+
+        if (empty($records)) {
+            return redirect()->route('data-migration.map')
+                ->with('error', __('No data to export. Check your field mappings.'));
+        }
+
+        $csv = $this->service->buildAhgCsv($records);
+        $base = pathinfo($fileName, PATHINFO_FILENAME);
+        $download = $base.'_ahg_extended_'.date('Ymd_His').'.csv';
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$download.'"',
+            'Cache-Control' => 'no-cache, must-revalidate',
+        ]);
+    }
+
+    /**
+     * GET|POST /admin/data-migration/sector-export/{sector?}.
+     *
+     * GET  – render the sector picker / column resolver view.
+     * POST – stream a CSV using the sector-specific column resolver,
+     *        sourced from the current mapping session.
+     */
+    public function sectorExport(Request $req, ?string $sector = null)
+    {
+        $sectors = $this->sectorChoices();
+        $sector = $sector ?: $req->input('sector', 'archive');
+        if (! array_key_exists($sector, $sectors)) {
+            $sector = 'archive';
+        }
+
+        if ($req->isMethod('post')) {
+            $filePath = session('dm_file');
+            $fileName = session('dm_filename', 'sector-export.csv');
+            $mappings = $this->resolveMappingsFromRequest($req);
+
+            if (! $filePath || ! file_exists($filePath)) {
+                return redirect()->route('data-migration.sector-export-new', $sector)
+                    ->with('error', __('Session expired. Please upload a file again.'));
+            }
+
+            $parsed = $this->service->parseCSV($filePath, PHP_INT_MAX);
+            $records = $this->service->transformWithMapping(
+                $this->indexRows($parsed['rows'] ?? [], $parsed['headers'] ?? []),
+                $parsed['headers'] ?? [],
+                $mappings
+            );
+
+            $csv = $this->service->sectorExportCsv($sector, $records);
+            $base = pathinfo($fileName, PATHINFO_FILENAME);
+            $download = $sector.'_'.$base.'_'.date('Ymd_His').'.csv';
+
+            return response($csv, 200, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="'.$download.'"',
+                'Cache-Control' => 'no-cache, must-revalidate',
+            ]);
+        }
+
+        $columns = $this->service->sectorColumns($sector);
+
+        return view('ahg-data-migration::sector-export', compact('sector', 'sectors', 'columns'));
+    }
+
+    /**
+     * POST /admin/data-migration/detect-sheets — JSON.
+     *
+     * Probes an uploaded spreadsheet (XLS/XLSX/CSV/TSV) and returns
+     * sheet metadata + column headers for the UI to render.
+     */
+    public function detectSheets(Request $req)
+    {
+        $req->validate(['file' => 'required|file|max:102400']);
+
+        $tmp = $req->file('file')->getRealPath();
+        $clientName = $req->file('file')->getClientOriginalName();
+        $persistedPath = $tmp;
+
+        // PhpSpreadsheet wants a path with the right extension.
+        $ext = strtolower(pathinfo($clientName, PATHINFO_EXTENSION));
+        if (in_array($ext, ['xls', 'xlsx', 'csv', 'tsv', 'txt'], true)) {
+            $persistedPath = tempnam(sys_get_temp_dir(), 'dm_detect_').'.'.$ext;
+            copy($tmp, $persistedPath);
+        }
+
+        $result = $this->service->detectSpreadsheetSheets($persistedPath);
+
+        if ($persistedPath !== $tmp && file_exists($persistedPath)) {
+            @unlink($persistedPath);
+        }
+
+        return response()->json($result);
+    }
+
+    /**
+     * POST /admin/data-migration/rename-mapping — JSON.
+     */
+    public function renameMapping(Request $req)
+    {
+        $req->validate([
+            'id' => 'required|integer',
+            'name' => 'required|string|max:255',
+        ]);
+
+        $ok = $this->service->renameMapping((int) $req->input('id'), (string) $req->input('name'));
+
+        return response()->json(['success' => $ok]);
+    }
+
+    /**
+     * GET /admin/data-migration/get-preview — JSON.
+     *
+     * Returns the first N rows of the source file projected through
+     * the current saved mapping. Used by the live preview pane.
+     */
+    public function getPreview(Request $req)
+    {
+        $filePath = session('dm_file');
+        if (! $filePath || ! file_exists($filePath)) {
+            return response()->json(['success' => false, 'error' => 'No file in session']);
+        }
+
+        $mappings = $this->resolveMappingsFromRequest($req);
+        $limit = max(1, min(50, (int) $req->input('limit', 10)));
+
+        $result = $this->service->previewMapped($filePath, $mappings, $limit);
+
+        return response()->json([
+            'success' => true,
+            'headers' => $result['headers'],
+            'rows' => $result['preview'],
+            'raw' => $result['rows'],
+            'count' => count($result['preview']),
+        ]);
+    }
+
+    /**
+     * Pull a mapping definition either from the inline request payload
+     * (mappings=json) or from a saved mapping_id, or from the session.
+     */
+    protected function resolveMappingsFromRequest(Request $req): array
+    {
+        $payload = $req->input('mappings');
+        if (is_string($payload) && $payload !== '') {
+            $decoded = json_decode($payload, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+        if (is_array($payload)) {
+            return $payload;
+        }
+
+        $mappingId = (int) $req->input('mapping_id', 0);
+        if ($mappingId > 0) {
+            $row = $this->service->getMapping($mappingId);
+            if ($row) {
+                return is_array($row['field_mappings']) ? $row['field_mappings'] : [];
+            }
+        }
+
+        $sessionMappings = session('dm_mapping', []);
+
+        return is_array($sessionMappings) ? $sessionMappings : [];
+    }
+
+    /**
+     * Convert assoc-keyed rows from parseCSV() to PSIS-style indexed
+     * rows so transformWithMapping can resolve headers by position.
+     */
+    protected function indexRows(array $rows, array $headers): array
+    {
+        $indexed = [];
+        foreach ($rows as $row) {
+            if (is_array($row) && array_keys($row) === range(0, count($row) - 1)) {
+                $indexed[] = $row;
+
+                continue;
+            }
+            $line = [];
+            foreach ($headers as $h) {
+                $line[] = is_array($row) ? ($row[$h] ?? '') : '';
+            }
+            $indexed[] = $line;
+        }
+
+        return $indexed;
+    }
+
+    /**
+     * Sector choices, ahg_dropdown-aware. Falls back to the canonical
+     * five sectors when the dropdown table has no rows.
+     */
+    protected function sectorChoices(): array
+    {
+        $defaults = [
+            'archive' => 'Archives (ISAD-G)',
+            'museum' => 'Museum (Spectrum)',
+            'library' => 'Library (MARC / RDA)',
+            'gallery' => 'Gallery (CCO / VRA)',
+            'dam' => 'Digital Assets (Dublin Core)',
+        ];
+
+        try {
+            if (\Schema::hasTable('ahg_dropdown')) {
+                $rows = DB::table('ahg_dropdown')
+                    ->where('taxonomy', 'data_migration_sector')
+                    ->where('is_active', 1)
+                    ->orderBy('sort_order')
+                    ->pluck('label', 'code')
+                    ->toArray();
+                if (! empty($rows)) {
+                    return $rows;
+                }
+            }
+        } catch (\Throwable $e) {
+            // dropdown lookup is best-effort
+        }
+
+        return $defaults;
     }
 }

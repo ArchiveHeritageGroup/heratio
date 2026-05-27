@@ -97,6 +97,11 @@ class TermController extends Controller
         $taxonomyId = $request->get('taxonomy');
         $service = new TermBrowseService($culture);
 
+        // #743 browseTerm filters: parent term + scope-note-only toggle.
+        // Empty string from the form posts is treated as "filter disabled".
+        $parentFilter = $request->get('parent', '');
+        $scopeNoteOnly = $request->boolean('scopeNoteOnly');
+
         $result = $service->browse([
             'page' => $request->get('page', 1),
             'limit' => $request->get('limit', SettingHelper::hitsPerPage()),
@@ -104,6 +109,8 @@ class TermController extends Controller
             'sortDir' => $request->get('sortDir', ''),
             'subquery' => $request->get('subquery', ''),
             'taxonomy_id' => $taxonomyId,
+            'parent' => $parentFilter,
+            'scopeNoteOnly' => $scopeNoteOnly,
         ]);
 
         $pager = new SimplePager($result);
@@ -171,6 +178,9 @@ class TermController extends Controller
             'taxonomyName' => $taxonomyName,
             'icon' => $icon,
             'treeTerms' => $treeTerms,
+            // #743 browseTerm filter state for sticky form rendering.
+            'parentFilter' => $parentFilter,
+            'scopeNoteOnly' => $scopeNoteOnly,
             'sortOptions' => [
                 'alphabetic' => 'Name',
                 'lastUpdated' => 'Date modified',
@@ -1617,5 +1627,199 @@ class TermController extends Controller
             ->get();
 
         return response()->json($rows);
+    }
+
+    /**
+     * Related authorities sidebar for a term.
+     *
+     * Lists every actor and repository linked to the term via the generic
+     * relation table (relation.subject_id|object_id == term.id) plus the
+     * indexed object_term_relation table used by AtoM for facet/sidebar work.
+     *
+     * Migrated from PSIS TermRelatedAuthoritiesAction (#743).
+     */
+    public function relatedAuthorities(Request $request, string $slug)
+    {
+        $culture = app()->getLocale();
+
+        $term = $this->termService->getBySlug($slug, $culture);
+        if (! $term) {
+            abort(404);
+        }
+
+        if (! \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $term->id)) {
+            abort(403, 'You do not have permission to view this term.');
+        }
+
+        $onlyDirect = $request->has('onlyDirect');
+        $page = max(1, (int) $request->get('page', 1));
+        $limit = (int) $request->get('limit', SettingHelper::hitsPerPage());
+        $sort = $request->get('sort', 'lastUpdated');
+
+        // Walk narrower terms unless the curator restricts to direct only.
+        $termIds = [$term->id];
+        if (! $onlyDirect) {
+            $narrowerIds = DB::table('term')->where('parent_id', $term->id)->pluck('id')->toArray();
+            if (! empty($narrowerIds)) {
+                $termIds = array_merge($termIds, $narrowerIds);
+            }
+        }
+
+        // Actors linked via object_term_relation (the index table AtoM
+        // populates when an actor is tagged with subject/place/occupation/etc.)
+        $actorQuery = DB::table('object_term_relation')
+            ->join('actor', 'object_term_relation.object_id', '=', 'actor.id')
+            ->join('object', 'actor.id', '=', 'object.id')
+            ->leftJoin('actor_i18n', function ($j) use ($culture) {
+                $j->on('actor.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
+            ->whereIn('object_term_relation.term_id', $termIds)
+            ->where('object.class_name', 'QubitActor');
+
+        // Repositories: stored as actors with their own description_identifier
+        // namespace but indexed the same way via object_term_relation.
+        $repositoryQuery = DB::table('object_term_relation')
+            ->join('actor', 'object_term_relation.object_id', '=', 'actor.id')
+            ->join('object', 'actor.id', '=', 'object.id')
+            ->leftJoin('actor_i18n', function ($j) use ($culture) {
+                $j->on('actor.id', '=', 'actor_i18n.id')
+                    ->where('actor_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
+            ->whereIn('object_term_relation.term_id', $termIds)
+            ->where('object.class_name', 'QubitRepository');
+
+        $totalActors = (clone $actorQuery)->distinct()->count('actor.id');
+        $totalRepositories = (clone $repositoryQuery)->distinct()->count('actor.id');
+        $total = $totalActors + $totalRepositories;
+
+        // Order: alphabetic by name, lastUpdated by object.updated_at, identifier by description_identifier.
+        $orderMap = [
+            'alphabetic' => ['actor_i18n.authorized_form_of_name', 'asc'],
+            'identifier' => ['actor.description_identifier', 'asc'],
+            'lastUpdated' => ['object.updated_at', 'desc'],
+        ];
+        [$orderCol, $orderDir] = $orderMap[$sort] ?? $orderMap['lastUpdated'];
+
+        $actors = $actorQuery
+            ->select(
+                'actor.id',
+                'actor.description_identifier',
+                'actor.entity_type_id',
+                'actor_i18n.authorized_form_of_name',
+                'actor_i18n.dates_of_existence',
+                'slug.slug',
+                'object.updated_at',
+            )
+            ->distinct()
+            ->orderBy($orderCol, $orderDir)
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+
+        $repositories = $repositoryQuery
+            ->select(
+                'actor.id',
+                'actor.description_identifier',
+                'actor_i18n.authorized_form_of_name',
+                'actor_i18n.dates_of_existence',
+                'slug.slug',
+                'object.updated_at',
+            )
+            ->distinct()
+            ->orderBy($orderCol, $orderDir)
+            ->get();
+
+        $taxonomyName = $this->termService->getTaxonomyName($term->taxonomy_id, $culture);
+
+        return view('ahg-term-taxonomy::related-authorities', [
+            'term' => $term,
+            'taxonomyName' => $taxonomyName,
+            'actors' => $actors,
+            'repositories' => $repositories,
+            'total' => $total,
+            'totalActors' => $totalActors,
+            'totalRepositories' => $totalRepositories,
+            'page' => $page,
+            'limit' => $limit,
+            'lastPage' => max(1, (int) ceil($totalActors / $limit)),
+            'sort' => $sort,
+            'onlyDirect' => $onlyDirect,
+        ]);
+    }
+
+    /**
+     * Tree-view JSON endpoint for the per-taxonomy expand/collapse tree.
+     *
+     * Shape: [{id, text, slug, children: bool}]. The blade view consumes
+     * the matching `/term/taxonomy/{id}/tree` route for the full HTML page;
+     * AJAX clients hit `/term/taxonomy/{id}/tree.json` for lazy loading.
+     *
+     * Migrated from PSIS TermTreeViewAction (#743).
+     */
+    public function treeView(Request $request, int $taxonomyId)
+    {
+        $culture = app()->getLocale();
+        $parentId = $request->get('parent');
+
+        $query = DB::table('term')
+            ->leftJoin('term_i18n', function ($j) use ($culture) {
+                $j->on('term.id', '=', 'term_i18n.id')
+                    ->where('term_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('slug', 'term.id', '=', 'slug.object_id')
+            ->where('term.taxonomy_id', $taxonomyId);
+
+        if ($parentId) {
+            // Children of an explicit parent term.
+            $query->where('term.parent_id', $parentId);
+        } else {
+            // Top-level terms (parent is the taxonomy root, not another term
+            // in the same taxonomy). Use the same NOT-EXISTS pattern that
+            // browse() already uses so the two stay in sync.
+            $query->whereNotExists(function ($q) use ($taxonomyId) {
+                $q->select(DB::raw(1))
+                    ->from('term as parent')
+                    ->whereColumn('parent.id', 'term.parent_id')
+                    ->where('parent.taxonomy_id', $taxonomyId);
+            });
+        }
+
+        $rows = $query
+            ->select(
+                'term.id',
+                'term.parent_id',
+                'term_i18n.name',
+                'slug.slug',
+                DB::raw('(SELECT COUNT(*) FROM term tc WHERE tc.parent_id = term.id) as child_count'),
+            )
+            ->orderBy('term_i18n.name')
+            ->get();
+
+        $nodes = $rows->map(fn ($t) => [
+            'id' => (int) $t->id,
+            'parent_id' => (int) $t->parent_id,
+            'text' => (string) ($t->name ?? ''),
+            'slug' => (string) ($t->slug ?? ''),
+            'children' => ((int) $t->child_count) > 0,
+        ])->values();
+
+        if ($request->wantsJson() || $request->get('format') === 'json') {
+            return response()->json([
+                'taxonomy_id' => $taxonomyId,
+                'parent_id' => $parentId ? (int) $parentId : null,
+                'nodes' => $nodes,
+            ]);
+        }
+
+        $taxonomyName = $this->termService->getTaxonomyName($taxonomyId, $culture);
+
+        return view('ahg-term-taxonomy::tree-view', [
+            'taxonomyId' => $taxonomyId,
+            'taxonomyName' => $taxonomyName,
+            'nodes' => $nodes,
+        ]);
     }
 }

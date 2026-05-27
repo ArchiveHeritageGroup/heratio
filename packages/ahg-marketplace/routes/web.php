@@ -189,6 +189,12 @@ Route::prefix('admin/marketplace')->middleware(['web', 'auth'])->group(function 
     Route::get('/payouts', [$controller, 'adminPayouts'])->name('ahgmarketplace.admin-payouts');
     Route::post('/payouts-batch', [$controller, 'adminPayoutsBatchPost'])->name('ahgmarketplace.admin-payouts-batch')->middleware('acl:update');
 
+    // Issue #736 - CSV upload + commit (two-phase). Path matches brief:
+    // POST /admin/marketplace/payouts/batch
+    Route::post('/payouts/batch', [$controller, 'adminPayoutsBatchCsv'])
+        ->name('ahgmarketplace.admin-payouts-batch-csv')
+        ->middleware('acl:update');
+
     Route::get('/reports', [$controller, 'adminReports'])->name('ahgmarketplace.admin-reports');
 
     Route::get('/reviews', [$controller, 'adminReviews'])->name('ahgmarketplace.admin-reviews');

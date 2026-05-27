@@ -25,8 +25,10 @@
 
 namespace AhgFavorites\Controllers;
 
+use AhgFavorites\Services\FavoritesExportService;
 use AhgFavorites\Services\FavoritesService;
 use AhgFavorites\Services\FolderService;
+use AhgFavorites\Services\ResearchBridgeService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,10 +40,20 @@ class FavoritesController extends Controller
 
     private FolderService $folderService;
 
-    public function __construct(FavoritesService $favoritesService, FolderService $folderService)
-    {
+    private ResearchBridgeService $researchBridge;
+
+    private FavoritesExportService $exportService;
+
+    public function __construct(
+        FavoritesService $favoritesService,
+        FolderService $folderService,
+        ResearchBridgeService $researchBridge,
+        FavoritesExportService $exportService
+    ) {
         $this->favoritesService = $favoritesService;
         $this->folderService = $folderService;
+        $this->researchBridge = $researchBridge;
+        $this->exportService = $exportService;
     }
 
     public function browse(Request $request)
@@ -175,9 +187,10 @@ class FavoritesController extends Controller
                 return redirect()->route('favorites.browse')->with('success', "Removed {$count} items.");
             case 'move':
                 $folderId = $request->input('move_folder_id');
-                $count = $this->favoritesService->moveToFolder($userId, $ids, $folderId ?: null);
+                $result = $this->favoritesService->moveToFolder($userId, $ids, $folderId ? (int) $folderId : null);
 
-                return redirect()->route('favorites.browse')->with('success', "Moved {$count} items.");
+                return redirect()->route('favorites.browse')
+                    ->with($result['success'] ? 'success' : 'error', $result['message']);
         }
 
         return redirect()->route('favorites.browse');
@@ -247,12 +260,12 @@ class FavoritesController extends Controller
     // Export
     public function exportCsv(Request $request)
     {
-        return $this->favoritesService->exportCsv(Auth::id(), $request->get('folder_id'));
+        return $this->exportService->streamCsv(Auth::id(), $request->get('folder_id'));
     }
 
     public function exportJson(Request $request)
     {
-        return $this->favoritesService->exportJson(Auth::id(), $request->get('folder_id'));
+        return $this->exportService->streamJson(Auth::id(), $request->get('folder_id'));
     }
 
     public function importFavorites(Request $request)
@@ -267,5 +280,287 @@ class FavoritesController extends Controller
         $count = $this->favoritesService->importFromCsv(Auth::id(), $content);
 
         return redirect()->route('favorites.browse')->with('success', "Imported {$count} items.");
+    }
+
+    // ------------------------------------------------------------------
+    // PSIS-parity endpoints
+    // ------------------------------------------------------------------
+
+    /**
+     * Redirect /favorites/folder/{id} to the browse view filtered by folder.
+     * Mirrors PSIS favoritesFolderViewAction.
+     */
+    public function folderView(int $id)
+    {
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        return redirect()->route('favorites.browse', ['folder_id' => $id]);
+    }
+
+    /**
+     * AJAX folder list - returns JSON for the folder-picker dropdowns used
+     * by move-to-folder + new-folder modals.
+     */
+    public function ajaxFolders()
+    {
+        if (! Auth::check()) {
+            return response()->json(['success' => false, 'folders' => []], 401);
+        }
+
+        $folders = $this->folderService->getUserFolders(Auth::id());
+
+        return response()->json([
+            'success' => true,
+            'folders' => $folders->map(fn ($f) => [
+                'id' => $f->id,
+                'name' => $f->name,
+                'color' => $f->color,
+                'icon' => $f->icon,
+                'item_count' => $f->item_count,
+                'visibility' => $f->visibility,
+            ])->values(),
+        ]);
+    }
+
+    /**
+     * AJAX search inside the user's favourites. Returns the PSIS-shape
+     * { success, hits, total, page, limit } so existing widgets can be
+     * reused verbatim.
+     */
+    public function ajaxSearch(Request $request)
+    {
+        if (! Auth::check()) {
+            return response()->json(['success' => false, 'message' => __('Not authenticated')], 401);
+        }
+
+        $params = [
+            'query' => $request->input('query', ''),
+            'page' => (int) $request->input('page', 1),
+            'limit' => (int) $request->input('limit', 25),
+            'sort' => $request->input('sort', 'created_at'),
+            'sortDir' => $request->input('sortDir', 'desc'),
+        ];
+
+        if ($request->filled('folder_id')) {
+            $params['folder_id'] = (int) $request->input('folder_id');
+        }
+
+        $result = $this->favoritesService->browse(Auth::id(), $params);
+
+        return response()->json([
+            'success' => true,
+            'hits' => $result['hits'],
+            'total' => $result['total'],
+            'page' => $result['page'],
+            'limit' => $result['limit'],
+        ]);
+    }
+
+    /**
+     * AJAX toggle for non-information_object entities (research project,
+     * collection, custom external URL, etc.). Caller supplies object_id +
+     * object_type + title + optional URL.
+     */
+    public function ajaxToggleCustom(Request $request)
+    {
+        if (! Auth::check()) {
+            return response()->json(['success' => false, 'message' => __('Not authenticated')], 401);
+        }
+
+        $data = $request->validate([
+            'object_id' => 'required|integer|min:1',
+            'object_type' => 'required|string|max:50',
+            'title' => 'required|string|max:1024',
+            'url' => 'nullable|string|max:1024',
+            'folder_id' => 'nullable|integer|min:1',
+        ]);
+
+        $result = $this->favoritesService->toggleCustom(
+            Auth::id(),
+            (int) $data['object_id'],
+            $data['object_type'],
+            $data['title'],
+            $data['url'] ?? null,
+            isset($data['folder_id']) ? (int) $data['folder_id'] : null
+        );
+
+        return response()->json($result);
+    }
+
+    /**
+     * Dedicated move-to-folder endpoint (sister of bulk action=move).
+     * Returns JSON when called via XHR, otherwise redirects with flash.
+     */
+    public function moveToFolder(Request $request)
+    {
+        if (! Auth::check()) {
+            return response()->json(['success' => false, 'message' => __('Not authenticated')], 401);
+        }
+
+        $ids = (array) $request->input('ids', []);
+        $folderId = $request->input('folder_id');
+
+        $result = $this->favoritesService->moveToFolder(
+            Auth::id(),
+            $ids,
+            $folderId !== null && $folderId !== '' ? (int) $folderId : null
+        );
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($result);
+        }
+
+        return redirect()->route('favorites.browse')
+            ->with($result['success'] ? 'success' : 'error', $result['message']);
+    }
+
+    // ------------------------------------------------------------------
+    // Send to ... (collection / project / bibliography)
+    // ------------------------------------------------------------------
+
+    public function sendToCollection(Request $request)
+    {
+        if (! Auth::check()) {
+            return response()->json(['success' => false, 'message' => __('Not authenticated')], 401);
+        }
+
+        $userId = Auth::id();
+
+        // List mode for the picker modal
+        if ($request->boolean('list')) {
+            return response()->json(['collections' => $this->researchBridge->getResearcherCollections($userId)]);
+        }
+
+        $ids = (array) $request->input('ids', []);
+        $collectionId = (int) $request->input('collection_id');
+        $includeNotes = $request->boolean('include_notes', true);
+
+        if (empty($ids) || ! $collectionId) {
+            $msg = __('Missing parameters.');
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg]);
+            }
+
+            return redirect()->route('favorites.browse')->with('error', $msg);
+        }
+
+        $result = $this->researchBridge->sendToCollection($userId, $ids, $collectionId, $includeNotes);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($result);
+        }
+
+        return redirect()->route('favorites.browse')
+            ->with($result['success'] ? 'success' : 'error', $result['message']);
+    }
+
+    public function sendToProject(Request $request)
+    {
+        if (! Auth::check()) {
+            return response()->json(['success' => false, 'message' => __('Not authenticated')], 401);
+        }
+
+        $userId = Auth::id();
+
+        if ($request->boolean('list')) {
+            return response()->json(['projects' => $this->researchBridge->getResearcherProjects($userId)]);
+        }
+
+        $ids = (array) $request->input('ids', []);
+        $projectId = (int) $request->input('project_id');
+
+        if (empty($ids) || ! $projectId) {
+            $msg = __('Missing parameters.');
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg]);
+            }
+
+            return redirect()->route('favorites.browse')->with('error', $msg);
+        }
+
+        $result = $this->researchBridge->sendToProject($userId, $ids, $projectId);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($result);
+        }
+
+        return redirect()->route('favorites.browse')
+            ->with($result['success'] ? 'success' : 'error', $result['message']);
+    }
+
+    public function sendToBibliography(Request $request)
+    {
+        if (! Auth::check()) {
+            return response()->json(['success' => false, 'message' => __('Not authenticated')], 401);
+        }
+
+        $userId = Auth::id();
+
+        if ($request->boolean('list')) {
+            return response()->json(['bibliographies' => $this->researchBridge->getResearcherBibliographies($userId)]);
+        }
+
+        $ids = (array) $request->input('ids', []);
+        $bibliographyId = (int) $request->input('bibliography_id');
+        $style = $request->input('style', 'chicago');
+
+        if (empty($ids) || ! $bibliographyId) {
+            $msg = __('Missing parameters.');
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg]);
+            }
+
+            return redirect()->route('favorites.browse')->with('error', $msg);
+        }
+
+        $result = $this->researchBridge->sendToBibliography($userId, $ids, $bibliographyId, $style);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($result);
+        }
+
+        return redirect()->route('favorites.browse')
+            ->with($result['success'] ? 'success' : 'error', $result['message']);
+    }
+
+    // ------------------------------------------------------------------
+    // Per-folder export (multi-format)
+    // ------------------------------------------------------------------
+
+    /**
+     * Export a specific folder in the chosen format. Confirms the caller
+     * owns the folder before streaming.
+     */
+    public function exportFolder(Request $request, int $id)
+    {
+        if (! Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $userId = Auth::id();
+        $folder = DB::table('favorites_folder')
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->first();
+
+        if (! $folder) {
+            return redirect()->route('favorites.browse')->with('error', __('Folder not found.'));
+        }
+
+        $format = strtolower($request->get('format', 'csv'));
+        $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $folder->name);
+
+        return match ($format) {
+            'csv' => $this->exportService->streamCsv($userId, $id, "favorites_{$safeName}.csv"),
+            'json' => $this->exportService->streamJson($userId, $id, "favorites_{$safeName}.json"),
+            'bibtex' => $this->exportService->streamBibTeX($userId, $id, "favorites_{$safeName}.bib"),
+            'ris' => $this->exportService->streamRis($userId, $id, "favorites_{$safeName}.ris"),
+            'ead' => $this->exportService->streamEad($userId, $id, "favorites_{$safeName}.xml"),
+            'print' => response($this->exportService->printHtml($userId, $id), 200, ['Content-Type' => 'text/html']),
+            default => redirect()->route('favorites.browse', ['folder_id' => $id])
+                ->with('error', __('Unsupported export format.')),
+        };
     }
 }

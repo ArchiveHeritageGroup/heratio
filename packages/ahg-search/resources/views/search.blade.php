@@ -222,6 +222,45 @@
           </div>
         @endif
 
+        {{-- #730 PSIS parity facets: languages, places, subjects, genres,
+             names, collection. Bucket comparison is string-loose so it works
+             for both int (term/actor/IO ids) and string (language codes). --}}
+        @php
+          $psisFacets = [
+              ['key' => 'languages',  'param' => 'languages',  'label' => __('Language')],
+              ['key' => 'places',     'param' => 'places',     'label' => __('Place')],
+              ['key' => 'subjects',   'param' => 'subjects',   'label' => __('Subject')],
+              ['key' => 'genres',     'param' => 'genres',     'label' => __('Genre')],
+              ['key' => 'names',      'param' => 'names',      'label' => __('Name')],
+              ['key' => 'collection', 'param' => 'collection', 'label' => __('Collection')],
+          ];
+        @endphp
+        @foreach($psisFacets as $facet)
+          @if(!empty($aggregations[$facet['key']]))
+            <div class="card mb-3">
+              <div class="card-header py-2" style="background:var(--ahg-primary);color:#fff"><strong>{{ $facet['label'] }}</strong></div>
+              <ul class="list-group list-group-flush">
+                @foreach($aggregations[$facet['key']] as $bucket)
+                  @php
+                    $current = request($facet['param']);
+                    $isActive = $current !== null && (string) $current === (string) $bucket['id'];
+                    $params = $isActive
+                        ? request()->except([$facet['param'], 'page'])
+                        : array_merge(request()->except('page'), [$facet['param'] => $bucket['id']]);
+                  @endphp
+                  <li class="list-group-item d-flex justify-content-between align-items-center py-1 {{ $isActive ? 'list-group-item-primary' : '' }}">
+                    <a href="{{ route('search', $params) }}" class="text-decoration-none text-truncate {{ $isActive ? 'fw-bold' : '' }}" style="max-width:80%" title="{{ $bucket['label'] }}">
+                      @if($isActive)<i class="fas fa-check-circle me-1" aria-hidden="true"></i>@endif
+                      {{ $bucket['label'] }}
+                    </a>
+                    <span class="badge bg-secondary rounded-pill">{{ number_format($bucket['count']) }}</span>
+                  </li>
+                @endforeach
+              </ul>
+            </div>
+          @endif
+        @endforeach
+
       </div>
     @endif
 

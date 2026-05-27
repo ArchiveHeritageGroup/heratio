@@ -111,16 +111,45 @@ class TermBrowseService extends BrowseService
             $this->taxonomyId = (int) $taxonomyId;
         }
 
+        // #743 browseTerm filters: optional parent term scope + "has scope
+        // note" toggle, both opt-in via query params. Both filters honour
+        // taxonomy_id and apply at applySearch() time so they compose with
+        // pagination and sort transparently.
+        $this->parentId = isset($params['parent']) && $params['parent'] !== ''
+            ? (int) $params['parent']
+            : null;
+        $this->scopeNoteOnly = ! empty($params['scopeNoteOnly']);
+
         return parent::browse($params);
     }
 
     protected ?int $taxonomyId = null;
+
+    protected ?int $parentId = null;
+
+    protected bool $scopeNoteOnly = false;
 
     protected function applySearch($query, string $subquery)
     {
         // Apply taxonomy filter
         if ($this->taxonomyId) {
             $query->where('term.taxonomy_id', $this->taxonomyId);
+        }
+
+        // #743 browseTerm parent filter: restrict to children of a parent
+        // term (used by the taxonomy tree-view click-through).
+        if ($this->parentId) {
+            $query->where('term.parent_id', $this->parentId);
+        }
+
+        // #743 browseTerm scope-note filter: only terms with at least one
+        // note row attached. Cheap EXISTS check; doesn't pull note content.
+        if ($this->scopeNoteOnly) {
+            $query->whereExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('note')
+                    ->whereColumn('note.object_id', 'term.id');
+            });
         }
 
         // Search the COALESCE'd current+fallback name. parent::applySearch

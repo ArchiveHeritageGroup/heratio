@@ -65,8 +65,20 @@ class SearchController extends Controller
         $paging = $request->input('paging'); // 'cursor' to opt in without a token yet
         $geo = $request->input('geo');       // ['center'=>'..','radius'=>'..'] or ['box'=>'..']
 
+        // #730 - PSIS parity facets (languages, places, subjects, genres,
+        // names, collection). All optional click-through filters fed by the
+        // sidebar buckets. languages + collection are string-ish IDs; the
+        // others are integer term/actor IDs.
+        $languages = $request->input('languages') ?: null;
+        $places = $request->input('places') ? (int) $request->input('places') : null;
+        $subjects = $request->input('subjects') ? (int) $request->input('subjects') : null;
+        $genres = $request->input('genres') ? (int) $request->input('genres') : null;
+        $names = $request->input('names') ? (int) $request->input('names') : null;
+        $collection = $request->input('collection') ? (int) $request->input('collection') : null;
+
         $hasFilters = $repo || $level || $dateFrom || $dateTo || $hasDo !== null || $mediaType
-            || ! empty($geo);
+            || ! empty($geo)
+            || $languages || $places || $subjects || $genres || $names || $collection;
 
         // If no query and no filters, show empty search page
         if ($query === '' && ! $hasFilters) {
@@ -100,6 +112,13 @@ class SearchController extends Controller
             'cursor' => $cursor,
             'paging' => $paging,
             'geo' => is_array($geo) ? $geo : null,
+            // #730 PSIS parity facets
+            'languages' => $languages,
+            'places' => $places,
+            'subjects' => $subjects,
+            'genres' => $genres,
+            'names' => $names,
+            'collection' => $collection,
         ]);
         $elapsedMs = (microtime(true) - $startMs) * 1000.0;
 
@@ -111,7 +130,12 @@ class SearchController extends Controller
         ]);
 
         // Build active filter labels for display
-        $activeFilters = $this->buildActiveFilters($repo, $level, $dateFrom, $dateTo, $hasDo, $mediaType, $results['aggregations'] ?? []);
+        $activeFilters = $this->buildActiveFilters(
+            $repo, $level, $dateFrom, $dateTo, $hasDo, $mediaType,
+            $results['aggregations'] ?? [],
+            // #730 PSIS parity facets
+            $languages, $places, $subjects, $genres, $names, $collection
+        );
 
         // "Did you mean ...?" phrase suggester (#650 Phase 1).
         // Only ask ES for a suggestion when results are sparse - that's when
@@ -689,10 +713,17 @@ class SearchController extends Controller
 
     /**
      * Build active filter labels for the result page.
+     *
+     * #730 - extended with the 6 PSIS-parity facets (languages, places,
+     * subjects, genres, names, collection). Labels are pulled from the
+     * current aggregation buckets first; bucket-miss falls through to a
+     * dim '[id]' chip so the user can still clear it.
      */
     protected function buildActiveFilters(
         ?int $repo, ?int $level, ?string $dateFrom, ?string $dateTo,
-        ?bool $hasDo, ?int $mediaType, array $aggregations
+        ?bool $hasDo, ?int $mediaType, array $aggregations,
+        ?string $languages = null, ?int $places = null, ?int $subjects = null,
+        ?int $genres = null, ?int $names = null, ?int $collection = null
     ): array {
         $filters = [];
 
@@ -748,6 +779,32 @@ class SearchController extends Controller
                 }
             }
             $filters[] = ['param' => 'mediaType', 'label' => 'Media: '.$label];
+        }
+
+        // #730 - PSIS parity facets. Each chip carries the bucket label so
+        // the user sees the human-readable selection, not just an opaque id.
+        $facetSpecs = [
+            ['param' => 'languages', 'val' => $languages, 'aggKey' => 'languages', 'prefix' => 'Language: ', 'cast' => 'string'],
+            ['param' => 'places', 'val' => $places, 'aggKey' => 'places', 'prefix' => 'Place: ', 'cast' => 'int'],
+            ['param' => 'subjects', 'val' => $subjects, 'aggKey' => 'subjects', 'prefix' => 'Subject: ', 'cast' => 'int'],
+            ['param' => 'genres', 'val' => $genres, 'aggKey' => 'genres', 'prefix' => 'Genre: ', 'cast' => 'int'],
+            ['param' => 'names', 'val' => $names, 'aggKey' => 'names', 'prefix' => 'Name: ', 'cast' => 'int'],
+            ['param' => 'collection', 'val' => $collection, 'aggKey' => 'collection', 'prefix' => 'Collection: ', 'cast' => 'int'],
+        ];
+        foreach ($facetSpecs as $spec) {
+            if (empty($spec['val'])) {
+                continue;
+            }
+            $needle = $spec['cast'] === 'int' ? (int) $spec['val'] : (string) $spec['val'];
+            $label = '['.$needle.']';
+            foreach ($aggregations[$spec['aggKey']] ?? [] as $b) {
+                $bucketId = $spec['cast'] === 'int' ? (int) $b['id'] : (string) $b['id'];
+                if ($bucketId === $needle) {
+                    $label = $b['label'];
+                    break;
+                }
+            }
+            $filters[] = ['param' => $spec['param'], 'label' => $spec['prefix'].$label];
         }
 
         return $filters;

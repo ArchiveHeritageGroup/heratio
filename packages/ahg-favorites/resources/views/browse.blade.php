@@ -217,13 +217,63 @@
                 @endforeach
               </select>
               <button type="submit" name="action" value="move" class="btn btn-sm atom-btn-white">
-                <i class="fas fa-folder"></i> {{ __('Move') }}
+                <i class="bi bi-folder"></i> {{ __('Move') }}
               </button>
             </div>
           @endif
+
+          {{-- Send to... dropdown (research bridge) --}}
+          <div class="dropdown">
+            <button type="button" class="btn btn-sm atom-btn-white dropdown-toggle" data-bs-toggle="dropdown">
+              <i class="bi bi-send"></i> {{ __('Send to...') }}
+            </button>
+            <ul class="dropdown-menu">
+              <li><button type="button" class="dropdown-item js-send-to" data-target="collection">
+                <i class="bi bi-collection me-2 text-primary"></i>{{ __('Research Collection') }}
+              </button></li>
+              <li><button type="button" class="dropdown-item js-send-to" data-target="project">
+                <i class="bi bi-diagram-3 me-2 text-success"></i>{{ __('Research Project') }}
+              </button></li>
+              <li><button type="button" class="dropdown-item js-send-to" data-target="bibliography">
+                <i class="bi bi-quote me-2 text-warning"></i>{{ __('Bibliography') }}
+              </button></li>
+            </ul>
+          </div>
         </div>
         <div id="bulkIdsContainer"></div>
       </form>
+    </div>
+
+    {{-- Send-to picker modal (single modal, populated dynamically by JS) --}}
+    <div class="modal fade" id="sendToModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-send me-2"></i><span id="sendToTitle">{{ __('Send to...') }}</span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-info" id="sendToEmpty" style="display:none">
+              <i class="bi bi-info-circle me-2"></i>{{ __('You have no eligible items in your researcher account, or the research package is not installed.') }}
+            </div>
+            <div class="mb-3" id="sendToPicker" style="display:none">
+              <label class="form-label" id="sendToLabel">{{ __('Choose destination') }}</label>
+              <select class="form-select" id="sendToSelect"></select>
+            </div>
+            <div class="mb-3 form-check" id="sendToIncludeNotesWrap" style="display:none">
+              <input class="form-check-input" type="checkbox" id="sendToIncludeNotes" checked>
+              <label class="form-check-label" for="sendToIncludeNotes">{{ __('Include my notes') }}</label>
+            </div>
+            <div id="sendToCount" class="text-muted small"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+            <button type="button" class="btn atom-btn-outline-success" id="sendToConfirm" disabled>
+              <i class="bi bi-send me-1"></i>{{ __('Send') }}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     @if($results->isEmpty())

@@ -43,4 +43,13 @@ Route::get('/term/export/skos/ntriples', [TermController::class, 'exportSkos'])
 Route::get('/term/export/skos/jsonld', [TermController::class, 'exportSkos'])
     ->defaults('format', 'jsonld')->name('term.export.skos.jsonld');
 
+// #743 Term parity actions ported from PSIS.
+// Both routes are registered BEFORE the {slug} catch-all so the slug
+// resolver does not swallow "related-authorities" or "taxonomy".
+Route::get('/term/{slug}/related-authorities', [TermController::class, 'relatedAuthorities'])
+    ->name('term.relatedAuthorities');
+Route::get('/term/taxonomy/{taxonomyId}/tree', [TermController::class, 'treeView'])
+    ->whereNumber('taxonomyId')
+    ->name('term.treeView');
+
 Route::get('/term/{slug}', [TermController::class, 'show'])->name('term.show');

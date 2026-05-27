@@ -142,4 +142,35 @@ Route::middleware('admin')->group(function () {
         [DataMigrationController::class, 'export'])->name('data-migration.sector-export');
 
     Route::get('/admin/data-migration/preview-data', [DataMigrationController::class, 'previewData'])->name('data-migration.preview-data');
+
+    // ── Issue #740 — exports parity (PSIS twin atom-ahg-plugins#86) ──
+    Route::match(['get', 'post'], '/admin/data-migration/export-ead',
+        [DataMigrationController::class, 'exportEad'])->name('data-migration.export-ead');
+
+    Route::match(['get', 'post'], '/admin/data-migration/export-ahg-csv',
+        [DataMigrationController::class, 'exportAhgCsv'])->name('data-migration.export-ahg-csv');
+
+    Route::match(['get', 'post'], '/admin/data-migration/sector-export/{sector?}',
+        [DataMigrationController::class, 'sectorExport'])->name('data-migration.sector-export-new');
+
+    Route::post('/admin/data-migration/detect-sheets',
+        [DataMigrationController::class, 'detectSheets'])->name('data-migration.detect-sheets');
+
+    Route::post('/admin/data-migration/rename-mapping',
+        [DataMigrationController::class, 'renameMapping'])->name('data-migration.rename-mapping');
+
+    Route::match(['get', 'post'], '/admin/data-migration/get-preview',
+        [DataMigrationController::class, 'getPreview'])->name('data-migration.get-preview');
+
+    // Legacy camelCase aliases (PSIS parity).
+    Route::match(['get', 'post'], '/dataMigration/exportEad',
+        [DataMigrationController::class, 'exportEad'])->name('data-migration.export-ead-legacy');
+    Route::match(['get', 'post'], '/dataMigration/exportAhgCsv',
+        [DataMigrationController::class, 'exportAhgCsv'])->name('data-migration.export-ahg-csv-legacy');
+    Route::post('/dataMigration/detectSheets',
+        [DataMigrationController::class, 'detectSheets'])->name('data-migration.detect-sheets-legacy');
+    Route::post('/dataMigration/renameMapping',
+        [DataMigrationController::class, 'renameMapping'])->name('data-migration.rename-mapping-legacy');
+    Route::match(['get', 'post'], '/dataMigration/getPreview',
+        [DataMigrationController::class, 'getPreview'])->name('data-migration.get-preview-legacy');
 });

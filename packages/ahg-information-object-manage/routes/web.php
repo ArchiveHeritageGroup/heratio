@@ -15,6 +15,11 @@ use AhgInformationObjectManage\Controllers\DigitalObjectController;
 use AhgInformationObjectManage\Controllers\ResearchController;
 use AhgInformationObjectManage\Controllers\TreeviewController;
 use AhgInformationObjectManage\Controllers\MediaController;
+use AhgInformationObjectManage\Controllers\ModificationsController;
+use AhgInformationObjectManage\Controllers\TreeViewPageController;
+use AhgInformationObjectManage\Controllers\HierarchyDataController;
+use AhgInformationObjectManage\Controllers\SlugController;
+use AhgInformationObjectManage\Controllers\FindingAidActionsController;
 use Illuminate\Support\Facades\Route;
 
 // Media routes — read-only transcription/snippet views are public
@@ -38,6 +43,54 @@ Route::middleware('auth')->group(function () {
 Route::get('/informationobject/browse', [InformationObjectController::class, 'browse'])->name('informationobject.browse');
 Route::get('/informationobject/autocomplete', [InformationObjectController::class, 'autocomplete'])->name('informationobject.autocomplete');
 Route::get('/informationobject/{slug}/print', [InformationObjectController::class, 'print'])->name('informationobject.print')->middleware('odrl:reproduce');
+
+// #742 sitemap / hierarchy + slug helpers + audit-trail drill-down.
+//
+// These endpoints are PSIS-parity surface that previously had no Heratio
+// equivalent. All are sibling controllers - none touch the locked
+// show.blade.php render path. See controller class docblocks for the
+// per-controller lock notes.
+
+// 1. Filtered audit log for one IO (Bootstrap 5 + bi-* icons). Public read.
+Route::get('/informationobject/{slug}/modifications', [ModificationsController::class, 'index'])
+    ->name('informationobject.modifications');
+
+// 2. Full-width jstree page. Public read (auth gates the move-by-drag JS).
+Route::get('/informationobject/{slug}/tree-view', [TreeViewPageController::class, 'show'])
+    ->name('informationobject.tree-view');
+
+// 3 + 4. Tree-sync (re-fetch subtree) + tree-move (drag move). Auth-only.
+Route::middleware('auth')->group(function () {
+    Route::post('/informationobject/tree-sync/{id}', [TreeViewPageController::class, 'sync'])
+        ->name('informationobject.tree-sync')
+        ->where('id', '[0-9]+');
+    Route::post('/informationobject/tree-move', [TreeViewPageController::class, 'move'])
+        ->middleware('acl:update')
+        ->name('informationobject.tree-move');
+});
+
+// 5. AJAX live slug preview. No auth - same as the existing identifier
+//    generator endpoint pattern.
+Route::get('/informationobject/slug-preview', [SlugController::class, 'preview'])
+    ->name('informationobject.slug-preview');
+
+// 6 + 7. Per-IO finding-aid upload/delete (id-keyed REST twin of the
+//    existing slug-keyed form flow in FindingAidController). Auth + ACL.
+Route::middleware('auth')->group(function () {
+    Route::post('/informationobject/{id}/finding-aid', [FindingAidActionsController::class, 'upload'])
+        ->middleware('acl:create')
+        ->name('informationobject.finding-aid.upload')
+        ->where('id', '[0-9]+');
+    Route::delete('/informationobject/{id}/finding-aid', [FindingAidActionsController::class, 'destroy'])
+        ->middleware('acl:delete')
+        ->name('informationobject.finding-aid.destroy')
+        ->where('id', '[0-9]+');
+});
+
+// 8. jstree feed for the full-width tree page (and any future jstree
+//    consumer). Public read.
+Route::get('/informationobject/browse/hierarchyData', [HierarchyDataController::class, 'data'])
+    ->name('informationobject.browse.hierarchyData');
 
 // Redacted asset — public on purpose (non-admin viewers must reach this).
 // The controller does its own admin/non-admin gating: admins are served

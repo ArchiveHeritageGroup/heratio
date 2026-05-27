@@ -15,6 +15,12 @@ class AhgMuseumServiceProvider extends ServiceProvider
     {
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../routes/web.php');
+
+        // #739 - vocabulary autocomplete API (Getty AAT, ahg_dropdown, internal authorities)
+        if (file_exists(__DIR__ . '/../routes/api.php')) {
+            $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+        }
+
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'ahg-museum');
 
         if ($this->app->runningInConsole()) {

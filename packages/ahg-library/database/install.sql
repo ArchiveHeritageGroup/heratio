@@ -378,4 +378,16 @@ VALUES
     ('Google Books', 'https://www.googleapis.com/books/v1/volumes', '', 20, 0, NOW(), NOW()),
     ('WorldCat',     'https://www.worldcat.org/webservices/catalog/content', '', 30, 0, NOW(), NOW());
 
+-- Issue #734: mirror the provider list into ahg_dropdown as taxonomy
+-- 'isbn_provider' so any form widget that wants a provider <select> can
+-- pull from the central Dropdown Manager (no hardcoded option lists).
+-- The library_isbn_provider table remains the source of truth for the
+-- runtime lookup loop (priority, api_url, api_key); ahg_dropdown is the
+-- UI projection only.
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `code`, `label`, `sort_order`, `is_default`, `is_active`)
+VALUES
+    ('isbn_provider', 'ISBN Lookup Provider', 'open_library', 'Open Library', 10, 1, 1),
+    ('isbn_provider', 'ISBN Lookup Provider', 'google_books', 'Google Books', 20, 0, 1),
+    ('isbn_provider', 'ISBN Lookup Provider', 'worldcat',     'WorldCat',     30, 0, 1);
+
 SET FOREIGN_KEY_CHECKS = 1;

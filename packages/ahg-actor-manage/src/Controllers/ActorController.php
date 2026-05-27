@@ -1589,4 +1589,161 @@ class ActorController extends Controller
             ->select('a.id', 'a.entity_type_id', 'ai.authorized_form_of_name as name', 'slug.slug')
             ->first();
     }
+
+    // =========================================================================
+    // #743 actorEvents — chronological event listing
+    // =========================================================================
+
+    /**
+     * Lazy-load endpoint for the per-actor event chronology.
+     *
+     * Returns either HTML (default — used by the related-resources panel on
+     * actor/{slug}/edit) or JSON when ?format=json. Sorted oldest first by
+     * start_date, falling back to event id when no date is available.
+     *
+     * Migrated from PSIS ahgActorManagePlugin actorEventsAction (#743).
+     */
+    public function events(Request $request, string $slug)
+    {
+        $actor = $this->service->getBySlug($slug);
+        if (! $actor) {
+            abort(404);
+        }
+
+        if (! \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $actor->id)) {
+            abort(403, 'You do not have permission to view this record.');
+        }
+
+        $culture = app()->getLocale();
+        $limit = max(1, (int) $request->get('limit', 10));
+        $page = max(1, (int) $request->get('page', 1));
+
+        $base = DB::table('event')
+            ->leftJoin('event_i18n', function ($j) use ($culture) {
+                $j->on('event.id', '=', 'event_i18n.id')
+                    ->where('event_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('term_i18n as type_i18n', function ($j) use ($culture) {
+                $j->on('event.type_id', '=', 'type_i18n.id')
+                    ->where('type_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('information_object', 'event.object_id', '=', 'information_object.id')
+            ->leftJoin('information_object_i18n as io_i18n', function ($j) use ($culture) {
+                $j->on('information_object.id', '=', 'io_i18n.id')
+                    ->where('io_i18n.culture', '=', $culture);
+            })
+            ->leftJoin('slug as io_slug', 'information_object.id', '=', 'io_slug.object_id')
+            ->where('event.actor_id', $actor->id);
+
+        $total = (clone $base)->count();
+
+        $rows = $base
+            ->select(
+                'event.id',
+                'event.type_id',
+                'event.start_date',
+                'event.end_date',
+                'event_i18n.date as date_display',
+                'event_i18n.name as event_name',
+                'event_i18n.description as event_description',
+                'type_i18n.name as type_name',
+                'information_object.id as io_id',
+                'io_i18n.title as io_title',
+                'io_slug.slug as io_slug',
+            )
+            ->orderByRaw('COALESCE(event.start_date, "9999-12-31") asc')
+            ->orderBy('event.id', 'asc')
+            ->offset(($page - 1) * $limit)
+            ->limit($limit)
+            ->get();
+
+        $events = $rows->map(fn ($e) => [
+            'id' => (int) $e->id,
+            'type_id' => (int) $e->type_id,
+            'type_name' => (string) ($e->type_name ?? ''),
+            'date_display' => (string) ($e->date_display ?? ''),
+            'start_date' => (string) ($e->start_date ?? ''),
+            'end_date' => (string) ($e->end_date ?? ''),
+            'event_name' => (string) ($e->event_name ?? ''),
+            'event_description' => (string) ($e->event_description ?? ''),
+            'related_io' => $e->io_id ? [
+                'id' => (int) $e->io_id,
+                'title' => (string) ($e->io_title ?? ''),
+                'slug' => (string) ($e->io_slug ?? ''),
+            ] : null,
+        ])->values();
+
+        if ($request->wantsJson() || $request->get('format') === 'json') {
+            return response()->json([
+                'actor_id' => $actor->id,
+                'total' => $total,
+                'page' => $page,
+                'limit' => $limit,
+                'events' => $events,
+            ]);
+        }
+
+        return view('ahg-actor-manage::events', [
+            'actor' => $actor,
+            'events' => $events,
+            'total' => $total,
+            'page' => $page,
+            'limit' => $limit,
+            'lastPage' => max(1, (int) ceil($total / $limit)),
+        ]);
+    }
+
+    // =========================================================================
+    // #743 slugPreview — AJAX slug preview while typing authorized form of name
+    // =========================================================================
+
+    /**
+     * Slug preview AJAX endpoint.
+     *
+     * Returns `{ "slug": "...", "padded": bool }` for the supplied ?name=
+     * (or ?text= for AtoM-compat) string. If the slugified text collides
+     * with an existing slug owned by a different object, a numeric suffix
+     * is appended ("-2", "-3", ...) and `padded` is set to true so the
+     * client can show a "modified" indicator.
+     *
+     * Migrated from PSIS ActorSlugPreviewAction (#743).
+     */
+    public function slugPreview(Request $request)
+    {
+        // The PSIS action returned 401 for anon users. Mirror that here so
+        // unauthenticated POSTs/GETs can't be used to fingerprint slug
+        // collisions without an account.
+        if (! \Illuminate\Support\Facades\Auth::check()) {
+            return response()->json(['error' => 'unauthorized'], 401);
+        }
+
+        $text = (string) $request->get('name', $request->get('text', ''));
+        $excludeId = $request->filled('actor_id') ? (int) $request->get('actor_id') : null;
+
+        $text = trim($text);
+        if ($text === '') {
+            return response()->json(['slug' => '', 'padded' => false]);
+        }
+
+        $base = \Illuminate\Support\Str::slug($text);
+        $candidate = $base;
+        $counter = 1;
+
+        while (true) {
+            $row = DB::table('slug')->where('slug', $candidate)->first();
+            if ($row === null) {
+                break;
+            }
+            if ($excludeId !== null && (int) $row->object_id === $excludeId) {
+                break;
+            }
+            $counter++;
+            $candidate = $base.'-'.$counter;
+        }
+
+        return response()->json([
+            'slug' => $candidate,
+            'padded' => $candidate !== $base,
+        ]);
+    }
 }

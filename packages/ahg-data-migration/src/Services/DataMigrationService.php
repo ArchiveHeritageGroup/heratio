@@ -1152,6 +1152,508 @@ class DataMigrationService
         return $query;
     }
 
+    // ════════════════════════════════════════════════════════
+    // Issue #740 — Data-migration exports parity helpers
+    // PSIS twin: atom-ahg-plugins#86
+    // ════════════════════════════════════════════════════════
+
+    /**
+     * Apply the saved field-mapping shape (PSIS style: list of
+     * { include, source_field, atom_field, ahg_field, constant_value,
+     *   concatenate, concat_constant, concat_symbol }) to a parsed
+     * detection set and return canonical AHG records.
+     */
+    public function transformWithMapping(array $rows, array $headers, array $mapping): array
+    {
+        $transformed = [];
+
+        foreach ($rows as $row) {
+            $record = [];
+            $isAssoc = array_keys($row) !== range(0, count($row) - 1);
+
+            // Pass through native ahg* / _digitalObject* fields directly.
+            foreach ($headers as $index => $header) {
+                if ($header === null || $header === '') {
+                    continue;
+                }
+                if (str_starts_with((string) $header, 'ahg') || str_starts_with((string) $header, '_digitalObject')) {
+                    $value = $isAssoc ? ($row[$header] ?? null) : ($row[$index] ?? null);
+                    if ($value !== null) {
+                        $record[$header] = is_string($value) ? trim($value) : $value;
+                    }
+                }
+            }
+
+            foreach ($mapping as $fieldConfig) {
+                if (empty($fieldConfig['include'])) {
+                    continue;
+                }
+                $sourceField = $fieldConfig['source_field'] ?? '';
+                $atomField = $fieldConfig['atom_field'] ?? '';
+                $ahgField = $fieldConfig['ahg_field'] ?? '';
+                $constantValue = $fieldConfig['constant_value'] ?? '';
+                $concatenate = ! empty($fieldConfig['concatenate']);
+                $concatConstant = ! empty($fieldConfig['concat_constant']);
+                $concatSymbol = $fieldConfig['concat_symbol'] ?? '|';
+
+                if ($atomField === '' && $ahgField === '') {
+                    continue;
+                }
+
+                $value = '';
+                if ($concatConstant && $constantValue !== '') {
+                    $value = $constantValue;
+                } elseif ($sourceField !== '') {
+                    if ($isAssoc) {
+                        $value = isset($row[$sourceField]) ? trim((string) $row[$sourceField]) : '';
+                    } else {
+                        $sourceIndex = array_search($sourceField, $headers, true);
+                        $value = ($sourceIndex !== false && isset($row[$sourceIndex])) ? trim((string) $row[$sourceIndex]) : '';
+                    }
+                }
+
+                if (! $concatConstant && $constantValue !== '' && $value === '') {
+                    $value = $constantValue;
+                }
+
+                if ($value === '') {
+                    continue;
+                }
+
+                $symbol = ($concatSymbol === '\n' || $concatSymbol === "\\n") ? "\n" : $concatSymbol;
+
+                foreach ([$atomField, $ahgField] as $target) {
+                    if ($target === '' || $target === null) {
+                        continue;
+                    }
+                    if (! isset($record[$target]) || $record[$target] === '') {
+                        $record[$target] = $value;
+                    } elseif ($concatenate) {
+                        $record[$target] .= $symbol.$value;
+                    }
+                }
+            }
+
+            // Promote internal _digitalObject* into export columns.
+            if (! empty($record['_digitalObjectPath'])) {
+                $record['digitalObjectPath'] = $record['_digitalObjectPath'];
+            }
+            if (! empty($record['_digitalObjectFilename'])) {
+                $record['digitalObjectFilename'] = $record['_digitalObjectFilename'];
+            }
+            if (! empty($record['_digitalObjectPaths'])) {
+                $record['allFilenames'] = $record['_digitalObjectPaths'];
+            }
+
+            if (! empty($record)) {
+                $transformed[] = $record;
+            }
+        }
+
+        return $transformed;
+    }
+
+    /**
+     * Generate an EAD 2002 XML document from a list of transformed records.
+     * Mirrors PSIS dataMigrationExportEadAction::generateEad().
+     */
+    public function generateEadXml(array $records, string $sourceFilename = 'collection'): string
+    {
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom->formatOutput = true;
+
+        $ead = $dom->createElement('ead');
+        $ead->setAttribute('xmlns', 'urn:isbn:1-931666-22-9');
+        $ead->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+        $ead->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+        $ead->setAttribute('xsi:schemaLocation', 'urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd');
+        $dom->appendChild($ead);
+
+        $eadheader = $dom->createElement('eadheader');
+        $eadheader->appendChild($dom->createElement('eadid', pathinfo($sourceFilename, PATHINFO_FILENAME)));
+
+        $filedesc = $dom->createElement('filedesc');
+        $titlestmt = $dom->createElement('titlestmt');
+        $titlestmt->appendChild($dom->createElement('titleproper', 'Import from '.$sourceFilename));
+        $filedesc->appendChild($titlestmt);
+        $eadheader->appendChild($filedesc);
+        $ead->appendChild($eadheader);
+
+        $archdesc = $dom->createElement('archdesc');
+        $archdesc->setAttribute('level', 'collection');
+        $topDid = $dom->createElement('did');
+        $topDid->appendChild($dom->createElement('unittitle', 'Imported Collection'));
+        $archdesc->appendChild($topDid);
+
+        $dsc = $dom->createElement('dsc');
+
+        foreach ($records as $record) {
+            $c = $dom->createElement('c');
+            $c->setAttribute('level', $record['levelOfDescription'] ?? 'item');
+            $did = $dom->createElement('did');
+
+            $this->appendIfPresent($dom, $did, 'unitid', $record['identifier'] ?? '');
+            $this->appendIfPresent($dom, $did, 'unittitle', $record['title'] ?? '');
+            $this->appendIfPresent($dom, $did, 'unitdate', $record['eventDates'] ?? '');
+
+            if (! empty($record['extentAndMedium'])) {
+                $physdesc = $dom->createElement('physdesc');
+                $physdesc->appendChild($dom->createElement('extent', (string) $record['extentAndMedium']));
+                $did->appendChild($physdesc);
+            }
+
+            if (! empty($record['language'])) {
+                $langmaterial = $dom->createElement('langmaterial');
+                $langmaterial->appendChild($dom->createElement('language', (string) $record['language']));
+                $did->appendChild($langmaterial);
+            }
+
+            if (! empty($record['eventActors'])) {
+                $origination = $dom->createElement('origination');
+                $origination->appendChild($dom->createElement('persname', (string) $record['eventActors']));
+                $did->appendChild($origination);
+            }
+
+            $c->appendChild($did);
+
+            foreach ([
+                'scopeAndContent' => 'scopecontent',
+                'archivalHistory' => 'custodhist',
+                'accessConditions' => 'accessrestrict',
+                'generalNote' => 'note',
+            ] as $field => $tag) {
+                if (! empty($record[$field])) {
+                    $node = $dom->createElement($tag);
+                    $node->appendChild($dom->createElement('p', (string) $record[$field]));
+                    $c->appendChild($node);
+                }
+            }
+
+            $controlaccess = $dom->createElement('controlaccess');
+            $hasControlAccess = false;
+            foreach (['subjectAccessPoints' => 'subject', 'placeAccessPoints' => 'geogname', 'nameAccessPoints' => 'persname'] as $field => $tag) {
+                if (empty($record[$field])) {
+                    continue;
+                }
+                foreach (explode('|', (string) $record[$field]) as $item) {
+                    $item = trim($item);
+                    if ($item !== '') {
+                        $controlaccess->appendChild($dom->createElement($tag, $item));
+                        $hasControlAccess = true;
+                    }
+                }
+            }
+            if ($hasControlAccess) {
+                $c->appendChild($controlaccess);
+            }
+
+            $dsc->appendChild($c);
+        }
+
+        $archdesc->appendChild($dsc);
+        $ead->appendChild($archdesc);
+
+        return $dom->saveXML();
+    }
+
+    private function appendIfPresent(\DOMDocument $dom, \DOMElement $parent, string $tag, string $value): void
+    {
+        if ($value !== '' && $value !== null) {
+            $parent->appendChild($dom->createElement($tag, $value));
+        }
+    }
+
+    /**
+     * Build AHG Extended CSV output (ISAD + AHG sidecar columns).
+     */
+    public function buildAhgCsv(array $records): string
+    {
+        $columns = [
+            'legacyId', 'parentId', 'qubitParentSlug', 'identifier', 'culture', 'title',
+            'levelOfDescription', 'extentAndMedium', 'repository', 'archivalHistory',
+            'acquisition', 'scopeAndContent', 'appraisal', 'accruals', 'arrangement',
+            'accessConditions', 'reproductionConditions', 'language', 'script', 'languageNote',
+            'physicalCharacteristics', 'findingAids', 'locationOfOriginals', 'locationOfCopies',
+            'relatedUnitsOfDescription', 'publicationNote', 'generalNote', 'archivistNote',
+            'rules', 'descriptionIdentifier', 'institutionIdentifier', 'revisionHistory',
+            'sources', 'eventDates', 'eventTypes', 'eventActors', 'eventActorHistories',
+            'eventPlaces', 'subjectAccessPoints', 'placeAccessPoints', 'nameAccessPoints',
+            'genreAccessPoints', 'digitalObjectPath', 'digitalObjectFilename', 'digitalObjectURI',
+            'ahgSecurityClassification', 'ahgAccessLevel', 'ahgRightsStatement', 'ahgRightsBasis',
+            'ahgCopyrightStatus', 'ahgProvenanceHistory', 'ahgProvenanceEventDates',
+            'ahgProvenanceEventTypes', 'ahgProvenanceEventDescriptions', 'ahgProvenanceEventAgents',
+            'ahgProvenanceFirstDate', 'ahgProvenanceLastDate', 'ahgProvenanceEventCount',
+            'ahgRelationships', 'ahgConditionOverallRating', 'ahgConditionSummary',
+            'ahgConditionRecommendations', 'ahgConditionPriority', 'ahgConditionContext',
+            'ahgConditionAssessmentDate', 'ahgConditionNextCheckDate', 'ahgConditionEnvironmentalNotes',
+            'ahgConditionHandlingNotes', 'ahgConditionDisplayNotes', 'ahgConditionStorageNotes',
+            'Filename', 'digitalObjectChecksum', 'digitalObjectMimeType', 'digitalObjectSize',
+            'allFilenames',
+        ];
+
+        $fh = fopen('php://temp', 'r+');
+        // UTF-8 BOM for Excel.
+        fwrite($fh, "\xEF\xBB\xBF");
+        fputcsv($fh, $columns);
+        foreach ($records as $record) {
+            $row = [];
+            foreach ($columns as $col) {
+                $v = $record[$col] ?? '';
+                if (is_array($v)) {
+                    $v = implode('|', $v);
+                }
+                $row[] = $v;
+            }
+            fputcsv($fh, $row);
+        }
+        rewind($fh);
+        $csv = stream_get_contents($fh);
+        fclose($fh);
+
+        return $csv;
+    }
+
+    /**
+     * Per-sector column-resolver. Returns ordered [column => label] pairs that
+     * match the sector exporter contract from PSIS (ArchivesExporter,
+     * MuseumExporter, LibraryExporter, GalleryExporter, DamExporter).
+     */
+    public function sectorColumns(string $sector): array
+    {
+        return match ($sector) {
+            'museum' => [
+                'identifier' => 'Object number',
+                'title' => 'Object name',
+                'objectType' => 'Object type',
+                'materials' => 'Materials',
+                'technique' => 'Technique',
+                'dimensions' => 'Dimensions',
+                'productionDate' => 'Production date',
+                'productionPlace' => 'Production place',
+                'maker' => 'Maker',
+                'inscription' => 'Inscription',
+                'condition' => 'Condition',
+                'location' => 'Location',
+                'accession' => 'Accession',
+                'subjectAccessPoints' => 'Subject',
+            ],
+            'library' => [
+                'identifier' => 'Call number',
+                'title' => 'Title',
+                'author' => 'Author',
+                'edition' => 'Edition',
+                'publisher' => 'Publisher',
+                'publicationPlace' => 'Publication place',
+                'publicationDate' => 'Publication date',
+                'isbn' => 'ISBN',
+                'issn' => 'ISSN',
+                'extentAndMedium' => 'Extent',
+                'subjectAccessPoints' => 'Subject',
+                'language' => 'Language',
+            ],
+            'gallery' => [
+                'identifier' => 'Identifier',
+                'title' => 'Title',
+                'artist' => 'Artist',
+                'medium' => 'Medium',
+                'support' => 'Support',
+                'dimensions' => 'Dimensions',
+                'creationDate' => 'Date of creation',
+                'style' => 'Style',
+                'provenance' => 'Provenance',
+                'exhibition' => 'Exhibition history',
+                'condition' => 'Condition',
+                'location' => 'Location',
+            ],
+            'dam' => [
+                'identifier' => 'Asset ID',
+                'title' => 'Title',
+                'filename' => 'Filename',
+                'mimeType' => 'MIME type',
+                'fileSize' => 'File size',
+                'checksum' => 'Checksum',
+                'createdBy' => 'Created by',
+                'createdAt' => 'Created at',
+                'rights' => 'Rights',
+                'subjectAccessPoints' => 'Subject',
+            ],
+            default => [ // archive (ISAD-G) is the fallback
+                'identifier' => 'Identifier',
+                'title' => 'Title',
+                'levelOfDescription' => 'Level of description',
+                'extentAndMedium' => 'Extent and medium',
+                'repository' => 'Repository',
+                'archivalHistory' => 'Archival history',
+                'scopeAndContent' => 'Scope and content',
+                'accessConditions' => 'Access conditions',
+                'language' => 'Language',
+                'eventDates' => 'Dates',
+                'eventActors' => 'Creators',
+                'subjectAccessPoints' => 'Subject',
+                'placeAccessPoints' => 'Places',
+                'nameAccessPoints' => 'Names',
+            ],
+        };
+    }
+
+    /**
+     * Render a sector-specific CSV from a list of transformed records.
+     */
+    public function sectorExportCsv(string $sector, array $records): string
+    {
+        $columns = $this->sectorColumns($sector);
+
+        $fh = fopen('php://temp', 'r+');
+        fwrite($fh, "\xEF\xBB\xBF");
+        fputcsv($fh, array_values($columns));
+        foreach ($records as $record) {
+            $row = [];
+            foreach (array_keys($columns) as $col) {
+                $v = $record[$col] ?? '';
+                if (is_array($v)) {
+                    $v = implode('|', $v);
+                }
+                $row[] = $v;
+            }
+            fputcsv($fh, $row);
+        }
+        rewind($fh);
+        $csv = stream_get_contents($fh);
+        fclose($fh);
+
+        return $csv;
+    }
+
+    /**
+     * Probe an uploaded XLS/XLSX/CSV and return per-sheet metadata
+     * (name, index, row count, column headers). Returns a single
+     * synthetic "Sheet1" entry for CSV / TSV inputs so the UI can
+     * render uniformly regardless of source format.
+     */
+    public function detectSpreadsheetSheets(string $path): array
+    {
+        if (! file_exists($path)) {
+            return ['success' => false, 'error' => 'File not found'];
+        }
+
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+        if (in_array($ext, ['csv', 'tsv', 'txt'], true)) {
+            $delimiter = $ext === 'tsv' ? "\t" : ',';
+            $headers = [];
+            $rowCount = 0;
+            if (($fh = @fopen($path, 'r')) !== false) {
+                $bom = fread($fh, 3);
+                if ($bom !== "\xEF\xBB\xBF") {
+                    rewind($fh);
+                }
+                $headers = fgetcsv($fh, 0, $delimiter) ?: [];
+                while (fgetcsv($fh, 0, $delimiter) !== false) {
+                    $rowCount++;
+                }
+                fclose($fh);
+            }
+
+            return [
+                'success' => true,
+                'sheets' => [[
+                    'index' => 0,
+                    'name' => 'Sheet1',
+                    'rows' => $rowCount,
+                    'headers' => array_values(array_map('trim', $headers)),
+                ]],
+                'count' => 1,
+            ];
+        }
+
+        if (! in_array($ext, ['xls', 'xlsx'], true)) {
+            return ['success' => false, 'error' => 'Unsupported file type: '.$ext];
+        }
+
+        if (! class_exists(\PhpOffice\PhpSpreadsheet\IOFactory::class)) {
+            return ['success' => false, 'error' => 'PhpSpreadsheet not installed'];
+        }
+
+        try {
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path);
+            $sheets = [];
+            foreach ($spreadsheet->getSheetNames() as $idx => $name) {
+                $sheet = $spreadsheet->getSheet($idx);
+                $headers = [];
+                $highestColumn = $sheet->getHighestDataColumn(1);
+                $row = $sheet->rangeToArray('A1:'.$highestColumn.'1', null, true, true, false)[0] ?? [];
+                foreach ($row as $h) {
+                    if ($h !== null && $h !== '') {
+                        $headers[] = (string) $h;
+                    }
+                }
+                $sheets[] = [
+                    'index' => $idx,
+                    'name' => $name,
+                    'rows' => max(0, $sheet->getHighestDataRow() - 1),
+                    'headers' => $headers,
+                ];
+            }
+
+            return ['success' => true, 'sheets' => $sheets, 'count' => count($sheets)];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Rename a saved mapping. Returns true if the row existed and was renamed.
+     */
+    public function renameMapping(int $id, string $newName): bool
+    {
+        $newName = trim($newName);
+        if ($id <= 0 || $newName === '') {
+            return false;
+        }
+
+        return DB::table('atom_data_mapping')
+            ->where('id', $id)
+            ->update([
+                'name' => $newName,
+                'updated_at' => now(),
+            ]) > 0;
+    }
+
+    /**
+     * Return the first $limit rows of the parsed source file, projected
+     * through the current mapping. Used for the live preview pane on the
+     * mapping screen.
+     */
+    public function previewMapped(string $path, array $mapping, int $limit = 10): array
+    {
+        if (! file_exists($path)) {
+            return ['headers' => [], 'rows' => [], 'preview' => []];
+        }
+
+        $parsed = $this->parseCSV($path, $limit);
+        $headers = $parsed['headers'] ?? [];
+        $rows = $parsed['rows'] ?? [];
+
+        // parseCSV returns assoc rows; reshape into PSIS-style indexed rows
+        // so transformWithMapping can use array_search on headers.
+        $indexedRows = [];
+        foreach ($rows as $assoc) {
+            $indexed = [];
+            foreach ($headers as $h) {
+                $indexed[] = $assoc[$h] ?? '';
+            }
+            $indexedRows[] = $indexed;
+        }
+
+        $records = $this->transformWithMapping($indexedRows, $headers, $mapping);
+
+        return [
+            'headers' => $headers,
+            'rows' => $rows,
+            'preview' => $records,
+        ];
+    }
+
     /**
      * Get column name => header label map for export.
      */

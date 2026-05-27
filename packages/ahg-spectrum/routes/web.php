@@ -61,3 +61,12 @@ Route::prefix('admin/spectrum')->middleware(['web', 'auth', EnsureSpectrumEnable
     Route::get('/get-annotations', [\AhgSpectrum\Controllers\SpectrumController::class, 'getAnnotations'])->name('spectrum.getAnnotations');
     Route::get('/export-annotated-photo', [\AhgSpectrum\Controllers\SpectrumController::class, 'exportAnnotatedPhoto'])->name('spectrum.exportAnnotatedPhoto');
 });
+
+// #739 - single-field PATCH for spectrum procedure rows. Routed
+// outside the /admin/spectrum prefix so the URL matches the brief
+// (`PATCH /spectrum/procedure/{id}`) while still requiring auth +
+// the spectrum-enabled middleware.
+Route::middleware(['web', 'auth', EnsureSpectrumEnabled::class])
+    ->patch('/spectrum/procedure/{id}', [\AhgSpectrum\Controllers\ProcedureUpdateController::class, 'patch'])
+    ->where('id', '[0-9]+')
+    ->name('ahgspectrum.procedure.patch');

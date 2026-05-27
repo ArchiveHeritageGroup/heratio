@@ -21,10 +21,12 @@ use AhgApi\Controllers\V2\ConditionController;
 use AhgApi\Controllers\V2\DescriptionController;
 use AhgApi\Controllers\V2\EventController;
 use AhgApi\Controllers\V2\IdentifierController;
+use AhgApi\Controllers\V2\MarketplaceController as V2MarketplaceController;
 use AhgApi\Controllers\V2\PrivacyController;
 use AhgApi\Controllers\V2\PublishController;
 use AhgApi\Controllers\V2\RepositoryController as V2RepositoryController;
 use AhgApi\Controllers\V2\SearchController;
+use AhgApi\Controllers\V2\SpectrumApiController;
 use AhgApi\Controllers\V2\SyncController;
 use AhgApi\Controllers\V2\TaxonomyController as V2TaxonomyController;
 use AhgApi\Controllers\V2\UploadController;
@@ -223,6 +225,19 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
     Route::get('identifiers/barcode/{objectId}', [IdentifierController::class, 'barcode'])->where('objectId', '[0-9]+');
     Route::get('identifiers/types/{objectId}', [IdentifierController::class, 'types'])->where('objectId', '[0-9]+');
     Route::get('identifiers/all/{objectId}', [IdentifierController::class, 'all'])->where('objectId', '[0-9]+');
+
+    // Marketplace public API (issue #736)
+    Route::get('marketplace/search',                        [V2MarketplaceController::class, 'search']);
+    Route::post('marketplace/bid',                          [V2MarketplaceController::class, 'bid'])->middleware('api.auth:write');
+    Route::get('marketplace/auction/{id}/status',           [V2MarketplaceController::class, 'auctionStatus'])->where('id', '[0-9]+');
+    Route::post('marketplace/favourite',                    [V2MarketplaceController::class, 'favourite'])->middleware('api.auth:write');
+    Route::get('marketplace/currencies',                    [V2MarketplaceController::class, 'currencies']);
+    Route::get('marketplace/categories',                    [V2MarketplaceController::class, 'categories']);
+
+    // Spectrum public API (issue #737)
+    Route::get('spectrum/statistics',                       [SpectrumApiController::class, 'statistics']);
+    Route::get('spectrum/events',                           [SpectrumApiController::class, 'events']);
+    Route::get('spectrum/activity/{objectId}',              [SpectrumApiController::class, 'activity'])->where('objectId', '[0-9]+');
 });
 
 /*

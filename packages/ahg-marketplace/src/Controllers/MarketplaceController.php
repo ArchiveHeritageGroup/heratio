@@ -456,6 +456,198 @@ class MarketplaceController extends Controller
         return redirect()->route('ahgmarketplace.admin-payouts');
     }
 
+    /**
+     * Admin batch payouts via CSV upload (issue #736).
+     *
+     * Two-phase flow:
+     *   - Phase 1 (no `commit=1`): parse the uploaded CSV, return a preview of
+     *     resolvable rows + validation errors. Nothing is written.
+     *   - Phase 2 (`commit=1`): apply batchProcessPayouts() against the resolved
+     *     payout IDs. The admin must re-upload (or re-submit the IDs they got
+     *     back from phase 1) so the commit is explicit.
+     *
+     * CSV format (header row required):
+     *   payout_id,reference,notes
+     *
+     * The reference and notes columns are optional - if present they overwrite
+     * the payout row before processing (lets finance set bank-trace refs in bulk).
+     */
+    public function adminPayoutsBatchCsv(Request $request)
+    {
+        $this->requireAdmin();
+
+        $request->validate([
+            'csv'    => 'required_without:payout_ids|file|mimetypes:text/csv,text/plain,application/csv,application/vnd.ms-excel|max:2048',
+            'commit' => 'nullable|in:0,1,true,false',
+            'payout_ids'   => 'nullable|array',
+            'payout_ids.*' => 'integer|min:1',
+        ]);
+
+        $commit = filter_var($request->input('commit', '0'), FILTER_VALIDATE_BOOLEAN);
+
+        // Branch A: caller already has resolved IDs from a prior preview - go straight to commit.
+        if ($request->hasAny(['payout_ids']) && $commit) {
+            $ids = array_filter(array_map('intval', (array) $request->input('payout_ids', [])), fn ($i) => $i > 0);
+            if (empty($ids)) {
+                session()->flash('error', 'No valid payout IDs in payload.');
+
+                return redirect()->route('ahgmarketplace.admin-payouts');
+            }
+
+            $result = $this->service->batchProcessPayouts($ids, (int) Auth::id());
+            session()->flash(
+                $result['processed'] > 0 ? 'notice' : 'error',
+                sprintf('CSV batch commit: %d processed, %d skipped.', $result['processed'], $result['skipped'])
+            );
+
+            return redirect()->route('ahgmarketplace.admin-payouts');
+        }
+
+        // Branch B: CSV upload.
+        $file = $request->file('csv');
+        if (!$file) {
+            session()->flash('error', 'CSV file is required.');
+
+            return redirect()->route('ahgmarketplace.admin-payouts');
+        }
+
+        $parsed = $this->parsePayoutsCsv($file->getRealPath());
+        if (!empty($parsed['errors']) && empty($parsed['rows'])) {
+            session()->flash('error', 'CSV could not be parsed: ' . implode('; ', $parsed['errors']));
+
+            return redirect()->route('ahgmarketplace.admin-payouts');
+        }
+
+        // Phase 1 - preview only.
+        if (!$commit) {
+            $previewIds = array_map(fn ($r) => (int) $r['payout_id'], $parsed['rows']);
+
+            return view('marketplace::admin-payouts', [
+                'payouts'       => $this->service->adminBrowsePayouts([], 30, 0)['items'] ?? collect(),
+                'total'         => 0,
+                'statusFilter'  => '',
+                'page'          => 1,
+                'csvPreview'    => [
+                    'rows'   => $parsed['rows'],
+                    'ids'    => $previewIds,
+                    'errors' => $parsed['errors'],
+                    'count'  => count($parsed['rows']),
+                ],
+            ]);
+        }
+
+        // Phase 2 - commit. Apply optional per-row overrides first.
+        $ids = [];
+        foreach ($parsed['rows'] as $row) {
+            $id = (int) $row['payout_id'];
+            if ($id <= 0) {
+                continue;
+            }
+            $updates = [];
+            if (array_key_exists('reference', $row) && $row['reference'] !== '') {
+                $updates['reference'] = $row['reference'];
+            }
+            if (array_key_exists('notes', $row) && $row['notes'] !== '') {
+                $updates['notes'] = $row['notes'];
+            }
+            if (!empty($updates)) {
+                DB::table('marketplace_payout')->where('id', $id)->update($updates);
+            }
+            $ids[] = $id;
+        }
+
+        if (empty($ids)) {
+            session()->flash('error', 'No payable rows in the CSV.');
+
+            return redirect()->route('ahgmarketplace.admin-payouts');
+        }
+
+        $result = $this->service->batchProcessPayouts($ids, (int) Auth::id());
+
+        $message = sprintf(
+            'CSV batch commit: %d processed, %d skipped (of %d submitted).',
+            $result['processed'],
+            $result['skipped'],
+            count($ids)
+        );
+        if (!empty($result['errors'])) {
+            $errs = array_map(fn ($e) => 'Payout #' . $e['payout_id'] . ': ' . $e['error'], $result['errors']);
+            $message .= ' Errors: ' . implode('; ', $errs);
+        }
+
+        session()->flash($result['processed'] > 0 ? 'notice' : 'error', $message);
+
+        return redirect()->route('ahgmarketplace.admin-payouts');
+    }
+
+    /**
+     * Parse a payouts CSV file. Header row is required and must contain at least
+     * a "payout_id" column. Optional columns: "reference", "notes".
+     *
+     * Returns ['rows' => [...], 'errors' => [...]].
+     */
+    private function parsePayoutsCsv(string $path): array
+    {
+        $rows = [];
+        $errors = [];
+
+        $fp = @fopen($path, 'r');
+        if (!$fp) {
+            return ['rows' => [], 'errors' => ['Could not open uploaded CSV.']];
+        }
+
+        // Strip UTF-8 BOM on first read.
+        $bom = fread($fp, 3);
+        if ($bom !== "\xEF\xBB\xBF") {
+            rewind($fp);
+        }
+
+        $header = fgetcsv($fp);
+        if (!$header) {
+            fclose($fp);
+
+            return ['rows' => [], 'errors' => ['CSV is empty.']];
+        }
+        $header = array_map(fn ($h) => strtolower(trim((string) $h)), $header);
+        $idIdx = array_search('payout_id', $header, true);
+        if ($idIdx === false) {
+            fclose($fp);
+
+            return ['rows' => [], 'errors' => ['CSV must include a "payout_id" header column.']];
+        }
+        $refIdx   = array_search('reference', $header, true);
+        $notesIdx = array_search('notes',     $header, true);
+
+        $line = 1;
+        while (($cells = fgetcsv($fp)) !== false) {
+            $line++;
+            if (count($cells) === 1 && trim((string) $cells[0]) === '') {
+                continue; // blank line
+            }
+            $id = (int) trim((string) ($cells[$idIdx] ?? ''));
+            if ($id <= 0) {
+                $errors[] = "Line {$line}: invalid payout_id";
+                continue;
+            }
+            $exists = DB::table('marketplace_payout')->where('id', $id)->exists();
+            if (!$exists) {
+                $errors[] = "Line {$line}: payout #{$id} not found";
+                continue;
+            }
+            $row = ['payout_id' => $id];
+            if ($refIdx !== false && isset($cells[$refIdx])) {
+                $row['reference'] = trim((string) $cells[$refIdx]);
+            }
+            if ($notesIdx !== false && isset($cells[$notesIdx])) {
+                $row['notes'] = trim((string) $cells[$notesIdx]);
+            }
+            $rows[] = $row;
+        }
+        fclose($fp);
+
+        return ['rows' => $rows, 'errors' => $errors];
+    }
+
     public function adminReports(Request $request)
     {
         $this->requireAdmin();
