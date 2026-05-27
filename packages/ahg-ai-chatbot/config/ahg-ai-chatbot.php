@@ -91,4 +91,18 @@ return [
 
     'guardrail_mode'         => env('AHG_CHATBOT_GUARDRAIL', 'warn'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Floating widget injection
+    |--------------------------------------------------------------------------
+    | When 'enabled' is true, the InjectChatbotWidget middleware appends a
+    | floating chat widget to every authenticated HTML response. Set to false
+    | to require explicit layout-level @include('ahg-ai-chatbot::widget')
+    | placement instead.
+    */
+
+    'widget' => [
+        'enabled' => env('AHG_CHATBOT_WIDGET_ENABLED', true),
+    ],
+
 ];

@@ -7,6 +7,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -16,7 +17,29 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // The locked information-object slug catch-all `/{slug}` (in
+        // ahg-information-object-manage) intercepts any top-level word not
+        // in its exclusion regex. Routes whose package sorts alphabetically
+        // AFTER `ahg-information-object-manage` therefore lose to the
+        // catch-all even when they are literal. Pre-register those routes
+        // here in register() so they win on registration order.
+        $this->callAfterResolving('router', function ($router) {
+            $router->get('/sru', [\AhgZ3950\Controllers\SruController::class, 'handle'])
+                ->name('sru.handle');
+            $router->get('/z3950', [\AhgZ3950\Controllers\Z3950Controller::class, 'index'])
+                ->name('z3950.index');
+            $router->middleware(['web', 'auth'])->group(function () use ($router) {
+                $router->get('/z3950/search', [\AhgZ3950\Controllers\Z3950Controller::class, 'search'])->name('z3950.search');
+                $router->post('/z3950/search', [\AhgZ3950\Controllers\Z3950Controller::class, 'searchRun'])->name('z3950.search-run');
+                $router->get('/z3950/result/{resultSet}', [\AhgZ3950\Controllers\Z3950Controller::class, 'result'])->name('z3950.result');
+                $router->get('/z3950/import/{resultSet}/{recordNumber}', [\AhgZ3950\Controllers\Z3950Controller::class, 'import'])->name('z3950.import');
+                $router->post('/z3950/import', [\AhgZ3950\Controllers\Z3950Controller::class, 'importBatch'])->name('z3950.import-batch');
+                $router->get('/z3950/admin', [\AhgZ3950\Controllers\Z3950Controller::class, 'admin'])->name('z3950.admin');
+                $router->get('/z3950/target/create', [\AhgZ3950\Controllers\Z3950Controller::class, 'createTarget'])->name('z3950.target.create');
+                $router->post('/z3950/target', [\AhgZ3950\Controllers\Z3950Controller::class, 'storeTarget'])->name('z3950.target.store');
+                $router->delete('/z3950/target/{id}', [\AhgZ3950\Controllers\Z3950Controller::class, 'deleteTarget'])->name('z3950.target.delete');
+            });
+        });
     }
 
     /**

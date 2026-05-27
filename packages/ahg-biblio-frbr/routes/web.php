@@ -1,6 +1,7 @@
 <?php
 
 use AhgBiblioFrbr\Controllers\FrbrController;
+use AhgBiblioFrbr\Controllers\WorkOverrideController;
 use Illuminate\Support\Facades\Route;
 
 // FRBR integration routes.
@@ -25,5 +26,12 @@ Route::middleware('web')->group(function () {
         Route::post('/frbr/validate', [FrbrController::class, 'validateRun'])->name('frbr.validate-run');
 
         Route::get('/frbr/agent', [FrbrController::class, 'agent'])->name('frbr.agent');
+
+        // #763 FRBR work-set clustering: force-group / force-split admin.
+        Route::get('/admin/frbr/overrides', [WorkOverrideController::class, 'index'])->name('admin.frbr.overrides.index');
+        Route::get('/admin/frbr/overrides/create', [WorkOverrideController::class, 'create'])->name('admin.frbr.overrides.create');
+        Route::post('/admin/frbr/overrides', [WorkOverrideController::class, 'store'])->name('admin.frbr.overrides.store');
+        Route::delete('/admin/frbr/overrides/{id}', [WorkOverrideController::class, 'destroy'])->name('admin.frbr.overrides.destroy')->whereNumber('id');
+        Route::post('/admin/frbr/cluster', [WorkOverrideController::class, 'cluster'])->name('admin.frbr.overrides.cluster');
     });
 });

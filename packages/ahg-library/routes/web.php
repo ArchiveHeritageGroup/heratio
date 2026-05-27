@@ -5,7 +5,20 @@ use AhgLibrary\Controllers\KbartoController;
 use AhgLibrary\Controllers\KbartAdminController;
 use AhgLibrary\Controllers\LibraryUsageController;
 use AhgLibrary\Controllers\MarcEditorController;
+use AhgLibrary\Controllers\SushiServerController;
 use Illuminate\Support\Facades\Route;
+
+// #766 SUSHI 5.0 server endpoint - publishes COUNTER R5 reports to consortium
+// consumers. Mounted on api/sushi/r5; no `web` middleware so machine consumers
+// don't trip CSRF.
+Route::prefix('api/sushi/r5')->group(function () {
+    Route::get('/status', [SushiServerController::class, 'status'])->name('library.sushi-status');
+    Route::get('/members', [SushiServerController::class, 'members'])->name('library.sushi-members');
+    Route::get('/reports', [SushiServerController::class, 'reports'])->name('library.sushi-reports');
+    Route::get('/reports/{report_id}', [SushiServerController::class, 'report'])
+        ->name('library.sushi-report')
+        ->where('report_id', '[a-zA-Z0-9_]+');
+});
 
 Route::get('/library', [LibraryController::class, 'browse'])->name('library.browse');
 // Dashboard URL alias under /library/browse (matches reports dashboard link)
@@ -140,6 +153,7 @@ Route::middleware('auth')->group(function () {
 
     // KBART remote feeds — automated scheduled import (issue #768)
     Route::get('/library-manage/kbart/remote',               [KbartAdminController::class, 'index'])->name('library.kbart-remote');
+    Route::get('/library-manage/kbart/remote/log',           [KbartAdminController::class, 'log'])->name('library.kbart-remote-log');
     Route::get('/library-manage/kbart/remote/create',        [KbartAdminController::class, 'create'])->name('library.kbart-remote-create');
     Route::post('/library-manage/kbart/remote',              [KbartAdminController::class, 'store'])->name('library.kbart-remote-store');
     Route::get('/library-manage/kbart/remote/{feed}/edit',  [KbartAdminController::class, 'edit'])->name('library.kbart-remote-edit')->where('feed', '[0-9]+');

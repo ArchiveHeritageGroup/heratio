@@ -87,10 +87,13 @@ class KbartRemoteService
                     `vendor` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'vendor/platform name',
                     `notes` text COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'internal notes',
                     `active` tinyint(1) NOT NULL DEFAULT 1 COMMENT '1 = include in scheduled runs',
+                    `refresh_frequency` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'daily' COMMENT 'hourly | daily | weekly | monthly | cron expression',
                     `last_fetch_at` datetime DEFAULT NULL COMMENT 'ISO datetime of most recent fetch',
                     `last_fetch_status` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'success|fail|skipped',
                     `last_row_count` int unsigned DEFAULT 0 COMMENT 'rows written in most recent fetch',
+                    `fingerprint` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'sha256 of last fetched TSV body',
                     `last_error` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                    `last_diff` json DEFAULT NULL COMMENT 'snapshot of last successful import for diff detection',
                     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     PRIMARY KEY (`id`),
@@ -116,19 +119,65 @@ class KbartRemoteService
         }
 
         $this->ensureFeedTable();
+        $columns = ['id', 'name', 'url'];
+        if (Schema::hasColumn('library_kbart_feed', 'refresh_frequency')) $columns[] = 'refresh_frequency';
+        if (Schema::hasColumn('library_kbart_feed', 'last_fetch_at'))     $columns[] = 'last_fetch_at';
+
         $feeds = DB::table('library_kbart_feed')
             ->where('active', 1)
             ->whereNotNull('url')
             ->where('url', '!=', '')
             ->orderBy('id')
-            ->get(['id', 'name', 'url']);
+            ->get($columns);
 
         $results = [];
         foreach ($feeds as $feed) {
+            if (!$this->feedIsDue($feed)) {
+                $results[] = [
+                    'feed_id' => (int) $feed->id, 'name' => $feed->name, 'url' => $feed->url,
+                    'status' => 'skipped', 'row_count' => 0,
+                    'error' => 'Not yet due per refresh_frequency.',
+                ];
+                continue;
+            }
             $results[] = $this->fetchSingleFeed((int) $feed->id, $feed->name, $feed->url);
         }
 
         return $results;
+    }
+
+    /**
+     * Decide whether a feed is due for refresh based on its refresh_frequency
+     * column and last_fetch_at. Frequencies supported:
+     *   hourly | daily (default) | weekly | monthly | <cron expression>
+     * For ad-hoc cron expressions, only the minute/hour/day-of-month/day-of-week
+     * are evaluated for an "interval" approximation (we don't run the full
+     * Cron parser - the scheduler-side cron runs us frequently anyway).
+     */
+    private function feedIsDue($feed): bool
+    {
+        $frequency = $feed->refresh_frequency ?? 'daily';
+        if ($frequency === '' || $frequency === null) $frequency = 'daily';
+
+        $last = $feed->last_fetch_at ?? null;
+        if (!$last) return true; // never fetched - always due
+
+        try {
+            $lastTs = strtotime($last);
+            if ($lastTs === false) return true;
+        } catch (\Throwable) {
+            return true;
+        }
+
+        $minInterval = match (strtolower($frequency)) {
+            'hourly'   => 55 * 60,        // 55 min so a 5-min cron skew doesn't double-fire
+            'daily'    => 23 * 3600,
+            'weekly'   => 7 * 86400 - 1800,
+            'monthly'  => 30 * 86400 - 1800,
+            default    => 23 * 3600,
+        };
+
+        return (time() - $lastTs) >= $minInterval;
     }
 
     /**
@@ -157,12 +206,34 @@ class KbartRemoteService
         }
 
         Cache::put($lockKey, true, self::LOCK_TTL_SECONDS);
+        $startMs = microtime(true);
 
         try {
             $raw = $rawTsv ?? $this->downloadFeed($url);
 
             if ($raw === null) {
+                $this->logImport($feedId, 'fail', 0, 0, 0, 0, null, 'Download failed or empty response.', (int) round((microtime(true) - $startMs) * 1000));
+                $this->notify('failure', $feedId, $name, 'Download failed or empty response.');
                 return $this->recordFailure($feedId, 'Download failed or empty response.');
+            }
+
+            $fingerprint = hash('sha256', $raw);
+            $diff = $this->computeDiff($feedId, $raw);
+
+            // Short-circuit when nothing changed: still log + update metadata
+            // but skip the writeImportBatch round-trip.
+            $prevFingerprint = DB::table('library_kbart_feed')->where('id', $feedId)->value('fingerprint');
+            if ($prevFingerprint === $fingerprint) {
+                DB::table('library_kbart_feed')->where('id', $feedId)->update([
+                    'last_fetch_at'     => now(),
+                    'last_fetch_status' => 'skipped',
+                    'last_error'       => null,
+                ]);
+                $this->logImport($feedId, 'skipped', 0, 0, 0, 0, $fingerprint, 'No change since last fetch.', (int) round((microtime(true) - $startMs) * 1000));
+                return [
+                    'feed_id' => $feedId, 'name' => $name, 'url' => $url,
+                    'status' => 'skipped', 'row_count' => 0, 'error' => '',
+                ];
             }
 
             $count = $this->kbart->writeImportBatch($raw);
@@ -173,10 +244,27 @@ class KbartRemoteService
                     'last_fetch_at'     => now(),
                     'last_fetch_status' => 'success',
                     'last_row_count'    => (int) $count,
+                    'fingerprint'      => $fingerprint,
+                    'last_diff'        => json_encode($diff, JSON_UNESCAPED_UNICODE),
                     'last_error'       => null,
                 ]);
 
-            Log::info("KbartRemoteService: fetched feed #{$feedId} ({$name}) — {$count} rows written.");
+            $this->logImport(
+                $feedId, 'success', (int) $count,
+                (int) $diff['added'], (int) $diff['removed'], (int) $diff['changed'],
+                $fingerprint, null, (int) round((microtime(true) - $startMs) * 1000),
+                $diff['sample'] ?? []
+            );
+
+            // Notify if there are added or removed titles - silent on identical refresh.
+            if (($diff['added'] + $diff['removed']) > 0) {
+                $this->notify('changes', $feedId, $name, sprintf(
+                    'KBART: %s added %d new titles, removed %d titles.',
+                    $name, $diff['added'], $diff['removed']
+                ));
+            }
+
+            Log::info("KbartRemoteService: fetched feed #{$feedId} ({$name}) — {$count} rows written, +{$diff['added']} / -{$diff['removed']}.");
 
             return [
                 'feed_id' => $feedId,
@@ -189,10 +277,123 @@ class KbartRemoteService
 
         } catch (\Throwable $e) {
             Log::error("KbartRemoteService: fetch failed for feed #{$feedId} ({$name}) — {$e->getMessage()}");
+            $this->logImport($feedId, 'fail', 0, 0, 0, 0, null, $e->getMessage(), (int) round((microtime(true) - $startMs) * 1000));
+            $this->notify('failure', $feedId, $name, $e->getMessage());
             return $this->recordFailure($feedId, $e->getMessage(), $url);
 
         } finally {
             Cache::forget($lockKey);
+        }
+    }
+
+    /**
+     * Compute add/remove/change counts for the new TSV body vs the previous diff stored on the feed row.
+     * Identifiers used: title_id when present, else online_identifier, else print_identifier, else title.
+     * Returns ['added','removed','changed','sample' => [[op,id,title], ...]].
+     */
+    private function computeDiff(int $feedId, string $raw): array
+    {
+        $newIds = $this->extractIdentifiers($raw);
+
+        $prevSnapshot = DB::table('library_kbart_feed')
+            ->where('id', $feedId)
+            ->value('last_diff');
+        $prevDecoded = $prevSnapshot ? json_decode($prevSnapshot, true) : null;
+        $prevIds = (is_array($prevDecoded) && isset($prevDecoded['identifiers'])) ? $prevDecoded['identifiers'] : [];
+
+        $addedKeys   = array_diff(array_keys($newIds), array_keys($prevIds));
+        $removedKeys = array_diff(array_keys($prevIds), array_keys($newIds));
+        $changedKeys = [];
+        foreach ($newIds as $k => $title) {
+            if (isset($prevIds[$k]) && $prevIds[$k] !== $title) $changedKeys[] = $k;
+        }
+
+        $sample = [];
+        foreach (array_slice($addedKeys, 0, 5) as $k)   $sample[] = ['op' => 'add',    'id' => $k, 'title' => $newIds[$k]];
+        foreach (array_slice($removedKeys, 0, 5) as $k) $sample[] = ['op' => 'remove', 'id' => $k, 'title' => $prevIds[$k] ?? ''];
+        foreach (array_slice($changedKeys, 0, 5) as $k) $sample[] = ['op' => 'change', 'id' => $k, 'title' => $newIds[$k]];
+
+        return [
+            'added'       => count($addedKeys),
+            'removed'     => count($removedKeys),
+            'changed'     => count($changedKeys),
+            'identifiers' => $newIds, // stored back into last_diff for next-fetch comparison
+            'sample'      => $sample,
+        ];
+    }
+
+    /**
+     * Extract a {identifier -> title} map from a KBART TSV string.
+     */
+    private function extractIdentifiers(string $raw): array
+    {
+        $lines = preg_split('/\r?\n/', $raw);
+        if (!$lines || count($lines) < 2) return [];
+
+        $header = str_getcsv((string) $lines[0], "\t");
+        $idx = array_flip(array_map('strtolower', $header));
+        $titleCol = $idx['publication_title'] ?? 0;
+        $titleIdCol = $idx['title_id'] ?? null;
+        $onlineCol = $idx['online_identifier'] ?? null;
+        $printCol = $idx['print_identifier'] ?? null;
+
+        $out = [];
+        for ($i = 1; $i < count($lines); $i++) {
+            $line = $lines[$i];
+            if (trim($line) === '') continue;
+            $cols = str_getcsv($line, "\t");
+            $title = $cols[$titleCol] ?? '';
+            $key = null;
+            if ($titleIdCol !== null && !empty($cols[$titleIdCol])) $key = 'tid:' . $cols[$titleIdCol];
+            elseif ($onlineCol !== null && !empty($cols[$onlineCol])) $key = 'oid:' . $cols[$onlineCol];
+            elseif ($printCol  !== null && !empty($cols[$printCol]))  $key = 'pid:' . $cols[$printCol];
+            else                                                       $key = 'tit:' . md5($title);
+            $out[$key] = $title;
+        }
+        return $out;
+    }
+
+    /**
+     * Write one row to library_kbart_import_log.
+     */
+    private function logImport(int $feedId, string $status, int $rowCount, int $added, int $removed, int $changed, ?string $fingerprint, ?string $error, int $elapsedMs, array $diffSample = []): void
+    {
+        try {
+            if (!Schema::hasTable('library_kbart_import_log')) return;
+            DB::table('library_kbart_import_log')->insert([
+                'feed_id'     => $feedId,
+                'status'      => $status,
+                'row_count'   => $rowCount,
+                'added'       => $added,
+                'removed'     => $removed,
+                'changed'     => $changed,
+                'fingerprint' => $fingerprint,
+                'error'       => $error,
+                'diff_sample' => json_encode($diffSample, JSON_UNESCAPED_UNICODE),
+                'elapsed_ms'  => $elapsedMs,
+                'created_at'  => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('KbartRemoteService: import-log insert failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Surface a KBART event to the bell-style notification bus.
+     */
+    private function notify(string $kind, int $feedId, string $name, string $message): void
+    {
+        try {
+            if (!Schema::hasTable('ahg_notification')) return;
+            DB::table('ahg_notification')->insert([
+                'recipient_role' => 'librarian',
+                'subject'        => '[KBART] ' . $name . ' (' . $kind . ')',
+                'body'           => $message,
+                'metadata'       => json_encode(['feed_id' => $feedId, 'kind' => $kind], JSON_UNESCAPED_UNICODE),
+                'created_at'     => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('KbartRemoteService: notification insert failed: ' . $e->getMessage());
         }
     }
 

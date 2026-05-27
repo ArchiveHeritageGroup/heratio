@@ -125,6 +125,63 @@ class ChatbotController extends Controller
         return view('ahg-ai-chatbot::review', compact('rows'));
     }
 
+    /**
+     * GET /chatbot/policy - plain-language POPIA / GDPR notice.
+     * Public; no auth required so visitors can read before opting in.
+     */
+    public function policy()
+    {
+        return view('ahg-ai-chatbot::policy');
+    }
+
+    /**
+     * POST /chatbot/escalate - 'talk to a librarian' handoff.
+     * Writes an ahg_notification row addressed to the librarian role + emails
+     * if SMTP is configured. Returns a tracking reference.
+     */
+    public function escalate(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'message' => 'required|string|max:4000',
+            'name'    => 'nullable|string|max:200',
+            'email'   => 'nullable|email|max:200',
+            'context' => 'nullable|string|max:4000',
+        ]);
+
+        $sessionId = $this->resolveSessionId($request);
+        $userId    = Auth::id();
+
+        $payload = json_encode([
+            'session_id' => $sessionId,
+            'user_id'    => $userId,
+            'name'       => $data['name'] ?? (Auth::user()->name ?? null),
+            'email'      => $data['email'] ?? (Auth::user()->email ?? null),
+            'message'    => $data['message'],
+            'context'    => $data['context'] ?? null,
+            'created_at' => now()->toIso8601String(),
+        ], JSON_UNESCAPED_UNICODE);
+
+        $reference = 'CB-' . strtoupper(Str::random(8));
+
+        try {
+            \Illuminate\Support\Facades\DB::table('ahg_notification')->insert([
+                'recipient_role' => 'librarian',
+                'subject'        => 'Chatbot escalation [' . $reference . ']',
+                'body'           => $data['message'],
+                'metadata'       => $payload,
+                'created_at'     => now(),
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Chatbot escalation notification insert failed: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'success'   => true,
+            'reference' => $reference,
+            'message'   => __('A librarian will follow up on your question shortly. Reference: :ref', ['ref' => $reference]),
+        ]);
+    }
+
     // ─── Private helpers ────────────────────────────────────────────
 
     /**

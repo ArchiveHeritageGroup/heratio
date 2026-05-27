@@ -261,11 +261,100 @@ class LibraryUsageService
         $reportMeta = match ($reportType) {
             'PR' => ['id' => 'PR', 'name' => 'Platform Usage Report'],
             'TR' => ['id' => 'TR', 'name' => 'Title Usage Report'],
+            'TR_J1' => ['id' => 'TR_J1', 'name' => 'Journal Requests (Excluding OA_Gold)'],
+            'TR_J3' => ['id' => 'TR_J3', 'name' => 'Journal Usage by Access Type'],
             'DR' => ['id' => 'DR', 'name' => 'Database Usage Report'],
+            'IR' => ['id' => 'IR', 'name' => 'Item Usage Report'],
             default => ['id' => 'PR', 'name' => 'Platform Usage Report'],
         };
 
         $items = [];
+
+        // IR (Item Report) - per-item granularity. Same shape as TR but one row
+        // per library_item rather than per title aggregate.
+        if ($reportType === 'IR') {
+            if (Schema::hasTable('library_usage_stats')
+                && Schema::hasTable('library_item')
+                && Schema::hasTable('information_object_i18n')
+            ) {
+                $rows = DB::table('library_usage_stats as us')
+                    ->join('library_item as li', 'us.library_item_id', '=', 'li.id')
+                    ->join('information_object as io', 'li.information_object_id', '=', 'io.id')
+                    ->leftJoin('information_object_i18n as ioi', function ($j) {
+                        $j->on('io.id', '=', 'ioi.id')
+                            ->where('ioi.culture', '=', app()->getLocale());
+                    })
+                    ->whereBetween('us.stat_date', [$fromDate, $toDate])
+                    ->select(
+                        'us.library_item_id as item_id',
+                        'ioi.title as item_name',
+                        'li.isbn',
+                        'li.issn',
+                        'us.metric_type',
+                        DB::raw('SUM(us.count) as total_count')
+                    )
+                    ->groupBy('us.library_item_id', 'us.metric_type')
+                    ->get();
+                foreach ($rows as $row) {
+                    $items[] = [
+                        'Item_ID'     => (int) $row->item_id,
+                        'Item_Name'   => $row->item_name ?? '',
+                        'Print_ID'    => $row->isbn ?: $row->issn ?: null,
+                        'Metric_Type' => $row->metric_type,
+                        'Count'       => (int) $row->total_count,
+                    ];
+                }
+            }
+            return $this->finaliseCounterReport($reportMeta, $fromDate, $toDate, $items);
+        }
+
+        // TR_J1 - per-journal requests, excluding Open-Access Gold.
+        // TR_J3 - per-journal split by access type (Controlled vs OA_Gold).
+        if ($reportType === 'TR_J1' || $reportType === 'TR_J3') {
+            if (Schema::hasTable('library_usage_stats')
+                && Schema::hasTable('library_item')
+                && Schema::hasTable('information_object_i18n')
+            ) {
+                $query = DB::table('library_usage_stats as us')
+                    ->join('library_item as li', 'us.library_item_id', '=', 'li.id')
+                    ->join('information_object as io', 'li.information_object_id', '=', 'io.id')
+                    ->leftJoin('information_object_i18n as ioi', function ($j) {
+                        $j->on('io.id', '=', 'ioi.id')
+                            ->where('ioi.culture', '=', app()->getLocale());
+                    })
+                    ->whereBetween('us.stat_date', [$fromDate, $toDate])
+                    ->whereNotNull('li.issn'); // Journals only.
+
+                if ($reportType === 'TR_J1') {
+                    // TR_J1 excludes OA_Gold metric; only Total/Unique requests.
+                    $query->whereIn('us.metric_type', [self::METRIC_TOTAL_REQUESTS, self::METRIC_UNIQUE_REQUESTS]);
+                }
+
+                $rows = $query
+                    ->select(
+                        'li.issn',
+                        'ioi.title as item_name',
+                        'us.metric_type',
+                        DB::raw('SUM(us.count) as total_count')
+                    )
+                    ->groupBy('li.issn', 'us.metric_type')
+                    ->get();
+
+                foreach ($rows as $row) {
+                    $entry = [
+                        'Item_Name'   => $row->item_name ?? '',
+                        'Print_ISSN'  => $row->issn,
+                        'Metric_Type' => $row->metric_type,
+                        'Count'       => (int) $row->total_count,
+                    ];
+                    if ($reportType === 'TR_J3') {
+                        $entry['Access_Type'] = $row->metric_type === self::METRIC_OPEN_ACCESS ? 'OA_Gold' : 'Controlled';
+                    }
+                    $items[] = $entry;
+                }
+            }
+            return $this->finaliseCounterReport($reportMeta, $fromDate, $toDate, $items);
+        }
 
         if ($reportType === 'TR') {
             if (Schema::hasTable('library_usage_stats')
@@ -309,6 +398,15 @@ class LibraryUsageService
             }
         }
 
+        return $this->finaliseCounterReport($reportMeta, $fromDate, $toDate, $items);
+    }
+
+    /**
+     * Wrap an items list in the standard COUNTER R5 report envelope. Fills
+     * empty results with zero-row placeholders so the export is well-formed.
+     */
+    private function finaliseCounterReport(array $reportMeta, string $fromDate, string $toDate, array $items): array
+    {
         if (empty($items)) {
             foreach (self::ALL_METRICS as $metric) {
                 $items[] = ['Metric_Type' => $metric, 'Count' => 0];
@@ -318,9 +416,13 @@ class LibraryUsageService
         return [
             'Report_ID'   => $reportMeta['id'],
             'Report_Name' => $reportMeta['name'],
+            'Release'     => '5',
+            'Customer_ID' => (string) (config('library.counter.customer_id') ?: 'heratio-self'),
+            'Institution_Name' => (string) (config('library.counter.institution_name') ?: config('app.name')),
             'Created'     => now()->toIso8601String(),
-            'Reporting_Period' => ['Begin' => $fromDate, 'End' => $toDate],
-            'Items'       => $items,
+            'Created_By'  => 'Heratio (heratio.theahg.co.za)',
+            'Reporting_Period' => ['Begin_Date' => $fromDate, 'End_Date' => $toDate],
+            'Report_Items'     => $items,
         ];
     }
 

@@ -41,6 +41,18 @@ class AhgAiChatbotServiceProvider extends ServiceProvider
         $router = $this->app['router'];
         $router->middleware(['web'])
             -> group(__DIR__ . '/../../routes/web.php');
+
+        // Register global widget-injection middleware on the web stack so the
+        // floating chatbot appears on every authenticated HTML page without
+        // touching the locked layout templates.
+        try {
+            $kernel = $this->app->make(\Illuminate\Contracts\Http\Kernel::class);
+            if (method_exists($kernel, 'appendMiddlewareToGroup')) {
+                $kernel->appendMiddlewareToGroup('web', \AhgAiChatbot\Middleware\InjectChatbotWidget::class);
+            }
+        } catch (Throwable) {
+            // Best effort; layout-level @include still works as a fallback.
+        }
     }
 
     /**

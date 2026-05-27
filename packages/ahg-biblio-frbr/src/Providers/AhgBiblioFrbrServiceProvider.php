@@ -18,5 +18,11 @@ class AhgBiblioFrbrServiceProvider extends ServiceProvider
 
         Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgBiblioFrbr\Console\Commands\FrbrBackfillWorkKeysCommand::class,
+            ]);
+        }
     }
 }

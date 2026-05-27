@@ -6,7 +6,9 @@ use AhgLibrary\Services\KbartRemoteService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 class KbartAdminController extends Controller
@@ -27,6 +29,39 @@ class KbartAdminController extends Controller
             'feeds' => $feeds,
             'auto_import_enabled' => $this->remote->isAutoImportEnabled(),
         ]);
+    }
+
+    /**
+     * GET /library-manage/kbart/remote/log
+     * #768 Refresh-log admin page: per-fetch history with diff counts.
+     */
+    public function log(): \Illuminate\View\View
+    {
+        if (!Schema::hasTable('library_kbart_import_log')) {
+            $rows = collect();
+        } else {
+            $rows = DB::table('library_kbart_import_log')
+                ->leftJoin('library_kbart_feed', 'library_kbart_feed.id', '=', 'library_kbart_import_log.feed_id')
+                ->select(
+                    'library_kbart_import_log.id',
+                    'library_kbart_import_log.feed_id',
+                    'library_kbart_feed.name as feed_name',
+                    'library_kbart_feed.url as feed_url',
+                    'library_kbart_import_log.status',
+                    'library_kbart_import_log.row_count',
+                    'library_kbart_import_log.added',
+                    'library_kbart_import_log.removed',
+                    'library_kbart_import_log.changed',
+                    'library_kbart_import_log.error',
+                    'library_kbart_import_log.diff_sample',
+                    'library_kbart_import_log.elapsed_ms',
+                    'library_kbart_import_log.created_at'
+                )
+                ->orderByDesc('library_kbart_import_log.created_at')
+                ->paginate(50);
+        }
+
+        return view('ahg-library::kbart.refresh-log', ['rows' => $rows]);
     }
 
     /**
