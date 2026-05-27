@@ -6,7 +6,16 @@ use AhgLibrary\Controllers\KbartAdminController;
 use AhgLibrary\Controllers\LibraryUsageController;
 use AhgLibrary\Controllers\MarcEditorController;
 use AhgLibrary\Controllers\SushiServerController;
+use AhgLibrary\Controllers\UsageEventController;
 use Illuminate\Support\Facades\Route;
+
+// #766 per-event JS instrumentation beacon. Public POST so navigator.sendBeacon
+// works during page unload. Throttled per IP. Schema-bounded validation.
+// CSRF is bypassed because this is a fire-and-forget beacon; the endpoint
+// validates library_item_id against the DB and rate-limits per IP.
+Route::post('/api/library/usage-event', [UsageEventController::class, 'record'])
+    ->name('library.usage-event')
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class, \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
 // #766 SUSHI 5.0 server endpoint - publishes COUNTER R5 reports to consortium
 // consumers. Mounted on api/sushi/r5; no `web` middleware so machine consumers

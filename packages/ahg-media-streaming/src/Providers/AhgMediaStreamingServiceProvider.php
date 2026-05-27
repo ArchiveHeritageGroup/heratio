@@ -37,7 +37,18 @@ class AhgMediaStreamingServiceProvider extends ServiceProvider
             if (isset($data['tracks']) && !empty($data['tracks'])) {
                 return; // caller already passed tracks; respect them
             }
-            $digitalObjectId = $data['digitalObjectId'] ?? $data['digital_object_id'] ?? null;
+            // Prop is named differently across callers in the locked tree. Try
+            // the explicit names first, then fall back to extracting the
+            // trailing numeric ID from playerId, which the IO-manage callers
+            // construct as 'ahg-{video|audio}-{ref|show|stream}-{digital_object.id}'.
+            $digitalObjectId = $data['digitalObjectId']
+                ?? $data['digital_object_id']
+                ?? null;
+            if (!$digitalObjectId && isset($data['playerId']) && is_string($data['playerId'])) {
+                if (preg_match('/-(\d+)$/', $data['playerId'], $m)) {
+                    $digitalObjectId = (int) $m[1];
+                }
+            }
             if (!$digitalObjectId) return;
             try {
                 $svc = $this->app->make(CaptionTrackService::class);

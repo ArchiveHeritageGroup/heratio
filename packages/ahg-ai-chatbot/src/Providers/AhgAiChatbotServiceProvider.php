@@ -37,6 +37,12 @@ class AhgAiChatbotServiceProvider extends ServiceProvider
 
         $this->ensureSchema();
 
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgAiChatbot\Console\Commands\ChatbotTestMultilangCommand::class,
+            ]);
+        }
+
         // Register routes
         $router = $this->app['router'];
         $router->middleware(['web'])

@@ -238,22 +238,33 @@ class EsReindexCommand extends Command
         }
 
         $props = $current[$targetIndex]['mappings']['properties'] ?? [];
-        if (isset($props['gis']) && ($props['gis']['type'] ?? null) === 'geo_point') {
+        $additions = [];
+
+        if (!isset($props['gis']) || ($props['gis']['type'] ?? null) !== 'geo_point') {
+            $additions['gis']     = ['type' => 'geo_point'];
+            $additions['gis_lat'] = ['type' => 'float'];
+            $additions['gis_lng'] = ['type' => 'float'];
+        }
+
+        // #763 FRBR work-set clustering: add workKey as keyword so the
+        // hit-list renderer can collapse manifestations of the same Work
+        // via a terms-aggregation. Indexed unanalyzed so the hash matches exactly.
+        if (!isset($props['workKey'])) {
+            $additions['workKey'] = ['type' => 'keyword'];
+        }
+
+        if (empty($additions)) {
             return;
         }
 
         $resp = Http::put("{$this->host}/{$targetIndex}/_mapping", [
-            'properties' => [
-                'gis' => ['type' => 'geo_point'],
-                'gis_lat' => ['type' => 'float'],
-                'gis_lng' => ['type' => 'float'],
-            ],
+            'properties' => $additions,
         ]);
 
         if ($resp->successful()) {
-            $this->info('  Added geo_point mapping (gis / gis_lat / gis_lng) to '.$targetIndex);
+            $this->info('  Added mappings to '.$targetIndex.': '.implode(',', array_keys($additions)));
         } else {
-            $this->warn('  Failed to add geo_point mapping: '.$resp->body());
+            $this->warn('  Failed to add mappings to '.$targetIndex.': '.$resp->body());
         }
     }
 
@@ -536,6 +547,11 @@ class EsReindexCommand extends Command
                         $doc['summary'] = $libRow->summary ?: null;
                         $doc['contentsNote'] = $libRow->contents_note ?: null;
                         $doc['materialType'] = $libRow->material_type ?: null;
+                        // #763 FRBR work-set clustering: emit work_key so the
+                        // hit-list renderer can collapse manifestations of the
+                        // same Work into a single result row with a 'View all
+                        // editions' expander. Backfilled by ahg:frbr-backfill-work-keys.
+                        $doc['workKey'] = $libRow->work_key ?: null;
                     }
 
                     if ($do) {

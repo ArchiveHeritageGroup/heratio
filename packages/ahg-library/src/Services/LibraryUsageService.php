@@ -108,7 +108,7 @@ class LibraryUsageService
                     `partner_code` varchar(50) NOT NULL,
                     `api_key` varchar(255) NOT NULL,
                     `base_url` varchar(500) NOT NULL,
-                    `report_types` json NOT NULL DEFAULT '[]',
+                    `report_types` json NOT NULL,
                     `contact_email` varchar(255) NOT NULL DEFAULT '',
                     `active` tinyint(1) NOT NULL DEFAULT '1',
                     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

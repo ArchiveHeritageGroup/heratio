@@ -1,8 +1,16 @@
 <?php
 
 use AhgBiblioFrbr\Controllers\FrbrController;
+use AhgBiblioFrbr\Controllers\WorkClusterController;
 use AhgBiblioFrbr\Controllers\WorkOverrideController;
 use Illuminate\Support\Facades\Route;
+
+// #763 FRBR cluster expander - public page that lists all editions sharing
+// a work-key. Linked from the GLAM browse hit-list once the renderer-side
+// integration in locked ahg-display is applied (see docs/reference/frbr-cluster-renderer-integration.md).
+Route::get('/library/work-cluster/{workKey}', [WorkClusterController::class, 'show'])
+    ->name('library.work-cluster.show')
+    ->where('workKey', '[a-zA-Z0-9:_-]{4,64}');
 
 // FRBR integration routes.
 // Converts Heratio bibliographic catalogue records to/from the IFLA FRBR

@@ -21,6 +21,19 @@ class AhgLibraryServiceProvider extends ServiceProvider
         // Alias for the OPAC gate so route files can use ['opac.enabled']
         $this->app['router']->aliasMiddleware('opac.enabled', \AhgLibrary\Middleware\EnsureOpacEnabled::class);
 
+        // #766 per-event COUNTER instrumentation: inject usage-tracker.js into
+        // library-item show pages via a global response middleware. Same
+        // technique as the chatbot widget injector - keeps the locked layout
+        // templates untouched.
+        try {
+            $kernel = $this->app->make(\Illuminate\Contracts\Http\Kernel::class);
+            if (method_exists($kernel, 'appendMiddlewareToGroup')) {
+                $kernel->appendMiddlewareToGroup('web', \AhgLibrary\Middleware\InjectUsageTracker::class);
+            }
+        } catch (\Throwable) {
+            // best-effort; the route handler still records direct beacon hits
+        }
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgLibrary\Console\Commands\ImportLibraryCsvCommand::class,
