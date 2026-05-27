@@ -52,6 +52,34 @@ class AhgSecurityClearanceServiceProvider extends ServiceProvider
             \Log::warning('[ahg-security-clearance] schema install skipped: '.$e->getMessage());
         }
 
+        // Pre-#690 deployments shipped user_totp_secret with only `verified`
+        // and `secret`/`user_id`/`created_at`. The full #690 schema adds four
+        // columns + an index, none of which CREATE TABLE IF NOT EXISTS will
+        // back-fill on an existing table. Each probe is independent so any
+        // subset of missing columns gets patched.
+        try {
+            if (Schema::hasTable('user_totp_secret')) {
+                if (! Schema::hasColumn('user_totp_secret', 'enabled_at')) {
+                    DB::statement('ALTER TABLE `user_totp_secret` ADD COLUMN `enabled_at` TIMESTAMP NULL DEFAULT NULL');
+                    DB::statement('ALTER TABLE `user_totp_secret` ADD KEY `idx_enabled_at` (`enabled_at`)');
+                    if (Schema::hasColumn('user_totp_secret', 'verified')) {
+                        DB::statement('UPDATE `user_totp_secret` SET `enabled_at` = COALESCE(`created_at`, NOW()) WHERE `verified` = 1 AND `enabled_at` IS NULL');
+                    }
+                }
+                if (! Schema::hasColumn('user_totp_secret', 'last_used_at')) {
+                    DB::statement('ALTER TABLE `user_totp_secret` ADD COLUMN `last_used_at` TIMESTAMP NULL DEFAULT NULL');
+                }
+                if (! Schema::hasColumn('user_totp_secret', 'recovery_codes_generated_at')) {
+                    DB::statement('ALTER TABLE `user_totp_secret` ADD COLUMN `recovery_codes_generated_at` TIMESTAMP NULL DEFAULT NULL');
+                }
+                if (! Schema::hasColumn('user_totp_secret', 'updated_at')) {
+                    DB::statement('ALTER TABLE `user_totp_secret` ADD COLUMN `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP');
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-security-clearance] user_totp_secret column backfill skipped: '.$e->getMessage());
+        }
+
         // Issue #722 - second-pass installer just for the OTP tables. The
         // monolithic install.sql can fail partway through on stale FK or
         // dump-time artefacts left over from prior phases; that should not
