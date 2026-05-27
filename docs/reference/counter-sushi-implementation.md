@@ -47,11 +47,28 @@ GET  /library-manage/usage/export/{type}        -> library.usage-export
 
 `SushiService::harvest($subscriptionId, $reportId, $beginDate, $endDate)` issues a SUSHI request against the configured endpoint and writes the response to `library_usage_report`.
 
+## SUSHI 5.0 server (v1.112+)
+
+| Component | Path |
+|---|---|
+| Server controller | `packages/ahg-library/src/Controllers/SushiServerController.php` |
+| Reports + IR/TR_J1/TR_J3 generators | `packages/ahg-library/src/Services/LibraryUsageService.php` |
+| Optional consumer registry | `library_sushi_consumer` (lazy; only checked if `library.sushi.require_auth = true`) |
+
+Endpoints (mounted at `/api/sushi/r5`):
+```
+GET /api/sushi/r5/status
+GET /api/sushi/r5/members
+GET /api/sushi/r5/reports
+GET /api/sushi/r5/reports/{report_id}?begin_date=&end_date=
+```
+
+Supported `report_id` values: `PR`, `TR`, `TR_J1`, `TR_J3`, `DR`, `IR`.
+
 ## Gaps vs heratio#766 acceptance
 
-- [ ] Dedicated `packages/ahg-counter/` package (intentional deferral)
-- [ ] Per-event instrumentation (page view, link click, download)
-- [ ] IR + TR_J1 + TR_J3 generators
-- [ ] SUSHI 5.0 server endpoint (currently client only)
-- [ ] Scheduled email delivery
-- [ ] COUNTER conformance certification dossier
+- Dedicated `packages/ahg-counter/` package (intentional deferral; lives in `ahg-library` for now)
+- Per-event JS instrumentation (page view, link click, download)
+- Scheduled email delivery
+- COUNTER R5 conformance certification dossier (external submission to Project Counter)
+- Help article ingestion into in-app /help (markdown shipped)

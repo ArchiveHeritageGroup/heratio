@@ -50,11 +50,28 @@ $key = hash('xxh64',
 - Uniform title (MARC 130/240) takes precedence over 245 when present.
 - `library_work_override` table provides force-group / force-split escape hatches.
 
+## Work-key engine (v1.112+)
+
+| Component | Path |
+|---|---|
+| Generator + clustering helper | `src/Services/WorkKeyService.php` |
+| Override admin controller | `src/Controllers/WorkOverrideController.php` |
+| Backfill command | `src/Console/Commands/FrbrBackfillWorkKeysCommand.php` (`ahg:frbr-backfill-work-keys`) |
+| Migration: `library_item.work_key` | `database/migrations/2026_05_27_010000_add_work_key_to_library_item.php` |
+| Migration: `library_work_override` table | `database/migrations/2026_05_27_020000_create_library_work_override_table.php` |
+
+Override admin routes:
+```
+GET    /admin/frbr/overrides
+GET    /admin/frbr/overrides/create
+POST   /admin/frbr/overrides
+DELETE /admin/frbr/overrides/{id}
+POST   /admin/frbr/cluster (preview siblings)
+```
+
 ## Gaps vs heratio#763 acceptance
 
-- [ ] Work-key column on `library_item` and ES doc
-- [ ] ES query-time clustering on work-key
-- [ ] Search-result "View all manifestations" UI affordance
-- [ ] Cataloguer admin for force-group / force-split
-- [ ] 132k-record benchmark <500ms
-- [ ] Help article inside in-app /help (only the operator reference is shipped today)
+- Wire `WorkKeyService::clusterItems()` into the GLAM browse result-set renderer (lives in locked `ahg-display`)
+- ES `_doc` mapping update to include `work_key` (current implementation queries DB-side; ES integration is the remaining performance lever)
+- Full 132k-record benchmark publication (initial 14-row local timing sub-millisecond)
+- Help article ingestion into in-app /help (markdown shipped)

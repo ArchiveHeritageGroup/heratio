@@ -125,16 +125,27 @@ AHG_Z3950_MAX_RECORDS=200
 
 ---
 
-## 8. Limitations
+## 8. Server side - SRU 2.0 endpoint (live in v1.112+)
 
-- **Server side not yet shipped.** The Heratio catalogue cannot yet be searched via Z39.50 by external clients. SRU (Search/Retrieve via URL) HTTP wrapper is also pending.
-- **YAZ extension recommended.** If the `php-yaz` PECL extension is installed, native Z39.50 is used. Without it, the client falls back to an HTTP-to-Z39.50 gateway (slower, less reliable). Install: `pecl install yaz`.
+The Heratio catalogue is exposed via SRU 2.0 (Search/Retrieve via URL), the HTTP-friendly successor to native Z39.50:
+
+```
+https://heratio.theahg.co.za/sru?operation=explain
+https://heratio.theahg.co.za/sru?operation=searchRetrieve&query=dc.title%3Dafrica&maximumRecords=20&recordSchema=marcxml
+```
+
+CQL indexes supported: `dc.title`, `dc.creator`, `dc.subject`, `dc.publisher`, `dc.date`, `dc.identifier`, `bath.isbn`, `bath.issn`, `cql.anywhere`. Record schemas: `info:srw/schema/1/marcxml-v1.1` and `info:srw/schema/1/dc-v1.1`.
+
+## 9. Limitations
+
+- **Native Z39.50 wire-protocol server not shipped.** SRU covers the federated discovery use case that NLSA tender §7.1 actually tests against. A YAZ-based binary Z39.50 daemon is tracked separately if a vendor needs raw Z39.50.
+- **YAZ extension recommended for the client side.** If the `php-yaz` PECL extension is installed, native Z39.50 is used. Without it, the client falls back to an HTTP-to-Z39.50 gateway (slower, less reliable). Install: `pecl install yaz`.
 - **No SRW (SOAP) variant.**
-- **Search syntax** is limited to bib-1; CCL parsing is on the roadmap.
+- **Search syntax** is limited to bib-1 + CQL; CCL parsing is on the roadmap.
 
 ---
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|

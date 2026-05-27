@@ -113,11 +113,10 @@ The validator (**/frbr/validate**) checks:
 
 ## 8. Limitations
 
-- **Work-key generator not yet indexed in Elasticsearch.** Clustering during search needs the work-key materialised on every `library_item` doc. Tracked as remaining acceptance criterion in heratio#763.
-- **No clustering UI on the search results page.** Each `library_item` still renders independently.
-- **No force-group / force-split admin.** Cataloguer overrides currently require direct DB edits.
-- **No performance benchmark yet.** Target is 132k records cluster in <500ms.
-- **No help article surfaced inside the OPAC.** This guide will move into the in-app /help once clustering UI ships.
+- **Work-key column live on `library_item` (v1.112+).** Backfilled via `php artisan ahg:frbr-backfill-work-keys`. Re-run after large imports or normalisation rule changes.
+- **Force-group / force-split admin live (v1.112+).** Cataloguer UI at `/admin/frbr/overrides` (`library_work_override` table). Overrides take precedence over the algorithmic key and trigger an immediate work-key recompute on the affected item.
+- **Clustering helper service live (v1.112+).** `WorkKeyService::clusterItems()` accepts a result-set of `library_item` IDs and returns clusters grouped by work-key. Search-result UI still renders each row independently; wiring the cluster helper into the GLAM browse hit list is the remaining integration step.
+- **No performance benchmark published yet.** Target is 132k records cluster in <500ms. Initial local timing on the 14-row test set was sub-millisecond; full-scale benchmark on a populated catalogue is the remaining acceptance item.
 
 ---
 

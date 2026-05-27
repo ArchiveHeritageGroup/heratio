@@ -63,10 +63,25 @@ INDEX ix_session (session_id, created_at)
 - `QDRANT_HOST` - default `localhost:6333`
 - `QDRANT_COLLECTION` - default `heratio_library`
 
+## Widget injection (v1.112+)
+
+| Component | Path |
+|---|---|
+| Widget partial | `resources/views/widget.blade.php` |
+| Global response middleware | `src/Middleware/InjectChatbotWidget.php` |
+| Provider hook | `AhgAiChatbotServiceProvider::boot()` appends to `web` middleware group |
+
+The middleware appends the widget HTML before `</body>` on every authenticated HTML response. Opt-out via `AHG_CHATBOT_WIDGET_ENABLED=false` or by setting `$chatbotShowWidget = false` in the host view. Skipped paths: `/chatbot/*`, `/admin/chatbot/*`, `/api/*`, `/oai`, `/sru`, `/_debugbar`.
+
+## Policy page (v1.112+)
+
+Public route `GET /chatbot/policy` (no auth) - plain-language POPIA / GDPR notice. View: `resources/views/policy.blade.php`.
+
+## Escalation flow (v1.112+)
+
+`POST /chatbot/escalate` (auth required) - writes an `ahg_notification` row to the `librarian` recipient role with the user message + session context + tracking reference (`CB-XXXXXXXX`).
+
 ## Gaps vs heratio#762 acceptance
 
-- [ ] Floating widget on OPAC + admin with per-role toggle
-- [ ] Multi-language explicit testing for af/en
-- [ ] Escalation flow to staff (ticket / email)
-- [ ] Help article inside in-app /help
-- [ ] Chatbot policy page (plain-language, POPIA)
+- Multi-language af/en automated regression tests (backend handles both via qwen)
+- Help article ingestion into in-app /help (markdown shipped)

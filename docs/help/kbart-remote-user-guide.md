@@ -117,12 +117,28 @@ Settings on `library_kbart_feed` rows are per-feed; global defaults live in `Kba
 
 ---
 
-## 8. Limitations
+## 8. Refresh log (live in v1.112+)
 
-- **No diff detection.** Each refresh overwrites the staged batch; you don't yet see "12 new titles, 3 removed" as a notification.
-- **No `ahg_notification` integration.** Refresh outcomes are visible only on the admin page, not in the bell.
-- **No per-feed cron.** All feeds refresh together at 01:00 daily.
-- **No COUNTER cross-link.** The refresh log doesn't yet correlate KBART changes with the COUNTER usage reports.
+Visit `/library-manage/kbart/remote/log` for the per-fetch history. Each row shows status, row count, `+added` / `-removed` / `changed` deltas, error message (if any), elapsed time, and a sample of changed titles.
+
+The fingerprint short-circuit (sha256 of the TSV body) skips writeImportBatch when the feed hasn't changed since the last fetch, so identical refreshes complete in milliseconds.
+
+## 9. Notifications (live in v1.112+)
+
+The scheduler now writes `ahg_notification` rows to the `librarian` recipient role on:
+
+- `success` with added/removed titles (subject: `[KBART] <vendor> (changes)`)
+- `failure` (subject: `[KBART] <vendor> (failure)`) with the error message in the body
+
+Notifications appear in the standard Heratio bell.
+
+## 10. Per-feed refresh frequency (live in v1.112+)
+
+Every `library_kbart_feed` row now has a `refresh_frequency` column accepting `hourly`, `daily` (default), `weekly`, `monthly`, or a cron-style expression. The scheduler runs daily but only fetches feeds whose `last_fetch_at + frequency_interval` has elapsed.
+
+## 11. Limitations
+
+- **No COUNTER cross-link.** The refresh log doesn't yet correlate KBART feed changes with the COUNTER usage reports.
 
 ---
 

@@ -53,11 +53,18 @@ Columns include: `id`, `name`, `vendor`, `url`, `auth_header`, `active`, `last_f
 - Max body: 100 MB
 - UA: `Heratio-KBART/1.0`
 
-## Gaps vs heratio#768 acceptance
+## Completions (v1.112+)
 
-- [ ] Diff detection (titles/coverage/identifiers) vs prior fetch
-- [ ] `ahg_notification` integration (added titles, removed titles, fetch failure)
-- [ ] `library_kbart_import_log` table for per-fetch history
-- [ ] "KBART refresh log" admin page
-- [ ] Per-vendor `refresh_frequency` column + per-feed cron
-- [ ] Help article inside in-app /help
+| Item | Status |
+|---|---|
+| `library_kbart_import_log` table | shipped |
+| Diff detection (add / remove / change counts) | shipped (`KbartRemoteService::computeDiff()`) |
+| `ahg_notification` integration on changes + failures | shipped (`KbartRemoteService::notify()`) |
+| `refresh_frequency` per feed | shipped (column + scheduler honours it via `feedIsDue()`) |
+| `fingerprint` sha256 short-circuit on identical body | shipped |
+| Refresh-log admin page | shipped at `/library-manage/kbart/remote/log` |
+
+## Remaining gaps
+
+- Help article ingestion into in-app /help (markdown shipped)
+- COUNTER cross-link (correlate KBART feed changes with COUNTER usage reports)

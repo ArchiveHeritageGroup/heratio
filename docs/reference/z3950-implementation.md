@@ -2,7 +2,7 @@
 
 **Issue:** heratio#759
 **Package:** `packages/ahg-z3950/`
-**Status:** Client side shipped; server side pending.
+**Status:** Client + SRU 2.0 HTTP server shipped (v1.112+). Native Z39.50 binary daemon out of scope (SRU covers the federated discovery use case).
 
 ## Package surface
 
@@ -52,11 +52,20 @@ sudo systemctl restart php8.3-fpm
 
 If `yaz` is absent, `Z3950Service` falls back to an HTTP-to-Z39.50 gateway path with reduced reliability.
 
+## SRU 2.0 server (v1.112+)
+
+| Component | Path |
+|---|---|
+| SRU controller | `src/Controllers/SruController.php` |
+| SRU service (CQL parser + record renderers) | `src/Services/SruService.php` (~440 lines) |
+| Route | `GET /sru` (registered in `AppServiceProvider::register()` to win against the locked `/{slug}` catch-all) |
+
+CQL indexes: `cql.anywhere`, `dc.title`, `dc.creator`, `dc.subject`, `dc.identifier`, `dc.publisher`, `dc.date`, `bath.isbn`, `bath.issn`. Schemas: `info:srw/schema/1/marcxml-v1.1`, `info:srw/schema/1/dc-v1.1`. Operations: `explain`, `searchRetrieve`.
+
 ## Gaps vs heratio#759 acceptance
 
-- [ ] Z39.50 server daemon - no listener implementation; config flag `server.enabled` reserved
-- [ ] SRU HTTP endpoint - not implemented
-- [ ] Server-side configurable port + access control - reserved
+- Native Z39.50 binary daemon - intentionally out of scope; SRU is the deployed federated-discovery surface
+- SRW (SOAP) variant - not implemented
 
 ## Verification
 

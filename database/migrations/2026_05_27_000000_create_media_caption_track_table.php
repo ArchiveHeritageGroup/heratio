@@ -18,6 +18,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('media_caption_track')) {
+            return; // table created by a previous boot-time provider hook
+        }
         Schema::create('media_caption_track', function (Blueprint $table) {
             $table->id();
             $table->foreignId('digital_object_id')

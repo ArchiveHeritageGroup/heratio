@@ -108,13 +108,25 @@ Settings live in the `library_settings` table (no per-deploy `.env` keys today):
 
 ---
 
-## 7. Limitations
+## 7. SUSHI 5.0 server endpoint (live in v1.112+)
 
-- **No item-level instrumentation yet.** Click and download events are not captured; OPAC use is understated. Tracked in heratio#766.
-- **No IR (Item Report).** Standard views TR_J1 and TR_J3 are pulled correctly from upstream but no native generator.
-- **No SUSHI server endpoint.** Heratio cannot yet *publish* SUSHI reports to consortium consumers. Currently client-side only.
-- **No scheduled email delivery.** Reports must be downloaded manually.
-- **No COUNTER conformance certification.** The exports are R5-shaped but the audit dossier for the COUNTER Code of Practice is not yet submitted.
+Heratio now publishes its COUNTER R5 reports via a SUSHI 5.0 REST endpoint at `/api/sushi/r5/*`:
+
+| Path | Purpose |
+|---|---|
+| `GET /api/sushi/r5/status` | Service health + alerts |
+| `GET /api/sushi/r5/members` | Institutions served by this endpoint |
+| `GET /api/sushi/r5/reports` | List of supported report IDs |
+| `GET /api/sushi/r5/reports/{report_id}` | Specific report, with `begin_date` and `end_date` query params |
+
+Supported report IDs: `PR`, `TR`, `TR_J1`, `TR_J3`, `DR`, `IR`. Authentication is currently optional (anonymous-allow); set `library.sushi.require_auth = true` to enforce per-consumer credentials stored in the `library_sushi_consumer` registry.
+
+## 8. Limitations
+
+- **Native IR + TR_J1 + TR_J3 generators live (v1.112+).** All COUNTER R5 standard views now produced server-side; the `LibraryUsageController` and the SUSHI server endpoint both honour them.
+- **Per-event instrumentation still derived from `audit_trail`.** Click and download events are not captured at the JS layer; OPAC use is understated. Improvement tracked separately.
+- **No scheduled email delivery.** Reports must be downloaded manually (or harvested via SUSHI).
+- **No COUNTER conformance certification.** Exports are R5-shaped but the audit dossier for the COUNTER Code of Practice is not yet submitted to Project Counter.
 - **Implementation lives inside `ahg-library`,** not a dedicated `ahg-counter` package. This is intentional for the first cut to avoid premature package proliferation; a future extraction is possible if downstream consumers need it independently.
 
 ---

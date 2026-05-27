@@ -120,11 +120,11 @@ The review queue (**/admin/chatbot/review**) shows recent low-grounding response
 
 ## 8. Limitations
 
-- **No floating widget yet.** Users must navigate to /chatbot. The OPAC/admin floating widget is on the roadmap.
-- **Multi-language: backend supports the languages the gateway model speaks (qwen handles en/af/zu well). Targeted af + en regression coverage still pending.**
-- **No "escalate to librarian" flow.** Planned: a one-click route from a bad answer to a `support_ticket` row or staff email.
-- **No policy page yet.** The plain-language chatbot policy is being drafted.
-- **Inference receipts already wired,** but the receipt-search UI is part of `ahg-ai-compliance`, not the chatbot module.
+- **Floating widget live (v1.112+).** Auto-injects on every authenticated HTML page via the `InjectChatbotWidget` middleware; the existing `/chatbot` route is still the full-page surface. Disable with `AHG_CHATBOT_WIDGET_ENABLED=false` if you want layout-explicit `@include('ahg-ai-chatbot::widget')` placement instead.
+- **Escalation flow live (v1.112+).** "Talk to a librarian" button on the widget writes an `ahg_notification` row addressed to the librarian role with a tracking reference.
+- **Policy page live (v1.112+).** Public at `/chatbot/policy` - POPIA / GDPR plain-language notice.
+- **Multi-language:** backend handles the languages the gateway model speaks (qwen handles en/af/zu well). Targeted af + en automated regression coverage still pending.
+- **Inference receipts already wired** through `ahg-ai-compliance`. The receipt-search UI is part of `ahg-ai-compliance`, not the chatbot module.
 
 ---
 

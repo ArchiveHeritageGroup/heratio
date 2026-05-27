@@ -49,6 +49,6 @@ GET  /bibframe/{workId}        -> bibframe.show
 
 ## Gaps vs heratio#760 acceptance
 
-- [ ] Full graph-aware BIBFRAME Editor UI (agent view only today)
-- [ ] Open Discovery Initiative conformance statement
-- [ ] Help articles inside in-app /help (this file is the technical reference)
+- Full graph-aware BIBFRAME Editor UI (agent view ships today; full editor remaining)
+- External NISO ODI Working Group review (self-attested dossier published at `docs/reference/bibframe-odi-conformance.md` v1.112+; external review is the remaining step)
+- Help article ingestion into in-app /help (markdown shipped at `docs/help/bibframe-user-guide.md`)

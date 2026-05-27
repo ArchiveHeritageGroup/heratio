@@ -122,8 +122,8 @@ Errors are listed with line/triple references for fast remediation.
 ## 8. Limitations
 
 - **No full graph editor yet.** Agent-form editing covers the common case; complex predicates may need manual export, external editing in the LoC BIBFRAME Editor, and re-import.
-- **No Open Discovery Initiative conformance statement.** The export is ODI-shaped but the conformance dossier is pending.
-- **MARC ↔ BIBFRAME mapping** follows the LoC `marc2bibframe2` reference where possible but is not byte-exact. Round-trip preserves semantics, not lexical form.
+- **ODI conformance statement published (v1.112+).** See `docs/reference/bibframe-odi-conformance.md` - self-attested against NISO RP-19-2020. External NISO Working Group review is the remaining step before formal certification.
+- **MARC <-> BIBFRAME mapping** follows the LoC `marc2bibframe2` reference where possible but is not byte-exact. Round-trip preserves semantics, not lexical form.
 
 ---
 
