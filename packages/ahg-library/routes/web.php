@@ -65,8 +65,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/circulation/overdue', [LibraryController::class, 'overdue'])->name('library.overdue');
 
     // ILL
-    Route::get('/library-manage/ill', [LibraryController::class, 'ill'])->name('library.ill');
-    Route::get('/library-manage/ill/{id}', [LibraryController::class, 'illView'])->name('library.ill-view')->where('id', '[0-9]+');
+    Route::get('/library-manage/ill',  [LibraryController::class, 'ill'])->name('library.ill');
+    Route::get('/library-manage/ill/create',  [LibraryController::class, 'illCreate'])->name('library.ill-create');
+    Route::post('/library-manage/ill/create',  [LibraryController::class, 'illStore'])->name('library.ill-store');
+    Route::get('/library-manage/ill/{id}',    [LibraryController::class, 'illView'])->name('library.ill-view')->where('id', '[0-9]+');
+    Route::patch('/library-manage/ill/{id}',   [LibraryController::class, 'illUpdate'])->name('library.ill-update')->where('id', '[0-9]+');
+    Route::post('/library-manage/ill/{id}/transition', [LibraryController::class, 'illTransition'])->name('library.ill-transition')->where('id', '[0-9]+');
+    Route::delete('/library-manage/ill/{id}',  [LibraryController::class, 'illDelete'])->name('library.ill-delete')->where('id', '[0-9]+');
+    Route::patch('/library-manage/ill/{id}/suppress', [LibraryController::class, 'illOpacSuppress'])->name('library.ill-opac-suppress')->where('id', '[0-9]+');
+    Route::get('/library-manage/ill/settings',  [LibraryController::class, 'illSettings'])->name('library.ill-settings');
+    Route::post('/library-manage/ill/settings', [LibraryController::class, 'illSettingsStore'])->name('library.ill-settings-store');
+
+    // Patron-facing ILL (OPAC)
+    Route::get('/opac/ill/create',  [LibraryController::class, 'opacIllCreate'])->name('library.opac-ill-create');
+    Route::post('/opac/ill/create',  [LibraryController::class, 'opacIllStore'])->name('library.opac-ill-store');
 
     // ISBN
     Route::get('/library-manage/isbn-lookup', [LibraryController::class, 'isbnLookup'])->name('library.isbn-lookup');

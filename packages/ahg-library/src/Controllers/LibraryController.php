@@ -27,6 +27,7 @@
 
 namespace AhgLibrary\Controllers;
 
+use AhgLibrary\Services\LibraryIllService;
 use AhgLibrary\Services\LibraryService;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
@@ -55,6 +56,22 @@ class LibraryController extends Controller
         $this->serial = new \AhgLibrary\Services\LibrarySerialService();
         $this->acq = new \AhgLibrary\Services\LibraryAcquisitionService();
         $this->isbnProvider = new \AhgLibrary\Services\LibraryIsbnProviderService();
+    }
+
+    // ── ILL helpers ──────────────────────────────────────────────────────
+    private function countBorrowActive(array $status_counts): int
+    {
+        $active = [LibraryIllService::STATUS_PENDING, LibraryIllService::STATUS_REQUESTED,
+                   LibraryIllService::STATUS_SHIPPED, LibraryIllService::STATUS_RECEIVED,
+                   LibraryIllService::STATUS_OVERDUE];
+        return array_sum(array_intersect_key($status_counts, array_flip($active)));
+    }
+
+    private function countLendActive(array $status_counts): int
+    {
+        $active = [LibraryIllService::STATUS_PENDING, LibraryIllService::STATUS_SHIPPED,
+                   LibraryIllService::STATUS_RECEIVED, LibraryIllService::STATUS_OVERDUE];
+        return array_sum(array_intersect_key($status_counts, array_flip($active)));
     }
 
     public function browse(Request $request)
@@ -698,25 +715,213 @@ class LibraryController extends Controller
 
     public function ill(Request $request)
     {
+        $status_counts = $this->ill->countByStatus();
+        $overdue_count = count($this->ill->list(['overdue_only' => true]));
+        $pending_count = $status_counts[LibraryIllService::STATUS_PENDING] ?? 0;
+        $borrow_count  = $this->countBorrowActive($status_counts);
+        $lend_count    = $this->countLendActive($status_counts);
+
+        $filters = array_filter([
+            'status'       => $request->query('status'),
+            'type'         => $request->query('type'),
+            'search'       => $request->query('q'),
+            'overdue_only' => $request->query('overdue_only') ? true : null,
+        ], fn($v) => !is_null($v));
+
         return view('ahg-library::ill.index', [
-            'requests' => collect($this->ill->list([
-                'status' => $request->query('status'),
-                'type'   => $request->query('type'),
-                'search' => $request->query('q'),
-            ])),
+            'requests'      => collect($this->ill->list($filters)),
+            'status_counts'=> $status_counts,
+            'borrow_count' => $borrow_count,
+            'lend_count'   => $lend_count,
+            'pending_count'=> $pending_count,
+            'overdue_count'=> $overdue_count,
+            'status_filter'=> $request->query('status'),
+            'type_filter'  => $request->query('type'),
+            'overdue_filter'=> $request->query('overdue_only') ? true : null,
+            'search_query' => $request->query('q'),
+            'all_statuses' => LibraryIllService::STATUSES,
         ]);
     }
 
     public function illView(int $id)
     {
-        $req = $this->ill->get($id)
-            ?? (object) [
-                'id' => $id, 'ill_number' => '', 'type' => '', 'title' => '',
-                'author' => '', 'isbn' => '', 'library_name' => '',
-                'request_date' => '', 'status' => '',
-            ];
-        return view('ahg-library::ill.view', ['request' => $req]);
+        $req = $this->ill->get($id);
+        if (!$req) {
+            abort(404);
+        }
+
+        $auditLog = [];
+        try {
+            $auditLog = DB::table('library_ill_audit')
+                ->where('ill_number', $req->ill_number)
+                ->orderByDesc('created_at')
+                ->limit(50)->get()->all();
+        } catch (\Throwable) {
+            // fail silently — audit table may not exist yet
+        }
+
+        $type = $req->type ?? LibraryIllService::TYPE_BORROW;
+        $available = auth()->check()
+            ? $this->ill->availableTransitions($req->status ?? '', $type)
+            : [];
+
+        return view('ahg-library::ill.view', [
+            'request'              => $req,
+            'available_transitions'=> $available,
+            'audit_log'            => $auditLog,
+        ]);
     }
+
+    // ── ILL create / store / update / transition / delete ────────────────
+
+    public function illCreate(): \Illuminate\View\View
+    {
+        return view('ahg-library::ill.create');
+    }
+
+    public function illStore(\Illuminate\Http\Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $data = $request->validate([
+            'type'              => 'sometimes|in:borrow,lend',
+            'title'             => 'required|string|max:500',
+            'author'            => 'sometimes|string|max:300',
+            'isbn'              => 'sometimes|nullable|string|max:20',
+            'issn'              => 'sometimes|nullable|string|max:20',
+            'volume'            => 'sometimes|nullable|string|max:50',
+            'issue'             => 'sometimes|nullable|string|max:20',
+            'pages'             => 'sometimes|nullable|string|max:50',
+            'edition'           => 'sometimes|nullable|string|max:100',
+            'publication_year'  => 'sometimes|nullable|integer|min:1000|max:' . (date('Y') + 5),
+            'library_name'      => 'required|string|max:300',
+            'library_symbol'    => 'sometimes|nullable|string|max:50',
+            'patron_id'         => 'sometimes|nullable|integer',
+            'requester_note'    => 'sometimes|nullable|string|max:2000',
+            'due_date'          => 'sometimes|nullable|date|after:today',
+        ]);
+
+        $id = $this->ill->create($data);
+
+        return redirect()
+            ->route('library.ill-view', $id)
+            ->with('ill_success', 'ILL request created successfully.');
+    }
+
+    public function illUpdate(\Illuminate\Http\Request $request, int $id): \Illuminate\Http\RedirectResponse
+    {
+        $req = $this->ill->get($id);
+        if (!$req) {
+            abort(404);
+        }
+
+        $data = $request->validate([
+            'library_name'  => 'sometimes|string|max:300',
+            'library_symbol'=> 'sometimes|nullable|string|max:50',
+            'due_date'      => 'sometimes|nullable|date',
+            'patron_id'     => 'sometimes|nullable|integer',
+            'title'         => 'sometimes|string|max:500',
+            'author'        => 'sometimes|string|max:300',
+            'isbn'          => 'sometimes|nullable|string|max:20',
+            'requester_note'=> 'sometimes|nullable|string|max:2000',
+        ]);
+
+        $this->ill->update($id, $data);
+
+        return redirect()->route('library.ill-view', $id)
+            ->with('ill_success', 'ILL request updated.');
+    }
+
+    public function illTransition(\Illuminate\Http\Request $request, int $id): \Illuminate\Http\RedirectResponse
+    {
+        $status = $request->input('status');
+        $note   = $request->input('note');
+
+        $applied = $this->ill->transitionTo($id, $status, $note);
+
+        if (!$applied) {
+            return redirect()->route('library.ill-view', $id)
+                ->with('ill_error', "Invalid status transition to '{$status}'.");
+        }
+
+        return redirect()->route('library.ill-view', $id)
+            ->with('ill_success', "Status updated to '{$status}'.");
+    }
+
+    public function illDelete(int $id): \Illuminate\Http\RedirectResponse
+    {
+        $this->ill->delete($id);
+        return redirect()->route('library.ill')->with('ill_success', 'ILL request deleted.');
+    }
+
+    public function illOpacSuppress(\Illuminate\Http\Request $request, int $id): \Illuminate\Http\RedirectResponse
+    {
+        $suppress = $request->input('suppress') === '1';
+        $this->ill->setOpacSuppress($id, $suppress);
+        return redirect()->route('library.ill-view', $id)
+            ->with('ill_success', $suppress ? 'ILL request suppressed from OPAC.' : 'ILL request visible in OPAC.');
+    }
+
+    public function illSettings(): \Illuminate\View\View
+    {
+        $keys = ['ill_default_due_days', 'ill_tipasa_partner',
+                 'ill_oclc_api_key', 'ill_oclc_principal_id', 'ill_oclc_base_url',
+                 'ill_auto_escalate_days'];
+        $settings = [];
+        foreach ($keys as $k) {
+            $settings[$k] = SettingHelper::get($k);
+        }
+        return view('ahg-library::ill.settings', ['settings' => $settings]);
+    }
+
+    public function illSettingsStore(\Illuminate\Http\Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $data = $request->validate([
+            'default_due_days'     => 'sometimes|nullable|integer|min:1|max:365',
+            'tipasa_partner'       => 'sometimes|nullable|in:naz,sabinet,dals',
+            'oclc_api_key'         => 'sometimes|nullable|string|max:200',
+            'oclc_principal_id'    => 'sometimes|nullable|string|max:100',
+            'auto_escalate_days'   => 'sometimes|nullable|integer|min:1|max:90',
+        ]);
+
+        foreach ($data as $key => $val) {
+            SettingHelper::set('ill_' . $key, $val);
+        }
+
+        return redirect()->route('library.ill-settings')
+            ->with('ill_success', 'ILL settings saved.');
+    }
+
+    // ── Patron (OPAC) ILL ──────────────────────────────────────────────────
+
+    public function opacIllCreate(): \Illuminate\View\View
+    {
+        return view('ahg-library::ill.patron-create');
+    }
+
+    public function opacIllStore(\Illuminate\Http\Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $patronId = auth()->user()->patron_id ?? null;
+        if (!$patronId) {
+            abort(403, 'No patron record linked to your account.');
+        }
+
+        $data = $request->validate([
+            'title'             => 'required|string|max:500',
+            'author'            => 'sometimes|string|max:300',
+            'isbn'              => 'sometimes|nullable|string|max:20',
+            'issn'              => 'sometimes|nullable|string|max:20',
+            'volume'            => 'sometimes|nullable|string|max:50',
+            'issue'             => 'sometimes|nullable|string|max:20',
+            'pages'             => 'sometimes|nullable|string|max:50',
+            'publication_year'  => 'sometimes|nullable|integer|min:1000|max:' . (date('Y') + 5),
+            'requester_note'    => 'sometimes|nullable|string|max:1000',
+        ]);
+
+        $id = $this->ill->patronCreate($patronId, $data);
+
+        return redirect()->route('library.opac')
+            ->with('ill_success', "ILL request submitted. Reference: {$id}");
+    }
+
 
     // ── ISBN ────────────────────────────────────────────────────────
 
