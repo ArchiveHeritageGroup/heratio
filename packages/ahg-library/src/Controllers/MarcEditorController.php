@@ -56,6 +56,17 @@ class MarcEditorController extends Controller
     }
 
     /**
+     * Resolve the "edit by ID" GET form: the form submits ?id=N as a query
+     * param, but the edit route needs {id} in the path. Redirect to the
+     * path-based edit URL (validating it's numeric).
+     */
+    public function editRedirect(Request $request)
+    {
+        $data = $request->validate(['id' => 'required|integer|min:1']);
+        return redirect()->route('library.marc-edit', ['id' => (int) $data['id']]);
+    }
+
+    /**
      * Batch import page.
      */
     public function import()

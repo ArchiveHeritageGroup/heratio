@@ -203,15 +203,15 @@ class LibraryUsageService
             return ['periods' => [], 'totals' => $zeroMetrics];
         }
 
-        $labelExpr = match ($period) {
-            'weekly'     => DB::raw("DATE_FORMAT(DATE_SUB(stat_date, INTERVAL WEEKDAY(stat_date) DAY), '%Y-%m-%d')"),
-            'yearly'    => DB::raw("CAST(YEAR(stat_date) AS CHAR)"),
-            'quarterly' => DB::raw("CONCAT(YEAR(stat_date),'-Q',QUARTER(stat_date))"),
-            default     => DB::raw("DATE_FORMAT(stat_date, '%Y-%m')"),
+        $labelSql = match ($period) {
+            'weekly'     => "DATE_FORMAT(DATE_SUB(stat_date, INTERVAL WEEKDAY(stat_date) DAY), '%Y-%m-%d')",
+            'yearly'    => "CAST(YEAR(stat_date) AS CHAR)",
+            'quarterly' => "CONCAT(YEAR(stat_date),'-Q',QUARTER(stat_date))",
+            default     => "DATE_FORMAT(stat_date, '%Y-%m')",
         };
 
         $query = DB::table('library_usage_stats')
-            ->select($labelExpr->value . ' as label', 'metric_type', DB::raw('SUM(`count`) as total_count'))
+            ->select(DB::raw($labelSql . ' AS label'), 'metric_type', DB::raw('SUM(`count`) as total_count'))
             ->groupBy('label', 'metric_type')
             ->orderBy('label');
 

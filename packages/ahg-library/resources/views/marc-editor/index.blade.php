@@ -48,7 +48,7 @@
                     </p>
 
                     {{-- Pick a library item by ID --}}
-                    <form method="GET" action="{{ route('library.marc-edit') }}" class="d-flex gap-2 align-items-end">
+                    <form method="GET" action="{{ route('library.marc-edit-redirect') }}" class="d-flex gap-2 align-items-end">
                         @csrf
                         <div class="flex-grow-1">
                             <label for="edit_item_id" class="form-label small fw-semibold">Library Item ID</label>

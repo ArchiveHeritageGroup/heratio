@@ -16,7 +16,7 @@
   </div>
 
   {{-- Settings link (Tipasa / OCLC config) ─────────────────────────── --}}
-  @if(auth()->check() && auth()->user()->isAdmin())
+  @if(auth()->check() && auth()->user()->isAdministrator())
   <div class="mb-3 text-end">
     <a href="{{ route('library.ill-settings') }}" class="text-muted small">
       <i class="fas fa-cog me-1"></i>{{ __('ILL Settings') }}

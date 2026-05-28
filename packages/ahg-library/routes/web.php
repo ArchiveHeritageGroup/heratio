@@ -143,6 +143,7 @@ Route::middleware('auth')->group(function () {
 
     // MARC Editor - batch import + in-place field editor
     Route::get('/library-manage/marc', [MarcEditorController::class, 'index'])->name('library.marc-index');
+    Route::get('/library-manage/marc/edit', [MarcEditorController::class, 'editRedirect'])->name('library.marc-edit-redirect');
     Route::get('/library-manage/marc/import', [MarcEditorController::class, 'import'])->name('library.marc-import');
     Route::post('/library-manage/marc/import/preview', [MarcEditorController::class, 'formImportPreview'])->name('library.marc-import-preview');
     Route::post('/library-manage/marc/import/commit', [MarcEditorController::class, 'formImportCommit'])->name('library.marc-import-commit');
