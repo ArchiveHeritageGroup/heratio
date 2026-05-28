@@ -28,9 +28,7 @@ class BlogService
     {
         $q = DB::table('blog_post')
             ->where('status', 'published')
-            ->whereNotNull('published_at')
-            ->where('published_at', '<=', now())
-            ->orderByDesc('published_at');
+            ->orderByRaw('COALESCE(published_at, created_at) DESC');
 
         if ($limit) {
             $q->limit($limit);
@@ -72,8 +70,6 @@ class BlogService
     {
         return DB::table('blog_post')
             ->where('status', 'published')
-            ->whereNotNull('published_at')
-            ->where('published_at', '<=', now())
             ->whereNotNull('article_group')
             ->where('article_group', '!=', '')
             ->distinct()
@@ -90,10 +86,8 @@ class BlogService
     {
         return DB::table('blog_post')
             ->where('status', 'published')
-            ->whereNotNull('published_at')
-            ->where('published_at', '<=', now())
             ->when($group, fn ($q) => $q->where('article_group', $group))
-            ->orderByDesc('published_at')
+            ->orderByRaw('COALESCE(published_at, created_at) DESC')
             ->paginate($perPage)
             ->withQueryString();
     }
@@ -113,8 +107,6 @@ class BlogService
         return DB::table('blog_post')
             ->where('slug', $slug)
             ->where('status', 'published')
-            ->whereNotNull('published_at')
-            ->where('published_at', '<=', now())
             ->first() ?: null;
     }
 

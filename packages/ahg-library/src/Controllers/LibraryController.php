@@ -45,6 +45,7 @@ class LibraryController extends Controller
     protected \AhgLibrary\Services\LibrarySerialService $serial;
     protected \AhgLibrary\Services\LibraryAcquisitionService $acq;
     protected \AhgLibrary\Services\LibraryIsbnProviderService $isbnProvider;
+    protected \AhgLibrary\Services\LibraryOpacSearchService $search;
 
     public function __construct()
     {
@@ -56,6 +57,7 @@ class LibraryController extends Controller
         $this->serial = new \AhgLibrary\Services\LibrarySerialService();
         $this->acq = new \AhgLibrary\Services\LibraryAcquisitionService();
         $this->isbnProvider = new \AhgLibrary\Services\LibraryIsbnProviderService();
+        $this->search = new \AhgLibrary\Services\LibraryOpacSearchService();
     }
 
     // ── ILL helpers ──────────────────────────────────────────────────────
@@ -1032,22 +1034,47 @@ class LibraryController extends Controller
 
     public function opac(Request $request)
     {
-        $query = (string) $request->query('q', '');
-        $results = $request->has('q')
-            ? $this->opac->search($query, [
+        $query = trim((string) $request->query('q', ''));
+
+        // Faceted search via ES (with MySQL fallback)
+        if ($query !== '' || $request->has('material_type') || $request->has('language')
+            || $request->has('creator') || $request->has('publisher')
+            || $request->has('year_from') || $request->has('year_to')
+            || $request->has('sort') || $request->has('page')) {
+            $filters = [
+                'q'              => $query,
                 'material_type' => $request->query('material_type'),
-                'language' => $request->query('language'),
-            ])
-            : null;
+                'language'      => $request->query('language'),
+                'creator'       => $request->query('creator'),
+                'publisher'     => $request->query('publisher'),
+                'year_from'     => $request->query('year_from') ? (int) $request->query('year_from') : null,
+                'year_to'       => $request->query('year_to')   ? (int) $request->query('year_to')   : null,
+                'sort'          => $request->query('sort', 'relevance'),
+                'page'          => max(1, (int) $request->query('page', 1)),
+                'per_page'      => max(1, (int) $request->query('per_page',
+                                          \AhgLibrary\Support\LibrarySettings::opacResultsPerPage())),
+            ];
+
+            $searchResult = $this->search->search($filters);
+            $results  = $searchResult['results'];
+            $facets   = $searchResult['facets'];
+            $esMode   = $searchResult['es_mode'];
+        } else {
+            $results = null;
+            $facets  = null;
+            $esMode  = false;
+        }
 
         return view('ahg-library::opac.index', [
-            'results' => $results,
+            'results'  => $results,
+            'facets'  => $facets,
+            'es_mode'  => $esMode,
             'newArrivals' => collect($this->opac->newArrivals()),
-            'popular' => collect($this->opac->popular()),
-            'settings' => [
+            'popular'     => collect($this->opac->popular()),
+            'settings'    => [
                 'show_availability' => \AhgLibrary\Support\LibrarySettings::opacShowAvailability(),
-                'show_covers' => \AhgLibrary\Support\LibrarySettings::opacShowCovers(),
-                'allow_holds' => \AhgLibrary\Support\LibrarySettings::opacAllowHolds(),
+                'show_covers'       => \AhgLibrary\Support\LibrarySettings::opacShowCovers(),
+                'allow_holds'       => \AhgLibrary\Support\LibrarySettings::opacAllowHolds(),
             ],
         ]);
     }
