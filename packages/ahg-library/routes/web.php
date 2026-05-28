@@ -1,5 +1,11 @@
 <?php
 
+
+
+
+
+use AhgLibrary\Controllers\TradingPartnerController;
+use AhgLibrary\Controllers\IllRequestController;
 use AhgLibrary\Controllers\LibraryController;
 use AhgLibrary\Controllers\KbartoController;
 use AhgLibrary\Controllers\KbartAdminController;
@@ -276,4 +282,47 @@ Route::middleware(\AhgLibrary\Middleware\EnsurePatronAuthenticated::class)->grou
     Route::post('/opac/patron/renew-one/{checkoutId}', [OpacPatronController::class, 'renewOne'])
         ->name('opac.patron.renew-one')->where('checkoutId', '[0-9]+');
     Route::get('/opac/patron/logout', [OpacPatronController::class, 'logout'])->name('opac.patron.logout');
+});
+// ── Phase 2.5: EDI Trading Partners ────────────────────────────────────────
+Route::middleware('auth')->group(function () {
+    Route::get('/library-manage/trading-partners', [TradingPartnerController::class, 'index'])
+        ->name('library.trading-partners.index');
+    Route::get('/library-manage/trading-partners/create', [TradingPartnerController::class, 'create'])
+        ->name('library.trading-partners.create');
+    Route::post('/library-manage/trading-partners', [TradingPartnerController::class, 'store'])
+        ->name('library.trading-partners.store');
+    Route::get('/library-manage/trading-partners/{partner}/edit', [TradingPartnerController::class, 'edit'])
+        ->name('library.trading-partners.edit');
+    Route::match(['PATCH', 'PUT'], '/library-manage/trading-partners/{partner}', [TradingPartnerController::class, 'update'])
+        ->name('library.trading-partners.update');
+    Route::delete('/library-manage/trading-partners/{partner}', [TradingPartnerController::class, 'destroy'])
+        ->name('library.trading-partners.destroy');
+    Route::patch('/library-manage/trading-partners/{partner}/toggle', [TradingPartnerController::class, 'toggle'])
+        ->name('library.trading-partners.toggle');
+    Route::post('/library-manage/trading-partners/{partner}/test', [TradingPartnerController::class, 'test'])
+        ->name('library.trading-partners.test');
+    Route::post('/library-manage/trading-partners/{partner}/preview-message', [TradingPartnerController::class, 'previewMessage'])
+        ->name('library.trading-partners.preview-message');
+});
+
+// ── Phase 2.5: ILL Request Management ───────────────────────────────────────
+Route::middleware('auth')->group(function () {
+    Route::get('/library-manage/ill-requests', [IllRequestController::class, 'index'])
+        ->name('library.ill-requests.index');
+    Route::get('/library-manage/ill-requests/create', [IllRequestController::class, 'create'])
+        ->name('library.ill-requests.create');
+    Route::post('/library-manage/ill-requests', [IllRequestController::class, 'store'])
+        ->name('library.ill-requests.store');
+    Route::get('/library-manage/ill-requests/{id}', [IllRequestController::class, 'show'])
+        ->name('library.ill-requests.show')->where('id', '[0-9]+');
+    Route::put('/library-manage/ill-requests/{id}', [IllRequestController::class, 'update'])
+        ->name('library.ill-requests.update')->where('id', '[0-9]+');
+    Route::patch('/library-manage/ill-requests/{id}', [IllRequestController::class, 'update'])
+        ->name('library.ill-requests.patch')->where('id', '[0-9]+');
+    Route::post('/library-manage/ill-requests/{id}/transition', [IllRequestController::class, 'transition'])
+        ->name('library.ill-requests.transition')->where('id', '[0-9]+');
+    Route::post('/library-manage/ill-requests/{id}/send-edi', [IllRequestController::class, 'sendEdi'])
+        ->name('library.ill-requests.send-edi')->where('id', '[0-9]+');
+    Route::delete('/library-manage/ill-requests/{id}', [IllRequestController::class, 'destroy'])
+        ->name('library.ill-requests.destroy')->where('id', '[0-9]+');
 });
