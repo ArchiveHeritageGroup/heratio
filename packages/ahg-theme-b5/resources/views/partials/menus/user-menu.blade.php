@@ -84,7 +84,7 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header"><i class="fas fa-book-reader me-1"></i>{{ __('Research') }}</h6></li>
     <li>
-      <a class="dropdown-item" href="{{ url('/research/dashboard') }}">
+      <a class="dropdown-item" href="{{ \Illuminate\Support\Facades\Route::has('research.workspace') ? route('research.workspace') : url('/research/workspace') }}">
         <i class="fas fa-folder-open me-2"></i>{{ __('My Workspace') }}
       </a>
     </li>

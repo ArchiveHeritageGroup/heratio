@@ -242,6 +242,177 @@ class OrcidService
             . '</work:work>';
     }
 
+    // ─── Public-record read (no per-researcher OAuth) ───────────────────
+
+    /**
+     * Obtain a 2-legged client-credentials token scoped to /read-public.
+     * Lets us read any public ORCID record without the researcher having
+     * linked/authorised. Cached for ~19 days (ORCID tokens last 20y but we
+     * re-fetch well within that). Returns null if not configured or on error.
+     */
+    public function publicReadToken(): ?string
+    {
+        if (!$this->isConfigured()) {
+            return null;
+        }
+        return \Illuminate\Support\Facades\Cache::remember('orcid_public_read_token', now()->addDays(19), function () {
+            try {
+                $resp = Http::asForm()
+                    ->withHeaders(['Accept' => 'application/json'])
+                    ->post($this->baseUrl() . '/oauth/token', [
+                        'client_id'     => $this->clientId(),
+                        'client_secret' => $this->clientSecret(),
+                        'grant_type'    => 'client_credentials',
+                        'scope'         => '/read-public',
+                    ]);
+                if (!$resp->ok()) {
+                    Log::warning('ORCID public-read token failed: HTTP ' . $resp->status() . ' ' . $resp->body());
+                    return null;
+                }
+                return $resp->json()['access_token'] ?? null;
+            } catch (\Throwable $e) {
+                Log::warning('ORCID public-read token threw: ' . $e->getMessage());
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Normalise an ORCID iD: accept a bare 16-digit iD or a full URL, return
+     * the canonical 0000-0000-0000-0000 form, or null if it doesn't validate.
+     */
+    public function normaliseOrcidId(?string $raw): ?string
+    {
+        if (!$raw) return null;
+        if (preg_match('~(\d{4}-\d{4}-\d{4}-\d{3}[\dX])~i', trim($raw), $m)) {
+            return strtoupper($m[1]);
+        }
+        return null;
+    }
+
+    /**
+     * Fetch a researcher's PUBLIC ORCID record and parse it into the fields the
+     * register / profile forms use. Returns null on bad iD or unreachable API.
+     *
+     * @return array{orcid_id:string, first_name:?string, last_name:?string, credit_name:?string, institution:?string, department:?string, position:?string, research_interests:?string, emails:array<string>}|null
+     */
+    public function fetchPublicRecord(string $orcidId): ?array
+    {
+        $orcidId = $this->normaliseOrcidId($orcidId);
+        if (!$orcidId) return null;
+
+        $token = $this->publicReadToken();
+        if (!$token) return null;
+
+        try {
+            $resp = Http::withToken($token)
+                ->withHeaders(['Accept' => 'application/json'])
+                ->get($this->apiBase() . '/v3.0/' . $orcidId . '/record');
+            if (!$resp->ok()) {
+                Log::info("ORCID fetchPublicRecord {$orcidId}: HTTP " . $resp->status());
+                return null;
+            }
+            $rec = $resp->json();
+        } catch (\Throwable $e) {
+            Log::warning('ORCID fetchPublicRecord threw: ' . $e->getMessage());
+            return null;
+        }
+
+        $person = $rec['person'] ?? [];
+        $name   = $person['name'] ?? [];
+        $given  = $name['given-names']['value']  ?? null;
+        $family = $name['family-name']['value']  ?? null;
+        $credit = $name['credit-name']['value']  ?? null;
+
+        // Keywords -> research interests (comma-joined).
+        $keywords = [];
+        foreach (($person['keywords']['keyword'] ?? []) as $kw) {
+            if (!empty($kw['content'])) $keywords[] = $kw['content'];
+        }
+
+        // Public emails (visibility=public only ones appear in the public API).
+        $emails = [];
+        foreach (($person['emails']['email'] ?? []) as $em) {
+            if (!empty($em['email'])) $emails[] = $em['email'];
+        }
+
+        // Most-recent employment for institution / department / role.
+        $institution = $department = $position = null;
+        $employments = $rec['activities-summary']['employments']['affiliation-group'] ?? [];
+        foreach ($employments as $group) {
+            $summary = $group['summaries'][0]['employment-summary'] ?? null;
+            if (!$summary) continue;
+            $institution = $summary['organization']['name'] ?? $institution;
+            $department  = $summary['department-name'] ?? $department;
+            $position    = $summary['role-title'] ?? $position;
+            break; // first group is the most recent
+        }
+
+        return [
+            'orcid_id'           => $orcidId,
+            'first_name'         => $given,
+            'last_name'          => $family,
+            'credit_name'        => $credit,
+            'institution'        => $institution,
+            'department'         => $department,
+            'position'           => $position,
+            'research_interests' => $keywords ? implode(', ', $keywords) : null,
+            'emails'             => $emails,
+        ];
+    }
+
+    /**
+     * Pull the linked researcher's profile from ORCID and apply the non-empty
+     * fields onto their research_researcher row. Uses the public record (works
+     * for both Public and Member API clients). Returns the parsed record.
+     */
+    public function pullProfile(int $researcherId): ?array
+    {
+        $link = $this->getLink($researcherId);
+        $orcidId = $link->orcid_id
+            ?? DB::table('research_researcher')->where('id', $researcherId)->value('orcid_id');
+        if (!$orcidId) {
+            throw new RuntimeException('Researcher has no ORCID iD to pull from');
+        }
+
+        $record = $this->fetchPublicRecord($orcidId);
+        if (!$record) {
+            return null;
+        }
+
+        // Only overwrite columns that exist + when ORCID has a value.
+        $update = [];
+        $map = [
+            'first_name'         => $record['first_name'],
+            'last_name'          => $record['last_name'],
+            'institution'        => $record['institution'],
+            'department'         => $record['department'],
+            'position'           => $record['position'],
+            'research_interests' => $record['research_interests'],
+            'orcid_id'           => $record['orcid_id'],
+        ];
+        foreach ($map as $col => $val) {
+            if ($val !== null && $val !== '') $update[$col] = $val;
+        }
+        if ($update) {
+            try {
+                DB::table('research_researcher')->where('id', $researcherId)->update($update);
+            } catch (\Throwable $e) {
+                Log::warning('ORCID pullProfile update failed: ' . $e->getMessage());
+            }
+        }
+
+        if ($link) {
+            $linkUpdate = ['updated_at' => date('Y-m-d H:i:s')];
+            if (\Illuminate\Support\Facades\Schema::hasColumn('researcher_orcid_link', 'last_profile_synced_at')) {
+                $linkUpdate['last_profile_synced_at'] = date('Y-m-d H:i:s');
+            }
+            DB::table('researcher_orcid_link')->where('id', $link->id)->update($linkUpdate);
+        }
+
+        return $record;
+    }
+
     // ─── Config helpers ────────────────────────────────────────────────
 
     private function clientId(): ?string     { return env('ORCID_CLIENT_ID'); }

@@ -1,45 +1,23 @@
-# ahg-statistics
+# AhgStatistics
 
-Usage statistics and analytics dashboard for Heratio - page views, downloads, top items, geographic spread, and per-repository drill-down.
+AHG Heratio plugin package.
 
-## Purpose
+## Overview
 
-- Aggregated read-side analytics over the `ahg_pageview` / `ahg_download` ledger tables
-- Bot filtering with admin-managed allow / block lists
-- CSV export of the underlying counts
-- Per-repository and per-item drill-down views
+Brief description of what this package provides.
 
-## Install
+## Structure
 
-Auto-discovered. The ServiceProvider registers routes (`web` middleware) and the `ahg-statistics` view namespace. The underlying ledger tables are installed by the core analytics packages; this module only consumes them.
+Describe the directory layout.
 
-## Routes
+## Configuration
 
-All under `/statistics` and gated by `auth` + `admin`:
+Any config options, env vars, or settings keys.
 
-- `GET /statistics/dashboard` - top-level KPI dashboard
-- `GET /statistics/views` - pageviews over time
-- `GET /statistics/downloads` - download counters
-- `GET /statistics/top-items` - hottest archival descriptions
-- `GET /statistics/geographic` - country / region breakdown
-- `GET /statistics/item` - per-item history
-- `GET /statistics/repository/{id}` - per-repository drill-down
-- `GET|POST /statistics/admin` - admin settings (retention etc.)
-- `GET|POST /statistics/admin/bots` - bot allow / block list
-- `GET /statistics/export` - CSV export
+## Usage
 
-## Key classes
+How to use the package's features.
 
-| Class | Role |
-|---|---|
-| `Controllers\StatisticsController` | Dashboard, drill-downs, export |
-| `Services\StatisticsService` | Aggregation queries + bot filtering |
+## Testing
 
-## Views
-
-Bootstrap 5 with `bi-*` icons; extends the `ahg-theme-b5` layout. Charts use the central Chart.js bundle.
-
-## Notes
-
-- Heavy queries are scoped server-side - no `SELECT *` on raw ledger tables.
-- Bot filtering uses the `ahg_settings.statistics.bots` JSON list maintained from the `/statistics/admin/bots` page.
+How to run tests for this package.

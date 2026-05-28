@@ -2086,6 +2086,7 @@ CREATE TABLE IF NOT EXISTS `researcher_orcid_link` (
   `scope` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `expires_at` datetime DEFAULT NULL,
   `last_synced_at` datetime DEFAULT NULL,
+  `last_profile_synced_at` datetime DEFAULT NULL,
   `last_works_count` int DEFAULT NULL,
   `last_error` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,

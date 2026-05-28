@@ -36,8 +36,11 @@
                     <dt class="col-sm-3">{{ __('Token expires') }}</dt>
                     <dd class="col-sm-9">{{ $link->expires_at ?: '-' }}</dd>
 
-                    <dt class="col-sm-3">{{ __('Last synced') }}</dt>
+                    <dt class="col-sm-3">{{ __('Works synced') }}</dt>
                     <dd class="col-sm-9">{{ $link->last_synced_at ?: '-' }} @if($link->last_works_count !== null) <span class="badge bg-secondary ms-1">{{ $link->last_works_count }} works</span> @endif</dd>
+
+                    <dt class="col-sm-3">{{ __('Profile synced') }}</dt>
+                    <dd class="col-sm-9">{{ ($link->last_profile_synced_at ?? null) ?: '-' }}</dd>
 
                     @if($link->last_error)
                         <dt class="col-sm-3 text-danger">{{ __('Last error') }}</dt>
@@ -45,11 +48,17 @@
                     @endif
                 </dl>
             </div>
-            <div class="card-footer d-flex justify-content-between">
-                <form method="post" action="{{ route('research.orcidSync') }}" class="d-inline">
-                    @csrf
-                    <button class="btn btn-sm btn-primary"><i class="fas fa-sync me-1"></i>{{ __('Pull Works from ORCID') }}</button>
-                </form>
+            <div class="card-footer d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                <div class="d-flex gap-2 flex-wrap">
+                    <form method="post" action="{{ route('research.orcidPullProfile') }}" class="d-inline">
+                        @csrf
+                        <button class="btn btn-sm btn-success"><i class="fas fa-id-card me-1"></i>{{ __('Pull profile from ORCID') }}</button>
+                    </form>
+                    <form method="post" action="{{ route('research.orcidSync') }}" class="d-inline">
+                        @csrf
+                        <button class="btn btn-sm btn-primary"><i class="fas fa-sync me-1"></i>{{ __('Pull Works from ORCID') }}</button>
+                    </form>
+                </div>
                 <form method="post" action="{{ route('research.orcidUnlink') }}" class="d-inline" onsubmit="return confirm('Unlink your ORCID iD?')">
                     @csrf
                     <button class="btn btn-sm btn-outline-danger"><i class="fas fa-unlink me-1"></i>{{ __('Unlink') }}</button>
@@ -65,6 +74,15 @@
                 <a href="{{ route('research.orcidAuthorize') }}" class="btn btn-success">
                     <i class="fab fa-orcid me-1"></i>{{ __('Connect with ORCID') }}
                 </a>
+                @if(!empty($researcher->orcid_id))
+                    <div class="mt-3">
+                        <p class="small text-muted mb-2">{{ __('Your profile has ORCID iD :id on file. You can pull your public profile details without a full link:', ['id' => $researcher->orcid_id]) }}</p>
+                        <form method="post" action="{{ route('research.orcidPullProfile') }}" class="d-inline">
+                            @csrf
+                            <button class="btn btn-sm btn-outline-success"><i class="fas fa-id-card me-1"></i>{{ __('Pull profile from ORCID') }}</button>
+                        </form>
+                    </div>
+                @endif
             </div>
         </div>
     @endif

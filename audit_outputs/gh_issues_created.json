@@ -2,7 +2,7 @@
   "created": [
     [
       "ahg-metadata-export",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/971",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1051",
       [
         "services",
         "readme"
@@ -10,7 +10,7 @@
     ],
     [
       "ahg-metadata-extraction",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/972",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1052",
       [
         "db",
         "readme"
@@ -18,7 +18,7 @@
     ],
     [
       "ahg-mods-manage",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/973",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1053",
       [
         "services",
         "db",
@@ -27,21 +27,21 @@
     ],
     [
       "ahg-multi-tenant",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/974",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1054",
       [
         "readme"
       ]
     ],
     [
       "ahg-museum",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/975",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1055",
       [
         "readme"
       ]
     ],
     [
       "ahg-narssa",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/976",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1056",
       [
         "controllers",
         "views",
@@ -50,7 +50,7 @@
     ],
     [
       "ahg-naz",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/977",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1057",
       [
         "services",
         "readme"
@@ -58,14 +58,14 @@
     ],
     [
       "ahg-nmmz",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/978",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1058",
       [
         "readme"
       ]
     ],
     [
       "ahg-oai",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/979",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1059",
       [
         "services",
         "views",
@@ -75,7 +75,7 @@
     ],
     [
       "ahg-pdf-tools",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/980",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1060",
       [
         "db",
         "readme",
@@ -84,7 +84,7 @@
     ],
     [
       "ahg-portable-export",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/981",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1061",
       [
         "services",
         "readme"
@@ -92,35 +92,35 @@
     ],
     [
       "ahg-preservation",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/982",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1062",
       [
         "readme"
       ]
     ],
     [
       "ahg-privacy",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/983",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1063",
       [
         "readme"
       ]
     ],
     [
       "ahg-provenance",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/984",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1064",
       [
         "readme"
       ]
     ],
     [
       "ahg-provenance-ai",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/985",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1065",
       [
         "readme"
       ]
     ],
     [
       "ahg-rad-manage",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/986",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1066",
       [
         "services",
         "db",
@@ -129,28 +129,28 @@
     ],
     [
       "ahg-records-manage",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/987",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1067",
       [
         "readme"
       ]
     ],
     [
       "ahg-reports",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/988",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1068",
       [
         "readme"
       ]
     ],
     [
       "ahg-repository-manage",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/989",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1069",
       [
         "readme"
       ]
     ],
     [
       "ahg-request-publish",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/990",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1070",
       [
         "services",
         "readme",
@@ -159,14 +159,14 @@
     ],
     [
       "ahg-research",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/991",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1071",
       [
         "readme"
       ]
     ],
     [
       "ahg-researcher-manage",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/992",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1072",
       [
         "readme",
         "docs_help"
@@ -174,7 +174,7 @@
     ],
     [
       "ahg-rights",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/993",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1073",
       [
         "controllers",
         "services",
@@ -185,56 +185,56 @@
     ],
     [
       "ahg-rights-holder-manage",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/994",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1074",
       [
         "readme"
       ]
     ],
     [
       "ahg-scan",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/995",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1075",
       [
         "readme"
       ]
     ],
     [
       "ahg-search",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/996",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1076",
       [
         "readme"
       ]
     ],
     [
       "ahg-security-clearance",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/997",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1077",
       [
         "readme"
       ]
     ],
     [
       "ahg-semantic-search",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/998",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1078",
       [
         "readme"
       ]
     ],
     [
       "ahg-settings",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/999",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1079",
       [
         "readme"
       ]
     ],
     [
       "ahg-share-link",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/1000",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1080",
       [
         "readme"
       ]
     ],
     [
       "ahg-static-page",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/1001",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1081",
       [
         "services",
         "readme"
@@ -242,28 +242,28 @@
     ],
     [
       "ahg-statistics",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/1002",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1082",
       [
         "readme"
       ]
     ],
     [
       "ahg-storage-manage",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/1003",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1083",
       [
         "readme"
       ]
     ],
     [
       "ahg-term-taxonomy",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/1004",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1084",
       [
         "readme"
       ]
     ],
     [
       "ahg-theme-b5",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/1005",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1085",
       [
         "controllers",
         "readme"
@@ -271,35 +271,35 @@
     ],
     [
       "ahg-translation",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/1006",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1086",
       [
         "readme"
       ]
     ],
     [
       "ahg-user-manage",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/1007",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1087",
       [
         "readme"
       ]
     ],
     [
       "ahg-vendor",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/1008",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1088",
       [
         "readme"
       ]
     ],
     [
       "ahg-version-control",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/1009",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1089",
       [
         "readme"
       ]
     ],
     [
       "ahg-workflow",
-      "https://github.com/ArchiveHeritageGroup/heratio/issues/1010",
+      "https://github.com/ArchiveHeritageGroup/heratio/issues/1090",
       [
         "readme"
       ]

@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * module.yml — Symfony 1.4 routing and security settings for ahgLibraryPlugin z3950 module
+ *
+ * Ported from: Heratio ahg-z3950 routes (AppServiceProvider.php)
+ * Issue: atom-ahg-plugins#92
+ *
+ * Route map:
+ *   /z3950               z3950/index       GET    Dashboard
+ *   /z3950/search        z3950/search      GET    Search form
+ *   /z3950/search/exec   z3950/searchExec  POST   Run search
+ *   /z3950/result        z3950/result      GET    Browse results
+ *   /z3950/import        z3950/import      GET    Import single record
+ *   /z3950/import/batch  z3950/importBatch POST   Batch import
+ *   /z3950/admin         z3950/admin       GET    Admin dashboard
+ *   /z3950/admin/targets/new                          GET    New target form
+ *   /z3950/admin/targets/create    z3950/createTarget   POST   Create target
+ *   /z3950/admin/targets/:id         z3950/deleteTarget DELETE
+ *   /z3950/sru             z3950/sru                GET    SRU 2.0 HTTP handler
+ *
+ * Security:
+ *   All actions require authenticated session (is_internal).
+ *   Target CRUD (admin) requires admin role.
+ *   SRU explain/searchRetrieve is anonymous (public catalogue access).
+ */
+
+all:
+  is_secure: on
+  credentials: [ is_internal ]         # Allowauthenticated PSIS users (+ admin)
+
+search_index:
+  url:  /z3950
+  param: { module: z3950, action: index }
+  requirements: {}
+
+search_form:
+  url:  /z3950/search
+  param: { module: z3950, action: search }
+  requirements: {}
+
+search_exec:
+  url:  /z3950/search/exec
+  param: { module: z3950, action: searchExec }
+  requirements: { sf_method: [post] }
+
+result:
+  url:  /z3950/result
+  param: { module: z3950, action: result }
+  requirements: {}
+
+import:
+  url:  /z3950/import
+  param: { module: z3950, action: import }
+  requirements: {}
+
+import_batch:
+  url:  /z3950/import/batch
+  param: { module: z3950, action: importBatch }
+  requirements: { sf_method: [post] }
+
+admin:
+  url:        /z3950/admin
+  param:      { module: z3950, action: admin }
+  credentials: [ is_admin ]         # Restrict admin panel to admin role
+
+new_target:
+  url:  /z3950/admin/targets/new
+  param: { module: z3950, action: newTarget }
+  requirements: {}
+
+create_target:
+  url:  /z3950/admin/targets
+  param: { module: z3950, action: createTarget }
+  requirements: { sf_method: [post] }
+  credentials: [ is_admin ]
+
+delete_target:
+  url:  /z3950/admin/targets/:id
+  param: { module: z3950, action: deleteTarget }
+  requirements: { sf_method: [delete] }
+  credentials: [ is_admin ]
+
+# SRU 2.0 — public endpoint (federated discovery, no auth)
+sru:
+  url:  /z3950/sru
+  param: { module: z3950, action: sru }
+  requirements: {}
+  is_secure: off

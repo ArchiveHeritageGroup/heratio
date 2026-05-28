@@ -5495,6 +5495,78 @@ class ResearchController extends Controller
         return redirect()->route('research.orcid')->with('success', 'ORCID unlinked.');
     }
 
+    /**
+     * AJAX: fetch a public ORCID record by iD and return prefill fields for the
+     * registration form. Public endpoint (no researcher account yet) - rate
+     * limited per IP. Returns {ok, fields} or {ok:false, error}.
+     */
+    public function orcidFetchPublic(Request $request)
+    {
+        $request->validate(['orcid_id' => 'required|string|max:64']);
+
+        $ip = (string) $request->ip();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts('orcid_fetch:' . $ip, 20)) {
+            return response()->json(['ok' => false, 'error' => 'Too many lookups, try again in a minute.'], 429);
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit('orcid_fetch:' . $ip, 60);
+
+        $svc = app(\AhgResearch\Services\OrcidService::class);
+        if (!$svc->isConfigured()) {
+            return response()->json(['ok' => false, 'error' => 'ORCID lookup is not configured on this server.'], 503);
+        }
+
+        $normalised = $svc->normaliseOrcidId($request->input('orcid_id'));
+        if (!$normalised) {
+            return response()->json(['ok' => false, 'error' => 'That does not look like a valid ORCID iD (expected 0000-0000-0000-0000).'], 422);
+        }
+
+        $record = $svc->fetchPublicRecord($normalised);
+        if (!$record) {
+            return response()->json(['ok' => false, 'error' => 'No public ORCID record found for ' . $normalised . ', or ORCID is unreachable.'], 404);
+        }
+
+        return response()->json([
+            'ok' => true,
+            'fields' => [
+                'orcid_id'           => $record['orcid_id'],
+                'first_name'         => $record['first_name'],
+                'last_name'          => $record['last_name'],
+                'institution'        => $record['institution'],
+                'department'         => $record['department'],
+                'position'           => $record['position'],
+                'research_interests' => $record['research_interests'],
+                'email'              => $record['emails'][0] ?? null,
+            ],
+        ]);
+    }
+
+    /**
+     * Pull the logged-in researcher's ORCID profile and apply it to their
+     * record. Used by the "Pull from ORCID" button on the profile/orcid page.
+     */
+    public function orcidPullProfile(Request $request)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        $svc = app(\AhgResearch\Services\OrcidService::class);
+        if (!$svc->isConfigured()) {
+            return redirect()->route('research.orcid')->with('error', 'ORCID is not configured on this server.');
+        }
+
+        try {
+            $record = $svc->pullProfile((int) $researcher->id);
+        } catch (\Throwable $e) {
+            return redirect()->route('research.orcid')->with('error', 'Profile pull failed: ' . $e->getMessage());
+        }
+
+        if (!$record) {
+            return redirect()->route('research.orcid')->with('error', 'No public ORCID record found to pull.');
+        }
+
+        return redirect()->route('research.orcid')->with('success', 'Profile details pulled from ORCID and applied to your researcher record.');
+    }
+
     // =========================================================================
     // REAL-TIME COLLABORATION (polling fallback)
     // =========================================================================

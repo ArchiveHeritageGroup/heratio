@@ -19,6 +19,11 @@ Route::prefix('research')->name('research.')->group(function () {
     Route::get('/registrationComplete', [ResearchController::class, 'registrationComplete'])->name('registrationComplete');
     Route::get('/cite/{slug}', [ResearchController::class, 'cite'])->name('cite');
     Route::get('/cite/{slug}/export/{format}', [ResearchController::class, 'citeExport'])->name('citeExport')->where('format', 'ris|bibtex|endnote|apa|mla|chicago');
+
+    // ORCID public-record lookup for register-form auto-populate (rate-limited
+    // in the controller). Public so both the staff register + public-register
+    // forms can prefill from an entered ORCID iD without an account.
+    Route::post('/orcid/fetch-public', [ResearchController::class, 'orcidFetchPublic'])->name('orcidFetchPublic');
 });
 
 Route::prefix('research')->name('research.')->middleware('auth')->group(function () {
@@ -138,6 +143,7 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::get('/orcid/authorize', [ResearchController::class, 'orcidAuthorize'])->name('orcidAuthorize');
     Route::get('/orcid/callback',  [ResearchController::class, 'orcidCallback'])->name('orcidCallback');
     Route::post('/orcid/sync',     [ResearchController::class, 'orcidSync'])->name('orcidSync');
+    Route::post('/orcid/pull-profile', [ResearchController::class, 'orcidPullProfile'])->name('orcidPullProfile');
     Route::post('/orcid/unlink',   [ResearchController::class, 'orcidUnlink'])->name('orcidUnlink');
 
     // Real-time collaboration (polling fallback)
