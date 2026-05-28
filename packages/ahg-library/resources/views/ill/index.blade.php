@@ -7,9 +7,12 @@
 
   {{-- Header ─────────────────────────────────────────────────────────── --}}
   <div class="d-flex align-items-center justify-content-between mb-4">
-    <h1 class="mb-0">
-      <i class="fas fa-globe me-2"></i>{{ __('Interlibrary Loans') }}
-    </h1>
+    <div class="d-flex align-items-center">
+      <a href="{{ route('library.index') }}" class="btn btn-outline-secondary btn-sm me-3" title="{{ __('Back to Library') }}"><i class="fas fa-arrow-left"></i></a>
+      <h1 class="mb-0">
+        <i class="fas fa-globe me-2"></i>{{ __('Interlibrary Loans') }}
+      </h1>
+    </div>
     <a href="{{ route('library.ill-create') }}" class="btn btn-primary">
       <i class="fas fa-plus me-1"></i>{{ __('New ILL Request') }}
     </a>

@@ -3,6 +3,7 @@
 namespace AhgLibrary\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 
 class AhgLibraryServiceProvider extends ServiceProvider
@@ -14,6 +15,14 @@ class AhgLibraryServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+
+        // Seed library-acquisition dropdown taxonomies.
+        // Schema: ahg_dropdown { taxonomy, taxonomy_label, taxonomy_section,
+        // code, label, sort_order, is_default, is_active, created_at, updated_at }
+        // taxonomy = group key; code = option value; label = display string.
+        $this->seedAcquisitionsDropdowns();
+
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-library');
@@ -63,6 +72,67 @@ class AhgLibraryServiceProvider extends ServiceProvider
                     ->monthlyOn(1, '04:00')
                     ->withoutOverlapping(120);
             });
+        }
+    }
+
+    protected function seedAcquisitionsDropdowns(): void
+    {
+        // Codes aligned with PSISA migration_full_library.sql.
+        $taxonomies = [
+            'library_order_status' => [
+                'label'   => 'Acquisition Order Status',
+                'section' => 'library',
+                'options' => [
+                    ['code' => 'draft',       'label' => 'Draft',                    'default' => true],
+                    ['code' => 'submitted',  'label' => 'Submitted',                  'default' => false],
+                    ['code' => 'approved',   'label' => 'Approved',                  'default' => false],
+                    ['code' => 'ordered',    'label' => 'Ordered',                   'default' => false],
+                    ['code' => 'partial',    'label' => 'Partially Received',         'default' => false],
+                    ['code' => 'received',   'label' => 'Received',                   'default' => false],
+                    ['code' => 'cancelled', 'label' => 'Cancelled',                 'default' => false],
+                ],
+            ],
+            'library_order_type' => [
+                'label'   => 'Acquisition Order Type',
+                'section' => 'library',
+                'options' => [
+                    ['code' => 'purchase',       'label' => 'Purchase Order',      'default' => true],
+                    ['code' => 'standing_order', 'label' => 'Standing Order',      'default' => false],
+                    ['code' => 'gift',           'label' => 'Gift / Donation',     'default' => false],
+                    ['code' => 'exchange',        'label' => 'Exchange',            'default' => false],
+                    ['code' => 'deposit',         'label' => 'Deposit Agreement',   'default' => false],
+                    ['code' => 'approval',        'label' => 'Approval Plan',       'default' => false],
+                ],
+            ],
+            'acq_payment_status' => [
+                'label'   => 'Acquisition Payment Status',
+                'section' => 'library',
+                'options' => [
+                    ['code' => 'unpaid',    'label' => 'Unpaid',                 'default' => true],
+                    ['code' => 'invoiced',  'label' => 'Invoiced',               'default' => false],
+                    ['code' => 'paid',      'label' => 'Paid',                   'default' => false],
+                    ['code' => 'overdue',   'label' => 'Overdue',                'default' => false],
+                    ['code' => 'refunded',  'label' => 'Refunded / Credited',    'default' => false],
+                ],
+            ],
+        ];
+
+        foreach ($taxonomies as $taxonomy => $def) {
+            foreach ($def['options'] as $idx => $opt) {
+                $isDefault = $opt['default'] ? 1 : 0;
+                DB::table('ahg_dropdown')->updateOrInsert(
+                    ['taxonomy' => $taxonomy, 'code' => $opt['code']],
+                    [
+                        'taxonomy_label'   => $def['label'],
+                        'taxonomy_section' => $def['section'],
+                        'label'            => $opt['label'],
+                        'sort_order'       => ($idx + 1) * 10,
+                        'is_default'       => $isDefault,
+                        'is_active'        => 1,
+                        'updated_at'       => now(),
+                    ]
+                );
+            }
         }
     }
 }

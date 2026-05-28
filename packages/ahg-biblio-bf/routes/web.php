@@ -2,6 +2,7 @@
 
 use AhgBiblioBf\Controllers\BibframeController;
 use AhgBiblioBf\Controllers\GraphEditorController;
+use AhgBiblioBf\Services\BibframeSerialisationService;
 use Illuminate\Support\Facades\Route;
 
 // BIBFRAME integration routes.
@@ -41,5 +42,33 @@ Route::middleware('web')->group(function () {
             ->name('bibframe.editor.subject')->whereNumber('libraryItemId');
         Route::post('/bibframe/editor/{libraryItemId}/subject/{termId}/delete', [GraphEditorController::class, 'deleteSubject'])
             ->name('bibframe.editor.subject.delete')->whereNumber('libraryItemId')->whereNumber('termId');
+    });
+
+    // LOD/SPARQL surface: BIBFRAME Turtle / JSON-LD downloads
+    // These are public (MARC/HATHITrust-style open LOD pattern).
+    Route::middleware('web')->group(function () {
+        Route::get('/lodsparql/bibframe/{workId}.ttl', function (int $workId) {
+            $service = app(BibframeSerialisationService::class);
+            $turtle = $service->toTurtle($workId);
+            if (str_starts_with($turtle, '<!--')) {
+                abort(400, 'Turtle format requires EasyRdf. Install: composer require easyrdf/easyrdf');
+            }
+            return response($turtle, 200, [
+                'Content-Type' => 'text/turtle; charset=utf-8',
+                'Content-Disposition' => "attachment; filename=bibframe-{$workId}.ttl",
+            ]);
+        })->name('bibframe.turtle')->whereNumber('workId');
+
+        Route::get('/lodsparql/bibframe/{workId}.jsonld', function (int $workId) {
+            $service = app(BibframeSerialisationService::class);
+            $jsonld = $service->toJsonLd($workId);
+            if (str_starts_with($jsonld, '<!--')) {
+                abort(400, 'JSON-LD format requires EasyRdf. Install: composer require easyrdf/easyrdf');
+            }
+            return response($jsonld, 200, [
+                'Content-Type' => 'application/ld+json; charset=utf-8',
+                'Content-Disposition' => "attachment; filename=bibframe-{$workId}.jsonld",
+            ]);
+        })->name('bibframe.jsonld')->whereNumber('workId');
     });
 });

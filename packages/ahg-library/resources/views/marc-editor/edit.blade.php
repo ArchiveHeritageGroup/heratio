@@ -92,7 +92,7 @@
                                     @if(isset($f245[$code]))
                                         <div class="row g-2 mb-2">
                                             <div class="col-md-2">
-                                                <span class="badge bg-light text-dark border">${{ $code }}</span>
+                                                <span class="badge bg-light text-dark border">\${{ $code }}</span>
                                             </div>
                                             <div class="col-md-10">
                                                 <input type="text" class="form-control" style="font-size:0.9rem"
@@ -118,7 +118,7 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th>Tag</th><th>Ind1</th><th>Ind2</th>
-                                        <th>$a (name)</th><th>$t (title)</th><th>$e (role)</th>
+                                        <th>\$a (name)</th><th>\$t (title)</th><th>\$e (role)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -148,6 +148,80 @@
                     </section>
                 @endif
 
+                {{-- Standard Identifiers (020/022/024/028) --}}
+                <section class="card mb-4">
+                    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+                        <h5 class="mb-0"><i class="fas fa-barcode me-2"></i>Standard Identifiers (020/022/024/028)</h5>
+                    </div>
+                    <div class="card-body">
+                        @php
+                            $idf = $formData['identifier_fields'] ?? [];
+                            $f020 = $idf['020'] ?? [];
+                            $f022 = $idf['022'] ?? [];
+                            $f024 = $idf['024'] ?? [];
+                            $f028 = $idf['028'] ?? [];
+                        @endphp
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label small">\$020\$a ISBN</label>
+                                <input type="text" class="form-control"
+                                       name="identifier_fields[020][a]"
+                                       value="{{ $f020['a'] ?? '' }}"
+                                       placeholder="978-0-123-45678-9">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">\$020\$c Price</label>
+                                <input type="text" class="form-control"
+                                       name="identifier_fields[020][c]"
+                                       value="{{ $f020['c'] ?? '' }}"
+                                       placeholder="R299.00">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">\$022\$a ISSN</label>
+                                <input type="text" class="form-control"
+                                       name="identifier_fields[022][a]"
+                                       value="{{ $f022['a'] ?? '' }}"
+                                       placeholder="1234-5678">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">\$022\$z Invalid ISBN</label>
+                                <input type="text" class="form-control"
+                                       name="identifier_fields[022][z]"
+                                       value="{{ $f022['z'] ?? '' }}"
+                                       placeholder="Invalid ISBN note">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">\$024\$a Other Std Number</label>
+                                <input type="text" class="form-control"
+                                       name="identifier_fields[024][a]"
+                                       value="{{ $f024['a'] ?? '' }}"
+                                       placeholder="">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">\$024\$2 Source</label>
+                                <input type="text" class="form-control"
+                                       name="identifier_fields[024][2]"
+                                       value="{{ $f024['2'] ?? '' }}"
+                                       placeholder="urn">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">\$028\$a Publisher Number Label</label>
+                                <input type="text" class="form-control"
+                                       name="identifier_fields[028][a]"
+                                       value="{{ $f028['a'] ?? '' }}"
+                                       placeholder="publisher label">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">\$028\$b Publisher Number</label>
+                                <input type="text" class="form-control"
+                                       name="identifier_fields[028][b]"
+                                       value="{{ $f028['b'] ?? '' }}"
+                                       placeholder="barcode / publisher no.">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 {{-- Publication Info --}}
                 @if(!empty($formData['publication_info']))
                     <section class="card mb-4">
@@ -158,21 +232,21 @@
                             @if(isset($formData['publication_info']['264']))
                                 @php $pub = $formData['publication_info']['264']; @endphp
                                 <div class="row g-2 mb-2">
-                                    <div class="col-md-2"><label class="form-label small">$a (place)</label>
+                                    <div class="col-md-2"><label class="form-label small">\$a (place)</label>
                                         <input type="text" class="form-control" name="publication_info[264][a]"
                                                value="{{ $pub['a'] ?? '' }}"></div>
-                                    <div class="col-md-6"><label class="form-label small">$b (name)</label>
+                                    <div class="col-md-6"><label class="form-label small">\$b (name)</label>
                                         <input type="text" class="form-control" name="publication_info[264][b]"
                                                value="{{ $pub['b'] ?? '' }}"></div>
                                     <div class="col-md-4"><label class="form-label small">Date</label>
                                         <input type="text" class="form-control" name="publication_info[date_1]"
-                                               value="{{ $formData['publication_info']['date_1'] ?? '' }}"></div>
+                                               value="{{ $formData == '' ? '' : ($formData['publication_info']['date_1'] ?? '') }}"></div>
                                 </div>
                             @else
                                 <div class="row g-2 mb-2">
-                                    <div class="col-md-2"><label class="form-label small">$a (place)</label>
+                                    <div class="col-md-2"><label class="form-label small">\$a (place)</label>
                                         <input type="text" class="form-control" name="publication_info[264][a]" value=""></div>
-                                    <div class="col-md-6"><label class="form-label small">$b (name)</label>
+                                    <div class="col-md-6"><label class="form-label small">\$b (name)</label>
                                         <input type="text" class="form-control" name="publication_info[264][b]" value=""></div>
                                     <div class="col-md-4"><label class="form-label small">Date</label>
                                         <input type="text" class="form-control" name="publication_info[date_1]" value=""></div>
@@ -181,6 +255,50 @@
                         </div>
                     </section>
                 @endif
+
+                {{-- RDA Carrier & Content Type (336/337/338) --}}
+                <section class="card mb-4">
+                    <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+                        <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>RDA Carrier & Content Type (336/337/338)</h5>
+                    </div>
+                    <div class="card-body">
+                        @php
+                            $rda = $formData['rda_fields'] ?? [];
+                            $f336 = $rda[336] ?? [];
+                            $f337 = $rda[337] ?? [];
+                            $f338 = $rda[338] ?? [];
+                        @endphp
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label small">\$336\$a Content Type</label>
+                                <select class="form-select" name="rda_fields[336][a]">
+                                    <option value="">-- select --</option>
+                                    @foreach(['text','cartographic image','notated movement','performed music','computer dataset','program','still image','moving image','three-dimensional form','tactile text','tactile notated','tactile image','tactile moving image','tactile three-dimensional form'] as $ct)
+                                        <option value="{{ $ct }}" {{ ($f336['a'] ?? '') === $ct ? 'selected' : '' }}>{{ $ct }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">\$337\$a Carrier Type</label>
+                                <select class="form-select" name="rda_fields[337][a]">
+                                    <option value="">-- select --</option>
+                                    @foreach(['audio cylinder','audio disc','audio roll','audio tape cassette','audio tape reel','computer chip cartridge','computer disc','computer tape cartridge','computer tape cassette','computer tape reel','online resource','microfilm cartridge','microfilm cassette','microfilm reel','microfiche','micro opaque cassette','remote online resource','tape cassette','tape reel','video cassette','video disc','video reel'] as $cr)
+                                        <option value="{{ $cr }}" {{ ($f337['a'] ?? '') === $cr ? 'selected' : '' }}>{{ $cr }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">\$338\$a Instance Type</label>
+                                <select class="form-select" name="rda_fields[338][a]">
+                                    <option value="">-- select --</option>
+                                    @foreach(['volume','issue','article','part','collection','sub-unit','single unit','serial'] as $it)
+                                        <option value="{{ $it }}" {{ ($f338['a'] ?? '') === $it ? 'selected' : '' }}>{{ $it }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
                 {{-- Physical Description --}}
                 @if(!empty($formData['physical_description']))
@@ -195,7 +313,7 @@
                                     @foreach(['a','b','c','e','f'] as $code)
                                         @if(isset($phys[$code]))
                                             <div class="col-md-6 mb-2">
-                                                <label class="form-label small">${{ $code }}</label>
+                                                <label class="form-label small">\${{ $code }}</label>
                                                 <input type="text" class="form-control"
                                                        name="physical_description[300][{{ $code }}]"
                                                        value="{{ $phys[$code] }}">
@@ -217,7 +335,7 @@
                         <div class="card-body p-0">
                             <table class="table table-sm mb-0">
                                 <thead class="table-light">
-                                    <tr><th>Tag</th><th>Ind1</th><th>Ind2</th><th>$a (term)</th><th>$x (subdivision)</th></tr>
+                                    <tr><th>Tag</th><th>Ind1</th><th>Ind2</th><th>\$a (term)</th><th>\$x (subdivision)</th></tr>
                                 </thead>
                                 <tbody>
                                     @foreach($formData['subject_access'] as $idx => $sa)
@@ -252,7 +370,7 @@
                         <div class="card-body p-0">
                             <table class="table table-sm mb-0">
                                 <thead class="table-light">
-                                    <tr><th>Tag</th><th>$a (content)</th></tr>
+                                    <tr><th>Tag</th><th>\$a (content)</th></tr>
                                 </thead>
                                 <tbody>
                                     @foreach($formData['notes'] as $idx => $note)
@@ -277,7 +395,7 @@
                         <div class="card-body p-0">
                             <table class="table table-sm mb-0">
                                 <thead class="table-light">
-                                    <tr><th>$u (URL)</th><th>$z (note)</th></tr>
+                                    <tr><th>\$u (URL)</th><th>\$z (note)</th></tr>
                                 </thead>
                                 <tbody>
                                     @foreach($formData['electronic_access'] as $idx => $ea)
@@ -296,6 +414,42 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
+                    </section>
+                @endif
+
+                {{-- Authority Control: link subject headings --}}
+                @if(!empty($formData['subject_access']))
+                    <section class="card mb-4">
+                        <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+                            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Authority Control</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">
+                                Link subject headings above to authority records for controlled vocabulary.
+                            </p>
+                            @php
+                                $firstSubject = $formData['subject_access'][0] ?? null;
+                                $authorityId = null;
+                                if ($firstSubject) {
+                                    $match = DB::table('library_subject_authority')
+                                        ->where('heading', $firstSubject['a'] ?? '')
+                                        ->where('subject_type', 'topic')
+                                        ->first();
+                                    $authorityId = $match->id ?? null;
+                                }
+                            @endphp
+                            @if($authorityId)
+                                <a href="/library-manage/authority/{{ $authorityId }}/link"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-link me-1"></i>Manage Authority Links
+                                </a>
+                            @else
+                                <a href="/library-manage/authority/create"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-plus me-1"></i>Create Subject Authority
+                                </a>
+                            @endif
                         </div>
                     </section>
                 @endif

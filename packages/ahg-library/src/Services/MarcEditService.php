@@ -176,6 +176,8 @@ class MarcEditService
      *                              'series_info' => [...],
      *                              'notes' => [...],
      *                              'electronic_access' => [...],
+     *                              'rda_fields' => [...],        (336/337/338)
+     *                              'identifier_fields' => [...], (020/022/024/028)
      *                              'raw_data' => parsed array
      */
     public function buildEditFormData(int $libraryItemId): array
@@ -311,6 +313,31 @@ class MarcEditService
             );
         }
 
+        // RDA Fields: 336, 337, 338
+        $rdaFields = [];
+        foreach ([336, 337, 338] as $tag) {
+            $field = $firstOf((string) $tag);
+            if ($field) {
+                $rdaFields[(string) $tag] = array_merge(
+                    ['ind1' => $field['ind1'], 'ind2' => $field['ind2']],
+                    $flatSubfields($field)
+                );
+            }
+        }
+
+        // Identifier fields: 020, 022, 024, 028
+        $identifierFields = [];
+        foreach ([20, 22, 24, 28] as $tag) {
+            $field = $firstOf(sprintf('%03d', $tag));
+            if ($field) {
+                $key = sprintf('%03d', $tag);
+                $identifierFields[$key] = array_merge(
+                    ['ind1' => $field['ind1'], 'ind2' => $field['ind2']],
+                    $flatSubfields($field)
+                );
+            }
+        }
+
         return [
             'info_object_id' => (int) $ioId,
             'library_item_id' => $libraryItemId,
@@ -324,6 +351,8 @@ class MarcEditService
             'series_info' => $seriesInfo,
             'notes' => $notes,
             'electronic_access' => $electronicAccess,
+            'rda_fields' => $rdaFields,
+            'identifier_fields' => $identifierFields,
             'raw_data' => $parsed,
         ];
     }
@@ -334,6 +363,16 @@ class MarcEditService
      *
      * Only columns that map directly from the form are updated.
      * No MARCXML round-trip is performed.
+     *
+     * Mappings:
+     *   rda_fields[336][a]    → content_type
+     *   rda_fields[337][a]    → carrier_type
+     *   rda_fields[338][a]    → instance_type
+     *   identifier_fields[020][a] → isbn
+     *   identifier_fields[022][a] → issn
+     *   identifier_fields[024][a] → oclc_number
+     *   identifier_fields[028][b] → barcode (if not already set)
+     *   publication_info[264][b] → publisher
      *
      * @param int $libraryItemId   Primary key of the library_item row.
      * @param array $formData      Form data from the Blade view (section keyed).
@@ -365,29 +404,22 @@ class MarcEditService
                     );
             }
 
-            // Update library_item columns from form data
+            // Map form sections to library_item column updates
             $libraryUpdates = [];
 
-            $isbnMap = [
-                'isbn_10' => 'isbn',
-                'isbn_13' => 'isbn',
-            ];
-            $directMap = [
-                'isbn' => 'isbn',
-                'issn' => 'issn',
-                'publisher' => 'publisher',
-                'publication_date' => 'publication_date',
-                'pagination' => 'pagination',
-                'physical_details' => 'physical_details',
-                'edition' => 'edition',
-                'edition_statement' => 'edition_statement',
-                'barcode' => 'barcode',
-                'shelf_location' => 'shelf_location',
-                'call_number' => 'call_number',
-                'classification_scheme' => 'classification_scheme',
-            ];
+            // RDA fields (336/337/338) → library_item
+            $rda = $formData['rda_fields'] ?? [];
+            if (! empty($rda[336]['a'])) {
+                $libraryUpdates['content_type'] = $rda[336]['a'];
+            }
+            if (! empty($rda[337]['a'])) {
+                $libraryUpdates['carrier_type'] = $rda[337]['a'];
+            }
+            if (! empty($rda[338]['a'])) {
+                $libraryUpdates['instance_type'] = $rda[338]['a'];
+            }
 
-            // Publication info → library_item
+            // Publication info (264) → library_item
             $pub = $formData['publication_info'] ?? [];
             if (! empty($pub['264']['a'])) {
                 $libraryUpdates['publication_place'] = $pub['264']['a'];
@@ -399,17 +431,43 @@ class MarcEditService
                 $libraryUpdates['publication_date'] = $pub['date_1'];
             }
 
-            // Physical description → library_item
+            // Physical description (300) → library_item
             $phys = $formData['physical_description'] ?? [];
             if (! empty($phys['300']['a'])) {
                 $libraryUpdates['pagination'] = $phys['300']['a'];
             }
 
-            // Notes → library_item summary / general_note
-            $notesData = $formData['notes'] ?? [];
-            foreach ($notesData as $note) {
-                if (($note['tag'] ?? '') === '500' && ! empty($note['a'])) {
-                    $libraryUpdates['general_note'] = trim(($libraryUpdates['general_note'] ?? '') . ' ' . $note['a']);
+            // Identifier fields (020/022/024/028) → library_item
+            $ids = $formData['identifier_fields'] ?? [];
+            if (! empty($ids['020']['a'])) {
+                $libraryUpdates['isbn'] = $ids['020']['a'];
+            }
+            if (! empty($ids['020']['c'])) {
+                $libraryUpdates['price'] = $ids['020']['c'];
+            }
+            if (! empty($ids['022']['a'])) {
+                $libraryUpdates['issn'] = $ids['022']['a'];
+            }
+            if (! empty($ids['024']['a'])) {
+                $libraryUpdates['oclc_number'] = $ids['024']['a'];
+            }
+            if (! empty($ids['028']['b'])) {
+                $currentBarcode = DB::table('library_item')
+                    ->where('id', $libraryItemId)
+                    ->value('barcode');
+                if (empty($currentBarcode)) {
+                    $libraryUpdates['barcode'] = $ids['028']['b'];
+                }
+            }
+
+            // Notes (5XX) → library_item general_note
+            if (isset($formData['notes']) && is_array($formData['notes'])) {
+                foreach ($formData['notes'] as $note) {
+                    if (($note['tag'] ?? '') === '500' && ! empty($note['a'])) {
+                        $libraryUpdates['general_note'] = trim(
+                            ($libraryUpdates['general_note'] ?? '') . ' ' . $note['a']
+                        );
+                    }
                 }
             }
 

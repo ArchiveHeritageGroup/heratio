@@ -6,7 +6,9 @@
 
     {{-- Page header --}}
     <div class="d-flex justify-content-between align-items-start mb-4">
-        <div>
+        <div class="d-flex align-items-start">
+            <a href="{{ route('library.index') }}" class="btn btn-outline-secondary btn-sm me-3 mt-1" title="{{ __('Back to Library') }}"><i class="fas fa-arrow-left"></i></a>
+            <div>
             <h1 class="h3 mb-1">
                 <i class="fas fa-chart-bar me-2"></i>
                 {{ $reportType === 'PR' ? 'Platform Usage Report' : "{$reportType} Report" }}
@@ -18,6 +20,7 @@
                     to {{ \Carbon\Carbon::parse($toDate)->format('M Y') }}
                 @endif
             </p>
+            </div>
         </div>
         <div class="d-flex gap-2">
             <div class="dropdown">

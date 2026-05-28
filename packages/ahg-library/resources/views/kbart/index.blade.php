@@ -5,13 +5,16 @@
 <div class="container py-4">
     {{-- Header --}}
     <div class="d-flex justify-content-between align-items-start mb-4">
-        <div>
+        <div class="d-flex align-items-start">
+            <a href="{{ route('library.index') }}" class="btn btn-outline-secondary btn-sm me-3 mt-1" title="{{ __('Back to Library') }}"><i class="fas fa-arrow-left"></i></a>
+            <div>
             <h1 class="h3 mb-1">
                 <i class="fas fa-table me-2"></i>{{ __('KBART Knowledge Base') }}
             </h1>
             <p class="text-muted small mb-0">
                 NISO KBART (ANSI/NISO Z39.83) — import, export, and manage your library title knowledge base.
             </p>
+            </div>
         </div>
         <span class="badge bg-info">KBART 1.2</span>
     </div>

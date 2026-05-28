@@ -3,7 +3,10 @@
 @section('content')
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>{{ __('Circulation') }}</h1>
+        <div class="d-flex align-items-center">
+            <a href="{{ route('library.index') }}" class="btn btn-outline-secondary btn-sm me-3" title="{{ __('Back to Library') }}"><i class="fas fa-arrow-left"></i></a>
+            <h1 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>{{ __('Circulation') }}</h1>
+        </div>
         <a href="{{ route('library.checkout-form') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Check Out Item') }}</a>
     </div>
 

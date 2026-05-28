@@ -6,6 +6,7 @@
  * Handles:
  *   - Index (landing page)
  *   - Import (batch MARCXML upload)
+ *   - Import binary MARC21 (ISO 2709)
  *   - Edit existing library items in MARC format
  *   - Download MARCXML / MARC binary
  *
@@ -24,6 +25,7 @@ namespace AhgLibrary\Controllers;
 
 use AhgLibrary\Services\LibraryService;
 use AhgLibrary\Services\MarcEditService;
+use AhgLibrary\Services\Marc21DecoderService;
 use AhgMetadataExport\Services\Exporters\Marc21BinaryEncoder;
 use AhgMetadataExport\Services\Importers\MarcXmlImporter;
 use App\Http\Controllers\Controller;
@@ -38,6 +40,7 @@ class MarcEditorController extends Controller
     private LibraryService $libraryService;
     private MarcXmlImporter $importer;
     private Marc21BinaryEncoder $encoder;
+    private Marc21DecoderService $decoder;
 
     public function __construct()
     {
@@ -45,40 +48,25 @@ class MarcEditorController extends Controller
         $this->libraryService = new LibraryService(app()->getLocale());
         $this->importer = new MarcXmlImporter();
         $this->encoder = new Marc21BinaryEncoder();
+        $this->decoder = new Marc21DecoderService();
     }
 
-    /**
-     * Landing page for the MARC editor module.
-     */
     public function index()
     {
         return view('ahg-library::marc-editor.index');
     }
 
-    /**
-     * Resolve the "edit by ID" GET form: the form submits ?id=N as a query
-     * param, but the edit route needs {id} in the path. Redirect to the
-     * path-based edit URL (validating it's numeric).
-     */
     public function editRedirect(Request $request)
     {
         $data = $request->validate(['id' => 'required|integer|min:1']);
         return redirect()->route('library.marc-edit', ['id' => (int) $data['id']]);
     }
 
-    /**
-     * Batch import page.
-     */
     public function import()
     {
         return view('ahg-library::marc-editor.import');
     }
 
-    /**
-     * Preview a MARCXML file before committing the import.
-     * Validates the file upload, parses the first record, and returns
-     * a preview table showing extracted fields grouped by MARC section.
-     */
     public function formImportPreview(Request $request)
     {
         $request->validate([
@@ -96,7 +84,6 @@ class MarcEditorController extends Controller
                     ->with('error', 'No MARC records found in the uploaded file.');
             }
 
-            // Group for display
             $previewData = $this->groupParsedFields($parsed);
 
             return view('ahg-library::marc-editor.import', [
@@ -111,9 +98,6 @@ class MarcEditorController extends Controller
         }
     }
 
-    /**
-     * Commit a MARCXML file import, creating library items via LibraryService.
-     */
     public function formImportCommit(Request $request)
     {
         $request->validate([
@@ -124,7 +108,6 @@ class MarcEditorController extends Controller
         $raw = file_get_contents($file->getRealPath());
 
         try {
-            $culture = app()->getLocale();
             $records = $this->importer->parseRecords($raw);
             $created = 0;
             $skipped = 0;
@@ -137,8 +120,7 @@ class MarcEditorController extends Controller
                     continue;
                 }
 
-                // Create library item via LibraryService
-                $ioId = $this->libraryService->create([
+                $this->libraryService->create([
                     'title' => $desc['title'],
                     'scope_and_content' => $desc['scope_and_content'] ?? null,
                     'extent_and_medium' => $desc['extent_and_medium'] ?? null,
@@ -163,9 +145,74 @@ class MarcEditorController extends Controller
         }
     }
 
-    /**
-     * Open the MARC editor for a specific library item.
-     */
+    public function importBinary()
+    {
+        return view('ahg-library::marc-editor.import-binary');
+    }
+
+    public function formBinaryPreview(Request $request)
+    {
+        $request->validate([
+            'marc_file' => 'required|file|max:20480',
+        ]);
+
+        $file = $request->file('marc_file');
+        $raw = file_get_contents($file->getRealPath());
+
+        try {
+            $syntax = $this->decoder->detectSyntax($raw);
+            if ($syntax === 'unknown') {
+                return redirect()->back()
+                    ->with('error', 'Unrecognised syntax. Provide a MARCXML or MARC21 binary file.');
+            }
+
+            if ($syntax === 'marcxml') {
+                $parsed = $this->marcEdit->parseMarcxml($raw);
+            } else {
+                $parsed = $this->decoder->decode($raw);
+            }
+
+            $previewData = $this->groupParsedFields($parsed);
+
+            return view('ahg-library::marc-editor.import-binary', [
+                'preview_data' => $previewData,
+                'raw_marc' => $raw,
+            ]);
+        } catch (Throwable $e) {
+            Log::error('MarcEditor formBinaryPreview error: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Failed to decode MARC binary: ' . $e->getMessage());
+        }
+    }
+
+    public function formBinaryCommit(Request $request)
+    {
+        $request->validate([
+            'marc_file' => 'required|string',
+        ]);
+
+        try {
+            $raw = base64_decode($request->input('marc_file'), true);
+            if ($raw === false) {
+                return redirect()->back()->with('error', 'Invalid base64-encoded MARC file.');
+            }
+
+            $ioId = $this->decoder->decodeToLibraryItem($raw);
+            if (! $ioId) {
+                return redirect()->back()->with('error', 'Failed to create library item from MARC record.');
+            }
+
+            $slug = DB::table('slug')->where('object_id', $ioId)->value('slug');
+
+            return redirect()->route('library.show', $slug)
+                ->with('success', 'MARC record created successfully.');
+        } catch (Throwable $e) {
+            Log::error('MarcEditor formBinaryCommit error: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Import failed: ' . $e->getMessage());
+        }
+    }
+
     public function edit(int $libraryItemId)
     {
         try {
@@ -185,12 +232,9 @@ class MarcEditorController extends Controller
         }
     }
 
-    /**
-     * Save edits made in the MARC editor form.
-     */
     public function update(Request $request, int $libraryItemId)
     {
-        $validated = $request->validate([
+        $request->validate([
             'info_object_id' => 'required|integer|exists:information_object,id',
         ]);
 
@@ -199,11 +243,9 @@ class MarcEditorController extends Controller
         $ok = $this->marcEdit->applyEdits($libraryItemId, $formData);
 
         if (! $ok) {
-            return redirect()->back()
-                ->with('error', 'Failed to save MARC edits.');
+            return redirect()->back()->with('error', 'Failed to save MARC edits.');
         }
 
-        // Redirect to the library item detail page
         $ioId = DB::table('library_item')->where('id', $libraryItemId)->value('information_object_id');
         $slug = DB::table('slug')->where('object_id', $ioId)->value('slug');
 
@@ -211,40 +253,26 @@ class MarcEditorController extends Controller
             ->with('success', 'MARC record updated successfully.');
     }
 
-    /**
-     * Download a library item as MARCXML.
-     */
     public function download(int $libraryItemId)
     {
         $marcxml = $this->marcEdit->exportLibraryItem($libraryItemId);
-
         if ($marcxml === '') {
             abort(404, 'No MARC record found for this library item.');
         }
 
-        $ioId = DB::table('library_item')
-            ->where('id', $libraryItemId)
-            ->value('information_object_id');
-        $title = DB::table('information_object_i18n')
-            ->where('id', $ioId)
-            ->value('title') ?? 'record';
-
+        $ioId = DB::table('library_item')->where('id', $libraryItemId)->value('information_object_id');
+        $title = DB::table('information_object_i18n')->where('id', $ioId)->value('title') ?? 'record';
         $safeTitle = preg_replace('/[^a-z0-9\-]/i', '_', (string) $title);
-        $filename = 'MARCXML_' . $safeTitle . '.xml';
 
         return response($marcxml, 200, [
             'Content-Type' => 'application/xml; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="' . $safeTitle . '.xml"',
         ]);
     }
 
-    /**
-     * Download a library item as MARC21 binary.
-     */
     public function downloadBinary(int $libraryItemId)
     {
         $marcxml = $this->marcEdit->exportLibraryItem($libraryItemId);
-
         if ($marcxml === '') {
             abort(404, 'No MARC record found for this library item.');
         }
@@ -253,39 +281,25 @@ class MarcEditorController extends Controller
             $binary = $this->encoder->encodeFromMarcxml($marcxml);
         } catch (Throwable $e) {
             Log::error('MarcEditor downloadBinary encode error: ' . $e->getMessage());
-            abort(500, 'Failed to encode MARC binary: ' . $e->getMessage());
+            abort(500, 'Failed to encode MARC binary.');
         }
 
-        $ioId = DB::table('library_item')
-            ->where('id', $libraryItemId)
-            ->value('information_object_id');
-        $title = DB::table('information_object_i18n')
-            ->where('id', $ioId)
-            ->value('title') ?? 'record';
-
+        $ioId = DB::table('library_item')->where('id', $libraryItemId)->value('information_object_id');
+        $title = DB::table('information_object_i18n')->where('id', $ioId)->value('title') ?? 'record';
         $safeTitle = preg_replace('/[^a-z0-9\-]/i', '_', (string) $title);
-        $filename = 'MARC21_' . $safeTitle . '.mrc';
 
         return response($binary, 200, [
             'Content-Type' => 'application/marc',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="' . $safeTitle . '.mrc"',
         ]);
     }
 
-    /**
-     * Group parsed MARC fields into display sections for the import preview.
-     *
-     * @param array $parsed  Output of parseMarcxml().
-     * @return array         Grouped array of sections with human-readable labels.
-     */
     private function groupParsedFields(array $parsed): array
     {
         $control = $parsed['control'] ?? [];
         $data = $parsed['data'] ?? [];
-
         $sections = [];
 
-        // Leader
         if (! empty($parsed['leader'])) {
             $sections['leader'] = [
                 'label' => 'Leader',
@@ -293,104 +307,62 @@ class MarcEditorController extends Controller
             ];
         }
 
-        // Control fields
         if (! empty($control)) {
             $cfList = [];
             foreach ($control as $tag => $value) {
                 $cfList[] = ['tag' => $tag, 'value' => $value];
             }
-            $sections['control_fields'] = [
-                'label' => 'Control Fields (00X)',
-                'fields' => $cfList,
-            ];
+            $sections['control_fields'] = ['label' => 'Control Fields (00X)', 'fields' => $cfList];
         }
 
-        // Title statement
-        $titleFields = array_values(array_filter($data, fn($f) => $f['tag'] === '245'));
+        $titleFields = array_values(array_filter($data, fn($f) => ($f['tag'] ?? '') === '245'));
         if ($titleFields) {
-            $sections['title_statement'] = [
-                'label' => 'Title Statement (245)',
-                'fields' => $titleFields,
-            ];
+            $sections['title_statement'] = ['label' => 'Title Statement (245)', 'fields' => $titleFields];
         }
 
-        // Main entry
-        $mainEntryFields = array_values(array_filter($data, fn($f) => in_array($f['tag'], ['100', '110', '111'])));
+        $mainEntryFields = array_values(array_filter($data, fn($f) => in_array($f['tag'] ?? '', ['100', '110', '111'])));
         if ($mainEntryFields) {
-            $sections['main_entry'] = [
-                'label' => 'Main Entry (1XX)',
-                'fields' => $mainEntryFields,
-            ];
+            $sections['main_entry'] = ['label' => 'Main Entry (1XX)', 'fields' => $mainEntryFields];
         }
 
-        // Added entries
-        $addedFields = array_values(array_filter($data, fn($f) => in_array($f['tag'], ['700', '710', '711'])));
+        $addedFields = array_values(array_filter($data, fn($f) => in_array($f['tag'] ?? '', ['700', '710', '711'])));
         if ($addedFields) {
-            $sections['added_entries'] = [
-                'label' => 'Added Entries (7XX)',
-                'fields' => $addedFields,
-            ];
+            $sections['added_entries'] = ['label' => 'Added Entries (7XX)', 'fields' => $addedFields];
         }
 
-        // Publication info
-        $pubFields = array_values(array_filter($data, fn($f) => in_array($f['tag'], ['260', '264'])));
+        $pubFields = array_values(array_filter($data, fn($f) => in_array($f['tag'] ?? '', ['260', '264'])));
         if ($pubFields) {
-            $sections['publication_info'] = [
-                'label' => 'Publication (260/264)',
-                'fields' => $pubFields,
-            ];
+            $sections['publication_info'] = ['label' => 'Publication (260/264)', 'fields' => $pubFields];
         }
 
-        // Physical description
-        $physFields = array_values(array_filter($data, fn($f) => in_array($f['tag'], ['300', '007'])));
+        $physFields = array_values(array_filter($data, fn($f) => in_array($f['tag'] ?? '', ['300', '007'])));
         if ($physFields) {
-            $sections['physical_description'] = [
-                'label' => 'Physical Description (300/007)',
-                'fields' => $physFields,
-            ];
+            $sections['physical_description'] = ['label' => 'Physical Description (300/007)', 'fields' => $physFields];
         }
 
-        // Subject access
-        $subjFields = array_values(array_filter($data, fn($f) => preg_match('/^6\d{2}$/', $f['tag'])));
+        $subjFields = array_values(array_filter($data, fn($f) => preg_match('/^6\d{2}$/', $f['tag'] ?? '')));
         if ($subjFields) {
-            $sections['subject_access'] = [
-                'label' => 'Subject Access (6XX)',
-                'fields' => $subjFields,
-            ];
+            $sections['subject_access'] = ['label' => 'Subject Access (6XX)', 'fields' => $subjFields];
         }
 
-        // Notes
-        $noteFields = array_values(array_filter($data, fn($f) => preg_match('/^5\d{2}$/', $f['tag'])));
+        $noteFields = array_values(array_filter($data, fn($f) => preg_match('/^5\d{2}$/', $f['tag'] ?? '')));
         if ($noteFields) {
-            $sections['notes'] = [
-                'label' => 'Notes (5XX)',
-                'fields' => $noteFields,
-            ];
+            $sections['notes'] = ['label' => 'Notes (5XX)', 'fields' => $noteFields];
         }
 
-        // Electronic access
-        $eaFields = array_values(array_filter($data, fn($f) => $f['tag'] === '856'));
+        $eaFields = array_values(array_filter($data, fn($f) => ($f['tag'] ?? '') === '856'));
         if ($eaFields) {
-            $sections['electronic_access'] = [
-                'label' => 'Electronic Access (856)',
-                'fields' => $eaFields,
-            ];
+            $sections['electronic_access'] = ['label' => 'Electronic Access (856)', 'fields' => $eaFields];
         }
 
-        // All remaining data fields
-        $remainingTags = array_diff(
-            array_unique(array_column($data, 'tag')),
-            ['245', '100', '110', '111', '700', '710', '711', '260', '264', '300', '007', '856']
-        );
-        // Also exclude anything matching 5XX, 6XX (already captured)
-        $remainingTags = array_filter($remainingTags, fn($t) => !preg_match('/^[56]\d{2}$/', $t));
+        $rdaFields = array_values(array_filter($data, fn($f) => in_array($f['tag'] ?? '', ['336', '337', '338'])));
+        if ($rdaFields) {
+            $sections['rda_fields'] = ['label' => 'RDA Fields (336/337/338)', 'fields' => $rdaFields];
+        }
 
-        if (! empty($remainingTags)) {
-            $otherFields = array_values(array_filter($data, fn($f) => in_array($f['tag'], $remainingTags)));
-            $sections['other'] = [
-                'label' => 'Other Fields',
-                'fields' => $otherFields,
-            ];
+        $idFields = array_values(array_filter($data, fn($f) => in_array($f['tag'] ?? '', ['020', '022', '024', '028'])));
+        if ($idFields) {
+            $sections['identifier_fields'] = ['label' => 'Standard Identifiers (020/022/024/028)', 'fields' => $idFields];
         }
 
         return $sections;
