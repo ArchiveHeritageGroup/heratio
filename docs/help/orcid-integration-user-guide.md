@@ -129,7 +129,20 @@ The free Public API is enough for Fetch-from-ORCID and profile pull. Pushing cit
 
 ## 9. Configuration
 
-An administrator sets these in `.env`, then runs `php artisan config:clear`:
+**Fetch from ORCID + Pull profile need no configuration at all** - they read the public ORCID record tokenless against `pub.orcid.org`, so a researcher can auto-populate immediately with zero ORCID setup.
+
+**Connect & Sync is self-service per researcher** - there is no global admin / `.env` step. On your `/research/orcid` page, the "My ORCID app credentials" panel lets *you* register your own free ORCID client and paste its Client ID + Secret:
+
+1. Go to https://orcid.org/developer-tools and sign in.
+2. Register for the free public API; set the redirect URI to exactly the value shown on the page (`https://your-host/research/orcid/callback`).
+3. Paste the **Client ID** and **Client Secret** into the form and Save. Pick Public API (free) or Member API (to push citations).
+4. Click **Connect & Sync** - your OAuth now uses *your* client.
+
+Credentials are stored per researcher (`researcher_orcid_credential`, secret encrypted at rest). An administrator never has to manage ORCID for individual researchers.
+
+### Optional global fallback (`.env`)
+
+An operator may still set a single institutional client in `.env` as a fallback for researchers who haven't entered their own. This is optional:
 
 | Key | Example | Notes |
 |---|---|---|
@@ -139,9 +152,7 @@ An administrator sets these in `.env`, then runs `php artisan config:clear`:
 | `ORCID_BASE` | `https://orcid.org` | Use `https://sandbox.orcid.org` for testing |
 | `ORCID_API_BASE` | `https://pub.orcid.org` | Use `https://api.orcid.org` for the Member API |
 
-**Fetch from ORCID + Pull profile need no configuration at all** - they read the public ORCID record tokenless against `pub.orcid.org`, so a researcher can auto-populate immediately on a fresh install with zero ORCID setup.
-
-Credentials are only required for **Connect & Sync** (the OAuth flow that stores a token to pull Works + push citations). Register a free client at https://orcid.org/developer-tools. Until `ORCID_CLIENT_ID` and `ORCID_CLIENT_SECRET` are set, only Connect & Sync is inert; Fetch + Pull-profile remain fully functional.
+A researcher's own credentials always take precedence over the global fallback.
 
 ---
 

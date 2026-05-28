@@ -307,9 +307,11 @@ Five render modes (via `media_player_type` setting):
 
 **JS fallthrough:** all init wrapped in try/catch; falls back to minimal layout on failure.
 
-**Waveform placeholder:** HTML structure exists for WaveSurfer.js overlay (`media_show_waveform` setting + comment); **WaveSurfer.js library is not loaded** — gap.
+**Waveform:** WaveSurfer.js 7.x loaded at `vendor/wavesurfer/wavesurfer.min.js` (`master.blade.php:149`). Full init in `master.blade.php:289-369`: feature-detected `WaveSurfer.create()`, media binding, DOM canvas swap, graceful fallback. `media_show_waveform` toggle fully wired. **RESOLVED as of v1.108 (issue #101).**
 
 **Transcription panel:** shown on media pages when `media_transcription_enabled = true`. Displays segments, full text, language, confidence badge. Download links for WebVTT and SRT.
+
+**Whisper transcription:** binary check via `MediaProcessingController`; direct invocation at `MediaController.php:154`; `media_transcription` table live; WebVTT/SRT export routes live. No queued job (synchronous only). Gap is async scheduling, not basic wiring.
 
 ### 4.9 Transcription
 
@@ -634,12 +636,11 @@ AES-256-CBC encryption via Laravel's `Crypt` facade. Used for PII fields:
 
 | Table | Encrypted columns |
 |---|---|
+| `naz_researcher` | `phone`, `national_id`, `passport_number`, `address`, `notes` (via `CATEGORY_CONTACT_DETAILS` + `CATEGORY_PERSONAL_NOTES`) |
 | `research_researcher` | `phone`, `id_number`, `notes` |
 | `access_request` | `id_number`, `phone` |
 
-**Verified:** `ResearchService::registerResearcher()` and `updateResearcher()` call `encrypt()` before insert/update; `ResearchController::viewResearcher()` calls `decrypt()` before rendering.
-
-**Gap:** NAZ researcher (`naz_researcher` table: `phone`, `national_id`, `passport_number`) is NOT encrypted — no gate in `NazController`.
+**Verified:** `NazController` encrypts on write via `encryptResearcherPii()`; decrypts on read via `decryptResearcherPii()` — UI gets plaintext. `ResearchService::registerResearcher()` and `updateResearcher()` call `encrypt()` before insert/update. **NAZ researcher encryption confirmed (RESOLVED v1.120).**
 
 ---
 
@@ -753,11 +754,11 @@ ODRL (Open Digital Rights Language) policy management for researcher access deci
 
 | Gap | Severity | Reference |
 |---|---|---|
-| NAZ researcher PII not encrypted | High | `NazController` — phone, national_id, passport_number stored plaintext |
-| WaveSurfer.js waveform (setting + HTML exist; library not loaded) | Medium | `media_show_waveform` toggle; waveform area placeholder; WaveSurfer JS not in page |
-| Plyr/Video.js JS/CSS bundling (wrapper comments exist; actual `<script>` tags not confirmed) | Medium | `master.blade.php` comments reference bundling; actual enqueue not verified in audit |
-| Whisper transcription pipeline (binary check + invocation; full job queue not confirmed) | Medium | `MediaController` has whisper invocation; queued job not found |
-| IIIF AV TemporalCanvas (tested; full manifest emission not confirmed end-to-end) | Medium | `IiifAvCanvasEmissionTest.php` exists; AV manifests not confirmed served |
+| NAZ researcher PII not encrypted | **RESOLVED v1.120** | Full encrypt/decrypt in `NazController` |
+| WaveSurfer.js waveform | **RESOLVED v1.108** | Full init in `master.blade.php:149,289-369` |
+| Plyr/Video.js bundling | **RESOLVED v1.108** | asset helpers + `new window.Plyr/Video.js()` in master.blade.php |
+| Whisper transcription pipeline | PARTIAL | Binary check + sync invocation live; no async job |
+| IIIF AV TemporalCanvas (W3C Range slices) | PARTIAL | `buildAvCanvasV3` carries `duration`; temporal slices not yet emitted |
 | Scheduled batch job for researcher expiration notifications | Low | No cron/artisan command found |
 | ORCID scheduled sync job | Low | Routes exist; scheduler not found |
 | Scheduled batch job for A/V derivative re-generation | Low | `MediaDerivativeService::generateForMaster()` called from scan job; no bulk scheduler |

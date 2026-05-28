@@ -51,37 +51,101 @@ use RuntimeException;
  */
 class OrcidService
 {
+    /** Global (env) configuration check - kept for back-compat. */
     public function isConfigured(): bool
     {
         return (bool) $this->clientId() && (bool) $this->clientSecret() && (bool) $this->redirectUri();
     }
 
-    public function authorizeUrl(?string $state = null): string
+    /**
+     * Per-researcher OAuth credentials. A researcher registers their own free
+     * client at orcid.org/developer-tools and stores it here, so Connect & Sync
+     * is self-service. Falls back to the global env client when the researcher
+     * has not set their own. Returns ['client_id','client_secret','redirect_uri','api_base'].
+     */
+    public function getCredentials(?int $researcherId): array
+    {
+        if ($researcherId) {
+            try {
+                $row = DB::table('researcher_orcid_credential')->where('researcher_id', $researcherId)->first();
+            } catch (\Throwable) {
+                $row = null;
+            }
+            if ($row && $row->client_id) {
+                return [
+                    'client_id'     => $row->client_id,
+                    'client_secret' => $this->decrypt($row->client_secret_encrypted ?? ''),
+                    'redirect_uri'  => $row->redirect_uri ?: $this->redirectUri(),
+                    'api_base'      => $row->api_base ? rtrim($row->api_base, '/') : $this->apiBase(),
+                ];
+            }
+        }
+        // Global env fallback
+        return [
+            'client_id'     => $this->clientId(),
+            'client_secret' => $this->clientSecret(),
+            'redirect_uri'  => $this->redirectUri(),
+            'api_base'      => $this->apiBase(),
+        ];
+    }
+
+    /** True when this researcher (or the global env) has a usable OAuth client. */
+    public function isConfiguredFor(?int $researcherId): bool
+    {
+        $c = $this->getCredentials($researcherId);
+        return (bool) $c['client_id'] && (bool) $c['client_secret'] && (bool) $c['redirect_uri'];
+    }
+
+    /** Save / update a researcher's own ORCID client credentials (secret encrypted). */
+    public function saveCredentials(int $researcherId, string $clientId, string $clientSecret, ?string $redirectUri = null, ?string $apiBase = null): void
+    {
+        DB::table('researcher_orcid_credential')->updateOrInsert(
+            ['researcher_id' => $researcherId],
+            [
+                'client_id'               => trim($clientId),
+                'client_secret_encrypted' => $this->encrypt(trim($clientSecret)),
+                'redirect_uri'            => $redirectUri ?: $this->redirectUri(),
+                'api_base'                => $apiBase,
+                'updated_at'              => date('Y-m-d H:i:s'),
+                'created_at'              => date('Y-m-d H:i:s'),
+            ]
+        );
+    }
+
+    /** Remove a researcher's stored client credentials. */
+    public function clearCredentials(int $researcherId): void
+    {
+        DB::table('researcher_orcid_credential')->where('researcher_id', $researcherId)->delete();
+    }
+
+    public function authorizeUrl(?int $researcherId = null, ?string $state = null): string
     {
         $state = $state ?: Str::random(40);
         session(['orcid_oauth_state' => $state]);
+        $c = $this->getCredentials($researcherId);
 
         return $this->baseUrl() . '/oauth/authorize?' . http_build_query([
-            'client_id'     => $this->clientId(),
+            'client_id'     => $c['client_id'],
             'response_type' => 'code',
             'scope'         => '/authenticate /read-limited /activities/update',
-            'redirect_uri'  => $this->redirectUri(),
+            'redirect_uri'  => $c['redirect_uri'],
             'state'         => $state,
         ]);
     }
 
-    public function exchangeCode(string $code): array
+    public function exchangeCode(string $code, ?int $researcherId = null): array
     {
-        if (!$this->isConfigured()) {
-            throw new RuntimeException('ORCID not configured');
+        $c = $this->getCredentials($researcherId);
+        if (!$c['client_id'] || !$c['client_secret'] || !$c['redirect_uri']) {
+            throw new RuntimeException('ORCID client not configured for this researcher');
         }
 
         $resp = Http::asForm()->post($this->baseUrl() . '/oauth/token', [
-            'client_id'     => $this->clientId(),
-            'client_secret' => $this->clientSecret(),
+            'client_id'     => $c['client_id'],
+            'client_secret' => $c['client_secret'],
             'grant_type'    => 'authorization_code',
             'code'          => $code,
-            'redirect_uri'  => $this->redirectUri(),
+            'redirect_uri'  => $c['redirect_uri'],
         ]);
 
         if (!$resp->ok()) {

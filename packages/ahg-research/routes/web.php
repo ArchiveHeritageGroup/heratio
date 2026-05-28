@@ -144,6 +144,8 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::get('/orcid/callback',  [ResearchController::class, 'orcidCallback'])->name('orcidCallback');
     Route::post('/orcid/sync',     [ResearchController::class, 'orcidSync'])->name('orcidSync');
     Route::post('/orcid/pull-profile', [ResearchController::class, 'orcidPullProfile'])->name('orcidPullProfile');
+    Route::post('/orcid/credentials', [ResearchController::class, 'orcidSaveCredentials'])->name('orcidSaveCredentials');
+    Route::post('/orcid/credentials/clear', [ResearchController::class, 'orcidClearCredentials'])->name('orcidClearCredentials');
     Route::post('/orcid/unlink',   [ResearchController::class, 'orcidUnlink'])->name('orcidUnlink');
 
     // Real-time collaboration (polling fallback)

@@ -5424,12 +5424,48 @@ class ResearchController extends Controller
 
         $svc = app(\AhgResearch\Services\OrcidService::class);
         $link = $svc->getLink((int) $researcher->id);
-        $isConfigured = $svc->isConfigured();
+        // Per-researcher self-service: each researcher supplies their own ORCID
+        // client. isConfigured reflects THIS researcher's creds (or the global
+        // env fallback). Tokenless Fetch/Pull-profile work regardless.
+        $isConfigured = $svc->isConfiguredFor((int) $researcher->id);
+        $orcidCreds = $svc->getCredentials((int) $researcher->id);
+        $orcidRedirectUri = url('/research/orcid/callback');
 
         return view('research::research.orcid-link', array_merge(
             $this->getSidebarData('orcid'),
-            compact('researcher', 'link', 'isConfigured')
+            compact('researcher', 'link', 'isConfigured', 'orcidCreds', 'orcidRedirectUri')
         ));
+    }
+
+    public function orcidSaveCredentials(Request $request)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        $data = $request->validate([
+            'client_id'     => 'required|string|max:100',
+            'client_secret' => 'required|string|max:255',
+            'api_base'      => 'nullable|in:https://pub.orcid.org,https://api.orcid.org',
+        ]);
+
+        app(\AhgResearch\Services\OrcidService::class)->saveCredentials(
+            (int) $researcher->id,
+            $data['client_id'],
+            $data['client_secret'],
+            url('/research/orcid/callback'),
+            $data['api_base'] ?? null
+        );
+
+        return redirect()->route('research.orcid')->with('success', 'ORCID client credentials saved. You can now Connect & Sync.');
+    }
+
+    public function orcidClearCredentials(Request $request)
+    {
+        $researcher = $this->getResearcherOrRedirect();
+        if (!is_object($researcher)) return $researcher;
+
+        app(\AhgResearch\Services\OrcidService::class)->clearCredentials((int) $researcher->id);
+        return redirect()->route('research.orcid')->with('success', 'ORCID client credentials removed.');
     }
 
     public function orcidAuthorize(Request $request)
@@ -5438,12 +5474,12 @@ class ResearchController extends Controller
         if (!is_object($researcher)) return $researcher;
 
         $svc = app(\AhgResearch\Services\OrcidService::class);
-        if (!$svc->isConfigured()) {
-            return redirect()->route('research.orcid')->with('error', 'ORCID is not configured. Set ORCID_CLIENT_ID, ORCID_CLIENT_SECRET and ORCID_REDIRECT_URI.');
+        if (!$svc->isConfiguredFor((int) $researcher->id)) {
+            return redirect()->route('research.orcid')->with('error', 'Enter your ORCID Client ID and Secret first, then Connect & Sync.');
         }
 
         session(['orcid_researcher_id' => $researcher->id]);
-        return redirect()->away($svc->authorizeUrl());
+        return redirect()->away($svc->authorizeUrl((int) $researcher->id));
     }
 
     public function orcidCallback(Request $request)
@@ -5462,7 +5498,7 @@ class ResearchController extends Controller
 
         $svc = app(\AhgResearch\Services\OrcidService::class);
         try {
-            $token = $svc->exchangeCode($code);
+            $token = $svc->exchangeCode($code, (int) $researcher->id);
             $svc->linkResearcher((int) $researcher->id, $token);
         } catch (\Throwable $e) {
             return redirect()->route('research.orcid')->with('error', 'ORCID link failed: ' . $e->getMessage());
