@@ -150,9 +150,11 @@
           </a>
         @endif
 
+        @if(!empty($taxonomyId))
         <a class="btn btn-sm atom-btn-white ms-auto" href="{{ route('term.treeView', ['taxonomyId' => $taxonomyId]) }}">
           <i class="fas fa-sitemap me-1" aria-hidden="true"></i>{{ __('Tree view') }}
         </a>
+        @endif
       </form>
     </div>
 @endsection

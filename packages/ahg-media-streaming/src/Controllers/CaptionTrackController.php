@@ -191,4 +191,30 @@ class CaptionTrackController extends Controller
             ->route('caption-tracks.index', $digitalObjectId)
             ->with('success', 'Remote VTT content fetched and saved.');
     }
+
+    /**
+     * GET /media-streaming/captions/{trackId}
+     *
+     * Public: serve the WebVTT blob for one track so the HTML5 <track>
+     * element can load it. The media-player renders <track src="...captions/{id}">.
+     */
+    public function serve(int $trackId): \Illuminate\Http\Response
+    {
+        $vtt = $this->captionService->getVttBlob($trackId);
+
+        if ($vtt === null || $vtt === '') {
+            abort(404);
+        }
+
+        // Ensure a WEBVTT header so browsers accept the cue list even if a
+        // stored blob was saved without one. Strip an optional UTF-8 BOM first.
+        if (!preg_match('/^(?:\xEF\xBB\xBF)?WEBVTT/', $vtt)) {
+            $vtt = "WEBVTT\n\n" . ltrim($vtt);
+        }
+
+        return response($vtt, 200, [
+            'Content-Type'  => 'text/vtt; charset=UTF-8',
+            'Cache-Control' => 'public, max-age=3600',
+        ]);
+    }
 }

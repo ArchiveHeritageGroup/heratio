@@ -51,22 +51,11 @@ return new class extends Migration {
             });
         }
 
-        // Make sure ahg_notification exists with a flexible schema the chatbot
-        // escalation + KBART scheduler both use. Create minimally if absent.
-        if (!Schema::hasTable('ahg_notification')) {
-            Schema::create('ahg_notification', function (Blueprint $t) {
-                $t->id();
-                $t->string('recipient_role', 64)->nullable();
-                $t->unsignedBigInteger('recipient_user_id')->nullable();
-                $t->string('subject', 255);
-                $t->text('body')->nullable();
-                $t->json('metadata')->nullable();
-                $t->timestamp('read_at')->nullable();
-                $t->timestamp('created_at')->useCurrent();
-                $t->index('recipient_role');
-                $t->index('recipient_user_id');
-            });
-        }
+        // ahg_notification is created by ahg-core's own install path and uses
+        // the (user_id, type, title, message, link, related_type, related_id,
+        // is_read) shape. This migration intentionally does NOT recreate it -
+        // a previous draft did and shipped with a divergent shape that
+        // collided at insert-time. Consumers must always use the real schema.
     }
 
     public function down(): void

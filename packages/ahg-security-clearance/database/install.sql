@@ -458,9 +458,13 @@ CREATE TABLE IF NOT EXISTS `user_totp_secret` (
   KEY `idx_enabled_at` (`enabled_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- NOTE: user_id is signed `int` (NOT `int unsigned`) to match the FK target
+-- user_totp_secret.user_id. MySQL FK constraints require exact type match
+-- including signedness; a mismatch raises error 3780 and aborts the install
+-- batch before the tables defined below ever get created. Keep this signed.
 CREATE TABLE IF NOT EXISTS `user_mfa_recovery_code` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int unsigned NOT NULL,
+  `user_id` int NOT NULL,
   `code_hash` varchar(255) NOT NULL,
   `used_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,

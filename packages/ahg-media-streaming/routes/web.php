@@ -15,8 +15,9 @@ Route::get('/media-streaming/stream/{digitalObjectId}', [MediaStreamController::
     ->name('media-streaming.stream');
 
 // Caption track VTT endpoint — public (video players need direct access)
-Route::get('/media-streaming/captions/{trackId}', [MediaStreamController::class, 'captionTrack'])
-    ->name('media-streaming.captions');
+Route::get('/media-streaming/captions/{trackId}', [CaptionTrackController::class, 'serve'])
+    ->name('media-streaming.captions')
+    ->whereNumber('trackId');
 
 // Admin-capable routes (auth required)
 Route::middleware('auth')->group(function () {

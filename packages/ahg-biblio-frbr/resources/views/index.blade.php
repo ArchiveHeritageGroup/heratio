@@ -1,5 +1,5 @@
 {{-- ahg-biblio-frbr/index.blade.php — FRBR integration dashboard --}}
-@extends('layouts.app')
+@extends('theme::layouts.1col')
 
 @section('content')
 <div class="container-fluid py-4">

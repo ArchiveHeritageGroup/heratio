@@ -50,10 +50,14 @@ class FrbrController extends Controller
      */
     public function index(): Response
     {
+        // The library_biblio_* scaffold is optional; the live FRBR surface is
+        // the work-key clustering over library_item. Degrade to zeros when the
+        // scaffold tables are absent rather than 500 the dashboard.
+        $schema = \Illuminate\Support\Facades\Schema::connection('heratio');
         $stats = [
-            'frbr_works' => DB::connection('heratio')->table('library_biblio_work')->count(),
-            'frbr_expressions' => DB::connection('heratio')->table('library_biblio_instance')->count(),
-            'frbr_items' => DB::connection('heratio')->table('library_biblio_item')->count(),
+            'frbr_works'       => $schema->hasTable('library_biblio_work')     ? DB::connection('heratio')->table('library_biblio_work')->count()     : 0,
+            'frbr_expressions' => $schema->hasTable('library_biblio_instance')  ? DB::connection('heratio')->table('library_biblio_instance')->count()  : 0,
+            'frbr_items'       => $schema->hasTable('library_biblio_item')      ? DB::connection('heratio')->table('library_biblio_item')->count()      : 0,
         ];
 
         return response()->view('ahg-biblio-frbr::index', [

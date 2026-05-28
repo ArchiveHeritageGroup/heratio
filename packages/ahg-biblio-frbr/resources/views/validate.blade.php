@@ -1,5 +1,5 @@
 {{-- ahg-biblio-frbr/validate.blade.php — FRBR validation UI --}}
-@extends('layouts.app')
+@extends('theme::layouts.1col')
 
 @section('content')
 <div class="container-fluid py-4">

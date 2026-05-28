@@ -1,5 +1,5 @@
 {{-- ahg-biblio-frbr/agent.blade.php — FRBR agent browser --}}
-@extends('layouts.app')
+@extends('theme::layouts.1col')
 
 @section('content')
 <div class="container-fluid py-4">

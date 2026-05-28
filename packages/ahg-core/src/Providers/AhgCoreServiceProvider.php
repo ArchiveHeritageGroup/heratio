@@ -100,6 +100,7 @@ class AhgCoreServiceProvider extends ServiceProvider
         // Register artisan commands
         if ($this->app->runningInConsole()) {
             $this->commands([
+                \AhgCore\Console\Commands\NasWatchdogCommand::class,
                 \AhgCore\Commands\SearchPopulateCommand::class,
                 \AhgCore\Commands\SearchUpdateCommand::class,
                 \AhgCore\Commands\SearchCleanupCommand::class,
@@ -328,6 +329,13 @@ class AhgCoreServiceProvider extends ServiceProvider
                 $schedule->command('ahg:regen-derivatives --type=all')
                     ->weeklyOn(0, '02:00')
                     ->withoutOverlapping(120);
+                // NAS watchdog: every 5 minutes, detect storage mount transitions.
+                // Notifies on down -> up + up -> down only (state-transition gate),
+                // so a healthy NAS does not spam the bell. Does NOT auto-remount;
+                // operator preference is manual recovery on the NAS host itself.
+                $schedule->command('ahg:nas-watchdog --quiet-ok')
+                    ->everyFiveMinutes()
+                    ->withoutOverlapping(5);
             });
         }
 

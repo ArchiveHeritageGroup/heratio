@@ -1,5 +1,5 @@
 {{-- ahg-biblio-bf/import.blade.php — Import BIBFRAME RDF --}}
-@extends('layouts.app')
+@extends('theme::layouts.1col')
 
 @section('content')
 <div class="container-fluid py-4">

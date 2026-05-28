@@ -164,13 +164,12 @@ class ChatbotController extends Controller
         $reference = 'CB-' . strtoupper(Str::random(8));
 
         try {
-            \Illuminate\Support\Facades\DB::table('ahg_notification')->insert([
-                'recipient_role' => 'librarian',
-                'subject'        => 'Chatbot escalation [' . $reference . ']',
-                'body'           => $data['message'],
-                'metadata'       => $payload,
-                'created_at'     => now(),
-            ]);
+            app(\AhgCore\Services\NotificationService::class)->notifyAdmins(
+                type: 'chatbot-escalation',
+                title: 'Chatbot escalation [' . $reference . ']',
+                message: $data['message'],
+                link: '/admin/chatbot/review',
+            );
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Chatbot escalation notification insert failed: ' . $e->getMessage());
         }

@@ -63,6 +63,28 @@ return [
             ]) : [],
         ],
 
+        // 'heratio' alias -> the primary application DB. Several packages
+        // (ahg-biblio-bf BibframeService/Controller) were written against a
+        // named 'heratio' connection; without this alias they 500 with
+        // "Database connection [heratio] not configured". Points at the same
+        // place as 'mysql' so it is always correct regardless of .env.
+        'heratio' => [
+            'driver' => 'mysql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+        ],
+
         // Read-only ANC corpus connection used by Discovery (issue #14).
         // Heratio's primary DB has 743 demo IOs; the ANC pilot lives in `atom`
         // (~454k IOs, ~9.79M ahg_ner_entity rows). Keyword search already hits

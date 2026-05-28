@@ -385,13 +385,14 @@ class KbartRemoteService
     {
         try {
             if (!Schema::hasTable('ahg_notification')) return;
-            DB::table('ahg_notification')->insert([
-                'recipient_role' => 'librarian',
-                'subject'        => '[KBART] ' . $name . ' (' . $kind . ')',
-                'body'           => $message,
-                'metadata'       => json_encode(['feed_id' => $feedId, 'kind' => $kind], JSON_UNESCAPED_UNICODE),
-                'created_at'     => now(),
-            ]);
+            app(\AhgCore\Services\NotificationService::class)->notifyAdmins(
+                type: 'kbart-' . $kind,
+                title: '[KBART] ' . $name . ' (' . $kind . ')',
+                message: $message,
+                link: '/library-manage/kbart/remote/log',
+                relatedType: 'library_kbart_feed',
+                relatedId: $feedId,
+            );
         } catch (\Throwable $e) {
             Log::warning('KbartRemoteService: notification insert failed: ' . $e->getMessage());
         }

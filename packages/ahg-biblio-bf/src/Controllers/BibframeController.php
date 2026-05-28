@@ -50,9 +50,13 @@ class BibframeController extends Controller
      */
     public function index(): Response
     {
+        // The library_biblio_work scaffold is optional - the live BIBFRAME
+        // surface is the graph editor over library_item. Degrade to zeros
+        // when the scaffold table is absent rather than 500 the dashboard.
+        $hasScaffold = \Illuminate\Support\Facades\Schema::connection('heratio')->hasTable('library_biblio_work');
         $stats = [
-            'bibframe_export_total' => DB::connection('heratio')->table('library_biblio_work')->count(),
-            'bibframe_export_rdf' => DB::connection('heratio')->table('library_biblio_work')->whereNotNull('bibframe_rdf')->count(),
+            'bibframe_export_total' => $hasScaffold ? DB::connection('heratio')->table('library_biblio_work')->count() : 0,
+            'bibframe_export_rdf'   => $hasScaffold ? DB::connection('heratio')->table('library_biblio_work')->whereNotNull('bibframe_rdf')->count() : 0,
         ];
 
         return response()->view('ahg-biblio-bf::index', [

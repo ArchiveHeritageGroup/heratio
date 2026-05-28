@@ -1,5 +1,5 @@
 {{-- ahg-biblio-bf/agent.blade.php — Browse BIBFRAME Agents --}}
-@extends('layouts.app')
+@extends('theme::layouts.1col')
 
 @section('content')
 <div class="container-fluid py-4">
