@@ -301,13 +301,20 @@ class OrcidService
         $orcidId = $this->normaliseOrcidId($orcidId);
         if (!$orcidId) return null;
 
-        $token = $this->publicReadToken();
-        if (!$token) return null;
+        // The ORCID Public API serves public records to anonymous clients, so
+        // the read path needs NO credentials. When a client IS configured we
+        // attach a /read-public token (higher rate limits, future-proofing);
+        // otherwise we fall back to a tokenless GET against pub.orcid.org.
+        $token = $this->publicReadToken(); // null when no client configured
 
         try {
-            $resp = Http::withToken($token)
-                ->withHeaders(['Accept' => 'application/json'])
-                ->get($this->apiBase() . '/v3.0/' . $orcidId . '/record');
+            $req = Http::withHeaders(['Accept' => 'application/json'])
+                ->timeout(12)        // hard cap so a slow ORCID can't hang the request
+                ->connectTimeout(5);
+            if ($token) {
+                $req = $req->withToken($token);
+            }
+            $resp = $req->get($this->apiBase() . '/v3.0/' . $orcidId . '/record');
             if (!$resp->ok()) {
                 Log::info("ORCID fetchPublicRecord {$orcidId}: HTTP " . $resp->status());
                 return null;

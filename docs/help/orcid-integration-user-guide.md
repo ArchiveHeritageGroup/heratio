@@ -139,7 +139,9 @@ An administrator sets these in `.env`, then runs `php artisan config:clear`:
 | `ORCID_BASE` | `https://orcid.org` | Use `https://sandbox.orcid.org` for testing |
 | `ORCID_API_BASE` | `https://pub.orcid.org` | Use `https://api.orcid.org` for the Member API |
 
-Register a free client at https://orcid.org/developer-tools. Until `ORCID_CLIENT_ID` and `ORCID_CLIENT_SECRET` are set, the Fetch and Connect buttons return "ORCID lookup is not configured on this server" - that is the expected, safe state, not an error.
+**Fetch from ORCID + Pull profile need no configuration at all** - they read the public ORCID record tokenless against `pub.orcid.org`, so a researcher can auto-populate immediately on a fresh install with zero ORCID setup.
+
+Credentials are only required for **Connect & Sync** (the OAuth flow that stores a token to pull Works + push citations). Register a free client at https://orcid.org/developer-tools. Until `ORCID_CLIENT_ID` and `ORCID_CLIENT_SECRET` are set, only Connect & Sync is inert; Fetch + Pull-profile remain fully functional.
 
 ---
 
@@ -156,7 +158,7 @@ Register a free client at https://orcid.org/developer-tools. Until `ORCID_CLIENT
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| "ORCID lookup is not configured" | `ORCID_CLIENT_ID`/`SECRET` empty | Add real app credentials + `config:clear` |
+| "ORCID is not configured" on **Connect & Sync** | `ORCID_CLIENT_ID`/`SECRET` empty | Add real app credentials + `config:clear`. (Fetch + Pull-profile do NOT need this - they read tokenless.) |
 | "That does not look like a valid ORCID iD" | Wrong format | Use `0000-0000-0000-0000` (16 digits, last may be X) |
 | "No public ORCID record found" | iD has no public data, or typo | Verify the iD resolves at `https://orcid.org/<id>` |
 | Pull Works says "no token" | Profile linked by iD only, never OAuth-authorised | Click **Connect & Sync** to authorise |

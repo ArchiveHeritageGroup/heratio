@@ -5510,10 +5510,10 @@ class ResearchController extends Controller
         }
         \Illuminate\Support\Facades\RateLimiter::hit('orcid_fetch:' . $ip, 60);
 
+        // No isConfigured() gate: the public-record read works tokenless against
+        // pub.orcid.org, so Fetch-from-ORCID is available even with no client
+        // credentials. (Connect & Sync / Works push still require a client.)
         $svc = app(\AhgResearch\Services\OrcidService::class);
-        if (!$svc->isConfigured()) {
-            return response()->json(['ok' => false, 'error' => 'ORCID lookup is not configured on this server.'], 503);
-        }
 
         $normalised = $svc->normaliseOrcidId($request->input('orcid_id'));
         if (!$normalised) {
@@ -5549,10 +5549,8 @@ class ResearchController extends Controller
         $researcher = $this->getResearcherOrRedirect();
         if (!is_object($researcher)) return $researcher;
 
+        // No isConfigured() gate: pullProfile reads the public record tokenless.
         $svc = app(\AhgResearch\Services\OrcidService::class);
-        if (!$svc->isConfigured()) {
-            return redirect()->route('research.orcid')->with('error', 'ORCID is not configured on this server.');
-        }
 
         try {
             $record = $svc->pullProfile((int) $researcher->id);
