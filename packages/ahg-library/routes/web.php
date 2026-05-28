@@ -89,6 +89,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/circulation', [LibraryController::class, 'circulation'])->name('library.circulation');
     Route::get('/library-manage/circulation/loan-rules', [LibraryController::class, 'loanRules'])->name('library.loan-rules');
     Route::get('/library-manage/circulation/overdue', [LibraryController::class, 'overdue'])->name('library.overdue');
+    // Circulation transactions (checkout / return / renew / hold)
+    Route::get('/library-manage/circulation/checkout', [LibraryController::class, 'checkoutForm'])->name('library.checkout-form');
+    Route::post('/library-manage/circulation/checkout', [LibraryController::class, 'checkoutStore'])->name('library.checkout-store')->middleware('acl:update');
+    Route::post('/library-manage/circulation/return/{checkout}', [LibraryController::class, 'returnItem'])->name('library.checkout-return')->where('checkout', '[0-9]+')->middleware('acl:update');
+    Route::post('/library-manage/circulation/renew/{checkout}', [LibraryController::class, 'renewLoan'])->name('library.checkout-renew')->where('checkout', '[0-9]+')->middleware('acl:update');
+    Route::post('/library-manage/circulation/hold', [LibraryController::class, 'placeHold'])->name('library.hold-place')->middleware('acl:update');
+    Route::post('/library-manage/circulation/hold/{hold}/cancel', [LibraryController::class, 'cancelHold'])->name('library.hold-cancel')->where('hold', '[0-9]+')->middleware('acl:update');
 
     // ILL
     Route::get('/library-manage/ill',  [LibraryController::class, 'ill'])->name('library.ill');
@@ -112,7 +119,12 @@ Route::middleware('auth')->group(function () {
 
     // Patrons
     Route::get('/library-manage/patrons', [LibraryController::class, 'patrons'])->name('library.patrons');
+    Route::get('/library-manage/patron/create', [LibraryController::class, 'patronCreate'])->name('library.patron-create');
+    Route::post('/library-manage/patron', [LibraryController::class, 'patronStore'])->name('library.patron-store')->middleware('acl:create');
     Route::get('/library-manage/patron/{id}', [LibraryController::class, 'patronView'])->name('library.patron-view')->where('id', '[0-9]+');
+    Route::get('/library-manage/patron/{id}/edit', [LibraryController::class, 'patronEdit'])->name('library.patron-edit')->where('id', '[0-9]+');
+    Route::put('/library-manage/patron/{id}', [LibraryController::class, 'patronUpdate'])->name('library.patron-update')->where('id', '[0-9]+')->middleware('acl:update');
+    Route::post('/library-manage/patron/{id}/suspend', [LibraryController::class, 'patronSuspend'])->name('library.patron-suspend')->where('id', '[0-9]+')->middleware('acl:update');
     // Issue #734 - patron reactivate (PSIS parity twin: ahgLibraryPlugin patron/reactivateAction)
     Route::post('/library/patron/{id}/reactivate', [LibraryController::class, 'patronReactivate'])->name('library.patron-reactivate')->where('id', '[0-9]+')->middleware('acl:update');
 

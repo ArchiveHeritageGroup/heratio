@@ -82,6 +82,9 @@ See also: the MARC21 import help article.
 
 `/library-manage/circulation` - checkouts, returns, holds, renewals.
 
+- **Check out an item** - the **Check Out Item** button (or the exchange icon on a patron row/detail) opens `/circulation/checkout`. Pick the patron, scan or type the copy barcode, and submit. The barcode resolves to a specific `library_copy`; checkout is refused if the copy is unavailable or the patron is over their limit.
+- **Return / Renew** - each active loan on the circulation list and on the patron detail page carries a Return and a Renew action. Renewal honours the patron's renewal limit and is blocked when the item has a pending hold.
+- **Holds** - holds are placed against a library item (not a copy) and cancelled from the patron detail page.
 - **Loan rules** (`/circulation/loan-rules`) - per-material-type loan periods + fine rates.
 - **Overdue** (`/circulation/overdue`) - overdue items + fine calculation.
 - Scheduled housekeeping: hold expiry (02:30), patron expiry (02:45), fine calculation (03:15), all daily and individually toggleable in library settings.
@@ -92,8 +95,12 @@ See also: the MARC21 import help article.
 
 `/library-manage/patrons` - library membership records, distinct from research-portal researchers.
 
+- **Add a patron** - the **Add Patron** button opens the create form (`/patron/create`). First and last name are required; card number auto-generates and membership expiry defaults from library settings when left blank. Patron type is driven by the `patron_type` dropdown taxonomy.
+- **Edit** - the pencil action on a patron row or the Edit button on the detail page opens `/patron/{id}/edit`.
+- **Suspend / Reactivate** - the detail page Suspend button captures a reason and an optional "until" date; a suspended patron shows a Reactivate button instead, which clears the suspension and restores `active` status.
+- **Check out from the patron** - the Check Out button on a patron row/detail pre-selects that patron on the checkout form.
 - Membership expiry with grace period; auto-expire runs daily.
-- Patron view (`/patron/{id}`), reactivation flow.
+- Patron detail (`/patron/{id}`) lists current loans (with Return/Renew) and active holds (with Cancel).
 
 ---
 

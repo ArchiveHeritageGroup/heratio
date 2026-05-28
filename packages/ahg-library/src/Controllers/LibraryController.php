@@ -1478,6 +1478,130 @@ class LibraryController extends Controller
         return redirect()->route('library.patron-view', $id)->with($ok ? 'success' : 'error', $msg);
     }
 
+    // ── Patron create / edit / suspend ─────────────────────────────────
+
+    public function patronCreate(): \Illuminate\View\View
+    {
+        return view('ahg-library::patron.form', ['patron' => null]);
+    }
+
+    public function patronStore(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $data = $this->validatePatron($request);
+        $id = $this->patrons->create($data);
+        return redirect()->route('library.patron-view', $id)->with('success', __('Patron created.'));
+    }
+
+    public function patronEdit(int $id): \Illuminate\View\View
+    {
+        $patron = $this->patrons->get($id);
+        if (!$patron) abort(404);
+        return view('ahg-library::patron.form', ['patron' => $patron]);
+    }
+
+    public function patronUpdate(Request $request, int $id): \Illuminate\Http\RedirectResponse
+    {
+        if (!$this->patrons->get($id)) abort(404);
+        $this->patrons->update($id, $this->validatePatron($request));
+        return redirect()->route('library.patron-view', $id)->with('success', __('Patron updated.'));
+    }
+
+    public function patronSuspend(Request $request, int $id): \Illuminate\Http\RedirectResponse
+    {
+        if (!$this->patrons->get($id)) abort(404);
+        $data = $request->validate([
+            'suspension_reason' => 'required|string|max:500',
+            'suspension_until'  => 'nullable|date',
+        ]);
+        $this->patrons->suspend($id, $data['suspension_reason'], $data['suspension_until'] ?? null);
+        return redirect()->route('library.patron-view', $id)->with('success', __('Patron suspended.'));
+    }
+
+    private function validatePatron(Request $request): array
+    {
+        return $request->validate([
+            'first_name'        => 'required|string|max:100',
+            'last_name'         => 'required|string|max:100',
+            'email'             => 'nullable|email|max:255',
+            'phone'             => 'nullable|string|max:50',
+            'card_number'       => 'nullable|string|max:50',
+            'patron_type'       => 'nullable|string|max:50',
+            'address'           => 'nullable|string|max:1000',
+            'institution'       => 'nullable|string|max:255',
+            'department'        => 'nullable|string|max:255',
+            'id_number'         => 'nullable|string|max:100',
+            'date_of_birth'     => 'nullable|date',
+            'membership_expiry' => 'nullable|date',
+            'max_checkouts'     => 'nullable|integer|min:0',
+            'max_renewals'      => 'nullable|integer|min:0',
+            'max_holds'         => 'nullable|integer|min:0',
+            'notes'             => 'nullable|string',
+        ]);
+    }
+
+    // ── Circulation transactions (checkout / return / renew / hold) ─────
+
+    public function checkoutForm(Request $request): \Illuminate\View\View
+    {
+        return view('ahg-library::circulation.checkout', [
+            'patronId' => $request->query('patron'),
+        ]);
+    }
+
+    public function checkoutStore(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $data = $request->validate([
+            'copy_barcode' => 'required_without:copy_id|nullable|string|max:100',
+            'copy_id'      => 'required_without:copy_barcode|nullable|integer',
+            'patron_id'    => 'required|integer',
+        ]);
+
+        // Resolve copy by barcode if an id wasn't supplied directly.
+        $copyId = $data['copy_id'] ?? null;
+        if (!$copyId && !empty($data['copy_barcode'])) {
+            $copyId = \Illuminate\Support\Facades\DB::table('library_copy')
+                ->where('barcode', $data['copy_barcode'])->value('id');
+        }
+        if (!$copyId) {
+            return back()->withInput()->with('error', __('No library copy found for that barcode.'));
+        }
+
+        $checkoutId = $this->circ->checkout((int) $copyId, (int) $data['patron_id'], \Illuminate\Support\Facades\Auth::id());
+        if (!$checkoutId) {
+            return back()->withInput()->with('error', __('Checkout failed - the copy may be unavailable or the patron over limit.'));
+        }
+        return redirect()->route('library.patron-view', (int) $data['patron_id'])->with('success', __('Item checked out.'));
+    }
+
+    public function returnItem(Request $request, int $checkoutId): \Illuminate\Http\RedirectResponse
+    {
+        $data = $request->validate([
+            'condition' => 'nullable|string|max:50',
+            'notes'     => 'nullable|string|max:1000',
+        ]);
+        $ok = $this->circ->return($checkoutId, \Illuminate\Support\Facades\Auth::id(), $data['condition'] ?? null, $data['notes'] ?? null);
+        return back()->with($ok ? 'success' : 'error', $ok ? __('Item returned.') : __('Return failed.'));
+    }
+
+    public function renewLoan(Request $request, int $checkoutId): \Illuminate\Http\RedirectResponse
+    {
+        $ok = $this->circ->renew($checkoutId);
+        return back()->with($ok ? 'success' : 'error', $ok ? __('Loan renewed.') : __('Renewal failed - renewal limit reached or item on hold.'));
+    }
+
+    public function placeHold(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $data = $request->validate(['item_id' => 'required|integer', 'patron_id' => 'required|integer']);
+        $holdId = $this->circ->placeHold((int) $data['item_id'], (int) $data['patron_id']);
+        return back()->with($holdId ? 'success' : 'error', $holdId ? __('Hold placed.') : __('Hold could not be placed.'));
+    }
+
+    public function cancelHold(Request $request, int $holdId): \Illuminate\Http\RedirectResponse
+    {
+        $ok = $this->circ->cancelHold($holdId, $request->input('reason'));
+        return back()->with($ok ? 'success' : 'error', $ok ? __('Hold cancelled.') : __('Hold could not be cancelled.'));
+    }
+
     // ── Serial CRUD + advanced ─────────────────────────────────────────
 
     public function serialCreate(): \Illuminate\View\View
