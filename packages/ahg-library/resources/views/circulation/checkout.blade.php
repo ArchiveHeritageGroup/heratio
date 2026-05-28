@@ -1,19 +1,13 @@
 @extends('theme::layouts.1col')
-@section('title', __('Check Out Item'))
+@section('title', 'Check Out Item')
 @section('content')
-@php
-    $patrons = \Illuminate\Support\Facades\DB::table('library_patron')
-        ->where('borrowing_status', 'active')
-        ->orderBy('last_name')->orderBy('first_name')
-        ->get(['id', 'first_name', 'last_name', 'card_number']);
-@endphp
 <div class="container py-4">
-    <div class="d-flex align-items-center mb-4">
-        <a href="{{ route('library.circulation') }}" class="btn btn-outline-secondary btn-sm me-3"><i class="fas fa-arrow-left"></i></a>
-        <div>
-            <h2 class="mb-0">{{ __('Check Out Item') }}</h2>
-            <span class="badge bg-primary mt-1">{{ __('Circulation') }}</span>
-        </div>
+
+    <div class="d-flex align-items-center mb-3">
+        <a href="{{ route('library.circulation.index') }}" class="btn btn-outline-secondary btn-sm me-3">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>{{ __('Check Out Item') }}</h1>
     </div>
 
     @if(session('error'))
@@ -22,42 +16,95 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
-    @if($errors->any())
-        <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
-    @endif
 
-    <form method="POST" action="{{ route('library.checkout-store') }}">
+    <form method="POST" action="{{ route('library.circulation.do-checkout') }}">
         @csrf
-        <div class="card shadow-sm mb-4">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>{{ __('Loan Details') }}</h5>
+
+        {{-- Copy details --}}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-book me-2"></i>{{ __('Item Details') }}</h5>
             </div>
             <div class="card-body">
-                <div class="mb-3">
-                    <label for="patron_id" class="form-label">{{ __('Patron') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-                    <select name="patron_id" id="patron_id" class="form-select @error('patron_id') is-invalid @enderror" required>
-                        <option value="">{{ __('Select a patron…') }}</option>
-                        @foreach($patrons as $p)
-                            <option value="{{ $p->id }}" @selected((string) old('patron_id', $patronId ?? '') === (string) $p->id)>
-                                {{ trim($p->last_name . ', ' . $p->first_name) }} ({{ $p->card_number }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('patron_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                </div>
-                <div class="mb-0">
-                    <label for="copy_barcode" class="form-label">{{ __('Copy Barcode') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-                    <input type="text" name="copy_barcode" id="copy_barcode" autofocus
-                           class="form-control @error('copy_barcode') is-invalid @enderror" value="{{ old('copy_barcode') }}"
-                           placeholder="{{ __('Scan or type the item barcode') }}">
-                    @error('copy_barcode')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    <div class="form-text">{{ __('The barcode resolves to a specific copy of a library item.') }}</div>
-                </div>
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">{{ __('Barcode') }}</dt>
+                    <dd class="col-sm-9"><code>{{ $copy->barcode ?? '' }}</code></dd>
+                    <dt class="col-sm-3">{{ __('Title') }}</dt>
+                    <dd class="col-sm-9">{{ $copy->title ?? __('(untitled)') }}</dd>
+                    <dt class="col-sm-3">{{ __('Call Number') }}</dt>
+                    <dd class="col-sm-9">{{ $copy->call_number ?? '—' }}</dd>
+                    <dt class="col-sm-3">{{ __('Shelf Location') }}</dt>
+                    <dd class="col-sm-9">{{ $copy->shelf_location ?? '—' }}</dd>
+                    <dt class="col-sm-3">{{ __('Status') }}</dt>
+                    <dd class="col-sm-9">
+                        @if(($copy->copy_status ?? '') === 'available')
+                            <span class="badge bg-success">{{ __('Available') }}</span>
+                        @else
+                            <span class="badge bg-warning text-dark">{{ ucfirst($copy->copy_status ?? '') }}</span>
+                        @endif
+                    </dd>
+                </dl>
             </div>
         </div>
+
+        {{-- Patron search / selection --}}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>{{ __('Patron') }}</h5>
+            </div>
+            <div class="card-body">
+                @if($patron ?? null)
+                    <input type="hidden" name="patron_id" value="{{ $patron->id }}">
+                    <div class="alert alert-success">
+                        <strong>{{ trim(($patron->first_name ?? '') . ' ' . ($patron->last_name ?? '')) }}</strong>
+                        &nbsp;<code>{{ $patron->card_number ?? '' }}</code>
+                        &nbsp;<span class="badge bg-{{ ($patron->borrowing_status ?? '') === 'active' ? 'success' : 'danger' }}">
+                            {{ ucfirst($patron->borrowing_status ?? '') }}
+                        </span>
+                        &nbsp; {{ __('Items out') }}: {{ $patron->max_checkouts ?? 0 }}
+                        &nbsp; {{ __('Fines') }}: {{ number_format((float) ($patron->total_fines_owed ?? 0), 2) }}
+                    </div>
+                @else
+                    <div class="mb-3">
+                        <label for="patron_search" class="form-label">{{ __('Search by name, email or card number') }}</label>
+                        <input type="text" id="patron_search" class="form-control"
+                               placeholder="{{ __('Search…') }}" autocomplete="off"
+                               hx-get="{{ route('library.patrons') }}"
+                               hx-trigger="keyup changed delay:300ms"
+                               hx-target="#patronResults"
+                               hx-include="[name='_token']">
+                    </div>
+                    <div id="patronResults">
+                        <p class="text-muted small">{{ __('Type to search for a patron, or go to') }}
+                            <a href="{{ route('library.patrons') }}">{{ __('Manage Patrons') }}</a>
+                            {{ __('to select one.') }}</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        {{-- Loan info --}}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-calendar me-2"></i>{{ __('Loan Terms') }}</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">{{ __('Loan Period') }}</dt>
+                    <dd class="col-sm-9">{{ $loanDays }} {{ __('days') }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <input type="hidden" name="copy_id" value="{{ $copy->id ?? 0 }}">
+
         <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>{{ __('Check Out') }}</button>
-            <a href="{{ route('library.circulation') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
+            <button type="submit" class="btn btn-success" {{ !$patron ? 'disabled' : '' }}>
+                <i class="fas fa-check me-1"></i>{{ __('Confirm Check Out') }}
+            </button>
+            <a href="{{ route('library.circulation.index') }}" class="btn btn-outline-secondary">
+                {{ __('Cancel') }}
+            </a>
         </div>
     </form>
 </div>

@@ -29,6 +29,7 @@ class AhgLibraryServiceProvider extends ServiceProvider
 
         // Alias for the OPAC gate so route files can use ['opac.enabled']
         $this->app['router']->aliasMiddleware('opac.enabled', \AhgLibrary\Middleware\EnsureOpacEnabled::class);
+        $this->app['router']->aliasMiddleware('library.patron.auth', \AhgLibrary\Middleware\EnsurePatronAuthenticated::class);
 
         // #766 per-event COUNTER instrumentation: inject usage-tracker.js into
         // library-item show pages via a global response middleware. Same

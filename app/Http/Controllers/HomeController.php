@@ -42,7 +42,15 @@ class HomeController extends Controller
         $mode = config('heratio.homepage_mode')
             ?? (request()->getHost() === 'heratio.theahg.co.za' ? 'marketing' : 'institutional');
         if ($mode === 'marketing') {
-            return view('home-marketing', compact('page'));
+            // Latest published demo-site articles for the landing Articles strip.
+            $latestArticles = [];
+            try {
+                $latestArticles = (new \App\Services\BlogService())->listPublished(3);
+            } catch (\Throwable $e) {
+                // blog_post may not exist on a non-demo install; degrade silently.
+            }
+
+            return view('home-marketing', compact('page', 'latestArticles'));
         }
 
         // Browse menu items (children of the Browse menu)

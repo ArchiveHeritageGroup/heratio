@@ -48,6 +48,15 @@
     <li><a class="dropdown-item" href="{{ route('settings.index') }}"><i class="fas fa-cog me-2"></i>{{ __('AHG Settings') }}</a></li>
     <li><a class="dropdown-item" href="{{ route('dropdown.index') }}"><i class="fas fa-list me-2"></i>{{ __('Dropdown Manager') }}</a></li>
 
+    {{-- Articles / Blog (demo site only) --}}
+    @php
+      $blogEnabled = (config('heratio.homepage_mode')
+          ?: (request()->getHost() === 'heratio.theahg.co.za' ? 'marketing' : 'institutional')) === 'marketing';
+    @endphp
+    @if($blogEnabled)
+      <li><a class="dropdown-item" href="{{ route('admin.articles.index') }}"><i class="fas fa-newspaper me-2"></i>{{ __('Articles / Blog') }}</a></li>
+    @endif
+
     {{-- Translation --}}
     @php
       $pendingDrafts = 0;

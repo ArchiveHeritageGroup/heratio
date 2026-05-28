@@ -9,6 +9,8 @@ use AhgLibrary\Controllers\MarcEditorController;
 use AhgLibrary\Controllers\SushiServerController;
 use AhgLibrary\Controllers\UsageEventController;
 use AhgLibrary\Controllers\AuthorityControlController;
+use AhgLibrary\Controllers\CirculationDeskController;
+use AhgLibrary\Controllers\OpacPatronController;
 use AhgLibrary\Controllers\CopyCataloguingController;
 use Illuminate\Support\Facades\Route;
 
@@ -131,16 +133,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/library-manage/acquisition/budget/{id}', [LibraryAcquisitionController::class, 'budgetUpdate'])->name('library.acquisition-budget-update')->where('id', '[0-9]+')->middleware('acl:update');
     Route::delete('/library-manage/acquisition/budget/{id}', [LibraryAcquisitionController::class, 'budgetDestroy'])->name('library.acquisition-budget-destroy')->where('id', '[0-9]+')->middleware('acl:delete');
 
-    // ── Circulation ───────────────────────────────────────────────────────
-    Route::get('/library-manage/circulation', [LibraryController::class, 'circulation'])->name('library.circulation');
+    // ── Loan Rules & Overdue (read-only management views) ─────────────────
     Route::get('/library-manage/circulation/loan-rules', [LibraryController::class, 'loanRules'])->name('library.loan-rules');
     Route::get('/library-manage/circulation/overdue', [LibraryController::class, 'overdue'])->name('library.overdue');
+    // Standalone index + bare checkout form (no copyId) -- needed by sidebar nav links
+    Route::get('/library-manage/circulation', [LibraryController::class, 'circulation'])->name('library.circulation');
     Route::get('/library-manage/circulation/checkout', [LibraryController::class, 'checkoutForm'])->name('library.checkout-form');
-    Route::post('/library-manage/circulation/checkout', [LibraryController::class, 'checkoutStore'])->name('library.checkout-store')->middleware('acl:update');
-    Route::post('/library-manage/circulation/return/{checkout}', [LibraryController::class, 'returnItem'])->name('library.checkout-return')->where('checkout', '[0-9]+')->middleware([\App\Http\Middleware\VerifyCsrfToken::class]);
-    Route::post('/library-manage/circulation/renew/{checkout}', [LibraryController::class, 'renewLoan'])->name('library.checkout-renew')->where('checkout', '[0-9]+')->middleware([\App\Http\Middleware\VerifyCsrfToken::class]);
-    Route::post('/library-manage/circulation/hold', [LibraryController::class, 'placeHold'])->name('library.hold-place')->middleware('acl:update');
-    Route::post('/library-manage/circulation/hold/{hold}/cancel', [LibraryController::class, 'cancelHold'])->name('library.hold-cancel')->where('hold', '[0-9]+')->middleware('acl:update');
 
     // ── ILL ───────────────────────────────────────────────────────────────
     Route::get('/library-manage/ill', [LibraryController::class, 'ill'])->name('library.ill');
@@ -235,4 +233,47 @@ Route::middleware('opac.enabled')->group(function () {
         Route::post('/opac/hold/{slug}', [LibraryController::class, 'opacHoldStore'])->name('library.opac-hold-store')->middleware('acl:create');
         Route::post('/opac/renew/{id}', [LibraryController::class, 'opacRenew'])->name('library.opac-renew')->where('id', '[0-9]+')->middleware('acl:update');
     });
+});
+
+// ── Circulation Desk (Phase 2) ─────────────────────────────────────────────
+// Replaces the old LibraryController-based circulation routes for checkout/return/renew/scan.
+Route::middleware('auth')->group(function () {
+    Route::get('/library-manage/circulation', [CirculationDeskController::class, 'index'])->name('library.circulation.index');
+    Route::post('/library-manage/circulation/scan', [CirculationDeskController::class, 'scan'])->name('library.circulation.scan');
+    Route::get('/library-manage/circulation/checkout/{copyId}', [CirculationDeskController::class, 'checkoutForm'])
+        ->name('library.circulation.checkout')->where('copyId', '[0-9]+');
+    Route::post('/library-manage/circulation/checkout', [CirculationDeskController::class, 'doCheckout'])
+        ->name('library.circulation.do-checkout');
+    Route::get('/library-manage/circulation/return/{checkoutId}', [CirculationDeskController::class, 'returnForm'])
+        ->name('library.circulation.return')->where('checkoutId', '[0-9]+');
+    Route::post('/library-manage/circulation/return', [CirculationDeskController::class, 'doReturn'])
+        ->name('library.circulation.do-return');
+    Route::post('/library-manage/circulation/renew', [CirculationDeskController::class, 'renew'])
+        ->name('library.circulation.renew');
+    Route::get('/library-manage/circulation/patron/{patronId}', [CirculationDeskController::class, 'patronHistory'])
+        ->name('library.circulation.patron')->where('patronId', '[0-9]+');
+    Route::get('/library-manage/circulation/loans', [CirculationDeskController::class, 'getLoans'])
+        ->name('library.circulation.loans');
+
+    // Holds
+    Route::post('/library-manage/circulation/hold', [CirculationDeskController::class, 'placeHold'])
+        ->name('library.hold-place');
+    Route::post('/library-manage/circulation/hold/{hold}/cancel', [CirculationDeskController::class, 'cancelHold'])
+        ->name('library.hold-cancel')->where('hold', '[0-9]+');
+});
+
+// ── OPAC Patron Self-Service (Phase 2) ─────────────────────────────────────
+Route::get('/opac/patron/login', [OpacPatronController::class, 'login'])->name('opac.patron.login');
+Route::post('/opac/patron/authenticate', [OpacPatronController::class, 'authenticate'])->name('opac.patron.authenticate');
+
+Route::middleware(\AhgLibrary\Middleware\EnsurePatronAuthenticated::class)->group(function () {
+    Route::get('/opac/patron/account', [OpacPatronController::class, 'account'])->name('opac.patron.account');
+    Route::get('/opac/patron/loans', [OpacPatronController::class, 'myLoans'])->name('opac.patron.loans');
+    Route::get('/opac/patron/holds', [OpacPatronController::class, 'myHolds'])->name('opac.patron.holds');
+    Route::post('/opac/patron/holds/cancel', [OpacPatronController::class, 'cancelHold'])->name('opac.patron.holds.cancel');
+    Route::get('/opac/patron/fines', [OpacPatronController::class, 'myFines'])->name('opac.patron.fines');
+    Route::post('/opac/patron/renew-all', [OpacPatronController::class, 'renewAll'])->name('opac.patron.renew-all');
+    Route::post('/opac/patron/renew-one/{checkoutId}', [OpacPatronController::class, 'renewOne'])
+        ->name('opac.patron.renew-one')->where('checkoutId', '[0-9]+');
+    Route::get('/opac/patron/logout', [OpacPatronController::class, 'logout'])->name('opac.patron.logout');
 });

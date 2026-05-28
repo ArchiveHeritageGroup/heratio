@@ -70,6 +70,21 @@
             </li>
           @endif
 
+          {{-- Articles / Blog (demo site only) --}}
+          @php
+            $blogEnabled = (config('heratio.homepage_mode')
+                ?: (request()->getHost() === 'heratio.theahg.co.za' ? 'marketing' : 'institutional')) === 'marketing';
+          @endphp
+          @if($blogEnabled)
+            <li class="nav-item d-flex flex-column">
+              <a class="nav-link d-flex align-items-center p-0" href="{{ url('/articles') }}" id="articles-menu">
+                <i class="fas fa-2x fa-fw fa-newspaper px-0 px-lg-2 py-2" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="d-none d-lg-block" title="{{ __('Articles') }}" aria-hidden="true"></i>
+                <span class="d-lg-none mx-1" aria-hidden="true">{{ __('Articles') }}</span>
+                <span class="visually-hidden">{{ __('Articles') }}</span>
+              </a>
+            </li>
+          @endif
+
           {{-- Help Center --}}
           <li class="nav-item d-flex flex-column">
             <a class="nav-link d-flex align-items-center p-0" href="{{ url('/help') }}" id="help-center-menu">

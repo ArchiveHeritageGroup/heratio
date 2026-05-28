@@ -39,6 +39,25 @@ class AppServiceProvider extends ServiceProvider
                 $router->post('/z3950/target', [\AhgZ3950\Controllers\Z3950Controller::class, 'storeTarget'])->name('z3950.target.store');
                 $router->delete('/z3950/target/{id}', [\AhgZ3950\Controllers\Z3950Controller::class, 'deleteTarget'])->name('z3950.target.delete');
             });
+
+            // Demo-site blog / articles. `/articles` is a single top-level
+            // segment, so it must be pre-registered here to beat the locked
+            // `/{slug}` catch-all. Admin routes are grouped here for cohesion
+            // (the `admin` prefix is already outside the catch-all).
+            $router->middleware(['web'])->group(function () use ($router) {
+                $router->get('/articles', [\App\Http\Controllers\BlogController::class, 'index'])->name('articles.index');
+                $router->get('/articles/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])
+                    ->where('slug', '[a-z0-9][a-z0-9-]*')->name('articles.show');
+            });
+            $router->middleware(['web', 'auth'])->prefix('admin/articles')->name('admin.articles.')->group(function () use ($router) {
+                $router->get('/', [\App\Http\Controllers\Admin\BlogAdminController::class, 'index'])->name('index');
+                $router->get('/create', [\App\Http\Controllers\Admin\BlogAdminController::class, 'create'])->name('create');
+                $router->post('/', [\App\Http\Controllers\Admin\BlogAdminController::class, 'store'])->name('store');
+                $router->post('/upload-image', [\App\Http\Controllers\Admin\BlogAdminController::class, 'uploadImage'])->name('upload-image');
+                $router->get('/{id}/edit', [\App\Http\Controllers\Admin\BlogAdminController::class, 'edit'])->where('id', '[0-9]+')->name('edit');
+                $router->put('/{id}', [\App\Http\Controllers\Admin\BlogAdminController::class, 'update'])->where('id', '[0-9]+')->name('update');
+                $router->delete('/{id}', [\App\Http\Controllers\Admin\BlogAdminController::class, 'destroy'])->where('id', '[0-9]+')->name('destroy');
+            });
         });
     }
 
@@ -47,6 +66,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Bootstrap-5 pagination markup for Laravel paginator ->links()
+        // (the blog/articles index uses it; nothing else in the app does).
+        \Illuminate\Pagination\Paginator::useBootstrapFive();
+
         // Register custom Heratio authentication provider
         Auth::provider('atom', function ($app, array $config) {
             return new AtomUserProvider;
