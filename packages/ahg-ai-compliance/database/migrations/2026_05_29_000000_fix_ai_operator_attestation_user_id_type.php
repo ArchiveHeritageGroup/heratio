@@ -7,14 +7,15 @@
  * BIGINT UNSIGNED, but Heratio user.id is BIGINT (signed). This causes
  * MySQL error 3780 on PSIS installs where strict FK checking is enabled.
  *
- * Additionally, this same BIGINT UNSIGNED issue exists in two other
- * oversight columns that reference the user table, so all three are fixed
+ * Additionally, this same BIGINT UNSIGNED issue exists in other
+ * oversight columns that reference the user table, so all four are fixed
  * here for consistency.
  *
  * Affected columns:
  *   - ai_operator_attestation.user_id
  *   - ai_oversight_policy.halted_by_user_id
  *   - ai_review_decision.reviewer_user_id
+ *   - ai_review_decision.countersigner_user_id
  *
  * All changed to BIGINT SIGNED to match Heratio user.id (bigint, no unsigned).
  *
@@ -77,12 +78,25 @@ return new class extends Migration
                 );
             }
         }
+
+        // ── ai_review_decision.countersigner_user_id ────────────────────────
+        if ($this->columnExists('ai_review_decision', 'countersigner_user_id')) {
+            $type = $this->getColumnType('ai_review_decision', 'countersigner_user_id');
+
+            if ($type === 'bigint') {
+                // Already signed — nothing to do.
+            } else {
+                DB::statement(
+                    'ALTER TABLE `ai_review_decision` MODIFY COLUMN `countersigner_user_id` BIGINT NULL DEFAULT NULL'
+                );
+            }
+        }
     }
 
     /**
      * Reverse the migrations.
      *
-     * Revert BIGINT SIGNED → BIGINT UNSIGNED for the three columns.
+     * Revert BIGINT SIGNED → BIGINT UNSIGNED for the four columns.
      * This is the original (broken) state that triggered MySQL error 3780
      * on PSIS installs — included for completeness only.
      */
@@ -103,6 +117,12 @@ return new class extends Migration
         if ($this->columnExists('ai_review_decision', 'reviewer_user_id')) {
             DB::statement(
                 'ALTER TABLE `ai_review_decision` MODIFY COLUMN `reviewer_user_id` BIGINT UNSIGNED NOT NULL'
+            );
+        }
+
+        if ($this->columnExists('ai_review_decision', 'countersigner_user_id')) {
+            DB::statement(
+                'ALTER TABLE `ai_review_decision` MODIFY COLUMN `countersigner_user_id` BIGINT UNSIGNED NULL DEFAULT NULL'
             );
         }
     }
