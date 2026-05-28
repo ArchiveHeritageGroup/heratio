@@ -103,10 +103,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/library-manage/copy-cataloguing/targets/{id}', [CopyCataloguingController::class, 'destroyTarget'])->name('library.copy-cataloguing-destroy-target')->where('id', '[0-9]+')->middleware('acl:delete');
 
     // ── Acquisition ────────────────────────────────────────────────────────
-    Route::get('/library-manage/acquisitions', [LibraryAcquisitionController::class, 'index'])->name('library.acquisitions');
+    // Quick-restore: list page served by the stable LibraryController@acquisitions
+    // (renders acquisition.index) while Phase-1 LibraryAcquisitionController views
+    // (order-list, order-create, order-show, _order-lines, budget-*) are still being built.
+    Route::get('/library-manage/acquisitions', [LibraryController::class, 'acquisitions'])->name('library.acquisitions');
     Route::get('/library-manage/acquisition/order/create', [LibraryAcquisitionController::class, 'create'])->name('library.acquisition-order-create');
     Route::post('/library-manage/acquisition/order', [LibraryAcquisitionController::class, 'store'])->name('library.acquisition-order-store')->middleware('acl:create');
-    Route::get('/library-manage/acquisition/order/{id}', [LibraryAcquisitionController::class, 'show'])->name('library.acquisition-order')->where('id', '[0-9]+');
+    // Quick-restore: order detail served by stable LibraryController@acquisitionOrder
+    // (renders acquisition.order) so the restored list's click-through works until the
+    // Phase-1 order-show view exists.
+    Route::get('/library-manage/acquisition/order/{id}', [LibraryController::class, 'acquisitionOrder'])->name('library.acquisition-order')->where('id', '[0-9]+');
     Route::get('/library-manage/acquisition/order/{id}/edit', [LibraryAcquisitionController::class, 'edit'])->name('library.acquisition-order-edit')->where('id', '[0-9]+');
     Route::put('/library-manage/acquisition/order/{id}', [LibraryAcquisitionController::class, 'update'])->name('library.acquisition-order-update')->where('id', '[0-9]+')->middleware('acl:update');
     Route::post('/library-manage/acquisition/order/{id}/status', [LibraryAcquisitionController::class, 'transition'])->name('library.acquisition-order-transition')->where('id', '[0-9]+')->middleware('acl:update');
