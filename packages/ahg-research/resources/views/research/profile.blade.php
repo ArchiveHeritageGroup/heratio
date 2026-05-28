@@ -185,13 +185,18 @@
               </button>
             </div>
             <small id="orcid-fetch-status" class="form-text d-block"></small>
-            {{-- Connect & Sync = full OAuth (researcher signs in at orcid.org with
-                 their ORCID password + authorises); stores a token so works can be
-                 pulled/pushed. Separate <a> so it does not submit the profile form. --}}
-            <a href="{{ route('research.orcidAuthorize') }}" class="btn btn-sm btn-success mt-2">
+          </div>
+        </div>
+        {{-- Connect & Sync on its own full-width row so it never overlaps the
+             ORCID iD column. Full OAuth: researcher signs in at orcid.org with
+             their ORCID password + authorises; stores a token so works can be
+             pulled/pushed. Separate <a> so it does not submit the profile form. --}}
+        <div class="row">
+          <div class="col-12 mb-3">
+            <a href="{{ route('research.orcidAuthorize') }}" class="btn btn-sm btn-success">
               <i class="fab fa-orcid me-1" aria-hidden="true"></i>{{ __('Connect & Sync with ORCID') }}
             </a>
-            <small class="form-text text-muted d-block">{{ __('Sign in at ORCID to authorise pulling your works and pushing citations.') }}</small>
+            <small class="form-text text-muted d-block mt-1">{{ __('Sign in at ORCID to authorise pulling your works and pushing citations.') }}</small>
           </div>
         </div>
       </div>
