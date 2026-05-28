@@ -129,12 +129,12 @@
             <div class="input-group">
               <span class="input-group-text" style="background:#a6ce39;color:#fff;"><i class="fab fa-orcid" aria-hidden="true"></i></span>
               <input type="text" name="orcid_id" id="orcid_id" class="form-control" value="{{ old('orcid_id') }}" placeholder="0000-0000-0000-0000">
-              <button type="button" class="btn btn-outline-secondary" id="orcid-fetch-btn"
-                      data-url="{{ route('research.orcidFetchPublic') }}" data-csrf="{{ csrf_token() }}">
-                <i class="fas fa-download me-1" aria-hidden="true"></i>{{ __('Fetch from ORCID') }}
-              </button>
             </div>
-            <small id="orcid-fetch-status" class="form-text"></small>
+            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="orcid-fetch-btn"
+                    data-url="{{ route('research.orcidFetchPublic') }}" data-csrf="{{ csrf_token() }}">
+              <i class="fas fa-download me-1" aria-hidden="true"></i>{{ __('Fetch from ORCID') }}
+            </button>
+            <small id="orcid-fetch-status" class="form-text d-block"></small>
           </div>
         </div>
       </div>
