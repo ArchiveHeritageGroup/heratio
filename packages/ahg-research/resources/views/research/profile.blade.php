@@ -176,7 +176,22 @@
           </div>
           <div class="col-md-6 mb-3">
             <label for="orcid_id" class="form-label">ORCID iD <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <input type="text" name="orcid_id" id="orcid_id" class="form-control" value="{{ old('orcid_id', $researcher->orcid_id ?? '') }}" placeholder="0000-0000-0000-0000">
+            <div class="input-group">
+              <span class="input-group-text" style="background:#a6ce39;color:#fff;"><i class="fab fa-orcid" aria-hidden="true"></i></span>
+              <input type="text" name="orcid_id" id="orcid_id" class="form-control" value="{{ old('orcid_id', $researcher->orcid_id ?? '') }}" placeholder="0000-0000-0000-0000">
+              <button type="button" class="btn btn-outline-secondary" id="orcid-fetch-btn"
+                      data-url="{{ route('research.orcidFetchPublic') }}" data-csrf="{{ csrf_token() }}">
+                <i class="fas fa-download me-1" aria-hidden="true"></i>{{ __('Fetch from ORCID') }}
+              </button>
+            </div>
+            <small id="orcid-fetch-status" class="form-text d-block"></small>
+            {{-- Connect & Sync = full OAuth (researcher signs in at orcid.org with
+                 their ORCID password + authorises); stores a token so works can be
+                 pulled/pushed. Separate <a> so it does not submit the profile form. --}}
+            <a href="{{ route('research.orcidAuthorize') }}" class="btn btn-sm btn-success mt-2">
+              <i class="fab fa-orcid me-1" aria-hidden="true"></i>{{ __('Connect & Sync with ORCID') }}
+            </a>
+            <small class="form-text text-muted d-block">{{ __('Sign in at ORCID to authorise pulling your works and pushing citations.') }}</small>
           </div>
         </div>
       </div>
@@ -265,3 +280,7 @@
   </div>
   </div>
 @endsection
+
+@push('js')
+<script src="/vendor/ahg-research/js/orcid-fetch.js" nonce="{{ $cspNonce ?? '' }}" defer></script>
+@endpush
