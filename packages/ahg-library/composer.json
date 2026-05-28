@@ -10,6 +10,11 @@
             "AhgLibrary\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "AhgLibrary\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "laravel": {
             "providers": [

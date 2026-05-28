@@ -165,7 +165,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/",
+            "Tests\\": "tests/"
             "AhgLibrary\\Tests\\": "packages/ahg-library/tests/"
         }
     },

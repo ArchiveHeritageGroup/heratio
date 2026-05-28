@@ -71,6 +71,13 @@ class Marc21DecoderService
      *     ]
      *   ]
      *
+     * ISO 2709 layout:
+     *   Bytes 0-23    : Leader (24 bytes)
+     *   Bytes 24..N-1: Directory (12 bytes/entry + 0x1E terminator)
+     *   Byte N        : Data area begins at the base address (leader bytes 12-16)
+     *   Each directory entry: tag(3) + length(4) + offset(5) = 12 bytes
+     *   The 'offset' field is the byte offset from the base address.
+     *
      * @param string $raw  Raw ISO 2709 bytes.
      * @return array       Parsed record array.
      */
@@ -85,18 +92,20 @@ class Marc21DecoderService
 
         // Status byte (position 5): a=archival, c=corrected, d=deleted, n=new
         // Type byte (position 6): a=text, e=carto, etc.
-        // bibliographic level (position 7): m=monograph, s=serial
+        // Bibliographic level (position 7): m=monograph, s=serial
         // Indicator length (pos 10): almost always '2' for bibliographic records
         // Subfield code length (pos 11): almost always '2'
         $indicatorLen = isset($leader[10]) ? (int) $leader[10] : 2;
         $baseAddress  = (int) substr($leader, 12, 5);
 
-        // Directory starts at byte 24 and runs until field terminator 0x1E.
+        // Directory starts at byte 24 and runs until the 0x1E terminator
+        // (which is the byte just before the data area — i.e. byte baseAddress - 1).
         $dirStart = 24;
-        $dirEnd   = $baseAddress - 1; // last byte before data area
+        $dirEnd   = $baseAddress - 1; // last byte of directory (the 0x1E terminator slot)
 
         // ── Directory parsing ──────────────────────────────────────────────
-        // Each entry: bytes[tag:3][length:4][start:5] = 12 bytes
+        // Each entry: tag(3) + length(4) + offset(5) = 12 bytes.
+        // The 'offset' is from the BASE ADDRESS (the start of the data area).
         $directory = [];
         $dpos = $dirStart;
 
@@ -110,17 +119,17 @@ class Marc21DecoderService
                 continue;
             }
 
-            // Data field starts after baseAddress + (dpos - dirStart) offset
-            // The actual start within the record: baseAddress + start index
-            $dataStart = $dirStart + $baseAddress + $start;
-            $dataEnd   = $dataStart + $flen - 1; // flen includes RTF byte
+            // 'start' is the offset from the base address.
+            $dataStart = $baseAddress + $start;
+            $dataEnd   = $dataStart + $flen - 1; // flen includes the RTF byte
 
             if ($dataEnd > strlen($raw)) {
                 // Record short: ignore this field
                 continue;
             }
 
-            $rawField = substr($raw, $dataStart, $flen - 1); // strip trailing RTF
+            // Extract field data (excluding the trailing RTF 0x1E)
+            $rawField = substr($raw, $dataStart, $flen - 1);
 
             if ($tag <= '009') {
                 // Control field: no indicators, no subfield delimiter
@@ -131,7 +140,7 @@ class Marc21DecoderService
                 $ind2 = isset($rawField[1]) ? $rawField[1] : ' ';
                 $rawSubfields = substr($rawField, $indicatorLen);
 
-                // Parse subfields (split on 0x1F, code in first byte)
+                // Parse subfields: split on 0x1F, code is first byte of each chunk
                 $subfields = [];
                 foreach (explode("\x1F", $rawSubfields) as $chunk) {
                     if (strlen($chunk) < 1) {
@@ -140,7 +149,7 @@ class Marc21DecoderService
                     $code = $chunk[0];
                     $val  = substr($chunk, 1);
 
-                    // Handle repeatable subfields: a, a, a → a, a2, a3 ...
+                    // Handle repeatable subfields: |a Val1 |a Val2 → a, a2, a3 …
                     if (isset($subfields[$code])) {
                         $seq = 2;
                         while (isset($subfields[$code . $seq])) {
@@ -216,7 +225,7 @@ class Marc21DecoderService
             return null;
         };
 
-        // Helper: flatten subfields
+        // Helper: flatten subfields — strips repeat suffixes (a2 → a)
         $flat = function (?array $field): array {
             if (! $field) return [];
             $out = [];
@@ -252,7 +261,7 @@ class Marc21DecoderService
             ];
         }
 
-        // 008 language code (positions 35-37)
+        // 008 language code (positions 35-37 of the 40-byte control field)
         $langMap = [
             'eng' => 'en', 'afr' => 'af', 'dut' => 'nl', 'fre' => 'fr',
             'ger' => 'de', 'ita' => 'it', 'spa' => 'es', 'por' => 'pt',
@@ -260,15 +269,16 @@ class Marc21DecoderService
             'ara' => 'ar', 'heb' => 'he',
         ];
         $langCode = 'en';
-        if (isset($control['008']) && strlen($control['008']) >= 38) {
-            $rawLang = strtolower(substr($control['008'], 35, 3));
+        $c008 = $control['008'] ?? '';
+        if (strlen($c008) >= 38) {
+            $rawLang = strtolower(substr($c008, 35, 3));
             $langCode = $langMap[$rawLang] ?? $rawLang;
         }
 
-        // 008 date (positions 7-10)
+        // 008 date (positions 7-10) — four-character publication year
         $pubDate = null;
-        if (isset($control['008']) && strlen($control['008']) >= 11) {
-            $yearRaw = substr($control['008'], 7, 4);
+        if (strlen($c008) >= 11) {
+            $yearRaw = substr($c008, 7, 4);
             if (ctype_digit($yearRaw)) {
                 $pubDate = $yearRaw;
             }
@@ -279,18 +289,18 @@ class Marc21DecoderService
         $sub300 = $f300 ? $flat($f300) : [];
         $pagination = $sub300['a'] ?? null;
 
-        // Publication: 260/264$b
+        // Publication: 264$b (preferred) falls back to 260$b
         $f260 = $firstOf('260');
         $f264 = $firstOf('264');
         $pubField = $f264 ?? $f260;
-        $pubSub = $pubField ? $flat($pubField) : [];
+        $pubSub   = $pubField ? $flat($pubField) : [];
         $publisher = $pubSub['b'] ?? null;
         $pubPlace  = $pubSub['a'] ?? null;
 
         // Classification: 050
-        $f050 = $firstOf('050');
+        $f050   = $firstOf('050');
         $sub050 = $f050 ? $flat($f050) : [];
-        $callNumber = $sub050['a'] ?? null;
+        $callNumber  = $sub050['a'] ?? null;
         $classScheme = ! empty($sub050['b']) ? 'LC' : null;
 
         // Identifiers
@@ -305,7 +315,6 @@ class Marc21DecoderService
 
         return $libraryService->create([
             'title' => $title,
-            'subtitle' => $subtitle,
             'subtitle' => $subtitle,
             'creators' => $creators,
             'isbn' => $isbn,
@@ -335,9 +344,8 @@ class Marc21DecoderService
             return 'monograph';
         }
 
-        $recType  = $leader[6]  ?? ' ';
-        $bibLevel = $leader[7]  ?? ' ';
-        $type     = $leader[6]  ?? 'a';
+        $recType  = $leader[6] ?? ' ';
+        $bibLevel = $leader[7] ?? ' ';
 
         // Visual materials from leader position 18 (undefined in some records)
         return match ($recType) {

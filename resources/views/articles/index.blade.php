@@ -53,11 +53,16 @@
                         @if($post->excerpt)
                             <p class="card-text flex-grow-1">{{ \Illuminate\Support\Str::limit($post->excerpt, 140) }}</p>
                         @endif
-                        <div class="mt-auto d-flex justify-content-between align-items-center">
-                            <a href="{{ route('articles.show', $post->slug) }}" class="btn btn-sm btn-outline-primary">{{ __('Read more') }}</a>
-                            @if($isAdmin)
-                                <a href="{{ route('admin.articles.edit', $post->id) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit') }}"><i class="fas fa-pen"></i></a>
-                            @endif
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ route('articles.show', $post->slug) }}" class="btn btn-sm btn-outline-primary">{{ __('Read more') }}</a>
+                                @if($isAdmin)
+                                    <a href="{{ route('admin.articles.edit', $post->id) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit') }}"><i class="fas fa-pen"></i></a>
+                                @endif
+                            </div>
+                            <div class="text-muted small mt-2 pt-2 border-top">
+                                <i class="fas fa-eye me-1"></i>{{ number_format($post->view_count ?? 0) }} {{ trans_choice('read|reads', (int) ($post->view_count ?? 0)) }}
+                            </div>
                         </div>
                     </div>
                 </div>

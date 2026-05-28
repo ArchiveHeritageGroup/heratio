@@ -54,6 +54,15 @@ class BlogController extends Controller
             abort(404);
         }
 
+        // Count one read per session per article; don't count admin previews.
+        $isAdmin = auth()->check() && (auth()->user()->is_admin ?? false);
+        $seenKey = 'article_viewed_' . $article->id;
+        if (! $isAdmin && ! session()->has($seenKey)) {
+            $this->blog->incrementViews((int) $article->id);
+            session()->put($seenKey, true);
+            $article->view_count = (int) ($article->view_count ?? 0) + 1;
+        }
+
         return view('articles.show', [
             'article'  => $article,
             'bodyHtml' => $article->body ? Str::markdown($article->body) : '',

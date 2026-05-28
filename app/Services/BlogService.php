@@ -115,6 +115,12 @@ class BlogService
         return DB::table('blog_post')->where('id', $id)->first() ?: null;
     }
 
+    /** Increment the read/visit counter for a post. */
+    public function incrementViews(int $id): void
+    {
+        DB::table('blog_post')->where('id', $id)->increment('view_count');
+    }
+
     public function create(array $data): int
     {
         $now = now();

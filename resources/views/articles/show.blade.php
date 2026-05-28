@@ -21,10 +21,11 @@
         <div class="text-muted mb-4">
             @if($article->published_at){{ \Carbon\Carbon::parse($article->published_at)->format('d F Y') }}@endif
             @if($article->author) &middot; {{ $article->author }}@endif
+            &middot; <i class="fas fa-eye"></i> {{ number_format($article->view_count ?? 0) }} {{ trans_choice('read|reads', (int) ($article->view_count ?? 0)) }}
         </div>
 
         @if($article->cover_image)
-            <img src="{{ $article->cover_image }}" alt="{{ $article->title }}" class="img-fluid rounded mb-4 w-100" style="max-height:420px;object-fit:cover;">
+            <img src="{{ $article->cover_image }}" alt="{{ $article->title }}" class="img-fluid rounded mb-4 d-block mx-auto">
         @endif
 
         <div class="article-body">
