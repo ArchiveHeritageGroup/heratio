@@ -109,7 +109,7 @@
         <li><a href="{{ url('/ipsas') }}"><i class="fas fa-coins me-2"></i>{{ __('IPSAS Heritage Assets') }}</a></li>
         @endif
         @if($hasLibrary)
-        <li><a href="{{ url('/library/browse') }}"><i class="fas fa-book me-2"></i>{{ __('Library') }}</a></li>
+        <li><a href="{{ \Illuminate\Support\Facades\Route::has('library.index') ? route('library.index') : url('/library-manage/index') }}"><i class="fas fa-book me-2"></i>{{ __('Library') }}</a></li>
         @endif
         @if($hasMarketplace)
         <li><a href="{{ route('ahgmarketplace.admin-dashboard') }}"><i class="fas fa-store-alt me-2"></i>{{ __('Marketplace') }}</a></li>
@@ -211,7 +211,7 @@
           @if($hasGrap)<li class="list-group-item"><a href="{{ route('heritage.grap.dashboard') }}"><i class="fas fa-balance-scale me-2 text-muted"></i>{{ __('GRAP 103 / Heritage Accounting') }}</a></li>@endif
           @if($hasDonor)<li class="list-group-item"><a href="{{ url('/donor/browse') }}"><i class="fas fa-handshake me-2 text-muted"></i>{{ __('Donor Management') }}</a></li>@endif
           @if($hasGallery)<li class="list-group-item"><a href="{{ url('/gallery/dashboard') }}"><i class="fas fa-palette me-2 text-muted"></i>{{ __('Gallery') }}</a></li>@endif
-          @if($hasLibrary)<li class="list-group-item"><a href="{{ url('/library/browse') }}"><i class="fas fa-book me-2 text-muted"></i>{{ __('Library') }}</a></li>@endif
+          @if($hasLibrary)<li class="list-group-item"><a href="{{ \Illuminate\Support\Facades\Route::has('library.index') ? route('library.index') : url('/library-manage/index') }}"><i class="fas fa-book me-2 text-muted"></i>{{ __('Library') }}</a></li>@endif
           @if($hasDam)<li class="list-group-item"><a href="{{ url('/dam/dashboard') }}"><i class="fas fa-images me-2 text-muted"></i>{{ __('Digital Asset Management') }}</a></li>@endif
           @if($hasMuseum)
             <li class="list-group-item"><a href="{{ url('/museum/dashboard') }}"><i class="fas fa-landmark me-2 text-muted"></i>{{ __('Museum') }}</a></li>
