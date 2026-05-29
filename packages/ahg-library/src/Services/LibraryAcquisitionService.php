@@ -571,20 +571,18 @@ class LibraryAcquisitionService
             ->where('o.budget_code', $code)
             ->whereIn('o.status', ['ordered', 'partial', 'received'])
             ->where('l.status', 'received')
-            ->selectRaw('SUM(l.line_total)')
-            ->value() ?: 0;
+            ->sum('l.line_total');
 
         $committed = (float) DB::table('library_order_line as l')
             ->join('library_order as o', 'o.id', '=', 'l.order_id')
             ->where('o.budget_code', $code)
             ->whereNotIn('o.status', ['cancelled'])
-            ->selectRaw('SUM(l.line_total)')
-            ->value() ?: 0;
+            ->sum('l.line_total');
 
         DB::table('library_budget')->where('id', $budget->id)->update([
-            'spent'     => $spent,
-            'committed' => $committed,
-            'updated_at'=> now(),
+            'spent_amount'     => $spent,
+            'committed_amount' => $committed,
+            'updated_at'       => now(),
         ]);
     }
 }

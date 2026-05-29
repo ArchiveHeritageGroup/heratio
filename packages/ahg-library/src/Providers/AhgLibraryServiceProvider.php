@@ -21,11 +21,32 @@ class AhgLibraryServiceProvider extends ServiceProvider
         // Schema: ahg_dropdown { taxonomy, taxonomy_label, taxonomy_section,
         // code, label, sort_order, is_default, is_active, created_at, updated_at }
         // taxonomy = group key; code = option value; label = display string.
-        $this->seedAcquisitionsDropdowns();
+        // Guarded: a fresh install / test DB may not have ahg_dropdown yet, and
+        // an unguarded query here crashes every request + test boot.
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')) {
+                $this->seedAcquisitionsDropdowns();
+            }
+        } catch (\Throwable) {
+            // tables not migrated yet - skip seeding, boot continues
+        }
 
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
+
+        // #1100 library acquisitions JSON:API. Route file applies its own
+        // api.auth scope + prefix groups, so it is loaded without an extra
+        // middleware wrap.
+        $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
+
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-library');
+
+        // #1100 role-based policies for the acquisitions resources. They share
+        // the AclService action gate used by the web ACL + the JSON:API
+        // controllers, so Gate/@can stays consistent across surfaces.
+        \Illuminate\Support\Facades\Gate::policy(\AhgLibrary\Models\LibraryOrder::class, \AhgLibrary\Policies\LibraryOrderPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\AhgLibrary\Models\LibraryBudget::class, \AhgLibrary\Policies\LibraryBudgetPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\AhgLibrary\Models\LibraryVendor::class, \AhgLibrary\Policies\LibraryVendorPolicy::class);
 
         // Alias for the OPAC gate so route files can use ['opac.enabled']
         $this->app['router']->aliasMiddleware('opac.enabled', \AhgLibrary\Middleware\EnsureOpacEnabled::class);
