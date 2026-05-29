@@ -287,10 +287,15 @@ class MarcxmlSerializer
             $xml .= "  </datafield>\n";
         }
 
+        // Authority URI map keyed by heading text. Looked up once from the
+        // library authority pivot so 650/651/655 can emit $0 round-trip URIs.
+        $authorityUris = $this->fetchAuthorityUris((int) $io->id);
+
         // 650 topical subjects
         foreach ($subjects as $s) {
             $xml .= '  <datafield tag="650" ind1=" " ind2="4">'."\n";
             $xml .= '    <subfield code="a">'.$this->escXml($s->name)."</subfield>\n";
+            $xml .= $this->authoritySubfield($s->name, $authorityUris);
             $xml .= "  </datafield>\n";
         }
 
@@ -298,6 +303,7 @@ class MarcxmlSerializer
         foreach ($places as $p) {
             $xml .= '  <datafield tag="651" ind1=" " ind2="4">'."\n";
             $xml .= '    <subfield code="a">'.$this->escXml($p->name)."</subfield>\n";
+            $xml .= $this->authoritySubfield($p->name, $authorityUris);
             $xml .= "  </datafield>\n";
         }
 
@@ -305,6 +311,7 @@ class MarcxmlSerializer
         foreach ($genres as $g) {
             $xml .= '  <datafield tag="655" ind1=" " ind2="4">'."\n";
             $xml .= '    <subfield code="a">'.$this->escXml($g->name)."</subfield>\n";
+            $xml .= $this->authoritySubfield($g->name, $authorityUris);
             $xml .= "  </datafield>\n";
         }
 
@@ -376,6 +383,71 @@ class MarcxmlSerializer
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    /**
+     * Build a map of subject-heading text => authority URI for the library
+     * item attached to this IO. Joins library_item -> library_item_authority_link
+     * -> library_subject_authority. Returns [] when the library tables are
+     * absent (archival-only install) or no links exist, so non-library IOs
+     * simply emit subjects without a $0.
+     *
+     * The map is keyed by case-insensitive heading text and matches on either
+     * the authority `heading` or its `lc_label`, since the exported 6XX$a uses
+     * the term name which equals one of those forms.
+     *
+     * @return array<string, string>  lowercased-heading => uri
+     */
+    private function fetchAuthorityUris(int $objectId): array
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('library_item_authority_link')
+                || ! \Illuminate\Support\Facades\Schema::hasTable('library_subject_authority')
+                || ! \Illuminate\Support\Facades\Schema::hasTable('library_item')) {
+                return [];
+            }
+
+            $rows = DB::table('library_item as li')
+                ->join('library_item_authority_link as link', 'link.library_item_id', '=', 'li.id')
+                ->join('library_subject_authority as auth', 'auth.id', '=', 'link.authority_id')
+                ->where('li.information_object_id', $objectId)
+                ->whereNotNull('auth.uri')
+                ->where('auth.uri', '!=', '')
+                ->get(['auth.heading', 'auth.lc_label', 'auth.uri']);
+
+            $map = [];
+            foreach ($rows as $r) {
+                foreach ([$r->heading ?? null, $r->lc_label ?? null] as $heading) {
+                    if ($heading !== null && $heading !== '') {
+                        $map[mb_strtolower(trim($heading))] = (string) $r->uri;
+                    }
+                }
+            }
+
+            return $map;
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Render a 6XX $0 authority-record-control-number subfield for a heading,
+     * or '' when no authority URI is on file. $0 is the MARC convention for an
+     * authority record control number / URI (LoC MARC21 subfield $0).
+     *
+     * @param array<string, string> $authorityUris
+     */
+    private function authoritySubfield(?string $heading, array $authorityUris): string
+    {
+        if ($heading === null || $heading === '') {
+            return '';
+        }
+        $key = mb_strtolower(trim($heading));
+        if (! isset($authorityUris[$key])) {
+            return '';
+        }
+
+        return '    <subfield code="0">'.$this->escXml($authorityUris[$key])."</subfield>\n";
     }
 
     /**

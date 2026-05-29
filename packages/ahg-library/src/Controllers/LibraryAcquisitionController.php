@@ -33,6 +33,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class LibraryAcquisitionController extends Controller
@@ -331,10 +332,19 @@ class LibraryAcquisitionController extends Controller
 
     public function budgetStore(Request $request): \Illuminate\Http\RedirectResponse
     {
+        // Accept the richer PSISA fields; keep the legacy 'name'/'allocated'
+        // aliases working for older callers.
         $validated = $request->validate([
-            'name'         => ['required', 'string', 'max:255'],
-            'fiscal_year'  => ['required', 'integer', 'min:2000', 'max:2100'],
-            'allocated'    => ['required', 'numeric', 'min:0'],
+            'fund_name'    => ['required_without:name', 'nullable', 'string', 'max:255'],
+            'name'         => ['required_without:fund_name', 'nullable', 'string', 'max:255'],
+            'budget_code'  => ['nullable', 'string', 'max:50'],
+            'fiscal_year'  => ['required', 'string', 'max:9'],
+            'allocated_amount' => ['required_without:allocated', 'nullable', 'numeric', 'min:0'],
+            'allocated'    => ['required_without:allocated_amount', 'nullable', 'numeric', 'min:0'],
+            'currency'     => ['nullable', 'string', 'max:3'],
+            'category'     => ['nullable', 'string', 'max:100'],
+            'department'   => ['nullable', 'string', 'max:100'],
+            'status'       => ['nullable', 'string', 'max:50'],
             'notes'        => ['nullable', 'string', 'max:2000'],
         ]);
 
@@ -380,10 +390,16 @@ class LibraryAcquisitionController extends Controller
         }
 
         $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
-            'fiscal_year' => ['required', 'integer', 'min:2000', 'max:2100'],
-            'allocated'   => ['required', 'numeric', 'min:0'],
-            'notes'       => ['nullable', 'string', 'max:2000'],
+            'fund_name'    => ['required_without:name', 'nullable', 'string', 'max:255'],
+            'name'         => ['required_without:fund_name', 'nullable', 'string', 'max:255'],
+            'fiscal_year'  => ['required', 'string', 'max:9'],
+            'allocated_amount' => ['required_without:allocated', 'nullable', 'numeric', 'min:0'],
+            'allocated'    => ['required_without:allocated_amount', 'nullable', 'numeric', 'min:0'],
+            'currency'     => ['nullable', 'string', 'max:3'],
+            'category'     => ['nullable', 'string', 'max:100'],
+            'department'   => ['nullable', 'string', 'max:100'],
+            'status'       => ['nullable', 'string', 'max:50'],
+            'notes'        => ['nullable', 'string', 'max:2000'],
         ]);
 
         $this->acq->updateBudget($id, $validated);
@@ -400,7 +416,7 @@ class LibraryAcquisitionController extends Controller
             abort(404);
         }
 
-        if ($budget->spent > 0) {
+        if (($budget->spent_amount ?? 0) > 0) {
             return back()->with('error', 'Cannot delete a budget with recorded expenditure.');
         }
 
@@ -453,6 +469,72 @@ class LibraryAcquisitionController extends Controller
         return response()->json([
             'success' => true,
             'order'   => $this->acq->getOrder($id),
+        ]);
+    }
+
+    // ── GRAP 103 / IPSAS 17 write-off (disposal) ──────────────────────────────
+
+    /**
+     * POST /acquisition/order/{id}/write-off  →  dispose of an order with an
+     * audited reason code (acq_disposal_reason dropdown).
+     */
+    public function writeOff(Request $request, int $id): \Illuminate\Http\RedirectResponse
+    {
+        $order = $this->acq->getOrder($id);
+        if (!$order) {
+            abort(404);
+        }
+
+        $validReasons = DB::table('ahg_dropdown')
+            ->where('taxonomy', 'acq_disposal_reason')
+            ->where('is_active', 1)
+            ->pluck('code')
+            ->all();
+
+        $validated = $request->validate([
+            'reason' => ['required', 'string', $validReasons ? Rule::in($validReasons) : 'max:50'],
+            'note'   => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $this->acq->writeOffOrder(
+            $id,
+            $validated['reason'],
+            (string) (auth()->id() ?? ''),
+            $validated['note'] ?? null
+        );
+
+        return back()->with('success', "Order written off ({$validated['reason']}).");
+    }
+
+    // ── Acquisitions dashboard ─────────────────────────────────────────────────
+
+    /**
+     * GET /acquisition/dashboard  →  orders grouped by vendor + budget utilisation.
+     */
+    public function dashboard(): View
+    {
+        $orders  = collect($this->acq->listOrders());
+        $budgets = collect($this->acq->listBudgets());
+
+        // Group orders by vendor label (vendor_name fallback to "Unassigned").
+        $byVendor = $orders->groupBy(function ($o) {
+            $name = trim((string) ($o->vendor_name ?? ''));
+            return $name !== '' ? $name : 'Unassigned';
+        })->map(function ($group) {
+            return (object) [
+                'count'  => $group->count(),
+                'total'  => (float) $group->sum('total_amount'),
+                'orders' => $group->values(),
+            ];
+        })->sortKeys();
+
+        $statusCounts = $orders->groupBy('status')->map->count();
+
+        return view('ahg-library::acquisition.dashboard', [
+            'orders'       => $orders,
+            'budgets'      => $budgets,
+            'byVendor'     => $byVendor,
+            'statusCounts' => $statusCounts,
         ]);
     }
 }

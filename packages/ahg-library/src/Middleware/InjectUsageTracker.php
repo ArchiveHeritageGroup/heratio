@@ -18,11 +18,16 @@ namespace AhgLibrary\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class InjectUsageTracker
 {
+    /** Cookie carrying the anonymised per-session usage token. */
+    private const SESSION_COOKIE = 'lib_usage_sid';
+
     public function handle(Request $request, Closure $next): Response
     {
         /** @var Response $response */
@@ -32,23 +37,74 @@ class InjectUsageTracker
             if (!$this->shouldInject($request, $response)) {
                 return $response;
             }
+
             $libraryItemId = $this->resolveLibraryItemId($request);
-            if (!$libraryItemId) return $response;
+            $isOpac = $this->isOpacPage($request);
+
+            // Inject on item pages (item-bound beacons) OR on the OPAC search
+            // page (search-event capture). Nothing else.
+            if (!$libraryItemId && !$isOpac) return $response;
 
             $content = (string) $response->getContent();
             if (!str_contains($content, '</head>')) return $response;
             if (str_contains($content, 'usage-tracker.js')) return $response; // already injected
 
-            $inject = '<meta name="library-item-id" content="' . (int) $libraryItemId . '">'
-                . '<script src="/vendor/ahg-library/js/usage-tracker.js" defer></script>';
+            $inject = '';
+            if ($libraryItemId) {
+                $inject .= '<meta name="library-item-id" content="' . (int) $libraryItemId . '">';
+            }
+            if ($isOpac) {
+                $inject .= '<meta name="library-usage-search" content="1">';
+            }
+            $inject .= '<script src="/vendor/ahg-library/js/usage-tracker.js" defer></script>';
 
             $content = str_replace('</head>', $inject . '</head>', $content);
             $response->setContent($content);
+
+            // Drop an anonymised, http-only session token so UsageEventController
+            // can de-duplicate unique-item / search metrics per browser session.
+            $this->ensureSessionCookie($request, $response);
         } catch (Throwable) {
             // Never let instrumentation break a page.
         }
 
         return $response;
+    }
+
+    /**
+     * The OPAC search surface lives at /opac (and /opac?q=...), which is not
+     * under the library/ prefix, so it needs its own match for search capture.
+     */
+    private function isOpacPage(Request $request): bool
+    {
+        if (!$request->isMethod('GET')) return false;
+        $path = trim($request->path(), '/');
+        return $path === 'opac' || str_starts_with($path, 'opac?');
+    }
+
+    /**
+     * Set the lib_usage_sid cookie once per browser if it is missing. Value is
+     * a random opaque token (hashed again server-side before storage).
+     */
+    private function ensureSessionCookie(Request $request, Response $response): void
+    {
+        if ($request->cookie(self::SESSION_COOKIE)) {
+            return;
+        }
+        $token = Str::random(40);
+        // 1-year, http-only, lax. Not a tracking identifier across sites - only
+        // used to group COUNTER unique-item / search events within this site.
+        $response->headers->setCookie(new Cookie(
+            self::SESSION_COOKIE,
+            $token,
+            now()->addYear()->getTimestamp(),
+            '/',
+            null,
+            $request->isSecure(),
+            true,        // httpOnly
+            false,
+            Cookie::SAMESITE_LAX
+        ));
     }
 
     private function shouldInject(Request $request, Response $response): bool

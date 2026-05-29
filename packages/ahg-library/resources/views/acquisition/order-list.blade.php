@@ -1,0 +1,14 @@
+@extends('theme::layouts.1col')
+@section('title', 'Purchase Orders')
+@section('content')
+@php
+    $statuses = \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy','library_order_status')->where('is_active',1)->orderBy('sort_order')->get(['code','label']);
+@endphp
+<div class="container py-4">
+<div class="d-flex justify-content-between align-items-center mb-3"><h1 class="mb-0"><i class="fas fa-file-invoice me-2"></i>{{ __('Purchase Orders') }}</h1><div><a href="{{ route('library.acquisition-dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-chart-line me-1"></i>{{ __('Dashboard') }}</a> <a href="{{ route('library.acquisition-budgets') }}" class="btn btn-outline-secondary"><i class="fas fa-wallet me-1"></i>{{ __('Budgets') }}</a> <a href="{{ route('library.acquisition-vendors') }}" class="btn btn-outline-secondary"><i class="fas fa-truck me-1"></i>{{ __('Vendors') }}</a> <a href="{{ route('library.acquisition-order-create') }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>{{ __('New Order') }}</a></div></div>
+@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+@if(session('info'))<div class="alert alert-info">{{ session('info') }}</div>@endif
+<form method="get" class="row g-2 mb-3"><div class="col-md-4"><input type="text" name="q" class="form-control" placeholder="{{ __('Search order number or vendor') }}" value="{{ e($searchQuery??'') }}"></div><div class="col-md-3"><select name="status" class="form-select"><option value="">{{ __('All statuses') }}</option>@foreach($statuses as $s)<option value="{{ $s->code }}" {{ ($statusFilter??'')===$s->code?'selected':'' }}>{{ $s->label }}</option>@endforeach</select></div><div class="col-md-2"><button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i>{{ __('Filter') }}</button></div></form>
+<div class="card"><div class="card-body p-0"><table class="table table-striped table-hover mb-0"><thead><tr><th>{{ __('Order #') }}</th><th>{{ __('Vendor') }}</th><th>{{ __('Date') }}</th><th>{{ __('Status') }}</th><th class="text-end">{{ __('Lines') }}</th><th class="text-end">{{ __('Total') }}</th></tr></thead><tbody>@forelse($orders??[] as $o)<tr style="cursor:pointer" onclick="window.location='{{ route('library.acquisition-order',$o->id) }}'"><td><strong>{{ e($o->order_number??'') }}</strong></td><td>{{ e($o->vendor_name??'') }}</td><td>{{ $o->order_date??'' }}</td><td><span class="badge bg-secondary">{{ e($o->status??'') }}</span></td><td class="text-end">{{ (int)($o->line_count??0) }}</td><td class="text-end">{{ number_format((float)($o->total_amount??0),2) }} {{ e($o->currency??'') }}</td></tr>@empty<tr><td colspan="6" class="text-muted text-center py-4">{{ __('No orders found.') }}</td></tr>@endforelse</tbody></table></div></div>
+</div>
+@endsection

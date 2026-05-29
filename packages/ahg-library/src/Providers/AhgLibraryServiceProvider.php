@@ -41,12 +41,24 @@ class AhgLibraryServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-library');
 
+        // Register the package's anonymous-component directory with no prefix so
+        // circulation / ILL / trading-partner views can use <x-library-layout>.
+        // Without this the unprefixed tag never resolves and view:cache aborts
+        // with "Unable to locate a class or view for component [library-layout]".
+        \Illuminate\Support\Facades\Blade::anonymousComponentPath(
+            __DIR__ . '/../../resources/views/components'
+        );
+
         // #1100 role-based policies for the acquisitions resources. They share
         // the AclService action gate used by the web ACL + the JSON:API
         // controllers, so Gate/@can stays consistent across surfaces.
         \Illuminate\Support\Facades\Gate::policy(\AhgLibrary\Models\LibraryOrder::class, \AhgLibrary\Policies\LibraryOrderPolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\AhgLibrary\Models\LibraryBudget::class, \AhgLibrary\Policies\LibraryBudgetPolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\AhgLibrary\Models\LibraryVendor::class, \AhgLibrary\Policies\LibraryVendorPolicy::class);
+        // #1092 serials JSON:API policies
+        \Illuminate\Support\Facades\Gate::policy(\AhgLibrary\Models\LibrarySerial::class, \AhgLibrary\Policies\LibrarySerialPolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\AhgLibrary\Models\LibrarySerialIssue::class, \AhgLibrary\Policies\LibrarySerialIssuePolicy::class);
+        \Illuminate\Support\Facades\Gate::policy(\AhgLibrary\Models\LibrarySerialSubscription::class, \AhgLibrary\Policies\LibrarySerialSubscriptionPolicy::class);
 
         // Alias for the OPAC gate so route files can use ['opac.enabled']
         $this->app['router']->aliasMiddleware('opac.enabled', \AhgLibrary\Middleware\EnsureOpacEnabled::class);
@@ -74,6 +86,10 @@ class AhgLibraryServiceProvider extends ServiceProvider
                 \AhgLibrary\Console\Commands\BackfillLibraryAuthorsCommand::class,
                 \AhgLibrary\Console\Commands\KbartRefreshFeedsCommand::class,
                 \AhgLibrary\Console\Commands\EmailUsageReportsCommand::class,
+                \AhgLibrary\Console\Commands\OdiRefreshScorecardCommand::class,   // #1097
+                \AhgLibrary\Console\Commands\SerialClaimAlertsCommand::class,     // #1092
+                \AhgLibrary\Console\Commands\SerialExpiryAlertsCommand::class,    // #1092
+                \AhgLibrary\Console\Commands\SendOverdueNoticesCommand::class,    // #1093
             ]);
 
             $this->app->booted(function () {
@@ -93,6 +109,11 @@ class AhgLibraryServiceProvider extends ServiceProvider
                 $schedule->command('ahg:library-email-usage-reports')
                     ->monthlyOn(1, '04:00')
                     ->withoutOverlapping(120);
+                // #1092 serials: claim overdue issues + warn before subscription expiry.
+                $schedule->command('ahg:library-serial-claim-alerts')->dailyAt('03:30')->withoutOverlapping(60);
+                $schedule->command('ahg:library-serial-expiry-alerts')->dailyAt('03:45')->withoutOverlapping(60);
+                // #1093 circulation: tiered overdue notices.
+                $schedule->command('ahg:library-overdue-notices')->dailyAt('06:00')->withoutOverlapping(120);
             });
         }
     }

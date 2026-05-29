@@ -19,6 +19,9 @@ use AhgLibrary\Controllers\CirculationDeskController;
 use AhgLibrary\Controllers\OpacPatronController;
 use AhgLibrary\Controllers\CopyCataloguingController;
 use AhgLibrary\Controllers\OnixIngestController;
+use AhgLibrary\Controllers\LibraryVendorController;
+use AhgLibrary\Controllers\NoticeTemplateController;
+use AhgLibrary\Controllers\OdiScorecardController;
 use Illuminate\Support\Facades\Route;
 
 // #766 per-event JS instrumentation beacon
@@ -125,16 +128,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/library-manage/copy-cataloguing/targets/{id}', [CopyCataloguingController::class, 'destroyTarget'])->name('library.copy-cataloguing-destroy-target')->where('id', '[0-9]+')->middleware('acl:delete');
 
     // ── Acquisition ────────────────────────────────────────────────────────
-    // Quick-restore: list page served by the stable LibraryController@acquisitions
-    // (renders acquisition.index) while Phase-1 LibraryAcquisitionController views
-    // (order-list, order-create, order-show, _order-lines, budget-*) are still being built.
-    Route::get('/library-manage/acquisitions', [LibraryController::class, 'acquisitions'])->name('library.acquisitions');
+    // #1091: Phase-1 LibraryAcquisitionController views now exist (order-list,
+    // order-create, order-show, _order-lines, budget-*, dashboard, vendors), so
+    // the list + order-detail routes are flipped off the quick-restore stubs.
+    Route::get('/library-manage/acquisitions', [LibraryAcquisitionController::class, 'index'])->name('library.acquisitions');
+    Route::get('/library-manage/acquisition/dashboard', [LibraryAcquisitionController::class, 'dashboard'])->name('library.acquisition-dashboard');
     Route::get('/library-manage/acquisition/order/create', [LibraryAcquisitionController::class, 'create'])->name('library.acquisition-order-create');
     Route::post('/library-manage/acquisition/order', [LibraryAcquisitionController::class, 'store'])->name('library.acquisition-order-store')->middleware('acl:create');
-    // Quick-restore: order detail served by stable LibraryController@acquisitionOrder
-    // (renders acquisition.order) so the restored list's click-through works until the
-    // Phase-1 order-show view exists.
-    Route::get('/library-manage/acquisition/order/{id}', [LibraryController::class, 'acquisitionOrder'])->name('library.acquisition-order')->where('id', '[0-9]+');
+    Route::get('/library-manage/acquisition/order/{id}', [LibraryAcquisitionController::class, 'show'])->name('library.acquisition-order')->where('id', '[0-9]+');
+    Route::post('/library-manage/acquisition/order/{id}/write-off', [LibraryAcquisitionController::class, 'writeOff'])->name('library.acquisition-order-write-off')->where('id', '[0-9]+')->middleware('acl:update'); // #1091 GRAP 103 / IPSAS 17 disposal
     Route::get('/library-manage/acquisition/order/{id}/edit', [LibraryAcquisitionController::class, 'edit'])->name('library.acquisition-order-edit')->where('id', '[0-9]+');
     Route::put('/library-manage/acquisition/order/{id}', [LibraryAcquisitionController::class, 'update'])->name('library.acquisition-order-update')->where('id', '[0-9]+')->middleware('acl:update');
     Route::post('/library-manage/acquisition/order/{id}/status', [LibraryAcquisitionController::class, 'transition'])->name('library.acquisition-order-transition')->where('id', '[0-9]+')->middleware('acl:update');
@@ -152,6 +154,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/acquisition/budget/{id}/edit', [LibraryAcquisitionController::class, 'budgetEdit'])->name('library.acquisition-budget-edit')->where('id', '[0-9]+');
     Route::put('/library-manage/acquisition/budget/{id}', [LibraryAcquisitionController::class, 'budgetUpdate'])->name('library.acquisition-budget-update')->where('id', '[0-9]+')->middleware('acl:update');
     Route::delete('/library-manage/acquisition/budget/{id}', [LibraryAcquisitionController::class, 'budgetDestroy'])->name('library.acquisition-budget-destroy')->where('id', '[0-9]+')->middleware('acl:delete');
+
+    // ── Vendor management (#1091) ────────────────────────────────────────────
+    Route::get('/library-manage/acquisition/vendors', [LibraryVendorController::class, 'index'])->name('library.acquisition-vendors');
+    Route::get('/library-manage/acquisition/vendor/create', [LibraryVendorController::class, 'create'])->name('library.acquisition-vendor-create');
+    Route::post('/library-manage/acquisition/vendor', [LibraryVendorController::class, 'store'])->name('library.acquisition-vendor-store')->middleware('acl:create');
+    Route::get('/library-manage/acquisition/vendor/{id}/edit', [LibraryVendorController::class, 'edit'])->name('library.acquisition-vendor-edit')->where('id', '[0-9]+');
+    Route::put('/library-manage/acquisition/vendor/{id}', [LibraryVendorController::class, 'update'])->name('library.acquisition-vendor-update')->where('id', '[0-9]+')->middleware('acl:update');
+    Route::delete('/library-manage/acquisition/vendor/{id}', [LibraryVendorController::class, 'destroy'])->name('library.acquisition-vendor-destroy')->where('id', '[0-9]+')->middleware('acl:delete');
+
+    // ── MARC validation + merge preview (#1098) ──────────────────────────────
+    Route::post('/library-manage/marc/validate', [MarcEditorController::class, 'validateForm'])->name('library.marc-validate')->middleware('acl:read');
+    Route::post('/library-manage/marc/merge/preview', [MarcEditorController::class, 'mergePreview'])->name('library.marc-merge-preview')->middleware('acl:read');
+
+    // ── ODI quality scorecard (#1097) ────────────────────────────────────────
+    Route::get('/library-manage/odi/scorecard', [OdiScorecardController::class, 'index'])->name('library.odi-scorecard');
+    Route::post('/library-manage/odi/scorecard/refresh', [OdiScorecardController::class, 'refresh'])->name('library.odi-scorecard-refresh')->middleware('acl:update');
+
+    // ── Overdue notice templates (#1093) ─────────────────────────────────────
+    Route::get('/library-manage/notice-templates', [NoticeTemplateController::class, 'index'])->name('library.notice-templates.index');
+    Route::get('/library-manage/notice-templates/{id}/edit', [NoticeTemplateController::class, 'edit'])->name('library.notice-templates.edit')->where('id', '[0-9]+');
+    Route::put('/library-manage/notice-templates/{id}', [NoticeTemplateController::class, 'update'])->name('library.notice-templates.update')->where('id', '[0-9]+')->middleware('acl:update');
+    Route::post('/library-manage/notice-templates/{id}/preview', [NoticeTemplateController::class, 'preview'])->name('library.notice-templates.preview')->where('id', '[0-9]+');
 
     // ── Loan Rules & Overdue (read-only management views) ─────────────────
     Route::get('/library-manage/circulation/loan-rules', [LibraryController::class, 'loanRules'])->name('library.loan-rules');
@@ -240,7 +264,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/usage/subscriptions', [LibraryUsageController::class, 'subscriptions'])->name('library.usage-subscriptions');
     Route::post('/library-manage/usage/subscriptions', [LibraryUsageController::class, 'subscriptionsStore'])->name('library.usage-subscriptions-store');
     Route::get('/library-manage/usage/subscriptions/test', [LibraryUsageController::class, 'testConnection'])->name('library.usage-subscriptions-test');
-    Route::get('/library-manage/usage/export/{type}', [LibraryUsageController::class, 'export'])->name('library.usage-export')->where('type', 'PR|TR|DR');
+    Route::get('/library-manage/usage/export/{type}', [LibraryUsageController::class, 'export'])->name('library.usage-export')->where('type', 'PR|TR|TR_J1|TR_J3|DR|IR');
 });
 
 // OPAC

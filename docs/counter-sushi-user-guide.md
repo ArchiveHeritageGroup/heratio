@@ -34,12 +34,15 @@ This release ships the **SUSHI client + report-generation backbone**. Per-event 
 
 ## 2. Usage Capture
 
-Heratio currently captures usage at two levels:
+Heratio captures usage at three levels:
 
 1. **Catalogue access events** via the existing `audit_trail` pipeline (every `library_item` view).
-2. **SUSHI harvest events** when Heratio pulls reports from upstream vendors.
-
-The full event surface (page view, abstract view, full-text download, link-out click) needs the JS instrumentation layer planned in heratio#766 acceptance. Until then, the COUNTER reports below are derived from `audit_trail` and from the SUSHI-harvested upstream data, which covers most e-resource use cases but understates OPAC browse.
+2. **Per-event JS instrumentation** (heratio#766, heratio#1096). The `usage-tracker.js` beacon, auto-injected by the `InjectUsageTracker` middleware, posts to `/api/library/usage-event`:
+   - `view` (page view) -> `Total_Item_Investigations`
+   - `request` / `link_click` (download / link-out) -> `Total_Item_Requests`
+   - `search` (OPAC search submission with a non-empty query) -> `Searches_Platform` (COUNTER PR1)
+   Each event is written to **two** surfaces: the aggregate counter `library_usage_stats` and the per-event log `library_counter_log`. The per-event log carries an anonymised `session_id` (sha256 of an http-only `lib_usage_sid` cookie - never a raw identifier), `resource_type`, `access_type` (`Controlled` / `OA_Gold`) and `status`. The session log is what makes the **unique-item** metrics (`Unique_Item_Requests`, `Unique_Item_Investigations` = distinct item per session per day) and the PR1 search count computable - they cannot be derived from a pre-aggregated counter.
+3. **SUSHI harvest events** when Heratio pulls reports from upstream vendors.
 
 ---
 
@@ -51,16 +54,18 @@ Visit **/library-manage/usage** for the dashboard. The shipped report types:
 |---|---|---|
 | TR (Title Report) | `/library-manage/usage/tr` | Per-title use breakdown |
 | DR (Database Report) | `/library-manage/usage/dr` | Per-database use breakdown |
-| PR (Platform Report) | available via export | Per-platform aggregates |
-| IR (Item Report) | pending | On the roadmap |
+| PR (Platform Report) | available via export | Per-platform aggregates incl. unique-item + search counts |
+| IR (Item Report) | available via export | Per-item granularity |
 
 Each report supports:
 
 - Date-range filter (begin / end month)
 - Platform filter (multi-select)
-- Format: JSON (canonical), TSV (Excel-friendly)
+- Format: JSON (canonical), TSV, CSV, and **XLSX** (Excel)
 
 The exported JSON conforms to the COUNTER R5 spec's `Report_Header` / `Report_Items` structure.
+
+**Export URL:** `GET /library-manage/usage/export/{type}?from=YYYY-MM-DD&to=YYYY-MM-DD&format=tsv|csv|xlsx`. `type` is one of `PR`, `TR`, `TR_J1`, `TR_J3`, `DR`, `IR`. `format` defaults to `tsv`; `xlsx` is generated with PhpSpreadsheet and falls back to CSV if the workbook write fails.
 
 ---
 
@@ -119,13 +124,16 @@ Heratio now publishes its COUNTER R5 reports via a SUSHI 5.0 REST endpoint at `/
 | `GET /api/sushi/r5/reports` | List of supported report IDs |
 | `GET /api/sushi/r5/reports/{report_id}` | Specific report, with `begin_date` and `end_date` query params |
 
-Supported report IDs: `PR`, `TR`, `TR_J1`, `TR_J3`, `DR`, `IR`. Authentication is currently optional (anonymous-allow); set `library.sushi.require_auth = true` to enforce per-consumer credentials stored in the `library_sushi_consumer` registry.
+Supported report IDs: `PR`, `TR`, `TR_J1`, `TR_J3`, `DR`, `IR`. The COUNTER R4-style standard-view aliases named in the NLSA ToR are also accepted and mapped onto the R5 master reports: `BR1`/`BR2` -> `TR`, `PR1` -> `PR`, `DR1` -> `DR`. So a partner can call `GET /api/sushi/r5/reports/BR1?begin_date=2026-01-01&end_date=2026-06-30` and receive a valid R5 envelope.
+
+**Authentication.** Optional by default (anonymous-allow). Set `library.sushi.require_auth = true` to enforce per-consumer credentials stored in the `library_sushi_consumer` registry. Each consumer row carries `customer_id`, `requestor_id`, an `api_key_hash` (sha256 of the issued key), and an `active` flag; a request authenticates when all three of `customer_id` + `requestor_id` + `api_key` match an active row.
+
+**Audit log.** Every `status` / `members` / `reports` / report request is written to `library_sushi_audit_log` (customer/requestor id, report id, date range, IP, user-agent, authorised flag, timestamp) - the "who requested which report" trail required by the ToR.
 
 ## 8. Limitations
 
-- **Native IR + TR_J1 + TR_J3 generators live (v1.112+).** All COUNTER R5 standard views now produced server-side; the `LibraryUsageController` and the SUSHI server endpoint both honour them.
-- **Per-event instrumentation still derived from `audit_trail`.** Click and download events are not captured at the JS layer; OPAC use is understated. Improvement tracked separately.
-- **No scheduled email delivery.** Reports must be downloaded manually (or harvested via SUSHI).
+- **All COUNTER R5 standard views live.** PR / TR / TR_J1 / TR_J3 / DR / IR plus the R4-style BR1/BR2/PR1/DR1 aliases are produced server-side; the `LibraryUsageController` and the SUSHI server endpoint both honour them.
+- **Per-event JS instrumentation live (heratio#1096).** Page view, download / link-out click, and OPAC search are captured at the JS layer and de-duplicated per session for the unique-item + search metrics. OPAC browse is no longer understated. Note the `lib_usage_sid` cookie is a same-site session grouping token, not a cross-site tracker.
 - **No COUNTER conformance certification.** Exports are R5-shaped but the audit dossier for the COUNTER Code of Practice is not yet submitted to Project Counter.
 - **Implementation lives inside `ahg-library`,** not a dedicated `ahg-counter` package. This is intentional for the first cut to avoid premature package proliferation; a future extraction is possible if downstream consumers need it independently.
 

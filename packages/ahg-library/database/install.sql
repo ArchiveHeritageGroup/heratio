@@ -390,4 +390,78 @@ VALUES
     ('isbn_provider', 'ISBN Lookup Provider', 'google_books', 'Google Books', 20, 0, 1),
     ('isbn_provider', 'ISBN Lookup Provider', 'worldcat',     'WorldCat',     30, 0, 1);
 
+-- ─────────────────────────────────────────────────────────────────────────
+-- Serials management (heratio#1092): subscriptions, predictions, claims,
+-- binding. The base library_serial + library_serial_issue tables are defined
+-- earlier in this file; these complete the serials surface. Mirrored by the
+-- 2026_06_01_0001xx migrations for environments that migrate rather than load
+-- install.sql.
+-- ─────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS library_serial_subscription (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    serial_id BIGINT UNSIGNED NOT NULL,
+    subscription_start DATE NULL,
+    subscription_end DATE NULL,
+    subscription_cost DECIMAL(10,2) NULL,
+    notification_email VARCHAR(255) NULL,
+    auto_claim_max TINYINT UNSIGNED DEFAULT 3,
+    notes TEXT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    UNIQUE KEY serial_id_unique (serial_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS library_serial_prediction (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    serial_id BIGINT UNSIGNED NOT NULL,
+    volume VARCHAR(32) NOT NULL DEFAULT '',
+    issue_number VARCHAR(32) NOT NULL DEFAULT '',
+    expected_date DATE NULL,
+    days_until INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NULL,
+    INDEX idx_library_serial_prediction_serial (serial_id),
+    INDEX idx_library_serial_prediction_expected (expected_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS library_claim (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    serial_id BIGINT UNSIGNED NOT NULL,
+    issue_id BIGINT UNSIGNED NULL,
+    claimed_at TIMESTAMP NULL,
+    claimed_by VARCHAR(255) NULL,
+    reason TEXT NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'open' COMMENT 'open|sent|resolved|cancelled',
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    INDEX idx_library_claim_serial (serial_id),
+    INDEX idx_library_claim_issue (issue_id),
+    INDEX idx_library_claim_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS library_binding (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    serial_id BIGINT UNSIGNED NOT NULL,
+    volume_range VARCHAR(120) NOT NULL DEFAULT '',
+    status VARCHAR(32) NOT NULL DEFAULT 'pending' COMMENT 'pending|at_bindery|bound|shelved',
+    bound_at DATE NULL,
+    location VARCHAR(255) NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    INDEX idx_library_binding_serial (serial_id),
+    INDEX idx_library_binding_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Serial claim + binding status taxonomies (Dropdown Manager projection)
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `code`, `label`, `sort_order`, `is_default`, `is_active`)
+VALUES
+    ('library_claim_status', 'Serial Claim Status', 'open',      'Open',      10, 1, 1),
+    ('library_claim_status', 'Serial Claim Status', 'sent',      'Sent',      20, 0, 1),
+    ('library_claim_status', 'Serial Claim Status', 'resolved',  'Resolved',  30, 0, 1),
+    ('library_claim_status', 'Serial Claim Status', 'cancelled', 'Cancelled', 40, 0, 1),
+    ('library_binding_status', 'Serial Binding Status', 'pending',    'Pending',     10, 1, 1),
+    ('library_binding_status', 'Serial Binding Status', 'at_bindery', 'At Bindery',  20, 0, 1),
+    ('library_binding_status', 'Serial Binding Status', 'bound',      'Bound',       30, 0, 1),
+    ('library_binding_status', 'Serial Binding Status', 'shelved',    'Shelved',     40, 0, 1);
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -149,6 +149,10 @@ class MarcXmlImporter
                 [$ioId, $action] = $this->persist($desc);
                 $desc['io_id'] = $ioId;
                 $desc['action'] = $action;
+                $desc['authority_links_created'] = $this->persistAuthorityLinks(
+                    $ioId,
+                    $desc['authority_links'] ?? []
+                );
                 $desc['audit_id'] = $this->logAudit($ioId, $action, $desc);
             } catch (Throwable $e) {
                 $desc['error'] = $e->getMessage();
@@ -294,11 +298,158 @@ class MarcXmlImporter
             'places' => $subAll('651', 'a'),
             'genres' => $subAll('655', 'a'),
             'creators' => $subAll('100', 'a') + $subAll('110', 'a') + $subAll('111', 'a'),
+            // Authority links parsed from 6XX $0. Each entry pairs the heading
+            // text ($a) with its authority URI ($0) and the source MARC tag so
+            // the commit path can round-trip them into library_subject_authority
+            // + library_item_authority_link.
+            'authority_links' => $this->extractAuthorityLinks($datafields),
             'carrier_term' => $carrierTerm,
             'matched_io_id' => $matchedIoId,
             'will_create' => $willCreate,
             'warnings' => $warnings,
         ];
+    }
+
+    /**
+     * Pull 6XX $a/$0 pairs out of the parsed datafields. Only 650/651/655 are
+     * authority-controlled subject access points in Heratio's crosswalk.
+     *
+     * @param array<int, array<string, mixed>> $datafields
+     * @return array<int, array{tag:string,heading:string,uri:?string,subject_type:string}>
+     */
+    private function extractAuthorityLinks(array $datafields): array
+    {
+        $typeByTag = ['650' => 'topic', '651' => 'place', '655' => 'genre'];
+        $out = [];
+        foreach ($datafields as $f) {
+            $tag = $f['tag'] ?? '';
+            if (! isset($typeByTag[$tag])) {
+                continue;
+            }
+            $headings = $f['subfields']['a'] ?? [];
+            $uris = $f['subfields']['0'] ?? [];
+            foreach ($headings as $i => $heading) {
+                $heading = trim((string) $heading);
+                if ($heading === '') {
+                    continue;
+                }
+                $out[] = [
+                    'tag'          => $tag,
+                    'heading'      => $heading,
+                    'uri'          => isset($uris[$i]) ? trim((string) $uris[$i]) : null,
+                    'subject_type' => $typeByTag[$tag],
+                ];
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Round-trip authority links: for every parsed 6XX $0, find-or-create a
+     * library_subject_authority record (matched by uri, else heading) and link
+     * it to the library_item that wraps this IO via library_item_authority_link.
+     * No-ops gracefully when the library tables are absent or the IO has no
+     * library_item wrapper (archival-only records).
+     *
+     * @param array<int, array{tag:string,heading:string,uri:?string,subject_type:string}> $links
+     * @return int number of links created
+     */
+    private function persistAuthorityLinks(int $ioId, array $links): int
+    {
+        if (empty($links)) {
+            return 0;
+        }
+        try {
+            if (! Schema::hasTable('library_item')
+                || ! Schema::hasTable('library_subject_authority')
+                || ! Schema::hasTable('library_item_authority_link')) {
+                return 0;
+            }
+            $libraryItemId = DB::table('library_item')
+                ->where('information_object_id', $ioId)
+                ->value('id');
+            if (! $libraryItemId) {
+                return 0;
+            }
+            $libraryItemId = (int) $libraryItemId;
+            $now = date('Y-m-d H:i:s');
+            $created = 0;
+
+            foreach ($links as $link) {
+                $authorityId = $this->findOrCreateAuthority($link, $now);
+                if ($authorityId === null) {
+                    continue;
+                }
+                $exists = DB::table('library_item_authority_link')
+                    ->where('library_item_id', $libraryItemId)
+                    ->where('authority_id', $authorityId)
+                    ->exists();
+                if ($exists) {
+                    continue;
+                }
+                DB::table('library_item_authority_link')->insert([
+                    'library_item_id' => $libraryItemId,
+                    'authority_id'    => $authorityId,
+                    'source_tag'      => $link['tag'],
+                    'created_at'      => $now,
+                    'updated_at'      => $now,
+                ]);
+                DB::table('library_subject_authority')
+                    ->where('id', $authorityId)
+                    ->increment('linked_count');
+                $created++;
+            }
+
+            return $created;
+        } catch (Throwable $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Match an authority by uri (preferred) or heading, creating it if absent.
+     *
+     * @param array{tag:string,heading:string,uri:?string,subject_type:string} $link
+     */
+    private function findOrCreateAuthority(array $link, string $now): ?int
+    {
+        $uri = $link['uri'] ?: null;
+        $heading = $link['heading'];
+
+        $query = DB::table('library_subject_authority');
+        if ($uri !== null) {
+            $existing = (clone $query)->where('uri', $uri)->value('id');
+            if ($existing) {
+                return (int) $existing;
+            }
+        }
+        $existing = (clone $query)
+            ->where('heading', $heading)
+            ->where('subject_type', $link['subject_type'])
+            ->value('id');
+        if ($existing) {
+            // Backfill the uri if the incoming record now carries one.
+            if ($uri !== null) {
+                DB::table('library_subject_authority')
+                    ->where('id', $existing)
+                    ->whereNull('uri')
+                    ->update(['uri' => $uri, 'updated_at' => $now]);
+            }
+
+            return (int) $existing;
+        }
+
+        return (int) DB::table('library_subject_authority')->insertGetId([
+            'heading'      => $heading,
+            'lc_label'     => $heading,
+            'subject_type' => $link['subject_type'],
+            'source'       => $uri !== null ? 'marc-import' : 'local',
+            'uri'          => $uri,
+            'linked_count' => 0,
+            'created_at'   => $now,
+            'updated_at'   => $now,
+        ]);
     }
 
     private function matchExisting(string $identifier): ?int

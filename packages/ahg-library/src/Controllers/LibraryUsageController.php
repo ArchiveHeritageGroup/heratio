@@ -232,25 +232,60 @@ class LibraryUsageController extends Controller
     // ── TSV / CSV export ──────────────────────────────────────────────────
 
     /**
-     * Download a TSV export of a COUNTER report.
+     * Download a COUNTER report export. Format chosen via ?format=tsv|csv|xlsx
+     * (default tsv). XLSX uses PhpSpreadsheet; csv is comma-delimited.
      */
     public function export(Request $request, string $type = 'PR'): Response
     {
         $fromDate = $this->parseDate($request->query('from', now()->subMonths(6)->toDateString()));
         $toDate   = $this->parseDate($request->query('to', now()->toDateString()));
 
-        $allowed = ['PR', 'TR', 'DR'];
-        if (!in_array($type, $allowed)) {
+        $allowed = ['PR', 'TR', 'TR_J1', 'TR_J3', 'DR', 'IR'];
+        if (!in_array($type, $allowed, true)) {
             $type = 'PR';
         }
 
+        $format = strtolower((string) $request->query('format', 'tsv'));
+        if (!in_array($format, ['tsv', 'csv', 'xlsx'], true)) {
+            $format = 'tsv';
+        }
+
+        $base = "counter-{$type}-{$fromDate}_to_{$toDate}";
+
+        if ($format === 'xlsx') {
+            try {
+                $binary = $this->usage->getReportXlsx($type, $fromDate, $toDate);
+                return response($binary, 200, [
+                    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition' => "attachment; filename=\"{$base}.xlsx\"",
+                ]);
+            } catch (Throwable $e) {
+                // PhpSpreadsheet missing or write failure - fall back to CSV so
+                // the operator still gets a usable download.
+                Log::warning('LibraryUsageController XLSX export fell back to CSV: ' . $e->getMessage());
+                $format = 'csv';
+            }
+        }
+
+        if ($format === 'csv') {
+            $rows = $this->usage->getReportRows($type, $fromDate, $toDate);
+            $handle = fopen('php://temp', 'r+');
+            foreach ($rows as $row) {
+                fputcsv($handle, $row);
+            }
+            rewind($handle);
+            $csv = (string) stream_get_contents($handle);
+            fclose($handle);
+            return response($csv, 200, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename=\"{$base}.csv\"",
+            ]);
+        }
+
         $tsv = $this->usage->getReportCsv($type, $fromDate, $toDate);
-
-        $filename = "counter-{$type}-{$fromDate}_to_{$toDate}.tsv";
-
         return response($tsv, 200, [
             'Content-Type' => 'text/tab-separated-values; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Content-Disposition' => "attachment; filename=\"{$base}.tsv\"",
         ]);
     }
 

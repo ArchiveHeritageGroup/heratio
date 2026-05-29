@@ -160,6 +160,47 @@ class LibraryOrderApiController extends Controller
         return new LibraryOrderResource($order->refresh()->load('lines', 'vendor', 'budget'));
     }
 
+    /**
+     * PATCH /api/library/orders/{order}/receive
+     *
+     * Body (JSON:API attributes or flat):
+     *   - receive_all: true                  → receive every outstanding unit, OR
+     *   - lines: [{id, quantity_received}]   → per-line cumulative received qty
+     *
+     * Updates quantity_received + received_date + line/order status and
+     * recalculates the linked budget's spent/committed totals.
+     */
+    public function receive(Request $request, LibraryOrder $order): LibraryOrderResource
+    {
+        $this->authorizeLibrary($request, 'update');
+
+        $attrs = $this->jsonApiAttributes($request);
+        $data = validator($attrs, [
+            'receive_all'             => ['nullable', 'boolean'],
+            'lines'                   => ['nullable', 'array'],
+            'lines.*.id'              => ['required_with:lines', 'integer'],
+            'lines.*.quantity_received' => ['required_with:lines', 'integer', 'min:0'],
+        ])->validate();
+
+        $receiveAll = (bool) ($data['receive_all'] ?? false);
+        $perLine = [];
+        foreach ($data['lines'] ?? [] as $line) {
+            $perLine[(int) $line['id']] = (int) $line['quantity_received'];
+        }
+
+        if (!$receiveAll && empty($perLine)) {
+            abort(422, 'Provide receive_all=true or a lines array.');
+        }
+
+        $this->acq->receiveLines($order->id, $perLine, $receiveAll);
+
+        if ($order->budget_code) {
+            $this->acq->recalculateBudgetByCode($order->budget_code);
+        }
+
+        return new LibraryOrderResource($order->refresh()->load('lines', 'vendor', 'budget'));
+    }
+
     public function destroy(Request $request, LibraryOrder $order): JsonResponse
     {
         $this->authorizeLibrary($request, 'delete');

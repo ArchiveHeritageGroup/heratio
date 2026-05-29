@@ -60,17 +60,21 @@ class LibraryUsageService
     public const METRIC_TOTAL_REQUESTS = 'Total_Item_Requests';
     public const METRIC_UNIQUE_REQUESTS = 'Unique_Item_Requests';
     public const METRIC_INVESTIGATIONS = 'Total_Item_Investigations';
+    public const METRIC_UNIQUE_INVESTIGATIONS = 'Unique_Item_Investigations';
     public const METRIC_ACCESS_DENIED = 'Access_Denied';
     public const METRIC_ACCESS_GBV = 'Access_Denied_GBV';
     public const METRIC_OPEN_ACCESS = 'Open_Access_Count';
+    public const METRIC_SEARCHES = 'Searches_Platform';
 
     public const ALL_METRICS = [
         self::METRIC_TOTAL_REQUESTS,
         self::METRIC_UNIQUE_REQUESTS,
         self::METRIC_INVESTIGATIONS,
+        self::METRIC_UNIQUE_INVESTIGATIONS,
         self::METRIC_ACCESS_DENIED,
         self::METRIC_ACCESS_GBV,
         self::METRIC_OPEN_ACCESS,
+        self::METRIC_SEARCHES,
     ];
 
     /**
@@ -97,6 +101,29 @@ class LibraryUsageService
                     KEY `idx_library_item` (`library_item_id`),
                     KEY `idx_partner` (`partner_code`),
                     KEY `idx_stat_date_metric` (`stat_date`,`metric_type`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            ");
+        }
+
+        if (!Schema::hasTable('library_counter_log')) {
+            DB::statement("
+                CREATE TABLE IF NOT EXISTS `library_counter_log` (
+                    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+                    `session_id` varchar(64) DEFAULT NULL,
+                    `user_id` bigint unsigned DEFAULT NULL,
+                    `resource_id` bigint unsigned DEFAULT NULL,
+                    `resource_type` varchar(30) NOT NULL DEFAULT 'item',
+                    `access_type` varchar(30) NOT NULL DEFAULT 'Controlled',
+                    `event` varchar(30) NOT NULL DEFAULT 'investigation',
+                    `event_date` date NOT NULL,
+                    `status` varchar(20) NOT NULL DEFAULT 'success',
+                    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (`id`),
+                    KEY `idx_counter_session` (`session_id`),
+                    KEY `idx_counter_date` (`event_date`),
+                    KEY `idx_counter_resource` (`resource_id`),
+                    KEY `idx_counter_date_event` (`event_date`,`event`),
+                    KEY `idx_counter_unique_probe` (`session_id`,`resource_id`,`event_date`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             ");
         }
@@ -155,17 +182,48 @@ class LibraryUsageService
                 'reporting_period' => '',
             ]);
         }
+
+        // Per-event log: a checkout is a controlled Total_Item_Request. The
+        // patron is the natural session here, hashed for anonymisation.
+        try {
+            DB::table('library_counter_log')->insert([
+                'session_id'    => substr(hash('sha256', 'patron:' . $patronId), 0, 64),
+                'user_id'       => $patronId,
+                'resource_id'   => $libraryItemId,
+                'resource_type' => 'item',
+                'access_type'   => 'Controlled',
+                'event'         => 'request',
+                'event_date'    => $today,
+                'status'        => 'success',
+                'created_at'    => now(),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('LibraryUsageService recordCheckout counter-log insert failed: ' . $e->getMessage());
+        }
     }
 
     /**
      * Record an access event for the given item.
      *
-     * @param int    $libraryItemId
-     * @param string $type 'request', 'investigation', 'denied', 'open_access'
+     * Writes BOTH the aggregate counter row (library_usage_stats) AND a
+     * per-event row (library_counter_log) so session-level COUNTER metrics
+     * (Unique_Item_Requests, PR1 searches) can be derived.
+     *
+     * @param int         $libraryItemId
+     * @param string      $type 'request', 'investigation', 'denied', 'open_access', 'search'
+     * @param string|null $sessionId  Anonymised per-session token (sha256 hex)
+     * @param int|null    $userId
+     * @param string      $accessType COUNTER access type: 'Controlled' | 'OA_Gold'
      */
-    public function recordAccess(int $libraryItemId, string $type = 'investigation'): void
-    {
-        if ($libraryItemId <= 0) {
+    public function recordAccess(
+        int $libraryItemId,
+        string $type = 'investigation',
+        ?string $sessionId = null,
+        ?int $userId = null,
+        string $accessType = 'Controlled'
+    ): void {
+        // A search event is platform-level and carries no item id.
+        if ($type !== 'search' && $libraryItemId <= 0) {
             return;
         }
         $this->ensureTables();
@@ -175,17 +233,79 @@ class LibraryUsageService
             'request'     => self::METRIC_TOTAL_REQUESTS,
             'denied'      => self::METRIC_ACCESS_DENIED,
             'open_access' => self::METRIC_OPEN_ACCESS,
+            'search'      => self::METRIC_SEARCHES,
             default       => self::METRIC_INVESTIGATIONS,
         };
 
         DB::table('library_usage_stats')->insert([
             'stat_date' => $today,
-            'library_item_id' => $libraryItemId,
+            'library_item_id' => $type === 'search' ? null : $libraryItemId,
             'patron_id' => null,
             'metric_type' => $metric,
             'count' => 1,
             'partner_code' => 'heratio',
         ]);
+
+        // Per-event log for session-level de-duplication.
+        try {
+            DB::table('library_counter_log')->insert([
+                'session_id'    => $sessionId ? substr(hash('sha256', $sessionId), 0, 64) : null,
+                'user_id'       => $userId,
+                'resource_id'   => $type === 'search' ? null : $libraryItemId,
+                'resource_type' => $type === 'search' ? 'search' : 'item',
+                'access_type'   => $type === 'open_access' ? 'OA_Gold' : $accessType,
+                'event'         => $type,
+                'event_date'    => $today,
+                'status'        => $type === 'denied' ? 'denied' : 'success',
+                'created_at'    => now(),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('LibraryUsageService recordAccess counter-log insert failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Number of successful platform searches (COUNTER PR1 "Searches_Platform")
+     * in the given date range, read from the per-event log.
+     */
+    public function countSearches(string $fromDate, string $toDate): int
+    {
+        if (!Schema::hasTable('library_counter_log')) {
+            return 0;
+        }
+        return (int) DB::table('library_counter_log')
+            ->where('event', 'search')
+            ->where('status', 'success')
+            ->whereBetween('event_date', [$fromDate, $toDate])
+            ->count();
+    }
+
+    /**
+     * Unique items requested/investigated, de-duplicated per session per day
+     * (COUNTER R5 Unique_Item_Requests / Unique_Item_Investigations).
+     *
+     * @param string $kind 'request' counts request+open_access events;
+     *                      'investigation' counts every item-bearing event.
+     */
+    public function countUniqueItems(string $fromDate, string $toDate, string $kind = 'request'): int
+    {
+        if (!Schema::hasTable('library_counter_log')) {
+            return 0;
+        }
+        $q = DB::table('library_counter_log')
+            ->whereNotNull('resource_id')
+            ->where('status', 'success')
+            ->whereBetween('event_date', [$fromDate, $toDate]);
+
+        if ($kind === 'request') {
+            $q->whereIn('event', ['request', 'open_access']);
+        }
+        // 'investigation' includes every item-bearing event (request implies
+        // an investigation per the COUNTER model), so no event filter.
+
+        // Distinct (session, item, day) tuple = COUNTER unique-item rule.
+        return (int) $q->distinct()
+            ->count(DB::raw("CONCAT(COALESCE(session_id,''),'|',resource_id,'|',event_date)"));
     }
 
     /**
@@ -382,6 +502,12 @@ class LibraryUsageService
                 }
             }
         } else {
+            // PR (platform) / DR (database) - aggregate every metric over the
+            // window. The pre-aggregated totals come from library_usage_stats;
+            // the session-derived unique metrics + search count come from the
+            // per-event log (library_counter_log), since they cannot be summed
+            // from a counter alone.
+            $seen = [];
             if (Schema::hasTable('library_usage_stats')) {
                 $rows = DB::table('library_usage_stats')
                     ->whereBetween('stat_date', [$fromDate, $toDate])
@@ -390,11 +516,33 @@ class LibraryUsageService
                     ->get();
 
                 foreach ($rows as $row) {
+                    // Skip the persisted unique metric: it is recomputed from
+                    // the session log below to avoid double counting.
+                    if (in_array($row->metric_type, [self::METRIC_UNIQUE_REQUESTS, self::METRIC_UNIQUE_INVESTIGATIONS], true)) {
+                        continue;
+                    }
                     $items[] = [
                         'Metric_Type' => $row->metric_type,
                         'Count'       => (int) $row->total_count,
                     ];
+                    $seen[$row->metric_type] = true;
                 }
+            }
+
+            // Session-derived COUNTER metrics (BR1 = unique title requests,
+            // DR1 = unique items, PR1 = successful searches).
+            $uniqueRequests = $this->countUniqueItems($fromDate, $toDate, 'request');
+            $uniqueInvest   = $this->countUniqueItems($fromDate, $toDate, 'investigation');
+            $searches       = $this->countSearches($fromDate, $toDate);
+
+            if ($uniqueRequests > 0 || !isset($seen[self::METRIC_UNIQUE_REQUESTS])) {
+                $items[] = ['Metric_Type' => self::METRIC_UNIQUE_REQUESTS, 'Count' => $uniqueRequests];
+            }
+            if ($uniqueInvest > 0 || !isset($seen[self::METRIC_UNIQUE_INVESTIGATIONS])) {
+                $items[] = ['Metric_Type' => self::METRIC_UNIQUE_INVESTIGATIONS, 'Count' => $uniqueInvest];
+            }
+            if (!isset($seen[self::METRIC_SEARCHES])) {
+                $items[] = ['Metric_Type' => self::METRIC_SEARCHES, 'Count' => $searches];
             }
         }
 
@@ -427,44 +575,126 @@ class LibraryUsageService
     }
 
     /**
+     * Build a flat row matrix (header row + data rows) for a COUNTER report.
+     * Shared by the TSV and XLSX exporters so both stay column-identical.
+     *
+     * @return array{0: array<string>, ...} First element is the header row.
+     */
+    public function getReportRows(string $reportType, string $fromDate, string $toDate): array
+    {
+        $report = $this->buildCounterReport($reportType, $fromDate, $toDate);
+        $items = $report['Report_Items'] ?? [];
+        $rows = [];
+
+        if (in_array($reportType, ['TR', 'TR_J1', 'TR_J3', 'IR'], true)) {
+            $header = ['Item_Name'];
+            if ($reportType === 'IR') {
+                $header[] = 'Item_ID';
+            }
+            if (in_array($reportType, ['TR_J1', 'TR_J3'], true)) {
+                $header[] = 'Print_ISSN';
+            }
+            if ($reportType === 'TR_J3') {
+                $header[] = 'Access_Type';
+            }
+            $header[] = 'Metric_Type';
+            $header[] = 'Count';
+            $rows[] = $header;
+
+            foreach ($items as $item) {
+                $row = [$item['Item_Name'] ?? ''];
+                if ($reportType === 'IR') {
+                    $row[] = $item['Item_ID'] ?? '';
+                }
+                if (in_array($reportType, ['TR_J1', 'TR_J3'], true)) {
+                    $row[] = $item['Print_ISSN'] ?? '';
+                }
+                if ($reportType === 'TR_J3') {
+                    $row[] = $item['Access_Type'] ?? '';
+                }
+                $row[] = $item['Metric_Type'] ?? '';
+                $row[] = (int) ($item['Count'] ?? 0);
+                $rows[] = $row;
+            }
+            return $rows;
+        }
+
+        // PR / DR: one header band carrying report metadata then metric rows.
+        $rows[] = ['Report_ID', 'Report_Name', 'Created', 'Begin_Date', 'End_Date', 'Metric_Type', 'Count'];
+        $first = true;
+        foreach ($items as $item) {
+            if ($first) {
+                $rows[] = [
+                    $report['Report_ID'],
+                    $report['Report_Name'],
+                    $report['Created'],
+                    $report['Reporting_Period']['Begin_Date'] ?? $fromDate,
+                    $report['Reporting_Period']['End_Date'] ?? $toDate,
+                    $item['Metric_Type'] ?? '',
+                    (int) ($item['Count'] ?? 0),
+                ];
+                $first = false;
+            } else {
+                $rows[] = ['', '', '', '', '', $item['Metric_Type'] ?? '', (int) ($item['Count'] ?? 0)];
+            }
+        }
+        return $rows;
+    }
+
+    /**
      * Return a TSV string for the given report type and date range.
      */
     public function getReportCsv(string $reportType, string $fromDate, string $toDate): string
     {
-        $report = $this->buildCounterReport($reportType, $fromDate, $toDate);
+        $rows = $this->getReportRows($reportType, $fromDate, $toDate);
         $lines = [];
+        foreach ($rows as $row) {
+            // Sanitise any embedded tabs/newlines so the TSV stays well-formed.
+            $clean = array_map(
+                fn ($v) => str_replace(["\t", "\n", "\r"], ' ', (string) $v),
+                $row
+            );
+            $lines[] = implode("\t", $clean);
+        }
+        return implode("\n", $lines) . "\n";
+    }
 
-        if ($reportType === 'TR') {
-            $lines[] = "Title\tMetric_Type\tCount";
-            foreach ($report['Items'] as $item) {
-                $lines[] = implode("\t", [
-                    $item['Item_Name'] ?? '',
-                    $item['Metric_Type'],
-                    $item['Count'],
-                ]);
+    /**
+     * Build an XLSX workbook (binary string) for the given report. Uses
+     * PhpSpreadsheet, which ships in the Heratio root composer (^5.5).
+     */
+    public function getReportXlsx(string $reportType, string $fromDate, string $toDate): string
+    {
+        $rows = $this->getReportRows($reportType, $fromDate, $toDate);
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle(substr('COUNTER ' . $reportType, 0, 31));
+
+        $r = 1;
+        foreach ($rows as $row) {
+            $c = 1;
+            foreach ($row as $value) {
+                $sheet->setCellValue([$c, $r], $value);
+                $c++;
             }
-        } else {
-            $lines[] = "Report_ID\tReport_Name\tCreated\tBegin\tEnd\tMetric_Type\tCount";
-            $first = true;
-            foreach ($report['Items'] as $item) {
-                if ($first) {
-                    $lines[] = implode("\t", [
-                        $report['Report_ID'],
-                        $report['Report_Name'],
-                        $report['Created'],
-                        $report['Reporting_Period']['Begin'],
-                        $report['Reporting_Period']['End'],
-                        $item['Metric_Type'],
-                        $item['Count'],
-                    ]);
-                    $first = false;
-                } else {
-                    $lines[] = "\t\t\t\t\t" . $item['Metric_Type'] . "\t" . $item['Count'];
-                }
-            }
+            $r++;
         }
 
-        return implode("\n", $lines) . "\n";
+        // Bold the header row.
+        if (!empty($rows)) {
+            $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($rows[0]));
+            $sheet->getStyle("A1:{$lastCol}1")->getFont()->setBold(true);
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        ob_start();
+        $writer->save('php://output');
+        $binary = (string) ob_get_clean();
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+
+        return $binary;
     }
 
     /**

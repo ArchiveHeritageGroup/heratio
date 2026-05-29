@@ -171,6 +171,238 @@ class IiifMetadataEnricher
     }
 
     /**
+     * Build a single manifest metadata row for the camera make + model,
+     * read from the EXIF block (typically `digital_object_metadata.raw_metadata`).
+     * The value is formatted "Make Model" (AtoM parity). Returns null when
+     * neither Make nor Model is present.
+     *
+     * EXIF tags may sit at the top of raw_metadata, nested under "exif" /
+     * "EXIF", or carry an "EXIF:" prefix - we probe all four shapes for
+     * each of Make / Model independently.
+     *
+     * @param array|null $exif Parsed raw_metadata JSON, may be null.
+     * @return array{label:array,value:array}|null
+     */
+    public static function fromCamera(?array $exif): ?array
+    {
+        if (!is_array($exif)) {
+            return null;
+        }
+
+        $make = self::probeExif($exif, 'Make');
+        $model = self::probeExif($exif, 'Model');
+
+        $camera = trim(($make ?? '') . ' ' . ($model ?? ''));
+        if ($camera === '') {
+            return null;
+        }
+
+        return [
+            'label' => ['en' => ['Camera']],
+            'value' => ['en' => [$camera]],
+        ];
+    }
+
+    /**
+     * Build a single manifest metadata row for GPS coordinates, read from
+     * the EXIF block. Mirrors AtoM: emits a decimal "lat, long" string at
+     * six decimal places.
+     *
+     * Accepts either an already-consolidated decimal pair
+     * (`latitude` / `longitude`, or a pre-built `decimal` string under a
+     * `gps` sub-array) OR raw EXIF GPSLatitude / GPSLongitude rationals
+     * with their N/S/E/W reference tags, which we convert to decimal.
+     * Returns null when no usable coordinate pair is present.
+     *
+     * @param array|null $exif Parsed raw_metadata JSON, may be null.
+     * @return array{label:array,value:array}|null
+     */
+    public static function fromGpsCoordinates(?array $exif): ?array
+    {
+        if (!is_array($exif)) {
+            return null;
+        }
+
+        // 1. Pre-built decimal string from the extractor (`gps.decimal`).
+        $decimal = self::nonEmptyString($exif['gps']['decimal'] ?? ($exif['decimal'] ?? null));
+        if ($decimal !== null) {
+            return [
+                'label' => ['en' => ['GPS Coordinates']],
+                'value' => ['en' => [$decimal]],
+            ];
+        }
+
+        // 2. Already-consolidated numeric latitude / longitude pair.
+        $lat = self::toFloatOrNull($exif['gps']['latitude'] ?? ($exif['latitude'] ?? null));
+        $lon = self::toFloatOrNull($exif['gps']['longitude'] ?? ($exif['longitude'] ?? null));
+
+        // 3. Raw EXIF GPS rationals + hemisphere refs.
+        if ($lat === null || $lon === null) {
+            $rawLat = $exif['GPSLatitude'] ?? $exif['exif']['GPSLatitude'] ?? $exif['EXIF']['GPSLatitude'] ?? null;
+            $rawLon = $exif['GPSLongitude'] ?? $exif['exif']['GPSLongitude'] ?? $exif['EXIF']['GPSLongitude'] ?? null;
+            if ($rawLat !== null && $rawLon !== null) {
+                $latRef = $exif['GPSLatitudeRef'] ?? $exif['exif']['GPSLatitudeRef'] ?? $exif['EXIF']['GPSLatitudeRef'] ?? 'N';
+                $lonRef = $exif['GPSLongitudeRef'] ?? $exif['exif']['GPSLongitudeRef'] ?? $exif['EXIF']['GPSLongitudeRef'] ?? 'E';
+                $lat = self::gpsToDecimal($rawLat, (string) $latRef);
+                $lon = self::gpsToDecimal($rawLon, (string) $lonRef);
+            }
+        }
+
+        if ($lat === null || $lon === null) {
+            return null;
+        }
+
+        return [
+            'label' => ['en' => ['GPS Coordinates']],
+            'value' => ['en' => [sprintf('%.6f, %.6f', $lat, $lon)]],
+        ];
+    }
+
+    /**
+     * Build a single manifest metadata row for the place where the item
+     * was captured / described, formatted "City, State, Country" (AtoM
+     * parity). Accepts a flattened IPTC sidecar row or a nested
+     * consolidated `location` sub-array.
+     *
+     * Column-name tolerance: state may arrive as `state`, `province_state`
+     * (IPTC Core), or `province`. Returns null when no part is present.
+     *
+     * @param array $source IPTC sidecar row or consolidated metadata array.
+     * @return array{label:array,value:array}|null
+     */
+    public static function fromLocation(array $source): ?array
+    {
+        // Allow callers to pass either a flat row or a {location: {...}} nest.
+        $loc = is_array($source['location'] ?? null) ? $source['location'] : $source;
+
+        $city = self::nonEmptyString($loc['city'] ?? null);
+        $state = self::nonEmptyString(
+            $loc['state'] ?? ($loc['province_state'] ?? ($loc['province'] ?? null))
+        );
+        $country = self::nonEmptyString($loc['country'] ?? null);
+
+        $parts = array_values(array_filter([$city, $state, $country], static fn ($p) => $p !== null));
+        if (empty($parts)) {
+            return null;
+        }
+
+        return [
+            'label' => ['en' => ['Location']],
+            'value' => ['en' => [implode(', ', $parts)]],
+        ];
+    }
+
+    /**
+     * Build a standalone "Copyright" manifest metadata row from the IPTC
+     * copyright notice (IPTC 2:116). Unlike buildRequiredStatement(), this
+     * is unconditional - it surfaces the copyright as a discrete metadata
+     * row regardless of any ISAD-level rights statement, matching AtoM,
+     * which emits Copyright both in requiredStatement AND as its own row.
+     *
+     * Returns null when the IPTC carries no copyright notice.
+     *
+     * @param array $iptc Associative array shaped like a dam_iptc_metadata row.
+     * @return array{label:array,value:array}|null
+     */
+    public static function buildCopyrightMetadata(array $iptc): ?array
+    {
+        $copyright = self::nonEmptyString($iptc['copyright_notice'] ?? null);
+        if ($copyright === null) {
+            return null;
+        }
+
+        return [
+            'label' => ['en' => ['Copyright']],
+            'value' => ['en' => [$copyright]],
+        ];
+    }
+
+    /**
+     * Probe an EXIF tag across the four shapes raw_metadata may take:
+     * top-level, nested under "exif" / "EXIF", or "EXIF:"-prefixed.
+     * Returns the first non-empty trimmed string, or null.
+     */
+    private static function probeExif(array $exif, string $tag): ?string
+    {
+        foreach ([
+            $exif[$tag] ?? null,
+            $exif['exif'][$tag] ?? null,
+            $exif['EXIF'][$tag] ?? null,
+            $exif['EXIF:' . $tag] ?? null,
+        ] as $candidate) {
+            $s = self::nonEmptyString($candidate);
+            if ($s !== null) {
+                return $s;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Coerce a value to float, or null when it is null / non-numeric.
+     */
+    private static function toFloatOrNull(mixed $value): ?float
+    {
+        if ($value === null || $value === '' || !is_numeric($value)) {
+            return null;
+        }
+        return (float) $value;
+    }
+
+    /**
+     * Convert an EXIF GPS coordinate (degrees / minutes / seconds) to a
+     * signed decimal degree value, applying the hemisphere reference.
+     *
+     * Accepts the coordinate as either:
+     *   - an array of three rationals ["deg/1", "min/1", "sec/100"] or
+     *     three numeric DMS components, or
+     *   - an already-decimal numeric scalar.
+     *
+     * Returns null when the value cannot be parsed.
+     */
+    private static function gpsToDecimal(mixed $coord, string $ref): ?float
+    {
+        if (is_numeric($coord)) {
+            $decimal = (float) $coord;
+        } elseif (is_array($coord) && count($coord) >= 3) {
+            $deg = self::parseRational($coord[0]);
+            $min = self::parseRational($coord[1]);
+            $sec = self::parseRational($coord[2]);
+            if ($deg === null || $min === null || $sec === null) {
+                return null;
+            }
+            $decimal = $deg + ($min / 60) + ($sec / 3600);
+        } else {
+            return null;
+        }
+
+        $ref = strtoupper(trim($ref));
+        if ($ref === 'S' || $ref === 'W') {
+            $decimal = -$decimal;
+        }
+        return $decimal;
+    }
+
+    /**
+     * Parse an EXIF rational ("num/den") or a plain numeric value into a
+     * float. Returns null on malformed input or division by zero.
+     */
+    private static function parseRational(mixed $value): ?float
+    {
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+        if (is_string($value) && str_contains($value, '/')) {
+            [$num, $den] = array_pad(explode('/', $value, 2), 2, '1');
+            if (!is_numeric($num) || !is_numeric($den) || (float) $den === 0.0) {
+                return null;
+            }
+            return (float) $num / (float) $den;
+        }
+        return null;
+    }
+
+    /**
      * Trim + reject empty / whitespace-only values. Returns null when
      * the input is null, not a scalar, or trims to an empty string.
      */

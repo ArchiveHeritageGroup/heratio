@@ -259,6 +259,11 @@ class LibrarySerialService
     /**
      * Produce a list of upcoming predicted issues for the next $months months.
      *
+     * Enumeration (volume / issue numbering) is advanced via
+     * LibrarySerialEnumerationParser so volume rollover is handled correctly
+     * (e.g. monthly issue 12 -> next volume, issue 1) rather than naively
+     * incrementing the issue number forever.
+     *
      * @return array<array{volume:string,issue_number:string,expected_date:string,days_until:int}>
      */
     public function getExpectedIssues(int $serialId, int $months = 6): array
@@ -301,21 +306,27 @@ class LibrarySerialService
         $limitDate = (clone $now)->modify("+{$months} months");
         $result = [];
 
-        // Detect running volume/issue numbers from existing issues
+        // Detect running volume/issue numbers from existing issues.
         $volumes = array_column($issues, 'volume');
         $issueNums = array_column($issues, 'issue_number');
-        $lastVol = $volumes[0] ?? '';
-        $lastNum = $issueNums[0] ?? '';
+        $lastVol = (string) ($volumes[0] ?? '');
+        $lastNum = (string) ($issueNums[0] ?? '');
+
+        $parser = new LibrarySerialEnumerationParser();
+        // Seed the running enumeration from the latest known issue. We feed the
+        // parser the raw "Vol. X No. Y" so it can roll over volumes correctly.
+        $running = [
+            'volume' => $lastVol !== '' ? $lastVol : null,
+            'issue'  => $lastNum !== '' ? $lastNum : null,
+        ];
 
         $count = 0;
         while ($nextDate <= $limitDate && $count < $months * 4) {
             $daysUntil = $now->diff($nextDate)->days;
-            $vol = $lastVol;
-            $num = $lastNum;
 
-            // Try to increment issue number
-            $numInt = is_numeric($lastNum) ? (int) $lastNum + 1 : $count + 1;
-            $num = (string) $numInt;
+            $next = $parser->increment($running, $frequency);
+            $vol = (string) ($next['volume'] ?? $lastVol);
+            $num = (string) ($next['issue_number'] ?? (string) ($count + 1));
 
             $result[] = [
                 'volume'        => $vol,
@@ -323,6 +334,9 @@ class LibrarySerialService
                 'expected_date' => $nextDate->format('Y-m-d'),
                 'days_until'    => $daysUntil,
             ];
+
+            // Carry the predicted enumeration forward for the next iteration.
+            $running = ['volume' => $vol !== '' ? $vol : null, 'issue' => $num !== '' ? $num : null];
 
             // Advance to next expected date
             $nextDate = match ($frequency) {
@@ -340,6 +354,63 @@ class LibrarySerialService
         }
 
         return $result;
+    }
+
+    /**
+     * Recompute the expected-issue forecast for a serial and persist it to
+     * library_serial_prediction (replacing any prior rows for that serial).
+     * Returns the number of prediction rows written.
+     */
+    public function persistPredictions(int $serialId, int $months = 6): int
+    {
+        if (!Schema::hasTable('library_serial_prediction')) {
+            return 0;
+        }
+
+        $expected = $this->getExpectedIssues($serialId, $months);
+
+        DB::table('library_serial_prediction')->where('serial_id', $serialId)->delete();
+
+        if (!$expected) {
+            return 0;
+        }
+
+        $now = now();
+        $rows = array_map(static fn (array $e) => [
+            'serial_id'     => $serialId,
+            'volume'        => (string) ($e['volume'] ?? ''),
+            'issue_number'  => (string) ($e['issue_number'] ?? ''),
+            'expected_date' => $e['expected_date'] ?? null,
+            'days_until'    => (int) ($e['days_until'] ?? 0),
+            'created_at'    => $now,
+        ], $expected);
+
+        DB::table('library_serial_prediction')->insert($rows);
+
+        return count($rows);
+    }
+
+    /**
+     * Return the persisted predictions for a serial (newest forecast first by
+     * expected_date). Falls back to an on-the-fly computation when the table is
+     * empty or absent.
+     *
+     * @return array<int,object>|array<array<string,mixed>>
+     */
+    public function getPersistedPredictions(int $serialId): array
+    {
+        if (Schema::hasTable('library_serial_prediction')) {
+            $rows = DB::table('library_serial_prediction')
+                ->where('serial_id', $serialId)
+                ->orderBy('expected_date')
+                ->get()
+                ->all();
+            if ($rows) {
+                return $rows;
+            }
+        }
+
+        return $this->getExpectedIssues($serialId);
     }
 
     // ── Subscription ──────────────────────────────────────────────────────
@@ -467,6 +538,150 @@ class LibrarySerialService
         }
 
         return $claims;
+    }
+
+    /**
+     * Record a claim against a serial (and optionally a specific issue). Used by
+     * the claim-alert command and the staff "claim issue" action. Returns the
+     * new claim id, or 0 when the table is absent.
+     */
+    public function recordClaim(int $serialId, ?int $issueId, ?string $reason = null, ?string $claimedBy = null, string $status = 'open'): int
+    {
+        if (!Schema::hasTable('library_claim')) {
+            return 0;
+        }
+        $now = now();
+        return (int) DB::table('library_claim')->insertGetId([
+            'serial_id'  => $serialId,
+            'issue_id'   => $issueId,
+            'claimed_at' => $now,
+            'claimed_by' => $claimedBy,
+            'reason'     => $reason,
+            'status'     => $status,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+    }
+
+    /**
+     * True when an open claim already exists for this serial + predicted date,
+     * so the daily alert command does not raise duplicate claims for the same
+     * missing issue on consecutive runs.
+     */
+    public function hasOpenClaimSince(int $serialId, string $sinceDate): bool
+    {
+        if (!Schema::hasTable('library_claim')) {
+            return false;
+        }
+        return DB::table('library_claim')
+            ->where('serial_id', $serialId)
+            ->whereIn('status', ['open', 'sent'])
+            ->where('claimed_at', '>=', $sinceDate)
+            ->exists();
+    }
+
+    // ── Expiry warnings ────────────────────────────────────────────────────
+
+    /**
+     * Return active subscriptions whose subscription_end falls within the next
+     * $days days (inclusive of today). Drives the expiry-alert command.
+     *
+     * @return array<array{serial:object,subscription_end:string,days_until:int,notification_email:?string}>
+     */
+    public function listExpiringSubscriptions(int $days = 30): array
+    {
+        $this->ensureSubscriptionTable();
+
+        if (!Schema::hasTable('library_serial')) {
+            return [];
+        }
+
+        $today = new \DateTime('today');
+        $cutoff = (clone $today)->modify("+{$days} days")->format('Y-m-d');
+        $todayStr = $today->format('Y-m-d');
+
+        $rows = DB::table('library_serial_subscription as s')
+            ->join('library_serial as ser', 'ser.id', '=', 's.serial_id')
+            ->whereNotNull('s.subscription_end')
+            ->whereBetween('s.subscription_end', [$todayStr, $cutoff])
+            ->select('ser.*', 's.subscription_end', 's.notification_email')
+            ->orderBy('s.subscription_end')
+            ->get();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $end = new \DateTime($row->subscription_end);
+            $result[] = [
+                'serial'             => $row,
+                'subscription_end'   => $row->subscription_end,
+                'days_until'         => (int) $today->diff($end)->days,
+                'notification_email' => $row->notification_email ?? null,
+            ];
+        }
+
+        return $result;
+    }
+
+    // ── Binding ──────────────────────────────────────────────────────────
+
+    /**
+     * Bind a run of issues (a volume range) into a single physical volume.
+     * Creates a library_binding row and links the supplied issues back to it
+     * (library_serial_issue.binding_id + shelf_location + bound_at). Returns the
+     * new binding id, or 0 when the binding table is absent.
+     *
+     * @param array<int> $issueIds
+     */
+    public function createBinding(int $serialId, string $volumeRange, array $issueIds = [], ?string $location = null, ?string $boundAt = null): int
+    {
+        if (!Schema::hasTable('library_binding')) {
+            return 0;
+        }
+
+        $now = now();
+        $boundDate = $boundAt ?: $now->toDateString();
+
+        $bindingId = (int) DB::table('library_binding')->insertGetId([
+            'serial_id'    => $serialId,
+            'volume_range' => $volumeRange,
+            'status'       => 'bound',
+            'bound_at'     => $boundDate,
+            'location'     => $location,
+            'created_at'   => $now,
+            'updated_at'   => $now,
+        ]);
+
+        if ($issueIds && Schema::hasTable('library_serial_issue')
+            && Schema::hasColumn('library_serial_issue', 'binding_id')) {
+            DB::table('library_serial_issue')
+                ->where('serial_id', $serialId)
+                ->whereIn('id', $issueIds)
+                ->update([
+                    'binding_id'     => $bindingId,
+                    'shelf_location' => $location,
+                    'bound_at'       => $boundDate,
+                    'updated_at'     => $now,
+                ]);
+        }
+
+        return $bindingId;
+    }
+
+    /**
+     * List binding units for a serial, newest first.
+     *
+     * @return array<int,object>
+     */
+    public function listBindings(int $serialId): array
+    {
+        if (!Schema::hasTable('library_binding')) {
+            return [];
+        }
+        return DB::table('library_binding')
+            ->where('serial_id', $serialId)
+            ->orderByDesc('bound_at')
+            ->get()
+            ->all();
     }
 
     // ── Lifespan ─────────────────────────────────────────────────────────

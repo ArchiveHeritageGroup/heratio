@@ -13,6 +13,7 @@ namespace AhgAiChatbot\Providers;
 
 use AhgAiChatbot\Controllers\ChatbotController;
 use AhgAiChatbot\Services\ChatbotService;
+use AhgAiChatbot\Services\ChatbotSkillService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -22,6 +23,7 @@ class AhgAiChatbotServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(ChatbotSkillService::class);
         $this->app->singleton(ChatbotService::class);
 
         // Merge package config
@@ -47,6 +49,14 @@ class AhgAiChatbotServiceProvider extends ServiceProvider
         $router = $this->app['router'];
         $router->middleware(['web'])
             -> group(__DIR__ . '/../../routes/web.php');
+
+        // #1095 - WhatsApp inbound webhook on the stateless `api` group so the
+        // external POST is exempt from CSRF. Routes 404 unless the channel is
+        // enabled (enforced in the controller).
+        if (is_file(__DIR__ . '/../../routes/webhooks.php')) {
+            $router->middleware(['api'])
+                ->group(__DIR__ . '/../../routes/webhooks.php');
+        }
 
         // Register global widget-injection middleware on the web stack so the
         // floating chatbot appears on every authenticated HTML page without

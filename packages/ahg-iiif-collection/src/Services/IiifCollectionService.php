@@ -948,9 +948,24 @@ class IiifCollectionService
                 $manifest['metadata'][] = $row;
             }
 
-            // EXIF DateTimeOriginal from digital_object_metadata. The IO
-            // has no archival dateCreated column in Heratio, so we treat
-            // "ISAD date present" as false here - if the IO grows a
+            // Separate Copyright metadata row (#1101 AtoM parity). Unlike
+            // requiredStatement (which yields to ISAD rights), the IPTC
+            // copyright notice is also surfaced as a discrete metadata row.
+            $copyrightRow = IiifMetadataEnricher::buildCopyrightMetadata($iptc);
+            if ($copyrightRow !== null) {
+                $manifest['metadata'][] = $copyrightRow;
+            }
+
+            // Location metadata row (#1101 AtoM parity): "City, State, Country"
+            // from the IPTC sidecar (city / province_state / country columns).
+            $locationRow = IiifMetadataEnricher::fromLocation($iptc);
+            if ($locationRow !== null) {
+                $manifest['metadata'][] = $locationRow;
+            }
+
+            // EXIF-derived rows from digital_object_metadata.raw_metadata.
+            // The IO has no archival dateCreated column in Heratio, so we
+            // treat "ISAD date present" as false here - if the IO grows a
             // dateCreated field later, swap this flag for the real value.
             $ioHasDateCreated = false;
             $firstDo = $digitalObjects->first();
@@ -968,6 +983,29 @@ class IiifCollectionService
                         );
                         if ($dateRow !== null) {
                             $manifest['metadata'][] = $dateRow;
+                        }
+
+                        // Camera "Make Model" (#1101 AtoM parity).
+                        $cameraRow = IiifMetadataEnricher::fromCamera($exif);
+                        if ($cameraRow !== null) {
+                            $manifest['metadata'][] = $cameraRow;
+                        }
+
+                        // GPS decimal "lat, long" (#1101 AtoM parity).
+                        $gpsRow = IiifMetadataEnricher::fromGpsCoordinates($exif);
+                        if ($gpsRow !== null) {
+                            $manifest['metadata'][] = $gpsRow;
+                        }
+
+                        // Location may also live in the consolidated EXIF/XMP
+                        // block (e.g. {location:{city,state,country}}) when
+                        // the IPTC sidecar row is absent. Only emit if IPTC
+                        // did not already supply a Location row.
+                        if ($locationRow === null) {
+                            $exifLocationRow = IiifMetadataEnricher::fromLocation($exif);
+                            if ($exifLocationRow !== null) {
+                                $manifest['metadata'][] = $exifLocationRow;
+                            }
                         }
                     }
                 }

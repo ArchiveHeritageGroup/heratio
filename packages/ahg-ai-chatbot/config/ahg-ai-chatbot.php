@@ -105,4 +105,30 @@ return [
         'enabled' => env('AHG_CHATBOT_WIDGET_ENABLED', true),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | WhatsApp Business API channel (issue #1095)
+    |--------------------------------------------------------------------------
+    | Inbound webhook + outbound send via the Meta WhatsApp Cloud API. The
+    | whole channel is gated by `enabled` (default false) so the public webhook
+    | route 404s until an operator turns it on and supplies credentials.
+    |
+    | Secrets are read from env, NEVER hardcoded:
+    |   - verify_token : the string echoed back during Meta's GET verification
+    |   - access_token : Cloud API bearer token used for outbound sends
+    |   - phone_number_id : the WhatsApp phone-number-id for the send endpoint
+    |   - app_secret   : (optional) used to validate X-Hub-Signature-256
+    |   - api_base / api_version : Graph API endpoint (override per environment)
+    */
+
+    'whatsapp' => [
+        'enabled'         => env('AHG_CHATBOT_WHATSAPP_ENABLED', false),
+        'verify_token'    => env('AHG_CHATBOT_WHATSAPP_VERIFY_TOKEN'),
+        'access_token'    => env('AHG_CHATBOT_WHATSAPP_ACCESS_TOKEN'),
+        'phone_number_id' => env('AHG_CHATBOT_WHATSAPP_PHONE_NUMBER_ID'),
+        'app_secret'      => env('AHG_CHATBOT_WHATSAPP_APP_SECRET'),
+        'api_base'        => env('AHG_CHATBOT_WHATSAPP_API_BASE', 'https://graph.facebook.com'),
+        'api_version'     => env('AHG_CHATBOT_WHATSAPP_API_VERSION', 'v21.0'),
+    ],
+
 ];

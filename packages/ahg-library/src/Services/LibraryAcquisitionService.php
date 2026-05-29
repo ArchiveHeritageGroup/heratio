@@ -92,6 +92,15 @@ class LibraryAcquisitionService
     public function createOrder(array $data): int
     {
         $now = now();
+
+        // If a registered vendor was chosen but no free-text name supplied,
+        // resolve the display name from library_vendor.
+        if (!empty($data['vendor_id']) && empty($data['vendor_name'])) {
+            $data['vendor_name'] = (string) DB::table('library_vendor')
+                ->where('id', $data['vendor_id'])
+                ->value('name');
+        }
+
         $row = [
             'order_number'    => $data['order_number'] ?? $this->generateOrderNumber(),
             'order_date'      => $data['order_date'] ?? $now->toDateString(),
@@ -198,6 +207,99 @@ class LibraryAcquisitionService
         return true;
     }
 
+    /**
+     * GRAP 103 / IPSAS 17 disposal: write off an order (or its remaining
+     * outstanding value) with an audited reason code. Sets the order status to
+     * 'cancelled' so its committed amount is released from the budget, and
+     * records who/when/why on the order header.
+     *
+     * @param string      $reason  one of the acq_disposal_reason dropdown codes
+     * @param string|null $by      identifier of the acting account
+     */
+    public function writeOffOrder(int $id, string $reason, ?string $by = null, ?string $note = null): bool
+    {
+        $order = $this->getOrder($id);
+        if (!$order) {
+            return false;
+        }
+
+        $payload = [
+            'status'            => 'cancelled',
+            'written_off_reason' => $reason,
+            'written_off_by'    => $by ?? (string) (auth()->id() ?? ''),
+            'written_off_date'  => now()->toDateString(),
+            'updated_at'        => now(),
+        ];
+        if ($note !== null && $note !== '') {
+            $existing = (string) ($order->notes ?? '');
+            $stamp    = '[write-off ' . now()->toDateString() . " / {$reason}] " . $note;
+            $payload['notes'] = $existing === '' ? $stamp : ($existing . "\n" . $stamp);
+        }
+
+        DB::table('library_order')->where('id', $id)->update($payload);
+
+        // Cancelled orders are excluded from the committed total, so refresh the
+        // budget to release the commitment.
+        if ($order->budget_code) {
+            $this->recalculateBudgetByCode($order->budget_code);
+        }
+
+        return true;
+    }
+
+    /**
+     * Receive specific quantities per line (partial or full delivery).
+     * $perLine maps line_id => quantity_received (the cumulative received count).
+     * Pass an empty array with $receiveAll=true to receive every outstanding unit.
+     * Returns the count of lines touched.
+     */
+    public function receiveLines(int $orderId, array $perLine = [], bool $receiveAll = false): int
+    {
+        $order = $this->getOrder($orderId);
+        if (!$order) {
+            return 0;
+        }
+
+        if ($receiveAll && empty($perLine)) {
+            return $this->receiveAllLines($orderId);
+        }
+
+        $now   = now();
+        $today = $now->toDateString();
+        $touched = 0;
+
+        foreach ($perLine as $lineId => $received) {
+            $line = $this->getLine((int) $lineId);
+            if (!$line || (int) $line->order_id !== $orderId) {
+                continue;
+            }
+            $qty      = (int) $line->quantity;
+            $received = max(0, min($qty, (int) $received));
+
+            $status = $received <= 0
+                ? ($line->status ?? 'pending')
+                : ($received >= $qty ? 'received' : 'partial');
+
+            DB::table('library_order_line')->where('id', $line->id)->update([
+                'quantity_received' => $received,
+                'received_date'     => $received > 0 ? $today : null,
+                'status'            => $status,
+                'updated_at'        => $now,
+            ]);
+            $touched++;
+        }
+
+        $this->recalculateOrderTotals($orderId);
+        $this->recalculateBudgetForOrder($orderId);
+
+        if ($touched > 0) {
+            // Materialise copies for any fully received lines.
+            $this->createCopiesForOrder($orderId);
+        }
+
+        return $touched;
+    }
+
     public function generateOrderNumber(): string
     {
         $base = 'PO-' . date('Ymd');
@@ -258,8 +360,20 @@ class LibraryAcquisitionService
         $lineId = (int) DB::table('library_order_line')->insertGetId($row);
 
         $this->recalculateOrderTotals($orderId);
+        $this->recalculateBudgetForOrder($orderId);
 
         return $lineId;
+    }
+
+    /**
+     * Refresh the committed/spent totals on whatever budget an order is linked to.
+     */
+    protected function recalculateBudgetForOrder(int $orderId): void
+    {
+        $code = DB::table('library_order')->where('id', $orderId)->value('budget_code');
+        if ($code) {
+            $this->recalculateBudgetByCode($code);
+        }
     }
 
     /**
@@ -309,6 +423,7 @@ class LibraryAcquisitionService
         DB::table('library_order_line')->where('id', $lineId)->update($payload);
 
         $this->recalculateOrderTotals((int) $line->order_id);
+        $this->recalculateBudgetForOrder((int) $line->order_id);
 
         return true;
     }
@@ -326,6 +441,7 @@ class LibraryAcquisitionService
 
         DB::table('library_order_line')->where('id', $lineId)->delete();
         $this->recalculateOrderTotals($orderId);
+        $this->recalculateBudgetForOrder($orderId);
 
         return true;
     }
@@ -347,6 +463,17 @@ class LibraryAcquisitionService
         $shipping  = (float) ($order->shipping ?? 0);
         $tax       = (float) ($order->tax ?? 0);
         $total     = $subtotal + $shipping + $tax;
+
+        // A cancelled / written-off order keeps its terminal status; only its
+        // monetary totals are refreshed.
+        if (($order->status ?? '') === 'cancelled') {
+            DB::table('library_order')->where('id', $orderId)->update([
+                'subtotal'   => $subtotal,
+                'total'      => $total,
+                'updated_at' => now(),
+            ]);
+            return;
+        }
 
         // Derive order-level status from line statuses
         if ($lineRows->isEmpty()) {
@@ -390,6 +517,7 @@ class LibraryAcquisitionService
             ]);
 
         $this->recalculateOrderTotals($orderId);
+        $this->recalculateBudgetForOrder($orderId);
 
         // Auto-create copies when all lines are received
         if ($count > 0) {
@@ -470,10 +598,10 @@ class LibraryAcquisitionService
         $q = DB::table('library_budget');
 
         if (!empty($filters['fiscal_year'])) {
-            $q->where('fiscal_year', (int) $filters['fiscal_year']);
+            $q->where('fiscal_year', (string) $filters['fiscal_year']);
         }
 
-        $rows = $q->orderByDesc('fiscal_year')->orderBy('name')->get()->all();
+        $rows = $q->orderByDesc('fiscal_year')->orderBy('fund_name')->get()->all();
 
         if ($rows) {
             $ids = array_map(fn($r) => (int) $r->id, $rows);
@@ -525,13 +653,23 @@ class LibraryAcquisitionService
     public function createBudget(array $data): int
     {
         $now = now();
+
+        // Accept either the real column name (fund_name) or the legacy alias (name).
+        $fundName = $data['fund_name'] ?? $data['name'] ?? '';
+
         $row = [
             'budget_code' => $data['budget_code'] ?? 'BUD-' . strtoupper(bin2hex(random_bytes(3))),
-            'name'        => $data['name'] ?? '',
-            'fiscal_year' => (int) ($data['fiscal_year'] ?? date('Y')),
+            'fund_name'   => $fundName,
+            // fiscal_year is VARCHAR(9) in the live schema (e.g. "2026" or "2026/27").
+            'fiscal_year' => (string) ($data['fiscal_year'] ?? date('Y')),
             'allocated_amount' => (float) ($data['allocated_amount'] ?? $data['allocated'] ?? 0),
             'spent_amount'     => 0.0,
             'committed_amount' => 0.0,
+            'currency'    => $data['currency'] ?? 'ZAR',
+            'category'    => $data['category'] ?? null,
+            'department'  => $data['department'] ?? null,
+            'status'      => $data['status'] ?? 'active',
+            'created_by'  => $data['created_by'] ?? (auth()->id() ?? null),
             'notes'       => $data['notes'] ?? null,
             'created_at'  => $now,
             'updated_at'  => $now,
@@ -541,8 +679,26 @@ class LibraryAcquisitionService
 
     public function updateBudget(int $id, array $data): bool
     {
-        $updatable = ['code', 'name', 'fiscal_year', 'allocated', 'notes'];
-        $payload   = array_intersect_key($data, array_flip($updatable));
+        // Map service/legacy aliases onto the real PSISA column names so web
+        // edits actually persist (the old whitelist used non-existent columns).
+        if (array_key_exists('name', $data) && !array_key_exists('fund_name', $data)) {
+            $data['fund_name'] = $data['name'];
+        }
+        if (array_key_exists('allocated', $data) && !array_key_exists('allocated_amount', $data)) {
+            $data['allocated_amount'] = $data['allocated'];
+        }
+        if (array_key_exists('fiscal_year', $data)) {
+            $data['fiscal_year'] = (string) $data['fiscal_year'];
+        }
+        if (array_key_exists('allocated_amount', $data)) {
+            $data['allocated_amount'] = (float) $data['allocated_amount'];
+        }
+
+        $updatable = [
+            'budget_code', 'fund_name', 'fiscal_year', 'allocated_amount',
+            'currency', 'category', 'department', 'status', 'notes',
+        ];
+        $payload = array_intersect_key($data, array_flip($updatable));
         if (empty($payload)) {
             return false;
         }

@@ -115,11 +115,11 @@ return new class extends Migration
             $table->string('publisher', 255)->nullable();
             $table->string('edition', 100)->nullable();
             $table->string('material_type', 100)->nullable()->comment('monograph|serial|av|dataset|theses|etc.');
-            $table->integer('qty')->default(1);
+            $table->integer('quantity')->default(1);
             $table->decimal('unit_price', 15, 2)->default(0.00);
             $table->decimal('discount_percent', 5, 2)->default(0.00);
-            $table->decimal('line_total', 15, 2)->default(0.00)->comment('(qty * unit_price) - discount');
-            $table->integer('qty_received')->default(0);
+            $table->decimal('line_total', 15, 2)->default(0.00)->comment('(quantity * unit_price) - discount');
+            $table->integer('quantity_received')->default(0);
             $table->date('received_date')->nullable();
             $table->string('status', 50)->default('pending')->comment('pending|partial|received|cancelled|backordered');
             $table->string('budget_code', 50)->nullable();

@@ -53,7 +53,9 @@ class SushiServerController extends Controller
      */
     public function members(Request $request): JsonResponse
     {
-        if (!$this->authorise($request)) {
+        $ok = $this->authorise($request);
+        $this->audit($request, '_members', null, null, $ok);
+        if (!$ok) {
             return $this->sushiException(2010, 'Insufficient Information to Process Request');
         }
         return response()->json([[
@@ -70,7 +72,9 @@ class SushiServerController extends Controller
      */
     public function reports(Request $request): JsonResponse
     {
-        if (!$this->authorise($request)) {
+        $ok = $this->authorise($request);
+        $this->audit($request, '_reports', null, null, $ok);
+        if (!$ok) {
             return $this->sushiException(2010, 'Insufficient Information to Process Request');
         }
         return response()->json([
@@ -88,18 +92,31 @@ class SushiServerController extends Controller
      */
     public function report(Request $request, string $reportId): JsonResponse
     {
-        if (!$this->authorise($request)) {
+        $reportId = strtoupper($reportId);
+
+        $begin = $this->normaliseDate($request->query('begin_date'), '-1 month');
+        $end   = $this->normaliseDate($request->query('end_date'), 'today');
+
+        $ok = $this->authorise($request);
+        $this->audit($request, $reportId, $begin, $end, $ok);
+        if (!$ok) {
             return $this->sushiException(2010, 'Insufficient Information to Process Request');
         }
 
-        $reportId = strtoupper($reportId);
+        // Accept the COUNTER R4-style standard-view aliases the NLSA ToR names
+        // (BR1/BR2/PR1/DR1) and map them onto the R5 master reports.
+        $aliases = [
+            'BR1' => 'TR', // Title requests
+            'BR2' => 'TR', // Section/article requests (we report at title level)
+            'PR1' => 'PR', // Platform: searches
+            'DR1' => 'DR', // Database: unique items
+        ];
+        $reportId = $aliases[$reportId] ?? $reportId;
+
         $valid = ['PR', 'TR', 'TR_J1', 'TR_J3', 'DR', 'IR'];
         if (!in_array($reportId, $valid, true)) {
             return $this->sushiException(3000, 'Report Not Supported: ' . $reportId);
         }
-
-        $begin = $this->normaliseDate($request->query('begin_date'), '-1 month');
-        $end   = $this->normaliseDate($request->query('end_date'), 'today');
 
         $report = $this->usage->buildCounterReport($reportId, $begin, $end);
 
@@ -141,6 +158,33 @@ class SushiServerController extends Controller
             ->where('api_key_hash', hash('sha256', $apiKey))
             ->where('active', 1)
             ->exists();
+    }
+
+    /**
+     * Record one SUSHI request in library_sushi_audit_log. Best-effort: never
+     * let audit failure break a harvest. Guarded on table existence (the
+     * migration may not be applied on a fresh / test DB yet).
+     */
+    private function audit(Request $request, ?string $reportId, ?string $begin, ?string $end, bool $authorised): void
+    {
+        try {
+            if (!Schema::hasTable('library_sushi_audit_log')) {
+                return;
+            }
+            DB::table('library_sushi_audit_log')->insert([
+                'customer_id'  => $request->query('customer_id'),
+                'requestor_id' => $request->query('requestor_id'),
+                'report_id'    => $reportId,
+                'begin_date'   => $begin,
+                'end_date'     => $end,
+                'ip'           => substr((string) $request->ip(), 0, 45),
+                'user_agent'   => substr((string) $request->userAgent(), 0, 255),
+                'authorised'   => $authorised ? 1 : 0,
+                'requested_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('SushiServerController audit failed: ' . $e->getMessage());
+        }
     }
 
     private function sushiException(int $code, string $message): JsonResponse

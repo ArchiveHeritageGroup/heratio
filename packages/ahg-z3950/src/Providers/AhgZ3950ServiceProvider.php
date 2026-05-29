@@ -68,6 +68,14 @@ class AhgZ3950ServiceProvider extends ServiceProvider
         // Register views under the ahg-z3950:: namespace
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-z3950');
 
+        // Register the package's anonymous-component directory with no prefix so
+        // the Z39.50 views can use <x-app-layout>. Without this the unprefixed
+        // tag never resolves and view:cache aborts with "Unable to locate a
+        // class or view for component [app-layout]".
+        \Illuminate\Support\Facades\Blade::anonymousComponentPath(
+            __DIR__ . '/../../resources/views/components'
+        );
+
         // Register package routes
         $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
 

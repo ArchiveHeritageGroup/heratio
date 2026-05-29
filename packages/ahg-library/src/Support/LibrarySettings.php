@@ -58,6 +58,26 @@ class LibrarySettings
         return $val !== '' ? $val : 'ZAR';
     }
 
+    // ── Overdue notices (#1093) ─────────────────────────────────────────
+
+    /**
+     * Master switch for the ahg:library-overdue-notices command. When off the
+     * scheduled command short-circuits without rendering or sending anything.
+     */
+    public static function overdueNoticesEnabled(): bool
+    {
+        return AhgSettingsService::getBool('library_overdue_notices_enabled', true);
+    }
+
+    /**
+     * Name used in the {{library_name}} notice token + the email "from" line.
+     */
+    public static function libraryName(): string
+    {
+        $val = (string) AhgSettingsService::get('library_name', '');
+        return $val !== '' ? $val : (string) config('app.name', 'Library');
+    }
+
     // ── Holds ──────────────────────────────────────────────────────────
 
     public static function holdExpiryDays(): int

@@ -23,16 +23,18 @@ class ChatbotService
 {
     private QdrantRetriever $retriever;
     private \AhgAiServices\Services\GuardrailService $guardrail;
+    private ChatbotSkillService $skills;
     private int $maxHistory;
     private int $maxContext;
     private float $groundingThreshold;
     private ?string $systemPrompt;
     private string $temperature;
 
-    public function __construct(?QdrantRetriever $retriever = null)
+    public function __construct(?QdrantRetriever $retriever = null, ?ChatbotSkillService $skills = null)
     {
         $this->retriever         = $retriever ?? new QdrantRetriever();
         $this->guardrail         = new \AhgAiServices\Services\GuardrailService();
+        $this->skills            = $skills ?? new ChatbotSkillService();
         $this->maxHistory        = (int) config('ahg-ai-chatbot.max_history', 20);
         $this->maxContext        = (int) config('ahg-ai-chatbot.max_context_records', 5);
         $this->groundingThreshold = (float) config('ahg-ai-chatbot.grounding_threshold', 0.5);
@@ -235,6 +237,45 @@ PROMPT;
                 'tokens_out'      => 0,
                 'flags'           => ['blocked'],
                 'error'           => 'Blocked: ' . ($guardInspection['reason'] ?? 'guardrail policy'),
+            ];
+        }
+
+        // ── Skill dispatch (issue #1095) ──────────────────────────────
+        // Intent detection runs before RAG. When a library task-skill matches
+        // (renew_loan / submit_ill_request / check_item_status) we answer
+        // deterministically from the library services and skip the LLM. A null
+        // return means "no skill" and we fall through to the RAG path below.
+        try {
+            $skillResult = $this->skills->handle($userMessage, $userId);
+        } catch (\Throwable $e) {
+            Log::warning('Chatbot skill dispatch failed, falling back to RAG: ' . $e->getMessage());
+            $skillResult = null;
+        }
+
+        if (is_array($skillResult) && ($skillResult['handled'] ?? false)) {
+            $reply = (string) ($skillResult['reply'] ?? '');
+
+            $flags = array_values(array_unique(array_merge(
+                (array) ($guardInspection['flags'] ?? []),
+                ['skill:' . ($skillResult['intent'] ?? 'unknown')]
+            )));
+
+            // Persist the turn (user + assistant) so history stays coherent.
+            $this->saveMessage($sessionId, 'user', $userMessage, null, null, null, null, null);
+            $this->saveMessage($sessionId, 'assistant', $reply, null, null, 'skill:' . ($skillResult['intent'] ?? 'unknown'), null, null);
+
+            return [
+                'success'         => $reply !== '',
+                'reply'           => $reply,
+                'sources'         => [],
+                'grounding_score' => null,
+                'model'           => 'skill:' . ($skillResult['intent'] ?? 'unknown'),
+                'tokens_in'       => 0,
+                'tokens_out'      => 0,
+                'flags'           => $flags,
+                'skill'           => $skillResult['intent'] ?? null,
+                'data'            => $skillResult['data'] ?? [],
+                'error'           => $reply === '' ? 'Skill produced an empty reply' : null,
             ];
         }
 

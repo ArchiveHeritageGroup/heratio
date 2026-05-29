@@ -26,6 +26,7 @@ class LibraryOrder extends Model
         'budget_code', 'subtotal', 'tax', 'shipping', 'total', 'currency',
         'invoice_number', 'invoice_date', 'payment_status', 'shipping_address',
         'notes', 'approved_by', 'approved_date', 'created_by',
+        'written_off_reason', 'written_off_by', 'written_off_date',
     ];
 
     protected $casts = [

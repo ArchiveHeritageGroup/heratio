@@ -13,69 +13,70 @@ return new class extends Migration
         }
 
         Schema::table('library_ill_request', function (Blueprint $table) {
-            // Augment Phase-1 table — add EDI / ILL-EDI columns only if missing.
+            // Augment Phase-1 table - add EDI / ILL-EDI columns only if missing.
+            // VARCHAR (not ENUM) per the project dropdown rule; positional
+            // ->after() clauses removed because the live (PSIS-shaped) table does
+            // not carry the columns the originals referenced, which made the
+            // migration abort. Column order is cosmetic.
 
             if (!Schema::hasColumn('library_ill_request', 'request_type')) {
-                $table->enum('request_type', ['BORROW', 'SUPPLY', 'PHOTOCOPY', 'LOAN_RENEWAL', 'STATUS_CHECK'])
-                    ->default('BORROW')->after('type');
+                $table->string('request_type', 30)->default('BORROW');
             }
 
             if (!Schema::hasColumn('library_ill_request', 'borrowing_protocol')) {
-                $table->enum('borrowing_protocol', ['AARC', 'IFM', 'BLDSS', 'RLG', 'CUSTOM'])
-                    ->default('AARC')->after('request_type');
+                $table->string('borrowing_protocol', 20)->default('AARC');
             }
 
             if (!Schema::hasColumn('library_ill_request', 'material_type')) {
-                $table->enum('material_type', ['BOOK', 'SERIAL_ISSUE', 'CONFERENCE_PAPER', 'THESIS', 'PATENT', 'REPORT', 'OTHER'])
-                    ->default('BOOK')->after('borrowing_protocol');
+                $table->string('material_type', 30)->default('BOOK');
             }
 
             if (!Schema::hasColumn('library_ill_request', 'responder_library_id')) {
                 $table->unsignedBigInteger('responder_library_id')->nullable()
-                    ->comment('FK library_vendors.id — the lending library')->after('requester_library_id');
+                    ->comment('FK library_vendor.id - the lending library');
             }
 
             if (!Schema::hasColumn('library_ill_request', 'responder_note')) {
-                $table->text('responder_note')->nullable()->after('requester_note');
+                $table->text('responder_note')->nullable();
             }
 
             if (!Schema::hasColumn('library_ill_request', 'citation')) {
-                $table->string('citation', 500)->nullable()->after('pages');
+                $table->string('citation', 500)->nullable();
             }
 
             if (!Schema::hasColumn('library_ill_request', 'lender_string')) {
                 $table->text('lender_string')->nullable()
-                    ->comment('Raw IS0-ILL string or bibliographic data string from lender')->after('citation');
+                    ->comment('Raw ISO-ILL string or bibliographic data string from lender');
             }
 
             if (!Schema::hasColumn('library_ill_request', 'edi_message_id')) {
                 $table->string('edi_message_id', 50)->nullable()
-                    ->comment('Cross-ref to EDI interchange sent/received')->after('status');
+                    ->comment('Cross-ref to EDI interchange sent/received');
             }
 
             if (!Schema::hasColumn('library_ill_request', 'needed_by_date')) {
-                $table->date('needed_by_date')->nullable()->after('request_date');
+                $table->date('needed_by_date')->nullable();
             }
 
             if (!Schema::hasColumn('library_ill_request', 'shipping_method')) {
-                $table->string('shipping_method', 50)->nullable()->after('cost_currency');
+                $table->string('shipping_method', 50)->nullable();
             }
 
             if (!Schema::hasColumn('library_ill_request', 'max_renewals')) {
-                $table->unsignedTinyInteger('max_renewals')->default(2)->after('renewal_count');
+                $table->unsignedTinyInteger('max_renewals')->default(2);
             }
 
             if (!Schema::hasColumn('library_ill_request', 'trading_partner_id')) {
                 $table->unsignedBigInteger('trading_partner_id')->nullable()
-                    ->comment('FK library_trading_partner.id — EDI partner used for this request')->after('responder_library_id');
+                    ->comment('FK library_trading_partner.id - EDI partner used for this request');
             }
 
             if (!Schema::hasColumn('library_ill_request', 'closed_at')) {
-                $table->timestamp('closed_at')->nullable()->after('edi_message_id');
+                $table->timestamp('closed_at')->nullable();
             }
 
             if (!Schema::hasColumn('library_ill_request', 'closed_reason')) {
-                $table->string('closed_reason', 200)->nullable()->after('closed_at');
+                $table->string('closed_reason', 200)->nullable();
             }
         });
     }

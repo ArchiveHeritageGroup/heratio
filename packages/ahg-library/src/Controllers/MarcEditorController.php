@@ -26,6 +26,8 @@ namespace AhgLibrary\Controllers;
 use AhgLibrary\Services\LibraryService;
 use AhgLibrary\Services\MarcEditService;
 use AhgLibrary\Services\Marc21DecoderService;
+use AhgLibrary\Services\MarcMergeService;
+use AhgLibrary\Services\MarcValidationService;
 use AhgMetadataExport\Services\Exporters\Marc21BinaryEncoder;
 use AhgMetadataExport\Services\Importers\MarcXmlImporter;
 use App\Http\Controllers\Controller;
@@ -148,6 +150,45 @@ class MarcEditorController extends Controller
     public function importBinary()
     {
         return view('ahg-library::marc-editor.import-binary');
+    }
+
+    /**
+     * Validate an uploaded MARCXML file and render the validation report.
+     * Server-rendered companion to POST /api/cataloguing/marc/validate.
+     */
+    public function validateForm(Request $request)
+    {
+        $request->validate([
+            'marc_file' => 'required|file|max:20480',
+        ]);
+
+        $raw = file_get_contents($request->file('marc_file')->getRealPath());
+        $report = (new MarcValidationService())->validate($raw);
+
+        return view('ahg-library::marc-editor.validation-report', [
+            'report'  => $report,
+            'marcxml' => $raw,
+        ]);
+    }
+
+    /**
+     * Diff an uploaded (edited) MARCXML record against the Heratio master and
+     * render the conflict-review screen. Companion to
+     * POST /api/cataloguing/marc/merge.
+     */
+    public function mergePreview(Request $request)
+    {
+        $request->validate([
+            'marc_file' => 'required|file|max:20480',
+        ]);
+
+        $raw = file_get_contents($request->file('marc_file')->getRealPath());
+        $report = (new MarcMergeService())->diff($raw, app()->getLocale());
+
+        return view('ahg-library::marc-editor.conflict-review', [
+            'report'  => $report,
+            'marcxml' => $raw,
+        ]);
     }
 
     public function formBinaryPreview(Request $request)
