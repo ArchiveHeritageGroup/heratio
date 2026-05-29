@@ -18,6 +18,7 @@ use AhgLibrary\Controllers\AuthorityControlController;
 use AhgLibrary\Controllers\CirculationDeskController;
 use AhgLibrary\Controllers\OpacPatronController;
 use AhgLibrary\Controllers\CopyCataloguingController;
+use AhgLibrary\Controllers\OnixIngestController;
 use Illuminate\Support\Facades\Route;
 
 // #766 per-event JS instrumentation beacon
@@ -89,6 +90,19 @@ Route::middleware('auth')->group(function () {
     Route::put('/library-manage/marc/{id}', [MarcEditorController::class, 'update'])->name('library.marc-update')->where('id', '[0-9]+');
     Route::get('/library-manage/marc/{id}/download', [MarcEditorController::class, 'download'])->name('library.marc-download')->where('id', '[0-9]+');
     Route::get('/library-manage/marc/{id}/download-binary', [MarcEditorController::class, 'downloadBinary'])->name('library.marc-download-binary')->where('id', '[0-9]+');
+
+    // ── ONIX Ingestion (heratio#1094) ────────────────────────────────────────
+    Route::get('/library-manage/onix', [OnixIngestController::class, 'index'])->name('library.onix-index');
+    Route::post('/library-manage/onix', [OnixIngestController::class, 'store'])->name('library.onix-store')->middleware('acl:create');
+    Route::get('/library-manage/onix/{id}', [OnixIngestController::class, 'show'])->name('library.onix-show')->where('id', '[0-9]+');
+    Route::post('/library-manage/onix/{id}/commit', [OnixIngestController::class, 'commit'])->name('library.onix-commit')->where('id', '[0-9]+')->middleware('acl:create');
+    Route::delete('/library-manage/onix/{id}', [OnixIngestController::class, 'destroy'])->name('library.onix-destroy')->where('id', '[0-9]+')->middleware('acl:delete');
+    Route::post('/library-manage/onix/line/{lineId}/status', [OnixIngestController::class, 'lineStatus'])->name('library.onix-line-status')->where('lineId', '[0-9]+')->middleware('acl:update');
+    // API: POST /api/library/ingest/onix (raw XML body, onix field, or onix_file). ?commit=1 to commit in one call.
+    Route::post('/api/library/ingest/onix', [OnixIngestController::class, 'apiIngest'])
+        ->name('library.onix-api-ingest')
+        ->middleware('acl:create')
+        ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class, \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
     // ── Authority Control ──────────────────────────────────────────────────
     Route::get('/library-manage/authority', [AuthorityControlController::class, 'index'])->name('library.authority-index');

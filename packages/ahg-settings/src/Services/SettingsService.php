@@ -59,12 +59,26 @@ class SettingsService
 
         $setting = $query->first();
 
-        if ($setting) {
-            DB::table('setting_i18n')->updateOrInsert(
-                ['id' => $setting->id, 'culture' => $culture],
-                ['value' => $value]
-            );
+        if (!$setting) {
+            // No parent row yet (e.g. a settings key added after the AtoM base
+            // `setting` rows were seeded). Create it so the value below can be
+            // persisted — without this the save is a silent no-op and the
+            // reader falls back to the default forever.
+            $id = DB::table('setting')->insertGetId([
+                'name'           => $name,
+                'scope'          => $scope,
+                'editable'       => 1,
+                'deleteable'     => 0,
+                'source_culture' => $culture,
+                'serial_number'  => 0,
+            ]);
+            $setting = (object) ['id' => $id];
         }
+
+        DB::table('setting_i18n')->updateOrInsert(
+            ['id' => $setting->id, 'culture' => $culture],
+            ['value' => $value]
+        );
     }
 
     public function getSettingsByScope(?string $scope, string $culture = 'en'): array
@@ -157,6 +171,7 @@ class SettingsService
     {
         $names = [
             'hits_per_page', 'sort_browser_user', 'sort_browser_anonymous',
+            'sort_browser_direction_user', 'sort_browser_direction_anonymous',
             'default_archival_description_browse_view', 'default_repository_browse_view',
             'escape_queries', 'show_tooltips', 'draft_notification_enabled',
             'multi_repository', 'enable_institutional_scoping',

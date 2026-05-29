@@ -74,3 +74,6 @@ playwright-report/
 # source lives at /opt/ahg-sp-integration/ on the integration host; the
 # Heratio-side port in app/Domain/SharePoint/ must NEVER be committed.
 /app/Domain/SharePoint/
+
+# NLSA tender reference PDFs - keep in docs/ for reference, never commit (large binaries)
+docs/READVERTISEMENT*.pdf

@@ -128,6 +128,26 @@ class GlobalSettings
         return $val !== '' ? $val : 'lastUpdated';
     }
 
+    /**
+     * Default sort direction ('asc' | 'desc') for the public browse view.
+     * Mirrors the per-audience sort-field defaults above. Falls back to
+     * 'desc' to match the long-standing hardcoded browse default, and
+     * coerces any unrecognised value to a safe 'desc'.
+     */
+    public static function sortBrowserDirectionAnonymous(): string
+    {
+        $val = strtolower(trim((string) SettingHelper::get('sort_browser_direction_anonymous', 'desc')));
+
+        return $val === 'asc' ? 'asc' : 'desc';
+    }
+
+    public static function sortBrowserDirectionUser(): string
+    {
+        $val = strtolower(trim((string) SettingHelper::get('sort_browser_direction_user', 'desc')));
+
+        return $val === 'asc' ? 'asc' : 'desc';
+    }
+
     public static function sortTreeviewInformationObject(): string
     {
         $val = trim((string) SettingHelper::get('sort_treeview_informationobject', 'manual'));

@@ -62,6 +62,22 @@
                 </select>
               </div>
               <div class="mb-3">
+                <label class="form-label">Sort direction (authenticated users) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <select name="settings[sort_browser_direction_user]" class="form-select">
+                  @foreach(['desc' => 'Descending', 'asc' => 'Ascending'] as $val => $label)
+                    <option value="{{ $val }}" {{ ($settings['sort_browser_direction_user'] ?? 'desc') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Sort direction (anonymous users) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <select name="settings[sort_browser_direction_anonymous]" class="form-select">
+                  @foreach(['desc' => 'Descending', 'asc' => 'Ascending'] as $val => $label)
+                    <option value="{{ $val }}" {{ ($settings['sort_browser_direction_anonymous'] ?? 'desc') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="mb-3">
                 <label class="form-label">Default archival description browse view <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[default_archival_description_browse_view]" class="form-select">
                   @foreach(['table' => 'Table', 'card' => 'Card'] as $val => $label)

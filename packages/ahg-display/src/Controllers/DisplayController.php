@@ -171,7 +171,10 @@ class DisplayController extends Controller
             ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
             : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
         $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
-        $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
+        $defaultSortDir = auth()->check()
+            ? \AhgCore\Support\GlobalSettings::sortBrowserDirectionUser()
+            : \AhgCore\Support\GlobalSettings::sortBrowserDirectionAnonymous();
+        $sortDir = $request->input('sortDir', $request->input('dir', $defaultSortDir));
         $viewMode = $request->input('view', 'card');
         $this->hasDigital = $request->input('hasDigital');
 
@@ -661,7 +664,10 @@ class DisplayController extends Controller
             ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
             : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
         $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
-        $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
+        $defaultSortDir = auth()->check()
+            ? \AhgCore\Support\GlobalSettings::sortBrowserDirectionUser()
+            : \AhgCore\Support\GlobalSettings::sortBrowserDirectionAnonymous();
+        $sortDir = $request->input('sortDir', $request->input('dir', $defaultSortDir));
 
         $query = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
@@ -761,7 +767,10 @@ class DisplayController extends Controller
             ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
             : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
         $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
-        $sortDir = $request->input('sortDir', $request->input('dir', 'desc'));
+        $defaultSortDir = auth()->check()
+            ? \AhgCore\Support\GlobalSettings::sortBrowserDirectionUser()
+            : \AhgCore\Support\GlobalSettings::sortBrowserDirectionAnonymous();
+        $sortDir = $request->input('sortDir', $request->input('dir', $defaultSortDir));
 
         $query = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {

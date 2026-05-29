@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ONIXMessage release="3.0" xmlns="http://ns.editeur.org/onix/3.0/reference">
+  <Header>
+    <Sender><SenderName>Test Publisher</SenderName></Sender>
+    <SentDateTime>20260529</SentDateTime>
+  </Header>
+  <Product>
+    <RecordReference>urn:isbn:9780262033848</RecordReference>
+    <NotificationType>03</NotificationType>
+    <ProductIdentifier>
+      <ProductIDType>15</ProductIDType>
+      <IDValue>9780262033848</IDValue>
+    </ProductIdentifier>
+    <DescriptiveDetail>
+      <ProductForm>BB</ProductForm>
+      <TitleDetail>
+        <TitleType>01</TitleType>
+        <TitleElement>
+          <TitleText>Introduction to Algorithms</TitleText>
+          <Subtitle>Third Edition</Subtitle>
+        </TitleElement>
+      </TitleDetail>
+      <Contributor>
+        <ContributorRole>A01</ContributorRole>
+        <PersonName>Thomas H. Cormen</PersonName>
+      </Contributor>
+      <Contributor>
+        <ContributorRole>A01</ContributorRole>
+        <PersonName>Charles E. Leiserson</PersonName>
+      </Contributor>
+      <EditionNumber>3</EditionNumber>
+    </DescriptiveDetail>
+    <PublishingDetail>
+      <Publisher>
+        <PublishingRole>01</PublishingRole>
+        <PublisherName>The MIT Press</PublisherName>
+      </Publisher>
+      <CityOfPublication>Cambridge, MA</CityOfPublication>
+      <PublishingDate>
+        <PublishingDateRole>01</PublishingDateRole>
+        <Date>20090731</Date>
+      </PublishingDate>
+    </PublishingDetail>
+    <ProductSupply>
+      <SupplyDetail>
+        <Supplier><SupplierName>Acme Distributors</SupplierName></Supplier>
+        <Price>
+          <PriceAmount>1299.00</PriceAmount>
+          <CurrencyCode>ZAR</CurrencyCode>
+        </Price>
+      </SupplyDetail>
+    </ProductSupply>
+  </Product>
+  <Product>
+    <RecordReference>bad-isbn-record</RecordReference>
+    <ProductIdentifier>
+      <ProductIDType>15</ProductIDType>
+      <IDValue>9780262033840</IDValue>
+    </ProductIdentifier>
+    <DescriptiveDetail>
+      <ProductForm>BB</ProductForm>
+      <TitleDetail>
+        <TitleElement>
+          <TitleText>Book With Bad Checksum</TitleText>
+        </TitleElement>
+      </TitleDetail>
+    </DescriptiveDetail>
+  </Product>
+</ONIXMessage>
