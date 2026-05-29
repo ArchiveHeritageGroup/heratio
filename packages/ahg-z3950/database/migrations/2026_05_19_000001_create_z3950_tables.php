@@ -56,12 +56,45 @@ return new class extends Migration
                 $table->timestamp('created_at')->useCurrent();
             });
         }
+
+        // Server-side config: which port, database, options the Z39.50 daemon uses
+        if (! Schema::connection('heratio')->hasTable('library_z3950_server_config')) {
+            Schema::connection('heratio')->create('library_z3950_server_config', function (Blueprint $table) {
+                $table->id();
+                $table->string('option_key', 64)->unique();
+                $table->text('option_value')->nullable();
+                $table->string('category', 32)->default('server');
+                $table->timestamps();
+
+                $table->index('category', 'idx_config_category');
+            });
+        }
+
+        // Server-side request log: every incoming INIT/SEARCH/PRESENT/CLOSE APDU
+        if (! Schema::connection('heratio')->hasTable('library_z3950_server_request')) {
+            Schema::connection('heratio')->create('library_z3950_server_request', function (Blueprint $table) {
+                $table->id();
+                $table->string('client_addr', 45)->comment('IPv4/IPv6 address of client');
+                $table->string('apdu_type', 32)->comment('init_request, search_request, present_request, close, etc.');
+                $table->unsignedInteger('bytes_received')->default(0);
+                $table->unsignedInteger('result_count')->nullable()->comment('For search APDUs: hit count');
+                $table->unsignedInteger('elapsed_ms')->nullable()->comment('Processing time');
+                $table->text('error_detail')->nullable();
+                $table->timestamp('created_at')->useCurrent();
+
+                $table->index('client_addr', 'idx_server_req_client');
+                $table->index('apdu_type', 'idx_server_req_type');
+                $table->index('created_at', 'idx_server_req_time');
+            });
+        }
     }
 
     public function down(): void
     {
+        Schema::connection('heratio')->dropIfExists('library_z3950_server_request');
         Schema::connection('heratio')->dropIfExists('z3950_import_log');
         Schema::connection('heratio')->dropIfExists('z3950_query_log');
         Schema::connection('heratio')->dropIfExists('z3950_targets');
+        Schema::connection('heratio')->dropIfExists('library_z3950_server_config');
     }
 };

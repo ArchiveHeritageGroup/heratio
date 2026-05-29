@@ -28,6 +28,11 @@
 
 namespace AhgZ3950\Providers;
 
+use AhgZ3950\Commands\Z3950ServerCommand;
+use AhgZ3950\Services\BerEncoder;
+use AhgZ3950\Services\Z3950ServerService;
+use AhgZ3950\Services\Z3950Service;
+use AhgZ3950\Services\SruService;
 use Illuminate\Support\ServiceProvider;
 
 class AhgZ3950ServiceProvider extends ServiceProvider
@@ -39,6 +44,23 @@ class AhgZ3950ServiceProvider extends ServiceProvider
             __DIR__ . '/../../config/ahg-z3950.php',
             'ahg-z3950'
         );
+
+        // Register BER encoder as singleton
+        $this->app->singleton(BerEncoder::class, fn() => new BerEncoder());
+
+        // Register Z39.50 server service
+        $this->app->singleton(Z3950ServerService::class, function ($app) {
+            return new Z3950ServerService(
+                $app->make(BerEncoder::class),
+                $app->make(\AhgLibrary\Services\Marc21DecoderService::class),
+            );
+        });
+
+        // Register Z39.50 client service
+        $this->app->singleton(Z3950Service::class, fn() => new Z3950Service());
+
+        // Register SRU service
+        $this->app->singleton(SruService::class, fn() => new SruService());
     }
 
     public function boot(): void
@@ -54,10 +76,15 @@ class AhgZ3950ServiceProvider extends ServiceProvider
             __DIR__ . '/../../config/ahg-z3950.php' => config_path('ahg-z3950.php'),
         ], 'ahg-z3950-config');
 
-        // Register migration to create Z39.50 operational tables
+        // Register the Z39.50 server daemon command
+        if ($this->app->runningInConsole()) {
+            $this->commands([Z3950ServerCommand::class]);
+        }
+
+        // Register migrations
         $this->publishes([
             __DIR__ . '/../../database/migrations/2026_05_19_000001_create_z3950_tables.php'
-                => database_path('migrations/' . date('Y') . '_' . date('m') . '_' . date('d') . '_000001_create_z3950_tables.php'),
+                => database_path('migrations/2026_05_19_000001_create_z3950_tables.php'),
         ], 'ahg-z3950-migrations');
     }
 }

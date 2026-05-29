@@ -52,7 +52,7 @@ class Z3950Service
      * @param int     $port        Target port (default 210)
      * @param string  $database    Database name on the target
      * @param string  $query      Query string (CQL or PQF)
-     * @param string  $syntax     Record syntax: USmarc | SUTRS | XML
+     * @param string  $syntax     Record syntax: USmarc | SUTRS | XML | MARCXML
      * @param string  $elementSet Element set: F (full) | B (brief) | S (suggested)
      * @param int     $maxRecords Maximum number of records to return
      * @return array{count:int, records:string[], error:string|null}
@@ -108,13 +108,17 @@ class Z3950Service
         $hits = yaz_hits($connectionId);
         $result['count'] = min((int) $hits, $maxRecords);
 
-        // Retrieve records
-        for ($i = 1; $i <= $result['count']; $i++) {
-            yaz_record($connectionId, $i, 'xml');
-            $record = yaz_record($connectionId, $i, $syntax);
+        // Retrieve records — yaz_record returns string|false|null
+        $syntax = match (strtolower($syntax)) {
+            'usmarc', 'marc21', 'marc' => 'xml',   // yaz returns MARC-in-XML for USmarc
+            default => $syntax,
+        };
 
-            if ($record !== false && $record !== '') {
-                $result['records'][] = str_replace("\r\n", "\n", $record);
+        for ($i = 1; $i <= $result['count']; $i++) {
+            $raw = yaz_record($connectionId, $i, $syntax);
+
+            if ($raw !== false && $raw !== null && (string) $raw !== '') {
+                $result['records'][] = str_replace("\r\n", "\n", (string) $raw);
             }
         }
 
