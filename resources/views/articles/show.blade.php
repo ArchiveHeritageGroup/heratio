@@ -32,5 +32,55 @@
             {!! $bodyHtml !!}
         </div>
     </article>
+
+    {{-- Anonymous blog-style comments --}}
+    <section id="comments" class="mx-auto mt-5 pt-4 border-top" style="max-width:820px;">
+        <h2 class="h4 mb-3">
+            <i class="far fa-comments me-2"></i>{{ __('Comments') }}
+            <span class="text-muted fs-6">({{ count($comments ?? []) }})</span>
+        </h2>
+
+        @if(session('comment_success'))
+            <div class="alert alert-success">{{ session('comment_success') }}</div>
+        @endif
+        @if(session('comment_error'))
+            <div class="alert alert-warning">{{ session('comment_error') }}</div>
+        @endif
+        @if($errors->any())
+            <div class="alert alert-danger">{{ $errors->first() }}</div>
+        @endif
+
+        @forelse($comments ?? [] as $c)
+            <div class="mb-3 pb-3 border-bottom">
+                <div class="fw-semibold">
+                    {{ $c->author_name ?: __('Anonymous') }}
+                    <span class="text-muted fw-normal small ms-2">{{ \Carbon\Carbon::parse($c->created_at)->diffForHumans() }}</span>
+                </div>
+                <div class="mt-1" style="white-space:pre-wrap;">{{ $c->body }}</div>
+            </div>
+        @empty
+            <p class="text-muted">{{ __('No comments yet. Be the first to comment.') }}</p>
+        @endforelse
+
+        <form method="POST" action="{{ route('articles.comment', $article->slug) }}" class="mt-4">
+            @csrf
+            <h3 class="h6">{{ __('Leave a comment') }}</h3>
+            <div class="mb-2">
+                <input type="text" name="author_name" maxlength="150" class="form-control"
+                       placeholder="{{ __('Name (optional)') }}" value="{{ old('author_name') }}">
+            </div>
+            {{-- Honeypot: hidden from humans; bots fill it and get silently dropped. --}}
+            <div style="position:absolute;left:-9999px;" aria-hidden="true">
+                <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+            </div>
+            <div class="mb-2">
+                <textarea name="body" rows="4" maxlength="4000" required class="form-control"
+                          placeholder="{{ __('Your comment') }}">{{ old('body') }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">
+                <i class="far fa-paper-plane me-1"></i>{{ __('Post comment') }}
+            </button>
+        </form>
+    </section>
 </div>
 @endsection

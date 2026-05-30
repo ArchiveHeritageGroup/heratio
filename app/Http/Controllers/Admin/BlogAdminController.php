@@ -58,6 +58,34 @@ class BlogAdminController extends Controller
         ]);
     }
 
+    // ── Comment moderation ───────────────────────────────────────────────────
+
+    public function comments()
+    {
+        $this->guard();
+
+        return view('admin.articles.comments', [
+            'comments' => $this->blog->listAllComments(),
+        ]);
+    }
+
+    public function commentStatus(Request $request, int $id)
+    {
+        $this->guard();
+        $request->validate(['status' => ['required', 'in:approved,pending,spam']]);
+        $this->blog->setCommentStatus($id, $request->input('status'));
+
+        return back()->with('success', __('Comment updated.'));
+    }
+
+    public function commentDestroy(int $id)
+    {
+        $this->guard();
+        $this->blog->deleteComment($id);
+
+        return back()->with('success', __('Comment deleted.'));
+    }
+
     public function store(Request $request)
     {
         $this->guard();

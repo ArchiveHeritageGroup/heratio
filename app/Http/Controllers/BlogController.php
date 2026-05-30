@@ -66,6 +66,50 @@ class BlogController extends Controller
         return view('articles.show', [
             'article'  => $article,
             'bodyHtml' => $article->body ? Str::markdown($article->body) : '',
+            'comments' => $this->blog->listApprovedComments((int) $article->id),
         ]);
+    }
+
+    /**
+     * Anonymous, blog-style comment on a published article. No login required.
+     * Guards: honeypot field, per-IP flood window, length cap (route also
+     * carries a throttle middleware). Name is optional (blank = Anonymous).
+     */
+    public function comment(Request $request, string $slug)
+    {
+        $article = $this->blog->getPublishedBySlug($slug);
+        if (! $article) {
+            abort(404);
+        }
+
+        // Honeypot: bots fill the hidden "website" field; humans never see it.
+        if (trim((string) $request->input('website', '')) !== '') {
+            return redirect()->route('articles.show', $slug); // silently drop
+        }
+
+        $request->validate([
+            'author_name' => ['nullable', 'string', 'max:150'],
+            'body'        => ['required', 'string', 'min:2', 'max:4000'],
+        ]);
+
+        // Simple per-IP flood guard (in addition to the route throttle).
+        $since = $this->blog->secondsSinceLastCommentFromIp($request->ip());
+        if ($since !== null && $since < 20) {
+            return back()
+                ->withInput()
+                ->with('comment_error', __('Please wait a few seconds before commenting again.'));
+        }
+
+        $this->blog->addComment(
+            (int) $article->id,
+            $request->only(['author_name', 'body']),
+            $request->ip(),
+            Str::limit((string) $request->userAgent(), 255, '')
+        );
+
+        return redirect()
+            ->route('articles.show', $slug)
+            ->withFragment('comments')
+            ->with('comment_success', __('Thanks - your comment has been posted.'));
     }
 }

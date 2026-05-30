@@ -178,6 +178,92 @@ class BlogService
         return DB::table('blog_post')->where('id', $id)->delete() > 0;
     }
 
+    // ── Comments (anonymous, blog-style) ─────────────────────────────────────
+
+    /** Approved comments for an article, oldest first. */
+    public function listApprovedComments(int $postId): array
+    {
+        return DB::table('blog_comment')
+            ->where('blog_post_id', $postId)
+            ->where('status', 'approved')
+            ->orderBy('created_at')
+            ->get()
+            ->all();
+    }
+
+    public function countApprovedComments(int $postId): int
+    {
+        return (int) DB::table('blog_comment')
+            ->where('blog_post_id', $postId)
+            ->where('status', 'approved')
+            ->count();
+    }
+
+    /**
+     * Insert an anonymous comment. Returns the new id. `author_name` is
+     * optional (blank renders as Anonymous). Status defaults to approved so
+     * comments appear immediately; admins can hide/delete via moderation.
+     */
+    public function addComment(int $postId, array $data, ?string $ip, ?string $userAgent): int
+    {
+        $name = trim((string) ($data['author_name'] ?? ''));
+
+        return (int) DB::table('blog_comment')->insertGetId([
+            'blog_post_id' => $postId,
+            'author_name'  => $name !== '' ? Str::limit($name, 150, '') : null,
+            'body'         => trim((string) $data['body']),
+            'status'       => 'approved',
+            'ip'           => $ip,
+            'user_agent'   => $userAgent ? Str::limit($userAgent, 255, '') : null,
+            'created_at'   => now(),
+            'updated_at'   => now(),
+        ]);
+    }
+
+    /** Seconds since this IP last commented (null if never) - simple flood guard. */
+    public function secondsSinceLastCommentFromIp(?string $ip): ?int
+    {
+        if (! $ip) {
+            return null;
+        }
+        $last = DB::table('blog_comment')->where('ip', $ip)->max('created_at');
+
+        return $last ? now()->diffInSeconds(\Illuminate\Support\Carbon::parse($last)) : null;
+    }
+
+    // ── Comment moderation (admin) ───────────────────────────────────────────
+
+    public function listAllComments(int $limit = 200): array
+    {
+        return DB::table('blog_comment as c')
+            ->leftJoin('blog_post as p', 'p.id', '=', 'c.blog_post_id')
+            ->select('c.*', 'p.title as article_title', 'p.slug as article_slug')
+            ->orderByDesc('c.created_at')
+            ->limit($limit)
+            ->get()
+            ->all();
+    }
+
+    public function setCommentStatus(int $id, string $status): bool
+    {
+        if (! in_array($status, ['approved', 'pending', 'spam'], true)) {
+            return false;
+        }
+
+        return DB::table('blog_comment')->where('id', $id)
+            ->update(['status' => $status, 'updated_at' => now()]) > 0;
+    }
+
+    public function deleteComment(int $id): bool
+    {
+        return DB::table('blog_comment')->where('id', $id)->delete() > 0;
+    }
+
+    public function pendingCommentCount(): int
+    {
+        return (int) DB::table('blog_comment')->where('status', 'pending')->count();
+    }
+
     /**
      * Store an uploaded image on the public disk under blog/ and return the
      * web path (/storage/blog/...). Caller validates mime/size.

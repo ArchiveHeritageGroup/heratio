@@ -48,12 +48,19 @@ class AppServiceProvider extends ServiceProvider
                 $router->get('/articles', [\App\Http\Controllers\BlogController::class, 'index'])->name('articles.index');
                 $router->get('/articles/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])
                     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('articles.show');
+                // Anonymous blog-style comment (no auth); throttled per IP.
+                $router->post('/articles/{slug}/comments', [\App\Http\Controllers\BlogController::class, 'comment'])
+                    ->where('slug', '[a-z0-9][a-z0-9-]*')->middleware('throttle:6,1')->name('articles.comment');
             });
             $router->middleware(['web', 'auth'])->prefix('admin/articles')->name('admin.articles.')->group(function () use ($router) {
                 $router->get('/', [\App\Http\Controllers\Admin\BlogAdminController::class, 'index'])->name('index');
                 $router->get('/create', [\App\Http\Controllers\Admin\BlogAdminController::class, 'create'])->name('create');
                 $router->post('/', [\App\Http\Controllers\Admin\BlogAdminController::class, 'store'])->name('store');
                 $router->post('/upload-image', [\App\Http\Controllers\Admin\BlogAdminController::class, 'uploadImage'])->name('upload-image');
+                // Comment moderation (literal /comments - no clash with /{id}/edit).
+                $router->get('/comments', [\App\Http\Controllers\Admin\BlogAdminController::class, 'comments'])->name('comments');
+                $router->put('/comments/{id}/status', [\App\Http\Controllers\Admin\BlogAdminController::class, 'commentStatus'])->where('id', '[0-9]+')->name('comments.status');
+                $router->delete('/comments/{id}', [\App\Http\Controllers\Admin\BlogAdminController::class, 'commentDestroy'])->where('id', '[0-9]+')->name('comments.destroy');
                 $router->get('/{id}/edit', [\App\Http\Controllers\Admin\BlogAdminController::class, 'edit'])->where('id', '[0-9]+')->name('edit');
                 $router->put('/{id}', [\App\Http\Controllers\Admin\BlogAdminController::class, 'update'])->where('id', '[0-9]+')->name('update');
                 $router->delete('/{id}', [\App\Http\Controllers\Admin\BlogAdminController::class, 'destroy'])->where('id', '[0-9]+')->name('destroy');
