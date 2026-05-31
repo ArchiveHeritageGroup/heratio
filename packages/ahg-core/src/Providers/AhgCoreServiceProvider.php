@@ -101,6 +101,7 @@ class AhgCoreServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgCore\Console\Commands\NasWatchdogCommand::class,
+                \AhgCore\Console\Commands\BackfillEmbeddedMetadataCommand::class,
                 \AhgCore\Commands\SearchPopulateCommand::class,
                 \AhgCore\Commands\SearchUpdateCommand::class,
                 \AhgCore\Commands\SearchCleanupCommand::class,

@@ -301,6 +301,71 @@
           </div>
         @endif
 
+        {{-- #1106 All metadata - the COMPLETE grouped ExifTool set from
+             digital_object_metadata.raw_metadata (EXIF / IPTC / XMP / GPS /
+             MakerNotes / ICC / …), grouped + client-side filterable. GPS-group
+             values are redacted for non-administrators (PII gate). --}}
+        @php
+          $__raw = ($__exif->raw_metadata ?? null) ? json_decode($__exif->raw_metadata, true) : null;
+          $__rawGroups = [];
+          if (is_array($__raw)) {
+              foreach ($__raw as $__k => $__v) {
+                  if ($__k === 'SourceFile') { continue; }
+                  $__pos = strpos((string) $__k, ':');
+                  $__grp = $__pos !== false ? substr((string) $__k, 0, $__pos) : 'Other';
+                  $__tag = $__pos !== false ? substr((string) $__k, $__pos + 1) : (string) $__k;
+                  if (is_array($__v)) { $__v = json_encode($__v, JSON_UNESCAPED_SLASHES); }
+                  $__rawGroups[$__grp][$__tag] = (string) $__v;
+              }
+              ksort($__rawGroups);
+          }
+          $__rawCount = array_sum(array_map('count', $__rawGroups));
+          $__isAdmin = \Illuminate\Support\Facades\Auth::check()
+              && class_exists('\AhgCore\Services\AclService')
+              && \AhgCore\Services\AclService::canAdmin(\Illuminate\Support\Facades\Auth::id());
+        @endphp
+        @if($__rawCount > 0)
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="{{ $__panelId }}-all-h">
+              <button class="accordion-button collapsed" type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#{{ $__panelId }}-all"
+                      aria-expanded="false"
+                      aria-controls="{{ $__panelId }}-all">
+                <i class="bi bi-list-columns-reverse me-2" aria-hidden="true"></i>
+                {{ __('All metadata') }}
+                <span class="badge bg-secondary ms-2">{{ $__rawCount }}</span>
+              </button>
+            </h2>
+            <div id="{{ $__panelId }}-all" class="accordion-collapse collapse"
+                 aria-labelledby="{{ $__panelId }}-all-h"
+                 data-bs-parent="#{{ $__panelId }}-accordion">
+              <div class="accordion-body">
+                <input type="text" class="form-control form-control-sm mb-2"
+                       placeholder="{{ __('Filter tags…') }}"
+                       onkeyup="var t=this.value.toLowerCase();this.closest('.accordion-body').querySelectorAll('tr[data-row]').forEach(function(r){r.style.display=r.getAttribute('data-row').indexOf(t)>-1?'':'none';});">
+                @foreach($__rawGroups as $__grp => $__tags)
+                  <div class="fw-bold small text-uppercase text-muted mt-2">{{ $__grp }} <span class="text-muted">({{ count($__tags) }})</span></div>
+                  <table class="table table-sm table-borderless mb-0">
+                    <tbody>
+                      @foreach($__tags as $__tag => $__val)
+                        @php $__display = (! $__isAdmin && $__grp === 'GPS') ? '[redacted]' : $__val; @endphp
+                        <tr data-row="{{ strtolower($__grp.' '.$__tag.' '.$__display) }}">
+                          <td class="text-muted" style="white-space:nowrap;width:1%">{{ $__tag }}</td>
+                          <td class="text-break">{{ \Illuminate\Support\Str::limit($__display, 400) }}</td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                @endforeach
+                @unless($__isAdmin)
+                  <p class="form-text mb-0"><i class="bi bi-shield-lock me-1" aria-hidden="true"></i>{{ __('GPS coordinates are hidden for non-administrators.') }}</p>
+                @endunless
+              </div>
+            </div>
+          </div>
+        @endif
+
         {{-- GPS map links - collapsed by default so we never auto-fetch
              from Google / OSM on every page render. User has to expand. --}}
         @if($__hasGps)

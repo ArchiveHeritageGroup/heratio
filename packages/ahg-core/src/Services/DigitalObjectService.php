@@ -663,7 +663,14 @@ class DigitalObjectService
             return;
         }
 
-        $cmd = $binary.' -j -n -api largefilesupport=1 '.escapeshellarg($filePath).' 2>/dev/null';
+        // #1106: capture the COMPLETE metadata set grouped by ExifTool family
+        //   -G1  group names (EXIF:, IPTC:, XMP:, ICC_Profile:, GPS:, MakerNotes:, …)
+        //   -a   keep duplicate tags
+        //   -u   include unknown tags
+        // The grouped JSON is stored verbatim in raw_metadata so the full set is
+        // available for display; a flattened (Tag => value) view drives the
+        // curated typed columns below so bare-key picks still resolve.
+        $cmd = $binary.' -j -G1 -a -u -api largefilesupport=1 '.escapeshellarg($filePath).' 2>/dev/null';
         $json = @shell_exec($cmd);
         if (! $json) {
             return;
@@ -672,24 +679,49 @@ class DigitalObjectService
         if (! is_array($decoded) || empty($decoded[0])) {
             return;
         }
-        $meta = $decoded[0];
+        $grouped = $decoded[0];
+        $flat = self::flattenGroupedMeta($grouped);
 
-        self::writeDigitalObjectMetadata($masterId, $meta, $master);
-        self::writeMediaMetadata($masterId, (int) $master->object_id, $meta, $master);
-        self::writeDamIptcMetadata((int) $master->object_id, $meta);
+        self::writeDigitalObjectMetadata($masterId, $flat, $master, $grouped);
+        self::writeMediaMetadata($masterId, (int) $master->object_id, $flat, $master);
+        self::writeDamIptcMetadata((int) $master->object_id, $flat);
+    }
+
+    /**
+     * Flatten a `-G1` grouped ExifTool result so both the full "Group:Tag" keys
+     * and the bare "Tag" names resolve. Bare tags take the first occurrence
+     * (SourceFile and the group system keys are skipped).
+     */
+    protected static function flattenGroupedMeta(array $grouped): array
+    {
+        $flat = [];
+        foreach ($grouped as $key => $value) {
+            $flat[$key] = $value;
+            $pos = strpos((string) $key, ':');
+            if ($pos !== false) {
+                $tag = substr((string) $key, $pos + 1);
+                if ($tag !== '' && ! array_key_exists($tag, $flat)) {
+                    $flat[$tag] = $value;
+                }
+            }
+        }
+
+        return $flat;
     }
 
     /**
      * Write the per-DO descriptive + technical metadata row.
      */
-    protected static function writeDigitalObjectMetadata(int $doId, array $meta, $master): void
+    protected static function writeDigitalObjectMetadata(int $doId, array $meta, $master, ?array $rawGrouped = null): void
     {
         $fileType = self::classifyByMime((string) ($master->mime_type ?? 'application/octet-stream'));
 
         $row = [
             'digital_object_id' => $doId,
             'file_type' => $fileType,
-            'raw_metadata' => json_encode($meta, JSON_UNESCAPED_SLASHES),
+            // Full grouped ExifTool set when available (#1106); falls back to the
+            // flattened view for callers that don't supply the grouped result.
+            'raw_metadata' => json_encode($rawGrouped ?? $meta, JSON_UNESCAPED_SLASHES),
             'title' => self::pick($meta, ['Title', 'IPTC:ObjectName', 'XMP:Title']),
             'creator' => self::pick($meta, ['Creator', 'By-line', 'Artist', 'Author', 'XMP:Creator']),
             'description' => self::pick($meta, ['ImageDescription', 'Description', 'Caption-Abstract', 'XMP:Description']),
