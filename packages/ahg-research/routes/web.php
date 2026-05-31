@@ -5,6 +5,7 @@ use AhgResearch\Controllers\AuditController;
 use AhgResearch\Controllers\ResearchJournalController;
 use AhgResearch\Controllers\ResearchLectureController;
 use AhgResearch\Controllers\ResearchTargetJournalController;
+use AhgResearch\Controllers\ResearchTrainingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -87,6 +88,35 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
         Route::get('/{id}/edit', [ResearchTargetJournalController::class, 'edit'])->whereNumber('id')->name('edit');
         Route::put('/{id}', [ResearchTargetJournalController::class, 'update'])->whereNumber('id')->name('update');
         Route::delete('/{id}', [ResearchTargetJournalController::class, 'destroy'])->whereNumber('id')->name('destroy');
+    });
+
+    // #1099 Generic training curriculum + LMS module
+    Route::prefix('training')->name('training.')->group(function () {
+        Route::get('/', [ResearchTrainingController::class, 'index'])->name('index');
+        Route::get('/create', [ResearchTrainingController::class, 'create'])->name('create');
+        Route::post('/', [ResearchTrainingController::class, 'store'])->name('store');
+        Route::get('/{id}', [ResearchTrainingController::class, 'show'])->whereNumber('id')->name('show');
+        Route::get('/{id}/edit', [ResearchTrainingController::class, 'edit'])->whereNumber('id')->name('edit');
+        Route::put('/{id}', [ResearchTrainingController::class, 'update'])->whereNumber('id')->name('update');
+        Route::delete('/{id}', [ResearchTrainingController::class, 'destroy'])->whereNumber('id')->name('destroy');
+        Route::post('/{id}/status', [ResearchTrainingController::class, 'setStatus'])->whereNumber('id')->name('status');
+        // Modules
+        Route::post('/{courseId}/modules', [ResearchTrainingController::class, 'storeModule'])->whereNumber('courseId')->name('module-store');
+        Route::get('/module/{id}/edit', [ResearchTrainingController::class, 'editModule'])->whereNumber('id')->name('module-edit');
+        Route::put('/module/{id}', [ResearchTrainingController::class, 'updateModule'])->whereNumber('id')->name('module-update');
+        Route::delete('/module/{id}', [ResearchTrainingController::class, 'destroyModule'])->whereNumber('id')->name('module-destroy');
+        // Assessment
+        Route::get('/{courseId}/assessment', [ResearchTrainingController::class, 'editAssessment'])->whereNumber('courseId')->name('assessment-edit');
+        Route::post('/{courseId}/assessment', [ResearchTrainingController::class, 'saveAssessment'])->whereNumber('courseId')->name('assessment-save');
+        // Enrolment
+        Route::post('/{courseId}/enrol', [ResearchTrainingController::class, 'enrol'])->whereNumber('courseId')->name('enrol');
+        Route::delete('/enrolment/{id}', [ResearchTrainingController::class, 'destroyEnrolment'])->whereNumber('id')->name('enrolment-destroy');
+        // Learner flow
+        Route::get('/learn/{enrolmentId}', [ResearchTrainingController::class, 'learn'])->whereNumber('enrolmentId')->name('learn');
+        Route::post('/learn/{enrolmentId}/module/{moduleId}', [ResearchTrainingController::class, 'completeModule'])->whereNumber('enrolmentId')->whereNumber('moduleId')->name('module-complete');
+        Route::get('/learn/{enrolmentId}/assessment', [ResearchTrainingController::class, 'takeAssessment'])->whereNumber('enrolmentId')->name('assessment-take');
+        Route::post('/learn/{enrolmentId}/assessment', [ResearchTrainingController::class, 'submitAssessment'])->whereNumber('enrolmentId')->name('assessment-submit');
+        Route::get('/learn/{enrolmentId}/certificate', [ResearchTrainingController::class, 'certificate'])->whereNumber('enrolmentId')->name('certificate');
     });
 
     // Dashboard & Index
