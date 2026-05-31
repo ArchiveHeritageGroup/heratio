@@ -166,6 +166,7 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/",
+            "AhgZ3950\\Tests\\": "packages/ahg-z3950/tests/",
             "AhgLibrary\\Tests\\": "packages/ahg-library/tests/"
         }
     },

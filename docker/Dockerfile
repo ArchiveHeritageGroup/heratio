@@ -65,7 +65,7 @@ RUN ! find /var/www/heratio \
         \( -name '*.safetensors' -o -name '*.gguf' -o -name '*.ggml' \
            -o -name '*.pt' -o -name '*.pth' -o -name '*.onnx' \
            -o -name '*.h5' -o -name '*.ckpt' -o -name '*.tflite' \
-           -o -path '*/models/*' -o -path '*/.cache/huggingface/*' \
+           -o -path '*/models/*' -not -path '*/node_modules/*' -o -path '*/.cache/huggingface/*' \
            -o -path '*/.cache/ollama/*' -o -path '*/llama.cpp/*' \) \
         -type f -print -quit | grep -q .  \
     || (echo "BUILD ABORTED: AI model artifact detected in build context (see .dockerignore)" && exit 1)
