@@ -3,6 +3,7 @@
 use AhgResearch\Controllers\ResearchController;
 use AhgResearch\Controllers\AuditController;
 use AhgResearch\Controllers\ResearchJournalController;
+use AhgResearch\Controllers\ResearchLectureController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -53,6 +54,26 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
         Route::get('/article/{id}/edit', [ResearchJournalController::class, 'editArticle'])->whereNumber('id')->name('article-edit');
         Route::put('/article/{id}', [ResearchJournalController::class, 'updateArticle'])->whereNumber('id')->name('article-update');
         Route::delete('/article/{id}', [ResearchJournalController::class, 'destroyArticle'])->whereNumber('id')->name('article-destroy');
+    });
+
+    // #1105 Lecture builder — curriculum content / talk records / standalone authoring
+    Route::prefix('lectures')->name('lecture-builder.')->group(function () {
+        Route::get('/', [ResearchLectureController::class, 'index'])->name('index');
+        Route::get('/create', [ResearchLectureController::class, 'create'])->name('create');
+        Route::post('/', [ResearchLectureController::class, 'store'])->name('store');
+        Route::get('/{id}', [ResearchLectureController::class, 'show'])->whereNumber('id')->name('show');
+        Route::get('/{id}/edit', [ResearchLectureController::class, 'edit'])->whereNumber('id')->name('edit');
+        Route::put('/{id}', [ResearchLectureController::class, 'update'])->whereNumber('id')->name('update');
+        Route::delete('/{id}', [ResearchLectureController::class, 'destroy'])->whereNumber('id')->name('destroy');
+        Route::post('/{id}/status', [ResearchLectureController::class, 'setStatus'])->whereNumber('id')->name('status');
+        // Sections
+        Route::post('/{lectureId}/sections', [ResearchLectureController::class, 'storeSection'])->whereNumber('lectureId')->name('section-store');
+        Route::get('/section/{id}/edit', [ResearchLectureController::class, 'editSection'])->whereNumber('id')->name('section-edit');
+        Route::put('/section/{id}', [ResearchLectureController::class, 'updateSection'])->whereNumber('id')->name('section-update');
+        Route::delete('/section/{id}', [ResearchLectureController::class, 'destroySection'])->whereNumber('id')->name('section-destroy');
+        // Resources
+        Route::post('/{lectureId}/resources', [ResearchLectureController::class, 'storeResource'])->whereNumber('lectureId')->name('resource-store');
+        Route::delete('/resource/{id}', [ResearchLectureController::class, 'destroyResource'])->whereNumber('id')->name('resource-destroy');
     });
 
     // Dashboard & Index
