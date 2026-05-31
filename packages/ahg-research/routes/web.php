@@ -4,6 +4,7 @@ use AhgResearch\Controllers\ResearchController;
 use AhgResearch\Controllers\AuditController;
 use AhgResearch\Controllers\ResearchJournalController;
 use AhgResearch\Controllers\ResearchLectureController;
+use AhgResearch\Controllers\ResearchTargetJournalController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -74,6 +75,18 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
         // Resources
         Route::post('/{lectureId}/resources', [ResearchLectureController::class, 'storeResource'])->whereNumber('lectureId')->name('resource-store');
         Route::delete('/resource/{id}', [ResearchLectureController::class, 'destroyResource'])->whereNumber('id')->name('resource-destroy');
+    });
+
+    // #1107 Target-journal directory — where to publish (scope + rules), DHET-seeded
+    Route::prefix('target-journals')->name('target-journal.')->group(function () {
+        Route::get('/', [ResearchTargetJournalController::class, 'index'])->name('index');
+        Route::post('/seed-dhet', [ResearchTargetJournalController::class, 'seedDhet'])->name('seed-dhet');
+        Route::get('/create', [ResearchTargetJournalController::class, 'create'])->name('create');
+        Route::post('/', [ResearchTargetJournalController::class, 'store'])->name('store');
+        Route::get('/{id}', [ResearchTargetJournalController::class, 'show'])->whereNumber('id')->name('show');
+        Route::get('/{id}/edit', [ResearchTargetJournalController::class, 'edit'])->whereNumber('id')->name('edit');
+        Route::put('/{id}', [ResearchTargetJournalController::class, 'update'])->whereNumber('id')->name('update');
+        Route::delete('/{id}', [ResearchTargetJournalController::class, 'destroy'])->whereNumber('id')->name('destroy');
     });
 
     // Dashboard & Index

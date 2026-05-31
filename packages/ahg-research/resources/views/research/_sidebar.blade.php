@@ -31,6 +31,10 @@
        class="list-group-item list-group-item-action {{ $active === 'lectures' ? 'active' : '' }}">
         <i class="fas fa-chalkboard-teacher me-2"></i>{{ __('Lectures') }}
     </a>
+    <a href="{{ route('research.target-journal.index') }}"
+       class="list-group-item list-group-item-action {{ $active === 'target-journals' ? 'active' : '' }}">
+        <i class="fas fa-bullseye me-2"></i>{{ __('Where to Publish') }}
+    </a>
     <a href="{{ route('research.bibliographies') }}"
        class="list-group-item list-group-item-action {{ $active === 'bibliographies' ? 'active' : '' }}">
         <i class="fas fa-book me-2"></i>{{ __('Bibliographies') }}

@@ -39,6 +39,7 @@ class AhgResearchServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgResearch\Commands\SeedDropdownsCommand::class,
+                \AhgResearch\Commands\SeedTargetJournalsCommand::class,
                 OrcidSyncCommand::class,
             ]);
 
