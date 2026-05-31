@@ -112,26 +112,35 @@ class Marc21DecoderServiceTest extends AhgLibraryTestCase
 
     public function test_decode_repeatable_subfield_code_suffixing(): void
     {
-        // MARC21 allows repeatable subfields: |a Val1 |a Val2 → a, a2, a3
-        // Build a synthetic record with two 650$a entries (subject fields).
-        $record = $this->buildSyntheticRecord();
-        $parsed = $this->service->decode($record);
+        // MARC21 allows repeatable subfields within a field: |a V1 |a V2 → a, a2.
+        $parsed = $this->service->decode($this->buildSyntheticRecord());
 
-        $allCodes = [];
+        $first650 = null;
         foreach ($parsed['data'] as $field) {
-            foreach (array_keys($field['subfields'] ?? []) as $k) {
-                $allCodes[] = $k;
-            }
+            if (($field['tag'] ?? '') === '650') { $first650 = $field; break; }
         }
+        $this->assertNotNull($first650, '650 field should decode from the synthetic record');
+        $this->assertArrayHasKey('a', $first650['subfields'], 'first $a keeps the bare code');
+        $this->assertArrayHasKey('a2', $first650['subfields'], 'repeated $a is suffixed to a2');
+        $this->assertSame('Subject One', $first650['subfields']['a']);
+        $this->assertSame('Subject Two', $first650['subfields']['a2']);
 
-        // Bare codes (no numeric suffix) should not repeat.
-        $bareCodes    = array_filter($allCodes, fn($c) => ! preg_match('/\d/', $c));
-        $bareUnique   = array_unique($bareCodes);
-        $this->assertSame(
-            count($bareUnique),
-            count($bareCodes),
-            'Bare subfield codes should not repeat (use a2, a3 suffix instead)'
-        );
+        // Within a single field, the bare code must not repeat.
+        $bare = array_filter(array_keys($first650['subfields']), fn ($c) => ! preg_match('/\d/', $c));
+        $this->assertSame(count(array_unique($bare)), count($bare));
+    }
+
+    public function test_decode_preserves_repeated_fields(): void
+    {
+        // Two 650 fields must BOTH survive — a tag-keyed directory would keep
+        // only the last (regression guard for the repeated-field collapse).
+        $parsed = $this->service->decode($this->buildSyntheticRecord());
+
+        $count650 = 0;
+        foreach ($parsed['data'] as $field) {
+            if (($field['tag'] ?? '') === '650') { $count650++; }
+        }
+        $this->assertSame(2, $count650, 'both repeated 650 fields should be preserved');
     }
 
     public function test_decode_handles_short_record(): void
@@ -385,10 +394,13 @@ class Marc21DecoderServiceTest extends AhgLibraryTestCase
      */
     protected function buildSyntheticRecord(): string
     {
+        // Field content for data fields = ind1.ind2 then \x1F<code><value> runs.
+        //   650 #1: two $a  → exercises repeatable-SUBFIELD suffixing (a, a2)
+        //   650 #2: one $a  → exercises repeatable-FIELD preservation (two 650s)
         $fields = [
-            ['001', "9780000000000"],           // control field
-            ['650', " \x1FaSubject One"],
-            ['650', " \x1FaSubject Two"],
+            ['001', "9780000000000"],                          // control field
+            ['650', " 0\x1FaSubject One\x1FaSubject Two"],      // ind " 0", two $a
+            ['650', " 0\x1FaSubject Three"],                    // second 650 field
         ];
 
         // Build data area
@@ -411,20 +423,22 @@ class Marc21DecoderServiceTest extends AhgLibraryTestCase
         $dirBytes = implode('', $dirEntries) . "\x1E";
         $baseAddress = 24 + strlen($dirBytes);
 
-        // Leader
+        // Leader — standard 24-byte layout so decode() reads the base address
+        // from bytes 12-16, indicator length from byte 10, etc.
         $totalLen = 24 + strlen($dirBytes) + strlen($dataArea);
-        $leader = str_pad((string) $totalLen, 5, '0', STR_PAD_LEFT)
-                . '    '   // bytes 5-9
-                . 'n'      // record status
-                . 'a'      // type of record
-                . 'm'      // bibliographic level
-                . ' '
-                . '2'      // indicator length
-                . '2'      // subfield code length
-                . str_pad((string) $baseAddress, 5, '0', STR_PAD_LEFT)
-                . ' '
-                . ' '
-                . '22';    // remainder
+        $leader = str_pad((string) $totalLen, 5, '0', STR_PAD_LEFT)  // 0-4 record length
+                . 'n'                                                 // 5 status
+                . 'a'                                                 // 6 type
+                . 'm'                                                 // 7 bibliographic level
+                . ' '                                                 // 8 type of control
+                . 'a'                                                 // 9 character coding
+                . '2'                                                 // 10 indicator length
+                . '2'                                                 // 11 subfield code length
+                . str_pad((string) $baseAddress, 5, '0', STR_PAD_LEFT) // 12-16 base address
+                . ' '                                                 // 17 encoding level
+                . 'a'                                                 // 18 descriptive cataloguing form
+                . ' '                                                 // 19 multipart level
+                . '4500';                                             // 20-23 entry map
 
         return $leader . $dirBytes . $dataArea;
     }

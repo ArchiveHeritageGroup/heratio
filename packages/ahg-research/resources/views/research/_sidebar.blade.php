@@ -23,6 +23,10 @@
        class="list-group-item list-group-item-action {{ $active === 'journal' ? 'active' : '' }}">
         <i class="fas fa-journal-whills me-2"></i>{{ __('Research Journal') }}
     </a>
+    <a href="{{ route('research.journal-builder.index') }}"
+       class="list-group-item list-group-item-action {{ $active === 'journals' ? 'active' : '' }}">
+        <i class="fas fa-newspaper me-2"></i>{{ __('Journals') }}
+    </a>
     <a href="{{ route('research.bibliographies') }}"
        class="list-group-item list-group-item-action {{ $active === 'bibliographies' ? 'active' : '' }}">
         <i class="fas fa-book me-2"></i>{{ __('Bibliographies') }}

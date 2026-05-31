@@ -109,7 +109,12 @@ class Marc21DecoderService
         // ── Directory parsing ──────────────────────────────────────────────
         // Each entry: tag(3) + length(4) + offset(5) = 12 bytes.
         // The 'offset' is from the BASE ADDRESS (the start of the data area).
-        $directory = [];
+        // Control fields (00x) go into $control keyed by tag; data fields (010+)
+        // go into $data as a SEQUENTIAL list so repeated tags (e.g. two 650
+        // subjects, multiple 700 added entries, repeated 020) are all kept —
+        // a tag-keyed map would silently drop all but the last occurrence.
+        $control = [];
+        $data    = [];
         $dpos = $dirStart;
 
         while ($dpos + 12 <= $dirEnd) {
@@ -135,8 +140,8 @@ class Marc21DecoderService
             $rawField = substr($raw, $dataStart, $flen - 1);
 
             if ($tag <= '009') {
-                // Control field: no indicators, no subfield delimiter
-                $directory[$tag] = $rawField;
+                // Control field: no indicators, no subfield delimiter.
+                $control[$tag] = $rawField;
             } else {
                 // Data field: 2 indicators + subfield values
                 $ind1 = isset($rawField[0]) ? $rawField[0] : ' ';
@@ -164,24 +169,12 @@ class Marc21DecoderService
                     }
                 }
 
-                $directory[$tag] = [
+                $data[] = [
                     'tag'      => $tag,
                     'ind1'     => $ind1,
                     'ind2'     => $ind2,
                     'subfields' => $subfields,
                 ];
-            }
-        }
-
-        // Split into control (001-009) and data (010+) arrays
-        $control = [];
-        $data    = [];
-
-        foreach ($directory as $key => $val) {
-            if (is_string($val) && ctype_digit($key) && (int) $key <= 9) {
-                $control[sprintf('%03d', (int) $key)] = $val;
-            } else {
-                $data[] = $val;
             }
         }
 

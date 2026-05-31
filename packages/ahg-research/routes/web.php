@@ -2,6 +2,7 @@
 
 use AhgResearch\Controllers\ResearchController;
 use AhgResearch\Controllers\AuditController;
+use AhgResearch\Controllers\ResearchJournalController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +32,28 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     // AJAX autocomplete endpoints (JSON)
     Route::get('/researcher-autocomplete', [ResearchController::class, 'researcherAutocomplete'])->name('researcherAutocomplete');
     Route::get('/target-autocomplete', [ResearchController::class, 'targetAutocomplete'])->name('targetAutocomplete');
+
+    // #1105 Journal builder — institutional publication + manuscript workspace
+    Route::prefix('journals')->name('journal-builder.')->group(function () {
+        Route::get('/', [ResearchJournalController::class, 'index'])->name('index');
+        Route::get('/create', [ResearchJournalController::class, 'create'])->name('create');
+        Route::post('/', [ResearchJournalController::class, 'store'])->name('store');
+        Route::get('/{id}', [ResearchJournalController::class, 'show'])->whereNumber('id')->name('show');
+        Route::get('/{id}/edit', [ResearchJournalController::class, 'edit'])->whereNumber('id')->name('edit');
+        Route::put('/{id}', [ResearchJournalController::class, 'update'])->whereNumber('id')->name('update');
+        Route::delete('/{id}', [ResearchJournalController::class, 'destroy'])->whereNumber('id')->name('destroy');
+        Route::post('/{id}/status', [ResearchJournalController::class, 'setStatus'])->whereNumber('id')->name('status');
+        // Issues
+        Route::post('/{journalId}/issues', [ResearchJournalController::class, 'storeIssue'])->whereNumber('journalId')->name('issue-store');
+        Route::put('/issue/{id}', [ResearchJournalController::class, 'updateIssue'])->whereNumber('id')->name('issue-update');
+        Route::delete('/issue/{id}', [ResearchJournalController::class, 'destroyIssue'])->whereNumber('id')->name('issue-destroy');
+        // Articles / manuscript builder
+        Route::get('/{journalId}/article/create', [ResearchJournalController::class, 'createArticle'])->whereNumber('journalId')->name('article-create');
+        Route::post('/{journalId}/article', [ResearchJournalController::class, 'storeArticle'])->whereNumber('journalId')->name('article-store');
+        Route::get('/article/{id}/edit', [ResearchJournalController::class, 'editArticle'])->whereNumber('id')->name('article-edit');
+        Route::put('/article/{id}', [ResearchJournalController::class, 'updateArticle'])->whereNumber('id')->name('article-update');
+        Route::delete('/article/{id}', [ResearchJournalController::class, 'destroyArticle'])->whereNumber('id')->name('article-destroy');
+    });
 
     // Dashboard & Index
     Route::match(['get', 'post'], '/', [ResearchController::class, 'index'])->name('index');
