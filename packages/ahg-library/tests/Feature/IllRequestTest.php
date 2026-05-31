@@ -54,16 +54,16 @@ class IllRequestTest extends LibraryFeatureTestCase
 
     public function test_valid_transition_from_pending(): void
     {
-        // NOTE: LibraryIllService::TRANSITIONS declares STATUS_PENDING twice
-        // (once for the BORROW lane, once for LEND); PHP keeps the last literal,
-        // so the effective allowed set from 'pending' is the LEND lane
-        // [shipped, unfulfilled, cancelled]. We assert against the service's
-        // real behaviour rather than the ISO-borrow ideal. (The duplicate-key
-        // collapse is a pre-existing trait of the locked ILL service, surfaced
-        // here, not introduced by #1093.)
+        // Borrow lane (#1103 fix): the only legal first move from 'pending' is
+        // 'requested' (the ILL request is transmitted to the lender). The
+        // lend-lane jump pending→shipped must be REJECTED for a borrow request —
+        // before the fix the duplicate TRANSITIONS key collapsed the lanes and
+        // wrongly allowed it.
         $id = $this->ill->create(['type' => 'borrow', 'title' => 'X', 'library_name' => 'L']);
-        $this->assertTrue($this->ill->transitionTo($id, LibraryIllService::STATUS_SHIPPED));
-        $this->assertSame('shipped', $this->ill->get($id)->status);
+        $this->assertFalse($this->ill->transitionTo($id, LibraryIllService::STATUS_SHIPPED));
+        $this->assertSame('pending', $this->ill->get($id)->status);
+        $this->assertTrue($this->ill->transitionTo($id, LibraryIllService::STATUS_REQUESTED));
+        $this->assertSame('requested', $this->ill->get($id)->status);
     }
 
     public function test_invalid_transition_rejected(): void
@@ -80,9 +80,8 @@ class IllRequestTest extends LibraryFeatureTestCase
             'type' => 'borrow', 'title' => 'Late', 'library_name' => 'L',
             'due_date' => now()->subDays(5)->toDateString(),
         ]);
-        // Advance into a non-terminal mid-flight state (pending -> shipped is the
-        // effective allowed step, see test_valid_transition_from_pending).
-        $this->ill->transitionTo($id, LibraryIllService::STATUS_SHIPPED);
+        // Advance into a non-terminal mid-flight state (borrow: pending→requested).
+        $this->ill->transitionTo($id, LibraryIllService::STATUS_REQUESTED);
 
         $affected = $this->ill->escalateOverdue();
         $this->assertGreaterThanOrEqual(1, $affected);
@@ -199,9 +198,11 @@ class IllRequestTest extends LibraryFeatureTestCase
 
     public function test_decoded_status_feeds_state_machine(): void
     {
-        // Decode a lender "shipped" status and feed it straight into the
-        // state machine (pending -> shipped is the effective allowed step).
+        // Decode a lender "shipped" status and feed it into the state machine.
+        // Borrow lane: the request must first be transmitted (pending→requested)
+        // before the lender's shipped notification is a legal step.
         $id = $this->ill->create(['type' => 'borrow', 'title' => 'Round Trip', 'library_name' => 'L']);
+        $this->assertTrue($this->ill->transitionTo($id, LibraryIllService::STATUS_REQUESTED));
 
         $raw = json_encode(['ill_number' => 'X', 'status' => 'shipped']);
         $decoded = (new EdiDecoderService())->decode($raw);

@@ -7,7 +7,10 @@
             <a href="{{ route('articles.index') }}" class="btn btn-outline-secondary btn-sm me-3" title="{{ __('View site') }}"><i class="fas fa-arrow-left"></i></a>
             <h1 class="mb-0"><i class="fas fa-newspaper me-2"></i>{{ __('Manage Articles') }}</h1>
         </div>
-        <a href="{{ route('admin.articles.create') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('New Article') }}</a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.articles.comments') }}" class="btn btn-outline-secondary"><i class="far fa-comments me-1"></i>{{ __('Comments') }}</a>
+            <a href="{{ route('admin.articles.create') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('New Article') }}</a>
+        </div>
     </div>
 
     @if(session('success'))

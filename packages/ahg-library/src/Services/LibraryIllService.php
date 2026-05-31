@@ -79,24 +79,37 @@ class LibraryIllService
     ];
 
     // ─── ISO 10160 transition matrix ─────────────────────────────────────────
-    // Key: current_status  Value: array of allowed next statuses
+    // Keyed by request TYPE first, then current_status => allowed next statuses.
+    // The lend and borrow lanes share several status names (pending, shipped,
+    // received) but with DIFFERENT allowed transitions, so they MUST live in
+    // separate sub-arrays — a single flat array silently collapses the duplicate
+    // keys (PHP keeps the last literal) and the borrow lane disappears.
     private const TRANSITIONS = [
-        // BORROW transitions
-        self::STATUS_PENDING    => [self::STATUS_REQUESTED, self::STATUS_CANCELLED],
-        self::STATUS_REQUESTED  => [self::STATUS_SHIPPED, self::STATUS_UNFULFILLED, self::STATUS_CANCELLED],
-        self::STATUS_SHIPPED    => [self::STATUS_RECEIVED, self::STATUS_LOST],
-        self::STATUS_RECEIVED   => [self::STATUS_RETURNED],
-        self::STATUS_RETURNED   => [],                                           // terminal
-        self::STATUS_LOST       => [],                                           // terminal
-        self::STATUS_CANCELLED  => [],                                           // terminal
-        self::STATUS_UNFULFILLED => [],                                          // terminal
-        // Borrower-side OVERDUE is a side-constraint, not a state machine node:
-        // set when due_date < now AND current_status not terminal.
-        self::STATUS_OVERDUE     => [self::STATUS_RECEIVED, self::STATUS_LOST, self::STATUS_RETURNED],
-        // LEND transitions
-        self::STATUS_PENDING    => [self::STATUS_SHIPPED, self::STATUS_UNFULFILLED, self::STATUS_CANCELLED],
-        self::STATUS_SHIPPED    => [self::STATUS_RECEIVED, self::STATUS_LOST],
-        self::STATUS_RECEIVED   => [],                                           // terminal (lender side)
+        // BORROW lane — we request an item from another library (requester side).
+        self::TYPE_BORROW => [
+            self::STATUS_PENDING     => [self::STATUS_REQUESTED, self::STATUS_CANCELLED],
+            self::STATUS_REQUESTED   => [self::STATUS_SHIPPED, self::STATUS_UNFULFILLED, self::STATUS_CANCELLED],
+            self::STATUS_SHIPPED     => [self::STATUS_RECEIVED, self::STATUS_LOST],
+            self::STATUS_RECEIVED    => [self::STATUS_RETURNED],
+            self::STATUS_RETURNED    => [],                                          // terminal
+            self::STATUS_LOST        => [],                                          // terminal
+            self::STATUS_CANCELLED   => [],                                          // terminal
+            self::STATUS_UNFULFILLED => [],                                          // terminal
+            // OVERDUE is a side-constraint (due_date < now, not terminal); from it
+            // the borrower can still receive / lose / return the item.
+            self::STATUS_OVERDUE     => [self::STATUS_RECEIVED, self::STATUS_LOST, self::STATUS_RETURNED],
+        ],
+        // LEND lane — another library requests an item from us (responder side).
+        self::TYPE_LEND => [
+            self::STATUS_PENDING     => [self::STATUS_SHIPPED, self::STATUS_UNFULFILLED, self::STATUS_CANCELLED],
+            self::STATUS_SHIPPED     => [self::STATUS_RECEIVED, self::STATUS_LOST],
+            self::STATUS_RECEIVED    => [],                                          // terminal (lender side)
+            self::STATUS_RETURNED    => [],                                          // terminal
+            self::STATUS_LOST        => [],                                          // terminal
+            self::STATUS_CANCELLED   => [],                                          // terminal
+            self::STATUS_UNFULFILLED => [],                                          // terminal
+            self::STATUS_OVERDUE     => [self::STATUS_RECEIVED, self::STATUS_LOST],
+        ],
     ];
 
     // ─── Transition labels (for audit trail / UI) ────────────────────────────
@@ -420,18 +433,11 @@ class LibraryIllService
      */
     public function isValidTransition(string $from, string $to, string $type): bool
     {
-        $allowed = self::TRANSITIONS[$from] ?? [];
+        // Pick the lane for this request type; unknown types fall back to BORROW.
+        $lane    = self::TRANSITIONS[$type] ?? self::TRANSITIONS[self::TYPE_BORROW];
+        $allowed = $lane[$from] ?? [];
 
-        if (!in_array($to, $allowed, true)) {
-            return false;
-        }
-
-        // Extra borrower-side constraint: RECEIVED → RETURNED only valid for BORROW
-        if ($from === self::STATUS_RECEIVED && $to === self::STATUS_RETURNED && $type !== self::TYPE_BORROW) {
-            return false;
-        }
-
-        return true;
+        return in_array($to, $allowed, true);
     }
 
     /**
@@ -442,13 +448,9 @@ class LibraryIllService
      */
     public function availableTransitions(string $currentStatus, string $type): array
     {
-        $allowed = self::TRANSITIONS[$currentStatus] ?? [];
+        $lane = self::TRANSITIONS[$type] ?? self::TRANSITIONS[self::TYPE_BORROW];
 
-        if ($currentStatus === self::STATUS_RECEIVED && $type === self::TYPE_LEND) {
-            return []; // lender side: received is terminal
-        }
-
-        return $allowed;
+        return $lane[$currentStatus] ?? [];
     }
 
     /**

@@ -95,7 +95,10 @@ class Marc21DecoderService
         // Bibliographic level (position 7): m=monograph, s=serial
         // Indicator length (pos 10): almost always '2' for bibliographic records
         // Subfield code length (pos 11): almost always '2'
-        $indicatorLen = isset($leader[10]) ? (int) $leader[10] : 2;
+        // Indicator length (leader pos 10) is '2' for virtually all bibliographic
+        // records. Guard against a non-digit byte (malformed leaders) so we don't
+        // end up with indicatorLen=0 and fold the indicators into the subfields.
+        $indicatorLen = (isset($leader[10]) && ctype_digit($leader[10])) ? (int) $leader[10] : 2;
         $baseAddress  = (int) substr($leader, 12, 5);
 
         // Directory starts at byte 24 and runs until the 0x1E terminator
