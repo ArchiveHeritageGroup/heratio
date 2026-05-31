@@ -10,6 +10,10 @@
   <a href="{{ route('library.patrons') }}" class="btn atom-btn-white"><i class="fas fa-users me-1"></i>{{ __('Patrons') }}</a>
   <a href="{{ route('library.serials') }}" class="btn atom-btn-white"><i class="fas fa-newspaper me-1"></i>{{ __('Serials') }}</a>
   <a href="{{ route('library.acquisitions') }}" class="btn atom-btn-white"><i class="fas fa-cart-shopping me-1"></i>{{ __('Acquisitions') }}</a>
+  <a href="{{ route('library.acquisition-dashboard') }}" class="btn atom-btn-white"><i class="fas fa-gauge me-1"></i>{{ __('Acquisitions Dashboard') }}</a>
+  <a href="{{ route('library.acquisition-vendors') }}" class="btn atom-btn-white"><i class="fas fa-truck-field me-1"></i>{{ __('Vendors') }}</a>
+  <a href="{{ route('library.odi-scorecard') }}" class="btn atom-btn-white"><i class="fas fa-clipboard-check me-1"></i>{{ __('ODI Scorecard') }}</a>
+  <a href="{{ route('library.overdue') }}" class="btn atom-btn-white"><i class="fas fa-clock me-1"></i>{{ __('Overdue') }}</a>
   <a href="{{ route('library.ill') }}" class="btn atom-btn-white"><i class="fas fa-handshake me-1"></i>{{ __('Inter-Library Loan') }}</a>
   <a href="{{ route('library.kbart') }}" class="btn atom-btn-white"><i class="fas fa-file-import me-1"></i>{{ __('KBART Feeds') }}</a>
   <a href="{{ route('library.marc-index') }}" class="btn atom-btn-white"><i class="fas fa-file-code me-1"></i>{{ __('MARC Editor') }}</a>
