@@ -1280,7 +1280,7 @@ CREATE TABLE IF NOT EXISTS `digital_object_faces` (
 CREATE TABLE IF NOT EXISTS `digital_object_metadata` (
   `id` int NOT NULL AUTO_INCREMENT,
   `digital_object_id` int NOT NULL,
-  `file_type` VARCHAR(51) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'image, pdf, office, video, audio, other',
+  `file_type` VARCHAR(51) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'other' COMMENT 'image, pdf, office, video, audio, other',
   `raw_metadata` json DEFAULT NULL COMMENT 'Complete raw metadata as extracted',
   `title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `creator` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -7838,6 +7838,7 @@ ALTER TABLE `iiif_ocr_block` MODIFY COLUMN `block_type` VARCHAR(36) DEFAULT 'wor
 ALTER TABLE `iiif_ocr_text` MODIFY COLUMN `format` VARCHAR(25) DEFAULT 'plain' COMMENT 'plain, alto, hocr';
 ALTER TABLE `information_object_physical_location` MODIFY COLUMN `access_status` VARCHAR(53) DEFAULT 'available' COMMENT 'available, in_use, restricted, offsite, missing';
 ALTER TABLE `information_object_physical_location` MODIFY COLUMN `condition_status` VARCHAR(43) DEFAULT NULL COMMENT 'excellent, good, fair, poor, critical';
+ALTER TABLE `digital_object_metadata` MODIFY COLUMN `file_type` VARCHAR(51) NOT NULL DEFAULT 'other' COMMENT 'image, pdf, office, video, audio, other';
 ALTER TABLE `ingest_file` MODIFY COLUMN `file_type` VARCHAR(31) NOT NULL COMMENT 'csv, zip, ead, directory';
 ALTER TABLE `ingest_job` MODIFY COLUMN `status` VARCHAR(51) DEFAULT 'queued' COMMENT 'queued, running, completed, failed, cancelled';
 ALTER TABLE `ingest_session` MODIFY COLUMN `parent_placement` VARCHAR(46) DEFAULT 'top_level' COMMENT 'existing, new, top_level, csv_hierarchy';

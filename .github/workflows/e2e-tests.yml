@@ -91,12 +91,32 @@ jobs:
         # database. Tests need the same ~995 tables (object, information_object,
         # actor, term, slug, ...) — without this load, php artisan test
         # explodes with "Table 'heratio_test.object' doesn't exist".
+        #
+        # The test suite connects as the heratio_test user with the password
+        # hardcoded in phpunit.xml (those <env> values override .env.testing),
+        # so we must CREATE + GRANT that user here. Loading the schema as root
+        # while tests connect as a non-existent heratio_test user was the cause
+        # of ~110 "Table doesn't exist" failures (issue #1136).
         run: |
+          set -e
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE USER IF NOT EXISTS 'heratio_test'@'%' IDENTIFIED BY 'H3ratio_Test!Local'; GRANT ALL PRIVILEGES ON heratio_test.* TO 'heratio_test'@'%'; FLUSH PRIVILEGES;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
-            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f" || { echo "::error::Failed loading $f"; exit 1; }
           done
+
+      - name: Install package tables (workflow, exhibition, translation, etc.)
+        # Core SQL above only covers the base ~995 framework tables. Per-package
+        # tables (ahg_workflow, ahg_exhibition_space, ahg_translation_log, ...)
+        # are created by heratio:install-bootstrap, which runs every package's
+        # database/install.sql - the same two passes docker/init.sh uses. Without
+        # this, tests touching package tables fail with "Table doesn't exist"
+        # (issue #1136). Tolerant (|| true): a package whose install.sql is
+        # already satisfied by core SQL is a no-op, not a failure.
+        run: |
+          php artisan heratio:install-bootstrap --pass=1 --no-interaction || true
+          php artisan heratio:install-bootstrap --pass=2 --no-interaction || true
 
       - name: Run Laravel tests
         run: php artisan test
