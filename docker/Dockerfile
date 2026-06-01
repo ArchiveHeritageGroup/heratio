@@ -61,14 +61,22 @@ RUN npm run build --silent \
 # .dockerignore. The published image is public on ghcr.io; we never want
 # to ship model weights inside it (license risk + multi-GB bloat + wrong
 # architectural signal).
+# Match by model-WEIGHT extension and by genuine AI-runtime/cache directories
+# only. A bare '*/models/*' path clause was a false positive: it flagged
+# ordinary source dirs named "models" (e.g. ahg-ai-compliance's
+# resources/views/models/*.blade.php - an AI model-REGISTRY admin UI, not
+# weights), aborting every build. Weight files are caught by extension below;
+# real runtime caches by their dotted .cache/* paths.
 RUN ! find /var/www/heratio \
         \( -name '*.safetensors' -o -name '*.gguf' -o -name '*.ggml' \
            -o -name '*.pt' -o -name '*.pth' -o -name '*.onnx' \
            -o -name '*.h5' -o -name '*.ckpt' -o -name '*.tflite' \
-           -o -path '*/models/*' -not -path '*/node_modules/*' -o -path '*/.cache/huggingface/*' \
-           -o -path '*/.cache/ollama/*' -o -path '*/llama.cpp/*' \) \
+           -o -path '*/.cache/huggingface/*' -o -path '*/.cache/torch/*' \
+           -o -path '*/.cache/ollama/*' -o -path '*/llama.cpp/*' \
+           -o -path '*/whisper.cpp/*' \) \
+        -not -path '*/node_modules/*' -not -path '*/vendor/*' \
         -type f -print -quit | grep -q .  \
-    || (echo "BUILD ABORTED: AI model artifact detected in build context (see .dockerignore)" && exit 1)
+    || (echo "BUILD ABORTED: AI model artifact detected in build context (see docker/.dockerignore)" && exit 1)
 
 COPY docker/nginx.conf      /etc/nginx/sites-available/heratio
 COPY docker/php-fpm.conf    /usr/local/etc/php-fpm.d/zz-heratio.conf
