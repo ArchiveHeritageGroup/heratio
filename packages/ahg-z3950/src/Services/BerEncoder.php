@@ -449,18 +449,41 @@ class BerEncoder
         }
 
         $bytes = [];
-        $v = $value;
-        while ($v !== 0) {
-            $bytes[] = chr($v & 0xff);
-            $v >>= 8;
-        }
 
-        // Reverse to MSB-first, THEN check if leading zero needed (checks correct MSB)
-        $bytes = array_reverse($bytes);
+        if ($value > 0) {
+            $v = $value;
+            while ($v !== 0) {
+                $bytes[] = chr($v & 0xff);
+                $v >>= 8;
+            }
+            $bytes = array_reverse($bytes);
 
-        // DER: if MSB has bit 7 set, prepend 0x00 to keep positive
-        if (ord($bytes[0]) & 0x80) {
-            array_unshift($bytes, "\x00");
+            // DER: if MSB has bit 7 set, prepend 0x00 to keep the value positive.
+            if (ord($bytes[0]) & 0x80) {
+                array_unshift($bytes, "\x00");
+            }
+        } else {
+            // Negative: two's complement. Arithmetic >> floors a negative value
+            // at -1 (all-ones), so terminate on -1 once the remaining bits are
+            // all sign bits — otherwise the loop never ends and blows up memory.
+            // do/while so value -1 still emits its single 0xff byte (the loop
+            // condition is already true on entry for -1).
+            $v = $value;
+            do {
+                $bytes[] = chr($v & 0xff);
+                $v >>= 8;
+            } while ($v !== -1);
+            $bytes = array_reverse($bytes);
+
+            // Minimal encoding: the MSB must already have bit 7 set (it is a
+            // negative number). If it is clear, a leading 0xff is needed so the
+            // sign survives. Drop a redundant leading 0xff when the next byte
+            // already carries the sign bit.
+            if (count($bytes) > 1 && ord($bytes[0]) === 0xff && (ord($bytes[1]) & 0x80)) {
+                array_shift($bytes);
+            } elseif (! (ord($bytes[0]) & 0x80)) {
+                array_unshift($bytes, "\xff");
+            }
         }
 
         return implode('', $bytes);
@@ -499,9 +522,11 @@ class BerEncoder
                 $chunk[] = "\x00";
             }
 
-            // Apply continuation bit to all but the LAST element (LSB-first order)
+            // $chunk is LSB-first; in transmission order (MSB-first) every byte
+            // except the LAST (which is $chunk[0], the low 7 bits) carries the
+            // 0x80 continuation bit. So set it on every element except index 0.
             $chunkCount = count($chunk);
-            for ($j = 0; $j < $chunkCount - 1; $j++) {
+            for ($j = 1; $j < $chunkCount; $j++) {
                 $chunk[$j] = chr(ord($chunk[$j]) | 0x80);
             }
 
@@ -633,6 +658,7 @@ class BerEncoder
         $arcs = [];
         $value = 0;
         $len = strlen($body);
+        $first = true;
 
         for ($i = 0; $i < $len; $i++) {
             $byte = ord($body[$i]);
@@ -643,13 +669,22 @@ class BerEncoder
             } else {
                 // Final byte: complete this arc
                 $value = ($value << 7) | $byte;
-                $arcs[] = $value;
+                if ($first) {
+                    // X.690: the first sub-identifier encodes two arcs as
+                    // (arc0 * 40) + arc1. arc0 is 0/1/2; for arc0=2 the second
+                    // arc may exceed 39, so derive arc0 by range, not just /40.
+                    $arc0 = intdiv($value, 40);
+                    if ($arc0 > 2) {
+                        $arc0 = 2;
+                    }
+                    $arcs[] = $arc0;
+                    $arcs[] = $value - ($arc0 * 40);
+                    $first = false;
+                } else {
+                    $arcs[] = $value;
+                }
                 $value = 0;
             }
-        }
-
-        if ($value > 0) {
-            $arcs[] = $value;
         }
 
         return $arcs;

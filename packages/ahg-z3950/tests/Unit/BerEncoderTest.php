@@ -160,52 +160,52 @@ class BerEncoderTest extends AhgZ3950TestCase
     {
         $body = $this->ber->encodeOidValue([1, 2, 840, 10003, 9, 100]);
         $this->assertEquals(
-            "\x2a\x86\x48\x9a\x16\x73\x09",
+            "\x2a\x86\x48\xce\x13\x09\x64",
             $body
         );
 
         // Decode round-trip must recover the OID
         $decoded = $this->ber->decodeOidValue($body);
-        $this->assertEquals([1, 2, 840, 10003, 9], $decoded);
+        $this->assertEquals([1, 2, 840, 10003, 9, 100], $decoded);
     }
 
     /**
      * OID 1.2.840.10003.9.100.1 (InitRequest):
-     *   0x2a + 840(0x86,0x48) + 10003(0x9a,0x16,0x73) + 9(0x09) + 1(0x01) = 10 bytes.
+     *   0x2a + 840(0x86,0x48) + 10003(0xce,0x13) + 9(0x09) + 100(0x64) + 1(0x01) = 8 bytes.
      */
     public function testEncodeOidValueInitRequest(): void
     {
         $body = $this->ber->encodeOidValue([1, 2, 840, 10003, 9, 100, 1]);
         $this->assertEquals(
-            "\x2a\x86\x48\x9a\x16\x73\x09\x01",
+            "\x2a\x86\x48\xce\x13\x09\x64\x01",
             $body
         );
 
         $decoded = $this->ber->decodeOidValue($body);
-        $this->assertEquals([1, 2, 840, 10003, 9, 100], $decoded);
+        $this->assertEquals([1, 2, 840, 10003, 9, 100, 1], $decoded);
     }
 
     /**
-     * OID 1.2.840.10003.9.100.6 (SearchRequest): 11 bytes.
+     * OID 1.2.840.10003.9.100.6 (SearchRequest): 8 bytes.
      */
     public function testEncodeOidValueSearchRequest(): void
     {
         $body = $this->ber->encodeOidValue([1, 2, 840, 10003, 9, 100, 6]);
         $this->assertEquals(
-            "\x2a\x86\x48\x9a\x16\x73\x09\x06",
+            "\x2a\x86\x48\xce\x13\x09\x64\x06",
             $body
         );
     }
 
     /**
-     * OID 1.2.840.10003.5.1 (USmarc): 6 bytes.
-     *   0x2a + 840(0x86,0x48) + 10003(0x9a,0x16,0x73) + 5(0x05) + 1(0x01)
+     * OID 1.2.840.10003.5.1 (USmarc): 7 bytes.
+     *   0x2a + 840(0x86,0x48) + 10003(0xce,0x13) + 5(0x05) + 1(0x01)
      */
     public function testEncodeOidValueUSmarc(): void
     {
         $body = $this->ber->encodeOidValue([1, 2, 840, 10003, 5, 1]);
         $this->assertEquals(
-            "\x2a\x86\x48\x9a\x16\x73\x05\x01",
+            "\x2a\x86\x48\xce\x13\x05\x01",
             $body
         );
     }
@@ -217,7 +217,7 @@ class BerEncoderTest extends AhgZ3950TestCase
     {
         $body = $this->ber->encodeOidValue([1, 2, 840, 10003, 9, 100, 7]);
         $this->assertEquals(
-            "\x2a\x86\x48\x9a\x16\x73\x09\x07",
+            "\x2a\x86\x48\xce\x13\x09\x64\x07",
             $body
         );
     }
@@ -227,9 +227,9 @@ class BerEncoderTest extends AhgZ3950TestCase
     public function testEncodeOidApdu(): void
     {
         $result = $this->ber->encodeOid([1, 2, 840, 10003, 9, 100]);
-        // Tag 0x06, length 9, body 9 bytes
+        // Tag 0x06, length 7, body 7 bytes
         $this->assertEquals(
-            "\x06\x09\x2a\x86\x48\x9a\x16\x73\x09",
+            "\x06\x07\x2a\x86\x48\xce\x13\x09\x64",
             $result
         );
     }
@@ -246,16 +246,16 @@ class BerEncoderTest extends AhgZ3950TestCase
     {
         $content = str_repeat('x', 200);
         $result = $this->ber->encodeTagLength(0x30, $content);
-        // Long form: tag + 0x81 (1 length byte) + 200
-        $this->assertEquals("\x30\x81\xc8" . $content, $result);
+        // Header only (callers append the body): tag + 0x81 (1 length byte) + 200.
+        $this->assertEquals("\x30\x81\xc8", $result);
     }
 
     public function testEncodeTagLengthLongForm3Bytes(): void
     {
         $content = str_repeat('x', 65535);
         $result = $this->ber->encodeTagLength(0x30, $content);
-        // Long form: 0x83 (3 length bytes) + 0x00 0xff 0xff
-        $this->assertEquals("\x30\x83\x00\xff\xff" . $content, $result);
+        // Header only, minimal DER: 0x82 (2 length bytes) + 0xff 0xff (65535).
+        $this->assertEquals("\x30\x82\xff\xff", $result);
     }
 
     // ──── decodeLength ───────────────────────────────────────────────────
@@ -359,7 +359,7 @@ class BerEncoderTest extends AhgZ3950TestCase
     {
         $this->assertEquals(
             [1, 2, 840, 10003, 9],
-            $this->ber->decodeOidValue("\x2a\x86\x48\x9a\x16\x73\x09")
+            $this->ber->decodeOidValue("\x2a\x86\x48\xce\x13\x09")
         );
     }
 
@@ -367,7 +367,7 @@ class BerEncoderTest extends AhgZ3950TestCase
     {
         $this->assertEquals(
             [1, 2, 840, 10003, 9, 100],
-            $this->ber->decodeOidValue("\x2a\x86\x48\x9a\x16\x73\x09\x01")
+            $this->ber->decodeOidValue("\x2a\x86\x48\xce\x13\x09\x64")
         );
     }
 
@@ -375,7 +375,7 @@ class BerEncoderTest extends AhgZ3950TestCase
     {
         $this->assertEquals(
             [1, 2, 840, 10003, 5, 1],
-            $this->ber->decodeOidValue("\x2a\x86\x48\x9a\x16\x73\x05\x01")
+            $this->ber->decodeOidValue("\x2a\x86\x48\xce\x13\x05\x01")
         );
     }
 

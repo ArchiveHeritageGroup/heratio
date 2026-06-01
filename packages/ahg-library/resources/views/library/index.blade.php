@@ -6,7 +6,7 @@
 <div class="d-flex gap-2 mb-2 flex-wrap"><a href="{{ route("library.browse") }}" class="btn atom-btn-white"><i class="fas fa-th-list me-1"></i>{{ __('Browse') }}</a><a href="{{ route("library.create") }}" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>{{ __('Add New') }}</a><a href="{{ route("library.isbn-providers") }}" class="btn atom-btn-white"><i class="fas fa-barcode me-1"></i>{{ __('ISBN Providers') }}</a><a href="{{ route("library.reports") }}" class="btn atom-btn-white"><i class="fas fa-chart-bar me-1"></i>{{ __('Reports') }}</a></div>
 {{-- Library admin sections (previously reachable by direct URL only). --}}
 <div class="d-flex gap-2 mb-3 flex-wrap">
-  <a href="{{ route('library.circulation') }}" class="btn atom-btn-white"><i class="fas fa-right-left me-1"></i>{{ __('Circulation') }}</a>
+  <a href="{{ route('library.circulation.index') }}" class="btn atom-btn-white"><i class="fas fa-right-left me-1"></i>{{ __('Circulation') }}</a>
   <a href="{{ route('library.patrons') }}" class="btn atom-btn-white"><i class="fas fa-users me-1"></i>{{ __('Patrons') }}</a>
   <a href="{{ route('library.serials') }}" class="btn atom-btn-white"><i class="fas fa-newspaper me-1"></i>{{ __('Serials') }}</a>
   <a href="{{ route('library.acquisitions') }}" class="btn atom-btn-white"><i class="fas fa-cart-shopping me-1"></i>{{ __('Acquisitions') }}</a>
