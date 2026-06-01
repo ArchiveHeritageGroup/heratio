@@ -18,7 +18,7 @@
      data-escalate-label="{{ __('Talk to a librarian') }}"
      data-placeholder="{{ __('Ask the catalogue a question...') }}"
      data-greeting="{{ __('Hi! I am the library assistant. Ask me about anything in the catalogue and I will answer with citations.') }}"
-     style="position: fixed; bottom: 24px; right: 24px; z-index: 1080;">
+     style="position: fixed; bottom: 140px; right: 20px; z-index: 1080;">
 
     <button type="button" id="ahg-chatbot-toggle"
             class="btn btn-primary rounded-circle shadow"
