@@ -42,7 +42,7 @@ interface ButtonInfo {
 }
 
 const HERATIO_BASE = process.env.HERATIO_URL || 'https://heratio.theahg.co.za';
-const OUTPUT_DIR = process.env.OUTPUT_DIR || '/tmp/heratio-inventory';
+const OUTPUT_DIR = process.env.OUTPUT_DIR || 'tests/e2e/reports/heratio-inventory';
 const MAX_DEPTH = 1;
 const MAX_PAGES_PER_ROLE = 5;
 

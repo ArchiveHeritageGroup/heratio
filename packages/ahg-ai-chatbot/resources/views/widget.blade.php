@@ -18,7 +18,7 @@
      data-escalate-label="{{ __('Talk to a librarian') }}"
      data-placeholder="{{ __('Ask the catalogue a question...') }}"
      data-greeting="{{ __('Hi! I am the library assistant. Ask me about anything in the catalogue and I will answer with citations.') }}"
-     style="position: fixed; bottom: 140px; right: 20px; z-index: 1080;">
+     style="position: fixed; bottom: 24px; left: 24px; z-index: 1080;">
 
     <button type="button" id="ahg-chatbot-toggle"
             class="btn btn-primary rounded-circle shadow"
@@ -28,7 +28,7 @@
     </button>
 
     <div id="ahg-chatbot-panel" class="card shadow"
-         style="display:none;position:absolute;bottom:72px;right:0;width:380px;max-width:90vw;height:520px;max-height:80vh;">
+         style="display:none;position:absolute;bottom:72px;left:0;width:380px;max-width:90vw;height:520px;max-height:80vh;">
         <div class="card-header d-flex align-items-center justify-content-between bg-primary text-white">
             <strong>{{ __('AI Library Assistant') }}</strong>
             <div>

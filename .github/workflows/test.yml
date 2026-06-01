@@ -159,8 +159,16 @@ jobs:
         # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
         # 07_report_templates.sql is skipped because the report_template table
         # is created by ahg-reports' install.sql at app boot, not in core schema.
+        #
+        # IMPORTANT: phpunit.xml configures DB_USERNAME=heratio_test /
+        # DB_PASSWORD=H3ratio_Test!Local. The test runner will connect as
+        # heratio_test — not root — so we must create and grant that user here.
+        # Loading the schema as root while tests connect as a non-existent user
+        # causes ~110 "Table 'heratio_test.object' doesn't exist" failures
+        # (issue #1136). CREATE USER + GRANT is idempotent — safe on re-runs.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE USER IF NOT EXISTS 'heratio_test'@'%' IDENTIFIED BY 'H3ratio_Test!Local'; GRANT ALL PRIVILEGES ON heratio_test.* TO 'heratio_test'@'%'; FLUSH PRIVILEGES;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
@@ -210,16 +218,20 @@ jobs:
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database + load core schema + base seeds
-        # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
-        # tables: object, information_object, actor, term, slug, ...) and
-        # Stage 8 loads database/seeds/0[0-6]_*.sql (base taxonomies, including
-        # term IDs 131/132/133 for Corporate body / Person / Family). Tests
-        # need both: schema alone gives FK violations like
-        # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
-        # 07_report_templates.sql is skipped because the report_template table
-        # is created by ahg-reports' install.sql at app boot, not in core schema.
+        # bin/install Stage 6 loads database/core/0[0-3]_* against a fresh
+        # database. Tests need the same ~995 tables (object, information_object,
+        # actor, term, slug, ...) — without this load, php artisan test
+        # explodes with "Table 'heratio_test.object' doesn't exist".
+        #
+        # IMPORTANT: phpunit.xml configures DB_USERNAME=heratio_test /
+        # DB_PASSWORD=H3ratio_Test!Local. The test runner will connect as
+        # heratio_test — not root — so we must create and grant that user here.
+        # Loading the schema as root while tests connect as a non-existent user
+        # causes ~110 "Table 'heratio_test.object' doesn't exist" failures
+        # (issue #1136). CREATE USER + GRANT is idempotent — safe on re-runs.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE USER IF NOT EXISTS 'heratio_test'@'%' IDENTIFIED BY 'H3ratio_Test!Local'; GRANT ALL PRIVILEGES ON heratio_test.* TO 'heratio_test'@'%'; FLUSH PRIVILEGES;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
@@ -270,16 +282,20 @@ jobs:
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database + load core schema + base seeds
-        # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
-        # tables: object, information_object, actor, term, slug, ...) and
-        # Stage 8 loads database/seeds/0[0-6]_*.sql (base taxonomies, including
-        # term IDs 131/132/133 for Corporate body / Person / Family). Tests
-        # need both: schema alone gives FK violations like
-        # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
-        # 07_report_templates.sql is skipped because the report_template table
-        # is created by ahg-reports' install.sql at app boot, not in core schema.
+        # bin/install Stage 6 loads database/core/0[0-3]_* against a fresh
+        # database. Tests need the same ~995 tables (object, information_object,
+        # actor, term, slug, ...) — without this load, php artisan test
+        # explodes with "Table 'heratio_test.object' doesn't exist".
+        #
+        # IMPORTANT: phpunit.xml configures DB_USERNAME=heratio_test /
+        # DB_PASSWORD=H3ratio_Test!Local. The test runner will connect as
+        # heratio_test — not root — so we must create and grant that user here.
+        # Loading the schema as root while tests connect as a non-existent user
+        # causes ~110 "Table 'heratio_test.object' doesn't exist" failures
+        # (issue #1136). CREATE USER + GRANT is idempotent — safe on re-runs.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE USER IF NOT EXISTS 'heratio_test'@'%' IDENTIFIED BY 'H3ratio_Test!Local'; GRANT ALL PRIVILEGES ON heratio_test.* TO 'heratio_test'@'%'; FLUSH PRIVILEGES;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
@@ -369,16 +385,20 @@ jobs:
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database + load core schema + base seeds
-        # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
-        # tables: object, information_object, actor, term, slug, ...) and
-        # Stage 8 loads database/seeds/0[0-6]_*.sql (base taxonomies, including
-        # term IDs 131/132/133 for Corporate body / Person / Family). Tests
-        # need both: schema alone gives FK violations like
-        # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
-        # 07_report_templates.sql is skipped because the report_template table
-        # is created by ahg-reports' install.sql at app boot, not in core schema.
+        # bin/install Stage 6 loads database/core/0[0-3]_* against a fresh
+        # database. Tests need the same ~995 tables (object, information_object,
+        # actor, term, slug, ...) — without this load, php artisan test
+        # explodes with "Table 'heratio_test.object' doesn't exist".
+        #
+        # IMPORTANT: phpunit.xml configures DB_USERNAME=heratio_test /
+        # DB_PASSWORD=H3ratio_Test!Local. The test runner will connect as
+        # heratio_test — not root — so we must create and grant that user here.
+        # Loading the schema as root while tests connect as a non-existent user
+        # causes ~110 "Table 'heratio_test.object' doesn't exist" failures
+        # (issue #1136). CREATE USER + GRANT is idempotent — safe on re-runs.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE USER IF NOT EXISTS 'heratio_test'@'%' IDENTIFIED BY 'H3ratio_Test!Local'; GRANT ALL PRIVILEGES ON heratio_test.* TO 'heratio_test'@'%'; FLUSH PRIVILEGES;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
@@ -433,16 +453,20 @@ jobs:
           sed -i "s|^DB_PASSWORD=.*|DB_PASSWORD=root|" .env.testing
       - run: composer install --no-interaction --prefer-dist
       - name: Create database + load core schema + base seeds
-        # bin/install Stage 6 loads database/core/0[0-3]_*.sql (schema, ~995
-        # tables: object, information_object, actor, term, slug, ...) and
-        # Stage 8 loads database/seeds/0[0-6]_*.sql (base taxonomies, including
-        # term IDs 131/132/133 for Corporate body / Person / Family). Tests
-        # need both: schema alone gives FK violations like
-        # "actor_FK_2 references term(id)" when ActorFactory inserts entity_type_id=132.
-        # 07_report_templates.sql is skipped because the report_template table
-        # is created by ahg-reports' install.sql at app boot, not in core schema.
+        # bin/install Stage 6 loads database/core/0[0-3]_* against a fresh
+        # database. Tests need the same ~995 tables (object, information_object,
+        # actor, term, slug, ...) — without this load, php artisan test
+        # explodes with "Table 'heratio_test.object' doesn't exist".
+        #
+        # IMPORTANT: phpunit.xml configures DB_USERNAME=heratio_test /
+        # DB_PASSWORD=H3ratio_Test!Local. The test runner will connect as
+        # heratio_test — not root — so we must create and grant that user here.
+        # Loading the schema as root while tests connect as a non-existent user
+        # causes ~110 "Table 'heratio_test.object' doesn't exist" failures
+        # (issue #1136). CREATE USER + GRANT is idempotent — safe on re-runs.
         run: |
           mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS heratio_test;"
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE USER IF NOT EXISTS 'heratio_test'@'%' IDENTIFIED BY 'H3ratio_Test!Local'; GRANT ALL PRIVILEGES ON heratio_test.* TO 'heratio_test'@'%'; FLUSH PRIVILEGES;"
           for f in database/core/0*.sql; do
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"

@@ -14,7 +14,8 @@ const fixturesDir = path.join(path.dirname(new URL(import.meta.url).pathname), '
 const seedUrls = JSON.parse(fs.readFileSync(path.join(fixturesDir, 'seed-urls.json'), 'utf-8'));
 const credentials = JSON.parse(fs.readFileSync(path.join(fixturesDir, 'role-credentials.json'), 'utf-8'));
 
-const PSIS_BASE = process.env.PSID_URL || 'https://psis.theahg.co.za';
+// Support both PSID_URL and PSIS_URL env vars for compatibility
+const PSIS_BASE = process.env.PSIS_URL || process.env.PSID_URL || 'https://psis.theahg.co.za';
 const HERATIO_BASE = process.env.HERATIO_URL || 'https://heratio.theahg.co.za';
 const OUTPUT_DIR = process.env.OUTPUT_DIR || 'tests/e2e/reports/combined';
 

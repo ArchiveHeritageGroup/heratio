@@ -96,5 +96,7 @@ jobs:
         # The Dockerfile already asserts this at build time, but we re-check
         # the published manifest here so a regression is loud.
         run: |
-          IMG="ghcr.io/${{ steps.tags.outputs.owner }}/heratio:${GITHUB_REF#refs/tags/}"
-          docker buildx imagetools inspect "$IMG" --format '{{json .Manifest}}' | head -200
+          # Use the first tag from the pre-computed list (avoids reconstructing
+          # the tag from GITHUB_REF which may differ from the pushed tag).
+          IMG_TAG=$(echo "${{ steps.tags.outputs.tags }}" | tr ' ' '\n' | head -1)
+          docker buildx imagetools inspect "$IMG_TAG" --format '{{json .Manifest}}' | head -200

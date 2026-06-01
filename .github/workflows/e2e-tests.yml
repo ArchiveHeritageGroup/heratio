@@ -118,6 +118,20 @@ jobs:
           php artisan heratio:install-bootstrap --pass=1 --no-interaction || true
           php artisan heratio:install-bootstrap --pass=2 --no-interaction || true
 
+      - name: DIAGNOSE #1136 - what does each path see (temporary probe)
+        # Tables load with no error yet tests report "Table doesn't exist". This
+        # probe compares what the mysql CLI sees vs what Laravel's own PDO (the
+        # exact connection the tests use) sees. If the CLI finds `object` but
+        # artisan does not, the load step and test step are hitting different
+        # mysqld instances / databases. Remove once #1136 is understood.
+        run: |
+          echo "===== CLI view (root @ 127.0.0.1:3306, what the load step used) ====="
+          mysql -h 127.0.0.1 -u root -proot -e "SELECT @@hostname, @@port, @@socket; SELECT COUNT(*) AS tables_in_heratio_test FROM information_schema.tables WHERE table_schema='heratio_test'; SELECT COUNT(*) AS has_object FROM information_schema.tables WHERE table_schema='heratio_test' AND table_name='object';"
+          echo "===== heratio_test user view ====="
+          mysql -h 127.0.0.1 -u heratio_test -p'H3ratio_Test!Local' -e "SELECT COUNT(*) AS object_visible_to_test_user FROM information_schema.tables WHERE table_schema='heratio_test' AND table_name='object';" || echo "heratio_test user cannot connect"
+          echo "===== Laravel PDO view (the EXACT connection tests use) ====="
+          php artisan tinker --execute='try { $c=config("database.default"); $db=\DB::connection()->getDatabaseName(); $cnt=\DB::table("information_schema.tables")->where("table_schema",$db)->count(); $obj=\DB::table("information_schema.tables")->where("table_schema",$db)->where("table_name","object")->count(); echo "default_conn=$c db=$db tables=$cnt object=$obj host=".config("database.connections.$c.host").":".config("database.connections.$c.port")." user=".config("database.connections.$c.username")."\n"; } catch (\Throwable $e) { echo "PDO probe failed: ".$e->getMessage()."\n"; }' || true
+
       - name: Run Laravel tests
         run: php artisan test
 

@@ -68,41 +68,73 @@ type ParityStatus = 'matched' | 'matched_different_url' | 'partial' | 'missing' 
 test.describe('Parity Scanner', () => {
 
   /**
-   * Load inventory from file
+   * Load inventory from role-specific crawl file
    */
   function loadInventory(dir: string, role: string): CrawlResult[] {
     const file = path.join(dir, `${role}-crawl.json`);
     if (fs.existsSync(file)) {
-      const data = JSON.parse(fs.readFileSync(file, 'utf-8'));
-      return data.results || [];
+      try {
+        const data = JSON.parse(fs.readFileSync(file, 'utf-8'));
+        return data.results || [];
+      } catch (e) {
+        console.warn(`Failed to load ${file}:`, e);
+        return [];
+      }
     }
     return [];
   }
 
   /**
-   * Load full inventory
+   * Load full inventory from role crawl files (preferred) or full-inventory.json (fallback)
    */
   function loadFullInventory(dir: string): CrawlResult[] {
-    const file = path.join(dir, 'full-inventory.json');
-    if (fs.existsSync(file)) {
-      // For full inventory, we need to reconstruct from the URLs
-      const data = JSON.parse(fs.readFileSync(file, 'utf-8'));
-      return data.urls || [];
-    }
-    
-    // Fallback: load all role crawls
     const allResults: CrawlResult[] = [];
+    
+    // Try loading individual role crawl files first (preferred - has full data)
     for (const role of ['guest', 'admin', 'editor']) {
-      allResults.push(...loadInventory(dir, role));
+      const roleResults = loadInventory(dir, role);
+      allResults.push(...roleResults);
     }
     
-    // Deduplicate
-    const seen = new Set<string>();
-    return allResults.filter(r => {
-      if (seen.has(r.url)) return false;
-      seen.add(r.url);
-      return true;
-    });
+    // If we got results from role files, deduplicate and return
+    if (allResults.length > 0) {
+      const seen = new Set<string>();
+      return allResults.filter(r => {
+        if (seen.has(r.url)) return false;
+        seen.add(r.url);
+        return true;
+      });
+    }
+    
+    // Fallback: Try loading from full-inventory.json
+    const fullInventoryFile = path.join(dir, 'full-inventory.json');
+    if (fs.existsSync(fullInventoryFile)) {
+      try {
+        const data = JSON.parse(fs.readFileSync(fullInventoryFile, 'utf-8'));
+        
+        // Handle full-inventory format (has urls, forms, buttons arrays)
+        if (data.urls && Array.isArray(data.urls)) {
+          // Convert summary URLs back to CrawlResult format for comparison
+          return data.urls.map((urlEntry: any) => ({
+            url: urlEntry.url,
+            finalUrl: urlEntry.url,
+            status: urlEntry.status,
+            statusText: '',
+            title: urlEntry.title,
+            h1: null,
+            links: [],
+            forms: [],  // Full form data not in summary
+            buttons: [],  // Full button data not in summary
+            consoleErrors: [],
+            jsErrors: []
+          }));
+        }
+      } catch (e) {
+        console.warn(`Failed to load ${fullInventoryFile}:`, e);
+      }
+    }
+    
+    return [];
   }
 
   /**
@@ -227,6 +259,10 @@ test.describe('Parity Scanner', () => {
     const psisInventory = loadFullInventory(PSIS_INVENTORY_DIR);
     const heratioInventory = loadFullInventory(HERATIO_INVENTORY_DIR);
     
+    console.log(`\n=== Loading Inventories ===`);
+    console.log(`PSIS inventory: ${psisInventory.length} pages`);
+    console.log(`Heratio inventory: ${heratioInventory.length} pages`);
+    
     // Ensure we have data
     if (psisInventory.length === 0) {
       console.warn('⚠️ No PSIS inventory found. Run psis-crawler.spec.ts first.');
@@ -299,6 +335,11 @@ test.describe('Parity Scanner', () => {
       intentionally_retired: results.filter(r => r.status === 'intentionally_retired').length
     };
     
+    // Calculate coverage
+    const totalCompared = results.length;
+    const matchedOrDifferent = counts.matched + counts.matched_different_url;
+    const coverage = totalCompared > 0 ? Math.round((matchedOrDifferent / totalCompared) * 100) : 0;
+    
     // Save results
     const parityReport = {
       generatedAt: new Date().toISOString(),
@@ -312,7 +353,7 @@ test.describe('Parity Scanner', () => {
         missing: counts.missing,
         broken: counts.broken,
         intentionallyRetired: counts.intentionally_retired,
-        coverage: `${Math.round((counts.matched + counts.matched_different_url) / results.length * 100)}%`
+        coverage: `${coverage}%`
       },
       counts,
       results
@@ -389,7 +430,7 @@ test.describe('Parity Scanner', () => {
     console.log(`✗ Missing: ${counts.missing}`);
     console.log(`✗ Broken: ${counts.broken}`);
     console.log(`○ Retired: ${counts.intentionally_retired}`);
-    console.log(`\n📊 Coverage: ${parityReport.summary.coverage}`);
+    console.log(`\n📊 Coverage: ${coverage}%`);
     console.log(`\n📁 Reports saved to: ${OUTPUT_DIR}`);
   });
 
