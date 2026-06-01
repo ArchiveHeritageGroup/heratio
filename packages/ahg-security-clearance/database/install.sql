@@ -464,7 +464,9 @@ CREATE TABLE IF NOT EXISTS `user_totp_secret` (
 -- batch before the tables defined below ever get created. Keep this signed.
 CREATE TABLE IF NOT EXISTS `user_mfa_recovery_code` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
+  -- Must match user_totp_secret.user_id (int unsigned) or the FK below raises
+  -- MySQL error 3780 (incompatible referencing column) and aborts the install.
+  `user_id` int unsigned NOT NULL,
   `code_hash` varchar(255) NOT NULL,
   `used_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,

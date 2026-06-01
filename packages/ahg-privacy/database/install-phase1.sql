@@ -98,8 +98,22 @@ CREATE TABLE IF NOT EXISTS `ahg_dpia` (
 -- Idempotent: keyed by `name` (UNIQUE side-effect via INSERT IGNORE on the
 -- functional unique we install below).
 -- ---------------------------------------------------------------------------
-ALTER TABLE `ahg_processing_activity`
-  ADD UNIQUE KEY `uk_ahg_pa_name` (`name`);
+-- Idempotent: MySQL 8.0 has no "ADD UNIQUE KEY IF NOT EXISTS", and a bare ADD
+-- throws 1061 (duplicate key) on the second install-bootstrap pass, which skips
+-- the whole file. Guard via information_schema so re-runs are no-ops (#1136).
+SET @ddl := (
+  SELECT IF(
+    EXISTS(
+      SELECT 1 FROM information_schema.STATISTICS
+      WHERE table_schema = DATABASE()
+        AND table_name = 'ahg_processing_activity'
+        AND index_name = 'uk_ahg_pa_name'
+    ),
+    'SELECT 1',
+    'ALTER TABLE `ahg_processing_activity` ADD UNIQUE KEY `uk_ahg_pa_name` (`name`)'
+  )
+);
+PREPARE _s FROM @ddl; EXECUTE _s; DEALLOCATE PREPARE _s;
 
 INSERT IGNORE INTO `ahg_processing_activity`
   (`name`, `purpose`, `lawful_basis`, `categories_of_data`, `categories_of_subjects`,
