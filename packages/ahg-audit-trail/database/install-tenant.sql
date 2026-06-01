@@ -18,6 +18,24 @@
 -- ADD COLUMN so we guard from PHP instead.
 -- ============================================================================
 
-ALTER TABLE `ahg_audit_log`
-    ADD COLUMN `tenant_id` INT UNSIGNED NULL COMMENT 'tenant id for multi-tenant deployments, NULL = single-tenant / legacy' AFTER `user_id`,
-    ADD KEY `idx_audit_tenant_action_created` (`tenant_id`, `action`, `created_at`);
+-- Idempotent + dependency-safe in raw SQL (#1136): this file is swept by
+-- install-bootstrap via DB::unprepared (PHP guards do not apply) and, being
+-- hyphen-named, sorts BEFORE install.sql which creates ahg_audit_log. No-op if
+-- the table is absent on this pass, or if tenant_id already exists.
+SET @ddl := (
+  SELECT IF(
+    EXISTS(
+      SELECT 1 FROM information_schema.TABLES
+      WHERE table_schema = DATABASE() AND table_name = 'ahg_audit_log'
+    )
+    AND NOT EXISTS(
+      SELECT 1 FROM information_schema.COLUMNS
+      WHERE table_schema = DATABASE() AND table_name = 'ahg_audit_log' AND column_name = 'tenant_id'
+    ),
+    'ALTER TABLE `ahg_audit_log`
+        ADD COLUMN `tenant_id` INT UNSIGNED NULL COMMENT ''tenant id for multi-tenant deployments, NULL = single-tenant / legacy'' AFTER `user_id`,
+        ADD KEY `idx_audit_tenant_action_created` (`tenant_id`, `action`, `created_at`)',
+    'SELECT 1'
+  )
+);
+PREPARE _s FROM @ddl; EXECUTE _s; DEALLOCATE PREPARE _s;
