@@ -2,13 +2,20 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class IcipSettingsTest extends TestCase
 {
-    use RefreshDatabase;
+    // DatabaseTransactions (not RefreshDatabase): the test DB is built by
+    // loading database/core/*.sql + every package install.sql (~995 AtoM-style
+    // tables). RefreshDatabase runs migrate:fresh, which DROPS all of those and
+    // rebuilds only the ~29 Laravel migrations - none of which create the core
+    // tables (object, actor, term, ...). That permanently wiped the schema for
+    // every test running after this one in the process (issue #1136). Wrapping
+    // in a transaction keeps the loaded schema intact and rolls back our writes.
+    use DatabaseTransactions;
 
     public function test_follow_up_default_is_used_on_consultation_create()
     {

@@ -76,7 +76,7 @@ RUN ! find /var/www/heratio \
            -o -path '*/whisper.cpp/*' \) \
         -not -path '*/node_modules/*' -not -path '*/vendor/*' \
         -type f -print -quit | grep -q .  \
-    || (echo "BUILD ABORTED: AI model artifact detected in build context (see docker/.dockerignore)" && exit 1)
+    || (echo "BUILD ABORTED: AI model artifact detected in build context (see .dockerignore in the repo root)" && exit 1)
 
 COPY docker/nginx.conf      /etc/nginx/sites-available/heratio
 COPY docker/php-fpm.conf    /usr/local/etc/php-fpm.d/zz-heratio.conf

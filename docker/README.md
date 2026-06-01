@@ -105,7 +105,7 @@ yourself. Configure the endpoints in Heratio's Settings dashboard
 
 This contract is enforced in three places:
 
-1. `docker/.dockerignore` rejects `*.safetensors`, `*.gguf`, `*.ggml`,
+1. `.dockerignore` rejects `*.safetensors`, `*.gguf`, `*.ggml`,
    `*.bin`, `*.pt`, `*.pth`, `*.onnx`, `*.h5`, `*.ckpt`, `*.tflite`,
    plus `**/models/`, `**/checkpoints/`,
    `**/.cache/{huggingface,torch,whisper,ollama}/`, and known runtime
