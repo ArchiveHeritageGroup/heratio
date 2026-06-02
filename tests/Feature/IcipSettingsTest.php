@@ -19,10 +19,13 @@ class IcipSettingsTest extends TestCase
 
     public function test_follow_up_default_is_used_on_consultation_create()
     {
-        // Seed icip_config table
-        DB::table('icip_config')->insert([
-            ['config_key' => 'default_consultation_follow_up_days', 'config_value' => '7'],
-        ]);
+        // Seed icip_config — idempotent: the key may already exist from the
+        // package install seed, so a plain insert hits a duplicate-key
+        // UniqueConstraintViolationException. updateOrInsert sets it either way.
+        DB::table('icip_config')->updateOrInsert(
+            ['config_key' => 'default_consultation_follow_up_days'],
+            ['config_value' => '7'],
+        );
 
         $this->withoutExceptionHandling();
 
@@ -35,9 +38,10 @@ class IcipSettingsTest extends TestCase
 
     public function test_audit_middleware_records_access_when_enabled()
     {
-        DB::table('icip_config')->insert([
-            ['config_key' => 'audit_all_icip_access', 'config_value' => '1'],
-        ]);
+        DB::table('icip_config')->updateOrInsert(
+            ['config_key' => 'audit_all_icip_access'],
+            ['config_value' => '1'],
+        );
 
         $this->get('/federation'); // reuse a safe route to exercise middleware in test environment
 
