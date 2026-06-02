@@ -178,6 +178,75 @@ class BlogService
         return DB::table('blog_post')->where('id', $id)->delete() > 0;
     }
 
+    // ── Attachments (guides & templates, parent/child) ───────────────────────
+
+    /** Allowed upload extensions for guides/templates. */
+    public const ATTACHMENT_EXTENSIONS = [
+        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv',
+        'ppt', 'pptx', 'odt', 'ods', 'zip', 'txt',
+    ];
+    public const ATTACHMENT_MAX_KB = 20480; // 20 MB
+
+    /** All attachments for an article, guides first, then by sort order. */
+    public function listAttachments(int $postId): array
+    {
+        return DB::table('blog_attachment')
+            ->where('blog_post_id', $postId)
+            ->orderByRaw("FIELD(kind, 'guide', 'template'), sort_order, id")
+            ->get()
+            ->all();
+    }
+
+    /** Store an uploaded guide/template file and its child row; returns new id. */
+    public function addAttachment(int $postId, UploadedFile $file, array $meta): int
+    {
+        $ext  = strtolower($file->getClientOriginalExtension() ?: 'bin');
+        $name = Str::random(24) . '.' . $ext;
+        $file->storeAs('blog-files', $name, 'public');
+
+        $kind = ($meta['kind'] ?? 'guide') === 'template' ? 'template' : 'guide';
+
+        return (int) DB::table('blog_attachment')->insertGetId([
+            'blog_post_id' => $postId,
+            'kind'         => $kind,
+            'title'        => $meta['title'] ?: $file->getClientOriginalName(),
+            'description'  => $meta['description'] ?? null,
+            'file_path'    => 'blog-files/' . $name,
+            'file_name'    => $file->getClientOriginalName(),
+            'mime'         => $file->getClientMimeType(),
+            'file_size'    => $file->getSize() ?: 0,
+            'sort_order'   => (int) ($meta['sort_order'] ?? 0),
+            'created_by'   => $meta['created_by'] ?? null,
+            'created_at'   => now(),
+            'updated_at'   => now(),
+        ]);
+    }
+
+    public function findAttachment(int $id): ?object
+    {
+        return DB::table('blog_attachment')->where('id', $id)->first() ?: null;
+    }
+
+    /** Delete a child attachment + its stored file. */
+    public function deleteAttachment(int $id): bool
+    {
+        $row = $this->findAttachment($id);
+        if (! $row) {
+            return false;
+        }
+        if ($row->file_path && Storage::disk('public')->exists($row->file_path)) {
+            Storage::disk('public')->delete($row->file_path);
+        }
+
+        return DB::table('blog_attachment')->where('id', $id)->delete() > 0;
+    }
+
+    /** Public URL for an attachment's stored file. */
+    public function attachmentUrl(object $row): string
+    {
+        return Storage::disk('public')->url($row->file_path);
+    }
+
     // ── Comments (anonymous, blog-style) ─────────────────────────────────────
 
     /** Approved comments for an article, oldest first. */

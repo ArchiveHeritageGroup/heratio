@@ -108,6 +108,80 @@
             <a href="{{ route('admin.articles.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
         </div>
     </form>
+
+    {{-- Attachments (guides & templates): parent = this article, children = files.
+         Separate form (cannot nest in the article form); only when editing. --}}
+    @if($editing)
+        <div class="card shadow-sm mt-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <strong><i class="fas fa-paperclip me-1"></i>{{ __('Guides & Templates') }}</strong>
+                <small class="text-muted">{{ __('Downloadable files published with this article') }}</small>
+            </div>
+            <div class="card-body">
+                @if(!empty($attachments))
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead><tr>
+                                <th>{{ __('Type') }}</th><th>{{ __('Title') }}</th>
+                                <th>{{ __('Description') }}</th><th>{{ __('File') }}</th>
+                                <th class="text-end">{{ __('Size') }}</th><th></th>
+                            </tr></thead>
+                            <tbody>
+                            @foreach($attachments as $att)
+                                <tr>
+                                    <td><span class="badge bg-{{ $att->kind === 'template' ? 'info' : 'success' }}">{{ __(ucfirst($att->kind)) }}</span></td>
+                                    <td>{{ $att->title }}</td>
+                                    <td class="text-muted small">{{ $att->description }}</td>
+                                    <td><a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($att->file_path) }}" target="_blank" rel="noopener"><i class="fas fa-download me-1"></i>{{ $att->file_name }}</a></td>
+                                    <td class="text-end text-muted small">{{ number_format($att->file_size / 1024, 0) }} KB</td>
+                                    <td class="text-end">
+                                        <form method="POST" action="{{ route('admin.articles.attachments.destroy', [$article->id, $att->id]) }}" onsubmit="return confirm('{{ __('Remove this attachment?') }}');" class="d-inline">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-muted">{{ __('No guides or templates attached yet.') }}</p>
+                @endif
+
+                <form method="POST" action="{{ route('admin.articles.attachments.store', $article->id) }}" enctype="multipart/form-data" class="row g-3 align-items-end border-top pt-3">
+                    @csrf
+                    <div class="col-md-2">
+                        <label for="att_kind" class="form-label">{{ __('Type') }}</label>
+                        <select name="kind" id="att_kind" class="form-select">
+                            <option value="guide">{{ __('Guide') }}</option>
+                            <option value="template">{{ __('Template') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="att_title" class="form-label">{{ __('Title') }}</label>
+                        <input type="text" name="title" id="att_title" class="form-control" placeholder="{{ __('defaults to file name') }}" maxlength="255">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="att_description" class="form-label">{{ __('Description') }}</label>
+                        <input type="text" name="description" id="att_description" class="form-control" placeholder="{{ __('Short description') }}" maxlength="500">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="att_file" class="form-label">{{ __('File') }}</label>
+                        <input type="file" name="file" id="att_file" required class="form-control">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-upload"></i></button>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-text">{{ __('PDF, Word, Excel, PowerPoint, OpenDocument, CSV, TXT or ZIP. Up to 20 MB.') }}</div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @else
+        <p class="text-muted mt-4"><i class="fas fa-info-circle me-1"></i>{{ __('Save the article first, then you can attach guides and templates.') }}</p>
+    @endif
 </div>
 
 @push('js')

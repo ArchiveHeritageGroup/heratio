@@ -61,6 +61,9 @@ class AppServiceProvider extends ServiceProvider
                 $router->get('/comments', [\App\Http\Controllers\Admin\BlogAdminController::class, 'comments'])->name('comments');
                 $router->put('/comments/{id}/status', [\App\Http\Controllers\Admin\BlogAdminController::class, 'commentStatus'])->where('id', '[0-9]+')->name('comments.status');
                 $router->delete('/comments/{id}', [\App\Http\Controllers\Admin\BlogAdminController::class, 'commentDestroy'])->where('id', '[0-9]+')->name('comments.destroy');
+                // Article attachments (guides & templates) - parent/child uploads.
+                $router->post('/{id}/attachments', [\App\Http\Controllers\Admin\BlogAdminController::class, 'storeAttachment'])->where('id', '[0-9]+')->name('attachments.store');
+                $router->delete('/{id}/attachments/{attachmentId}', [\App\Http\Controllers\Admin\BlogAdminController::class, 'destroyAttachment'])->where('id', '[0-9]+')->where('attachmentId', '[0-9]+')->name('attachments.destroy');
                 $router->get('/{id}/edit', [\App\Http\Controllers\Admin\BlogAdminController::class, 'edit'])->where('id', '[0-9]+')->name('edit');
                 $router->put('/{id}', [\App\Http\Controllers\Admin\BlogAdminController::class, 'update'])->where('id', '[0-9]+')->name('update');
                 $router->delete('/{id}', [\App\Http\Controllers\Admin\BlogAdminController::class, 'destroy'])->where('id', '[0-9]+')->name('destroy');

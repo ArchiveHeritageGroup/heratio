@@ -64,9 +64,10 @@ class BlogController extends Controller
         }
 
         return view('articles.show', [
-            'article'  => $article,
-            'bodyHtml' => $article->body ? Str::markdown($article->body) : '',
-            'comments' => $this->blog->listApprovedComments((int) $article->id),
+            'article'     => $article,
+            'bodyHtml'    => $article->body ? Str::markdown($article->body) : '',
+            'comments'    => $this->blog->listApprovedComments((int) $article->id),
+            'attachments' => $this->blog->listAttachments((int) $article->id),
         ]);
     }
 

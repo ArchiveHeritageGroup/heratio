@@ -111,8 +111,9 @@ class BlogAdminController extends Controller
         }
 
         return view('admin.articles.form', [
-            'article' => $article,
-            'groups'  => $this->blog->distinctGroups(),
+            'article'     => $article,
+            'groups'      => $this->blog->distinctGroups(),
+            'attachments' => $this->blog->listAttachments($id),
         ]);
     }
 
@@ -142,6 +143,50 @@ class BlogAdminController extends Controller
 
         return redirect()->route('admin.articles.index')
             ->with('success', __('Article deleted.'));
+    }
+
+    /** Attach a guide/template file to an article (parent/child upload). */
+    public function storeAttachment(Request $request, int $id)
+    {
+        $this->guard();
+        if (! $this->blog->find($id)) {
+            abort(404);
+        }
+
+        $rules = 'required|file|mimes:' . implode(',', BlogService::ATTACHMENT_EXTENSIONS)
+            . '|max:' . BlogService::ATTACHMENT_MAX_KB;
+        $data = $request->validate([
+            'kind'        => 'required|in:guide,template',
+            'title'       => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'sort_order'  => 'nullable|integer|min:0',
+            'file'        => $rules,
+        ]);
+
+        $this->blog->addAttachment($id, $request->file('file'), [
+            'kind'        => $data['kind'],
+            'title'       => $data['title'] ?? '',
+            'description' => $data['description'] ?? null,
+            'sort_order'  => $data['sort_order'] ?? 0,
+            'created_by'  => Auth::id(),
+        ]);
+
+        return redirect()->route('admin.articles.edit', $id)
+            ->with('success', __('Attachment uploaded.'));
+    }
+
+    /** Remove a child attachment + its stored file. */
+    public function destroyAttachment(int $id, int $attachmentId)
+    {
+        $this->guard();
+        $att = $this->blog->findAttachment($attachmentId);
+        if (! $att || (int) $att->blog_post_id !== $id) {
+            abort(404);
+        }
+        $this->blog->deleteAttachment($attachmentId);
+
+        return redirect()->route('admin.articles.edit', $id)
+            ->with('success', __('Attachment removed.'));
     }
 
     /** AJAX inline-image upload; returns {url} for insertion into the body. */
