@@ -36,7 +36,13 @@
                 <tbody>
                     @forelse($articles as $a)
                         <tr>
-                            <td><strong>{{ $a->title }}</strong><br><small class="text-muted"><code>{{ $a->slug }}</code></small></td>
+                            <td>
+                                <strong>{{ $a->title }}</strong>
+                                @if(($a->attachment_count ?? 0) > 0)
+                                    <span class="badge bg-light text-dark border ms-1" title="{{ __('Guides & templates attached') }}"><i class="fas fa-paperclip"></i> {{ $a->attachment_count }}</span>
+                                @endif
+                                <br><small class="text-muted"><code>{{ $a->slug }}</code></small>
+                            </td>
                             <td>{{ $a->article_group ?: '—' }}</td>
                             <td>
                                 <span class="badge bg-{{ $a->status === 'published' ? 'success' : 'secondary' }}">{{ ucfirst($a->status) }}</span>

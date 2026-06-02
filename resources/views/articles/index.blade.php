@@ -60,8 +60,11 @@
                                     <a href="{{ route('admin.articles.edit', $post->id) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit') }}"><i class="fas fa-pen"></i></a>
                                 @endif
                             </div>
-                            <div class="text-muted small mt-2 pt-2 border-top">
-                                <i class="fas fa-eye me-1"></i>{{ number_format($post->view_count ?? 0) }} {{ trans_choice('read|reads', (int) ($post->view_count ?? 0)) }}
+                            <div class="text-muted small mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-eye me-1"></i>{{ number_format($post->view_count ?? 0) }} {{ trans_choice('read|reads', (int) ($post->view_count ?? 0)) }}</span>
+                                @if(($post->attachment_count ?? 0) > 0)
+                                    <span title="{{ __('Guides & templates available') }}"><i class="fas fa-paperclip me-1"></i>{{ $post->attachment_count }}</span>
+                                @endif
                             </div>
                         </div>
                     </div>

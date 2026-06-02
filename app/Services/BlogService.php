@@ -85,6 +85,8 @@ class BlogService
     public function paginatePublished(?string $group = null, int $perPage = 9)
     {
         return DB::table('blog_post')
+            ->select('blog_post.*')
+            ->selectSub($this->attachmentCountSub(), 'attachment_count')
             ->where('status', 'published')
             ->when($group, fn ($q) => $q->where('article_group', $group))
             ->orderByRaw('COALESCE(published_at, created_at) DESC')
@@ -96,9 +98,19 @@ class BlogService
     public function listAll(): array
     {
         return DB::table('blog_post')
+            ->select('blog_post.*')
+            ->selectSub($this->attachmentCountSub(), 'attachment_count')
             ->orderByDesc('created_at')
             ->get()
             ->all();
+    }
+
+    /** Correlated sub-select counting a post's guide/template attachments. */
+    protected function attachmentCountSub()
+    {
+        return DB::table('blog_attachment')
+            ->selectRaw('COUNT(*)')
+            ->whereColumn('blog_attachment.blog_post_id', 'blog_post.id');
     }
 
     /** A published post by slug (public show). */
