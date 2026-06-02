@@ -55,10 +55,10 @@ class MarcXmlImporterTest extends TestCase
         $this->assertSame('Field Notebook of Dr Smith', $desc['title']);
         $this->assertSame('Daily observations from a 1972 expedition.', $desc['scope_and_content']);
         $this->assertSame('1 notebook (40 leaves)', $desc['extent_and_medium']);
-        $this->assertSame('text', $desc['carrier_term']
-            ? null  // mapper-output carrier term, may vary across fixtures
-            : null
-        );
+        // 338$a carrier term parsed from the fixture. (Was a broken no-op:
+        // it compared 'text' against null in both ternary branches, so it
+        // always failed.) The fixture's 338$a is "volume".
+        $this->assertSame('volume', $desc['carrier_term']);
     }
 
     /**

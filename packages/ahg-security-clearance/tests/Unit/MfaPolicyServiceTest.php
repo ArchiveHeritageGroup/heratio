@@ -165,7 +165,10 @@ class MfaPolicyServiceTest extends TestCase
     private function makeUser(int $id, bool $admin = false, bool $editor = false): User
     {
         return new class($id, $admin, $editor) extends User {
-            public function __construct(int $id, private bool $admin, private bool $editor)
+            // Defaults required: Eloquent instantiates models via `new static()`
+            // (model events, newInstance) with no args; without defaults that
+            // throws ArgumentCountError (HasEvents.php) and fails the test.
+            public function __construct(int $id = 0, private bool $admin = false, private bool $editor = false)
             {
                 parent::__construct();
                 $this->id = $id;
