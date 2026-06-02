@@ -456,4 +456,21 @@ class RicEntityController extends Controller
 
     // dropdownChoices AJAX method removed 2026-04-18 — callers now use
     // GET /api/ric/v1/vocabulary/{taxonomy} on the public API.
+
+    /**
+     * Public: GET /ric-api/relations/types — relation-type vocabulary as JSON.
+     *
+     * The route bound here had no controller method (Call to undefined method
+     * -> 500); the service already exposes the vocabulary. Optional ?domain=
+     * and ?range= filters narrow the list by the relation's metadata.
+     */
+    public function getRelationTypes(Request $request)
+    {
+        $types = $this->service->getRelationTypes(
+            $request->query('domain'),
+            $request->query('range')
+        );
+
+        return response()->json(['types' => $types]);
+    }
 }
