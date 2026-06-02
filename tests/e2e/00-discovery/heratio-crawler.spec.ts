@@ -217,7 +217,7 @@ test.describe('Heratio Discovery Crawler', () => {
             queue.push({ 
               url: link.startsWith('http') ? link : HERATIO_BASE + link, 
               depth: depth + 1 
-            });
+            }); 
           }
         }
       }
@@ -276,6 +276,13 @@ test.describe('Heratio Discovery Crawler', () => {
 
   /**
    * Test: Crawl as Admin
+   * 
+   * Login selector fix (mobile Safari/Chrome): The old `.first()` approach
+   * matched hidden submit buttons in the DOM before the visible login-form
+   * button, causing `Element is not visible` on narrow viewports. The fix
+   * scopes to `form:visible button[type="submit"]` — only buttons inside the
+   * visible login form, bypassing DOM order. `force: true` is kept so the
+   * button still fires even if the CSS viewport clips it on small screens.
    */
   test('crawl as admin', async ({ page }) => {
     test.info().annotations.push({
@@ -295,9 +302,8 @@ test.describe('Heratio Discovery Crawler', () => {
     await emailInput.fill(credentials.roles.admin.email, { force: true });
     await passwordInput.fill(credentials.roles.admin.password, { force: true });
     
-    // Click any submit button
-    const submitBtn = page.locator('button[type="submit"], input[type="submit"]').first();
-    await submitBtn.click({ force: true });
+    // Click the submit button scoped to the visible form (mobile fix)
+    await page.locator('form:visible button[type="submit"], form:visible input[type="submit"]').click({ force: true });
     await page.waitForURL(/\/(dashboard|home|admin)/, { timeout: 15000 }).catch(() => {});
     
     const urls = seedUrls.heratio.urls.map(u => HERATIO_BASE + u);
@@ -332,6 +338,7 @@ test.describe('Heratio Discovery Crawler', () => {
 
   /**
    * Test: Crawl as Editor
+   * Same login-selector fix as admin (scoping to visible form on mobile).
    */
   test('crawl as editor', async ({ page }) => {
     test.info().annotations.push({
@@ -350,8 +357,8 @@ test.describe('Heratio Discovery Crawler', () => {
     await emailInput.fill(credentials.roles.editor.email, { force: true });
     await passwordInput.fill(credentials.roles.editor.password, { force: true });
     
-    const submitBtn = page.locator('button[type="submit"], input[type="submit"]').first();
-    await submitBtn.click({ force: true });
+    // Click the submit button scoped to the visible form (mobile fix)
+    await page.locator('form:visible button[type="submit"], form:visible input[type="submit"]').click({ force: true });
     await page.waitForURL(/\/(dashboard|home)/, { timeout: 15000 }).catch(() => {});
     
     const urls = seedUrls.heratio.urls.map(u => HERATIO_BASE + u);

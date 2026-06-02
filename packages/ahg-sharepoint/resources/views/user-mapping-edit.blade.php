@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('theme::layouts.1col')
 @section('title', __('SharePoint user mapping'))
 @section('content')
 <h1>{{ __('SharePoint user mapping') }}</h1>

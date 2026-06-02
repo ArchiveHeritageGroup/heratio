@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('theme::layouts.1col')
 @section('title', __('SharePoint webhook subscriptions'))
 @section('content')
 <h1>{{ __('SharePoint webhook subscriptions') }}</h1>

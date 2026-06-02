@@ -19,14 +19,25 @@ class SharePointController extends Controller
 
     public function index()
     {
-        // TODO: aggregate tenant/drive/sync_state counts for dashboard.
-        return view('ahg-sharepoint::index');
+        $db = \Illuminate\Support\Facades\DB::class;
+        $stats = [
+            'tenants'       => \Illuminate\Support\Facades\DB::table('sharepoint_tenant')->count(),
+            'drives'        => \Illuminate\Support\Facades\DB::table('sharepoint_drive')->count(),
+            'drivesEnabled' => \Illuminate\Support\Facades\DB::table('sharepoint_drive')->where('ingest_enabled', 1)->count(),
+            'subscriptions' => \Illuminate\Support\Facades\DB::table('sharepoint_subscription')->where('status', 'active')->count(),
+            'events'        => \Illuminate\Support\Facades\DB::table('sharepoint_event')->count(),
+        ];
+
+        return view('ahg-sharepoint::index', ['stats' => $stats]);
     }
 
     public function tenants()
     {
-        // TODO: list rows from SharePointTenantRepository::all().
-        return view('ahg-sharepoint::tenants');
+        $tenants = \Illuminate\Support\Facades\DB::table('sharepoint_tenant')
+            ->orderBy('name')
+            ->get();
+
+        return view('ahg-sharepoint::tenants', ['tenants' => $tenants]);
     }
 
     public function tenantEdit(Request $request, int $id)
@@ -45,7 +56,13 @@ class SharePointController extends Controller
 
     public function drives()
     {
-        return view('ahg-sharepoint::drives');
+        $drives = \Illuminate\Support\Facades\DB::table('sharepoint_drive')
+            ->leftJoin('sharepoint_tenant', 'sharepoint_drive.tenant_id', '=', 'sharepoint_tenant.id')
+            ->select('sharepoint_drive.*', 'sharepoint_tenant.name as tenant_name')
+            ->orderBy('sharepoint_drive.site_title')
+            ->get();
+
+        return view('ahg-sharepoint::drives', ['drives' => $drives]);
     }
 
     public function driveBrowse(Request $request)

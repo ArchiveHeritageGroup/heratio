@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('theme::layouts.1col')
 @section('title', __('SharePoint inbound events'))
 @section('content')
 <h1>{{ __('SharePoint inbound events') }}</h1>

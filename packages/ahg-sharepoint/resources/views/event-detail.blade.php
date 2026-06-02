@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('theme::layouts.1col')
 @section('title', sprintf(__('SharePoint event #%d'), (int) $event->id))
 @section('content')
 <h1>{{ sprintf(__('SharePoint event #%d'), (int) $event->id) }}</h1>
