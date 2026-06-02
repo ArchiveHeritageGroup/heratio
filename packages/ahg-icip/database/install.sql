@@ -318,6 +318,21 @@ CREATE TABLE IF NOT EXISTS icip_config (
     INDEX idx_key (config_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Access audit log: written by AuditIcipAccess middleware when the
+-- audit_all_icip_access config flag is on. The middleware INSERTed into this
+-- table but its CREATE was never shipped, so any environment with the flag
+-- enabled (and the IcipSettings test) hit "Table icip_access_log doesn't exist".
+CREATE TABLE IF NOT EXISTS icip_access_log (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT DEFAULT NULL,
+    ip_address VARCHAR(45) DEFAULT NULL,
+    path VARCHAR(1000) DEFAULT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_icip_access_user (user_id),
+    INDEX idx_icip_access_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Default configuration
 INSERT IGNORE INTO icip_config (config_key, config_value, description) VALUES
 ('enable_public_notices', '1', 'Display cultural notices on public view'),
