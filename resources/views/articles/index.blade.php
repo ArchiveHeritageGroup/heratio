@@ -62,10 +62,10 @@
                             </div>
                             @if(($post->attachment_count ?? 0) > 0)
                                 <div class="mt-2">
-                                    <span class="badge bg-primary fs-6 d-inline-flex align-items-center">
+                                    <a href="{{ route('articles.show', $post->slug) }}" class="badge bg-primary fs-6 d-inline-flex align-items-center text-decoration-none">
                                         <i class="fas fa-paperclip me-2"></i>{{ __('Files to download') }}
                                         <span class="badge bg-light text-primary ms-2">{{ $post->attachment_count }}</span>
-                                    </span>
+                                    </a>
                                 </div>
                             @endif
                             <div class="text-muted small mt-2 pt-2 border-top">
