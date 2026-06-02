@@ -118,6 +118,22 @@ jobs:
           php artisan heratio:install-bootstrap --pass=1 --no-interaction || true
           php artisan heratio:install-bootstrap --pass=2 --no-interaction || true
 
+      - name: Load seed data (taxonomies, settings, ACL, …)
+        # bin/install Stage 8 loads database/seeds/0*.sql — the bootstrap DATA
+        # the schema steps above do NOT insert. Critically this includes
+        # database/seeds/00_taxonomies.sql, which seeds the `term` rows
+        # (incl. actor entity types 131/132/133). Without it, every actor
+        # insert fails actor_FK_2 (FK -> term.id) and the whole ActorCrudTest
+        # / ActorApiTest suite errors with SQLSTATE[23000] 1452. Runs AFTER
+        # package install so seeds targeting package tables (e.g. icip_config)
+        # have their tables. Tolerant per-file so an already-satisfied seed is
+        # a no-op, not a build failure.
+        run: |
+          for f in database/seeds/0*.sql; do
+            echo "Seeding $f"
+            mysql -h 127.0.0.1 -u root -proot heratio_test < "$f" || echo "::warning::seed $f returned non-zero (continuing)"
+          done
+
       - name: Run Laravel tests
         run: php artisan test
 
