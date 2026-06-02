@@ -143,6 +143,7 @@ class BlogService
             'title'        => $data['title'] ?? '',
             'excerpt'      => $data['excerpt'] ?? null,
             'body'         => $data['body'] ?? null,
+            'attachments_label' => $data['attachments_label'] ?? null,
             'cover_image'  => $data['cover_image'] ?? null,
             'author'       => $data['author'] ?? null,
             'article_group' => $data['article_group'] ?? null,
@@ -160,7 +161,7 @@ class BlogService
     {
         $row = ['updated_at' => now()];
 
-        foreach (['title', 'excerpt', 'body', 'cover_image', 'author', 'article_group'] as $f) {
+        foreach (['title', 'excerpt', 'body', 'cover_image', 'author', 'article_group', 'attachments_label'] as $f) {
             if (array_key_exists($f, $data)) {
                 $row[$f] = $data[$f];
             }

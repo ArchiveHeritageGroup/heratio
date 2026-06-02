@@ -33,23 +33,32 @@
         </div>
 
         @if(!empty($attachments))
-            <div class="mt-5 pt-4 border-top">
-                <h2 class="h5 mb-3"><i class="fas fa-download me-2"></i>{{ __('Guides & Templates') }}</h2>
-                <div class="list-group">
-                    @foreach($attachments as $att)
-                        <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($att->file_path) }}"
-                           class="list-group-item list-group-item-action d-flex align-items-start gap-3"
-                           target="_blank" rel="noopener" download>
-                            <i class="fas {{ $att->kind === 'template' ? 'fa-file-lines' : 'fa-book' }} fa-lg mt-1 text-{{ $att->kind === 'template' ? 'info' : 'success' }}"></i>
-                            <span class="flex-grow-1">
-                                <span class="fw-semibold">{{ $att->title }}</span>
-                                <span class="badge bg-{{ $att->kind === 'template' ? 'info' : 'success' }} ms-2">{{ __(ucfirst($att->kind)) }}</span>
-                                @if($att->description)<span class="d-block text-muted small">{{ $att->description }}</span>@endif
-                                <span class="d-block text-muted small">{{ $att->file_name }} &middot; {{ number_format($att->file_size / 1024, 0) }} KB</span>
-                            </span>
-                            <i class="fas fa-download text-muted mt-1"></i>
-                        </a>
-                    @endforeach
+            <div class="card border-primary shadow-sm mt-5">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <i class="fas fa-cloud-download-alt fa-lg me-2"></i>
+                    <span class="h5 mb-0">{{ __('Guides & Templates') }}</span>
+                    <span class="badge bg-light text-primary ms-2">{{ count($attachments) }}</span>
+                </div>
+                <div class="card-body">
+                    @if(!empty($article->attachments_label))
+                        <p class="lead mb-3">{{ $article->attachments_label }}</p>
+                    @endif
+                    <div class="list-group">
+                        @foreach($attachments as $att)
+                            <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($att->file_path) }}"
+                               class="list-group-item list-group-item-action d-flex align-items-start gap-3"
+                               target="_blank" rel="noopener" download>
+                                <i class="fas {{ $att->kind === 'template' ? 'fa-file-lines' : 'fa-book' }} fa-lg mt-1 text-{{ $att->kind === 'template' ? 'info' : 'success' }}"></i>
+                                <span class="flex-grow-1">
+                                    <span class="fw-semibold">{{ $att->title }}</span>
+                                    <span class="badge bg-{{ $att->kind === 'template' ? 'info' : 'success' }} ms-2">{{ __(ucfirst($att->kind)) }}</span>
+                                    @if($att->description)<span class="d-block text-muted small">{{ $att->description }}</span>@endif
+                                    <span class="d-block text-muted small">{{ $att->file_name }} &middot; {{ number_format($att->file_size / 1024, 0) }} KB</span>
+                                </span>
+                                <i class="fas fa-download text-primary mt-1"></i>
+                            </a>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         @endif

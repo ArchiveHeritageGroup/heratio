@@ -35,12 +35,30 @@ delete button.
 PDF, Word (`doc`, `docx`), Excel (`xls`, `xlsx`), PowerPoint (`ppt`, `pptx`),
 OpenDocument (`odt`, `ods`), `csv`, `txt`, and `zip`. Maximum **20 MB** per file.
 
+## Downloads intro message
+
+On the article Edit page, below the body, there is an optional **Downloads intro
+message** field. Whatever you type there is shown as a short lead line directly
+above the guides & templates download list on the published article (for example,
+"Download the cataloguing guide and templates below"). Leave it blank to show the
+download list with no intro.
+
 ## Publishing
 
 Attachments are shown to the public only when the article's **Status** is
-**Published**. On the public article page they appear in a **Guides & Templates**
-download section, with guides listed first, then templates - each with its title,
-type badge, description, file name, and size.
+**Published**. On the public article page they appear in a prominent, highlighted
+**Guides & Templates** download panel - guides listed first, then templates -
+each with its title, type badge, description, file name, and size. If you set a
+Downloads intro message it appears at the top of that panel.
+
+## Spotting articles that have downloads
+
+Articles that carry guides or templates show a **paperclip badge with a count**
+so you can spot them at a glance:
+
+- **Admin → Articles** list: a paperclip count appears next to the article title.
+- **Public articles grid** (`/articles`): a paperclip count appears in each
+  card's footer next to the read count (published attachments only).
 
 ## Removing a file
 

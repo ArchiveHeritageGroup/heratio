@@ -211,6 +211,7 @@ class BlogAdminController extends Controller
             'author'        => 'nullable|string|max:150',
             'excerpt'       => 'nullable|string|max:500',
             'body'          => 'nullable|string',
+            'attachments_label' => 'nullable|string|max:255',
             'status'        => 'required|in:draft,published',
             'published_at'  => 'nullable|date',
             'cover'         => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',

@@ -46,6 +46,14 @@
                         </div>
                         <textarea name="body" id="body" rows="18" class="form-control font-monospace" style="font-size:.9rem;">{{ $val('body') }}</textarea>
                         <div class="form-text">{{ __('Markdown supported. Use the Insert image button to upload and embed an image.') }}</div>
+
+                        <div class="mt-3">
+                            <label for="attachments_label" class="form-label">{{ __('Downloads intro message') }}</label>
+                            <input type="text" name="attachments_label" id="attachments_label" class="form-control" maxlength="255"
+                                   value="{{ $val('attachments_label') }}"
+                                   placeholder="{{ __('e.g. Download the cataloguing guide and templates below') }}">
+                            <div class="form-text">{{ __('Optional. Shown just above the guides & templates download list on the published article.') }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
