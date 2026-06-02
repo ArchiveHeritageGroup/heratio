@@ -19,7 +19,7 @@ class AddSuperuserCommand extends Command
         $password = $this->secret('Password');
 
         if (! $email || ! $username || ! $password) {
-            $this->error('Email, username, and password are all required.');
+            $this->error(__('Email, username, and password are all required.'));
 
             return self::FAILURE;
         }
@@ -27,7 +27,7 @@ class AddSuperuserCommand extends Command
         // Check if email already exists
         $existing = DB::table('user')->where('email', $email)->first();
         if ($existing) {
-            $this->error("A user with email '{$email}' already exists.");
+            $this->error(__('A user with email \'' . $email . '\' already exists.'));
 
             return self::FAILURE;
         }
@@ -92,12 +92,12 @@ class AddSuperuserCommand extends Command
 
             DB::commit();
 
-            $this->info("Superuser '{$username}' created successfully (ID: {$objectId}).");
+            $this->info(__('Superuser \'' . $username . '\' created successfully (ID: ' . $objectId . ').'));
 
             return self::SUCCESS;
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->error('Failed to create superuser: '.$e->getMessage());
+            $this->error(__('Failed to create superuser: ' . $e->getMessage()));
 
             return self::FAILURE;
         }

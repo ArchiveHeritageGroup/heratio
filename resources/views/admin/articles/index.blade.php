@@ -39,7 +39,7 @@
                             <td>
                                 <strong>{{ $a->title }}</strong>
                                 @if(($a->attachment_count ?? 0) > 0)
-                                    <span class="badge bg-light text-dark border ms-1" title="{{ __('Guides & templates attached') }}"><i class="fas fa-paperclip"></i> {{ $a->attachment_count }}</span>
+                                    <span class="badge bg-primary fs-6 ms-1" title="{{ __('Guides & templates attached') }}"><i class="fas fa-paperclip me-1"></i>{{ __('Files to download') }} {{ $a->attachment_count }}</span>
                                 @endif
                                 <br><small class="text-muted"><code>{{ $a->slug }}</code></small>
                             </td>
