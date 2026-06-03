@@ -1,6 +1,7 @@
 <?php
 
 use AhgPrivacy\Controllers\Article30Controller;
+use AhgPrivacy\Controllers\DescriptionPrivacyController;
 use AhgPrivacy\Controllers\DpiaController;
 use AhgPrivacy\Controllers\EmbeddedFindingsController;
 use AhgPrivacy\Controllers\PrivacyController;
@@ -11,6 +12,13 @@ Route::get('/privacyAdmin', fn () => redirect('/admin/privacy/index'));
 Route::get('/privacyAdmin/{action}', fn (string $action) => redirect('/admin/privacy/'.\Illuminate\Support\Str::kebab($action)));
 
 Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(function () {
+    // ------------------------------------------------------------------
+    // Issue #1108: field-level structured redaction on archival descriptions
+    // ------------------------------------------------------------------
+    Route::get('/description/{id}/redaction', [DescriptionPrivacyController::class, 'panel'])->name('ahgprivacy.description.redaction')->whereNumber('id');
+    Route::post('/description/{id}/redaction', [DescriptionPrivacyController::class, 'saveProfile'])->whereNumber('id');
+    Route::post('/description/{id}/redaction/field', [DescriptionPrivacyController::class, 'addField'])->whereNumber('id');
+    Route::post('/description/{id}/redaction/field/{fieldId}/remove', [DescriptionPrivacyController::class, 'removeField'])->whereNumber('id')->whereNumber('fieldId');
     // ------------------------------------------------------------------
     // Issue #669 Phase 1: Article 30 register + DPIA workflow
     // ------------------------------------------------------------------

@@ -49,6 +49,26 @@ class AhgPrivacyServiceProvider extends ServiceProvider
             ]);
         }
 
+        // Issue #1108 - Phase 3: field-level structured redaction tables.
+        try {
+            if (! Schema::hasTable('information_object_privacy')
+                || ! Schema::hasTable('information_object_privacy_field')
+                || ! Schema::hasTable('privacy_reason')) {
+                $this->installSqlFile(__DIR__.'/../../database/install-phase3.sql');
+            }
+        } catch (Throwable $e) {
+            Log::warning('ahg-privacy: Phase 3 (field-level redaction) install probe/install failed', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // #1108 - alias the field-redaction middleware so IO read routes can
+        // opt in (applies field-level redaction for non-privileged viewers).
+        $this->app['router']->aliasMiddleware(
+            'privacy.redact',
+            \AhgPrivacy\Middleware\ApplyRedactionMiddleware::class
+        );
+
         // Wire the embedded-PII scan listener onto the extraction event.
         // We register unconditionally - the listener short-circuits cleanly
         // when the Phase 2 schema isn't installed yet.
