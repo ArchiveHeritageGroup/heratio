@@ -450,11 +450,21 @@ class PrivacyController extends Controller
         $renderer = app(RedactionRenderService::class);
         $redactedPath = $renderer->render((int) $io->id);
         if (!$redactedPath || !file_exists($redactedPath)) {
-            // No redactions OR render failed — fall through to original.
-            // Logging this so unexpected failures surface in the audit log.
-            if ($redactedPath === null) {
-                \Log::info('[redaction] no regions; serving original', ['io_id' => $io->id]);
+            // render() returns null for BOTH "no regions on file" (safe to
+            // serve the original) AND "regions exist but rendering failed"
+            // (must NOT serve the original — that leaks the very content we
+            // redact). Distinguish them so we fail CLOSED on a render failure
+            // instead of silently leaking, and log accurately.
+            $hasRegions = \Schema::hasTable('privacy_visual_redaction')
+                && DB::table('privacy_visual_redaction')
+                    ->where('object_id', $io->id)
+                    ->whereIn('status', ['applied', 'reviewed', 'pending'])
+                    ->exists();
+            if ($hasRegions) {
+                \Log::error('[redaction] render FAILED for an IO with regions on file — refusing to serve the original (fail-closed). Check the redaction-cache dir is www-data-writable.', ['io_id' => $io->id]);
+                abort(503, 'This record has redactions that could not be applied right now. Please try again later or contact the institution.');
             }
+            \Log::info('[redaction] no regions on file; serving original', ['io_id' => $io->id]);
             return $this->streamOriginal($master);
         }
 
