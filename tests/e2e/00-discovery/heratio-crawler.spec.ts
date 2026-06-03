@@ -277,12 +277,13 @@ test.describe('Heratio Discovery Crawler', () => {
   /**
    * Test: Crawl as Admin
    * 
-   * Login selector fix (mobile Safari/Chrome): The old `.first()` approach
-   * matched hidden submit buttons in the DOM before the visible login-form
-   * button, causing `Element is not visible` on narrow viewports. The fix
-   * scopes to `form:visible button[type="submit"]` — only buttons inside the
-   * visible login form, bypassing DOM order. `force: true` is kept so the
-   * button still fires even if the CSS viewport clips it on small screens.
+   * Login selector fix: scope the submit click to the form that contains the
+   * password field (the login form). An earlier `form:visible …submit` selector
+   * matched TWO elements on pages that also render the header search form,
+   * tripping Playwright strict-mode ("resolved to 2 elements"). Scoping by the
+   * password field is unambiguous regardless of which other forms are visible.
+   * `force: true` is kept so the button still fires even if a narrow viewport
+   * clips it.
    */
   test('crawl as admin', async ({ page }) => {
     test.info().annotations.push({
@@ -302,8 +303,11 @@ test.describe('Heratio Discovery Crawler', () => {
     await emailInput.fill(credentials.roles.admin.email, { force: true });
     await passwordInput.fill(credentials.roles.admin.password, { force: true });
     
-    // Click the submit button scoped to the visible form (mobile fix)
-    await page.locator('form:visible button[type="submit"], form:visible input[type="submit"]').click({ force: true });
+    // Click the submit button scoped to the LOGIN form (the one containing the
+    // password field), so the header search-submit button isn't also matched
+    // (Playwright strict-mode resolved to 2 elements otherwise).
+    await page.locator('form', { has: page.locator('input[name="password"]') })
+      .locator('button[type="submit"], input[type="submit"]').first().click({ force: true });
     await page.waitForURL(/\/(dashboard|home|admin)/, { timeout: 15000 }).catch(() => {});
     
     const urls = seedUrls.heratio.urls.map(u => HERATIO_BASE + u);
@@ -357,8 +361,11 @@ test.describe('Heratio Discovery Crawler', () => {
     await emailInput.fill(credentials.roles.editor.email, { force: true });
     await passwordInput.fill(credentials.roles.editor.password, { force: true });
     
-    // Click the submit button scoped to the visible form (mobile fix)
-    await page.locator('form:visible button[type="submit"], form:visible input[type="submit"]').click({ force: true });
+    // Click the submit button scoped to the LOGIN form (the one containing the
+    // password field), so the header search-submit button isn't also matched
+    // (Playwright strict-mode resolved to 2 elements otherwise).
+    await page.locator('form', { has: page.locator('input[name="password"]') })
+      .locator('button[type="submit"], input[type="submit"]').first().click({ force: true });
     await page.waitForURL(/\/(dashboard|home)/, { timeout: 15000 }).catch(() => {});
     
     const urls = seedUrls.heratio.urls.map(u => HERATIO_BASE + u);
