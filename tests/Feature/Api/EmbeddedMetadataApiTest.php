@@ -248,9 +248,14 @@ class EmbeddedMetadataApiTest extends TestCase
 
         $this->assertIsArray($out);
         $this->assertArrayHasKey('exif', $out);
-        $this->assertNull($out['exif']['GPSLatitude'] ?? 'not-null', 'GPSLatitude must be nulled out.');
-        $this->assertNull($out['exif']['GPSLongitude'] ?? 'not-null', 'GPSLongitude must be nulled out.');
-        $this->assertNull($out['exif']['GPSAltitude'] ?? 'not-null', 'GPSAltitude must be nulled out.');
+        // Redaction keeps the key present but sets the value to null (so a
+        // client can tell it was suppressed vs simply absent). Assert key-exists
+        // AND is-null directly — `?? 'default'` would turn the null back into
+        // the default and the assertion could never pass.
+        $this->assertArrayHasKey('GPSLatitude', $out['exif']);
+        $this->assertNull($out['exif']['GPSLatitude'], 'GPSLatitude must be nulled out.');
+        $this->assertNull($out['exif']['GPSLongitude'], 'GPSLongitude must be nulled out.');
+        $this->assertNull($out['exif']['GPSAltitude'], 'GPSAltitude must be nulled out.');
         $this->assertTrue($out['exif']['_pii_redacted'] ?? false, 'EXIF sub-block must carry the _pii_redacted marker.');
         $this->assertSame('Apple', $out['exif']['Make'] ?? null, 'Non-GPS fields must be preserved.');
     }
@@ -281,7 +286,12 @@ class EmbeddedMetadataApiTest extends TestCase
         $svc = new EmbeddedMetadataService();
         $out = $svc->forDigitalObject($this->doId);
 
-        $this->assertSame('-25.7479', $out['exif']['GPSLatitude'] ?? null, 'Cleared findings must not redact.');
+        // gps_latitude is decimal(10,8), so MySQL returns it zero-padded
+        // ('-25.74790000'). The behavioural point is that a cleared finding
+        // leaves the value intact (not nulled), so compare numerically rather
+        // than by exact string.
+        $this->assertNotNull($out['exif']['GPSLatitude'] ?? null, 'Cleared findings must not redact.');
+        $this->assertEqualsWithDelta(-25.7479, (float) $out['exif']['GPSLatitude'], 0.00001, 'Cleared findings must preserve the GPS value.');
         $this->assertArrayNotHasKey('_pii_redacted', $out['exif'], 'Cleared findings must not emit the marker.');
     }
 
