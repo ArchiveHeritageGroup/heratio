@@ -118,6 +118,38 @@ class PrivacyRedactionService
         return 'Subject-' . substr(hash('sha256', $value), 0, 6);
     }
 
+    /**
+     * Pre-populate a privacy profile for an IO that is in scope for a DSAR
+     * (#1108 deliverable 5). Idempotent: an existing profile is left as-is.
+     * The new profile starts at status 'pending' with the "access request"
+     * reason so the officer can mark fields for redaction in the response.
+     */
+    public function prepopulateForDsar(int $informationObjectId, ?int $userId, int $reasonId = 8): InformationObjectPrivacy
+    {
+        $profile = InformationObjectPrivacy::firstOrCreate(
+            ['information_object_id' => $informationObjectId],
+            [
+                'privacy_reason_id'     => $reasonId,
+                'redaction_status'      => 'pending',
+                'applied_by'            => $userId,
+                'applied_at'            => now(),
+                'legal_basis_reference' => 'DSAR / data subject access request',
+            ]
+        );
+
+        if ($profile->wasRecentlyCreated) {
+            $this->logAccess(
+                $informationObjectId,
+                $userId,
+                'dsar_prepopulated',
+                null,
+                'DSAR / data subject access request'
+            );
+        }
+
+        return $profile;
+    }
+
     /** Append an audit row (who/when/what field/legal basis). Best-effort. */
     public function logAccess(int $informationObjectId, ?int $userId, string $action, ?string $fieldName = null, ?string $legalBasis = null, ?int $privacyFieldId = null): void
     {

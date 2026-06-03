@@ -25,6 +25,7 @@
 
 namespace AhgPrivacy\Controllers;
 
+use AhgPrivacy\Services\PrivacyRedactionService;
 use AhgPrivacy\Services\PrivacyService;
 use AhgPrivacy\Support\DataProtectionSettings;
 use App\Http\Controllers\Controller;
@@ -1025,9 +1026,105 @@ class PrivacyController extends Controller
 
         $id = (int) $request->input('id');
         $this->service->updateDsar($id, $request->all(), (int) Auth::id());
+
+        // #1108 deliverable 5 - when a DSAR enters processing, pre-populate a
+        // privacy profile for every in-scope description so the officer can mark
+        // fields for redaction as part of the response.
+        if ($request->input('status') === 'processing') {
+            $this->prepopulateDsarScope($id);
+        }
+
         session()->flash('success', 'DSAR updated successfully');
 
         return redirect()->route('ahgprivacy.dsar-view', ['id' => $id]);
+    }
+
+    /**
+     * #1108 deliverable 5 - DSAR redaction scope. List the descriptions a DSAR
+     * covers, add new ones (pre-populating their privacy profile), or remove
+     * them. Routes mounted under /admin/privacy/dsar/{id}/scope.
+     */
+    public function dsarScope(int $id)
+    {
+        $dsar = DB::table('privacy_dsar')->where('id', $id)->first();
+        abort_if(! $dsar, 404);
+
+        $objects = DB::table('privacy_dsar_object as o')
+            ->leftJoin('information_object_i18n as i', function ($j) {
+                $j->on('i.id', '=', 'o.information_object_id')->where('i.culture', '=', 'en');
+            })
+            ->leftJoin('information_object_privacy as p', 'p.information_object_id', '=', 'o.information_object_id')
+            ->where('o.dsar_id', $id)
+            ->orderByDesc('o.created_at')
+            ->get(['o.information_object_id', 'o.created_at', 'i.title', 'p.redaction_status']);
+
+        return view('privacy::dsar-scope', ['dsar' => $dsar, 'objects' => $objects]);
+    }
+
+    public function dsarScopeAdd(Request $request, int $id)
+    {
+        $data = $request->validate(['io' => 'required|string|max:255']);
+        abort_if(! DB::table('privacy_dsar')->where('id', $id)->exists(), 404);
+
+        $ioId = $this->resolveIoIdentifier($data['io']);
+        if ($ioId === null) {
+            return back()->with('error', 'No archival description found for "' . $data['io'] . '".');
+        }
+
+        DB::table('privacy_dsar_object')->updateOrInsert(
+            ['dsar_id' => $id, 'information_object_id' => $ioId],
+            ['created_by' => (int) Auth::id(), 'created_at' => now()]
+        );
+
+        $profile = app(PrivacyRedactionService::class)->prepopulateForDsar($ioId, (int) Auth::id());
+        DB::table('privacy_dsar_object')
+            ->where('dsar_id', $id)->where('information_object_id', $ioId)
+            ->update(['privacy_id' => $profile->id]);
+
+        return back()->with('success', 'Added description #' . $ioId . ' to scope and pre-populated its privacy profile.');
+    }
+
+    public function dsarScopeRemove(int $id, int $ioId)
+    {
+        DB::table('privacy_dsar_object')
+            ->where('dsar_id', $id)->where('information_object_id', $ioId)
+            ->delete();
+
+        return back()->with('success', 'Removed description #' . $ioId . ' from scope.');
+    }
+
+    /** Pre-populate privacy profiles for every IO currently in a DSAR's scope. */
+    private function prepopulateDsarScope(int $dsarId): void
+    {
+        try {
+            $svc = app(PrivacyRedactionService::class);
+            $ioIds = DB::table('privacy_dsar_object')->where('dsar_id', $dsarId)->pluck('information_object_id');
+            foreach ($ioIds as $iid) {
+                $profile = $svc->prepopulateForDsar((int) $iid, (int) Auth::id());
+                DB::table('privacy_dsar_object')
+                    ->where('dsar_id', $dsarId)->where('information_object_id', (int) $iid)
+                    ->update(['privacy_id' => $profile->id]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('privacy: DSAR scope pre-populate failed', ['dsar_id' => $dsarId, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /** Resolve a numeric id or a slug to an information_object id, or null. */
+    private function resolveIoIdentifier(string $value): ?int
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+        if (ctype_digit($value)) {
+            return DB::table('information_object')->where('id', (int) $value)->exists() ? (int) $value : null;
+        }
+        $objectId = DB::table('slug')->where('slug', $value)->value('object_id');
+        if ($objectId && DB::table('information_object')->where('id', $objectId)->exists()) {
+            return (int) $objectId;
+        }
+        return null;
     }
 
     public function breachUpdate(Request $request)

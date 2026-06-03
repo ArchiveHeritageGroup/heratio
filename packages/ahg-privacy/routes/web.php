@@ -46,6 +46,11 @@ Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(functi
     Route::post('/dpia/{id}/signoff',    [DpiaController::class, 'signOff'])->name('ahgprivacy.dpia.signoff')->whereNumber('id');
     Route::post('/dpia/{id}/archive',    [DpiaController::class, 'archive'])->name('ahgprivacy.dpia.archive')->whereNumber('id');
 
+    // #1108 deliverable 5 - DSAR redaction scope (pre-populate IO privacy profiles)
+    Route::get('/dsar/{id}/scope',              [PrivacyController::class, 'dsarScope'])->name('ahgprivacy.dsar-scope')->whereNumber('id');
+    Route::post('/dsar/{id}/scope',             [PrivacyController::class, 'dsarScopeAdd'])->name('ahgprivacy.dsar-scope-add')->whereNumber('id');
+    Route::post('/dsar/{id}/scope/{ioId}/remove', [PrivacyController::class, 'dsarScopeRemove'])->name('ahgprivacy.dsar-scope-remove')->whereNumber('id')->whereNumber('ioId');
+
     Route::get('/complaint-confirmation', [PrivacyController::class, 'complaintConfirmation'])->name('ahgprivacy.complaint-confirmation');
     Route::get('/complaint', [PrivacyController::class, 'complaint'])->name('ahgprivacy.complaint');
     Route::get('/dashboard', [PrivacyController::class, 'dashboard'])->name('ahgprivacy.dashboard');

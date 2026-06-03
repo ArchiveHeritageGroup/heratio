@@ -75,11 +75,29 @@ class AhgPrivacyServiceProvider extends ServiceProvider
             ]);
         }
 
+        // Issue #1108 deliverable 5 - DSAR <-> IO scope link table.
+        try {
+            if (! Schema::hasTable('privacy_dsar_object')) {
+                $this->installSqlFile(__DIR__.'/../../database/install-dsar-scope.sql');
+            }
+        } catch (Throwable $e) {
+            Log::warning('ahg-privacy: DSAR scope install probe/install failed', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         // #1108 - alias the field-redaction middleware so IO read routes can
         // opt in (applies field-level redaction for non-privileged viewers).
         $this->app['router']->aliasMiddleware(
             'privacy.redact',
             \AhgPrivacy\Middleware\ApplyRedactionMiddleware::class
+        );
+
+        // #1108 deliverable 4 - surface the field-redaction panel on the
+        // (hard-locked) IO detail page via response injection, admin-only.
+        $this->app['router']->pushMiddlewareToGroup(
+            'web',
+            \AhgPrivacy\Middleware\InjectFieldRedactionPanel::class
         );
 
         // Wire the embedded-PII scan listener onto the extraction event.

@@ -26,7 +26,10 @@ $statusClasses = [
             @if($isOverdue)
             <span class="badge bg-danger fs-6 ms-1"><i class="fas fa-exclamation-triangle"></i> {{ __('Overdue') }}</span>
             @endif
-            <a href="{{ route('ahgprivacy.dsar-edit', ['id' => $dsar->id]) }}" class="btn btn-primary ms-3">
+            <a href="{{ route('ahgprivacy.dsar-scope', ['id' => $dsar->id]) }}" class="btn btn-outline-primary ms-2">
+                <i class="fas fa-user-shield me-1"></i>{{ __('Redaction scope') }}
+            </a>
+            <a href="{{ route('ahgprivacy.dsar-edit', ['id' => $dsar->id]) }}" class="btn btn-primary ms-2">
                 <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
             </a>
         </div>
