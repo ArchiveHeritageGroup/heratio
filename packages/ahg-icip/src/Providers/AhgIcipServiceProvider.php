@@ -33,6 +33,11 @@ class AhgIcipServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
+        // Register the audit alias BEFORE loading routes that reference it, so
+        // the 'audit.icip' middleware key resolves when the route groups boot.
+        // It records ICIP access when icip_config.audit_all_icip_access = 1.
+        $this->app['router']->aliasMiddleware('audit.icip', \AhgIcip\Middleware\AuditIcipAccess::class);
+
         $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'icip');
         $this->ensureOcapColumns();

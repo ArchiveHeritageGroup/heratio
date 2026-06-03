@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 // =====================================================================
 // Primary routes (admin/icip prefix, query-parameter style)
 // =====================================================================
-Route::prefix('admin/icip')->middleware(['web', 'auth'])->group(function () {
+Route::prefix('admin/icip')->middleware(['web', 'auth', 'audit.icip'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [\AhgIcip\Controllers\IcipController::class, 'dashboard'])->name('ahgicip.dashboard');
 
@@ -67,7 +67,7 @@ Route::prefix('admin/icip')->middleware(['web', 'auth'])->group(function () {
 // These map AtoM-style URLs to the existing controller methods by
 // merging path parameters into the request as query parameters.
 // =====================================================================
-Route::prefix('icip')->middleware(['web', 'auth'])->group(function () {
+Route::prefix('icip')->middleware(['web', 'auth', 'audit.icip'])->group(function () {
 
     // 1. icip → dashboard
     Route::get('/', fn () => redirect()->route('ahgicip.dashboard'));
@@ -193,7 +193,7 @@ Route::prefix('icip')->middleware(['web', 'auth'])->group(function () {
 // Object-specific ICIP routes (AtoM-compatible: object/{slug}/icip/*)
 // These use the slug as a path parameter instead of a query parameter.
 // =====================================================================
-Route::prefix('object/{slug}/icip')->middleware(['web', 'auth'])->group(function () {
+Route::prefix('object/{slug}/icip')->middleware(['web', 'auth', 'audit.icip'])->group(function () {
 
     // object/{slug}/icip → objectIcip
     Route::get('/', function ($slug) {

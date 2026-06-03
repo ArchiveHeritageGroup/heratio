@@ -837,6 +837,15 @@ Access ICIP settings via plugin configuration:
 | Local Contexts Hub | Disabled | Enable API integration |
 | Audit All ICIP Access | Yes | Log access to ICIP records |
 
+### Access Audit Log
+
+When **Audit All ICIP Access** is enabled, every visit to an ICIP route is
+recorded in the `icip_access_log` table (the `audit.icip` middleware runs on all
+ICIP routes after authentication). Each row captures the user ID, IP address,
+request path, and timestamp. Toggle the setting under **ICIP Settings → Audit &
+Logging**; it is optional and adds one lightweight insert per ICIP request when
+on. Disable it to stop logging without losing existing rows.
+
 ---
 
 ## Troubleshooting
