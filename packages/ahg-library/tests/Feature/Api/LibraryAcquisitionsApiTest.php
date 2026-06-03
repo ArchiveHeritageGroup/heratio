@@ -59,6 +59,13 @@ class LibraryAcquisitionsApiTest extends AhgLibraryTestCase
         };
         Container::setInstance($container);
 
+        // Bind a real config repository BEFORE the Capsule so (a) service
+        // helpers resolving config() don't hit "Target class [config] does not
+        // exist" when this test runs with no prior Laravel test on the Facade
+        // root, and (b) the Capsule populates database.* into THIS repo rather
+        // than us clobbering its connection config afterwards.
+        $container->instance('config', new \Illuminate\Config\Repository(['app' => ['timezone' => 'UTC']]));
+
         $capsule = new Capsule($container);
         $capsule->addConnection([
             'driver'   => 'sqlite',
