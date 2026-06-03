@@ -225,7 +225,12 @@ class TreeviewService
             ->select('lft', 'rgt')
             ->first();
 
-        if (!$node) {
+        // No node, or a node without MPTT positioning (lft/rgt null — e.g. an
+        // IO created mid-import before the nested set is rebuilt) has no
+        // computable ancestors. Bail out rather than feeding null into a
+        // `<`/`>` comparison, which throws "Illegal operator and value
+        // combination" in the query builder.
+        if (!$node || $node->lft === null || $node->rgt === null) {
             return [];
         }
 

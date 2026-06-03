@@ -52,8 +52,13 @@ class InformationObjectMissingEndpointsTest extends TestCase
     {
         $io = InformationObjectFactory::new()->withI18n(['title' => $title])->create();
 
-        // Insert a slug row (slug factory not part of base factories).
-        DB::table('slug')->insert(['slug' => $slug, 'object_id' => $io->id]);
+        // The factory's afterCreating hook already inserts a slug row, and
+        // slug.slug_U_1 is unique on object_id — a second insert collides.
+        // Update the existing row to the requested slug instead of inserting.
+        DB::table('slug')->updateOrInsert(
+            ['object_id' => $io->id],
+            ['slug' => $slug],
+        );
 
         return $io;
     }

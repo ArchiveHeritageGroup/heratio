@@ -4,8 +4,10 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\ThrottleRequestsException;
@@ -171,6 +173,18 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (\Throwable $e, Request $request) {
+            // Only mask genuinely unexpected (5xx) errors. Exceptions that
+            // already carry a correct client status must fall through to
+            // Laravel's default renderer, otherwise API clients get a generic
+            // 500 instead of the real 422/401/404/403/429 whenever APP_DEBUG is
+            // off (i.e. in CI and production). ValidationException -> 422,
+            // AuthenticationException -> 401, any HttpException -> its status.
+            if ($e instanceof ValidationException
+                || $e instanceof AuthenticationException
+                || $e instanceof HttpExceptionInterface) {
+                return null;
+            }
+
             if ($request->is('api/*') && ! app()->hasDebugModeEnabled()) {
                 return response()->json([
                     'error' => 'Internal Server Error',
