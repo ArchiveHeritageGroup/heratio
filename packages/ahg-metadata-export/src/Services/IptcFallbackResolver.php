@@ -226,7 +226,10 @@ class IptcFallbackResolver
         $parts = preg_split('/[\r\n;,|]+/', $raw) ?: [];
         $clean = [];
         foreach ($parts as $part) {
-            $part = trim($part);
+            // Also strip stray JSON structural chars so a malformed
+            // JSON-looking payload (e.g. "[broken json,,,;") that fell through
+            // here doesn't emit tokens containing brackets/quotes.
+            $part = trim($part, " \t\n\r\0\x0B[]{}\"");
             if ($part !== '') {
                 $clean[] = $part;
             }

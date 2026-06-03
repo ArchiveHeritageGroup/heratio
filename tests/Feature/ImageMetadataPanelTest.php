@@ -61,6 +61,12 @@ class ImageMetadataPanelTest extends TestCase
         // roll the inserts back at the end of the test.
         $doId = 987654321;
 
+        // The sidecar rows carry a FK to digital_object(id); this test only
+        // needs the metadata rows to render the panel, not a real parent DO.
+        // Disable FK checks for the fixture inserts (rolled back by the
+        // DatabaseTransactions trait at end of test).
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
         DB::table('digital_object_metadata')->insert([
             'digital_object_id' => $doId,
             'file_type'         => 'image',
@@ -90,6 +96,8 @@ class ImageMetadataPanelTest extends TestCase
             'created_at'       => now(),
             'updated_at'       => now(),
         ]);
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         try {
             $html = $this->renderPanel($doId);

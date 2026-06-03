@@ -28,6 +28,12 @@ class AppServiceProvider extends ServiceProvider
                 ->name('sru.handle');
             $router->get('/z3950', [\AhgZ3950\Controllers\Z3950Controller::class, 'index'])
                 ->name('z3950.index');
+            // /metrics (ahg-observability Prometheus scrape) — bare, NO 'web'
+            // middleware (controller auths via bearer token / allow-listed IP).
+            // Pre-registered here so it beats the slug catch-all, which would
+            // otherwise eat /metrics and 404 it (#1137). Unnamed to avoid a
+            // route-name collision with the package's own 'observability.metrics'.
+            $router->get('/metrics', [\AhgObservability\Http\Controllers\MetricsController::class, 'show']);
             $router->middleware(['web', 'auth'])->group(function () use ($router) {
                 $router->get('/z3950/search', [\AhgZ3950\Controllers\Z3950Controller::class, 'search'])->name('z3950.search');
                 $router->post('/z3950/search', [\AhgZ3950\Controllers\Z3950Controller::class, 'searchRun'])->name('z3950.search-run');

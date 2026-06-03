@@ -64,7 +64,13 @@ class PrometheusHttpMiddleware
     public function terminate(Request $request, Response $response): void
     {
         try {
-            $start = (float) $request->attributes->get('_obs_started_at', LARAVEL_START ?? microtime(true));
+            // LARAVEL_START is only defined by public/index.php — NOT in CLI,
+            // queue, or test contexts. Referencing it unguarded throws
+            // "Undefined constant" (the default arg is eagerly evaluated even
+            // when _obs_started_at is set), which the catch below swallowed —
+            // silently dropping request metrics outside a web request.
+            $fallbackStart = defined('LARAVEL_START') ? LARAVEL_START : microtime(true);
+            $start = (float) $request->attributes->get('_obs_started_at', $fallbackStart);
             $duration = max(0.0, microtime(true) - $start);
 
             $method = strtoupper($request->getMethod());

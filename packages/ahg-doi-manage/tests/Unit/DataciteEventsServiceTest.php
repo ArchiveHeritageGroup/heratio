@@ -17,10 +17,17 @@ namespace Tests\Unit;
 use AhgDoiManage\Events\DoiCitation;
 use AhgDoiManage\Listeners\RegisterDoiEventsListener;
 use AhgDoiManage\Services\DataciteEventsService;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class DataciteEventsServiceTest extends TestCase
 {
+    // endpoint() consults ahg_doi_config; wrap in a transaction so the
+    // override-neutralising write in the endpoint test rolls back.
+    use DatabaseTransactions;
+
     private DataciteEventsService $svc;
 
     protected function setUp(): void
@@ -72,6 +79,12 @@ class DataciteEventsServiceTest extends TestCase
     public function test_endpoint_defaults_to_production(): void
     {
         config(['datacite.test_mode' => false]);
+        // endpoint() lets an active ahg_doi_config row (environment='test')
+        // override the config default; neutralise it so this verifies the
+        // pure config-driven production default.
+        if (Schema::hasTable('ahg_doi_config')) {
+            DB::table('ahg_doi_config')->update(['is_active' => 0]);
+        }
         $this->assertSame('https://api.datacite.org', $this->svc->endpoint());
     }
 
