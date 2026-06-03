@@ -42,6 +42,7 @@
           <th>{{ __('Lawful basis') }}</th>
           <th>{{ __('Retention') }}</th>
           <th>{{ __('Cross-border?') }}</th>
+          <th>{{ __('DPIA') }}</th>
           <th>{{ __('Status') }}</th>
           <th class="text-end">{{ __('Actions') }}</th>
         </tr>
@@ -60,6 +61,15 @@
                 <span class="badge bg-warning text-dark">{{ __('yes') }}</span>
               @else
                 <span class="badge bg-light text-dark">{{ __('no') }}</span>
+              @endif
+            </td>
+            <td>
+              @if ($a->dpia_required && $a->dpia_completed)
+                <span class="badge bg-success" title="{{ $a->dpia_date ? $a->dpia_date->format('Y-m-d') : '' }}">{{ __('completed') }}</span>
+              @elseif ($a->dpia_required)
+                <span class="badge bg-danger">{{ __('required') }}</span>
+              @else
+                <span class="badge bg-light text-dark">{{ __('n/a') }}</span>
               @endif
             </td>
             <td>
@@ -84,7 +94,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="6" class="text-center text-muted p-4">
+            <td colspan="7" class="text-center text-muted p-4">
               {{ __('No processing activities registered yet.') }}
             </td>
           </tr>

@@ -132,6 +132,51 @@
     </div>
   </div>
 
+  <div class="card mb-3">
+    <div class="card-header">
+      <i class="fas fa-shield-alt me-1"></i>{{ __('High-risk screening (DPIA)') }}
+    </div>
+    <div class="card-body">
+      <p class="small text-muted">
+        {{ __('Heratio screens this activity automatically against the GDPR Art. 35(3) high-risk triggers (special category data, large-scale profiling, biometric processing, cross-border transfer without safeguards). Leave each override on "Auto" to let the screen decide, or force a determination as the DPO.') }}
+      </p>
+      @php
+        $overrideOptions = ['' => __('Auto (screen decides)'), '1' => __('Yes - high risk'), '0' => __('No')];
+        $overrideFields = [
+          'special_category_override'      => __('Special category data'),
+          'large_scale_profiling_override' => __('Large-scale profiling / monitoring'),
+          'biometric_override'             => __('Biometric / genetic processing'),
+        ];
+      @endphp
+      <div class="row g-3">
+        @foreach ($overrideFields as $field => $label)
+          @php $current = old($field, $activity->{$field}); $current = ($current === null ? '' : (string) $current); @endphp
+          <div class="col-md-4">
+            <label class="form-label">{{ $label }}</label>
+            <select name="{{ $field }}" class="form-select">
+              @foreach ($overrideOptions as $val => $text)
+                <option value="{{ $val }}" @selected($current === (string) $val)>{{ $text }}</option>
+              @endforeach
+            </select>
+          </div>
+        @endforeach
+      </div>
+      @if (! $isCreate && $activity->dpia_screening_note)
+        <div class="alert {{ $activity->dpia_required ? 'alert-warning' : 'alert-light' }} mt-3 mb-0 py-2 small">
+          <i class="fas {{ $activity->dpia_required ? 'fa-exclamation-triangle' : 'fa-check' }} me-1"></i>
+          {{ $activity->dpia_screening_note }}
+          @if ($activity->dpia_required)
+            @if ($activity->dpia_completed)
+              <span class="badge bg-success ms-1">{{ __('DPIA completed') }}@if ($activity->dpia_date) - {{ $activity->dpia_date->format('Y-m-d') }}@endif</span>
+            @else
+              <a href="{{ route('ahgprivacy.dpia.create') }}" class="alert-link ms-1">{{ __('Start a DPIA') }}</a>
+            @endif
+          @endif
+        </div>
+      @endif
+    </div>
+  </div>
+
   <div class="d-flex justify-content-end">
     <a href="{{ route('ahgprivacy.article-30.index') }}" class="btn btn-light me-2">{{ __('Cancel') }}</a>
     <button type="submit" class="btn btn-primary">
