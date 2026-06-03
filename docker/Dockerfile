@@ -27,8 +27,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
  && docker-php-ext-install -j"$(nproc)" \
         pdo_mysql mysqli mbstring xml xsl zip gd intl bcmath opcache exif \
- && pecl install redis \
- && docker-php-ext-enable redis
+ # Install the redis extension via mlocati/docker-php-extension-installer
+ # instead of `pecl install redis`: the raw pecl download is flaky in CI
+ # (intermittent download failures broke docker-publish). The installer is
+ # pinned, retried, and resolves a compatible version automatically.
+ && curl -sSLf https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o /usr/local/bin/install-php-extensions \
+ && chmod +x /usr/local/bin/install-php-extensions \
+ && install-php-extensions redis
 
 # --- composer + node ---------------------------------------------------------
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
