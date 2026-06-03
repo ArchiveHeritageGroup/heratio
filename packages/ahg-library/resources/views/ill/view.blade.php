@@ -16,7 +16,7 @@
         <span class="font-monospace">{{ e($request->ill_number ?? $id) }}</span>
       </h1>
       @if($request->opac_suppress)
-        <span class="badge bg-dark ms-2" title="Suppressed from OPAC">Suppressed</span>
+        <span class="badge bg-dark ms-2" title="{{ __('Suppressed from OPAC') }}">Suppressed</span>
       @endif
     </div>
     <div>
@@ -286,7 +286,7 @@
             <div class="mb-2">
               <label class="form-label small">{{ __('Library Symbol') }}</label>
               <input type="text" name="library_symbol" value="{{ e($request->library_symbol ?? '') }}"
-                     class="form-control form-control-sm" placeholder="e.g. SABINET, NAZ">
+                     class="form-control form-control-sm" placeholder="{{ __('e.g. SABINET, NAZ') }}">
             </div>
             <div class="mb-2">
               <label class="form-label small">{{ __('Due Date') }}</label>

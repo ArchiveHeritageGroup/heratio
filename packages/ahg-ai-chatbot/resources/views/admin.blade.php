@@ -6,7 +6,7 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Chatbot Administration</h2>
+        <h2>{{ __('Chatbot Administration') }}</h2>
         <a href="{{ route('admin.chatbot.review') }}" class="btn btn-outline-warning">
             <i class="fas fa-exclamation-triangle me-1"></i> Review Queue
             @if (count($reviewQueue ?? []) > 0)
@@ -64,12 +64,12 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Session</th>
-                            <th>Grounding Score</th>
-                            <th>Model</th>
-                            <th>Response excerpt</th>
-                            <th>Actions</th>
+                            <th>{{ __('Date') }}</th>
+                            <th>{{ __('Session') }}</th>
+                            <th>{{ __('Grounding Score') }}</th>
+                            <th>{{ __('Model') }}</th>
+                            <th>{{ __('Response excerpt') }}</th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -113,7 +113,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Response Detail</h5>
+                <h5 class="modal-title">{{ __('Response Detail') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="detail-body">

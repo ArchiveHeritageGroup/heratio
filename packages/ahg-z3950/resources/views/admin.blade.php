@@ -12,7 +12,7 @@
 
         <div class="flex items-center justify-between mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Z39.50 Admin</h1>
+                <h1 class="text-2xl font-bold text-gray-900">{{ __('Z39.50 Admin') }}</h1>
                 <p class="text-sm text-gray-500 mt-1">Manage targets and view connection history.</p>
             </div>
             <a href="{{ route('z3950.target.create') }}"
@@ -24,7 +24,7 @@
         {{-- Targets --}}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-8">
             <div class="px-5 py-4 border-b border-gray-100">
-                <h2 class="font-semibold text-gray-900">Targets</h2>
+                <h2 class="font-semibold text-gray-900">{{ __('Targets') }}</h2>
             </div>
             @if($targets->isEmpty())
                 <div class="text-center py-10 text-gray-400">
@@ -34,13 +34,13 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Name</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Host</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Port</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Database</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Syntax</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Status</th>
-                            <th class="text-right px-5 py-2.5 font-medium text-gray-500">Action</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Name') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Host') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Port') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Database') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Syntax') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Status') }}</th>
+                            <th class="text-right px-5 py-2.5 font-medium text-gray-500">{{ __('Action') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -62,7 +62,7 @@
                                     <form method="POST" action="{{ route('z3950.target.delete', $target->id) }}" onsubmit="return confirm('Remove target \'{{ addslashes($target->name) }}\'?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-xs text-red-600 hover:text-red-800">Remove</button>
+                                        <button type="submit" class="text-xs text-red-600 hover:text-red-800">{{ __('Remove') }}</button>
                                     </form>
                                 </td>
                             </tr>
@@ -75,7 +75,7 @@
         {{-- Recent queries --}}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-8">
             <div class="px-5 py-4 border-b border-gray-100">
-                <h2 class="font-semibold text-gray-900">Recent queries</h2>
+                <h2 class="font-semibold text-gray-900">{{ __('Recent queries') }}</h2>
             </div>
             @if($recentQueries->isEmpty())
                 <div class="text-center py-8 text-gray-400 text-sm">No queries yet.</div>
@@ -83,12 +83,12 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">When</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Target</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Query</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Results</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Elapsed</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Status</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('When') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Target') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Query') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Results') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Elapsed') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Status') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -116,7 +116,7 @@
         {{-- Recent imports --}}
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-100">
-                <h2 class="font-semibold text-gray-900">Recent imports</h2>
+                <h2 class="font-semibold text-gray-900">{{ __('Recent imports') }}</h2>
             </div>
             @if($recentImports->isEmpty())
                 <div class="text-center py-8 text-gray-400 text-sm">No imports yet.</div>
@@ -124,11 +124,11 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">When</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Result set</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Record #</th>
-                            <th class="text-right px-5 py-2.5 font-medium text-gray-500">Works created</th>
-                            <th class="text-right px-5 py-2.5 font-medium text-gray-500">Instances created</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('When') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Result set') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Record #') }}</th>
+                            <th class="text-right px-5 py-2.5 font-medium text-gray-500">{{ __('Works created') }}</th>
+                            <th class="text-right px-5 py-2.5 font-medium text-gray-500">{{ __('Instances created') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">

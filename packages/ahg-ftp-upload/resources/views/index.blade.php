@@ -98,7 +98,7 @@
           <button type="button" class="btn btn-sm atom-btn-white" id="up-btn" disabled title="{{ __('Up one level') }}">
             <i class="fa fa-level-up-alt"></i>
           </button>
-          <nav aria-label="folder breadcrumb" class="flex-grow-1">
+          <nav aria-label="{{ __('folder breadcrumb') }}" class="flex-grow-1">
             <ol class="breadcrumb mb-0" id="folder-breadcrumb">
               <li class="breadcrumb-item active" aria-current="page" data-dir="">
                 <i class="fa fa-folder me-1"></i>{{ __('Root') }}

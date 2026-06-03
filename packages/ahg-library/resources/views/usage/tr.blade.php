@@ -8,15 +8,15 @@
 
     <form method="get" class="row g-2 mb-3" action="{{ route('library.usage.title-report') }}">
       <div class="col-auto">
-        <label class="form-label small">Start date</label>
+        <label class="form-label small">{{ __('Start date') }}</label>
         <input type="date" name="start" class="form-control" value="{{ $start ?? old('start', now()->startOfMonth()->toDateString()) }}">
       </div>
       <div class="col-auto">
-        <label class="form-label small">End date</label>
+        <label class="form-label small">{{ __('End date') }}</label>
         <input type="date" name="end" class="form-control" value="{{ $end ?? old('end', now()->toDateString()) }}">
       </div>
       <div class="col-auto d-flex align-items-end">
-        <button type="submit" class="btn btn-outline-primary btn-sm">Filter</button>
+        <button type="submit" class="btn btn-outline-primary btn-sm">{{ __('Filter') }}</button>
       </div>
     </form>
 
@@ -27,8 +27,8 @@
         <table class="table table-sm table-striped">
           <thead>
             <tr>
-              <th>Title</th>
-              <th class="text-end">Total</th>
+              <th>{{ __('Title') }}</th>
+              <th class="text-end">{{ __('Total') }}</th>
               <th class="text-end">HTML</th>
               <th class="text-end">PDF</th>
             </tr>

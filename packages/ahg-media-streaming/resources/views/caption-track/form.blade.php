@@ -30,7 +30,7 @@
 
             {{-- Track type --}}
             <div class="mb-3">
-                <label class="form-label" for="track_type">Track type</label>
+                <label class="form-label" for="track_type">{{ __('Track type') }}</label>
                 <select name="track_type" id="track_type" class="form-select" required>
                     <option value="subtitle" {{ ($track->track_type ?? request()->query('type', 'subtitle')) === 'subtitle' ? 'selected' : '' }}>Subtitle</option>
                     <option value="caption" {{ ($track->track_type ?? '') === 'caption' ? 'selected' : '' }}>Caption</option>
@@ -46,7 +46,7 @@
                        class="form-control"
                        value="{{ old('label', $track->label ?? '') }}"
                        maxlength="120"
-                       placeholder="e.g. English, English (SDH), isiZulu, Spanish"
+                       placeholder="{{ __('e.g. English, English (SDH), isiZulu, Spanish') }}"
                        required>
                 <small class="text-muted">Short label shown in the video player's track selector.</small>
             </div>
@@ -125,12 +125,12 @@
 
             {{-- Source URL --}}
             <div class="mb-3">
-                <label class="form-label" for="source_url">Remote VTT or SRT URL</label>
+                <label class="form-label" for="source_url">{{ __('Remote VTT or SRT URL') }}</label>
                 <input type="url" name="source_url" id="source_url"
                        class="form-control"
                        value="{{ old('source_url', $track->source_url ?? '') }}"
                        maxlength="500"
-                       placeholder="https://example.com/subtitles/en.vtt">
+                       placeholder="{{ __('https://example.com/subtitles/en.vtt') }}">
                 <small class="text-muted">Link to an external WebVTT (.vtt) or SubRip (.srt) file. Contents are cached locally and served as inline VTT. Leave blank to paste VTT content below.</small>
             </div>
 
@@ -140,14 +140,14 @@
 
             {{-- VTT content --}}
             <div class="mb-3">
-                <label class="form-label" for="vtt_content">Inline VTT content</label>
+                <label class="form-label" for="vtt_content">{{ __('Inline VTT content') }}</label>
                 <textarea name="vtt_content" id="vtt_content"
                           class="form-control font-monospace"
                           rows="8"
-                          placeholder="WEBVTT
+                          placeholder="{{ __('WEBVTT
 
 00:00:01.000 --> 00:00:04.000
-Welcome to our archival collection.">{{ old('vtt_content', $track->vtt_content ?? '') }}</textarea>
+Welcome to our archival collection.') }}">{{ old('vtt_content', $track->vtt_content ?? '') }}</textarea>
                 <small class="text-muted">
                     WebVTT format. Leave blank if using a remote URL above. Timestamps use HH:MM:SS.mmm format.<br>
                     <a href="https://www.w3.org/TR/webvtt/" target="_blank" rel="noopener">WebVTT specification on W3C <i class="fas fa-external-link-alt"></i></a>

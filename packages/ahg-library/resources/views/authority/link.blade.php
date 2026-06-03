@@ -9,7 +9,7 @@
                class="btn btn-outline-secondary btn-sm me-3">
                 <i class="fas fa-arrow-left"></i>
             </a>
-            <h2 class="mb-0">Link Subject Heading</h2>
+            <h2 class="mb-0">{{ __('Link Subject Heading') }}</h2>
         </div>
     </div>
 
@@ -21,7 +21,7 @@
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
@@ -56,9 +56,9 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="library_item_id_manual" class="form-label">Or enter Library Item ID</label>
+                    <label for="library_item_id_manual" class="form-label">{{ __('Or enter Library Item ID') }}</label>
                     <input type="number" class="form-control" id="library_item_id_manual"
-                           placeholder="e.g. 123" min="1"
+                           placeholder="{{ __('e.g. 123') }}" min="1"
                            oninput="
                                var v = this.value;
                                var sel = document.getElementById('library_item_id');
@@ -70,7 +70,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="source_tag" class="form-label">Source MARC Tag</label>
+                    <label for="source_tag" class="form-label">{{ __('Source MARC Tag') }}</label>
                     <select name="source_tag" id="source_tag" class="form-select">
                         <option value="650">650 — Topical subject</option>
                         <option value="651">651 — Geographic name subject</option>

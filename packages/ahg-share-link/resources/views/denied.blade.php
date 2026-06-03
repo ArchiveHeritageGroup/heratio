@@ -17,7 +17,7 @@
 <body>
 <div class="sl-card">
     <div class="icon">⚠</div>
-    <h1>Share link unavailable</h1>
+    <h1>{{ __('Share link unavailable') }}</h1>
     <p>{{ $reason ?? 'This share link is no longer valid.' }}</p>
     <div class="sl-status">HTTP 410 · {{ $result->action }}</div>
 </div>

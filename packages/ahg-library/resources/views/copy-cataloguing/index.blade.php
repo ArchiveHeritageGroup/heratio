@@ -9,7 +9,7 @@
                 <i class="fas fa-arrow-left me-1"></i>MARC Editor
             </a>
             <div>
-                <h2 class="mb-0">Copy Cataloguing</h2>
+                <h2 class="mb-0">{{ __('Copy Cataloguing') }}</h2>
                 <span class="badge bg-info text-dark mt-1">Z39.50</span>
             </div>
         </div>
@@ -18,13 +18,13 @@
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
     @if(session('error') || isset($searchError))
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') ?? $searchError }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
@@ -34,7 +34,7 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Z39.50 Search</h5>
+                        <h5 class="mb-0">{{ __('Z39.50 Search') }}</h5>
                         <a href="{{ route('library.copy-cataloguing-targets') }}"
                            class="btn btn-sm btn-light">
                             <i class="fas fa-server me-1"></i>Targets
@@ -60,7 +60,7 @@
                             <label for="query" class="form-label">Query <span class="text-danger">*</span></label>
                             <input type="text" name="query" id="query" class="form-control"
                                    value="{{ $query ?? '' }}"
-                                   placeholder="isbn=9780123456 or title=python programming">
+                                   placeholder="{{ __('isbn=9780123456 or title=python programming') }}">
                             <div class="form-text small text-muted">
                                 Use field prefixes: <code>title=</code>, <code>author=</code>,
                                 <code>isbn=</code>, <code>issn=</code>, <code>subject=</code>
@@ -77,7 +77,7 @@
             {{-- Quick targets info --}}
             <div class="card shadow-sm">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <h5 class="mb-0">Available Targets</h5>
+                    <h5 class="mb-0">{{ __('Available Targets') }}</h5>
                 </div>
                 <div class="card-body p-0">
                     @if($targets->isEmpty())
@@ -87,7 +87,7 @@
                     @else
                         <table class="table table-sm mb-0">
                             <thead class="table-light">
-                                <tr><th>Target</th><th>Host</th></tr>
+                                <tr><th>{{ __('Target') }}</th><th>{{ __('Host') }}</th></tr>
                             </thead>
                             <tbody>
                                 @foreach($targets as $t)
@@ -117,12 +117,12 @@
                         <table class="table table-striped table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Author</th>
-                                    <th>ISBN</th>
-                                    <th>ISSN</th>
-                                    <th>Publisher</th>
-                                    <th>Actions</th>
+                                    <th>{{ __('Title') }}</th>
+                                    <th>{{ __('Author') }}</th>
+                                    <th>{{ __('ISBN') }}</th>
+                                    <th>{{ __('ISSN') }}</th>
+                                    <th>{{ __('Publisher') }}</th>
+                                    <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

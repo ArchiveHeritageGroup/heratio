@@ -65,14 +65,14 @@
                 <table class="table table-striped table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th>Collection</th>
-                            <th class="text-end">Items</th>
-                            <th class="text-center">Link resolver</th>
-                            <th class="text-end">OA %</th>
-                            <th class="text-end">Preprints</th>
-                            <th class="text-end">ORCID records</th>
-                            <th class="text-center" style="width:140px;">Quality score</th>
-                            <th class="small">Updated</th>
+                            <th>{{ __('Collection') }}</th>
+                            <th class="text-end">{{ __('Items') }}</th>
+                            <th class="text-center">{{ __('Link resolver') }}</th>
+                            <th class="text-end">{{ __('OA %') }}</th>
+                            <th class="text-end">{{ __('Preprints') }}</th>
+                            <th class="text-end">{{ __('ORCID records') }}</th>
+                            <th class="text-center" style="width:140px;">{{ __('Quality score') }}</th>
+                            <th class="small">{{ __('Updated') }}</th>
                         </tr>
                     </thead>
                     <tbody>

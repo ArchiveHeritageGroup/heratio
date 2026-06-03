@@ -21,7 +21,7 @@
       <div class="card-header">Select works to export</div>
       <div class="card-body">
         <div class="mb-3">
-          <label for="work_id" class="form-label">Single work</label>
+          <label for="work_id" class="form-label">{{ __('Single work') }}</label>
           <select class="form-select" name="work_id" id="work_id">
             <option value="">— Select a work —</option>
             @foreach($works as $w)
@@ -31,12 +31,12 @@
         </div>
 
         <div class="mb-3">
-          <label for="format" class="form-label">RDF Serialisation</label>
+          <label for="format" class="form-label">{{ __('RDF Serialisation') }}</label>
           <select class="form-select" name="format" id="format">
-            <option value="xml">XML (application/rdf+xml)</option>
-            <option value="turtle">Turtle (*.ttl)</option>
-            <option value="ntriples">N-Triples</option>
-            <option value="json-ld">JSON-LD (*.jsonld)</option>
+            <option value="xml">{{ __('XML (application/rdf+xml)') }}</option>
+            <option value="turtle">{{ __('Turtle (*.ttl)') }}</option>
+            <option value="ntriples">{{ __('N-Triples') }}</option>
+            <option value="json-ld">{{ __('JSON-LD (*.jsonld)') }}</option>
           </select>
         </div>
 

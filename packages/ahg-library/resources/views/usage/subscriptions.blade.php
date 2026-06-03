@@ -55,7 +55,7 @@
         <div class="col-lg-7">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Active Partners</h6>
+                    <h6 class="mb-0">{{ __('Active Partners') }}</h6>
                     <span class="badge bg-primary">{{ count($subscriptions) }}</span>
                 </div>
                 @if(empty($subscriptions))
@@ -120,7 +120,7 @@
                             <input type="text" name="partner_code"
                                    class="form-control form-control-sm @error('partner_code') is-invalid @enderror"
                                    value="{{ old('partner_code') }}"
-                                   placeholder="e.g. sabinet, naz, ebscohost"
+                                   placeholder="{{ __('e.g. sabinet, naz, ebscohost') }}"
                                    pattern="[a-z0-9_]+" maxlength="50">
                             <small class="text-muted">Lowercase letters, numbers and underscores only.</small>
                             @error('partner_code')
@@ -133,7 +133,7 @@
                             <input type="email" name="contact_email"
                                    class="form-control form-control-sm @error('contact_email') is-invalid @endif"
                                    value="{{ old('contact_email') }}"
-                                   placeholder="library@provider.com">
+                                   placeholder="{{ __('library@provider.com') }}">
                             @error('contact_email')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -144,7 +144,7 @@
                             <input type="url" name="base_url"
                                    class="form-control form-control-sm @error('base_url') is-invalid @endif"
                                    value="{{ old('base_url') }}"
-                                   placeholder="https://sushi.provider.co.za/sushi/v5">
+                                   placeholder="{{ __('https://sushi.provider.co.za/sushi/v5') }}">
                             <small class="text-muted">Root URL — path <code>/sushi/v5/reports/*</code> is appended automatically.</small>
                             @error('base_url')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -152,15 +152,15 @@
                         </div>
 
                         <div class="mb-2">
-                            <label class="form-label small">API Key (optional)</label>
+                            <label class="form-label small">{{ __('API Key (optional)') }}</label>
                             <input type="password" name="api_key"
                                    class="form-control form-control-sm"
-                                   placeholder="Bearer token">
+                                   placeholder="{{ __('Bearer token') }}">
                             <small class="text-muted">Stored encrypted at rest.</small>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label small">Report Types</label>
+                            <label class="form-label small">{{ __('Report Types') }}</label>
                             <div>
                                 @foreach(['PR', 'TR', 'DR', 'IR'] as $rt)
                                     <div class="form-check form-check-inline">

@@ -7,7 +7,7 @@
             <i class="fas fa-arrow-left"></i>
         </a>
         <div>
-            <h2 class="mb-0">Z39.50 Search Results</h2>
+            <h2 class="mb-0">{{ __('Z39.50 Search Results') }}</h2>
             <p class="text-muted small mb-0">
                 Target: <strong>{{ $targetName }}</strong> —
                 Query: <em>"{{ $query }}"</em> —

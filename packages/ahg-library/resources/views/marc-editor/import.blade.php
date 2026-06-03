@@ -9,7 +9,7 @@
                 <i class="fas fa-arrow-left"></i>
             </a>
             <div>
-                <h2 class="mb-0">Import MARC Records</h2>
+                <h2 class="mb-0">{{ __('Import MARC Records') }}</h2>
                 <span class="badge bg-info text-dark mt-1">MARCXML Batch Import</span>
             </div>
         </div>
@@ -18,14 +18,14 @@
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
@@ -38,7 +38,7 @@
             <form method="POST" action="{{ route('library.marc-import-preview') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-3">
-                    <label for="marc_file" class="form-label">Select MARCXML file</label>
+                    <label for="marc_file" class="form-label">{{ __('Select MARCXML file') }}</label>
                     <input type="file" name="marc_file" id="marc_file" class="form-control"
                            accept=".xml,.marcxml,text/xml,application/xml" required>
                     <div class="form-text">
@@ -47,14 +47,14 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label d-block">Format</label>
+                    <label class="form-label d-block">{{ __('Format') }}</label>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="format" id="fmt_xml" value="marcxml" checked>
-                        <label class="form-check-label" for="fmt_xml">MARCXML</label>
+                        <label class="form-check-label" for="fmt_xml">{{ __('MARCXML') }}</label>
                     </div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="format" id="fmt_marc" value="marc">
-                        <label class="form-check-label" for="fmt_marc">MARC Binary (.mrc)</label>
+                        <label class="form-check-label" for="fmt_marc">{{ __('MARC Binary (.mrc)') }}</label>
                     </div>
                 </div>
 
@@ -106,11 +106,11 @@
                                         <table class="table table-striped table-sm mb-0">
                                             <thead class="table-light">
                                                 <tr>
-                                                    <th style="width:60px">Tag</th>
-                                                    <th style="width:60px">Ind1</th>
-                                                    <th style="width:60px">Ind2</th>
-                                                    <th>Subfield Code</th>
-                                                    <th>Content</th>
+                                                    <th style="width:60px">{{ __('Tag') }}</th>
+                                                    <th style="width:60px">{{ __('Ind1') }}</th>
+                                                    <th style="width:60px">{{ __('Ind2') }}</th>
+                                                    <th>{{ __('Subfield Code') }}</th>
+                                                    <th>{{ __('Content') }}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

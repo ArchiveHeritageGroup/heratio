@@ -37,7 +37,7 @@
                                    class="form-control @error('name') is-invalid @enderror"
                                    value="{{ old('name', $feed->name ?? '') }}"
                                    maxlength="255" required
-                                   placeholder="e.g. ProQuest KBART Feed Q1 2026">
+                                   placeholder="{{ __('e.g. ProQuest KBART Feed Q1 2026') }}">
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -52,7 +52,7 @@
                                        class="form-control @error('url') is-invalid @enderror"
                                        value="{{ old('url', $feed->url ?? '') }}"
                                        maxlength="1000" required
-                                       placeholder="https://vendor.example.com/kbart/titles.tsv">
+                                       placeholder="{{ __('https://vendor.example.com/kbart/titles.tsv') }}">
                                 <button type="button" id="test-url-btn" class="btn btn-outline-secondary">
                                     <i class="fas fa-plug me-1"></i>Test URL
                                 </button>
@@ -67,12 +67,12 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="vendor" class="form-label">Vendor / platform</label>
+                                <label for="vendor" class="form-label">{{ __('Vendor / platform') }}</label>
                                 <input type="text" name="vendor" id="vendor"
                                        class="form-control"
                                        value="{{ old('vendor', $feed->vendor ?? '') }}"
                                        maxlength="255"
-                                       placeholder="e.g. ProQuest, EBSCO, JSTOR">
+                                       placeholder="{{ __('e.g. ProQuest, EBSCO, JSTOR') }}">
                             </div>
                             <div class="col-md-6 d-flex align-items-end">
                                 <div class="form-check">
@@ -88,11 +88,11 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="notes" class="form-label">Internal notes</label>
+                            <label for="notes" class="form-label">{{ __('Internal notes') }}</label>
                             <textarea name="notes" id="notes" rows="3"
                                       class="form-control"
                                       maxlength="2000"
-                                      placeholder="Licence notes, feed quirks, contact info …">{{ old('notes', $feed->notes ?? '') }}</textarea>
+                                      placeholder="{{ __('Licence notes, feed quirks, contact info …') }}">{{ old('notes', $feed->notes ?? '') }}</textarea>
                             <div class="form-text">Not shown to patrons.</div>
                         </div>
 

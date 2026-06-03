@@ -3,7 +3,7 @@
     <div class="max-w-5xl mx-auto py-8 px-4">
         <div class="flex items-center justify-between mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Z39.50 Client &amp; Server</h1>
+                <h1 class="text-2xl font-bold text-gray-900">{{ __('Z39.50 Client &amp; Server') }}</h1>
                 <p class="text-sm text-gray-500 mt-1">Search remote bibliographic targets and import records.</p>
             </div>
             <a href="{{ route('z3950.admin') }}"
@@ -80,16 +80,16 @@
         @if($targets->isNotEmpty())
             <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
                 <div class="px-5 py-4 border-b border-gray-100">
-                    <h2 class="font-semibold text-gray-900">Configured targets</h2>
+                    <h2 class="font-semibold text-gray-900">{{ __('Configured targets') }}</h2>
                 </div>
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Name</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Host</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Port</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Database</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Syntax</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Name') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Host') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Port') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Database') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Syntax') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -114,7 +114,7 @@
 
         {{-- Protocol info --}}
         <div class="mt-8 bg-gray-50 rounded-xl border border-gray-200 px-5 py-4">
-            <h3 class="font-semibold text-gray-700 text-sm mb-2">About Z39.50</h3>
+            <h3 class="font-semibold text-gray-700 text-sm mb-2">{{ __('About Z39.50') }}</h3>
             <p class="text-xs text-gray-500 leading-relaxed">
                 Z39.50 is a client-server protocol for information retrieval (ANSI/NISO Z39.50, ISO 23950).
                 It uses the bib-1 attribute set to define query operators (title, author, ISBN, subject, etc.).

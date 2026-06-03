@@ -19,7 +19,7 @@
       <div class="card-header">Upload BIBFRAME document</div>
       <div class="card-body">
         <div class="mb-3">
-          <label for="rdf_file" class="form-label">RDF/XML, .rdf, or .ttl file (max 10 MB)</label>
+          <label for="rdf_file" class="form-label">{{ __('RDF/XML, .rdf, or .ttl file (max 10 MB)') }}</label>
           <input class="form-control" type="file" name="rdf_file" id="rdf_file" required accept=".xml,.rdf,.ttl">
           @error('rdf_file')
             <div class="text-danger small mt-1">{{ $message }}</div>

@@ -129,7 +129,7 @@
                 {{ e($r->ill_number) }}
               </a>
               @if($r->opac_suppress)
-                <span class="badge bg-dark ms-1" title="Suppressed from OPAC">S</span>
+                <span class="badge bg-dark ms-1" title="{{ __('Suppressed from OPAC') }}">S</span>
               @endif
             </td>
             <td>

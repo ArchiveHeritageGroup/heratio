@@ -260,7 +260,7 @@
                                     <td>
                                         {{ $l->due_date ?? '' }}
                                         @if($isOverdue)
-                                            <i class="fas fa-exclamation-circle text-danger ms-1" title="Overdue"></i>
+                                            <i class="fas fa-exclamation-circle text-danger ms-1" title="{{ __('Overdue') }}"></i>
                                         @endif
                                     </td>
                                     <td>{{ $l->first_name ?? '' }} {{ $l->last_name ?? '' }}</td>

@@ -7,13 +7,13 @@
            class="btn btn-outline-secondary btn-sm me-3">
             <i class="fas fa-arrow-left"></i>
         </a>
-        <h2 class="mb-0">Preview & Import</h2>
+        <h2 class="mb-0">{{ __('Preview & Import') }}</h2>
     </div>
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
@@ -28,11 +28,11 @@
                     <table class="table table-sm table-striped mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th style="width:60px">Tag</th>
-                                <th style="width:60px">I1</th>
-                                <th style="width:60px">I2</th>
-                                <th>Code</th>
-                                <th>Content</th>
+                                <th style="width:60px">{{ __('Tag') }}</th>
+                                <th style="width:60px">{{ __('I1') }}</th>
+                                <th style="width:60px">{{ __('I2') }}</th>
+                                <th>{{ __('Code') }}</th>
+                                <th>{{ __('Content') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -86,19 +86,19 @@
                                        maxlength="500" required>
                             </div>
                             <div class="col-md-4">
-                                <label for="isbn" class="form-label small fw-semibold">ISBN</label>
+                                <label for="isbn" class="form-label small fw-semibold">{{ __('ISBN') }}</label>
                                 <input type="text" name="isbn" id="isbn" class="form-control" value="">
                             </div>
                             <div class="col-md-6">
-                                <label for="publisher" class="form-label small fw-semibold">Publisher</label>
+                                <label for="publisher" class="form-label small fw-semibold">{{ __('Publisher') }}</label>
                                 <input type="text" name="publisher" class="form-control" value="">
                             </div>
                             <div class="col-md-6">
-                                <label for="publication_date" class="form-label small fw-semibold">Publication Date</label>
-                                <input type="text" name="publication_date" class="form-control" value="" placeholder="YYYY">
+                                <label for="publication_date" class="form-label small fw-semibold">{{ __('Publication Date') }}</label>
+                                <input type="text" name="publication_date" class="form-control" value="" placeholder="{{ __('YYYY') }}">
                             </div>
                             <div class="col-md-6">
-                                <label for="call_number" class="form-label small fw-semibold">Call Number</label>
+                                <label for="call_number" class="form-label small fw-semibold">{{ __('Call Number') }}</label>
                                 <input type="text" name="call_number" id="call_number" class="form-control" value="">
                             </div>
                         </div>

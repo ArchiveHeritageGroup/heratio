@@ -5,7 +5,7 @@
     <title>Workflow task approved</title>
 </head>
 <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #222;">
-    <h2 style="color: #16a34a;">Workflow task approved</h2>
+    <h2 style="color: #16a34a;">{{ __('Workflow task approved') }}</h2>
 
     <p>Hello {{ $context['recipient_name'] ?? 'colleague' }},</p>
 

@@ -13,7 +13,7 @@
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
@@ -28,19 +28,19 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="lc_label" class="form-label small fw-semibold">LC Label</label>
+                            <label for="lc_label" class="form-label small fw-semibold">{{ __('LC Label') }}</label>
                             <input type="text" name="lc_label" id="lc_label" class="form-control"
                                    value="{{ old('lc_label', $record->lc_label ?? '') }}" maxlength="500">
                             @error('lc_label') <div class="text-danger small">{{ $message }}</div> @enderror
                         </div>
                         <div class="mb-3">
-                            <label for="rda_label" class="form-label small fw-semibold">RDA Label</label>
+                            <label for="rda_label" class="form-label small fw-semibold">{{ __('RDA Label') }}</label>
                             <input type="text" name="rda_label" id="rda_label" class="form-control"
                                    value="{{ old('rda_label', $record->rda_label ?? '') }}" maxlength="500">
                             @error('rda_label') <div class="text-danger small">{{ $message }}</div> @enderror
                         </div>
                         <div class="mb-3">
-                            <label for="authorized_form" class="form-label small fw-semibold">Authorized Form</label>
+                            <label for="authorized_form" class="form-label small fw-semibold">{{ __('Authorized Form') }}</label>
                             <input type="text" name="authorized_form" id="authorized_form" class="form-control"
                                    value="{{ old('authorized_form', $record->authorized_form ?? '') }}" maxlength="500">
                             @error('authorized_form') <div class="text-danger small">{{ $message }}</div> @enderror
@@ -55,7 +55,7 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="subject_type" class="form-label small fw-semibold">Subject Type</label>
+                                <label for="subject_type" class="form-label small fw-semibold">{{ __('Subject Type') }}</label>
                                 <select name="subject_type" id="subject_type" class="form-select">
                                     @foreach(['topic','person','family','corporate_body','title','geographic','event','uniform_title'] as $t)
                                         <option value="{{ $t }}" {{ old('subject_type', $record->subject_type ?? 'topic') === $t ? 'selected' : '' }}>{{ $t }}</option>
@@ -63,13 +63,13 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label for="vocab_code" class="form-label small fw-semibold">Vocabulary Code</label>
+                                <label for="vocab_code" class="form-label small fw-semibold">{{ __('Vocabulary Code') }}</label>
                                 <input type="text" name="vocab_code" id="vocab_code" class="form-control"
                                        value="{{ old('vocab_code', $record->vocab_code ?? '') }}" maxlength="50">
                                 @error('vocab_code') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-12">
-                                <label for="vocab_uri" class="form-label small fw-semibold">Vocabulary URI</label>
+                                <label for="vocab_uri" class="form-label small fw-semibold">{{ __('Vocabulary URI') }}</label>
                                 <input type="url" name="vocab_uri" id="vocab_uri" class="form-control"
                                        value="{{ old('vocab_uri', $record->vocab_uri ?? '') }}" maxlength="500">
                                 @error('vocab_uri') <div class="text-danger small">{{ $message }}</div> @enderror
@@ -85,13 +85,13 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="uri" class="form-label small fw-semibold">Authority URI</label>
+                                <label for="uri" class="form-label small fw-semibold">{{ __('Authority URI') }}</label>
                                 <input type="url" name="uri" id="uri" class="form-control"
                                        value="{{ old('uri', $record->uri ?? '') }}" maxlength="500">
                                 @error('uri') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
-                                <label for="source" class="form-label small fw-semibold">Source</label>
+                                <label for="source" class="form-label small fw-semibold">{{ __('Source') }}</label>
                                 <input type="text" name="source" id="source" class="form-control"
                                        value="{{ old('source', $record->source ?? '') }}" maxlength="100">
                                 @error('source') <div class="text-danger small">{{ $message }}</div> @enderror

@@ -2,7 +2,7 @@
   @section('title', 'EDI Trading Partners')
 
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h4">EDI Trading Partners</h2>
+    <h2 class="h4">{{ __('EDI Trading Partners') }}</h2>
     <a href="{{ route('library.trading-partners.create') }}" class="btn btn-primary btn-sm">
       + New Partner
     </a>
@@ -36,11 +36,11 @@
   <form method="GET" class="row g-2 mb-3">
     <div class="col-md-4">
       <input name="search" value="{{ request('search') }}" class="form-control form-control-sm"
-        placeholder="Search partner code...">
+        placeholder="{{ __('Search partner code...') }}">
     </div>
     <div class="col-md-2">
       <select name="edi_type" class="form-select form-select-sm">
-        <option value="">All types</option>
+        <option value="">{{ __('All types') }}</option>
         @foreach(['EANCOM','X12','UN/EDIFACT','CUSTOM'] as $t)
           <option value="{{ $t }}" {{ request('edi_type')==$t ? 'selected' : '' }}>{{ $t }}</option>
         @endforeach
@@ -48,13 +48,13 @@
     </div>
     <div class="col-md-2">
       <select name="active" class="form-select form-select-sm">
-        <option value="">All</option>
-        <option value="1" {{ request('active')==='1' ? 'selected' : '' }}>Active</option>
-        <option value="0" {{ request('active')==='0' ? 'selected' : '' }}>Inactive</option>
+        <option value="">{{ __('All') }}</option>
+        <option value="1" {{ request('active')==='1' ? 'selected' : '' }}>{{ __('Active') }}</option>
+        <option value="0" {{ request('active')==='0' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
       </select>
     </div>
     <div class="col-md-2">
-      <button class="btn btn-secondary btn-sm w-100">Filter</button>
+      <button class="btn btn-secondary btn-sm w-100">{{ __('Filter') }}</button>
     </div>
     <div class="col-md-2">
       <a href="{{ route('library.trading-partners.index') }}" class="btn btn-outline-secondary btn-sm w-100">Clear</a>
@@ -72,15 +72,15 @@
     <table class="table table-hover mb-0">
       <thead class="table-light">
         <tr>
-          <th>Partner Code</th>
-          <th>EDI Type</th>
-          <th>Profile</th>
-          <th>Endpoint</th>
-          <th>Vendor</th>
-          <th>Status</th>
-          <th>Last Outbound</th>
-          <th>Last Error</th>
-          <th>Actions</th>
+          <th>{{ __('Partner Code') }}</th>
+          <th>{{ __('EDI Type') }}</th>
+          <th>{{ __('Profile') }}</th>
+          <th>{{ __('Endpoint') }}</th>
+          <th>{{ __('Vendor') }}</th>
+          <th>{{ __('Status') }}</th>
+          <th>{{ __('Last Outbound') }}</th>
+          <th>{{ __('Last Error') }}</th>
+          <th>{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -121,7 +121,7 @@
               <div class="btn-group btn-group-sm">
                 <button class="btn btn-outline-primary btn-test"
                   data-id="{{ $p->id }}"
-                  title="Test connection">
+                  title="{{ __('Test connection') }}">
                   <i class="bi bi-plug"></i>
                 </button>
                 <a href="{{ route('library.trading-partners.edit', $p->id) }}" class="btn btn-outline-secondary">

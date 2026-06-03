@@ -102,8 +102,8 @@
             <form method="POST" action="{{ route('bibframe.editor.contributor', $item->id) }}" class="row g-2 mt-2">
                 @csrf
                 <div class="col-md-4"><input name="name" class="form-control" placeholder="{{ __('Contributor name') }}" required></div>
-                <div class="col-md-3"><input name="role" class="form-control" placeholder="author / editor / illustrator"></div>
-                <div class="col-md-3"><input name="authority_uri" class="form-control" placeholder="https://id.loc.gov/..."></div>
+                <div class="col-md-3"><input name="role" class="form-control" placeholder="{{ __('author / editor / illustrator') }}"></div>
+                <div class="col-md-3"><input name="authority_uri" class="form-control" placeholder="{{ __('https://id.loc.gov/...') }}"></div>
                 <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">{{ __('Add') }}</button></div>
             </form>
         </div>

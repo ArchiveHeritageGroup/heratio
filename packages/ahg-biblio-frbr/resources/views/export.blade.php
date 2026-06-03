@@ -5,7 +5,7 @@
 <div class="container-fluid py-4">
 
   <div class="d-flex align-items-center gap-2 mb-3">
-    <h1 class="h3 mb-0">FRBR Export</h1>
+    <h1 class="h3 mb-0">{{ __('FRBR Export') }}</h1>
     <span class="badge bg-primary">IFLA FRBR</span>
   </div>
   <p class="text-muted small mb-4">
@@ -27,7 +27,7 @@
             @csrf
 
             <div class="mb-3">
-              <label for="work_id" class="form-label">Bibliographic Work</label>
+              <label for="work_id" class="form-label">{{ __('Bibliographic Work') }}</label>
               <select name="work_id" id="work_id" class="form-select" required>
                 <option value="">-- Select a work --</option>
                 @foreach($works as $work)
@@ -44,9 +44,9 @@
             </div>
 
             <div class="mb-3">
-              <label for="format" class="form-label">Output Format</label>
+              <label for="format" class="form-label">{{ __('Output Format') }}</label>
               <select name="format" id="format" class="form-select" required>
-                <option value="xml" {{ old('format', 'xml') == 'xml' ? 'selected' : '' }}>XML (default)</option>
+                <option value="xml" {{ old('format', 'xml') == 'xml' ? 'selected' : '' }}>{{ __('XML (default)') }}</option>
                 <option value="json" {{ old('format') == 'json' ? 'selected' : '' }}>JSON</option>
                 <option value="rdf" {{ old('format') == 'rdf' ? 'selected' : '' }}>RDF</option>
               </select>

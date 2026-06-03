@@ -73,26 +73,26 @@
             {{-- Period selector --}}
             <form method="GET" action="{{ route('library.usage') }}" class="row g-2 mb-4">
                 <div class="col-auto">
-                    <label class="form-label small text-muted mb-0">From</label>
+                    <label class="form-label small text-muted mb-0">{{ __('From') }}</label>
                     <input type="date" name="from" class="form-control form-control-sm"
                            value="{{ $fromDate ?? '' }}">
                 </div>
                 <div class="col-auto">
-                    <label class="form-label small text-muted mb-0">To</label>
+                    <label class="form-label small text-muted mb-0">{{ __('To') }}</label>
                     <input type="date" name="to" class="form-control form-control-sm"
                            value="{{ $toDate ?? '' }}">
                 </div>
                 <div class="col-auto">
-                    <label class="form-label small text-muted mb-0">Period</label>
+                    <label class="form-label small text-muted mb-0">{{ __('Period') }}</label>
                     <select name="period" class="form-select form-select-sm">
-                        <option value="weekly"   @if($period === 'weekly')   selected @endif>Weekly</option>
-                        <option value="monthly"  @if($period === 'monthly')  selected @endif>Monthly</option>
-                        <option value="quarterly" @if($period === 'quarterly') selected @endif>Quarterly</option>
-                        <option value="yearly"   @if($period === 'yearly')   selected @endif>Yearly</option>
+                        <option value="weekly"   @if($period === 'weekly')   selected @endif>{{ __('Weekly') }}</option>
+                        <option value="monthly"  @if($period === 'monthly')  selected @endif>{{ __('Monthly') }}</option>
+                        <option value="quarterly" @if($period === 'quarterly') selected @endif>{{ __('Quarterly') }}</option>
+                        <option value="yearly"   @if($period === 'yearly')   selected @endif>{{ __('Yearly') }}</option>
                     </select>
                 </div>
                 <div class="col-auto d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                    <button type="submit" class="btn btn-primary btn-sm">{{ __('Filter') }}</button>
                 </div>
             </form>
 
@@ -134,13 +134,13 @@
                 {{-- Period table --}}
                 <div class="card">
                     <div class="card-header">
-                        <h6 class="mb-0">Period Breakdown</h6>
+                        <h6 class="mb-0">{{ __('Period Breakdown') }}</h6>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-striped table-sm mb-0">
                             <thead>
                                 <tr>
-                                    <th>Period</th>
+                                    <th>{{ __('Period') }}</th>
                                     @foreach(array_keys($stats['periods'][0]['data'] ?? []) as $metric)
                                         <th class="text-end">{{ $metricLabels[$metric] ?? $metric }}</th>
                                     @endforeach
@@ -172,7 +172,7 @@
                 @if(!empty($subscriptions))
                     <div class="card mt-4">
                         <div class="card-header">
-                            <h6 class="mb-0">Active SUSHI Partners</h6>
+                            <h6 class="mb-0">{{ __('Active SUSHI Partners') }}</h6>
                         </div>
                         <ul class="list-group list-group-flush small">
                             @foreach($subscriptions as $sub)

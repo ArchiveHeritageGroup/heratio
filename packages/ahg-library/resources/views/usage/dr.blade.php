@@ -31,15 +31,15 @@
     {{-- Date range filter --}}
     <form method="GET" class="row g-2 mb-4">
         <div class="col-auto">
-            <label class="form-label small text-muted mb-0">From</label>
+            <label class="form-label small text-muted mb-0">{{ __('From') }}</label>
             <input type="date" name="from" class="form-control form-control-sm" value="{{ $fromDate ?? '' }}">
         </div>
         <div class="col-auto">
-            <label class="form-label small text-muted mb-0">To</label>
+            <label class="form-label small text-muted mb-0">{{ __('To') }}</label>
             <input type="date" name="to" class="form-control form-control-sm" value="{{ $toDate ?? '' }}">
         </div>
         <div class="col-auto d-flex align-items-end">
-            <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+            <button type="submit" class="btn btn-primary btn-sm">{{ __('Filter') }}</button>
         </div>
     </form>
 
@@ -55,9 +55,9 @@
                 <table class="table table-striped table-sm mb-0">
                     <thead>
                         <tr>
-                            <th>Metric</th>
-                            <th class="text-end">Count</th>
-                            <th style="width: 30%;">Share</th>
+                            <th>{{ __('Metric') }}</th>
+                            <th class="text-end">{{ __('Count') }}</th>
+                            <th style="width: 30%;">{{ __('Share') }}</th>
                         </tr>
                     </thead>
                     <tbody>

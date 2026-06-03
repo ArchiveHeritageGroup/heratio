@@ -31,7 +31,7 @@
     @endif
 
     @if($scopeAndContent)
-        <h2>Scope and content</h2>
+        <h2>{{ __('Scope and content') }}</h2>
         <div class="sl-scope">{!! nl2br(e($scopeAndContent)) !!}</div>
     @else
         <p class="text-muted">No descriptive scope or content recorded.</p>

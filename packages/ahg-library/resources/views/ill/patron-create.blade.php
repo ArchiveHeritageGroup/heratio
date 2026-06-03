@@ -8,7 +8,7 @@
     <a href="{{ route('library.opac') }}" class="text-muted me-2">
       <i class="fas fa-arrow-left"></i>
     </a>
-    <h1 class="mb-0">Request an Interlibrary Loan</h1>
+    <h1 class="mb-0">{{ __('Request an Interlibrary Loan') }}</h1>
   </div>
 
   @if(session('ill_success'))
@@ -77,7 +77,7 @@
           </div>
           <div class="col-md-3 mb-3">
             <label class="form-label">{{ __('Pages / Pages needed') }}</label>
-            <input type="text" name="pages" value="{{ old('pages') }}" class="form-control" maxlength="50" placeholder="e.g. 1-15 or 150">
+            <input type="text" name="pages" value="{{ old('pages') }}" class="form-control" maxlength="50" placeholder="{{ __('e.g. 1-15 or 150') }}">
           </div>
           <div class="col-md-3 mb-3">
             <label class="form-label">{{ __('Publication Year') }}</label>

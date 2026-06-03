@@ -5,7 +5,7 @@
 <div class="container-fluid py-4">
 
   <div class="d-flex align-items-center gap-2 mb-3">
-    <h1 class="h3 mb-0">FRBR Validator</h1>
+    <h1 class="h3 mb-0">{{ __('FRBR Validator') }}</h1>
     <span class="badge bg-warning text-dark">Validate</span>
   </div>
   <p class="text-muted small mb-4">
@@ -51,7 +51,7 @@
                 <textarea name="frbr_content" id="frbr_content" class="form-control font-monospace"
                   rows="12"
                   style="font-size:0.8rem;"
-                  placeholder="Paste FRBR XML here..."
+                  placeholder="{{ __('Paste FRBR XML here...') }}"
                 >{{ old('frbr_content', $frbr_content ?? '') }}</textarea>
                 @error('frbr_content')
                   <div class="text-danger small mt-1">{{ $message }}</div>

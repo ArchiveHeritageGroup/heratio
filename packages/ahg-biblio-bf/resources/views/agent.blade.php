@@ -19,10 +19,10 @@
       <table class="table table-sm table-striped">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Created</th>
+            <th>{{ __('ID') }}</th>
+            <th>{{ __('Name') }}</th>
+            <th>{{ __('Type') }}</th>
+            <th>{{ __('Created') }}</th>
           </tr>
         </thead>
         <tbody>

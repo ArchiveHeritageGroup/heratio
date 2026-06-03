@@ -6,7 +6,7 @@
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Chatbot Review Queue</h2>
+        <h2>{{ __('Chatbot Review Queue') }}</h2>
         <a href="{{ route('admin.chatbot.index') }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
         </a>
@@ -18,12 +18,12 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Session</th>
-                            <th>Score</th>
-                            <th>Model</th>
-                            <th>Sources</th>
-                            <th>Response</th>
+                            <th>{{ __('Date') }}</th>
+                            <th>{{ __('Session') }}</th>
+                            <th>{{ __('Score') }}</th>
+                            <th>{{ __('Model') }}</th>
+                            <th>{{ __('Sources') }}</th>
+                            <th>{{ __('Response') }}</th>
                         </tr>
                     </thead>
                     <tbody>

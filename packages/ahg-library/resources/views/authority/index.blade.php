@@ -5,7 +5,7 @@
 <div class="container py-4">
     <div class="row mb-4">
         <div class="col-12 d-flex align-items-center">
-            <h2 class="mb-0">Subject Authority Control</h2>
+            <h2 class="mb-0">{{ __('Subject Authority Control') }}</h2>
             <a href="{{ route('library.marc-index') }}" class="btn btn-outline-secondary btn-sm ms-auto">
                 <i class="fas fa-arrow-left me-1"></i>MARC Editor
             </a>
@@ -15,7 +15,7 @@
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
@@ -26,7 +26,7 @@
                 <div class="col-md-5">
                     <form method="GET" action="{{ route('library.authority-index') }}" class="d-flex gap-2">
                         <input type="text" name="search" class="form-control"
-                               placeholder="Search headings…" value="{{ request('search') }}">
+                               placeholder="{{ __('Search headings…') }}" value="{{ request('search') }}">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search"></i>
                         </button>
@@ -35,7 +35,7 @@
                 <div class="col-md-3">
                     <select name="subject_type" class="form-select"
                             onchange="this.form.submit()">
-                        <option value="">All types</option>
+                        <option value="">{{ __('All types') }}</option>
                         @foreach(['topic','geographic','temporal','genre','form','uniform','names'] as $type)
                             <option value="{{ $type }}" {{ request('subject_type') === $type ? 'selected' : '' }}>
                                 {{ ucfirst($type) }}
@@ -58,11 +58,11 @@
             <table class="table table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Heading</th>
-                        <th>Type</th>
-                        <th>Source</th>
-                        <th>Linked</th>
-                        <th>Actions</th>
+                        <th>{{ __('Heading') }}</th>
+                        <th>{{ __('Type') }}</th>
+                        <th>{{ __('Source') }}</th>
+                        <th>{{ __('Linked') }}</th>
+                        <th>{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>

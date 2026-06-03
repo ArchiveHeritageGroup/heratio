@@ -7,7 +7,7 @@
             <i class="fas fa-arrow-left"></i>
         </a>
         <div>
-            <h2 class="mb-0">Edit Serial</h2>
+            <h2 class="mb-0">{{ __('Edit Serial') }}</h2>
             <span class="badge bg-primary mt-1">{{ e($serial->title ?? '') }}</span>
         </div>
     </div>
@@ -15,7 +15,7 @@
     @if(session('serial_success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ session('serial_success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
@@ -36,13 +36,13 @@
 
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label for="issn" class="form-label">ISSN</label>
+                        <label for="issn" class="form-label">{{ __('ISSN') }}</label>
                         <input type="text" name="issn" id="issn" class="form-control @error('issn') is-invalid @enderror"
                                value="{{ old('issn', $serial->issn ?? '') }}" placeholder="1234-5678">
                         @error('issn') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="frequency" class="form-label">Frequency</label>
+                        <label for="frequency" class="form-label">{{ __('Frequency') }}</label>
                         <select name="frequency" id="frequency" class="form-select @error('frequency') is-invalid @enderror">
                             <option value="">-- Select --</option>
                             @foreach($frequencies as $value => $label)
@@ -52,7 +52,7 @@
                         @error('frequency') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="status" class="form-label">Status</label>
+                        <label for="status" class="form-label">{{ __('Status') }}</label>
                         <select name="status" id="status" class="form-select">
                             <option value="active" @selected(old('status', $serial->status ?? 'active') === 'active')>Active</option>
                             <option value="ceased" @selected(old('status', $serial->status ?? '') === 'ceased')>Ceased</option>
@@ -62,13 +62,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="publisher" class="form-label">Publisher</label>
+                    <label for="publisher" class="form-label">{{ __('Publisher') }}</label>
                     <input type="text" name="publisher" id="publisher" class="form-control"
                            value="{{ old('publisher', $serial->publisher ?? '') }}">
                 </div>
 
                 <div class="mb-3">
-                    <label for="notes" class="form-label">Notes</label>
+                    <label for="notes" class="form-label">{{ __('Notes') }}</label>
                     <textarea name="notes" id="notes" class="form-control" rows="3">{{ old('notes', $serial->notes ?? '') }}</textarea>
                 </div>
             </div>

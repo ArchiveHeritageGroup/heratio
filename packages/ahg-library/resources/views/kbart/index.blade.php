@@ -28,7 +28,7 @@
                     <span class="badge bg-success rounded-circle p-3 mb-3">
                         <i class="fas fa-download fa-lg"></i>
                     </span>
-                    <h5 class="card-title">Export</h5>
+                    <h5 class="card-title">{{ __('Export') }}</h5>
                     <p class="card-text text-muted small">
                         Download the full catalogue as a NISO KBART TSV file.
                         Filter by date range or limit the row count.
@@ -47,7 +47,7 @@
                     <span class="badge bg-primary rounded-circle p-3 mb-3">
                         <i class="fas fa-upload fa-lg"></i>
                     </span>
-                    <h5 class="card-title">Import</h5>
+                    <h5 class="card-title">{{ __('Import') }}</h5>
                     <p class="card-text text-muted small">
                         Upload a KBART TSV file to bulk-import or update serial
                         titles and catalogue records. Preview before committing.
@@ -66,7 +66,7 @@
                     <span class="badge bg-secondary rounded-circle p-3 mb-3">
                         <i class="fas fa-file-alt fa-lg"></i>
                     </span>
-                    <h5 class="card-title">Template</h5>
+                    <h5 class="card-title">{{ __('Template') }}</h5>
                     <p class="card-text text-muted small">
                         Download a blank KBART template with all NISO column headers.
                         Fill it in manually or use it as a data-entry guide.
@@ -88,9 +88,9 @@
             <table class="table table-striped table-sm mb-0">
                 <thead>
                     <tr>
-                        <th>Field</th>
-                        <th>KBART column</th>
-                        <th>Notes</th>
+                        <th>{{ __('Field') }}</th>
+                        <th>{{ __('KBART column') }}</th>
+                        <th>{{ __('Notes') }}</th>
                     </tr>
                 </thead>
                 <tbody>

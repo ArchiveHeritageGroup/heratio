@@ -52,14 +52,14 @@
                 <table class="table table-striped table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Feed name</th>
+                            <th>{{ __('Feed name') }}</th>
                             <th>URL</th>
-                            <th>Vendor</th>
-                            <th>Active</th>
-                            <th>Last fetch</th>
-                            <th>Rows</th>
-                            <th>Status</th>
-                            <th style="width:180px;">Actions</th>
+                            <th>{{ __('Vendor') }}</th>
+                            <th>{{ __('Active') }}</th>
+                            <th>{{ __('Last fetch') }}</th>
+                            <th>{{ __('Rows') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th style="width:180px;">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -125,7 +125,7 @@
                                           method="POST" class="d-inline">
                                         @csrf
                                         <button type="submit" class="btn btn-outline-success btn-sm py-0 px-1"
-                                                title="Fetch now">
+                                                title="{{ __('Fetch now') }}">
                                             <i class="fas fa-sync-alt"></i>
                                         </button>
                                     </form>
@@ -142,7 +142,7 @@
 
                                     {{-- Edit --}}
                                     <a href="{{ route('library.kbart-remote-edit', $feed->id) }}"
-                                       class="btn btn-outline-primary btn-sm py-0 px-1" title="Edit">
+                                       class="btn btn-outline-primary btn-sm py-0 px-1" title="{{ __('Edit') }}">
                                         <i class="fas fa-pen"></i>
                                     </a>
 
@@ -153,7 +153,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1"
-                                                title="Delete">
+                                                title="{{ __('Delete') }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>

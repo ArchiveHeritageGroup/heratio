@@ -65,13 +65,13 @@
                     <table class="table mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Label</th>
-                                <th>Language</th>
-                                <th>SDH</th>
-                                <th>Default</th>
-                                <th>Source</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th>{{ __('Label') }}</th>
+                                <th>{{ __('Language') }}</th>
+                                <th>{{ __('SDH') }}</th>
+                                <th>{{ __('Default') }}</th>
+                                <th>{{ __('Source') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -84,7 +84,7 @@
                                     </td>
                                     <td>
                                         @if($track->is_sdh)
-                                            <span class="badge bg-warning text-dark" title="Subtitle for Deaf and Hard of Hearing">SDH</span>
+                                            <span class="badge bg-warning text-dark" title="{{ __('Subtitle for Deaf and Hard of Hearing') }}">SDH</span>
                                         @else
                                             <span class="text-muted">—</span>
                                         @endif
@@ -120,7 +120,7 @@
                                     <td>
                                         <div class="d-flex gap-1">
                                             <a href="{{ route('caption-tracks.edit', [$digitalObjectId, $track->id]) }}"
-                                               class="btn btn-sm atom-btn-white" title="Edit">
+                                               class="btn btn-sm atom-btn-white" title="{{ __('Edit') }}">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <form method="POST" action="{{ route('caption-tracks.toggle-active', [$digitalObjectId, $track->id]) }}" class="m-0">
@@ -133,7 +133,7 @@
                                             @if($track->source_url && empty($track->vtt_content))
                                                 <form method="POST" action="{{ route('caption-tracks.fetch', [$digitalObjectId, $track->id]) }}" class="m-0">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-sm atom-btn-white" title="Fetch and cache VTT content">
+                                                    <button type="submit" class="btn btn-sm atom-btn-white" title="{{ __('Fetch and cache VTT content') }}">
                                                         <i class="fas fa-download"></i>
                                                     </button>
                                                 </form>
@@ -142,7 +142,7 @@
                                                   onsubmit="return confirm('Delete this track?');" class="m-0">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm atom-btn-white text-danger" title="Delete">
+                                                <button type="submit" class="btn btn-sm atom-btn-white text-danger" title="{{ __('Delete') }}">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>

@@ -20,7 +20,7 @@
         <a href="{{ route('library.marc-index') }}" class="btn btn-outline-secondary btn-sm me-3" title="{{ __('Back to MARC Editor') }}">
             <i class="fas fa-arrow-left"></i>
         </a>
-        <h2 class="mb-0">MARC Conflict Review</h2>
+        <h2 class="mb-0">{{ __('MARC Conflict Review') }}</h2>
     </div>
 
     @php
@@ -71,10 +71,10 @@
             <table class="table table-bordered align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 18%;">Field</th>
-                        <th style="width: 10%;">Status</th>
-                        <th style="width: 36%;">Master (Heratio)</th>
-                        <th style="width: 36%;">Incoming (edited)</th>
+                        <th style="width: 18%;">{{ __('Field') }}</th>
+                        <th style="width: 10%;">{{ __('Status') }}</th>
+                        <th style="width: 36%;">{{ __('Master (Heratio)') }}</th>
+                        <th style="width: 36%;">{{ __('Incoming (edited)') }}</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -2,7 +2,7 @@
   @section('title', 'ILL Requests')
 
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h4">ILL Requests</h2>
+    <h2 class="h4">{{ __('ILL Requests') }}</h2>
     <a href="{{ route('library.ill-requests.create') }}" class="btn btn-primary btn-sm">+ New ILL Request</a>
   </div>
 
@@ -19,11 +19,11 @@
 
   <form method="GET" class="row g-2 mb-3">
     <div class="col-md-3">
-      <input name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Search title, author, ISBN...">
+      <input name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="{{ __('Search title, author, ISBN...') }}">
     </div>
     <div class="col-md-2">
       <select name="status" class="form-select form-select-sm">
-        <option value="">All statuses</option>
+        <option value="">{{ __('All statuses') }}</option>
         @foreach($statuses as $s)
           <option value="{{ $s }}" {{ request('status')==$s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
         @endforeach
@@ -31,18 +31,18 @@
     </div>
     <div class="col-md-2">
       <select name="type" class="form-select form-select-sm">
-        <option value="">All types</option>
-        <option value="borrow" {{ request('type')=='borrow' ? 'selected' : '' }}>Borrow</option>
-        <option value="lend" {{ request('type')=='lend' ? 'selected' : '' }}>Lend</option>
+        <option value="">{{ __('All types') }}</option>
+        <option value="borrow" {{ request('type')=='borrow' ? 'selected' : '' }}>{{ __('Borrow') }}</option>
+        <option value="lend" {{ request('type')=='lend' ? 'selected' : '' }}>{{ __('Lend') }}</option>
       </select>
     </div>
     <div class="col-md-1">
       <div class="form-check mt-1">
         <input type="checkbox" name="overdue" value="1" id="overdue" class="form-check-input" {{ request('overdue') ? 'checked' : '' }}>
-        <label for="overdue" class="form-check-label small">Overdue</label>
+        <label for="overdue" class="form-check-label small">{{ __('Overdue') }}</label>
       </div>
     </div>
-    <div class="col-md-2"><button class="btn btn-secondary btn-sm w-100">Filter</button></div>
+    <div class="col-md-2"><button class="btn btn-secondary btn-sm w-100">{{ __('Filter') }}</button></div>
     <div class="col-md-2"><a href="{{ route('library.ill-requests.index') }}" class="btn btn-outline-secondary btn-sm w-100">Clear</a></div>
   </form>
 
@@ -57,15 +57,15 @@
     <table class="table table-hover mb-0">
       <thead class="table-light">
         <tr>
-          <th>ILL Number</th>
-          <th>Title</th>
-          <th>Type</th>
-          <th>Protocol</th>
-          <th>Status</th>
-          <th>Due Date</th>
-          <th>Needed By</th>
-          <th>EDI</th>
-          <th>Actions</th>
+          <th>{{ __('ILL Number') }}</th>
+          <th>{{ __('Title') }}</th>
+          <th>{{ __('Type') }}</th>
+          <th>{{ __('Protocol') }}</th>
+          <th>{{ __('Status') }}</th>
+          <th>{{ __('Due Date') }}</th>
+          <th>{{ __('Needed By') }}</th>
+          <th>{{ __('EDI') }}</th>
+          <th>{{ __('Actions') }}</th>
         </tr>
       </thead>
       <tbody>

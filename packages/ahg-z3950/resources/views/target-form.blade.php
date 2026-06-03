@@ -10,7 +10,7 @@
             </a>
         </div>
 
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Add Z39.50 Target</h1>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ __('Add Z39.50 Target') }}</h1>
         <p class="text-sm text-gray-500 mb-8">
             Register a remote Z39.50 server. Common targets include national libraries, union catalogues, and SRU gateways.
         </p>
@@ -20,10 +20,10 @@
 
             <div class="bg-white rounded-xl border border-gray-200 p-5 space-y-5">
                 <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Name') }}</label>
                     <input type="text" id="name" name="name"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                           placeholder="Library of Congress Z39.50" required value="{{ old('name') }}">
+                           placeholder="{{ __('Library of Congress Z39.50') }}" required value="{{ old('name') }}">
                     @error('name')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -31,16 +31,16 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label for="host" class="block text-sm font-medium text-gray-700 mb-1">Host</label>
+                        <label for="host" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Host') }}</label>
                         <input type="text" id="host" name="host"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
-                               placeholder="lx2.loc.gov" required value="{{ old('host') }}">
+                               placeholder="{{ __('lx2.loc.gov') }}" required value="{{ old('host') }}">
                         @error('host')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                     <div>
-                        <label for="port" class="block text-sm font-medium text-gray-700 mb-1">Port</label>
+                        <label for="port" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Port') }}</label>
                         <input type="number" id="port" name="port"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                placeholder="210" required value="{{ old('port', 210) }}">
@@ -51,10 +51,10 @@
                 </div>
 
                 <div>
-                    <label for="database" class="block text-sm font-medium text-gray-700 mb-1">Database</label>
+                    <label for="database" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Database') }}</label>
                     <input type="text" id="database" name="database"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
-                           placeholder="LCDB" required value="{{ old('database') }}">
+                           placeholder="{{ __('LCDB') }}" required value="{{ old('database') }}">
                     @error('database')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -62,20 +62,20 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label for="syntax" class="block text-sm font-medium text-gray-700 mb-1">Record syntax</label>
+                        <label for="syntax" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Record syntax') }}</label>
                         <select id="syntax" name="syntax" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm">
-                            <option value="USmarc">USmarc</option>
-                            <option value="MARC21">MARC21</option>
-                            <option value="SUTRS">SUTRS</option>
+                            <option value="USmarc">{{ __('USmarc') }}</option>
+                            <option value="MARC21">{{ __('MARC21') }}</option>
+                            <option value="SUTRS">{{ __('SUTRS') }}</option>
                             <option value="XML">XML</option>
                         </select>
                     </div>
                     <div>
-                        <label for="element_set" class="block text-sm font-medium text-gray-700 mb-1">Element set</label>
+                        <label for="element_set" class="block text-sm font-medium text-gray-700 mb-1">{{ __('Element set') }}</label>
                         <select id="element_set" name="element_set" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm">
-                            <option value="F">F — Full</option>
-                            <option value="B">B — Brief</option>
-                            <option value="S">S — Suggested</option>
+                            <option value="F">{{ __('F — Full') }}</option>
+                            <option value="B">{{ __('B — Brief') }}</option>
+                            <option value="S">{{ __('S — Suggested') }}</option>
                         </select>
                     </div>
                 </div>

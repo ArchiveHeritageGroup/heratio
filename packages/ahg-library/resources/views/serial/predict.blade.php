@@ -7,7 +7,7 @@
             <i class="fas fa-arrow-left"></i>
         </a>
         <div>
-            <h2 class="mb-0">Predicted Issues</h2>
+            <h2 class="mb-0">{{ __('Predicted Issues') }}</h2>
             <span class="badge bg-primary mt-1">{{ e($serial->title ?? '') }}</span>
             <span class="badge bg-secondary mt-1 ms-1">{{ $frequencyLabel ?? '' }}</span>
         </div>
@@ -54,11 +54,11 @@
             <table class="table table-striped table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Volume</th>
-                        <th>Issue Number</th>
-                        <th>Expected Date</th>
-                        <th>Days Until</th>
-                        <th>Status</th>
+                        <th>{{ __('Volume') }}</th>
+                        <th>{{ __('Issue Number') }}</th>
+                        <th>{{ __('Expected Date') }}</th>
+                        <th>{{ __('Days Until') }}</th>
+                        <th>{{ __('Status') }}</th>
                     </tr>
                 </thead>
                 <tbody>

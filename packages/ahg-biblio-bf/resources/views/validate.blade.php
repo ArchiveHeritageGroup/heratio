@@ -19,10 +19,10 @@
       <div class="card-header">Paste RDF content</div>
       <div class="card-body">
         <div class="mb-3">
-          <label for="rdf_content" class="form-label">RDF/XML or Turtle content</label>
+          <label for="rdf_content" class="form-label">{{ __('RDF/XML or Turtle content') }}</label>
           <textarea class="form-control font-monospace" name="rdf_content" id="rdf_content"
                     rows="12"
-                    placeholder="<?xml version="1.0" encoding="UTF-8"?>
+                    placeholder="{{ __('<?xml version=') }}"1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns:bf="http://id.loc.gov/ontologies/bibframe/" ...">{{ old('rdf_content') }}</textarea>
         </div>
         <p class="small text-muted mb-2">Or upload a file instead:</p>
@@ -39,7 +39,7 @@
   @php $result = session('validation_result'); @endphp
   @if($result)
     <div class="mt-4">
-      <h2 class="h5">Validation report</h2>
+      <h2 class="h5">{{ __('Validation report') }}</h2>
       @if(empty($result['fatal']) && empty($result['errors']))
         <div class="alert alert-success">
           <i class="bi bi-check-circle"></i> Valid BIBFRAME 2.0 document.

@@ -2,7 +2,7 @@
   @section('title', 'New Trading Partner')
 
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h4">New EDI Trading Partner</h2>
+    <h2 class="h4">{{ __('New EDI Trading Partner') }}</h2>
     <a href="{{ route('library.trading-partners.index') }}" class="btn btn-outline-secondary btn-sm">Back</a>
   </div>
 
@@ -12,12 +12,12 @@
     <div class="row g-3">
       {{-- Basic --}}
       <div class="col-md-6">
-        <label class="form-label">EDI Partner Code *</label>
+        <label class="form-label">{{ __('EDI Partner Code *') }}</label>
         <input name="edi_partner_code" value="{{ old('edi_partner_code') }}" class="form-control" maxlength="20" required>
         @error('edi_partner_code') <div class="text-danger small">{{ $message }}</div> @enderror
       </div>
       <div class="col-md-6">
-        <label class="form-label">Linked Vendor</label>
+        <label class="form-label">{{ __('Linked Vendor') }}</label>
         <select name="vendor_id" class="form-select">
           <option value="">— none —</option>
           @foreach($vendors as $v)
@@ -30,7 +30,7 @@
 
       {{-- EDI type --}}
       <div class="col-md-4">
-        <label class="form-label">EDI Type *</label>
+        <label class="form-label">{{ __('EDI Type *') }}</label>
         <select name="edi_type" id="edi_type" class="form-select" required>
           @foreach(['EANCOM','X12','UN/EDIFACT','CUSTOM'] as $t)
             <option value="{{ $t }}" {{ old('edi_type', 'EANCOM')==$t ? 'selected' : '' }}>{{ $t }}</option>
@@ -38,16 +38,16 @@
         </select>
       </div>
       <div class="col-md-4">
-        <label class="form-label">Message Profile *</label>
+        <label class="form-label">{{ __('Message Profile *') }}</label>
         <select name="message_profile" id="message_profile" class="form-select" required>
-          <option value="EANCOM_S93" {{ old('message_profile')=='EANCOM_S93' ? 'selected' : '' }}>EANCOM S93</option>
-          <option value="EANCOM_S94" {{ old('message_profile')=='EANCOM_S94' ? 'selected' : '' }}>EANCOM S94</option>
-          <option value="X12_850" {{ old('message_profile')=='X12_850' ? 'selected' : '' }}>X12 850</option>
-          <option value="CUSTOM" {{ old('message_profile')=='CUSTOM' ? 'selected' : '' }}>Custom</option>
+          <option value="EANCOM_S93" {{ old('message_profile')=='EANCOM_S93' ? 'selected' : '' }}>{{ __('EANCOM S93') }}</option>
+          <option value="EANCOM_S94" {{ old('message_profile')=='EANCOM_S94' ? 'selected' : '' }}>{{ __('EANCOM S94') }}</option>
+          <option value="X12_850" {{ old('message_profile')=='X12_850' ? 'selected' : '' }}>{{ __('X12 850') }}</option>
+          <option value="CUSTOM" {{ old('message_profile')=='CUSTOM' ? 'selected' : '' }}>{{ __('Custom') }}</option>
         </select>
       </div>
       <div class="col-md-4">
-        <label class="form-label">Endpoint Type *</label>
+        <label class="form-label">{{ __('Endpoint Type *') }}</label>
         <select name="endpoint_type" id="endpoint_type" class="form-select" required>
           @foreach(['SFTP','AS2','HTTP_HTTPS','EMAIL','MANUAL'] as $e)
             <option value="{{ $e }}" {{ old('endpoint_type', 'SFTP')==$e ? 'selected' : '' }}>{{ $e }}</option>
@@ -62,27 +62,27 @@
           <div class="card-body">
             <div class="row g-2">
               <div class="col-md-4">
-                <label class="form-label">Host *</label>
+                <label class="form-label">{{ __('Host *') }}</label>
                 <input name="endpoint_config[host]" value="{{ old('endpoint_config.host') }}" class="form-control">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Port</label>
+                <label class="form-label">{{ __('Port') }}</label>
                 <input name="endpoint_config[port]" value="{{ old('endpoint_config.port', 22) }}" class="form-control">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Username</label>
+                <label class="form-label">{{ __('Username') }}</label>
                 <input name="endpoint_config[username]" value="{{ old('endpoint_config.username') }}" class="form-control">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Password</label>
+                <label class="form-label">{{ __('Password') }}</label>
                 <input name="endpoint_config[password]" type="password" value="{{ old('endpoint_config.password') }}" class="form-control">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Outbound Directory</label>
+                <label class="form-label">{{ __('Outbound Directory') }}</label>
                 <input name="outbound_directory" value="{{ old('outbound_directory', '/outbox/') }}" class="form-control">
               </div>
               <div class="col-md-6">
-                <label class="form-label">Inbound Directory</label>
+                <label class="form-label">{{ __('Inbound Directory') }}</label>
                 <input name="inbound_directory" value="{{ old('inbound_directory', '/inbox/') }}" class="form-control">
               </div>
             </div>
@@ -97,11 +97,11 @@
           <div class="card-body">
             <div class="row g-2">
               <div class="col-md-8">
-                <label class="form-label">AS2 URL *</label>
+                <label class="form-label">{{ __('AS2 URL *') }}</label>
                 <input name="endpoint_config[as2_url]" value="{{ old('endpoint_config.as2_url') }}" class="form-control">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Receiver ID</label>
+                <label class="form-label">{{ __('Receiver ID') }}</label>
                 <input name="endpoint_config[as2_receiver_id]" value="{{ old('endpoint_config.as2_receiver_id') }}" class="form-control">
               </div>
             </div>
@@ -116,7 +116,7 @@
           <div class="card-body">
             <div class="row g-2">
               <div class="col-12">
-                <label class="form-label">Endpoint URL *</label>
+                <label class="form-label">{{ __('Endpoint URL *') }}</label>
                 <input name="endpoint_config[url]" value="{{ old('endpoint_config.url') }}" class="form-control">
               </div>
             </div>
@@ -131,19 +131,19 @@
           <div class="card-body">
             <div class="row g-2">
               <div class="col-md-4">
-                <label class="form-label">SMTP Host</label>
+                <label class="form-label">{{ __('SMTP Host') }}</label>
                 <input name="endpoint_config[smtp_host]" value="{{ old('endpoint_config.smtp_host') }}" class="form-control">
               </div>
               <div class="col-md-2">
-                <label class="form-label">Port</label>
+                <label class="form-label">{{ __('Port') }}</label>
                 <input name="endpoint_config[smtp_port]" value="{{ old('endpoint_config.smtp_port', 587) }}" class="form-control">
               </div>
               <div class="col-md-3">
-                <label class="form-label">From</label>
+                <label class="form-label">{{ __('From') }}</label>
                 <input name="endpoint_config[smtp_from]" value="{{ old('endpoint_config.smtp_from') }}" class="form-control">
               </div>
               <div class="col-md-3">
-                <label class="form-label">To (EDI mailbox)</label>
+                <label class="form-label">{{ __('To (EDI mailbox)') }}</label>
                 <input name="endpoint_config[smtp_to]" value="{{ old('endpoint_config.smtp_to') }}" class="form-control">
               </div>
             </div>
@@ -155,26 +155,26 @@
       <div class="col-md-4">
         <div class="form-check">
           <input type="checkbox" name="is_active" value="1" id="is_active" class="form-check-input" checked>
-          <label for="is_active" class="form-check-label">Active</label>
+          <label for="is_active" class="form-check-label">{{ __('Active') }}</label>
         </div>
         <div class="form-check mt-2">
           <input type="checkbox" name="test_mode" value="1" id="test_mode" class="form-check-input" checked>
-          <label for="test_mode" class="form-check-label">Test Mode</label>
+          <label for="test_mode" class="form-check-label">{{ __('Test Mode') }}</label>
         </div>
         <div class="form-check mt-2">
           <input type="checkbox" name="acknowledgement_required" value="1" id="ack_req" class="form-check-input" checked>
-          <label for="ack_req" class="form-check-label">ACK Required</label>
+          <label for="ack_req" class="form-check-label">{{ __('ACK Required') }}</label>
         </div>
       </div>
 
       {{-- Notes --}}
       <div class="col-12">
-        <label class="form-label">Notes</label>
+        <label class="form-label">{{ __('Notes') }}</label>
         <textarea name="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
       </div>
 
       <div class="col-12">
-        <button type="submit" class="btn btn-primary">Save Partner</button>
+        <button type="submit" class="btn btn-primary">{{ __('Save Partner') }}</button>
       </div>
     </div>
   </form>

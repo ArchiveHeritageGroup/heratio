@@ -8,7 +8,7 @@
     @if(session('serial_success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ session('serial_success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
@@ -22,13 +22,13 @@
                 <table class="table table-striped table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Title</th>
-                            <th>ISSN</th>
-                            <th>Frequency</th>
-                            <th>Predicted Date</th>
-                            <th>Days Late</th>
-                            <th>Subscription Ends</th>
-                            <th>Action</th>
+                            <th>{{ __('Title') }}</th>
+                            <th>{{ __('ISSN') }}</th>
+                            <th>{{ __('Frequency') }}</th>
+                            <th>{{ __('Predicted Date') }}</th>
+                            <th>{{ __('Days Late') }}</th>
+                            <th>{{ __('Subscription Ends') }}</th>
+                            <th>{{ __('Action') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -59,7 +59,7 @@
                                 <td>
                                     <div class="btn-group btn-group-sm">
                                         <a href="{{ route('library.serial-view', $ser->id) }}"
-                                           class="btn btn-outline-primary btn-sm" title="View serial">
+                                           class="btn btn-outline-primary btn-sm" title="{{ __('View serial') }}">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         <form method="POST"
@@ -67,7 +67,7 @@
                                               class="d-inline">
                                             @csrf
                                             <button type="submit" class="btn btn-outline-secondary btn-sm"
-                                                    title="View subscription">
+                                                    title="{{ __('View subscription') }}">
                                                 <i class="fas fa-calendar-alt"></i>
                                             </button>
                                         </form>

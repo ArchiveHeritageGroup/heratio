@@ -8,14 +8,14 @@
             <a href="{{ route('library.authority-index') }}" class="btn btn-outline-secondary btn-sm me-3">
                 <i class="fas fa-arrow-left"></i>
             </a>
-            <h2 class="mb-0">New Subject Authority Record</h2>
+            <h2 class="mb-0">{{ __('New Subject Authority Record') }}</h2>
         </div>
     </div>
 
     @if($errors->any())
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i>Please fix the errors below.
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
@@ -59,7 +59,7 @@
                 <div class="mb-3">
                     <label for="uri" class="form-label">URI</label>
                     <input type="url" name="uri" id="uri" class="form-control"
-                           value="{{ old('uri') }}" placeholder="https://id.loc.gov/authorities/subjects/…"
+                           value="{{ old('uri') }}" placeholder="{{ __('https://id.loc.gov/authorities/subjects/…') }}"
                            maxlength="1000">
                     @error('uri')
                         <div class="text-danger small mt-1">{{ $message }}</div>

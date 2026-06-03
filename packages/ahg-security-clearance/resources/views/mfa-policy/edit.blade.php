@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-3">
-  <nav aria-label="breadcrumb" class="mb-2">
+  <nav aria-label="{{ __('breadcrumb') }}" class="mb-2">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="/admin">{{ __('Admin') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('security-clearance.mfa-policy.index') }}">{{ __('MFA Enforcement') }}</a></li>

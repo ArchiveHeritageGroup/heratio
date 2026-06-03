@@ -1,7 +1,7 @@
 @extends('emails._layout', ['subject' => 'U verifikasie-kode'])
 
 @section('content')
-    <h2 style="margin-top:0;">U verifikasie-kode</h2>
+    <h2 style="margin-top:0;">{{ __('U verifikasie-kode') }}</h2>
 
     <p>Hallo,</p>
 

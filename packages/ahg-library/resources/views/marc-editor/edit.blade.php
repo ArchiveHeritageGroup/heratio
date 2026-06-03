@@ -8,7 +8,7 @@
             <i class="fas fa-arrow-left"></i>
         </a>
         <div>
-            <h2 class="mb-0">MARC Editor</h2>
+            <h2 class="mb-0">{{ __('MARC Editor') }}</h2>
             <span class="badge bg-secondary mt-1">Library Item #{{ $formData['library_item_id'] ?? '' }}</span>
         </div>
     </div>
@@ -16,13 +16,13 @@
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
@@ -44,7 +44,7 @@
                         <div class="card-body">
                             @if(!empty($formData['leader']))
                                 <div class="mb-3">
-                                    <label class="form-label small fw-semibold">Leader</label>
+                                    <label class="form-label small fw-semibold">{{ __('Leader') }}</label>
                                     <input type="text" class="form-control font-monospace" style="font-size:0.75rem"
                                            value="{{ $formData['leader'] }}" readonly>
                                 </div>
@@ -76,13 +76,13 @@
                                 @php $f245 = $formData['title_statement']['245']; @endphp
                                 <div class="row g-2 mb-2">
                                     <div class="col-md-2">
-                                        <label class="form-label small">Ind 1</label>
+                                        <label class="form-label small">{{ __('Ind 1') }}</label>
                                         <input type="text" class="form-control font-monospace" style="font-size:0.8rem"
                                                name="title_statement[245][_ind1]"
                                                value="{{ $f245['_ind1'] ?? ' ' }}">
                                     </div>
                                     <div class="col-md-2">
-                                        <label class="form-label small">Ind 2</label>
+                                        <label class="form-label small">{{ __('Ind 2') }}</label>
                                         <input type="text" class="form-control font-monospace" style="font-size:0.8rem"
                                                name="title_statement[245][_ind2]"
                                                value="{{ $f245['_ind2'] ?? ' ' }}">
@@ -117,8 +117,8 @@
                             <table class="table table-sm mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Tag</th><th>Ind1</th><th>Ind2</th>
-                                        <th>\$a (name)</th><th>\$t (title)</th><th>\$e (role)</th>
+                                        <th>{{ __('Tag') }}</th><th>{{ __('Ind1') }}</th><th>{{ __('Ind2') }}</th>
+                                        <th>{{ __('\\$a (name)') }}</th><th>{{ __('\\$t (title)') }}</th><th>{{ __('\\$e (role)') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -174,7 +174,7 @@
                                 <input type="text" class="form-control"
                                        name="identifier_fields[020][c]"
                                        value="{{ $f020['c'] ?? '' }}"
-                                       placeholder="R299.00">
+                                       placeholder="{{ __('R299.00') }}">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label small">\$022\$a ISSN</label>
@@ -188,7 +188,7 @@
                                 <input type="text" class="form-control"
                                        name="identifier_fields[022][z]"
                                        value="{{ $f022['z'] ?? '' }}"
-                                       placeholder="Invalid ISBN note">
+                                       placeholder="{{ __('Invalid ISBN note') }}">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label small">\$024\$a Other Std Number</label>
@@ -202,21 +202,21 @@
                                 <input type="text" class="form-control"
                                        name="identifier_fields[024][2]"
                                        value="{{ $f024['2'] ?? '' }}"
-                                       placeholder="urn">
+                                       placeholder="{{ __('urn') }}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small">\$028\$a Publisher Number Label</label>
                                 <input type="text" class="form-control"
                                        name="identifier_fields[028][a]"
                                        value="{{ $f028['a'] ?? '' }}"
-                                       placeholder="publisher label">
+                                       placeholder="{{ __('publisher label') }}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small">\$028\$b Publisher Number</label>
                                 <input type="text" class="form-control"
                                        name="identifier_fields[028][b]"
                                        value="{{ $f028['b'] ?? '' }}"
-                                       placeholder="barcode / publisher no.">
+                                       placeholder="{{ __('barcode / publisher no.') }}">
                             </div>
                         </div>
                     </div>
@@ -238,7 +238,7 @@
                                     <div class="col-md-6"><label class="form-label small">\$b (name)</label>
                                         <input type="text" class="form-control" name="publication_info[264][b]"
                                                value="{{ $pub['b'] ?? '' }}"></div>
-                                    <div class="col-md-4"><label class="form-label small">Date</label>
+                                    <div class="col-md-4"><label class="form-label small">{{ __('Date') }}</label>
                                         <input type="text" class="form-control" name="publication_info[date_1]"
                                                value="{{ $formData == '' ? '' : ($formData['publication_info']['date_1'] ?? '') }}"></div>
                                 </div>
@@ -248,7 +248,7 @@
                                         <input type="text" class="form-control" name="publication_info[264][a]" value=""></div>
                                     <div class="col-md-6"><label class="form-label small">\$b (name)</label>
                                         <input type="text" class="form-control" name="publication_info[264][b]" value=""></div>
-                                    <div class="col-md-4"><label class="form-label small">Date</label>
+                                    <div class="col-md-4"><label class="form-label small">{{ __('Date') }}</label>
                                         <input type="text" class="form-control" name="publication_info[date_1]" value=""></div>
                                 </div>
                             @endif
@@ -335,7 +335,7 @@
                         <div class="card-body p-0">
                             <table class="table table-sm mb-0">
                                 <thead class="table-light">
-                                    <tr><th>Tag</th><th>Ind1</th><th>Ind2</th><th>\$a (term)</th><th>\$x (subdivision)</th></tr>
+                                    <tr><th>{{ __('Tag') }}</th><th>{{ __('Ind1') }}</th><th>{{ __('Ind2') }}</th><th>{{ __('\\$a (term)') }}</th><th>{{ __('\\$x (subdivision)') }}</th></tr>
                                 </thead>
                                 <tbody>
                                     @foreach($formData['subject_access'] as $idx => $sa)
@@ -370,7 +370,7 @@
                         <div class="card-body p-0">
                             <table class="table table-sm mb-0">
                                 <thead class="table-light">
-                                    <tr><th>Tag</th><th>\$a (content)</th></tr>
+                                    <tr><th>{{ __('Tag') }}</th><th>{{ __('\\$a (content)') }}</th></tr>
                                 </thead>
                                 <tbody>
                                     @foreach($formData['notes'] as $idx => $note)
@@ -395,7 +395,7 @@
                         <div class="card-body p-0">
                             <table class="table table-sm mb-0">
                                 <thead class="table-light">
-                                    <tr><th>\$u (URL)</th><th>\$z (note)</th></tr>
+                                    <tr><th>{{ __('\\$u (URL)') }}</th><th>{{ __('\\$z (note)') }}</th></tr>
                                 </thead>
                                 <tbody>
                                     @foreach($formData['electronic_access'] as $idx => $ea)

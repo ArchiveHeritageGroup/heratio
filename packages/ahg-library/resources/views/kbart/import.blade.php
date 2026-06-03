@@ -79,7 +79,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Format notes</label>
+                                <label class="form-label fw-semibold">{{ __('Format notes') }}</label>
                                 <div class="card bg-light">
                                     <div class="card-body py-2 px-3 mb-0">
                                         <small class="text-muted">
@@ -116,7 +116,7 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
-                        <h6 class="mb-0">KBART Import Help</h6>
+                        <h6 class="mb-0">{{ __('KBART Import Help') }}</h6>
                     </div>
                     <div class="card-body pb-0">
                         <ul class="small mb-0 text-muted" style="padding-left: 1.2em;">
@@ -156,12 +156,12 @@
                             <thead>
                                 <tr>
                                     <th style="width: 3rem;">#</th>
-                                    <th style="width: 5rem;">Status</th>
-                                    <th>Publication Title</th>
-                                    <th>ISBN</th>
-                                    <th>Print ISSN</th>
-                                    <th>eISSN</th>
-                                    <th>Errors</th>
+                                    <th style="width: 5rem;">{{ __('Status') }}</th>
+                                    <th>{{ __('Publication Title') }}</th>
+                                    <th>{{ __('ISBN') }}</th>
+                                    <th>{{ __('Print ISSN') }}</th>
+                                    <th>{{ __('eISSN') }}</th>
+                                    <th>{{ __('Errors') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

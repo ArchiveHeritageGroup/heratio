@@ -8,7 +8,7 @@
     <a href="{{ route('library.ill') }}" class="text-muted me-2">
       <i class="fas fa-arrow-left"></i>
     </a>
-    <h1 class="mb-0">New Interlibrary Loan Request</h1>
+    <h1 class="mb-0">{{ __('New Interlibrary Loan Request') }}</h1>
   </div>
 
   @if($errors->any())
@@ -93,7 +93,7 @@
               <div class="col-md-4 mb-3">
                 <label class="form-label">{{ __('Library Symbol / Code') }}</label>
                 <input type="text" name="library_symbol" value="{{ old('library_symbol') }}"
-                       class="form-control" maxlength="50" placeholder="e.g. SABINET, NAZ">
+                       class="form-control" maxlength="50" placeholder="{{ __('e.g. SABINET, NAZ') }}">
               </div>
             </div>
           </div>

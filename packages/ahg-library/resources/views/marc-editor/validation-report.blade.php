@@ -17,7 +17,7 @@
         <a href="{{ route('library.marc-index') }}" class="btn btn-outline-secondary btn-sm me-3" title="{{ __('Back to MARC Editor') }}">
             <i class="fas fa-arrow-left"></i>
         </a>
-        <h2 class="mb-0">MARC Validation Report</h2>
+        <h2 class="mb-0">{{ __('MARC Validation Report') }}</h2>
     </div>
 
     @php

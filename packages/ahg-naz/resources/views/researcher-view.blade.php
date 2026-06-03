@@ -27,7 +27,7 @@
     {{-- Breadcrumb --}}
     <div class="row mb-3">
         <div class="col">
-            <nav aria-label="breadcrumb">
+            <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.researchers') }}">Researchers</a></li>
@@ -193,10 +193,10 @@
                     <table class="table table-sm table-hover mb-0">
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Material Consulted</th>
-                                <th>Purpose</th>
-                                <th>Status</th>
+                                <th>{{ __('Date') }}</th>
+                                <th>{{ __('Material Consulted') }}</th>
+                                <th>{{ __('Purpose') }}</th>
+                                <th>{{ __('Status') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -258,9 +258,9 @@
                         <table class="table table-sm table-hover mb-0">
                             <thead>
                                 <tr>
-                                    <th>Number</th>
-                                    <th>Topic</th>
-                                    <th>Status</th>
+                                    <th>{{ __('Number') }}</th>
+                                    <th>{{ __('Topic') }}</th>
+                                    <th>{{ __('Status') }}</th>
                                 </tr>
                             </thead>
                             <tbody>

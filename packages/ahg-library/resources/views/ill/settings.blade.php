@@ -8,7 +8,7 @@
     <a href="{{ route('library.ill') }}" class="text-muted me-2">
       <i class="fas fa-arrow-left"></i>
     </a>
-    <h1 class="mb-0">ILL Settings</h1>
+    <h1 class="mb-0">{{ __('ILL Settings') }}</h1>
   </div>
 
   @if(session('ill_success'))
@@ -56,9 +56,9 @@
               <label class="form-label">{{ __('Default Partner') }}</label>
               <select name="tipasa_partner" class="form-select">
                 <option value="">— none —</option>
-                <option value="naz"      {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'naz')      ? 'selected' : '' }}>National Archives of Zimbabwe (NAZ)</option>
-                <option value="sabinet"  {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'sabinet')  ? 'selected' : '' }}>SABINET (National Library of SA)</option>
-                <option value="dals"     {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'dals')     ? 'selected' : '' }}>DALS (Digital Access to Library Services)</option>
+                <option value="naz"      {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'naz')      ? 'selected' : '' }}>{{ __('National Archives of Zimbabwe (NAZ)') }}</option>
+                <option value="sabinet"  {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'sabinet')  ? 'selected' : '' }}>{{ __('SABINET (National Library of SA)') }}</option>
+                <option value="dals"     {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'dals')     ? 'selected' : '' }}>{{ __('DALS (Digital Access to Library Services)') }}</option>
               </select>
             </div>
             <p class="text-muted small">
@@ -91,14 +91,14 @@
                 <label class="form-label">{{ __('OCLC Principal ID') }}</label>
                 <input type="text" name="oclc_principal_id"
                        value="{{ old('oclc_principal_id', $settings['ill_oclc_principal_id'] ?? '') }}"
-                       class="form-control" maxlength="100" placeholder="e.g. BOR-12345">
+                       class="form-control" maxlength="100" placeholder="{{ __('e.g. BOR-12345') }}">
               </div>
             </div>
             <div class="mb-0">
               <label class="form-label">{{ __('ILL Protocol Base URL') }}</label>
               <input type="url" name="oclc_base_url"
                      value="{{ old('oclc_base_url', $settings['ill_oclc_base_url'] ?? 'https://ill.oclcrouting.org/v1') }}"
-                     class="form-control" placeholder="https://ill.oclcrouting.org/v1">
+                     class="form-control" placeholder="{{ __('https://ill.oclcrouting.org/v1') }}">
             </div>
           </div>
         </div>

@@ -32,7 +32,7 @@
         <div class="col-lg-5">
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">Trigger Harvest</h6>
+                    <h6 class="mb-0">{{ __('Trigger Harvest') }}</h6>
                 </div>
                 <div class="card-body">
                     <p class="small text-muted">
@@ -42,13 +42,13 @@
                     </p>
                     <form method="GET" action="{{ route('library.usage-harvest') }}">
                         <div class="mb-2">
-                            <label class="form-label small">From Date</label>
+                            <label class="form-label small">{{ __('From Date') }}</label>
                             <input type="date" name="from"
                                    class="form-control form-control-sm"
                                    value="{{ now()->subMonth()->toDateString() }}">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small">To Date</label>
+                            <label class="form-label small">{{ __('To Date') }}</label>
                             <input type="date" name="to"
                                    class="form-control form-control-sm"
                                    value="{{ now()->toDateString() }}">
@@ -80,7 +80,7 @@
         <div class="col-lg-7">
             <div class="card">
                 <div class="card-header">
-                    <h6 class="mb-0">How SUSHI Harvesting Works</h6>
+                    <h6 class="mb-0">{{ __('How SUSHI Harvesting Works') }}</h6>
                 </div>
                 <div class="card-body p-0">
                     <ol class="mb-0">

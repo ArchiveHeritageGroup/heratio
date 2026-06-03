@@ -31,7 +31,7 @@
             <label for="passkeyLabel" class="form-label">{{ __('Label') }}</label>
             <input type="text" id="passkeyLabel" class="form-control" maxlength="120"
                    value="{{ __('Passkey') }} {{ now()->format('Y-m-d') }}"
-                   placeholder="e.g. MacBook Touch ID">
+                   placeholder="{{ __('e.g. MacBook Touch ID') }}">
           </div>
 
           <div class="d-grid gap-2">

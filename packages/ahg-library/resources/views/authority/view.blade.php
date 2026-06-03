@@ -18,7 +18,7 @@
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
         </div>
     @endif
 
@@ -28,7 +28,7 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Authority Detail</h5>
+                        <h5 class="mb-0">{{ __('Authority Detail') }}</h5>
                         <a href="{{ route('library.authority-edit', $authority->id) }}"
                            class="btn btn-sm btn-light">
                             <i class="fas fa-pen me-1"></i>Edit
@@ -78,7 +78,7 @@
             <div class="card shadow-sm">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Linked Library Items</h5>
+                        <h5 class="mb-0">{{ __('Linked Library Items') }}</h5>
                         <a href="{{ route('library.authority-link', $authority->id) }}"
                            class="btn btn-sm btn-light">
                             <i class="fas fa-link me-1"></i>Add Link
@@ -92,9 +92,9 @@
                         <table class="table table-sm mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Library Item</th>
-                                    <th>Source Tag</th>
-                                    <th>Actions</th>
+                                    <th>{{ __('Library Item') }}</th>
+                                    <th>{{ __('Source Tag') }}</th>
+                                    <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -129,7 +129,7 @@
         <div class="col-lg-4">
             <div class="card shadow-sm sticky-top" style="top:1rem">
                 <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                    <h5 class="mb-0">Actions</h5>
+                    <h5 class="mb-0">{{ __('Actions') }}</h5>
                 </div>
                 <div class="card-body">
                     <a href="{{ route('library.authority-link', $authority->id) }}"

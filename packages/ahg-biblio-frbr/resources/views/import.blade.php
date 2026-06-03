@@ -5,7 +5,7 @@
 <div class="container-fluid py-4">
 
   <div class="d-flex align-items-center gap-2 mb-3">
-    <h1 class="h3 mb-0">FRBR Import</h1>
+    <h1 class="h3 mb-0">{{ __('FRBR Import') }}</h1>
     <span class="badge bg-success">Import</span>
   </div>
   <p class="text-muted small mb-4">
@@ -28,7 +28,7 @@
             @csrf
 
             <div class="mb-3">
-              <label for="frbr_file" class="form-label">FRBR XML File</label>
+              <label for="frbr_file" class="form-label">{{ __('FRBR XML File') }}</label>
               <input type="file" name="frbr_file" id="frbr_file" class="form-control"
                 accept=".xml" required>
               <div class="form-text">

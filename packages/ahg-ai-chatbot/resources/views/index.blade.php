@@ -17,7 +17,7 @@
         <div class="col-md-4 text-end">
             <span class="badge bg-secondary me-1" id="model-badge">model: –</span>
             <span class="badge bg-info" id="grounding-badge">grounding: –</span>
-            <button class="btn btn-outline-secondary btn-sm ms-2" id="reset-btn" title="Clear conversation">
+            <button class="btn btn-outline-secondary btn-sm ms-2" id="reset-btn" title="{{ __('Clear conversation') }}">
                 <i class="fas fa-trash-alt"></i> Clear
             </button>
         </div>
@@ -149,7 +149,7 @@
                         name="message"
                         class="form-control"
                         rows="2"
-                        placeholder="Ask about the archive… e.g. 'What records exist about the 1976 student uprisings?'"
+                        placeholder="{{ __('Ask about the archive… e.g. \'What records exist about the 1976 student uprisings?\'') }}"
                         maxlength="4000"
                         required
                         autofocus

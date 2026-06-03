@@ -12,7 +12,7 @@
 
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Search Results</h1>
+                <h1 class="text-2xl font-bold text-gray-900">{{ __('Search Results') }}</h1>
                 <p class="text-sm text-gray-500 mt-1">{{ count($records) }} records retrieved &mdash; {{ $syntax }} / {{ $elementSet }}</p>
             </div>
             <form method="POST" action="{{ route('z3950.import-batch') }}">
@@ -35,10 +35,10 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="text-left px-5 py-2.5 font-medium text-gray-500 w-16">#</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Title</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">Author</th>
-                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">ISBN</th>
-                            <th class="text-right px-5 py-2.5 font-medium text-gray-500">Action</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Title') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('Author') }}</th>
+                            <th class="text-left px-5 py-2.5 font-medium text-gray-500">{{ __('ISBN') }}</th>
+                            <th class="text-right px-5 py-2.5 font-medium text-gray-500">{{ __('Action') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -69,7 +69,7 @@
 
             {{-- MARC viewer --}}
             <div class="mt-8">
-                <h2 class="font-semibold text-gray-900 mb-4">Record details</h2>
+                <h2 class="font-semibold text-gray-900 mb-4">{{ __('Record details') }}</h2>
                 <div class="space-y-4">
                     @foreach($records as $i => $record)
                         <details class="bg-white border border-gray-200 rounded-xl">

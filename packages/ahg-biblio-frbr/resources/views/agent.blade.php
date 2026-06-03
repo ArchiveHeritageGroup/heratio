@@ -5,7 +5,7 @@
 <div class="container-fluid py-4">
 
   <div class="d-flex align-items-center gap-2 mb-3">
-    <h1 class="h3 mb-0">FRBR Agents</h1>
+    <h1 class="h3 mb-0">{{ __('FRBR Agents') }}</h1>
     <span class="badge bg-secondary">Agents</span>
   </div>
   <p class="text-muted small mb-4">
@@ -22,11 +22,11 @@
       <table class="table table-sm table-striped mb-0">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Role</th>
-            <th>Added</th>
+            <th>{{ __('ID') }}</th>
+            <th>{{ __('Name') }}</th>
+            <th>{{ __('Type') }}</th>
+            <th>{{ __('Role') }}</th>
+            <th>{{ __('Added') }}</th>
           </tr>
         </thead>
         <tbody>

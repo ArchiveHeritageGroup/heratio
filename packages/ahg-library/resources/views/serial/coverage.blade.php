@@ -7,7 +7,7 @@
             <i class="fas fa-arrow-left"></i>
         </a>
         <div>
-            <h2 class="mb-0">Coverage Statistics</h2>
+            <h2 class="mb-0">{{ __('Coverage Statistics') }}</h2>
             <span class="badge bg-primary mt-1">{{ e($serial->title ?? '') }}</span>
         </div>
     </div>
@@ -84,12 +84,12 @@
             <table class="table table-striped table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Volume</th>
-                        <th>Issue No.</th>
-                        <th>Issue Date</th>
-                        <th>Received At</th>
-                        <th>Status</th>
-                        <th>Gap (days)</th>
+                        <th>{{ __('Volume') }}</th>
+                        <th>{{ __('Issue No.') }}</th>
+                        <th>{{ __('Issue Date') }}</th>
+                        <th>{{ __('Received At') }}</th>
+                        <th>{{ __('Status') }}</th>
+                        <th>{{ __('Gap (days)') }}</th>
                     </tr>
                 </thead>
                 <tbody>

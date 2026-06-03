@@ -22,7 +22,7 @@
         </div>
         <div class="mb-3">
           <label class="form-label">{{ __('…or paste ONIX XML') }}</label>
-          <textarea name="onix_xml" rows="6" class="form-control" style="font-family:monospace" placeholder="&lt;ONIXMessage release=&quot;3.0&quot;&gt;…&lt;/ONIXMessage&gt;"></textarea>
+          <textarea name="onix_xml" rows="6" class="form-control" style="font-family:monospace" placeholder="{{ __('&lt;ONIXMessage release=&quot;3.0&quot;&gt;…&lt;/ONIXMessage&gt;') }}"></textarea>
         </div>
         <button type="submit" class="btn btn-primary"><i class="fas fa-upload me-1"></i>{{ __('Parse & stage') }}</button>
       </form>

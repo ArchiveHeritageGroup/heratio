@@ -71,7 +71,7 @@
                 <small class="text-muted">{{ __('Repositories Created') }}</small>
               </div>
               <div class="col-md-3 text-center">
-                <h3 class="mb-0 text-@php echo count($publishResult['errors']) > 0 ? 'danger' : 'muted' @endphp">@php echo count($publishResult['errors']) @endphp</h3>
+                <h3 class="mb-0 text-@php echo count($publishResult['errors']) > {{ __('0 ? \'danger\' : \'muted\' @endphp">@php echo count($publishResult[\'errors\']) @endphp') }}</h3>
                 <small class="text-muted">{{ __('Errors') }}</small>
               </div>
             </div>
