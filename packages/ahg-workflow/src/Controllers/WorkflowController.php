@@ -28,6 +28,7 @@ namespace AhgWorkflow\Controllers;
 use AhgWorkflow\Services\SpectrumComplianceService;
 use AhgWorkflow\Services\SpectrumProcedureCatalog;
 use AhgWorkflow\Services\WorkflowDiagramService;
+use AhgWorkflow\Services\WorkflowBulkService;
 use AhgWorkflow\Services\WorkflowEdgeService;
 use AhgWorkflow\Services\WorkflowService;
 use App\Http\Controllers\Controller;
@@ -598,7 +599,86 @@ class WorkflowController extends Controller
 
     public function bulkPreview(Request $request)
     {
-        return view('ahg-workflow::bulk-preview', ['rows' => collect()]);
+        // Pending/in-progress tasks selectable for a bulk operation.
+        $rows = DB::table('ahg_workflow_task as t')
+            ->leftJoin('ahg_workflow as w', 'w.id', '=', 't.workflow_id')
+            ->whereIn('t.status', ['pending', 'in_progress', 'claimed', 'submitted'])
+            ->orderByDesc('t.created_at')
+            ->limit(500)
+            ->get(['t.id', 't.object_id', 't.object_type', 't.status', 't.priority', 't.assigned_to', 'w.name as workflow_name']);
+
+        return view('ahg-workflow::bulk-preview', ['rows' => $rows]);
+    }
+
+    /**
+     * Bulk operations (#1134, PSIS parity). Each accepts JSON
+     * { task_ids: [int], ... } and returns the per-task success/failed report.
+     */
+    public function bulkTransition(Request $request)
+    {
+        $data = $request->validate([
+            'task_ids' => 'required|array|min:1',
+            'task_ids.*' => 'integer',
+            'action' => 'required|string|in:approve,reject,cancel',
+            'comment' => 'nullable|string|max:2000',
+        ]);
+
+        return response()->json((new WorkflowBulkService)->bulkTransition(
+            $data['task_ids'], $data['action'], (int) auth()->id(), $data['comment'] ?? null
+        ));
+    }
+
+    public function bulkAssign(Request $request)
+    {
+        $data = $request->validate([
+            'task_ids' => 'required|array|min:1',
+            'task_ids.*' => 'integer',
+            'target_user_id' => 'required|integer',
+            'comment' => 'nullable|string|max:2000',
+        ]);
+
+        return response()->json((new WorkflowBulkService)->bulkAssign(
+            $data['task_ids'], (int) $data['target_user_id'], (int) auth()->id(), $data['comment'] ?? null
+        ));
+    }
+
+    public function bulkNote(Request $request)
+    {
+        $data = $request->validate([
+            'task_ids' => 'required|array|min:1',
+            'task_ids.*' => 'integer',
+            'note' => 'required|string|max:2000',
+        ]);
+
+        return response()->json((new WorkflowBulkService)->bulkAddNote(
+            $data['task_ids'], $data['note'], (int) auth()->id()
+        ));
+    }
+
+    public function bulkPriority(Request $request)
+    {
+        $data = $request->validate([
+            'task_ids' => 'required|array|min:1',
+            'task_ids.*' => 'integer',
+            'priority' => 'required|string|in:low,normal,high,urgent',
+        ]);
+
+        return response()->json((new WorkflowBulkService)->bulkChangePriority(
+            $data['task_ids'], $data['priority'], (int) auth()->id()
+        ));
+    }
+
+    public function bulkMoveQueue(Request $request)
+    {
+        $data = $request->validate([
+            'task_ids' => 'required|array|min:1',
+            'task_ids.*' => 'integer',
+            'queue_id' => 'required|integer',
+        ]);
+
+        return response()->json((new WorkflowBulkService)->bulkMoveToQueue(
+            $data['task_ids'], (int) $data['queue_id'], (int) auth()->id()
+        ));
     }
 
     public function myWork(Request $request)

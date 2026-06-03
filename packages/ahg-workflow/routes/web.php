@@ -70,6 +70,12 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/workflow/admin/{workflowId}/step/add-form', [WorkflowController::class, 'addStepForm'])->name('workflow.admin.step.add-form');
     Route::match(['get', 'post'], '/workflow/admin/step/{id}/edit-form', [WorkflowController::class, 'editStepForm'])->name('workflow.admin.step.edit-form');
     Route::get('/workflow/bulk-preview', [WorkflowController::class, 'bulkPreview'])->name('workflow.bulk-preview');
+    // Bulk operations (#1134, PSIS parity): JSON { task_ids: [...], ... }.
+    Route::post('/workflow/bulk/transition', [WorkflowController::class, 'bulkTransition'])->name('workflow.bulk.transition');
+    Route::post('/workflow/bulk/assign', [WorkflowController::class, 'bulkAssign'])->name('workflow.bulk.assign');
+    Route::post('/workflow/bulk/note', [WorkflowController::class, 'bulkNote'])->name('workflow.bulk.note');
+    Route::post('/workflow/bulk/priority', [WorkflowController::class, 'bulkPriority'])->name('workflow.bulk.priority');
+    Route::post('/workflow/bulk/move-queue', [WorkflowController::class, 'bulkMoveQueue'])->name('workflow.bulk.move-queue');
     Route::get('/workflow/my-work', [WorkflowController::class, 'myWork'])->name('workflow.my-work');
     Route::get('/workflow/publish-simulate/{objectId}', [WorkflowController::class, 'publishSimulate'])->name('workflow.publish-simulate')->whereNumber('objectId');
     Route::get('/workflow/team-work', [WorkflowController::class, 'teamWork'])->name('workflow.team-work');
