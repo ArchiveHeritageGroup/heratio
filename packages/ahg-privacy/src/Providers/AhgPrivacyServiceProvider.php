@@ -62,6 +62,19 @@ class AhgPrivacyServiceProvider extends ServiceProvider
             ]);
         }
 
+        // Issue #1109 - Phase 4: DPIA <-> ROPA linkage columns on the Article 30
+        // register + the privacy_dpia_log status-change audit table.
+        try {
+            if (! Schema::hasTable('privacy_dpia_log')
+                || ! Schema::hasColumn('ahg_processing_activity', 'dpia_required')) {
+                $this->installSqlFile(__DIR__.'/../../database/install-phase4.sql');
+            }
+        } catch (Throwable $e) {
+            Log::warning('ahg-privacy: Phase 4 (DPIA/ROPA linkage) install probe/install failed', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         // #1108 - alias the field-redaction middleware so IO read routes can
         // opt in (applies field-level redaction for non-privileged viewers).
         $this->app['router']->aliasMiddleware(
@@ -130,7 +143,8 @@ class AhgPrivacyServiceProvider extends ServiceProvider
             } catch (Throwable $e) {
                 $msg = strtolower($e->getMessage());
                 if (str_contains($msg, 'duplicate key name')
-                    || str_contains($msg, 'duplicate entry')) {
+                    || str_contains($msg, 'duplicate entry')
+                    || str_contains($msg, 'duplicate column name')) {
                     continue;
                 }
                 Log::warning('ahg-privacy: install statement failed', [

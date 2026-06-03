@@ -30,6 +30,12 @@ class ProcessingActivity extends Model
         'recipients'             => 'array',
         'transfers_outside_eea'  => 'bool',
         'is_active'              => 'bool',
+        // #1109 DPIA <-> ROPA linkage. The *_override columns are deliberately
+        // NOT cast to bool so the service can distinguish an unset override
+        // (null) from an explicit 0/1 determination by the DPO.
+        'dpia_required'          => 'bool',
+        'dpia_completed'         => 'bool',
+        'dpia_date'              => 'date',
         'created_at'             => 'datetime',
         'updated_at'             => 'datetime',
     ];

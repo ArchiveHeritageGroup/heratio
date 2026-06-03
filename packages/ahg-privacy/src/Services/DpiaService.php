@@ -21,7 +21,9 @@ declare(strict_types=1);
 namespace AhgPrivacy\Services;
 
 use AhgPrivacy\Models\Dpia;
+use AhgPrivacy\Models\ProcessingActivity;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -48,21 +50,27 @@ class DpiaService
         if (! in_array($payload['status'] ?? 'draft', Dpia::statuses(), true)) {
             $payload['status'] = Dpia::STATUS_DRAFT;
         }
-        return Dpia::query()->create($payload);
+        $dpia = Dpia::query()->create($payload);
+        $this->writeLog('dpia.created', $dpia, $createdByUserId, null, null, $dpia->status);
+        return $dpia;
     }
 
     /** @param array<string,mixed> $data */
     public function update(Dpia $dpia, array $data): Dpia
     {
+        $from = $dpia->status;
         $dpia->fill($this->sanitize($data));
         $dpia->save();
+        $this->writeLog('dpia.updated', $dpia, null, null, $from, $dpia->status);
         return $dpia;
     }
 
     public function moveToReview(Dpia $dpia): Dpia
     {
+        $from = $dpia->status;
         $dpia->status = Dpia::STATUS_REVIEW;
         $dpia->save();
+        $this->writeLog('dpia.review', $dpia, null, null, $from, Dpia::STATUS_REVIEW);
         return $dpia;
     }
 
@@ -73,6 +81,7 @@ class DpiaService
      */
     public function signOff(Dpia $dpia, int $userId, ?string $note = null): Dpia
     {
+        $from = $dpia->status;
         $dpia->status = Dpia::STATUS_COMPLETED;
         $dpia->signed_off_by_user_id = $userId;
         $dpia->signed_off_at = now();
@@ -81,16 +90,87 @@ class DpiaService
         }
         $dpia->save();
 
+        $this->writeLog('dpia.signoff', $dpia, $userId, $note, $from, Dpia::STATUS_COMPLETED);
+        $this->completeLinkedRopa($dpia, $userId);
         $this->writeChainEvent('dpia.signoff', $dpia, $userId, $note);
         return $dpia;
     }
 
     public function archive(Dpia $dpia, int $userId): Dpia
     {
+        $from = $dpia->status;
         $dpia->status = Dpia::STATUS_ARCHIVED;
         $dpia->save();
+        $this->writeLog('dpia.archive', $dpia, $userId, null, $from, Dpia::STATUS_ARCHIVED);
         $this->writeChainEvent('dpia.archive', $dpia, $userId, null);
         return $dpia;
+    }
+
+    /**
+     * Deliverable #3 - ROPA integration. When a DPIA is signed off, the linked
+     * Article 30 processing activity is marked dpia_completed with the sign-off
+     * date so the register reflects that its high-risk obligation is discharged.
+     */
+    private function completeLinkedRopa(Dpia $dpia, int $userId): void
+    {
+        if (empty($dpia->processing_activity_id)) {
+            return;
+        }
+        try {
+            $activity = ProcessingActivity::query()->find($dpia->processing_activity_id);
+            if ($activity === null) {
+                return;
+            }
+            $activity->dpia_completed = true;
+            $activity->dpia_date = now()->toDateString();
+            $activity->save();
+
+            $this->writeLog('dpia.ropa_completed', $dpia, $userId, sprintf(
+                'Linked processing activity #%d marked dpia_completed.',
+                (int) $activity->id
+            ), null, Dpia::STATUS_COMPLETED);
+        } catch (Throwable $e) {
+            Log::warning('privacy: dpia ROPA completion failed', [
+                'dpia_id' => $dpia->id,
+                'error'   => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Deliverable #5 - append-only DPIA status-change log. Best effort: never
+     * raises (the workflow must not break if the log table is absent).
+     */
+    private function writeLog(
+        string $action,
+        Dpia $dpia,
+        ?int $userId,
+        ?string $note,
+        ?string $fromStatus,
+        ?string $toStatus
+    ): void {
+        if (! Schema::hasTable('privacy_dpia_log')) {
+            return;
+        }
+        try {
+            DB::table('privacy_dpia_log')->insert([
+                'dpia_id'                => (int) $dpia->id,
+                'processing_activity_id' => $dpia->processing_activity_id !== null ? (int) $dpia->processing_activity_id : null,
+                'action'                 => $action,
+                'from_status'            => $fromStatus,
+                'to_status'              => $toStatus,
+                'user_id'                => $userId ?? (Auth::id() !== null ? (int) Auth::id() : null),
+                'note'                   => $note,
+                'ip_address'             => $this->clientIp(),
+                'created_at'             => now(),
+            ]);
+        } catch (Throwable $e) {
+            Log::warning('privacy: dpia log write failed', [
+                'dpia_id' => $dpia->id,
+                'action'  => $action,
+                'error'   => $e->getMessage(),
+            ]);
+        }
     }
 
     /** @param array<string,mixed> $data */

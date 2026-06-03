@@ -84,6 +84,9 @@ class Article30Service
                 'safeguards'             => (string) ($a->safeguards ?? ''),
                 'dpo_contact'            => (string) ($a->dpo_contact ?? ''),
                 'is_active'              => (bool) $a->is_active,
+                'dpia_required'          => (bool) $a->dpia_required,
+                'dpia_completed'         => (bool) $a->dpia_completed,
+                'dpia_date'              => optional($a->dpia_date)->format('Y-m-d'),
                 'updated_at'             => optional($a->updated_at)->format('Y-m-d\TH:i:s\Z'),
             ];
         })->all();
@@ -112,7 +115,8 @@ class Article30Service
             'id', 'name', 'purpose', 'lawful_basis', 'categories_of_data',
             'categories_of_subjects', 'recipients', 'retention_period',
             'security_measures', 'transfers_outside_eea', 'safeguards',
-            'dpo_contact', 'is_active', 'updated_at',
+            'dpo_contact', 'is_active', 'dpia_required', 'dpia_completed',
+            'dpia_date', 'updated_at',
         ]);
         foreach ($snapshot['activities'] as $a) {
             fputcsv($fh, [
@@ -129,6 +133,9 @@ class Article30Service
                 $a['safeguards'],
                 $a['dpo_contact'],
                 $a['is_active'] ? 'yes' : 'no',
+                $a['dpia_required'] ? 'yes' : 'no',
+                $a['dpia_completed'] ? 'yes' : 'no',
+                $a['dpia_date'] ?? '',
                 $a['updated_at'],
             ]);
         }
@@ -165,6 +172,14 @@ class Article30Service
             if ($a['dpo_contact'] !== '') {
                 $lines[] = sprintf('- DPO contact: %s', $a['dpo_contact']);
             }
+            $lines[] = sprintf(
+                '- DPIA: %s',
+                $a['dpia_required']
+                    ? ($a['dpia_completed']
+                        ? sprintf('required - completed%s', $a['dpia_date'] ? ' on '.$a['dpia_date'] : '')
+                        : 'required - outstanding')
+                    : 'not required (screening)'
+            );
             $lines[] = '';
         }
         return implode("\n", $lines);
@@ -189,6 +204,17 @@ class Article30Service
             'dpo_contact'            => trim((string) ($data['dpo_contact'] ?? '')),
             'is_active'              => array_key_exists('is_active', $data) ? (bool) $data['is_active'] : true,
         ];
+
+        // #1109 - DPO high-risk overrides. Only persisted when explicitly set;
+        // an empty string means "let the auto-screen decide" (column stays NULL).
+        foreach (['special_category_override', 'large_scale_profiling_override', 'biometric_override'] as $col) {
+            if (array_key_exists($col, $data) && $data[$col] !== '' && $data[$col] !== null) {
+                $out[$col] = ((int) $data[$col]) === 1 ? 1 : 0;
+            } else {
+                $out[$col] = null;
+            }
+        }
+
         return $out;
     }
 

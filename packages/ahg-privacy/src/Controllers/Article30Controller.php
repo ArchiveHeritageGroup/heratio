@@ -20,6 +20,7 @@ namespace AhgPrivacy\Controllers;
 
 use AhgPrivacy\Models\ProcessingActivity;
 use AhgPrivacy\Services\Article30Service;
+use AhgPrivacy\Services\DpiaRiskService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,8 +29,10 @@ use Illuminate\View\View;
 
 class Article30Controller extends Controller
 {
-    public function __construct(private Article30Service $service)
-    {
+    public function __construct(
+        private Article30Service $service,
+        private DpiaRiskService $riskService
+    ) {
     }
 
     public function index(): View
@@ -51,9 +54,14 @@ class Article30Controller extends Controller
     {
         $data = $this->validateInput($request);
         $activity = $this->service->create($data);
+        $screen = $this->riskService->assessAndFlag($activity);
         return redirect()
             ->route('ahgprivacy.article-30.index')
-            ->with('status', sprintf('Created processing activity "%s".', $activity->name));
+            ->with('status', sprintf(
+                'Created processing activity "%s".%s',
+                $activity->name,
+                $screen['high_risk'] ? ' A DPIA is required (high-risk screen).' : ''
+            ));
     }
 
     public function edit(int $id): View
@@ -70,10 +78,15 @@ class Article30Controller extends Controller
     {
         $activity = $this->service->find($id);
         abort_if($activity === null, 404);
-        $this->service->update($activity, $this->validateInput($request));
+        $activity = $this->service->update($activity, $this->validateInput($request));
+        $screen = $this->riskService->assessAndFlag($activity);
         return redirect()
             ->route('ahgprivacy.article-30.index')
-            ->with('status', sprintf('Updated processing activity "%s".', $activity->name));
+            ->with('status', sprintf(
+                'Updated processing activity "%s".%s',
+                $activity->name,
+                $screen['high_risk'] ? ' A DPIA is required (high-risk screen).' : ''
+            ));
     }
 
     public function destroy(int $id): RedirectResponse
@@ -121,6 +134,10 @@ class Article30Controller extends Controller
             'safeguards'             => ['nullable', 'string'],
             'dpo_contact'            => ['nullable', 'string', 'max:255'],
             'is_active'              => ['nullable', 'boolean'],
+            // #1109 - DPO high-risk overrides ('' = auto / 0 = no / 1 = yes).
+            'special_category_override'      => ['nullable', 'in:0,1'],
+            'large_scale_profiling_override' => ['nullable', 'in:0,1'],
+            'biometric_override'             => ['nullable', 'in:0,1'],
         ]);
     }
 }
