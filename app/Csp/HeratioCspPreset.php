@@ -39,14 +39,23 @@ class HeratioCspPreset implements Preset
             ->add(Directive::FORM_ACTION, Keyword::SELF)
             ->add(Directive::FRAME_ANCESTORS, Keyword::SELF)
 
-            // Scripts: self + nonce (auto-injected) + CDN bundles used by views
+            // Scripts: self + 'unsafe-inline' + CDN bundles used by views.
+            //
+            // We deliberately do NOT add a nonce to script-src. The AtoM-ported
+            // admin UI uses inline event-handler attributes (onclick=, onchange=,
+            // ...) pervasively. CSP nonces apply to <script> tags but CANNOT be
+            // attached to inline event handlers, and the presence of a nonce makes
+            // the browser ignore 'unsafe-inline' — so a nonce-source silently
+            // breaks every inline handler (buttons do nothing). Until those
+            // handlers are migrated to addEventListener, keep 'unsafe-inline' for
+            // scripts (mirrors the style-src decision below).
             ->add(Directive::SCRIPT, [
                 Keyword::SELF,
+                Keyword::UNSAFE_INLINE,
                 'https://cdn.jsdelivr.net',
                 'https://cdnjs.cloudflare.com',
                 'https://unpkg.com',
             ])
-            ->addNonce(Directive::SCRIPT)
 
             // Styles: self + 'unsafe-inline' + CDN bundles + Google Fonts.
             //
