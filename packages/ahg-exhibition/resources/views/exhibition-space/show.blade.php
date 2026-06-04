@@ -108,8 +108,10 @@
             @csrf
             <div class="row g-2 align-items-end">
               <div class="col-md-4">
-                <label for="information_object_id" class="form-label small">{{ __('Information object ID') }} <span class="text-danger">*</span></label>
-                <input type="number" name="information_object_id" id="information_object_id" class="form-control form-control-sm" required min="1">
+                <label for="information_object_id" class="form-label small">{{ __('Information object') }} <span class="text-danger">*</span></label>
+                <select name="information_object_id" id="information_object_id" class="form-control form-control-sm" required>
+                  <option value="">{{ __('Type to search...') }}</option>
+                </select>
               </div>
               <div class="col-md-2">
                 <label for="size_units_used" class="form-label small">{{ __('Units used') }}</label>
@@ -136,4 +138,36 @@
       @endauth
     </div>
   </div>
+
+  {{-- TomSelect lookup for the placement "Information object" field (heratio#146).
+       Searches information_object via the shared informationobject/autocomplete
+       endpoint and submits the selected object id. --}}
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+  <script nonce="{{ $cspNonce ?? '' }}">
+  document.addEventListener('DOMContentLoaded', function () {
+    var el = document.getElementById('information_object_id');
+    if (!el || typeof TomSelect === 'undefined') return;
+    new TomSelect(el, {
+      valueField: 'id', labelField: 'name', searchField: ['name'],
+      placeholder: '{{ __('Type to search information objects...') }}',
+      maxItems: 1, maxOptions: 15,
+      load: function (query, callback) {
+        if (query.length < 2) return callback();
+        fetch('{{ url('informationobject/autocomplete') }}?query=' + encodeURIComponent(query) + '&limit=15')
+          .then(function (r) { return r.json(); })
+          .then(function (data) { callback(data); })
+          .catch(function () { callback(); });
+      },
+      render: {
+        option: function (d, escape) {
+          return '<div>' + escape(d.name) + ' <small class="text-muted">#' + escape(d.id) + (d.slug ? ' ' + escape(d.slug) : '') + '</small></div>';
+        },
+        item: function (d, escape) {
+          return '<div>' + escape(d.name) + ' <small class="text-muted">#' + escape(d.id) + '</small></div>';
+        }
+      }
+    });
+  });
+  </script>
 @endsection

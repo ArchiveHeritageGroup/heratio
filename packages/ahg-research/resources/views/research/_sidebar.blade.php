@@ -57,7 +57,7 @@
     </a>
     <a href="{{ route('research.orcid') }}"
        class="list-group-item list-group-item-action {{ $active === 'orcid' ? 'active' : '' }}">
-        <i class="fab fa-orcid me-2 text-success"></i>{{ __('ORCID Link') }}
+        <i class="fas fa-id-badge me-2 text-success"></i>{{ __('ORCID Link') }}
     </a>
     <a href="{{ route('research.reports') }}"
        class="list-group-item list-group-item-action {{ $active === 'reports' ? 'active' : '' }}">
