@@ -1802,7 +1802,7 @@ class AiController extends Controller
      */
     private function getAiApiUrl(): string
     {
-        return $this->loadGeneralAiSetting('api_url', 'http://192.168.0.112:5004/ai/v1');
+        return $this->loadGeneralAiSetting('api_url', 'https://ai.theahg.co.za/ai/v1');
     }
 
     private function getAiApiKey(): string

@@ -204,7 +204,7 @@
           <div class="col-md-6">
             <label class="form-label">AI API URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="url" name="settings_general[api_url]" class="form-control"
-                   value="{{ $generalSettings->get('api_url')->setting_value ?? '' }}" placeholder="{{ __('http://192.168.0.112:5004/ai/v1') }}">
+                   value="{{ $generalSettings->get('api_url')->setting_value ?? '' }}" placeholder="{{ __('https://ai.theahg.co.za/ai/v1') }}">
           </div>
           <div class="col-md-3">
             <label class="form-label">API Key <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
