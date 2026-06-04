@@ -116,7 +116,7 @@
         <div class="row">
           <div class="col-md-4 mb-3">
             <label class="form-label">ID Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            @if($themeData['isAdmin'] ?? false)
+            @if(($themeData['isAdmin'] ?? false) || empty($researcher->id_type))
               <select name="id_type" class="form-select">
                 <option value="">-- Select --</option>
                 {{-- Issue #59 Tier 2 — culture-aware dropdown via the COALESCE helper. --}}
@@ -130,7 +130,7 @@
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">ID Number <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            @if($themeData['isAdmin'] ?? false)
+            @if(($themeData['isAdmin'] ?? false) || empty($researcher->id_number))
               <input type="text" name="id_number" class="form-control" value="{{ old('id_number', $researcher->id_number ?? '') }}">
             @else
               <input type="text" class="form-control" value="{{ e($researcher->id_number ?? '') }}" disabled>
@@ -141,8 +141,8 @@
             <input type="text" name="student_id" id="student_id" class="form-control" value="{{ old('student_id', $researcher->student_id ?? '') }}">
           </div>
         </div>
-        @if(!($themeData['isAdmin'] ?? false))
-          <small class="text-muted">{{ __('ID type and number cannot be changed. Contact an administrator if corrections are needed.') }}</small>
+        @if(!($themeData['isAdmin'] ?? false) && (!empty($researcher->id_type) || !empty($researcher->id_number)))
+          <small class="text-muted">{{ __('A populated ID type or number cannot be changed. Contact an administrator if corrections are needed.') }}</small>
         @endif
       </div>
     </div>
@@ -181,22 +181,21 @@
               <span class="input-group-text" style="background:#a6ce39;color:#fff;"><i class="fab fa-orcid" aria-hidden="true"></i></span>
               <input type="text" name="orcid_id" id="orcid_id" class="form-control" value="{{ old('orcid_id', $researcher->orcid_id ?? '') }}" placeholder="0000-0000-0000-0000">
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="orcid-fetch-btn"
-                    data-url="{{ route('research.orcidFetchPublic') }}" data-csrf="{{ csrf_token() }}">
-              <i class="fas fa-download me-1" aria-hidden="true"></i>{{ __('Fetch from ORCID') }}
-            </button>
+            {{-- Fetch (public, no login) and Connect & Sync (OAuth) sit
+                 together in the ORCID iD column. Connect & Sync was moved up
+                 from a separate full-width row below. --}}
+            <div class="mt-2 d-flex flex-wrap gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="orcid-fetch-btn"
+                      data-url="{{ route('research.orcidFetchPublic') }}" data-csrf="{{ csrf_token() }}"
+                      data-bs-toggle="tooltip" data-bs-placement="top"
+                      title="{{ __('No need to log in to ORCID - this fetches your public ORCID record directly.') }}">
+                <i class="fas fa-download me-1" aria-hidden="true"></i>{{ __('Fetch from ORCID') }}
+              </button>
+              <a href="{{ route('research.orcidAuthorize') }}" class="btn btn-sm btn-success">
+                <i class="fab fa-orcid me-1" aria-hidden="true"></i>{{ __('Connect & Sync with ORCID') }}
+              </a>
+            </div>
             <small id="orcid-fetch-status" class="form-text d-block"></small>
-          </div>
-        </div>
-        {{-- Connect & Sync on its own full-width row so it never overlaps the
-             ORCID iD column. Full OAuth: researcher signs in at orcid.org with
-             their ORCID password + authorises; stores a token so works can be
-             pulled/pushed. Separate <a> so it does not submit the profile form. --}}
-        <div class="row">
-          <div class="col-12 mb-3">
-            <a href="{{ route('research.orcidAuthorize') }}" class="btn btn-sm btn-success">
-              <i class="fab fa-orcid me-1" aria-hidden="true"></i>{{ __('Connect & Sync with ORCID') }}
-            </a>
             <small class="form-text text-muted d-block mt-1">{{ __('Sign in at ORCID to authorise pulling your works and pushing citations.') }}</small>
           </div>
         </div>

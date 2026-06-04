@@ -386,11 +386,15 @@ class ResearchController extends Controller
                 'student_id' => $request->input('student_id'),
             ];
 
-            // Admins can edit ID fields
+            // Admins can always edit ID fields. Researchers may set each ID
+            // field once while it is still empty; once populated it is locked
+            // and only an administrator can change it.
             $isAdmin = DB::table('acl_user_group')
                 ->where('user_id', Auth::id())->where('group_id', 100)->exists();
-            if ($isAdmin) {
+            if ($isAdmin || empty($researcher->id_type)) {
                 $data['id_type'] = $request->input('id_type');
+            }
+            if ($isAdmin || empty($researcher->id_number)) {
                 $data['id_number'] = $request->input('id_number');
             }
 
