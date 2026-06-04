@@ -53,6 +53,7 @@
               <li>{{ __('Look around: move the mouse') }}</li>
               <li>{{ __('Open details: click an object or a numbered button') }}</li>
               <li>{{ __('Scroll the details panel: right-click') }}</li>
+              <li>{{ __('View full details: V') }}</li>
               <li>{{ __('Close panel: left-click or Esc') }}</li>
               <li>{{ __('Exit gallery: Esc') }}</li>
             </ul>
@@ -74,7 +75,7 @@
       <div id="wtImgWrap" class="text-center mb-3"></div>
       <h6 id="wtTitle" class="fw-bold"></h6>
       <p id="wtDesc" class="small text-muted"></p>
-      <a id="wtRecord" href="#" class="btn btn-sm btn-outline-primary d-none"><i class="fas fa-external-link-alt me-1"></i>{{ __('View full record') }}</a>
+      <a id="wtRecord" href="#" class="btn btn-sm btn-outline-primary d-none"><i class="fas fa-external-link-alt me-1"></i>{{ __('View full details') }} <span class="badge bg-secondary ms-1">V</span></a>
     </div>
   </div>
 
@@ -161,6 +162,7 @@
         var hb = document.getElementById('roomHelp');
         hb.style.display = (hb.style.display === 'block') ? 'none' : 'block';
       }
+      if (e.code === 'KeyV' && panelOpen) viewFullDetails();
     });
     document.addEventListener('keyup', function (e) { keys[e.code] = false; });
 
@@ -277,6 +279,7 @@
     // Detail side panel
     var panel = document.getElementById('wtPanel');
     var panelOpen = false;
+    var currentStop = null;
     function openPanel(s) {
       document.getElementById('wtTitle').textContent = s.title;
       document.getElementById('wtDesc').textContent = s.description || '{{ __('No description available.') }}';
@@ -297,11 +300,18 @@
       if (s.record_url) { rec.href = s.record_url; rec.classList.remove('d-none'); } else { rec.classList.add('d-none'); }
       panel.style.transform = 'translateX(0)';
       panelOpen = true;
+      currentStop = s;
     }
     function closeAllPopups() {
       panel.style.transform = 'translateX(100%)';
       panelOpen = false;
+      currentStop = null;
       stopMiniViewer();
+    }
+    function viewFullDetails() {
+      if (currentStop && currentStop.record_url) {
+        window.location.href = currentStop.record_url;
+      }
     }
     // Rotating 3D preview inside the popout (any format via loadModel).
     var mini = null;
