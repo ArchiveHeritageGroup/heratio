@@ -409,11 +409,15 @@ class ExhibitionSpaceService
                 return ['kind' => '3d', 'model_url' => $url, 'image_url' => $this->thumbnailUrl($informationObjectId), 'format' => $ext];
             }
             if (in_array($ext, $images, true)) {
-                return ['kind' => 'image', 'model_url' => null, 'image_url' => $url, 'format' => $ext];
+                return ['kind' => 'image', 'model_url' => null, 'image_url' => $url, 'doc_url' => null, 'format' => $ext];
+            }
+            if ($ext === 'pdf') {
+                // Rendered to an image client-side (PDF.js) for the gallery wall.
+                return ['kind' => 'pdf', 'model_url' => null, 'image_url' => $this->thumbnailUrl($informationObjectId), 'doc_url' => $url, 'format' => 'pdf'];
             }
         }
 
-        return ['kind' => 'other', 'model_url' => null, 'image_url' => $this->thumbnailUrl($informationObjectId), 'format' => null];
+        return ['kind' => 'other', 'model_url' => null, 'image_url' => $this->thumbnailUrl($informationObjectId), 'doc_url' => null, 'format' => null];
     }
 
     private function normalizeUploadPath(?string $p): ?string
@@ -583,6 +587,7 @@ class ExhibitionSpaceService
                 'model_url' => $media['model_url'],
                 'model_format' => $media['format'],
                 'image_url' => $media['image_url'],
+                'doc_url' => $media['doc_url'] ?? null,
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),
                 'record_url' => $r->slug ? '/'.$r->slug : null,
             ];

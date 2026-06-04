@@ -71,6 +71,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/PLYLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script nonce="{{ $cspNonce ?? '' }}">
   (function () {
     var STOPS = @json($stops);
@@ -80,6 +81,9 @@
     if (typeof THREE === 'undefined' || !THREE.PointerLockControls) {
       room.innerHTML = '<div class="p-4 text-light">{{ __('3D engine failed to load.') }}</div>';
       return;
+    }
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
 
     var ROOM_W = 18, ROOM_D = 14, WALL_H = 4;
@@ -170,6 +174,44 @@
       var p = new THREE.Mesh(new THREE.BoxGeometry(0.7, h, 0.7), pedestalMat);
       p.position.set(x, h / 2, z); scene.add(p); return h;
     }
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+    // Hang a framed picture flat on the nearest wall (pictures on walls, not pedestals).
+    function hangOnWall(wp, s, tex, aspect) {
+      var hgt = 1.5, wdt = hgt * (aspect || 1);
+      if (wdt > 2.6) { wdt = 2.6; hgt = wdt / (aspect || 1); }
+      var hw = wdt / 2;
+      var dL = wp.x + ROOM_W / 2, dR = ROOM_W / 2 - wp.x, dB = wp.z + ROOM_D / 2, dF = ROOM_D / 2 - wp.z;
+      var mind = Math.min(dL, dR, dB, dF);
+      var inset = 0.08, cy = clamp(1.6, hgt / 2 + 0.1, WALL_H - hgt / 2 - 0.1);
+      var x = wp.x, z = wp.z, ry = 0;
+      if (mind === dB) { z = -ROOM_D / 2 + inset; ry = 0; x = clamp(wp.x, -ROOM_W / 2 + hw, ROOM_W / 2 - hw); }
+      else if (mind === dF) { z = ROOM_D / 2 - inset; ry = Math.PI; x = clamp(wp.x, -ROOM_W / 2 + hw, ROOM_W / 2 - hw); }
+      else if (mind === dL) { x = -ROOM_W / 2 + inset; ry = Math.PI / 2; z = clamp(wp.z, -ROOM_D / 2 + hw, ROOM_D / 2 - hw); }
+      else { x = ROOM_W / 2 - inset; ry = -Math.PI / 2; z = clamp(wp.z, -ROOM_D / 2 + hw, ROOM_D / 2 - hw); }
+      var frame = new THREE.Mesh(new THREE.BoxGeometry(wdt + 0.12, hgt + 0.12, 0.06), new THREE.MeshStandardMaterial({ color: 0x222222 }));
+      var pic = new THREE.Mesh(new THREE.PlaneGeometry(wdt, hgt), new THREE.MeshBasicMaterial({ map: tex }));
+      pic.position.z = 0.045;
+      var grp = new THREE.Group();
+      grp.add(frame); grp.add(pic);
+      grp.position.set(x, cy, z); grp.rotation.y = ry;
+      grp.traverse(function (n) { n.userData.stop = s; });
+      grp.userData.stop = s;
+      scene.add(grp); pickables.push(grp);
+    }
+
+    // Render a PDF's first page to a texture (PDF.js) for the gallery wall.
+    function renderPdfTexture(url, onTex, onErr) {
+      if (!window.pdfjsLib) { if (onErr) onErr(); return; }
+      pdfjsLib.getDocument(url).promise.then(function (pdf) { return pdf.getPage(1); }).then(function (page) {
+        var vp = page.getViewport({ scale: 1.5 });
+        var canvas = document.createElement('canvas');
+        canvas.width = vp.width; canvas.height = vp.height;
+        return page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise.then(function () {
+          onTex(new THREE.CanvasTexture(canvas), vp.width / vp.height);
+        });
+      }).catch(function () { if (onErr) onErr(); });
+    }
 
     STOPS.forEach(function (s) {
       var wp = worldPos(s);
@@ -190,23 +232,14 @@
           addPlaceholder(wp, s, ph); doneOne();
         });
       } else if (s.image_url) {
-        var ph2 = addPedestal(wp.x, wp.z, 0.4);
         new THREE.TextureLoader().load(s.image_url, function (tex) {
-          var iw = tex.image && tex.image.width ? tex.image.width : 1;
-          var ih = tex.image && tex.image.height ? tex.image.height : 1;
-          var aspect = iw / ih, hgt = 1.4, wdt = hgt * aspect;
-          if (wdt > 2.2) { wdt = 2.2; hgt = wdt / aspect; }
-          var frame = new THREE.Mesh(new THREE.BoxGeometry(wdt + 0.12, hgt + 0.12, 0.06), new THREE.MeshStandardMaterial({ color: 0x222222 }));
-          var pic = new THREE.Mesh(new THREE.PlaneGeometry(wdt, hgt), new THREE.MeshBasicMaterial({ map: tex }));
-          pic.position.z = 0.035;
-          var grp = new THREE.Group();
-          grp.add(frame); grp.add(pic);
-          grp.position.set(wp.x, ph2 + hgt / 2 + 0.1, wp.z);
-          grp.lookAt(0, grp.position.y, 0);
-          grp.traverse(function (n) { n.userData.stop = s; });
-          grp.userData.stop = s;
-          scene.add(grp); pickables.push(grp); doneOne();
-        }, undefined, function () { addPlaceholder(wp, s, ph2); doneOne(); });
+          var aspect = (tex.image && tex.image.width ? tex.image.width : 1) / (tex.image && tex.image.height ? tex.image.height : 1);
+          hangOnWall(wp, s, tex, aspect); doneOne();
+        }, undefined, function () { addPlaceholder(wp, s, addPedestal(wp.x, wp.z, 0.4)); doneOne(); });
+      } else if (s.kind === 'pdf' && s.doc_url) {
+        renderPdfTexture(s.doc_url, function (tex, aspect) {
+          hangOnWall(wp, s, tex, aspect); doneOne();
+        }, function () { addPlaceholder(wp, s, addPedestal(wp.x, wp.z, 0.4)); doneOne(); });
       } else {
         var ph3 = addPedestal(wp.x, wp.z, 0.4);
         addPlaceholder(wp, s, ph3); doneOne();
@@ -230,6 +263,8 @@
         iw.innerHTML = '<div id="wtMini" style="width:100%;height:280px;background:#f1f3f5;border-radius:.375rem;"></div>' +
           '<div class="small text-muted mt-1">{{ __('Drag to rotate, scroll to zoom') }}</div>';
         startMiniViewer(document.getElementById('wtMini'), s);
+      } else if (s.kind === 'pdf' && s.doc_url) {
+        iw.innerHTML = '<iframe src="' + s.doc_url + '" style="width:100%;height:300px;border:1px solid #ddd;border-radius:.375rem;" title="PDF"></iframe>';
       } else if (s.image_url) {
         iw.innerHTML = '<img src="' + s.image_url + '" class="img-fluid rounded" style="max-height:260px" alt="">';
       } else {
