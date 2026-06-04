@@ -32,7 +32,7 @@
         <span class="small text-muted">{{ __('Click to enter. Move: W A S D. Look: mouse. Select: click an object. Exit: Esc.') }}</span>
       </div>
       <div class="card-body p-0">
-        <div id="room" style="position:relative;width:100%;height:70vh;min-height:420px;background:#1a1d21;border-radius:0 0 .375rem .375rem;overflow:hidden;">
+        <div id="room" style="position:relative;width:100%;height:70vh;min-height:420px;background:#1a1d21;border-radius:0;overflow:hidden;">
           <div id="roomBlocker" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:5;cursor:pointer;">
             <div class="text-center text-white">
               <div style="font-size:2rem;"><i class="fas fa-vr-cardboard"></i></div>
@@ -43,6 +43,8 @@
           <div id="roomCrosshair" style="position:absolute;top:50%;left:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:rgba(255,255,255,.7);z-index:4;display:none;pointer-events:none;"></div>
           <div id="roomLoading" style="position:absolute;bottom:8px;left:8px;z-index:4;color:#ccc;font-size:.8rem;">{{ __('Loading gallery...') }}</div>
         </div>
+        {{-- Walk-to navigator: click an object to travel to it. --}}
+        <div id="roomNav" class="d-flex gap-1 p-2 overflow-auto border-top bg-light" style="white-space:nowrap;"></div>
       </div>
     </div>
   @endif
@@ -65,6 +67,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <script nonce="{{ $cspNonce ?? '' }}">
   (function () {
     var STOPS = @json($stops);
@@ -202,12 +205,50 @@
       document.getElementById('wtTitle').textContent = s.title;
       document.getElementById('wtDesc').textContent = s.description || '{{ __('No description available.') }}';
       var iw = document.getElementById('wtImgWrap');
-      iw.innerHTML = s.image_url ? '<img src="' + s.image_url + '" class="img-fluid rounded" style="max-height:240px" alt="">' : '<div class="text-muted py-3"><i class="fas fa-cube fa-2x"></i></div>';
+      if (s.kind === '3d' && s.model_url) {
+        iw.innerHTML = '<model-viewer src="' + s.model_url + '"' + (s.image_url ? ' poster="' + s.image_url + '"' : '') +
+          ' auto-rotate camera-controls rotation-per-second="30deg" interaction-prompt="none" ar ' +
+          'style="width:100%;height:280px;background:#f1f3f5;border-radius:.375rem;"></model-viewer>';
+      } else if (s.image_url) {
+        iw.innerHTML = '<img src="' + s.image_url + '" class="img-fluid rounded" style="max-height:260px" alt="">';
+      } else {
+        iw.innerHTML = '<div class="text-muted py-3"><i class="fas fa-cube fa-2x"></i></div>';
+      }
       var rec = document.getElementById('wtRecord');
       if (s.record_url) { rec.href = s.record_url; rec.classList.remove('d-none'); } else { rec.classList.add('d-none'); }
       panel.style.transform = 'translateX(0)';
     }
     document.getElementById('wtClose').addEventListener('click', function () { panel.style.transform = 'translateX(100%)'; });
+
+    // ---- Walk-to navigator: travel the camera to an object and open its panel ----
+    var fly = null;
+    function flyTo(s) {
+      var wp = worldPos(s);
+      var look = new THREE.Vector3(wp.x, 1.3, wp.z);
+      var toC = new THREE.Vector3(-wp.x, 0, -wp.z);          // direction toward room centre
+      if (toC.lengthSq() < 0.01) toC.set(0, 0, 1);
+      toC.normalize();
+      var stand = new THREE.Vector3(wp.x + toC.x * 2.6, 1.6, wp.z + toC.z * 2.6);
+      var m = 0.6;
+      stand.x = Math.max(-ROOM_W / 2 + m, Math.min(ROOM_W / 2 - m, stand.x));
+      stand.z = Math.max(-ROOM_D / 2 + m, Math.min(ROOM_D / 2 - m, stand.z));
+      fly = { from: controls.getObject().position.clone(), to: stand, look: look, t: 0, dur: 0.9 };
+      openPanel(s);
+    }
+    (function buildNav() {
+      var nav = document.getElementById('roomNav');
+      if (!nav) return;
+      STOPS.forEach(function (s, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'btn btn-sm btn-outline-secondary flex-shrink-0';
+        b.innerHTML = '<span class="badge bg-primary me-1">' + (i + 1) + '</span>' +
+          (s.title || ('#' + s.information_object_id)).replace(/[<>&]/g, '');
+        b.title = '{{ __('Walk to this object') }}';
+        b.addEventListener('click', function () { flyTo(s); });
+        nav.appendChild(b);
+      });
+    })();
 
     // Click-to-select via centre crosshair while locked.
     var ray = new THREE.Raycaster();
@@ -228,7 +269,16 @@
     function animate() {
       requestAnimationFrame(animate);
       var dt = Math.min(0.05, clock.getDelta());
-      if (controls.isLocked) {
+      if (fly) {
+        fly.t += dt / fly.dur;
+        var fk = Math.min(1, fly.t);
+        var fe = fk * fk * (3 - 2 * fk);            // smoothstep
+        var fo = controls.getObject();
+        fo.position.lerpVectors(fly.from, fly.to, fe);
+        fo.position.y = 1.6;
+        camera.lookAt(fly.look);
+        if (fk >= 1) fly = null;
+      } else if (controls.isLocked) {
         var speed = 4.0;
         vel.set(0, 0, 0);
         if (keys['KeyW'] || keys['ArrowUp']) vel.z += 1;
