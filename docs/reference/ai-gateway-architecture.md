@@ -27,7 +27,7 @@ Routers: `ai_proxy` (the `/ai/v1` inference surface), `public` / `public_auth` /
 `public_jobs` / `public_feedback` (the async job + allocation API), `allocations`,
 `desktop`, and the admin routes.
 
-## Plane 1 - inference proxy (`/ai/v1/*`)
+## Function 1 - inference proxy (`/ai/v1/*`)
 
 This is the surface Heratio, KM, and ai-demo use. Every request passes one auth dependency
 (`_validate_and_reserve`):
@@ -74,7 +74,7 @@ fallback upstream is always appended last so consumers survive a transient datab
 The proxy does NOT inject a per-request `keep_alive`, so a node's `OLLAMA_KEEP_ALIVE`
 setting governs model residency.
 
-## Plane 2 - GPU allocation + preemption scheduler
+## Function 2 - GPU allocation + preemption scheduler
 
 `services/scheduler.py` exposes `allocate(db, request)`: a strict-ladder priority preemption
 system over the GPU nodes. Active tiers, highest first:
@@ -91,11 +91,11 @@ A single `allocate()` pass: reap expired allocations, grant immediately if a cap
 free, else find the cheapest lower-tier allocation this request may displace (strictly down
 the ladder, never sideways), preempt it (victim marked `preempted`, new allocation `pending`
 with a grace period), or queue the request if nothing can be displaced. Every decision is
-recorded in `routing_decisions`; a regression test guards the strict ladder. This plane
+recorded in `routing_decisions`; a regression test guards the strict ladder. This function
 backs the async job API (`.../models/{model}/submit` -> `jobs` -> `output_artifacts`), with
 `public_users` as a separate identity space from the API `clients`.
 
-## Plane 3 - admin console (`/admin/*`)
+## Function 3 - admin console (`/admin/*`)
 
 Server-rendered HTML console. Login is gated by `admin_users` plus an IP allow-list and a
 login-attempt lockout, and every action is audited. It manages GPU nodes (enable/disable,
