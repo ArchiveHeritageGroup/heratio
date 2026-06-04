@@ -48,12 +48,12 @@
 <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <span><i class="fas fa-book-open me-2"></i>{{ __('My Journals') }}</span>
-        <a href="{{ route('journal-builder.create') }}" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i>{{ __('New Journal') }}</a>
+        <a href="{{ route('research.journal-builder.create') }}" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i>{{ __('New Journal') }}</a>
     </div>
     <div class="list-group list-group-flush">
         @foreach($journals as $j)
         @php $sc = ['published' => 'success', 'draft' => 'warning', 'archived' => 'dark', 'submitted' => 'info']; @endphp
-        <a href="{{ route('journal-builder.show', $j->id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <a href="{{ route('research.journal-builder.show', $j->id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
             <span>
                 <span class="fw-bold">{{ e($j->title) }}</span>
                 @if($j->subtitle ?? null)<small class="text-muted"> - {{ e($j->subtitle) }}</small>@endif
