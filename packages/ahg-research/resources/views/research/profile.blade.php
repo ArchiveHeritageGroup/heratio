@@ -77,13 +77,14 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-2 mb-3">
-            <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label for="title" class="form-label">Title</label>
             <select name="title" id="title" class="form-select">
               <option value="">-- Select --</option>
               @foreach(['Mr', 'Mrs', 'Ms', 'Dr', 'Prof'] as $t)
                 <option value="{{ $t }}" {{ old('title', $researcher->title ?? '') === $t ? 'selected' : '' }}>{{ $t }}</option>
               @endforeach
             </select>
+            <span class="badge bg-secondary mt-1">{{ __('Optional') }}</span>
           </div>
           <div class="col-md-5 mb-3">
             <label for="first_name" class="form-label">First Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
