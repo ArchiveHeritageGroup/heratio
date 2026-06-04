@@ -44,6 +44,6 @@ The AtoM-side AHG plugins host the dashboard and the `signature` / `signer_key_i
 
 ## See also
 
-- `ai-gateway-htr-routing.md` - the AI gateway and HTR consolidation.
+- `ai-gateway-architecture.md` - the AI gateway architecture, HTR consolidation, and consumer wiring.
 - `ai-inference-provenance-discipline.md` - the inference and reviewer-override provenance chain.
 - ADR-0002, provenance discipline baseline.

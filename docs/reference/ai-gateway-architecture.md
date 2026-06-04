@@ -124,6 +124,56 @@ allocations (create / force-release), jobs, request logs, and audit views.
   most often explain "it worked for one client but not another" (for example, a pinned client
   having a vision model silently swapped to a text model).
 
+## Heratio consumer wiring (client side)
+
+Heratio is an AI *client*, never an AI host. Every AI caller resolves its endpoint from a
+setting and authenticates with a bearer token - no AI hostname is hardcoded in the consumers.
+
+- **Endpoint settings** resolve from `ahg_ner_settings` first, falling back to
+  `ahg_ai_settings` (feature `general`): `api_url` (NER / summarize base, default
+  `https://ai.theahg.co.za/ai/v1`), `htr_url` (HTR endpoint, default
+  `https://ai.theahg.co.za/ai/v1/htr`), `mt.endpoint` (translation), and `api_key` (the
+  bearer token).
+- **Auth:** calls send `Authorization: Bearer <api_key>` (some older worker endpoints also
+  accept `X-API-Key`; both hit the same `api_keys` lookup).
+- **No bare node IPs as defaults.** A configured endpoint must be the gateway URL, never a
+  GPU-node port - see the standing no-bypass rule above.
+
+## HTR consolidation (heratio#131)
+
+Handwriting transcription used to be the exception - scattered across a hardcoded host, a
+double-prefixed URL that never resolved, and a direct `HTR_SERVICE_URL` env var, all
+authenticating with an `X-API-Key` header the gateway did not expect. It now routes through
+the gateway like everything else:
+
+- **Gateway side:** a catch-all proxy route `/ai/v1/htr/legacy/{subpath}` (GET, POST) makes
+  the entire legacy HTR API reachable *through* the gateway. The legacy service's base URL is
+  gateway-side config, never referenced by Heratio. The primary endpoint stays `/ai/v1/htr`.
+- **Consumer side:** every HTR caller (`htrForObject`, crop-OCR, fine-tuned OCR, `HtrService`,
+  and the discovery page-index OCR) resolves `htr_url` from settings and sends a bearer token.
+  Legacy crop-OCR / fine-tuned OCR post to `{htr_url}/legacy/...`. `HTR_SERVICE_URL` survives
+  only as a developer override. The AtoM-side mirror (`executeHtr`) was updated the same way,
+  routing through the gateway via an `app_htr_url` config value with a bearer header.
+- **Why it matters:** HTR now appears in the gateway's audit trail next to every other AI
+  service - no side channel bypasses oversight. This is a precondition for the AI Inventory &
+  Governance dashboard to see all AI activity.
+
+### Consumer configuration summary
+
+| Setting | Where | Purpose |
+|---|---|---|
+| `api_url` | `ahg_ner_settings` / `ahg_ai_settings` general | NER / summarize base; default is the gateway |
+| `htr_url` | `ahg_ner_settings` / `ahg_ai_settings` general | HTR endpoint; default is the gateway |
+| `mt.endpoint` | `ahg_ner_settings` / `ahg_ai_settings` | Translation endpoint; default is the gateway |
+| `api_key` | `ahg_ner_settings` / `ahg_ai_settings` general | Bearer token for gateway calls |
+| `HTR_SERVICE_URL` | environment | Developer-only override of the HTR base URL |
+
+## See also
+
+- `ai-governance-signing.md` - governance dashboard, model manifest, inference signing.
+- `ai-inference-provenance-discipline.md` - inference and override provenance chain.
+- `km-gateway-scoped-keys.md` - the `gateway` / `km` / `km,gateway` API-key scope model.
+
 ## One-line model
 
 `ai.theahg.co.za` is a metered, key-scoped, failover-capable inference gateway AND a
