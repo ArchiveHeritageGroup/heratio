@@ -40,8 +40,22 @@
               <div class="small text-white-50 mt-1">{{ __('W A S D to walk, mouse to look, click an object for details, Esc to exit') }}</div>
             </div>
           </div>
-          <div id="roomCrosshair" style="position:absolute;top:50%;left:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:rgba(255,255,255,.7);z-index:4;display:none;pointer-events:none;"></div>
+          <div id="roomCrosshair" style="position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#000;border:2px solid rgba(255,255,255,.85);box-sizing:border-box;z-index:4;display:none;pointer-events:none;"></div>
           <div id="roomLoading" style="position:absolute;bottom:8px;left:8px;z-index:4;color:#ccc;font-size:.8rem;">{{ __('Loading gallery...') }}</div>
+          <button id="roomHelpBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:8px;z-index:6;opacity:.85;" title="{{ __('Controls') }}"><i class="fas fa-question"></i></button>
+          <div id="roomHelp" class="bg-dark text-white p-3 rounded small" style="position:absolute;top:46px;right:8px;z-index:6;max-width:260px;display:none;">
+            <div class="fw-bold mb-2"><i class="fas fa-gamepad me-1"></i>{{ __('Controls') }}</div>
+            <ul class="mb-0 ps-3">
+              <li>{{ __('Click gallery to enter') }}</li>
+              <li>{{ __('Move: W A S D or arrow keys') }}</li>
+              <li>{{ __('Forward / back: mouse wheel') }}</li>
+              <li>{{ __('Look around: move the mouse') }}</li>
+              <li>{{ __('Open details: click an object or a numbered button') }}</li>
+              <li>{{ __('Scroll the details panel: right-click') }}</li>
+              <li>{{ __('Close panel: left-click or Esc') }}</li>
+              <li>{{ __('Exit gallery: Esc') }}</li>
+            </ul>
+          </div>
         </div>
         {{-- Walk-to navigator: click an object to travel to it. --}}
         <div id="roomNav" class="d-flex gap-1 p-2 overflow-auto border-top bg-light" style="white-space:nowrap;"></div>
@@ -50,7 +64,7 @@
   @endif
 
   {{-- Detail side panel (vanilla; theme bundle has no bootstrap Offcanvas) --}}
-  <div id="wtPanel" style="position:fixed;top:0;right:0;height:100%;width:360px;max-width:85vw;background:#fff;z-index:1080;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;box-shadow:-4px 0 16px rgba(0,0,0,.15);">
+  <div id="wtPanel" tabindex="-1" style="position:fixed;top:0;right:0;height:100%;width:360px;max-width:85vw;background:#fff;z-index:1080;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;box-shadow:-4px 0 16px rgba(0,0,0,.15);outline:none;">
     <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
       <h5 class="mb-0" id="wtPanelTitle">{{ __('Object') }}</h5>
       <button type="button" class="btn-close" id="wtClose" aria-label="{{ __('Close') }}"></button>
@@ -375,6 +389,24 @@
       controls.moveForward((e.deltaY < 0 ? 1 : -1) * 0.6);
       clampInRoom(controls.getObject());
     }, { passive: false });
+
+    // Right-click jumps to the open detail panel so the mouse can scroll it
+    // (releases pointer lock, which otherwise captures the mouse).
+    renderer.domElement.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      if (panelOpen) {
+        if (controls.isLocked) controls.unlock();
+        panel.focus();
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+
+    // Help / controls overlay toggle.
+    var helpBox = document.getElementById('roomHelp');
+    document.getElementById('roomHelpBtn').addEventListener('click', function (e) {
+      e.stopPropagation();
+      helpBox.style.display = (helpBox.style.display === 'block') ? 'none' : 'block';
+    });
 
     // Movement loop
     var clock = new THREE.Clock();
