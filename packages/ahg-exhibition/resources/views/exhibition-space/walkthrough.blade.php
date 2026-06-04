@@ -47,13 +47,14 @@
     </div>
   @endif
 
-  {{-- Detail panel --}}
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="wtPanel" aria-labelledby="wtPanelTitle">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="wtPanelTitle">{{ __('Object') }}</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{{ __('Close') }}"></button>
+  {{-- Detail panel (self-contained side panel; the theme bundle ships a partial
+       Bootstrap build WITHOUT Offcanvas, so we toggle it with vanilla JS). --}}
+  <div id="wtPanel" style="position:fixed;top:0;right:0;height:100%;width:360px;max-width:85vw;background:#fff;z-index:1080;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;box-shadow:-4px 0 16px rgba(0,0,0,.15);">
+    <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+      <h5 class="mb-0" id="wtPanelTitle">{{ __('Object') }}</h5>
+      <button type="button" class="btn-close" id="wtClose" aria-label="{{ __('Close') }}"></button>
     </div>
-    <div class="offcanvas-body">
+    <div class="p-3">
       <div id="wtImgWrap" class="text-center mb-3"></div>
       <h6 id="wtTitle" class="fw-bold"></h6>
       <p id="wtDesc" class="small text-muted"></p>
@@ -88,8 +89,8 @@
       bgLayer.draw();
     }
 
-    // Detail offcanvas
-    var oc = new bootstrap.Offcanvas(document.getElementById('wtPanel'));
+    // Detail side panel (vanilla; no bootstrap-JS dependency)
+    var panel = document.getElementById('wtPanel');
     function openPanel(s) {
       document.getElementById('wtTitle').textContent = s.title;
       document.getElementById('wtDesc').textContent = s.description || '{{ __('No description available.') }}';
@@ -97,8 +98,10 @@
       iw.innerHTML = s.thumb_url ? '<img src="' + s.thumb_url + '" class="img-fluid rounded" style="max-height:260px" alt="">' : '<div class="text-muted py-4"><i class="fas fa-image fa-2x"></i></div>';
       var rec = document.getElementById('wtRecord');
       if (s.record_url) { rec.href = s.record_url; rec.classList.remove('d-none'); } else { rec.classList.add('d-none'); }
-      oc.show();
+      panel.style.transform = 'translateX(0)';
     }
+    function closePanel() { panel.style.transform = 'translateX(100%)'; }
+    document.getElementById('wtClose').addEventListener('click', closePanel);
 
     // Hotspots
     STOPS.forEach(function (s, i) {
