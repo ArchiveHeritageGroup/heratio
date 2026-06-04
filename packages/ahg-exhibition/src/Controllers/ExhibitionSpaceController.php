@@ -188,4 +188,121 @@ class ExhibitionSpaceController extends Controller
             'lighting_lux_target', 'notes',
         ]);
     }
+
+    // ===================================================================
+    // Digital twin - virtual collection builder (heratio#1138, Phase 1)
+    // ===================================================================
+
+    public function builder(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        return view('ahg-exhibition::exhibition-space.builder', [
+            'space' => $space,
+            'placements' => $this->service->getPlacementsForBuilder((int) $space->id),
+            'capacityUnits' => ExhibitionSpaceService::CAPACITY_UNITS,
+        ]);
+    }
+
+    /** AJAX: persist canvas positions for the whole layout. */
+    public function saveLayout(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false, 'error' => 'Space not found.'], 404);
+        }
+        $data = $request->validate([
+            'positions' => 'required|array',
+            'positions.*.id' => 'required|integer|min:1',
+            'positions.*.pos_x' => 'nullable|numeric',
+            'positions.*.pos_y' => 'nullable|numeric',
+            'positions.*.rotation_deg' => 'nullable|numeric',
+            'positions.*.scale' => 'nullable|numeric',
+            'positions.*.z_order' => 'nullable|integer',
+        ]);
+        $saved = $this->service->saveLayout((int) $space->id, $data['positions']);
+
+        return response()->json(['ok' => true, 'saved' => $saved]);
+    }
+
+    /** AJAX: create a placement dropped onto the canvas; returns its builder row. */
+    public function placeAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false, 'error' => 'Space not found.'], 404);
+        }
+        $data = $request->validate([
+            'information_object_id' => 'required|integer|min:1',
+            'pos_x' => 'required|numeric',
+            'pos_y' => 'required|numeric',
+        ]);
+        try {
+            $placement = $this->service->createPlacementAt(
+                (int) $space->id,
+                (int) $data['information_object_id'],
+                (float) $data['pos_x'],
+                (float) $data['pos_y']
+            );
+
+            return response()->json(['ok' => true, 'placement' => $placement]);
+        } catch (\Throwable $e) {
+            return response()->json(['ok' => false, 'error' => $e->getMessage()], 422);
+        }
+    }
+
+    /** AJAX: remove a placement from the builder. */
+    public function removeAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false, 'error' => 'Space not found.'], 404);
+        }
+        $placementId = (int) $request->input('placement_id');
+        $row = \Illuminate\Support\Facades\DB::table('ahg_exhibition_placement')
+            ->where('id', $placementId)->where('exhibition_space_id', $space->id)->first();
+        if (! $row) {
+            return response()->json(['ok' => false, 'error' => 'Placement not found.'], 404);
+        }
+        $this->service->removePlacement($placementId);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** Upload a floorplan background image for the builder canvas. */
+    public function uploadFloorplan(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $request->validate([
+            'floorplan' => 'required|image|mimes:jpeg,png,webp,svg|max:8192',
+            'floorplan_width_m' => 'nullable|numeric|min:0',
+            'floorplan_height_m' => 'nullable|numeric|min:0',
+        ]);
+
+        $file = $request->file('floorplan');
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'png');
+        $dir = public_path('uploads/exhibition-floorplans');
+        if (! is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        $filename = $space->slug.'-'.substr(md5((string) microtime(true)), 0, 8).'.'.$ext;
+        $file->move($dir, $filename);
+        $publicPath = '/uploads/exhibition-floorplans/'.$filename;
+
+        $this->service->setFloorplan(
+            (int) $space->id,
+            $publicPath,
+            $request->input('floorplan_width_m') !== null ? (float) $request->input('floorplan_width_m') : null,
+            $request->input('floorplan_height_m') !== null ? (float) $request->input('floorplan_height_m') : null
+        );
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])
+            ->with('success', 'Floorplan uploaded.');
+    }
 }

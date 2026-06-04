@@ -10,6 +10,7 @@
       <i class="fas fa-palette me-2"></i>{{ $space->name }}
       <span class="badge bg-secondary ms-2">{{ ucwords(str_replace('_', ' ', $space->space_type)) }}</span>
     </h1>
+    <a href="{{ route('exhibition-space.builder', ['slug' => $space->slug]) }}" class="btn btn-primary"><i class="fas fa-cubes me-1"></i>{{ __('Digital Twin Builder') }}</a>
     @auth
       <a href="{{ route('exhibition-space.edit', ['slug' => $space->slug]) }}" class="btn btn-outline-primary"><i class="fas fa-edit me-1"></i>{{ __('Edit') }}</a>
       <a href="{{ route('exhibition-space.confirmDelete', ['slug' => $space->slug]) }}" class="btn btn-outline-danger"><i class="fas fa-trash me-1"></i>{{ __('Delete') }}</a>

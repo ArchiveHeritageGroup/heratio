@@ -282,6 +282,153 @@ class ExhibitionSpaceService
         return DB::table('ahg_exhibition_placement')->where('id', $placementId)->delete() > 0;
     }
 
+    // -------- Digital twin / builder (heratio#1138) --------
+
+    /**
+     * Placements for the drag-and-drop builder canvas: spatial coordinates plus a
+     * best-effort thumbnail URL for each information object. Falls back gracefully
+     * where no derivative exists (the canvas draws a labelled placeholder).
+     */
+    public function getPlacementsForBuilder(int $exhibitionSpaceId): array
+    {
+        $rows = DB::table('ahg_exhibition_placement as ep')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('ioi.id', '=', 'ep.information_object_id')->where('ioi.culture', '=', 'en');
+            })
+            ->where('ep.exhibition_space_id', $exhibitionSpaceId)
+            ->select(
+                'ep.id', 'ep.information_object_id',
+                'ep.pos_x', 'ep.pos_y', 'ep.rotation_deg', 'ep.scale', 'ep.z_order',
+                'ep.wall_or_zone', 'ep.label_visible', 'ep.size_units_used',
+                'ioi.title as information_object_title'
+            )
+            ->orderBy('ep.z_order')
+            ->get();
+
+        return $rows->map(function ($r) {
+            return [
+                'id' => (int) $r->id,
+                'information_object_id' => (int) $r->information_object_id,
+                'title' => $r->information_object_title ?: ('#'.$r->information_object_id),
+                'pos_x' => $r->pos_x !== null ? (float) $r->pos_x : null,
+                'pos_y' => $r->pos_y !== null ? (float) $r->pos_y : null,
+                'rotation_deg' => (float) ($r->rotation_deg ?? 0),
+                'scale' => (float) ($r->scale ?? 1),
+                'z_order' => (int) ($r->z_order ?? 0),
+                'wall_or_zone' => $r->wall_or_zone,
+                'label_visible' => (int) ($r->label_visible ?? 1),
+                'thumb_url' => $this->thumbnailUrl((int) $r->information_object_id),
+            ];
+        })->all();
+    }
+
+    /**
+     * Best-effort thumbnail URL for an information object. The stored path already
+     * begins with /uploads/r/..., so it is returned verbatim. Prefers the smaller
+     * reference derivative, then thumbnail, then master.
+     */
+    public function thumbnailUrl(int $informationObjectId): ?string
+    {
+        $row = DB::table('digital_object')
+            ->where('object_id', $informationObjectId)
+            ->whereIn('usage_id', [141, 140, 142])
+            ->orderByRaw('FIELD(usage_id, 141, 140, 142)')
+            ->value('path');
+
+        if (! $row) {
+            return null;
+        }
+
+        return str_starts_with($row, '/') ? $row : '/uploads/r/'.$row;
+    }
+
+    /**
+     * Persist canvas positions. Only placements that belong to the given space are
+     * updated, so a forged placement id from another space is ignored.
+     *
+     * @param  array<int,array<string,mixed>>  $positions  each: id,pos_x,pos_y,rotation_deg,scale,z_order
+     */
+    public function saveLayout(int $exhibitionSpaceId, array $positions): int
+    {
+        $valid = DB::table('ahg_exhibition_placement')
+            ->where('exhibition_space_id', $exhibitionSpaceId)
+            ->pluck('id')->map(fn ($v) => (int) $v)->all();
+        $valid = array_flip($valid);
+
+        $saved = 0;
+        foreach ($positions as $p) {
+            $id = (int) ($p['id'] ?? 0);
+            if ($id <= 0 || ! isset($valid[$id])) {
+                continue;
+            }
+            DB::table('ahg_exhibition_placement')->where('id', $id)->update([
+                'pos_x' => isset($p['pos_x']) ? max(0, min(1, (float) $p['pos_x'])) : null,
+                'pos_y' => isset($p['pos_y']) ? max(0, min(1, (float) $p['pos_y'])) : null,
+                'rotation_deg' => (float) ($p['rotation_deg'] ?? 0),
+                'scale' => (float) ($p['scale'] ?? 1),
+                'z_order' => (int) ($p['z_order'] ?? 0),
+                'updated_at' => now(),
+            ]);
+            $saved++;
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Create a placement dropped onto the canvas (no date range, so no capacity
+     * gate) and return its full builder row for immediate rendering.
+     *
+     * @return array<string,mixed>
+     */
+    public function createPlacementAt(int $exhibitionSpaceId, int $informationObjectId, float $posX, float $posY): array
+    {
+        if ($exhibitionSpaceId <= 0 || $informationObjectId <= 0) {
+            throw new \InvalidArgumentException('exhibition_space_id and information_object_id are required.');
+        }
+        $now = now();
+        $id = (int) DB::table('ahg_exhibition_placement')->insertGetId([
+            'information_object_id' => $informationObjectId,
+            'exhibition_space_id' => $exhibitionSpaceId,
+            'size_units_used' => 0,
+            'pos_x' => max(0, min(1, $posX)),
+            'pos_y' => max(0, min(1, $posY)),
+            'rotation_deg' => 0,
+            'scale' => 1,
+            'z_order' => 0,
+            'label_visible' => 1,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        $title = DB::table('information_object_i18n')
+            ->where('id', $informationObjectId)->where('culture', 'en')->value('title');
+
+        return [
+            'id' => $id,
+            'information_object_id' => $informationObjectId,
+            'title' => $title ?: ('#'.$informationObjectId),
+            'pos_x' => max(0, min(1, $posX)),
+            'pos_y' => max(0, min(1, $posY)),
+            'rotation_deg' => 0.0,
+            'scale' => 1.0,
+            'z_order' => 0,
+            'wall_or_zone' => null,
+            'label_visible' => 1,
+            'thumb_url' => $this->thumbnailUrl($informationObjectId),
+        ];
+    }
+
+    public function setFloorplan(int $exhibitionSpaceId, string $publicPath, ?float $widthM = null, ?float $heightM = null): void
+    {
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)->update(array_filter([
+            'floorplan_image_path' => $publicPath,
+            'floorplan_width_m' => $widthM,
+            'floorplan_height_m' => $heightM,
+            'updated_at' => now(),
+        ], fn ($v) => $v !== null));
+    }
+
     // -------- Helpers --------
 
     private function generateUniqueSlug(string $name): string
