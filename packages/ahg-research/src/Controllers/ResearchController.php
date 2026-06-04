@@ -1282,9 +1282,13 @@ class ResearchController extends Controller
             }
         }
 
+        $journals = DB::table('research_journal')
+            ->where('researcher_id', $researcher->id)
+            ->orderByDesc('updated_at')->get()->toArray();
+
         return view('research::research.journal', array_merge(
             $this->getSidebarData('journal'),
-            compact('researcher', 'entries', 'projects', 'filters')
+            compact('researcher', 'entries', 'projects', 'filters', 'journals')
         ));
     }
 
@@ -3109,9 +3113,13 @@ class ResearchController extends Controller
         $filters = ['project_id' => null, 'entry_type' => null, 'date_from' => null, 'date_to' => null, 'search' => null];
         $entries = [];
 
+        $journals = DB::table('research_journal')
+            ->where('researcher_id', $researcher->id)
+            ->orderByDesc('updated_at')->get()->toArray();
+
         return view('research::research.journal', array_merge(
             $this->getSidebarData('journal'),
-            compact('researcher', 'entries', 'projects', 'filters'),
+            compact('researcher', 'entries', 'projects', 'filters', 'journals'),
             ['showCreateForm' => true]
         ));
     }

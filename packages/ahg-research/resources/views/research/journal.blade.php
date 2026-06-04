@@ -44,6 +44,31 @@
     </div>
 </div>
 
+@if(!empty($journals))
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
+        <span><i class="fas fa-book-open me-2"></i>{{ __('My Journals') }}</span>
+        <a href="{{ route('journal-builder.create') }}" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i>{{ __('New Journal') }}</a>
+    </div>
+    <div class="list-group list-group-flush">
+        @foreach($journals as $j)
+        @php $sc = ['published' => 'success', 'draft' => 'warning', 'archived' => 'dark', 'submitted' => 'info']; @endphp
+        <a href="{{ route('journal-builder.show', $j->id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <span>
+                <span class="fw-bold">{{ e($j->title) }}</span>
+                @if($j->subtitle ?? null)<small class="text-muted"> - {{ e($j->subtitle) }}</small>@endif
+                @if($j->issn ?? null)<small class="text-muted ms-2">ISSN {{ e($j->issn) }}</small>@endif
+            </span>
+            <span>
+                <span class="badge bg-secondary text-capitalize">{{ $j->kind }}</span>
+                <span class="badge bg-{{ $sc[$j->status] ?? 'secondary' }} text-capitalize ms-1">{{ $j->status }}</span>
+            </span>
+        </a>
+        @endforeach
+    </div>
+</div>
+@endif
+
 @php $grouped = collect($entries)->groupBy('entry_date'); @endphp
 @forelse($grouped as $date => $dayEntries)
 <div class="mb-3">
@@ -76,7 +101,7 @@
         <div class="row">
             <div class="col-md-4"><div class="mb-3"><label class="form-label">Project <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="project_id" class="form-select"><option value="">{{ __('None') }}</option>@foreach($projects as $p)<option value="{{ $p->id }}">{{ e($p->title) }}</option>@endforeach</select></div></div>
             <div class="col-md-3"><div class="mb-3"><label class="form-label">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="entry_type" class="form-select"><option value="manual">{{ __('Manual') }}</option><option value="observation">{{ __('Observation') }}</option><option value="finding">{{ __('Finding') }}</option><option value="reflection">{{ __('Reflection') }}</option></select></div></div>
-            <div class="col-md-2"><div class="mb-3"><label class="form-label">Time (min) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" class="form-control" name="time_spent_minutes"></div></div>
+            <div class="col-md-2"><div class="mb-3"><label class="form-label">Time (min)</label><input type="number" class="form-control" name="time_spent_minutes"><span class="badge bg-secondary mt-1 d-inline-block">{{ __('Optional') }}</span></div></div>
             <div class="col-md-3"><div class="mb-3"><label class="form-label">Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="entry_date" value="{{ date('Y-m-d') }}"></div></div>
         </div>
         <div class="mb-3"><label class="form-label">Tags <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" name="tags" placeholder="{{ __('Comma-separated') }}"></div>
