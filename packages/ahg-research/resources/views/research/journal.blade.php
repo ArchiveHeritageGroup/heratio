@@ -55,9 +55,9 @@
         @php $sc = ['published' => 'success', 'draft' => 'warning', 'archived' => 'dark', 'submitted' => 'info']; @endphp
         <a href="{{ route('research.journal-builder.show', $j->id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
             <span>
-                <span class="fw-bold">{{ e($j->title) }}</span>
-                @if($j->subtitle ?? null)<small class="text-muted"> - {{ e($j->subtitle) }}</small>@endif
-                @if($j->issn ?? null)<small class="text-muted ms-2">ISSN {{ e($j->issn) }}</small>@endif
+                <span class="fw-bold">{{ $j->title }}</span>
+                @if($j->subtitle ?? null)<small class="text-muted"> - {{ $j->subtitle }}</small>@endif
+                @if($j->issn ?? null)<small class="text-muted ms-2">ISSN {{ $j->issn }}</small>@endif
             </span>
             <span>
                 <span class="badge bg-secondary text-capitalize">{{ $j->kind }}</span>
