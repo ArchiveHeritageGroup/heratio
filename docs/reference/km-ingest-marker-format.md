@@ -169,6 +169,66 @@ clients) can filter on it. Convention:
 That's the entire workflow. No edits to the watcher script, no edits
 to the indexer.
 
+## Deleting or renaming a KM-ingested doc (purge ghost vectors)
+
+**The ingest is upsert-only - it never removes a deleted file's chunks.**
+Adding or editing a `.md` is fully automatic (the watcher re-ingests and
+overwrites by point id), but **deleting or renaming** a doc leaves its old
+chunks orphaned in Qdrant. Those "ghost" chunks keep being returned by KM
+queries - and because they are full, self-consistent text, they often
+out-rank the doc you replaced them with.
+
+Why it happens: each chunk's point id is `md5(source_file, heading, text)`.
+Re-ingesting the *same* file overwrites its ids; a *removed* file's ids are
+never touched again, so they persist forever. A later re-ingest that walks
+`docs/` cannot resurrect a file that is gone from disk, but it also cannot
+clean up what an earlier ingest already wrote.
+
+So whenever you `git rm` or rename a KM-ingested `.md`, ALSO purge its old
+vectors. Two ways:
+
+### 1. Surgical delete (preferred for one or two docs)
+
+Delete only the removed file's points by an exact `source_file` payload
+filter. Instant, zero collateral. `source_file` is the **absolute path** the
+indexer recorded.
+
+```bash
+/opt/ai/km/venv/bin/python - <<'PY'
+from qdrant_client import QdrantClient
+from qdrant_client.models import Filter, FieldCondition, MatchValue, FilterSelector
+c = QdrantClient(url="http://localhost:6333")
+COLL = "km_heratio"
+GHOST = "/usr/share/nginx/heratio/docs/reference/<deleted-doc>.md"   # absolute path
+flt = Filter(must=[FieldCondition(key="source_file", match=MatchValue(value=GHOST))])
+print("before:", c.count(COLL, count_filter=flt, exact=True).count)
+c.delete(COLL, points_selector=FilterSelector(filter=flt))
+print("after :", c.count(COLL, count_filter=flt, exact=True).count)   # expect 0
+PY
+```
+
+Verify the exact path first with a read-only scroll
+(`c.scroll(COLL, with_payload=["source_file"], ...)`) - a typo means the
+ghost survives. For a **rename**, purge the OLD path; the new path's chunks
+get added by the normal watcher re-ingest.
+
+### 2. Full rebuild (heavy; only if many docs were removed)
+
+```bash
+cd /opt/ai/km && venv/bin/python ingest_heratio.py --reset
+```
+
+`--reset` does `delete_collection` then re-embeds EVERY chunk from all marked
+projects (tens of thousands). Correct but slow (minutes) and overkill for a
+single deleted file - prefer the surgical delete above.
+
+### Verify the purge sticks
+
+After purging, trigger one real ingest (`systemctl start km-ingest.service`
+or any `.md` write) and re-count the ghost - it must stay `0`. A full ingest
+re-embeds all chunks, so the collection's total may shift slightly from
+other edits; what matters is the deleted file's `source_file` count is `0`.
+
 ## Validation
 
 Before relying on a new marker file, dry-run the discovery from the
