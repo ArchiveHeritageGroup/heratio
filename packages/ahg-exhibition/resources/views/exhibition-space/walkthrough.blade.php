@@ -242,16 +242,26 @@
       if (s.kind === '3d' && s.model_url) {
         var ph = addPedestal(wp.x, wp.z, 0.6);
         loadModel(s.model_url, modelExt(s), function (obj) {
-          var box = new THREE.Box3().setFromObject(obj);
+          // OBJ/STL/PLY are commonly Z-up; Three.js is Y-up - stand them upright.
+          var ext = modelExt(s);
+          if (ext === 'obj' || ext === 'stl' || ext === 'ply') { obj.rotation.x = -Math.PI / 2; }
+          // Wrap in a pivot so the builder's rotation_deg spins it (yaw) on its base.
+          var pivot = new THREE.Group();
+          pivot.add(obj);
+          var box = new THREE.Box3().setFromObject(pivot);
           var size = box.getSize(new THREE.Vector3());
           var maxd = Math.max(size.x, size.y, size.z) || 1;
-          obj.scale.setScalar(1.5 / maxd);
-          box = new THREE.Box3().setFromObject(obj);
+          pivot.scale.setScalar(1.5 / maxd);
+          pivot.rotation.y = (s.rotation_deg || 0) * Math.PI / 180;
+          pivot.updateMatrixWorld(true);
+          box = new THREE.Box3().setFromObject(pivot);
           var c = box.getCenter(new THREE.Vector3());
-          obj.position.set(wp.x - c.x, ph - box.min.y, wp.z - c.z);
-          obj.traverse(function (n) { if (n.isMesh) { n.userData.stop = s; } });
-          obj.userData.stop = s;
-          scene.add(obj); pickables.push(obj); doneOne();
+          pivot.position.x += wp.x - c.x;
+          pivot.position.z += wp.z - c.z;
+          pivot.position.y += ph - box.min.y;
+          pivot.traverse(function (n) { if (n.isMesh) { n.userData.stop = s; } });
+          pivot.userData.stop = s;
+          scene.add(pivot); pickables.push(pivot); doneOne();
         }, function () {
           addPlaceholder(wp, s, ph); doneOne();
         });
@@ -336,6 +346,9 @@
       var oc = new THREE.OrbitControls(cam, rn.domElement); oc.enablePan = false; oc.autoRotate = true; oc.autoRotateSpeed = 2.6;
       mini = { renderer: rn, raf: 0 };
       loadModel(s.model_url, modelExt(s), function (obj) {
+        var mext = modelExt(s);
+        if (mext === 'obj' || mext === 'stl' || mext === 'ply') { obj.rotation.x = -Math.PI / 2; }
+        obj.updateMatrixWorld(true);
         var box = new THREE.Box3().setFromObject(obj);
         var size = box.getSize(new THREE.Vector3());
         var maxd = Math.max(size.x, size.y, size.z) || 1;

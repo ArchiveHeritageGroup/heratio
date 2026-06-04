@@ -317,6 +317,7 @@ class ExhibitionSpaceService
                 'z_order' => (int) ($r->z_order ?? 0),
                 'wall_or_zone' => $r->wall_or_zone,
                 'label_visible' => (int) ($r->label_visible ?? 1),
+                'size_units_used' => (float) ($r->size_units_used ?? 0),
                 'thumb_url' => $this->thumbnailUrl((int) $r->information_object_id),
             ];
         })->all();
@@ -494,16 +495,17 @@ class ExhibitionSpaceService
      *
      * @return array<string,mixed>
      */
-    public function createPlacementAt(int $exhibitionSpaceId, int $informationObjectId, float $posX, float $posY): array
+    public function createPlacementAt(int $exhibitionSpaceId, int $informationObjectId, float $posX, float $posY, float $sizeUnits = 0): array
     {
         if ($exhibitionSpaceId <= 0 || $informationObjectId <= 0) {
             throw new \InvalidArgumentException('exhibition_space_id and information_object_id are required.');
         }
+        $sizeUnits = max(0, $sizeUnits);
         $now = now();
         $id = (int) DB::table('ahg_exhibition_placement')->insertGetId([
             'information_object_id' => $informationObjectId,
             'exhibition_space_id' => $exhibitionSpaceId,
-            'size_units_used' => 0,
+            'size_units_used' => $sizeUnits,
             'pos_x' => max(0, min(1, $posX)),
             'pos_y' => max(0, min(1, $posY)),
             'rotation_deg' => 0,
@@ -528,8 +530,18 @@ class ExhibitionSpaceService
             'z_order' => 0,
             'wall_or_zone' => null,
             'label_visible' => 1,
+            'size_units_used' => $sizeUnits,
             'thumb_url' => $this->thumbnailUrl($informationObjectId),
         ];
+    }
+
+    /** Update just the capacity size of a placement (builder size editor). */
+    public function updatePlacementSize(int $exhibitionSpaceId, int $placementId, float $sizeUnits): bool
+    {
+        return DB::table('ahg_exhibition_placement')
+            ->where('id', $placementId)
+            ->where('exhibition_space_id', $exhibitionSpaceId)
+            ->update(['size_units_used' => max(0, $sizeUnits), 'updated_at' => now()]) > 0;
     }
 
     public function setFloorplan(int $exhibitionSpaceId, string $publicPath, ?float $widthM = null, ?float $heightM = null): void

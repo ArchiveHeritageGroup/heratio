@@ -239,13 +239,15 @@ class ExhibitionSpaceController extends Controller
             'information_object_id' => 'required|integer|min:1',
             'pos_x' => 'required|numeric',
             'pos_y' => 'required|numeric',
+            'size_units_used' => 'nullable|numeric|min:0',
         ]);
         try {
             $placement = $this->service->createPlacementAt(
                 (int) $space->id,
                 (int) $data['information_object_id'],
                 (float) $data['pos_x'],
-                (float) $data['pos_y']
+                (float) $data['pos_y'],
+                (float) ($data['size_units_used'] ?? 0)
             );
 
             return response()->json(['ok' => true, 'placement' => $placement]);
@@ -270,6 +272,22 @@ class ExhibitionSpaceController extends Controller
         $this->service->removePlacement($placementId);
 
         return response()->json(['ok' => true]);
+    }
+
+    /** AJAX: update a placement's capacity size from the builder size editor. */
+    public function updateSizeAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false, 'error' => 'Space not found.'], 404);
+        }
+        $data = $request->validate([
+            'placement_id' => 'required|integer|min:1',
+            'size_units_used' => 'required|numeric|min:0',
+        ]);
+        $ok = $this->service->updatePlacementSize((int) $space->id, (int) $data['placement_id'], (float) $data['size_units_used']);
+
+        return response()->json(['ok' => $ok]);
     }
 
     /** Upload a floorplan background image for the builder canvas. */

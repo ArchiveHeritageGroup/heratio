@@ -33,7 +33,9 @@
           <select id="objectSearch" class="form-control form-control-sm">
             <option value="">{{ __('Type to search...') }}</option>
           </select>
-          <small class="text-muted d-block mt-1">{{ __('Selecting an object drops it on the canvas.') }}</small>
+          <label for="initialSize" class="form-label small mt-2 mb-1">{{ __('Initial size (units)') }}</label>
+          <input type="number" id="initialSize" class="form-control form-control-sm" min="0" step="0.01" value="1">
+          <small class="text-muted d-block mt-1">{{ __('Selecting an object drops it on the canvas at this size.') }}</small>
         </div>
       </div>
 
@@ -66,6 +68,8 @@
               <button type="button" class="btn btn-outline-secondary" data-act="smaller" title="{{ __('Smaller') }}"><i class="fas fa-search-minus"></i></button>
               <button type="button" class="btn btn-outline-secondary" data-act="bigger" title="{{ __('Bigger') }}"><i class="fas fa-search-plus"></i></button>
             </div>
+            <label for="selSize" class="form-label small mb-1">{{ __('Size (units)') }}</label>
+            <input type="number" id="selSize" class="form-control form-control-sm mb-2" min="0" step="0.01">
             <button type="button" id="btnRemove" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-trash me-1"></i>{{ __('Remove from twin') }}</button>
           </div>
         </div>
@@ -96,7 +100,8 @@
       autocomplete: '{{ url('informationobject/autocomplete') }}',
       place: '{{ route('exhibition-space.builder.place', ['slug' => $space->slug]) }}',
       layout: '{{ route('exhibition-space.builder.layout', ['slug' => $space->slug]) }}',
-      remove: '{{ route('exhibition-space.builder.remove', ['slug' => $space->slug]) }}'
+      remove: '{{ route('exhibition-space.builder.remove', ['slug' => $space->slug]) }}',
+      size: '{{ route('exhibition-space.builder.size', ['slug' => $space->slug]) }}'
     };
     var FLOORPLAN = @json($space->floorplan_image_path);
     var PLACEMENTS = @json($placements);
@@ -171,6 +176,7 @@
       document.getElementById('selPanel').classList.add('d-none');
       document.getElementById('selControls').classList.remove('d-none');
       document.getElementById('selTitle').textContent = g.getAttr('titleText') || '';
+      document.getElementById('selSize').value = g.getAttr('sizeUnits') != null ? g.getAttr('sizeUnits') : 0;
       layer.draw();
     }
     function clearSelect() {
@@ -190,6 +196,7 @@
       });
       g.setAttr('placementId', p.id);
       g.setAttr('titleText', p.title);
+      g.setAttr('sizeUnits', p.size_units_used != null ? p.size_units_used : 0);
 
       var rect = new Konva.Rect({
         x: -NODE / 2, y: -NODE / 2, width: NODE, height: NODE,
@@ -255,6 +262,18 @@
       });
     });
 
+    // ---- edit size of the selected object ----
+    document.getElementById('selSize').addEventListener('change', function () {
+      if (!selected) return;
+      var v = Math.max(0, parseFloat(this.value) || 0);
+      selected.setAttr('sizeUnits', v);
+      fetch(URLS.size, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+        body: JSON.stringify({ placement_id: selected.getAttr('placementId'), size_units_used: v })
+      });
+    });
+
     // ---- add object via search ----
     if (typeof TomSelect !== 'undefined') {
       new TomSelect('#objectSearch', {
@@ -273,7 +292,7 @@
           fetch(URLS.place, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
-            body: JSON.stringify({ information_object_id: val, pos_x: 0.5, pos_y: 0.5 })
+            body: JSON.stringify({ information_object_id: val, pos_x: 0.5, pos_y: 0.5, size_units_used: parseFloat(document.getElementById('initialSize').value) || 0 })
           }).then(function (r) { return r.json(); }).then(function (d) {
             if (d.ok) { var g = addNode(d.placement); layer.draw(); selectNode(g); }
             self.clear(true); self.clearOptions();
