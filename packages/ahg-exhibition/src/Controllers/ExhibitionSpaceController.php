@@ -305,4 +305,37 @@ class ExhibitionSpaceController extends Controller
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])
             ->with('success', 'Floorplan uploaded.');
     }
+
+    // ===================================================================
+    // Digital twin - 2.5D pannable walkthrough (heratio#1138, Phase 2)
+    // ===================================================================
+
+    public function walkthrough(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        return view('ahg-exhibition::exhibition-space.walkthrough', [
+            'space' => $space,
+            'stops' => $this->service->getWalkthroughStops((int) $space->id),
+        ]);
+    }
+
+    /** AJAX (builder): save the ordered guided-route for the walkthrough. */
+    public function saveWalkthroughPath(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false, 'error' => 'Space not found.'], 404);
+        }
+        $data = $request->validate([
+            'order' => 'present|array',
+            'order.*' => 'integer|min:1',
+        ]);
+        $this->service->saveWalkthroughPath((int) $space->id, $data['order']);
+
+        return response()->json(['ok' => true]);
+    }
 }

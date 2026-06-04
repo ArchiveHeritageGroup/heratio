@@ -42,8 +42,24 @@ any exhibition space via the **Digital Twin Builder** button
   count against capacity for a period.
 - Editing requires the update permission; viewing the builder requires sign-in.
 
+## Virtual Walkthrough (Phase 2)
+
+A visitor-facing **2.5D pannable walkthrough** is available from the
+**Walkthrough** button (`/exhibition-space/{slug}/walkthrough`, public - no
+sign-in needed).
+
+- The floorplan pans (drag) and zooms (scroll, or the zoom buttons); each placed
+  object is a numbered hotspot at its position.
+- Click a hotspot to open a detail panel with the object's image, title,
+  description and a link to the full archival record.
+- **Guided tour:** click "Guided tour" to step Next/Prev through the objects;
+  the view animates to each stop and opens its panel. The order follows the saved
+  guided route where one exists, otherwise natural reading order
+  (top-to-bottom, left-to-right).
+
 ## Roadmap
 
-- Phase 2: a 2.5D pannable walkthrough for visitors (pan/zoom the floorplan with
-  clickable object hotspots). See `docs/exhibition-space-virtual-builder-plan.md`
-  and heratio#1138.
+- Builder UI to reorder the guided route explicitly (the backend
+  `walkthrough_path_json` + save endpoint already exist).
+- Optional immersive 360/VR view. See
+  `docs/exhibition-space-virtual-builder-plan.md` and heratio#1138.

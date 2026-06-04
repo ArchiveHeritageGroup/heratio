@@ -429,6 +429,108 @@ class ExhibitionSpaceService
         ], fn ($v) => $v !== null));
     }
 
+    /**
+     * Persist the ordered guided-route of placement ids for the walkthrough.
+     *
+     * @param  array<int,int>  $placementIds
+     */
+    public function saveWalkthroughPath(int $exhibitionSpaceId, array $placementIds): void
+    {
+        $valid = DB::table('ahg_exhibition_placement')
+            ->where('exhibition_space_id', $exhibitionSpaceId)
+            ->pluck('id')->map(fn ($v) => (int) $v)->all();
+        $valid = array_flip($valid);
+        $ordered = array_values(array_filter(array_map('intval', $placementIds), fn ($id) => isset($valid[$id])));
+
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)->update([
+            'walkthrough_path_json' => json_encode($ordered),
+            'updated_at' => now(),
+        ]);
+    }
+
+    // -------- Digital twin / walkthrough (heratio#1138, Phase 2) --------
+
+    /**
+     * Ordered stops for the 2.5D pannable walkthrough. Each stop carries spatial
+     * coordinates, thumbnail + full image, a short description and a link to the
+     * full archival record. Order follows the saved guided route when present,
+     * otherwise natural reading order (top-to-bottom, left-to-right).
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function getWalkthroughStops(int $exhibitionSpaceId): array
+    {
+        $space = $this->getById($exhibitionSpaceId);
+
+        $rows = DB::table('ahg_exhibition_placement as ep')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('ioi.id', '=', 'ep.information_object_id')->where('ioi.culture', '=', 'en');
+            })
+            ->leftJoin('slug as sl', 'sl.object_id', '=', 'ep.information_object_id')
+            ->where('ep.exhibition_space_id', $exhibitionSpaceId)
+            ->select(
+                'ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y',
+                'ep.rotation_deg', 'ep.scale', 'ep.wall_or_zone',
+                'ioi.title as title', 'ioi.scope_and_content as description', 'sl.slug as slug'
+            )
+            ->get();
+
+        $byId = [];
+        $stops = [];
+        foreach ($rows as $r) {
+            $desc = trim(strip_tags((string) ($r->description ?? '')));
+            $stop = [
+                'id' => (int) $r->id,
+                'information_object_id' => (int) $r->information_object_id,
+                'title' => $r->title ?: ('#'.$r->information_object_id),
+                'description' => mb_strlen($desc) > 400 ? mb_substr($desc, 0, 400).'...' : $desc,
+                'pos_x' => $r->pos_x !== null ? (float) $r->pos_x : 0.5,
+                'pos_y' => $r->pos_y !== null ? (float) $r->pos_y : 0.5,
+                'rotation_deg' => (float) ($r->rotation_deg ?? 0),
+                'scale' => (float) ($r->scale ?? 1),
+                'wall_or_zone' => $r->wall_or_zone,
+                'thumb_url' => $this->thumbnailUrl((int) $r->information_object_id),
+                'record_url' => $r->slug ? '/'.$r->slug : null,
+            ];
+            $byId[$stop['id']] = $stop;
+            $stops[] = $stop;
+        }
+
+        // Apply saved guided route if present.
+        $path = [];
+        if ($space && ! empty($space->walkthrough_path_json)) {
+            $decoded = json_decode((string) $space->walkthrough_path_json, true);
+            if (is_array($decoded)) {
+                $path = $decoded;
+            }
+        }
+        if (! empty($path)) {
+            $ordered = [];
+            foreach ($path as $pid) {
+                if (isset($byId[(int) $pid])) {
+                    $ordered[] = $byId[(int) $pid];
+                    unset($byId[(int) $pid]);
+                }
+            }
+            foreach ($byId as $remaining) {
+                $ordered[] = $remaining;
+            }
+
+            return $ordered;
+        }
+
+        // Default: reading order (top-to-bottom, then left-to-right).
+        usort($stops, function ($a, $b) {
+            if (abs($a['pos_y'] - $b['pos_y']) > 0.08) {
+                return $a['pos_y'] <=> $b['pos_y'];
+            }
+
+            return $a['pos_x'] <=> $b['pos_x'];
+        });
+
+        return $stops;
+    }
+
     // -------- Helpers --------
 
     private function generateUniqueSlug(string $name): string

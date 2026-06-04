@@ -45,7 +45,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/builder/place', [ExhibitionSpaceController::class, 'placeAjax'])->name('exhibition-space.builder.place')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/remove', [ExhibitionSpaceController::class, 'removeAjax'])->name('exhibition-space.builder.remove')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/floorplan', [ExhibitionSpaceController::class, 'uploadFloorplan'])->name('exhibition-space.builder.floorplan')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/walkthrough-path', [ExhibitionSpaceController::class, 'saveWalkthroughPath'])->name('exhibition-space.builder.walkthrough-path')->middleware('acl:update');
 });
+
+// heratio#1138 — digital twin: 2.5D pannable walkthrough (Phase 2, visitor-facing/public)
+Route::get('/exhibition-space/{slug}/walkthrough', [ExhibitionSpaceController::class, 'walkthrough'])->name('exhibition-space.walkthrough');
 
 Route::middleware('admin')->group(function () {
     Route::get('/exhibition-space/{slug}/delete', [ExhibitionSpaceController::class, 'confirmDelete'])->name('exhibition-space.confirmDelete');
