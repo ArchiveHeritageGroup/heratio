@@ -329,23 +329,41 @@ class ExhibitionSpaceService
      */
     public function thumbnailUrl(int $informationObjectId): ?string
     {
-        $row = DB::table('digital_object')
+        return $this->bestImageUrl($informationObjectId);
+    }
+
+    /**
+     * Best browser-renderable image URL for an object. Searches the object's own
+     * digital objects AND their child derivatives - AtoM stores a web-friendly
+     * JPEG as a child of a TIFF/RAW master - and prefers reference > master usage.
+     * Returns null when only non-browser formats (tiff, raw, etc.) exist.
+     */
+    private function bestImageUrl(int $informationObjectId): ?string
+    {
+        $imgExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+        $direct = DB::table('digital_object')
             ->where('object_id', $informationObjectId)
-            ->whereIn('usage_id', [141, 140, 142])
-            ->orderByRaw('FIELD(usage_id, 141, 140, 142)')
-            ->select('path', 'name')->first();
+            ->select('id', 'usage_id', 'path', 'name')->get();
+        $ids = $direct->pluck('id')->all();
+        $children = empty($ids) ? collect() : DB::table('digital_object')
+            ->whereIn('parent_id', $ids)
+            ->select('id', 'usage_id', 'path', 'name')->get();
 
-        if (! $row || empty($row->path)) {
+        $candidates = $direct->concat($children)->filter(function ($r) use ($imgExts) {
+            if (empty($r->path)) {
+                return false;
+            }
+            $ext = strtolower(pathinfo((string) ($r->name ?: $r->path), PATHINFO_EXTENSION));
+
+            return in_array($ext, $imgExts, true);
+        });
+        if ($candidates->isEmpty()) {
             return null;
         }
+        $rank = [141 => 0, 142 => 1, 140 => 2];
+        $best = $candidates->sortBy(fn ($r) => $rank[$r->usage_id] ?? 9)->first();
 
-        // Only surface actual images (the reference derivative may be a PDF/3D/etc).
-        $ext = strtolower(pathinfo((string) ($row->name ?: $row->path), PATHINFO_EXTENSION));
-        if (! in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'], true)) {
-            return null;
-        }
-
-        return $this->buildDoUrl($row->path, $row->name);
+        return $this->buildDoUrl($best->path, $best->name);
     }
 
     /**
@@ -393,7 +411,7 @@ class ExhibitionSpaceService
             ];
         }
 
-        // 2) Otherwise inspect the digital object (reference image preferred).
+        // 2) Inspect the primary digital object to detect 3D / PDF masters.
         $do = DB::table('digital_object')
             ->where('object_id', $informationObjectId)
             ->whereIn('usage_id', [141, 142, 140])
@@ -404,20 +422,22 @@ class ExhibitionSpaceService
             $ext = strtolower(pathinfo((string) ($do->name ?: $do->path), PATHINFO_EXTENSION));
             $url = $this->buildDoUrl($do->path, $do->name);
             $threeD = ['glb', 'gltf', 'obj', 'stl', 'usdz', 'ply'];
-            $images = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'tif', 'tiff'];
             if (in_array($ext, $threeD, true)) {
-                return ['kind' => '3d', 'model_url' => $url, 'image_url' => $this->thumbnailUrl($informationObjectId), 'format' => $ext];
-            }
-            if (in_array($ext, $images, true)) {
-                return ['kind' => 'image', 'model_url' => null, 'image_url' => $url, 'doc_url' => null, 'format' => $ext];
+                return ['kind' => '3d', 'model_url' => $url, 'image_url' => $this->bestImageUrl($informationObjectId), 'doc_url' => null, 'format' => $ext];
             }
             if ($ext === 'pdf') {
-                // Rendered to an image client-side (PDF.js) for the gallery wall.
-                return ['kind' => 'pdf', 'model_url' => null, 'image_url' => $this->thumbnailUrl($informationObjectId), 'doc_url' => $url, 'format' => 'pdf'];
+                return ['kind' => 'pdf', 'model_url' => null, 'image_url' => $this->bestImageUrl($informationObjectId), 'doc_url' => $url, 'format' => 'pdf'];
             }
         }
 
-        return ['kind' => 'other', 'model_url' => null, 'image_url' => $this->thumbnailUrl($informationObjectId), 'doc_url' => null, 'format' => null];
+        // 3) Otherwise a flat image, using the best browser-renderable derivative
+        //    (e.g. a TIFF master's JPEG child).
+        $img = $this->bestImageUrl($informationObjectId);
+        if ($img) {
+            return ['kind' => 'image', 'model_url' => null, 'image_url' => $img, 'doc_url' => null, 'format' => 'image'];
+        }
+
+        return ['kind' => 'other', 'model_url' => null, 'image_url' => null, 'doc_url' => null, 'format' => null];
     }
 
     private function normalizeUploadPath(?string $p): ?string

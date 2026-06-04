@@ -139,7 +139,7 @@
     controls.addEventListener('unlock', function () { blocker.style.display = 'flex'; cross.style.display = 'none'; });
 
     var keys = {};
-    document.addEventListener('keydown', function (e) { keys[e.code] = true; });
+    document.addEventListener('keydown', function (e) { keys[e.code] = true; if (e.code === 'Escape') closeAllPopups(); });
     document.addEventListener('keyup', function (e) { keys[e.code] = false; });
 
     // Format-aware model loader (glb/gltf/obj/stl/ply).
@@ -254,6 +254,7 @@
 
     // Detail side panel
     var panel = document.getElementById('wtPanel');
+    var panelOpen = false;
     function openPanel(s) {
       document.getElementById('wtTitle').textContent = s.title;
       document.getElementById('wtDesc').textContent = s.description || '{{ __('No description available.') }}';
@@ -273,6 +274,12 @@
       var rec = document.getElementById('wtRecord');
       if (s.record_url) { rec.href = s.record_url; rec.classList.remove('d-none'); } else { rec.classList.add('d-none'); }
       panel.style.transform = 'translateX(0)';
+      panelOpen = true;
+    }
+    function closeAllPopups() {
+      panel.style.transform = 'translateX(100%)';
+      panelOpen = false;
+      stopMiniViewer();
     }
     // Rotating 3D preview inside the popout (any format via loadModel).
     var mini = null;
@@ -309,7 +316,7 @@
       });
       (function loop() { if (!mini) return; mini.raf = requestAnimationFrame(loop); oc.update(); rn.render(sc, cam); })();
     }
-    document.getElementById('wtClose').addEventListener('click', function () { panel.style.transform = 'translateX(100%)'; stopMiniViewer(); });
+    document.getElementById('wtClose').addEventListener('click', closeAllPopups);
 
     // ---- Walk-to navigator: travel the camera to an object and open its panel ----
     var fly = null;
@@ -344,6 +351,8 @@
     // Click-to-select via centre crosshair while locked.
     var ray = new THREE.Raycaster();
     renderer.domElement.addEventListener('click', function () {
+      // Left click acts like Esc: if a popup is open, close it (and nothing else).
+      if (panelOpen) { closeAllPopups(); return; }
       if (!controls.isLocked) return;
       ray.setFromCamera({ x: 0, y: 0 }, camera);
       var hits = ray.intersectObjects(pickables, true);
