@@ -131,8 +131,6 @@
       new THREE.TextureLoader().load(FLOORPLAN, function (tex) {
         floorMat.map = tex; floorMat.color.set(0xffffff); floorMat.needsUpdate = true;
       });
-    } else {
-      scene.add(new THREE.GridHelper(Math.max(ROOM_W, ROOM_D), 24, 0x556, 0x445));
     }
 
     // Walls
@@ -229,8 +227,10 @@
 
     // Hang a framed picture flat on the nearest wall (pictures on walls, not pedestals).
     function hangOnWall(wp, s, tex, aspect) {
-      var hgt = 1.5, wdt = hgt * (aspect || 1);
-      if (wdt > 2.6) { wdt = 2.6; hgt = wdt / (aspect || 1); }
+      var dsc = s.scale || 1;                       // display size from Builder Bigger/Smaller
+      var hgt = 1.5 * dsc, wdt = hgt * (aspect || 1);
+      var capW = 2.6 * dsc;
+      if (wdt > capW) { wdt = capW; hgt = wdt / (aspect || 1); }
       var hw = wdt / 2;
       var dL = wp.x + ROOM_W / 2, dR = ROOM_W / 2 - wp.x, dB = wp.z + ROOM_D / 2, dF = ROOM_D / 2 - wp.z;
       var mind = Math.min(dL, dR, dB, dF);
@@ -278,7 +278,7 @@
           var box = new THREE.Box3().setFromObject(pivot);
           var size = box.getSize(new THREE.Vector3());
           var maxd = Math.max(size.x, size.y, size.z) || 1;
-          pivot.scale.setScalar(1.5 / maxd);
+          pivot.scale.setScalar((1.5 / maxd) * (s.scale || 1));   // display size from Builder Bigger/Smaller
           pivot.rotation.y = (s.rotation_deg || 0) * Math.PI / 180;
           pivot.updateMatrixWorld(true);
           box = new THREE.Box3().setFromObject(pivot);
