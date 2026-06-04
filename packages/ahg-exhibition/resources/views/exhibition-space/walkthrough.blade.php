@@ -38,6 +38,7 @@
               <div style="font-size:2rem;"><i class="fas fa-vr-cardboard"></i></div>
               <div class="fw-bold mt-2">{{ __('Click to enter the gallery') }}</div>
               <div class="small text-white-50 mt-1">{{ __('W A S D to walk, mouse to look, click an object for details, Esc to exit') }}</div>
+              <div class="small text-white-50">{{ __('Press H any time for the full controls') }}</div>
             </div>
           </div>
           <div id="roomCrosshair" style="position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#000;border:2px solid rgba(255,255,255,.85);box-sizing:border-box;z-index:4;display:none;pointer-events:none;"></div>
@@ -153,7 +154,14 @@
     controls.addEventListener('unlock', function () { blocker.style.display = 'flex'; cross.style.display = 'none'; });
 
     var keys = {};
-    document.addEventListener('keydown', function (e) { keys[e.code] = true; if (e.code === 'Escape') closeAllPopups(); });
+    document.addEventListener('keydown', function (e) {
+      keys[e.code] = true;
+      if (e.code === 'Escape') closeAllPopups();
+      if (e.code === 'KeyH') {
+        var hb = document.getElementById('roomHelp');
+        hb.style.display = (hb.style.display === 'block') ? 'none' : 'block';
+      }
+    });
     document.addEventListener('keyup', function (e) { keys[e.code] = false; });
 
     // Format-aware model loader (glb/gltf/obj/stl/ply).
@@ -390,15 +398,15 @@
       clampInRoom(controls.getObject());
     }, { passive: false });
 
-    // Right-click jumps to the open detail panel so the mouse can scroll it
-    // (releases pointer lock, which otherwise captures the mouse).
-    renderer.domElement.addEventListener('contextmenu', function (e) {
+    // Right-click releases pointer lock and jumps to the open detail panel so the
+    // mouse can scroll / click it. We listen on mousedown (button 2) because the
+    // browser suppresses the contextmenu event while the pointer is locked.
+    renderer.domElement.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    renderer.domElement.addEventListener('mousedown', function (e) {
+      if (e.button !== 2) return;
       e.preventDefault();
-      if (panelOpen) {
-        if (controls.isLocked) controls.unlock();
-        panel.focus();
-        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+      if (controls.isLocked) controls.unlock();   // frees the mouse cursor
+      if (panelOpen) { panel.focus(); }
     });
 
     // Help / controls overlay toggle.
