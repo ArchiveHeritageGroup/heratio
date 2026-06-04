@@ -333,13 +333,41 @@ class ExhibitionSpaceService
             ->where('object_id', $informationObjectId)
             ->whereIn('usage_id', [141, 140, 142])
             ->orderByRaw('FIELD(usage_id, 141, 140, 142)')
-            ->value('path');
+            ->select('path', 'name')->first();
 
-        if (! $row) {
+        if (! $row || empty($row->path)) {
             return null;
         }
 
-        return str_starts_with($row, '/') ? $row : '/uploads/r/'.$row;
+        // Only surface actual images (the reference derivative may be a PDF/3D/etc).
+        $ext = strtolower(pathinfo((string) ($row->name ?: $row->path), PATHINFO_EXTENSION));
+        if (! in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'], true)) {
+            return null;
+        }
+
+        return $this->buildDoUrl($row->path, $row->name);
+    }
+
+    /**
+     * Build a public URL from a digital_object row. AtoM stores `path` as the
+     * directory and `name` as the filename, so when `path` has no file extension
+     * the filename is appended.
+     */
+    private function buildDoUrl(string $path, ?string $name): ?string
+    {
+        $path = trim($path);
+        if ($path === '') {
+            return null;
+        }
+        $hasExt = pathinfo(parse_url($path, PHP_URL_PATH) ?: $path, PATHINFO_EXTENSION) !== '';
+        if (! $hasExt && ! empty($name)) {
+            $path = rtrim($path, '/').'/'.ltrim($name, '/');
+        }
+        if (! str_starts_with($path, '/') && ! str_starts_with($path, 'http') && ! str_starts_with($path, 'uploads')) {
+            $path = '/uploads/r/'.$path;
+        }
+
+        return $this->normalizeUploadPath($path);
     }
 
     /**
@@ -374,13 +402,14 @@ class ExhibitionSpaceService
             ->first();
         if ($do && ! empty($do->path)) {
             $ext = strtolower(pathinfo((string) ($do->name ?: $do->path), PATHINFO_EXTENSION));
+            $url = $this->buildDoUrl($do->path, $do->name);
             $threeD = ['glb', 'gltf', 'obj', 'stl', 'usdz', 'ply'];
             $images = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'tif', 'tiff'];
             if (in_array($ext, $threeD, true)) {
-                return ['kind' => '3d', 'model_url' => $this->normalizeUploadPath($do->path), 'image_url' => $this->thumbnailUrl($informationObjectId), 'format' => $ext];
+                return ['kind' => '3d', 'model_url' => $url, 'image_url' => $this->thumbnailUrl($informationObjectId), 'format' => $ext];
             }
             if (in_array($ext, $images, true)) {
-                return ['kind' => 'image', 'model_url' => null, 'image_url' => $this->normalizeUploadPath($do->path), 'format' => $ext];
+                return ['kind' => 'image', 'model_url' => null, 'image_url' => $url, 'format' => $ext];
             }
         }
 
@@ -552,6 +581,7 @@ class ExhibitionSpaceService
                 'wall_or_zone' => $r->wall_or_zone,
                 'kind' => $media['kind'],
                 'model_url' => $media['model_url'],
+                'model_format' => $media['format'],
                 'image_url' => $media['image_url'],
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),
                 'record_url' => $r->slug ? '/'.$r->slug : null,

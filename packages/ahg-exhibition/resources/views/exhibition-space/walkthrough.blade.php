@@ -66,8 +66,11 @@
   @if(count($stops) > 0)
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/PLYLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script nonce="{{ $cspNonce ?? '' }}">
   (function () {
     var STOPS = @json($stops);
@@ -135,10 +138,29 @@
     document.addEventListener('keydown', function (e) { keys[e.code] = true; });
     document.addEventListener('keyup', function (e) { keys[e.code] = false; });
 
+    // Format-aware model loader (glb/gltf/obj/stl/ply).
+    function modelExt(s) {
+      if (s.model_format) return String(s.model_format).toLowerCase();
+      var u = (s.model_url || '').split('?')[0];
+      return u.substring(u.lastIndexOf('.') + 1).toLowerCase();
+    }
+    function greyMesh(geo) {
+      geo.computeVertexNormals();
+      return new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xcfcfcf, roughness: 0.7, metalness: 0.05 }));
+    }
+    function loadModel(url, ext, onLoad, onError) {
+      try {
+        if (ext === 'glb' || ext === 'gltf') { new THREE.GLTFLoader().load(url, function (g) { onLoad(g.scene); }, undefined, onError); }
+        else if (ext === 'obj') { new THREE.OBJLoader().load(url, function (o) { onLoad(o); }, undefined, onError); }
+        else if (ext === 'stl') { new THREE.STLLoader().load(url, function (geo) { onLoad(greyMesh(geo)); }, undefined, onError); }
+        else if (ext === 'ply') { new THREE.PLYLoader().load(url, function (geo) { onLoad(greyMesh(geo)); }, undefined, onError); }
+        else if (onError) { onError(); }
+      } catch (e) { if (onError) onError(); }
+    }
+
     // Objects
     var pickables = [];
     var pedestalMat = new THREE.MeshStandardMaterial({ color: 0x3a3f47, roughness: 0.8 });
-    var gltf = new THREE.GLTFLoader();
     var pending = STOPS.length;
     function doneOne() { pending--; if (pending <= 0) loading.style.display = 'none'; }
 
@@ -153,20 +175,18 @@
       var wp = worldPos(s);
       if (s.kind === '3d' && s.model_url) {
         var ph = addPedestal(wp.x, wp.z, 0.6);
-        gltf.load(s.model_url, function (g) {
-          var obj = g.scene;
+        loadModel(s.model_url, modelExt(s), function (obj) {
           var box = new THREE.Box3().setFromObject(obj);
           var size = box.getSize(new THREE.Vector3());
           var maxd = Math.max(size.x, size.y, size.z) || 1;
-          var sc = 1.5 / maxd; obj.scale.setScalar(sc);
+          obj.scale.setScalar(1.5 / maxd);
           box = new THREE.Box3().setFromObject(obj);
           var c = box.getCenter(new THREE.Vector3());
-          var min = box.min;
-          obj.position.set(wp.x - c.x, ph - min.y, wp.z - c.z);
+          obj.position.set(wp.x - c.x, ph - box.min.y, wp.z - c.z);
           obj.traverse(function (n) { if (n.isMesh) { n.userData.stop = s; } });
           obj.userData.stop = s;
           scene.add(obj); pickables.push(obj); doneOne();
-        }, undefined, function () {
+        }, function () {
           addPlaceholder(wp, s, ph); doneOne();
         });
       } else if (s.image_url) {
@@ -205,10 +225,11 @@
       document.getElementById('wtTitle').textContent = s.title;
       document.getElementById('wtDesc').textContent = s.description || '{{ __('No description available.') }}';
       var iw = document.getElementById('wtImgWrap');
+      stopMiniViewer();
       if (s.kind === '3d' && s.model_url) {
-        iw.innerHTML = '<model-viewer src="' + s.model_url + '"' + (s.image_url ? ' poster="' + s.image_url + '"' : '') +
-          ' auto-rotate camera-controls rotation-per-second="30deg" interaction-prompt="none" ar ' +
-          'style="width:100%;height:280px;background:#f1f3f5;border-radius:.375rem;"></model-viewer>';
+        iw.innerHTML = '<div id="wtMini" style="width:100%;height:280px;background:#f1f3f5;border-radius:.375rem;"></div>' +
+          '<div class="small text-muted mt-1">{{ __('Drag to rotate, scroll to zoom') }}</div>';
+        startMiniViewer(document.getElementById('wtMini'), s);
       } else if (s.image_url) {
         iw.innerHTML = '<img src="' + s.image_url + '" class="img-fluid rounded" style="max-height:260px" alt="">';
       } else {
@@ -218,7 +239,42 @@
       if (s.record_url) { rec.href = s.record_url; rec.classList.remove('d-none'); } else { rec.classList.add('d-none'); }
       panel.style.transform = 'translateX(0)';
     }
-    document.getElementById('wtClose').addEventListener('click', function () { panel.style.transform = 'translateX(100%)'; });
+    // Rotating 3D preview inside the popout (any format via loadModel).
+    var mini = null;
+    function stopMiniViewer() {
+      if (!mini) return;
+      cancelAnimationFrame(mini.raf);
+      try { mini.renderer.dispose(); } catch (e) {}
+      if (mini.renderer && mini.renderer.domElement && mini.renderer.domElement.parentNode) {
+        mini.renderer.domElement.parentNode.removeChild(mini.renderer.domElement);
+      }
+      mini = null;
+    }
+    function startMiniViewer(el, s) {
+      if (!el) return;
+      var w = el.clientWidth || 320, h = 280;
+      var sc = new THREE.Scene(); sc.background = new THREE.Color(0xf1f3f5);
+      var cam = new THREE.PerspectiveCamera(45, w / h, 0.01, 100); cam.position.set(0, 0, 3);
+      var rn = new THREE.WebGLRenderer({ antialias: true });
+      rn.setPixelRatio(window.devicePixelRatio || 1); rn.setSize(w, h); el.appendChild(rn.domElement);
+      sc.add(new THREE.HemisphereLight(0xffffff, 0x888888, 1.2));
+      var dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(2, 3, 4); sc.add(dl);
+      var oc = new THREE.OrbitControls(cam, rn.domElement); oc.enablePan = false; oc.autoRotate = true; oc.autoRotateSpeed = 2.6;
+      mini = { renderer: rn, raf: 0 };
+      loadModel(s.model_url, modelExt(s), function (obj) {
+        var box = new THREE.Box3().setFromObject(obj);
+        var size = box.getSize(new THREE.Vector3());
+        var maxd = Math.max(size.x, size.y, size.z) || 1;
+        obj.scale.setScalar(1.7 / maxd);
+        box = new THREE.Box3().setFromObject(obj);
+        obj.position.sub(box.getCenter(new THREE.Vector3()));
+        sc.add(obj);
+      }, function () {
+        el.innerHTML = '<div class="text-muted py-4 text-center"><i class="fas fa-cube fa-2x"></i><div class="small mt-2">{{ __('3D preview unavailable') }}</div></div>';
+      });
+      (function loop() { if (!mini) return; mini.raf = requestAnimationFrame(loop); oc.update(); rn.render(sc, cam); })();
+    }
+    document.getElementById('wtClose').addEventListener('click', function () { panel.style.transform = 'translateX(100%)'; stopMiniViewer(); });
 
     // ---- Walk-to navigator: travel the camera to an object and open its panel ----
     var fly = null;
@@ -262,6 +318,19 @@
         if (o && o.userData.stop) openPanel(o.userData.stop);
       }
     });
+
+    // Mouse wheel moves forward / backward through the gallery.
+    function clampInRoom(o) {
+      var m = 0.6;
+      o.position.x = Math.max(-ROOM_W / 2 + m, Math.min(ROOM_W / 2 - m, o.position.x));
+      o.position.z = Math.max(-ROOM_D / 2 + m, Math.min(ROOM_D / 2 - m, o.position.z));
+      o.position.y = 1.6;
+    }
+    renderer.domElement.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      controls.moveForward((e.deltaY < 0 ? 1 : -1) * 0.6);
+      clampInRoom(controls.getObject());
+    }, { passive: false });
 
     // Movement loop
     var clock = new THREE.Clock();
