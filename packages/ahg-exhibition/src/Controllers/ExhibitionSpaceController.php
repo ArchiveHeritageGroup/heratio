@@ -290,6 +290,25 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => $ok]);
     }
 
+    /** AJAX: per-object 3D orientation (tilt) from the builder. Null = auto. */
+    public function updateTiltAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false, 'error' => 'Space not found.'], 404);
+        }
+        $data = $request->validate([
+            'placement_id' => 'required|integer|min:1',
+            'tilt_x' => 'nullable|numeric',
+            'tilt_z' => 'nullable|numeric',
+        ]);
+        $tx = isset($data['tilt_x']) && $data['tilt_x'] !== null ? (float) $data['tilt_x'] : null;
+        $tz = isset($data['tilt_z']) && $data['tilt_z'] !== null ? (float) $data['tilt_z'] : null;
+        $ok = $this->service->updatePlacementTilt((int) $space->id, (int) $data['placement_id'], $tx, $tz);
+
+        return response()->json(['ok' => $ok]);
+    }
+
     /** Upload a floorplan background image for the builder canvas. */
     public function uploadFloorplan(Request $request, string $slug)
     {

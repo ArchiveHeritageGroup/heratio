@@ -56,6 +56,7 @@
               <li>{{ __('View full details: V') }}</li>
               <li>{{ __('Close panel: left-click or Esc') }}</li>
               <li>{{ __('Exit gallery: Esc') }}</li>
+              <li class="mt-1 text-info">{{ __('Touch: drag to look, pinch to zoom, tap an object, tap a numbered button to travel') }}</li>
             </ul>
           </div>
         </div>
@@ -145,14 +146,30 @@
     wall(ROOM_D, -ROOM_W / 2, 0, Math.PI / 2);
     wall(ROOM_D, ROOM_W / 2, 0, -Math.PI / 2);
 
-    // Controls
+    // Controls. Desktop = first-person pointer-lock (WASD + mouse). Touch devices
+    // can't pointer-lock, so they get OrbitControls (drag to look, pinch to zoom)
+    // plus the walk-to buttons to travel.
+    var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     var controls = new THREE.PointerLockControls(camera, renderer.domElement);
     scene.add(controls.getObject());
     var blocker = document.getElementById('roomBlocker');
     var cross = document.getElementById('roomCrosshair');
-    blocker.addEventListener('click', function () { controls.lock(); });
-    controls.addEventListener('lock', function () { blocker.style.display = 'none'; cross.style.display = 'block'; });
-    controls.addEventListener('unlock', function () { blocker.style.display = 'flex'; cross.style.display = 'none'; });
+    var orbit = null;
+
+    if (isTouch && THREE.OrbitControls) {
+      orbit = new THREE.OrbitControls(camera, renderer.domElement);
+      orbit.enableDamping = true; orbit.dampingFactor = 0.12;
+      orbit.target.set(0, 1.3, 0);
+      orbit.minDistance = 1; orbit.maxDistance = Math.max(ROOM_W, ROOM_D);
+      orbit.maxPolarAngle = Math.PI * 0.85;
+      camera.position.set(0, 1.6, ROOM_D / 2 - 2);
+      blocker.style.display = 'none';
+      cross.style.display = 'none';
+    } else {
+      blocker.addEventListener('click', function () { controls.lock(); });
+      controls.addEventListener('lock', function () { blocker.style.display = 'none'; cross.style.display = 'block'; });
+      controls.addEventListener('unlock', function () { blocker.style.display = 'flex'; cross.style.display = 'none'; });
+    }
 
     var keys = {};
     document.addEventListener('keydown', function (e) {
@@ -171,6 +188,16 @@
       if (s.model_format) return String(s.model_format).toLowerCase();
       var u = (s.model_url || '').split('?')[0];
       return u.substring(u.lastIndexOf('.') + 1).toLowerCase();
+    }
+    // Effective per-object tilt (degrees). Explicit Builder value wins; else auto:
+    // OBJ/STL/PLY are usually Z-up so default to -90 X; glTF stays upright.
+    function effTiltX(s) {
+      if (s.tilt_x !== null && s.tilt_x !== undefined) return s.tilt_x;
+      var e = modelExt(s);
+      return (e === 'obj' || e === 'stl' || e === 'ply') ? -90 : 0;
+    }
+    function effTiltZ(s) {
+      return (s.tilt_z !== null && s.tilt_z !== undefined) ? s.tilt_z : 0;
     }
     function greyMesh(geo) {
       geo.computeVertexNormals();
@@ -242,9 +269,9 @@
       if (s.kind === '3d' && s.model_url) {
         var ph = addPedestal(wp.x, wp.z, 0.6);
         loadModel(s.model_url, modelExt(s), function (obj) {
-          // OBJ/STL/PLY are commonly Z-up; Three.js is Y-up - stand them upright.
-          var ext = modelExt(s);
-          if (ext === 'obj' || ext === 'stl' || ext === 'ply') { obj.rotation.x = -Math.PI / 2; }
+          // Per-object orientation (auto up-axis guess unless overridden in Builder).
+          obj.rotation.x = effTiltX(s) * Math.PI / 180;
+          obj.rotation.z = effTiltZ(s) * Math.PI / 180;
           // Wrap in a pivot so the builder's rotation_deg spins it (yaw) on its base.
           var pivot = new THREE.Group();
           pivot.add(obj);
@@ -346,8 +373,8 @@
       var oc = new THREE.OrbitControls(cam, rn.domElement); oc.enablePan = false; oc.autoRotate = true; oc.autoRotateSpeed = 2.6;
       mini = { renderer: rn, raf: 0 };
       loadModel(s.model_url, modelExt(s), function (obj) {
-        var mext = modelExt(s);
-        if (mext === 'obj' || mext === 'stl' || mext === 'ply') { obj.rotation.x = -Math.PI / 2; }
+        obj.rotation.x = effTiltX(s) * Math.PI / 180;
+        obj.rotation.z = effTiltZ(s) * Math.PI / 180;
         obj.updateMatrixWorld(true);
         var box = new THREE.Box3().setFromObject(obj);
         var size = box.getSize(new THREE.Vector3());
@@ -375,7 +402,8 @@
       var m = 0.6;
       stand.x = Math.max(-ROOM_W / 2 + m, Math.min(ROOM_W / 2 - m, stand.x));
       stand.z = Math.max(-ROOM_D / 2 + m, Math.min(ROOM_D / 2 - m, stand.z));
-      fly = { from: controls.getObject().position.clone(), to: stand, look: look, t: 0, dur: 0.9 };
+      fly = { from: controls.getObject().position.clone(), to: stand, look: look,
+              targetFrom: orbit ? orbit.target.clone() : null, t: 0, dur: 0.9 };
       openPanel(s);
     }
     (function buildNav() {
@@ -395,11 +423,18 @@
 
     // Click-to-select via centre crosshair while locked.
     var ray = new THREE.Raycaster();
-    renderer.domElement.addEventListener('click', function () {
+    renderer.domElement.addEventListener('click', function (e) {
       // Left click acts like Esc: if a popup is open, close it (and nothing else).
       if (panelOpen) { closeAllPopups(); return; }
-      if (!controls.isLocked) return;
-      ray.setFromCamera({ x: 0, y: 0 }, camera);
+      var ndc;
+      if (orbit) {
+        var rect = renderer.domElement.getBoundingClientRect();
+        ndc = { x: ((e.clientX - rect.left) / rect.width) * 2 - 1, y: -((e.clientY - rect.top) / rect.height) * 2 + 1 };
+      } else {
+        if (!controls.isLocked) return;
+        ndc = { x: 0, y: 0 };
+      }
+      ray.setFromCamera(ndc, camera);
       var hits = ray.intersectObjects(pickables, true);
       if (hits.length) {
         var o = hits[0].object;
@@ -452,8 +487,15 @@
         var fo = controls.getObject();
         fo.position.lerpVectors(fly.from, fly.to, fe);
         fo.position.y = 1.6;
-        camera.lookAt(fly.look);
+        if (orbit) {
+          if (fly.targetFrom) orbit.target.lerpVectors(fly.targetFrom, fly.look, fe);
+          orbit.update();
+        } else {
+          camera.lookAt(fly.look);
+        }
         if (fk >= 1) fly = null;
+      } else if (orbit) {
+        orbit.update();
       } else if (controls.isLocked) {
         var speed = 4.0;
         vel.set(0, 0, 0);

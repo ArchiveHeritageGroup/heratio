@@ -300,12 +300,15 @@ class ExhibitionSpaceService
                 'ep.id', 'ep.information_object_id',
                 'ep.pos_x', 'ep.pos_y', 'ep.rotation_deg', 'ep.scale', 'ep.z_order',
                 'ep.wall_or_zone', 'ep.label_visible', 'ep.size_units_used',
+                'ep.model_tilt_x', 'ep.model_tilt_z',
                 'ioi.title as information_object_title'
             )
             ->orderBy('ep.z_order')
             ->get();
 
         return $rows->map(function ($r) {
+            $media = $this->getObjectMedia((int) $r->information_object_id);
+
             return [
                 'id' => (int) $r->id,
                 'information_object_id' => (int) $r->information_object_id,
@@ -318,7 +321,10 @@ class ExhibitionSpaceService
                 'wall_or_zone' => $r->wall_or_zone,
                 'label_visible' => (int) ($r->label_visible ?? 1),
                 'size_units_used' => (float) ($r->size_units_used ?? 0),
-                'thumb_url' => $this->thumbnailUrl((int) $r->information_object_id),
+                'kind' => $media['kind'],
+                'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
+                'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
+                'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),
             ];
         })->all();
     }
@@ -544,6 +550,18 @@ class ExhibitionSpaceService
             ->update(['size_units_used' => max(0, $sizeUnits), 'updated_at' => now()]) > 0;
     }
 
+    /**
+     * Per-object 3D orientation. Pass null for an axis to fall back to the
+     * automatic up-axis guess; pass a number (degrees) to override it.
+     */
+    public function updatePlacementTilt(int $exhibitionSpaceId, int $placementId, ?float $tiltX, ?float $tiltZ): bool
+    {
+        return DB::table('ahg_exhibition_placement')
+            ->where('id', $placementId)
+            ->where('exhibition_space_id', $exhibitionSpaceId)
+            ->update(['model_tilt_x' => $tiltX, 'model_tilt_z' => $tiltZ, 'updated_at' => now()]) > 0;
+    }
+
     public function setFloorplan(int $exhibitionSpaceId, string $publicPath, ?float $widthM = null, ?float $heightM = null): void
     {
         DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)->update(array_filter([
@@ -596,6 +614,7 @@ class ExhibitionSpaceService
             ->select(
                 'ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y',
                 'ep.rotation_deg', 'ep.scale', 'ep.wall_or_zone',
+                'ep.model_tilt_x', 'ep.model_tilt_z',
                 'ioi.title as title', 'ioi.scope_and_content as description', 'sl.slug as slug'
             )
             ->get();
@@ -618,6 +637,8 @@ class ExhibitionSpaceService
                 'kind' => $media['kind'],
                 'model_url' => $media['model_url'],
                 'model_format' => $media['format'],
+                'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
+                'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
                 'image_url' => $media['image_url'],
                 'doc_url' => $media['doc_url'] ?? null,
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),

@@ -40,6 +40,8 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'z_order' => 'INT NULL DEFAULT 0',
                     'wall_or_zone' => 'VARCHAR(100) NULL',
                     'label_visible' => 'TINYINT(1) NULL DEFAULT 1',
+                    'model_tilt_x' => 'DECIMAL(6,2) NULL',
+                    'model_tilt_z' => 'DECIMAL(6,2) NULL',
                 ];
                 foreach ($placementCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_placement', $col)) {

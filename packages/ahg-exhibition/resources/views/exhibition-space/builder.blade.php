@@ -70,6 +70,15 @@
             </div>
             <label for="selSize" class="form-label small mb-1">{{ __('Size (units)') }}</label>
             <input type="number" id="selSize" class="form-control form-control-sm mb-2" min="0" step="0.01">
+            <div id="tiltControls" class="d-none border-top pt-2 mb-2">
+              <label class="form-label small mb-1">{{ __('3D orientation (degrees)') }}</label>
+              <div class="row g-1 mb-1">
+                <div class="col-6"><input type="number" id="tiltX" class="form-control form-control-sm" step="90" placeholder="{{ __('Tilt X') }}"></div>
+                <div class="col-6"><input type="number" id="tiltZ" class="form-control form-control-sm" step="90" placeholder="{{ __('Tilt Z') }}"></div>
+              </div>
+              <button type="button" id="tiltAuto" class="btn btn-outline-secondary btn-sm w-100">{{ __('Auto (reset)') }}</button>
+              <small class="text-muted d-block mt-1">{{ __('Empty = auto. Use 90 / -90 to stand a model upright.') }}</small>
+            </div>
             <button type="button" id="btnRemove" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-trash me-1"></i>{{ __('Remove from twin') }}</button>
           </div>
         </div>
@@ -101,7 +110,8 @@
       place: '{{ route('exhibition-space.builder.place', ['slug' => $space->slug]) }}',
       layout: '{{ route('exhibition-space.builder.layout', ['slug' => $space->slug]) }}',
       remove: '{{ route('exhibition-space.builder.remove', ['slug' => $space->slug]) }}',
-      size: '{{ route('exhibition-space.builder.size', ['slug' => $space->slug]) }}'
+      size: '{{ route('exhibition-space.builder.size', ['slug' => $space->slug]) }}',
+      tilt: '{{ route('exhibition-space.builder.tilt', ['slug' => $space->slug]) }}'
     };
     var FLOORPLAN = @json($space->floorplan_image_path);
     var PLACEMENTS = @json($placements);
@@ -177,6 +187,13 @@
       document.getElementById('selControls').classList.remove('d-none');
       document.getElementById('selTitle').textContent = g.getAttr('titleText') || '';
       document.getElementById('selSize').value = g.getAttr('sizeUnits') != null ? g.getAttr('sizeUnits') : 0;
+      var is3d = g.getAttr('objKind') === '3d';
+      document.getElementById('tiltControls').classList.toggle('d-none', !is3d);
+      if (is3d) {
+        var tx = g.getAttr('tiltX'); var tz = g.getAttr('tiltZ');
+        document.getElementById('tiltX').value = (tx === null || tx === undefined) ? '' : tx;
+        document.getElementById('tiltZ').value = (tz === null || tz === undefined) ? '' : tz;
+      }
       layer.draw();
     }
     function clearSelect() {
@@ -197,6 +214,9 @@
       g.setAttr('placementId', p.id);
       g.setAttr('titleText', p.title);
       g.setAttr('sizeUnits', p.size_units_used != null ? p.size_units_used : 0);
+      g.setAttr('objKind', p.kind || null);
+      g.setAttr('tiltX', (p.tilt_x === null || p.tilt_x === undefined) ? null : p.tilt_x);
+      g.setAttr('tiltZ', (p.tilt_z === null || p.tilt_z === undefined) ? null : p.tilt_z);
 
       var rect = new Konva.Rect({
         x: -NODE / 2, y: -NODE / 2, width: NODE, height: NODE,
@@ -272,6 +292,27 @@
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
         body: JSON.stringify({ placement_id: selected.getAttr('placementId'), size_units_used: v })
       });
+    });
+
+    // ---- edit 3D orientation (tilt) of the selected object ----
+    function saveTilt() {
+      if (!selected) return;
+      var xs = document.getElementById('tiltX').value;
+      var zs = document.getElementById('tiltZ').value;
+      var tx = xs === '' ? null : (parseFloat(xs) || 0);
+      var tz = zs === '' ? null : (parseFloat(zs) || 0);
+      selected.setAttr('tiltX', tx); selected.setAttr('tiltZ', tz);
+      fetch(URLS.tilt, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+        body: JSON.stringify({ placement_id: selected.getAttr('placementId'), tilt_x: tx, tilt_z: tz })
+      });
+    }
+    document.getElementById('tiltX').addEventListener('change', saveTilt);
+    document.getElementById('tiltZ').addEventListener('change', saveTilt);
+    document.getElementById('tiltAuto').addEventListener('click', function () {
+      document.getElementById('tiltX').value = ''; document.getElementById('tiltZ').value = '';
+      saveTilt();
     });
 
     // ---- add object via search ----
