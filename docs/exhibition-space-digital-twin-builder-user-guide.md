@@ -42,24 +42,33 @@ any exhibition space via the **Digital Twin Builder** button
   count against capacity for a period.
 - Editing requires the update permission; viewing the builder requires sign-in.
 
-## Virtual Walkthrough (Phase 2)
+## 3D Walkthrough (first-person virtual gallery)
 
-A visitor-facing **2.5D pannable walkthrough** is available from the
+A visitor-facing **first-person 3D gallery** is available from the
 **Walkthrough** button (`/exhibition-space/{slug}/walkthrough`, public - no
-sign-in needed).
+sign-in needed). Built with Three.js.
 
-- The floorplan pans (drag) and zooms (scroll, or the zoom buttons); each placed
-  object is a numbered hotspot at its position.
-- Click a hotspot to open a detail panel with the object's image, title,
+- The room is rendered in 3D: the uploaded floorplan becomes the **floor
+  texture**, with four walls and gallery lighting.
+- Each placed object stands at its floorplan position on a pedestal:
+  - **3D objects** (a `.glb`/`.gltf` model) load as the **real interactive 3D
+    model**.
+  - **2D objects** appear as a **framed image** facing the room.
+  - Objects with no usable media show a neutral placeholder block.
+- **Navigation:** click the room to enter (pointer lock). Walk with **W A S D**
+  (or arrow keys), look with the **mouse**, and press **Esc** to exit. A centre
+  crosshair shows what you are pointing at.
+- **Details:** click an object to open a side panel with its image, title,
   description and a link to the full archival record.
-- **Guided tour:** click "Guided tour" to step Next/Prev through the objects;
-  the view animates to each stop and opens its panel. The order follows the saved
-  guided route where one exists, otherwise natural reading order
-  (top-to-bottom, left-to-right).
+
+Best experienced on desktop (pointer-lock mouse-look). The richer the object's
+media (a real 3D model, a good reference image), the better it presents - so keep
+digital objects and 3D models attached to records.
 
 ## Roadmap
 
-- Builder UI to reorder the guided route explicitly (the backend
-  `walkthrough_path_json` + save endpoint already exist).
-- Optional immersive 360/VR view. See
+- Capture true z / wall coordinates in the Builder for precise 3D hanging
+  (currently objects are placed from their 2D floorplan position).
+- Optional AR / WebVR headset mode (model-viewer already supports AR per object).
+- Builder UI to reorder a guided route. See
   `docs/exhibition-space-virtual-builder-plan.md` and heratio#1138.

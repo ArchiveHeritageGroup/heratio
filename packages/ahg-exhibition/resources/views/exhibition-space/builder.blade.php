@@ -11,7 +11,7 @@
       <small class="text-muted">{{ $space->name }}</small>
     </h1>
     <a href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary">
-      <i class="fas fa-walking me-1"></i>{{ __('Walkthrough') }}
+      <i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}
     </a>
     <a href="{{ route('exhibition-space.show', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary">
       <i class="fas fa-arrow-left me-1"></i>{{ __('Back to space') }}

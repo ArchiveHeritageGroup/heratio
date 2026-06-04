@@ -343,6 +343,66 @@ class ExhibitionSpaceService
     }
 
     /**
+     * Resolve the display media for an information object so the 3D walkthrough can
+     * pick the right renderer: a real 3D model (model-viewer / glTF in the scene)
+     * or a flat image (framed plane). Returns kind = 3d|image|other plus URLs.
+     *
+     * @return array{kind:string,model_url:?string,image_url:?string,format:?string}
+     */
+    public function getObjectMedia(int $informationObjectId): array
+    {
+        // 1) Dedicated 3D model row wins.
+        $model = DB::table('object_3d_model')
+            ->where('object_id', $informationObjectId)
+            ->orderByDesc('is_primary')
+            ->first();
+        if ($model && ! empty($model->file_path)) {
+            return [
+                'kind' => '3d',
+                'model_url' => $this->normalizeUploadPath($model->file_path),
+                'image_url' => $this->normalizeUploadPath($model->poster_image ?: $model->thumbnail) ?: $this->thumbnailUrl($informationObjectId),
+                'format' => $model->format ?: 'glb',
+            ];
+        }
+
+        // 2) Otherwise inspect the digital object (reference image preferred).
+        $do = DB::table('digital_object')
+            ->where('object_id', $informationObjectId)
+            ->whereIn('usage_id', [141, 142, 140])
+            ->orderByRaw('FIELD(usage_id, 141, 142, 140)')
+            ->select('path', 'name')
+            ->first();
+        if ($do && ! empty($do->path)) {
+            $ext = strtolower(pathinfo((string) ($do->name ?: $do->path), PATHINFO_EXTENSION));
+            $threeD = ['glb', 'gltf', 'obj', 'stl', 'usdz', 'ply'];
+            $images = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'tif', 'tiff'];
+            if (in_array($ext, $threeD, true)) {
+                return ['kind' => '3d', 'model_url' => $this->normalizeUploadPath($do->path), 'image_url' => $this->thumbnailUrl($informationObjectId), 'format' => $ext];
+            }
+            if (in_array($ext, $images, true)) {
+                return ['kind' => 'image', 'model_url' => null, 'image_url' => $this->normalizeUploadPath($do->path), 'format' => $ext];
+            }
+        }
+
+        return ['kind' => 'other', 'model_url' => null, 'image_url' => $this->thumbnailUrl($informationObjectId), 'format' => null];
+    }
+
+    private function normalizeUploadPath(?string $p): ?string
+    {
+        if ($p === null || $p === '') {
+            return null;
+        }
+        if (str_starts_with($p, 'http') || str_starts_with($p, '/')) {
+            return $p;
+        }
+        if (str_starts_with($p, 'uploads')) {
+            return '/'.$p;
+        }
+
+        return '/uploads/'.$p;
+    }
+
+    /**
      * Persist canvas positions. Only placements that belong to the given space are
      * updated, so a forged placement id from another space is ignored.
      *
@@ -479,6 +539,7 @@ class ExhibitionSpaceService
         $stops = [];
         foreach ($rows as $r) {
             $desc = trim(strip_tags((string) ($r->description ?? '')));
+            $media = $this->getObjectMedia((int) $r->information_object_id);
             $stop = [
                 'id' => (int) $r->id,
                 'information_object_id' => (int) $r->information_object_id,
@@ -489,7 +550,10 @@ class ExhibitionSpaceService
                 'rotation_deg' => (float) ($r->rotation_deg ?? 0),
                 'scale' => (float) ($r->scale ?? 1),
                 'wall_or_zone' => $r->wall_or_zone,
-                'thumb_url' => $this->thumbnailUrl((int) $r->information_object_id),
+                'kind' => $media['kind'],
+                'model_url' => $media['model_url'],
+                'image_url' => $media['image_url'],
+                'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),
                 'record_url' => $r->slug ? '/'.$r->slug : null,
             ];
             $byId[$stop['id']] = $stop;
