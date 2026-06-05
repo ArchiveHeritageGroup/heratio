@@ -205,8 +205,32 @@
     var PLACEMENTS = @json($placements);
     var WALLS = @json($walls ?? []);
     var DOORS = @json($doors ?? []);
+    var LAYOUT = @json($layout ?? null);   // sibling-room rects for adjacency doorways (plan mode)
     var SHAPE = @json($shape ?? null);
     var ROOM_W = {{ $space->room_w ?: 18 }}, ROOM_D = {{ $space->room_d ?: 14 }}, ROOM_H = {{ $space->room_h ?: 4 }};
+    // Doorways where this room adjoins another room (mirrors the walkthrough's auto-openings).
+    function autoDoors() {
+      if (!LAYOUT || !LAYOUT.self || SHAPE) return [];   // rect rooms only (matches walkthrough planWall)
+      var s = LAYOUT.self, out = [];
+      ['north', 'south', 'west', 'east'].forEach(function (side) {
+        var vertical = (side === 'west' || side === 'east');
+        var edge = side === 'north' ? s.z : side === 'south' ? s.z + s.d : side === 'west' ? s.x : s.x + s.w;
+        var a0 = vertical ? s.z : s.x, a1 = vertical ? s.z + s.d : s.x + s.w;
+        (LAYOUT.others || []).forEach(function (rj) {
+          var jMin = vertical ? rj.x : rj.z, jMax = vertical ? rj.x + rj.w : rj.z + rj.d;
+          if (Math.abs(jMax - edge) > 0.3 && Math.abs(jMin - edge) > 0.3) return;   // not adjoining this plane
+          var b0 = vertical ? rj.z : rj.x, b1 = vertical ? rj.z + rj.d : rj.x + rj.w;
+          var oa = Math.max(a0, b0), ob = Math.min(a1, b1);
+          if (ob - oa > 0.8) {
+            var mid = (oa + ob) / 2, dw = Math.min(1.6, (ob - oa) * 0.7);
+            var span = vertical ? s.d : s.w, base = vertical ? s.z : s.x;
+            out.push({ wall: side, pos: (mid - base) / span, width: dw, auto: true });
+          }
+        });
+      });
+      return out;
+    }
+    function allDoors() { return (DOORS || []).concat(autoDoors()); }
     function aspectH(w) { return Math.round(w * Math.max(0.35, Math.min(1.6, ROOM_D / ROOM_W))); }
 
     if (typeof Konva === 'undefined') {
@@ -232,16 +256,30 @@
     // objects can be placed clear of them. Doors are edited in the Building Plan.
     function drawDoorMarkers() {
       doorLayer.destroyChildren();
-      (DOORS || []).forEach(function (d) {
-        var horiz = (d.wall === 'north' || d.wall === 'south');
-        var lenPx = (d.width / (horiz ? ROOM_W : ROOM_D)) * (horiz ? W : H);
+      allDoors().forEach(function (d) {
         var pts, lx, ly;
-        if (d.wall === 'north') { var x = d.pos * W; pts = [x - lenPx / 2, 0, x + lenPx / 2, 0]; lx = x; ly = 8; }
-        else if (d.wall === 'south') { var xs = d.pos * W; pts = [xs - lenPx / 2, H, xs + lenPx / 2, H]; lx = xs; ly = H - 16; }
-        else if (d.wall === 'west') { var y = d.pos * H; pts = [0, y - lenPx / 2, 0, y + lenPx / 2]; lx = 10; ly = y; }
-        else { var ye = d.pos * H; pts = [W, ye - lenPx / 2, W, ye + lenPx / 2]; lx = W - 30; ly = ye; }
-        doorLayer.add(new Konva.Line({ points: pts, stroke: '#198754', strokeWidth: 8, lineCap: 'round', opacity: 0.9 }));
-        doorLayer.add(new Konva.Text({ x: lx - 16, y: ly - 6, width: 32, align: 'center', text: '{{ __('door') }}', fontSize: 9, fill: '#198754' }));
+        // Polygon-edge door (shaped rooms store {edge:N}): draw along the real edge.
+        if (typeof d.edge === 'number' && SHAPE && SHAPE.length >= 3) {
+          var a = SHAPE[d.edge % SHAPE.length], b = SHAPE[(d.edge + 1) % SHAPE.length];
+          if (!a || !b) return;
+          var ax = a.x * W, ay = a.z * H, bx = b.x * W, by = b.z * H;
+          var ex = bx - ax, ey = by - ay, ep = Math.hypot(ex, ey) || 1, ux = ex / ep, uy = ey / ep;
+          var em = Math.hypot((b.x - a.x) * ROOM_W, (b.z - a.z) * ROOM_D) || 1;
+          var dlen = Math.min((d.width || 1.6) / em, 1) * ep;
+          var pos = (d.pos == null ? 0.5 : d.pos), cxp = ax + ex * pos, cyp = ay + ey * pos;
+          pts = [cxp - ux * dlen / 2, cyp - uy * dlen / 2, cxp + ux * dlen / 2, cyp + uy * dlen / 2];
+          lx = cxp - 16; ly = cyp - 6;
+        } else {
+          var horiz = (d.wall === 'north' || d.wall === 'south');
+          var lenPx = (d.width / (horiz ? ROOM_W : ROOM_D)) * (horiz ? W : H);
+          if (d.wall === 'north') { var x = d.pos * W; pts = [x - lenPx / 2, 0, x + lenPx / 2, 0]; lx = x - 16; ly = 2; }
+          else if (d.wall === 'south') { var xs = d.pos * W; pts = [xs - lenPx / 2, H, xs + lenPx / 2, H]; lx = xs - 16; ly = H - 16; }
+          else if (d.wall === 'west') { var y = d.pos * H; pts = [0, y - lenPx / 2, 0, y + lenPx / 2]; lx = 6; ly = y - 6; }
+          else { var ye = d.pos * H; pts = [W, ye - lenPx / 2, W, ye + lenPx / 2]; lx = W - 38; ly = ye - 6; }
+        }
+        var dcol = d.auto ? '#0d6efd' : '#198754';   // auto-doorway (between rooms) = blue, manual door = green
+        doorLayer.add(new Konva.Line({ points: pts, stroke: dcol, strokeWidth: 8, lineCap: 'round', opacity: 0.9 }));
+        doorLayer.add(new Konva.Text({ x: lx, y: ly, width: 36, align: 'center', text: d.auto ? '{{ __('doorway') }}' : '{{ __('door') }}', fontSize: 9, fill: dcol }));
       });
       doorLayer.draw();
     }
@@ -667,7 +705,7 @@
       return ROOM_W;
     }
     function wvDoorsForWall() {
-      return (DOORS || []).filter(function (d) {
+      return allDoors().filter(function (d) {
         return (wvWall.indexOf && wvWall.indexOf('edge:') === 0) ? ('edge:' + d.edge) === wvWall : d.wall === wvWall;
       });
     }
@@ -688,13 +726,14 @@
       wvLayer.add(new Konva.Line({ points: [wvOX, wvOY + eh, wvOX + ew, wvOY + eh], stroke: '#868e96', strokeWidth: 4, listening: false }));            // floor
       var doorH = Math.min(2.6, Hm - 0.3);                                                                                       // door openings
       wvDoorsForWall().forEach(function (dd) {
+        var dcol = dd.auto ? '#0d6efd' : '#198754';   // auto-doorway (between rooms) = blue, manual door = green
         var dwpx = (dd.width / L) * ew, dhpx = (doorH / Hm) * eh, dx = wvOX + (dd.pos == null ? 0.5 : dd.pos) * ew - dwpx / 2, dy = wvOY + eh - dhpx;
-        wvLayer.add(new Konva.Rect({ x: dx, y: dy, width: dwpx, height: dhpx, fill: '#cdd2d8', stroke: '#198754', strokeWidth: 2, cornerRadius: 1, listening: false }));   // door panel (not see-through)
-        wvLayer.add(new Konva.Circle({ x: dx + dwpx - Math.min(7, dwpx * 0.18), y: dy + dhpx / 2, radius: 2.5, fill: '#198754', listening: false }));   // handle
-        wvLayer.add(new Konva.Text({ x: dx, y: dy - 13, width: dwpx, align: 'center', text: '{{ __('door') }}', fontSize: 9, fill: '#198754', listening: false }));
+        wvLayer.add(new Konva.Rect({ x: dx, y: dy, width: dwpx, height: dhpx, fill: dd.auto ? '#dce8fb' : '#cdd2d8', stroke: dcol, strokeWidth: 2, cornerRadius: 1, listening: false }));   // door panel (not see-through)
+        wvLayer.add(new Konva.Circle({ x: dx + dwpx - Math.min(7, dwpx * 0.18), y: dy + dhpx / 2, radius: 2.5, fill: dcol, listening: false }));   // handle
+        wvLayer.add(new Konva.Text({ x: dx, y: dy - 13, width: dwpx, align: 'center', text: dd.auto ? '{{ __('doorway') }}' : '{{ __('door') }}', fontSize: 9, fill: dcol, listening: false }));
       });
       var lbl = document.getElementById('wvWall').selectedOptions[0];
-      wvLayer.add(new Konva.Text({ x: 8, y: 8, text: (lbl ? lbl.text : '') + ' — ' + L.toFixed(1) + 'm × ' + Hm.toFixed(1) + 'm {{ __('high; drag to position, search to add') }}', fontSize: 11, fill: '#495057', listening: false }));
+      wvLayer.add(new Konva.Text({ x: 8, y: 8, text: (lbl ? lbl.text : '') + ' - ' + L.toFixed(1) + 'm x ' + Hm.toFixed(1) + 'm {{ __('high; drag to position, search to add') }}', fontSize: 11, fill: '#495057', listening: false }));
       var loadingTxt = new Konva.Text({ x: 0, y: wvOY + eh / 2 - 10, width: W, align: 'center', text: '{{ __('Loading wall…') }}', fontSize: 16, fontStyle: 'bold', fill: '#6c757d', listening: false });
       wvLayer.add(loadingTxt);
       wvLayer.draw();

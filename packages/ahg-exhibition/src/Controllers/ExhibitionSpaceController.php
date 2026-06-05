@@ -206,6 +206,19 @@ class ExhibitionSpaceController extends Controller
             abort(404);
         }
 
+        // Layout of sibling rooms so the builder can show doorways where this room
+        // adjoins another (auto-openings the walkthrough cuts between adjacent rooms).
+        $building = $this->service->getWalkthroughBuilding($space);
+        $layout = null;
+        if (! empty($building['plan_mode'])) {
+            $self = null; $others = [];
+            foreach ($building['rooms'] as $r) {
+                $rect = ['x' => $r['x_offset'], 'z' => $r['z_offset'], 'w' => $r['w'], 'd' => $r['d'], 'name' => $r['name']];
+                if ((int) $r['id'] === (int) $space->id) { $self = $rect; } else { $others[] = $rect; }
+            }
+            if ($self) { $layout = ['self' => $self, 'others' => $others]; }
+        }
+
         return view('ahg-exhibition::exhibition-space.builder', [
             'space' => $space,
             'placements' => $this->service->getPlacementsForBuilder((int) $space->id),
@@ -213,6 +226,7 @@ class ExhibitionSpaceController extends Controller
             'walls' => $this->service->getWalls((int) $space->id),
             'doors' => $this->service->getDoors((int) $space->id),
             'shape' => $this->service->getShape((int) $space->id),
+            'layout' => $layout,
         ]);
     }
 

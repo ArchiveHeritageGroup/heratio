@@ -43,6 +43,7 @@
           </div>
           <div id="roomCrosshair" style="position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#000;border:2px solid rgba(255,255,255,.85);box-sizing:border-box;z-index:4;display:none;pointer-events:none;"></div>
           <div id="roomLoading" style="position:absolute;bottom:8px;left:8px;z-index:4;color:#ccc;font-size:.8rem;">{{ __('Loading gallery...') }}</div>
+          <div id="wtHeight" class="bg-dark text-white px-2 py-1 rounded small" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:7;display:none;"></div>
           <button id="roomHelpBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:8px;z-index:6;opacity:.85;" title="{{ __('Controls') }}"><i class="fas fa-question"></i></button>
           <button id="roomMapBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:44px;z-index:6;opacity:.85;" title="{{ __('Building map') }}"><i class="fas fa-map"></i></button>
           <button id="roomLiveBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:80px;z-index:6;opacity:.85;" title="{{ __('Live data') }}"><i class="fas fa-temperature-half"></i></button>
@@ -60,6 +61,7 @@
               <li>{{ __('Click gallery to enter') }}</li>
               <li>{{ __('Move: W A S D or arrow keys') }}</li>
               <li>{{ __('Forward / back: mouse wheel') }}</li>
+              <li>{{ __('Stand taller / crouch: hold U + mouse wheel') }}</li>
               <li>{{ __('Look around: move the mouse') }}</li>
               <li>{{ __('Open info: click an object (or a numbered button)') }}</li>
               <li>{{ __('Open full record (new tab): V') }}</li>
@@ -259,6 +261,22 @@
     var wallMat = new THREE.MeshStandardMaterial({ color: 0xf2f2f0, roughness: 1, side: THREE.DoubleSide });
     var doorMat = new THREE.MeshStandardMaterial({ color: 0x7c6a58, roughness: 0.9, side: THREE.DoubleSide });   // solid door panel (not see-through)
     var DOOR = 1.6;   // doorway width between connected rooms
+    // Default plaster ceiling + decorative crown-moulding (cornice) for rooms with no ceiling image.
+    var ceilMat = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 1, side: THREE.DoubleSide });
+    var corniceMat = new THREE.MeshStandardMaterial({ color: 0xefe7d6, roughness: 0.8, side: THREE.DoubleSide });
+    var corniceGoldMat = new THREE.MeshStandardMaterial({ color: 0xb89a5e, roughness: 0.5, metalness: 0.4, side: THREE.DoubleSide });
+    function addCornice(rm, ax, az, bx, bz, topY, cenx, cenz) {
+      var dx = bx - ax, dz = bz - az, len = Math.hypot(dx, dz); if (len < 0.2) return;
+      var ang = Math.atan2(dz, dx), mx = (ax + bx) / 2, mz = (az + bz) / 2;
+      var nx = -dz / len, nz = dx / len;                       // inward normal (toward room centre)
+      if ((cenx - mx) * nx + (cenz - mz) * nz < 0) { nx = -nx; nz = -nz; }
+      var depth = 0.16, hgt = 0.34, g = new THREE.Group();
+      var band = new THREE.Mesh(new THREE.BoxGeometry(len, hgt, depth), corniceMat); g.add(band);
+      var gold = new THREE.Mesh(new THREE.BoxGeometry(len, 0.05, depth + 0.02), corniceGoldMat);
+      gold.position.set(0, -hgt / 2 + 0.05, 0.01); g.add(gold);
+      g.position.set(mx + nx * depth / 2, topY - hgt / 2, mz + nz * depth / 2);
+      g.rotation.y = -ang; addToRoom(rm, g);
+    }
     function wallSeg(len, x, z, ry, mat) {
       if (len <= 0.05) return;
       var m = new THREE.Mesh(new THREE.PlaneGeometry(len, RH), mat || wallMat);
@@ -430,6 +448,22 @@
             wallSeg(half, rx, cz - rm.d / 2 + half / 2, -Math.PI / 2, rwMat);
             wallSeg(half, rx, cz + rm.d / 2 - half / 2, -Math.PI / 2, rwMat);
           }
+        }
+      }
+      // No ceiling image set: cap the room with a plaster ceiling + a fancy cornice
+      // (crown moulding) running around the top of the walls.
+      if (!rm.ceiling) {
+        var ceilY = rm.h || WALL_H;
+        if (SHAPE) {
+          var csh = new THREE.Shape(); SHAPE.forEach(function (p, j) { var px = p.x * rm.w, pz = p.z * rm.d; if (j === 0) csh.moveTo(px, pz); else csh.lineTo(px, pz); }); csh.closePath();
+          var dcl = new THREE.Mesh(new THREE.ShapeGeometry(csh), ceilMat); dcl.rotation.x = Math.PI / 2; dcl.position.set(rm.x_offset, ceilY, rm.z_offset); addToRoom(rm, dcl);
+          var gcx = 0, gcz = 0; SHAPE.forEach(function (p) { gcx += rm.x_offset + p.x * rm.w; gcz += rm.z_offset + p.z * rm.d; }); gcx /= SHAPE.length; gcz /= SHAPE.length;
+          for (var ce = 0; ce < SHAPE.length; ce++) { var ca = SHAPE[ce], cb = SHAPE[(ce + 1) % SHAPE.length]; addCornice(rm, rm.x_offset + ca.x * rm.w, rm.z_offset + ca.z * rm.d, rm.x_offset + cb.x * rm.w, rm.z_offset + cb.z * rm.d, ceilY, gcx, gcz); }
+        } else {
+          var dclr = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), ceilMat); dclr.rotation.x = Math.PI / 2; dclr.position.set(cx, ceilY, cz); addToRoom(rm, dclr);
+          var x0 = rm.x_offset, z0 = rm.z_offset, x1 = rm.x_offset + rm.w, z1 = rm.z_offset + rm.d;
+          addCornice(rm, x0, z0, x1, z0, ceilY, cx, cz); addCornice(rm, x1, z0, x1, z1, ceilY, cx, cz);
+          addCornice(rm, x1, z1, x0, z1, ceilY, cx, cz); addCornice(rm, x0, z1, x0, z0, ceilY, cx, cz);
         }
       }
       (rm.walls || []).forEach(function (w) {          // interior dividers (normalized within room)
@@ -881,10 +915,11 @@
     // When you look up at the ceiling, the viewer naturally lowers/leans back to
     // take it in; returns to standing height when looking level/down.
     var _wd = new THREE.Vector3();
+    var eyeBase = 1.6;   // standing eye height (m); hold U + mouse wheel to stand taller / crouch
     function eyeHeight() {
       camera.getWorldDirection(_wd);
       var up = Math.max(0, Math.min(1, (_wd.y - 0.2) / 0.7));
-      return 1.6 - up * 1.1;   // down to ~0.5 m when looking straight up
+      return Math.max(0.35, eyeBase - up * 1.1);   // looking up still leans/lowers the view
     }
     function clampInRoom(o) {
       var m = 0.6;
@@ -898,6 +933,14 @@
     }
     renderer.domElement.addEventListener('wheel', function (e) {
       e.preventDefault();
+      if (keys['KeyU']) {
+        // Hold U + wheel: stand taller (roll up) / crouch down (roll down).
+        eyeBase = Math.max(0.6, Math.min(2.2, eyeBase + (e.deltaY < 0 ? 1 : -1) * 0.1));
+        var o = controls.getObject(); o.position.y = eyeHeight();
+        var hh = document.getElementById('wtHeight');
+        if (hh) { hh.textContent = '↕ ' + eyeBase.toFixed(2) + ' m'; hh.style.display = 'block'; clearTimeout(window._wtHT); window._wtHT = setTimeout(function () { hh.style.display = 'none'; }, 1200); }
+        return;
+      }
       controls.moveForward((e.deltaY < 0 ? 1 : -1) * 0.6);
       clampInRoom(controls.getObject());
     }, { passive: false });
