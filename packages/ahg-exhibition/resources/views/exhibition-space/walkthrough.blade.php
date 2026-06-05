@@ -74,6 +74,10 @@
             <h6 id="inlayTitle" class="fw-bold mb-1 pe-4"></h6>
             <p id="inlayDesc" class="small mb-2" style="max-height:120px;overflow:auto;"></p>
             <a id="inlayRec" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-light"><i class="fas fa-external-link-alt me-1"></i>{{ __('View full record') }} <span class="badge bg-secondary ms-1">V</span></a>
+            <div id="wtRelated" class="mt-2" style="display:none;">
+              <div class="small text-white-50 mb-1"><i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('You might also like') }}</div>
+              <div id="wtRelatedItems" class="d-flex flex-wrap gap-1"></div>
+            </div>
           </div>
         </div>
         {{-- Walk-to navigator: click an object to travel to it. --}}
@@ -770,6 +774,26 @@
     var inlay = document.getElementById('wtInlay');
     var panelOpen = false;
     var currentStop = null;
+    var RECOMMEND_URL = '{{ route('exhibition-space.recommend', ['slug' => $space->slug]) }}';
+    function loadRelated(s) {
+      var box = document.getElementById('wtRelated'), items = document.getElementById('wtRelatedItems');
+      if (!box || !items) return;
+      box.style.display = 'none'; items.innerHTML = '';
+      if (!s.information_object_id) return;
+      fetch(RECOMMEND_URL + '?io=' + s.information_object_id).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d.ok || !d.items || !d.items.length || s !== currentStop) return;
+        d.items.forEach(function (it) {
+          var b = document.createElement('button');
+          b.type = 'button'; b.className = 'btn btn-sm btn-outline-light';
+          b.title = (it.reason || '') + (it.room_name ? ' (' + it.room_name + ')' : '');
+          b.innerHTML = (it.ai ? '<i class="fas fa-wand-magic-sparkles me-1"></i>' : '') + (it.title || ('#' + it.io_id)).replace(/[<>&]/g, '');
+          b.addEventListener('click', function (e) { e.stopPropagation(); var st = stopByPlacement(it.placement_id); if (st) flyTo(st); });
+          items.appendChild(b);
+        });
+        box.style.display = 'block';
+      }).catch(function () {});
+    }
+    function stopByPlacement(pid) { for (var i = 0; i < STOPS.length; i++) { if (STOPS[i].id === pid) return STOPS[i]; } return null; }
     function openPanel(s) {
       document.getElementById('inlayTitle').textContent = s.title;
       document.getElementById('inlayDesc').textContent = s.description || '{{ __('No description available.') }}';
@@ -778,9 +802,11 @@
       inlay.style.display = 'block';
       panelOpen = true;
       currentStop = s;
+      loadRelated(s);
     }
     function closeAllPopups() {
       inlay.style.display = 'none';
+      var rb = document.getElementById('wtRelated'); if (rb) rb.style.display = 'none';
       panelOpen = false;
       currentStop = null;
     }

@@ -15,6 +15,7 @@
     </a>
     <a href="{{ route('exhibition-space.forecast', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-chart-line me-1"></i>{{ __('Forecast') }}</a>
     @auth<button type="button" id="simLiveBtn" class="btn btn-sm btn-outline-success" title="{{ __('Seed demo sensor readings to preview the live overlay') }}"><i class="fas fa-temperature-half me-1"></i>{{ __('Simulate live data') }}</button>@endauth
+    @auth<button type="button" id="genRecBtn" class="btn btn-sm btn-outline-success" title="{{ __('Use AI to suggest related objects for the walkthrough') }}"><i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI recommendations') }}</button>@endauth
     <a href="{{ route('exhibition-space.show', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary">
       <i class="fas fa-arrow-left me-1"></i>{{ __('Back to space') }}
     </a>
@@ -197,7 +198,8 @@
       wallPos: '{{ route('exhibition-space.builder.wall-pos', ['slug' => $space->slug]) }}',
       placements: '{{ route('exhibition-space.builder.placements', ['slug' => $space->slug]) }}',
       roomDims: '{{ route('exhibition-space.builder.room-dims', ['slug' => $space->slug]) }}',
-      simLive: '{{ route('exhibition-space.readings.simulate', ['slug' => $space->slug]) }}'
+      simLive: '{{ route('exhibition-space.readings.simulate', ['slug' => $space->slug]) }}',
+      genRec: '{{ route('exhibition-space.recommend.generate', ['slug' => $space->slug]) }}'
     };
     var FLOORPLAN = @json($space->floorplan_image_path);
     var PLACEMENTS = @json($placements);
@@ -755,6 +757,18 @@
           .then(function (r) { return r.json(); })
           .then(function (d) { b.disabled = false; b.innerHTML = '<i class="fas fa-check me-1"></i>' + (d.ok ? '{{ __('Live data seeded') }}' : '{{ __('Failed') }}'); })
           .catch(function () { b.disabled = false; });
+      });
+    })();
+
+    // Precompute AI recommendations via the gateway (may take a while for many objects).
+    (function () {
+      var b = document.getElementById('genRecBtn'); if (!b) return;
+      b.addEventListener('click', function () {
+        b.disabled = true; b.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Generating…') }}';
+        fetch(URLS.genRec, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: '{}' })
+          .then(function (r) { return r.json(); })
+          .then(function (d) { b.disabled = false; b.innerHTML = '<i class="fas fa-check me-1"></i>' + (d.ok ? ('{{ __('AI recs') }}: ' + (d.updated || 0)) : '{{ __('Failed') }}'); })
+          .catch(function () { b.disabled = false; b.innerHTML = '<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI recommendations') }}'; });
       });
     })();
   })();

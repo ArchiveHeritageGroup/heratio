@@ -268,6 +268,32 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    /** In-twin recommendations (heratio#1149): related objects for an information object. */
+    public function recommendAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $io = (int) $request->query('io', 0);
+        if ($io <= 0) {
+            return response()->json(['ok' => true, 'items' => []]);
+        }
+
+        return response()->json(['ok' => true, 'items' => $this->service->recommendations($space, $io)]);
+    }
+
+    /** Admin: precompute AI recommendations across the building via the AI gateway. */
+    public function generateRecommendationsAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+
+        return response()->json($this->service->generateAiRecommendations($space));
+    }
+
     /** Analytics dashboard (heratio#1148): historical reading trends per room. */
     public function analytics(Request $request, string $slug)
     {

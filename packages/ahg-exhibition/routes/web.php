@@ -50,6 +50,8 @@ Route::middleware('auth')->group(function () {
     // heratio#1146 - live data link
     Route::post('/exhibition-space/{slug}/readings', [ExhibitionSpaceController::class, 'recordReadingsAjax'])->name('exhibition-space.readings')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/readings/simulate', [ExhibitionSpaceController::class, 'simulateReadingsAjax'])->name('exhibition-space.readings.simulate')->middleware('acl:update');
+    // heratio#1149 - precompute AI recommendations (admin)
+    Route::post('/exhibition-space/{slug}/recommend/generate', [ExhibitionSpaceController::class, 'generateRecommendationsAjax'])->name('exhibition-space.recommend.generate')->middleware('acl:update');
     // heratio#1147 - conservation forecast
     Route::get('/exhibition-space/{slug}/forecast', [ExhibitionSpaceController::class, 'forecast'])->name('exhibition-space.forecast');
     // heratio#1148 - analytics dashboard
@@ -81,6 +83,8 @@ Route::middleware('auth')->group(function () {
 
 // heratio#1138 — digital twin: 2.5D pannable walkthrough (Phase 2, visitor-facing/public)
 Route::get('/exhibition-space/{slug}/walkthrough', [ExhibitionSpaceController::class, 'walkthrough'])->name('exhibition-space.walkthrough');
+// heratio#1149 — in-twin recommendations (public, read-only) for the walkthrough
+Route::get('/exhibition-space/{slug}/recommend', [ExhibitionSpaceController::class, 'recommendAjax'])->name('exhibition-space.recommend');
 
 Route::middleware('admin')->group(function () {
     Route::get('/exhibition-space/{slug}/delete', [ExhibitionSpaceController::class, 'confirmDelete'])->name('exhibition-space.confirmDelete');

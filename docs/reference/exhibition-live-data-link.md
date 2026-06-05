@@ -62,6 +62,14 @@ charts (light / temperature / humidity / visitors), one line per room, bucketed
 by hour (<=7 days) or day (longer), plus a summary table (avg / latest / peak).
 Service: `buildingAnalytics(space, days)`.
 
+## In-twin recommendations (heratio#1149)
+While exploring the walkthrough, opening an object shows a **"You might also like"**
+row of related objects in the same building; clicking one walks you to it.
+
+- Content-based by default: title-token similarity across the building's objects (reliable, no external dependency), with a fallback so there is always something to discover.
+- Optional **AI layer**: the Digital Twin Builder has an **"AI recommendations"** button (admin) that asks the AI gateway (`LlmService::complete`) to pick + explain the top related objects per item, stored per placement (`recommendations_json`). Runs incrementally (15 objects/click) so it never times out; the walkthrough prefers stored AI picks (shown with a sparkle) and falls back to content-based.
+- Public read endpoint: `GET /exhibition-space/{slug}/recommend?io={id}`.
+
 ## Still to come (umbrella heratio#1145)
-AI recommendation (#1149), multi-user presence (#1150), XR (#1152),
-interoperability (#1151), WebGPU (#1153), pixel-streaming (#1154).
+Multi-user presence (#1150), XR (#1152), interoperability (#1151),
+WebGPU (#1153), pixel-streaming (#1154).

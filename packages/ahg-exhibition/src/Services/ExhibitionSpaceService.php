@@ -1186,6 +1186,192 @@ class ExhibitionSpaceService
         return $out;
     }
 
+    // -------- In-twin recommendations (heratio#1149) --------
+
+    /** Meaningful lowercase tokens from a title (for content similarity). */
+    private function titleTokens(string $s): array
+    {
+        $stop = ['the', 'and', 'for', 'with', 'from', 'a', 'an', 'of', 'in', 'on', 'to', 'no', 'by', 'at', 'is', 'as', 'or'];
+        $s = strtolower(preg_replace('/[^a-z0-9 ]+/i', ' ', $s));
+        $out = [];
+        foreach (preg_split('/\s+/', $s) as $w) {
+            if (strlen($w) >= 3 && ! in_array($w, $stop, true)) {
+                $out[$w] = true;
+            }
+        }
+
+        return array_keys($out);
+    }
+
+    /** Placements across the building with title + room + position (recommendation candidates). */
+    private function buildingPlacementRows(object $space): array
+    {
+        $ids = $this->buildingSpaceIds($space);
+        if (empty($ids)) {
+            return [];
+        }
+
+        return DB::table('ahg_exhibition_placement as ep')
+            ->join('ahg_exhibition_space as sp', 'sp.id', '=', 'ep.exhibition_space_id')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('ioi.id', '=', 'ep.information_object_id')->where('ioi.culture', '=', 'en');
+            })
+            ->whereIn('ep.exhibition_space_id', $ids)
+            ->where(function ($q) { $q->whereNull('ep.wall_or_zone')->orWhere('ep.wall_or_zone', '!=', 'corridor'); })
+            ->select('ep.id as placement_id', 'ep.information_object_id as io_id', 'ep.pos_x', 'ep.pos_y',
+                'sp.id as room_id', 'sp.name as room_name', 'ioi.title as title')
+            ->get()->map(function ($r) {
+                return ['placement_id' => (int) $r->placement_id, 'io_id' => (int) $r->io_id,
+                    'title' => $r->title ?: ('#'.$r->io_id), 'room_id' => (int) $r->room_id, 'room_name' => $r->room_name,
+                    'pos_x' => $r->pos_x !== null ? (float) $r->pos_x : 0.5, 'pos_y' => $r->pos_y !== null ? (float) $r->pos_y : 0.5];
+            })->all();
+    }
+
+    private function recsColumn(): bool
+    {
+        static $has = null;
+        if ($has === null) {
+            $has = \Illuminate\Support\Facades\Schema::hasColumn('ahg_exhibition_placement', 'recommendations_json');
+        }
+
+        return $has;
+    }
+
+    /**
+     * Content-based related objects within the building (title-token similarity).
+     * Prefers AI-precomputed recommendations when present. Always returns rows
+     * (falls back to other building objects when nothing scores).
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function recommendations(object $space, int $ioId, int $limit = 4): array
+    {
+        $rows = $this->buildingPlacementRows($space);
+        if (empty($rows)) {
+            return [];
+        }
+        $byIo = [];
+        foreach ($rows as $r) {
+            $byIo[$r['io_id']] = $r;
+        }
+
+        // 1) AI-precomputed recommendations for this object, if stored.
+        if ($this->recsColumn()) {
+            $src = DB::table('ahg_exhibition_placement')->whereIn('exhibition_space_id', $this->buildingSpaceIds($space))
+                ->where('information_object_id', $ioId)->whereNotNull('recommendations_json')->value('recommendations_json');
+            if ($src) {
+                $recs = json_decode((string) $src, true);
+                if (is_array($recs) && ! empty($recs)) {
+                    $out = [];
+                    foreach ($recs as $rec) {
+                        $rid = (int) ($rec['io_id'] ?? 0);
+                        if (isset($byIo[$rid]) && $rid !== $ioId) {
+                            $out[] = $byIo[$rid] + ['reason' => (string) ($rec['reason'] ?? ''), 'ai' => true];
+                        }
+                        if (count($out) >= $limit) {
+                            break;
+                        }
+                    }
+                    if (! empty($out)) {
+                        return $out;
+                    }
+                }
+            }
+        }
+
+        // 2) Content-based: title-token Jaccard.
+        $target = $byIo[$ioId] ?? null;
+        if (! $target) {
+            return [];
+        }
+        $tt = $this->titleTokens($target['title']);
+        $scored = [];
+        foreach ($rows as $r) {
+            if ($r['io_id'] === $ioId) {
+                continue;
+            }
+            $ct = $this->titleTokens($r['title']);
+            $common = array_intersect($tt, $ct);
+            $union = count(array_unique(array_merge($tt, $ct)));
+            $score = $union > 0 ? count($common) / $union : 0;
+            if ($score > 0) {
+                $scored[] = $r + ['reason' => 'Shares: '.implode(', ', array_slice($common, 0, 4)), 'ai' => false, '_s' => $score];
+            }
+        }
+        usort($scored, fn ($a, $b) => $b['_s'] <=> $a['_s']);
+        $out = array_slice($scored, 0, $limit);
+        // 3) Fallback: a couple of other objects so there is always something to discover.
+        if (empty($out)) {
+            foreach ($rows as $r) {
+                if ($r['io_id'] !== $ioId) {
+                    $out[] = $r + ['reason' => 'More in this exhibition', 'ai' => false];
+                }
+                if (count($out) >= 2) {
+                    break;
+                }
+            }
+        }
+
+        return array_map(function ($r) { unset($r['_s']); return $r; }, $out);
+    }
+
+    /**
+     * Precompute AI recommendations per object via the AI gateway (LlmService).
+     * Best-effort: failures leave content-based recommendations in place.
+     */
+    public function generateAiRecommendations(object $space): array
+    {
+        if (! $this->recsColumn()) {
+            return ['ok' => false, 'reason' => 'recommendations column missing'];
+        }
+        $rows = $this->buildingPlacementRows($space);
+        if (count($rows) < 2) {
+            return ['ok' => true, 'updated' => 0, 'total' => count($rows)];
+        }
+        $llm = app(\AhgAiServices\Services\LlmService::class);
+        $list = implode("\n", array_map(fn ($r) => $r['io_id'].' | '.$r['title'], array_slice($rows, 0, 60)));
+        // Incremental + capped per run so the request never times out on big buildings.
+        $done = DB::table('ahg_exhibition_placement')->whereIn('exhibition_space_id', $this->buildingSpaceIds($space))
+            ->whereNotNull('recommendations_json')->pluck('information_object_id')->map(fn ($v) => (int) $v)->all();
+        $done = array_flip($done);
+        $todo = array_values(array_filter($rows, fn ($r) => ! isset($done[$r['io_id']])));
+        $candidates = array_slice($todo, 0, 15);
+        $updated = 0;
+        foreach ($candidates as $r) {
+            $prompt = "You are a museum curator suggesting what a visitor should see next.\n".
+                "The visitor is viewing: \"".$r['title']."\".\n".
+                "From the list below (other objects in the same exhibition), choose up to 3 the visitor would most want to see next, each with a short reason.\n".
+                "Return ONLY a JSON array like [{\"io_id\":123,\"reason\":\"...\"}]. Do not include the viewed object (io ".$r['io_id'].").\n\nLIST:\n".$list;
+            try {
+                $resp = $llm->complete($prompt, ['max_tokens' => 300, 'temperature' => 0.3]);
+            } catch (\Throwable $e) {
+                $resp = null;
+            }
+            if (! $resp) {
+                continue;
+            }
+            if (preg_match('/\[.*\]/s', $resp, $m)) {
+                $arr = json_decode($m[0], true);
+                if (is_array($arr)) {
+                    $clean = [];
+                    foreach ($arr as $a) {
+                        $iid = (int) ($a['io_id'] ?? 0);
+                        if ($iid > 0 && $iid !== $r['io_id']) {
+                            $clean[] = ['io_id' => $iid, 'reason' => mb_substr(trim((string) ($a['reason'] ?? '')), 0, 160)];
+                        }
+                    }
+                    if (! empty($clean)) {
+                        DB::table('ahg_exhibition_placement')->where('id', $r['placement_id'])
+                            ->update(['recommendations_json' => json_encode(array_slice($clean, 0, 3)), 'updated_at' => now()]);
+                        $updated++;
+                    }
+                }
+            }
+        }
+
+        return ['ok' => true, 'updated' => $updated, 'processed' => count($candidates), 'remaining' => max(0, count($todo) - count($candidates))];
+    }
+
     /** Seed plausible demo readings across the building (no physical sensors yet). */
     public function simulateReadings(object $space): int
     {
