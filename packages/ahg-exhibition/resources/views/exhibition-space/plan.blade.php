@@ -151,37 +151,43 @@
     var saveTimer = null;
     function flagSaving() { document.getElementById('planSave').textContent = '{{ __('Saving...') }}'; }
     // Snap a dragged room's edges to nearby rooms so they sit flush (no void).
+    // Effective footprint bounds (metres): the polygon's tight extent for shaped
+    // rooms, the full box otherwise. So snap/overlap use the real room, not the box.
+    function effBounds(o, bx, by) {
+      var sh = (o.shape && o.shape.length >= 3) ? o.shape : null;
+      var minx = 0, maxx = 1, minz = 0, maxz = 1;
+      if (sh) { minx = 1; maxx = 0; minz = 1; maxz = 0; sh.forEach(function (p) { if (p.x < minx) minx = p.x; if (p.x > maxx) maxx = p.x; if (p.z < minz) minz = p.z; if (p.z > maxz) maxz = p.z; }); }
+      var ox = minx * o.w, oy = minz * o.d, ew = (maxx - minx) * o.w, eh = (maxz - minz) * o.d;
+      return { x1: bx + ox, y1: by + oy, x2: bx + ox + ew, y2: by + oy + eh, ox: ox, oy: oy, ew: ew, eh: eh };
+    }
     function snapRoom(g) {
       var r = g.getAttr('room');
       if (g.rotation()) return;   // axis-aligned snapping only
-      var x = g.x() / scale, y = g.y() / scale, w = r.w, d = r.d, TH = 0.7;
-      var bestDX = null, bestDY = null;
+      var x = g.x() / scale, y = g.y() / scale, TH = 0.7;
+      var A = effBounds(r, x, y), bestDX = null, bestDY = null;
       PLAN.rooms.forEach(function (o) {
-        if (o === r || o.rot) return;
-        [[x, o.bld_x], [x, o.bld_x + o.w], [x + w, o.bld_x], [x + w, o.bld_x + o.w]].forEach(function (p) {
-          var dx = p[1] - p[0]; if (Math.abs(dx) < TH && (bestDX === null || Math.abs(dx) < Math.abs(bestDX))) bestDX = dx;
-        });
-        [[y, o.bld_y], [y, o.bld_y + o.d], [y + d, o.bld_y], [y + d, o.bld_y + o.d]].forEach(function (p) {
-          var dy = p[1] - p[0]; if (Math.abs(dy) < TH && (bestDY === null || Math.abs(dy) < Math.abs(bestDY))) bestDY = dy;
-        });
+        if (o === r || o.rot || o.bld_x === null) return;
+        var B = effBounds(o, o.bld_x, o.bld_y);
+        [[A.x1, B.x1], [A.x1, B.x2], [A.x2, B.x1], [A.x2, B.x2]].forEach(function (p) { var dx = p[1] - p[0]; if (Math.abs(dx) < TH && (bestDX === null || Math.abs(dx) < Math.abs(bestDX))) bestDX = dx; });
+        [[A.y1, B.y1], [A.y1, B.y2], [A.y2, B.y1], [A.y2, B.y2]].forEach(function (p) { var dy = p[1] - p[0]; if (Math.abs(dy) < TH && (bestDY === null || Math.abs(dy) < Math.abs(bestDY))) bestDY = dy; });
       });
       if (bestDX !== null) g.x((x + bestDX) * scale);
       if (bestDY !== null) g.y((y + bestDY) * scale);
     }
-    // Push a room out of any room it overlaps, abutting the closest edge (no overlap).
+    // Push a room out of any room whose footprint it overlaps, abutting the edge.
     function resolveOverlap(g) {
       var r = g.getAttr('room');
       if (g.rotation()) return;   // axis-aligned only
-      var x = g.x() / scale, y = g.y() / scale, w = r.w, d = r.d;
+      var x = g.x() / scale, y = g.y() / scale;
       for (var pass = 0; pass < 6; pass++) {
         var moved = false;
         PLAN.rooms.forEach(function (o) {
           if (o === r || o.rot || o.bld_x === null || o.bld_y === null) return;
-          var penX = Math.min(x + w, o.bld_x + o.w) - Math.max(x, o.bld_x);
-          var penY = Math.min(y + d, o.bld_y + o.d) - Math.max(y, o.bld_y);
-          if (penX > 0.02 && penY > 0.02) {   // overlapping: separate along the shallower axis
-            if (penX <= penY) { x = ((x + w / 2) < (o.bld_x + o.w / 2)) ? (o.bld_x - w) : (o.bld_x + o.w); }
-            else { y = ((y + d / 2) < (o.bld_y + o.d / 2)) ? (o.bld_y - d) : (o.bld_y + o.d); }
+          var A = effBounds(r, x, y), B = effBounds(o, o.bld_x, o.bld_y);
+          var penX = Math.min(A.x2, B.x2) - Math.max(A.x1, B.x1), penY = Math.min(A.y2, B.y2) - Math.max(A.y1, B.y1);
+          if (penX > 0.02 && penY > 0.02) {   // footprints overlap: separate along the shallower axis
+            if (penX <= penY) { x = ((A.x1 + A.x2) / 2 < (B.x1 + B.x2) / 2) ? (B.x1 - A.ew - A.ox) : (B.x2 - A.ox); }
+            else { y = ((A.y1 + A.y2) / 2 < (B.y1 + B.y2) / 2) ? (B.y1 - A.eh - A.oy) : (B.y2 - A.oy); }
             x = Math.max(0, x); y = Math.max(0, y);
             moved = true;
           }
@@ -345,6 +351,20 @@
       var r = g.getAttr('room'), ww = r.w * scale, hh = r.d * scale, poly = g.findOne('.shapepoly');
       if (poly && r.shape) { var pts = []; r.shape.forEach(function (p) { pts.push(p.x * ww, p.z * hh); }); poly.points(pts); layer.draw(); }
     }
+    // Shrink the room box to hug the polygon (keeps the polygon in the same place),
+    // so the resize handles and snap box match the actual room. Saves geometry + shape.
+    function normalizeShape(g) {
+      var r = g.getAttr('room'), sh = (r.shape && r.shape.length >= 3) ? r.shape : null; if (!sh) return;
+      var minx = 1, maxx = 0, minz = 1, maxz = 0;
+      sh.forEach(function (p) { if (p.x < minx) minx = p.x; if (p.x > maxx) maxx = p.x; if (p.z < minz) minz = p.z; if (p.z > maxz) maxz = p.z; });
+      var rw = maxx - minx, rh = maxz - minz; if (rw < 0.02 || rh < 0.02) return;
+      if (minx <= 0.005 && maxx >= 0.995 && minz <= 0.005 && maxz >= 0.995) return;   // already fills its box
+      r.bld_x = r.bld_x + minx * r.w; r.bld_y = r.bld_y + minz * r.d; r.w = rw * r.w; r.d = rh * r.d;
+      r.shape = sh.map(function (p) { return { x: (p.x - minx) / rw, z: (p.z - minz) / rh }; });
+      g.x(r.bld_x * scale); g.y(r.bld_y * scale); g.width(r.w * scale); g.height(r.d * scale);
+      var rect = g.findOne('.roomrect'); if (rect) { rect.width(r.w * scale); rect.height(r.d * scale); }
+      saveRoom(g); saveShape(g);
+    }
     function drawShape(g) {
       g.find('.shapepoly').forEach(function (n) { n.destroy(); });
       g.find('.shapevert').forEach(function (n) { n.destroy(); });
@@ -403,7 +423,7 @@
     function setShapeBtn(on) { var se = document.getElementById('shapeEdit'); se.classList.toggle('btn-primary', on); se.classList.toggle('btn-outline-primary', !on); }
     document.getElementById('shapeEdit').addEventListener('click', function () {
       if (!selectedG) return; var r = selectedG.getAttr('room');
-      if (shapeMode && shapeG === selectedG) { shapeMode = false; shapeG = null; setShapeBtn(false); tr.nodes([selectedG]); drawShape(selectedG); }
+      if (shapeMode && shapeG === selectedG) { shapeMode = false; shapeG = null; setShapeBtn(false); normalizeShape(selectedG); tr.nodes([selectedG]); drawShape(selectedG); }
       else { if (!r.shape || r.shape.length < 3) r.shape = defaultShape(); shapeMode = true; shapeG = selectedG; setShapeBtn(true); tr.nodes([]); drawShape(selectedG); saveShape(selectedG); }
       updateDoorControls(selectedG);
     });
