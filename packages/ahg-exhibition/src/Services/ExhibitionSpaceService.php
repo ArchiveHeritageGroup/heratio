@@ -1669,6 +1669,40 @@ class ExhibitionSpaceService
      *
      * @return array<int,array<string,mixed>>
      */
+    /**
+     * AI-generated description for an object that has no scope_and_content, used by
+     * the walkthrough "T = talk" docent when there is no metadata to read. Routed
+     * through the AI gateway (LlmService) and cached so repeat clicks are free.
+     */
+    public function aiDescribeObject(int $ioId): ?string
+    {
+        return \Illuminate\Support\Facades\Cache::remember('exh_ai_desc_'.$ioId, now()->addDays(30), function () use ($ioId) {
+            $io = DB::table('information_object as io')
+                ->leftJoin('information_object_i18n as i', function ($j) { $j->on('i.id', '=', 'io.id')->where('i.culture', '=', 'en'); })
+                ->where('io.id', $ioId)
+                ->select('io.identifier', 'i.title')->first();
+            if (!$io) {
+                return null;
+            }
+            $parent = DB::table('information_object as io')
+                ->leftJoin('information_object_i18n as i', function ($j) { $j->on('i.id', '=', 'io.parent_id')->where('i.culture', '=', 'en'); })
+                ->where('io.id', $ioId)->value('i.title');
+            $title = $io->title ?: ($io->identifier ?: ('object #'.$ioId));
+            $prompt = 'You are a museum docent speaking to a visitor standing in front of an exhibit. '
+                . 'In 2 to 3 vivid sentences, describe this item: "' . $title . '".'
+                . ($parent ? ' It is part of the collection "' . $parent . '".' : '')
+                . ' Do not invent specific dates, names or provenance you cannot infer from the title; '
+                . 'speak generally and evocatively about what such an item is and why it is worth looking at. '
+                . 'Plain prose, no preamble, no markdown.';
+            try {
+                $resp = trim((string) app(\AhgAiServices\Services\LlmService::class)->complete($prompt, ['max_tokens' => 180, 'temperature' => 0.6]));
+                return $resp !== '' ? $resp : null;
+            } catch (\Throwable $e) {
+                return null;
+            }
+        });
+    }
+
     public function getWalkthroughStops(int $exhibitionSpaceId): array
     {
         $space = $this->getById($exhibitionSpaceId);

@@ -85,6 +85,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/exhibition-space/{slug}/walkthrough', [ExhibitionSpaceController::class, 'walkthrough'])->name('exhibition-space.walkthrough');
 // heratio#1149 — in-twin recommendations (public, read-only) for the walkthrough
 Route::get('/exhibition-space/{slug}/recommend', [ExhibitionSpaceController::class, 'recommendAjax'])->name('exhibition-space.recommend');
+// AI-describe an object with no metadata (walkthrough T=talk docent, public)
+Route::get('/exhibition-space/object/{ioId}/describe', [ExhibitionSpaceController::class, 'describeObjectAjax'])->name('exhibition-space.describe')->whereNumber('ioId');
 
 Route::middleware('admin')->group(function () {
     Route::get('/exhibition-space/{slug}/delete', [ExhibitionSpaceController::class, 'confirmDelete'])->name('exhibition-space.confirmDelete');

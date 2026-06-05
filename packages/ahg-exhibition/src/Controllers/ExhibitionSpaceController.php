@@ -297,6 +297,14 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => true, 'items' => $this->service->recommendations($space, $io)]);
     }
 
+    /** Public: AI-describe an object that has no metadata (walkthrough "T = talk" docent). */
+    public function describeObjectAjax(int $ioId)
+    {
+        $desc = $this->service->aiDescribeObject($ioId);
+
+        return response()->json(['ok' => $desc !== null, 'description' => $desc]);
+    }
+
     /** Admin: precompute AI recommendations across the building via the AI gateway. */
     public function generateRecommendationsAjax(Request $request, string $slug)
     {

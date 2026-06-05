@@ -348,6 +348,9 @@
         lintel(dd[0], dd[1]);
         var sm = slab(dd[0], dd[1]);
         var mid = (dd[0] + dd[1]) / 2;
+        // The word "Door" on the door panel itself.
+        var dlx = vertical ? fixed : mid, dlz = vertical ? mid : fixed;
+        var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(dlx, doorH * 0.5, dlz); addToRoom(rm, dnm);
         // Sign showing which room this doorway leads into.
         var ox = vertical ? (edge - insetDir * 0.5) : mid, oz = vertical ? mid : (edge - insetDir * 0.5);
         var ow = roomWorld(rm, ox, oz), dest = findRoomAtWorld(ow.x, ow.z, rm);
@@ -379,6 +382,7 @@
         seg(dd[0], dd[1], doorH, RH);          // lintel above the opening
         var sm = seg(dd[0], dd[1], 0, doorH, doorMat);  // solid door fills the opening (no see-through)
         var mid = (dd[0] + dd[1]) / 2, mx = ax + ux * mid, mz = az + uz * mid;
+        var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(mx, doorH * 0.5, mz); addToRoom(rm, dnm);   // the word "Door" on the panel
         var nx = -uz, nz = ux; if ((ccx - mx) * nx + (ccz - mz) * nz > 0) { nx = -nx; nz = -nz; }   // outward normal
         var ow = roomWorld(rm, mx + nx * 0.5, mz + nz * 0.5), dest = findRoomAtWorld(ow.x, ow.z, rm);
         if (dest && dest.name) {
@@ -846,17 +850,34 @@
     // Audio description (docent): hold T (Talk) + click an object to hear its description read aloud.
     function showNarr(on) { var n = document.getElementById('wtNarr'); if (n) n.style.display = on ? 'block' : 'none'; }
     function stopNarrate() { try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {} showNarr(false); }
-    function narrate(s) {
+    function setNarrLabel(html) { var n = document.getElementById('wtNarr'); if (n) { n.innerHTML = html; n.style.display = 'block'; } }
+    function speakText(text) {
       try {
         if (!('speechSynthesis' in window)) return;
         window.speechSynthesis.cancel();
-        var text = (s.title ? s.title + '. ' : '') + (s.description || '{{ __('No description available.') }}');
         var u = new SpeechSynthesisUtterance(text);
         u.rate = 0.95; u.lang = document.documentElement.lang || 'en';
         u.onend = function () { showNarr(false); };
         u.onerror = function () { showNarr(false); };
-        window.speechSynthesis.speak(u); showNarr(true);
+        setNarrLabel('<i class="fas fa-volume-high me-1"></i>{{ __('Reading description... (Esc to stop)') }}');
+        window.speechSynthesis.speak(u);
       } catch (e) {}
+    }
+    function narrate(s) {
+      var desc = (s.description || '').trim();
+      if (desc) { speakText((s.title ? s.title + '. ' : '') + desc); return; }
+      // No metadata for this object: ask the AI gateway to describe it, then read it out.
+      setNarrLabel('<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Generating AI description...') }}');
+      fetch('/exhibition-space/object/' + s.information_object_id + '/describe', { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var ai = (d && d.description) ? d.description : null;
+          var text = ai || '{{ __('No description available for this object.') }}';
+          var dd = document.getElementById('inlayDesc');
+          if (dd && currentStop === s) dd.textContent = (ai ? '🤖 ' + text : text);   // robot emoji marks an AI description
+          speakText((s.title ? s.title + '. ' : '') + text);
+        })
+        .catch(function () { stopNarrate(); });
     }
     function openPanel(s) {
       document.getElementById('inlayTitle').textContent = s.title;
