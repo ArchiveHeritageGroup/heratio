@@ -39,6 +39,13 @@
         </div>
       </div>
 
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong><i class="fas fa-list me-1"></i>{{ __('Objects in this space') }}</strong> <span class="badge bg-secondary" id="objCount">0</span></div>
+        <div class="card-body p-2" style="max-height:220px;overflow:auto;">
+          <div id="objList" class="small text-muted">{{ __('None yet.') }}</div>
+        </div>
+      </div>
+
       @auth
       <div class="card mb-3">
         <div class="card-header py-2"><strong><i class="fas fa-map me-1"></i>{{ __('Floorplan') }}</strong></div>
@@ -52,6 +59,34 @@
             </div>
             <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-upload me-1"></i>{{ __('Upload floorplan') }}</button>
           </form>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong><i class="fas fa-image me-1"></i>{{ __('Ceiling') }}</strong></div>
+        <div class="card-body">
+          <form method="POST" action="{{ route('exhibition-space.builder.ceiling', ['slug' => $space->slug]) }}" enctype="multipart/form-data" class="mb-2">
+            @csrf
+            <input type="file" name="ceiling" accept="image/*" class="form-control form-control-sm mb-2" required>
+            <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-upload me-1"></i>{{ __('Upload painted ceiling') }}</button>
+          </form>
+          @if(!empty($space->ceiling_image_path))
+          <form method="POST" action="{{ route('exhibition-space.builder.ceiling-clear', ['slug' => $space->slug]) }}">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear ceiling') }}</button>
+          </form>
+          @endif
+        </div>
+      </div>
+      @endauth
+
+      @auth
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong><i class="fas fa-grip-lines-vertical me-1"></i>{{ __('Interior walls') }}</strong></div>
+        <div class="card-body">
+          <button type="button" id="wallAdd" class="btn btn-sm btn-outline-primary w-100 mb-2"><i class="fas fa-plus me-1"></i>{{ __('Add wall') }}</button>
+          <div id="wallList" class="small"></div>
+          <small id="wallHint" class="text-muted d-block mt-1">{{ __('Add a divider wall to hang objects in the middle of the room.') }}</small>
         </div>
       </div>
       @endauth
@@ -79,6 +114,8 @@
               <button type="button" id="tiltAuto" class="btn btn-outline-secondary btn-sm w-100">{{ __('Auto (reset)') }}</button>
               <small class="text-muted d-block mt-1">{{ __('Empty = auto. Use 90 / -90 to stand a model upright.') }}</small>
             </div>
+            <label for="selWall" class="form-label small mb-1">{{ __('Hang on wall') }}</label>
+            <select id="selWall" class="form-select form-select-sm mb-2"></select>
             <button type="button" id="btnRemove" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-trash me-1"></i>{{ __('Remove from twin') }}</button>
           </div>
         </div>
@@ -88,8 +125,17 @@
     {{-- Right: canvas --}}
     <div class="col-lg-9">
       <div class="card">
-        <div class="card-header py-2 d-flex justify-content-between align-items-center">
-          <strong>{{ __('Floorplan') }}</strong>
+        <div class="card-header py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="btn-group btn-group-sm" role="group">
+            <button type="button" id="modeFloor" class="btn btn-primary">{{ __('Floor view') }}</button>
+            <button type="button" id="modeWall" class="btn btn-outline-primary">{{ __('Wall view') }}</button>
+          </div>
+          <select id="wvWall" class="form-select form-select-sm d-none" style="max-width:160px;">
+            <option value="north">{{ __('Back wall') }}</option>
+            <option value="south">{{ __('Front wall') }}</option>
+            <option value="west">{{ __('Left wall') }}</option>
+            <option value="east">{{ __('Right wall') }}</option>
+          </select>
           <span class="small text-muted"><span id="saveState">{{ __('All changes saved') }}</span> <i id="saveIcon" class="fas fa-check text-success ms-1"></i></span>
         </div>
         <div class="card-body p-0">
@@ -111,10 +157,16 @@
       layout: '{{ route('exhibition-space.builder.layout', ['slug' => $space->slug]) }}',
       remove: '{{ route('exhibition-space.builder.remove', ['slug' => $space->slug]) }}',
       size: '{{ route('exhibition-space.builder.size', ['slug' => $space->slug]) }}',
-      tilt: '{{ route('exhibition-space.builder.tilt', ['slug' => $space->slug]) }}'
+      tilt: '{{ route('exhibition-space.builder.tilt', ['slug' => $space->slug]) }}',
+      walls: '{{ route('exhibition-space.builder.walls', ['slug' => $space->slug]) }}',
+      wall: '{{ route('exhibition-space.builder.wall', ['slug' => $space->slug]) }}',
+      wallPlace: '{{ route('exhibition-space.builder.wall-place', ['slug' => $space->slug]) }}',
+      wallPos: '{{ route('exhibition-space.builder.wall-pos', ['slug' => $space->slug]) }}',
+      placements: '{{ route('exhibition-space.builder.placements', ['slug' => $space->slug]) }}'
     };
     var FLOORPLAN = @json($space->floorplan_image_path);
     var PLACEMENTS = @json($placements);
+    var WALLS = @json($walls ?? []);
 
     if (typeof Konva === 'undefined') {
       document.getElementById('stageWrap').innerHTML =
@@ -129,8 +181,10 @@
 
     var stage = new Konva.Stage({ container: 'stageWrap', width: W, height: H });
     var bgLayer = new Konva.Layer();
+    var wallLayer = new Konva.Layer();
     var layer = new Konva.Layer();
-    stage.add(bgLayer); stage.add(layer);
+    var wvLayer = new Konva.Layer({ visible: false });
+    stage.add(bgLayer); stage.add(wallLayer); stage.add(layer); stage.add(wvLayer);
 
     // Background: floorplan image or a grid.
     if (FLOORPLAN) {
@@ -194,6 +248,8 @@
         document.getElementById('tiltX').value = (tx === null || tx === undefined) ? '' : tx;
         document.getElementById('tiltZ').value = (tz === null || tz === undefined) ? '' : tz;
       }
+      refreshWallOptions();
+      document.getElementById('selWall').value = g.getAttr('wallKey') || '';
       layer.draw();
     }
     function clearSelect() {
@@ -215,6 +271,7 @@
       g.setAttr('titleText', p.title);
       g.setAttr('sizeUnits', p.size_units_used != null ? p.size_units_used : 0);
       g.setAttr('objKind', p.kind || null);
+      g.setAttr('wallKey', p.wall_or_zone || '');
       g.setAttr('tiltX', (p.tilt_x === null || p.tilt_x === undefined) ? null : p.tilt_x);
       g.setAttr('tiltZ', (p.tilt_z === null || p.tilt_z === undefined) ? null : p.tilt_z);
 
@@ -255,8 +312,71 @@
 
     PLACEMENTS.forEach(addNode);
     layer.draw();
+    renderObjList();
 
-    stage.on('click tap', function (e) { if (e.target === stage) clearSelect(); });
+    // ---- interior walls ----
+    var wallAdding = false, wallStart = null;
+    var wallBtn = document.getElementById('wallAdd');
+    var wallHintEl = document.getElementById('wallHint');
+    var HINT_IDLE = '{{ __('Add a divider wall to hang objects in the middle of the room.') }}';
+    function setWallMode(on) {
+      wallAdding = on; wallStart = null;
+      wallBtn.classList.toggle('btn-primary', on); wallBtn.classList.toggle('btn-outline-primary', !on);
+      wallHintEl.textContent = on ? '{{ __('Click the start point, then the end point.') }}' : HINT_IDLE;
+      stage.container().style.cursor = on ? 'crosshair' : 'default';
+    }
+    function redrawWalls() {
+      wallLayer.destroyChildren();
+      WALLS.forEach(function (w) {
+        wallLayer.add(new Konva.Line({ points: [w.x1 * W, w.z1 * H, w.x2 * W, w.z2 * H], stroke: '#495057', strokeWidth: 7, lineCap: 'round', listening: false }));
+      });
+      wallLayer.draw();
+      renderWallList();
+    }
+    function renderWallList() {
+      var el = document.getElementById('wallList'); el.innerHTML = '';
+      WALLS.forEach(function (w, i) {
+        var row = document.createElement('div');
+        row.className = 'd-flex justify-content-between align-items-center mb-1';
+        row.innerHTML = '<span>{{ __('Wall') }} ' + (i + 1) + '</span>';
+        var del = document.createElement('button');
+        del.type = 'button'; del.className = 'btn btn-sm btn-outline-danger py-0'; del.innerHTML = '<i class="fas fa-times"></i>';
+        del.addEventListener('click', function () { WALLS.splice(i, 1); saveWalls(); });
+        row.appendChild(del); el.appendChild(row);
+      });
+    }
+    function saveWalls() {
+      fetch(URLS.walls, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ walls: WALLS }) })
+        .then(function (r) { return r.json(); }).then(function (d) { if (d.ok && d.walls) { WALLS = d.walls; } redrawWalls(); refreshWallOptions(); });
+    }
+    function refreshWallOptions() {
+      var sel = document.getElementById('selWall'); var cur = sel.value;
+      var opts = '<option value="">{{ __('Auto (nearest)') }}</option>' +
+        '<option value="north">{{ __('Back wall') }}</option><option value="south">{{ __('Front wall') }}</option>' +
+        '<option value="west">{{ __('Left wall') }}</option><option value="east">{{ __('Right wall') }}</option>';
+      WALLS.forEach(function (w, i) { opts += '<option value="' + w.id + '">{{ __('Wall') }} ' + (i + 1) + '</option>'; });
+      sel.innerHTML = opts; sel.value = cur;
+    }
+    wallBtn.addEventListener('click', function () { setWallMode(!wallAdding); });
+    document.getElementById('selWall').addEventListener('change', function () {
+      if (!selected) return;
+      selected.setAttr('wallKey', this.value);
+      fetch(URLS.wall, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), wall: this.value }) });
+    });
+    redrawWalls(); refreshWallOptions();
+
+    stage.on('click tap', function (e) {
+      if (wallAdding) {
+        var p = stage.getPointerPosition(); if (!p) return;
+        if (!wallStart) { wallStart = { x: p.x / W, z: p.y / H }; }
+        else {
+          WALLS.push({ id: 'wall-' + Date.now(), x1: wallStart.x, z1: wallStart.z, x2: p.x / W, z2: p.y / H });
+          setWallMode(false); saveWalls();
+        }
+        return;
+      }
+      if (e.target === stage) clearSelect();
+    });
 
     // ---- selected-object controls ----
     document.querySelectorAll('#selControls [data-act]').forEach(function (b) {
@@ -270,17 +390,41 @@
         layer.draw(); scheduleSave();
       });
     });
-    document.getElementById('btnRemove').addEventListener('click', function () {
-      if (!selected) return;
-      var g = selected, id = g.getAttr('placementId');
+    // Remove a placement (used by the selected-object button and the object list).
+    function removePlacement(g) {
+      if (!g) return;
       fetch(URLS.remove, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
-        body: JSON.stringify({ placement_id: id })
+        body: JSON.stringify({ placement_id: g.getAttr('placementId') })
       }).then(function (r) { return r.json(); }).then(function (d) {
-        if (d.ok) { clearSelect(); g.destroy(); layer.draw(); }
+        if (d.ok) { if (selected === g) clearSelect(); g.destroy(); layer.draw(); renderObjList(); }
       });
-    });
+    }
+    document.getElementById('btnRemove').addEventListener('click', function () { removePlacement(selected); });
+
+    // Full list of placed objects (works even for objects off-canvas / unreachable).
+    function renderObjList() {
+      var nodes = layer.find('.placement');
+      var el = document.getElementById('objList');
+      document.getElementById('objCount').textContent = nodes.length;
+      if (!nodes.length) { el.innerHTML = '{{ __('None yet.') }}'; return; }
+      el.innerHTML = '';
+      nodes.forEach(function (g) {
+        var row = document.createElement('div');
+        row.className = 'd-flex justify-content-between align-items-center mb-1';
+        var name = document.createElement('a');
+        name.href = '#'; name.className = 'text-truncate me-2 text-decoration-none';
+        name.style.maxWidth = '180px';
+        name.textContent = g.getAttr('titleText') || ('#' + g.getAttr('placementId'));
+        name.addEventListener('click', function (e) { e.preventDefault(); selectNode(g); });
+        var del = document.createElement('button');
+        del.type = 'button'; del.className = 'btn btn-sm btn-outline-danger py-0';
+        del.innerHTML = '<i class="fas fa-times"></i>';
+        del.addEventListener('click', function () { removePlacement(g); });
+        row.appendChild(name); row.appendChild(del); el.appendChild(row);
+      });
+    }
 
     // ---- edit size of the selected object ----
     document.getElementById('selSize').addEventListener('change', function () {
@@ -330,16 +474,84 @@
         onChange: function (val) {
           if (!val) return;
           var self = this;
+          var done = function () { self.clear(true); self.clearOptions(); };
+          if (mode === 'wall') {
+            // Hang the object on the currently-viewed wall (centre by default).
+            fetch(URLS.wallPlace, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+              body: JSON.stringify({ information_object_id: val, wall: wvWall, u: 0.5, v: 0.55 })
+            }).then(function (r) { return r.json(); }).then(function (d) {
+              if (d.ok) wvAddNode(d.placement);
+              done();
+            });
+            return;
+          }
           fetch(URLS.place, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
             body: JSON.stringify({ information_object_id: val, pos_x: 0.5, pos_y: 0.5, size_units_used: parseFloat(document.getElementById('initialSize').value) || 0 })
           }).then(function (r) { return r.json(); }).then(function (d) {
-            if (d.ok) { var g = addNode(d.placement); layer.draw(); selectNode(g); }
-            self.clear(true); self.clearOptions();
+            if (d.ok) { var g = addNode(d.placement); layer.draw(); selectNode(g); renderObjList(); }
+            done();
           });
         }
       });
+    }
+
+    // ---- Wall view (elevation editor): hang objects flat on a wall, no floor clutter ----
+    var mode = 'floor', wvWall = 'north', WV_NODE = 70;
+    (function () {   // add interior walls to the wall picker
+      var sel = document.getElementById('wvWall');
+      WALLS.forEach(function (w, i) { var o = document.createElement('option'); o.value = w.id; o.textContent = '{{ __('Wall') }} ' + (i + 1); sel.appendChild(o); });
+    })();
+    function setMode(m) {
+      mode = m;
+      var fb = document.getElementById('modeFloor'), wb = document.getElementById('modeWall');
+      fb.classList.toggle('btn-primary', m === 'floor'); fb.classList.toggle('btn-outline-primary', m !== 'floor');
+      wb.classList.toggle('btn-primary', m === 'wall'); wb.classList.toggle('btn-outline-primary', m !== 'wall');
+      document.getElementById('wvWall').classList.toggle('d-none', m !== 'wall');
+      var floorOn = (m === 'floor');
+      bgLayer.visible(floorOn); wallLayer.visible(floorOn); layer.visible(floorOn); wvLayer.visible(!floorOn);
+      tr.nodes([]); clearSelect();
+      if (floorOn) { stage.draw(); } else { buildWallView(); }
+    }
+    document.getElementById('modeFloor').addEventListener('click', function () { setMode('floor'); });
+    document.getElementById('modeWall').addEventListener('click', function () { setMode('wall'); });
+    document.getElementById('wvWall').addEventListener('change', function () { wvWall = this.value; buildWallView(); });
+
+    function buildWallView() {
+      wvLayer.destroyChildren();
+      wvLayer.add(new Konva.Rect({ x: 0, y: 0, width: W, height: H, fill: '#e9ecef', listening: false }));
+      wvLayer.add(new Konva.Line({ points: [0, H - 3, W, H - 3], stroke: '#adb5bd', strokeWidth: 5, listening: false }));
+      var lbl = document.getElementById('wvWall').selectedOptions[0];
+      wvLayer.add(new Konva.Text({ x: 8, y: 8, text: (lbl ? lbl.text : '') + ' — {{ __('drag to position; search to add') }}', fontSize: 12, fill: '#495057', listening: false }));
+      wvLayer.draw();
+      fetch(URLS.placements).then(function (r) { return r.json(); }).then(function (d) {
+        if (!d.ok) return;
+        d.placements.forEach(function (p) {
+          if (p.wall_or_zone === wvWall && p.wall_u !== null && p.wall_u !== undefined) wvAddNode(p);
+        });
+        wvLayer.draw();
+      });
+    }
+    function wvAddNode(p) {
+      var u = (p.wall_u != null) ? p.wall_u : 0.5, v = (p.wall_v != null) ? p.wall_v : 0.55;
+      var g = new Konva.Group({ x: u * W, y: (1 - v) * H, draggable: true, name: 'wvitem' });
+      g.setAttr('placementId', p.id);
+      var r = new Konva.Rect({ x: -WV_NODE / 2, y: -WV_NODE / 2, width: WV_NODE, height: WV_NODE, fill: '#fff', stroke: '#6c757d', strokeWidth: 1, cornerRadius: 3, shadowColor: '#000', shadowBlur: 5, shadowOpacity: 0.15 });
+      g.add(r);
+      if (p.thumb_url) {
+        var im = new Image();
+        im.onload = function () { var ki = new Konva.Image({ image: im, x: -WV_NODE / 2 + 2, y: -WV_NODE / 2 + 2, width: WV_NODE - 4, height: WV_NODE - 4 }); g.add(ki); r.moveToBottom(); wvLayer.draw(); };
+        im.onerror = function () { g.add(new Konva.Text({ text: '#' + p.information_object_id, x: -WV_NODE / 2, y: -6, width: WV_NODE, align: 'center', fontSize: 10, fill: '#999' })); wvLayer.draw(); };
+        im.src = p.thumb_url;
+      } else { g.add(new Konva.Text({ text: '#' + p.information_object_id, x: -WV_NODE / 2, y: -6, width: WV_NODE, align: 'center', fontSize: 10, fill: '#999' })); }
+      g.on('dragend', function () {
+        var nu = Math.max(0, Math.min(1, g.x() / W)), nv = Math.max(0, Math.min(1, 1 - g.y() / H));
+        fetch(URLS.wallPos, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ placement_id: g.getAttr('placementId'), u: nu, v: nv }) });
+      });
+      wvLayer.add(g); wvLayer.draw();
     }
 
     // keep canvas usable on resize (re-anchor by normalized coords)

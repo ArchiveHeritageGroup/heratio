@@ -194,6 +194,11 @@ class ExhibitionSpaceService
             'capacity_unit' => $this->normalizeCapacityUnit($data['capacity_unit'] ?? null),
             'lighting_lux_target' => isset($data['lighting_lux_target']) && $data['lighting_lux_target'] !== '' ? (float) $data['lighting_lux_target'] : null,
             'notes' => $data['notes'] ?? null,
+            'room_w' => isset($data['room_w']) && $data['room_w'] !== '' ? (float) $data['room_w'] : null,
+            'room_d' => isset($data['room_d']) && $data['room_d'] !== '' ? (float) $data['room_d'] : null,
+            'room_h' => isset($data['room_h']) && $data['room_h'] !== '' ? (float) $data['room_h'] : null,
+            'building_id' => isset($data['building_id']) && trim((string) $data['building_id']) !== '' ? trim((string) $data['building_id']) : null,
+            'building_seq' => isset($data['building_seq']) && $data['building_seq'] !== '' ? (int) $data['building_seq'] : 0,
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -210,6 +215,11 @@ class ExhibitionSpaceService
             'capacity_unit' => isset($data['capacity_unit']) ? $this->normalizeCapacityUnit($data['capacity_unit']) : null,
             'lighting_lux_target' => isset($data['lighting_lux_target']) && $data['lighting_lux_target'] !== '' ? (float) $data['lighting_lux_target'] : null,
             'notes' => $data['notes'] ?? null,
+            'room_w' => isset($data['room_w']) && $data['room_w'] !== '' ? (float) $data['room_w'] : null,
+            'room_d' => isset($data['room_d']) && $data['room_d'] !== '' ? (float) $data['room_d'] : null,
+            'room_h' => isset($data['room_h']) && $data['room_h'] !== '' ? (float) $data['room_h'] : null,
+            'building_id' => isset($data['building_id']) && trim((string) $data['building_id']) !== '' ? trim((string) $data['building_id']) : null,
+            'building_seq' => isset($data['building_seq']) && $data['building_seq'] !== '' ? (int) $data['building_seq'] : null,
             'updated_at' => now(),
         ];
         $payload = array_filter($payload, fn ($v) => $v !== null || in_array($payload, ['notes', 'lighting_lux_target', 'capacity_value', 'building', 'floor'], true));
@@ -300,7 +310,7 @@ class ExhibitionSpaceService
                 'ep.id', 'ep.information_object_id',
                 'ep.pos_x', 'ep.pos_y', 'ep.rotation_deg', 'ep.scale', 'ep.z_order',
                 'ep.wall_or_zone', 'ep.label_visible', 'ep.size_units_used',
-                'ep.model_tilt_x', 'ep.model_tilt_z',
+                'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v',
                 'ioi.title as information_object_title'
             )
             ->orderBy('ep.z_order')
@@ -324,6 +334,8 @@ class ExhibitionSpaceService
                 'kind' => $media['kind'],
                 'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
+                'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,
+                'wall_v' => $r->wall_v !== null ? (float) $r->wall_v : null,
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),
             ];
         })->all();
@@ -562,6 +574,152 @@ class ExhibitionSpaceService
             ->update(['model_tilt_x' => $tiltX, 'model_tilt_z' => $tiltZ, 'updated_at' => now()]) > 0;
     }
 
+    // -------- Interior walls (heratio#1138, room dividers to hang on) --------
+
+    /**
+     * Interior wall segments for a space, in normalized floorplan coords (0-1).
+     * Each: ['id'=>string,'x1','z1','x2','z2'].
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function getWalls(int $exhibitionSpaceId): array
+    {
+        $space = $this->getById($exhibitionSpaceId);
+        if (! $space || empty($space->walls_json)) {
+            return [];
+        }
+        $walls = json_decode((string) $space->walls_json, true);
+
+        return is_array($walls) ? array_values($walls) : [];
+    }
+
+    /**
+     * Persist interior wall segments (normalized 0-1 coords). Sanitised + clamped.
+     *
+     * @param  array<int,array<string,mixed>>  $walls
+     */
+    public function saveWalls(int $exhibitionSpaceId, array $walls): void
+    {
+        $clean = [];
+        foreach ($walls as $i => $w) {
+            $x1 = isset($w['x1']) ? max(0, min(1, (float) $w['x1'])) : null;
+            $z1 = isset($w['z1']) ? max(0, min(1, (float) $w['z1'])) : null;
+            $x2 = isset($w['x2']) ? max(0, min(1, (float) $w['x2'])) : null;
+            $z2 = isset($w['z2']) ? max(0, min(1, (float) $w['z2'])) : null;
+            if ($x1 === null || $z1 === null || $x2 === null || $z2 === null) {
+                continue;
+            }
+            $clean[] = [
+                'id' => isset($w['id']) && $w['id'] !== '' ? (string) $w['id'] : ('wall-'.$i),
+                'x1' => $x1, 'z1' => $z1, 'x2' => $x2, 'z2' => $z2,
+            ];
+        }
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
+            ->update(['walls_json' => json_encode($clean), 'updated_at' => now()]);
+    }
+
+    /** Assign a placement to a specific wall (null/'' = auto nearest). */
+    public function updatePlacementWall(int $exhibitionSpaceId, int $placementId, ?string $wall): bool
+    {
+        return DB::table('ahg_exhibition_placement')
+            ->where('id', $placementId)
+            ->where('exhibition_space_id', $exhibitionSpaceId)
+            ->update(['wall_or_zone' => ($wall !== null && $wall !== '') ? $wall : null, 'updated_at' => now()]) > 0;
+    }
+
+    // -------- Wall-elevation editor (hang objects directly on a wall) --------
+
+    /** Create a placement hung on a specific wall at along-wall u + height v (0-1). */
+    public function placeOnWall(int $exhibitionSpaceId, int $informationObjectId, string $wall, float $u, float $v): array
+    {
+        if ($exhibitionSpaceId <= 0 || $informationObjectId <= 0 || $wall === '') {
+            throw new \InvalidArgumentException('space, object and wall are required.');
+        }
+        $now = now();
+        $id = (int) DB::table('ahg_exhibition_placement')->insertGetId([
+            'information_object_id' => $informationObjectId,
+            'exhibition_space_id' => $exhibitionSpaceId,
+            'size_units_used' => 0,
+            'wall_or_zone' => $wall,
+            'wall_u' => max(0, min(1, $u)),
+            'wall_v' => max(0, min(1, $v)),
+            'rotation_deg' => 0, 'scale' => 1, 'z_order' => 0, 'label_visible' => 1,
+            'created_at' => $now, 'updated_at' => $now,
+        ]);
+        $title = DB::table('information_object_i18n')->where('id', $informationObjectId)->where('culture', 'en')->value('title');
+        $media = $this->getObjectMedia($informationObjectId);
+
+        return [
+            'id' => $id, 'information_object_id' => $informationObjectId,
+            'title' => $title ?: ('#'.$informationObjectId),
+            'pos_x' => null, 'pos_y' => null, 'rotation_deg' => 0.0, 'scale' => 1.0, 'z_order' => 0,
+            'wall_or_zone' => $wall, 'label_visible' => 1, 'size_units_used' => 0.0,
+            'kind' => $media['kind'], 'tilt_x' => null, 'tilt_z' => null,
+            'wall_u' => max(0, min(1, $u)), 'wall_v' => max(0, min(1, $v)),
+            'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl($informationObjectId),
+        ];
+    }
+
+    /** Update an object's along-wall (u) + height (v) position on its wall. */
+    public function updateWallPos(int $exhibitionSpaceId, int $placementId, float $u, float $v): bool
+    {
+        return DB::table('ahg_exhibition_placement')
+            ->where('id', $placementId)->where('exhibition_space_id', $exhibitionSpaceId)
+            ->update(['wall_u' => max(0, min(1, $u)), 'wall_v' => max(0, min(1, $v)), 'updated_at' => now()]) > 0;
+    }
+
+    // -------- Multi-room building (heratio#1143/#1144) --------
+
+    public function roomDims(object $space): array
+    {
+        return [
+            'w' => $space->room_w !== null ? (float) $space->room_w : 18.0,
+            'd' => $space->room_d !== null ? (float) $space->room_d : 14.0,
+            'h' => $space->room_h !== null ? (float) $space->room_h : 4.0,
+        ];
+    }
+
+    /**
+     * Assemble the building for the walkthrough: all rooms sharing this space's
+     * building_id (or just this space when ungrouped), laid out in a row along X
+     * with each room sized by its own room_w/room_d/room_h. Each room carries its
+     * own stops + interior walls + floorplan + x-offset (world units).
+     *
+     * @return array{rooms:array<int,array<string,mixed>>,total_w:float,max_d:float,max_h:float}
+     */
+    public function getWalkthroughBuilding(object $space): array
+    {
+        $rooms = (! empty($space->building_id))
+            ? DB::table('ahg_exhibition_space')->where('building_id', $space->building_id)
+                ->orderBy('building_seq')->orderBy('id')->get()->all()
+            : [$space];
+
+        $out = [];
+        $xOffset = 0.0;
+        $maxD = 0.0;
+        $maxH = 0.0;
+        foreach ($rooms as $r) {
+            $dim = $this->roomDims($r);
+            $out[] = [
+                'id' => (int) $r->id,
+                'name' => $r->name,
+                'slug' => $r->slug,
+                'w' => $dim['w'], 'd' => $dim['d'], 'h' => $dim['h'],
+                'x_offset' => $xOffset,
+                'is_current' => (int) $r->id === (int) $space->id,
+                'floorplan' => $r->floorplan_image_path ?? null,
+                'ceiling' => $r->ceiling_image_path ?? null,
+                'stops' => $this->getWalkthroughStops((int) $r->id),
+                'walls' => $this->getWalls((int) $r->id),
+            ];
+            $xOffset += $dim['w'];          // rooms share a dividing wall plane (doorway there)
+            $maxD = max($maxD, $dim['d']);
+            $maxH = max($maxH, $dim['h']);
+        }
+
+        return ['rooms' => $out, 'total_w' => $xOffset, 'max_d' => $maxD, 'max_h' => $maxH];
+    }
+
     public function setFloorplan(int $exhibitionSpaceId, string $publicPath, ?float $widthM = null, ?float $heightM = null): void
     {
         DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)->update(array_filter([
@@ -570,6 +728,13 @@ class ExhibitionSpaceService
             'floorplan_height_m' => $heightM,
             'updated_at' => now(),
         ], fn ($v) => $v !== null));
+    }
+
+    /** Set or clear the room ceiling image (pass null to clear). */
+    public function setCeiling(int $exhibitionSpaceId, ?string $publicPath): void
+    {
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
+            ->update(['ceiling_image_path' => $publicPath, 'updated_at' => now()]);
     }
 
     /**
@@ -614,7 +779,7 @@ class ExhibitionSpaceService
             ->select(
                 'ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y',
                 'ep.rotation_deg', 'ep.scale', 'ep.wall_or_zone',
-                'ep.model_tilt_x', 'ep.model_tilt_z',
+                'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v',
                 'ioi.title as title', 'ioi.scope_and_content as description', 'sl.slug as slug'
             )
             ->get();
@@ -639,6 +804,8 @@ class ExhibitionSpaceService
                 'model_format' => $media['format'],
                 'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
+                'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,
+                'wall_v' => $r->wall_v !== null ? (float) $r->wall_v : null,
                 'image_url' => $media['image_url'],
                 'doc_url' => $media['doc_url'] ?? null,
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),

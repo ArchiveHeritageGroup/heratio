@@ -51,13 +51,19 @@
               <li>{{ __('Move: W A S D or arrow keys') }}</li>
               <li>{{ __('Forward / back: mouse wheel') }}</li>
               <li>{{ __('Look around: move the mouse') }}</li>
-              <li>{{ __('Open details: click an object or a numbered button') }}</li>
-              <li>{{ __('Scroll the details panel: right-click') }}</li>
-              <li>{{ __('View full details: V') }}</li>
-              <li>{{ __('Close panel: left-click or Esc') }}</li>
+              <li>{{ __('Open info: click an object (or a numbered button)') }}</li>
+              <li>{{ __('Open full record (new tab): V') }}</li>
+              <li>{{ __('Close info: click or Esc') }}</li>
               <li>{{ __('Exit gallery: Esc') }}</li>
               <li class="mt-1 text-info">{{ __('Touch: drag to look, pinch to zoom, tap an object, tap a numbered button to travel') }}</li>
             </ul>
+          </div>
+          {{-- In-canvas detail inlay (replaces the side panel). --}}
+          <div id="wtInlay" style="position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;max-width:520px;width:92%;display:none;background:rgba(20,22,26,.92);color:#fff;border-radius:.5rem;padding:14px 16px;box-shadow:0 4px 16px rgba(0,0,0,.45);">
+            <button type="button" id="inlayClose" class="btn-close btn-close-white" style="position:absolute;top:8px;right:10px;" aria-label="{{ __('Close') }}"></button>
+            <h6 id="inlayTitle" class="fw-bold mb-1 pe-4"></h6>
+            <p id="inlayDesc" class="small mb-2" style="max-height:120px;overflow:auto;"></p>
+            <a id="inlayRec" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-light"><i class="fas fa-external-link-alt me-1"></i>{{ __('View full record') }} <span class="badge bg-secondary ms-1">V</span></a>
           </div>
         </div>
         {{-- Walk-to navigator: click an object to travel to it. --}}
@@ -66,19 +72,6 @@
     </div>
   @endif
 
-  {{-- Detail side panel (vanilla; theme bundle has no bootstrap Offcanvas) --}}
-  <div id="wtPanel" tabindex="-1" style="position:fixed;top:0;right:0;height:100%;width:360px;max-width:85vw;background:#fff;z-index:1080;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;box-shadow:-4px 0 16px rgba(0,0,0,.15);outline:none;">
-    <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-      <h5 class="mb-0" id="wtPanelTitle">{{ __('Object') }}</h5>
-      <button type="button" class="btn-close" id="wtClose" aria-label="{{ __('Close') }}"></button>
-    </div>
-    <div class="p-3">
-      <div id="wtImgWrap" class="text-center mb-3"></div>
-      <h6 id="wtTitle" class="fw-bold"></h6>
-      <p id="wtDesc" class="small text-muted"></p>
-      <a id="wtRecord" href="#" class="btn btn-sm btn-outline-primary d-none"><i class="fas fa-external-link-alt me-1"></i>{{ __('View full details') }} <span class="badge bg-secondary ms-1">V</span></a>
-    </div>
-  </div>
 
   @if(count($stops) > 0)
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -91,26 +84,47 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script nonce="{{ $cspNonce ?? '' }}">
   (function () {
-    var STOPS = @json($stops);
-    var FLOORPLAN = @json($space->floorplan_image_path);
+    var BUILDING = @json($building ?? null);
+    var ROOMS = (BUILDING && BUILDING.rooms && BUILDING.rooms.length) ? BUILDING.rooms : null;
     var room = document.getElementById('room');
     var loading = document.getElementById('roomLoading');
     if (typeof THREE === 'undefined' || !THREE.PointerLockControls) {
       room.innerHTML = '<div class="p-4 text-light">{{ __('3D engine failed to load.') }}</div>';
       return;
     }
+    if (!ROOMS) {
+      ROOMS = [{ id: 0, name: '', w: 18, d: 14, h: 4, x_offset: 0, is_current: true,
+        floorplan: @json($space->floorplan_image_path), stops: @json($stops), walls: @json($walls ?? []) }];
+    }
     if (window.pdfjsLib) {
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
 
-    var ROOM_W = 18, ROOM_D = 14, WALL_H = 4;
+    // Flatten object stops (tag each with its room); compute building extents.
+    var STOPS = [];
+    ROOMS.forEach(function (rm) { (rm.stops || []).forEach(function (s) { s._room = rm; STOPS.push(s); }); });
+    // Stack index: objects sharing a wall + (near) the same point cascade as layers (#1140).
+    (function () {
+      var seen = {};
+      STOPS.forEach(function (s) {
+        var key = (s._room ? s._room.id : 0) + '|' + (s.wall_or_zone || 'auto') + '|' +
+          Math.round((s.pos_x || 0) * 12) + '|' + Math.round((s.pos_y || 0) * 12);
+        s._stack = seen[key] || 0;
+        seen[key] = s._stack + 1;
+      });
+    })();
+    var WALL_H = (BUILDING && BUILDING.max_h) ? BUILDING.max_h : 4;
+    var BLD_W = 0, BLD_D = 0;
+    ROOMS.forEach(function (rm) { BLD_W = Math.max(BLD_W, rm.x_offset + rm.w); BLD_D = Math.max(BLD_D, rm.d); });
+    var curRoom = ROOMS.filter(function (r) { return r.is_current; })[0] || ROOMS[0];
+    function roomAt(x) { for (var i = 0; i < ROOMS.length; i++) { var r = ROOMS[i]; if (x >= r.x_offset - 0.01 && x <= r.x_offset + r.w + 0.01) return r; } return curRoom; }
     var W = room.clientWidth || 800, H = room.clientHeight || 480;
 
     var scene = new THREE.Scene();
     scene.background = new THREE.Color(0x20242a);
 
-    var camera = new THREE.PerspectiveCamera(70, W / H, 0.05, 200);
-    camera.position.set(0, 1.6, ROOM_D / 2 - 1.5);
+    var camera = new THREE.PerspectiveCamera(70, W / H, 0.05, 400);
+    camera.position.set(curRoom.x_offset + curRoom.w / 2, 1.6, curRoom.d / 2 - 1.5);
 
     var renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio || 1);
@@ -122,27 +136,46 @@
     dir.position.set(5, 10, 7);
     scene.add(dir);
 
-    // Floor (uses the uploaded floorplan as a texture when available).
-    var floorMat = new THREE.MeshStandardMaterial({ color: 0xcfd3d8, roughness: 0.95 });
-    var floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), floorMat);
-    floor.rotation.x = -Math.PI / 2;
-    scene.add(floor);
-    if (FLOORPLAN) {
-      new THREE.TextureLoader().load(FLOORPLAN, function (tex) {
-        floorMat.map = tex; floorMat.color.set(0xffffff); floorMat.needsUpdate = true;
-      });
-    }
-
-    // Walls
+    // Per-room floors, perimeter walls (with doorways between rooms) and dividers.
     var wallMat = new THREE.MeshStandardMaterial({ color: 0xf2f2f0, roughness: 1, side: THREE.DoubleSide });
-    function wall(w, x, z, ry) {
-      var m = new THREE.Mesh(new THREE.PlaneGeometry(w, WALL_H), wallMat);
+    var DOOR = 1.6;   // doorway width between connected rooms
+    function wallSeg(len, x, z, ry) {
+      if (len <= 0.05) return;
+      var m = new THREE.Mesh(new THREE.PlaneGeometry(len, WALL_H), wallMat);
       m.position.set(x, WALL_H / 2, z); m.rotation.y = ry; scene.add(m);
     }
-    wall(ROOM_W, 0, -ROOM_D / 2, 0);
-    wall(ROOM_W, 0, ROOM_D / 2, Math.PI);
-    wall(ROOM_D, -ROOM_W / 2, 0, Math.PI / 2);
-    wall(ROOM_D, ROOM_W / 2, 0, -Math.PI / 2);
+    ROOMS.forEach(function (rm, i) {
+      var cx = rm.x_offset + rm.w / 2;
+      var fmat = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: 0.95 });
+      var fl = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), fmat);
+      fl.rotation.x = -Math.PI / 2; fl.position.set(cx, 0, 0); scene.add(fl);
+      if (rm.floorplan) { new THREE.TextureLoader().load(rm.floorplan, function (tex) { fmat.map = tex; fmat.color.set(0xffffff); fmat.needsUpdate = true; }); }
+      if (rm.ceiling) {                               // painted ceiling image
+        var cmat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
+        var cl = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), cmat);
+        cl.rotation.x = Math.PI / 2; cl.position.set(cx, rm.h || WALL_H, 0);   // faces down
+        scene.add(cl);
+        new THREE.TextureLoader().load(rm.ceiling, function (tex) { cmat.map = tex; cmat.needsUpdate = true; });
+      }
+      wallSeg(rm.w, cx, -rm.d / 2, 0);                 // back
+      wallSeg(rm.w, cx, rm.d / 2, Math.PI);            // front
+      if (i === 0) wallSeg(rm.d, rm.x_offset, 0, Math.PI / 2);   // building left edge
+      var rx = rm.x_offset + rm.w;
+      if (i === ROOMS.length - 1) {                    // building right edge
+        wallSeg(rm.d, rx, 0, -Math.PI / 2);
+      } else {                                         // doorway to next room
+        var half = (rm.d - DOOR) / 2;
+        wallSeg(half, rx, -(rm.d / 2) + half / 2, -Math.PI / 2);
+        wallSeg(half, rx, (rm.d / 2) - half / 2, -Math.PI / 2);
+      }
+      (rm.walls || []).forEach(function (w) {          // interior dividers (normalized within room)
+        var ax = rm.x_offset + w.x1 * rm.w, az = (w.z1 - 0.5) * rm.d, bx = rm.x_offset + w.x2 * rm.w, bz = (w.z2 - 0.5) * rm.d;
+        var len = Math.hypot(bx - ax, bz - az); if (len < 0.1) return;
+        var ang = Math.atan2(bz - az, bx - ax);
+        var m = new THREE.Mesh(new THREE.PlaneGeometry(len, WALL_H), wallMat);
+        m.position.set((ax + bx) / 2, WALL_H / 2, (az + bz) / 2); m.rotation.y = -ang; scene.add(m);
+      });
+    });
 
     // Controls. Desktop = first-person pointer-lock (WASD + mouse). Touch devices
     // can't pointer-lock, so they get OrbitControls (drag to look, pinch to zoom)
@@ -158,9 +191,10 @@
       orbit = new THREE.OrbitControls(camera, renderer.domElement);
       orbit.enableDamping = true; orbit.dampingFactor = 0.12;
       orbit.target.set(0, 1.3, 0);
-      orbit.minDistance = 1; orbit.maxDistance = Math.max(ROOM_W, ROOM_D);
+      orbit.minDistance = 1; orbit.maxDistance = Math.max(BLD_W, BLD_D);
       orbit.maxPolarAngle = Math.PI * 0.85;
-      camera.position.set(0, 1.6, ROOM_D / 2 - 2);
+      camera.position.set(curRoom.x_offset + curRoom.w / 2, 1.6, curRoom.d / 2 - 2);
+      orbit.target.set(curRoom.x_offset + curRoom.w / 2, 1.3, 0);
       blocker.style.display = 'none';
       cross.style.display = 'none';
     } else {
@@ -217,7 +251,10 @@
     var pending = STOPS.length;
     function doneOne() { pending--; if (pending <= 0) loading.style.display = 'none'; }
 
-    function worldPos(s) { return { x: (s.pos_x - 0.5) * ROOM_W, z: (s.pos_y - 0.5) * ROOM_D }; }
+    function worldPos(s) {
+      var rm = s._room || curRoom;
+      return { x: rm.x_offset + s.pos_x * rm.w, z: (s.pos_y - 0.5) * rm.d };
+    }
 
     function addPedestal(x, z, h) {
       var p = new THREE.Mesh(new THREE.BoxGeometry(0.7, h, 0.7), pedestalMat);
@@ -226,26 +263,84 @@
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
     // Hang a framed picture flat on the nearest wall (pictures on walls, not pedestals).
+    // Choose where a picture hangs: a specific wall (perimeter key or interior id)
+    // when assigned, otherwise the nearest wall (perimeter + interior dividers).
+    function wallSpot(wallKey, px, pz, hw, inset, rm) {
+      var x0 = rm.x_offset, x1 = rm.x_offset + rm.w, zN = -rm.d / 2, zS = rm.d / 2;
+      var cands = [];
+      cands.push({ key: 'north', dist: pz - zN, get: function () { return { x: clamp(px, x0 + hw, x1 - hw), z: zN + inset, ry: 0 }; } });
+      cands.push({ key: 'south', dist: zS - pz, get: function () { return { x: clamp(px, x0 + hw, x1 - hw), z: zS - inset, ry: Math.PI }; } });
+      cands.push({ key: 'west', dist: px - x0, get: function () { return { x: x0 + inset, z: clamp(pz, zN + hw, zS - hw), ry: Math.PI / 2 }; } });
+      cands.push({ key: 'east', dist: x1 - px, get: function () { return { x: x1 - inset, z: clamp(pz, zN + hw, zS - hw), ry: -Math.PI / 2 }; } });
+      (rm.walls || []).forEach(function (w) {
+        var ax = rm.x_offset + w.x1 * rm.w, az = (w.z1 - 0.5) * rm.d, bx = rm.x_offset + w.x2 * rm.w, bz = (w.z2 - 0.5) * rm.d;
+        var ex = bx - ax, ez = bz - az, L2 = ex * ex + ez * ez;
+        if (L2 < 0.01) return;
+        var t = Math.max(0, Math.min(1, ((px - ax) * ex + (pz - az) * ez) / L2));
+        var projx = ax + t * ex, projz = az + t * ez;
+        cands.push({ key: w.id, dist: Math.hypot(px - projx, pz - projz), get: function () {
+          var ang = Math.atan2(ez, ex), nx = -Math.sin(ang), nz = Math.cos(ang);
+          var side = ((px - projx) * nx + (pz - projz) * nz) >= 0 ? 1 : -1;
+          var len = Math.sqrt(L2), tt = Math.max(hw / len, Math.min(1 - hw / len, t));
+          var cx = ax + tt * ex, cz = az + tt * ez;
+          return { x: cx + nx * inset * side, z: cz + nz * inset * side, ry: Math.atan2(nx * side, nz * side) };
+        } });
+      });
+      var chosen = null;
+      if (wallKey) { for (var i = 0; i < cands.length; i++) { if (cands[i].key === wallKey) { chosen = cands[i]; break; } } }
+      if (!chosen) { chosen = cands[0]; for (var j = 1; j < cands.length; j++) { if (cands[j].dist < chosen.dist) chosen = cands[j]; } }
+      return chosen.get();
+    }
+
+    // Exact spot from a chosen wall + along-wall u (0-1) - used by the wall editor.
+    function wallSpotUV(wallKey, u, hw, inset, rm) {
+      var x0 = rm.x_offset, x1 = rm.x_offset + rm.w, zN = -rm.d / 2, zS = rm.d / 2;
+      if (wallKey === 'north') return { x: clamp(x0 + u * rm.w, x0 + hw, x1 - hw), z: zN + inset, ry: 0 };
+      if (wallKey === 'south') return { x: clamp(x0 + u * rm.w, x0 + hw, x1 - hw), z: zS - inset, ry: Math.PI };
+      if (wallKey === 'west') return { x: x0 + inset, z: clamp(zN + u * rm.d, zN + hw, zS - hw), ry: Math.PI / 2 };
+      if (wallKey === 'east') return { x: x1 - inset, z: clamp(zN + u * rm.d, zN + hw, zS - hw), ry: -Math.PI / 2 };
+      var w = (rm.walls || []).filter(function (ww) { return ww.id === wallKey; })[0];
+      if (w) {
+        var ax = rm.x_offset + w.x1 * rm.w, az = (w.z1 - 0.5) * rm.d, bx = rm.x_offset + w.x2 * rm.w, bz = (w.z2 - 0.5) * rm.d;
+        var ex = bx - ax, ez = bz - az, len = Math.hypot(ex, ez) || 1;
+        var tt = clamp(u, hw / len, 1 - hw / len);
+        var ang = Math.atan2(ez, ex), nx = -Math.sin(ang), nz = Math.cos(ang);
+        return { x: ax + tt * ex + nx * inset, z: az + tt * ez + nz * inset, ry: Math.atan2(nx, nz) };
+      }
+      return null;
+    }
+
     function hangOnWall(wp, s, tex, aspect) {
       var dsc = s.scale || 1;                       // display size from Builder Bigger/Smaller
       var hgt = 1.5 * dsc, wdt = hgt * (aspect || 1);
       var capW = 2.6 * dsc;
       if (wdt > capW) { wdt = capW; hgt = wdt / (aspect || 1); }
       var hw = wdt / 2;
-      var dL = wp.x + ROOM_W / 2, dR = ROOM_W / 2 - wp.x, dB = wp.z + ROOM_D / 2, dF = ROOM_D / 2 - wp.z;
-      var mind = Math.min(dL, dR, dB, dF);
-      var inset = 0.08, cy = clamp(1.6, hgt / 2 + 0.1, WALL_H - hgt / 2 - 0.1);
-      var x = wp.x, z = wp.z, ry = 0;
-      if (mind === dB) { z = -ROOM_D / 2 + inset; ry = 0; x = clamp(wp.x, -ROOM_W / 2 + hw, ROOM_W / 2 - hw); }
-      else if (mind === dF) { z = ROOM_D / 2 - inset; ry = Math.PI; x = clamp(wp.x, -ROOM_W / 2 + hw, ROOM_W / 2 - hw); }
-      else if (mind === dL) { x = -ROOM_W / 2 + inset; ry = Math.PI / 2; z = clamp(wp.z, -ROOM_D / 2 + hw, ROOM_D / 2 - hw); }
-      else { x = ROOM_W / 2 - inset; ry = -Math.PI / 2; z = clamp(wp.z, -ROOM_D / 2 + hw, ROOM_D / 2 - hw); }
+      var inset = 0.08, cy, spot, rmh = s._room || curRoom;
+      var hasUV = (s.wall_u !== null && s.wall_u !== undefined && s.wall_or_zone);
+      if (hasUV) {
+        spot = wallSpotUV(s.wall_or_zone, s.wall_u, hw, inset, rmh);
+        cy = clamp((s.wall_v != null ? s.wall_v : 0.5) * WALL_H, hgt / 2 + 0.1, WALL_H - hgt / 2 - 0.1);
+      }
+      if (!spot) {
+        spot = wallSpot(s.wall_or_zone, wp.x, wp.z, hw, inset, rmh);
+        cy = clamp(1.6, hgt / 2 + 0.1, WALL_H - hgt / 2 - 0.1);
+      }
       var frame = new THREE.Mesh(new THREE.BoxGeometry(wdt + 0.12, hgt + 0.12, 0.06), new THREE.MeshStandardMaterial({ color: 0x222222 }));
       var pic = new THREE.Mesh(new THREE.PlaneGeometry(wdt, hgt), new THREE.MeshBasicMaterial({ map: tex }));
       pic.position.z = 0.045;
       var grp = new THREE.Group();
       grp.add(frame); grp.add(pic);
-      grp.position.set(x, cy, z); grp.rotation.y = ry;
+      // Cascade stacked layers (skip for objects placed precisely in the wall editor).
+      var st = hasUV ? 0 : (s._stack || 0);
+      var n = { x: Math.sin(spot.ry), z: Math.cos(spot.ry) };        // wall normal (into room)
+      var tg = { x: Math.cos(spot.ry), z: -Math.sin(spot.ry) };      // along the wall
+      grp.position.set(
+        spot.x + n.x * st * 0.07 + tg.x * st * 0.14,
+        cy - st * 0.12,
+        spot.z + n.z * st * 0.07 + tg.z * st * 0.14
+      );
+      grp.rotation.y = spot.ry;
       grp.traverse(function (n) { n.userData.stop = s; });
       grp.userData.stop = s;
       scene.add(grp); pickables.push(grp);
@@ -313,95 +408,45 @@
       scene.add(m); pickables.push(m);
     }
 
-    // Detail side panel
-    var panel = document.getElementById('wtPanel');
+    // Detail inlay (in-canvas info block; click anywhere closes it; V opens record).
+    var inlay = document.getElementById('wtInlay');
     var panelOpen = false;
     var currentStop = null;
     function openPanel(s) {
-      document.getElementById('wtTitle').textContent = s.title;
-      document.getElementById('wtDesc').textContent = s.description || '{{ __('No description available.') }}';
-      var iw = document.getElementById('wtImgWrap');
-      stopMiniViewer();
-      if (s.kind === '3d' && s.model_url) {
-        iw.innerHTML = '<div id="wtMini" style="width:100%;height:280px;background:#f1f3f5;border-radius:.375rem;"></div>' +
-          '<div class="small text-muted mt-1">{{ __('Drag to rotate, scroll to zoom') }}</div>';
-        startMiniViewer(document.getElementById('wtMini'), s);
-      } else if (s.kind === 'pdf' && s.doc_url) {
-        iw.innerHTML = '<iframe src="' + s.doc_url + '" style="width:100%;height:300px;border:1px solid #ddd;border-radius:.375rem;" title="PDF"></iframe>';
-      } else if (s.image_url) {
-        iw.innerHTML = '<img src="' + s.image_url + '" class="img-fluid rounded" style="max-height:260px" alt="">';
-      } else {
-        iw.innerHTML = '<div class="text-muted py-3"><i class="fas fa-cube fa-2x"></i></div>';
-      }
-      var rec = document.getElementById('wtRecord');
-      if (s.record_url) { rec.href = s.record_url; rec.classList.remove('d-none'); } else { rec.classList.add('d-none'); }
-      panel.style.transform = 'translateX(0)';
+      document.getElementById('inlayTitle').textContent = s.title;
+      document.getElementById('inlayDesc').textContent = s.description || '{{ __('No description available.') }}';
+      var rec = document.getElementById('inlayRec');
+      if (s.record_url) { rec.href = s.record_url; rec.style.display = ''; } else { rec.style.display = 'none'; }
+      inlay.style.display = 'block';
       panelOpen = true;
       currentStop = s;
     }
     function closeAllPopups() {
-      panel.style.transform = 'translateX(100%)';
+      inlay.style.display = 'none';
       panelOpen = false;
       currentStop = null;
-      stopMiniViewer();
     }
     function viewFullDetails() {
       if (currentStop && currentStop.record_url) {
-        window.location.href = currentStop.record_url;
+        window.open(currentStop.record_url, '_blank');   // new tab so the gallery stays open (#1142)
       }
     }
-    // Rotating 3D preview inside the popout (any format via loadModel).
-    var mini = null;
-    function stopMiniViewer() {
-      if (!mini) return;
-      cancelAnimationFrame(mini.raf);
-      try { mini.renderer.dispose(); } catch (e) {}
-      if (mini.renderer && mini.renderer.domElement && mini.renderer.domElement.parentNode) {
-        mini.renderer.domElement.parentNode.removeChild(mini.renderer.domElement);
-      }
-      mini = null;
-    }
-    function startMiniViewer(el, s) {
-      if (!el) return;
-      var w = el.clientWidth || 320, h = 280;
-      var sc = new THREE.Scene(); sc.background = new THREE.Color(0xf1f3f5);
-      var cam = new THREE.PerspectiveCamera(45, w / h, 0.01, 100); cam.position.set(0, 0, 3);
-      var rn = new THREE.WebGLRenderer({ antialias: true });
-      rn.setPixelRatio(window.devicePixelRatio || 1); rn.setSize(w, h); el.appendChild(rn.domElement);
-      sc.add(new THREE.HemisphereLight(0xffffff, 0x888888, 1.2));
-      var dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(2, 3, 4); sc.add(dl);
-      var oc = new THREE.OrbitControls(cam, rn.domElement); oc.enablePan = false; oc.autoRotate = true; oc.autoRotateSpeed = 2.6;
-      mini = { renderer: rn, raf: 0 };
-      loadModel(s.model_url, modelExt(s), function (obj) {
-        obj.rotation.x = effTiltX(s) * Math.PI / 180;
-        obj.rotation.z = effTiltZ(s) * Math.PI / 180;
-        obj.updateMatrixWorld(true);
-        var box = new THREE.Box3().setFromObject(obj);
-        var size = box.getSize(new THREE.Vector3());
-        var maxd = Math.max(size.x, size.y, size.z) || 1;
-        obj.scale.setScalar(1.7 / maxd);
-        box = new THREE.Box3().setFromObject(obj);
-        obj.position.sub(box.getCenter(new THREE.Vector3()));
-        sc.add(obj);
-      }, function () {
-        el.innerHTML = '<div class="text-muted py-4 text-center"><i class="fas fa-cube fa-2x"></i><div class="small mt-2">{{ __('3D preview unavailable') }}</div></div>';
-      });
-      (function loop() { if (!mini) return; mini.raf = requestAnimationFrame(loop); oc.update(); rn.render(sc, cam); })();
-    }
-    document.getElementById('wtClose').addEventListener('click', closeAllPopups);
+    document.getElementById('inlayClose').addEventListener('click', function (e) { e.stopPropagation(); closeAllPopups(); });
 
     // ---- Walk-to navigator: travel the camera to an object and open its panel ----
     var fly = null;
     function flyTo(s) {
       var wp = worldPos(s);
+      var rm = s._room || curRoom;
+      var ccx = rm.x_offset + rm.w / 2;                     // the object's room centre
       var look = new THREE.Vector3(wp.x, 1.3, wp.z);
-      var toC = new THREE.Vector3(-wp.x, 0, -wp.z);          // direction toward room centre
+      var toC = new THREE.Vector3(ccx - wp.x, 0, -wp.z);    // direction toward room centre
       if (toC.lengthSq() < 0.01) toC.set(0, 0, 1);
       toC.normalize();
       var stand = new THREE.Vector3(wp.x + toC.x * 2.6, 1.6, wp.z + toC.z * 2.6);
       var m = 0.6;
-      stand.x = Math.max(-ROOM_W / 2 + m, Math.min(ROOM_W / 2 - m, stand.x));
-      stand.z = Math.max(-ROOM_D / 2 + m, Math.min(ROOM_D / 2 - m, stand.z));
+      stand.x = Math.max(rm.x_offset + m, Math.min(rm.x_offset + rm.w - m, stand.x));
+      stand.z = Math.max(-rm.d / 2 + m, Math.min(rm.d / 2 - m, stand.z));
       fly = { from: controls.getObject().position.clone(), to: stand, look: look,
               targetFrom: orbit ? orbit.target.clone() : null, t: 0, dur: 0.9 };
       openPanel(s);
@@ -444,11 +489,20 @@
     });
 
     // Mouse wheel moves forward / backward through the gallery.
+    // When you look up at the ceiling, the viewer naturally lowers/leans back to
+    // take it in; returns to standing height when looking level/down.
+    var _wd = new THREE.Vector3();
+    function eyeHeight() {
+      camera.getWorldDirection(_wd);
+      var up = Math.max(0, Math.min(1, (_wd.y - 0.2) / 0.7));
+      return 1.6 - up * 1.1;   // down to ~0.5 m when looking straight up
+    }
     function clampInRoom(o) {
       var m = 0.6;
-      o.position.x = Math.max(-ROOM_W / 2 + m, Math.min(ROOM_W / 2 - m, o.position.x));
-      o.position.z = Math.max(-ROOM_D / 2 + m, Math.min(ROOM_D / 2 - m, o.position.z));
-      o.position.y = 1.6;
+      o.position.x = Math.max(m, Math.min(BLD_W - m, o.position.x));
+      var rm = roomAt(o.position.x);
+      o.position.z = Math.max(-rm.d / 2 + m, Math.min(rm.d / 2 - m, o.position.z));
+      o.position.y += (eyeHeight() - o.position.y) * 0.3;   // smooth crouch/stand
     }
     renderer.domElement.addEventListener('wheel', function (e) {
       e.preventDefault();
@@ -456,15 +510,13 @@
       clampInRoom(controls.getObject());
     }, { passive: false });
 
-    // Right-click releases pointer lock and jumps to the open detail panel so the
-    // mouse can scroll / click it. We listen on mousedown (button 2) because the
-    // browser suppresses the contextmenu event while the pointer is locked.
+    // Right-click releases pointer lock (frees the mouse). Listen on mousedown
+    // (button 2) because the browser suppresses contextmenu while pointer-locked.
     renderer.domElement.addEventListener('contextmenu', function (e) { e.preventDefault(); });
     renderer.domElement.addEventListener('mousedown', function (e) {
       if (e.button !== 2) return;
       e.preventDefault();
-      if (controls.isLocked) controls.unlock();   // frees the mouse cursor
-      if (panelOpen) { panel.focus(); }
+      if (controls.isLocked) controls.unlock();   // right-click frees the mouse cursor
     });
 
     // Help / controls overlay toggle.
@@ -508,11 +560,7 @@
           controls.moveRight(vel.x * speed * dt);
           controls.moveForward(vel.z * speed * dt);
         }
-        var o = controls.getObject();
-        var m = 0.6;
-        o.position.x = Math.max(-ROOM_W / 2 + m, Math.min(ROOM_W / 2 - m, o.position.x));
-        o.position.z = Math.max(-ROOM_D / 2 + m, Math.min(ROOM_D / 2 - m, o.position.z));
-        o.position.y = 1.6;
+        clampInRoom(controls.getObject());
       }
       renderer.render(scene, camera);
     }

@@ -42,6 +42,8 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'label_visible' => 'TINYINT(1) NULL DEFAULT 1',
                     'model_tilt_x' => 'DECIMAL(6,2) NULL',
                     'model_tilt_z' => 'DECIMAL(6,2) NULL',
+                    'wall_u' => 'DECIMAL(6,5) NULL',
+                    'wall_v' => 'DECIMAL(6,5) NULL',
                 ];
                 foreach ($placementCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_placement', $col)) {
@@ -53,10 +55,16 @@ class AhgExhibitionServiceProvider extends ServiceProvider
             if (Schema::hasTable('ahg_exhibition_space')) {
                 $spaceCols = [
                     'floorplan_image_path' => 'VARCHAR(500) NULL',
+                    'ceiling_image_path' => 'VARCHAR(500) NULL',
                     'floorplan_width_m' => 'DECIMAL(8,2) NULL',
                     'floorplan_height_m' => 'DECIMAL(8,2) NULL',
                     'walls_json' => 'JSON NULL',
                     'walkthrough_path_json' => 'JSON NULL',
+                    'room_w' => 'DECIMAL(6,2) NULL',
+                    'room_d' => 'DECIMAL(6,2) NULL',
+                    'room_h' => 'DECIMAL(6,2) NULL',
+                    'building_id' => 'VARCHAR(64) NULL',
+                    'building_seq' => 'INT NULL DEFAULT 0',
                 ];
                 foreach ($spaceCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_space', $col)) {

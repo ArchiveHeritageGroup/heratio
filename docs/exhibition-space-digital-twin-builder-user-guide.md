@@ -50,25 +50,26 @@ sign-in needed). Built with Three.js.
 
 - The room is rendered in 3D: the uploaded floorplan becomes the **floor
   texture**, with four walls and gallery lighting.
-- Each placed object stands at its floorplan position on a pedestal:
-  - **3D objects** (a `.glb`/`.gltf` model) load as the **real interactive 3D
-    model**.
-  - **2D objects** appear as a **framed image** facing the room.
+- Each placed object stands at its floorplan position:
+  - **3D objects** load as **real interactive models** - GLB/GLTF/OBJ/STL/PLY.
+  - **2D objects** hang as **framed pictures on the nearest wall**; PDFs render
+    their first page (PDF.js); TIFF masters fall back to their JPEG derivative.
   - Objects with no usable media show a neutral placeholder block.
-- **Navigation:** click the room to enter (pointer lock). Walk with **W A S D**
-  (or arrow keys), look with the **mouse**, and press **Esc** to exit. A centre
-  crosshair shows what you are pointing at.
-- **Details:** click an object to open a side panel with its image, title,
-  description and a link to the full archival record.
-
-Best experienced on desktop (pointer-lock mouse-look). The richer the object's
-media (a real 3D model, a good reference image), the better it presents - so keep
-digital objects and 3D models attached to records.
+- **Display size** comes from the Builder's Smaller / Bigger (scale); **3D
+  orientation** from the per-object Tilt X / Tilt Z (auto-guess unless set).
+- **Desktop navigation:** click to enter (pointer lock), **W A S D** / arrows to
+  walk, **mouse** to look, **mouse-wheel** forward/back, **click** an object for
+  details, **right-click** to free the mouse and scroll the panel, **V** to open
+  the full record, **left-click / Esc** to close, **H** for on-screen controls.
+- **Mobile / touch:** OrbitControls - drag to look, pinch to zoom, tap an object
+  for details, tap a numbered walk-to button to travel.
+- **Details panel:** image / rotating 3D preview, title, description, full-record
+  link.
 
 ## Roadmap
 
 - Capture true z / wall coordinates in the Builder for precise 3D hanging
-  (currently objects are placed from their 2D floorplan position).
-- Optional AR / WebVR headset mode (model-viewer already supports AR per object).
-- Builder UI to reorder a guided route. See
+  (objects currently derive position from the 2D floorplan).
+- Optional AR / WebVR headset mode.
+- Builder UI to reorder the guided walk-to route. See
   `docs/exhibition-space-virtual-builder-plan.md` and heratio#1138.

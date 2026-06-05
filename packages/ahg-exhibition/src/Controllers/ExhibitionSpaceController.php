@@ -180,12 +180,18 @@ class ExhibitionSpaceController extends Controller
             'space_type' => 'nullable|string|max:20',
             'capacity_value' => 'nullable|numeric|min:0',
             'capacity_unit' => 'nullable|string|max:20',
+            'room_w' => 'nullable|numeric|min:1|max:200',
+            'room_d' => 'nullable|numeric|min:1|max:200',
+            'room_h' => 'nullable|numeric|min:1|max:30',
+            'building_id' => 'nullable|string|max:64',
+            'building_seq' => 'nullable|integer|min:0',
         ]);
 
         return $request->only([
             'name', 'space_type', 'building', 'floor',
             'capacity_value', 'capacity_unit',
             'lighting_lux_target', 'notes',
+            'room_w', 'room_d', 'room_h', 'building_id', 'building_seq',
         ]);
     }
 
@@ -204,7 +210,92 @@ class ExhibitionSpaceController extends Controller
             'space' => $space,
             'placements' => $this->service->getPlacementsForBuilder((int) $space->id),
             'capacityUnits' => ExhibitionSpaceService::CAPACITY_UNITS,
+            'walls' => $this->service->getWalls((int) $space->id),
         ]);
+    }
+
+    /** AJAX: persist interior wall segments for a space. */
+    public function saveWallsAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false, 'error' => 'Space not found.'], 404);
+        }
+        $data = $request->validate([
+            'walls' => 'present|array',
+            'walls.*.x1' => 'required|numeric',
+            'walls.*.z1' => 'required|numeric',
+            'walls.*.x2' => 'required|numeric',
+            'walls.*.z2' => 'required|numeric',
+            'walls.*.id' => 'nullable|string|max:40',
+        ]);
+        $this->service->saveWalls((int) $space->id, $data['walls']);
+
+        return response()->json(['ok' => true, 'walls' => $this->service->getWalls((int) $space->id)]);
+    }
+
+    /** AJAX: assign a placement to a specific wall (empty = auto nearest). */
+    public function updateWallAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false, 'error' => 'Space not found.'], 404);
+        }
+        $data = $request->validate([
+            'placement_id' => 'required|integer|min:1',
+            'wall' => 'nullable|string|max:40',
+        ]);
+        $ok = $this->service->updatePlacementWall((int) $space->id, (int) $data['placement_id'], $data['wall'] ?? null);
+
+        return response()->json(['ok' => $ok]);
+    }
+
+    /** AJAX: current placements for the space (used to rebuild the wall view). */
+    public function placementsJson(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+
+        return response()->json(['ok' => true, 'placements' => $this->service->getPlacementsForBuilder((int) $space->id)]);
+    }
+
+    /** AJAX: create a placement hung on a wall at along-wall u + height v (wall view). */
+    public function placeWallAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false, 'error' => 'Space not found.'], 404);
+        }
+        $data = $request->validate([
+            'information_object_id' => 'required|integer|min:1',
+            'wall' => 'required|string|max:40',
+            'u' => 'required|numeric', 'v' => 'required|numeric',
+        ]);
+        try {
+            $p = $this->service->placeOnWall((int) $space->id, (int) $data['information_object_id'], $data['wall'], (float) $data['u'], (float) $data['v']);
+
+            return response()->json(['ok' => true, 'placement' => $p]);
+        } catch (\Throwable $e) {
+            return response()->json(['ok' => false, 'error' => $e->getMessage()], 422);
+        }
+    }
+
+    /** AJAX: update an object's wall position (u along, v height) in wall view. */
+    public function updateWallPosAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false, 'error' => 'Space not found.'], 404);
+        }
+        $data = $request->validate([
+            'placement_id' => 'required|integer|min:1',
+            'u' => 'required|numeric', 'v' => 'required|numeric',
+        ]);
+        $ok = $this->service->updateWallPos((int) $space->id, (int) $data['placement_id'], (float) $data['u'], (float) $data['v']);
+
+        return response()->json(['ok' => $ok]);
     }
 
     /** AJAX: persist canvas positions for the whole layout. */
@@ -324,7 +415,7 @@ class ExhibitionSpaceController extends Controller
 
         $file = $request->file('floorplan');
         $ext = strtolower($file->getClientOriginalExtension() ?: 'png');
-        $dir = public_path('uploads/exhibition-floorplans');
+        $dir = config('heratio.storage_path').'/uploads/exhibition-floorplans';
         if (! is_dir($dir)) {
             @mkdir($dir, 0775, true);
         }
@@ -343,6 +434,42 @@ class ExhibitionSpaceController extends Controller
             ->with('success', 'Floorplan uploaded.');
     }
 
+    /** Upload a ceiling image (painted ceiling) for the 3D room. */
+    public function uploadCeiling(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $request->validate(['ceiling' => 'required|image|mimes:jpeg,png,webp|max:8192']);
+
+        $file = $request->file('ceiling');
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        $dir = config('heratio.storage_path').'/uploads/exhibition-ceilings';
+        if (! is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        $filename = $space->slug.'-'.substr(md5((string) microtime(true)), 0, 8).'.'.$ext;
+        $file->move($dir, $filename);
+        $this->service->setCeiling((int) $space->id, '/uploads/exhibition-ceilings/'.$filename);
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])
+            ->with('success', 'Ceiling image uploaded.');
+    }
+
+    /** Clear the room ceiling image. */
+    public function clearCeiling(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $this->service->setCeiling((int) $space->id, null);
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])
+            ->with('success', 'Ceiling image cleared.');
+    }
+
     // ===================================================================
     // Digital twin - 2.5D pannable walkthrough (heratio#1138, Phase 2)
     // ===================================================================
@@ -357,6 +484,8 @@ class ExhibitionSpaceController extends Controller
         return view('ahg-exhibition::exhibition-space.walkthrough', [
             'space' => $space,
             'stops' => $this->service->getWalkthroughStops((int) $space->id),
+            'walls' => $this->service->getWalls((int) $space->id),
+            'building' => $this->service->getWalkthroughBuilding($space),
         ]);
     }
 

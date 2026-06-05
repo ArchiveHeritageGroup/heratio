@@ -46,7 +46,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/builder/remove', [ExhibitionSpaceController::class, 'removeAjax'])->name('exhibition-space.builder.remove')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/size', [ExhibitionSpaceController::class, 'updateSizeAjax'])->name('exhibition-space.builder.size')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/tilt', [ExhibitionSpaceController::class, 'updateTiltAjax'])->name('exhibition-space.builder.tilt')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/walls', [ExhibitionSpaceController::class, 'saveWallsAjax'])->name('exhibition-space.builder.walls')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/wall', [ExhibitionSpaceController::class, 'updateWallAjax'])->name('exhibition-space.builder.wall')->middleware('acl:update');
+    Route::get('/exhibition-space/{slug}/builder/placements', [ExhibitionSpaceController::class, 'placementsJson'])->name('exhibition-space.builder.placements');
+    Route::post('/exhibition-space/{slug}/builder/wall-place', [ExhibitionSpaceController::class, 'placeWallAjax'])->name('exhibition-space.builder.wall-place')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/wall-pos', [ExhibitionSpaceController::class, 'updateWallPosAjax'])->name('exhibition-space.builder.wall-pos')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/floorplan', [ExhibitionSpaceController::class, 'uploadFloorplan'])->name('exhibition-space.builder.floorplan')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/ceiling', [ExhibitionSpaceController::class, 'uploadCeiling'])->name('exhibition-space.builder.ceiling')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/ceiling-clear', [ExhibitionSpaceController::class, 'clearCeiling'])->name('exhibition-space.builder.ceiling-clear')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/walkthrough-path', [ExhibitionSpaceController::class, 'saveWalkthroughPath'])->name('exhibition-space.builder.walkthrough-path')->middleware('acl:update');
 });
 

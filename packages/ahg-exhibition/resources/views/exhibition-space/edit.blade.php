@@ -69,6 +69,32 @@
       </div>
     </div>
 
+    <hr class="my-3">
+    <h6 class="fw-semibold">{{ __('3D room (digital twin)') }}</h6>
+    <div class="row g-3">
+      <div class="col-md-2">
+        <label for="es_room_w" class="form-label fw-semibold">{{ __('Room width (m)') }}</label>
+        <input type="number" id="es_room_w" name="room_w" class="form-control" min="1" max="200" step="0.5" placeholder="18" value="{{ old('room_w', $space->room_w ?? '') }}">
+      </div>
+      <div class="col-md-2">
+        <label for="es_room_d" class="form-label fw-semibold">{{ __('Room depth (m)') }}</label>
+        <input type="number" id="es_room_d" name="room_d" class="form-control" min="1" max="200" step="0.5" placeholder="14" value="{{ old('room_d', $space->room_d ?? '') }}">
+      </div>
+      <div class="col-md-2">
+        <label for="es_room_h" class="form-label fw-semibold">{{ __('Room height (m)') }}</label>
+        <input type="number" id="es_room_h" name="room_h" class="form-control" min="1" max="30" step="0.5" placeholder="4" value="{{ old('room_h', $space->room_h ?? '') }}">
+      </div>
+      <div class="col-md-4">
+        <label for="es_building_id" class="form-label fw-semibold">{{ __('Building ID') }}</label>
+        <input type="text" id="es_building_id" name="building_id" class="form-control" maxlength="64" value="{{ old('building_id', $space->building_id ?? '') }}">
+        <small class="text-muted">{{ __('Spaces sharing a Building ID become connected rooms you can walk between.') }}</small>
+      </div>
+      <div class="col-md-2">
+        <label for="es_building_seq" class="form-label fw-semibold">{{ __('Room order') }}</label>
+        <input type="number" id="es_building_seq" name="building_seq" class="form-control" min="0" step="1" value="{{ old('building_seq', $space->building_seq ?? 0) }}">
+      </div>
+    </div>
+
     <div class="mb-3 mt-3">
       <label for="es_notes" class="form-label fw-semibold">{{ __('Notes') }}</label>
       <textarea id="es_notes" name="notes" class="form-control" rows="4">{{ old('notes', $space->notes ?? '') }}</textarea>

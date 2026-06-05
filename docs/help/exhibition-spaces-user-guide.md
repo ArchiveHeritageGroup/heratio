@@ -58,6 +58,26 @@ When a placement is rejected for over-capacity, the system tells you the date ra
 
 From the space's detail page, each placement row has a delete button (visible to logged-in users). Removing a placement frees up the capacity immediately for that date range.
 
+## Digital Twin Builder (visual layout)
+
+Every space has a **Digital Twin Builder** (the **Digital Twin Builder** button on the space page, or `/exhibition-space/{slug}/builder`). It turns the placement list into a visual layout you arrange by hand.
+
+- **Add an object** — search by title in the left panel; selecting it drops it on the canvas. Set **Initial size (units)** first to record its capacity footprint on drop.
+- **Arrange** — drag objects around the canvas; use the corner handles or the **Rotate** / **Smaller / Bigger** buttons in the *Selected object* panel.
+- **Floorplan** — upload a floorplan image (optionally with real-world width/height in metres); it becomes the canvas background and the floor of the 3D walkthrough.
+- **Size vs scale** — *Size (units)* is the **capacity footprint** (feeds the capacity meter); the **Smaller / Bigger** buttons set the **display scale** (how large the object appears, including in the 3D walkthrough). They are independent.
+- **3D orientation** — for a 3D object, a **Tilt X / Tilt Z** (degrees) panel appears. Leave blank for the automatic guess, or enter `0` / `90` / `-90` / `180` to stand a model upright. (Turning on the spot is the **Rotate** buttons.)
+- Changes **save automatically**.
+
+## 3D Walkthrough (virtual gallery)
+
+The **Walkthrough** button (`/exhibition-space/{slug}/walkthrough`, public — no login) opens a first-person 3D gallery built from your layout:
+
+- The floorplan is the floor; 3D objects load as **real interactive models** (GLB/GLTF/OBJ/STL/PLY), 2D objects hang as **framed pictures on the walls**, and PDFs render their first page.
+- **Desktop:** click to enter, **W A S D** / arrows to walk, **mouse** to look, **mouse-wheel** forward/back, **click** an object for details, **right-click** to free the mouse and scroll the panel, **V** to open the full record, **left-click / Esc** to close, **H** for the on-screen controls.
+- **Mobile / touch:** drag to look, pinch to zoom, tap an object for details, and tap a numbered **walk-to** button to travel to it.
+- A rotating preview of 3D objects appears in the details panel.
+
 ## Browsing your spaces
 
 The browse page (`/exhibition-space/browse`) shows every space with:
@@ -73,7 +93,6 @@ You can delete an empty space (no placements). A space with placements is blocke
 
 ## What this doesn't (yet) do
 
-- **No floor-plan map** — placements are listed in a table, not pinned to a visual floor plan. (That's a future enhancement.)
 - **No best-fit allocator** — the system tells you when a placement won't fit, but doesn't suggest alternatives.
 - **No lighting/temp/humidity monitoring** — the `lighting_lux_target` field is captured but not actively monitored. Pair with your environmental monitoring system out-of-band.
 - **No automatic placement from an exhibition** — if you have a curated exhibition with an object list, the placements still need to be entered here individually. Future work.
@@ -82,4 +101,6 @@ You can delete an empty space (no placements). A space with placements is blocke
 
 - **Browse all spaces** — `/exhibition-space/browse`
 - **Add a space** — `/exhibition-space/add` (requires login)
+- **Digital Twin Builder** — `/exhibition-space/{slug}/builder` (requires login)
+- **3D Walkthrough** — `/exhibition-space/{slug}/walkthrough` (public)
 - **Strongrooms** (sibling module for back-of-house storage) — `/strongroom/browse`
