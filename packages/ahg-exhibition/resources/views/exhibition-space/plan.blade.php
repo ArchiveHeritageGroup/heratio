@@ -168,6 +168,28 @@
       if (bestDX !== null) g.x((x + bestDX) * scale);
       if (bestDY !== null) g.y((y + bestDY) * scale);
     }
+    // Push a room out of any room it overlaps, abutting the closest edge (no overlap).
+    function resolveOverlap(g) {
+      var r = g.getAttr('room');
+      if (g.rotation()) return;   // axis-aligned only
+      var x = g.x() / scale, y = g.y() / scale, w = r.w, d = r.d;
+      for (var pass = 0; pass < 6; pass++) {
+        var moved = false;
+        PLAN.rooms.forEach(function (o) {
+          if (o === r || o.rot || o.bld_x === null || o.bld_y === null) return;
+          var penX = Math.min(x + w, o.bld_x + o.w) - Math.max(x, o.bld_x);
+          var penY = Math.min(y + d, o.bld_y + o.d) - Math.max(y, o.bld_y);
+          if (penX > 0.02 && penY > 0.02) {   // overlapping: separate along the shallower axis
+            if (penX <= penY) { x = ((x + w / 2) < (o.bld_x + o.w / 2)) ? (o.bld_x - w) : (o.bld_x + o.w); }
+            else { y = ((y + d / 2) < (o.bld_y + o.d / 2)) ? (o.bld_y - d) : (o.bld_y + o.d); }
+            x = Math.max(0, x); y = Math.max(0, y);
+            moved = true;
+          }
+        });
+        if (!moved) break;
+      }
+      g.x(x * scale); g.y(y * scale);
+    }
     function saveRoom(g) {
       var r = g.getAttr('room');
       var x = g.x() / scale, y = g.y() / scale;
@@ -397,15 +419,15 @@
       var label = new Konva.Text({ x: 3, y: 3, text: r.name, fontSize: 9, fill: '#212529', width: r.w * scale - 6 });
       g.add(rect); g.add(label);
       g.on('click tap', function (e) { e.cancelBubble = true; selectRoom(g); });
-      g.on('dragmove', function () { snapRoom(g); });
-      g.on('dragend', function () { flagSaving(); saveRoom(g); });
+      g.on('dragmove', function () { snapRoom(g); resolveOverlap(g); });
+      g.on('dragend', function () { resolveOverlap(g); flagSaving(); saveRoom(g); });
       g.on('transformend', function () {
         // bake scale into the rect size, reset scale, resize label, reflow doors
         var nw = g.width() * g.scaleX(), nh = g.height() * g.scaleY();
         rect.width(nw); rect.height(nh); label.width(nw - 8); g.scale({ x: 1, y: 1 }); g.width(nw); g.height(nh);
         var r2 = g.getAttr('room'); r2.w = nw / scale; r2.d = nh / scale;
         if (selectedG === g) document.getElementById('rotInput').value = Math.round(g.rotation());
-        drawDoors(g); drawShape(g); flagSaving(); saveRoom(g); layer.draw();
+        resolveOverlap(g); drawDoors(g); drawShape(g); flagSaving(); saveRoom(g); layer.draw();
       });
       g.width(r.w * scale); g.height(r.d * scale);
       layer.add(g);
