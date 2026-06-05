@@ -609,14 +609,14 @@
     // when assigned, otherwise the nearest wall (perimeter + interior dividers).
     // A wall segment candidate (used for interior dividers AND polygon edges):
     // projects the object onto the segment and faces the picture into the room.
-    function segCand(key, ax, az, bx, bz, px, pz, hw, inset) {
+    function segCand(key, ax, az, bx, bz, px, pz, hw, inset, forceSide) {
       var ex = bx - ax, ez = bz - az, L2 = ex * ex + ez * ez;
       if (L2 < 0.01) return null;
       var t = Math.max(0, Math.min(1, ((px - ax) * ex + (pz - az) * ez) / L2));
       var projx = ax + t * ex, projz = az + t * ez;
       return { key: key, dist: Math.hypot(px - projx, pz - projz), get: function () {
         var ang = Math.atan2(ez, ex), nx = -Math.sin(ang), nz = Math.cos(ang);
-        var side = ((px - projx) * nx + (pz - projz) * nz) >= 0 ? 1 : -1;
+        var side = (forceSide != null) ? forceSide : (((px - projx) * nx + (pz - projz) * nz) >= 0 ? 1 : -1);
         var len = Math.sqrt(L2), tt = Math.max(hw / len, Math.min(1 - hw / len, t));
         var cx = ax + tt * ex, cz = az + tt * ez;
         return { x: cx + nx * inset * side, z: cz + nz * inset * side, ry: Math.atan2(nx * side, nz * side) };
@@ -638,8 +638,13 @@
         cands.push({ key: 'west', dist: px - x0, get: function () { return { x: x0 + inset, z: clamp(pz, zN + hw, zS - hw), ry: Math.PI / 2 }; } });
         cands.push({ key: 'east', dist: x1 - px, get: function () { return { x: x1 - inset, z: clamp(pz, zN + hw, zS - hw), ry: -Math.PI / 2 }; } });
       }
+      // Interior dividers have two faces: a "|b" key forces the back face.
+      var keyBack = (typeof wallKey === 'string' && wallKey.slice(-2) === '|b');
+      var wallBase = keyBack ? wallKey.slice(0, -2) : wallKey;
       (rm.walls || []).forEach(function (w) {
-        var c = segCand(w.id, rm.x_offset + w.x1 * rm.w, rm.z_offset + w.z1 * rm.d, rm.x_offset + w.x2 * rm.w, rm.z_offset + w.z2 * rm.d, px, pz, hw, inset);
+        var force = null, ck = w.id;
+        if (wallBase === w.id) { ck = wallKey; force = keyBack ? -1 : null; }   // back = forced face; front (bare) keeps legacy auto side
+        var c = segCand(ck, rm.x_offset + w.x1 * rm.w, rm.z_offset + w.z1 * rm.d, rm.x_offset + w.x2 * rm.w, rm.z_offset + w.z2 * rm.d, px, pz, hw, inset, force);
         if (c) cands.push(c);
       });
       var chosen = null;
@@ -666,13 +671,16 @@
         var mx = ax + tt * ex, mz = az + tt * ez, side = ((ccx - mx) * nx + (ccz - mz) * nz) >= 0 ? 1 : -1;
         return { x: mx + nx * inset * side, z: mz + nz * inset * side, ry: Math.atan2(nx * side, nz * side) };
       }
-      var w = (rm.walls || []).filter(function (ww) { return ww.id === wallKey; })[0];
+      // Interior divider: a "|b" suffix selects the back face (the other side of the wall).
+      var sideSign = 1, baseKey = wallKey;
+      if (typeof wallKey === 'string' && wallKey.slice(-2) === '|b') { sideSign = -1; baseKey = wallKey.slice(0, -2); }
+      var w = (rm.walls || []).filter(function (ww) { return ww.id === baseKey; })[0];
       if (w) {
         var ax = rm.x_offset + w.x1 * rm.w, az = rm.z_offset + w.z1 * rm.d, bx = rm.x_offset + w.x2 * rm.w, bz = rm.z_offset + w.z2 * rm.d;
         var ex = bx - ax, ez = bz - az, len = Math.hypot(ex, ez) || 1;
         var tt = clamp(u, hw / len, 1 - hw / len);
         var ang = Math.atan2(ez, ex), nx = -Math.sin(ang), nz = Math.cos(ang);
-        return { x: ax + tt * ex + nx * inset, z: az + tt * ez + nz * inset, ry: Math.atan2(nx, nz) };
+        return { x: ax + tt * ex + nx * inset * sideSign, z: az + tt * ez + nz * inset * sideSign, ry: Math.atan2(nx * sideSign, nz * sideSign) };
       }
       return null;
     }

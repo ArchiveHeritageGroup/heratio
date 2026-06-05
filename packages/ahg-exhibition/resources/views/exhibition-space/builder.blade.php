@@ -488,7 +488,10 @@
         opts += '<option value="north">{{ __('Wall') }} 1</option><option value="south">{{ __('Wall') }} 2</option>' +
           '<option value="west">{{ __('Wall') }} 3</option><option value="east">{{ __('Wall') }} 4</option>';
       }
-      WALLS.forEach(function (w, i) { opts += '<option value="' + w.id + '">{{ __('Interior') }} ' + (i + 1) + '</option>'; });
+      WALLS.forEach(function (w, i) {
+        opts += '<option value="' + w.id + '">{{ __('Interior') }} ' + (i + 1) + ' {{ __('(front)') }}</option>';
+        opts += '<option value="' + w.id + '|b">{{ __('Interior') }} ' + (i + 1) + ' {{ __('(back)') }}</option>';
+      });
       sel.innerHTML = opts; sel.value = cur;
     }
     wallBtn.addEventListener('click', function () { setWallMode(!wallAdding); });
@@ -660,7 +663,10 @@
         html = '<option value="north">{{ __('Wall') }} 1</option><option value="south">{{ __('Wall') }} 2</option>' +
           '<option value="west">{{ __('Wall') }} 3</option><option value="east">{{ __('Wall') }} 4</option>';
       }
-      WALLS.forEach(function (w, i) { html += '<option value="' + w.id + '">{{ __('Interior') }} ' + (i + 1) + '</option>'; });
+      WALLS.forEach(function (w, i) {
+        html += '<option value="' + w.id + '">{{ __('Interior') }} ' + (i + 1) + ' {{ __('(front)') }}</option>';
+        html += '<option value="' + w.id + '|b">{{ __('Interior') }} ' + (i + 1) + ' {{ __('(back)') }}</option>';
+      });
       sel.innerHTML = html; sel.value = wvWall;
     })();
     function setMode(m) {
@@ -700,7 +706,8 @@
         var i = parseInt(wvWall.slice(5), 10), pa = SHAPE[i], pb = SHAPE[(i + 1) % SHAPE.length];
         if (pa && pb) return Math.hypot((pb.x - pa.x) * ROOM_W, (pb.z - pa.z) * ROOM_D);
       }
-      var w = WALLS.filter(function (ww) { return ww.id === wvWall; })[0];
+      var baseW = (wvWall.indexOf && wvWall.slice(-2) === '|b') ? wvWall.slice(0, -2) : wvWall;
+      var w = WALLS.filter(function (ww) { return ww.id === baseW; })[0];
       if (w) return Math.hypot((w.x2 - w.x1) * ROOM_W, (w.z2 - w.z1) * ROOM_D);
       return ROOM_W;
     }
