@@ -248,6 +248,7 @@
 
     // Per-room floors, perimeter walls (with doorways between rooms) and dividers.
     var wallMat = new THREE.MeshStandardMaterial({ color: 0xf2f2f0, roughness: 1, side: THREE.DoubleSide });
+    var doorMat = new THREE.MeshStandardMaterial({ color: 0x7c6a58, roughness: 0.9, side: THREE.DoubleSide });   // solid door panel (not see-through)
     var DOOR = 1.6;   // doorway width between connected rooms
     function wallSeg(len, x, z, ry, mat) {
       if (len <= 0.05) return;
@@ -310,10 +311,12 @@
       });
       function full(s, e) { var len = e - s; if (len <= 0.1) return; var mid = (s + e) / 2; if (vertical) wallSeg(len, fixed, mid, ry, mat); else wallSeg(len, mid, fixed, ry, mat); }
       function lintel(s, e) { var len = e - s; var mid = (s + e) / 2; if (vertical) wallSegH(len, fixed, mid, ry, mat, doorH, RH); else wallSegH(len, mid, fixed, ry, mat, doorH, RH); }
+      function slab(s, e) { var len = e - s; var mid = (s + e) / 2; if (vertical) wallSegH(len, fixed, mid, ry, doorMat, 0, doorH); else wallSegH(len, mid, fixed, ry, doorMat, 0, doorH); }   // solid door fills the opening
       var cur = a;
       doors.forEach(function (dd) {
         if (dd[0] > cur) full(cur, dd[0]);
         lintel(dd[0], dd[1]);
+        slab(dd[0], dd[1]);
         var mid = (dd[0] + dd[1]) / 2;
         // Sign showing which room this doorway leads into.
         var ox = vertical ? (edge - insetDir * 0.5) : mid, oz = vertical ? mid : (edge - insetDir * 0.5);
@@ -338,11 +341,12 @@
         if (s < 0.2) s = 0; if (L - e < 0.2) e = L; return [s, e];
       }).filter(function (d) { return d[1] - d[0] > 0.15; }).sort(function (p, q) { return p[0] - q[0]; });
       var doors = []; raw.forEach(function (d) { if (doors.length && d[0] <= doors[doors.length - 1][1] + 0.01) doors[doors.length - 1][1] = Math.max(doors[doors.length - 1][1], d[1]); else doors.push(d.slice()); });
-      function seg(s, e, y0, y1) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return; var mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), mat || wallMat); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); }
+      function seg(s, e, y0, y1, m2) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return; var mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), m2 || mat || wallMat); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); }
       var cur = 0;
       doors.forEach(function (dd) {
         if (dd[0] > cur) seg(cur, dd[0], 0, RH);
-        seg(dd[0], dd[1], doorH, RH);   // lintel above the opening
+        seg(dd[0], dd[1], doorH, RH);          // lintel above the opening
+        seg(dd[0], dd[1], 0, doorH, doorMat);  // solid door fills the opening (no see-through)
         var mid = (dd[0] + dd[1]) / 2, mx = ax + ux * mid, mz = az + uz * mid;
         var nx = -uz, nz = ux; if ((ccx - mx) * nx + (ccz - mz) * nz > 0) { nx = -nx; nz = -nz; }   // outward normal
         var ow = roomWorld(rm, mx + nx * 0.5, mz + nz * 0.5), dest = findRoomAtWorld(ow.x, ow.z, rm);

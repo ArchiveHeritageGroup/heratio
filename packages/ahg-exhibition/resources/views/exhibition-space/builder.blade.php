@@ -201,7 +201,7 @@
     var WALLS = @json($walls ?? []);
     var DOORS = @json($doors ?? []);
     var SHAPE = @json($shape ?? null);
-    var ROOM_W = {{ $space->room_w ?: 18 }}, ROOM_D = {{ $space->room_d ?: 14 }};
+    var ROOM_W = {{ $space->room_w ?: 18 }}, ROOM_D = {{ $space->room_d ?: 14 }}, ROOM_H = {{ $space->room_h ?: 4 }};
     function aspectH(w) { return Math.round(w * Math.max(0.35, Math.min(1.6, ROOM_D / ROOM_W))); }
 
     if (typeof Konva === 'undefined') {
@@ -265,18 +265,24 @@
         for (var gx = 0; gx <= W; gx += grid) roomBg.add(new Konva.Line({ points: [gx, 0, gx, H], stroke: '#e3e3e3', strokeWidth: 1, listening: false }));
         for (var gy = 0; gy <= H; gy += grid) roomBg.add(new Konva.Line({ points: [0, gy, W, gy], stroke: '#e3e3e3', strokeWidth: 1, listening: false }));
       }
+      // Numbered wall badges (match the "Hang on wall" dropdown), nudged inward.
+      function wallBadge(mx, my, n) {
+        bgLayer.add(new Konva.Circle({ x: mx, y: my, radius: 9, fill: '#0d6efd', opacity: 0.85, listening: false }));
+        bgLayer.add(new Konva.Text({ x: mx - 9, y: my - 6, width: 18, align: 'center', text: '' + n, fontSize: 11, fill: '#fff', listening: false }));
+      }
       if (shaped) {
         var pts = []; SHAPE.forEach(function (p) { pts.push(p.x * W, p.z * H); });
         bgLayer.add(new Konva.Line({ points: pts, closed: true, stroke: '#0d6efd', strokeWidth: 2, listening: false }));
-        // Number each wall (perimeter edge), nudged inward, to match the dropdown.
         var cxp = 0, cyp = 0; SHAPE.forEach(function (p) { cxp += p.x; cyp += p.z; }); cxp = cxp / SHAPE.length * W; cyp = cyp / SHAPE.length * H;
         for (var e = 0; e < SHAPE.length; e++) {
           var pa = SHAPE[e], pb = SHAPE[(e + 1) % SHAPE.length];
           var mx = (pa.x + pb.x) / 2 * W, my = (pa.z + pb.z) / 2 * H;
           var dx = cxp - mx, dy = cyp - my, dl = Math.hypot(dx, dy) || 1; mx += dx / dl * 14; my += dy / dl * 14;
-          bgLayer.add(new Konva.Circle({ x: mx, y: my, radius: 9, fill: '#0d6efd', opacity: 0.85, listening: false }));
-          bgLayer.add(new Konva.Text({ x: mx - 9, y: my - 6, width: 18, align: 'center', text: '' + (e + 1), fontSize: 11, fill: '#fff', listening: false }));
+          wallBadge(mx, my, e + 1);
         }
+      } else {
+        // Rectangle: Wall 1 back(top), 2 front(bottom), 3 left, 4 right (matches dropdown).
+        wallBadge(W / 2, 16, 1); wallBadge(W / 2, H - 16, 2); wallBadge(16, H / 2, 3); wallBadge(W - 16, H / 2, 4);
       }
       bgLayer.draw();
     }
@@ -436,8 +442,8 @@
       if (SHAPE && SHAPE.length >= 3) {   // angled room: number each perimeter wall
         for (var e = 0; e < SHAPE.length; e++) opts += '<option value="edge:' + e + '">{{ __('Wall') }} ' + (e + 1) + '</option>';
       } else {
-        opts += '<option value="north">{{ __('Wall 1 (back)') }}</option><option value="south">{{ __('Wall 2 (front)') }}</option>' +
-          '<option value="west">{{ __('Wall 3 (left)') }}</option><option value="east">{{ __('Wall 4 (right)') }}</option>';
+        opts += '<option value="north">{{ __('Wall') }} 1</option><option value="south">{{ __('Wall') }} 2</option>' +
+          '<option value="west">{{ __('Wall') }} 3</option><option value="east">{{ __('Wall') }} 4</option>';
       }
       WALLS.forEach(function (w, i) { opts += '<option value="' + w.id + '">{{ __('Interior') }} ' + (i + 1) + '</option>'; });
       sel.innerHTML = opts; sel.value = cur;
@@ -608,8 +614,8 @@
       if (SHAPE && SHAPE.length >= 3) {
         for (var e = 0; e < SHAPE.length; e++) html += '<option value="edge:' + e + '">{{ __('Wall') }} ' + (e + 1) + '</option>';
       } else {
-        html = '<option value="north">{{ __('Wall 1 (back)') }}</option><option value="south">{{ __('Wall 2 (front)') }}</option>' +
-          '<option value="west">{{ __('Wall 3 (left)') }}</option><option value="east">{{ __('Wall 4 (right)') }}</option>';
+        html = '<option value="north">{{ __('Wall') }} 1</option><option value="south">{{ __('Wall') }} 2</option>' +
+          '<option value="west">{{ __('Wall') }} 3</option><option value="east">{{ __('Wall') }} 4</option>';
       }
       WALLS.forEach(function (w, i) { html += '<option value="' + w.id + '">{{ __('Interior') }} ' + (i + 1) + '</option>'; });
       sel.innerHTML = html; sel.value = wvWall;
@@ -633,7 +639,7 @@
     // render on top of each other; persist the nudge so the walkthrough matches.
     function wvDeOverlap(items) {
       items.sort(function (a, b) { return (a.wall_u - b.wall_u) || (a.wall_v - b.wall_v); });
-      var gapU = (WV_NODE / W) * 1.05;
+      var gapU = (WV_NODE / (wvEW || W)) * 1.05;
       for (var i = 1; i < items.length; i++) {
         var prev = items[i - 1], cur = items[i];
         if ((cur.wall_u - prev.wall_u) < gapU) {   // same column -> step it along the wall
@@ -643,13 +649,44 @@
         }
       }
     }
+    // The selected wall's real length (metres), so the elevation is to scale.
+    function wvWallLengthM() {
+      if (wvWall === 'north' || wvWall === 'south') return ROOM_W;
+      if (wvWall === 'west' || wvWall === 'east') return ROOM_D;
+      if (wvWall.indexOf && wvWall.indexOf('edge:') === 0 && SHAPE) {
+        var i = parseInt(wvWall.slice(5), 10), pa = SHAPE[i], pb = SHAPE[(i + 1) % SHAPE.length];
+        if (pa && pb) return Math.hypot((pb.x - pa.x) * ROOM_W, (pb.z - pa.z) * ROOM_D);
+      }
+      var w = WALLS.filter(function (ww) { return ww.id === wvWall; })[0];
+      if (w) return Math.hypot((w.x2 - w.x1) * ROOM_W, (w.z2 - w.z1) * ROOM_D);
+      return ROOM_W;
+    }
+    function wvDoorsForWall() {
+      return (DOORS || []).filter(function (d) {
+        return (wvWall.indexOf && wvWall.indexOf('edge:') === 0) ? ('edge:' + d.edge) === wvWall : d.wall === wvWall;
+      });
+    }
+    var wvOX = 0, wvOY = 0, wvEW = 0, wvEH = 0;   // elevation rect (to-scale wall area)
     function buildWallView() {
       wvLayer.destroyChildren();
-      wvLayer.add(new Konva.Rect({ x: 0, y: 0, width: W, height: H, fill: '#e9ecef', listening: false }));
-      wvLayer.add(new Konva.Line({ points: [0, H - 3, W, H - 3], stroke: '#adb5bd', strokeWidth: 5, listening: false }));
+      var L = wvWallLengthM() || ROOM_W, Hm = ROOM_H || 4;
+      var availW = W - 20, availH = H - 44, aspect = L / Hm;
+      var ew = Math.min(availW, availH * aspect), eh = ew / aspect;
+      if (eh > availH) { eh = availH; ew = eh * aspect; }
+      wvOX = (W - ew) / 2; wvOY = 34 + (availH - eh) / 2; wvEW = ew; wvEH = eh;
+      wvLayer.add(new Konva.Rect({ x: 0, y: 0, width: W, height: H, fill: '#ced4da', listening: false }));                       // void
+      wvLayer.add(new Konva.Rect({ x: wvOX, y: wvOY, width: ew, height: eh, fill: '#f1f3f5', stroke: '#adb5bd', strokeWidth: 1, listening: false }));   // wall
+      wvLayer.add(new Konva.Line({ points: [wvOX, wvOY + eh, wvOX + ew, wvOY + eh], stroke: '#868e96', strokeWidth: 4, listening: false }));            // floor
+      var doorH = Math.min(2.6, Hm - 0.3);                                                                                       // door openings
+      wvDoorsForWall().forEach(function (dd) {
+        var dwpx = (dd.width / L) * ew, dhpx = (doorH / Hm) * eh, dx = wvOX + (dd.pos == null ? 0.5 : dd.pos) * ew - dwpx / 2, dy = wvOY + eh - dhpx;
+        wvLayer.add(new Konva.Rect({ x: dx, y: dy, width: dwpx, height: dhpx, fill: '#cdd2d8', stroke: '#198754', strokeWidth: 2, cornerRadius: 1, listening: false }));   // door panel (not see-through)
+        wvLayer.add(new Konva.Circle({ x: dx + dwpx - Math.min(7, dwpx * 0.18), y: dy + dhpx / 2, radius: 2.5, fill: '#198754', listening: false }));   // handle
+        wvLayer.add(new Konva.Text({ x: dx, y: dy - 13, width: dwpx, align: 'center', text: '{{ __('door') }}', fontSize: 9, fill: '#198754', listening: false }));
+      });
       var lbl = document.getElementById('wvWall').selectedOptions[0];
-      wvLayer.add(new Konva.Text({ x: 8, y: 8, text: (lbl ? lbl.text : '') + ' — {{ __('drag to position; search to add') }}', fontSize: 12, fill: '#495057', listening: false }));
-      var loadingTxt = new Konva.Text({ x: 0, y: H / 2 - 10, width: W, align: 'center', text: '{{ __('Loading wall…') }}', fontSize: 16, fontStyle: 'bold', fill: '#6c757d', listening: false });
+      wvLayer.add(new Konva.Text({ x: 8, y: 8, text: (lbl ? lbl.text : '') + ' — ' + L.toFixed(1) + 'm × ' + Hm.toFixed(1) + 'm {{ __('high; drag to position, search to add') }}', fontSize: 11, fill: '#495057', listening: false }));
+      var loadingTxt = new Konva.Text({ x: 0, y: wvOY + eh / 2 - 10, width: W, align: 'center', text: '{{ __('Loading wall…') }}', fontSize: 16, fontStyle: 'bold', fill: '#6c757d', listening: false });
       wvLayer.add(loadingTxt);
       wvLayer.draw();
       fetch(URLS.placements).then(function (r) { return r.json(); }).then(function (d) {
@@ -678,7 +715,7 @@
     function wvAddNode(p, onReady) {
       var done = false, finish = function () { if (done) return; done = true; if (onReady) onReady(); };
       var u = (p.wall_u != null) ? p.wall_u : 0.5, v = (p.wall_v != null) ? p.wall_v : 0.55;
-      var g = new Konva.Group({ x: u * W, y: (1 - v) * H, draggable: true, name: 'wvitem' });
+      var g = new Konva.Group({ x: wvOX + u * wvEW, y: wvOY + (1 - v) * wvEH, draggable: true, name: 'wvitem' });
       g.setAttr('placementId', p.id);
       var r = new Konva.Rect({ x: -WV_NODE / 2, y: -WV_NODE / 2, width: WV_NODE, height: WV_NODE, fill: '#fff', stroke: '#6c757d', strokeWidth: 1, cornerRadius: 3, shadowColor: '#000', shadowBlur: 5, shadowOpacity: 0.15 });
       g.add(r);
@@ -689,7 +726,7 @@
         im.src = p.thumb_url;
       } else { g.add(new Konva.Text({ text: '#' + p.information_object_id, x: -WV_NODE / 2, y: -6, width: WV_NODE, align: 'center', fontSize: 10, fill: '#999' })); finish(); }
       g.on('dragend', function () {
-        var nu = Math.max(0, Math.min(1, g.x() / W)), nv = Math.max(0, Math.min(1, 1 - g.y() / H));
+        var nu = Math.max(0, Math.min(1, (g.x() - wvOX) / (wvEW || 1))), nv = Math.max(0, Math.min(1, 1 - (g.y() - wvOY) / (wvEH || 1)));
         fetch(URLS.wallPos, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ placement_id: g.getAttr('placementId'), u: nu, v: nv }) });
       });
       wvLayer.add(g); wvLayer.draw();
