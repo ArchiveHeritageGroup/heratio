@@ -65,7 +65,7 @@
               <li>{{ __('Stand taller / crouch: hold U + mouse wheel') }}</li>
               <li>{{ __('Look around: move the mouse') }}</li>
               <li>{{ __('Open info: click an object (or a numbered button)') }}</li>
-              <li>{{ __('Hear description read aloud: hold D + click an object') }}</li>
+              <li>{{ __('Hear description read aloud: hold T (Talk) + click an object') }}</li>
               <li>{{ __('Open full record (new tab): V') }}</li>
               <li>{{ __('Close info: click or Esc') }}</li>
               <li>{{ __('Exit gallery: Esc') }}</li>
@@ -843,7 +843,7 @@
       }).catch(function () {});
     }
     function stopByPlacement(pid) { for (var i = 0; i < STOPS.length; i++) { if (STOPS[i].id === pid) return STOPS[i]; } return null; }
-    // Audio description (docent): hold D + click an object to hear its description read aloud.
+    // Audio description (docent): hold T (Talk) + click an object to hear its description read aloud.
     function showNarr(on) { var n = document.getElementById('wtNarr'); if (n) n.style.display = on ? 'block' : 'none'; }
     function stopNarrate() { try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {} showNarr(false); }
     function narrate(s) {
@@ -939,7 +939,7 @@
         while (o && !o.userData.stop && !o.userData.action) o = o.parent;
         if (o && o.userData.action === 'minimap') { toggleMinimap(true); return; }
         if (o && o.userData.action === 'door' && o.userData.doorDest) { enterRoom(o.userData.doorDest); return; }   // click a door to jump into that room
-        if (o && o.userData.stop) { openPanel(o.userData.stop); if (keys['KeyD']) narrate(o.userData.stop); }   // hold D + click = read the description aloud
+        if (o && o.userData.stop) { openPanel(o.userData.stop); if (keys['KeyT']) narrate(o.userData.stop); }   // hold T (Talk) + click = read the description aloud
 
       }
     });
