@@ -306,6 +306,9 @@ class ExhibitionSpaceService
                 $j->on('ioi.id', '=', 'ep.information_object_id')->where('ioi.culture', '=', 'en');
             })
             ->where('ep.exhibition_space_id', $exhibitionSpaceId)
+            ->where(function ($q) {   // corridor objects are building-level, not per-room
+                $q->whereNull('ep.wall_or_zone')->orWhere('ep.wall_or_zone', '!=', 'corridor');
+            })
             ->select(
                 'ep.id', 'ep.information_object_id',
                 'ep.pos_x', 'ep.pos_y', 'ep.rotation_deg', 'ep.scale', 'ep.z_order',
@@ -705,6 +708,107 @@ class ExhibitionSpaceService
             ->update(['wall_u' => max(0, min(1, $u)), 'wall_v' => max(0, min(1, $v)), 'updated_at' => now()]) > 0;
     }
 
+    // -------- Doorways (manual, on plan-positioned rooms) --------
+
+    /**
+     * Doors for a room. Each: ['wall'=>north|south|east|west,'pos'=>0..1,'width'=>m].
+     * pos = fraction along the wall (north/south: left->right; east/west: back->front).
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function getDoors(int $exhibitionSpaceId): array
+    {
+        $space = $this->getById($exhibitionSpaceId);
+        if (! $space || empty($space->doors_json)) {
+            return [];
+        }
+        $doors = json_decode((string) $space->doors_json, true);
+
+        return is_array($doors) ? array_values($this->sanitizeDoors($doors)) : [];
+    }
+
+    /** Persist a room's doors (sanitised). */
+    public function saveDoors(int $exhibitionSpaceId, array $doors): void
+    {
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
+            ->update(['doors_json' => json_encode(array_values($this->sanitizeDoors($doors))), 'updated_at' => now()]);
+    }
+
+    /** @param array<int,mixed> $doors @return array<int,array<string,mixed>> */
+    private function sanitizeDoors(array $doors): array
+    {
+        $walls = ['north', 'south', 'east', 'west'];
+        $clean = [];
+        foreach ($doors as $d) {
+            if (! is_array($d)) {
+                continue;
+            }
+            $pos = max(0.0, min(1.0, (float) ($d['pos'] ?? 0.5)));
+            $width = max(0.5, min(6.0, (float) ($d['width'] ?? 1.6)));
+            // Polygon-edge door (edge index into the room's shape).
+            if (isset($d['edge']) && is_numeric($d['edge'])) {
+                $clean[] = ['edge' => max(0, (int) $d['edge']), 'pos' => $pos, 'width' => $width];
+
+                continue;
+            }
+            // Rectangle named-wall door.
+            $wall = isset($d['wall']) ? strtolower((string) $d['wall']) : '';
+            if (! in_array($wall, $walls, true)) {
+                continue;
+            }
+            $clean[] = ['wall' => $wall, 'pos' => $pos, 'width' => $width];
+        }
+
+        return $clean;
+    }
+
+    // -------- Custom room footprint (polygon shape) --------
+
+    /**
+     * A room's footprint polygon as normalized points [{x,z}] in 0-1 of the room's
+     * bounding box (w x d). Null when the room is a plain rectangle.
+     *
+     * @return array<int,array{x:float,z:float}>|null
+     */
+    public function getShape(int $exhibitionSpaceId): ?array
+    {
+        $space = $this->getById($exhibitionSpaceId);
+        if (! $space || empty($space->shape_json)) {
+            return null;
+        }
+        $pts = json_decode((string) $space->shape_json, true);
+
+        return $this->sanitizeShape(is_array($pts) ? $pts : []);
+    }
+
+    /** Persist a room footprint polygon (normalized 0-1). Null/<3 points clears it. */
+    public function saveShape(int $exhibitionSpaceId, ?array $points): void
+    {
+        $clean = $points === null ? null : $this->sanitizeShape($points);
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
+            ->update(['shape_json' => $clean ? json_encode($clean) : null, 'updated_at' => now()]);
+    }
+
+    /** @param array<int,mixed> $points @return array<int,array{x:float,z:float}>|null */
+    private function sanitizeShape(array $points): ?array
+    {
+        $clean = [];
+        foreach ($points as $p) {
+            $x = null;
+            $z = null;
+            if (is_array($p)) {
+                $x = $p['x'] ?? ($p[0] ?? null);
+                $z = $p['z'] ?? ($p[1] ?? null);
+            }
+            if ($x === null || $z === null) {
+                continue;
+            }
+            $clean[] = ['x' => max(0.0, min(1.0, (float) $x)), 'z' => max(0.0, min(1.0, (float) $z))];
+        }
+
+        return count($clean) >= 3 ? $clean : null;
+    }
+
     // -------- Multi-room building (heratio#1143/#1144) --------
 
     public function roomDims(object $space): array
@@ -763,12 +867,15 @@ class ExhibitionSpaceService
                 'slug' => $r->slug,
                 'w' => $dim['w'], 'd' => $dim['d'], 'h' => $dim['h'],
                 'x_offset' => $x, 'z_offset' => $z,
+                'rot' => ($planMode && $r->bld_rot !== null) ? (float) $r->bld_rot : 0.0,
                 'is_current' => (int) $r->id === (int) $space->id,
                 'floorplan' => $r->floorplan_image_path ?? null,
                 'ceiling' => $r->ceiling_image_path ?? null,
                 'wall_image' => $r->wall_image_path ?? null,
                 'stops' => $this->getWalkthroughStops((int) $r->id),
                 'walls' => $this->getWalls((int) $r->id),
+                'doors' => $this->getDoors((int) $r->id),
+                'shape' => $this->getShape((int) $r->id),
             ];
             $minX = $minX === null ? $x : min($minX, $x);
             $maxX = $maxX === null ? $x + $dim['w'] : max($maxX, $x + $dim['w']);
@@ -779,9 +886,109 @@ class ExhibitionSpaceService
 
         return [
             'rooms' => $out, 'plan_mode' => $planMode,
+            'corridor' => $this->getBuildingCorridorObjects($space),
             'min_x' => $minX ?? 0, 'max_x' => $maxX ?? 0, 'min_z' => $minZ ?? 0, 'max_z' => $maxZ ?? 0,
             'total_w' => ($maxX ?? 0) - ($minX ?? 0), 'max_d' => ($maxZ ?? 0) - ($minZ ?? 0), 'max_h' => $maxH,
         ];
+    }
+
+    /** Space ids belonging to a space's building (or just the space when ungrouped). */
+    private function buildingSpaceIds(object $space): array
+    {
+        if (! empty($space->building_id)) {
+            return DB::table('ahg_exhibition_space')->where('building_id', $space->building_id)->pluck('id')->map(fn ($v) => (int) $v)->all();
+        }
+
+        return [(int) $space->id];
+    }
+
+    /**
+     * Corridor objects for a building: placements flagged wall_or_zone='corridor'
+     * whose pos_x/pos_y are fractions (0-1) of the building bounding box. Returns
+     * walkthrough-ready stops (title, description, media, record link).
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function getBuildingCorridorObjects(object $space): array
+    {
+        $ids = $this->buildingSpaceIds($space);
+        if (empty($ids)) {
+            return [];
+        }
+        $rows = DB::table('ahg_exhibition_placement as ep')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('ioi.id', '=', 'ep.information_object_id')->where('ioi.culture', '=', 'en');
+            })
+            ->leftJoin('slug as sl', 'sl.object_id', '=', 'ep.information_object_id')
+            ->whereIn('ep.exhibition_space_id', $ids)
+            ->where('ep.wall_or_zone', 'corridor')
+            ->select('ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y', 'ep.rotation_deg', 'ep.scale',
+                'ep.model_tilt_x', 'ep.model_tilt_z', 'ioi.title as title', 'ioi.scope_and_content as description', 'sl.slug as slug')
+            ->get();
+
+        return $rows->map(function ($r) {
+            $desc = trim(strip_tags((string) ($r->description ?? '')));
+            $media = $this->getObjectMedia((int) $r->information_object_id);
+
+            return [
+                'id' => (int) $r->id,
+                'information_object_id' => (int) $r->information_object_id,
+                'title' => $r->title ?: ('#'.$r->information_object_id),
+                'description' => mb_strlen($desc) > 400 ? mb_substr($desc, 0, 400).'...' : $desc,
+                'pos_x' => $r->pos_x !== null ? (float) $r->pos_x : 0.5,
+                'pos_y' => $r->pos_y !== null ? (float) $r->pos_y : 0.5,
+                'rotation_deg' => (float) ($r->rotation_deg ?? 0),
+                'scale' => (float) ($r->scale ?? 1),
+                'kind' => $media['kind'],
+                'model_url' => $media['model_url'],
+                'model_format' => $media['format'],
+                'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
+                'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
+                'image_url' => $media['image_url'],
+                'doc_url' => $media['doc_url'] ?? null,
+                'record_url' => $r->slug ? '/'.$r->slug : null,
+            ];
+        })->all();
+    }
+
+    /** Create a corridor object (building-space) at building-fraction (fx,fy). */
+    public function createCorridorPlacement(object $space, int $informationObjectId, float $fx, float $fy): array
+    {
+        if ($informationObjectId <= 0) {
+            throw new \InvalidArgumentException('information_object_id is required.');
+        }
+        $now = now();
+        $id = (int) DB::table('ahg_exhibition_placement')->insertGetId([
+            'information_object_id' => $informationObjectId,
+            'exhibition_space_id' => (int) $space->id,
+            'size_units_used' => 0,
+            'wall_or_zone' => 'corridor',
+            'pos_x' => max(0, min(1, $fx)),
+            'pos_y' => max(0, min(1, $fy)),
+            'rotation_deg' => 0, 'scale' => 1, 'z_order' => 0, 'label_visible' => 1,
+            'created_at' => $now, 'updated_at' => $now,
+        ]);
+        $title = DB::table('information_object_i18n')->where('id', $informationObjectId)->where('culture', 'en')->value('title');
+        $media = $this->getObjectMedia($informationObjectId);
+
+        return [
+            'id' => $id,
+            'information_object_id' => $informationObjectId,
+            'title' => $title ?: ('#'.$informationObjectId),
+            'pos_x' => max(0, min(1, $fx)), 'pos_y' => max(0, min(1, $fy)),
+            'kind' => $media['kind'],
+            'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl($informationObjectId),
+        ];
+    }
+
+    /** Move a corridor object to building-fraction (fx,fy) within its building. */
+    public function moveCorridorPlacement(object $space, int $placementId, float $fx, float $fy): bool
+    {
+        $ids = $this->buildingSpaceIds($space);
+
+        return DB::table('ahg_exhibition_placement')
+            ->where('id', $placementId)->whereIn('exhibition_space_id', $ids)->where('wall_or_zone', 'corridor')
+            ->update(['pos_x' => max(0, min(1, $fx)), 'pos_y' => max(0, min(1, $fy)), 'updated_at' => now()]) > 0;
     }
 
     // -------- Building plan editor (#1143: floor-plan layout) --------
@@ -793,10 +1000,15 @@ class ExhibitionSpaceService
             ? DB::table('ahg_exhibition_space')->where('building_id', $space->building_id)->orderBy('building_seq')->orderBy('id')->get()->all()
             : [$space];
         $plan = null;
+        $planRect = null;
         $list = [];
+        $minX = $maxX = $minZ = $maxZ = null;
         foreach ($rooms as $r) {
             if (! $plan && ! empty($r->building_plan_image)) {
                 $plan = $r->building_plan_image;
+                if ($r->building_plan_w !== null) {
+                    $planRect = ['x' => (float) $r->building_plan_x, 'y' => (float) $r->building_plan_y, 'w' => (float) $r->building_plan_w, 'h' => (float) $r->building_plan_h];
+                }
             }
             $dim = $this->roomDims($r);
             $list[] = [
@@ -804,15 +1016,115 @@ class ExhibitionSpaceService
                 'w' => $dim['w'], 'd' => $dim['d'],
                 'bld_x' => $r->bld_x !== null ? (float) $r->bld_x : null,
                 'bld_y' => $r->bld_y !== null ? (float) $r->bld_y : null,
+                'rot' => $r->bld_rot !== null ? (float) $r->bld_rot : 0.0,
+                'doors' => $this->getDoors((int) $r->id),
+                'shape' => $this->getShape((int) $r->id),
                 'is_current' => (int) $r->id === (int) $space->id,
             ];
+            if ($r->bld_x !== null && $r->bld_y !== null) {
+                $x = (float) $r->bld_x;
+                $z = (float) $r->bld_y;
+                $minX = $minX === null ? $x : min($minX, $x);
+                $maxX = $maxX === null ? $x + $dim['w'] : max($maxX, $x + $dim['w']);
+                $minZ = $minZ === null ? $z : min($minZ, $z);
+                $maxZ = $maxZ === null ? $z + $dim['d'] : max($maxZ, $z + $dim['d']);
+            }
         }
 
-        return ['rooms' => $list, 'plan_image' => $plan];
+        // World-anchor the blueprint: if an image exists but has no rect yet,
+        // default it to the building extent so it lines up with the rooms.
+        if ($plan && ! $planRect) {
+            $planRect = $this->defaultPlanRect($space);
+        }
+
+        return [
+            'rooms' => $list, 'plan_image' => $plan, 'plan_rect' => $planRect,
+            'corridor' => $this->getBuildingCorridorObjects($space),
+            'bbox' => ['min_x' => $minX ?? 0, 'max_x' => $maxX ?? 0, 'min_z' => $minZ ?? 0, 'max_z' => $maxZ ?? 0],
+        ];
     }
 
-    /** Save a room's plan position + size (metres). */
-    public function savePlanRoom(int $buildingMemberId, int $roomId, float $x, float $y, ?float $w, ?float $d): bool
+    /** Default world rect for a blueprint image = the building's extent (metres). */
+    private function defaultPlanRect(object $space): array
+    {
+        $rooms = (! empty($space->building_id))
+            ? DB::table('ahg_exhibition_space')->where('building_id', $space->building_id)->get()->all()
+            : [$space];
+        $maxR = 0.0;
+        $maxB = 0.0;
+        foreach ($rooms as $r) {
+            $dim = $this->roomDims($r);
+            $x = $r->bld_x !== null ? (float) $r->bld_x : 0.0;
+            $y = $r->bld_y !== null ? (float) $r->bld_y : 0.0;
+            $maxR = max($maxR, $x + $dim['w']);
+            $maxB = max($maxB, $y + $dim['d']);
+        }
+
+        return ['x' => 0.0, 'y' => 0.0, 'w' => max(30.0, $maxR + 2), 'h' => max(22.0, $maxB + 2)];
+    }
+
+    /** Persist an adjusted blueprint world rect (applied to all building rooms). */
+    public function savePlanImageRect(object $space, float $x, float $y, float $w, float $h): void
+    {
+        $q = DB::table('ahg_exhibition_space');
+        if (! empty($space->building_id)) {
+            $q->where('building_id', $space->building_id);
+        } else {
+            $q->where('id', $space->id);
+        }
+        $q->update(['building_plan_x' => $x, 'building_plan_y' => $y, 'building_plan_w' => max(1, $w), 'building_plan_h' => max(1, $h), 'updated_at' => now()]);
+    }
+
+    /**
+     * Create a new room in this space's building (creating a building from the
+     * space if it has none) and place it to the right of the existing rooms.
+     * Returns the plan-editor row for the new room.
+     *
+     * @return array<string,mixed>
+     */
+    public function addBuildingRoom(object $space, ?string $name = null): array
+    {
+        $bid = $space->building_id;
+        if (empty($bid)) {
+            $bid = $space->slug;
+            DB::table('ahg_exhibition_space')->where('id', $space->id)->update(['building_id' => $bid, 'building_seq' => 0, 'updated_at' => now()]);
+        }
+        $rooms = DB::table('ahg_exhibition_space')->where('building_id', $bid)->get();
+        $maxSeq = 0;
+        $maxRight = 0.0;
+        $topY = null;
+        foreach ($rooms as $r) {
+            $maxSeq = max($maxSeq, (int) ($r->building_seq ?? 0));
+            $dim = $this->roomDims($r);
+            if ($r->bld_x !== null && $r->bld_y !== null) {
+                $maxRight = max($maxRight, (float) $r->bld_x + $dim['w']);
+                $topY = $topY === null ? (float) $r->bld_y : min($topY, (float) $r->bld_y);
+            }
+        }
+        $x = $maxRight > 0 ? $maxRight + 1 : 1.0;
+        $y = $topY ?? 1.0;
+        $nm = ($name !== null && trim($name) !== '') ? trim($name) : 'New Room';
+        $id = (int) DB::table('ahg_exhibition_space')->insertGetId([
+            'slug' => $this->generateUniqueSlug($nm),
+            'name' => $nm,
+            'space_type' => 'gallery',
+            'capacity_unit' => 'linear_wall_meters',
+            'building_id' => $bid,
+            'building_seq' => $maxSeq + 1,
+            'room_w' => 10, 'room_d' => 8, 'room_h' => 4,
+            'bld_x' => $x, 'bld_y' => $y,
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        return [
+            'id' => $id, 'name' => $nm, 'slug' => $this->getById($id)->slug,
+            'w' => 10.0, 'd' => 8.0, 'bld_x' => (float) $x, 'bld_y' => (float) $y, 'rot' => 0.0,
+            'doors' => [], 'shape' => null, 'is_current' => false,
+        ];
+    }
+
+    /** Save a room's plan position + size (metres) + rotation (degrees). */
+    public function savePlanRoom(int $buildingMemberId, int $roomId, float $x, float $y, ?float $w, ?float $d, ?float $rot = null): bool
     {
         $member = $this->getById($buildingMemberId);
         $room = $this->getById($roomId);
@@ -830,6 +1142,9 @@ class ExhibitionSpaceService
         if ($d !== null) {
             $p['room_d'] = max(1, min(200, $d));
         }
+        if ($rot !== null) {
+            $p['bld_rot'] = fmod($rot, 360);
+        }
 
         return DB::table('ahg_exhibition_space')->where('id', $roomId)->update($p) > 0;
     }
@@ -843,7 +1158,20 @@ class ExhibitionSpaceService
         } else {
             $q->where('id', $space->id);
         }
-        $q->update(['building_plan_image' => $publicPath, 'updated_at' => now()]);
+        $payload = ['building_plan_image' => $publicPath, 'updated_at' => now()];
+        if ($publicPath === null) {   // clearing: drop the world rect too
+            $payload['building_plan_x'] = null;
+            $payload['building_plan_y'] = null;
+            $payload['building_plan_w'] = null;
+            $payload['building_plan_h'] = null;
+        } else {                       // new image: seed a default world rect = building extent
+            $rect = $this->defaultPlanRect($space);
+            $payload['building_plan_x'] = $rect['x'];
+            $payload['building_plan_y'] = $rect['y'];
+            $payload['building_plan_w'] = $rect['w'];
+            $payload['building_plan_h'] = $rect['h'];
+        }
+        $q->update($payload);
     }
 
     public function setFloorplan(int $exhibitionSpaceId, string $publicPath, ?float $widthM = null, ?float $heightM = null): void
@@ -909,6 +1237,9 @@ class ExhibitionSpaceService
             })
             ->leftJoin('slug as sl', 'sl.object_id', '=', 'ep.information_object_id')
             ->where('ep.exhibition_space_id', $exhibitionSpaceId)
+            ->where(function ($q) {   // corridor objects render at building level, not in this room
+                $q->whereNull('ep.wall_or_zone')->orWhere('ep.wall_or_zone', '!=', 'corridor');
+            })
             ->select(
                 'ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y',
                 'ep.rotation_deg', 'ep.scale', 'ep.wall_or_zone',

@@ -211,6 +211,8 @@ class ExhibitionSpaceController extends Controller
             'placements' => $this->service->getPlacementsForBuilder((int) $space->id),
             'capacityUnits' => ExhibitionSpaceService::CAPACITY_UNITS,
             'walls' => $this->service->getWalls((int) $space->id),
+            'doors' => $this->service->getDoors((int) $space->id),
+            'shape' => $this->service->getShape((int) $space->id),
         ]);
     }
 
@@ -241,12 +243,132 @@ class ExhibitionSpaceController extends Controller
         $data = $request->validate([
             'room_id' => 'required|integer|min:1',
             'x' => 'required|numeric', 'y' => 'required|numeric',
-            'w' => 'nullable|numeric', 'd' => 'nullable|numeric',
+            'w' => 'nullable|numeric', 'd' => 'nullable|numeric', 'rot' => 'nullable|numeric',
         ]);
         $ok = $this->service->savePlanRoom((int) $space->id, (int) $data['room_id'], (float) $data['x'], (float) $data['y'],
-            isset($data['w']) ? (float) $data['w'] : null, isset($data['d']) ? (float) $data['d'] : null);
+            isset($data['w']) ? (float) $data['w'] : null, isset($data['d']) ? (float) $data['d'] : null,
+            isset($data['rot']) ? (float) $data['rot'] : null);
 
         return response()->json(['ok' => $ok]);
+    }
+
+    /** AJAX: save the blueprint's world rectangle (metres) after move/resize. */
+    public function planImageRectAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'x' => 'required|numeric', 'y' => 'required|numeric',
+            'w' => 'required|numeric|min:0.5', 'h' => 'required|numeric|min:0.5',
+        ]);
+        $this->service->savePlanImageRect($space, (float) $data['x'], (float) $data['y'], (float) $data['w'], (float) $data['h']);
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** AJAX: add a new room to this space's building (from the plan editor). */
+    public function addRoomAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $room = $this->service->addBuildingRoom($space, $request->input('name'));
+
+        return response()->json(['ok' => true, 'room' => $room]);
+    }
+
+    /** AJAX: save a room's footprint polygon (normalized points), or clear it. */
+    public function saveShapeAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'room_id' => 'required|integer|min:1',
+            'points' => 'nullable|array',
+        ]);
+        $room = $this->service->getById((int) $data['room_id']);
+        if (! $room || (($room->building_id ?? null) !== ($space->building_id ?? null) && (int) $room->id !== (int) $space->id)) {
+            return response()->json(['ok' => false], 403);
+        }
+        $this->service->saveShape((int) $room->id, $data['points'] ?? null);
+
+        return response()->json(['ok' => true, 'shape' => $this->service->getShape((int) $room->id)]);
+    }
+
+    /** AJAX: add a corridor object (building-space) at building-fraction (x,y). */
+    public function corridorAddAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'information_object_id' => 'required|integer|min:1',
+            'x' => 'required|numeric', 'y' => 'required|numeric',
+        ]);
+        $placement = $this->service->createCorridorPlacement($space, (int) $data['information_object_id'], (float) $data['x'], (float) $data['y']);
+
+        return response()->json(['ok' => true, 'placement' => $placement]);
+    }
+
+    /** AJAX: move a corridor object to building-fraction (x,y). */
+    public function corridorMoveAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'placement_id' => 'required|integer|min:1',
+            'x' => 'required|numeric', 'y' => 'required|numeric',
+        ]);
+        $ok = $this->service->moveCorridorPlacement($space, (int) $data['placement_id'], (float) $data['x'], (float) $data['y']);
+
+        return response()->json(['ok' => $ok]);
+    }
+
+    /** AJAX: remove a corridor object. */
+    public function corridorRemoveAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['placement_id' => 'required|integer|min:1']);
+        // Scope: only remove a corridor placement that belongs to this building.
+        $corridor = collect($this->service->getBuildingCorridorObjects($space))->firstWhere('id', (int) $data['placement_id']);
+        if (! $corridor) {
+            return response()->json(['ok' => false], 403);
+        }
+        $ok = $this->service->removePlacement((int) $data['placement_id']);
+
+        return response()->json(['ok' => $ok]);
+    }
+
+    /** AJAX: save the doors for one room of this building. */
+    public function saveDoorsAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'room_id' => 'required|integer|min:1',
+            'doors' => 'present|array',
+        ]);
+        // Only allow editing rooms in the same building (or the space itself).
+        $room = $this->service->getById((int) $data['room_id']);
+        if (! $room || (($room->building_id ?? null) !== ($space->building_id ?? null) && (int) $room->id !== (int) $space->id)) {
+            return response()->json(['ok' => false], 403);
+        }
+        $this->service->saveDoors((int) $room->id, $data['doors']);
+
+        return response()->json(['ok' => true, 'doors' => $this->service->getDoors((int) $room->id)]);
     }
 
     /** Upload a building plan / blueprint image (background for the plan editor). */
@@ -602,11 +724,20 @@ class ExhibitionSpaceController extends Controller
             abort(404);
         }
 
+        $building = $this->service->getWalkthroughBuilding($space);
+        // The walkthrough renders if ANY room in the building (or a corridor) has
+        // content - not just the room whose slug was opened.
+        $hasContent = count($building['corridor'] ?? []) > 0;
+        foreach ($building['rooms'] as $r) {
+            $hasContent = $hasContent || count($r['stops'] ?? []) > 0;
+        }
+
         return view('ahg-exhibition::exhibition-space.walkthrough', [
             'space' => $space,
             'stops' => $this->service->getWalkthroughStops((int) $space->id),
             'walls' => $this->service->getWalls((int) $space->id),
-            'building' => $this->service->getWalkthroughBuilding($space),
+            'building' => $building,
+            'hasContent' => $hasContent,
         ]);
     }
 

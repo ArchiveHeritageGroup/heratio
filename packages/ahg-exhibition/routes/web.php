@@ -44,6 +44,13 @@ Route::middleware('auth')->group(function () {
     // heratio#1143 — building plan editor
     Route::get('/exhibition-space/{slug}/plan', [ExhibitionSpaceController::class, 'plan'])->name('exhibition-space.plan');
     Route::post('/exhibition-space/{slug}/plan/save', [ExhibitionSpaceController::class, 'savePlanAjax'])->name('exhibition-space.plan.save')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/plan/doors', [ExhibitionSpaceController::class, 'saveDoorsAjax'])->name('exhibition-space.plan.doors')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/plan/shape', [ExhibitionSpaceController::class, 'saveShapeAjax'])->name('exhibition-space.plan.shape')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/plan/add-room', [ExhibitionSpaceController::class, 'addRoomAjax'])->name('exhibition-space.plan.add-room')->middleware('acl:create');
+    Route::post('/exhibition-space/{slug}/plan/image-rect', [ExhibitionSpaceController::class, 'planImageRectAjax'])->name('exhibition-space.plan.image-rect')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/plan/corridor-add', [ExhibitionSpaceController::class, 'corridorAddAjax'])->name('exhibition-space.plan.corridor-add')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/plan/corridor-move', [ExhibitionSpaceController::class, 'corridorMoveAjax'])->name('exhibition-space.plan.corridor-move')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/plan/corridor-remove', [ExhibitionSpaceController::class, 'corridorRemoveAjax'])->name('exhibition-space.plan.corridor-remove')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/image', [ExhibitionSpaceController::class, 'uploadBuildingPlan'])->name('exhibition-space.plan.image')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/image-clear', [ExhibitionSpaceController::class, 'clearBuildingPlan'])->name('exhibition-space.plan.image-clear')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/layout', [ExhibitionSpaceController::class, 'saveLayout'])->name('exhibition-space.builder.layout')->middleware('acl:update');

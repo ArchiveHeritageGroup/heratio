@@ -68,7 +68,14 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'building_seq' => 'INT NULL DEFAULT 0',
                     'bld_x' => 'DECIMAL(8,2) NULL',
                     'bld_y' => 'DECIMAL(8,2) NULL',
+                    'bld_rot' => 'DECIMAL(6,2) NULL DEFAULT 0',
                     'building_plan_image' => 'VARCHAR(500) NULL',
+                    'building_plan_x' => 'DECIMAL(8,2) NULL',
+                    'building_plan_y' => 'DECIMAL(8,2) NULL',
+                    'building_plan_w' => 'DECIMAL(8,2) NULL',
+                    'building_plan_h' => 'DECIMAL(8,2) NULL',
+                    'doors_json' => 'JSON NULL',
+                    'shape_json' => 'JSON NULL',
                 ];
                 foreach ($spaceCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_space', $col)) {

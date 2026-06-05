@@ -46,6 +46,36 @@
         </div>
       </div>
 
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong><i class="fas fa-sliders-h me-1"></i>{{ __('Selected object') }}</strong></div>
+        <div class="card-body">
+          <div id="selPanel" class="text-muted small">{{ __('Click an object on the canvas to select it.') }}</div>
+          <div id="selControls" class="d-none">
+            <div class="fw-bold small mb-2" id="selTitle"></div>
+            <div class="btn-group btn-group-sm w-100 mb-2" role="group">
+              <button type="button" class="btn btn-outline-secondary" data-act="rotL" title="{{ __('Rotate left') }}"><i class="fas fa-undo"></i></button>
+              <button type="button" class="btn btn-outline-secondary" data-act="rotR" title="{{ __('Rotate right') }}"><i class="fas fa-redo"></i></button>
+              <button type="button" class="btn btn-outline-secondary" data-act="smaller" title="{{ __('Smaller') }}"><i class="fas fa-search-minus"></i></button>
+              <button type="button" class="btn btn-outline-secondary" data-act="bigger" title="{{ __('Bigger') }}"><i class="fas fa-search-plus"></i></button>
+            </div>
+            <label for="selSize" class="form-label small mb-1">{{ __('Size (units)') }}</label>
+            <input type="number" id="selSize" class="form-control form-control-sm mb-2" min="0" step="0.01">
+            <div id="tiltControls" class="d-none border-top pt-2 mb-2">
+              <label class="form-label small mb-1">{{ __('3D orientation (degrees)') }}</label>
+              <div class="row g-1 mb-1">
+                <div class="col-6"><input type="number" id="tiltX" class="form-control form-control-sm" step="90" placeholder="{{ __('Tilt X') }}"></div>
+                <div class="col-6"><input type="number" id="tiltZ" class="form-control form-control-sm" step="90" placeholder="{{ __('Tilt Z') }}"></div>
+              </div>
+              <button type="button" id="tiltAuto" class="btn btn-outline-secondary btn-sm w-100">{{ __('Auto (reset)') }}</button>
+              <small class="text-muted d-block mt-1">{{ __('Empty = auto. Use 90 / -90 to stand a model upright.') }}</small>
+            </div>
+            <label for="selWall" class="form-label small mb-1">{{ __('Hang on wall') }}</label>
+            <select id="selWall" class="form-select form-select-sm mb-2"></select>
+            <button type="button" id="btnRemove" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-trash me-1"></i>{{ __('Remove from twin') }}</button>
+          </div>
+        </div>
+      </div>
+
       @auth
       <div class="card mb-3">
         <div class="card-header py-2"><strong><i class="fas fa-map me-1"></i>{{ __('Floorplan') }}</strong></div>
@@ -121,35 +151,6 @@
       </div>
       @endauth
 
-      <div class="card">
-        <div class="card-header py-2"><strong><i class="fas fa-sliders-h me-1"></i>{{ __('Selected object') }}</strong></div>
-        <div class="card-body">
-          <div id="selPanel" class="text-muted small">{{ __('Click an object on the canvas to select it.') }}</div>
-          <div id="selControls" class="d-none">
-            <div class="fw-bold small mb-2" id="selTitle"></div>
-            <div class="btn-group btn-group-sm w-100 mb-2" role="group">
-              <button type="button" class="btn btn-outline-secondary" data-act="rotL" title="{{ __('Rotate left') }}"><i class="fas fa-undo"></i></button>
-              <button type="button" class="btn btn-outline-secondary" data-act="rotR" title="{{ __('Rotate right') }}"><i class="fas fa-redo"></i></button>
-              <button type="button" class="btn btn-outline-secondary" data-act="smaller" title="{{ __('Smaller') }}"><i class="fas fa-search-minus"></i></button>
-              <button type="button" class="btn btn-outline-secondary" data-act="bigger" title="{{ __('Bigger') }}"><i class="fas fa-search-plus"></i></button>
-            </div>
-            <label for="selSize" class="form-label small mb-1">{{ __('Size (units)') }}</label>
-            <input type="number" id="selSize" class="form-control form-control-sm mb-2" min="0" step="0.01">
-            <div id="tiltControls" class="d-none border-top pt-2 mb-2">
-              <label class="form-label small mb-1">{{ __('3D orientation (degrees)') }}</label>
-              <div class="row g-1 mb-1">
-                <div class="col-6"><input type="number" id="tiltX" class="form-control form-control-sm" step="90" placeholder="{{ __('Tilt X') }}"></div>
-                <div class="col-6"><input type="number" id="tiltZ" class="form-control form-control-sm" step="90" placeholder="{{ __('Tilt Z') }}"></div>
-              </div>
-              <button type="button" id="tiltAuto" class="btn btn-outline-secondary btn-sm w-100">{{ __('Auto (reset)') }}</button>
-              <small class="text-muted d-block mt-1">{{ __('Empty = auto. Use 90 / -90 to stand a model upright.') }}</small>
-            </div>
-            <label for="selWall" class="form-label small mb-1">{{ __('Hang on wall') }}</label>
-            <select id="selWall" class="form-select form-select-sm mb-2"></select>
-            <button type="button" id="btnRemove" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-trash me-1"></i>{{ __('Remove from twin') }}</button>
-          </div>
-        </div>
-      </div>
     </div>
 
     {{-- Right: canvas --}}
@@ -198,6 +199,10 @@
     var FLOORPLAN = @json($space->floorplan_image_path);
     var PLACEMENTS = @json($placements);
     var WALLS = @json($walls ?? []);
+    var DOORS = @json($doors ?? []);
+    var SHAPE = @json($shape ?? null);
+    var ROOM_W = {{ $space->room_w ?: 18 }}, ROOM_D = {{ $space->room_d ?: 14 }};
+    function aspectH(w) { return Math.round(w * Math.max(0.35, Math.min(1.6, ROOM_D / ROOM_W))); }
 
     if (typeof Konva === 'undefined') {
       document.getElementById('stageWrap').innerHTML =
@@ -207,30 +212,75 @@
 
     var wrap = document.getElementById('stageWrap');
     var W = Math.max(320, wrap.clientWidth || 800);
-    var H = Math.round(W * 0.6);
+    var H = aspectH(W);   // match the room's real proportions (from the plan)
     var NODE = 90; // base object box in px
 
     var stage = new Konva.Stage({ container: 'stageWrap', width: W, height: H });
     var bgLayer = new Konva.Layer();
     var wallLayer = new Konva.Layer();
+    var doorLayer = new Konva.Layer({ listening: false });
     var layer = new Konva.Layer();
     var wvLayer = new Konva.Layer({ visible: false });
-    stage.add(bgLayer); stage.add(wallLayer); stage.add(layer); stage.add(wvLayer);
+    stage.add(bgLayer); stage.add(wallLayer); stage.add(doorLayer); stage.add(layer); stage.add(wvLayer);
 
-    // Background: floorplan image or a grid.
-    if (FLOORPLAN) {
-      var bg = new Image();
-      bg.onload = function () {
-        var k = new Konva.Image({ image: bg, x: 0, y: 0, width: W, height: H, listening: false });
-        bgLayer.add(k); bgLayer.draw();
-      };
-      bg.src = FLOORPLAN;
-    } else {
-      var grid = 40;
-      for (var gx = 0; gx <= W; gx += grid) bgLayer.add(new Konva.Line({ points: [gx, 0, gx, H], stroke: '#e3e3e3', strokeWidth: 1, listening: false }));
-      for (var gy = 0; gy <= H; gy += grid) bgLayer.add(new Konva.Line({ points: [0, gy, W, gy], stroke: '#e3e3e3', strokeWidth: 1, listening: false }));
+    // Door indicators on the floor view: show where each perimeter door is so
+    // objects can be placed clear of them. Doors are edited in the Building Plan.
+    function drawDoorMarkers() {
+      doorLayer.destroyChildren();
+      (DOORS || []).forEach(function (d) {
+        var horiz = (d.wall === 'north' || d.wall === 'south');
+        var lenPx = (d.width / (horiz ? ROOM_W : ROOM_D)) * (horiz ? W : H);
+        var pts, lx, ly;
+        if (d.wall === 'north') { var x = d.pos * W; pts = [x - lenPx / 2, 0, x + lenPx / 2, 0]; lx = x; ly = 8; }
+        else if (d.wall === 'south') { var xs = d.pos * W; pts = [xs - lenPx / 2, H, xs + lenPx / 2, H]; lx = xs; ly = H - 16; }
+        else if (d.wall === 'west') { var y = d.pos * H; pts = [0, y - lenPx / 2, 0, y + lenPx / 2]; lx = 10; ly = y; }
+        else { var ye = d.pos * H; pts = [W, ye - lenPx / 2, W, ye + lenPx / 2]; lx = W - 30; ly = ye; }
+        doorLayer.add(new Konva.Line({ points: pts, stroke: '#198754', strokeWidth: 8, lineCap: 'round', opacity: 0.9 }));
+        doorLayer.add(new Konva.Text({ x: lx - 16, y: ly - 6, width: 32, align: 'center', text: '{{ __('door') }}', fontSize: 9, fill: '#198754' }));
+      });
+      doorLayer.draw();
+    }
+
+    // Background mirrors the room's plan footprint: the floor (image or grid) is
+    // clipped to the polygon shape, with the area outside shaded as "void", so the
+    // builder matches the room created in the floor-plan layout.
+    function drawBackground() {
+      bgLayer.destroyChildren();
+      var shaped = (SHAPE && SHAPE.length >= 3);
+      bgLayer.add(new Konva.Rect({ x: 0, y: 0, width: W, height: H, fill: '#dfe2e6', listening: false }));   // void
+      var clipFn = shaped ? function (ctx) {
+        ctx.beginPath(); ctx.moveTo(SHAPE[0].x * W, SHAPE[0].z * H);
+        for (var i = 1; i < SHAPE.length; i++) ctx.lineTo(SHAPE[i].x * W, SHAPE[i].z * H);
+        ctx.closePath();
+      } : undefined;
+      var roomBg = new Konva.Group(clipFn ? { clipFunc: clipFn } : {});
+      bgLayer.add(roomBg);
+      roomBg.add(new Konva.Rect({ x: 0, y: 0, width: W, height: H, fill: '#ffffff', listening: false }));   // floor
+      if (FLOORPLAN) {
+        var bg = new Image();
+        bg.onload = function () { roomBg.add(new Konva.Image({ image: bg, x: 0, y: 0, width: W, height: H, listening: false })); bgLayer.draw(); };
+        bg.src = FLOORPLAN;
+      } else {
+        var grid = 40;
+        for (var gx = 0; gx <= W; gx += grid) roomBg.add(new Konva.Line({ points: [gx, 0, gx, H], stroke: '#e3e3e3', strokeWidth: 1, listening: false }));
+        for (var gy = 0; gy <= H; gy += grid) roomBg.add(new Konva.Line({ points: [0, gy, W, gy], stroke: '#e3e3e3', strokeWidth: 1, listening: false }));
+      }
+      if (shaped) {
+        var pts = []; SHAPE.forEach(function (p) { pts.push(p.x * W, p.z * H); });
+        bgLayer.add(new Konva.Line({ points: pts, closed: true, stroke: '#0d6efd', strokeWidth: 2, listening: false }));
+        // Number each wall (perimeter edge), nudged inward, to match the dropdown.
+        var cxp = 0, cyp = 0; SHAPE.forEach(function (p) { cxp += p.x; cyp += p.z; }); cxp = cxp / SHAPE.length * W; cyp = cyp / SHAPE.length * H;
+        for (var e = 0; e < SHAPE.length; e++) {
+          var pa = SHAPE[e], pb = SHAPE[(e + 1) % SHAPE.length];
+          var mx = (pa.x + pb.x) / 2 * W, my = (pa.z + pb.z) / 2 * H;
+          var dx = cxp - mx, dy = cyp - my, dl = Math.hypot(dx, dy) || 1; mx += dx / dl * 14; my += dy / dl * 14;
+          bgLayer.add(new Konva.Circle({ x: mx, y: my, radius: 9, fill: '#0d6efd', opacity: 0.85, listening: false }));
+          bgLayer.add(new Konva.Text({ x: mx - 9, y: my - 6, width: 18, align: 'center', text: '' + (e + 1), fontSize: 11, fill: '#fff', listening: false }));
+        }
+      }
       bgLayer.draw();
     }
+    drawBackground();
 
     var tr = new Konva.Transformer({ rotateEnabled: true, enabledAnchors: ['top-left','top-right','bottom-left','bottom-right'], keepRatio: true });
     layer.add(tr);
@@ -382,10 +432,14 @@
     }
     function refreshWallOptions() {
       var sel = document.getElementById('selWall'); var cur = sel.value;
-      var opts = '<option value="">{{ __('Auto (nearest)') }}</option>' +
-        '<option value="north">{{ __('Back wall') }}</option><option value="south">{{ __('Front wall') }}</option>' +
-        '<option value="west">{{ __('Left wall') }}</option><option value="east">{{ __('Right wall') }}</option>';
-      WALLS.forEach(function (w, i) { opts += '<option value="' + w.id + '">{{ __('Wall') }} ' + (i + 1) + '</option>'; });
+      var opts = '<option value="">{{ __('Auto (nearest)') }}</option>';
+      if (SHAPE && SHAPE.length >= 3) {   // angled room: number each perimeter wall
+        for (var e = 0; e < SHAPE.length; e++) opts += '<option value="edge:' + e + '">{{ __('Wall') }} ' + (e + 1) + '</option>';
+      } else {
+        opts += '<option value="north">{{ __('Wall 1 (back)') }}</option><option value="south">{{ __('Wall 2 (front)') }}</option>' +
+          '<option value="west">{{ __('Wall 3 (left)') }}</option><option value="east">{{ __('Wall 4 (right)') }}</option>';
+      }
+      WALLS.forEach(function (w, i) { opts += '<option value="' + w.id + '">{{ __('Interior') }} ' + (i + 1) + '</option>'; });
       sel.innerHTML = opts; sel.value = cur;
     }
     wallBtn.addEventListener('click', function () { setWallMode(!wallAdding); });
@@ -394,7 +448,7 @@
       selected.setAttr('wallKey', this.value);
       fetch(URLS.wall, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), wall: this.value }) });
     });
-    redrawWalls(); refreshWallOptions();
+    redrawWalls(); refreshWallOptions(); drawDoorMarkers();
 
     // Save room size (width / depth / wall height).
     var rdBtn = document.getElementById('rdSave');
@@ -547,10 +601,18 @@
     }
 
     // ---- Wall view (elevation editor): hang objects flat on a wall, no floor clutter ----
-    var mode = 'floor', wvWall = 'north', WV_NODE = 70;
-    (function () {   // add interior walls to the wall picker
-      var sel = document.getElementById('wvWall');
-      WALLS.forEach(function (w, i) { var o = document.createElement('option'); o.value = w.id; o.textContent = '{{ __('Wall') }} ' + (i + 1); sel.appendChild(o); });
+    var mode = 'floor', WV_NODE = 70;
+    var wvWall = (SHAPE && SHAPE.length >= 3) ? 'edge:0' : 'north';
+    (function () {   // build the wall picker: numbered perimeter walls + interior dividers
+      var sel = document.getElementById('wvWall'), html = '';
+      if (SHAPE && SHAPE.length >= 3) {
+        for (var e = 0; e < SHAPE.length; e++) html += '<option value="edge:' + e + '">{{ __('Wall') }} ' + (e + 1) + '</option>';
+      } else {
+        html = '<option value="north">{{ __('Wall 1 (back)') }}</option><option value="south">{{ __('Wall 2 (front)') }}</option>' +
+          '<option value="west">{{ __('Wall 3 (left)') }}</option><option value="east">{{ __('Wall 4 (right)') }}</option>';
+      }
+      WALLS.forEach(function (w, i) { html += '<option value="' + w.id + '">{{ __('Interior') }} ' + (i + 1) + '</option>'; });
+      sel.innerHTML = html; sel.value = wvWall;
     })();
     function setMode(m) {
       mode = m;
@@ -559,7 +621,7 @@
       wb.classList.toggle('btn-primary', m === 'wall'); wb.classList.toggle('btn-outline-primary', m !== 'wall');
       document.getElementById('wvWall').classList.toggle('d-none', m !== 'wall');
       var floorOn = (m === 'floor');
-      bgLayer.visible(floorOn); wallLayer.visible(floorOn); layer.visible(floorOn); wvLayer.visible(!floorOn);
+      bgLayer.visible(floorOn); wallLayer.visible(floorOn); doorLayer.visible(floorOn); layer.visible(floorOn); wvLayer.visible(!floorOn);
       tr.nodes([]); clearSelect();
       if (floorOn) { stage.draw(); } else { buildWallView(); }
     }
@@ -567,22 +629,54 @@
     document.getElementById('modeWall').addEventListener('click', function () { setMode('wall'); });
     document.getElementById('wvWall').addEventListener('change', function () { wvWall = this.value; buildWallView(); });
 
+    // Spread items that share (near) the same spot on the wall so they don't
+    // render on top of each other; persist the nudge so the walkthrough matches.
+    function wvDeOverlap(items) {
+      items.sort(function (a, b) { return (a.wall_u - b.wall_u) || (a.wall_v - b.wall_v); });
+      var gapU = (WV_NODE / W) * 1.05;
+      for (var i = 1; i < items.length; i++) {
+        var prev = items[i - 1], cur = items[i];
+        if ((cur.wall_u - prev.wall_u) < gapU) {   // same column -> step it along the wall
+          cur.wall_u = Math.min(0.97, prev.wall_u + gapU);
+          fetch(URLS.wallPos, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+            body: JSON.stringify({ placement_id: cur.id, u: cur.wall_u, v: cur.wall_v }) });
+        }
+      }
+    }
     function buildWallView() {
       wvLayer.destroyChildren();
       wvLayer.add(new Konva.Rect({ x: 0, y: 0, width: W, height: H, fill: '#e9ecef', listening: false }));
       wvLayer.add(new Konva.Line({ points: [0, H - 3, W, H - 3], stroke: '#adb5bd', strokeWidth: 5, listening: false }));
       var lbl = document.getElementById('wvWall').selectedOptions[0];
       wvLayer.add(new Konva.Text({ x: 8, y: 8, text: (lbl ? lbl.text : '') + ' — {{ __('drag to position; search to add') }}', fontSize: 12, fill: '#495057', listening: false }));
+      var loadingTxt = new Konva.Text({ x: 0, y: H / 2 - 10, width: W, align: 'center', text: '{{ __('Loading wall…') }}', fontSize: 16, fontStyle: 'bold', fill: '#6c757d', listening: false });
+      wvLayer.add(loadingTxt);
       wvLayer.draw();
       fetch(URLS.placements).then(function (r) { return r.json(); }).then(function (d) {
-        if (!d.ok) return;
-        d.placements.forEach(function (p) {
-          if (p.wall_or_zone === wvWall && p.wall_u !== null && p.wall_u !== undefined) wvAddNode(p);
+        if (!d.ok) { loadingTxt.text('{{ __('Could not load wall.') }}'); wvLayer.draw(); return; }
+        var items = d.placements.filter(function (p) { return p.wall_or_zone === wvWall; });
+        // Items assigned to this wall via "Hang on wall" have no u/v yet — give
+        // them a starting spot along the wall and persist it so they show up.
+        var fresh = 0;
+        items.forEach(function (p) {
+          if (p.wall_u === null || p.wall_u === undefined) {
+            p.wall_u = 0.12 + (fresh % 6) * 0.15;
+            p.wall_v = (p.wall_v === null || p.wall_v === undefined) ? 0.55 : p.wall_v;
+            fresh++;
+            fetch(URLS.wallPos, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+              body: JSON.stringify({ placement_id: p.id, u: p.wall_u, v: p.wall_v }) });
+          }
         });
+        wvDeOverlap(items);
+        if (!items.length) { loadingTxt.text('{{ __('No objects on this wall yet — search to add.') }}'); wvLayer.draw(); return; }
+        var pending = items.length;
+        function ready() { pending--; if (pending <= 0) { loadingTxt.destroy(); wvLayer.draw(); } }
+        items.forEach(function (p) { wvAddNode(p, ready); });
         wvLayer.draw();
-      });
+      }).catch(function () { loadingTxt.text('{{ __('Could not load wall.') }}'); wvLayer.draw(); });
     }
-    function wvAddNode(p) {
+    function wvAddNode(p, onReady) {
+      var done = false, finish = function () { if (done) return; done = true; if (onReady) onReady(); };
       var u = (p.wall_u != null) ? p.wall_u : 0.5, v = (p.wall_v != null) ? p.wall_v : 0.55;
       var g = new Konva.Group({ x: u * W, y: (1 - v) * H, draggable: true, name: 'wvitem' });
       g.setAttr('placementId', p.id);
@@ -590,10 +684,10 @@
       g.add(r);
       if (p.thumb_url) {
         var im = new Image();
-        im.onload = function () { var ki = new Konva.Image({ image: im, x: -WV_NODE / 2 + 2, y: -WV_NODE / 2 + 2, width: WV_NODE - 4, height: WV_NODE - 4 }); g.add(ki); r.moveToBottom(); wvLayer.draw(); };
-        im.onerror = function () { g.add(new Konva.Text({ text: '#' + p.information_object_id, x: -WV_NODE / 2, y: -6, width: WV_NODE, align: 'center', fontSize: 10, fill: '#999' })); wvLayer.draw(); };
+        im.onload = function () { var ki = new Konva.Image({ image: im, x: -WV_NODE / 2 + 2, y: -WV_NODE / 2 + 2, width: WV_NODE - 4, height: WV_NODE - 4 }); g.add(ki); r.moveToBottom(); wvLayer.draw(); finish(); };
+        im.onerror = function () { g.add(new Konva.Text({ text: '#' + p.information_object_id, x: -WV_NODE / 2, y: -6, width: WV_NODE, align: 'center', fontSize: 10, fill: '#999' })); wvLayer.draw(); finish(); };
         im.src = p.thumb_url;
-      } else { g.add(new Konva.Text({ text: '#' + p.information_object_id, x: -WV_NODE / 2, y: -6, width: WV_NODE, align: 'center', fontSize: 10, fill: '#999' })); }
+      } else { g.add(new Konva.Text({ text: '#' + p.information_object_id, x: -WV_NODE / 2, y: -6, width: WV_NODE, align: 'center', fontSize: 10, fill: '#999' })); finish(); }
       g.on('dragend', function () {
         var nu = Math.max(0, Math.min(1, g.x() / W)), nv = Math.max(0, Math.min(1, 1 - g.y() / H));
         fetch(URLS.wallPos, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ placement_id: g.getAttr('placementId'), u: nu, v: nv }) });
@@ -606,12 +700,10 @@
       var nw = Math.max(320, wrap.clientWidth || W);
       if (Math.abs(nw - W) < 20) return;
       var ratios = layer.find('.placement').map(function (g) { return { g: g, rx: g.x() / W, ry: g.y() / H }; });
-      W = nw; H = Math.round(W * 0.6);
+      W = nw; H = aspectH(W);
       stage.width(W); stage.height(H);
       ratios.forEach(function (o) { o.g.x(o.rx * W); o.g.y(o.ry * H); });
-      bgLayer.destroyChildren();
-      if (FLOORPLAN) { var b2 = new Image(); b2.onload = function () { bgLayer.add(new Konva.Image({ image: b2, width: W, height: H, listening: false })); bgLayer.draw(); }; b2.src = FLOORPLAN; }
-      layer.draw();
+      drawBackground(); redrawWalls(); drawDoorMarkers(); layer.draw();
     });
   })();
   </script>
