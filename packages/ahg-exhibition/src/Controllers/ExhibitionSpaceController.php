@@ -268,6 +268,20 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    /** Conservation forecast page (heratio#1147): projected light dose, risk, visitors. */
+    public function forecast(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        return view('ahg-exhibition::exhibition-space.forecast', [
+            'space' => $space,
+            'rooms' => $this->service->buildingForecast($space),
+        ]);
+    }
+
     /**
      * Live data link (heratio#1146): ingest sensor/occupancy readings for a space.
      * Accepts a single {metric,value,recorded_at?} or {readings:[...]} batch.

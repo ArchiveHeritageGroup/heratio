@@ -40,6 +40,21 @@ Status values: `ok` (green), `warn` (amber), `alert` (red), `none` (no readings,
 (append-only time series; the latest value per metric is the current state, and
 the history feeds the planned twin-analytics dashboard, heratio#1148).
 
+## Conservation forecast (heratio#1147 - simulation & prediction)
+Builds on the readings: `GET /exhibition-space/{slug}/forecast` (linked from the
+space show page + builder). For each room it projects, from the last 30 days of
+light readings:
+
+- Average lux, projected **annual light dose** (avg lux x display hours/day x ~312 open days, lux-hours/year).
+- The room's **light budget** by material sensitivity (very sensitive 50k / sensitive 150k / durable 600k lux-hours/year, inferred from the lux target).
+- **% of budget**, **days until the budget is reached** at the current rate, and a risk badge (ok / warn >100% / alert >150%).
+- Visitor average + peak vs capacity.
+
+A client-side **what-if simulator** recomputes annual dose, % of budget and
+days-to-budget for any light level / display-hours / lux-target combination.
+
+Service: `lightBudget()`, `conservationForecast()`, `buildingForecast()`.
+
 ## Still to come (umbrella heratio#1145)
-Simulation/prediction (#1147), analytics dashboard (#1148), AI recommendation
-(#1149), multi-user presence (#1150), XR (#1152), interoperability (#1151).
+Analytics dashboard (#1148), AI recommendation (#1149), multi-user presence
+(#1150), XR (#1152), interoperability (#1151), WebGPU (#1153), pixel-streaming (#1154).

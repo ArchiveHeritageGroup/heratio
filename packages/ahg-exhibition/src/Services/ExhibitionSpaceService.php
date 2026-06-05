@@ -1040,6 +1040,79 @@ class ExhibitionSpaceService
         ];
     }
 
+    // -------- Simulation & prediction (heratio#1147) --------
+
+    /** Annual light-dose budget (lux-hours) by material sensitivity, inferred from the lux target. */
+    public function lightBudget(?float $luxTarget): float
+    {
+        if ($luxTarget === null) {
+            return 150000;
+        }
+        if ($luxTarget <= 50) {
+            return 50000;    // very light-sensitive (textiles, works on paper, dyes)
+        }
+        if ($luxTarget <= 200) {
+            return 150000;   // sensitive (oil/tempera, bone, ivory)
+        }
+
+        return 600000;       // durable (metal, stone, ceramic, glass)
+    }
+
+    /**
+     * Conservation + occupancy forecast for one space from its readings:
+     * projected annual light dose vs budget, days-to-budget, and visitor stats.
+     * displayHoursPerDay defaults to 8; the open-year is ~312 days.
+     *
+     * @return array<string,mixed>
+     */
+    public function conservationForecast(object $space, float $displayHoursPerDay = 8.0): array
+    {
+        $displayDays = 312;
+        $since = now()->subDays(30)->format('Y-m-d H:i:s');
+        $lux = DB::table('ahg_exhibition_reading')->where('exhibition_space_id', $space->id)->where('metric', 'lux')->where('recorded_at', '>=', $since);
+        $avgLux = $lux->avg('value');
+        $avgLux = $avgLux !== null ? round((float) $avgLux, 1) : null;
+        $budget = $this->lightBudget($space->lighting_lux_target !== null ? (float) $space->lighting_lux_target : null);
+        $annual = $avgLux !== null ? $avgLux * $displayHoursPerDay * $displayDays : null;
+        $pct = ($annual !== null && $budget > 0) ? $annual / $budget : null;
+        $daysToBudget = ($avgLux !== null && $avgLux > 0) ? (int) round($budget / ($avgLux * $displayHoursPerDay)) : null;
+        $risk = $pct === null ? 'none' : ($pct > 1.5 ? 'alert' : ($pct > 1.0 ? 'warn' : 'ok'));
+
+        $vis = DB::table('ahg_exhibition_reading')->where('exhibition_space_id', $space->id)->where('metric', 'visitors')->where('recorded_at', '>=', $since);
+        $avgVis = $vis->avg('value');
+        $peakVis = $vis->max('value');
+
+        return [
+            'id' => (int) $space->id, 'name' => $space->name,
+            'avg_lux' => $avgLux,
+            'lux_target' => $space->lighting_lux_target !== null ? (float) $space->lighting_lux_target : null,
+            'display_hours_per_day' => $displayHoursPerDay, 'display_days' => $displayDays,
+            'budget' => $budget,
+            'annual_dose' => $annual !== null ? (int) round($annual) : null,
+            'pct_of_budget' => $pct !== null ? round($pct * 100, 1) : null,
+            'days_to_budget' => $daysToBudget,
+            'risk' => $risk,
+            'avg_visitors' => $avgVis !== null ? round((float) $avgVis, 1) : null,
+            'peak_visitors' => $peakVis !== null ? (float) $peakVis : null,
+            'capacity' => $space->capacity_value !== null ? (float) $space->capacity_value : null,
+        ];
+    }
+
+    /** Conservation forecast for every room in the building. @return array<int,array<string,mixed>> */
+    public function buildingForecast(object $space): array
+    {
+        $ids = $this->buildingSpaceIds($space);
+        $out = [];
+        foreach ($ids as $id) {
+            $sp = $this->getById($id);
+            if ($sp) {
+                $out[] = $this->conservationForecast($sp);
+            }
+        }
+
+        return $out;
+    }
+
     /** Seed plausible demo readings across the building (no physical sensors yet). */
     public function simulateReadings(object $space): int
     {
