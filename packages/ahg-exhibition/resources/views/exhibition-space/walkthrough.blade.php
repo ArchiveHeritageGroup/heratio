@@ -284,9 +284,10 @@
     }
     // Partial-height wall piece between heights y0..y1 (used for door lintels).
     function wallSegH(len, x, z, ry, mat, y0, y1) {
-      if (len <= 0.05 || (y1 - y0) <= 0.05) return;
+      if (len <= 0.05 || (y1 - y0) <= 0.05) return null;
       var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), mat || wallMat);
       m.position.set(x, (y0 + y1) / 2, z); m.rotation.y = ry; addToRoom(_curRoom, m);
+      return m;
     }
     // Doorway openings on this wall (plan mode): manual doors placed in the plan
     // editor, plus auto-openings where another room adjoins the same plane.
@@ -338,12 +339,12 @@
       });
       function full(s, e) { var len = e - s; if (len <= 0.1) return; var mid = (s + e) / 2; if (vertical) wallSeg(len, fixed, mid, ry, mat); else wallSeg(len, mid, fixed, ry, mat); }
       function lintel(s, e) { var len = e - s; var mid = (s + e) / 2; if (vertical) wallSegH(len, fixed, mid, ry, mat, doorH, RH); else wallSegH(len, mid, fixed, ry, mat, doorH, RH); }
-      function slab(s, e) { var len = e - s; var mid = (s + e) / 2; if (vertical) wallSegH(len, fixed, mid, ry, doorMat, 0, doorH); else wallSegH(len, mid, fixed, ry, doorMat, 0, doorH); }   // solid door fills the opening
+      function slab(s, e) { var len = e - s; var mid = (s + e) / 2; return vertical ? wallSegH(len, fixed, mid, ry, doorMat, 0, doorH) : wallSegH(len, mid, fixed, ry, doorMat, 0, doorH); }   // solid door fills the opening
       var cur = a;
       doors.forEach(function (dd) {
         if (dd[0] > cur) full(cur, dd[0]);
         lintel(dd[0], dd[1]);
-        slab(dd[0], dd[1]);
+        var sm = slab(dd[0], dd[1]);
         var mid = (dd[0] + dd[1]) / 2;
         // Sign showing which room this doorway leads into.
         var ox = vertical ? (edge - insetDir * 0.5) : mid, oz = vertical ? mid : (edge - insetDir * 0.5);
@@ -352,6 +353,7 @@
           var ix = vertical ? (edge + insetDir * 0.35) : mid, iz = vertical ? mid : (edge + insetDir * 0.35);
           var lab = makeTextSprite('→ ' + dest.name, 0.3);
           lab.position.set(ix, doorH + 0.35, iz); addToRoom(rm, lab);
+          if (sm) { sm.userData.action = 'door'; sm.userData.doorDest = dest; pickables.push(sm); }   // click the door to jump into that room
         }
         cur = dd[1];
       });
@@ -368,16 +370,19 @@
         if (s < 0.2) s = 0; if (L - e < 0.2) e = L; return [s, e];
       }).filter(function (d) { return d[1] - d[0] > 0.15; }).sort(function (p, q) { return p[0] - q[0]; });
       var doors = []; raw.forEach(function (d) { if (doors.length && d[0] <= doors[doors.length - 1][1] + 0.01) doors[doors.length - 1][1] = Math.max(doors[doors.length - 1][1], d[1]); else doors.push(d.slice()); });
-      function seg(s, e, y0, y1, m2) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return; var mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), m2 || mat || wallMat); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); }
+      function seg(s, e, y0, y1, m2) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return null; var mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), m2 || mat || wallMat); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); return m; }
       var cur = 0;
       doors.forEach(function (dd) {
         if (dd[0] > cur) seg(cur, dd[0], 0, RH);
         seg(dd[0], dd[1], doorH, RH);          // lintel above the opening
-        seg(dd[0], dd[1], 0, doorH, doorMat);  // solid door fills the opening (no see-through)
+        var sm = seg(dd[0], dd[1], 0, doorH, doorMat);  // solid door fills the opening (no see-through)
         var mid = (dd[0] + dd[1]) / 2, mx = ax + ux * mid, mz = az + uz * mid;
         var nx = -uz, nz = ux; if ((ccx - mx) * nx + (ccz - mz) * nz > 0) { nx = -nx; nz = -nz; }   // outward normal
         var ow = roomWorld(rm, mx + nx * 0.5, mz + nz * 0.5), dest = findRoomAtWorld(ow.x, ow.z, rm);
-        if (dest && dest.name) { var lab = makeTextSprite('→ ' + dest.name, 0.3); lab.position.set(mx - nx * 0.35, doorH + 0.35, mz - nz * 0.35); addToRoom(rm, lab); }
+        if (dest && dest.name) {
+          var lab = makeTextSprite('→ ' + dest.name, 0.3); lab.position.set(mx - nx * 0.35, doorH + 0.35, mz - nz * 0.35); addToRoom(rm, lab);
+          if (sm) { sm.userData.action = 'door'; sm.userData.doorDest = dest; pickables.push(sm); }   // click the door to jump into that room
+        }
         cur = dd[1];
       });
       if (cur < L) seg(cur, L, 0, RH);
@@ -915,6 +920,7 @@
         var o = hits[0].object;
         while (o && !o.userData.stop && !o.userData.action) o = o.parent;
         if (o && o.userData.action === 'minimap') { toggleMinimap(true); return; }
+        if (o && o.userData.action === 'door' && o.userData.doorDest) { enterRoom(o.userData.doorDest); return; }   // click a door to jump into that room
         if (o && o.userData.stop) openPanel(o.userData.stop);
       }
     });
