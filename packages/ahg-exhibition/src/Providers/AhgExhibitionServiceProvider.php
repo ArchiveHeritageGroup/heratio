@@ -83,6 +83,18 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     }
                 }
             }
+
+            // heratio#1146 - live data link: sensor / occupancy readings per space.
+            if (! Schema::hasTable('ahg_exhibition_reading')) {
+                DB::statement('CREATE TABLE ahg_exhibition_reading (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    exhibition_space_id INT NOT NULL,
+                    metric VARCHAR(32) NOT NULL,
+                    value DECIMAL(10,2) NOT NULL,
+                    recorded_at DATETIME NOT NULL,
+                    INDEX idx_space_metric_time (exhibition_space_id, metric, recorded_at)
+                )');
+            }
         } catch (\Throwable $e) {
             // Non-fatal: builder simply stays unavailable until the columns exist.
         }

@@ -876,6 +876,7 @@ class ExhibitionSpaceService
                 'walls' => $this->getWalls((int) $r->id),
                 'doors' => $this->getDoors((int) $r->id),
                 'shape' => $this->getShape((int) $r->id),
+                'live' => $this->liveState($r),
             ];
             $minX = $minX === null ? $x : min($minX, $x);
             $maxX = $maxX === null ? $x + $dim['w'] : max($maxX, $x + $dim['w']);
@@ -949,6 +950,115 @@ class ExhibitionSpaceService
                 'record_url' => $r->slug ? '/'.$r->slug : null,
             ];
         })->all();
+    }
+
+    // -------- Live data link + conservation status (heratio#1146) --------
+
+    /** Append a sensor/occupancy reading for a space (the digital-twin data link). */
+    public function recordReading(int $spaceId, string $metric, float $value, ?string $recordedAt = null): void
+    {
+        DB::table('ahg_exhibition_reading')->insert([
+            'exhibition_space_id' => $spaceId,
+            'metric' => substr($metric, 0, 32),
+            'value' => $value,
+            'recorded_at' => $recordedAt ?: now(),
+        ]);
+    }
+
+    /**
+     * Latest value per metric for a space: ['lux'=>['value'=>..,'at'=>..], ...].
+     *
+     * @return array<string,array{value:float,at:string}>
+     */
+    public function latestReadings(int $spaceId): array
+    {
+        $rows = DB::table('ahg_exhibition_reading')
+            ->where('exhibition_space_id', $spaceId)
+            ->whereIn('id', function ($q) use ($spaceId) {
+                $q->from('ahg_exhibition_reading')->selectRaw('MAX(id)')
+                    ->where('exhibition_space_id', $spaceId)->groupBy('metric');
+            })->get();
+        $out = [];
+        foreach ($rows as $r) {
+            $out[$r->metric] = ['value' => (float) $r->value, 'at' => (string) $r->recorded_at];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Conservation status from readings vs targets (international museum norms:
+     * temp 16-24C, RH 40-60%, light vs the space's lux target). Worst metric wins.
+     *
+     * @return array{status:string,reasons:array<int,string>}
+     */
+    public function conservationStatus(object $space, array $readings): array
+    {
+        $level = 0;
+        $reasons = [];
+        $bump = function (int $l, string $msg) use (&$level, &$reasons) { $level = max($level, $l); $reasons[] = $msg; };
+        if (isset($readings['lux'])) {
+            $lux = $readings['lux']['value'];
+            $target = $space->lighting_lux_target !== null ? (float) $space->lighting_lux_target : 200.0;
+            if ($lux > $target * 1.5) {
+                $bump(2, 'Light '.round($lux).' lux well above target '.round($target));
+            } elseif ($lux > $target) {
+                $bump(1, 'Light '.round($lux).' lux above target '.round($target));
+            }
+        }
+        if (isset($readings['temp_c'])) {
+            $t = $readings['temp_c']['value'];
+            if ($t < 14 || $t > 26) {
+                $bump(2, 'Temperature '.$t.'C out of safe range');
+            } elseif ($t < 16 || $t > 24) {
+                $bump(1, 'Temperature '.$t.'C outside ideal 16-24C');
+            }
+        }
+        if (isset($readings['humidity'])) {
+            $h = $readings['humidity']['value'];
+            if ($h < 35 || $h > 65) {
+                $bump(2, 'Humidity '.$h.'% out of safe range');
+            } elseif ($h < 40 || $h > 60) {
+                $bump(1, 'Humidity '.$h.'% outside ideal 40-60%');
+            }
+        }
+
+        return ['status' => $level === 2 ? 'alert' : ($level === 1 ? 'warn' : 'ok'), 'reasons' => $reasons];
+    }
+
+    /** Combined live state for one room (readings + conservation status). */
+    public function liveState(object $space): array
+    {
+        $readings = $this->latestReadings((int) $space->id);
+        $cs = $this->conservationStatus($space, $readings);
+
+        return [
+            'readings' => $readings,
+            'status' => empty($readings) ? 'none' : $cs['status'],
+            'reasons' => $cs['reasons'],
+            'lux_target' => $space->lighting_lux_target !== null ? (float) $space->lighting_lux_target : null,
+        ];
+    }
+
+    /** Seed plausible demo readings across the building (no physical sensors yet). */
+    public function simulateReadings(object $space): int
+    {
+        $ids = $this->buildingSpaceIds($space);
+        $n = 0;
+        foreach ($ids as $i => $id) {
+            $sp = $this->getById($id);
+            if (! $sp) {
+                continue;
+            }
+            $target = $sp->lighting_lux_target !== null ? (float) $sp->lighting_lux_target : 200.0;
+            $this->recordReading($id, 'lux', round($target * (0.6 + ($i % 3) * 0.5), 1));   // ok / warn / alert mix
+            $this->recordReading($id, 'temp_c', round(19 + ($i % 4) * 2.5, 1));
+            $this->recordReading($id, 'humidity', round(45 + ($i % 5) * 6, 1));
+            $this->recordReading($id, 'visitors', ($i % 6) * 3);
+            $n += 4;
+        }
+
+        return $n;
     }
 
     /** Create a corridor object (building-space) at building-fraction (fx,fy). */

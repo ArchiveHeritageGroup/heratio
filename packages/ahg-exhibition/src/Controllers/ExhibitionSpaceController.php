@@ -268,6 +268,44 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    /**
+     * Live data link (heratio#1146): ingest sensor/occupancy readings for a space.
+     * Accepts a single {metric,value,recorded_at?} or {readings:[...]} batch.
+     */
+    public function recordReadingsAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $batch = $request->input('readings');
+        if (! is_array($batch)) {
+            $batch = [['metric' => $request->input('metric'), 'value' => $request->input('value'), 'recorded_at' => $request->input('recorded_at')]];
+        }
+        $n = 0;
+        foreach ($batch as $r) {
+            if (! isset($r['metric']) || ! isset($r['value']) || ! is_numeric($r['value'])) {
+                continue;
+            }
+            $this->service->recordReading((int) $space->id, (string) $r['metric'], (float) $r['value'], $r['recorded_at'] ?? null);
+            $n++;
+        }
+
+        return response()->json(['ok' => true, 'recorded' => $n, 'live' => $this->service->liveState($space)]);
+    }
+
+    /** Seed demo readings across the building so the live overlay is visible. */
+    public function simulateReadingsAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $n = $this->service->simulateReadings($space);
+
+        return response()->json(['ok' => true, 'recorded' => $n]);
+    }
+
     /** AJAX: add a new room to this space's building (from the plan editor). */
     public function addRoomAjax(Request $request, string $slug)
     {

@@ -13,6 +13,7 @@
     <a href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary">
       <i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}
     </a>
+    @auth<button type="button" id="simLiveBtn" class="btn btn-sm btn-outline-success" title="{{ __('Seed demo sensor readings to preview the live overlay') }}"><i class="fas fa-temperature-half me-1"></i>{{ __('Simulate live data') }}</button>@endauth
     <a href="{{ route('exhibition-space.show', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary">
       <i class="fas fa-arrow-left me-1"></i>{{ __('Back to space') }}
     </a>
@@ -194,7 +195,8 @@
       wallPlace: '{{ route('exhibition-space.builder.wall-place', ['slug' => $space->slug]) }}',
       wallPos: '{{ route('exhibition-space.builder.wall-pos', ['slug' => $space->slug]) }}',
       placements: '{{ route('exhibition-space.builder.placements', ['slug' => $space->slug]) }}',
-      roomDims: '{{ route('exhibition-space.builder.room-dims', ['slug' => $space->slug]) }}'
+      roomDims: '{{ route('exhibition-space.builder.room-dims', ['slug' => $space->slug]) }}',
+      simLive: '{{ route('exhibition-space.readings.simulate', ['slug' => $space->slug]) }}'
     };
     var FLOORPLAN = @json($space->floorplan_image_path);
     var PLACEMENTS = @json($placements);
@@ -742,6 +744,18 @@
       ratios.forEach(function (o) { o.g.x(o.rx * W); o.g.y(o.ry * H); });
       drawBackground(); redrawWalls(); drawDoorMarkers(); layer.draw();
     });
+
+    // Seed demo sensor readings so the walkthrough's Live overlay has data.
+    (function () {
+      var b = document.getElementById('simLiveBtn'); if (!b) return;
+      b.addEventListener('click', function () {
+        b.disabled = true;
+        fetch(URLS.simLive, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: '{}' })
+          .then(function (r) { return r.json(); })
+          .then(function (d) { b.disabled = false; b.innerHTML = '<i class="fas fa-check me-1"></i>' + (d.ok ? '{{ __('Live data seeded') }}' : '{{ __('Failed') }}'); })
+          .catch(function () { b.disabled = false; });
+      });
+    })();
   })();
   </script>
 @endsection

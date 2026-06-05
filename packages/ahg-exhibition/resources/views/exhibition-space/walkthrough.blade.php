@@ -45,6 +45,11 @@
           <div id="roomLoading" style="position:absolute;bottom:8px;left:8px;z-index:4;color:#ccc;font-size:.8rem;">{{ __('Loading gallery...') }}</div>
           <button id="roomHelpBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:8px;z-index:6;opacity:.85;" title="{{ __('Controls') }}"><i class="fas fa-question"></i></button>
           <button id="roomMapBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:44px;z-index:6;opacity:.85;" title="{{ __('Building map') }}"><i class="fas fa-map"></i></button>
+          <button id="roomLiveBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:80px;z-index:6;opacity:.85;" title="{{ __('Live data') }}"><i class="fas fa-temperature-half"></i></button>
+          <div id="wtLive" class="bg-dark text-white p-2 rounded small" style="position:absolute;top:46px;left:8px;z-index:7;width:230px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.5);">
+            <div class="fw-bold mb-1"><i class="fas fa-temperature-half me-1"></i>{{ __('Live conditions') }}</div>
+            <div id="wtLiveBody"></div>
+          </div>
           <div id="wtMinimap" class="bg-dark text-white p-2 rounded" style="position:absolute;top:46px;right:8px;z-index:7;width:260px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.5);">
             <div class="d-flex justify-content-between align-items-center mb-1"><span class="small fw-bold"><i class="fas fa-map me-1"></i>{{ __('Building — tap a room to enter') }}</span><button type="button" id="wtMiniClose" class="btn-close btn-close-white btn-sm" aria-label="{{ __('Close') }}"></button></div>
             <div id="wtMiniSvg"></div>
@@ -356,6 +361,9 @@
       if (cur < L) seg(cur, L, 0, RH);
     }
     var pickables = [];   // declared before the room loop: the map plaques push into it
+    // Live conservation overlay (heratio#1146): per-room status tint, toggled.
+    var STATUS_COLOR = { ok: 0x2e7d32, warn: 0xf9a825, alert: 0xc62828, none: 0x9e9e9e };
+    var roomTints = [];
     ROOMS.forEach(function (rm, i) {
       var cx = rm.x_offset + rm.w / 2, cz = rm.z_offset + rm.d / 2;
       RH = rm.h || WALL_H;   // this room's wall height (per-room, not building-wide)
@@ -427,6 +435,20 @@
         var m = new THREE.Mesh(new THREE.PlaneGeometry(len, RH), wallMat);
         m.position.set((ax + bx) / 2, RH / 2, (az + bz) / 2); m.rotation.y = -ang; addToRoom(rm, m);
       });
+      // Live conservation status tint (hidden until the Live button is pressed).
+      (function () {
+        var lv = rm.live || { status: 'none' };
+        var tmat = new THREE.MeshBasicMaterial({ color: STATUS_COLOR[lv.status] || STATUS_COLOR.none, transparent: true, opacity: 0.3, side: THREE.DoubleSide, depthWrite: false });
+        var tmesh;
+        if (SHAPE) {
+          var ts = new THREE.Shape(); SHAPE.forEach(function (p, j) { var px = p.x * rm.w, pz = p.z * rm.d; if (j === 0) ts.moveTo(px, pz); else ts.lineTo(px, pz); }); ts.closePath();
+          tmesh = new THREE.Mesh(new THREE.ShapeGeometry(ts), tmat); tmesh.rotation.x = Math.PI / 2; tmesh.position.set(rm.x_offset, 0.04, rm.z_offset);
+        } else {
+          tmesh = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), tmat); tmesh.rotation.x = -Math.PI / 2; tmesh.position.set(cx, 0.04, cz);
+        }
+        tmesh.visible = false;
+        addToRoom(rm, tmesh); roomTints.push(tmesh);
+      })();
       // Clickable "MAP" plaque on the back wall's left corner (usually white space).
       var mapIcon = makeWallIcon();
       mapIcon.position.set(rm.x_offset + 0.5, Math.min(RH - 0.4, 1.6), rm.z_offset + 0.06);
@@ -906,6 +928,32 @@
     document.getElementById('roomMapBtn').addEventListener('click', function (e) { e.stopPropagation(); toggleMinimap(); });
     document.getElementById('wtMiniClose').addEventListener('click', function (e) { e.stopPropagation(); toggleMinimap(false); });
 
+    // ---- Live data overlay: tint rooms by conservation status + readout HUD ----
+    var liveOn = false;
+    function toggleLive(show) {
+      liveOn = (show === undefined) ? !liveOn : show;
+      roomTints.forEach(function (t) { t.visible = liveOn; });
+      var p = document.getElementById('wtLive'); if (p) p.style.display = liveOn ? 'block' : 'none';
+      if (liveOn) updateLive();
+    }
+    function fmtLive(lv) {
+      if (!lv || lv.status === 'none' || !lv.readings) return '<div class="text-white-50">{{ __('No live readings yet.') }}</div>';
+      var r = lv.readings, parts = [];
+      if (r.lux) parts.push('{{ __('Light') }}: ' + Math.round(r.lux.value) + ' lux' + (lv.lux_target ? ' / ' + Math.round(lv.lux_target) : ''));
+      if (r.temp_c) parts.push('{{ __('Temp') }}: ' + r.temp_c.value + ' C');
+      if (r.humidity) parts.push('{{ __('Humidity') }}: ' + r.humidity.value + '%');
+      if (r.visitors) parts.push('{{ __('Visitors') }}: ' + Math.round(r.visitors.value));
+      var col = { ok: '#7bd88f', warn: '#ffd454', alert: '#ff8a8a' }[lv.status] || '#cccccc';
+      var reasons = (lv.reasons && lv.reasons.length) ? '<div class="text-white-50 mt-1" style="font-size:11px">' + lv.reasons.join('<br>') + '</div>' : '';
+      return '<div style="color:' + col + ';font-weight:bold;text-transform:uppercase">' + lv.status + '</div><div>' + parts.join('<br>') + '</div>' + reasons;
+    }
+    function updateLive() {
+      if (!liveOn) return;
+      var pos = controls.getObject().position, r = findRoomAtWorld(pos.x, pos.z, null) || curRoom, body = document.getElementById('wtLiveBody');
+      if (body && r) body.innerHTML = '<div class="fw-bold mb-1">' + (r.name || '') + '</div>' + fmtLive(r.live);
+    }
+    document.getElementById('roomLiveBtn').addEventListener('click', function (e) { e.stopPropagation(); toggleLive(); });
+
     // Distance-cull far rooms (whole groups) in large buildings to save draw cost.
     var CULL2 = 52 * 52;
     function cullRooms() {
@@ -928,7 +976,7 @@
     function animate() {
       requestAnimationFrame(animate);
       var dt = Math.min(0.05, clock.getDelta());
-      if ((_nameTick = (_nameTick + 1) % 12) === 0) { updateRoomName(); cullRooms(); }   // ~5x/sec
+      if ((_nameTick = (_nameTick + 1) % 12) === 0) { updateRoomName(); cullRooms(); if (liveOn) updateLive(); }   // ~5x/sec
       if (fly) {
         fly.t += dt / fly.dur;
         var fk = Math.min(1, fly.t);
