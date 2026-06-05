@@ -214,6 +214,74 @@ class ExhibitionSpaceController extends Controller
         ]);
     }
 
+    // ===================================================================
+    // Building plan editor (#1143) - arrange rooms on a blueprint
+    // ===================================================================
+
+    public function plan(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        return view('ahg-exhibition::exhibition-space.plan', [
+            'space' => $space,
+            'plan' => $this->service->getBuildingPlan($space),
+        ]);
+    }
+
+    /** AJAX: save a room's plan position (+ optional size). */
+    public function savePlanAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'room_id' => 'required|integer|min:1',
+            'x' => 'required|numeric', 'y' => 'required|numeric',
+            'w' => 'nullable|numeric', 'd' => 'nullable|numeric',
+        ]);
+        $ok = $this->service->savePlanRoom((int) $space->id, (int) $data['room_id'], (float) $data['x'], (float) $data['y'],
+            isset($data['w']) ? (float) $data['w'] : null, isset($data['d']) ? (float) $data['d'] : null);
+
+        return response()->json(['ok' => $ok]);
+    }
+
+    /** Upload a building plan / blueprint image (background for the plan editor). */
+    public function uploadBuildingPlan(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $request->validate(['plan_image' => 'required|image|mimes:jpeg,png,webp,svg|max:8192']);
+        $file = $request->file('plan_image');
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'png');
+        $dir = config('heratio.storage_path').'/uploads/exhibition-plans';
+        if (! is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        $filename = ($space->building_id ?: $space->slug).'-'.substr(md5((string) microtime(true)), 0, 8).'.'.$ext;
+        $file->move($dir, $filename);
+        $this->service->setBuildingPlanImage($space, '/uploads/exhibition-plans/'.$filename);
+
+        return redirect()->route('exhibition-space.plan', ['slug' => $slug])->with('success', 'Building plan uploaded.');
+    }
+
+    /** Clear the building plan image. */
+    public function clearBuildingPlan(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $this->service->setBuildingPlanImage($space, null);
+
+        return redirect()->route('exhibition-space.plan', ['slug' => $slug])->with('success', 'Building plan cleared.');
+    }
+
     /** AJAX: persist interior wall segments for a space. */
     public function saveWallsAjax(Request $request, string $slug)
     {
@@ -468,6 +536,59 @@ class ExhibitionSpaceController extends Controller
 
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])
             ->with('success', 'Ceiling image cleared.');
+    }
+
+    /** Upload a decorated/painted wall image (applied to the room's walls). */
+    public function uploadWallImage(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $request->validate(['wall_image' => 'required|image|mimes:jpeg,png,webp|max:8192']);
+        $file = $request->file('wall_image');
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        $dir = config('heratio.storage_path').'/uploads/exhibition-walls';
+        if (! is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        $filename = $space->slug.'-'.substr(md5((string) microtime(true)), 0, 8).'.'.$ext;
+        $file->move($dir, $filename);
+        $this->service->setWallImage((int) $space->id, '/uploads/exhibition-walls/'.$filename);
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall image uploaded.');
+    }
+
+    /** Clear the decorated wall image. */
+    public function clearWallImage(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $this->service->setWallImage((int) $space->id, null);
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall image cleared.');
+    }
+
+    /** AJAX: set room dimensions (width/depth/wall height) from the Builder. */
+    public function roomDimsAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'room_w' => 'nullable|numeric', 'room_d' => 'nullable|numeric', 'room_h' => 'nullable|numeric',
+        ]);
+        $this->service->updateRoomDims(
+            (int) $space->id,
+            isset($data['room_w']) ? (float) $data['room_w'] : null,
+            isset($data['room_d']) ? (float) $data['room_d'] : null,
+            isset($data['room_h']) ? (float) $data['room_h'] : null
+        );
+
+        return response()->json(['ok' => true]);
     }
 
     // ===================================================================

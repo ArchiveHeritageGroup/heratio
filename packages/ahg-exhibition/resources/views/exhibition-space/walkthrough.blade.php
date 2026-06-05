@@ -93,9 +93,10 @@
       return;
     }
     if (!ROOMS) {
-      ROOMS = [{ id: 0, name: '', w: 18, d: 14, h: 4, x_offset: 0, is_current: true,
+      ROOMS = [{ id: 0, name: '', w: 18, d: 14, h: 4, x_offset: 0, z_offset: -7, is_current: true,
         floorplan: @json($space->floorplan_image_path), stops: @json($stops), walls: @json($walls ?? []) }];
     }
+    var PLAN_MODE = !!(BUILDING && BUILDING.plan_mode);
     if (window.pdfjsLib) {
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
@@ -114,17 +115,29 @@
       });
     })();
     var WALL_H = (BUILDING && BUILDING.max_h) ? BUILDING.max_h : 4;
-    var BLD_W = 0, BLD_D = 0;
-    ROOMS.forEach(function (rm) { BLD_W = Math.max(BLD_W, rm.x_offset + rm.w); BLD_D = Math.max(BLD_D, rm.d); });
+    var BLD_minX = Infinity, BLD_maxX = -Infinity, BLD_minZ = Infinity, BLD_maxZ = -Infinity;
+    ROOMS.forEach(function (rm) {
+      if (rm.z_offset === null || rm.z_offset === undefined) rm.z_offset = -rm.d / 2;
+      BLD_minX = Math.min(BLD_minX, rm.x_offset); BLD_maxX = Math.max(BLD_maxX, rm.x_offset + rm.w);
+      BLD_minZ = Math.min(BLD_minZ, rm.z_offset); BLD_maxZ = Math.max(BLD_maxZ, rm.z_offset + rm.d);
+    });
     var curRoom = ROOMS.filter(function (r) { return r.is_current; })[0] || ROOMS[0];
-    function roomAt(x) { for (var i = 0; i < ROOMS.length; i++) { var r = ROOMS[i]; if (x >= r.x_offset - 0.01 && x <= r.x_offset + r.w + 0.01) return r; } return curRoom; }
+    function roomAt(x, z) {
+      for (var i = 0; i < ROOMS.length; i++) {
+        var r = ROOMS[i];
+        if (x >= r.x_offset - 0.01 && x <= r.x_offset + r.w + 0.01 && z >= r.z_offset - 0.01 && z <= r.z_offset + r.d + 0.01) return r;
+      }
+      var best = curRoom, bd = Infinity;
+      ROOMS.forEach(function (r) { var dx = x - (r.x_offset + r.w / 2), dz = z - (r.z_offset + r.d / 2), dd = dx * dx + dz * dz; if (dd < bd) { bd = dd; best = r; } });
+      return best;
+    }
     var W = room.clientWidth || 800, H = room.clientHeight || 480;
 
     var scene = new THREE.Scene();
     scene.background = new THREE.Color(0x20242a);
 
     var camera = new THREE.PerspectiveCamera(70, W / H, 0.05, 400);
-    camera.position.set(curRoom.x_offset + curRoom.w / 2, 1.6, curRoom.d / 2 - 1.5);
+    camera.position.set(curRoom.x_offset + curRoom.w / 2, 1.6, curRoom.z_offset + curRoom.d - 1.5);
 
     var renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio || 1);
@@ -139,37 +152,82 @@
     // Per-room floors, perimeter walls (with doorways between rooms) and dividers.
     var wallMat = new THREE.MeshStandardMaterial({ color: 0xf2f2f0, roughness: 1, side: THREE.DoubleSide });
     var DOOR = 1.6;   // doorway width between connected rooms
-    function wallSeg(len, x, z, ry) {
+    function wallSeg(len, x, z, ry, mat) {
       if (len <= 0.05) return;
-      var m = new THREE.Mesh(new THREE.PlaneGeometry(len, WALL_H), wallMat);
+      var m = new THREE.Mesh(new THREE.PlaneGeometry(len, WALL_H), mat || wallMat);
       m.position.set(x, WALL_H / 2, z); m.rotation.y = ry; scene.add(m);
     }
+    // Doorway openings where another room adjoins this wall (plan mode).
+    function doorsOnWall(rm, vertical, edge) {
+      var a0 = vertical ? rm.z_offset : rm.x_offset;
+      var a1 = vertical ? rm.z_offset + rm.d : rm.x_offset + rm.w;
+      var doors = [];
+      ROOMS.forEach(function (rj) {
+        if (rj === rm) return;
+        var jMin = vertical ? rj.x_offset : rj.z_offset;
+        var jMax = vertical ? rj.x_offset + rj.w : rj.z_offset + rj.d;
+        if (Math.abs(jMax - edge) > 0.3 && Math.abs(jMin - edge) > 0.3) return;   // not adjoining this plane
+        var b0 = vertical ? rj.z_offset : rj.x_offset;
+        var b1 = vertical ? rj.z_offset + rj.d : rj.x_offset + rj.w;
+        var oa = Math.max(a0, b0), ob = Math.min(a1, b1);
+        if (ob - oa > 0.8) { var mid = (oa + ob) / 2, dw = Math.min(DOOR, (ob - oa) * 0.7); doors.push([mid - dw / 2, mid + dw / 2]); }
+      });
+      return doors;
+    }
+    // Render a wall along [a,b] (at fixed coord, inset slightly), cutting door gaps.
+    function planWall(rm, vertical, edge, insetDir, ry, mat) {
+      var a = vertical ? rm.z_offset : rm.x_offset;
+      var b = vertical ? rm.z_offset + rm.d : rm.x_offset + rm.w;
+      var fixed = edge + insetDir * 0.05;
+      var doors = doorsOnWall(rm, vertical, edge).sort(function (p, q) { return p[0] - q[0]; });
+      var cur = a;
+      function seg(s, e) {
+        var len = e - s; if (len <= 0.05) return;
+        var mid = (s + e) / 2;
+        if (vertical) wallSeg(len, fixed, mid, ry, mat); else wallSeg(len, mid, fixed, ry, mat);
+      }
+      doors.forEach(function (dd) { var ds = Math.max(a, dd[0]), de = Math.min(b, dd[1]); if (ds > cur) seg(cur, ds); cur = Math.max(cur, de); });
+      if (cur < b) seg(cur, b);
+    }
     ROOMS.forEach(function (rm, i) {
-      var cx = rm.x_offset + rm.w / 2;
+      var cx = rm.x_offset + rm.w / 2, cz = rm.z_offset + rm.d / 2;
+      // Decorated/painted wall material for this room (if a wall image is set).
+      var rwMat = wallMat;
+      if (rm.wall_image) {
+        rwMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, side: THREE.DoubleSide });
+        new THREE.TextureLoader().load(rm.wall_image, function (tex) { rwMat.map = tex; rwMat.needsUpdate = true; });
+      }
       var fmat = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: 0.95 });
       var fl = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), fmat);
-      fl.rotation.x = -Math.PI / 2; fl.position.set(cx, 0, 0); scene.add(fl);
+      fl.rotation.x = -Math.PI / 2; fl.position.set(cx, 0, cz); scene.add(fl);
       if (rm.floorplan) { new THREE.TextureLoader().load(rm.floorplan, function (tex) { fmat.map = tex; fmat.color.set(0xffffff); fmat.needsUpdate = true; }); }
       if (rm.ceiling) {                               // painted ceiling image
         var cmat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
         var cl = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), cmat);
-        cl.rotation.x = Math.PI / 2; cl.position.set(cx, rm.h || WALL_H, 0);   // faces down
+        cl.rotation.x = Math.PI / 2; cl.position.set(cx, rm.h || WALL_H, cz);   // faces down
         scene.add(cl);
         new THREE.TextureLoader().load(rm.ceiling, function (tex) { cmat.map = tex; cmat.needsUpdate = true; });
       }
-      wallSeg(rm.w, cx, -rm.d / 2, 0);                 // back
-      wallSeg(rm.w, cx, rm.d / 2, Math.PI);            // front
-      if (i === 0) wallSeg(rm.d, rm.x_offset, 0, Math.PI / 2);   // building left edge
       var rx = rm.x_offset + rm.w;
-      if (i === ROOMS.length - 1) {                    // building right edge
-        wallSeg(rm.d, rx, 0, -Math.PI / 2);
-      } else {                                         // doorway to next room
-        var half = (rm.d - DOOR) / 2;
-        wallSeg(half, rx, -(rm.d / 2) + half / 2, -Math.PI / 2);
-        wallSeg(half, rx, (rm.d / 2) - half / 2, -Math.PI / 2);
+      if (PLAN_MODE) {   // plan layout: auto-doorways where rooms adjoin
+        planWall(rm, false, rm.z_offset, 1, 0, rwMat);            // back
+        planWall(rm, false, rm.z_offset + rm.d, -1, Math.PI, rwMat); // front
+        planWall(rm, true, rm.x_offset, 1, Math.PI / 2, rwMat);   // left
+        planWall(rm, true, rx, -1, -Math.PI / 2, rwMat);          // right
+      } else {           // auto-row: back+front full, doorways between consecutive rooms
+        wallSeg(rm.w, cx, rm.z_offset, 0, rwMat);
+        wallSeg(rm.w, cx, rm.z_offset + rm.d, Math.PI, rwMat);
+        if (i === 0) wallSeg(rm.d, rm.x_offset, cz, Math.PI / 2, rwMat);
+        if (i === ROOMS.length - 1) {
+          wallSeg(rm.d, rx, cz, -Math.PI / 2, rwMat);
+        } else {
+          var half = (rm.d - DOOR) / 2;
+          wallSeg(half, rx, cz - rm.d / 2 + half / 2, -Math.PI / 2, rwMat);
+          wallSeg(half, rx, cz + rm.d / 2 - half / 2, -Math.PI / 2, rwMat);
+        }
       }
       (rm.walls || []).forEach(function (w) {          // interior dividers (normalized within room)
-        var ax = rm.x_offset + w.x1 * rm.w, az = (w.z1 - 0.5) * rm.d, bx = rm.x_offset + w.x2 * rm.w, bz = (w.z2 - 0.5) * rm.d;
+        var ax = rm.x_offset + w.x1 * rm.w, az = rm.z_offset + w.z1 * rm.d, bx = rm.x_offset + w.x2 * rm.w, bz = rm.z_offset + w.z2 * rm.d;
         var len = Math.hypot(bx - ax, bz - az); if (len < 0.1) return;
         var ang = Math.atan2(bz - az, bx - ax);
         var m = new THREE.Mesh(new THREE.PlaneGeometry(len, WALL_H), wallMat);
@@ -191,10 +249,10 @@
       orbit = new THREE.OrbitControls(camera, renderer.domElement);
       orbit.enableDamping = true; orbit.dampingFactor = 0.12;
       orbit.target.set(0, 1.3, 0);
-      orbit.minDistance = 1; orbit.maxDistance = Math.max(BLD_W, BLD_D);
+      orbit.minDistance = 1; orbit.maxDistance = Math.max(BLD_maxX - BLD_minX, BLD_maxZ - BLD_minZ);
       orbit.maxPolarAngle = Math.PI * 0.85;
-      camera.position.set(curRoom.x_offset + curRoom.w / 2, 1.6, curRoom.d / 2 - 2);
-      orbit.target.set(curRoom.x_offset + curRoom.w / 2, 1.3, 0);
+      camera.position.set(curRoom.x_offset + curRoom.w / 2, 1.6, curRoom.z_offset + curRoom.d - 2);
+      orbit.target.set(curRoom.x_offset + curRoom.w / 2, 1.3, curRoom.z_offset + curRoom.d / 2);
       blocker.style.display = 'none';
       cross.style.display = 'none';
     } else {
@@ -253,7 +311,7 @@
 
     function worldPos(s) {
       var rm = s._room || curRoom;
-      return { x: rm.x_offset + s.pos_x * rm.w, z: (s.pos_y - 0.5) * rm.d };
+      return { x: rm.x_offset + s.pos_x * rm.w, z: rm.z_offset + s.pos_y * rm.d };
     }
 
     function addPedestal(x, z, h) {
@@ -266,14 +324,14 @@
     // Choose where a picture hangs: a specific wall (perimeter key or interior id)
     // when assigned, otherwise the nearest wall (perimeter + interior dividers).
     function wallSpot(wallKey, px, pz, hw, inset, rm) {
-      var x0 = rm.x_offset, x1 = rm.x_offset + rm.w, zN = -rm.d / 2, zS = rm.d / 2;
+      var x0 = rm.x_offset, x1 = rm.x_offset + rm.w, zN = rm.z_offset, zS = rm.z_offset + rm.d;
       var cands = [];
       cands.push({ key: 'north', dist: pz - zN, get: function () { return { x: clamp(px, x0 + hw, x1 - hw), z: zN + inset, ry: 0 }; } });
       cands.push({ key: 'south', dist: zS - pz, get: function () { return { x: clamp(px, x0 + hw, x1 - hw), z: zS - inset, ry: Math.PI }; } });
       cands.push({ key: 'west', dist: px - x0, get: function () { return { x: x0 + inset, z: clamp(pz, zN + hw, zS - hw), ry: Math.PI / 2 }; } });
       cands.push({ key: 'east', dist: x1 - px, get: function () { return { x: x1 - inset, z: clamp(pz, zN + hw, zS - hw), ry: -Math.PI / 2 }; } });
       (rm.walls || []).forEach(function (w) {
-        var ax = rm.x_offset + w.x1 * rm.w, az = (w.z1 - 0.5) * rm.d, bx = rm.x_offset + w.x2 * rm.w, bz = (w.z2 - 0.5) * rm.d;
+        var ax = rm.x_offset + w.x1 * rm.w, az = rm.z_offset + w.z1 * rm.d, bx = rm.x_offset + w.x2 * rm.w, bz = rm.z_offset + w.z2 * rm.d;
         var ex = bx - ax, ez = bz - az, L2 = ex * ex + ez * ez;
         if (L2 < 0.01) return;
         var t = Math.max(0, Math.min(1, ((px - ax) * ex + (pz - az) * ez) / L2));
@@ -294,14 +352,14 @@
 
     // Exact spot from a chosen wall + along-wall u (0-1) - used by the wall editor.
     function wallSpotUV(wallKey, u, hw, inset, rm) {
-      var x0 = rm.x_offset, x1 = rm.x_offset + rm.w, zN = -rm.d / 2, zS = rm.d / 2;
+      var x0 = rm.x_offset, x1 = rm.x_offset + rm.w, zN = rm.z_offset, zS = rm.z_offset + rm.d;
       if (wallKey === 'north') return { x: clamp(x0 + u * rm.w, x0 + hw, x1 - hw), z: zN + inset, ry: 0 };
       if (wallKey === 'south') return { x: clamp(x0 + u * rm.w, x0 + hw, x1 - hw), z: zS - inset, ry: Math.PI };
       if (wallKey === 'west') return { x: x0 + inset, z: clamp(zN + u * rm.d, zN + hw, zS - hw), ry: Math.PI / 2 };
       if (wallKey === 'east') return { x: x1 - inset, z: clamp(zN + u * rm.d, zN + hw, zS - hw), ry: -Math.PI / 2 };
       var w = (rm.walls || []).filter(function (ww) { return ww.id === wallKey; })[0];
       if (w) {
-        var ax = rm.x_offset + w.x1 * rm.w, az = (w.z1 - 0.5) * rm.d, bx = rm.x_offset + w.x2 * rm.w, bz = (w.z2 - 0.5) * rm.d;
+        var ax = rm.x_offset + w.x1 * rm.w, az = rm.z_offset + w.z1 * rm.d, bx = rm.x_offset + w.x2 * rm.w, bz = rm.z_offset + w.z2 * rm.d;
         var ex = bx - ax, ez = bz - az, len = Math.hypot(ex, ez) || 1;
         var tt = clamp(u, hw / len, 1 - hw / len);
         var ang = Math.atan2(ez, ex), nx = -Math.sin(ang), nz = Math.cos(ang);
@@ -438,15 +496,15 @@
     function flyTo(s) {
       var wp = worldPos(s);
       var rm = s._room || curRoom;
-      var ccx = rm.x_offset + rm.w / 2;                     // the object's room centre
+      var ccx = rm.x_offset + rm.w / 2, ccz = rm.z_offset + rm.d / 2;   // object's room centre
       var look = new THREE.Vector3(wp.x, 1.3, wp.z);
-      var toC = new THREE.Vector3(ccx - wp.x, 0, -wp.z);    // direction toward room centre
+      var toC = new THREE.Vector3(ccx - wp.x, 0, ccz - wp.z);           // toward room centre
       if (toC.lengthSq() < 0.01) toC.set(0, 0, 1);
       toC.normalize();
       var stand = new THREE.Vector3(wp.x + toC.x * 2.6, 1.6, wp.z + toC.z * 2.6);
       var m = 0.6;
       stand.x = Math.max(rm.x_offset + m, Math.min(rm.x_offset + rm.w - m, stand.x));
-      stand.z = Math.max(-rm.d / 2 + m, Math.min(rm.d / 2 - m, stand.z));
+      stand.z = Math.max(rm.z_offset + m, Math.min(rm.z_offset + rm.d - m, stand.z));
       fly = { from: controls.getObject().position.clone(), to: stand, look: look,
               targetFrom: orbit ? orbit.target.clone() : null, t: 0, dur: 0.9 };
       openPanel(s);
@@ -499,9 +557,12 @@
     }
     function clampInRoom(o) {
       var m = 0.6;
-      o.position.x = Math.max(m, Math.min(BLD_W - m, o.position.x));
-      var rm = roomAt(o.position.x);
-      o.position.z = Math.max(-rm.d / 2 + m, Math.min(rm.d / 2 - m, o.position.z));
+      o.position.x = Math.max(BLD_minX + m, Math.min(BLD_maxX - m, o.position.x));
+      o.position.z = Math.max(BLD_minZ + m, Math.min(BLD_maxZ - m, o.position.z));
+      if (!PLAN_MODE) {   // auto-row: keep within current room's depth band
+        var rm = roomAt(o.position.x, o.position.z);
+        o.position.z = Math.max(rm.z_offset + m, Math.min(rm.z_offset + rm.d - m, o.position.z));
+      }
       o.position.y += (eyeHeight() - o.position.y) * 0.3;   // smooth crouch/stand
     }
     renderer.domElement.addEventListener('wheel', function (e) {

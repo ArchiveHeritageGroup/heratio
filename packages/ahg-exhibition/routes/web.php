@@ -41,6 +41,11 @@ Route::middleware('auth')->group(function () {
 
     // heratio#1138 — digital twin: virtual collection builder (Phase 1)
     Route::get('/exhibition-space/{slug}/builder', [ExhibitionSpaceController::class, 'builder'])->name('exhibition-space.builder');
+    // heratio#1143 — building plan editor
+    Route::get('/exhibition-space/{slug}/plan', [ExhibitionSpaceController::class, 'plan'])->name('exhibition-space.plan');
+    Route::post('/exhibition-space/{slug}/plan/save', [ExhibitionSpaceController::class, 'savePlanAjax'])->name('exhibition-space.plan.save')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/plan/image', [ExhibitionSpaceController::class, 'uploadBuildingPlan'])->name('exhibition-space.plan.image')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/plan/image-clear', [ExhibitionSpaceController::class, 'clearBuildingPlan'])->name('exhibition-space.plan.image-clear')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/layout', [ExhibitionSpaceController::class, 'saveLayout'])->name('exhibition-space.builder.layout')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/place', [ExhibitionSpaceController::class, 'placeAjax'])->name('exhibition-space.builder.place')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/remove', [ExhibitionSpaceController::class, 'removeAjax'])->name('exhibition-space.builder.remove')->middleware('acl:update');
@@ -54,6 +59,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/builder/floorplan', [ExhibitionSpaceController::class, 'uploadFloorplan'])->name('exhibition-space.builder.floorplan')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/ceiling', [ExhibitionSpaceController::class, 'uploadCeiling'])->name('exhibition-space.builder.ceiling')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/ceiling-clear', [ExhibitionSpaceController::class, 'clearCeiling'])->name('exhibition-space.builder.ceiling-clear')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/wall-image', [ExhibitionSpaceController::class, 'uploadWallImage'])->name('exhibition-space.builder.wall-image')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/wall-image-clear', [ExhibitionSpaceController::class, 'clearWallImage'])->name('exhibition-space.builder.wall-image-clear')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/room-dims', [ExhibitionSpaceController::class, 'roomDimsAjax'])->name('exhibition-space.builder.room-dims')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/walkthrough-path', [ExhibitionSpaceController::class, 'saveWalkthroughPath'])->name('exhibition-space.builder.walkthrough-path')->middleware('acl:update');
 });
 

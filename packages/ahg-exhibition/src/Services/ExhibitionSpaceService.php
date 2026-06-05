@@ -635,14 +635,19 @@ class ExhibitionSpaceService
         if ($exhibitionSpaceId <= 0 || $informationObjectId <= 0 || $wall === '') {
             throw new \InvalidArgumentException('space, object and wall are required.');
         }
+        $u = max(0, min(1, $u));
+        $v = max(0, min(1, $v));
+        $floor = $this->wallToFloor($wall, $u);    // a sensible floor spot so it isn't stacked in Floor view
         $now = now();
         $id = (int) DB::table('ahg_exhibition_placement')->insertGetId([
             'information_object_id' => $informationObjectId,
             'exhibition_space_id' => $exhibitionSpaceId,
             'size_units_used' => 0,
             'wall_or_zone' => $wall,
-            'wall_u' => max(0, min(1, $u)),
-            'wall_v' => max(0, min(1, $v)),
+            'wall_u' => $u,
+            'wall_v' => $v,
+            'pos_x' => $floor[0],
+            'pos_y' => $floor[1],
             'rotation_deg' => 0, 'scale' => 1, 'z_order' => 0, 'label_visible' => 1,
             'created_at' => $now, 'updated_at' => $now,
         ]);
@@ -652,12 +657,44 @@ class ExhibitionSpaceService
         return [
             'id' => $id, 'information_object_id' => $informationObjectId,
             'title' => $title ?: ('#'.$informationObjectId),
-            'pos_x' => null, 'pos_y' => null, 'rotation_deg' => 0.0, 'scale' => 1.0, 'z_order' => 0,
+            'pos_x' => $floor[0], 'pos_y' => $floor[1], 'rotation_deg' => 0.0, 'scale' => 1.0, 'z_order' => 0,
             'wall_or_zone' => $wall, 'label_visible' => 1, 'size_units_used' => 0.0,
             'kind' => $media['kind'], 'tilt_x' => null, 'tilt_z' => null,
             'wall_u' => max(0, min(1, $u)), 'wall_v' => max(0, min(1, $v)),
             'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl($informationObjectId),
         ];
+    }
+
+    /** A floor (pos_x,pos_y) spot near a wall at along-wall fraction u (keeps Floor view tidy). */
+    public function wallToFloor(string $wall, float $u): array
+    {
+        $u = max(0.05, min(0.95, $u));
+        switch ($wall) {
+            case 'north': return [$u, 0.08];
+            case 'south': return [$u, 0.92];
+            case 'west': return [0.08, $u];
+            case 'east': return [0.92, $u];
+            default: return [0.3 + 0.4 * $u, 0.5];   // interior wall - spread along centre
+        }
+    }
+
+    /** Set room dimensions (metres) - width, depth, wall height. Nulls are skipped. */
+    public function updateRoomDims(int $exhibitionSpaceId, ?float $w, ?float $d, ?float $h): void
+    {
+        $p = [];
+        if ($w !== null) {
+            $p['room_w'] = max(1, min(200, $w));
+        }
+        if ($d !== null) {
+            $p['room_d'] = max(1, min(200, $d));
+        }
+        if ($h !== null) {
+            $p['room_h'] = max(1, min(30, $h));
+        }
+        if ($p) {
+            $p['updated_at'] = now();
+            DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)->update($p);
+        }
     }
 
     /** Update an object's along-wall (u) + height (v) position on its wall. */
@@ -694,30 +731,119 @@ class ExhibitionSpaceService
                 ->orderBy('building_seq')->orderBy('id')->get()->all()
             : [$space];
 
+        // Plan mode = at least one room has explicit plan coordinates.
+        $planMode = false;
+        foreach ($rooms as $r) {
+            if ($r->bld_x !== null && $r->bld_y !== null) {
+                $planMode = true;
+                break;
+            }
+        }
+
         $out = [];
-        $xOffset = 0.0;
-        $maxD = 0.0;
+        $xCursor = 0.0;
         $maxH = 0.0;
+        $minX = null;
+        $maxX = null;
+        $minZ = null;
+        $maxZ = null;
         foreach ($rooms as $r) {
             $dim = $this->roomDims($r);
+            if ($planMode && $r->bld_x !== null && $r->bld_y !== null) {
+                $x = (float) $r->bld_x;
+                $z = (float) $r->bld_y;          // top-left origin on the plan
+            } else {
+                $x = $xCursor;
+                $z = -$dim['d'] / 2;             // auto-row, centred in z
+                $xCursor += $dim['w'];
+            }
             $out[] = [
                 'id' => (int) $r->id,
                 'name' => $r->name,
                 'slug' => $r->slug,
                 'w' => $dim['w'], 'd' => $dim['d'], 'h' => $dim['h'],
-                'x_offset' => $xOffset,
+                'x_offset' => $x, 'z_offset' => $z,
                 'is_current' => (int) $r->id === (int) $space->id,
                 'floorplan' => $r->floorplan_image_path ?? null,
                 'ceiling' => $r->ceiling_image_path ?? null,
+                'wall_image' => $r->wall_image_path ?? null,
                 'stops' => $this->getWalkthroughStops((int) $r->id),
                 'walls' => $this->getWalls((int) $r->id),
             ];
-            $xOffset += $dim['w'];          // rooms share a dividing wall plane (doorway there)
-            $maxD = max($maxD, $dim['d']);
+            $minX = $minX === null ? $x : min($minX, $x);
+            $maxX = $maxX === null ? $x + $dim['w'] : max($maxX, $x + $dim['w']);
+            $minZ = $minZ === null ? $z : min($minZ, $z);
+            $maxZ = $maxZ === null ? $z + $dim['d'] : max($maxZ, $z + $dim['d']);
             $maxH = max($maxH, $dim['h']);
         }
 
-        return ['rooms' => $out, 'total_w' => $xOffset, 'max_d' => $maxD, 'max_h' => $maxH];
+        return [
+            'rooms' => $out, 'plan_mode' => $planMode,
+            'min_x' => $minX ?? 0, 'max_x' => $maxX ?? 0, 'min_z' => $minZ ?? 0, 'max_z' => $maxZ ?? 0,
+            'total_w' => ($maxX ?? 0) - ($minX ?? 0), 'max_d' => ($maxZ ?? 0) - ($minZ ?? 0), 'max_h' => $maxH,
+        ];
+    }
+
+    // -------- Building plan editor (#1143: floor-plan layout) --------
+
+    /** Rooms of a building for the plan editor + the plan image (from any room that has one). */
+    public function getBuildingPlan(object $space): array
+    {
+        $rooms = (! empty($space->building_id))
+            ? DB::table('ahg_exhibition_space')->where('building_id', $space->building_id)->orderBy('building_seq')->orderBy('id')->get()->all()
+            : [$space];
+        $plan = null;
+        $list = [];
+        foreach ($rooms as $r) {
+            if (! $plan && ! empty($r->building_plan_image)) {
+                $plan = $r->building_plan_image;
+            }
+            $dim = $this->roomDims($r);
+            $list[] = [
+                'id' => (int) $r->id, 'name' => $r->name, 'slug' => $r->slug,
+                'w' => $dim['w'], 'd' => $dim['d'],
+                'bld_x' => $r->bld_x !== null ? (float) $r->bld_x : null,
+                'bld_y' => $r->bld_y !== null ? (float) $r->bld_y : null,
+                'is_current' => (int) $r->id === (int) $space->id,
+            ];
+        }
+
+        return ['rooms' => $list, 'plan_image' => $plan];
+    }
+
+    /** Save a room's plan position + size (metres). */
+    public function savePlanRoom(int $buildingMemberId, int $roomId, float $x, float $y, ?float $w, ?float $d): bool
+    {
+        $member = $this->getById($buildingMemberId);
+        $room = $this->getById($roomId);
+        if (! $member || ! $room) {
+            return false;
+        }
+        // Only allow editing rooms in the same building (or the room itself).
+        if (($member->building_id ?? null) !== ($room->building_id ?? null) && $roomId !== $buildingMemberId) {
+            return false;
+        }
+        $p = ['bld_x' => $x, 'bld_y' => $y, 'updated_at' => now()];
+        if ($w !== null) {
+            $p['room_w'] = max(1, min(200, $w));
+        }
+        if ($d !== null) {
+            $p['room_d'] = max(1, min(200, $d));
+        }
+
+        return DB::table('ahg_exhibition_space')->where('id', $roomId)->update($p) > 0;
+    }
+
+    /** Set/clear the building plan (blueprint) image, stored on every room of the building. */
+    public function setBuildingPlanImage(object $space, ?string $publicPath): void
+    {
+        $q = DB::table('ahg_exhibition_space');
+        if (! empty($space->building_id)) {
+            $q->where('building_id', $space->building_id);
+        } else {
+            $q->where('id', $space->id);
+        }
+        $q->update(['building_plan_image' => $publicPath, 'updated_at' => now()]);
     }
 
     public function setFloorplan(int $exhibitionSpaceId, string $publicPath, ?float $widthM = null, ?float $heightM = null): void
@@ -735,6 +861,13 @@ class ExhibitionSpaceService
     {
         DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
             ->update(['ceiling_image_path' => $publicPath, 'updated_at' => now()]);
+    }
+
+    /** Set or clear the room wall (painted/decorated) image, applied to all walls. */
+    public function setWallImage(int $exhibitionSpaceId, ?string $publicPath): void
+    {
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
+            ->update(['wall_image_path' => $publicPath, 'updated_at' => now()]);
     }
 
     /**

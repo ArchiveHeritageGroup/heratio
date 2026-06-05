@@ -78,6 +78,36 @@
           @endif
         </div>
       </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong><i class="fas fa-paint-roller me-1"></i>{{ __('Wall painting') }}</strong></div>
+        <div class="card-body">
+          <form method="POST" action="{{ route('exhibition-space.builder.wall-image', ['slug' => $space->slug]) }}" enctype="multipart/form-data" class="mb-2">
+            @csrf
+            <input type="file" name="wall_image" accept="image/*" class="form-control form-control-sm mb-2" required>
+            <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-upload me-1"></i>{{ __('Upload wall painting') }}</button>
+          </form>
+          @if(!empty($space->wall_image_path))
+          <form method="POST" action="{{ route('exhibition-space.builder.wall-image-clear', ['slug' => $space->slug]) }}">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear wall painting') }}</button>
+          </form>
+          @endif
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong><i class="fas fa-ruler-combined me-1"></i>{{ __('Room size (m)') }}</strong></div>
+        <div class="card-body">
+          <div class="row g-1 mb-2">
+            <div class="col-4"><input type="number" id="rdW" class="form-control form-control-sm" min="1" step="0.5" placeholder="W" value="{{ $space->room_w }}"></div>
+            <div class="col-4"><input type="number" id="rdD" class="form-control form-control-sm" min="1" step="0.5" placeholder="D" value="{{ $space->room_d }}"></div>
+            <div class="col-4"><input type="number" id="rdH" class="form-control form-control-sm" min="1" step="0.5" placeholder="H" value="{{ $space->room_h }}"></div>
+          </div>
+          <button type="button" id="rdSave" class="btn btn-sm btn-outline-primary w-100">{{ __('Save room size') }}</button>
+          <small class="text-muted d-block mt-1">{{ __('Width / Depth / wall Height. Raise H for taller walls.') }}</small>
+        </div>
+      </div>
       @endauth
 
       @auth
@@ -162,7 +192,8 @@
       wall: '{{ route('exhibition-space.builder.wall', ['slug' => $space->slug]) }}',
       wallPlace: '{{ route('exhibition-space.builder.wall-place', ['slug' => $space->slug]) }}',
       wallPos: '{{ route('exhibition-space.builder.wall-pos', ['slug' => $space->slug]) }}',
-      placements: '{{ route('exhibition-space.builder.placements', ['slug' => $space->slug]) }}'
+      placements: '{{ route('exhibition-space.builder.placements', ['slug' => $space->slug]) }}',
+      roomDims: '{{ route('exhibition-space.builder.room-dims', ['slug' => $space->slug]) }}'
     };
     var FLOORPLAN = @json($space->floorplan_image_path);
     var PLACEMENTS = @json($placements);
@@ -365,6 +396,19 @@
     });
     redrawWalls(); refreshWallOptions();
 
+    // Save room size (width / depth / wall height).
+    var rdBtn = document.getElementById('rdSave');
+    if (rdBtn) rdBtn.addEventListener('click', function () {
+      var body = {
+        room_w: document.getElementById('rdW').value || null,
+        room_d: document.getElementById('rdD').value || null,
+        room_h: document.getElementById('rdH').value || null
+      };
+      rdBtn.disabled = true;
+      fetch(URLS.roomDims, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json(); }).then(function () { rdBtn.textContent = '{{ __('Saved') }}'; setTimeout(function () { rdBtn.textContent = '{{ __('Save room size') }}'; rdBtn.disabled = false; }, 1200); });
+    });
+
     stage.on('click tap', function (e) {
       if (wallAdding) {
         var p = stage.getPointerPosition(); if (!p) return;
@@ -476,11 +520,14 @@
           var self = this;
           var done = function () { self.clear(true); self.clearOptions(); };
           if (mode === 'wall') {
-            // Hang the object on the currently-viewed wall (centre by default).
+            // Hang on the current wall, stepping each new item along it so they don't stack.
+            var existing = wvLayer.find('.wvitem').length;
+            var u = 0.12 + (existing % 6) * 0.15;
+            var vv = 0.58 - (Math.floor(existing / 6) % 2) * 0.18;
             fetch(URLS.wallPlace, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
-              body: JSON.stringify({ information_object_id: val, wall: wvWall, u: 0.5, v: 0.55 })
+              body: JSON.stringify({ information_object_id: val, wall: wvWall, u: u, v: vv })
             }).then(function (r) { return r.json(); }).then(function (d) {
               if (d.ok) wvAddNode(d.placement);
               done();
