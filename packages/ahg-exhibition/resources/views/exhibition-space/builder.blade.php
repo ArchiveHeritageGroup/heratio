@@ -681,6 +681,10 @@
       wvOX = (W - ew) / 2; wvOY = 34 + (availH - eh) / 2; wvEW = ew; wvEH = eh;
       wvLayer.add(new Konva.Rect({ x: 0, y: 0, width: W, height: H, fill: '#ced4da', listening: false }));                       // void
       wvLayer.add(new Konva.Rect({ x: wvOX, y: wvOY, width: ew, height: eh, fill: '#f1f3f5', stroke: '#adb5bd', strokeWidth: 1, listening: false }));   // wall
+      // 1-metre grid across the wall, with metre marks, to align items.
+      var stepX = ew / L, stepY = eh / Hm;
+      for (var mx = 1; mx < L; mx++) { var gx = wvOX + mx * stepX; wvLayer.add(new Konva.Line({ points: [gx, wvOY, gx, wvOY + eh], stroke: '#dde1e6', strokeWidth: mx % 5 === 0 ? 1.5 : 1, listening: false })); }
+      for (var my = 1; my < Hm; my++) { var gy = wvOY + eh - my * stepY; wvLayer.add(new Konva.Line({ points: [wvOX, gy, wvOX + ew, gy], stroke: '#dde1e6', strokeWidth: my % 5 === 0 ? 1.5 : 1, listening: false })); wvLayer.add(new Konva.Text({ x: wvOX + 2, y: gy - 10, text: my + 'm', fontSize: 8, fill: '#aeb4bb', listening: false })); }
       wvLayer.add(new Konva.Line({ points: [wvOX, wvOY + eh, wvOX + ew, wvOY + eh], stroke: '#868e96', strokeWidth: 4, listening: false }));            // floor
       var doorH = Math.min(2.6, Hm - 0.3);                                                                                       // door openings
       wvDoorsForWall().forEach(function (dd) {
