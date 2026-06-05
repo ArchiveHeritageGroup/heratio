@@ -1042,20 +1042,37 @@ class InformationObjectController extends Controller
             }
         }
 
-        // GLAM sector routing: redirect to sector-specific show page if not archive
-        if ($io->level_of_description_id && Schema::hasTable('level_of_description_sector')) {
-            $sector = DB::table('level_of_description_sector')
-                ->where('term_id', $io->level_of_description_id)
-                ->whereNotIn('sector', ['archive'])
-                ->orderBy('display_order')
-                ->value('sector');
-
+        // GLAM routing: prefer the object's OWN GLAM type (display_object_config) over
+        // the level's sector. An object the curator explicitly typed (e.g. 'archive')
+        // must not be force-redirected to a sector viewer just because its level
+        // (e.g. Photograph -> dam sector) maps elsewhere; the type viewers gate on
+        // display_object_config.object_type, so a mismatch 404s. 'archive' and any
+        // unmapped type render the ISAD view here. Fall back to the level-sector only
+        // when the object has no per-object GLAM type.
+        if ($io->level_of_description_id || Schema::hasTable('display_object_config')) {
             $sectorRoutes = [
                 'library' => 'library.show',
                 'museum'  => 'museum.show',
                 'gallery' => 'gallery.show',
                 'dam'     => 'dam.show',
             ];
+
+            $glamType = Schema::hasTable('display_object_config')
+                ? DB::table('display_object_config')->where('object_id', $io->id)->value('object_type')
+                : null;
+
+            if ($glamType !== null && $glamType !== '') {
+                // Per-object type is authoritative; 'archive'/unmapped => no redirect (ISAD view).
+                $sector = isset($sectorRoutes[$glamType]) ? $glamType : null;
+            } elseif ($io->level_of_description_id && Schema::hasTable('level_of_description_sector')) {
+                $sector = DB::table('level_of_description_sector')
+                    ->where('term_id', $io->level_of_description_id)
+                    ->whereNotIn('sector', ['archive'])
+                    ->orderBy('display_order')
+                    ->value('sector');
+            } else {
+                $sector = null;
+            }
 
             if ($sector && isset($sectorRoutes[$sector])) {
                 try {
@@ -4400,19 +4417,30 @@ class InformationObjectController extends Controller
 
         // Determine sector-aware redirect
         $redirectRoute = 'informationobject.show';
-        if ($ioRow->level_of_description_id && Schema::hasTable('level_of_description_sector')) {
-            $sector = DB::table('level_of_description_sector')
-                ->where('term_id', $ioRow->level_of_description_id)
-                ->whereNotIn('sector', ['archive'])
-                ->orderBy('display_order')
-                ->value('sector');
-
+        if ($ioRow->level_of_description_id || Schema::hasTable('display_object_config')) {
             $sectorRoutes = [
                 'library' => 'library.show',
                 'museum'  => 'museum.show',
                 'gallery' => 'gallery.show',
                 'dam'     => 'dam.show',
             ];
+
+            // Prefer the object's own GLAM type over the level's sector (see show()).
+            $glamType = Schema::hasTable('display_object_config')
+                ? DB::table('display_object_config')->where('object_id', $ioRow->id)->value('object_type')
+                : null;
+
+            if ($glamType !== null && $glamType !== '') {
+                $sector = isset($sectorRoutes[$glamType]) ? $glamType : null;
+            } elseif ($ioRow->level_of_description_id && Schema::hasTable('level_of_description_sector')) {
+                $sector = DB::table('level_of_description_sector')
+                    ->where('term_id', $ioRow->level_of_description_id)
+                    ->whereNotIn('sector', ['archive'])
+                    ->orderBy('display_order')
+                    ->value('sector');
+            } else {
+                $sector = null;
+            }
 
             if ($sector && isset($sectorRoutes[$sector])) {
                 try {
