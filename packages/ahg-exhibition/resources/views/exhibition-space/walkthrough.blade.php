@@ -44,6 +44,7 @@
           <div id="roomCrosshair" style="position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#000;border:2px solid rgba(255,255,255,.85);box-sizing:border-box;z-index:4;display:none;pointer-events:none;"></div>
           <div id="roomLoading" style="position:absolute;bottom:8px;left:8px;z-index:4;color:#ccc;font-size:.8rem;">{{ __('Loading gallery...') }}</div>
           <div id="wtHeight" class="bg-dark text-white px-2 py-1 rounded small" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:7;display:none;"></div>
+          <div id="wtNarr" class="bg-primary text-white px-2 py-1 rounded small" style="position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:7;display:none;"><i class="fas fa-volume-high me-1"></i>{{ __('Reading description... (Esc to stop)') }}</div>
           <button id="roomHelpBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:8px;z-index:6;opacity:.85;" title="{{ __('Controls') }}"><i class="fas fa-question"></i></button>
           <button id="roomMapBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:44px;z-index:6;opacity:.85;" title="{{ __('Building map') }}"><i class="fas fa-map"></i></button>
           <button id="roomLiveBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:80px;z-index:6;opacity:.85;" title="{{ __('Live data') }}"><i class="fas fa-temperature-half"></i></button>
@@ -64,6 +65,7 @@
               <li>{{ __('Stand taller / crouch: hold U + mouse wheel') }}</li>
               <li>{{ __('Look around: move the mouse') }}</li>
               <li>{{ __('Open info: click an object (or a numbered button)') }}</li>
+              <li>{{ __('Hear description read aloud: hold D + click an object') }}</li>
               <li>{{ __('Open full record (new tab): V') }}</li>
               <li>{{ __('Close info: click or Esc') }}</li>
               <li>{{ __('Exit gallery: Esc') }}</li>
@@ -841,6 +843,21 @@
       }).catch(function () {});
     }
     function stopByPlacement(pid) { for (var i = 0; i < STOPS.length; i++) { if (STOPS[i].id === pid) return STOPS[i]; } return null; }
+    // Audio description (docent): hold D + click an object to hear its description read aloud.
+    function showNarr(on) { var n = document.getElementById('wtNarr'); if (n) n.style.display = on ? 'block' : 'none'; }
+    function stopNarrate() { try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {} showNarr(false); }
+    function narrate(s) {
+      try {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        var text = (s.title ? s.title + '. ' : '') + (s.description || '{{ __('No description available.') }}');
+        var u = new SpeechSynthesisUtterance(text);
+        u.rate = 0.95; u.lang = document.documentElement.lang || 'en';
+        u.onend = function () { showNarr(false); };
+        u.onerror = function () { showNarr(false); };
+        window.speechSynthesis.speak(u); showNarr(true);
+      } catch (e) {}
+    }
     function openPanel(s) {
       document.getElementById('inlayTitle').textContent = s.title;
       document.getElementById('inlayDesc').textContent = s.description || '{{ __('No description available.') }}';
@@ -854,6 +871,7 @@
     function closeAllPopups() {
       inlay.style.display = 'none';
       var rb = document.getElementById('wtRelated'); if (rb) rb.style.display = 'none';
+      stopNarrate();
       panelOpen = false;
       currentStop = null;
     }
@@ -921,7 +939,8 @@
         while (o && !o.userData.stop && !o.userData.action) o = o.parent;
         if (o && o.userData.action === 'minimap') { toggleMinimap(true); return; }
         if (o && o.userData.action === 'door' && o.userData.doorDest) { enterRoom(o.userData.doorDest); return; }   // click a door to jump into that room
-        if (o && o.userData.stop) openPanel(o.userData.stop);
+        if (o && o.userData.stop) { openPanel(o.userData.stop); if (keys['KeyD']) narrate(o.userData.stop); }   // hold D + click = read the description aloud
+
       }
     });
 
