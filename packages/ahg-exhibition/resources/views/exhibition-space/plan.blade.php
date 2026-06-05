@@ -174,25 +174,56 @@
       if (bestDX !== null) g.x((x + bestDX) * scale);
       if (bestDY !== null) g.y((y + bestDY) * scale);
     }
-    // Push a room out of any room whose footprint it overlaps, abutting the edge.
+    // True footprint polygon of a room in world (metre) coords. Shaped rooms use
+    // their actual vertices so a room can nestle into another room's concave notch;
+    // box rooms use their four corners.
+    function roomPoly(o, x, y) {
+      var sh = (o.shape && o.shape.length >= 3) ? o.shape : null;
+      if (sh) return sh.map(function (p) { return { x: x + p.x * o.w, y: y + p.z * o.d }; });
+      return [{ x: x, y: y }, { x: x + o.w, y: y }, { x: x + o.w, y: y + o.d }, { x: x, y: y + o.d }];
+    }
+    function ptInPoly(px, py, poly) {
+      var inside = false;
+      for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        var xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
+        if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) inside = !inside;
+      }
+      return inside;
+    }
+    function segInt(a, b, c, d) {
+      function ccw(p, q, r) { return (r.y - p.y) * (q.x - p.x) > (q.y - p.y) * (r.x - p.x); }
+      return ccw(a, c, d) !== ccw(b, c, d) && ccw(a, b, c) !== ccw(a, b, d);
+    }
+    // Do two (possibly concave) footprint polygons actually overlap?
+    function polyOverlap(A, B) {
+      for (var i = 0; i < A.length; i++) {
+        var a1 = A[i], a2 = A[(i + 1) % A.length];
+        for (var j = 0; j < B.length; j++) {
+          var b1 = B[j], b2 = B[(j + 1) % B.length];
+          if (segInt(a1, a2, b1, b2)) return true;
+        }
+      }
+      return ptInPoly(A[0].x, A[0].y, B) || ptInPoly(B[0].x, B[0].y, A);
+    }
+    function polyCentroid(P) { var sx = 0, sy = 0; P.forEach(function (p) { sx += p.x; sy += p.y; }); return { x: sx / P.length, y: sy / P.length }; }
+    // Nudge a room minimally out of any room it truly overlaps (run on release only,
+    // so dragging stays smooth and a room dropped into a notch is left in place).
     function resolveOverlap(g) {
       var r = g.getAttr('room');
       if (g.rotation()) return;   // axis-aligned only
       var x = g.x() / scale, y = g.y() / scale;
-      for (var pass = 0; pass < 6; pass++) {
-        var moved = false;
-        PLAN.rooms.forEach(function (o) {
-          if (o === r || o.rot || o.bld_x === null || o.bld_y === null) return;
-          var A = effBounds(r, x, y), B = effBounds(o, o.bld_x, o.bld_y);
-          var penX = Math.min(A.x2, B.x2) - Math.max(A.x1, B.x1), penY = Math.min(A.y2, B.y2) - Math.max(A.y1, B.y1);
-          if (penX > 0.02 && penY > 0.02) {   // footprints overlap: separate along the shallower axis
-            if (penX <= penY) { x = ((A.x1 + A.x2) / 2 < (B.x1 + B.x2) / 2) ? (B.x1 - A.ew - A.ox) : (B.x2 - A.ox); }
-            else { y = ((A.y1 + A.y2) / 2 < (B.y1 + B.y2) / 2) ? (B.y1 - A.eh - A.oy) : (B.y2 - A.oy); }
-            x = Math.max(0, x); y = Math.max(0, y);
-            moved = true;
-          }
-        });
-        if (!moved) break;
+      for (var pass = 0; pass < 80; pass++) {
+        var A = roomPoly(r, x, y), hit = null;
+        for (var i = 0; i < PLAN.rooms.length; i++) {
+          var o = PLAN.rooms[i];
+          if (o === r || o.rot || o.bld_x === null || o.bld_y === null) continue;
+          var B = roomPoly(o, o.bld_x, o.bld_y);
+          if (polyOverlap(A, B)) { hit = B; break; }
+        }
+        if (!hit) break;
+        var ca = polyCentroid(A), cb = polyCentroid(hit);
+        var dx = ca.x - cb.x, dy = ca.y - cb.y, L = Math.hypot(dx, dy) || 1;
+        x = Math.max(0, x + (dx / L) * 0.2); y = Math.max(0, y + (dy / L) * 0.2);
       }
       g.x(x * scale); g.y(y * scale);
     }
@@ -439,7 +470,7 @@
       var label = new Konva.Text({ x: 3, y: 3, text: r.name, fontSize: 9, fill: '#212529', width: r.w * scale - 6 });
       g.add(rect); g.add(label);
       g.on('click tap', function (e) { e.cancelBubble = true; selectRoom(g); });
-      g.on('dragmove', function () { snapRoom(g); resolveOverlap(g); });
+      g.on('dragmove', function () { snapRoom(g); });
       g.on('dragend', function () { resolveOverlap(g); flagSaving(); saveRoom(g); });
       g.on('transformend', function () {
         // bake scale into the rect size, reset scale, resize label, reflow doors
