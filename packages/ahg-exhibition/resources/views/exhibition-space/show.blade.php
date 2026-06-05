@@ -14,6 +14,7 @@
     <a href="{{ route('exhibition-space.plan', ['slug' => $space->slug]) }}" class="btn btn-outline-primary"><i class="fas fa-drafting-compass me-1"></i>{{ __('Building Plan') }}</a>
     <a href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" class="btn btn-outline-primary"><i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}</a>
     <a href="{{ route('exhibition-space.forecast', ['slug' => $space->slug]) }}" class="btn btn-outline-primary"><i class="fas fa-chart-line me-1"></i>{{ __('Forecast') }}</a>
+    <a href="{{ route('exhibition-space.analytics', ['slug' => $space->slug]) }}" class="btn btn-outline-primary"><i class="fas fa-chart-area me-1"></i>{{ __('Analytics') }}</a>
     @auth
       <a href="{{ route('exhibition-space.edit', ['slug' => $space->slug]) }}" class="btn btn-outline-primary"><i class="fas fa-edit me-1"></i>{{ __('Edit') }}</a>
       <a href="{{ route('exhibition-space.confirmDelete', ['slug' => $space->slug]) }}" class="btn btn-outline-danger"><i class="fas fa-trash me-1"></i>{{ __('Delete') }}</a>

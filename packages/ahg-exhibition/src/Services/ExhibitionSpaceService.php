@@ -1098,6 +1098,79 @@ class ExhibitionSpaceService
         ];
     }
 
+    /**
+     * Historical analytics for the building (heratio#1148): readings bucketed by
+     * hour (<=7 days) or day (longer), one aligned series per room per metric,
+     * plus per-room/metric summaries. Shaped for charting on a category axis.
+     *
+     * @return array<string,mixed>
+     */
+    public function buildingAnalytics(object $space, int $days = 7): array
+    {
+        $days = max(1, min(365, $days));
+        $ids = $this->buildingSpaceIds($space);
+        $metrics = ['lux', 'temp_c', 'humidity', 'visitors'];
+        $rooms = [];
+        foreach ($ids as $id) {
+            $sp = $this->getById($id);
+            if ($sp) {
+                $rooms[] = ['id' => (int) $id, 'name' => $sp->name];
+            }
+        }
+        $byDay = $days > 7;
+        $bucketExpr = $byDay ? "DATE_FORMAT(recorded_at,'%Y-%m-%d')" : "DATE_FORMAT(recorded_at,'%Y-%m-%d %H:00')";
+        $since = now()->subDays($days)->format('Y-m-d H:i:s');
+        $rows = empty($ids) ? collect() : DB::table('ahg_exhibition_reading')
+            ->whereIn('exhibition_space_id', $ids)->where('recorded_at', '>=', $since)
+            ->selectRaw("$bucketExpr as bucket, exhibition_space_id as sid, metric, AVG(value) as avgv, MIN(value) as minv, MAX(value) as maxv, COUNT(*) as cnt")
+            ->groupBy('bucket', 'sid', 'metric')->orderBy('bucket')->get();
+
+        $labelsSet = [];
+        $map = [];        // map[metric][sid][bucket] = avg
+        $agg = [];        // agg[sid][metric] = [sum,count,min,max]
+        foreach ($rows as $r) {
+            $labelsSet[$r->bucket] = true;
+            $map[$r->metric][$r->sid][$r->bucket] = round((float) $r->avgv, 2);
+            $a = $agg[$r->sid][$r->metric] ?? ['sum' => 0, 'n' => 0, 'min' => INF, 'max' => -INF];
+            $a['sum'] += (float) $r->avgv * (int) $r->cnt;
+            $a['n'] += (int) $r->cnt;
+            $a['min'] = min($a['min'], (float) $r->minv);
+            $a['max'] = max($a['max'], (float) $r->maxv);
+            $agg[$r->sid][$r->metric] = $a;
+        }
+        $labels = array_keys($labelsSet);
+        sort($labels);
+
+        $series = [];
+        foreach ($metrics as $m) {
+            foreach ($rooms as $rm) {
+                $sid = $rm['id'];
+                $line = [];
+                foreach ($labels as $b) {
+                    $line[] = $map[$m][$sid][$b] ?? null;
+                }
+                $series[$m][$sid] = $line;
+            }
+        }
+        $summary = [];
+        foreach ($rooms as $rm) {
+            $sid = $rm['id'];
+            $latest = $this->latestReadings($sid);
+            foreach ($metrics as $m) {
+                $a = $agg[$sid][$m] ?? null;
+                $summary[$sid][$m] = [
+                    'avg' => $a && $a['n'] ? round($a['sum'] / $a['n'], 1) : null,
+                    'min' => $a && $a['n'] ? round($a['min'], 1) : null,
+                    'max' => $a && $a['n'] ? round($a['max'], 1) : null,
+                    'latest' => isset($latest[$m]) ? $latest[$m]['value'] : null,
+                    'count' => $a['n'] ?? 0,
+                ];
+            }
+        }
+
+        return ['days' => $days, 'bucket' => $byDay ? 'day' : 'hour', 'labels' => $labels, 'metrics' => $metrics, 'rooms' => $rooms, 'series' => $series, 'summary' => $summary];
+    }
+
     /** Conservation forecast for every room in the building. @return array<int,array<string,mixed>> */
     public function buildingForecast(object $space): array
     {

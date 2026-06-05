@@ -52,6 +52,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/readings/simulate', [ExhibitionSpaceController::class, 'simulateReadingsAjax'])->name('exhibition-space.readings.simulate')->middleware('acl:update');
     // heratio#1147 - conservation forecast
     Route::get('/exhibition-space/{slug}/forecast', [ExhibitionSpaceController::class, 'forecast'])->name('exhibition-space.forecast');
+    // heratio#1148 - analytics dashboard
+    Route::get('/exhibition-space/{slug}/analytics', [ExhibitionSpaceController::class, 'analytics'])->name('exhibition-space.analytics');
     Route::post('/exhibition-space/{slug}/plan/image-rect', [ExhibitionSpaceController::class, 'planImageRectAjax'])->name('exhibition-space.plan.image-rect')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/corridor-add', [ExhibitionSpaceController::class, 'corridorAddAjax'])->name('exhibition-space.plan.corridor-add')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/corridor-move', [ExhibitionSpaceController::class, 'corridorMoveAjax'])->name('exhibition-space.plan.corridor-move')->middleware('acl:update');

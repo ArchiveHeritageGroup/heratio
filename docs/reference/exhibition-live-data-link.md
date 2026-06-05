@@ -55,6 +55,13 @@ days-to-budget for any light level / display-hours / lux-target combination.
 
 Service: `lightBudget()`, `conservationForecast()`, `buildingForecast()`.
 
+## Analytics dashboard (heratio#1148)
+`GET /exhibition-space/{slug}/analytics?days=1|7|30|90` (linked from the show page
+and the forecast page). Charts the reading history per room: four Chart.js line
+charts (light / temperature / humidity / visitors), one line per room, bucketed
+by hour (<=7 days) or day (longer), plus a summary table (avg / latest / peak).
+Service: `buildingAnalytics(space, days)`.
+
 ## Still to come (umbrella heratio#1145)
-Analytics dashboard (#1148), AI recommendation (#1149), multi-user presence
-(#1150), XR (#1152), interoperability (#1151), WebGPU (#1153), pixel-streaming (#1154).
+AI recommendation (#1149), multi-user presence (#1150), XR (#1152),
+interoperability (#1151), WebGPU (#1153), pixel-streaming (#1154).

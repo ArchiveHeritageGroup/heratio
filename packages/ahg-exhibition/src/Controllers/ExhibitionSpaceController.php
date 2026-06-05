@@ -268,6 +268,22 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    /** Analytics dashboard (heratio#1148): historical reading trends per room. */
+    public function analytics(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $days = (int) $request->query('days', 7);
+
+        return view('ahg-exhibition::exhibition-space.analytics', [
+            'space' => $space,
+            'days' => $days,
+            'data' => $this->service->buildingAnalytics($space, $days),
+        ]);
+    }
+
     /** Conservation forecast page (heratio#1147): projected light dose, risk, visitors. */
     public function forecast(string $slug)
     {

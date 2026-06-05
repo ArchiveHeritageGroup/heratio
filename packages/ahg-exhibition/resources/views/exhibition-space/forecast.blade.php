@@ -7,6 +7,7 @@
 @section('content')
   <div class="d-flex flex-wrap align-items-baseline mb-2 gap-2">
     <h1 class="mb-0 flex-grow-1"><i class="fas fa-chart-line me-2"></i>{{ __('Conservation forecast') }} <small class="text-muted">{{ $space->name }}</small></h1>
+    <a href="{{ route('exhibition-space.analytics', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-chart-area me-1"></i>{{ __('Analytics') }}</a>
     <a href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}</a>
     <a href="{{ route('exhibition-space.builder', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-cubes me-1"></i>{{ __('Builder') }}</a>
   </div>
