@@ -377,10 +377,16 @@ class ExhibitionSpaceController extends Controller
         }
         $io = (int) $request->query('io', 0);
         if ($io <= 0) {
-            return response()->json(['ok' => true, 'items' => []]);
+            return response()->json(['ok' => true, 'items' => $this->service->roomRecommendations($space)]);   // #1149 picker: all room suggestions
+        }
+        $items = $this->service->recommendations($space, $io);
+        foreach ($items as &$it) {
+            if (empty($it['thumb_url'])) {
+                $it['thumb_url'] = $this->service->thumbnailUrl((int) $it['io_id']);
+            }
         }
 
-        return response()->json(['ok' => true, 'items' => $this->service->recommendations($space, $io)]);
+        return response()->json(['ok' => true, 'items' => $items]);
     }
 
     /** Public: AI-describe an object (walkthrough "T = talk" docent). ?fresh=1 forces a

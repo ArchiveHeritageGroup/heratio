@@ -41,6 +41,18 @@
           <small class="text-muted d-block mt-1">{{ __('Selecting an object drops it on the canvas at this size.') }}</small>
         </div>
       </div>
+      @auth
+      <div class="card mb-3">
+        <div class="card-header py-2 d-flex justify-content-between align-items-center">
+          <strong><i class="fas fa-wand-magic-sparkles me-1"></i><span id="recHdr">{{ __('AI suggestions') }}</span></strong>
+          <button type="button" id="recRefresh" class="btn btn-sm btn-outline-secondary py-0" title="{{ __('Refresh') }}"><i class="fas fa-rotate"></i></button>
+        </div>
+        <div class="card-body p-2" style="max-height:260px;overflow:auto;">
+          <p class="small text-muted mb-2">{{ __('Select an object to see its suggestions, or none for all. Click + to add a pick to this room.') }}</p>
+          <div id="recList" class="small text-muted">{{ __('Run "AI recommendations" first, then refresh.') }}</div>
+        </div>
+      </div>
+      @endauth
 
       <div class="card mb-3">
         <div class="card-header py-2"><strong><i class="fas fa-list me-1"></i>{{ __('Objects in this space') }}</strong> <span class="badge bg-secondary" id="objCount">0</span></div>
@@ -242,6 +254,7 @@
       roomDims: '{{ route('exhibition-space.builder.room-dims', ['slug' => $space->slug]) }}',
       simLive: '{{ route('exhibition-space.readings.simulate', ['slug' => $space->slug]) }}',
       genRec: '{{ route('exhibition-space.recommend.generate', ['slug' => $space->slug]) }}',
+      recommend: '{{ route('exhibition-space.recommend', ['slug' => $space->slug]) }}',
       guidedTour: '{{ route('exhibition-space.guided-tour', ['slug' => $space->slug]) }}'
     };
     var FLOORPLAN = @json($space->floorplan_image_path);
@@ -428,12 +441,14 @@
       document.getElementById('selWall').value = g.getAttr('wallKey') || '';
       var sb = document.getElementById('spotBtn'); if (sb) { var on = !!g.getAttr('spotlight'); sb.classList.toggle('btn-warning', on); sb.classList.toggle('btn-outline-warning', !on); }
       layer.draw();
+      if (typeof loadRecs === 'function') loadRecs();   // #1149 filter suggestions to this object
     }
     function clearSelect() {
       selected = null; tr.nodes([]);
       document.getElementById('selPanel').classList.remove('d-none');
       document.getElementById('selControls').classList.add('d-none');
       layer.draw();
+      if (typeof loadRecs === 'function') loadRecs();   // #1149 back to all suggestions
     }
 
     // ---- build a placement node ----
@@ -445,6 +460,7 @@
         rotation: p.rotation_deg || 0, scaleX: p.scale || 1, scaleY: p.scale || 1
       });
       g.setAttr('placementId', p.id);
+      g.setAttr('ioId', p.information_object_id);   // #1149 for AI-suggestion filtering
       g.setAttr('titleText', p.title);
       g.setAttr('sizeUnits', p.size_units_used != null ? p.size_units_used : 0);
       g.setAttr('objKind', p.kind || null);
@@ -898,10 +914,40 @@
         b.disabled = true; b.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Generating…') }}';
         fetch(URLS.genRec, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: '{}' })
           .then(function (r) { return r.json(); })
-          .then(function (d) { b.disabled = false; b.innerHTML = '<i class="fas fa-check me-1"></i>' + (d.ok ? ('{{ __('AI recs') }}: ' + (d.updated || 0)) : '{{ __('Failed') }}'); })
+          .then(function (d) { b.disabled = false; b.innerHTML = '<i class="fas fa-check me-1"></i>' + (d.ok ? ('{{ __('AI recs') }}: ' + (d.updated || 0)) : '{{ __('Failed') }}'); loadRecs(); })
           .catch(function () { b.disabled = false; b.innerHTML = '<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI recommendations') }}'; });
       });
     })();
+
+    // #1149 AI suggestion picker: all room suggestions, or the selected object's, with one-click add.
+    function addRecObject(io, row) {
+      fetch(URLS.place, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+        body: JSON.stringify({ information_object_id: io, pos_x: 0.5, pos_y: 0.5, size_units_used: parseFloat(document.getElementById('initialSize').value) || 0 }) })
+        .then(function (r) { return r.json(); }).then(function (d) { if (d.ok) { var g = addNode(d.placement); layer.draw(); selectNode(g); renderObjList(); if (row) { row.style.opacity = '0.45'; } } });
+    }
+    function loadRecs() {
+      var el = document.getElementById('recList'); if (!el) return;
+      var io = (selected && selected.getAttr('ioId')) ? selected.getAttr('ioId') : 0;
+      var hdr = document.getElementById('recHdr');
+      el.innerHTML = '<div class="text-muted">{{ __('Loading…') }}</div>';
+      fetch(URLS.recommend + (io ? ('?io=' + io) : ''), { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); }).then(function (d) {
+          var items = (d && d.items) || [];
+          if (hdr) hdr.textContent = io ? '{{ __('Suggestions for selection') }}' : ('{{ __('AI suggestions') }} (' + items.length + ')');
+          if (!items.length) { el.innerHTML = '<div class="text-muted">' + (io ? '{{ __('No suggestions for this object.') }}' : '{{ __('No suggestions yet — run AI recommendations.') }}') + '</div>'; return; }
+          el.innerHTML = '';
+          items.forEach(function (it) {
+            var row = document.createElement('div'); row.className = 'd-flex align-items-start gap-2 mb-2 pb-1 border-bottom';
+            row.innerHTML = (it.thumb_url ? '<img src="' + it.thumb_url + '" style="width:34px;height:34px;object-fit:cover;border-radius:3px;flex:0 0 auto">' : '') +
+              '<div class="flex-grow-1" style="min-width:0"><div class="fw-bold text-truncate">' + (it.title || ('#' + it.io_id)) + '</div>' +
+              '<div class="text-muted" style="font-size:11px">' + (it.reason || '') + (it.source ? (' <span class="text-secondary">· {{ __('from') }} ' + it.source + '</span>') : '') + '</div></div>' +
+              '<button class="btn btn-sm btn-outline-success py-0 px-1 addrec" type="button" title="{{ __('Add to this room') }}"><i class="fas fa-plus"></i></button>';
+            row.querySelector('.addrec').addEventListener('click', function () { addRecObject(it.io_id, row); });
+            el.appendChild(row);
+          });
+        }).catch(function () { el.innerHTML = '<div class="text-danger">{{ __('Could not load suggestions.') }}</div>'; });
+    }
+    (function () { var rr = document.getElementById('recRefresh'); if (rr) rr.addEventListener('click', loadRecs); loadRecs(); })();
 
     // ---- Guided tours (audio) authoring (multiple named tours) ----
     (function () {

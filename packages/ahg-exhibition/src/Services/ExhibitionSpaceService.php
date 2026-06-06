@@ -1299,6 +1299,51 @@ class ExhibitionSpaceService
             })->all();
     }
 
+    /** All AI/related suggestions stored across THIS room's placed objects (deduped). #1149 picker. */
+    public function roomRecommendations(object $space, int $limit = 80): array
+    {
+        if (! $this->recsColumn()) {
+            return [];
+        }
+        $byIo = [];
+        foreach ($this->buildingPlacementRows($space) as $r) {
+            $byIo[$r['io_id']] = $r;
+        }
+        $rows = DB::table('ahg_exhibition_placement as ep')
+            ->leftJoin('information_object_i18n as ioi', function ($j) { $j->on('ioi.id', '=', 'ep.information_object_id')->where('ioi.culture', '=', 'en'); })
+            ->where('ep.exhibition_space_id', $space->id)->whereNotNull('ep.recommendations_json')
+            ->select('ep.information_object_id as src_io', 'ep.recommendations_json as recs', 'ioi.title as src_title')->get();
+        $seen = [];
+        $out = [];
+        foreach ($rows as $row) {
+            $recs = json_decode((string) $row->recs, true);
+            if (! is_array($recs)) {
+                continue;
+            }
+            foreach ($recs as $rec) {
+                $rid = (int) ($rec['io_id'] ?? 0);
+                if ($rid <= 0 || isset($seen[$rid])) {
+                    continue;
+                }
+                $seen[$rid] = 1;
+                $info = $byIo[$rid] ?? null;
+                $out[] = [
+                    'io_id' => $rid,
+                    'title' => $info['title'] ?? ('#'.$rid),
+                    'reason' => (string) ($rec['reason'] ?? ''),
+                    'source' => $row->src_title ?: ('#'.$row->src_io),
+                    'in_building' => $info !== null,
+                    'thumb_url' => $this->thumbnailUrl($rid),
+                ];
+                if (count($out) >= $limit) {
+                    return $out;
+                }
+            }
+        }
+
+        return $out;
+    }
+
     /** Building-wide distinct objects (io_id + "title (room)") for the guided-tour picker. */
     public function buildingTourObjects(object $space): array
     {
