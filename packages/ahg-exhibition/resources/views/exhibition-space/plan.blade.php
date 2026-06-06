@@ -536,10 +536,13 @@
       var r = g.getAttr('room'), sh = (r.shape && r.shape.length >= 3) ? r.shape : null; if (!sh) return;
       var minx = 1, maxx = 0, minz = 1, maxz = 0;
       sh.forEach(function (p) { if (p.x < minx) minx = p.x; if (p.x > maxx) maxx = p.x; if (p.z < minz) minz = p.z; if (p.z > maxz) maxz = p.z; });
-      var rw = maxx - minx, rh = maxz - minz; if (rw < 0.02 || rh < 0.02) return;
-      if (minx <= 0.005 && maxx >= 0.995 && minz <= 0.005 && maxz >= 0.995) return;   // already fills its box
-      r.bld_x = r.bld_x + minx * r.w; r.bld_y = r.bld_y + minz * r.d; r.w = rw * r.w; r.d = rh * r.d;
-      r.shape = sh.map(function (p) { return { x: (p.x - minx) / rw, z: (p.z - minz) / rh }; });
+      // Only GROW the box to include points dragged outside [0,1]; never shrink
+      // (shrinking the box to hug the polygon was distorting the room's proportions).
+      if (minx >= -0.005 && maxx <= 1.005 && minz >= -0.005 && maxz <= 1.005) return;
+      var lox = Math.min(0, minx), hix = Math.max(1, maxx), loz = Math.min(0, minz), hiz = Math.max(1, maxz);
+      var rw = hix - lox, rh = hiz - loz; if (rw < 0.02 || rh < 0.02) return;
+      r.bld_x = r.bld_x + lox * r.w; r.bld_y = r.bld_y + loz * r.d; r.w = rw * r.w; r.d = rh * r.d;
+      r.shape = sh.map(function (p) { return { x: (p.x - lox) / rw, z: (p.z - loz) / rh }; });
       g.x(r.bld_x * scale); g.y(r.bld_y * scale); g.width(r.w * scale); g.height(r.d * scale);
       var rect = g.findOne('.roomrect'); if (rect) { rect.width(r.w * scale); rect.height(r.d * scale); }
       saveRoom(g); saveShape(g);
@@ -608,13 +611,13 @@
           v.on('dragmove', function () {
             var wx = g.x() / scale + (v.x() / ww) * r.w, wy = g.y() / scale + (v.y() / hh) * r.d;
             var s = snapVertexWorld(otherCorners(g), wx, wy);
-            p.x = Math.max(0, Math.min(1, (s.x - g.x() / scale) / r.w));
-            p.z = Math.max(0, Math.min(1, (s.y - g.y() / scale) / r.d));
+            p.x = Math.max(-3, Math.min(4, (s.x - g.x() / scale) / r.w));   // allow dragging beyond the box; it grows to fit on release
+            p.z = Math.max(-3, Math.min(4, (s.y - g.y() / scale) / r.d));
             v.x(p.x * ww); v.y(p.z * hh);
             v.fill(s.snapped ? '#198754' : '#fff');   // green dot = locked onto an existing point
             updatePoly(g);
           });
-          v.on('dragend', function () { v.fill('#fff'); saveShape(g); });
+          v.on('dragend', function () { v.fill('#fff'); normalizeShape(g); drawShape(g); saveShape(g); });
           v.on('dblclick dbltap', function (e) { e.cancelBubble = true; if (r.shape.length > 3) { r.shape.splice(idx, 1); drawShape(g); saveShape(g); if (selectedG === g) updateDoorControls(g); } });
           g.add(v);
         });
@@ -901,6 +904,7 @@
       });
     }
     function drawStairs() {
+      STAIRS = STAIRS.filter(function (st) { return (st.from_floor || 0) !== (st.to_floor == null ? 1 : st.to_floor); });   // a stair must link two floors
       stairLayer.destroyChildren();
       STAIRS.forEach(function (st, i) {
         var g = new Konva.Group({ x: st.x * scale, y: st.z * scale, rotation: st.rot || 0, draggable: true });

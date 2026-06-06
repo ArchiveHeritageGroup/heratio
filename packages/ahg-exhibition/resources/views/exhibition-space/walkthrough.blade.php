@@ -767,6 +767,7 @@
 
     // #1169 stairs: a straight flight or an L-shaped "elbow" linking two floors; click to change floor.
     (BUILDING && BUILDING.stairs ? BUILDING.stairs : []).forEach(function (st) {
+      if ((st.from_floor || 0) === (st.to_floor == null ? 1 : st.to_floor)) return;   // must link two different floors
       var x = st.x, z = st.z, y0 = (st.from_floor || 0) * FLOOR_H, y1 = (st.to_floor || 1) * FLOOR_H;
       var rise = y1 - y0, width = st.width || 1.4, legLen = st.length || 3;   // legLen = run of each flight (metres)
       var stepMat = new THREE.MeshStandardMaterial({ color: 0xb6b1a8, roughness: 1 });

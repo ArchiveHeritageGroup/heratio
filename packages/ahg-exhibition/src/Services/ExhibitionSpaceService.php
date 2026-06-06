@@ -1600,6 +1600,9 @@ class ExhibitionSpaceService
     {
         $clean = [];
         foreach ($stairs as $st) {
+            if ((int) ($st['from_floor'] ?? 0) === (int) ($st['to_floor'] ?? 1)) {
+                continue;   // a staircase must link two different floors
+            }
             $clean[] = [
                 'x' => round((float) ($st['x'] ?? 0), 2),
                 'z' => round((float) ($st['z'] ?? 0), 2),
