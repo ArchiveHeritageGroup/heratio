@@ -341,6 +341,28 @@
     var wallMat = new THREE.MeshStandardMaterial({ color: 0xf2f2f0, roughness: 1, side: THREE.DoubleSide });
     var doorMat = new THREE.MeshStandardMaterial({ color: 0x7c6a58, roughness: 0.9, side: THREE.DoubleSide });   // solid door panel (not see-through)
     var glassMat = new THREE.MeshStandardMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, roughness: 0.1, metalness: 0.1, side: THREE.DoubleSide });   // #1172 window pane
+    // Front door: double hinged leaves on an outdoor<->indoor opening, swing open on approach.
+    var frontDoorMat = new THREE.MeshStandardMaterial({ color: 0x5a3a22, roughness: 0.65, side: THREE.DoubleSide });
+    var frontDoors = [];
+    function makeFrontDoor(rm, s, e, fixed, vertical, ry, doorH, dest) {
+      var W = e - s, leafW = Math.max(0.2, W / 2 - 0.03), t = 0.07, grp = new THREE.Group();
+      function leaf(hingeAt, sign) {
+        var pivot = new THREE.Group();
+        var geo = vertical ? new THREE.BoxGeometry(t, doorH - 0.05, leafW) : new THREE.BoxGeometry(leafW, doorH - 0.05, t);
+        var panel = new THREE.Mesh(geo, frontDoorMat);
+        if (vertical) panel.position.z = sign * leafW / 2; else panel.position.x = sign * leafW / 2;
+        pivot.add(panel);
+        if (vertical) pivot.position.set(fixed, doorH / 2, hingeAt); else pivot.position.set(hingeAt, doorH / 2, fixed);
+        grp.add(pivot); return pivot;
+      }
+      var pa = leaf(s, 1), pb = leaf(e, -1);
+      var hit = new THREE.Mesh(vertical ? new THREE.BoxGeometry(0.12, doorH, W) : new THREE.BoxGeometry(W, doorH, 0.12), new THREE.MeshBasicMaterial({ visible: false }));
+      if (vertical) hit.position.set(fixed, doorH / 2, (s + e) / 2); else hit.position.set((s + e) / 2, doorH / 2, fixed);
+      hit.userData.action = 'door'; hit.userData.doorDest = dest; grp.add(hit);
+      addToRoom(rm, grp); pickables.push(hit);
+      var wc = roomWorld(rm, vertical ? fixed : (s + e) / 2, vertical ? (s + e) / 2 : fixed);
+      frontDoors.push({ a: pa, b: pb, x: wc.x, z: wc.z, open: 0 });
+    }
     var DOOR = 1.6;   // doorway width between connected rooms
     // Default plaster ceiling + decorative crown-moulding (cornice) for rooms with no ceiling image.
     var ceilMat = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 1, side: THREE.DoubleSide });
@@ -445,20 +467,23 @@
       doors.forEach(function (dd) {
         if (dd[0] > cur) full(cur, dd[0]);
         lintel(dd[0], dd[1]);
-        var sm = slab(dd[0], dd[1]);
         var mid = (dd[0] + dd[1]) / 2;
-        // The word "Door" floated just INTO the room off the panel (insetDir points into
-        // the room), so the billboard label does not z-fight / clip with the door slab.
-        var dlx = vertical ? (fixed + insetDir * 0.14) : mid, dlz = vertical ? mid : (fixed + insetDir * 0.14);
-        var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(dlx, doorH * 0.5, dlz); addToRoom(rm, dnm);
-        // Sign showing which room this doorway leads into.
+        // Which room does this opening lead to?
         var ox = vertical ? (edge - insetDir * 0.5) : mid, oz = vertical ? mid : (edge - insetDir * 0.5);
         var ow = roomWorld(rm, ox, oz), dest = findRoomAtWorld(ow.x, ow.z, rm);
+        var isFront = (dest && dest.is_outdoor) || rm.is_outdoor;   // outdoor<->indoor = the front door
+        if (isFront) {
+          makeFrontDoor(rm, dd[0], dd[1], fixed, vertical, ry, doorH, dest);   // swinging double doors
+        } else {
+          var sm = slab(dd[0], dd[1]);
+          var dlx = vertical ? (fixed + insetDir * 0.14) : mid, dlz = vertical ? mid : (fixed + insetDir * 0.14);
+          var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(dlx, doorH * 0.5, dlz); addToRoom(rm, dnm);
+          if (sm && dest) { sm.userData.action = 'door'; sm.userData.doorDest = dest; pickables.push(sm); }   // click the door to jump into that room
+        }
         if (dest && dest.name) {
           var ix = vertical ? (edge + insetDir * 0.35) : mid, iz = vertical ? mid : (edge + insetDir * 0.35);
-          var lab = makeTextSprite('→ ' + dest.name, 0.3);
+          var lab = makeTextSprite((isFront ? '⌂ ' : '→ ') + dest.name, 0.3);
           lab.position.set(ix, doorH + 0.35, iz); addToRoom(rm, lab);
-          if (sm) { sm.userData.action = 'door'; sm.userData.doorDest = dest; pickables.push(sm); }   // click the door to jump into that room
         }
         cur = dd[1];
       });
@@ -518,8 +543,19 @@
       addToRoom(rm, g);   // addToRoom re-bases x/z into the room group; child positions stay local to g
     }
     function renderOutdoor(rm) {
-      var ground = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), grassMat);
-      ground.rotation.x = -Math.PI / 2; ground.position.set(rm.x_offset + rm.w / 2, 0.01, rm.z_offset + rm.d / 2); addToRoom(rm, ground);
+      var SH = (rm.shape && rm.shape.length >= 3) ? rm.shape : null;
+      var ground;
+      if (SH) {   // grass follows the room's polygon shape (so shaping the park works)
+        var gs = new THREE.Shape();
+        SH.forEach(function (p, j) { var px = p.x * rm.w, pz = p.z * rm.d; if (j === 0) gs.moveTo(px, pz); else gs.lineTo(px, pz); });
+        gs.closePath();
+        ground = new THREE.Mesh(new THREE.ShapeGeometry(gs), grassMat);
+        ground.rotation.x = Math.PI / 2; ground.position.set(rm.x_offset, 0.01, rm.z_offset);
+      } else {
+        ground = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), grassMat);
+        ground.rotation.x = -Math.PI / 2; ground.position.set(rm.x_offset + rm.w / 2, 0.01, rm.z_offset + rm.d / 2);
+      }
+      addToRoom(rm, ground);
       var path = new THREE.Mesh(new THREE.PlaneGeometry(Math.min(2.2, rm.w * 0.3), rm.d), pathMat);
       path.rotation.x = -Math.PI / 2; path.position.set(rm.x_offset + rm.w / 2, 0.02, rm.z_offset + rm.d / 2); addToRoom(rm, path);
       // a few trees around the edges + a couple of benches along the path
@@ -1332,6 +1368,14 @@
       }
       if (window._wtPresenceFrame) window._wtPresenceFrame(dt);
       if (typeof applyZoom === 'function') applyZoom(dt);   // #1163 smooth zoom
+      if (frontDoors.length) {   // front doors swing open as you approach, close as you leave
+        var fcp = controls.getObject().position;
+        for (var fi = 0; fi < frontDoors.length; fi++) {
+          var fd = frontDoors[fi], fdist = Math.hypot(fcp.x - fd.x, fcp.z - fd.z);
+          fd.open += ((fdist < 3.4 ? 1 : 0) - fd.open) * Math.min(1, dt * 4);
+          var ang = fd.open * 1.65; fd.a.rotation.y = ang; fd.b.rotation.y = -ang;
+        }
+      }
       renderer.render(scene, camera);
     }
 

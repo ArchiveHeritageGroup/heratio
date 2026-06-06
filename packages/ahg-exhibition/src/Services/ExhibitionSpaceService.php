@@ -1786,9 +1786,12 @@ class ExhibitionSpaceService
             $row['focus_object_id'] = (isset($in['focus_object_id']) && $in['focus_object_id']) ? (int) $in['focus_object_id'] : null;
             $row['docent_msg'] = mb_substr(trim((string) ($in['docent_msg'] ?? '')), 0, 280) ?: null;
         }
-        DB::table('ahg_exhibition_presence')->updateOrInsert(
-            ['building_id' => $building, 'session_token' => $token],
-            $row
+        // Atomic upsert (INSERT .. ON DUPLICATE KEY UPDATE) - updateOrInsert races under
+        // concurrent ~2/sec beats with the same token and threw 1062 duplicate-key errors.
+        DB::table('ahg_exhibition_presence')->upsert(
+            [array_merge(['building_id' => $building, 'session_token' => $token], $row)],
+            ['building_id', 'session_token'],
+            array_keys($row)
         );
         DB::table('ahg_exhibition_presence')->where('building_id', $building)
             ->where('last_seen', '<', $now->copy()->subSeconds(15))->delete();   // GC stale
@@ -1852,7 +1855,8 @@ class ExhibitionSpaceService
         $now = now();
         $v = DB::table('ahg_exhibition_visit')->where('building_id', $building)->where('session_token', $token)->first();
         if (!$v) {
-            DB::table('ahg_exhibition_visit')->insert([
+            // insertOrIgnore: concurrent first beats with the same token must not 1062 on uq_visit.
+            DB::table('ahg_exhibition_visit')->insertOrIgnore([
                 'building_id' => $building, 'session_token' => $token, 'device' => substr((string) $device, 0, 16) ?: null,
                 'cur_room' => $roomId, 'room_entered_at' => $now, 'room_seconds_json' => json_encode([]),
                 'started_at' => $now, 'last_seen' => $now,
