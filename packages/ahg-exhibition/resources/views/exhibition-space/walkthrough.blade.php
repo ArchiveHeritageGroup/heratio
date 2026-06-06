@@ -524,15 +524,47 @@
     var STATUS_COLOR = { ok: 0x2e7d32, warn: 0xf9a825, alert: 0xc62828, none: 0x9e9e9e };
     var roomTints = [];
     // #1170 outdoor space: grass ground + scattered trees + a park bench, no walls/ceiling.
-    var grassMat = new THREE.MeshStandardMaterial({ color: 0x6f9a4d, roughness: 1 });
     var pathMat = new THREE.MeshStandardMaterial({ color: 0xc9bd9a, roughness: 1 });
-    var trunkMat = new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 1 });
-    var leafMat = new THREE.MeshStandardMaterial({ color: 0x3f7d35, roughness: 1 });
     var benchMat = new THREE.MeshStandardMaterial({ color: 0x7a5230, roughness: 0.9 });
+    // --- Life-like grass + trees: canvas-painted textures, no external assets (#1170) ---
+    var _grassTex = null, _treeTex = null, _tuftTex = null;
+    function grassTexture() {
+      if (_grassTex) return _grassTex;
+      var c = document.createElement('canvas'); c.width = c.height = 256; var g = c.getContext('2d');
+      g.fillStyle = '#5c8540'; g.fillRect(0, 0, 256, 256);
+      for (var i = 0; i < 1100; i++) { var sh = Math.random(); g.fillStyle = 'rgba(' + ((55 + sh * 45) | 0) + ',' + ((105 + sh * 60) | 0) + ',' + ((45 + sh * 35) | 0) + ',' + (0.2 + Math.random() * 0.35) + ')'; g.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 2, 2 + Math.random() * 2); }
+      for (var b = 0; b < 600; b++) { var bx = Math.random() * 256, by = Math.random() * 256, h = 3 + Math.random() * 6; g.strokeStyle = 'rgba(' + ((40 + Math.random() * 40) | 0) + ',' + ((120 + Math.random() * 70) | 0) + ',' + ((40 + Math.random() * 30) | 0) + ',0.6)'; g.lineWidth = 1; g.beginPath(); g.moveTo(bx, by); g.lineTo(bx + (Math.random() * 2 - 1), by - h); g.stroke(); }
+      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; _grassTex = t; return t;
+    }
+    function treeTexture() {
+      if (_treeTex) return _treeTex;
+      var c = document.createElement('canvas'); c.width = 256; c.height = 384; var g = c.getContext('2d');
+      g.fillStyle = '#6b4a2b'; g.beginPath(); g.moveTo(119, 384); g.lineTo(137, 384); g.lineTo(132, 215); g.lineTo(124, 215); g.closePath(); g.fill();
+      g.strokeStyle = '#6b4a2b'; g.lineWidth = 6; g.lineCap = 'round'; g.beginPath(); g.moveTo(128, 250); g.lineTo(98, 208); g.moveTo(128, 238); g.lineTo(162, 202); g.stroke();
+      var greens = [['#8bc34a', '#3f7d2f'], ['#aed581', '#4a8c3a'], ['#689f38', '#33611f']];
+      function blob(cx, cy, r, col) { var rg = g.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.2, cx, cy, r); rg.addColorStop(0, col[0]); rg.addColorStop(1, col[1]); g.fillStyle = rg; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill(); }
+      [[128, 150, 72], [88, 172, 52], [168, 168, 52], [108, 108, 50], [150, 106, 50], [128, 86, 46], [128, 202, 58]].forEach(function (bl, i) { blob(bl[0], bl[1], bl[2], greens[i % greens.length]); });
+      for (var i = 0; i < 500; i++) { var a = Math.random() * Math.PI * 2, rr = Math.random() * 78; var x = 128 + Math.cos(a) * rr, y = 150 + Math.sin(a) * rr * 1.15; if (y > 245 || y < 30) continue; g.fillStyle = 'rgba(' + ((70 + Math.random() * 90) | 0) + ',' + ((140 + Math.random() * 80) | 0) + ',' + ((45 + Math.random() * 45) | 0) + ',' + (0.35 + Math.random() * 0.4) + ')'; g.fillRect(x, y, 2, 2); }
+      var t = new THREE.CanvasTexture(c); _treeTex = t; return t;
+    }
+    function tuftTexture() {
+      if (_tuftTex) return _tuftTex;
+      var c = document.createElement('canvas'); c.width = c.height = 64; var g = c.getContext('2d');
+      for (var i = 0; i < 22; i++) { var bx = 10 + Math.random() * 44, h = 18 + Math.random() * 30; g.strokeStyle = 'rgba(' + ((50 + Math.random() * 40) | 0) + ',' + ((120 + Math.random() * 80) | 0) + ',' + ((40 + Math.random() * 35) | 0) + ',0.9)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(bx, 64); g.quadraticCurveTo(bx + (Math.random() * 10 - 5), 64 - h * 0.6, bx + (Math.random() * 14 - 7), 64 - h); g.stroke(); }
+      var t = new THREE.CanvasTexture(c); _tuftTex = t; return t;
+    }
+    // Crossed-plane billboard tree (volumetric from any angle), slight size/spin variance.
     function addTree(rm, x, z) {
-      var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.24, 2.2, 8), trunkMat); trunk.position.set(x, 1.1, z); addToRoom(rm, trunk);
-      var c1 = new THREE.Mesh(new THREE.ConeGeometry(1.5, 2.6, 10), leafMat); c1.position.set(x, 3.0, z); addToRoom(rm, c1);
-      var c2 = new THREE.Mesh(new THREE.ConeGeometry(1.1, 2.0, 10), leafMat); c2.position.set(x, 4.1, z); addToRoom(rm, c2);
+      var s = 2.6 + Math.random() * 1.8, w = s, h = s * 1.55;
+      var mat = new THREE.MeshStandardMaterial({ map: treeTexture(), transparent: false, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 });
+      var g = new THREE.Group();
+      var p1 = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat); p1.position.y = h / 2; g.add(p1);
+      var p2 = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat); p2.position.y = h / 2; p2.rotation.y = Math.PI / 2; g.add(p2);
+      g.position.set(x, 0, z); g.rotation.y = Math.random() * Math.PI; addToRoom(rm, g);
+    }
+    function addTuft(rm, x, z) {
+      var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tuftTexture(), transparent: true, alphaTest: 0.3, depthWrite: false }));
+      var s = 0.4 + Math.random() * 0.5; sp.scale.set(s, s, s); sp.position.set(x, s / 2, z); addToRoom(rm, sp);
     }
     function addBench(rm, x, z, ry) {
       var g = new THREE.Group();
@@ -544,25 +576,32 @@
     }
     function renderOutdoor(rm) {
       var SH = (rm.shape && rm.shape.length >= 3) ? rm.shape : null;
+      var gtex = grassTexture().clone(); gtex.needsUpdate = true; gtex.wrapS = gtex.wrapT = THREE.RepeatWrapping;
+      var grassMat = new THREE.MeshStandardMaterial({ map: gtex, roughness: 1 });
       var ground;
       if (SH) {   // grass follows the room's polygon shape (so shaping the park works)
         var gs = new THREE.Shape();
         SH.forEach(function (p, j) { var px = p.x * rm.w, pz = p.z * rm.d; if (j === 0) gs.moveTo(px, pz); else gs.lineTo(px, pz); });
         gs.closePath();
+        gtex.repeat.set(0.3, 0.3);   // ShapeGeometry UVs are in metres
         ground = new THREE.Mesh(new THREE.ShapeGeometry(gs), grassMat);
         ground.rotation.x = Math.PI / 2; ground.position.set(rm.x_offset, 0.01, rm.z_offset);
       } else {
+        gtex.repeat.set(rm.w * 0.3, rm.d * 0.3);   // PlaneGeometry UVs are 0..1
         ground = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), grassMat);
         ground.rotation.x = -Math.PI / 2; ground.position.set(rm.x_offset + rm.w / 2, 0.01, rm.z_offset + rm.d / 2);
       }
       addToRoom(rm, ground);
       var path = new THREE.Mesh(new THREE.PlaneGeometry(Math.min(2.2, rm.w * 0.3), rm.d), pathMat);
       path.rotation.x = -Math.PI / 2; path.position.set(rm.x_offset + rm.w / 2, 0.02, rm.z_offset + rm.d / 2); addToRoom(rm, path);
-      // a few trees around the edges + a couple of benches along the path
       var ox = rm.x_offset, oz = rm.z_offset, W = rm.w, D = rm.d;
-      addTree(rm, ox + W * 0.15, oz + D * 0.18); addTree(rm, ox + W * 0.85, oz + D * 0.2);
-      addTree(rm, ox + W * 0.12, oz + D * 0.82); addTree(rm, ox + W * 0.88, oz + D * 0.8);
+      // trees clustered around the edges (clear of the central path)
+      [[0.12, 0.16], [0.30, 0.12], [0.70, 0.13], [0.86, 0.18], [0.10, 0.62], [0.14, 0.86], [0.50, 0.92], [0.88, 0.6], [0.86, 0.85], [0.50, 0.07]]
+        .forEach(function (s) { addTree(rm, ox + W * s[0], oz + D * s[1]); });
       addBench(rm, ox + W * 0.35, oz + D * 0.5, 0); addBench(rm, ox + W * 0.65, oz + D * 0.5, Math.PI);
+      // scattered grass tufts for ground-level detail
+      var n = Math.min(70, Math.max(24, Math.round(W * D * 0.12)));
+      for (var i = 0; i < n; i++) { addTuft(rm, ox + W * (0.05 + Math.random() * 0.9), oz + D * (0.05 + Math.random() * 0.9)); }
     }
     ROOMS.forEach(function (rm, i) {
       var cx = rm.x_offset + rm.w / 2, cz = rm.z_offset + rm.d / 2;
