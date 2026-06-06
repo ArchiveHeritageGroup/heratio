@@ -201,10 +201,12 @@
       return { px: dx * c + dz * s, pz: -dx * s + dz * c };
     }
     // Which room's footprint contains a world point (rotation-aware); null if none.
-    function findRoomAtWorld(wx, wz, exclude) {
-      // Prefer a room on the floor we're currently on - otherwise a full-footprint
-      // basement (or any stacked room) shadows the room you're actually in.
-      var want = (typeof curFloorY === 'number') ? Math.round(curFloorY / FLOOR_H) : null, fallback = null;
+    function findRoomAtWorld(wx, wz, exclude, preferFloor) {
+      // Prefer a room on a specific floor (preferFloor, e.g. a door's own floor) else the
+      // floor we're on. When preferFloor is given it's STRICT - no cross-floor fallback -
+      // so a door never sends you to a stacked room on another floor (upper gallery / basement).
+      var strict = (preferFloor !== undefined && preferFloor !== null);
+      var want = strict ? preferFloor : ((typeof curFloorY === 'number') ? Math.round(curFloorY / FLOOR_H) : null), fallback = null;
       for (var i = 0; i < ROOMS.length; i++) {
         var r = ROOMS[i]; if (r === exclude) continue;
         var p = roomWorldInverse(r, wx, wz);
@@ -213,7 +215,7 @@
           if (!fallback) fallback = r;
         }
       }
-      return fallback;
+      return strict ? null : fallback;
     }
     // Billboard text label on a small dark plaque (room signage / doorway labels).
     function makeTextSprite(text, scaleH) {
@@ -421,7 +423,7 @@
         // A door facing a door in the adjacent room is the SAME opening - size both to the wider of the two.
         var w = d.width || DOOR, opp = OPP[d.wall];
         ROOMS.forEach(function (rj) {
-          if (rj === rm || !rj.doors) return;
+          if (rj === rm || !rj.doors || (rj.floor || 0) !== (rm.floor || 0)) return;
           var rjMin = vertical ? rj.x_offset : rj.z_offset, rjMax = vertical ? rj.x_offset + rj.w : rj.z_offset + rj.d;
           if (Math.abs(rjMax - edge) > 0.4 && Math.abs(rjMin - edge) > 0.4) return;   // not sharing this plane
           rj.doors.forEach(function (e2) {
@@ -433,9 +435,9 @@
         var hw = w / 2;
         doors.push([c - hw, c + hw]);
       });
-      // Auto-openings where another room adjoins this plane.
+      // Auto-openings where another room adjoins this plane (same floor only).
       ROOMS.forEach(function (rj) {
-        if (rj === rm) return;
+        if (rj === rm || (rj.floor || 0) !== (rm.floor || 0)) return;
         var jMin = vertical ? rj.x_offset : rj.z_offset;
         var jMax = vertical ? rj.x_offset + rj.w : rj.z_offset + rj.d;
         if (Math.abs(jMax - edge) > 0.3 && Math.abs(jMin - edge) > 0.3) return;   // not adjoining this plane

@@ -959,7 +959,7 @@ class ExhibitionSpaceService
             'corridor' => $this->getBuildingCorridorObjects($space),
             'min_x' => $minX ?? 0, 'max_x' => $maxX ?? 0, 'min_z' => $minZ ?? 0, 'max_z' => $maxZ ?? 0,
             'total_w' => ($maxX ?? 0) - ($minX ?? 0), 'max_d' => ($maxZ ?? 0) - ($minZ ?? 0), 'max_h' => $maxH,
-            'floor_height' => 4.5,                              // heratio#1169 metres between floors
+            'floor_height' => max(4.5, $maxH + 0.5),           // heratio#1169 metres between floors (clears the tallest walls so floors stack)
             'has_outdoor' => $hasOutdoor,                       // heratio#1170 sky + sun when true
             'stairs' => is_array($stairs) ? $stairs : [],       // heratio#1169 [{x,z,from_floor,to_floor}]
         ];
