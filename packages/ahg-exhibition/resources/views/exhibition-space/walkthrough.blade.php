@@ -404,132 +404,6 @@
       if (mat !== doorMat && mat !== glassMat && y0 < 1.7) colliders.push(m);   // body-height wall pieces only
       return m;
     }
-    // Doorway openings on this wall (plan mode): manual doors placed in the plan
-    // editor, plus auto-openings where another room adjoins the same plane.
-    function doorsOnWall(rm, vertical, edge) {
-      var a0 = vertical ? rm.z_offset : rm.x_offset;
-      var a1 = vertical ? rm.z_offset + rm.d : rm.x_offset + rm.w;
-      var doors = [];
-      // Manual doors for the wall lying on this plane.
-      var side = !vertical
-        ? (Math.abs(edge - rm.z_offset) < 0.3 ? 'north' : (Math.abs(edge - (rm.z_offset + rm.d)) < 0.3 ? 'south' : null))
-        : (Math.abs(edge - rm.x_offset) < 0.3 ? 'west' : (Math.abs(edge - (rm.x_offset + rm.w)) < 0.3 ? 'east' : null));
-      var OPP = { north: 'south', south: 'north', east: 'west', west: 'east' };
-      (rm.doors || []).forEach(function (d) {
-        if (d.wall !== side) return;
-        var span = vertical ? rm.d : rm.w;
-        var base = vertical ? rm.z_offset : rm.x_offset;
-        var c = base + d.pos * span;
-        // A door facing a door in the adjacent room is the SAME opening - size both to the wider of the two.
-        var w = d.width || DOOR, opp = OPP[d.wall];
-        ROOMS.forEach(function (rj) {
-          if (rj === rm || !rj.doors || (rj.floor || 0) !== (rm.floor || 0)) return;
-          var rjMin = vertical ? rj.x_offset : rj.z_offset, rjMax = vertical ? rj.x_offset + rj.w : rj.z_offset + rj.d;
-          if (Math.abs(rjMax - edge) > 0.4 && Math.abs(rjMin - edge) > 0.4) return;   // not sharing this plane
-          rj.doors.forEach(function (e2) {
-            if (e2.wall !== opp) return;
-            var c2 = (vertical ? rj.z_offset : rj.x_offset) + e2.pos * (vertical ? rj.d : rj.w);
-            if (Math.abs(c2 - c) < 0.9) w = Math.max(w, e2.width || DOOR);
-          });
-        });
-        var hw = w / 2;
-        doors.push([c - hw, c + hw]);
-      });
-      // Auto-openings where another room adjoins this plane (same floor only).
-      ROOMS.forEach(function (rj) {
-        if (rj === rm || (rj.floor || 0) !== (rm.floor || 0)) return;
-        var jMin = vertical ? rj.x_offset : rj.z_offset;
-        var jMax = vertical ? rj.x_offset + rj.w : rj.z_offset + rj.d;
-        if (Math.abs(jMax - edge) > 0.3 && Math.abs(jMin - edge) > 0.3) return;   // not adjoining this plane
-        var b0 = vertical ? rj.z_offset : rj.x_offset;
-        var b1 = vertical ? rj.z_offset + rj.d : rj.x_offset + rj.w;
-        var oa = Math.max(a0, b0), ob = Math.min(a1, b1);
-        if (ob - oa > 0.8) { var mid = (oa + ob) / 2, dw = Math.min(DOOR, (ob - oa) * 0.7); doors.push([mid - dw / 2, mid + dw / 2]); }
-      });
-      return doors;
-    }
-    // Render a wall along [a,b] (at fixed coord, inset slightly) with real doorways:
-    // full-height wall on either side of each opening + a lintel above the opening.
-    function planWall(rm, vertical, edge, insetDir, ry, mat) {
-      var a = vertical ? rm.z_offset : rm.x_offset;
-      var b = vertical ? rm.z_offset + rm.d : rm.x_offset + rm.w;
-      var fixed = edge + insetDir * 0.05;
-      var doorH = Math.min(RH - 0.3, 2.6);   // opening height; wall above is the lintel
-      // Clamp to the wall, snap near-edge ends (no slivers), merge overlaps.
-      var raw = doorsOnWall(rm, vertical, edge).map(function (d) {
-        var s = Math.max(a, d[0]), e = Math.min(b, d[1]);
-        if (s - a < 0.2) s = a; if (b - e < 0.2) e = b;
-        return [s, e];
-      }).filter(function (d) { return d[1] - d[0] > 0.15; }).sort(function (p, q) { return p[0] - q[0]; });
-      var doors = [];
-      raw.forEach(function (d) {
-        if (doors.length && d[0] <= doors[doors.length - 1][1] + 0.01) doors[doors.length - 1][1] = Math.max(doors[doors.length - 1][1], d[1]);
-        else doors.push(d.slice());
-      });
-      // #1172 windows on this wall side
-      var wside = !vertical ? (Math.abs(edge - rm.z_offset) < 0.3 ? 'north' : 'south') : (Math.abs(edge - rm.x_offset) < 0.3 ? 'west' : 'east');
-      var winList = (rm.windows || []).filter(function (w) { return w.wall === wside; });
-      function wsegFull(s, e) { var len = e - s; if (len <= 0.05) return; var mid = (s + e) / 2; if (vertical) wallSeg(len, fixed, mid, ry, mat); else wallSeg(len, mid, fixed, ry, mat); }
-      function wsegH(s, e, y0, y1) { var len = e - s; if (len <= 0.05 || y1 - y0 <= 0.05) return; var mid = (s + e) / 2; if (vertical) wallSegH(len, fixed, mid, ry, mat, y0, y1); else wallSegH(len, mid, fixed, ry, mat, y0, y1); }
-      function wGlass(s, e, y0, y1) { var len = e - s, h = y1 - y0, mid = (s + e) / 2; var g = new THREE.Mesh(new THREE.PlaneGeometry(len, h), glassMat); if (vertical) g.position.set(fixed, (y0 + y1) / 2, mid); else g.position.set(mid, (y0 + y1) / 2, fixed); g.rotation.y = ry; addToRoom(rm, g); }
-      function full(s, e) {
-        if (e - s <= 0.1) return;
-        var wins = winList.map(function (w) { var c = a + w.pos * (b - a); return { ws: Math.max(s, c - w.width / 2), we: Math.min(e, c + w.width / 2), sill: w.sill, header: Math.min(RH - 0.1, w.sill + w.height) }; })
-          .filter(function (w) { return w.we - w.ws > 0.2; }).sort(function (p, q) { return p.ws - q.ws; });
-        if (!wins.length) { wsegFull(s, e); return; }
-        var c2 = s;
-        wins.forEach(function (w) {
-          if (w.ws > c2) wsegFull(c2, w.ws);          // full-height wall before the window
-          wsegH(w.ws, w.we, 0, w.sill);               // wall below the sill
-          wsegH(w.ws, w.we, w.header, RH);            // wall above the header
-          wGlass(w.ws, w.we, w.sill, w.header);       // the glass pane (see-through, inside + out)
-          c2 = w.we;
-        });
-        if (c2 < e) wsegFull(c2, e);
-      }
-      function lintel(s, e) { var len = e - s; var mid = (s + e) / 2; if (vertical) wallSegH(len, fixed, mid, ry, mat, doorH, RH); else wallSegH(len, mid, fixed, ry, mat, doorH, RH); }
-      function slab(s, e) { var len = e - s; var mid = (s + e) / 2; return vertical ? wallSegH(len, fixed, mid, ry, doorMat, 0, doorH) : wallSegH(len, mid, fixed, ry, doorMat, 0, doorH); }   // solid door fills the opening
-      // Where does a staircase pass through THIS wall? Render that slice as see-through glass
-      // (glass isn't a collider) so the stairs are visible and walk-through instead of hitting a wall.
-      var stairGaps = [];
-      stairOpenings.forEach(function (op) {
-        if ((rm.floor || 0) !== (op.fromF || 0) && (rm.floor || 0) !== (op.toF || 0)) return;
-        var s, e;
-        if (vertical) { if (edge < op.x0 - 0.4 || edge > op.x1 + 0.4) return; s = Math.max(a, op.z0); e = Math.min(b, op.z1); }
-        else { if (edge < op.z0 - 0.4 || edge > op.z1 + 0.4) return; s = Math.max(a, op.x0); e = Math.min(b, op.x1); }
-        if (e - s > 0.3) stairGaps.push([s - 0.3, e + 0.3]);
-      });
-      var openings = doors.map(function (d) { return { s: d[0], e: d[1], stair: false }; })
-        .concat(stairGaps.map(function (g) { return { s: g[0], e: g[1], stair: true }; }))
-        .sort(function (p, q) { return p.s - q.s; });
-      var cur = a;
-      openings.forEach(function (op) {
-        if (op.e <= cur) return;
-        if (op.s > cur) full(cur, op.s);
-        if (op.stair) { wGlass(op.s, op.e, 0, RH); cur = Math.max(cur, op.e); return; }   // see-through, walk-through stair slice
-        lintel(op.s, op.e);
-        var mid = (op.s + op.e) / 2;
-        // Which room does this opening lead to?
-        var ox = vertical ? (edge - insetDir * 0.5) : mid, oz = vertical ? mid : (edge - insetDir * 0.5);
-        var ow = roomWorld(rm, ox, oz), dest = findRoomAtWorld(ow.x, ow.z, rm, rm.floor || 0);   // door leads to a room on the SAME floor
-        var isFront = (dest && dest.is_outdoor) || rm.is_outdoor;   // outdoor<->indoor = the front door
-        if (isFront) {
-          makeFrontDoor(rm, op.s, op.e, fixed, vertical, ry, doorH, dest);   // swinging double doors
-        } else {
-          var sm = slab(op.s, op.e);
-          var dlx = vertical ? (fixed + insetDir * 0.14) : mid, dlz = vertical ? mid : (fixed + insetDir * 0.14);
-          var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(dlx, doorH * 0.5, dlz); addToRoom(rm, dnm);
-          if (sm && dest) { sm.userData.action = 'door'; sm.userData.doorDest = dest; pickables.push(sm); }   // click the door to jump into that room
-        }
-        if (dest && dest.name) {
-          var ix = vertical ? (edge + insetDir * 0.35) : mid, iz = vertical ? mid : (edge + insetDir * 0.35);
-          var lab = makeTextSprite((isFront ? '⌂ ' : '→ ') + dest.name, 0.3);
-          lab.position.set(ix, doorH + 0.35, iz); addToRoom(rm, lab);
-        }
-        cur = Math.max(cur, op.e);
-      });
-      if (cur < b) full(cur, b);
-    }
     // #1176 step 1: auto-doorways for a polygon EDGE, mirroring doorsOnWall's auto rule so a room
     // behaves identically whether rendered via planWall (rect) or edgeWall (polygon). Axis-aligned
     // edges only (every current room shape is an axis-aligned rectangle); skew edges get no auto.
@@ -585,12 +459,34 @@
         });
         if (c2 < e) seg(c2, e, 0, RH);
       }
+      // #1176: where a staircase crosses this edge, render see-through glass (non-collider) so the
+      // stairs are visible + walk-through instead of dead-ending in a wall (ported from planWall).
+      var stairGapsE = [];
+      (function () {
+        var vert = Math.abs(ax - bx) < 0.15, horiz = Math.abs(az - bz) < 0.15;
+        if (vert === horiz) return;   // skew / degenerate edge: no stair gap
+        var fixed = vert ? ax : az, lo = vert ? Math.min(az, bz) : Math.min(ax, bx), hi = vert ? Math.max(az, bz) : Math.max(ax, bx);
+        stairOpenings.forEach(function (op) {
+          if ((rm.floor || 0) !== (op.fromF || 0) && (rm.floor || 0) !== (op.toF || 0)) return;
+          if (vert ? (fixed < op.x0 - 0.4 || fixed > op.x1 + 0.4) : (fixed < op.z0 - 0.4 || fixed > op.z1 + 0.4)) return;
+          var s = Math.max(lo, vert ? op.z0 : op.x0), e = Math.min(hi, vert ? op.z1 : op.x1);
+          if (e - s <= 0.3) return;
+          s -= 0.3; e += 0.3;
+          var f0 = vert ? (s - az) / (bz - az) : (s - ax) / (bx - ax), f1 = vert ? (e - az) / (bz - az) : (e - ax) / (bx - ax);
+          stairGapsE.push([Math.max(0, Math.min(f0, f1)) * L, Math.min(1, Math.max(f0, f1)) * L]);
+        });
+      })();
+      var openings = doors.map(function (d) { return { s: d[0], e: d[1], stair: false }; })
+        .concat(stairGapsE.map(function (g) { return { s: g[0], e: g[1], stair: true }; }))
+        .sort(function (p, q) { return p.s - q.s; });
       var cur = 0;
-      doors.forEach(function (dd) {
-        if (dd[0] > cur) fullEdge(cur, dd[0]);
-        seg(dd[0], dd[1], doorH, RH);          // lintel above the opening
-        var sm = seg(dd[0], dd[1], 0, doorH, doorMat);  // solid door fills the opening (no see-through)
-        var mid = (dd[0] + dd[1]) / 2, mx = ax + ux * mid, mz = az + uz * mid;
+      openings.forEach(function (dd) {
+        if (dd.e <= cur) return;
+        if (dd.s > cur) fullEdge(cur, dd.s);
+        if (dd.stair) { seg(dd.s, dd.e, 0, RH, glassMat); cur = Math.max(cur, dd.e); return; }   // see-through, walk-through stair slice
+        seg(dd.s, dd.e, doorH, RH);          // lintel above the opening
+        var sm = seg(dd.s, dd.e, 0, doorH, doorMat);  // solid door fills the opening (no see-through)
+        var mid = (dd.s + dd.e) / 2, mx = ax + ux * mid, mz = az + uz * mid;
         var ginx = ccx - mx, ginz = ccz - mz, ginl = Math.hypot(ginx, ginz) || 1;   // inward (toward room centre)
         var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(mx + ginx / ginl * 0.14, doorH * 0.5, mz + ginz / ginl * 0.14); addToRoom(rm, dnm);   // "Door" floated off the panel so it does not clip
         var nx = -uz, nz = ux; if ((ccx - mx) * nx + (ccz - mz) * nz > 0) { nx = -nx; nz = -nz; }   // outward normal
@@ -599,7 +495,7 @@
           var lab = makeTextSprite('→ ' + dest.name, 0.3); lab.position.set(mx - nx * 0.35, doorH + 0.35, mz - nz * 0.35); addToRoom(rm, lab);
           if (sm) { sm.userData.action = 'door'; sm.userData.doorDest = dest; pickables.push(sm); }   // click the door to jump into that room
         }
-        cur = dd[1];
+        cur = Math.max(cur, dd.e);
       });
       if (cur < L) fullEdge(cur, L);
     }
@@ -797,23 +693,19 @@
           addToRoom(rm, cl);
           loadTex(rm.ceiling, function (tex) { cmat.map = tex; cmat.needsUpdate = true; });
         }
+        // #1176: plan-mode rooms always render through the polygon/edge path above (every room has a
+        // shape now), so this branch is only the legacy auto-ROW layout: back+front full walls with
+        // doorways auto-cut between consecutive rooms.
         var rx = rm.x_offset + rm.w;
-        if (PLAN_MODE) {   // plan layout: auto-doorways where rooms adjoin
-          planWall(rm, false, rm.z_offset, 1, 0, rwMat);            // back
-          planWall(rm, false, rm.z_offset + rm.d, -1, Math.PI, rwMat); // front
-          planWall(rm, true, rm.x_offset, 1, Math.PI / 2, rwMat);   // left
-          planWall(rm, true, rx, -1, -Math.PI / 2, rwMat);          // right
-        } else {           // auto-row: back+front full, doorways between consecutive rooms
-          wallSeg(rm.w, cx, rm.z_offset, 0, rwMat);
-          wallSeg(rm.w, cx, rm.z_offset + rm.d, Math.PI, rwMat);
-          if (i === 0) wallSeg(rm.d, rm.x_offset, cz, Math.PI / 2, rwMat);
-          if (i === ROOMS.length - 1) {
-            wallSeg(rm.d, rx, cz, -Math.PI / 2, rwMat);
-          } else {
-            var half = (rm.d - DOOR) / 2;
-            wallSeg(half, rx, cz - rm.d / 2 + half / 2, -Math.PI / 2, rwMat);
-            wallSeg(half, rx, cz + rm.d / 2 - half / 2, -Math.PI / 2, rwMat);
-          }
+        wallSeg(rm.w, cx, rm.z_offset, 0, rwMat);
+        wallSeg(rm.w, cx, rm.z_offset + rm.d, Math.PI, rwMat);
+        if (i === 0) wallSeg(rm.d, rm.x_offset, cz, Math.PI / 2, rwMat);
+        if (i === ROOMS.length - 1) {
+          wallSeg(rm.d, rx, cz, -Math.PI / 2, rwMat);
+        } else {
+          var half = (rm.d - DOOR) / 2;
+          wallSeg(half, rx, cz - rm.d / 2 + half / 2, -Math.PI / 2, rwMat);
+          wallSeg(half, rx, cz + rm.d / 2 - half / 2, -Math.PI / 2, rwMat);
         }
       }
       // No ceiling image set: cap the room with a plaster ceiling + a fancy cornice
