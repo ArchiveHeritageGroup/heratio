@@ -496,7 +496,7 @@
         var mid = (dd[0] + dd[1]) / 2;
         // Which room does this opening lead to?
         var ox = vertical ? (edge - insetDir * 0.5) : mid, oz = vertical ? mid : (edge - insetDir * 0.5);
-        var ow = roomWorld(rm, ox, oz), dest = findRoomAtWorld(ow.x, ow.z, rm);
+        var ow = roomWorld(rm, ox, oz), dest = findRoomAtWorld(ow.x, ow.z, rm, rm.floor || 0);   // door leads to a room on the SAME floor
         var isFront = (dest && dest.is_outdoor) || rm.is_outdoor;   // outdoor<->indoor = the front door
         if (isFront) {
           makeFrontDoor(rm, dd[0], dd[1], fixed, vertical, ry, doorH, dest);   // swinging double doors
@@ -553,7 +553,7 @@
         var ginx = ccx - mx, ginz = ccz - mz, ginl = Math.hypot(ginx, ginz) || 1;   // inward (toward room centre)
         var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(mx + ginx / ginl * 0.14, doorH * 0.5, mz + ginz / ginl * 0.14); addToRoom(rm, dnm);   // "Door" floated off the panel so it does not clip
         var nx = -uz, nz = ux; if ((ccx - mx) * nx + (ccz - mz) * nz > 0) { nx = -nx; nz = -nz; }   // outward normal
-        var ow = roomWorld(rm, mx + nx * 0.5, mz + nz * 0.5), dest = findRoomAtWorld(ow.x, ow.z, rm);
+        var ow = roomWorld(rm, mx + nx * 0.5, mz + nz * 0.5), dest = findRoomAtWorld(ow.x, ow.z, rm, rm.floor || 0);   // door leads to a room on the SAME floor
         if (dest && dest.name) {
           var lab = makeTextSprite('→ ' + dest.name, 0.3); lab.position.set(mx - nx * 0.35, doorH + 0.35, mz - nz * 0.35); addToRoom(rm, lab);
           if (sm) { sm.userData.action = 'door'; sm.userData.doorDest = dest; pickables.push(sm); }   // click the door to jump into that room
