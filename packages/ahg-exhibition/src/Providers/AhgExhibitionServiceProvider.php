@@ -81,6 +81,7 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'is_outdoor' => 'TINYINT(1) NOT NULL DEFAULT 0',   // heratio#1170: open-air space (sky + grass, no walls)
                     'stairs_json' => 'JSON NULL',            // heratio#1169: stair links [{x,z,from_floor,to_floor}]
                     'windows_json' => 'JSON NULL',           // heratio#1172: windows per wall [{wall,pos,width,sill,height}]
+                    'bld_group' => 'VARCHAR(40) NULL',       // heratio#1143: plan grouping - rooms sharing a snapped wall move as one unit
                 ];
                 foreach ($spaceCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_space', $col)) {

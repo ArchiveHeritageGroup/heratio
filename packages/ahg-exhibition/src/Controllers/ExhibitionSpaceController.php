@@ -269,6 +269,23 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => $ok]);
     }
 
+    /** AJAX: set plan group keys on rooms (#1143 move-as-one-unit). */
+    public function savePlanGroupAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'groups' => 'required|array',
+            'groups.*.room_id' => 'required|integer|min:1',
+            'groups.*.group' => 'nullable|string|max:40',
+        ]);
+        $n = $this->service->setRoomGroups($space, $data['groups']);
+
+        return response()->json(['ok' => true, 'updated' => $n]);
+    }
+
     /** AJAX: save the blueprint's world rectangle (metres) after move/resize. */
     public function planImageRectAjax(Request $request, string $slug)
     {

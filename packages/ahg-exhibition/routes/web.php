@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/plan/shape', [ExhibitionSpaceController::class, 'saveShapeAjax'])->name('exhibition-space.plan.shape')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/windows', [ExhibitionSpaceController::class, 'saveWindowsAjax'])->name('exhibition-space.plan.windows')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/add-room', [ExhibitionSpaceController::class, 'addRoomAjax'])->name('exhibition-space.plan.add-room')->middleware('acl:create');
+    Route::post('/exhibition-space/{slug}/plan/group', [ExhibitionSpaceController::class, 'savePlanGroupAjax'])->name('exhibition-space.plan.group')->middleware('acl:update');
     // authored audio guided tour (curator saves route + narration)
     Route::post('/exhibition-space/{slug}/guided-tour', [ExhibitionSpaceController::class, 'saveGuidedTourAjax'])->name('exhibition-space.guided-tour')->middleware('acl:update');
     // heratio#1146 - live data link

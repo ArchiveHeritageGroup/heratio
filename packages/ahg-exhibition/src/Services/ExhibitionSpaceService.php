@@ -1526,6 +1526,7 @@ class ExhibitionSpaceService
                 'doors' => $this->getDoors((int) $r->id),
                 'windows' => $this->getWindows((int) $r->id),   // #1172 authoring
                 'shape' => $this->getShape((int) $r->id),
+                'group' => $r->bld_group ?? null,   // #1143: move-as-one-unit group key
                 'is_current' => (int) $r->id === (int) $space->id,
             ];
             if ($r->bld_x !== null && $r->bld_y !== null) {
@@ -1626,8 +1627,31 @@ class ExhibitionSpaceService
         return [
             'id' => $id, 'name' => $nm, 'slug' => $this->getById($id)->slug,
             'w' => 10.0, 'd' => 8.0, 'bld_x' => (float) $x, 'bld_y' => (float) $y, 'rot' => 0.0,
-            'doors' => [], 'shape' => null, 'is_current' => false,
+            'doors' => [], 'shape' => null, 'group' => null, 'is_current' => false,
         ];
+    }
+
+    /**
+     * Set the plan group key on rooms (#1143). Rooms sharing a key move as one
+     * unit in the editor and 3D walkthrough. A null key ungroups. Only rooms in
+     * this space's building are touched.
+     *
+     * @param  array<int,array{room_id:int,group:?string}>  $groups
+     */
+    public function setRoomGroups(object $space, array $groups): int
+    {
+        $ids = $this->buildingSpaceIds($space);
+        $n = 0;
+        foreach ($groups as $g) {
+            $rid = (int) ($g['room_id'] ?? 0);
+            if ($rid <= 0 || ! in_array($rid, $ids, true)) {
+                continue;
+            }
+            $key = (isset($g['group']) && $g['group'] !== '' && $g['group'] !== null) ? substr((string) $g['group'], 0, 40) : null;
+            $n += DB::table('ahg_exhibition_space')->where('id', $rid)->update(['bld_group' => $key, 'updated_at' => now()]);
+        }
+
+        return $n;
     }
 
     /** Save a room's plan position + size (metres) + rotation (degrees). */

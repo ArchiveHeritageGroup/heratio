@@ -14,7 +14,8 @@
       <i class="fas fa-arrow-left me-1"></i>{{ __('Back to space') }}
     </a>
     @auth
-      <a href="{{ route('exhibition-space.builder', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary">
+      <a id="editBuilderBtn" href="{{ route('exhibition-space.builder', ['slug' => $space->slug]) }}"
+         data-tmpl="{{ route('exhibition-space.builder', ['slug' => '__SLUG__']) }}" class="btn btn-sm btn-outline-primary">
         <i class="fas fa-cubes me-1"></i>{{ __('Edit in Builder') }}
       </a>
     @endauth
@@ -1298,9 +1299,14 @@
 
     // Header reflects the room the visitor is currently standing in.
     var _lastRoomId = null, _nameEl = document.getElementById('wtSpaceName');
+    var _bldBtn = document.getElementById('editBuilderBtn'), _bldTmpl = _bldBtn ? _bldBtn.getAttribute('data-tmpl') : null;
     function updateRoomName() {
       var p = controls.getObject().position, r = findRoomAtWorld(p.x, p.z, null);
-      if (r && r.id !== _lastRoomId) { _lastRoomId = r.id; if (_nameEl) _nameEl.textContent = r.name || ''; }
+      if (r && r.id !== _lastRoomId) {
+        _lastRoomId = r.id; if (_nameEl) _nameEl.textContent = r.name || '';
+        // Edit-in-Builder follows you: it opens the builder for the room you're standing in.
+        if (_bldBtn && _bldTmpl && r.slug) _bldBtn.setAttribute('href', _bldTmpl.replace('__SLUG__', r.slug));
+      }
     }
     updateRoomName();
 

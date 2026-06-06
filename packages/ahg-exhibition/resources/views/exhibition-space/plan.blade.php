@@ -59,6 +59,9 @@
           <button type="button" class="btn btn-sm btn-outline-primary w-100 mb-1" id="shapeEdit"><i class="fas fa-draw-polygon me-1"></i>{{ __('Edit room shape') }}</button>
           <button type="button" class="btn btn-sm btn-outline-secondary w-100" id="shapeReset">{{ __('Reset to rectangle') }}</button>
           <small class="text-muted d-block mt-1" id="shapeHint">{{ __('Make L-shapes or cut corners. Drag a corner; click a + to add one; double-click to remove.') }}</small>
+          <hr class="my-2">
+          <button type="button" class="btn btn-sm btn-outline-warning w-100" id="ungroupBtn" style="display:none;"><i class="fas fa-object-ungroup me-1"></i>{{ __('Ungroup from suite') }}</button>
+          <small class="text-muted d-block mt-1">{{ __('Rooms that share a wall auto-group and move together (matching dashed outline). Ungroup to move this one on its own.') }}</small>
         </div>
       </div>
       <div class="card mb-3" id="doorCard" style="display:none;">
@@ -124,6 +127,7 @@
     var WINDOWS_URL = '{{ route('exhibition-space.plan.windows', ['slug' => $space->slug]) }}';   // #1172
     var SHAPE_URL = '{{ route('exhibition-space.plan.shape', ['slug' => $space->slug]) }}';
     var ADD_ROOM_URL = '{{ route('exhibition-space.plan.add-room', ['slug' => $space->slug]) }}';
+    var GROUP_URL = '{{ route('exhibition-space.plan.group', ['slug' => $space->slug]) }}';   // #1143 move-as-one-unit
     var IMG_RECT_URL = '{{ route('exhibition-space.plan.image-rect', ['slug' => $space->slug]) }}';
     var EDIT_BASE = '{{ url('exhibition-space') }}';
     var CORR_ADD = '{{ route('exhibition-space.plan.corridor-add', ['slug' => $space->slug]) }}';
@@ -184,7 +188,7 @@
       var x = g.x() / scale, y = g.y() / scale, TH = 0.7;
       var A = effBounds(r, x, y), bestDX = null, bestDY = null;
       PLAN.rooms.forEach(function (o) {
-        if (o === r || o.rot || o.bld_x === null) return;
+        if (o === r || o.rot || o.bld_x === null || (r.group && o.group === r.group)) return;
         var B = effBounds(o, o.bld_x, o.bld_y);
         [[A.x1, B.x1], [A.x1, B.x2], [A.x2, B.x1], [A.x2, B.x2]].forEach(function (p) { var dx = p[1] - p[0]; if (Math.abs(dx) < TH && (bestDX === null || Math.abs(dx) < Math.abs(bestDX))) bestDX = dx; });
         [[A.y1, B.y1], [A.y1, B.y2], [A.y2, B.y1], [A.y2, B.y2]].forEach(function (p) { var dy = p[1] - p[0]; if (Math.abs(dy) < TH && (bestDY === null || Math.abs(dy) < Math.abs(bestDY))) bestDY = dy; });
@@ -199,6 +203,26 @@
       var sh = (o.shape && o.shape.length >= 3) ? o.shape : null;
       if (sh) return sh.map(function (p) { return { x: x + p.x * o.w, y: y + p.z * o.d }; });
       return [{ x: x, y: y }, { x: x + o.w, y: y }, { x: x + o.w, y: y + o.d }, { x: x, y: y + o.d }];
+    }
+    // Every corner of every OTHER room, in world (metre) coords - the points a
+    // dragged vertex can lock onto.
+    function otherCorners(g) {
+      var r = g.getAttr('room'), out = [];
+      PLAN.rooms.forEach(function (o) {
+        if (o === g.getAttr('room') || o.bld_x === null || o.bld_y === null) return;
+        roomPoly(o, o.bld_x, o.bld_y).forEach(function (pt) { out.push(pt); });
+      });
+      return out;
+    }
+    // Snap a vertex (world metres) to the nearest existing corner, each axis
+    // independently, so a dropped point locks onto another space's point/wall.
+    function snapVertexWorld(pts, wx, wy) {
+      var TH = 0.6, bx = wx, by = wy, bdx = TH, bdy = TH, hitX = false, hitY = false;
+      pts.forEach(function (pt) {
+        var ddx = Math.abs(pt.x - wx); if (ddx < bdx) { bdx = ddx; bx = pt.x; hitX = true; }
+        var ddy = Math.abs(pt.y - wy); if (ddy < bdy) { bdy = ddy; by = pt.y; hitY = true; }
+      });
+      return { x: bx, y: by, snapped: hitX || hitY };
     }
     function ptInPoly(px, py, poly) {
       var inside = false;
@@ -400,6 +424,7 @@
       if (rc) {
         rc.style.display = 'block'; document.getElementById('roomCardName').textContent = nm; document.getElementById('rotInput').value = Math.round(g.rotation());
         var el = document.getElementById('roomEditLink'); if (el) el.href = EDIT_BASE + '/' + g.getAttr('room').slug + '/edit';
+        var ug = document.getElementById('ungroupBtn'); if (ug) ug.style.display = g.getAttr('room').group ? 'block' : 'none';
       }
       setShapeBtn(shapeMode && shapeG === g);
     }
@@ -413,6 +438,7 @@
     }
     document.querySelectorAll('#doorCard [data-door]').forEach(function (b) { b.addEventListener('click', function () { addDoor(b.getAttribute('data-door')); }); });
     (function () { var wb = document.getElementById('winAdd'); if (wb) wb.addEventListener('click', addWindow); })();   // #1172
+    (function () { var ug = document.getElementById('ungroupBtn'); if (ug) ug.addEventListener('click', function () { if (selectedG) { ungroupRoom(selectedG); ug.style.display = 'none'; } }); })();   // #1143
     // Rotation controls (rotate about the room's top-left, matching the walkthrough).
     function applyRot(deg) {
       if (!selectedG) return;
@@ -451,6 +477,20 @@
       g.x(r.bld_x * scale); g.y(r.bld_y * scale); g.width(r.w * scale); g.height(r.d * scale);
       var rect = g.findOne('.roomrect'); if (rect) { rect.width(r.w * scale); rect.height(r.d * scale); }
       saveRoom(g); saveShape(g);
+    }
+    // Ghost dots at every OTHER room's corner - the points a dragged vertex can
+    // lock onto. Shown only while shaping, so you can aim a corner at a neighbour.
+    function clearSnapTargets() { layer.find('.snaptarget').forEach(function (n) { n.destroy(); }); }
+    function drawSnapTargets(g) {
+      clearSnapTargets();
+      var r = g.getAttr('room');
+      PLAN.rooms.forEach(function (o) {
+        if (o === r || o.bld_x === null || o.bld_y === null) return;
+        roomPoly(o, o.bld_x, o.bld_y).forEach(function (pt) {
+          layer.add(new Konva.Circle({ name: 'snaptarget', x: pt.x * scale, y: pt.y * scale, radius: 6, fill: 'rgba(25,135,84,0.35)', stroke: '#198754', strokeWidth: 1.5, listening: false }));
+        });
+      });
+      g.moveToTop();   // keep the draggable corners above the target dots
     }
     function drawShape(g) {
       g.find('.shapepoly').forEach(function (n) { n.destroy(); });
@@ -499,12 +539,21 @@
         // Draggable corners (topmost so they win the hit test).
         sh.forEach(function (p, idx) {
           var v = new Konva.Circle({ name: 'shapevert', x: p.x * ww, y: p.z * hh, radius: 7, fill: '#fff', stroke: '#0d6efd', strokeWidth: 2, draggable: true });
-          v.on('dragmove', function () { p.x = Math.max(0, Math.min(1, v.x() / ww)); p.z = Math.max(0, Math.min(1, v.y() / hh)); v.x(p.x * ww); v.y(p.z * hh); updatePoly(g); });
-          v.on('dragend', function () { saveShape(g); });
+          v.on('dragmove', function () {
+            var wx = g.x() / scale + (v.x() / ww) * r.w, wy = g.y() / scale + (v.y() / hh) * r.d;
+            var s = snapVertexWorld(otherCorners(g), wx, wy);
+            p.x = Math.max(0, Math.min(1, (s.x - g.x() / scale) / r.w));
+            p.z = Math.max(0, Math.min(1, (s.y - g.y() / scale) / r.d));
+            v.x(p.x * ww); v.y(p.z * hh);
+            v.fill(s.snapped ? '#198754' : '#fff');   // green dot = locked onto an existing point
+            updatePoly(g);
+          });
+          v.on('dragend', function () { v.fill('#fff'); saveShape(g); });
           v.on('dblclick dbltap', function (e) { e.cancelBubble = true; if (r.shape.length > 3) { r.shape.splice(idx, 1); drawShape(g); saveShape(g); if (selectedG === g) updateDoorControls(g); } });
           g.add(v);
         });
       }
+      if (shapeMode && shapeG === g && sh) drawSnapTargets(g); else if (!shapeMode) clearSnapTargets();
       layer.draw();
     }
     function setShapeBtn(on) { var se = document.getElementById('shapeEdit'); se.classList.toggle('btn-primary', on); se.classList.toggle('btn-outline-primary', !on); }
@@ -519,15 +568,91 @@
       tr.nodes([selectedG]); drawShape(selectedG); saveShape(selectedG); updateDoorControls(selectedG);
     });
 
+    // ---- Room grouping (#1143): rooms that share a snapped wall move as one unit ----
+    var nodeById = {};
+    var GROUP_COLORS = ['#0d6efd', '#198754', '#d63384', '#fd7e14', '#6f42c1', '#20c997', '#dc3545'];
+    function groupColor(key) {
+      if (!key) return null;
+      var h = 0; for (var i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+      return GROUP_COLORS[h % GROUP_COLORS.length];
+    }
+    function recolorRoom(g) {
+      var r = g.getAttr('room'), rect = g.findOne('.roomrect'); if (!rect) return;
+      var gc = groupColor(r.group), base = r.is_current ? '#0d6efd' : '#6c757d';
+      rect.stroke(gc || base); rect.strokeWidth(gc ? 3 : 2); rect.dash(gc ? [6, 3] : []);
+    }
+    function recolorAll() { PLAN.rooms.forEach(function (o) { if (nodeById[o.id]) recolorRoom(nodeById[o.id]); }); layer.draw(); }
+    function persistGroups(rooms) {
+      if (!rooms.length) return; flagSaving();
+      fetch(GROUP_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+        body: JSON.stringify({ groups: rooms.map(function (r) { return { room_id: r.id, group: r.group || null }; }) }) })
+        .then(function (res) { return res.json(); }).then(function () { document.getElementById('planSave').textContent = '{{ __('All changes saved') }}'; });
+    }
+    // Edge-sharing adjacency between two effective footprints (metres).
+    function roomsAdjacent(r, o) {
+      var eps = 0.3, A = effBounds(r, r.bld_x, r.bld_y), B = effBounds(o, o.bld_x, o.bld_y);
+      var xTouch = Math.abs(A.x2 - B.x1) < eps || Math.abs(B.x2 - A.x1) < eps;
+      var yTouch = Math.abs(A.y2 - B.y1) < eps || Math.abs(B.y2 - A.y1) < eps;
+      var xOverlap = A.x1 < B.x2 - eps && B.x1 < A.x2 - eps;
+      var yOverlap = A.y1 < B.y2 - eps && B.y1 < A.y2 - eps;
+      return (xTouch && yOverlap) || (yTouch && xOverlap);
+    }
+    function newGroupKey() { return 'g' + Date.now().toString(36) + Math.floor(Math.random() * 1000).toString(36); }
+    // After a room is dropped, auto-link it to any room it now shares a wall with.
+    function autoGroup(g) {
+      var r = g.getAttr('room');
+      if (r.bld_x === null || r.bld_y === null || g.rotation()) return;
+      var changed = [];
+      function mark(o) { if (changed.indexOf(o) < 0) changed.push(o); }
+      PLAN.rooms.forEach(function (o) {
+        if (o === r || o.bld_x === null || o.bld_y === null || o.rot) return;
+        if (!roomsAdjacent(r, o)) return;
+        if (r.group && o.group) {
+          if (r.group !== o.group) { var from = o.group, to = r.group; PLAN.rooms.forEach(function (q) { if (q.group === from) { q.group = to; mark(q); } }); }
+        } else if (r.group) { o.group = r.group; mark(o); }
+        else if (o.group) { r.group = o.group; mark(r); }
+        else { var k = newGroupKey(); r.group = k; o.group = k; mark(r); mark(o); }
+      });
+      if (changed.length) { persistGroups(changed); recolorAll(); }
+    }
+    function ungroupRoom(g) {
+      var r = g.getAttr('room'); if (!r.group) return;
+      r.group = null; persistGroups([r]); recolorAll();
+    }
+
     function addRoomNode(r) {
       var g = new Konva.Group({ x: r.bld_x * scale, y: r.bld_y * scale, rotation: r.rot || 0, draggable: true });
       g.setAttr('room', r);
+      nodeById[r.id] = g;
       var rect = new Konva.Rect({ name: 'roomrect', width: r.w * scale, height: r.d * scale, fill: r.is_current ? 'rgba(13,110,253,.25)' : 'rgba(108,117,125,.2)', stroke: r.is_current ? '#0d6efd' : '#6c757d', strokeWidth: 2 });
       var label = new Konva.Text({ x: 3, y: 3, text: r.name, fontSize: 9, fill: '#212529', width: r.w * scale - 6 });
       g.add(rect); g.add(label);
       g.on('click tap', function (e) { e.cancelBubble = true; selectRoom(g); });
-      g.on('dragmove', function () { snapRoom(g); });
-      g.on('dragend', function () { resolveOverlap(g); flagSaving(); saveRoom(g); });
+      var grpDrag = null;
+      g.on('dragstart', function () {
+        var rr = g.getAttr('room');
+        grpDrag = (rr.group ? PLAN.rooms.filter(function (o) { return o !== rr && o.group === rr.group; }) : [])
+          .map(function (o) { var n = nodeById[o.id]; return n ? { n: n, x0: n.x(), y0: n.y() } : null; }).filter(Boolean);
+        g.setAttr('dragStartX', g.x()); g.setAttr('dragStartY', g.y());
+      });
+      g.on('dragmove', function () {
+        snapRoom(g);
+        if (grpDrag && grpDrag.length) {
+          var dx = g.x() - g.getAttr('dragStartX'), dy = g.y() - g.getAttr('dragStartY');
+          grpDrag.forEach(function (e) { e.n.x(e.x0 + dx); e.n.y(e.y0 + dy); });
+        }
+      });
+      g.on('dragend', function () {
+        if (grpDrag && grpDrag.length) {
+          // Move the whole suite rigidly - no per-room overlap nudge within the group.
+          var dx = g.x() - g.getAttr('dragStartX'), dy = g.y() - g.getAttr('dragStartY');
+          grpDrag.forEach(function (e) { e.n.x(e.x0 + dx); e.n.y(e.y0 + dy); });
+          flagSaving(); saveRoom(g); grpDrag.forEach(function (e) { saveRoom(e.n); });
+        } else {
+          resolveOverlap(g); flagSaving(); saveRoom(g);
+        }
+        autoGroup(g); grpDrag = null;
+      });
       g.on('transformend', function () {
         // bake scale into the rect size, reset scale, resize label, reflow doors
         var nw = g.width() * g.scaleX(), nh = g.height() * g.scaleY();
@@ -538,7 +663,7 @@
       });
       g.width(r.w * scale); g.height(r.d * scale);
       layer.add(g);
-      drawDoors(g); drawShape(g);
+      drawDoors(g); drawShape(g); recolorRoom(g);
       return g;
     }
     PLAN.rooms.forEach(addRoomNode);
@@ -622,8 +747,21 @@
             b.disabled = false;
             if (!d.ok || !d.room) return;
             var r = d.room;
-            r.bld_x = Math.max(0, Math.min(ext.w - r.w, r.bld_x));   // keep on-canvas; don't grow extent
-            r.bld_y = Math.max(0, Math.min(ext.h - r.d, r.bld_y));
+            // Auto-place: sit flush to the right of the existing rooms and match the
+            // neighbour's depth so the shared wall lines up; wrap to a new row if it
+            // would run off the canvas. No rescale - existing rooms stay put.
+            var nb = null, maxX2 = -Infinity;
+            PLAN.rooms.forEach(function (o) {
+              if (o.bld_x === null || o.bld_y === null) return;
+              var b = effBounds(o, o.bld_x, o.bld_y);
+              if (b.x2 > maxX2) { maxX2 = b.x2; nb = o; }
+            });
+            if (nb && (maxX2 + r.w) <= ext.w) { r.bld_x = maxX2; r.bld_y = nb.bld_y; r.d = nb.d; }
+            else if (nb) {
+              var maxY2 = 0; PLAN.rooms.forEach(function (o) { if (o.bld_x === null) return; var b = effBounds(o, o.bld_x, o.bld_y); if (b.y2 > maxY2) maxY2 = b.y2; });
+              r.bld_x = 0; r.bld_y = Math.max(0, Math.min(ext.h - r.d, maxY2));
+            } else { r.bld_x = 1; r.bld_y = 1; }
+            r.bld_x = Math.max(0, r.bld_x); r.bld_y = Math.max(0, r.bld_y);
             PLAN.rooms.push(r);
             var g = addRoomNode(r);
             saveRoom(g);            // persist the clamped position
