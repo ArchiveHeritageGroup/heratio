@@ -320,7 +320,7 @@ class ExhibitionSpaceController extends Controller
         if (! $space) {
             return response()->json(['ok' => false], 404);
         }
-        $data = $request->validate(['room_id' => 'required|integer|min:1', 'floor' => 'required|integer|min:0|max:20']);
+        $data = $request->validate(['room_id' => 'required|integer|min:1', 'floor' => 'required|integer|min:-5|max:20']);
         $ok = $this->service->setRoomFloor($space, (int) $data['room_id'], (int) $data['floor']);
 
         return response()->json(['ok' => $ok]);

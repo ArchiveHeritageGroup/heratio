@@ -1751,7 +1751,7 @@ class ExhibitionSpaceService
         }
 
         return DB::table('ahg_exhibition_space')->where('id', $roomId)
-            ->update(['floor_level' => max(0, min(20, $floor)), 'updated_at' => now()]) > 0;
+            ->update(['floor_level' => max(-5, min(20, $floor)), 'updated_at' => now()]) > 0;   // negative = basement
     }
 
     /** Save a room's plan position + size (metres) + rotation (degrees). */

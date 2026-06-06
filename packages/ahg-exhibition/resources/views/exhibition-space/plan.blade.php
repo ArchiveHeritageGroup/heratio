@@ -836,13 +836,14 @@
     renderRoomList();
 
     // ---- Floor view (#1169): show only rooms on the chosen floor ----
-    function floorList() { var mx = 4; PLAN.rooms.forEach(function (r) { if ((r.floor || 0) > mx) mx = r.floor || 0; }); var a = []; for (var i = 0; i <= mx; i++) a.push(i); return a; }
-    function floorOptsHtml(selVal) { return floorList().map(function (f) { return '<option value="' + f + '"' + (f === selVal ? ' selected' : '') + '>' + (f === 0 ? '{{ __('Ground') }}' : ('{{ __('Floor') }} ' + f)) + '</option>'; }).join(''); }
+    function floorName(f) { return f === 0 ? '{{ __('Ground') }}' : (f < 0 ? ('{{ __('Basement') }}' + (f < -1 ? ' ' + (-f) : '')) : ('{{ __('Floor') }} ' + f)); }
+    function floorList() { var mn = -1, mx = 4; PLAN.rooms.forEach(function (r) { var f = r.floor || 0; if (f < mn) mn = f; if (f > mx) mx = f; }); var a = []; for (var i = mn; i <= mx; i++) a.push(i); return a; }
+    function floorOptsHtml(selVal) { return floorList().map(function (f) { return '<option value="' + f + '"' + (f === selVal ? ' selected' : '') + '>' + floorName(f) + '</option>'; }).join(''); }
     var floorView = '0';   // default to the ground floor
     function buildFloorView() {
       var sel = document.getElementById('floorView'); if (!sel) return;
       var html = '';
-      floorList().forEach(function (f) { html += '<option value="' + f + '"' + (String(f) === String(floorView) ? ' selected' : '') + '>' + (f === 0 ? '{{ __('Ground floor') }}' : ('{{ __('Floor') }} ' + f)) + '</option>'; });
+      floorList().forEach(function (f) { html += '<option value="' + f + '"' + (String(f) === String(floorView) ? ' selected' : '') + '>' + floorName(f) + '</option>'; });
       sel.innerHTML = html;
     }
     function applyFloorView() {
