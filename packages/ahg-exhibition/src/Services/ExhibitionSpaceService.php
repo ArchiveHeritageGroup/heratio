@@ -1534,6 +1534,7 @@ class ExhibitionSpaceService
                 'windows' => $this->getWindows((int) $r->id),   // #1172 authoring
                 'shape' => $this->getShape((int) $r->id),
                 'group' => $r->bld_group ?? null,   // #1143: move-as-one-unit group key
+                'floor' => (int) ($r->floor_level ?? 0),   // #1169: for name-based stair linking
                 'is_current' => (int) $r->id === (int) $space->id,
             ];
             if ($r->bld_x !== null && $r->bld_y !== null) {
@@ -1587,7 +1588,13 @@ class ExhibitionSpaceService
                 'z' => round((float) ($st['z'] ?? 0), 2),
                 'from_floor' => (int) ($st['from_floor'] ?? 0),
                 'to_floor' => (int) ($st['to_floor'] ?? 1),
+                'from_room' => isset($st['from_room']) ? (int) $st['from_room'] : null,   // #1169 name-based linking
+                'to_room' => isset($st['to_room']) ? (int) $st['to_room'] : null,
                 'width' => max(0.6, min(8, (float) ($st['width'] ?? 1.6))),
+                'length' => max(1.5, min(30, (float) ($st['length'] ?? 3))),    // run of the first flight (metres)
+                'length2' => max(1.5, min(30, (float) ($st['length2'] ?? ($st['length'] ?? 3)))),   // second flight (elbow)
+                'rot' => ((int) round((float) ($st['rot'] ?? 0)) % 360 + 360) % 360,   // overall orientation (degrees)
+                'hand' => in_array(($st['hand'] ?? 'right'), ['left', 'right'], true) ? $st['hand'] : 'right',   // elbow turn direction
                 'kind' => in_array(($st['kind'] ?? 'straight'), ['straight', 'elbow'], true) ? $st['kind'] : 'straight',
             ];
         }
@@ -1701,6 +1708,30 @@ class ExhibitionSpaceService
         }
 
         return $n;
+    }
+
+    /** Delete a room from the building (and its placements). Won't delete the room you're editing from. */
+    public function deleteBuildingRoom(object $space, int $roomId): bool
+    {
+        $ids = $this->buildingSpaceIds($space);
+        if (! in_array($roomId, $ids, true) || $roomId === (int) $space->id) {
+            return false;
+        }
+        DB::table('ahg_exhibition_placement')->where('exhibition_space_id', $roomId)->delete();
+
+        return DB::table('ahg_exhibition_space')->where('id', $roomId)->delete() > 0;
+    }
+
+    /** Set which floor a room sits on (#1169 multi-floor). 0 = ground. */
+    public function setRoomFloor(object $space, int $roomId, int $floor): bool
+    {
+        $ids = $this->buildingSpaceIds($space);
+        if (! in_array($roomId, $ids, true)) {
+            return false;
+        }
+
+        return DB::table('ahg_exhibition_space')->where('id', $roomId)
+            ->update(['floor_level' => max(0, min(20, $floor)), 'updated_at' => now()]) > 0;
     }
 
     /** Save a room's plan position + size (metres) + rotation (degrees). */

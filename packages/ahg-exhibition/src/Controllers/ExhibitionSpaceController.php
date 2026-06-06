@@ -299,12 +299,44 @@ class ExhibitionSpaceController extends Controller
             'stairs.*.z' => 'required|numeric',
             'stairs.*.from_floor' => 'nullable|integer',
             'stairs.*.to_floor' => 'nullable|integer',
+            'stairs.*.from_room' => 'nullable|integer',
+            'stairs.*.to_room' => 'nullable|integer',
             'stairs.*.width' => 'nullable|numeric',
+            'stairs.*.length' => 'nullable|numeric',
+            'stairs.*.length2' => 'nullable|numeric',
+            'stairs.*.rot' => 'nullable|numeric',
+            'stairs.*.hand' => 'nullable|string|in:left,right',
             'stairs.*.kind' => 'nullable|string|in:straight,elbow',
         ]);
         $this->service->saveBuildingStairs($space, $data['stairs']);
 
         return response()->json(['ok' => true]);
+    }
+
+    /** AJAX: set a room's floor level (#1169 multi-floor). */
+    public function savePlanRoomFloorAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['room_id' => 'required|integer|min:1', 'floor' => 'required|integer|min:0|max:20']);
+        $ok = $this->service->setRoomFloor($space, (int) $data['room_id'], (int) $data['floor']);
+
+        return response()->json(['ok' => $ok]);
+    }
+
+    /** AJAX: delete a room from the building. */
+    public function deleteRoomAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['room_id' => 'required|integer|min:1']);
+        $ok = $this->service->deleteBuildingRoom($space, (int) $data['room_id']);
+
+        return response()->json(['ok' => $ok]);
     }
 
     /** AJAX: save the blueprint's world rectangle (metres) after move/resize. */

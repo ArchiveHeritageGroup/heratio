@@ -48,6 +48,11 @@
         <div class="card-header py-2"><strong><i class="fas fa-sync-alt me-1"></i>{{ __('Selected room') }}</strong> <span class="small text-muted" id="roomCardName"></span></div>
         <div class="card-body p-2">
           <a href="#" target="_blank" rel="noopener" id="roomEditLink" class="btn btn-sm btn-outline-secondary w-100 mb-2"><i class="fas fa-edit me-1"></i>{{ __('Edit room details') }}</a>
+          <div class="input-group input-group-sm mb-1">
+            <span class="input-group-text"><i class="fas fa-layer-group me-1"></i>{{ __('Floor') }}</span>
+            <input type="number" id="roomFloor" class="form-control" step="1" min="0" value="0" title="{{ __('0 = ground; 1, 2... = upper floors') }}">
+          </div>
+          <small class="text-muted d-block mb-2">{{ __('Set 1, 2... to put this room on an upper floor. Place it over a lower room and link the floors with a staircase.') }}</small>
           <label class="form-label small mb-1">{{ __('Rotation (degrees)') }}</label>
           <div class="input-group input-group-sm mb-2">
             <button type="button" class="btn btn-outline-secondary" id="rotMinus" title="{{ __('Rotate left 15°') }}"><i class="fas fa-undo"></i></button>
@@ -64,6 +69,8 @@
           <hr class="my-2">
           <button type="button" class="btn btn-sm btn-outline-warning w-100" id="ungroupBtn" style="display:none;"><i class="fas fa-object-ungroup me-1"></i>{{ __('Ungroup from suite') }}</button>
           <small class="text-muted d-block mt-1">{{ __('Rooms that share a wall auto-group and move together (matching dashed outline). Ungroup to move this one on its own.') }}</small>
+          <hr class="my-2">
+          <button type="button" class="btn btn-sm btn-outline-danger w-100" id="deleteRoomBtn"><i class="fas fa-trash me-1"></i>{{ __('Delete room') }}</button>
         </div>
       </div>
       <div class="card mb-3" id="doorCard" style="display:none;">
@@ -139,6 +146,8 @@
     var ADD_ROOM_URL = '{{ route('exhibition-space.plan.add-room', ['slug' => $space->slug]) }}';
     var GROUP_URL = '{{ route('exhibition-space.plan.group', ['slug' => $space->slug]) }}';   // #1143 move-as-one-unit
     var STAIRS_URL = '{{ route('exhibition-space.plan.stairs', ['slug' => $space->slug]) }}';   // #1169 stairs authoring
+    var ROOM_FLOOR_URL = '{{ route('exhibition-space.plan.room-floor', ['slug' => $space->slug]) }}';   // #1169 set room floor
+    var DELETE_ROOM_URL = '{{ route('exhibition-space.plan.delete-room', ['slug' => $space->slug]) }}';
     var IMG_RECT_URL = '{{ route('exhibition-space.plan.image-rect', ['slug' => $space->slug]) }}';
     var EDIT_BASE = '{{ url('exhibition-space') }}';
     var CORR_ADD = '{{ route('exhibition-space.plan.corridor-add', ['slug' => $space->slug]) }}';
@@ -450,6 +459,8 @@
         rc.style.display = 'block'; document.getElementById('roomCardName').textContent = nm; document.getElementById('rotInput').value = Math.round(g.rotation());
         var el = document.getElementById('roomEditLink'); if (el) el.href = EDIT_BASE + '/' + g.getAttr('room').slug + '/edit';
         var ug = document.getElementById('ungroupBtn'); if (ug) ug.style.display = g.getAttr('room').group ? 'block' : 'none';
+        var rf = document.getElementById('roomFloor'); if (rf) rf.value = g.getAttr('room').floor || 0;
+        var db = document.getElementById('deleteRoomBtn'); if (db) db.style.display = g.getAttr('room').is_current ? 'none' : 'block';
       }
       setShapeBtn(shapeMode && shapeG === g);
     }
@@ -467,6 +478,28 @@
     (function () { var jb = document.getElementById('joinBtn'); if (jb) jb.addEventListener('click', function () { joinMode = !joinMode; joinAnchor = null; jb.classList.toggle('btn-warning', joinMode); jb.classList.toggle('btn-outline-warning', !joinMode); drawJoinDots(); }); })();   // #1143 join corners
     (function () { var ub = document.getElementById('undoBtn'); if (ub) ub.addEventListener('click', doUndo); })();   // #1143 undo move
     document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) { var a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return; e.preventDefault(); doUndo(); } });
+    (function () {   // #1169 set the selected room's floor
+      var rf = document.getElementById('roomFloor'); if (!rf) return;
+      rf.addEventListener('change', function () {
+        if (!selectedG) return; var r = selectedG.getAttr('room');
+        r.floor = Math.max(0, parseInt(rf.value, 10) || 0); flagSaving();
+        fetch(ROOM_FLOOR_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: r.id, floor: r.floor }) }).then(function (x) { return x.json(); }).then(function () { saved(); drawStairs(); });
+      });
+    })();
+    (function () {   // delete the selected room
+      var db = document.getElementById('deleteRoomBtn'); if (!db) return;
+      db.addEventListener('click', function () {
+        if (!selectedG) return; var r = selectedG.getAttr('room');
+        if (!confirm('{{ __('Delete this room and everything placed in it? This cannot be undone.') }}')) return;
+        flagSaving();
+        fetch(DELETE_ROOM_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: r.id }) }).then(function (x) { return x.json(); }).then(function (d) {
+          if (!d.ok) { alert('{{ __('Could not delete this room (you cannot delete the room you opened the plan from).') }}'); return; }
+          var n = nodeById[r.id]; if (n) n.destroy(); delete nodeById[r.id];
+          var idx = PLAN.rooms.indexOf(r); if (idx >= 0) PLAN.rooms.splice(idx, 1);
+          deselect(); renderRoomList(); drawStairs(); layer.draw(); saved();
+        });
+      });
+    })();
     // Rotation controls (rotate about the room's top-left, matching the walkthrough).
     function applyRot(deg) {
       if (!selectedG) return;
@@ -817,6 +850,8 @@
     var STAIRS = PLAN.stairs || [];
     var stairLayer = new Konva.Layer(); stage.add(stairLayer);
     function saveStairs() { flagSaving(); fetch(STAIRS_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ stairs: STAIRS }) }).then(function (r) { return r.json(); }).then(saved); }
+    function floorOf(id) { var f = 0; PLAN.rooms.forEach(function (r) { if (r.id === id) f = r.floor || 0; }); return f; }
+    function roomOpts(selId) { return PLAN.rooms.map(function (r) { return '<option value="' + r.id + '"' + (r.id === selId ? ' selected' : '') + '>' + r.name + ' (' + (r.floor ? ('{{ __('floor') }} ' + r.floor) : '{{ __('ground') }}') + ')</option>'; }).join(''); }
     function listStairs() {
       var el = document.getElementById('stairList'); if (!el) return;
       if (!STAIRS.length) { el.innerHTML = '<span class="text-muted">{{ __('No stairs yet.') }}</span>'; return; }
@@ -824,15 +859,23 @@
       STAIRS.forEach(function (st, i) {
         var row = document.createElement('div'); row.className = 'd-flex flex-wrap align-items-center gap-1 mb-2 pb-1 border-bottom';
         row.innerHTML = '<span class="badge bg-warning text-dark">{{ __('Stair') }} ' + (i + 1) + '</span>' +
-          '<label class="small text-muted mb-0">{{ __('from') }} <input type="number" class="form-control form-control-sm d-inline-block sf" style="width:46px" value="' + (st.from_floor || 0) + '"></label>' +
-          '<label class="small text-muted mb-0">{{ __('to') }} <input type="number" class="form-control form-control-sm d-inline-block st2" style="width:46px" value="' + (st.to_floor == null ? 1 : st.to_floor) + '"></label>' +
+          '<label class="small text-muted mb-0 w-100">{{ __('from') }} <select class="form-select form-select-sm d-inline-block sfr" style="width:160px">' + roomOpts(st.from_room) + '</select></label>' +
+          '<label class="small text-muted mb-0 w-100">{{ __('to') }} <select class="form-select form-select-sm d-inline-block str" style="width:160px">' + roomOpts(st.to_room) + '</select></label>' +
           '<label class="small text-muted mb-0">{{ __('width') }} <input type="number" step="0.1" min="0.6" class="form-control form-control-sm d-inline-block sw" style="width:58px" value="' + (st.width || 1.6) + '"></label>' +
-          '<select class="form-select form-select-sm sk d-inline-block" style="width:92px"><option value="straight">{{ __('Straight') }}</option><option value="elbow">{{ __('Elbow') }}</option></select>' +
+          '<label class="small text-muted mb-0">{{ __('len') }} <input type="number" step="0.5" min="1.5" class="form-control form-control-sm d-inline-block sl" style="width:54px" value="' + (st.length || 3) + '"></label>' +
+          '<label class="small text-muted mb-0">{{ __('len2') }} <input type="number" step="0.5" min="1.5" class="form-control form-control-sm d-inline-block sl2" style="width:54px" value="' + (st.length2 || st.length || 3) + '"></label>' +
+          '<select class="form-select form-select-sm sk d-inline-block" style="width:86px"><option value="straight">{{ __('Straight') }}</option><option value="elbow">{{ __('Elbow') }}</option></select>' +
+          '<select class="form-select form-select-sm sh d-inline-block" style="width:74px"><option value="right">{{ __('Right') }}</option><option value="left">{{ __('Left') }}</option></select>' +
+          '<label class="small text-muted mb-0">{{ __('rot') }} <input type="number" step="90" class="form-control form-control-sm d-inline-block sr" style="width:54px" value="' + (st.rot || 0) + '"></label>' +
           '<button class="btn btn-sm btn-outline-danger ms-auto" type="button" title="{{ __('Remove') }}">&times;</button>';
-        row.querySelector('.sf').addEventListener('change', function (e) { st.from_floor = parseInt(e.target.value, 10) || 0; saveStairs(); drawStairs(); });
-        row.querySelector('.st2').addEventListener('change', function (e) { st.to_floor = parseInt(e.target.value, 10) || 0; saveStairs(); drawStairs(); });
+        row.querySelector('.sfr').addEventListener('change', function (e) { st.from_room = +e.target.value; st.from_floor = floorOf(st.from_room); saveStairs(); drawStairs(); });
+        row.querySelector('.str').addEventListener('change', function (e) { st.to_room = +e.target.value; st.to_floor = floorOf(st.to_room); saveStairs(); drawStairs(); });
         row.querySelector('.sw').addEventListener('change', function (e) { st.width = Math.max(0.6, Math.min(8, parseFloat(e.target.value) || 1.6)); saveStairs(); drawStairs(); });
+        row.querySelector('.sl').addEventListener('change', function (e) { st.length = Math.max(1.5, Math.min(30, parseFloat(e.target.value) || 3)); saveStairs(); drawStairs(); });
+        row.querySelector('.sl2').addEventListener('change', function (e) { st.length2 = Math.max(1.5, Math.min(30, parseFloat(e.target.value) || 3)); saveStairs(); drawStairs(); });
         var sk = row.querySelector('.sk'); sk.value = st.kind || 'straight'; sk.addEventListener('change', function (e) { st.kind = e.target.value; saveStairs(); drawStairs(); });
+        var sh = row.querySelector('.sh'); sh.value = st.hand || 'right'; sh.addEventListener('change', function (e) { st.hand = e.target.value; saveStairs(); drawStairs(); });
+        row.querySelector('.sr').addEventListener('change', function (e) { st.rot = parseInt(e.target.value, 10) || 0; saveStairs(); drawStairs(); });
         row.querySelector('button').addEventListener('click', function () { STAIRS.splice(i, 1); drawStairs(); saveStairs(); });
         el.appendChild(row);
       });
@@ -840,14 +883,14 @@
     function drawStairs() {
       stairLayer.destroyChildren();
       STAIRS.forEach(function (st, i) {
-        var g = new Konva.Group({ x: st.x * scale, y: st.z * scale, draggable: true });
+        var g = new Konva.Group({ x: st.x * scale, y: st.z * scale, rotation: st.rot || 0, draggable: true });
         var w = Math.max(0.8, st.width || 1.6) * scale, fill = 'rgba(253,126,20,0.45)', stroke = '#fd7e14';
         if (st.kind === 'elbow') {
-          var seg = 1.7 * scale;
+          var seg = (st.length || 3) * scale, seg2 = (st.length2 || st.length || 3) * scale, hh = (st.hand === 'left') ? -1 : 1;
           g.add(new Konva.Rect({ x: -w / 2, y: 0, width: w, height: seg, fill: fill, stroke: stroke, strokeWidth: 2, cornerRadius: 2 }));            // flight 1 (along +z)
-          g.add(new Konva.Rect({ x: -w / 2, y: seg - w, width: seg + w, height: w, fill: fill, stroke: stroke, strokeWidth: 2, cornerRadius: 2 }));   // landing + flight 2 (turn +x)
+          g.add(new Konva.Rect({ x: hh > 0 ? -w / 2 : -(seg2 + w / 2), y: seg - w, width: seg2 + w, height: w, fill: fill, stroke: stroke, strokeWidth: 2, cornerRadius: 2 }));   // landing + flight 2 (left/right)
         } else {
-          var d = 2.4 * scale;
+          var d = (st.length || 3) * scale;
           g.add(new Konva.Rect({ x: -w / 2, y: -d / 2, width: w, height: d, fill: fill, stroke: stroke, strokeWidth: 2, cornerRadius: 2 }));
           for (var s = 1; s < 6; s++) { g.add(new Konva.Line({ points: [-w / 2, -d / 2 + d * s / 6, w / 2, -d / 2 + d * s / 6], stroke: '#fff', strokeWidth: 1, listening: false })); }
         }
@@ -865,7 +908,9 @@
       b.addEventListener('click', function () {
         var bb = bbox(); var cx = (bb.minX + bb.maxX) / 2, cz = (bb.minZ + bb.maxZ) / 2;
         if (!isFinite(cx)) { cx = 5; cz = 5; }
-        STAIRS.push({ x: cx, z: cz, from_floor: 0, to_floor: 1, width: 1.6, kind: 'straight' });
+        var cur = PLAN.rooms.filter(function (r) { return r.is_current; })[0] || PLAN.rooms[0] || null;
+        var up = PLAN.rooms.filter(function (r) { return cur && (r.floor || 0) > (cur.floor || 0); })[0] || cur;
+        STAIRS.push({ x: cx, z: cz, from_room: cur ? cur.id : null, to_room: up ? up.id : null, from_floor: cur ? (cur.floor || 0) : 0, to_floor: up ? (up.floor || 0) : 1, width: 1.6, length: 3, length2: 3, rot: 0, hand: 'right', kind: 'straight' });
         drawStairs(); saveStairs();
       });
     })();

@@ -750,40 +750,49 @@
     // #1169 stairs: a straight flight or an L-shaped "elbow" linking two floors; click to change floor.
     (BUILDING && BUILDING.stairs ? BUILDING.stairs : []).forEach(function (st) {
       var x = st.x, z = st.z, y0 = (st.from_floor || 0) * FLOOR_H, y1 = (st.to_floor || 1) * FLOOR_H;
-      var rise = y1 - y0, depth = 0.3, width = st.width || 1.4;
+      var rise = y1 - y0, width = st.width || 1.4, legLen = st.length || 3;   // legLen = run of each flight (metres)
       var stepMat = new THREE.MeshStandardMaterial({ color: 0xb6b1a8, roughness: 1 });
-      function flight(sx, sz, axis, ya, yb, m) {
+      // Build in a local group at (x,z), then spin by st.rot so it can face any way.
+      var grp = new THREE.Group(); grp.position.set(x, 0, z); grp.rotation.y = (st.rot || 0) * Math.PI / 180; scene.add(grp);
+      function flight(sx, sz, axis, ya, yb, m, depth, sign) {
+        sign = sign || 1;
         for (var s = 0; s < m; s++) {
           var fy = ya + (s + 0.5) * (yb - ya) / m, step;
-          if (axis === 'z') { step = new THREE.Mesh(new THREE.BoxGeometry(width, 0.18, depth), stepMat); step.position.set(sx, fy, sz + s * depth); }
-          else { step = new THREE.Mesh(new THREE.BoxGeometry(depth, 0.18, width), stepMat); step.position.set(sx + s * depth, fy, sz); }
-          scene.add(step);
+          if (axis === 'z') { step = new THREE.Mesh(new THREE.BoxGeometry(width, 0.18, depth), stepMat); step.position.set(sx, fy, sz + sign * s * depth); }
+          else { step = new THREE.Mesh(new THREE.BoxGeometry(depth, 0.18, width), stepMat); step.position.set(sx + sign * s * depth, fy, sz); }
+          grp.add(step);
         }
       }
-      var foot, top, hit;
+      var footL, topL, hit;
       if (st.kind === 'elbow') {
-        var half = Math.max(2, Math.round(Math.max(4, Math.abs(rise) / 0.2) / 2)), mid = y0 + rise / 2;
-        flight(x, z, 'z', y0, mid, half);                              // flight 1 up +z
-        var cz = z + half * depth;                                     // corner / landing
-        var land = new THREE.Mesh(new THREE.BoxGeometry(width + 0.2, 0.18, width + 0.2), stepMat); land.position.set(x, mid, cz); scene.add(land);
-        flight(x + width / 2 + depth, cz, 'x', mid, y1, half);          // flight 2 turns 90deg, up +x
-        var ex = x + width / 2 + depth + half * depth;
-        foot = { x: x, fy: y0, z: z - 0.8 }; top = { x: ex + 0.8, fy: y1, z: cz };
-        hit = new THREE.Mesh(new THREE.BoxGeometry((ex - x) + width + 1.2, Math.abs(rise) + 1.4, (cz - z) + width + 1.2), new THREE.MeshBasicMaterial({ visible: false }));
-        hit.position.set((x + ex) / 2, (y0 + y1) / 2, (z + cz) / 2);
-        var eUp = makeTextSprite('{{ __('STAIRS ↑') }}', 0.42); eUp.position.set(x, y0 + 1.4, z - 0.8); scene.add(eUp);
-        var eDn = makeTextSprite('{{ __('STAIRS ↓') }}', 0.42); eDn.position.set(ex + 0.8, y1 + 1.4, cz); scene.add(eDn);
+        var h = (st.hand === 'left') ? -1 : 1;   // turn direction of the second flight
+        var legLen2 = st.length2 || legLen;       // second leg can be a different length
+        var half = Math.max(3, Math.round(Math.max(4, Math.abs(rise) / 0.2) / 2)), mid = y0 + rise / 2, depth = legLen / half, depth2 = legLen2 / half;
+        flight(0, 0, 'z', y0, mid, half, depth, 1);                              // flight 1 along +z (length legLen)
+        var land = new THREE.Mesh(new THREE.BoxGeometry(width + 0.2, 0.18, width + 0.2), stepMat); land.position.set(0, mid, legLen); grp.add(land);
+        flight(h * (width / 2 + depth2), legLen, 'x', mid, y1, half, depth2, h);  // flight 2 turns left/right (length legLen2)
+        var ex = h * (width / 2 + legLen2);
+        footL = { x: 0, y: y0, z: -0.8 }; topL = { x: ex + h * 0.8, y: y1, z: legLen };
+        hit = new THREE.Mesh(new THREE.BoxGeometry(Math.abs(ex) + width + 1.2, Math.abs(rise) + 1.4, legLen + width + 1.2), new THREE.MeshBasicMaterial({ visible: false }));
+        hit.position.set(ex / 2, (y0 + y1) / 2, legLen / 2); grp.add(hit);
+        var eUp = makeTextSprite('{{ __('STAIRS ↑') }}', 0.42); eUp.position.set(0, y0 + 1.4, -0.8); grp.add(eUp);
+        var eDn = makeTextSprite('{{ __('STAIRS ↓') }}', 0.42); eDn.position.set(ex, y1 + 1.4, legLen); grp.add(eDn);
       } else {
-        var n = Math.max(4, Math.round(Math.abs(rise) / 0.2)), z0 = z - n * depth / 2;
-        flight(x, z0, 'z', y0, y1, n);
-        foot = { x: x, fy: y0, z: z0 - 0.8 }; top = { x: x, fy: y1, z: z0 + n * depth + 0.8 };
-        hit = new THREE.Mesh(new THREE.BoxGeometry(width, Math.abs(rise) + 1.2, n * depth), new THREE.MeshBasicMaterial({ visible: false }));
-        hit.position.set(x, (y0 + y1) / 2, z);
-        var sUp = makeTextSprite('{{ __('STAIRS ↑') }}', 0.42); sUp.position.set(x, y0 + 1.4, z0 - 0.8); scene.add(sUp);
-        var sDn = makeTextSprite('{{ __('STAIRS ↓') }}', 0.42); sDn.position.set(x, y1 + 1.4, z0 + n * depth + 0.8); scene.add(sDn);
+        var n = Math.max(4, Math.round(Math.abs(rise) / 0.2)), depth = legLen / n;
+        flight(0, -legLen / 2, 'z', y0, y1, n, depth, 1);
+        footL = { x: 0, y: y0, z: -legLen / 2 - 0.8 }; topL = { x: 0, y: y1, z: legLen / 2 + 0.8 };
+        hit = new THREE.Mesh(new THREE.BoxGeometry(width, Math.abs(rise) + 1.2, legLen), new THREE.MeshBasicMaterial({ visible: false }));
+        hit.position.set(0, (y0 + y1) / 2, 0); grp.add(hit);
+        var sUp = makeTextSprite('{{ __('STAIRS ↑') }}', 0.42); sUp.position.set(0, y0 + 1.4, -legLen / 2 - 0.8); grp.add(sUp);
+        var sDn = makeTextSprite('{{ __('STAIRS ↓') }}', 0.42); sDn.position.set(0, y1 + 1.4, legLen / 2 + 0.8); grp.add(sDn);
       }
-      hit.userData.action = 'stair'; hit.userData.top = top; hit.userData.bot = foot;
-      scene.add(hit); pickables.push(hit);
+      grp.updateMatrixWorld(true);
+      var fw = grp.localToWorld(new THREE.Vector3(footL.x, footL.y, footL.z));
+      var tw = grp.localToWorld(new THREE.Vector3(topL.x, topL.y, topL.z));
+      hit.userData.action = 'stair';
+      hit.userData.bot = { x: fw.x, fy: y0, z: fw.z };
+      hit.userData.top = { x: tw.x, fy: y1, z: tw.z };
+      pickables.push(hit);
     });
 
     // Controls. Desktop = first-person pointer-lock (WASD + mouse). Touch devices
