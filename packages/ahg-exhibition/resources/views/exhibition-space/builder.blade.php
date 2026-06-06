@@ -630,40 +630,59 @@
         layer.draw(); scheduleSave();
       });
     });
-    // Remove a placement (used by the selected-object button and the object list).
-    function removePlacement(g) {
-      if (!g) return;
+    // Find the canvas node for a placement id (may not exist for off-canvas/unreachable objects).
+    function nodeForPlacement(id) {
+      var hit = null;
+      layer.find('.placement').forEach(function (n) { if (String(n.getAttr('placementId')) === String(id)) hit = n; });
+      return hit;
+    }
+    // Remove a placement by id - works even when there is NO canvas node for it (#1141).
+    function removePlacementById(id, row) {
+      if (id == null) return;
       fetch(URLS.remove, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
-        body: JSON.stringify({ placement_id: g.getAttr('placementId') })
+        body: JSON.stringify({ placement_id: id })
       }).then(function (r) { return r.json(); }).then(function (d) {
-        if (d.ok) { if (selected === g) clearSelect(); g.destroy(); layer.draw(); renderObjList(); }
+        if (!d.ok) return;
+        var node = nodeForPlacement(id);
+        if (node) { if (selected === node) clearSelect(); node.destroy(); layer.draw(); }
+        if (row && row.parentNode) row.parentNode.removeChild(row);
+        renderObjList();
       });
     }
+    function removePlacement(g) { if (g) removePlacementById(g.getAttr('placementId')); }
     document.getElementById('btnRemove').addEventListener('click', function () { removePlacement(selected); });
 
-    // Full list of placed objects (works even for objects off-canvas / unreachable).
+    // Full list of EVERY placed object in this space, sourced from the server so it includes
+    // objects that are off-canvas, have no/out-of-range position, or otherwise can't be clicked
+    // on the canvas. Each row removes by placement id, independent of any canvas node (#1141).
     function renderObjList() {
-      var nodes = layer.find('.placement');
-      var el = document.getElementById('objList');
-      document.getElementById('objCount').textContent = nodes.length;
-      if (!nodes.length) { el.innerHTML = '{{ __('None yet.') }}'; return; }
-      el.innerHTML = '';
-      nodes.forEach(function (g) {
-        var row = document.createElement('div');
-        row.className = 'd-flex justify-content-between align-items-center mb-1';
-        var name = document.createElement('a');
-        name.href = '#'; name.className = 'text-truncate me-2 text-decoration-none';
-        name.style.maxWidth = '180px';
-        name.textContent = g.getAttr('titleText') || ('#' + g.getAttr('placementId'));
-        name.addEventListener('click', function (e) { e.preventDefault(); selectNode(g); });
-        var del = document.createElement('button');
-        del.type = 'button'; del.className = 'btn btn-sm btn-outline-danger py-0';
-        del.innerHTML = '<i class="fas fa-times"></i>';
-        del.addEventListener('click', function () { removePlacement(g); });
-        row.appendChild(name); row.appendChild(del); el.appendChild(row);
-      });
+      var el = document.getElementById('objList'), cnt = document.getElementById('objCount');
+      if (!el) return;
+      fetch(URLS.placements, { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var items = (d && d.placements) || [];
+          if (cnt) cnt.textContent = items.length;
+          if (!items.length) { el.innerHTML = '{{ __('None yet.') }}'; return; }
+          el.innerHTML = '';
+          items.forEach(function (p) {
+            var row = document.createElement('div');
+            row.className = 'd-flex justify-content-between align-items-center mb-1';
+            var name = document.createElement('a');
+            name.href = '#'; name.className = 'text-truncate me-2 text-decoration-none'; name.style.maxWidth = '170px';
+            var onCanvas = !!nodeForPlacement(p.id);
+            name.textContent = (p.title || ('#' + p.id)) + (onCanvas ? '' : ' ⚠');
+            name.title = onCanvas ? '{{ __('Select on canvas') }}' : '{{ __('Off-canvas / no position - use Remove') }}';
+            name.addEventListener('click', function (e) { e.preventDefault(); var n = nodeForPlacement(p.id); if (n) selectNode(n); });
+            var del = document.createElement('button');
+            del.type = 'button'; del.className = 'btn btn-sm btn-outline-danger py-0'; del.title = '{{ __('Remove from twin') }}';
+            del.innerHTML = '<i class="fas fa-times"></i>';
+            del.addEventListener('click', function () { removePlacementById(p.id, row); });
+            row.appendChild(name); row.appendChild(del); el.appendChild(row);
+          });
+        }).catch(function () { el.innerHTML = '<span class="text-danger">{{ __('Could not load list.') }}</span>'; });
     }
 
     // ---- edit size of the selected object ----
