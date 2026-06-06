@@ -202,12 +202,18 @@
     }
     // Which room's footprint contains a world point (rotation-aware); null if none.
     function findRoomAtWorld(wx, wz, exclude) {
+      // Prefer a room on the floor we're currently on - otherwise a full-footprint
+      // basement (or any stacked room) shadows the room you're actually in.
+      var want = (typeof curFloorY === 'number') ? Math.round(curFloorY / FLOOR_H) : null, fallback = null;
       for (var i = 0; i < ROOMS.length; i++) {
         var r = ROOMS[i]; if (r === exclude) continue;
         var p = roomWorldInverse(r, wx, wz);
-        if (p.px >= -0.05 && p.px <= r.w + 0.05 && p.pz >= -0.05 && p.pz <= r.d + 0.05) return r;
+        if (p.px >= -0.05 && p.px <= r.w + 0.05 && p.pz >= -0.05 && p.pz <= r.d + 0.05) {
+          if (want === null || (r.floor || 0) === want) return r;
+          if (!fallback) fallback = r;
+        }
       }
-      return null;
+      return fallback;
     }
     // Billboard text label on a small dark plaque (room signage / doorway labels).
     function makeTextSprite(text, scaleH) {
