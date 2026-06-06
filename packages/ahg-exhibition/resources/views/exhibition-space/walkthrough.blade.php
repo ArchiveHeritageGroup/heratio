@@ -1421,7 +1421,7 @@
       }
       var rmp = rampAt(o.position.x, o.position.z);   // on a staircase: ride the slope, locked to its width
       if (rmp) { o.position.x = rmp.x; o.position.z = rmp.z; curFloorY = rmp.y; }
-      else if (PLAN_MODE) { var fr = findRoomAtWorld(o.position.x, o.position.z, null); if (fr) curFloorY = (fr.floor || 0) * FLOOR_H; }
+      // Floors change ONLY via stairs - never auto-drop the visitor onto a stacked room below (e.g. a basement).
       o.position.y += (eyeHeight() - o.position.y) * 0.3;   // smooth crouch/stand
     }
     renderer.domElement.addEventListener('wheel', function (e) {
