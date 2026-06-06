@@ -211,10 +211,15 @@ class ExhibitionSpaceController extends Controller
         $building = $this->service->getWalkthroughBuilding($space);
         $layout = null;
         if (! empty($building['plan_mode'])) {
-            $self = null; $others = [];
+            $self = null; $selfFloor = 0; $rects = [];
             foreach ($building['rooms'] as $r) {
-                $rect = ['x' => $r['x_offset'], 'z' => $r['z_offset'], 'w' => $r['w'], 'd' => $r['d'], 'name' => $r['name']];
-                if ((int) $r['id'] === (int) $space->id) { $self = $rect; } else { $others[] = $rect; }
+                $rects[] = ['x' => $r['x_offset'], 'z' => $r['z_offset'], 'w' => $r['w'], 'd' => $r['d'], 'name' => $r['name'], 'id' => (int) $r['id'], 'floor' => (int) ($r['floor'] ?? 0)];
+                if ((int) $r['id'] === (int) $space->id) { $selfFloor = (int) ($r['floor'] ?? 0); }
+            }
+            $others = [];
+            foreach ($rects as $rect) {
+                if ($rect['id'] === (int) $space->id) { $self = $rect; }
+                elseif ($rect['floor'] === $selfFloor) { $others[] = $rect; }   // same-floor neighbours only (auto-doorways are per-floor)
             }
             if ($self) { $layout = ['self' => $self, 'others' => $others]; }
         }

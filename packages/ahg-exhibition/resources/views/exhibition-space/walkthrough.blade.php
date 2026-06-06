@@ -739,7 +739,9 @@
         rwMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, side: THREE.DoubleSide });
         loadTex(rm.wall_image, function (tex) { rwMat.map = tex; rwMat.needsUpdate = true; });
       }
-      var SHAPE = (rm.shape && rm.shape.length >= 3) ? rm.shape : null;
+      // #1176: every plan-mode room renders through the polygon/edge path. A room with no explicit
+      // shape falls back to a unit rectangle so planWall is never needed (auto-row buildings stay null).
+      var SHAPE = (rm.shape && rm.shape.length >= 3) ? rm.shape : (PLAN_MODE ? [{ x: 0, z: 0 }, { x: 1, z: 0 }, { x: 1, z: 1 }, { x: 0, z: 1 }] : null);
       if (SHAPE) {
         // ---- Custom polygon footprint: floor + ceiling + a wall per edge ----
         var shp = new THREE.Shape();

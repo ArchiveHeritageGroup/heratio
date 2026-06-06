@@ -1744,13 +1744,16 @@ class ExhibitionSpaceService
             'building_seq' => $maxSeq + 1,
             'room_w' => 10, 'room_d' => 8, 'room_h' => 4,
             'bld_x' => $x, 'bld_y' => $y,
+            // #1176: every room is a numbered-edge polygon. A new room starts as a unit rectangle
+            // (4 walls = edge 0..3) so the whole stack (plan/builder/walkthrough) treats it the same.
+            'shape_json' => json_encode([['x' => 0, 'z' => 0], ['x' => 1, 'z' => 0], ['x' => 1, 'z' => 1], ['x' => 0, 'z' => 1]]),
             'created_at' => now(), 'updated_at' => now(),
         ]);
 
         return [
             'id' => $id, 'name' => $nm, 'slug' => $this->getById($id)->slug,
             'w' => 10.0, 'd' => 8.0, 'bld_x' => (float) $x, 'bld_y' => (float) $y, 'rot' => 0.0,
-            'doors' => [], 'shape' => null, 'group' => null, 'is_current' => false,
+            'doors' => [], 'shape' => [['x' => 0, 'z' => 0], ['x' => 1, 'z' => 0], ['x' => 1, 'z' => 1], ['x' => 0, 'z' => 1]], 'group' => null, 'is_current' => false,
         ];
     }
 

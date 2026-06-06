@@ -269,7 +269,7 @@
     var ROOM_W = {{ $space->room_w ?: 18 }}, ROOM_D = {{ $space->room_d ?: 14 }}, ROOM_H = {{ $space->room_h ?: 4 }};
     // Doorways where this room adjoins another room (mirrors the walkthrough's auto-openings).
     function autoDoors() {
-      if (!LAYOUT || !LAYOUT.self || SHAPE) return [];   // rect rooms only (matches walkthrough planWall)
+      if (!LAYOUT || !LAYOUT.self) return [];   // #1176: now runs for every room (all rooms are edge polygons); doorEdge maps these {wall} auto-openings onto numbered edges in wall view
       var s = LAYOUT.self, out = [];
       ['north', 'south', 'west', 'east'].forEach(function (side) {
         var vertical = (side === 'west' || side === 'east');
