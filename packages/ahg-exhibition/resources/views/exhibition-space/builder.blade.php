@@ -61,6 +61,11 @@
               <button type="button" class="btn btn-outline-secondary" data-act="smaller" title="{{ __('Smaller') }}"><i class="fas fa-search-minus"></i></button>
               <button type="button" class="btn btn-outline-secondary" data-act="bigger" title="{{ __('Bigger') }}"><i class="fas fa-search-plus"></i></button>
             </div>
+            <div class="btn-group btn-group-sm w-100 mb-2" role="group">
+              <button type="button" class="btn btn-outline-warning" data-act="spot" id="spotBtn" title="{{ __('Spotlight: dim the room and light this object as visitors approach') }}"><i class="fas fa-lightbulb me-1"></i>{{ __('Spotlight') }}</button>
+              <button type="button" class="btn btn-outline-secondary" data-act="front" title="{{ __('Bring to front') }}"><i class="fas fa-arrow-up"></i></button>
+              <button type="button" class="btn btn-outline-secondary" data-act="back" title="{{ __('Send to back') }}"><i class="fas fa-arrow-down"></i></button>
+            </div>
             <label for="selSize" class="form-label small mb-1">{{ __('Size (units)') }}</label>
             <input type="number" id="selSize" class="form-control form-control-sm mb-2" min="0" step="0.01">
             <div id="tiltControls" class="d-none border-top pt-2 mb-2">
@@ -227,6 +232,8 @@
       remove: '{{ route('exhibition-space.builder.remove', ['slug' => $space->slug]) }}',
       size: '{{ route('exhibition-space.builder.size', ['slug' => $space->slug]) }}',
       tilt: '{{ route('exhibition-space.builder.tilt', ['slug' => $space->slug]) }}',
+      spotlight: '{{ route('exhibition-space.builder.spotlight', ['slug' => $space->slug]) }}',
+      zorder: '{{ route('exhibition-space.builder.zorder', ['slug' => $space->slug]) }}',
       walls: '{{ route('exhibition-space.builder.walls', ['slug' => $space->slug]) }}',
       wall: '{{ route('exhibition-space.builder.wall', ['slug' => $space->slug]) }}',
       wallPlace: '{{ route('exhibition-space.builder.wall-place', ['slug' => $space->slug]) }}',
@@ -419,6 +426,7 @@
       }
       refreshWallOptions();
       document.getElementById('selWall').value = g.getAttr('wallKey') || '';
+      var sb = document.getElementById('spotBtn'); if (sb) { var on = !!g.getAttr('spotlight'); sb.classList.toggle('btn-warning', on); sb.classList.toggle('btn-outline-warning', !on); }
       layer.draw();
     }
     function clearSelect() {
@@ -443,6 +451,8 @@
       g.setAttr('wallKey', p.wall_or_zone || '');
       g.setAttr('tiltX', (p.tilt_x === null || p.tilt_x === undefined) ? null : p.tilt_x);
       g.setAttr('tiltZ', (p.tilt_z === null || p.tilt_z === undefined) ? null : p.tilt_z);
+      g.setAttr('spotlight', !!p.spotlight);
+      g.setAttr('zOrder', p.z_order || 0);
 
       var rect = new Konva.Rect({
         x: -NODE / 2, y: -NODE / 2, width: NODE, height: NODE,
@@ -576,6 +586,21 @@
         if (a === 'rotR') selected.rotation(selected.rotation() + 15);
         if (a === 'smaller') { var s = Math.max(0.3, selected.scaleX() - 0.1); selected.scale({ x: s, y: s }); }
         if (a === 'bigger') { var s2 = Math.min(4, selected.scaleX() + 0.1); selected.scale({ x: s2, y: s2 }); }
+        var hdrs = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' };
+        if (a === 'spot') {   // #1174 toggle the proximity spotlight
+          var on = !selected.getAttr('spotlight'); selected.setAttr('spotlight', on);
+          var sb = document.getElementById('spotBtn'); sb.classList.toggle('btn-warning', on); sb.classList.toggle('btn-outline-warning', !on);
+          fetch(URLS.spotlight, { method: 'POST', headers: hdrs, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), on: on }) });
+          return;
+        }
+        if (a === 'front' || a === 'back') {   // bring-to-front / send-to-back
+          var zmax = 0, zmin = 0; layer.find('.placement').forEach(function (n) { var z = n.getAttr('zOrder') || 0; if (z > zmax) zmax = z; if (z < zmin) zmin = z; });
+          var nz = (a === 'front') ? zmax + 1 : zmin - 1; selected.setAttr('zOrder', nz);
+          if (a === 'front') selected.moveToTop(); else selected.moveToBottom();
+          layer.draw();
+          fetch(URLS.zorder, { method: 'POST', headers: hdrs, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), z: nz }) });
+          return;
+        }
         layer.draw(); scheduleSave();
       });
     });

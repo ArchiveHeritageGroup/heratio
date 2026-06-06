@@ -341,6 +341,8 @@
     var wallMat = new THREE.MeshStandardMaterial({ color: 0xf2f2f0, roughness: 1, side: THREE.DoubleSide });
     var doorMat = new THREE.MeshStandardMaterial({ color: 0x7c6a58, roughness: 0.9, side: THREE.DoubleSide });   // solid door panel (not see-through)
     var glassMat = new THREE.MeshStandardMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, roughness: 0.1, metalness: 0.1, side: THREE.DoubleSide });   // #1172 window pane
+    var colliders = [];   // wall meshes the visitor cannot walk through (doorways/glass excluded)
+    var stairRamps = [];  // walkable sloped corridors: {ax,az,bx,bz,ya,yb,ux,uz,len,half}
     // Front door: double hinged leaves on an outdoor<->indoor opening, swing open on approach.
     var frontDoorMat = new THREE.MeshStandardMaterial({ color: 0x5a3a22, roughness: 0.65, side: THREE.DoubleSide });
     var frontDoors = [];
@@ -384,12 +386,14 @@
       if (len <= 0.05) return;
       var m = new THREE.Mesh(new THREE.PlaneGeometry(len, RH), mat || wallMat);
       m.position.set(x, RH / 2, z); m.rotation.y = ry; addToRoom(_curRoom, m);
+      if (mat !== doorMat && mat !== glassMat) colliders.push(m);
     }
     // Partial-height wall piece between heights y0..y1 (used for door lintels).
     function wallSegH(len, x, z, ry, mat, y0, y1) {
       if (len <= 0.05 || (y1 - y0) <= 0.05) return null;
       var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), mat || wallMat);
       m.position.set(x, (y0 + y1) / 2, z); m.rotation.y = ry; addToRoom(_curRoom, m);
+      if (mat !== doorMat && mat !== glassMat && y0 < 1.7) colliders.push(m);   // body-height wall pieces only
       return m;
     }
     // Doorway openings on this wall (plan mode): manual doors placed in the plan
@@ -500,7 +504,7 @@
         if (s < 0.2) s = 0; if (L - e < 0.2) e = L; return [s, e];
       }).filter(function (d) { return d[1] - d[0] > 0.15; }).sort(function (p, q) { return p[0] - q[0]; });
       var doors = []; raw.forEach(function (d) { if (doors.length && d[0] <= doors[doors.length - 1][1] + 0.01) doors[doors.length - 1][1] = Math.max(doors[doors.length - 1][1], d[1]); else doors.push(d.slice()); });
-      function seg(s, e, y0, y1, m2) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return null; var mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), m2 || mat || wallMat); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); return m; }
+      function seg(s, e, y0, y1, m2) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return null; var um = m2 || mat || wallMat, mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), um); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); if (um !== doorMat && um !== glassMat && y0 < 1.7) colliders.push(m); return m; }
       // #1172 windows on this polygon edge: punch glass openings into full segments.
       var winsE = (rm.windows || []).filter(function (w) { return typeof w.edge === 'number' && w.edge === eIdx; });
       function fullEdge(s, e) {
@@ -724,7 +728,7 @@
         var len = Math.hypot(bx - ax, bz - az); if (len < 0.1) return;
         var ang = Math.atan2(bz - az, bx - ax);
         var m = new THREE.Mesh(new THREE.PlaneGeometry(len, RH), wallMat);
-        m.position.set((ax + bx) / 2, RH / 2, (az + bz) / 2); m.rotation.y = -ang; addToRoom(rm, m);
+        m.position.set((ax + bx) / 2, RH / 2, (az + bz) / 2); m.rotation.y = -ang; addToRoom(rm, m); colliders.push(m);
       });
       // Live conservation status tint (hidden until the Live button is pressed).
       (function () {
@@ -763,7 +767,7 @@
           grp.add(step);
         }
       }
-      var footL, topL, hit;
+      var footL, topL, hit, legSpecs = [];
       if (st.kind === 'elbow') {
         var h = (st.hand === 'left') ? -1 : 1;   // turn direction of the second flight
         var legLen2 = st.length2 || legLen;       // second leg can be a different length
@@ -772,6 +776,8 @@
         var land = new THREE.Mesh(new THREE.BoxGeometry(width + 0.2, 0.18, width + 0.2), stepMat); land.position.set(0, mid, legLen); grp.add(land);
         flight(h * (width / 2 + depth2), legLen, 'x', mid, y1, half, depth2, h);  // flight 2 turns left/right (length legLen2)
         var ex = h * (width / 2 + legLen2);
+        legSpecs.push({ la: { x: 0, z: 0 }, lb: { x: 0, z: legLen }, ya: y0, yb: mid });
+        legSpecs.push({ la: { x: 0, z: legLen }, lb: { x: ex, z: legLen }, ya: mid, yb: y1 });
         footL = { x: 0, y: y0, z: -0.8 }; topL = { x: ex + h * 0.8, y: y1, z: legLen };
         hit = new THREE.Mesh(new THREE.BoxGeometry(Math.abs(ex) + width + 1.2, Math.abs(rise) + 1.4, legLen + width + 1.2), new THREE.MeshBasicMaterial({ visible: false }));
         hit.position.set(ex / 2, (y0 + y1) / 2, legLen / 2); grp.add(hit);
@@ -780,6 +786,7 @@
       } else {
         var n = Math.max(4, Math.round(Math.abs(rise) / 0.2)), depth = legLen / n;
         flight(0, -legLen / 2, 'z', y0, y1, n, depth, 1);
+        legSpecs.push({ la: { x: 0, z: -legLen / 2 }, lb: { x: 0, z: legLen / 2 }, ya: y0, yb: y1 });
         footL = { x: 0, y: y0, z: -legLen / 2 - 0.8 }; topL = { x: 0, y: y1, z: legLen / 2 + 0.8 };
         hit = new THREE.Mesh(new THREE.BoxGeometry(width, Math.abs(rise) + 1.2, legLen), new THREE.MeshBasicMaterial({ visible: false }));
         hit.position.set(0, (y0 + y1) / 2, 0); grp.add(hit);
@@ -789,11 +796,34 @@
       grp.updateMatrixWorld(true);
       var fw = grp.localToWorld(new THREE.Vector3(footL.x, footL.y, footL.z));
       var tw = grp.localToWorld(new THREE.Vector3(topL.x, topL.y, topL.z));
+      legSpecs.forEach(function (ls) {   // world-space walkable ramp corridors
+        var A = grp.localToWorld(new THREE.Vector3(ls.la.x, 0, ls.la.z));
+        var B = grp.localToWorld(new THREE.Vector3(ls.lb.x, 0, ls.lb.z));
+        var dx = B.x - A.x, dz = B.z - A.z, len = Math.hypot(dx, dz) || 1;
+        stairRamps.push({ ax: A.x, az: A.z, ux: dx / len, uz: dz / len, len: len, ya: ls.ya, yb: ls.yb, half: width / 2 + 0.4 });
+      });
       hit.userData.action = 'stair';
       hit.userData.bot = { x: fw.x, fy: y0, z: fw.z };
       hit.userData.top = { x: tw.x, fy: y1, z: tw.z };
       pickables.push(hit);
     });
+
+    // #1174 spotlights: dim the surroundings + light a spotlit object as you approach it.
+    var spotObjects = [], hemiBase = hemiLight.intensity;
+    function buildSpots() {
+      scene.updateMatrixWorld(true);
+      pickables.forEach(function (o) {
+        if (o.userData._spotDone) return;
+        var s = o.userData && o.userData.stop; if (!s || !s.spotlight) return;
+        o.userData._spotDone = true;
+        var wp = new THREE.Vector3(); o.getWorldPosition(wp);
+        var sp = new THREE.SpotLight(0xfff2d0, 0, 14, Math.PI / 7, 0.5, 1.2);
+        sp.position.set(wp.x, wp.y + 3.2, wp.z + 0.01);
+        var tgt = new THREE.Object3D(); tgt.position.copy(wp); scene.add(tgt); sp.target = tgt;
+        scene.add(sp); spotObjects.push({ x: wp.x, y: wp.y, z: wp.z, light: sp });
+      });
+    }
+    buildSpots(); setTimeout(buildSpots, 1500); setTimeout(buildSpots, 4000);   // re-scan as async images finish loading
 
     // Controls. Desktop = first-person pointer-lock (WASD + mouse). Touch devices
     // can't pointer-lock, so they get OrbitControls (drag to look, pinch to zoom)
@@ -1288,6 +1318,31 @@
       var up = Math.max(0, Math.min(1, (_wd.y - 0.2) / 0.7));
       return curFloorY + Math.max(0.35, eyeBase - up * 1.1);   // floor-aware; looking up leans the view
     }
+    // --- Collision (#1169): walls block you; staircases are walkable ramps ---
+    var _cray = new THREE.Raycaster(), _vo = new THREE.Vector3(), _vd = new THREE.Vector3();
+    function moveBlocked(px, pz, dirx, dirz, dist) {
+      if (!colliders.length) return false;
+      _vo.set(px, curFloorY + 1.0, pz); _vd.set(dirx, 0, dirz);
+      _cray.set(_vo, _vd); _cray.far = dist + 0.45;
+      var h = _cray.intersectObjects(colliders, false);
+      return h.length > 0 && h[0].distance < dist + 0.45;
+    }
+    function tryMove(o, dx, dz) {
+      if (dx !== 0 && !moveBlocked(o.position.x, o.position.z, dx > 0 ? 1 : -1, 0, Math.abs(dx))) o.position.x += dx;
+      if (dz !== 0 && !moveBlocked(o.position.x, o.position.z, 0, dz > 0 ? 1 : -1, Math.abs(dz))) o.position.z += dz;
+    }
+    function rampAt(x, z) {   // returns {y, x, z} clamped onto a staircase, or null
+      for (var i = 0; i < stairRamps.length; i++) {
+        var r = stairRamps[i];
+        var t = ((x - r.ax) * r.ux + (z - r.az) * r.uz) / r.len;
+        if (t < -0.05 || t > 1.05) continue;
+        var perp = (x - r.ax) * (-r.uz) + (z - r.az) * r.ux;
+        if (Math.abs(perp) > r.half) continue;
+        var tc = Math.max(0, Math.min(1, t)), pc = Math.max(-r.half, Math.min(r.half, perp));
+        return { y: r.ya + (r.yb - r.ya) * tc, x: r.ax + r.ux * (tc * r.len) - r.uz * pc, z: r.az + r.uz * (tc * r.len) + r.ux * pc };
+      }
+      return null;
+    }
     function clampInRoom(o) {
       var m = 0.6;
       o.position.x = Math.max(BLD_minX + m, Math.min(BLD_maxX - m, o.position.x));
@@ -1296,6 +1351,9 @@
         var rm = roomAt(o.position.x, o.position.z);
         o.position.z = Math.max(rm.z_offset + m, Math.min(rm.z_offset + rm.d - m, o.position.z));
       }
+      var rmp = rampAt(o.position.x, o.position.z);   // on a staircase: ride the slope, locked to its width
+      if (rmp) { o.position.x = rmp.x; o.position.z = rmp.z; curFloorY = rmp.y; }
+      else if (PLAN_MODE) { var fr = findRoomAtWorld(o.position.x, o.position.z, null); if (fr) curFloorY = (fr.floor || 0) * FLOOR_H; }
       o.position.y += (eyeHeight() - o.position.y) * 0.3;   // smooth crouch/stand
     }
     renderer.domElement.addEventListener('wheel', function (e) {
@@ -1470,12 +1528,23 @@
         if (vel.lengthSq() > 0) {
           following = false;                       // manual movement breaks docent-follow
           vel.normalize();
+          var mo = controls.getObject(), b4x = mo.position.x, b4z = mo.position.z;
           controls.moveRight(vel.x * speed * dt);
           controls.moveForward(vel.z * speed * dt);
+          var ddx = mo.position.x - b4x, ddz = mo.position.z - b4z;   // walls block; resolve per-axis so you can slide
+          mo.position.x = b4x; mo.position.z = b4z;
+          tryMove(mo, ddx, ddz);
         }
         clampInRoom(controls.getObject());
       }
       if (window._wtPresenceFrame) window._wtPresenceFrame(dt);
+      if (spotObjects.length) {   // #1174 proximity spotlight + surroundings dim
+        var scp = controls.getObject().position, near = 1e9, act = null;
+        for (var si = 0; si < spotObjects.length; si++) { var so = spotObjects[si], dd = Math.hypot(scp.x - so.x, scp.z - so.z) + Math.abs(scp.y - so.y) * 0.5; if (dd < near) { near = dd; act = so; } }
+        var prox = Math.max(0, Math.min(1, (6.5 - near) / 6.5));
+        for (var sj = 0; sj < spotObjects.length; sj++) { var s2 = spotObjects[sj]; s2.light.intensity += (((s2 === act) ? prox * 2.6 : 0) - s2.light.intensity) * Math.min(1, dt * 5); }
+        hemiLight.intensity += ((hemiBase - prox * hemiBase * 0.78) - hemiLight.intensity) * Math.min(1, dt * 5);
+      }
       if (typeof applyZoom === 'function') applyZoom(dt);   // #1163 smooth zoom
       if (frontDoors.length) {   // front doors swing open as you approach, close as you leave
         var fcp = controls.getObject().position;

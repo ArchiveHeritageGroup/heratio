@@ -916,6 +916,32 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => $ok]);
     }
 
+    /** AJAX: toggle a per-object spotlight (#1174). */
+    public function updateSpotlightAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['placement_id' => 'required|integer|min:1', 'on' => 'required|boolean']);
+        $ok = $this->service->updatePlacementSpotlight((int) $space->id, (int) $data['placement_id'], (bool) $data['on']);
+
+        return response()->json(['ok' => $ok]);
+    }
+
+    /** AJAX: bring-to-front / send-to-back (z-order). */
+    public function updateZOrderAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['placement_id' => 'required|integer|min:1', 'z' => 'required|integer']);
+        $ok = $this->service->updatePlacementZOrder((int) $space->id, (int) $data['placement_id'], (int) $data['z']);
+
+        return response()->json(['ok' => $ok]);
+    }
+
     /** Upload a floorplan background image for the builder canvas. */
     public function uploadFloorplan(Request $request, string $slug)
     {

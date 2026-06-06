@@ -10,6 +10,7 @@
     @auth<button type="button" id="addRoomBtn" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i>{{ __('Add room') }}</button>@endauth
     @auth<button type="button" id="joinBtn" class="btn btn-sm btn-outline-warning" title="{{ __('Click a corner dot on one room, then a corner dot on another - the second room moves so the corners meet.') }}"><i class="fas fa-link me-1"></i>{{ __('Join corners') }}</button>@endauth
     @auth<button type="button" id="undoBtn" class="btn btn-sm btn-outline-secondary" disabled title="{{ __('Undo the last room move (Ctrl+Z)') }}"><i class="fas fa-undo me-1"></i>{{ __('Undo move') }}</button>@endauth
+    @auth<select id="floorView" class="form-select form-select-sm" style="width:auto" title="{{ __('Show only rooms on one floor') }}"></select>@endauth
     <a href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}</a>
     <a href="{{ route('exhibition-space.builder', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-cubes me-1"></i>{{ __('Builder') }}</a>
   </div>
@@ -483,7 +484,7 @@
       rf.addEventListener('change', function () {
         if (!selectedG) return; var r = selectedG.getAttr('room');
         r.floor = Math.max(0, parseInt(rf.value, 10) || 0); flagSaving();
-        fetch(ROOM_FLOOR_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: r.id, floor: r.floor }) }).then(function (x) { return x.json(); }).then(function () { saved(); drawStairs(); });
+        fetch(ROOM_FLOOR_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: r.id, floor: r.floor }) }).then(function (x) { return x.json(); }).then(function () { saved(); drawStairs(); buildFloorView(); applyFloorView(); });
       });
     })();
     (function () {   // delete the selected room
@@ -496,7 +497,7 @@
           if (!d.ok) { alert('{{ __('Could not delete this room (you cannot delete the room you opened the plan from).') }}'); return; }
           var n = nodeById[r.id]; if (n) n.destroy(); delete nodeById[r.id];
           var idx = PLAN.rooms.indexOf(r); if (idx >= 0) PLAN.rooms.splice(idx, 1);
-          deselect(); renderRoomList(); drawStairs(); layer.draw(); saved();
+          deselect(); renderRoomList(); drawStairs(); buildFloorView(); applyFloorView(); layer.draw(); saved();
         });
       });
     })();
@@ -787,6 +788,21 @@
     }
     renderRoomList();
 
+    // ---- Floor view (#1169): show only rooms on the chosen floor ----
+    function distinctFloors() { var s = {}; PLAN.rooms.forEach(function (r) { s[r.floor || 0] = 1; }); return Object.keys(s).map(Number).sort(function (a, b) { return a - b; }); }
+    var floorView = 'all';
+    function buildFloorView() {
+      var sel = document.getElementById('floorView'); if (!sel) return;
+      var html = '<option value="all">{{ __('All floors') }}</option>';
+      distinctFloors().forEach(function (f) { html += '<option value="' + f + '"' + (String(f) === String(floorView) ? ' selected' : '') + '>' + (f === 0 ? '{{ __('Ground floor') }}' : ('{{ __('Floor') }} ' + f)) + '</option>'; });
+      sel.innerHTML = html;
+    }
+    function applyFloorView() {
+      PLAN.rooms.forEach(function (r) { var n = nodeById[r.id]; if (n) n.visible(floorView === 'all' || String(r.floor || 0) === String(floorView)); });
+      layer.draw();
+    }
+    (function () { var sel = document.getElementById('floorView'); if (!sel) return; buildFloorView(); sel.addEventListener('change', function () { floorView = sel.value; deselect(); applyFloorView(); }); })();
+
     // ---- Corridor objects: placed in building space (fraction of the room bbox) ----
     var corrLayer = new Konva.Layer(); stage.add(corrLayer);
     var CORRIDOR = PLAN.corridor || [];
@@ -944,9 +960,11 @@
             r.bld_x = Math.max(0, r.bld_x); r.bld_y = Math.max(0, r.bld_y);
             PLAN.rooms.push(r);
             var g = addRoomNode(r);
+            // If a single floor is being viewed, put the new room on that floor.
+            if (floorView !== 'all') { r.floor = +floorView; fetch(ROOM_FLOOR_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: r.id, floor: r.floor }) }); }
             saveRoom(g);            // persist the clamped position
             selectRoom(g);
-            renderRoomList();
+            renderRoomList(); buildFloorView(); applyFloorView();
           })
           .catch(function () { b.disabled = false; });
       });

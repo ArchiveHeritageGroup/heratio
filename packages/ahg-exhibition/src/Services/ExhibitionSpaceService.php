@@ -313,7 +313,7 @@ class ExhibitionSpaceService
                 'ep.id', 'ep.information_object_id',
                 'ep.pos_x', 'ep.pos_y', 'ep.rotation_deg', 'ep.scale', 'ep.z_order',
                 'ep.wall_or_zone', 'ep.label_visible', 'ep.size_units_used',
-                'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v',
+                'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight',
                 'ioi.title as information_object_title'
             )
             ->orderBy('ep.z_order')
@@ -339,6 +339,7 @@ class ExhibitionSpaceService
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
                 'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,
                 'wall_v' => $r->wall_v !== null ? (float) $r->wall_v : null,
+                'spotlight' => (int) ($r->spotlight ?? 0) === 1,   // #1174
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),
             ];
         })->all();
@@ -575,6 +576,22 @@ class ExhibitionSpaceService
             ->where('id', $placementId)
             ->where('exhibition_space_id', $exhibitionSpaceId)
             ->update(['model_tilt_x' => $tiltX, 'model_tilt_z' => $tiltZ, 'updated_at' => now()]) > 0;
+    }
+
+    /** #1174: toggle a per-object spotlight (dim surroundings + light it on approach). */
+    public function updatePlacementSpotlight(int $exhibitionSpaceId, int $placementId, bool $on): bool
+    {
+        return DB::table('ahg_exhibition_placement')
+            ->where('id', $placementId)->where('exhibition_space_id', $exhibitionSpaceId)
+            ->update(['spotlight' => $on ? 1 : 0, 'updated_at' => now()]) > 0;
+    }
+
+    /** Bring-to-front / send-to-back: set a placement's z-order. */
+    public function updatePlacementZOrder(int $exhibitionSpaceId, int $placementId, int $z): bool
+    {
+        return DB::table('ahg_exhibition_placement')
+            ->where('id', $placementId)->where('exhibition_space_id', $exhibitionSpaceId)
+            ->update(['z_order' => $z, 'updated_at' => now()]) > 0;
     }
 
     // -------- Interior walls (heratio#1138, room dividers to hang on) --------
@@ -2362,7 +2379,7 @@ class ExhibitionSpaceService
             ->select(
                 'ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y',
                 'ep.rotation_deg', 'ep.scale', 'ep.wall_or_zone',
-                'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v',
+                'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight',
                 'ioi.title as title', 'ioi.scope_and_content as description', 'sl.slug as slug'
             )
             ->get();
@@ -2389,6 +2406,7 @@ class ExhibitionSpaceService
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
                 'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,
                 'wall_v' => $r->wall_v !== null ? (float) $r->wall_v : null,
+                'spotlight' => (int) ($r->spotlight ?? 0) === 1,   // #1174 proximity spotlight
                 'image_url' => $media['image_url'],
                 'doc_url' => $media['doc_url'] ?? null,
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),
