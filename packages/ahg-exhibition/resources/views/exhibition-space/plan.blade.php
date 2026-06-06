@@ -11,6 +11,8 @@
     @auth<button type="button" id="joinBtn" class="btn btn-sm btn-outline-warning" title="{{ __('Click a corner dot on one room, then a corner dot on another - the second room moves so the corners meet.') }}"><i class="fas fa-link me-1"></i>{{ __('Join corners') }}</button>@endauth
     @auth<button type="button" id="undoBtn" class="btn btn-sm btn-outline-secondary" disabled title="{{ __('Undo the last room move (Ctrl+Z)') }}"><i class="fas fa-undo me-1"></i>{{ __('Undo move') }}</button>@endauth
     @auth<select id="floorView" class="form-select form-select-sm" style="width:auto" title="{{ __('Show only rooms on one floor') }}"></select>@endauth
+    @auth<div class="form-check form-switch small d-inline-block align-middle ms-1" title="{{ __('When locking, extend walls to close gaps between rooms') }}"><input class="form-check-input" type="checkbox" id="lockFloorFill"><label class="form-check-label" for="lockFloorFill">{{ __('fill gaps') }}</label></div>@endauth
+    @auth<button type="button" id="lockFloorBtn" class="btn btn-sm btn-outline-dark" title="{{ __('Lock this whole floor: align all walls flush (and fill gaps if ticked); rooms can no longer be moved/resized. Click again to unlock the floor.') }}"><i class="fas fa-lock me-1"></i>{{ __('Lock floor') }}</button>@endauth
     <a href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}</a>
     <a href="{{ route('exhibition-space.builder', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-cubes me-1"></i>{{ __('Builder') }}</a>
   </div>
@@ -58,8 +60,6 @@
             <button type="button" class="btn btn-outline-secondary" id="roomFront" title="{{ __('Bring room to front (draw on top of overlapping rooms)') }}"><i class="fas fa-arrow-up me-1"></i>{{ __('Front') }}</button>
             <button type="button" class="btn btn-outline-secondary" id="roomBack" title="{{ __('Send room to back') }}"><i class="fas fa-arrow-down me-1"></i>{{ __('Back') }}</button>
           </div>
-          <div class="form-check form-switch small mb-1"><input class="form-check-input" type="checkbox" id="lockFill"><label class="form-check-label" for="lockFill">{{ __('Fill gaps to neighbours when locking') }}</label></div>
-          <button type="button" class="btn btn-sm btn-outline-dark w-100 mb-2" id="lockBtn" title="{{ __('Mark room done: align walls flush with neighbours + prevent moves. Unlock to edit again.') }}"><i class="fas fa-lock me-1"></i>{{ __('Lock room (done)') }}</button>
           <label class="form-label small mb-1">{{ __('Rotation (degrees)') }}</label>
           <div class="input-group input-group-sm mb-2">
             <button type="button" class="btn btn-outline-secondary" id="rotMinus" title="{{ __('Rotate left 15°') }}"><i class="fas fa-undo"></i></button>
@@ -457,7 +457,6 @@
     function selectRoom(g) {
       if (shapeMode && shapeG && shapeG !== g) { var prev = shapeG; shapeMode = false; shapeG = null; drawShape(prev); }
       selectedG = g; tr.nodes(((shapeMode && shapeG === g) || g.getAttr('room').locked) ? [] : [g]); layer.draw();
-      setLockBtn(!!g.getAttr('room').locked);
       var nm = g.getAttr('room').name;
       var c = document.getElementById('doorCard');
       if (c) { c.style.display = 'block'; document.getElementById('doorRoomName').textContent = nm; refreshDoorList(g); updateDoorControls(g); }
@@ -533,24 +532,6 @@
         flagSaving();
         targets.forEach(function (o) { o.floor = nf; fetch(ROOM_FLOOR_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: o.id, floor: nf }) }); });
         saved(); drawStairs(); buildFloorView(); applyFloorView();
-      });
-    })();
-    (function () {   // #1143 lock / unlock the selected room
-      var lb = document.getElementById('lockBtn'); if (!lb) return;
-      lb.addEventListener('click', function () {
-        if (!selectedG) return; var r = selectedG.getAttr('room'), willLock = !r.locked;
-        if (willLock) {
-          pushUndo([r]);
-          var fill = document.getElementById('lockFill') && document.getElementById('lockFill').checked;
-          alignRoom(r, fill);
-          var rect = selectedG.findOne('.roomrect'); if (rect) { rect.width(r.w * scale); rect.height(r.d * scale); }
-          var lbl = selectedG.findOne('Text'); if (lbl) lbl.width(r.w * scale - 6);
-          selectedG.x(r.bld_x * scale); selectedG.y(r.bld_y * scale); selectedG.width(r.w * scale); selectedG.height(r.d * scale);
-          drawDoors(selectedG); drawShape(selectedG); saveRoom(selectedG); tr.nodes([]);
-        }
-        r.locked = willLock; flagSaving();
-        fetch(ROOM_LOCK_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: r.id, locked: willLock }) }).then(function (x) { return x.json(); }).then(saved);
-        applyLockVisual(selectedG); setLockBtn(r.locked); if (!willLock) tr.nodes([selectedG]); layer.draw();
       });
     })();
     (function () {   // delete the selected room
@@ -817,7 +798,6 @@
       g.find('.lockbadge').forEach(function (n) { n.destroy(); });
       if (r.locked) g.add(new Konva.Text({ name: 'lockbadge', text: '🔒', x: 2, y: Math.max(2, r.d * scale - 16), fontSize: 13, listening: false }));
     }
-    function setLockBtn(locked) { var b = document.getElementById('lockBtn'); if (!b) return; b.innerHTML = locked ? '<i class="fas fa-lock-open me-1"></i>{{ __('Unlock room') }}' : '<i class="fas fa-lock me-1"></i>{{ __('Lock room (done)') }}'; b.classList.toggle('btn-dark', locked); b.classList.toggle('btn-outline-dark', !locked); }
 
     function addRoomNode(r) {
       var g = new Konva.Group({ x: r.bld_x * scale, y: r.bld_y * scale, rotation: r.rot || 0, draggable: true });
@@ -893,6 +873,34 @@
       layer.draw();
     }
     (function () { var sel = document.getElementById('floorView'); if (!sel) return; buildFloorView(); applyFloorView(); sel.addEventListener('change', function () { floorView = sel.value; deselect(); applyFloorView(); }); })();
+    // #1143 lock/unlock the WHOLE current floor: align all walls flush (+ optional fill gaps), prevent moves.
+    (function () {
+      var fb = document.getElementById('lockFloorBtn'); if (!fb) return;
+      function floorRooms() { return PLAN.rooms.filter(function (r) { return String(r.floor || 0) === String(floorView) && r.bld_x !== null; }); }
+      function refresh() { var rs = floorRooms(), all = rs.length && rs.every(function (r) { return r.locked; }); fb.innerHTML = all ? '<i class="fas fa-lock-open me-1"></i>{{ __('Unlock floor') }}' : '<i class="fas fa-lock me-1"></i>{{ __('Lock floor') }}'; fb.classList.toggle('btn-dark', all); fb.classList.toggle('btn-outline-dark', !all); }
+      fb.addEventListener('click', function () {
+        var rs = floorRooms(); if (!rs.length) return;
+        var lock = !rs.every(function (r) { return r.locked; });
+        flagSaving();
+        if (lock) {
+          var fill = document.getElementById('lockFloorFill') && document.getElementById('lockFloorFill').checked;
+          pushUndo(rs);
+          for (var pass = 0; pass < 2; pass++) rs.forEach(function (r) { if (!(r.shape && r.shape.length >= 3) && !r.rot) alignRoom(r, fill); });
+          rs.forEach(function (r) {
+            var n = nodeById[r.id]; if (!n) return;
+            var rect = n.findOne('.roomrect'); if (rect) { rect.width(r.w * scale); rect.height(r.d * scale); }
+            var lbl = n.findOne('Text'); if (lbl) lbl.width(r.w * scale - 6);
+            n.x(r.bld_x * scale); n.y(r.bld_y * scale); n.width(r.w * scale); n.height(r.d * scale);
+            drawDoors(n); drawShape(n); saveRoom(n);
+          });
+        }
+        rs.forEach(function (r) { r.locked = lock; var n = nodeById[r.id]; if (n) applyLockVisual(n); fetch(ROOM_LOCK_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: r.id, locked: lock }) }); });
+        if (lock && selectedG && rs.indexOf(selectedG.getAttr('room')) >= 0) tr.nodes([]);
+        saved(); refresh(); layer.draw();
+      });
+      var sel2 = document.getElementById('floorView'); if (sel2) sel2.addEventListener('change', refresh);
+      refresh();
+    })();
 
     // ---- Corridor objects: placed in building space (fraction of the room bbox) ----
     var corrLayer = new Konva.Layer(); stage.add(corrLayer);
