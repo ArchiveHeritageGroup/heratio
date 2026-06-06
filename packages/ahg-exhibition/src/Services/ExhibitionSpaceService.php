@@ -1311,7 +1311,7 @@ class ExhibitionSpaceService
         }
         $rows = DB::table('ahg_exhibition_placement as ep')
             ->leftJoin('information_object_i18n as ioi', function ($j) { $j->on('ioi.id', '=', 'ep.information_object_id')->where('ioi.culture', '=', 'en'); })
-            ->where('ep.exhibition_space_id', $space->id)->whereNotNull('ep.recommendations_json')
+            ->whereIn('ep.exhibition_space_id', $this->buildingSpaceIds($space))->whereNotNull('ep.recommendations_json')
             ->select('ep.information_object_id as src_io', 'ep.recommendations_json as recs', 'ioi.title as src_title')->get();
         $seen = [];
         $out = [];
