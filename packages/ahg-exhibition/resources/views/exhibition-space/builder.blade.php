@@ -755,7 +755,7 @@
         return (wvWall.indexOf && wvWall.indexOf('edge:') === 0) ? ('edge:' + d.edge) === wvWall : d.wall === wvWall;
       });
     }
-    var wvOX = 0, wvOY = 0, wvEW = 0, wvEH = 0;   // elevation rect (to-scale wall area)
+    var wvOX = 0, wvOY = 0, wvEW = 0, wvEH = 0, wvStepX = 0, wvStepY = 0;   // elevation rect (to-scale wall area) + 1m grid step
     function buildWallView() {
       wvLayer.destroyChildren();
       var L = wvWallLengthM() || ROOM_W, Hm = ROOM_H || 4;
@@ -766,7 +766,7 @@
       wvLayer.add(new Konva.Rect({ x: 0, y: 0, width: W, height: H, fill: '#ced4da', listening: false }));                       // void
       wvLayer.add(new Konva.Rect({ x: wvOX, y: wvOY, width: ew, height: eh, fill: '#f1f3f5', stroke: '#adb5bd', strokeWidth: 1, listening: false }));   // wall
       // 1-metre grid across the wall, with metre marks, to align items.
-      var stepX = ew / L, stepY = eh / Hm;
+      var stepX = ew / L, stepY = eh / Hm; wvStepX = stepX; wvStepY = stepY;
       for (var mx = 1; mx < L; mx++) { var gx = wvOX + mx * stepX; wvLayer.add(new Konva.Line({ points: [gx, wvOY, gx, wvOY + eh], stroke: '#dde1e6', strokeWidth: mx % 5 === 0 ? 1.5 : 1, listening: false })); }
       for (var my = 1; my < Hm; my++) { var gy = wvOY + eh - my * stepY; wvLayer.add(new Konva.Line({ points: [wvOX, gy, wvOX + ew, gy], stroke: '#dde1e6', strokeWidth: my % 5 === 0 ? 1.5 : 1, listening: false })); wvLayer.add(new Konva.Text({ x: wvOX + 2, y: gy - 10, text: my + 'm', fontSize: 8, fill: '#aeb4bb', listening: false })); }
       wvLayer.add(new Konva.Line({ points: [wvOX, wvOY + eh, wvOX + ew, wvOY + eh], stroke: '#868e96', strokeWidth: 4, listening: false }));            // floor
@@ -828,6 +828,14 @@
         im.onerror = function () { g.add(new Konva.Text({ text: '#' + p.information_object_id, x: -WV_NODE / 2, y: -6, width: WV_NODE, align: 'center', fontSize: 10, fill: '#999' })); wvLayer.draw(); finish(); };
         im.src = p.thumb_url;
       } else { g.add(new Konva.Text({ text: '#' + p.information_object_id, x: -WV_NODE / 2, y: -6, width: WV_NODE, align: 'center', fontSize: 10, fill: '#999' })); finish(); }
+      // Magnetic snap to the 1 m gridlines (so hung works line up), then clamp to the wall.
+      g.on('dragmove', function () {
+        var x = g.x(), y = g.y();
+        if (wvStepX > 0) { var gx = wvOX + Math.round((x - wvOX) / wvStepX) * wvStepX; if (Math.abs(gx - x) < wvStepX * 0.3) x = gx; }
+        if (wvStepY > 0) { var fy = wvOY + wvEH, gy = fy - Math.round((fy - y) / wvStepY) * wvStepY; if (Math.abs(gy - y) < wvStepY * 0.3) y = gy; }
+        g.x(Math.max(wvOX, Math.min(wvOX + wvEW, x)));
+        g.y(Math.max(wvOY, Math.min(wvOY + wvEH, y)));
+      });
       g.on('dragend', function () {
         var nu = Math.max(0, Math.min(1, (g.x() - wvOX) / (wvEW || 1))), nv = Math.max(0, Math.min(1, 1 - (g.y() - wvOY) / (wvEH || 1)));
         fetch(URLS.wallPos, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ placement_id: g.getAttr('placementId'), u: nu, v: nv }) });
