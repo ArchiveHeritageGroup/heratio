@@ -614,12 +614,17 @@
       var gtex = grassTexture().clone(); gtex.needsUpdate = true; gtex.wrapS = gtex.wrapT = THREE.RepeatWrapping;
       var grassMat = new THREE.MeshStandardMaterial({ map: gtex, roughness: 1 });
       var ground;
+      var gHoles = holesFor(rm);   // #1169 stairwell openings in the grass
       if (SH) {   // grass follows the room's polygon shape (so shaping the park works)
         var gs = new THREE.Shape();
         SH.forEach(function (p, j) { var px = p.x * rm.w, pz = p.z * rm.d; if (j === 0) gs.moveTo(px, pz); else gs.lineTo(px, pz); });
-        gs.closePath();
+        gs.closePath(); addHoles(gs, gHoles);
         gtex.repeat.set(0.3, 0.3);   // ShapeGeometry UVs are in metres
         ground = new THREE.Mesh(new THREE.ShapeGeometry(gs), grassMat);
+        ground.rotation.x = Math.PI / 2; ground.position.set(rm.x_offset, 0.01, rm.z_offset);
+      } else if (gHoles.length) {
+        gtex.repeat.set(0.3, 0.3);
+        ground = new THREE.Mesh(shapeWithHoles([[0, 0], [rm.w, 0], [rm.w, rm.d], [0, rm.d]], gHoles), grassMat);
         ground.rotation.x = Math.PI / 2; ground.position.set(rm.x_offset, 0.01, rm.z_offset);
       } else {
         gtex.repeat.set(rm.w * 0.3, rm.d * 0.3);   // PlaneGeometry UVs are 0..1
@@ -638,6 +643,42 @@
       var n = Math.min(70, Math.max(24, Math.round(W * D * 0.12)));
       for (var i = 0; i < n; i++) { addTuft(rm, ox + W * (0.05 + Math.random() * 0.9), oz + D * (0.05 + Math.random() * 0.9)); }
     }
+    // #1169 stairwell openings: a hole in the floor (or grass) above each inter-floor
+    // staircase, so descending stairs are visible + walkable instead of hidden under a solid floor.
+    var stairOpenings = [];
+    (BUILDING && BUILDING.stairs ? BUILDING.stairs : []).forEach(function (st) {
+      var from = st.from_floor || 0, to = (st.to_floor == null ? 1 : st.to_floor);
+      if (from === to) return;
+      var w = st.width || 1.4, legLen = st.length || 3, h = (st.hand === 'left') ? -1 : 1, legLen2 = st.length2 || legLen;
+      var pts = (st.kind === 'elbow')
+        ? [[-w / 2, 0], [w / 2, 0], [-w / 2, legLen], [w / 2, legLen], [h * (w / 2 + legLen2), legLen - w / 2], [h * (w / 2 + legLen2), legLen + w / 2]]
+        : [[-w / 2, -legLen / 2], [w / 2, -legLen / 2], [-w / 2, legLen / 2], [w / 2, legLen / 2]];
+      var a = (st.rot || 0) * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a), mnx = 1e9, mxx = -1e9, mnz = 1e9, mxz = -1e9;
+      pts.forEach(function (p) { var wx = st.x + p[0] * ca + p[1] * sa, wz = st.z - p[0] * sa + p[1] * ca; if (wx < mnx) mnx = wx; if (wx > mxx) mxx = wx; if (wz < mnz) mnz = wz; if (wz > mxz) mxz = wz; });
+      stairOpenings.push({ floor: Math.max(from, to), x0: mnx, x1: mxx, z0: mnz, z1: mxz });
+    });
+    function holesFor(rm) {
+      var out = [], rf = rm.floor || 0;
+      stairOpenings.forEach(function (op) {
+        if (op.floor !== rf) return;
+        var x0 = Math.max(0.05, op.x0 - rm.x_offset), x1 = Math.min(rm.w - 0.05, op.x1 - rm.x_offset);
+        var z0 = Math.max(0.05, op.z0 - rm.z_offset), z1 = Math.min(rm.d - 0.05, op.z1 - rm.z_offset);
+        if (x1 - x0 > 0.3 && z1 - z0 > 0.3) out.push({ x0: x0, x1: x1, z0: z0, z1: z1 });
+      });
+      return out;
+    }
+    function ceilingHolesFor(rm) {   // a stair coming up FROM this room pierces its ceiling (the floor above)
+      var out = [], af = (rm.floor || 0) + 1;
+      stairOpenings.forEach(function (op) {
+        if (op.floor !== af) return;
+        var x0 = Math.max(0.05, op.x0 - rm.x_offset), x1 = Math.min(rm.w - 0.05, op.x1 - rm.x_offset);
+        var z0 = Math.max(0.05, op.z0 - rm.z_offset), z1 = Math.min(rm.d - 0.05, op.z1 - rm.z_offset);
+        if (x1 - x0 > 0.3 && z1 - z0 > 0.3) out.push({ x0: x0, x1: x1, z0: z0, z1: z1 });
+      });
+      return out;
+    }
+    function addHoles(shape, holes) { holes.forEach(function (hp) { var path = new THREE.Path(); path.moveTo(hp.x0, hp.z0); path.lineTo(hp.x1, hp.z0); path.lineTo(hp.x1, hp.z1); path.lineTo(hp.x0, hp.z1); path.closePath(); shape.holes.push(path); }); return shape; }
+    function shapeWithHoles(outline, holes) { var s = new THREE.Shape(); outline.forEach(function (p, i) { if (i === 0) s.moveTo(p[0], p[1]); else s.lineTo(p[0], p[1]); }); s.closePath(); return new THREE.ShapeGeometry(addHoles(s, holes)); }
     ROOMS.forEach(function (rm, i) {
       var cx = rm.x_offset + rm.w / 2, cz = rm.z_offset + rm.d / 2;
       RH = rm.h || WALL_H;   // this room's wall height (per-room, not building-wide)
@@ -655,6 +696,7 @@
         var shp = new THREE.Shape();
         SHAPE.forEach(function (p, j) { var px = p.x * rm.w, pz = p.z * rm.d; if (j === 0) shp.moveTo(px, pz); else shp.lineTo(px, pz); });
         shp.closePath();
+        addHoles(shp, holesFor(rm));   // #1169 stairwell openings
         var fmatP = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: 0.95, side: THREE.DoubleSide });
         var flP = new THREE.Mesh(new THREE.ShapeGeometry(shp), fmatP);
         flP.rotation.x = Math.PI / 2; flP.position.set(rm.x_offset, 0, rm.z_offset); addToRoom(rm, flP);
@@ -691,9 +733,11 @@
           edgeWall(rm, e, rm.x_offset + pa.x * rm.w, rm.z_offset + pa.z * rm.d, rm.x_offset + pb.x * rm.w, rm.z_offset + pb.z * rm.d, rwMat, ccx, ccz);
         }
       } else {
-        var fmat = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: 0.95 });
-        var fl = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), fmat);
-        fl.rotation.x = -Math.PI / 2; fl.position.set(cx, 0, cz); addToRoom(rm, fl);
+        var fmat = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: 0.95, side: THREE.DoubleSide });
+        var rhStair = holesFor(rm), fl;
+        if (rhStair.length) { fl = new THREE.Mesh(shapeWithHoles([[0, 0], [rm.w, 0], [rm.w, rm.d], [0, rm.d]], rhStair), fmat); fl.rotation.x = Math.PI / 2; fl.position.set(rm.x_offset, 0, rm.z_offset); }
+        else { fl = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), fmat); fl.rotation.x = -Math.PI / 2; fl.position.set(cx, 0, cz); }
+        addToRoom(rm, fl);
         if (rm.floorplan) { loadTex(rm.floorplan, function (tex) { fmat.map = tex; fmat.color.set(0xffffff); fmat.needsUpdate = true; }); }
         if (rm.ceiling) {                               // painted ceiling image
           var cmat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
@@ -724,14 +768,17 @@
       // No ceiling image set: cap the room with a plaster ceiling + a fancy cornice
       // (crown moulding) running around the top of the walls.
       if (!rm.ceiling) {
-        var ceilY = rm.h || WALL_H;
+        var ceilY = rm.h || WALL_H, ceilHoles = ceilingHolesFor(rm);   // #1169 open the ceiling where a stair rises into the room above
         if (SHAPE) {
-          var csh = new THREE.Shape(); SHAPE.forEach(function (p, j) { var px = p.x * rm.w, pz = p.z * rm.d; if (j === 0) csh.moveTo(px, pz); else csh.lineTo(px, pz); }); csh.closePath();
+          var csh = new THREE.Shape(); SHAPE.forEach(function (p, j) { var px = p.x * rm.w, pz = p.z * rm.d; if (j === 0) csh.moveTo(px, pz); else csh.lineTo(px, pz); }); csh.closePath(); addHoles(csh, ceilHoles);
           var dcl = new THREE.Mesh(new THREE.ShapeGeometry(csh), ceilMat); dcl.rotation.x = Math.PI / 2; dcl.position.set(rm.x_offset, ceilY, rm.z_offset); addToRoom(rm, dcl);
           var gcx = 0, gcz = 0; SHAPE.forEach(function (p) { gcx += rm.x_offset + p.x * rm.w; gcz += rm.z_offset + p.z * rm.d; }); gcx /= SHAPE.length; gcz /= SHAPE.length;
           for (var ce = 0; ce < SHAPE.length; ce++) { var ca = SHAPE[ce], cb = SHAPE[(ce + 1) % SHAPE.length]; addCornice(rm, rm.x_offset + ca.x * rm.w, rm.z_offset + ca.z * rm.d, rm.x_offset + cb.x * rm.w, rm.z_offset + cb.z * rm.d, ceilY, gcx, gcz); }
         } else {
-          var dclr = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), ceilMat); dclr.rotation.x = Math.PI / 2; dclr.position.set(cx, ceilY, cz); addToRoom(rm, dclr);
+          var dclr = ceilHoles.length
+            ? new THREE.Mesh(shapeWithHoles([[0, 0], [rm.w, 0], [rm.w, rm.d], [0, rm.d]], ceilHoles), ceilMat)
+            : new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), ceilMat);
+          dclr.rotation.x = Math.PI / 2; dclr.position.set(ceilHoles.length ? rm.x_offset : cx, ceilY, ceilHoles.length ? rm.z_offset : cz); addToRoom(rm, dclr);
           var x0 = rm.x_offset, z0 = rm.z_offset, x1 = rm.x_offset + rm.w, z1 = rm.z_offset + rm.d;
           addCornice(rm, x0, z0, x1, z0, ceilY, cx, cz); addCornice(rm, x1, z0, x1, z1, ceilY, cx, cz);
           addCornice(rm, x1, z1, x0, z1, ceilY, cx, cz); addCornice(rm, x0, z1, x0, z0, ceilY, cx, cz);
