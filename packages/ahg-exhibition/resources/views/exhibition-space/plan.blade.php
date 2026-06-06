@@ -54,6 +54,10 @@
             <select id="roomFloor" class="form-select"></select>
           </div>
           <small class="text-muted d-block mb-2">{{ __('Put this room on a floor. If it is grouped, the whole suite moves with it. Use the Floor dropdown at the top to view one floor at a time.') }}</small>
+          <div class="btn-group btn-group-sm w-100 mb-2">
+            <button type="button" class="btn btn-outline-secondary" id="roomFront" title="{{ __('Bring room to front (draw on top of overlapping rooms)') }}"><i class="fas fa-arrow-up me-1"></i>{{ __('Front') }}</button>
+            <button type="button" class="btn btn-outline-secondary" id="roomBack" title="{{ __('Send room to back') }}"><i class="fas fa-arrow-down me-1"></i>{{ __('Back') }}</button>
+          </div>
           <label class="form-label small mb-1">{{ __('Rotation (degrees)') }}</label>
           <div class="input-group input-group-sm mb-2">
             <button type="button" class="btn btn-outline-secondary" id="rotMinus" title="{{ __('Rotate left 15°') }}"><i class="fas fa-undo"></i></button>
@@ -494,6 +498,28 @@
       selectedG.width(r.w * scale); selectedG.height(r.d * scale);
       drawDoors(selectedG); drawShape(selectedG); layer.draw(); flagSaving(); saveRoom(selectedG);
     });
+    // M + arrows move the selected room (Shift+arrows resizes it); Alt = finer.
+    var mDown = false;
+    document.addEventListener('keydown', function (e) { if (e.key === 'm' || e.key === 'M') mDown = true; });
+    document.addEventListener('keyup', function (e) { if (e.key === 'm' || e.key === 'M') mDown = false; });
+    document.addEventListener('keydown', function (e) {
+      if (!selectedG || !mDown) return;
+      var a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+      var step = e.altKey ? 0.1 : 0.25, r = selectedG.getAttr('room'), ch = false;
+      if (e.key === 'ArrowRight') { r.bld_x += step; ch = true; }
+      else if (e.key === 'ArrowLeft') { r.bld_x = Math.max(0, r.bld_x - step); ch = true; }
+      else if (e.key === 'ArrowDown') { r.bld_y += step; ch = true; }
+      else if (e.key === 'ArrowUp') { r.bld_y = Math.max(0, r.bld_y - step); ch = true; }
+      if (!ch) return;
+      e.preventDefault(); pushUndo([r]);
+      selectedG.x(r.bld_x * scale); selectedG.y(r.bld_y * scale);
+      layer.draw(); flagSaving(); saveRoom(selectedG);
+    });
+    (function () {   // bring the selected room to front / send to back (draw order)
+      var f = document.getElementById('roomFront'), b = document.getElementById('roomBack');
+      if (f) f.addEventListener('click', function () { if (selectedG) { selectedG.moveToTop(); tr.moveToTop(); layer.draw(); } });
+      if (b) b.addEventListener('click', function () { if (selectedG) { selectedG.moveToBottom(); tr.moveToTop(); layer.draw(); } });
+    })();
     (function () {   // #1169 set the selected room's (or its whole group's) floor
       var rf = document.getElementById('roomFloor'); if (!rf) return;
       rf.addEventListener('change', function () {
