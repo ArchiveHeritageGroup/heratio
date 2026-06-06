@@ -93,7 +93,6 @@
             <div class="fw-bold mb-2"><i class="fas fa-gamepad me-1"></i>{{ __('Controls') }}</div>
             <ul class="mb-0 ps-3">
               <li>{{ __('Click gallery to enter') }}</li>
-              <li>{{ __('Move: W A S D or arrow keys') }}</li>
               <li>{{ __('Forward / back: mouse wheel') }}</li>
               <li>{{ __('Stand taller / crouch: hold U + mouse wheel') }}</li>
               <li>{{ __('Virtual reality: tap the VR button (headset required); left stick moves, right stick turns') }}</li>
@@ -687,8 +686,9 @@
       hit.position.set(x, (y0 + y1) / 2, z); hit.userData.action = 'stair';
       hit.userData.top = { x: x, fy: y1, z: z0 - 0.8 }; hit.userData.bot = { x: x, fy: y0, z: z0 + n * depth + 0.8 };
       scene.add(hit); pickables.push(hit);
-      var sUp = makeTextSprite('{{ __('Up') }}', 0.3); sUp.position.set(x, y0 + 1.0, z0 + n * depth + 0.8); scene.add(sUp);
-      var sDn = makeTextSprite('{{ __('Stairs') }}', 0.3); sDn.position.set(x, y1 + 1.0, z0 - 0.8); scene.add(sDn);
+      // Clear "STAIRS" signs at the foot (with up arrow) and at the top landing.
+      var sUp = makeTextSprite('{{ __('STAIRS ↑') }}', 0.42); sUp.position.set(x, y0 + 1.4, z0 + n * depth + 0.8); scene.add(sUp);
+      var sDn = makeTextSprite('{{ __('STAIRS ↓') }}', 0.42); sDn.position.set(x, y1 + 1.4, z0 - 0.8); scene.add(sDn);
     });
 
     // Controls. Desktop = first-person pointer-lock (WASD + mouse). Touch devices
@@ -1484,6 +1484,8 @@
     // #1165 Wall graffiti / annotations.
     var ANNOTATIONS = @json($annotations ?? []);
     var ANNOT_URL = '{{ route('exhibition-space.annotation', ['slug' => $space->slug]) }}';
+    var ANNOT_DEL_URL = '{{ route('exhibition-space.annotation.delete', ['slug' => $space->slug, 'id' => '__ID__']) }}';
+    var graffitiSprites = [];
     function makeGraffitiSprite(text, color) {
       var cv = document.createElement('canvas'), cx = cv.getContext('2d');
       cx.font = 'bold 64px "Comic Sans MS", "Marker Felt", cursive';
@@ -1500,7 +1502,8 @@
     }
     function addGraffiti(a) {
       var sp = makeGraffitiSprite(a.text, a.color); sp.position.set(a.x, a.y, a.z);
-      sp.userData.graffiti = true; scene.add(sp);
+      sp.userData.graffiti = true; sp.userData.graffitiId = a.id || null; scene.add(sp);
+      graffitiSprites.push(sp); return sp;
     }
     (ANNOTATIONS || []).forEach(addGraffiti);   // render existing graffiti
     function placeGraffiti(e) {
@@ -1508,16 +1511,27 @@
       if (orbit) { var r = renderer.domElement.getBoundingClientRect(); ndc = { x: ((e.clientX - r.left) / r.width) * 2 - 1, y: -((e.clientY - r.top) / r.height) * 2 + 1 }; }
       else { if (!controls.isLocked) { setAnnotate(false); return; } ndc = { x: 0, y: 0 }; }
       ray.setFromCamera(ndc, camera);
+      // In graffiti mode, clicking an existing tag deletes it.
+      var gh = ray.intersectObjects(graffitiSprites, false);
+      if (gh.length) {
+        var sp = gh[0].object;
+        if (window.confirm('{{ __('Delete this graffiti?') }}')) {
+          if (sp.userData.graffitiId) { fetch(ANNOT_DEL_URL.replace('__ID__', sp.userData.graffitiId), { method: 'POST', headers: { 'X-CSRF-TOKEN': WT_CSRF, 'Accept': 'application/json' } }).catch(function () {}); }
+          scene.remove(sp); var gi = graffitiSprites.indexOf(sp); if (gi >= 0) graffitiSprites.splice(gi, 1);
+        }
+        setAnnotate(false); return;
+      }
       var hits = ray.intersectObjects(scene.children, true).filter(function (h) { return !(h.object.userData && h.object.userData.graffiti) && h.distance > 0.4; });
-      if (!hits.length) return;
-      var p = hits[0].point, txt = window.prompt('{{ __('Graffiti text:') }}', '');
-      if (!txt) { return; }
+      if (!hits.length) { setAnnotate(false); return; }
+      var p = hits[0].point, txt = window.prompt('{{ __('Graffiti text (leave blank to cancel):') }}', '');
+      if (!txt) { setAnnotate(false); return; }
       var rm = findRoomAtWorld(p.x, p.z, null);
       var a = { x: p.x, y: p.y, z: p.z, text: txt.slice(0, 160), room_id: (rm ? rm.id : null), color: '#e23b3b',
         author: (typeof MY_NAME !== 'undefined' ? MY_NAME : '') };
-      addGraffiti(a);
+      var newSp = addGraffiti(a);
       var body = 'text=' + encodeURIComponent(a.text) + '&x=' + a.x + '&y=' + a.y + '&z=' + a.z + '&room_id=' + (a.room_id || '') + '&color=' + encodeURIComponent(a.color) + '&author=' + encodeURIComponent(a.author) + '&_token=' + encodeURIComponent(WT_CSRF);
-      fetch(ANNOT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': WT_CSRF, 'Accept': 'application/json' }, body: body }).catch(function () {});
+      fetch(ANNOT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': WT_CSRF, 'Accept': 'application/json' }, body: body })
+        .then(function (r) { return r.json(); }).then(function (d) { if (d && d.annotation && d.annotation.id) newSp.userData.graffitiId = d.annotation.id; }).catch(function () {});
       setAnnotate(false);
     }
     function setAnnotate(on) {

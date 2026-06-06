@@ -225,9 +225,11 @@ class ExhibitionSpaceController extends Controller
             'capacityUnits' => ExhibitionSpaceService::CAPACITY_UNITS,
             'walls' => $this->service->getWalls((int) $space->id),
             'doors' => $this->service->getDoors((int) $space->id),
+            'windows' => $this->service->getWindows((int) $space->id),   // #1172 wall-view
             'shape' => $this->service->getShape((int) $space->id),
             'layout' => $layout,
             'guidedTour' => $this->service->getGuidedTour($space),   // authored audio tour stops
+            'tourObjects' => $this->service->buildingTourObjects($space),   // building-wide objects for the tour picker
         ]);
     }
 
@@ -320,6 +322,17 @@ class ExhibitionSpaceController extends Controller
         $saved = $this->service->addAnnotation($space, $request->all());
 
         return response()->json(['ok' => $saved !== null, 'annotation' => $saved]);
+    }
+
+    /** heratio#1165 - delete a graffiti annotation (click-to-delete). */
+    public function annotationDeleteAjax(string $slug, int $id)
+    {
+        $space = $this->service->getBySlug($slug);
+        if ($space) {
+            $this->service->deleteAnnotation($space, $id);
+        }
+
+        return response()->json(['ok' => true]);
     }
 
     /** Save the authored audio guided tour (curator). */

@@ -1275,6 +1275,22 @@ class ExhibitionSpaceService
             })->all();
     }
 
+    /** Building-wide distinct objects (io_id + "title (room)") for the guided-tour picker. */
+    public function buildingTourObjects(object $space): array
+    {
+        $seen = [];
+        $out = [];
+        foreach ($this->buildingPlacementRows($space) as $r) {
+            if (isset($seen[$r['io_id']])) {
+                continue;
+            }
+            $seen[$r['io_id']] = 1;
+            $out[] = ['io_id' => $r['io_id'], 'title' => $r['title'].' ('.$r['room_name'].')'];
+        }
+
+        return $out;
+    }
+
     private function recsColumn(): bool
     {
         static $has = null;
@@ -2033,6 +2049,16 @@ class ExhibitionSpaceService
             'text' => mb_substr($text, 0, 160), 'color' => substr((string) ($in['color'] ?? ''), 0, 9) ?: null,
             'author' => mb_substr(trim((string) ($in['author'] ?? '')), 0, 40) ?: null,
         ];
+    }
+
+    /** heratio#1165 - delete a graffiti annotation (click-to-delete in the walkthrough). */
+    public function deleteAnnotation(object $space, int $id): void
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_annotation')) {
+            return;
+        }
+        $building = $space->building_id ?: $space->slug;
+        DB::table('ahg_exhibition_annotation')->where('building_id', $building)->where('id', $id)->delete();
     }
 
     // ===================================================================

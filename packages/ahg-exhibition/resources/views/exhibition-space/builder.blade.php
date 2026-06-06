@@ -240,8 +240,10 @@
     var FLOORPLAN = @json($space->floorplan_image_path);
     var PLACEMENTS = @json($placements);
     var GUIDED_TOUR = @json($guidedTour ?? []);
+    var TOUR_OBJECTS = @json($tourObjects ?? []);   // building-wide objects for the tour picker
     var WALLS = @json($walls ?? []);
     var DOORS = @json($doors ?? []);
+    var WINDOWS = @json($windows ?? []);   // #1172
     var LAYOUT = @json($layout ?? null);   // sibling-room rects for adjacency doorways (plan mode)
     var SHAPE = @json($shape ?? null);
     var ROOM_W = {{ $space->room_w ?: 18 }}, ROOM_D = {{ $space->room_d ?: 14 }}, ROOM_H = {{ $space->room_h ?: 4 }};
@@ -776,6 +778,15 @@
         wvLayer.add(new Konva.Circle({ x: dx + dwpx - Math.min(7, dwpx * 0.18), y: dy + dhpx / 2, radius: 2.5, fill: dcol, listening: false }));   // handle
         wvLayer.add(new Konva.Text({ x: dx, y: dy - 13, width: dwpx, align: 'center', text: dd.auto ? '{{ __('doorway') }}' : '{{ __('door') }}', fontSize: 9, fill: dcol, listening: false }));
       });
+      // #1172 windows on this wall, at their sill/header height
+      (WINDOWS || []).filter(function (w) { return w.wall === wvWall; }).forEach(function (w) {
+        var wpx = (w.width / L) * ew, wx = wvOX + (w.pos == null ? 0.5 : w.pos) * ew - wpx / 2;
+        var hY = (w.height || 1.3), sY = (w.sill || 0.9);
+        var wy = wvOY + eh - ((sY + hY) / Hm) * eh, wh = (hY / Hm) * eh;
+        wvLayer.add(new Konva.Rect({ x: wx, y: wy, width: wpx, height: wh, fill: '#cfe6f5', stroke: '#3a7ca5', strokeWidth: 2, cornerRadius: 1, listening: false }));   // glass
+        wvLayer.add(new Konva.Line({ points: [wx + wpx / 2, wy, wx + wpx / 2, wy + wh], stroke: '#3a7ca5', strokeWidth: 1, listening: false }));   // mullion
+        wvLayer.add(new Konva.Text({ x: wx, y: wy - 13, width: wpx, align: 'center', text: '{{ __('window') }}', fontSize: 9, fill: '#3a7ca5', listening: false }));
+      });
       var lbl = document.getElementById('wvWall').selectedOptions[0];
       wvLayer.add(new Konva.Text({ x: 8, y: 8, text: (lbl ? lbl.text : '') + ' - ' + L.toFixed(1) + 'm x ' + Hm.toFixed(1) + 'm {{ __('high; drag to position, search to add') }}', fontSize: 11, fill: '#495057', listening: false }));
       var loadingTxt = new Konva.Text({ x: 0, y: wvOY + eh / 2 - 10, width: W, align: 'center', text: '{{ __('Loading wall…') }}', fontSize: 16, fontStyle: 'bold', fill: '#6c757d', listening: false });
@@ -867,8 +878,10 @@
       var TOURS = Array.isArray(GUIDED_TOUR) ? GUIDED_TOUR : [];
       if (!TOURS.length) TOURS.push({ name: 'Tour 1', stops: [] });
       var cur = 0;
-      (PLACEMENTS || []).forEach(function (p) { var o = document.createElement('option'); o.value = p.information_object_id; o.textContent = (p.title || ('#' + p.information_object_id)); sel.appendChild(o); });
-      function titleFor(io) { var p = (PLACEMENTS || []).filter(function (x) { return x.information_object_id == io; })[0]; return p ? p.title : ('#' + io); }
+      // Building-wide objects (every room), so a tour can include objects from anywhere.
+      var POOL = (TOUR_OBJECTS && TOUR_OBJECTS.length) ? TOUR_OBJECTS : (PLACEMENTS || []).map(function (p) { return { io_id: p.information_object_id, title: p.title }; });
+      POOL.forEach(function (p) { var o = document.createElement('option'); o.value = p.io_id; o.textContent = (p.title || ('#' + p.io_id)); sel.appendChild(o); });
+      function titleFor(io) { var p = POOL.filter(function (x) { return x.io_id == io; })[0]; return p ? p.title : ('#' + io); }
       function esc(s) { return (s || '').replace(/[<>&]/g, ''); }
       function renderTourSel() {
         tourSel.innerHTML = '';
@@ -915,7 +928,14 @@
       if (nameInp) nameInp.addEventListener('input', function () { TOURS[cur].name = nameInp.value; var o = tourSel.options[cur]; if (o) o.textContent = nameInp.value || ('Tour ' + (cur + 1)); });
       document.getElementById('gtNewTourBtn').addEventListener('click', function () { TOURS.push({ name: 'Tour ' + (TOURS.length + 1), stops: [] }); cur = TOURS.length - 1; render(); });
       document.getElementById('gtDelTourBtn').addEventListener('click', function () { if (TOURS.length <= 1) { TOURS[0] = { name: 'Tour 1', stops: [] }; } else { TOURS.splice(cur, 1); } cur = 0; render(); });
-      document.getElementById('gtAddBtn').addEventListener('click', function () { var io = +sel.value; if (!io) return; stops().push({ io_id: io, narration: '', dwell: 6 }); render(); });
+      document.getElementById('gtAddBtn').addEventListener('click', function () {
+        var io = +sel.value; if (!io) return;
+        if (stops().some(function (s) { return s.io_id === io; })) { alert('{{ __('That object is already in this tour. Pick another from the list.') }}'); return; }
+        stops().push({ io_id: io, narration: '', dwell: 6 });
+        var used = {}; stops().forEach(function (s) { used[s.io_id] = 1; });   // jump the picker to the next unused object
+        for (var oi = 0; oi < sel.options.length; oi++) { if (!used[+sel.options[oi].value]) { sel.selectedIndex = oi; break; } }
+        render();
+      });
       document.getElementById('gtSaveBtn').addEventListener('click', function () {
         fetch(URLS.guidedTour, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ tours: TOURS }) })
           .then(function (r) { return r.json(); }).then(function () { var m = document.getElementById('gtSaveMsg'); m.textContent = ' {{ __('Saved') }}'; setTimeout(function () { m.textContent = ''; }, 2000); });

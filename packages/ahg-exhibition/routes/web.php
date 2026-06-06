@@ -95,6 +95,7 @@ Route::post('/exhibition-space/{slug}/presence/beat', [ExhibitionSpaceController
 Route::post('/exhibition-space/{slug}/presence/leave', [ExhibitionSpaceController::class, 'presenceLeaveAjax'])->name('exhibition-space.presence.leave');
 // heratio#1165 — wall graffiti / annotations (public, walkthrough)
 Route::post('/exhibition-space/{slug}/annotation', [ExhibitionSpaceController::class, 'annotationAddAjax'])->name('exhibition-space.annotation');
+Route::post('/exhibition-space/{slug}/annotation/{id}/delete', [ExhibitionSpaceController::class, 'annotationDeleteAjax'])->name('exhibition-space.annotation.delete')->whereNumber('id');
 // heratio#1173 — visitor analytics event (public, walkthrough)
 Route::post('/exhibition-space/{slug}/visit-event', [ExhibitionSpaceController::class, 'visitEventAjax'])->name('exhibition-space.visit-event');
 // heratio#1151 — open-standard interoperability exports (public, read-only, CORS *)
