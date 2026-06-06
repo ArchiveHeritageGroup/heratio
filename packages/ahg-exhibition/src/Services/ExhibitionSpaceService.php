@@ -339,7 +339,7 @@ class ExhibitionSpaceService
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
                 'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,
                 'wall_v' => $r->wall_v !== null ? (float) $r->wall_v : null,
-                'spotlight' => (int) ($r->spotlight ?? 0) === 1,   // #1174
+                'spotlight' => (int) ($r->spotlight ?? 0),   // #1174
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),
             ];
         })->all();
@@ -578,12 +578,13 @@ class ExhibitionSpaceService
             ->update(['model_tilt_x' => $tiltX, 'model_tilt_z' => $tiltZ, 'updated_at' => now()]) > 0;
     }
 
-    /** #1174: toggle a per-object spotlight (dim surroundings + light it on approach). */
-    public function updatePlacementSpotlight(int $exhibitionSpaceId, int $placementId, bool $on): bool
+    /** #1174: set a per-object spotlight mode. 0 = off, 1 = light on approach, 2 = always-on (object stays lit). */
+    public function updatePlacementSpotlight(int $exhibitionSpaceId, int $placementId, int $mode): bool
     {
+        $mode = max(0, min(2, $mode));
         return DB::table('ahg_exhibition_placement')
             ->where('id', $placementId)->where('exhibition_space_id', $exhibitionSpaceId)
-            ->update(['spotlight' => $on ? 1 : 0, 'updated_at' => now()]) > 0;
+            ->update(['spotlight' => $mode, 'updated_at' => now()]) > 0;
     }
 
     /** Bring-to-front / send-to-back: set a placement's z-order. */
@@ -2466,7 +2467,7 @@ class ExhibitionSpaceService
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
                 'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,
                 'wall_v' => $r->wall_v !== null ? (float) $r->wall_v : null,
-                'spotlight' => (int) ($r->spotlight ?? 0) === 1,   // #1174 proximity spotlight
+                'spotlight' => (int) ($r->spotlight ?? 0),   // #1174 proximity spotlight
                 'image_url' => $media['image_url'],
                 'doc_url' => $media['doc_url'] ?? null,
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),

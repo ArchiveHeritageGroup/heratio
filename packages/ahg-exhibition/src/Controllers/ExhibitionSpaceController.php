@@ -942,10 +942,18 @@ class ExhibitionSpaceController extends Controller
         if (! $space) {
             return response()->json(['ok' => false], 404);
         }
-        $data = $request->validate(['placement_id' => 'required|integer|min:1', 'on' => 'required|boolean']);
-        $ok = $this->service->updatePlacementSpotlight((int) $space->id, (int) $data['placement_id'], (bool) $data['on']);
+        $data = $request->validate([
+            'placement_id' => 'required|integer|min:1',
+            'mode' => 'nullable|integer|min:0|max:2',
+            'on' => 'nullable|boolean',
+        ]);
+        // mode: 0 off, 1 on-approach, 2 always-on. Fall back to the legacy boolean `on` (true => 1).
+        $mode = array_key_exists('mode', $data) && $data['mode'] !== null
+            ? (int) $data['mode']
+            : (! empty($data['on']) ? 1 : 0);
+        $ok = $this->service->updatePlacementSpotlight((int) $space->id, (int) $data['placement_id'], $mode);
 
-        return response()->json(['ok' => $ok]);
+        return response()->json(['ok' => $ok, 'mode' => $mode]);
     }
 
     /** AJAX: bring-to-front / send-to-back (z-order). */

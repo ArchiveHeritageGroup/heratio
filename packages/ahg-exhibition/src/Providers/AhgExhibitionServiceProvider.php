@@ -44,7 +44,7 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'model_tilt_z' => 'DECIMAL(6,2) NULL',
                     'wall_u' => 'DECIMAL(6,5) NULL',
                     'wall_v' => 'DECIMAL(6,5) NULL',
-                    'spotlight' => 'TINYINT(1) NULL DEFAULT 0',   // #1174: dim surroundings + spotlight this object on approach
+                    'spotlight' => 'TINYINT NULL DEFAULT 0',   // #1174 spotlight mode: 0 off, 1 light on approach, 2 always-on
                 ];
                 foreach ($placementCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_placement', $col)) {

@@ -74,7 +74,7 @@
               <button type="button" class="btn btn-outline-secondary" data-act="bigger" title="{{ __('Bigger') }}"><i class="fas fa-search-plus"></i></button>
             </div>
             <div class="btn-group btn-group-sm w-100 mb-2" role="group">
-              <button type="button" class="btn btn-outline-warning" data-act="spot" id="spotBtn" title="{{ __('Spotlight: dim the room and light this object as visitors approach') }}"><i class="fas fa-lightbulb me-1"></i>{{ __('Spotlight') }}</button>
+              <button type="button" class="btn btn-outline-warning" data-act="spot" id="spotBtn" title="{{ __('Spotlight: click to cycle off / light on approach / always-on. All modes dim the surroundings as you walk closer.') }}"><i class="fas fa-lightbulb me-1"></i>{{ __('Spot off') }}</button>
               <button type="button" class="btn btn-outline-secondary" data-act="front" title="{{ __('Bring to front') }}"><i class="fas fa-arrow-up"></i></button>
               <button type="button" class="btn btn-outline-secondary" data-act="back" title="{{ __('Send to back') }}"><i class="fas fa-arrow-down"></i></button>
             </div>
@@ -439,9 +439,19 @@
       }
       refreshWallOptions();
       document.getElementById('selWall').value = g.getAttr('wallKey') || '';
-      var sb = document.getElementById('spotBtn'); if (sb) { var on = !!g.getAttr('spotlight'); sb.classList.toggle('btn-warning', on); sb.classList.toggle('btn-outline-warning', !on); }
+      setSpotBtn((+g.getAttr('spotlight')) || 0);
       layer.draw();
       if (typeof loadRecs === 'function') loadRecs();   // #1149 filter suggestions to this object
+    }
+    // #1174 spotlight mode button: 0 off, 1 light on approach, 2 always-on (object stays lit).
+    function setSpotBtn(m) {
+      var sb = document.getElementById('spotBtn'); if (!sb) return;
+      m = (+m) || 0;
+      var txt = ['{{ __('Spot off') }}', '{{ __('Spot: approach') }}', '{{ __('Spot: always') }}'][m];
+      sb.classList.toggle('btn-warning', m > 0);
+      sb.classList.toggle('btn-outline-warning', m === 0);
+      sb.innerHTML = '<i class="fas fa-lightbulb me-1"></i>' + txt;
+      sb.title = txt;
     }
     function clearSelect() {
       selected = null; tr.nodes([]);
@@ -467,7 +477,7 @@
       g.setAttr('wallKey', p.wall_or_zone || '');
       g.setAttr('tiltX', (p.tilt_x === null || p.tilt_x === undefined) ? null : p.tilt_x);
       g.setAttr('tiltZ', (p.tilt_z === null || p.tilt_z === undefined) ? null : p.tilt_z);
-      g.setAttr('spotlight', !!p.spotlight);
+      g.setAttr('spotlight', (+p.spotlight) || 0);
       g.setAttr('zOrder', p.z_order || 0);
 
       var rect = new Konva.Rect({
@@ -603,10 +613,10 @@
         if (a === 'smaller') { var s = Math.max(0.3, selected.scaleX() - 0.1); selected.scale({ x: s, y: s }); }
         if (a === 'bigger') { var s2 = Math.min(4, selected.scaleX() + 0.1); selected.scale({ x: s2, y: s2 }); }
         var hdrs = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' };
-        if (a === 'spot') {   // #1174 toggle the proximity spotlight
-          var on = !selected.getAttr('spotlight'); selected.setAttr('spotlight', on);
-          var sb = document.getElementById('spotBtn'); sb.classList.toggle('btn-warning', on); sb.classList.toggle('btn-outline-warning', !on);
-          fetch(URLS.spotlight, { method: 'POST', headers: hdrs, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), on: on }) });
+        if (a === 'spot') {   // #1174 cycle spotlight mode: off -> on approach -> always-on
+          var cur = (+selected.getAttr('spotlight')) || 0, m = (cur + 1) % 3;
+          selected.setAttr('spotlight', m); setSpotBtn(m);
+          fetch(URLS.spotlight, { method: 'POST', headers: hdrs, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), mode: m }) });
           return;
         }
         if (a === 'front' || a === 'back') {   // bring-to-front / send-to-back
@@ -914,7 +924,7 @@
         b.disabled = true; b.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Generating…') }}';
         fetch(URLS.genRec, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: '{}' })
           .then(function (r) { return r.json(); })
-          .then(function (d) { b.disabled = false; b.innerHTML = '<i class="fas fa-check me-1"></i>' + (d.ok ? ('{{ __('AI recs') }}: ' + (d.updated || 0)) : '{{ __('Failed') }}'); loadRecs(); })
+          .then(function (d) { b.disabled = false; b.innerHTML = '<i class="fas fa-check me-1"></i>' + (d.ok ? (d.updated ? ('{{ __('AI recs') }}: +' + d.updated) : '{{ __('AI recs ready') }}') : '{{ __('Failed') }}'); loadRecs(); })
           .catch(function () { b.disabled = false; b.innerHTML = '<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI recommendations') }}'; });
       });
     })();
@@ -933,7 +943,7 @@
       fetch(URLS.recommend + (io ? ('?io=' + io) : ''), { headers: { 'Accept': 'application/json' } })
         .then(function (r) { return r.json(); }).then(function (d) {
           var items = (d && d.items) || [];
-          if (hdr) hdr.textContent = io ? '{{ __('Suggestions for selection') }}' : ('{{ __('AI suggestions') }} (' + items.length + ')');
+          if (hdr) hdr.textContent = (io ? '{{ __('Suggestions for selection') }}' : '{{ __('AI suggestions') }}') + ' (' + items.length + ')';
           if (!items.length) { el.innerHTML = '<div class="text-muted">' + (io ? '{{ __('No suggestions for this object.') }}' : '{{ __('No suggestions yet — run AI recommendations.') }}') + '</div>'; return; }
           el.innerHTML = '';
           items.forEach(function (it) {

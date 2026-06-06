@@ -489,19 +489,34 @@
       }
       function lintel(s, e) { var len = e - s; var mid = (s + e) / 2; if (vertical) wallSegH(len, fixed, mid, ry, mat, doorH, RH); else wallSegH(len, mid, fixed, ry, mat, doorH, RH); }
       function slab(s, e) { var len = e - s; var mid = (s + e) / 2; return vertical ? wallSegH(len, fixed, mid, ry, doorMat, 0, doorH) : wallSegH(len, mid, fixed, ry, doorMat, 0, doorH); }   // solid door fills the opening
+      // Where does a staircase pass through THIS wall? Render that slice as see-through glass
+      // (glass isn't a collider) so the stairs are visible and walk-through instead of hitting a wall.
+      var stairGaps = [];
+      stairOpenings.forEach(function (op) {
+        if ((rm.floor || 0) !== (op.fromF || 0) && (rm.floor || 0) !== (op.toF || 0)) return;
+        var s, e;
+        if (vertical) { if (edge < op.x0 - 0.4 || edge > op.x1 + 0.4) return; s = Math.max(a, op.z0); e = Math.min(b, op.z1); }
+        else { if (edge < op.z0 - 0.4 || edge > op.z1 + 0.4) return; s = Math.max(a, op.x0); e = Math.min(b, op.x1); }
+        if (e - s > 0.3) stairGaps.push([s - 0.3, e + 0.3]);
+      });
+      var openings = doors.map(function (d) { return { s: d[0], e: d[1], stair: false }; })
+        .concat(stairGaps.map(function (g) { return { s: g[0], e: g[1], stair: true }; }))
+        .sort(function (p, q) { return p.s - q.s; });
       var cur = a;
-      doors.forEach(function (dd) {
-        if (dd[0] > cur) full(cur, dd[0]);
-        lintel(dd[0], dd[1]);
-        var mid = (dd[0] + dd[1]) / 2;
+      openings.forEach(function (op) {
+        if (op.e <= cur) return;
+        if (op.s > cur) full(cur, op.s);
+        if (op.stair) { wGlass(op.s, op.e, 0, RH); cur = Math.max(cur, op.e); return; }   // see-through, walk-through stair slice
+        lintel(op.s, op.e);
+        var mid = (op.s + op.e) / 2;
         // Which room does this opening lead to?
         var ox = vertical ? (edge - insetDir * 0.5) : mid, oz = vertical ? mid : (edge - insetDir * 0.5);
         var ow = roomWorld(rm, ox, oz), dest = findRoomAtWorld(ow.x, ow.z, rm, rm.floor || 0);   // door leads to a room on the SAME floor
         var isFront = (dest && dest.is_outdoor) || rm.is_outdoor;   // outdoor<->indoor = the front door
         if (isFront) {
-          makeFrontDoor(rm, dd[0], dd[1], fixed, vertical, ry, doorH, dest);   // swinging double doors
+          makeFrontDoor(rm, op.s, op.e, fixed, vertical, ry, doorH, dest);   // swinging double doors
         } else {
-          var sm = slab(dd[0], dd[1]);
+          var sm = slab(op.s, op.e);
           var dlx = vertical ? (fixed + insetDir * 0.14) : mid, dlz = vertical ? mid : (fixed + insetDir * 0.14);
           var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(dlx, doorH * 0.5, dlz); addToRoom(rm, dnm);
           if (sm && dest) { sm.userData.action = 'door'; sm.userData.doorDest = dest; pickables.push(sm); }   // click the door to jump into that room
@@ -511,7 +526,7 @@
           var lab = makeTextSprite((isFront ? '⌂ ' : '→ ') + dest.name, 0.3);
           lab.position.set(ix, doorH + 0.35, iz); addToRoom(rm, lab);
         }
-        cur = dd[1];
+        cur = Math.max(cur, op.e);
       });
       if (cur < b) full(cur, b);
     }
@@ -884,13 +899,14 @@
       scene.updateMatrixWorld(true);
       pickables.forEach(function (o) {
         if (o.userData._spotDone) return;
-        var s = o.userData && o.userData.stop; if (!s || !s.spotlight) return;
+        var s = o.userData && o.userData.stop; if (!s || !s.spotlight) return;   // 0 off, 1 on-approach, 2 always-on
         o.userData._spotDone = true;
         var wp = new THREE.Vector3(); o.getWorldPosition(wp);
-        var sp = new THREE.SpotLight(0xfff2d0, 0, 14, Math.PI / 7, 0.5, 1.2);
+        var mode = (+s.spotlight) || 1;
+        var sp = new THREE.SpotLight(0xfff2d0, mode === 2 ? 1.6 : 0, 14, Math.PI / 7, 0.5, 1.2);
         sp.position.set(wp.x, wp.y + 3.2, wp.z + 0.01);
         var tgt = new THREE.Object3D(); tgt.position.copy(wp); scene.add(tgt); sp.target = tgt;
-        scene.add(sp); spotObjects.push({ x: wp.x, y: wp.y, z: wp.z, light: sp });
+        scene.add(sp); spotObjects.push({ x: wp.x, y: wp.y, z: wp.z, light: sp, mode: mode });
       });
     }
     buildSpots(); setTimeout(buildSpots, 1500); setTimeout(buildSpots, 4000);   // re-scan as async images finish loading
@@ -1624,7 +1640,7 @@
         var scp = controls.getObject().position, near = 1e9, act = null;
         for (var si = 0; si < spotObjects.length; si++) { var so = spotObjects[si], dd = Math.hypot(scp.x - so.x, scp.z - so.z) + Math.abs(scp.y - so.y) * 0.5; if (dd < near) { near = dd; act = so; } }
         var prox = Math.max(0, Math.min(1, (6.5 - near) / 6.5));
-        for (var sj = 0; sj < spotObjects.length; sj++) { var s2 = spotObjects[sj]; s2.light.intensity += (((s2 === act) ? prox * 2.6 : 0) - s2.light.intensity) * Math.min(1, dt * 5); }
+        for (var sj = 0; sj < spotObjects.length; sj++) { var s2 = spotObjects[sj]; var base = s2.mode === 2 ? 1.6 : 0; var tgt = base + ((s2 === act) ? prox * 2.6 : 0); s2.light.intensity += (tgt - s2.light.intensity) * Math.min(1, dt * 5); }
         hemiLight.intensity += ((hemiBase - prox * hemiBase * 0.78) - hemiLight.intensity) * Math.min(1, dt * 5);
       }
       if (typeof applyZoom === 'function') applyZoom(dt);   // #1163 smooth zoom
