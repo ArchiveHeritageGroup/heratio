@@ -75,6 +75,23 @@
           <div id="doorList" class="small"></div>
         </div>
       </div>
+      <div class="card mb-3" id="winCard" style="display:none;">
+        <div class="card-header py-2"><strong><i class="fas fa-window-maximize me-1"></i>{{ __('Windows') }}</strong> <span class="small text-muted" id="winRoomName"></span></div>
+        <div class="card-body p-2">
+          <p class="small text-muted mb-2">{{ __('Add windows to a wall - they show as glass openings in the 3D walkthrough, inside and out. (Rectangular rooms.)') }}</p>
+          <div class="input-group input-group-sm mb-2">
+            <select id="winWall" class="form-select"><option value="north">{{ __('Top') }}</option><option value="south">{{ __('Bottom') }}</option><option value="west">{{ __('Left') }}</option><option value="east">{{ __('Right') }}</option></select>
+            <button type="button" id="winAdd" class="btn btn-outline-primary"><i class="fas fa-plus me-1"></i>{{ __('Add') }}</button>
+          </div>
+          <div class="row g-1 mb-2">
+            <div class="col"><label class="small text-muted d-block">{{ __('Pos') }}<input id="winPos" type="number" step="0.05" min="0" max="1" value="0.5" class="form-control form-control-sm"></label></div>
+            <div class="col"><label class="small text-muted d-block">{{ __('Width') }}<input id="winW" type="number" step="0.1" min="0.4" max="6" value="1.6" class="form-control form-control-sm"></label></div>
+            <div class="col"><label class="small text-muted d-block">{{ __('Sill') }}<input id="winSill" type="number" step="0.1" min="0.2" max="2" value="0.9" class="form-control form-control-sm"></label></div>
+            <div class="col"><label class="small text-muted d-block">{{ __('Ht') }}<input id="winH" type="number" step="0.1" min="0.4" max="3" value="1.3" class="form-control form-control-sm"></label></div>
+          </div>
+          <div id="winList" class="small"></div>
+        </div>
+      </div>
       <div class="card" id="corridorCard">
         <div class="card-header py-2"><strong><i class="fas fa-shoe-prints me-1"></i>{{ __('Corridor objects') }}</strong></div>
         <div class="card-body p-2">
@@ -104,6 +121,7 @@
     var CSRF = '{{ csrf_token() }}';
     var SAVE_URL = '{{ route('exhibition-space.plan.save', ['slug' => $space->slug]) }}';
     var DOORS_URL = '{{ route('exhibition-space.plan.doors', ['slug' => $space->slug]) }}';
+    var WINDOWS_URL = '{{ route('exhibition-space.plan.windows', ['slug' => $space->slug]) }}';   // #1172
     var SHAPE_URL = '{{ route('exhibition-space.plan.shape', ['slug' => $space->slug]) }}';
     var ADD_ROOM_URL = '{{ route('exhibition-space.plan.add-room', ['slug' => $space->slug]) }}';
     var IMG_RECT_URL = '{{ route('exhibition-space.plan.image-rect', ['slug' => $space->slug]) }}';
@@ -319,6 +337,40 @@
       r.doors.push({ wall: wall, pos: 0.5, width: 1.6 });
       drawDoors(selectedG); saveDoors(selectedG); refreshDoorList(selectedG);
     }
+    // ---- Windows (#1172) ----
+    var WIN_LBL = { north: '{{ __('Top') }}', south: '{{ __('Bottom') }}', west: '{{ __('Left') }}', east: '{{ __('Right') }}' };
+    function saveWindows(g) {
+      var r = g.getAttr('room'); flagSaving();
+      fetch(WINDOWS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+        body: JSON.stringify({ room_id: r.id, windows: r.windows || [] }) })
+        .then(function (res) { return res.json(); }).then(function () { document.getElementById('planSave').textContent = '{{ __('All changes saved') }}'; });
+    }
+    function drawWinList(g) {
+      var el = document.getElementById('winList'); if (!el) return;
+      var r = g.getAttr('room');
+      if (!r.windows || !r.windows.length) { el.innerHTML = '<span class="text-muted">{{ __('No windows yet.') }}</span>'; return; }
+      el.innerHTML = '';
+      r.windows.forEach(function (w, idx) {
+        var row = document.createElement('div'); row.className = 'd-flex align-items-center gap-1 mb-1';
+        row.innerHTML = '<span class="badge bg-info text-dark">' + (WIN_LBL[w.wall] || w.wall) + '</span>' +
+          '<span class="small text-muted">pos ' + (+w.pos).toFixed(2) + ' · ' + (+w.width).toFixed(1) + 'm</span>' +
+          '<button class="btn btn-sm btn-outline-danger ms-auto" type="button" title="{{ __('Remove') }}">&times;</button>';
+        row.querySelector('button').addEventListener('click', function () { r.windows.splice(idx, 1); saveWindows(g); drawWinList(g); });
+        el.appendChild(row);
+      });
+    }
+    function addWindow() {
+      if (!selectedG) return;
+      var r = selectedG.getAttr('room'); if (!r.windows) r.windows = [];
+      r.windows.push({
+        wall: document.getElementById('winWall').value,
+        pos: Math.max(0, Math.min(1, parseFloat(document.getElementById('winPos').value) || 0.5)),
+        width: Math.max(0.4, Math.min(6, parseFloat(document.getElementById('winW').value) || 1.6)),
+        sill: Math.max(0.2, Math.min(2, parseFloat(document.getElementById('winSill').value) || 0.9)),
+        height: Math.max(0.4, Math.min(3, parseFloat(document.getElementById('winH').value) || 1.3)),
+      });
+      saveWindows(selectedG); drawWinList(selectedG);
+    }
     // Toggle door controls: rectangle named walls vs one button per polygon edge.
     function updateDoorControls(g) {
       var r = g.getAttr('room'), hasShape = r.shape && r.shape.length >= 3;
@@ -342,6 +394,8 @@
       var nm = g.getAttr('room').name;
       var c = document.getElementById('doorCard');
       if (c) { c.style.display = 'block'; document.getElementById('doorRoomName').textContent = nm; refreshDoorList(g); updateDoorControls(g); }
+      var wc = document.getElementById('winCard');   // #1172
+      if (wc) { wc.style.display = 'block'; document.getElementById('winRoomName').textContent = nm; drawWinList(g); }
       var rc = document.getElementById('roomCard');
       if (rc) {
         rc.style.display = 'block'; document.getElementById('roomCardName').textContent = nm; document.getElementById('rotInput').value = Math.round(g.rotation());
@@ -353,10 +407,12 @@
       if (shapeMode && shapeG) { var prev = shapeG; shapeMode = false; shapeG = null; drawShape(prev); setShapeBtn(false); }
       selectedG = null; tr.nodes([]);
       var c = document.getElementById('doorCard'); if (c) c.style.display = 'none';
+      var wc = document.getElementById('winCard'); if (wc) wc.style.display = 'none';
       var rc = document.getElementById('roomCard'); if (rc) rc.style.display = 'none';
       layer.draw();
     }
     document.querySelectorAll('#doorCard [data-door]').forEach(function (b) { b.addEventListener('click', function () { addDoor(b.getAttribute('data-door')); }); });
+    (function () { var wb = document.getElementById('winAdd'); if (wb) wb.addEventListener('click', addWindow); })();   // #1172
     // Rotation controls (rotate about the room's top-left, matching the walkthrough).
     function applyRot(deg) {
       if (!selectedG) return;

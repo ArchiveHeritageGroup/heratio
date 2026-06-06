@@ -77,3 +77,14 @@ playwright-report/
 
 # NLSA tender reference PDFs - keep in docs/ for reference, never commit (large binaries)
 docs/READVERTISEMENT*.pdf
+
+# Demo/source content photos - seed material only; the app serves from uploads/ + DAM
+# at runtime, so these large binaries must never be committed (#triage 2026-06-05).
+/docs/images/ai/
+/docs/images/cars/
+/docs/images/museum/
+/docs/images/naval/
+/docs/images/peace/
+/docs/images/war/
+/docs/images/Dr. Benson/
+/UNILISA Calll for papers.jpg

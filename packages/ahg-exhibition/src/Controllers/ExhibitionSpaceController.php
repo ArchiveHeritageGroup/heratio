@@ -227,6 +227,7 @@ class ExhibitionSpaceController extends Controller
             'doors' => $this->service->getDoors((int) $space->id),
             'shape' => $this->service->getShape((int) $space->id),
             'layout' => $layout,
+            'guidedTour' => $this->service->getGuidedTour($space),   // authored audio tour stops
         ]);
     }
 
@@ -297,12 +298,117 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => true, 'items' => $this->service->recommendations($space, $io)]);
     }
 
-    /** Public: AI-describe an object that has no metadata (walkthrough "T = talk" docent). */
-    public function describeObjectAjax(int $ioId)
+    /** Public: AI-describe an object (walkthrough "T = talk" docent). ?fresh=1 forces a
+     *  brand-new AI description even when one is cached (heratio#1167). */
+    public function describeObjectAjax(Request $request, int $ioId)
     {
+        if ($request->boolean('fresh')) {
+            \Illuminate\Support\Facades\Cache::forget('exh_ai_desc_'.$ioId);
+        }
         $desc = $this->service->aiDescribeObject($ioId);
 
         return response()->json(['ok' => $desc !== null, 'description' => $desc]);
+    }
+
+    /** heratio#1165 - add a wall graffiti annotation (public, walkthrough). */
+    public function annotationAddAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $saved = $this->service->addAnnotation($space, $request->all());
+
+        return response()->json(['ok' => $saved !== null, 'annotation' => $saved]);
+    }
+
+    /** Save the authored audio guided tour (curator). */
+    public function saveGuidedTourAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $this->service->saveGuidedTour($space, $request->input('tours', []));
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** heratio#1150 - multi-user presence heartbeat: upsert my pose, return live peers + tour state. */
+    public function presenceBeatAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        // Only authenticated staff may act as a docent / drive the guided tour.
+        $isDocent = auth()->check();
+        $state = $this->service->presenceBeat($space, $request->all(), $isDocent);
+
+        return response()->json(['ok' => true, 'can_docent' => $isDocent] + $state);
+    }
+
+    /** heratio#1150 - drop my presence row when I leave the walkthrough (sendBeacon). */
+    public function presenceLeaveAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if ($space) {
+            $this->service->presenceLeave($space, (string) $request->input('token', ''));
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    /** heratio#1173 - log a visitor event (object view etc) from the walkthrough. */
+    public function visitEventAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if ($space) {
+            $this->service->recordVisitEvent(
+                $space,
+                (string) $request->input('token', ''),
+                (string) $request->input('type', 'object'),
+                $request->input('room_id') !== null ? (int) $request->input('room_id') : null,
+                $request->input('object_id') !== null ? (int) $request->input('object_id') : null,
+            );
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    // ---- heratio#1151 interoperability: open-standard exports (public, read-only) ----
+
+    /** IIIF Presentation 3.0 manifest for the exhibition. */
+    public function iiifManifest(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        return response()->json($this->service->iiifManifest($space), 200, ['Access-Control-Allow-Origin' => '*'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    /** Open 3D scene manifest (rooms + placements + media URLs) for any 3D viewer. */
+    public function sceneExport(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        return response()->json($this->service->sceneManifest($space), 200, ['Access-Control-Allow-Origin' => '*'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    /** schema.org ExhibitionEvent JSON-LD for linked-data discovery. */
+    public function exhibitionJsonLd(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        return response()->json($this->service->exhibitionJsonLd($space), 200, ['Content-Type' => 'application/ld+json', 'Access-Control-Allow-Origin' => '*'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     /** Admin: precompute AI recommendations across the building via the AI gateway. */
@@ -329,6 +435,7 @@ class ExhibitionSpaceController extends Controller
             'space' => $space,
             'days' => $days,
             'data' => $this->service->buildingAnalytics($space, $days),
+            'visitors' => $this->service->visitorAnalytics($space, $days),   // #1173
         ]);
     }
 
@@ -485,6 +592,26 @@ class ExhibitionSpaceController extends Controller
         $this->service->saveDoors((int) $room->id, $data['doors']);
 
         return response()->json(['ok' => true, 'doors' => $this->service->getDoors((int) $room->id)]);
+    }
+
+    /** heratio#1172 - save a room's windows from the plan editor. */
+    public function saveWindowsAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'room_id' => 'required|integer|min:1',
+            'windows' => 'present|array',
+        ]);
+        $room = $this->service->getById((int) $data['room_id']);
+        if (! $room || (($room->building_id ?? null) !== ($space->building_id ?? null) && (int) $room->id !== (int) $space->id)) {
+            return response()->json(['ok' => false], 403);
+        }
+        $this->service->saveWindows((int) $room->id, $data['windows']);
+
+        return response()->json(['ok' => true, 'windows' => $this->service->getWindows((int) $room->id)]);
     }
 
     /** Upload a building plan / blueprint image (background for the plan editor). */
@@ -854,6 +981,9 @@ class ExhibitionSpaceController extends Controller
             'walls' => $this->service->getWalls((int) $space->id),
             'building' => $building,
             'hasContent' => $hasContent,
+            'canDocent' => auth()->check(),   // #1150 - logged-in staff can run a guided tour
+            'annotations' => $this->service->listAnnotations($space),   // #1165 - wall graffiti
+            'guidedTour' => $this->service->getGuidedTour($space),      // authored audio tour
         ]);
     }
 

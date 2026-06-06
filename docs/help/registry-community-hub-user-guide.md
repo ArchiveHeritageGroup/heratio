@@ -1317,7 +1317,7 @@ A remote instance sends its details to register with the Registry.
   "success": true,
   "institution_id": 42,
   "instance_id": 67,
-  "sync_token": "a1b2c3d4e5f6..."
+  "sync_token": "<your-sync-token>"
 }
 ```
 
@@ -1341,7 +1341,7 @@ Or include the token in the request body:
 
 ```json
 {
-  "sync_token": "a1b2c3d4e5f6...",
+  "sync_token": "<your-sync-token>",
   "software_version": "2.8.2",
   "record_count": 46000,
   "digital_object_count": 12500,

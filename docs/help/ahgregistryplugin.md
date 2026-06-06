@@ -1477,7 +1477,7 @@ Response 200:
     "success": true,
     "institution_id": 42,
     "instance_id": 15,
-    "sync_token": "a3f8c2d1e4b5..." (64-char SHA-256)
+    "sync_token": "<your-64-char-sync-token>" (64-char SHA-256)
 }
 ```
 
@@ -1487,7 +1487,7 @@ The response `sync_token` must be stored by the remote instance and included in 
 
 ```
 POST /registry/api/sync/heartbeat
-X-Sync-Token: a3f8c2d1e4b5...
+X-Sync-Token: <your-64-char-sync-token>
 Content-Type: application/json
 
 {
@@ -1524,7 +1524,7 @@ Sync tokens are:
 
 ```
 POST /registry/api/sync/update
-X-Sync-Token: a3f8c2d1e4b5...
+X-Sync-Token: <your-64-char-sync-token>
 Content-Type: application/json
 
 {

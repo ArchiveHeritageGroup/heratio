@@ -50,21 +50,32 @@ enabling **monitoring, simulation and prediction**.
 3. **Twin analytics dashboard.** [DONE #1148] Per-room time-series (lux/temp/humidity/visitors) bucketed hour/day, Chart.js dashboard, period selector, summary stats - feeds continuous improvement (thesis Objective 6).
 4. **AI recommendation in-twin.** [DONE #1149] "You might also like" object suggestions via title-token similarity + optional gateway-LLM reasons (LlmService); in-walkthrough chips fly the visitor to the suggested object.
 
-### Outstanding (still open) - reach, social and immersion
-5. **Multi-user presence.** [#1150] Shared walkthrough sessions, a live curator/docent avatar, synchronous guided tours (WebSocket / WebRTC). Highest conceptual gap: a metaversity is inherently multi-user/social.
-6. **Immersive XR.** [#1152] WebXR so the existing Three.js scene works in VR/AR headsets (thesis "fully immersive, multi-sensory").
-7. **Interoperate / federate.** [#1151] Expose spaces and 3D via standards (IIIF 3D / glTF, linked data, OAI) and share across institutions/consortia (ties into F3 federation; thesis Functionalities 5.2 + Content Management 7.5).
-8. **Encryption / cyber hardening.** Data anonymisation, access limits, encryption-at-rest for the twin (thesis Objective 5 + STEEP 6.4.2.3). No issue filed yet.
-9. **Engineering scale (beyond the thesis).** WebGPU renderer [#1153] and server-GPU pixel-streaming [#1154] for heavy scenes ("massive server infrastructure" the thesis flags as a precondition).
-10. **Blockchain trust layer.** Listed in the thesis (Table 7.1 6.4) but deliberately not adopted; Heratio instead uses AI-inference provenance (ADR-0002). Flagged for discussion, not committed.
+5. **Multi-user presence + live docent.** [DONE #1150] Shared walkthrough via HTTP polling: named avatars updated ~2-3x/sec, People panel; logged-in staff run a guided tour (start/stop, follow-the-docent camera tether, auto-spotlight on object open, message banner). No websocket - polling only; voice deferred.
+6. **Immersive XR.** [DONE #1152] WebXR VR button (shown only when supported), room-scale head tracking, left-stick move / right-stick turn; `setAnimationLoop` drives desktop + headset.
+7. **Audio docent (AI).** [DONE] Hold T + click an object to hear its description read aloud (browser speech); metadata-less objects get an on-the-fly AI description via the gateway (cached).
+8. **Interoperability exports.** [DONE #1151] Public, CORS, open-standard exports: IIIF Presentation 3.0 manifest, open 3D scene JSON, schema.org `ExhibitionEvent` JSON-LD, plus an iframe embed snippet. (Publish-in-standards; *live* cross-institution F3 federation is the follow-up.)
+9. **Authored audio guided tours.** [DONE] Curator-built multi-tour routes (object + narration + dwell; AI-draftable) stored per space; visitor Play flies stop-to-stop and the guide speaks each script; pause/stop, tour picker, **mobile big-Play quick-launch**. Browser TTS with a **voice selector**; natural neural TTS via the gateway tracked in #1168.
+10. **Walkthrough UX batch.** [DONE #1163 zoom (Z), #1164 torch (F), #1165 wall graffiti, #1166 right-click help, #1167 force-AI describe (G)]; plus default ceilings + cornices, click-a-door-to-enter, two-sided interior walls, crouch/stand. Large-texture (ceiling) fix via CanvasTexture.
+
+### Outstanding (still open) - infrastructure / migration
+- **Live F3 federation.** [#1155] Consume the #1151 exports across institutions via the (locked) F3 layer. The remaining half of "federate."
+- **Natural neural narration voice.** [#1168] TTS engine (e.g. Piper) behind the gateway + a `/ai/v1/tts` route + Heratio proxy + client playback; falls back to browser voice. Today narration uses browser `speechSynthesis`.
+- **Photoreal scan import.** [#1156] glTF / point-cloud / Matterport room backdrops - the one capability the proprietary tools (Matterport, Weiss) have that Heratio lacks.
+- **Landing-page promotion.** [#1157] Feature exhibitions with "Enter in 3D" on the home page (locked landing view).
+- **Encryption / cyber hardening.** Data anonymisation, access limits, encryption-at-rest for the twin (thesis Objective 5 + STEEP 6.4.2.3). No issue filed yet.
+- **Engineering scale (beyond the thesis).** WebGPU renderer [#1153] (needs a three.js r128 -> r16x ESM migration) and server-GPU pixel-streaming [#1154] for heavy scenes. Both are deliberate migrations, not patches.
+- **Live docent voice.** WebRTC push-to-talk for the live docent (Phase 3 of #1150) + a Reverb websocket upgrade if polling load grows.
+- **Blockchain trust layer.** Listed in the thesis (Table 7.1 6.4) but deliberately not adopted; Heratio instead uses AI-inference provenance (ADR-0002). Flagged for discussion, not committed.
 
 ## Current digital-twin capabilities (baseline, as built)
 Exhibition Space digital twin (`packages/ahg-exhibition/`): drag-and-drop builder; first-person 3D walkthrough (multi-room buildings, building plan editor, polygon room footprints, manual + auto doorways with destination labels, per-room ceilings/wall paintings/floorplans/heights/rotation, corridor objects, building minimap, mobile controls); objects rendered as 3D models / images / PDFs linked to their archival records.
 
 ## Positioning note
-Reframe as a "Collection / Exhibition Digital Twin," not an "information hub." Roadmap
-items 1 and 2 (live data + simulation) are the genuinely missing pieces that justify the
-"digital twin" name; items 3-7 deepen reach and collaboration.
+Reframe as a "Collection / Exhibition Digital Twin," not an "information hub." The live
+data link + simulation were the pieces that justify the "digital twin" name (now shipped);
+multi-user, XR and interoperability deepen reach and collaboration (also shipped). What
+remains is infrastructure: live F3 federation, encryption hardening, WebGPU/pixel-streaming
+and tour voice.
 
 Source: Wessels, L. (2025). *Digital Twin Information Hub: Possibilities for the Future of
 Information Sharing in Metaversities.* DPhil Information Science, University of South Africa.

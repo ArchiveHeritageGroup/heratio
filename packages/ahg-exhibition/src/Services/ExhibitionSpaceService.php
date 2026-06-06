@@ -727,6 +727,41 @@ class ExhibitionSpaceService
         return is_array($doors) ? array_values($this->sanitizeDoors($doors)) : [];
     }
 
+    /** heratio#1172 - windows on a room's walls: [{wall,pos,width,sill,height}]. */
+    public function getWindows(int $exhibitionSpaceId): array
+    {
+        $space = $this->getById($exhibitionSpaceId);
+        if (! $space || empty($space->windows_json)) {
+            return [];
+        }
+        $w = json_decode((string) $space->windows_json, true);
+        if (!is_array($w)) {
+            return [];
+        }
+        $out = [];
+        foreach ($w as $x) {
+            if (empty($x['wall'])) {
+                continue;
+            }
+            $out[] = [
+                'wall' => (string) $x['wall'],
+                'pos' => isset($x['pos']) ? max(0.0, min(1.0, (float) $x['pos'])) : 0.5,
+                'width' => isset($x['width']) ? max(0.4, min(6.0, (float) $x['width'])) : 1.4,
+                'sill' => isset($x['sill']) ? max(0.2, min(2.0, (float) $x['sill'])) : 0.9,
+                'height' => isset($x['height']) ? max(0.4, min(3.0, (float) $x['height'])) : 1.3,
+            ];
+        }
+
+        return $out;
+    }
+
+    /** Persist a room's windows. */
+    public function saveWindows(int $exhibitionSpaceId, array $windows): void
+    {
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
+            ->update(['windows_json' => json_encode($windows), 'updated_at' => now()]);
+    }
+
     /** Persist a room's doors (sanitised). */
     public function saveDoors(int $exhibitionSpaceId, array $doors): void
     {
@@ -875,8 +910,11 @@ class ExhibitionSpaceService
                 'stops' => $this->getWalkthroughStops((int) $r->id),
                 'walls' => $this->getWalls((int) $r->id),
                 'doors' => $this->getDoors((int) $r->id),
+                'windows' => $this->getWindows((int) $r->id),   // #1172
                 'shape' => $this->getShape((int) $r->id),
                 'live' => $this->liveState($r),
+                'floor' => (int) ($r->floor_level ?? 0),           // heratio#1169 building level (numeric; from floor_level)
+                'is_outdoor' => (int) ($r->is_outdoor ?? 0) === 1, // heratio#1170 open-air space
             ];
             $minX = $minX === null ? $x : min($minX, $x);
             $maxX = $maxX === null ? $x + $dim['w'] : max($maxX, $x + $dim['w']);
@@ -885,11 +923,21 @@ class ExhibitionSpaceService
             $maxH = max($maxH, $dim['h']);
         }
 
+        $hasOutdoor = false;
+        foreach ($out as $rm) {
+            if (!empty($rm['is_outdoor'])) { $hasOutdoor = true; break; }
+        }
+        $stairs = $space->stairs_json ?? null;
+        if (is_string($stairs)) { $stairs = json_decode($stairs, true); }
+
         return [
             'rooms' => $out, 'plan_mode' => $planMode,
             'corridor' => $this->getBuildingCorridorObjects($space),
             'min_x' => $minX ?? 0, 'max_x' => $maxX ?? 0, 'min_z' => $minZ ?? 0, 'max_z' => $maxZ ?? 0,
             'total_w' => ($maxX ?? 0) - ($minX ?? 0), 'max_d' => ($maxZ ?? 0) - ($minZ ?? 0), 'max_h' => $maxH,
+            'floor_height' => 4.5,                              // heratio#1169 metres between floors
+            'has_outdoor' => $hasOutdoor,                       // heratio#1170 sky + sun when true
+            'stairs' => is_array($stairs) ? $stairs : [],       // heratio#1169 [{x,z,from_floor,to_floor}]
         ];
     }
 
@@ -1460,6 +1508,7 @@ class ExhibitionSpaceService
                 'bld_y' => $r->bld_y !== null ? (float) $r->bld_y : null,
                 'rot' => $r->bld_rot !== null ? (float) $r->bld_rot : 0.0,
                 'doors' => $this->getDoors((int) $r->id),
+                'windows' => $this->getWindows((int) $r->id),   // #1172 authoring
                 'shape' => $this->getShape((int) $r->id),
                 'is_current' => (int) $r->id === (int) $space->id,
             ];
@@ -1701,6 +1750,466 @@ class ExhibitionSpaceService
                 return null;
             }
         });
+    }
+
+    /**
+     * heratio#1150 multi-user presence. Upsert this visitor's pose into the building's
+     * presence table and return the other live co-visitors + the active docent's tour
+     * state. Polled ~2-3x/sec by the walkthrough. $isDocent (decided by the controller
+     * from auth) gates docent role + tour control; visitors can never set tour state.
+     */
+    public function presenceBeat(object $space, array $in, bool $isDocent = false): array
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_presence')) {
+            return ['peers' => [], 'tour' => null];
+        }
+        $building = $space->building_id ?: $space->slug;
+        $token = substr((string) ($in['token'] ?? ''), 0, 64);
+        if ($token === '') {
+            return ['peers' => [], 'tour' => null];
+        }
+        $now = now();
+        $role = ($isDocent && ($in['role'] ?? '') === 'docent') ? 'docent' : 'visitor';
+        $row = [
+            'display_name' => mb_substr(trim((string) ($in['name'] ?? '')), 0, 120) ?: 'Visitor',
+            'role' => $role,
+            'color' => substr((string) ($in['color'] ?? ''), 0, 9) ?: null,
+            'room_id' => (isset($in['room_id']) && $in['room_id'] !== null && $in['room_id'] !== '') ? (int) $in['room_id'] : null,
+            'pos_x' => isset($in['x']) ? (float) $in['x'] : null,
+            'pos_y' => isset($in['y']) ? (float) $in['y'] : null,
+            'pos_z' => isset($in['z']) ? (float) $in['z'] : null,
+            'yaw' => isset($in['yaw']) ? (float) $in['yaw'] : null,
+            'last_seen' => $now,
+        ];
+        if ($role === 'docent') {   // only a docent may drive the guided tour
+            $row['tour_active'] = !empty($in['tour_active']) ? 1 : 0;
+            $row['focus_object_id'] = (isset($in['focus_object_id']) && $in['focus_object_id']) ? (int) $in['focus_object_id'] : null;
+            $row['docent_msg'] = mb_substr(trim((string) ($in['docent_msg'] ?? '')), 0, 280) ?: null;
+        }
+        DB::table('ahg_exhibition_presence')->updateOrInsert(
+            ['building_id' => $building, 'session_token' => $token],
+            $row
+        );
+        DB::table('ahg_exhibition_presence')->where('building_id', $building)
+            ->where('last_seen', '<', $now->copy()->subSeconds(15))->delete();   // GC stale
+
+        $peers = DB::table('ahg_exhibition_presence')
+            ->where('building_id', $building)
+            ->where('session_token', '!=', $token)
+            ->where('last_seen', '>=', $now->copy()->subSeconds(12))
+            ->get(['session_token', 'display_name', 'role', 'color', 'room_id', 'pos_x', 'pos_y', 'pos_z', 'yaw']);
+
+        $docent = DB::table('ahg_exhibition_presence')
+            ->where('building_id', $building)->where('role', 'docent')->where('tour_active', 1)
+            ->where('last_seen', '>=', $now->copy()->subSeconds(12))
+            ->orderBy('last_seen', 'desc')
+            ->first(['session_token', 'display_name', 'room_id', 'pos_x', 'pos_y', 'pos_z', 'yaw', 'focus_object_id', 'docent_msg']);
+        $tour = $docent ? [
+            'docent_token' => $docent->session_token,
+            'docent_name' => $docent->display_name,
+            'room_id' => $docent->room_id,
+            'x' => $docent->pos_x, 'y' => $docent->pos_y, 'z' => $docent->pos_z, 'yaw' => $docent->yaw,
+            'focus_object_id' => $docent->focus_object_id,
+            'msg' => $docent->docent_msg,
+        ] : null;
+
+        // heratio#1173 - capture the visit + per-room dwell from the same beat.
+        $this->recordVisitBeat($space, $token, $in['device'] ?? null, $row['room_id']);
+
+        return [
+            'peers' => $peers->map(function ($p) {
+                return [
+                    'token' => $p->session_token, 'name' => $p->display_name, 'role' => $p->role, 'color' => $p->color,
+                    'room_id' => $p->room_id, 'x' => $p->pos_x, 'y' => $p->pos_y, 'z' => $p->pos_z, 'yaw' => $p->yaw,
+                ];
+            })->all(),
+            'tour' => $tour,
+        ];
+    }
+
+    /** heratio#1150 - remove a visitor's presence row on exit (sendBeacon). */
+    public function presenceLeave(object $space, string $token): void
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_presence')) {
+            return;
+        }
+        $building = $space->building_id ?: $space->slug;
+        DB::table('ahg_exhibition_presence')->where('building_id', $building)
+            ->where('session_token', substr($token, 0, 64))->delete();
+    }
+
+    /** heratio#1173 - upsert the visit row + accumulate per-room dwell (called from the beat). */
+    public function recordVisitBeat(object $space, string $token, ?string $device, ?int $roomId): void
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_visit')) {
+            return;
+        }
+        $token = substr($token, 0, 64);
+        if ($token === '') {
+            return;
+        }
+        $building = $space->building_id ?: $space->slug;
+        $now = now();
+        $v = DB::table('ahg_exhibition_visit')->where('building_id', $building)->where('session_token', $token)->first();
+        if (!$v) {
+            DB::table('ahg_exhibition_visit')->insert([
+                'building_id' => $building, 'session_token' => $token, 'device' => substr((string) $device, 0, 16) ?: null,
+                'cur_room' => $roomId, 'room_entered_at' => $now, 'room_seconds_json' => json_encode([]),
+                'started_at' => $now, 'last_seen' => $now,
+            ]);
+
+            return;
+        }
+        $upd = ['last_seen' => $now];
+        if ((int) $v->cur_room !== (int) $roomId) {   // moved rooms: bank dwell on the one we left
+            $secs = $v->room_seconds_json ? json_decode($v->room_seconds_json, true) : [];
+            if (!is_array($secs)) { $secs = []; }
+            if ($v->cur_room && $v->room_entered_at) {
+                $d = min(3600, max(0, $now->getTimestamp() - strtotime($v->room_entered_at)));
+                $secs[(string) $v->cur_room] = ($secs[(string) $v->cur_room] ?? 0) + $d;
+            }
+            $upd['room_seconds_json'] = json_encode($secs);
+            $upd['cur_room'] = $roomId;
+            $upd['room_entered_at'] = $now;
+        }
+        DB::table('ahg_exhibition_visit')->where('id', $v->id)->update($upd);
+    }
+
+    /** heratio#1173 - log a visit event (object view / tour / door). */
+    public function recordVisitEvent(object $space, string $token, string $type, ?int $roomId, ?int $objectId): void
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_visit_event')) {
+            return;
+        }
+        $building = $space->building_id ?: $space->slug;
+        DB::table('ahg_exhibition_visit_event')->insert([
+            'building_id' => $building, 'session_token' => substr($token, 0, 64),
+            'type' => substr($type, 0, 16), 'room_id' => $roomId ?: null, 'object_id' => $objectId ?: null, 'created_at' => now(),
+        ]);
+    }
+
+    /** heratio#1173 - aggregate visitor analytics for the dashboard. */
+    public function visitorAnalytics(object $space, int $days = 30): array
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_visit')) {
+            return ['sessions' => 0, 'avg_seconds' => 0, 'devices' => [], 'dwell' => [], 'top_objects' => []];
+        }
+        $building = $space->building_id ?: $space->slug;
+        $since = now()->subDays($days);
+        $visits = DB::table('ahg_exhibition_visit')->where('building_id', $building)->where('started_at', '>=', $since)->get();
+        $sessions = $visits->count();
+        $durs = $visits->map(function ($v) { return max(0, strtotime($v->last_seen) - strtotime($v->started_at)); });
+        $avg = $sessions ? (int) round($durs->avg()) : 0;
+        $devices = $visits->groupBy(function ($v) { return $v->device ?: 'desktop'; })->map->count()->all();
+        $roomSecs = [];
+        foreach ($visits as $v) {
+            $s = $v->room_seconds_json ? json_decode($v->room_seconds_json, true) : [];
+            if (is_array($s)) { foreach ($s as $rid => $sec) { $roomSecs[$rid] = ($roomSecs[$rid] ?? 0) + $sec; } }
+        }
+        $rids = array_keys($roomSecs);
+        $names = $rids ? DB::table('ahg_exhibition_space')->whereIn('id', $rids)->pluck('name', 'id')->all() : [];
+        $dwell = [];
+        foreach ($roomSecs as $rid => $sec) { $dwell[] = ['room' => $names[$rid] ?? ('#'.$rid), 'seconds' => (int) $sec]; }
+        usort($dwell, function ($a, $b) { return $b['seconds'] - $a['seconds']; });
+        $top = DB::table('ahg_exhibition_visit_event')->where('building_id', $building)->where('type', 'object')
+            ->where('created_at', '>=', $since)->whereNotNull('object_id')
+            ->select('object_id', DB::raw('COUNT(*) as c'))->groupBy('object_id')->orderByDesc('c')->limit(10)->get();
+        $oids = $top->pluck('object_id')->all();
+        $titles = $oids ? DB::table('information_object_i18n')->whereIn('id', $oids)->where('culture', 'en')->pluck('title', 'id')->all() : [];
+        $topObjects = $top->map(function ($r) use ($titles) { return ['title' => $titles[$r->object_id] ?? ('#'.$r->object_id), 'views' => (int) $r->c]; })->all();
+
+        return ['sessions' => $sessions, 'avg_seconds' => $avg, 'devices' => $devices, 'dwell' => array_slice($dwell, 0, 10), 'top_objects' => $topObjects];
+    }
+
+    /** heratio#1165 - wall graffiti: list all annotations for the building. */
+    public function listAnnotations(object $space): array
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_annotation')) {
+            return [];
+        }
+        $building = $space->building_id ?: $space->slug;
+
+        return DB::table('ahg_exhibition_annotation')->where('building_id', $building)
+            ->orderBy('id')->get()->map(function ($r) {
+                return [
+                    'id' => (int) $r->id, 'room_id' => $r->room_id !== null ? (int) $r->room_id : null,
+                    'x' => (float) $r->pos_x, 'y' => (float) $r->pos_y, 'z' => (float) $r->pos_z,
+                    'text' => $r->text, 'color' => $r->color, 'author' => $r->author,
+                ];
+            })->all();
+    }
+
+    /**
+     * Authored audio guided tour for the exhibition: an ordered list of objects with a
+     * narration script + dwell time each. Stored as guided_tour_json on the space.
+     * Returns [{io_id, title, narration, dwell}] enriched with the object title.
+     */
+    public function getGuidedTour(object $space): array
+    {
+        $raw = $space->guided_tour_json ?? null;
+        if (is_string($raw)) {
+            $raw = json_decode($raw, true);
+        }
+        if (!is_array($raw) || empty($raw)) {
+            return [];
+        }
+        // Back-compat: a flat array of stops becomes one unnamed tour.
+        if (isset($raw[0]['io_id'])) {
+            $raw = [['name' => 'Tour', 'stops' => $raw]];
+        }
+        $ids = [];
+        foreach ($raw as $t) {
+            foreach (($t['stops'] ?? []) as $s) {
+                if (!empty($s['io_id'])) {
+                    $ids[] = (int) $s['io_id'];
+                }
+            }
+        }
+        $titles = $ids ? DB::table('information_object_i18n')->whereIn('id', $ids)->where('culture', 'en')
+            ->pluck('title', 'id')->all() : [];
+        $out = [];
+        foreach ($raw as $t) {
+            $stops = [];
+            foreach (($t['stops'] ?? []) as $s) {
+                if (empty($s['io_id'])) {
+                    continue;
+                }
+                $id = (int) $s['io_id'];
+                $stops[] = ['io_id' => $id, 'title' => $titles[$id] ?? ('#'.$id), 'narration' => (string) ($s['narration'] ?? ''), 'dwell' => (int) ($s['dwell'] ?? 6)];
+            }
+            $out[] = ['name' => (string) ($t['name'] ?? 'Tour'), 'stops' => $stops];
+        }
+
+        return $out;
+    }
+
+    /** Save the authored guided tours (list of {name, stops}); validates + clamps. */
+    public function saveGuidedTour(object $space, array $tours): void
+    {
+        $clean = [];
+        foreach ($tours as $t) {
+            $stops = [];
+            foreach (($t['stops'] ?? []) as $s) {
+                if (empty($s['io_id'])) {
+                    continue;
+                }
+                $stops[] = ['io_id' => (int) $s['io_id'], 'narration' => mb_substr(trim((string) ($s['narration'] ?? '')), 0, 1200), 'dwell' => max(2, min(60, (int) ($s['dwell'] ?? 6)))];
+            }
+            if ($stops) {
+                $clean[] = ['name' => (mb_substr(trim((string) ($t['name'] ?? 'Tour')), 0, 80) ?: 'Tour'), 'stops' => $stops];
+            }
+        }
+        DB::table('ahg_exhibition_space')->where('id', $space->id)->update(['guided_tour_json' => json_encode($clean)]);
+    }
+
+    /** heratio#1165 - add a graffiti annotation; returns the saved row payload. */
+    public function addAnnotation(object $space, array $in): ?array
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_annotation')) {
+            return null;
+        }
+        $text = trim((string) ($in['text'] ?? ''));
+        if ($text === '') {
+            return null;
+        }
+        $building = $space->building_id ?: $space->slug;
+        $id = DB::table('ahg_exhibition_annotation')->insertGetId([
+            'building_id' => $building,
+            'room_id' => (isset($in['room_id']) && $in['room_id'] !== null && $in['room_id'] !== '') ? (int) $in['room_id'] : null,
+            'pos_x' => (float) ($in['x'] ?? 0), 'pos_y' => (float) ($in['y'] ?? 1.6), 'pos_z' => (float) ($in['z'] ?? 0),
+            'text' => mb_substr($text, 0, 160),
+            'color' => substr((string) ($in['color'] ?? ''), 0, 9) ?: null,
+            'author' => mb_substr(trim((string) ($in['author'] ?? '')), 0, 40) ?: null,
+            'created_at' => now(),
+        ]);
+
+        return [
+            'id' => $id, 'room_id' => (isset($in['room_id']) && $in['room_id'] !== '') ? (int) $in['room_id'] : null,
+            'x' => (float) ($in['x'] ?? 0), 'y' => (float) ($in['y'] ?? 1.6), 'z' => (float) ($in['z'] ?? 0),
+            'text' => mb_substr($text, 0, 160), 'color' => substr((string) ($in['color'] ?? ''), 0, 9) ?: null,
+            'author' => mb_substr(trim((string) ($in['author'] ?? '')), 0, 40) ?: null,
+        ];
+    }
+
+    // ===================================================================
+    // heratio#1151 - interoperability: open-standard exports of the twin so
+    // other institutions / viewers can consume it (no F3 coupling).
+    // ===================================================================
+
+    /** Absolutise an app-relative path (/uploads/.., /slug) for portable exports. */
+    private function absUrl(?string $path): ?string
+    {
+        if ($path === null || $path === '') {
+            return null;
+        }
+        if (preg_match('#^https?://#', $path)) {
+            return $path;
+        }
+
+        return url($path);
+    }
+
+    /**
+     * Open, documented 3D scene manifest for the whole building: rooms (metres,
+     * shape, rotation) + placed objects (world placement + media incl. glTF/GLB
+     * model URLs). Any third-party 3D viewer can reconstruct the twin from this.
+     */
+    public function sceneManifest(object $space): array
+    {
+        $b = $this->getWalkthroughBuilding($space);
+        $rooms = [];
+        $objects = [];
+        foreach ($b['rooms'] as $r) {
+            $rooms[] = [
+                'id' => $r['id'], 'name' => $r['name'],
+                'width_m' => $r['w'], 'depth_m' => $r['d'], 'height_m' => $r['h'],
+                'origin' => ['x' => $r['x_offset'], 'z' => $r['z_offset']],
+                'rotation_deg' => $r['rot'] ?? 0,
+                'shape' => $r['shape'] ?? null,   // normalised polygon [{x,z}] 0..1, null = rectangle
+                'floor_image' => $this->absUrl($r['floorplan'] ?? null),
+                'ceiling_image' => $this->absUrl($r['ceiling'] ?? null),
+            ];
+            foreach (($r['stops'] ?? []) as $s) {
+                $objects[] = [
+                    'information_object_id' => $s['information_object_id'],
+                    'title' => $s['title'],
+                    'description' => $s['description'],
+                    'room_id' => $r['id'],
+                    'placement' => [
+                        'pos_x' => $s['pos_x'], 'pos_y' => $s['pos_y'],
+                        'wall_or_zone' => $s['wall_or_zone'],
+                        'wall_u' => $s['wall_u'], 'wall_v' => $s['wall_v'],
+                        'rotation_deg' => $s['rotation_deg'], 'scale' => $s['scale'],
+                        'tilt_x' => $s['tilt_x'], 'tilt_z' => $s['tilt_z'],
+                    ],
+                    'media_kind' => $s['kind'],
+                    'model_url' => $this->absUrl($s['model_url']),
+                    'model_format' => $s['model_format'],
+                    'image_url' => $this->absUrl($s['image_url']),
+                    'record_url' => $this->absUrl($s['record_url']),
+                ];
+            }
+        }
+
+        return [
+            'format' => 'ahg-exhibition-scene',
+            'version' => '1.0',
+            'generator' => 'Heratio',
+            'units' => 'metre',
+            'coordinate_system' => 'y-up, metres; room origin is its top-left corner',
+            'exhibition' => [
+                'id' => (int) $space->id, 'name' => $space->name, 'slug' => $space->slug,
+                'walkthrough_url' => $this->absUrl('/exhibition-space/'.$space->slug.'/walkthrough'),
+            ],
+            'rooms' => $rooms,
+            'objects' => $objects,
+        ];
+    }
+
+    /**
+     * IIIF Presentation 3.0 Manifest for the exhibition: one Canvas per object with
+     * an image painting annotation, rooms expressed as structural Ranges, and a
+     * rendering link to any glTF/GLB model. Image dimensions default to 1000x1000
+     * when not introspected (functional; strict validators may want real pixels).
+     */
+    public function iiifManifest(object $space): array
+    {
+        $base = $this->absUrl('/exhibition-space/'.$space->slug.'/manifest.json');
+        $b = $this->getWalkthroughBuilding($space);
+        $items = [];
+        $ranges = [];
+        $ci = 0;
+        foreach ($b['rooms'] as $r) {
+            $roomCanvases = [];
+            foreach (($r['stops'] ?? []) as $s) {
+                $img = $this->absUrl($s['image_url']);
+                if (!$img) {
+                    continue;   // a canvas needs a paintable body
+                }
+                $ci++;
+                $canvasId = $base.'/canvas/'.$s['information_object_id'];
+                $w = 1000; $h = 1000;
+                $canvas = [
+                    'id' => $canvasId, 'type' => 'Canvas',
+                    'label' => ['en' => [$s['title']]],
+                    'height' => $h, 'width' => $w,
+                    'items' => [[
+                        'id' => $canvasId.'/page', 'type' => 'AnnotationPage',
+                        'items' => [[
+                            'id' => $canvasId.'/annotation', 'type' => 'Annotation', 'motivation' => 'painting',
+                            'body' => ['id' => $img, 'type' => 'Image', 'format' => 'image/jpeg', 'height' => $h, 'width' => $w],
+                            'target' => $canvasId,
+                        ]],
+                    ]],
+                ];
+                if (!empty($s['description'])) {
+                    $canvas['summary'] = ['en' => [$s['description']]];
+                }
+                if (!empty($s['record_url'])) {
+                    $canvas['homepage'] = [['id' => $this->absUrl($s['record_url']), 'type' => 'Text', 'label' => ['en' => ['Full record']], 'format' => 'text/html']];
+                }
+                if (!empty($s['model_url'])) {
+                    $canvas['rendering'] = [['id' => $this->absUrl($s['model_url']), 'type' => 'Model', 'label' => ['en' => ['3D model ('.($s['model_format'] ?: 'glb').')']], 'format' => 'model/gltf-binary']];
+                }
+                $items[] = $canvas;
+                $roomCanvases[] = ['id' => $canvasId, 'type' => 'Canvas'];
+            }
+            if ($roomCanvases) {
+                $ranges[] = ['id' => $base.'/range/'.$r['id'], 'type' => 'Range', 'label' => ['en' => [$r['name']]], 'items' => $roomCanvases];
+            }
+        }
+
+        $manifest = [
+            '@context' => 'http://iiif.io/api/presentation/3/context.json',
+            'id' => $base, 'type' => 'Manifest',
+            'label' => ['en' => [$space->name]],
+            'summary' => ['en' => ['Virtual exhibition exported from Heratio ('.$ci.' objects).']],
+            'rights' => 'http://rightsstatements.org/vocab/CNE/1.0/',
+            'requiredStatement' => ['label' => ['en' => ['Source']], 'value' => ['en' => ['Heratio digital twin']]],
+            'items' => $items,
+        ];
+        if ($ranges) {
+            $manifest['structures'] = [['id' => $base.'/range', 'type' => 'Range', 'label' => ['en' => ['Rooms']], 'items' => $ranges]];
+        }
+
+        return $manifest;
+    }
+
+    /** schema.org ExhibitionEvent JSON-LD for linked-data discovery / harvesting. */
+    public function exhibitionJsonLd(object $space): array
+    {
+        $b = $this->getWalkthroughBuilding($space);
+        $featured = [];
+        foreach ($b['rooms'] as $r) {
+            foreach (($r['stops'] ?? []) as $s) {
+                $work = ['@type' => 'CreativeWork', 'name' => $s['title']];
+                if (!empty($s['description'])) {
+                    $work['description'] = $s['description'];
+                }
+                if (!empty($s['record_url'])) {
+                    $work['url'] = $this->absUrl($s['record_url']);
+                }
+                if (!empty($s['image_url'])) {
+                    $work['image'] = $this->absUrl($s['image_url']);
+                }
+                $work['isPartOf'] = ['@type' => 'Collection', 'name' => $r['name']];
+                $featured[] = $work;
+            }
+        }
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'ExhibitionEvent',
+            'name' => $space->name,
+            'url' => $this->absUrl('/exhibition-space/'.$space->slug.'/walkthrough'),
+            'eventAttendanceMode' => 'https://schema.org/OnlineEventAttendanceMode',
+            'description' => 'Virtual exhibition (digital twin) exported from Heratio.',
+            'workFeatured' => $featured,
+            'subjectOf' => [
+                ['@type' => 'CreativeWork', 'name' => 'IIIF manifest', 'url' => $this->absUrl('/exhibition-space/'.$space->slug.'/manifest.json'), 'encodingFormat' => 'application/ld+json'],
+                ['@type' => 'CreativeWork', 'name' => '3D scene manifest', 'url' => $this->absUrl('/exhibition-space/'.$space->slug.'/scene.json'), 'encodingFormat' => 'application/json'],
+            ],
+        ];
     }
 
     public function getWalkthroughStops(int $exhibitionSpaceId): array

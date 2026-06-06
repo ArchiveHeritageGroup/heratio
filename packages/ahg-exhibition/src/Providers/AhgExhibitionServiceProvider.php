@@ -76,6 +76,11 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'building_plan_h' => 'DECIMAL(8,2) NULL',
                     'doors_json' => 'JSON NULL',
                     'shape_json' => 'JSON NULL',
+                    'guided_tour_json' => 'JSON NULL',   // heratio#guided-tour: authored audio tour (route + narration)
+                    'floor_level' => 'INT NOT NULL DEFAULT 0',   // heratio#1169: numeric building level (0 = ground). NB distinct from the legacy text `floor` label.
+                    'is_outdoor' => 'TINYINT(1) NOT NULL DEFAULT 0',   // heratio#1170: open-air space (sky + grass, no walls)
+                    'stairs_json' => 'JSON NULL',            // heratio#1169: stair links [{x,z,from_floor,to_floor}]
+                    'windows_json' => 'JSON NULL',           // heratio#1172: windows per wall [{wall,pos,width,sill,height}]
                 ];
                 foreach ($spaceCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_space', $col)) {
@@ -94,6 +99,71 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     recorded_at DATETIME NOT NULL,
                     INDEX idx_space_metric_time (exhibition_space_id, metric, recorded_at)
                 )');
+            }
+
+            // heratio#1150 - multi-user presence: live co-visitors + docent state per building.
+            if (! Schema::hasTable('ahg_exhibition_presence')) {
+                DB::statement("CREATE TABLE ahg_exhibition_presence (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    building_id VARCHAR(64) NOT NULL,
+                    session_token VARCHAR(64) NOT NULL,
+                    display_name VARCHAR(120) NULL,
+                    role VARCHAR(16) NOT NULL DEFAULT 'visitor',
+                    color VARCHAR(9) NULL,
+                    room_id INT NULL,
+                    pos_x DOUBLE NULL, pos_y DOUBLE NULL, pos_z DOUBLE NULL, yaw DOUBLE NULL,
+                    tour_active TINYINT(1) NOT NULL DEFAULT 0,
+                    focus_object_id INT NULL,
+                    docent_msg VARCHAR(280) NULL,
+                    last_seen DATETIME NOT NULL,
+                    UNIQUE KEY uq_building_token (building_id, session_token),
+                    INDEX idx_building_seen (building_id, last_seen)
+                )");
+            }
+
+            // heratio#1165 - wall graffiti / annotations placed in the walkthrough.
+            if (! Schema::hasTable('ahg_exhibition_annotation')) {
+                DB::statement("CREATE TABLE ahg_exhibition_annotation (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    building_id VARCHAR(64) NOT NULL,
+                    room_id INT NULL,
+                    pos_x DOUBLE NOT NULL, pos_y DOUBLE NOT NULL, pos_z DOUBLE NOT NULL,
+                    text VARCHAR(160) NOT NULL,
+                    color VARCHAR(9) NULL,
+                    author VARCHAR(40) NULL,
+                    created_at DATETIME NOT NULL,
+                    INDEX idx_building (building_id)
+                )");
+            }
+
+            // heratio#1173 - automatic visitor analytics: one row per walkthrough session.
+            if (! Schema::hasTable('ahg_exhibition_visit')) {
+                DB::statement("CREATE TABLE ahg_exhibition_visit (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    building_id VARCHAR(64) NOT NULL,
+                    session_token VARCHAR(64) NOT NULL,
+                    device VARCHAR(16) NULL,
+                    cur_room INT NULL,
+                    room_entered_at DATETIME NULL,
+                    room_seconds_json JSON NULL,
+                    started_at DATETIME NOT NULL,
+                    last_seen DATETIME NOT NULL,
+                    UNIQUE KEY uq_visit (building_id, session_token),
+                    INDEX idx_building_started (building_id, started_at)
+                )");
+            }
+            // heratio#1173 - per-object / tour / door events within a visit.
+            if (! Schema::hasTable('ahg_exhibition_visit_event')) {
+                DB::statement("CREATE TABLE ahg_exhibition_visit_event (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    building_id VARCHAR(64) NOT NULL,
+                    session_token VARCHAR(64) NOT NULL,
+                    type VARCHAR(16) NOT NULL,
+                    room_id INT NULL,
+                    object_id INT NULL,
+                    created_at DATETIME NOT NULL,
+                    INDEX idx_building_type (building_id, type, created_at)
+                )");
             }
         } catch (\Throwable $e) {
             // Non-fatal: builder simply stays unavailable until the columns exist.

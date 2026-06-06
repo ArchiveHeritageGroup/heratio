@@ -4,9 +4,3 @@
 # CI scans the working tree (--no-git), so only tracked files are checked;
 # new/real secrets elsewhere still fail the Security Audit job.
 # Regenerate after auditing if a doc's line numbers shift.
-docs/help/ahgregistryplugin.md:generic-api-key:1480
-docs/help/ahgregistryplugin.md:generic-api-key:1490
-docs/help/ahgregistryplugin.md:generic-api-key:1527
-docs/help/registry-community-hub-user-guide.md:generic-api-key:1320
-docs/help/registry-community-hub-user-guide.md:generic-api-key:1344
-docs/standalone-install-howto.md:generic-api-key:130

@@ -43,11 +43,44 @@
           </div>
           <div id="roomCrosshair" style="position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#000;border:2px solid rgba(255,255,255,.85);box-sizing:border-box;z-index:4;display:none;pointer-events:none;"></div>
           <div id="roomLoading" style="position:absolute;bottom:8px;left:8px;z-index:4;color:#ccc;font-size:.8rem;">{{ __('Loading gallery...') }}</div>
+          {{-- steal-alarm: flickering red overlay + silence control --}}
+          <div id="wtAlarm" style="position:absolute;inset:0;background:#ff0000;opacity:0;z-index:9;pointer-events:none;display:none;"></div>
+          <div id="wtAlarmBar" style="position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);z-index:10;display:none;text-align:center;">
+            <div class="bg-danger text-white px-4 py-2 rounded-pill shadow fw-bold"><i class="fas fa-triangle-exclamation me-2"></i><span id="wtAlarmText"></span></div>
+            <button type="button" id="wtAlarmOff" class="btn btn-light btn-sm rounded-pill mt-2 shadow"><i class="fas fa-bell-slash me-1"></i>{{ __('Silence alarm') }}</button>
+          </div>
           <div id="wtHeight" class="bg-dark text-white px-2 py-1 rounded small" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:7;display:none;"></div>
           <div id="wtNarr" class="bg-primary text-white px-2 py-1 rounded small" style="position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:7;display:none;"><i class="fas fa-volume-high me-1"></i>{{ __('Reading description... (Esc to stop)') }}</div>
           <button id="roomHelpBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:8px;z-index:6;opacity:.85;" title="{{ __('Controls') }}"><i class="fas fa-question"></i></button>
           <button id="roomMapBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:44px;z-index:6;opacity:.85;" title="{{ __('Building map') }}"><i class="fas fa-map"></i></button>
           <button id="roomLiveBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:80px;z-index:6;opacity:.85;" title="{{ __('Live data') }}"><i class="fas fa-temperature-half"></i></button>
+          <button id="wtPeopleBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:116px;z-index:6;opacity:.85;" title="{{ __('People here') }}"><i class="fas fa-users"></i> <span id="wtPeopleCount">1</span></button>
+          <button id="wtTorchBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:156px;z-index:6;opacity:.85;" title="{{ __('Torch (F)') }}"><i class="fas fa-lightbulb"></i></button>
+          <button id="wtGraffitiBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:192px;z-index:6;opacity:.85;" title="{{ __('Graffiti: click a wall to tag it') }}"><i class="fas fa-spray-can"></i></button>
+          <button id="wtTourPlayBtn" type="button" class="btn btn-sm btn-success" style="position:absolute;top:8px;right:228px;z-index:6;opacity:.9;display:none;" title="{{ __('Play guided tour') }}"><i class="fas fa-play"></i></button>
+          <button id="wtStealBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:264px;z-index:6;opacity:.85;" title="{{ __('Steal mode: click an object to trigger the alarm') }}"><i class="fas fa-mask"></i></button>
+          <div id="wtTourBanner" class="bg-dark text-white px-3 py-2 rounded small" style="position:absolute;bottom:64px;left:50%;transform:translateX(-50%);z-index:7;display:none;max-width:86%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.5);">
+            <span id="wtTourText"></span>
+            <button type="button" id="wtTourStopBtn" class="btn btn-sm btn-outline-light ms-2 py-0"><i class="fas fa-stop"></i></button>
+          </div>
+          {{-- mobile quick-launch: walking is hard on touch, so offer a big "play the tour" button --}}
+          <div id="wtTourQuick" style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:8;display:none;text-align:center;width:90%;max-width:360px;">
+            <select id="wtTourQuickSel" class="form-select form-select-sm mb-2 d-none"></select>
+            <button type="button" id="wtTourQuickBtn" class="btn btn-success btn-lg rounded-pill shadow w-100"><i class="fas fa-play me-2"></i>{{ __('Start guided tour') }}</button>
+          </div>
+          <div id="wtPeople" class="bg-dark text-white p-2 rounded small" style="position:absolute;top:46px;right:8px;z-index:8;width:240px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.5);">
+            <div class="d-flex justify-content-between align-items-center mb-1"><span class="fw-bold"><i class="fas fa-users me-1"></i>{{ __('In this exhibition') }}</span><button type="button" id="wtPeopleClose" class="btn-close btn-close-white btn-sm" aria-label="{{ __('Close') }}"></button></div>
+            <input id="wtNameInput" class="form-control form-control-sm mb-2" placeholder="{{ __('Your name') }}" maxlength="40">
+            <div id="wtPeopleList"></div>
+            <button id="wtFollowBtn" type="button" class="btn btn-sm btn-warning w-100 mt-2" style="display:none;"><i class="fas fa-shoe-prints me-1"></i>{{ __('Follow the docent') }}</button>
+            @if($canDocent ?? false)
+            <hr class="my-2">
+            <button id="wtTourBtn" type="button" class="btn btn-sm btn-success w-100"><i class="fas fa-chalkboard-user me-1"></i>{{ __('Start guided tour') }}</button>
+            <input id="wtDocentMsg" class="form-control form-control-sm mt-2" placeholder="{{ __('Say something to the tour') }}" maxlength="200" style="display:none;">
+            <div class="text-muted mt-1" style="font-size:.72rem;">{{ __('While leading, click an object to spotlight it for everyone following.') }}</div>
+            @endif
+          </div>
+          <div id="wtDocentBanner" class="bg-primary text-white px-3 py-2 rounded small" style="position:absolute;top:46px;left:50%;transform:translateX(-50%);z-index:7;display:none;max-width:80%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.5);"></div>
           <div id="wtLive" class="bg-dark text-white p-2 rounded small" style="position:absolute;top:46px;left:8px;z-index:7;width:230px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.5);">
             <div class="fw-bold mb-1"><i class="fas fa-temperature-half me-1"></i>{{ __('Live conditions') }}</div>
             <div id="wtLiveBody"></div>
@@ -63,14 +96,28 @@
               <li>{{ __('Move: W A S D or arrow keys') }}</li>
               <li>{{ __('Forward / back: mouse wheel') }}</li>
               <li>{{ __('Stand taller / crouch: hold U + mouse wheel') }}</li>
+              <li>{{ __('Virtual reality: tap the VR button (headset required); left stick moves, right stick turns') }}</li>
               <li>{{ __('Look around: move the mouse') }}</li>
               <li>{{ __('Open info: click an object (or a numbered button)') }}</li>
               <li>{{ __('Hear description read aloud: hold T (Talk) + click an object') }}</li>
+              <li>{{ __('Force a fresh AI description: hold G + click an object') }}</li>
+              <li>{{ __('Zoom in / out: Z') }}</li>
+              <li>{{ __('Torch (light dark corners): F or the bulb button') }}</li>
+              <li>{{ __('Graffiti: tap the spray-can, then click a wall to tag it') }}</li>
+              <li>{{ __('Steal (sets off the alarm!): tap the mask, then click an object (or hold S + click)') }}</li>
               <li>{{ __('Open full record (new tab): V') }}</li>
               <li>{{ __('Close info: click or Esc') }}</li>
               <li>{{ __('Exit gallery: Esc') }}</li>
               <li class="mt-1 text-info">{{ __('Touch: drag to look, pinch to zoom, tap an object, tap a numbered button to travel') }}</li>
             </ul>
+            <div class="mt-2" id="wtTourPick" style="display:none;">
+              <label class="form-label mb-1"><i class="fas fa-route me-1"></i>{{ __('Guided tour') }}</label>
+              <select id="wtTourSel" class="form-select form-select-sm"></select>
+            </div>
+            <div class="mt-2">
+              <label class="form-label mb-1"><i class="fas fa-microphone-lines me-1"></i>{{ __('Narration voice') }}</label>
+              <select id="wtVoiceSel" class="form-select form-select-sm"><option value="">{{ __('Default') }}</option></select>
+            </div>
           </div>
           {{-- In-canvas detail inlay (replaces the side panel). --}}
           <div id="wtInlay" style="position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;max-width:520px;width:92%;display:none;background:rgba(20,22,26,.92);color:#fff;border-radius:.5rem;padding:14px 16px;box-shadow:0 4px 16px rgba(0,0,0,.45);">
@@ -100,6 +147,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/PLYLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/webxr/VRButton.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script nonce="{{ $cspNonce ?? '' }}">
   (function () {
@@ -137,6 +185,7 @@
     })();
     var WALL_H = (BUILDING && BUILDING.max_h) ? BUILDING.max_h : 4;
     var RH = WALL_H;   // per-room wall height, set as each room renders
+    var FLOOR_H = (BUILDING && BUILDING.floor_height) ? BUILDING.floor_height : 4.5;   // #1169 vertical gap between floors
     // Map an unrotated room point to its actual world position (rooms can be
     // rotated about their centre). Matches the per-room group rotation.y = -rot.
     function roomWorld(rm, x, z) {
@@ -213,9 +262,27 @@
     var renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));   // cap retina overdraw
     renderer.setSize(W, H);
+    renderer.xr.enabled = true;   // heratio#1152 - WebXR / VR headset support
     room.appendChild(renderer.domElement);
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x666677, 0.9));
+    // VR button: only shown when the device/browser actually supports immersive-vr.
+    var xrFloorY = 0;   // holder y while in XR (headset supplies eye height on top)
+    if (THREE.VRButton && navigator.xr) {
+      var vrBtn = THREE.VRButton.createButton(renderer);
+      vrBtn.style.cssText += ';position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:8;';
+      room.appendChild(vrBtn);
+      renderer.xr.addEventListener('sessionstart', function () { var o = controls.getObject(); xrFloorY = o.position.y; o.position.y = 0; });   // drop to floor; headset adds height
+      renderer.xr.addEventListener('sessionend', function () { controls.getObject().position.y = xrFloorY || 1.6; });
+    }
+
+    var hemiLight = new THREE.HemisphereLight(0xffffff, 0x666677, 0.9);   // ref kept for the steal-alarm flicker
+    scene.add(hemiLight);
+    // #1170 outdoor: sky-blue backdrop + a sun when the building has an open-air space.
+    if (BUILDING && BUILDING.has_outdoor) {
+      scene.background = new THREE.Color(0x9fc8e8);
+      hemiLight.intensity = 1.0; hemiLight.groundColor.setHex(0x6b8f4e);
+      var sun = new THREE.DirectionalLight(0xfff6e0, 0.9); sun.position.set(20, 40, 15); scene.add(sun);
+    }
     var dir = new THREE.DirectionalLight(0xffffff, 0.7);
     dir.position.set(5, 10, 7);
     scene.add(dir);
@@ -229,7 +296,7 @@
       if (roomGroups[k]) return roomGroups[k];
       var cx = rm.x_offset, cz = rm.z_offset;   // top-left pivot (matches plan-editor rotation origin)
       var g = new THREE.Group();
-      g.position.set(cx, 0, cz);
+      g.position.set(cx, (rm.floor || 0) * FLOOR_H, cz);   // #1169 lift upper floors
       g.rotation.y = -((rm.rot || 0) * Math.PI / 180);
       scene.add(g);
       var cen = roomWorld(rm, rm.x_offset + rm.w / 2, rm.z_offset + rm.d / 2);   // world centre, for distance culling
@@ -248,11 +315,22 @@
       _texLoader.load(url, function (tex) {
         var img = tex.image;
         if (img && img.width && (img.width > MAXTEX || img.height > MAXTEX)) {
+          // Downscale big images. Build a fresh CanvasTexture from the scaled canvas -
+          // swapping tex.image on the loader's texture does not reliably re-upload to the
+          // GPU (large ceiling/object images rendered blank). CanvasTexture is the correct
+          // source type for a canvas and uploads cleanly.
           var s = MAXTEX / Math.max(img.width, img.height);
           var c = document.createElement('canvas');
           c.width = Math.max(1, Math.round(img.width * s)); c.height = Math.max(1, Math.round(img.height * s));
           c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-          tex.image = c;
+          var ct = new THREE.CanvasTexture(c);
+          ct.minFilter = THREE.LinearFilter; ct.magFilter = THREE.LinearFilter; ct.generateMipmaps = false;
+          if (tex.encoding !== undefined) ct.encoding = tex.encoding;
+          if (tex.colorSpace !== undefined) ct.colorSpace = tex.colorSpace;
+          ct.needsUpdate = true;
+          tex.dispose();
+          if (onLoad) onLoad(ct);
+          return;
         }
         tex.minFilter = THREE.LinearFilter; tex.magFilter = THREE.LinearFilter; tex.needsUpdate = true;
         if (onLoad) onLoad(tex);
@@ -262,6 +340,7 @@
     // Per-room floors, perimeter walls (with doorways between rooms) and dividers.
     var wallMat = new THREE.MeshStandardMaterial({ color: 0xf2f2f0, roughness: 1, side: THREE.DoubleSide });
     var doorMat = new THREE.MeshStandardMaterial({ color: 0x7c6a58, roughness: 0.9, side: THREE.DoubleSide });   // solid door panel (not see-through)
+    var glassMat = new THREE.MeshStandardMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, roughness: 0.1, metalness: 0.1, side: THREE.DoubleSide });   // #1172 window pane
     var DOOR = 1.6;   // doorway width between connected rooms
     // Default plaster ceiling + decorative crown-moulding (cornice) for rooms with no ceiling image.
     var ceilMat = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 1, side: THREE.DoubleSide });
@@ -339,7 +418,27 @@
         if (doors.length && d[0] <= doors[doors.length - 1][1] + 0.01) doors[doors.length - 1][1] = Math.max(doors[doors.length - 1][1], d[1]);
         else doors.push(d.slice());
       });
-      function full(s, e) { var len = e - s; if (len <= 0.1) return; var mid = (s + e) / 2; if (vertical) wallSeg(len, fixed, mid, ry, mat); else wallSeg(len, mid, fixed, ry, mat); }
+      // #1172 windows on this wall side
+      var wside = !vertical ? (Math.abs(edge - rm.z_offset) < 0.3 ? 'north' : 'south') : (Math.abs(edge - rm.x_offset) < 0.3 ? 'west' : 'east');
+      var winList = (rm.windows || []).filter(function (w) { return w.wall === wside; });
+      function wsegFull(s, e) { var len = e - s; if (len <= 0.05) return; var mid = (s + e) / 2; if (vertical) wallSeg(len, fixed, mid, ry, mat); else wallSeg(len, mid, fixed, ry, mat); }
+      function wsegH(s, e, y0, y1) { var len = e - s; if (len <= 0.05 || y1 - y0 <= 0.05) return; var mid = (s + e) / 2; if (vertical) wallSegH(len, fixed, mid, ry, mat, y0, y1); else wallSegH(len, mid, fixed, ry, mat, y0, y1); }
+      function wGlass(s, e, y0, y1) { var len = e - s, h = y1 - y0, mid = (s + e) / 2; var g = new THREE.Mesh(new THREE.PlaneGeometry(len, h), glassMat); if (vertical) g.position.set(fixed, (y0 + y1) / 2, mid); else g.position.set(mid, (y0 + y1) / 2, fixed); g.rotation.y = ry; addToRoom(rm, g); }
+      function full(s, e) {
+        if (e - s <= 0.1) return;
+        var wins = winList.map(function (w) { var c = a + w.pos * (b - a); return { ws: Math.max(s, c - w.width / 2), we: Math.min(e, c + w.width / 2), sill: w.sill, header: Math.min(RH - 0.1, w.sill + w.height) }; })
+          .filter(function (w) { return w.we - w.ws > 0.2; }).sort(function (p, q) { return p.ws - q.ws; });
+        if (!wins.length) { wsegFull(s, e); return; }
+        var c2 = s;
+        wins.forEach(function (w) {
+          if (w.ws > c2) wsegFull(c2, w.ws);          // full-height wall before the window
+          wsegH(w.ws, w.we, 0, w.sill);               // wall below the sill
+          wsegH(w.ws, w.we, w.header, RH);            // wall above the header
+          wGlass(w.ws, w.we, w.sill, w.header);       // the glass pane (see-through, inside + out)
+          c2 = w.we;
+        });
+        if (c2 < e) wsegFull(c2, e);
+      }
       function lintel(s, e) { var len = e - s; var mid = (s + e) / 2; if (vertical) wallSegH(len, fixed, mid, ry, mat, doorH, RH); else wallSegH(len, mid, fixed, ry, mat, doorH, RH); }
       function slab(s, e) { var len = e - s; var mid = (s + e) / 2; return vertical ? wallSegH(len, fixed, mid, ry, doorMat, 0, doorH) : wallSegH(len, mid, fixed, ry, doorMat, 0, doorH); }   // solid door fills the opening
       var cur = a;
@@ -348,8 +447,9 @@
         lintel(dd[0], dd[1]);
         var sm = slab(dd[0], dd[1]);
         var mid = (dd[0] + dd[1]) / 2;
-        // The word "Door" on the door panel itself.
-        var dlx = vertical ? fixed : mid, dlz = vertical ? mid : fixed;
+        // The word "Door" floated just INTO the room off the panel (insetDir points into
+        // the room), so the billboard label does not z-fight / clip with the door slab.
+        var dlx = vertical ? (fixed + insetDir * 0.14) : mid, dlz = vertical ? mid : (fixed + insetDir * 0.14);
         var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(dlx, doorH * 0.5, dlz); addToRoom(rm, dnm);
         // Sign showing which room this doorway leads into.
         var ox = vertical ? (edge - insetDir * 0.5) : mid, oz = vertical ? mid : (edge - insetDir * 0.5);
@@ -382,7 +482,8 @@
         seg(dd[0], dd[1], doorH, RH);          // lintel above the opening
         var sm = seg(dd[0], dd[1], 0, doorH, doorMat);  // solid door fills the opening (no see-through)
         var mid = (dd[0] + dd[1]) / 2, mx = ax + ux * mid, mz = az + uz * mid;
-        var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(mx, doorH * 0.5, mz); addToRoom(rm, dnm);   // the word "Door" on the panel
+        var ginx = ccx - mx, ginz = ccz - mz, ginl = Math.hypot(ginx, ginz) || 1;   // inward (toward room centre)
+        var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(mx + ginx / ginl * 0.14, doorH * 0.5, mz + ginz / ginl * 0.14); addToRoom(rm, dnm);   // "Door" floated off the panel so it does not clip
         var nx = -uz, nz = ux; if ((ccx - mx) * nx + (ccz - mz) * nz > 0) { nx = -nx; nz = -nz; }   // outward normal
         var ow = roomWorld(rm, mx + nx * 0.5, mz + nz * 0.5), dest = findRoomAtWorld(ow.x, ow.z, rm);
         if (dest && dest.name) {
@@ -397,10 +498,41 @@
     // Live conservation overlay (heratio#1146): per-room status tint, toggled.
     var STATUS_COLOR = { ok: 0x2e7d32, warn: 0xf9a825, alert: 0xc62828, none: 0x9e9e9e };
     var roomTints = [];
+    // #1170 outdoor space: grass ground + scattered trees + a park bench, no walls/ceiling.
+    var grassMat = new THREE.MeshStandardMaterial({ color: 0x6f9a4d, roughness: 1 });
+    var pathMat = new THREE.MeshStandardMaterial({ color: 0xc9bd9a, roughness: 1 });
+    var trunkMat = new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 1 });
+    var leafMat = new THREE.MeshStandardMaterial({ color: 0x3f7d35, roughness: 1 });
+    var benchMat = new THREE.MeshStandardMaterial({ color: 0x7a5230, roughness: 0.9 });
+    function addTree(rm, x, z) {
+      var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.24, 2.2, 8), trunkMat); trunk.position.set(x, 1.1, z); addToRoom(rm, trunk);
+      var c1 = new THREE.Mesh(new THREE.ConeGeometry(1.5, 2.6, 10), leafMat); c1.position.set(x, 3.0, z); addToRoom(rm, c1);
+      var c2 = new THREE.Mesh(new THREE.ConeGeometry(1.1, 2.0, 10), leafMat); c2.position.set(x, 4.1, z); addToRoom(rm, c2);
+    }
+    function addBench(rm, x, z, ry) {
+      var g = new THREE.Group();
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.1, 0.5), benchMat));   // seat
+      var back = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 0.08), benchMat); back.position.set(0, 0.3, -0.21); g.add(back);
+      [-0.7, 0.7].forEach(function (lx) { var lg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.45, 0.45), benchMat); lg.position.set(lx, -0.27, 0); g.add(lg); });
+      g.position.set(x, 0.5, z); g.rotation.y = ry || 0;
+      addToRoom(rm, g);   // addToRoom re-bases x/z into the room group; child positions stay local to g
+    }
+    function renderOutdoor(rm) {
+      var ground = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), grassMat);
+      ground.rotation.x = -Math.PI / 2; ground.position.set(rm.x_offset + rm.w / 2, 0.01, rm.z_offset + rm.d / 2); addToRoom(rm, ground);
+      var path = new THREE.Mesh(new THREE.PlaneGeometry(Math.min(2.2, rm.w * 0.3), rm.d), pathMat);
+      path.rotation.x = -Math.PI / 2; path.position.set(rm.x_offset + rm.w / 2, 0.02, rm.z_offset + rm.d / 2); addToRoom(rm, path);
+      // a few trees around the edges + a couple of benches along the path
+      var ox = rm.x_offset, oz = rm.z_offset, W = rm.w, D = rm.d;
+      addTree(rm, ox + W * 0.15, oz + D * 0.18); addTree(rm, ox + W * 0.85, oz + D * 0.2);
+      addTree(rm, ox + W * 0.12, oz + D * 0.82); addTree(rm, ox + W * 0.88, oz + D * 0.8);
+      addBench(rm, ox + W * 0.35, oz + D * 0.5, 0); addBench(rm, ox + W * 0.65, oz + D * 0.5, Math.PI);
+    }
     ROOMS.forEach(function (rm, i) {
       var cx = rm.x_offset + rm.w / 2, cz = rm.z_offset + rm.d / 2;
       RH = rm.h || WALL_H;   // this room's wall height (per-room, not building-wide)
       _curRoom = rm;         // wallSeg/wallSegH add into this room's (possibly rotated) group
+      if (rm.is_outdoor) { renderOutdoor(rm); return; }   // #1170 open-air: no walls/ceiling/dividers
       // Decorated/painted wall material for this room (if a wall image is set).
       var rwMat = wallMat;
       if (rm.wall_image) {
@@ -505,6 +637,24 @@
       addToRoom(rm, mapIcon); pickables.push(mapIcon);
     });
 
+    // #1169 stairs: a flight of steps linking two floors; click them to ascend/descend.
+    (BUILDING && BUILDING.stairs ? BUILDING.stairs : []).forEach(function (st) {
+      var x = st.x, z = st.z, y0 = (st.from_floor || 0) * FLOOR_H, y1 = (st.to_floor || 1) * FLOOR_H;
+      var rise = y1 - y0, depth = 0.3, width = st.width || 1.4, n = Math.max(4, Math.round(Math.abs(rise) / 0.2));
+      var stepMat = new THREE.MeshStandardMaterial({ color: 0xb6b1a8, roughness: 1 });
+      var z0 = z - n * depth / 2;
+      for (var s = 0; s < n; s++) {
+        var step = new THREE.Mesh(new THREE.BoxGeometry(width, 0.18, depth), stepMat);
+        step.position.set(x, y0 + (s + 0.5) * (rise / n), z0 + s * depth); scene.add(step);
+      }
+      var hit = new THREE.Mesh(new THREE.BoxGeometry(width, Math.abs(rise) + 1.2, n * depth), new THREE.MeshBasicMaterial({ visible: false }));
+      hit.position.set(x, (y0 + y1) / 2, z); hit.userData.action = 'stair';
+      hit.userData.top = { x: x, fy: y1, z: z0 - 0.8 }; hit.userData.bot = { x: x, fy: y0, z: z0 + n * depth + 0.8 };
+      scene.add(hit); pickables.push(hit);
+      var sUp = makeTextSprite('{{ __('Up') }}', 0.3); sUp.position.set(x, y0 + 1.0, z0 + n * depth + 0.8); scene.add(sUp);
+      var sDn = makeTextSprite('{{ __('Stairs') }}', 0.3); sDn.position.set(x, y1 + 1.0, z0 - 0.8); scene.add(sDn);
+    });
+
     // Controls. Desktop = first-person pointer-lock (WASD + mouse). Touch devices
     // can't pointer-lock, so they get OrbitControls (drag to look, pinch to zoom)
     // plus the walk-to buttons to travel.
@@ -540,6 +690,8 @@
         hb.style.display = (hb.style.display === 'block') ? 'none' : 'block';
       }
       if (e.code === 'KeyV' && panelOpen) viewFullDetails();
+      if (e.code === 'KeyZ') toggleZoom();      // #1163 - zoom in/out on what you're facing
+      if (e.code === 'KeyF') toggleTorch();     // #1164 - spotlight / torch for dark corners
     });
     document.addEventListener('keyup', function (e) { keys[e.code] = false; });
 
@@ -777,7 +929,9 @@
       } else if (s.image_url) {
         loadTex(s.image_url, function (tex) {
           var aspect = (tex.image && tex.image.width ? tex.image.width : 1) / (tex.image && tex.image.height ? tex.image.height : 1);
-          hangOnWall(wp, s, tex, aspect); doneOne();
+          if (s._room && s._room.is_outdoor) { freeStandImage(wp.x, wp.z, s, tex, aspect); }   // #1170 statues free-stand on the ground outdoors
+          else { hangOnWall(wp, s, tex, aspect); }
+          doneOne();
         }, undefined, function () { addPlaceholder(wp, s, addPedestal(wp.x, wp.z, 0.4, s._room)); doneOne(); });
       } else if (s.kind === 'pdf' && s.doc_url) {
         renderPdfTexture(s.doc_url, function (tex, aspect) {
@@ -851,24 +1005,26 @@
     function showNarr(on) { var n = document.getElementById('wtNarr'); if (n) n.style.display = on ? 'block' : 'none'; }
     function stopNarrate() { try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {} showNarr(false); }
     function setNarrLabel(html) { var n = document.getElementById('wtNarr'); if (n) { n.innerHTML = html; n.style.display = 'block'; } }
-    function speakText(text) {
+    var WT_VOICE = null;   // selected SpeechSynthesisVoice (user choice); null = browser default
+    function speakText(text, onDone) {
       try {
-        if (!('speechSynthesis' in window)) return;
+        if (!('speechSynthesis' in window)) { if (onDone) onDone(); return; }
         window.speechSynthesis.cancel();
         var u = new SpeechSynthesisUtterance(text);
         u.rate = 0.95; u.lang = document.documentElement.lang || 'en';
-        u.onend = function () { showNarr(false); };
-        u.onerror = function () { showNarr(false); };
+        if (WT_VOICE) { u.voice = WT_VOICE; u.lang = WT_VOICE.lang || u.lang; }
+        u.onend = function () { showNarr(false); if (onDone) onDone(); };
+        u.onerror = function () { showNarr(false); if (onDone) onDone(); };
         setNarrLabel('<i class="fas fa-volume-high me-1"></i>{{ __('Reading description... (Esc to stop)') }}');
         window.speechSynthesis.speak(u);
-      } catch (e) {}
+      } catch (e) { if (onDone) onDone(); }
     }
-    function narrate(s) {
+    function narrate(s, force) {
       var desc = (s.description || '').trim();
-      if (desc) { speakText((s.title ? s.title + '. ' : '') + desc); return; }
-      // No metadata for this object: ask the AI gateway to describe it, then read it out.
+      if (desc && !force) { speakText((s.title ? s.title + '. ' : '') + desc); return; }
+      // No metadata (or force=G): ask the AI gateway to describe it, then read it out.
       setNarrLabel('<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Generating AI description...') }}');
-      fetch('/exhibition-space/object/' + s.information_object_id + '/describe', { headers: { 'Accept': 'application/json' } })
+      fetch('/exhibition-space/object/' + s.information_object_id + '/describe' + (force ? '?fresh=1' : ''), { headers: { 'Accept': 'application/json' } })
         .then(function (r) { return r.json(); })
         .then(function (d) {
           var ai = (d && d.description) ? d.description : null;
@@ -887,6 +1043,11 @@
       inlay.style.display = 'block';
       panelOpen = true;
       currentStop = s;
+      // #1150: a docent leading a tour spotlights whatever object they open, so
+      // everyone following is flown to it on the next presence beat.
+      if (typeof CAN_DOCENT !== 'undefined' && CAN_DOCENT && myTourActive && s && s.information_object_id) { myFocus = s.information_object_id; }
+      // #1173 log the object view for visitor analytics (anonymous token only).
+      try { if (typeof VISIT_EVENT !== 'undefined' && s && s.information_object_id) { fetch(VISIT_EVENT, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': WT_CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ token: MY_TOKEN, type: 'object', object_id: s.information_object_id, room_id: (s._room ? s._room.id : null) }) }); } } catch (e) {}
       loadRelated(s);
     }
     function closeAllPopups() {
@@ -943,6 +1104,7 @@
     // Click-to-select via centre crosshair while locked.
     var ray = new THREE.Raycaster();
     renderer.domElement.addEventListener('click', function (e) {
+      if (window.__annotateMode) { placeGraffiti(e); return; }   // #1165 - graffiti mode: drop text where you look
       // Left click acts like Esc: if a popup is open, close it (and nothing else).
       if (panelOpen) { closeAllPopups(); return; }
       var ndc;
@@ -954,15 +1116,25 @@
         ndc = { x: 0, y: 0 };
       }
       ray.setFromCamera(ndc, camera);
+      var stealing = (keys['KeyS'] || window.__stealMode);
       var hits = ray.intersectObjects(pickables, true);
       if (hits.length) {
         var o = hits[0].object;
         while (o && !o.userData.stop && !o.userData.action) o = o.parent;
         if (o && o.userData.action === 'minimap') { toggleMinimap(true); return; }
         if (o && o.userData.action === 'door' && o.userData.doorDest) { enterRoom(o.userData.doorDest); return; }   // click a door to jump into that room
-        if (o && o.userData.stop) { openPanel(o.userData.stop); if (keys['KeyT']) narrate(o.userData.stop); }   // hold T (Talk) + click = read the description aloud
-
+        if (o && o.userData.action === 'stair') {   // #1169 click stairs to change floor
+          var cp = controls.getObject(), tp = o.userData.top, bt = o.userData.bot;
+          var dest = (Math.abs(cp.position.y - bt.fy) < Math.abs(cp.position.y - tp.fy)) ? tp : bt;
+          curFloorY = dest.fy; cp.position.set(dest.x, dest.fy + eyeBase, dest.z); return;
+        }
+        if (o && o.userData.stop) {
+          if (stealing) { setStealBtn(false); stealAlarm(o.userData.stop); return; }   // "steal" -> sets off the alarm
+          openPanel(o.userData.stop); if (keys['KeyT'] || keys['KeyG']) narrate(o.userData.stop, keys['KeyG']);   // T = talk; G = force a fresh AI description (#1167)
+          return;
+        }
       }
+      if (stealing) { var ns = nearestStealable(); if (ns) { setStealBtn(false); stealAlarm(ns); } }   // missed: grab the closest object
     });
 
     // Mouse wheel moves forward / backward through the gallery.
@@ -970,10 +1142,11 @@
     // take it in; returns to standing height when looking level/down.
     var _wd = new THREE.Vector3();
     var eyeBase = 1.6;   // standing eye height (m); hold U + mouse wheel to stand taller / crouch
+    var curFloorY = 0;   // #1169 Y of the floor the visitor is standing on (set by stairs)
     function eyeHeight() {
       camera.getWorldDirection(_wd);
       var up = Math.max(0, Math.min(1, (_wd.y - 0.2) / 0.7));
-      return Math.max(0.35, eyeBase - up * 1.1);   // looking up still leans/lowers the view
+      return curFloorY + Math.max(0.35, eyeBase - up * 1.1);   // floor-aware; looking up leans the view
     }
     function clampInRoom(o) {
       var m = 0.6;
@@ -1006,6 +1179,8 @@
       if (e.button !== 2) return;
       e.preventDefault();
       if (controls.isLocked) controls.unlock();   // right-click frees the mouse cursor
+      var hb = document.getElementById('roomHelp');   // #1166 - right-click shows the help/controls menu
+      if (hb) hb.style.display = 'block';
     });
 
     // Help / controls overlay toggle.
@@ -1018,10 +1193,11 @@
     // ---- Building minimap: top-down plan, tap a room to teleport into it ----
     function enterRoom(rm) {
       var c = roomWorld(rm, rm.x_offset + rm.w / 2, rm.z_offset + rm.d / 2);
-      controls.getObject().position.set(c.x, 1.6, c.z);
+      curFloorY = (rm.floor || 0) * FLOOR_H;   // #1169 land on the room's floor
+      controls.getObject().position.set(c.x, curFloorY + 1.6, c.z);
       if (orbit) {
-        camera.position.set(c.x, 1.6, c.z + Math.min(rm.w, rm.d) * 0.6 + 1);
-        orbit.target.set(c.x, 1.3, c.z); orbit.update();
+        camera.position.set(c.x, curFloorY + 1.6, c.z + Math.min(rm.w, rm.d) * 0.6 + 1);
+        orbit.target.set(c.x, curFloorY + 1.3, c.z); orbit.update();
       }
       curRoom = rm; toggleMinimap(false);
     }
@@ -1096,10 +1272,33 @@
     var clock = new THREE.Clock();
     var vel = new THREE.Vector3();
     var _nameTick = 0;
+    // heratio#1152 - VR locomotion: left thumbstick moves (headset-relative), right turns.
+    function xrMove(dt) {
+      var session = renderer.xr.getSession(); if (!session) return;
+      var mx = 0, mz = 0, turn = 0;
+      session.inputSources.forEach(function (src) {
+        if (!src.gamepad) return; var ax = src.gamepad.axes || [];
+        var x = (ax[2] !== undefined ? ax[2] : (ax[0] || 0)), y = (ax[3] !== undefined ? ax[3] : (ax[1] || 0));
+        if (src.handedness === 'right') { turn += x; } else { mx += x; mz += y; }
+      });
+      if (Math.abs(mx) < 0.15) mx = 0; if (Math.abs(mz) < 0.15) mz = 0; if (Math.abs(turn) < 0.25) turn = 0;
+      var o = controls.getObject();
+      if (turn) o.rotation.y -= turn * dt * 1.6;
+      if (mx || mz) {
+        var cam = renderer.xr.getCamera(camera), dir = new THREE.Vector3(); cam.getWorldDirection(dir); dir.y = 0;
+        if (dir.lengthSq() < 1e-4) return; dir.normalize();
+        var right = new THREE.Vector3(dir.z, 0, -dir.x), sp = 2.5 * dt;
+        o.position.x += (dir.x * (-mz) + right.x * mx) * sp;
+        o.position.z += (dir.z * (-mz) + right.z * mx) * sp;
+        following = false;
+        o.position.x = Math.max(BLD_minX + 0.6, Math.min(BLD_maxX - 0.6, o.position.x));
+        o.position.z = Math.max(BLD_minZ + 0.6, Math.min(BLD_maxZ - 0.6, o.position.z));
+      }
+    }
     function animate() {
-      requestAnimationFrame(animate);
       var dt = Math.min(0.05, clock.getDelta());
       if ((_nameTick = (_nameTick + 1) % 12) === 0) { updateRoomName(); cullRooms(); if (liveOn) updateLive(); }   // ~5x/sec
+      if (renderer.xr.isPresenting) { xrMove(dt); if (window._wtPresenceFrame) window._wtPresenceFrame(dt); renderer.render(scene, camera); return; }
       if (fly) {
         fly.t += dt / fly.dur;
         var fk = Math.min(1, fly.t);
@@ -1124,15 +1323,274 @@
         if (keys['KeyA'] || keys['ArrowLeft']) vel.x -= 1;
         if (keys['KeyD'] || keys['ArrowRight']) vel.x += 1;
         if (vel.lengthSq() > 0) {
+          following = false;                       // manual movement breaks docent-follow
           vel.normalize();
           controls.moveRight(vel.x * speed * dt);
           controls.moveForward(vel.z * speed * dt);
         }
         clampInRoom(controls.getObject());
       }
+      if (window._wtPresenceFrame) window._wtPresenceFrame(dt);
+      if (typeof applyZoom === 'function') applyZoom(dt);   // #1163 smooth zoom
       renderer.render(scene, camera);
     }
-    animate();
+
+    // ===== heratio#1150 - multi-user presence + live docent (HTTP polling) =====
+    var PRESENCE_BEAT = '{{ route('exhibition-space.presence.beat', ['slug' => $space->slug]) }}';
+    var PRESENCE_LEAVE = '{{ route('exhibition-space.presence.leave', ['slug' => $space->slug]) }}';
+    var VISIT_EVENT = '{{ route('exhibition-space.visit-event', ['slug' => $space->slug]) }}';   // #1173
+    var WT_CSRF = '{{ csrf_token() }}';
+    var CAN_DOCENT = {{ ($canDocent ?? false) ? 'true' : 'false' }};
+    var MY_TOKEN = sessionStorage.getItem('wt_token');
+    if (!MY_TOKEN) { MY_TOKEN = 'p' + Math.random().toString(36).slice(2, 12); sessionStorage.setItem('wt_token', MY_TOKEN); }
+    function wtHashHue(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360; return h; }
+    var MY_COLOR = 'hsl(' + wtHashHue(MY_TOKEN) + ',70%,55%)';
+    var MY_NAME = sessionStorage.getItem('wt_name') || (CAN_DOCENT ? '{{ __('Docent') }}' : '{{ __('Visitor') }}');
+    var myTourActive = false, myFocus = 0, myDocentMsg = '';
+    var following = false, followTarget = null, lastFocusSeen = 0;
+    var avatars = {};   // token -> { grp, tx, tz, tyaw, role }
+
+    function wtHueColor(hue) { var c = new THREE.Color(); c.setHSL((hue % 360) / 360, 0.7, 0.55); return c; }
+    function stopByIo(ioId) { for (var i = 0; i < STOPS.length; i++) { if (STOPS[i].information_object_id === ioId) return STOPS[i]; } return null; }
+    function makeAvatar(p) {
+      var grp = new THREE.Group();
+      var body = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.3, 1.1, 12), new THREE.MeshStandardMaterial({ color: wtHueColor(wtHashHue(p.token || p.name || 'x')) }));
+      body.position.y = 0.75; grp.add(body);
+      var head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12), new THREE.MeshStandardMaterial({ color: 0xf1d6b8 })); head.position.y = 1.5; grp.add(head);
+      if (p.role === 'docent') { var ring = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.04, 8, 20), new THREE.MeshStandardMaterial({ color: 0xffd24a, emissive: 0x5a4600 })); ring.rotation.x = Math.PI / 2; ring.position.y = 2.0; grp.add(ring); }
+      var lab = makeTextSprite((p.role === 'docent' ? '★ ' : '') + (p.name || 'Visitor'), 0.34); lab.position.y = 2.2; grp.add(lab);
+      scene.add(grp); return grp;
+    }
+    function applyPeers(peers) {
+      var seen = {};
+      peers.forEach(function (p) {
+        seen[p.token] = 1;
+        var a = avatars[p.token];
+        if (!a) { a = { grp: makeAvatar(p), role: p.role }; avatars[p.token] = a; a.grp.position.set(p.x || 0, 0, p.z || 0); }
+        else if (a.role !== p.role) { scene.remove(a.grp); a.grp = makeAvatar(p); a.role = p.role; }   // role changed -> rebuild
+        a.tx = (p.x != null ? p.x : a.grp.position.x); a.tz = (p.z != null ? p.z : a.grp.position.z); a.tyaw = (p.yaw != null ? p.yaw : 0);
+      });
+      Object.keys(avatars).forEach(function (t) { if (!seen[t]) { scene.remove(avatars[t].grp); delete avatars[t]; } });
+      var cnt = document.getElementById('wtPeopleCount'); if (cnt) cnt.textContent = (peers.length + 1);
+      var list = document.getElementById('wtPeopleList');
+      if (list) { var html = '<div>• {{ __('You') }}' + (CAN_DOCENT && myTourActive ? ' ★' : '') + '</div>'; peers.forEach(function (p) { html += '<div>• ' + (p.role === 'docent' ? '★ ' : '') + (p.name || 'Visitor').replace(/[<>&]/g, '') + '</div>'; }); list.innerHTML = html; }
+    }
+    function applyTour(tour) {
+      var banner = document.getElementById('wtDocentBanner'), followBtn = document.getElementById('wtFollowBtn');
+      var theirTour = tour && tour.docent_token !== MY_TOKEN;
+      if (theirTour) {
+        if (followBtn) followBtn.style.display = 'block';
+        followTarget = (following && tour.x != null) ? { x: tour.x, z: tour.z } : null;
+        if (following && tour.focus_object_id && tour.focus_object_id !== lastFocusSeen) { lastFocusSeen = tour.focus_object_id; var st = stopByIo(tour.focus_object_id); if (st) flyTo(st); }
+        if (banner) { banner.textContent = (following ? '{{ __('Following') }} ' : '{{ __('Guided tour live:') }} ') + (tour.docent_name || 'Docent') + (tour.msg ? (' — ' + tour.msg) : ''); banner.style.display = 'block'; }
+      } else {
+        if (followBtn) followBtn.style.display = 'none';
+        following = false; followTarget = null;
+        if (banner) banner.style.display = 'none';
+      }
+      if (CAN_DOCENT && myTourActive && banner) { banner.textContent = '{{ __('You are leading a tour') }}' + (myDocentMsg ? (' — ' + myDocentMsg) : ''); banner.style.display = 'block'; }
+    }
+    function wtBeat() {
+      var pos = controls.getObject().position, rm = findRoomAtWorld(pos.x, pos.z, null);
+      var dir = new THREE.Vector3(); camera.getWorldDirection(dir);
+      var device = (renderer.xr && renderer.xr.isPresenting) ? 'vr' : (isTouch ? 'mobile' : 'desktop');
+      var payload = { token: MY_TOKEN, name: MY_NAME, color: MY_COLOR, role: (CAN_DOCENT && myTourActive ? 'docent' : 'visitor'),
+        room_id: (rm ? rm.id : null), x: pos.x, y: pos.y, z: pos.z, yaw: Math.atan2(dir.x, dir.z), device: device,
+        tour_active: (myTourActive ? 1 : 0), focus_object_id: myFocus, docent_msg: myDocentMsg };
+      fetch(PRESENCE_BEAT, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': WT_CSRF, 'Accept': 'application/json' }, body: JSON.stringify(payload) })
+        .then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok) { applyPeers(d.peers || []); applyTour(d.tour || null); } }).catch(function () {});
+    }
+    window._wtPresenceFrame = function (dt) {
+      var k = Math.min(1, dt * 8);
+      Object.keys(avatars).forEach(function (t) {
+        var a = avatars[t]; if (a.tx == null) return;
+        a.grp.position.x += (a.tx - a.grp.position.x) * k; a.grp.position.z += (a.tz - a.grp.position.z) * k;
+        var d = a.tyaw - a.grp.rotation.y; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; a.grp.rotation.y += d * k;
+      });
+      if (following && followTarget) { var o = controls.getObject(); o.position.x += (followTarget.x - o.position.x) * Math.min(1, dt * 2); o.position.z += (followTarget.z - o.position.z) * Math.min(1, dt * 2); }
+    };
+    // UI wiring
+    (function () {
+      var pBtn = document.getElementById('wtPeopleBtn'), panel = document.getElementById('wtPeople');
+      if (pBtn) pBtn.addEventListener('click', function (e) { e.stopPropagation(); panel.style.display = (panel.style.display === 'block' ? 'none' : 'block'); });
+      var pc = document.getElementById('wtPeopleClose'); if (pc) pc.addEventListener('click', function () { panel.style.display = 'none'; });
+      var ni = document.getElementById('wtNameInput'); if (ni) { ni.value = MY_NAME; ni.addEventListener('change', function () { MY_NAME = (this.value || '').slice(0, 40) || 'Visitor'; sessionStorage.setItem('wt_name', MY_NAME); wtBeat(); }); }
+      var fb = document.getElementById('wtFollowBtn'); if (fb) fb.addEventListener('click', function () { following = !following; fb.classList.toggle('btn-warning', !following); fb.classList.toggle('btn-secondary', following); fb.innerHTML = following ? '<i class="fas fa-xmark me-1"></i>{{ __('Stop following') }}' : '<i class="fas fa-shoe-prints me-1"></i>{{ __('Follow the docent') }}'; });
+      var tb = document.getElementById('wtTourBtn'), dm = document.getElementById('wtDocentMsg');
+      if (tb) tb.addEventListener('click', function () { myTourActive = !myTourActive; if (!myTourActive) { myFocus = 0; myDocentMsg = ''; if (dm) dm.value = ''; } tb.classList.toggle('btn-success', !myTourActive); tb.classList.toggle('btn-danger', myTourActive); tb.innerHTML = myTourActive ? '<i class="fas fa-stop me-1"></i>{{ __('Stop tour') }}' : '<i class="fas fa-chalkboard-user me-1"></i>{{ __('Start guided tour') }}'; if (dm) dm.style.display = myTourActive ? 'block' : 'none'; wtBeat(); });
+      if (dm) dm.addEventListener('input', function () { myDocentMsg = (this.value || '').slice(0, 200); });
+    })();
+    setInterval(wtBeat, 450); wtBeat();
+    window.addEventListener('pagehide', function () { try { var fd = new FormData(); fd.append('_token', WT_CSRF); fd.append('token', MY_TOKEN); navigator.sendBeacon(PRESENCE_LEAVE, fd); } catch (e) {} });
+
+    // ===== heratio#1163/#1164/#1165 - zoom, torch, wall graffiti =====
+    // #1163 Zoom: Z toggles a telephoto FOV so you can inspect detail from where you stand.
+    var BASE_FOV = camera.fov, zoomOn = false;
+    function toggleZoom() { zoomOn = !zoomOn; }
+    function applyZoom(dt) {
+      var target = zoomOn ? 26 : BASE_FOV, f = camera.fov + (target - camera.fov) * Math.min(1, dt * 8);
+      if (Math.abs(f - camera.fov) > 0.01) { camera.fov = f; camera.updateProjectionMatrix(); }
+    }
+    // #1164 Torch: F toggles a headlamp spotlight for dark corners.
+    var torch = new THREE.SpotLight(0xfff3da, 0, 22, Math.PI / 5, 0.4, 1.2);
+    torch.position.set(0, 0, 0); camera.add(torch);
+    torch.target.position.set(0, 0, -1); camera.add(torch.target);
+    if (!scene.children.includes(camera)) scene.add(camera);   // ensure camera (with torch) is in the graph
+    function toggleTorch() { torch.intensity = torch.intensity > 0 ? 0 : 2.4; }
+    // #1165 Wall graffiti / annotations.
+    var ANNOTATIONS = @json($annotations ?? []);
+    var ANNOT_URL = '{{ route('exhibition-space.annotation', ['slug' => $space->slug]) }}';
+    function makeGraffitiSprite(text, color) {
+      var cv = document.createElement('canvas'), cx = cv.getContext('2d');
+      cx.font = 'bold 64px "Comic Sans MS", "Marker Felt", cursive';
+      var w = Math.min(1400, cx.measureText(text).width + 60);
+      cv.width = w; cv.height = 110;
+      cx.font = 'bold 64px "Comic Sans MS", "Marker Felt", cursive';
+      cx.lineWidth = 7; cx.strokeStyle = 'rgba(0,0,0,.55)'; cx.textBaseline = 'middle';
+      cx.fillStyle = color || '#e23b3b';
+      cx.strokeText(text, 18, 58); cx.fillText(text, 18, 58);
+      var tx = new THREE.CanvasTexture(cv); tx.minFilter = THREE.LinearFilter; tx.needsUpdate = true;
+      var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, transparent: true, depthWrite: false }));
+      sp.scale.set(w / 110 * 0.9, 0.9, 1);
+      return sp;
+    }
+    function addGraffiti(a) {
+      var sp = makeGraffitiSprite(a.text, a.color); sp.position.set(a.x, a.y, a.z);
+      sp.userData.graffiti = true; scene.add(sp);
+    }
+    (ANNOTATIONS || []).forEach(addGraffiti);   // render existing graffiti
+    function placeGraffiti(e) {
+      var ndc;
+      if (orbit) { var r = renderer.domElement.getBoundingClientRect(); ndc = { x: ((e.clientX - r.left) / r.width) * 2 - 1, y: -((e.clientY - r.top) / r.height) * 2 + 1 }; }
+      else { if (!controls.isLocked) { setAnnotate(false); return; } ndc = { x: 0, y: 0 }; }
+      ray.setFromCamera(ndc, camera);
+      var hits = ray.intersectObjects(scene.children, true).filter(function (h) { return !(h.object.userData && h.object.userData.graffiti) && h.distance > 0.4; });
+      if (!hits.length) return;
+      var p = hits[0].point, txt = window.prompt('{{ __('Graffiti text:') }}', '');
+      if (!txt) { return; }
+      var rm = findRoomAtWorld(p.x, p.z, null);
+      var a = { x: p.x, y: p.y, z: p.z, text: txt.slice(0, 160), room_id: (rm ? rm.id : null), color: '#e23b3b',
+        author: (typeof MY_NAME !== 'undefined' ? MY_NAME : '') };
+      addGraffiti(a);
+      var body = 'text=' + encodeURIComponent(a.text) + '&x=' + a.x + '&y=' + a.y + '&z=' + a.z + '&room_id=' + (a.room_id || '') + '&color=' + encodeURIComponent(a.color) + '&author=' + encodeURIComponent(a.author) + '&_token=' + encodeURIComponent(WT_CSRF);
+      fetch(ANNOT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': WT_CSRF, 'Accept': 'application/json' }, body: body }).catch(function () {});
+      setAnnotate(false);
+    }
+    function setAnnotate(on) {
+      window.__annotateMode = on;
+      var b = document.getElementById('wtGraffitiBtn'); if (b) { b.classList.toggle('btn-danger', on); b.classList.toggle('btn-dark', !on); }
+      var ch = document.getElementById('roomCrosshair'); if (ch && on && controls.isLocked) ch.style.display = 'block';
+    }
+    var gBtn = document.getElementById('wtGraffitiBtn');
+    if (gBtn) gBtn.addEventListener('click', function (e) { e.stopPropagation(); setAnnotate(!window.__annotateMode); });
+    var tBtn = document.getElementById('wtTorchBtn');
+    if (tBtn) tBtn.addEventListener('click', function (e) { e.stopPropagation(); toggleTorch(); tBtn.classList.toggle('btn-warning', torch.intensity > 0); tBtn.classList.toggle('btn-dark', torch.intensity === 0); });
+
+    // ===== authored audio guided tours (guide flies you around + narrates) =====
+    var TOURS = @json($guidedTour ?? []);
+    var tourState = { i: 0, playing: false, timer: null, stops: [] };
+    var tourPlayBtn = document.getElementById('wtTourPlayBtn');
+    var tourSelEl = document.getElementById('wtTourSel'), tourPick = document.getElementById('wtTourPick');
+    if (tourPlayBtn && TOURS.length) tourPlayBtn.style.display = 'block';
+    if (tourSelEl && TOURS.length) {
+      TOURS.forEach(function (t, i) { var o = document.createElement('option'); o.value = i; o.textContent = t.name || ('Tour ' + (i + 1)); tourSelEl.appendChild(o); });
+      if (TOURS.length > 1 && tourPick) tourPick.style.display = 'block';   // only show the picker when there is a choice
+    }
+    function tourBanner(txt) { var b = document.getElementById('wtTourBanner'), t = document.getElementById('wtTourText'); if (t) t.textContent = txt; if (b) b.style.display = 'block'; }
+    function updateTourBtn() { if (!tourPlayBtn) return; tourPlayBtn.innerHTML = tourState.playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>'; tourPlayBtn.classList.toggle('btn-warning', tourState.playing); tourPlayBtn.classList.toggle('btn-success', !tourState.playing); }
+    function tourGoto(i) {
+      var arr = tourState.stops;
+      if (i >= arr.length) { tourStop(); return; }
+      tourState.i = i; var s = arr[i], st = stopByIo(s.io_id);
+      tourBanner((i + 1) + '/' + arr.length + '   ' + (st ? st.title : '') + (s.narration ? ('   -   ' + s.narration) : ''));
+      if (st) flyTo(st);
+      var advance = function () { if (!tourState.playing) return; clearTimeout(tourState.timer); tourState.timer = setTimeout(function () { tourGoto(i + 1); }, Math.max(2, (s.dwell || 6)) * 1000); };
+      if (s.narration) { speakText((st ? st.title + '. ' : '') + s.narration, advance); }
+      else { fetch('/exhibition-space/object/' + s.io_id + '/describe', { headers: { 'Accept': 'application/json' } }).then(function (r) { return r.json(); }).then(function (d) { speakText((st ? st.title + '. ' : '') + ((d && d.description) || ''), advance); }).catch(advance); }
+    }
+    var tourQuick = document.getElementById('wtTourQuick'), tourQuickSel = document.getElementById('wtTourQuickSel');
+    function quickShow(on) { if (tourQuick && isTouch && TOURS.length) tourQuick.style.display = on ? 'block' : 'none'; }
+    function tourPlay(forceIdx) {
+      if (!TOURS.length) return;
+      var idx = (typeof forceIdx === 'number') ? forceIdx : (tourSelEl ? (+tourSelEl.value || 0) : 0);
+      tourState.stops = (TOURS[idx] && TOURS[idx].stops) || [];
+      if (!tourState.stops.length) return;
+      quickShow(false);
+      tourState.playing = true; updateTourBtn(); tourGoto(tourState.i || 0);
+    }
+    function tourPause() { tourState.playing = false; clearTimeout(tourState.timer); stopNarrate(); updateTourBtn(); }
+    function tourStop() { tourState.playing = false; tourState.i = 0; clearTimeout(tourState.timer); stopNarrate(); var b = document.getElementById('wtTourBanner'); if (b) b.style.display = 'none'; updateTourBtn(); quickShow(true); }
+    if (tourPlayBtn) tourPlayBtn.addEventListener('click', function (e) { e.stopPropagation(); tourState.playing ? tourPause() : tourPlay(); });
+    var tourStopBtn = document.getElementById('wtTourStopBtn'); if (tourStopBtn) tourStopBtn.addEventListener('click', function (e) { e.stopPropagation(); tourStop(); });
+    if (tourSelEl) tourSelEl.addEventListener('change', function () { tourStop(); });   // switching tour resets to start
+    // Mobile quick-launch: walking is hard on touch, so a big button just plays the tour.
+    if (tourQuick && isTouch && TOURS.length) {
+      tourQuick.style.display = 'block';
+      if (TOURS.length > 1 && tourQuickSel) {
+        tourQuickSel.classList.remove('d-none');
+        TOURS.forEach(function (t, i) { var o = document.createElement('option'); o.value = i; o.textContent = t.name || ('Tour ' + (i + 1)); tourQuickSel.appendChild(o); });
+      }
+      var qb = document.getElementById('wtTourQuickBtn');
+      if (qb) qb.addEventListener('click', function (e) { e.stopPropagation(); tourPlay(tourQuickSel ? (+tourQuickSel.value || 0) : 0); });
+    }
+
+    // ===== narration voice selection =====
+    function populateVoices() {
+      if (!('speechSynthesis' in window)) return;
+      var sel = document.getElementById('wtVoiceSel'); if (!sel) return;
+      var vs = window.speechSynthesis.getVoices() || []; if (!vs.length) return;
+      var saved = sessionStorage.getItem('wt_voice');
+      sel.innerHTML = '<option value="">{{ __('Default') }}</option>';
+      vs.forEach(function (v) { var o = document.createElement('option'); o.value = v.name; o.textContent = v.name + ' (' + v.lang + ')'; if (v.name === saved) { o.selected = true; WT_VOICE = v; } sel.appendChild(o); });
+      sel.onchange = function () { var v = vs.filter(function (x) { return x.name === sel.value; })[0] || null; WT_VOICE = v; if (v) { sessionStorage.setItem('wt_voice', v.name); speakText('{{ __('Voice selected.') }}'); } else { sessionStorage.removeItem('wt_voice'); } };
+    }
+    if ('speechSynthesis' in window) { populateVoices(); window.speechSynthesis.onvoiceschanged = populateVoices; }
+
+    // ===== "steal" easter egg: click an object in steal mode (or S+click) -> alarm =====
+    var alarmState = { on: false, flick: null, timer: null, ac: null, osc: null, pulse: null, gain: null };
+    var _stealWp = new THREE.Vector3();
+    function nearestStealable() {   // closest placed object to the visitor (forgiving aim, esp. mobile)
+      var cp = controls.getObject().position, best = null, bd = Infinity;
+      pickables.forEach(function (o) { if (!o.userData || !o.userData.stop) return; o.getWorldPosition(_stealWp); var d = _stealWp.distanceTo(cp); if (d < bd) { bd = d; best = o.userData.stop; } });
+      return best;
+    }
+    function alarmBeep(start) {
+      try {
+        if (start) {
+          if (!alarmState.ac) alarmState.ac = new (window.AudioContext || window.webkitAudioContext)();
+          var ac = alarmState.ac; if (ac.state === 'suspended') ac.resume();
+          alarmState.osc = ac.createOscillator(); alarmState.gain = ac.createGain();
+          alarmState.osc.type = 'square'; alarmState.osc.frequency.value = 820; alarmState.gain.gain.value = 0;
+          alarmState.osc.connect(alarmState.gain); alarmState.gain.connect(ac.destination); alarmState.osc.start();
+          alarmState.pulse = setInterval(function () { alarmState.gain.gain.value = alarmState.gain.gain.value > 0.01 ? 0 : 0.12; alarmState.osc.frequency.value = alarmState.osc.frequency.value > 800 ? 620 : 920; }, 250);
+        } else {
+          if (alarmState.pulse) clearInterval(alarmState.pulse);
+          if (alarmState.osc) { try { alarmState.osc.stop(); } catch (e) {} alarmState.osc = null; }
+        }
+      } catch (e) {}
+    }
+    function stealAlarm(s) {
+      if (alarmState.on) return; alarmState.on = true;
+      var ov = document.getElementById('wtAlarm'), bar = document.getElementById('wtAlarmBar'), txt = document.getElementById('wtAlarmText');
+      if (txt) txt.textContent = '{{ __('ALARM! Put') }} ' + (s && s.title ? s.title : '{{ __('that') }}') + ' {{ __('back!') }}';
+      if (ov) ov.style.display = 'block'; if (bar) bar.style.display = 'block';
+      var f = false;
+      alarmState.flick = setInterval(function () { f = !f; if (ov) ov.style.opacity = f ? '0.4' : '0'; hemiLight.intensity = f ? 0.25 : 0.9; hemiLight.color.setHex(f ? 0xff3030 : 0xffffff); }, 130);
+      alarmBeep(true);
+      alarmState.timer = setTimeout(stopAlarm, 5000);   // auto switch-off after 5s
+    }
+    function stopAlarm() {
+      if (!alarmState.on) return; alarmState.on = false;
+      clearInterval(alarmState.flick); clearTimeout(alarmState.timer); alarmBeep(false);
+      var ov = document.getElementById('wtAlarm'), bar = document.getElementById('wtAlarmBar');
+      if (ov) { ov.style.opacity = '0'; ov.style.display = 'none'; } if (bar) bar.style.display = 'none';
+      hemiLight.intensity = 0.9; hemiLight.color.setHex(0xffffff);
+    }
+    var alarmOff = document.getElementById('wtAlarmOff'); if (alarmOff) alarmOff.addEventListener('click', function (e) { e.stopPropagation(); stopAlarm(); });
+    function setStealBtn(on) { window.__stealMode = on; var b = document.getElementById('wtStealBtn'); if (b) { b.classList.toggle('btn-danger', on); b.classList.toggle('btn-dark', !on); } }
+    var stealBtn = document.getElementById('wtStealBtn'); if (stealBtn) stealBtn.addEventListener('click', function (e) { e.stopPropagation(); setStealBtn(!window.__stealMode); });
+
+    renderer.setAnimationLoop(animate);   // #1152 - drives both desktop and WebXR frames
 
     window.addEventListener('resize', function () {
       W = room.clientWidth || W; H = room.clientHeight || H;

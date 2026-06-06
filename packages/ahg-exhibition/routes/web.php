@@ -46,7 +46,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/plan/save', [ExhibitionSpaceController::class, 'savePlanAjax'])->name('exhibition-space.plan.save')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/doors', [ExhibitionSpaceController::class, 'saveDoorsAjax'])->name('exhibition-space.plan.doors')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/shape', [ExhibitionSpaceController::class, 'saveShapeAjax'])->name('exhibition-space.plan.shape')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/plan/windows', [ExhibitionSpaceController::class, 'saveWindowsAjax'])->name('exhibition-space.plan.windows')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/add-room', [ExhibitionSpaceController::class, 'addRoomAjax'])->name('exhibition-space.plan.add-room')->middleware('acl:create');
+    // authored audio guided tour (curator saves route + narration)
+    Route::post('/exhibition-space/{slug}/guided-tour', [ExhibitionSpaceController::class, 'saveGuidedTourAjax'])->name('exhibition-space.guided-tour')->middleware('acl:update');
     // heratio#1146 - live data link
     Route::post('/exhibition-space/{slug}/readings', [ExhibitionSpaceController::class, 'recordReadingsAjax'])->name('exhibition-space.readings')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/readings/simulate', [ExhibitionSpaceController::class, 'simulateReadingsAjax'])->name('exhibition-space.readings.simulate')->middleware('acl:update');
@@ -87,6 +90,17 @@ Route::get('/exhibition-space/{slug}/walkthrough', [ExhibitionSpaceController::c
 Route::get('/exhibition-space/{slug}/recommend', [ExhibitionSpaceController::class, 'recommendAjax'])->name('exhibition-space.recommend');
 // AI-describe an object with no metadata (walkthrough T=talk docent, public)
 Route::get('/exhibition-space/object/{ioId}/describe', [ExhibitionSpaceController::class, 'describeObjectAjax'])->name('exhibition-space.describe')->whereNumber('ioId');
+// heratio#1150 — multi-user presence (public; docent role gated server-side on auth)
+Route::post('/exhibition-space/{slug}/presence/beat', [ExhibitionSpaceController::class, 'presenceBeatAjax'])->name('exhibition-space.presence.beat');
+Route::post('/exhibition-space/{slug}/presence/leave', [ExhibitionSpaceController::class, 'presenceLeaveAjax'])->name('exhibition-space.presence.leave');
+// heratio#1165 — wall graffiti / annotations (public, walkthrough)
+Route::post('/exhibition-space/{slug}/annotation', [ExhibitionSpaceController::class, 'annotationAddAjax'])->name('exhibition-space.annotation');
+// heratio#1173 — visitor analytics event (public, walkthrough)
+Route::post('/exhibition-space/{slug}/visit-event', [ExhibitionSpaceController::class, 'visitEventAjax'])->name('exhibition-space.visit-event');
+// heratio#1151 — open-standard interoperability exports (public, read-only, CORS *)
+Route::get('/exhibition-space/{slug}/manifest.json', [ExhibitionSpaceController::class, 'iiifManifest'])->name('exhibition-space.iiif');
+Route::get('/exhibition-space/{slug}/scene.json', [ExhibitionSpaceController::class, 'sceneExport'])->name('exhibition-space.scene');
+Route::get('/exhibition-space/{slug}/exhibition.jsonld', [ExhibitionSpaceController::class, 'exhibitionJsonLd'])->name('exhibition-space.jsonld');
 
 Route::middleware('admin')->group(function () {
     Route::get('/exhibition-space/{slug}/delete', [ExhibitionSpaceController::class, 'confirmDelete'])->name('exhibition-space.confirmDelete');

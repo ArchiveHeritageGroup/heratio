@@ -55,6 +55,85 @@ suggestion to glide to that object. Suggestions are based on how object titles r
 each other, optionally enriched with AI-generated reasons. Curators can pre-generate AI
 recommendations from the builder.
 
+## Hear an object described (audio docent)
+
+In the walkthrough, **hold T and click an object** to have its description read aloud.
+If the object has no description recorded, Heratio asks the AI gateway to generate a short
+docent description on the spot, reads that out, and marks it in the panel. To force a
+**fresh AI description** even when one exists, **hold G and click**. Press **Esc** to stop.
+
+Choose the speaking voice under the **Controls** panel (the **?** button) -> **Narration
+voice**; on most phones and Macs the system neural voices are available there.
+
+## Multiple visitors and live guided tours
+
+Several people can walk the same exhibition at once. Each visitor appears to the others
+as a named avatar that moves in real time (updated a few times a second). The **People**
+button (top-right) shows who is here; you can set your display name.
+
+Logged-in staff can run a **guided tour**: press **Start guided tour**, and visitors get
+a **Follow the docent** button that tethers their view to yours (it releases the moment
+they move themselves). While leading, whatever object you open is **spotlighted** so
+everyone following is flown to it, and you can post a short message banner to the group.
+
+## Virtual reality (WebXR)
+
+On a VR headset with a WebXR browser, a **VR button** appears in the walkthrough. Enter
+VR for room-scale, head-tracked viewing; the **left thumbstick moves** and the **right
+thumbstick turns**. On ordinary desktops and phones the button stays hidden and the normal
+controls apply.
+
+## Share and interoperability
+
+From the builder, the **Share & interoperability** card exposes the exhibition in open
+standards any other system can read:
+
+- **IIIF manifest** (`/exhibition-space/{slug}/manifest.json`) - opens in IIIF viewers
+  such as Mirador or the Universal Viewer, and can be harvested by other institutions.
+- **3D scene manifest** (`/exhibition-space/{slug}/scene.json`) - rooms and object
+  placements so another 3D viewer can rebuild the space.
+- **Linked data** (`/exhibition-space/{slug}/exhibition.jsonld`) - a schema.org
+  `ExhibitionEvent` for search engines and linked-data tools.
+- An **embed snippet** to drop the live walkthrough into any website with an iframe.
+
+## Authored audio guided tours
+
+Curators can pre-build one or more **guided tours**: an ordered route of objects, each
+with a script the guide reads aloud and a dwell time. Build them in the builder's
+**Guided tour (audio)** card - add objects, type the narration (or tap the wand to draft
+it with AI), set seconds per stop, reorder, and save. You can keep several named tours.
+
+Visitors press the green **Play** button in the walkthrough (or pick a tour in the
+Controls panel when there is more than one). The guide flies you from object to object,
+speaks each script, waits, then moves on. A banner shows the current stop and text;
+Pause / Stop are there too.
+
+**On mobile**, where walking is fiddly, a big **Start guided tour** button appears at the
+bottom of the screen - tap it and the tour drives the whole visit for you.
+
+## Graffiti / wall tags
+
+Tap the **spray-can** button, then click a wall to leave a short graffiti tag. Tags are
+saved and shown to everyone who visits. (The demo war room and AI room already carry a
+few.)
+
+## All the walkthrough controls
+
+| Action | Control |
+|---|---|
+| Move | W A S D or arrow keys (drag to look on touch) |
+| Forward / back | mouse wheel |
+| Stand taller / crouch | hold U + mouse wheel |
+| Zoom in / out | Z |
+| Torch (light dark corners) | F or the bulb button |
+| Hear description | hold T + click an object |
+| Force fresh AI description | hold G + click an object |
+| Graffiti | spray-can button, then click a wall |
+| Help menu | right-click, or the ? button |
+| Open full record | V |
+| Virtual reality | the VR button (headset) |
+| Guided tour | the Play button (big Start button on mobile) |
+
 ## What makes it a "twin"
 
 A virtual model becomes a digital twin once it is linked to the physical space through
@@ -65,6 +144,7 @@ before it happens.
 
 ## Roadmap
 
-Planned extensions include shared multi-user tours with a live docent, VR/AR headset
-support (WebXR), and sharing twins across institutions via open 3D and linked-data
-standards.
+Further extensions under consideration: **natural neural narration voice** routed through
+the AI gateway (issue #1168), a WebGPU renderer and server-GPU pixel-streaming for very
+heavy scenes, live cross-institution federation of exhibitions, and importing photoreal
+3D scans (photogrammetry / Matterport / glTF) as room backdrops.

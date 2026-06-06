@@ -152,6 +152,41 @@
           <small id="wallHint" class="text-muted d-block mt-1">{{ __('Add a divider wall to hang objects in the middle of the room.') }}</small>
         </div>
       </div>
+
+      {{-- heratio#1151 - open-standard exports + embed --}}
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong><i class="fas fa-share-nodes me-1"></i>{{ __('Share & interoperability') }}</strong></div>
+        <div class="card-body small">
+          <p class="text-muted mb-2">{{ __('Open-standard exports so other systems and institutions can consume this twin.') }}</p>
+          <a class="btn btn-sm btn-outline-secondary w-100 mb-1" target="_blank" rel="noopener" href="{{ route('exhibition-space.iiif', ['slug' => $space->slug]) }}"><i class="fas fa-image me-1"></i>{{ __('IIIF manifest') }}</a>
+          <a class="btn btn-sm btn-outline-secondary w-100 mb-1" target="_blank" rel="noopener" href="{{ route('exhibition-space.scene', ['slug' => $space->slug]) }}"><i class="fas fa-cube me-1"></i>{{ __('3D scene (JSON)') }}</a>
+          <a class="btn btn-sm btn-outline-secondary w-100 mb-2" target="_blank" rel="noopener" href="{{ route('exhibition-space.jsonld', ['slug' => $space->slug]) }}"><i class="fas fa-diagram-project me-1"></i>{{ __('Linked data (JSON-LD)') }}</a>
+          <label class="form-label mb-1">{{ __('Embed this walkthrough') }}</label>
+          <textarea id="embedSnippet" class="form-control form-control-sm" rows="3" readonly onclick="this.select()">&lt;iframe src="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" width="100%" height="600" style="border:0" allowfullscreen&gt;&lt;/iframe&gt;</textarea>
+          <button type="button" class="btn btn-sm btn-outline-primary w-100 mt-1" onclick="if(navigator.clipboard){navigator.clipboard.writeText(document.getElementById('embedSnippet').value);this.innerHTML='<i class=\'fas fa-check me-1\'></i>{{ __('Copied') }}';}"><i class="fas fa-copy me-1"></i>{{ __('Copy embed code') }}</button>
+        </div>
+      </div>
+
+      {{-- authored audio guided tour --}}
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong><i class="fas fa-route me-1"></i>{{ __('Guided tour (audio)') }}</strong></div>
+        <div class="card-body small">
+          <p class="text-muted mb-2">{{ __('Build routes of objects with a script the guide reads aloud. Visitors pick a tour and press Play in the walkthrough.') }}</p>
+          <div class="input-group input-group-sm mb-2">
+            <select id="gtTourSel" class="form-select form-select-sm"></select>
+            <button type="button" id="gtNewTourBtn" class="btn btn-outline-success" title="{{ __('New tour') }}"><i class="fas fa-plus"></i></button>
+            <button type="button" id="gtDelTourBtn" class="btn btn-outline-danger" title="{{ __('Delete this tour') }}"><i class="fas fa-trash"></i></button>
+          </div>
+          <input id="gtTourName" class="form-control form-control-sm mb-2" placeholder="{{ __('Tour name') }}" maxlength="80">
+          <div class="input-group input-group-sm mb-2">
+            <select id="gtAddSel" class="form-select form-select-sm"></select>
+            <button type="button" id="gtAddBtn" class="btn btn-outline-primary"><i class="fas fa-plus"></i></button>
+          </div>
+          <div id="gtList"></div>
+          <button type="button" id="gtSaveBtn" class="btn btn-sm btn-success w-100 mt-2"><i class="fas fa-save me-1"></i>{{ __('Save tours') }}</button>
+          <span id="gtSaveMsg" class="text-success"></span>
+        </div>
+      </div>
       @endauth
 
     </div>
@@ -199,10 +234,12 @@
       placements: '{{ route('exhibition-space.builder.placements', ['slug' => $space->slug]) }}',
       roomDims: '{{ route('exhibition-space.builder.room-dims', ['slug' => $space->slug]) }}',
       simLive: '{{ route('exhibition-space.readings.simulate', ['slug' => $space->slug]) }}',
-      genRec: '{{ route('exhibition-space.recommend.generate', ['slug' => $space->slug]) }}'
+      genRec: '{{ route('exhibition-space.recommend.generate', ['slug' => $space->slug]) }}',
+      guidedTour: '{{ route('exhibition-space.guided-tour', ['slug' => $space->slug]) }}'
     };
     var FLOORPLAN = @json($space->floorplan_image_path);
     var PLACEMENTS = @json($placements);
+    var GUIDED_TOUR = @json($guidedTour ?? []);
     var WALLS = @json($walls ?? []);
     var DOORS = @json($doors ?? []);
     var LAYOUT = @json($layout ?? null);   // sibling-room rects for adjacency doorways (plan mode)
@@ -820,6 +857,70 @@
           .then(function (d) { b.disabled = false; b.innerHTML = '<i class="fas fa-check me-1"></i>' + (d.ok ? ('{{ __('AI recs') }}: ' + (d.updated || 0)) : '{{ __('Failed') }}'); })
           .catch(function () { b.disabled = false; b.innerHTML = '<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI recommendations') }}'; });
       });
+    })();
+
+    // ---- Guided tours (audio) authoring (multiple named tours) ----
+    (function () {
+      var sel = document.getElementById('gtAddSel'), list = document.getElementById('gtList');
+      var tourSel = document.getElementById('gtTourSel'), nameInp = document.getElementById('gtTourName');
+      if (!sel || !list || !tourSel) return;
+      var TOURS = Array.isArray(GUIDED_TOUR) ? GUIDED_TOUR : [];
+      if (!TOURS.length) TOURS.push({ name: 'Tour 1', stops: [] });
+      var cur = 0;
+      (PLACEMENTS || []).forEach(function (p) { var o = document.createElement('option'); o.value = p.information_object_id; o.textContent = (p.title || ('#' + p.information_object_id)); sel.appendChild(o); });
+      function titleFor(io) { var p = (PLACEMENTS || []).filter(function (x) { return x.information_object_id == io; })[0]; return p ? p.title : ('#' + io); }
+      function esc(s) { return (s || '').replace(/[<>&]/g, ''); }
+      function renderTourSel() {
+        tourSel.innerHTML = '';
+        TOURS.forEach(function (t, i) { var o = document.createElement('option'); o.value = i; o.textContent = t.name || ('Tour ' + (i + 1)); if (i === cur) o.selected = true; tourSel.appendChild(o); });
+        if (nameInp) nameInp.value = (TOURS[cur] && TOURS[cur].name) || '';
+      }
+      function stops() { return TOURS[cur].stops; }
+      function render() {
+        renderTourSel();
+        list.innerHTML = '';
+        stops().forEach(function (s, i) {
+          var row = document.createElement('div'); row.className = 'border rounded p-2 mb-2';
+          row.innerHTML = '<div class="d-flex justify-content-between"><strong>' + (i + 1) + '. ' + esc(titleFor(s.io_id)) + '</strong>' +
+            '<span><button type="button" class="btn btn-sm btn-link p-0 me-1" data-up="' + i + '">&uarr;</button>' +
+            '<button type="button" class="btn btn-sm btn-link p-0 me-1" data-down="' + i + '">&darr;</button>' +
+            '<button type="button" class="btn btn-sm btn-link text-danger p-0" data-del="' + i + '">&times;</button></span></div>' +
+            '<textarea class="form-control form-control-sm mt-1" rows="2" data-narr="' + i + '" placeholder="{{ __('What the guide says...') }}"></textarea>' +
+            '<div class="input-group input-group-sm mt-1"><span class="input-group-text">{{ __('Dwell s') }}</span>' +
+            '<input type="number" class="form-control" min="2" max="60" value="' + (s.dwell || 6) + '" data-dwell="' + i + '">' +
+            '<button type="button" class="btn btn-outline-secondary" data-ai="' + i + '" title="{{ __('AI draft narration') }}"><i class="fas fa-wand-magic-sparkles"></i></button></div>';
+          list.appendChild(row);
+          row.querySelector('[data-narr]').value = s.narration || '';
+        });
+      }
+      list.addEventListener('input', function (e) {
+        var n = e.target.getAttribute('data-narr'), d = e.target.getAttribute('data-dwell');
+        if (n !== null) stops()[+n].narration = e.target.value;
+        if (d !== null) stops()[+d].dwell = +e.target.value;
+      });
+      list.addEventListener('click', function (e) {
+        var st = stops();
+        var up = e.target.getAttribute('data-up'), dn = e.target.getAttribute('data-down'), del = e.target.getAttribute('data-del'), ai = e.target.closest('[data-ai]');
+        if (del !== null) { st.splice(+del, 1); render(); }
+        else if (up !== null && +up > 0) { var t = st[+up]; st[+up] = st[+up - 1]; st[+up - 1] = t; render(); }
+        else if (dn !== null && +dn < st.length - 1) { var t2 = st[+dn]; st[+dn] = st[+dn + 1]; st[+dn + 1] = t2; render(); }
+        else if (ai) {
+          var idx = +ai.getAttribute('data-ai'), io = st[idx].io_id; ai.disabled = true;
+          fetch('/exhibition-space/object/' + io + '/describe', { headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.json(); }).then(function (d) { if (d && d.description) { st[idx].narration = d.description; render(); } ai.disabled = false; })
+            .catch(function () { ai.disabled = false; });
+        }
+      });
+      tourSel.addEventListener('change', function () { cur = +tourSel.value || 0; render(); });
+      if (nameInp) nameInp.addEventListener('input', function () { TOURS[cur].name = nameInp.value; var o = tourSel.options[cur]; if (o) o.textContent = nameInp.value || ('Tour ' + (cur + 1)); });
+      document.getElementById('gtNewTourBtn').addEventListener('click', function () { TOURS.push({ name: 'Tour ' + (TOURS.length + 1), stops: [] }); cur = TOURS.length - 1; render(); });
+      document.getElementById('gtDelTourBtn').addEventListener('click', function () { if (TOURS.length <= 1) { TOURS[0] = { name: 'Tour 1', stops: [] }; } else { TOURS.splice(cur, 1); } cur = 0; render(); });
+      document.getElementById('gtAddBtn').addEventListener('click', function () { var io = +sel.value; if (!io) return; stops().push({ io_id: io, narration: '', dwell: 6 }); render(); });
+      document.getElementById('gtSaveBtn').addEventListener('click', function () {
+        fetch(URLS.guidedTour, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ tours: TOURS }) })
+          .then(function (r) { return r.json(); }).then(function () { var m = document.getElementById('gtSaveMsg'); m.textContent = ' {{ __('Saved') }}'; setTimeout(function () { m.textContent = ''; }, 2000); });
+      });
+      render();
     })();
   })();
   </script>

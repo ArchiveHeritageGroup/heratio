@@ -18,6 +18,34 @@
     <span class="small text-muted ms-2">{{ __('Bucketed by') }} {{ $data['bucket'] }}</span>
   </div>
 
+  {{-- heratio#1173 - automatic visitor analytics --}}
+  @isset($visitors)
+  <div class="card mb-3">
+    <div class="card-header py-2"><strong><i class="fas fa-users me-1"></i>{{ __('Visitors') }}</strong> <small class="text-muted">{{ __('tracked automatically from the walkthrough') }}</small></div>
+    <div class="card-body">
+      <div class="row text-center g-2 mb-3">
+        <div class="col"><div class="h4 mb-0">{{ $visitors['sessions'] }}</div><div class="small text-muted">{{ __('Sessions') }}</div></div>
+        <div class="col"><div class="h4 mb-0">{{ gmdate('i:s', (int) $visitors['avg_seconds']) }}</div><div class="small text-muted">{{ __('Avg visit') }}</div></div>
+        <div class="col"><div>@forelse($visitors['devices'] as $dev => $n)<span class="badge bg-secondary me-1">{{ $dev }}: {{ $n }}</span>@empty<span class="text-muted small">-</span>@endforelse</div><div class="small text-muted">{{ __('Devices') }}</div></div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="fw-bold small mb-1">{{ __('Dwell time per room') }}</div>
+          @forelse($visitors['dwell'] as $d)
+            <div class="d-flex justify-content-between small border-bottom py-1"><span>{{ $d['room'] }}</span><span>{{ gmdate('i:s', (int) $d['seconds']) }}</span></div>
+          @empty<div class="text-muted small">{{ __('No data yet.') }}</div>@endforelse
+        </div>
+        <div class="col-md-6">
+          <div class="fw-bold small mb-1">{{ __('Most-viewed objects') }}</div>
+          @forelse($visitors['top_objects'] as $o)
+            <div class="d-flex justify-content-between small border-bottom py-1"><span>{{ \Illuminate\Support\Str::limit($o['title'], 40) }}</span><span>{{ $o['views'] }}</span></div>
+          @empty<div class="text-muted small">{{ __('No data yet.') }}</div>@endforelse
+        </div>
+      </div>
+    </div>
+  </div>
+  @endisset
+
   @if(count($data['labels']) === 0)
     <div class="alert alert-info">{{ __('No readings in this period yet. Use "Simulate live data" in the Digital Twin Builder, or POST sensor readings to the space readings endpoint.') }}</div>
   @endif
