@@ -902,7 +902,9 @@
               body: JSON.stringify({ placement_id: p.id, u: p.wall_u, v: p.wall_v }) });
           }
         });
-        wvDeOverlap(items);
+        // #1140: do NOT force-separate items that share a spot - stacking is now intentional
+        // (new objects already get distinct default spots above; the walkthrough layers same-spot
+        // objects so they fan out and stay selectable). wvDeOverlap kept for reference, not called.
         if (!items.length) { loadingTxt.text('{{ __('No objects on this wall yet — search to add.') }}'); wvLayer.draw(); return; }
         var pending = items.length;
         function ready() { pending--; if (pending <= 0) { loadingTxt.destroy(); wvLayer.draw(); } }

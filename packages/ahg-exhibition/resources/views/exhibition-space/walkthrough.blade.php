@@ -174,11 +174,17 @@
     // Corridor objects: free-standing, positioned as a fraction of the building bbox.
     var CORRIDOR = (BUILDING && BUILDING.corridor) ? BUILDING.corridor : [];
     // Stack index: objects sharing a wall + (near) the same point cascade as layers (#1140).
+    // Wall-hung objects are keyed by their along-wall u + height v (the actual spot); free/auto
+    // objects by their floor position. Same bucket => they layer instead of z-fighting.
     (function () {
       var seen = {};
       STOPS.forEach(function (s) {
-        var key = (s._room ? s._room.id : 0) + '|' + (s.wall_or_zone || 'auto') + '|' +
-          Math.round((s.pos_x || 0) * 12) + '|' + Math.round((s.pos_y || 0) * 12);
+        var room = s._room ? s._room.id : 0, key;
+        if (s.wall_u != null && s.wall_or_zone) {
+          key = room + '|' + s.wall_or_zone + '|u' + Math.round(s.wall_u * 12) + '|v' + Math.round((s.wall_v != null ? s.wall_v : 0.5) * 12);
+        } else {
+          key = room + '|' + (s.wall_or_zone || 'auto') + '|' + Math.round((s.pos_x || 0) * 12) + '|' + Math.round((s.pos_y || 0) * 12);
+        }
         s._stack = seen[key] || 0;
         seen[key] = s._stack + 1;
       });
@@ -1056,8 +1062,9 @@
       pic.position.z = 0.045;
       var grp = new THREE.Group();
       grp.add(frame); grp.add(pic);
-      // Cascade stacked layers (skip for objects placed precisely in the wall editor).
-      var st = hasUV ? 0 : (s._stack || 0);
+      // Cascade stacked layers: objects sharing a wall spot fan out (depth + along-wall + down)
+      // so each is visible and the front one is clickable (#1140), for UV and auto placements alike.
+      var st = s._stack || 0;
       var n = { x: Math.sin(spot.ry), z: Math.cos(spot.ry) };        // wall normal (into room)
       var tg = { x: Math.cos(spot.ry), z: -Math.sin(spot.ry) };      // along the wall
       grp.position.set(
