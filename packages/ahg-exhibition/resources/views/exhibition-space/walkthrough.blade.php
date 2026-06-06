@@ -530,16 +530,42 @@
       });
       if (cur < b) full(cur, b);
     }
+    // #1176 step 1: auto-doorways for a polygon EDGE, mirroring doorsOnWall's auto rule so a room
+    // behaves identically whether rendered via planWall (rect) or edgeWall (polygon). Axis-aligned
+    // edges only (every current room shape is an axis-aligned rectangle); skew edges get no auto.
+    // Returns edge-local [s,e] spans (distance along A->B).
+    function autoEdgeOpenings(rm, ax, az, bx, bz, L) {
+      var out = [], vert = Math.abs(ax - bx) < 0.15, horiz = Math.abs(az - bz) < 0.15;
+      if (vert === horiz) return out;   // need exactly one of axis-aligned (skip skew + degenerate)
+      var fixed = vert ? ax : az, lo = vert ? Math.min(az, bz) : Math.min(ax, bx), hi = vert ? Math.max(az, bz) : Math.max(ax, bx);
+      ROOMS.forEach(function (rj) {
+        if (rj === rm || (rj.floor || 0) !== (rm.floor || 0)) return;
+        var jPMin = vert ? rj.x_offset : rj.z_offset, jPMax = vert ? rj.x_offset + rj.w : rj.z_offset + rj.d;
+        if (Math.abs(jPMax - fixed) > 0.3 && Math.abs(jPMin - fixed) > 0.3) return;   // rj not on this plane
+        var jLo = vert ? rj.z_offset : rj.x_offset, jHi = vert ? rj.z_offset + rj.d : rj.x_offset + rj.w;
+        var oa = Math.max(lo, jLo), ob = Math.min(hi, jHi);
+        if (ob - oa <= 0.8) return;   // not enough shared run for a doorway
+        var mid = (oa + ob) / 2, dw = Math.min(DOOR, (ob - oa) * 0.7), w0 = mid - dw / 2, w1 = mid + dw / 2;
+        var f0 = vert ? (w0 - az) / (bz - az) : (w0 - ax) / (bx - ax);   // -> fraction along the edge (handles reversed edge)
+        var f1 = vert ? (w1 - az) / (bz - az) : (w1 - ax) / (bx - ax);
+        out.push([Math.min(f0, f1) * L, Math.max(f0, f1) * L]);
+      });
+      return out;
+    }
     // A polygon-edge wall (A->B unrotated world) with doorways cut for any door
-    // whose edge index == eIdx. cx/cz = polygon centroid (for outward labels).
+    // whose edge index == eIdx, PLUS auto-doorways where a neighbour abuts. cx/cz = centroid.
     function edgeWall(rm, eIdx, ax, az, bx, bz, mat, ccx, ccz) {
       var dx = bx - ax, dz = bz - az, L = Math.hypot(dx, dz); if (L < 0.05) return;
       var ang = Math.atan2(dz, dx), ux = dx / L, uz = dz / L;
       var doorH = Math.min(RH - 0.3, 2.6);
-      var raw = (rm.doors || []).filter(function (d) { return d.edge === eIdx; }).map(function (d) {
+      var manual = (rm.doors || []).filter(function (d) { return d.edge === eIdx; }).map(function (d) {
         var c = (d.pos == null ? 0.5 : d.pos) * L, hw = (d.width || 1.6) / 2, s = Math.max(0, c - hw), e = Math.min(L, c + hw);
         if (s < 0.2) s = 0; if (L - e < 0.2) e = L; return [s, e];
-      }).filter(function (d) { return d[1] - d[0] > 0.15; }).sort(function (p, q) { return p[0] - q[0]; });
+      });
+      var auto = (PLAN_MODE ? autoEdgeOpenings(rm, ax, az, bx, bz, L) : []).map(function (d) {
+        var s = Math.max(0, d[0]), e = Math.min(L, d[1]); if (s < 0.2) s = 0; if (L - e < 0.2) e = L; return [s, e];
+      });
+      var raw = manual.concat(auto).filter(function (d) { return d[1] - d[0] > 0.15; }).sort(function (p, q) { return p[0] - q[0]; });
       var doors = []; raw.forEach(function (d) { if (doors.length && d[0] <= doors[doors.length - 1][1] + 0.01) doors[doors.length - 1][1] = Math.max(doors[doors.length - 1][1], d[1]); else doors.push(d.slice()); });
       function seg(s, e, y0, y1, m2) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return null; var um = m2 || mat || wallMat, mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), um); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); if (um !== doorMat && um !== glassMat && y0 < 1.7) colliders.push(m); return m; }
       // #1172 windows on this polygon edge: punch glass openings into full segments.
