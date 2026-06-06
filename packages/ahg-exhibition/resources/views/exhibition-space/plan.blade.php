@@ -51,9 +51,9 @@
           <a href="#" target="_blank" rel="noopener" id="roomEditLink" class="btn btn-sm btn-outline-secondary w-100 mb-2"><i class="fas fa-edit me-1"></i>{{ __('Edit room details') }}</a>
           <div class="input-group input-group-sm mb-1">
             <span class="input-group-text"><i class="fas fa-layer-group me-1"></i>{{ __('Floor') }}</span>
-            <input type="number" id="roomFloor" class="form-control" step="1" min="0" value="0" title="{{ __('0 = ground; 1, 2... = upper floors') }}">
+            <select id="roomFloor" class="form-select"></select>
           </div>
-          <small class="text-muted d-block mb-2">{{ __('Set 1, 2... to put this room on an upper floor. Place it over a lower room and link the floors with a staircase.') }}</small>
+          <small class="text-muted d-block mb-2">{{ __('Put this room on a floor. If it is grouped, the whole suite moves with it. Use the Floor dropdown at the top to view one floor at a time.') }}</small>
           <label class="form-label small mb-1">{{ __('Rotation (degrees)') }}</label>
           <div class="input-group input-group-sm mb-2">
             <button type="button" class="btn btn-outline-secondary" id="rotMinus" title="{{ __('Rotate left 15°') }}"><i class="fas fa-undo"></i></button>
@@ -460,7 +460,7 @@
         rc.style.display = 'block'; document.getElementById('roomCardName').textContent = nm; document.getElementById('rotInput').value = Math.round(g.rotation());
         var el = document.getElementById('roomEditLink'); if (el) el.href = EDIT_BASE + '/' + g.getAttr('room').slug + '/edit';
         var ug = document.getElementById('ungroupBtn'); if (ug) ug.style.display = g.getAttr('room').group ? 'block' : 'none';
-        var rf = document.getElementById('roomFloor'); if (rf) rf.value = g.getAttr('room').floor || 0;
+        var rf = document.getElementById('roomFloor'); if (rf) rf.innerHTML = floorOptsHtml(g.getAttr('room').floor || 0);
         var db = document.getElementById('deleteRoomBtn'); if (db) db.style.display = g.getAttr('room').is_current ? 'none' : 'block';
       }
       setShapeBtn(shapeMode && shapeG === g);
@@ -479,12 +479,15 @@
     (function () { var jb = document.getElementById('joinBtn'); if (jb) jb.addEventListener('click', function () { joinMode = !joinMode; joinAnchor = null; jb.classList.toggle('btn-warning', joinMode); jb.classList.toggle('btn-outline-warning', !joinMode); drawJoinDots(); }); })();   // #1143 join corners
     (function () { var ub = document.getElementById('undoBtn'); if (ub) ub.addEventListener('click', doUndo); })();   // #1143 undo move
     document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) { var a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return; e.preventDefault(); doUndo(); } });
-    (function () {   // #1169 set the selected room's floor
+    (function () {   // #1169 set the selected room's (or its whole group's) floor
       var rf = document.getElementById('roomFloor'); if (!rf) return;
       rf.addEventListener('change', function () {
         if (!selectedG) return; var r = selectedG.getAttr('room');
-        r.floor = Math.max(0, parseInt(rf.value, 10) || 0); flagSaving();
-        fetch(ROOM_FLOOR_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: r.id, floor: r.floor }) }).then(function (x) { return x.json(); }).then(function () { saved(); drawStairs(); buildFloorView(); applyFloorView(); });
+        var nf = Math.max(0, parseInt(rf.value, 10) || 0);
+        var targets = r.group ? PLAN.rooms.filter(function (o) { return o.group === r.group; }) : [r];
+        flagSaving();
+        targets.forEach(function (o) { o.floor = nf; fetch(ROOM_FLOOR_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: o.id, floor: nf }) }); });
+        saved(); drawStairs(); buildFloorView(); applyFloorView();
       });
     })();
     (function () {   // delete the selected room
@@ -789,12 +792,13 @@
     renderRoomList();
 
     // ---- Floor view (#1169): show only rooms on the chosen floor ----
-    function distinctFloors() { var s = {}; PLAN.rooms.forEach(function (r) { s[r.floor || 0] = 1; }); return Object.keys(s).map(Number).sort(function (a, b) { return a - b; }); }
+    function floorList() { var mx = 4; PLAN.rooms.forEach(function (r) { if ((r.floor || 0) > mx) mx = r.floor || 0; }); var a = []; for (var i = 0; i <= mx; i++) a.push(i); return a; }
+    function floorOptsHtml(selVal) { return floorList().map(function (f) { return '<option value="' + f + '"' + (f === selVal ? ' selected' : '') + '>' + (f === 0 ? '{{ __('Ground') }}' : ('{{ __('Floor') }} ' + f)) + '</option>'; }).join(''); }
     var floorView = 'all';
     function buildFloorView() {
       var sel = document.getElementById('floorView'); if (!sel) return;
       var html = '<option value="all">{{ __('All floors') }}</option>';
-      distinctFloors().forEach(function (f) { html += '<option value="' + f + '"' + (String(f) === String(floorView) ? ' selected' : '') + '>' + (f === 0 ? '{{ __('Ground floor') }}' : ('{{ __('Floor') }} ' + f)) + '</option>'; });
+      floorList().forEach(function (f) { html += '<option value="' + f + '"' + (String(f) === String(floorView) ? ' selected' : '') + '>' + (f === 0 ? '{{ __('Ground floor') }}' : ('{{ __('Floor') }} ' + f)) + '</option>'; });
       sel.innerHTML = html;
     }
     function applyFloorView() {
