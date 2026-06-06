@@ -955,7 +955,6 @@
       });
     }
     function drawStairs() {
-      STAIRS = STAIRS.filter(function (st) { return (st.from_floor || 0) !== (st.to_floor == null ? 1 : st.to_floor); });   // a stair must link two floors
       stairLayer.destroyChildren();
       STAIRS.forEach(function (st, i) {
         var g = new Konva.Group({ x: st.x * scale, y: st.z * scale, rotation: st.rot || 0, draggable: true });
@@ -984,8 +983,10 @@
         var bb = bbox(); var cx = (bb.minX + bb.maxX) / 2, cz = (bb.minZ + bb.maxZ) / 2;
         if (!isFinite(cx)) { cx = 5; cz = 5; }
         var cur = PLAN.rooms.filter(function (r) { return r.is_current; })[0] || PLAN.rooms[0] || null;
-        var up = PLAN.rooms.filter(function (r) { return cur && (r.floor || 0) > (cur.floor || 0); })[0] || cur;
-        STAIRS.push({ x: cx, z: cz, from_room: cur ? cur.id : null, to_room: up ? up.id : null, from_floor: cur ? (cur.floor || 0) : 0, to_floor: up ? (up.floor || 0) : 1, width: 1.6, length: 3, length2: 3, rot: 0, hand: 'right', kind: 'straight' });
+        var ff = cur ? (cur.floor || 0) : 0;
+        var other = PLAN.rooms.filter(function (r) { return (r.floor || 0) !== ff; })[0] || null;   // any room on a different floor (e.g. the basement)
+        var tf = other ? (other.floor || 0) : (ff + 1);   // fall back to one floor up so the stair is valid (links two floors)
+        STAIRS.push({ x: cx, z: cz, from_room: cur ? cur.id : null, to_room: other ? other.id : null, from_floor: ff, to_floor: tf, width: 1.6, length: 3, length2: 3, rot: 0, hand: 'right', kind: 'straight' });
         drawStairs(); saveStairs();
       });
     })();
