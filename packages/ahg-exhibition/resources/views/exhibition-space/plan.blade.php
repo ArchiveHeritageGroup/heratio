@@ -886,6 +886,7 @@
 
     // ---- Stairs (#1169): place/drag staircases that link floors ----
     var STAIRS = PLAN.stairs || [];
+    var SAME_FLOOR_MSG = '{{ __('Stairs must link two DIFFERENT floors. Those rooms are on the same floor - set one to a different floor first (Selected room > Floor), or just place the rooms next to each other for a walk-through doorway.') }}';
     var stairLayer = new Konva.Layer(); stage.add(stairLayer);
     function saveStairs() { flagSaving(); fetch(STAIRS_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ stairs: STAIRS }) }).then(function (r) { return r.json(); }).then(saved); }
     function floorOf(id) { var f = 0; PLAN.rooms.forEach(function (r) { if (r.id === id) f = r.floor || 0; }); return f; }
@@ -906,8 +907,16 @@
           '<select class="form-select form-select-sm sh d-inline-block" style="width:74px"><option value="right">{{ __('Right') }}</option><option value="left">{{ __('Left') }}</option></select>' +
           '<label class="small text-muted mb-0">{{ __('rot') }} <input type="number" step="90" class="form-control form-control-sm d-inline-block sr" style="width:54px" value="' + (st.rot || 0) + '"></label>' +
           '<button class="btn btn-sm btn-outline-danger ms-auto" type="button" title="{{ __('Remove') }}">&times;</button>';
-        row.querySelector('.sfr').addEventListener('change', function (e) { st.from_room = +e.target.value; st.from_floor = floorOf(st.from_room); saveStairs(); drawStairs(); });
-        row.querySelector('.str').addEventListener('change', function (e) { st.to_room = +e.target.value; st.to_floor = floorOf(st.to_room); saveStairs(); drawStairs(); });
+        row.querySelector('.sfr').addEventListener('change', function (e) {
+          var nf = floorOf(+e.target.value);
+          if (nf === (st.to_floor == null ? 1 : st.to_floor)) { alert(SAME_FLOOR_MSG); drawStairs(); return; }
+          st.from_room = +e.target.value; st.from_floor = nf; saveStairs(); drawStairs();
+        });
+        row.querySelector('.str').addEventListener('change', function (e) {
+          var nf = floorOf(+e.target.value);
+          if (nf === (st.from_floor || 0)) { alert(SAME_FLOOR_MSG); drawStairs(); return; }
+          st.to_room = +e.target.value; st.to_floor = nf; saveStairs(); drawStairs();
+        });
         row.querySelector('.sw').addEventListener('change', function (e) { st.width = Math.max(0.6, Math.min(8, parseFloat(e.target.value) || 1.6)); saveStairs(); drawStairs(); });
         row.querySelector('.sl').addEventListener('change', function (e) { st.length = Math.max(1.5, Math.min(30, parseFloat(e.target.value) || 3)); saveStairs(); drawStairs(); });
         row.querySelector('.sl2').addEventListener('change', function (e) { st.length2 = Math.max(1.5, Math.min(30, parseFloat(e.target.value) || 3)); saveStairs(); drawStairs(); });
