@@ -633,6 +633,24 @@
         var ccx = 0, ccz = 0;   // polygon centroid (unrotated world) for outward door labels
         SHAPE.forEach(function (p) { ccx += rm.x_offset + p.x * rm.w; ccz += rm.z_offset + p.z * rm.d; });
         ccx /= SHAPE.length; ccz /= SHAPE.length;
+        // Legacy rect-style doors ({wall:north|south|east|west}) on a now-shaped room
+        // are otherwise dropped (edgeWall only cuts edge-indexed doors). Map each to
+        // the polygon edge whose outward normal best matches that side, so it renders.
+        (rm.doors || []).forEach(function (d) {
+          if (typeof d.edge === 'number' || !d.wall) return;
+          var want = { north: [0, -1], south: [0, 1], west: [-1, 0], east: [1, 0] }[d.wall]; if (!want) return;
+          var bestE = -1, bestDot = -2;
+          for (var ei = 0; ei < SHAPE.length; ei++) {
+            var pa2 = SHAPE[ei], pb2 = SHAPE[(ei + 1) % SHAPE.length];
+            var ex = (pb2.x - pa2.x) * rm.w, ez = (pb2.z - pa2.z) * rm.d, el = Math.hypot(ex, ez) || 1;
+            var mxw = rm.x_offset + (pa2.x + pb2.x) / 2 * rm.w, mzw = rm.z_offset + (pa2.z + pb2.z) / 2 * rm.d;
+            var nx = -ez / el, nz = ex / el;
+            if ((mxw - ccx) * nx + (mzw - ccz) * nz < 0) { nx = -nx; nz = -nz; }
+            var dot = nx * want[0] + nz * want[1];
+            if (dot > bestDot) { bestDot = dot; bestE = ei; }
+          }
+          if (bestE >= 0) d.edge = bestE;
+        });
         for (var e = 0; e < SHAPE.length; e++) {
           var pa = SHAPE[e], pb = SHAPE[(e + 1) % SHAPE.length];
           edgeWall(rm, e, rm.x_offset + pa.x * rm.w, rm.z_offset + pa.z * rm.d, rm.x_offset + pb.x * rm.w, rm.z_offset + pb.z * rm.d, rwMat, ccx, ccz);

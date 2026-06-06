@@ -8,6 +8,8 @@
   <div class="d-flex flex-wrap align-items-baseline mb-2 gap-2">
     <h1 class="mb-0 flex-grow-1"><i class="fas fa-drafting-compass me-2"></i>{{ __('Building Plan') }} <small class="text-muted">{{ $space->name }}</small></h1>
     @auth<button type="button" id="addRoomBtn" class="btn btn-sm btn-success"><i class="fas fa-plus me-1"></i>{{ __('Add room') }}</button>@endauth
+    @auth<button type="button" id="joinBtn" class="btn btn-sm btn-outline-warning" title="{{ __('Click a corner dot on one room, then a corner dot on another - the second room moves so the corners meet.') }}"><i class="fas fa-link me-1"></i>{{ __('Join corners') }}</button>@endauth
+    @auth<button type="button" id="undoBtn" class="btn btn-sm btn-outline-secondary" disabled title="{{ __('Undo the last room move (Ctrl+Z)') }}"><i class="fas fa-undo me-1"></i>{{ __('Undo move') }}</button>@endauth
     <a href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}</a>
     <a href="{{ route('exhibition-space.builder', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-cubes me-1"></i>{{ __('Builder') }}</a>
   </div>
@@ -439,9 +441,13 @@
     document.querySelectorAll('#doorCard [data-door]').forEach(function (b) { b.addEventListener('click', function () { addDoor(b.getAttribute('data-door')); }); });
     (function () { var wb = document.getElementById('winAdd'); if (wb) wb.addEventListener('click', addWindow); })();   // #1172
     (function () { var ug = document.getElementById('ungroupBtn'); if (ug) ug.addEventListener('click', function () { if (selectedG) { ungroupRoom(selectedG); ug.style.display = 'none'; } }); })();   // #1143
+    (function () { var jb = document.getElementById('joinBtn'); if (jb) jb.addEventListener('click', function () { joinMode = !joinMode; joinAnchor = null; jb.classList.toggle('btn-warning', joinMode); jb.classList.toggle('btn-outline-warning', !joinMode); drawJoinDots(); }); })();   // #1143 join corners
+    (function () { var ub = document.getElementById('undoBtn'); if (ub) ub.addEventListener('click', doUndo); })();   // #1143 undo move
+    document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) { var a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return; e.preventDefault(); doUndo(); } });
     // Rotation controls (rotate about the room's top-left, matching the walkthrough).
     function applyRot(deg) {
       if (!selectedG) return;
+      pushUndo([selectedG.getAttr('room')]);
       selectedG.rotation(((deg % 360) + 360) % 360);
       document.getElementById('rotInput').value = Math.round(selectedG.rotation());
       layer.draw(); flagSaving(); saveRoom(selectedG);
@@ -620,6 +626,53 @@
       r.group = null; persistGroups([r]); recolorAll();
     }
 
+    // ---- Join corners (#1143): click a dot on one room, then a dot on another;
+    // the second room moves so the two corners land on each other. ----
+    var joinMode = false, joinAnchor = null;
+    function clearJoinDots() { layer.find('.joindot').forEach(function (n) { n.destroy(); }); }
+    function drawJoinDots() {
+      clearJoinDots();
+      if (joinMode) {
+        PLAN.rooms.forEach(function (o) {
+          if (o.bld_x === null || o.bld_y === null) return;
+          roomPoly(o, o.bld_x, o.bld_y).forEach(function (pt, idx) {
+            var isA = joinAnchor && joinAnchor.id === o.id && joinAnchor.idx === idx;
+            var c = new Konva.Circle({ name: 'joindot', x: pt.x * scale, y: pt.y * scale, radius: 7, fill: isA ? '#dc3545' : '#0d6efd', stroke: '#fff', strokeWidth: 2 });
+            c.on('click tap', function (e) { e.cancelBubble = true; onJoinDot(o, idx, pt.x, pt.y); });
+            layer.add(c);
+          });
+        });
+      }
+      layer.draw();
+    }
+    function onJoinDot(room, idx, wx, wy) {
+      if (!joinAnchor || joinAnchor.id === room.id) { joinAnchor = { id: room.id, idx: idx, wx: wx, wy: wy }; drawJoinDots(); return; }
+      pushUndo([room]);
+      var corners = roomPoly(room, room.bld_x, room.bld_y);
+      room.bld_x += joinAnchor.wx - corners[idx].x; room.bld_y += joinAnchor.wy - corners[idx].y;
+      var n = nodeById[room.id]; if (n) { n.x(room.bld_x * scale); n.y(room.bld_y * scale); flagSaving(); saveRoom(n); autoGroup(n); }
+      joinAnchor = null; drawJoinDots();
+    }
+    // ---- Undo: room moves / joins / rotate / resize ----
+    var undoStack = [];
+    function snapRoomState(r) { return { id: r.id, bld_x: r.bld_x, bld_y: r.bld_y, rot: r.rot, w: r.w, d: r.d, group: r.group }; }
+    function updateUndoBtn() { var b = document.getElementById('undoBtn'); if (b) b.disabled = undoStack.length === 0; }
+    function pushUndo(rooms) { undoStack.push(rooms.map(snapRoomState)); if (undoStack.length > 40) undoStack.shift(); updateUndoBtn(); }
+    function applyState(s) {
+      var r = null; PLAN.rooms.forEach(function (o) { if (o.id === s.id) r = o; }); if (!r) return;
+      r.bld_x = s.bld_x; r.bld_y = s.bld_y; r.rot = s.rot; r.w = s.w; r.d = s.d; r.group = s.group;
+      var n = nodeById[r.id]; if (!n) return;
+      n.x(r.bld_x * scale); n.y(r.bld_y * scale); n.rotation(r.rot || 0);
+      var rect = n.findOne('.roomrect'); if (rect) { rect.width(r.w * scale); rect.height(r.d * scale); }
+      n.width(r.w * scale); n.height(r.d * scale);
+      drawShape(n); recolorRoom(n); flagSaving(); saveRoom(n); persistGroups([r]);
+    }
+    function doUndo() {
+      if (!undoStack.length) return;
+      undoStack.pop().forEach(applyState);
+      recolorAll(); if (joinMode) drawJoinDots(); layer.draw(); updateUndoBtn();
+    }
+
     function addRoomNode(r) {
       var g = new Konva.Group({ x: r.bld_x * scale, y: r.bld_y * scale, rotation: r.rot || 0, draggable: true });
       g.setAttr('room', r);
@@ -631,8 +684,9 @@
       var grpDrag = null;
       g.on('dragstart', function () {
         var rr = g.getAttr('room');
-        grpDrag = (rr.group ? PLAN.rooms.filter(function (o) { return o !== rr && o.group === rr.group; }) : [])
-          .map(function (o) { var n = nodeById[o.id]; return n ? { n: n, x0: n.x(), y0: n.y() } : null; }).filter(Boolean);
+        var members = rr.group ? PLAN.rooms.filter(function (o) { return o !== rr && o.group === rr.group; }) : [];
+        pushUndo([rr].concat(members));
+        grpDrag = members.map(function (o) { var n = nodeById[o.id]; return n ? { n: n, x0: n.x(), y0: n.y() } : null; }).filter(Boolean);
         g.setAttr('dragStartX', g.x()); g.setAttr('dragStartY', g.y());
       });
       g.on('dragmove', function () {
@@ -653,6 +707,7 @@
         }
         autoGroup(g); grpDrag = null;
       });
+      g.on('transformstart', function () { pushUndo([g.getAttr('room')]); });
       g.on('transformend', function () {
         // bake scale into the rect size, reset scale, resize label, reflow doors
         var nw = g.width() * g.scaleX(), nh = g.height() * g.scaleY();
