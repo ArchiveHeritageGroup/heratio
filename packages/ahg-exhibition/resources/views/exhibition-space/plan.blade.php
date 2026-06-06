@@ -83,7 +83,7 @@
       <div class="card mb-3" id="winCard" style="display:none;">
         <div class="card-header py-2"><strong><i class="fas fa-window-maximize me-1"></i>{{ __('Windows') }}</strong> <span class="small text-muted" id="winRoomName"></span></div>
         <div class="card-body p-2">
-          <p class="small text-muted mb-2">{{ __('Add windows to a wall - they show as glass openings in the 3D walkthrough, inside and out. (Rectangular rooms.)') }}</p>
+          <p class="small text-muted mb-2">{{ __('Add windows to a wall - they show as glass openings in the 3D walkthrough, inside and out. Works on rectangular and shaped rooms (pick the wall below).') }}</p>
           <div class="input-group input-group-sm mb-2">
             <select id="winWall" class="form-select"><option value="north">{{ __('Top') }}</option><option value="south">{{ __('Bottom') }}</option><option value="west">{{ __('Left') }}</option><option value="east">{{ __('Right') }}</option></select>
             <button type="button" id="winAdd" class="btn btn-outline-primary"><i class="fas fa-plus me-1"></i>{{ __('Add') }}</button>
@@ -103,6 +103,14 @@
           <p class="small text-muted mb-2">{{ __('Place objects in the open space between rooms. Search to add, then drag the dot. Double-click to remove.') }}</p>
           <select id="corridorAdd" class="form-control form-control-sm mb-2"><option value="">{{ __('Search an object to add…') }}</option></select>
           <div id="corridorList" class="small text-muted"></div>
+        </div>
+      </div>
+      <div class="card mt-3" id="stairsCard">
+        <div class="card-header py-2"><strong><i class="fas fa-stairs me-1"></i>{{ __('Stairs') }}</strong></div>
+        <div class="card-body p-2">
+          <p class="small text-muted mb-2">{{ __('Link floors. Add a staircase, drag it onto the plan (place it under the upper-floor room), set which floors it connects. In the 3D walkthrough, walk to it and click the steps to change floor.') }}</p>
+          <button type="button" id="stairAdd" class="btn btn-sm btn-outline-primary w-100 mb-2"><i class="fas fa-plus me-1"></i>{{ __('Add staircase') }}</button>
+          <div id="stairList" class="small text-muted"></div>
         </div>
       </div>
       @endauth
@@ -130,6 +138,7 @@
     var SHAPE_URL = '{{ route('exhibition-space.plan.shape', ['slug' => $space->slug]) }}';
     var ADD_ROOM_URL = '{{ route('exhibition-space.plan.add-room', ['slug' => $space->slug]) }}';
     var GROUP_URL = '{{ route('exhibition-space.plan.group', ['slug' => $space->slug]) }}';   // #1143 move-as-one-unit
+    var STAIRS_URL = '{{ route('exhibition-space.plan.stairs', ['slug' => $space->slug]) }}';   // #1169 stairs authoring
     var IMG_RECT_URL = '{{ route('exhibition-space.plan.image-rect', ['slug' => $space->slug]) }}';
     var EDIT_BASE = '{{ url('exhibition-space') }}';
     var CORR_ADD = '{{ route('exhibition-space.plan.corridor-add', ['slug' => $space->slug]) }}';
@@ -378,23 +387,37 @@
       el.innerHTML = '';
       r.windows.forEach(function (w, idx) {
         var row = document.createElement('div'); row.className = 'd-flex align-items-center gap-1 mb-1';
-        row.innerHTML = '<span class="badge bg-info text-dark">' + (WIN_LBL[w.wall] || w.wall) + '</span>' +
+        var wlbl = (typeof w.edge === 'number') ? ('{{ __('Wall') }} ' + (w.edge + 1)) : (WIN_LBL[w.wall] || w.wall);
+        row.innerHTML = '<span class="badge bg-info text-dark">' + wlbl + '</span>' +
           '<span class="small text-muted">pos ' + (+w.pos).toFixed(2) + ' · ' + (+w.width).toFixed(1) + 'm</span>' +
           '<button class="btn btn-sm btn-outline-danger ms-auto" type="button" title="{{ __('Remove') }}">&times;</button>';
         row.querySelector('button').addEventListener('click', function () { r.windows.splice(idx, 1); saveWindows(g); drawWinList(g); });
         el.appendChild(row);
       });
     }
+    // Window wall picker: rect rooms = Top/Bottom/Left/Right; shaped rooms = one per polygon edge.
+    function updateWinControls(g) {
+      var r = g.getAttr('room'), sel = document.getElementById('winWall'); if (!sel) return;
+      var hasShape = r.shape && r.shape.length >= 3;
+      sel.innerHTML = '';
+      if (hasShape) {
+        r.shape.forEach(function (p, i) { var o = document.createElement('option'); o.value = 'edge:' + i; o.textContent = '{{ __('Wall') }} ' + (i + 1); sel.appendChild(o); });
+      } else {
+        [['north', '{{ __('Top') }}'], ['south', '{{ __('Bottom') }}'], ['west', '{{ __('Left') }}'], ['east', '{{ __('Right') }}']].forEach(function (wd) { var o = document.createElement('option'); o.value = wd[0]; o.textContent = wd[1]; sel.appendChild(o); });
+      }
+    }
     function addWindow() {
       if (!selectedG) return;
       var r = selectedG.getAttr('room'); if (!r.windows) r.windows = [];
-      r.windows.push({
-        wall: document.getElementById('winWall').value,
+      var wv = document.getElementById('winWall').value;
+      var win = {
         pos: Math.max(0, Math.min(1, parseFloat(document.getElementById('winPos').value) || 0.5)),
         width: Math.max(0.4, Math.min(6, parseFloat(document.getElementById('winW').value) || 1.6)),
         sill: Math.max(0.2, Math.min(2, parseFloat(document.getElementById('winSill').value) || 0.9)),
         height: Math.max(0.4, Math.min(3, parseFloat(document.getElementById('winH').value) || 1.3)),
-      });
+      };
+      if (wv.indexOf('edge:') === 0) win.edge = parseInt(wv.slice(5), 10); else win.wall = wv;   // #1172 polygon-edge windows
+      r.windows.push(win);
       saveWindows(selectedG); drawWinList(selectedG);
     }
     // Toggle door controls: rectangle named walls vs one button per polygon edge.
@@ -421,7 +444,7 @@
       var c = document.getElementById('doorCard');
       if (c) { c.style.display = 'block'; document.getElementById('doorRoomName').textContent = nm; refreshDoorList(g); updateDoorControls(g); }
       var wc = document.getElementById('winCard');   // #1172
-      if (wc) { wc.style.display = 'block'; document.getElementById('winRoomName').textContent = nm; drawWinList(g); }
+      if (wc) { wc.style.display = 'block'; document.getElementById('winRoomName').textContent = nm; updateWinControls(g); drawWinList(g); }
       var rc = document.getElementById('roomCard');
       if (rc) {
         rc.style.display = 'block'; document.getElementById('roomCardName').textContent = nm; document.getElementById('rotInput').value = Math.round(g.rotation());
@@ -787,6 +810,63 @@
           fetch(CORR_ADD, { method: 'POST', headers: hdr(), body: JSON.stringify({ information_object_id: val, x: 0.5, y: 0.5 }) })
             .then(function (r) { return r.json(); }).then(function (d) { if (d.ok && d.placement) { CORRIDOR.push(d.placement); drawCorridor(); saved(); } self.clear(true); self.clearOptions(); });
         }
+      });
+    })();
+
+    // ---- Stairs (#1169): place/drag staircases that link floors ----
+    var STAIRS = PLAN.stairs || [];
+    var stairLayer = new Konva.Layer(); stage.add(stairLayer);
+    function saveStairs() { flagSaving(); fetch(STAIRS_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ stairs: STAIRS }) }).then(function (r) { return r.json(); }).then(saved); }
+    function listStairs() {
+      var el = document.getElementById('stairList'); if (!el) return;
+      if (!STAIRS.length) { el.innerHTML = '<span class="text-muted">{{ __('No stairs yet.') }}</span>'; return; }
+      el.innerHTML = '';
+      STAIRS.forEach(function (st, i) {
+        var row = document.createElement('div'); row.className = 'd-flex flex-wrap align-items-center gap-1 mb-2 pb-1 border-bottom';
+        row.innerHTML = '<span class="badge bg-warning text-dark">{{ __('Stair') }} ' + (i + 1) + '</span>' +
+          '<label class="small text-muted mb-0">{{ __('from') }} <input type="number" class="form-control form-control-sm d-inline-block sf" style="width:46px" value="' + (st.from_floor || 0) + '"></label>' +
+          '<label class="small text-muted mb-0">{{ __('to') }} <input type="number" class="form-control form-control-sm d-inline-block st2" style="width:46px" value="' + (st.to_floor == null ? 1 : st.to_floor) + '"></label>' +
+          '<label class="small text-muted mb-0">{{ __('width') }} <input type="number" step="0.1" min="0.6" class="form-control form-control-sm d-inline-block sw" style="width:58px" value="' + (st.width || 1.6) + '"></label>' +
+          '<select class="form-select form-select-sm sk d-inline-block" style="width:92px"><option value="straight">{{ __('Straight') }}</option><option value="elbow">{{ __('Elbow') }}</option></select>' +
+          '<button class="btn btn-sm btn-outline-danger ms-auto" type="button" title="{{ __('Remove') }}">&times;</button>';
+        row.querySelector('.sf').addEventListener('change', function (e) { st.from_floor = parseInt(e.target.value, 10) || 0; saveStairs(); drawStairs(); });
+        row.querySelector('.st2').addEventListener('change', function (e) { st.to_floor = parseInt(e.target.value, 10) || 0; saveStairs(); drawStairs(); });
+        row.querySelector('.sw').addEventListener('change', function (e) { st.width = Math.max(0.6, Math.min(8, parseFloat(e.target.value) || 1.6)); saveStairs(); drawStairs(); });
+        var sk = row.querySelector('.sk'); sk.value = st.kind || 'straight'; sk.addEventListener('change', function (e) { st.kind = e.target.value; saveStairs(); drawStairs(); });
+        row.querySelector('button').addEventListener('click', function () { STAIRS.splice(i, 1); drawStairs(); saveStairs(); });
+        el.appendChild(row);
+      });
+    }
+    function drawStairs() {
+      stairLayer.destroyChildren();
+      STAIRS.forEach(function (st, i) {
+        var g = new Konva.Group({ x: st.x * scale, y: st.z * scale, draggable: true });
+        var w = Math.max(0.8, st.width || 1.6) * scale, fill = 'rgba(253,126,20,0.45)', stroke = '#fd7e14';
+        if (st.kind === 'elbow') {
+          var seg = 1.7 * scale;
+          g.add(new Konva.Rect({ x: -w / 2, y: 0, width: w, height: seg, fill: fill, stroke: stroke, strokeWidth: 2, cornerRadius: 2 }));            // flight 1 (along +z)
+          g.add(new Konva.Rect({ x: -w / 2, y: seg - w, width: seg + w, height: w, fill: fill, stroke: stroke, strokeWidth: 2, cornerRadius: 2 }));   // landing + flight 2 (turn +x)
+        } else {
+          var d = 2.4 * scale;
+          g.add(new Konva.Rect({ x: -w / 2, y: -d / 2, width: w, height: d, fill: fill, stroke: stroke, strokeWidth: 2, cornerRadius: 2 }));
+          for (var s = 1; s < 6; s++) { g.add(new Konva.Line({ points: [-w / 2, -d / 2 + d * s / 6, w / 2, -d / 2 + d * s / 6], stroke: '#fff', strokeWidth: 1, listening: false })); }
+        }
+        g.add(new Konva.Text({ text: '↑' + (st.from_floor || 0) + '→' + (st.to_floor == null ? 1 : st.to_floor) + (st.kind === 'elbow' ? ' ⌐' : ''), x: -w / 2 - 20, y: -14, width: w + 40, align: 'center', fontSize: 10, fill: '#b8600b', listening: false }));
+        g.on('dragmove', function () { st.x = g.x() / scale; st.z = g.y() / scale; });
+        g.on('dragend', function () { saveStairs(); });
+        g.on('dblclick dbltap', function (e) { e.cancelBubble = true; STAIRS.splice(i, 1); drawStairs(); saveStairs(); });
+        stairLayer.add(g);
+      });
+      stairLayer.draw(); listStairs();
+    }
+    drawStairs();
+    (function () {
+      var b = document.getElementById('stairAdd'); if (!b) return;
+      b.addEventListener('click', function () {
+        var bb = bbox(); var cx = (bb.minX + bb.maxX) / 2, cz = (bb.minZ + bb.maxZ) / 2;
+        if (!isFinite(cx)) { cx = 5; cz = 5; }
+        STAIRS.push({ x: cx, z: cz, from_floor: 0, to_floor: 1, width: 1.6, kind: 'straight' });
+        drawStairs(); saveStairs();
       });
     })();
 

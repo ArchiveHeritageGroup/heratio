@@ -740,16 +740,23 @@ class ExhibitionSpaceService
         }
         $out = [];
         foreach ($w as $x) {
-            if (empty($x['wall'])) {
+            $hasWall = ! empty($x['wall']);
+            $hasEdge = isset($x['edge']) && is_numeric($x['edge']);   // #1172 windows on polygon edges
+            if (! $hasWall && ! $hasEdge) {
                 continue;
             }
-            $out[] = [
-                'wall' => (string) $x['wall'],
+            $row = [
                 'pos' => isset($x['pos']) ? max(0.0, min(1.0, (float) $x['pos'])) : 0.5,
                 'width' => isset($x['width']) ? max(0.4, min(6.0, (float) $x['width'])) : 1.4,
                 'sill' => isset($x['sill']) ? max(0.2, min(2.0, (float) $x['sill'])) : 0.9,
                 'height' => isset($x['height']) ? max(0.4, min(3.0, (float) $x['height'])) : 1.3,
             ];
+            if ($hasEdge) {
+                $row['edge'] = (int) $x['edge'];
+            } else {
+                $row['wall'] = (string) $x['wall'];
+            }
+            $out[] = $row;
         }
 
         return $out;
@@ -1548,8 +1555,50 @@ class ExhibitionSpaceService
         return [
             'rooms' => $list, 'plan_image' => $plan, 'plan_rect' => $planRect,
             'corridor' => $this->getBuildingCorridorObjects($space),
+            'stairs' => $this->getStairs($space),   // #1169 plan-editor stairs authoring
             'bbox' => ['min_x' => $minX ?? 0, 'max_x' => $maxX ?? 0, 'min_z' => $minZ ?? 0, 'max_z' => $maxZ ?? 0],
         ];
+    }
+
+    /** Stairs (#1169) decoded from the space's stairs_json. */
+    public function getStairs(object $space): array
+    {
+        $s = $space->stairs_json ?? null;
+        if (is_string($s)) {
+            $s = json_decode($s, true);
+        }
+
+        return is_array($s) ? array_values($s) : [];
+    }
+
+    /**
+     * Persist building stairs on EVERY room of the building (so any room's
+     * walkthrough sees them - getWalkthroughBuilding reads the viewed space's
+     * stairs_json). Each stair: {x, z, from_floor, to_floor, width} in metres.
+     *
+     * @param  array<int,array<string,mixed>>  $stairs
+     */
+    public function saveBuildingStairs(object $space, array $stairs): void
+    {
+        $clean = [];
+        foreach ($stairs as $st) {
+            $clean[] = [
+                'x' => round((float) ($st['x'] ?? 0), 2),
+                'z' => round((float) ($st['z'] ?? 0), 2),
+                'from_floor' => (int) ($st['from_floor'] ?? 0),
+                'to_floor' => (int) ($st['to_floor'] ?? 1),
+                'width' => max(0.6, min(8, (float) ($st['width'] ?? 1.6))),
+                'kind' => in_array(($st['kind'] ?? 'straight'), ['straight', 'elbow'], true) ? $st['kind'] : 'straight',
+            ];
+        }
+        $json = $clean ? json_encode($clean) : null;
+        $q = DB::table('ahg_exhibition_space');
+        if (! empty($space->building_id)) {
+            $q->where('building_id', $space->building_id);
+        } else {
+            $q->where('id', $space->id);
+        }
+        $q->update(['stairs_json' => $json, 'updated_at' => now()]);
     }
 
     /** Default world rect for a blueprint image = the building's extent (metres). */

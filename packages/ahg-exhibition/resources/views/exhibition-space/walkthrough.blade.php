@@ -501,9 +501,26 @@
       }).filter(function (d) { return d[1] - d[0] > 0.15; }).sort(function (p, q) { return p[0] - q[0]; });
       var doors = []; raw.forEach(function (d) { if (doors.length && d[0] <= doors[doors.length - 1][1] + 0.01) doors[doors.length - 1][1] = Math.max(doors[doors.length - 1][1], d[1]); else doors.push(d.slice()); });
       function seg(s, e, y0, y1, m2) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return null; var mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), m2 || mat || wallMat); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); return m; }
+      // #1172 windows on this polygon edge: punch glass openings into full segments.
+      var winsE = (rm.windows || []).filter(function (w) { return typeof w.edge === 'number' && w.edge === eIdx; });
+      function fullEdge(s, e) {
+        if (e - s <= 0.1) return;
+        var wins = winsE.map(function (w) { var c = (w.pos == null ? 0.5 : w.pos) * L; return { ws: Math.max(s, c - w.width / 2), we: Math.min(e, c + w.width / 2), sill: w.sill || 0.9, header: Math.min(RH - 0.1, (w.sill || 0.9) + (w.height || 1.3)) }; })
+          .filter(function (w) { return w.we - w.ws > 0.2; }).sort(function (p, q) { return p.ws - q.ws; });
+        if (!wins.length) { seg(s, e, 0, RH); return; }
+        var c2 = s;
+        wins.forEach(function (w) {
+          if (w.ws > c2) seg(c2, w.ws, 0, RH);
+          seg(w.ws, w.we, 0, w.sill);                    // wall below the sill
+          seg(w.ws, w.we, w.header, RH);                 // wall above the header
+          seg(w.ws, w.we, w.sill, w.header, glassMat);   // glass pane (see-through)
+          c2 = w.we;
+        });
+        if (c2 < e) seg(c2, e, 0, RH);
+      }
       var cur = 0;
       doors.forEach(function (dd) {
-        if (dd[0] > cur) seg(cur, dd[0], 0, RH);
+        if (dd[0] > cur) fullEdge(cur, dd[0]);
         seg(dd[0], dd[1], doorH, RH);          // lintel above the opening
         var sm = seg(dd[0], dd[1], 0, doorH, doorMat);  // solid door fills the opening (no see-through)
         var mid = (dd[0] + dd[1]) / 2, mx = ax + ux * mid, mz = az + uz * mid;
@@ -517,7 +534,7 @@
         }
         cur = dd[1];
       });
-      if (cur < L) seg(cur, L, 0, RH);
+      if (cur < L) fullEdge(cur, L);
     }
     var pickables = [];   // declared before the room loop: the map plaques push into it
     // Live conservation overlay (heratio#1146): per-room status tint, toggled.
@@ -730,23 +747,43 @@
       addToRoom(rm, mapIcon); pickables.push(mapIcon);
     });
 
-    // #1169 stairs: a flight of steps linking two floors; click them to ascend/descend.
+    // #1169 stairs: a straight flight or an L-shaped "elbow" linking two floors; click to change floor.
     (BUILDING && BUILDING.stairs ? BUILDING.stairs : []).forEach(function (st) {
       var x = st.x, z = st.z, y0 = (st.from_floor || 0) * FLOOR_H, y1 = (st.to_floor || 1) * FLOOR_H;
-      var rise = y1 - y0, depth = 0.3, width = st.width || 1.4, n = Math.max(4, Math.round(Math.abs(rise) / 0.2));
+      var rise = y1 - y0, depth = 0.3, width = st.width || 1.4;
       var stepMat = new THREE.MeshStandardMaterial({ color: 0xb6b1a8, roughness: 1 });
-      var z0 = z - n * depth / 2;
-      for (var s = 0; s < n; s++) {
-        var step = new THREE.Mesh(new THREE.BoxGeometry(width, 0.18, depth), stepMat);
-        step.position.set(x, y0 + (s + 0.5) * (rise / n), z0 + s * depth); scene.add(step);
+      function flight(sx, sz, axis, ya, yb, m) {
+        for (var s = 0; s < m; s++) {
+          var fy = ya + (s + 0.5) * (yb - ya) / m, step;
+          if (axis === 'z') { step = new THREE.Mesh(new THREE.BoxGeometry(width, 0.18, depth), stepMat); step.position.set(sx, fy, sz + s * depth); }
+          else { step = new THREE.Mesh(new THREE.BoxGeometry(depth, 0.18, width), stepMat); step.position.set(sx + s * depth, fy, sz); }
+          scene.add(step);
+        }
       }
-      var hit = new THREE.Mesh(new THREE.BoxGeometry(width, Math.abs(rise) + 1.2, n * depth), new THREE.MeshBasicMaterial({ visible: false }));
-      hit.position.set(x, (y0 + y1) / 2, z); hit.userData.action = 'stair';
-      hit.userData.top = { x: x, fy: y1, z: z0 - 0.8 }; hit.userData.bot = { x: x, fy: y0, z: z0 + n * depth + 0.8 };
+      var foot, top, hit;
+      if (st.kind === 'elbow') {
+        var half = Math.max(2, Math.round(Math.max(4, Math.abs(rise) / 0.2) / 2)), mid = y0 + rise / 2;
+        flight(x, z, 'z', y0, mid, half);                              // flight 1 up +z
+        var cz = z + half * depth;                                     // corner / landing
+        var land = new THREE.Mesh(new THREE.BoxGeometry(width + 0.2, 0.18, width + 0.2), stepMat); land.position.set(x, mid, cz); scene.add(land);
+        flight(x + width / 2 + depth, cz, 'x', mid, y1, half);          // flight 2 turns 90deg, up +x
+        var ex = x + width / 2 + depth + half * depth;
+        foot = { x: x, fy: y0, z: z - 0.8 }; top = { x: ex + 0.8, fy: y1, z: cz };
+        hit = new THREE.Mesh(new THREE.BoxGeometry((ex - x) + width + 1.2, Math.abs(rise) + 1.4, (cz - z) + width + 1.2), new THREE.MeshBasicMaterial({ visible: false }));
+        hit.position.set((x + ex) / 2, (y0 + y1) / 2, (z + cz) / 2);
+        var eUp = makeTextSprite('{{ __('STAIRS ↑') }}', 0.42); eUp.position.set(x, y0 + 1.4, z - 0.8); scene.add(eUp);
+        var eDn = makeTextSprite('{{ __('STAIRS ↓') }}', 0.42); eDn.position.set(ex + 0.8, y1 + 1.4, cz); scene.add(eDn);
+      } else {
+        var n = Math.max(4, Math.round(Math.abs(rise) / 0.2)), z0 = z - n * depth / 2;
+        flight(x, z0, 'z', y0, y1, n);
+        foot = { x: x, fy: y0, z: z0 - 0.8 }; top = { x: x, fy: y1, z: z0 + n * depth + 0.8 };
+        hit = new THREE.Mesh(new THREE.BoxGeometry(width, Math.abs(rise) + 1.2, n * depth), new THREE.MeshBasicMaterial({ visible: false }));
+        hit.position.set(x, (y0 + y1) / 2, z);
+        var sUp = makeTextSprite('{{ __('STAIRS ↑') }}', 0.42); sUp.position.set(x, y0 + 1.4, z0 - 0.8); scene.add(sUp);
+        var sDn = makeTextSprite('{{ __('STAIRS ↓') }}', 0.42); sDn.position.set(x, y1 + 1.4, z0 + n * depth + 0.8); scene.add(sDn);
+      }
+      hit.userData.action = 'stair'; hit.userData.top = top; hit.userData.bot = foot;
       scene.add(hit); pickables.push(hit);
-      // Clear "STAIRS" signs at the foot (with up arrow) and at the top landing.
-      var sUp = makeTextSprite('{{ __('STAIRS ↑') }}', 0.42); sUp.position.set(x, y0 + 1.4, z0 + n * depth + 0.8); scene.add(sUp);
-      var sDn = makeTextSprite('{{ __('STAIRS ↓') }}', 0.42); sDn.position.set(x, y1 + 1.4, z0 - 0.8); scene.add(sDn);
     });
 
     // Controls. Desktop = first-person pointer-lock (WASD + mouse). Touch devices

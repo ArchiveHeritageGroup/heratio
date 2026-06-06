@@ -286,6 +286,27 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => true, 'updated' => $n]);
     }
 
+    /** AJAX: save building stairs (#1169 plan-editor authoring). */
+    public function savePlanStairsAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'stairs' => 'present|array',
+            'stairs.*.x' => 'required|numeric',
+            'stairs.*.z' => 'required|numeric',
+            'stairs.*.from_floor' => 'nullable|integer',
+            'stairs.*.to_floor' => 'nullable|integer',
+            'stairs.*.width' => 'nullable|numeric',
+            'stairs.*.kind' => 'nullable|string|in:straight,elbow',
+        ]);
+        $this->service->saveBuildingStairs($space, $data['stairs']);
+
+        return response()->json(['ok' => true]);
+    }
+
     /** AJAX: save the blueprint's world rectangle (metres) after move/resize. */
     public function planImageRectAjax(Request $request, string $slug)
     {
