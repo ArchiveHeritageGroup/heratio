@@ -58,6 +58,8 @@
             <button type="button" class="btn btn-outline-secondary" id="roomFront" title="{{ __('Bring room to front (draw on top of overlapping rooms)') }}"><i class="fas fa-arrow-up me-1"></i>{{ __('Front') }}</button>
             <button type="button" class="btn btn-outline-secondary" id="roomBack" title="{{ __('Send room to back') }}"><i class="fas fa-arrow-down me-1"></i>{{ __('Back') }}</button>
           </div>
+          <div class="form-check form-switch small mb-1"><input class="form-check-input" type="checkbox" id="lockFill"><label class="form-check-label" for="lockFill">{{ __('Fill gaps to neighbours when locking') }}</label></div>
+          <button type="button" class="btn btn-sm btn-outline-dark w-100 mb-2" id="lockBtn" title="{{ __('Mark room done: align walls flush with neighbours + prevent moves. Unlock to edit again.') }}"><i class="fas fa-lock me-1"></i>{{ __('Lock room (done)') }}</button>
           <label class="form-label small mb-1">{{ __('Rotation (degrees)') }}</label>
           <div class="input-group input-group-sm mb-2">
             <button type="button" class="btn btn-outline-secondary" id="rotMinus" title="{{ __('Rotate left 15°') }}"><i class="fas fa-undo"></i></button>
@@ -152,6 +154,7 @@
     var GROUP_URL = '{{ route('exhibition-space.plan.group', ['slug' => $space->slug]) }}';   // #1143 move-as-one-unit
     var STAIRS_URL = '{{ route('exhibition-space.plan.stairs', ['slug' => $space->slug]) }}';   // #1169 stairs authoring
     var ROOM_FLOOR_URL = '{{ route('exhibition-space.plan.room-floor', ['slug' => $space->slug]) }}';   // #1169 set room floor
+    var ROOM_LOCK_URL = '{{ route('exhibition-space.plan.room-lock', ['slug' => $space->slug]) }}';   // #1143 lock room (done)
     var DELETE_ROOM_URL = '{{ route('exhibition-space.plan.delete-room', ['slug' => $space->slug]) }}';
     var IMG_RECT_URL = '{{ route('exhibition-space.plan.image-rect', ['slug' => $space->slug]) }}';
     var EDIT_BASE = '{{ url('exhibition-space') }}';
@@ -453,7 +456,8 @@
     }
     function selectRoom(g) {
       if (shapeMode && shapeG && shapeG !== g) { var prev = shapeG; shapeMode = false; shapeG = null; drawShape(prev); }
-      selectedG = g; tr.nodes((shapeMode && shapeG === g) ? [] : [g]); layer.draw();
+      selectedG = g; tr.nodes(((shapeMode && shapeG === g) || g.getAttr('room').locked) ? [] : [g]); layer.draw();
+      setLockBtn(!!g.getAttr('room').locked);
       var nm = g.getAttr('room').name;
       var c = document.getElementById('doorCard');
       if (c) { c.style.display = 'block'; document.getElementById('doorRoomName').textContent = nm; refreshDoorList(g); updateDoorControls(g); }
@@ -484,7 +488,7 @@
     (function () { var ub = document.getElementById('undoBtn'); if (ub) ub.addEventListener('click', doUndo); })();   // #1143 undo move
     document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) { var a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return; e.preventDefault(); doUndo(); } });
     document.addEventListener('keydown', function (e) {   // Shift+arrows fine-tune the selected room's size (Shift+Alt = finer)
-      if (!selectedG || !e.shiftKey) return;
+      if (!selectedG || !e.shiftKey || selectedG.getAttr('room').locked) return;
       var a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
       var step = e.altKey ? 0.1 : 0.25, r = selectedG.getAttr('room'), ch = false;
       if (e.key === 'ArrowRight') { r.w = Math.max(0.5, r.w + step); ch = true; }
@@ -503,7 +507,7 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'm' || e.key === 'M') mDown = true; });
     document.addEventListener('keyup', function (e) { if (e.key === 'm' || e.key === 'M') mDown = false; });
     document.addEventListener('keydown', function (e) {
-      if (!selectedG || !mDown) return;
+      if (!selectedG || !mDown || selectedG.getAttr('room').locked) return;
       var a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
       var step = e.altKey ? 0.1 : 0.25, r = selectedG.getAttr('room'), ch = false;
       if (e.key === 'ArrowRight') { r.bld_x += step; ch = true; }
@@ -529,6 +533,24 @@
         flagSaving();
         targets.forEach(function (o) { o.floor = nf; fetch(ROOM_FLOOR_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: o.id, floor: nf }) }); });
         saved(); drawStairs(); buildFloorView(); applyFloorView();
+      });
+    })();
+    (function () {   // #1143 lock / unlock the selected room
+      var lb = document.getElementById('lockBtn'); if (!lb) return;
+      lb.addEventListener('click', function () {
+        if (!selectedG) return; var r = selectedG.getAttr('room'), willLock = !r.locked;
+        if (willLock) {
+          pushUndo([r]);
+          var fill = document.getElementById('lockFill') && document.getElementById('lockFill').checked;
+          alignRoom(r, fill);
+          var rect = selectedG.findOne('.roomrect'); if (rect) { rect.width(r.w * scale); rect.height(r.d * scale); }
+          var lbl = selectedG.findOne('Text'); if (lbl) lbl.width(r.w * scale - 6);
+          selectedG.x(r.bld_x * scale); selectedG.y(r.bld_y * scale); selectedG.width(r.w * scale); selectedG.height(r.d * scale);
+          drawDoors(selectedG); drawShape(selectedG); saveRoom(selectedG); tr.nodes([]);
+        }
+        r.locked = willLock; flagSaving();
+        fetch(ROOM_LOCK_URL, { method: 'POST', headers: hdr(), body: JSON.stringify({ room_id: r.id, locked: willLock }) }).then(function (x) { return x.json(); }).then(saved);
+        applyLockVisual(selectedG); setLockBtn(r.locked); if (!willLock) tr.nodes([selectedG]); layer.draw();
       });
     })();
     (function () {   // delete the selected room
@@ -669,6 +691,7 @@
     function setShapeBtn(on) { var se = document.getElementById('shapeEdit'); se.classList.toggle('btn-primary', on); se.classList.toggle('btn-outline-primary', !on); }
     document.getElementById('shapeEdit').addEventListener('click', function () {
       if (!selectedG) return; var r = selectedG.getAttr('room');
+      if (r.locked) { alert('{{ __('This room is locked. Unlock it first to edit its shape.') }}'); return; }
       if (shapeMode && shapeG === selectedG) { shapeMode = false; shapeG = null; setShapeBtn(false); normalizeShape(selectedG); tr.nodes([selectedG]); drawShape(selectedG); }
       else { if (!r.shape || r.shape.length < 3) r.shape = defaultShape(); shapeMode = true; shapeG = selectedG; setShapeBtn(true); tr.nodes([]); drawShape(selectedG); saveShape(selectedG); }
       updateDoorControls(selectedG);
@@ -777,6 +800,25 @@
       recolorAll(); if (joinMode) drawJoinDots(); layer.draw(); updateUndoBtn();
     }
 
+    // ---- Room lock (#1143): mark done, align walls flush with neighbours, prevent move/resize ----
+    function alignRoom(r, fill) {
+      var TH = fill ? 8 : 1.2, x1 = r.bld_x, x2 = r.bld_x + r.w, z1 = r.bld_y, z2 = r.bld_y + r.d, xs = [], zs = [];
+      PLAN.rooms.forEach(function (o) {
+        if (o.id === r.id || o.bld_x === null || (o.floor || 0) !== (r.floor || 0)) return;
+        xs.push(o.bld_x, o.bld_x + o.w); zs.push(o.bld_y, o.bld_y + o.d);
+      });
+      function snap(v, arr) { var best = v, bd = TH; arr.forEach(function (a) { if (Math.abs(a - v) < bd) { bd = Math.abs(a - v); best = a; } }); return best; }
+      var nx1 = snap(x1, xs), nx2 = snap(x2, xs), nz1 = snap(z1, zs), nz2 = snap(z2, zs);
+      if (nx2 - nx1 > 0.5 && nz2 - nz1 > 0.5) { r.bld_x = nx1; r.w = nx2 - nx1; r.bld_y = nz1; r.d = nz2 - nz1; }
+    }
+    function applyLockVisual(g) {
+      var r = g.getAttr('room'); g.draggable(!r.locked); recolorRoom(g);
+      var rect = g.findOne('.roomrect'); if (rect && r.locked) { rect.stroke('#212529'); rect.dash([2, 2]); rect.strokeWidth(2); }
+      g.find('.lockbadge').forEach(function (n) { n.destroy(); });
+      if (r.locked) g.add(new Konva.Text({ name: 'lockbadge', text: '🔒', x: 2, y: Math.max(2, r.d * scale - 16), fontSize: 13, listening: false }));
+    }
+    function setLockBtn(locked) { var b = document.getElementById('lockBtn'); if (!b) return; b.innerHTML = locked ? '<i class="fas fa-lock-open me-1"></i>{{ __('Unlock room') }}' : '<i class="fas fa-lock me-1"></i>{{ __('Lock room (done)') }}'; b.classList.toggle('btn-dark', locked); b.classList.toggle('btn-outline-dark', !locked); }
+
     function addRoomNode(r) {
       var g = new Konva.Group({ x: r.bld_x * scale, y: r.bld_y * scale, rotation: r.rot || 0, draggable: true });
       g.setAttr('room', r);
@@ -822,7 +864,7 @@
       });
       g.width(r.w * scale); g.height(r.d * scale);
       layer.add(g);
-      drawDoors(g); drawShape(g); recolorRoom(g);
+      drawDoors(g); drawShape(g); recolorRoom(g); applyLockVisual(g);
       return g;
     }
     PLAN.rooms.forEach(addRoomNode);

@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/plan/group', [ExhibitionSpaceController::class, 'savePlanGroupAjax'])->name('exhibition-space.plan.group')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/stairs', [ExhibitionSpaceController::class, 'savePlanStairsAjax'])->name('exhibition-space.plan.stairs')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/room-floor', [ExhibitionSpaceController::class, 'savePlanRoomFloorAjax'])->name('exhibition-space.plan.room-floor')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/plan/room-lock', [ExhibitionSpaceController::class, 'savePlanRoomLockAjax'])->name('exhibition-space.plan.room-lock')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/delete-room', [ExhibitionSpaceController::class, 'deleteRoomAjax'])->name('exhibition-space.plan.delete-room')->middleware('acl:update');
     // authored audio guided tour (curator saves route + narration)
     Route::post('/exhibition-space/{slug}/guided-tour', [ExhibitionSpaceController::class, 'saveGuidedTourAjax'])->name('exhibition-space.guided-tour')->middleware('acl:update');

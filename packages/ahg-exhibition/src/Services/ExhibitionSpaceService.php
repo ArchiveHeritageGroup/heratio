@@ -1551,6 +1551,7 @@ class ExhibitionSpaceService
                 'windows' => $this->getWindows((int) $r->id),   // #1172 authoring
                 'shape' => $this->getShape((int) $r->id),
                 'group' => $r->bld_group ?? null,   // #1143: move-as-one-unit group key
+                'locked' => (int) ($r->bld_locked ?? 0) === 1,   // #1143: room "done" lock
                 'floor' => (int) ($r->floor_level ?? 0),   // #1169: for name-based stair linking
                 'is_current' => (int) $r->id === (int) $space->id,
             ];
@@ -1743,6 +1744,17 @@ class ExhibitionSpaceService
     }
 
     /** Set which floor a room sits on (#1169 multi-floor). 0 = ground. */
+    public function setRoomLocked(object $space, int $roomId, bool $locked): bool
+    {
+        $ids = $this->buildingSpaceIds($space);
+        if (! in_array($roomId, $ids, true)) {
+            return false;
+        }
+
+        return DB::table('ahg_exhibition_space')->where('id', $roomId)
+            ->update(['bld_locked' => $locked ? 1 : 0, 'updated_at' => now()]) > 0;
+    }
+
     public function setRoomFloor(object $space, int $roomId, int $floor): bool
     {
         $ids = $this->buildingSpaceIds($space);

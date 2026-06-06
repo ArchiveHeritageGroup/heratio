@@ -326,6 +326,19 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => $ok]);
     }
 
+    /** AJAX: lock/unlock a room (#1143). */
+    public function savePlanRoomLockAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['room_id' => 'required|integer|min:1', 'locked' => 'required|boolean']);
+        $ok = $this->service->setRoomLocked($space, (int) $data['room_id'], (bool) $data['locked']);
+
+        return response()->json(['ok' => $ok]);
+    }
+
     /** AJAX: delete a room from the building. */
     public function deleteRoomAjax(Request $request, string $slug)
     {
