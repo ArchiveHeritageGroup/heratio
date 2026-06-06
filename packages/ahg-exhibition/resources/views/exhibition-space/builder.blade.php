@@ -801,10 +801,35 @@
       if (w) return Math.hypot((w.x2 - w.x1) * ROOM_W, (w.z2 - w.z1) * ROOM_D);
       return ROOM_W;
     }
+    // Which polygon edge does a door belong to + its fraction along that edge.
+    // Native edge doors carry {edge}. Legacy {wall:north/south/east/west} doors on a SHAPED
+    // room are mapped to the nearest perimeter edge so they still show in wall view (#1176).
+    function doorEdge(d) {
+      if (typeof d.edge === 'number') return { edge: d.edge, t: (d.pos == null ? 0.5 : d.pos) };
+      if (!(SHAPE && SHAPE.length >= 3)) return null;
+      var p = (d.pos == null ? 0.5 : d.pos), P;
+      if (d.wall === 'north') P = { x: p, z: 0 };
+      else if (d.wall === 'south') P = { x: p, z: 1 };
+      else if (d.wall === 'east') P = { x: 1, z: p };
+      else if (d.wall === 'west') P = { x: 0, z: p };
+      else return null;
+      var best = -1, bd = 1e9, bt = 0.5;
+      for (var i = 0; i < SHAPE.length; i++) {
+        var a = SHAPE[i], b = SHAPE[(i + 1) % SHAPE.length];
+        var dx = b.x - a.x, dz = b.z - a.z, L2 = dx * dx + dz * dz || 1;
+        var t = Math.max(0, Math.min(1, ((P.x - a.x) * dx + (P.z - a.z) * dz) / L2));
+        var dist = Math.hypot(P.x - (a.x + t * dx), P.z - (a.z + t * dz));
+        if (dist < bd) { bd = dist; best = i; bt = t; }
+      }
+      return { edge: best, t: bt };
+    }
     function wvDoorsForWall() {
-      return allDoors().filter(function (d) {
-        return (wvWall.indexOf && wvWall.indexOf('edge:') === 0) ? ('edge:' + d.edge) === wvWall : d.wall === wvWall;
-      });
+      var edgeMode = (wvWall.indexOf && wvWall.indexOf('edge:') === 0);
+      if (!edgeMode) return allDoors().filter(function (d) { return d.wall === wvWall; });
+      return allDoors().map(function (d) {
+        var m = doorEdge(d); if (!m || ('edge:' + m.edge) !== wvWall) return null;
+        return { width: d.width, auto: d.auto, pos: m.t };   // pos = fraction along this edge
+      }).filter(Boolean);
     }
     var wvOX = 0, wvOY = 0, wvEW = 0, wvEH = 0, wvStepX = 0, wvStepY = 0;   // elevation rect (to-scale wall area) + 1m grid step
     function buildWallView() {
