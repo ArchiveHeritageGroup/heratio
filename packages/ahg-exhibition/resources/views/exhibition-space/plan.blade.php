@@ -479,6 +479,21 @@
     (function () { var jb = document.getElementById('joinBtn'); if (jb) jb.addEventListener('click', function () { joinMode = !joinMode; joinAnchor = null; jb.classList.toggle('btn-warning', joinMode); jb.classList.toggle('btn-outline-warning', !joinMode); drawJoinDots(); }); })();   // #1143 join corners
     (function () { var ub = document.getElementById('undoBtn'); if (ub) ub.addEventListener('click', doUndo); })();   // #1143 undo move
     document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) { var a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return; e.preventDefault(); doUndo(); } });
+    document.addEventListener('keydown', function (e) {   // Shift+arrows fine-tune the selected room's size (Shift+Alt = finer)
+      if (!selectedG || !e.shiftKey) return;
+      var a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+      var step = e.altKey ? 0.1 : 0.25, r = selectedG.getAttr('room'), ch = false;
+      if (e.key === 'ArrowRight') { r.w = Math.max(0.5, r.w + step); ch = true; }
+      else if (e.key === 'ArrowLeft') { r.w = Math.max(0.5, r.w - step); ch = true; }
+      else if (e.key === 'ArrowDown') { r.d = Math.max(0.5, r.d + step); ch = true; }
+      else if (e.key === 'ArrowUp') { r.d = Math.max(0.5, r.d - step); ch = true; }
+      if (!ch) return;
+      e.preventDefault(); pushUndo([r]);
+      var rect = selectedG.findOne('.roomrect'); if (rect) { rect.width(r.w * scale); rect.height(r.d * scale); }
+      var lbl = selectedG.findOne('Text'); if (lbl) lbl.width(r.w * scale - 6);
+      selectedG.width(r.w * scale); selectedG.height(r.d * scale);
+      drawDoors(selectedG); drawShape(selectedG); layer.draw(); flagSaving(); saveRoom(selectedG);
+    });
     (function () {   // #1169 set the selected room's (or its whole group's) floor
       var rf = document.getElementById('roomFloor'); if (!rf) return;
       rf.addEventListener('change', function () {
@@ -611,13 +626,13 @@
           v.on('dragmove', function () {
             var wx = g.x() / scale + (v.x() / ww) * r.w, wy = g.y() / scale + (v.y() / hh) * r.d;
             var s = snapVertexWorld(otherCorners(g), wx, wy);
-            p.x = Math.max(-3, Math.min(4, (s.x - g.x() / scale) / r.w));   // allow dragging beyond the box; it grows to fit on release
-            p.z = Math.max(-3, Math.min(4, (s.y - g.y() / scale) / r.d));
+            p.x = Math.max(0, Math.min(1, (s.x - g.x() / scale) / r.w));
+            p.z = Math.max(0, Math.min(1, (s.y - g.y() / scale) / r.d));
             v.x(p.x * ww); v.y(p.z * hh);
             v.fill(s.snapped ? '#198754' : '#fff');   // green dot = locked onto an existing point
             updatePoly(g);
           });
-          v.on('dragend', function () { v.fill('#fff'); normalizeShape(g); drawShape(g); saveShape(g); });
+          v.on('dragend', function () { v.fill('#fff'); saveShape(g); });
           v.on('dblclick dbltap', function (e) { e.cancelBubble = true; if (r.shape.length > 3) { r.shape.splice(idx, 1); drawShape(g); saveShape(g); if (selectedG === g) updateDoorControls(g); } });
           g.add(v);
         });
