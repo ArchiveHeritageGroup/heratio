@@ -798,6 +798,9 @@ class ExhibitionSpaceService
     private function sanitizeDoors(array $doors): array
     {
         $walls = ['north', 'south', 'east', 'west'];
+        // #1171 door leaf style. 'open' = bare doorway (flat panel, default). Others render a hinged
+        // or sliding leaf that swings/slides open in the walkthrough.
+        $types = ['open', 'single', 'double', 'glass', 'sliding', 'ornate'];
         $clean = [];
         foreach ($doors as $d) {
             if (! is_array($d)) {
@@ -805,9 +808,10 @@ class ExhibitionSpaceService
             }
             $pos = max(0.0, min(1.0, (float) ($d['pos'] ?? 0.5)));
             $width = max(0.5, min(6.0, (float) ($d['width'] ?? 1.6)));
+            $type = isset($d['type']) && in_array((string) $d['type'], $types, true) ? (string) $d['type'] : 'open';
             // Polygon-edge door (edge index into the room's shape).
             if (isset($d['edge']) && is_numeric($d['edge'])) {
-                $clean[] = ['edge' => max(0, (int) $d['edge']), 'pos' => $pos, 'width' => $width];
+                $clean[] = ['edge' => max(0, (int) $d['edge']), 'pos' => $pos, 'width' => $width, 'type' => $type];
 
                 continue;
             }
@@ -816,7 +820,7 @@ class ExhibitionSpaceService
             if (! in_array($wall, $walls, true)) {
                 continue;
             }
-            $clean[] = ['wall' => $wall, 'pos' => $pos, 'width' => $width];
+            $clean[] = ['wall' => $wall, 'pos' => $pos, 'width' => $width, 'type' => $type];
         }
 
         return $clean;

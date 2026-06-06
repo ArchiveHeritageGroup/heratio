@@ -351,27 +351,33 @@
     var glassMat = new THREE.MeshStandardMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, roughness: 0.1, metalness: 0.1, side: THREE.DoubleSide });   // #1172 window pane
     var colliders = [];   // wall meshes the visitor cannot walk through (doorways/glass excluded)
     var stairRamps = [];  // walkable sloped corridors: {ax,az,bx,bz,ya,yb,ux,uz,len,half}
-    // Front door: double hinged leaves on an outdoor<->indoor opening, swing open on approach.
+    // #1171 door leaves on a polygon-edge opening (single/double/glass/sliding/ornate). Built in a
+    // group whose local X runs along the edge and local Z is the wall normal; leaves swing about Y
+    // (hinged) or slide along X (sliding), animated by proximity. Leaves are NOT colliders, so the
+    // doorway is always walk-through - the swing/slide is visual.
     var frontDoorMat = new THREE.MeshStandardMaterial({ color: 0x5a3a22, roughness: 0.65, side: THREE.DoubleSide });
+    var ornateDoorMat = new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 0.45, metalness: 0.25, side: THREE.DoubleSide });
     var frontDoors = [];
-    function makeFrontDoor(rm, s, e, fixed, vertical, ry, doorH, dest) {
-      var W = e - s, leafW = Math.max(0.2, W / 2 - 0.03), t = 0.07, grp = new THREE.Group();
-      function leaf(hingeAt, sign) {
-        var pivot = new THREE.Group();
-        var geo = vertical ? new THREE.BoxGeometry(t, doorH - 0.05, leafW) : new THREE.BoxGeometry(leafW, doorH - 0.05, t);
-        var panel = new THREE.Mesh(geo, frontDoorMat);
-        if (vertical) panel.position.z = sign * leafW / 2; else panel.position.x = sign * leafW / 2;
-        pivot.add(panel);
-        if (vertical) pivot.position.set(fixed, doorH / 2, hingeAt); else pivot.position.set(hingeAt, doorH / 2, fixed);
-        grp.add(pivot); return pivot;
+    function makeEdgeDoor(rm, s, e, ax, az, ux, uz, ang, doorH, dest, type) {
+      var W = e - s, mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid;
+      var leafH = doorH - 0.05, t = 0.07;
+      var mat = (type === 'glass') ? glassMat : (type === 'ornate') ? ornateDoorMat : frontDoorMat;
+      var slide = (type === 'sliding'), single = (type === 'single');
+      var grp = new THREE.Group(); grp.position.set(mx, 0, mz); grp.rotation.y = -ang;
+      var leaves = [];
+      function leaf(hingeX, sign, lw) {
+        var pivot = new THREE.Group(); pivot.position.set(hingeX, doorH / 2, 0);
+        var panel = new THREE.Mesh(new THREE.BoxGeometry(lw, leafH, t), mat); panel.position.x = sign * lw / 2;
+        pivot.add(panel); grp.add(pivot); leaves.push({ pivot: pivot, sign: sign, hingeX: hingeX, lw: lw });
       }
-      var pa = leaf(s, 1), pb = leaf(e, -1);
-      var hit = new THREE.Mesh(vertical ? new THREE.BoxGeometry(0.12, doorH, W) : new THREE.BoxGeometry(W, doorH, 0.12), new THREE.MeshBasicMaterial({ visible: false }));
-      if (vertical) hit.position.set(fixed, doorH / 2, (s + e) / 2); else hit.position.set((s + e) / 2, doorH / 2, fixed);
-      hit.userData.action = 'door'; hit.userData.doorDest = dest; grp.add(hit);
-      addToRoom(rm, grp); pickables.push(hit);
-      var wc = roomWorld(rm, vertical ? fixed : (s + e) / 2, vertical ? (s + e) / 2 : fixed);
-      frontDoors.push({ a: pa, b: pb, x: wc.x, z: wc.z, open: 0 });
+      if (single) { leaf(-W / 2, 1, Math.max(0.2, W - 0.06)); }
+      else { var lw = Math.max(0.2, W / 2 - 0.03); leaf(-W / 2, 1, lw); leaf(W / 2, -1, lw); }
+      var hit = new THREE.Mesh(new THREE.BoxGeometry(W, doorH, 0.14), new THREE.MeshBasicMaterial({ visible: false }));
+      hit.position.set(0, doorH / 2, 0); grp.add(hit);
+      if (dest) { hit.userData.action = 'door'; hit.userData.doorDest = dest; pickables.push(hit); }
+      addToRoom(rm, grp);
+      var wc = roomWorld(rm, mx, mz);
+      frontDoors.push({ leaves: leaves, x: wc.x, z: wc.z, open: 0, slide: slide });
     }
     var DOOR = 1.6;   // doorway width between connected rooms
     // Default plaster ceiling + decorative crown-moulding (cornice) for rooms with no ceiling image.
@@ -434,13 +440,13 @@
       var doorH = Math.min(RH - 0.3, 2.6);
       var manual = (rm.doors || []).filter(function (d) { return d.edge === eIdx; }).map(function (d) {
         var c = (d.pos == null ? 0.5 : d.pos) * L, hw = (d.width || 1.6) / 2, s = Math.max(0, c - hw), e = Math.min(L, c + hw);
-        if (s < 0.2) s = 0; if (L - e < 0.2) e = L; return [s, e];
+        if (s < 0.2) s = 0; if (L - e < 0.2) e = L; return { s: s, e: e, type: d.type || 'open' };   // #1171 leaf style
       });
       var auto = (PLAN_MODE ? autoEdgeOpenings(rm, ax, az, bx, bz, L) : []).map(function (d) {
-        var s = Math.max(0, d[0]), e = Math.min(L, d[1]); if (s < 0.2) s = 0; if (L - e < 0.2) e = L; return [s, e];
+        var s = Math.max(0, d[0]), e = Math.min(L, d[1]); if (s < 0.2) s = 0; if (L - e < 0.2) e = L; return { s: s, e: e, type: 'open' };
       });
-      var raw = manual.concat(auto).filter(function (d) { return d[1] - d[0] > 0.15; }).sort(function (p, q) { return p[0] - q[0]; });
-      var doors = []; raw.forEach(function (d) { if (doors.length && d[0] <= doors[doors.length - 1][1] + 0.01) doors[doors.length - 1][1] = Math.max(doors[doors.length - 1][1], d[1]); else doors.push(d.slice()); });
+      var raw = manual.concat(auto).filter(function (d) { return d.e - d.s > 0.15; }).sort(function (p, q) { return p.s - q.s; });
+      var doors = []; raw.forEach(function (d) { var last = doors[doors.length - 1]; if (last && d.s <= last.e + 0.01) { last.e = Math.max(last.e, d.e); if (d.type !== 'open') last.type = d.type; } else doors.push({ s: d.s, e: d.e, type: d.type }); });
       function seg(s, e, y0, y1, m2) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return null; var um = m2 || mat || wallMat, mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), um); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); if (um !== doorMat && um !== glassMat && y0 < 1.7) colliders.push(m); return m; }
       // #1172 windows on this polygon edge: punch glass openings into full segments.
       var winsE = (rm.windows || []).filter(function (w) { return typeof w.edge === 'number' && w.edge === eIdx; });
@@ -476,7 +482,7 @@
           stairGapsE.push([Math.max(0, Math.min(f0, f1)) * L, Math.min(1, Math.max(f0, f1)) * L]);
         });
       })();
-      var openings = doors.map(function (d) { return { s: d[0], e: d[1], stair: false }; })
+      var openings = doors.map(function (d) { return { s: d.s, e: d.e, type: d.type, stair: false }; })
         .concat(stairGapsE.map(function (g) { return { s: g[0], e: g[1], stair: true }; }))
         .sort(function (p, q) { return p.s - q.s; });
       var cur = 0;
@@ -485,15 +491,19 @@
         if (dd.s > cur) fullEdge(cur, dd.s);
         if (dd.stair) { seg(dd.s, dd.e, 0, RH, glassMat); cur = Math.max(cur, dd.e); return; }   // see-through, walk-through stair slice
         seg(dd.s, dd.e, doorH, RH);          // lintel above the opening
-        var sm = seg(dd.s, dd.e, 0, doorH, doorMat);  // solid door fills the opening (no see-through)
         var mid = (dd.s + dd.e) / 2, mx = ax + ux * mid, mz = az + uz * mid;
-        var ginx = ccx - mx, ginz = ccz - mz, ginl = Math.hypot(ginx, ginz) || 1;   // inward (toward room centre)
-        var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(mx + ginx / ginl * 0.14, doorH * 0.5, mz + ginz / ginl * 0.14); addToRoom(rm, dnm);   // "Door" floated off the panel so it does not clip
         var nx = -uz, nz = ux; if ((ccx - mx) * nx + (ccz - mz) * nz > 0) { nx = -nx; nz = -nz; }   // outward normal
         var ow = roomWorld(rm, mx + nx * 0.5, mz + nz * 0.5), dest = findRoomAtWorld(ow.x, ow.z, rm, rm.floor || 0);   // door leads to a room on the SAME floor
+        if (dd.type && dd.type !== 'open') {
+          makeEdgeDoor(rm, dd.s, dd.e, ax, az, ux, uz, ang, doorH, dest, dd.type);   // #1171 swinging / sliding leaf
+        } else {
+          var sm = seg(dd.s, dd.e, 0, doorH, doorMat);  // bare doorway: flat solid panel
+          var ginx = ccx - mx, ginz = ccz - mz, ginl = Math.hypot(ginx, ginz) || 1;   // inward (toward room centre)
+          var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(mx + ginx / ginl * 0.14, doorH * 0.5, mz + ginz / ginl * 0.14); addToRoom(rm, dnm);   // "Door" floated off the panel so it does not clip
+          if (sm && dest) { sm.userData.action = 'door'; sm.userData.doorDest = dest; pickables.push(sm); }   // click the door to jump into that room
+        }
         if (dest && dest.name) {
           var lab = makeTextSprite('→ ' + dest.name, 0.3); lab.position.set(mx - nx * 0.35, doorH + 0.35, mz - nz * 0.35); addToRoom(rm, lab);
-          if (sm) { sm.userData.action = 'door'; sm.userData.doorDest = dest; pickables.push(sm); }   // click the door to jump into that room
         }
         cur = Math.max(cur, dd.e);
       });
@@ -1564,12 +1574,16 @@
         hemiLight.intensity += ((hemiBase - prox * hemiBase * 0.78) - hemiLight.intensity) * Math.min(1, dt * 5);
       }
       if (typeof applyZoom === 'function') applyZoom(dt);   // #1163 smooth zoom
-      if (frontDoors.length) {   // front doors swing open as you approach, close as you leave
+      if (frontDoors.length) {   // #1171 doors swing/slide open as you approach, close as you leave
         var fcp = controls.getObject().position;
         for (var fi = 0; fi < frontDoors.length; fi++) {
           var fd = frontDoors[fi], fdist = Math.hypot(fcp.x - fd.x, fcp.z - fd.z);
           fd.open += ((fdist < 3.4 ? 1 : 0) - fd.open) * Math.min(1, dt * 4);
-          var ang = fd.open * 1.65; fd.a.rotation.y = ang; fd.b.rotation.y = -ang;
+          for (var li = 0; li < fd.leaves.length; li++) {
+            var lf = fd.leaves[li];
+            if (fd.slide) lf.pivot.position.x = lf.hingeX - lf.sign * fd.open * lf.lw;   // slide into the wall
+            else lf.pivot.rotation.y = lf.sign * fd.open * 1.65;                          // swing on the hinge
+          }
         }
       }
       renderer.render(scene, camera);

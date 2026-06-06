@@ -313,7 +313,7 @@
       var r = g.getAttr('room');
       flagSaving();
       fetch(DOORS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
-        body: JSON.stringify({ room_id: r.id, doors: (r.doors || []).map(function (d) { return { wall: d.wall, edge: d.edge, pos: d.pos, width: d.width }; }) }) })
+        body: JSON.stringify({ room_id: r.id, doors: (r.doors || []).map(function (d) { return { wall: d.wall, edge: d.edge, pos: d.pos, width: d.width, type: d.type || 'open' }; }) }) })
         .then(function (res) { return res.json(); }).then(function () { document.getElementById('planSave').textContent = '{{ __('All changes saved') }}'; });
     }
     function drawDoors(g) {
@@ -373,11 +373,15 @@
         var row = document.createElement('div');
         row.className = 'd-flex align-items-center gap-1 mb-1';
         var lbl = (typeof d.edge === 'number') ? ('{{ __('Wall') }} ' + (d.edge + 1)) : (DOOR_LBL[d.wall] || '?');
+        // #1171 door-leaf style chooser (open = bare doorway; others swing/slide in the walkthrough)
+        var opts = [['open', '{{ __('Doorway') }}'], ['single', '{{ __('Single') }}'], ['double', '{{ __('Double') }}'], ['glass', '{{ __('Glass') }}'], ['sliding', '{{ __('Sliding') }}'], ['ornate', '{{ __('Ornate') }}']];
+        var sel = '<select class="form-select form-select-sm doortype" style="width:96px">' + opts.map(function (o) { return '<option value="' + o[0] + '"' + ((d.type || 'open') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>';
         row.innerHTML = '<span class="badge bg-secondary">' + lbl + '</span>' +
-          '<input type="number" class="form-control form-control-sm" style="width:68px" min="0.5" max="6" step="0.1" value="' + d.width + '">' +
-          '<span class="small text-muted">m</span>' +
+          '<input type="number" class="form-control form-control-sm" style="width:60px" min="0.5" max="6" step="0.1" value="' + d.width + '"><span class="small text-muted">m</span>' +
+          sel +
           '<button class="btn btn-sm btn-outline-danger ms-auto" type="button" title="{{ __('Remove') }}">&times;</button>';
         row.querySelector('input').addEventListener('change', function (e) { d.width = Math.max(0.5, Math.min(6, parseFloat(e.target.value) || 1.6)); drawDoors(g); saveDoors(g); });
+        row.querySelector('.doortype').addEventListener('change', function (e) { d.type = e.target.value; saveDoors(g); });
         row.querySelector('button').addEventListener('click', function () { r.doors.splice(idx, 1); drawDoors(g); saveDoors(g); refreshDoorList(g); });
         el.appendChild(row);
       });
@@ -386,7 +390,7 @@
       if (!selectedG) return;
       var r = selectedG.getAttr('room');
       if (!r.doors) r.doors = [];
-      r.doors.push({ wall: wall, pos: 0.5, width: 1.6 });
+      r.doors.push({ wall: wall, pos: 0.5, width: 1.6, type: 'open' });
       drawDoors(selectedG); saveDoors(selectedG); refreshDoorList(selectedG);
     }
     // ---- Windows (#1172) ----
@@ -449,7 +453,7 @@
         r.shape.forEach(function (p, i) {
           var b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-sm btn-outline-primary';
           b.textContent = '{{ __('Wall') }} ' + (i + 1);
-          b.addEventListener('click', function () { if (!r.doors) r.doors = []; r.doors.push({ edge: i, pos: 0.5, width: 1.6 }); drawDoors(g); saveDoors(g); refreshDoorList(g); });
+          b.addEventListener('click', function () { if (!r.doors) r.doors = []; r.doors.push({ edge: i, pos: 0.5, width: 1.6, type: 'open' }); drawDoors(g); saveDoors(g); refreshDoorList(g); });
           edgeBox.appendChild(b);
         });
       }
