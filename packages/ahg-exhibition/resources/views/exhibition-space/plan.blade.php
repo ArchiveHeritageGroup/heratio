@@ -209,7 +209,7 @@
       var x = g.x() / scale, y = g.y() / scale, TH = 0.7;
       var A = effBounds(r, x, y), bestDX = null, bestDY = null;
       PLAN.rooms.forEach(function (o) {
-        if (o === r || o.rot || o.bld_x === null || (r.group && o.group === r.group)) return;
+        if (o === r || o.rot || o.bld_x === null || (o.floor || 0) !== (r.floor || 0) || (r.group && o.group === r.group)) return;
         var B = effBounds(o, o.bld_x, o.bld_y);
         [[A.x1, B.x1], [A.x1, B.x2], [A.x2, B.x1], [A.x2, B.x2]].forEach(function (p) { var dx = p[1] - p[0]; if (Math.abs(dx) < TH && (bestDX === null || Math.abs(dx) < Math.abs(bestDX))) bestDX = dx; });
         [[A.y1, B.y1], [A.y1, B.y2], [A.y2, B.y1], [A.y2, B.y2]].forEach(function (p) { var dy = p[1] - p[0]; if (Math.abs(dy) < TH && (bestDY === null || Math.abs(dy) < Math.abs(bestDY))) bestDY = dy; });
@@ -230,7 +230,7 @@
     function otherCorners(g) {
       var r = g.getAttr('room'), out = [];
       PLAN.rooms.forEach(function (o) {
-        if (o === g.getAttr('room') || o.bld_x === null || o.bld_y === null) return;
+        if (o === r || o.bld_x === null || o.bld_y === null || (o.floor || 0) !== (r.floor || 0)) return;
         roomPoly(o, o.bld_x, o.bld_y).forEach(function (pt) { out.push(pt); });
       });
       return out;
@@ -279,7 +279,7 @@
         var A = roomPoly(r, x, y), hit = null;
         for (var i = 0; i < PLAN.rooms.length; i++) {
           var o = PLAN.rooms[i];
-          if (o === r || o.rot || o.bld_x === null || o.bld_y === null) continue;
+          if (o === r || o.rot || o.bld_x === null || o.bld_y === null || (o.floor || 0) !== (r.floor || 0)) continue;
           var B = roomPoly(o, o.bld_x, o.bld_y);
           if (polyOverlap(A, B)) { hit = B; break; }
         }
@@ -551,7 +551,7 @@
       clearSnapTargets();
       var r = g.getAttr('room');
       PLAN.rooms.forEach(function (o) {
-        if (o === r || o.bld_x === null || o.bld_y === null) return;
+        if (o === r || o.bld_x === null || o.bld_y === null || (o.floor || 0) !== (r.floor || 0)) return;
         roomPoly(o, o.bld_x, o.bld_y).forEach(function (pt) {
           layer.add(new Konva.Circle({ name: 'snaptarget', x: pt.x * scale, y: pt.y * scale, radius: 6, fill: 'rgba(25,135,84,0.35)', stroke: '#198754', strokeWidth: 1.5, listening: false }));
         });
@@ -671,7 +671,7 @@
       var changed = [];
       function mark(o) { if (changed.indexOf(o) < 0) changed.push(o); }
       PLAN.rooms.forEach(function (o) {
-        if (o === r || o.bld_x === null || o.bld_y === null || o.rot) return;
+        if (o === r || o.bld_x === null || o.bld_y === null || o.rot || (o.floor || 0) !== (r.floor || 0)) return;
         if (!roomsAdjacent(r, o)) return;
         if (r.group && o.group) {
           if (r.group !== o.group) { var from = o.group, to = r.group; PLAN.rooms.forEach(function (q) { if (q.group === from) { q.group = to; mark(q); } }); }
@@ -694,7 +694,7 @@
       clearJoinDots();
       if (joinMode) {
         PLAN.rooms.forEach(function (o) {
-          if (o.bld_x === null || o.bld_y === null) return;
+          if (o.bld_x === null || o.bld_y === null || String(o.floor || 0) !== String(floorView)) return;
           roomPoly(o, o.bld_x, o.bld_y).forEach(function (pt, idx) {
             var isA = joinAnchor && joinAnchor.id === o.id && joinAnchor.idx === idx;
             var c = new Konva.Circle({ name: 'joindot', x: pt.x * scale, y: pt.y * scale, radius: 7, fill: isA ? '#dc3545' : '#0d6efd', stroke: '#fff', strokeWidth: 2 });
@@ -794,10 +794,10 @@
     // ---- Floor view (#1169): show only rooms on the chosen floor ----
     function floorList() { var mx = 4; PLAN.rooms.forEach(function (r) { if ((r.floor || 0) > mx) mx = r.floor || 0; }); var a = []; for (var i = 0; i <= mx; i++) a.push(i); return a; }
     function floorOptsHtml(selVal) { return floorList().map(function (f) { return '<option value="' + f + '"' + (f === selVal ? ' selected' : '') + '>' + (f === 0 ? '{{ __('Ground') }}' : ('{{ __('Floor') }} ' + f)) + '</option>'; }).join(''); }
-    var floorView = 'all';
+    var floorView = '0';   // default to the ground floor
     function buildFloorView() {
       var sel = document.getElementById('floorView'); if (!sel) return;
-      var html = '<option value="all">{{ __('All floors') }}</option>';
+      var html = '';
       floorList().forEach(function (f) { html += '<option value="' + f + '"' + (String(f) === String(floorView) ? ' selected' : '') + '>' + (f === 0 ? '{{ __('Ground floor') }}' : ('{{ __('Floor') }} ' + f)) + '</option>'; });
       sel.innerHTML = html;
     }
@@ -805,7 +805,7 @@
       PLAN.rooms.forEach(function (r) { var n = nodeById[r.id]; if (n) n.visible(floorView === 'all' || String(r.floor || 0) === String(floorView)); });
       layer.draw();
     }
-    (function () { var sel = document.getElementById('floorView'); if (!sel) return; buildFloorView(); sel.addEventListener('change', function () { floorView = sel.value; deselect(); applyFloorView(); }); })();
+    (function () { var sel = document.getElementById('floorView'); if (!sel) return; buildFloorView(); applyFloorView(); sel.addEventListener('change', function () { floorView = sel.value; deselect(); applyFloorView(); }); })();
 
     // ---- Corridor objects: placed in building space (fraction of the room bbox) ----
     var corrLayer = new Konva.Layer(); stage.add(corrLayer);
