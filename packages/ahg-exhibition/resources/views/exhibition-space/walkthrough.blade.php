@@ -406,11 +406,25 @@
       var side = !vertical
         ? (Math.abs(edge - rm.z_offset) < 0.3 ? 'north' : (Math.abs(edge - (rm.z_offset + rm.d)) < 0.3 ? 'south' : null))
         : (Math.abs(edge - rm.x_offset) < 0.3 ? 'west' : (Math.abs(edge - (rm.x_offset + rm.w)) < 0.3 ? 'east' : null));
+      var OPP = { north: 'south', south: 'north', east: 'west', west: 'east' };
       (rm.doors || []).forEach(function (d) {
         if (d.wall !== side) return;
         var span = vertical ? rm.d : rm.w;
         var base = vertical ? rm.z_offset : rm.x_offset;
-        var c = base + d.pos * span, hw = (d.width || DOOR) / 2;
+        var c = base + d.pos * span;
+        // A door facing a door in the adjacent room is the SAME opening - size both to the wider of the two.
+        var w = d.width || DOOR, opp = OPP[d.wall];
+        ROOMS.forEach(function (rj) {
+          if (rj === rm || !rj.doors) return;
+          var rjMin = vertical ? rj.x_offset : rj.z_offset, rjMax = vertical ? rj.x_offset + rj.w : rj.z_offset + rj.d;
+          if (Math.abs(rjMax - edge) > 0.4 && Math.abs(rjMin - edge) > 0.4) return;   // not sharing this plane
+          rj.doors.forEach(function (e2) {
+            if (e2.wall !== opp) return;
+            var c2 = (vertical ? rj.z_offset : rj.x_offset) + e2.pos * (vertical ? rj.d : rj.w);
+            if (Math.abs(c2 - c) < 0.9) w = Math.max(w, e2.width || DOOR);
+          });
+        });
+        var hw = w / 2;
         doors.push([c - hw, c + hw]);
       });
       // Auto-openings where another room adjoins this plane.
