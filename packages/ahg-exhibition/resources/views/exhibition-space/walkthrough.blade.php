@@ -663,7 +663,7 @@
         : [[-w / 2, -legLen / 2], [w / 2, -legLen / 2], [-w / 2, legLen / 2], [w / 2, legLen / 2]];
       var a = (st.rot || 0) * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a), mnx = 1e9, mxx = -1e9, mnz = 1e9, mxz = -1e9;
       pts.forEach(function (p) { var wx = st.x + p[0] * ca + p[1] * sa, wz = st.z - p[0] * sa + p[1] * ca; if (wx < mnx) mnx = wx; if (wx > mxx) mxx = wx; if (wz < mnz) mnz = wz; if (wz > mxz) mxz = wz; });
-      stairOpenings.push({ floor: Math.max(from, to), x0: mnx, x1: mxx, z0: mnz, z1: mxz });
+      stairOpenings.push({ floor: Math.max(from, to), fromF: from, toF: to, x0: mnx, x1: mxx, z0: mnz, z1: mxz });
     });
     function holesFor(rm) {
       var out = [], rf = rm.floor || 0;
@@ -1469,22 +1469,34 @@
       }
       curRoom = rm; toggleMinimap(false);
     }
+    var miniFloor = null;   // which floor the minimap is showing
+    function miniFloors() { var s = {}; ROOMS.forEach(function (r) { s[r.floor || 0] = 1; }); return Object.keys(s).map(Number).sort(function (a, b) { return a - b; }); }
+    function miniFloorLabel(f) { return f === 0 ? '{{ __('Ground') }}' : (f < 0 ? ('{{ __('Basement') }}' + (f < -1 ? ' ' + (-f) : '')) : ('{{ __('Floor') }} ' + f)); }
     function buildMinimap() {
-      var pad = 10, vw = 236, sx = (BLD_maxX - BLD_minX) || 1, sz = (BLD_maxZ - BLD_minZ) || 1;
-      var sc = (vw - 2 * pad) / Math.max(sx, sz), vh = Math.round(sz * sc + 2 * pad);
+      var floors = miniFloors();
       var here = findRoomAtWorld(controls.getObject().position.x, controls.getObject().position.z, null);
-      var P = function (x, z) { return ((x - BLD_minX) * sc + pad) + ',' + ((z - BLD_minZ) * sc + pad); };
-      var svg = '<svg width="' + vw + '" height="' + vh + '" style="background:#11141a;border-radius:4px;display:block;">';
-      ROOMS.forEach(function (rm, i) {
+      if (miniFloor === null || floors.indexOf(miniFloor) < 0) miniFloor = here ? (here.floor || 0) : (floors[0] || 0);
+      var fr = ROOMS.filter(function (r) { return (r.floor || 0) === miniFloor; });
+      var mnx = 1e9, mxx = -1e9, mnz = 1e9, mxz = -1e9;
+      fr.forEach(function (rm) { [[rm.x_offset, rm.z_offset], [rm.x_offset + rm.w, rm.z_offset], [rm.x_offset, rm.z_offset + rm.d], [rm.x_offset + rm.w, rm.z_offset + rm.d]].forEach(function (c) { var w = roomWorld(rm, c[0], c[1]); if (w.x < mnx) mnx = w.x; if (w.x > mxx) mxx = w.x; if (w.z < mnz) mnz = w.z; if (w.z > mxz) mxz = w.z; }); });
+      if (!isFinite(mnx)) { mnx = BLD_minX; mxx = BLD_maxX; mnz = BLD_minZ; mxz = BLD_maxZ; }
+      var pad = 10, vw = 236, sx = (mxx - mnx) || 1, sz = (mxz - mnz) || 1;
+      var sc = (vw - 2 * pad) / Math.max(sx, sz), vh = Math.round(sz * sc + 2 * pad);
+      var P = function (x, z) { return ((x - mnx) * sc + pad) + ',' + ((z - mnz) * sc + pad); };
+      var btns = floors.map(function (f) { return '<button type="button" class="btn btn-sm ' + (f === miniFloor ? 'btn-primary' : 'btn-outline-light') + ' py-0 px-1 me-1 mb-1 minifloor" data-f="' + f + '" style="font-size:10px">' + miniFloorLabel(f) + '</button>'; }).join('');
+      var svg = '<div class="mb-1">' + btns + '</div><svg width="' + vw + '" height="' + vh + '" style="background:#11141a;border-radius:4px;display:block;">';
+      fr.forEach(function (rm) {
+        var i = ROOMS.indexOf(rm);
         var pts = [[rm.x_offset, rm.z_offset], [rm.x_offset + rm.w, rm.z_offset], [rm.x_offset + rm.w, rm.z_offset + rm.d], [rm.x_offset, rm.z_offset + rm.d]]
           .map(function (c) { var w = roomWorld(rm, c[0], c[1]); return P(w.x, w.z); }).join(' ');
         svg += '<polygon data-i="' + i + '" points="' + pts + '" fill="' + (rm === here ? '#0d6efd' : 'rgba(255,255,255,.16)') + '" stroke="#fff" stroke-width="1" style="cursor:pointer"/>';
         var cc = roomWorld(rm, rm.x_offset + rm.w / 2, rm.z_offset + rm.d / 2);
-        svg += '<text x="' + ((cc.x - BLD_minX) * sc + pad) + '" y="' + ((cc.z - BLD_minZ) * sc + pad + 3) + '" fill="#fff" font-size="9" text-anchor="middle" style="pointer-events:none">' + (rm.name || '').substring(0, 14) + '</text>';
+        svg += '<text x="' + ((cc.x - mnx) * sc + pad) + '" y="' + ((cc.z - mnz) * sc + pad + 3) + '" fill="#fff" font-size="9" text-anchor="middle" style="pointer-events:none">' + (rm.name || '').substring(0, 14) + '</text>';
       });
       svg += '</svg>';
       var el = document.getElementById('wtMiniSvg'); el.innerHTML = svg;
       el.querySelectorAll('polygon').forEach(function (p) { p.addEventListener('click', function () { enterRoom(ROOMS[+p.getAttribute('data-i')]); }); });
+      el.querySelectorAll('.minifloor').forEach(function (b) { b.addEventListener('click', function (e) { e.stopPropagation(); miniFloor = +b.getAttribute('data-f'); buildMinimap(); }); });
     }
     function toggleMinimap(show) {
       var m = document.getElementById('wtMinimap');
