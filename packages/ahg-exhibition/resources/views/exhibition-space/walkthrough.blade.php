@@ -1237,7 +1237,12 @@
         o.traverse(function (n) {
           if (!n.isMesh) return;
           if (n.geometry && n.geometry.attributes && !n.geometry.attributes.normal) { try { n.geometry.computeVertexNormals(); } catch (e) {} }
-          if (twoSided && n.material) { var ms = Array.isArray(n.material) ? n.material : [n.material]; ms.forEach(function (m) { if (m) { m.side = THREE.DoubleSide; m.needsUpdate = true; } }); }
+          // OBJ ships no MTL here, so OBJLoader leaves a default Phong material that renders poorly/invisibly.
+          // Give OBJ meshes a clean, visible stone-grey PBR material (textured glTF keeps its own materials).
+          if (ext === 'obj') {
+            var keepMap = (n.material && n.material.map) ? n.material.map : null;
+            n.material = new THREE.MeshStandardMaterial({ color: keepMap ? 0xffffff : 0xb0a89a, map: keepMap, roughness: 0.85, metalness: 0.05, side: THREE.DoubleSide });
+          } else if (twoSided && n.material) { var ms = Array.isArray(n.material) ? n.material : [n.material]; ms.forEach(function (m) { if (m) { m.side = THREE.DoubleSide; m.needsUpdate = true; } }); }
         });
         try { applyEnv(o); } catch (e) {}
         onLoad(o);
