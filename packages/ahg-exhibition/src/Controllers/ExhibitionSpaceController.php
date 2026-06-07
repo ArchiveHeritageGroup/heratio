@@ -1013,7 +1013,7 @@ class ExhibitionSpaceController extends Controller
             abort(404);
         }
         $request->validate([
-            'floorplan' => 'required|image|mimes:jpeg,png,webp,svg|max:8192',
+            'floorplan' => 'required|image|mimes:jpeg,jpg,png,webp,svg|max:51200',
             'floorplan_width_m' => 'nullable|numeric|min:0',
             'floorplan_height_m' => 'nullable|numeric|min:0',
         ]);
@@ -1046,7 +1046,7 @@ class ExhibitionSpaceController extends Controller
         if (! $space) {
             abort(404);
         }
-        $request->validate(['ceiling' => 'required|image|mimes:jpeg,png,webp|max:8192']);
+        $request->validate(['ceiling' => 'required|image|mimes:jpeg,jpg,png,webp|max:51200']);
 
         $file = $request->file('ceiling');
         $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');

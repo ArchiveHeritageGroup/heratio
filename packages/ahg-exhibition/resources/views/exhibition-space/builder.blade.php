@@ -26,6 +26,7 @@
 
   @if(session('success'))<div class="alert alert-success py-2">{{ session('success') }}</div>@endif
   @if(session('error'))<div class="alert alert-danger py-2">{{ session('error') }}</div>@endif
+  @if($errors->any())<div class="alert alert-danger py-2"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>@endif
 
   <div class="row g-3">
     {{-- Left: tools --}}
@@ -194,6 +195,15 @@
           <div class="card mb-0">
             <div class="card-header py-2"><strong><i class="fas fa-image me-1"></i>{{ __('Ceiling') }}</strong></div>
             <div class="card-body">
+              {{-- Preview of the current ceiling so you can see what is set (updates on upload). --}}
+              <div class="border rounded p-1 text-center mb-2" style="background:#f8f9fa">
+                @if(!empty($space->ceiling_image_path))
+                <img src="{{ $space->ceiling_image_path }}" alt="" style="max-width:100%;max-height:90px;border-radius:3px">
+                <div class="text-truncate text-muted mt-1" style="font-size:11px">{{ basename($space->ceiling_image_path) }}</div>
+                @else
+                <div class="text-muted py-2" style="font-size:11px">{{ __('No ceiling image (plaster + cornice default)') }}</div>
+                @endif
+              </div>
               <form method="POST" action="{{ route('exhibition-space.builder.ceiling', ['slug' => $space->slug]) }}" enctype="multipart/form-data" class="mb-2">
                 @csrf
                 <input type="file" name="ceiling" accept="image/*" class="form-control form-control-sm mb-2" required>
