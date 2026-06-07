@@ -642,10 +642,10 @@
       if (_marbleTex) return _marbleTex;
       var N = 768, c = document.createElement('canvas'); c.width = c.height = N; var g = c.getContext('2d');
       // Warm off-white base with broad tonal drift (large soft patches, some darker, some lighter).
-      g.fillStyle = '#ece5d6'; g.fillRect(0, 0, N, N);
-      for (var b = 0; b < 9; b++) { var bx = Math.random() * N, by = Math.random() * N, br = N * 0.3 + Math.random() * N * 0.4; var bg = g.createRadialGradient(bx, by, 0, bx, by, br); var dk = Math.random() < 0.5; bg.addColorStop(0, dk ? 'rgba(150,142,124,0.10)' : 'rgba(255,253,247,0.14)'); bg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = bg; g.fillRect(0, 0, N, N); }
+      g.fillStyle = '#e3d8c0'; g.fillRect(0, 0, N, N);   // natural warm white (not stark) - the floor was reading too bright
+      for (var b = 0; b < 9; b++) { var bx = Math.random() * N, by = Math.random() * N, br = N * 0.3 + Math.random() * N * 0.4; var bg = g.createRadialGradient(bx, by, 0, bx, by, br); var dk = Math.random() < 0.5; bg.addColorStop(0, dk ? 'rgba(146,137,116,0.12)' : 'rgba(247,242,228,0.10)'); bg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = bg; g.fillRect(0, 0, N, N); }
       // Bright crystalline glints.
-      for (var i = 0; i < 60; i++) { var x = Math.random() * N, y = Math.random() * N, r = 30 + Math.random() * 120; var rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, 'rgba(255,255,255,' + (0.05 + Math.random() * 0.14) + ')'); rg.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+      for (var i = 0; i < 60; i++) { var x = Math.random() * N, y = Math.random() * N, r = 30 + Math.random() * 120; var rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, 'rgba(250,246,234,' + (0.03 + Math.random() * 0.08) + ')'); rg.addColorStop(1, 'rgba(250,246,234,0)'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
       // A meandering vein that occasionally branches and tapers - the hallmark of real marble.
       function vein(px, py, len, w, alpha, col) {
         g.strokeStyle = col + alpha + ')'; g.lineWidth = w; g.lineJoin = 'round'; g.beginPath(); g.moveTo(px, py);
@@ -886,7 +886,7 @@
         var floorPicP = rm.floor_image || rm.floorplan;
         var fmatP = floorPicP
           ? new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: rm.floor_image ? 0.4 : 0.95, side: THREE.DoubleSide })
-          : new THREE.MeshStandardMaterial({ map: marbleTexture(), color: 0xffffff, roughness: 0.22, side: THREE.DoubleSide });
+          : new THREE.MeshStandardMaterial({ map: marbleTexture(), color: 0xf0e9d8, roughness: 0.34, side: THREE.DoubleSide });
         var flP = new THREE.Mesh(new THREE.ShapeGeometry(shp), fmatP);
         flP.rotation.x = Math.PI / 2; flP.position.set(rm.x_offset, 0, rm.z_offset); addToRoom(rm, flP);
         // ShapeGeometry UVs are in metres (0..rm.w / 0..rm.d), so map one stretched copy over the whole floor.
