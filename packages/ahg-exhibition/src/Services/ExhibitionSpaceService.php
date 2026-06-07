@@ -945,6 +945,7 @@ class ExhibitionSpaceService
                 'floorplan' => $r->floorplan_image_path ?? null,
                 'ceiling' => $r->ceiling_image_path ?? null,
                 'wall_image' => $r->wall_image_path ?? null,
+                'floor_image' => $r->floor_image_path ?? null,   // decorative floor picture (stretched)
                 'wall_images' => (! empty($r->wall_images_json) && is_array($wi = json_decode((string) $r->wall_images_json, true))) ? $wi : new \stdClass,   // #wall-pictures per-edge overrides
                 'furniture' => $this->getFurniture((int) $r->id),   // placeable furniture & fittings
 
@@ -1904,6 +1905,13 @@ class ExhibitionSpaceService
     {
         DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
             ->update(['wall_image_path' => $publicPath, 'updated_at' => now()]);
+    }
+
+    /** Set or clear the decorative floor picture (stretched over the whole room floor). */
+    public function setFloorImage(int $exhibitionSpaceId, ?string $publicPath): void
+    {
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
+            ->update(['floor_image_path' => $publicPath, 'updated_at' => now()]);
     }
 
     /** Per-edge wall images: {edgeIndex: publicPath}. Falls back to the all-walls default per wall. */
