@@ -900,7 +900,9 @@
           var cmatP = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
           var clP = new THREE.Mesh(new THREE.ShapeGeometry(shp), cmatP);
           clP.rotation.x = Math.PI / 2; clP.position.set(rm.x_offset, rm.h || WALL_H, rm.z_offset); addToRoom(rm, clP);
-          loadTex(rm.ceiling, function (tex) { cmatP.map = tex; cmatP.needsUpdate = true; });
+          // ShapeGeometry UV is in metres, so scale the texture to one copy over the whole ceiling
+          // (without this it clamps to the edge pixel and the ceiling reads as one flat colour).
+          loadTex(rm.ceiling, function (tex) { tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping; tex.repeat.set(1 / rm.w, 1 / rm.d); cmatP.map = tex; cmatP.needsUpdate = true; });
         }
         var ccx = 0, ccz = 0;   // polygon centroid (unrotated world) for outward door labels
         SHAPE.forEach(function (p) { ccx += rm.x_offset + p.x * rm.w; ccz += rm.z_offset + p.z * rm.d; });
