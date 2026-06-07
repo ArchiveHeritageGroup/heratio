@@ -77,6 +77,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/builder/tilt', [ExhibitionSpaceController::class, 'updateTiltAjax'])->name('exhibition-space.builder.tilt')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/spotlight', [ExhibitionSpaceController::class, 'updateSpotlightAjax'])->name('exhibition-space.builder.spotlight')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/zorder', [ExhibitionSpaceController::class, 'updateZOrderAjax'])->name('exhibition-space.builder.zorder')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/furniture-add', [ExhibitionSpaceController::class, 'furnitureAddAjax'])->name('exhibition-space.builder.furniture-add')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/furniture-move', [ExhibitionSpaceController::class, 'furnitureMoveAjax'])->name('exhibition-space.builder.furniture-move')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/furniture-remove', [ExhibitionSpaceController::class, 'furnitureRemoveAjax'])->name('exhibition-space.builder.furniture-remove')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/walls', [ExhibitionSpaceController::class, 'saveWallsAjax'])->name('exhibition-space.builder.walls')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/wall', [ExhibitionSpaceController::class, 'updateWallAjax'])->name('exhibition-space.builder.wall')->middleware('acl:update');
     Route::get('/exhibition-space/{slug}/builder/placements', [ExhibitionSpaceController::class, 'placementsJson'])->name('exhibition-space.builder.placements');

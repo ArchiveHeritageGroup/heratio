@@ -233,6 +233,8 @@ class ExhibitionSpaceController extends Controller
             'windows' => $this->service->getWindows((int) $space->id),   // #1172 wall-view
             'shape' => $this->service->getShape((int) $space->id),
             'wallImages' => $this->service->getWallImages((int) $space->id),   // #wall-pictures per-edge overrides
+            'furniture' => $this->service->getFurniture((int) $space->id),   // furniture & fittings picker
+            'furnitureKinds' => ExhibitionSpaceService::FURNITURE_KINDS,
             'layout' => $layout,
             'guidedTour' => $this->service->getGuidedTour($space),   // authored audio tour stops
             'tourObjects' => $this->service->buildingTourObjects($space),   // building-wide objects for the tour picker
@@ -1097,6 +1099,43 @@ class ExhibitionSpaceController extends Controller
         }
 
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall image cleared.');
+    }
+
+    /** AJAX: add a furniture/fitting item to this room at floor-fraction (fx,fy). */
+    public function furnitureAddAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['kind' => 'required|string|max:32', 'fx' => 'nullable|numeric', 'fy' => 'nullable|numeric']);
+        $row = $this->service->addFurniture((int) $space->id, (string) $data['kind'], (float) ($data['fx'] ?? 0.5), (float) ($data['fy'] ?? 0.5));
+
+        return response()->json(['ok' => true, 'item' => $row]);
+    }
+
+    /** AJAX: move/rotate/scale a furniture item. */
+    public function furnitureMoveAjax(Request $request, string $slug)
+    {
+        if (! $this->service->getBySlug($slug)) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['id' => 'required|integer|min:1', 'fx' => 'required|numeric', 'fy' => 'required|numeric', 'rot' => 'nullable|numeric', 'scale' => 'nullable|numeric']);
+        $ok = $this->service->moveFurniture((int) $data['id'], (float) $data['fx'], (float) $data['fy'], isset($data['rot']) ? (float) $data['rot'] : null, isset($data['scale']) ? (float) $data['scale'] : null);
+
+        return response()->json(['ok' => $ok]);
+    }
+
+    /** AJAX: remove a furniture item. */
+    public function furnitureRemoveAjax(Request $request, string $slug)
+    {
+        if (! $this->service->getBySlug($slug)) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['id' => 'required|integer|min:1']);
+        $ok = $this->service->removeFurniture((int) $data['id']);
+
+        return response()->json(['ok' => $ok]);
     }
 
     /** AJAX: set room dimensions (width/depth/wall height) from the Builder. */

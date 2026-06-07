@@ -140,6 +140,22 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                 )");
             }
 
+            // Furniture & fittings: placeable props per room (bench/pedestal/case/planter/table/railing).
+            if (! Schema::hasTable('ahg_exhibition_furniture')) {
+                DB::statement("CREATE TABLE ahg_exhibition_furniture (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    exhibition_space_id INT NOT NULL,
+                    kind VARCHAR(32) NOT NULL,
+                    pos_x DOUBLE NOT NULL DEFAULT 0.5,
+                    pos_y DOUBLE NOT NULL DEFAULT 0.5,
+                    rotation_deg DOUBLE NOT NULL DEFAULT 0,
+                    scale DOUBLE NOT NULL DEFAULT 1,
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NULL,
+                    INDEX idx_room (exhibition_space_id)
+                )");
+            }
+
             // heratio#1173 - automatic visitor analytics: one row per walkthrough session.
             if (! Schema::hasTable('ahg_exhibition_visit')) {
                 DB::statement("CREATE TABLE ahg_exhibition_visit (

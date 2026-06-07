@@ -937,6 +937,7 @@ class ExhibitionSpaceService
                 'ceiling' => $r->ceiling_image_path ?? null,
                 'wall_image' => $r->wall_image_path ?? null,
                 'wall_images' => (! empty($r->wall_images_json) && is_array($wi = json_decode((string) $r->wall_images_json, true))) ? $wi : new \stdClass,   // #wall-pictures per-edge overrides
+                'furniture' => $this->getFurniture((int) $r->id),   // placeable furniture & fittings
 
                 'stops' => $this->getWalkthroughStops((int) $r->id),
                 'walls' => $this->getWalls((int) $r->id),
@@ -1919,6 +1920,51 @@ class ExhibitionSpaceService
         }
         DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
             ->update(['wall_images_json' => empty($map) ? null : json_encode($map), 'updated_at' => now()]);
+    }
+
+    // -------- Furniture & fittings (placeable props per room) --------
+    public const FURNITURE_KINDS = ['bench', 'pedestal', 'case', 'planter', 'table', 'chair', 'railing'];
+
+    /** Furniture placed in a room: [{id,kind,pos_x,pos_y,rotation_deg,scale}] (positions are 0-1 of the room). */
+    public function getFurniture(int $exhibitionSpaceId): array
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_furniture')) {
+            return [];
+        }
+
+        return DB::table('ahg_exhibition_furniture')->where('exhibition_space_id', $exhibitionSpaceId)
+            ->orderBy('id')->get()->map(function ($r) {
+                return ['id' => (int) $r->id, 'kind' => $r->kind, 'pos_x' => (float) $r->pos_x, 'pos_y' => (float) $r->pos_y, 'rotation_deg' => (float) $r->rotation_deg, 'scale' => (float) $r->scale];
+            })->all();
+    }
+
+    public function addFurniture(int $exhibitionSpaceId, string $kind, float $fx, float $fy): array
+    {
+        if (! in_array($kind, self::FURNITURE_KINDS, true)) {
+            $kind = 'pedestal';
+        }
+        $fx = max(0.0, min(1.0, $fx)); $fy = max(0.0, min(1.0, $fy));
+        $id = (int) DB::table('ahg_exhibition_furniture')->insertGetId([
+            'exhibition_space_id' => $exhibitionSpaceId, 'kind' => $kind,
+            'pos_x' => $fx, 'pos_y' => $fy, 'rotation_deg' => 0, 'scale' => 1,
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        return ['id' => $id, 'kind' => $kind, 'pos_x' => $fx, 'pos_y' => $fy, 'rotation_deg' => 0.0, 'scale' => 1.0];
+    }
+
+    public function moveFurniture(int $id, float $fx, float $fy, ?float $rot = null, ?float $scale = null): bool
+    {
+        $upd = ['pos_x' => max(0.0, min(1.0, $fx)), 'pos_y' => max(0.0, min(1.0, $fy)), 'updated_at' => now()];
+        if ($rot !== null) { $upd['rotation_deg'] = $rot; }
+        if ($scale !== null) { $upd['scale'] = max(0.3, min(4.0, $scale)); }
+
+        return DB::table('ahg_exhibition_furniture')->where('id', $id)->update($upd) > 0;
+    }
+
+    public function removeFurniture(int $id): bool
+    {
+        return DB::table('ahg_exhibition_furniture')->where('id', $id)->delete() > 0;
     }
 
     /**

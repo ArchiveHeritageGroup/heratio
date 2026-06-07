@@ -145,6 +145,23 @@
         </div>
       </div>
 
+      {{-- Furniture & fittings picker: click a piece to drop it in the room, then drag it on the floor. --}}
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong><i class="fas fa-couch me-1"></i>{{ __('Furniture & fittings') }}</strong> <span class="badge bg-secondary" id="furnCount">0</span></div>
+        <div class="card-body">
+          <p class="small text-muted mb-2">{{ __('Click to add to the room centre, then drag the brown dot to position. Double-click a dot to remove.') }}</p>
+          <div class="d-flex flex-wrap gap-1" id="furnPicker">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="bench"><i class="fas fa-chair me-1"></i>{{ __('Bench') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="pedestal"><i class="fas fa-cube me-1"></i>{{ __('Pedestal') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="case"><i class="fas fa-box-open me-1"></i>{{ __('Display case') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="planter"><i class="fas fa-seedling me-1"></i>{{ __('Planter') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="table"><i class="fas fa-table me-1"></i>{{ __('Table') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="chair"><i class="fas fa-chair me-1"></i>{{ __('Chair') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="railing"><i class="fas fa-grip-lines me-1"></i>{{ __('Rope railing') }}</button>
+          </div>
+        </div>
+      </div>
+
       <div class="card mb-3">
         <div class="card-header py-2"><strong><i class="fas fa-ruler-combined me-1"></i>{{ __('Room size (m)') }}</strong></div>
         <div class="card-body">
@@ -1046,6 +1063,36 @@
             if (d.all) WALL_DEFAULT = null; else if (WALL_IMAGES) delete WALL_IMAGES[String(t)];
             refresh();
           });
+      });
+    })();
+
+    // ---- Furniture & fittings: add from the picker, drag the brown dot, double-click to remove ----
+    (function () {
+      var FURN = @json($furniture ?? []);
+      var cnt = document.getElementById('furnCount');
+      var ADD = '{{ route('exhibition-space.builder.furniture-add', ['slug' => $space->slug]) }}';
+      var MOVE = '{{ route('exhibition-space.builder.furniture-move', ['slug' => $space->slug]) }}';
+      var REM = '{{ route('exhibition-space.builder.furniture-remove', ['slug' => $space->slug]) }}';
+      var hdrs = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' };
+      function updateCount() { if (cnt) cnt.textContent = layer.find('.furn').length; }
+      function addDot(it) {
+        var g = new Konva.Group({ x: (it.pos_x == null ? 0.5 : it.pos_x) * W, y: (it.pos_y == null ? 0.5 : it.pos_y) * H, draggable: true, name: 'furn' });
+        g.setAttr('furnId', it.id);
+        g.add(new Konva.Circle({ radius: 9, fill: '#8a5a2b', stroke: '#fff', strokeWidth: 2 }));
+        g.add(new Konva.Text({ text: it.kind, fontSize: 10, fill: '#5a3a1b', x: 12, y: -5 }));
+        g.on('dragend', function () { fetch(MOVE, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: it.id, fx: g.x() / W, fy: g.y() / H }) }); });
+        g.on('dblclick dbltap', function (e) {
+          e.cancelBubble = true;
+          fetch(REM, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: it.id }) }).then(function (r) { return r.json(); }).then(function (d) { if (d.ok) { g.destroy(); layer.draw(); updateCount(); } });
+        });
+        layer.add(g);
+      }
+      (FURN || []).forEach(addDot); layer.draw(); updateCount();
+      document.querySelectorAll('#furnPicker [data-furn]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          fetch(ADD, { method: 'POST', headers: hdrs, body: JSON.stringify({ kind: b.getAttribute('data-furn'), fx: 0.5, fy: 0.5 }) })
+            .then(function (r) { return r.json(); }).then(function (d) { if (d.ok && d.item) { addDot(d.item); layer.draw(); updateCount(); } });
+        });
       });
     })();
 

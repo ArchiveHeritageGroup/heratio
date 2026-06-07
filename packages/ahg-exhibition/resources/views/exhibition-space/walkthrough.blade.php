@@ -610,6 +610,30 @@
       g.position.set(x, 0.5, z); g.rotation.y = ry || 0;
       addToRoom(rm, g);   // addToRoom re-bases x/z into the room group; child positions stay local to g
     }
+    // Furniture & fittings: a placed prop (bench/pedestal/case/planter/table/chair/railing) at floor-fraction.
+    function addFurniturePiece(rm, it) {
+      var x = rm.x_offset + (it.pos_x == null ? 0.5 : it.pos_x) * rm.w;
+      var z = rm.z_offset + (it.pos_y == null ? 0.5 : it.pos_y) * rm.d;
+      var g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = -(it.rotation_deg || 0) * Math.PI / 180;
+      var sc = it.scale || 1; g.scale.set(sc, sc, sc);
+      var wood = new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 0.8 });
+      var stone = new THREE.MeshStandardMaterial({ color: 0xe8e2d4, roughness: 0.9 });
+      var metal = new THREE.MeshStandardMaterial({ color: 0x9a9b9d, metalness: 0.7, roughness: 0.35 });
+      var green = new THREE.MeshStandardMaterial({ color: 0x3f7d2f, roughness: 0.9 });
+      function box(w, h, d, m, px, py, pz) { var b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(px, py, pz); g.add(b); return b; }
+      function cyl(rt, rb, h, m, px, py, pz) { var c = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, 16), m); c.position.set(px, py, pz); g.add(c); return c; }
+      switch (it.kind) {
+        case 'bench': box(1.6, 0.1, 0.5, wood, 0, 0.45, 0); box(1.6, 0.5, 0.08, wood, 0, 0.7, -0.21); [-0.7, 0.7].forEach(function (lx) { box(0.1, 0.45, 0.45, wood, lx, 0.22, 0); }); break;
+        case 'pedestal': box(0.5, 1.1, 0.5, stone, 0, 0.55, 0); box(0.62, 0.06, 0.62, stone, 0, 1.11, 0); break;
+        case 'case': box(0.8, 0.9, 0.8, wood, 0, 0.45, 0); var vc = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.9, 0.74), glassMat); vc.position.set(0, 1.35, 0); g.add(vc); box(0.84, 0.05, 0.84, metal, 0, 1.82, 0); break;
+        case 'planter': cyl(0.28, 0.34, 0.5, stone, 0, 0.25, 0); var fol = new THREE.Mesh(new THREE.SphereGeometry(0.42, 12, 10), green); fol.position.set(0, 0.92, 0); fol.scale.set(1, 1.2, 1); g.add(fol); break;
+        case 'table': box(1.2, 0.06, 0.7, wood, 0, 0.74, 0); [[-0.5, -0.28], [0.5, -0.28], [-0.5, 0.28], [0.5, 0.28]].forEach(function (p) { box(0.07, 0.74, 0.07, wood, p[0], 0.37, p[1]); }); break;
+        case 'chair': box(0.45, 0.06, 0.45, wood, 0, 0.45, 0); box(0.45, 0.5, 0.06, wood, 0, 0.7, -0.2); [[-0.18, -0.18], [0.18, -0.18], [-0.18, 0.18], [0.18, 0.18]].forEach(function (p) { box(0.05, 0.45, 0.05, wood, p[0], 0.22, p[1]); }); break;
+        case 'railing': [-0.7, 0.7].forEach(function (px) { cyl(0.04, 0.04, 0.95, metal, px, 0.475, 0); var ball = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), metal); ball.position.set(px, 0.98, 0); g.add(ball); }); var rope = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.4, 8), new THREE.MeshStandardMaterial({ color: 0x8a1f2b, roughness: 0.8 })); rope.rotation.z = Math.PI / 2; rope.position.set(0, 0.82, 0); g.add(rope); break;
+        default: box(0.5, 1.0, 0.5, stone, 0, 0.5, 0);
+      }
+      addToRoom(rm, g);
+    }
     function renderOutdoor(rm) {
       var SH = (rm.shape && rm.shape.length >= 3) ? rm.shape : null;
       var gtex = grassTexture().clone(); gtex.needsUpdate = true; gtex.wrapS = gtex.wrapT = THREE.RepeatWrapping;
@@ -684,6 +708,7 @@
       var cx = rm.x_offset + rm.w / 2, cz = rm.z_offset + rm.d / 2;
       RH = rm.h || WALL_H;   // this room's wall height (per-room, not building-wide)
       _curRoom = rm;         // wallSeg/wallSegH add into this room's (possibly rotated) group
+      (rm.furniture || []).forEach(function (it) { addFurniturePiece(rm, it); });   // furniture & fittings (indoor + outdoor)
       if (rm.is_outdoor) { renderOutdoor(rm); return; }   // #1170 open-air: no walls/ceiling/dividers
       // Decorated/painted wall material (#wall-pictures): each edge can carry its OWN image
       // (rm.wall_images[edge]); otherwise the room's all-walls default (rm.wall_image); else plain
@@ -1649,8 +1674,9 @@
         var scp = controls.getObject().position, near = 1e9, act = null;
         for (var si = 0; si < spotObjects.length; si++) { var so = spotObjects[si], dd = Math.hypot(scp.x - so.x, scp.z - so.z) + Math.abs(scp.y - so.y) * 0.5; if (dd < near) { near = dd; act = so; } }
         var prox = Math.max(0, Math.min(1, (6.5 - near) / 6.5));
-        for (var sj = 0; sj < spotObjects.length; sj++) { var s2 = spotObjects[sj]; var base = s2.mode === 2 ? 1.6 : 0; var tgt = base + ((s2 === act) ? prox * 2.6 : 0); s2.light.intensity += (tgt - s2.light.intensity) * Math.min(1, dt * 5); }
-        hemiLight.intensity += ((hemiBase - prox * hemiBase * 0.78) - hemiLight.intensity) * Math.min(1, dt * 5);
+        for (var sj = 0; sj < spotObjects.length; sj++) { var s2 = spotObjects[sj]; var base = s2.mode === 2 ? 2.2 : 0; var tgt = base + ((s2 === act) ? prox * 3.0 : 0); s2.light.intensity += (tgt - s2.light.intensity) * Math.min(1, dt * 5); }
+        // Per-item lighting: the spotlight makes the OBJECT pop without darkening the whole room (gentle ambient dip only).
+        hemiLight.intensity += ((hemiBase - prox * hemiBase * 0.22) - hemiLight.intensity) * Math.min(1, dt * 5);
       }
       if (typeof applyZoom === 'function') applyZoom(dt);   // #1163 smooth zoom
       if (frontDoors.length) {   // #1171 doors swing/slide open as you approach, close as you leave
