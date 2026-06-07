@@ -12,22 +12,21 @@
 
 @section('content')
   {{-- #1157 Prominent digital-twin demo link - first element so it is above the fold (no scroll). --}}
-  <section class="container pt-4">
+  <section class="container pt-3">
     <a href="{{ route('exhibition-space.walkthrough', ['slug' => 'benson-collection']) }}"
        class="d-block text-decoration-none" aria-label="{{ __('Explore the live 3D digital twin demo') }}">
-      <div class="row align-items-center g-3 p-4 p-md-5 rounded-4 shadow-lg"
+      <div class="row align-items-center g-2 py-2 px-3 px-md-4 rounded-3 shadow"
            style="background:linear-gradient(135deg,#6a11cb 0%,#2575fc 100%);color:#fff;transition:transform .15s ease;"
-           onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
-        <div class="col-md-auto text-center">
-          <i class="fas fa-vr-cardboard" style="font-size:3.6rem;opacity:.95;" aria-hidden="true"></i>
+           onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+        <div class="col-auto text-center">
+          <i class="fas fa-vr-cardboard" style="font-size:2rem;opacity:.95;" aria-hidden="true"></i>
         </div>
         <div class="col">
-          <span class="badge bg-light text-dark mb-2">{{ __('Live demo') }}</span>
-          <h2 class="display-6 fw-bold mb-1 text-white">{{ __('Walk through a 3D exhibition') }}</h2>
-          <p class="mb-0 fs-5 text-white-50">{{ __('Step inside a real digital twin - rooms, walls, hung artworks and guided audio tours, right in your browser.') }}</p>
+          <h2 class="h5 fw-bold mb-0 text-white">{{ __('Walk through a 3D exhibition') }} <span class="badge bg-light text-dark align-middle">{{ __('Live demo') }}</span></h2>
+          <p class="mb-0 small text-white-50">{{ __('Step inside a real digital twin - rooms, walls, hung artworks and guided audio tours, right in your browser.') }}</p>
         </div>
-        <div class="col-md-auto text-md-end">
-          <span class="btn btn-light btn-lg fw-semibold px-4">{{ __('Enter the walkthrough') }} <i class="fas fa-arrow-right ms-2" aria-hidden="true"></i></span>
+        <div class="col-auto text-md-end">
+          <span class="btn btn-light btn-sm fw-semibold px-3">{{ __('Enter the walkthrough') }} <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i></span>
         </div>
       </div>
     </a>
