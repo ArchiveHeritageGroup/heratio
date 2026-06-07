@@ -269,7 +269,8 @@
 
     var camera = new THREE.PerspectiveCamera(70, W / H, 0.05, 400);
     (function () {
-      var sp = roomWorld(curRoom, curRoom.x_offset + curRoom.w / 2, curRoom.z_offset + curRoom.d - 1.5);
+      // Start in the MIDDLE of the entry room (not against a wall).
+      var sp = roomWorld(curRoom, curRoom.x_offset + curRoom.w / 2, curRoom.z_offset + curRoom.d / 2);
       camera.position.set(sp.x, 1.6, sp.z);
     })();
 
