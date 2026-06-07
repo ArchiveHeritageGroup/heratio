@@ -419,6 +419,22 @@ class ExhibitionSpaceService
      *
      * @return array{kind:string,model_url:?string,image_url:?string,format:?string}
      */
+    /**
+     * Models above this size freeze the browser when parsed on the main thread
+     * (e.g. a 66MB OBJ). The walkthrough shows a placeholder for these instead of loading them.
+     */
+    private const MAX_MODEL_BYTES = 20 * 1024 * 1024;   // 20 MB
+
+    private function modelTooBig(?string $webPath): bool
+    {
+        if (! $webPath) {
+            return false;
+        }
+        $f = rtrim((string) config('heratio.storage_path'), '/').'/'.ltrim($webPath, '/');
+
+        return is_file($f) && filesize($f) > self::MAX_MODEL_BYTES;
+    }
+
     public function getObjectMedia(int $informationObjectId): array
     {
         // 1) Dedicated 3D model row wins.
@@ -427,9 +443,12 @@ class ExhibitionSpaceService
             ->orderByDesc('is_primary')
             ->first();
         if ($model && ! empty($model->file_path)) {
+            $murl = $this->normalizeUploadPath($model->file_path);
+
             return [
                 'kind' => '3d',
-                'model_url' => $this->normalizeUploadPath($model->file_path),
+                'model_url' => $murl,
+                'model_oversize' => $this->modelTooBig($murl),
                 'image_url' => $this->normalizeUploadPath($model->poster_image ?: $model->thumbnail) ?: $this->thumbnailUrl($informationObjectId),
                 'format' => $model->format ?: 'glb',
             ];
@@ -447,7 +466,7 @@ class ExhibitionSpaceService
             $url = $this->buildDoUrl($do->path, $do->name);
             $threeD = ['glb', 'gltf', 'obj', 'stl', 'usdz', 'ply'];
             if (in_array($ext, $threeD, true)) {
-                return ['kind' => '3d', 'model_url' => $url, 'image_url' => $this->bestImageUrl($informationObjectId), 'doc_url' => null, 'format' => $ext];
+                return ['kind' => '3d', 'model_url' => $url, 'model_oversize' => $this->modelTooBig($url), 'image_url' => $this->bestImageUrl($informationObjectId), 'doc_url' => null, 'format' => $ext];
             }
             if ($ext === 'pdf') {
                 return ['kind' => 'pdf', 'model_url' => null, 'image_url' => $this->bestImageUrl($informationObjectId), 'doc_url' => $url, 'format' => 'pdf'];
@@ -1046,6 +1065,7 @@ class ExhibitionSpaceService
                 'scale' => (float) ($r->scale ?? 1),
                 'kind' => $media['kind'],
                 'model_url' => $media['model_url'],
+                'model_oversize' => ! empty($media['model_oversize']),   // too big to load in the browser -> placeholder
                 'model_format' => $media['format'],
                 'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
@@ -2685,6 +2705,7 @@ class ExhibitionSpaceService
                 'wall_or_zone' => $r->wall_or_zone,
                 'kind' => $media['kind'],
                 'model_url' => $media['model_url'],
+                'model_oversize' => ! empty($media['model_oversize']),   // too big to load in the browser -> placeholder
                 'model_format' => $media['format'],
                 'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,

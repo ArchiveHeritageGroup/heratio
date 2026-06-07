@@ -1442,7 +1442,11 @@
 
     STOPS.forEach(function (s) {
       var wp = worldPos(s);
-      if (s.kind === '3d' && s.model_url) {
+      if (s.kind === '3d' && s.model_url && s.model_oversize) {
+        // Model too large to parse in the browser (would freeze) - show a pedestal + placeholder instead.
+        var phO = addPedestal(wp.x, wp.z, 0.6, s._room);
+        addPlaceholder(wp, s, phO); doneOne();
+      } else if (s.kind === '3d' && s.model_url) {
         var inCase = !!s.display_case;
         // on_floor: stand the model straight on the floor (no pedestal). Case takes precedence if both set.
         var ph = inCase ? addDisplayCase(wp.x, wp.z, s._room) : (s.on_floor ? 0 : addPedestal(wp.x, wp.z, 0.6, s._room));
@@ -1497,7 +1501,9 @@
     // Corridor objects: free-standing in building space (between/around rooms).
     CORRIDOR.forEach(function (s) {
       var cp = corridorPos(s);
-      if (s.kind === '3d' && s.model_url) {
+      if (s.kind === '3d' && s.model_url && s.model_oversize) {
+        addPlaceholder({ x: cp.x, z: cp.z }, s, addPedestal(cp.x, cp.z, 0.6)); doneOne();   // too large to load
+      } else if (s.kind === '3d' && s.model_url) {
         var ph = addPedestal(cp.x, cp.z, 0.6);   // no room -> added to scene
         loadModel(s.model_url, modelExt(s), function (obj) {
           obj.rotation.x = effTiltX(s) * Math.PI / 180; obj.rotation.z = effTiltZ(s) * Math.PI / 180;
