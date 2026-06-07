@@ -69,7 +69,8 @@
           <button id="wtStealBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:264px;z-index:6;opacity:.85;" title="{{ __('Steal mode: click an object to trigger the alarm') }}"><i class="fas fa-mask"></i></button>
           <button id="wtFigureBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:300px;z-index:6;opacity:.85;" title="{{ __('Figures: wheel to pick a person, click to place') }}"><i class="fas fa-person-walking"></i></button>
           <button id="wtSunBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:336px;z-index:6;opacity:.85;" title="{{ __('Sun & shadows (off / morning / noon / afternoon)') }}"><i class="fas fa-sun"></i></button>
-          <button id="wtFsBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:372px;z-index:6;opacity:.85;" title="{{ __('Fullscreen') }}"><i class="fas fa-expand"></i></button>
+          <button id="wtNightBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:372px;z-index:6;opacity:.85;" title="{{ __('Night mode (walk with the flashlight) - N') }}"><i class="fas fa-moon"></i></button>
+          <button id="wtFsBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:408px;z-index:6;opacity:.85;" title="{{ __('Fullscreen') }}"><i class="fas fa-expand"></i></button>
           <div id="wtTourBanner" class="bg-dark text-white px-3 py-2 rounded small" style="position:absolute;bottom:64px;left:50%;transform:translateX(-50%);z-index:7;display:none;max-width:86%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.5);">
             <span id="wtTourText"></span>
             <button type="button" id="wtTourStopBtn" class="btn btn-sm btn-outline-light ms-2 py-0"><i class="fas fa-stop"></i></button>
@@ -113,6 +114,7 @@
               <li>{{ __('Force a fresh AI description: hold G + click an object') }}</li>
               <li>{{ __('Zoom in / out: Z') }}</li>
               <li>{{ __('Torch (light dark corners): F or the bulb button') }}</li>
+              <li>{{ __('Night mode (walk with the flashlight): N or the moon button') }}</li>
               <li>{{ __('Graffiti: tap the spray-can, then click a wall to tag it') }}</li>
               <li>{{ __('Steal (sets off the alarm!): tap the mask, then click an object (or hold S + click)') }}</li>
               <li>{{ __('Open full record (new tab): V') }}</li>
@@ -1185,7 +1187,7 @@
     } else {
       blocker.addEventListener('click', function () { controls.lock(); });
       controls.addEventListener('lock', function () { blocker.style.display = 'none'; cross.style.display = 'block'; });
-      controls.addEventListener('unlock', function () { blocker.style.display = 'flex'; cross.style.display = 'none'; });
+      controls.addEventListener('unlock', function () { if (panelOpen) { blocker.style.display = 'none'; cross.style.display = 'none'; return; } blocker.style.display = 'flex'; cross.style.display = 'none'; });   // #aim-focus: a popup unlocks the cursor without showing the re-enter blocker
     }
 
     var keys = {};
@@ -1199,6 +1201,7 @@
       if (e.code === 'KeyV' && panelOpen) viewFullDetails();
       if (e.code === 'KeyZ') toggleZoom();      // #1163 - zoom in/out on what you're facing
       if (e.code === 'KeyF') toggleTorch();     // #1164 - spotlight / torch for dark corners
+      if (e.code === 'KeyN') setNight(!nightMode);   // #night - night mode + flashlight
     });
     document.addEventListener('keyup', function (e) { keys[e.code] = false; });
 
@@ -1637,6 +1640,12 @@
       // #1173 log the object view for visitor analytics (anonymous token only).
       try { if (typeof VISIT_EVENT !== 'undefined' && s && s.information_object_id) { fetch(VISIT_EVENT, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': WT_CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ token: MY_TOKEN, type: 'object', object_id: s.information_object_id, room_id: (s._room ? s._room.id : null) }) }); } } catch (e) {}
       loadRelated(s);
+      // #aim-focus: once the popup is up, free the mouse and put focus on the popup so you can
+      // click it (Close / View record / related) straight away - then click it (or away) to close.
+      try { if (controls && controls.isLocked && controls.unlock) controls.unlock(); } catch (e) {}
+      if (blocker) blocker.style.display = 'none';
+      if (cross) cross.style.display = 'none';
+      var _ic = document.getElementById('inlayClose'); if (_ic) { try { _ic.focus({ preventScroll: true }); } catch (e2) { try { _ic.focus(); } catch (e3) {} } }
     }
     function closeAllPopups() {
       inlay.style.display = 'none';
@@ -1645,6 +1654,13 @@
       stopNarrate();
       panelOpen = false;
       currentStop = null;
+      // #aim-focus: closing a popup re-engages pointer-lock so walking resumes seamlessly (this is
+      // always reached from a click or Esc - a valid user gesture for requestPointerLock). On
+      // desktop only; orbit/touch mode never locks. If the record overlay is still up, leave it.
+      try {
+        var _rec = document.getElementById('recOverlay');
+        if (!orbit && controls && controls.lock && !controls.isLocked && (!_rec || _rec.style.display !== 'block')) controls.lock();
+      } catch (e) {}
     }
     // #1142 show the full record INSIDE the walkthrough; "Back to gallery" returns instantly.
     function openRecordOverlay(url) {
@@ -2132,6 +2148,37 @@
     torch.target.position.set(0, 0, -1); camera.add(torch.target);
     if (!scene.children.includes(camera)) scene.add(camera);   // ensure camera (with torch) is in the graph
     function toggleTorch() { torch.intensity = torch.intensity > 0 ? 0 : 2.4; }
+    function torchBtnState() { var tb = document.getElementById('wtTorchBtn'); if (tb) { tb.classList.toggle('btn-warning', torch.intensity > 0); tb.classList.toggle('btn-dark', torch.intensity === 0); } }
+    // #night Night mode: walk the gallery after dark with the flashlight. The room drops to a dim
+    // moonlit ambient (fairly dark, not pitch black - you can still read shapes) and the torch comes
+    // on. We lower hemiBase (the proximity-dim target the animate loop lerps toward) so the dim level
+    // sticks even in rooms with spotlit objects. Toggling off restores the previous lighting + torch.
+    var nightMode = false, nightSaved = null;
+    function setNight(on) {
+      nightMode = !!on;
+      var b = document.getElementById('wtNightBtn');
+      if (on && !nightSaved) {
+        nightSaved = { base: hemiBase, hcol: hemiLight.color.getHex(), dir: dir.intensity, bg: scene.background.getHex() };
+        if (sunMode) setSun(0);                         // no daylight at night
+        hemiBase = 0.13;                                // proximity lerp now targets this dim level
+        hemiLight.intensity = hemiBase;
+        hemiLight.color.setHex(0x9aa6c4);               // cool moonlight tint
+        dir.intensity = 0.05;
+        scene.background = new THREE.Color(0x05070d);   // near-black, faint blue
+        if (torch.intensity === 0) { toggleTorch(); torchBtnState(); }
+        if (b) { b.classList.add('btn-primary'); b.classList.remove('btn-dark'); }
+      } else if (!on && nightSaved) {
+        hemiBase = nightSaved.base; hemiLight.intensity = hemiBase;
+        hemiLight.color.setHex(nightSaved.hcol);
+        dir.intensity = nightSaved.dir;
+        scene.background = new THREE.Color(nightSaved.bg);
+        if (torch.intensity > 0) { toggleTorch(); torchBtnState(); }
+        if (b) { b.classList.remove('btn-primary'); b.classList.add('btn-dark'); }
+        nightSaved = null;
+      }
+    }
+    var nBtn = document.getElementById('wtNightBtn');
+    if (nBtn) nBtn.addEventListener('click', function (e) { e.stopPropagation(); setNight(!nightMode); });
     // #1165 Wall graffiti / annotations.
     var ANNOTATIONS = @json($annotations ?? []);
     var ANNOT_URL = '{{ route('exhibition-space.annotation', ['slug' => $space->slug]) }}';
