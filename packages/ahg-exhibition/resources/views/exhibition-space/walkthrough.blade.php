@@ -889,7 +889,7 @@
         // Floor picture priority: an uploaded floor_image (stretched photo) > floor-plan tracing > polished marble.
         var floorPicP = rm.floor_image || rm.floorplan;
         var fmatP = floorPicP
-          ? new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: rm.floor_image ? 0.4 : 0.95, side: THREE.DoubleSide })
+          ? new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: rm.floor_image ? 0.82 : 0.95, side: THREE.DoubleSide })
           : new THREE.MeshStandardMaterial({ map: marbleTexture(), color: 0xdccdab, roughness: 0.5, side: THREE.DoubleSide });
         var flP = new THREE.Mesh(new THREE.ShapeGeometry(shp), fmatP);
         flP.rotation.x = Math.PI / 2; flP.position.set(rm.x_offset, 0, rm.z_offset); addToRoom(rm, flP);
@@ -947,7 +947,7 @@
           edgeWall(rm, e, rm.x_offset + pa.x * rm.w, rm.z_offset + pa.z * rm.d, rm.x_offset + pb.x * rm.w, rm.z_offset + pb.z * rm.d, wallMaterial(e), ccx, ccz);
         }
       } else {
-        var fmat = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: rm.floor_image ? 0.4 : 0.95, side: THREE.DoubleSide });
+        var fmat = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: rm.floor_image ? 0.82 : 0.95, side: THREE.DoubleSide });
         var rhStair = holesFor(rm), fl, metreUV = rhStair.length > 0;
         if (rhStair.length) { fl = new THREE.Mesh(shapeWithHoles([[0, 0], [rm.w, 0], [rm.w, rm.d], [0, rm.d]], rhStair), fmat); fl.rotation.x = Math.PI / 2; fl.position.set(rm.x_offset, 0, rm.z_offset); }
         else { fl = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), fmat); fl.rotation.x = -Math.PI / 2; fl.position.set(cx, 0, cz); }
