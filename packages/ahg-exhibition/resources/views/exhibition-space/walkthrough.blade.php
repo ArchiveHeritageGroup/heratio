@@ -1478,7 +1478,7 @@
         loadTex(s.image_url, function (tex) {
           var aspect = (tex.image && tex.image.width ? tex.image.width : 1) / (tex.image && tex.image.height ? tex.image.height : 1);
           if (s.display_case) { var phc = addDisplayCase(wp.x, wp.z, s._room); addCaseImage(s._room, wp.x, wp.z, phc, s, tex, aspect); }   // item shown inside a glass case
-          else if (s._room && s._room.is_outdoor) { freeStandImage(wp.x, wp.z, s, tex, aspect); }   // #1170 statues free-stand on the ground outdoors
+          else if (s.on_floor || (s._room && s._room.is_outdoor)) { freeStandImage(wp.x, wp.z, s, tex, aspect); }   // On floor / outdoor: stand the picture free on the ground instead of hanging it
           else { hangOnWall(wp, s, tex, aspect); }
           doneOne();
         }, undefined, function () { addPlaceholder(wp, s, addPedestal(wp.x, wp.z, 0.4, s._room)); doneOne(); });
