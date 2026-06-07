@@ -368,15 +368,29 @@
     var frontDoors = [];
     function makeEdgeDoor(rm, s, e, ax, az, ux, uz, ang, doorH, dest, type) {
       var W = e - s, mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid;
-      var leafH = doorH - 0.05, t = 0.07;
+      var leafH = doorH - 0.05, t = 0.08;
       var mat = (type === 'glass') ? glassMat : (type === 'ornate') ? ornateDoorMat : frontDoorMat;
       var slide = (type === 'sliding'), single = (type === 'single');
       var grp = new THREE.Group(); grp.position.set(mx, 0, mz); grp.rotation.y = -ang;
+      var handleMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.75, roughness: 0.3 });
+      var goldMat = new THREE.MeshStandardMaterial({ color: 0xc8a84b, metalness: 0.6, roughness: 0.35, side: THREE.DoubleSide });
       var leaves = [];
+      // A real, joinery-style leaf: slab + recessed panels (both faces) + a brass handle.
       function leaf(hingeX, sign, lw) {
         var pivot = new THREE.Group(); pivot.position.set(hingeX, doorH / 2, 0);
-        var panel = new THREE.Mesh(new THREE.BoxGeometry(lw, leafH, t), mat); panel.position.x = sign * lw / 2;
-        pivot.add(panel); grp.add(pivot); leaves.push({ pivot: pivot, sign: sign, hingeX: hingeX, lw: lw });
+        var g = new THREE.Group(); g.position.x = sign * lw / 2;
+        g.add(new THREE.Mesh(new THREE.BoxGeometry(lw, leafH, t), mat));
+        if (type !== 'glass') {
+          var pw = lw * 0.62, ph = leafH * 0.36, pmat = (type === 'ornate') ? ornateDoorMat : mat;
+          [0.25, -0.25].forEach(function (fy) {
+            [t * 0.5, -t * 0.5].forEach(function (fz) {
+              var pp = new THREE.Mesh(new THREE.BoxGeometry(pw, ph, t * 0.5), pmat); pp.position.set(0, fy * leafH, fz); g.add(pp);
+              if (type === 'ornate') { var rim = new THREE.Mesh(new THREE.BoxGeometry(pw * 1.14, ph * 1.14, t * 0.46), goldMat); rim.position.set(0, fy * leafH, fz * 0.92); g.add(rim); }
+            });
+          });
+        }
+        [t * 0.72, -t * 0.72].forEach(function (fz) { var hn = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 8), handleMat); hn.position.set(sign * lw * 0.38, -leafH * 0.02, fz); g.add(hn); });
+        pivot.add(g); grp.add(pivot); leaves.push({ pivot: pivot, sign: sign, hingeX: hingeX, lw: lw });
       }
       if (single) { leaf(-W / 2, 1, Math.max(0.2, W - 0.06)); }
       else { var lw = Math.max(0.2, W / 2 - 0.03); leaf(-W / 2, 1, lw); leaf(W / 2, -1, lw); }
@@ -505,7 +519,7 @@
         if (dd.type && dd.type !== 'open') {
           makeEdgeDoor(rm, dd.s, dd.e, ax, az, ux, uz, ang, doorH, dest, dd.type);   // #1171 swinging / sliding leaf
         } else {
-          var sm = seg(dd.s, dd.e, 0, doorH, doorMat);  // bare doorway: flat solid panel
+          var sm = seg(dd.s, dd.e, 0, doorH, glassMat);  // default interior doorway: see-through glass (like the stair wall), walk-through
           var ginx = ccx - mx, ginz = ccz - mz, ginl = Math.hypot(ginx, ginz) || 1;   // inward (toward room centre)
           var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(mx + ginx / ginl * 0.14, doorH * 0.5, mz + ginz / ginl * 0.14); addToRoom(rm, dnm);   // "Door" floated off the panel so it does not clip
           if (sm && dest) { sm.userData.action = 'door'; sm.userData.doorDest = dest; sm.userData.doorHome = rm; pickables.push(sm); }   // click the door to jump into that room
