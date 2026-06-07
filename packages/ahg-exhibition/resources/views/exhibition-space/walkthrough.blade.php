@@ -409,13 +409,15 @@
     }
     // Composite a floor image into a tile canvas with a grout seam round the edge, then tile it
     // (repeat ru/rv) so the floor reads as laid tiles. Half the seam from each neighbour meets at the join.
-    function groutFloorTex(srcTex, ru, rv) {
+    function groutFloorTex(srcTex, ru, rv, lineW) {
       var N = 512, c = document.createElement('canvas'); c.width = c.height = N; var g = c.getContext('2d');
       if (srcTex.image) g.drawImage(srcTex.image, 0, 0, N, N);
-      g.strokeStyle = 'rgba(58,52,44,0.65)'; g.lineWidth = 16; g.strokeRect(0, 0, N, N);
+      g.strokeStyle = 'rgba(58,52,44,0.7)'; g.lineWidth = Math.max(1, lineW || 4); g.strokeRect(0, 0, N, N);
       var ct = new THREE.CanvasTexture(c); ct.wrapS = ct.wrapT = THREE.RepeatWrapping; ct.repeat.set(ru, rv); ct.minFilter = THREE.LinearFilter; ct.magFilter = THREE.LinearFilter; ct.needsUpdate = true;
       return ct;
     }
+    // Grout line width in canvas px: a tile canvas (512px) spans tileM metres, so a groutMm seam = mm/1000/tileM*512.
+    function groutLineW(groutMm, tileM) { return Math.max(1, (groutMm || 8) / 1000 / (tileM || 2) * 512); }
 
     // Per-room floors, perimeter walls (with doorways between rooms) and dividers.
     var wallMat = new THREE.MeshStandardMaterial({ map: wallTexture(), color: 0xffffff, roughness: 0.95, side: THREE.DoubleSide });
@@ -910,7 +912,7 @@
         // ShapeGeometry UV is in metres: an uploaded floor image TILES at tileM (optionally with a grout grid); a floorplan tracing stretches once.
         if (floorPicP) { loadTex(floorPicP, function (tex) {
           var ft;
-          if (rm.floor_image && rm.floor_grout) { ft = groutFloorTex(tex, 1 / tileM, 1 / tileM); }
+          if (rm.floor_image && rm.floor_grout) { ft = groutFloorTex(tex, 1 / tileM, 1 / tileM, groutLineW(rm.floor_grout_mm, tileM)); }
           else { ft = tex; ft.wrapS = ft.wrapT = THREE.RepeatWrapping; ft.repeat.set(rm.floor_image ? 1 / tileM : 1 / rm.w, rm.floor_image ? 1 / tileM : 1 / rm.d); }
           fmatP.map = ft; fmatP.color.set(0xffffff); fmatP.needsUpdate = true;
         }); }
@@ -977,7 +979,7 @@
         if (floorPic) { loadTex(floorPic, function (tex) {
           if (rm.floor_image) {
             var ru = metreUV ? 1 / rTileM : rm.w / rTileM, rv = metreUV ? 1 / rTileM : rm.d / rTileM;   // tile at the configured size
-            if (rm.floor_grout) { fmat.map = groutFloorTex(tex, ru, rv); }
+            if (rm.floor_grout) { fmat.map = groutFloorTex(tex, ru, rv, groutLineW(rm.floor_grout_mm, rTileM)); }
             else { tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(ru, rv); fmat.map = tex; }
           } else if (metreUV) { tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping; tex.repeat.set(1 / rm.w, 1 / rm.d); fmat.map = tex; }   // stretch floorplan tracing
           else { fmat.map = tex; }

@@ -1163,10 +1163,10 @@ class ExhibitionSpaceController extends Controller
         if (! $space) {
             return response()->json(['ok' => false], 404);
         }
-        $data = $request->validate(['on' => 'required|boolean', 'tile_m' => 'nullable|numeric|min:0.25|max:10']);
-        $this->service->setFloorTiling((int) $space->id, (bool) $data['on'], isset($data['tile_m']) ? (float) $data['tile_m'] : null);
+        $data = $request->validate(['on' => 'required|boolean', 'tile_m' => 'nullable|numeric|min:0.25|max:10', 'grout_mm' => 'nullable|numeric|min:0.5|max:100']);
+        $this->service->setFloorTiling((int) $space->id, (bool) $data['on'], isset($data['tile_m']) ? (float) $data['tile_m'] : null, isset($data['grout_mm']) ? (float) $data['grout_mm'] : null);
 
-        return response()->json(['ok' => true, 'on' => (bool) $data['on'], 'tile_m' => isset($data['tile_m']) ? (float) $data['tile_m'] : null]);
+        return response()->json(['ok' => true, 'on' => (bool) $data['on'], 'tile_m' => isset($data['tile_m']) ? (float) $data['tile_m'] : null, 'grout_mm' => isset($data['grout_mm']) ? (float) $data['grout_mm'] : null]);
     }
 
     /** Clear the decorative floor picture (reverts to floorplan/marble). */

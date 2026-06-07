@@ -267,11 +267,15 @@
                 <input class="form-check-input" type="checkbox" id="flGrout" {{ ($space->floor_grout ?? 0) ? 'checked' : '' }}>
                 <label class="form-check-label small" for="flGrout">{{ __('Grout grid on floor image') }}</label>
               </div>
-              <div class="input-group input-group-sm">
+              <div class="input-group input-group-sm mb-1">
                 <span class="input-group-text">{{ __('Tile (m)') }}</span>
                 <input type="number" id="flTile" class="form-control" min="0.25" max="10" step="0.25" value="{{ $space->floor_tile_m ?? 2 }}">
               </div>
-              <small class="text-muted d-block mt-1">{{ __('Tile size for the marble tiles and the floor-image grout.') }}</small>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">{{ __('Grout (mm)') }}</span>
+                <input type="number" id="flGroutMm" class="form-control" min="0.5" max="100" step="0.5" value="{{ $space->floor_grout_mm ?? 8 }}">
+              </div>
+              <small class="text-muted d-block mt-1">{{ __('Tile size (marble + floor-image grout) and grout-line width. Thin or wide - your call.') }}</small>
             </div>
           </div>
         </div>
@@ -1236,14 +1240,15 @@
           .then(function (r) { return r.json(); }).then(function (d) { if (!d.ok) return; FLOOR_IMG = null; refresh(); });
       });
       // Tiling: grout-grid toggle + tile size (m). Sizes the marble tiles and the floor-image grout.
-      var groutEl = document.getElementById('flGrout'), tileEl = document.getElementById('flTile');
+      var groutEl = document.getElementById('flGrout'), tileEl = document.getElementById('flTile'), gmmEl = document.getElementById('flGroutMm');
       var GROUT_URL = '{{ route('exhibition-space.builder.floor-grout', ['slug' => $space->slug]) }}';
       function saveTiling() {
-        var body = 'on=' + (groutEl && groutEl.checked ? '1' : '0') + '&tile_m=' + encodeURIComponent(tileEl ? tileEl.value : 2);
+        var body = 'on=' + (groutEl && groutEl.checked ? '1' : '0') + '&tile_m=' + encodeURIComponent(tileEl ? tileEl.value : 2) + '&grout_mm=' + encodeURIComponent(gmmEl ? gmmEl.value : 8);
         fetch(GROUT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: body });
       }
       if (groutEl) groutEl.addEventListener('change', saveTiling);
       if (tileEl) tileEl.addEventListener('change', saveTiling);
+      if (gmmEl) gmmEl.addEventListener('change', saveTiling);
     })();
 
     // ---- Furniture & fittings: add from the picker, drag the brown dot, double-click to remove ----
