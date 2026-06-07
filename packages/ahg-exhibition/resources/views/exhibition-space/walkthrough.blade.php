@@ -2136,6 +2136,10 @@
     var ANNOTATIONS = @json($annotations ?? []);
     var ANNOT_URL = '{{ route('exhibition-space.annotation', ['slug' => $space->slug]) }}';
     var ANNOT_DEL_URL = '{{ route('exhibition-space.annotation.delete', ['slug' => $space->slug, 'id' => '__ID__']) }}';
+    var WT_AUTH = {{ auth()->check() ? 'true' : 'false' }};   // logged-in users persist graffiti to the DB; guests keep it client-side for the session only
+    var WT_GRAFFITI_SS_KEY = 'wt_graffiti_{{ $space->slug }}';
+    function loadSessionGraffiti() { try { return JSON.parse(sessionStorage.getItem(WT_GRAFFITI_SS_KEY) || '[]'); } catch (e) { return []; } }
+    function saveSessionGraffiti(list) { try { sessionStorage.setItem(WT_GRAFFITI_SS_KEY, JSON.stringify(list)); } catch (e) {} }
     var graffitiSprites = [];
     function makeGraffitiTex(text, color) {
       var cv = document.createElement('canvas'), cx = cv.getContext('2d');
@@ -2160,10 +2164,11 @@
         obj.scale.set(sw, 0.9, 1);
       }
       obj.position.set(a.x, a.y, a.z);
-      obj.userData.graffiti = true; obj.userData.graffitiId = a.id || null; scene.add(obj);
+      obj.userData.graffiti = true; obj.userData.graffitiId = a.id || null; obj.userData.graffitiSid = a.sid || null; scene.add(obj);
       graffitiSprites.push(obj); return obj;
     }
-    (ANNOTATIONS || []).forEach(addGraffiti);   // render existing graffiti
+    (ANNOTATIONS || []).forEach(addGraffiti);   // render existing (persisted) graffiti
+    loadSessionGraffiti().forEach(addGraffiti);  // render this browser-session's own graffiti (guests)
     function placeGraffiti(e) {
       var ndc;
       if (orbit) { var r = renderer.domElement.getBoundingClientRect(); ndc = { x: ((e.clientX - r.left) / r.width) * 2 - 1, y: -((e.clientY - r.top) / r.height) * 2 + 1 }; }
@@ -2175,6 +2180,7 @@
         var sp = gh[0].object;
         if (window.confirm('{{ __('Delete this graffiti?') }}')) {
           if (sp.userData.graffitiId) { fetch(ANNOT_DEL_URL.replace('__ID__', sp.userData.graffitiId), { method: 'POST', headers: { 'X-CSRF-TOKEN': WT_CSRF, 'Accept': 'application/json' } }).catch(function () {}); }
+          else if (sp.userData.graffitiSid) { saveSessionGraffiti(loadSessionGraffiti().filter(function (a) { return a.sid !== sp.userData.graffitiSid; })); }
           scene.remove(sp); var gi = graffitiSprites.indexOf(sp); if (gi >= 0) graffitiSprites.splice(gi, 1);
         }
         setAnnotate(false); return;
@@ -2196,6 +2202,13 @@
       var rm = findRoomAtWorld(p.x, p.z, null);
       var a = { x: p.x, y: p.y, z: p.z, text: txt.slice(0, 160), room_id: (rm ? rm.id : null), color: '#e23b3b',
         author: (typeof MY_NAME !== 'undefined' ? MY_NAME : ''), yaw: yaw };
+      if (!WT_AUTH) {
+        // Guest: keep graffiti client-side for this browser session only - no DB write.
+        a.sid = 's' + MY_TOKEN + '_' + graffitiSprites.length + '_' + txt.length;
+        addGraffiti(a);
+        var ss = loadSessionGraffiti(); ss.push(a); saveSessionGraffiti(ss);
+        setAnnotate(false); return;
+      }
       var newSp = addGraffiti(a);
       var body = 'text=' + encodeURIComponent(a.text) + '&x=' + a.x + '&y=' + a.y + '&z=' + a.z + '&room_id=' + (a.room_id || '') + '&color=' + encodeURIComponent(a.color) + '&author=' + encodeURIComponent(a.author) + (yaw !== null ? '&yaw=' + yaw : '') + '&_token=' + encodeURIComponent(WT_CSRF);
       fetch(ANNOT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': WT_CSRF, 'Accept': 'application/json' }, body: body })

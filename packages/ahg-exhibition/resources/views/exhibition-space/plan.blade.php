@@ -562,13 +562,17 @@
       if (!selectedG) return;
       pushUndo([selectedG.getAttr('room')]);
       selectedG.rotation(((deg % 360) + 360) % 360);
-      document.getElementById('rotInput').value = Math.round(selectedG.rotation());
+      var _ri = document.getElementById('rotInput'); if (_ri) _ri.value = Math.round(selectedG.rotation());
       layer.draw(); flagSaving(); saveRoom(selectedG);
     }
-    document.getElementById('rotMinus').addEventListener('click', function () { if (selectedG) applyRot(selectedG.rotation() - 15); });
-    document.getElementById('rotPlus').addEventListener('click', function () { if (selectedG) applyRot(selectedG.rotation() + 15); });
-    document.getElementById('rotZero').addEventListener('click', function () { applyRot(0); });
-    document.getElementById('rotInput').addEventListener('change', function (e) { applyRot(parseFloat(e.target.value) || 0); });
+    // These rotation controls live in the login-only Selected-room card, so they are absent for guests - guard each.
+    (function () {
+      var rm = document.getElementById('rotMinus'), rp = document.getElementById('rotPlus'), rz = document.getElementById('rotZero'), ri = document.getElementById('rotInput');
+      if (rm) rm.addEventListener('click', function () { if (selectedG) applyRot(selectedG.rotation() - 15); });
+      if (rp) rp.addEventListener('click', function () { if (selectedG) applyRot(selectedG.rotation() + 15); });
+      if (rz) rz.addEventListener('click', function () { applyRot(0); });
+      if (ri) ri.addEventListener('change', function (e) { applyRot(parseFloat(e.target.value) || 0); });
+    })();
 
     // ---- Footprint shape (polygon): make L-shapes / cut corners ----
     var shapeMode = false, shapeG = null;
@@ -678,18 +682,22 @@
       if (shapeMode && shapeG === g && sh) drawSnapTargets(g); else if (!shapeMode) clearSnapTargets();
       layer.draw();
     }
-    function setShapeBtn(on) { var se = document.getElementById('shapeEdit'); se.classList.toggle('btn-primary', on); se.classList.toggle('btn-outline-primary', !on); }
-    document.getElementById('shapeEdit').addEventListener('click', function () {
-      if (!selectedG) return; var r = selectedG.getAttr('room');
-      if (r.locked) { alert('{{ __('This room is locked. Unlock it first to edit its shape.') }}'); return; }
-      if (shapeMode && shapeG === selectedG) { shapeMode = false; shapeG = null; setShapeBtn(false); normalizeShape(selectedG); tr.nodes([selectedG]); drawShape(selectedG); }
-      else { if (!r.shape || r.shape.length < 3) r.shape = defaultShape(); shapeMode = true; shapeG = selectedG; setShapeBtn(true); tr.nodes([]); drawShape(selectedG); saveShape(selectedG); }
-      updateDoorControls(selectedG);
-    });
-    document.getElementById('shapeReset').addEventListener('click', function () {
-      if (!selectedG) return; selectedG.getAttr('room').shape = null; shapeMode = false; shapeG = null; setShapeBtn(false);
-      tr.nodes([selectedG]); drawShape(selectedG); saveShape(selectedG); updateDoorControls(selectedG);
-    });
+    function setShapeBtn(on) { var se = document.getElementById('shapeEdit'); if (!se) return; se.classList.toggle('btn-primary', on); se.classList.toggle('btn-outline-primary', !on); }
+    // Shape controls are in the login-only Selected-room card - absent for guests, so guard the bindings.
+    (function () {
+      var seBtn = document.getElementById('shapeEdit'), srBtn = document.getElementById('shapeReset');
+      if (seBtn) seBtn.addEventListener('click', function () {
+        if (!selectedG) return; var r = selectedG.getAttr('room');
+        if (r.locked) { alert('{{ __('This room is locked. Unlock it first to edit its shape.') }}'); return; }
+        if (shapeMode && shapeG === selectedG) { shapeMode = false; shapeG = null; setShapeBtn(false); normalizeShape(selectedG); tr.nodes([selectedG]); drawShape(selectedG); }
+        else { if (!r.shape || r.shape.length < 3) r.shape = defaultShape(); shapeMode = true; shapeG = selectedG; setShapeBtn(true); tr.nodes([]); drawShape(selectedG); saveShape(selectedG); }
+        updateDoorControls(selectedG);
+      });
+      if (srBtn) srBtn.addEventListener('click', function () {
+        if (!selectedG) return; selectedG.getAttr('room').shape = null; shapeMode = false; shapeG = null; setShapeBtn(false);
+        tr.nodes([selectedG]); drawShape(selectedG); saveShape(selectedG); updateDoorControls(selectedG);
+      });
+    })();
 
     // ---- Room grouping (#1143): rooms that share a snapped wall move as one unit ----
     var nodeById = {};
@@ -848,7 +856,7 @@
         var nw = g.width() * g.scaleX(), nh = g.height() * g.scaleY();
         rect.width(nw); rect.height(nh); label.width(nw - 8); g.scale({ x: 1, y: 1 }); g.width(nw); g.height(nh);
         var r2 = g.getAttr('room'); r2.w = nw / scale; r2.d = nh / scale;
-        if (selectedG === g) document.getElementById('rotInput').value = Math.round(g.rotation());
+        if (selectedG === g) { var _ri2 = document.getElementById('rotInput'); if (_ri2) _ri2.value = Math.round(g.rotation()); }
         resolveOverlap(g); drawDoors(g); drawShape(g); flagSaving(); saveRoom(g); layer.draw();
       });
       g.width(r.w * scale); g.height(r.d * scale);
