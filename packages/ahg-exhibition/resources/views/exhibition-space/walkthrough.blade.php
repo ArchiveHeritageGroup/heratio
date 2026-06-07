@@ -943,7 +943,12 @@
         var sp = new THREE.SpotLight(0xfff2d0, mode === 2 ? 1.6 : 0, 14, Math.PI / 7, 0.5, 1.2);
         sp.position.set(wp.x, wp.y + 3.2, wp.z + 0.01);
         var tgt = new THREE.Object3D(); tgt.position.copy(wp); scene.add(tgt); sp.target = tgt;
-        scene.add(sp); spotObjects.push({ x: wp.x, y: wp.y, z: wp.z, light: sp, mode: mode });
+        scene.add(sp);
+        // Hung pictures use an UNLIT material (MeshBasic) that a SpotLight cannot affect, so capture
+        // its material and brighten it directly when spotlit - that is what actually makes a picture pop.
+        var picMat = null;
+        o.traverse(function (n) { if (n.isMesh && n.material && n.material.map && (n.material.type === 'MeshBasicMaterial' || n.material.isMeshBasicMaterial)) picMat = n.material; });
+        spotObjects.push({ x: wp.x, y: wp.y, z: wp.z, light: sp, mode: mode, mat: picMat });
       });
     }
     buildSpots(); setTimeout(buildSpots, 1500); setTimeout(buildSpots, 4000);   // re-scan as async images finish loading
@@ -1696,7 +1701,16 @@
         var scp = controls.getObject().position, near = 1e9, act = null;
         for (var si = 0; si < spotObjects.length; si++) { var so = spotObjects[si], dd = Math.hypot(scp.x - so.x, scp.z - so.z) + Math.abs(scp.y - so.y) * 0.5; if (dd < near) { near = dd; act = so; } }
         var prox = Math.max(0, Math.min(1, (6.5 - near) / 6.5));
-        for (var sj = 0; sj < spotObjects.length; sj++) { var s2 = spotObjects[sj]; var base = s2.mode === 2 ? 2.2 : 0; var tgt = base + ((s2 === act) ? prox * 3.0 : 0); s2.light.intensity += (tgt - s2.light.intensity) * Math.min(1, dt * 5); }
+        for (var sj = 0; sj < spotObjects.length; sj++) {
+          var s2 = spotObjects[sj];
+          var base = s2.mode === 2 ? 2.2 : 0; var tgt = base + ((s2 === act) ? prox * 3.0 : 0);
+          s2.light.intensity += (tgt - s2.light.intensity) * Math.min(1, dt * 5);
+          if (s2.mat) {   // per-item glow: brighten the (unlit) picture so the spotlight is visible on it
+            var gTgt = (s2.mode === 2) ? (1.55 + (s2 === act ? prox * 0.5 : 0)) : (1.0 + ((s2 === act) ? prox * 1.0 : 0));
+            var nv = s2.mat.color.r + (gTgt - s2.mat.color.r) * Math.min(1, dt * 5);
+            s2.mat.color.setRGB(nv, nv, nv);
+          }
+        }
         // Per-item lighting: the spotlight makes the OBJECT pop without darkening the whole room (gentle ambient dip only).
         hemiLight.intensity += ((hemiBase - prox * hemiBase * 0.22) - hemiLight.intensity) * Math.min(1, dt * 5);
       }
