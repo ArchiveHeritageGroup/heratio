@@ -954,6 +954,9 @@ class ExhibitionSpaceService
                 'ceiling' => $r->ceiling_image_path ?? null,
                 'wall_image' => $r->wall_image_path ?? null,
                 'floor_image' => $r->floor_image_path ?? null,   // decorative floor picture (stretched)
+                'floor_grout' => (int) ($r->floor_grout ?? 0),   // overlay a grout grid on the floor image
+                'floor_tile_m' => (float) ($r->floor_tile_m ?? 2),   // floor tile size in metres (marble + floor-image grout)
+
                 'wall_color' => $r->wall_color ?? null,          // all-walls paint colour (#hex), used when no image
                 'wall_colors' => (! empty($r->wall_colors_json) && is_array($wc = json_decode((string) $r->wall_colors_json, true))) ? $wc : new \stdClass,   // per-edge paint colours
                 'wall_images' => (! empty($r->wall_images_json) && is_array($wi = json_decode((string) $r->wall_images_json, true))) ? $wi : new \stdClass,   // #wall-pictures per-edge overrides
@@ -1922,6 +1925,16 @@ class ExhibitionSpaceService
     {
         DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
             ->update(['floor_image_path' => $publicPath, 'updated_at' => now()]);
+    }
+
+    /** Set the floor tiling for a room: grout-grid on/off + tile size (m, clamped 0.25-10). */
+    public function setFloorTiling(int $exhibitionSpaceId, bool $grout, ?float $tileM = null): void
+    {
+        $upd = ['floor_grout' => $grout ? 1 : 0, 'updated_at' => now()];
+        if ($tileM !== null) {
+            $upd['floor_tile_m'] = max(0.25, min(10.0, $tileM));
+        }
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)->update($upd);
     }
 
     /** Per-edge wall images: {edgeIndex: publicPath}. Falls back to the all-walls default per wall. */

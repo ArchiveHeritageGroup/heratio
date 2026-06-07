@@ -260,7 +260,18 @@
               </div>
               <input type="file" id="flFile" accept="image/*" class="form-control form-control-sm mb-2">
               <button type="button" id="flUpload" class="btn btn-sm btn-outline-primary w-100 mb-1"><i class="fas fa-upload me-1"></i>{{ __('Upload floor image') }}</button>
-              <button type="button" id="flClear" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear floor image') }}</button>
+              <button type="button" id="flClear" class="btn btn-sm btn-outline-danger w-100 mb-2"><i class="fas fa-times me-1"></i>{{ __('Clear floor image') }}</button>
+              <hr class="my-2">
+              {{-- Tiling: tile size (also sizes the marble tiles) + optional grout grid on the floor image. --}}
+              <div class="form-check form-switch mb-1">
+                <input class="form-check-input" type="checkbox" id="flGrout" {{ ($space->floor_grout ?? 0) ? 'checked' : '' }}>
+                <label class="form-check-label small" for="flGrout">{{ __('Grout grid on floor image') }}</label>
+              </div>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">{{ __('Tile (m)') }}</span>
+                <input type="number" id="flTile" class="form-control" min="0.25" max="10" step="0.25" value="{{ $space->floor_tile_m ?? 2 }}">
+              </div>
+              <small class="text-muted d-block mt-1">{{ __('Tile size for the marble tiles and the floor-image grout.') }}</small>
             </div>
           </div>
         </div>
@@ -1224,6 +1235,15 @@
         fetch('{{ route('exhibition-space.builder.floor-image-clear', ['slug' => $space->slug]) }}', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: '' })
           .then(function (r) { return r.json(); }).then(function (d) { if (!d.ok) return; FLOOR_IMG = null; refresh(); });
       });
+      // Tiling: grout-grid toggle + tile size (m). Sizes the marble tiles and the floor-image grout.
+      var groutEl = document.getElementById('flGrout'), tileEl = document.getElementById('flTile');
+      var GROUT_URL = '{{ route('exhibition-space.builder.floor-grout', ['slug' => $space->slug]) }}';
+      function saveTiling() {
+        var body = 'on=' + (groutEl && groutEl.checked ? '1' : '0') + '&tile_m=' + encodeURIComponent(tileEl ? tileEl.value : 2);
+        fetch(GROUT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: body });
+      }
+      if (groutEl) groutEl.addEventListener('change', saveTiling);
+      if (tileEl) tileEl.addEventListener('change', saveTiling);
     })();
 
     // ---- Furniture & fittings: add from the picker, drag the brown dot, double-click to remove ----

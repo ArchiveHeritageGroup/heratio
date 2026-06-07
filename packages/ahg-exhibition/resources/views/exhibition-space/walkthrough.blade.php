@@ -407,6 +407,15 @@
         if (onLoad) onLoad(tex);
       }, onProgress, onError);
     }
+    // Composite a floor image into a tile canvas with a grout seam round the edge, then tile it
+    // (repeat ru/rv) so the floor reads as laid tiles. Half the seam from each neighbour meets at the join.
+    function groutFloorTex(srcTex, ru, rv) {
+      var N = 512, c = document.createElement('canvas'); c.width = c.height = N; var g = c.getContext('2d');
+      if (srcTex.image) g.drawImage(srcTex.image, 0, 0, N, N);
+      g.strokeStyle = 'rgba(58,52,44,0.65)'; g.lineWidth = 16; g.strokeRect(0, 0, N, N);
+      var ct = new THREE.CanvasTexture(c); ct.wrapS = ct.wrapT = THREE.RepeatWrapping; ct.repeat.set(ru, rv); ct.minFilter = THREE.LinearFilter; ct.magFilter = THREE.LinearFilter; ct.needsUpdate = true;
+      return ct;
+    }
 
     // Per-room floors, perimeter walls (with doorways between rooms) and dividers.
     var wallMat = new THREE.MeshStandardMaterial({ map: wallTexture(), color: 0xffffff, roughness: 0.95, side: THREE.DoubleSide });
@@ -888,14 +897,23 @@
         addHoles(shp, holesFor(rm));   // #1169 stairwell openings
         // Floor picture priority: an uploaded floor_image (stretched photo) > floor-plan tracing > polished marble.
         var floorPicP = rm.floor_image || rm.floorplan;
-        var fmatP = floorPicP
-          ? new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: rm.floor_image ? 0.82 : 0.95, side: THREE.DoubleSide })
-          : new THREE.MeshStandardMaterial({ map: marbleTexture(), color: 0xdccdab, roughness: 0.5, side: THREE.DoubleSide });
+        var tileM = rm.floor_tile_m || 2;   // configurable floor tile size (m): marble tiles + floor-image grout
+        var fmatP;
+        if (floorPicP) {
+          fmatP = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: rm.floor_image ? 0.82 : 0.95, side: THREE.DoubleSide });
+        } else {
+          var mtex = marbleTexture().clone(); mtex.wrapS = mtex.wrapT = THREE.RepeatWrapping; mtex.repeat.set(1 / tileM, 1 / tileM); mtex.needsUpdate = true;   // per-room tile size
+          fmatP = new THREE.MeshStandardMaterial({ map: mtex, color: 0xdccdab, roughness: 0.5, side: THREE.DoubleSide });
+        }
         var flP = new THREE.Mesh(new THREE.ShapeGeometry(shp), fmatP);
         flP.rotation.x = Math.PI / 2; flP.position.set(rm.x_offset, 0, rm.z_offset); addToRoom(rm, flP);
-        // ShapeGeometry UVs are in metres (0..rm.w / 0..rm.d), so map one stretched copy over the whole floor.
-        // ShapeGeometry UV is in metres: an uploaded floor image TILES at 2m (like the marble tiles); a floorplan tracing stretches once.
-        if (floorPicP) { loadTex(floorPicP, function (tex) { tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(rm.floor_image ? 0.5 : 1 / rm.w, rm.floor_image ? 0.5 : 1 / rm.d); fmatP.map = tex; fmatP.color.set(0xffffff); fmatP.needsUpdate = true; }); }
+        // ShapeGeometry UV is in metres: an uploaded floor image TILES at tileM (optionally with a grout grid); a floorplan tracing stretches once.
+        if (floorPicP) { loadTex(floorPicP, function (tex) {
+          var ft;
+          if (rm.floor_image && rm.floor_grout) { ft = groutFloorTex(tex, 1 / tileM, 1 / tileM); }
+          else { ft = tex; ft.wrapS = ft.wrapT = THREE.RepeatWrapping; ft.repeat.set(rm.floor_image ? 1 / tileM : 1 / rm.w, rm.floor_image ? 1 / tileM : 1 / rm.d); }
+          fmatP.map = ft; fmatP.color.set(0xffffff); fmatP.needsUpdate = true;
+        }); }
         if (rm.ceiling) {
           var cmatP = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
           var clP = new THREE.Mesh(new THREE.ShapeGeometry(shp), cmatP);
@@ -955,10 +973,15 @@
         // Floor picture priority: uploaded floor_image > floor-plan tracing. PlaneGeometry UVs are 0..1 (1:1);
         // the stairwell shapeWithHoles path uses metre UVs, so scale one stretched copy over the whole floor.
         var floorPic = rm.floor_image || rm.floorplan;
+        var rTileM = rm.floor_tile_m || 2;
         if (floorPic) { loadTex(floorPic, function (tex) {
-          if (rm.floor_image) { tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(metreUV ? 0.5 : rm.w / 2, metreUV ? 0.5 : rm.d / 2); }   // tile the uploaded floor image at 2m
-          else if (metreUV) { tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping; tex.repeat.set(1 / rm.w, 1 / rm.d); }   // stretch floorplan tracing
-          fmat.map = tex; fmat.color.set(0xffffff); fmat.needsUpdate = true;
+          if (rm.floor_image) {
+            var ru = metreUV ? 1 / rTileM : rm.w / rTileM, rv = metreUV ? 1 / rTileM : rm.d / rTileM;   // tile at the configured size
+            if (rm.floor_grout) { fmat.map = groutFloorTex(tex, ru, rv); }
+            else { tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(ru, rv); fmat.map = tex; }
+          } else if (metreUV) { tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping; tex.repeat.set(1 / rm.w, 1 / rm.d); fmat.map = tex; }   // stretch floorplan tracing
+          else { fmat.map = tex; }
+          fmat.color.set(0xffffff); fmat.needsUpdate = true;
         }); }
         if (rm.ceiling) {                               // painted ceiling image
           var cmat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });

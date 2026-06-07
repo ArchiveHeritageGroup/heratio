@@ -1156,6 +1156,19 @@ class ExhibitionSpaceController extends Controller
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Floor image uploaded.');
     }
 
+    /** Set this room's floor tiling: grout grid on/off + tile size (m). */
+    public function setFloorGroutAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['on' => 'required|boolean', 'tile_m' => 'nullable|numeric|min:0.25|max:10']);
+        $this->service->setFloorTiling((int) $space->id, (bool) $data['on'], isset($data['tile_m']) ? (float) $data['tile_m'] : null);
+
+        return response()->json(['ok' => true, 'on' => (bool) $data['on'], 'tile_m' => isset($data['tile_m']) ? (float) $data['tile_m'] : null]);
+    }
+
     /** Clear the decorative floor picture (reverts to floorplan/marble). */
     public function clearFloorImage(Request $request, string $slug)
     {
