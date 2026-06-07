@@ -187,6 +187,9 @@
             <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="railing"><i class="fas fa-grip-lines me-1"></i>{{ __('Rope railing') }}</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="pillar-round"><i class="fas fa-circle me-1"></i>{{ __('Round pillar') }}</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="pillar-square"><i class="fas fa-square me-1"></i>{{ __('Square pillar') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="person-man"><i class="fas fa-person me-1"></i>{{ __('Man') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="person-woman"><i class="fas fa-person-dress me-1"></i>{{ __('Woman') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="arch"><i class="fas fa-archway me-1"></i>{{ __('Arch') }}</button>
           </div>
           {{-- Custom furniture library: upload your own 3D models / images, then click to place them. --}}
           <div class="border-top mt-2 pt-2">
@@ -207,6 +210,8 @@
               <span class="input-group-text">{{ __('Poles') }}</span>
               <input type="number" id="furnSegments" class="form-control" min="2" max="20" step="1" value="2">
             </div>
+            <button type="button" id="furnAddPole" class="btn btn-sm btn-outline-secondary w-100 mt-1" style="display:none"><i class="fas fa-plus me-1"></i>{{ __('Add pole') }}</button>
+            <div class="small text-muted" id="furnPoleHint" style="display:none">{{ __('Drag the orange pole dots to place each post; double-click a dot to remove (min 2).') }}</div>
             <div class="small text-muted" id="furnPillarHint" style="display:none">{{ __('Pillar height = 3m x this (about 0.9-12m). View in 3D walkthrough.') }}</div>
           </div>
         </div>
@@ -1214,6 +1219,7 @@
         if (segEl) segEl.value = it.segments || 2;
         layer.find('.furn').forEach(function (n) { var c = n.findOne('Circle'); if (c) c.stroke('#fff'); });
         var sc = node.findOne('Circle'); if (sc) sc.stroke('#0d6efd');
+        if (it.kind === 'railing') buildPoleHandles(it, node); else clearPoleHandles();
         layer.draw();
       }
       if (scaleEl) {
@@ -1225,8 +1231,39 @@
         rotEl.addEventListener('change', function () { if (selected) { selected.it.rotation_deg = +rotEl.value; persistSel(); } });
       }
       if (segEl) {
-        segEl.addEventListener('change', function () { if (selected) { selected.it.segments = Math.max(2, Math.min(20, +segEl.value || 2)); segEl.value = selected.it.segments; persistSel(); } });
+        segEl.addEventListener('change', function () {
+          if (!selected) return; var it = selected.it, n = Math.max(2, Math.min(20, +segEl.value || 2)); segEl.value = n;
+          if (it.kind === 'railing') { it.poles = defaultPoles(n); it.segments = n; persistPoles(it); buildPoleHandles(it, selected.node); }
+          else { it.segments = n; persistSel(); }
+        });
       }
+      // ---- Per-pole rope-railing layout: drag orange handles to place each post ----
+      var POLES = '{{ route('exhibition-space.builder.furniture-poles', ['slug' => $space->slug]) }}';
+      var poleHandles = [], addPoleBtn = document.getElementById('furnAddPole'), poleHint = document.getElementById('furnPoleHint');
+      function clearPoleHandles() { poleHandles.forEach(function (h) { h.destroy(); }); poleHandles = []; if (addPoleBtn) addPoleBtn.style.display = 'none'; if (poleHint) poleHint.style.display = 'none'; layer.draw(); }
+      function defaultPoles(n) { var a = [], span = 1.4, x0 = -(n - 1) * span / 2; for (var i = 0; i < n; i++) a.push({ x: +(x0 + i * span).toFixed(3), z: 0 }); return a; }
+      function persistPoles(it) { fetch(POLES, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: it.id, poles: it.poles || [] }) }); }
+      function buildPoleHandles(it, node) {
+        clearPoleHandles();
+        if (it.kind !== 'railing') return;
+        if (!it.poles || it.poles.length < 2) it.poles = defaultPoles(Math.max(2, Math.min(20, it.segments || 2)));
+        if (addPoleBtn) addPoleBtn.style.display = 'block';
+        if (poleHint) poleHint.style.display = 'block';
+        it.poles.forEach(function (p, idx) {
+          var c = new Konva.Circle({ x: node.x() + (p.x / ROOM_W) * W, y: node.y() + (p.z / ROOM_D) * H, radius: 6, fill: '#fd7e14', stroke: '#fff', strokeWidth: 1.5, draggable: true, name: 'pole' });
+          c.on('dragmove', function () { it.poles[idx] = { x: +(((c.x() - node.x()) / W) * ROOM_W).toFixed(3), z: +(((c.y() - node.y()) / H) * ROOM_D).toFixed(3) }; });
+          c.on('dragend', function () { persistPoles(it); });
+          c.on('dblclick dbltap', function (e) { e.cancelBubble = true; if (it.poles.length <= 2) return; it.poles.splice(idx, 1); persistPoles(it); buildPoleHandles(it, node); });
+          layer.add(c); poleHandles.push(c);
+        });
+        layer.draw();
+      }
+      if (addPoleBtn) addPoleBtn.addEventListener('click', function () {
+        if (!selected || selected.it.kind !== 'railing') return; var it = selected.it;
+        var last = (it.poles && it.poles.length) ? it.poles[it.poles.length - 1] : { x: 0, z: 0 };
+        if (!it.poles) it.poles = [];
+        it.poles.push({ x: +(last.x + 1.0).toFixed(3), z: last.z }); persistPoles(it); buildPoleHandles(it, selected.node);
+      });
       function addDot(it) {
         var g = new Konva.Group({ x: (it.pos_x == null ? 0.5 : it.pos_x) * W, y: (it.pos_y == null ? 0.5 : it.pos_y) * H, draggable: true, name: 'furn' });
         g.setAttr('furnId', it.id);
@@ -1236,7 +1273,7 @@
         g.on('dragend', function () { selectFurn(it, g); persistSel(); });
         g.on('dblclick dbltap', function (e) {
           e.cancelBubble = true;
-          fetch(REM, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: it.id }) }).then(function (r) { return r.json(); }).then(function (d) { if (d.ok) { g.destroy(); if (selected && selected.it.id === it.id) { selected = null; if (selPanel) selPanel.style.display = 'none'; } layer.draw(); updateCount(); } });
+          fetch(REM, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: it.id }) }).then(function (r) { return r.json(); }).then(function (d) { if (d.ok) { g.destroy(); if (selected && selected.it.id === it.id) { selected = null; if (selPanel) selPanel.style.display = 'none'; clearPoleHandles(); } layer.draw(); updateCount(); } });
         });
         layer.add(g);
       }

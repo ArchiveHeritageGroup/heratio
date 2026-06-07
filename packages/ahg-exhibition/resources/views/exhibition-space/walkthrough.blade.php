@@ -43,6 +43,9 @@
             </div>
           </div>
           <div id="roomCrosshair" style="position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#000;border:2px solid rgba(255,255,255,.85);box-sizing:border-box;z-index:4;display:none;pointer-events:none;"></div>
+          {{-- Figure tool: the pointer becomes a person silhouette; mouse wheel cycles man/woman; click drops a figure. --}}
+          <img id="figurePointer" alt="" style="position:absolute;top:50%;left:50%;height:120px;margin-top:-110px;transform:translateX(-50%);z-index:4;display:none;pointer-events:none;opacity:.92;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));">
+          <div id="figureHint" class="bg-dark text-white px-2 py-1 rounded small" style="position:absolute;bottom:90px;left:50%;transform:translateX(-50%);z-index:7;display:none;"><i class="fas fa-person-walking me-1"></i>{{ __('Wheel: change person - click: place (this view only)') }}</div>
           <div id="roomLoading" style="position:absolute;bottom:8px;left:8px;z-index:4;color:#ccc;font-size:.8rem;">{{ __('Loading gallery...') }}</div>
           {{-- steal-alarm: flickering red overlay + silence control --}}
           <div id="wtAlarm" style="position:absolute;inset:0;background:#ff0000;opacity:0;z-index:9;pointer-events:none;display:none;"></div>
@@ -60,7 +63,9 @@
           <button id="wtGraffitiBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:192px;z-index:6;opacity:.85;" title="{{ __('Graffiti: click a wall to tag it') }}"><i class="fas fa-spray-can"></i></button>
           <button id="wtTourPlayBtn" type="button" class="btn btn-sm btn-success" style="position:absolute;top:8px;right:228px;z-index:6;opacity:.9;display:none;" title="{{ __('Play guided tour') }}"><i class="fas fa-play"></i></button>
           <button id="wtStealBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:264px;z-index:6;opacity:.85;" title="{{ __('Steal mode: click an object to trigger the alarm') }}"><i class="fas fa-mask"></i></button>
-          <button id="wtFsBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:300px;z-index:6;opacity:.85;" title="{{ __('Fullscreen') }}"><i class="fas fa-expand"></i></button>
+          <button id="wtFigureBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:300px;z-index:6;opacity:.85;" title="{{ __('Figures: wheel to pick a person, click to place') }}"><i class="fas fa-person-walking"></i></button>
+          <button id="wtSunBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:336px;z-index:6;opacity:.85;" title="{{ __('Sun & shadows (off / morning / noon / afternoon)') }}"><i class="fas fa-sun"></i></button>
+          <button id="wtFsBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:372px;z-index:6;opacity:.85;" title="{{ __('Fullscreen') }}"><i class="fas fa-expand"></i></button>
           <div id="wtTourBanner" class="bg-dark text-white px-3 py-2 rounded small" style="position:absolute;bottom:64px;left:50%;transform:translateX(-50%);z-index:7;display:none;max-width:86%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.5);">
             <span id="wtTourText"></span>
             <button type="button" id="wtTourStopBtn" class="btn btn-sm btn-outline-light ms-2 py-0"><i class="fas fa-stop"></i></button>
@@ -286,6 +291,7 @@
     var renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));   // cap retina overdraw
     renderer.setSize(W, H);
+    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;   // #shadows: real-time sun shadows (toggled)
     renderer.xr.enabled = true;   // heratio#1152 - WebXR / VR headset support
     room.appendChild(renderer.domElement);
 
@@ -310,6 +316,44 @@
     var dir = new THREE.DirectionalLight(0xffffff, 0.7);
     dir.position.set(5, 10, 7);
     scene.add(dir);
+
+    // ---- Dynamic sun + shadows (#shadows / #arch-sun): a steerable sun that casts real-time shadows
+    // through windows, arches and doorways. Off by default; the Sun HUD button cycles the time of day.
+    // The shadow camera follows the visitor (updated in animate) so shadows stay sharp wherever you walk.
+    var sunDyn = new THREE.DirectionalLight(0xfff4dc, 0.0);
+    sunDyn.castShadow = true;
+    sunDyn.shadow.mapSize.width = sunDyn.shadow.mapSize.height = 2048;
+    sunDyn.shadow.camera.near = 0.5; sunDyn.shadow.camera.far = 120;
+    sunDyn.shadow.camera.left = -22; sunDyn.shadow.camera.right = 22;
+    sunDyn.shadow.camera.top = 22; sunDyn.shadow.camera.bottom = -22;
+    sunDyn.shadow.bias = -0.0004;
+    var sunTarget = new THREE.Object3D(); scene.add(sunTarget); sunDyn.target = sunTarget;
+    scene.add(sunDyn);
+    // Time-of-day sun offsets (relative to the visitor); low east -> high noon -> low west.
+    var SUN_TIMES = [
+      null,
+      { off: [-30, 22, -10], col: 0xffe2b0, int: 1.15 },   // morning
+      { off: [6, 46, 8], col: 0xfff6e0, int: 1.35 },        // noon
+      { off: [30, 22, 12], col: 0xffd9a0, int: 1.1 },       // afternoon
+    ];
+    var sunMode = 0, _sunShadowsApplied = false;
+    function applyShadowFlags() {
+      if (_sunShadowsApplied) return; _sunShadowsApplied = true;
+      scene.traverse(function (n) {
+        if (!n.isMesh || !n.material) return;
+        var m = n.material, transparent = m.transparent && m.opacity < 0.9;   // glass/panes don't block sun
+        n.castShadow = !transparent; n.receiveShadow = true;
+      });
+    }
+    function setSun(mode) {
+      sunMode = ((mode % SUN_TIMES.length) + SUN_TIMES.length) % SUN_TIMES.length;
+      var t = SUN_TIMES[sunMode];
+      var b = document.getElementById('wtSunBtn');
+      if (!t) { sunDyn.intensity = 0; if (b) { b.classList.remove('btn-warning'); b.classList.add('btn-dark'); } return; }
+      applyShadowFlags();
+      sunDyn.color.setHex(t.col); sunDyn.intensity = t.int;
+      if (b) { b.classList.add('btn-warning'); b.classList.remove('btn-dark'); }
+    }
 
     // Per-room containers: each room's geometry + objects live in a group placed
     // at the room centre and rotated by its plan rotation. Children are added at
@@ -554,6 +598,25 @@
       for (var b = 0; b < 600; b++) { var bx = Math.random() * 256, by = Math.random() * 256, h = 3 + Math.random() * 6; g.strokeStyle = 'rgba(' + ((40 + Math.random() * 40) | 0) + ',' + ((120 + Math.random() * 70) | 0) + ',' + ((40 + Math.random() * 30) | 0) + ',0.6)'; g.lineWidth = 1; g.beginPath(); g.moveTo(bx, by); g.lineTo(bx + (Math.random() * 2 - 1), by - h); g.stroke(); }
       var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; _grassTex = t; return t;
     }
+    // Simple stylised human silhouette (man / woman) on a transparent canvas - used for billboard
+    // figures (furniture kinds person-man/person-woman) and the figure-pointer overlay.
+    var _personTex = {};
+    function personCanvas(kind) {
+      var c = document.createElement('canvas'); c.width = 128; c.height = 256; var g = c.getContext('2d');
+      var skin = '#caa07a', hair = '#3a2a1a', cloth = (kind === 'woman') ? '#7a3b6b' : '#36506e';
+      g.fillStyle = cloth; g.fillRect(33, 78, 12, 70); g.fillRect(83, 78, 12, 70);   // arms
+      if (kind === 'woman') { g.beginPath(); g.moveTo(46, 74); g.lineTo(82, 74); g.lineTo(99, 206); g.lineTo(29, 206); g.closePath(); g.fill(); }
+      else { g.fillRect(45, 74, 38, 92); g.fillStyle = '#2c3e50'; g.fillRect(47, 162, 16, 84); g.fillRect(65, 162, 16, 84); }
+      g.fillStyle = skin; g.beginPath(); g.arc(64, 46, 22, 0, Math.PI * 2); g.fill();   // head
+      g.fillStyle = hair; g.beginPath(); g.arc(64, 42, 23, Math.PI, 2 * Math.PI); g.fill();   // hair cap
+      if (kind === 'woman') { g.beginPath(); g.moveTo(41, 42); g.quadraticCurveTo(40, 78, 50, 80); g.lineTo(54, 60); g.closePath(); g.fill(); g.beginPath(); g.moveTo(87, 42); g.quadraticCurveTo(88, 78, 78, 80); g.lineTo(74, 60); g.closePath(); g.fill(); }
+      return c;
+    }
+    function personTexture(kind) {
+      if (_personTex[kind]) return _personTex[kind];
+      var t = new THREE.CanvasTexture(personCanvas(kind)); t.minFilter = THREE.LinearFilter;
+      return (_personTex[kind] = t);
+    }
     function treeTexture() {
       if (_treeTex) return _treeTex;
       var c = document.createElement('canvas'); c.width = 256; c.height = 384; var g = c.getContext('2d');
@@ -671,20 +734,43 @@
         case 'table': box(1.2, 0.06, 0.7, wood, 0, 0.74, 0); [[-0.5, -0.28], [0.5, -0.28], [-0.5, 0.28], [0.5, 0.28]].forEach(function (p) { box(0.07, 0.74, 0.07, wood, p[0], 0.37, p[1]); }); break;
         case 'chair': box(0.45, 0.06, 0.45, wood, 0, 0.45, 0); box(0.45, 0.5, 0.06, wood, 0, 0.7, -0.2); [[-0.18, -0.18], [0.18, -0.18], [-0.18, 0.18], [0.18, 0.18]].forEach(function (p) { box(0.05, 0.45, 0.05, wood, p[0], 0.22, p[1]); }); break;
         case 'railing': {
-          // Stanchion-and-rope barrier: N poles in a line (segments), a draped rope spanning each gap.
-          var poles = Math.max(2, Math.min(20, it.segments || 2)), span = 1.4, ropeMat = new THREE.MeshStandardMaterial({ color: 0x8a1f2b, roughness: 0.8 });
-          var x0 = -(poles - 1) * span / 2;
-          for (var pi = 0; pi < poles; pi++) {
-            var px2 = x0 + pi * span;
-            cyl(0.04, 0.04, 0.95, metal, px2, 0.475, 0);
-            var ball = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), metal); ball.position.set(px2, 0.98, 0); g.add(ball);
-            if (pi < poles - 1) { var rope = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, span, 8), ropeMat); rope.rotation.z = Math.PI / 2; rope.position.set(px2 + span / 2, 0.82, 0); g.add(rope); }
+          // Stanchion-and-rope barrier. Poles either follow explicit per-pole offsets (it.poles, set by
+          // dragging them in the Builder) or are evenly spaced by count (it.segments). The rope between
+          // consecutive poles drapes in a sagging curve, not a straight bar.
+          var ropeMat = new THREE.MeshStandardMaterial({ color: 0x8a1f2b, roughness: 0.8 });
+          var pts = [];
+          if (it.poles && it.poles.length >= 2) { it.poles.forEach(function (p) { pts.push({ x: p.x, z: p.z }); }); }
+          else { var n = Math.max(2, Math.min(20, it.segments || 2)), span = 1.4, x0 = -(n - 1) * span / 2; for (var pi = 0; pi < n; pi++) pts.push({ x: x0 + pi * span, z: 0 }); }
+          pts.forEach(function (p) {
+            cyl(0.04, 0.04, 0.95, metal, p.x, 0.475, p.z);
+            var ball = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), metal); ball.position.set(p.x, 0.98, p.z); g.add(ball);
+          });
+          for (var ri = 0; ri < pts.length - 1; ri++) {
+            var a = pts[ri], b = pts[ri + 1];
+            var curve = new THREE.QuadraticBezierCurve3(new THREE.Vector3(a.x, 0.86, a.z), new THREE.Vector3((a.x + b.x) / 2, 0.42, (a.z + b.z) / 2), new THREE.Vector3(b.x, 0.86, b.z));
+            g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 16, 0.03, 6, false), ropeMat));
           }
           break;
         }
         // Architectural columns with a base + capital (classical look). Height = 3m x scale (adjustable).
         case 'pillar-round': { var ph = 3.0 * sc; cyl(0.3, 0.34, ph, stone, 0, ph / 2, 0); box(0.82, 0.12, 0.82, stone, 0, 0.06, 0); box(0.78, 0.16, 0.78, stone, 0, ph - 0.08, 0); break; }
         case 'pillar-square': { var ph2 = 3.0 * sc; box(0.5, ph2, 0.5, stone, 0, ph2 / 2, 0); box(0.78, 0.12, 0.78, stone, 0, 0.06, 0); box(0.74, 0.16, 0.74, stone, 0, ph2 - 0.08, 0); break; }
+        // Billboard people (crossed planes so they read from any angle).
+        case 'person-man': case 'person-woman': {
+          var pkind = (it.kind === 'person-woman') ? 'woman' : 'man', pth = 1.75, ptw = pth * 0.42;
+          var pmat = new THREE.MeshStandardMaterial({ map: personTexture(pkind), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 });
+          var pm1 = new THREE.Mesh(new THREE.PlaneGeometry(ptw, pth), pmat); pm1.position.y = pth / 2; g.add(pm1);
+          var pm2 = pm1.clone(); pm2.rotation.y = Math.PI / 2; g.add(pm2);
+          break;
+        }
+        // Free-standing archway: two piers + a semicircular arch (sunlight + shadows pass through the opening).
+        case 'arch': {
+          var aw = 1.9, pierW = 0.3, depth = 0.42, rA = aw / 2 - pierW / 2, legH = 1.9;
+          [-(rA), rA].forEach(function (axp) { box(pierW, legH, depth, stone, axp, legH / 2, 0); });
+          var ring = new THREE.Mesh(new THREE.TorusGeometry(rA, pierW / 2, 8, 24, Math.PI), stone);
+          ring.position.set(0, legH, 0); g.add(ring);
+          break;
+        }
         default: box(0.5, 1.0, 0.5, stone, 0, 0.5, 0);
       }
       addToRoom(rm, g);
@@ -1499,6 +1585,7 @@
     var ray = new THREE.Raycaster();
     renderer.domElement.addEventListener('click', function (e) {
       if (window.__annotateMode) { placeGraffiti(e); return; }   // #1165 - graffiti mode: drop text where you look
+      if (window.__figureMode) { placeFigure(e); return; }       // figure tool: drop a person where you look
       // Left click acts like Esc: if a popup is open, close it (and nothing else).
       if (panelOpen) { closeAllPopups(); return; }
       var ndc;
@@ -1586,6 +1673,11 @@
     }
     renderer.domElement.addEventListener('wheel', function (e) {
       e.preventDefault();
+      if (window.__figureMode) {   // figure tool: roll the wheel to cycle which person the pointer is
+        figIdx = (figIdx + (e.deltaY < 0 ? 1 : FIG_KINDS.length - 1)) % FIG_KINDS.length;
+        updateFigurePointer();
+        return;
+      }
       if (keys['KeyU']) {
         // Hold U + wheel: stand taller (roll up) / crouch down (roll down).
         eyeBase = Math.max(0.6, Math.min(2.2, eyeBase + (e.deltaY < 0 ? 1 : -1) * 0.1));
@@ -1796,6 +1888,10 @@
         hemiLight.intensity += ((hemiBase - prox * hemiBase * 0.22) - hemiLight.intensity) * Math.min(1, dt * 5);
       }
       if (typeof applyZoom === 'function') applyZoom(dt);   // #1163 smooth zoom
+      if (sunDyn.intensity > 0) {   // #shadows: keep the sun's shadow frustum centred on the visitor so shadows stay sharp
+        var scp = controls.getObject().position, st = SUN_TIMES[sunMode];
+        if (st) { sunTarget.position.set(scp.x, 0, scp.z); sunDyn.position.set(scp.x + st.off[0], st.off[1], scp.z + st.off[2]); }
+      }
       if (frontDoors.length) {   // #1171 doors swing/slide open as you approach, close as you leave
         var fcp = controls.getObject().position;
         for (var fi = 0; fi < frontDoors.length; fi++) {
@@ -1975,6 +2071,38 @@
     if (gBtn) gBtn.addEventListener('click', function (e) { e.stopPropagation(); setAnnotate(!window.__annotateMode); });
     var tBtn = document.getElementById('wtTorchBtn');
     if (tBtn) tBtn.addEventListener('click', function (e) { e.stopPropagation(); toggleTorch(); tBtn.classList.toggle('btn-warning', torch.intensity > 0); tBtn.classList.toggle('btn-dark', torch.intensity === 0); });
+
+    // ---- Figure tool: pointer becomes a person, wheel cycles man/woman, click drops a billboard figure ----
+    var FIG_KINDS = ['man', 'woman'], figIdx = 0;
+    function updateFigurePointer() { var ov = document.getElementById('figurePointer'); if (ov) ov.src = personCanvas(FIG_KINDS[figIdx]).toDataURL(); }
+    function setFigureMode(on) {
+      window.__figureMode = on;
+      var b = document.getElementById('wtFigureBtn'); if (b) { b.classList.toggle('btn-warning', on); b.classList.toggle('btn-dark', !on); }
+      var ov = document.getElementById('figurePointer'); if (ov) ov.style.display = on ? 'block' : 'none';
+      var hint = document.getElementById('figureHint'); if (hint) hint.style.display = on ? 'block' : 'none';
+      var ch = document.getElementById('roomCrosshair'); if (ch && on) ch.style.display = 'none';
+      if (on) updateFigurePointer();
+    }
+    function placeFigure(e) {
+      var ndc = { x: 0, y: 0 };
+      if (orbit) { var r = renderer.domElement.getBoundingClientRect(); ndc = { x: ((e.clientX - r.left) / r.width) * 2 - 1, y: -((e.clientY - r.top) / r.height) * 2 + 1 }; }
+      else if (!controls.isLocked) { return; }
+      ray.setFromCamera(ndc, camera);
+      var hits = ray.intersectObjects(scene.children, true).filter(function (h) { return h.distance > 0.5; });
+      if (!hits.length) { return; }
+      var p = hits[0].point, kind = FIG_KINDS[figIdx], pth = 1.75, ptw = pth * 0.42;
+      var pmat = new THREE.MeshStandardMaterial({ map: personTexture(kind), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 });
+      var grp = new THREE.Group();
+      var pm1 = new THREE.Mesh(new THREE.PlaneGeometry(ptw, pth), pmat); grp.add(pm1);
+      var pm2 = pm1.clone(); pm2.rotation.y = Math.PI / 2; grp.add(pm2);
+      grp.position.set(p.x, p.y + pth / 2, p.z); grp.userData.figure = true;
+      if (_sunShadowsApplied) { grp.traverse(function (n) { if (n.isMesh) { n.castShadow = true; } }); }
+      scene.add(grp);
+    }
+    var figBtn = document.getElementById('wtFigureBtn');
+    if (figBtn) figBtn.addEventListener('click', function (e) { e.stopPropagation(); setFigureMode(!window.__figureMode); });
+    var sunBtn = document.getElementById('wtSunBtn');
+    if (sunBtn) sunBtn.addEventListener('click', function (e) { e.stopPropagation(); setSun(sunMode + 1); });
 
     // Fullscreen the 3D viewer (resizes the renderer to fill the screen).
     (function () {

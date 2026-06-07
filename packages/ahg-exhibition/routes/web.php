@@ -81,6 +81,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/builder/furniture-add', [ExhibitionSpaceController::class, 'furnitureAddAjax'])->name('exhibition-space.builder.furniture-add')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/furniture-move', [ExhibitionSpaceController::class, 'furnitureMoveAjax'])->name('exhibition-space.builder.furniture-move')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/furniture-remove', [ExhibitionSpaceController::class, 'furnitureRemoveAjax'])->name('exhibition-space.builder.furniture-remove')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/furniture-poles', [ExhibitionSpaceController::class, 'furniturePolesAjax'])->name('exhibition-space.builder.furniture-poles')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/furniture-asset-upload', [ExhibitionSpaceController::class, 'uploadFurnitureAsset'])->name('exhibition-space.builder.furniture-asset-upload')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/furniture-asset-delete', [ExhibitionSpaceController::class, 'deleteFurnitureAssetAjax'])->name('exhibition-space.builder.furniture-asset-delete')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/walls', [ExhibitionSpaceController::class, 'saveWallsAjax'])->name('exhibition-space.builder.walls')->middleware('acl:update');

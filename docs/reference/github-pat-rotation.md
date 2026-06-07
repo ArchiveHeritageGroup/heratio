@@ -62,7 +62,7 @@ git -C <repo> remote set-url origin "https://github.com/<org>/<repo>.git"
 
 When rotating, also consider that the *previous* token may persist in:
 
-- Claude Code session logs at `/root/.claude/history.jsonl` and `/root/.claude/projects/*/*.jsonl` - local-only, never pushed, but plain-text on disk.
+- Agent CLI session logs at `/root/.claude/history.jsonl` and `/root/.claude/projects/*/*.jsonl` - local-only, never pushed, but plain-text on disk.
 - Bash history (`/root/.bash_history`, `/root/.zsh_history`) if the token was ever pasted on the command line.
 
 These are not active credentials once the token is regenerated, but they leave a paper trail. Strip lines containing the dead token with:

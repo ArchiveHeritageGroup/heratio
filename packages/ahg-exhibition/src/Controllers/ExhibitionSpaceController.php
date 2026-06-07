@@ -1280,6 +1280,23 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => $ok]);
     }
 
+    /** AJAX: save explicit pole offsets for a rope railing. */
+    public function furniturePolesAjax(Request $request, string $slug)
+    {
+        if (! $this->service->getBySlug($slug)) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'id' => 'required|integer|min:1',
+            'poles' => 'present|array',
+            'poles.*.x' => 'required|numeric',
+            'poles.*.z' => 'required|numeric',
+        ]);
+        $ok = $this->service->saveFurniturePoles((int) $data['id'], $data['poles']);
+
+        return response()->json(['ok' => $ok]);
+    }
+
     /** AJAX: remove a furniture item. */
     public function furnitureRemoveAjax(Request $request, string $slug)
     {

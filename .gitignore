@@ -66,10 +66,10 @@ playwright-report/
 # MCP config — may contain API keys (KM_API_KEY etc.)
 .mcp.json
 
-# Claude Code per-user settings — may contain commands invoking sshpass with literals
+# Agent CLI per-user settings — may contain commands invoking sshpass with literals
 .claude/settings.local.json
 
-# Claude Code harness scheduled-task lock - transient runtime artefact
+# Agent CLI harness scheduled-task lock - transient runtime artefact
 .claude/scheduled_tasks.lock
 
 # SharePoint integration is LOCAL-only per the SP NO-PUSH policy. Canonical

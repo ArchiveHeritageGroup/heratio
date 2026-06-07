@@ -1974,7 +1974,7 @@ class ExhibitionSpaceService
     }
 
     // -------- Furniture & fittings (placeable props per room) --------
-    public const FURNITURE_KINDS = ['bench', 'pedestal', 'case', 'planter', 'table', 'chair', 'railing', 'pillar-round', 'pillar-square'];
+    public const FURNITURE_KINDS = ['bench', 'pedestal', 'case', 'planter', 'table', 'chair', 'railing', 'pillar-round', 'pillar-square', 'person-man', 'person-woman', 'arch'];
 
     /** Furniture placed in a room: [{id,kind,pos_x,pos_y,rotation_deg,scale}] (positions are 0-1 of the room). */
     public function getFurniture(int $exhibitionSpaceId): array
@@ -1985,7 +1985,9 @@ class ExhibitionSpaceService
 
         return DB::table('ahg_exhibition_furniture')->where('exhibition_space_id', $exhibitionSpaceId)
             ->orderBy('id')->get()->map(function ($r) {
-                return ['id' => (int) $r->id, 'kind' => $r->kind, 'pos_x' => (float) $r->pos_x, 'pos_y' => (float) $r->pos_y, 'rotation_deg' => (float) $r->rotation_deg, 'scale' => (float) $r->scale, 'segments' => (int) ($r->segments ?? 2), 'asset_path' => $r->asset_path ?? null, 'asset_ext' => $r->asset_ext ?? null];
+                $poles = (! empty($r->pole_json) && is_array($pj = json_decode((string) $r->pole_json, true))) ? $pj : null;
+
+                return ['id' => (int) $r->id, 'kind' => $r->kind, 'pos_x' => (float) $r->pos_x, 'pos_y' => (float) $r->pos_y, 'rotation_deg' => (float) $r->rotation_deg, 'scale' => (float) $r->scale, 'segments' => (int) ($r->segments ?? 2), 'poles' => $poles, 'asset_path' => $r->asset_path ?? null, 'asset_ext' => $r->asset_ext ?? null];
             })->all();
     }
 
@@ -2053,6 +2055,27 @@ class ExhibitionSpaceService
     public function removeFurniture(int $id): bool
     {
         return DB::table('ahg_exhibition_furniture')->where('id', $id)->delete() > 0;
+    }
+
+    /**
+     * Save explicit per-pole offsets for a rope railing (metres, relative to the railing centre).
+     * Empty/short list clears it (the walkthrough then falls back to evenly-spaced `segments`).
+     *
+     * @param  array<int,array{x:float,z:float}>  $poles
+     */
+    public function saveFurniturePoles(int $id, array $poles): bool
+    {
+        $clean = [];
+        foreach ($poles as $p) {
+            if (! is_array($p) || ! isset($p['x'], $p['z'])) {
+                continue;
+            }
+            $clean[] = ['x' => round((float) $p['x'], 3), 'z' => round((float) $p['z'], 3)];
+        }
+        $json = count($clean) >= 2 ? json_encode($clean) : null;
+
+        return DB::table('ahg_exhibition_furniture')->where('id', $id)
+            ->update(['pole_json' => $json, 'segments' => max(2, count($clean) ?: 2), 'updated_at' => now()]) > 0;
     }
 
     /**

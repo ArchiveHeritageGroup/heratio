@@ -164,6 +164,11 @@ class AhgExhibitionServiceProvider extends ServiceProvider
             if (Schema::hasTable('ahg_exhibition_furniture') && ! Schema::hasColumn('ahg_exhibition_furniture', 'segments')) {
                 DB::statement('ALTER TABLE ahg_exhibition_furniture ADD COLUMN segments INT NOT NULL DEFAULT 2');
             }
+            // Rope-railing per-pole layout: explicit pole offsets [{x,z}] in metres relative to the railing centre
+            // (null = fall back to evenly-spaced `segments`).
+            if (Schema::hasTable('ahg_exhibition_furniture') && ! Schema::hasColumn('ahg_exhibition_furniture', 'pole_json')) {
+                DB::statement('ALTER TABLE ahg_exhibition_furniture ADD COLUMN pole_json JSON NULL');
+            }
             // Custom furniture library: uploaded 3D models / images, reusable across all rooms.
             if (! Schema::hasTable('ahg_exhibition_furniture_asset')) {
                 DB::statement("CREATE TABLE ahg_exhibition_furniture_asset (
