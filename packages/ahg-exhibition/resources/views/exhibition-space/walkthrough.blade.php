@@ -1375,13 +1375,24 @@
       if (wallKey === 'east') return { x: x1 - inset, z: clamp(zN + u * rm.d, zN + hw, zS - hw), ry: -Math.PI / 2 };
       // Polygon edge: along-wall u, facing the room centroid (into the room).
       if (typeof wallKey === 'string' && wallKey.indexOf('edge:') === 0 && rm.shape) {
-        var i = parseInt(wallKey.slice(5), 10), pa = rm.shape[i], pb = rm.shape[(i + 1) % rm.shape.length];
+        var sh = rm.shape, nn = sh.length, i = parseInt(wallKey.slice(5), 10), pa = sh[i], pb = sh[(i + 1) % nn];
         if (!pa || !pb) return null;
         var ax = rm.x_offset + pa.x * rm.w, az = rm.z_offset + pa.z * rm.d, bx = rm.x_offset + pb.x * rm.w, bz = rm.z_offset + pb.z * rm.d;
         var ex = bx - ax, ez = bz - az, len = Math.hypot(ex, ez) || 1, tt = clamp(u, hw / len, 1 - hw / len);
-        var ang = Math.atan2(ez, ex), nx = -Math.sin(ang), nz = Math.cos(ang);
-        var ccx = 0, ccz = 0; rm.shape.forEach(function (p) { ccx += rm.x_offset + p.x * rm.w; ccz += rm.z_offset + p.z * rm.d; }); ccx /= rm.shape.length; ccz /= rm.shape.length;
-        var mx = ax + tt * ex, mz = az + tt * ez, side = ((ccx - mx) * nx + (ccz - mz) * nz) >= 0 ? 1 : -1;
+        var nx = -ez / len, nz = ex / len;   // left normal of this edge
+        // Winding-consistent inward side: the centroid test flips on concave edges (walls "behind the
+        // wall"), so vote across ALL edges (length-weighted) - convex edges outweigh concave ones - and
+        // use that single inward side for every edge.
+        var ccx = 0, ccz = 0; sh.forEach(function (p) { ccx += rm.x_offset + p.x * rm.w; ccz += rm.z_offset + p.z * rm.d; }); ccx /= nn; ccz /= nn;
+        var acc = 0;
+        for (var k = 0; k < nn; k++) {
+          var qa = sh[k], qb = sh[(k + 1) % nn];
+          var qax = rm.x_offset + qa.x * rm.w, qaz = rm.z_offset + qa.z * rm.d, qbx = rm.x_offset + qb.x * rm.w, qbz = rm.z_offset + qb.z * rm.d;
+          var qex = qbx - qax, qez = qbz - qaz, ql = Math.hypot(qex, qez) || 1;
+          acc += ((ccx - (qax + qbx) / 2) * (-qez / ql) + (ccz - (qaz + qbz) / 2) * (qex / ql)) * ql;
+        }
+        var side = acc >= 0 ? 1 : -1;
+        var mx = ax + tt * ex, mz = az + tt * ez;
         return { x: mx + nx * inset * side, z: mz + nz * inset * side, ry: Math.atan2(nx * side, nz * side) };
       }
       // Interior divider: a "|b" suffix selects the back face (the other side of the wall).
