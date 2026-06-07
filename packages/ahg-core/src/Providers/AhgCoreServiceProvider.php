@@ -102,6 +102,7 @@ class AhgCoreServiceProvider extends ServiceProvider
             $this->commands([
                 \AhgCore\Console\Commands\NasWatchdogCommand::class,
                 \AhgCore\Console\Commands\BackfillEmbeddedMetadataCommand::class,
+                \AhgCore\Console\Commands\OptimizeModelsCommand::class,
                 \AhgCore\Commands\SearchPopulateCommand::class,
                 \AhgCore\Commands\SearchUpdateCommand::class,
                 \AhgCore\Commands\SearchCleanupCommand::class,

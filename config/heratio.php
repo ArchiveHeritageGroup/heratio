@@ -36,6 +36,10 @@ return [
     // exported to. Sessions can override via ingest_session.output_*_path.
     'packages_path' => env('HERATIO_PACKAGES_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/packages'),
 
+    // 3D model optimisation (Draco) CLI tools — obj2gltf + gltf-transform.
+    // Installed per host (see docs/model-optimisation-setup.md), not in the repo.
+    'model_tools_bin' => env('HERATIO_MODEL_TOOLS_BIN', '/opt/ahg-model-tools/node_modules/.bin'),
+
     // Ingest wizard — at or above this row count, commit dispatches to the
     // queue worker instead of running synchronously on the web request.
     // Set to 0 to force sync always; set very high to force queue always.
