@@ -185,12 +185,16 @@
     // Blueprint is world-anchored (metres) so it scales/pins with the rooms.
     var planImg = null, planRect = PLAN.plan_rect || { x: 0, y: 0, w: ext.w, h: ext.h };
     if (PLAN.plan_image) {
-      var img = new Image();
-      img.onload = function () {
-        planImg = new Konva.Image({ image: img, x: planRect.x * scale, y: planRect.y * scale, width: planRect.w * scale, height: planRect.h * scale, opacity: 0.55, listening: false });
-        bg.add(planImg); bg.draw();
+      var img = new Image(), bpDone = false;
+      var drawBlueprint = function () {
+        if (bpDone) return; bpDone = true;
+        planImg = new Konva.Image({ image: img, x: planRect.x * scale, y: planRect.y * scale, width: planRect.w * scale, height: planRect.h * scale, opacity: 0.85, listening: false });
+        bg.add(planImg); planImg.moveToBottom(); bg.batchDraw();
       };
+      img.onload = drawBlueprint;
+      img.onerror = function () { console.warn('[plan] blueprint failed to load', PLAN.plan_image); };
       img.src = PLAN.plan_image;
+      if (img.complete && img.naturalWidth) drawBlueprint();   // already cached
     } else {
       for (var gx = 0; gx <= ext.w; gx += 2) bg.add(new Konva.Line({ points: [gx * scale, 0, gx * scale, H], stroke: '#e3e3e3', listening: false }));
       for (var gy = 0; gy <= ext.h; gy += 2) bg.add(new Konva.Line({ points: [0, gy * scale, W, gy * scale], stroke: '#e3e3e3', listening: false }));

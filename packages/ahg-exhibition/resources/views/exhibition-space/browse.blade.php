@@ -42,6 +42,7 @@
             <th>{{ __('Capacity') }}</th>
             <th>{{ __('Current utilisation') }}</th>
             <th>{{ __('Current placements') }}</th>
+            <th class="text-end">{{ __('Plan') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -71,6 +72,7 @@
                 @endif
               </td>
               <td>{{ (int) $row->current_placements }}</td>
+              <td class="text-end"><a href="{{ route('exhibition-space.plan', ['slug' => $row->slug]) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Building plan') }}"><i class="fas fa-drafting-compass me-1"></i>{{ __('Plan') }}</a></td>
             </tr>
           @endforeach
         </tbody>
