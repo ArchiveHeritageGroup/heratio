@@ -86,8 +86,14 @@ class ModelCompressionService
                 $glb = $srcAbs;   // gltf-transform reads .glb / .gltf directly
             }
 
-            // 2) Draco-compress.
-            $r2 = Process::timeout(600)->run([$bin.'/gltf-transform', 'draco', $glb, $out]);
+            // 2) Downscale oversized textures (cap 2048) so texture-heavy models shrink too
+            // (Draco only compresses geometry). Falls back to the un-resized glb if unsupported.
+            $resized = $tmp.'/resized.glb';
+            $rr = Process::timeout(600)->run([$bin.'/gltf-transform', 'resize', $glb, $resized, '--width', '2048', '--height', '2048']);
+            $toDraco = ($rr->successful() && is_file($resized) && filesize($resized) > 64) ? $resized : $glb;
+
+            // 3) Draco-compress.
+            $r2 = Process::timeout(600)->run([$bin.'/gltf-transform', 'draco', $toDraco, $out]);
             if (! $r2->successful() || ! is_file($out) || filesize($out) < 64) {
                 Log::warning('ModelCompression: draco failed', ['src' => $srcAbs, 'err' => $r2->errorOutput()]);
 

@@ -223,21 +223,36 @@
       return { px: dx * c + dz * s, pz: -dx * s + dz * c };
     }
     // Which room's footprint contains a world point (rotation-aware); null if none.
+    // Point-in-polygon (ray casting) in room-local coords (shape points are 0-1 of the room box).
+    function ptInRoomPoly(px, pz, shape, w, d) {
+      var inside = false, n = shape.length;
+      for (var i = 0, j = n - 1; i < n; j = i++) {
+        var xi = shape[i].x * w, zi = shape[i].z * d, xj = shape[j].x * w, zj = shape[j].z * d;
+        if (((zi > pz) !== (zj > pz)) && (px < (xj - xi) * (pz - zi) / ((zj - zi) || 1e-6) + xi)) inside = !inside;
+      }
+      return inside;
+    }
     function findRoomAtWorld(wx, wz, exclude, preferFloor) {
       // Prefer a room on a specific floor (preferFloor, e.g. a door's own floor) else the
-      // floor we're on. When preferFloor is given it's STRICT - no cross-floor fallback -
-      // so a door never sends you to a stacked room on another floor (upper gallery / basement).
+      // floor we're on. When preferFloor is given it's STRICT - no cross-floor fallback.
+      // Rooms' bounding rectangles overlap in a plan (a big room's bbox spans its neighbours), so
+      // use the actual polygon footprint and, when several still contain the point, the SMALLEST room
+      // (most specific) wins - otherwise a huge first room would always claim the position.
       var strict = (preferFloor !== undefined && preferFloor !== null);
-      var want = strict ? preferFloor : ((typeof curFloorY === 'number') ? Math.round(curFloorY / FLOOR_H) : null), fallback = null;
+      var want = strict ? preferFloor : ((typeof curFloorY === 'number') ? Math.round(curFloorY / FLOOR_H) : null);
+      var best = null, bestA = Infinity, fb = null, fbA = Infinity;
       for (var i = 0; i < ROOMS.length; i++) {
         var r = ROOMS[i]; if (r === exclude) continue;
         var p = roomWorldInverse(r, wx, wz);
-        if (p.px >= -0.05 && p.px <= r.w + 0.05 && p.pz >= -0.05 && p.pz <= r.d + 0.05) {
-          if (want === null || (r.floor || 0) === want) return r;
-          if (!fallback) fallback = r;
-        }
+        var inside = (r.shape && r.shape.length >= 3)
+          ? ptInRoomPoly(p.px, p.pz, r.shape, r.w, r.d)
+          : (p.px >= -0.05 && p.px <= r.w + 0.05 && p.pz >= -0.05 && p.pz <= r.d + 0.05);
+        if (!inside) continue;
+        var area = r.w * r.d;
+        if (want === null || (r.floor || 0) === want) { if (area < bestA) { best = r; bestA = area; } }
+        else if (area < fbA) { fb = r; fbA = area; }
       }
-      return strict ? null : fallback;
+      return best || (strict ? null : fb);
     }
     // Billboard text label on a small dark plaque (room signage / doorway labels).
     function makeTextSprite(text, scaleH) {

@@ -45,13 +45,13 @@ HERATIO_MODEL_TOOLS_BIN=/opt/ahg-model-tools/node_modules/.bin
 
 ## Pipeline
 
-- `.obj`  -> `obj2gltf` -> `.glb` -> `gltf-transform draco` -> compressed `.glb`
-- `.glb` / `.gltf` -> `gltf-transform draco` -> compressed `.glb`
+- `.obj`  -> `obj2gltf` -> `.glb` -> `gltf-transform resize` -> `gltf-transform draco` -> compressed `.glb`
+- `.glb` / `.gltf` -> `gltf-transform resize` -> `gltf-transform draco` -> compressed `.glb`
 - `.stl` / `.ply` are not handled yet (re-export as glb/obj to optimise).
 
-Geometry is Draco-compressed; **textures are not** (a texture-heavy glb may stay
-large - re-export with smaller textures, or use `gltf-transform optimize` with a
-texture encoder).
+Geometry is Draco-compressed **and** oversized textures are downscaled to a 2048
+cap (so texture-heavy models shrink too - a 47MB mask becomes ~18MB). The resize
+step falls back gracefully if the codec is unavailable.
 
 ## Automatic optimisation (scheduled)
 
