@@ -1179,12 +1179,34 @@
       }
       return _gltfLoader;
     }
+    // Studio environment so PBR metals (e.g. gold models) reflect light and show their real colour instead of
+    // rendering near-black (a metallic surface with no environment reflects the dark background). Built once,
+    // applied PER MODEL only, so the room's tuned (non-washed) lighting is unaffected.
+    var _exEnv = null;
+    function exhibitionEnv() {
+      if (_exEnv) return _exEnv;
+      var pg = new THREE.PMREMGenerator(renderer);
+      var es = new THREE.Scene();
+      es.add(new THREE.Mesh(new THREE.BoxGeometry(24, 14, 24), new THREE.MeshBasicMaterial({ color: 0x9aa0aa, side: THREE.BackSide })));
+      var ceil = new THREE.Mesh(new THREE.PlaneGeometry(18, 18), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+      ceil.rotation.x = Math.PI / 2; ceil.position.y = 6.9; es.add(ceil);
+      _exEnv = pg.fromScene(es, 0.04).texture; pg.dispose(); return _exEnv;
+    }
+    function applyEnv(obj) {
+      var env = exhibitionEnv();
+      obj.traverse(function (n) {
+        if (!n.isMesh || !n.material) return;
+        var mats = Array.isArray(n.material) ? n.material : [n.material];
+        mats.forEach(function (m) { if ('envMap' in m) { m.envMap = env; if ('envMapIntensity' in m) m.envMapIntensity = 1.1; m.needsUpdate = true; } });
+      });
+    }
     function loadModel(url, ext, onLoad, onError) {
+      var cb = function (o) { try { applyEnv(o); } catch (e) {} onLoad(o); };   // give every loaded model the studio env
       try {
-        if (ext === 'glb' || ext === 'gltf') { gltfLoader().load(url, function (g) { onLoad(g.scene); }, undefined, onError); }
-        else if (ext === 'obj') { new THREE.OBJLoader().load(url, function (o) { onLoad(o); }, undefined, onError); }
-        else if (ext === 'stl') { new THREE.STLLoader().load(url, function (geo) { onLoad(greyMesh(geo)); }, undefined, onError); }
-        else if (ext === 'ply') { new THREE.PLYLoader().load(url, function (geo) { onLoad(greyMesh(geo)); }, undefined, onError); }
+        if (ext === 'glb' || ext === 'gltf') { gltfLoader().load(url, function (g) { cb(g.scene); }, undefined, onError); }
+        else if (ext === 'obj') { new THREE.OBJLoader().load(url, function (o) { cb(o); }, undefined, onError); }
+        else if (ext === 'stl') { new THREE.STLLoader().load(url, function (geo) { cb(greyMesh(geo)); }, undefined, onError); }
+        else if (ext === 'ply') { new THREE.PLYLoader().load(url, function (geo) { cb(greyMesh(geo)); }, undefined, onError); }
         else if (onError) { onError(); }
       } catch (e) { if (onError) onError(); }
     }
