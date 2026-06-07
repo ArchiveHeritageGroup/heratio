@@ -46,6 +46,8 @@
           {{-- Figure tool: the pointer becomes a person silhouette; mouse wheel cycles man/woman; click drops a figure. --}}
           <img id="figurePointer" alt="" style="position:absolute;top:50%;left:50%;height:120px;margin-top:-110px;transform:translateX(-50%);z-index:4;display:none;pointer-events:none;opacity:.92;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));">
           <div id="figureHint" class="bg-dark text-white px-2 py-1 rounded small" style="position:absolute;bottom:90px;left:50%;transform:translateX(-50%);z-index:7;display:none;"><i class="fas fa-person-walking me-1"></i>{{ __('Wheel: change person - click: place (this view only)') }}</div>
+          {{-- When the centre ray is over a clickable object, the pointer becomes a plain hand (person/figure suppressed) so you can interact with it. --}}
+          <div id="objectPointer" style="position:absolute;top:50%;left:50%;margin:-12px 0 0 -11px;z-index:5;display:none;pointer-events:none;color:#fff;font-size:22px;text-shadow:0 1px 3px rgba(0,0,0,.8);"><i class="fas fa-hand-pointer"></i></div>
           <div id="roomLoading" style="position:absolute;bottom:8px;left:8px;z-index:4;color:#ccc;font-size:.8rem;">{{ __('Loading gallery...') }}</div>
           {{-- steal-alarm: flickering red overlay + silence control --}}
           <div id="wtAlarm" style="position:absolute;inset:0;background:#ff0000;opacity:0;z-index:9;pointer-events:none;display:none;"></div>
@@ -1585,7 +1587,7 @@
     var ray = new THREE.Raycaster();
     renderer.domElement.addEventListener('click', function (e) {
       if (window.__annotateMode) { placeGraffiti(e); return; }   // #1165 - graffiti mode: drop text where you look
-      if (window.__figureMode) { placeFigure(e); return; }       // figure tool: drop a person where you look
+      if (window.__figureMode && !aimingObject) { placeFigure(e); return; }   // figure tool: drop a person (but let object clicks through)
       // Left click acts like Esc: if a popup is open, close it (and nothing else).
       if (panelOpen) { closeAllPopups(); return; }
       var ndc;
@@ -1888,6 +1890,7 @@
         hemiLight.intensity += ((hemiBase - prox * hemiBase * 0.22) - hemiLight.intensity) * Math.min(1, dt * 5);
       }
       if (typeof applyZoom === 'function') applyZoom(dt);   // #1163 smooth zoom
+      updateAimPointer(dt);   // swap person<->hand pointer depending on whether you aim at an object
       if (sunDyn.intensity > 0) {   // #shadows: keep the sun's shadow frustum centred on the visitor so shadows stay sharp
         var scp = controls.getObject().position, st = SUN_TIMES[sunMode];
         if (st) { sunTarget.position.set(scp.x, 0, scp.z); sunDyn.position.set(scp.x + st.off[0], st.off[1], scp.z + st.off[2]); }
@@ -2101,6 +2104,21 @@
     }
     var figBtn = document.getElementById('wtFigureBtn');
     if (figBtn) figBtn.addEventListener('click', function (e) { e.stopPropagation(); setFigureMode(!window.__figureMode); });
+
+    // Pointer styles: person (figure tool) / pointer-hand (over a clickable object) / circle (annotate).
+    // Aiming the centre ray at an object swaps the person away for a plain hand so you can interact with it.
+    var aimingObject = false, _aimAcc = 0;
+    function updateAimPointer(dt) {
+      if (orbit || !controls.isLocked) { aimingObject = false; var op0 = document.getElementById('objectPointer'); if (op0) op0.style.display = 'none'; return; }
+      _aimAcc += dt; if (_aimAcc < 0.12) return; _aimAcc = 0;
+      ray.setFromCamera({ x: 0, y: 0 }, camera);
+      var hits = ray.intersectObjects(pickables, true), onObj = false;
+      if (hits.length) { var o = hits[0].object; while (o && !o.userData.stop && !o.userData.action) o = o.parent; onObj = !!(o && (o.userData.stop || o.userData.action)); }
+      aimingObject = onObj;
+      var op = document.getElementById('objectPointer'), fp = document.getElementById('figurePointer');
+      if (op) op.style.display = onObj ? 'block' : 'none';
+      if (fp) fp.style.display = (window.__figureMode && !onObj) ? 'block' : 'none';   // person hides over an object
+    }
     var sunBtn = document.getElementById('wtSunBtn');
     if (sunBtn) sunBtn.addEventListener('click', function (e) { e.stopPropagation(); setSun(sunMode + 1); });
 
