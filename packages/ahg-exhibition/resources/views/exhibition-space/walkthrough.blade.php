@@ -131,6 +131,14 @@
               <div id="wtRelatedItems" class="d-flex flex-wrap gap-1"></div>
             </div>
           </div>
+          {{-- #1142 full-record overlay: view the record inside the walkthrough; Back returns to the gallery. --}}
+          <div id="recOverlay" style="position:absolute;inset:0;z-index:20;display:none;background:rgba(10,12,15,.96);">
+            <div style="position:absolute;top:8px;right:10px;z-index:21;display:flex;gap:6px;">
+              <a id="recOpenTab" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-light" title="{{ __('Open in new tab') }}"><i class="fas fa-external-link-alt"></i></a>
+              <button type="button" id="recClose" class="btn btn-sm btn-warning fw-semibold" title="{{ __('Back to the gallery') }}"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to gallery') }}</button>
+            </div>
+            <iframe id="recFrame" title="{{ __('Full record') }}" style="position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;"></iframe>
+          </div>
         </div>
         {{-- Walk-to navigator: click an object to travel to it. --}}
         <div id="roomNav" class="d-flex gap-1 p-2 overflow-auto border-top bg-light" style="white-space:nowrap;"></div>
@@ -1338,16 +1346,30 @@
     }
     function closeAllPopups() {
       inlay.style.display = 'none';
+      if (typeof closeRecordOverlay === 'function') closeRecordOverlay();   // #1142 Esc also leaves the record view
       var rb = document.getElementById('wtRelated'); if (rb) rb.style.display = 'none';
       stopNarrate();
       panelOpen = false;
       currentStop = null;
     }
-    function viewFullDetails() {
-      if (currentStop && currentStop.record_url) {
-        window.open(currentStop.record_url, '_blank');   // new tab so the gallery stays open (#1142)
-      }
+    // #1142 show the full record INSIDE the walkthrough; "Back to gallery" returns instantly.
+    function openRecordOverlay(url) {
+      if (!url) return;
+      var ov = document.getElementById('recOverlay'), fr = document.getElementById('recFrame'), ot = document.getElementById('recOpenTab');
+      if (!ov) { window.open(url, '_blank'); return; }
+      fr.src = url; if (ot) ot.href = url; ov.style.display = 'block';
+      try { if (controls && controls.unlock) controls.unlock(); } catch (e) {}   // free the cursor so you can read/close
     }
+    function closeRecordOverlay() {
+      var ov = document.getElementById('recOverlay'), fr = document.getElementById('recFrame');
+      if (ov) ov.style.display = 'none';
+      if (fr) fr.src = 'about:blank';   // stop the record loading/playing behind the gallery
+    }
+    function viewFullDetails() { if (currentStop && currentStop.record_url) openRecordOverlay(currentStop.record_url); }
+    (function () {
+      var rc = document.getElementById('recClose'); if (rc) rc.addEventListener('click', function (e) { e.stopPropagation(); closeRecordOverlay(); });
+      var ir = document.getElementById('inlayRec'); if (ir) ir.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); if (ir.getAttribute('href') && ir.getAttribute('href') !== '#') openRecordOverlay(ir.getAttribute('href')); });
+    })();
     document.getElementById('inlayClose').addEventListener('click', function (e) { e.stopPropagation(); closeAllPopups(); });
 
     // ---- Walk-to navigator: travel the camera to an object and open its panel ----
