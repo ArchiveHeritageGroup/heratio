@@ -283,10 +283,10 @@
     var LAYOUT = @json($layout ?? null);   // sibling-room rects for adjacency doorways (plan mode)
     var SHAPE = @json($shape ?? null);
     var ROOM_W = {{ $space->room_w ?: 18 }}, ROOM_D = {{ $space->room_d ?: 14 }}, ROOM_H = {{ $space->room_h ?: 4 }};
-    // Doorways where this room adjoins another room (mirrors the walkthrough's auto-openings).
+    // Manual-only doors: the builder shows ONLY doors the curator placed (auto-doorways removed).
     function autoDoors() {
-      if (!LAYOUT || !LAYOUT.self) return [];   // #1176: now runs for every room (all rooms are edge polygons); doorEdge maps these {wall} auto-openings onto numbered edges in wall view
-      var s = LAYOUT.self, out = [];
+      return [];
+      var s = LAYOUT.self, out = [];   // (legacy auto-doorway code below kept but unreachable)
       ['north', 'south', 'west', 'east'].forEach(function (side) {
         var vertical = (side === 'west' || side === 'east');
         var edge = side === 'north' ? s.z : side === 'south' ? s.z + s.d : side === 'west' ? s.x : s.x + s.w;

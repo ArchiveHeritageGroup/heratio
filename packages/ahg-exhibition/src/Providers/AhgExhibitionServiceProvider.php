@@ -45,6 +45,7 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'wall_u' => 'DECIMAL(6,5) NULL',
                     'wall_v' => 'DECIMAL(6,5) NULL',
                     'spotlight' => 'TINYINT NULL DEFAULT 0',   // #1174 spotlight mode: 0 off, 1 light on approach, 2 always-on
+                    'display_case' => 'TINYINT(1) NULL DEFAULT 0',   // show this item inside a glass display case on a plinth
                 ];
                 foreach ($placementCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_placement', $col)) {
@@ -59,6 +60,7 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'ceiling_image_path' => 'VARCHAR(500) NULL',
                     'wall_image_path' => 'VARCHAR(500) NULL',
                     'wall_images_json' => 'JSON NULL',   // #wall-pictures: per-edge wall images {edgeIndex: path}; wall_image_path is the all-walls default
+                    'floor_image_path' => 'VARCHAR(500) NULL',   // decorative floor picture stretched over the room floor (overrides marble)
                     'floorplan_width_m' => 'DECIMAL(8,2) NULL',
                     'floorplan_height_m' => 'DECIMAL(8,2) NULL',
                     'walls_json' => 'JSON NULL',

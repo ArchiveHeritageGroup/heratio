@@ -411,7 +411,7 @@
     }
     var DOOR = 1.6;   // doorway width between connected rooms
     // Default plaster ceiling + decorative crown-moulding (cornice) for rooms with no ceiling image.
-    var ceilMat = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 1, side: THREE.DoubleSide });
+    var ceilMat = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, emissive: 0x55514b, emissiveIntensity: 1, roughness: 1, side: THREE.DoubleSide });   // self-lit so the down-facing plaster ceiling is always clearly visible
     var corniceMat = new THREE.MeshStandardMaterial({ color: 0xefe7d6, roughness: 0.8, side: THREE.DoubleSide });
     var corniceGoldMat = new THREE.MeshStandardMaterial({ color: 0xb89a5e, roughness: 0.5, metalness: 0.4, side: THREE.DoubleSide });
     function addCornice(rm, ax, az, bx, bz, topY, cenx, cenz) {
@@ -472,9 +472,7 @@
         var c = (d.pos == null ? 0.5 : d.pos) * L, hw = (d.width || 1.6) / 2, s = Math.max(0, c - hw), e = Math.min(L, c + hw);
         if (s < 0.2) s = 0; if (L - e < 0.2) e = L; return { s: s, e: e, type: d.type || 'open' };   // #1171 leaf style
       });
-      var auto = (PLAN_MODE ? autoEdgeOpenings(rm, ax, az, bx, bz, L) : []).map(function (d) {
-        var s = Math.max(0, d[0]), e = Math.min(L, d[1]); if (s < 0.2) s = 0; if (L - e < 0.2) e = L; return { s: s, e: e, type: 'open' };
-      });
+      var auto = [];   // manual-only doors: a door appears ONLY where the curator placed one (no auto-doorways)
       var raw = manual.concat(auto).filter(function (d) { return d.e - d.s > 0.15; }).sort(function (p, q) { return p.s - q.s; });
       var doors = []; raw.forEach(function (d) { var last = doors[doors.length - 1]; if (last && d.s <= last.e + 0.01) { last.e = Math.max(last.e, d.e); if (d.type !== 'open') last.type = d.type; } else doors.push({ s: d.s, e: d.e, type: d.type }); });
       function seg(s, e, y0, y1, m2) { var len = e - s; if (len <= 0.1 || y1 - y0 <= 0.05) return null; var um = m2 || mat || wallMat, mid = (s + e) / 2, mx = ax + ux * mid, mz = az + uz * mid; var m = new THREE.Mesh(new THREE.PlaneGeometry(len, y1 - y0), um); m.position.set(mx, (y0 + y1) / 2, mz); m.rotation.y = -ang; addToRoom(rm, m); if (um !== doorMat && um !== glassMat && y0 < 1.7) colliders.push(m); return m; }
