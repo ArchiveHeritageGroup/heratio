@@ -74,15 +74,15 @@
     <div class="row g-3">
       <div class="col-md-2">
         <label for="es_room_w" class="form-label fw-semibold">{{ __('Room width (m)') }}</label>
-        <input type="number" id="es_room_w" name="room_w" class="form-control" min="1" max="200" step="0.5" placeholder="18" value="{{ old('room_w', $space->room_w ?? '') }}">
+        <input type="number" id="es_room_w" name="room_w" class="form-control" min="1" max="200" step="any" placeholder="18" value="{{ old('room_w', $space->room_w ?? '') }}">
       </div>
       <div class="col-md-2">
         <label for="es_room_d" class="form-label fw-semibold">{{ __('Room depth (m)') }}</label>
-        <input type="number" id="es_room_d" name="room_d" class="form-control" min="1" max="200" step="0.5" placeholder="14" value="{{ old('room_d', $space->room_d ?? '') }}">
+        <input type="number" id="es_room_d" name="room_d" class="form-control" min="1" max="200" step="any" placeholder="14" value="{{ old('room_d', $space->room_d ?? '') }}">
       </div>
       <div class="col-md-2">
         <label for="es_room_h" class="form-label fw-semibold">{{ __('Room height (m)') }}</label>
-        <input type="number" id="es_room_h" name="room_h" class="form-control" min="1" max="30" step="0.5" placeholder="4" value="{{ old('room_h', $space->room_h ?? '') }}">
+        <input type="number" id="es_room_h" name="room_h" class="form-control" min="1" max="30" step="any" placeholder="4" value="{{ old('room_h', $space->room_h ?? '') }}">
       </div>
       <div class="col-md-4">
         <label for="es_building_id" class="form-label fw-semibold">{{ __('Building ID') }}</label>

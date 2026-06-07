@@ -46,6 +46,7 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'wall_v' => 'DECIMAL(6,5) NULL',
                     'spotlight' => 'TINYINT NULL DEFAULT 0',   // #1174 spotlight mode: 0 off, 1 light on approach, 2 always-on
                     'display_case' => 'TINYINT(1) NULL DEFAULT 0',   // show this item inside a glass display case on a plinth
+                    'on_floor' => 'TINYINT(1) NULL DEFAULT 0',   // stand the 3D model directly on the floor (no pedestal)
                 ];
                 foreach ($placementCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_placement', $col)) {
@@ -180,6 +181,10 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     created_at DATETIME NOT NULL,
                     updated_at DATETIME NULL
                 )");
+            }
+            // Furniture-library description (captured on upload).
+            if (Schema::hasTable('ahg_exhibition_furniture_asset') && ! Schema::hasColumn('ahg_exhibition_furniture_asset', 'description')) {
+                DB::statement('ALTER TABLE ahg_exhibition_furniture_asset ADD COLUMN description TEXT NULL');
             }
             // A placed furniture row can reference an uploaded asset (denormalised so the walkthrough payload is self-contained).
             foreach (['asset_path' => 'VARCHAR(500) NULL', 'asset_ext' => 'VARCHAR(8) NULL'] as $fcol => $fddl) {

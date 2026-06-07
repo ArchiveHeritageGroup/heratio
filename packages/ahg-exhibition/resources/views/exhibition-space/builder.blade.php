@@ -76,6 +76,7 @@
             <div class="btn-group btn-group-sm w-100 mb-2" role="group">
               <button type="button" class="btn btn-outline-warning" data-act="spot" id="spotBtn" title="{{ __('Spotlight: click to cycle off / light on approach / always-on. All modes dim the surroundings as you walk closer.') }}"><i class="fas fa-lightbulb me-1"></i>{{ __('Spot off') }}</button>
               <button type="button" class="btn btn-outline-info" data-act="case" id="caseBtn" title="{{ __('Show this item inside a glass display case on a plinth') }}"><i class="fas fa-box-open me-1"></i>{{ __('Case') }}</button>
+              <button type="button" class="btn btn-outline-success" data-act="floor" id="floorBtn" title="{{ __('Stand this 3D model directly on the floor (no pedestal)') }}"><i class="fas fa-down-long me-1"></i>{{ __('On floor') }}</button>
               <button type="button" class="btn btn-outline-secondary" data-act="front" title="{{ __('Bring to front') }}"><i class="fas fa-arrow-up"></i></button>
               <button type="button" class="btn btn-outline-secondary" data-act="back" title="{{ __('Send to back') }}"><i class="fas fa-arrow-down"></i></button>
             </div>
@@ -98,80 +99,6 @@
       </div>
 
       @auth
-      <div class="card mb-3">
-        <div class="card-header py-2"><strong><i class="fas fa-map me-1"></i>{{ __('Floorplan') }}</strong></div>
-        <div class="card-body">
-          <form method="POST" action="{{ route('exhibition-space.builder.floorplan', ['slug' => $space->slug]) }}" enctype="multipart/form-data">
-            @csrf
-            <input type="file" name="floorplan" accept="image/*" class="form-control form-control-sm mb-2" required>
-            <div class="row g-1 mb-2">
-              <div class="col-6"><input type="number" step="0.01" min="0" name="floorplan_width_m" class="form-control form-control-sm" placeholder="{{ __('Width m') }}" value="{{ $space->floorplan_width_m }}"></div>
-              <div class="col-6"><input type="number" step="0.01" min="0" name="floorplan_height_m" class="form-control form-control-sm" placeholder="{{ __('Height m') }}" value="{{ $space->floorplan_height_m }}"></div>
-            </div>
-            <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-upload me-1"></i>{{ __('Upload floorplan') }}</button>
-          </form>
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-header py-2"><strong><i class="fas fa-image me-1"></i>{{ __('Ceiling') }}</strong></div>
-        <div class="card-body">
-          <form method="POST" action="{{ route('exhibition-space.builder.ceiling', ['slug' => $space->slug]) }}" enctype="multipart/form-data" class="mb-2">
-            @csrf
-            <input type="file" name="ceiling" accept="image/*" class="form-control form-control-sm mb-2" required>
-            <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-upload me-1"></i>{{ __('Upload painted ceiling') }}</button>
-          </form>
-          @if(!empty($space->ceiling_image_path))
-          <form method="POST" action="{{ route('exhibition-space.builder.ceiling-clear', ['slug' => $space->slug]) }}">
-            @csrf
-            <button type="submit" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear ceiling') }}</button>
-          </form>
-          @endif
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-header py-2"><strong><i class="fas fa-paint-roller me-1"></i>{{ __('Wall painting') }}</strong></div>
-        <div class="card-body">
-          <label class="form-label small mb-1">{{ __('Apply to') }}</label>
-          <select id="wpTarget" class="form-select form-select-sm mb-2"></select>
-          {{-- Preview of what is currently loaded for the chosen target, so you know what is there before replacing it. --}}
-          <div class="border rounded p-1 text-center mb-2" style="background:#f8f9fa">
-            <img id="wpPreview" alt="" style="max-width:100%;max-height:90px;display:none;border-radius:3px">
-            <div id="wpName" class="text-truncate text-muted mt-1" style="font-size:11px">{{ __('No painting on this wall') }}</div>
-          </div>
-          <input type="file" id="wpFile" accept="image/*" class="form-control form-control-sm mb-2">
-          <button type="button" id="wpUpload" class="btn btn-sm btn-outline-primary w-100 mb-1"><i class="fas fa-upload me-1"></i>{{ __('Upload painting') }}</button>
-          <button type="button" id="wpClear" class="btn btn-sm btn-outline-danger w-100 mb-2"><i class="fas fa-times me-1"></i>{{ __('Clear painting') }}</button>
-          <hr class="my-2">
-          <label class="form-label small mb-1">{{ __('Or paint a colour') }}</label>
-          <div class="d-flex flex-wrap gap-1 mb-2" id="wcSwatches">
-            @foreach (['#f5f1e8' => 'Gallery white', '#e9e2d0' => 'Warm stone', '#d9cbb2' => 'Sand', '#cfd8d3' => 'Sage grey', '#b8c4cc' => 'Cool grey', '#9aa7b0' => 'Slate', '#7d8a74' => 'Olive', '#8a6d5b' => 'Taupe', '#6e5a4e' => 'Mocha', '#5a6b7a' => 'Petrol', '#7a4b50' => 'Oxblood', '#2f3640' => 'Charcoal'] as $hex => $label)
-            <button type="button" class="wc-swatch border rounded" data-color="{{ $hex }}" title="{{ $label }}" style="width:24px;height:24px;background:{{ $hex }};padding:0"></button>
-            @endforeach
-          </div>
-          <div class="input-group input-group-sm mb-2">
-            <input type="color" id="wcCustom" class="form-control form-control-color" value="#e9e2d0" title="{{ __('Custom colour') }}">
-            <button type="button" id="wcApply" class="btn btn-outline-primary"><i class="fas fa-fill-drip me-1"></i>{{ __('Apply colour') }}</button>
-          </div>
-          <button type="button" id="wcClear" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear colour') }}</button>
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-header py-2"><strong><i class="fas fa-image me-1"></i>{{ __('Floor image') }}</strong></div>
-        <div class="card-body">
-          <p class="small text-muted mb-2">{{ __('Stretch a picture over the whole floor (e.g. a marble or parquet photo, or a mosaic). Replaces the marble/floorplan until cleared.') }}</p>
-          <div class="border rounded p-1 text-center mb-2" style="background:#f8f9fa">
-            <img id="flPreview" alt="" style="max-width:100%;max-height:90px;display:none;border-radius:3px">
-            <div id="flName" class="text-truncate text-muted mt-1" style="font-size:11px">{{ __('No floor image (using marble/plan)') }}</div>
-          </div>
-          <input type="file" id="flFile" accept="image/*" class="form-control form-control-sm mb-2">
-          <button type="button" id="flUpload" class="btn btn-sm btn-outline-primary w-100 mb-1"><i class="fas fa-upload me-1"></i>{{ __('Upload floor image') }}</button>
-          <button type="button" id="flClear" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear floor image') }}</button>
-        </div>
-      </div>
-
       {{-- Furniture & fittings picker: click a piece to drop it in the room, then drag it on the floor. --}}
       <div class="card mb-3">
         <div class="card-header py-2"><strong><i class="fas fa-couch me-1"></i>{{ __('Furniture & fittings') }}</strong> <span class="badge bg-secondary" id="furnCount">0</span></div>
@@ -196,7 +123,8 @@
             <label class="form-label small mb-1"><i class="fas fa-cloud-arrow-up me-1"></i>{{ __('Your furniture library') }}</label>
             <p class="small text-muted mb-1">{{ __('Upload 3D models (glb, gltf, obj, stl, ply) or images, then click a tile to drop it in the room.') }}</p>
             <input type="file" id="faFile" accept=".glb,.gltf,.obj,.stl,.ply,image/*" class="form-control form-control-sm mb-1">
-            <input type="text" id="faLabel" class="form-control form-control-sm mb-1" placeholder="{{ __('Name (optional)') }}" maxlength="120">
+            <input type="text" id="faLabel" class="form-control form-control-sm mb-1" placeholder="{{ __('Name (defaults to file name)') }}" maxlength="120">
+            <textarea id="faDesc" class="form-control form-control-sm mb-1" rows="2" maxlength="2000" placeholder="{{ __('Description (optional)') }}"></textarea>
             <button type="button" id="faUpload" class="btn btn-sm btn-outline-primary w-100 mb-2"><i class="fas fa-upload me-1"></i>{{ __('Upload to library') }}</button>
             <div class="d-flex flex-wrap gap-1" id="furnLibrary"></div>
           </div>
@@ -217,64 +145,6 @@
         </div>
       </div>
 
-      <div class="card mb-3">
-        <div class="card-header py-2"><strong><i class="fas fa-ruler-combined me-1"></i>{{ __('Room size (m)') }}</strong></div>
-        <div class="card-body">
-          <div class="row g-1 mb-2">
-            <div class="col-4"><input type="number" id="rdW" class="form-control form-control-sm" min="1" step="0.5" placeholder="W" value="{{ $space->room_w }}"></div>
-            <div class="col-4"><input type="number" id="rdD" class="form-control form-control-sm" min="1" step="0.5" placeholder="D" value="{{ $space->room_d }}"></div>
-            <div class="col-4"><input type="number" id="rdH" class="form-control form-control-sm" min="1" step="0.5" placeholder="H" value="{{ $space->room_h }}"></div>
-          </div>
-          <button type="button" id="rdSave" class="btn btn-sm btn-outline-primary w-100">{{ __('Save room size') }}</button>
-          <small class="text-muted d-block mt-1">{{ __('Width / Depth / wall Height. Raise H for taller walls.') }}</small>
-        </div>
-      </div>
-      @endauth
-
-      @auth
-      <div class="card mb-3">
-        <div class="card-header py-2"><strong><i class="fas fa-grip-lines-vertical me-1"></i>{{ __('Interior walls') }}</strong></div>
-        <div class="card-body">
-          <button type="button" id="wallAdd" class="btn btn-sm btn-outline-primary w-100 mb-2"><i class="fas fa-plus me-1"></i>{{ __('Add wall') }}</button>
-          <div id="wallList" class="small"></div>
-          <small id="wallHint" class="text-muted d-block mt-1">{{ __('Add a divider wall to hang objects in the middle of the room.') }}</small>
-        </div>
-      </div>
-
-      {{-- heratio#1151 - open-standard exports + embed --}}
-      <div class="card mb-3">
-        <div class="card-header py-2"><strong><i class="fas fa-share-nodes me-1"></i>{{ __('Share & interoperability') }}</strong></div>
-        <div class="card-body small">
-          <p class="text-muted mb-2">{{ __('Open-standard exports so other systems and institutions can consume this twin.') }}</p>
-          <a class="btn btn-sm btn-outline-secondary w-100 mb-1" target="_blank" rel="noopener" href="{{ route('exhibition-space.iiif', ['slug' => $space->slug]) }}"><i class="fas fa-image me-1"></i>{{ __('IIIF manifest') }}</a>
-          <a class="btn btn-sm btn-outline-secondary w-100 mb-1" target="_blank" rel="noopener" href="{{ route('exhibition-space.scene', ['slug' => $space->slug]) }}"><i class="fas fa-cube me-1"></i>{{ __('3D scene (JSON)') }}</a>
-          <a class="btn btn-sm btn-outline-secondary w-100 mb-2" target="_blank" rel="noopener" href="{{ route('exhibition-space.jsonld', ['slug' => $space->slug]) }}"><i class="fas fa-diagram-project me-1"></i>{{ __('Linked data (JSON-LD)') }}</a>
-          <label class="form-label mb-1">{{ __('Embed this walkthrough') }}</label>
-          <textarea id="embedSnippet" class="form-control form-control-sm" rows="3" readonly onclick="this.select()">&lt;iframe src="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" width="100%" height="600" style="border:0" allowfullscreen&gt;&lt;/iframe&gt;</textarea>
-          <button type="button" class="btn btn-sm btn-outline-primary w-100 mt-1" onclick="if(navigator.clipboard){navigator.clipboard.writeText(document.getElementById('embedSnippet').value);this.innerHTML='<i class=\'fas fa-check me-1\'></i>{{ __('Copied') }}';}"><i class="fas fa-copy me-1"></i>{{ __('Copy embed code') }}</button>
-        </div>
-      </div>
-
-      {{-- authored audio guided tour --}}
-      <div class="card mb-3">
-        <div class="card-header py-2"><strong><i class="fas fa-route me-1"></i>{{ __('Guided tour (audio)') }}</strong></div>
-        <div class="card-body small">
-          <p class="text-muted mb-2">{{ __('Build routes of objects with a script the guide reads aloud. Visitors pick a tour and press Play in the walkthrough.') }}</p>
-          <div class="input-group input-group-sm mb-2">
-            <select id="gtTourSel" class="form-select form-select-sm"></select>
-            <button type="button" id="gtNewTourBtn" class="btn btn-outline-success" title="{{ __('New tour') }}"><i class="fas fa-plus"></i></button>
-            <button type="button" id="gtDelTourBtn" class="btn btn-outline-danger" title="{{ __('Delete this tour') }}"><i class="fas fa-trash"></i></button>
-          </div>
-          <input id="gtTourName" class="form-control form-control-sm mb-2" placeholder="{{ __('Tour name') }}" maxlength="80">
-          <div class="input-group input-group-sm mb-2">
-            <select id="gtAddSel" class="form-select form-select-sm"></select>
-            <button type="button" id="gtAddBtn" class="btn btn-outline-primary"><i class="fas fa-plus"></i></button>
-          </div>
-          <div id="gtList"></div>
-          <button type="button" id="gtSaveBtn" class="btn btn-sm btn-success w-100 mt-2"><i class="fas fa-save me-1"></i>{{ __('Save tours') }}</button>
-          <span id="gtSaveMsg" class="text-success"></span>
-        </div>
-      </div>
       @endauth
 
     </div>
@@ -299,6 +169,158 @@
           <div id="stageWrap" style="width:100%;background:#f4f4f4;border-radius:0 0 .375rem .375rem;overflow:hidden;"></div>
         </div>
       </div>
+
+      @auth
+      {{-- Room appearance & setup - moved below the plan so the left toolbar stays short; tiled across the width. --}}
+      <div class="row g-3 mt-1">
+        <div class="col-md-6 col-xl-3">
+          <div class="card mb-0">
+            <div class="card-header py-2"><strong><i class="fas fa-map me-1"></i>{{ __('Floorplan') }}</strong></div>
+            <div class="card-body">
+              <form method="POST" action="{{ route('exhibition-space.builder.floorplan', ['slug' => $space->slug]) }}" enctype="multipart/form-data">
+                @csrf
+                <input type="file" name="floorplan" accept="image/*" class="form-control form-control-sm mb-2" required>
+                <div class="row g-1 mb-2">
+                  <div class="col-6"><input type="number" step="0.01" min="0" name="floorplan_width_m" class="form-control form-control-sm" placeholder="{{ __('Width m') }}" value="{{ $space->floorplan_width_m }}"></div>
+                  <div class="col-6"><input type="number" step="0.01" min="0" name="floorplan_height_m" class="form-control form-control-sm" placeholder="{{ __('Height m') }}" value="{{ $space->floorplan_height_m }}"></div>
+                </div>
+                <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-upload me-1"></i>{{ __('Upload floorplan') }}</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+          <div class="card mb-0">
+            <div class="card-header py-2"><strong><i class="fas fa-image me-1"></i>{{ __('Ceiling') }}</strong></div>
+            <div class="card-body">
+              <form method="POST" action="{{ route('exhibition-space.builder.ceiling', ['slug' => $space->slug]) }}" enctype="multipart/form-data" class="mb-2">
+                @csrf
+                <input type="file" name="ceiling" accept="image/*" class="form-control form-control-sm mb-2" required>
+                <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-upload me-1"></i>{{ __('Upload painted ceiling') }}</button>
+              </form>
+              @if(!empty($space->ceiling_image_path))
+              <form method="POST" action="{{ route('exhibition-space.builder.ceiling-clear', ['slug' => $space->slug]) }}">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear ceiling') }}</button>
+              </form>
+              @endif
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+          <div class="card mb-0">
+            <div class="card-header py-2"><strong><i class="fas fa-paint-roller me-1"></i>{{ __('Wall painting') }}</strong></div>
+            <div class="card-body">
+              <label class="form-label small mb-1">{{ __('Apply to') }}</label>
+              <select id="wpTarget" class="form-select form-select-sm mb-2"></select>
+              {{-- Preview of what is currently loaded for the chosen target, so you know what is there before replacing it. --}}
+              <div class="border rounded p-1 text-center mb-2" style="background:#f8f9fa">
+                <img id="wpPreview" alt="" style="max-width:100%;max-height:90px;display:none;border-radius:3px">
+                <div id="wpName" class="text-truncate text-muted mt-1" style="font-size:11px">{{ __('No painting on this wall') }}</div>
+              </div>
+              <input type="file" id="wpFile" accept="image/*" class="form-control form-control-sm mb-2">
+              <button type="button" id="wpUpload" class="btn btn-sm btn-outline-primary w-100 mb-1"><i class="fas fa-upload me-1"></i>{{ __('Upload painting') }}</button>
+              <button type="button" id="wpClear" class="btn btn-sm btn-outline-danger w-100 mb-2"><i class="fas fa-times me-1"></i>{{ __('Clear painting') }}</button>
+              <hr class="my-2">
+              <label class="form-label small mb-1">{{ __('Or paint a colour') }}</label>
+              <div class="d-flex flex-wrap gap-1 mb-2" id="wcSwatches">
+                @foreach (['#f5f1e8' => 'Gallery white', '#e9e2d0' => 'Warm stone', '#d9cbb2' => 'Sand', '#cfd8d3' => 'Sage grey', '#b8c4cc' => 'Cool grey', '#9aa7b0' => 'Slate', '#7d8a74' => 'Olive', '#8a6d5b' => 'Taupe', '#6e5a4e' => 'Mocha', '#5a6b7a' => 'Petrol', '#7a4b50' => 'Oxblood', '#2f3640' => 'Charcoal'] as $hex => $label)
+                <button type="button" class="wc-swatch border rounded" data-color="{{ $hex }}" title="{{ $label }}" style="width:24px;height:24px;background:{{ $hex }};padding:0"></button>
+                @endforeach
+              </div>
+              <div class="input-group input-group-sm mb-2">
+                <input type="color" id="wcCustom" class="form-control form-control-color" value="#e9e2d0" title="{{ __('Custom colour') }}">
+                <button type="button" id="wcApply" class="btn btn-outline-primary"><i class="fas fa-fill-drip me-1"></i>{{ __('Apply colour') }}</button>
+              </div>
+              <button type="button" id="wcClear" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear colour') }}</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+          <div class="card mb-0">
+            <div class="card-header py-2"><strong><i class="fas fa-image me-1"></i>{{ __('Floor image') }}</strong></div>
+            <div class="card-body">
+              <p class="small text-muted mb-2">{{ __('Upload a tileable photo (marble, parquet, mosaic) - it repeats across the floor as 2x2 m tiles. Replaces the default marble until cleared.') }}</p>
+              <div class="border rounded p-1 text-center mb-2" style="background:#f8f9fa">
+                <img id="flPreview" alt="" style="max-width:100%;max-height:90px;display:none;border-radius:3px">
+                <div id="flName" class="text-truncate text-muted mt-1" style="font-size:11px">{{ __('No floor image (using marble/plan)') }}</div>
+              </div>
+              <input type="file" id="flFile" accept="image/*" class="form-control form-control-sm mb-2">
+              <button type="button" id="flUpload" class="btn btn-sm btn-outline-primary w-100 mb-1"><i class="fas fa-upload me-1"></i>{{ __('Upload floor image') }}</button>
+              <button type="button" id="flClear" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear floor image') }}</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+          <div class="card mb-0">
+            <div class="card-header py-2"><strong><i class="fas fa-ruler-combined me-1"></i>{{ __('Room size (m)') }}</strong></div>
+            <div class="card-body">
+              <div class="row g-1 mb-2">
+                <div class="col-4"><input type="number" id="rdW" class="form-control form-control-sm" min="1" step="0.5" placeholder="W" value="{{ $space->room_w }}"></div>
+                <div class="col-4"><input type="number" id="rdD" class="form-control form-control-sm" min="1" step="0.5" placeholder="D" value="{{ $space->room_d }}"></div>
+                <div class="col-4"><input type="number" id="rdH" class="form-control form-control-sm" min="1" step="0.5" placeholder="H" value="{{ $space->room_h }}"></div>
+              </div>
+              <button type="button" id="rdSave" class="btn btn-sm btn-outline-primary w-100">{{ __('Save room size') }}</button>
+              <small class="text-muted d-block mt-1">{{ __('Width / Depth / wall Height. Raise H for taller walls.') }}</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+          <div class="card mb-0">
+            <div class="card-header py-2"><strong><i class="fas fa-grip-lines-vertical me-1"></i>{{ __('Interior walls') }}</strong></div>
+            <div class="card-body">
+              <button type="button" id="wallAdd" class="btn btn-sm btn-outline-primary w-100 mb-2"><i class="fas fa-plus me-1"></i>{{ __('Add wall') }}</button>
+              <div id="wallList" class="small"></div>
+              <small id="wallHint" class="text-muted d-block mt-1">{{ __('Add a divider wall to hang objects in the middle of the room.') }}</small>
+            </div>
+          </div>
+        </div>
+
+        {{-- heratio#1151 - open-standard exports + embed --}}
+        <div class="col-md-6 col-xl-3">
+          <div class="card mb-0">
+            <div class="card-header py-2"><strong><i class="fas fa-share-nodes me-1"></i>{{ __('Share & interoperability') }}</strong></div>
+            <div class="card-body small">
+              <p class="text-muted mb-2">{{ __('Open-standard exports so other systems and institutions can consume this twin.') }}</p>
+              <a class="btn btn-sm btn-outline-secondary w-100 mb-1" target="_blank" rel="noopener" href="{{ route('exhibition-space.iiif', ['slug' => $space->slug]) }}"><i class="fas fa-image me-1"></i>{{ __('IIIF manifest') }}</a>
+              <a class="btn btn-sm btn-outline-secondary w-100 mb-1" target="_blank" rel="noopener" href="{{ route('exhibition-space.scene', ['slug' => $space->slug]) }}"><i class="fas fa-cube me-1"></i>{{ __('3D scene (JSON)') }}</a>
+              <a class="btn btn-sm btn-outline-secondary w-100 mb-2" target="_blank" rel="noopener" href="{{ route('exhibition-space.jsonld', ['slug' => $space->slug]) }}"><i class="fas fa-diagram-project me-1"></i>{{ __('Linked data (JSON-LD)') }}</a>
+              <label class="form-label mb-1">{{ __('Embed this walkthrough') }}</label>
+              <textarea id="embedSnippet" class="form-control form-control-sm" rows="3" readonly onclick="this.select()">&lt;iframe src="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" width="100%" height="600" style="border:0" allowfullscreen&gt;&lt;/iframe&gt;</textarea>
+              <button type="button" class="btn btn-sm btn-outline-primary w-100 mt-1" onclick="if(navigator.clipboard){navigator.clipboard.writeText(document.getElementById('embedSnippet').value);this.innerHTML='<i class=\'fas fa-check me-1\'></i>{{ __('Copied') }}';}"><i class="fas fa-copy me-1"></i>{{ __('Copy embed code') }}</button>
+            </div>
+          </div>
+        </div>
+
+        {{-- authored audio guided tour --}}
+        <div class="col-md-6 col-xl-3">
+          <div class="card mb-0">
+            <div class="card-header py-2"><strong><i class="fas fa-route me-1"></i>{{ __('Guided tour (audio)') }}</strong></div>
+            <div class="card-body small">
+              <p class="text-muted mb-2">{{ __('Build routes of objects with a script the guide reads aloud. Visitors pick a tour and press Play in the walkthrough.') }}</p>
+              <div class="input-group input-group-sm mb-2">
+                <select id="gtTourSel" class="form-select form-select-sm"></select>
+                <button type="button" id="gtNewTourBtn" class="btn btn-outline-success" title="{{ __('New tour') }}"><i class="fas fa-plus"></i></button>
+                <button type="button" id="gtDelTourBtn" class="btn btn-outline-danger" title="{{ __('Delete this tour') }}"><i class="fas fa-trash"></i></button>
+              </div>
+              <input id="gtTourName" class="form-control form-control-sm mb-2" placeholder="{{ __('Tour name') }}" maxlength="80">
+              <div class="input-group input-group-sm mb-2">
+                <select id="gtAddSel" class="form-select form-select-sm"></select>
+                <button type="button" id="gtAddBtn" class="btn btn-outline-primary"><i class="fas fa-plus"></i></button>
+              </div>
+              <div id="gtList"></div>
+              <button type="button" id="gtSaveBtn" class="btn btn-sm btn-success w-100 mt-2"><i class="fas fa-save me-1"></i>{{ __('Save tours') }}</button>
+              <span id="gtSaveMsg" class="text-success"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      @endauth
     </div>
   </div>
 
@@ -317,6 +339,7 @@
       tilt: '{{ route('exhibition-space.builder.tilt', ['slug' => $space->slug]) }}',
       spotlight: '{{ route('exhibition-space.builder.spotlight', ['slug' => $space->slug]) }}',
       displayCase: '{{ route('exhibition-space.builder.display-case', ['slug' => $space->slug]) }}',
+      onFloor: '{{ route('exhibition-space.builder.on-floor', ['slug' => $space->slug]) }}',
       zorder: '{{ route('exhibition-space.builder.zorder', ['slug' => $space->slug]) }}',
       walls: '{{ route('exhibition-space.builder.walls', ['slug' => $space->slug]) }}',
       wall: '{{ route('exhibition-space.builder.wall', ['slug' => $space->slug]) }}',
@@ -513,6 +536,7 @@
       document.getElementById('selWall').value = g.getAttr('wallKey') || '';
       setSpotBtn((+g.getAttr('spotlight')) || 0);
       var cb = document.getElementById('caseBtn'); if (cb) { var con = !!g.getAttr('displayCase'); cb.classList.toggle('btn-info', con); cb.classList.toggle('btn-outline-info', !con); }
+      var fb = document.getElementById('floorBtn'); if (fb) { var fon = !!g.getAttr('onFloor'); fb.classList.toggle('btn-success', fon); fb.classList.toggle('btn-outline-success', !fon); }
       layer.draw();
       if (typeof loadRecs === 'function') loadRecs();   // #1149 filter suggestions to this object
     }
@@ -552,6 +576,7 @@
       g.setAttr('tiltZ', (p.tilt_z === null || p.tilt_z === undefined) ? null : p.tilt_z);
       g.setAttr('spotlight', (+p.spotlight) || 0);
       g.setAttr('displayCase', (+p.display_case) || 0);
+      g.setAttr('onFloor', (+p.on_floor) || 0);
       g.setAttr('zOrder', p.z_order || 0);
 
       var rect = new Konva.Rect({
@@ -697,6 +722,12 @@
           var con = !selected.getAttr('displayCase'); selected.setAttr('displayCase', con);
           var cb = document.getElementById('caseBtn'); if (cb) { cb.classList.toggle('btn-info', con); cb.classList.toggle('btn-outline-info', !con); }
           fetch(URLS.displayCase, { method: 'POST', headers: hdrs, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), on: con }) });
+          return;
+        }
+        if (a === 'floor') {   // toggle: stand the 3D model directly on the floor (no pedestal)
+          var fon = !selected.getAttr('onFloor'); selected.setAttr('onFloor', fon);
+          var fb = document.getElementById('floorBtn'); if (fb) { fb.classList.toggle('btn-success', fon); fb.classList.toggle('btn-outline-success', !fon); }
+          fetch(URLS.onFloor, { method: 'POST', headers: hdrs, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), on: fon }) });
           return;
         }
         if (a === 'front' || a === 'back') {   // bring-to-front / send-to-back
@@ -1268,7 +1299,7 @@
         var g = new Konva.Group({ x: (it.pos_x == null ? 0.5 : it.pos_x) * W, y: (it.pos_y == null ? 0.5 : it.pos_y) * H, draggable: true, name: 'furn' });
         g.setAttr('furnId', it.id);
         g.add(new Konva.Circle({ radius: 9, fill: '#8a5a2b', stroke: '#fff', strokeWidth: 2 }));
-        g.add(new Konva.Text({ text: it.kind, fontSize: 10, fill: '#5a3a1b', x: 12, y: -5 }));
+        g.add(new Konva.Text({ text: (it.label || it.kind), fontSize: 10, fill: '#5a3a1b', x: 12, y: -5 }));
         g.on('click tap', function (e) { e.cancelBubble = true; selectFurn(it, g); });
         g.on('dragend', function () { selectFurn(it, g); persistSel(); });
         g.on('dblclick dbltap', function (e) {
@@ -1292,7 +1323,7 @@
       var lib = document.getElementById('furnLibrary');
       function libTile(a) {
         var t = document.createElement('div'); t.className = 'position-relative';
-        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-sm btn-outline-secondary'; b.title = a.label;
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-sm btn-outline-secondary'; b.title = a.description ? (a.label + ' - ' + a.description) : a.label;
         b.innerHTML = (a.asset_kind === 'image' ? '<i class="fas fa-image me-1"></i>' : '<i class="fas fa-cube me-1"></i>') + (a.label.length > 14 ? (a.label.slice(0, 13) + '…') : a.label);
         b.addEventListener('click', function () {
           fetch(ADD, { method: 'POST', headers: hdrs, body: JSON.stringify({ asset_id: a.id, fx: 0.5, fy: 0.5 }) })
@@ -1307,17 +1338,17 @@
       }
       if (lib) { ASSETS.forEach(function (a) { lib.appendChild(libTile(a)); }); }
       (function () {
-        var f = document.getElementById('faFile'), lab = document.getElementById('faLabel'), up = document.getElementById('faUpload');
+        var f = document.getElementById('faFile'), lab = document.getElementById('faLabel'), desc = document.getElementById('faDesc'), up = document.getElementById('faUpload');
         if (!up) return;
         up.addEventListener('click', function () {
           if (!f.files || !f.files[0]) { alert('{{ __('Choose a file first.') }}'); return; }
-          var fd = new FormData(); fd.append('asset', f.files[0]); if (lab.value) fd.append('label', lab.value);
+          var fd = new FormData(); fd.append('asset', f.files[0]); if (lab.value) fd.append('label', lab.value); if (desc && desc.value) fd.append('description', desc.value);
           up.disabled = true; up.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Uploading…') }}';
           fetch(UP, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: fd })
             .then(function (r) { return r.json(); }).then(function (d) {
               up.disabled = false; up.innerHTML = '<i class="fas fa-upload me-1"></i>{{ __('Upload to library') }}';
               if (!d.ok) { alert('{{ __('Upload failed.') }}'); return; }
-              ASSETS.push(d.asset); if (lib) lib.appendChild(libTile(d.asset)); f.value = ''; lab.value = '';
+              ASSETS.push(d.asset); if (lib) lib.appendChild(libTile(d.asset)); f.value = ''; lab.value = ''; if (desc) desc.value = '';
             }).catch(function () { up.disabled = false; up.innerHTML = '<i class="fas fa-upload me-1"></i>{{ __('Upload to library') }}'; alert('{{ __('Upload failed.') }}'); });
         });
       })();

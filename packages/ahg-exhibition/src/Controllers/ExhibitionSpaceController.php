@@ -979,6 +979,19 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => $ok]);
     }
 
+    /** AJAX: toggle standing a 3D model directly on the floor (no pedestal). */
+    public function updateOnFloorAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['placement_id' => 'required|integer|min:1', 'on' => 'required|boolean']);
+        $ok = $this->service->updatePlacementOnFloor((int) $space->id, (int) $data['placement_id'], (bool) $data['on']);
+
+        return response()->json(['ok' => $ok]);
+    }
+
     /** AJAX: bring-to-front / send-to-back (z-order). */
     public function updateZOrderAjax(Request $request, string $slug)
     {
@@ -1070,7 +1083,7 @@ class ExhibitionSpaceController extends Controller
             abort(404);
         }
         $request->validate([
-            'wall_image' => 'required|image|mimes:jpeg,png,webp|max:8192',
+            'wall_image' => 'required|image|mimes:jpeg,jpg,png,webp|max:51200',
             'edge' => 'nullable|integer|min:0|max:99',   // target wall; absent or all=1 => all walls (room default)
             'all' => 'nullable|boolean',
         ]);
@@ -1124,7 +1137,7 @@ class ExhibitionSpaceController extends Controller
             abort(404);
         }
         $request->validate([
-            'floor_image' => 'required|image|mimes:jpeg,png,webp|max:8192',
+            'floor_image' => 'required|image|mimes:jpeg,jpg,png,webp|max:51200',
         ]);
         $file = $request->file('floor_image');
         $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
@@ -1233,9 +1246,12 @@ class ExhibitionSpaceController extends Controller
         if (! $space) {
             abort(404);
         }
+        // Validate by EXTENSION, not MIME: binary 3D formats (glb/gltf/obj/stl/ply) have no reliable
+        // MIME type, so a mimes: rule silently rejects them - only images would pass.
         $request->validate([
-            'asset' => 'required|file|mimes:glb,gltf,obj,stl,ply,jpeg,jpg,png,webp|max:51200',
+            'asset' => 'required|file|extensions:glb,gltf,obj,stl,ply,jpeg,jpg,png,webp|max:51200',
             'label' => 'nullable|string|max:120',
+            'description' => 'nullable|string|max:2000',
         ]);
         $file = $request->file('asset');
         $ext = strtolower($file->getClientOriginalExtension() ?: 'glb');
@@ -1252,7 +1268,7 @@ class ExhibitionSpaceController extends Controller
         $file->move($dir, $filename);
         $path = '/uploads/exhibition-furniture/'.$filename;
         $label = $request->input('label') ?: pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $asset = $this->service->addFurnitureAsset((string) $label, $path, $ext, $kind);
+        $asset = $this->service->addFurnitureAsset((string) $label, $path, $ext, $kind, $request->input('description'));
 
         return response()->json(['ok' => true, 'asset' => $asset]);
     }

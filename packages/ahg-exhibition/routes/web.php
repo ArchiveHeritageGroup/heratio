@@ -77,6 +77,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/builder/tilt', [ExhibitionSpaceController::class, 'updateTiltAjax'])->name('exhibition-space.builder.tilt')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/spotlight', [ExhibitionSpaceController::class, 'updateSpotlightAjax'])->name('exhibition-space.builder.spotlight')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/display-case', [ExhibitionSpaceController::class, 'updateDisplayCaseAjax'])->name('exhibition-space.builder.display-case')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/on-floor', [ExhibitionSpaceController::class, 'updateOnFloorAjax'])->name('exhibition-space.builder.on-floor')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/zorder', [ExhibitionSpaceController::class, 'updateZOrderAjax'])->name('exhibition-space.builder.zorder')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/furniture-add', [ExhibitionSpaceController::class, 'furnitureAddAjax'])->name('exhibition-space.builder.furniture-add')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/furniture-move', [ExhibitionSpaceController::class, 'furnitureMoveAjax'])->name('exhibition-space.builder.furniture-move')->middleware('acl:update');

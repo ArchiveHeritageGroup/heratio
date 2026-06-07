@@ -313,7 +313,7 @@ class ExhibitionSpaceService
                 'ep.id', 'ep.information_object_id',
                 'ep.pos_x', 'ep.pos_y', 'ep.rotation_deg', 'ep.scale', 'ep.z_order',
                 'ep.wall_or_zone', 'ep.label_visible', 'ep.size_units_used',
-                'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight', 'ep.display_case',
+                'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight', 'ep.display_case', 'ep.on_floor',
                 'ioi.title as information_object_title'
             )
             ->orderBy('ep.z_order')
@@ -340,7 +340,7 @@ class ExhibitionSpaceService
                 'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,
                 'wall_v' => $r->wall_v !== null ? (float) $r->wall_v : null,
                 'spotlight' => (int) ($r->spotlight ?? 0),
-                'display_case' => (int) ($r->display_case ?? 0),   // #1174
+                'display_case' => (int) ($r->display_case ?? 0), 'on_floor' => (int) ($r->on_floor ?? 0),   // #1174
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),
             ];
         })->all();
@@ -594,6 +594,14 @@ class ExhibitionSpaceService
         return DB::table('ahg_exhibition_placement')
             ->where('id', $placementId)->where('exhibition_space_id', $exhibitionSpaceId)
             ->update(['display_case' => $on ? 1 : 0, 'updated_at' => now()]) > 0;
+    }
+
+    /** Toggle whether a 3D model stands directly on the floor (no pedestal). */
+    public function updatePlacementOnFloor(int $exhibitionSpaceId, int $placementId, bool $on): bool
+    {
+        return DB::table('ahg_exhibition_placement')
+            ->where('id', $placementId)->where('exhibition_space_id', $exhibitionSpaceId)
+            ->update(['on_floor' => $on ? 1 : 0, 'updated_at' => now()]) > 0;
     }
 
     /** Bring-to-front / send-to-back: set a placement's z-order. */
@@ -1986,8 +1994,15 @@ class ExhibitionSpaceService
         return DB::table('ahg_exhibition_furniture')->where('exhibition_space_id', $exhibitionSpaceId)
             ->orderBy('id')->get()->map(function ($r) {
                 $poles = (! empty($r->pole_json) && is_array($pj = json_decode((string) $r->pole_json, true))) ? $pj : null;
+                // Uploaded-asset furniture shows its filename (not the generic "asset"): strip dir, the upload hash and extension.
+                $label = null;
+                if (! empty($r->asset_path)) {
+                    $base = pathinfo((string) $r->asset_path, PATHINFO_FILENAME);
+                    $base = preg_replace('/-[0-9a-f]{8}$/i', '', $base);
+                    $label = ucfirst(trim(str_replace(['-', '_'], ' ', $base)));
+                }
 
-                return ['id' => (int) $r->id, 'kind' => $r->kind, 'pos_x' => (float) $r->pos_x, 'pos_y' => (float) $r->pos_y, 'rotation_deg' => (float) $r->rotation_deg, 'scale' => (float) $r->scale, 'segments' => (int) ($r->segments ?? 2), 'poles' => $poles, 'asset_path' => $r->asset_path ?? null, 'asset_ext' => $r->asset_ext ?? null];
+                return ['id' => (int) $r->id, 'kind' => $r->kind, 'pos_x' => (float) $r->pos_x, 'pos_y' => (float) $r->pos_y, 'rotation_deg' => (float) $r->rotation_deg, 'scale' => (float) $r->scale, 'segments' => (int) ($r->segments ?? 2), 'poles' => $poles, 'asset_path' => $r->asset_path ?? null, 'asset_ext' => $r->asset_ext ?? null, 'label' => $label];
             })->all();
     }
 
@@ -2018,18 +2033,18 @@ class ExhibitionSpaceService
         }
 
         return DB::table('ahg_exhibition_furniture_asset')->orderByDesc('id')->get()->map(function ($r) {
-            return ['id' => (int) $r->id, 'label' => $r->label, 'file_path' => $r->file_path, 'ext' => $r->ext, 'asset_kind' => $r->asset_kind];
+            return ['id' => (int) $r->id, 'label' => $r->label, 'file_path' => $r->file_path, 'ext' => $r->ext, 'asset_kind' => $r->asset_kind, 'description' => $r->description ?? null];
         })->all();
     }
 
-    public function addFurnitureAsset(string $label, string $path, string $ext, string $kind): array
+    public function addFurnitureAsset(string $label, string $path, string $ext, string $kind, ?string $description = null): array
     {
         $id = (int) DB::table('ahg_exhibition_furniture_asset')->insertGetId([
-            'label' => $label, 'file_path' => $path, 'ext' => $ext, 'asset_kind' => $kind,
+            'label' => $label, 'file_path' => $path, 'ext' => $ext, 'asset_kind' => $kind, 'description' => $description,
             'created_at' => now(), 'updated_at' => now(),
         ]);
 
-        return ['id' => $id, 'label' => $label, 'file_path' => $path, 'ext' => $ext, 'asset_kind' => $kind];
+        return ['id' => $id, 'label' => $label, 'file_path' => $path, 'ext' => $ext, 'asset_kind' => $kind, 'description' => $description];
     }
 
     public function getFurnitureAsset(int $id): ?object
@@ -2631,7 +2646,7 @@ class ExhibitionSpaceService
             ->select(
                 'ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y',
                 'ep.rotation_deg', 'ep.scale', 'ep.wall_or_zone',
-                'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight', 'ep.display_case',
+                'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight', 'ep.display_case', 'ep.on_floor',
                 'ioi.title as title', 'ioi.scope_and_content as description', 'sl.slug as slug'
             )
             ->get();
@@ -2659,7 +2674,7 @@ class ExhibitionSpaceService
                 'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,
                 'wall_v' => $r->wall_v !== null ? (float) $r->wall_v : null,
                 'spotlight' => (int) ($r->spotlight ?? 0),
-                'display_case' => (int) ($r->display_case ?? 0),   // #1174 proximity spotlight
+                'display_case' => (int) ($r->display_case ?? 0), 'on_floor' => (int) ($r->on_floor ?? 0),   // #1174 proximity spotlight
                 'image_url' => $media['image_url'],
                 'doc_url' => $media['doc_url'] ?? null,
                 'thumb_url' => $media['image_url'] ?? $this->thumbnailUrl((int) $r->information_object_id),

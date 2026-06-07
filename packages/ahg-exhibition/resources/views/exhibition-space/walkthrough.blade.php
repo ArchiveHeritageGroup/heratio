@@ -307,15 +307,16 @@
       renderer.xr.addEventListener('sessionend', function () { controls.getObject().position.y = xrFloorY || 1.6; });
     }
 
-    var hemiLight = new THREE.HemisphereLight(0xffffff, 0x666677, 0.9);   // ref kept for the steal-alarm flicker
+    // Warm, restrained gallery lighting - pure-white at high intensity was washing floors/furniture out to white.
+    var hemiLight = new THREE.HemisphereLight(0xfff3e2, 0x6a6258, 0.6);   // ref kept for the steal-alarm flicker
     scene.add(hemiLight);
     // #1170 outdoor: sky-blue backdrop + a sun when the building has an open-air space.
     if (BUILDING && BUILDING.has_outdoor) {
       scene.background = new THREE.Color(0x9fc8e8);
-      hemiLight.intensity = 1.0; hemiLight.groundColor.setHex(0x6b8f4e);
-      var sun = new THREE.DirectionalLight(0xfff6e0, 0.9); sun.position.set(20, 40, 15); scene.add(sun);
+      hemiLight.intensity = 0.78; hemiLight.groundColor.setHex(0x6b8f4e);
+      var sun = new THREE.DirectionalLight(0xfff6e0, 0.7); sun.position.set(20, 40, 15); scene.add(sun);
     }
-    var dir = new THREE.DirectionalLight(0xffffff, 0.7);
+    var dir = new THREE.DirectionalLight(0xfff0d8, 0.45);
     dir.position.set(5, 10, 7);
     scene.add(dir);
 
@@ -642,10 +643,10 @@
       if (_marbleTex) return _marbleTex;
       var N = 768, c = document.createElement('canvas'); c.width = c.height = N; var g = c.getContext('2d');
       // Warm off-white base with broad tonal drift (large soft patches, some darker, some lighter).
-      g.fillStyle = '#e3d8c0'; g.fillRect(0, 0, N, N);   // natural warm white (not stark) - the floor was reading too bright
-      for (var b = 0; b < 9; b++) { var bx = Math.random() * N, by = Math.random() * N, br = N * 0.3 + Math.random() * N * 0.4; var bg = g.createRadialGradient(bx, by, 0, bx, by, br); var dk = Math.random() < 0.5; bg.addColorStop(0, dk ? 'rgba(146,137,116,0.12)' : 'rgba(247,242,228,0.10)'); bg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = bg; g.fillRect(0, 0, N, N); }
+      g.fillStyle = '#d6c9a6'; g.fillRect(0, 0, N, N);   // warm cream/eggshell - a natural marble white, not stark (the floor read too bright)
+      for (var b = 0; b < 9; b++) { var bx = Math.random() * N, by = Math.random() * N, br = N * 0.3 + Math.random() * N * 0.4; var bg = g.createRadialGradient(bx, by, 0, bx, by, br); var dk = Math.random() < 0.5; bg.addColorStop(0, dk ? 'rgba(140,130,106,0.14)' : 'rgba(238,231,210,0.08)'); bg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = bg; g.fillRect(0, 0, N, N); }
       // Bright crystalline glints.
-      for (var i = 0; i < 60; i++) { var x = Math.random() * N, y = Math.random() * N, r = 30 + Math.random() * 120; var rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, 'rgba(250,246,234,' + (0.03 + Math.random() * 0.08) + ')'); rg.addColorStop(1, 'rgba(250,246,234,0)'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+      for (var i = 0; i < 60; i++) { var x = Math.random() * N, y = Math.random() * N, r = 30 + Math.random() * 120; var rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, 'rgba(243,236,216,' + (0.02 + Math.random() * 0.05) + ')'); rg.addColorStop(1, 'rgba(243,236,216,0)'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
       // A meandering vein that occasionally branches and tapers - the hallmark of real marble.
       function vein(px, py, len, w, alpha, col) {
         g.strokeStyle = col + alpha + ')'; g.lineWidth = w; g.lineJoin = 'round'; g.beginPath(); g.moveTo(px, py);
@@ -655,7 +656,10 @@
       }
       for (var v = 0; v < 5; v++) vein(Math.random() * N, Math.random() * N, 26, 1.6 + Math.random() * 1.8, (0.18 + Math.random() * 0.16).toFixed(2), 'rgba(86,78,66,');   // bold dark primaries (contrast)
       for (var h = 0; h < 26; h++) vein(Math.random() * N, Math.random() * N, 14, 0.4 + Math.random() * 1.2, (0.08 + Math.random() * 0.12).toFixed(2), 'rgba(120,112,100,');   // fine grey hairlines
-      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.3, 0.3); _marbleTex = t; return t;
+      // Grout seam around the tile edge: the texture maps to 2m (repeat 0.5 over the metre-based floor UV),
+      // so this border lands on a clean 2m x 2m grid (half from each neighbouring tile meets at the seam).
+      g.strokeStyle = 'rgba(120,110,92,0.55)'; g.lineWidth = 12; g.strokeRect(0, 0, N, N);
+      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.5, 0.5); _marbleTex = t; return t;   // 1 tile = 2 metres
     }
     // Warm textured plaster wall (taupe with fine mottling) - the default look when no wall image.
     function wallTexture() {
@@ -886,11 +890,12 @@
         var floorPicP = rm.floor_image || rm.floorplan;
         var fmatP = floorPicP
           ? new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: rm.floor_image ? 0.4 : 0.95, side: THREE.DoubleSide })
-          : new THREE.MeshStandardMaterial({ map: marbleTexture(), color: 0xf0e9d8, roughness: 0.34, side: THREE.DoubleSide });
+          : new THREE.MeshStandardMaterial({ map: marbleTexture(), color: 0xdccdab, roughness: 0.5, side: THREE.DoubleSide });
         var flP = new THREE.Mesh(new THREE.ShapeGeometry(shp), fmatP);
         flP.rotation.x = Math.PI / 2; flP.position.set(rm.x_offset, 0, rm.z_offset); addToRoom(rm, flP);
         // ShapeGeometry UVs are in metres (0..rm.w / 0..rm.d), so map one stretched copy over the whole floor.
-        if (floorPicP) { loadTex(floorPicP, function (tex) { tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping; tex.repeat.set(1 / rm.w, 1 / rm.d); fmatP.map = tex; fmatP.color.set(0xffffff); fmatP.needsUpdate = true; }); }
+        // ShapeGeometry UV is in metres: an uploaded floor image TILES at 2m (like the marble tiles); a floorplan tracing stretches once.
+        if (floorPicP) { loadTex(floorPicP, function (tex) { tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(rm.floor_image ? 0.5 : 1 / rm.w, rm.floor_image ? 0.5 : 1 / rm.d); fmatP.map = tex; fmatP.color.set(0xffffff); fmatP.needsUpdate = true; }); }
         if (rm.ceiling) {
           var cmatP = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
           var clP = new THREE.Mesh(new THREE.ShapeGeometry(shp), cmatP);
@@ -948,7 +953,11 @@
         // Floor picture priority: uploaded floor_image > floor-plan tracing. PlaneGeometry UVs are 0..1 (1:1);
         // the stairwell shapeWithHoles path uses metre UVs, so scale one stretched copy over the whole floor.
         var floorPic = rm.floor_image || rm.floorplan;
-        if (floorPic) { loadTex(floorPic, function (tex) { if (metreUV) { tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping; tex.repeat.set(1 / rm.w, 1 / rm.d); } fmat.map = tex; fmat.color.set(0xffffff); fmat.needsUpdate = true; }); }
+        if (floorPic) { loadTex(floorPic, function (tex) {
+          if (rm.floor_image) { tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(metreUV ? 0.5 : rm.w / 2, metreUV ? 0.5 : rm.d / 2); }   // tile the uploaded floor image at 2m
+          else if (metreUV) { tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping; tex.repeat.set(1 / rm.w, 1 / rm.d); }   // stretch floorplan tracing
+          fmat.map = tex; fmat.color.set(0xffffff); fmat.needsUpdate = true;
+        }); }
         if (rm.ceiling) {                               // painted ceiling image
           var cmat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
           var cl = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), cmat);
@@ -1157,7 +1166,7 @@
     }
     function greyMesh(geo) {
       geo.computeVertexNormals();
-      return new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xcfcfcf, roughness: 0.7, metalness: 0.05 }));
+      return new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xb0a89a, roughness: 0.8, metalness: 0.05 }));
     }
     var _gltfLoader = null;
     function gltfLoader() {
@@ -1368,7 +1377,8 @@
       var wp = worldPos(s);
       if (s.kind === '3d' && s.model_url) {
         var inCase = !!s.display_case;
-        var ph = inCase ? addDisplayCase(wp.x, wp.z, s._room) : addPedestal(wp.x, wp.z, 0.6, s._room);
+        // on_floor: stand the model straight on the floor (no pedestal). Case takes precedence if both set.
+        var ph = inCase ? addDisplayCase(wp.x, wp.z, s._room) : (s.on_floor ? 0 : addPedestal(wp.x, wp.z, 0.6, s._room));
         loadModel(s.model_url, modelExt(s), function (obj) {
           // Per-object orientation (auto up-axis guess unless overridden in Builder).
           obj.rotation.x = effTiltX(s) * Math.PI / 180;
