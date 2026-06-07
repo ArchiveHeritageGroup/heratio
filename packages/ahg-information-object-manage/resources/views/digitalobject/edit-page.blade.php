@@ -246,7 +246,13 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-        <li><a href="{{ route('io.digitalobject.delete', $do->id) }}" class="btn atom-btn-outline-danger" onclick="return confirm('Delete this digital object?')">Delete</a></li>
+        <li>
+            <form method="POST" action="{{ route('io.digitalobject.delete', $do->id) }}" class="d-inline" onsubmit="return confirm('Delete this digital object?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn atom-btn-outline-danger">Delete</button>
+            </form>
+        </li>
         @if($ioSlug)
             <li><a href="{{ url('/' . $ioSlug) }}" class="btn atom-btn-outline-light">Cancel</a></li>
         @endif
