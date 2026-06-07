@@ -353,7 +353,7 @@
     }
 
     // Per-room floors, perimeter walls (with doorways between rooms) and dividers.
-    var wallMat = new THREE.MeshStandardMaterial({ color: 0xf2f2f0, roughness: 1, side: THREE.DoubleSide });
+    var wallMat = new THREE.MeshStandardMaterial({ map: wallTexture(), color: 0xffffff, roughness: 0.95, side: THREE.DoubleSide });
     var doorMat = new THREE.MeshStandardMaterial({ color: 0x7c6a58, roughness: 0.9, side: THREE.DoubleSide });   // solid door panel (not see-through)
     var glassMat = new THREE.MeshStandardMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, roughness: 0.1, metalness: 0.1, side: THREE.DoubleSide });   // #1172 window pane
     var colliders = [];   // wall meshes the visitor cannot walk through (doorways/glass excluded)
@@ -550,6 +550,30 @@
       for (var i = 0; i < 22; i++) { var bx = 10 + Math.random() * 44, h = 18 + Math.random() * 30; g.strokeStyle = 'rgba(' + ((50 + Math.random() * 40) | 0) + ',' + ((120 + Math.random() * 80) | 0) + ',' + ((40 + Math.random() * 35) | 0) + ',0.9)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(bx, 64); g.quadraticCurveTo(bx + (Math.random() * 10 - 5), 64 - h * 0.6, bx + (Math.random() * 14 - 7), 64 - h); g.stroke(); }
       var t = new THREE.CanvasTexture(c); _tuftTex = t; return t;
     }
+    // Polished marble floor (cream field + soft clouds + grey veins). Tiled ~4 m. Glossy material.
+    var _marbleTex = null, _wallTex = null;
+    function marbleTexture() {
+      if (_marbleTex) return _marbleTex;
+      var c = document.createElement('canvas'); c.width = c.height = 512; var g = c.getContext('2d');
+      g.fillStyle = '#efe9dd'; g.fillRect(0, 0, 512, 512);
+      for (var i = 0; i < 44; i++) { var x = Math.random() * 512, y = Math.random() * 512, r = 40 + Math.random() * 130; var rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, 'rgba(255,255,255,' + (0.04 + Math.random() * 0.12) + ')'); rg.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+      for (var v = 0; v < 24; v++) {
+        g.strokeStyle = 'rgba(' + ((120 + Math.random() * 60) | 0) + ',' + ((115 + Math.random() * 55) | 0) + ',' + ((110 + Math.random() * 50) | 0) + ',' + (0.1 + Math.random() * 0.18) + ')';
+        g.lineWidth = 0.5 + Math.random() * 2; g.beginPath();
+        var px = Math.random() * 512, py = Math.random() * 512; g.moveTo(px, py);
+        for (var s = 0; s < 6; s++) { px += (Math.random() * 170 - 85); py += (Math.random() * 170 - 85); g.lineTo(px, py); }
+        g.stroke();
+      }
+      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.25, 0.25); _marbleTex = t; return t;
+    }
+    // Warm textured plaster wall (taupe with fine mottling) - the default look when no wall image.
+    function wallTexture() {
+      if (_wallTex) return _wallTex;
+      var c = document.createElement('canvas'); c.width = c.height = 256; var g = c.getContext('2d');
+      g.fillStyle = '#b3a187'; g.fillRect(0, 0, 256, 256);
+      for (var i = 0; i < 4200; i++) { var sh = (Math.random() - 0.5) * 26; g.fillStyle = 'rgba(' + ((179 + sh) | 0) + ',' + ((161 + sh) | 0) + ',' + ((135 + sh) | 0) + ',0.5)'; g.fillRect(Math.random() * 256, Math.random() * 256, 2, 2); }
+      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; _wallTex = t; return t;
+    }
     // Crossed-plane billboard tree (volumetric from any angle), slight size/spin variance.
     function addTree(rm, x, z) {
       var s = 2.6 + Math.random() * 1.8, w = s, h = s * 1.55;
@@ -669,7 +693,10 @@
         SHAPE.forEach(function (p, j) { var px = p.x * rm.w, pz = p.z * rm.d; if (j === 0) shp.moveTo(px, pz); else shp.lineTo(px, pz); });
         shp.closePath();
         addHoles(shp, holesFor(rm));   // #1169 stairwell openings
-        var fmatP = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: 0.95, side: THREE.DoubleSide });
+        // Polished marble floor (glossy) when there is no floor-plan image; floor-plan rooms stay matte grey.
+        var fmatP = rm.floorplan
+          ? new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: 0.95, side: THREE.DoubleSide })
+          : new THREE.MeshStandardMaterial({ map: marbleTexture(), color: 0xffffff, roughness: 0.22, side: THREE.DoubleSide });
         var flP = new THREE.Mesh(new THREE.ShapeGeometry(shp), fmatP);
         flP.rotation.x = Math.PI / 2; flP.position.set(rm.x_offset, 0, rm.z_offset); addToRoom(rm, flP);
         if (rm.floorplan) { loadTex(rm.floorplan, function (tex) { fmatP.map = tex; fmatP.color.set(0xffffff); fmatP.needsUpdate = true; }); }
@@ -682,6 +709,23 @@
         var ccx = 0, ccz = 0;   // polygon centroid (unrotated world) for outward door labels
         SHAPE.forEach(function (p) { ccx += rm.x_offset + p.x * rm.w; ccz += rm.z_offset + p.z * rm.d; });
         ccx /= SHAPE.length; ccz /= SHAPE.length;
+        // Dark marble border band along each room edge (the gallery-floor inlay in the reference).
+        if (!rm.floorplan) {
+          var bandMat = new THREE.MeshStandardMaterial({ color: 0x3a342c, roughness: 0.28, side: THREE.DoubleSide });
+          var BW = 0.55;
+          for (var be = 0; be < SHAPE.length; be++) {
+            var qa = SHAPE[be], qb = SHAPE[(be + 1) % SHAPE.length];
+            var qax = rm.x_offset + qa.x * rm.w, qaz = rm.z_offset + qa.z * rm.d, qbx = rm.x_offset + qb.x * rm.w, qbz = rm.z_offset + qb.z * rm.d;
+            var elen = Math.hypot(qbx - qax, qbz - qaz); if (elen < 0.4) continue;
+            var eang = Math.atan2(qbz - qaz, qbx - qax), emx = (qax + qbx) / 2, emz = (qaz + qbz) / 2;
+            var inx = -Math.sin(eang), inz = Math.cos(eang);   // inward normal (toward centroid)
+            if ((ccx - emx) * inx + (ccz - emz) * inz < 0) { inx = -inx; inz = -inz; }
+            var band = new THREE.Mesh(new THREE.PlaneGeometry(elen, BW), bandMat);
+            band.rotation.x = -Math.PI / 2; band.rotation.z = -eang;   // lay flat, align length to the edge
+            band.position.set(emx + inx * BW / 2, 0.02, emz + inz * BW / 2);   // sit just above the marble
+            addToRoom(rm, band);
+          }
+        }
         // Legacy rect-style doors ({wall:north|south|east|west}) on a now-shaped room
         // are otherwise dropped (edgeWall only cuts edge-indexed doors). Map each to
         // the polygon edge whose outward normal best matches that side, so it renders.
