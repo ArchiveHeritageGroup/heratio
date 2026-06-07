@@ -338,6 +338,14 @@ class AhgCoreServiceProvider extends ServiceProvider
                 $schedule->command('ahg:nas-watchdog --quiet-ok')
                     ->everyFiveMinutes()
                     ->withoutOverlapping(5);
+
+                // Auto-optimise oversized 3D models (Draco) hourly so freshly-uploaded
+                // OBJ/GLB masters load in the walkthrough instead of placeholdering.
+                // No-op when the /opt model tools are not installed.
+                $schedule->command('ahg:optimize-models --commit --min-mb=20')
+                    ->hourly()
+                    ->withoutOverlapping(55)
+                    ->runInBackground();
             });
         }
 

@@ -53,6 +53,15 @@ Geometry is Draco-compressed; **textures are not** (a texture-heavy glb may stay
 large - re-export with smaller textures, or use `gltf-transform optimize` with a
 texture encoder).
 
+## Automatic optimisation (scheduled)
+
+Once the host tools are installed, `ahg:optimize-models --commit --min-mb=20` runs
+**hourly** via the Laravel scheduler (registered in `AhgCoreServiceProvider`). Any
+oversized OBJ/GLB master uploaded — exhibition furniture *or* archival digital
+object — is compressed within the hour and then loads in the walkthrough. It is a
+no-op when the tools are absent, skips already-optimised `*-opt.glb` outputs, and
+runs as `www-data` (the scheduler's user). No per-upload action is required.
+
 ## Backfill existing oversized models
 
 `ahg:optimize-models` finds 3D masters over a size threshold, compresses them,

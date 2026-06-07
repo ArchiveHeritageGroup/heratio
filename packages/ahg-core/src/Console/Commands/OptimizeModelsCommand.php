@@ -56,6 +56,9 @@ class OptimizeModelsCommand extends Command
         }
         $rows = $q->orderByDesc('byte_size')->get()
             ->filter(fn ($r) => in_array(strtolower(pathinfo((string) $r->name, PATHINFO_EXTENSION)), ModelCompressionService::SUPPORTED, true))
+            // Skip our own optimised outputs (the "-opt.glb" suffix) so the hourly schedule does not
+            // re-compress a model that is still over the threshold (e.g. a texture-heavy glb).
+            ->filter(fn ($r) => ! str_ends_with(strtolower((string) $r->name), '-opt.glb'))
             ->values();
         if ((int) $this->option('limit') > 0) {
             $rows = $rows->take((int) $this->option('limit'));
