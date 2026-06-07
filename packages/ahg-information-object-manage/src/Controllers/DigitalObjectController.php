@@ -545,11 +545,11 @@ class DigitalObjectController extends Controller
                     'usage_id' => $snapshot['usage_id'] ?? null,
                 ],
             ]);
-            return redirect()->route('informationobject.edit', $slug)
+            return redirect()->route('informationobject.show', $slug)
                 ->with('success', 'Digital object deleted successfully.');
         }
 
-        return redirect()->route('informationobject.edit', $slug)
+        return redirect()->route('informationobject.show', $slug)
             ->with('error', 'Failed to delete digital object.');
     }
 
