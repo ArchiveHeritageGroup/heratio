@@ -10,6 +10,8 @@
     <a href="{{ route('exhibition-space.analytics', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-chart-area me-1"></i>{{ __('Analytics') }}</a>
     <a href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}</a>
     <a href="{{ route('exhibition-space.builder', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-cubes me-1"></i>{{ __('Builder') }}</a>
+    <a href="{{ route('exhibition-space.plan', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-drafting-compass me-1"></i>{{ __('Building Plan') }}</a>
+    <a href="{{ route('exhibition-space.browse') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-th-list me-1"></i>{{ __('All spaces') }}</a>
   </div>
   <p class="text-muted small mb-3">{{ __('Projected from the last 30 days of light readings: annual light dose (lux-hours) vs the material light budget, time until the budget is reached, and visitor load. Budgets follow international museum guidance (very sensitive 50k, sensitive 150k, durable 600k lux-hours/year).') }}</p>
 

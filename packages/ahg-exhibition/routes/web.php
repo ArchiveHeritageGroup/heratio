@@ -31,6 +31,14 @@ Route::middleware('auth')->prefix('exhibition')->group(function () {
 // heratio#146 — exhibition space (front-of-house space allocation, sibling of strongroom)
 Route::get('/exhibition-space/browse', [ExhibitionSpaceController::class, 'browse'])->name('exhibition-space.browse');
 
+// Public demo: these four pages are viewable without login (builder/plan/analytics/forecast). All
+// edit/save/delete POST actions stay inside the auth+acl group below, and the edit controls in the
+// views are @auth-gated, so a guest can explore but cannot change anything.
+Route::get('/exhibition-space/{slug}/builder', [ExhibitionSpaceController::class, 'builder'])->name('exhibition-space.builder');
+Route::get('/exhibition-space/{slug}/plan', [ExhibitionSpaceController::class, 'plan'])->name('exhibition-space.plan');
+Route::get('/exhibition-space/{slug}/forecast', [ExhibitionSpaceController::class, 'forecast'])->name('exhibition-space.forecast');
+Route::get('/exhibition-space/{slug}/analytics', [ExhibitionSpaceController::class, 'analytics'])->name('exhibition-space.analytics');
+
 Route::middleware('auth')->group(function () {
     Route::get('/exhibition-space/add', [ExhibitionSpaceController::class, 'create'])->name('exhibition-space.create');
     Route::post('/exhibition-space/add', [ExhibitionSpaceController::class, 'store'])->name('exhibition-space.store')->middleware('acl:create');
@@ -39,10 +47,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/place', [ExhibitionSpaceController::class, 'placePlacement'])->name('exhibition-space.place')->middleware('acl:update');
     Route::post('/exhibition-space/placement/{placementId}/remove', [ExhibitionSpaceController::class, 'removePlacement'])->name('exhibition-space.placement.remove')->middleware('acl:update')->whereNumber('placementId');
 
-    // heratio#1138 — digital twin: virtual collection builder (Phase 1)
-    Route::get('/exhibition-space/{slug}/builder', [ExhibitionSpaceController::class, 'builder'])->name('exhibition-space.builder');
-    // heratio#1143 — building plan editor
-    Route::get('/exhibition-space/{slug}/plan', [ExhibitionSpaceController::class, 'plan'])->name('exhibition-space.plan');
+    // heratio#1138 — digital twin builder + #1143 plan editor: GET views are public (see above);
+    // all save/edit/delete actions below stay auth+acl gated.
     Route::post('/exhibition-space/{slug}/plan/save', [ExhibitionSpaceController::class, 'savePlanAjax'])->name('exhibition-space.plan.save')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/doors', [ExhibitionSpaceController::class, 'saveDoorsAjax'])->name('exhibition-space.plan.doors')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/shape', [ExhibitionSpaceController::class, 'saveShapeAjax'])->name('exhibition-space.plan.shape')->middleware('acl:update');
@@ -60,10 +66,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/readings/simulate', [ExhibitionSpaceController::class, 'simulateReadingsAjax'])->name('exhibition-space.readings.simulate')->middleware('acl:update');
     // heratio#1149 - precompute AI recommendations (admin)
     Route::post('/exhibition-space/{slug}/recommend/generate', [ExhibitionSpaceController::class, 'generateRecommendationsAjax'])->name('exhibition-space.recommend.generate')->middleware('acl:update');
-    // heratio#1147 - conservation forecast
-    Route::get('/exhibition-space/{slug}/forecast', [ExhibitionSpaceController::class, 'forecast'])->name('exhibition-space.forecast');
-    // heratio#1148 - analytics dashboard
-    Route::get('/exhibition-space/{slug}/analytics', [ExhibitionSpaceController::class, 'analytics'])->name('exhibition-space.analytics');
+    // heratio#1147 forecast + #1148 analytics: GET views are public (see above).
     Route::post('/exhibition-space/{slug}/plan/image-rect', [ExhibitionSpaceController::class, 'planImageRectAjax'])->name('exhibition-space.plan.image-rect')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/corridor-add', [ExhibitionSpaceController::class, 'corridorAddAjax'])->name('exhibition-space.plan.corridor-add')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/plan/corridor-move', [ExhibitionSpaceController::class, 'corridorMoveAjax'])->name('exhibition-space.plan.corridor-move')->middleware('acl:update');

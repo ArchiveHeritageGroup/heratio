@@ -13,6 +13,8 @@
     <a href="{{ route('exhibition-space.show', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary">
       <i class="fas fa-arrow-left me-1"></i>{{ __('Back to space') }}
     </a>
+    <a href="{{ route('exhibition-space.plan', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-drafting-compass me-1"></i>{{ __('Building Plan') }}</a>
+    <a href="{{ route('exhibition-space.browse') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-th-list me-1"></i>{{ __('All spaces') }}</a>
     @auth
       <a id="editBuilderBtn" href="{{ route('exhibition-space.builder', ['slug' => $space->slug]) }}"
          data-tmpl="{{ route('exhibition-space.builder', ['slug' => '__SLUG__']) }}" class="btn btn-sm btn-outline-primary">

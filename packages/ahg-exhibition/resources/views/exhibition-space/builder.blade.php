@@ -14,6 +14,8 @@
       <i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}
     </a>
     <a href="{{ route('exhibition-space.forecast', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-chart-line me-1"></i>{{ __('Forecast') }}</a>
+    <a href="{{ route('exhibition-space.plan', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-drafting-compass me-1"></i>{{ __('Building Plan') }}</a>
+    <a href="{{ route('exhibition-space.browse') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-th-list me-1"></i>{{ __('All spaces') }}</a>
     @auth<button type="button" id="simLiveBtn" class="btn btn-sm btn-outline-success" title="{{ __('Seed demo sensor readings to preview the live overlay') }}"><i class="fas fa-temperature-half me-1"></i>{{ __('Simulate live data') }}</button>@endauth
     @auth<button type="button" id="genRecBtn" class="btn btn-sm btn-outline-success" title="{{ __('Use AI to suggest related objects for the walkthrough') }}"><i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI recommendations') }}</button>@endauth
     <a href="{{ route('exhibition-space.show', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary">

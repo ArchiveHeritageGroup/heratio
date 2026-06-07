@@ -15,6 +15,7 @@
     @auth<button type="button" id="lockFloorBtn" class="btn btn-sm btn-outline-dark" title="{{ __('Lock this whole floor: align all walls flush (and fill gaps if ticked); rooms can no longer be moved/resized. Click again to unlock the floor.') }}"><i class="fas fa-lock me-1"></i>{{ __('Lock floor') }}</button>@endauth
     <a href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}</a>
     <a href="{{ route('exhibition-space.builder', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-cubes me-1"></i>{{ __('Builder') }}</a>
+    <a href="{{ route('exhibition-space.browse') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-th-list me-1"></i>{{ __('All spaces') }}</a>
   </div>
   <p class="text-muted small mb-3">{{ __('Drag rooms to position them; use the corner handles to resize. Upload a blueprint to trace over. Saved automatically; the 3D walkthrough follows this layout.') }}</p>
 

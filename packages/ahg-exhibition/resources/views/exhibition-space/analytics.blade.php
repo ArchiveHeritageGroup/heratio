@@ -9,6 +9,8 @@
     <h1 class="mb-0 flex-grow-1"><i class="fas fa-chart-area me-2"></i>{{ __('Analytics') }} <small class="text-muted">{{ $space->name }}</small></h1>
     <a href="{{ route('exhibition-space.forecast', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-chart-line me-1"></i>{{ __('Forecast') }}</a>
     <a href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}</a>
+    <a href="{{ route('exhibition-space.plan', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-drafting-compass me-1"></i>{{ __('Building Plan') }}</a>
+    <a href="{{ route('exhibition-space.browse') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-th-list me-1"></i>{{ __('All spaces') }}</a>
   </div>
   <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
     <span class="small text-muted">{{ __('Period') }}:</span>
