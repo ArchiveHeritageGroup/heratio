@@ -114,10 +114,21 @@ class AhgRicServiceProvider extends ServiceProvider
             $this->app->booted(function () {
                 $schedule = $this->app->make(Schedule::class);
                 try {
-                    $cron = (string) (\Illuminate\Support\Facades\DB::table('ahg_settings')
+                    $raw = trim((string) (\Illuminate\Support\Facades\DB::table('ahg_settings')
                         ->where('setting_key', 'fuseki_integrity_schedule')
-                        ->value('setting_value') ?? '0 4 * * *');
-                    if (trim($cron) !== '') {
+                        ->value('setting_value') ?? '0 4 * * *'));
+                    // The settings form stores friendly tokens (daily/weekly/
+                    // monthly/disabled); map them to cron expressions. A raw
+                    // 5-field cron string is accepted as-is. 'disabled'/'' = off.
+                    $tokenMap = [
+                        'daily'    => '0 4 * * *',
+                        'weekly'   => '0 4 * * 0',
+                        'monthly'  => '0 4 1 * *',
+                        'disabled' => '',
+                        ''         => '',
+                    ];
+                    $cron = array_key_exists($raw, $tokenMap) ? $tokenMap[$raw] : $raw;
+                    if ($cron !== '') {
                         $schedule->command('ahg:fuseki-integrity-check --quiet-success')
                             ->cron($cron)
                             ->withoutOverlapping(60);
