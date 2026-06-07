@@ -1,5 +1,7 @@
 *.log
 .DS_Store
+# Scratch / non-git assets - drop anything here and it is never committed or released.
+/stuff/
 .env
 .env.backup
 .env.production
