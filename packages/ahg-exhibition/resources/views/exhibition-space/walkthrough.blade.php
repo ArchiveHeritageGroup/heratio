@@ -596,6 +596,7 @@
       if (cur < L) fullEdge(cur, L);
     }
     var pickables = [];   // declared before the room loop: the map plaques push into it
+    var railPoleReg = {};   // per-room rope-railing pole positions, so linked railings share a pole at the join
     // Live conservation overlay (heratio#1146): per-room status tint, toggled.
     var STATUS_COLOR = { ok: 0x2e7d32, warn: 0xf9a825, alert: 0xc62828, none: 0x9e9e9e };
     var roomTints = [];
@@ -758,7 +759,15 @@
           var pts = [];
           if (it.poles && it.poles.length >= 2) { it.poles.forEach(function (p) { pts.push({ x: p.x, z: p.z }); }); }
           else { var n = Math.max(2, Math.min(20, it.segments || 2)), span = 1.4, x0 = -(n - 1) * span / 2; for (var pi = 0; pi < n; pi++) pts.push({ x: x0 + pi * span, z: 0 }); }
+          // Linked railings: if another railing in this room already has a pole at the same spot,
+          // share it (draw one pole, not two) so a chain of railings reads as continuous.
+          var reg = (railPoleReg[rm.id] = railPoleReg[rm.id] || []);
+          var ry2 = -(it.rotation_deg || 0) * Math.PI / 180, cosr = Math.cos(ry2), sinr = Math.sin(ry2);
           pts.forEach(function (p) {
+            var lx = p.x * sc, lz = p.z * sc;
+            var wx = x + lx * cosr + lz * sinr, wz = z - lx * sinr + lz * cosr;   // room-space pole position
+            if (reg.some(function (q) { return Math.hypot(q.x - wx, q.z - wz) < 0.4; })) { return; }   // shared with a linked railing
+            reg.push({ x: wx, z: wz });
             cyl(0.04, 0.04, 0.95, metal, p.x, 0.475, p.z);
             var ball = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), metal); ball.position.set(p.x, 0.98, p.z); g.add(ball);
           });
@@ -1407,7 +1416,7 @@
         cy = clamp(1.6, hgt / 2 + 0.1, wallH - hgt / 2 - 0.1);
       }
       var frame = new THREE.Mesh(new THREE.BoxGeometry(wdt + 0.12, hgt + 0.12, 0.06), new THREE.MeshStandardMaterial({ color: 0x222222 }));
-      var pic = new THREE.Mesh(new THREE.PlaneGeometry(wdt, hgt), new THREE.MeshBasicMaterial({ map: tex }));
+      var pic = new THREE.Mesh(new THREE.PlaneGeometry(wdt, hgt), new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide }));
       pic.position.z = 0.045;
       var grp = new THREE.Group();
       grp.add(frame); grp.add(pic);
