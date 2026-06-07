@@ -232,6 +232,7 @@ class ExhibitionSpaceController extends Controller
             'doors' => $this->service->getDoors((int) $space->id),
             'windows' => $this->service->getWindows((int) $space->id),   // #1172 wall-view
             'shape' => $this->service->getShape((int) $space->id),
+            'wallImages' => $this->service->getWallImages((int) $space->id),   // #wall-pictures per-edge overrides
             'layout' => $layout,
             'guidedTour' => $this->service->getGuidedTour($space),   // authored audio tour stops
             'tourObjects' => $this->service->buildingTourObjects($space),   // building-wide objects for the tour picker
@@ -1051,7 +1052,11 @@ class ExhibitionSpaceController extends Controller
         if (! $space) {
             abort(404);
         }
-        $request->validate(['wall_image' => 'required|image|mimes:jpeg,png,webp|max:8192']);
+        $request->validate([
+            'wall_image' => 'required|image|mimes:jpeg,png,webp|max:8192',
+            'edge' => 'nullable|integer|min:0|max:99',   // target wall; absent or all=1 => all walls (room default)
+            'all' => 'nullable|boolean',
+        ]);
         $file = $request->file('wall_image');
         $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
         $dir = config('heratio.storage_path').'/uploads/exhibition-walls';
@@ -1060,19 +1065,36 @@ class ExhibitionSpaceController extends Controller
         }
         $filename = $space->slug.'-'.substr(md5((string) microtime(true)), 0, 8).'.'.$ext;
         $file->move($dir, $filename);
-        $this->service->setWallImage((int) $space->id, '/uploads/exhibition-walls/'.$filename);
+        $path = '/uploads/exhibition-walls/'.$filename;
+        $allWalls = $request->boolean('all') || $request->input('edge', null) === null;
+        if ($allWalls) {
+            $this->service->setWallImage((int) $space->id, $path);
+        } else {
+            $this->service->setWallImageForEdge((int) $space->id, (int) $request->input('edge'), $path);
+        }
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true, 'path' => $path, 'filename' => $filename, 'all' => $allWalls, 'edge' => $allWalls ? null : (int) $request->input('edge')]);
+        }
 
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall image uploaded.');
     }
 
-    /** Clear the decorated wall image. */
-    public function clearWallImage(string $slug)
+    /** Clear the decorated wall image - the all-walls default, or one wall (edge). */
+    public function clearWallImage(Request $request, string $slug)
     {
         $space = $this->service->getBySlug($slug);
         if (! $space) {
             abort(404);
         }
-        $this->service->setWallImage((int) $space->id, null);
+        $allWalls = $request->boolean('all') || $request->input('edge', null) === null;
+        if ($allWalls) {
+            $this->service->setWallImage((int) $space->id, null);
+        } else {
+            $this->service->setWallImageForEdge((int) $space->id, (int) $request->input('edge'), null);
+        }
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true, 'all' => $allWalls, 'edge' => $allWalls ? null : (int) $request->input('edge')]);
+        }
 
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall image cleared.');
     }

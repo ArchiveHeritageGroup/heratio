@@ -58,6 +58,7 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'floorplan_image_path' => 'VARCHAR(500) NULL',
                     'ceiling_image_path' => 'VARCHAR(500) NULL',
                     'wall_image_path' => 'VARCHAR(500) NULL',
+                    'wall_images_json' => 'JSON NULL',   // #wall-pictures: per-edge wall images {edgeIndex: path}; wall_image_path is the all-walls default
                     'floorplan_width_m' => 'DECIMAL(8,2) NULL',
                     'floorplan_height_m' => 'DECIMAL(8,2) NULL',
                     'walls_json' => 'JSON NULL',

@@ -936,6 +936,8 @@ class ExhibitionSpaceService
                 'floorplan' => $r->floorplan_image_path ?? null,
                 'ceiling' => $r->ceiling_image_path ?? null,
                 'wall_image' => $r->wall_image_path ?? null,
+                'wall_images' => (! empty($r->wall_images_json) && is_array($wi = json_decode((string) $r->wall_images_json, true))) ? $wi : new \stdClass,   // #wall-pictures per-edge overrides
+
                 'stops' => $this->getWalkthroughStops((int) $r->id),
                 'walls' => $this->getWalls((int) $r->id),
                 'doors' => $this->getDoors((int) $r->id),
@@ -1887,11 +1889,36 @@ class ExhibitionSpaceService
             ->update(['ceiling_image_path' => $publicPath, 'updated_at' => now()]);
     }
 
-    /** Set or clear the room wall (painted/decorated) image, applied to all walls. */
+    /** Set or clear the room wall (painted/decorated) image - the ALL-WALLS default. */
     public function setWallImage(int $exhibitionSpaceId, ?string $publicPath): void
     {
         DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
             ->update(['wall_image_path' => $publicPath, 'updated_at' => now()]);
+    }
+
+    /** Per-edge wall images: {edgeIndex: publicPath}. Falls back to the all-walls default per wall. */
+    public function getWallImages(int $exhibitionSpaceId): array
+    {
+        $space = $this->getById($exhibitionSpaceId);
+        if (! $space || empty($space->wall_images_json)) {
+            return [];
+        }
+        $m = json_decode((string) $space->wall_images_json, true);
+
+        return is_array($m) ? $m : [];
+    }
+
+    /** Set or clear the wall image for a single edge (null path removes the override). */
+    public function setWallImageForEdge(int $exhibitionSpaceId, int $edge, ?string $publicPath): void
+    {
+        $map = $this->getWallImages($exhibitionSpaceId);
+        if ($publicPath === null) {
+            unset($map[(string) $edge]);
+        } else {
+            $map[(string) $edge] = $publicPath;
+        }
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
+            ->update(['wall_images_json' => empty($map) ? null : json_encode($map), 'updated_at' => now()]);
     }
 
     /**

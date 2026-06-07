@@ -132,17 +132,16 @@
       <div class="card mb-3">
         <div class="card-header py-2"><strong><i class="fas fa-paint-roller me-1"></i>{{ __('Wall painting') }}</strong></div>
         <div class="card-body">
-          <form method="POST" action="{{ route('exhibition-space.builder.wall-image', ['slug' => $space->slug]) }}" enctype="multipart/form-data" class="mb-2">
-            @csrf
-            <input type="file" name="wall_image" accept="image/*" class="form-control form-control-sm mb-2" required>
-            <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="fas fa-upload me-1"></i>{{ __('Upload wall painting') }}</button>
-          </form>
-          @if(!empty($space->wall_image_path))
-          <form method="POST" action="{{ route('exhibition-space.builder.wall-image-clear', ['slug' => $space->slug]) }}">
-            @csrf
-            <button type="submit" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear wall painting') }}</button>
-          </form>
-          @endif
+          <label class="form-label small mb-1">{{ __('Apply to') }}</label>
+          <select id="wpTarget" class="form-select form-select-sm mb-2"></select>
+          {{-- Preview of what is currently loaded for the chosen target, so you know what is there before replacing it. --}}
+          <div class="border rounded p-1 text-center mb-2" style="background:#f8f9fa">
+            <img id="wpPreview" alt="" style="max-width:100%;max-height:90px;display:none;border-radius:3px">
+            <div id="wpName" class="text-truncate text-muted mt-1" style="font-size:11px">{{ __('No painting on this wall') }}</div>
+          </div>
+          <input type="file" id="wpFile" accept="image/*" class="form-control form-control-sm mb-2">
+          <button type="button" id="wpUpload" class="btn btn-sm btn-outline-primary w-100 mb-1"><i class="fas fa-upload me-1"></i>{{ __('Upload painting') }}</button>
+          <button type="button" id="wpClear" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear painting') }}</button>
         </div>
       </div>
 
@@ -1004,6 +1003,51 @@
         }).catch(function () { el.innerHTML = '<div class="text-danger">{{ __('Could not load suggestions.') }}</div>'; });
     }
     (function () { var rr = document.getElementById('recRefresh'); if (rr) rr.addEventListener('click', loadRecs); loadRecs(); })();
+
+    // ---- Wall painting: per-wall image OR apply to all walls, with a preview of what is loaded ----
+    (function () {
+      var WALL_IMAGES = @json($wallImages ?? new \stdClass);   // {edgeIndex: path}
+      var WALL_DEFAULT = @json($space->wall_image_path);        // all-walls default
+      var sel = document.getElementById('wpTarget'), prev = document.getElementById('wpPreview'),
+        nameEl = document.getElementById('wpName'), fileEl = document.getElementById('wpFile'),
+        upBtn = document.getElementById('wpUpload'), clrBtn = document.getElementById('wpClear');
+      if (!sel) return;
+      function fname(p) { return p ? p.split('/').pop() : ''; }
+      function ownPath(t) { return (t === 'all') ? WALL_DEFAULT : (WALL_IMAGES && WALL_IMAGES[t]); }
+      function effPath(t) { return ownPath(t) || WALL_DEFAULT || ''; }
+      function refresh() {
+        var t = sel.value, own = ownPath(t), p = effPath(t);
+        if (p) { prev.src = p; prev.style.display = 'inline-block'; } else { prev.style.display = 'none'; }
+        nameEl.textContent = own ? fname(own) : (p ? ('{{ __('using all-walls:') }} ' + fname(p)) : '{{ __('No painting on this wall') }}');
+      }
+      sel.innerHTML = '<option value="all">{{ __('All walls (default)') }}</option>';
+      var n = (typeof SHAPE !== 'undefined' && SHAPE && SHAPE.length >= 3) ? SHAPE.length : 4;
+      for (var i = 0; i < n; i++) { var o = document.createElement('option'); o.value = String(i); o.textContent = '{{ __('Wall') }} ' + (i + 1); sel.appendChild(o); }
+      refresh();
+      sel.addEventListener('change', refresh);
+      upBtn.addEventListener('click', function () {
+        if (!fileEl.files || !fileEl.files[0]) { alert('{{ __('Choose an image first.') }}'); return; }
+        var fd = new FormData(); fd.append('wall_image', fileEl.files[0]);
+        var t = sel.value; if (t === 'all') fd.append('all', '1'); else fd.append('edge', t);
+        upBtn.disabled = true; upBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Uploading…') }}';
+        fetch('{{ route('exhibition-space.builder.wall-image', ['slug' => $space->slug]) }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: fd })
+          .then(function (r) { return r.json(); }).then(function (d) {
+            upBtn.disabled = false; upBtn.innerHTML = '<i class="fas fa-upload me-1"></i>{{ __('Upload painting') }}';
+            if (!d.ok) { alert('{{ __('Upload failed.') }}'); return; }
+            if (d.all) WALL_DEFAULT = d.path; else { WALL_IMAGES = WALL_IMAGES || {}; WALL_IMAGES[String(d.edge)] = d.path; }
+            fileEl.value = ''; refresh();
+          }).catch(function () { upBtn.disabled = false; upBtn.innerHTML = '<i class="fas fa-upload me-1"></i>{{ __('Upload painting') }}'; alert('{{ __('Upload failed.') }}'); });
+      });
+      clrBtn.addEventListener('click', function () {
+        var t = sel.value, body = (t === 'all') ? 'all=1' : ('edge=' + encodeURIComponent(t));
+        fetch('{{ route('exhibition-space.builder.wall-image-clear', ['slug' => $space->slug]) }}', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: body })
+          .then(function (r) { return r.json(); }).then(function (d) {
+            if (!d.ok) return;
+            if (d.all) WALL_DEFAULT = null; else if (WALL_IMAGES) delete WALL_IMAGES[String(t)];
+            refresh();
+          });
+      });
+    })();
 
     // ---- Guided tours (audio) authoring (multiple named tours) ----
     (function () {

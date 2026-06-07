@@ -381,7 +381,7 @@
       else { var lw = Math.max(0.2, W / 2 - 0.03); leaf(-W / 2, 1, lw); leaf(W / 2, -1, lw); }
       var hit = new THREE.Mesh(new THREE.BoxGeometry(W, doorH, 0.14), new THREE.MeshBasicMaterial({ visible: false }));
       hit.position.set(0, doorH / 2, 0); grp.add(hit);
-      if (dest) { hit.userData.action = 'door'; hit.userData.doorDest = dest; pickables.push(hit); }
+      if (dest) { hit.userData.action = 'door'; hit.userData.doorDest = dest; hit.userData.doorHome = rm; pickables.push(hit); }
       addToRoom(rm, grp);
       var wc = roomWorld(rm, mx, mz);
       frontDoors.push({ leaves: leaves, x: wc.x, z: wc.z, open: 0, slide: slide });
@@ -507,7 +507,7 @@
           var sm = seg(dd.s, dd.e, 0, doorH, doorMat);  // bare doorway: flat solid panel
           var ginx = ccx - mx, ginz = ccz - mz, ginl = Math.hypot(ginx, ginz) || 1;   // inward (toward room centre)
           var dnm = makeTextSprite('{{ __('Door') }}', 0.2); dnm.position.set(mx + ginx / ginl * 0.14, doorH * 0.5, mz + ginz / ginl * 0.14); addToRoom(rm, dnm);   // "Door" floated off the panel so it does not clip
-          if (sm && dest) { sm.userData.action = 'door'; sm.userData.doorDest = dest; pickables.push(sm); }   // click the door to jump into that room
+          if (sm && dest) { sm.userData.action = 'door'; sm.userData.doorDest = dest; sm.userData.doorHome = rm; pickables.push(sm); }   // click the door to jump into that room
         }
         if (dest && dest.name) {
           var lab = makeTextSprite('→ ' + dest.name, 0.3); lab.position.set(mx - nx * 0.35, doorH + 0.35, mz - nz * 0.35); addToRoom(rm, lab);
@@ -646,12 +646,20 @@
       RH = rm.h || WALL_H;   // this room's wall height (per-room, not building-wide)
       _curRoom = rm;         // wallSeg/wallSegH add into this room's (possibly rotated) group
       if (rm.is_outdoor) { renderOutdoor(rm); return; }   // #1170 open-air: no walls/ceiling/dividers
-      // Decorated/painted wall material for this room (if a wall image is set).
-      var rwMat = wallMat;
-      if (rm.wall_image) {
-        rwMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, side: THREE.DoubleSide });
-        loadTex(rm.wall_image, function (tex) { rwMat.map = tex; rwMat.needsUpdate = true; });
+      // Decorated/painted wall material (#wall-pictures): each edge can carry its OWN image
+      // (rm.wall_images[edge]); otherwise the room's all-walls default (rm.wall_image); else plain
+      // plaster. Materials are cached per image path so a shared image is uploaded once.
+      var _wmCache = {};
+      function wallMaterial(edge) {
+        var imgs = rm.wall_images || {};
+        var path = (imgs[edge] != null) ? imgs[edge] : (rm.wall_image || null);
+        if (!path) return wallMat;
+        if (_wmCache[path]) return _wmCache[path];
+        var m = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, side: THREE.DoubleSide });
+        loadTex(path, function (tex) { m.map = tex; m.needsUpdate = true; });
+        _wmCache[path] = m; return m;
       }
+      var rwMat = wallMaterial(-1);   // -1 = no edge override => all-walls default (used by auto-row branch)
       // #1176: every plan-mode room renders through the polygon/edge path. A room with no explicit
       // shape falls back to a unit rectangle so planWall is never needed (auto-row buildings stay null).
       var SHAPE = (rm.shape && rm.shape.length >= 3) ? rm.shape : (PLAN_MODE ? [{ x: 0, z: 0 }, { x: 1, z: 0 }, { x: 1, z: 1 }, { x: 0, z: 1 }] : null);
@@ -694,7 +702,7 @@
         });
         for (var e = 0; e < SHAPE.length; e++) {
           var pa = SHAPE[e], pb = SHAPE[(e + 1) % SHAPE.length];
-          edgeWall(rm, e, rm.x_offset + pa.x * rm.w, rm.z_offset + pa.z * rm.d, rm.x_offset + pb.x * rm.w, rm.z_offset + pb.z * rm.d, rwMat, ccx, ccz);
+          edgeWall(rm, e, rm.x_offset + pa.x * rm.w, rm.z_offset + pa.z * rm.d, rm.x_offset + pb.x * rm.w, rm.z_offset + pb.z * rm.d, wallMaterial(e), ccx, ccz);
         }
       } else {
         var fmat = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: 0.95, side: THREE.DoubleSide });
@@ -1316,7 +1324,11 @@
         var o = hits[0].object;
         while (o && !o.userData.stop && !o.userData.action) o = o.parent;
         if (o && o.userData.action === 'minimap') { toggleMinimap(true); return; }
-        if (o && o.userData.action === 'door' && o.userData.doorDest) { enterRoom(o.userData.doorDest); return; }   // click a door to jump into that room
+        if (o && o.userData.action === 'door' && o.userData.doorDest) {   // click a door to jump to the room on the OTHER side
+          var dDest = o.userData.doorDest, dHome = o.userData.doorHome;
+          var target = (dHome && curRoom && dDest && curRoom.id === dDest.id) ? dHome : dDest;   // already in the dest (e.g. the open garden)? go back to the wall's room
+          enterRoom(target); return;
+        }
         if (o && o.userData.action === 'stair') {   // #1169 click stairs to change floor
           var cp = controls.getObject(), tp = o.userData.top, bt = o.userData.bot;
           var dest = (Math.abs(cp.position.y - bt.fy) < Math.abs(cp.position.y - tp.fy)) ? tp : bt;
