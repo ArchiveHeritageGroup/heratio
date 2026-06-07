@@ -113,9 +113,29 @@ bottom of the screen - tap it and the tour drives the whole visit for you.
 
 ## Graffiti / wall tags
 
-Tap the **spray-can** button, then click a wall to leave a short graffiti tag. Tags are
-saved and shown to everyone who visits. (The demo war room and AI room already carry a
-few.)
+Tap the **spray-can** button, then click a wall to leave a short graffiti tag. Tags pin
+flat to the surface you click. (The demo war room and AI room already carry a few.)
+
+When you are **signed in**, tags are saved and shown to everyone who visits. When you are
+**not signed in**, tags are kept only in your browser for the current session - they let
+you doodle and try the feature without writing to the gallery, and they disappear when you
+close the tab. To remove a tag, switch on graffiti mode and click the tag.
+
+## Night mode (walk with a flashlight)
+
+Press the **moon button** (or **N**) to switch the gallery to night. The room drops to a
+dim, moonlit ambient - fairly dark but never pitch black, so you can still make out shapes
+- and a **flashlight** switches on that follows wherever you look. Press the button or **N**
+again to return to normal lighting. Great for a dramatic after-hours tour, or for picking
+out a single spotlit object in the dark.
+
+## Reading an object's details
+
+Aim at an object and click it (or click a numbered button) to open its info popup. When the
+popup opens the **mouse cursor is freed** and lands on the popup, so you can click **Close**,
+**View full record**, or a related-item suggestion straight away. Click the popup's close
+button, click away, or press **Esc** to dismiss it - the view re-locks and you carry on
+walking without having to click back in.
 
 ## All the walkthrough controls
 
@@ -126,11 +146,13 @@ few.)
 | Stand taller / crouch | hold U + mouse wheel |
 | Zoom in / out | Z |
 | Torch (light dark corners) | F or the bulb button |
+| Night mode (dim room + flashlight) | N or the moon button |
 | Hear description | hold T + click an object |
 | Force fresh AI description | hold G + click an object |
 | Graffiti | spray-can button, then click a wall |
 | Help menu | right-click, or the ? button |
 | Open full record | V |
+| Close info popup | click the popup, click away, or Esc |
 | Virtual reality | the VR button (headset) |
 | Guided tour | the Play button (big Start button on mobile) |
 
