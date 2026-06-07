@@ -946,6 +946,8 @@ class ExhibitionSpaceService
                 'ceiling' => $r->ceiling_image_path ?? null,
                 'wall_image' => $r->wall_image_path ?? null,
                 'floor_image' => $r->floor_image_path ?? null,   // decorative floor picture (stretched)
+                'wall_color' => $r->wall_color ?? null,          // all-walls paint colour (#hex), used when no image
+                'wall_colors' => (! empty($r->wall_colors_json) && is_array($wc = json_decode((string) $r->wall_colors_json, true))) ? $wc : new \stdClass,   // per-edge paint colours
                 'wall_images' => (! empty($r->wall_images_json) && is_array($wi = json_decode((string) $r->wall_images_json, true))) ? $wi : new \stdClass,   // #wall-pictures per-edge overrides
                 'furniture' => $this->getFurniture((int) $r->id),   // placeable furniture & fittings
 
@@ -1939,8 +1941,40 @@ class ExhibitionSpaceService
             ->update(['wall_images_json' => empty($map) ? null : json_encode($map), 'updated_at' => now()]);
     }
 
+    /** Set or clear the all-walls default paint colour (#hex, or null to revert to plaster/image). */
+    public function setWallColor(int $exhibitionSpaceId, ?string $hex): void
+    {
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
+            ->update(['wall_color' => $hex, 'updated_at' => now()]);
+    }
+
+    /** Per-edge wall paint colours: {edgeIndex: '#hex'}. Falls back to the all-walls colour per wall. */
+    public function getWallColors(int $exhibitionSpaceId): array
+    {
+        $space = $this->getById($exhibitionSpaceId);
+        if (! $space || empty($space->wall_colors_json)) {
+            return [];
+        }
+        $m = json_decode((string) $space->wall_colors_json, true);
+
+        return is_array($m) ? $m : [];
+    }
+
+    /** Set or clear the paint colour for a single edge (null removes the override). */
+    public function setWallColorForEdge(int $exhibitionSpaceId, int $edge, ?string $hex): void
+    {
+        $map = $this->getWallColors($exhibitionSpaceId);
+        if ($hex === null) {
+            unset($map[(string) $edge]);
+        } else {
+            $map[(string) $edge] = $hex;
+        }
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
+            ->update(['wall_colors_json' => empty($map) ? null : json_encode($map), 'updated_at' => now()]);
+    }
+
     // -------- Furniture & fittings (placeable props per room) --------
-    public const FURNITURE_KINDS = ['bench', 'pedestal', 'case', 'planter', 'table', 'chair', 'railing'];
+    public const FURNITURE_KINDS = ['bench', 'pedestal', 'case', 'planter', 'table', 'chair', 'railing', 'pillar-round', 'pillar-square'];
 
     /** Furniture placed in a room: [{id,kind,pos_x,pos_y,rotation_deg,scale}] (positions are 0-1 of the room). */
     public function getFurniture(int $exhibitionSpaceId): array

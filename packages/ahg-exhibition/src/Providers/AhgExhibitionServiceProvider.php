@@ -61,6 +61,8 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'wall_image_path' => 'VARCHAR(500) NULL',
                     'wall_images_json' => 'JSON NULL',   // #wall-pictures: per-edge wall images {edgeIndex: path}; wall_image_path is the all-walls default
                     'floor_image_path' => 'VARCHAR(500) NULL',   // decorative floor picture stretched over the room floor (overrides marble)
+                    'wall_color' => 'VARCHAR(9) NULL',   // all-walls paint colour (#hex) used when no wall image
+                    'wall_colors_json' => 'JSON NULL',   // per-edge paint colours {edgeIndex: '#hex'}; wall_color is the all-walls default
                     'floorplan_width_m' => 'DECIMAL(8,2) NULL',
                     'floorplan_height_m' => 'DECIMAL(8,2) NULL',
                     'walls_json' => 'JSON NULL',

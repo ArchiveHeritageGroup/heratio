@@ -1114,6 +1114,94 @@ class ExhibitionSpaceController extends Controller
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall image cleared.');
     }
 
+    /** Upload a decorative floor picture (stretched over the whole room floor). Mirrors uploadWallImage. */
+    public function uploadFloorImage(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $request->validate([
+            'floor_image' => 'required|image|mimes:jpeg,png,webp|max:8192',
+        ]);
+        $file = $request->file('floor_image');
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        $dir = config('heratio.storage_path').'/uploads/exhibition-floors';
+        if (! is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        $filename = $space->slug.'-'.substr(md5((string) microtime(true)), 0, 8).'.'.$ext;
+        $file->move($dir, $filename);
+        $path = '/uploads/exhibition-floors/'.$filename;
+        $this->service->setFloorImage((int) $space->id, $path);
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true, 'path' => $path, 'filename' => $filename]);
+        }
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Floor image uploaded.');
+    }
+
+    /** Clear the decorative floor picture (reverts to floorplan/marble). */
+    public function clearFloorImage(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $this->service->setFloorImage((int) $space->id, null);
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true]);
+        }
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Floor image cleared.');
+    }
+
+    /** Save a wall paint colour - the all-walls default, or one wall (edge). Used when no wall image is set. */
+    public function saveWallColor(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $data = $request->validate([
+            'color' => 'required|string|regex:/^#?[0-9a-fA-F]{6}$/',
+            'edge' => 'nullable|integer|min:0|max:99',
+            'all' => 'nullable|boolean',
+        ]);
+        $hex = '#'.ltrim($data['color'], '#');
+        $allWalls = $request->boolean('all') || $request->input('edge', null) === null;
+        if ($allWalls) {
+            $this->service->setWallColor((int) $space->id, $hex);
+        } else {
+            $this->service->setWallColorForEdge((int) $space->id, (int) $request->input('edge'), $hex);
+        }
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true, 'color' => $hex, 'all' => $allWalls, 'edge' => $allWalls ? null : (int) $request->input('edge')]);
+        }
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall colour saved.');
+    }
+
+    /** Clear a wall paint colour - the all-walls default, or one wall (edge). */
+    public function clearWallColor(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $allWalls = $request->boolean('all') || $request->input('edge', null) === null;
+        if ($allWalls) {
+            $this->service->setWallColor((int) $space->id, null);
+        } else {
+            $this->service->setWallColorForEdge((int) $space->id, (int) $request->input('edge'), null);
+        }
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true, 'all' => $allWalls, 'edge' => $allWalls ? null : (int) $request->input('edge')]);
+        }
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall colour cleared.');
+    }
+
     /** AJAX: add a furniture/fitting item to this room at floor-fraction (fx,fy). */
     public function furnitureAddAjax(Request $request, string $slug)
     {

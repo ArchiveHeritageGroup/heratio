@@ -575,17 +575,22 @@
     var _marbleTex = null, _wallTex = null;
     function marbleTexture() {
       if (_marbleTex) return _marbleTex;
-      var c = document.createElement('canvas'); c.width = c.height = 512; var g = c.getContext('2d');
-      g.fillStyle = '#efe9dd'; g.fillRect(0, 0, 512, 512);
-      for (var i = 0; i < 44; i++) { var x = Math.random() * 512, y = Math.random() * 512, r = 40 + Math.random() * 130; var rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, 'rgba(255,255,255,' + (0.04 + Math.random() * 0.12) + ')'); rg.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
-      for (var v = 0; v < 24; v++) {
-        g.strokeStyle = 'rgba(' + ((120 + Math.random() * 60) | 0) + ',' + ((115 + Math.random() * 55) | 0) + ',' + ((110 + Math.random() * 50) | 0) + ',' + (0.1 + Math.random() * 0.18) + ')';
-        g.lineWidth = 0.5 + Math.random() * 2; g.beginPath();
-        var px = Math.random() * 512, py = Math.random() * 512; g.moveTo(px, py);
-        for (var s = 0; s < 6; s++) { px += (Math.random() * 170 - 85); py += (Math.random() * 170 - 85); g.lineTo(px, py); }
+      var N = 768, c = document.createElement('canvas'); c.width = c.height = N; var g = c.getContext('2d');
+      // Warm off-white base with broad tonal drift (large soft patches, some darker, some lighter).
+      g.fillStyle = '#ece5d6'; g.fillRect(0, 0, N, N);
+      for (var b = 0; b < 9; b++) { var bx = Math.random() * N, by = Math.random() * N, br = N * 0.3 + Math.random() * N * 0.4; var bg = g.createRadialGradient(bx, by, 0, bx, by, br); var dk = Math.random() < 0.5; bg.addColorStop(0, dk ? 'rgba(150,142,124,0.10)' : 'rgba(255,253,247,0.14)'); bg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = bg; g.fillRect(0, 0, N, N); }
+      // Bright crystalline glints.
+      for (var i = 0; i < 60; i++) { var x = Math.random() * N, y = Math.random() * N, r = 30 + Math.random() * 120; var rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, 'rgba(255,255,255,' + (0.05 + Math.random() * 0.14) + ')'); rg.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = rg; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+      // A meandering vein that occasionally branches and tapers - the hallmark of real marble.
+      function vein(px, py, len, w, alpha, col) {
+        g.strokeStyle = col + alpha + ')'; g.lineWidth = w; g.lineJoin = 'round'; g.beginPath(); g.moveTo(px, py);
+        var ang = Math.random() * Math.PI * 2;
+        for (var s = 0; s < len; s++) { ang += (Math.random() - 0.5) * 0.9; px += Math.cos(ang) * 16; py += Math.sin(ang) * 16; g.lineTo(px, py); if (Math.random() < 0.08 && w > 0.6) vein(px, py, (len - s) * 0.6 | 0, w * 0.5, (alpha * 0.8).toFixed(2), col); }
         g.stroke();
       }
-      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.25, 0.25); _marbleTex = t; return t;
+      for (var v = 0; v < 5; v++) vein(Math.random() * N, Math.random() * N, 26, 1.6 + Math.random() * 1.8, (0.18 + Math.random() * 0.16).toFixed(2), 'rgba(86,78,66,');   // bold dark primaries (contrast)
+      for (var h = 0; h < 26; h++) vein(Math.random() * N, Math.random() * N, 14, 0.4 + Math.random() * 1.2, (0.08 + Math.random() * 0.12).toFixed(2), 'rgba(120,112,100,');   // fine grey hairlines
+      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.3, 0.3); _marbleTex = t; return t;
     }
     // Warm textured plaster wall (taupe with fine mottling) - the default look when no wall image.
     function wallTexture() {
@@ -621,7 +626,11 @@
       var x = rm.x_offset + (it.pos_x == null ? 0.5 : it.pos_x) * rm.w;
       var z = rm.z_offset + (it.pos_y == null ? 0.5 : it.pos_y) * rm.d;
       var g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = -(it.rotation_deg || 0) * Math.PI / 180;
-      var sc = it.scale || 1; g.scale.set(sc, sc, sc);
+      var sc = it.scale || 1;
+      // Pillars take their HEIGHT from scale (3m base x scale, ~0.9-12m), keeping a fixed cross-section,
+      // so the slider raises/lowers the column instead of fattening it. Other furniture scales uniformly.
+      var isPillar = (it.kind === 'pillar-round' || it.kind === 'pillar-square');
+      g.scale.set(isPillar ? 1 : sc, isPillar ? 1 : sc, isPillar ? 1 : sc);
       var wood = new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 0.8 });
       var stone = new THREE.MeshStandardMaterial({ color: 0xe8e2d4, roughness: 0.9 });
       var metal = new THREE.MeshStandardMaterial({ color: 0x9a9b9d, metalness: 0.7, roughness: 0.35 });
@@ -636,6 +645,9 @@
         case 'table': box(1.2, 0.06, 0.7, wood, 0, 0.74, 0); [[-0.5, -0.28], [0.5, -0.28], [-0.5, 0.28], [0.5, 0.28]].forEach(function (p) { box(0.07, 0.74, 0.07, wood, p[0], 0.37, p[1]); }); break;
         case 'chair': box(0.45, 0.06, 0.45, wood, 0, 0.45, 0); box(0.45, 0.5, 0.06, wood, 0, 0.7, -0.2); [[-0.18, -0.18], [0.18, -0.18], [-0.18, 0.18], [0.18, 0.18]].forEach(function (p) { box(0.05, 0.45, 0.05, wood, p[0], 0.22, p[1]); }); break;
         case 'railing': [-0.7, 0.7].forEach(function (px) { cyl(0.04, 0.04, 0.95, metal, px, 0.475, 0); var ball = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), metal); ball.position.set(px, 0.98, 0); g.add(ball); }); var rope = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.4, 8), new THREE.MeshStandardMaterial({ color: 0x8a1f2b, roughness: 0.8 })); rope.rotation.z = Math.PI / 2; rope.position.set(0, 0.82, 0); g.add(rope); break;
+        // Architectural columns with a base + capital (classical look). Height = 3m x scale (adjustable).
+        case 'pillar-round': { var ph = 3.0 * sc; cyl(0.3, 0.34, ph, stone, 0, ph / 2, 0); box(0.82, 0.12, 0.82, stone, 0, 0.06, 0); box(0.78, 0.16, 0.78, stone, 0, ph - 0.08, 0); break; }
+        case 'pillar-square': { var ph2 = 3.0 * sc; box(0.5, ph2, 0.5, stone, 0, ph2 / 2, 0); box(0.78, 0.12, 0.78, stone, 0, 0.06, 0); box(0.74, 0.16, 0.74, stone, 0, ph2 - 0.08, 0); break; }
         default: box(0.5, 1.0, 0.5, stone, 0, 0.5, 0);
       }
       addToRoom(rm, g);
@@ -723,11 +735,17 @@
       function wallMaterial(edge) {
         var imgs = rm.wall_images || {};
         var path = (imgs[edge] != null) ? imgs[edge] : (rm.wall_image || null);
-        if (!path) return wallMat;
-        if (_wmCache[path]) return _wmCache[path];
-        var m = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, side: THREE.DoubleSide });
-        loadTex(path, function (tex) { m.map = tex; m.needsUpdate = true; });
-        _wmCache[path] = m; return m;
+        if (path) {
+          if (_wmCache[path]) return _wmCache[path];
+          var m = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, side: THREE.DoubleSide });
+          loadTex(path, function (tex) { m.map = tex; m.needsUpdate = true; });
+          _wmCache[path] = m; return m;
+        }
+        // No image: fall back to a painted solid colour (per-edge, then all-walls), else plaster.
+        var cols = rm.wall_colors || {};
+        var col = (cols[edge] != null) ? cols[edge] : (rm.wall_color || null);
+        if (col) { var ck = 'c:' + col; if (_wmCache[ck]) return _wmCache[ck]; var cm = new THREE.MeshStandardMaterial({ color: col, roughness: 0.9, side: THREE.DoubleSide }); _wmCache[ck] = cm; return cm; }
+        return wallMat;
       }
       var rwMat = wallMaterial(-1);   // -1 = no edge override => all-walls default (used by auto-row branch)
       // #1176: every plan-mode room renders through the polygon/edge path. A room with no explicit
@@ -739,13 +757,15 @@
         SHAPE.forEach(function (p, j) { var px = p.x * rm.w, pz = p.z * rm.d; if (j === 0) shp.moveTo(px, pz); else shp.lineTo(px, pz); });
         shp.closePath();
         addHoles(shp, holesFor(rm));   // #1169 stairwell openings
-        // Polished marble floor (glossy) when there is no floor-plan image; floor-plan rooms stay matte grey.
-        var fmatP = rm.floorplan
-          ? new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: 0.95, side: THREE.DoubleSide })
+        // Floor picture priority: an uploaded floor_image (stretched photo) > floor-plan tracing > polished marble.
+        var floorPicP = rm.floor_image || rm.floorplan;
+        var fmatP = floorPicP
+          ? new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: rm.floor_image ? 0.4 : 0.95, side: THREE.DoubleSide })
           : new THREE.MeshStandardMaterial({ map: marbleTexture(), color: 0xffffff, roughness: 0.22, side: THREE.DoubleSide });
         var flP = new THREE.Mesh(new THREE.ShapeGeometry(shp), fmatP);
         flP.rotation.x = Math.PI / 2; flP.position.set(rm.x_offset, 0, rm.z_offset); addToRoom(rm, flP);
-        if (rm.floorplan) { loadTex(rm.floorplan, function (tex) { fmatP.map = tex; fmatP.color.set(0xffffff); fmatP.needsUpdate = true; }); }
+        // ShapeGeometry UVs are in metres (0..rm.w / 0..rm.d), so map one stretched copy over the whole floor.
+        if (floorPicP) { loadTex(floorPicP, function (tex) { tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping; tex.repeat.set(1 / rm.w, 1 / rm.d); fmatP.map = tex; fmatP.color.set(0xffffff); fmatP.needsUpdate = true; }); }
         if (rm.ceiling) {
           var cmatP = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
           var clP = new THREE.Mesh(new THREE.ShapeGeometry(shp), cmatP);
@@ -756,7 +776,7 @@
         SHAPE.forEach(function (p) { ccx += rm.x_offset + p.x * rm.w; ccz += rm.z_offset + p.z * rm.d; });
         ccx /= SHAPE.length; ccz /= SHAPE.length;
         // Dark marble border band along each room edge (the gallery-floor inlay in the reference).
-        if (!rm.floorplan) {
+        if (!floorPicP) {
           var bandMat = new THREE.MeshStandardMaterial({ color: 0x3a342c, roughness: 0.28, side: THREE.DoubleSide });
           var BW = 0.55;
           for (var be = 0; be < SHAPE.length; be++) {
@@ -795,12 +815,15 @@
           edgeWall(rm, e, rm.x_offset + pa.x * rm.w, rm.z_offset + pa.z * rm.d, rm.x_offset + pb.x * rm.w, rm.z_offset + pb.z * rm.d, wallMaterial(e), ccx, ccz);
         }
       } else {
-        var fmat = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: 0.95, side: THREE.DoubleSide });
-        var rhStair = holesFor(rm), fl;
+        var fmat = new THREE.MeshStandardMaterial({ color: 0x8a8f96, roughness: rm.floor_image ? 0.4 : 0.95, side: THREE.DoubleSide });
+        var rhStair = holesFor(rm), fl, metreUV = rhStair.length > 0;
         if (rhStair.length) { fl = new THREE.Mesh(shapeWithHoles([[0, 0], [rm.w, 0], [rm.w, rm.d], [0, rm.d]], rhStair), fmat); fl.rotation.x = Math.PI / 2; fl.position.set(rm.x_offset, 0, rm.z_offset); }
         else { fl = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), fmat); fl.rotation.x = -Math.PI / 2; fl.position.set(cx, 0, cz); }
         addToRoom(rm, fl);
-        if (rm.floorplan) { loadTex(rm.floorplan, function (tex) { fmat.map = tex; fmat.color.set(0xffffff); fmat.needsUpdate = true; }); }
+        // Floor picture priority: uploaded floor_image > floor-plan tracing. PlaneGeometry UVs are 0..1 (1:1);
+        // the stairwell shapeWithHoles path uses metre UVs, so scale one stretched copy over the whole floor.
+        var floorPic = rm.floor_image || rm.floorplan;
+        if (floorPic) { loadTex(floorPic, function (tex) { if (metreUV) { tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping; tex.repeat.set(1 / rm.w, 1 / rm.d); } fmat.map = tex; fmat.color.set(0xffffff); fmat.needsUpdate = true; }); }
         if (rm.ceiling) {                               // painted ceiling image
           var cmat = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
           var cl = new THREE.Mesh(new THREE.PlaneGeometry(rm.w, rm.d), cmat);

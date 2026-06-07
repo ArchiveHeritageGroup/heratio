@@ -91,6 +91,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/builder/ceiling-clear', [ExhibitionSpaceController::class, 'clearCeiling'])->name('exhibition-space.builder.ceiling-clear')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/wall-image', [ExhibitionSpaceController::class, 'uploadWallImage'])->name('exhibition-space.builder.wall-image')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/wall-image-clear', [ExhibitionSpaceController::class, 'clearWallImage'])->name('exhibition-space.builder.wall-image-clear')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/floor-image', [ExhibitionSpaceController::class, 'uploadFloorImage'])->name('exhibition-space.builder.floor-image')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/floor-image-clear', [ExhibitionSpaceController::class, 'clearFloorImage'])->name('exhibition-space.builder.floor-image-clear')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/wall-color', [ExhibitionSpaceController::class, 'saveWallColor'])->name('exhibition-space.builder.wall-color')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/wall-color-clear', [ExhibitionSpaceController::class, 'clearWallColor'])->name('exhibition-space.builder.wall-color-clear')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/room-dims', [ExhibitionSpaceController::class, 'roomDimsAjax'])->name('exhibition-space.builder.room-dims')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/walkthrough-path', [ExhibitionSpaceController::class, 'saveWalkthroughPath'])->name('exhibition-space.builder.walkthrough-path')->middleware('acl:update');
 });

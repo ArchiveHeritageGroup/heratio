@@ -142,7 +142,33 @@
           </div>
           <input type="file" id="wpFile" accept="image/*" class="form-control form-control-sm mb-2">
           <button type="button" id="wpUpload" class="btn btn-sm btn-outline-primary w-100 mb-1"><i class="fas fa-upload me-1"></i>{{ __('Upload painting') }}</button>
-          <button type="button" id="wpClear" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear painting') }}</button>
+          <button type="button" id="wpClear" class="btn btn-sm btn-outline-danger w-100 mb-2"><i class="fas fa-times me-1"></i>{{ __('Clear painting') }}</button>
+          <hr class="my-2">
+          <label class="form-label small mb-1">{{ __('Or paint a colour') }}</label>
+          <div class="d-flex flex-wrap gap-1 mb-2" id="wcSwatches">
+            @foreach (['#f5f1e8' => 'Gallery white', '#e9e2d0' => 'Warm stone', '#d9cbb2' => 'Sand', '#cfd8d3' => 'Sage grey', '#b8c4cc' => 'Cool grey', '#9aa7b0' => 'Slate', '#7d8a74' => 'Olive', '#8a6d5b' => 'Taupe', '#6e5a4e' => 'Mocha', '#5a6b7a' => 'Petrol', '#7a4b50' => 'Oxblood', '#2f3640' => 'Charcoal'] as $hex => $label)
+            <button type="button" class="wc-swatch border rounded" data-color="{{ $hex }}" title="{{ $label }}" style="width:24px;height:24px;background:{{ $hex }};padding:0"></button>
+            @endforeach
+          </div>
+          <div class="input-group input-group-sm mb-2">
+            <input type="color" id="wcCustom" class="form-control form-control-color" value="#e9e2d0" title="{{ __('Custom colour') }}">
+            <button type="button" id="wcApply" class="btn btn-outline-primary"><i class="fas fa-fill-drip me-1"></i>{{ __('Apply colour') }}</button>
+          </div>
+          <button type="button" id="wcClear" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear colour') }}</button>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header py-2"><strong><i class="fas fa-image me-1"></i>{{ __('Floor image') }}</strong></div>
+        <div class="card-body">
+          <p class="small text-muted mb-2">{{ __('Stretch a picture over the whole floor (e.g. a marble or parquet photo, or a mosaic). Replaces the marble/floorplan until cleared.') }}</p>
+          <div class="border rounded p-1 text-center mb-2" style="background:#f8f9fa">
+            <img id="flPreview" alt="" style="max-width:100%;max-height:90px;display:none;border-radius:3px">
+            <div id="flName" class="text-truncate text-muted mt-1" style="font-size:11px">{{ __('No floor image (using marble/plan)') }}</div>
+          </div>
+          <input type="file" id="flFile" accept="image/*" class="form-control form-control-sm mb-2">
+          <button type="button" id="flUpload" class="btn btn-sm btn-outline-primary w-100 mb-1"><i class="fas fa-upload me-1"></i>{{ __('Upload floor image') }}</button>
+          <button type="button" id="flClear" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-times me-1"></i>{{ __('Clear floor image') }}</button>
         </div>
       </div>
 
@@ -159,6 +185,16 @@
             <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="table"><i class="fas fa-table me-1"></i>{{ __('Table') }}</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="chair"><i class="fas fa-chair me-1"></i>{{ __('Chair') }}</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="railing"><i class="fas fa-grip-lines me-1"></i>{{ __('Rope railing') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="pillar-round"><i class="fas fa-circle me-1"></i>{{ __('Round pillar') }}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="pillar-square"><i class="fas fa-square me-1"></i>{{ __('Square pillar') }}</button>
+          </div>
+          {{-- Single-click a placed item to select it, then adjust its size/height. Pillars take height from this. --}}
+          <div id="furnSel" class="border-top mt-2 pt-2" style="display:none">
+            <label class="form-label small mb-1"><span id="furnSelKind" class="fw-bold"></span> - <span id="furnScaleLabel">{{ __('Size') }}</span>: <span id="furnScaleVal">1.0</span>x</label>
+            <input type="range" id="furnScale" class="form-range" min="0.3" max="4" step="0.1" value="1">
+            <label class="form-label small mb-1 mt-1">{{ __('Rotate') }}: <span id="furnRotVal">0</span>&deg;</label>
+            <input type="range" id="furnRot" class="form-range" min="0" max="345" step="15" value="0">
+            <div class="small text-muted" id="furnPillarHint" style="display:none">{{ __('Pillar height = 3m x this (about 0.9-12m). View in 3D walkthrough.') }}</div>
           </div>
         </div>
       </div>
@@ -1076,6 +1112,61 @@
       });
     })();
 
+    // ---- Wall colour: paint a solid colour per wall / all walls (reuses #wpTarget; applies when no wall image) ----
+    (function () {
+      var sel = document.getElementById('wpTarget'), custom = document.getElementById('wcCustom'),
+        applyBtn = document.getElementById('wcApply'), clrBtn = document.getElementById('wcClear');
+      if (!sel || !applyBtn) return;
+      var SAVE = '{{ route('exhibition-space.builder.wall-color', ['slug' => $space->slug]) }}';
+      var CLR = '{{ route('exhibition-space.builder.wall-color-clear', ['slug' => $space->slug]) }}';
+      var hdrs = { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' };
+      function targetBody() { var t = sel.value; return (t === 'all') ? 'all=1' : ('edge=' + encodeURIComponent(t)); }
+      function flash(btn, txt) { var o = btn.innerHTML; btn.innerHTML = txt; setTimeout(function () { btn.innerHTML = o; }, 1100); }
+      function save(hex) {
+        fetch(SAVE, { method: 'POST', headers: hdrs, body: 'color=' + encodeURIComponent(hex) + '&' + targetBody() })
+          .then(function (r) { return r.json(); }).then(function (d) { if (d.ok) flash(applyBtn, '<i class="fas fa-check me-1"></i>{{ __('Saved - view in 3D') }}'); else alert('{{ __('Could not save colour.') }}'); })
+          .catch(function () { alert('{{ __('Could not save colour.') }}'); });
+      }
+      document.querySelectorAll('#wcSwatches .wc-swatch').forEach(function (b) {
+        b.addEventListener('click', function () { var c = b.getAttribute('data-color'); if (custom) custom.value = c; save(c); });
+      });
+      applyBtn.addEventListener('click', function () { save(custom.value); });
+      clrBtn.addEventListener('click', function () {
+        fetch(CLR, { method: 'POST', headers: hdrs, body: targetBody() })
+          .then(function (r) { return r.json(); }).then(function (d) { if (d.ok) flash(clrBtn, '<i class="fas fa-check me-1"></i>{{ __('Cleared') }}'); });
+      });
+    })();
+
+    // ---- Floor image: stretch one picture over the whole floor (overrides marble/plan) ----
+    (function () {
+      var FLOOR_IMG = @json($space->floor_image_path);
+      var prev = document.getElementById('flPreview'), nameEl = document.getElementById('flName'),
+        fileEl = document.getElementById('flFile'), upBtn = document.getElementById('flUpload'),
+        clrBtn = document.getElementById('flClear');
+      if (!upBtn) return;
+      function fname(p) { return p ? p.split('/').pop() : ''; }
+      function refresh() {
+        if (FLOOR_IMG) { prev.src = FLOOR_IMG; prev.style.display = 'inline-block'; nameEl.textContent = fname(FLOOR_IMG); }
+        else { prev.style.display = 'none'; nameEl.textContent = '{{ __('No floor image (using marble/plan)') }}'; }
+      }
+      refresh();
+      upBtn.addEventListener('click', function () {
+        if (!fileEl.files || !fileEl.files[0]) { alert('{{ __('Choose an image first.') }}'); return; }
+        var fd = new FormData(); fd.append('floor_image', fileEl.files[0]);
+        upBtn.disabled = true; upBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Uploading…') }}';
+        fetch('{{ route('exhibition-space.builder.floor-image', ['slug' => $space->slug]) }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: fd })
+          .then(function (r) { return r.json(); }).then(function (d) {
+            upBtn.disabled = false; upBtn.innerHTML = '<i class="fas fa-upload me-1"></i>{{ __('Upload floor image') }}';
+            if (!d.ok) { alert('{{ __('Upload failed.') }}'); return; }
+            FLOOR_IMG = d.path; fileEl.value = ''; refresh();
+          }).catch(function () { upBtn.disabled = false; upBtn.innerHTML = '<i class="fas fa-upload me-1"></i>{{ __('Upload floor image') }}'; alert('{{ __('Upload failed.') }}'); });
+      });
+      clrBtn.addEventListener('click', function () {
+        fetch('{{ route('exhibition-space.builder.floor-image-clear', ['slug' => $space->slug]) }}', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: '' })
+          .then(function (r) { return r.json(); }).then(function (d) { if (!d.ok) return; FLOOR_IMG = null; refresh(); });
+      });
+    })();
+
     // ---- Furniture & fittings: add from the picker, drag the brown dot, double-click to remove ----
     (function () {
       var FURN = @json($furniture ?? []);
@@ -1085,15 +1176,48 @@
       var REM = '{{ route('exhibition-space.builder.furniture-remove', ['slug' => $space->slug]) }}';
       var hdrs = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' };
       function updateCount() { if (cnt) cnt.textContent = layer.find('.furn').length; }
+      // Selection + size/height control (pillars take their height from scale).
+      var selPanel = document.getElementById('furnSel'), selKind = document.getElementById('furnSelKind'),
+        scaleEl = document.getElementById('furnScale'), scaleVal = document.getElementById('furnScaleVal'),
+        scaleLabel = document.getElementById('furnScaleLabel'), pillarHint = document.getElementById('furnPillarHint'),
+        rotEl = document.getElementById('furnRot'), rotVal = document.getElementById('furnRotVal');
+      var selected = null;
+      function isPillar(k) { return k === 'pillar-round' || k === 'pillar-square'; }
+      function persistSel() {
+        if (!selected) return; var it = selected.it;
+        fetch(MOVE, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: it.id, fx: selected.node.x() / W, fy: selected.node.y() / H, scale: it.scale || 1, rot: it.rotation_deg || 0 }) });
+      }
+      function selectFurn(it, node) {
+        selected = { it: it, node: node };
+        if (!selPanel) return;
+        selPanel.style.display = 'block';
+        selKind.textContent = it.kind;
+        scaleEl.value = it.scale || 1; scaleVal.textContent = (it.scale || 1).toFixed(1);
+        rotEl.value = it.rotation_deg || 0; rotVal.textContent = Math.round(it.rotation_deg || 0);
+        scaleLabel.textContent = isPillar(it.kind) ? '{{ __('Height') }}' : '{{ __('Size') }}';
+        pillarHint.style.display = isPillar(it.kind) ? 'block' : 'none';
+        layer.find('.furn').forEach(function (n) { var c = n.findOne('Circle'); if (c) c.stroke('#fff'); });
+        var sc = node.findOne('Circle'); if (sc) sc.stroke('#0d6efd');
+        layer.draw();
+      }
+      if (scaleEl) {
+        scaleEl.addEventListener('input', function () { scaleVal.textContent = (+scaleEl.value).toFixed(1); });
+        scaleEl.addEventListener('change', function () { if (selected) { selected.it.scale = +scaleEl.value; persistSel(); } });
+      }
+      if (rotEl) {
+        rotEl.addEventListener('input', function () { rotVal.textContent = Math.round(+rotEl.value); });
+        rotEl.addEventListener('change', function () { if (selected) { selected.it.rotation_deg = +rotEl.value; persistSel(); } });
+      }
       function addDot(it) {
         var g = new Konva.Group({ x: (it.pos_x == null ? 0.5 : it.pos_x) * W, y: (it.pos_y == null ? 0.5 : it.pos_y) * H, draggable: true, name: 'furn' });
         g.setAttr('furnId', it.id);
         g.add(new Konva.Circle({ radius: 9, fill: '#8a5a2b', stroke: '#fff', strokeWidth: 2 }));
         g.add(new Konva.Text({ text: it.kind, fontSize: 10, fill: '#5a3a1b', x: 12, y: -5 }));
-        g.on('dragend', function () { fetch(MOVE, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: it.id, fx: g.x() / W, fy: g.y() / H }) }); });
+        g.on('click tap', function (e) { e.cancelBubble = true; selectFurn(it, g); });
+        g.on('dragend', function () { selectFurn(it, g); persistSel(); });
         g.on('dblclick dbltap', function (e) {
           e.cancelBubble = true;
-          fetch(REM, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: it.id }) }).then(function (r) { return r.json(); }).then(function (d) { if (d.ok) { g.destroy(); layer.draw(); updateCount(); } });
+          fetch(REM, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: it.id }) }).then(function (r) { return r.json(); }).then(function (d) { if (d.ok) { g.destroy(); if (selected && selected.it.id === it.id) { selected = null; if (selPanel) selPanel.style.display = 'none'; } layer.draw(); updateCount(); } });
         });
         layer.add(g);
       }
