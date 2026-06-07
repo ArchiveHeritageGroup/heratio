@@ -164,6 +164,24 @@ class AhgExhibitionServiceProvider extends ServiceProvider
             if (Schema::hasTable('ahg_exhibition_furniture') && ! Schema::hasColumn('ahg_exhibition_furniture', 'segments')) {
                 DB::statement('ALTER TABLE ahg_exhibition_furniture ADD COLUMN segments INT NOT NULL DEFAULT 2');
             }
+            // Custom furniture library: uploaded 3D models / images, reusable across all rooms.
+            if (! Schema::hasTable('ahg_exhibition_furniture_asset')) {
+                DB::statement("CREATE TABLE ahg_exhibition_furniture_asset (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    label VARCHAR(120) NOT NULL,
+                    file_path VARCHAR(500) NOT NULL,
+                    ext VARCHAR(8) NOT NULL,
+                    asset_kind VARCHAR(8) NOT NULL DEFAULT 'model',
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NULL
+                )");
+            }
+            // A placed furniture row can reference an uploaded asset (denormalised so the walkthrough payload is self-contained).
+            foreach (['asset_path' => 'VARCHAR(500) NULL', 'asset_ext' => 'VARCHAR(8) NULL'] as $fcol => $fddl) {
+                if (Schema::hasTable('ahg_exhibition_furniture') && ! Schema::hasColumn('ahg_exhibition_furniture', $fcol)) {
+                    DB::statement("ALTER TABLE ahg_exhibition_furniture ADD COLUMN {$fcol} {$fddl}");
+                }
+            }
 
             // heratio#1173 - automatic visitor analytics: one row per walkthrough session.
             if (! Schema::hasTable('ahg_exhibition_visit')) {

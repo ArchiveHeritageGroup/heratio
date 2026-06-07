@@ -628,9 +628,35 @@
       var g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = -(it.rotation_deg || 0) * Math.PI / 180;
       var sc = it.scale || 1;
       // Pillars take their HEIGHT from scale (3m base x scale, ~0.9-12m), keeping a fixed cross-section,
-      // so the slider raises/lowers the column instead of fattening it. Other furniture scales uniformly.
+      // so the slider raises/lowers the column instead of fattening it. Uploaded assets handle their own
+      // scaling (fit-to-box x scale). Other furniture scales uniformly via the group.
       var isPillar = (it.kind === 'pillar-round' || it.kind === 'pillar-square');
-      g.scale.set(isPillar ? 1 : sc, isPillar ? 1 : sc, isPillar ? 1 : sc);
+      var noGroupScale = isPillar || !!it.asset_path;
+      g.scale.set(noGroupScale ? 1 : sc, noGroupScale ? 1 : sc, noGroupScale ? 1 : sc);
+      // ---- Uploaded custom furniture (3D model or image from the library) ----
+      if (it.asset_path) {
+        var aext = (it.asset_ext || '').toLowerCase();
+        if (aext === 'jpg' || aext === 'jpeg' || aext === 'png' || aext === 'webp') {
+          loadTex(it.asset_path, function (tex) {
+            var aspect = (tex.image && tex.image.width ? tex.image.width : 1) / (tex.image && tex.image.height ? tex.image.height : 1);
+            var hgt = 1.6 * sc, wid = hgt * aspect;
+            var pm = new THREE.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: 0.4, side: THREE.DoubleSide, roughness: 1 });
+            var pl = new THREE.Mesh(new THREE.PlaneGeometry(wid, hgt), pm); pl.position.y = hgt / 2; g.add(pl);
+          });
+        } else {
+          loadModel(it.asset_path, aext, function (obj) {
+            var pivot = new THREE.Group(); pivot.add(obj);
+            var box = new THREE.Box3().setFromObject(pivot), size = box.getSize(new THREE.Vector3());
+            var maxd = Math.max(size.x, size.y, size.z) || 1;
+            pivot.scale.setScalar((1.5 / maxd) * sc); pivot.updateMatrixWorld(true);
+            box = new THREE.Box3().setFromObject(pivot); var c = box.getCenter(new THREE.Vector3());
+            pivot.position.x += -c.x; pivot.position.z += -c.z; pivot.position.y += -box.min.y;   // centre on floor
+            g.add(pivot);
+          });
+        }
+        addToRoom(rm, g);
+        return;
+      }
       var wood = new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 0.8 });
       var stone = new THREE.MeshStandardMaterial({ color: 0xe8e2d4, roughness: 0.9 });
       var metal = new THREE.MeshStandardMaterial({ color: 0x9a9b9d, metalness: 0.7, roughness: 0.35 });

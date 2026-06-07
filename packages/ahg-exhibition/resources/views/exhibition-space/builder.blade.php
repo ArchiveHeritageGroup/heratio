@@ -188,6 +188,15 @@
             <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="pillar-round"><i class="fas fa-circle me-1"></i>{{ __('Round pillar') }}</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" data-furn="pillar-square"><i class="fas fa-square me-1"></i>{{ __('Square pillar') }}</button>
           </div>
+          {{-- Custom furniture library: upload your own 3D models / images, then click to place them. --}}
+          <div class="border-top mt-2 pt-2">
+            <label class="form-label small mb-1"><i class="fas fa-cloud-arrow-up me-1"></i>{{ __('Your furniture library') }}</label>
+            <p class="small text-muted mb-1">{{ __('Upload 3D models (glb, gltf, obj, stl, ply) or images, then click a tile to drop it in the room.') }}</p>
+            <input type="file" id="faFile" accept=".glb,.gltf,.obj,.stl,.ply,image/*" class="form-control form-control-sm mb-1">
+            <input type="text" id="faLabel" class="form-control form-control-sm mb-1" placeholder="{{ __('Name (optional)') }}" maxlength="120">
+            <button type="button" id="faUpload" class="btn btn-sm btn-outline-primary w-100 mb-2"><i class="fas fa-upload me-1"></i>{{ __('Upload to library') }}</button>
+            <div class="d-flex flex-wrap gap-1" id="furnLibrary"></div>
+          </div>
           {{-- Single-click a placed item to select it, then adjust its size/height. Pillars take height from this. --}}
           <div id="furnSel" class="border-top mt-2 pt-2" style="display:none">
             <label class="form-label small mb-1"><span id="furnSelKind" class="fw-bold"></span> - <span id="furnScaleLabel">{{ __('Size') }}</span>: <span id="furnScaleVal">1.0</span>x</label>
@@ -1238,6 +1247,43 @@
             .then(function (r) { return r.json(); }).then(function (d) { if (d.ok && d.item) { addDot(d.item); layer.draw(); updateCount(); } });
         });
       });
+
+      // ---- Custom furniture library: upload assets, click a tile to place a copy ----
+      var ASSETS = @json($furnitureAssets ?? []);
+      var UP = '{{ route('exhibition-space.builder.furniture-asset-upload', ['slug' => $space->slug]) }}';
+      var ADEL = '{{ route('exhibition-space.builder.furniture-asset-delete', ['slug' => $space->slug]) }}';
+      var lib = document.getElementById('furnLibrary');
+      function libTile(a) {
+        var t = document.createElement('div'); t.className = 'position-relative';
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-sm btn-outline-secondary'; b.title = a.label;
+        b.innerHTML = (a.asset_kind === 'image' ? '<i class="fas fa-image me-1"></i>' : '<i class="fas fa-cube me-1"></i>') + (a.label.length > 14 ? (a.label.slice(0, 13) + '…') : a.label);
+        b.addEventListener('click', function () {
+          fetch(ADD, { method: 'POST', headers: hdrs, body: JSON.stringify({ asset_id: a.id, fx: 0.5, fy: 0.5 }) })
+            .then(function (r) { return r.json(); }).then(function (d) { if (d.ok && d.item) { addDot(d.item); layer.draw(); updateCount(); } });
+        });
+        var x = document.createElement('button'); x.type = 'button'; x.className = 'btn btn-sm btn-link text-danger p-0 position-absolute top-0 end-0'; x.style.fontSize = '10px'; x.innerHTML = '&times;'; x.title = '{{ __('Remove from library') }}';
+        x.addEventListener('click', function (e) {
+          e.stopPropagation(); if (!confirm('{{ __('Remove this from your library?') }}')) return;
+          fetch(ADEL, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: a.id }) }).then(function (r) { return r.json(); }).then(function (d) { if (d.ok) t.remove(); });
+        });
+        t.appendChild(b); t.appendChild(x); return t;
+      }
+      if (lib) { ASSETS.forEach(function (a) { lib.appendChild(libTile(a)); }); }
+      (function () {
+        var f = document.getElementById('faFile'), lab = document.getElementById('faLabel'), up = document.getElementById('faUpload');
+        if (!up) return;
+        up.addEventListener('click', function () {
+          if (!f.files || !f.files[0]) { alert('{{ __('Choose a file first.') }}'); return; }
+          var fd = new FormData(); fd.append('asset', f.files[0]); if (lab.value) fd.append('label', lab.value);
+          up.disabled = true; up.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Uploading…') }}';
+          fetch(UP, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: fd })
+            .then(function (r) { return r.json(); }).then(function (d) {
+              up.disabled = false; up.innerHTML = '<i class="fas fa-upload me-1"></i>{{ __('Upload to library') }}';
+              if (!d.ok) { alert('{{ __('Upload failed.') }}'); return; }
+              ASSETS.push(d.asset); if (lib) lib.appendChild(libTile(d.asset)); f.value = ''; lab.value = '';
+            }).catch(function () { up.disabled = false; up.innerHTML = '<i class="fas fa-upload me-1"></i>{{ __('Upload to library') }}'; alert('{{ __('Upload failed.') }}'); });
+        });
+      })();
     })();
 
     // ---- Guided tours (audio) authoring (multiple named tours) ----

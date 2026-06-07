@@ -1985,23 +1985,59 @@ class ExhibitionSpaceService
 
         return DB::table('ahg_exhibition_furniture')->where('exhibition_space_id', $exhibitionSpaceId)
             ->orderBy('id')->get()->map(function ($r) {
-                return ['id' => (int) $r->id, 'kind' => $r->kind, 'pos_x' => (float) $r->pos_x, 'pos_y' => (float) $r->pos_y, 'rotation_deg' => (float) $r->rotation_deg, 'scale' => (float) $r->scale, 'segments' => (int) ($r->segments ?? 2)];
+                return ['id' => (int) $r->id, 'kind' => $r->kind, 'pos_x' => (float) $r->pos_x, 'pos_y' => (float) $r->pos_y, 'rotation_deg' => (float) $r->rotation_deg, 'scale' => (float) $r->scale, 'segments' => (int) ($r->segments ?? 2), 'asset_path' => $r->asset_path ?? null, 'asset_ext' => $r->asset_ext ?? null];
             })->all();
     }
 
-    public function addFurniture(int $exhibitionSpaceId, string $kind, float $fx, float $fy): array
+    public function addFurniture(int $exhibitionSpaceId, string $kind, float $fx, float $fy, ?string $assetPath = null, ?string $assetExt = null): array
     {
-        if (! in_array($kind, self::FURNITURE_KINDS, true)) {
+        // Uploaded-asset furniture uses kind='asset'; procedural pieces must be a known kind.
+        if ($assetPath === null && ! in_array($kind, self::FURNITURE_KINDS, true)) {
             $kind = 'pedestal';
         }
         $fx = max(0.0, min(1.0, $fx)); $fy = max(0.0, min(1.0, $fy));
         $id = (int) DB::table('ahg_exhibition_furniture')->insertGetId([
             'exhibition_space_id' => $exhibitionSpaceId, 'kind' => $kind,
             'pos_x' => $fx, 'pos_y' => $fy, 'rotation_deg' => 0, 'scale' => 1, 'segments' => 2,
+            'asset_path' => $assetPath, 'asset_ext' => $assetExt,
             'created_at' => now(), 'updated_at' => now(),
         ]);
 
-        return ['id' => $id, 'kind' => $kind, 'pos_x' => $fx, 'pos_y' => $fy, 'rotation_deg' => 0.0, 'scale' => 1.0, 'segments' => 2];
+        return ['id' => $id, 'kind' => $kind, 'pos_x' => $fx, 'pos_y' => $fy, 'rotation_deg' => 0.0, 'scale' => 1.0, 'segments' => 2, 'asset_path' => $assetPath, 'asset_ext' => $assetExt];
+    }
+
+    // -------- Custom furniture library (uploaded models/images, reusable across rooms) --------
+
+    /** All uploaded furniture assets (global library). */
+    public function listFurnitureAssets(): array
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_furniture_asset')) {
+            return [];
+        }
+
+        return DB::table('ahg_exhibition_furniture_asset')->orderByDesc('id')->get()->map(function ($r) {
+            return ['id' => (int) $r->id, 'label' => $r->label, 'file_path' => $r->file_path, 'ext' => $r->ext, 'asset_kind' => $r->asset_kind];
+        })->all();
+    }
+
+    public function addFurnitureAsset(string $label, string $path, string $ext, string $kind): array
+    {
+        $id = (int) DB::table('ahg_exhibition_furniture_asset')->insertGetId([
+            'label' => $label, 'file_path' => $path, 'ext' => $ext, 'asset_kind' => $kind,
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        return ['id' => $id, 'label' => $label, 'file_path' => $path, 'ext' => $ext, 'asset_kind' => $kind];
+    }
+
+    public function getFurnitureAsset(int $id): ?object
+    {
+        return DB::table('ahg_exhibition_furniture_asset')->where('id', $id)->first();
+    }
+
+    public function deleteFurnitureAsset(int $id): bool
+    {
+        return DB::table('ahg_exhibition_furniture_asset')->where('id', $id)->delete() > 0;
     }
 
     public function moveFurniture(int $id, float $fx, float $fy, ?float $rot = null, ?float $scale = null, ?int $segments = null): bool

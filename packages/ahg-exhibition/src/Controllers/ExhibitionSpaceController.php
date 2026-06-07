@@ -235,6 +235,8 @@ class ExhibitionSpaceController extends Controller
             'wallImages' => $this->service->getWallImages((int) $space->id),   // #wall-pictures per-edge overrides
             'furniture' => $this->service->getFurniture((int) $space->id),   // furniture & fittings picker
             'furnitureKinds' => ExhibitionSpaceService::FURNITURE_KINDS,
+            'furnitureAssets' => $this->service->listFurnitureAssets(),   // uploaded custom furniture library
+
             'layout' => $layout,
             'guidedTour' => $this->service->getGuidedTour($space),   // authored audio tour stops
             'tourObjects' => $this->service->buildingTourObjects($space),   // building-wide objects for the tour picker
@@ -1209,10 +1211,61 @@ class ExhibitionSpaceController extends Controller
         if (! $space) {
             return response()->json(['ok' => false], 404);
         }
-        $data = $request->validate(['kind' => 'required|string|max:32', 'fx' => 'nullable|numeric', 'fy' => 'nullable|numeric']);
-        $row = $this->service->addFurniture((int) $space->id, (string) $data['kind'], (float) ($data['fx'] ?? 0.5), (float) ($data['fy'] ?? 0.5));
+        $data = $request->validate(['kind' => 'nullable|string|max:32', 'fx' => 'nullable|numeric', 'fy' => 'nullable|numeric', 'asset_id' => 'nullable|integer|min:1']);
+        if (! empty($data['asset_id'])) {
+            $asset = $this->service->getFurnitureAsset((int) $data['asset_id']);
+            if (! $asset) {
+                return response()->json(['ok' => false, 'error' => 'asset not found'], 404);
+            }
+            $row = $this->service->addFurniture((int) $space->id, 'asset', (float) ($data['fx'] ?? 0.5), (float) ($data['fy'] ?? 0.5), $asset->file_path, $asset->ext);
+            $row['label'] = $asset->label;
+        } else {
+            $row = $this->service->addFurniture((int) $space->id, (string) ($data['kind'] ?? 'pedestal'), (float) ($data['fx'] ?? 0.5), (float) ($data['fy'] ?? 0.5));
+        }
 
         return response()->json(['ok' => true, 'item' => $row]);
+    }
+
+    /** Upload a custom furniture asset (3D model or image) into the reusable library. */
+    public function uploadFurnitureAsset(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $request->validate([
+            'asset' => 'required|file|mimes:glb,gltf,obj,stl,ply,jpeg,jpg,png,webp|max:51200',
+            'label' => 'nullable|string|max:120',
+        ]);
+        $file = $request->file('asset');
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'glb');
+        if ($ext === 'jpeg') {
+            $ext = 'jpg';
+        }
+        $kind = in_array($ext, ['jpg', 'png', 'webp'], true) ? 'image' : 'model';
+        $dir = config('heratio.storage_path').'/uploads/exhibition-furniture';
+        if (! is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        $base = \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) ?: 'furniture';
+        $filename = $base.'-'.substr(md5((string) microtime(true)), 0, 8).'.'.$ext;
+        $file->move($dir, $filename);
+        $path = '/uploads/exhibition-furniture/'.$filename;
+        $label = $request->input('label') ?: pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $asset = $this->service->addFurnitureAsset((string) $label, $path, $ext, $kind);
+
+        return response()->json(['ok' => true, 'asset' => $asset]);
+    }
+
+    /** Remove a furniture asset from the library (placed copies keep their denormalised path). */
+    public function deleteFurnitureAssetAjax(Request $request, string $slug)
+    {
+        if (! $this->service->getBySlug($slug)) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['id' => 'required|integer|min:1']);
+
+        return response()->json(['ok' => $this->service->deleteFurnitureAsset((int) $data['id'])]);
     }
 
     /** AJAX: move/rotate/scale a furniture item. */
