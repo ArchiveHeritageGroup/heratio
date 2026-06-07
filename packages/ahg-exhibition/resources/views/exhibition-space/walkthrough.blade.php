@@ -644,7 +644,18 @@
         case 'planter': cyl(0.28, 0.34, 0.5, stone, 0, 0.25, 0); var fol = new THREE.Mesh(new THREE.SphereGeometry(0.42, 12, 10), green); fol.position.set(0, 0.92, 0); fol.scale.set(1, 1.2, 1); g.add(fol); break;
         case 'table': box(1.2, 0.06, 0.7, wood, 0, 0.74, 0); [[-0.5, -0.28], [0.5, -0.28], [-0.5, 0.28], [0.5, 0.28]].forEach(function (p) { box(0.07, 0.74, 0.07, wood, p[0], 0.37, p[1]); }); break;
         case 'chair': box(0.45, 0.06, 0.45, wood, 0, 0.45, 0); box(0.45, 0.5, 0.06, wood, 0, 0.7, -0.2); [[-0.18, -0.18], [0.18, -0.18], [-0.18, 0.18], [0.18, 0.18]].forEach(function (p) { box(0.05, 0.45, 0.05, wood, p[0], 0.22, p[1]); }); break;
-        case 'railing': [-0.7, 0.7].forEach(function (px) { cyl(0.04, 0.04, 0.95, metal, px, 0.475, 0); var ball = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), metal); ball.position.set(px, 0.98, 0); g.add(ball); }); var rope = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.4, 8), new THREE.MeshStandardMaterial({ color: 0x8a1f2b, roughness: 0.8 })); rope.rotation.z = Math.PI / 2; rope.position.set(0, 0.82, 0); g.add(rope); break;
+        case 'railing': {
+          // Stanchion-and-rope barrier: N poles in a line (segments), a draped rope spanning each gap.
+          var poles = Math.max(2, Math.min(20, it.segments || 2)), span = 1.4, ropeMat = new THREE.MeshStandardMaterial({ color: 0x8a1f2b, roughness: 0.8 });
+          var x0 = -(poles - 1) * span / 2;
+          for (var pi = 0; pi < poles; pi++) {
+            var px2 = x0 + pi * span;
+            cyl(0.04, 0.04, 0.95, metal, px2, 0.475, 0);
+            var ball = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), metal); ball.position.set(px2, 0.98, 0); g.add(ball);
+            if (pi < poles - 1) { var rope = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, span, 8), ropeMat); rope.rotation.z = Math.PI / 2; rope.position.set(px2 + span / 2, 0.82, 0); g.add(rope); }
+          }
+          break;
+        }
         // Architectural columns with a base + capital (classical look). Height = 3m x scale (adjustable).
         case 'pillar-round': { var ph = 3.0 * sc; cyl(0.3, 0.34, ph, stone, 0, ph / 2, 0); box(0.82, 0.12, 0.82, stone, 0, 0.06, 0); box(0.78, 0.16, 0.78, stone, 0, ph - 0.08, 0); break; }
         case 'pillar-square': { var ph2 = 3.0 * sc; box(0.5, ph2, 0.5, stone, 0, ph2 / 2, 0); box(0.78, 0.12, 0.78, stone, 0, 0.06, 0); box(0.74, 0.16, 0.74, stone, 0, ph2 - 0.08, 0); break; }

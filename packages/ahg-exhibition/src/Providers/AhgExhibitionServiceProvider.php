@@ -154,10 +154,15 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     pos_y DOUBLE NOT NULL DEFAULT 0.5,
                     rotation_deg DOUBLE NOT NULL DEFAULT 0,
                     scale DOUBLE NOT NULL DEFAULT 1,
+                    segments INT NOT NULL DEFAULT 2,
                     created_at DATETIME NOT NULL,
                     updated_at DATETIME NULL,
                     INDEX idx_room (exhibition_space_id)
                 )");
+            }
+            // Rope-railing extendability: pole count (rope spans between consecutive poles).
+            if (Schema::hasTable('ahg_exhibition_furniture') && ! Schema::hasColumn('ahg_exhibition_furniture', 'segments')) {
+                DB::statement('ALTER TABLE ahg_exhibition_furniture ADD COLUMN segments INT NOT NULL DEFAULT 2');
             }
 
             // heratio#1173 - automatic visitor analytics: one row per walkthrough session.

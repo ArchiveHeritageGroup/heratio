@@ -194,6 +194,10 @@
             <input type="range" id="furnScale" class="form-range" min="0.3" max="4" step="0.1" value="1">
             <label class="form-label small mb-1 mt-1">{{ __('Rotate') }}: <span id="furnRotVal">0</span>&deg;</label>
             <input type="range" id="furnRot" class="form-range" min="0" max="345" step="15" value="0">
+            <div id="furnRailRow" class="input-group input-group-sm mt-1" style="display:none">
+              <span class="input-group-text">{{ __('Poles') }}</span>
+              <input type="number" id="furnSegments" class="form-control" min="2" max="20" step="1" value="2">
+            </div>
             <div class="small text-muted" id="furnPillarHint" style="display:none">{{ __('Pillar height = 3m x this (about 0.9-12m). View in 3D walkthrough.') }}</div>
           </div>
         </div>
@@ -1180,12 +1184,13 @@
       var selPanel = document.getElementById('furnSel'), selKind = document.getElementById('furnSelKind'),
         scaleEl = document.getElementById('furnScale'), scaleVal = document.getElementById('furnScaleVal'),
         scaleLabel = document.getElementById('furnScaleLabel'), pillarHint = document.getElementById('furnPillarHint'),
-        rotEl = document.getElementById('furnRot'), rotVal = document.getElementById('furnRotVal');
+        rotEl = document.getElementById('furnRot'), rotVal = document.getElementById('furnRotVal'),
+        railRow = document.getElementById('furnRailRow'), segEl = document.getElementById('furnSegments');
       var selected = null;
       function isPillar(k) { return k === 'pillar-round' || k === 'pillar-square'; }
       function persistSel() {
         if (!selected) return; var it = selected.it;
-        fetch(MOVE, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: it.id, fx: selected.node.x() / W, fy: selected.node.y() / H, scale: it.scale || 1, rot: it.rotation_deg || 0 }) });
+        fetch(MOVE, { method: 'POST', headers: hdrs, body: JSON.stringify({ id: it.id, fx: selected.node.x() / W, fy: selected.node.y() / H, scale: it.scale || 1, rot: it.rotation_deg || 0, segments: it.segments || 2 }) });
       }
       function selectFurn(it, node) {
         selected = { it: it, node: node };
@@ -1196,6 +1201,8 @@
         rotEl.value = it.rotation_deg || 0; rotVal.textContent = Math.round(it.rotation_deg || 0);
         scaleLabel.textContent = isPillar(it.kind) ? '{{ __('Height') }}' : '{{ __('Size') }}';
         pillarHint.style.display = isPillar(it.kind) ? 'block' : 'none';
+        if (railRow) railRow.style.display = (it.kind === 'railing') ? 'flex' : 'none';
+        if (segEl) segEl.value = it.segments || 2;
         layer.find('.furn').forEach(function (n) { var c = n.findOne('Circle'); if (c) c.stroke('#fff'); });
         var sc = node.findOne('Circle'); if (sc) sc.stroke('#0d6efd');
         layer.draw();
@@ -1207,6 +1214,9 @@
       if (rotEl) {
         rotEl.addEventListener('input', function () { rotVal.textContent = Math.round(+rotEl.value); });
         rotEl.addEventListener('change', function () { if (selected) { selected.it.rotation_deg = +rotEl.value; persistSel(); } });
+      }
+      if (segEl) {
+        segEl.addEventListener('change', function () { if (selected) { selected.it.segments = Math.max(2, Math.min(20, +segEl.value || 2)); segEl.value = selected.it.segments; persistSel(); } });
       }
       function addDot(it) {
         var g = new Konva.Group({ x: (it.pos_x == null ? 0.5 : it.pos_x) * W, y: (it.pos_y == null ? 0.5 : it.pos_y) * H, draggable: true, name: 'furn' });

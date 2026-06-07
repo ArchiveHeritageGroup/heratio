@@ -1985,7 +1985,7 @@ class ExhibitionSpaceService
 
         return DB::table('ahg_exhibition_furniture')->where('exhibition_space_id', $exhibitionSpaceId)
             ->orderBy('id')->get()->map(function ($r) {
-                return ['id' => (int) $r->id, 'kind' => $r->kind, 'pos_x' => (float) $r->pos_x, 'pos_y' => (float) $r->pos_y, 'rotation_deg' => (float) $r->rotation_deg, 'scale' => (float) $r->scale];
+                return ['id' => (int) $r->id, 'kind' => $r->kind, 'pos_x' => (float) $r->pos_x, 'pos_y' => (float) $r->pos_y, 'rotation_deg' => (float) $r->rotation_deg, 'scale' => (float) $r->scale, 'segments' => (int) ($r->segments ?? 2)];
             })->all();
     }
 
@@ -1997,18 +1997,19 @@ class ExhibitionSpaceService
         $fx = max(0.0, min(1.0, $fx)); $fy = max(0.0, min(1.0, $fy));
         $id = (int) DB::table('ahg_exhibition_furniture')->insertGetId([
             'exhibition_space_id' => $exhibitionSpaceId, 'kind' => $kind,
-            'pos_x' => $fx, 'pos_y' => $fy, 'rotation_deg' => 0, 'scale' => 1,
+            'pos_x' => $fx, 'pos_y' => $fy, 'rotation_deg' => 0, 'scale' => 1, 'segments' => 2,
             'created_at' => now(), 'updated_at' => now(),
         ]);
 
-        return ['id' => $id, 'kind' => $kind, 'pos_x' => $fx, 'pos_y' => $fy, 'rotation_deg' => 0.0, 'scale' => 1.0];
+        return ['id' => $id, 'kind' => $kind, 'pos_x' => $fx, 'pos_y' => $fy, 'rotation_deg' => 0.0, 'scale' => 1.0, 'segments' => 2];
     }
 
-    public function moveFurniture(int $id, float $fx, float $fy, ?float $rot = null, ?float $scale = null): bool
+    public function moveFurniture(int $id, float $fx, float $fy, ?float $rot = null, ?float $scale = null, ?int $segments = null): bool
     {
         $upd = ['pos_x' => max(0.0, min(1.0, $fx)), 'pos_y' => max(0.0, min(1.0, $fy)), 'updated_at' => now()];
         if ($rot !== null) { $upd['rotation_deg'] = $rot; }
         if ($scale !== null) { $upd['scale'] = max(0.3, min(4.0, $scale)); }
+        if ($segments !== null) { $upd['segments'] = max(2, min(20, $segments)); }   // rope-railing pole count
 
         return DB::table('ahg_exhibition_furniture')->where('id', $id)->update($upd) > 0;
     }

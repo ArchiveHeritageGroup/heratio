@@ -1221,8 +1221,8 @@ class ExhibitionSpaceController extends Controller
         if (! $this->service->getBySlug($slug)) {
             return response()->json(['ok' => false], 404);
         }
-        $data = $request->validate(['id' => 'required|integer|min:1', 'fx' => 'required|numeric', 'fy' => 'required|numeric', 'rot' => 'nullable|numeric', 'scale' => 'nullable|numeric']);
-        $ok = $this->service->moveFurniture((int) $data['id'], (float) $data['fx'], (float) $data['fy'], isset($data['rot']) ? (float) $data['rot'] : null, isset($data['scale']) ? (float) $data['scale'] : null);
+        $data = $request->validate(['id' => 'required|integer|min:1', 'fx' => 'required|numeric', 'fy' => 'required|numeric', 'rot' => 'nullable|numeric', 'scale' => 'nullable|numeric', 'segments' => 'nullable|integer|min:2|max:20']);
+        $ok = $this->service->moveFurniture((int) $data['id'], (float) $data['fx'], (float) $data['fy'], isset($data['rot']) ? (float) $data['rot'] : null, isset($data['scale']) ? (float) $data['scale'] : null, isset($data['segments']) ? (int) $data['segments'] : null);
 
         return response()->json(['ok' => $ok]);
     }
