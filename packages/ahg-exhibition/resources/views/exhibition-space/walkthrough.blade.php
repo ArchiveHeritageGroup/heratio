@@ -60,6 +60,7 @@
           <button id="wtGraffitiBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:192px;z-index:6;opacity:.85;" title="{{ __('Graffiti: click a wall to tag it') }}"><i class="fas fa-spray-can"></i></button>
           <button id="wtTourPlayBtn" type="button" class="btn btn-sm btn-success" style="position:absolute;top:8px;right:228px;z-index:6;opacity:.9;display:none;" title="{{ __('Play guided tour') }}"><i class="fas fa-play"></i></button>
           <button id="wtStealBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:264px;z-index:6;opacity:.85;" title="{{ __('Steal mode: click an object to trigger the alarm') }}"><i class="fas fa-mask"></i></button>
+          <button id="wtFsBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:300px;z-index:6;opacity:.85;" title="{{ __('Fullscreen') }}"><i class="fas fa-expand"></i></button>
           <div id="wtTourBanner" class="bg-dark text-white px-3 py-2 rounded small" style="position:absolute;bottom:64px;left:50%;transform:translateX(-50%);z-index:7;display:none;max-width:86%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.5);">
             <span id="wtTourText"></span>
             <button type="button" id="wtTourStopBtn" class="btn btn-sm btn-outline-light ms-2 py-0"><i class="fas fa-stop"></i></button>
@@ -1817,6 +1818,27 @@
     if (gBtn) gBtn.addEventListener('click', function (e) { e.stopPropagation(); setAnnotate(!window.__annotateMode); });
     var tBtn = document.getElementById('wtTorchBtn');
     if (tBtn) tBtn.addEventListener('click', function (e) { e.stopPropagation(); toggleTorch(); tBtn.classList.toggle('btn-warning', torch.intensity > 0); tBtn.classList.toggle('btn-dark', torch.intensity === 0); });
+
+    // Fullscreen the 3D viewer (resizes the renderer to fill the screen).
+    (function () {
+      var fb = document.getElementById('wtFsBtn'); if (!fb) return;
+      var icon = fb.querySelector('i');
+      function fsEl() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+      function resize() { var w = room.clientWidth, h = room.clientHeight; if (renderer) renderer.setSize(w, h); if (camera) { camera.aspect = w / h; camera.updateProjectionMatrix(); } }
+      function sync() {
+        var on = !!fsEl();
+        if (icon) icon.className = on ? 'fas fa-compress' : 'fas fa-expand';
+        room.style.height = on ? '100vh' : '70vh';
+        setTimeout(resize, 120);
+      }
+      fb.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (fsEl()) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+        else { var rq = room.requestFullscreen || room.webkitRequestFullscreen; if (rq) rq.call(room); }
+      });
+      document.addEventListener('fullscreenchange', sync);
+      document.addEventListener('webkitfullscreenchange', sync);
+    })();
 
     // ===== authored audio guided tours (guide flies you around + narrates) =====
     var TOURS = @json($guidedTour ?? []);
