@@ -774,10 +774,11 @@
         case 'pillar-square': { var ph2 = 3.0 * sc; box(0.5, ph2, 0.5, stone, 0, ph2 / 2, 0); box(0.78, 0.12, 0.78, stone, 0, 0.06, 0); box(0.74, 0.16, 0.74, stone, 0, ph2 - 0.08, 0); break; }
         // Billboard people (crossed planes so they read from any angle).
         case 'person-man': case 'person-woman': {
-          var pkind = (it.kind === 'person-woman') ? 'woman' : 'man', pth = 1.75, ptw = pth * 0.42;
-          var pmat = new THREE.MeshStandardMaterial({ map: personTexture(pkind), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 });
-          var pm1 = new THREE.Mesh(new THREE.PlaneGeometry(ptw, pth), pmat); pm1.position.y = pth / 2; g.add(pm1);
-          var pm2 = pm1.clone(); pm2.rotation.y = Math.PI / 2; g.add(pm2);
+          // Bright, always-camera-facing sprite (unlit) so the figure is clearly visible from any angle
+          // and at any room brightness (the old lit crossed-planes read as a dark thin cutout).
+          var pkind = (it.kind === 'person-woman') ? 'woman' : 'man', pth = 1.75, ptw = pth * 0.5;
+          var psp = new THREE.Sprite(new THREE.SpriteMaterial({ map: personTexture(pkind), transparent: true, depthWrite: true }));
+          psp.scale.set(ptw, pth, 1); psp.position.y = pth / 2; g.add(psp);
           break;
         }
         // Free-standing archway: two piers + a semicircular arch (sunlight + shadows pass through the opening).
@@ -1228,7 +1229,19 @@
       });
     }
     function loadModel(url, ext, onLoad, onError) {
-      var cb = function (o) { try { applyEnv(o); } catch (e) {} onLoad(o); };   // give every loaded model the studio env
+      var twoSided = (ext === 'obj' || ext === 'stl' || ext === 'ply');   // these often have no/inverted normals
+      var cb = function (o) {
+        // Scanned/posed OBJ etc. frequently ship without vertex normals -> lighting can't shade them and they
+        // render black (look "missing"). Compute normals when absent; render mesh-format models double-sided
+        // so inverted/single-sided faces still show.
+        o.traverse(function (n) {
+          if (!n.isMesh) return;
+          if (n.geometry && n.geometry.attributes && !n.geometry.attributes.normal) { try { n.geometry.computeVertexNormals(); } catch (e) {} }
+          if (twoSided && n.material) { var ms = Array.isArray(n.material) ? n.material : [n.material]; ms.forEach(function (m) { if (m) { m.side = THREE.DoubleSide; m.needsUpdate = true; } }); }
+        });
+        try { applyEnv(o); } catch (e) {}
+        onLoad(o);
+      };
       try {
         if (ext === 'glb' || ext === 'gltf') { gltfLoader().load(url, function (g) { cb(g.scene); }, undefined, onError); }
         else if (ext === 'obj') { new THREE.OBJLoader().load(url, function (o) { cb(o); }, undefined, onError); }
@@ -2152,13 +2165,11 @@
       ray.setFromCamera(ndc, camera);
       var hits = ray.intersectObjects(scene.children, true).filter(function (h) { return h.distance > 0.5; });
       if (!hits.length) { return; }
-      var p = hits[0].point, kind = FIG_KINDS[figIdx], pth = 1.75, ptw = pth * 0.42;
-      var pmat = new THREE.MeshStandardMaterial({ map: personTexture(kind), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 });
+      var p = hits[0].point, kind = FIG_KINDS[figIdx], pth = 1.75, ptw = pth * 0.5;
       var grp = new THREE.Group();
-      var pm1 = new THREE.Mesh(new THREE.PlaneGeometry(ptw, pth), pmat); grp.add(pm1);
-      var pm2 = pm1.clone(); pm2.rotation.y = Math.PI / 2; grp.add(pm2);
-      grp.position.set(p.x, p.y + pth / 2, p.z); grp.userData.figure = true;
-      if (_sunShadowsApplied) { grp.traverse(function (n) { if (n.isMesh) { n.castShadow = true; } }); }
+      var psp = new THREE.Sprite(new THREE.SpriteMaterial({ map: personTexture(kind), transparent: true, depthWrite: true }));
+      psp.scale.set(ptw, pth, 1); psp.position.y = pth / 2; grp.add(psp);
+      grp.position.set(p.x, p.y, p.z); grp.userData.figure = true;
       scene.add(grp);
     }
     var figBtn = document.getElementById('wtFigureBtn');
