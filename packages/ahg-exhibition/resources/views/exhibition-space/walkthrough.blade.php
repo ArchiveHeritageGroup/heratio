@@ -2135,7 +2135,7 @@
     var ANNOT_URL = '{{ route('exhibition-space.annotation', ['slug' => $space->slug]) }}';
     var ANNOT_DEL_URL = '{{ route('exhibition-space.annotation.delete', ['slug' => $space->slug, 'id' => '__ID__']) }}';
     var graffitiSprites = [];
-    function makeGraffitiSprite(text, color) {
+    function makeGraffitiTex(text, color) {
       var cv = document.createElement('canvas'), cx = cv.getContext('2d');
       cx.font = 'bold 64px "Comic Sans MS", "Marker Felt", cursive';
       var w = Math.min(1400, cx.measureText(text).width + 60);
@@ -2145,14 +2145,21 @@
       cx.fillStyle = color || '#e23b3b';
       cx.strokeText(text, 18, 58); cx.fillText(text, 18, 58);
       var tx = new THREE.CanvasTexture(cv); tx.minFilter = THREE.LinearFilter; tx.needsUpdate = true;
-      var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, transparent: true, depthWrite: false }));
-      sp.scale.set(w / 110 * 0.9, 0.9, 1);
-      return sp;
+      return { tex: tx, w: w };
     }
     function addGraffiti(a) {
-      var sp = makeGraffitiSprite(a.text, a.color); sp.position.set(a.x, a.y, a.z);
-      sp.userData.graffiti = true; sp.userData.graffitiId = a.id || null; scene.add(sp);
-      graffitiSprites.push(sp); return sp;
+      var g = makeGraffitiTex(a.text, a.color), sw = g.w / 110 * 0.9, obj;
+      if (a.yaw !== null && a.yaw !== undefined) {
+        // Pinned flat to the wall it was tagged on (yaw = the wall's facing).
+        obj = new THREE.Mesh(new THREE.PlaneGeometry(sw, 0.9), new THREE.MeshBasicMaterial({ map: g.tex, transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+        obj.rotation.y = a.yaw;
+      } else {
+        obj = new THREE.Sprite(new THREE.SpriteMaterial({ map: g.tex, transparent: true, depthWrite: false }));
+        obj.scale.set(sw, 0.9, 1);
+      }
+      obj.position.set(a.x, a.y, a.z);
+      obj.userData.graffiti = true; obj.userData.graffitiId = a.id || null; scene.add(obj);
+      graffitiSprites.push(obj); return obj;
     }
     (ANNOTATIONS || []).forEach(addGraffiti);   // render existing graffiti
     function placeGraffiti(e) {
@@ -2172,13 +2179,23 @@
       }
       var hits = ray.intersectObjects(scene.children, true).filter(function (h) { return !(h.object.userData && h.object.userData.graffiti) && h.distance > 0.4; });
       if (!hits.length) { setAnnotate(false); return; }
-      var p = hits[0].point, txt = window.prompt('{{ __('Graffiti text (leave blank to cancel):') }}', '');
+      var hit = hits[0], p = hit.point, txt = window.prompt('{{ __('Graffiti text (leave blank to cancel):') }}', '');
       if (!txt) { setAnnotate(false); return; }
+      // Pin flat to the surface clicked: take its face normal (pointed toward the camera) as the yaw,
+      // and nudge the tag just off the wall so it sits on the surface.
+      var yaw = null;
+      if (hit.face && hit.object && hit.object.matrixWorld) {
+        var nrm = hit.face.normal.clone().transformDirection(hit.object.matrixWorld);
+        var toCam = camera.getWorldPosition(new THREE.Vector3()).sub(p);
+        if (nrm.dot(toCam) < 0) nrm.negate();
+        yaw = Math.atan2(nrm.x, nrm.z);
+        p = p.clone().add(nrm.multiplyScalar(0.03));
+      }
       var rm = findRoomAtWorld(p.x, p.z, null);
       var a = { x: p.x, y: p.y, z: p.z, text: txt.slice(0, 160), room_id: (rm ? rm.id : null), color: '#e23b3b',
-        author: (typeof MY_NAME !== 'undefined' ? MY_NAME : '') };
+        author: (typeof MY_NAME !== 'undefined' ? MY_NAME : ''), yaw: yaw };
       var newSp = addGraffiti(a);
-      var body = 'text=' + encodeURIComponent(a.text) + '&x=' + a.x + '&y=' + a.y + '&z=' + a.z + '&room_id=' + (a.room_id || '') + '&color=' + encodeURIComponent(a.color) + '&author=' + encodeURIComponent(a.author) + '&_token=' + encodeURIComponent(WT_CSRF);
+      var body = 'text=' + encodeURIComponent(a.text) + '&x=' + a.x + '&y=' + a.y + '&z=' + a.z + '&room_id=' + (a.room_id || '') + '&color=' + encodeURIComponent(a.color) + '&author=' + encodeURIComponent(a.author) + (yaw !== null ? '&yaw=' + yaw : '') + '&_token=' + encodeURIComponent(WT_CSRF);
       fetch(ANNOT_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': WT_CSRF, 'Accept': 'application/json' }, body: body })
         .then(function (r) { return r.json(); }).then(function (d) { if (d && d.annotation && d.annotation.id) newSp.userData.graffitiId = d.annotation.id; }).catch(function () {});
       setAnnotate(false);

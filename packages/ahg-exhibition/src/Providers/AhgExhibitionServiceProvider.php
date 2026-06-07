@@ -147,6 +147,10 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     INDEX idx_building (building_id)
                 )");
             }
+            // Graffiti pinned flat to a wall: yaw (radians) of the wall it was tagged on (null = old billboard style).
+            if (Schema::hasTable('ahg_exhibition_annotation') && ! Schema::hasColumn('ahg_exhibition_annotation', 'yaw')) {
+                DB::statement('ALTER TABLE ahg_exhibition_annotation ADD COLUMN yaw DOUBLE NULL');
+            }
 
             // Furniture & fittings: placeable props per room (bench/pedestal/case/planter/table/railing).
             if (! Schema::hasTable('ahg_exhibition_furniture')) {

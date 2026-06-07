@@ -2380,6 +2380,7 @@ class ExhibitionSpaceService
                     'id' => (int) $r->id, 'room_id' => $r->room_id !== null ? (int) $r->room_id : null,
                     'x' => (float) $r->pos_x, 'y' => (float) $r->pos_y, 'z' => (float) $r->pos_z,
                     'text' => $r->text, 'color' => $r->color, 'author' => $r->author,
+                    'yaw' => ($r->yaw !== null ? (float) $r->yaw : null),
                 ];
             })->all();
     }
@@ -2465,6 +2466,7 @@ class ExhibitionSpaceService
             'text' => mb_substr($text, 0, 160),
             'color' => substr((string) ($in['color'] ?? ''), 0, 9) ?: null,
             'author' => mb_substr(trim((string) ($in['author'] ?? '')), 0, 40) ?: null,
+            'yaw' => (isset($in['yaw']) && $in['yaw'] !== '' && is_numeric($in['yaw'])) ? (float) $in['yaw'] : null,
             'created_at' => now(),
         ]);
 
@@ -2473,6 +2475,7 @@ class ExhibitionSpaceService
             'x' => (float) ($in['x'] ?? 0), 'y' => (float) ($in['y'] ?? 1.6), 'z' => (float) ($in['z'] ?? 0),
             'text' => mb_substr($text, 0, 160), 'color' => substr((string) ($in['color'] ?? ''), 0, 9) ?: null,
             'author' => mb_substr(trim((string) ($in['author'] ?? '')), 0, 40) ?: null,
+            'yaw' => (isset($in['yaw']) && $in['yaw'] !== '' && is_numeric($in['yaw'])) ? (float) $in['yaw'] : null,
         ];
     }
 
