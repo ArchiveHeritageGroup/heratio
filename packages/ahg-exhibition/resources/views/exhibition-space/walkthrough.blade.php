@@ -1061,6 +1061,27 @@
       var p = new THREE.Mesh(new THREE.BoxGeometry(0.7, h, 0.7), pedestalMat);
       p.position.set(x, h / 2, z); addToRoom(rm, p); return h;
     }
+    // A glass display case (wooden plinth + glass vitrine + metal cap). Returns the plinth-top Y
+    // where the item sits (inside the glass). Used when an item is flagged display_case.
+    function addDisplayCase(x, z, rm) {
+      var g = new THREE.Group(); g.position.set(x, 0, z);
+      var woodM = new THREE.MeshStandardMaterial({ color: 0x5a4634, roughness: 0.7 });
+      var metalM = new THREE.MeshStandardMaterial({ color: 0x9a9b9d, metalness: 0.7, roughness: 0.35 });
+      var base = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), woodM); base.position.y = 0.45; g.add(base);
+      var glass = new THREE.Mesh(new THREE.BoxGeometry(0.82, 1.0, 0.82), glassMat); glass.position.y = 1.4; g.add(glass);
+      var cap = new THREE.Mesh(new THREE.BoxGeometry(0.88, 0.05, 0.88), metalM); cap.position.y = 1.92; g.add(cap);
+      addToRoom(rm, g); return 0.9;
+    }
+    // A small standing image on the display-case plinth (for picture items shown in a case).
+    function addCaseImage(rm, x, z, ph, s, tex, aspect) {
+      var h = 0.55, w = h * (aspect || 1); if (w > 0.62) { w = 0.62; h = w / (aspect || 1); }
+      var grp = new THREE.Group();
+      var pic = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide }));
+      pic.position.y = ph + h / 2 + 0.04; grp.add(pic);
+      grp.position.set(x, 0, z); grp.rotation.y = (s.rotation_deg || 0) * Math.PI / 180;
+      grp.traverse(function (n) { n.userData.stop = s; }); grp.userData.stop = s;
+      addToRoom(rm, grp); pickables.push(grp);
+    }
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
     // Hang a framed picture flat on the nearest wall (pictures on walls, not pedestals).
@@ -1198,7 +1219,8 @@
     STOPS.forEach(function (s) {
       var wp = worldPos(s);
       if (s.kind === '3d' && s.model_url) {
-        var ph = addPedestal(wp.x, wp.z, 0.6, s._room);
+        var inCase = !!s.display_case;
+        var ph = inCase ? addDisplayCase(wp.x, wp.z, s._room) : addPedestal(wp.x, wp.z, 0.6, s._room);
         loadModel(s.model_url, modelExt(s), function (obj) {
           // Per-object orientation (auto up-axis guess unless overridden in Builder).
           obj.rotation.x = effTiltX(s) * Math.PI / 180;
@@ -1209,7 +1231,7 @@
           var box = new THREE.Box3().setFromObject(pivot);
           var size = box.getSize(new THREE.Vector3());
           var maxd = Math.max(size.x, size.y, size.z) || 1;
-          pivot.scale.setScalar((1.5 / maxd) * (s.scale || 1));   // display size from Builder Bigger/Smaller
+          pivot.scale.setScalar(((inCase ? 0.55 : 1.5) / maxd) * (s.scale || 1));   // smaller to fit inside the glass case; else display size from Builder
           pivot.rotation.y = (s.rotation_deg || 0) * Math.PI / 180;
           pivot.updateMatrixWorld(true);
           box = new THREE.Box3().setFromObject(pivot);
@@ -1226,7 +1248,8 @@
       } else if (s.image_url) {
         loadTex(s.image_url, function (tex) {
           var aspect = (tex.image && tex.image.width ? tex.image.width : 1) / (tex.image && tex.image.height ? tex.image.height : 1);
-          if (s._room && s._room.is_outdoor) { freeStandImage(wp.x, wp.z, s, tex, aspect); }   // #1170 statues free-stand on the ground outdoors
+          if (s.display_case) { var phc = addDisplayCase(wp.x, wp.z, s._room); addCaseImage(s._room, wp.x, wp.z, phc, s, tex, aspect); }   // item shown inside a glass case
+          else if (s._room && s._room.is_outdoor) { freeStandImage(wp.x, wp.z, s, tex, aspect); }   // #1170 statues free-stand on the ground outdoors
           else { hangOnWall(wp, s, tex, aspect); }
           doneOne();
         }, undefined, function () { addPlaceholder(wp, s, addPedestal(wp.x, wp.z, 0.4, s._room)); doneOne(); });

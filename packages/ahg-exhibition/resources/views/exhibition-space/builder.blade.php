@@ -75,6 +75,7 @@
             </div>
             <div class="btn-group btn-group-sm w-100 mb-2" role="group">
               <button type="button" class="btn btn-outline-warning" data-act="spot" id="spotBtn" title="{{ __('Spotlight: click to cycle off / light on approach / always-on. All modes dim the surroundings as you walk closer.') }}"><i class="fas fa-lightbulb me-1"></i>{{ __('Spot off') }}</button>
+              <button type="button" class="btn btn-outline-info" data-act="case" id="caseBtn" title="{{ __('Show this item inside a glass display case on a plinth') }}"><i class="fas fa-box-open me-1"></i>{{ __('Case') }}</button>
               <button type="button" class="btn btn-outline-secondary" data-act="front" title="{{ __('Bring to front') }}"><i class="fas fa-arrow-up"></i></button>
               <button type="button" class="btn btn-outline-secondary" data-act="back" title="{{ __('Send to back') }}"><i class="fas fa-arrow-down"></i></button>
             </div>
@@ -261,6 +262,7 @@
       size: '{{ route('exhibition-space.builder.size', ['slug' => $space->slug]) }}',
       tilt: '{{ route('exhibition-space.builder.tilt', ['slug' => $space->slug]) }}',
       spotlight: '{{ route('exhibition-space.builder.spotlight', ['slug' => $space->slug]) }}',
+      displayCase: '{{ route('exhibition-space.builder.display-case', ['slug' => $space->slug]) }}',
       zorder: '{{ route('exhibition-space.builder.zorder', ['slug' => $space->slug]) }}',
       walls: '{{ route('exhibition-space.builder.walls', ['slug' => $space->slug]) }}',
       wall: '{{ route('exhibition-space.builder.wall', ['slug' => $space->slug]) }}',
@@ -456,6 +458,7 @@
       refreshWallOptions();
       document.getElementById('selWall').value = g.getAttr('wallKey') || '';
       setSpotBtn((+g.getAttr('spotlight')) || 0);
+      var cb = document.getElementById('caseBtn'); if (cb) { var con = !!g.getAttr('displayCase'); cb.classList.toggle('btn-info', con); cb.classList.toggle('btn-outline-info', !con); }
       layer.draw();
       if (typeof loadRecs === 'function') loadRecs();   // #1149 filter suggestions to this object
     }
@@ -494,6 +497,7 @@
       g.setAttr('tiltX', (p.tilt_x === null || p.tilt_x === undefined) ? null : p.tilt_x);
       g.setAttr('tiltZ', (p.tilt_z === null || p.tilt_z === undefined) ? null : p.tilt_z);
       g.setAttr('spotlight', (+p.spotlight) || 0);
+      g.setAttr('displayCase', (+p.display_case) || 0);
       g.setAttr('zOrder', p.z_order || 0);
 
       var rect = new Konva.Rect({
@@ -633,6 +637,12 @@
           var cur = (+selected.getAttr('spotlight')) || 0, m = (cur + 1) % 3;
           selected.setAttr('spotlight', m); setSpotBtn(m);
           fetch(URLS.spotlight, { method: 'POST', headers: hdrs, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), mode: m }) });
+          return;
+        }
+        if (a === 'case') {   // toggle: show this item inside a glass display case
+          var con = !selected.getAttr('displayCase'); selected.setAttr('displayCase', con);
+          var cb = document.getElementById('caseBtn'); if (cb) { cb.classList.toggle('btn-info', con); cb.classList.toggle('btn-outline-info', !con); }
+          fetch(URLS.displayCase, { method: 'POST', headers: hdrs, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), on: con }) });
           return;
         }
         if (a === 'front' || a === 'back') {   // bring-to-front / send-to-back

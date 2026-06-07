@@ -588,6 +588,14 @@ class ExhibitionSpaceService
             ->update(['spotlight' => $mode, 'updated_at' => now()]) > 0;
     }
 
+    /** Toggle whether this item is shown inside a glass display case on a plinth. */
+    public function updatePlacementDisplayCase(int $exhibitionSpaceId, int $placementId, bool $on): bool
+    {
+        return DB::table('ahg_exhibition_placement')
+            ->where('id', $placementId)->where('exhibition_space_id', $exhibitionSpaceId)
+            ->update(['display_case' => $on ? 1 : 0, 'updated_at' => now()]) > 0;
+    }
+
     /** Bring-to-front / send-to-back: set a placement's z-order. */
     public function updatePlacementZOrder(int $exhibitionSpaceId, int $placementId, int $z): bool
     {

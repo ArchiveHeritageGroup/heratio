@@ -964,6 +964,19 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => $ok, 'mode' => $mode]);
     }
 
+    /** AJAX: toggle showing this item inside a glass display case. */
+    public function updateDisplayCaseAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['placement_id' => 'required|integer|min:1', 'on' => 'required|boolean']);
+        $ok = $this->service->updatePlacementDisplayCase((int) $space->id, (int) $data['placement_id'], (bool) $data['on']);
+
+        return response()->json(['ok' => $ok]);
+    }
+
     /** AJAX: bring-to-front / send-to-back (z-order). */
     public function updateZOrderAjax(Request $request, string $slug)
     {
