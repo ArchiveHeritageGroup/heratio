@@ -4,13 +4,27 @@
 .github
 node_modules
 vendor
-storage/logs/*.log
+storage/logs/*
 storage/framework/cache/*
 storage/framework/sessions/*
 storage/framework/views/*
+storage/app/*
 storage/uploads
 storage/backups
 public/build
+
+# ─── Large local data / scratch — must NEVER enter the image ─────────────────
+# Local test corpora and working dirs: 16GB+ of sample digital objects under
+# ./uploads, a FamilySearch import set, a Python venv, scratch dirs. With these
+# in the build context the image ballooned to ~26GB; excluded it is a few
+# hundred MB. None are read at build or runtime (uploads live on a volume/NAS).
+/uploads
+/FamilySearch
+/venv
+/stuff
+/site
+/audit_outputs
+/docs
 *.log
 .env
 .env.*
@@ -46,8 +60,11 @@ docs/assets
 *.ckpt
 *.tflite
 *.msgpack
-**/models/
-**/checkpoints/
+# NOTE: do NOT add '**/models/' or '**/checkpoints/' here. They match real
+# source - packages/ahg-ai-compliance/resources/views/models/*.blade.php and
+# packages/*/src/Models/ - and silently drop it from the image (that admin page
+# then 500s). Model WEIGHTS are already caught by the extension globs above and
+# by the Dockerfile's build-time AI-leak guard.
 **/.cache/huggingface/
 **/.cache/torch/
 **/.cache/whisper/

@@ -86,6 +86,18 @@ class AppServiceProvider extends ServiceProvider
         // (the blog/articles index uses it; nothing else in the app does).
         \Illuminate\Pagination\Paginator::useBootstrapFive();
 
+        // Behind a port-mapped container (Docker test stack: host :8088 -> nginx
+        // :80) Laravel builds absolute URLs/redirects from the *internal* port,
+        // dropping :8088 and breaking redirects. When FORCE_ROOT_URL is set we
+        // pin URL generation to APP_URL. Inert everywhere the flag is unset
+        // (metal installs / production never set it), so this is Docker-only.
+        if (filter_var(env('FORCE_ROOT_URL', false), FILTER_VALIDATE_BOOLEAN) && config('app.url')) {
+            \Illuminate\Support\Facades\URL::forceRootUrl(config('app.url'));
+            if (str_starts_with((string) config('app.url'), 'https://')) {
+                \Illuminate\Support\Facades\URL::forceScheme('https');
+            }
+        }
+
         // Register custom Heratio authentication provider
         Auth::provider('atom', function ($app, array $config) {
             return new AtomUserProvider;

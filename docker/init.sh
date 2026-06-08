@@ -36,6 +36,7 @@ APP_ENV=${APP_ENV:-local}
 APP_KEY=
 APP_DEBUG=${APP_DEBUG:-true}
 APP_URL=${APP_URL:-http://localhost:8088}
+FORCE_ROOT_URL=${FORCE_ROOT_URL:-true}
 APP_LOCALE=en
 APP_FALLBACK_LOCALE=en
 
@@ -46,8 +47,9 @@ DB_DATABASE=${DB_DATABASE:-heratio}
 DB_USERNAME=${DB_USERNAME:-heratio}
 DB_PASSWORD=${DB_PASSWORD:-heratio-test}
 
-SESSION_DRIVER=database
-CACHE_STORE=database
+SESSION_DRIVER=${SESSION_DRIVER:-file}
+CACHE_STORE=${CACHE_STORE:-file}
+QUEUE_CONNECTION=${QUEUE_CONNECTION:-sync}
 
 ELASTICSEARCH_HOST=${ELASTICSEARCH_HOST:-http://elasticsearch:9200}
 ELASTICSEARCH_PREFIX=${ELASTICSEARCH_PREFIX:-heratio_}
@@ -65,6 +67,7 @@ fi
 mkdir -p "${HERATIO_STORAGE_PATH:-storage/uploads}" \
          "${HERATIO_BACKUPS_PATH:-storage/backups}" \
          storage/framework/{sessions,views,cache,testing} \
+         storage/logs storage/app/public \
          bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 
@@ -74,7 +77,11 @@ if [ ! -f "$MARKER" ]; then
     for sql in database/core/*.sql; do
         [ -f "$sql" ] || continue
         echo "[init]   $sql"
-        mysql_run < "$sql" 2>&1 | head -5 || true
+        # --force so one bad statement (e.g. a type-drifted FK in the dump)
+        # never aborts the whole schema load; errors go to a file (not a pipe
+        # to head, which can SIGPIPE-kill mysql mid-load) and are summarised.
+        mysql_run --force < "$sql" 2> /tmp/sql-load.err || true
+        grep -iE "^ERROR" /tmp/sql-load.err | head -5 || true
     done
 
     echo "[init] running heratio:install-bootstrap pass 1"
@@ -88,7 +95,8 @@ if [ ! -f "$MARKER" ]; then
     for sql in database/seeds/*.sql; do
         [ -f "$sql" ] || continue
         echo "[init]   $sql"
-        mysql_run < "$sql" 2>/dev/null | head -3 || echo "[init]   (warnings - continuing)"
+        mysql_run --force < "$sql" 2> /tmp/sql-load.err || true
+        grep -iE "^ERROR" /tmp/sql-load.err | head -3 || true
     done
 
     # ── Stage 9: admin user ──────────────────────────────────────────────────
