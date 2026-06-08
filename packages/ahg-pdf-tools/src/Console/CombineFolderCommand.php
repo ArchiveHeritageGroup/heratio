@@ -43,7 +43,8 @@ class CombineFolderCommand extends Command
         .'{--dpi=200 : Target DPI for colour/grey images} '
         .'{--quality=85 : JPEG quality 0-100} '
         .'{--id= : Attach the PDF/A to this information_object id as a master digital object} '
-        .'{--no-web : Do not auto-create the fast web-optimized derivative after attaching}';
+        .'{--no-web : Do not auto-create the fast web-optimized derivative after attaching} '
+        .'{--clear-source : Delete the source page files after a successful combine (fresh start, used by the FTP-upload flow)}';
 
     protected $description = 'Combine a server folder of TIFFs into one PDF/A (memory-safe, large-volume)';
 
@@ -68,7 +69,17 @@ class CombineFolderCommand extends Command
             return 1;
         }
 
-        $out = (string) ($this->option('out') ?: $folder.'.pdf');
+        // Default output name = folder name, with long names (e.g. long record
+        // slugs) truncated so the filename stays sane.
+        $baseName = preg_replace('/[^a-zA-Z0-9_.-]/', '_', basename($folder));
+        $baseName = trim(preg_replace('/_+/', '_', $baseName), '_');
+        if (strlen($baseName) > 80) {
+            $baseName = rtrim(substr($baseName, 0, 80), '_');
+        }
+        if ($baseName === '') {
+            $baseName = 'merged_document';
+        }
+        $out = (string) ($this->option('out') ?: dirname($folder).'/'.$baseName.'.pdf');
         $this->info('Combining '.count($pages).' page(s) -> '.$out.' (PDF/A, dpi='.$this->option('dpi').')');
 
         try {
@@ -117,6 +128,22 @@ class CombineFolderCommand extends Command
 
                 return 0;
             }
+        }
+
+        // Start fresh: remove the combined source pages so the next convert is
+        // clean and never re-combines stale leftovers. Only the page files that
+        // were just combined are removed, plus the folder if it is now empty.
+        if ($this->option('clear-source')) {
+            $removed = 0;
+            foreach ($pages as $p) {
+                if (is_file($p) && @unlink($p)) {
+                    $removed++;
+                }
+            }
+            if (is_dir($folder) && count(glob($folder.'/*') ?: []) === 0) {
+                @rmdir($folder);
+            }
+            $this->info("Cleared {$removed} source file(s) after combine (fresh start).");
         }
 
         return 0;

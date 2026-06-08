@@ -116,7 +116,7 @@ class FtpUploadController extends Controller
 
         // Run the combine in the background (no queue worker required).
         $cmd = sprintf(
-            'cd %s && %s artisan ahg:pdf-combine %s %s >> %s 2>&1 &',
+            'cd %s && %s artisan ahg:pdf-combine %s %s --clear-source >> %s 2>&1 &',
             escapeshellarg(base_path()),
             escapeshellarg(PHP_BINARY),
             escapeshellarg($folder),
