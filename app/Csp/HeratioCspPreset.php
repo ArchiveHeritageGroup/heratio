@@ -52,9 +52,15 @@ class HeratioCspPreset implements Preset
             ->add(Directive::SCRIPT, [
                 Keyword::SELF,
                 Keyword::UNSAFE_INLINE,
+                // Draco-compressed 3D models decode in WebAssembly inside
+                // <model-viewer>; without this the geometry never loads.
+                Keyword::UNSAFE_WEB_ASSEMBLY_EXECUTION,
                 'https://cdn.jsdelivr.net',
                 'https://cdnjs.cloudflare.com',
                 'https://unpkg.com',
+                // <model-viewer> bundle + its Draco/KTX2 decoders (gstatic).
+                'https://ajax.googleapis.com',
+                'https://www.gstatic.com',
             ])
 
             // Styles: self + 'unsafe-inline' + CDN bundles + Google Fonts.
@@ -108,6 +114,9 @@ class HeratioCspPreset implements Preset
                 Scheme::BLOB,
                 'https://cdn.jsdelivr.net',
                 'https://cdnjs.cloudflare.com',
+                // <model-viewer> fetches its Draco/KTX2 decoder data at runtime.
+                'https://ajax.googleapis.com',
+                'https://www.gstatic.com',
             ])
 
             // Frames: same-origin only (PDF previews, IIIF embed)
@@ -123,6 +132,8 @@ class HeratioCspPreset implements Preset
                 Keyword::SELF,
                 Scheme::BLOB,
                 'https://cdnjs.cloudflare.com',
+                // <model-viewer> runs the Draco decoder in a worker.
+                'https://www.gstatic.com',
             ]);
     }
 }
