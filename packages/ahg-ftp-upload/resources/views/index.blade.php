@@ -77,6 +77,38 @@
       </div>
     </div>
 
+    <!-- Combine a folder into PDF/A -->
+    <div class="card mb-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="mb-0"><i class="fa fa-file-pdf me-2"></i>{{ __('Combine a folder into PDF/A') }}</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-3">{{ __('Combine all images in an uploaded folder into one PDF/A. It runs in the background.') }}</p>
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label" for="combine-folder">{{ __('Folder') }}</label>
+            <select class="form-select" id="combine-folder">
+              <option value="">{{ __('(all files in the upload root)') }}</option>
+              @foreach(($folders ?? []) as $folder)
+                @php $fname = is_array($folder) ? ($folder['name'] ?? '') : $folder; @endphp
+                @if($fname !== '')<option value="{{ $fname }}">{{ $fname }}</option>@endif
+              @endforeach
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="combine-record">{{ __('Attach to record (slug, optional)') }}</label>
+            <input type="text" class="form-control" id="combine-record" placeholder="{{ __('blank = link later') }}">
+          </div>
+          <div class="col-md-3">
+            <button type="button" class="btn btn-danger w-100" id="combine-btn">
+              <i class="fa fa-file-pdf me-1"></i>{{ __('Create PDF/A') }}
+            </button>
+          </div>
+        </div>
+        <div id="combine-result" class="mt-3"></div>
+      </div>
+    </div>
+
     <!-- File Listing -->
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
@@ -161,7 +193,33 @@
       var UPLOAD_URL = '{{ route("ftpUpload.uploadChunk") }}';
       var LIST_URL = '{{ route("ftpUpload.listFiles") }}';
       var DELETE_URL = '{{ route("ftpUpload.deleteFile") }}';
+      var COMBINE_URL = '{{ route("ftpUpload.combineFolder") }}';
       var CSRF_TOKEN = '{{ csrf_token() }}';
+
+      // Combine a folder into PDF/A (background).
+      var combineBtn = document.getElementById('combine-btn');
+      if (combineBtn) {
+          combineBtn.addEventListener('click', function () {
+              var sub = document.getElementById('combine-folder').value;
+              var rec = document.getElementById('combine-record').value.trim();
+              var out = document.getElementById('combine-result');
+              combineBtn.disabled = true;
+              out.innerHTML = '<span class="text-muted"><i class="fa fa-spinner fa-spin me-1"></i>{{ __('Starting…') }}</span>';
+              var fd = new FormData();
+              fd.append('folder', sub);
+              if (rec) fd.append('record', rec);
+              fd.append('_token', CSRF_TOKEN);
+              fetch(COMBINE_URL, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                  .then(function (r) { return r.json(); })
+                  .then(function (d) {
+                      combineBtn.disabled = false;
+                      out.innerHTML = d.success
+                          ? '<div class="alert alert-success mb-0"><i class="fa fa-check me-1"></i>' + d.message + '</div>'
+                          : '<div class="alert alert-danger mb-0">' + (d.error || 'Failed') + '</div>';
+                  })
+                  .catch(function () { combineBtn.disabled = false; out.innerHTML = '<div class="alert alert-danger mb-0">Request failed</div>'; });
+          });
+      }
 
       var uploads = {};
       // The folder the user is currently viewing in the Remote Files panel.

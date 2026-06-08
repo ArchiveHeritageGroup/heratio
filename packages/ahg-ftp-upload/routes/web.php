@@ -13,6 +13,9 @@ Route::middleware('auth')->group(function () {
     // Chunked upload (AJAX)
     Route::post('/ftpUpload/uploadChunk', [FtpUploadController::class, 'uploadChunk'])->name('ftpUpload.uploadChunk');
 
+    // Combine an uploaded folder into a PDF/A (background)
+    Route::post('/ftpUpload/combineFolder', [FtpUploadController::class, 'combineFolder'])->name('ftpUpload.combineFolder');
+
     // AJAX: list remote files
     Route::get('/ftpUpload/listFiles', [FtpUploadController::class, 'listFiles'])->name('ftpUpload.listFiles');
 

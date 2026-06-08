@@ -87,6 +87,52 @@ class FtpUploadController extends Controller
     }
 
     /**
+     * Combine an uploaded folder into a PDF/A (background). Mirrors the AtoM
+     * "Combine a folder into PDF/A" button: runs the memory-safe ahg:pdf-combine
+     * command on the folder so the web request returns immediately.
+     */
+    public function combineFolder(Request $request)
+    {
+        $svc = FtpService::fromSettings();
+        $base = rtrim((string) $svc->getRemotePath(), '/');
+
+        $sub = trim((string) $request->input('folder', ''), '/');
+        $sub = str_replace('..', '', $sub);
+        $folder = $sub !== '' ? $base.'/'.$sub : $base;
+        if ($folder === '' || ! is_dir($folder)) {
+            return response()->json(['success' => false, 'error' => 'Folder not found']);
+        }
+
+        $rec = trim((string) $request->input('record', ''));
+        $objId = null;
+        if ($rec !== '') {
+            $objId = ctype_digit($rec)
+                ? (int) $rec
+                : (int) \Illuminate\Support\Facades\DB::table('slug')->where('slug', $rec)->value('object_id');
+            if (! $objId) {
+                return response()->json(['success' => false, 'error' => 'Record not found: '.$rec]);
+            }
+        }
+
+        // Run the combine in the background (no queue worker required).
+        $cmd = sprintf(
+            'cd %s && %s artisan ahg:pdf-combine %s %s >> %s 2>&1 &',
+            escapeshellarg(base_path()),
+            escapeshellarg(PHP_BINARY),
+            escapeshellarg($folder),
+            $objId ? '--id='.$objId : '',
+            escapeshellarg(storage_path('logs/pdf-combine.log'))
+        );
+        @exec($cmd);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Combine started in the background. The PDF/A will be created'
+                .($objId ? ' and attached to the record.' : ' (you can link it to a record later).'),
+        ]);
+    }
+
+    /**
      * Handle chunked file upload (AJAX).
      *
      * Each request sends one chunk with metadata:
