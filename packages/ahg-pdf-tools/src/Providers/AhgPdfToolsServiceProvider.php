@@ -18,6 +18,12 @@ class AhgPdfToolsServiceProvider extends ServiceProvider
         $this->app->singleton(TiffPdfMergeService::class, function () {
             return new TiffPdfMergeService;
         });
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgPdfTools\Console\CombineFolderCommand::class,
+            ]);
+        }
     }
 
     public function boot(): void

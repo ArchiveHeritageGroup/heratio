@@ -104,50 +104,140 @@ class TiffPdfMergeService
         // Build page geometry
         $pageDimensions = $this->getPageDimensions($pageSize, $orientation, $dpi);
 
-        // Build convert command
-        $inputArgs = implode(' ', array_map('escapeshellarg', $inputPaths));
-
-        // Determine output path (use temp if PDF/A conversion needed)
-        $convertOutput = $pdfa && $this->isPdfASupported()
-            ? sys_get_temp_dir().'/heratio_merge_'.uniqid().'.pdf'
-            : $outputPath;
-
-        $command = sprintf(
-            'convert %s -density %d -quality %d -page %s %s 2>&1',
-            $inputArgs,
-            $dpi,
-            $quality,
-            escapeshellarg($pageDimensions),
-            escapeshellarg($convertOutput)
-        );
-
-        $output = [];
-        exec($command, $output, $returnCode);
-
-        if ($returnCode !== 0) {
-            Log::error('TiffPdfMerge: convert failed: '.implode("\n", $output));
-
-            // Clean up temp file
-            if ($convertOutput !== $outputPath && file_exists($convertOutput)) {
-                unlink($convertOutput);
-            }
-
-            throw new \RuntimeException('ImageMagick convert failed: '.implode("\n", $output));
+        // Memory-safe merge: convert each page to its own single-page PDF (bounded
+        // ImageMagick limits + JPEG compression) and concatenate with qpdf. This
+        // NEVER loads all pages into one process, so hundreds of 40 MB+ scans merge
+        // in ~one page's worth of RAM instead of running the box out of memory.
+        $build = $this->buildMergedPdf($inputPaths, $dpi, $quality, $pageDimensions);
+        if ($build === null) {
+            throw new \RuntimeException('PDF merge failed (see log for the failing page)');
         }
 
-        // PDF/A conversion via Ghostscript if requested
-        if ($pdfa && $this->isPdfASupported()) {
-            try {
-                $this->generatePdfA($convertOutput, $outputPath, $pdfaVersion);
-            } finally {
-                // Clean up temp file
-                if (file_exists($convertOutput)) {
-                    unlink($convertOutput);
+        try {
+            // Always target PDF/A (archival). Fall back to the merged PDF only when
+            // Ghostscript is unavailable.
+            if ($this->isPdfASupported()) {
+                $this->generatePdfA($build['path'], $outputPath, $pdfaVersion);
+            } else {
+                Log::warning('TiffPdfMerge: Ghostscript unavailable - writing merged PDF without PDF/A conversion');
+                if (! (@rename($build['path'], $outputPath) || @copy($build['path'], $outputPath))) {
+                    throw new \RuntimeException('Failed to write merged PDF output');
+                }
+            }
+        } finally {
+            $this->cleanupWorkDir($build['work']);
+        }
+
+        return file_exists($outputPath);
+    }
+
+    /**
+     * Build one merged PDF from the input pages without loading them all into a
+     * single process. Returns ['path'=>mergedPdf, 'work'=>workDir] or null on
+     * failure. Image inputs are converted per page; PDF inputs are concatenated
+     * as-is (qpdf preserves their pages). Peak memory is bounded to one page.
+     */
+    private function buildMergedPdf(array $inputPaths, int $dpi, int $quality, string $pageDimensions): ?array
+    {
+        @set_time_limit(0);
+
+        if (! $this->isCommandAvailable('qpdf')) {
+            throw new \RuntimeException('qpdf is not installed. Install with: sudo apt install qpdf');
+        }
+
+        $work = sys_get_temp_dir().'/heratio_merge_'.uniqid();
+        @mkdir($work, 0775, true);
+        putenv('MAGICK_TMPDIR='.$work);
+
+        $pagePdfs = [];
+        $n = 0;
+        foreach ($inputPaths as $src) {
+            if (strtolower(pathinfo($src, PATHINFO_EXTENSION)) === 'pdf') {
+                $pagePdfs[] = $src;   // include the PDF's pages directly (no rasterize)
+                continue;
+            }
+            $n++;
+            $pageOut = sprintf('%s/p-%05d.pdf', $work, $n);
+            $cmd = sprintf(
+                'convert -limit memory 256MiB -limit map 512MiB -limit disk 8GiB -density %d -quality %d -compress JPEG -page %s %s %s 2>&1',
+                $dpi,
+                $quality,
+                escapeshellarg($pageDimensions),
+                escapeshellarg($src.'[0]'),   // [0] = first frame (guards multi-page TIFFs)
+                escapeshellarg($pageOut)
+            );
+            exec($cmd, $o, $rc);
+            if ($rc !== 0 || ! is_file($pageOut) || filesize($pageOut) < 1) {
+                Log::error('TiffPdfMerge: page convert failed for '.$src.': '.implode("\n", array_slice((array) $o, -3)));
+                $this->cleanupWorkDir($work);
+
+                return null;
+            }
+            $pagePdfs[] = $pageOut;
+        }
+
+        if (empty($pagePdfs)) {
+            $this->cleanupWorkDir($work);
+
+            return null;
+        }
+
+        $merged = $this->concatPdfs($pagePdfs, $work, 0);
+        if ($merged === null) {
+            $this->cleanupWorkDir($work);
+
+            return null;
+        }
+
+        return ['path' => $merged, 'work' => $work];
+    }
+
+    /**
+     * Concatenate page PDFs with qpdf in batches of 100 so neither the arg list
+     * nor any single invocation grows unbounded. Only deletes temp page PDFs that
+     * live inside the work dir (never an original source PDF).
+     */
+    private function concatPdfs(array $pdfs, string $work, int $depth): ?string
+    {
+        $batchSize = 100;
+
+        if (count($pdfs) <= $batchSize) {
+            $out = $work.'/merged_'.$depth.'_0.pdf';
+            $args = implode(' ', array_map('escapeshellarg', $pdfs));
+            exec(sprintf('qpdf --empty --pages %s -- %s 2>&1', $args, escapeshellarg($out)), $o, $rc);
+
+            return (($rc === 0 || $rc === 3) && is_file($out)) ? $out : null;   // rc 3 = warnings only
+        }
+
+        $subMerged = [];
+        foreach (array_chunk($pdfs, $batchSize) as $i => $chunk) {
+            $sub = sprintf('%s/sub_%d_%03d.pdf', $work, $depth, $i);
+            $args = implode(' ', array_map('escapeshellarg', $chunk));
+            exec(sprintf('qpdf --empty --pages %s -- %s 2>&1', $args, escapeshellarg($sub)), $o, $rc);
+            if (($rc !== 0 && $rc !== 3) || ! is_file($sub)) {
+                return null;
+            }
+            $subMerged[] = $sub;
+            foreach ($chunk as $p) {
+                if (strpos($p, $work) === 0) {
+                    @unlink($p);   // free temp page PDFs (never original source PDFs)
                 }
             }
         }
 
-        return file_exists($outputPath);
+        return $this->concatPdfs($subMerged, $work, $depth + 1);
+    }
+
+    /** Recursively remove a buildMergedPdf() work directory (guarded). */
+    private function cleanupWorkDir(?string $dir): void
+    {
+        if (! $dir || ! is_dir($dir) || strpos(basename($dir), 'heratio_merge_') !== 0) {
+            return;
+        }
+        foreach (glob($dir.'/*') ?: [] as $f) {
+            @unlink($f);
+        }
+        @rmdir($dir);
     }
 
     /**
