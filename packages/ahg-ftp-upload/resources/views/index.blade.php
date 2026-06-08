@@ -113,9 +113,14 @@
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fa fa-folder-open me-2"></i>{{ __('Remote Files') }}</h5>
-        <button type="button" class="btn btn-sm atom-btn-white" id="refresh-btn">
-          <i class="fa fa-sync-alt me-1"></i>{{ __('Refresh') }}
-        </button>
+        <div>
+          <button type="button" class="btn btn-sm atom-btn-white" id="refresh-btn">
+            <i class="fa fa-sync-alt me-1"></i>{{ __('Refresh') }}
+          </button>
+          <button type="button" class="btn btn-sm btn-danger ms-1" id="clear-all-btn">
+            <i class="fa fa-trash me-1"></i>{{ __('Clear all') }}
+          </button>
+        </div>
       </div>
       <div class="card-body">
         @if($listError)
@@ -193,6 +198,23 @@
       var UPLOAD_URL = '{{ route("ftpUpload.uploadChunk") }}';
       var LIST_URL = '{{ route("ftpUpload.listFiles") }}';
       var DELETE_URL = '{{ route("ftpUpload.deleteFile") }}';
+      var CLEAR_URL = '{{ route("ftpUpload.clearAll") }}';
+      var clearAllBtn = document.getElementById('clear-all-btn');
+      if (clearAllBtn) {
+          clearAllBtn.addEventListener('click', function () {
+              if (!confirm('{{ __('Delete ALL uploaded files in this folder? This cannot be undone.') }}')) return;
+              clearAllBtn.disabled = true;
+              var fd = new FormData(); fd.append('_token', CSRF_TOKEN);
+              fetch(CLEAR_URL, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                  .then(function (r) { return r.json(); })
+                  .then(function (d) {
+                      clearAllBtn.disabled = false;
+                      var rb = document.getElementById('refresh-btn'); if (rb) rb.click();
+                      alert(d.message || (d.success ? 'Cleared' : 'Failed'));
+                  })
+                  .catch(function () { clearAllBtn.disabled = false; alert('Request failed'); });
+          });
+      }
       var COMBINE_URL = '{{ route("ftpUpload.combineFolder") }}';
       var CSRF_TOKEN = '{{ csrf_token() }}';
 

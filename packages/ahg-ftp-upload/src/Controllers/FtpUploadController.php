@@ -133,6 +133,16 @@ class FtpUploadController extends Controller
     }
 
     /**
+     * Delete all files in the upload folder (clear all).
+     */
+    public function clearAll(Request $request)
+    {
+        $svc = FtpService::fromSettings();
+
+        return response()->json($svc->clearAll((string) $request->input('folder', '')));
+    }
+
+    /**
      * Handle chunked file upload (AJAX).
      *
      * Each request sends one chunk with metadata:

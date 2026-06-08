@@ -21,4 +21,7 @@ Route::middleware('auth')->group(function () {
 
     // AJAX: delete remote file
     Route::post('/ftpUpload/deleteFile', [FtpUploadController::class, 'deleteFile'])->name('ftpUpload.deleteFile');
+
+    // AJAX: delete all files (clear all)
+    Route::post('/ftpUpload/clearAll', [FtpUploadController::class, 'clearAll'])->name('ftpUpload.clearAll');
 });

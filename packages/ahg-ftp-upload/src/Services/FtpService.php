@@ -271,6 +271,34 @@ class FtpService
     }
 
     /**
+     * Delete every file in the upload folder (clear all). Reuses listFiles() +
+     * deleteFile() so it works for local, SFTP and FTP. Returns the count deleted.
+     */
+    public function clearAll(string $relativeDir = ''): array
+    {
+        $list = $this->listFiles($relativeDir);
+        if (empty($list['success'])) {
+            return ['success' => false, 'message' => $list['message'] ?? 'Could not list files', 'deleted' => 0];
+        }
+        $deleted = 0;
+        $failed = 0;
+        foreach (($list['files'] ?? []) as $f) {
+            $name = is_array($f) ? ($f['name'] ?? '') : $f;
+            if ($name === '') {
+                continue;
+            }
+            $r = $this->deleteFile($name, $relativeDir);
+            if (! empty($r['success'])) {
+                $deleted++;
+            } else {
+                $failed++;
+            }
+        }
+
+        return ['success' => true, 'deleted' => $deleted, 'failed' => $failed, 'message' => $deleted.' file(s) deleted'.($failed ? ", {$failed} failed" : '')];
+    }
+
+    /**
      * Check if configured. Local mode needs only a disk path; FTP/SFTP need a host.
      */
     public function isConfigured(): bool
