@@ -212,6 +212,14 @@ class EsReindexCommand extends Command
             $this->ensureGeoPointMapping($targetIndex);
         }
 
+        // The term doc emits a `code` field, but a cloned/older term mapping
+        // (e.g. from archive_qubitterm) can omit it; under dynamic:strict that
+        // rejects EVERY term doc ("dynamic introduction of [code] not allowed").
+        // PUT it idempotently so a fresh term reindex maps it. Safe to re-run.
+        if ($type === 'term') {
+            $this->ensureTermMapping($targetIndex);
+        }
+
         $method = 'reindex'.ucfirst($type);
         if (method_exists($this, $method)) {
             $this->$method($targetIndex);
@@ -265,6 +273,37 @@ class EsReindexCommand extends Command
             $this->info('  Added mappings to '.$targetIndex.': '.implode(',', array_keys($additions)));
         } else {
             $this->warn('  Failed to add mappings to '.$targetIndex.': '.$resp->body());
+        }
+    }
+
+    /**
+     * Ensure the term index maps the `code` field (keyword). The term doc
+     * builder emits `code`, but cloned/strict term mappings may lack it, which
+     * would reject every term doc. PUT mapping is idempotent + add-only.
+     */
+    protected function ensureTermMapping(string $targetIndex): void
+    {
+        try {
+            $current = Http::get("{$this->host}/{$targetIndex}/_mapping")->json();
+        } catch (\Exception $e) {
+            $this->warn('  Could not read mapping for '.$targetIndex.': '.$e->getMessage());
+
+            return;
+        }
+
+        $props = $current[$targetIndex]['mappings']['properties'] ?? [];
+        if (isset($props['code'])) {
+            return;
+        }
+
+        $resp = Http::put("{$this->host}/{$targetIndex}/_mapping", [
+            'properties' => ['code' => ['type' => 'keyword']],
+        ]);
+
+        if ($resp->successful()) {
+            $this->info('  Added mappings to '.$targetIndex.': code');
+        } else {
+            $this->warn('  Failed to add code mapping to '.$targetIndex.': '.$resp->body());
         }
     }
 
