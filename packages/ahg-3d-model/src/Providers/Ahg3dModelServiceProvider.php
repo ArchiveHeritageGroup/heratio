@@ -12,6 +12,8 @@ class Ahg3dModelServiceProvider extends ServiceProvider
         $this->app->singleton(ThreeDThumbnailService::class, function () {
             return new ThreeDThumbnailService;
         });
+        $this->app->singleton(\Ahg3dModel\Services\ModelMetadataExtractor::class);
+        $this->app->singleton(\Ahg3dModel\Services\Model3dRegistry::class);
     }
 
     public function boot(): void
@@ -27,6 +29,24 @@ class Ahg3dModelServiceProvider extends ServiceProvider
         $this->ensureParadataColumns();
         $this->seedParadataDropdowns();
 
+        // #1178 (Option A) - inject 3D technical metadata into the GLAM/DAM/sector
+        // record show pages WITHOUT editing their locked blades. The shared,
+        // unlocked partial ahg-core::partials._record-sidebar-extras is @included
+        // by all of them; a View::composer feeds it $threeDModel (the registry
+        // lazily creates/extracts the object_3d_model row for the record's 3D DO).
+        \Illuminate\Support\Facades\View::composer(
+            'ahg-3d-model::_metadata-panel',
+            function ($view) {
+                if (isset($view->getData()['threeDModel'])) {
+                    return;
+                }
+                $oid = $view->getData()['objectId'] ?? null;
+                if ($oid) {
+                    $view->with('threeDModel', app(\Ahg3dModel\Services\Model3dRegistry::class)->ensureForObject((int) $oid));
+                }
+            }
+        );
+
         // Commands are registered unconditionally so they can be invoked via
         // Artisan::call(...) from web requests (e.g. user-triggered TripoSR
         // generation), not only from the CLI.
@@ -36,6 +56,7 @@ class Ahg3dModelServiceProvider extends ServiceProvider
             \Ahg3dModel\Commands\TriposrGenerateCommand::class,
             \Ahg3dModel\Commands\TriposrHealthCommand::class,
             \Ahg3dModel\Commands\TriposrPreloadCommand::class,
+            \Ahg3dModel\Commands\ExtractMetadataCommand::class,
         ]);
     }
 

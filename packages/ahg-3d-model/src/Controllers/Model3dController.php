@@ -550,6 +550,11 @@ class Model3dController extends Controller
             $filename = uniqid().'_'.preg_replace('/[^a-zA-Z0-9._-]/', '_', $file->getClientOriginalName());
             $file->move($uploadDir, $filename);
 
+            // #1178 - auto-extract technical metadata (format version, compression,
+            // bounding box, vertex/face/texture/animation counts, PBR maps).
+            $modelMeta = (new \Ahg3dModel\Services\ModelMetadataExtractor)
+                ->extract($uploadDir.'/'.$filename, $ext);
+
             $mimeTypes = [
                 'glb' => 'model/gltf-binary',
                 'gltf' => 'model/gltf+json',
@@ -563,7 +568,7 @@ class Model3dController extends Controller
                 ->where('object_id', $objectId)
                 ->count();
 
-            $modelId = DB::table('object_3d_model')->insertGetId([
+            $modelId = DB::table('object_3d_model')->insertGetId(array_merge([
                 'object_id' => $objectId,
                 'filename' => $filename,
                 'original_filename' => $file->getClientOriginalName(),
@@ -587,7 +592,7 @@ class Model3dController extends Controller
                 'display_order' => $existingCount,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]);
+            ], $modelMeta));
 
             $title = $request->input('title') ?: pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             DB::table('object_3d_model_i18n')->insert([

@@ -10,6 +10,9 @@
 
 @if(!$__objId) @php return; @endphp @endif
 
+{{-- #1178 3D technical metadata panel (dedicated partial; composer fills it). --}}
+@includeIf('ahg-3d-model::_metadata-panel', ['objectId' => $__objId])
+
 {{-- Active Loans --}}
 @if(\Illuminate\Support\Facades\Schema::hasTable('ahg_loan') && \Illuminate\Support\Facades\Schema::hasTable('ahg_loan_object'))
 @php
