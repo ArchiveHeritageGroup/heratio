@@ -12,7 +12,7 @@
   <div class="card mb-3">
     <div class="card-header fw-bold">
       <i class="fas fa-palette me-1"></i> Gallery
-    
+    </div>
     <div class="list-group list-group-flush">
       <a href="{{ route('gallery.browse') }}" class="list-group-item list-group-item-action small">
         <i class="fas fa-th me-1"></i> {{ __('Browse artworks') }}
@@ -20,15 +20,15 @@
       <a href="{{ route('gallery.artists') }}" class="list-group-item list-group-item-action small">
         <i class="fas fa-users me-1"></i> {{ __('Browse artists') }}
       </a>
-    
-  
+    </div>
+  </div>
 
   {{-- Artist information (if linked) --}}
   @if($galleryArtist)
     <div class="card mb-3">
       <div class="card-header fw-bold">
         <i class="fas fa-user me-1"></i> Artist
-      
+      </div>
       <div class="card-body p-2">
         <h6 class="mb-1">
           <a href="{{ route('gallery.artists.show', $galleryArtist->id) }}">{{ $galleryArtist->display_name }}</a>
@@ -44,8 +44,8 @@
         @if($galleryArtist->medium_specialty)
           <p class="small text-muted mb-0">{{ $galleryArtist->medium_specialty }}</p>
         @endif
-      
-    
+      </div>
+    </div>
   @endif
 
   @auth
@@ -58,7 +58,7 @@
     <div class="card mb-3">
       <div class="card-header fw-bold">
         <i class="fas fa-cog me-1"></i> Actions
-
+      </div>
       <div class="list-group list-group-flush">
         @if($canUpdate)
         <a href="{{ route('gallery.edit', $artwork->slug) }}" class="list-group-item list-group-item-action small">
@@ -215,23 +215,23 @@
       <div class="field-list">
         @if($artwork->work_type)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Work type') }}
-            <div class="col-9 p-2">{{ $artwork->work_type }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Work type') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->work_type }}</div>
+          </div>
         @endif
         @if($artwork->classification)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Classification') }}
-            <div class="col-9 p-2">{{ $artwork->classification }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Classification') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->classification }}</div>
+          </div>
         @endif
         @if($artwork->identifier)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Identifier') }}
-            <div class="col-9 p-2">{{ $artwork->identifier }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Identifier') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->identifier }}</div>
+          </div>
         @endif
-      
+      </div>
     </section>
   @endif
 
@@ -242,25 +242,25 @@
       <div class="field-list">
         @if($artwork->creator_identity)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creator') }}
-            <div class="col-9 p-2">{{ $artwork->creator_identity }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creator') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->creator_identity }}</div>
+          </div>
         @endif
         @if($artwork->creator_role)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Role') }}
-            <div class="col-9 p-2">{{ $artwork->creator_role }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Role') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->creator_role }}</div>
+          </div>
         @endif
         @foreach($creators as $creator)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Authority record') }}
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Authority record') }}</h3>
             <div class="col-9 p-2">
               <a href="/actor/{{ $creator->slug }}">{{ $creator->name }}</a>
-            
-          
+            </div>
+          </div>
         @endforeach
-      
+      </div>
     </section>
   @endif
 
@@ -271,53 +271,53 @@
       <div class="field-list">
         @if($artwork->creation_date_display)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Date') }}
-            <div class="col-9 p-2">{{ $artwork->creation_date_display }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Date') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->creation_date_display }}</div>
+          </div>
         @endif
         @if($artwork->creation_date_earliest)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Earliest date') }}
-            <div class="col-9 p-2">{{ $artwork->creation_date_earliest }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Earliest date') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->creation_date_earliest }}</div>
+          </div>
         @endif
         @if($artwork->creation_date_latest)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Latest date') }}
-            <div class="col-9 p-2">{{ $artwork->creation_date_latest }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Latest date') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->creation_date_latest }}</div>
+          </div>
         @endif
         @if($artwork->creation_place)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Place') }}
-            <div class="col-9 p-2">{{ $artwork->creation_place }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Place') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->creation_place }}</div>
+          </div>
         @endif
         @if($artwork->style)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Style') }}
-            <div class="col-9 p-2">{{ $artwork->style }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Style') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->style }}</div>
+          </div>
         @endif
         @if($artwork->period)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Period') }}
-            <div class="col-9 p-2">{{ $artwork->period }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Period') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->period }}</div>
+          </div>
         @endif
         @if($artwork->movement)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Movement') }}
-            <div class="col-9 p-2">{{ $artwork->movement }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Movement') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->movement }}</div>
+          </div>
         @endif
         @if($artwork->school)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('School') }}
-            <div class="col-9 p-2">{{ $artwork->school }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('School') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->school }}</div>
+          </div>
         @endif
-      
+      </div>
     </section>
   @endif
 
@@ -328,17 +328,17 @@
       <div class="field-list">
         @if($artwork->measurements)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Measurements') }}
-            <div class="col-9 p-2">{{ $artwork->measurements }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Measurements') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->measurements }}</div>
+          </div>
         @endif
         @if($artwork->dimensions)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dimensions') }}
-            <div class="col-9 p-2">{{ $artwork->dimensions }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dimensions') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->dimensions }}</div>
+          </div>
         @endif
-      
+      </div>
     </section>
   @endif
 
@@ -349,17 +349,17 @@
       <div class="field-list">
         @if($artwork->materials)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Materials') }}
-            <div class="col-9 p-2">{{ $artwork->materials }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Materials') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->materials }}</div>
+          </div>
         @endif
         @if($artwork->techniques)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Techniques') }}
-            <div class="col-9 p-2">{{ $artwork->techniques }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Techniques') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->techniques }}</div>
+          </div>
         @endif
-      
+      </div>
     </section>
   @endif
 
@@ -369,10 +369,10 @@
       <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Subject') }}</div></h2>
       <div class="field-list">
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Description') }}
-          <div class="col-9 p-2">{!! nl2br(e($artwork->scope_and_content)) !!}
-        
-      
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Description') }}</h3>
+          <div class="col-9 p-2">{!! nl2br(e($artwork->scope_and_content)) !!}</div>
+        </div>
+      </div>
     </section>
   @endif
 
@@ -383,17 +383,17 @@
       <div class="field-list">
         @if($artwork->inscription)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Inscription') }}
-            <div class="col-9 p-2">{!! nl2br(e($artwork->inscription)) !!}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Inscription') }}</h3>
+            <div class="col-9 p-2">{!! nl2br(e($artwork->inscription)) !!}</div>
+          </div>
         @endif
         @if($artwork->mark_description)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Marks') }}
-            <div class="col-9 p-2">{!! nl2br(e($artwork->mark_description)) !!}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Marks') }}</h3>
+            <div class="col-9 p-2">{!! nl2br(e($artwork->mark_description)) !!}</div>
+          </div>
         @endif
-      
+      </div>
     </section>
   @endif
 
@@ -404,17 +404,17 @@
       <div class="field-list">
         @if($artwork->condition_term)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Condition') }}
-            <div class="col-9 p-2">{{ $artwork->condition_term }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Condition') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->condition_term }}</div>
+          </div>
         @endif
         @if($artwork->condition_description)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Condition notes') }}
-            <div class="col-9 p-2">{!! nl2br(e($artwork->condition_description)) !!}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Condition notes') }}</h3>
+            <div class="col-9 p-2">{!! nl2br(e($artwork->condition_description)) !!}</div>
+          </div>
         @endif
-      
+      </div>
     </section>
   @endif
 
@@ -425,29 +425,29 @@
       <div class="field-list">
         @if($artwork->provenance)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Provenance') }}
-            <div class="col-9 p-2">{!! nl2br(e($artwork->provenance)) !!}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Provenance') }}</h3>
+            <div class="col-9 p-2">{!! nl2br(e($artwork->provenance)) !!}</div>
+          </div>
         @endif
         @if($artwork->current_location)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Current location') }}
-            <div class="col-9 p-2">{{ $artwork->current_location }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Current location') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->current_location }}</div>
+          </div>
         @endif
         @if($artwork->rights_type)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights type') }}
-            <div class="col-9 p-2">{{ $artwork->rights_type }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights type') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->rights_type }}</div>
+          </div>
         @endif
         @if($artwork->rights_holder)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights holder') }}
-            <div class="col-9 p-2">{{ $artwork->rights_holder }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights holder') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->rights_holder }}</div>
+          </div>
         @endif
-      
+      </div>
     </section>
   @endif
 
@@ -458,35 +458,35 @@
       <div class="field-list">
         @if($subjects->isNotEmpty())
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Subject access points') }}
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Subject access points') }}</h3>
             <div class="col-9 p-2">
               @foreach($subjects as $subj)
                 <span class="badge bg-light text-dark border me-1 mb-1">{{ $subj->name }}</span>
               @endforeach
-            
-          
+            </div>
+          </div>
         @endif
         @if($places->isNotEmpty())
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Place access points') }}
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Place access points') }}</h3>
             <div class="col-9 p-2">
               @foreach($places as $place)
                 <span class="badge bg-light text-dark border me-1 mb-1">{{ $place->name }}</span>
               @endforeach
-            
-          
+            </div>
+          </div>
         @endif
         @if($genres->isNotEmpty())
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Genre access points') }}
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Genre access points') }}</h3>
             <div class="col-9 p-2">
               @foreach($genres as $genre)
                 <span class="badge bg-light text-dark border me-1 mb-1">{{ $genre->name }}</span>
               @endforeach
-            
-          
+            </div>
+          </div>
         @endif
-      
+      </div>
     </section>
   @endif
 
@@ -497,25 +497,25 @@
       <div class="field-list">
         @if($artwork->cataloger_name)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Cataloger') }}
-            <div class="col-9 p-2">{{ $artwork->cataloger_name }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Cataloger') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->cataloger_name }}</div>
+          </div>
         @endif
         @if($artwork->cataloging_date)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Cataloging date') }}
-            <div class="col-9 p-2">{{ $artwork->cataloging_date }}
-          
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Cataloging date') }}</h3>
+            <div class="col-9 p-2">{{ $artwork->cataloging_date }}</div>
+          </div>
         @endif
         @if($repository)
           <div class="field text-break row g-0">
-            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Repository') }}
+            <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Repository') }}</h3>
             <div class="col-9 p-2">
               <a href="/repository/{{ $repository->slug }}">{{ $repository->name }}</a>
-            
-          
+            </div>
+          </div>
         @endif
-      
+      </div>
     </section>
   @endif
 
@@ -529,7 +529,7 @@
             <strong>{{ $noteTypeNames[$note->type_id] }}</strong>
           @endif
           <p>{!! nl2br(e($note->content)) !!}</p>
-        
+        </div>
       @endforeach
     </section>
   @endif
@@ -542,7 +542,7 @@
         <div class="mb-1">
           @if($po->name)<strong>{{ $po->name }}</strong>@endif
           @if($po->location) &mdash; {{ $po->location }}@endif
-        
+        </div>
       @endforeach
     </section>
   @endif
@@ -553,17 +553,17 @@
     <div class="field-list">
       @if($artwork->created_at)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Created') }}
-          <div class="col-9 p-2">{{ \Carbon\Carbon::parse($artwork->created_at)->format('Y-m-d H:i') }}
-        
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Created') }}</h3>
+          <div class="col-9 p-2">{{ \Carbon\Carbon::parse($artwork->created_at)->format('Y-m-d H:i') }}</div>
+        </div>
       @endif
       @if($artwork->updated_at)
         <div class="field text-break row g-0">
-          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Updated') }}
-          <div class="col-9 p-2">{{ \Carbon\Carbon::parse($artwork->updated_at)->format('Y-m-d H:i') }}
-        
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Updated') }}</h3>
+          <div class="col-9 p-2">{{ \Carbon\Carbon::parse($artwork->updated_at)->format('Y-m-d H:i') }}</div>
+        </div>
       @endif
-
+    </div>
   </section>
 
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class))
@@ -586,15 +586,15 @@
           <img src="/uploads/{{ $digitalObjects['reference']->path }}/{{ $digitalObjects['reference']->name }}"
                class="img-fluid" alt="{{ $artwork->title ?: 'Artwork image' }}">
         </a>
-      
-    
+      </div>
+    </div>
   @elseif(!empty($digitalObjects['thumbnail']))
     <div class="card mb-3">
       <div class="card-body p-2 text-center">
         <img src="/uploads/{{ $digitalObjects['thumbnail']->path }}/{{ $digitalObjects['thumbnail']->name }}"
              class="img-fluid" alt="{{ $artwork->title ?: 'Artwork image' }}">
-      
-    
+      </div>
+    </div>
   @endif
 
   {{-- Events / Dates --}}
@@ -602,7 +602,7 @@
     <div class="card mb-3">
       <div class="card-header fw-bold">
         <i class="fas fa-calendar me-1"></i> Dates
-
+      </div>
       <div class="list-group list-group-flush">
         @foreach($events as $event)
           <div class="list-group-item small">
@@ -612,10 +612,10 @@
               {{ $event->start_date }}
               @if($event->end_date) &ndash; {{ $event->end_date }}@endif
             @endif
-
+          </div>
         @endforeach
-
-
+      </div>
+    </div>
   @endif
 
   <div class="d-flex gap-1 mb-3">
