@@ -181,6 +181,23 @@
             @if(!empty($model->animation_count))
               <tr><th>{{ __('Animations') }}</th><td>{{ $model->animation_count }}</td></tr>
             @endif
+            {{-- #1178 technical / paradata / provenance / rights (each shown only when set) --}}
+            @if(!empty($model->real_width) || !empty($model->real_height) || !empty($model->real_depth))
+              <tr><th>{{ __('Dimensions') }}</th><td>{{ $model->real_width ?? '?' }} &times; {{ $model->real_height ?? '?' }} &times; {{ $model->real_depth ?? '?' }} {{ $model->dimension_unit ?? '' }}</td></tr>
+            @endif
+            @if(!empty($model->scale_note))<tr><th>{{ __('Scale') }}</th><td>{{ $model->scale_note }}</td></tr>@endif
+            @if(!empty($model->coordinate_system))<tr><th>{{ __('Coordinate system') }}</th><td>{{ $model->coordinate_system }}</td></tr>@endif
+            @if(!empty($model->format_version))<tr><th>{{ __('Format version') }}</th><td>{{ $model->format_version }}</td></tr>@endif
+            @if(!empty($model->compression))<tr><th>{{ __('Compression') }}</th><td>{{ $model->compression }}{{ !empty($model->is_lossless_master) ? ' · '.__('lossless master') : '' }}</td></tr>@endif
+            @if(!empty($model->capture_method))<tr><th>{{ __('Capture method') }}</th><td>{{ $model->capture_method }}</td></tr>@endif
+            @if(!empty($model->capture_device))<tr><th>{{ __('Capture device') }}</th><td>{{ $model->capture_device }}</td></tr>@endif
+            @if(!empty($model->capture_date))<tr><th>{{ __('Capture date') }}</th><td>{{ \Illuminate\Support\Str::substr((string) $model->capture_date, 0, 10) }}</td></tr>@endif
+            @if(!empty($model->accuracy_mm))<tr><th>{{ __('Accuracy') }}</th><td>{{ $model->accuracy_mm }} mm</td></tr>@endif
+            @if(!empty($model->source_count))<tr><th>{{ __('Source items') }}</th><td>{{ $model->source_count }}</td></tr>@endif
+            @if(!empty($model->processing_software))<tr><th>{{ __('Processing software') }}</th><td>{{ $model->processing_software }}</td></tr>@endif
+            @if(!empty($model->model_author))<tr><th>{{ __('Model author') }}</th><td>{{ $model->model_author }}</td></tr>@endif
+            @if(!empty($model->model_license))<tr><th>{{ __('Licence') }}</th><td>{{ $model->model_license }}{{ !empty($model->model_license_holder) ? ' · '.e($model->model_license_holder) : '' }}</td></tr>@endif
+            @if(!empty($model->attribution))<tr><th>{{ __('Attribution') }}</th><td>{{ $model->attribution }}</td></tr>@endif
             <tr>
               <th>{{ __('AR Enabled') }}</th>
               <td>{!! !empty($model->ar_enabled) ? '<span class="text-success">' . e(__('Yes')) . '</span>' : '<span class="text-muted">' . e(__('No')) . '</span>' !!}</td>

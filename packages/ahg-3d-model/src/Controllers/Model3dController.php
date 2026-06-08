@@ -381,6 +381,35 @@ class Model3dController extends Controller
                     'ar_placement' => $request->input('ar_placement', 'floor'),
                     'is_primary' => $request->has('is_primary') ? 1 : 0,
                     'is_public' => $request->has('is_public') ? 1 : 0,
+                    // #1178 - technical / paradata / provenance / rights
+                    'real_width' => $request->filled('real_width') ? (float) $request->input('real_width') : null,
+                    'real_height' => $request->filled('real_height') ? (float) $request->input('real_height') : null,
+                    'real_depth' => $request->filled('real_depth') ? (float) $request->input('real_depth') : null,
+                    'dimension_unit' => $request->input('dimension_unit') ?: null,
+                    'scale_note' => $request->input('scale_note') ?: null,
+                    'coordinate_system' => $request->input('coordinate_system') ?: null,
+                    'compression' => $request->input('compression') ?: null,
+                    'is_lossless_master' => $request->has('is_lossless_master') ? 1 : 0,
+                    'pbr_maps' => $request->input('pbr_maps') ?: null,
+                    'texture_colorspace' => $request->input('texture_colorspace') ?: null,
+                    'lod_levels' => $request->filled('lod_levels') ? (int) $request->input('lod_levels') : null,
+                    'is_watertight' => $request->has('is_watertight') ? 1 : 0,
+                    'has_rig' => $request->has('has_rig') ? 1 : 0,
+                    'capture_method' => $request->input('capture_method') ?: null,
+                    'capture_device' => $request->input('capture_device') ?: null,
+                    'capture_date' => $request->filled('capture_date') ? $request->input('capture_date') : null,
+                    'capture_operator' => $request->input('capture_operator') ?: null,
+                    'source_count' => $request->filled('source_count') ? (int) $request->input('source_count') : null,
+                    'point_density' => $request->input('point_density') ?: null,
+                    'accuracy_mm' => $request->filled('accuracy_mm') ? (float) $request->input('accuracy_mm') : null,
+                    'processing_software' => $request->input('processing_software') ?: null,
+                    'processing_notes' => $request->input('processing_notes') ?: null,
+                    'georeference' => $request->input('georeference') ?: null,
+                    'model_author' => $request->input('model_author') ?: null,
+                    'derivation_note' => $request->input('derivation_note') ?: null,
+                    'model_license' => $request->input('model_license') ?: null,
+                    'model_license_holder' => $request->input('model_license_holder') ?: null,
+                    'attribution' => $request->input('attribution') ?: null,
                     'updated_at' => now(),
                 ]);
 
@@ -400,9 +429,18 @@ class Model3dController extends Controller
                 ->with('success', 'Model settings updated.');
         }
 
+        // #1178 - paradata dropdown taxonomies (Dropdown Manager driven).
+        $dropdowns = [];
+        foreach (['model_3d_units', 'model_3d_coordinate_system', 'model_3d_capture_method', 'model_3d_compression', 'model_3d_licence'] as $tax) {
+            $dropdowns[$tax] = DB::table('ahg_dropdown')
+                ->where('taxonomy', $tax)->where('is_active', 1)
+                ->orderBy('sort_order')->get(['code', 'label']);
+        }
+
         return view('ahg-3d-model::edit', [
             'model' => $model,
             'hotspots' => $hotspots,
+            'dropdowns' => $dropdowns,
         ]);
     }
 

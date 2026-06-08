@@ -248,6 +248,116 @@
           </div>
         </div>
 
+        {{-- #1178 Technical, capture & rights metadata --}}
+        <div class="card mb-4">
+          <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
+            <i class="fas fa-cube me-2"></i>{{ __('Technical, capture & rights metadata') }}
+          </div>
+          <div class="card-body">
+
+            <h6 class="text-muted text-uppercase small">{{ __('Dimensions & scale') }}</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-md-3"><label class="form-label small">{{ __('Width') }}</label>
+                <input type="number" step="any" class="form-control" name="real_width" value="{{ old('real_width', $model->real_width ?? '') }}"></div>
+              <div class="col-md-3"><label class="form-label small">{{ __('Height') }}</label>
+                <input type="number" step="any" class="form-control" name="real_height" value="{{ old('real_height', $model->real_height ?? '') }}"></div>
+              <div class="col-md-3"><label class="form-label small">{{ __('Depth') }}</label>
+                <input type="number" step="any" class="form-control" name="real_depth" value="{{ old('real_depth', $model->real_depth ?? '') }}"></div>
+              <div class="col-md-3"><label class="form-label small">{{ __('Units') }}</label>
+                <select class="form-select" name="dimension_unit">
+                  <option value="">&mdash;</option>
+                  @foreach(($dropdowns['model_3d_units'] ?? []) as $o)
+                    <option value="{{ $o->code }}" @selected(($model->dimension_unit ?? '')===$o->code)>{{ $o->label }}</option>
+                  @endforeach
+                </select></div>
+              <div class="col-md-4"><label class="form-label small">{{ __('Scale note') }}</label>
+                <input type="text" class="form-control" name="scale_note" placeholder="e.g. 1:1" value="{{ old('scale_note', $model->scale_note ?? '') }}"></div>
+              <div class="col-md-4"><label class="form-label small">{{ __('Coordinate system') }}</label>
+                <select class="form-select" name="coordinate_system">
+                  <option value="">&mdash;</option>
+                  @foreach(($dropdowns['model_3d_coordinate_system'] ?? []) as $o)
+                    <option value="{{ $o->code }}" @selected(($model->coordinate_system ?? '')===$o->code)>{{ $o->label }}</option>
+                  @endforeach
+                </select></div>
+              <div class="col-md-4"><label class="form-label small">{{ __('Bounding box (auto)') }}</label>
+                <input type="text" class="form-control" value="{{ $model->bounding_box ?? '' }}" readonly></div>
+            </div>
+
+            <h6 class="text-muted text-uppercase small">{{ __('Technical') }}</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-md-3"><label class="form-label small">{{ __('Format version (auto)') }}</label>
+                <input type="text" class="form-control" value="{{ $model->format_version ?? '' }}" readonly></div>
+              <div class="col-md-3"><label class="form-label small">{{ __('Compression') }}</label>
+                <select class="form-select" name="compression">
+                  <option value="">&mdash;</option>
+                  @foreach(($dropdowns['model_3d_compression'] ?? []) as $o)
+                    <option value="{{ $o->code }}" @selected(($model->compression ?? '')===$o->code)>{{ $o->label }}</option>
+                  @endforeach
+                </select></div>
+              <div class="col-md-3"><label class="form-label small">{{ __('Texture colour space') }}</label>
+                <input type="text" class="form-control" name="texture_colorspace" placeholder="sRGB / linear" value="{{ old('texture_colorspace', $model->texture_colorspace ?? '') }}"></div>
+              <div class="col-md-3"><label class="form-label small">{{ __('LOD levels') }}</label>
+                <input type="number" class="form-control" name="lod_levels" value="{{ old('lod_levels', $model->lod_levels ?? '') }}"></div>
+              <div class="col-md-6"><label class="form-label small">{{ __('PBR maps') }}</label>
+                <input type="text" class="form-control" name="pbr_maps" placeholder="baseColor,normal,metalRough,occlusion,emissive" value="{{ old('pbr_maps', $model->pbr_maps ?? '') }}"></div>
+              <div class="col-md-6 d-flex align-items-end gap-3">
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="is_lossless_master" value="1" id="is_lossless_master" @checked($model->is_lossless_master ?? false)><label class="form-check-label small" for="is_lossless_master">{{ __('Lossless master') }}</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="is_watertight" value="1" id="is_watertight" @checked($model->is_watertight ?? false)><label class="form-check-label small" for="is_watertight">{{ __('Watertight') }}</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="has_rig" value="1" id="has_rig" @checked($model->has_rig ?? false)><label class="form-check-label small" for="has_rig">{{ __('Has rig') }}</label></div>
+              </div>
+            </div>
+
+            <h6 class="text-muted text-uppercase small">{{ __('Capture & processing (paradata)') }}</h6>
+            <div class="row g-2 mb-3">
+              <div class="col-md-4"><label class="form-label small">{{ __('Capture method') }}</label>
+                <select class="form-select" name="capture_method">
+                  <option value="">&mdash;</option>
+                  @foreach(($dropdowns['model_3d_capture_method'] ?? []) as $o)
+                    <option value="{{ $o->code }}" @selected(($model->capture_method ?? '')===$o->code)>{{ $o->label }}</option>
+                  @endforeach
+                </select></div>
+              <div class="col-md-4"><label class="form-label small">{{ __('Capture device') }}</label>
+                <input type="text" class="form-control" name="capture_device" value="{{ old('capture_device', $model->capture_device ?? '') }}"></div>
+              <div class="col-md-2"><label class="form-label small">{{ __('Capture date') }}</label>
+                <input type="date" class="form-control" name="capture_date" value="{{ old('capture_date', isset($model->capture_date) ? \Illuminate\Support\Str::substr((string) $model->capture_date, 0, 10) : '') }}"></div>
+              <div class="col-md-2"><label class="form-label small">{{ __('Operator') }}</label>
+                <input type="text" class="form-control" name="capture_operator" value="{{ old('capture_operator', $model->capture_operator ?? '') }}"></div>
+              <div class="col-md-3"><label class="form-label small">{{ __('Source count') }}</label>
+                <input type="number" class="form-control" name="source_count" placeholder="e.g. # photos" value="{{ old('source_count', $model->source_count ?? '') }}"></div>
+              <div class="col-md-3"><label class="form-label small">{{ __('Point density') }}</label>
+                <input type="text" class="form-control" name="point_density" value="{{ old('point_density', $model->point_density ?? '') }}"></div>
+              <div class="col-md-3"><label class="form-label small">{{ __('Accuracy (mm)') }}</label>
+                <input type="number" step="any" class="form-control" name="accuracy_mm" value="{{ old('accuracy_mm', $model->accuracy_mm ?? '') }}"></div>
+              <div class="col-md-3"><label class="form-label small">{{ __('Georeference') }}</label>
+                <input type="text" class="form-control" name="georeference" value="{{ old('georeference', $model->georeference ?? '') }}"></div>
+              <div class="col-md-6"><label class="form-label small">{{ __('Processing software') }}</label>
+                <input type="text" class="form-control" name="processing_software" placeholder="e.g. Metashape 2.1" value="{{ old('processing_software', $model->processing_software ?? '') }}"></div>
+              <div class="col-12"><label class="form-label small">{{ __('Processing notes') }}</label>
+                <textarea class="form-control" name="processing_notes" rows="2">{{ old('processing_notes', $model->processing_notes ?? '') }}</textarea></div>
+            </div>
+
+            <h6 class="text-muted text-uppercase small">{{ __('Provenance & rights') }}</h6>
+            <div class="row g-2">
+              <div class="col-md-6"><label class="form-label small">{{ __('Model author / creator') }}</label>
+                <input type="text" class="form-control" name="model_author" value="{{ old('model_author', $model->model_author ?? '') }}"></div>
+              <div class="col-md-6"><label class="form-label small">{{ __('Derivation note') }}</label>
+                <input type="text" class="form-control" name="derivation_note" placeholder="raw scan → master → access" value="{{ old('derivation_note', $model->derivation_note ?? '') }}"></div>
+              <div class="col-md-4"><label class="form-label small">{{ __('Model licence') }}</label>
+                <select class="form-select" name="model_license">
+                  <option value="">&mdash;</option>
+                  @foreach(($dropdowns['model_3d_licence'] ?? []) as $o)
+                    <option value="{{ $o->code }}" @selected(($model->model_license ?? '')===$o->code)>{{ $o->label }}</option>
+                  @endforeach
+                </select></div>
+              <div class="col-md-4"><label class="form-label small">{{ __('Licence holder') }}</label>
+                <input type="text" class="form-control" name="model_license_holder" value="{{ old('model_license_holder', $model->model_license_holder ?? '') }}"></div>
+              <div class="col-md-4"><label class="form-label small">{{ __('Attribution') }}</label>
+                <input type="text" class="form-control" name="attribution" value="{{ old('attribution', $model->attribution ?? '') }}"></div>
+            </div>
+
+          </div>
+        </div>
+
         {{-- Danger Zone --}}
         <div class="card border-danger">
           <div class="card-header bg-danger text-white">
