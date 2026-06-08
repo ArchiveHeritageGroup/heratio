@@ -103,6 +103,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Console\Commands\NasWatchdogCommand::class,
                 \AhgCore\Console\Commands\BackfillEmbeddedMetadataCommand::class,
                 \AhgCore\Console\Commands\OptimizeModelsCommand::class,
+                \AhgCore\Console\Commands\OptimizePdfsCommand::class,
                 \AhgCore\Commands\SearchPopulateCommand::class,
                 \AhgCore\Commands\SearchUpdateCommand::class,
                 \AhgCore\Commands\SearchCleanupCommand::class,
@@ -345,6 +346,16 @@ class AhgCoreServiceProvider extends ServiceProvider
                 $schedule->command('ahg:optimize-models --commit --min-mb=20')
                     ->hourly()
                     ->withoutOverlapping(55)
+                    ->runInBackground();
+
+                // Auto-generate web-optimized PDF derivatives for large documents so
+                // they load page-1-fast in the viewer. Masters are never touched; a
+                // downsampled + linearized reference is added alongside. Idempotent
+                // (skips PDFs that already have a web derivative). Off-peak + background
+                // since gs/qpdf on a 100MB+ scan is CPU/IO heavy. No-op without gs/qpdf.
+                $schedule->command('ahg:optimize-pdfs --commit --min-mb=20 --dpi=200')
+                    ->dailyAt('03:10')
+                    ->withoutOverlapping(120)
                     ->runInBackground();
             });
         }

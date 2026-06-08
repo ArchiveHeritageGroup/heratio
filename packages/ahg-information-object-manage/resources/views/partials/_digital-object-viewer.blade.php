@@ -88,6 +88,17 @@
 
     <div class="digital-object-reference text-center p-3 border-bottom">
       @if($isPdf)
+        @php
+          // Prefer the web-optimized PDF derivative for DISPLAY (downsampled + linearized,
+          // so big scans show page 1 fast); the master stays the download/open target.
+          // Skipped when redactions reroute the master for non-admins - they must keep
+          // streaming the redacted file, never an un-redacted web copy.
+          $pdfDisplayUrl = $masterUrl;
+          if (!($__hasRedactions && !$__isAdminViewer)) {
+              $__webPdf = \AhgCore\Services\DigitalObjectService::getWebPdfUrl((int) $io->id);
+              if ($__webPdf) { $pdfDisplayUrl = $__webPdf; }
+          }
+        @endphp
         {{-- PDF: embedded iframe viewer with toolbar --}}
         <div class="pdf-viewer-container" style="overflow:hidden;">
           <div class="pdf-wrapper">
@@ -105,7 +116,7 @@
               </div>
             </div>
             <div class="ratio" style="--bs-aspect-ratio: 85%;">
-              <iframe src="{{ $masterUrl }}" style="border:none;border-radius:8px;background:#525659;" title="{{ __('PDF Viewer') }}"></iframe>
+              <iframe src="{{ $pdfDisplayUrl }}" style="border:none;border-radius:8px;background:#525659;" title="{{ __('PDF Viewer') }}"></iframe>
             </div>
           </div>
         </div>
