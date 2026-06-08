@@ -262,10 +262,25 @@
             listEl.innerHTML = '<div class="text-muted text-center py-3"><i class="fas fa-folder-open me-1"></i>No files found</div>';
             return;
           }
-          listEl.innerHTML = files.map(function (f) {
+          // Build a type filter from the files' extensions.
+          var extCounts = {};
+          files.forEach(function (f) {
+            var n = (typeof f === 'string') ? f : (f.name || f.filename || '');
+            var e = (n.split('.').pop() || '').toLowerCase();
+            extCounts[e] = (extCounts[e] || 0) + 1;
+          });
+          var filterOpts = '<option value="">All types (' + files.length + ')</option>';
+          Object.keys(extCounts).sort().forEach(function (e) {
+            filterOpts += '<option value="' + e + '">.' + e + ' (' + extCounts[e] + ')</option>';
+          });
+          var filterHtml = '<div class="p-2 border-bottom bg-light position-sticky top-0" style="z-index:1;">' +
+                           '<select class="form-select form-select-sm ftp-type-filter">' + filterOpts + '</select></div>';
+
+          var itemsHtml = files.map(function (f) {
             var name = (typeof f === 'string') ? f : (f.name || f.filename || '');
             var size = (typeof f === 'object' && f.size) ? (' · ' + f.size) : '';
-            return '<label class="d-flex align-items-center p-2 border-bottom" style="cursor:pointer;">' +
+            var ext = (name.split('.').pop() || '').toLowerCase();
+            return '<label class="ftp-pick-row d-flex align-items-center p-2 border-bottom" data-ext="' + ext.replace(/"/g, '&quot;') + '" style="cursor:pointer;">' +
                    '  <input type="radio" name="__ftp_pick" value="' + name.replace(/"/g, '&quot;') + '" class="form-check-input me-2">' +
                    '  <i class="fas fa-file me-2 text-secondary"></i>' +
                    '  <span class="flex-grow-1"><small class="fw-semibold">' + name + '</small>' +
@@ -273,6 +288,17 @@
                    '  </span>' +
                    '</label>';
           }).join('');
+          listEl.innerHTML = filterHtml + itemsHtml;
+
+          var ftpFilter = listEl.querySelector('.ftp-type-filter');
+          if (ftpFilter) {
+            ftpFilter.addEventListener('change', function () {
+              var v = this.value;
+              listEl.querySelectorAll('.ftp-pick-row').forEach(function (it) {
+                it.style.display = (!v || it.getAttribute('data-ext') === v) ? '' : 'none';
+              });
+            });
+          }
           listEl.querySelectorAll('input[name=__ftp_pick]').forEach(function (r) {
             r.addEventListener('change', function () { pickInput.value = r.value; });
           });
