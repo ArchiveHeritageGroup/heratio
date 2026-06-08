@@ -160,7 +160,7 @@
 @endif
 
 {{-- IMPORT menu --}}
-@if($isAdmin)
+@if($isAdmin || $isEditor)
 @if(count($importItems) > 0)
 <li class="nav-item dropdown d-flex flex-column">
   <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="import-menu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
