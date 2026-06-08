@@ -114,13 +114,27 @@ class FtpUploadController extends Controller
             }
         }
 
+        // No slug: write the PDF (uniquely named, derived from the folder) into a
+        // "_combined" holding area so it can be linked to a record by name later.
+        $outOpt = '';
+        if (! $objId) {
+            $name = $this->sanitizeCombineName($sub !== '' ? basename($sub) : 'combined');
+            $combinedDir = $base.'/_combined';
+            if (! is_dir($combinedDir)) {
+                @mkdir($combinedDir, 0775, true);
+            }
+            $outPath = $combinedDir.'/'.$name.'_'.substr(md5(uniqid('', true)), 0, 6).'.pdf';
+            $outOpt = '--out='.escapeshellarg($outPath);
+        }
+
         // Run the combine in the background (no queue worker required).
         $cmd = sprintf(
-            'cd %s && %s artisan ahg:pdf-combine %s %s --clear-source >> %s 2>&1 &',
+            'cd %s && %s artisan ahg:pdf-combine %s %s %s --clear-source >> %s 2>&1 &',
             escapeshellarg(base_path()),
             escapeshellarg(PHP_BINARY),
             escapeshellarg($folder),
             $objId ? '--id='.$objId : '',
+            $outOpt,
             escapeshellarg(storage_path('logs/pdf-combine.log'))
         );
         @exec($cmd);
@@ -128,8 +142,92 @@ class FtpUploadController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Combine started in the background. The PDF/A will be created'
-                .($objId ? ' and attached to the record.' : ' (you can link it to a record later).'),
+                .($objId ? ' and attached to the record.' : ' (link it to a record below once it is ready).'),
         ]);
+    }
+
+    /** Sanitise + truncate a combine output base name (long slugs/folders). */
+    private function sanitizeCombineName(string $name): string
+    {
+        $name = preg_replace('/[^a-zA-Z0-9_.-]/', '_', $name);
+        $name = trim(preg_replace('/_+/', '_', $name), '_');
+        if (strlen($name) > 80) {
+            $name = rtrim(substr($name, 0, 80), '_');
+        }
+
+        return $name !== '' ? $name : 'combined';
+    }
+
+    /**
+     * List combined PDFs in the "_combined" holding area that have not yet been
+     * linked to a record - the no-slug "link by name" picker.
+     */
+    public function readyToLink(Request $request)
+    {
+        $svc = FtpService::fromSettings();
+        $base = rtrim((string) $svc->getRemotePath(), '/');
+        $dir = $base.'/_combined';
+        $items = [];
+        foreach (glob($dir.'/*.pdf') ?: [] as $p) {
+            if (! is_file($p)) {
+                continue;
+            }
+            $items[] = [
+                'file' => basename($p),
+                'name' => basename($p),
+                'size_mb' => round((@filesize($p) ?: 0) / 1048576, 2),
+            ];
+        }
+
+        return response()->json(['success' => true, 'items' => $items]);
+    }
+
+    /**
+     * Attach an already-combined PDF (from "_combined") to a record chosen by
+     * slug - the after-the-fact "link by name" path for no-slug combines.
+     */
+    public function attachExisting(Request $request)
+    {
+        $svc = FtpService::fromSettings();
+        $base = rtrim((string) $svc->getRemotePath(), '/');
+
+        $file = basename((string) $request->input('file', ''));
+        $rec = trim((string) $request->input('slug', ''));
+        if ($file === '' || $rec === '') {
+            return response()->json(['success' => false, 'error' => 'Missing file or record slug']);
+        }
+
+        $path = $base.'/_combined/'.$file;
+        if (! is_file($path)) {
+            return response()->json(['success' => false, 'error' => 'Combined PDF not found (may already be linked)']);
+        }
+
+        $objId = ctype_digit($rec)
+            ? (int) $rec
+            : (int) DB::table('slug')->where('slug', $rec)->value('object_id');
+        if (! $objId) {
+            return response()->json(['success' => false, 'error' => 'Record not found: '.$rec]);
+        }
+
+        try {
+            // upload() moves the file into the uploads tree, so it leaves the
+            // holding area automatically once linked.
+            $uploaded = new \Illuminate\Http\UploadedFile($path, $file, 'application/pdf', null, true);
+            $doId = \AhgCore\Services\DigitalObjectService::upload($objId, $uploaded);
+            \AhgCore\Services\DigitalObjectService::generateDerivativesForMaster($doId);
+
+            try {
+                \Illuminate\Support\Facades\Artisan::call('ahg:optimize-pdfs', [
+                    '--commit' => true, '--id' => $objId, '--min-mb' => 0,
+                ]);
+            } catch (\Throwable $we) {
+                // Web derivative is best-effort.
+            }
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'error' => 'Attach failed: '.$e->getMessage()]);
+        }
+
+        return response()->json(['success' => true, 'digital_object_id' => $doId]);
     }
 
     /**

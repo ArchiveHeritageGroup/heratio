@@ -109,6 +109,17 @@
       </div>
     </div>
 
+    <!-- Combined PDFs ready to link to a record -->
+    <div class="card mb-4" id="ready-link-card" style="display:none;">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <h5 class="mb-0"><i class="fa fa-link me-2"></i>{{ __('Combined PDFs - link to a record') }}</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-3">{{ __('PDFs that were combined without a record slug. Enter a record slug and attach each one as a digital object.') }}</p>
+        <div id="ready-link-list"></div>
+      </div>
+    </div>
+
     <!-- File Listing -->
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
@@ -242,6 +253,65 @@
                   .catch(function () { combineBtn.disabled = false; out.innerHTML = '<div class="alert alert-danger mb-0">Request failed</div>'; });
           });
       }
+
+      // Combined PDFs ready to link (combined without a slug): list + attach by slug.
+      var READY_URL = '{{ route("ftpUpload.readyToLink") }}';
+      var ATTACH_URL = '{{ route("ftpUpload.attachExisting") }}';
+      function escHtml(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : String(s)); return d.innerHTML; }
+      function loadReadyToLink() {
+          var card = document.getElementById('ready-link-card');
+          var list = document.getElementById('ready-link-list');
+          if (!card || !list) return;
+          fetch(READY_URL, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+              .then(function (r) { return r.json(); })
+              .then(function (d) {
+                  var items = (d && d.items) || [];
+                  if (!items.length) { card.style.display = 'none'; list.innerHTML = ''; return; }
+                  card.style.display = '';
+                  var html = '';
+                  items.forEach(function (it) {
+                      html += '<div class="row g-2 align-items-end mb-2 ready-link-row" data-file="' + escHtml(it.file) + '">'
+                          + '<div class="col-md-5"><span class="fw-semibold">' + escHtml(it.name) + '</span>'
+                          + '<span class="text-muted small ms-2">' + it.size_mb + ' MB</span></div>'
+                          + '<div class="col-md-4"><input type="text" class="form-control form-control-sm ready-link-slug" placeholder="{{ __('record slug') }}"></div>'
+                          + '<div class="col-md-3"><button type="button" class="btn btn-sm btn-primary w-100 ready-link-btn"><i class="fa fa-link me-1"></i>{{ __('Attach') }}</button></div>'
+                          + '</div>';
+                  });
+                  list.innerHTML = html;
+              })
+              .catch(function () {});
+      }
+      var readyList = document.getElementById('ready-link-list');
+      if (readyList) {
+          readyList.addEventListener('click', function (e) {
+              var btn = e.target.closest ? e.target.closest('.ready-link-btn') : null;
+              if (!btn) return;
+              var row = btn.closest('.ready-link-row');
+              var file = row.getAttribute('data-file');
+              var slug = row.querySelector('.ready-link-slug').value.trim();
+              if (!slug) { alert('{{ __('Enter a record slug first.') }}'); return; }
+              btn.disabled = true;
+              btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+              var fd = new FormData();
+              fd.append('file', file);
+              fd.append('slug', slug);
+              fd.append('_token', CSRF_TOKEN);
+              fetch(ATTACH_URL, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                  .then(function (r) { return r.json(); })
+                  .then(function (d) {
+                      if (d.success) {
+                          row.outerHTML = '<div class="alert alert-success mb-2 py-1"><i class="fa fa-check me-1"></i>{{ __('Attached to') }} ' + escHtml(slug) + '</div>';
+                          loadReadyToLink();
+                      } else {
+                          btn.disabled = false; btn.innerHTML = '<i class="fa fa-link me-1"></i>{{ __('Attach') }}';
+                          alert(d.error || 'Failed');
+                      }
+                  })
+                  .catch(function () { btn.disabled = false; btn.innerHTML = '<i class="fa fa-link me-1"></i>{{ __('Attach') }}'; alert('Request failed'); });
+          });
+      }
+      loadReadyToLink();
+      window.setInterval(loadReadyToLink, 20000);
 
       var uploads = {};
       // The folder the user is currently viewing in the Remote Files panel.

@@ -24,4 +24,10 @@ Route::middleware('auth')->group(function () {
 
     // AJAX: delete all files (clear all)
     Route::post('/ftpUpload/clearAll', [FtpUploadController::class, 'clearAll'])->name('ftpUpload.clearAll');
+
+    // AJAX: list combined PDFs ready to link (no-slug combines)
+    Route::get('/ftpUpload/readyToLink', [FtpUploadController::class, 'readyToLink'])->name('ftpUpload.readyToLink');
+
+    // AJAX: attach a combined PDF to a record by slug
+    Route::post('/ftpUpload/attachExisting', [FtpUploadController::class, 'attachExisting'])->name('ftpUpload.attachExisting');
 });
