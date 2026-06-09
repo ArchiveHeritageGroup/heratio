@@ -169,8 +169,17 @@
           <button type="button" id="wvAddWin" class="btn btn-sm btn-outline-info d-none" title="{{ __('Add a window to this wall - then drag it to position, double-click to remove') }}"><i class="fas fa-window-maximize me-1"></i>{{ __('Add window') }}</button>
           <span class="small text-muted"><span id="saveState">{{ __('All changes saved') }}</span> <i id="saveIcon" class="fas fa-check text-success ms-1"></i></span>
         </div>
-        <div class="card-body p-0">
+        <div class="card-body p-0" style="position:relative;">
           <div id="stageWrap" style="width:100%;background:#f4f4f4;border-radius:0 0 .375rem .375rem;overflow:hidden;"></div>
+          {{-- #1172 Wall-view window editor: appears when a window is clicked --}}
+          <div id="winEdit" class="d-none" style="position:absolute;top:10px;right:10px;z-index:6;background:#fff;border:1px solid #adb5bd;border-radius:6px;padding:8px;box-shadow:0 2px 10px rgba(0,0,0,.2);width:172px;">
+            <div class="small fw-bold mb-2"><i class="fas fa-window-maximize me-1 text-info"></i>{{ __('Window') }}</div>
+            <div class="input-group input-group-sm mb-1"><span class="input-group-text" style="width:52px">{{ __('Width') }}</span><input type="number" id="winEditW" class="form-control" min="0.4" max="6" step="0.1"><span class="input-group-text">m</span></div>
+            <div class="input-group input-group-sm mb-1"><span class="input-group-text" style="width:52px">{{ __('Sill') }}</span><input type="number" id="winEditSill" class="form-control" min="0" max="3" step="0.1"><span class="input-group-text">m</span></div>
+            <div class="input-group input-group-sm mb-2"><span class="input-group-text" style="width:52px">{{ __('Height') }}</span><input type="number" id="winEditH" class="form-control" min="0.3" max="3.5" step="0.1"><span class="input-group-text">m</span></div>
+            <button type="button" id="winEditDel" class="btn btn-sm btn-danger w-100 mb-1"><i class="fas fa-trash me-1"></i>{{ __('Remove window') }}</button>
+            <button type="button" id="winEditClose" class="btn btn-sm btn-outline-secondary w-100">{{ __('Done') }}</button>
+          </div>
         </div>
       </div>
 
@@ -1051,6 +1060,7 @@
       wb.classList.toggle('btn-primary', m === 'wall'); wb.classList.toggle('btn-outline-primary', m !== 'wall');
       document.getElementById('wvWall').classList.toggle('d-none', m !== 'wall');
       if (_wvAddWin) { _wvAddWin.classList.toggle('d-none', m !== 'wall'); refreshAddWinBtn(); }
+      if (typeof closeWinEdit === 'function') closeWinEdit();
       var floorOn = (m === 'floor');
       bgLayer.visible(floorOn); wallLayer.visible(floorOn); doorLayer.visible(floorOn); layer.visible(floorOn); viewLayer.visible(floorOn); routeLayer.visible(floorOn); wvLayer.visible(!floorOn);
       tr.nodes([]); clearSelect();
@@ -1058,7 +1068,7 @@
     }
     document.getElementById('modeFloor').addEventListener('click', function () { setMode('floor'); });
     document.getElementById('modeWall').addEventListener('click', function () { setMode('wall'); });
-    document.getElementById('wvWall').addEventListener('change', function () { wvWall = this.value; refreshAddWinBtn(); buildWallView(); });
+    document.getElementById('wvWall').addEventListener('change', function () { wvWall = this.value; refreshAddWinBtn(); if (typeof closeWinEdit === 'function') closeWinEdit(); buildWallView(); });
 
     // Spread items that share (near) the same spot on the wall so they don't
     // render on top of each other; persist the nudge so the walkthrough matches.
@@ -1150,6 +1160,35 @@
     }
     var _wvAddWin = document.getElementById('wvAddWin');
     if (_wvAddWin) _wvAddWin.addEventListener('click', addWindowToWall);
+    // #1172 click a window in Wall view to edit its width/sill/height or remove it.
+    var selectedWin = null, _winEdit = document.getElementById('winEdit');
+    function selectWindow(w) {
+      selectedWin = w; if (!_winEdit) return;
+      document.getElementById('winEditW').value = (w.width != null ? w.width : 1.2);
+      document.getElementById('winEditSill').value = (w.sill != null ? w.sill : 0.9);
+      document.getElementById('winEditH').value = (w.height != null ? w.height : 1.3);
+      _winEdit.classList.remove('d-none');
+    }
+    function closeWinEdit() { selectedWin = null; if (_winEdit) _winEdit.classList.add('d-none'); }
+    (function () {
+      var wE = document.getElementById('winEditW'), wS = document.getElementById('winEditSill'), wH = document.getElementById('winEditH');
+      function applyWin() {
+        if (!selectedWin) return;
+        selectedWin.width = Math.max(0.4, Math.min(6, parseFloat(wE.value) || 1.2));
+        selectedWin.sill = Math.max(0, Math.min(3, parseFloat(wS.value) || 0.9));
+        selectedWin.height = Math.max(0.3, Math.min(3.5, parseFloat(wH.value) || 1.3));
+        persistWindows(); buildWallView();
+      }
+      [wE, wS, wH].forEach(function (el) { if (el) el.addEventListener('change', applyWin); });
+      var del = document.getElementById('winEditDel');
+      if (del) del.addEventListener('click', function () {
+        if (!selectedWin) return;
+        var i = WINDOWS.indexOf(selectedWin); if (i >= 0) WINDOWS.splice(i, 1);
+        closeWinEdit(); persistWindows(); buildWallView();
+      });
+      var cl = document.getElementById('winEditClose');
+      if (cl) cl.addEventListener('click', closeWinEdit);
+    })();
     var wvOX = 0, wvOY = 0, wvEW = 0, wvEH = 0, wvStepX = 0, wvStepY = 0;   // elevation rect (to-scale wall area) + 1m grid step
     function buildWallView() {
       wvLayer.destroyChildren();
@@ -1186,8 +1225,9 @@
         grp.add(new Konva.Rect({ x: -wpx / 2, y: 0, width: wpx, height: wh, fill: '#cfe6f5', stroke: '#3a7ca5', strokeWidth: 2, cornerRadius: 1 }));   // glass
         grp.add(new Konva.Line({ points: [0, 0, 0, wh], stroke: '#3a7ca5', strokeWidth: 1, listening: false }));   // mullion
         grp.add(new Konva.Text({ x: -wpx / 2, y: -13, width: wpx, align: 'center', text: '{{ __('window') }}', fontSize: 9, fill: '#3a7ca5', listening: false }));
+        grp.on('click tap', function (e) { e.cancelBubble = true; selectWindow(w); });   // open the editor (width/sill/height + remove)
         grp.on('dragend', function () { w.pos = Math.max(0, Math.min(1, (grp.x() - wvOX) / ew)); persistWindows(); });
-        grp.on('dblclick dbltap', function (e) { e.cancelBubble = true; var i = WINDOWS.indexOf(w); if (i >= 0) { WINDOWS.splice(i, 1); persistWindows(); buildWallView(); } });
+        grp.on('dblclick dbltap', function (e) { e.cancelBubble = true; var i = WINDOWS.indexOf(w); if (i >= 0) { WINDOWS.splice(i, 1); if (selectedWin === w) closeWinEdit(); persistWindows(); buildWallView(); } });
         wvLayer.add(grp);
       });
       var lbl = document.getElementById('wvWall').selectedOptions[0];
