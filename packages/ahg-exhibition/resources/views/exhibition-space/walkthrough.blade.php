@@ -67,6 +67,9 @@
           <button id="wtSunBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:336px;z-index:6;opacity:.85;" title="{{ __('Sun & shadows (off / morning / noon / afternoon)') }}"><i class="fas fa-sun"></i></button>
           <button id="wtNightBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:372px;z-index:6;opacity:.85;" title="{{ __('Night mode (walk with the flashlight) - N') }}"><i class="fas fa-moon"></i></button>
           <button id="wtFsBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:408px;z-index:6;opacity:.85;" title="{{ __('Fullscreen') }}"><i class="fas fa-expand"></i></button>
+          {{-- Feedback button, inside the room so it stays available in fullscreen (the
+               theme's left-edge feedback tab is outside #room and vanishes in fullscreen). --}}
+          <a id="wtFeedbackBtn" href="{{ route('feedback.general') }}" target="_blank" rel="noopener" class="btn btn-sm btn-danger" style="position:absolute;top:8px;left:8px;z-index:8;opacity:.9;box-shadow:0 2px 8px rgba(0,0,0,.4);" title="{{ __('Give feedback (opens in a new tab)') }}"><i class="fas fa-comment-alt me-1"></i>{{ __('Feedback') }}</a>
           {{-- Tour banner sits in the bottom third; long narration scrolls inside
                wtTourText (max 30vh) so it never fills the screen on mobile, while
                the controls stay pinned below. --}}
