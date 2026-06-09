@@ -1735,8 +1735,16 @@
       // land on the object's actual (rotated) world position.
       var sw = roomWorld(rm, stand.x, stand.z), lw = roomWorld(rm, look.x, look.z);
       stand.set(sw.x, 1.6, sw.z); look.set(lw.x, lookY, lw.z);
-      fly = { from: controls.getObject().position.clone(), to: stand, look: look,
-              targetFrom: orbit ? orbit.target.clone() : null, t: 0, dur: 0.9 };
+      // Walk to the next stop instead of jumping: duration scales with distance at
+      // a walking pace, and we keep a starting look-point so the view turns toward
+      // the object gradually (rather than snapping to face it immediately).
+      var fromPos = controls.getObject().position.clone();
+      var walkDist = Math.hypot(stand.x - fromPos.x, stand.z - fromPos.z);
+      var walkDur = Math.max(0.8, Math.min(8, walkDist / 1.5));   // ~1.5 m/s
+      var camDir = new THREE.Vector3(); camera.getWorldDirection(camDir);
+      var lookFrom = new THREE.Vector3(fromPos.x + camDir.x * 3, lookY, fromPos.z + camDir.z * 3);
+      fly = { from: fromPos, to: stand, look: look, lookFrom: lookFrom,
+              targetFrom: orbit ? orbit.target.clone() : null, t: 0, dur: walkDur };
       // During a guided tour the tour banner already shows the title + narration,
       // so skip the big detail inlay (it clutters the screen, esp. on mobile).
       // Manual walk-to / object taps still open it.
@@ -2022,6 +2030,8 @@
         if (orbit) {
           if (fly.targetFrom) orbit.target.lerpVectors(fly.targetFrom, fly.look, fe);
           orbit.update();
+        } else if (fly.lookFrom) {
+          camera.lookAt(new THREE.Vector3().lerpVectors(fly.lookFrom, fly.look, fe));   // turn the head gradually
         } else {
           camera.lookAt(fly.look);
         }
