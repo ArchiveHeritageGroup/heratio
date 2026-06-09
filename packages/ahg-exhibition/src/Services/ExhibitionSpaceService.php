@@ -2390,19 +2390,60 @@ class ExhibitionSpaceService
      * narration script + dwell time each. Stored as guided_tour_json on the space.
      * Returns [{io_id, title, narration, dwell}] enriched with the object title.
      */
+    /**
+     * Rooms in $space's building, ordered by floor then Room order (building_seq).
+     * Ungrouped spaces return just themselves. The FIRST entry is the main room
+     * (shared-tour host + walkthrough spawn).
+     */
+    public function buildingRoomsOrdered(object $space): array
+    {
+        if (empty($space->building_id)) {
+            return [$space];
+        }
+
+        return DB::table('ahg_exhibition_space')
+            ->where('building_id', $space->building_id)
+            ->orderBy('floor_level')->orderBy('building_seq')->orderBy('id')
+            ->get()->all();
+    }
+
     public function getGuidedTour(object $space): array
     {
-        $raw = $space->guided_tour_json ?? null;
-        if (is_string($raw)) {
-            $raw = json_decode($raw, true);
+        // Shared building-wide tours: gather from every room in the building
+        // (main room / Room order first) so the same set appears in each room's
+        // builder and in the walkthrough; de-duplicate by tour name (first wins).
+        $raw = [];
+        foreach ($this->buildingRoomsOrdered($space) as $rm) {
+            $j = $rm->guided_tour_json ?? null;
+            if (is_string($j)) {
+                $j = json_decode($j, true);
+            }
+            if (!is_array($j) || empty($j)) {
+                continue;
+            }
+            if (isset($j[0]['io_id'])) {   // legacy flat stop array
+                $j = [['name' => 'Tour', 'stops' => $j]];
+            }
+            foreach ($j as $t) {
+                if (is_array($t)) {
+                    $raw[] = $t;
+                }
+            }
         }
-        if (!is_array($raw) || empty($raw)) {
+        if (empty($raw)) {
             return [];
         }
-        // Back-compat: a flat array of stops becomes one unnamed tour.
-        if (isset($raw[0]['io_id'])) {
-            $raw = [['name' => 'Tour', 'stops' => $raw]];
+        $seen = [];
+        $deduped = [];
+        foreach ($raw as $t) {
+            $key = mb_strtolower(trim((string) ($t['name'] ?? 'Tour')));
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $deduped[] = $t;
         }
+        $raw = $deduped;
         $ids = [];
         foreach ($raw as $t) {
             foreach (($t['stops'] ?? []) as $s) {
@@ -2445,7 +2486,16 @@ class ExhibitionSpaceService
                 $clean[] = ['name' => (mb_substr(trim((string) ($t['name'] ?? 'Tour')), 0, 80) ?: 'Tour'), 'stops' => $stops];
             }
         }
-        DB::table('ahg_exhibition_space')->where('id', $space->id)->update(['guided_tour_json' => json_encode($clean)]);
+        // Shared building-wide: store the one authoritative set on the MAIN room
+        // (first in Room order) and clear the other rooms in the building, so a
+        // multi-room building has a single tour list instead of per-room copies.
+        $rooms = $this->buildingRoomsOrdered($space);
+        $host = $rooms[0] ?? $space;
+        DB::table('ahg_exhibition_space')->where('id', $host->id)->update(['guided_tour_json' => json_encode($clean)]);
+        if (!empty($space->building_id)) {
+            DB::table('ahg_exhibition_space')->where('building_id', $space->building_id)
+                ->where('id', '!=', $host->id)->update(['guided_tour_json' => null]);
+        }
     }
 
     /** heratio#1165 - add a graffiti annotation; returns the saved row payload. */
