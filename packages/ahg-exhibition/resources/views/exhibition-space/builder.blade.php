@@ -336,12 +336,22 @@
                 <button type="button" id="gtDelTourBtn" class="btn btn-outline-danger" title="{{ __('Delete this tour') }}"><i class="fas fa-trash"></i></button>
               </div>
               <input id="gtTourName" class="form-control form-control-sm mb-2" placeholder="{{ __('Tour name') }}" maxlength="80">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <label class="form-label small mb-0 text-nowrap">{{ __('Show objects from') }}</label>
+                <select id="gtScope" class="form-select form-select-sm">
+                  <option value="room" selected>{{ __('This room') }}</option>
+                  <option value="building">{{ __('Whole building') }}</option>
+                </select>
+              </div>
               <div class="input-group input-group-sm mb-2">
                 <select id="gtAddSel" class="form-select form-select-sm"></select>
-                <button type="button" id="gtAddBtn" class="btn btn-outline-primary"><i class="fas fa-plus"></i></button>
+                <button type="button" id="gtAddBtn" class="btn btn-outline-primary" title="{{ __('Add to tour') }}"><i class="fas fa-plus"></i></button>
               </div>
               <div id="gtList"></div>
-              <button type="button" id="gtSaveBtn" class="btn btn-sm btn-success w-100 mt-2"><i class="fas fa-save me-1"></i>{{ __('Save tours') }}</button>
+              <div class="d-flex gap-1 mt-2">
+                <button type="button" id="gtSaveBtn" class="btn btn-sm btn-success flex-fill"><i class="fas fa-save me-1"></i>{{ __('Save tours') }}</button>
+                <button type="button" id="gtPreviewBtn" class="btn btn-sm btn-outline-primary flex-fill" title="{{ __('Save then open the walkthrough and play this tour') }}"><i class="fas fa-play me-1"></i>{{ __('Preview') }}</button>
+              </div>
               <span id="gtSaveMsg" class="text-success"></span>
             </div>
           </div>
@@ -377,7 +387,9 @@
       simLive: '{{ route('exhibition-space.readings.simulate', ['slug' => $space->slug]) }}',
       genRec: '{{ route('exhibition-space.recommend.generate', ['slug' => $space->slug]) }}',
       recommend: '{{ route('exhibition-space.recommend', ['slug' => $space->slug]) }}',
-      guidedTour: '{{ route('exhibition-space.guided-tour', ['slug' => $space->slug]) }}'
+      guidedTour: '{{ route('exhibition-space.guided-tour', ['slug' => $space->slug]) }}',
+      tourAudio: '{{ route('exhibition-space.tour-audio', ['slug' => $space->slug]) }}',
+      walkthrough: '{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}'
     };
     var FLOORPLAN = @json($space->floorplan_image_path);
     var PLACEMENTS = @json($placements);
@@ -1399,10 +1411,31 @@
       var TOURS = Array.isArray(GUIDED_TOUR) ? GUIDED_TOUR : [];
       if (!TOURS.length) TOURS.push({ name: 'Tour 1', stops: [] });
       var cur = 0;
-      // Building-wide objects (every room), so a tour can include objects from anywhere.
-      var POOL = (TOUR_OBJECTS && TOUR_OBJECTS.length) ? TOUR_OBJECTS : (PLACEMENTS || []).map(function (p) { return { io_id: p.information_object_id, title: p.title }; });
-      POOL.forEach(function (p) { var o = document.createElement('option'); o.value = p.io_id; o.textContent = (p.title || ('#' + p.io_id)); sel.appendChild(o); });
-      function titleFor(io) { var p = POOL.filter(function (x) { return x.io_id == io; })[0]; return p ? p.title : ('#' + io); }
+      // Title lookup spans BOTH this room (PLACEMENTS) and the whole building
+      // (TOUR_OBJECTS) so a stop's title resolves no matter which scope it was
+      // added from.
+      var ALL_OBJ = {};
+      (TOUR_OBJECTS || []).forEach(function (p) { ALL_OBJ[p.io_id] = p.title; });
+      (PLACEMENTS || []).forEach(function (p) { if (!ALL_OBJ[p.information_object_id]) ALL_OBJ[p.information_object_id] = p.title; });
+      function titleFor(io) { return ALL_OBJ[io] || ('#' + io); }
+      // Picker pool, scoped (this room | whole building) and sorted A-Z by title.
+      var scopeSel = document.getElementById('gtScope');
+      function poolFor(scope) {
+        var arr = (scope === 'building')
+          ? (TOUR_OBJECTS || []).map(function (p) { return { io_id: p.io_id, title: p.title }; })
+          : (PLACEMENTS || []).map(function (p) { return { io_id: p.information_object_id, title: p.title }; });
+        var seen = {}, out = [];
+        arr.forEach(function (p) { if (p.io_id && !seen[p.io_id]) { seen[p.io_id] = 1; out.push(p); } });
+        out.sort(function (a, b) { return String(a.title || '').localeCompare(String(b.title || '')); });
+        return out;
+      }
+      function populatePicker() {
+        var scope = scopeSel ? scopeSel.value : 'room';
+        sel.innerHTML = '';
+        poolFor(scope).forEach(function (p) { var o = document.createElement('option'); o.value = p.io_id; o.textContent = (p.title || ('#' + p.io_id)); sel.appendChild(o); });
+      }
+      if (scopeSel) scopeSel.addEventListener('change', populatePicker);
+      populatePicker();
       function esc(s) { return (s || '').replace(/[<>&]/g, ''); }
       function renderTourSel() {
         tourSel.innerHTML = '';
@@ -1422,7 +1455,12 @@
             '<textarea class="form-control form-control-sm mt-1" rows="2" data-narr="' + i + '" placeholder="{{ __('What the guide says...') }}"></textarea>' +
             '<div class="input-group input-group-sm mt-1"><span class="input-group-text">{{ __('Dwell s') }}</span>' +
             '<input type="number" class="form-control" min="2" max="60" value="' + (s.dwell || 6) + '" data-dwell="' + i + '">' +
-            '<button type="button" class="btn btn-outline-secondary" data-ai="' + i + '" title="{{ __('AI draft narration') }}"><i class="fas fa-wand-magic-sparkles"></i></button></div>';
+            '<button type="button" class="btn btn-outline-secondary" data-ai="' + i + '" title="{{ __('AI draft narration') }}"><i class="fas fa-wand-magic-sparkles"></i></button></div>' +
+            '<div class="input-group input-group-sm mt-1"><span class="input-group-text" title="{{ __('Pre-recorded narration clip (plays instead of text-to-speech)') }}"><i class="fas fa-microphone-lines"></i></span>' +
+            '<input type="file" accept="audio/*" class="form-control" data-audiofile="' + i + '">' +
+            (s.audio ? '<button type="button" class="btn btn-outline-danger" data-audiodel="' + i + '" title="{{ __('Remove audio clip') }}"><i class="fas fa-times"></i></button>' : '') +
+            '</div>' +
+            (s.audio ? '<div class="small text-success mt-1" data-audiostatus="' + i + '"><i class="fas fa-check me-1"></i>{{ __('Audio attached - plays instead of TTS') }}</div>' : '');
           list.appendChild(row);
           row.querySelector('[data-narr]').value = s.narration || '';
         });
@@ -1432,9 +1470,23 @@
         if (n !== null) stops()[+n].narration = e.target.value;
         if (d !== null) stops()[+d].dwell = +e.target.value;
       });
+      // Per-stop narration audio upload (file inputs fire 'change', not 'input').
+      list.addEventListener('change', function (e) {
+        var fi = e.target.getAttribute('data-audiofile');
+        if (fi === null || !e.target.files || !e.target.files[0]) return;
+        var idx = +fi, fd = new FormData(); fd.append('audio', e.target.files[0]);
+        var statusRow = list.querySelector('[data-audiostatus="' + idx + '"]');
+        if (statusRow) statusRow.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Uploading...') }}';
+        fetch(URLS.tourAudio, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: fd })
+          .then(function (r) { return r.json(); })
+          .then(function (d) { if (d && d.ok && d.path) { stops()[idx].audio = d.path; render(); } else { alert('{{ __('Audio upload failed.') }}'); } })
+          .catch(function () { alert('{{ __('Audio upload failed.') }}'); });
+      });
       list.addEventListener('click', function (e) {
         var st = stops();
         var up = e.target.getAttribute('data-up'), dn = e.target.getAttribute('data-down'), del = e.target.getAttribute('data-del'), ai = e.target.closest('[data-ai]');
+        var adel = e.target.closest('[data-audiodel]');
+        if (adel) { st[+adel.getAttribute('data-audiodel')].audio = ''; render(); return; }
         if (del !== null) { st.splice(+del, 1); render(); }
         else if (up !== null && +up > 0) { var t = st[+up]; st[+up] = st[+up - 1]; st[+up - 1] = t; render(); }
         else if (dn !== null && +dn < st.length - 1) { var t2 = st[+dn]; st[+dn] = st[+dn + 1]; st[+dn + 1] = t2; render(); }
@@ -1457,9 +1509,17 @@
         for (var oi = 0; oi < sel.options.length; oi++) { if (!used[+sel.options[oi].value]) { sel.selectedIndex = oi; break; } }
         render();
       });
+      function saveTours() {
+        return fetch(URLS.guidedTour, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ tours: TOURS }) });
+      }
       document.getElementById('gtSaveBtn').addEventListener('click', function () {
-        fetch(URLS.guidedTour, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ tours: TOURS }) })
-          .then(function (r) { return r.json(); }).then(function () { var m = document.getElementById('gtSaveMsg'); m.textContent = ' {{ __('Saved') }}'; setTimeout(function () { m.textContent = ''; }, 2000); });
+        saveTours().then(function (r) { return r.json(); }).then(function () { var m = document.getElementById('gtSaveMsg'); m.textContent = ' {{ __('Saved') }}'; setTimeout(function () { m.textContent = ''; }, 2000); });
+      });
+      // Preview: save first so the walkthrough plays the latest edits, then open it + autoplay this tour.
+      var previewBtn = document.getElementById('gtPreviewBtn');
+      if (previewBtn) previewBtn.addEventListener('click', function () {
+        saveTours().then(function () { window.open(URLS.walkthrough + '?tour=' + cur, '_blank'); })
+          .catch(function () { window.open(URLS.walkthrough + '?tour=' + cur, '_blank'); });
       });
       render();
     })();

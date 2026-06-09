@@ -2364,8 +2364,23 @@
       tourBanner((i + 1) + '/' + arr.length + '   ' + (st ? st.title : '') + (s.narration ? ('   -   ' + s.narration) : ''));
       if (st) flyTo(st);
       var advance = function () { if (!tourState.playing) return; clearTimeout(tourState.timer); tourState.timer = setTimeout(function () { tourGoto(i + 1); }, Math.max(2, (s.dwell || 6)) * 1000); };
-      if (s.narration) { speakText((st ? st.title + '. ' : '') + s.narration, advance); }
+      if (s.audio) { playStopAudio(s.audio, advance); }
+      else if (s.narration) { speakText((st ? st.title + '. ' : '') + s.narration, advance); }
       else { fetch('/exhibition-space/object/' + s.io_id + '/describe', { headers: { 'Accept': 'application/json' } }).then(function (r) { return r.json(); }).then(function (d) { speakText((st ? st.title + '. ' : '') + ((d && d.description) || ''), advance); }).catch(advance); }
+    }
+    // Pre-recorded narration clip for a stop (curator-uploaded). Falls back to the
+    // advance callback if the file can't load, so the tour never stalls.
+    var tourAudioEl = null;
+    function stopTourAudio() { if (tourAudioEl) { try { tourAudioEl.pause(); } catch (e) {} tourAudioEl = null; } }
+    function playStopAudio(url, onDone) {
+      stopTourAudio();
+      try {
+        tourAudioEl = new Audio(url);
+        tourAudioEl.onended = onDone;
+        tourAudioEl.onerror = onDone;
+        var p = tourAudioEl.play();
+        if (p && p.catch) p.catch(function () { onDone(); });
+      } catch (e) { onDone(); }
     }
     var tourQuick = document.getElementById('wtTourQuick'), tourQuickSel = document.getElementById('wtTourQuickSel');
     function quickShow(on) { if (tourQuick && isTouch && TOURS.length) tourQuick.style.display = on ? 'block' : 'none'; }
@@ -2377,8 +2392,8 @@
       quickShow(false);
       tourState.playing = true; updateTourBtn(); tourGoto(tourState.i || 0);
     }
-    function tourPause() { tourState.playing = false; clearTimeout(tourState.timer); stopNarrate(); updateTourBtn(); }
-    function tourStop() { tourState.playing = false; tourState.i = 0; clearTimeout(tourState.timer); stopNarrate(); var b = document.getElementById('wtTourBanner'); if (b) b.style.display = 'none'; updateTourBtn(); quickShow(true); }
+    function tourPause() { tourState.playing = false; clearTimeout(tourState.timer); stopNarrate(); stopTourAudio(); updateTourBtn(); }
+    function tourStop() { tourState.playing = false; tourState.i = 0; clearTimeout(tourState.timer); stopNarrate(); stopTourAudio(); var b = document.getElementById('wtTourBanner'); if (b) b.style.display = 'none'; updateTourBtn(); quickShow(true); }
     if (tourPlayBtn) tourPlayBtn.addEventListener('click', function (e) { e.stopPropagation(); tourState.playing ? tourPause() : tourPlay(); });
     var tourStopBtn = document.getElementById('wtTourStopBtn'); if (tourStopBtn) tourStopBtn.addEventListener('click', function (e) { e.stopPropagation(); tourStop(); });
     if (tourSelEl) tourSelEl.addEventListener('change', function () { tourStop(); });   // switching tour resets to start
@@ -2405,7 +2420,9 @@
         '<div class="text-center text-white" style="max-width:340px;padding:0 18px;">' +
           '<div style="font-size:2.2rem;"><i class="fas fa-route"></i></div>' +
           '<div class="fw-bold mt-2 mb-2">{{ __('Take a guided tour') }}</div>' +
-          (singleTour ? '' : '<select id="wtMobTourSel" class="form-select form-select-sm mb-2">' + tourOpts + '</select>') +
+          (singleTour
+            ? '<div class="small text-white-50 mb-2">' + ((TOURS[0].name || 'Tour').replace(/[<>&]/g, '')) + '</div>'
+            : '<select id="wtMobTourSel" class="form-select form-select-sm mb-2">' + tourOpts + '</select>') +
           '<button type="button" id="wtMobTourGo" class="btn btn-success btn-lg rounded-pill shadow w-100"><i class="fas fa-play me-2"></i>{{ __('Start tour') }}</button>' +
           '<div><button type="button" id="wtMobExplore" class="btn btn-sm btn-link text-white-50 mt-2">{{ __('Explore freely instead') }}</button></div>' +
           '<div class="small text-white-50 mt-2"><i class="fas fa-desktop me-1"></i>{{ __('On a PC or laptop you can roam the gallery freely.') }}</div>' +
@@ -2425,6 +2442,17 @@
       var qb = document.getElementById('wtTourQuickBtn');
       if (qb) qb.addEventListener('click', function (e) { e.stopPropagation(); tourPlay(tourQuickSel ? (+tourQuickSel.value || 0) : 0); });
     }
+
+    // Preview deep-link (?tour=N) from the builder "Preview" button: skip the entry
+    // screen and auto-start that tour (desktop + mobile) once the scene has built.
+    (function () {
+      var qm = location.search.match(/[?&]tour=(\d+)/);
+      if (!qm || !TOURS.length) return;
+      var pidx = Math.min(+qm[1], TOURS.length - 1);
+      if (blocker) blocker.style.display = 'none';
+      if (cross) cross.style.display = 'none';
+      setTimeout(function () { tourPlay(pidx); }, 600);
+    })();
 
     // ===== narration voice selection =====
     function populateVoices() {

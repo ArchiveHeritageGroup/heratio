@@ -446,6 +446,30 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    /** AJAX: upload a pre-recorded narration clip for a tour stop; returns its web path. */
+    public function uploadTourAudio(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        // Validate by extension (audio MIME varies by browser/OS); keep it small-ish.
+        $request->validate([
+            'audio' => 'required|file|extensions:mp3,wav,m4a,ogg,aac|max:25600',
+        ]);
+        $file = $request->file('audio');
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'mp3');
+        $dir = config('heratio.storage_path').'/uploads/exhibition-tour-audio';
+        if (! is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        $base = \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) ?: 'narration';
+        $filename = $base.'-'.substr(md5((string) microtime(true)), 0, 8).'.'.$ext;
+        $file->move($dir, $filename);
+
+        return response()->json(['ok' => true, 'path' => '/uploads/exhibition-tour-audio/'.$filename]);
+    }
+
     /** heratio#1150 - multi-user presence heartbeat: upsert my pose, return live peers + tour state. */
     public function presenceBeatAjax(Request $request, string $slug)
     {

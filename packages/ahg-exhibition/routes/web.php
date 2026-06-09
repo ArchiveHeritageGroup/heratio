@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/plan/delete-room', [ExhibitionSpaceController::class, 'deleteRoomAjax'])->name('exhibition-space.plan.delete-room')->middleware('acl:update');
     // authored audio guided tour (curator saves route + narration)
     Route::post('/exhibition-space/{slug}/guided-tour', [ExhibitionSpaceController::class, 'saveGuidedTourAjax'])->name('exhibition-space.guided-tour')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/tour-audio', [ExhibitionSpaceController::class, 'uploadTourAudio'])->name('exhibition-space.tour-audio')->middleware('acl:update');
     // heratio#1146 - live data link
     Route::post('/exhibition-space/{slug}/readings', [ExhibitionSpaceController::class, 'recordReadingsAjax'])->name('exhibition-space.readings')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/readings/simulate', [ExhibitionSpaceController::class, 'simulateReadingsAjax'])->name('exhibition-space.readings.simulate')->middleware('acl:update');

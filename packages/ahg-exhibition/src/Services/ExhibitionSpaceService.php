@@ -2421,7 +2421,7 @@ class ExhibitionSpaceService
                     continue;
                 }
                 $id = (int) $s['io_id'];
-                $stops[] = ['io_id' => $id, 'title' => $titles[$id] ?? ('#'.$id), 'narration' => (string) ($s['narration'] ?? ''), 'dwell' => (int) ($s['dwell'] ?? 6)];
+                $stops[] = ['io_id' => $id, 'title' => $titles[$id] ?? ('#'.$id), 'narration' => (string) ($s['narration'] ?? ''), 'dwell' => (int) ($s['dwell'] ?? 6), 'audio' => (string) ($s['audio'] ?? '')];
             }
             $out[] = ['name' => (string) ($t['name'] ?? 'Tour'), 'stops' => $stops];
         }
@@ -2439,7 +2439,7 @@ class ExhibitionSpaceService
                 if (empty($s['io_id'])) {
                     continue;
                 }
-                $stops[] = ['io_id' => (int) $s['io_id'], 'narration' => mb_substr(trim((string) ($s['narration'] ?? '')), 0, 1200), 'dwell' => max(2, min(60, (int) ($s['dwell'] ?? 6)))];
+                $stops[] = ['io_id' => (int) $s['io_id'], 'narration' => mb_substr(trim((string) ($s['narration'] ?? '')), 0, 1200), 'dwell' => max(2, min(60, (int) ($s['dwell'] ?? 6))), 'audio' => mb_substr(trim((string) ($s['audio'] ?? '')), 0, 500)];
             }
             if ($stops) {
                 $clean[] = ['name' => (mb_substr(trim((string) ($t['name'] ?? 'Tour')), 0, 80) ?: 'Tour'), 'stops' => $stops];
