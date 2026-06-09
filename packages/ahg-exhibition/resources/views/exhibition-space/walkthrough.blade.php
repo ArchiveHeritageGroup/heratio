@@ -2389,7 +2389,10 @@
       catch (e) { return curRoom && curRoom.id; }
     }
     function setDefaultTourForRoom() {
-      if (!TOURS.length || !tourSelEl || tourState.playing) return;
+      // Guard: this can be called from updateRoomName() during init, BEFORE the
+      // tour vars below are assigned (var hoisting -> undefined), so bail safely.
+      if (typeof TOURS === 'undefined' || !TOURS || !TOURS.length || !tourSelEl) return;
+      if (typeof tourState !== 'undefined' && tourState.playing) return;
       var ri = tourIndexForRoom(currentRoomId());
       if (ri >= 0) tourSelEl.value = ri;
     }
@@ -2449,6 +2452,11 @@
       if (tourSelEl) tourSelEl.value = idx;
       tourState.stops = (TOURS[idx] && TOURS[idx].stops) || [];
       if (!tourState.stops.length) return;
+      // Starting a tour from the ribbon button: drop the "Click to enter" blocker
+      // so the tour is visible (it flies the camera without needing pointer lock;
+      // the Walk button locks for free-roam when wanted).
+      if (blocker) blocker.style.display = 'none';
+      if (cross) cross.style.display = 'none';
       // Start at the first stop that is IN the current room, so it begins where
       // you're standing (explicit picks / mobile launcher start at the beginning).
       var startI = 0;
