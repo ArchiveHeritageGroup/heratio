@@ -943,77 +943,20 @@ class Model3dController extends Controller
             ->get();
 
         $baseUrl = $request->getSchemeAndHttpHost();
-        $modelUrl = $baseUrl.'/uploads/'.$model->file_path;
 
-        $manifest = [
-            '@context' => [
-                'http://iiif.io/api/presentation/3/context.json',
-                'http://iiif.io/api/extension/3d/context.json',
-            ],
-            'id' => $baseUrl.'/iiif/3d/'.$id.'/manifest.json',
-            'type' => 'Manifest',
-            'label' => ['en' => [$model->model_title ?: 'Untitled 3D Model']],
-            'metadata' => [
-                ['label' => ['en' => ['Format']], 'value' => ['en' => [strtoupper($model->format)]]],
-                ['label' => ['en' => ['File Size']], 'value' => ['en' => [number_format($model->file_size / 1048576, 2).' MB']]],
-            ],
-            'items' => [[
-                'id' => $baseUrl.'/iiif/3d/'.$id.'/scene/1',
-                'type' => 'Scene',
-                'items' => [[
-                    'id' => $baseUrl.'/iiif/3d/'.$id.'/annotation/1',
-                    'type' => 'Annotation',
-                    'motivation' => 'painting',
-                    'body' => [
-                        'id' => $modelUrl,
-                        'type' => 'Model',
-                        'format' => $model->mime_type,
-                    ],
-                    'target' => $baseUrl.'/iiif/3d/'.$id.'/scene/1',
-                ]],
-            ]],
-            'extensions' => [
-                'viewer' => [
-                    'autoRotate' => (bool) $model->auto_rotate,
-                    'rotationSpeed' => (int) $model->rotation_speed,
-                    'cameraOrbit' => $model->camera_orbit,
-                    'fieldOfView' => $model->field_of_view,
-                    'exposure' => (float) $model->exposure,
-                    'backgroundColor' => $model->background_color,
-                    'arEnabled' => (bool) $model->ar_enabled,
-                ],
-            ],
-        ];
+        // #1180 - RC-aligned IIIF 3D manifest (Canvas+depth / Model / camera /
+        // light / PointSelector hotspots), enriched with the #1178 metadata.
+        $manifest = (new \Ahg3dModel\Services\Iiif3dManifestBuilder)->build($model, $hotspots, $baseUrl);
 
-        if ($model->description) {
-            $manifest['summary'] = ['en' => [$model->description]];
-        }
-
-        if ($hotspots->isNotEmpty()) {
-            $annotations = [];
-            foreach ($hotspots as $hotspot) {
-                $annotations[] = [
-                    'id' => $baseUrl.'/iiif/3d/'.$id.'/hotspot/'.$hotspot->id,
-                    'type' => 'Annotation',
-                    'motivation' => 'commenting',
-                    'body' => [
-                        'type' => 'TextualBody',
-                        'value' => ($hotspot->hotspot_title ?: '').($hotspot->hotspot_description ? ': '.$hotspot->hotspot_description : ''),
-                        'format' => 'text/plain',
-                    ],
-                    'target' => [
-                        'type' => 'PointSelector',
-                        'x' => (float) $hotspot->position_x,
-                        'y' => (float) $hotspot->position_y,
-                        'z' => (float) $hotspot->position_z,
-                    ],
-                ];
-            }
-            $manifest['annotations'] = [[
-                'id' => $baseUrl.'/iiif/3d/'.$id.'/annotations/1',
-                'type' => 'AnnotationPage',
-                'items' => $annotations,
-            ]];
+        // Cache it (iiif_3d_manifest); best-effort, never blocks the response.
+        try {
+            $json = json_encode($manifest, JSON_UNESCAPED_SLASHES);
+            DB::table('iiif_3d_manifest')->updateOrInsert(
+                ['model_id' => $id],
+                ['manifest_json' => $json, 'manifest_hash' => hash('sha256', (string) $json), 'generated_at' => now()]
+            );
+        } catch (\Throwable $e) {
+            // caching is best-effort
         }
 
         return response()->json($manifest, 200, [
