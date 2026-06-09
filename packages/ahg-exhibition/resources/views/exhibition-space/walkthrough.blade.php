@@ -302,6 +302,12 @@
       return best || (strict ? null : fb);
     }
     // Billboard text label on a small dark plaque (room signage / doorway labels).
+    // #1153: implemented as a camera-facing PLANE (MeshBasic + CanvasTexture) rather than a
+    // THREE.Sprite - the WebGPU renderer (r169) does not render our SpriteMaterial sprites
+    // (they came up invisible after the migration), whereas MeshBasic + CanvasTexture renders
+    // on both backends (same as the pictures). Registered in _faceCam to face the camera each
+    // frame (the Sprite auto-facing we replaced).
+    var _faceCam = [], _camQ = new THREE.Quaternion(), _pQ = new THREE.Quaternion();
     function makeTextSprite(text, scaleH) {
       var cv = document.createElement('canvas'), ctx = cv.getContext('2d');
       ctx.font = 'bold 30px sans-serif';
@@ -310,9 +316,28 @@
       ctx = cv.getContext('2d'); ctx.font = 'bold 30px sans-serif';
       ctx.fillStyle = 'rgba(20,22,26,0.86)'; ctx.fillRect(0, 0, tw, 48);
       ctx.fillStyle = '#fff'; ctx.textBaseline = 'middle'; ctx.fillText(text, 14, 25);
-      var spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: true, transparent: true }));
-      var h = scaleH || 0.5; spr.scale.set(h * tw / 48, h, 1);
-      return spr;
+      var tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.needsUpdate = true;
+      var h = scaleH || 0.5;
+      var mesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(h * tw / 48, h),
+        new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false })
+      );
+      mesh.renderOrder = 10;
+      _faceCam.push(mesh);
+      return mesh;
+    }
+    // Orient all label planes toward the camera each frame, compensating for any rotated
+    // parent room-group; prune labels whose object has left the scene (e.g. departed avatars).
+    function billboardLabels() {
+      if (!_faceCam.length) return;
+      camera.getWorldQuaternion(_camQ);
+      for (var i = _faceCam.length - 1; i >= 0; i--) {
+        var m = _faceCam[i], o = m, live = false;
+        while (o) { if (o === scene) { live = true; break; } o = o.parent; }
+        if (!live) { _faceCam.splice(i, 1); continue; }
+        m.quaternion.copy(_camQ);
+        if (m.parent && m.parent !== scene) { m.parent.getWorldQuaternion(_pQ); m.quaternion.premultiply(_pQ.invert()); }
+      }
     }
     // A clickable "floor plan / map" plaque to mount on a wall (opens the minimap).
     function makeWallIcon() {
@@ -2148,6 +2173,7 @@
     function animate() {
       var dt = Math.min(0.05, clock.getDelta());
       if ((_nameTick = (_nameTick + 1) % 12) === 0) { updateRoomName(); cullRooms(); if (liveOn) updateLive(); }   // ~5x/sec
+      billboardLabels();   // #1153 keep text plaques facing the camera (replaces Sprite auto-facing)
       if (XR_OK && renderer.xr.isPresenting) { xrMove(dt); if (window._wtPresenceFrame) window._wtPresenceFrame(dt); draw(); return; }
       if (fly) {
         fly.t += dt / fly.dur;
