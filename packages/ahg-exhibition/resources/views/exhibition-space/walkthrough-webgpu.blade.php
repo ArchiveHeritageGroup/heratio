@@ -122,16 +122,23 @@
     camera.position.set(spawnX, EYE, spawnZ);
 
     // First-person controls. Recent PointerLockControls move the camera directly
-    // (no getObject()); we read/clamp camera.position and use moveForward/moveRight.
+    // (getObject() is deprecated in r169); we drive camera.position ourselves (see tick).
     const controls = new PointerLockControls(camera, document.body);
     blocker.addEventListener('click', function () { controls.lock(); });
     controls.addEventListener('lock', function () { blocker.style.display = 'none'; });
     controls.addEventListener('unlock', function () { blocker.style.display = 'flex'; });
 
+    // Key capture in the CAPTURE phase on window, so nothing upstream (theme bundle,
+    // voice commands) can swallow WASD before we see it; preventDefault while locked
+    // stops the page scrolling on the arrow keys.
     const keys = Object.create(null);
+    const MOVE = { KeyW: 1, KeyA: 1, KeyS: 1, KeyD: 1, ArrowUp: 1, ArrowDown: 1, ArrowLeft: 1, ArrowRight: 1 };
     function code(e) { return e.code || e.key; }
-    document.addEventListener('keydown', function (e) { keys[code(e)] = true; });
-    document.addEventListener('keyup', function (e) { keys[code(e)] = false; });
+    window.addEventListener('keydown', function (e) {
+      const c = code(e); keys[c] = true;
+      if (controls.isLocked && MOVE[c]) e.preventDefault();
+    }, true);
+    window.addEventListener('keyup', function (e) { keys[code(e)] = false; }, true);
 
     function moving() {
       const f = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0);
@@ -139,19 +146,31 @@
       return { f: f, r: r };
     }
 
-    let last = performance.now(), frames = 0, fpsAccum = 0, badgeDone = false;
+    // Movement is computed directly from the camera's facing direction (flattened to the
+    // xz-plane), so it never depends on camera.matrix being freshly rebuilt this frame.
+    const _fwd = new THREE.Vector3(), _right = new THREE.Vector3();
+    let last = performance.now(), frames = 0, fpsAccum = 0, lastMv = '';
     function tick() {
       const now = performance.now(), dt = Math.min(0.1, (now - last) / 1000); last = now;
       if (controls.isLocked) {
-        const sp = 3.2 * dt, mv = moving();
-        if (mv.f) controls.moveForward(sp * mv.f);
-        if (mv.r) controls.moveRight(sp * mv.r);
+        const mv = moving();
+        if (mv.f || mv.r) {
+          camera.getWorldDirection(_fwd); _fwd.y = 0;
+          if (_fwd.lengthSq() > 1e-6) {
+            _fwd.normalize();
+            _right.set(-_fwd.z, 0, _fwd.x);   // screen-right on the xz-plane
+            const sp = 3.4 * dt;
+            camera.position.addScaledVector(_fwd, sp * mv.f);
+            camera.position.addScaledVector(_right, sp * mv.r);
+          }
+        }
+        lastMv = (mv.f || mv.r) ? ' · move' : '';
         camera.position.y = EYE;   // stay at eye height (flat floor)
       }
       renderer.renderAsync(scene, camera);
-      // FPS readout
+      // FPS readout (+ a tiny move indicator so movement is verifiable at a glance)
       frames++; fpsAccum += dt;
-      if (fpsAccum >= 0.5) { fpsEl.textContent = Math.round(frames / fpsAccum) + ' fps'; frames = 0; fpsAccum = 0; }
+      if (fpsAccum >= 0.5) { fpsEl.textContent = Math.round(frames / fpsAccum) + ' fps' + lastMv; frames = 0; fpsAccum = 0; }
     }
 
     // init() picks/initialises the backend; only then is renderer.backend populated.
