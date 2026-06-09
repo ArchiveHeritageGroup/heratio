@@ -517,7 +517,11 @@
     // Per-room floors, perimeter walls (with doorways between rooms) and dividers.
     var wallMat = new THREE.MeshStandardMaterial({ map: wallTexture(), color: 0xffffff, roughness: 0.95, side: THREE.DoubleSide });
     var doorMat = new THREE.MeshStandardMaterial({ color: 0x7c6a58, roughness: 0.9, side: THREE.DoubleSide });   // solid door panel (not see-through)
-    var glassMat = new THREE.MeshStandardMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, roughness: 0.1, metalness: 0.1, side: THREE.DoubleSide });   // #1172 window pane
+    // #1172 glass pane / #1153: a transparent MeshStandardMaterial renders OPAQUE on the
+    // WebGPU renderer (r169) - it came out solid grey after the migration. MeshBasic with
+    // transparent + opacity blends correctly on both backends (like the pictures + live
+    // overlay); depthWrite:false lets whatever is behind the glass show through.
+    var glassMat = new THREE.MeshBasicMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false });   // window/door glass (see-through)
     var colliders = [];   // wall meshes the visitor cannot walk through (doorways/glass excluded)
     var stairRamps = [];  // walkable sloped corridors: {ax,az,bx,bz,ya,yb,ux,uz,len,half}
     // #1171 door leaves on a polygon-edge opening (single/double/glass/sliding/ornate). Built in a
