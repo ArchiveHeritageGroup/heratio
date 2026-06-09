@@ -134,3 +134,26 @@ renderer problem.
 - `packages/ahg-exhibition/resources/views/exhibition-space/walkthrough-webgpu.blade.php` - spike view
 - `ExhibitionSpaceController::walkthroughWebgpu()` + route `exhibition-space.walkthrough-webgpu`
 - `walkthrough.blade.php` - **now migrated** to r169 + WebGPURenderer (was the r137 WebGL target)
+
+## Update 2 - REVERTED (not adopted)
+
+The live migration was **reverted to the r137 WebGL renderer** on 2026-06-09. On the target
+three.js r169 WebGPU build, the renderer broke the scene's transparency/alpha broadly:
+
+- glass (doors/windows/vitrines) rendered **opaque**;
+- alpha-cutout foliage (trees, grass tufts) rendered with **black** rectangles (the cutout
+  did not discard transparent texels);
+- `THREE.Sprite` billboards (room/door labels, people/figures, graffiti) rendered **invisible**.
+
+Per-material rewrites (Sprite -> billboarded MeshBasic plane; transparent MeshStandard ->
+MeshBasic; FrontSide thin vitrine glass; sRGB canvas textures) **did not fix any of it** -
+the root cause is WebGPU alpha/blend + alphaTest handling in this integration, not the
+material class. With no visible performance gain (the spike showed identical 60fps) and the
+loss of WebXR/VR, the migration was net-negative and reverted (`git checkout v1.133.0 --
+walkthrough.blade.php`), with #1183 point-cloud rendering re-applied on r137.
+
+**The spike page (`walkthrough-webgpu.blade.php`) and this doc are kept.** Before any future
+retry, the spike must additionally prove: transparent materials (glass), alphaTest cutout
+(foliage), billboards (Sprites or equivalent), AND WebXR all render on the chosen build - the
+original spike only exercised an opaque room + a glTF shell, which is why these gaps were
+missed. #1153 stays open as "evaluated, not adopted".

@@ -176,43 +176,21 @@
 
 
   @if($hasContent ?? (count($stops) > 0))
-  {{-- heratio#1153: three.js r169 via ES-module import map + WebGPURenderer (renders on
-       the WebGPU backend where available, auto-falls-back to WebGL2 elsewhere). 'three'
-       maps to the three.webgpu build so addons (which import from 'three') and
-       WebGPURenderer share one module graph. EXT_texture_webp (#1181) decodes on both
-       backends. Migrated from the r137 examples/js globals - see
-       docs/reference/webgpu-walkthrough-evaluation.md. --}}
-  <script type="importmap" nonce="{{ $cspNonce ?? '' }}">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.webgpu.min.js",
-      "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.webgpu.min.js",
-      "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.tsl.min.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
-    }
-  }
-  </script>
+  {{-- three.js r137: last release with the non-module examples/js globals AND
+       EXT_texture_webp support (added r131), so WebP-textured GLBs load in the
+       walkthrough. Bumped from r128 for #1181. --}}
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/DRACOLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/OBJLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/PLYLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/PCDLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/controls/PointerLockControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/webxr/VRButton.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script type="module" nonce="{{ $cspNonce ?? '' }}">
-  // heratio#1153 - modern three.js as ES modules. We copy the namespace into a mutable
-  // THREE object and attach the addon loaders/controls onto it, so the entire walkthrough
-  // body below keeps using `new THREE.GLTFLoader()`, `THREE.PointerLockControls`, etc.
-  // unchanged (the module namespace object itself is read-only and can't be patched).
-  import * as THREE_NS from 'three';
-  import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-  import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-  import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-  import { STLLoader } from 'three/addons/loaders/STLLoader.js';
-  import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
-  import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';
-  import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-  let VRButton = null;
-  try { ({ VRButton } = await import('three/addons/webxr/VRButton.js')); } catch (e) { /* WebXR button optional */ }
-  const THREE = Object.assign({}, THREE_NS, {
-    GLTFLoader, DRACOLoader, OBJLoader, STLLoader, PLYLoader, PCDLoader,
-    PointerLockControls, OrbitControls, VRButton,
-  });
+  <script nonce="{{ $cspNonce ?? '' }}">
   (function () {
     var BUILDING = @json($building ?? null);
     var ROOMS = (BUILDING && BUILDING.rooms && BUILDING.rooms.length) ? BUILDING.rooms : null;
@@ -302,12 +280,6 @@
       return best || (strict ? null : fb);
     }
     // Billboard text label on a small dark plaque (room signage / doorway labels).
-    // #1153: implemented as a camera-facing PLANE (MeshBasic + CanvasTexture) rather than a
-    // THREE.Sprite - the WebGPU renderer (r169) does not render our SpriteMaterial sprites
-    // (they came up invisible after the migration), whereas MeshBasic + CanvasTexture renders
-    // on both backends (same as the pictures). Registered in _faceCam to face the camera each
-    // frame (the Sprite auto-facing we replaced).
-    var _faceCam = [], _camQ = new THREE.Quaternion(), _pQ = new THREE.Quaternion();
     function makeTextSprite(text, scaleH) {
       var cv = document.createElement('canvas'), ctx = cv.getContext('2d');
       ctx.font = 'bold 30px sans-serif';
@@ -316,37 +288,9 @@
       ctx = cv.getContext('2d'); ctx.font = 'bold 30px sans-serif';
       ctx.fillStyle = 'rgba(20,22,26,0.86)'; ctx.fillRect(0, 0, tw, 48);
       ctx.fillStyle = '#fff'; ctx.textBaseline = 'middle'; ctx.fillText(text, 14, 25);
-      var tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.needsUpdate = true;
-      var h = scaleH || 0.5;
-      var mesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(h * tw / 48, h),
-        new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide, toneMapped: false })
-      );
-      mesh.renderOrder = 10;
-      _faceCam.push(mesh);
-      return mesh;
-    }
-    // Orient all label planes toward the camera each frame, compensating for any rotated
-    // parent room-group; prune labels whose object has left the scene (e.g. departed avatars).
-    function billboardLabels() {
-      if (!_faceCam.length) return;
-      camera.getWorldQuaternion(_camQ);
-      for (var i = _faceCam.length - 1; i >= 0; i--) {
-        var m = _faceCam[i], o = m, live = false;
-        while (o) { if (o === scene) { live = true; break; } o = o.parent; }
-        if (!live) { _faceCam.splice(i, 1); continue; }
-        m.quaternion.copy(_camQ);
-        if (m.parent && m.parent !== scene) { m.parent.getWorldQuaternion(_pQ); m.quaternion.premultiply(_pQ.invert()); }
-      }
-    }
-    // #1153: a camera-facing textured PLANE replacing THREE.Sprite (which renders invisibly
-    // on WebGPU r169). Used for grass tufts, people/figures and free-floating graffiti.
-    function billboardPlane(map, w, h, opts) {
-      opts = opts || {};
-      var mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
-        new THREE.MeshBasicMaterial({ map: map, transparent: true, alphaTest: opts.alphaTest || 0, side: THREE.DoubleSide, depthWrite: !!opts.depthWrite, toneMapped: false }));
-      _faceCam.push(mesh);
-      return mesh;
+      var spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), depthTest: true, transparent: true }));
+      var h = scaleH || 0.5; spr.scale.set(h * tw / 48, h, 1);
+      return spr;
     }
     // A clickable "floor plan / map" plaque to mount on a wall (opens the minimap).
     function makeWallIcon() {
@@ -386,29 +330,21 @@
       camera.position.set(sp.x, 1.6, sp.z);
     })();
 
-    // heratio#1153: WebGPURenderer - WebGPU backend where available, automatic WebGL2 fallback
-    // otherwise. init() is async (gated at the animation-loop start below).
-    var renderer = new THREE.WebGPURenderer({ antialias: true, powerPreference: 'high-performance' });
+    var renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));   // cap retina overdraw
     renderer.setSize(W, H);
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;   // #shadows: real-time sun shadows (toggled)
-    // A REAL WebXR manager exposes addEventListener; WebGPURenderer's xr is a {enabled:false}
-    // stub with none (r169 has no WebXR for WebGPU), so this is the true "VR usable" test -
-    // it is false on WebGPU, which correctly hides the VR button (no crash, desktop unaffected).
-    var XR_OK = !!(renderer.xr && typeof renderer.xr.addEventListener === 'function');
-    if (XR_OK) renderer.xr.enabled = true;   // heratio#1152 - WebXR / VR headset support
-    function draw() { if (renderer.renderAsync) renderer.renderAsync(scene, camera); else renderer.render(scene, camera); }
+    renderer.xr.enabled = true;   // heratio#1152 - WebXR / VR headset support
     room.appendChild(renderer.domElement);
 
-    // VR button: only when the device supports immersive-vr AND the renderer has a real XR
-    // manager. On WebGPU (no WebXR) this is false, so no VR button shows - desktop unaffected.
+    // VR button: only shown when the device/browser actually supports immersive-vr.
     var xrFloorY = 0;   // holder y while in XR (headset supplies eye height on top)
-    if (THREE.VRButton && navigator.xr && XR_OK) {
+    if (THREE.VRButton && navigator.xr) {
       var vrBtn = THREE.VRButton.createButton(renderer);
       vrBtn.style.cssText += ';position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:8;';
       room.appendChild(vrBtn);
-      renderer.xr.addEventListener('sessionstart', function () { var o = controls.object; xrFloorY = o.position.y; o.position.y = 0; });   // drop to floor; headset adds height
-      renderer.xr.addEventListener('sessionend', function () { controls.object.position.y = xrFloorY || 1.6; });
+      renderer.xr.addEventListener('sessionstart', function () { var o = controls.getObject(); xrFloorY = o.position.y; o.position.y = 0; });   // drop to floor; headset adds height
+      renderer.xr.addEventListener('sessionend', function () { controls.getObject().position.y = xrFloorY || 1.6; });
     }
 
     // Warm, restrained gallery lighting - pure-white at high intensity was washing floors/furniture out to white.
@@ -526,15 +462,7 @@
     // Per-room floors, perimeter walls (with doorways between rooms) and dividers.
     var wallMat = new THREE.MeshStandardMaterial({ map: wallTexture(), color: 0xffffff, roughness: 0.95, side: THREE.DoubleSide });
     var doorMat = new THREE.MeshStandardMaterial({ color: 0x7c6a58, roughness: 0.9, side: THREE.DoubleSide });   // solid door panel (not see-through)
-    // #1172 glass pane / #1153: a transparent MeshStandardMaterial renders OPAQUE on the
-    // WebGPU renderer (r169) - it came out solid grey after the migration. MeshBasic with
-    // transparent + opacity blends correctly on both backends (like the pictures + live
-    // overlay); depthWrite:false lets whatever is behind the glass show through.
-    var glassMat = new THREE.MeshBasicMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false });   // window/door glass (single flat pane, see-through)
-    // #1153: a CLOSED glass box (display-case vitrine) stacks 4 DoubleSide faces along the
-    // view ray, so 0.32 each reads near-opaque. Render only the outer (front) faces at a
-    // lower opacity so the vitrine is clearly see-through to the item inside.
-    var glassBoxMat = new THREE.MeshBasicMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.16, side: THREE.FrontSide, depthWrite: false });
+    var glassMat = new THREE.MeshStandardMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, roughness: 0.1, metalness: 0.1, side: THREE.DoubleSide });   // #1172 window pane
     var colliders = [];   // wall meshes the visitor cannot walk through (doorways/glass excluded)
     var stairRamps = [];  // walkable sloped corridors: {ax,az,bx,bz,ya,yb,ux,uz,len,half}
     // #1171 door leaves on a polygon-edge opening (single/double/glass/sliding/ornate). Built in a
@@ -741,7 +669,7 @@
     }
     function personTexture(kind) {
       if (_personTex[kind]) return _personTex[kind];
-      var t = new THREE.CanvasTexture(personCanvas(kind)); t.minFilter = THREE.LinearFilter; t.colorSpace = THREE.SRGBColorSpace;
+      var t = new THREE.CanvasTexture(personCanvas(kind)); t.minFilter = THREE.LinearFilter;
       return (_personTex[kind] = t);
     }
     function treeTexture() {
@@ -753,13 +681,13 @@
       function blob(cx, cy, r, col) { var rg = g.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.2, cx, cy, r); rg.addColorStop(0, col[0]); rg.addColorStop(1, col[1]); g.fillStyle = rg; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill(); }
       [[128, 150, 72], [88, 172, 52], [168, 168, 52], [108, 108, 50], [150, 106, 50], [128, 86, 46], [128, 202, 58]].forEach(function (bl, i) { blob(bl[0], bl[1], bl[2], greens[i % greens.length]); });
       for (var i = 0; i < 500; i++) { var a = Math.random() * Math.PI * 2, rr = Math.random() * 78; var x = 128 + Math.cos(a) * rr, y = 150 + Math.sin(a) * rr * 1.15; if (y > 245 || y < 30) continue; g.fillStyle = 'rgba(' + ((70 + Math.random() * 90) | 0) + ',' + ((140 + Math.random() * 80) | 0) + ',' + ((45 + Math.random() * 45) | 0) + ',' + (0.35 + Math.random() * 0.4) + ')'; g.fillRect(x, y, 2, 2); }
-      var t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; _treeTex = t; return t;
+      var t = new THREE.CanvasTexture(c); _treeTex = t; return t;
     }
     function tuftTexture() {
       if (_tuftTex) return _tuftTex;
       var c = document.createElement('canvas'); c.width = c.height = 64; var g = c.getContext('2d');
       for (var i = 0; i < 22; i++) { var bx = 10 + Math.random() * 44, h = 18 + Math.random() * 30; g.strokeStyle = 'rgba(' + ((50 + Math.random() * 40) | 0) + ',' + ((120 + Math.random() * 80) | 0) + ',' + ((40 + Math.random() * 35) | 0) + ',0.9)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(bx, 64); g.quadraticCurveTo(bx + (Math.random() * 10 - 5), 64 - h * 0.6, bx + (Math.random() * 14 - 7), 64 - h); g.stroke(); }
-      var t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; _tuftTex = t; return t;
+      var t = new THREE.CanvasTexture(c); _tuftTex = t; return t;
     }
     // Polished marble floor (cream field + soft clouds + grey veins). Tiled ~4 m. Glossy material.
     var _marbleTex = null, _wallTex = null;
@@ -796,18 +724,15 @@
     // Crossed-plane billboard tree (volumetric from any angle), slight size/spin variance.
     function addTree(rm, x, z) {
       var s = 2.6 + Math.random() * 1.8, w = s, h = s * 1.55;
-      // #1153: MeshBasic (not MeshStandard) - on WebGPU the standard material's alphaTest
-      // cutout failed and the transparent texture corners rendered as black "sides".
-      var mat = new THREE.MeshBasicMaterial({ map: treeTexture(), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, toneMapped: false });
+      var mat = new THREE.MeshStandardMaterial({ map: treeTexture(), transparent: false, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 });
       var g = new THREE.Group();
       var p1 = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat); p1.position.y = h / 2; g.add(p1);
       var p2 = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat); p2.position.y = h / 2; p2.rotation.y = Math.PI / 2; g.add(p2);
       g.position.set(x, 0, z); g.rotation.y = Math.random() * Math.PI; addToRoom(rm, g);
     }
     function addTuft(rm, x, z) {
-      var s = 0.4 + Math.random() * 0.5;
-      var sp = billboardPlane(tuftTexture(), s, s, { alphaTest: 0.3 });   // #1153 was THREE.Sprite
-      sp.position.set(x, s / 2, z); addToRoom(rm, sp);
+      var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tuftTexture(), transparent: true, alphaTest: 0.3, depthWrite: false }));
+      var s = 0.4 + Math.random() * 0.5; sp.scale.set(s, s, s); sp.position.set(x, s / 2, z); addToRoom(rm, sp);
     }
     function addBench(rm, x, z, ry) {
       var g = new THREE.Group();
@@ -862,7 +787,7 @@
       switch (it.kind) {
         case 'bench': box(1.6, 0.1, 0.5, wood, 0, 0.45, 0); box(1.6, 0.5, 0.08, wood, 0, 0.7, -0.21); [-0.7, 0.7].forEach(function (lx) { box(0.1, 0.45, 0.45, wood, lx, 0.22, 0); }); break;
         case 'pedestal': box(0.5, 1.1, 0.5, stone, 0, 0.55, 0); box(0.62, 0.06, 0.62, stone, 0, 1.11, 0); break;
-        case 'case': box(0.8, 0.9, 0.8, wood, 0, 0.45, 0); var vc = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.9, 0.74), glassBoxMat); vc.position.set(0, 1.35, 0); g.add(vc); box(0.84, 0.05, 0.84, metal, 0, 1.82, 0); break;
+        case 'case': box(0.8, 0.9, 0.8, wood, 0, 0.45, 0); var vc = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.9, 0.74), glassMat); vc.position.set(0, 1.35, 0); g.add(vc); box(0.84, 0.05, 0.84, metal, 0, 1.82, 0); break;
         case 'planter': cyl(0.28, 0.34, 0.5, stone, 0, 0.25, 0); var fol = new THREE.Mesh(new THREE.SphereGeometry(0.42, 12, 10), green); fol.position.set(0, 0.92, 0); fol.scale.set(1, 1.2, 1); g.add(fol); break;
         case 'table': box(1.2, 0.06, 0.7, wood, 0, 0.74, 0); [[-0.5, -0.28], [0.5, -0.28], [-0.5, 0.28], [0.5, 0.28]].forEach(function (p) { box(0.07, 0.74, 0.07, wood, p[0], 0.37, p[1]); }); break;
         case 'chair': box(0.45, 0.06, 0.45, wood, 0, 0.45, 0); box(0.45, 0.5, 0.06, wood, 0, 0.7, -0.2); [[-0.18, -0.18], [0.18, -0.18], [-0.18, 0.18], [0.18, 0.18]].forEach(function (p) { box(0.05, 0.45, 0.05, wood, p[0], 0.22, p[1]); }); break;
@@ -901,8 +826,8 @@
           // Bright, always-camera-facing sprite (unlit) so the figure is clearly visible from any angle
           // and at any room brightness (the old lit crossed-planes read as a dark thin cutout).
           var pkind = (it.kind === 'person-woman') ? 'woman' : 'man', pth = 1.75, ptw = pth * 0.5;
-          var psp = billboardPlane(personTexture(pkind), ptw, pth, { alphaTest: 0.5, depthWrite: true });   // #1153 was THREE.Sprite
-          psp.position.y = pth / 2; g.add(psp);
+          var psp = new THREE.Sprite(new THREE.SpriteMaterial({ map: personTexture(pkind), transparent: true, depthWrite: true }));
+          psp.scale.set(ptw, pth, 1); psp.position.y = pth / 2; g.add(psp);
           break;
         }
         // Free-standing archway: two piers + a semicircular arch (sunlight + shadows pass through the opening).
@@ -1280,7 +1205,7 @@
     // plus the walk-to buttons to travel.
     var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     var controls = new THREE.PointerLockControls(camera, renderer.domElement);
-    scene.add(controls.object);
+    scene.add(controls.getObject());
     var blocker = document.getElementById('roomBlocker');
     var cross = document.getElementById('roomCrosshair');
     var orbit = null;
@@ -1345,7 +1270,7 @@
       _gltfLoader = new THREE.GLTFLoader();
       if (THREE.DRACOLoader) {   // decode DRACO-compressed meshes (no-op for uncompressed)
         var dl = new THREE.DRACOLoader();
-        dl.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/libs/draco/');
+        dl.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/libs/draco/');
         _gltfLoader.setDRACOLoader(dl);
       }
       return _gltfLoader;
@@ -1462,7 +1387,7 @@
       var woodM = new THREE.MeshStandardMaterial({ color: 0x5a4634, roughness: 0.7 });
       var metalM = new THREE.MeshStandardMaterial({ color: 0x9a9b9d, metalness: 0.7, roughness: 0.35 });
       var base = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), woodM); base.position.y = 0.45; g.add(base);
-      var glass = new THREE.Mesh(new THREE.BoxGeometry(0.82, 1.0, 0.82), glassBoxMat); glass.position.y = 1.4; g.add(glass);
+      var glass = new THREE.Mesh(new THREE.BoxGeometry(0.82, 1.0, 0.82), glassMat); glass.position.y = 1.4; g.add(glass);
       var cap = new THREE.Mesh(new THREE.BoxGeometry(0.88, 0.05, 0.88), metalM); cap.position.y = 1.92; g.add(cap);
       addToRoom(rm, g); return 0.9;
     }
@@ -1898,7 +1823,7 @@
       // Walk to the next stop instead of jumping: duration scales with distance at
       // a walking pace, and we keep a starting look-point so the view turns toward
       // the object gradually (rather than snapping to face it immediately).
-      var fromPos = controls.object.position.clone();
+      var fromPos = controls.getObject().position.clone();
       var walkDist = Math.hypot(stand.x - fromPos.x, stand.z - fromPos.z);
       var walkDur = Math.max(0.8, Math.min(8, walkDist / 1.5));   // ~1.5 m/s
       var camDir = new THREE.Vector3(); camera.getWorldDirection(camDir);
@@ -1953,7 +1878,7 @@
           enterRoom(target); return;
         }
         if (o && o.userData.action === 'stair') {   // #1169 click stairs to change floor
-          var cp = controls.object, tp = o.userData.top, bt = o.userData.bot;
+          var cp = controls.getObject(), tp = o.userData.top, bt = o.userData.bot;
           var dest = (Math.abs(cp.position.y - bt.fy) < Math.abs(cp.position.y - tp.fy)) ? tp : bt;
           curFloorY = dest.fy; cp.position.set(dest.x, dest.fy + eyeBase, dest.z); return;
         }
@@ -2025,13 +1950,13 @@
       if (keys['KeyU']) {
         // Hold U + wheel: stand taller (roll up) / crouch down (roll down).
         eyeBase = Math.max(0.6, Math.min(2.2, eyeBase + (e.deltaY < 0 ? 1 : -1) * 0.1));
-        var o = controls.object; o.position.y = eyeHeight();
+        var o = controls.getObject(); o.position.y = eyeHeight();
         var hh = document.getElementById('wtHeight');
         if (hh) { hh.textContent = '↕ ' + eyeBase.toFixed(2) + ' m'; hh.style.display = 'block'; clearTimeout(window._wtHT); window._wtHT = setTimeout(function () { hh.style.display = 'none'; }, 1200); }
         return;
       }
       controls.moveForward((e.deltaY < 0 ? 1 : -1) * 0.6);
-      clampInRoom(controls.object);
+      clampInRoom(controls.getObject());
     }, { passive: false });
 
     // Right-click releases pointer lock (frees the mouse). Listen on mousedown
@@ -2056,7 +1981,7 @@
     function enterRoom(rm) {
       var c = roomWorld(rm, rm.x_offset + rm.w / 2, rm.z_offset + rm.d / 2);
       curFloorY = (rm.floor || 0) * FLOOR_H;   // #1169 land on the room's floor
-      controls.object.position.set(c.x, curFloorY + 1.6, c.z);
+      controls.getObject().position.set(c.x, curFloorY + 1.6, c.z);
       if (orbit) {
         camera.position.set(c.x, curFloorY + 1.6, c.z + Math.min(rm.w, rm.d) * 0.6 + 1);
         orbit.target.set(c.x, curFloorY + 1.3, c.z); orbit.update();
@@ -2069,7 +1994,7 @@
     function miniFloorLabel(f) { return f === 0 ? '{{ __('Ground') }}' : (f < 0 ? ('{{ __('Basement') }}' + (f < -1 ? ' ' + (-f) : '')) : ('{{ __('Floor') }} ' + f)); }
     function buildMinimap() {
       var floors = miniFloors();
-      var here = findRoomAtWorld(controls.object.position.x, controls.object.position.z, null);
+      var here = findRoomAtWorld(controls.getObject().position.x, controls.getObject().position.z, null);
       if (miniFloor === null || floors.indexOf(miniFloor) < 0) miniFloor = here ? (here.floor || 0) : (floors[0] || 0);
       var fr = ROOMS.filter(function (r) { return (r.floor || 0) === miniFloor; });
       var mnx = 1e9, mxx = -1e9, mnz = 1e9, mxz = -1e9;
@@ -2123,7 +2048,7 @@
     }
     function updateLive() {
       if (!liveOn) return;
-      var pos = controls.object.position, r = findRoomAtWorld(pos.x, pos.z, null) || curRoom, body = document.getElementById('wtLiveBody');
+      var pos = controls.getObject().position, r = findRoomAtWorld(pos.x, pos.z, null) || curRoom, body = document.getElementById('wtLiveBody');
       if (body && r) body.innerHTML = '<div class="fw-bold mb-1">' + (r.name || '') + '</div>' + fmtLive(r.live);
     }
     document.getElementById('roomLiveBtn').addEventListener('click', function (e) { e.stopPropagation(); toggleLive(); });
@@ -2131,7 +2056,7 @@
     // Distance-cull far rooms (whole groups) in large buildings to save draw cost.
     var CULL2 = 52 * 52;
     function cullRooms() {
-      var p = controls.object.position;
+      var p = controls.getObject().position;
       for (var k in roomGroups) { var rg = roomGroups[k]; var dx = p.x - rg.cwx, dz = p.z - rg.cwz; rg.g.visible = (dx * dx + dz * dz) < CULL2; }
     }
 
@@ -2150,7 +2075,7 @@
     if (_360Btn) _360Btn.addEventListener('click', open360);
     if (_360Close) _360Close.addEventListener('click', close360);
     function updateRoomName() {
-      var p = controls.object.position, r = findRoomAtWorld(p.x, p.z, null);
+      var p = controls.getObject().position, r = findRoomAtWorld(p.x, p.z, null);
       if (r && r.id !== _lastRoomId) {
         _lastRoomId = r.id; if (_nameEl) _nameEl.textContent = r.name || '';
         // Edit-in-Builder follows you: it opens the builder for the room you're standing in.
@@ -2177,7 +2102,7 @@
         if (src.handedness === 'right') { turn += x; } else { mx += x; mz += y; }
       });
       if (Math.abs(mx) < 0.15) mx = 0; if (Math.abs(mz) < 0.15) mz = 0; if (Math.abs(turn) < 0.25) turn = 0;
-      var o = controls.object;
+      var o = controls.getObject();
       if (turn) o.rotation.y -= turn * dt * 1.6;
       if (mx || mz) {
         var cam = renderer.xr.getCamera(camera), dir = new THREE.Vector3(); cam.getWorldDirection(dir); dir.y = 0;
@@ -2193,13 +2118,12 @@
     function animate() {
       var dt = Math.min(0.05, clock.getDelta());
       if ((_nameTick = (_nameTick + 1) % 12) === 0) { updateRoomName(); cullRooms(); if (liveOn) updateLive(); }   // ~5x/sec
-      billboardLabels();   // #1153 keep text plaques facing the camera (replaces Sprite auto-facing)
-      if (XR_OK && renderer.xr.isPresenting) { xrMove(dt); if (window._wtPresenceFrame) window._wtPresenceFrame(dt); draw(); return; }
+      if (renderer.xr.isPresenting) { xrMove(dt); if (window._wtPresenceFrame) window._wtPresenceFrame(dt); renderer.render(scene, camera); return; }
       if (fly) {
         fly.t += dt / fly.dur;
         var fk = Math.min(1, fly.t);
         var fe = fk * fk * (3 - 2 * fk);            // smoothstep
-        var fo = controls.object;
+        var fo = controls.getObject();
         fo.position.lerpVectors(fly.from, fly.to, fe);
         fo.position.y = 1.6;
         if (orbit) {
@@ -2223,18 +2147,18 @@
         if (vel.lengthSq() > 0) {
           following = false;                       // manual movement breaks docent-follow
           vel.normalize();
-          var mo = controls.object, b4x = mo.position.x, b4z = mo.position.z;
+          var mo = controls.getObject(), b4x = mo.position.x, b4z = mo.position.z;
           controls.moveRight(vel.x * speed * dt);
           controls.moveForward(vel.z * speed * dt);
           var ddx = mo.position.x - b4x, ddz = mo.position.z - b4z;   // walls block; resolve per-axis so you can slide
           mo.position.x = b4x; mo.position.z = b4z;
           tryMove(mo, ddx, ddz);
         }
-        clampInRoom(controls.object);
+        clampInRoom(controls.getObject());
       }
       if (window._wtPresenceFrame) window._wtPresenceFrame(dt);
       if (spotObjects.length) {   // #1174 proximity spotlight + surroundings dim
-        var scp = controls.object.position, near = 1e9, act = null;
+        var scp = controls.getObject().position, near = 1e9, act = null;
         for (var si = 0; si < spotObjects.length; si++) { var so = spotObjects[si], dd = Math.hypot(scp.x - so.x, scp.z - so.z) + Math.abs(scp.y - so.y) * 0.5; if (dd < near) { near = dd; act = so; } }
         var prox = Math.max(0, Math.min(1, (6.5 - near) / 6.5));
         for (var sj = 0; sj < spotObjects.length; sj++) {
@@ -2253,11 +2177,11 @@
       if (typeof applyZoom === 'function') applyZoom(dt);   // #1163 smooth zoom
       updateAimPointer(dt);   // swap person<->hand pointer depending on whether you aim at an object
       if (sunDyn.intensity > 0) {   // #shadows: keep the sun's shadow frustum centred on the visitor so shadows stay sharp
-        var scp = controls.object.position, st = SUN_TIMES[sunMode];
+        var scp = controls.getObject().position, st = SUN_TIMES[sunMode];
         if (st) { sunTarget.position.set(scp.x, 0, scp.z); sunDyn.position.set(scp.x + st.off[0], st.off[1], scp.z + st.off[2]); }
       }
       if (frontDoors.length) {   // #1171 doors swing/slide open as you approach, close as you leave
-        var fcp = controls.object.position;
+        var fcp = controls.getObject().position;
         for (var fi = 0; fi < frontDoors.length; fi++) {
           var fd = frontDoors[fi], fdist = Math.hypot(fcp.x - fd.x, fcp.z - fd.z);
           fd.open += ((fdist < 3.4 ? 1 : 0) - fd.open) * Math.min(1, dt * 4);
@@ -2268,7 +2192,7 @@
           }
         }
       }
-      draw();
+      renderer.render(scene, camera);
     }
 
     // ===== heratio#1150 - multi-user presence + live docent (HTTP polling) =====
@@ -2330,7 +2254,7 @@
       if (CAN_DOCENT && myTourActive && banner) { banner.textContent = '{{ __('You are leading a tour') }}' + (myDocentMsg ? (' — ' + myDocentMsg) : ''); banner.style.display = 'block'; }
     }
     function wtBeat() {
-      var pos = controls.object.position, rm = findRoomAtWorld(pos.x, pos.z, null);
+      var pos = controls.getObject().position, rm = findRoomAtWorld(pos.x, pos.z, null);
       var dir = new THREE.Vector3(); camera.getWorldDirection(dir);
       var device = (renderer.xr && renderer.xr.isPresenting) ? 'vr' : (isTouch ? 'mobile' : 'desktop');
       var payload = { token: MY_TOKEN, name: MY_NAME, color: MY_COLOR, role: (CAN_DOCENT && myTourActive ? 'docent' : 'visitor'),
@@ -2346,7 +2270,7 @@
         a.grp.position.x += (a.tx - a.grp.position.x) * k; a.grp.position.z += (a.tz - a.grp.position.z) * k;
         var d = a.tyaw - a.grp.rotation.y; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; a.grp.rotation.y += d * k;
       });
-      if (following && followTarget) { var o = controls.object; o.position.x += (followTarget.x - o.position.x) * Math.min(1, dt * 2); o.position.z += (followTarget.z - o.position.z) * Math.min(1, dt * 2); }
+      if (following && followTarget) { var o = controls.getObject(); o.position.x += (followTarget.x - o.position.x) * Math.min(1, dt * 2); o.position.z += (followTarget.z - o.position.z) * Math.min(1, dt * 2); }
     };
     // UI wiring
     (function () {
@@ -2427,7 +2351,7 @@
       cx.lineWidth = 7; cx.strokeStyle = 'rgba(0,0,0,.55)'; cx.textBaseline = 'middle';
       cx.fillStyle = color || '#e23b3b';
       cx.strokeText(text, 18, 58); cx.fillText(text, 18, 58);
-      var tx = new THREE.CanvasTexture(cv); tx.minFilter = THREE.LinearFilter; tx.colorSpace = THREE.SRGBColorSpace; tx.needsUpdate = true;
+      var tx = new THREE.CanvasTexture(cv); tx.minFilter = THREE.LinearFilter; tx.needsUpdate = true;
       return { tex: tx, w: w };
     }
     function addGraffiti(a) {
@@ -2437,7 +2361,8 @@
         obj = new THREE.Mesh(new THREE.PlaneGeometry(sw, 0.9), new THREE.MeshBasicMaterial({ map: g.tex, transparent: true, depthWrite: false, side: THREE.DoubleSide }));
         obj.rotation.y = a.yaw;
       } else {
-        obj = billboardPlane(g.tex, sw, 0.9, {});   // #1153 free-floating tag, was THREE.Sprite
+        obj = new THREE.Sprite(new THREE.SpriteMaterial({ map: g.tex, transparent: true, depthWrite: false }));
+        obj.scale.set(sw, 0.9, 1);
       }
       obj.position.set(a.x, a.y, a.z);
       obj.userData.graffiti = true; obj.userData.graffitiId = a.id || null; obj.userData.graffitiSid = a.sid || null; scene.add(obj);
@@ -2521,8 +2446,8 @@
       if (!hits.length) { return; }
       var p = hits[0].point, kind = FIG_KINDS[figIdx], pth = 1.75, ptw = pth * 0.5;
       var grp = new THREE.Group();
-      var psp = billboardPlane(personTexture(kind), ptw, pth, { alphaTest: 0.5, depthWrite: true });   // #1153 was THREE.Sprite
-      psp.position.y = pth / 2; grp.add(psp);
+      var psp = new THREE.Sprite(new THREE.SpriteMaterial({ map: personTexture(kind), transparent: true, depthWrite: true }));
+      psp.scale.set(ptw, pth, 1); psp.position.y = pth / 2; grp.add(psp);
       grp.position.set(p.x, p.y, p.z); grp.userData.figure = true;
       scene.add(grp);
     }
@@ -2591,7 +2516,7 @@
       return -1;
     }
     function currentRoomId() {
-      try { var p = controls.object.position; var r = findRoomAtWorld(p.x, p.z, null); return r ? r.id : (curRoom && curRoom.id); }
+      try { var p = controls.getObject().position; var r = findRoomAtWorld(p.x, p.z, null); return r ? r.id : (curRoom && curRoom.id); }
       catch (e) { return curRoom && curRoom.id; }
     }
     function setDefaultTourForRoom() {
@@ -2777,7 +2702,7 @@
     var alarmState = { on: false, flick: null, timer: null, ac: null, osc: null, pulse: null, gain: null };
     var _stealWp = new THREE.Vector3();
     function nearestStealable() {   // closest placed object to the visitor (forgiving aim, esp. mobile)
-      var cp = controls.object.position, best = null, bd = Infinity;
+      var cp = controls.getObject().position, best = null, bd = Infinity;
       pickables.forEach(function (o) { if (!o.userData || !o.userData.stop) return; o.getWorldPosition(_stealWp); var d = _stealWp.distanceTo(cp); if (d < bd) { bd = d; best = o.userData.stop; } });
       return best;
     }
@@ -2817,19 +2742,7 @@
     function setStealBtn(on) { window.__stealMode = on; var b = document.getElementById('wtStealBtn'); if (b) { b.classList.toggle('btn-danger', on); b.classList.toggle('btn-dark', !on); } }
     var stealBtn = document.getElementById('wtStealBtn'); if (stealBtn) stealBtn.addEventListener('click', function (e) { e.stopPropagation(); setStealBtn(!window.__stealMode); });
 
-    // heratio#1153: WebGPURenderer.init() picks/initialises the backend (WebGPU or WebGL2);
-    // the loop must not render before it resolves. WebGLRenderer (VR path) has no init() and
-    // starts synchronously. setAnimationLoop drives desktop + WebXR.
-    if (renderer.init) {
-      renderer.init().then(function () {
-        renderer.setAnimationLoop(animate);
-      }).catch(function (e) {
-        console.error('[walkthrough] renderer init failed', e);
-        renderer.setAnimationLoop(animate);   // last resort: renderAsync will retry init per-frame
-      });
-    } else {
-      renderer.setAnimationLoop(animate);   // WebGLRenderer (VR-capable path): synchronous
-    }
+    renderer.setAnimationLoop(animate);   // #1152 - drives both desktop and WebXR frames
 
     window.addEventListener('resize', function () {
       W = room.clientWidth || W; H = room.clientHeight || H;

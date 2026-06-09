@@ -190,17 +190,21 @@ before it happens.
 
 ## Roadmap
 
-Further extensions under consideration: live cross-institution federation of exhibitions,
-rendering `.las` / `.e57` point clouds (a conversion step, issue #1183), and restoring VR
-once the WebGPU renderer supports it (issue #1184). Neural narration voice (issue #1168),
-photoreal scan import incl. point clouds (issues #1156 / #1183), and the WebGPU renderer
-(issue #1153) have shipped - see **Photoreal capture** and the audio docent above.
+Further extensions under consideration: live cross-institution federation of exhibitions, and
+rendering `.las` / `.e57` point clouds (a conversion step, issue #1183). Neural narration
+voice (issue #1168) and photoreal scan import incl. point clouds (issues #1156 / #1183) have
+shipped - see **Photoreal capture** and the audio docent above.
+
+A **WebGPU renderer** (issue #1153) was trialled but **not adopted**: on the target three.js
+build it broke transparency (glass), alpha-cutout foliage (trees/grass) and billboards
+(labels/people) with no visible performance gain, so the walkthrough stays on the proven WebGL
+renderer. A standalone proof page (`/exhibition-space/{slug}/walkthrough-webgpu`) is kept for a
+future retry. VR therefore continues to work as before.
 
 Server-GPU **pixel-streaming** (rendering console-quality scenes on a server and streaming
 video to the browser, issue #1154) was evaluated and **deferred**: it costs roughly one GPU
-per viewer, whereas the WebGPU walkthrough already serves unlimited concurrent visitors at no
-server cost. It is only worth revisiting for a single kiosk or low-concurrency photoreal
-experience.
+per viewer, whereas the walkthrough already serves unlimited concurrent visitors at no server
+cost. It is only worth revisiting for a single kiosk or low-concurrency photoreal experience.
 
 A **WebGPU renderer** (issue #1153) is being evaluated: open
 `/exhibition-space/{slug}/walkthrough-webgpu` for the proof page - it runs the room on
