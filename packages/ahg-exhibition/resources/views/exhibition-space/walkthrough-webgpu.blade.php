@@ -128,28 +128,32 @@
     controls.addEventListener('lock', function () { blocker.style.display = 'none'; });
     controls.addEventListener('unlock', function () { blocker.style.display = 'flex'; });
 
-    // Key capture in the CAPTURE phase on window, so nothing upstream (theme bundle,
-    // voice commands) can swallow WASD before we see it; preventDefault while locked
-    // stops the page scrolling on the arrow keys.
-    const keys = Object.create(null);
-    const MOVE = { KeyW: 1, KeyA: 1, KeyS: 1, KeyD: 1, ArrowUp: 1, ArrowDown: 1, ArrowLeft: 1, ArrowRight: 1 };
-    function code(e) { return e.code || e.key; }
+    // Key capture in the CAPTURE phase on window, so nothing upstream can swallow WASD
+    // first. Map BOTH e.code (layout-independent) AND e.key (in case e.code is blank on
+    // some layouts/IMEs) to a direction, so a key can't slip through unmatched.
+    const down = Object.create(null);
+    function dirOf(e) {
+      const c = e.code, k = (e.key || '').toLowerCase();
+      if (c === 'KeyW' || c === 'ArrowUp' || k === 'w' || k === 'arrowup') return 'F';
+      if (c === 'KeyS' || c === 'ArrowDown' || k === 's' || k === 'arrowdown') return 'B';
+      if (c === 'KeyA' || c === 'ArrowLeft' || k === 'a' || k === 'arrowleft') return 'L';
+      if (c === 'KeyD' || c === 'ArrowRight' || k === 'd' || k === 'arrowright') return 'R';
+      return null;
+    }
     window.addEventListener('keydown', function (e) {
-      const c = code(e); keys[c] = true;
-      if (controls.isLocked && MOVE[c]) e.preventDefault();
+      const d = dirOf(e); if (!d) return;
+      down[d] = true; if (controls.isLocked) e.preventDefault();
     }, true);
-    window.addEventListener('keyup', function (e) { keys[code(e)] = false; }, true);
+    window.addEventListener('keyup', function (e) { const d = dirOf(e); if (d) down[d] = false; }, true);
 
     function moving() {
-      const f = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0);
-      const r = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
-      return { f: f, r: r };
+      return { f: (down.F ? 1 : 0) - (down.B ? 1 : 0), r: (down.R ? 1 : 0) - (down.L ? 1 : 0) };
     }
 
     // Movement is computed directly from the camera's facing direction (flattened to the
     // xz-plane), so it never depends on camera.matrix being freshly rebuilt this frame.
     const _fwd = new THREE.Vector3(), _right = new THREE.Vector3();
-    let last = performance.now(), frames = 0, fpsAccum = 0, lastMv = '';
+    let last = performance.now(), frames = 0, fpsAccum = 0, fps = 0;
     function tick() {
       const now = performance.now(), dt = Math.min(0.1, (now - last) / 1000); last = now;
       if (controls.isLocked) {
@@ -164,13 +168,14 @@
             camera.position.addScaledVector(_right, sp * mv.r);
           }
         }
-        lastMv = (mv.f || mv.r) ? ' · move' : '';
         camera.position.y = EYE;   // stay at eye height (flat floor)
       }
       renderer.renderAsync(scene, camera);
-      // FPS readout (+ a tiny move indicator so movement is verifiable at a glance)
+      // FPS (every 0.5s) + a LIVE WASD indicator (every frame) so key capture is verifiable.
       frames++; fpsAccum += dt;
-      if (fpsAccum >= 0.5) { fpsEl.textContent = Math.round(frames / fpsAccum) + ' fps' + lastMv; frames = 0; fpsAccum = 0; }
+      if (fpsAccum >= 0.5) { fps = Math.round(frames / fpsAccum); frames = 0; fpsAccum = 0; }
+      const ws = (down.F ? 'W' : '·') + (down.L ? 'A' : '·') + (down.B ? 'S' : '·') + (down.R ? 'D' : '·');
+      fpsEl.textContent = fps + ' fps · ' + ws;
     }
 
     // init() picks/initialises the backend; only then is renderer.backend populated.
