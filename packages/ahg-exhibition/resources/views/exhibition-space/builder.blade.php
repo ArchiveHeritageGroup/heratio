@@ -1525,8 +1525,8 @@
         renderTourSel();
         list.innerHTML = '';
         stops().forEach(function (s, i) {
-          var row = document.createElement('div'); row.className = 'border rounded p-2 mb-2';
-          row.innerHTML = '<div class="d-flex justify-content-between"><strong>' + (i + 1) + '. ' + esc(titleFor(s.io_id)) + '</strong>' +
+          var row = document.createElement('div'); row.className = 'border rounded p-2 mb-2'; row.draggable = true; row.dataset.idx = i; row.style.cursor = 'grab';
+          row.innerHTML = '<div class="d-flex justify-content-between"><strong><i class="fas fa-grip-vertical text-muted me-1" title="{{ __('Drag to reorder') }}"></i>' + (i + 1) + '. ' + esc(titleFor(s.io_id)) + '</strong>' +
             '<span><button type="button" class="btn btn-sm btn-link p-0 me-1" data-up="' + i + '">&uarr;</button>' +
             '<button type="button" class="btn btn-sm btn-link p-0 me-1" data-down="' + i + '">&darr;</button>' +
             '<button type="button" class="btn btn-sm btn-link text-danger p-0" data-del="' + i + '">&times;</button></span></div>' +
@@ -1545,6 +1545,20 @@
         renderRoomOrder();
         if (typeof window.__exhibDrawRoute === 'function') window.__exhibDrawRoute();   // keep the plan route line in sync
       }
+      // Drag-to-reorder stops (in addition to the up/down buttons).
+      var dragFrom = null;
+      list.addEventListener('dragstart', function (e) {
+        var row = e.target.closest('[data-idx]'); if (!row) return;
+        dragFrom = +row.dataset.idx; if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+      });
+      list.addEventListener('dragover', function (e) { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'; });
+      list.addEventListener('drop', function (e) {
+        e.preventDefault();
+        var row = e.target.closest('[data-idx]'); if (!row || dragFrom === null) { dragFrom = null; return; }
+        var to = +row.dataset.idx;
+        if (to !== dragFrom) { var st = stops(); var moved = st.splice(dragFrom, 1)[0]; st.splice(to, 0, moved); render(); }
+        dragFrom = null;
+      });
       list.addEventListener('input', function (e) {
         var n = e.target.getAttribute('data-narr'), d = e.target.getAttribute('data-dwell');
         if (n !== null) stops()[+n].narration = e.target.value;

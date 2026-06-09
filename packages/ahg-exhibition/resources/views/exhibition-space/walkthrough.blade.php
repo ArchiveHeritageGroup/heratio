@@ -73,6 +73,7 @@
           <div id="wtTourBanner" class="bg-dark text-white px-3 py-2 rounded small" style="position:absolute;bottom:64px;left:50%;transform:translateX(-50%);z-index:7;display:none;max-width:86%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.5);">
             <div id="wtTourText" style="max-height:30vh;overflow-y:auto;"></div>
             <div class="mt-2 text-nowrap">
+              <button type="button" id="wtTourTextBtn" class="btn btn-sm btn-outline-light py-0" title="{{ __('Show/hide narration text') }}"><i class="fas fa-closed-captioning"></i></button>
               <button type="button" id="wtTourPrevBtn" class="btn btn-sm btn-outline-light py-0" title="{{ __('Previous stop') }}"><i class="fas fa-step-backward"></i></button>
               <button type="button" id="wtTourWalkBtn" class="btn btn-sm btn-outline-light py-0" title="{{ __('Walk around this object, then Space or Next to continue') }}"><i class="fas fa-person-walking me-1"></i>{{ __('Walk') }}</button>
               <button type="button" id="wtTourNextBtn" class="btn btn-sm btn-light py-0" title="{{ __('Next stop (Space)') }}">{{ __('Next') }} <i class="fas fa-step-forward"></i></button>
@@ -2365,6 +2366,9 @@
     function tourBanner(txt) { var b = document.getElementById('wtTourBanner'), t = document.getElementById('wtTourText'); if (t) t.textContent = txt; if (b) b.style.display = 'block'; }
     function updateTourBtn() { if (!tourPlayBtn) return; tourPlayBtn.innerHTML = tourState.playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>'; tourPlayBtn.classList.toggle('btn-warning', tourState.playing); tourPlayBtn.classList.toggle('btn-success', !tourState.playing); }
     function tourGoto(i) {
+      clearTimeout(tourState.timer);   // cancel any pending auto-advance (manual Next/Prev or re-entry)
+      stopNarrate(); stopTourAudio();
+      if (i < 0) i = 0;
       var arr = tourState.stops;
       if (i >= arr.length) { tourStop(); return; }
       tourState.i = i; var s = arr[i], st = stopByIo(s.io_id);
@@ -2414,14 +2418,28 @@
     var tourStopBtn = document.getElementById('wtTourStopBtn'); if (tourStopBtn) tourStopBtn.addEventListener('click', function (e) { e.stopPropagation(); tourStop(); });
     // PC tour controls: Prev/Next steer the tour; Walk engages pointer-lock so the
     // visitor can roam around the current object (then Space/Next to continue).
-    // Hidden on touch (mobile auto-advances).
+    // Next/Prev show on ALL devices so a visitor can continue the tour manually
+    // (mobile also auto-advances, but TTS end-events are unreliable there, so the
+    // buttons let them keep going if it stalls). Walk is desktop-only (touch can't
+    // pointer-lock).
     var tourNextBtn = document.getElementById('wtTourNextBtn'),
         tourPrevBtn = document.getElementById('wtTourPrevBtn'),
         tourWalkBtn = document.getElementById('wtTourWalkBtn');
-    [tourNextBtn, tourPrevBtn, tourWalkBtn].forEach(function (b) { if (b) b.style.display = isTouch ? 'none' : ''; });
+    [tourNextBtn, tourPrevBtn].forEach(function (b) { if (b) b.style.display = ''; });
+    if (tourWalkBtn) tourWalkBtn.style.display = isTouch ? 'none' : '';
     if (tourNextBtn) tourNextBtn.addEventListener('click', function (e) { e.stopPropagation(); if (tourState.playing) tourGoto(tourState.i + 1); });
     if (tourPrevBtn) tourPrevBtn.addEventListener('click', function (e) { e.stopPropagation(); if (tourState.playing) tourGoto(Math.max(0, tourState.i - 1)); });
     if (tourWalkBtn) tourWalkBtn.addEventListener('click', function (e) { e.stopPropagation(); try { if (controls && controls.lock) controls.lock(); } catch (_) {} });
+    // Narration text visibility: hidden by default on mobile (it can be long and
+    // cover the small screen); the CC button shows/hides it. Desktop shows it.
+    var showTourText = !isTouch;
+    var tourTextEl = document.getElementById('wtTourText'), tourTextBtn = document.getElementById('wtTourTextBtn');
+    function applyTourTextVis() {
+      if (tourTextEl) tourTextEl.style.display = showTourText ? '' : 'none';
+      if (tourTextBtn) { tourTextBtn.classList.toggle('btn-light', showTourText); tourTextBtn.classList.toggle('btn-outline-light', !showTourText); }
+    }
+    applyTourTextVis();
+    if (tourTextBtn) tourTextBtn.addEventListener('click', function (e) { e.stopPropagation(); showTourText = !showTourText; applyTourTextVis(); });
     if (tourSelEl) tourSelEl.addEventListener('change', function () { tourStop(); });   // switching tour resets to start
     // Mobile: if no tour is authored, auto-build a "Full tour" of every object in
     // order, so mobile always has a tour to launch (#1182). Desktop is untouched
