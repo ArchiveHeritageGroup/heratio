@@ -41,10 +41,23 @@ Surfaced in `ExhibitionSpaceService::getWalkthroughBuilding()` as `scan_shell`,
 Controller endpoints (all `acl:update`): `exhibition-space.builder.scan-shell` (upload),
 `.scan-shell-clear`, `.scan-meta` (scale + embed). Upload mirrors `uploadFloorImage`.
 
+## Point clouds (#1183)
+
+Point clouds render too, through the same scan-shell upload:
+
+- `.pcd` (PCDLoader) and point-cloud `.ply` (PLYLoader; rendered as points when the file has
+  no faces - `geo.index` empty - otherwise meshed as before) render as `THREE.Points` with a
+  `PointsMaterial` (per-vertex colour when present), added to the room group like a mesh shell.
+- Large clouds are **downsampled on load** (`decimatePoints`, stride-subsample, cap
+  `POINT_CAP = 1.5M` points) so the walkthrough stays interactive on mobile; the drop is
+  logged to the console (no silent truncation).
+- Upload validation is by **extension** (`glb/gltf/obj/stl/ply/pcd`) - `.pcd` has no
+  registered MIME type, so the `mimes:` rule can't be used.
+
 ## Limits / not yet done
 
-- **Point clouds** (`.las`, `.e57`, `.pcd`) are not rendered as points. `.ply` is accepted
-  but loaded as a mesh (PLYLoader -> greyMesh), not a point cloud. Export a mesh for now.
+- **`.las` / `.laz` / `.e57`** are not read directly (no browser loader) - export to PLY or
+  PCD from the scan software first. A server-side converter is the remaining piece.
 - Matterport's own SDK is not embedded; only an iframe of the host's share URL is used, so
   licensing for the embedded tour stays with its host.
 - The scan is placed at the room corner with a single scale; there is no per-axis offset or

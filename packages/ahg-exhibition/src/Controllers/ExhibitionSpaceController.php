@@ -1263,13 +1263,21 @@ class ExhibitionSpaceController extends Controller
         if (! $space) {
             abort(404);
         }
-        $request->validate([
-            // Mesh formats the walkthrough loader already understands (GLTFLoader / OBJ / STL / PLY).
-            // True point clouds (.las/.e57/.pcd) are not yet rendered as points - tracked in #1156.
-            'scan_shell' => 'required|file|mimes:glb,gltf,obj,stl,ply|max:204800',
-        ]);
+        // Mesh shells (GLTFLoader / OBJ / STL / mesh-PLY, #1156) + point clouds (#1183:
+        // .pcd via PCDLoader, point-cloud .ply via PLYLoader). Validate by extension - .pcd
+        // has no registered MIME type, so the `mimes:` rule can't be used here.
+        $request->validate(['scan_shell' => 'required|file|max:204800']);
         $file = $request->file('scan_shell');
-        $ext = strtolower($file->getClientOriginalExtension() ?: 'glb');
+        $ext = strtolower($file->getClientOriginalExtension() ?: '');
+        $allowed = ['glb', 'gltf', 'obj', 'stl', 'ply', 'pcd'];
+        if (! in_array($ext, $allowed, true)) {
+            $msg = 'Unsupported file type. Use glTF/GLB, OBJ, STL, PLY (mesh or point cloud), or PCD. For .las/.e57, export to PLY or PCD first.';
+            if ($request->expectsJson()) {
+                return response()->json(['ok' => false, 'error' => $msg], 422);
+            }
+
+            return redirect()->route('exhibition-space.builder', ['slug' => $slug])->withErrors(['scan_shell' => $msg]);
+        }
         $dir = config('heratio.storage_path').'/uploads/exhibition-scans';
         if (! is_dir($dir)) {
             @mkdir($dir, 0775, true);

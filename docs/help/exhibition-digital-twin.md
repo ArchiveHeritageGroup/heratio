@@ -40,9 +40,11 @@ of the real space. In the builder, open the **Photoreal capture** card:
   **360 button** then appears in the walkthrough whenever you stand in that room, opening
   the immersive tour in an overlay. Licensing for the embedded tour stays with its host.
 
-Point clouds (`.las`, `.e57`, `.pcd`) are not yet rendered as points - export a mesh for
-now. Larger scans take longer to download into the walkthrough; keep shells under a few
-hundred MB and decimate where you can.
+**Point clouds** render too: upload a `.pcd` or a point-cloud `.ply` and it shows as points
+in the walkthrough (large clouds are automatically downsampled so they stay smooth, on
+mobile too). `.las` / `.e57` aren't read directly by the browser - export them to PLY or
+PCD from your scan software first. Larger scans take longer to download; keep them under a
+few hundred MB and decimate where you can.
 
 ## Live data link
 

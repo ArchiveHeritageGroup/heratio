@@ -204,12 +204,13 @@
   import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
   import { STLLoader } from 'three/addons/loaders/STLLoader.js';
   import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
+  import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';
   import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
   import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
   let VRButton = null;
   try { ({ VRButton } = await import('three/addons/webxr/VRButton.js')); } catch (e) { /* WebXR button optional */ }
   const THREE = Object.assign({}, THREE_NS, {
-    GLTFLoader, DRACOLoader, OBJLoader, STLLoader, PLYLoader,
+    GLTFLoader, DRACOLoader, OBJLoader, STLLoader, PLYLoader, PCDLoader,
     PointerLockControls, OrbitControls, VRButton,
   });
   (function () {
@@ -1325,6 +1326,30 @@
         mats.forEach(function (m) { if ('envMap' in m) { m.envMap = env; if ('envMapIntensity' in m) m.envMapIntensity = 1.1; m.needsUpdate = true; } });
       });
     }
+    // #1183 point clouds: cap delivered points so large scans stay interactive (esp. mobile).
+    // Stride-subsample position (+ colour) when over the cap; log what was dropped (no silent truncation).
+    var POINT_CAP = 1500000;
+    function decimatePoints(geo, cap) {
+      var pos = geo.attributes && geo.attributes.position;
+      if (!pos || pos.count <= cap) return geo;
+      var stride = Math.ceil(pos.count / cap), keep = Math.floor(pos.count / stride);
+      function sub(attr) {
+        if (!attr) return null;
+        var item = attr.itemSize, src = attr.array, out = new src.constructor(keep * item);
+        for (var i = 0, j = 0; j < keep; i += stride, j++) { for (var k = 0; k < item; k++) out[j * item + k] = src[i * item + k]; }
+        return new THREE.BufferAttribute(out, item, attr.normalized);
+      }
+      var g2 = new THREE.BufferGeometry();
+      g2.setAttribute('position', sub(pos));
+      if (geo.attributes.color) g2.setAttribute('color', sub(geo.attributes.color));
+      console.info('[exhibition] point cloud decimated', pos.count, '->', keep, '(cap ' + cap + ')');
+      return g2;
+    }
+    function pointsFromGeometry(geo) {
+      var g = decimatePoints(geo, POINT_CAP);
+      var hasColor = !!(g.attributes && g.attributes.color);
+      return new THREE.Points(g, new THREE.PointsMaterial({ size: 0.02, sizeAttenuation: true, vertexColors: hasColor, color: hasColor ? 0xffffff : 0xb9b2a6 }));
+    }
     function loadModel(url, ext, onLoad, onError) {
       var twoSided = (ext === 'obj' || ext === 'stl' || ext === 'ply');   // these often have no/inverted normals
       var cb = function (o) {
@@ -1348,7 +1373,10 @@
         if (ext === 'glb' || ext === 'gltf') { gltfLoader().load(url, function (g) { cb(g.scene); }, undefined, onError); }
         else if (ext === 'obj') { new THREE.OBJLoader().load(url, function (o) { cb(o); }, undefined, onError); }
         else if (ext === 'stl') { new THREE.STLLoader().load(url, function (geo) { cb(greyMesh(geo)); }, undefined, onError); }
-        else if (ext === 'ply') { new THREE.PLYLoader().load(url, function (geo) { cb(greyMesh(geo)); }, undefined, onError); }
+        // #1183 point cloud: .pcd always renders as points; .ply renders as points when it
+        // has no faces (geo.index empty), else as a mesh (the #1156 photogrammetry path).
+        else if (ext === 'pcd') { new THREE.PCDLoader().load(url, function (pts) { pts.geometry = decimatePoints(pts.geometry, POINT_CAP); if (pts.material) { pts.material.size = pts.material.size || 0.02; pts.material.sizeAttenuation = true; } onLoad(pts); }, undefined, onError); }
+        else if (ext === 'ply') { new THREE.PLYLoader().load(url, function (geo) { if (geo.index && geo.index.count > 0) { cb(greyMesh(geo)); } else { onLoad(pointsFromGeometry(geo)); } }, undefined, onError); }
         else if (onError) { onError(); }
       } catch (e) { if (onError) onError(); }
     }

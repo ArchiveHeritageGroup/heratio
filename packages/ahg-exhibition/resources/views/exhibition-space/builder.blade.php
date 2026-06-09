@@ -286,11 +286,11 @@
           <div class="card mb-0">
             <div class="card-header py-2"><strong><i class="fas fa-cube me-1"></i>{{ __('Photoreal capture') }}</strong></div>
             <div class="card-body">
-              <p class="small text-muted mb-2">{{ __('Back this room with a photoreal scan (photogrammetry / glTF / OBJ / scan export). It renders inside the 3D walkthrough; your object placements and the live overlay stay on top.') }}</p>
+              <p class="small text-muted mb-2">{{ __('Back this room with a photoreal scan (photogrammetry mesh or point cloud). It renders inside the 3D walkthrough; your object placements and the live overlay stay on top.') }}</p>
               <div class="border rounded p-1 text-center mb-2" style="background:#f8f9fa">
                 <div id="scName" class="text-truncate text-muted" style="font-size:11px">{{ __('No scan shell (using built room)') }}</div>
               </div>
-              <input type="file" id="scFile" accept=".glb,.gltf,.obj,.stl,.ply" class="form-control form-control-sm mb-2">
+              <input type="file" id="scFile" accept=".glb,.gltf,.obj,.stl,.ply,.pcd" class="form-control form-control-sm mb-2">
               <button type="button" id="scUpload" class="btn btn-sm btn-outline-primary w-100 mb-1"><i class="fas fa-upload me-1"></i>{{ __('Upload scan shell') }}</button>
               <button type="button" id="scClear" class="btn btn-sm btn-outline-danger w-100 mb-2"><i class="fas fa-times me-1"></i>{{ __('Clear scan shell') }}</button>
               <div class="input-group input-group-sm mb-2">
@@ -300,7 +300,7 @@
               <label class="small text-muted mb-1">{{ __('360 / Matterport embed URL (optional)') }}</label>
               <input type="url" id="scEmbed" class="form-control form-control-sm mb-2" placeholder="https://my.matterport.com/show/?m=…" value="{{ $space->scan_embed_url ?? '' }}">
               <button type="button" id="scMeta" class="btn btn-sm btn-outline-secondary w-100">{{ __('Save scale & embed') }}</button>
-              <small class="text-muted d-block mt-1">{{ __('glTF/OBJ/STL/PLY meshes render as the room. Embed URL adds a "360 view" button in the walkthrough. Point clouds (.las/.e57) are not yet supported.') }}</small>
+              <small class="text-muted d-block mt-1">{{ __('Meshes (glTF/OBJ/STL/PLY) render as the room; point clouds (.pcd, point-cloud .ply) render as points, downsampled for large scans. Embed URL adds a "360 view" button. For .las/.e57, export to PLY or PCD first.') }}</small>
             </div>
           </div>
         </div>
