@@ -116,12 +116,13 @@ class BerEncoder
         if (! empty($opts['delSet']))           $bits |= 1 << 2;
         if (! empty($opts['namedResultsSets'])) $bits |= 1 << 8;
 
-        // BIT STRING: tag 0x03, len 5, body (4 unused + flags)
+        // Z39.50 InitResponse `options` is an ASN.1 BIT STRING (tag 0x03, len 5:
+        // 1 unused-bits octet + 4 flag octets) - NOT a SEQUENCE. The preferred-
+        // record-syntax OID is a Search/Present request field, not part of the
+        // InitResponse options, so it does not belong here.
         $bitStringBody = "\x00\x00\x00\x00" . chr($bits);
-        $bitString = "\x03\x05" . $bitStringBody;
 
-        $prefSyntax = $this->encodeOidSequence([1, 2, 840, 10003, 5, 1]);
-        return $this->encodeSequence($bitString . $prefSyntax);
+        return "\x03\x05" . $bitStringBody;
     }
 
     public function encodeInitResponse(string $referenceId, int $result = 1): string
@@ -701,8 +702,10 @@ class BerEncoder
      */
     public function wrapInPackageHeader(string $apdu): string
     {
-        $size = strlen($apdu) + 5;
-        return pack('nCCn', $size, 0x00, 0x00, 0x0000) . $apdu;
+        // 5-byte package header: 4-byte big-endian total size + 1 reserved byte.
+        // (The top two size bytes double as protocol-family / reserved = 0x00 for
+        // any APDU under 64 KiB.) unwrap/strip remove exactly these 5 bytes.
+        return pack('N', strlen($apdu) + 5) . "\x00" . $apdu;
     }
 
     /**
@@ -714,11 +717,12 @@ class BerEncoder
             return '';
         }
 
-        $size = unpack('nsize', $packet);
-        if (! $size) {
-            return '';
-        }
-
         return substr($packet, 5);
+    }
+
+    /** Alias for {@see unwrapPackageHeader()} (used across the test suite). */
+    public function stripPackageHeader(string $packet): string
+    {
+        return $this->unwrapPackageHeader($packet);
     }
 }

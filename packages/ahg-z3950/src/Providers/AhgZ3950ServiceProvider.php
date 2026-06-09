@@ -50,10 +50,7 @@ class AhgZ3950ServiceProvider extends ServiceProvider
 
         // Register Z39.50 server service
         $this->app->singleton(Z3950ServerService::class, function ($app) {
-            return new Z3950ServerService(
-                $app->make(BerEncoder::class),
-                $app->make(\AhgLibrary\Services\Marc21DecoderService::class),
-            );
+            return new Z3950ServerService($app->make(BerEncoder::class));
         });
 
         // Register Z39.50 client service

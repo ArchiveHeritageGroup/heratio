@@ -13,29 +13,24 @@
 
 namespace AhgZ3950\Services;
 
-use AhgZ3950\Repositories\Marc21Repository;
-use AhgZ3950\Repositories\AuthorityRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class Z3950ServerService
 {
     private BerEncoder $encoder;
-    private Marc21Repository $marcRepo;
-    private AuthorityRepository $authRepo;
 
     private string $serverId = 'Heratio/1.0';
     private array $options = [];
     private array $resultSets = [];
 
-    public function __construct(
-        BerEncoder $encoder,
-        Marc21Repository $marcRepo,
-        AuthorityRepository $authRepo
-    ) {
+    // #1135 - reconciled to the single collaborator the provider + tests use
+    // (BerEncoder). The previously type-hinted Marc21Repository / AuthorityRepository
+    // never existed, so the server fatally failed container resolution. MARC21 is
+    // now assembled inline from the stored record columns (see buildMarc21()).
+    public function __construct(BerEncoder $encoder)
+    {
         $this->encoder = $encoder;
-        $this->marcRepo = $marcRepo;
-        $this->authRepo = $authRepo;
     }
 
     // ──── Query parsing (PQF → SQL) ───────────────────────────────────────
@@ -471,7 +466,7 @@ class Z3950ServerService
         // Encode records as requested syntax
         $encodedRecords = '';
         foreach ($records as $rec) {
-            $marc = $this->marcRepo->buildMarc21($rec);
+            $marc = $this->buildMarc21($rec);
             $encodedRecords .= "\x1e" . $marc . "\x1e\x1d";
         }
 
@@ -662,5 +657,21 @@ class Z3950ServerService
     public function clearResultSets(): void
     {
         $this->resultSets = [];
+    }
+
+    /**
+     * #1135 - assemble a MARC21 record body from a stored library_marc_records
+     * row (leader + control/data field columns). Best-effort: emits the 24-byte
+     * leader followed by the field data; the caller adds the MARC record/field
+     * separators. (Replaces the never-existent Marc21Repository::buildMarc21.)
+     */
+    private function buildMarc21(object $rec): string
+    {
+        $leader = (string) ($rec->leader ?? '');
+        $leader = $leader !== '' ? str_pad(substr($leader, 0, 24), 24) : str_pad('', 24);
+        $control = (string) ($rec->controlfield ?? '');
+        $data = (string) ($rec->datafield ?? '');
+
+        return $leader . $control . $data;
     }
 }
