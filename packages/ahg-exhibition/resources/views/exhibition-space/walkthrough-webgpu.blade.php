@@ -180,7 +180,6 @@
       try { if (renderer.backend && renderer.backend.isWebGPUBackend) label = 'WebGPU'; } catch (e) {}
       if (label === 'WebGL2' && !navigator.gpu) label = 'WebGL2 (no navigator.gpu)';
       badgeEl.textContent = label;
-      badgeDone = true;
       renderer.setAnimationLoop(tick);
     }).catch(function (e) {
       fail('Renderer init failed: ' + (e && e.message ? e.message : e));
