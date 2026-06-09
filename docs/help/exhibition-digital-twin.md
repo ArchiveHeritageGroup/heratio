@@ -15,7 +15,10 @@ covers the twin features that sit on top of the builder and walkthrough.
 - **Builder** (`/exhibition-space/{slug}/builder`) - drag objects onto the floor or hang
   them on walls; set size, tilt and which wall (including the front or back face of an
   interior divider). Doors you place in the plan editor, and doorways between adjoining
-  rooms, show on the floor and wall views.
+  rooms, show on the floor and wall views. In **Wall view** you can also **add windows** to
+  the selected perimeter wall - click **Add window**, then drag it along the wall to position
+  it and double-click to remove (windows can also be added in the plan editor); they appear as
+  glass openings in the 3D walkthrough.
 - **Plan editor** (`/exhibition-space/{slug}/plan`) - arrange rooms of a building on a
   blueprint; rooms snap to each other and can take custom (non-rectangular) shapes.
 - **Walkthrough** (`/exhibition-space/{slug}/walkthrough`) - a first-person 3D tour on

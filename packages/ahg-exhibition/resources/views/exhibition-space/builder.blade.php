@@ -166,6 +166,7 @@
             <option value="west">{{ __('Left wall') }}</option>
             <option value="east">{{ __('Right wall') }}</option>
           </select>
+          <button type="button" id="wvAddWin" class="btn btn-sm btn-outline-info d-none" title="{{ __('Add a window to this wall - then drag it to position, double-click to remove') }}"><i class="fas fa-window-maximize me-1"></i>{{ __('Add window') }}</button>
           <span class="small text-muted"><span id="saveState">{{ __('All changes saved') }}</span> <i id="saveIcon" class="fas fa-check text-success ms-1"></i></span>
         </div>
         <div class="card-body p-0">
@@ -428,6 +429,8 @@
     var WALLS = @json($walls ?? []);
     var DOORS = @json($doors ?? []);
     var WINDOWS = @json($windows ?? []);   // #1172
+    var SPACE_ID = {{ (int) $space->id }};
+    var WINDOWS_URL = '{{ route('exhibition-space.plan.windows', ['slug' => $space->slug]) }}';   // add/edit windows from Wall view too (#1172)
     var LAYOUT = @json($layout ?? null);   // sibling-room rects for adjacency doorways (plan mode)
     var SHAPE = @json($shape ?? null);
     var ROOM_W = {{ $space->room_w ?: 18 }}, ROOM_D = {{ $space->room_d ?: 14 }}, ROOM_H = {{ $space->room_h ?: 4 }};
@@ -1047,6 +1050,7 @@
       fb.classList.toggle('btn-primary', m === 'floor'); fb.classList.toggle('btn-outline-primary', m !== 'floor');
       wb.classList.toggle('btn-primary', m === 'wall'); wb.classList.toggle('btn-outline-primary', m !== 'wall');
       document.getElementById('wvWall').classList.toggle('d-none', m !== 'wall');
+      if (_wvAddWin) { _wvAddWin.classList.toggle('d-none', m !== 'wall'); refreshAddWinBtn(); }
       var floorOn = (m === 'floor');
       bgLayer.visible(floorOn); wallLayer.visible(floorOn); doorLayer.visible(floorOn); layer.visible(floorOn); viewLayer.visible(floorOn); routeLayer.visible(floorOn); wvLayer.visible(!floorOn);
       tr.nodes([]); clearSelect();
@@ -1054,7 +1058,7 @@
     }
     document.getElementById('modeFloor').addEventListener('click', function () { setMode('floor'); });
     document.getElementById('modeWall').addEventListener('click', function () { setMode('wall'); });
-    document.getElementById('wvWall').addEventListener('change', function () { wvWall = this.value; buildWallView(); });
+    document.getElementById('wvWall').addEventListener('change', function () { wvWall = this.value; refreshAddWinBtn(); buildWallView(); });
 
     // Spread items that share (near) the same spot on the wall so they don't
     // render on top of each other; persist the nudge so the walkthrough matches.
@@ -1113,6 +1117,39 @@
         return { width: d.width, auto: d.auto, pos: m.t };   // pos = fraction along this edge
       }).filter(Boolean);
     }
+    // #1172 windows in Wall view: only perimeter / polygon-edge walls carry windows (not
+    // interior dividers). Match both named-wall and polygon-edge storage to the current wall.
+    function wvCanWindow() {
+      return wvWall === 'north' || wvWall === 'south' || wvWall === 'east' || wvWall === 'west'
+        || (wvWall.indexOf && wvWall.indexOf('edge:') === 0);
+    }
+    function wvWindowsForWall() {
+      return (WINDOWS || []).filter(function (w) {
+        return (w.wall && w.wall === wvWall) || (typeof w.edge === 'number' && ('edge:' + w.edge) === wvWall);
+      });
+    }
+    function persistWindows() {
+      setState('{{ __('Saving...') }}', false);
+      fetch(WINDOWS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+        body: JSON.stringify({ room_id: SPACE_ID, windows: WINDOWS }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d && d.ok && d.windows) WINDOWS = d.windows; setState('{{ __('All changes saved') }}', true); })
+        .catch(function () { setState('{{ __('Save failed - retrying') }}', false); setTimeout(persistWindows, 2000); });
+    }
+    function addWindowToWall() {
+      if (!wvCanWindow()) { alert('{{ __('Windows go on a perimeter wall - pick Back/Front/Left/Right or a numbered wall.') }}'); return; }
+      var w = { pos: 0.5, width: 1.2, sill: 0.9, height: 1.3 };
+      if (wvWall.indexOf('edge:') === 0) w.edge = parseInt(wvWall.slice(5), 10); else w.wall = wvWall;   // #1172 polygon-edge vs named wall
+      WINDOWS.push(w); persistWindows(); buildWallView();
+    }
+    function refreshAddWinBtn() {
+      if (!_wvAddWin) return;
+      var ok = wvCanWindow();
+      _wvAddWin.disabled = !ok; _wvAddWin.classList.toggle('disabled', !ok);
+      _wvAddWin.title = ok ? '{{ __('Add a window to this wall - drag to position, double-click to remove') }}' : '{{ __('Windows go on perimeter walls, not interior dividers') }}';
+    }
+    var _wvAddWin = document.getElementById('wvAddWin');
+    if (_wvAddWin) _wvAddWin.addEventListener('click', addWindowToWall);
     var wvOX = 0, wvOY = 0, wvEW = 0, wvEH = 0, wvStepX = 0, wvStepY = 0;   // elevation rect (to-scale wall area) + 1m grid step
     function buildWallView() {
       wvLayer.destroyChildren();
@@ -1136,14 +1173,22 @@
         wvLayer.add(new Konva.Circle({ x: dx + dwpx - Math.min(7, dwpx * 0.18), y: dy + dhpx / 2, radius: 2.5, fill: dcol, listening: false }));   // handle
         wvLayer.add(new Konva.Text({ x: dx, y: dy - 13, width: dwpx, align: 'center', text: dd.auto ? '{{ __('doorway') }}' : '{{ __('door') }}', fontSize: 9, fill: dcol, listening: false }));
       });
-      // #1172 windows on this wall, at their sill/header height
-      (WINDOWS || []).filter(function (w) { return w.wall === wvWall; }).forEach(function (w) {
-        var wpx = (w.width / L) * ew, wx = wvOX + (w.pos == null ? 0.5 : w.pos) * ew - wpx / 2;
-        var hY = (w.height || 1.3), sY = (w.sill || 0.9);
+      // #1172 windows on this wall, at their sill/header height. Interactive in Wall view:
+      // drag horizontally to position, double-click to remove (persisted via WINDOWS_URL).
+      wvWindowsForWall().forEach(function (w) {
+        var wpx = (w.width / L) * ew, hY = (w.height || 1.3), sY = (w.sill || 0.9);
         var wy = wvOY + eh - ((sY + hY) / Hm) * eh, wh = (hY / Hm) * eh;
-        wvLayer.add(new Konva.Rect({ x: wx, y: wy, width: wpx, height: wh, fill: '#cfe6f5', stroke: '#3a7ca5', strokeWidth: 2, cornerRadius: 1, listening: false }));   // glass
-        wvLayer.add(new Konva.Line({ points: [wx + wpx / 2, wy, wx + wpx / 2, wy + wh], stroke: '#3a7ca5', strokeWidth: 1, listening: false }));   // mullion
-        wvLayer.add(new Konva.Text({ x: wx, y: wy - 13, width: wpx, align: 'center', text: '{{ __('window') }}', fontSize: 9, fill: '#3a7ca5', listening: false }));
+        var cx = wvOX + (w.pos == null ? 0.5 : w.pos) * ew;
+        var grp = new Konva.Group({
+          x: cx, y: wy, draggable: true,
+          dragBoundFunc: function (p) { return { x: Math.max(wvOX + wpx / 2, Math.min(wvOX + ew - wpx / 2, p.x)), y: wy }; }   // slide along the wall only
+        });
+        grp.add(new Konva.Rect({ x: -wpx / 2, y: 0, width: wpx, height: wh, fill: '#cfe6f5', stroke: '#3a7ca5', strokeWidth: 2, cornerRadius: 1 }));   // glass
+        grp.add(new Konva.Line({ points: [0, 0, 0, wh], stroke: '#3a7ca5', strokeWidth: 1, listening: false }));   // mullion
+        grp.add(new Konva.Text({ x: -wpx / 2, y: -13, width: wpx, align: 'center', text: '{{ __('window') }}', fontSize: 9, fill: '#3a7ca5', listening: false }));
+        grp.on('dragend', function () { w.pos = Math.max(0, Math.min(1, (grp.x() - wvOX) / ew)); persistWindows(); });
+        grp.on('dblclick dbltap', function (e) { e.cancelBubble = true; var i = WINDOWS.indexOf(w); if (i >= 0) { WINDOWS.splice(i, 1); persistWindows(); buildWallView(); } });
+        wvLayer.add(grp);
       });
       var lbl = document.getElementById('wvWall').selectedOptions[0];
       wvLayer.add(new Konva.Text({ x: 8, y: 8, text: (lbl ? lbl.text : '') + ' - ' + L.toFixed(1) + 'm x ' + Hm.toFixed(1) + 'm {{ __('high; drag to position, search to add') }}', fontSize: 11, fill: '#495057', listening: false }));
