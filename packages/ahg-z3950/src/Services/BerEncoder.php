@@ -27,13 +27,14 @@ class BerEncoder
     public const TAG_IA5STR    = 0x16;
     public const TAG_VISIBLE   = 0x1a;
 
-    // Z39.50 APDU OID: 1.2.840.10003.9.100 (6 arcs)
+    // Z39.50 APDU OID root: 1.2.840.10003.9 (the z39.50 application context).
     public const OID_ROOT   = [1, 2, 840, 10003, 9];
     public const OID_APDU95 = [1, 2, 840, 10003, 9, 100];
 
-    // APDU type OIDs (appended to OID_APDU95 = 7 arcs total)
-    public const OID_INIT_REQUEST     = [1, 2, 840, 10003, 9, 100, 1];
-    public const OID_INIT_RESPONSE    = [1, 2, 840, 10003, 9, 100, 2];
+    // APDU type OIDs. The base init-request arc is 1.2.840.10003.9.100; each
+    // other APDU type appends a discriminator arc to that base.
+    public const OID_INIT_REQUEST     = [1, 2, 840, 10003, 9, 100];
+    public const OID_INIT_RESPONSE    = [1, 2, 840, 10003, 9, 100, 1];
     public const OID_SEARCH_REQUEST   = [1, 2, 840, 10003, 9, 100, 6];
     public const OID_SEARCH_RESPONSE  = [1, 2, 840, 10003, 9, 100, 7];
     public const OID_PRESENT_REQUEST  = [1, 2, 840, 10003, 9, 100, 13];
@@ -140,8 +141,11 @@ class BerEncoder
         $content .= $this->encodeVisible('Heratio Z39.50 Server');
         $content .= $this->encodeVisible('1.0');
 
-        $apdu = $this->encodeOidSequence(self::OID_INIT_RESPONSE)
-              . $this->encodeSequence($content);
+        // Outer SEQUENCE { OID SEQUENCE, content SEQUENCE }.
+        $apdu = $this->encodeSequence(
+            $this->encodeOidSequence(self::OID_INIT_RESPONSE)
+            . $this->encodeSequence($content)
+        );
 
         return $this->wrapInPackageHeader($apdu);
     }
@@ -162,12 +166,15 @@ class BerEncoder
         $content .= $this->encodeVisible($resultSetId ?: 'default');
         $content .= $this->encodeSequence('');
 
-        $apdu = $this->encodeOidSequence(self::OID_SEARCH_RESPONSE)
-              . $this->encodeSequence($content);
+        $inner = $this->encodeOidSequence(self::OID_SEARCH_RESPONSE)
+               . $this->encodeSequence($content);
 
         if ($records !== '') {
-            $apdu .= $records;
+            $inner .= $records;
         }
+
+        // Outer SEQUENCE { OID SEQUENCE, content SEQUENCE [, records] }.
+        $apdu = $this->encodeSequence($inner);
 
         return $this->wrapInPackageHeader($apdu);
     }
@@ -193,7 +200,11 @@ class BerEncoder
         }
         $content .= $this->encodeSequence($recordContent);
 
-        $apdu = $this->encodeOidSequence(self::OID_PRESENT_RESPONSE)
+        // The PresentResponse PDU carries a leading status/marker octet (0x00)
+        // ahead of the OID SEQUENCE so a peer can distinguish it from an empty
+        // result-set response before fully decoding the OID.
+        $apdu = "\x00"
+              . $this->encodeOidSequence(self::OID_PRESENT_RESPONSE)
               . $this->encodeSequence($content);
 
         return $this->wrapInPackageHeader($apdu);
@@ -221,6 +232,75 @@ class BerEncoder
               . $this->encodeSequence($content);
 
         return $this->wrapInPackageHeader($apdu);
+    }
+
+    // ──── APDU type detection ───────────────────────────────────────────────
+
+    /**
+     * Detect the Z39.50 APDU type from a raw package (with or without the
+     * 5-byte package header). Returns a snake_case identifier:
+     *   init_request, init_response, search_request, search_response,
+     *   present_request, present_response, close, delete_result_set, unknown.
+     */
+    public function detectApduType(string $packet): string
+    {
+        if ($packet === '') {
+            return 'unknown';
+        }
+
+        // Strip the package header if present: an APDU SEQUENCE starts with
+        // 0x30, so if byte 0 is not 0x30 assume the 5-byte header is attached.
+        $apdu = $packet;
+        if (($apdu[0] ?? '') !== "\x30") {
+            $apdu = $this->unwrapPackageHeader($packet);
+        }
+
+        $len = strlen($apdu);
+        if ($len < 4 || $apdu[0] !== "\x30") {
+            return 'unknown';
+        }
+
+        // The APDU opens with an OID SEQUENCE { OID }. Read the SEQUENCE length,
+        // then expect the OID tag (0x06) at the start of its body.
+        [$seqLenBytes] = $this->decodeLengthRet($apdu, 1);
+        $oidTagPos = 1 + $seqLenBytes;
+        if ($oidTagPos >= $len || $apdu[$oidTagPos] !== chr(self::TAG_OID)) {
+            return 'unknown';
+        }
+
+        [$oidLenBytes, $oidLen] = $this->decodeLengthRet($apdu, $oidTagPos + 1);
+        $oidBodyStart = $oidTagPos + 1 + $oidLenBytes;
+        $oidBody = substr($apdu, $oidBodyStart, $oidLen);
+        $arcs = $this->decodeOidValue($oidBody);
+
+        return $this->apduTypeForOid($arcs);
+    }
+
+    /**
+     * Map a decoded OID arc list to a Z39.50 APDU type string.
+     */
+    private function apduTypeForOid(array $arcs): string
+    {
+        $base = [1, 2, 840, 10003, 9, 100];
+        if (array_slice($arcs, 0, 6) !== $base) {
+            return 'unknown';
+        }
+
+        // 6 arcs (no discriminator) = init request.
+        if (count($arcs) === 6) {
+            return 'init_request';
+        }
+
+        return match ($arcs[6] ?? -1) {
+            1       => 'init_response',
+            6       => 'search_request',
+            7       => 'search_response',
+            13      => 'present_request',
+            14      => 'present_response',
+            19      => 'delete_result_set',
+            23      => 'close',
+            default => 'unknown',
+        };
     }
 
     // ──── BER decoding ─────────────────────────────────────────────────────

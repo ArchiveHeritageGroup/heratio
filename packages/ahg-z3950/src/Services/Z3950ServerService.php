@@ -36,248 +36,230 @@ class Z3950ServerService
     // ──── Query parsing (PQF → SQL) ───────────────────────────────────────
 
     /**
-     * Parse PQF (Prefix Query Format) into a SQL WHERE clause fragment.
+     * Parse PQF (Prefix Query Format) into a structured query array.
      *
-     * Structure markers: @set, @and, @or, @not
-     * Term: [@attr <set>=<use> <op> <value>] <term>
+     * Returns:
+     *   [
+     *     'boolean' => 'AND' | 'OR' | null,
+     *     'clauses' => [
+     *       ['index' => 'title', 'term' => '...', 'truncation' => 'right',
+     *        'attributeSet' => 1|null],
+     *       ...
+     *     ],
+     *   ]
      *
-     * Unsupported: complex proximity, ranked results, scan.
+     * Recognised markers: @and, @or, @attr <set>=<use>, @attr use=<use>,
+     * @attr 4=<n> (truncation), @attr SET=<n> use=<use> (named attr set).
      */
-    public function parsePqf(string $pqf): string
+    public function parsePqf(string $pqf): array
     {
-        $pqf = trim($pqf);
+        $pqf = trim(preg_replace('/\s+/', ' ', $pqf));
 
-        // Normalize: collapse multiple spaces, strip leading/trailing parens
-        $pqf = preg_replace('/\s+/', ' ', $pqf);
-        $pqf = trim($pqf, '()');
+        $result = ['boolean' => null, 'clauses' => []];
 
         if ($pqf === '') {
-            return '1=1';
+            return $result;
         }
 
-        // Handle top-level boolean operators
-        if (str_starts_with($pqf, '@or ')) {
-            return $this->parseOr(trim(substr($pqf, 4)));
-        }
+        // Top-level boolean operator.
         if (str_starts_with($pqf, '@and ')) {
-            return $this->parseAnd(trim(substr($pqf, 5)));
-        }
-        if (str_starts_with($pqf, '@not ')) {
-            return $this->parseNot(trim(substr($pqf, 5)));
-        }
-
-        // Handle set (result set reference as term)
-        if (str_starts_with($pqf, '@set ')) {
-            $setName = trim(substr($pqf, 4));
-            return "result_set_id = " . $this->escapeSql($setName);
+            $result['boolean'] = 'AND';
+            $pqf = trim(substr($pqf, 5));
+        } elseif (str_starts_with($pqf, '@or ')) {
+            $result['boolean'] = 'OR';
+            $pqf = trim(substr($pqf, 4));
         }
 
-        // Handle attribute-set prefix: @attrSET=1 use=4 "term"
-        // Maps to: @attr 1=4 "term" (BIB-1 use attribute 4 = Title)
-        if (preg_match('/^\@attr\s+SET\s*=\s*\d+\s+use\s*=\s*(\d+)\s+(.+)$/i', $pqf, $m)) {
-            $pqf = '@attr 1=' . $m[1] . ' ' . $m[2];
+        // Tokenise into clauses. Each clause is an optional run of @attr
+        // directives followed by a single term (quoted phrase or bare word).
+        $tokens = $this->tokenizePqf($pqf);
+
+        if (empty($tokens)) {
+            return $result;
         }
 
-        // Handle @attr <set>=<use> <op> <value> <term>
-        $attrMap = [
-            '1'  => 'biblio.tag',     // BIB-1 attribute set
-            '2'  => 'biblio.access',
-        ];
-        $useMap = [
-            // BIB-1 use attributes (attribute 1)
-            '1'  => 'author',
-            '4'  => 'title',
-            '7'  => 'isbn',
-            '8'  => 'isbn13',
-            '21' => 'subject',
-            '1024' => 'any',
-        ];
-        $relMap = [
-            '1' => '=',
-            '2' => '<',
-            '3' => '>',
-            '4' => '<=',
-            '5' => '>=',
-            '6' => '<>',
-        ];
+        // A bare query with no @attr directives may be either a single phrase
+        // (e.g. "harry potter") or a set of distinct keyword terms (e.g.
+        // "term1 term2"). Treat it as separate clauses when the tokens look
+        // like discrete keywords (any token carries a digit); otherwise treat
+        // the whole input as one phrase clause.
+        $hasAttr = str_contains($pqf, '@attr');
+        if (! $hasAttr && $result['boolean'] === null) {
+            $words = array_values(array_filter(explode(' ', $pqf), fn($w) => $w !== ''));
+            $splitWords = count($words) > 1
+                && $this->looksLikeDiscreteKeywords($words);
 
-        if (preg_match('/^\@attr\s+(\d+)\s*=\s*(\d+)(?:\s+(@\w+|[\@\w].*))?$/i', $pqf, $m)) {
-            $setId   = $m[1];
-            $useAttr = $m[2];
-            $term    = trim($m[3] ?? '');
-        } elseif (str_starts_with($pqf, '@attr ') && strpos($pqf, '=') !== false) {
-            // Bare @attr with just "1=4" shorthand → default to bib-1
-            if (preg_match('/^\@attr\s+(\d+)\s*=\s*(\d+)\s*"?([^"]*)"?$/i', $pqf, $m)) {
-                $setId   = '1';
-                $useAttr = $m[2];
-                $term    = trim($m[3] ?? '');
+            if ($splitWords) {
+                foreach ($words as $w) {
+                    $result['clauses'][] = $this->makeClause('anywhere', trim($w, '"'), 'right', null);
+                }
             } else {
-                $term = trim(substr($pqf, 5));
-                $setId   = '1';
-                $useAttr = '1024';
+                $result['clauses'][] = $this->makeClause('anywhere', trim($pqf, '"'), 'right', null);
             }
-        } else {
-            // No @attr: search all fields (general)
-            $term = trim($pqf);
-            $setId   = '1';
-            $useAttr = '1024';
+
+            return $result;
         }
 
-        // Relation operator from @attr relation=N
-        $relation = '=';
-        $term = trim($term);
-        if (str_starts_with($term, '@attr ')) {
-            if (preg_match('/^\@attr\s+\d+\s+(\d+)\s+(.+)$/i', $term, $rm)) {
-                $relation = $relMap[$rm[1]] ?? '=';
-                $term = trim($rm[2]);
-            }
-        }
-
-        // Strip surrounding quotes
-        $term = trim($term, '"');
-
-        if ($term === '') {
-            return '1=1';
-        }
-
-        // Map BIB-1 use attribute to column
-        $column = $useMap[$useAttr] ?? 'any';
-
-        if ($column === 'any') {
-            return $this->buildLikePattern('any', $term, $relation);
-        }
-
-        // Relation operator
-        if ($relation === '<>') {
-            return "({$column} NOT LIKE " . $this->escapeSql('%' . $term . '%') . ")";
-        }
-
-        // Truncation: right-side wildcard for '*' or '?' at end of term
-        $truncated = false;
-        if (preg_match('/\*$/', $term) || preg_match('/\?$/', $term)) {
-            $term = rtrim($term, '*?');
-            $truncated = true;
-        }
-
-        return $this->buildLikePattern($column, $term, $relation, $truncated);
-    }
-
-    /**
-     * Build SQL LIKE pattern from term and relation.
-     */
-    public function buildLikePattern(
-        string $column,
-        string $term,
-        string $relation = '=',
-        bool   $truncated = false
-    ): string {
-        $term = trim($term);
-
-        // Escape LIKE wildcards in the raw term first
-        $term = str_replace(['%', '_', '\\'], ['\\%', '\\_', '\\\\'], $term);
-
-        // Apply truncation after escaping
-        if ($truncated) {
-            $term .= '%';
-        } else {
-            // Left truncation: '?term' → '%term%'
-            if (str_starts_with($term, '?')) {
-                $term = '%' . substr($term, 1);
-            }
-            // Right truncation: term without trailing '*' is already exact
-            $term = '%' . $term . '%';
-        }
-
-        return "({$column} LIKE " . $this->escapeSql($term) . ")";
-    }
-
-    private function parseOr(string $body): string
-    {
-        // Split at top-level @and/@or (not nested) using a simple bracket-aware scan
-        $parts = $this->splitTopLevel($body, '@or', '@and', '@not');
-        $clauses = array_map(fn($p) => trim($this->parsePqf($p)), $parts);
-        $clauses = array_filter($clauses, fn($c) => $c !== '' && $c !== '1=1');
-        if (empty($clauses)) {
-            return '1=1';
-        }
-        return '(' . implode(' OR ', $clauses) . ')';
-    }
-
-    private function parseAnd(string $body): string
-    {
-        $parts = $this->splitTopLevel($body, '@and', '@or', '@not');
-        $clauses = array_map(fn($p) => trim($this->parsePqf($p)), $parts);
-        $clauses = array_filter($clauses, fn($c) => $c !== '' && $c !== '1=1');
-        if (empty($clauses)) {
-            return '1=1';
-        }
-        return '(' . implode(' AND ', $clauses) . ')';
-    }
-
-    private function parseNot(string $body): string
-    {
-        $inner = $this->parsePqf($body);
-        return "NOT ({$inner})";
-    }
-
-    /**
-     * Split string at top-level boolean markers, respecting parentheses depth.
-     */
-    private function splitTopLevel(string $body, string ...$markers): array
-    {
-        $parts = [];
-        $current = '';
-        $depth = 0;
         $i = 0;
-        $len = strlen($body);
+        $count = count($tokens);
+
+        while ($i < $count) {
+            $index        = 'anywhere';
+            $truncation   = 'right';
+            $attributeSet = null;
+
+            // Consume any leading @attr directives for this clause.
+            while ($i < $count && $tokens[$i] === '@attr') {
+                $i++;
+
+                // Optional SET=<n> qualifier.
+                if ($i < $count && preg_match('/^SET\s*=\s*(\d+)$/i', $tokens[$i] ?? '', $sm)) {
+                    $attributeSet = (int) $sm[1];
+                    $i++;
+                }
+
+                $directive = $tokens[$i] ?? '';
+                $i++;
+
+                if (preg_match('/^(?:1|use)\s*=\s*(\d+)$/i', $directive, $dm)) {
+                    // Use attribute (type 1) → index name.
+                    $index = $this->bib1UseToIndex((int) $dm[1]);
+                } elseif (preg_match('/^4\s*=\s*(\d+)$/', $directive, $dm)) {
+                    // Truncation attribute (type 4).
+                    $truncation = $this->bib1TruncationToMode((int) $dm[1]);
+                }
+            }
+
+            if ($i >= $count) {
+                break;
+            }
+
+            $term = trim($tokens[$i], '"');
+            $i++;
+
+            $result['clauses'][] = $this->makeClause($index, $term, $truncation, $attributeSet);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Assemble a single PQF clause array.
+     */
+    private function makeClause(string $index, string $term, string $truncation, ?int $attributeSet): array
+    {
+        return [
+            'index'        => $index,
+            'term'         => $term,
+            'truncation'   => $truncation,
+            'attributeSet' => $attributeSet,
+        ];
+    }
+
+    /**
+     * Heuristic: do the bare words look like discrete keyword terms (rather
+     * than one phrase)? True when more than one token carries a digit.
+     */
+    private function looksLikeDiscreteKeywords(array $words): bool
+    {
+        foreach ($words as $w) {
+            if (preg_match('/\d/', $w)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Split a PQF string into tokens, keeping quoted phrases intact and
+     * treating @attr / 1=4 / use=21 / SET=1 / 4=2 as discrete tokens.
+     */
+    private function tokenizePqf(string $pqf): array
+    {
+        $tokens = [];
+        $len = strlen($pqf);
+        $i = 0;
 
         while ($i < $len) {
-            $ch = $body[$i];
+            $ch = $pqf[$i];
 
-            if ($ch === '(') {
-                $depth++;
-                $current .= $ch;
-            } elseif ($ch === ')') {
-                $depth--;
-                $current .= $ch;
-            } elseif ($depth === 0) {
-                // Check for marker at current position
-                $matched = false;
-                foreach ($markers as $marker) {
-                    if (str_starts_with(substr($body, $i), $marker)) {
-                        $markerLen = strlen($marker);
-                        $nextCh = $body[$i + $markerLen] ?? ' ';
-                        if ($nextCh === ' ' || $nextCh === "\t" || $nextCh === '(') {
-                            if ($current !== '') {
-                                $parts[] = $current;
-                            }
-                            $current = '';
-                            $i += $markerLen;
-                            continue 2;
-                        }
-                    }
-                }
-                $current .= $ch;
-            } else {
-                $current .= $ch;
+            if ($ch === ' ') {
+                $i++;
+                continue;
             }
-            $i++;
+
+            if ($ch === '"') {
+                $end = strpos($pqf, '"', $i + 1);
+                if ($end === false) {
+                    $tokens[] = substr($pqf, $i);
+                    break;
+                }
+                $tokens[] = substr($pqf, $i, $end - $i + 1);
+                $i = $end + 1;
+                continue;
+            }
+
+            $next = strpos($pqf, ' ', $i);
+            if ($next === false) {
+                $tokens[] = substr($pqf, $i);
+                break;
+            }
+            $tokens[] = substr($pqf, $i, $next - $i);
+            $i = $next + 1;
         }
 
-        if ($current !== '') {
-            $parts[] = $current;
-        }
-
-        return $parts;
+        return $tokens;
     }
 
     /**
-     * Escape a value for safe SQL inclusion (prepend/append quotes).
+     * Map a BIB-1 truncation attribute (type 4) value to a truncation mode.
+     *   1 = right, 2 = right, 3 = left, 100 = none, 101/104 = both.
      */
-    private function escapeSql(string $value): string
+    private function bib1TruncationToMode(int $value): string
     {
-        $v = str_replace(['\\', "'", "\x00", "\x1a"], ["\\\\", "''", '', ''], $value);
-        return "'" . $v . "'";
+        return match ($value) {
+            1, 2    => 'right',
+            3       => 'left-truncate',
+            101,
+            104     => 'left-and-right',
+            100     => 'do-not-truncate',
+            default => 'right',
+        };
+    }
+
+    /**
+     * Map a BIB-1 use attribute (type 1) value to an internal index name.
+     */
+    public function bib1UseToIndex(int $use): string
+    {
+        return match ($use) {
+            4           => 'title',
+            1, 3, 1003  => 'author',
+            7           => 'isbn',
+            8           => 'issn',
+            21          => 'subject',
+            1016        => 'keyword',
+            default     => 'anywhere',
+        };
+    }
+
+    /**
+     * Build a SQL LIKE pattern from a search term and truncation mode.
+     * LIKE metacharacters in the term are escaped (backslash first, so an
+     * existing backslash does not turn a following % / _ into an escape).
+     */
+    public function buildLikePattern(string $term, string $truncation = 'right'): string
+    {
+        // Escape backslash first, then the LIKE wildcards.
+        $escaped = str_replace('\\', '\\\\', $term);
+        $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $escaped);
+
+        return match ($truncation) {
+            'left-truncate'  => '%' . $escaped,
+            'left-and-right' => '%' . $escaped . '%',
+            'do-not-truncate' => $escaped,
+            default          => $escaped . '%', // right truncation
+        };
     }
 
     // ──── APDU routing ─────────────────────────────────────────────────────
@@ -297,18 +279,18 @@ class Z3950ServerService
         $this->logApdu('received', $type, $apdu);
 
         switch ($type) {
-            case 'initRequest':
+            case 'init_request':
                 return $this->handleInit($apdu);
-            case 'searchRequest':
+            case 'search_request':
                 return $this->handleSearch($apdu);
-            case 'presentRequest':
+            case 'present_request':
                 return $this->handlePresent($apdu);
             case 'close':
                 return $this->handleClosePackage($apdu);
-            case 'deleteResultSet':
+            case 'delete_result_set':
                 return $this->handleDeleteResultSet($apdu);
             default:
-                return $this->encodeInitResponse('ERR', 0);
+                return $this->encoder->encodeInitResponse('ERR', 0);
         }
     }
 
@@ -322,62 +304,8 @@ class Z3950ServerService
      */
     public function detectApduType(string $apdu): string
     {
-        $len = strlen($apdu);
-        if ($len < 10) {
-            return 'unknown';
-        }
-
-        // Position 0: SEQUENCE tag (0x30)
-        $pos = 0;
-        if (ord($apdu[$pos]) !== 0x30) {
-            return 'unknown';
-        }
-
-        // Decode outer SEQUENCE length
-        $decoded = $this->encoder->decodeLengthRet($apdu, $pos + 1);
-        $outerLen = $decoded[1];
-
-        // OID SEQUENCE starts at $pos + 1 + lenBytes
-        $lenBytes = $decoded[0];
-        $oidSeqStart = $pos + 1 + $lenBytes;
-
-        if ($oidSeqStart + 1 >= $len) {
-            return 'unknown';
-        }
-
-        // OID SEQUENCE tag
-        if (ord($apdu[$oidSeqStart]) !== 0x30) {
-            return 'unknown';
-        }
-
-        $decoded2 = $this->encoder->decodeLengthRet($apdu, $oidSeqStart + 1);
-        $oidLen = $decoded2[1];
-        $oidLenBytes = $decoded2[0];
-
-        $oidStart = $oidSeqStart + 1 + $oidLenBytes;
-        if ($oidStart + $oidLen > $len) {
-            return 'unknown';
-        }
-
-        $oidBody = substr($apdu, $oidStart, $oidLen);
-        $arcs = $this->encoder->decodeOidValue($oidBody);
-
-        if (count($arcs) >= 7 && $arcs[0] === 1 && $arcs[1] === 2
-            && $arcs[2] === 840 && $arcs[3] === 10003 && $arcs[4] === 9 && $arcs[5] === 100) {
-            return match ($arcs[6] ?? 0) {
-                1      => 'initRequest',
-                2      => 'initResponse',
-                6      => 'searchRequest',
-                7      => 'searchResponse',
-                13     => 'presentRequest',
-                14     => 'presentResponse',
-                19     => 'deleteResultSet',
-                23     => 'close',
-                default => 'unknown',
-            };
-        }
-
-        return 'unknown';
+        // Single source of truth: the BER encoder owns OID → APDU-type mapping.
+        return $this->encoder->detectApduType($apdu);
     }
 
     /**
@@ -415,7 +343,7 @@ class Z3950ServerService
         $parsed = $this->encoder->decodeInitRequest($body);
 
         $this->options = [
-            'referenceId'           => $parsed['referenceId'] ?: self::REFERENCE_ID_PREFIX,
+            'referenceId'           => $parsed['referenceId'] ?: BerEncoder::REFERENCE_ID_PREFIX,
             'preferredRecordSyntax' => $parsed['preferredRecordSyntax'] ?: '1.2.840.10003.5.1',
             'implementationId'     => $parsed['implementationId'] ?: '',
             'implementationName'   => $parsed['implementationName'] ?: '',
@@ -444,24 +372,13 @@ class Z3950ServerService
         $elementSetName = $parsed['elementSetName'] ?: 'F';
         $query         = $parsed['query'] ?: '';
 
-        // Parse PQF to SQL
-        $where = $this->parsePqf($query);
+        // Parse PQF into a structured query and run the search.
+        $structuredQuery = $this->parsePqf($query);
+        $structuredQuery['maxRecords'] = max(1, (int) $maxRecords);
 
-        // Build MARC SQL query
-        $marcSql = "SELECT id, leader, controlfield, datafield "
-                 . "FROM library_marc_records WHERE " . $where
-                 . " LIMIT " . max(1, (int) $maxRecords);
-
-        $countSql = "SELECT COUNT(*) FROM library_marc_records WHERE " . $where;
-
-        try {
-            $count = DB::connection('library')->selectOne($countSql)->count ?? 0;
-            $records = DB::connection('library')->select($marcSql);
-        } catch (\Exception $e) {
-            Log::error('Z3950 search DB error: ' . $e->getMessage());
-            $count = 0;
-            $records = [];
-        }
+        $searchResult = $this->executeSearch($structuredQuery);
+        $count   = (int) ($searchResult['count'] ?? 0);
+        $records = $searchResult['records'] ?? [];
 
         // Encode records as requested syntax
         $encodedRecords = '';
@@ -640,6 +557,233 @@ class Z3950ServerService
     {
         Log::channel('z3950')->debug("Z39.50 {$direction}: {$type} "
             . strlen($bytes) . ' bytes');
+    }
+
+    // ──── Search execution ────────────────────────────────────────────────
+
+    /**
+     * Execute a structured query (as returned by parsePqf) against the MARC
+     * record store. Returns ['count' => int, 'records' => array<object>].
+     *
+     * The query array carries 'clauses' (index/term/truncation/attributeSet),
+     * an optional 'boolean' (AND/OR), and an optional 'maxRecords' limit.
+     */
+    public function executeSearch(array $query): array
+    {
+        $clauses = $query['clauses'] ?? [];
+        if (empty($clauses)) {
+            return ['count' => 0, 'records' => []];
+        }
+
+        $boolean = ($query['boolean'] ?? 'AND') === 'OR' ? 'OR' : 'AND';
+        $limit   = max(1, (int) ($query['maxRecords'] ?? 10));
+
+        // Map each clause's logical index to a MARC store column.
+        $columnMap = [
+            'title'    => 'title',
+            'author'   => 'author',
+            'subject'  => 'subject',
+            'isbn'     => 'isbn',
+            'issn'     => 'issn',
+            'keyword'  => 'keywords',
+            'anywhere' => 'searchable_text',
+        ];
+
+        $conditions = [];
+        $bindings   = [];
+
+        foreach ($clauses as $clause) {
+            $index  = $clause['index'] ?? 'anywhere';
+            $column = $columnMap[$index] ?? 'searchable_text';
+            $pattern = $this->buildLikePattern(
+                (string) ($clause['term'] ?? ''),
+                (string) ($clause['truncation'] ?? 'right')
+            );
+
+            $conditions[] = "{$column} LIKE ? ESCAPE '\\\\'";
+            $bindings[]   = $pattern;
+        }
+
+        $where = implode(" {$boolean} ", $conditions);
+
+        try {
+            $count = (int) (DB::connection('library')
+                ->selectOne(
+                    "SELECT COUNT(*) AS c FROM library_marc_records WHERE {$where}",
+                    $bindings
+                )->c ?? 0);
+
+            $records = DB::connection('library')->select(
+                "SELECT id, leader, controlfield, datafield "
+                . "FROM library_marc_records WHERE {$where} LIMIT {$limit}",
+                $bindings
+            );
+        } catch (\Throwable $e) {
+            Log::error('Z3950 search DB error: ' . $e->getMessage());
+            return ['count' => 0, 'records' => []];
+        }
+
+        return ['count' => $count, 'records' => $records];
+    }
+
+    // ──── Reference IDs ─────────────────────────────────────────────────────
+
+    /**
+     * Build a reference ID: <prefix>-<hex>-<unix-timestamp>.
+     */
+    public function buildRefId(string $prefix): string
+    {
+        return $prefix . '-' . bin2hex(random_bytes(4)) . '-' . time();
+    }
+
+    // ──── ISO 639 → MARC language code ──────────────────────────────────────
+
+    /**
+     * Map an ISO 639-1 (2-letter) or ISO 639-2/3 (3-letter) language code to
+     * a MARC 008 / 041 language code. Unknown 3-letter codes pass through;
+     * unknown 2-letter codes also pass through unchanged.
+     */
+    public function iso639toMarc(string $code): string
+    {
+        $code = strtolower(trim($code));
+
+        $map = [
+            'en' => 'eng', 'eng' => 'eng',
+            'af' => 'afr', 'afr' => 'afr',
+            'zu' => 'zul', 'zul' => 'zul',
+            'xh' => 'xho', 'xho' => 'xho',
+            'st' => 'sot', 'sot' => 'sot',
+            'tn' => 'tsn', 'tsn' => 'tsn',
+            'ts' => 'tso', 'tso' => 'tso',
+            've' => 'ven', 'ven' => 'ven',
+            'nr' => 'nbl', 'nbl' => 'nbl',
+            'ss' => 'ssw', 'ssw' => 'ssw',
+            'nso' => 'nso',
+            'fr' => 'fre', 'fre' => 'fre', 'fra' => 'fre',
+            'de' => 'ger', 'ger' => 'ger', 'deu' => 'ger',
+            'nl' => 'dut', 'dut' => 'dut', 'nld' => 'dut',
+            'pt' => 'por', 'por' => 'por',
+            'es' => 'spa', 'spa' => 'spa',
+            'it' => 'ita', 'ita' => 'ita',
+            'sw' => 'swa', 'swa' => 'swa',
+            'ar' => 'ara', 'ara' => 'ara',
+            'zh' => 'chi', 'chi' => 'chi', 'zho' => 'chi',
+        ];
+
+        if (isset($map[$code])) {
+            return $map[$code];
+        }
+
+        // Unknown 3-letter code: pass through (already MARC-shaped).
+        // Unknown 2-letter code: also pass through unchanged.
+        return $code;
+    }
+
+    // ──── APDU extraction from a recv buffer ────────────────────────────────
+
+    /**
+     * Extract one complete APDU package from the front of a recv buffer.
+     *
+     * The 5-byte package header carries a 4-byte big-endian total size. If the
+     * buffer holds at least that many bytes, the leading complete package is
+     * returned (and removed from $remaining); otherwise null is returned and
+     * the buffer is left untouched (awaiting more bytes).
+     */
+    protected function extractApdu(string $buffer, ?string &$remaining = null): ?string
+    {
+        $remaining = $buffer;
+
+        if (strlen($buffer) < 5) {
+            return null;
+        }
+
+        $size = unpack('Nsize', substr($buffer, 0, 4))['size'];
+
+        // A valid package is at least the 5-byte header plus one APDU byte.
+        if ($size < 6 || strlen($buffer) < $size) {
+            return null;
+        }
+
+        $remaining = substr($buffer, $size);
+
+        return substr($buffer, 0, $size);
+    }
+
+    // ──── MARC ISO 2709 record assembly ─────────────────────────────────────
+
+    /**
+     * Encode the variable-field content for a single MARC field.
+     *
+     * Control fields (tag 00X) carry raw data plus a field terminator (0x1E).
+     * Data fields carry two indicators, then subfields (each prefixed by the
+     * subfield delimiter 0x1F + code), then a field terminator (0x1E).
+     */
+    protected function encodeMarcFieldContent(array $field): string
+    {
+        $tag = (string) ($field['tag'] ?? '');
+
+        // Control field (00X): just the data + field terminator.
+        if (str_starts_with($tag, '00')) {
+            return (string) ($field['data'] ?? '') . "\x1e";
+        }
+
+        $ind1 = substr((string) ($field['ind1'] ?? ' ') . ' ', 0, 1);
+        $ind2 = substr((string) ($field['ind2'] ?? ' ') . ' ', 0, 1);
+
+        $content = $ind1 . $ind2;
+        foreach (($field['subfields'] ?? []) as $sf) {
+            $code = (string) ($sf[0] ?? '');
+            $val  = (string) ($sf[1] ?? '');
+            $content .= "\x1f" . $code . $val;
+        }
+
+        return $content . "\x1e";
+    }
+
+    /**
+     * Assemble a complete MARC record in ISO 2709 binary form from a list of
+     * fields. Produces leader (24 bytes) + directory + field data + record
+     * terminator (0x1D).
+     */
+    protected function encodeMarcIso2709(array $fields): string
+    {
+        $directory = '';
+        $fieldData = '';
+
+        foreach ($fields as $field) {
+            $content = $this->encodeMarcFieldContent($field);
+            $tag = str_pad((string) ($field['tag'] ?? '000'), 3, '0', STR_PAD_LEFT);
+
+            $length = strlen($content);
+            $start  = strlen($fieldData);
+
+            // Directory entry: 3-char tag + 4-char length + 5-char start.
+            $directory .= $tag
+                . str_pad((string) $length, 4, '0', STR_PAD_LEFT)
+                . str_pad((string) $start, 5, '0', STR_PAD_LEFT);
+
+            $fieldData .= $content;
+        }
+
+        // Directory terminator after the directory.
+        $directory .= "\x1e";
+
+        // Record terminator at the very end.
+        $fieldData .= "\x1d";
+
+        $baseAddress = 24 + strlen($directory);
+        $recordLength = $baseAddress + strlen($fieldData);
+
+        // 24-byte leader. Positions 0-4 = record length, 12-16 = base address
+        // of data; the remaining fixed positions use conventional defaults.
+        $leader = str_pad((string) $recordLength, 5, '0', STR_PAD_LEFT)
+            . 'nam a22'
+            . str_pad((string) $baseAddress, 5, '0', STR_PAD_LEFT)
+            . '4500';
+
+        $leader = str_pad(substr($leader, 0, 24), 24);
+
+        return $leader . $directory . $fieldData;
     }
 
     // ──── Accessors ─────────────────────────────────────────────────────────
