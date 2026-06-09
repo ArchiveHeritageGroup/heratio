@@ -40,6 +40,12 @@ return [
     // Installed per host (see docs/model-optimisation-setup.md), not in the repo.
     'model_tools_bin' => env('HERATIO_MODEL_TOOLS_BIN', '/opt/ahg-model-tools/node_modules/.bin'),
 
+    // 3D optimisation: WebP texture re-encode (~10x smaller than PNG). Enabled now
+    // that the exhibition walkthrough loads three.js r137 which decodes
+    // EXT_texture_webp (#1181). Texture resize cap (px) bounds dimensions first.
+    'model_webp' => env('HERATIO_MODEL_WEBP', true),
+    'model_texture_cap' => (int) env('HERATIO_MODEL_TEXTURE_CAP', 2048),
+
     // Ingest wizard — at or above this row count, commit dispatches to the
     // queue worker instead of running synchronously on the web request.
     // Set to 0 to force sync always; set very high to force queue always.
