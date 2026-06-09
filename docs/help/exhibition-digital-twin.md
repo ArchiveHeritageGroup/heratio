@@ -188,8 +188,14 @@ before it happens.
 
 ## Roadmap
 
-Further extensions under consideration: a WebGPU renderer and server-GPU pixel-streaming
-for very heavy scenes, and live cross-institution federation of exhibitions. Neural
-narration voice (issue #1168) and photoreal scan import (issue #1156, glTF / OBJ / scan
-mesh + 360/Matterport embeds) have shipped - see **Photoreal capture** and the audio
-docent above. Rendering true point clouds (`.las` / `.e57`) as points remains on the list.
+Further extensions under consideration: server-GPU pixel-streaming for very heavy scenes,
+live cross-institution federation of exhibitions, and rendering true point clouds (`.las` /
+`.e57`) as points (issue #1183). Neural narration voice (issue #1168) and photoreal scan
+import (issue #1156, glTF / OBJ / scan mesh + 360/Matterport embeds) have shipped - see
+**Photoreal capture** and the audio docent above.
+
+A **WebGPU renderer** (issue #1153) is being evaluated: open
+`/exhibition-space/{slug}/walkthrough-webgpu` for the proof page - it runs the room on
+modern three.js with WebGPU on capable devices and a graceful WebGL2 fallback elsewhere
+(a badge shows which backend is live). The main walkthrough still uses WebGL until that
+evaluation completes.

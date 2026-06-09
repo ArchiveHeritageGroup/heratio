@@ -1528,6 +1528,27 @@ class ExhibitionSpaceController extends Controller
         ]);
     }
 
+    /**
+     * heratio#1153 - WebGPU renderer SPIKE (proof page, not the live walkthrough).
+     * A minimal first-person room renderer built on modern three.js ES modules +
+     * WebGPURenderer (which auto-falls-back to WebGL2 where WebGPU is unavailable),
+     * to validate the renderer stack + importmap-under-CSP + jsm loaders/controls +
+     * scan-shell loading before any migration of the live r137 walkthrough. The live
+     * walkthrough() above is deliberately untouched.
+     */
+    public function walkthroughWebgpu(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        return view('ahg-exhibition::exhibition-space.walkthrough-webgpu', [
+            'space' => $space,
+            'building' => $this->service->getWalkthroughBuilding($space),
+        ]);
+    }
+
     /** AJAX (builder): save the ordered guided-route for the walkthrough. */
     public function saveWalkthroughPath(Request $request, string $slug)
     {
