@@ -84,8 +84,32 @@ twin scales (more rooms, more placements, more live avatars).
 3. Keep `#1153` open until the live walkthrough is migrated; the spike is the evaluation
    deliverable, not the adoption.
 
+## Update - live migration landed (pending browser verification)
+
+The live `walkthrough.blade.php` has now been migrated in one pass:
+
+- r137 examples/js globals -> r169 **import map** (`three` -> `three.webgpu` build) + a single
+  `<script type="module">`; addon loaders/controls imported from `three/addons/`.
+- A mutable `THREE` is built via `Object.assign({}, THREE_NS, { GLTFLoader, ... })` so the
+  ~212 existing `THREE.*` references (core + loaders + controls) work unchanged.
+- `WebGLRenderer` -> `WebGPURenderer`; the animation loop starts behind `await renderer.init()`;
+  both `render()` calls -> `renderAsync()`.
+- All 23 `controls.getObject()` -> `controls.object` (getObject warns 60x/s in r169).
+- DRACO decoder path -> r169 jsm.
+- **All `renderer.xr` use is guarded** (`if (renderer.xr) ...`) and `VRButton` is a guarded
+  dynamic import, so an absent/immature WebGPU XR manager can't crash desktop - it just
+  hides VR.
+
+**Verify in a browser** (revert via git if a regression shows): backend (DevTools - WebGPU
+vs WebGL2), room/walls/floor textures + colour, **shadows** (sun toggle), **PBR metals**
+(gold models reflect, not black -> PMREM env still applies), scan shells (#1156), pictures/
+labels (canvas/sprite textures), graffiti, night/torch, the live overlay + avatars, and
+**VR** on a headset (the highest-risk area). If colours look washed, it is the r169 default
+colour-space change on canvas/sprite textures - set `.colorSpace = THREE.SRGBColorSpace` on
+those, not a renderer problem.
+
 ## Files
 
 - `packages/ahg-exhibition/resources/views/exhibition-space/walkthrough-webgpu.blade.php` - spike view
 - `ExhibitionSpaceController::walkthroughWebgpu()` + route `exhibition-space.walkthrough-webgpu`
-- Live (unchanged): `walkthrough.blade.php` (r137 WebGL) - the migration target
+- `walkthrough.blade.php` - **now migrated** to r169 + WebGPURenderer (was the r137 WebGL target)

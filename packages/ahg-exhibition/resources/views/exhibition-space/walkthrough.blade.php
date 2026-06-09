@@ -176,20 +176,42 @@
 
 
   @if($hasContent ?? (count($stops) > 0))
-  {{-- three.js r137: last release with the non-module examples/js globals AND
-       EXT_texture_webp support (added r131), so WebP-textured GLBs load in the
-       walkthrough. Bumped from r128 for #1181. --}}
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/GLTFLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/DRACOLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/OBJLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/STLLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/PLYLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/controls/PointerLockControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/webxr/VRButton.js"></script>
+  {{-- heratio#1153: three.js r169 via ES-module import map + WebGPURenderer (renders on
+       the WebGPU backend where available, auto-falls-back to WebGL2 elsewhere). 'three'
+       maps to the three.webgpu build so addons (which import from 'three') and
+       WebGPURenderer share one module graph. EXT_texture_webp (#1181) decodes on both
+       backends. Migrated from the r137 examples/js globals - see
+       docs/reference/webgpu-walkthrough-evaluation.md. --}}
+  <script type="importmap" nonce="{{ $cspNonce ?? '' }}">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.webgpu.min.js",
+      "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.webgpu.min.js",
+      "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.tsl.min.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+    }
+  }
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script nonce="{{ $cspNonce ?? '' }}">
+  <script type="module" nonce="{{ $cspNonce ?? '' }}">
+  // heratio#1153 - modern three.js as ES modules. We copy the namespace into a mutable
+  // THREE object and attach the addon loaders/controls onto it, so the entire walkthrough
+  // body below keeps using `new THREE.GLTFLoader()`, `THREE.PointerLockControls`, etc.
+  // unchanged (the module namespace object itself is read-only and can't be patched).
+  import * as THREE_NS from 'three';
+  import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+  import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+  import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+  import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+  import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
+  import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  let VRButton = null;
+  try { ({ VRButton } = await import('three/addons/webxr/VRButton.js')); } catch (e) { /* WebXR button optional */ }
+  const THREE = Object.assign({}, THREE_NS, {
+    GLTFLoader, DRACOLoader, OBJLoader, STLLoader, PLYLoader,
+    PointerLockControls, OrbitControls, VRButton,
+  });
   (function () {
     var BUILDING = @json($building ?? null);
     var ROOMS = (BUILDING && BUILDING.rooms && BUILDING.rooms.length) ? BUILDING.rooms : null;
@@ -329,21 +351,24 @@
       camera.position.set(sp.x, 1.6, sp.z);
     })();
 
-    var renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    // heratio#1153: WebGPURenderer - WebGPU backend where available, automatic WebGL2
+    // fallback otherwise. init() is async (gated at the animation-loop start below).
+    var renderer = new THREE.WebGPURenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));   // cap retina overdraw
     renderer.setSize(W, H);
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;   // #shadows: real-time sun shadows (toggled)
-    renderer.xr.enabled = true;   // heratio#1152 - WebXR / VR headset support
+    if (renderer.xr) renderer.xr.enabled = true;   // heratio#1152 - WebXR / VR headset support (XR-over-WebGPU is experimental; guarded)
     room.appendChild(renderer.domElement);
 
-    // VR button: only shown when the device/browser actually supports immersive-vr.
+    // VR button: only shown when the device/browser supports immersive-vr AND the renderer
+    // exposes an XR manager (WebGPU XR is still maturing - absent => no VR button, desktop unaffected).
     var xrFloorY = 0;   // holder y while in XR (headset supplies eye height on top)
-    if (THREE.VRButton && navigator.xr) {
+    if (THREE.VRButton && navigator.xr && renderer.xr) {
       var vrBtn = THREE.VRButton.createButton(renderer);
       vrBtn.style.cssText += ';position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:8;';
       room.appendChild(vrBtn);
-      renderer.xr.addEventListener('sessionstart', function () { var o = controls.getObject(); xrFloorY = o.position.y; o.position.y = 0; });   // drop to floor; headset adds height
-      renderer.xr.addEventListener('sessionend', function () { controls.getObject().position.y = xrFloorY || 1.6; });
+      renderer.xr.addEventListener('sessionstart', function () { var o = controls.object; xrFloorY = o.position.y; o.position.y = 0; });   // drop to floor; headset adds height
+      renderer.xr.addEventListener('sessionend', function () { controls.object.position.y = xrFloorY || 1.6; });
     }
 
     // Warm, restrained gallery lighting - pure-white at high intensity was washing floors/furniture out to white.
@@ -1204,7 +1229,7 @@
     // plus the walk-to buttons to travel.
     var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     var controls = new THREE.PointerLockControls(camera, renderer.domElement);
-    scene.add(controls.getObject());
+    scene.add(controls.object);
     var blocker = document.getElementById('roomBlocker');
     var cross = document.getElementById('roomCrosshair');
     var orbit = null;
@@ -1269,7 +1294,7 @@
       _gltfLoader = new THREE.GLTFLoader();
       if (THREE.DRACOLoader) {   // decode DRACO-compressed meshes (no-op for uncompressed)
         var dl = new THREE.DRACOLoader();
-        dl.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/libs/draco/');
+        dl.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/libs/draco/');
         _gltfLoader.setDRACOLoader(dl);
       }
       return _gltfLoader;
@@ -1795,7 +1820,7 @@
       // Walk to the next stop instead of jumping: duration scales with distance at
       // a walking pace, and we keep a starting look-point so the view turns toward
       // the object gradually (rather than snapping to face it immediately).
-      var fromPos = controls.getObject().position.clone();
+      var fromPos = controls.object.position.clone();
       var walkDist = Math.hypot(stand.x - fromPos.x, stand.z - fromPos.z);
       var walkDur = Math.max(0.8, Math.min(8, walkDist / 1.5));   // ~1.5 m/s
       var camDir = new THREE.Vector3(); camera.getWorldDirection(camDir);
@@ -1850,7 +1875,7 @@
           enterRoom(target); return;
         }
         if (o && o.userData.action === 'stair') {   // #1169 click stairs to change floor
-          var cp = controls.getObject(), tp = o.userData.top, bt = o.userData.bot;
+          var cp = controls.object, tp = o.userData.top, bt = o.userData.bot;
           var dest = (Math.abs(cp.position.y - bt.fy) < Math.abs(cp.position.y - tp.fy)) ? tp : bt;
           curFloorY = dest.fy; cp.position.set(dest.x, dest.fy + eyeBase, dest.z); return;
         }
@@ -1922,13 +1947,13 @@
       if (keys['KeyU']) {
         // Hold U + wheel: stand taller (roll up) / crouch down (roll down).
         eyeBase = Math.max(0.6, Math.min(2.2, eyeBase + (e.deltaY < 0 ? 1 : -1) * 0.1));
-        var o = controls.getObject(); o.position.y = eyeHeight();
+        var o = controls.object; o.position.y = eyeHeight();
         var hh = document.getElementById('wtHeight');
         if (hh) { hh.textContent = '↕ ' + eyeBase.toFixed(2) + ' m'; hh.style.display = 'block'; clearTimeout(window._wtHT); window._wtHT = setTimeout(function () { hh.style.display = 'none'; }, 1200); }
         return;
       }
       controls.moveForward((e.deltaY < 0 ? 1 : -1) * 0.6);
-      clampInRoom(controls.getObject());
+      clampInRoom(controls.object);
     }, { passive: false });
 
     // Right-click releases pointer lock (frees the mouse). Listen on mousedown
@@ -1953,7 +1978,7 @@
     function enterRoom(rm) {
       var c = roomWorld(rm, rm.x_offset + rm.w / 2, rm.z_offset + rm.d / 2);
       curFloorY = (rm.floor || 0) * FLOOR_H;   // #1169 land on the room's floor
-      controls.getObject().position.set(c.x, curFloorY + 1.6, c.z);
+      controls.object.position.set(c.x, curFloorY + 1.6, c.z);
       if (orbit) {
         camera.position.set(c.x, curFloorY + 1.6, c.z + Math.min(rm.w, rm.d) * 0.6 + 1);
         orbit.target.set(c.x, curFloorY + 1.3, c.z); orbit.update();
@@ -1966,7 +1991,7 @@
     function miniFloorLabel(f) { return f === 0 ? '{{ __('Ground') }}' : (f < 0 ? ('{{ __('Basement') }}' + (f < -1 ? ' ' + (-f) : '')) : ('{{ __('Floor') }} ' + f)); }
     function buildMinimap() {
       var floors = miniFloors();
-      var here = findRoomAtWorld(controls.getObject().position.x, controls.getObject().position.z, null);
+      var here = findRoomAtWorld(controls.object.position.x, controls.object.position.z, null);
       if (miniFloor === null || floors.indexOf(miniFloor) < 0) miniFloor = here ? (here.floor || 0) : (floors[0] || 0);
       var fr = ROOMS.filter(function (r) { return (r.floor || 0) === miniFloor; });
       var mnx = 1e9, mxx = -1e9, mnz = 1e9, mxz = -1e9;
@@ -2020,7 +2045,7 @@
     }
     function updateLive() {
       if (!liveOn) return;
-      var pos = controls.getObject().position, r = findRoomAtWorld(pos.x, pos.z, null) || curRoom, body = document.getElementById('wtLiveBody');
+      var pos = controls.object.position, r = findRoomAtWorld(pos.x, pos.z, null) || curRoom, body = document.getElementById('wtLiveBody');
       if (body && r) body.innerHTML = '<div class="fw-bold mb-1">' + (r.name || '') + '</div>' + fmtLive(r.live);
     }
     document.getElementById('roomLiveBtn').addEventListener('click', function (e) { e.stopPropagation(); toggleLive(); });
@@ -2028,7 +2053,7 @@
     // Distance-cull far rooms (whole groups) in large buildings to save draw cost.
     var CULL2 = 52 * 52;
     function cullRooms() {
-      var p = controls.getObject().position;
+      var p = controls.object.position;
       for (var k in roomGroups) { var rg = roomGroups[k]; var dx = p.x - rg.cwx, dz = p.z - rg.cwz; rg.g.visible = (dx * dx + dz * dz) < CULL2; }
     }
 
@@ -2047,7 +2072,7 @@
     if (_360Btn) _360Btn.addEventListener('click', open360);
     if (_360Close) _360Close.addEventListener('click', close360);
     function updateRoomName() {
-      var p = controls.getObject().position, r = findRoomAtWorld(p.x, p.z, null);
+      var p = controls.object.position, r = findRoomAtWorld(p.x, p.z, null);
       if (r && r.id !== _lastRoomId) {
         _lastRoomId = r.id; if (_nameEl) _nameEl.textContent = r.name || '';
         // Edit-in-Builder follows you: it opens the builder for the room you're standing in.
@@ -2074,7 +2099,7 @@
         if (src.handedness === 'right') { turn += x; } else { mx += x; mz += y; }
       });
       if (Math.abs(mx) < 0.15) mx = 0; if (Math.abs(mz) < 0.15) mz = 0; if (Math.abs(turn) < 0.25) turn = 0;
-      var o = controls.getObject();
+      var o = controls.object;
       if (turn) o.rotation.y -= turn * dt * 1.6;
       if (mx || mz) {
         var cam = renderer.xr.getCamera(camera), dir = new THREE.Vector3(); cam.getWorldDirection(dir); dir.y = 0;
@@ -2090,12 +2115,12 @@
     function animate() {
       var dt = Math.min(0.05, clock.getDelta());
       if ((_nameTick = (_nameTick + 1) % 12) === 0) { updateRoomName(); cullRooms(); if (liveOn) updateLive(); }   // ~5x/sec
-      if (renderer.xr.isPresenting) { xrMove(dt); if (window._wtPresenceFrame) window._wtPresenceFrame(dt); renderer.render(scene, camera); return; }
+      if (renderer.xr && renderer.xr.isPresenting) { xrMove(dt); if (window._wtPresenceFrame) window._wtPresenceFrame(dt); renderer.renderAsync(scene, camera); return; }
       if (fly) {
         fly.t += dt / fly.dur;
         var fk = Math.min(1, fly.t);
         var fe = fk * fk * (3 - 2 * fk);            // smoothstep
-        var fo = controls.getObject();
+        var fo = controls.object;
         fo.position.lerpVectors(fly.from, fly.to, fe);
         fo.position.y = 1.6;
         if (orbit) {
@@ -2119,18 +2144,18 @@
         if (vel.lengthSq() > 0) {
           following = false;                       // manual movement breaks docent-follow
           vel.normalize();
-          var mo = controls.getObject(), b4x = mo.position.x, b4z = mo.position.z;
+          var mo = controls.object, b4x = mo.position.x, b4z = mo.position.z;
           controls.moveRight(vel.x * speed * dt);
           controls.moveForward(vel.z * speed * dt);
           var ddx = mo.position.x - b4x, ddz = mo.position.z - b4z;   // walls block; resolve per-axis so you can slide
           mo.position.x = b4x; mo.position.z = b4z;
           tryMove(mo, ddx, ddz);
         }
-        clampInRoom(controls.getObject());
+        clampInRoom(controls.object);
       }
       if (window._wtPresenceFrame) window._wtPresenceFrame(dt);
       if (spotObjects.length) {   // #1174 proximity spotlight + surroundings dim
-        var scp = controls.getObject().position, near = 1e9, act = null;
+        var scp = controls.object.position, near = 1e9, act = null;
         for (var si = 0; si < spotObjects.length; si++) { var so = spotObjects[si], dd = Math.hypot(scp.x - so.x, scp.z - so.z) + Math.abs(scp.y - so.y) * 0.5; if (dd < near) { near = dd; act = so; } }
         var prox = Math.max(0, Math.min(1, (6.5 - near) / 6.5));
         for (var sj = 0; sj < spotObjects.length; sj++) {
@@ -2149,11 +2174,11 @@
       if (typeof applyZoom === 'function') applyZoom(dt);   // #1163 smooth zoom
       updateAimPointer(dt);   // swap person<->hand pointer depending on whether you aim at an object
       if (sunDyn.intensity > 0) {   // #shadows: keep the sun's shadow frustum centred on the visitor so shadows stay sharp
-        var scp = controls.getObject().position, st = SUN_TIMES[sunMode];
+        var scp = controls.object.position, st = SUN_TIMES[sunMode];
         if (st) { sunTarget.position.set(scp.x, 0, scp.z); sunDyn.position.set(scp.x + st.off[0], st.off[1], scp.z + st.off[2]); }
       }
       if (frontDoors.length) {   // #1171 doors swing/slide open as you approach, close as you leave
-        var fcp = controls.getObject().position;
+        var fcp = controls.object.position;
         for (var fi = 0; fi < frontDoors.length; fi++) {
           var fd = frontDoors[fi], fdist = Math.hypot(fcp.x - fd.x, fcp.z - fd.z);
           fd.open += ((fdist < 3.4 ? 1 : 0) - fd.open) * Math.min(1, dt * 4);
@@ -2164,7 +2189,7 @@
           }
         }
       }
-      renderer.render(scene, camera);
+      renderer.renderAsync(scene, camera);
     }
 
     // ===== heratio#1150 - multi-user presence + live docent (HTTP polling) =====
@@ -2226,7 +2251,7 @@
       if (CAN_DOCENT && myTourActive && banner) { banner.textContent = '{{ __('You are leading a tour') }}' + (myDocentMsg ? (' — ' + myDocentMsg) : ''); banner.style.display = 'block'; }
     }
     function wtBeat() {
-      var pos = controls.getObject().position, rm = findRoomAtWorld(pos.x, pos.z, null);
+      var pos = controls.object.position, rm = findRoomAtWorld(pos.x, pos.z, null);
       var dir = new THREE.Vector3(); camera.getWorldDirection(dir);
       var device = (renderer.xr && renderer.xr.isPresenting) ? 'vr' : (isTouch ? 'mobile' : 'desktop');
       var payload = { token: MY_TOKEN, name: MY_NAME, color: MY_COLOR, role: (CAN_DOCENT && myTourActive ? 'docent' : 'visitor'),
@@ -2242,7 +2267,7 @@
         a.grp.position.x += (a.tx - a.grp.position.x) * k; a.grp.position.z += (a.tz - a.grp.position.z) * k;
         var d = a.tyaw - a.grp.rotation.y; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; a.grp.rotation.y += d * k;
       });
-      if (following && followTarget) { var o = controls.getObject(); o.position.x += (followTarget.x - o.position.x) * Math.min(1, dt * 2); o.position.z += (followTarget.z - o.position.z) * Math.min(1, dt * 2); }
+      if (following && followTarget) { var o = controls.object; o.position.x += (followTarget.x - o.position.x) * Math.min(1, dt * 2); o.position.z += (followTarget.z - o.position.z) * Math.min(1, dt * 2); }
     };
     // UI wiring
     (function () {
@@ -2488,7 +2513,7 @@
       return -1;
     }
     function currentRoomId() {
-      try { var p = controls.getObject().position; var r = findRoomAtWorld(p.x, p.z, null); return r ? r.id : (curRoom && curRoom.id); }
+      try { var p = controls.object.position; var r = findRoomAtWorld(p.x, p.z, null); return r ? r.id : (curRoom && curRoom.id); }
       catch (e) { return curRoom && curRoom.id; }
     }
     function setDefaultTourForRoom() {
@@ -2674,7 +2699,7 @@
     var alarmState = { on: false, flick: null, timer: null, ac: null, osc: null, pulse: null, gain: null };
     var _stealWp = new THREE.Vector3();
     function nearestStealable() {   // closest placed object to the visitor (forgiving aim, esp. mobile)
-      var cp = controls.getObject().position, best = null, bd = Infinity;
+      var cp = controls.object.position, best = null, bd = Infinity;
       pickables.forEach(function (o) { if (!o.userData || !o.userData.stop) return; o.getWorldPosition(_stealWp); var d = _stealWp.distanceTo(cp); if (d < bd) { bd = d; best = o.userData.stop; } });
       return best;
     }
@@ -2714,7 +2739,14 @@
     function setStealBtn(on) { window.__stealMode = on; var b = document.getElementById('wtStealBtn'); if (b) { b.classList.toggle('btn-danger', on); b.classList.toggle('btn-dark', !on); } }
     var stealBtn = document.getElementById('wtStealBtn'); if (stealBtn) stealBtn.addEventListener('click', function (e) { e.stopPropagation(); setStealBtn(!window.__stealMode); });
 
-    renderer.setAnimationLoop(animate);   // #1152 - drives both desktop and WebXR frames
+    // heratio#1153: WebGPURenderer.init() picks/initialises the backend (WebGPU or WebGL2);
+    // the loop must not render before it resolves. setAnimationLoop drives desktop + WebXR.
+    renderer.init().then(function () {
+      renderer.setAnimationLoop(animate);
+    }).catch(function (e) {
+      console.error('[walkthrough] renderer init failed', e);
+      renderer.setAnimationLoop(animate);   // last resort: renderAsync will retry init per-frame
+    });
 
     window.addEventListener('resize', function () {
       W = room.clientWidth || W; H = room.clientHeight || H;
