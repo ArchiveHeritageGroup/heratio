@@ -86,6 +86,14 @@
               <button type="button" id="tiltAuto" class="btn btn-outline-secondary btn-sm w-100">{{ __('Auto (reset)') }}</button>
               <small class="text-muted d-block mt-1">{{ __('Empty = auto. Use 90 / -90 to stand a model upright.') }}</small>
             </div>
+            <div class="border-top pt-2 mb-2">
+              <label class="form-label small mb-1">{{ __('Tour viewing spot') }}</label>
+              <div class="d-flex gap-1">
+                <button type="button" id="viewSpotBtn" class="btn btn-sm btn-outline-primary flex-fill" title="{{ __('Then click a spot on the plan where the tour should stand to view this object') }}"><i class="fas fa-eye me-1"></i>{{ __('Set spot') }}</button>
+                <button type="button" id="viewSpotClear" class="btn btn-sm btn-outline-secondary" title="{{ __('Clear viewing spot (back to automatic)') }}"><i class="fas fa-times"></i></button>
+              </div>
+              <small class="text-muted d-block mt-1">{{ __('Where the guided tour stands to view this object. Best for floor objects - wall art is framed head-on automatically.') }}</small>
+            </div>
             <label for="selWall" class="form-label small mb-1">{{ __('Hang on wall') }}</label>
             <select id="selWall" class="form-select form-select-sm mb-2"></select>
             <button type="button" id="btnRemove" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-trash me-1"></i>{{ __('Remove from twin') }}</button>
@@ -375,6 +383,7 @@
       spotlight: '{{ route('exhibition-space.builder.spotlight', ['slug' => $space->slug]) }}',
       displayCase: '{{ route('exhibition-space.builder.display-case', ['slug' => $space->slug]) }}',
       onFloor: '{{ route('exhibition-space.builder.on-floor', ['slug' => $space->slug]) }}',
+      viewSpot: '{{ route('exhibition-space.builder.view-spot', ['slug' => $space->slug]) }}',
       zorder: '{{ route('exhibition-space.builder.zorder', ['slug' => $space->slug]) }}',
       walls: '{{ route('exhibition-space.builder.walls', ['slug' => $space->slug]) }}',
       wall: '{{ route('exhibition-space.builder.wall', ['slug' => $space->slug]) }}',
@@ -441,8 +450,9 @@
     var doorLayer = new Konva.Layer({ listening: false });
     var layer = new Konva.Layer();
     var routeLayer = new Konva.Layer({ listening: false });   // guided-tour visual route overlay
+    var viewLayer = new Konva.Layer({ listening: false });    // tour viewing-spot markers (eye + line to object)
     var wvLayer = new Konva.Layer({ visible: false });
-    stage.add(bgLayer); stage.add(wallLayer); stage.add(doorLayer); stage.add(layer); stage.add(routeLayer); stage.add(wvLayer);
+    stage.add(bgLayer); stage.add(wallLayer); stage.add(doorLayer); stage.add(layer); stage.add(viewLayer); stage.add(routeLayer); stage.add(wvLayer);
 
     // Door indicators on the floor view: show where each perimeter door is so
     // objects can be placed clear of them. Doors are edited in the Building Plan.
@@ -558,6 +568,7 @@
     }
 
     function selectNode(g) {
+      if (typeof setViewSpotMode === 'function') setViewSpotMode(false);   // reset any armed viewing-spot pick
       selected = g; tr.nodes([g]);
       document.getElementById('selPanel').classList.add('d-none');
       document.getElementById('selControls').classList.remove('d-none');
@@ -616,6 +627,8 @@
       g.setAttr('displayCase', (+p.display_case) || 0);
       g.setAttr('onFloor', (+p.on_floor) || 0);
       g.setAttr('zOrder', p.z_order || 0);
+      g.setAttr('viewX', (p.view_x === null || p.view_x === undefined) ? null : +p.view_x);
+      g.setAttr('viewY', (p.view_y === null || p.view_y === undefined) ? null : +p.view_y);
 
       var rect = new Konva.Rect({
         x: -NODE / 2, y: -NODE / 2, width: NODE, height: NODE,
@@ -655,7 +668,7 @@
           selectNode(g);
         }
       });
-      g.on('dragmove', function () { if (window.__exhibRouteMode) drawTourRoute(); });
+      g.on('dragmove', function () { if (window.__exhibRouteMode) drawTourRoute(); drawViewSpots(); });
       g.on('dragend', scheduleSave);
       g.on('transformend', scheduleSave);
       layer.add(g);
@@ -687,8 +700,31 @@
     }
     window.__exhibDrawRoute = drawTourRoute;
 
+    // ---- Tour viewing-spot markers (an eye dot + dashed line to the object) ----
+    function drawViewSpots() {
+      viewLayer.destroyChildren();
+      layer.find('.placement').forEach(function (n) {
+        var vx = n.getAttr('viewX'), vy = n.getAttr('viewY');
+        if (vx === null || vx === undefined || vy === null || vy === undefined) return;
+        var ex = vx * W, ey = vy * H;
+        viewLayer.add(new Konva.Line({ points: [ex, ey, n.x(), n.y()], stroke: '#0d6efd', strokeWidth: 1.5, dash: [6, 4], opacity: 0.7 }));
+        var grp = new Konva.Group({ x: ex, y: ey });
+        grp.add(new Konva.Circle({ radius: 9, fill: '#0d6efd', stroke: '#fff', strokeWidth: 2 }));
+        grp.add(new Konva.Circle({ radius: 3, fill: '#fff' }));
+        viewLayer.add(grp);
+      });
+      viewLayer.draw();
+    }
+    function setViewSpotMode(on) {
+      window.__viewSpotMode = on;
+      var b = document.getElementById('viewSpotBtn');
+      if (b) { b.classList.toggle('btn-primary', on); b.classList.toggle('btn-outline-primary', !on); b.innerHTML = on ? '<i class="fas fa-crosshairs me-1"></i>{{ __('Click the plan...') }}' : '<i class="fas fa-eye me-1"></i>{{ __('Set spot') }}'; }
+      stage.container().style.cursor = on ? 'crosshair' : '';
+    }
+
     PLACEMENTS.forEach(addNode);
     layer.draw();
+    drawViewSpots();
     renderObjList();
 
     // ---- interior walls ----
@@ -763,6 +799,14 @@
     });
 
     stage.on('click tap', function (e) {
+      if (window.__viewSpotMode && selected) {
+        var vp = stage.getPointerPosition(); if (!vp) return;
+        var vx = Math.max(0, Math.min(1, vp.x / W)), vy = Math.max(0, Math.min(1, vp.y / H));
+        selected.setAttr('viewX', vx); selected.setAttr('viewY', vy);
+        fetch(URLS.viewSpot, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), view_x: vx, view_y: vy }) });
+        setViewSpotMode(false); drawViewSpots();
+        return;
+      }
       if (wallAdding) {
         var p = stage.getPointerPosition(); if (!p) return;
         if (!wallStart) { wallStart = { x: p.x / W, z: p.y / H }; }
@@ -837,6 +881,18 @@
     }
     function removePlacement(g) { if (g) removePlacementById(g.getAttr('placementId')); }
     document.getElementById('btnRemove').addEventListener('click', function () { removePlacement(selected); });
+
+    // Viewing-spot: arm the mode (next plan click sets it), or clear back to auto.
+    (function () {
+      var setBtn = document.getElementById('viewSpotBtn'), clrBtn = document.getElementById('viewSpotClear');
+      if (setBtn) setBtn.addEventListener('click', function () { if (!selected) return; setViewSpotMode(!window.__viewSpotMode); });
+      if (clrBtn) clrBtn.addEventListener('click', function () {
+        if (!selected) return;
+        selected.setAttr('viewX', null); selected.setAttr('viewY', null);
+        fetch(URLS.viewSpot, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: JSON.stringify({ placement_id: selected.getAttr('placementId'), view_x: null, view_y: null }) });
+        setViewSpotMode(false); drawViewSpots();
+      });
+    })();
 
     // Full list of EVERY placed object in this space, sourced from the server so it includes
     // objects that are off-canvas, have no/out-of-range position, or otherwise can't be clicked
@@ -969,7 +1025,7 @@
       wb.classList.toggle('btn-primary', m === 'wall'); wb.classList.toggle('btn-outline-primary', m !== 'wall');
       document.getElementById('wvWall').classList.toggle('d-none', m !== 'wall');
       var floorOn = (m === 'floor');
-      bgLayer.visible(floorOn); wallLayer.visible(floorOn); doorLayer.visible(floorOn); layer.visible(floorOn); routeLayer.visible(floorOn); wvLayer.visible(!floorOn);
+      bgLayer.visible(floorOn); wallLayer.visible(floorOn); doorLayer.visible(floorOn); layer.visible(floorOn); viewLayer.visible(floorOn); routeLayer.visible(floorOn); wvLayer.visible(!floorOn);
       tr.nodes([]); clearSelect();
       if (floorOn) { stage.draw(); drawTourRoute(); } else { buildWallView(); }
     }

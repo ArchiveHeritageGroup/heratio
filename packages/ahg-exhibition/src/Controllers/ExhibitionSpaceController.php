@@ -1016,6 +1016,25 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => $ok]);
     }
 
+    /** AJAX: set/clear the curator viewing spot for a placement (room-local fraction; null clears). */
+    public function updatePlacementViewAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'placement_id' => 'required|integer|min:1',
+            'view_x' => 'nullable|numeric',
+            'view_y' => 'nullable|numeric',
+        ]);
+        $vx = array_key_exists('view_x', $data) && $data['view_x'] !== null ? (float) $data['view_x'] : null;
+        $vy = array_key_exists('view_y', $data) && $data['view_y'] !== null ? (float) $data['view_y'] : null;
+        $ok = $this->service->updatePlacementView((int) $space->id, (int) $data['placement_id'], $vx, $vy);
+
+        return response()->json(['ok' => $ok]);
+    }
+
     /** AJAX: bring-to-front / send-to-back (z-order). */
     public function updateZOrderAjax(Request $request, string $slug)
     {

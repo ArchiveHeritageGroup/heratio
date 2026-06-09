@@ -1701,10 +1701,16 @@
       var rm = s._room || curRoom;
       var ccx = rm.x_offset + rm.w / 2, ccz = rm.z_offset + rm.d / 2;   // object's room centre
       var look = new THREE.Vector3(wp.x, 1.3, wp.z);
-      var toC = new THREE.Vector3(ccx - wp.x, 0, ccz - wp.z);           // toward room centre
-      if (toC.lengthSq() < 0.01) toC.set(0, 0, 1);
-      toC.normalize();
-      var stand = new THREE.Vector3(wp.x + toC.x * 2.6, 1.6, wp.z + toC.z * 2.6);
+      var stand;
+      if (s.view_x !== null && s.view_x !== undefined && s.view_y !== null && s.view_y !== undefined) {
+        // Curator-chosen viewing spot (room-local fraction) - stand exactly there.
+        stand = new THREE.Vector3(rm.x_offset + s.view_x * rm.w, 1.6, rm.z_offset + s.view_y * rm.d);
+      } else {
+        var toC = new THREE.Vector3(ccx - wp.x, 0, ccz - wp.z);           // toward room centre
+        if (toC.lengthSq() < 0.01) toC.set(0, 0, 1);
+        toC.normalize();
+        stand = new THREE.Vector3(wp.x + toC.x * 2.6, 1.6, wp.z + toC.z * 2.6);
+      }
       var m = 0.6;
       stand.x = Math.max(rm.x_offset + m, Math.min(rm.x_offset + rm.w - m, stand.x));
       stand.z = Math.max(rm.z_offset + m, Math.min(rm.z_offset + rm.d - m, stand.z));

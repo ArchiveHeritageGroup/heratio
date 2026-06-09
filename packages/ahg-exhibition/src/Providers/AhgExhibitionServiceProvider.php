@@ -47,6 +47,8 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'spotlight' => 'TINYINT NULL DEFAULT 0',   // #1174 spotlight mode: 0 off, 1 light on approach, 2 always-on
                     'display_case' => 'TINYINT(1) NULL DEFAULT 0',   // show this item inside a glass display case on a plinth
                     'on_floor' => 'TINYINT(1) NULL DEFAULT 0',   // stand the 3D model directly on the floor (no pedestal)
+                    'view_x' => 'DECIMAL(6,5) NULL',   // curator-set viewing spot (room-local fraction) the tour/walk stands at
+                    'view_y' => 'DECIMAL(6,5) NULL',
                 ];
                 foreach ($placementCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_placement', $col)) {

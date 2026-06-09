@@ -314,6 +314,7 @@ class ExhibitionSpaceService
                 'ep.pos_x', 'ep.pos_y', 'ep.rotation_deg', 'ep.scale', 'ep.z_order',
                 'ep.wall_or_zone', 'ep.label_visible', 'ep.size_units_used',
                 'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight', 'ep.display_case', 'ep.on_floor',
+                'ep.view_x', 'ep.view_y',
                 'ioi.title as information_object_title'
             )
             ->orderBy('ep.z_order')
@@ -334,6 +335,8 @@ class ExhibitionSpaceService
                 'wall_or_zone' => $r->wall_or_zone,
                 'label_visible' => (int) ($r->label_visible ?? 1),
                 'size_units_used' => (float) ($r->size_units_used ?? 0),
+                'view_x' => $r->view_x !== null ? (float) $r->view_x : null,
+                'view_y' => $r->view_y !== null ? (float) $r->view_y : null,
                 'kind' => $media['kind'],
                 'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
@@ -621,6 +624,20 @@ class ExhibitionSpaceService
         return DB::table('ahg_exhibition_placement')
             ->where('id', $placementId)->where('exhibition_space_id', $exhibitionSpaceId)
             ->update(['on_floor' => $on ? 1 : 0, 'updated_at' => now()]) > 0;
+    }
+
+    /**
+     * Set (or clear) the curator-chosen viewing spot for a placement - the room-
+     * local fraction (0-1) where the tour/walk stands to view this object. Pass
+     * null x/y to clear (revert to the automatic in-front position).
+     */
+    public function updatePlacementView(int $exhibitionSpaceId, int $placementId, ?float $vx, ?float $vy): bool
+    {
+        $clamp = fn ($v) => $v === null ? null : max(0, min(1, (float) $v));
+
+        return DB::table('ahg_exhibition_placement')
+            ->where('id', $placementId)->where('exhibition_space_id', $exhibitionSpaceId)
+            ->update(['view_x' => $clamp($vx), 'view_y' => $clamp($vy), 'updated_at' => now()]) > 0;
     }
 
     /** Bring-to-front / send-to-back: set a placement's z-order. */
@@ -2737,6 +2754,7 @@ class ExhibitionSpaceService
                 'ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y',
                 'ep.rotation_deg', 'ep.scale', 'ep.size_units_used', 'ep.wall_or_zone',
                 'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight', 'ep.display_case', 'ep.on_floor',
+                'ep.view_x', 'ep.view_y',
                 'ioi.title as title', 'ioi.scope_and_content as description', 'sl.slug as slug'
             )
             ->get();
@@ -2756,6 +2774,8 @@ class ExhibitionSpaceService
                 'rotation_deg' => (float) ($r->rotation_deg ?? 0),
                 'scale' => (float) ($r->scale ?? 1),
                 'size_units_used' => (float) ($r->size_units_used ?? 0),   // Builder "Size (units)" = metres (longest side); drives 3D model scale
+                'view_x' => $r->view_x !== null ? (float) $r->view_x : null,   // curator viewing spot (room-local fraction)
+                'view_y' => $r->view_y !== null ? (float) $r->view_y : null,
                 'wall_or_zone' => $r->wall_or_zone,
                 'kind' => $media['kind'],
                 'model_url' => $media['model_url'],
