@@ -2097,6 +2097,17 @@
       }
     }
     updateRoomName();
+    // Build button: resolve the room you're standing in AT CLICK TIME (authoritative), so
+    // pressing "Edit in Builder" always opens the current room's builder - even if you're in
+    // a doorway/corridor when the per-frame room tracking last updated the link.
+    if (_bldBtn && _bldTmpl) {
+      _bldBtn.addEventListener('click', function (e) {
+        try {
+          var pp = controls.getObject().position, rr = findRoomAtWorld(pp.x, pp.z, null);
+          if (rr && rr.slug) { e.preventDefault(); window.location.href = _bldTmpl.replace('__SLUG__', rr.slug); }
+        } catch (err) {}
+      });
+    }
 
     // Movement loop
     var clock = new THREE.Clock();
