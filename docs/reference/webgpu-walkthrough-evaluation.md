@@ -100,13 +100,34 @@ The live `walkthrough.blade.php` has now been migrated in one pass:
   dynamic import, so an absent/immature WebGPU XR manager can't crash desktop - it just
   hides VR.
 
+### VR is OFF on WebGPU - and that is a hard three.js r169 constraint
+
+Verified on a headset: the migrated page black-screened in VR. Root cause - in r169
+**`WebGPURenderer` has no WebXR at all**: its `xr` is a literal `{ enabled: false }` stub
+with no `addEventListener`/session/XR-binding (the build has zero `XRWebGLLayer` /
+`XRWebGPUBinding` / `makeXRCompatible`). The first guard (`if (renderer.xr)`) passed on the
+truthy stub, then `renderer.xr.addEventListener(...)` threw and aborted setup -> black screen
+on VR-capable machines (desktop has no `navigator.xr`, so it was unaffected).
+
+You **cannot** have WebGPU and WebXR in one page on CDN r169: `WebGPURenderer` ships only in
+the `three.webgpu` build (no `WebGLRenderer`), `WebGLRenderer` (the only renderer with real
+WebXR) ships only in the standard build, and the two bundles carry separate, non-mixable
+copies of the core classes. A dual-renderer page is not possible without a custom bundler
+build (and even then three.js doesn't support the two renderers coexisting).
+
+**Decision (2026-06-09): keep WebGPU, VR off.** The true "VR usable" test is
+`renderer.xr && typeof renderer.xr.addEventListener === 'function'` (false on the WebGPU
+stub), which hides the VR button and prevents the crash. VR returns only when three.js ships
+WebXR for WebGPU; until then, restoring VR means giving up WebGPU (standard build +
+`WebGLRenderer`).
+
 **Verify in a browser** (revert via git if a regression shows): backend (DevTools - WebGPU
 vs WebGL2), room/walls/floor textures + colour, **shadows** (sun toggle), **PBR metals**
 (gold models reflect, not black -> PMREM env still applies), scan shells (#1156), pictures/
-labels (canvas/sprite textures), graffiti, night/torch, the live overlay + avatars, and
-**VR** on a headset (the highest-risk area). If colours look washed, it is the r169 default
-colour-space change on canvas/sprite textures - set `.colorSpace = THREE.SRGBColorSpace` on
-those, not a renderer problem.
+labels (canvas/sprite textures), graffiti, night/torch, the live overlay + avatars. (No VR
+button appears - by design.) If colours look washed, it is the r169 default colour-space
+change on canvas/sprite textures - set `.colorSpace = THREE.SRGBColorSpace` on those, not a
+renderer problem.
 
 ## Files
 

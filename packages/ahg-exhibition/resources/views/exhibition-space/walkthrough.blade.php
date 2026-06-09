@@ -351,19 +351,24 @@
       camera.position.set(sp.x, 1.6, sp.z);
     })();
 
-    // heratio#1153: WebGPURenderer - WebGPU backend where available, automatic WebGL2
-    // fallback otherwise. init() is async (gated at the animation-loop start below).
+    // heratio#1153: WebGPURenderer - WebGPU backend where available, automatic WebGL2 fallback
+    // otherwise. init() is async (gated at the animation-loop start below).
     var renderer = new THREE.WebGPURenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));   // cap retina overdraw
     renderer.setSize(W, H);
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;   // #shadows: real-time sun shadows (toggled)
-    if (renderer.xr) renderer.xr.enabled = true;   // heratio#1152 - WebXR / VR headset support (XR-over-WebGPU is experimental; guarded)
+    // A REAL WebXR manager exposes addEventListener; WebGPURenderer's xr is a {enabled:false}
+    // stub with none (r169 has no WebXR for WebGPU), so this is the true "VR usable" test -
+    // it is false on WebGPU, which correctly hides the VR button (no crash, desktop unaffected).
+    var XR_OK = !!(renderer.xr && typeof renderer.xr.addEventListener === 'function');
+    if (XR_OK) renderer.xr.enabled = true;   // heratio#1152 - WebXR / VR headset support
+    function draw() { if (renderer.renderAsync) renderer.renderAsync(scene, camera); else renderer.render(scene, camera); }
     room.appendChild(renderer.domElement);
 
-    // VR button: only shown when the device/browser supports immersive-vr AND the renderer
-    // exposes an XR manager (WebGPU XR is still maturing - absent => no VR button, desktop unaffected).
+    // VR button: only when the device supports immersive-vr AND the renderer has a real XR
+    // manager. On WebGPU (no WebXR) this is false, so no VR button shows - desktop unaffected.
     var xrFloorY = 0;   // holder y while in XR (headset supplies eye height on top)
-    if (THREE.VRButton && navigator.xr && renderer.xr) {
+    if (THREE.VRButton && navigator.xr && XR_OK) {
       var vrBtn = THREE.VRButton.createButton(renderer);
       vrBtn.style.cssText += ';position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:8;';
       room.appendChild(vrBtn);
@@ -2115,7 +2120,7 @@
     function animate() {
       var dt = Math.min(0.05, clock.getDelta());
       if ((_nameTick = (_nameTick + 1) % 12) === 0) { updateRoomName(); cullRooms(); if (liveOn) updateLive(); }   // ~5x/sec
-      if (renderer.xr && renderer.xr.isPresenting) { xrMove(dt); if (window._wtPresenceFrame) window._wtPresenceFrame(dt); renderer.renderAsync(scene, camera); return; }
+      if (XR_OK && renderer.xr.isPresenting) { xrMove(dt); if (window._wtPresenceFrame) window._wtPresenceFrame(dt); draw(); return; }
       if (fly) {
         fly.t += dt / fly.dur;
         var fk = Math.min(1, fly.t);
@@ -2189,7 +2194,7 @@
           }
         }
       }
-      renderer.renderAsync(scene, camera);
+      draw();
     }
 
     // ===== heratio#1150 - multi-user presence + live docent (HTTP polling) =====
@@ -2740,13 +2745,18 @@
     var stealBtn = document.getElementById('wtStealBtn'); if (stealBtn) stealBtn.addEventListener('click', function (e) { e.stopPropagation(); setStealBtn(!window.__stealMode); });
 
     // heratio#1153: WebGPURenderer.init() picks/initialises the backend (WebGPU or WebGL2);
-    // the loop must not render before it resolves. setAnimationLoop drives desktop + WebXR.
-    renderer.init().then(function () {
-      renderer.setAnimationLoop(animate);
-    }).catch(function (e) {
-      console.error('[walkthrough] renderer init failed', e);
-      renderer.setAnimationLoop(animate);   // last resort: renderAsync will retry init per-frame
-    });
+    // the loop must not render before it resolves. WebGLRenderer (VR path) has no init() and
+    // starts synchronously. setAnimationLoop drives desktop + WebXR.
+    if (renderer.init) {
+      renderer.init().then(function () {
+        renderer.setAnimationLoop(animate);
+      }).catch(function (e) {
+        console.error('[walkthrough] renderer init failed', e);
+        renderer.setAnimationLoop(animate);   // last resort: renderAsync will retry init per-frame
+      });
+    } else {
+      renderer.setAnimationLoop(animate);   // WebGLRenderer (VR-capable path): synchronous
+    }
 
     window.addEventListener('resize', function () {
       W = room.clientWidth || W; H = room.clientHeight || H;
