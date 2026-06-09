@@ -97,6 +97,12 @@ class PronomIdentificationService
 
         // Email
         ['puid' => 'fmt/278',  'name' => 'EML',                      'version' => null,  'ext' => 'eml',  'mime' => 'message/rfc822',                 'offset' => 0, 'hex' => '52656365697665643a',  'risk' => 'low',    'is_preservation' => true],
+
+        // 3D models (#1179). glTF has no assigned PRONOM PUID yet - recognised by
+        // magic + MIME. OBJ/PLY/STL PUIDs are confirmed (fmt/1210, fmt/831, x-fmt/108).
+        ['puid' => '',         'name' => 'GL Transmission Format (Binary glTF)', 'version' => '2.0', 'ext' => 'glb', 'mime' => 'model/gltf-binary',       'offset' => 0, 'hex' => '676c5446',           'risk' => 'medium', 'is_preservation' => false],
+        ['puid' => 'fmt/831',  'name' => 'Polygon File Format (PLY)',            'version' => null,  'ext' => 'ply', 'mime' => 'application/x-ply',        'offset' => 0, 'hex' => '706c79',             'risk' => 'low',    'is_preservation' => true],
+        ['puid' => 'x-fmt/108','name' => 'STL (ASCII)',                          'version' => null,  'ext' => 'stl', 'mime' => 'model/stl',               'offset' => 0, 'hex' => '736f6c6964',         'risk' => 'low',    'is_preservation' => true],
     ];
 
     /**
@@ -110,6 +116,11 @@ class PronomIdentificationService
         ['puid' => 'x-fmt/18', 'name' => 'CSV',                      'version' => null,  'ext' => 'csv',  'mime' => 'text/csv',                       'risk' => 'low',    'is_preservation' => true],
         ['puid' => 'x-fmt/111','name' => 'Plain text',               'version' => null,  'ext' => 'txt',  'mime' => 'text/plain',                     'risk' => 'low',    'is_preservation' => true],
         ['puid' => 'fmt/817',  'name' => 'JSON',                     'version' => null,  'ext' => 'json', 'mime' => 'application/json',               'risk' => 'low',    'is_preservation' => true],
+        // 3D models (#1179) - text/binary formats with no reliable leading magic.
+        ['puid' => 'fmt/1210', 'name' => 'Wavefront OBJ',                        'version' => null,  'ext' => 'obj',  'mime' => 'model/obj',         'risk' => 'low',    'is_preservation' => true],
+        ['puid' => '',         'name' => 'GL Transmission Format (glTF)',        'version' => '2.0', 'ext' => 'gltf', 'mime' => 'model/gltf+json',   'risk' => 'medium', 'is_preservation' => false],
+        ['puid' => 'fmt/865',  'name' => 'STL (Binary)',                         'version' => null,  'ext' => 'stl',  'mime' => 'model/stl',         'risk' => 'low',    'is_preservation' => true],
+        ['puid' => '',         'name' => 'GL Transmission Format (Binary glTF)', 'version' => '2.0', 'ext' => 'glb',  'mime' => 'model/gltf-binary', 'risk' => 'medium', 'is_preservation' => false],
         ['puid' => 'fmt/0',    'name' => 'Unknown / generic binary', 'version' => null,  'ext' => '',     'mime' => 'application/octet-stream',       'risk' => 'unknown','is_preservation' => false],
     ];
 

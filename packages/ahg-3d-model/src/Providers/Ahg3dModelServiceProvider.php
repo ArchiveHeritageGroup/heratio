@@ -57,6 +57,7 @@ class Ahg3dModelServiceProvider extends ServiceProvider
             \Ahg3dModel\Commands\TriposrHealthCommand::class,
             \Ahg3dModel\Commands\TriposrPreloadCommand::class,
             \Ahg3dModel\Commands\ExtractMetadataCommand::class,
+            \Ahg3dModel\Commands\PreserveCommand::class,
         ]);
     }
 

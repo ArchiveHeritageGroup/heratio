@@ -54,6 +54,33 @@ class AhgPreservationServiceProvider extends ServiceProvider
 
         $this->bootCronRegistration();
         $this->bootPremisRightsTable();
+        $this->bootPremisObjectColumns();
+    }
+
+    /**
+     * #1179 - make premis_object self-sufficient as a preservation record:
+     * its own checksum, significant properties, preservation-master flag and a
+     * link to the access digital object. Additive + sentinel-guarded.
+     */
+    protected function bootPremisObjectColumns(): void
+    {
+        try {
+            // NB: premis_object.id is a FK to object.id (AtoM shared-PK) - it is
+            // 1:1 with a digital object, NOT auto-increment; callers set id = the
+            // digital object's id.
+            if (! Schema::hasTable('premis_object') || Schema::hasColumn('premis_object', 'checksum')) {
+                return;
+            }
+            Schema::table('premis_object', function ($t) {
+                $t->string('checksum', 128)->nullable();
+                $t->string('checksum_algorithm', 16)->nullable();
+                $t->json('significant_properties')->nullable();
+                $t->boolean('is_preservation_master')->nullable();
+                $t->integer('digital_object_id')->nullable();
+            });
+        } catch (\Throwable $e) {
+            // Never block boot.
+        }
     }
 
     /**
