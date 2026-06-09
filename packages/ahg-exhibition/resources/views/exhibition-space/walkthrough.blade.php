@@ -333,6 +333,15 @@
     var renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));   // cap retina overdraw
     renderer.setSize(W, H);
+    // Modern colour management on r137 (this is the "crisp" look the r169 trial had - it was
+    // colour management, not WebGPU): sRGB gamma output, physically-correct light falloff, and
+    // filmic tone mapping. Colour canvas textures below are flagged sRGBEncoding so they read true.
+    // EXPOSURE knob: raise/lower WT_EXPOSURE to taste (the scene lighting was tuned for the old
+    // linear output, so a small nudge here rebalances overall brightness).
+    var WT_EXPOSURE = 1.0;
+    renderer.outputEncoding = THREE.sRGBEncoding;   // the main "crisp" win (proper gamma)
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;   // filmic contrast + tames blown highlights
+    renderer.toneMappingExposure = WT_EXPOSURE;     // brightness knob (sRGB brightens the linear-tuned scene; nudge this)
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;   // #shadows: real-time sun shadows (toggled)
     renderer.xr.enabled = true;   // heratio#1152 - WebXR / VR headset support
     room.appendChild(renderer.domElement);
@@ -425,6 +434,7 @@
     function loadTex(url, onLoad, onProgress, onError) {
       _texLoader.load(url, function (tex) {
         var img = tex.image;
+        tex.encoding = THREE.sRGBEncoding;   // colour map: read true under the sRGB output pipeline (pictures, floor/ceiling/wall images)
         if (img && img.width && (img.width > MAXTEX || img.height > MAXTEX)) {
           // Downscale big images. Build a fresh CanvasTexture from the scaled canvas -
           // swapping tex.image on the loader's texture does not reliably re-upload to the
@@ -453,7 +463,7 @@
       var N = 512, c = document.createElement('canvas'); c.width = c.height = N; var g = c.getContext('2d');
       if (srcTex.image) g.drawImage(srcTex.image, 0, 0, N, N);
       g.strokeStyle = 'rgba(58,52,44,0.7)'; g.lineWidth = Math.max(1, lineW || 4); g.strokeRect(0, 0, N, N);
-      var ct = new THREE.CanvasTexture(c); ct.wrapS = ct.wrapT = THREE.RepeatWrapping; ct.repeat.set(ru, rv); ct.minFilter = THREE.LinearFilter; ct.magFilter = THREE.LinearFilter; ct.needsUpdate = true;
+      var ct = new THREE.CanvasTexture(c); ct.wrapS = ct.wrapT = THREE.RepeatWrapping; ct.repeat.set(ru, rv); ct.minFilter = THREE.LinearFilter; ct.magFilter = THREE.LinearFilter; ct.encoding = THREE.sRGBEncoding; ct.needsUpdate = true;
       return ct;
     }
     // Grout line width in canvas px: a tile canvas (512px) spans tileM metres, so a groutMm seam = mm/1000/tileM*512.
@@ -651,7 +661,7 @@
       g.fillStyle = '#5c8540'; g.fillRect(0, 0, 256, 256);
       for (var i = 0; i < 1100; i++) { var sh = Math.random(); g.fillStyle = 'rgba(' + ((55 + sh * 45) | 0) + ',' + ((105 + sh * 60) | 0) + ',' + ((45 + sh * 35) | 0) + ',' + (0.2 + Math.random() * 0.35) + ')'; g.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 2, 2 + Math.random() * 2); }
       for (var b = 0; b < 600; b++) { var bx = Math.random() * 256, by = Math.random() * 256, h = 3 + Math.random() * 6; g.strokeStyle = 'rgba(' + ((40 + Math.random() * 40) | 0) + ',' + ((120 + Math.random() * 70) | 0) + ',' + ((40 + Math.random() * 30) | 0) + ',0.6)'; g.lineWidth = 1; g.beginPath(); g.moveTo(bx, by); g.lineTo(bx + (Math.random() * 2 - 1), by - h); g.stroke(); }
-      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; _grassTex = t; return t;
+      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.encoding = THREE.sRGBEncoding; _grassTex = t; return t;
     }
     // Simple stylised human silhouette (man / woman) on a transparent canvas - used for billboard
     // figures (furniture kinds person-man/person-woman) and the figure-pointer overlay.
@@ -711,7 +721,7 @@
       // Grout seam around the tile edge: the texture maps to 2m (repeat 0.5 over the metre-based floor UV),
       // so this border lands on a clean 2m x 2m grid (half from each neighbouring tile meets at the seam).
       g.strokeStyle = 'rgba(120,110,92,0.55)'; g.lineWidth = 12; g.strokeRect(0, 0, N, N);
-      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.5, 0.5); _marbleTex = t; return t;   // 1 tile = 2 metres
+      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.5, 0.5); t.encoding = THREE.sRGBEncoding; _marbleTex = t; return t;   // 1 tile = 2 metres
     }
     // Warm textured plaster wall (taupe with fine mottling) - the default look when no wall image.
     function wallTexture() {
@@ -719,7 +729,7 @@
       var c = document.createElement('canvas'); c.width = c.height = 256; var g = c.getContext('2d');
       g.fillStyle = '#b3a187'; g.fillRect(0, 0, 256, 256);
       for (var i = 0; i < 4200; i++) { var sh = (Math.random() - 0.5) * 26; g.fillStyle = 'rgba(' + ((179 + sh) | 0) + ',' + ((161 + sh) | 0) + ',' + ((135 + sh) | 0) + ',0.5)'; g.fillRect(Math.random() * 256, Math.random() * 256, 2, 2); }
-      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; _wallTex = t; return t;
+      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.encoding = THREE.sRGBEncoding; _wallTex = t; return t;
     }
     // Crossed-plane billboard tree (volumetric from any angle), slight size/spin variance.
     function addTree(rm, x, z) {
