@@ -411,6 +411,30 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => $desc !== null, 'description' => $desc]);
     }
 
+    /**
+     * #1168 - neural TTS for the walkthrough narration. Synthesises $text via the
+     * AI gateway (Piper) and returns WAV; 502 if unavailable so the client falls
+     * back to browser speech. Public (the walkthrough is public).
+     */
+    public function ttsAjax(Request $request)
+    {
+        $text = trim((string) $request->input('text', ''));
+        if ($text === '') {
+            return response()->noContent();
+        }
+        if (! class_exists(\AhgAiServices\Services\TtsService::class)) {
+            return response('', 502);
+        }
+        $audio = app(\AhgAiServices\Services\TtsService::class)->synthesize($text, $request->input('voice'));
+        if ($audio === null) {
+            return response('', 502);
+        }
+
+        return response($audio, 200)
+            ->header('Content-Type', 'audio/wav')
+            ->header('Cache-Control', 'public, max-age=86400');
+    }
+
     /** heratio#1165 - add a wall graffiti annotation (public, walkthrough). */
     public function annotationAddAjax(Request $request, string $slug)
     {

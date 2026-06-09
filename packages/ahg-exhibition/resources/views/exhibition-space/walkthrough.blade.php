@@ -100,6 +100,9 @@
             <div class="text-muted mt-1" style="font-size:.72rem;">{{ __('While leading, click an object to spotlight it for everyone following.') }}</div>
             @endif
           </div>
+          {{-- #1150: always-visible live-online count (the People button + panel still
+               list names; this keeps the headline count on screen). --}}
+          <div id="wtHereNow" class="bg-dark text-white px-2 py-1 rounded-pill small" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:7;opacity:.9;box-shadow:0 2px 8px rgba(0,0,0,.45);cursor:pointer;" title="{{ __('People in this exhibition right now') }}"><i class="fas fa-users me-1"></i><span id="wtHereNowN">1</span> <span id="wtHereNowLbl">{{ __('here now') }}</span></div>
           <div id="wtDocentBanner" class="bg-primary text-white px-3 py-2 rounded small" style="position:absolute;top:46px;left:50%;transform:translateX(-50%);z-index:7;display:none;max-width:80%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.5);"></div>
           <div id="wtLive" class="bg-dark text-white p-2 rounded small" style="position:absolute;top:46px;left:8px;z-index:7;width:230px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.5);">
             <div class="fw-bold mb-1"><i class="fas fa-temperature-half me-1"></i>{{ __('Live conditions') }}</div>
@@ -1612,10 +1615,17 @@
     function stopByPlacement(pid) { for (var i = 0; i < STOPS.length; i++) { if (STOPS[i].id === pid) return STOPS[i]; } return null; }
     // Audio description (docent): hold T (Talk) + click an object to hear its description read aloud.
     function showNarr(on) { var n = document.getElementById('wtNarr'); if (n) n.style.display = on ? 'block' : 'none'; }
-    function stopNarrate() { try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {} showNarr(false); }
+    var _narrAudio = null;   // current neural-TTS playback (#1168)
+    function stopNarrate() {
+      try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
+      if (_narrAudio) { try { _narrAudio.pause(); } catch (e) {} _narrAudio = null; }
+      showNarr(false);
+    }
     function setNarrLabel(html) { var n = document.getElementById('wtNarr'); if (n) { n.innerHTML = html; n.style.display = 'block'; } }
-    var WT_VOICE = null;   // selected SpeechSynthesisVoice (user choice); null = browser default
-    function speakText(text, onDone) {
+    var WT_VOICE = null;   // selected SpeechSynthesisVoice (fallback path only)
+    var TTS_URL = '{{ route('exhibition-space.tts') }}';   // #1168 neural TTS via the gateway
+    // Browser speech-synthesis fallback (used if the neural gateway TTS is unavailable).
+    function speakBrowser(text, onDone) {
       try {
         if (!('speechSynthesis' in window)) { if (onDone) onDone(); return; }
         window.speechSynthesis.cancel();
@@ -1627,6 +1637,26 @@
         setNarrLabel('<i class="fas fa-volume-high me-1"></i>{{ __('Reading description... (Esc to stop)') }}');
         window.speechSynthesis.speak(u);
       } catch (e) { if (onDone) onDone(); }
+    }
+    // #1168: narrate with neural TTS from the AI gateway (Piper); fall back to the
+    // browser voice on any failure so narration never breaks.
+    function speakText(text, onDone) {
+      stopNarrate();
+      try {
+        setNarrLabel('<i class="fas fa-volume-high me-1"></i>{{ __('Narrating... (Esc to stop)') }}');
+        var fd = new FormData(); fd.append('text', text); fd.append('_token', WT_CSRF);
+        fetch(TTS_URL, { method: 'POST', headers: { 'X-CSRF-TOKEN': WT_CSRF }, body: fd })
+          .then(function (r) { if (!r.ok) throw new Error('tts ' + r.status); return r.blob(); })
+          .then(function (blob) {
+            if (!blob || blob.size < 64) throw new Error('empty');
+            var url = URL.createObjectURL(blob);
+            var a = new Audio(url); _narrAudio = a;
+            a.onended = function () { URL.revokeObjectURL(url); if (_narrAudio === a) _narrAudio = null; showNarr(false); if (onDone) onDone(); };
+            a.onerror = function () { URL.revokeObjectURL(url); if (_narrAudio === a) _narrAudio = null; speakBrowser(text, onDone); };
+            var p = a.play(); if (p && p.catch) { p.catch(function () { speakBrowser(text, onDone); }); }
+          })
+          .catch(function () { speakBrowser(text, onDone); });
+      } catch (e) { speakBrowser(text, onDone); }
     }
     function narrate(s, force) {
       var desc = (s.description || '').trim();
@@ -2138,7 +2168,10 @@
         a.tx = (p.x != null ? p.x : a.grp.position.x); a.tz = (p.z != null ? p.z : a.grp.position.z); a.tyaw = (p.yaw != null ? p.yaw : 0);
       });
       Object.keys(avatars).forEach(function (t) { if (!seen[t]) { scene.remove(avatars[t].grp); delete avatars[t]; } });
-      var cnt = document.getElementById('wtPeopleCount'); if (cnt) cnt.textContent = (peers.length + 1);
+      var total = peers.length + 1;
+      var cnt = document.getElementById('wtPeopleCount'); if (cnt) cnt.textContent = total;
+      var hn = document.getElementById('wtHereNowN'); if (hn) hn.textContent = total;
+      var hl = document.getElementById('wtHereNowLbl'); if (hl) hl.textContent = (total === 1 ? '{{ __('you are alone here') }}' : '{{ __('here now') }}');
       var list = document.getElementById('wtPeopleList');
       if (list) { var html = '<div>• {{ __('You') }}' + (CAN_DOCENT && myTourActive ? ' ★' : '') + '</div>'; peers.forEach(function (p) { html += '<div>• ' + (p.role === 'docent' ? '★ ' : '') + (p.name || 'Visitor').replace(/[<>&]/g, '') + '</div>'; }); list.innerHTML = html; }
     }
@@ -2180,6 +2213,8 @@
     (function () {
       var pBtn = document.getElementById('wtPeopleBtn'), panel = document.getElementById('wtPeople');
       if (pBtn) pBtn.addEventListener('click', function (e) { e.stopPropagation(); panel.style.display = (panel.style.display === 'block' ? 'none' : 'block'); });
+      var hereNow = document.getElementById('wtHereNow');   // the always-visible pill opens the same panel
+      if (hereNow && panel) hereNow.addEventListener('click', function (e) { e.stopPropagation(); panel.style.display = (panel.style.display === 'block' ? 'none' : 'block'); });
       var pc = document.getElementById('wtPeopleClose'); if (pc) pc.addEventListener('click', function () { panel.style.display = 'none'; });
       var ni = document.getElementById('wtNameInput'); if (ni) { ni.value = MY_NAME; ni.addEventListener('change', function () { MY_NAME = (this.value || '').slice(0, 40) || 'Visitor'; sessionStorage.setItem('wt_name', MY_NAME); wtBeat(); }); }
       var fb = document.getElementById('wtFollowBtn'); if (fb) fb.addEventListener('click', function () { following = !following; fb.classList.toggle('btn-warning', !following); fb.classList.toggle('btn-secondary', following); fb.innerHTML = following ? '<i class="fas fa-xmark me-1"></i>{{ __('Stop following') }}' : '<i class="fas fa-shoe-prints me-1"></i>{{ __('Follow the docent') }}'; });

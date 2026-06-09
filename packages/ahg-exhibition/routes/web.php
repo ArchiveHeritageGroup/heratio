@@ -115,6 +115,7 @@ Route::get('/exhibition-space/{slug}/walkthrough', [ExhibitionSpaceController::c
 Route::get('/exhibition-space/{slug}/recommend', [ExhibitionSpaceController::class, 'recommendAjax'])->name('exhibition-space.recommend');
 // AI-describe an object with no metadata (walkthrough T=talk docent, public)
 Route::get('/exhibition-space/object/{ioId}/describe', [ExhibitionSpaceController::class, 'describeObjectAjax'])->name('exhibition-space.describe')->whereNumber('ioId');
+Route::post('/exhibition-space/tts', [ExhibitionSpaceController::class, 'ttsAjax'])->name('exhibition-space.tts');   // #1168 neural TTS via the gateway (public; walkthrough narration)
 // heratio#1150 — multi-user presence (public; docent role gated server-side on auth)
 Route::post('/exhibition-space/{slug}/presence/beat', [ExhibitionSpaceController::class, 'presenceBeatAjax'])->name('exhibition-space.presence.beat');
 Route::post('/exhibition-space/{slug}/presence/leave', [ExhibitionSpaceController::class, 'presenceLeaveAjax'])->name('exhibition-space.presence.leave');
