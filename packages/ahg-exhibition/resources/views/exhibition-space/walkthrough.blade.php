@@ -69,7 +69,12 @@
           <button id="wtFsBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:408px;z-index:6;opacity:.85;" title="{{ __('Fullscreen') }}"><i class="fas fa-expand"></i></button>
           <div id="wtTourBanner" class="bg-dark text-white px-3 py-2 rounded small" style="position:absolute;bottom:64px;left:50%;transform:translateX(-50%);z-index:7;display:none;max-width:86%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.5);">
             <span id="wtTourText"></span>
-            <button type="button" id="wtTourStopBtn" class="btn btn-sm btn-outline-light ms-2 py-0"><i class="fas fa-stop"></i></button>
+            <span class="ms-2 text-nowrap">
+              <button type="button" id="wtTourPrevBtn" class="btn btn-sm btn-outline-light py-0" title="{{ __('Previous stop') }}"><i class="fas fa-step-backward"></i></button>
+              <button type="button" id="wtTourWalkBtn" class="btn btn-sm btn-outline-light py-0" title="{{ __('Walk around this object, then Space or Next to continue') }}"><i class="fas fa-person-walking me-1"></i>{{ __('Walk') }}</button>
+              <button type="button" id="wtTourNextBtn" class="btn btn-sm btn-light py-0" title="{{ __('Next stop (Space)') }}">{{ __('Next') }} <i class="fas fa-step-forward"></i></button>
+              <button type="button" id="wtTourStopBtn" class="btn btn-sm btn-outline-light py-0"><i class="fas fa-stop"></i></button>
+            </span>
           </div>
           {{-- mobile quick-launch: walking is hard on touch, so offer a big "play the tour" button --}}
           <div id="wtTourQuick" style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:8;display:none;text-align:center;width:90%;max-width:360px;">
@@ -1198,6 +1203,9 @@
       if (e.code === 'KeyZ') toggleZoom();      // #1163 - zoom in/out on what you're facing
       if (e.code === 'KeyF') toggleTorch();     // #1164 - spotlight / torch for dark corners
       if (e.code === 'KeyN') setNight(!nightMode);   // #night - night mode + flashlight
+      // Space advances the guided tour - so on PC you can walk around an object
+      // (pointer-locked) and step to the next stop without freeing the cursor.
+      if (e.code === 'Space' && typeof tourState !== 'undefined' && tourState.playing) { e.preventDefault(); tourGoto(tourState.i + 1); }
     });
     document.addEventListener('keyup', function (e) { keys[e.code] = false; });
 
@@ -2359,7 +2367,16 @@
       tourState.i = i; var s = arr[i], st = stopByIo(s.io_id);
       tourBanner((i + 1) + '/' + arr.length + '   ' + (st ? st.title : '') + (s.narration ? ('   -   ' + s.narration) : ''));
       if (st) flyTo(st);
-      var advance = function () { if (!tourState.playing) return; clearTimeout(tourState.timer); tourState.timer = setTimeout(function () { tourGoto(i + 1); }, Math.max(2, (s.dwell || 6)) * 1000); };
+      // Mobile auto-advances (walking is hard on touch). On PC the visitor steers:
+      // they can walk around each object (Walk button -> pointer lock + WASD) and
+      // press Next / Space when ready, so the tour never flies them away mid-look.
+      var advance = function () {
+        if (!tourState.playing) return;
+        clearTimeout(tourState.timer);
+        if (isTouch) {
+          tourState.timer = setTimeout(function () { tourGoto(i + 1); }, Math.max(2, (s.dwell || 6)) * 1000);
+        }
+      };
       if (s.audio) { playStopAudio(s.audio, advance); }
       else if (s.narration) { speakText((st ? st.title + '. ' : '') + s.narration, advance); }
       else { fetch('/exhibition-space/object/' + s.io_id + '/describe', { headers: { 'Accept': 'application/json' } }).then(function (r) { return r.json(); }).then(function (d) { speakText((st ? st.title + '. ' : '') + ((d && d.description) || ''), advance); }).catch(advance); }
@@ -2392,6 +2409,16 @@
     function tourStop() { tourState.playing = false; tourState.i = 0; clearTimeout(tourState.timer); stopNarrate(); stopTourAudio(); var b = document.getElementById('wtTourBanner'); if (b) b.style.display = 'none'; updateTourBtn(); quickShow(true); }
     if (tourPlayBtn) tourPlayBtn.addEventListener('click', function (e) { e.stopPropagation(); tourState.playing ? tourPause() : tourPlay(); });
     var tourStopBtn = document.getElementById('wtTourStopBtn'); if (tourStopBtn) tourStopBtn.addEventListener('click', function (e) { e.stopPropagation(); tourStop(); });
+    // PC tour controls: Prev/Next steer the tour; Walk engages pointer-lock so the
+    // visitor can roam around the current object (then Space/Next to continue).
+    // Hidden on touch (mobile auto-advances).
+    var tourNextBtn = document.getElementById('wtTourNextBtn'),
+        tourPrevBtn = document.getElementById('wtTourPrevBtn'),
+        tourWalkBtn = document.getElementById('wtTourWalkBtn');
+    [tourNextBtn, tourPrevBtn, tourWalkBtn].forEach(function (b) { if (b) b.style.display = isTouch ? 'none' : ''; });
+    if (tourNextBtn) tourNextBtn.addEventListener('click', function (e) { e.stopPropagation(); if (tourState.playing) tourGoto(tourState.i + 1); });
+    if (tourPrevBtn) tourPrevBtn.addEventListener('click', function (e) { e.stopPropagation(); if (tourState.playing) tourGoto(Math.max(0, tourState.i - 1)); });
+    if (tourWalkBtn) tourWalkBtn.addEventListener('click', function (e) { e.stopPropagation(); try { if (controls && controls.lock) controls.lock(); } catch (_) {} });
     if (tourSelEl) tourSelEl.addEventListener('change', function () { tourStop(); });   // switching tour resets to start
     // Mobile: if no tour is authored, auto-build a "Full tour" of every object in
     // order, so mobile always has a tour to launch (#1182). Desktop is untouched

@@ -345,6 +345,7 @@
                 <label class="form-check-label" for="gtRouteMode">{{ __('Route mode: click objects on the plan to add stops in order') }}</label>
               </div>
               <div id="gtList"></div>
+              <div id="gtRoomOrder"></div>
               <div class="d-flex gap-1 mt-2">
                 <button type="button" id="gtSaveBtn" class="btn btn-sm btn-success flex-fill"><i class="fas fa-save me-1"></i>{{ __('Save tours') }}</button>
                 <button type="button" id="gtPreviewBtn" class="btn btn-sm btn-outline-primary flex-fill" title="{{ __('Save then open the walkthrough and play this tour') }}"><i class="fas fa-play me-1"></i>{{ __('Preview') }}</button>
@@ -1451,6 +1452,50 @@
       (TOUR_OBJECTS || []).forEach(function (p) { ALL_OBJ[p.io_id] = p.title; });
       (PLACEMENTS || []).forEach(function (p) { if (!ALL_OBJ[p.information_object_id]) ALL_OBJ[p.information_object_id] = p.title; });
       function titleFor(io) { return ALL_OBJ[io] || ('#' + io); }
+      // Per-tour ROOM ORDER: map each object to its room so the curator can order
+      // whole room-blocks; the flat stop list is regrouped to match (the
+      // walkthrough plays stops in order, so this defines the room sequence).
+      var IO_ROOM = {};
+      (TOUR_OBJECTS || []).forEach(function (p) { if (p.io_id) IO_ROOM[p.io_id] = { id: (+p.room_id || 0), name: p.room_name || '' }; });
+      function roomOfStop(s) { return IO_ROOM[s.io_id] || { id: 0, name: '{{ __('(unknown room)') }}' }; }
+      function roomsInTour() {
+        var order = [], seen = {};
+        stops().forEach(function (s) { var r = roomOfStop(s); if (!seen[r.id]) { seen[r.id] = 1; order.push({ id: r.id, name: r.name }); } });
+        return order;
+      }
+      function applyRoomOrder(orderIds) {
+        var byRoom = {};
+        stops().forEach(function (s) { var k = roomOfStop(s).id; (byRoom[k] = byRoom[k] || []).push(s); });
+        var next = [];
+        orderIds.forEach(function (k) { (byRoom[k] || []).forEach(function (s) { next.push(s); }); delete byRoom[k]; });
+        Object.keys(byRoom).forEach(function (k) { byRoom[k].forEach(function (s) { next.push(s); }); });   // any stragglers
+        TOURS[cur].stops = next;
+      }
+      function renderRoomOrder() {
+        var el = document.getElementById('gtRoomOrder'); if (!el) return;
+        var rooms = roomsInTour();
+        if (rooms.length <= 1) { el.innerHTML = ''; return; }   // only meaningful across 2+ rooms
+        var html = '<div class="small fw-bold mt-2 mb-1"><i class="fas fa-shoe-prints me-1"></i>{{ __('Room order (the tour visits rooms top to bottom)') }}</div>';
+        rooms.forEach(function (r, i) {
+          html += '<div class="d-flex align-items-center justify-content-between border rounded px-2 py-1 mb-1">' +
+            '<span class="small text-truncate">' + (i + 1) + '. ' + (r.name || '').replace(/[<>&]/g, '') + '</span>' +
+            '<span class="text-nowrap"><button type="button" class="btn btn-sm btn-link p-0 me-1" data-rup="' + i + '">&uarr;</button>' +
+            '<button type="button" class="btn btn-sm btn-link p-0" data-rdown="' + i + '">&darr;</button></span></div>';
+        });
+        el.innerHTML = html;
+      }
+      (function () {
+        var el = document.getElementById('gtRoomOrder'); if (!el) return;
+        el.addEventListener('click', function (e) {
+          var up = e.target.getAttribute('data-rup'), dn = e.target.getAttribute('data-rdown');
+          if (up === null && dn === null) return;
+          var ids = roomsInTour().map(function (r) { return r.id; });
+          var idx = up !== null ? +up : +dn, swap = up !== null ? idx - 1 : idx + 1;
+          if (swap < 0 || swap >= ids.length) return;
+          var t = ids[idx]; ids[idx] = ids[swap]; ids[swap] = t;
+          applyRoomOrder(ids); render();
+        });
+      })();
       // Picker pool, scoped (this room | whole building) and sorted A-Z by title.
       var scopeSel = document.getElementById('gtScope');
       function poolFor(scope) {
@@ -1497,6 +1542,7 @@
           list.appendChild(row);
           row.querySelector('[data-narr]').value = s.narration || '';
         });
+        renderRoomOrder();
         if (typeof window.__exhibDrawRoute === 'function') window.__exhibDrawRoute();   // keep the plan route line in sync
       }
       list.addEventListener('input', function (e) {

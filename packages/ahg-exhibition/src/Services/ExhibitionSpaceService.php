@@ -1406,7 +1406,7 @@ class ExhibitionSpaceService
                 continue;
             }
             $seen[$r['io_id']] = 1;
-            $out[] = ['io_id' => $r['io_id'], 'title' => $r['title'].' ('.$r['room_name'].')'];
+            $out[] = ['io_id' => $r['io_id'], 'title' => $r['title'].' ('.$r['room_name'].')', 'room_id' => $r['room_id'], 'room_name' => $r['room_name']];
         }
 
         return $out;
