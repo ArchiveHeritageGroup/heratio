@@ -2685,7 +2685,7 @@ class ExhibitionSpaceService
             })
             ->select(
                 'ep.id', 'ep.information_object_id', 'ep.pos_x', 'ep.pos_y',
-                'ep.rotation_deg', 'ep.scale', 'ep.wall_or_zone',
+                'ep.rotation_deg', 'ep.scale', 'ep.size_units_used', 'ep.wall_or_zone',
                 'ep.model_tilt_x', 'ep.model_tilt_z', 'ep.wall_u', 'ep.wall_v', 'ep.spotlight', 'ep.display_case', 'ep.on_floor',
                 'ioi.title as title', 'ioi.scope_and_content as description', 'sl.slug as slug'
             )
@@ -2705,6 +2705,7 @@ class ExhibitionSpaceService
                 'pos_y' => $r->pos_y !== null ? (float) $r->pos_y : 0.5,
                 'rotation_deg' => (float) ($r->rotation_deg ?? 0),
                 'scale' => (float) ($r->scale ?? 1),
+                'size_units_used' => (float) ($r->size_units_used ?? 0),   // Builder "Size (units)" = metres (longest side); drives 3D model scale
                 'wall_or_zone' => $r->wall_or_zone,
                 'kind' => $media['kind'],
                 'model_url' => $media['model_url'],

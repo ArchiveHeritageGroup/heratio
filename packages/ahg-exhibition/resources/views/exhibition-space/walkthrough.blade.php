@@ -1500,7 +1500,10 @@
           var box = new THREE.Box3().setFromObject(pivot);
           var size = box.getSize(new THREE.Vector3());
           var maxd = Math.max(size.x, size.y, size.z) || 1;
-          pivot.scale.setScalar(((inCase ? 0.55 : 1.5) / maxd) * (s.scale || 1));   // smaller to fit inside the glass case; else display size from Builder
+          // Display size: Builder "Size (units)" = real metres of the longest
+          // dimension (0/blank -> default 1.5m). A glass case fixes its own fit.
+          var fit3d = inCase ? 0.55 : ((s.size_units_used && s.size_units_used > 0) ? s.size_units_used : 1.5);
+          pivot.scale.setScalar((fit3d / maxd) * (s.scale || 1));
           pivot.rotation.y = (s.rotation_deg || 0) * Math.PI / 180;
           pivot.updateMatrixWorld(true);
           box = new THREE.Box3().setFromObject(pivot);
@@ -1549,7 +1552,8 @@
           obj.rotation.x = effTiltX(s) * Math.PI / 180; obj.rotation.z = effTiltZ(s) * Math.PI / 180;
           var pivot = new THREE.Group(); pivot.add(obj);
           var box = new THREE.Box3().setFromObject(pivot), size = box.getSize(new THREE.Vector3()), maxd = Math.max(size.x, size.y, size.z) || 1;
-          pivot.scale.setScalar((1.5 / maxd) * (s.scale || 1)); pivot.rotation.y = (s.rotation_deg || 0) * Math.PI / 180; pivot.updateMatrixWorld(true);
+          var fit3dC = (s.size_units_used && s.size_units_used > 0) ? s.size_units_used : 1.5;   // "Size (units)" = metres (longest side); 0 -> 1.5m default
+          pivot.scale.setScalar((fit3dC / maxd) * (s.scale || 1)); pivot.rotation.y = (s.rotation_deg || 0) * Math.PI / 180; pivot.updateMatrixWorld(true);
           box = new THREE.Box3().setFromObject(pivot); var c = box.getCenter(new THREE.Vector3());
           pivot.position.x += cp.x - c.x; pivot.position.z += cp.z - c.z; pivot.position.y += ph - box.min.y;
           pivot.traverse(function (n) { if (n.isMesh) n.userData.stop = s; }); pivot.userData.stop = s;
@@ -2375,9 +2379,42 @@
     if (tourPlayBtn) tourPlayBtn.addEventListener('click', function (e) { e.stopPropagation(); tourState.playing ? tourPause() : tourPlay(); });
     var tourStopBtn = document.getElementById('wtTourStopBtn'); if (tourStopBtn) tourStopBtn.addEventListener('click', function (e) { e.stopPropagation(); tourStop(); });
     if (tourSelEl) tourSelEl.addEventListener('change', function () { tourStop(); });   // switching tour resets to start
-    // Mobile quick-launch: walking is hard on touch, so a big button just plays the tour.
-    if (tourQuick && isTouch && TOURS.length) {
-      tourQuick.style.display = 'block';
+    // Mobile: if no tour is authored, auto-build a "Full tour" of every object in
+    // order, so mobile always has a tour to launch (#1182). Desktop is untouched
+    // (keeps free-roam), so this only runs on touch devices.
+    if (isTouch && !TOURS.length && STOPS.length) {
+      TOURS = [{ name: '{{ __('Full tour') }}', stops: STOPS.map(function (s) { return { io_id: s.information_object_id, title: s.title || '', narration: '', dwell: 6 }; }) }];
+    }
+
+    // Mobile defaults to a guided tour (#1182): walking is hard on touch, so the
+    // entry screen leads with "pick a tour and go" instead of dropping into
+    // free-roam. An "Explore freely" link still enters the orbit free-roam. The
+    // floating quick-launch button is reused for replay after a tour ends (see
+    // quickShow()). Desktop is unchanged (isTouch gate).
+    if (isTouch && TOURS.length && blocker) {
+      var singleTour = TOURS.length === 1;
+      var tourOpts = '';
+      TOURS.forEach(function (t, i) {
+        var nm = (t.name || ('Tour ' + (i + 1))).replace(/[<>&]/g, '');
+        tourOpts += '<option value="' + i + '">' + nm + '</option>';
+      });
+      blocker.innerHTML =
+        '<div class="text-center text-white" style="max-width:340px;padding:0 18px;">' +
+          '<div style="font-size:2.2rem;"><i class="fas fa-route"></i></div>' +
+          '<div class="fw-bold mt-2 mb-2">{{ __('Take a guided tour') }}</div>' +
+          (singleTour ? '' : '<select id="wtMobTourSel" class="form-select form-select-sm mb-2">' + tourOpts + '</select>') +
+          '<button type="button" id="wtMobTourGo" class="btn btn-success btn-lg rounded-pill shadow w-100"><i class="fas fa-play me-2"></i>{{ __('Start tour') }}</button>' +
+          '<div><button type="button" id="wtMobExplore" class="btn btn-sm btn-link text-white-50 mt-2">{{ __('Explore freely instead') }}</button></div>' +
+          '<div class="small text-white-50 mt-2"><i class="fas fa-desktop me-1"></i>{{ __('On a PC or laptop you can roam the gallery freely.') }}</div>' +
+        '</div>';
+      blocker.style.cursor = 'default';
+      blocker.style.display = 'flex';
+      if (tourQuick) tourQuick.style.display = 'none';
+      var mGo = document.getElementById('wtMobTourGo'), mSel = document.getElementById('wtMobTourSel');
+      if (mGo) mGo.addEventListener('click', function (e) { e.stopPropagation(); blocker.style.display = 'none'; tourPlay(mSel ? (+mSel.value || 0) : 0); });
+      var mExp = document.getElementById('wtMobExplore');
+      if (mExp) mExp.addEventListener('click', function (e) { e.stopPropagation(); blocker.style.display = 'none'; });
+      // Populate + wire the floating quick-launch as well, for replay after a tour ends.
       if (TOURS.length > 1 && tourQuickSel) {
         tourQuickSel.classList.remove('d-none');
         TOURS.forEach(function (t, i) { var o = document.createElement('option'); o.value = i; o.textContent = t.name || ('Tour ' + (i + 1)); tourQuickSel.appendChild(o); });
