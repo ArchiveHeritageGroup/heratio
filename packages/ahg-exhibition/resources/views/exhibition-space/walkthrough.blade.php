@@ -1706,7 +1706,10 @@
       stand.set(sw.x, 1.6, sw.z); look.set(lw.x, 1.3, lw.z);
       fly = { from: controls.getObject().position.clone(), to: stand, look: look,
               targetFrom: orbit ? orbit.target.clone() : null, t: 0, dur: 0.9 };
-      openPanel(s);
+      // During a guided tour the tour banner already shows the title + narration,
+      // so skip the big detail inlay (it clutters the screen, esp. on mobile).
+      // Manual walk-to / object taps still open it.
+      if (!(typeof tourState !== 'undefined' && tourState.playing)) openPanel(s);
     }
     (function buildNav() {
       var nav = document.getElementById('roomNav');
