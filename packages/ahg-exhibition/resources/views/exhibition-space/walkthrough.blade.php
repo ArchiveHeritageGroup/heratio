@@ -136,10 +136,10 @@
             </div>
           </div>
           {{-- In-canvas detail inlay (replaces the side panel). --}}
-          <div id="wtInlay" style="position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;max-width:520px;width:92%;display:none;background:rgba(20,22,26,.92);color:#fff;border-radius:.5rem;padding:14px 16px;box-shadow:0 4px 16px rgba(0,0,0,.45);">
+          <div id="wtInlay" style="position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;max-width:520px;width:92%;max-height:38vh;overflow-y:auto;display:none;background:rgba(20,22,26,.85);color:#fff;border-radius:.5rem;padding:14px 16px;box-shadow:0 4px 16px rgba(0,0,0,.45);">
             <button type="button" id="inlayClose" class="btn-close btn-close-white" style="position:absolute;top:8px;right:10px;" aria-label="{{ __('Close') }}"></button>
             <h6 id="inlayTitle" class="fw-bold mb-1 pe-4"></h6>
-            <p id="inlayDesc" class="small mb-2" style="max-height:120px;overflow:auto;"></p>
+            <p id="inlayDesc" class="small mb-2" style="max-height:22vh;overflow:auto;"></p>
             <a id="inlayRec" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-light"><i class="fas fa-external-link-alt me-1"></i>{{ __('View full record') }} <span class="badge bg-secondary ms-1">V</span></a>
             <div id="wtRelated" class="mt-2" style="display:none;">
               <div class="small text-white-50 mb-1"><i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('You might also like') }}</div>
