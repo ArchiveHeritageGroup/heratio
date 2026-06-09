@@ -67,6 +67,12 @@
           <button id="wtSunBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:336px;z-index:6;opacity:.85;" title="{{ __('Sun & shadows (off / morning / noon / afternoon)') }}"><i class="fas fa-sun"></i></button>
           <button id="wtNightBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:372px;z-index:6;opacity:.85;" title="{{ __('Night mode (walk with the flashlight) - N') }}"><i class="fas fa-moon"></i></button>
           <button id="wtFsBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:408px;z-index:6;opacity:.85;" title="{{ __('Fullscreen') }}"><i class="fas fa-expand"></i></button>
+          {{-- #1156: 360/Matterport embed for the current room - shown only when that room carries an embed URL. --}}
+          <button id="wt360Btn" type="button" class="btn btn-sm btn-info" style="position:absolute;top:8px;right:444px;z-index:6;opacity:.9;display:none;" title="{{ __('360 / Matterport view of this room') }}"><i class="fas fa-vr-cardboard me-1"></i>360</button>
+          <div id="wt360Overlay" style="position:absolute;inset:0;z-index:20;background:#000;display:none;">
+            <iframe id="wt360Frame" src="" allow="fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen style="border:0;width:100%;height:100%;"></iframe>
+            <button id="wt360Close" type="button" class="btn btn-light btn-sm rounded-pill shadow" style="position:absolute;top:10px;right:10px;z-index:21;"><i class="fas fa-times me-1"></i>{{ __('Close 360 view') }}</button>
+          </div>
           {{-- Feedback button, inside the room so it stays available in fullscreen (the
                theme's left-edge feedback tab is outside #room and vanishes in fullscreen). --}}
           <a id="wtFeedbackBtn" href="{{ route('feedback.general') }}" target="_blank" rel="noopener" class="btn btn-sm btn-danger" style="position:absolute;top:8px;left:8px;z-index:8;opacity:.9;box-shadow:0 2px 8px rgba(0,0,0,.4);" title="{{ __('Give feedback (opens in a new tab)') }}"><i class="fas fa-comment-alt me-1"></i>{{ __('Feedback') }}</a>
@@ -910,6 +916,21 @@
       RH = rm.h || WALL_H;   // this room's wall height (per-room, not building-wide)
       _curRoom = rm;         // wallSeg/wallSegH add into this room's (possibly rotated) group
       (rm.furniture || []).forEach(function (it) { addFurniturePiece(rm, it); });   // furniture & fittings (indoor + outdoor)
+      // #1156 Photoreal capture: a room can be backed by an uploaded scan shell (glTF/OBJ/STL/PLY).
+      // It is loaded additively into the room group at the room's corner origin, scaled to fit; the
+      // built floor/walls stay in place (collision + fallback) and object placements + the live
+      // overlay are added on top, so they keep working over the scan.
+      if (rm.scan_shell) {
+        (function (room) {
+          var ext = (String(room.scan_shell).split('?')[0].split('.').pop() || 'glb').toLowerCase();
+          loadModel(room.scan_shell, ext, function (obj) {
+            var sc = room.scan_shell_scale || 1; obj.scale.setScalar(sc);
+            var grp = new THREE.Group(); grp.add(obj);
+            grp.position.set(room.x_offset, 0, room.z_offset);   // addToRoom converts to the room group's local origin
+            addToRoom(room, grp);
+          }, function () { console.warn('[exhibition] scan shell failed to load:', room.scan_shell); });
+        })(rm);
+      }
       if (rm.is_outdoor) { renderOutdoor(rm); return; }   // #1170 open-air: no walls/ceiling/dividers
       // Decorated/painted wall material (#wall-pictures): each edge can carry its OWN image
       // (rm.wall_images[edge]); otherwise the room's all-walls default (rm.wall_image); else plain
@@ -2014,6 +2035,17 @@
     // Header reflects the room the visitor is currently standing in.
     var _lastRoomId = null, _nameEl = document.getElementById('wtSpaceName');
     var _bldBtn = document.getElementById('editBuilderBtn'), _bldTmpl = _bldBtn ? _bldBtn.getAttribute('data-tmpl') : null;
+    // #1156: the 360/Matterport button follows you - it shows only in rooms that carry an embed URL.
+    var _360Btn = document.getElementById('wt360Btn'), _360Ov = document.getElementById('wt360Overlay'),
+      _360Frame = document.getElementById('wt360Frame'), _360Close = document.getElementById('wt360Close'), _360Url = null;
+    function open360() {
+      if (!_360Url || !_360Ov) return;
+      try { if (controls && controls.unlock) controls.unlock(); } catch (e) {}
+      _360Frame.src = _360Url; _360Ov.style.display = 'block';
+    }
+    function close360() { if (!_360Ov) return; _360Ov.style.display = 'none'; _360Frame.src = ''; }
+    if (_360Btn) _360Btn.addEventListener('click', open360);
+    if (_360Close) _360Close.addEventListener('click', close360);
     function updateRoomName() {
       var p = controls.getObject().position, r = findRoomAtWorld(p.x, p.z, null);
       if (r && r.id !== _lastRoomId) {
@@ -2021,6 +2053,9 @@
         // Edit-in-Builder follows you: it opens the builder for the room you're standing in.
         if (_bldBtn && _bldTmpl && r.slug) _bldBtn.setAttribute('href', _bldTmpl.replace('__SLUG__', r.slug));
         if (typeof setDefaultTourForRoom === 'function') setDefaultTourForRoom();   // play button defaults to this room's tour
+        _360Url = (r.scan_embed && /^https?:\/\//i.test(r.scan_embed)) ? r.scan_embed : null;
+        if (_360Btn) _360Btn.style.display = _360Url ? '' : 'none';
+        if (!_360Url) close360();
       }
     }
     updateRoomName();

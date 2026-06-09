@@ -1007,6 +1007,9 @@ class ExhibitionSpaceService
                 'live' => $this->liveState($r),
                 'floor' => (int) ($r->floor_level ?? 0),           // heratio#1169 building level (numeric; from floor_level)
                 'is_outdoor' => (int) ($r->is_outdoor ?? 0) === 1, // heratio#1170 open-air space
+                'scan_shell' => $r->scan_shell_path ?? null,       // heratio#1156 photoreal capture shell (glTF/OBJ/etc.) rendered as the room backdrop
+                'scan_shell_scale' => (float) ($r->scan_shell_scale ?? 1),   // uniform fit-scale for the shell
+                'scan_embed' => $r->scan_embed_url ?? null,        // 360/Matterport embed URL (overlay)
             ];
             $minX = $minX === null ? $x : min($minX, $x);
             $maxX = $maxX === null ? $x + $dim['w'] : max($maxX, $x + $dim['w']);
@@ -1963,6 +1966,25 @@ class ExhibitionSpaceService
     {
         DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
             ->update(['floor_image_path' => $publicPath, 'updated_at' => now()]);
+    }
+
+    /** heratio#1156: set (or clear, with null) the photoreal capture shell for a room. */
+    public function setScanShell(int $exhibitionSpaceId, ?string $publicPath): void
+    {
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)
+            ->update(['scan_shell_path' => $publicPath, 'updated_at' => now()]);
+    }
+
+    /** heratio#1156: fit-scale for the scan shell + the 360/Matterport embed URL. */
+    public function setScanMeta(int $exhibitionSpaceId, ?float $scale, ?string $embedUrl): void
+    {
+        $patch = ['updated_at' => now()];
+        if ($scale !== null) {
+            $patch['scan_shell_scale'] = max(0.001, min(1000, $scale));
+        }
+        // embedUrl is set verbatim (empty string clears it); only http(s) URLs are honoured at render time.
+        $patch['scan_embed_url'] = ($embedUrl !== null && trim($embedUrl) !== '') ? trim($embedUrl) : null;
+        DB::table('ahg_exhibition_space')->where('id', $exhibitionSpaceId)->update($patch);
     }
 
     /** Set the floor tiling for a room: grout-grid on/off + tile size (m, 0.25-10) + grout width (mm, 0.5-100). */

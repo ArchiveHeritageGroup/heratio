@@ -1251,6 +1251,78 @@ class ExhibitionSpaceController extends Controller
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Floor image cleared.');
     }
 
+    /**
+     * heratio#1156: upload a photoreal capture shell (photogrammetry / glTF / OBJ /
+     * scan export) to back the room in the 3D walkthrough. Mirrors uploadFloorImage:
+     * stored under /uploads/exhibition-scans, rendered into the room group additively
+     * so object placements and the live overlay still sit on top.
+     */
+    public function uploadScanShell(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $request->validate([
+            // Mesh formats the walkthrough loader already understands (GLTFLoader / OBJ / STL / PLY).
+            // True point clouds (.las/.e57/.pcd) are not yet rendered as points - tracked in #1156.
+            'scan_shell' => 'required|file|mimes:glb,gltf,obj,stl,ply|max:204800',
+        ]);
+        $file = $request->file('scan_shell');
+        $ext = strtolower($file->getClientOriginalExtension() ?: 'glb');
+        $dir = config('heratio.storage_path').'/uploads/exhibition-scans';
+        if (! is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        $filename = $space->slug.'-'.substr(md5((string) microtime(true)), 0, 8).'.'.$ext;
+        $file->move($dir, $filename);
+        $path = '/uploads/exhibition-scans/'.$filename;
+        $this->service->setScanShell((int) $space->id, $path);
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true, 'path' => $path, 'filename' => $filename, 'ext' => $ext]);
+        }
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Scan shell uploaded.');
+    }
+
+    /** heratio#1156: remove the room's photoreal capture shell. */
+    public function clearScanShell(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $this->service->setScanShell((int) $space->id, null);
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true]);
+        }
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Scan shell cleared.');
+    }
+
+    /** heratio#1156: persist the scan fit-scale + 360/Matterport embed URL. */
+    public function setScanMetaAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $data = $request->validate([
+            'scale' => 'nullable|numeric|min:0.001|max:1000',
+            'embed_url' => 'nullable|string|max:500|url',
+        ]);
+        $this->service->setScanMeta(
+            (int) $space->id,
+            isset($data['scale']) ? (float) $data['scale'] : null,
+            $data['embed_url'] ?? ''
+        );
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => true]);
+        }
+
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Scan settings saved.');
+    }
+
     /** Save a wall paint colour - the all-walls default, or one wall (edge). Used when no wall image is set. */
     public function saveWallColor(Request $request, string $slug)
     {

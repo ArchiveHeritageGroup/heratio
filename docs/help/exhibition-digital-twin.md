@@ -22,6 +22,28 @@ covers the twin features that sit on top of the builder and walkthrough.
   desktop and mobile. Move with W A S D or the arrow keys, wheel to step forward or back,
   and **hold U + mouse wheel to stand taller or crouch**.
 
+## Photoreal capture (scan a real room)
+
+Instead of building a room block by block, you can back it with a **photoreal 3D scan**
+of the real space. In the builder, open the **Photoreal capture** card:
+
+- **Upload scan shell** - a `.glb`, `.gltf`, `.obj`, `.stl` or `.ply` mesh exported from
+  photogrammetry (e.g. RealityCapture, Metashape, Polycam) or a 3D scanner. It renders
+  inside the walkthrough as the room's backdrop. The built floor and walls stay in place
+  underneath, so you keep solid collision (you cannot walk out through a scanned wall) and
+  a clean fallback if the scan is hidden.
+- **Fit scale** - a single multiplier to size the scan to the room's real metres. The
+  scan's own origin is placed at the room's corner; nudge the scale until it lines up.
+- Your **object placements and the live overlay still work** over the scan - drop objects,
+  hang pictures, run the conservation overlay exactly as on a built room.
+- **360 / Matterport embed URL** - paste a Matterport (or any 360 tour) share URL. A
+  **360 button** then appears in the walkthrough whenever you stand in that room, opening
+  the immersive tour in an overlay. Licensing for the embedded tour stays with its host.
+
+Point clouds (`.las`, `.e57`, `.pcd`) are not yet rendered as points - export a mesh for
+now. Larger scans take longer to download into the walkthrough; keep shells under a few
+hundred MB and decimate where you can.
+
 ## Live data link
 
 Readings of **light (lux), temperature, humidity and visitor count** can be recorded per
@@ -166,7 +188,8 @@ before it happens.
 
 ## Roadmap
 
-Further extensions under consideration: **natural neural narration voice** routed through
-the AI gateway (issue #1168), a WebGPU renderer and server-GPU pixel-streaming for very
-heavy scenes, live cross-institution federation of exhibitions, and importing photoreal
-3D scans (photogrammetry / Matterport / glTF) as room backdrops.
+Further extensions under consideration: a WebGPU renderer and server-GPU pixel-streaming
+for very heavy scenes, and live cross-institution federation of exhibitions. Neural
+narration voice (issue #1168) and photoreal scan import (issue #1156, glTF / OBJ / scan
+mesh + 360/Matterport embeds) have shipped - see **Photoreal capture** and the audio
+docent above. Rendering true point clouds (`.las` / `.e57`) as points remains on the list.

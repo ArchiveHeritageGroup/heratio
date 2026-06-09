@@ -284,6 +284,29 @@
 
         <div class="col-md-6 col-xl-3">
           <div class="card mb-0">
+            <div class="card-header py-2"><strong><i class="fas fa-cube me-1"></i>{{ __('Photoreal capture') }}</strong></div>
+            <div class="card-body">
+              <p class="small text-muted mb-2">{{ __('Back this room with a photoreal scan (photogrammetry / glTF / OBJ / scan export). It renders inside the 3D walkthrough; your object placements and the live overlay stay on top.') }}</p>
+              <div class="border rounded p-1 text-center mb-2" style="background:#f8f9fa">
+                <div id="scName" class="text-truncate text-muted" style="font-size:11px">{{ __('No scan shell (using built room)') }}</div>
+              </div>
+              <input type="file" id="scFile" accept=".glb,.gltf,.obj,.stl,.ply" class="form-control form-control-sm mb-2">
+              <button type="button" id="scUpload" class="btn btn-sm btn-outline-primary w-100 mb-1"><i class="fas fa-upload me-1"></i>{{ __('Upload scan shell') }}</button>
+              <button type="button" id="scClear" class="btn btn-sm btn-outline-danger w-100 mb-2"><i class="fas fa-times me-1"></i>{{ __('Clear scan shell') }}</button>
+              <div class="input-group input-group-sm mb-2">
+                <span class="input-group-text">{{ __('Fit scale') }}</span>
+                <input type="number" id="scScale" class="form-control" min="0.001" max="1000" step="0.05" value="{{ $space->scan_shell_scale ?? 1 }}">
+              </div>
+              <label class="small text-muted mb-1">{{ __('360 / Matterport embed URL (optional)') }}</label>
+              <input type="url" id="scEmbed" class="form-control form-control-sm mb-2" placeholder="https://my.matterport.com/show/?m=…" value="{{ $space->scan_embed_url ?? '' }}">
+              <button type="button" id="scMeta" class="btn btn-sm btn-outline-secondary w-100">{{ __('Save scale & embed') }}</button>
+              <small class="text-muted d-block mt-1">{{ __('glTF/OBJ/STL/PLY meshes render as the room. Embed URL adds a "360 view" button in the walkthrough. Point clouds (.las/.e57) are not yet supported.') }}</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-xl-3">
+          <div class="card mb-0">
             <div class="card-header py-2"><strong><i class="fas fa-ruler-combined me-1"></i>{{ __('Room size (m)') }}</strong></div>
             <div class="card-body">
               <div class="row g-1 mb-2">
@@ -1353,6 +1376,45 @@
       if (groutEl) groutEl.addEventListener('change', saveTiling);
       if (tileEl) tileEl.addEventListener('change', saveTiling);
       if (gmmEl) gmmEl.addEventListener('change', saveTiling);
+    })();
+
+    // ---- Photoreal capture (#1156): upload a scan shell + fit-scale + 360/Matterport embed ----
+    (function () {
+      var SCAN = @json($space->scan_shell_path);
+      var nameEl = document.getElementById('scName'), fileEl = document.getElementById('scFile'),
+        upBtn = document.getElementById('scUpload'), clrBtn = document.getElementById('scClear'),
+        scaleEl = document.getElementById('scScale'), embedEl = document.getElementById('scEmbed'),
+        metaBtn = document.getElementById('scMeta');
+      if (!upBtn) return;
+      function fname(p) { return p ? p.split('/').pop() : ''; }
+      function refresh() {
+        nameEl.textContent = SCAN ? fname(SCAN) : '{{ __('No scan shell (using built room)') }}';
+        nameEl.classList.toggle('text-success', !!SCAN);
+      }
+      refresh();
+      upBtn.addEventListener('click', function () {
+        if (!fileEl.files || !fileEl.files[0]) { alert('{{ __('Choose a scan file first.') }}'); return; }
+        var fd = new FormData(); fd.append('scan_shell', fileEl.files[0]);
+        upBtn.disabled = true; upBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>{{ __('Uploading…') }}';
+        fetch('{{ route('exhibition-space.builder.scan-shell', ['slug' => $space->slug]) }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: fd })
+          .then(function (r) { return r.json(); }).then(function (d) {
+            upBtn.disabled = false; upBtn.innerHTML = '<i class="fas fa-upload me-1"></i>{{ __('Upload scan shell') }}';
+            if (!d.ok) { alert('{{ __('Upload failed.') }}'); return; }
+            SCAN = d.path; fileEl.value = ''; refresh();
+          }).catch(function () { upBtn.disabled = false; upBtn.innerHTML = '<i class="fas fa-upload me-1"></i>{{ __('Upload scan shell') }}'; alert('{{ __('Upload failed.') }}'); });
+      });
+      clrBtn.addEventListener('click', function () {
+        fetch('{{ route('exhibition-space.builder.scan-shell-clear', ['slug' => $space->slug]) }}', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: '' })
+          .then(function (r) { return r.json(); }).then(function (d) { if (!d.ok) return; SCAN = null; refresh(); });
+      });
+      function saveMeta() {
+        var body = 'scale=' + encodeURIComponent(scaleEl ? scaleEl.value : 1) + '&embed_url=' + encodeURIComponent(embedEl ? embedEl.value.trim() : '');
+        metaBtn.disabled = true;
+        fetch('{{ route('exhibition-space.builder.scan-meta', ['slug' => $space->slug]) }}', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: body })
+          .then(function (r) { return r.json(); }).then(function (d) { metaBtn.disabled = false; metaBtn.innerHTML = d && d.ok ? '<i class="fas fa-check me-1"></i>{{ __('Saved') }}' : '{{ __('Save scale & embed') }}'; setTimeout(function () { metaBtn.innerHTML = '{{ __('Save scale & embed') }}'; }, 1500); })
+          .catch(function () { metaBtn.disabled = false; alert('{{ __('Save failed (check the embed URL).') }}'); });
+      }
+      if (metaBtn) metaBtn.addEventListener('click', saveMeta);
     })();
 
     // ---- Furniture & fittings: add from the picker, drag the brown dot, double-click to remove ----

@@ -103,6 +103,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/builder/floor-image', [ExhibitionSpaceController::class, 'uploadFloorImage'])->name('exhibition-space.builder.floor-image')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/floor-image-clear', [ExhibitionSpaceController::class, 'clearFloorImage'])->name('exhibition-space.builder.floor-image-clear')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/floor-grout', [ExhibitionSpaceController::class, 'setFloorGroutAjax'])->name('exhibition-space.builder.floor-grout')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/scan-shell', [ExhibitionSpaceController::class, 'uploadScanShell'])->name('exhibition-space.builder.scan-shell')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/scan-shell-clear', [ExhibitionSpaceController::class, 'clearScanShell'])->name('exhibition-space.builder.scan-shell-clear')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/builder/scan-meta', [ExhibitionSpaceController::class, 'setScanMetaAjax'])->name('exhibition-space.builder.scan-meta')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/wall-color', [ExhibitionSpaceController::class, 'saveWallColor'])->name('exhibition-space.builder.wall-color')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/wall-color-clear', [ExhibitionSpaceController::class, 'clearWallColor'])->name('exhibition-space.builder.wall-color-clear')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/room-dims', [ExhibitionSpaceController::class, 'roomDimsAjax'])->name('exhibition-space.builder.room-dims')->middleware('acl:update');

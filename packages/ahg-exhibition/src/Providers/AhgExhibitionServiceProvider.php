@@ -95,6 +95,9 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'windows_json' => 'JSON NULL',           // heratio#1172: windows per wall [{wall,pos,width,sill,height}]
                     'bld_group' => 'VARCHAR(40) NULL',       // heratio#1143: plan grouping - rooms sharing a snapped wall move as one unit
                     'bld_locked' => 'TINYINT(1) NULL DEFAULT 0',   // heratio#1143: room "done" lock (walls aligned flush; no move/resize)
+                    'scan_shell_path' => 'VARCHAR(500) NULL',          // heratio#1156: photoreal capture shell (glTF/GLB/OBJ/STL/PLY) rendered as the room backdrop
+                    'scan_shell_scale' => 'DECIMAL(8,3) NULL DEFAULT 1.000',   // heratio#1156: uniform scale applied to the scan shell (fit to room metres)
+                    'scan_embed_url' => 'VARCHAR(500) NULL',           // heratio#1156: 360/Matterport embed URL (opened in an overlay; licensing handled by the host)
                 ];
                 foreach ($spaceCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_space', $col)) {
