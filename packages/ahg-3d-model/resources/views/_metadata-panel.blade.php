@@ -27,4 +27,55 @@
       @endauth
     </div>
   </div>
+
+  {{-- #1180 Make the on-page <model-viewer> consume this model's IIIF 3D
+       manifest: apply the camera field-of-view and render hotspots from the
+       PointSelector annotations. Runs on the record show page without editing
+       the (locked) digital-object viewer partial. --}}
+  <script nonce="{{ csp_nonce() }}">
+  (function () {
+    var url = @json(url('/iiif/3d/'.$__m->id.'/manifest.json'));
+    function applyTo(mv, man) {
+      try {
+        var canvas = (man.items || [])[0] || {};
+        var paint = (((canvas.items || [])[0] || {}).items) || [];
+        paint.forEach(function (a) {
+          var b = a.body || {};
+          if (b.type === 'PerspectiveCamera' && b.fieldOfView) {
+            var d = parseFloat(b.fieldOfView);
+            if (!isNaN(d)) mv.setAttribute('field-of-view', d + 'deg');
+          }
+        });
+        if (mv.querySelector('[data-iiif-hotspot]')) return; // already enhanced
+        var n = 0;
+        (man.annotations || []).forEach(function (pg) {
+          (pg.items || []).forEach(function (an) {
+            var sel = (an.target && an.target.selector) || an.target || {};
+            if (sel.type !== 'PointSelector') return;
+            n++;
+            var body = an.body || {};
+            var txt = body.value || '';
+            var btn = document.createElement('button');
+            btn.setAttribute('slot', 'hotspot-iiif-' + n);
+            btn.setAttribute('data-iiif-hotspot', '1');
+            btn.setAttribute('data-position', (sel.x || 0) + 'm ' + (sel.y || 0) + 'm ' + (sel.z || 0) + 'm');
+            btn.style.cssText = 'width:18px;height:18px;border-radius:50%;border:2px solid #fff;background:#1a73e8;cursor:pointer;box-shadow:0 0 0 2px rgba(0,0,0,.25);';
+            if (txt) btn.title = txt;
+            if (body.type === 'Text' && body.id) { btn.addEventListener('click', function () { window.open(body.id, '_blank'); }); }
+            mv.appendChild(btn);
+          });
+        });
+      } catch (e) {}
+    }
+    function init() {
+      var mvs = document.querySelectorAll('model-viewer');
+      if (!mvs.length) return;
+      fetch(url, { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (man) { if (man) mvs.forEach(function (mv) { applyTo(mv, man); }); })
+        .catch(function () {});
+    }
+    if (document.readyState !== 'loading') init(); else document.addEventListener('DOMContentLoaded', init);
+  })();
+  </script>
 @endif

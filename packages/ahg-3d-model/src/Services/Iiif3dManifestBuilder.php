@@ -94,7 +94,7 @@ class Iiif3dManifestBuilder
             ],
             'id' => $manifestId,
             'type' => 'Manifest',
-            'label' => ['en' => [$model->model_title ?: 'Untitled 3D model']],
+            'label' => ['en' => [($model->model_title ?? '') ?: 'Untitled 3D model']],
             'metadata' => $this->metadata($model),
             'items' => [[
                 'id' => $canvasId,
