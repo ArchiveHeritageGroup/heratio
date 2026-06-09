@@ -55,3 +55,23 @@ The cron worker cannot update Elasticsearch (`"default" context does not exist` 
 a CLI context), so a newly attached PDF shows on the record page immediately but
 not in search/browse until reindexed. Reindex one record with:
 `php symfony search:populate --slug="<slug>" --update --ignore-descendants`.
+
+## Source soft-delete + retention (#1177)
+
+`ahg:pdf-combine --clear-source` no longer hard-deletes the combined pages. It
+**moves** them to a quarantine area `<storage_path>/pdf-combine-trash/<stamp>/`
+(with an `_origin.json` recording the source folder + timestamp), so a wrong or
+partial combine is recoverable. `rename()` is safe-by-default: a file that cannot
+be quarantined is left in place, never deleted.
+
+A scheduled command **`ahg:purge-combine-trash`** (daily 03:30, also runnable with
+`--dry-run` / `--days=N`) finally removes quarantine folders older than the
+retention window. The window is configurable via `ahg_settings.pdf_combine_trash_days`
+(default 7; seeded on boot, never overwritten). The purge logs exactly which
+folders/files it drops (no silent truncation).
+
+Restore: within the window the files sit untouched under the quarantine folder, so
+recovery is a manual move back (a one-click UI restore is deferred).
+
+AtoM-AHG twin (`TiffPdfMergeJob::clearSourceFiles()` + the `ahg:tiff-pdf-process`
+cron) gets the same soft-delete + retention treatment (fix-both rule).

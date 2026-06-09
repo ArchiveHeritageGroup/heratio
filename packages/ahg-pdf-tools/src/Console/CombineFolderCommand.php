@@ -134,16 +134,31 @@ class CombineFolderCommand extends Command
         // clean and never re-combines stale leftovers. Only the page files that
         // were just combined are removed, plus the folder if it is now empty.
         if ($this->option('clear-source')) {
-            $removed = 0;
+            // #1177 soft-delete: MOVE the just-combined pages to a quarantine area
+            // instead of unlinking, so a wrong/partial combine (or wrong folder) is
+            // recoverable. A scheduled purge (ahg:purge-combine-trash) finally
+            // removes anything past the retention window (ahg_settings
+            // pdf_combine_trash_days, default 7). rename() is safe-by-default: if it
+            // cannot quarantine a file it leaves it in place rather than deleting.
+            $trashBase = rtrim((string) config('heratio.storage_path'), '/').'/pdf-combine-trash';
+            $stamp = date('Ymd-His').'-'.substr(md5($folder.microtime(true)), 0, 6);
+            $trashDir = $trashBase.'/'.$stamp;
+            @mkdir($trashDir, 0775, true);
+            $moved = 0;
             foreach ($pages as $p) {
-                if (is_file($p) && @unlink($p)) {
-                    $removed++;
+                if (is_file($p) && @rename($p, $trashDir.'/'.basename($p))) {
+                    $moved++;
                 }
             }
+            @file_put_contents($trashDir.'/_origin.json', json_encode([
+                'source_folder' => $folder,
+                'moved_at' => now()->toIso8601String(),
+                'count' => $moved,
+            ], JSON_PRETTY_PRINT));
             if (is_dir($folder) && count(glob($folder.'/*') ?: []) === 0) {
                 @rmdir($folder);
             }
-            $this->info("Cleared {$removed} source file(s) after combine (fresh start).");
+            $this->info("Quarantined {$moved} source file(s) to {$trashDir} (recoverable until the retention purge).");
         }
 
         return 0;
