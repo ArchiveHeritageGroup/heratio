@@ -1877,6 +1877,7 @@
         orbit.target.set(c.x, curFloorY + 1.3, c.z); orbit.update();
       }
       curRoom = rm; toggleMinimap(false);
+      if (typeof setDefaultTourForRoom === 'function') setDefaultTourForRoom();   // default the tour selector to this room's tour
     }
     var miniFloor = null;   // which floor the minimap is showing
     function miniFloors() { var s = {}; ROOMS.forEach(function (r) { s[r.floor || 0] = 1; }); return Object.keys(s).map(Number).sort(function (a, b) { return a - b; }); }
@@ -1958,6 +1959,7 @@
         _lastRoomId = r.id; if (_nameEl) _nameEl.textContent = r.name || '';
         // Edit-in-Builder follows you: it opens the builder for the room you're standing in.
         if (_bldBtn && _bldTmpl && r.slug) _bldBtn.setAttribute('href', _bldTmpl.replace('__SLUG__', r.slug));
+        if (typeof setDefaultTourForRoom === 'function') setDefaultTourForRoom();   // play button defaults to this room's tour
       }
     }
     updateRoomName();
@@ -2369,6 +2371,28 @@
       TOURS.forEach(function (t, i) { var o = document.createElement('option'); o.value = i; o.textContent = t.name || ('Tour ' + (i + 1)); tourSelEl.appendChild(o); });
       if (TOURS.length > 1 && tourPick) tourPick.style.display = 'block';   // only show the picker when there is a choice
     }
+    // Default the tour to the room you're standing in (tours are building-wide):
+    // the first tour that has a stop in the current room. -1 if none.
+    function tourIndexForRoom(roomId) {
+      if (roomId == null) return -1;
+      for (var ti = 0; ti < TOURS.length; ti++) {
+        var st = TOURS[ti].stops || [];
+        for (var si = 0; si < st.length; si++) {
+          var sp = stopByIo(st[si].io_id);
+          if (sp && sp._room && sp._room.id === roomId) return ti;
+        }
+      }
+      return -1;
+    }
+    function currentRoomId() {
+      try { var p = controls.getObject().position; var r = findRoomAtWorld(p.x, p.z, null); return r ? r.id : (curRoom && curRoom.id); }
+      catch (e) { return curRoom && curRoom.id; }
+    }
+    function setDefaultTourForRoom() {
+      if (!TOURS.length || !tourSelEl || tourState.playing) return;
+      var ri = tourIndexForRoom(currentRoomId());
+      if (ri >= 0) tourSelEl.value = ri;
+    }
     function tourBanner(txt) { var b = document.getElementById('wtTourBanner'), t = document.getElementById('wtTourText'); if (t) t.textContent = txt; if (b) b.style.display = 'block'; }
     function updateTourBtn() { if (!tourPlayBtn) return; tourPlayBtn.innerHTML = tourState.playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>'; tourPlayBtn.classList.toggle('btn-warning', tourState.playing); tourPlayBtn.classList.toggle('btn-success', !tourState.playing); }
     function tourGoto(i) {
@@ -2412,11 +2436,30 @@
     function quickShow(on) { if (tourQuick && isTouch && TOURS.length) tourQuick.style.display = on ? 'block' : 'none'; }
     function tourPlay(forceIdx) {
       if (!TOURS.length) return;
-      var idx = (typeof forceIdx === 'number') ? forceIdx : (tourSelEl ? (+tourSelEl.value || 0) : 0);
+      var rid = currentRoomId();
+      var idx;
+      if (typeof forceIdx === 'number') {
+        idx = forceIdx;
+      } else {
+        // No explicit pick (the play button): default to a tour for the room you
+        // are standing in, falling back to the selector / first tour.
+        var ri = tourIndexForRoom(rid);
+        idx = ri >= 0 ? ri : (tourSelEl ? (+tourSelEl.value || 0) : 0);
+      }
+      if (tourSelEl) tourSelEl.value = idx;
       tourState.stops = (TOURS[idx] && TOURS[idx].stops) || [];
       if (!tourState.stops.length) return;
+      // Start at the first stop that is IN the current room, so it begins where
+      // you're standing (explicit picks / mobile launcher start at the beginning).
+      var startI = 0;
+      if (typeof forceIdx !== 'number' && rid != null) {
+        for (var k = 0; k < tourState.stops.length; k++) {
+          var sp = stopByIo(tourState.stops[k].io_id);
+          if (sp && sp._room && sp._room.id === rid) { startI = k; break; }
+        }
+      }
       quickShow(false);
-      tourState.playing = true; updateTourBtn(); tourGoto(tourState.i || 0);
+      tourState.playing = true; tourState.i = startI; updateTourBtn(); tourGoto(startI);
     }
     function tourPause() { tourState.playing = false; clearTimeout(tourState.timer); stopNarrate(); stopTourAudio(); updateTourBtn(); }
     function tourStop() { tourState.playing = false; tourState.i = 0; clearTimeout(tourState.timer); stopNarrate(); stopTourAudio(); var b = document.getElementById('wtTourBanner'); if (b) b.style.display = 'none'; updateTourBtn(); quickShow(true); }
