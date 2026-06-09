@@ -339,6 +339,15 @@
         if (m.parent && m.parent !== scene) { m.parent.getWorldQuaternion(_pQ); m.quaternion.premultiply(_pQ.invert()); }
       }
     }
+    // #1153: a camera-facing textured PLANE replacing THREE.Sprite (which renders invisibly
+    // on WebGPU r169). Used for grass tufts, people/figures and free-floating graffiti.
+    function billboardPlane(map, w, h, opts) {
+      opts = opts || {};
+      var mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
+        new THREE.MeshBasicMaterial({ map: map, transparent: true, alphaTest: opts.alphaTest || 0, side: THREE.DoubleSide, depthWrite: !!opts.depthWrite, toneMapped: false }));
+      _faceCam.push(mesh);
+      return mesh;
+    }
     // A clickable "floor plan / map" plaque to mount on a wall (opens the minimap).
     function makeWallIcon() {
       var cv = document.createElement('canvas'); cv.width = 128; cv.height = 128;
@@ -521,7 +530,11 @@
     // WebGPU renderer (r169) - it came out solid grey after the migration. MeshBasic with
     // transparent + opacity blends correctly on both backends (like the pictures + live
     // overlay); depthWrite:false lets whatever is behind the glass show through.
-    var glassMat = new THREE.MeshBasicMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false });   // window/door glass (see-through)
+    var glassMat = new THREE.MeshBasicMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false });   // window/door glass (single flat pane, see-through)
+    // #1153: a CLOSED glass box (display-case vitrine) stacks 4 DoubleSide faces along the
+    // view ray, so 0.32 each reads near-opaque. Render only the outer (front) faces at a
+    // lower opacity so the vitrine is clearly see-through to the item inside.
+    var glassBoxMat = new THREE.MeshBasicMaterial({ color: 0xbcd6e6, transparent: true, opacity: 0.16, side: THREE.FrontSide, depthWrite: false });
     var colliders = [];   // wall meshes the visitor cannot walk through (doorways/glass excluded)
     var stairRamps = [];  // walkable sloped corridors: {ax,az,bx,bz,ya,yb,ux,uz,len,half}
     // #1171 door leaves on a polygon-edge opening (single/double/glass/sliding/ornate). Built in a
@@ -728,7 +741,7 @@
     }
     function personTexture(kind) {
       if (_personTex[kind]) return _personTex[kind];
-      var t = new THREE.CanvasTexture(personCanvas(kind)); t.minFilter = THREE.LinearFilter;
+      var t = new THREE.CanvasTexture(personCanvas(kind)); t.minFilter = THREE.LinearFilter; t.colorSpace = THREE.SRGBColorSpace;
       return (_personTex[kind] = t);
     }
     function treeTexture() {
@@ -740,13 +753,13 @@
       function blob(cx, cy, r, col) { var rg = g.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.2, cx, cy, r); rg.addColorStop(0, col[0]); rg.addColorStop(1, col[1]); g.fillStyle = rg; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.fill(); }
       [[128, 150, 72], [88, 172, 52], [168, 168, 52], [108, 108, 50], [150, 106, 50], [128, 86, 46], [128, 202, 58]].forEach(function (bl, i) { blob(bl[0], bl[1], bl[2], greens[i % greens.length]); });
       for (var i = 0; i < 500; i++) { var a = Math.random() * Math.PI * 2, rr = Math.random() * 78; var x = 128 + Math.cos(a) * rr, y = 150 + Math.sin(a) * rr * 1.15; if (y > 245 || y < 30) continue; g.fillStyle = 'rgba(' + ((70 + Math.random() * 90) | 0) + ',' + ((140 + Math.random() * 80) | 0) + ',' + ((45 + Math.random() * 45) | 0) + ',' + (0.35 + Math.random() * 0.4) + ')'; g.fillRect(x, y, 2, 2); }
-      var t = new THREE.CanvasTexture(c); _treeTex = t; return t;
+      var t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; _treeTex = t; return t;
     }
     function tuftTexture() {
       if (_tuftTex) return _tuftTex;
       var c = document.createElement('canvas'); c.width = c.height = 64; var g = c.getContext('2d');
       for (var i = 0; i < 22; i++) { var bx = 10 + Math.random() * 44, h = 18 + Math.random() * 30; g.strokeStyle = 'rgba(' + ((50 + Math.random() * 40) | 0) + ',' + ((120 + Math.random() * 80) | 0) + ',' + ((40 + Math.random() * 35) | 0) + ',0.9)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(bx, 64); g.quadraticCurveTo(bx + (Math.random() * 10 - 5), 64 - h * 0.6, bx + (Math.random() * 14 - 7), 64 - h); g.stroke(); }
-      var t = new THREE.CanvasTexture(c); _tuftTex = t; return t;
+      var t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; _tuftTex = t; return t;
     }
     // Polished marble floor (cream field + soft clouds + grey veins). Tiled ~4 m. Glossy material.
     var _marbleTex = null, _wallTex = null;
@@ -783,15 +796,18 @@
     // Crossed-plane billboard tree (volumetric from any angle), slight size/spin variance.
     function addTree(rm, x, z) {
       var s = 2.6 + Math.random() * 1.8, w = s, h = s * 1.55;
-      var mat = new THREE.MeshStandardMaterial({ map: treeTexture(), transparent: false, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 });
+      // #1153: MeshBasic (not MeshStandard) - on WebGPU the standard material's alphaTest
+      // cutout failed and the transparent texture corners rendered as black "sides".
+      var mat = new THREE.MeshBasicMaterial({ map: treeTexture(), transparent: true, alphaTest: 0.5, side: THREE.DoubleSide, toneMapped: false });
       var g = new THREE.Group();
       var p1 = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat); p1.position.y = h / 2; g.add(p1);
       var p2 = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat); p2.position.y = h / 2; p2.rotation.y = Math.PI / 2; g.add(p2);
       g.position.set(x, 0, z); g.rotation.y = Math.random() * Math.PI; addToRoom(rm, g);
     }
     function addTuft(rm, x, z) {
-      var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tuftTexture(), transparent: true, alphaTest: 0.3, depthWrite: false }));
-      var s = 0.4 + Math.random() * 0.5; sp.scale.set(s, s, s); sp.position.set(x, s / 2, z); addToRoom(rm, sp);
+      var s = 0.4 + Math.random() * 0.5;
+      var sp = billboardPlane(tuftTexture(), s, s, { alphaTest: 0.3 });   // #1153 was THREE.Sprite
+      sp.position.set(x, s / 2, z); addToRoom(rm, sp);
     }
     function addBench(rm, x, z, ry) {
       var g = new THREE.Group();
@@ -846,7 +862,7 @@
       switch (it.kind) {
         case 'bench': box(1.6, 0.1, 0.5, wood, 0, 0.45, 0); box(1.6, 0.5, 0.08, wood, 0, 0.7, -0.21); [-0.7, 0.7].forEach(function (lx) { box(0.1, 0.45, 0.45, wood, lx, 0.22, 0); }); break;
         case 'pedestal': box(0.5, 1.1, 0.5, stone, 0, 0.55, 0); box(0.62, 0.06, 0.62, stone, 0, 1.11, 0); break;
-        case 'case': box(0.8, 0.9, 0.8, wood, 0, 0.45, 0); var vc = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.9, 0.74), glassMat); vc.position.set(0, 1.35, 0); g.add(vc); box(0.84, 0.05, 0.84, metal, 0, 1.82, 0); break;
+        case 'case': box(0.8, 0.9, 0.8, wood, 0, 0.45, 0); var vc = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.9, 0.74), glassBoxMat); vc.position.set(0, 1.35, 0); g.add(vc); box(0.84, 0.05, 0.84, metal, 0, 1.82, 0); break;
         case 'planter': cyl(0.28, 0.34, 0.5, stone, 0, 0.25, 0); var fol = new THREE.Mesh(new THREE.SphereGeometry(0.42, 12, 10), green); fol.position.set(0, 0.92, 0); fol.scale.set(1, 1.2, 1); g.add(fol); break;
         case 'table': box(1.2, 0.06, 0.7, wood, 0, 0.74, 0); [[-0.5, -0.28], [0.5, -0.28], [-0.5, 0.28], [0.5, 0.28]].forEach(function (p) { box(0.07, 0.74, 0.07, wood, p[0], 0.37, p[1]); }); break;
         case 'chair': box(0.45, 0.06, 0.45, wood, 0, 0.45, 0); box(0.45, 0.5, 0.06, wood, 0, 0.7, -0.2); [[-0.18, -0.18], [0.18, -0.18], [-0.18, 0.18], [0.18, 0.18]].forEach(function (p) { box(0.05, 0.45, 0.05, wood, p[0], 0.22, p[1]); }); break;
@@ -885,8 +901,8 @@
           // Bright, always-camera-facing sprite (unlit) so the figure is clearly visible from any angle
           // and at any room brightness (the old lit crossed-planes read as a dark thin cutout).
           var pkind = (it.kind === 'person-woman') ? 'woman' : 'man', pth = 1.75, ptw = pth * 0.5;
-          var psp = new THREE.Sprite(new THREE.SpriteMaterial({ map: personTexture(pkind), transparent: true, depthWrite: true }));
-          psp.scale.set(ptw, pth, 1); psp.position.y = pth / 2; g.add(psp);
+          var psp = billboardPlane(personTexture(pkind), ptw, pth, { alphaTest: 0.5, depthWrite: true });   // #1153 was THREE.Sprite
+          psp.position.y = pth / 2; g.add(psp);
           break;
         }
         // Free-standing archway: two piers + a semicircular arch (sunlight + shadows pass through the opening).
@@ -1446,7 +1462,7 @@
       var woodM = new THREE.MeshStandardMaterial({ color: 0x5a4634, roughness: 0.7 });
       var metalM = new THREE.MeshStandardMaterial({ color: 0x9a9b9d, metalness: 0.7, roughness: 0.35 });
       var base = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), woodM); base.position.y = 0.45; g.add(base);
-      var glass = new THREE.Mesh(new THREE.BoxGeometry(0.82, 1.0, 0.82), glassMat); glass.position.y = 1.4; g.add(glass);
+      var glass = new THREE.Mesh(new THREE.BoxGeometry(0.82, 1.0, 0.82), glassBoxMat); glass.position.y = 1.4; g.add(glass);
       var cap = new THREE.Mesh(new THREE.BoxGeometry(0.88, 0.05, 0.88), metalM); cap.position.y = 1.92; g.add(cap);
       addToRoom(rm, g); return 0.9;
     }
@@ -2411,7 +2427,7 @@
       cx.lineWidth = 7; cx.strokeStyle = 'rgba(0,0,0,.55)'; cx.textBaseline = 'middle';
       cx.fillStyle = color || '#e23b3b';
       cx.strokeText(text, 18, 58); cx.fillText(text, 18, 58);
-      var tx = new THREE.CanvasTexture(cv); tx.minFilter = THREE.LinearFilter; tx.needsUpdate = true;
+      var tx = new THREE.CanvasTexture(cv); tx.minFilter = THREE.LinearFilter; tx.colorSpace = THREE.SRGBColorSpace; tx.needsUpdate = true;
       return { tex: tx, w: w };
     }
     function addGraffiti(a) {
@@ -2421,8 +2437,7 @@
         obj = new THREE.Mesh(new THREE.PlaneGeometry(sw, 0.9), new THREE.MeshBasicMaterial({ map: g.tex, transparent: true, depthWrite: false, side: THREE.DoubleSide }));
         obj.rotation.y = a.yaw;
       } else {
-        obj = new THREE.Sprite(new THREE.SpriteMaterial({ map: g.tex, transparent: true, depthWrite: false }));
-        obj.scale.set(sw, 0.9, 1);
+        obj = billboardPlane(g.tex, sw, 0.9, {});   // #1153 free-floating tag, was THREE.Sprite
       }
       obj.position.set(a.x, a.y, a.z);
       obj.userData.graffiti = true; obj.userData.graffitiId = a.id || null; obj.userData.graffitiSid = a.sid || null; scene.add(obj);
@@ -2506,8 +2521,8 @@
       if (!hits.length) { return; }
       var p = hits[0].point, kind = FIG_KINDS[figIdx], pth = 1.75, ptw = pth * 0.5;
       var grp = new THREE.Group();
-      var psp = new THREE.Sprite(new THREE.SpriteMaterial({ map: personTexture(kind), transparent: true, depthWrite: true }));
-      psp.scale.set(ptw, pth, 1); psp.position.y = pth / 2; grp.add(psp);
+      var psp = billboardPlane(personTexture(kind), ptw, pth, { alphaTest: 0.5, depthWrite: true });   // #1153 was THREE.Sprite
+      psp.position.y = pth / 2; grp.add(psp);
       grp.position.set(p.x, p.y, p.z); grp.userData.figure = true;
       scene.add(grp);
     }
