@@ -340,6 +340,10 @@
                 <select id="gtAddSel" class="form-select form-select-sm"></select>
                 <button type="button" id="gtAddBtn" class="btn btn-outline-primary" title="{{ __('Add to tour') }}"><i class="fas fa-plus"></i></button>
               </div>
+              <div class="form-check form-switch small mb-2">
+                <input class="form-check-input" type="checkbox" id="gtRouteMode">
+                <label class="form-check-label" for="gtRouteMode">{{ __('Route mode: click objects on the plan to add stops in order') }}</label>
+              </div>
               <div id="gtList"></div>
               <div class="d-flex gap-1 mt-2">
                 <button type="button" id="gtSaveBtn" class="btn btn-sm btn-success flex-fill"><i class="fas fa-save me-1"></i>{{ __('Save tours') }}</button>
@@ -435,8 +439,9 @@
     var wallLayer = new Konva.Layer();
     var doorLayer = new Konva.Layer({ listening: false });
     var layer = new Konva.Layer();
+    var routeLayer = new Konva.Layer({ listening: false });   // guided-tour visual route overlay
     var wvLayer = new Konva.Layer({ visible: false });
-    stage.add(bgLayer); stage.add(wallLayer); stage.add(doorLayer); stage.add(layer); stage.add(wvLayer);
+    stage.add(bgLayer); stage.add(wallLayer); stage.add(doorLayer); stage.add(layer); stage.add(routeLayer); stage.add(wvLayer);
 
     // Door indicators on the floor view: show where each perimeter door is so
     // objects can be placed clear of them. Doors are edited in the Building Plan.
@@ -639,12 +644,47 @@
       label.offsetX(label.width() / 2);
       g.add(label);
 
-      g.on('click tap', function (e) { e.cancelBubble = true; selectNode(g); });
+      g.on('click tap', function (e) {
+        e.cancelBubble = true;
+        // In tour "route mode" a click adds the object to the current tour as the
+        // next stop (and the route line redraws); otherwise it selects as usual.
+        if (window.__exhibRouteMode && typeof window.__exhibAddStop === 'function') {
+          window.__exhibAddStop(g.getAttr('ioId'));
+        } else {
+          selectNode(g);
+        }
+      });
+      g.on('dragmove', function () { if (window.__exhibRouteMode) drawTourRoute(); });
       g.on('dragend', scheduleSave);
       g.on('transformend', scheduleSave);
       layer.add(g);
       return g;
     }
+
+    // ---- Guided-tour visual route overlay (numbered stops + connecting line) ----
+    function nodeByIo(io) {
+      var hit = null;
+      layer.find('.placement').forEach(function (n) { if (String(n.getAttr('ioId')) === String(io)) hit = n; });
+      return hit;
+    }
+    function drawTourRoute() {
+      routeLayer.destroyChildren();
+      if (!window.__exhibRouteMode || !layer.visible()) { routeLayer.draw(); return; }
+      var ios = (typeof window.__exhibStops === 'function') ? (window.__exhibStops() || []) : [];
+      var pts = [], seq = [];
+      ios.forEach(function (io) { var n = nodeByIo(io); if (n) { pts.push(n.x(), n.y()); seq.push({ x: n.x(), y: n.y() }); } });
+      if (pts.length >= 4) {
+        routeLayer.add(new Konva.Line({ points: pts, stroke: '#0d6efd', strokeWidth: 3, opacity: 0.85, lineJoin: 'round', lineCap: 'round', dash: [10, 6] }));
+      }
+      seq.forEach(function (p, i) {
+        var grp = new Konva.Group({ x: p.x, y: p.y, listening: false });
+        grp.add(new Konva.Circle({ radius: 11, fill: '#0d6efd', stroke: '#fff', strokeWidth: 2 }));
+        grp.add(new Konva.Text({ text: '' + (i + 1), x: -11, y: -6, width: 22, align: 'center', fontSize: 12, fontStyle: 'bold', fill: '#fff' }));
+        routeLayer.add(grp);
+      });
+      routeLayer.draw();
+    }
+    window.__exhibDrawRoute = drawTourRoute;
 
     PLACEMENTS.forEach(addNode);
     layer.draw();
@@ -928,9 +968,9 @@
       wb.classList.toggle('btn-primary', m === 'wall'); wb.classList.toggle('btn-outline-primary', m !== 'wall');
       document.getElementById('wvWall').classList.toggle('d-none', m !== 'wall');
       var floorOn = (m === 'floor');
-      bgLayer.visible(floorOn); wallLayer.visible(floorOn); doorLayer.visible(floorOn); layer.visible(floorOn); wvLayer.visible(!floorOn);
+      bgLayer.visible(floorOn); wallLayer.visible(floorOn); doorLayer.visible(floorOn); layer.visible(floorOn); routeLayer.visible(floorOn); wvLayer.visible(!floorOn);
       tr.nodes([]); clearSelect();
-      if (floorOn) { stage.draw(); } else { buildWallView(); }
+      if (floorOn) { stage.draw(); drawTourRoute(); } else { buildWallView(); }
     }
     document.getElementById('modeFloor').addEventListener('click', function () { setMode('floor'); });
     document.getElementById('modeWall').addEventListener('click', function () { setMode('wall'); });
@@ -1457,6 +1497,7 @@
           list.appendChild(row);
           row.querySelector('[data-narr]').value = s.narration || '';
         });
+        if (typeof window.__exhibDrawRoute === 'function') window.__exhibDrawRoute();   // keep the plan route line in sync
       }
       list.addEventListener('input', function (e) {
         var n = e.target.getAttribute('data-narr'), d = e.target.getAttribute('data-dwell');
@@ -1514,6 +1555,24 @@
         saveTours().then(function () { window.open(URLS.walkthrough + '?tour=' + cur, '_blank'); })
           .catch(function () { window.open(URLS.walkthrough + '?tour=' + cur, '_blank'); });
       });
+
+      // ---- Bridge to the plan canvas for visual route building (Pass 2) ----
+      // The Konva stage (separate scope) calls these via window to read the
+      // current tour's stops and to add a stop when an object is clicked in
+      // route mode; render() calls window.__exhibDrawRoute() to redraw the line.
+      window.__exhibStops = function () { return stops().map(function (s) { return s.io_id; }); };
+      window.__exhibAddStop = function (io) {
+        io = +io; if (!io) return;
+        if (stops().some(function (s) { return s.io_id === io; })) return;   // already a stop
+        stops().push({ io_id: io, narration: '', dwell: 6 });
+        render();
+      };
+      var routeChk = document.getElementById('gtRouteMode');
+      if (routeChk) routeChk.addEventListener('change', function () {
+        window.__exhibRouteMode = routeChk.checked;
+        if (typeof window.__exhibDrawRoute === 'function') window.__exhibDrawRoute();
+      });
+
       render();
     })();
   })();
