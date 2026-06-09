@@ -1701,12 +1701,29 @@
       var rm = s._room || curRoom;
       var ccx = rm.x_offset + rm.w / 2, ccz = rm.z_offset + rm.d / 2;   // object's room centre
       var look = new THREE.Vector3(wp.x, 1.3, wp.z);
+      var lookY = 1.3;
       var stand;
       if (s.view_x !== null && s.view_x !== undefined && s.view_y !== null && s.view_y !== undefined) {
-        // Curator-chosen viewing spot (room-local fraction) - stand exactly there.
+        // 1) Curator-chosen viewing spot (room-local fraction) - stand exactly there.
         stand = new THREE.Vector3(rm.x_offset + s.view_x * rm.w, 1.6, rm.z_offset + s.view_y * rm.d);
-      } else {
-        var toC = new THREE.Vector3(ccx - wp.x, 0, ccz - wp.z);           // toward room centre
+      } else if (s.wall_or_zone) {
+        // 2) Wall-hung object: stand directly in FRONT of the picture, along the
+        //    wall's inward normal, using the SAME spot the renderer hangs it at
+        //    (wall_u/wall_v), not the raw pos_x/pos_y.
+        var spot = (s.wall_u !== null && s.wall_u !== undefined)
+          ? wallSpotUV(s.wall_or_zone, s.wall_u, 1.3, 0.08, rm)
+          : wallSpot(s.wall_or_zone, wp.x, wp.z, 1.3, 0.08, rm);
+        if (spot) {
+          var nx = Math.sin(spot.ry), nz = Math.cos(spot.ry);   // inward normal (into the room)
+          stand = new THREE.Vector3(spot.x + nx * 2.4, 1.6, spot.z + nz * 2.4);
+          var wallH = rm.h || WALL_H;
+          lookY = (s.wall_v !== null && s.wall_v !== undefined) ? Math.max(0.5, Math.min(wallH - 0.3, s.wall_v * wallH)) : 1.5;
+          look.set(spot.x, lookY, spot.z);
+        }
+      }
+      if (!stand) {
+        // 3) Fallback: stand on the room-centre side facing the object.
+        var toC = new THREE.Vector3(ccx - wp.x, 0, ccz - wp.z);
         if (toC.lengthSq() < 0.01) toC.set(0, 0, 1);
         toC.normalize();
         stand = new THREE.Vector3(wp.x + toC.x * 2.6, 1.6, wp.z + toC.z * 2.6);
@@ -1717,7 +1734,7 @@
       // Map both the target and the look-at through the room's rotation so they
       // land on the object's actual (rotated) world position.
       var sw = roomWorld(rm, stand.x, stand.z), lw = roomWorld(rm, look.x, look.z);
-      stand.set(sw.x, 1.6, sw.z); look.set(lw.x, 1.3, lw.z);
+      stand.set(sw.x, 1.6, sw.z); look.set(lw.x, lookY, lw.z);
       fly = { from: controls.getObject().position.clone(), to: stand, look: look,
               targetFrom: orbit ? orbit.target.clone() : null, t: 0, dur: 0.9 };
       // During a guided tour the tour banner already shows the title + narration,
