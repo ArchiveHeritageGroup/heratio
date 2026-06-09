@@ -67,14 +67,17 @@
           <button id="wtSunBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:336px;z-index:6;opacity:.85;" title="{{ __('Sun & shadows (off / morning / noon / afternoon)') }}"><i class="fas fa-sun"></i></button>
           <button id="wtNightBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:372px;z-index:6;opacity:.85;" title="{{ __('Night mode (walk with the flashlight) - N') }}"><i class="fas fa-moon"></i></button>
           <button id="wtFsBtn" type="button" class="btn btn-sm btn-dark" style="position:absolute;top:8px;right:408px;z-index:6;opacity:.85;" title="{{ __('Fullscreen') }}"><i class="fas fa-expand"></i></button>
+          {{-- Tour banner sits in the bottom third; long narration scrolls inside
+               wtTourText (max 30vh) so it never fills the screen on mobile, while
+               the controls stay pinned below. --}}
           <div id="wtTourBanner" class="bg-dark text-white px-3 py-2 rounded small" style="position:absolute;bottom:64px;left:50%;transform:translateX(-50%);z-index:7;display:none;max-width:86%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.5);">
-            <span id="wtTourText"></span>
-            <span class="ms-2 text-nowrap">
+            <div id="wtTourText" style="max-height:30vh;overflow-y:auto;"></div>
+            <div class="mt-2 text-nowrap">
               <button type="button" id="wtTourPrevBtn" class="btn btn-sm btn-outline-light py-0" title="{{ __('Previous stop') }}"><i class="fas fa-step-backward"></i></button>
               <button type="button" id="wtTourWalkBtn" class="btn btn-sm btn-outline-light py-0" title="{{ __('Walk around this object, then Space or Next to continue') }}"><i class="fas fa-person-walking me-1"></i>{{ __('Walk') }}</button>
               <button type="button" id="wtTourNextBtn" class="btn btn-sm btn-light py-0" title="{{ __('Next stop (Space)') }}">{{ __('Next') }} <i class="fas fa-step-forward"></i></button>
               <button type="button" id="wtTourStopBtn" class="btn btn-sm btn-outline-light py-0"><i class="fas fa-stop"></i></button>
-            </span>
+            </div>
           </div>
           {{-- mobile quick-launch: walking is hard on touch, so offer a big "play the tour" button --}}
           <div id="wtTourQuick" style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:8;display:none;text-align:center;width:90%;max-width:360px;">
