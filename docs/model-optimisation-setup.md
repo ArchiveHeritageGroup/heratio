@@ -45,16 +45,23 @@ HERATIO_MODEL_TOOLS_BIN=/opt/ahg-model-tools/node_modules/.bin
 
 ## Pipeline
 
-- `.obj`  -> `obj2gltf` -> `.glb` -> `resize` -> `webp` -> `draco` -> compressed `.glb`
-- `.glb` / `.gltf` -> `resize` -> `webp` -> `draco` -> compressed `.glb`
+- `.obj`  -> `obj2gltf` -> `.glb` -> `resize` -> [`webp`] -> `draco` -> compressed `.glb`
+- `.glb` / `.gltf` -> `resize` -> [`webp`] -> `draco` -> compressed `.glb`
 - `.stl` / `.ply` are not handled yet (re-export as glb/obj to optimise).
 
-Three texture/geometry steps via `gltf-transform`:
+Steps via `gltf-transform`:
 
-1. **resize** - downscale oversized textures to a 2048 cap.
-2. **webp** - re-encode textures to WebP. This is decisive for texture-heavy
-   models: a 2048^2 PNG is ~4-5MB and neither resize nor Draco touches it, but
-   WebP cuts it ~10-20x (a 5MB chair-and-table glb becomes ~0.4MB).
+1. **resize** - downscale oversized textures to a cap (default **1024**, set
+   `heratio.model_texture_cap`). A 2048^2 PNG is ~4-5MB and Draco never touches
+   it; downscaling to 1024 takes a 5MB chair-and-table glb to ~2.4MB while
+   staying universally loadable.
+2. **webp** *(opt-in, OFF by default)* - re-encode textures to WebP, which is
+   far smaller again (~0.25MB for that chair). **Disabled by default** because
+   the exhibition walkthrough's three.js **r128** GLTFLoader cannot decode the
+   `EXT_texture_webp` extension (added upstream in r131) - WebP models load as
+   "nothing" and hang there. `model-viewer` (the sector show pages) decodes WebP
+   fine. Enable `heratio.model_webp=true` only after the walkthrough loader is
+   upgraded to >= r131 (or given WebP support).
 3. **draco** - compress geometry.
 
 Each step falls back gracefully if its codec is unavailable. A **no-inflation

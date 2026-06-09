@@ -86,19 +86,31 @@ class ModelCompressionService
                 $glb = $srcAbs;   // gltf-transform reads .glb / .gltf directly
             }
 
-            // 2) Downscale oversized textures (cap 2048) so texture-heavy models shrink too
-            // (Draco only compresses geometry). Falls back to the un-resized glb if unsupported.
+            // 2) Downscale oversized textures (cap configurable, default 1024) so
+            // texture-heavy models shrink too (Draco only compresses geometry; a
+            // 2048^2 PNG is ~4-5MB and Draco never touches it). Downscaling to a
+            // 1024 cap takes that to ~1-2MB while staying universally loadable.
+            // Falls back to the un-resized glb if the codec is unavailable.
+            $cap = (string) max(64, (int) config('heratio.model_texture_cap', 1024));
             $resized = $tmp.'/resized.glb';
-            $rr = Process::timeout(600)->run([$bin.'/gltf-transform', 'resize', $glb, $resized, '--width', '2048', '--height', '2048']);
+            $rr = Process::timeout(600)->run([$bin.'/gltf-transform', 'resize', $glb, $resized, '--width', $cap, '--height', $cap]);
             $stage = ($rr->successful() && is_file($resized) && filesize($resized) > 64) ? $resized : $glb;
 
-            // 3) Re-encode textures to WebP. This is the decisive step for
-            // texture-heavy models (a 2048^2 PNG is ~4-5MB and neither resize
-            // nor Draco touches it; WebP cuts it ~10-20x). Best-effort: if the
-            // encoder dependency is absent we keep the previous stage.
-            $webp = $tmp.'/webp.glb';
-            $rw = Process::timeout(600)->run([$bin.'/gltf-transform', 'webp', $stage, $webp]);
-            $toDraco = ($rw->successful() && is_file($webp) && filesize($webp) > 64) ? $webp : $stage;
+            // 3) Optional WebP texture re-encode. OFF by default: the exhibition
+            // walkthrough's three.js r128 GLTFLoader cannot decode the
+            // EXT_texture_webp extension (added upstream in r131), so WebP models
+            // load as "nothing" and hang there. Enable heratio.model_webp only
+            // once the walkthrough loader is upgraded. model-viewer (the sector
+            // show pages) decodes WebP fine - this guard is purely for the
+            // walkthrough's older loader.
+            if (config('heratio.model_webp', false)) {
+                $webp = $tmp.'/webp.glb';
+                $rw = Process::timeout(600)->run([$bin.'/gltf-transform', 'webp', $stage, $webp]);
+                if ($rw->successful() && is_file($webp) && filesize($webp) > 64) {
+                    $stage = $webp;
+                }
+            }
+            $toDraco = $stage;
 
             // 4) Draco-compress geometry.
             $r2 = Process::timeout(600)->run([$bin.'/gltf-transform', 'draco', $toDraco, $out]);
