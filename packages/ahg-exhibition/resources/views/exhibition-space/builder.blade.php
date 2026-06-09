@@ -10,17 +10,9 @@
       <i class="fas fa-cubes me-2"></i>{{ __('Digital Twin Builder') }}
       <small class="text-muted">{{ $space->name }}</small>
     </h1>
-    <a href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary">
-      <i class="fas fa-vr-cardboard me-1"></i>{{ __('Walkthrough') }}
-    </a>
-    <a href="{{ route('exhibition-space.forecast', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-chart-line me-1"></i>{{ __('Forecast') }}</a>
-    <a href="{{ route('exhibition-space.plan', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-drafting-compass me-1"></i>{{ __('Building Plan') }}</a>
-    <a href="{{ route('exhibition-space.browse') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-th-list me-1"></i>{{ __('All spaces') }}</a>
+    @include('ahg-exhibition::exhibition-space._nav-actions', ['space' => $space, 'current' => 'builder'])
     @auth<button type="button" id="simLiveBtn" class="btn btn-sm btn-outline-success" title="{{ __('Seed demo sensor readings to preview the live overlay') }}"><i class="fas fa-temperature-half me-1"></i>{{ __('Simulate live data') }}</button>@endauth
     @auth<button type="button" id="genRecBtn" class="btn btn-sm btn-outline-success" title="{{ __('Use AI to suggest related objects for the walkthrough') }}"><i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI recommendations') }}</button>@endauth
-    <a href="{{ route('exhibition-space.show', ['slug' => $space->slug]) }}" class="btn btn-sm btn-outline-secondary">
-      <i class="fas fa-arrow-left me-1"></i>{{ __('Back to space') }}
-    </a>
   </div>
   <p class="text-muted small mb-3">
     {{ __('The start of digital twins: arrange this collection visually. Search an object, drop it on the floorplan, then drag, rotate and scale it into place. Changes save automatically.') }}
@@ -335,6 +327,7 @@
                 <button type="button" id="gtNewTourBtn" class="btn btn-outline-success" title="{{ __('New tour') }}"><i class="fas fa-plus"></i></button>
                 <button type="button" id="gtDelTourBtn" class="btn btn-outline-danger" title="{{ __('Delete this tour') }}"><i class="fas fa-trash"></i></button>
               </div>
+              <label for="gtTourName" class="form-label small mb-1">{{ __('Tour name') }} <span class="text-muted">- {{ __('edit to rename the selected tour') }}</span></label>
               <input id="gtTourName" class="form-control form-control-sm mb-2" placeholder="{{ __('Tour name') }}" maxlength="80">
               <div class="d-flex align-items-center gap-2 mb-2">
                 <label class="form-label small mb-0 text-nowrap">{{ __('Show objects from') }}</label>
