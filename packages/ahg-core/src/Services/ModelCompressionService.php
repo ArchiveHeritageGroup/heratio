@@ -90,12 +90,35 @@ class ModelCompressionService
             // (Draco only compresses geometry). Falls back to the un-resized glb if unsupported.
             $resized = $tmp.'/resized.glb';
             $rr = Process::timeout(600)->run([$bin.'/gltf-transform', 'resize', $glb, $resized, '--width', '2048', '--height', '2048']);
-            $toDraco = ($rr->successful() && is_file($resized) && filesize($resized) > 64) ? $resized : $glb;
+            $stage = ($rr->successful() && is_file($resized) && filesize($resized) > 64) ? $resized : $glb;
 
-            // 3) Draco-compress.
+            // 3) Re-encode textures to WebP. This is the decisive step for
+            // texture-heavy models (a 2048^2 PNG is ~4-5MB and neither resize
+            // nor Draco touches it; WebP cuts it ~10-20x). Best-effort: if the
+            // encoder dependency is absent we keep the previous stage.
+            $webp = $tmp.'/webp.glb';
+            $rw = Process::timeout(600)->run([$bin.'/gltf-transform', 'webp', $stage, $webp]);
+            $toDraco = ($rw->successful() && is_file($webp) && filesize($webp) > 64) ? $webp : $stage;
+
+            // 4) Draco-compress geometry.
             $r2 = Process::timeout(600)->run([$bin.'/gltf-transform', 'draco', $toDraco, $out]);
             if (! $r2->successful() || ! is_file($out) || filesize($out) < 64) {
                 Log::warning('ModelCompression: draco failed', ['src' => $srcAbs, 'err' => $r2->errorOutput()]);
+                // Draco can fail on some meshes; fall back to the WebP/resized stage
+                // if it is itself smaller than the source.
+                $out = $toDraco;
+            }
+
+            // 5) No-inflation guard. Draco adds overhead that can make an
+            // already-small / texture-light model LARGER. Never replace an
+            // original with a bigger file - the caller treats null as "skip".
+            $origExt = strtolower(pathinfo($srcAbs, PATHINFO_EXTENSION));
+            if (in_array($origExt, ['glb', 'gltf'], true)
+                && is_file($out) && is_file($srcAbs)
+                && filesize($out) >= filesize($srcAbs)) {
+                Log::info('ModelCompression: output not smaller than source, skipping', [
+                    'src' => $srcAbs, 'src_bytes' => filesize($srcAbs), 'out_bytes' => filesize($out),
+                ]);
 
                 return null;
             }

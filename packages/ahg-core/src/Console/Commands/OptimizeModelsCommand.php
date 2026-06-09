@@ -114,6 +114,23 @@ class OptimizeModelsCommand extends Command
                 'mime_type' => 'model/gltf-binary',
                 'byte_size' => $newBytes,
             ]);
+
+            // Keep the 3D viewer / exhibition walkthrough in sync: they load the
+            // model from object_3d_model.file_path, not digital_object. Without
+            // this the model vanishes after compression (it points at the old
+            // name). Re-extract so compression/geometry read from the new file.
+            if (DB::table('object_3d_model')->where('object_id', $r->object_id)->exists()) {
+                $extractorClass = \Ahg3dModel\Services\ModelMetadataExtractor::class;
+                $meta = class_exists($extractorClass) ? app($extractorClass)->extract($dest, 'glb') : [];
+                DB::table('object_3d_model')->where('object_id', $r->object_id)->update(array_merge([
+                    'filename' => $newName,
+                    'file_path' => rtrim((string) $r->path, '/').'/'.$newName,
+                    'file_size' => $newBytes,
+                    'mime_type' => 'model/gltf-binary',
+                    'updated_at' => now(),
+                ], $meta));
+            }
+
             $this->info("  io#{$r->object_id} {$r->name} {$mb}MB -> {$newName} ".round($newBytes / 1048576, 2).'MB');
         }
 

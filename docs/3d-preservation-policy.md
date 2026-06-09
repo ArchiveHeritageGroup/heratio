@@ -33,7 +33,7 @@ Every 3D model has two roles, kept distinct:
   row on the access digital object for dashboard coverage).
 - **Format identification** — PRONOM PUID + MIME via `PronomIdentificationService`
   (OBJ `fmt/1210`, PLY `fmt/831`, STL ASCII `x-fmt/108` / binary `fmt/865`; glTF
-  is recognised by magic + MIME `model/gltf-binary`, no PUID assigned yet).
+  Text/`.gltf` `fmt/1315`, Binary/`.glb` `fmt/1316`).
 - **Significant properties** (extracted from the master file) — geometry
   (vertices, faces), format + version, compression, bounding box, materials/PBR
   maps, animation count, plus curator paradata (real-world dimensions + units,

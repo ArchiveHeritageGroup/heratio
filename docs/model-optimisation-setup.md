@@ -45,13 +45,22 @@ HERATIO_MODEL_TOOLS_BIN=/opt/ahg-model-tools/node_modules/.bin
 
 ## Pipeline
 
-- `.obj`  -> `obj2gltf` -> `.glb` -> `gltf-transform resize` -> `gltf-transform draco` -> compressed `.glb`
-- `.glb` / `.gltf` -> `gltf-transform resize` -> `gltf-transform draco` -> compressed `.glb`
+- `.obj`  -> `obj2gltf` -> `.glb` -> `resize` -> `webp` -> `draco` -> compressed `.glb`
+- `.glb` / `.gltf` -> `resize` -> `webp` -> `draco` -> compressed `.glb`
 - `.stl` / `.ply` are not handled yet (re-export as glb/obj to optimise).
 
-Geometry is Draco-compressed **and** oversized textures are downscaled to a 2048
-cap (so texture-heavy models shrink too - a 47MB mask becomes ~18MB). The resize
-step falls back gracefully if the codec is unavailable.
+Three texture/geometry steps via `gltf-transform`:
+
+1. **resize** - downscale oversized textures to a 2048 cap.
+2. **webp** - re-encode textures to WebP. This is decisive for texture-heavy
+   models: a 2048^2 PNG is ~4-5MB and neither resize nor Draco touches it, but
+   WebP cuts it ~10-20x (a 5MB chair-and-table glb becomes ~0.4MB).
+3. **draco** - compress geometry.
+
+Each step falls back gracefully if its codec is unavailable. A **no-inflation
+guard** discards the result and keeps the original whenever compression would
+produce a *larger* file than the source (Draco overhead on an already-small,
+texture-light model), so the pipeline can never make a model bigger.
 
 ## Automatic optimisation (scheduled)
 
