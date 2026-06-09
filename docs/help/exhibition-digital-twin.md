@@ -190,11 +190,17 @@ before it happens.
 
 ## Roadmap
 
-Further extensions under consideration: server-GPU pixel-streaming for very heavy scenes,
-live cross-institution federation of exhibitions, and rendering true point clouds (`.las` /
-`.e57`) as points (issue #1183). Neural narration voice (issue #1168) and photoreal scan
-import (issue #1156, glTF / OBJ / scan mesh + 360/Matterport embeds) have shipped - see
-**Photoreal capture** and the audio docent above.
+Further extensions under consideration: live cross-institution federation of exhibitions,
+rendering `.las` / `.e57` point clouds (a conversion step, issue #1183), and restoring VR
+once the WebGPU renderer supports it (issue #1184). Neural narration voice (issue #1168),
+photoreal scan import incl. point clouds (issues #1156 / #1183), and the WebGPU renderer
+(issue #1153) have shipped - see **Photoreal capture** and the audio docent above.
+
+Server-GPU **pixel-streaming** (rendering console-quality scenes on a server and streaming
+video to the browser, issue #1154) was evaluated and **deferred**: it costs roughly one GPU
+per viewer, whereas the WebGPU walkthrough already serves unlimited concurrent visitors at no
+server cost. It is only worth revisiting for a single kiosk or low-concurrency photoreal
+experience.
 
 A **WebGPU renderer** (issue #1153) is being evaluated: open
 `/exhibition-space/{slug}/walkthrough-webgpu` for the proof page - it runs the room on
