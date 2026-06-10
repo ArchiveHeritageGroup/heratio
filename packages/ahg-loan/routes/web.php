@@ -1,9 +1,17 @@
 <?php
 
 use AhgLoan\Controllers\LoanController;
+use AhgLoan\Controllers\TourController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
+    // Touring-exhibition scheduling (#1190). Multi-segment URLs keep these
+    // clear of the single-segment /{slug} information-object catch-all.
+    Route::get('/loan/tour/object/{objectId}', [TourController::class, 'objectSchedule'])->where('objectId', '[0-9]+')->name('loan.tour.object');
+    Route::post('/loan/tour/object/{objectId}/book', [TourController::class, 'checkAndBook'])->where('objectId', '[0-9]+')->name('loan.tour.book')->middleware('acl:create');
+    Route::post('/loan/tour/object/{objectId}/check', [TourController::class, 'checkJson'])->where('objectId', '[0-9]+')->name('loan.tour.check');
+    Route::post('/loan/tour/object/{objectId}/booking/{bookingId}/cancel', [TourController::class, 'cancelBooking'])->where(['objectId' => '[0-9]+', 'bookingId' => '[0-9]+'])->name('loan.tour.cancel')->middleware('acl:update');
+
     Route::get('/loan', [LoanController::class, 'index'])->name('loan.index');
     // Specific routes MUST come before /loan/{id} or they get swallowed by it.
     Route::get('/loan/create', [LoanController::class, 'create'])->name('loan.create');

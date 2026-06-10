@@ -76,6 +76,19 @@
           {{-- Feedback button, inside the room so it stays available in fullscreen (the
                theme's left-edge feedback tab is outside #room and vanishes in fullscreen). --}}
           <a id="wtFeedbackBtn" href="{{ route('feedback.general') }}" target="_blank" rel="noopener" class="btn btn-sm btn-danger" style="position:absolute;top:8px;left:8px;z-index:8;opacity:.9;box-shadow:0 2px 8px rgba(0,0,0,.4);" title="{{ __('Give feedback (opens in a new tab)') }}"><i class="fas fa-comment-alt me-1"></i>{{ __('Feedback') }}</a>
+          {{-- #1185 room docent: ask about the whole exhibition, grounded in the placed objects.
+               Reachable any time (no object panel needed). --}}
+          <button id="wtRoomDocentBtn" type="button" class="btn btn-sm btn-info" style="position:absolute;top:8px;left:108px;z-index:8;opacity:.92;box-shadow:0 2px 8px rgba(0,0,0,.4);" title="{{ __('Ask the docent about this exhibition') }}"><i class="fas fa-user-tie me-1"></i>{{ __('Ask the docent') }}</button>
+          <div id="wtRoomDocent" style="position:absolute;top:46px;left:8px;z-index:9;width:300px;max-width:92%;display:none;background:rgba(20,22,26,.92);color:#fff;border-radius:.5rem;padding:12px 14px;box-shadow:0 4px 16px rgba(0,0,0,.5);">
+            <div class="d-flex justify-content-between align-items-center mb-1"><span class="fw-bold"><i class="fas fa-user-tie me-1"></i>{{ __('Exhibition docent') }}</span><button type="button" id="wtRoomDocentClose" class="btn-close btn-close-white btn-sm" aria-label="{{ __('Close') }}"></button></div>
+            <div class="text-muted mb-2" style="font-size:.72rem;">{{ __('Ask about the whole exhibition - the docent answers from the pieces on display.') }}</div>
+            <div class="input-group input-group-sm">
+              <input id="wtRoomAskInput" type="text" class="form-control" placeholder="{{ __('Ask about this exhibition…') }}" maxlength="200">
+              <button id="wtRoomAskBtn" type="button" class="btn btn-info" title="{{ __('Ask') }}"><i class="fas fa-comment-dots"></i></button>
+            </div>
+            <div id="wtRoomAskChips" class="d-flex flex-wrap gap-1 mt-2"></div>
+            <div id="wtRoomAskAnswer" class="small mt-2" style="display:none;background:rgba(255,255,255,.08);border-radius:.4rem;padding:6px 8px;max-height:30vh;overflow:auto;"></div>
+          </div>
           {{-- Tour banner sits in the bottom third; long narration scrolls inside
                wtTourText (max 30vh) so it never fills the screen on mobile, while
                the controls stay pinned below. --}}
@@ -1805,6 +1818,69 @@
         inp.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); go(); } });
         inp.addEventListener('click', function (e) { e.stopPropagation(); });   // focus the field, don't poke the canvas
       }
+    })();
+    // #1185 ROOM docent: ask about the whole exhibition, grounded in every placed object.
+    // Reachable any time via the "Ask the docent" HUD button - no object panel required.
+    var ASK_ROOM_URL = '{{ route('exhibition-space.ask-room', ['slug' => $space->slug]) }}';
+    var ROOM_Q_URL = '{{ route('exhibition-space.room-questions', ['slug' => $space->slug]) }}';
+    var roomChipsLoaded = false;
+    function askRoomDocent(q) {
+      if (!q) return;
+      var ansEl = document.getElementById('wtRoomAskAnswer'), btn = document.getElementById('wtRoomAskBtn');
+      if (ansEl) { ansEl.style.display = 'block'; ansEl.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>{{ __('The docent is thinking…') }}'; }
+      if (btn) btn.disabled = true;
+      fetch(ASK_ROOM_URL + '?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (btn) btn.disabled = false;
+          var a = (d && d.answer) ? d.answer : '{{ __('Sorry, the catalogue does not let me answer that right now.') }}';
+          if (ansEl) { ansEl.style.display = 'block'; ansEl.textContent = '🤖 ' + a; }
+          if (d && d.answer) speakText(a);
+        })
+        .catch(function () { if (btn) btn.disabled = false; if (ansEl) ansEl.textContent = '{{ __('Sorry, I could not answer that right now.') }}'; });
+    }
+    function loadRoomChips() {
+      if (roomChipsLoaded) return; roomChipsLoaded = true;
+      var box = document.getElementById('wtRoomAskChips'); if (!box) return;
+      fetch(ROOM_Q_URL, { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.questions || !d.questions.length) return;
+          box.innerHTML = '';
+          d.questions.forEach(function (c) {
+            var b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-sm btn-outline-info py-0'; b.style.fontSize = '11px';
+            b.textContent = c;
+            b.addEventListener('click', function (e) { e.stopPropagation(); roomGo(c); });
+            box.appendChild(b);
+          });
+        })
+        .catch(function () { roomChipsLoaded = false; });
+    }
+    function roomGo(q) {
+      var inp = document.getElementById('wtRoomAskInput');
+      q = (q || (inp && inp.value) || '').trim(); if (!q) return; if (inp) inp.value = '';
+      if (docentTryNavigate(q)) return;   // "take me to X" works from the room docent too
+      askRoomDocent(q);
+    }
+    (function () {
+      var open = document.getElementById('wtRoomDocentBtn'), panel = document.getElementById('wtRoomDocent'),
+          close = document.getElementById('wtRoomDocentClose'), btn = document.getElementById('wtRoomAskBtn'),
+          inp = document.getElementById('wtRoomAskInput');
+      if (open && panel) {
+        open.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var show = panel.style.display === 'none' || !panel.style.display;
+          panel.style.display = show ? 'block' : 'none';
+          if (show) { loadRoomChips(); try { if (controls && controls.unlock) controls.unlock(); } catch (er) {} try { inp && inp.focus(); } catch (er2) {} }
+        });
+      }
+      if (close && panel) close.addEventListener('click', function (e) { e.stopPropagation(); panel.style.display = 'none'; });
+      if (btn) btn.addEventListener('click', function (e) { e.stopPropagation(); roomGo(); });
+      if (inp) {
+        inp.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); roomGo(); } });
+        inp.addEventListener('click', function (e) { e.stopPropagation(); });
+      }
+      if (panel) panel.addEventListener('click', function (e) { e.stopPropagation(); });
     })();
     function openPanel(s) {
       document.getElementById('inlayTitle').textContent = s.title;

@@ -3880,9 +3880,19 @@ class ResearchController extends Controller
             }
         } catch (\Exception $e) {}
 
+        // heratio#1198 - surface saved Research Copilot answers on the workspace itself.
+        // Access is already gated above (owner/member, or public viewer), so anyone who can
+        // see the workspace can see its saved answers with their stored citations.
+        $copilotAnswers = [];
+        try {
+            $copilotAnswers = (new \AhgResearch\Services\ResearchCopilotService())->listAnswers($id);
+        } catch (\Exception $e) {
+            // research_copilot_answer table may not exist yet - degrade gracefully.
+        }
+
         return view('research::research.view-workspace', array_merge(
             $this->getSidebarData('workspaces'),
-            compact('workspace', 'owner', 'members', 'resources', 'myRole', 'researcher', 'discussions', 'sharedCollections')
+            compact('workspace', 'owner', 'members', 'resources', 'myRole', 'researcher', 'discussions', 'sharedCollections', 'copilotAnswers')
         ));
     }
 

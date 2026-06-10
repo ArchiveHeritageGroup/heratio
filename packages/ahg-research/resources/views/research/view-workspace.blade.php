@@ -65,6 +65,49 @@
 </div>
 @endif
 
+{{-- Saved Copilot answers (heratio#1198) - cited research answers saved into this workspace --}}
+@if(!empty($copilotAnswers))
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-robot me-2"></i>{{ __('Saved Copilot answers') }}</h5>
+        <a href="{{ url('/research/copilot') }}" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-plus me-1"></i> {{ __('Ask the Copilot') }}
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            @foreach($copilotAnswers as $ans)
+                <div class="list-group-item">
+                    <h6 class="mb-1"><i class="fas fa-question-circle me-1 text-muted"></i>{{ e($ans->question ?? '') }}</h6>
+                    <p class="mb-2 small" style="white-space: pre-wrap;">{{ e($ans->answer ?? '') }}</p>
+                    @if(!empty($ans->sources))
+                        <div class="mb-1">
+                            <small class="text-muted d-block mb-1">{{ __('Cited sources') }}:</small>
+                            <ol class="small mb-0 ps-3">
+                                @foreach($ans->sources as $src)
+                                    <li>
+                                        @if(!empty($src['slug']))
+                                            <a href="{{ url('/' . $src['slug']) }}" target="_blank" rel="noopener">{{ e($src['title'] ?? 'Untitled') }}</a>
+                                        @else
+                                            {{ e($src['title'] ?? 'Untitled') }}
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ol>
+                        </div>
+                    @endif
+                    <small class="text-muted">
+                        @if(!empty($ans->created_at))
+                            {{ date('M j, Y H:i', strtotime($ans->created_at)) }}
+                        @endif
+                    </small>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+@endif
+
 <div class="row">
     {{-- Left: Discussions + Resources --}}
     <div class="col-md-8">

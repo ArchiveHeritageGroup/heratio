@@ -89,6 +89,19 @@ class AhgPrivacyServiceProvider extends ServiceProvider
             ]);
         }
 
+        // heratio#1199 - Phase 5: compliance-autopilot retention-schedule
+        // proposals. Probe + install live inside one outer try per the
+        // reference_ci_schema_hastable rule.
+        try {
+            if (! Schema::hasTable('ahg_retention_proposal')) {
+                $this->installSqlFile(__DIR__.'/../../database/install-phase5.sql');
+            }
+        } catch (Throwable $e) {
+            Log::warning('ahg-privacy: Phase 5 (retention proposals) install probe/install failed', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         // #1108 - alias the field-redaction middleware so IO read routes can
         // opt in (applies field-level redaction for non-privileged viewers).
         $this->app['router']->aliasMiddleware(

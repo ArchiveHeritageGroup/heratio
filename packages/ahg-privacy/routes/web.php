@@ -27,6 +27,9 @@ Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(functi
     Route::get('/autopilot',         [ComplianceAutopilotController::class, 'index'])->name('ahgprivacy.autopilot');
     Route::post('/autopilot/scan',   [ComplianceAutopilotController::class, 'scanAjax'])->name('ahgprivacy.autopilot.scan');
     Route::post('/autopilot/create', [ComplianceAutopilotController::class, 'createRopa'])->name('ahgprivacy.autopilot.create');
+    // heratio#1199 retention slice: auto-draft a retention schedule + DPO accept
+    Route::post('/autopilot/retention',            [ComplianceAutopilotController::class, 'draftRetention'])->name('ahgprivacy.autopilot.retention');
+    Route::post('/autopilot/retention/{id}/accept', [ComplianceAutopilotController::class, 'acceptRetention'])->name('ahgprivacy.autopilot.retention.accept')->whereNumber('id');
 
     Route::get('/article-30',            [Article30Controller::class, 'index'])->name('ahgprivacy.article-30.index');
     Route::get('/article-30/export',     [Article30Controller::class, 'export'])->name('ahgprivacy.article-30.export');

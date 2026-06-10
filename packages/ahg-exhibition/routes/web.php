@@ -133,6 +133,9 @@ Route::get('/exhibition-space/{slug}/recommend', [ExhibitionSpaceController::cla
 Route::get('/exhibition-space/object/{ioId}/describe', [ExhibitionSpaceController::class, 'describeObjectAjax'])->name('exhibition-space.describe')->whereNumber('ioId');
 // heratio#1185 — AI docent: grounded Q&A about an object (public, read-only)
 Route::get('/exhibition-space/object/{ioId}/ask', [ExhibitionSpaceController::class, 'askObjectAjax'])->name('exhibition-space.ask')->whereNumber('ioId');
+// heratio#1185 — AI docent: grounded Q&A about the whole ROOM / exhibition + suggested questions (public, read-only)
+Route::get('/exhibition-space/{slug}/ask-room', [ExhibitionSpaceController::class, 'askRoomAjax'])->name('exhibition-space.ask-room');
+Route::get('/exhibition-space/{slug}/room-questions', [ExhibitionSpaceController::class, 'roomQuestionsAjax'])->name('exhibition-space.room-questions');
 Route::post('/exhibition-space/tts', [ExhibitionSpaceController::class, 'ttsAjax'])->name('exhibition-space.tts');   // #1168 neural TTS via the gateway (public; walkthrough narration)
 // heratio#1188 — IoT sensor/gateway ingest, authenticated by a per-space token (no session/CSRF)
 Route::post('/exhibition-space/sensor/ingest', [ExhibitionSpaceController::class, 'sensorIngestAjax'])->name('exhibition-space.sensor.ingest');

@@ -2,6 +2,7 @@
 
 namespace AhgReports\Providers;
 
+use AhgReports\Services\CollectionsHealthService;
 use AhgReports\Services\ReportService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -12,6 +13,7 @@ class AhgReportsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(ReportService::class);
+        $this->app->singleton(CollectionsHealthService::class);
     }
 
     public function boot(): void

@@ -764,4 +764,26 @@ INSERT IGNORE INTO ahg_ai_settings (feature, setting_key, setting_value) VALUES
     ('face_detect', 'api_key',        ''),
     ('face_detect', 'min_confidence', '0.70');
 
+-- ============================================================================
+-- Suggested Connections cache (North Star generative scholarship #1210)
+-- Stores the LLM-written hypothesis for a non-obvious record pair, keyed by
+-- the ordered pair (object_id_1 < object_id_2) so each pair is cached once.
+-- Candidate discovery is pure SQL over object_term_relation / relation; only
+-- the explanation is persisted here.
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS ahg_suggested_connection (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    object_id_1 INT NOT NULL,
+    object_id_2 INT NOT NULL,
+    shared_count INT NOT NULL DEFAULT 0,
+    shared_terms VARCHAR(2000) DEFAULT NULL,
+    explanation TEXT DEFAULT NULL,
+    model VARCHAR(100) DEFAULT NULL,
+    created_at TIMESTAMP NULL DEFAULT NULL,
+    updated_at TIMESTAMP NULL DEFAULT NULL,
+    UNIQUE KEY uk_pair (object_id_1, object_id_2),
+    INDEX idx_obj1 (object_id_1),
+    INDEX idx_obj2 (object_id_2)
+);
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -30,7 +30,9 @@ class ComplianceAutopilotController extends Controller
 
     public function index()
     {
-        return view('privacy::autopilot');
+        return view('privacy::autopilot', [
+            'retentionProposals' => $this->autopilot->listRetentionProposals(),
+        ]);
     }
 
     /** Run the scan and return categories found + a pre-filled ROPA draft. */
@@ -72,5 +74,36 @@ class ComplianceAutopilotController extends Controller
 
         return redirect()->route('ahgprivacy.article-30.index')
             ->with('success', 'ROPA entry "'.$activity->name.'" created from the compliance autopilot draft. Review and complete it.');
+    }
+
+    /**
+     * heratio#1199 retention slice - run the scan and auto-draft a retention
+     * schedule (one persisted proposal per data category found), then return
+     * the proposals for the autopilot page.
+     */
+    public function draftRetention()
+    {
+        $scan = $this->autopilot->scanCatalogue();
+        $result = $this->autopilot->draftRetentionSchedule($scan);
+
+        return response()->json([
+            'ok' => true,
+            'scan' => ['scanned' => $scan['scanned'] ?? 0, 'records_with_pii' => $scan['records_with_pii'] ?? 0],
+            'source' => $result['source'],
+            'proposals' => $result['proposals'],
+        ]);
+    }
+
+    /** Accept (DPO sign-off) a single auto-drafted retention proposal. */
+    public function acceptRetention(Request $request, int $id)
+    {
+        $ok = $this->autopilot->acceptRetentionProposal($id, optional($request->user())->id);
+
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => $ok]);
+        }
+
+        return redirect()->route('ahgprivacy.autopilot')
+            ->with($ok ? 'success' : 'error', $ok ? 'Retention proposal accepted.' : 'Retention proposal not found.');
     }
 }

@@ -2615,6 +2615,155 @@ class ExhibitionSpaceService
     }
 
     /**
+     * heratio#1185 - AI docent, ROOM / whole-exhibition scope. Answer a visitor's free-form
+     * question about the exhibition as a whole, grounded ONLY in the catalogue of the objects
+     * actually placed in this building (title + a short scope snippet each). The model is told
+     * to use nothing but the supplied object list - no invented dates, names or provenance -
+     * and may point the visitor toward relevant pieces by name. Cached per (building, question).
+     */
+    public function aiAnswerAboutRoom(object $space, string $question): ?string
+    {
+        $q = trim($question);
+        if ($q === '') {
+            return null;
+        }
+        $q = mb_substr($q, 0, 300);
+
+        $key = 'exh_ai_room_'.($space->building_id ?: $space->slug).'_'.md5(mb_strtolower($q));
+
+        return \Illuminate\Support\Facades\Cache::remember($key, now()->addDays(7), function () use ($space, $q) {
+            $objects = $this->roomGroundingObjects($space, 60);
+            if (empty($objects)) {
+                return null;
+            }
+
+            $name = trim((string) ($space->name ?? '')) ?: 'this exhibition';
+            $lines = [];
+            foreach ($objects as $o) {
+                $line = '- '.$o['title'];
+                if ($o['room_name'] !== '' && $o['room_name'] !== $o['title']) {
+                    $line .= ' [room: '.$o['room_name'].']';
+                }
+                if ($o['scope'] !== '') {
+                    $line .= ' - '.$o['scope'];
+                }
+                $lines[] = $line;
+            }
+            $catalogue = implode("\n", $lines);
+
+            $prompt = "You are a knowledgeable, warm museum docent standing with a visitor inside the exhibition \"".$name."\". "
+                ."The visitor asks about the exhibition as a whole. Answer using ONLY the list of objects on display below - "
+                ."their titles and short descriptions are the only facts you know. "
+                ."When it helps, point the visitor toward specific pieces by their exact title so they can go and look. "
+                ."If the objects on display do not cover what was asked, say briefly that this exhibition does not seem to include that, and suggest the closest pieces that ARE on display. "
+                ."Never invent objects, dates, names, places or provenance that are not in the list below. "
+                ."Reply in 2 to 5 sentences of plain spoken prose - no markdown, no preamble, no bullet points.\n\n"
+                ."OBJECTS ON DISPLAY:\n".$catalogue."\n\nVISITOR QUESTION: ".$q;
+
+            try {
+                $resp = trim((string) app(\AhgAiServices\Services\LlmService::class)->complete($prompt, ['max_tokens' => 300, 'temperature' => 0.5]));
+
+                return $resp !== '' ? $resp : null;
+            } catch (\Throwable $e) {
+                return null;
+            }
+        });
+    }
+
+    /**
+     * heratio#1185 - grounding set for the room docent: each distinct placed object in the
+     * building once, with its title and a trimmed scope snippet. Pure catalogue data - no AI.
+     *
+     * @return array<int,array{io_id:int,title:string,room_name:string,scope:string}>
+     */
+    public function roomGroundingObjects(object $space, int $limit = 60): array
+    {
+        $ids = $this->buildingSpaceIds($space);
+        if (empty($ids)) {
+            return [];
+        }
+
+        $rows = DB::table('ahg_exhibition_placement as ep')
+            ->join('ahg_exhibition_space as sp', 'sp.id', '=', 'ep.exhibition_space_id')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('ioi.id', '=', 'ep.information_object_id')->where('ioi.culture', '=', 'en');
+            })
+            ->whereIn('ep.exhibition_space_id', $ids)
+            ->whereNotNull('ep.information_object_id')
+            ->where(function ($qq) { $qq->whereNull('ep.wall_or_zone')->orWhere('ep.wall_or_zone', '!=', 'corridor'); })
+            ->orderBy('sp.building_seq')->orderBy('sp.id')->orderBy('ep.id')
+            ->select('ep.information_object_id as io_id', 'ioi.title', 'ioi.scope_and_content', 'sp.name as room_name')
+            ->get();
+
+        $seen = [];
+        $out = [];
+        foreach ($rows as $r) {
+            $ioId = (int) $r->io_id;
+            if ($ioId <= 0 || isset($seen[$ioId])) {
+                continue;
+            }
+            $seen[$ioId] = 1;
+            $scope = trim(strip_tags((string) ($r->scope_and_content ?? '')));
+            $scope = preg_replace('/\s+/', ' ', $scope);
+            if (mb_strlen($scope) > 220) {
+                $scope = mb_substr($scope, 0, 220).'...';
+            }
+            $out[] = [
+                'io_id' => $ioId,
+                'title' => trim((string) ($r->title ?: ('#'.$ioId))),
+                'room_name' => trim((string) ($r->room_name ?? '')),
+                'scope' => $scope,
+            ];
+            if (count($out) >= $limit) {
+                break;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * heratio#1185 - suggested follow-up question chips for the room docent, grounded in the
+     * exhibition's real objects (no AI, no invention). Returns short visitor-facing prompts that
+     * name actual pieces on display, so every chip is answerable from the catalogue.
+     *
+     * @return array<int,string>
+     */
+    public function roomSuggestedQuestions(object $space, int $limit = 4): array
+    {
+        $objects = $this->roomGroundingObjects($space, 40);
+        if (empty($objects)) {
+            return [];
+        }
+
+        $chips = ['What is this exhibition about?'];
+        // Name two real pieces so the suggestion is always grounded and answerable.
+        $titled = array_values(array_filter($objects, fn ($o) => $o['title'] !== '' && $o['title'][0] !== '#'));
+        if (isset($titled[0])) {
+            $chips[] = 'Tell me about "'.$this->shortTitle($titled[0]['title']).'"';
+        }
+        if (isset($titled[1])) {
+            $chips[] = 'Where can I find "'.$this->shortTitle($titled[1]['title']).'"?';
+        }
+        $chips[] = 'Which pieces should I not miss?';
+
+        return array_slice(array_values(array_unique($chips)), 0, max(1, $limit));
+    }
+
+    /** Trim a catalogue title to a chip-friendly length without cutting mid-word. */
+    private function shortTitle(string $title): string
+    {
+        $title = trim(preg_replace('/\s+/', ' ', $title));
+        if (mb_strlen($title) <= 48) {
+            return $title;
+        }
+        $cut = mb_substr($title, 0, 48);
+        $sp = mb_strrpos($cut, ' ');
+
+        return ($sp !== false ? mb_substr($cut, 0, $sp) : $cut).'...';
+    }
+
+    /**
      * heratio#1150 multi-user presence. Upsert this visitor's pose into the building's
      * presence table and return the other live co-visitors + the active docent's tour
      * state. Polled ~2-3x/sec by the walkthrough. $isDocent (decided by the controller

@@ -438,6 +438,33 @@ class ExhibitionSpaceController extends Controller
     }
 
     /**
+     * heratio#1185 - AI docent, ROOM scope: answer a visitor's free-form question about the
+     * whole exhibition, grounded ONLY in the objects placed in this building. Public, read-only.
+     */
+    public function askRoomAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate(['q' => 'required|string|max:300']);
+        $answer = $this->service->aiAnswerAboutRoom($space, $data['q']);
+
+        return response()->json(['ok' => $answer !== null, 'answer' => $answer]);
+    }
+
+    /** heratio#1185 - suggested follow-up question chips for the room docent (grounded in real objects). */
+    public function roomQuestionsAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+
+        return response()->json(['ok' => true, 'questions' => $this->service->roomSuggestedQuestions($space)]);
+    }
+
+    /**
      * #1168 - neural TTS for the walkthrough narration. Synthesises $text via the
      * AI gateway (Piper) and returns WAV; 502 if unavailable so the client falls
      * back to browser speech. Public (the walkthrough is public).

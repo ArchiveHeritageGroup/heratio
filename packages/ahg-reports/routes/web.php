@@ -1,5 +1,6 @@
 <?php
 
+use AhgReports\Controllers\CollectionsHealthController;
 use AhgReports\Controllers\ReportController;
 use AhgReports\Controllers\ReportBuilderController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,9 @@ Route::middleware('admin')->prefix('admin/reports')->group(function () {
     Route::get('/recent', [ReportController::class, 'recent'])->name('reports.recent');
     Route::get('/taxonomy', [ReportController::class, 'taxonomy'])->name('reports.taxonomy');
     Route::match(['get', 'post'], '/spatial-analysis', [ReportController::class, 'spatialAnalysis'])->name('reports.spatial');
+
+    // Collections health dashboard (cross-collection KPIs) - issue #1215
+    Route::get('/collections-health', [CollectionsHealthController::class, 'index'])->name('reports.collections-health');
 
     // Browse & Publish
     Route::get('/browse', [ReportController::class, 'browse'])->name('reports.browse');

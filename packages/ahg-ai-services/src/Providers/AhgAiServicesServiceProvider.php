@@ -10,6 +10,7 @@ use AhgAiServices\Services\NerGazetteerService;
 use AhgAiServices\Services\NerService;
 use AhgAiServices\Services\NullFaceDetector;
 use AhgAiServices\Services\QuotaService;
+use AhgAiServices\Services\SuggestedConnectionsService;
 use AhgAiServices\Services\TranslationMemoryService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -44,6 +45,10 @@ class AhgAiServicesServiceProvider extends ServiceProvider
         $this->app->singleton(NerGazetteerService::class);
         // #750 - per-request cache for embedded EXIF/IPTC/XMP context hints.
         $this->app->singleton(EmbeddedMetadataContextService::class);
+        // #1210 - North Star generative scholarship: suggested-connections engine.
+        $this->app->singleton(SuggestedConnectionsService::class, function ($app) {
+            return new SuggestedConnectionsService($app->make(LlmService::class));
+        });
         $this->app->singleton(FaceDetectorInterface::class, function ($app) {
             return new NullFaceDetector(
                 $app->make(QuotaService::class),
@@ -97,7 +102,8 @@ class AhgAiServicesServiceProvider extends ServiceProvider
                 || !Schema::hasTable('ahg_ai_call_cost')
                 || !Schema::hasTable('ahg_ai_pricing')
                 || !Schema::hasTable('ahg_translation_memory')
-                || !Schema::hasTable('ahg_ner_custom_entity');
+                || !Schema::hasTable('ahg_ner_custom_entity')
+                || !Schema::hasTable('ahg_suggested_connection');
             if (!$needed) {
                 return;
             }

@@ -43,6 +43,54 @@
       </div>
     </form>
   </div>
+
+  {{-- heratio#1199 retention slice: auto-draft a retention schedule from the same scan. --}}
+  <div class="card mt-4">
+    <div class="card-header py-2 d-flex flex-wrap align-items-center gap-2">
+      <strong><i class="fas fa-clock-rotate-left me-1 text-primary"></i>{{ __('Retention schedule') }}</strong>
+      <small class="text-muted">{{ __('auto-draft a defensible retention period per data category, for sign-off') }}</small>
+      <button type="button" id="apRetBtn" class="btn btn-sm btn-outline-primary ms-auto"><i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Draft retention schedule') }}</button>
+    </div>
+    <div class="card-body">
+      <p class="text-muted small mb-2">{{ __('Heratio asks the AI gateway to suggest a defensible retention period, a generic legal/policy basis and a disposal action for each category of personal data the scan found. Suggestions are jurisdiction-neutral - confirm the concrete law against your enabled market module. Each proposal is held for a data-protection officer to accept.') }}</p>
+      <span id="apRetStatus" class="small text-muted"></span>
+      <div class="table-responsive mt-2">
+        <table class="table table-sm align-middle mb-0">
+          <thead><tr>
+            <th>{{ __('Category') }}</th><th class="text-end">{{ __('Records') }}</th>
+            <th>{{ __('Retention period') }}</th><th>{{ __('Legal / policy basis') }}</th>
+            <th>{{ __('Disposal action') }}</th><th>{{ __('Status') }}</th><th></th>
+          </tr></thead>
+          <tbody id="apRetRows">
+            @forelse(($retentionProposals ?? []) as $p)
+              @php $accepted = ($p['status'] ?? '') === 'accepted'; @endphp
+              <tr data-id="{{ $p['id'] }}">
+                <td>{{ $p['category_label'] }}</td>
+                <td class="text-end">{{ $p['records_affected'] }}</td>
+                <td class="small">{{ $p['retention_period'] }}</td>
+                <td class="small text-muted">{{ $p['legal_basis'] }}</td>
+                <td class="small">{{ $p['disposal_action'] }}</td>
+                <td>
+                  @if($accepted)
+                    <span class="badge bg-success">{{ __('Accepted') }}</span>
+                  @else
+                    <span class="badge bg-warning text-dark">{{ __('Proposed') }}</span>
+                  @endif
+                </td>
+                <td class="text-end">
+                  @unless($accepted)
+                    <button type="button" class="btn btn-sm btn-success ap-ret-accept" data-id="{{ $p['id'] }}"><i class="fas fa-check me-1"></i>{{ __('Accept') }}</button>
+                  @endunless
+                </td>
+              </tr>
+            @empty
+              <tr id="apRetEmpty"><td colspan="7" class="text-muted">{{ __('No retention proposals yet. Run "Draft retention schedule" to generate them from a catalogue scan.') }}</td></tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script nonce="{{ $cspNonce ?? '' }}">
@@ -78,6 +126,59 @@
         result.style.display = 'block';
       })
       .catch(function () { btn.disabled = false; btn.innerHTML = '<i class="fas fa-magnifying-glass-chart me-1"></i>{{ __('Scan the catalogue') }}'; status.textContent = '{{ __('Scan failed.') }}'; });
+  });
+
+  // ---- heratio#1199 retention slice ----
+  function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+  var retBtn = document.getElementById('apRetBtn'), retStatus = document.getElementById('apRetStatus'),
+      retRows = document.getElementById('apRetRows');
+
+  function acceptUrl(id) { return '{{ url('admin/privacy/autopilot/retention') }}/' + id + '/accept'; }
+
+  function bindAccept(b) {
+    b.addEventListener('click', function () {
+      var id = b.getAttribute('data-id');
+      b.disabled = true;
+      fetch(acceptUrl(id), { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) { b.disabled = false; return; }
+          var tr = b.closest('tr'), st = tr.querySelector('td:nth-child(6)');
+          if (st) st.innerHTML = '<span class="badge bg-success">{{ __('Accepted') }}</span>';
+          b.remove();
+        })
+        .catch(function () { b.disabled = false; });
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.ap-ret-accept'), bindAccept);
+
+  retBtn.addEventListener('click', function () {
+    retBtn.disabled = true; retBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>{{ __('Drafting…') }}';
+    retStatus.textContent = '{{ __('Scanning and asking the AI gateway for retention periods…') }}';
+    fetch('{{ route('ahgprivacy.autopilot.retention') }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        retBtn.disabled = false; retBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Draft retention schedule') }}';
+        if (!d || !d.ok) { retStatus.textContent = '{{ __('Draft failed.') }}'; return; }
+        var src = d.source === 'llm' ? '{{ __('AI-suggested') }}' : '{{ __('heuristic fallback (gateway unavailable)') }}';
+        retStatus.textContent = (d.proposals || []).length + ' {{ __('proposals') }} - ' + src;
+        retRows.innerHTML = '';
+        if (!(d.proposals || []).length) { retRows.innerHTML = '<tr><td colspan="7" class="text-muted">{{ __('No personal-data categories found to base a retention schedule on.') }}</td></tr>'; return; }
+        d.proposals.forEach(function (p) {
+          var acc = p.status === 'accepted';
+          var tr = document.createElement('tr'); tr.setAttribute('data-id', p.id);
+          tr.innerHTML = '<td>' + esc(p.category_label) + '</td>'
+            + '<td class="text-end">' + esc(p.records_affected) + '</td>'
+            + '<td class="small">' + esc(p.retention_period) + '</td>'
+            + '<td class="small text-muted">' + esc(p.legal_basis) + '</td>'
+            + '<td class="small">' + esc(p.disposal_action) + '</td>'
+            + '<td>' + (acc ? '<span class="badge bg-success">{{ __('Accepted') }}</span>' : '<span class="badge bg-warning text-dark">{{ __('Proposed') }}</span>') + '</td>'
+            + '<td class="text-end">' + (acc ? '' : '<button type="button" class="btn btn-sm btn-success ap-ret-accept" data-id="' + esc(p.id) + '"><i class="fas fa-check me-1"></i>{{ __('Accept') }}</button>') + '</td>';
+          retRows.appendChild(tr);
+          var nb = tr.querySelector('.ap-ret-accept'); if (nb) bindAccept(nb);
+        });
+      })
+      .catch(function () { retBtn.disabled = false; retBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Draft retention schedule') }}'; retStatus.textContent = '{{ __('Draft failed.') }}'; });
   });
 })();
 </script>

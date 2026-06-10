@@ -2,6 +2,7 @@
 
 use AhgAiServices\Controllers\AiController;
 use AhgAiServices\Controllers\PhaseOneController;
+use AhgAiServices\Controllers\SuggestedConnectionsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -142,6 +143,10 @@ Route::middleware(['auth'])->prefix('admin/ai')->group(function () {
     Route::post('/services/ner-entities/save',      [PhaseOneController::class, 'nerCustomSave'])->name('admin.ai-services.ner-entities.save');
     Route::post('/services/ner-entities/delete',    [PhaseOneController::class, 'nerCustomDelete'])->name('admin.ai-services.ner-entities.delete');
     Route::get('/services/face-detect',             [PhaseOneController::class, 'faceDetect'])->name('admin.ai-services.face-detect');
+
+    // --- Suggested Connections (North Star generative scholarship #1210) ---
+    Route::get('/connections',          [SuggestedConnectionsController::class, 'index'])->name('admin.ai.connections');
+    Route::post('/connections/explain', [SuggestedConnectionsController::class, 'explain'])->name('admin.ai.connections.explain');
 
     // --- Donut (Document Understanding) ---
     Route::post('/donut/prefill', [AiController::class, 'donutPrefill'])->name('admin.ai.donut.prefill');
