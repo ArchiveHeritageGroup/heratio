@@ -11,12 +11,21 @@
     $isCancelled = $event->status === 'cancelled';
     $isEnded = $event->status === 'ended' || time() > $endsTs;
     $isFull = $remaining <= 0;
+    // Slice 2b: paid opening. $isPaid is passed from the controller.
+    $isPaid = $isPaid ?? false;
+    $priceLabel = $isPaid ? (number_format((float) $event->price, 2) . ' ' . ($event->currency ?? '')) : null;
+    // A held ticket only unlocks the door once it is usable. For a paid event the
+    // freshly reserved ticket is still pending (ticket_pending flash), so the join
+    // stays gated until the curator/gateway records payment.
+    $ticketUsable = $ticket && !($ticketPending ?? false);
   @endphp
 
   <div class="row justify-content-center">
     <div class="col-lg-8">
       <div class="mb-2">
         <span class="badge bg-primary"><i class="fas fa-vr-cardboard me-1"></i>{{ __('Live virtual opening') }}</span>
+        @if($isPaid)<span class="badge bg-dark"><i class="fas fa-tag me-1"></i>{{ $priceLabel }}</span>
+        @else<span class="badge bg-success-subtle text-success-emphasis">{{ __('Free admission') }}</span>@endif
         @if($isCancelled)<span class="badge bg-danger">{{ __('Cancelled') }}</span>
         @elseif($isEnded)<span class="badge bg-secondary">{{ __('Ended') }}</span>
         @elseif($event->status === 'live')<span class="badge bg-success">{{ __('Live now') }}</span>
@@ -70,18 +79,27 @@
             @php
               // A confirmed ticket holder joins through the ticket-bound join action so
               // the verified attendee is carried into the walkthrough's presence session.
+              // For a paid event the ticket must be settled (usable) first; a pending
+              // ticket cannot pass the join gate, so we don't offer the ticket-bound door
+              // and instead fall back to the open walkthrough link.
               // Without a ticket, the door still links into the open walkthrough.
-              $joinHref = $ticket
+              $joinHref = $ticketUsable
                 ? route('exhibition-space.opening-join', ['token' => $event->public_token, 't' => $ticket])
                 : route('exhibition-space.walkthrough', ['slug' => $space->slug]);
+              // Paid + ticket-not-yet-usable: keep the door disabled even inside the join
+              // window, since joinEvent() would reject the pending ticket anyway.
+              $joinDisabled = !$joinable || ($isPaid && $ticket && !$ticketUsable);
             @endphp
             <a id="opJoinBtn" href="{{ $joinHref }}"
-               class="btn btn-lg @if($joinable) btn-success @else btn-secondary disabled @endif"
-               @if(!$joinable) aria-disabled="true" tabindex="-1" @endif>
+               class="btn btn-lg @if(!$joinDisabled) btn-success @else btn-secondary disabled @endif"
+               data-paid-pending="{{ ($isPaid && $ticket && !$ticketUsable) ? '1' : '0' }}"
+               @if($joinDisabled) aria-disabled="true" tabindex="-1" @endif>
               <i class="fas fa-door-open me-1"></i>{{ __('Join the walkthrough') }}
             </a>
             <div id="opJoinHint" class="small text-muted mt-2">
-              @if($joinable)
+              @if($isPaid && $ticket && !$ticketUsable)
+                {{ __('Your ticket unlocks once payment is recorded.') }}
+              @elseif($joinable)
                 {{ __('The opening is live - step inside.') }}
               @else
                 {{ __('The join link opens :n minutes before the start time.', ['n' => $joinWindow]) }}
@@ -93,17 +111,26 @@
 
       {{-- RSVP / ticket --}}
       @if(session('success') && session('ticket'))
-        <div class="alert alert-success">
+        <div class="alert @if($ticketPending ?? false) alert-warning @else alert-success @endif">
           <div class="fw-semibold"><i class="fas fa-ticket-alt me-1"></i>{{ session('success') }}</div>
           <div class="mt-1">{{ __('Ticket code') }}: <code>{{ session('ticket') }}</code></div>
-          <div class="small text-muted">{{ __('Keep this code - return to this page at event time and click Join.') }}</div>
+          @if($ticketPending ?? false)
+            <div class="small text-muted">{{ __('Payment is required to confirm this ticket. Once payment is recorded your join link unlocks - keep this code.') }}</div>
+          @else
+            <div class="small text-muted">{{ __('Keep this code - return to this page at event time and click Join.') }}</div>
+          @endif
         </div>
       @elseif(!$isCancelled && !$isEnded)
         <div class="card">
-          <div class="card-header py-2"><strong><i class="fas fa-ticket-alt me-1"></i>{{ __('Reserve your free ticket') }}</strong></div>
+          <div class="card-header py-2"><strong><i class="fas fa-ticket-alt me-1"></i>@if($isPaid){{ __('Reserve your ticket') }} ({{ $priceLabel }})@else{{ __('Reserve your free ticket') }}@endif</strong></div>
           <div class="card-body">
             @if($errors->any())
               <div class="alert alert-danger py-2"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
+            @endif
+            @if($isPaid)
+              <p class="small text-muted mb-3">
+                <i class="fas fa-info-circle me-1"></i>{{ __('This is a paid opening. Reserving holds your seat; your ticket is confirmed once payment of :price is recorded, after which the join link unlocks.', ['price' => $priceLabel]) }}
+              </p>
             @endif
             @if($isFull)
               <p class="text-muted mb-0">{{ __('This event is fully booked.') }}</p>
@@ -124,7 +151,9 @@
                     <input type="number" id="rsvp_party" name="party_size" class="form-control" min="1" max="20" value="{{ old('party_size', 1) }}" required>
                   </div>
                 </div>
-                <button type="submit" class="btn btn-primary mt-3"><i class="fas fa-check me-1"></i>{{ __('Reserve ticket') }}</button>
+                <button type="submit" class="btn btn-primary mt-3">
+                  <i class="fas fa-check me-1"></i>@if($isPaid){{ __('Reserve (payment required)') }}@else{{ __('Reserve ticket') }}@endif
+                </button>
               </form>
             @endif
           </div>
@@ -169,7 +198,10 @@
         }
         if (now >= openAt) {
           el.textContent = '{{ __('The opening is live now.') }}';
-          if (btn && btn.classList.contains('disabled')) {
+          // Slice 2b: a paid ticket that is still pending must NOT be auto-enabled when
+          // the window opens - it stays gated until payment is recorded server-side.
+          var paidPending = btn && btn.getAttribute('data-paid-pending') === '1';
+          if (btn && btn.classList.contains('disabled') && !paidPending) {
             btn.classList.remove('btn-secondary', 'disabled');
             btn.classList.add('btn-success');
             btn.removeAttribute('aria-disabled');

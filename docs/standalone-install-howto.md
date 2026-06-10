@@ -196,6 +196,29 @@ php artisan ahg:qdrant-index --collection=archive_records
 
 ---
 
+## 8. Optional - 3D + provenance host tools
+
+Required for: 3D model optimisation (OBJ/FBX -> glTF + Draco), FBX uploads, and C2PA Content
+Credentials embedding. Each feature degrades gracefully when its tool is absent, so this is
+optional - but run it on any host that should support 3D ingest or provenance embedding.
+
+```bash
+cd /usr/share/nginx/heratio
+sudo bin/install-host-tools.sh
+```
+
+Idempotent (re-run safe). It installs, per host:
+- **model-tools** (`obj2gltf` + `gltf-transform`) into `/opt/ahg-model-tools` - see `docs/model-optimisation-setup.md`
+- **FBX2glTF** into `/opt/ahg-model-tools/FBX2glTF` - see `docs/fbx2gltf-setup.md`
+- **c2patool** into `/usr/local/bin/c2patool` - see `docs/c2patool-setup.md`
+- **PotreeConverter** (point clouds) is flagged but built separately - see `docs/pointcloud-setup.md`
+
+Heratio reads these via `config/heratio.php` (`model_tools_bin`, `fbx2gltf_bin`, `c2patool_bin`,
+`pointcloud_bin`). After installing c2patool, backfill provenance for existing masters with
+`php artisan ahg:c2pa-provenance-backfill --commit`.
+
+---
+
 ## 8. Optional - AI services
 
 > Heratio is an **AI client**, not an AI host. Set up your own Ollama / vLLM / OpenAI-compatible endpoint on a separate GPU box (or use a managed service), then point Heratio at it.

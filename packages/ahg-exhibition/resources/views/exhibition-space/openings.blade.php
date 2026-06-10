@@ -60,6 +60,20 @@
               <input type="number" id="ev_capacity" name="capacity" class="form-control" min="1" max="100000" step="1"
                      value="{{ old('capacity', 50) }}" required>
             </div>
+            {{-- heratio#1192 slice 2b - paid ticketing. Leave price blank or 0 for a free opening. --}}
+            <div class="row g-2 mb-3">
+              <div class="col-7">
+                <label class="form-label" for="ev_price">{{ __('Ticket price') }}</label>
+                <input type="number" id="ev_price" name="price" class="form-control" min="0" max="99999999.99" step="0.01"
+                       value="{{ old('price') }}" placeholder="0.00">
+                <div class="form-text">{{ __('Blank or 0 = free admission.') }}</div>
+              </div>
+              <div class="col-5">
+                <label class="form-label" for="ev_currency">{{ __('Currency') }}</label>
+                <input type="text" id="ev_currency" name="currency" class="form-control text-uppercase" maxlength="3"
+                       value="{{ old('currency') }}" placeholder="USD">
+              </div>
+            </div>
             <div class="mb-3">
               <label class="form-label" for="ev_desc">{{ __('Description') }}</label>
               <textarea id="ev_desc" name="description" class="form-control" rows="3" maxlength="5000"
@@ -85,6 +99,7 @@
                     <th>{{ __('Title') }}</th>
                     <th>{{ __('When') }}</th>
                     <th class="text-end">{{ __('Seats') }}</th>
+                    <th class="text-end">{{ __('Price') }}</th>
                     <th>{{ __('Status') }}</th>
                     <th class="text-end">{{ __('Actions') }}</th>
                   </tr>
@@ -106,6 +121,15 @@
                       <td class="text-end small">
                         {{ $ev->reserved }} / {{ $ev->capacity }}
                         <div class="text-muted">{{ $ev->remaining }} {{ __('left') }}</div>
+                      </td>
+                      @php $isPaidEv = isset($ev->price) && (float) $ev->price > 0; @endphp
+                      <td class="text-end small">
+                        @if($isPaidEv)
+                          <span class="fw-semibold">{{ number_format((float) $ev->price, 2) }}</span>
+                          <div class="text-muted">{{ $ev->currency }}</div>
+                        @else
+                          <span class="badge bg-light text-dark">{{ __('Free') }}</span>
+                        @endif
                       </td>
                       <td>
                         @php $sty = ['scheduled' => 'bg-info', 'live' => 'bg-success', 'ended' => 'bg-secondary', 'cancelled' => 'bg-danger'][$ev->status] ?? 'bg-secondary'; @endphp
@@ -130,6 +154,47 @@
                         </div>
                       </td>
                     </tr>
+                    @if($isPaidEv && !empty($rsvpsByEvent[$ev->id]))
+                      {{-- heratio#1192 slice 2b - paid opening: list tickets so the curator can
+                           settle pending (unpaid) ones. Marking paid confirms + emails the ticket. --}}
+                      <tr class="table-light">
+                        <td colspan="6" class="small">
+                          <div class="fw-semibold mb-1"><i class="fas fa-ticket-alt me-1"></i>{{ __('Tickets') }}</div>
+                          <table class="table table-sm mb-0">
+                            <tbody>
+                              @foreach($rsvpsByEvent[$ev->id] as $r)
+                                <tr>
+                                  <td>{{ $r->name }} <span class="text-muted">&lt;{{ $r->email }}&gt;</span></td>
+                                  <td class="text-muted"><code>{{ $r->ticket_code }}</code> &times;{{ $r->party_size }}</td>
+                                  <td>
+                                    @if($r->status === 'pending')
+                                      <span class="badge bg-warning text-dark">{{ __('Payment pending') }}</span>
+                                    @elseif($r->status === 'confirmed')
+                                      <span class="badge bg-success">{{ __('Paid') }}</span>
+                                      @if(isset($r->amount_paid) && $r->amount_paid !== null)
+                                        <span class="text-muted">{{ number_format((float) $r->amount_paid, 2) }} {{ $ev->currency }}</span>
+                                      @endif
+                                    @else
+                                      <span class="badge bg-secondary">{{ $r->status }}</span>
+                                    @endif
+                                  </td>
+                                  <td class="text-end">
+                                    @if($r->status === 'pending')
+                                      <form method="post" action="{{ route('exhibition-space.openings.mark-paid', ['slug' => $space->slug, 'eventId' => $ev->id, 'rsvpId' => $r->id]) }}">
+                                        @csrf
+                                        <button class="btn btn-sm btn-outline-success" type="submit">
+                                          <i class="fas fa-check me-1"></i>{{ __('Mark as paid') }}
+                                        </button>
+                                      </form>
+                                    @endif
+                                  </td>
+                                </tr>
+                              @endforeach
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    @endif
                   @endforeach
                 </tbody>
               </table>

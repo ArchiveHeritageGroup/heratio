@@ -2727,6 +2727,20 @@ class ExhibitionSpaceService
         }
         $catalogue = implode("\n", $lines);
 
+        // OPTIONAL broader grounding from the KM knowledge base (heratio#1185). Fetched once per
+        // turn, with a short timeout; if it is slow, empty, off, or unconfigured we proceed
+        // catalogue-only. The placed-object catalogue above always stays authoritative - the KM
+        // snippet is a clearly-labelled SECONDARY source the model may use only to enrich.
+        $kmSnippet = null;
+        if ((bool) config('heratio.exhibition_docent_km', true)) {
+            try {
+                $kmSnippet = app(\AhgExhibition\Services\KmContextService::class)
+                    ->ask($q, (int) config('heratio.km.timeout_seconds', 6));
+            } catch (\Throwable $e) {
+                $kmSnippet = null;   // never let KM break the docent
+            }
+        }
+
         $hist = '';
         foreach (array_slice($turns, -6) as $t) {
             $tq = trim((string) ($t['q'] ?? '')); $ta = trim((string) ($t['a'] ?? ''));
@@ -2742,6 +2756,12 @@ class ExhibitionSpaceService
             .'Reply in 2 to 4 sentences of plain spoken prose - no markdown, no preamble, no bullet points. '
             ."Then, on a FINAL separate line, write exactly 'NEXT: ' followed by the exact title of one object from the list the visitor might enjoy seeing next (different from what they just asked about), or 'NEXT: NONE'.\n\n"
             ."OBJECTS ON DISPLAY:\n".$catalogue."\n\n"
+            .($kmSnippet !== null
+                ? "BROADER COLLECTION CONTEXT (from the knowledge base, use only to enrich - the objects on display above are authoritative):\n"
+                    .$kmSnippet."\n"
+                    ."Use this background only to add colour or answer a broader question; it does NOT add objects to the room. "
+                    ."Still prefer the objects on display, and never claim the room holds anything not listed above.\n\n"
+                : '')
             .($hist !== '' ? "CONVERSATION SO FAR:\n".$hist."\n" : '')
             .'Visitor: '.$q;
 

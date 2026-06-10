@@ -3,10 +3,15 @@
 /**
  * ExhibitionEventController - heratio#1192 - live virtual openings (ticketed events).
  *
- * Admin: schedule + manage openings on an exhibition space.
+ * Admin: schedule + manage openings on an exhibition space, including pricing a
+ *   paid opening and a "mark as paid" action that settles a pending ticket.
  * Public: an event landing page with a capacity-checked RSVP form and a
- * "Join the walkthrough" link that goes live at event time and routes into the
- * existing 3D walkthrough. Real-time multi-user presence is a later slice (#1150).
+ *   "Join the walkthrough" link that goes live at event time and routes into the
+ *   existing 3D walkthrough. Real-time multi-user presence is a later slice (#1150).
+ *
+ * Slice 2b: PAID ticketing. Paid RSVPs are created 'pending' (seat held, ticket not
+ * usable) and only become joinable once payment is confirmed - either by the admin
+ * markPaid action below or, later, by a gateway callback via $events->confirmPayment().
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * Licensed under the GNU Affero General Public License v3.0 or later.
@@ -14,10 +19,13 @@
 
 namespace AhgExhibition\Controllers;
 
+use AhgExhibition\Mail\OpeningTicketMail;
 use AhgExhibition\Services\ExhibitionEventService;
 use AhgExhibition\Services\ExhibitionSpaceService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ExhibitionEventController extends Controller
 {
@@ -39,10 +47,23 @@ class ExhibitionEventController extends Controller
             abort(404);
         }
 
+        $events = $this->events->listForSpace((int) $space->id);
+
+        // For paid openings, surface their tickets so the curator can mark pending ones
+        // as paid. Free openings carry no rsvps payload (their tickets are confirmed on
+        // RSVP and need no settling), keeping the page identical for the free path.
+        $rsvpsByEvent = [];
+        foreach ($events as $ev) {
+            if ($this->events->isPaid($ev)) {
+                $rsvpsByEvent[(int) $ev->id] = $this->events->listRsvps((int) $ev->id);
+            }
+        }
+
         return view('ahg-exhibition::exhibition-space.openings', [
             'space' => $space,
-            'events' => $this->events->listForSpace((int) $space->id),
+            'events' => $events,
             'statuses' => ExhibitionEventService::STATUSES,
+            'rsvpsByEvent' => $rsvpsByEvent,
         ]);
     }
 
@@ -61,6 +82,9 @@ class ExhibitionEventController extends Controller
             'starts_at' => 'required|date',
             'duration_minutes' => 'required|integer|min:5|max:1440',
             'capacity' => 'required|integer|min:1|max:100000',
+            // Slice 2b: optional price. Blank / 0 keeps the opening FREE.
+            'price' => 'nullable|numeric|min:0|max:99999999.99',
+            'currency' => 'nullable|string|size:3|alpha',
         ]);
 
         try {
@@ -120,6 +144,44 @@ class ExhibitionEventController extends Controller
             ->with('success', 'Opening deleted.');
     }
 
+    /**
+     * Admin: mark a pending paid ticket as paid (the honest, self-contained settle
+     * path that makes paid events work end-to-end now, without ahg-cart). Confirms the
+     * RSVP via the service, then emails the now-usable ticket to the attendee.
+     *
+     * Expects route: exhibition-space.openings.mark-paid
+     *   POST /exhibition-space/{slug}/openings/{eventId}/rsvp/{rsvpId}/mark-paid
+     */
+    public function markPaid(Request $request, string $slug, int $eventId, int $rsvpId)
+    {
+        $space = $this->spaces->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $event = $this->events->getById($eventId);
+        if (! $event || (int) $event->exhibition_space_id !== (int) $space->id) {
+            abort(404);
+        }
+        $rsvp = $this->events->getRsvpById($rsvpId);
+        if (! $rsvp || (int) $rsvp->event_id !== (int) $event->id) {
+            abort(404);
+        }
+
+        try {
+            $paid = $this->events->markRsvpPaid($rsvpId);
+        } catch (\InvalidArgumentException $e) {
+            return back()->withErrors(['status' => $e->getMessage()]);
+        }
+
+        if ($paid) {
+            $this->sendTicketEmail($event, $space, $paid);
+        }
+
+        return redirect()
+            ->route('exhibition-space.openings', ['slug' => $space->slug])
+            ->with('success', 'Payment recorded - ticket confirmed and emailed.');
+    }
+
     /** Public: event landing page (RSVP + join link). Reached via a tokenised URL. */
     public function publicShow(string $token)
     {
@@ -140,6 +202,9 @@ class ExhibitionEventController extends Controller
             'joinable' => $this->events->isJoinable($event),
             'joinWindow' => ExhibitionEventService::JOIN_WINDOW_BEFORE_MIN,
             'ticket' => session('ticket'),
+            // Slice 2b paid context for the public page.
+            'isPaid' => $this->events->isPaid($event),
+            'ticketPending' => (bool) session('ticket_pending'),
         ]);
     }
 
@@ -163,10 +228,49 @@ class ExhibitionEventController extends Controller
             return back()->withErrors(['email' => $e->getMessage()])->withInput();
         }
 
+        // Paid event -> RSVP is 'pending': seat held, ticket NOT yet usable. Tell the
+        // visitor payment is required and that their ticket unlocks once it's settled.
+        // Free event -> 'confirmed': issue the ticket and email it right away (slice 1).
+        if (($rsvp->status ?? '') === 'pending') {
+            return redirect()
+                ->route('exhibition-space.opening-public', ['token' => $event->public_token])
+                ->with('success', 'Seat reserved. Payment is required to confirm your ticket - your join link unlocks once payment is recorded.')
+                ->with('ticket', $rsvp->ticket_code)
+                ->with('ticket_pending', true);
+        }
+
+        $space = $this->spaces->getById((int) $event->exhibition_space_id);
+        if ($space) {
+            $this->sendTicketEmail($event, $space, $rsvp);
+        }
+
         return redirect()
             ->route('exhibition-space.opening-public', ['token' => $event->public_token])
             ->with('success', 'You are booked in. Your ticket code is below.')
             ->with('ticket', $rsvp->ticket_code);
+    }
+
+    /**
+     * Best-effort ticket email: sends the ticket code + join link on confirmation
+     * (free RSVP or settled payment). Mirrors the ahg-research booking-mail pattern.
+     * Mail failures are logged, never fatal - the on-page ticket code is the source of
+     * truth, the email is a convenience.
+     */
+    private function sendTicketEmail(object $event, object $space, object $rsvp): void
+    {
+        if (empty($rsvp->email)) {
+            return;
+        }
+        try {
+            $joinUrl = route('exhibition-space.opening-public', ['token' => $event->public_token]);
+            Mail::to($rsvp->email)->send(new OpeningTicketMail($event, $space, $rsvp, $joinUrl));
+        } catch (\Throwable $e) {
+            Log::warning('Opening ticket email failed', [
+                'event_id' => $event->id ?? null,
+                'rsvp_id' => $rsvp->id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

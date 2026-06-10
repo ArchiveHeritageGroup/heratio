@@ -302,6 +302,28 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     INDEX idx_event (event_id)
                 )");
             }
+
+            // heratio#1192 slice 2b - PAID ticketing. Additive, idempotent: a price +
+            // currency on the event, and the paid amount + timestamp on the RSVP. All
+            // NULLable so existing FREE events (no price set) behave exactly as before.
+            $eventPriceCols = [
+                'price' => 'DECIMAL(10,2) NULL',
+                'currency' => 'VARCHAR(3) NULL',
+            ];
+            foreach ($eventPriceCols as $col => $ddl) {
+                if (Schema::hasTable('ahg_exhibition_event') && ! Schema::hasColumn('ahg_exhibition_event', $col)) {
+                    DB::statement("ALTER TABLE ahg_exhibition_event ADD COLUMN {$col} {$ddl}");
+                }
+            }
+            $rsvpPaidCols = [
+                'amount_paid' => 'DECIMAL(10,2) NULL',
+                'paid_at' => 'DATETIME NULL',
+            ];
+            foreach ($rsvpPaidCols as $col => $ddl) {
+                if (Schema::hasTable('ahg_exhibition_event_rsvp') && ! Schema::hasColumn('ahg_exhibition_event_rsvp', $col)) {
+                    DB::statement("ALTER TABLE ahg_exhibition_event_rsvp ADD COLUMN {$col} {$ddl}");
+                }
+            }
         } catch (\Throwable $e) {
             // Non-fatal: builder simply stays unavailable until the columns exist.
         }

@@ -193,4 +193,32 @@ return [
         'api_url' => env('AHG_CENTRAL_API_URL', 'https://central.theahg.co.za/api/v1'),
         'api_key' => env('AHG_CENTRAL_API_KEY', ''),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Knowledge Management (KM) RAG grounding - km.theahg.co.za (heratio#1185)
+    |--------------------------------------------------------------------------
+    |
+    | The exhibition room docent can OPTIONALLY enrich its answers with a short,
+    | source-grounded snippet from the KM RAG service (the sanctioned cross-agent
+    | HTTP query surface), folded in as a clearly-labelled SECONDARY source. The
+    | placed-object catalogue always stays the authoritative grounding.
+    |
+    | KM_BASE_URL    - public KM base (no trailing slash). The docent POSTs to
+    |                  {base}/api/ask with a short timeout and degrades to
+    |                  catalogue-only on any failure.
+    | KM_WEB_API_KEY - bearer token for /api/ask (the public web key). Empty by
+    |                  default: with no key the docent simply skips KM and runs
+    |                  catalogue-only, so a fresh install needs no extra wiring.
+    |
+    | exhibition_docent_km - master on/off switch for KM grounding in the docent.
+    |                  Default true; set EXHIBITION_DOCENT_KM=false to disable.
+    |
+    */
+    'km' => [
+        'base_url' => env('KM_BASE_URL', 'https://km.theahg.co.za'),
+        'web_api_key' => env('KM_WEB_API_KEY', ''),
+        'timeout_seconds' => (int) env('KM_TIMEOUT_SECONDS', 6),
+    ],
+    'exhibition_docent_km' => env('EXHIBITION_DOCENT_KM', true),
 ];

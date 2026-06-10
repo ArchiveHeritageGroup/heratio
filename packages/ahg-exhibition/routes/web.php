@@ -131,6 +131,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/openings', [ExhibitionEventController::class, 'store'])->name('exhibition-space.openings.store')->middleware('acl:create');
     Route::post('/exhibition-space/{slug}/openings/{eventId}/status', [ExhibitionEventController::class, 'updateStatus'])->name('exhibition-space.openings.status')->middleware('acl:update')->whereNumber('eventId');
     Route::post('/exhibition-space/{slug}/openings/{eventId}/delete', [ExhibitionEventController::class, 'destroy'])->name('exhibition-space.openings.delete')->middleware('acl:delete')->whereNumber('eventId');
+    // heratio#1192 slice 2b - settle a pending paid ticket (admin "mark as paid")
+    Route::post('/exhibition-space/{slug}/openings/{eventId}/rsvp/{rsvpId}/mark-paid', [ExhibitionEventController::class, 'markPaid'])->name('exhibition-space.openings.mark-paid')->middleware('acl:update')->whereNumber('eventId')->whereNumber('rsvpId');
 });
 
 // heratio#1192 - live virtual openings: PUBLIC tokenised event page + RSVP (no login;

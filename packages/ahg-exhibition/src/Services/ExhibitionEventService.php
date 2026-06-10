@@ -3,9 +3,15 @@
 /**
  * ExhibitionEventService - heratio#1192 - live virtual openings (ticketed events).
  *
- * FIRST SLICE: scheduling + capacity-checked RSVP/ticketing + a public event
- * page that links into the existing 3D walkthrough at event time. Real-time
- * multi-user spatial presence / docent voice is a later slice (heratio#1150).
+ * Slice 1: scheduling + capacity-checked RSVP/ticketing + a public event page that
+ * links into the existing 3D walkthrough at event time.
+ * Slice 2a: ticket-gated join + live co-presence.
+ * Slice 2b (this file): PAID ticketing. A curator can price an opening; a paid event
+ * creates the RSVP as status='pending' (still holding the seat under the capacity
+ * lock) and only issues a usable ticket once payment is confirmed. Payment is kept
+ * self-contained (no ahg-cart): markRsvpPaid() is the admin "mark as paid" action and
+ * confirmPayment() is the named hook a real gateway callback would call later.
+ * Real-time spatial audio / docent voice is a later slice (heratio#1150).
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * Licensed under the GNU Affero General Public License v3.0 or later.
@@ -28,7 +34,29 @@ class ExhibitionEventService
     /** Minutes before start the "Join the walkthrough" link goes live. */
     public const JOIN_WINDOW_BEFORE_MIN = 15;
 
+    /**
+     * RSVP / ticket states. 'confirmed' = usable ticket (free RSVP, or a paid one once
+     * settled). 'pending' = seat reserved but payment outstanding on a paid event - the
+     * ticket is NOT usable and cannot join. 'cancelled' = released, frees the seat.
+     */
+    public const RSVP_STATUSES = ['pending', 'confirmed', 'cancelled'];
+
+    /** RSVP states that hold a seat against capacity (pending paid + confirmed). */
+    public const SEAT_HOLDING_STATUSES = ['pending', 'confirmed'];
+
+    /** Default currency applied when a curator prices an event without picking one. */
+    public const DEFAULT_CURRENCY = 'USD';
+
     // -------- Read --------
+
+    /**
+     * True when this event charges for entry (a positive price is set). Free events
+     * leave price NULL/0 and keep the slice-1 behaviour untouched.
+     */
+    public function isPaid(object $event): bool
+    {
+        return isset($event->price) && (float) $event->price > 0;
+    }
 
     /** Events for one space, newest scheduled first, each with a confirmed-seat count. */
     public function listForSpace(int $spaceId): array
@@ -57,12 +85,18 @@ class ExhibitionEventService
         return DB::table('ahg_exhibition_event')->where('public_token', $token)->first();
     }
 
-    /** Sum of confirmed party sizes for an event (cancelled RSVPs do not count). */
+    /**
+     * Sum of seat-holding party sizes for an event. A seat is held by a 'confirmed'
+     * ticket OR a 'pending' (paid-but-unsettled) ticket - both must count so a paid
+     * event cannot be oversold while attendees pay. Only 'cancelled' RSVPs release the
+     * seat. Free events never produce 'pending' rows, so this equals the slice-1
+     * confirmed-only count for them.
+     */
     public function reservedSeats(int $eventId): int
     {
         return (int) DB::table('ahg_exhibition_event_rsvp')
             ->where('event_id', $eventId)
-            ->where('status', 'confirmed')
+            ->whereIn('status', self::SEAT_HOLDING_STATUSES)
             ->sum('party_size');
     }
 
@@ -93,7 +127,12 @@ class ExhibitionEventService
     /**
      * Schedule a new opening on a space.
      *
-     * @param  array  $data  title, starts_at, duration_minutes, capacity, host_name, description
+     * @param  array  $data  title, starts_at, duration_minutes, capacity, host_name,
+     *                       description, price, currency
+     *
+     * Pricing (slice 2b): a positive `price` makes this a PAID opening; a blank/zero
+     * price keeps it FREE and unchanged from slice 1. `currency` is only persisted when
+     * a price is set, defaulting to DEFAULT_CURRENCY.
      *
      * @throws \InvalidArgumentException on validation failure
      */
@@ -116,6 +155,8 @@ class ExhibitionEventService
             throw new \InvalidArgumentException('Capacity must be between 1 and 100000.');
         }
 
+        [$price, $currency] = $this->normalisePrice($data['price'] ?? null, $data['currency'] ?? null);
+
         $now = now();
 
         return (int) DB::table('ahg_exhibition_event')->insertGetId([
@@ -127,10 +168,30 @@ class ExhibitionEventService
             'starts_at' => $startsAt,
             'duration_minutes' => $duration,
             'capacity' => $capacity,
+            'price' => $price,
+            'currency' => $currency,
             'status' => 'scheduled',
             'created_at' => $now,
             'updated_at' => $now,
         ]);
+    }
+
+    /**
+     * Update the price + currency on an existing opening (slice 2b admin action).
+     * Clearing the price (blank / 0) reverts the opening to FREE. Returns true on a
+     * change. Does NOT touch already-issued RSVPs - it only governs new reservations.
+     */
+    public function updatePricing(int $eventId, $price, $currency): bool
+    {
+        [$normPrice, $normCurrency] = $this->normalisePrice($price, $currency);
+
+        return DB::table('ahg_exhibition_event')
+            ->where('id', $eventId)
+            ->update([
+                'price' => $normPrice,
+                'currency' => $normCurrency,
+                'updated_at' => now(),
+            ]) > 0;
     }
 
     public function updateStatus(int $eventId, string $status): bool
@@ -153,6 +214,11 @@ class ExhibitionEventService
     /**
      * RSVP to an event with a hard capacity check. Re-RSVP from the same email
      * is rejected (one ticket per email). Returns the created RSVP row.
+     *
+     * Paid events (price > 0): the RSVP is created as status='pending' and still holds
+     * the seat under the capacity lock (reservedSeats() counts pending), but the ticket
+     * is NOT usable for joining until markRsvpPaid()/confirmPayment() settles it.
+     * Free events: created as status='confirmed' exactly as in slice 1.
      *
      * @throws \InvalidArgumentException validation / capacity / closed-event failures
      */
@@ -201,6 +267,7 @@ class ExhibitionEventService
                 throw new \InvalidArgumentException("Only {$remaining} seat(s) remain.");
             }
 
+            $paid = $this->isPaid($event);
             $code = $this->uniqueToken('ahg_exhibition_event_rsvp', 'ticket_code');
             $id = DB::table('ahg_exhibition_event_rsvp')->insertGetId([
                 'event_id' => $event->id,
@@ -208,12 +275,88 @@ class ExhibitionEventService
                 'name' => $name,
                 'email' => $email,
                 'party_size' => $party,
-                'status' => 'confirmed',
+                // Paid -> pending (seat held, ticket unusable until settled). Free -> confirmed.
+                'status' => $paid ? 'pending' : 'confirmed',
+                'amount_paid' => null,
+                'paid_at' => null,
                 'created_at' => now(),
             ]);
 
             return DB::table('ahg_exhibition_event_rsvp')->where('id', $id)->first();
         });
+    }
+
+    /**
+     * Settle payment on a pending RSVP: flip it to 'confirmed', stamp the amount paid
+     * and paid_at, making the ticket usable for joining. Idempotent - re-confirming an
+     * already-confirmed ticket is a no-op that still records/keeps the paid amount.
+     *
+     * This is the low-level state transition. Both the admin "mark as paid" action and
+     * the gateway-callback hook (confirmPayment) funnel through here so the rules live
+     * in one place. Done under a row lock so two callbacks cannot double-process.
+     *
+     * @param  int|null  $rsvpId    RSVP row to settle
+     * @param  float|null  $amount   amount taken; defaults to the event's full price
+     * @return object|null          the updated RSVP row, or null if not found
+     */
+    public function markRsvpPaid(int $rsvpId, ?float $amount = null): ?object
+    {
+        return DB::transaction(function () use ($rsvpId, $amount) {
+            $rsvp = DB::table('ahg_exhibition_event_rsvp')->where('id', $rsvpId)->lockForUpdate()->first();
+            if (! $rsvp) {
+                return null;
+            }
+            if ($rsvp->status === 'cancelled') {
+                throw new \InvalidArgumentException('That ticket has been cancelled and cannot be marked paid.');
+            }
+
+            $event = DB::table('ahg_exhibition_event')->where('id', $rsvp->event_id)->first();
+            if ($amount === null) {
+                $amount = ($event && isset($event->price)) ? (float) $event->price : 0.0;
+            }
+
+            DB::table('ahg_exhibition_event_rsvp')
+                ->where('id', $rsvpId)
+                ->update([
+                    'status' => 'confirmed',
+                    'amount_paid' => $amount,
+                    'paid_at' => $rsvp->paid_at ?? now(),
+                ]);
+
+            return DB::table('ahg_exhibition_event_rsvp')->where('id', $rsvpId)->first();
+        });
+    }
+
+    /**
+     * Named hook for a real payment-gateway callback to confirm a paid RSVP later.
+     * A webhook handler resolves the RSVP from its own reference (e.g. ticket_code held
+     * as the gateway's order metadata), verifies the charge out-of-band, then calls this
+     * with the settled amount. Today it simply funnels into markRsvpPaid(); the place to
+     * add signature verification / amount reconciliation is right here.
+     *
+     * @return object|null  the confirmed RSVP row, or null if the ticket is unknown
+     */
+    public function confirmPayment(int $eventId, string $ticketCode, ?float $amount = null): ?object
+    {
+        $ticketCode = trim($ticketCode);
+        if ($ticketCode === '') {
+            return null;
+        }
+        $rsvp = DB::table('ahg_exhibition_event_rsvp')
+            ->where('event_id', $eventId)
+            ->where('ticket_code', $ticketCode)
+            ->first();
+        if (! $rsvp) {
+            return null;
+        }
+
+        return $this->markRsvpPaid((int) $rsvp->id, $amount);
+    }
+
+    /** Look up a single RSVP row by id (admin "mark as paid" resolves the row to settle). */
+    public function getRsvpById(int $rsvpId): ?object
+    {
+        return DB::table('ahg_exhibition_event_rsvp')->where('id', $rsvpId)->first();
     }
 
     public function listRsvps(int $eventId): array
@@ -251,6 +394,11 @@ class ExhibitionEventService
      * Every opening issues a ticket on RSVP (see rsvp()), and the public page only
      * offers the door once a ticket is held, so we always require a valid ticket -
      * there is no anonymous-join path. This keeps presence to verified attendees.
+     *
+     * PAID gating (slice 2b): getRsvpByTicketCode() resolves only status='confirmed'
+     * rows, so a paid event's 'pending' (unpaid) ticket never validates here - the join
+     * is rejected until markRsvpPaid()/confirmPayment() flips it to confirmed. Free
+     * tickets are 'confirmed' on creation and join as before.
      *
      * @return array{ok: bool, reason: ?string, rsvp: ?object}
      */
@@ -300,6 +448,31 @@ class ExhibitionEventService
     }
 
     // -------- Helpers --------
+
+    /**
+     * Normalise a price + currency pair into [price, currency] for storage.
+     *  - blank / non-numeric / <= 0  -> [null, null]  (FREE event, unchanged behaviour)
+     *  - positive                    -> [round(price,2), 3-letter UPPER currency or default]
+     *
+     * @return array{0: float|null, 1: string|null}
+     */
+    private function normalisePrice($price, $currency): array
+    {
+        if ($price === null || $price === '' || ! is_numeric($price)) {
+            return [null, null];
+        }
+        $price = round((float) $price, 2);
+        if ($price <= 0) {
+            return [null, null];
+        }
+
+        $currency = strtoupper(trim((string) $currency));
+        if (! preg_match('/^[A-Z]{3}$/', $currency)) {
+            $currency = self::DEFAULT_CURRENCY;
+        }
+
+        return [$price, $currency];
+    }
 
     private function normaliseDateTime($value): ?string
     {

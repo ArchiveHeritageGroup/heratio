@@ -16,5 +16,11 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-semantic-search');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \AhgSemanticSearch\Console\Commands\KmGraphSyncCommand::class,
+            ]);
+        }
     }
 }
