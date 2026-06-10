@@ -123,6 +123,9 @@ Route::middleware('auth')->group(function () {
 
 // heratio#1138 — digital twin: 2.5D pannable walkthrough (Phase 2, visitor-facing/public)
 Route::get('/exhibition-space/{slug}/walkthrough', [ExhibitionSpaceController::class, 'walkthrough'])->name('exhibition-space.walkthrough');
+// heratio#1191 - on-site AR companion (first slice): mobile-first phone page opened in the
+// gallery via QR; twin-sourced object cards + room AI docent. Geo/marker AR anchoring is a later slice.
+Route::get('/exhibition-space/{slug}/companion', [ExhibitionSpaceController::class, 'companion'])->name('exhibition-space.companion');
 // heratio#1194 - accessible text + narration tour (keyboard / screen-reader alternative)
 Route::get('/exhibition-space/{slug}/accessible-tour', [ExhibitionSpaceController::class, 'accessibleTour'])->name('exhibition-space.accessible-tour');
 // heratio#1153 — WebGPU renderer spike (proof page; live walkthrough untouched)

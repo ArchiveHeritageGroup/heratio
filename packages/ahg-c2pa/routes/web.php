@@ -13,7 +13,25 @@
 declare(strict_types=1);
 
 use AhgC2pa\Controllers\ProvenanceController;
+use AhgC2pa\Controllers\VerifyController;
 use Illuminate\Support\Facades\Route;
+
+// Public "verify authenticity" trust-anchor surface (issue #1209).
+// Multi-segment /verify/... paths so the single-segment IO slug catch-all
+// (/{slug}) never intercepts them. No auth: this is the page society turns to
+// when "is this real?" matters.
+Route::prefix('verify')->group(function () {
+    // Numeric id, namespaced under /verify/id/ so a purely numeric slug can
+    // never collide with the id route.
+    Route::get('/id/{informationObjectId}', [VerifyController::class, 'byId'])
+        ->name('c2pa.verify.id')
+        ->where('informationObjectId', '[0-9]+');
+
+    // Slug, including multi-segment slugs (e.g. /verify/fonds/series/item).
+    Route::get('/{slug}', [VerifyController::class, 'bySlug'])
+        ->name('c2pa.verify.slug')
+        ->where('slug', '.+');
+});
 
 Route::middleware('admin')->prefix('admin/c2pa')->group(function () {
     Route::get('/object/{informationObjectId}', [ProvenanceController::class, 'index'])

@@ -1611,6 +1611,31 @@ class ExhibitionSpaceController extends Controller
         ]);
     }
 
+    /**
+     * heratio#1191 - on-site AR companion (first slice). A mobile-first, one-handed
+     * "companion" page a visitor opens on their phone in the physical gallery (QR /
+     * short URL). It shows the room's twin-sourced object info as large tap-friendly
+     * cards (reusing accessibleTour()) and embeds the grounded room AI docent (reusing
+     * the existing ask-room endpoint). Public, read-only.
+     *
+     * NOT in this slice: geo / marker AR anchoring (camera passthrough + placing the
+     * cards in 3D space relative to the twin's object placements). That is the next
+     * slice - see docs/reference/onsite-companion.md.
+     */
+    public function companion(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        return view('ahg-exhibition::exhibition-space.companion', [
+            'space' => $space,
+            'stops' => $this->service->accessibleTour($space),
+            'questions' => $this->service->roomSuggestedQuestions($space),
+        ]);
+    }
+
     public function walkthrough(string $slug)
     {
         $space = $this->service->getBySlug($slug);
