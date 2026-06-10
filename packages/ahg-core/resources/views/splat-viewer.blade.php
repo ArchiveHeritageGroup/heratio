@@ -22,6 +22,7 @@
     <a href="javascript:history.back()">&larr; {{ __('Back') }}</a>
     <span class="t">{{ $splat->title }}</span>
     <span style="opacity:.8">{{ strtoupper($splat->format ?? '') }}</span>
+    <button type="button" id="pc_flip" style="margin-left:auto;background:transparent;border:1px solid #9ec5ff;color:#9ec5ff;border-radius:4px;padding:2px 8px;cursor:pointer;font:inherit" title="{{ __('Flip the up direction (splats often load upside-down)') }}">&#x2195; {{ __('Up') }}</button>
   </div>
   <div id="pc_err">{{ __('This scene could not be loaded. Your browser may not support WebGL2, or the file may be incomplete.') }}</div>
   <div id="splat-root"></div>
@@ -41,6 +42,20 @@
     const fmt = @json(strtolower($splat->format ?? ''));
     const fail = () => { document.getElementById('pc_err').style.display = 'block'; };
 
+    // Up-direction toggle: splats commonly load y-down vs y-up. Default y-down (matches the
+    // ai-demo / TRELLIS output); the "Up" button flips it and reloads.
+    const flipped = new URLSearchParams(location.search).has('flip');
+    const upVec = flipped ? [0, 1, 0] : [0, -1, 0];
+    const flipBtn = document.getElementById('pc_flip');
+    if (flipBtn) {
+      if (flipped) { flipBtn.style.background = '#9ec5ff'; flipBtn.style.color = '#16213e'; }
+      flipBtn.addEventListener('click', function () {
+        const u = new URL(location.href);
+        flipped ? u.searchParams.delete('flip') : u.searchParams.set('flip', '1');
+        location.href = u.toString();
+      });
+    }
+
     // Mirror the proven ai-demo /viewer config: pass the format EXPLICITLY (a .ply won't
     // auto-detect/progressive-load reliably as a splat) and disable progressive load.
     const sceneFormat = fmt === 'ply'    ? GaussianSplats3D.SceneFormat.Ply
@@ -52,7 +67,7 @@
         rootElement: document.getElementById('splat-root'),
         sharedMemoryForWorkers: false,   // no COOP/COEP isolation on the host
         dynamicScene: false,
-        cameraUp: [0, -1, 0],
+        cameraUp: upVec,
         initialCameraPosition: [0, 0, 2],
         initialCameraLookAt: [0, 0, 0],
       });

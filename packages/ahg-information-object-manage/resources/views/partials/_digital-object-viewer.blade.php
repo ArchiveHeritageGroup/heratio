@@ -84,6 +84,26 @@
           $ext = strtolower(pathinfo($masterObj->name, PATHINFO_EXTENSION));
           $is3DModel = in_array($ext, ['glb', 'gltf', 'obj', 'stl', 'fbx', 'ply']);
       }
+
+      // heratio#1193 - Gaussian splat uploaded as a digital object (.splat/.ksplat, or a 3DGS
+      // .ply distinguished from a mesh .ply by its header). Render it with the gs3d viewer as a
+      // "3D" mode in the switcher below, REPLACING the mesh branch (so no empty mesh canvas).
+      // Standardised across GLAM + DAM because this partial is the shared digital-object viewer.
+      $isSplatMaster = false;
+      $splatDoUrl = null;
+      if ($masterObj && $masterObj->name) {
+          $mext = strtolower(pathinfo($masterObj->name, PATHINFO_EXTENSION));
+          if (in_array($mext, ['splat', 'ksplat'], true)) {
+              $isSplatMaster = true;
+          } elseif ($mext === 'ply') {
+              try { $isSplatMaster = app(\AhgCore\Services\GaussianSplatService::class)->isGaussianPly($masterObj); }
+              catch (\Throwable $e) { $isSplatMaster = false; }
+          }
+          if ($isSplatMaster) {
+              $splatDoUrl = '/splat/do/'.$masterObj->id.'?embed=1';
+              $is3DModel = false;   // gs3d replaces the mesh viewer for a splat .ply
+          }
+      }
     @endphp
 
     <div class="digital-object-reference text-center p-3 border-bottom">
@@ -363,6 +383,20 @@
         });
         </script>
 
+      @elseif($isSplatMaster)
+        {{-- heratio#1193 - Gaussian-splat master: the gs3d photoreal viewer is the renderer for
+             this object (replaces the mesh branch). The id="ahg-splat-embed" marker also stops
+             the InjectSplatViewer middleware from adding a second panel. Standard across GLAM+DAM. --}}
+        <div id="ahg-splat-embed">
+          <div class="d-flex justify-content-end mb-2">
+            <a href="{{ preg_replace('/\?embed=1$/', '', $splatDoUrl) }}" target="_blank" rel="noopener" class="btn btn-sm atom-btn-white" title="{{ __('Open full screen') }}">
+              <i class="fas fa-expand me-1"></i>{{ __('Full screen') }}
+            </a>
+          </div>
+          <iframe title="{{ $io->title }} - 3D capture" src="{{ $splatDoUrl }}" loading="lazy"
+            style="width:100%;height:{{ $vHeight ?? '500px' }};border:0;border-radius:8px;display:block;background:#0b0b0b" allow="fullscreen"></iframe>
+        </div>
+
       @elseif($refUrl || $thumbUrl)
         {{-- Image: OpenSeadragon + Mirador + Carousel viewer (matching AtoM) --}}
         @php
@@ -428,13 +462,14 @@
         @endphp
 
         @php
-          // heratio#1193 - Gaussian-splat capture linked to this record adds a "3D" viewer mode.
+          // heratio#1193 - "3D" viewer mode. Prefer a splat uploaded as a DIGITAL OBJECT on this
+          // record ($splatDoUrl, set above); fall back to a splat linked from the legacy manager.
           $splatRow = \Illuminate\Support\Facades\Schema::hasTable('ahg_gaussian_splat')
             ? \Illuminate\Support\Facades\DB::table('ahg_gaussian_splat')
                 ->where('information_object_id', $io->id)->where('status', 'ready')
                 ->whereNotNull('file_name')->orderByDesc('id')->first()
             : null;
-          $splatEmbedUrl = $splatRow ? '/splat/'.$splatRow->slug.'?embed=1' : null;
+          $splatEmbedUrl = ($splatDoUrl ?? null) ?: ($splatRow ? '/splat/'.$splatRow->slug.'?embed=1' : null);
         @endphp
 
         {{-- Viewer toggle --}}
