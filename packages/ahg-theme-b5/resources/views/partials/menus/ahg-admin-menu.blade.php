@@ -63,9 +63,6 @@
     @if(Route::has('scan.cataloguer'))
       <li><a class="dropdown-item" href="{{ route('scan.cataloguer') }}"><i class="fas fa-wand-magic-sparkles me-2"></i>{{ __('AI Cataloguer') }}</a></li>
     @endif
-    @if(Route::has('exhibition-space.generate'))
-      <li><a class="dropdown-item" href="{{ route('exhibition-space.generate') }}"><i class="fas fa-wand-magic-sparkles me-2"></i>{{ __('AI Exhibition Designer') }}</a></li>
-    @endif
     @if(Route::has('stories.index'))
       <li><a class="dropdown-item" href="{{ route('stories.index') }}"><i class="fas fa-feather-pointed me-2"></i>{{ __('Story Generator') }}</a></li>
     @endif
@@ -206,6 +203,9 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">{{ __('Exhibition spaces') }}</h6></li>
     <li><a class="dropdown-item" href="{{ route('exhibition-space.browse') }}"><i class="fas fa-palette me-2"></i>{{ __('Exhibition spaces') }}</a></li>
+    @if(Route::has('exhibition-space.generate'))
+      <li><a class="dropdown-item" href="{{ route('exhibition-space.generate') }}"><i class="fas fa-wand-magic-sparkles me-2"></i>{{ __('AI Exhibition Designer') }}</a></li>
+    @endif
     @endif
 
     {{-- Workflow (gated by ahg_workflow table existence — ahg-workflow feature, heratio#143) --}}
