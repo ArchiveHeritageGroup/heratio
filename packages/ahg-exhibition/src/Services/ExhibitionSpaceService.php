@@ -1160,17 +1160,61 @@ class ExhibitionSpaceService
 
             $breach = $this->conservationThreshold($metric, $value, $space);
             if ($breach) {
-                DB::table('ahg_exhibition_alert')->insert([
+                $alertId = (int) DB::table('ahg_exhibition_alert')->insertGetId([
                     'exhibition_space_id' => (int) $space->id,
                     'metric' => $metric, 'value' => $value,
                     'threshold' => $breach['threshold'], 'severity' => $breach['severity'],
                     'message' => $breach['message'], 'created_at' => now(),
                 ]);
+                $this->escalateAlert($space, $metric, $breach, $alertId);
                 $alerts[] = $breach['message'];
             }
         }
 
         return ['space' => $space->name, 'recorded' => $recorded, 'alerts' => $alerts];
+    }
+
+    /**
+     * heratio#1188 - escalate a threshold breach to staff (the admin notification bell),
+     * throttled per space + metric so a sensor breaching every reading doesn't spam. Default
+     * window 60 min; overridable via the `conservation_alert_throttle_min` setting.
+     */
+    private function escalateAlert(object $space, string $metric, array $breach, int $alertId): void
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasColumn('ahg_exhibition_alert', 'notified_at')) {
+                return;
+            }
+            $windowMin = 60;
+            try {
+                $cfg = (int) DB::table('ahg_settings')->where('key', 'conservation_alert_throttle_min')->value('value');
+                if ($cfg > 0) { $windowMin = $cfg; }
+            } catch (\Throwable $e) { /* setting optional */ }
+
+            // Already escalated for this space+metric inside the window? -> skip (throttle).
+            $recent = DB::table('ahg_exhibition_alert')
+                ->where('exhibition_space_id', (int) $space->id)->where('metric', $metric)
+                ->whereNotNull('notified_at')
+                ->where('notified_at', '>=', now()->subMinutes($windowMin))
+                ->exists();
+            if ($recent) {
+                return;
+            }
+
+            $link = null;
+            try { $link = route('exhibition-space.analytics', ['slug' => $space->slug]); } catch (\Throwable $e) {}
+            app(\AhgCore\Services\NotificationService::class)->notifyAdmins(
+                'conservation',
+                'Conservation alert: '.$space->name,
+                $breach['message'].' ('.strtoupper((string) $breach['severity']).')',
+                $link,
+                'exhibition_space',
+                (int) $space->id
+            );
+            DB::table('ahg_exhibition_alert')->where('id', $alertId)->update(['notified_at' => now()]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[ahg-exhibition] conservation alert escalation failed: '.$e->getMessage());
+        }
     }
 
     /**

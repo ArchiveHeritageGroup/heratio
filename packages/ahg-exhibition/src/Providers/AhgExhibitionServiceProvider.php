@@ -159,6 +159,11 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                 DB::statement('ALTER TABLE ahg_exhibition_annotation ADD COLUMN yaw DOUBLE NULL');
             }
 
+            // heratio#1188: when a conservation alert was escalated to staff (throttle marker).
+            if (Schema::hasTable('ahg_exhibition_alert') && ! Schema::hasColumn('ahg_exhibition_alert', 'notified_at')) {
+                DB::statement('ALTER TABLE ahg_exhibition_alert ADD COLUMN notified_at TIMESTAMP NULL');
+            }
+
             // Furniture & fittings: placeable props per room (bench/pedestal/case/planter/table/railing).
             if (! Schema::hasTable('ahg_exhibition_furniture')) {
                 DB::statement("CREATE TABLE ahg_exhibition_furniture (
