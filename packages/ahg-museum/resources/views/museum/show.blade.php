@@ -320,6 +320,15 @@
 {{-- ============================================================ --}}
 @section('content')
 
+  {{-- Metadata layout: keep each value beside its label (col-3) instead of wrapping
+       under it. The value <div> had no column class, so long values overflowed past
+       75% and dropped to the next line. Make it a flex column that fills the rest of
+       the row and wraps within itself. Scoped to body.museum so it can't leak. --}}
+  <style nonce="{{ $cspNonce ?? '' }}">
+    body.museum .field.row.g-0 > h3 { align-self: stretch; }
+    body.museum .field.row.g-0 > :not(h3) { flex: 1 1 0%; min-width: 0; padding: 0.5rem; }
+  </style>
+
   @include('ahg-ric::_view-switch', ['standard' => 'Spectrum'])
 
   {{-- Translation-provenance bulk-load for AI-disclosure badges (issue #36 Phase 4) --}}

@@ -367,6 +367,15 @@
 
         {{-- Load model-viewer from CDN and add error handling --}}
         <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+        {{-- Self-hosted Draco + KTX2/Basis decoders so Draco-compressed meshes and
+             KTX2-textured glTF/GLB render without an external decoder CDN. These are
+             static on ModelViewerElement, so setting them once covers every <model-viewer>
+             on the page (re-imports the already-cached module). --}}
+        <script type="module" nonce="{{ csp_nonce() }}">
+          import {ModelViewerElement} from 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js';
+          ModelViewerElement.dracoDecoderLocation   = '/vendor/three/0.137.5/draco/';
+          ModelViewerElement.ktx2TranscoderLocation = '/vendor/three/0.137.5/basis/';
+        </script>
         <script nonce="{{ csp_nonce() }}">
         document.addEventListener('DOMContentLoaded', function() {
           var mv = document.getElementById('{{ $modelViewerId }}');

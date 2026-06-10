@@ -2828,7 +2828,10 @@ class ExhibitionSpaceService
         ] : null;
 
         // heratio#1173 - capture the visit + per-room dwell from the same beat.
-        $this->recordVisitBeat($space, $token, $in['device'] ?? null, $row['room_id']);
+        // heratio#1187 - also bank per-object dwell from the object the visitor currently
+        // has open (cur_object), so the heatmap can shade individual objects by attention.
+        $curObject = (isset($in['cur_object']) && $in['cur_object']) ? (int) $in['cur_object'] : null;
+        $this->recordVisitBeat($space, $token, $in['device'] ?? null, $row['room_id'], $curObject);
 
         return [
             'peers' => $peers->map(function ($p) {
@@ -2852,8 +2855,12 @@ class ExhibitionSpaceService
             ->where('session_token', substr($token, 0, 64))->delete();
     }
 
-    /** heratio#1173 - upsert the visit row + accumulate per-room dwell (called from the beat). */
-    public function recordVisitBeat(object $space, string $token, ?string $device, ?int $roomId): void
+    /**
+     * heratio#1173 - upsert the visit row + accumulate per-room dwell (called from the beat).
+     * heratio#1187 - $objectId is the object the visitor currently has open; per-object dwell
+     * is banked into object_seconds_json the same way per-room dwell is banked into room_seconds_json.
+     */
+    public function recordVisitBeat(object $space, string $token, ?string $device, ?int $roomId, ?int $objectId = null): void
     {
         if (!\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_visit')) {
             return;
@@ -2870,6 +2877,7 @@ class ExhibitionSpaceService
             DB::table('ahg_exhibition_visit')->insertOrIgnore([
                 'building_id' => $building, 'session_token' => $token, 'device' => substr((string) $device, 0, 16) ?: null,
                 'cur_room' => $roomId, 'room_entered_at' => $now, 'room_seconds_json' => json_encode([]),
+                'cur_object' => $objectId, 'object_entered_at' => $objectId ? $now : null, 'object_seconds_json' => json_encode([]),
                 'started_at' => $now, 'last_seen' => $now,
             ]);
 
@@ -2886,6 +2894,20 @@ class ExhibitionSpaceService
             $upd['room_seconds_json'] = json_encode($secs);
             $upd['cur_room'] = $roomId;
             $upd['room_entered_at'] = $now;
+        }
+        // heratio#1187 - focus changed (opened a different object, or closed the popup -> null):
+        // bank the dwell accumulated on the object we just left.
+        $prevObject = ($v->cur_object ?? null) ? (int) $v->cur_object : null;
+        if ((int) $prevObject !== (int) $objectId) {
+            $osecs = ($v->object_seconds_json ?? null) ? json_decode($v->object_seconds_json, true) : [];
+            if (!is_array($osecs)) { $osecs = []; }
+            if ($prevObject && ($v->object_entered_at ?? null)) {
+                $od = min(3600, max(0, $now->getTimestamp() - strtotime($v->object_entered_at)));
+                $osecs[(string) $prevObject] = ($osecs[(string) $prevObject] ?? 0) + $od;
+            }
+            $upd['object_seconds_json'] = json_encode($osecs);
+            $upd['cur_object'] = $objectId ?: null;
+            $upd['object_entered_at'] = $objectId ? $now : null;
         }
         DB::table('ahg_exhibition_visit')->where('id', $v->id)->update($upd);
     }
@@ -2917,9 +2939,12 @@ class ExhibitionSpaceService
         $avg = $sessions ? (int) round($durs->avg()) : 0;
         $devices = $visits->groupBy(function ($v) { return $v->device ?: 'desktop'; })->map->count()->all();
         $roomSecs = [];
+        $objSecs = [];   // #1187 per-object dwell, to show attention next to raw view counts
         foreach ($visits as $v) {
             $s = $v->room_seconds_json ? json_decode($v->room_seconds_json, true) : [];
             if (is_array($s)) { foreach ($s as $rid => $sec) { $roomSecs[$rid] = ($roomSecs[$rid] ?? 0) + $sec; } }
+            $os = ($v->object_seconds_json ?? null) ? json_decode($v->object_seconds_json, true) : [];
+            if (is_array($os)) { foreach ($os as $oid => $sec) { $objSecs[(int) $oid] = ($objSecs[(int) $oid] ?? 0) + (int) $sec; } }
         }
         $rids = array_keys($roomSecs);
         $names = $rids ? DB::table('ahg_exhibition_space')->whereIn('id', $rids)->pluck('name', 'id')->all() : [];
@@ -2931,7 +2956,13 @@ class ExhibitionSpaceService
             ->select('object_id', DB::raw('COUNT(*) as c'))->groupBy('object_id')->orderByDesc('c')->limit(10)->get();
         $oids = $top->pluck('object_id')->all();
         $titles = $oids ? DB::table('information_object_i18n')->whereIn('id', $oids)->where('culture', 'en')->pluck('title', 'id')->all() : [];
-        $topObjects = $top->map(function ($r) use ($titles) { return ['title' => $titles[$r->object_id] ?? ('#'.$r->object_id), 'views' => (int) $r->c]; })->all();
+        $topObjects = $top->map(function ($r) use ($titles, $objSecs) {
+            return [
+                'title' => $titles[$r->object_id] ?? ('#'.$r->object_id),
+                'views' => (int) $r->c,
+                'seconds' => (int) ($objSecs[(int) $r->object_id] ?? 0),   // #1187 total attention dwell
+            ];
+        })->all();
 
         return ['sessions' => $sessions, 'avg_seconds' => $avg, 'devices' => $devices, 'dwell' => array_slice($dwell, 0, 10), 'top_objects' => $topObjects];
     }
@@ -2947,18 +2978,24 @@ class ExhibitionSpaceService
         $b = $space->building_id ?: $space->slug;
         $since = now()->subDays($days);
 
-        // Dwell seconds per room id.
+        // Dwell seconds per room id, plus per-object dwell seconds (#1187 attention).
         $roomSecs = [];
+        $objSecs = [];
         if (\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_visit')) {
             foreach (DB::table('ahg_exhibition_visit')->where('building_id', $b)->where('started_at', '>=', $since)->get() as $v) {
                 $s = $v->room_seconds_json ? json_decode((string) $v->room_seconds_json, true) : [];
                 if (is_array($s)) {
                     foreach ($s as $rid => $sec) { $roomSecs[(int) $rid] = ($roomSecs[(int) $rid] ?? 0) + (int) $sec; }
                 }
+                $os = ($v->object_seconds_json ?? null) ? json_decode((string) $v->object_seconds_json, true) : [];
+                if (is_array($os)) {
+                    foreach ($os as $oid => $sec) { $objSecs[(int) $oid] = ($objSecs[(int) $oid] ?? 0) + (int) $sec; }
+                }
             }
         }
 
-        // Object view counts (for object heat dots), keyed by object id.
+        // Object view counts (popups opened), keyed by object id - the companion signal to
+        // dwell: many views + little dwell = an object that draws the eye but loses attention.
         $objViews = [];
         if (\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_visit_event')) {
             $rows = DB::table('ahg_exhibition_visit_event')->where('building_id', $b)->where('type', 'object')
@@ -2971,6 +3008,7 @@ class ExhibitionSpaceService
         $maxSec = 0;
         $objects = [];
         $maxViews = 0;
+        $maxObjSec = 0;
         foreach ($building['rooms'] as $r) {
             $sec = (int) ($roomSecs[$r['id']] ?? 0);
             $maxSec = max($maxSec, $sec);
@@ -2978,12 +3016,14 @@ class ExhibitionSpaceService
             foreach (($r['stops'] ?? []) as $s) {
                 $oid = (int) ($s['information_object_id'] ?? 0);
                 $views = $objViews[$oid] ?? 0;
-                if ($oid && $views > 0) {
+                $osec = (int) ($objSecs[$oid] ?? 0);
+                if ($oid && ($views > 0 || $osec > 0)) {
                     $maxViews = max($maxViews, $views);
+                    $maxObjSec = max($maxObjSec, $osec);
                     $objects[] = [
                         'x' => $r['x_offset'] + (float) ($s['pos_x'] ?? 0.5) * $r['w'],
                         'z' => $r['z_offset'] + (float) ($s['pos_y'] ?? 0.5) * $r['d'],
-                        'views' => $views, 'title' => $s['title'] ?? ('#'.$oid),
+                        'views' => $views, 'seconds' => $osec, 'title' => $s['title'] ?? ('#'.$oid),
                     ];
                 }
             }
@@ -2991,7 +3031,7 @@ class ExhibitionSpaceService
 
         return [
             'rooms' => $rooms, 'objects' => $objects,
-            'max_seconds' => $maxSec, 'max_views' => $maxViews,
+            'max_seconds' => $maxSec, 'max_views' => $maxViews, 'max_object_seconds' => $maxObjSec,
             'min_x' => $building['min_x'] ?? 0, 'max_x' => $building['max_x'] ?? 0,
             'min_z' => $building['min_z'] ?? 0, 'max_z' => $building['max_z'] ?? 0,
         ];

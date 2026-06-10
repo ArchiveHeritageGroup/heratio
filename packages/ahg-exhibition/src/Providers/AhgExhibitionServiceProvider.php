@@ -228,6 +228,14 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     INDEX idx_building_started (building_id, started_at)
                 )");
             }
+            // heratio#1187 - per-object dwell within a visit (attention heatmap). Banked
+            // server-side from the presence beat exactly the way per-room dwell is, so we
+            // can shade individual objects by how long visitors actually lingered on them.
+            foreach (['cur_object' => 'INT NULL', 'object_entered_at' => 'DATETIME NULL', 'object_seconds_json' => 'JSON NULL'] as $vcol => $vddl) {
+                if (Schema::hasTable('ahg_exhibition_visit') && ! Schema::hasColumn('ahg_exhibition_visit', $vcol)) {
+                    DB::statement("ALTER TABLE ahg_exhibition_visit ADD COLUMN {$vcol} {$vddl}");
+                }
+            }
             // heratio#1173 - per-object / tour / door events within a visit.
             if (! Schema::hasTable('ahg_exhibition_visit_event')) {
                 DB::statement("CREATE TABLE ahg_exhibition_visit_event (

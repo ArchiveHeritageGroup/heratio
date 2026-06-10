@@ -77,9 +77,9 @@
           @empty<div class="text-muted small">{{ __('No data yet.') }}</div>@endforelse
         </div>
         <div class="col-md-6">
-          <div class="fw-bold small mb-1">{{ __('Most-viewed objects') }}</div>
+          <div class="fw-bold small mb-1">{{ __('Object attention') }} <span class="fw-normal text-muted">({{ __('views · dwell') }})</span></div>
           @forelse($visitors['top_objects'] as $o)
-            <div class="d-flex justify-content-between small border-bottom py-1"><span>{{ \Illuminate\Support\Str::limit($o['title'], 40) }}</span><span>{{ $o['views'] }}</span></div>
+            <div class="d-flex justify-content-between small border-bottom py-1"><span>{{ \Illuminate\Support\Str::limit($o['title'], 40) }}</span><span class="text-nowrap ms-2">{{ $o['views'] }}@if(($o['seconds'] ?? 0) > 0) · {{ gmdate('i:s', (int) $o['seconds']) }}@endif</span></div>
           @empty<div class="text-muted small">{{ __('No data yet.') }}</div>@endforelse
         </div>
       </div>
@@ -91,7 +91,7 @@
   @isset($heatmap)
   @if(count($heatmap['rooms']))
   <div class="card mb-3">
-    <div class="card-header py-2"><strong><i class="fas fa-fire me-1"></i>{{ __('Visitor heatmap') }}</strong> <small class="text-muted">{{ __('rooms shaded by time spent; red dots = object attention') }}</small></div>
+    <div class="card-header py-2"><strong><i class="fas fa-fire me-1"></i>{{ __('Visitor heatmap') }}</strong> <small class="text-muted">{{ __('rooms shaded by time spent; dot size = dwell on each object (attention)') }}</small></div>
     <div class="card-body">
       <canvas id="heatCanvas" style="width:100%;max-width:760px;display:block;margin:0 auto;background:#f8f9fa;border-radius:6px"></canvas>
       <div class="small text-muted mt-2 d-flex align-items-center gap-2 justify-content-center">
@@ -99,6 +99,7 @@
         <span style="display:inline-block;width:120px;height:10px;border-radius:5px;background:linear-gradient(90deg,#dfe7ef,#4e9be8,#46c06b,#f4d03f,#e8553a)"></span>
         <span>{{ __('More time') }}</span>
       </div>
+      <div class="small text-muted mt-1 text-center">{{ __('Object dots grow and deepen with dwell: large = draws attention, faint = seen but skipped.') }}</div>
     </div>
   </div>
   <script nonce="{{ $cspNonce ?? '' }}">
@@ -131,10 +132,17 @@
     });
     (H.objects || []).forEach(function (o) {
       var x = ox + o.x * sc, y = oy + o.z * sc;
-      var rr = 4 + (H.max_views > 0 ? (o.views / H.max_views) * 10 : 0);
+      // #1187 attention = dwell on the object; fall back to view count until dwell accrues.
+      var aRatio = H.max_object_seconds > 0 ? (o.seconds / H.max_object_seconds)
+                 : (H.max_views > 0 ? (o.views / H.max_views) : 0);
+      var rr = 4 + aRatio * 12;
       ctx.beginPath(); ctx.arc(x, y, rr, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(232,85,58,0.55)'; ctx.fill();
-      ctx.strokeStyle = 'rgba(150,30,15,0.8)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = 'rgba(232,85,58,' + (0.30 + 0.55 * aRatio).toFixed(2) + ')'; ctx.fill();
+      ctx.strokeStyle = 'rgba(150,30,15,0.85)'; ctx.lineWidth = 1; ctx.stroke();
+      if (o.seconds > 0) {
+        ctx.fillStyle = '#7a1d0c'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(Math.floor(o.seconds / 60) + 'm ' + (o.seconds % 60) + 's', x, y - rr - 2);
+      }
     });
   })();
   </script>

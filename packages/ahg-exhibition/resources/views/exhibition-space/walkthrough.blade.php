@@ -204,6 +204,8 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/DRACOLoader.js"></script>
+  {{-- KTX2/Basis transcoder for KTX2-textured glTF (self-hosted; see /vendor/three/0.137.5/basis). --}}
+  <script src="/vendor/three/0.137.5/loaders/KTX2Loader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/OBJLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/PLYLoader.js"></script>
@@ -1302,8 +1304,16 @@
       _gltfLoader = new THREE.GLTFLoader();
       if (THREE.DRACOLoader) {   // decode DRACO-compressed meshes (no-op for uncompressed)
         var dl = new THREE.DRACOLoader();
-        dl.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/libs/draco/');
+        dl.setDecoderPath('/vendor/three/0.137.5/draco/');   // self-hosted, was jsdelivr CDN
         _gltfLoader.setDRACOLoader(dl);
+      }
+      if (THREE.KTX2Loader) {   // transcode KTX2/Basis textures (no-op when none present)
+        try {
+          var kt = new THREE.KTX2Loader();
+          kt.setTranscoderPath('/vendor/three/0.137.5/basis/');
+          if (typeof renderer !== 'undefined' && renderer) { kt.detectSupport(renderer); }
+          _gltfLoader.setKTX2Loader(kt);
+        } catch (e) {}
       }
       return _gltfLoader;
     }
@@ -2432,7 +2442,8 @@
       var device = (renderer.xr && renderer.xr.isPresenting) ? 'vr' : (isTouch ? 'mobile' : 'desktop');
       var payload = { token: MY_TOKEN, name: MY_NAME, color: MY_COLOR, role: (CAN_DOCENT && myTourActive ? 'docent' : 'visitor'),
         room_id: (rm ? rm.id : null), x: pos.x, y: pos.y, z: pos.z, yaw: Math.atan2(dir.x, dir.z), device: device,
-        tour_active: (myTourActive ? 1 : 0), focus_object_id: myFocus, docent_msg: myDocentMsg };
+        tour_active: (myTourActive ? 1 : 0), focus_object_id: myFocus, docent_msg: myDocentMsg,
+        cur_object: (panelOpen && currentStop ? currentStop.information_object_id : null) };   // #1187 per-object dwell
       fetch(PRESENCE_BEAT, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': WT_CSRF, 'Accept': 'application/json' }, body: JSON.stringify(payload) })
         .then(function (r) { return r.json(); }).then(function (d) { if (d && d.ok) { applyPeers(d.peers || []); applyTour(d.tour || null); } }).catch(function () {});
     }
