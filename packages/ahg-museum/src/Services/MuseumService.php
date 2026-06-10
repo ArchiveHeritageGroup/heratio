@@ -496,9 +496,9 @@ class MuseumService
             $ioInsert = [
                 'id' => $objectId,
                 'identifier' => $resolvedIdentifier,
-                'level_of_description_id' => $data['level_of_description_id'] ?: null,
+                'level_of_description_id' => ($data['level_of_description_id'] ?? null) ?: null,
                 'collection_type_id' => null,
-                'repository_id' => $data['repository_id'] ?: null,
+                'repository_id' => ($data['repository_id'] ?? null) ?: null,
                 'parent_id' => $parentId,
                 'lft' => $newLft,
                 'rgt' => $newRgt,
@@ -513,7 +513,7 @@ class MuseumService
             DB::table('information_object_i18n')->insert([
                 'id' => $objectId,
                 'culture' => $this->culture,
-                'title' => $data['title'],
+                'title' => $data['title'] ?? '',
                 'alternate_title' => $data['alternate_title'] ?? null,
                 'scope_and_content' => $data['scope_and_content'] ?? null,
                 'extent_and_medium' => $data['extent_and_medium'] ?? null,
@@ -535,7 +535,7 @@ class MuseumService
             ]);
 
             // Generate slug
-            $baseSlug = Str::slug($data['title'] ?: 'untitled');
+            $baseSlug = Str::slug(($data['title'] ?? '') ?: 'untitled');
             $slug = $baseSlug;
             $counter = 1;
             while (DB::table('slug')->where('slug', $slug)->exists()) {
@@ -558,8 +558,8 @@ class MuseumService
                 'techniques' => $data['techniques'] ?? null,
                 'measurements' => $data['measurements'] ?? null,
                 'dimensions' => $data['dimensions'] ?? null,
-                'creation_date_earliest' => $data['creation_date_earliest'] ?: null,
-                'creation_date_latest' => $data['creation_date_latest'] ?: null,
+                'creation_date_earliest' => ($data['creation_date_earliest'] ?? null) ?: null,
+                'creation_date_latest' => ($data['creation_date_latest'] ?? null) ?: null,
                 'inscription' => $data['inscription'] ?? null,
                 'inscriptions' => $data['inscriptions'] ?? null,
                 'condition_notes' => $data['condition_notes'] ?? null,
@@ -578,11 +578,11 @@ class MuseumService
                 'color' => $data['color'] ?? null,
                 'shape' => $data['shape'] ?? null,
                 'condition_term' => $data['condition_term'] ?? null,
-                'condition_date' => $data['condition_date'] ?: null,
+                'condition_date' => ($data['condition_date'] ?? null) ?: null,
                 'condition_description' => $data['condition_description'] ?? null,
                 'condition_agent' => $data['condition_agent'] ?? null,
                 'treatment_type' => $data['treatment_type'] ?? null,
-                'treatment_date' => $data['treatment_date'] ?: null,
+                'treatment_date' => ($data['treatment_date'] ?? null) ?: null,
                 'treatment_agent' => $data['treatment_agent'] ?? null,
                 'treatment_description' => $data['treatment_description'] ?? null,
                 'inscription_transcription' => $data['inscription_transcription'] ?? null,
@@ -613,7 +613,7 @@ class MuseumService
                 'rights_date' => $data['rights_date'] ?? null,
                 'rights_remarks' => $data['rights_remarks'] ?? null,
                 'cataloger_name' => $data['cataloger_name'] ?? null,
-                'cataloging_date' => $data['cataloging_date'] ?: null,
+                'cataloging_date' => ($data['cataloging_date'] ?? null) ?: null,
                 'cataloging_institution' => $data['cataloging_institution'] ?? null,
                 'cataloging_remarks' => $data['cataloging_remarks'] ?? null,
                 'record_type' => $data['record_type'] ?? null,
@@ -712,8 +712,8 @@ class MuseumService
             // Update information_object
             $ioUpdate = [
                 'identifier' => $data['identifier'] ?? null,
-                'level_of_description_id' => $data['level_of_description_id'] ?: null,
-                'repository_id' => $data['repository_id'] ?: null,
+                'level_of_description_id' => ($data['level_of_description_id'] ?? null) ?: null,
+                'repository_id' => ($data['repository_id'] ?? null) ?: null,
             ];
             // ICIP cultural-sensitivity URI lives on information_object (canonical column).
             if (array_key_exists('icip_sensitivity', $data)) {
@@ -753,8 +753,8 @@ class MuseumService
                     'techniques' => $data['techniques'] ?? null,
                     'measurements' => $data['measurements'] ?? null,
                     'dimensions' => $data['dimensions'] ?? null,
-                    'creation_date_earliest' => $data['creation_date_earliest'] ?: null,
-                    'creation_date_latest' => $data['creation_date_latest'] ?: null,
+                    'creation_date_earliest' => ($data['creation_date_earliest'] ?? null) ?: null,
+                    'creation_date_latest' => ($data['creation_date_latest'] ?? null) ?: null,
                     'inscription' => $data['inscription'] ?? null,
                     'inscriptions' => $data['inscriptions'] ?? null,
                     'condition_notes' => $data['condition_notes'] ?? null,
@@ -773,11 +773,11 @@ class MuseumService
                     'color' => $data['color'] ?? null,
                     'shape' => $data['shape'] ?? null,
                     'condition_term' => $data['condition_term'] ?? null,
-                    'condition_date' => $data['condition_date'] ?: null,
+                    'condition_date' => ($data['condition_date'] ?? null) ?: null,
                     'condition_description' => $data['condition_description'] ?? null,
                     'condition_agent' => $data['condition_agent'] ?? null,
                     'treatment_type' => $data['treatment_type'] ?? null,
-                    'treatment_date' => $data['treatment_date'] ?: null,
+                    'treatment_date' => ($data['treatment_date'] ?? null) ?: null,
                     'treatment_agent' => $data['treatment_agent'] ?? null,
                     'treatment_description' => $data['treatment_description'] ?? null,
                     'inscription_transcription' => $data['inscription_transcription'] ?? null,
@@ -808,7 +808,7 @@ class MuseumService
                     'rights_date' => $data['rights_date'] ?? null,
                     'rights_remarks' => $data['rights_remarks'] ?? null,
                     'cataloger_name' => $data['cataloger_name'] ?? null,
-                    'cataloging_date' => $data['cataloging_date'] ?: null,
+                    'cataloging_date' => ($data['cataloging_date'] ?? null) ?: null,
                     'cataloging_institution' => $data['cataloging_institution'] ?? null,
                     'cataloging_remarks' => $data['cataloging_remarks'] ?? null,
                     'record_type' => $data['record_type'] ?? null,
