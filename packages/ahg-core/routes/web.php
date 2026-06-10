@@ -74,6 +74,7 @@ Route::get('/pointcloud/{slug}/status', [\AhgCore\Controllers\PointCloudControll
 Route::middleware('auth')->group(function () {
     Route::get('/admin/splats', [\AhgCore\Controllers\GaussianSplatController::class, 'index'])->name('splats.index');
     Route::post('/admin/splats', [\AhgCore\Controllers\GaussianSplatController::class, 'store'])->name('splats.store');
+    Route::post('/admin/splats/{id}/attach', [\AhgCore\Controllers\GaussianSplatController::class, 'attach'])->whereNumber('id')->name('splats.attach');
 });
 Route::get('/splat/{slug}', [\AhgCore\Controllers\GaussianSplatController::class, 'show'])
     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('splats.show');

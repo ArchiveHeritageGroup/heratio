@@ -24,6 +24,10 @@
       <label class="form-label small mb-1">{{ __('Splat file') }} <span class="text-muted">(.ply, .splat, .ksplat)</span></label>
       <input type="file" name="splat" class="form-control form-control-sm" accept=".ply,.splat,.ksplat" required>
     </div>
+    <div class="mb-2">
+      <label class="form-label small mb-1">{{ __('Attach to record') }} <span class="text-muted">{{ __('(optional - record slug or numeric id; shows on that record page)') }}</span></label>
+      <input type="text" name="record" class="form-control form-control-sm" placeholder="{{ __('e.g. desk') }}">
+    </div>
     <div><button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-upload me-1"></i>{{ __('Upload') }}</button></div>
   </form>
 
@@ -31,7 +35,7 @@
     <div class="alert alert-info">{{ __('No splat captures yet.') }}</div>
   @else
     <table class="table table-sm table-hover align-middle">
-      <thead class="table-light"><tr><th>{{ __('Title') }}</th><th>{{ __('Format') }}</th><th>{{ __('Size') }}</th><th>{{ __('Status') }}</th><th>{{ __('Added') }}</th><th></th></tr></thead>
+      <thead class="table-light"><tr><th>{{ __('Title') }}</th><th>{{ __('Format') }}</th><th>{{ __('Size') }}</th><th>{{ __('Status') }}</th><th>{{ __('Attached record') }}</th><th></th></tr></thead>
       <tbody>
         @foreach($splats as $s)
           <tr>
@@ -39,7 +43,14 @@
             <td class="small text-muted">{{ strtoupper($s->format ?? '') }}</td>
             <td class="small text-muted">{{ $s->size_bytes ? number_format($s->size_bytes / 1048576, 1).' MB' : '—' }}</td>
             <td>@if($s->status === 'ready')<span class="badge bg-success">{{ __('Ready') }}</span>@else<span class="badge bg-danger" title="{{ $s->error }}">{{ __('Failed') }}</span>@endif</td>
-            <td class="small text-muted">{{ $s->created_at }}</td>
+            <td>
+              <form method="POST" action="{{ route('splats.attach', ['id' => $s->id]) }}" class="d-flex gap-1 align-items-center">
+                @csrf
+                <input type="text" name="record" class="form-control form-control-sm" style="max-width:11rem" value="{{ $s->object_slug ?? '' }}" placeholder="{{ __('slug or id') }}">
+                <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ __('Attach / change') }}"><i class="fas fa-link"></i></button>
+              </form>
+              @if($s->object_title)<a href="/{{ $s->object_slug }}" target="_blank" rel="noopener" class="small text-muted">{{ \Illuminate\Support\Str::limit($s->object_title, 40) }}</a>@endif
+            </td>
             <td class="text-end">
               @if($s->status === 'ready')
                 <a href="{{ route('splats.show', ['slug' => $s->slug]) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye me-1"></i>{{ __('View') }}</a>

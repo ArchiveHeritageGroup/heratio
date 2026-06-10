@@ -25,8 +25,12 @@ class GaussianSplatService
 {
     public const SUPPORTED = ['ply', 'splat', 'ksplat'];
 
-    /** Store an uploaded splat and record it. Returns the row id + slug. */
-    public function store(string $title, UploadedFile $file, ?int $userId): array
+    /**
+     * Store an uploaded splat and record it. Returns the row id + slug.
+     * Optionally attach it to a catalogue record so it renders inline on that
+     * record's page (the "3D" viewer mode) - #1193.
+     */
+    public function store(string $title, UploadedFile $file, ?int $userId, ?int $informationObjectId = null): array
     {
         $ext = strtolower($file->getClientOriginalExtension());
         if (! in_array($ext, self::SUPPORTED, true)) {
@@ -39,6 +43,7 @@ class GaussianSplatService
 
         $id = (int) DB::table('ahg_gaussian_splat')->insertGetId([
             'slug' => $slug, 'title' => $title, 'source_filename' => $file->getClientOriginalName(),
+            'information_object_id' => $informationObjectId,
             'format' => $ext, 'status' => 'ready', 'created_by' => $userId,
             'created_at' => $now, 'updated_at' => $now,
         ]);
@@ -68,9 +73,35 @@ class GaussianSplatService
         return DB::table('ahg_gaussian_splat')->where('slug', $slug)->first();
     }
 
+    /** Splats (newest first), each with the attached record's title + slug when linked. */
     public function list(int $limit = 100): array
     {
-        return DB::table('ahg_gaussian_splat')->orderByDesc('id')->limit($limit)->get()->all();
+        return DB::table('ahg_gaussian_splat as s')
+            ->leftJoin('information_object_i18n as i', function ($j) { $j->on('i.id', '=', 's.information_object_id')->where('i.culture', '=', 'en'); })
+            ->leftJoin('slug as sl', 'sl.object_id', '=', 's.information_object_id')
+            ->orderByDesc('s.id')->limit($limit)
+            ->get(['s.*', 'i.title as object_title', 'sl.slug as object_slug'])->all();
+    }
+
+    /** Resolve a catalogue record from a numeric id or a slug; null if blank/unknown. */
+    public function resolveObjectId(?string $slugOrId): ?int
+    {
+        $v = trim((string) $slugOrId);
+        if ($v === '') {
+            return null;
+        }
+        if (ctype_digit($v)) {
+            return DB::table('information_object')->where('id', (int) $v)->exists() ? (int) $v : null;
+        }
+
+        return DB::table('slug')->where('slug', $v)->value('object_id') ?: null;
+    }
+
+    /** Attach (or detach, with null) a splat to a catalogue record. */
+    public function setObject(int $splatId, ?int $informationObjectId): bool
+    {
+        return DB::table('ahg_gaussian_splat')->where('id', $splatId)
+            ->update(['information_object_id' => $informationObjectId, 'updated_at' => now()]) > 0;
     }
 
     /** Public URL for a stored splat file (served via the public/splats symlink). */
