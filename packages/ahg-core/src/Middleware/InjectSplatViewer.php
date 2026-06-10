@@ -47,12 +47,29 @@ class InjectSplatViewer
             if (! $objectId) {
                 return $response;
             }
-            $splat = DB::table('ahg_gaussian_splat')
-                ->where('information_object_id', $objectId)
-                ->where('status', 'ready')->whereNotNull('file_name')
+            // Primary path: a splat uploaded as a normal digital object on this record
+            // (via "Link digital object") - no separate manager, no attach step.
+            $doSplat = DB::table('digital_object')
+                ->where('object_id', $objectId)
+                ->where(function ($q) {
+                    $q->where('name', 'like', '%.splat')->orWhere('name', 'like', '%.ksplat');
+                })
                 ->orderByDesc('id')->first();
-            if (! $splat) {
-                return $response;
+
+            if ($doSplat) {
+                $embedUrl = '/splat/do/'.$doSplat->id.'?embed=1';
+                $title = (string) ($doSplat->name ?: 'Capture');
+            } else {
+                // Fallback: a splat linked from the standalone splat manager.
+                $splat = DB::table('ahg_gaussian_splat')
+                    ->where('information_object_id', $objectId)
+                    ->where('status', 'ready')->whereNotNull('file_name')
+                    ->orderByDesc('id')->first();
+                if (! $splat) {
+                    return $response;
+                }
+                $embedUrl = '/splat/'.rawurlencode((string) $splat->slug).'?embed=1';
+                $title = (string) $splat->title;
             }
 
             $html = (string) $response->getContent();
@@ -61,7 +78,7 @@ class InjectSplatViewer
             if ($html === '' || str_contains($html, 'ahg-splat-embed') || str_contains($html, 'btn-splat-')) {
                 return $response;
             }
-            $panel = $this->panel($splat);
+            $panel = $this->panel($title, $embedUrl);
             // Prefer the top of the record content (shared theme anchor) so the viewer is
             // visible, not buried below the footer. Fall back to before the footer, then </body>.
             if (str_contains($html, '<div id="content">')) {
@@ -98,20 +115,21 @@ class InjectSplatViewer
         return in_array($name, self::SHOW_ROUTES, true);
     }
 
-    private function panel(object $splat): string
+    private function panel(string $title, string $embedUrl): string
     {
-        $title = htmlspecialchars((string) $splat->title, ENT_QUOTES);
-        $src = '/splat/'.rawurlencode((string) $splat->slug).'?embed=1';
+        $t = htmlspecialchars($title, ENT_QUOTES);
+        $src = htmlspecialchars($embedUrl, ENT_QUOTES);
+        $full = htmlspecialchars(preg_replace('/\?embed=1$/', '', $embedUrl), ENT_QUOTES);
 
         return <<<HTML
 <section id="ahg-splat-embed" class="my-4">
   <div class="card">
     <div class="card-header fw-bold d-flex align-items-center" style="background:var(--ahg-primary,#005837);color:#fff">
       <i class="fas fa-cube me-2"></i>Photoreal 3D capture
-      <a href="/splat/{$splat->slug}" target="_blank" rel="noopener" class="ms-auto btn btn-sm btn-light" style="font-size:.75rem">Open full screen</a>
+      <a href="{$full}" target="_blank" rel="noopener" class="ms-auto btn btn-sm btn-light" style="font-size:.75rem">Open full screen</a>
     </div>
     <div class="card-body p-0">
-      <iframe title="{$title} - 3D capture" src="{$src}" loading="lazy"
+      <iframe title="{$t} - 3D capture" src="{$src}" loading="lazy"
         style="width:100%;height:72vh;border:0;display:block" allow="fullscreen"></iframe>
     </div>
   </div>

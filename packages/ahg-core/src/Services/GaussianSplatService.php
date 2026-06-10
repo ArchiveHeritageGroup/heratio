@@ -110,6 +110,23 @@ class GaussianSplatService
         return $splat->file_name ? '/splats/'.$splat->file_name : null;
     }
 
+    /** Public URL for a splat uploaded as a digital object (path is the AtoM /uploads layout). */
+    public function digitalObjectUrl(object $do): string
+    {
+        $path = trim((string) ($do->path ?? ''));
+        $name = (string) ($do->name ?? '');
+        // AtoM stores path as a directory (e.g. /uploads/r/<io>/) + a separate name.
+        $hasExt = pathinfo(parse_url($path, PHP_URL_PATH) ?: $path, PATHINFO_EXTENSION) !== '';
+        if (! $hasExt && $name !== '') {
+            $path = rtrim($path, '/').'/'.ltrim($name, '/');
+        }
+        if (! str_starts_with($path, '/') && ! str_starts_with($path, 'http')) {
+            $path = '/'.ltrim($path, '/');
+        }
+
+        return $path;
+    }
+
     private function uniqueSlug(string $title): string
     {
         $base = trim(preg_replace('/-+/', '-', preg_replace('/[^a-z0-9]+/', '-', mb_strtolower($title))), '-');

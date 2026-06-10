@@ -81,4 +81,26 @@ class GaussianSplatController extends Controller
             'fileUrl' => $this->service->fileUrl($splat),
         ]);
     }
+
+    /**
+     * Render the photoreal viewer for a splat uploaded as a normal DIGITAL OBJECT
+     * (.splat / .ksplat / 3DGS .ply) on a record - the "Link digital object" path. No
+     * ahg_gaussian_splat row needed; the digital object is the source of truth.
+     */
+    public function showDigitalObject(int $id)
+    {
+        $do = \Illuminate\Support\Facades\DB::table('digital_object')->where('id', $id)->first();
+        if (! $do || ! $do->name) {
+            abort(404);
+        }
+        $ext = strtolower(pathinfo((string) $do->name, PATHINFO_EXTENSION));
+        if (! in_array($ext, ['splat', 'ksplat', 'ply'], true)) {
+            abort(404);
+        }
+
+        return view('ahg-core::splat-viewer', [
+            'splat' => (object) ['title' => $do->name, 'format' => $ext],
+            'fileUrl' => $this->service->digitalObjectUrl($do),
+        ]);
+    }
 }

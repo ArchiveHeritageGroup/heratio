@@ -78,6 +78,10 @@ Route::middleware('auth')->group(function () {
 });
 Route::get('/splat/{slug}', [\AhgCore\Controllers\GaussianSplatController::class, 'show'])
     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('splats.show');
+// #1193 - render a splat uploaded as a normal digital object on a record (the "Link digital
+// object" path; auto-surfaced on the record by InjectSplatViewer). Two-segment, catch-all-safe.
+Route::get('/splat/do/{id}', [\AhgCore\Controllers\GaussianSplatController::class, 'showDigitalObject'])
+    ->whereNumber('id')->name('splats.do');
 
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
