@@ -471,11 +471,13 @@
         {{-- Mirador container --}}
         <div id="mirador-{{ $viewerId }}" style="position:relative;width:100%;height:{{ $vHeight }};border-radius:8px;overflow:hidden;{{ $vType !== 'mirador' ? 'display:none;' : '' }}"></div>
 
-        {{-- Simple image --}}
+        {{-- Simple image (vertically centred within the viewer box, #1193) --}}
         <div id="img-{{ $viewerId }}" style="{{ $vType !== 'single' ? 'display:none;' : '' }}" class="text-center">
-          <a href="{{ $imgSrc }}" target="_blank">
-            <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:{{ $vHeight }};">
-          </a>
+          <div style="display:flex;align-items:center;justify-content:center;height:{{ $vHeight }};">
+            <a href="{{ $imgSrc }}" target="_blank">
+              <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:{{ $vHeight }};max-width:100%;">
+            </a>
+          </div>
         </div>
 
         @if($splatEmbedUrl)
