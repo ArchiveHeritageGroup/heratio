@@ -13,6 +13,12 @@
     @include('ahg-exhibition::exhibition-space._nav-actions', ['space' => $space, 'current' => 'show'])
     @auth
       <a href="{{ route('exhibition-space.edit', ['slug' => $space->slug]) }}" class="btn btn-outline-primary"><i class="fas fa-edit me-1"></i>{{ __('Edit') }}</a>
+      @if(Route::has('exhibition-space.sync-ric'))
+        <form method="POST" action="{{ route('exhibition-space.sync-ric', ['slug' => $space->slug]) }}" class="d-inline">
+          @csrf
+          <button type="submit" class="btn btn-outline-primary" title="{{ __('Publish this space into the RiC knowledge graph as an Activity, linked to its objects') }}"><i class="fas fa-diagram-project me-1"></i>{{ __('Publish to RiC graph') }}</button>
+        </form>
+      @endif
       <a href="{{ route('exhibition-space.confirmDelete', ['slug' => $space->slug]) }}" class="btn btn-outline-danger"><i class="fas fa-trash me-1"></i>{{ __('Delete') }}</a>
     @endauth
   </div>

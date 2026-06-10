@@ -98,6 +98,23 @@ class ExhibitionSpaceController extends Controller
             ->with('success', 'Exhibition space updated.');
     }
 
+    /** heratio#1195 - publish this space into the RiC graph as a rico:Activity + link its objects. */
+    public function syncRic(string $slug, \AhgExhibition\Services\ExhibitionRicService $ric)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+        $r = $ric->syncSpace($space);
+        if (! $r['ok']) {
+            return back()->with('error', $r['error'] ?: 'Could not publish to the RiC graph.');
+        }
+        $msg = "Published to the RiC graph as an Activity. Linked {$r['linked']} object(s)"
+            .($r['already'] ? ", {$r['already']} already linked" : '').'.';
+
+        return back()->with('success', $msg);
+    }
+
     public function confirmDelete(string $slug)
     {
         $space = $this->service->getBySlug($slug);

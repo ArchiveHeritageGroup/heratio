@@ -99,6 +99,7 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'scan_shell_scale' => 'DECIMAL(8,3) NULL DEFAULT 1.000',   // heratio#1156: uniform scale applied to the scan shell (fit to room metres)
                     'scan_embed_url' => 'VARCHAR(500) NULL',           // heratio#1156: 360/Matterport embed URL (opened in an overlay; licensing handled by the host)
                     'sensor_token' => 'VARCHAR(64) NULL',              // heratio#1188: per-space token a real IoT sensor/gateway uses to POST readings
+                    'ric_activity_id' => 'BIGINT NULL',                // heratio#1195: the RiC Activity entity this space is published as (graph integration)
                 ];
                 foreach ($spaceCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_space', $col)) {
