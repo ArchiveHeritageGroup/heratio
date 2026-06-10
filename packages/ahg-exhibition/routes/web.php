@@ -123,6 +123,8 @@ Route::middleware('auth')->group(function () {
 
 // heratio#1138 — digital twin: 2.5D pannable walkthrough (Phase 2, visitor-facing/public)
 Route::get('/exhibition-space/{slug}/walkthrough', [ExhibitionSpaceController::class, 'walkthrough'])->name('exhibition-space.walkthrough');
+// heratio#1194 - accessible text + narration tour (keyboard / screen-reader alternative)
+Route::get('/exhibition-space/{slug}/accessible-tour', [ExhibitionSpaceController::class, 'accessibleTour'])->name('exhibition-space.accessible-tour');
 // heratio#1153 — WebGPU renderer spike (proof page; live walkthrough untouched)
 Route::get('/exhibition-space/{slug}/walkthrough-webgpu', [ExhibitionSpaceController::class, 'walkthroughWebgpu'])->name('exhibition-space.walkthrough-webgpu');
 // heratio#1149 — in-twin recommendations (public, read-only) for the walkthrough

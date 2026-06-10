@@ -1616,6 +1616,59 @@ class ExhibitionSpaceService
         return $out;
     }
 
+    /**
+     * heratio#1194 - ordered stops for the accessible (text + narration) tour: each placed
+     * object once, in room order, with its description, a thumbnail (+ alt text) and a spoken
+     * narration string. This is the screen-reader / keyboard / low-vision alternative to the
+     * 3D walkthrough.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function accessibleTour(object $space): array
+    {
+        $ids = $this->buildingSpaceIds($space);
+        if (empty($ids)) {
+            return [];
+        }
+
+        $rows = DB::table('ahg_exhibition_placement as ep')
+            ->join('ahg_exhibition_space as sp', 'sp.id', '=', 'ep.exhibition_space_id')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('ioi.id', '=', 'ep.information_object_id')->where('ioi.culture', '=', 'en');
+            })
+            ->leftJoin('slug as sl', 'sl.object_id', '=', 'ep.information_object_id')
+            ->whereIn('ep.exhibition_space_id', $ids)
+            ->whereNotNull('ep.information_object_id')
+            ->where(function ($q) { $q->whereNull('ep.wall_or_zone')->orWhere('ep.wall_or_zone', '!=', 'corridor'); })
+            ->orderBy('sp.building_seq')->orderBy('sp.id')->orderBy('ep.id')
+            ->select('ep.information_object_id as io_id', 'ioi.title', 'ioi.scope_and_content', 'sp.name as room_name', 'sl.slug')
+            ->get();
+
+        $seen = [];
+        $out = [];
+        $n = 0;
+        foreach ($rows as $r) {
+            $io = (int) $r->io_id;
+            if (isset($seen[$io])) {
+                continue;
+            }
+            $seen[$io] = 1;
+            $n++;
+            $title = $r->title ?: ('#'.$io);
+            $desc = trim(preg_replace('/\s+/', ' ', strip_tags((string) ($r->scope_and_content ?? ''))));
+            $room = (string) $r->room_name;
+            $narration = "Stop {$n}".($room !== '' ? ", in {$room}" : '').'. '.$title.'. '
+                .($desc !== '' ? $desc : 'No description is recorded for this object.');
+            $out[] = [
+                'io_id' => $io, 'title' => $title, 'room' => $room, 'slug' => $r->slug,
+                'description' => $desc, 'thumb_url' => $this->thumbnailUrl($io),
+                'narration' => $narration,
+            ];
+        }
+
+        return $out;
+    }
+
     private function recsColumn(): bool
     {
         static $has = null;

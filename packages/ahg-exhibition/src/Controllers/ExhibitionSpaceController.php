@@ -1570,6 +1570,20 @@ class ExhibitionSpaceController extends Controller
     // Digital twin - 2.5D pannable walkthrough (heratio#1138, Phase 2)
     // ===================================================================
 
+    /** heratio#1194 - accessible (text + narration, keyboard) alternative to the 3D walkthrough. */
+    public function accessibleTour(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        return view('ahg-exhibition::exhibition-space.accessible-tour', [
+            'space' => $space,
+            'stops' => $this->service->accessibleTour($space),
+        ]);
+    }
+
     public function walkthrough(string $slug)
     {
         $space = $this->service->getBySlug($slug);
