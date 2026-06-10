@@ -10,6 +10,25 @@
     <a href="{{ route('exhibition-space.create') }}" class="btn btn-primary">
       <i class="fas fa-plus me-1"></i>{{ __('Add exhibition space') }}
     </a>
+    <div class="dropdown">
+      <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI Tools') }}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        @if(Route::has('exhibition-space.generate'))
+          <li><a class="dropdown-item" href="{{ route('exhibition-space.generate') }}"><i class="fas fa-wand-magic-sparkles me-2"></i>{{ __('AI Exhibition Designer') }}</a></li>
+        @endif
+        @if(Route::has('scan.cataloguer'))
+          <li><a class="dropdown-item" href="{{ route('scan.cataloguer') }}"><i class="fas fa-wand-magic-sparkles me-2"></i>{{ __('AI Cataloguer') }}</a></li>
+        @endif
+        @if(Route::has('stories.index'))
+          <li><a class="dropdown-item" href="{{ route('stories.index') }}"><i class="fas fa-feather-pointed me-2"></i>{{ __('Story Generator') }}</a></li>
+        @endif
+        @if(Route::has('ahgprivacy.autopilot'))
+          <li><a class="dropdown-item" href="{{ route('ahgprivacy.autopilot') }}"><i class="fas fa-robot me-2"></i>{{ __('Compliance Autopilot') }}</a></li>
+        @endif
+      </ul>
+    </div>
   </div>
 
   @if(session('success'))
