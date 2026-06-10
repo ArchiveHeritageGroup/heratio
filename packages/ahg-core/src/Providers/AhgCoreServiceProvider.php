@@ -106,6 +106,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Console\Commands\OptimizePdfsCommand::class,
                 \AhgCore\Console\Commands\PointCloudSetupCommand::class,
                 \AhgCore\Console\Commands\ConvertPointCloudCommand::class,
+                \AhgCore\Console\Commands\SplatSetupCommand::class,
                 \AhgCore\Commands\SearchPopulateCommand::class,
                 \AhgCore\Commands\SearchUpdateCommand::class,
                 \AhgCore\Commands\SearchCleanupCommand::class,
@@ -496,6 +497,18 @@ class AhgCoreServiceProvider extends ServiceProvider
             }
         } catch (\Throwable $e) {
             \Log::warning('[ahg-core] ahg_point_cloud install failed: '.$e->getMessage());
+        }
+
+        // #1193 Gaussian splats: ahg_gaussian_splat. Single outer try around hasTable + unprepared.
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_gaussian_splat')) {
+                $sql = file_get_contents(__DIR__.'/../../database/install_gaussian_splat.sql');
+                if (is_string($sql) && trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-core] ahg_gaussian_splat install failed: '.$e->getMessage());
         }
     }
 }

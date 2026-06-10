@@ -63,6 +63,14 @@ Route::get('/pointcloud/{slug}', [\AhgCore\Controllers\PointCloudController::cla
 Route::get('/pointcloud/{slug}/status', [\AhgCore\Controllers\PointCloudController::class, 'status'])
     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('pointclouds.status');
 
+// heratio#1193 - Gaussian splats: admin manager + public photoreal viewer
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/splats', [\AhgCore\Controllers\GaussianSplatController::class, 'index'])->name('splats.index');
+    Route::post('/admin/splats', [\AhgCore\Controllers\GaussianSplatController::class, 'store'])->name('splats.store');
+});
+Route::get('/splat/{slug}', [\AhgCore\Controllers\GaussianSplatController::class, 'show'])
+    ->where('slug', '[a-z0-9][a-z0-9-]*')->name('splats.show');
+
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::match(['get', 'post'], '/', [ClipboardController::class, 'index'])->name('index');

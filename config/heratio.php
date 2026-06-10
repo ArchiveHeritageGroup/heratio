@@ -49,6 +49,12 @@ return [
     // Where converted octrees are written (one subdir per cloud). Defaults under storage.
     'pointclouds_path' => env('HERATIO_POINTCLOUDS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/pointclouds'),
 
+    // Gaussian-splat captures (#1193) — uploaded .ply/.splat/.ksplat radiance-field scenes,
+    // stored here and served to a standalone web viewer (no server-side conversion). Defaults
+    // under storage. The viewer loads three.js + GaussianSplats3D from the CDN (same CDN the
+    // walkthrough already uses).
+    'splats_path' => env('HERATIO_SPLATS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/splats'),
+
     // 3D optimisation: WebP texture re-encode (~10x smaller than PNG). Enabled now
     // that the exhibition walkthrough loads three.js r137 which decodes
     // EXT_texture_webp (#1181). Texture resize cap (px) bounds dimensions first.

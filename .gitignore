@@ -94,3 +94,4 @@ docs/READVERTISEMENT*.pdf
 # heratio#1183 point-cloud host symlinks (provisioned by ahg:pointcloud-setup)
 /public/pointclouds
 /public/vendor/potree
+/public/splats
