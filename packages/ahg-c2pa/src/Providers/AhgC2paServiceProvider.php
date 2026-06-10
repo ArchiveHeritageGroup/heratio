@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace AhgC2pa\Providers;
 
+use AhgC2pa\Console\Commands\C2paEmbedCommand;
 use AhgC2pa\Console\Commands\C2paSmokeCommand;
 use AhgC2pa\Console\Commands\C2paVerifyCommand;
 use AhgC2pa\Events\AiOutputProduced;
@@ -76,6 +77,7 @@ final class AhgC2paServiceProvider extends ServiceProvider
             $this->commands([
                 C2paSmokeCommand::class,
                 C2paVerifyCommand::class,
+                C2paEmbedCommand::class,
             ]);
         }
 

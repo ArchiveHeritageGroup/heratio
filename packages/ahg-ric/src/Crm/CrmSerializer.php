@@ -9,6 +9,15 @@
  *                           CIDOC tooling including ResearchSpace,
  *                           Erlangen-CRM importer, etc.)
  *   - text/turtle          (compact form for human review + git diffs)
+ *   - application/ld+json  (JSON-LD; same graph as the RDF/XML form,
+ *                           emitted as an @graph of typed nodes with a
+ *                           crm/rico/rdfs @context)
+ *
+ * serializeRecord() also accepts an optional CRM record-class override
+ * (CURIE, e.g. 'crm:E22_Human-Made_Object') so callers such as
+ * ahg-museum can type the central node as a human-made object rather
+ * than the archival default E73_Information_Object. When omitted the
+ * class falls back to the rico:Record -> E73 mapping.
  *
  * The serializer shape mirrors EdmSerializer from
  * packages/ahg-federation/src/Edm/ - same DB-fetch helpers, same
@@ -54,6 +63,7 @@ class CrmSerializer
     /** Output formats accepted by serializeRecord(). */
     public const FORMAT_RDFXML = 'rdfxml';
     public const FORMAT_TURTLE = 'turtle';
+    public const FORMAT_JSONLD = 'jsonld';
 
     /**
      * Serialise one Information Object as a CIDOC-CRM RDF document.
@@ -62,7 +72,7 @@ class CrmSerializer
      * culture - callers (controller, tests, bulk-export) decide
      * whether empty means "skip" or "404".
      */
-    public function serializeRecord(int $objectId, string $culture = 'en', string $format = self::FORMAT_RDFXML): string
+    public function serializeRecord(int $objectId, string $culture = 'en', string $format = self::FORMAT_RDFXML, ?string $recordClass = null): string
     {
         $io = $this->fetchIo($objectId, $culture);
         if (! $io) {
@@ -79,18 +89,27 @@ class CrmSerializer
         $ioUrl = $this->ioPublicUrl($io);
         $choUri = $ioUrl . '#crm-cho';
 
+        // Resolve the central node's CRM class. Callers may override the
+        // archival default (E73 via rico:Record) - e.g. ahg-museum passes
+        // 'crm:E22_Human-Made_Object' so the record types as the artefact.
+        $crmRecord = $recordClass ?: RicToCrmMapper::classFor('rico:Record');
+
         if ($format === self::FORMAT_TURTLE) {
-            return $this->renderTurtle($io, $choUri, $ioUrl, $repository, $creators, $events, $subjects, $places, $languages, $culture);
+            return $this->renderTurtle($io, $choUri, $ioUrl, $repository, $creators, $events, $subjects, $places, $languages, $culture, $crmRecord);
         }
-        return $this->renderRdfXml($io, $choUri, $ioUrl, $repository, $creators, $events, $subjects, $places, $languages, $culture);
+        if ($format === self::FORMAT_JSONLD) {
+            return $this->renderJsonLd($io, $choUri, $ioUrl, $repository, $creators, $events, $subjects, $places, $languages, $culture, $crmRecord);
+        }
+        return $this->renderRdfXml($io, $choUri, $ioUrl, $repository, $creators, $events, $subjects, $places, $languages, $culture, $crmRecord);
     }
 
     // -----------------------------------------------------------------
     // RDF/XML output
     // -----------------------------------------------------------------
 
-    protected function renderRdfXml($io, string $choUri, string $ioUrl, $repository, array $creators, array $events, array $subjects, array $places, array $languages, string $culture): string
+    protected function renderRdfXml($io, string $choUri, string $ioUrl, $repository, array $creators, array $events, array $subjects, array $places, array $languages, string $culture, ?string $crmRecord = null): string
     {
+        $crmRecord = $crmRecord ?: RicToCrmMapper::classFor('rico:Record');
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<rdf:RDF';
         $xml .= ' xmlns:rdf="' . self::NS_RDF . '"';
@@ -100,8 +119,7 @@ class CrmSerializer
         $xml .= ' xmlns:rico="' . self::NS_RIC . '"';
         $xml .= '>' . "\n";
 
-        // --------- E73 Information Object (the record itself) ---------
-        $crmRecord = RicToCrmMapper::classFor('rico:Record');
+        // --------- Central CHO node (the record / object itself) ------
         $xml .= '  <rdf:Description rdf:about="' . $this->escAttr($choUri) . '">' . "\n";
         $xml .= '    <rdf:type rdf:resource="' . $this->escAttr(RicToCrmMapper::expand($crmRecord)) . '"/>' . "\n";
         $xml .= '    <rdfs:label xml:lang="' . $this->escAttr($culture) . '">' . $this->escXml((string) ($io->title ?? '')) . '</rdfs:label>' . "\n";
@@ -205,15 +223,15 @@ class CrmSerializer
     // Turtle output - same semantics, compact serialisation
     // -----------------------------------------------------------------
 
-    protected function renderTurtle($io, string $choUri, string $ioUrl, $repository, array $creators, array $events, array $subjects, array $places, array $languages, string $culture): string
+    protected function renderTurtle($io, string $choUri, string $ioUrl, $repository, array $creators, array $events, array $subjects, array $places, array $languages, string $culture, ?string $crmRecord = null): string
     {
+        $crmRecord = $crmRecord ?: RicToCrmMapper::classFor('rico:Record');
         $ttl = '@prefix rdf: <' . self::NS_RDF . "> .\n";
         $ttl .= '@prefix rdfs: <' . self::NS_RDFS . "> .\n";
         $ttl .= '@prefix xsd: <' . self::NS_XSD . "> .\n";
         $ttl .= '@prefix crm: <' . self::NS_CRM . "> .\n";
         $ttl .= '@prefix rico: <' . self::NS_RIC . "> .\n\n";
 
-        $crmRecord = RicToCrmMapper::classFor('rico:Record');
         $ttl .= '<' . $choUri . '> a <' . RicToCrmMapper::expand($crmRecord) . '> ;' . "\n";
         $ttl .= '  rdfs:label ' . $this->ttlString((string) ($io->title ?? ''), $culture) . ' ;' . "\n";
         $ttl .= '  crm:P102_has_title ' . $this->ttlString((string) ($io->title ?? ''), $culture);
@@ -276,6 +294,130 @@ class CrmSerializer
         }
 
         return $ttl;
+    }
+
+    // -----------------------------------------------------------------
+    // JSON-LD output - same graph as RDF/XML, expressed as an @graph of
+    // typed nodes. CURIEs are expanded against an @context so the result
+    // is valid JSON-LD 1.1 consumable by jsonld.js, Apache Jena and
+    // ResearchSpace alike.
+    // -----------------------------------------------------------------
+
+    protected function renderJsonLd($io, string $choUri, string $ioUrl, $repository, array $creators, array $events, array $subjects, array $places, array $languages, string $culture, ?string $crmRecord = null): string
+    {
+        $crmRecord = $crmRecord ?: RicToCrmMapper::classFor('rico:Record');
+
+        $context = [
+            'rdf'  => self::NS_RDF,
+            'rdfs' => self::NS_RDFS,
+            'xsd'  => self::NS_XSD,
+            'crm'  => self::NS_CRM,
+            'rico' => self::NS_RIC,
+        ];
+
+        $graph = [];
+
+        // --------- Central CHO node ---------
+        $record = [
+            '@id'   => $choUri,
+            '@type' => $crmRecord,
+            'rdfs:label'         => $this->jsonLangLiteral((string) ($io->title ?? ''), $culture),
+            'crm:P102_has_title' => $this->jsonLangLiteral((string) ($io->title ?? ''), $culture),
+        ];
+        if (! empty($io->identifier)) {
+            $record['crm:P1_is_identified_by'] = (string) $io->identifier;
+        }
+        if (! empty($io->scope_and_content)) {
+            $record['crm:P3_has_note'] = $this->jsonLangLiteral((string) $io->scope_and_content, $culture);
+        }
+
+        $carriedOutBy = [];
+        foreach ($creators as $creator) {
+            $carriedOutBy[] = ['@id' => $this->agentUri((int) ($creator->actor_id ?? 0))];
+        }
+        if ($carriedOutBy) {
+            $record['crm:P14_carried_out_by'] = $carriedOutBy;
+        }
+
+        $timeSpans = [];
+        foreach ($events as $event) {
+            if (empty($event->start_date) && empty($event->end_date) && empty($event->date_display)) {
+                continue;
+            }
+            $timeSpans[] = ['@id' => $ioUrl . '#crm-ts-' . ((int) ($event->id ?? 0))];
+        }
+        if ($timeSpans) {
+            $record['crm:P4_has_time-span'] = $timeSpans;
+        }
+
+        if ($places) {
+            $record['crm:P7_took_place_at'] = array_map(fn ($p) => $this->jsonLangLiteral((string) $p->name, $culture), $places);
+        }
+        if ($subjects) {
+            $record['crm:P129_is_about'] = array_map(fn ($s) => $this->jsonLangLiteral((string) $s->name, $culture), $subjects);
+        }
+        if ($languages) {
+            $record['crm:P72_has_language'] = array_map(fn ($l) => $this->jsonLangLiteral((string) $l->name, $culture), $languages);
+        }
+        if ($repository) {
+            $record['crm:P50_has_current_keeper'] = ['@id' => $this->agentUri((int) $repository->id)];
+        }
+        $graph[] = $record;
+
+        // --------- Actor nodes ---------
+        foreach ($creators as $creator) {
+            $graph[] = [
+                '@id'        => $this->agentUri((int) ($creator->actor_id ?? 0)),
+                '@type'      => RicToCrmMapper::agentClassFor((int) ($creator->entity_type_id ?? 0)),
+                'rdfs:label' => $this->jsonLangLiteral((string) $creator->name, $culture),
+            ];
+        }
+        if ($repository) {
+            $graph[] = [
+                '@id'        => $this->agentUri((int) $repository->id),
+                '@type'      => 'crm:E40_Legal_Body',
+                'rdfs:label' => $this->jsonLangLiteral((string) $repository->name, $culture),
+            ];
+        }
+
+        // --------- Time-Span nodes ---------
+        foreach ($events as $event) {
+            if (empty($event->start_date) && empty($event->end_date) && empty($event->date_display)) {
+                continue;
+            }
+            $node = [
+                '@id'   => $ioUrl . '#crm-ts-' . ((int) ($event->id ?? 0)),
+                '@type' => 'crm:E52_Time-Span',
+            ];
+            if (! empty($event->start_date)) {
+                $node['crm:P82a_begin_of_the_begin'] = ['@value' => (string) $event->start_date, '@type' => 'xsd:date'];
+            }
+            if (! empty($event->end_date)) {
+                $node['crm:P82b_end_of_the_end'] = ['@value' => (string) $event->end_date, '@type' => 'xsd:date'];
+            }
+            if (! empty($event->date_display)) {
+                $node['rdfs:label'] = $this->jsonLangLiteral((string) $event->date_display, $culture);
+            }
+            $graph[] = $node;
+        }
+
+        return json_encode([
+            '@context' => $context,
+            '@graph'   => $graph,
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * A JSON-LD language-tagged literal {@value, @language}. Falls back
+     * to a bare {@value} when no culture is supplied.
+     */
+    protected function jsonLangLiteral(string $value, ?string $lang = null): array
+    {
+        $literal = ['@value' => $value];
+        if ($lang) {
+            $literal['@language'] = $lang;
+        }
+        return $literal;
     }
 
     // -----------------------------------------------------------------

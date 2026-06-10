@@ -76,8 +76,19 @@ final class ProvenanceRecordService
         ];
     }
 
+    /**
+     * Resolve the native c2patool binary. Prefers the configured host path
+     * (config('heratio.c2patool_bin'), default /usr/local/bin/c2patool), then
+     * a small PATH probe. Returns null when no usable binary is found.
+     */
     private function detectC2paTool(): ?string
     {
+        if (function_exists('config')) {
+            $configured = config('heratio.c2patool_bin');
+            if (is_string($configured) && $configured !== '' && is_executable($configured)) {
+                return $configured;
+            }
+        }
         foreach (['/usr/local/bin/c2patool', '/usr/bin/c2patool'] as $candidate) {
             if (is_executable($candidate)) {
                 return $candidate;
@@ -274,6 +285,27 @@ final class ProvenanceRecordService
                 $sidecarPath = $this->c2pa->sidecar($signed, $assetPath);
             } catch (Throwable $e) {
                 Log::info('c2pa: sidecar write skipped', ['err' => $e->getMessage()]);
+            }
+
+            // Best-effort native embed: when the c2patool binary is present and
+            // the master is an embeddable container format (JPEG/PNG/TIFF/MP4),
+            // also write the manifest into a JUMBF-embedded copy of the master.
+            // Degrades silently (embed() returns null) when the tool is absent
+            // or the format is sidecar-only - the signed sidecar + DB record are
+            // still the authoritative provenance.
+            if ($this->c2pa->canEmbed() && C2paService::isEmbeddableFormat($assetPath)) {
+                try {
+                    $embedded = $this->c2pa->embed($assetPath, $signed);
+                    if ($embedded !== null) {
+                        Log::info('c2pa: embedded provenance manifest into master', [
+                            'provenance_id' => $provenanceId,
+                            'src'           => $assetPath,
+                            'dest'          => $embedded,
+                        ]);
+                    }
+                } catch (Throwable $e) {
+                    Log::info('c2pa: master embed skipped', ['err' => $e->getMessage()]);
+                }
             }
         }
 

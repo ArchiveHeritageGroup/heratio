@@ -64,7 +64,18 @@
               <i class="fas fa-vr-cardboard me-1"></i>{{ __('Explore the gallery on your own') }}
             </a>
           @else
-            <a id="opJoinBtn" href="{{ route('exhibition-space.walkthrough', ['slug' => $space->slug]) }}"
+            @if(session('error'))
+              <div class="alert alert-danger py-2 text-start">{{ session('error') }}</div>
+            @endif
+            @php
+              // A confirmed ticket holder joins through the ticket-bound join action so
+              // the verified attendee is carried into the walkthrough's presence session.
+              // Without a ticket, the door still links into the open walkthrough.
+              $joinHref = $ticket
+                ? route('exhibition-space.opening-join', ['token' => $event->public_token, 't' => $ticket])
+                : route('exhibition-space.walkthrough', ['slug' => $space->slug]);
+            @endphp
+            <a id="opJoinBtn" href="{{ $joinHref }}"
                class="btn btn-lg @if($joinable) btn-success @else btn-secondary disabled @endif"
                @if(!$joinable) aria-disabled="true" tabindex="-1" @endif>
               <i class="fas fa-door-open me-1"></i>{{ __('Join the walkthrough') }}

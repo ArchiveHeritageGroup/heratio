@@ -95,9 +95,17 @@ over the last 1, 7, 30 or 90 days, with summary statistics. Use it to spot drift
 periods and rooms that need attention. This supports continuous improvement of the space.
 
 The **Visitor heatmap** there shows a top-down plan of the building with each room shaded
-by how long visitors spent in it (cool = less, hot = more), and red dots over the objects
-that drew the most attention. It is built automatically from real walkthrough usage, so you
+by how long visitors spent in it (cool = less, hot = more), and dots over the objects
+that drew attention. It is built automatically from real walkthrough usage, so you
 can see at a glance which rooms and objects engage people and which get overlooked.
+
+**Per-object attention.** Each object dot is sized and shaded by **dwell** - how long
+visitors actually lingered on that object (captured as they open it in the walkthrough),
+not just how many times it was opened. A large, solid dot draws and *holds* attention; a
+small, faint dot was seen but skipped past. The object list below the heatmap shows
+**views . dwell** side by side, so an object with many views but little dwell - one that
+catches the eye but loses interest - stands out immediately. Use it to decide what to move
+to eye level, relight, or reinterpret.
 
 ## In-twin recommendations
 

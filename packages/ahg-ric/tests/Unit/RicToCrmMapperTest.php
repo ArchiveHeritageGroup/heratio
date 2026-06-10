@@ -55,6 +55,7 @@ class RicToCrmMapperTest extends TestCase
     {
         return [
             'Record -> Information Object'         => ['rico:Record',         'crm:E73_Information_Object'],
+            'Item -> Human-Made Object'            => ['rico:Item',           'crm:E22_Human-Made_Object'],
             'RecordSet -> Curated Holding'         => ['rico:RecordSet',      'crm:E78_Curated_Holding'],
             'RecordPart -> Information Object'     => ['rico:RecordPart',     'crm:E73_Information_Object'],
             'Instantiation -> Information Carrier' => ['rico:Instantiation',  'crm:E84_Information_Carrier'],
@@ -166,10 +167,12 @@ class RicToCrmMapperTest extends TestCase
 
     public function test_mapping_count_matches_expectation(): void
     {
-        // Sanity: 16 classes + 20 properties = 36. Update this number
+        // Sanity: 17 classes + 20 properties = 37. Update this number
         // intentionally whenever a row is added/removed (and document
         // the move in docs/reference/cidoc-crm-phase-1-bridge.md).
-        $this->assertSame(36, RicToCrmMapper::mappingCount());
+        // The 17th class is rico:Item -> crm:E22_Human-Made_Object,
+        // added for the ahg-museum CIDOC-CRM export.
+        $this->assertSame(37, RicToCrmMapper::mappingCount());
     }
 
     public function test_documented_gaps_are_non_empty(): void

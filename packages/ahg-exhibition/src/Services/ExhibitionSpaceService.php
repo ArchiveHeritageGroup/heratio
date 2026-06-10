@@ -454,36 +454,52 @@ class ExhibitionSpaceService
                 'model_oversize' => $this->modelTooBig($murl),
                 'image_url' => $this->normalizeUploadPath($model->poster_image ?: $model->thumbnail) ?: $this->thumbnailUrl($informationObjectId),
                 'format' => $model->format ?: 'glb',
+                'splat_url' => null, 'splat_center' => null, 'splat_radius' => null,
             ];
         }
 
-        // 2) Inspect the primary digital object to detect 3D / PDF masters.
+        // 2) Inspect the primary digital object to detect 3D / PDF / Gaussian-splat masters.
+        $splatUrl = null;   // #1193 in-room splats: surfaced as a side-channel so the legacy
+        $splatCenter = null; $splatRadius = null; $splatViewUrl = null;   // walkthrough still shows
+                            // the flat thumbnail (kind=image) while the ESM/GaussianSplats3D
+                            // walkthrough renders object-scale splats composited in-room (sized/
+                            // centred from sidecar bounds) and links scene-scale ones to the viewer.
         $do = DB::table('digital_object')
             ->where('object_id', $informationObjectId)
             ->whereIn('usage_id', [141, 142, 140])
             ->orderByRaw('FIELD(usage_id, 141, 142, 140)')
-            ->select('path', 'name')
+            ->select('id', 'path', 'name')
             ->first();
         if ($do && ! empty($do->path)) {
             $ext = strtolower(pathinfo((string) ($do->name ?: $do->path), PATHINFO_EXTENSION));
             $url = $this->buildDoUrl($do->path, $do->name);
             $threeD = ['glb', 'gltf', 'obj', 'stl', 'usdz', 'ply'];
-            if (in_array($ext, $threeD, true)) {
-                return ['kind' => '3d', 'model_url' => $url, 'model_oversize' => $this->modelTooBig($url), 'image_url' => $this->bestImageUrl($informationObjectId), 'doc_url' => null, 'format' => $ext];
-            }
-            if ($ext === 'pdf') {
-                return ['kind' => 'pdf', 'model_url' => null, 'image_url' => $this->bestImageUrl($informationObjectId), 'doc_url' => $url, 'format' => 'pdf'];
+            if (in_array($ext, ['splat', 'ksplat'], true)) {
+                $splatUrl = $url;   // fall through to the image fallback for `kind`/thumbnail
+                $splatViewUrl = '/splat/do/'.$do->id;   // standalone full-page viewer (scene-scale splats link here)
+                // Bounds (centre + radius) so the in-room renderer can fit the splat to a real-world
+                // size instead of its native (often huge) capture scale. Sidecar-cached, so cheap.
+                try {
+                    $abs = rtrim((string) config('heratio.uploads_path'), '/').'/'.$informationObjectId.'/'.$do->name;
+                    $b = app(\AhgCore\Services\GaussianSplatService::class)->computeBounds($abs, $ext);
+                    if (is_array($b) && ! empty($b['radius'])) { $splatCenter = $b['center']; $splatRadius = (float) $b['radius']; }
+                } catch (\Throwable $e) { /* fit falls back to a small default client-side */ }
+            } elseif (in_array($ext, $threeD, true)) {
+                return ['kind' => '3d', 'model_url' => $url, 'model_oversize' => $this->modelTooBig($url), 'image_url' => $this->bestImageUrl($informationObjectId), 'doc_url' => null, 'format' => $ext, 'splat_url' => null, 'splat_center' => null, 'splat_radius' => null];
+            } elseif ($ext === 'pdf') {
+                return ['kind' => 'pdf', 'model_url' => null, 'image_url' => $this->bestImageUrl($informationObjectId), 'doc_url' => $url, 'format' => 'pdf', 'splat_url' => null, 'splat_center' => null, 'splat_radius' => null];
             }
         }
 
         // 3) Otherwise a flat image, using the best browser-renderable derivative
-        //    (e.g. a TIFF master's JPEG child).
+        //    (e.g. a TIFF master's JPEG child). Splats land here too (thumbnail in-room for
+        //    the legacy viewer) while carrying splat_url + bounds for the splat-capable walkthrough.
         $img = $this->bestImageUrl($informationObjectId);
         if ($img) {
-            return ['kind' => 'image', 'model_url' => null, 'image_url' => $img, 'doc_url' => null, 'format' => 'image'];
+            return ['kind' => 'image', 'model_url' => null, 'image_url' => $img, 'doc_url' => null, 'format' => $splatUrl ? 'splat' : 'image', 'splat_url' => $splatUrl, 'splat_center' => $splatCenter, 'splat_radius' => $splatRadius, 'splat_view_url' => $splatViewUrl];
         }
 
-        return ['kind' => 'other', 'model_url' => null, 'image_url' => null, 'doc_url' => null, 'format' => null];
+        return ['kind' => 'other', 'model_url' => null, 'image_url' => null, 'doc_url' => null, 'format' => $splatUrl ? 'splat' : null, 'splat_url' => $splatUrl, 'splat_center' => $splatCenter, 'splat_radius' => $splatRadius, 'splat_view_url' => $splatViewUrl];
     }
 
     private function normalizeUploadPath(?string $p): ?string
@@ -1087,6 +1103,10 @@ class ExhibitionSpaceService
                 'model_url' => $media['model_url'],
                 'model_oversize' => ! empty($media['model_oversize']),   // too big to load in the browser -> placeholder
                 'model_format' => $media['format'],
+                'splat_url' => $media['splat_url'] ?? null,   // #1193 Gaussian splat (in-room DropInViewer)
+                'splat_center' => $media['splat_center'] ?? null,
+                'splat_radius' => $media['splat_radius'] ?? null,
+                'splat_view_url' => $media['splat_view_url'] ?? null,
                 'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
                 'image_url' => $media['image_url'],
@@ -2671,6 +2691,90 @@ class ExhibitionSpaceService
     }
 
     /**
+     * heratio#1185 - CONVERSATIONAL room docent. A multi-turn, room-aware guide: carries the
+     * recent transcript + the visitor's current location into the same grounded prompt as
+     * aiAnswerAboutRoom, resolves "this/that/it" from context, and ends with a concrete next
+     * object to see. NOT cached - history makes every turn unique. Grounding stays strictly the
+     * placed-object catalogue (no invention). Routes through the AI gateway via LlmService.
+     *
+     * @param array<int,array{q?:string,a?:string}> $turns prior turns, oldest first
+     * @return array{answer:?string,suggest:?string}
+     */
+    public function aiConverseRoom(object $space, string $question, array $turns = [], ?int $nearObjectId = null, ?int $roomId = null): array
+    {
+        $q = mb_substr(trim($question), 0, 300);
+        if ($q === '') {
+            return ['answer' => null, 'suggest' => null];
+        }
+        $objects = $this->roomGroundingObjects($space, 60);
+        if (empty($objects)) {
+            return ['answer' => null, 'suggest' => null];
+        }
+
+        $name = trim((string) ($space->name ?? '')) ?: 'this exhibition';
+        $titles = [];   // lowercase title => canonical title, for validating the model's suggestion
+        $lines = [];
+        $loc = '';
+        foreach ($objects as $o) {
+            $titles[mb_strtolower($o['title'])] = $o['title'];
+            $line = '- '.$o['title'];
+            if ($o['room_name'] !== '' && $o['room_name'] !== $o['title']) { $line .= ' [room: '.$o['room_name'].']'; }
+            if ($o['scope'] !== '') { $line .= ' - '.$o['scope']; }
+            $lines[] = $line;
+            if ($nearObjectId && $o['io_id'] === $nearObjectId) {
+                $loc = 'The visitor is standing next to "'.$o['title'].'"'.($o['room_name'] !== '' ? ' in '.$o['room_name'] : '').'. ';
+            }
+        }
+        $catalogue = implode("\n", $lines);
+
+        $hist = '';
+        foreach (array_slice($turns, -6) as $t) {
+            $tq = trim((string) ($t['q'] ?? '')); $ta = trim((string) ($t['a'] ?? ''));
+            if ($tq !== '') { $hist .= 'Visitor: '.mb_substr($tq, 0, 240)."\n"; }
+            if ($ta !== '') { $hist .= 'Docent: '.mb_substr($ta, 0, 320)."\n"; }
+        }
+
+        $prompt = 'You are a knowledgeable, warm museum docent walking a visitor through the exhibition "'.$name.'" in an ongoing spoken conversation. '
+            .'Answer using ONLY the objects on display listed below - their titles and short descriptions are the only facts you know. '
+            .$loc
+            .'Resolve words like "this", "that one" and "it" from the conversation so far and the visitor\'s location. '
+            .'Never invent objects, dates, names, places or provenance not in the list. '
+            .'Reply in 2 to 4 sentences of plain spoken prose - no markdown, no preamble, no bullet points. '
+            ."Then, on a FINAL separate line, write exactly 'NEXT: ' followed by the exact title of one object from the list the visitor might enjoy seeing next (different from what they just asked about), or 'NEXT: NONE'.\n\n"
+            ."OBJECTS ON DISPLAY:\n".$catalogue."\n\n"
+            .($hist !== '' ? "CONVERSATION SO FAR:\n".$hist."\n" : '')
+            .'Visitor: '.$q;
+
+        try {
+            $resp = trim((string) app(\AhgAiServices\Services\LlmService::class)->complete($prompt, ['max_tokens' => 320, 'temperature' => 0.5]));
+        } catch (\Throwable $e) {
+            return ['answer' => null, 'suggest' => null];
+        }
+        if ($resp === '') {
+            return ['answer' => null, 'suggest' => null];
+        }
+
+        // Pull the trailing NEXT: suggestion off the answer and validate it against the catalogue.
+        $suggest = null;
+        if (preg_match('/\bNEXT:\s*(.+?)\s*$/is', $resp, $m)) {
+            $cand = trim($m[1]);
+            $resp = trim((string) preg_replace('/\n?\s*NEXT:\s*.+?\s*$/is', '', $resp));
+            $lc = mb_strtolower($cand);
+            if ($lc !== '' && $lc !== 'none') {
+                if (isset($titles[$lc])) {
+                    $suggest = $titles[$lc];
+                } else {
+                    foreach ($titles as $k => $v) {
+                        if ($k !== '' && (mb_strpos($k, $lc) !== false || mb_strpos($lc, $k) !== false)) { $suggest = $v; break; }
+                    }
+                }
+            }
+        }
+
+        return ['answer' => $resp !== '' ? $resp : null, 'suggest' => $suggest];
+    }
+
+    /**
      * heratio#1185 - grounding set for the room docent: each distinct placed object in the
      * building once, with its title and a trimmed scope snippet. Pure catalogue data - no AI.
      *
@@ -3435,6 +3539,10 @@ class ExhibitionSpaceService
                 'model_url' => $media['model_url'],
                 'model_oversize' => ! empty($media['model_oversize']),   // too big to load in the browser -> placeholder
                 'model_format' => $media['format'],
+                'splat_url' => $media['splat_url'] ?? null,   // #1193 Gaussian splat (in-room DropInViewer)
+                'splat_center' => $media['splat_center'] ?? null,
+                'splat_radius' => $media['splat_radius'] ?? null,
+                'splat_view_url' => $media['splat_view_url'] ?? null,
                 'tilt_x' => $r->model_tilt_x !== null ? (float) $r->model_tilt_x : null,
                 'tilt_z' => $r->model_tilt_z !== null ? (float) $r->model_tilt_z : null,
                 'wall_u' => $r->wall_u !== null ? (float) $r->wall_u : null,

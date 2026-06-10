@@ -13,6 +13,9 @@
                     <a class="dropdown-item" href="{{ route('reports.repositories') }}"><i class="fas fa-building me-2"></i>{{ __('Repositories') }}</a>
                     <a class="dropdown-item" href="{{ route('reports.accessions') }}"><i class="fas fa-inbox me-2"></i>{{ __('Accessions') }}</a>
                     <a class="dropdown-item" href="{{ route('reports.spatial') }}"><i class="fas fa-map-marker-alt me-2"></i>{{ __('Spatial Analysis') }}</a>
+                    @if(Route::has('reports.collections-health'))
+                    <a class="dropdown-item" href="{{ route('reports.collections-health') }}"><i class="fas fa-heart-pulse me-2"></i>{{ __('Collections Health') }}</a>
+                    @endif
                     <div class="dropdown-divider"></div>
                     <h6 class="dropdown-header"><i class="fas fa-clipboard-check me-2"></i>{{ __('Audit') }}</h6>
                     <a class="dropdown-item" href="{{ route('reports.audit.actor') }}"><i class="fas fa-user me-2"></i>{{ __('Audit Actors') }}</a>

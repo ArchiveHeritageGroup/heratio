@@ -239,7 +239,7 @@
                 </div>
               </div>
               <script type="importmap">
-              { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+              { "imports": { "three": "/vendor/three/0.160.0/three.module.js", "three/addons/": "/vendor/three/0.160.0/addons/" } }
               </script>
               <script type="module" nonce="{{ csp_nonce() }}">
               import * as THREE from 'three';
@@ -365,14 +365,14 @@
           </div>
         </div>
 
-        {{-- Load model-viewer from CDN and add error handling --}}
-        <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+        {{-- Load model-viewer (self-hosted under /vendor, no external CDN) + error handling --}}
+        <script type="module" src="/vendor/model-viewer/3.3.0/model-viewer.min.js"></script>
         {{-- Self-hosted Draco + KTX2/Basis decoders so Draco-compressed meshes and
              KTX2-textured glTF/GLB render without an external decoder CDN. These are
              static on ModelViewerElement, so setting them once covers every <model-viewer>
              on the page (re-imports the already-cached module). --}}
         <script type="module" nonce="{{ csp_nonce() }}">
-          import {ModelViewerElement} from 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js';
+          import {ModelViewerElement} from '/vendor/model-viewer/3.3.0/model-viewer.min.js';
           ModelViewerElement.dracoDecoderLocation   = '/vendor/three/0.137.5/draco/';
           ModelViewerElement.ktx2TranscoderLocation = '/vendor/three/0.137.5/basis/';
         </script>

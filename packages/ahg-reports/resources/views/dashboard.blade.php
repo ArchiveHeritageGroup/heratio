@@ -190,6 +190,7 @@
           @if($hasDonor)<li class="list-group-item"><a href="{{ url('/donor/browse') }}"><i class="fas fa-handshake me-2 text-muted"></i>{{ __('Donor Agreements') }}</a></li>@endif
           <li class="list-group-item"><a href="{{ route('reports.storage') }}"><i class="fas fa-boxes me-2 text-muted"></i>{{ __('Physical Storage') }}</a></li>
           <li class="list-group-item"><a href="{{ route('reports.spatial') }}"><i class="fas fa-map-marker-alt me-2 text-muted"></i>{{ __('Spatial Analysis Export') }}</a></li>
+          @if(Route::has('reports.collections-health'))<li class="list-group-item"><a href="{{ route('reports.collections-health') }}"><i class="fas fa-heart-pulse me-2 text-muted"></i>{{ __('Collections Health') }}</a></li>@endif
           @if($hasGallery || $hasLibrary || $hasDam || $hasMuseum || $has3D || $hasSpectrum)
             <li class="list-group-item border-top mt-2 pt-2"><small class="text-muted fw-bold">{{ __('Sector Reports') }}</small></li>
             @if($hasGallery)<li class="list-group-item"><a href="{{ route('gallery-reports.index') }}"><i class="fas fa-palette me-2 text-muted"></i>{{ __('Gallery Reports') }}</a></li>@endif

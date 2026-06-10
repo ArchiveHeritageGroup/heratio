@@ -36,12 +36,18 @@ use Illuminate\Support\Facades\Process;
 class ModelCompressionService
 {
     /** Formats we can turn into a Draco glb. STL/PLY are not handled yet. */
-    public const SUPPORTED = ['obj', 'glb', 'gltf'];
+    public const SUPPORTED = ['obj', 'fbx', 'glb', 'gltf'];
 
     /** Directory holding the Node tool binaries (override via heratio.model_tools_bin). */
     private function binDir(): string
     {
         return rtrim((string) config('heratio.model_tools_bin', '/opt/ahg-model-tools/node_modules/.bin'), '/');
+    }
+
+    /** FBX2glTF binary path (override via heratio.fbx2gltf_bin). Standalone tool, not a Node bin. */
+    private function fbx2gltfBin(): string
+    {
+        return (string) config('heratio.fbx2gltf_bin', '/opt/ahg-model-tools/FBX2glTF');
     }
 
     /** Are the required CLI tools installed and executable on this host? */
@@ -74,11 +80,30 @@ class ModelCompressionService
         $out = $tmp.'/out.glb';
 
         try {
-            // 1) Get a glb to compress. OBJ -> glb via obj2gltf; glb/gltf go straight in.
+            // 1) Get a glb to compress. OBJ -> glb via obj2gltf; FBX -> glb via FBX2glTF;
+            //    glb/gltf go straight in.
             if ($ext === 'obj') {
                 $r = Process::timeout(600)->run([$bin.'/obj2gltf', '-i', $srcAbs, '-o', $glb]);
                 if (! $r->successful() || ! is_file($glb)) {
                     Log::warning('ModelCompression: obj2gltf failed', ['src' => $srcAbs, 'err' => $r->errorOutput()]);
+
+                    return null;
+                }
+            } elseif ($ext === 'fbx') {
+                $fbxBin = $this->fbx2gltfBin();
+                if (! is_executable($fbxBin)) {
+                    Log::warning('ModelCompression: FBX2glTF binary not found/executable', ['bin' => $fbxBin, 'src' => $srcAbs]);
+
+                    return null;
+                }
+                // --binary emits a single .glb. -o is a base path; FBX2glTF appends the
+                // mesh name, so write to a scratch dir and pick up whatever .glb it produced.
+                $fdir = $tmp.'/fbx';
+                @mkdir($fdir, 0775, true);
+                $r = Process::timeout(600)->run([$fbxBin, '--binary', '--input', $srcAbs, '--output', $fdir.'/m']);
+                $produced = glob($fdir.'/*.glb') ?: [];
+                if (! $r->successful() || empty($produced) || ! @copy($produced[0], $glb)) {
+                    Log::warning('ModelCompression: FBX2glTF failed', ['src' => $srcAbs, 'err' => $r->errorOutput()]);
 
                     return null;
                 }

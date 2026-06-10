@@ -117,19 +117,35 @@ class RelationshipService
                 DB::raw('COALESCE(io.title, a.authorized_form_of_name, t.name) as name'))
             ->get();
 
+        // heratio#1214 - RiC-native node name resolution. The AtoM i18n joins
+        // above leave RiC-native entities (RicPlace/RicRule/RicActivity/
+        // RicInstantiation - the rico:* types added in the RiC roadmap) with a
+        // NULL name, so the graph rendered them as bare "#id". Resolve their
+        // real names from the ric_*_i18n tables, batched per type (collect the
+        // ids of each RiC class, then one query per class - no N+1).
+        $ricNames = $this->resolveRicNativeNames($res);
+
         $domains = [
             'QubitInformationObject' => 'Records & descriptions',
             'QubitActor' => 'People & organisations',
             'QubitRepository' => 'Repositories',
             'QubitTerm' => 'Subjects, places & terms',
             'QubitAccession' => 'Accessions',
+            // RiC-native domains keyed by object.class_name.
+            'RicPlace' => 'Places (RiC)',
+            'RicRule' => 'Mandates & rules (RiC)',
+            'RicActivity' => 'Activities (RiC)',
+            'RicInstantiation' => 'Instantiations (RiC)',
         ];
 
         $groups = [];
         foreach ($res as $e) {
             $domain = $domains[$e->class_name] ?? trim(preg_replace('/^Qubit/', '', (string) $e->class_name)) ?: 'Other';
             $groups[$domain] = $groups[$domain] ?? ['domain' => $domain, 'items' => []];
-            $groups[$domain]['items'][] = ['id' => (int) $e->id, 'name' => $e->name ?: ('#'.$e->id), 'slug' => $e->slug];
+            // Prefer the RiC-native resolved name when this node is a RiC entity;
+            // fall back to the AtoM COALESCE name, then to "#id" only when truly absent.
+            $name = $e->name ?: ($ricNames[(int) $e->id] ?? null) ?: ('#'.$e->id);
+            $groups[$domain]['items'][] = ['id' => (int) $e->id, 'name' => $name, 'slug' => $e->slug];
         }
 
         $out = [];
@@ -141,6 +157,80 @@ class RelationshipService
         usort($out, fn ($a, $b) => $b['count'] <=> $a['count']);
 
         return ['groups' => $out, 'total' => (int) $res->count()];
+    }
+
+    /**
+     * heratio#1214 - Batch-resolve display names for RiC-native nodes.
+     *
+     * The cross-collection neighbour query joins only the AtoM i18n tables
+     * (information_object_i18n / actor_i18n / term_i18n), so rico:* entities
+     * stored in the ric_*_i18n sidecar tables come back nameless. This walks
+     * the result set, groups the target ids by their RiC class_name, and runs
+     * ONE query per class to pull the canonical label - avoiding the per-id
+     * N+1 that RicEntityService::resolveEntityName() would incur if called in a
+     * loop. The name column differs per type:
+     *
+     *   RicPlace          -> ric_place_i18n.name
+     *   RicRule           -> ric_rule_i18n.title
+     *   RicActivity       -> ric_activity_i18n.name
+     *   RicInstantiation  -> ric_instantiation_i18n.title
+     *
+     * @param  \Illuminate\Support\Collection<int,object>  $rows  rows with ->id and ->class_name
+     * @return array<int,string>  map of entity id => resolved name (only for ids that resolved)
+     */
+    protected function resolveRicNativeNames($rows): array
+    {
+        // i18n table + name column per RiC-native class_name.
+        $map = [
+            'RicPlace'         => ['table' => 'ric_place_i18n',         'col' => 'name'],
+            'RicRule'          => ['table' => 'ric_rule_i18n',          'col' => 'title'],
+            'RicActivity'      => ['table' => 'ric_activity_i18n',      'col' => 'name'],
+            'RicInstantiation' => ['table' => 'ric_instantiation_i18n', 'col' => 'title'],
+        ];
+
+        // Collect ids per RiC class only for nodes the AtoM joins left nameless.
+        $idsByClass = [];
+        foreach ($rows as $r) {
+            $class = (string) $r->class_name;
+            if (isset($map[$class]) && empty($r->name)) {
+                $idsByClass[$class][] = (int) $r->id;
+            }
+        }
+        if (! $idsByClass) {
+            return [];
+        }
+
+        $names = [];
+        foreach ($idsByClass as $class => $ids) {
+            $table = $map[$class]['table'];
+            $col   = $map[$class]['col'];
+            if (! Schema::hasTable($table)) {
+                continue; // table not installed in this deployment - leave for #id fallback
+            }
+            // One batched query per class. Prefer the active locale, then 'en',
+            // then any culture - so a node still resolves if only a non-en row exists.
+            $i18nRows = DB::table($table)
+                ->whereIn('id', $ids)
+                ->whereNotNull($col)
+                ->where($col, '!=', '')
+                ->select('id', 'culture', DB::raw($col . ' as label'))
+                ->get();
+
+            $locale = (string) app()->getLocale();
+            // Rank a culture: active locale (2) > 'en' (1) > anything else (0).
+            $rank = fn (string $c): int => $c === $locale ? 2 : ($c === 'en' ? 1 : 0);
+            $bestRank = [];
+            foreach ($i18nRows as $ir) {
+                $id = (int) $ir->id;
+                $r  = $rank((string) $ir->culture);
+                if (! isset($names[$id]) || $r > ($bestRank[$id] ?? -1)) {
+                    $names[$id]    = $ir->label;
+                    $bestRank[$id] = $r;
+                }
+            }
+        }
+
+        return $names;
     }
 
     /**

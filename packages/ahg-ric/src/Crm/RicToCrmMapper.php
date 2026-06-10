@@ -74,6 +74,12 @@ class RicToCrmMapper
     public const CLASS_MAP = [
         // RiC class                              CRM class                        Notes
         'rico:Record'                         => 'crm:E73_Information_Object',
+        // Museum object - a physical, human-made artefact catalogued in
+        // ahg-museum. Distinct from an archival Record: a museum Item is
+        // the made thing itself, so CRM types it as E22 rather than the
+        // information-carrier E73. CrmSerializer selects this class when a
+        // caller passes the museum record-class override.
+        'rico:Item'                           => 'crm:E22_Human-Made_Object',
         'rico:RecordSet'                      => 'crm:E78_Curated_Holding',
         'rico:RecordPart'                     => 'crm:E73_Information_Object',
         'rico:Instantiation'                  => 'crm:E84_Information_Carrier',
@@ -163,7 +169,11 @@ class RicToCrmMapper
         'crm:E12_Production'                  => 'Specialised activity sub-class; RiC keeps creation under rico:Activity.',
         'crm:E83_Type_Creation'               => 'Used for museum typology events; out of scope for archival records.',
         'crm:P108_has_produced'               => 'Use rico:hasOrHadConstitutiveActivity (lossy) on import.',
-        'crm:E22_Human-Made_Object'           => 'Three-dimensional objects; Heratio museums use ahg-spectrum for these.',
+        // NB: now also reachable as a mapped class via rico:Item (see
+        // CLASS_MAP) for ahg-museum CIDOC-CRM export. The note below
+        // applies only to CRM consumers that mint E22 typology/production
+        // events RiC does not surface.
+        'crm:E22_Human-Made_Object'           => 'Three-dimensional objects; museum export maps rico:Item here, but CRM E12/E83 production events around them stay RiC-only.',
     ];
 
     /**

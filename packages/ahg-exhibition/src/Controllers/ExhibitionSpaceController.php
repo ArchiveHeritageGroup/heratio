@@ -453,6 +453,36 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => $answer !== null, 'answer' => $answer]);
     }
 
+    /**
+     * heratio#1185 - conversational room docent (multi-turn, room-aware). Carries the recent
+     * transcript + the visitor's location, returns a grounded answer plus a suggested next
+     * object to walk to. POST (history can exceed a query string). Public + read-only.
+     */
+    public function converseRoomAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+        $data = $request->validate([
+            'q' => 'required|string|max:300',
+            'history' => 'sometimes|array',
+            'history.*.q' => 'sometimes|nullable|string|max:300',
+            'history.*.a' => 'sometimes|nullable|string|max:600',
+            'near_io' => 'sometimes|nullable|integer',
+            'room_id' => 'sometimes|nullable|integer',
+        ]);
+        $res = $this->service->aiConverseRoom(
+            $space,
+            $data['q'],
+            $data['history'] ?? [],
+            $data['near_io'] ?? null,
+            $data['room_id'] ?? null
+        );
+
+        return response()->json(['ok' => $res['answer'] !== null, 'answer' => $res['answer'], 'suggest' => $res['suggest']]);
+    }
+
     /** heratio#1185 - suggested follow-up question chips for the room docent (grounded in real objects). */
     public function roomQuestionsAjax(Request $request, string $slug)
     {
@@ -1681,6 +1711,55 @@ class ExhibitionSpaceController extends Controller
         return view('ahg-exhibition::exhibition-space.walkthrough-webgpu', [
             'space' => $space,
             'building' => $this->service->getWalkthroughBuilding($space),
+        ]);
+    }
+
+    /**
+     * heratio#1153/#1193 - BETA walkthrough: identical data to walkthrough(), rendered by the
+     * ESM/three-r169 view (walkthrough-next) that keeps WebGLRenderer but adds in-room Gaussian
+     * splats via GaussianSplats3D DropInViewer. The live walkthrough() stays on r137 until this
+     * is signed off. Same payload so the A/B comparison is apples-to-apples.
+     */
+    public function walkthroughNext(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        $building = $this->service->getWalkthroughBuilding($space);
+        $hasContent = count($building['corridor'] ?? []) > 0;
+        foreach ($building['rooms'] as $r) {
+            $hasContent = $hasContent || count($r['stops'] ?? []) > 0;
+        }
+
+        // #1192 event mode: arriving via a ticketed opening (?event=<token>) surfaces the event
+        // banner and auto-identifies the verified attendee (pinned in session by the join action)
+        // in the presence beat, so co-present ticket holders see each other by name.
+        $eventCtx = null;
+        $eventToken = (string) $request->query('event', '');
+        if ($eventToken !== '') {
+            $ev = app(\AhgExhibition\Services\ExhibitionEventService::class)->getByToken($eventToken);
+            if ($ev) {
+                $att = session('exhibition_event_attendee');
+                $eventCtx = [
+                    'title' => $ev->title ?? 'Live opening',
+                    'host' => $ev->host_name ?? null,
+                    'attendee_name' => (is_array($att) && ($att['event_token'] ?? null) === $eventToken) ? ($att['name'] ?? null) : null,
+                ];
+            }
+        }
+
+        return view('ahg-exhibition::exhibition-space.walkthrough-next', [
+            'space' => $space,
+            'stops' => $this->service->getWalkthroughStops((int) $space->id),
+            'walls' => $this->service->getWalls((int) $space->id),
+            'building' => $building,
+            'hasContent' => $hasContent,
+            'canDocent' => auth()->check(),
+            'annotations' => $this->service->listAnnotations($space),
+            'guidedTour' => $this->service->getGuidedTour($space),
+            'eventCtx' => $eventCtx,
         ]);
     }
 

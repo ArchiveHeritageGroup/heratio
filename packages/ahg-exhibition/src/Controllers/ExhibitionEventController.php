@@ -168,4 +168,56 @@ class ExhibitionEventController extends Controller
             ->with('success', 'You are booked in. Your ticket code is below.')
             ->with('ticket', $rsvp->ticket_code);
     }
+
+    /**
+     * Public: bind a ticket to the live walkthrough.
+     *
+     * Resolves the event by public token, takes the ticket code from `?t=` (the
+     * public page passes the session-held ticket through) or, failing that, from
+     * the session itself. joinEvent() validates the join window + the ticket; on
+     * success we stash the verified attendee (display name + ticket + event token)
+     * in the session so the walkthrough can auto-identify them in its presence
+     * beat, then redirect into the walkthrough carrying the event token. Failure
+     * sends the visitor back to the public opening page with an error flash.
+     *
+     * No auth: attendees are unauthenticated ticket holders.
+     */
+    public function join(Request $request, string $token)
+    {
+        $event = $this->events->getByToken($token);
+        if (! $event) {
+            abort(404);
+        }
+        $space = $this->spaces->getById((int) $event->exhibition_space_id);
+        if (! $space) {
+            abort(404);
+        }
+
+        $ticketCode = trim((string) ($request->query('t') ?? session('ticket') ?? ''));
+
+        $result = $this->events->joinEvent($event, $ticketCode);
+        if (! $result['ok']) {
+            return redirect()
+                ->route('exhibition-space.opening-public', ['token' => $event->public_token])
+                ->with('error', $result['reason'] ?? 'You cannot join this opening.');
+        }
+
+        $rsvp = $result['rsvp'];
+
+        // Pin the verified attendee so the walkthrough's presence beat can auto-identify
+        // this ticket holder without re-prompting for a name.
+        $request->session()->put('exhibition_event_attendee', [
+            'event_token' => $event->public_token,
+            'ticket_code' => $rsvp->ticket_code,
+            'name' => $rsvp->name,
+        ]);
+
+        // #1153/#1193 BETA: route ticket holders into the ESM/r169 beta walkthrough so the full
+        // event flow is testable on the new base. Flip to 'exhibition-space.walkthrough' when the
+        // beta is promoted to the live route.
+        return redirect()->route('exhibition-space.walkthrough-next', [
+            'slug' => $space->slug,
+            'event' => $event->public_token,
+        ]);
+    }
 }

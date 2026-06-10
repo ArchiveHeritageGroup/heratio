@@ -39,6 +39,13 @@ return [
     // 3D model optimisation (Draco) CLI tools — obj2gltf + gltf-transform.
     // Installed per host (see docs/model-optimisation-setup.md), not in the repo.
     'model_tools_bin' => env('HERATIO_MODEL_TOOLS_BIN', '/opt/ahg-model-tools/node_modules/.bin'),
+    // FBX2glTF standalone binary (Autodesk FBX -> glTF). ModelCompressionService uses it to
+    // turn .fbx uploads into a web-ready GLB, then the same texture-cap + Draco pipeline as OBJ.
+    'fbx2gltf_bin' => env('HERATIO_FBX2GLTF_BIN', '/opt/ahg-model-tools/FBX2glTF'),
+    // C2PA native embed binary (#1201) — the c2patool Rust CLI, installed per host
+    // (see docs/c2patool-setup.md), not in the repo. When present, C2paService::embed()
+    // writes a signed JUMBF manifest into the media; absent, it degrades to a sidecar.
+    'c2patool_bin' => env('HERATIO_C2PATOOL_BIN', '/usr/local/bin/c2patool'),
 
     // Point-cloud converter (#1183) — PotreeConverter binary, installed per host
     // (built from source into /opt; see docs/pointcloud-setup.md), not in the repo.

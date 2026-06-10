@@ -225,6 +225,80 @@ class ExhibitionEventService
             ->all();
     }
 
+    /**
+     * Look up a confirmed RSVP / ticket row by its (event_id, ticket_code).
+     * Returns null when no confirmed ticket matches (unknown / cancelled code).
+     */
+    public function getRsvpByTicketCode(int $eventId, string $ticketCode): ?object
+    {
+        $ticketCode = trim($ticketCode);
+        if ($ticketCode === '') {
+            return null;
+        }
+
+        return DB::table('ahg_exhibition_event_rsvp')
+            ->where('event_id', $eventId)
+            ->where('ticket_code', $ticketCode)
+            ->where('status', 'confirmed')
+            ->first();
+    }
+
+    /**
+     * Gate a ticket holder into the live walkthrough. Validates two things:
+     *   1. the event is inside its join window (reuses isJoinable()/JOIN_WINDOW), and
+     *   2. the supplied ticket code resolves to a *confirmed* RSVP for THIS event.
+     *
+     * Every opening issues a ticket on RSVP (see rsvp()), and the public page only
+     * offers the door once a ticket is held, so we always require a valid ticket -
+     * there is no anonymous-join path. This keeps presence to verified attendees.
+     *
+     * @return array{ok: bool, reason: ?string, rsvp: ?object}
+     */
+    public function joinEvent(object $event, ?string $ticketCode): array
+    {
+        if (! $this->isJoinable($event)) {
+            $reason = (($event->status ?? '') === 'cancelled')
+                ? 'This opening has been cancelled.'
+                : 'The opening is not open to join right now.';
+
+            return ['ok' => false, 'reason' => $reason, 'rsvp' => null];
+        }
+
+        $ticketCode = trim((string) $ticketCode);
+        if ($ticketCode === '') {
+            return ['ok' => false, 'reason' => 'A valid ticket is required to join this opening.', 'rsvp' => null];
+        }
+
+        $rsvp = $this->getRsvpByTicketCode((int) $event->id, $ticketCode);
+        if (! $rsvp) {
+            return ['ok' => false, 'reason' => 'That ticket is not valid for this opening.', 'rsvp' => null];
+        }
+
+        return ['ok' => true, 'reason' => null, 'rsvp' => $rsvp];
+    }
+
+    /**
+     * The event currently "live" for a space: an explicit status='live' row, or a
+     * scheduled row inside its join window (JOIN_WINDOW before start -> end). When
+     * several qualify, the soonest-starting one wins. Returns null when none apply.
+     */
+    public function eventForSpaceNow(int $exhibitionSpaceId): ?object
+    {
+        $candidates = DB::table('ahg_exhibition_event')
+            ->where('exhibition_space_id', $exhibitionSpaceId)
+            ->whereIn('status', ['scheduled', 'live'])
+            ->orderBy('starts_at')
+            ->get();
+
+        foreach ($candidates as $event) {
+            if (($event->status ?? '') === 'live' || $this->isJoinable($event)) {
+                return $event;
+            }
+        }
+
+        return null;
+    }
+
     // -------- Helpers --------
 
     private function normaliseDateTime($value): ?string

@@ -32,13 +32,29 @@ View and interact with 3D models of objects in your collection directly in your 
 +-------------------------------------------------------------+
 |  GLB/GLTF    - Standard web 3D format (recommended)         |
 |  USDZ        - Apple AR format                              |
-|  OBJ         - Common 3D format                             |
+|  OBJ         - Common 3D format (auto-converted to glTF)    |
+|  FBX         - Autodesk format (auto-converted to glTF)     |
 |  STL         - 3D printing format                           |
 |  PLY         - Polygon file / point cloud format             |
 +-------------------------------------------------------------+
 ```
 
 All viewer libraries (model-viewer, Three.js, loaders) are served from local vendor files. No external CDN dependencies are required.
+
+### Compressed glTF (Draco / KTX2)
+
+The viewers ship with self-hosted **Draco** (geometry) and **KTX2/Basis** (texture)
+decoders, so Draco-compressed meshes and KTX2-textured glTF/GLB load without any external
+CDN. This is transparent: uncompressed models work exactly as before, and compressed ones
+(for example after the optimiser runs - see below) just work in both the record viewer and
+the exhibition walkthrough.
+
+### OBJ and FBX are converted for you
+
+OBJ and FBX uploads are kept as the preservation master and a web-ready **GLB** is generated
+from them (FBX via the FBX2glTF tool, OBJ via obj2gltf), then texture-capped and
+Draco-compressed by the model optimiser (`ahg:optimize-models`). You always view the GLB;
+the original OBJ/FBX is preserved alongside the record.
 
 ---
 

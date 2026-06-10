@@ -4,6 +4,7 @@ use AhgExhibition\Controllers\ExhibitionController;
 use AhgExhibition\Controllers\ExhibitionEventController;
 use AhgExhibition\Controllers\ExhibitionSpaceController;
 use AhgExhibition\Controllers\GenerativeController;
+use AhgExhibition\Controllers\GenerativeExhibitionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->prefix('exhibition')->group(function () {
@@ -46,6 +47,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/exhibition-space/generate', [GenerativeController::class, 'index'])->name('exhibition-space.generate');
     Route::post('/exhibition-space/generate/suggest', [GenerativeController::class, 'suggestAjax'])->name('exhibition-space.generate.suggest')->middleware('acl:create');
     Route::post('/exhibition-space/generate/build', [GenerativeController::class, 'buildAjax'])->name('exhibition-space.generate.build')->middleware('acl:create');
+    // heratio#1186 - one-shot theme curator: enter a theme -> AI picks + builds a themed space
+    Route::get('/exhibition-space/generate/theme', [GenerativeExhibitionController::class, 'create'])->name('exhibition-space.generate.theme');
+    Route::post('/exhibition-space/generate/theme', [GenerativeExhibitionController::class, 'store'])->name('exhibition-space.generate.theme.store')->middleware('acl:create');
 
     Route::get('/exhibition-space/add', [ExhibitionSpaceController::class, 'create'])->name('exhibition-space.create');
     Route::post('/exhibition-space/add', [ExhibitionSpaceController::class, 'store'])->name('exhibition-space.store')->middleware('acl:create');
@@ -133,6 +137,9 @@ Route::middleware('auth')->group(function () {
 // the walkthrough it links into is itself public). Multi-segment, so clear of the slug catch-all.
 Route::get('/exhibition-space/opening/{token}', [ExhibitionEventController::class, 'publicShow'])->name('exhibition-space.opening-public')->where('token', '[a-z0-9]+');
 Route::post('/exhibition-space/opening/{token}/rsvp', [ExhibitionEventController::class, 'rsvp'])->name('exhibition-space.opening-rsvp')->where('token', '[a-z0-9]+');
+// heratio#1192 slice 2a - ticket-gated join: validates the ticket + join window, pins the
+// attendee in session, redirects into the walkthrough as a live co-present visitor.
+Route::get('/exhibition-space/opening/{token}/join', [ExhibitionEventController::class, 'join'])->name('exhibition-space.opening-join')->where('token', '[a-z0-9]+');
 
 // heratio#1138 — digital twin: 2.5D pannable walkthrough (Phase 2, visitor-facing/public)
 Route::get('/exhibition-space/{slug}/walkthrough', [ExhibitionSpaceController::class, 'walkthrough'])->name('exhibition-space.walkthrough');
@@ -143,6 +150,8 @@ Route::get('/exhibition-space/{slug}/companion', [ExhibitionSpaceController::cla
 Route::get('/exhibition-space/{slug}/accessible-tour', [ExhibitionSpaceController::class, 'accessibleTour'])->name('exhibition-space.accessible-tour');
 // heratio#1153 — WebGPU renderer spike (proof page; live walkthrough untouched)
 Route::get('/exhibition-space/{slug}/walkthrough-webgpu', [ExhibitionSpaceController::class, 'walkthroughWebgpu'])->name('exhibition-space.walkthrough-webgpu');
+// heratio#1153/#1193 — BETA ESM/r169 walkthrough with in-room Gaussian splats (live one untouched)
+Route::get('/exhibition-space/{slug}/walkthrough-next', [ExhibitionSpaceController::class, 'walkthroughNext'])->name('exhibition-space.walkthrough-next');
 // heratio#1149 — in-twin recommendations (public, read-only) for the walkthrough
 Route::get('/exhibition-space/{slug}/recommend', [ExhibitionSpaceController::class, 'recommendAjax'])->name('exhibition-space.recommend');
 // AI-describe an object with no metadata (walkthrough T=talk docent, public)
@@ -152,6 +161,8 @@ Route::get('/exhibition-space/object/{ioId}/ask', [ExhibitionSpaceController::cl
 // heratio#1185 — AI docent: grounded Q&A about the whole ROOM / exhibition + suggested questions (public, read-only)
 Route::get('/exhibition-space/{slug}/ask-room', [ExhibitionSpaceController::class, 'askRoomAjax'])->name('exhibition-space.ask-room');
 Route::get('/exhibition-space/{slug}/room-questions', [ExhibitionSpaceController::class, 'roomQuestionsAjax'])->name('exhibition-space.room-questions');
+// heratio#1185 — conversational (multi-turn) room docent; POST so the transcript fits the body
+Route::post('/exhibition-space/{slug}/converse', [ExhibitionSpaceController::class, 'converseRoomAjax'])->name('exhibition-space.converse');
 Route::post('/exhibition-space/tts', [ExhibitionSpaceController::class, 'ttsAjax'])->name('exhibition-space.tts');   // #1168 neural TTS via the gateway (public; walkthrough narration)
 // heratio#1188 — IoT sensor/gateway ingest, authenticated by a per-space token (no session/CSRF)
 Route::post('/exhibition-space/sensor/ingest', [ExhibitionSpaceController::class, 'sensorIngestAjax'])->name('exhibition-space.sensor.ingest');

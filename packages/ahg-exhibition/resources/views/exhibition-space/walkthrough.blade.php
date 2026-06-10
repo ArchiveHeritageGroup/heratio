@@ -201,19 +201,21 @@
   {{-- three.js r137: last release with the non-module examples/js globals AND
        EXT_texture_webp support (added r131), so WebP-textured GLBs load in the
        walkthrough. Bumped from r128 for #1181. --}}
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/GLTFLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/DRACOLoader.js"></script>
+  {{-- All viewer libraries self-hosted under /vendor (no external CDN). three r137.5
+       non-module globals + the KTX2/Basis + Draco decoders + pdf.js. --}}
+  <script src="/vendor/three/0.137.5/three.min.js"></script>
+  <script src="/vendor/three/0.137.5/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="/vendor/three/0.137.5/examples/js/loaders/DRACOLoader.js"></script>
   {{-- KTX2/Basis transcoder for KTX2-textured glTF (self-hosted; see /vendor/three/0.137.5/basis). --}}
   <script src="/vendor/three/0.137.5/loaders/KTX2Loader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/OBJLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/STLLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/PLYLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/loaders/PCDLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/controls/PointerLockControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.137.5/examples/js/webxr/VRButton.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="/vendor/three/0.137.5/examples/js/loaders/OBJLoader.js"></script>
+  <script src="/vendor/three/0.137.5/examples/js/loaders/STLLoader.js"></script>
+  <script src="/vendor/three/0.137.5/examples/js/loaders/PLYLoader.js"></script>
+  <script src="/vendor/three/0.137.5/examples/js/loaders/PCDLoader.js"></script>
+  <script src="/vendor/three/0.137.5/examples/js/controls/PointerLockControls.js"></script>
+  <script src="/vendor/three/0.137.5/examples/js/controls/OrbitControls.js"></script>
+  <script src="/vendor/three/0.137.5/examples/js/webxr/VRButton.js"></script>
+  <script src="/vendor/pdfjs/3.11.174/pdf.min.js"></script>
   <script nonce="{{ $cspNonce ?? '' }}">
   (function () {
     var BUILDING = @json($building ?? null);
@@ -230,7 +232,7 @@
     }
     var PLAN_MODE = !!(BUILDING && BUILDING.plan_mode);
     if (window.pdfjsLib) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/vendor/pdfjs/3.11.174/pdf.worker.min.js';
     }
 
     // Flatten object stops (tag each with its room); compute building extents.

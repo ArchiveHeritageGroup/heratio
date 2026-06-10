@@ -31,6 +31,8 @@ use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\DigitalObjectService;
 use AhgCore\Services\SettingHelper;
 use AhgMuseum\Services\MuseumService;
+use AhgRic\Crm\CrmSerializer;
+use AhgRic\Crm\RicToCrmMapper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -580,16 +582,157 @@ class MuseumController extends Controller
         return view('ahg-museum::dashboard.missing-field', compact('fieldName', 'records'));
     }
 
+    /**
+     * Map the export-form format id to the CrmSerializer format constant
+     * plus the file extension and MIME type used on the download.
+     */
+    protected const CIDOC_FORMATS = [
+        'rdf'    => ['label' => 'RDF/XML',  'extension' => 'rdf',    'serializer' => CrmSerializer::FORMAT_RDFXML, 'mime' => 'application/rdf+xml'],
+        'turtle' => ['label' => 'Turtle',   'extension' => 'ttl',    'serializer' => CrmSerializer::FORMAT_TURTLE, 'mime' => 'text/turtle'],
+        'jsonld' => ['label' => 'JSON-LD',  'extension' => 'jsonld', 'serializer' => CrmSerializer::FORMAT_JSONLD, 'mime' => 'application/ld+json'],
+    ];
+
     public function cidocExport()
     {
-        $formats = ['rdf' => ['label' => 'RDF/XML', 'extension' => 'rdf'], 'jsonld' => ['label' => 'JSON-LD', 'extension' => 'jsonld']];
+        $formats = self::CIDOC_FORMATS;
         $includeLinkedData = false;
         return view('ahg-museum::cidoc.export', compact('formats', 'includeLinkedData'));
     }
 
+    /**
+     * Serialise museum object(s) to the requested CIDOC-CRM format and
+     * return the document as a file download. When a `slug` (or
+     * `object_id`) is supplied only that object is exported; otherwise
+     * every museum object is merged into a single CRM graph.
+     *
+     * Museum objects are physical artefacts, so the central node is
+     * typed crm:E22_Human-Made_Object (rico:Item) via the serializer's
+     * record-class override, not the archival E73 default.
+     */
     public function cidocExportDownload(Request $request)
     {
-        return redirect()->route('museum.cidoc-export')->with('success', 'Export started.');
+        $formatId = (string) $request->input('format', 'rdf');
+        if (! isset(self::CIDOC_FORMATS[$formatId])) {
+            $formatId = 'rdf';
+        }
+        $fmt = self::CIDOC_FORMATS[$formatId];
+        $culture = app()->getLocale() ?: 'en';
+        $serializerFormat = $fmt['serializer'];
+        $recordClass = RicToCrmMapper::classFor('rico:Item'); // crm:E22_Human-Made_Object
+
+        // Resolve target object id(s). A single slug/object_id exports one
+        // record; absent that, export the whole museum collection.
+        $objectIds = [];
+        $single = false;
+        $slug = trim((string) $request->input('slug', ''));
+        $objectId = (int) $request->input('object_id', 0);
+        if ($slug !== '') {
+            $id = (int) DB::table('slug')->where('slug', $slug)->value('object_id');
+            if ($id) {
+                $objectIds = [$id];
+                $single = true;
+            }
+        } elseif ($objectId > 0) {
+            $objectIds = [$objectId];
+            $single = true;
+        }
+
+        if (empty($objectIds)) {
+            $objectIds = DB::table('museum_metadata')
+                ->whereNotNull('object_id')
+                ->orderBy('object_id')
+                ->pluck('object_id')
+                ->map(fn ($v) => (int) $v)
+                ->all();
+        }
+
+        $serializer = new CrmSerializer();
+        $docs = [];
+        foreach ($objectIds as $id) {
+            $body = $serializer->serializeRecord($id, $culture, $serializerFormat, $recordClass);
+            if ($body !== '') {
+                $docs[] = $body;
+            }
+        }
+
+        if (empty($docs)) {
+            return redirect()
+                ->route('museum.cidoc-export')
+                ->with('error', 'No museum objects available to export in culture ' . $culture . '.');
+        }
+
+        $body = $this->mergeCrmDocuments($docs, $serializerFormat);
+
+        $stamp = date('Ymd-His');
+        $base = $single ? 'cidoc-crm-' . $objectIds[0] : 'cidoc-crm-museum-' . $stamp;
+        $filename = $base . '.' . $fmt['extension'];
+
+        return response($body, 200, [
+            'Content-Type'        => $fmt['mime'] . '; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'X-CRM-Version'       => '7.1.3',
+        ]);
+    }
+
+    /**
+     * Merge per-record CRM documents into one document of the same
+     * format. Each input is a complete standalone serialisation; merging
+     * concatenates the inner statements so the result is a single valid
+     * graph (one rdf:RDF root / one @graph array / one Turtle body).
+     */
+    protected function mergeCrmDocuments(array $docs, string $format): string
+    {
+        if (count($docs) === 1) {
+            return $docs[0];
+        }
+
+        if ($format === CrmSerializer::FORMAT_JSONLD) {
+            $context = null;
+            $graph = [];
+            foreach ($docs as $doc) {
+                $decoded = json_decode($doc, true);
+                if (! is_array($decoded)) {
+                    continue;
+                }
+                $context = $context ?? ($decoded['@context'] ?? null);
+                foreach ($decoded['@graph'] ?? [] as $node) {
+                    $graph[] = $node;
+                }
+            }
+            return json_encode([
+                '@context' => $context ?? new \stdClass(),
+                '@graph'   => $graph,
+            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
+
+        if ($format === CrmSerializer::FORMAT_TURTLE) {
+            // Keep the @prefix block from the first doc, then strip the
+            // prefix lines from the rest and concatenate the bodies.
+            $out = rtrim($docs[0]) . "\n\n";
+            foreach (array_slice($docs, 1) as $doc) {
+                $lines = preg_split('/\r\n|\r|\n/', $doc);
+                $stmt = array_filter($lines, fn ($l) => ! preg_match('/^\s*@prefix\b/', $l));
+                $out .= trim(implode("\n", $stmt)) . "\n\n";
+            }
+            return $out;
+        }
+
+        // RDF/XML: keep the <rdf:RDF ...> envelope from the first doc and
+        // inject every other doc's inner <rdf:Description> nodes before
+        // the closing tag.
+        $first = $docs[0];
+        $closePos = strrpos($first, '</rdf:RDF>');
+        if ($closePos === false) {
+            return implode("\n", $docs); // defensive; shouldn't happen
+        }
+        $head = substr($first, 0, $closePos);
+        $inner = '';
+        foreach (array_slice($docs, 1) as $doc) {
+            if (preg_match('#<rdf:RDF\b[^>]*>(.*)</rdf:RDF>#s', $doc, $m)) {
+                $inner .= $m[1];
+            }
+        }
+        return $head . $inner . "</rdf:RDF>\n";
     }
 
     public function authorityLink(string $slug)

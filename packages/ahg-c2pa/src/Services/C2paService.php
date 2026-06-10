@@ -29,8 +29,10 @@ use Throwable;
  *   manifestForAiSuggestion()  - assemble + return unsigned manifest dict
  *   signManifest()             - sign it
  *   sidecar()                  - write the .c2pa.json next to an artefact
- *   embedInJpeg()              - shell out to c2pa-tools to embed JUMBF;
- *                                falls back to sidecar() if CLI absent
+ *   embed()                    - shell out to the native c2patool to embed
+ *                                JUMBF into JPEG/PNG/TIFF/MP4; returns null
+ *                                (degrades) when the binary is absent
+ *   embedInJpeg()              - legacy wrapper: embed() then sidecar fallback
  *
  * Every emitted manifest is persisted to ahg_c2pa_manifest for audit + reissue.
  */
@@ -48,8 +50,23 @@ final class C2paService
         }
     }
 
+    /**
+     * Resolve the native c2patool binary. Prefers the configured path
+     * (config('heratio.c2patool_bin'), default /usr/local/bin/c2patool) and
+     * falls back to a small PATH probe so the package keeps working on hosts
+     * that installed the tool somewhere else. Returns null when no usable
+     * binary is found - the embed paths degrade to sidecars rather than fail.
+     */
     private static function autodetectBinary(): ?string
     {
+        // Config-first: an explicit, env-overridable host path.
+        if (function_exists('config')) {
+            $configured = config('heratio.c2patool_bin');
+            if (is_string($configured) && $configured !== '' && is_executable($configured)) {
+                return $configured;
+            }
+        }
+
         foreach (['/usr/local/bin/c2patool', '/usr/bin/c2patool'] as $candidate) {
             if (is_executable($candidate)) {
                 return $candidate;
@@ -60,6 +77,23 @@ final class C2paService
             return trim($which);
         }
         return null;
+    }
+
+    /**
+     * Public read-only accessor for the resolved c2patool path (or null when
+     * the binary is absent). Used by the embed command and capability reports.
+     */
+    public function toolBinary(): ?string
+    {
+        return $this->c2paToolBinary;
+    }
+
+    /**
+     * Whether native media embedding is available on this host.
+     */
+    public function canEmbed(): bool
+    {
+        return $this->c2paToolBinary !== null;
     }
 
     /**
@@ -284,38 +318,83 @@ final class C2paService
     }
 
     /**
-     * Embed a manifest in a JPEG via the c2pa-tools CLI. If the CLI is not
-     * installed, falls back to writing a sidecar (and returns the sidecar
-     * path; the caller can detect this by extension).
-     *
-     * @param array<string,mixed> $signedManifest
-     * @return string absolute path of the produced artefact (new .jpg or sidecar .c2pa.json)
+     * c2patool can write a C2PA manifest into these container formats. Other
+     * extensions (PDF, raw text, glTF, ...) are sidecar-only.
      */
-    public function embedInJpeg(string $imagePath, array $signedManifest): string
+    private const EMBEDDABLE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'tif', 'tiff', 'mp4'];
+
+    /**
+     * Whether the native c2patool can embed a manifest into this file's
+     * container format (by extension). JPEG/PNG/TIFF/MP4 are supported.
+     */
+    public static function isEmbeddableFormat(string $path): bool
     {
-        if (!is_readable($imagePath)) {
-            throw new RuntimeException("C2paService: input image not readable: {$imagePath}");
-        }
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        return in_array($ext, self::EMBEDDABLE_EXTENSIONS, true);
+    }
 
+    /**
+     * Embed a signed manifest into a media file via the native c2patool CLI.
+     * Works for JPEG/PNG/TIFF/MP4 (the formats c2patool can write JUMBF into).
+     *
+     * Degrades gracefully - returns null (and logs) rather than throwing when:
+     *   - the c2patool binary is not installed,
+     *   - the source file is unreadable,
+     *   - the source is not an embeddable container format, or
+     *   - the c2patool invocation fails.
+     *
+     * The caller decides whether to fall back to sidecar() (see embedInJpeg()
+     * for the legacy contract that always returns a path).
+     *
+     * @param string              $srcPath  absolute path to the media file to sign
+     * @param array<string,mixed> $manifest a signed manifest (signManifest() output)
+     * @param string|null         $destPath where to write the embedded copy; defaults
+     *                                       to <src>.c2pa.<ext> next to the source
+     * @return string|null absolute path of the embedded artefact, or null on degrade
+     */
+    public function embed(string $srcPath, array $manifest, ?string $destPath = null): ?string
+    {
         if ($this->c2paToolBinary === null) {
-            Log::info('c2pa: c2patool not installed, falling back to sidecar', ['image' => $imagePath]);
-            return $this->sidecar($signedManifest, $imagePath);
+            Log::info('c2pa: c2patool not installed; embed skipped', ['src' => $srcPath]);
+            return null;
+        }
+        if (!is_readable($srcPath)) {
+            Log::warning('c2pa: embed source not readable; skipped', ['src' => $srcPath]);
+            return null;
+        }
+        if (!self::isEmbeddableFormat($srcPath)) {
+            Log::info('c2pa: format not embeddable by c2patool; sidecar-only', [
+                'src' => $srcPath,
+                'ext' => strtolower(pathinfo($srcPath, PATHINFO_EXTENSION)),
+            ]);
+            return null;
         }
 
-        $outputPath = preg_replace('/\.jpe?g$/i', '.c2pa.jpg', $imagePath) ?: ($imagePath . '.c2pa.jpg');
-        if ($outputPath === $imagePath) {
-            $outputPath = $imagePath . '.c2pa.jpg';
+        if ($destPath === null) {
+            $ext = strtolower(pathinfo($srcPath, PATHINFO_EXTENSION));
+            $destPath = preg_replace('/\.[^.]+$/', '.c2pa.' . $ext, $srcPath) ?: ($srcPath . '.c2pa.' . $ext);
+            if ($destPath === $srcPath) {
+                $destPath = $srcPath . '.c2pa.' . $ext;
+            }
         }
 
         $manifestPath = tempnam(sys_get_temp_dir(), 'c2pa-manifest-') ?: '/tmp/c2pa-manifest-' . bin2hex(random_bytes(4));
-        file_put_contents($manifestPath, ManifestBuilder::toCanonicalJson($signedManifest));
+        if (@file_put_contents($manifestPath, ManifestBuilder::toCanonicalJson($manifest)) === false) {
+            Log::warning('c2pa: could not stage manifest for embed', ['src' => $srcPath]);
+            return null;
+        }
+
+        // c2patool overwrites $destPath only with --force; remove a stale one first.
+        if (is_file($destPath)) {
+            @unlink($destPath);
+        }
 
         $cmd = sprintf(
-            '%s %s --manifest %s --output %s 2>&1',
+            '%s %s --manifest %s --output %s --force 2>&1',
             escapeshellcmd($this->c2paToolBinary),
-            escapeshellarg($imagePath),
+            escapeshellarg($srcPath),
             escapeshellarg($manifestPath),
-            escapeshellarg($outputPath),
+            escapeshellarg($destPath),
         );
 
         $exit = 0;
@@ -323,16 +402,39 @@ final class C2paService
         exec($cmd, $output, $exit);
         @unlink($manifestPath);
 
-        if ($exit !== 0 || !is_readable($outputPath)) {
-            Log::warning('c2pa: c2patool embed failed; falling back to sidecar', [
-                'image' => $imagePath,
-                'exit'  => $exit,
-                'out'   => implode("\n", $output),
+        if ($exit !== 0 || !is_readable($destPath)) {
+            Log::warning('c2pa: c2patool embed failed', [
+                'src'  => $srcPath,
+                'exit' => $exit,
+                'out'  => implode("\n", $output),
             ]);
-            return $this->sidecar($signedManifest, $imagePath);
+            return null;
         }
 
-        return $outputPath;
+        return $destPath;
+    }
+
+    /**
+     * Embed a manifest in a JPEG via c2patool. Legacy convenience wrapper kept
+     * for callers that always want a path back: on any degrade (binary absent,
+     * non-JPEG, embed failure) it falls back to writing a sidecar and returns
+     * the sidecar path (caller can detect this by the .c2pa.json extension).
+     *
+     * @param array<string,mixed> $signedManifest
+     * @return string absolute path of the produced artefact (embedded .jpg or sidecar .c2pa.json)
+     */
+    public function embedInJpeg(string $imagePath, array $signedManifest): string
+    {
+        if (!is_readable($imagePath)) {
+            throw new RuntimeException("C2paService: input image not readable: {$imagePath}");
+        }
+
+        $embedded = $this->embed($imagePath, $signedManifest);
+        if ($embedded !== null) {
+            return $embedded;
+        }
+
+        return $this->sidecar($signedManifest, $imagePath);
     }
 
     /**

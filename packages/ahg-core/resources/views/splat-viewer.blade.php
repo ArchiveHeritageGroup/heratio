@@ -25,6 +25,20 @@
     @endif
     #pc_err { position:absolute; top:48px; left:0; right:0; z-index:1001; margin:1rem; padding:.75rem 1rem;
       background:#5c1620; color:#fff; font:14px/1.4 system-ui,sans-serif; border-radius:6px; display:none; }
+    {{-- #1193 control bar: live TRELLIS-appropriate controls along the bottom. --}}
+    #pc_ctrl { position:absolute; bottom:0; left:0; right:0; z-index:1000; padding:.5rem .6rem;
+      background:rgba(20,20,20,.72); color:#fff; font:13px/1.3 system-ui,sans-serif;
+      display:flex; flex-wrap:wrap; gap:.5rem .8rem; align-items:center; justify-content:center; }
+    #pc_ctrl button, #pc_ctrl label { background:transparent; border:1px solid #9ec5ff; color:#9ec5ff;
+      border-radius:4px; padding:3px 10px; cursor:pointer; font:inherit; line-height:1.4; display:inline-flex;
+      align-items:center; gap:.35rem; }
+    #pc_ctrl button.active { background:#9ec5ff; color:#16213e; }
+    #pc_ctrl .grp { display:inline-flex; align-items:center; gap:.4rem; border:1px solid #9ec5ff33;
+      border-radius:4px; padding:2px 8px; }
+    #pc_ctrl .grp span { color:#9ec5ff; }
+    #pc_ctrl input[type=range] { width:96px; accent-color:#9ec5ff; cursor:pointer; }
+    #pc_ctrl input[type=color] { width:28px; height:22px; border:none; background:none; padding:0; cursor:pointer; }
+    #pc_ctrl .val { min-width:2.2em; text-align:right; font-variant-numeric:tabular-nums; color:#cfe3ff; }
   </style>
 </head>
 <body>
@@ -44,11 +58,27 @@
   <div id="pc_err">{{ __('This scene could not be loaded. Your browser may not support WebGL2, or the file may be incomplete.') }}</div>
   <div id="splat-root"></div>
 
+  {{-- #1193 control bar (live): auto-rotate / reset-fit / point-cloud / splat-scale /
+       alpha-cull / background / trackball / fullscreen / screenshot.
+       SH-degree omitted on purpose - TRELLIS scenes are spherical-harmonics degree 0. --}}
+  <div id="pc_ctrl">
+    <button type="button" id="pc_auto"  title="{{ __('Auto-rotate the scene') }}">&#x21BB; {{ __('Auto-rotate') }}</button>
+    <button type="button" id="pc_reset" title="{{ __('Reset the camera to the framed view') }}">&#x2316; {{ __('Reset / fit') }}</button>
+    <button type="button" id="pc_pc"    title="{{ __('Toggle point-cloud rendering') }}">&#x22EF; {{ __('Point cloud') }}</button>
+    <span class="grp"><span>{{ __('Splat scale') }}</span><input type="range" id="pc_scale" min="0.1" max="2" step="0.05" value="1"><span class="val" id="pc_scale_v">1.00</span></span>
+    <span class="grp"><span>{{ __('Alpha cull') }}</span><input type="range" id="pc_alpha" min="1" max="60" step="1"><span class="val" id="pc_alpha_v"></span></span>
+    <label title="{{ __('Background colour') }}">{{ __('Background') }} <input type="color" id="pc_bg"></label>
+    <button type="button" id="pc_track" title="{{ __('Trackball: free-tumble rotation (no fixed up-axis)') }}">&#x1F500; {{ __('Trackball') }}</button>
+    <button type="button" id="pc_full"  title="{{ __('Fullscreen') }}">&#x26F6; {{ __('Fullscreen') }}</button>
+    <button type="button" id="pc_shot"  title="{{ __('Save a PNG screenshot') }}">&#x1F4F7; {{ __('Screenshot') }}</button>
+  </div>
+
   <script type="importmap" nonce="{{ $cspNonce ?? '' }}">
   {
     "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js",
-      "@mkkellogg/gaussian-splats-3d": "https://cdn.jsdelivr.net/npm/@mkkellogg/gaussian-splats-3d@0.4.7/build/gaussian-splats-3d.module.js"
+      "three": "/vendor/three/0.169.0/three.module.min.js",
+      "three/addons/": "/vendor/three/0.169.0/addons/",
+      "@mkkellogg/gaussian-splats-3d": "/vendor/gaussian-splats-3d/0.4.7/gaussian-splats-3d.module.js"
     }
   }
   </script>
@@ -110,19 +140,133 @@
                       : fmt === 'ksplat' ? GaussianSplats3D.SceneFormat.KSplat
                       :                    GaussianSplats3D.SceneFormat.Splat;
 
+    const ac = Math.max(0, parseInt(params.get('ac') || '5', 10));   // alpha-cull threshold (load-time)
+    let bg = params.get('bg'); if (!bg || !/^#[0-9a-fA-F]{6}$/.test(bg)) bg = '#0b0b0b';
+
     try {
+      const root = document.getElementById('splat-root');
+      // External renderer so we can (a) save PNG screenshots (preserveDrawingBuffer) and
+      // (b) recolour the background live. With an external renderer the Viewer skips its own
+      // sizing/append/resize, so we do those here.
+      const renderer = new THREE.WebGLRenderer({ antialias: true, precision: 'highp', preserveDrawingBuffer: true });
+      renderer.setPixelRatio(window.devicePixelRatio || 1);
+      renderer.setSize(root.offsetWidth, root.offsetHeight);
+      renderer.setClearColor(new THREE.Color(bg), 1);
+      root.appendChild(renderer.domElement);
+      document.body.style.background = bg;
+
       const viewer = new GaussianSplats3D.Viewer({
-        rootElement: document.getElementById('splat-root'),
+        rootElement: root,
+        renderer: renderer,
         sharedMemoryForWorkers: false,   // no COOP/COEP isolation on the host
         dynamicScene: false,
         cameraUp: [0, -1, 0],            // proven ai-demo / TRELLIS default
         initialCameraPosition: camPos,
         initialCameraLookAt: camLook,
       });
-      viewer.addSplatScene(url, { format: sceneFormat, rotation: rotation, position: position, progressiveLoad: false, showLoadingUI: true, splatAlphaRemovalThreshold: 5 })
-        .then(() => { viewer.start(); })
+
+      window.addEventListener('resize', () => {
+        const w = root.offsetWidth, h = root.offsetHeight;
+        renderer.setSize(w, h);
+        const cam = viewer.camera;
+        if (cam && cam.isPerspectiveCamera) { cam.aspect = w / h; cam.updateProjectionMatrix(); }
+      });
+
+      viewer.addSplatScene(url, { format: sceneFormat, rotation: rotation, position: position, progressiveLoad: false, showLoadingUI: true, splatAlphaRemovalThreshold: ac })
+        .then(() => { viewer.start(); wireControls(viewer, renderer, bg, ac); })
         .catch(fail);
     } catch (e) { fail(); }
+
+    // ---- #1193 control-bar wiring (runs once the scene + splatMesh exist) ----
+    function wireControls(viewer, renderer, bg, ac) {
+      const $ = (id) => document.getElementById(id);
+      const mesh = viewer.splatMesh;
+      const orbit = viewer.controls;                 // active OrbitControls
+      const fitPos = viewer.camera.position.clone();
+      const fitTarget = (orbit && orbit.target) ? orbit.target.clone() : new THREE.Vector3(camLook[0], camLook[1], camLook[2]);
+
+      // Auto-rotate (OrbitControls.autoRotate; the viewer calls controls.update() each frame).
+      let autoOn = false;
+      $('pc_auto').addEventListener('click', () => {
+        autoOn = !autoOn;
+        if (orbit) { orbit.autoRotate = autoOn; orbit.autoRotateSpeed = 2.0; }
+        $('pc_auto').classList.toggle('active', autoOn);
+      });
+
+      // Reset / fit: restore the framed camera (works for whichever controls is active).
+      $('pc_reset').addEventListener('click', () => {
+        viewer.camera.position.copy(fitPos);
+        const c = viewer.controls;
+        if (c && c.target) { c.target.copy(fitTarget); if (c.update) c.update(); }
+      });
+
+      // Point-cloud toggle.
+      let pcOn = false;
+      $('pc_pc').addEventListener('click', () => {
+        pcOn = !pcOn;
+        if (mesh && mesh.setPointCloudModeEnabled) mesh.setPointCloudModeEnabled(pcOn);
+        $('pc_pc').classList.toggle('active', pcOn);
+      });
+
+      // Splat scale (live).
+      const sc = $('pc_scale'), scv = $('pc_scale_v');
+      sc.addEventListener('input', () => {
+        const v = parseFloat(sc.value);
+        if (mesh && mesh.setSplatScale) mesh.setSplatScale(v);
+        scv.textContent = v.toFixed(2);
+      });
+
+      // Alpha cull (load-time): reload with the new threshold on release.
+      const al = $('pc_alpha'), alv = $('pc_alpha_v');
+      al.value = ac; alv.textContent = ac;
+      al.addEventListener('input', () => { alv.textContent = al.value; });
+      al.addEventListener('change', () => go('ac', Math.round(parseFloat(al.value))));
+
+      // Background colour (live).
+      const bgi = $('pc_bg');
+      bgi.value = bg;
+      bgi.addEventListener('input', () => {
+        renderer.setClearColor(new THREE.Color(bgi.value), 1);
+        document.body.style.background = bgi.value;
+      });
+
+      // Trackball: free-tumble rotation. Hand the viewer's render loop to a TrackballControls
+      // instance (and silence OrbitControls' input) while active; restore orbit on toggle-off.
+      let trackball = null;
+      $('pc_track').addEventListener('click', async () => {
+        if (!trackball) {
+          const { TrackballControls } = await import('three/addons/controls/TrackballControls.js');
+          trackball = new TrackballControls(viewer.camera, renderer.domElement);
+          trackball.rotateSpeed = 3.0; trackball.panSpeed = 0.8; trackball.zoomSpeed = 1.2;
+          trackball.target.copy((orbit && orbit.target) ? orbit.target : fitTarget);
+          if (orbit) orbit.enabled = false;
+          viewer.controls = trackball;       // viewer loop now calls trackball.update()
+          $('pc_track').classList.add('active');
+        } else {
+          viewer.controls = orbit;
+          if (orbit) orbit.enabled = true;
+          trackball.dispose(); trackball = null;
+          $('pc_track').classList.remove('active');
+        }
+      });
+
+      // Fullscreen.
+      $('pc_full').addEventListener('click', () => {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen().catch(() => {});
+      });
+
+      // Screenshot (PNG). preserveDrawingBuffer keeps toDataURL from coming back blank.
+      $('pc_shot').addEventListener('click', () => {
+        try {
+          const a = document.createElement('a');
+          const base = (@json($splat->slug ?? $splat->title ?? 'splat') + '').replace(/[^a-z0-9._-]+/gi, '-').slice(0, 60) || 'splat';
+          a.download = base + '.png';
+          a.href = renderer.domElement.toDataURL('image/png');
+          a.click();
+        } catch (e) {}
+      });
+    }
   </script>
 </body>
 </html>
