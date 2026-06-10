@@ -8,6 +8,7 @@
   <style nonce="{{ $cspNonce ?? '' }}">
     html, body { margin:0; height:100%; width:100%; overflow:hidden; background:#0b0b0b; }
     #splat-root { position:absolute; inset:0; }
+    @if(request()->boolean('embed')) #pc_bar { display:none; } #splat-root { inset:0; } @endif
     #pc_bar { position:absolute; top:0; left:0; right:0; z-index:1000; padding:.5rem .75rem;
       background:rgba(20,20,20,.72); color:#fff; font:14px/1.3 system-ui,sans-serif; display:flex; gap:.75rem; align-items:center; }
     #pc_bar a { color:#9ec5ff; text-decoration:none; }

@@ -94,6 +94,15 @@ class AhgCoreServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__.'/../../routes/web.php');
 
+        // #1193 - render a record's Gaussian-splat capture inline on its description page,
+        // uniformly across every GLAM sector (museum/gallery/library/DAM/archival), without
+        // editing each sector's locked show view. Registered in booted() so it runs AFTER the
+        // HTTP kernel syncs its middleware groups (ahg-core boots early; a direct push here
+        // would be overwritten by the kernel's web-group definition).
+        $this->app->booted(function () {
+            $this->app['router']->pushMiddlewareToGroup('web', \AhgCore\Middleware\InjectSplatViewer::class);
+        });
+
         // Load views
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-core');
 

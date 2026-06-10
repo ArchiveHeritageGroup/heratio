@@ -52,3 +52,23 @@ the CDN (same as the walkthrough) - vendor them if a fully offline deployment is
 
 Embed splat shells in the walkthrough once it migrates to modern three.js (#1153) - then a room
 can be *backed* by a splat capture (the issue's full acceptance).
+
+## Inline render on the record page - standard across GLAM (#1193)
+
+The splat renders **on the archival description / record page itself**, uniformly across every
+GLAM sector, via a response-injection middleware - so no per-sector (locked) show view is edited.
+
+- `AhgCore\Middleware\InjectSplatViewer` (pushed to the `web` group) runs on the record show
+  routes `museum.show`, `gallery.show`, `library.show`, `dam.show`, `informationobject.show`.
+  When the page's object (resolved from the `{slug}` route param via the `slug` table) has a
+  linked, ready `ahg_gaussian_splat`, it injects a standard "Photoreal 3D capture" panel before
+  `</body>` - a card embedding `/splat/{slug}?embed=1` in an iframe (+ an "Open full screen"
+  link). Best-effort, single-injection, HTML-200-GET only; records without a splat are untouched.
+- `?embed=1` on the splat viewer hides its top bar for clean in-page embedding.
+- Same-origin iframe is allowed by the site CSP (no `frame-src` directive -> falls back to
+  `default-src 'self'`).
+
+**Registration gotcha:** ahg-core boots *early*, before the HTTP kernel syncs its middleware
+groups - a direct `pushMiddlewareToGroup('web', ...)` in `boot()` gets overwritten. Register it
+inside `$this->app->booted(fn () => ...)` so it runs after the kernel sync (privacy's panel
+works without this only because that package boots later). Deploys need a `php-fpm` reload.
