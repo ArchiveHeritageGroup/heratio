@@ -1323,8 +1323,10 @@ class ExhibitionSpaceService
             $series = [];
             $ms = $byRoom[$rm['id']] ?? [];
             foreach ($buckets as $b) {
-                $cut = $b['future'] ? $nowTs : $b['ts'];   // future buckets carry the latest-known status forward
-                $readings = $this->readingsAsOf($ms, $cut);
+                // Past/now: actual readings as of the bucket. Future: project the recent trend
+                // forward (#1189 forecast overlay) so the scrubber shows degradation/recovery,
+                // not a flat carry of the current status.
+                $readings = $b['future'] ? $this->projectReadings($ms, $b['ts']) : $this->readingsAsOf($ms, $b['ts']);
                 $series[] = $readings ? $this->statusFromReadings($readings) : 'none';
             }
             $status[$rm['id']] = $series;
@@ -1339,6 +1341,56 @@ class ExhibitionSpaceService
     }
 
     /** Latest value per metric at or before $ts, from ascending [ts,value] series. */
+    /**
+     * heratio#1189 - forecast overlay: project each metric's recent trend to a future timestamp
+     * (least-squares slope over the window), so the time-scrubber's future buckets show where
+     * conditions are heading. Falls back to the last value with <2 points; clamps to plausible
+     * physical bounds so a steep short-term slope can't extrapolate to absurd values.
+     *
+     * @param  array<string,array<int,array{0:int,1:float}>>  $metricSeries  metric => [[ts,value],...]
+     * @return array<string,float>  metric => projected value
+     */
+    private function projectReadings(array $metricSeries, int $futureTs): array
+    {
+        $bounds = ['lux' => [0, 100000], 'temp_c' => [-20, 60], 'humidity' => [0, 100], 'visitors' => [0, 100000]];
+        $out = [];
+        foreach ($metricSeries as $metric => $pairs) {
+            $n = count($pairs);
+            if ($n === 0) {
+                continue;
+            }
+            if ($n < 2) {
+                $out[$metric] = (float) $pairs[0][1];
+
+                continue;
+            }
+            // Least-squares value ~ a + b*x, x in days from the first point (keeps magnitudes sane).
+            $t0 = $pairs[0][0];
+            $sx = $sy = $sxx = $sxy = 0.0;
+            foreach ($pairs as $p) {
+                $x = ($p[0] - $t0) / 86400;
+                $y = (float) $p[1];
+                $sx += $x; $sy += $y; $sxx += $x * $x; $sxy += $x * $y;
+            }
+            $den = $n * $sxx - $sx * $sx;
+            $last = (float) end($pairs)[1];
+            if (abs($den) < 1e-9) {
+                $out[$metric] = $last;
+
+                continue;
+            }
+            $b = ($n * $sxy - $sx * $sy) / $den;
+            $a = ($sy - $b * $sx) / $n;
+            $val = $a + $b * (($futureTs - $t0) / 86400);
+            if (isset($bounds[$metric])) {
+                $val = max($bounds[$metric][0], min($bounds[$metric][1], $val));
+            }
+            $out[$metric] = $val;
+        }
+
+        return $out;
+    }
+
     private function readingsAsOf(array $metricSeries, int $ts): array
     {
         $out = [];
