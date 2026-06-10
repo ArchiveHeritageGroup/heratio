@@ -66,6 +66,21 @@ class AhgResearchServiceProvider extends ServiceProvider
             });
         }
 
+        // #1198 Research Copilot: ensure the saved-answer table exists (idempotent; one outer
+        // try around hasTable + unprepared per reference_ci_schema_hastable).
+        $this->app->booted(function () {
+            try {
+                if (! \Illuminate\Support\Facades\Schema::hasTable('research_copilot_answer')) {
+                    $sql = file_get_contents(__DIR__.'/../../database/install_copilot_answer.sql');
+                    if (is_string($sql) && trim($sql) !== '') {
+                        \Illuminate\Support\Facades\DB::unprepared($sql);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // DB not ready / install hiccup - retries next boot.
+            }
+        });
+
         // Auto-seed research dropdowns on first boot if missing
         $this->app->booted(function () {
             try {

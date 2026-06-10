@@ -33,9 +33,12 @@ Route::prefix('research')->name('research.')->group(function () {
 
 Route::prefix('research')->name('research.')->middleware('auth')->group(function () {
 
-    // heratio#1198 - researcher copilot: question -> cited synthesis from the catalogue
+    // heratio#1198 - researcher copilot: question -> cited synthesis from the catalogue,
+    // savable (with citations) into a research workspace
     Route::get('/copilot', [ResearchCopilotController::class, 'index'])->name('copilot');
     Route::post('/copilot/ask', [ResearchCopilotController::class, 'askAjax'])->name('copilot.ask');
+    Route::post('/copilot/save', [ResearchCopilotController::class, 'saveAjax'])->name('copilot.save');
+    Route::get('/copilot/answers', [ResearchCopilotController::class, 'answersAjax'])->name('copilot.answers');
 
     // AJAX autocomplete endpoints (JSON)
     Route::get('/researcher-autocomplete', [ResearchController::class, 'researcherAutocomplete'])->name('researcherAutocomplete');

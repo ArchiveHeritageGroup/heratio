@@ -61,6 +61,57 @@ class ResearchCopilotService
         return $out;
     }
 
+    /**
+     * heratio#1198 - save a cited answer into a research workspace. Sources are stored as
+     * [{id,title,slug}] so the saved answer keeps its citations even if the live catalogue
+     * changes. Returns the new row id.
+     *
+     * @return array{ok:bool, id:int, error?:string}
+     */
+    public function saveAnswer(int $workspaceId, ?int $researcherId, string $question, string $answer, array $sources): array
+    {
+        $question = trim($question);
+        $answer = trim($answer);
+        if ($workspaceId <= 0 || $question === '' || $answer === '') {
+            return ['ok' => false, 'id' => 0, 'error' => 'workspace, question and answer are required'];
+        }
+
+        $clean = [];
+        foreach ($sources as $s) {
+            $id = (int) (is_array($s) ? ($s['id'] ?? 0) : 0);
+            $title = trim((string) (is_array($s) ? ($s['title'] ?? '') : ''));
+            if ($title === '') {
+                continue;
+            }
+            $clean[] = ['id' => $id, 'title' => mb_substr($title, 0, 300), 'slug' => is_array($s) ? ($s['slug'] ?? null) : null];
+        }
+
+        $id = (int) DB::table('research_copilot_answer')->insertGetId([
+            'workspace_id' => $workspaceId,
+            'researcher_id' => $researcherId,
+            'question' => mb_substr($question, 0, 500),
+            'answer' => $answer,
+            'sources_json' => json_encode($clean),
+            'created_at' => now(),
+        ]);
+
+        return ['ok' => true, 'id' => $id];
+    }
+
+    /** Saved copilot answers for a workspace (newest first), with decoded sources. */
+    public function listAnswers(int $workspaceId, int $limit = 50): array
+    {
+        return DB::table('research_copilot_answer')
+            ->where('workspace_id', $workspaceId)
+            ->orderByDesc('id')->limit($limit)->get()
+            ->map(function ($r) {
+                $src = json_decode((string) ($r->sources_json ?? '[]'), true);
+                $r->sources = is_array($src) ? $src : [];
+
+                return $r;
+            })->all();
+    }
+
     /** Relevant catalogue records for a question (keyword-scored over title + scope). */
     private function findSources(string $question, int $limit): array
     {
