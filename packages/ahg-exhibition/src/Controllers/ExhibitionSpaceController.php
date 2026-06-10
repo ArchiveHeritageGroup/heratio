@@ -411,6 +411,15 @@ class ExhibitionSpaceController extends Controller
         return response()->json(['ok' => $desc !== null, 'description' => $desc]);
     }
 
+    /** heratio#1185 - AI docent: answer a visitor's question about an object, grounded in its catalogue record. */
+    public function askObjectAjax(Request $request, int $ioId)
+    {
+        $data = $request->validate(['q' => 'required|string|max:300']);
+        $answer = $this->service->aiAnswerAboutObject($ioId, $data['q']);
+
+        return response()->json(['ok' => $answer !== null, 'answer' => $answer]);
+    }
+
     /**
      * #1168 - neural TTS for the walkthrough narration. Synthesises $text via the
      * AI gateway (Piper) and returns WAV; 502 if unavailable so the client falls

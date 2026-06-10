@@ -2233,6 +2233,55 @@ class ExhibitionSpaceService
     }
 
     /**
+     * heratio#1185 - AI docent Q&A. Answer a visitor's question about an object, grounded
+     * ONLY in that object's catalogue record (title / reference / collection / scope), via
+     * the AI gateway. Refuses to invent dates/names/provenance. Cached per (object, question).
+     */
+    public function aiAnswerAboutObject(int $ioId, string $question): ?string
+    {
+        $q = trim($question);
+        if ($q === '') {
+            return null;
+        }
+        $q = mb_substr($q, 0, 300);
+
+        return \Illuminate\Support\Facades\Cache::remember('exh_ai_ask_'.$ioId.'_'.md5(mb_strtolower($q)), now()->addDays(7), function () use ($ioId, $q) {
+            $io = DB::table('information_object as io')
+                ->leftJoin('information_object_i18n as i', function ($j) { $j->on('i.id', '=', 'io.id')->where('i.culture', '=', 'en'); })
+                ->where('io.id', $ioId)
+                ->select('io.identifier', 'i.title', 'i.scope_and_content')->first();
+            if (! $io) {
+                return null;
+            }
+            $parent = DB::table('information_object as io')
+                ->leftJoin('information_object_i18n as i', function ($j) { $j->on('i.id', '=', 'io.parent_id')->where('i.culture', '=', 'en'); })
+                ->where('io.id', $ioId)->value('i.title');
+
+            $rec = [];
+            if (! empty($io->title)) { $rec[] = 'Title: '.$io->title; }
+            if (! empty($io->identifier)) { $rec[] = 'Reference code: '.$io->identifier; }
+            if (! empty($parent)) { $rec[] = 'Part of the collection: '.$parent; }
+            if (! empty($io->scope_and_content)) { $rec[] = 'Description: '.trim(strip_tags((string) $io->scope_and_content)); }
+            $record = $rec ? implode("\n", $rec) : ('Object #'.$ioId.' - no catalogue detail is recorded.');
+
+            $prompt = "You are a knowledgeable, warm museum docent talking with a visitor standing in front of an exhibit. "
+                ."Answer the visitor's question using ONLY the catalogue record below. "
+                ."If the record does not contain the answer, say briefly that the record does not say, then add one general, non-fabricated sentence about what such an item is. "
+                ."Never invent specific dates, names, places or provenance that are not in the record. "
+                ."Reply in 2 to 4 sentences of plain spoken prose - no markdown, no preamble, no bullet points.\n\n"
+                ."CATALOGUE RECORD:\n".$record."\n\nVISITOR QUESTION: ".$q;
+
+            try {
+                $resp = trim((string) app(\AhgAiServices\Services\LlmService::class)->complete($prompt, ['max_tokens' => 240, 'temperature' => 0.5]));
+
+                return $resp !== '' ? $resp : null;
+            } catch (\Throwable $e) {
+                return null;
+            }
+        });
+    }
+
+    /**
      * heratio#1150 multi-user presence. Upsert this visitor's pose into the building's
      * presence table and return the other live co-visitors + the active docent's tour
      * state. Polled ~2-3x/sec by the walkthrough. $isDocent (decided by the controller

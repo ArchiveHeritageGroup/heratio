@@ -92,6 +92,19 @@ docent description on the spot, reads that out, and marks it in the panel. To fo
 Choose the speaking voice under the **Controls** panel (the **?** button) -> **Narration
 voice**; on most phones and Macs the system neural voices are available there.
 
+## Ask the docent (AI Q&A)
+
+Open an object's panel (click it) and use **Ask the docent about this** - type a question, or
+tap one of the suggested chips ("Tell me about this", "Who made it?", "When is it from?",
+"Why does it matter?"). The AI answers **grounded in that object's catalogue record** and
+reads the answer aloud. It will not invent dates, names or provenance that are not in the
+record - if the record does not say, it tells you so. Press **Esc** first to free the cursor
+so you can type.
+
+You can also ask the docent to **take you somewhere**: type "take me to the dresser",
+"where is the robot", or "show me the Benson portrait" and it walks you to the best-matching
+object anywhere in the building and opens its panel.
+
 ## Multiple visitors and live guided tours
 
 Several people can walk the same exhibition at once. Each visitor appears to the others

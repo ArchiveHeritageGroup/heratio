@@ -154,6 +154,15 @@
             <h6 id="inlayTitle" class="fw-bold mb-1 pe-4"></h6>
             <p id="inlayDesc" class="small mb-2" style="max-height:22vh;overflow:auto;"></p>
             <a id="inlayRec" href="#" target="_blank" rel="noopener" class="btn btn-sm btn-light"><i class="fas fa-external-link-alt me-1"></i>{{ __('View full record') }} <span class="badge bg-secondary ms-1">V</span></a>
+            {{-- #1185 AI docent: ask a grounded question about this object; answer is shown + spoken. --}}
+            <div id="wtAsk" class="mt-2">
+              <div class="input-group input-group-sm">
+                <input id="wtAskInput" type="text" class="form-control" placeholder="{{ __('Ask about this, or “take me to…”') }}" maxlength="200">
+                <button id="wtAskBtn" type="button" class="btn btn-info" title="{{ __('Ask') }}"><i class="fas fa-comment-dots"></i></button>
+              </div>
+              <div id="wtAskChips" class="d-flex flex-wrap gap-1 mt-1"></div>
+              <div id="wtAskAnswer" class="small mt-2" style="display:none;background:rgba(255,255,255,.08);border-radius:.4rem;padding:6px 8px;"></div>
+            </div>
             <div id="wtRelated" class="mt-2" style="display:none;">
               <div class="small text-white-50 mb-1"><i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('You might also like') }}</div>
               <div id="wtRelatedItems" class="d-flex flex-wrap gap-1"></div>
@@ -1733,9 +1742,76 @@
         })
         .catch(function () { stopNarrate(); });
     }
+    // #1185 AI docent: ask a grounded question about the current object; answer is shown + spoken.
+    var ASK_TMPL = '{{ url('exhibition-space/object') }}/__IO__/ask';
+    var ASK_CHIPS = ['{{ __('Tell me about this') }}', '{{ __('Who made it?') }}', '{{ __('When is it from?') }}', '{{ __('Why does it matter?') }}'];
+    function askDocent(s, q) {
+      if (!s || !s.information_object_id || !q) return;
+      var ansEl = document.getElementById('wtAskAnswer'), btn = document.getElementById('wtAskBtn');
+      if (ansEl) { ansEl.style.display = 'block'; ansEl.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>{{ __('The docent is thinking…') }}'; }
+      if (btn) btn.disabled = true;
+      fetch(ASK_TMPL.replace('__IO__', s.information_object_id) + '?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (btn) btn.disabled = false;
+          var a = (d && d.answer) ? d.answer : '{{ __('Sorry, the record does not let me answer that right now.') }}';
+          if (ansEl && currentStop === s) { ansEl.style.display = 'block'; ansEl.textContent = '🤖 ' + a; }
+          if (d && d.answer) speakText(a);
+        })
+        .catch(function () { if (btn) btn.disabled = false; if (ansEl) ansEl.textContent = '{{ __('Sorry, I could not answer that right now.') }}'; });
+    }
+    function buildAskChips(s) {
+      var box = document.getElementById('wtAskChips'); if (!box) return; box.innerHTML = '';
+      ASK_CHIPS.forEach(function (c) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-sm btn-outline-info py-0'; b.style.fontSize = '11px';
+        b.textContent = c;
+        b.addEventListener('click', function (e) { e.stopPropagation(); askDocent(s, c); });
+        box.appendChild(b);
+      });
+    }
+    // #1185 auto-walk: "take me to / where is / show me <object>" -> match an object by title
+    // across the whole building and walk the visitor there (flyTo opens its panel on arrival).
+    var NAV_RE = /\b(take me|walk me|bring me|lead me|go to|navigate to|where(?:'?s| is| are)?|show me|find)\b/i;
+    function navTarget(query) {
+      var q = query.toLowerCase().replace(NAV_RE, ' ')
+        .replace(/\b(the|a|an|to|me|please|object|exhibit|item|that|this|is|are|located|in|on|near)\b/g, ' ');
+      var toks = q.split(/[^a-z0-9]+/).filter(function (t) { return t.length > 2; });
+      if (!toks.length) return null;
+      var best = null, bestScore = 0;
+      STOPS.forEach(function (s) {
+        var title = (s.title || '').toLowerCase(); if (!title) return;
+        var score = 0; toks.forEach(function (t) { if (title.indexOf(t) >= 0) score++; });
+        if (score > bestScore) { bestScore = score; best = s; }
+      });
+      return bestScore > 0 ? best : null;
+    }
+    function docentTryNavigate(query) {
+      if (!NAV_RE.test(query)) return false;
+      var t = navTarget(query);
+      if (!t) return false;
+      flyTo(t);   // walks there and opens the target's panel on arrival
+      speakText('{{ __('Right this way.') }} ' + (t.title || ''));
+      return true;
+    }
+    (function () {
+      var btn = document.getElementById('wtAskBtn'), inp = document.getElementById('wtAskInput');
+      function go() {
+        var q = (inp && inp.value || '').trim(); if (!q) return; if (inp) inp.value = '';
+        if (docentTryNavigate(q)) return;             // "take me to X" -> walk there
+        if (currentStop) askDocent(currentStop, q);   // otherwise answer about this object
+      }
+      if (btn) btn.addEventListener('click', function (e) { e.stopPropagation(); go(); });
+      if (inp) {
+        inp.addEventListener('keydown', function (e) { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); go(); } });
+        inp.addEventListener('click', function (e) { e.stopPropagation(); });   // focus the field, don't poke the canvas
+      }
+    })();
     function openPanel(s) {
       document.getElementById('inlayTitle').textContent = s.title;
       document.getElementById('inlayDesc').textContent = s.description || '{{ __('No description available.') }}';
+      buildAskChips(s);
+      var _ae = document.getElementById('wtAskAnswer'); if (_ae) { _ae.style.display = 'none'; _ae.textContent = ''; }
+      var _ai = document.getElementById('wtAskInput'); if (_ai) _ai.value = '';
       var rec = document.getElementById('inlayRec');
       if (s.record_url) { rec.href = s.record_url; rec.style.display = ''; } else { rec.style.display = 'none'; }
       inlay.style.display = 'block';
