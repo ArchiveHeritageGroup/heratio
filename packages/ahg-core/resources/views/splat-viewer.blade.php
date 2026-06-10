@@ -28,20 +28,13 @@
   </style>
 </head>
 <body>
-  @php
-    // Orientation presets: each maps a label to the cameraUp axis. Splats commonly load in an
-    // arbitrary axis convention, so Up/Down/Front/Back let the viewer pick which world axis is up.
-    $orient = ['yp' => __('Up'), 'yn' => __('Down'), 'zp' => __('Front'), 'zn' => __('Back')];
-    $curUp = in_array(request()->query('up'), array_keys($orient), true) ? request()->query('up') : 'yn';
-  @endphp
   <div id="pc_bar">
     <span class="pc_nav"><a href="javascript:history.back()">&larr; {{ __('Back') }}</a></span>
     <span class="pc_nav t">{{ $splat->title }}</span>
     <span class="pc_nav" style="opacity:.8">{{ strtoupper($splat->format ?? '') }}</span>
-    <span id="pc_orient" title="{{ __('Re-orient the scene (splats often load in a different up-axis)') }}">
-      @foreach($orient as $key => $label)
-        <button type="button" data-up="{{ $key }}" class="{{ $curUp === $key ? 'active' : '' }}">{{ $label }}</button>
-      @endforeach
+    <span id="pc_orient">
+      <button type="button" id="pc_ud" title="{{ __('Turn the object 90° towards the front') }}">&#x2191;</button>
+      <button type="button" id="pc_fb" title="{{ __('Turn the object 90° to the right') }}">&#x2192;</button>
     </span>
   </div>
   <div id="pc_err">{{ __('This scene could not be loaded. Your browser may not support WebGL2, or the file may be incomplete.') }}</div>
@@ -56,24 +49,27 @@
   }
   </script>
   <script type="module" nonce="{{ $cspNonce ?? '' }}">
+    import * as THREE from 'three';
     import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
 
     const url = @json($fileUrl);
     const fmt = @json(strtolower($splat->format ?? ''));
     const fail = () => { document.getElementById('pc_err').style.display = 'block'; };
 
-    // Up-axis presets (must match the PHP $orient keys). Default y-down matches the
-    // ai-demo / TRELLIS output; the buttons reload with ?up=<key> to switch axis.
-    const UPS = { yp: [0, 1, 0], yn: [0, -1, 0], zp: [0, 0, 1], zn: [0, 0, -1] };
-    const upKey = (new URLSearchParams(location.search).get('up')) || 'yn';
-    const upVec = UPS[upKey] || UPS.yn;
-    document.querySelectorAll('#pc_orient button').forEach((b) => {
-      b.addEventListener('click', function () {
-        const u = new URL(location.href);
-        u.searchParams.set('up', b.dataset.up);
-        location.href = u.toString();
-      });
-    });
+    // Two 90-degree object rotations, accumulated across presses and persisted in the URL.
+    // rx = up-arrow (tilt towards the front, around X); ry = right-arrow (turn right, around Y).
+    // Each press reloads with the step bumped (mod 4); the scene is rotated by a quaternion.
+    const params = new URLSearchParams(location.search);
+    const rx = ((parseInt(params.get('rx') || '0', 10) % 4) + 4) % 4;
+    const ry = ((parseInt(params.get('ry') || '0', 10) % 4) + 4) % 4;
+    const bump = (name, cur) => { const u = new URL(location.href); u.searchParams.set(name, String((cur + 1) % 4)); location.href = u.toString(); };
+    document.getElementById('pc_ud').addEventListener('click', () => bump('rx', rx));
+    document.getElementById('pc_fb').addEventListener('click', () => bump('ry', ry));
+
+    // Build the object rotation quaternion: turn-right (Y) applied in world, then tilt-front (X).
+    const euler = new THREE.Euler(-rx * Math.PI / 2, -ry * Math.PI / 2, 0, 'YXZ');
+    const q = new THREE.Quaternion().setFromEuler(euler);
+    const rotation = [q.x, q.y, q.z, q.w];
 
     // Mirror the proven ai-demo /viewer config: pass the format EXPLICITLY (a .ply won't
     // auto-detect/progressive-load reliably as a splat) and disable progressive load.
@@ -86,11 +82,11 @@
         rootElement: document.getElementById('splat-root'),
         sharedMemoryForWorkers: false,   // no COOP/COEP isolation on the host
         dynamicScene: false,
-        cameraUp: upVec,
+        cameraUp: [0, -1, 0],            // proven ai-demo / TRELLIS default
         initialCameraPosition: [0, 0, 2],
         initialCameraLookAt: [0, 0, 0],
       });
-      viewer.addSplatScene(url, { format: sceneFormat, progressiveLoad: false, showLoadingUI: true, splatAlphaRemovalThreshold: 5 })
+      viewer.addSplatScene(url, { format: sceneFormat, rotation: rotation, progressiveLoad: false, showLoadingUI: true, splatAlphaRemovalThreshold: 5 })
         .then(() => { viewer.start(); })
         .catch(fail);
     } catch (e) { fail(); }
