@@ -56,10 +56,22 @@ class InjectSplatViewer
             }
 
             $html = (string) $response->getContent();
-            if ($html === '' || ! str_contains($html, '</body>') || str_contains($html, 'ahg-splat-embed')) {
+            if ($html === '' || str_contains($html, 'ahg-splat-embed')) {
                 return $response;
             }
-            $response->setContent(str_replace('</body>', $this->panel($splat)."\n</body>", $html));
+            $panel = $this->panel($splat);
+            // Prefer the top of the record content (shared theme anchor) so the viewer is
+            // visible, not buried below the footer. Fall back to before the footer, then </body>.
+            if (str_contains($html, '<div id="content">')) {
+                $html = preg_replace('/<div id="content">/', '<div id="content">'.$panel, $html, 1);
+            } elseif (str_contains($html, '<footer')) {
+                $html = preg_replace('/<footer/', $panel.'<footer', $html, 1);
+            } elseif (str_contains($html, '</body>')) {
+                $html = str_replace('</body>', $panel."\n</body>", $html);
+            } else {
+                return $response;
+            }
+            $response->setContent($html);
         } catch (Throwable $e) {
             // never break the page
         }
@@ -90,7 +102,7 @@ class InjectSplatViewer
         $src = '/splat/'.rawurlencode((string) $splat->slug).'?embed=1';
 
         return <<<HTML
-<section id="ahg-splat-embed" class="container my-4">
+<section id="ahg-splat-embed" class="my-4">
   <div class="card">
     <div class="card-header fw-bold d-flex align-items-center" style="background:var(--ahg-primary,#005837);color:#fff">
       <i class="fas fa-cube me-2"></i>Photoreal 3D capture

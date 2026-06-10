@@ -61,7 +61,7 @@ GLAM sector, via a response-injection middleware - so no per-sector (locked) sho
 - `AhgCore\Middleware\InjectSplatViewer` (pushed to the `web` group) runs on the record show
   routes `museum.show`, `gallery.show`, `library.show`, `dam.show`, `informationobject.show`.
   When the page's object (resolved from the `{slug}` route param via the `slug` table) has a
-  linked, ready `ahg_gaussian_splat`, it injects a standard "Photoreal 3D capture" panel before
+  linked, ready `ahg_gaussian_splat`, it injects a standard "Photoreal 3D capture" panel at the top of the record content (after the shared `<div id="content">`; falls back to before the footer / before
   `</body>` - a card embedding `/splat/{slug}?embed=1` in an iframe (+ an "Open full screen"
   link). Best-effort, single-injection, HTML-200-GET only; records without a splat are untouched.
 - `?embed=1` on the splat viewer hides its top bar for clean in-page embedding.
