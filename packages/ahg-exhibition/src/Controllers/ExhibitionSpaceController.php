@@ -605,6 +605,10 @@ class ExhibitionSpaceController extends Controller
             'days' => $days,
             'data' => $this->service->buildingAnalytics($space, $days),
             'visitors' => $this->service->visitorAnalytics($space, $days),   // #1173
+            'heatmap' => $this->service->visitorHeatmap($space, $days),      // #1187
+            'sensor' => auth()->check()                                       // #1188 (token only for logged-in staff)
+                ? ['token' => $this->service->getOrCreateSensorToken((int) $space->id), 'alerts' => $this->service->recentAlerts($space)]
+                : null,
         ]);
     }
 
@@ -646,6 +650,36 @@ class ExhibitionSpaceController extends Controller
         }
 
         return response()->json(['ok' => true, 'recorded' => $n, 'live' => $this->service->liveState($space)]);
+    }
+
+    /**
+     * heratio#1188 - public sensor/gateway ingest, authenticated by a per-space token
+     * (header X-Sensor-Token or body "token"). No session/CSRF, so real IoT devices can POST.
+     */
+    public function sensorIngestAjax(Request $request)
+    {
+        $token = (string) ($request->header('X-Sensor-Token') ?: $request->input('token', ''));
+        $batch = $request->input('readings');
+        if (! is_array($batch)) {
+            $batch = [['metric' => $request->input('metric'), 'value' => $request->input('value'), 'recorded_at' => $request->input('recorded_at')]];
+        }
+        $result = $this->service->ingestSensor($token, $batch);
+        if ($result === null) {
+            return response()->json(['ok' => false, 'error' => 'Invalid sensor token.'], 401);
+        }
+
+        return response()->json(['ok' => true] + $result);
+    }
+
+    /** heratio#1188 - rotate a space's sensor token (admin). */
+    public function regenerateSensorTokenAjax(Request $request, string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            return response()->json(['ok' => false], 404);
+        }
+
+        return response()->json(['ok' => true, 'token' => $this->service->regenerateSensorToken((int) $space->id)]);
     }
 
     /** Seed demo readings across the building so the live overlay is visible. */

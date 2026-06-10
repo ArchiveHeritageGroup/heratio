@@ -61,6 +61,19 @@ safe ranges for temperature (16-24C) and humidity (40-60%).
 - To see how it looks before any sensors are wired, use **Simulate live data** in the
   builder header to seed demo readings across the building.
 
+### Binding a real sensor (#1188)
+
+Each space has a **sensor token** so a real IoT sensor or gateway can push readings without
+logging in. Open **Analytics** (logged in) to see the token, a ready-to-use `curl` example,
+and a **Regenerate token** button. A device just POSTs to `/exhibition-space/sensor/ingest`
+with the `X-Sensor-Token` header and a `readings` array of `{metric, value}` (metrics:
+`temp_c`, `humidity`, `lux`, `visitors`).
+
+When a reading is **out of conservation range** (temp 16-24 C, humidity 40-60% RH, light at
+or below the space's lux target / 200 lux), Heratio raises a **conservation alert** shown at
+the top of Analytics, marked warning or critical. The readings also drive the live overlay,
+forecast and analytics as before.
+
 ## Conservation forecast (simulation and prediction)
 
 Open **Forecast** from a space to see, per room, the projected **annual light dose** from
@@ -74,6 +87,11 @@ lux levels, daily display hours and target tiers.
 Open **Analytics** to see per-room trends for lux, temperature, humidity and visitors
 over the last 1, 7, 30 or 90 days, with summary statistics. Use it to spot drift, busy
 periods and rooms that need attention. This supports continuous improvement of the space.
+
+The **Visitor heatmap** there shows a top-down plan of the building with each room shaded
+by how long visitors spent in it (cool = less, hot = more), and red dots over the objects
+that drew the most attention. It is built automatically from real walkthrough usage, so you
+can see at a glance which rooms and objects engage people and which get overlooked.
 
 ## In-twin recommendations
 

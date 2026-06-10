@@ -98,6 +98,7 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     'scan_shell_path' => 'VARCHAR(500) NULL',          // heratio#1156: photoreal capture shell (glTF/GLB/OBJ/STL/PLY) rendered as the room backdrop
                     'scan_shell_scale' => 'DECIMAL(8,3) NULL DEFAULT 1.000',   // heratio#1156: uniform scale applied to the scan shell (fit to room metres)
                     'scan_embed_url' => 'VARCHAR(500) NULL',           // heratio#1156: 360/Matterport embed URL (opened in an overlay; licensing handled by the host)
+                    'sensor_token' => 'VARCHAR(64) NULL',              // heratio#1188: per-space token a real IoT sensor/gateway uses to POST readings
                 ];
                 foreach ($spaceCols as $col => $ddl) {
                     if (! Schema::hasColumn('ahg_exhibition_space', $col)) {
@@ -232,6 +233,21 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     object_id INT NULL,
                     created_at DATETIME NOT NULL,
                     INDEX idx_building_type (building_id, type, created_at)
+                )");
+            }
+            // heratio#1188 - conservation threshold alerts raised on sensor ingest.
+            if (! Schema::hasTable('ahg_exhibition_alert')) {
+                DB::statement("CREATE TABLE ahg_exhibition_alert (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    exhibition_space_id INT NOT NULL,
+                    metric VARCHAR(24) NOT NULL,
+                    value DECIMAL(10,3) NULL,
+                    threshold VARCHAR(64) NULL,
+                    severity VARCHAR(12) NOT NULL DEFAULT 'warning',
+                    message VARCHAR(255) NULL,
+                    acknowledged TINYINT(1) NOT NULL DEFAULT 0,
+                    created_at DATETIME NOT NULL,
+                    INDEX idx_space_created (exhibition_space_id, created_at)
                 )");
             }
         } catch (\Throwable $e) {

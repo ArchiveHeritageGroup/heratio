@@ -52,6 +52,9 @@
     <a href="{{ route('exhibition.index') }}#all-exhibitions" class="btn btn-outline-secondary btn-sm">
       <i class="fas fa-list me-1"></i> {{ __('All Exhibitions') }}
     </a>
+    <a href="{{ route('exhibition-space.generate') }}" class="btn btn-primary btn-sm" title="{{ __('Design an exhibition from a theme with AI') }}">
+      <i class="fas fa-wand-magic-sparkles me-1"></i> {{ __('AI Designer') }}
+    </a>
   </div>
 </div>
 

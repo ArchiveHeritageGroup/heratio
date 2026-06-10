@@ -1109,6 +1109,117 @@ class ExhibitionSpaceService
         ]);
     }
 
+    /** heratio#1188 - the per-space sensor token (created on first read). */
+    public function getOrCreateSensorToken(int $spaceId): string
+    {
+        $tok = DB::table('ahg_exhibition_space')->where('id', $spaceId)->value('sensor_token');
+        if (! $tok) {
+            $tok = 'sx_'.bin2hex(random_bytes(20));
+            DB::table('ahg_exhibition_space')->where('id', $spaceId)->update(['sensor_token' => $tok, 'updated_at' => now()]);
+        }
+
+        return $tok;
+    }
+
+    /** heratio#1188 - rotate the token (invalidates any device still using the old one). */
+    public function regenerateSensorToken(int $spaceId): string
+    {
+        $tok = 'sx_'.bin2hex(random_bytes(20));
+        DB::table('ahg_exhibition_space')->where('id', $spaceId)->update(['sensor_token' => $tok, 'updated_at' => now()]);
+
+        return $tok;
+    }
+
+    /**
+     * heratio#1188 - ingest readings from a real sensor/gateway authenticated by token.
+     * Records each reading and raises a conservation alert when one is out of range.
+     * $readings: [['metric'=>'temp_c','value'=>27.4], ...]. Returns a summary or null if the
+     * token is unknown.
+     */
+    public function ingestSensor(string $token, array $readings): ?array
+    {
+        $token = trim($token);
+        if ($token === '') {
+            return null;
+        }
+        $space = DB::table('ahg_exhibition_space')->where('sensor_token', $token)->first();
+        if (! $space) {
+            return null;
+        }
+
+        $recorded = 0;
+        $alerts = [];
+        foreach ($readings as $r) {
+            $metric = isset($r['metric']) ? substr((string) $r['metric'], 0, 32) : '';
+            if ($metric === '' || ! isset($r['value']) || ! is_numeric($r['value'])) {
+                continue;
+            }
+            $value = (float) $r['value'];
+            $this->recordReading((int) $space->id, $metric, $value, $r['recorded_at'] ?? null);
+            $recorded++;
+
+            $breach = $this->conservationThreshold($metric, $value, $space);
+            if ($breach) {
+                DB::table('ahg_exhibition_alert')->insert([
+                    'exhibition_space_id' => (int) $space->id,
+                    'metric' => $metric, 'value' => $value,
+                    'threshold' => $breach['threshold'], 'severity' => $breach['severity'],
+                    'message' => $breach['message'], 'created_at' => now(),
+                ]);
+                $alerts[] = $breach['message'];
+            }
+        }
+
+        return ['space' => $space->name, 'recorded' => $recorded, 'alerts' => $alerts];
+    }
+
+    /**
+     * Conservation thresholds. Sensible museum defaults (per-space lux target honoured when
+     * set). Returns ['severity','threshold','message'] when breached, else null.
+     */
+    private function conservationThreshold(string $metric, float $value, object $space): ?array
+    {
+        $name = $space->name ?? ('#'.($space->id ?? '?'));
+        switch ($metric) {
+            case 'temp_c':
+                if ($value < 16 || $value > 24) {
+                    return ['severity' => $value < 10 || $value > 28 ? 'critical' : 'warning', 'threshold' => '16-24 C',
+                        'message' => "Temperature {$value} C in {$name} is outside the 16-24 C range."];
+                }
+                break;
+            case 'humidity':
+                if ($value < 40 || $value > 60) {
+                    return ['severity' => $value < 30 || $value > 70 ? 'critical' : 'warning', 'threshold' => '40-60% RH',
+                        'message' => "Humidity {$value}% in {$name} is outside the 40-60% range."];
+                }
+                break;
+            case 'lux':
+                $cap = isset($space->lighting_lux) && $space->lighting_lux ? (float) $space->lighting_lux : 200.0;
+                if ($value > $cap) {
+                    return ['severity' => $value > $cap * 2 ? 'critical' : 'warning', 'threshold' => '<= '.((int) $cap).' lux',
+                        'message' => "Light {$value} lux in {$name} exceeds the ".((int) $cap)." lux limit."];
+                }
+                break;
+        }
+
+        return null;
+    }
+
+    /** heratio#1188 - recent conservation alerts for a space. */
+    public function recentAlerts(object $space, int $limit = 20): array
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_alert')) {
+            return [];
+        }
+
+        return DB::table('ahg_exhibition_alert')->where('exhibition_space_id', $space->id)
+            ->orderByDesc('id')->limit($limit)->get()
+            ->map(function ($a) {
+                return ['metric' => $a->metric, 'value' => (float) $a->value, 'severity' => $a->severity,
+                    'threshold' => $a->threshold, 'message' => $a->message, 'at' => $a->created_at];
+            })->all();
+    }
+
     /**
      * Latest value per metric for a space: ['lux'=>['value'=>..,'at'=>..], ...].
      *
@@ -2452,6 +2563,67 @@ class ExhibitionSpaceService
         $topObjects = $top->map(function ($r) use ($titles) { return ['title' => $titles[$r->object_id] ?? ('#'.$r->object_id), 'views' => (int) $r->c]; })->all();
 
         return ['sessions' => $sessions, 'avg_seconds' => $avg, 'devices' => $devices, 'dwell' => array_slice($dwell, 0, 10), 'top_objects' => $topObjects];
+    }
+
+    /**
+     * heratio#1187 - visitor heatmap. Building room geometry + total dwell seconds per room
+     * (from ahg_exhibition_visit.room_seconds_json) + per-object view counts (from
+     * visit_event), so the analytics page can render a top-down dwell/attention heatmap.
+     */
+    public function visitorHeatmap(object $space, int $days = 30): array
+    {
+        $building = $this->getWalkthroughBuilding($space);
+        $b = $space->building_id ?: $space->slug;
+        $since = now()->subDays($days);
+
+        // Dwell seconds per room id.
+        $roomSecs = [];
+        if (\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_visit')) {
+            foreach (DB::table('ahg_exhibition_visit')->where('building_id', $b)->where('started_at', '>=', $since)->get() as $v) {
+                $s = $v->room_seconds_json ? json_decode((string) $v->room_seconds_json, true) : [];
+                if (is_array($s)) {
+                    foreach ($s as $rid => $sec) { $roomSecs[(int) $rid] = ($roomSecs[(int) $rid] ?? 0) + (int) $sec; }
+                }
+            }
+        }
+
+        // Object view counts (for object heat dots), keyed by object id.
+        $objViews = [];
+        if (\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_visit_event')) {
+            $rows = DB::table('ahg_exhibition_visit_event')->where('building_id', $b)->where('type', 'object')
+                ->where('created_at', '>=', $since)->whereNotNull('object_id')
+                ->select('object_id', DB::raw('COUNT(*) as c'))->groupBy('object_id')->get();
+            foreach ($rows as $r) { $objViews[(int) $r->object_id] = (int) $r->c; }
+        }
+
+        $rooms = [];
+        $maxSec = 0;
+        $objects = [];
+        $maxViews = 0;
+        foreach ($building['rooms'] as $r) {
+            $sec = (int) ($roomSecs[$r['id']] ?? 0);
+            $maxSec = max($maxSec, $sec);
+            $rooms[] = ['id' => $r['id'], 'name' => $r['name'], 'x' => $r['x_offset'], 'z' => $r['z_offset'], 'w' => $r['w'], 'd' => $r['d'], 'seconds' => $sec];
+            foreach (($r['stops'] ?? []) as $s) {
+                $oid = (int) ($s['information_object_id'] ?? 0);
+                $views = $objViews[$oid] ?? 0;
+                if ($oid && $views > 0) {
+                    $maxViews = max($maxViews, $views);
+                    $objects[] = [
+                        'x' => $r['x_offset'] + (float) ($s['pos_x'] ?? 0.5) * $r['w'],
+                        'z' => $r['z_offset'] + (float) ($s['pos_y'] ?? 0.5) * $r['d'],
+                        'views' => $views, 'title' => $s['title'] ?? ('#'.$oid),
+                    ];
+                }
+            }
+        }
+
+        return [
+            'rooms' => $rooms, 'objects' => $objects,
+            'max_seconds' => $maxSec, 'max_views' => $maxViews,
+            'min_x' => $building['min_x'] ?? 0, 'max_x' => $building['max_x'] ?? 0,
+            'min_z' => $building['min_z'] ?? 0, 'max_z' => $building['max_z'] ?? 0,
+        ];
     }
 
     /** heratio#1165 - wall graffiti: list all annotations for the building. */

@@ -2,6 +2,7 @@
 
 use AhgExhibition\Controllers\ExhibitionController;
 use AhgExhibition\Controllers\ExhibitionSpaceController;
+use AhgExhibition\Controllers\GenerativeController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->prefix('exhibition')->group(function () {
@@ -40,6 +41,10 @@ Route::get('/exhibition-space/{slug}/forecast', [ExhibitionSpaceController::clas
 Route::get('/exhibition-space/{slug}/analytics', [ExhibitionSpaceController::class, 'analytics'])->name('exhibition-space.analytics');
 
 Route::middleware('auth')->group(function () {
+    // heratio#1186 - generative exhibitions: theme -> AI-curated draft (rooms + objects + labels)
+    Route::get('/exhibition-space/generate', [GenerativeController::class, 'index'])->name('exhibition-space.generate');
+    Route::post('/exhibition-space/generate/suggest', [GenerativeController::class, 'suggestAjax'])->name('exhibition-space.generate.suggest')->middleware('acl:create');
+
     Route::get('/exhibition-space/add', [ExhibitionSpaceController::class, 'create'])->name('exhibition-space.create');
     Route::post('/exhibition-space/add', [ExhibitionSpaceController::class, 'store'])->name('exhibition-space.store')->middleware('acl:create');
     Route::get('/exhibition-space/{slug}/edit', [ExhibitionSpaceController::class, 'edit'])->name('exhibition-space.edit');
@@ -65,6 +70,7 @@ Route::middleware('auth')->group(function () {
     // heratio#1146 - live data link
     Route::post('/exhibition-space/{slug}/readings', [ExhibitionSpaceController::class, 'recordReadingsAjax'])->name('exhibition-space.readings')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/readings/simulate', [ExhibitionSpaceController::class, 'simulateReadingsAjax'])->name('exhibition-space.readings.simulate')->middleware('acl:update');
+    Route::post('/exhibition-space/{slug}/sensor/regenerate', [ExhibitionSpaceController::class, 'regenerateSensorTokenAjax'])->name('exhibition-space.sensor.regenerate')->middleware('acl:update');   // #1188
     // heratio#1149 - precompute AI recommendations (admin)
     Route::post('/exhibition-space/{slug}/recommend/generate', [ExhibitionSpaceController::class, 'generateRecommendationsAjax'])->name('exhibition-space.recommend.generate')->middleware('acl:update');
     // heratio#1147 forecast + #1148 analytics: GET views are public (see above).
@@ -123,6 +129,8 @@ Route::get('/exhibition-space/object/{ioId}/describe', [ExhibitionSpaceControlle
 // heratio#1185 — AI docent: grounded Q&A about an object (public, read-only)
 Route::get('/exhibition-space/object/{ioId}/ask', [ExhibitionSpaceController::class, 'askObjectAjax'])->name('exhibition-space.ask')->whereNumber('ioId');
 Route::post('/exhibition-space/tts', [ExhibitionSpaceController::class, 'ttsAjax'])->name('exhibition-space.tts');   // #1168 neural TTS via the gateway (public; walkthrough narration)
+// heratio#1188 — IoT sensor/gateway ingest, authenticated by a per-space token (no session/CSRF)
+Route::post('/exhibition-space/sensor/ingest', [ExhibitionSpaceController::class, 'sensorIngestAjax'])->name('exhibition-space.sensor.ingest');
 // heratio#1150 — multi-user presence (public; docent role gated server-side on auth)
 Route::post('/exhibition-space/{slug}/presence/beat', [ExhibitionSpaceController::class, 'presenceBeatAjax'])->name('exhibition-space.presence.beat');
 Route::post('/exhibition-space/{slug}/presence/leave', [ExhibitionSpaceController::class, 'presenceLeaveAjax'])->name('exhibition-space.presence.leave');
