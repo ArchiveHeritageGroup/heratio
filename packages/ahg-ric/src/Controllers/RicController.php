@@ -76,6 +76,18 @@ class RicController extends Controller
         ]);
     }
 
+    /** heratio#1197 - the cross-collection connections page (pick an entity, see everything related). */
+    public function connections()
+    {
+        return view('ahg-ric::connections');
+    }
+
+    /** heratio#1197 - everything related to an entity, grouped by collection domain. */
+    public function connectionsData(int $id)
+    {
+        return response()->json(['success' => true] + app(RelationshipService::class)->crossCollectionNeighbours($id));
+    }
+
     /**
      * Get timeline context for an entity.
      */

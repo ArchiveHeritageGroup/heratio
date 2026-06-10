@@ -80,6 +80,70 @@ class RelationshipService
     }
 
     /**
+     * heratio#1197 - unified G/L/A/M graph. Everything related to one entity, traversed via the
+     * generic relation table and grouped by collection domain (records, agents, repositories,
+     * subjects/places, accessions). Resolves each related entity's name across the per-type i18n
+     * tables in one query. This is the "follow a person/place into everything connected, across
+     * all collections" view.
+     *
+     * @return array{groups:array, total:int}
+     */
+    public function crossCollectionNeighbours(int $entityId): array
+    {
+        $rows = DB::table('relation')
+            ->where(function ($q) use ($entityId) {
+                $q->where('subject_id', $entityId)->orWhere('object_id', $entityId);
+            })
+            ->select('subject_id', 'object_id')->limit(1000)->get();
+
+        $targets = [];
+        foreach ($rows as $r) {
+            $t = ((int) $r->subject_id === $entityId) ? (int) $r->object_id : (int) $r->subject_id;
+            if ($t && $t !== $entityId) {
+                $targets[$t] = true;
+            }
+        }
+        if (! $targets) {
+            return ['groups' => [], 'total' => 0];
+        }
+
+        $res = DB::table('object as o')
+            ->leftJoin('information_object_i18n as io', function ($j) { $j->on('io.id', '=', 'o.id')->where('io.culture', '=', 'en'); })
+            ->leftJoin('actor_i18n as a', function ($j) { $j->on('a.id', '=', 'o.id')->where('a.culture', '=', 'en'); })
+            ->leftJoin('term_i18n as t', function ($j) { $j->on('t.id', '=', 'o.id')->where('t.culture', '=', 'en'); })
+            ->leftJoin('slug as sl', 'sl.object_id', '=', 'o.id')
+            ->whereIn('o.id', array_keys($targets))
+            ->select('o.id', 'o.class_name', 'sl.slug',
+                DB::raw('COALESCE(io.title, a.authorized_form_of_name, t.name) as name'))
+            ->get();
+
+        $domains = [
+            'QubitInformationObject' => 'Records & descriptions',
+            'QubitActor' => 'People & organisations',
+            'QubitRepository' => 'Repositories',
+            'QubitTerm' => 'Subjects, places & terms',
+            'QubitAccession' => 'Accessions',
+        ];
+
+        $groups = [];
+        foreach ($res as $e) {
+            $domain = $domains[$e->class_name] ?? trim(preg_replace('/^Qubit/', '', (string) $e->class_name)) ?: 'Other';
+            $groups[$domain] = $groups[$domain] ?? ['domain' => $domain, 'items' => []];
+            $groups[$domain]['items'][] = ['id' => (int) $e->id, 'name' => $e->name ?: ('#'.$e->id), 'slug' => $e->slug];
+        }
+
+        $out = [];
+        foreach ($groups as $g) {
+            usort($g['items'], fn ($a, $b) => strcasecmp($a['name'], $b['name']));
+            $g['count'] = count($g['items']);
+            $out[] = $g;
+        }
+        usort($out, fn ($a, $b) => $b['count'] <=> $a['count']);
+
+        return ['groups' => $out, 'total' => (int) $res->count()];
+    }
+
+    /**
      * Get a graph summary for an entity (nodes + edges).
      */
     public function getGraphSummary(int $entityId): array

@@ -7,7 +7,6 @@
  * Licensed under the GNU AGPL v3.
  */
 
-use AhgScan\Controllers\CataloguerController;
 use AhgScan\Controllers\ScanDashboardController;
 use AhgScan\Controllers\ScanFolderController;
 use AhgScan\Controllers\ScanInboxController;
@@ -15,10 +14,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->prefix('admin/scan')->name('scan.')->group(function () {
     Route::get('/', [ScanDashboardController::class, 'index'])->name('dashboard');
-
-    // heratio#1196 - AI Cataloguer: scan in, draft archival record out (HTR -> NER -> LLM)
-    Route::get('/cataloguer', [CataloguerController::class, 'index'])->name('cataloguer');
-    Route::post('/cataloguer/draft', [CataloguerController::class, 'draftAjax'])->name('cataloguer.draft');
 
     Route::get('/folders', [ScanFolderController::class, 'index'])->name('folders.index');
     Route::get('/folders/create', [ScanFolderController::class, 'create'])->name('folders.create');

@@ -7,6 +7,9 @@
   <div class="d-flex flex-wrap align-items-baseline gap-2 mb-2">
     <h1 class="h4 mb-0"><i class="fas fa-feather-pointed me-2 text-primary"></i>{{ __('Story Generator') }}</h1>
     <span class="text-muted small">{{ __('Turn the collection into a story') }}</span>
+    @if(Route::has('exhibition-space.browse'))
+      <a href="{{ route('exhibition-space.browse') }}" class="btn btn-sm btn-outline-secondary ms-auto"><i class="fas fa-arrow-left me-1"></i>{{ __('Exhibition spaces') }}</a>
+    @endif
   </div>
   <p class="text-muted small">{{ __('Give a theme and Heratio writes a short, engaging public story that weaves together real objects from the collection - for a website post, a newsletter, a school pack or a label. Review and edit before you publish.') }}</p>
 

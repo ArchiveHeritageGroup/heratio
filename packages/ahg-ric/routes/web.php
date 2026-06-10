@@ -19,6 +19,8 @@ Route::prefix('ric-api')->middleware('web')->group(function () {
     Route::get('/graph-summary/{id}', [RicController::class, 'getGraphSummary'])->where('id', '[0-9]+')->name('ric.public-graph-summary');
     Route::get('/timeline/{id}', [RicController::class, 'getTimeline'])->where('id', '[0-9]+')->name('ric.public-timeline');
     Route::get('/explain/{sourceId}/{targetId}', [RicController::class, 'explainRelation'])->name('ric.public-explain');
+    // heratio#1197 - unified G/L/A/M graph: everything related to an entity, grouped by collection domain
+    Route::get('/connections/{id}', [RicController::class, 'connectionsData'])->where('id', '[0-9]+')->name('ric.public-connections');
 });
 
 Route::middleware('web')->group(function () {
@@ -31,6 +33,8 @@ Route::middleware('web')->group(function () {
 
     // RIC Explorer
     Route::get('/admin/ric/explorer', [RicController::class, 'explorer'])->name('ric.explorer');
+    // heratio#1197 - cross-collection connections page
+    Route::get('/admin/ric/connections', [RicController::class, 'connections'])->name('ric.connections');
     Route::post('/admin/ric/create-entity', [RicController::class, 'createEntity'])->name('ric.create-entity');
     Route::get('/admin/ric/autocomplete', [RicController::class, 'autocomplete'])->name('ric.autocomplete');
     Route::get('/admin/ric/data', [RicController::class, 'getData'])->name('ric.data');

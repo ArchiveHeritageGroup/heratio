@@ -25,8 +25,10 @@
 (function () {
   var CSRF = '{{ csrf_token() }}';
   var URL = '{{ route('exhibition-space.generate.suggest') }}';
+  var BUILD_URL = '{{ route('exhibition-space.generate.build') }}';
   var themeEl = document.getElementById('geTheme'), goBtn = document.getElementById('geGo'),
       errEl = document.getElementById('geErr'), res = document.getElementById('geResult');
+  var lastDraft = null;
   var samples = ['{{ __('women in the liberation struggle') }}', '{{ __('Victorian furniture') }}', '{{ __('maritime history') }}', '{{ __('colonial-era photography') }}'];
   var chips = document.getElementById('geChips');
   samples.forEach(function (s) {
@@ -64,12 +66,37 @@
           html += '</div></div></div>';
         });
         html += '</div>';
-        html += '<p class="small text-muted mt-2"><i class="fas fa-info-circle me-1"></i>{{ __('This is a draft for review. Building it into a real Exhibition Space (placing the objects) is the next step.') }}</p>';
+        html += '<div class="d-flex flex-wrap align-items-center gap-2 mt-3">'
+          + '<button type="button" id="geBuild" class="btn btn-success"><i class="fas fa-cubes me-1"></i>{{ __('Build this exhibition') }}</button>'
+          + '<span class="small text-muted">{{ __('Creates a real Exhibition Space - one room per card above, each object placed - then opens it in the builder.') }}</span></div>';
         res.innerHTML = html;
+        lastDraft = { theme: theme, rooms: d.rooms };
+        var buildBtn = document.getElementById('geBuild');
+        if (buildBtn) { buildBtn.addEventListener('click', build); }
       })
       .catch(function () {
         goBtn.disabled = false; goBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Design it') }}';
         errEl.style.display = 'block'; errEl.textContent = '{{ __('Something went wrong. Please try again.') }}';
+      });
+  }
+  function build() {
+    if (!lastDraft || !lastDraft.rooms || !lastDraft.rooms.length) { return; }
+    var btn = document.getElementById('geBuild');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>{{ __('Building…') }}';
+    errEl.style.display = 'none';
+    var payload = { theme: lastDraft.theme || '', rooms: lastDraft.rooms.map(function (rm) {
+      return { room: rm.room, objects: rm.objects.map(function (o) { return { id: o.id }; }) };
+    }) };
+    fetch(BUILD_URL, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.ok && d.builder_url) { window.location.href = d.builder_url; return; }
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-cubes me-1"></i>{{ __('Build this exhibition') }}';
+        errEl.style.display = 'block'; errEl.textContent = '{{ __('Could not build the exhibition from this draft. Please try again.') }}';
+      })
+      .catch(function () {
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-cubes me-1"></i>{{ __('Build this exhibition') }}';
+        errEl.style.display = 'block'; errEl.textContent = '{{ __('Something went wrong while building. Please try again.') }}';
       });
   }
   goBtn.addEventListener('click', run);

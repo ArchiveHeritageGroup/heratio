@@ -39,4 +39,26 @@ class GenerativeController extends Controller
 
         return response()->json($this->service->suggest($data['theme'], (int) ($data['count'] ?? 12)));
     }
+
+    /**
+     * heratio#1186 - build a reviewed draft into a real Exhibition Space (rooms + placed
+     * objects) and hand back the builder URL so the curator can fine-tune it.
+     */
+    public function buildAjax(Request $request)
+    {
+        $data = $request->validate([
+            'theme' => 'nullable|string|max:200',
+            'rooms' => 'required|array|min:1',
+            'rooms.*.room' => 'nullable|string|max:200',
+            'rooms.*.objects' => 'required|array|min:1',
+            'rooms.*.objects.*.id' => 'required|integer|min:1',
+        ]);
+
+        $result = $this->service->buildExhibition($data);
+        if (! empty($result['ok']) && ! empty($result['slug'])) {
+            $result['builder_url'] = route('exhibition-space.builder', ['slug' => $result['slug']]);
+        }
+
+        return response()->json($result);
+    }
 }

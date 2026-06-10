@@ -19,5 +19,14 @@ candidate ids - no invented objects) -> rendered as cards for review.
 - AI via the gateway (LlmService) - no direct node calls.
 - First-slice candidate search is DB keyword match (reliable, no ES/Qdrant assumptions).
   Upgrade path: ElasticsearchService (relevance) or VectorSearchService (semantic) for recall.
-- Next slices: "Build this" -> create the Exhibition Space rooms + place the objects;
-  status filter (published only); date/era awareness.
+- Next slices: status filter (published only); date/era awareness.
+
+## Build this exhibition (shipped)
+The reviewed draft now builds into a real Exhibition Space in one click.
+`GenerativeExhibitionService::buildExhibition($draft)` creates one room per draft card as a
+sibling `ahg_exhibition_space` sharing a `building_id` (first room seeded with a unit-rectangle
+`shape_json` + `bld_x/bld_y`, the rest appended via `addBuildingRoom()`), lays each chosen
+object out along the room walls with `createPlacementAt()` (back wall first, wrapping to the
+front wall past six), and returns the first room's slug. The controller (`buildAjax`, route
+`exhibition-space.generate.build`, acl:create) hands back the builder URL; the page redirects
+the curator straight into the builder to fine-tune positions, then walkthrough.

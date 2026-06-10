@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\Log;
  */
 class GenerativeExhibitionService
 {
+    public function __construct(private ExhibitionSpaceService $spaces) {}
+
     /** @return array{ok:bool, theme:string, rooms:array, candidate_count:int} */
     public function suggest(string $theme, int $maxObjects = 12): array
     {
@@ -46,6 +48,105 @@ class GenerativeExhibitionService
         $out['ok'] = true;
 
         return $out;
+    }
+
+    /**
+     * heratio#1186 - turn a reviewed draft into a real Exhibition Space. Creates one room
+     * (a sibling ahg_exhibition_space sharing a building_id) per draft room, lays each chosen
+     * object out along the room walls as a real placement, and returns the first room's slug so
+     * the caller can drop the curator straight into the builder. Idempotent only in the sense
+     * that each call builds a fresh space - it never mutates an existing one.
+     *
+     * @param  array{theme?:string, rooms:array<int,array{room?:string, objects:array<int,array{id:int}>}>}  $draft
+     * @return array{ok:bool, space_id:int, slug:string, rooms:int, placed:int, error?:string}
+     */
+    public function buildExhibition(array $draft): array
+    {
+        $theme = trim((string) ($draft['theme'] ?? ''));
+        $rooms = array_values(array_filter((array) ($draft['rooms'] ?? []), 'is_array'));
+        if (! $rooms) {
+            return ['ok' => false, 'space_id' => 0, 'slug' => '', 'rooms' => 0, 'placed' => 0, 'error' => 'empty draft'];
+        }
+
+        try {
+            return DB::transaction(function () use ($theme, $rooms) {
+                $firstId = 0;
+                $firstSlug = '';
+                $roomCount = 0;
+                $placed = 0;
+                $first = null;
+
+                foreach ($rooms as $idx => $room) {
+                    $name = trim((string) ($room['room'] ?? '')) ?: ($theme !== '' ? $theme.' - Room '.($idx + 1) : 'Room '.($idx + 1));
+
+                    if ($idx === 0) {
+                        $firstId = $this->spaces->create([
+                            'name' => $name, 'space_type' => 'gallery', 'capacity_unit' => 'linear_wall_meters',
+                            'room_w' => 10, 'room_d' => 8, 'room_h' => 4,
+                        ]);
+                        $first = $this->spaces->getById($firstId);
+                        // Make the first room a building member (so addBuildingRoom appends siblings)
+                        // and give it the same unit-rectangle shape + plan position a new room gets.
+                        DB::table('ahg_exhibition_space')->where('id', $firstId)->update([
+                            'building_id' => $first->slug, 'building_seq' => 0, 'bld_x' => 1, 'bld_y' => 1,
+                            'shape_json' => json_encode([['x' => 0, 'z' => 0], ['x' => 1, 'z' => 0], ['x' => 1, 'z' => 1], ['x' => 0, 'z' => 1]]),
+                            'updated_at' => now(),
+                        ]);
+                        $first = $this->spaces->getById($firstId);
+                        $firstSlug = (string) $first->slug;
+                        $roomId = $firstId;
+                    } else {
+                        $added = $this->spaces->addBuildingRoom($first, $name);
+                        $roomId = (int) $added['id'];
+                    }
+                    $roomCount++;
+                    $placed += $this->placeRoomObjects($roomId, (array) ($room['objects'] ?? []));
+                }
+
+                return ['ok' => true, 'space_id' => $firstId, 'slug' => $firstSlug, 'rooms' => $roomCount, 'placed' => $placed];
+            });
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-exhibition] buildExhibition failed: '.$e->getMessage());
+
+            return ['ok' => false, 'space_id' => 0, 'slug' => '', 'rooms' => 0, 'placed' => 0, 'error' => 'build failed'];
+        }
+    }
+
+    /**
+     * Lay a room's objects out along the walls and create a real placement for each. Objects
+     * spread evenly along the back wall, wrapping to the front wall past six, so the walkthrough
+     * has something coherent to render before the curator fine-tunes positions in the builder.
+     */
+    private function placeRoomObjects(int $roomId, array $objects): int
+    {
+        $ids = [];
+        foreach ($objects as $o) {
+            $ioId = (int) (is_array($o) ? ($o['id'] ?? 0) : $o);
+            if ($ioId > 0 && ! in_array($ioId, $ids, true)) {
+                $ids[] = $ioId;
+            }
+        }
+        if (! $ids) {
+            return 0;
+        }
+
+        $perWall = (int) ceil(count($ids) / 2);   // back wall first, then front wall
+        $n = 0;
+        foreach ($ids as $i => $ioId) {
+            $onBack = $i < $perWall;
+            $wallCount = $onBack ? min($perWall, count($ids)) : (count($ids) - $perWall);
+            $slot = $onBack ? $i : ($i - $perWall);
+            $posX = $wallCount > 0 ? ($slot + 1) / ($wallCount + 1) : 0.5;
+            $posY = $onBack ? 0.12 : 0.88;
+            try {
+                $this->spaces->createPlacementAt($roomId, $ioId, $posX, $posY);
+                $n++;
+            } catch (\Throwable $e) {
+                Log::info('[ahg-exhibition] buildExhibition: skipped object '.$ioId.' - '.$e->getMessage());
+            }
+        }
+
+        return $n;
     }
 
     /**

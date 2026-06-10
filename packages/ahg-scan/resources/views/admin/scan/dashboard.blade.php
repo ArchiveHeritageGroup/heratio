@@ -21,11 +21,8 @@
         <a href="{{ route('scan.folders.index') }}" class="btn btn-outline-secondary me-2">
             <i class="fas fa-folder-open me-1"></i>{{ __('Watched folders') }}
         </a>
-        <a href="{{ route('scan.inbox.index') }}" class="btn btn-outline-secondary me-2">
+        <a href="{{ route('scan.inbox.index') }}" class="btn btn-outline-secondary">
             <i class="fas fa-inbox me-1"></i>{{ __('Inbox') }}
-        </a>
-        <a href="{{ route('scan.cataloguer') }}" class="btn btn-primary">
-            <i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('AI Cataloguer') }}
         </a>
     </div>
 </div>

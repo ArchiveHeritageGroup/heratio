@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
     // heratio#1186 - generative exhibitions: theme -> AI-curated draft (rooms + objects + labels)
     Route::get('/exhibition-space/generate', [GenerativeController::class, 'index'])->name('exhibition-space.generate');
     Route::post('/exhibition-space/generate/suggest', [GenerativeController::class, 'suggestAjax'])->name('exhibition-space.generate.suggest')->middleware('acl:create');
+    Route::post('/exhibition-space/generate/build', [GenerativeController::class, 'buildAjax'])->name('exhibition-space.generate.build')->middleware('acl:create');
 
     Route::get('/exhibition-space/add', [ExhibitionSpaceController::class, 'create'])->name('exhibition-space.create');
     Route::post('/exhibition-space/add', [ExhibitionSpaceController::class, 'store'])->name('exhibition-space.store')->middleware('acl:create');
