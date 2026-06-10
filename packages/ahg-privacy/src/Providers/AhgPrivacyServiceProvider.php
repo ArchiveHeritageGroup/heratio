@@ -16,7 +16,10 @@ class AhgPrivacyServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
+        // heratio#1199 fix: wrap the privacy routes in the 'web' group so they get session +
+        // CSRF. Without it the `auth` middleware can't see the logged-in session, so every
+        // /admin/privacy/* page 302-redirected a logged-in user to login (and on to home).
+        \Illuminate\Support\Facades\Route::middleware('web')->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'privacy');
 
         // First-boot install of Phase 1 (#669) sidecar tables. The probe and
