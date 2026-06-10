@@ -19,7 +19,19 @@ candidate ids - no invented objects) -> rendered as cards for review.
 - AI via the gateway (LlmService) - no direct node calls.
 - First-slice candidate search is DB keyword match (reliable, no ES/Qdrant assumptions).
   Upgrade path: ElasticsearchService (relevance) or VectorSearchService (semantic) for recall.
-- Next slices: status filter (published only); date/era awareness.
+- Next slices: Elasticsearch/semantic recall on the candidate search.
+
+## Published-only filter + date/era awareness (shipped)
+- **Published only** - `suggest($theme,$max,$publishedOnly=true)` -> `candidateObjects()` joins
+  the `status` table (type 158, `TermId::PUBLICATION_STATUS_PUBLISHED` = 160) via
+  `applyPublishedFilter()` on both the placement and catalogue-fallback queries. A "Published
+  records only" switch on the AI Designer (default on) drives it; turning it off includes drafts.
+  Verified: 80 placed objects -> 79 with the filter; the one draft (status 159) is excluded.
+- **Date/era awareness** - `enrichWithYears()` attaches each candidate's earliest real calendar
+  year (`MIN(event.start_date)`, year prefix - year-only AtoM dates still count). The curate
+  prompt lists `Title (year)` and, when any years are present, instructs the model to group rooms
+  by period and order them earliest-to-latest with era-flavoured titles. The year rides through
+  to each draft room object and shows as a badge on the card.
 
 ## Build this exhibition (shipped)
 The reviewed draft now builds into a real Exhibition Space in one click.

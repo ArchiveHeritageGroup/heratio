@@ -26,7 +26,7 @@ class GenerativeExhibitionService
     public function __construct(private ExhibitionSpaceService $spaces) {}
 
     /** @return array{ok:bool, theme:string, rooms:array, candidate_count:int} */
-    public function suggest(string $theme, int $maxObjects = 12): array
+    public function suggest(string $theme, int $maxObjects = 12, bool $publishedOnly = true): array
     {
         $theme = trim($theme);
         $out = ['ok' => false, 'theme' => $theme, 'rooms' => [], 'candidate_count' => 0];
@@ -34,7 +34,7 @@ class GenerativeExhibitionService
             return $out;
         }
 
-        $candidates = $this->candidateObjects($theme, 60);
+        $candidates = $this->candidateObjects($theme, 60, $publishedOnly);
         $out['candidate_count'] = count($candidates);
         if (! $candidates) {
             return $out;
@@ -153,24 +153,26 @@ class GenerativeExhibitionService
      * Candidate pool, theme-ranked. Prefers objects already placed in exhibition rooms
      * (real, curated, contextual), ranked by how well they match the theme; falls back to a
      * catalogue keyword search when no exhibition objects exist (fresh installs).
+     *
+     * @param  bool  $publishedOnly  restrict to published records (status type 158 = 160).
      */
-    private function candidateObjects(string $theme, int $limit): array
+    private function candidateObjects(string $theme, int $limit, bool $publishedOnly = true): array
     {
         $tokens = array_values(array_filter(preg_split('/[^\p{L}\p{N}]+/u', mb_strtolower($theme)), function ($t) {
             return mb_strlen($t) >= 3;
         }));
 
         // 1) Objects already placed in exhibition rooms.
-        $rows = DB::table('ahg_exhibition_placement as ep')
+        $q1 = DB::table('ahg_exhibition_placement as ep')
             ->join('information_object_i18n as i', function ($j) { $j->on('i.id', '=', 'ep.information_object_id')->where('i.culture', '=', 'en'); })
             ->whereNotNull('ep.information_object_id')
-            ->whereNotNull('i.title')->where('i.title', '!=', '')
-            ->select('ep.information_object_id as id', 'i.title', 'i.scope_and_content')
-            ->distinct()->get();
+            ->whereNotNull('i.title')->where('i.title', '!=', '');
+        $this->applyPublishedFilter($q1, 'ep.information_object_id', $publishedOnly);
+        $rows = $q1->select('ep.information_object_id as id', 'i.title', 'i.scope_and_content')->distinct()->get();
 
         // 2) Fallback to the catalogue if no room objects exist yet.
         if ($rows->isEmpty() && $tokens) {
-            $rows = DB::table('information_object_i18n as i')
+            $q2 = DB::table('information_object_i18n as i')
                 ->join('information_object as io', 'io.id', '=', 'i.id')
                 ->where('i.culture', 'en')->where('io.parent_id', '!=', 1)
                 ->where(function ($q) use ($tokens) {
@@ -178,9 +180,9 @@ class GenerativeExhibitionService
                         $q->orWhere('i.title', 'like', '%'.$t.'%')->orWhere('i.scope_and_content', 'like', '%'.$t.'%');
                     }
                 })
-                ->whereNotNull('i.title')->where('i.title', '!=', '')
-                ->select('io.id', 'i.title', 'i.scope_and_content')
-                ->limit(80)->get();
+                ->whereNotNull('i.title')->where('i.title', '!=', '');
+            $this->applyPublishedFilter($q2, 'io.id', $publishedOnly);
+            $rows = $q2->select('io.id', 'i.title', 'i.scope_and_content')->limit(80)->get();
         }
 
         // Rank by theme-keyword overlap (title weighted), so the most on-theme room objects
@@ -204,7 +206,42 @@ class GenerativeExhibitionService
             $out[$c['id']] = ['id' => $c['id'], 'title' => $c['title'], 'scope' => $c['scope']];
         }
 
-        return $out;
+        return $this->enrichWithYears($out);
+    }
+
+    /** Restrict a query to published records (publication status type 158 = published 160). */
+    private function applyPublishedFilter($query, string $idColumn, bool $publishedOnly): void
+    {
+        if (! $publishedOnly) {
+            return;
+        }
+        $query->join('status as pub_st', function ($j) use ($idColumn) {
+            $j->on('pub_st.object_id', '=', $idColumn)
+                ->where('pub_st.type_id', '=', 158);
+        })->where('pub_st.status_id', '=', \AhgCore\Constants\TermId::PUBLICATION_STATUS_PUBLISHED);
+    }
+
+    /**
+     * Attach the earliest real calendar year to each candidate (date/era awareness). Year-only
+     * AtoM dates store month/day as 00; we read the 4-digit year prefix so even those count.
+     */
+    private function enrichWithYears(array $candidates): array
+    {
+        if (! $candidates) {
+            return $candidates;
+        }
+        $ids = array_keys($candidates);
+        $years = DB::table('event')
+            ->whereIn('object_id', $ids)
+            ->whereNotNull('start_date')->where('start_date', '!=', '0000-00-00')
+            ->selectRaw('object_id, MIN(start_date) as first_date')
+            ->groupBy('object_id')->pluck('first_date', 'object_id');
+        foreach ($candidates as $id => &$c) {
+            $year = isset($years[$id]) ? (int) substr((string) $years[$id], 0, 4) : 0;
+            $c['year'] = $year > 0 ? $year : null;
+        }
+
+        return $candidates;
     }
 
     /**
@@ -216,13 +253,20 @@ class GenerativeExhibitionService
     {
         $ordered = array_values(array_slice($candidates, 0, 50, true));   // position -> candidate
         $lines = [];
+        $anyYear = false;
         foreach ($ordered as $i => $c) {
-            $lines[] = ($i + 1).'. '.$c['title'];
+            $year = $c['year'] ?? null;
+            if ($year) { $anyYear = true; }
+            $lines[] = ($i + 1).'. '.$c['title'].($year ? ' ('.$year.')' : '');
         }
         $list = implode("\n", $lines);
 
+        $eraHint = $anyYear
+            ? 'Some objects show a year in parentheses. Use these dates: where a clear chronology or era emerges, group rooms by period and order them earliest-to-latest, and let the room titles reflect the era. '
+            : '';
         $prompt = "You are a museum curator designing an exhibition on the theme: \"{$theme}\".\n"
             ."From the numbered candidate objects below, select the most relevant (up to {$maxObjects}) and arrange them into 2 to 4 themed rooms. "
+            .$eraHint
             ."Refer to each object ONLY by its number from the list - never invent objects. For each chosen object write a one-line label that explains WHY it fits the theme or what it contributes - do NOT just repeat the object's title.\n"
             ."Return ONLY valid JSON, no preamble, in exactly this shape:\n"
             ."[{\"room\":\"Room title\",\"objects\":[{\"n\":1,\"label\":\"one line\"}]}]\n\n"
@@ -252,7 +296,7 @@ class GenerativeExhibitionService
                 $n = (int) ($o['n'] ?? $o['id'] ?? 0);   // accept "n" (preferred) or a stray "id" = the number
                 $c = ($n >= 1 && isset($ordered[$n - 1])) ? $ordered[$n - 1] : null;
                 if ($c) {
-                    $objs[] = ['id' => $c['id'], 'title' => $c['title'], 'label' => trim((string) ($o['label'] ?? ''))];
+                    $objs[] = ['id' => $c['id'], 'title' => $c['title'], 'label' => trim((string) ($o['label'] ?? '')), 'year' => $c['year'] ?? null];
                 }
             }
             if ($objs) {

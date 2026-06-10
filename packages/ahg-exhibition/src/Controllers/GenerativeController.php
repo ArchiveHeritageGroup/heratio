@@ -35,9 +35,12 @@ class GenerativeController extends Controller
         $data = $request->validate([
             'theme' => 'required|string|max:200',
             'count' => 'nullable|integer|min:4|max:24',
+            'published_only' => 'nullable|boolean',
         ]);
 
-        return response()->json($this->service->suggest($data['theme'], (int) ($data['count'] ?? 12)));
+        $publishedOnly = ! $request->has('published_only') || $request->boolean('published_only');
+
+        return response()->json($this->service->suggest($data['theme'], (int) ($data['count'] ?? 12), $publishedOnly));
     }
 
     /**

@@ -15,7 +15,11 @@
     <input type="text" id="geTheme" class="form-control" placeholder="{{ __('e.g. women in the liberation struggle, Victorian furniture, WWI letters') }}" maxlength="200">
     <button type="button" id="geGo" class="btn btn-primary"><i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Design it') }}</button>
   </div>
-  <div class="d-flex flex-wrap gap-1 mb-3" id="geChips"></div>
+  <div class="d-flex flex-wrap gap-1 mb-2" id="geChips"></div>
+  <div class="form-check form-switch mb-3">
+    <input class="form-check-input" type="checkbox" role="switch" id="gePublished" checked>
+    <label class="form-check-label small text-muted" for="gePublished">{{ __('Published records only') }}</label>
+  </div>
 
   <div id="geErr" class="alert alert-warning" style="display:none"></div>
   <div id="geResult"></div>
@@ -43,6 +47,7 @@
     errEl.style.display = 'none'; res.innerHTML = '';
     goBtn.disabled = true; goBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>{{ __('Curating…') }}';
     var fd = new FormData(); fd.append('theme', theme); fd.append('_token', CSRF);
+    fd.append('published_only', document.getElementById('gePublished').checked ? '1' : '0');
     fetch(URL, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: fd })
       .then(function (r) { return r.json(); })
       .then(function (d) {
@@ -60,7 +65,8 @@
             + '<div class="card-header py-2"><i class="fas fa-door-open me-1 text-primary"></i><strong>' + esc(rm.room) + '</strong> <span class="badge bg-secondary ms-1">' + rm.objects.length + '</span></div>'
             + '<div class="card-body p-2">';
           rm.objects.forEach(function (o) {
-            html += '<div class="border-bottom py-1"><div class="small fw-bold">' + esc(o.title) + '</div>'
+            html += '<div class="border-bottom py-1"><div class="small fw-bold">' + esc(o.title)
+              + (o.year ? ' <span class="badge bg-light text-dark border ms-1">' + esc('' + o.year) + '</span>' : '') + '</div>'
               + '<div class="small text-muted">' + esc(o.label) + '</div></div>';
           });
           html += '</div></div></div>';
