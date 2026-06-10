@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('admin')->group(function () {
     Route::get('/admin/preservation', [PreservationController::class, 'index'])->name('preservation.index');
+    Route::get('/admin/preservation/triage', [PreservationController::class, 'triage'])->name('preservation.triage');
     Route::get('/admin/preservation/fixity-log', [PreservationController::class, 'fixityLog'])->name('preservation.fixity-log');
     Route::get('/admin/preservation/events', [PreservationController::class, 'events'])->name('preservation.events');
     Route::get('/admin/preservation/formats', [PreservationController::class, 'formats'])->name('preservation.formats');

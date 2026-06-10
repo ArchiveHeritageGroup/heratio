@@ -130,6 +130,14 @@ class PreservationController extends Controller
         return view('ahg-preservation::index', compact('stats', 'recentEvents', 'atRiskFormats', 'recentFixity'));
     }
 
+    /** heratio#1200 - collections-wide preservation triage: a risk-ranked at-risk list. */
+    public function triage(\AhgPreservation\Services\PreservationTriageService $triage)
+    {
+        $data = $triage->triage();
+
+        return view('ahg-preservation::triage', ['items' => $data['items'], 'summary' => $data['summary']]);
+    }
+
     /**
      * Fixity check log with status filter.
      */

@@ -2,6 +2,7 @@
     $currentRoute = request()->route()?->getName();
     $menuItems = [
         ['route' => 'preservation.index',          'icon' => 'fa-tachometer-alt', 'label' => 'Dashboard'],
+        ['route' => 'preservation.triage',          'icon' => 'fa-triangle-exclamation', 'label' => 'Preservation Triage'],
         ['route' => 'preservation.fixity-log',      'icon' => 'fa-check-double',   'label' => 'Fixity Log'],
         ['route' => 'preservation.events',          'icon' => 'fa-history',        'label' => 'PREMIS Events'],
         ['route' => 'preservation.formats',         'icon' => 'fa-file-code',      'label' => 'Format Registry'],
