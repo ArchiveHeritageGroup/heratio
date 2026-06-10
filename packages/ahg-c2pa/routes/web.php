@@ -12,6 +12,7 @@
 
 declare(strict_types=1);
 
+use AhgC2pa\Controllers\AuthenticityController;
 use AhgC2pa\Controllers\ProvenanceController;
 use AhgC2pa\Controllers\VerifyController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,15 @@ use Illuminate\Support\Facades\Route;
 // (/{slug}) never intercepts them. No auth: this is the page society turns to
 // when "is this real?" matters.
 Route::prefix('verify')->group(function () {
+    // Public "Authenticity" front door (issue #1209, north star): the bare
+    // /verify path - the institution-level dashboard for the content-
+    // credentials layer, sitting above the per-record /verify/{slug} pages.
+    // Declared FIRST so the bare path is matched here and never falls through
+    // to the {slug} '.+' matcher below. /verify is two segments to the locked
+    // single-segment IO catch-all (/{slug}), so that never intercepts it.
+    Route::get('/', [AuthenticityController::class, 'index'])
+        ->name('c2pa.authenticity');
+
     // Numeric id, namespaced under /verify/id/ so a purely numeric slug can
     // never collide with the id route.
     Route::get('/id/{informationObjectId}', [VerifyController::class, 'byId'])
