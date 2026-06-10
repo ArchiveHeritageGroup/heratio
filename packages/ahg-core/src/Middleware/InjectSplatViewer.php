@@ -56,7 +56,9 @@ class InjectSplatViewer
             }
 
             $html = (string) $response->getContent();
-            if ($html === '' || str_contains($html, 'ahg-splat-embed')) {
+            // Skip if already injected, or the page already renders the splat inline via the
+            // shared digital-object viewer's "3D" mode (btn-splat-*) - no double render.
+            if ($html === '' || str_contains($html, 'ahg-splat-embed') || str_contains($html, 'btn-splat-')) {
                 return $response;
             }
             $panel = $this->panel($splat);

@@ -72,3 +72,19 @@ GLAM sector, via a response-injection middleware - so no per-sector (locked) sho
 groups - a direct `pushMiddlewareToGroup('web', ...)` in `boot()` gets overwritten. Register it
 inside `$this->app->booted(fn () => ...)` so it runs after the kernel sync (privacy's panel
 works without this only because that package boots later). Deploys need a `php-fpm` reload.
+
+## Integrated as a viewer mode in the media switcher (#1193)
+
+Preferred surface: the splat is a **"3D" mode in the shared digital-object viewer's switcher**
+(alongside OpenSeadragon / Mirador / Image), so it renders in the same media area and works
+across every GLAM sector that includes the shared partial
+(`ahg-information-object-manage::partials._digital-object-viewer`).
+
+- When the record's object has a linked ready splat, the partial adds a **3D** button + a splat
+  pane (iframe `/splat/{slug}?embed=1`, lazy-loaded on first open). Clicking 3D shows the splat
+  and hides the image viewers; clicking an image viewer hides the splat. A small inline script
+  wires only the new button (no change to `initIiifViewer`).
+- The `InjectSplatViewer` middleware now **skips** any page that already renders the inline
+  button (`btn-splat-*`), so it only acts as a fallback for record pages that don't use the
+  shared viewer partial - no double render.
+- The shared partial lives in the hard-locked IO show tree; this shipped via a one-shot unlock.

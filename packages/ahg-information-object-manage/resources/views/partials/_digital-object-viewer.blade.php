@@ -427,6 +427,16 @@
           }
         @endphp
 
+        @php
+          // heratio#1193 - Gaussian-splat capture linked to this record adds a "3D" viewer mode.
+          $splatRow = \Illuminate\Support\Facades\Schema::hasTable('ahg_gaussian_splat')
+            ? \Illuminate\Support\Facades\DB::table('ahg_gaussian_splat')
+                ->where('information_object_id', $io->id)->where('status', 'ready')
+                ->whereNotNull('file_name')->orderByDesc('id')->first()
+            : null;
+          $splatEmbedUrl = $splatRow ? '/splat/'.$splatRow->slug.'?embed=1' : null;
+        @endphp
+
         {{-- Viewer toggle --}}
         <div class="d-flex justify-content-between align-items-center mb-2" style="position:relative;z-index:10;">
           <div class="btn-group btn-group-sm" role="group">
@@ -439,6 +449,11 @@
             <button id="btn-img-{{ $viewerId }}" class="btn atom-btn-white {{ in_array($vType, ['single', 'carousel']) ? 'active' : '' }}" title="{{ __('Simple image') }}">
               <i class="fas fa-image me-1"></i>{{ __('Image') }}
             </button>
+            @if($splatEmbedUrl)
+            <button id="btn-splat-{{ $viewerId }}" class="btn atom-btn-white" title="{{ __('Photoreal 3D capture (Gaussian splat)') }}">
+              <i class="fas fa-cube me-1"></i>{{ __('3D') }}
+            </button>
+            @endif
           </div>
           <div class="btn-group btn-group-sm">
             <a href="{{ $imgSrc }}" target="_blank" class="btn atom-btn-white" title="{{ __('Open full size') }}">
@@ -462,6 +477,14 @@
             <img src="{{ $refUrl ?: $thumbUrl }}" alt="{{ $io->title }}" class="img-fluid img-thumbnail" style="max-height:{{ $vHeight }};">
           </a>
         </div>
+
+        @if($splatEmbedUrl)
+          {{-- heratio#1193: Gaussian-splat capture, shown in the same media area when "3D" is picked --}}
+          <div id="splat-{{ $viewerId }}" style="display:none;position:relative;width:100%;height:{{ $vHeight }};border-radius:8px;overflow:hidden;background:#0b0b0b;">
+            <iframe id="splat-frame-{{ $viewerId }}" title="{{ $io->title }} - 3D capture" loading="lazy"
+              style="width:100%;height:100%;border:0;display:block" allow="fullscreen" data-src="{{ $splatEmbedUrl }}"></iframe>
+          </div>
+        @endif
 
         {{-- Bootstrap 5 carousel (wired to iiif_viewer_settings: carousel_autoplay / carousel_interval / carousel_show_thumbnails / carousel_show_controls) --}}
         @if($vType === 'carousel')
@@ -517,6 +540,31 @@
           initIiifViewer('{{ $viewerId }}', '{{ url($imgSrc) }}', '{{ $io->title }}', '{{ $vType }}');
         });
         </script>
+        @if($splatEmbedUrl)
+        <script nonce="{{ $cspNonce ?? '' }}">
+        document.addEventListener('DOMContentLoaded', function () {
+          var vid = '{{ $viewerId }}';
+          var splatBtn = document.getElementById('btn-splat-' + vid);
+          var splatPane = document.getElementById('splat-' + vid);
+          var frame = document.getElementById('splat-frame-' + vid);
+          if (!splatBtn || !splatPane) { return; }
+          var imageBtns = ['btn-osd-' + vid, 'btn-mirador-' + vid, 'btn-img-' + vid].map(function (id) { return document.getElementById(id); }).filter(Boolean);
+          var imagePanes = ['osd-' + vid, 'mirador-' + vid, 'img-' + vid].map(function (id) { return document.getElementById(id); }).filter(Boolean);
+
+          splatBtn.addEventListener('click', function () {
+            if (frame && !frame.src) { frame.src = frame.getAttribute('data-src'); }   // lazy-load on first open
+            imagePanes.forEach(function (p) { p.style.display = 'none'; });
+            splatPane.style.display = 'block';
+            imageBtns.forEach(function (b) { b.classList.remove('active'); });
+            splatBtn.classList.add('active');
+          });
+          // Switching back to any image viewer hides the splat.
+          imageBtns.forEach(function (b) {
+            b.addEventListener('click', function () { splatPane.style.display = 'none'; splatBtn.classList.remove('active'); });
+          });
+        });
+        </script>
+        @endif
       @elseif(($masterObj->path ?? '') && (str_contains($masterObj->path, 'sketchfab.com') || str_contains($masterObj->path, 'youtube.com') || str_contains($masterObj->path, 'youtu.be') || str_contains($masterObj->path, 'vimeo.com')))
         {{-- External embed (Sketchfab 3D, YouTube, Vimeo) with IIIF viewer toggle --}}
         @php
