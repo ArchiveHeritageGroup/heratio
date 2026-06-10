@@ -623,6 +623,7 @@ class ExhibitionSpaceController extends Controller
         return view('ahg-exhibition::exhibition-space.forecast', [
             'space' => $space,
             'rooms' => $this->service->buildingForecast($space),
+            'timeline' => $this->service->conservationTimeline($space),   // #1189 time-scrubber
         ]);
     }
 

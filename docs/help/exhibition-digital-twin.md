@@ -82,6 +82,12 @@ sensitive and durable material. Each room shows the percentage of budget used, t
 until the budget is reached, and a risk band. A what-if simulator lets you try different
 lux levels, daily display hours and target tiers.
 
+The **Conservation time machine** on the same page is a top-down plan you can **scrub through
+time**: drag the slider and each room shades green / amber / red by its conservation status
+on that day, from the readings history. Drag past "today" and the rooms carry their current
+status forward as a projection - a quick way to see how conditions have moved and where they
+are heading.
+
 ## Analytics dashboard
 
 Open **Analytics** to see per-room trends for lux, temperature, humidity and visitors

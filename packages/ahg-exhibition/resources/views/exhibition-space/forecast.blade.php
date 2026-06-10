@@ -11,6 +11,59 @@
   </div>
   <p class="text-muted small mb-3">{{ __('Projected from the last 30 days of light readings: annual light dose (lux-hours) vs the material light budget, time until the budget is reached, and visitor load. Budgets follow international museum guidance (very sensitive 50k, sensitive 150k, durable 600k lux-hours/year).') }}</p>
 
+  {{-- heratio#1189 - conservation time-scrubber: drag time, watch the rooms change colour --}}
+  @isset($timeline)
+  @if(count($timeline['rooms']))
+  <div class="card mb-3">
+    <div class="card-header py-2"><strong><i class="fas fa-clock-rotate-left me-1"></i>{{ __('Conservation time machine') }}</strong> <small class="text-muted">{{ __('drag time; rooms shade by conservation status') }}</small></div>
+    <div class="card-body">
+      <canvas id="tlCanvas" style="width:100%;max-width:760px;display:block;margin:0 auto;background:#f8f9fa;border-radius:6px"></canvas>
+      <div class="d-flex align-items-center gap-2 mt-2" style="max-width:760px;margin:0 auto">
+        <input type="range" id="tlSlider" class="form-range flex-grow-1" min="0" max="0" step="1">
+        <span id="tlLabel" class="badge bg-secondary" style="min-width:120px"></span>
+      </div>
+      <div class="small text-muted mt-1 d-flex gap-3 justify-content-center">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#46c06b"></span> {{ __('OK') }}</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#f4d03f"></span> {{ __('Watch') }}</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#e8553a"></span> {{ __('At risk') }}</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#eef1f4"></span> {{ __('No data') }}</span>
+      </div>
+    </div>
+  </div>
+  <script nonce="{{ $cspNonce ?? '' }}">
+  (function () {
+    var T = @json($timeline);
+    var cv = document.getElementById('tlCanvas'); if (!cv || !T.rooms || !T.rooms.length || !T.buckets.length) return;
+    var slider = document.getElementById('tlSlider'), label = document.getElementById('tlLabel');
+    var W = 760, H = 430; cv.width = W; cv.height = H; var ctx = cv.getContext('2d');
+    var bw = (T.max_x - T.min_x) || 1, bd = (T.max_z - T.min_z) || 1, pad = 26;
+    var sc = Math.min((W - 2 * pad) / bw, (H - 2 * pad) / bd);
+    var ox = (W - bw * sc) / 2 - T.min_x * sc, oy = (H - bd * sc) / 2 - T.min_z * sc;
+    var COL = { green: '#46c06b', amber: '#f4d03f', red: '#e8553a', none: '#eef1f4' };
+    // default the slider to "today" (last historical bucket)
+    var todayIdx = 0; for (var i = 0; i < T.buckets.length; i++) { if (!T.buckets[i].future) todayIdx = i; }
+    slider.max = T.buckets.length - 1; slider.value = todayIdx;
+    function draw(idx) {
+      var b = T.buckets[idx];
+      label.textContent = b.label + (b.future ? ' · {{ __('projected') }}' : '');
+      label.className = 'badge ' + (b.future ? 'bg-info' : 'bg-secondary');
+      ctx.clearRect(0, 0, W, H);
+      T.rooms.forEach(function (rm) {
+        var st = (T.status[rm.id] || [])[idx] || 'none';
+        var x = ox + rm.x * sc, y = oy + rm.z * sc, w = rm.w * sc, h = rm.d * sc;
+        ctx.fillStyle = COL[st] || COL.none; ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = '#adb5bd'; ctx.lineWidth = 1; ctx.strokeRect(x, y, w, h);
+        ctx.fillStyle = '#212529'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(rm.name || '', x + w / 2, y + h / 2 + 3);
+      });
+    }
+    slider.addEventListener('input', function () { draw(+slider.value); });
+    draw(todayIdx);
+  })();
+  </script>
+  @endif
+  @endisset
+
   {{-- What-if simulator --}}
   <div class="card mb-3">
     <div class="card-header py-2"><strong><i class="fas fa-sliders-h me-1"></i>{{ __('What-if simulator') }}</strong></div>

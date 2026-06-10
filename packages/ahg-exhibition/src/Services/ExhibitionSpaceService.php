@@ -1247,6 +1247,79 @@ class ExhibitionSpaceService
      *
      * @return array{status:string,reasons:array<int,string>}
      */
+    /**
+     * heratio#1189 - conservation time-scrubber. For each building room and each daily bucket
+     * (history + a flat forward projection), the conservation status (green/amber/red/none)
+     * from the readings as-of that day. Drives a scrubbable plan on the forecast page.
+     */
+    public function conservationTimeline(object $space, int $days = 21, int $forecastDays = 10): array
+    {
+        $building = $this->getWalkthroughBuilding($space);
+        $roomIds = array_map(fn ($r) => $r['id'], $building['rooms']);
+        $byRoom = [];
+        if ($roomIds && \Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_reading')) {
+            $since = now()->subDays($days)->startOfDay();
+            $rows = DB::table('ahg_exhibition_reading')->whereIn('exhibition_space_id', $roomIds)
+                ->where('recorded_at', '>=', $since)->orderBy('recorded_at')
+                ->select('exhibition_space_id', 'metric', 'value', 'recorded_at')->get();
+            foreach ($rows as $r) {
+                $byRoom[(int) $r->exhibition_space_id][$r->metric][] = [strtotime((string) $r->recorded_at), (float) $r->value];
+            }
+        }
+
+        $buckets = [];
+        for ($d = -$days; $d <= $forecastDays; $d++) {
+            $t = now()->addDays($d)->endOfDay();
+            $buckets[] = ['ts' => $t->timestamp, 'label' => $t->format('d M'), 'future' => $d > 0];
+        }
+        $nowTs = now()->timestamp;
+
+        $status = [];
+        foreach ($building['rooms'] as $rm) {
+            $series = [];
+            $ms = $byRoom[$rm['id']] ?? [];
+            foreach ($buckets as $b) {
+                $cut = $b['future'] ? $nowTs : $b['ts'];   // future buckets carry the latest-known status forward
+                $readings = $this->readingsAsOf($ms, $cut);
+                $series[] = $readings ? $this->statusFromReadings($readings) : 'none';
+            }
+            $status[$rm['id']] = $series;
+        }
+
+        return [
+            'rooms' => array_map(fn ($r) => ['id' => $r['id'], 'name' => $r['name'], 'x' => $r['x_offset'], 'z' => $r['z_offset'], 'w' => $r['w'], 'd' => $r['d']], $building['rooms']),
+            'buckets' => $buckets, 'status' => $status,
+            'min_x' => $building['min_x'] ?? 0, 'max_x' => $building['max_x'] ?? 0,
+            'min_z' => $building['min_z'] ?? 0, 'max_z' => $building['max_z'] ?? 0,
+        ];
+    }
+
+    /** Latest value per metric at or before $ts, from ascending [ts,value] series. */
+    private function readingsAsOf(array $metricSeries, int $ts): array
+    {
+        $out = [];
+        foreach ($metricSeries as $metric => $pairs) {
+            $v = null;
+            foreach ($pairs as $p) {
+                if ($p[0] <= $ts) { $v = $p[1]; } else { break; }
+            }
+            if ($v !== null) { $out[$metric] = $v; }
+        }
+
+        return $out;
+    }
+
+    /** green/amber/red from metric values (museum norms; same thresholds as the live overlay). */
+    private function statusFromReadings(array $r): string
+    {
+        $level = 0;
+        if (isset($r['lux'])) { $level = max($level, $r['lux'] > 300 ? 2 : ($r['lux'] > 200 ? 1 : 0)); }
+        if (isset($r['temp_c'])) { $t = $r['temp_c']; $level = max($level, ($t < 14 || $t > 26) ? 2 : (($t < 16 || $t > 24) ? 1 : 0)); }
+        if (isset($r['humidity'])) { $h = $r['humidity']; $level = max($level, ($h < 35 || $h > 65) ? 2 : (($h < 40 || $h > 60) ? 1 : 0)); }
+
+        return ['green', 'amber', 'red'][$level];
+    }
+
     public function conservationStatus(object $space, array $readings): array
     {
         $level = 0;
