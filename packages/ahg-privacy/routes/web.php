@@ -1,6 +1,7 @@
 <?php
 
 use AhgPrivacy\Controllers\Article30Controller;
+use AhgPrivacy\Controllers\ComplianceAutopilotController;
 use AhgPrivacy\Controllers\DescriptionPrivacyController;
 use AhgPrivacy\Controllers\DpiaController;
 use AhgPrivacy\Controllers\EmbeddedFindingsController;
@@ -22,6 +23,11 @@ Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(functi
     // ------------------------------------------------------------------
     // Issue #669 Phase 1: Article 30 register + DPIA workflow
     // ------------------------------------------------------------------
+    // heratio#1199 - compliance autopilot: scan catalogue for PII -> auto-draft a ROPA entry
+    Route::get('/autopilot',         [ComplianceAutopilotController::class, 'index'])->name('ahgprivacy.autopilot');
+    Route::post('/autopilot/scan',   [ComplianceAutopilotController::class, 'scanAjax'])->name('ahgprivacy.autopilot.scan');
+    Route::post('/autopilot/create', [ComplianceAutopilotController::class, 'createRopa'])->name('ahgprivacy.autopilot.create');
+
     Route::get('/article-30',            [Article30Controller::class, 'index'])->name('ahgprivacy.article-30.index');
     Route::get('/article-30/export',     [Article30Controller::class, 'export'])->name('ahgprivacy.article-30.export');
     Route::get('/article-30/new',        [Article30Controller::class, 'create'])->name('ahgprivacy.article-30.create');

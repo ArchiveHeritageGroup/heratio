@@ -16,6 +16,9 @@
     <a href="{{ route('ahgprivacy.article-30.create') }}" class="btn btn-primary">
       <i class="fas fa-plus me-1"></i>{{ __('Add activity') }}
     </a>
+    <a href="{{ route('ahgprivacy.autopilot') }}" class="btn btn-primary ms-2" title="{{ __('Scan the catalogue for personal data and auto-draft a ROPA entry') }}">
+      <i class="fas fa-robot me-1"></i>{{ __('Compliance Autopilot') }}
+    </a>
     <div class="btn-group ms-2" role="group">
       <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
         <i class="fas fa-download me-1"></i>{{ __('Export') }}
