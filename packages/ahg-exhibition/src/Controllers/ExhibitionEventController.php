@@ -212,10 +212,8 @@ class ExhibitionEventController extends Controller
             'name' => $rsvp->name,
         ]);
 
-        // #1153/#1193 BETA: route ticket holders into the ESM/r169 beta walkthrough so the full
-        // event flow is testable on the new base. Flip to 'exhibition-space.walkthrough' when the
-        // beta is promoted to the live route.
-        return redirect()->route('exhibition-space.walkthrough-next', [
+        // #1193 promoted: the walkthrough route now serves the ESM/r169 view with live co-presence.
+        return redirect()->route('exhibition-space.walkthrough', [
             'slug' => $space->slug,
             'event' => $event->public_token,
         ]);

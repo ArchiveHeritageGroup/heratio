@@ -1666,7 +1666,7 @@ class ExhibitionSpaceController extends Controller
         ]);
     }
 
-    public function walkthrough(string $slug)
+    public function walkthrough(Request $request, string $slug)
     {
         $space = $this->service->getBySlug($slug);
         if (! $space) {
@@ -1681,6 +1681,24 @@ class ExhibitionSpaceController extends Controller
             $hasContent = $hasContent || count($r['stops'] ?? []) > 0;
         }
 
+        // #1192 event mode: arriving via a ticketed opening (?event=<token>) surfaces the event
+        // banner + auto-identifies the verified attendee (pinned in session by the join action).
+        $eventCtx = null;
+        $eventToken = (string) $request->query('event', '');
+        if ($eventToken !== '') {
+            $ev = app(\AhgExhibition\Services\ExhibitionEventService::class)->getByToken($eventToken);
+            if ($ev) {
+                $att = session('exhibition_event_attendee');
+                $eventCtx = [
+                    'title' => $ev->title ?? 'Live opening',
+                    'host' => $ev->host_name ?? null,
+                    'attendee_name' => (is_array($att) && ($att['event_token'] ?? null) === $eventToken) ? ($att['name'] ?? null) : null,
+                ];
+            }
+        }
+
+        // #1153/#1193 promoted: the live walkthrough is now the ESM/three-r169 view with in-room
+        // Gaussian splats, the conversational docent and live-opening mode (the old r137 view is retired).
         return view('ahg-exhibition::exhibition-space.walkthrough', [
             'space' => $space,
             'stops' => $this->service->getWalkthroughStops((int) $space->id),
@@ -1690,6 +1708,7 @@ class ExhibitionSpaceController extends Controller
             'canDocent' => auth()->check(),   // #1150 - logged-in staff can run a guided tour
             'annotations' => $this->service->listAnnotations($space),   // #1165 - wall graffiti
             'guidedTour' => $this->service->getGuidedTour($space),      // authored audio tour
+            'eventCtx' => $eventCtx,
         ]);
     }
 
@@ -1750,7 +1769,8 @@ class ExhibitionSpaceController extends Controller
             }
         }
 
-        return view('ahg-exhibition::exhibition-space.walkthrough-next', [
+        // walkthrough-next is now an alias of the promoted walkthrough view (same ESM/r169 content).
+        return view('ahg-exhibition::exhibition-space.walkthrough', [
             'space' => $space,
             'stops' => $this->service->getWalkthroughStops((int) $space->id),
             'walls' => $this->service->getWalls((int) $space->id),
