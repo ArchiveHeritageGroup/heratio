@@ -95,6 +95,16 @@ class StorytellingController extends Controller
         return response()->json($result);
     }
 
+    /** "On this day" - a story from records dated today, falling back to this month. */
+    public function onThisDayAjax()
+    {
+        $result = $this->service->onThisDay();
+        $result['sources'] = [];   // date-derived; no external attribution
+        $result['source_warnings'] = [];
+
+        return response()->json($result);
+    }
+
     /** Typeahead for hand-picking catalogue records to weave into a story. */
     public function searchAjax(Request $request)
     {

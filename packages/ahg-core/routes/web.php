@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/stories/generate', [\AhgCore\Controllers\StorytellingController::class, 'generateAjax'])->name('stories.generate');
     Route::post('/admin/stories/save', [\AhgCore\Controllers\StorytellingController::class, 'saveAjax'])->name('stories.save');
     Route::get('/admin/stories/search', [\AhgCore\Controllers\StorytellingController::class, 'searchAjax'])->name('stories.search');
+    Route::post('/admin/stories/on-this-day', [\AhgCore\Controllers\StorytellingController::class, 'onThisDayAjax'])->name('stories.on-this-day');
 });
 // Public, shareable story page (two-segment path - safe from the single-segment /{slug} catch-all).
 Route::get('/stories/{slug}', [\AhgCore\Controllers\StorytellingController::class, 'show'])

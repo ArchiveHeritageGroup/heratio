@@ -16,6 +16,7 @@
   <div class="input-group mb-2" style="max-width:680px">
     <input type="text" id="stTheme" class="form-control" placeholder="{{ __('e.g. the river that built the town, women at work, our oldest treasures') }}" maxlength="200">
     <button type="button" id="stGo" class="btn btn-primary"><i class="fas fa-feather-pointed me-1"></i>{{ __('Write the story') }}</button>
+    <button type="button" id="stToday" class="btn btn-outline-primary" title="{{ __('A story from records dated today (or this month)') }}"><i class="fas fa-calendar-day me-1"></i>{{ __('On this day') }}</button>
   </div>
   <div class="d-flex flex-wrap gap-1 mb-2" id="stChips"></div>
 
@@ -122,7 +123,7 @@
     var nFiles = fileEl.files ? fileEl.files.length : 0;
     var hasExtra = notes || urls.length || nFiles || pickedRecords.length;
     if (!theme && !hasExtra) { themeEl.focus(); return; }
-    errEl.style.display = 'none'; res.style.display = 'none';
+    errEl.style.display = 'none'; errEl.className = 'alert alert-warning'; res.style.display = 'none';
     goBtn.disabled = true; goBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>{{ __('Writing…') }}';
     var fd = new FormData(); fd.append('theme', theme); fd.append('_token', CSRF);
     if (notes) { fd.append('notes', notes); }
@@ -133,39 +134,62 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         goBtn.disabled = false; goBtn.innerHTML = '<i class="fas fa-feather-pointed me-1"></i>{{ __('Write the story') }}';
-        var warns = (d && d.source_warnings) ? d.source_warnings : [];
-        if (!d || !d.ok) {
-          errEl.style.display = 'block';
-          errEl.innerHTML = (warns.length
-              ? '{{ __('Some sources could not be used:') }}<ul class="mb-0">' + warns.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul>'
-              : '')
-            + ((!d || !d.objects || !d.objects.length)
-              ? '{{ __('No catalogue objects matched that theme, and no usable sources were given. Try a different theme or add a source.') }}'
-              : '{{ __('Could not write a story. Try again or rephrase.') }}');
-          return;
-        }
-        curId = 0; curObjects = d.objects || []; curSources = d.sources || [];
-        document.getElementById('stTitle').value = d.theme;
-        document.getElementById('stStory').value = d.story;
-        document.getElementById('stSaveMsg').innerHTML = '';
-        if (warns.length) {
-          errEl.style.display = 'block';
-          errEl.innerHTML = '{{ __('Story written. Some sources could not be used:') }}<ul class="mb-0">' + warns.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul>';
-        }
-        var ob = document.getElementById('stObjects'); ob.innerHTML = '';
-        curObjects.forEach(function (o) {
-          var div = document.createElement('div'); div.className = 'small border-bottom py-1';
-          div.innerHTML = '<i class="fas fa-cube text-muted me-1"></i>' + esc(o.title);
-          ob.appendChild(div);
-        });
-        res.style.display = 'flex';
+        applyResponse(d, false);
       })
       .catch(function () {
         goBtn.disabled = false; goBtn.innerHTML = '<i class="fas fa-feather-pointed me-1"></i>{{ __('Write the story') }}';
         errEl.style.display = 'block'; errEl.textContent = '{{ __('Something went wrong. Please try again.') }}';
       });
   }
+
+  // Shared rendering for both "Write the story" and "On this day".
+  function applyResponse(d, isToday) {
+    var warns = (d && d.source_warnings) ? d.source_warnings : [];
+    if (!d || !d.ok) {
+      errEl.style.display = 'block';
+      errEl.innerHTML = (warns.length
+          ? '{{ __('Some sources could not be used:') }}<ul class="mb-0">' + warns.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul>'
+          : '')
+        + (isToday
+          ? '{{ __('Nothing in the collection is dated to today or this month yet. Add dates to records, or write a themed story instead.') }}'
+          : ((!d || !d.objects || !d.objects.length)
+            ? '{{ __('No catalogue objects matched that theme, and no usable sources were given. Try a different theme or add a source.') }}'
+            : '{{ __('Could not write a story. Try again or rephrase.') }}'));
+      return;
+    }
+    curId = 0; curObjects = d.objects || []; curSources = d.sources || [];
+    document.getElementById('stTitle').value = d.theme;
+    document.getElementById('stStory').value = d.story;
+    document.getElementById('stSaveMsg').innerHTML = '';
+    if (warns.length) {
+      errEl.style.display = 'block';
+      errEl.innerHTML = '{{ __('Story written. Some sources could not be used:') }}<ul class="mb-0">' + warns.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul>';
+    } else if (isToday && d.scope === 'month') {
+      errEl.style.display = 'block';
+      errEl.className = 'alert alert-info';
+      errEl.textContent = '{{ __('Nothing was dated to today exactly, so this is a story for the whole month.') }}';
+    }
+    var ob = document.getElementById('stObjects'); ob.innerHTML = '';
+    curObjects.forEach(function (o) {
+      var div = document.createElement('div'); div.className = 'small border-bottom py-1';
+      div.innerHTML = '<i class="fas fa-cube text-muted me-1"></i>' + esc(o.title);
+      ob.appendChild(div);
+    });
+    res.style.display = 'flex';
+  }
+
+  function onThisDay() {
+    errEl.style.display = 'none'; errEl.className = 'alert alert-warning'; res.style.display = 'none';
+    var btn = document.getElementById('stToday'); var orig = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>{{ __('Looking…') }}';
+    fetch('{{ route('stories.on-this-day') }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { btn.disabled = false; btn.innerHTML = orig; applyResponse(d, true); })
+      .catch(function () { btn.disabled = false; btn.innerHTML = orig; errEl.style.display = 'block'; errEl.textContent = '{{ __('Something went wrong. Please try again.') }}'; });
+  }
+
   goBtn.addEventListener('click', run);
+  document.getElementById('stToday').addEventListener('click', onThisDay);
   themeEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); run(); } });
 
   // Multiple source URLs (add to a chip list).

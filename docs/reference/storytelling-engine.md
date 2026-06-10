@@ -69,10 +69,22 @@ Each external source is recorded as `{type: note|url|upload|record, label, url?}
 `rel="noopener nofollow"`, uploads by filename, notes/records labelled) so a published story
 stays defensible. Fits the AI-provenance roadmap (#61).
 
+## On this day (shipped)
+An **On this day** button writes a story from records dated to today, with a graceful fallback:
+`StorytellingService::onThisDay()` -> `datedObjects()` queries the `event` table for catalogue
+records whose `start_date` falls on today's month + day (any year). If none match exactly it
+falls back to records dated anywhere in the current month; if there are none of those either it
+returns `scope=none` and the UI shows a friendly "nothing dated to today or this month yet"
+message. The response carries `scope` (`day` | `month` | `none`) so the page can note when it
+fell back to the whole month. Route `stories.on-this-day` (POST, auth) -> `onThisDayAjax`.
+
+Year-only AtoM dates store the day/month as `00`, so they never match a real 1-12 / 1-31 value
+and are naturally excluded - the feature only surfaces records with genuine calendar dates.
+Verified with `Carbon::setTestNow()`: an exact-day match writes a "6th of May" story; a same-month
+non-matching day falls back to a month story.
+
 ## Notes
 - AI via the gateway (LlmService) - no direct node calls.
 - Reachable from the admin menu + exhibition browse "AI Tools" (Story Generator), with a back
   button to Exhibition spaces.
-- Next slices: "On this day" (date-driven daily story) - deferred because normalised `event`
-  start dates are sparse/year-only on current data, so it would render empty; per-object
-  deep-dive; multilingual via the translation service; audio version via TTS.
+- Next slices: per-object deep-dive; multilingual via the translation service; audio via TTS.

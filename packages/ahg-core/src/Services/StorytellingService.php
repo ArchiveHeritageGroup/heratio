@@ -47,29 +47,128 @@ class StorytellingService
             return $out;
         }
 
+        $out['story'] = $this->writeStory($theme !== '' ? $theme : 'the material below', $objects, $context);
+        $out['ok'] = $out['story'] !== '';
+
+        return $out;
+    }
+
+    /**
+     * heratio#1202 - "On this day" / "This month in the collection". Finds catalogue records
+     * dated to today (exact month + day across any year), and if none, falls back to records
+     * dated anywhere in the current month. Returns the same shape as generate() plus a `scope`
+     * key (`day` | `month` | `none`) so the caller can label it.
+     *
+     * @return array{ok:bool, theme:string, scope:string, story:string, objects:array}
+     */
+    public function onThisDay(int $maxObjects = 10): array
+    {
+        $today = now();
+        $monthName = $today->format('F');
+        $dayOrdinal = $today->day.$this->ordinalSuffix($today->day);
+
+        $objects = $this->datedObjects((int) $today->month, (int) $today->day, $maxObjects);
+        $scope = 'day';
+        if (! $objects) {
+            $objects = $this->datedObjects((int) $today->month, null, $maxObjects);   // fall back to the whole month
+            $scope = 'month';
+        }
+        if (! $objects) {
+            return ['ok' => false, 'theme' => 'On this day', 'scope' => 'none', 'story' => '', 'objects' => []];
+        }
+
+        $theme = $scope === 'day'
+            ? "On this day - the {$dayOrdinal} of {$monthName} - in our collection"
+            : "This month - {$monthName} - in our collection";
+        $hint = $scope === 'day'
+            ? "These objects are all connected to today's date ({$dayOrdinal} of {$monthName}) in some year."
+            : "These objects are all connected to {$monthName} in some year.";
+
+        return [
+            'ok' => $this->writeStory($theme, $objects, $hint) !== '' ? true : false,
+            'theme' => $theme, 'scope' => $scope,
+            'story' => $this->lastStory, 'objects' => $objects,
+        ];
+    }
+
+    /** Last story produced by writeStory() - lets onThisDay() avoid a double LLM call. */
+    private string $lastStory = '';
+
+    /** Build the prompt, call the AI gateway, return the story prose ('' on failure). */
+    private function writeStory(string $themeLabel, array $objects, string $context = ''): string
+    {
         $list = $objects
-            ? implode("\n", array_map(fn ($o) => '- '.$o['title'].($o['scope'] !== '' ? ': '.$o['scope'] : ''), $objects))
+            ? implode("\n", array_map(fn ($o) => '- '.$o['title'].(($o['scope'] ?? '') !== '' ? ': '.$o['scope'] : ''), $objects))
             : '(none selected - ground the story in the background material below)';
-        $themeLine = $theme !== '' ? $theme : 'the material below';
-        $prompt = "Write an engaging, warm public 'story of the collection' for a general audience, about 180 to 220 words, on the theme: \"{$themeLine}\". "
+        $prompt = "Write an engaging, warm public 'story of the collection' for a general audience, about 180 to 220 words, on the theme: \"{$themeLabel}\". "
             ."Weave in these real objects from the collection, referring to them naturally by name. Be vivid but factual - do NOT invent specific dates, people or events that are not implied by the material. "
             ."No headings, no markdown, no preamble - just the story prose.\n\nOBJECTS:\n".$list;
         if ($context !== '') {
-            $prompt .= "\n\nADDITIONAL BACKGROUND (curator-supplied context - use it to inform the story, but do not contradict the objects, and do not copy it verbatim):\n".$context;
+            $prompt .= "\n\nADDITIONAL BACKGROUND (use it to inform the story, but do not contradict the objects, and do not copy it verbatim):\n".$context;
         }
 
         try {
             $story = trim((string) app(\AhgAiServices\Services\LlmService::class)->complete($prompt, ['max_tokens' => 520, 'temperature' => 0.7]));
         } catch (\Throwable $e) {
             Log::warning('[ahg-core] storytelling LLM failed: '.$e->getMessage());
-
-            return $out;
+            $story = '';
         }
 
-        $out['story'] = $story;
-        $out['ok'] = $story !== '';
+        return $this->lastStory = $story;
+    }
+
+    /**
+     * Catalogue records with an event date in a given month (and optionally an exact day),
+     * across any year. Year-only AtoM dates store the day/month as 00 and so never match a real
+     * 1-12 / 1-31 value - they are naturally excluded.
+     */
+    private function datedObjects(int $month, ?int $day, int $limit): array
+    {
+        $q = DB::table('event as e')
+            ->join('information_object as io', 'io.id', '=', 'e.object_id')
+            ->join('information_object_i18n as i', function ($j) { $j->on('i.id', '=', 'e.object_id')->where('i.culture', '=', 'en'); })
+            ->whereNotNull('e.start_date')
+            ->where('io.parent_id', '!=', 1)
+            ->where('i.title', '!=', '')
+            ->whereRaw('MONTH(e.start_date) = ?', [$month]);
+        if ($day !== null) {
+            $q->whereRaw('DAY(e.start_date) = ?', [$day]);
+        } else {
+            $q->whereRaw('DAY(e.start_date) BETWEEN 1 AND 31');
+        }
+
+        $rows = $q->orderByRaw('YEAR(e.start_date)')
+            ->select('e.object_id as id', 'i.title', 'i.scope_and_content', 'e.start_date')
+            ->distinct()->limit($limit)->get();
+
+        $out = [];
+        $seen = [];
+        foreach ($rows as $r) {
+            if (isset($seen[$r->id])) {
+                continue;
+            }
+            $seen[$r->id] = true;
+            $year = (int) substr((string) $r->start_date, 0, 4);
+            $out[] = ['id' => (int) $r->id, 'title' => (string) $r->title,
+                'scope' => trim(($year > 0 ? '['.$year.'] ' : '').mb_substr(strip_tags((string) ($r->scope_and_content ?? '')), 0, 150))];
+        }
 
         return $out;
+    }
+
+    /** 1 -> st, 2 -> nd, 3 -> rd, else th (handles the 11-13 exception). */
+    private function ordinalSuffix(int $n): string
+    {
+        if ($n % 100 >= 11 && $n % 100 <= 13) {
+            return 'th';
+        }
+
+        return match ($n % 10) {
+            1 => 'st',
+            2 => 'nd',
+            3 => 'rd',
+            default => 'th',
+        };
     }
 
     /**
