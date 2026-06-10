@@ -53,6 +53,16 @@ Route::middleware('auth')->group(function () {
 Route::get('/stories/{slug}', [\AhgCore\Controllers\StorytellingController::class, 'show'])
     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('stories.show');
 
+// heratio#1183 - point clouds: admin manager + public Potree viewer
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/pointclouds', [\AhgCore\Controllers\PointCloudController::class, 'index'])->name('pointclouds.index');
+    Route::post('/admin/pointclouds', [\AhgCore\Controllers\PointCloudController::class, 'store'])->name('pointclouds.store');
+});
+Route::get('/pointcloud/{slug}', [\AhgCore\Controllers\PointCloudController::class, 'show'])
+    ->where('slug', '[a-z0-9][a-z0-9-]*')->name('pointclouds.show');
+Route::get('/pointcloud/{slug}/status', [\AhgCore\Controllers\PointCloudController::class, 'status'])
+    ->where('slug', '[a-z0-9][a-z0-9-]*')->name('pointclouds.status');
+
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::match(['get', 'post'], '/', [ClipboardController::class, 'index'])->name('index');

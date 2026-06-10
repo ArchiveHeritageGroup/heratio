@@ -154,6 +154,13 @@
     <li><h6 class="dropdown-header">{{ __('Data Entry') }}</h6></li>
     <li><a class="dropdown-item" href="{{ url('/admin/formTemplates') }}"><i class="fas fa-wpforms me-2"></i>{{ __('Form Templates') }}</a></li>
 
+    {{-- Media --}}
+    @if(Route::has('pointclouds.index'))
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">{{ __('Media') }}</h6></li>
+    <li><a class="dropdown-item" href="{{ route('pointclouds.index') }}"><i class="fas fa-cubes me-2"></i>{{ __('Point clouds') }}</a></li>
+    @endif
+
     {{-- DOI Management --}}
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">{{ __('DOI Management') }}</h6></li>

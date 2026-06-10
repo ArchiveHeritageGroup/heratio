@@ -90,3 +90,7 @@ docs/READVERTISEMENT*.pdf
 /docs/images/war/
 /docs/images/Dr. Benson/
 /UNILISA Calll for papers.jpg
+
+# heratio#1183 point-cloud host symlinks (provisioned by ahg:pointcloud-setup)
+/public/pointclouds
+/public/vendor/potree

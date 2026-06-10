@@ -40,6 +40,15 @@ return [
     // Installed per host (see docs/model-optimisation-setup.md), not in the repo.
     'model_tools_bin' => env('HERATIO_MODEL_TOOLS_BIN', '/opt/ahg-model-tools/node_modules/.bin'),
 
+    // Point-cloud converter (#1183) — PotreeConverter binary, installed per host
+    // (built from source into /opt; see docs/pointcloud-setup.md), not in the repo.
+    // Converts .las/.laz (and .ply) into a Potree octree for the web viewer.
+    'pointcloud_bin' => env('HERATIO_POINTCLOUD_BIN', '/opt/PotreeConverter/build/PotreeConverter'),
+    // Potree viewer libs (the page-template libs that ship with PotreeConverter).
+    'pointcloud_libs' => env('HERATIO_POINTCLOUD_LIBS', '/opt/PotreeConverter/resources/page_template/libs'),
+    // Where converted octrees are written (one subdir per cloud). Defaults under storage.
+    'pointclouds_path' => env('HERATIO_POINTCLOUDS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/pointclouds'),
+
     // 3D optimisation: WebP texture re-encode (~10x smaller than PNG). Enabled now
     // that the exhibition walkthrough loads three.js r137 which decodes
     // EXT_texture_webp (#1181). Texture resize cap (px) bounds dimensions first.
