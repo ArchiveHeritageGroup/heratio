@@ -506,6 +506,9 @@ class AhgCoreServiceProvider extends ServiceProvider
                 if (is_string($sql) && trim($sql) !== '') {
                     \Illuminate\Support\Facades\DB::unprepared($sql);
                 }
+            } elseif (! \Illuminate\Support\Facades\Schema::hasColumn('ahg_gaussian_splat', 'information_object_id')) {
+                // #1193 link slice: associate a capture with a museum object.
+                \Illuminate\Support\Facades\DB::statement('ALTER TABLE `ahg_gaussian_splat` ADD COLUMN `information_object_id` INT NULL AFTER `slug`');
             }
         } catch (\Throwable $e) {
             \Log::warning('[ahg-core] ahg_gaussian_splat install failed: '.$e->getMessage());

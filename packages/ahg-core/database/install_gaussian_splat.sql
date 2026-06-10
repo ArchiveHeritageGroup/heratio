@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `ahg_gaussian_splat` (
   `description` TEXT NULL,
   `source_filename` VARCHAR(255) NULL,
   `file_name` VARCHAR(160) NULL COMMENT 'stored filename under heratio.splats_path',
+  `information_object_id` INT NULL COMMENT 'museum object this capture belongs to (#1193 link)',
   `format` VARCHAR(12) NULL COMMENT 'ply | splat | ksplat',
   `size_bytes` BIGINT UNSIGNED NULL,
   `status` VARCHAR(20) NOT NULL DEFAULT 'ready' COMMENT 'ready | failed',
