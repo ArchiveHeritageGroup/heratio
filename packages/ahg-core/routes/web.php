@@ -41,6 +41,12 @@ Route::get('/ahgVoice/getSettings', [VoiceController::class, 'getSettings'])->na
 // /etc/nginx ^~ /iiif/ block) — colliding here would 404 from Java.
 Route::get('/api/iiif-settings', [IiifController::class, 'getSettings'])->name('iiif.viewer.settings');
 
+// heratio#1202 - storytelling engine (admin): theme -> AI narrative from catalogue objects
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/stories', [\AhgCore\Controllers\StorytellingController::class, 'index'])->name('stories.index');
+    Route::post('/admin/stories/generate', [\AhgCore\Controllers\StorytellingController::class, 'generateAjax'])->name('stories.generate');
+});
+
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::match(['get', 'post'], '/', [ClipboardController::class, 'index'])->name('index');
