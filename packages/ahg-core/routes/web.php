@@ -45,7 +45,12 @@ Route::get('/api/iiif-settings', [IiifController::class, 'getSettings'])->name('
 Route::middleware('auth')->group(function () {
     Route::get('/admin/stories', [\AhgCore\Controllers\StorytellingController::class, 'index'])->name('stories.index');
     Route::post('/admin/stories/generate', [\AhgCore\Controllers\StorytellingController::class, 'generateAjax'])->name('stories.generate');
+    Route::post('/admin/stories/save', [\AhgCore\Controllers\StorytellingController::class, 'saveAjax'])->name('stories.save');
+    Route::get('/admin/stories/search', [\AhgCore\Controllers\StorytellingController::class, 'searchAjax'])->name('stories.search');
 });
+// Public, shareable story page (two-segment path - safe from the single-segment /{slug} catch-all).
+Route::get('/stories/{slug}', [\AhgCore\Controllers\StorytellingController::class, 'show'])
+    ->where('slug', '[a-z0-9][a-z0-9-]*')->name('stories.show');
 
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {

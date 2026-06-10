@@ -467,5 +467,21 @@ class AhgCoreServiceProvider extends ServiceProvider
         } catch (\Throwable $e) {
             \Log::warning('[ahg-core] cron-monitoring install failed: '.$e->getMessage());
         }
+
+        // #1202 storytelling: ahg_story (saved/published stories). Single outer try/catch
+        // around hasTable() + unprepared() per reference_ci_schema_hastable.md.
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_story')) {
+                $sql = file_get_contents(__DIR__.'/../../database/install_story.sql');
+                if (is_string($sql) && trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                }
+            } elseif (! \Illuminate\Support\Facades\Schema::hasColumn('ahg_story', 'sources_json')) {
+                // #1202 grounding-sources slice: add the attribution column to existing tables.
+                \Illuminate\Support\Facades\DB::statement('ALTER TABLE `ahg_story` ADD COLUMN `sources_json` TEXT NULL AFTER `object_ids`');
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-core] ahg_story install failed: '.$e->getMessage());
+        }
     }
 }
