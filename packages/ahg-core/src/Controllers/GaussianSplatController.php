@@ -26,45 +26,6 @@ class GaussianSplatController extends Controller
 {
     public function __construct(private GaussianSplatService $service) {}
 
-    public function index()
-    {
-        return view('ahg-core::splat-manage', ['splats' => $this->service->list()]);
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'nullable|string|max:200',
-            'splat' => 'required|file',
-            'record' => 'nullable|string|max:255',
-        ]);
-
-        $ioId = $this->service->resolveObjectId($request->input('record'));
-        if ($request->filled('record') && ! $ioId) {
-            return back()->with('splat_error', 'No catalogue record matched "'.$request->input('record').'" (use its slug or numeric id).');
-        }
-
-        $r = $this->service->store((string) $request->input('title', ''), $request->file('splat'), Auth::id(), $ioId);
-        if (! $r['ok']) {
-            return back()->with('splat_error', $r['error'] ?? 'Upload failed.');
-        }
-
-        return back()->with('splat_success', 'Uploaded.'.($ioId ? ' Attached to the record - it now shows in that record\'s 3D viewer.' : ' Open it to view the capture.'));
-    }
-
-    /** Attach/detach an existing splat to a catalogue record (by slug or numeric id). */
-    public function attach(Request $request, int $id)
-    {
-        $request->validate(['record' => 'nullable|string|max:255']);
-        $ioId = $this->service->resolveObjectId($request->input('record'));
-        if ($request->filled('record') && ! $ioId) {
-            return back()->with('splat_error', 'No catalogue record matched "'.$request->input('record').'".');
-        }
-        $this->service->setObject($id, $ioId);
-
-        return back()->with('splat_success', $ioId ? 'Attached to the record.' : 'Detached from any record.');
-    }
-
     /** Public photoreal viewer for a ready splat; staff can preview failed ones. */
     public function show(string $slug)
     {
@@ -95,6 +56,10 @@ class GaussianSplatController extends Controller
         }
         $ext = strtolower(pathinfo((string) $do->name, PATHINFO_EXTENSION));
         if (! in_array($ext, ['splat', 'ksplat', 'ply'], true)) {
+            abort(404);
+        }
+        // A mesh .ply is not a splat - it belongs to the standard 3D-model viewer.
+        if ($ext === 'ply' && ! $this->service->isGaussianPly($do)) {
             abort(404);
         }
 

@@ -38,18 +38,25 @@
     import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
 
     const url = @json($fileUrl);
+    const fmt = @json(strtolower($splat->format ?? ''));
     const fail = () => { document.getElementById('pc_err').style.display = 'block'; };
+
+    // Mirror the proven ai-demo /viewer config: pass the format EXPLICITLY (a .ply won't
+    // auto-detect/progressive-load reliably as a splat) and disable progressive load.
+    const sceneFormat = fmt === 'ply'    ? GaussianSplats3D.SceneFormat.Ply
+                      : fmt === 'ksplat' ? GaussianSplats3D.SceneFormat.KSplat
+                      :                    GaussianSplats3D.SceneFormat.Splat;
 
     try {
       const viewer = new GaussianSplats3D.Viewer({
         rootElement: document.getElementById('splat-root'),
+        sharedMemoryForWorkers: false,   // no COOP/COEP isolation on the host
+        dynamicScene: false,
         cameraUp: [0, -1, 0],
-        initialCameraPosition: [0, 0, 4],
+        initialCameraPosition: [0, 0, 2],
         initialCameraLookAt: [0, 0, 0],
-        // No COOP/COEP isolation on the host, so don't require SharedArrayBuffer.
-        sharedMemoryForWorkers: false,
       });
-      viewer.addSplatScene(url, { showLoadingUI: true, splatAlphaRemovalThreshold: 5 })
+      viewer.addSplatScene(url, { format: sceneFormat, progressiveLoad: false, showLoadingUI: true, splatAlphaRemovalThreshold: 5 })
         .then(() => { viewer.start(); })
         .catch(fail);
     } catch (e) { fail(); }

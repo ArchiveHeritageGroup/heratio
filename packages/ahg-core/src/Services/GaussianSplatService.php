@@ -110,6 +110,25 @@ class GaussianSplatService
         return $splat->file_name ? '/splats/'.$splat->file_name : null;
     }
 
+    /**
+     * Is this .ply a 3D Gaussian-splat export (vs a normal mesh)? Reads the PLY header for the
+     * 3DGS signature (spherical-harmonic + scale/rotation vertex properties, no face element).
+     * Mesh .ply is left to the standard 3D-model viewer; only 3DGS .ply goes to the gs3d viewer.
+     */
+    public function isGaussianPly(object $do): bool
+    {
+        $url = $this->digitalObjectUrl($do);
+        // /uploads is served from <storage_path>/uploads (nginx alias), so the file is there.
+        $fs = rtrim((string) config('heratio.storage_path'), '/').$url;
+        if (! is_readable($fs)) {
+            return false;
+        }
+        $head = @file_get_contents($fs, false, null, 0, 4096) ?: '';
+
+        return (str_contains($head, 'f_dc_0') || (str_contains($head, 'scale_0') && str_contains($head, 'rot_0')))
+            && ! preg_match('/element\s+face/i', $head);
+    }
+
     /** Public URL for a splat uploaded as a digital object (path is the AtoM /uploads layout). */
     public function digitalObjectUrl(object $do): string
     {

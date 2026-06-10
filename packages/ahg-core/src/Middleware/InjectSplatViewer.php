@@ -52,9 +52,20 @@ class InjectSplatViewer
             $doSplat = DB::table('digital_object')
                 ->where('object_id', $objectId)
                 ->where(function ($q) {
-                    $q->where('name', 'like', '%.splat')->orWhere('name', 'like', '%.ksplat');
+                    $q->where('name', 'like', '%.splat')->orWhere('name', 'like', '%.ksplat')->orWhere('name', 'like', '%.ply');
                 })
                 ->orderByDesc('id')->first();
+
+            // A .ply is only a splat if its header carries the 3DGS signature; a mesh .ply
+            // stays with the standard 3D-model viewer.
+            if ($doSplat) {
+                $ext = strtolower(pathinfo((string) $doSplat->name, PATHINFO_EXTENSION));
+                $isSplat = in_array($ext, ['splat', 'ksplat'], true)
+                    || ($ext === 'ply' && app(\AhgCore\Services\GaussianSplatService::class)->isGaussianPly($doSplat));
+                if (! $isSplat) {
+                    $doSplat = null;
+                }
+            }
 
             if ($doSplat) {
                 $embedUrl = '/splat/do/'.$doSplat->id.'?embed=1';

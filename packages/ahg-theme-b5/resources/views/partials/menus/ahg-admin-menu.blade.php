@@ -160,10 +160,7 @@
     <li><h6 class="dropdown-header">{{ __('Media') }}</h6></li>
     <li><a class="dropdown-item" href="{{ route('pointclouds.index') }}"><i class="fas fa-cubes me-2"></i>{{ __('Point clouds') }}</a></li>
     @endif
-    @if(Route::has('splats.index'))
-    @if(! Route::has('pointclouds.index'))<li><hr class="dropdown-divider"></li><li><h6 class="dropdown-header">{{ __('Media') }}</h6></li>@endif
-    <li><a class="dropdown-item" href="{{ route('splats.index') }}"><i class="fas fa-cube me-2"></i>{{ __('Gaussian splats') }}</a></li>
-    @endif
+    {{-- Gaussian splats have no standalone manager: they upload as digital objects (Link digital object) and render on the record. --}}
 
     {{-- DOI Management --}}
     <li><hr class="dropdown-divider"></li>

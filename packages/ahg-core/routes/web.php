@@ -70,16 +70,12 @@ Route::get('/pointcloud/{slug}', [\AhgCore\Controllers\PointCloudController::cla
 Route::get('/pointcloud/{slug}/status', [\AhgCore\Controllers\PointCloudController::class, 'status'])
     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('pointclouds.status');
 
-// heratio#1193 - Gaussian splats: admin manager + public photoreal viewer
-Route::middleware('auth')->group(function () {
-    Route::get('/admin/splats', [\AhgCore\Controllers\GaussianSplatController::class, 'index'])->name('splats.index');
-    Route::post('/admin/splats', [\AhgCore\Controllers\GaussianSplatController::class, 'store'])->name('splats.store');
-    Route::post('/admin/splats/{id}/attach', [\AhgCore\Controllers\GaussianSplatController::class, 'attach'])->whereNumber('id')->name('splats.attach');
-});
+// heratio#1193 - Gaussian splats are uploaded as normal digital objects (the "Link digital
+// object" path) and auto-rendered on the record by InjectSplatViewer. No separate manager.
+// /splat/{slug} = legacy standalone viewer (existing ahg_gaussian_splat rows, e.g. the demo).
 Route::get('/splat/{slug}', [\AhgCore\Controllers\GaussianSplatController::class, 'show'])
     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('splats.show');
-// #1193 - render a splat uploaded as a normal digital object on a record (the "Link digital
-// object" path; auto-surfaced on the record by InjectSplatViewer). Two-segment, catch-all-safe.
+// Render a splat uploaded as a digital object on a record. Two-segment, catch-all-safe.
 Route::get('/splat/do/{id}', [\AhgCore\Controllers\GaussianSplatController::class, 'showDigitalObject'])
     ->whereNumber('id')->name('splats.do');
 
