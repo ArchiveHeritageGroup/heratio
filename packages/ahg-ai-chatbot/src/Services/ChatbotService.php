@@ -126,7 +126,7 @@ class ChatbotService
      * @param array $history Conversation history (oldest first)
      * @return array{system: string, user: string}
      */
-    public function buildRagPrompt(string $userMessage, array $records, array $history = []): array
+    public function buildRagPrompt(string $userMessage, array $records, array $history = [], ?array $currentRecord = null): array
     {
         $systemBase = $this->baseSystemPrompt();
 
@@ -139,6 +139,17 @@ class ChatbotService
                 $lines[] = "[{$num}] {$rec['title']}\n   ID: {$rec['identifier']}\n   URL: {$rec['url']}\n   Excerpt: {$rec['excerpt']}";
             }
             $contextBlock = "\n\n" . implode("\n", $lines);
+        }
+
+        // When the user is viewing a specific record, tell the model so deictic queries
+        // ("tell me about this", "what is it") resolve to that record (source [1]) and the
+        // answer does not drift to an unrelated catalogue hit.
+        if ($currentRecord !== null) {
+            $contextBlock .= "\n\nCURRENT VIEW: The user is looking at source [1], \""
+                . $currentRecord['title'] . "\""
+                . ($currentRecord['identifier'] !== '' ? " (ID: {$currentRecord['identifier']})" : '')
+                . ". Treat \"this\", \"this item\", \"this record\", \"it\" and similar as referring to source [1]."
+                . " When the question is about the item being viewed, answer from source [1] and cite it.";
         }
 
         $systemPrompt = $systemBase . $contextBlock;
@@ -216,7 +227,7 @@ PROMPT;
      *   error: string|null
      * }
      */
-    public function dispatch(string $sessionId, string $userMessage, ?int $userId = null): array
+    public function dispatch(string $sessionId, string $userMessage, ?int $userId = null, ?string $pageUrl = null): array
     {
         // Guardrail pre-check
         $guardInspection = $this->guardrail->inspect([
@@ -283,11 +294,26 @@ PROMPT;
         $catalogue = $this->retrieveCatalogue($userMessage);
         $records   = $catalogue['records'] ?? [];
 
+        // Current-page record: if the user is on a catalogue record page, make it the primary
+        // source so the assistant grounds answers in the item being viewed instead of drifting
+        // to an unrelated hit. Deduped and placed first as source [1].
+        $currentRecord = $this->resolveCurrentRecord($pageUrl);
+        if ($currentRecord !== null) {
+            $records = array_values(array_filter($records, function ($r) use ($currentRecord) {
+                $sameId = ($currentRecord['identifier'] ?? '') !== '' && ($r['identifier'] ?? '') === $currentRecord['identifier'];
+                $sameUrl = ($currentRecord['url'] ?? '') !== '' && ($r['url'] ?? '') === $currentRecord['url'];
+
+                return ! $sameId && ! $sameUrl;
+            }));
+            array_unshift($records, $currentRecord);
+            $records = array_slice($records, 0, max($this->maxContext, 1));
+        }
+
         // Conversation history
         $history = $this->getHistory($sessionId);
 
         // Build prompt
-        $prompts = $this->buildRagPrompt($userMessage, $records, $history);
+        $prompts = $this->buildRagPrompt($userMessage, $records, $history, $currentRecord);
 
         // LLM dispatch
         $llm = app(\AhgAiServices\Services\LlmService::class);
@@ -365,6 +391,67 @@ PROMPT;
             'flags'           => $flags,
             'error'           => $success ? null : ($result['error'] ?? 'LLM call failed'),
         ];
+    }
+
+    /**
+     * Resolve the catalogue record the user is currently viewing, from the page URL (the request
+     * Referer). Takes the last path segment as a slug, looks it up, and returns it in the canonical
+     * record shape - or null when the page is not a catalogue record. Used to ground the assistant
+     * in the item on screen so "tell me about this" resolves correctly.
+     *
+     * @return array{id:int,title:string,identifier:string,url:string,excerpt:string}|null
+     */
+    public function resolveCurrentRecord(?string $pageUrl): ?array
+    {
+        if (! $pageUrl || trim($pageUrl) === '') {
+            return null;
+        }
+        $path = parse_url($pageUrl, PHP_URL_PATH) ?: $pageUrl;
+        $path = trim($path, '/');
+        if ($path === '') {
+            return null;
+        }
+        $segs = explode('/', $path);
+        // Admin / functional areas are never a catalogue record page.
+        if (in_array($segs[0] ?? '', ['admin', 'api', 'chatbot', 'ask', 'login', 'logout', 'search', 'clipboard', 'index.php'], true)) {
+            return null;
+        }
+        $slug = end($segs);
+        if ($slug === '' || strlen($slug) > 255) {
+            return null;
+        }
+        try {
+            $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
+            if (! $objectId) {
+                return null;
+            }
+            if (! DB::table('information_object')->where('id', $objectId)->exists()) {
+                return null; // a slug that is not an information object (actor, repository, ...)
+            }
+            $identifier = (string) DB::table('information_object')->where('id', $objectId)->value('identifier');
+            $i18n = DB::table('information_object_i18n')->where('id', $objectId)->where('culture', 'en')->first()
+                ?? DB::table('information_object_i18n')->where('id', $objectId)->first();
+
+            $title = trim((string) ($i18n->title ?? '')) ?: ('Record ' . $objectId);
+            $excerpt = trim((string) ($i18n->scope_and_content ?? ''));
+            if ($excerpt === '') {
+                $excerpt = $title;
+            } elseif (mb_strlen($excerpt) > 350) {
+                $excerpt = mb_substr($excerpt, 0, 347) . '...';
+            }
+
+            return [
+                'id'         => (int) $objectId,
+                'title'      => $title,
+                'identifier' => $identifier,
+                'url'        => url('/' . $slug),
+                'excerpt'    => $excerpt,
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('[chatbot] resolveCurrentRecord failed: ' . $e->getMessage());
+
+            return null;
+        }
     }
 
     // ─── Admin helpers ────────────────────────────────────────────

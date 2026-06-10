@@ -59,7 +59,11 @@ class ChatbotController extends Controller
         $sessionId = $this->resolveSessionId($request);
         $userId    = Auth::id();
 
-        $result = $this->chatbot->dispatch($sessionId, $request->input('message'), $userId);
+        // The page the user is on (Referer) lets the assistant ground answers in the record being
+        // viewed. An explicit page_url in the body wins when supplied (e.g. SPA / API callers).
+        $pageUrl = $request->input('page_url') ?: $request->headers->get('referer');
+
+        $result = $this->chatbot->dispatch($sessionId, $request->input('message'), $userId, is_string($pageUrl) ? $pageUrl : null);
 
         if (!($result['success'] ?? false)) {
             return response()->json([
