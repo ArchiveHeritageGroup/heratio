@@ -32,6 +32,7 @@ class ComplianceAutopilotController extends Controller
     {
         return view('privacy::autopilot', [
             'retentionProposals' => $this->autopilot->listRetentionProposals(),
+            'autoDpia' => $this->autopilot->latestAutoDpia(),
         ]);
     }
 
@@ -105,5 +106,42 @@ class ComplianceAutopilotController extends Controller
 
         return redirect()->route('ahgprivacy.autopilot')
             ->with($ok ? 'success' : 'error', $ok ? 'Retention proposal accepted.' : 'Retention proposal not found.');
+    }
+
+    /**
+     * heratio#1199 DPIA slice - run the scan, screen it with DpiaRiskService
+     * (WP29 / Article 35(3) triggers), and if a DPIA is required auto-draft one
+     * (persisted as a draft for DPO review). Returns the verdict + draft.
+     */
+    public function draftDpia()
+    {
+        $scan = $this->autopilot->scanCatalogue();
+        $result = $this->autopilot->draftDpia($scan);
+
+        return response()->json([
+            'ok' => true,
+            'scan' => ['scanned' => $scan['scanned'] ?? 0, 'records_with_pii' => $scan['records_with_pii'] ?? 0],
+            'required' => $result['required'],
+            'triggers' => $result['trigger_labels'],
+            'note' => $result['note'],
+            'source' => $result['source'],
+            'dpia' => $result['dpia'],
+        ]);
+    }
+
+    /**
+     * DPO accept on the auto-drafted DPIA: advance it from draft into the formal
+     * review stage of the DPIA workflow.
+     */
+    public function acceptDpia(Request $request, int $id)
+    {
+        $dpia = $this->autopilot->acceptDpia($id);
+
+        if ($request->expectsJson()) {
+            return response()->json(['ok' => $dpia !== null, 'dpia' => $dpia]);
+        }
+
+        return redirect()->route('ahgprivacy.autopilot')
+            ->with($dpia ? 'success' : 'error', $dpia ? 'DPIA moved to review.' : 'DPIA draft not found.');
     }
 }

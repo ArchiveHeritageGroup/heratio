@@ -256,6 +256,44 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     INDEX idx_space_created (exhibition_space_id, created_at)
                 )");
             }
+            // heratio#1192 - live virtual openings: a scheduled, ticketed event hosted
+            // in an exhibition space's walkthrough. FIRST SLICE = scheduling + capacity
+            // RSVP/ticketing + a public event page that links into the existing
+            // walkthrough at event time. Live multi-user spatial presence is #1150.
+            if (! Schema::hasTable('ahg_exhibition_event')) {
+                DB::statement("CREATE TABLE ahg_exhibition_event (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    exhibition_space_id INT NOT NULL,
+                    public_token VARCHAR(32) NOT NULL,
+                    title VARCHAR(200) NOT NULL,
+                    host_name VARCHAR(160) NULL,
+                    description TEXT NULL,
+                    starts_at DATETIME NOT NULL,
+                    duration_minutes INT NOT NULL DEFAULT 60,
+                    capacity INT NOT NULL DEFAULT 50,
+                    status VARCHAR(16) NOT NULL DEFAULT 'scheduled',
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NULL,
+                    UNIQUE KEY uq_event_token (public_token),
+                    INDEX idx_space_start (exhibition_space_id, starts_at)
+                )");
+            }
+            // heratio#1192 - one RSVP / ticket row per attendee for an event.
+            if (! Schema::hasTable('ahg_exhibition_event_rsvp')) {
+                DB::statement("CREATE TABLE ahg_exhibition_event_rsvp (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    event_id BIGINT UNSIGNED NOT NULL,
+                    ticket_code VARCHAR(32) NOT NULL,
+                    name VARCHAR(160) NOT NULL,
+                    email VARCHAR(190) NOT NULL,
+                    party_size INT NOT NULL DEFAULT 1,
+                    status VARCHAR(16) NOT NULL DEFAULT 'confirmed',
+                    created_at DATETIME NOT NULL,
+                    UNIQUE KEY uq_ticket (ticket_code),
+                    UNIQUE KEY uq_event_email (event_id, email),
+                    INDEX idx_event (event_id)
+                )");
+            }
         } catch (\Throwable $e) {
             // Non-fatal: builder simply stays unavailable until the columns exist.
         }

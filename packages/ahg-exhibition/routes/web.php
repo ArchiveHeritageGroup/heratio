@@ -1,6 +1,7 @@
 <?php
 
 use AhgExhibition\Controllers\ExhibitionController;
+use AhgExhibition\Controllers\ExhibitionEventController;
 use AhgExhibition\Controllers\ExhibitionSpaceController;
 use AhgExhibition\Controllers\GenerativeController;
 use Illuminate\Support\Facades\Route;
@@ -119,7 +120,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/builder/wall-color-clear', [ExhibitionSpaceController::class, 'clearWallColor'])->name('exhibition-space.builder.wall-color-clear')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/room-dims', [ExhibitionSpaceController::class, 'roomDimsAjax'])->name('exhibition-space.builder.room-dims')->middleware('acl:update');
     Route::post('/exhibition-space/{slug}/builder/walkthrough-path', [ExhibitionSpaceController::class, 'saveWalkthroughPath'])->name('exhibition-space.builder.walkthrough-path')->middleware('acl:update');
+
+    // heratio#1192 - live virtual openings: admin schedule + manage (multi-segment URLs
+    // so they never collide with the single-segment /exhibition-space/{slug} catch-all).
+    Route::get('/exhibition-space/{slug}/openings', [ExhibitionEventController::class, 'index'])->name('exhibition-space.openings');
+    Route::post('/exhibition-space/{slug}/openings', [ExhibitionEventController::class, 'store'])->name('exhibition-space.openings.store')->middleware('acl:create');
+    Route::post('/exhibition-space/{slug}/openings/{eventId}/status', [ExhibitionEventController::class, 'updateStatus'])->name('exhibition-space.openings.status')->middleware('acl:update')->whereNumber('eventId');
+    Route::post('/exhibition-space/{slug}/openings/{eventId}/delete', [ExhibitionEventController::class, 'destroy'])->name('exhibition-space.openings.delete')->middleware('acl:delete')->whereNumber('eventId');
 });
+
+// heratio#1192 - live virtual openings: PUBLIC tokenised event page + RSVP (no login;
+// the walkthrough it links into is itself public). Multi-segment, so clear of the slug catch-all.
+Route::get('/exhibition-space/opening/{token}', [ExhibitionEventController::class, 'publicShow'])->name('exhibition-space.opening-public')->where('token', '[a-z0-9]+');
+Route::post('/exhibition-space/opening/{token}/rsvp', [ExhibitionEventController::class, 'rsvp'])->name('exhibition-space.opening-rsvp')->where('token', '[a-z0-9]+');
 
 // heratio#1138 — digital twin: 2.5D pannable walkthrough (Phase 2, visitor-facing/public)
 Route::get('/exhibition-space/{slug}/walkthrough', [ExhibitionSpaceController::class, 'walkthrough'])->name('exhibition-space.walkthrough');

@@ -55,6 +55,12 @@ class HeratioCspPreset implements Preset
                 // Draco-compressed 3D models decode in WebAssembly inside
                 // <model-viewer>; without this the geometry never loads.
                 Keyword::UNSAFE_WEB_ASSEMBLY_EXECUTION,
+                // blob: so the Gaussian-splat viewer's sort worker
+                // (@mkkellogg/gaussian-splats-3d spawns a blob: Web Worker whose
+                // script the browser also checks against script-src) is not
+                // blocked - otherwise the splat viewer hangs at "Processing splats".
+                // (worker-src + connect-src already allow blob: for OSD/Mirador.)
+                Scheme::BLOB,
                 'https://cdn.jsdelivr.net',
                 'https://cdnjs.cloudflare.com',
                 'https://unpkg.com',

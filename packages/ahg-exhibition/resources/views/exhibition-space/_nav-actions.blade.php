@@ -23,6 +23,13 @@
       ['key' => 'forecast',    'url' => route('exhibition-space.forecast',    ['slug' => $space->slug]),    'icon' => 'fa-chart-area',       'label' => __('Forecast'),      'style' => 'btn-outline-primary'],
       ['key' => 'show',        'url' => route('exhibition-space.show',        ['slug' => $space->slug]),    'icon' => 'fa-eye',              'label' => __('Open'),          'style' => 'btn-outline-primary'],
   ];
+  // heratio#1192 - live virtual openings: admin-only page, so only surface for staff.
+  if (auth()->check()) {
+      array_splice($navBtns, 7, 0, [[
+          'key' => 'openings', 'url' => route('exhibition-space.openings', ['slug' => $space->slug]),
+          'icon' => 'fa-calendar-day', 'label' => __('Live openings'), 'style' => 'btn-outline-primary',
+      ]]);
+  }
 @endphp
 <div class="d-flex flex-wrap gap-1 exhibition-nav-actions {{ $compact ? 'justify-content-end' : '' }}">
   @foreach($navBtns as $b)

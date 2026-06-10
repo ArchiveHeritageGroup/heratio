@@ -91,6 +91,69 @@
       </div>
     </div>
   </div>
+
+  {{-- heratio#1199 DPIA slice: screen the scan (DpiaRiskService / WP29) -> auto-draft a DPIA. --}}
+  @php
+    $apDpia = $autoDpia ?? null;
+    $apDpiaStatus = $apDpia['status'] ?? null;
+    $apDpiaDraft = $apDpiaStatus === 'draft';
+  @endphp
+  <div class="card mt-4" id="apDpiaCard">
+    <div class="card-header py-2 d-flex flex-wrap align-items-center gap-2">
+      <strong><i class="fas fa-clipboard-check me-1 text-primary"></i>{{ __('Data Protection Impact Assessment') }}</strong>
+      <small class="text-muted">{{ __('screen the scan for high-risk processing and auto-draft a DPIA for sign-off') }}</small>
+      <button type="button" id="apDpiaBtn" class="btn btn-sm btn-outline-primary ms-auto"><i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Screen and draft DPIA') }}</button>
+    </div>
+    <div class="card-body">
+      <p class="text-muted small mb-2">{{ __('Heratio screens the categories of personal data found against the high-risk triggers (GDPR Article 35(3) / WP29 criteria): special-category data, large-scale profiling, biometric/genetic data, and unsafeguarded cross-border transfers. If a DPIA is required it auto-drafts the risk findings and a recommendation as a draft for a data-protection officer to review and sign off. Jurisdiction-neutral - confirm the concrete obligation against your enabled market module.') }}</p>
+      <span id="apDpiaStatus" class="small text-muted"></span>
+
+      <div id="apDpiaVerdict" class="mt-2" @unless($apDpia) style="display:none" @endunless>
+        @if($apDpia)
+          <div class="alert alert-warning py-2 mb-2" id="apDpiaRequiredMsg">
+            <i class="fas fa-triangle-exclamation me-1"></i>{{ __('A DPIA is required for this processing.') }}
+          </div>
+          <div class="alert alert-success py-2 mb-2" id="apDpiaNotRequiredMsg" style="display:none">
+            <i class="fas fa-circle-check me-1"></i>{{ __('No DPIA required on screening grounds.') }}
+          </div>
+        @else
+          <div class="alert alert-warning py-2 mb-2" id="apDpiaRequiredMsg" style="display:none">
+            <i class="fas fa-triangle-exclamation me-1"></i>{{ __('A DPIA is required for this processing.') }}
+          </div>
+          <div class="alert alert-success py-2 mb-2" id="apDpiaNotRequiredMsg" style="display:none">
+            <i class="fas fa-circle-check me-1"></i>{{ __('No DPIA required on screening grounds.') }}
+          </div>
+        @endif
+
+        <div class="mb-2">
+          <span class="small text-muted">{{ __('High-risk triggers:') }}</span>
+          <span id="apDpiaTriggers"></span>
+        </div>
+
+        <div id="apDpiaDraft" @unless($apDpia) style="display:none" @endunless>
+          <div class="card border-warning">
+            <div class="card-header py-2 d-flex flex-wrap align-items-center gap-2">
+              <strong>{{ __('Draft DPIA') }}</strong>
+              <span id="apDpiaBadge" class="badge {{ $apDpiaDraft ? 'bg-warning text-dark' : 'bg-success' }}">{{ ucfirst($apDpiaStatus ?? 'draft') }}</span>
+              <span class="ms-auto">
+                <a id="apDpiaEdit" href="{{ $apDpia['edit_url'] ?? '#' }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-pen me-1"></i>{{ __('Open in DPIA register') }}</a>
+                <button type="button" id="apDpiaAccept" class="btn btn-sm btn-success" data-id="{{ $apDpia['id'] ?? '' }}" @unless($apDpiaDraft) style="display:none" @endunless><i class="fas fa-check me-1"></i>{{ __('Accept (move to review)') }}</button>
+              </span>
+            </div>
+            <div class="card-body">
+              <dl class="row mb-0 small">
+                <dt class="col-sm-3">{{ __('Description') }}</dt><dd class="col-sm-9" id="apDpiaDesc">{{ $apDpia['description'] ?? '' }}</dd>
+                <dt class="col-sm-3">{{ __('Necessity / proportionality') }}</dt><dd class="col-sm-9" id="apDpiaNec">{{ $apDpia['necessity_proportionality'] ?? '' }}</dd>
+                <dt class="col-sm-3">{{ __('Risks to subjects') }}</dt><dd class="col-sm-9" id="apDpiaRisks">{{ $apDpia['risks_to_subjects'] ?? '' }}</dd>
+                <dt class="col-sm-3">{{ __('Mitigation measures') }}</dt><dd class="col-sm-9" id="apDpiaMeasures">{{ $apDpia['measures_to_mitigate'] ?? '' }}</dd>
+                <dt class="col-sm-3">{{ __('Residual risk') }}</dt><dd class="col-sm-9" id="apDpiaResidual">{{ $apDpia['residual_risks'] ?? '' }}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script nonce="{{ $cspNonce ?? '' }}">
@@ -179,6 +242,76 @@
         });
       })
       .catch(function () { retBtn.disabled = false; retBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Draft retention schedule') }}'; retStatus.textContent = '{{ __('Draft failed.') }}'; });
+  });
+
+  // ---- heratio#1199 DPIA slice ----
+  var dpiaBtn = document.getElementById('apDpiaBtn'), dpiaStatus = document.getElementById('apDpiaStatus'),
+      dpiaVerdict = document.getElementById('apDpiaVerdict'), dpiaTriggers = document.getElementById('apDpiaTriggers'),
+      dpiaDraftBox = document.getElementById('apDpiaDraft'),
+      dpiaRequiredMsg = document.getElementById('apDpiaRequiredMsg'), dpiaNotRequiredMsg = document.getElementById('apDpiaNotRequiredMsg'),
+      dpiaAcceptBtn = document.getElementById('apDpiaAccept');
+  function dpiaAcceptUrl(id) { return '{{ url('admin/privacy/autopilot/dpia') }}/' + id + '/accept'; }
+  function setText(id, v) { var el = document.getElementById(id); if (el) el.textContent = v == null ? '' : String(v); }
+
+  function bindDpiaAccept(b) {
+    if (!b) return;
+    b.addEventListener('click', function () {
+      var id = b.getAttribute('data-id');
+      if (!id) return;
+      b.disabled = true;
+      fetch(dpiaAcceptUrl(id), { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) { b.disabled = false; return; }
+          var badge = document.getElementById('apDpiaBadge');
+          if (badge) { badge.className = 'badge bg-info text-dark'; badge.textContent = 'Review'; }
+          b.style.display = 'none';
+        })
+        .catch(function () { b.disabled = false; });
+    });
+  }
+  bindDpiaAccept(dpiaAcceptBtn);
+
+  dpiaBtn.addEventListener('click', function () {
+    dpiaBtn.disabled = true; dpiaBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>{{ __('Screening…') }}';
+    dpiaStatus.textContent = '{{ __('Scanning and screening for high-risk processing…') }}';
+    fetch('{{ route('ahgprivacy.autopilot.dpia') }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        dpiaBtn.disabled = false; dpiaBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Screen and draft DPIA') }}';
+        if (!d || !d.ok) { dpiaStatus.textContent = '{{ __('Screen failed.') }}'; return; }
+        var src = d.source === 'llm' ? '{{ __('AI-drafted') }}' : (d.source === 'heuristic' ? '{{ __('heuristic fallback (gateway unavailable)') }}' : '{{ __('screen only') }}');
+        dpiaStatus.textContent = src;
+        dpiaVerdict.style.display = 'block';
+        // triggers
+        dpiaTriggers.innerHTML = '';
+        (d.triggers || []).forEach(function (t) {
+          var span = document.createElement('span'); span.className = 'badge bg-warning text-dark me-1';
+          span.textContent = t; dpiaTriggers.appendChild(span);
+        });
+        if (!(d.triggers || []).length) { dpiaTriggers.innerHTML = '<span class="text-muted">{{ __('none') }}</span>'; }
+
+        if (d.required && d.dpia) {
+          if (dpiaRequiredMsg) dpiaRequiredMsg.style.display = '';
+          if (dpiaNotRequiredMsg) dpiaNotRequiredMsg.style.display = 'none';
+          dpiaDraftBox.style.display = 'block';
+          var p = d.dpia;
+          setText('apDpiaDesc', p.description); setText('apDpiaNec', p.necessity_proportionality);
+          setText('apDpiaRisks', p.risks_to_subjects); setText('apDpiaMeasures', p.measures_to_mitigate);
+          setText('apDpiaResidual', p.residual_risks);
+          var edit = document.getElementById('apDpiaEdit'); if (edit && p.edit_url) edit.setAttribute('href', p.edit_url);
+          var badge = document.getElementById('apDpiaBadge');
+          var isDraft = p.status === 'draft';
+          if (badge) { badge.className = 'badge ' + (isDraft ? 'bg-warning text-dark' : 'bg-info text-dark'); badge.textContent = p.status.charAt(0).toUpperCase() + p.status.slice(1); }
+          var acc = document.getElementById('apDpiaAccept');
+          if (acc) { acc.setAttribute('data-id', p.id); acc.style.display = isDraft ? '' : 'none'; acc.disabled = false; }
+        } else {
+          if (dpiaRequiredMsg) dpiaRequiredMsg.style.display = 'none';
+          if (dpiaNotRequiredMsg) dpiaNotRequiredMsg.style.display = '';
+          dpiaDraftBox.style.display = 'none';
+        }
+      })
+      .catch(function () { dpiaBtn.disabled = false; dpiaBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Screen and draft DPIA') }}'; dpiaStatus.textContent = '{{ __('Screen failed.') }}'; });
   });
 })();
 </script>
