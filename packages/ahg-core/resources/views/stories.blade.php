@@ -25,11 +25,15 @@
       <label class="form-label small mb-1">{{ __('Background notes') }}</label>
       <textarea id="srcNotes" class="form-control form-control-sm mb-3" rows="3" placeholder="{{ __('Paste any background, context or facts the story should draw on…') }}"></textarea>
 
-      <label class="form-label small mb-1">{{ __('Source web page (URL)') }}</label>
-      <input type="url" id="srcUrl" class="form-control form-control-sm mb-3" placeholder="https://…">
+      <label class="form-label small mb-1">{{ __('Source web pages (URLs)') }}</label>
+      <div class="input-group input-group-sm mb-1">
+        <input type="url" id="srcUrl" class="form-control" placeholder="https://…">
+        <button type="button" id="srcUrlAdd" class="btn btn-outline-secondary"><i class="fas fa-plus"></i></button>
+      </div>
+      <div id="srcUrlChips" class="d-flex flex-wrap gap-1 mb-3"></div>
 
-      <label class="form-label small mb-1">{{ __('Upload a document') }} <span class="text-muted">{{ __('(PDF, text or image - max 8 MB)') }}</span></label>
-      <input type="file" id="srcFile" class="form-control form-control-sm mb-3" accept=".pdf,.txt,.png,.jpg,.jpeg">
+      <label class="form-label small mb-1">{{ __('Upload documents') }} <span class="text-muted">{{ __('(PDF, text or image - max 8 MB each, up to 5)') }}</span></label>
+      <input type="file" id="srcFile" class="form-control form-control-sm mb-3" accept=".pdf,.txt,.png,.jpg,.jpeg" multiple>
 
       <label class="form-label small mb-1">{{ __('Include specific records') }}</label>
       <div class="position-relative">
@@ -102,7 +106,7 @@
   var SEARCH_URL = '{{ route('stories.search') }}';
   var themeEl = document.getElementById('stTheme'), goBtn = document.getElementById('stGo'),
       errEl = document.getElementById('stErr'), res = document.getElementById('stResult');
-  var curObjects = [], curId = 0, curSources = [], pickedRecords = [];
+  var curObjects = [], curId = 0, curSources = [], pickedRecords = [], urls = [];
   ['{{ __('our oldest treasures') }}', '{{ __('women at work') }}', '{{ __('the sea and the harbour') }}'].forEach(function (s) {
     var b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-sm btn-outline-secondary'; b.textContent = s;
     b.addEventListener('click', function () { themeEl.value = s; run(); });
@@ -112,25 +116,30 @@
   function run() {
     var theme = themeEl.value.trim();
     var notes = document.getElementById('srcNotes').value.trim();
-    var url = document.getElementById('srcUrl').value.trim();
+    var pendingUrl = document.getElementById('srcUrl').value.trim();
+    if (pendingUrl) { addUrl(pendingUrl); }   // forgive a typed-but-not-added URL
     var fileEl = document.getElementById('srcFile');
-    var hasExtra = notes || url || (fileEl.files && fileEl.files.length) || pickedRecords.length;
+    var nFiles = fileEl.files ? fileEl.files.length : 0;
+    var hasExtra = notes || urls.length || nFiles || pickedRecords.length;
     if (!theme && !hasExtra) { themeEl.focus(); return; }
     errEl.style.display = 'none'; res.style.display = 'none';
     goBtn.disabled = true; goBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i>{{ __('Writing…') }}';
     var fd = new FormData(); fd.append('theme', theme); fd.append('_token', CSRF);
     if (notes) { fd.append('notes', notes); }
-    if (url) { fd.append('url', url); }
-    if (fileEl.files && fileEl.files.length) { fd.append('document', fileEl.files[0]); }
+    urls.forEach(function (u) { fd.append('urls[]', u); });
+    for (var i = 0; i < nFiles; i++) { fd.append('documents[]', fileEl.files[i]); }
     pickedRecords.forEach(function (r) { fd.append('record_ids[]', r.id); });
     fetch(URL, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' }, body: fd })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         goBtn.disabled = false; goBtn.innerHTML = '<i class="fas fa-feather-pointed me-1"></i>{{ __('Write the story') }}';
+        var warns = (d && d.source_warnings) ? d.source_warnings : [];
         if (!d || !d.ok) {
           errEl.style.display = 'block';
-          errEl.textContent = (d && d.source_error) ? d.source_error
-            : ((d && (!d.objects || !d.objects.length))
+          errEl.innerHTML = (warns.length
+              ? '{{ __('Some sources could not be used:') }}<ul class="mb-0">' + warns.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul>'
+              : '')
+            + ((!d || !d.objects || !d.objects.length)
               ? '{{ __('No catalogue objects matched that theme, and no usable sources were given. Try a different theme or add a source.') }}'
               : '{{ __('Could not write a story. Try again or rephrase.') }}');
           return;
@@ -139,6 +148,10 @@
         document.getElementById('stTitle').value = d.theme;
         document.getElementById('stStory').value = d.story;
         document.getElementById('stSaveMsg').innerHTML = '';
+        if (warns.length) {
+          errEl.style.display = 'block';
+          errEl.innerHTML = '{{ __('Story written. Some sources could not be used:') }}<ul class="mb-0">' + warns.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul>';
+        }
         var ob = document.getElementById('stObjects'); ob.innerHTML = '';
         curObjects.forEach(function (o) {
           var div = document.createElement('div'); div.className = 'small border-bottom py-1';
@@ -154,6 +167,30 @@
   }
   goBtn.addEventListener('click', run);
   themeEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); run(); } });
+
+  // Multiple source URLs (add to a chip list).
+  var urlInput = document.getElementById('srcUrl'), urlChips = document.getElementById('srcUrlChips');
+  function renderUrlChips() {
+    urlChips.innerHTML = '';
+    urls.forEach(function (u, i) {
+      var span = document.createElement('span'); span.className = 'badge bg-light text-dark border text-truncate'; span.style.maxWidth = '100%';
+      span.innerHTML = '<i class="fas fa-link text-muted me-1"></i>' + esc(u) + ' <a href="#" class="text-danger ms-1" data-i="' + i + '">&times;</a>';
+      urlChips.appendChild(span);
+    });
+  }
+  function addUrl(u) {
+    u = (u || '').trim();
+    if (!u) { return; }
+    if (!/^https?:\/\//i.test(u)) { u = 'https://' + u; }
+    if (urls.length >= 5) { return; }
+    if (urls.indexOf(u) === -1) { urls.push(u); renderUrlChips(); }
+    urlInput.value = '';
+  }
+  document.getElementById('srcUrlAdd').addEventListener('click', function () { addUrl(urlInput.value); });
+  urlInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addUrl(urlInput.value); } });
+  urlChips.addEventListener('click', function (e) {
+    if (e.target.matches('a[data-i]')) { e.preventDefault(); urls.splice(+e.target.getAttribute('data-i'), 1); renderUrlChips(); }
+  });
 
   // Record picker (hand-pick catalogue records to weave in for certain).
   var recSearch = document.getElementById('srcRecSearch'), recSug = document.getElementById('srcRecSuggest'), recChips = document.getElementById('srcRecChips');

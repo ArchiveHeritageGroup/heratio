@@ -40,16 +40,24 @@ route file). The admin index stays under the already-excluded `/admin/stories`.
 Beyond theme-matched catalogue objects, the curator can ground the story in extra material, all
 optional and combinable (a collapsible "Add sources" panel on the generator):
 - **Background notes** - pasted free text, added to the prompt as additional context.
-- **Source URL** - `StorySourceService::fetchUrlText()` fetches the page server-side and strips
-  it to readable text. SSRF-guarded: http/https only, public hosts only (loopback / private /
-  reserved / link-local IPs refused, names resolved and every record checked), 8s timeout, 600 KB
-  cap. Verified: `http://127.0.0.1/` and `file://` are rejected.
-- **Uploaded document** - `extractUploadText()`: text/* read directly, PDF via
+- **Source URLs (multiple)** - add several pages; each is fetched by
+  `StorySourceService::fetchUrlText()` server-side and stripped to readable text. SSRF-guarded:
+  http/https only, public hosts only (loopback / private / reserved / link-local IPs refused,
+  names resolved and every record checked), 8s timeout, 600 KB cap. Verified: `http://127.0.0.1/`
+  and `file://` are rejected. Up to 5 URLs.
+- **Uploaded documents (multiple)** - `extractUploadText()`: text/* read directly, PDF via
   `AhgPdfTools\Services\PdfTextExtractService` (pdftotext), images via
   `AhgAiServices\Services\HtrService` - both resolved softly (`class_exists` + `app()`) so
-  ahg-core keeps no hard composer dependency on those packages. Max 8 MB; mimes pdf/txt/png/jpg.
-- **Hand-picked records** - typeahead (`stories.search` -> `searchRecords()`) to add specific
-  catalogue records, woven in for certain (they lead the object list, guaranteed inclusion).
+  ahg-core keeps no hard composer dependency on those packages. Max 8 MB each, up to 5
+  (multi-file input); mimes pdf/txt/png/jpg.
+- **Hand-picked records (multiple)** - typeahead (`stories.search` -> `searchRecords()`) to add
+  specific catalogue records, woven in for certain (they lead the object list, guaranteed
+  inclusion).
+
+Sources are processed per-item: a URL that fails to fetch or a document with no extractable
+text becomes a non-fatal `source_warning` (shown to the curator) rather than aborting the whole
+run - the story is still written from whatever sources did work. Request fields are arrays:
+`urls[]`, `documents[]`, `record_ids[]`, plus a single `notes`.
 
 All extra context is bounded (per-source 6 KB, assembled 8 KB) before the prompt. The prompt
 tells the model to use the background to inform - not contradict the objects, not copy verbatim.

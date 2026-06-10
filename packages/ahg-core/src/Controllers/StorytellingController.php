@@ -38,16 +38,19 @@ class StorytellingController extends Controller
         $data = $request->validate([
             'theme' => 'nullable|string|max:200',
             'notes' => 'nullable|string|max:8000',
-            'url' => 'nullable|url|max:500',
+            'urls' => 'nullable|array|max:5',
+            'urls.*' => 'url|max:500',
             'record_ids' => 'nullable|array|max:20',
             'record_ids.*' => 'integer|min:1',
-            'document' => 'nullable|file|max:8192|mimes:pdf,txt,text,png,jpg,jpeg',
+            'documents' => 'nullable|array|max:5',
+            'documents.*' => 'file|max:8192|mimes:pdf,txt,text,png,jpg,jpeg',
         ]);
 
         $theme = trim((string) ($data['theme'] ?? ''));
         $recordIds = array_values(array_unique(array_map('intval', (array) ($request->input('record_ids', [])))));
         $pieces = [];
         $attribution = [];   // [{type,label,url?}] handed back so the client returns it on save
+        $warnings = [];      // per-source soft failures - shown but never abort a multi-source run
 
         $notes = trim((string) ($data['notes'] ?? ''));
         if ($notes !== '') {
@@ -55,23 +58,23 @@ class StorytellingController extends Controller
             $attribution[] = ['type' => 'note', 'label' => 'Curator background note'];
         }
 
-        if (! empty($data['url'])) {
-            $fetched = $this->sources->fetchUrlText($data['url']);
+        foreach (array_unique(array_filter((array) ($data['urls'] ?? []))) as $url) {
+            $fetched = $this->sources->fetchUrlText($url);
             if ($fetched['ok']) {
                 $pieces[] = $fetched['text'];
-                $attribution[] = ['type' => 'url', 'label' => $fetched['title'] !== '' ? $fetched['title'] : $data['url'], 'url' => $data['url']];
+                $attribution[] = ['type' => 'url', 'label' => $fetched['title'] !== '' ? $fetched['title'] : $url, 'url' => $url];
             } else {
-                return response()->json(['ok' => false, 'objects' => [], 'source_error' => $fetched['error'] ?: 'Could not fetch that URL.']);
+                $warnings[] = ($fetched['error'] ?: 'Could not fetch').': '.$url;
             }
         }
 
-        if ($request->hasFile('document')) {
-            $up = $this->sources->extractUploadText($request->file('document'));
+        foreach ((array) $request->file('documents', []) as $file) {
+            $up = $this->sources->extractUploadText($file);
             if ($up['ok']) {
                 $pieces[] = $up['text'];
-                $attribution[] = ['type' => 'upload', 'label' => $request->file('document')->getClientOriginalName()];
+                $attribution[] = ['type' => 'upload', 'label' => $file->getClientOriginalName()];
             } else {
-                return response()->json(['ok' => false, 'objects' => [], 'source_error' => $up['error'] ?: 'Could not read that document.']);
+                $warnings[] = ($up['error'] ?: 'Could not read').': '.$file->getClientOriginalName();
             }
         }
 
@@ -87,6 +90,7 @@ class StorytellingController extends Controller
             }
         }
         $result['sources'] = $attribution;
+        $result['source_warnings'] = $warnings;
 
         return response()->json($result);
     }
