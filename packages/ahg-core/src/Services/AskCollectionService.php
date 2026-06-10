@@ -3,6 +3,20 @@
 /**
  * AskCollectionService - Heratio ahg-core
  *
+ * heratio#1208 north-star ("a culture you can talk to - corpus-grounded history").
+ * First public slice: the collection-wide, anonymous cousin of the room-scoped
+ * exhibition docent. A member of the public asks a plain-language question and
+ * gets an answer grounded in the institution's own corpus via the sanctioned KM
+ * (knowledge-management RAG) HTTP query surface at km.theahg.co.za - the public,
+ * cross-agent endpoint (POST /api/ask, bearer-token auth), NEVER a direct GPU node.
+ *
+ * The whole point of this surface is to be grounded and honest: it returns the
+ * KM answer plus its cited sources, or a plain "I don't have enough in the
+ * collection to answer that" when KM is unconfigured, empty, down, or slow. It
+ * NEVER throws (a dead/slow KM must not break a public page) and it passes KM's
+ * own honest gap message through as not-confidently-grounded rather than dressing
+ * it up as a confident answer. Reuses the existing heratio.km.* config keys.
+ *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
  * Email: johan@plainsailingisystems.co.za
@@ -12,130 +26,203 @@
 
 namespace AhgCore\Services;
 
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-/**
- * heratio#1208 - "Ask the collection" (public engagement). The public-facing sibling of the
- * researcher copilot (AhgResearch\Services\ResearchCopilotService): a member of the public asks
- * a plain-language question and gets a concise answer grounded ONLY in matching PUBLISHED
- * catalogue records, cited by number with links. Because this surface is anonymous-public, the
- * source set is restricted to records whose publication status is Published (status type_id 158,
- * status_id 160) - never drafts or unpublished material. The LLM is instructed to answer using
- * only those records, cite [n], and say plainly when the collection does not cover the question
- * (no invention). First slice of the North Star vision; language revival is out of scope here.
- */
 class AskCollectionService
 {
-    /** @return array{ok:bool, question:string, answer:string, sources:array, covered:bool} */
-    public function ask(string $question, int $maxSources = 8): array
+    /** Cap the question we forward to KM (keeps the public surface cheap + bounded). */
+    private const MAX_QUESTION_CHARS = 500;
+
+    /** Trim each returned source title/snippet so the page list stays tidy. */
+    private const MAX_SOURCE_TITLE = 240;
+
+    /** Honest fallback shown whenever we cannot confidently ground an answer. */
+    private const NOT_GROUNDED_MESSAGE =
+        "I don't have enough in this collection to answer that. Try rephrasing, or browse the catalogue directly.";
+
+    /**
+     * Phrases KM emits when the indexed corpus does not cover the question. When
+     * the answer leads with one of these we surface it as honest-but-ungrounded
+     * (grounded=false) rather than presenting it as a confident catalogue answer.
+     */
+    private const GAP_MARKERS = [
+        "i don't have enough",
+        'i do not have enough',
+        "don't have enough information",
+        'do not have enough information',
+        'not enough information',
+        "i couldn't find",
+        'i could not find',
+        "couldn't find any",
+        'no relevant information',
+        "isn't covered",
+        'is not covered',
+        "don't have information",
+        'do not have information',
+        'cannot answer',
+        "can't answer",
+        'unable to answer',
+        'no information about',
+    ];
+
+    /**
+     * Ask the collection a plain-language question, grounded in the KM corpus.
+     *
+     * Always returns a well-formed array and never throws:
+     *
+     *   [
+     *     'answer'   => ?string  // the grounded answer, the honest gap message, or null
+     *     'sources'  => array    // [['title'=>string,'url'=>?string,'score'=>?float], ...]
+     *     'grounded' => bool      // true only when KM returned a confident, non-gap answer
+     *   ]
+     *
+     * @param  string  $question  the visitor's question
+     */
+    public function ask(string $question): array
     {
         $question = trim($question);
-        $out = ['ok' => false, 'question' => $question, 'answer' => '', 'sources' => [], 'covered' => false];
         if ($question === '') {
-            return $out;
+            return $this->notGrounded();
         }
 
-        $sources = $this->findPublishedSources($question, $maxSources);
-        $out['sources'] = $sources;
-        if (! $sources) {
-            // No published record matched - tell the visitor plainly; never invent.
-            $out['ok'] = true;
-            $out['covered'] = false;
-            $out['answer'] = "The published collection does not appear to cover this. No catalogue records matched your question, so there is nothing here to answer it from.";
+        $base = rtrim((string) config('heratio.km.base_url', ''), '/');
+        $key = trim((string) config('heratio.km.web_api_key', ''));
 
-            return $out;
+        // KM not wired (no base URL or no web key) -> degrade honestly, never guess.
+        if ($base === '' || $key === '') {
+            return $this->notGrounded();
         }
 
-        $list = [];
-        foreach ($sources as $i => $s) {
-            $list[] = ($i + 1).'. '.$s['title'].($s['scope'] !== '' ? ' - '.$s['scope'] : '');
-        }
-        $prompt = "You are a friendly guide helping a member of the public explore an archive's PUBLISHED collection. "
-            ."Answer the question using ONLY the numbered catalogue records below. "
-            ."Cite the records you use inline as [1], [2], etc. "
-            ."If the records do not contain enough to answer, say so plainly in one sentence and point to what is there - never invent facts, dates, names, places or events that are not in the records. "
-            ."Write in plain, welcoming language for a general audience. Be concise (a short paragraph).\n\n"
-            ."QUESTION: {$question}\n\nPUBLISHED RECORDS:\n".implode("\n", $list);
+        $timeout = max(1, (int) config('heratio.km.timeout_seconds', 6));
 
         try {
-            $answer = trim((string) app(\AhgAiServices\Services\LlmService::class)
-                ->complete($prompt, ['max_tokens' => 600, 'temperature' => 0.3]));
-        } catch (\Throwable $e) {
-            Log::warning('[ahg-core] ask-collection LLM failed: '.$e->getMessage());
+            $resp = Http::withHeaders([
+                    'Authorization' => 'Bearer '.$key,
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ])
+                ->connectTimeout(min($timeout, 3))
+                ->timeout($timeout)
+                ->post($base.'/api/ask', [
+                    'question' => mb_substr($question, 0, self::MAX_QUESTION_CHARS),
+                    'stream' => false,
+                ]);
 
-            return $out;
+            if (! $resp->successful()) {
+                Log::debug('[ahg-core] ask-collection: KM /api/ask returned HTTP '.$resp->status());
+
+                return $this->notGrounded();
+            }
+
+            $answer = trim((string) ($resp->json('answer') ?? ''));
+            if ($answer === '') {
+                return $this->notGrounded();
+            }
+
+            $sources = $this->normaliseSources($resp->json('sources'));
+
+            // If KM honestly reports a corpus gap, pass it through as the answer but
+            // mark it NOT grounded so the page frames it as "we don't know", not fact.
+            if ($this->looksLikeGap($answer)) {
+                return [
+                    'answer' => $answer,
+                    'sources' => $sources,
+                    'grounded' => false,
+                ];
+            }
+
+            return [
+                'answer' => $answer,
+                'sources' => $sources,
+                // Treat an answer with no cited sources as not-confidently-grounded:
+                // grounded answers should be able to point at where they came from.
+                'grounded' => $sources !== [],
+            ];
+        } catch (\Throwable $e) {
+            // Timeout, DNS, TLS, connection refused, malformed JSON - all soft.
+            Log::debug('[ahg-core] ask-collection: KM unavailable, degrading honestly: '.$e->getMessage());
+
+            return $this->notGrounded();
+        }
+    }
+
+    /** The honest "we don't know" payload (no fabricated answer, no sources). */
+    private function notGrounded(): array
+    {
+        return [
+            'answer' => self::NOT_GROUNDED_MESSAGE,
+            'sources' => [],
+            'grounded' => false,
+        ];
+    }
+
+    /**
+     * Normalise KM's `sources` array into a small, view-friendly shape. KM returns
+     * objects like {title, url, score}; we keep only those keys, trim titles, drop
+     * empties, and de-duplicate by url|title so the public list stays clean.
+     *
+     * @param  mixed  $raw
+     * @return array<int,array{title:string,url:?string,score:?float}>
+     */
+    private function normaliseSources($raw): array
+    {
+        if (! is_array($raw)) {
+            return [];
         }
 
-        $out['answer'] = $answer;
-        $out['ok'] = $answer !== '';
-        $out['covered'] = $answer !== '';
+        $out = [];
+        $seen = [];
+        foreach ($raw as $s) {
+            if (! is_array($s)) {
+                continue;
+            }
+            $title = trim((string) ($s['title'] ?? $s['source'] ?? $s['url'] ?? ''));
+            $url = trim((string) ($s['url'] ?? ''));
+            if ($title === '' && $url === '') {
+                continue;
+            }
+            if ($title === '') {
+                $title = $url;
+            }
+            if (mb_strlen($title) > self::MAX_SOURCE_TITLE) {
+                $title = mb_substr($title, 0, self::MAX_SOURCE_TITLE).'...';
+            }
+
+            $dedupe = ($url !== '' ? $url : mb_strtolower($title));
+            if (isset($seen[$dedupe])) {
+                continue;
+            }
+            $seen[$dedupe] = true;
+
+            $score = null;
+            if (isset($s['score']) && is_numeric($s['score'])) {
+                $score = round((float) $s['score'], 3);
+            }
+
+            $out[] = [
+                'title' => $title,
+                'url' => $url !== '' ? $url : null,
+                'score' => $score,
+            ];
+        }
 
         return $out;
     }
 
-    /**
-     * Relevant PUBLISHED catalogue records for a question (keyword-scored over title + scope).
-     * Mirrors the researcher copilot's keyword scoring, but hard-restricts the candidate set to
-     * Published records (status type_id 158, status_id 160) because this is an anonymous-public
-     * surface - drafts and unpublished material must never leak into a public answer.
-     */
-    private function findPublishedSources(string $question, int $limit): array
+    /** True when the answer leads with one of KM's honest corpus-gap phrases. */
+    private function looksLikeGap(string $answer): bool
     {
-        $tokens = array_values(array_filter(
-            preg_split('/[^\p{L}\p{N}]+/u', mb_strtolower($question)),
-            fn ($t) => mb_strlen($t) >= 3 && ! in_array($t, [
-                'the', 'and', 'what', 'when', 'who', 'where', 'why', 'how', 'was', 'were',
-                'are', 'for', 'with', 'about', 'did', 'does', 'have', 'has', 'this', 'that',
-                'tell', 'show', 'find', 'any', 'all', 'can', 'you',
-            ], true)
-        ));
-        if (! $tokens) {
-            return [];
-        }
-
-        $rows = DB::table('information_object_i18n as i')
-            ->join('information_object as io', 'io.id', '=', 'i.id')
-            ->leftJoin('slug as sl', function ($j) { $j->on('sl.object_id', '=', 'io.id'); })
-            ->where('i.culture', 'en')->where('io.parent_id', '!=', 1)
-            // Published-only: same gate the public GLAM browse uses for guests.
-            ->whereExists(function ($sub) {
-                $sub->select(DB::raw(1))
-                    ->from('status as pub_st')
-                    ->whereRaw('pub_st.object_id = io.id')
-                    ->where('pub_st.type_id', '=', 158)
-                    ->where('pub_st.status_id', '=', 160);
-            })
-            ->where(function ($q) use ($tokens) {
-                foreach ($tokens as $t) {
-                    $q->orWhere('i.title', 'like', '%'.$t.'%')->orWhere('i.scope_and_content', 'like', '%'.$t.'%');
-                }
-            })
-            ->where('i.title', '!=', '')
-            ->select('io.id', 'i.title', 'i.scope_and_content', 'sl.slug')
-            ->limit(120)->get();
-
-        $scored = [];
-        foreach ($rows as $r) {
-            $title = mb_strtolower((string) $r->title);
-            $scope = mb_strtolower(strip_tags((string) ($r->scope_and_content ?? '')));
-            $s = 0;
-            foreach ($tokens as $t) {
-                if (mb_strpos($title, $t) !== false) { $s += 2; }
-                if (mb_strpos($scope, $t) !== false) { $s += 1; }
-            }
-            if ($s > 0) {
-                $scored[] = [
-                    'id' => (int) $r->id,
-                    'title' => (string) $r->title,
-                    'slug' => $r->slug,
-                    'score' => $s,
-                    'scope' => trim(mb_substr(strip_tags((string) ($r->scope_and_content ?? '')), 0, 200)),
-                ];
+        // Only inspect the opening of the answer - a gap disclaimer leads, it does
+        // not hide three paragraphs in. Avoids false positives on a long answer
+        // that merely mentions "no information about X" as one aside.
+        $head = mb_strtolower(mb_substr($answer, 0, 200));
+        foreach (self::GAP_MARKERS as $marker) {
+            if (mb_strpos($head, $marker) !== false) {
+                return true;
             }
         }
-        usort($scored, fn ($a, $b) => $b['score'] <=> $a['score']);
 
-        return array_slice($scored, 0, $limit);
+        return false;
     }
 }

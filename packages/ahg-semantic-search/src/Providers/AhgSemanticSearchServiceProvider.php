@@ -20,6 +20,7 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgSemanticSearch\Console\Commands\KmGraphSyncCommand::class,
+                \AhgSemanticSearch\Console\Commands\ScholarshipDiscoverCommand::class,
             ]);
         }
     }

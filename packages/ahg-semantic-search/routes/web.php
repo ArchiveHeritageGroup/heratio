@@ -1,5 +1,6 @@
 <?php
 
+use AhgSemanticSearch\Controllers\ScholarshipController;
 use AhgSemanticSearch\Controllers\SemanticSearchController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,12 @@ Route::middleware(['auth', 'admin'])->prefix('semantic-search/admin')->group(fun
     Route::get('/sync-logs', [SemanticSearchController::class, 'syncLogs'])->name('semantic-search.syncLogs');
     Route::get('/templates', [SemanticSearchController::class, 'adminTemplates'])->name('semantic-search.admin.templates');
     Route::match(['get', 'post'], '/template/edit/{id?}', [SemanticSearchController::class, 'adminTemplateEdit'])->name('semantic-search.admin.template.edit');
+
+    // heratio#1210 - generative scholarship: discovered-connections report for one
+    // record. Accepts a numeric id or a slug. Admin-gated like the rest of this group.
+    Route::get('/scholarship/{objectId}', [ScholarshipController::class, 'show'])
+        ->name('semantic-search.scholarship.show')
+        ->where('objectId', '[A-Za-z0-9][A-Za-z0-9_-]*');
 });
 
 // AJAX endpoints (legacy camelCase aliases)

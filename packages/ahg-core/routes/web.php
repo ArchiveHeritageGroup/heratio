@@ -53,12 +53,14 @@ Route::middleware('auth')->group(function () {
 Route::get('/stories/{slug}', [\AhgCore\Controllers\StorytellingController::class, 'show'])
     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('stories.show');
 
-// heratio#1208 - public "Ask the collection": plain-language question -> answer grounded ONLY in
-// matching PUBLISHED catalogue records, cited by number with links. Public-engagement sibling of
-// the researcher copilot. Two-segment paths keep this clear of the single-segment /{slug} IO
-// catch-all (which only matches one path segment). Public - no auth middleware.
-Route::get('/ask/collection', [\AhgCore\Controllers\AskCollectionController::class, 'index'])->name('ask.collection');
-Route::match(['get', 'post'], '/ask/collection/answer', [\AhgCore\Controllers\AskCollectionController::class, 'answer'])->name('ask.collection.answer');
+// heratio#1208 - public "Ask the collection": plain-language question -> answer grounded in the
+// institution's own corpus via the KM (knowledge-management RAG) service, with cited sources, and
+// honest when the corpus does not cover the question. The collection-wide, anonymous cousin of the
+// room-scoped exhibition docent. Multi-segment paths keep this clear of the single-segment /{slug}
+// archival-record catch-all (which only ever matches ONE path segment). Public - no auth, one cheap
+// KM call per ask.
+Route::get('/ask-the-collection', [\AhgCore\Controllers\AskCollectionController::class, 'index'])->name('ask.collection');
+Route::match(['get', 'post'], '/ask-the-collection/ask', [\AhgCore\Controllers\AskCollectionController::class, 'ask'])->name('ask.collection.ask');
 
 // heratio#1183 - point clouds: admin manager + public Potree viewer
 Route::middleware('auth')->group(function () {
