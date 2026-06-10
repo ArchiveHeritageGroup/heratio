@@ -40,6 +40,7 @@ class GaussianSplatController extends Controller
         return view('ahg-core::splat-viewer', [
             'splat' => $splat,
             'fileUrl' => $this->service->fileUrl($splat),
+            'bounds' => $this->service->computeBounds($this->service->filePath($splat), $splat->format ?? ''),
         ]);
     }
 
@@ -66,6 +67,7 @@ class GaussianSplatController extends Controller
         return view('ahg-core::splat-viewer', [
             'splat' => (object) ['title' => $do->name, 'format' => $ext],
             'fileUrl' => $this->service->digitalObjectUrl($do),
+            'bounds' => $this->service->computeBounds($this->service->digitalObjectPath($do), $ext),
         ]);
     }
 }

@@ -81,14 +81,28 @@
     const q = new THREE.Quaternion().setFromEuler(euler);
     const rotation = [q.x, q.y, q.z, q.w];
 
-    // Camera framing (standard three.js camera, independent of the splat data). Start wider
-    // than before (these captures load large); zoom pushes the camera back, pan slides it up.
-    // cameraUp is [0,-1,0] (screen-up == world -Y), so raising the camera in +Y moves the
-    // object UP on screen -> py increments the camera/look height.
-    const dist = 4 * Math.pow(1.3, z);
-    const h    = py * 0.5;
-    const camPos = [0, h, dist];
-    const camLook = [0, h, 0];
+    // Frame the camera. When the scene bounds are known (computed server-side), aim at the real
+    // centre at a fitting distance - so the object is never oversized or half off-screen - and
+    // pivot rotation about that centre so it spins in place. Otherwise fall back to a wide default.
+    // cameraUp is [0,-1,0] (screen-up == world -Y), so raising the camera in +Y moves it UP.
+    const bounds = @json($bounds ?? null);
+    let camPos, camLook, position = [0, 0, 0];
+    if (bounds && bounds.radius > 0) {
+      const C = new THREE.Vector3(bounds.center[0], bounds.center[1], bounds.center[2]);
+      const P = C.clone().sub(C.clone().applyQuaternion(q));   // scene.position = C - Q*C (pivot about C)
+      position = [P.x, P.y, P.z];
+      const fov = 50 * Math.PI / 180;                          // gs3d default camera fov
+      const fit = (bounds.radius / Math.sin(fov / 2)) * 1.4;
+      const dist = fit * Math.pow(1.25, z);
+      const hh = py * 0.15 * bounds.radius;                    // pan step scales with object size
+      camPos = [C.x, C.y + hh, C.z + dist];
+      camLook = [C.x, C.y + hh, C.z];
+    } else {
+      const dist = 4 * Math.pow(1.3, z);
+      const hh = py * 0.5;
+      camPos = [0, hh, dist];
+      camLook = [0, hh, 0];
+    }
 
     // Mirror the proven ai-demo /viewer config: pass the format EXPLICITLY (a .ply won't
     // auto-detect/progressive-load reliably as a splat) and disable progressive load.
@@ -105,7 +119,7 @@
         initialCameraPosition: camPos,
         initialCameraLookAt: camLook,
       });
-      viewer.addSplatScene(url, { format: sceneFormat, rotation: rotation, progressiveLoad: false, showLoadingUI: true, splatAlphaRemovalThreshold: 5 })
+      viewer.addSplatScene(url, { format: sceneFormat, rotation: rotation, position: position, progressiveLoad: false, showLoadingUI: true, splatAlphaRemovalThreshold: 5 })
         .then(() => { viewer.start(); })
         .catch(fail);
     } catch (e) { fail(); }
