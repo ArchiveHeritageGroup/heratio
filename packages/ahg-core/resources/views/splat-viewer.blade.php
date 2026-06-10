@@ -35,6 +35,7 @@
     <span id="pc_orient">
       <button type="button" id="pc_ud" title="{{ __('Turn the object 90° towards the front') }}">&#x2191;</button>
       <button type="button" id="pc_fb" title="{{ __('Turn the object 90° to the right') }}">&#x2192;</button>
+      <button type="button" id="pc_up" title="{{ __('Move the object up (when it sits below the view)') }}">&#x21E7;</button>
     </span>
   </div>
   <div id="pc_err">{{ __('This scene could not be loaded. Your browser may not support WebGL2, or the file may be incomplete.') }}</div>
@@ -62,14 +63,20 @@
     const params = new URLSearchParams(location.search);
     const rx = ((parseInt(params.get('rx') || '0', 10) % 4) + 4) % 4;
     const ry = ((parseInt(params.get('ry') || '0', 10) % 4) + 4) % 4;
-    const bump = (name, cur) => { const u = new URL(location.href); u.searchParams.set(name, String((cur + 1) % 4)); location.href = u.toString(); };
-    document.getElementById('pc_ud').addEventListener('click', () => bump('rx', rx));
-    document.getElementById('pc_fb').addEventListener('click', () => bump('ry', ry));
+    const ty = parseInt(params.get('ty') || '0', 10) || 0;   // vertical nudge steps (move up)
+    const go = (name, val) => { const u = new URL(location.href); u.searchParams.set(name, String(val)); location.href = u.toString(); };
+    document.getElementById('pc_ud').addEventListener('click', () => go('rx', (rx + 1) % 4));
+    document.getElementById('pc_fb').addEventListener('click', () => go('ry', (ry + 1) % 4));
+    document.getElementById('pc_up').addEventListener('click', () => go('ty', ty + 1));
 
     // Build the object rotation quaternion: turn-right (Y) applied in world, then tilt-front (X).
     const euler = new THREE.Euler(-rx * Math.PI / 2, -ry * Math.PI / 2, 0, 'YXZ');
     const q = new THREE.Quaternion().setFromEuler(euler);
     const rotation = [q.x, q.y, q.z, q.w];
+
+    // Vertical nudge: cameraUp is [0,-1,0] (screen-up == world -Y), so moving the object up on
+    // screen means translating it in -Y. Each press of the up button adds one step.
+    const position = [0, -ty * 0.3, 0];
 
     // Mirror the proven ai-demo /viewer config: pass the format EXPLICITLY (a .ply won't
     // auto-detect/progressive-load reliably as a splat) and disable progressive load.
@@ -86,7 +93,7 @@
         initialCameraPosition: [0, 0, 2],
         initialCameraLookAt: [0, 0, 0],
       });
-      viewer.addSplatScene(url, { format: sceneFormat, rotation: rotation, progressiveLoad: false, showLoadingUI: true, splatAlphaRemovalThreshold: 5 })
+      viewer.addSplatScene(url, { format: sceneFormat, rotation: rotation, position: position, progressiveLoad: false, showLoadingUI: true, splatAlphaRemovalThreshold: 5 })
         .then(() => { viewer.start(); })
         .catch(fail);
     } catch (e) { fail(); }
