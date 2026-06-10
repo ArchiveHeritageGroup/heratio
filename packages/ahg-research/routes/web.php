@@ -1,6 +1,7 @@
 <?php
 
 use AhgResearch\Controllers\ResearchController;
+use AhgResearch\Controllers\ResearchCopilotController;
 use AhgResearch\Controllers\AuditController;
 use AhgResearch\Controllers\ResearchJournalController;
 use AhgResearch\Controllers\ResearchLectureController;
@@ -31,6 +32,10 @@ Route::prefix('research')->name('research.')->group(function () {
 });
 
 Route::prefix('research')->name('research.')->middleware('auth')->group(function () {
+
+    // heratio#1198 - researcher copilot: question -> cited synthesis from the catalogue
+    Route::get('/copilot', [ResearchCopilotController::class, 'index'])->name('copilot');
+    Route::post('/copilot/ask', [ResearchCopilotController::class, 'askAjax'])->name('copilot.ask');
 
     // AJAX autocomplete endpoints (JSON)
     Route::get('/researcher-autocomplete', [ResearchController::class, 'researcherAutocomplete'])->name('researcherAutocomplete');

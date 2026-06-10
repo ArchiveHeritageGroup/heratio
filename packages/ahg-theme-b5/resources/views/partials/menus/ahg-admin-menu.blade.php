@@ -57,6 +57,22 @@
       <li><a class="dropdown-item" href="{{ route('admin.articles.index') }}"><i class="fas fa-newspaper me-2"></i>{{ __('Articles / Blog') }}</a></li>
     @endif
 
+    {{-- AI Tools (heratio#1185/#1186/#1196/#1199/#1202) --}}
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header">{{ __('AI Tools') }}</h6></li>
+    @if(Route::has('scan.cataloguer'))
+      <li><a class="dropdown-item" href="{{ route('scan.cataloguer') }}"><i class="fas fa-wand-magic-sparkles me-2"></i>{{ __('AI Cataloguer') }}</a></li>
+    @endif
+    @if(Route::has('exhibition-space.generate'))
+      <li><a class="dropdown-item" href="{{ route('exhibition-space.generate') }}"><i class="fas fa-wand-magic-sparkles me-2"></i>{{ __('AI Exhibition Designer') }}</a></li>
+    @endif
+    @if(Route::has('stories.index'))
+      <li><a class="dropdown-item" href="{{ route('stories.index') }}"><i class="fas fa-feather-pointed me-2"></i>{{ __('Story Generator') }}</a></li>
+    @endif
+    @if(Route::has('ahgprivacy.autopilot'))
+      <li><a class="dropdown-item" href="{{ route('ahgprivacy.autopilot') }}"><i class="fas fa-robot me-2"></i>{{ __('Compliance Autopilot') }}</a></li>
+    @endif
+
     {{-- Translation --}}
     @php
       $pendingDrafts = 0;
@@ -87,6 +103,9 @@
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header">{{ __('Research') }}</h6></li>
     <li><a class="dropdown-item" href="{{ url('/research/dashboard') }}"><i class="fas fa-book-reader me-2"></i>{{ __('Dashboard') }}</a></li>
+    @if(Route::has('research.copilot'))
+      <li><a class="dropdown-item" href="{{ route('research.copilot') }}"><i class="fas fa-user-graduate me-2"></i>{{ __('Research Copilot') }}</a></li>
+    @endif
     <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{{ url('/research/researchers') }}">
       <span><i class="fas fa-user-graduate me-2"></i>{{ __('Researchers') }}</span>
       @if($pendingResearchers > 0)
