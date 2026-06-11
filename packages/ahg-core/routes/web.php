@@ -104,6 +104,20 @@ Route::get('/splat/{slug}', [\AhgCore\Controllers\GaussianSplatController::class
 Route::get('/splat/do/{id}', [\AhgCore\Controllers\GaussianSplatController::class, 'showDigitalObject'])
     ->whereNumber('id')->name('splats.do');
 
+// Public "Explore" hub: one landing page that makes this collection's public
+// capabilities discoverable in one place (ask the collection, read a record in
+// your language, reconstructions gallery, content credentials, system map, open
+// data graph). Each card is gated by Route::has() in the controller, so a card
+// only shows when its feature's package is installed - the hub never 500s or
+// shows a dead link.
+//
+// /explore is a SINGLE-segment public path, like /reconstructions and /verify.
+// ahg-core boots early, so this route is registered before the single-segment
+// /{slug} archival-record catch-all in ahg-information-object-manage and wins the
+// match. (First-registered route wins; the IO catch-all's exclusion list is a
+// belt-and-braces for late-registered packages, not the mechanism relied on here.)
+Route::get('/explore', [\AhgCore\Controllers\ExploreController::class, 'index'])->name('explore.index');
+
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::match(['get', 'post'], '/', [ClipboardController::class, 'index'])->name('index');

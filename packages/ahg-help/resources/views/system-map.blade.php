@@ -5,7 +5,9 @@
 
 @push('css')
 <style nonce="{{ $cspNonce ?? '' }}">
-  #systemMapShell { position: relative; }
+  /* The shell must NOT clip the canvas - an overflow:hidden ancestor would
+     paint the Cytoscape <canvas> blank, so keep the shell explicitly visible. */
+  #systemMapShell { position: relative; overflow: visible; }
   #systemMapCanvas {
     width: 100%;
     height: 70vh;
@@ -16,9 +18,12 @@
     border: 1px solid #dee2e6;
     border-radius: .5rem;
     touch-action: none;
+    overflow: hidden; /* clip the canvas to the rounded box itself */
   }
   #systemMapCanvas:focus { outline: 2px solid #0d6efd; outline-offset: 2px; }
+  /* Toolbar must wrap cleanly on narrow / mobile screens. */
   .system-map-toolbar { gap: .25rem; flex-wrap: wrap; }
+  .system-map-toolbar .btn { flex: 0 0 auto; }
   .system-map-bread {
     min-height: 1.75rem;
     font-size: .9rem;
@@ -29,6 +34,43 @@
     border-radius: .2rem; vertical-align: middle; margin-right: .35rem;
   }
   .system-map-help-hint { font-size: .8rem; }
+
+  /* ----- Visible-failure + static fallback surfaces -----
+     These replace the silent blank-white canvas whenever Cytoscape cannot
+     render (lib missing, init/layout exception, or no usable size). */
+  .system-map-error {
+    padding: 1.25rem 1.5rem;
+    background: #fff3cd;
+    border: 1px solid #ffecb5;
+    border-radius: .5rem;
+    color: #664d03;
+  }
+  .system-map-error code {
+    display: block;
+    margin-top: .5rem;
+    padding: .5rem .75rem;
+    background: rgba(0,0,0,.05);
+    border-radius: .35rem;
+    color: #842029;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: .8rem;
+  }
+  .system-map-fallback { margin-top: 1rem; }
+  .system-map-fallback > ul { padding-left: 1.1rem; }
+  .system-map-fallback ul { list-style: none; padding-left: 1.25rem; }
+  .system-map-fallback li { margin: .35rem 0; }
+  .system-map-fallback .sm-stage {
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  .system-map-fallback .sm-dot {
+    display: inline-block; width: .8rem; height: .8rem;
+    border-radius: .2rem; flex: 0 0 auto;
+  }
+  .system-map-fallback .sm-sub { color: #6c757d; font-size: .85rem; }
 </style>
 @endpush
 
@@ -71,6 +113,68 @@
            aria-label="{{ __('Interactive system flow map. Use arrow keys to pan, plus and minus to zoom, Enter to drill into the focused stage, and Escape to go up.') }}"></div>
     </div>
 
+    {{--
+      Static fallback outline. Rendered server-side from the SAME data as the
+      interactive map so the page is NEVER just blank white. It is visible by
+      default (covers JS-disabled + lib-failed-to-parse cases); the init script
+      hides it the moment Cytoscape paints successfully. On a caught init/layout
+      error the script re-shows it (and shows the error text above), so a failure
+      is always diagnosable instead of a silent white box.
+    --}}
+    @php
+      // Reconstruct the stage -> children tree from the flat Cytoscape element
+      // list (the controller passes only 'elements' + 'bands'). Pure derivation,
+      // no controller change needed - keeps the fallback fully data-driven.
+      $smStages = [];
+      $smChildren = [];
+      foreach ($graph['elements'] ?? [] as $el) {
+          $d = $el['data'] ?? [];
+          if (($d['kind'] ?? null) === 'stage') {
+              $smStages[$d['id']] = $d;
+          } elseif (($d['kind'] ?? null) === 'child') {
+              $smChildren[$d['subId'] ?? ''][] = $d;
+          }
+      }
+    @endphp
+    <div id="systemMapFallback" class="system-map-fallback">
+      <p class="text-muted small mb-2">
+        <i class="bi bi-list-nested me-1"></i>{{ __('Platform stages (text outline)') }}
+      </p>
+      <ul>
+        @foreach($smStages as $sid => $stage)
+          <li>
+            <span class="sm-stage">
+              <span class="sm-dot" style="background: {{ $stage['color'] ?? '#264653' }};"></span>
+              @if(!empty($stage['help']))
+                <a href="{{ route('help.article', $stage['help']) }}" class="text-decoration-none">{{ $stage['label'] }}</a>
+              @else
+                {{ $stage['label'] }}
+              @endif
+            </span>
+            @if(!empty($stage['sub']))
+              <span class="sm-sub ms-1">- {{ $stage['sub'] }}</span>
+            @endif
+            @if(!empty($smChildren[$sid]))
+              <ul>
+                @foreach($smChildren[$sid] as $child)
+                  <li>
+                    @if(!empty($child['help']))
+                      <a href="{{ route('help.article', $child['help']) }}" class="text-decoration-none">{{ $child['label'] }}</a>
+                    @else
+                      {{ $child['label'] }}
+                    @endif
+                    @if(!empty($child['sub']))
+                      <span class="sm-sub ms-1">- {{ $child['sub'] }}</span>
+                    @endif
+                  </li>
+                @endforeach
+              </ul>
+            @endif
+          </li>
+        @endforeach
+      </ul>
+    </div>
+
     {{-- Cross-cutting bands legend --}}
     @if(!empty($graph['bands']))
       <div class="system-map-legend mt-3">
@@ -104,24 +208,80 @@
   var GRAPH = @json($graph['elements']);
   var ARTICLE_BASE = "{{ url('/help/article') }}/";
 
+  // Run AFTER the full load event: by then the stylesheet + webfonts have
+  // applied and the container has its real laid-out size. On mobile the box
+  // height (70vh) settles only after the address bar / viewport stabilises, so
+  // measuring at DOMContentLoaded can yield a zero/too-small box and a blank
+  // canvas. window 'load' + a rAF gives Cytoscape a real size to measure.
   function ready(fn) {
-    if (document.readyState !== 'loading') { fn(); }
-    else { document.addEventListener('DOMContentLoaded', fn); }
+    function go() { requestAnimationFrame(fn); }
+    if (document.readyState === 'complete') { go(); }
+    else { window.addEventListener('load', go); }
+  }
+
+  // Static fallback outline (server-rendered). Shown by default; hidden once
+  // the canvas paints, re-shown on any caught failure.
+  var fallbackEl = document.getElementById('systemMapFallback');
+  function showFallback() { if (fallbackEl) { fallbackEl.style.display = ''; } }
+  function hideFallback() { if (fallbackEl) { fallbackEl.style.display = 'none'; } }
+
+  // Replace the (potentially blank) canvas with a visible, diagnosable error
+  // instead of silent white. Keeps the static outline below it.
+  function showError(container, msg, err) {
+    var detail = '';
+    if (err) { detail = (err && err.stack) ? String(err.stack) : String(err && err.message ? err.message : err); }
+    var box = document.createElement('div');
+    box.className = 'system-map-error';
+    var p = document.createElement('div');
+    p.innerHTML = '<strong><i class="bi bi-exclamation-triangle me-1"></i>' +
+      '{{ __('The interactive map could not be drawn.') }}</strong> ' +
+      '{{ __('A text outline is shown below.') }}';
+    box.appendChild(p);
+    var why = document.createElement('div');
+    why.className = 'mt-1 small';
+    why.textContent = msg || '';
+    box.appendChild(why);
+    if (detail) {
+      var code = document.createElement('code');
+      code.textContent = detail;
+      box.appendChild(code);
+    }
+    if (container) {
+      container.style.height = 'auto';
+      container.style.minHeight = '0';
+      container.innerHTML = '';
+      container.appendChild(box);
+    }
+    showFallback();
   }
 
   ready(function () {
     var container = document.getElementById('systemMapCanvas');
     if (!container || typeof cytoscape === 'undefined') {
-      if (container) {
-        container.innerHTML = '<div class="p-4 text-danger">Map library failed to load.</div>';
-      }
+      // Library failed to load/parse - keep the static outline visible and say so.
+      showError(container, '{{ __('Map library failed to load.') }}', null);
       return;
     }
+
+    // ---- Guaranteed size: never hand Cytoscape a zero-sized container. ----
+    // If CSS hasn't given the box a real height/width yet, force an explicit
+    // pixel size so the very first measure is non-zero. This is the core
+    // mobile fix - a 0px container paints blank and never recovers without a
+    // resize event we can't guarantee.
+    if (container.clientHeight === 0 || container.clientWidth === 0) {
+      var h = Math.max(Math.round(window.innerHeight * 0.7), 420);
+      container.style.height = h + 'px';
+      if (container.clientWidth === 0) { container.style.width = '100%'; }
+    }
+
+    var cy;
+
+    try {
 
     // ---- expandedStage: which top-level stage (if any) is drilled into ----
     var expandedStage = null;
 
-    var cy = cytoscape({
+    cy = cytoscape({
       container: container,
       elements: GRAPH,
       wheelSensitivity: 0.2,
@@ -358,6 +518,9 @@
     relayout(true);
     renderBread();
 
+    // The interactive canvas painted successfully - hide the static outline.
+    hideFallback();
+
     // ---- keep the canvas sized to its container. Fixes the blank/empty map on mobile,
     //      where the container's real size settles AFTER Cytoscape first measures it (CSS/
     //      font reflow, address bar), and re-fits on rotate / window resize. ----
@@ -368,6 +531,35 @@
     var _smRt;
     window.addEventListener('resize', function () { clearTimeout(_smRt); _smRt = setTimeout(refit, 150); });
     window.addEventListener('orientationchange', function () { setTimeout(refit, 300); });
+
+    // ---- ResizeObserver: the reliable fix for "container settles after init".
+    //      On mobile the box frequently grows from a small/zero size to its real
+    //      size a tick or two AFTER Cytoscape inits. Observing the canvas box and
+    //      re-running resize+fit whenever it changes guarantees the graph fills
+    //      the box once it finally has one - covering cases the timed refits miss.
+    if (typeof ResizeObserver !== 'undefined') {
+      var _lastW = 0, _lastH = 0, _roT;
+      var ro = new ResizeObserver(function (entries) {
+        var box = entries[0] && entries[0].contentRect ? entries[0].contentRect
+                : { width: container.clientWidth, height: container.clientHeight };
+        // Only react to real size changes (avoid feedback loops from fit()).
+        if (Math.abs(box.width - _lastW) < 2 && Math.abs(box.height - _lastH) < 2) { return; }
+        _lastW = box.width; _lastH = box.height;
+        if (box.width > 0 && box.height > 0) {
+          clearTimeout(_roT);
+          _roT = setTimeout(refit, 60);
+        }
+      });
+      ro.observe(container);
+    }
+
+    } catch (err) {
+      // Any init/layout exception used to leave a silent blank-white box.
+      // Surface it instead, and fall back to the server-rendered text outline.
+      try { if (cy && cy.destroy) { cy.destroy(); } } catch (e2) {}
+      showError(container, '{{ __('The interactive map hit an error while drawing.') }}', err);
+      if (window.console && console.error) { console.error('[system-map] init failed:', err); }
+    }
   });
 })();
 </script>
