@@ -124,6 +124,7 @@ class AhgResearchServiceProvider extends ServiceProvider
                 ['research_ai_disclosure_log', 'install_ai_disclosure.sql', null],              // #1242 AI Disclosure
                 ['research_impact_signal', 'install_impact_tracking.sql', null],                 // #1241 Impact Tracking
                 ['research_grant_draft', 'install_grant_engine.sql', 'seed_grant_templates.sql'], // #1239 Grant Engine
+                ['research_writing_doc', 'install_writing_studio.sql', null],                    // #1222 Stage 13 Writing Studio
                 // #1240 Time Machine - read-only reconstruction, no table.
             ];
             foreach ($installs as [$table, $file, $seed]) {
@@ -172,7 +173,7 @@ class AhgResearchServiceProvider extends ServiceProvider
             'argument-builder', 'review-studio', 'method-studio', 'publication-studio',
             'research-memory', 'analysis-bridge', 'field-alerts', 'contradiction-engine',
             'replication-pack', 'project-export', 'ai-disclosure', 'time-machine', 'impact-tracking',
-            'grant-engine',
+            'grant-engine', 'writing-studio',
         ] as $rosRoute) {
             \Illuminate\Support\Facades\Route::group([], __DIR__ . '/../../routes/' . $rosRoute . '.php');
         }
