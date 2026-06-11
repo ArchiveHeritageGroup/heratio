@@ -21,6 +21,7 @@ use AhgC2pa\Events\AiOutputProduced;
 use AhgC2pa\Listeners\RecordDigitalObjectProvenance;
 use AhgC2pa\Listeners\WriteC2paSidecar;
 use AhgC2pa\Middleware\InjectContentCredentialsBadge;
+use AhgC2pa\Controllers\TrustController;
 use AhgC2pa\Services\C2paService;
 use AhgC2pa\Services\DigitalObjectProvenanceService;
 use AhgC2pa\Services\ProvenanceRecordService;
@@ -53,6 +54,26 @@ final class AhgC2paServiceProvider extends ServiceProvider
             $router->middleware('web')
                 ->get('/content-credentials', [AuthenticityController::class, 'explainer'])
                 ->name('c2pa.explainer');
+        });
+
+        // Public, single-segment "Trust at a glance" collection-wide TRUST
+        // DASHBOARD (issue #1209, north star). The same single-segment problem
+        // as /content-credentials applies: /trust and /trust.json are NOT in the
+        // IO slug catch-all's (/{slug}) exclusion list, so declaring them in
+        // boot() web.php would risk the catch-all shadowing them depending on
+        // provider boot order. Registering here, in register(), via
+        // callAfterResolving('router') defines them BEFORE the IO package loads
+        // its catch-all in boot(), so first-match-wins resolution always picks
+        // these. (.json keeps its real extension - nginx passes *.json through
+        // to Laravel - and is declared first so it can never be captured as a
+        // slug.) Read-only, public, no auth: this is the public trust summary.
+        $this->callAfterResolving('router', function ($router) {
+            $router->middleware('web')
+                ->get('/trust.json', [TrustController::class, 'json'])
+                ->name('c2pa.trust.json');
+            $router->middleware('web')
+                ->get('/trust', [TrustController::class, 'index'])
+                ->name('c2pa.trust');
         });
 
         // Reuse the inference-receipts Ed25519 key (same kid travels with
