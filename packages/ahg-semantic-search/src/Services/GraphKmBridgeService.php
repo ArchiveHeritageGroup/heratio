@@ -54,6 +54,13 @@ class GraphKmBridgeService
     protected int $maxChars = 4000;
 
     /**
+     * Hard ceiling on how many entities a single graph export run may render,
+     * even when a caller passes a larger --limit. Keeps the digest bounded and
+     * the number of KM chunks predictable (no thousands-of-files dump).
+     */
+    protected int $maxEntities = 200;
+
+    /**
      * Build a concise, factual natural-language summary of how one record
      * connects across the collection. Plain catalogue facts only - grouped by
      * domain, capped per domain. Returns null when the record has no resolvable
@@ -218,6 +225,103 @@ class GraphKmBridgeService
         file_put_contents($path, $content);
 
         return $path;
+    }
+
+    /**
+     * heratio#1197 / #1214 - rank the most-connected information objects across
+     * the unified G/L/A/M graph. Read-only aggregate over the generic relation
+     * table: for every information object that participates in a relation (as
+     * subject OR object), count its distinct relation edges and return the
+     * top-N, highest degree first.
+     *
+     * Returned shape (one row per entity, already bounded by $limit):
+     *   [
+     *     'id'           => int,     // information_object id
+     *     'title'        => string,  // resolved en title, or "Record #id"
+     *     'slug'         => ?string, // for a /{slug} show link, when present
+     *     'degree'       => int,     // relation edges touching it
+     *     'crossDomains' => int,     // distinct collection domains it links into
+     *   ]
+     *
+     * This is a SELECT-only ranking helper; it writes nothing. The command
+     * layer turns the rows into bounded markdown digests.
+     *
+     * @return array<int,array{id:int,title:string,slug:?string,degree:int,crossDomains:int}>
+     */
+    public function topConnectedEntities(int $limit = 50): array
+    {
+        $limit = max(1, min($limit, $this->maxEntities));
+
+        if (! Schema::hasTable('relation') || ! Schema::hasTable('information_object')) {
+            return [];
+        }
+
+        // Degree per id, counting an edge once whether the id sits on the
+        // subject or the object side. UNION ALL of both endpoint columns, then
+        // group. Bounded to information objects only (the record domain) by the
+        // join to information_object below.
+        $endpoints = DB::table('relation')->select('subject_id as id')
+            ->unionAll(DB::table('relation')->select('object_id as id'));
+
+        $ranked = DB::query()
+            ->fromSub($endpoints, 'e')
+            ->join('information_object as io', 'io.id', '=', 'e.id')
+            ->groupBy('e.id')
+            ->orderByDesc(DB::raw('COUNT(*)'))
+            ->orderBy('e.id')
+            ->limit($limit)
+            ->get(['e.id', DB::raw('COUNT(*) as degree')]);
+
+        $out = [];
+        foreach ($ranked as $row) {
+            $id = (int) $row->id;
+            $title = $this->recordTitle($id);
+            $neighbours = app(\AhgRic\Services\RelationshipService::class)
+                ->crossCollectionNeighbours($id);
+            $groups = $neighbours['groups'] ?? [];
+
+            $out[] = [
+                'id' => $id,
+                'title' => $title ?? ('Record #'.$id),
+                'slug' => $this->recordSlug($id),
+                'degree' => (int) $row->degree,
+                'crossDomains' => is_array($groups) ? count($groups) : 0,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Count how many distinct information objects participate in at least one
+     * relation (the candidate universe for the graph digest). Read-only. Used
+     * by the export command to report what fraction of the graph a bounded run
+     * covers ("wrote top N of M connected records").
+     */
+    public function connectedEntityCount(): int
+    {
+        if (! Schema::hasTable('relation') || ! Schema::hasTable('information_object')) {
+            return 0;
+        }
+
+        $endpoints = DB::table('relation')->select('subject_id as id')
+            ->unionAll(DB::table('relation')->select('object_id as id'));
+
+        return (int) DB::query()
+            ->fromSub($endpoints, 'e')
+            ->join('information_object as io', 'io.id', '=', 'e.id')
+            ->distinct()
+            ->count('e.id');
+    }
+
+    /**
+     * Hard ceiling on how many entities a single export run may render, even if
+     * a caller passes a larger --limit. The command echoes this so an operator
+     * sees why a big --limit was clamped.
+     */
+    public function maxEntities(): int
+    {
+        return $this->maxEntities;
     }
 
     /**

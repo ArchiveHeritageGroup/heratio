@@ -1,9 +1,18 @@
 <?php
 
 use AhgReports\Controllers\CollectionsHealthController;
+use AhgReports\Controllers\NorthStarCockpitController;
 use AhgReports\Controllers\ReportController;
 use AhgReports\Controllers\ReportBuilderController;
 use Illuminate\Support\Facades\Route;
+
+// North Star Cockpit - single demo-ready overview of the platform's vision
+// capabilities. Admin-gated (same 'admin' middleware as the report admin
+// routes below). Read-only; resolves each capability's public link/metric
+// defensively at request time.
+Route::middleware('admin')->group(function () {
+    Route::get('/admin/north-stars', [NorthStarCockpitController::class, 'index'])->name('north-stars.cockpit');
+});
 
 // Main dashboard at /reports (matching AtoM URL)
 Route::middleware('auth')->group(function () {

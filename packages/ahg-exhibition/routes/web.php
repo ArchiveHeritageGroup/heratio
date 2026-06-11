@@ -40,6 +40,10 @@ Route::get('/exhibition-space/browse', [ExhibitionSpaceController::class, 'brows
 // views are @auth-gated, so a guest can explore but cannot change anything.
 Route::get('/exhibition-space/{slug}/builder', [ExhibitionSpaceController::class, 'builder'])->name('exhibition-space.builder');
 Route::get('/exhibition-space/{slug}/plan', [ExhibitionSpaceController::class, 'plan'])->name('exhibition-space.plan');
+// heratio#1217 - building-scale twin, first slice: read-only 2D top-down wayfinding
+// floor plan + "take me to X" object directory (deep-links into the walkthrough).
+// Public, multi-segment so it stays clear of the single-segment /{slug} catch-all.
+Route::get('/exhibition-space/{slug}/wayfinding', [ExhibitionSpaceController::class, 'wayfinding'])->name('exhibition-space.wayfinding');
 Route::get('/exhibition-space/{slug}/forecast', [ExhibitionSpaceController::class, 'forecast'])->name('exhibition-space.forecast');
 Route::get('/exhibition-space/{slug}/analytics', [ExhibitionSpaceController::class, 'analytics'])->name('exhibition-space.analytics');
 

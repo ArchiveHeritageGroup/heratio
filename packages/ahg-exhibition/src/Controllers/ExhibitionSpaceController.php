@@ -277,6 +277,232 @@ class ExhibitionSpaceController extends Controller
         ]);
     }
 
+    // ===================================================================
+    // Wayfinding floor plan + directory (#1217) - first slice of the
+    // building-scale museum twin. A read-only 2D top-down "you are here /
+    // take me to X" plan: rooms/zones as blocks, each placed object as a
+    // labelled dot, plus a searchable directory that deep-links into the
+    // 3D walkthrough. Public, like the walkthrough it feeds into.
+    // ===================================================================
+
+    public function wayfinding(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        // The whole building (every sibling room sharing building_id), each room
+        // carrying its world rect (x_offset/z_offset/w/d) + its placed objects.
+        // Guard the assembly so a schema/data hiccup degrades to an empty plan
+        // rather than a 500.
+        $building = ['rooms' => [], 'min_x' => 0, 'max_x' => 0, 'min_z' => 0, 'max_z' => 0];
+        try {
+            $building = $this->service->getWalkthroughBuilding($space) ?: $building;
+        } catch (\Throwable $e) {
+            $building = ['rooms' => [], 'min_x' => 0, 'max_x' => 0, 'min_z' => 0, 'max_z' => 0];
+        }
+
+        $plan = $this->buildWayfindingPlan($space, $building);
+
+        return view('ahg-exhibition::exhibition-space.wayfinding', [
+            'space' => $space,
+            'plan' => $plan,
+        ]);
+    }
+
+    /**
+     * Derive a normalised 2D top-down layout from the building's room rects +
+     * each room's object placements. Output is render-ready (SVG viewport coords
+     * already scaled), so the Blade view is a thin renderer with no geometry.
+     *
+     * Geometry: rooms come from getWalkthroughBuilding() in world metres
+     * (x_offset/z_offset = top-left, w x d = footprint). An object's world point
+     * is room_offset + placement_fraction * room_dimension (pos_x along width,
+     * pos_y along depth - the same convention the walkthrough/builder use). We take
+     * the bounding box of every room rect (and any positioned object), then scale
+     * it to fit a fixed SVG viewport with a margin. Objects with no usable
+     * coordinate fall back to a tidy grid laid out under the plan.
+     *
+     * @param  array<string,mixed>  $building
+     * @return array<string,mixed>
+     */
+    private function buildWayfindingPlan(object $space, array $building): array
+    {
+        $VIEW_W = 900.0;   // SVG viewport (the view scales it responsively)
+        $VIEW_H = 620.0;
+        $PAD = 28.0;       // inner margin (px) so labels near the edge are not clipped
+
+        // Stable palette for wall/zone grouping (cycled).
+        $palette = ['#0d6efd', '#198754', '#dc3545', '#fd7e14', '#6f42c1', '#0dcaf0', '#d63384', '#20c997'];
+        $zoneColors = [];
+        $zoneColor = function (?string $zone) use (&$zoneColors, $palette): string {
+            $key = ($zone === null || $zone === '') ? '_floor' : strtolower($zone);
+            if (! isset($zoneColors[$key])) {
+                $zoneColors[$key] = $palette[count($zoneColors) % count($palette)];
+            }
+
+            return $zoneColors[$key];
+        };
+        $zoneLabel = function (?string $zone): string {
+            $map = [
+                'north' => 'North wall', 'south' => 'South wall',
+                'east' => 'East wall', 'west' => 'West wall',
+                'corridor' => 'Corridor', 'floor' => 'Floor',
+            ];
+            if ($zone === null || $zone === '') {
+                return 'Floor';
+            }
+            $k = strtolower($zone);
+
+            return $map[$k] ?? ucfirst($zone);
+        };
+
+        $rooms = is_array($building['rooms'] ?? null) ? $building['rooms'] : [];
+
+        // ---- Bounding box of the building (world metres) ----
+        $minX = $building['min_x'] ?? null;
+        $maxX = $building['max_x'] ?? null;
+        $minZ = $building['min_z'] ?? null;
+        $maxZ = $building['max_z'] ?? null;
+        // Recompute from room rects if the building did not supply a usable box
+        // (keeps a single-room space and an ungrouped space both well-framed).
+        if (! is_numeric($minX) || ! is_numeric($maxX) || $maxX <= $minX) {
+            $minX = $minZ = INF;
+            $maxX = $maxZ = -INF;
+            foreach ($rooms as $r) {
+                $x = (float) ($r['x_offset'] ?? 0);
+                $z = (float) ($r['z_offset'] ?? 0);
+                $w = max(0.1, (float) ($r['w'] ?? 1));
+                $d = max(0.1, (float) ($r['d'] ?? 1));
+                $minX = min($minX, $x);
+                $maxX = max($maxX, $x + $w);
+                $minZ = min($minZ, $z);
+                $maxZ = max($maxZ, $z + $d);
+            }
+        }
+        if (! is_finite((float) $minX) || ! is_finite((float) $maxX) || $maxX <= $minX) {
+            // No rooms / no geometry at all: a unit box so the scale math is safe.
+            $minX = 0.0;
+            $maxX = 1.0;
+            $minZ = 0.0;
+            $maxZ = 1.0;
+        }
+        $spanX = max(0.001, (float) $maxX - (float) $minX);
+        $spanZ = max(0.001, (float) $maxZ - (float) $minZ);
+        $scale = min(($VIEW_W - 2 * $PAD) / $spanX, ($VIEW_H - 2 * $PAD) / $spanZ);
+        // Centre the plan in the viewport.
+        $offX = $PAD + (($VIEW_W - 2 * $PAD) - $spanX * $scale) / 2;
+        $offZ = $PAD + (($VIEW_H - 2 * $PAD) - $spanZ * $scale) / 2;
+        $px = fn (float $worldX): float => $offX + ($worldX - (float) $minX) * $scale;
+        $pz = fn (float $worldZ): float => $offZ + ($worldZ - (float) $minZ) * $scale;
+
+        // ---- Rooms as blocks + their object dots ----
+        $svgRooms = [];
+        $directory = [];   // flat searchable list (positioned + unpositioned)
+        $dots = [];        // positioned object dots (id keyed for highlight)
+        $unpositioned = []; // objects without usable coordinates
+
+        foreach ($rooms as $ri => $r) {
+            $rx = (float) ($r['x_offset'] ?? 0);
+            $rz = (float) ($r['z_offset'] ?? 0);
+            $rw = max(0.1, (float) ($r['w'] ?? 1));
+            $rd = max(0.1, (float) ($r['d'] ?? 1));
+            $roomName = (string) ($r['name'] ?? ('Room '.($ri + 1)));
+            $svgRooms[] = [
+                'name' => $roomName,
+                'is_current' => ! empty($r['is_current']),
+                'floor' => (int) ($r['floor'] ?? 0),
+                'x' => round($px($rx), 1),
+                'y' => round($pz($rz), 1),
+                'w' => round($rw * $scale, 1),
+                'h' => round($rd * $scale, 1),
+                'cx' => round($px($rx + $rw / 2), 1),
+                'cy' => round($pz($rz + $rd / 2), 1),
+            ];
+
+            $stops = is_array($r['stops'] ?? null) ? $r['stops'] : [];
+            foreach ($stops as $s) {
+                $ioId = (int) ($s['information_object_id'] ?? 0);
+                $title = (string) ($s['title'] ?? ('#'.$ioId));
+                $zone = $s['wall_or_zone'] ?? null;
+                $entry = [
+                    'dot_id' => 'd'.count($directory),
+                    'io_id' => $ioId,
+                    'title' => $title,
+                    'room' => $roomName,
+                    'zone' => $zone,
+                    'zone_label' => $zoneLabel($zone),
+                    'color' => $zoneColor($zone),
+                    'record_url' => $s['record_url'] ?? null,
+                    'positioned' => false,
+                    'x' => null,
+                    'y' => null,
+                ];
+
+                $fx = $s['pos_x'] ?? null;
+                $fy = $s['pos_y'] ?? null;
+                if (is_numeric($fx) && is_numeric($fy)) {
+                    $wx = $rx + max(0.0, min(1.0, (float) $fx)) * $rw;
+                    $wz = $rz + max(0.0, min(1.0, (float) $fy)) * $rd;
+                    $entry['positioned'] = true;
+                    $entry['x'] = round($px($wx), 1);
+                    $entry['y'] = round($pz($wz), 1);
+                    $dots[] = $entry;
+                } else {
+                    $unpositioned[] = $entry;
+                }
+                $directory[] = $entry;
+            }
+        }
+
+        // ---- Fallback grid for objects with no usable coordinate ----
+        // Laid out under the plan so the dot/entry highlight still works for them.
+        if (! empty($unpositioned)) {
+            $cols = max(1, (int) floor(($VIEW_W - 2 * $PAD) / 90));
+            $gx0 = $PAD + 18;
+            $gy0 = $VIEW_H + 34;   // below the plan band (the view extends the canvas)
+            $i = 0;
+            foreach ($directory as &$d) {
+                if ($d['positioned']) {
+                    continue;
+                }
+                $col = $i % $cols;
+                $row = intdiv($i, $cols);
+                $d['x'] = round($gx0 + $col * 90, 1);
+                $d['y'] = round($gy0 + $row * 30, 1);
+                $dots[] = $d;
+                $i++;
+            }
+            unset($d);
+        }
+
+        // Sort the directory alphabetically for the "take me to X" list.
+        usort($directory, fn ($a, $b) => strcasecmp($a['title'], $b['title']));
+
+        // Distinct zone legend (only zones actually present).
+        $legend = [];
+        foreach ($zoneColors as $k => $c) {
+            $legend[] = ['label' => $zoneLabel($k === '_floor' ? null : $k), 'color' => $c];
+        }
+
+        $gridRows = empty($unpositioned) ? 0 : (int) ceil(count($unpositioned) / max(1, (int) floor(($VIEW_W - 2 * $PAD) / 90)));
+
+        return [
+            'view_w' => $VIEW_W,
+            'view_h' => $VIEW_H + ($gridRows > 0 ? ($gridRows * 30 + 48) : 0),
+            'plan_h' => $VIEW_H,
+            'rooms' => $svgRooms,
+            'dots' => $dots,
+            'directory' => $directory,
+            'legend' => $legend,
+            'has_grid_fallback' => ! empty($unpositioned),
+            'object_count' => count($directory),
+            'room_count' => count($svgRooms),
+            'walkthrough_url' => route('exhibition-space.walkthrough', ['slug' => $space->slug]),
+        ];
+    }
+
     /** AJAX: save a room's plan position (+ optional size). */
     public function savePlanAjax(Request $request, string $slug)
     {

@@ -89,6 +89,13 @@ Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(funct
     Route::get('graph/seed', [GraphController::class, 'index'])
         ->name('api.v1.graph.seed');
 
+    // XML sitemap of per-entity graph URLs. Literal, registered BEFORE the
+    // {idOrSlug} wildcard so "sitemap.xml" is never captured as an id. Roots a
+    // <sitemapindex> when the published entity count exceeds one page; each
+    // ?page=N child is a <urlset>.
+    Route::get('graph/sitemap.xml', [GraphController::class, 'sitemap'])
+        ->name('api.v1.graph.sitemap');
+
     // Per-entity endpoint, with optional .jsonld/.ttl/.rdf suffix. The
     // wildcard is constrained to an id/slug grammar so it never swallows the
     // literals above.
@@ -103,6 +110,31 @@ Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(funct
     Route::get('graph/{idOrSlug}', [GraphController::class, 'show'])
         ->where('idOrSlug', '[A-Za-z0-9\-_]+')
         ->name('api.v1.graph.show');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Zero-knowledge discovery — /.well-known/void (root path, NOT /api/v1)
+|--------------------------------------------------------------------------
+| The single URL a standards-aware crawler dereferences when it knows nothing
+| about this host. Returns a VoID/DCAT dataset description in Turtle that
+| links to the graph front door, the JSON-LD @context, the crawl seed/index,
+| and the XML sitemap — so discovery -> sitemap -> per-entity crawl is a
+| connected path.
+|
+| Registered at the ROOT (this routes file is loaded without a group prefix).
+| The path is multi-segment and begins with ".well-known", so it cannot be
+| captured by the single-segment /{slug} catch-all (its regex is
+| ^(?!...)[a-z0-9][a-z0-9-]*$ — no leading dot, no slash). RDF browsers that
+| ask for ".../void.ttl" get the same document.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('.well-known/void', [GraphController::class, 'options']);
+    Route::get('.well-known/void', [GraphController::class, 'void'])
+        ->name('wellknown.void');
+    Route::get('.well-known/void.ttl', [GraphController::class, 'void'])
+        ->name('wellknown.void.ttl');
 });
 
 /*

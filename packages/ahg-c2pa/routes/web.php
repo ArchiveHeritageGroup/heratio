@@ -16,6 +16,7 @@ use AhgC2pa\Controllers\AuthenticityController;
 use AhgC2pa\Controllers\ProvenanceController;
 use AhgC2pa\Controllers\VerifyController;
 use AhgC2pa\Controllers\VerifyObjectController;
+use AhgC2pa\Controllers\VerifyRecordTraceController;
 use Illuminate\Support\Facades\Route;
 
 // Public "verify authenticity" trust-anchor surface (issue #1209).
@@ -64,6 +65,27 @@ Route::prefix('verify')->group(function () {
     Route::get('/{digitalObjectId}', [VerifyObjectController::class, 'detail'])
         ->name('c2pa.verify.object')
         ->where('digitalObjectId', '[0-9]+');
+
+    // Record-level provenance TRACE (provenance roadmap trace-endpoint slice,
+    // building on #1201 / #1209): aggregate every digital object's provenance
+    // on one archival record into a single chronological trace + a whole-record
+    // authenticity summary. Multi-segment under /verify/record/{ioId}/... so it
+    // can never collide with the per-digital-object /verify/{digitalObjectId}
+    // detail page, the bare /verify landing, or the /verify/id/{io} route.
+    // {ioId} is pinned to [0-9]+. Declared BEFORE the {slug} '.+' matcher below
+    // so /verify/record/... resolves here rather than being treated as a slug.
+    //
+    // The machine-readable companion (.json) is declared FIRST so the literal
+    // 'trace.json' segment is matched here and never captured by the bare
+    // 'trace' page route. nginx passes *.json through to Laravel, so unlike the
+    // SVG badge this can keep its real extension.
+    Route::get('/record/{ioId}/trace.json', [VerifyRecordTraceController::class, 'json'])
+        ->name('c2pa.verify.record.trace.json')
+        ->where('ioId', '[0-9]+');
+
+    Route::get('/record/{ioId}/trace', [VerifyRecordTraceController::class, 'page'])
+        ->name('c2pa.verify.record.trace')
+        ->where('ioId', '[0-9]+');
 
     // Slug, including multi-segment slugs (e.g. /verify/fonds/series/item).
     Route::get('/{slug}', [VerifyController::class, 'bySlug'])

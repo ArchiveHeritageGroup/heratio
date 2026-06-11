@@ -3009,6 +3009,22 @@
       setTimeout(function () { tourPlay(pidx); }, 600);
     })();
 
+    // heratio#1217 wayfinding deep-link (?focus=<ioId>): the floor-plan directory's
+    // "View in the walkthrough" links land here. Fly the visitor straight to that
+    // object once the scene is built, using the existing stopByIo/flyTo helpers (the
+    // 3D engine itself is untouched). Falls through harmlessly if the id is unknown.
+    (function () {
+      var fm = location.search.match(/[?&]focus=(\d+)/);
+      if (!fm) return;
+      var ioId = +fm[1];
+      setTimeout(function () {
+        try {
+          var st = (typeof stopByIo === 'function') ? stopByIo(ioId) : null;
+          if (st && typeof flyTo === 'function') { flyTo(st); }
+        } catch (e) {}
+      }, 700);
+    })();
+
     // ===== narration voice selection =====
     function populateVoices() {
       if (!('speechSynthesis' in window)) return;

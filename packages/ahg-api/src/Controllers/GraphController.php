@@ -74,6 +74,13 @@ class GraphController extends Controller
 
     private const INDEX_MAX_PAGE_SIZE = 500;
 
+    /**
+     * Per-file ceiling for the XML sitemap. The sitemaps.org spec allows up to
+     * 50000 URLs per <urlset>; we cap far lower so each sitemap stays cheap to
+     * build and serve, paginating via a <sitemapindex> over child sitemaps.
+     */
+    private const SITEMAP_PAGE_SIZE = 5000;
+
     protected string $culture = 'en';
 
     protected GraphSerializerService $serializer;
@@ -197,6 +204,7 @@ class GraphController extends Controller
                 'class' => ['@id' => 'void:class', '@type' => '@id'],
                 'dataDump' => ['@id' => 'void:dataDump', '@type' => '@id'],
                 'rootResource' => ['@id' => 'void:rootResource', '@type' => '@id'],
+                'sitemap' => ['@id' => 'void:dataDump', '@type' => '@id'],
             ]),
             '@id' => $base.'/api/v1/graph',
             '@type' => ['void:Dataset', 'dcat:Dataset'],
@@ -217,6 +225,11 @@ class GraphController extends Controller
             'rootResource' => $base.'/api/v1/graph/index',
             'omp:seed' => $base.'/api/v1/graph/index',
             'dataDump' => $base.'/api/v1/graph/index',
+            // The XML sitemap that enumerates every per-entity graph URL, so
+            // discovery -> sitemap -> per-entity crawl is a connected path.
+            'sitemap' => $base.'/api/v1/graph/sitemap.xml',
+            // The zero-knowledge VoID entry point.
+            'omp:wellKnown' => $base.'/.well-known/void',
         ];
 
         $body = json_encode($doc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -336,6 +349,251 @@ class GraphController extends Controller
         return $this->withCors(
             response($body, 200, ['Content-Type' => 'application/ld+json; charset=utf-8'])
         );
+    }
+
+    // -----------------------------------------------------------------
+    // Zero-knowledge discovery: VoID dataset description (.well-known)
+    // -----------------------------------------------------------------
+
+    /**
+     * GET /.well-known/void  (alias: /.well-known/void.ttl)
+     *
+     * The zero-knowledge entry point. A crawler that knows nothing about this
+     * host can dereference a single well-known URL and learn:
+     *   - the dataset front door (/api/v1/graph),
+     *   - the stand-alone JSON-LD @context,
+     *   - the crawl seed/index,
+     *   - the XML sitemap that enumerates every per-entity graph URL,
+     *   - the licence, the namespaces in use, and the published entity count.
+     *
+     * VoID is conventionally Turtle, so this surface emits text/turtle. It is
+     * built from the SAME class counts / namespace table the JSON-LD dataset()
+     * front door uses, so the two descriptions can never drift. Resilient: an
+     * empty graph still yields a valid VoID document (header + dataset stanza),
+     * never a 500.
+     */
+    public function void(Request $request): Response
+    {
+        $base = $this->endpointBase();
+
+        // Reuse the exact enumeration the dataset front door publishes.
+        try {
+            $counts = $this->classCounts();
+        } catch (\Throwable $e) {
+            $counts = [];
+        }
+        $total = array_sum($counts);
+
+        $namespaces = $this->serializer->namespaces();
+        // VoID + DCAT + FOAF prefixes the document itself needs, layered on top
+        // of the protocol's own namespace table (no duplication).
+        $prefixes = array_merge($namespaces, [
+            'void' => 'http://rdfs.org/ns/void#',
+            'dcat' => 'http://www.w3.org/ns/dcat#',
+            'foaf' => 'http://xmlns.com/foaf/0.1/',
+        ]);
+
+        $datasetUri = $base.'/api/v1/graph';
+        $sitemapUri = $base.'/api/v1/graph/sitemap.xml';
+        $contextUri = $base.'/api/v1/graph/context.jsonld';
+        $seedUri = $base.'/api/v1/graph/index';
+        $title = (string) config('app.name', 'Heratio').' Open Memory Protocol graph';
+
+        $lines = [];
+        foreach ($prefixes as $prefix => $uri) {
+            $lines[] = '@prefix '.$prefix.': <'.$this->ttlIri($uri).'> .';
+        }
+        $lines[] = '';
+
+        // The dataset stanza. Every object that is a URI is bracketed; literals
+        // are escaped. dataDump points at BOTH the crawl seed and the sitemap so
+        // a consumer can pick either enumeration path.
+        $stanza = [];
+        $stanza[] = 'a void:Dataset, dcat:Dataset';
+        $stanza[] = 'dcterms:title "'.$this->ttlLiteral($title).'"';
+        $stanza[] = 'dcterms:description "'.$this->ttlLiteral(
+            'Open, read-only Linked-Data graph of published archival descriptions '
+            .'and their cross-collection neighbours. Crawlable: every entity URI '
+            .'dereferences back to the graph endpoint.'
+        ).'"';
+        $stanza[] = 'dcterms:license <https://creativecommons.org/licenses/by/4.0/>';
+        $stanza[] = 'dcterms:modified "'.$this->ttlLiteral(now()->toIso8601String()).'"';
+        $stanza[] = 'void:entities '.(int) $total;
+        // Discovery links: the JSON-LD front door (rootResource), the crawl seed
+        // and the XML sitemap (both as dataDump), and the @context (feature).
+        // This is the connected path: discovery -> seed/sitemap -> entity crawl.
+        $stanza[] = 'void:rootResource <'.$this->ttlIri($datasetUri).'>';
+        $stanza[] = 'void:dataDump <'.$this->ttlIri($seedUri).'>';
+        $stanza[] = 'void:dataDump <'.$this->ttlIri($sitemapUri).'>';
+        $stanza[] = 'void:feature <'.$this->ttlIri($contextUri).'>';
+        $stanza[] = 'dcat:contactPoint <'.$this->ttlIri($datasetUri).'>';
+
+        // Class partition: published entity counts per schema.org class.
+        foreach ($this->classPartition($counts) as $part) {
+            $stanza[] = 'void:classPartition [ void:class '.$this->ttlClassRef((string) $part['class'])
+                .' ; void:entities '.(int) $part['entities'].' ]';
+        }
+
+        $lines[] = '<'.$this->ttlIri($datasetUri).'>';
+        $lines[] = '    '.implode(" ;\n    ", $stanza).' .';
+        $lines[] = '';
+
+        $body = implode("\n", $lines)."\n";
+
+        return $this->withCors(
+            response($body, 200, ['Content-Type' => 'text/turtle; charset=utf-8'])
+        );
+    }
+
+    // -----------------------------------------------------------------
+    // XML sitemap of graph entities (crawlable enumeration)
+    // -----------------------------------------------------------------
+
+    /**
+     * GET /api/v1/graph/sitemap.xml
+     *
+     * A standards-compliant sitemap over the per-entity graph URLs. Built from
+     * the SAME published-only, root-excluded enumeration the crawl index() uses
+     * (information_object joined to a Published status row, id != 1).
+     *
+     * Paging: the sitemaps.org spec caps a single <urlset> at 50000 URLs; this
+     * implementation caps far lower (self::SITEMAP_PAGE_SIZE) for safety and
+     * cheapness. When the published entity count exceeds one page, the root
+     * sitemap.xml becomes a <sitemapindex> that links child sitemaps
+     * (?page=N); each child emits its slice as a <urlset>. Resilient: an empty
+     * graph yields a valid empty <urlset>, never a 500.
+     */
+    public function sitemap(Request $request): Response
+    {
+        $base = $this->endpointBase();
+
+        // Total published, root-excluded entity count (same gate as index()).
+        try {
+            $total = $this->publishedCount();
+        } catch (\Throwable $e) {
+            $total = 0;
+        }
+
+        $pageSize = self::SITEMAP_PAGE_SIZE;
+        $pageCount = $total > 0 ? (int) ceil($total / $pageSize) : 1;
+
+        $page = (int) $request->query('page', '0');
+
+        // Root with no ?page and more than one page: emit a <sitemapindex>
+        // that links each child sitemap. Otherwise emit a <urlset> slice.
+        if ($page < 1 && $pageCount > 1) {
+            $xml = $this->sitemapIndexXml($base, $pageCount);
+
+            return $this->withCors(
+                response($xml, 200, ['Content-Type' => 'application/xml; charset=utf-8'])
+            );
+        }
+
+        // A single <urlset>. page<1 means "the only/first page".
+        $pageNo = $page < 1 ? 1 : min($page, max($pageCount, 1));
+        $after = ($pageNo - 1) * $pageSize;
+
+        try {
+            $rows = $this->publishedSlice($after, $pageSize);
+        } catch (\Throwable $e) {
+            $rows = collect();
+        }
+
+        $xml = $this->urlsetXml($base, $rows);
+
+        return $this->withCors(
+            response($xml, 200, ['Content-Type' => 'application/xml; charset=utf-8'])
+        );
+    }
+
+    /**
+     * Build a <sitemapindex> linking the child <urlset> sitemaps.
+     */
+    protected function sitemapIndexXml(string $base, int $pageCount): string
+    {
+        $now = $this->xmlEscape(now()->toIso8601String());
+        $out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        $out .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+        for ($p = 1; $p <= $pageCount; $p++) {
+            $loc = $this->xmlEscape($base.'/api/v1/graph/sitemap.xml?page='.$p);
+            $out .= '  <sitemap>'."\n";
+            $out .= '    <loc>'.$loc.'</loc>'."\n";
+            $out .= '    <lastmod>'.$now.'</lastmod>'."\n";
+            $out .= '  </sitemap>'."\n";
+        }
+        $out .= '</sitemapindex>'."\n";
+
+        return $out;
+    }
+
+    /**
+     * Build a <urlset> over one slice of published entity graph URLs.
+     *
+     * @param  iterable<int,object>  $rows  rows with ->id and ->updated_at
+     */
+    protected function urlsetXml(string $base, iterable $rows): string
+    {
+        $out = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        $out .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+        foreach ($rows as $row) {
+            $loc = $this->xmlEscape($base.'/api/v1/graph/'.(int) $row->id);
+            $out .= '  <url>'."\n";
+            $out .= '    <loc>'.$loc.'</loc>'."\n";
+            if (! empty($row->updated_at)) {
+                $out .= '    <lastmod>'.$this->xmlEscape($this->w3cDate((string) $row->updated_at)).'</lastmod>'."\n";
+            }
+            $out .= '    <changefreq>monthly</changefreq>'."\n";
+            $out .= '  </url>'."\n";
+        }
+        $out .= '</urlset>'."\n";
+
+        return $out;
+    }
+
+    // -----------------------------------------------------------------
+    // Shared published-only, root-excluded enumeration (mirrors index())
+    // -----------------------------------------------------------------
+
+    /**
+     * Total count of published, root-excluded archival descriptions - the same
+     * population the crawl index() walks and the per-entity endpoint serves.
+     */
+    protected function publishedCount(): int
+    {
+        return (int) $this->publishedQuery()->count('io.id');
+    }
+
+    /**
+     * One ordered slice of published, root-excluded entities for a sitemap
+     * page. Offset-based paging is fine here: the population is stable enough
+     * for a sitemap and the order is deterministic (by id).
+     *
+     * @return \Illuminate\Support\Collection<int,object>
+     */
+    protected function publishedSlice(int $offset, int $limit): \Illuminate\Support\Collection
+    {
+        return $this->publishedQuery()
+            ->leftJoin('object as o', 'io.id', '=', 'o.id')
+            ->orderBy('io.id')
+            ->offset(max(0, $offset))
+            ->limit(max(1, $limit))
+            ->select('io.id', 'o.updated_at')
+            ->get();
+    }
+
+    /**
+     * The shared base query: information_object with a Published status row,
+     * synthetic root (id 1) excluded. Identical gate to index()/classCounts().
+     */
+    protected function publishedQuery(): \Illuminate\Database\Query\Builder
+    {
+        return DB::table('information_object as io')
+            ->join('status as st', function ($j) {
+                $j->on('io.id', '=', 'st.object_id')
+                    ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION)
+                    ->where('st.status_id', '=', self::STATUS_PUBLISHED);
+            })
+            ->where('io.id', '!=', 1);
     }
 
     // -----------------------------------------------------------------
@@ -755,6 +1013,74 @@ class GraphController extends Controller
         return $this->withCors(
             response($body, 404, ['Content-Type' => 'application/ld+json; charset=utf-8'])
         );
+    }
+
+    // -----------------------------------------------------------------
+    // Turtle + XML escaping helpers (VoID + sitemap)
+    // -----------------------------------------------------------------
+
+    /**
+     * Strip characters illegal in a Turtle IRIREF (angle brackets, quotes,
+     * whitespace, control chars) so an emitted <...> stays well-formed.
+     */
+    protected function ttlIri(string $iri): string
+    {
+        return (string) preg_replace('/[\x00-\x20<>"{}|\^`\\\\]/u', '', $iri);
+    }
+
+    /**
+     * Escape a Turtle string literal body (the content between the quotes).
+     */
+    protected function ttlLiteral(string $value): string
+    {
+        return str_replace(
+            ['\\', '"', "\n", "\r", "\t"],
+            ['\\\\', '\\"', '\\n', '\\r', '\\t'],
+            $value
+        );
+    }
+
+    /**
+     * Render a schema.org class for void:class. The class counts are already
+     * schema: CURIEs (e.g. schema:Collection); pass a CURIE through, otherwise
+     * bracket an absolute IRI.
+     */
+    protected function ttlClassRef(string $class): string
+    {
+        if ($class === '') {
+            return 'rdfs:Resource';
+        }
+        // A CURIE like "schema:Collection" (prefix is in the namespace table)
+        // is emitted verbatim; anything else is treated as an absolute IRI.
+        if (str_contains($class, ':')) {
+            [$prefix] = explode(':', $class, 2);
+            if (array_key_exists($prefix, $this->serializer->namespaces())) {
+                return $class;
+            }
+        }
+
+        return '<'.$this->ttlIri($class).'>';
+    }
+
+    /**
+     * XML-escape text/attribute content for the sitemap.
+     */
+    protected function xmlEscape(string $value): string
+    {
+        return htmlspecialchars($value, ENT_QUOTES | ENT_XML1, 'UTF-8');
+    }
+
+    /**
+     * Normalise a DB timestamp to a W3C-datetime <lastmod> value. Falls back to
+     * the raw string when it cannot be parsed (never throws).
+     */
+    protected function w3cDate(string $value): string
+    {
+        try {
+            return \Illuminate\Support\Carbon::parse($value)->toIso8601String();
+        } catch (\Throwable $e) {
+            return $value;
+        }
     }
 
     /**

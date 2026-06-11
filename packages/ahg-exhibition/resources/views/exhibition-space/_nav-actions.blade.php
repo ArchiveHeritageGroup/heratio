@@ -17,6 +17,7 @@
       ['key' => 'browse',      'url' => route('exhibition-space.browse'),                                  'icon' => 'fa-th-list',          'label' => __('All spaces'),    'style' => 'btn-outline-secondary'],
       ['key' => 'builder',     'url' => route('exhibition-space.builder',     ['slug' => $space->slug]),    'icon' => 'fa-pen-ruler',        'label' => __('Builder'),       'style' => 'btn-outline-primary'],
       ['key' => 'plan',        'url' => route('exhibition-space.plan',        ['slug' => $space->slug]),    'icon' => 'fa-drafting-compass', 'label' => __('Building Plan'), 'style' => 'btn-outline-primary'],
+      ['key' => 'wayfinding',  'url' => route('exhibition-space.wayfinding',  ['slug' => $space->slug]),    'icon' => 'fa-map-location-dot', 'label' => __('Wayfinding'),   'style' => 'btn-outline-primary'],
       ['key' => 'walkthrough', 'url' => route('exhibition-space.walkthrough', ['slug' => $space->slug]),    'icon' => 'fa-vr-cardboard',     'label' => __('Walkthrough'),   'style' => 'btn-outline-primary'],
       ['key' => 'accessible',  'url' => route('exhibition-space.accessible-tour', ['slug' => $space->slug]),'icon' => 'fa-universal-access', 'label' => __('Accessible tour'), 'style' => 'btn-outline-primary'],
       ['key' => 'analytics',   'url' => route('exhibition-space.analytics',   ['slug' => $space->slug]),    'icon' => 'fa-chart-line',       'label' => __('Analytics'),     'style' => 'btn-outline-primary'],

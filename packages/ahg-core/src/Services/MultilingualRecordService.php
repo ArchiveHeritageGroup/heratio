@@ -208,7 +208,25 @@ class MultilingualRecordService
      */
     public function translate(int $objectId, string $lang): array
     {
-        $lang = $this->normaliseLang($lang);
+        $requested = $this->normaliseLang($lang);
+
+        // Validate the requested target against the offered (supported) set. An
+        // unsupported code (e.g. a hand-edited / stale ?lang= deep link) falls back
+        // to the jurisdiction-neutral default target and is flagged via 'notice' so
+        // the caller can surface a non-fatal message. A code that IS supported takes
+        // this path unchanged with no notice, preserving the existing behaviour.
+        $supported = $this->supportedCodes($this->sourceCulture($objectId));
+        $notice = null;
+        if (! in_array($requested, $supported, true)) {
+            $fallback = $this->defaultTarget($supported);
+            $notice = $requested === ''
+                ? null
+                : "The language '" . $requested . "' is not available; showing '" . $fallback . "' instead.";
+            $lang = $fallback;
+        } else {
+            $lang = $requested;
+        }
+
         $label = self::LANGUAGE_LABELS[$lang] ?? strtoupper($lang);
 
         $base = [
@@ -217,6 +235,7 @@ class MultilingualRecordService
             'source'        => 'machine-translation',
             'provider'      => 'ahg-gateway',
             'authoritative' => 'original',
+            'notice'        => $notice,
             'fields'        => [],
         ];
 
@@ -356,12 +375,50 @@ class MultilingualRecordService
 
         $codes = array_values(array_unique(array_filter($codes)));
 
+        // Project rule (feedback_af_before_nl): Afrikaans is canonical / first-class
+        // and Dutch is the secondary contrastive term. When BOTH are offered, ensure
+        // 'af' is ordered immediately before 'nl' so the picker never leads with Dutch.
+        // Purely a presentation reorder - the set of offered codes is unchanged.
+        if (in_array('af', $codes, true) && in_array('nl', $codes, true)) {
+            $codes = array_values(array_filter($codes, fn ($c) => $c !== 'af'));
+            $nlPos = array_search('nl', $codes, true);
+            array_splice($codes, $nlPos === false ? count($codes) : (int) $nlPos, 0, ['af']);
+        }
+
         $out = [];
         foreach ($codes as $code) {
             $out[] = ['code' => $code, 'label' => self::LANGUAGE_LABELS[$code] ?? strtoupper($code)];
         }
 
         return $out;
+    }
+
+    /**
+     * The flat list of supported target-language CODES, derived from the same
+     * source as the picker (languages()). Used to validate an incoming ?lang= so
+     * an unsupported value degrades to a default instead of a dead gateway call.
+     *
+     * @return array<int,string>
+     */
+    public function supportedCodes(?string $sourceCulture = null): array
+    {
+        return array_map(fn ($l) => $l['code'], $this->languages($sourceCulture));
+    }
+
+    /**
+     * The jurisdiction-neutral default target to fall back to when a requested
+     * language is not in the supported set. Prefers English when offered,
+     * otherwise the first supported code; ultimately 'en'.
+     *
+     * @param array<int,string> $supported
+     */
+    private function defaultTarget(array $supported): string
+    {
+        if (in_array('en', $supported, true)) {
+            return 'en';
+        }
+
+        return $supported[0] ?? 'en';
     }
 
     /**
