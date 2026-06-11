@@ -128,14 +128,216 @@ class ThemeExhibitionService
     }
 
     /**
-     * On-theme candidate pool drawn from the real catalogue. Matches the theme tokens against
-     * title + scope_and_content, and prefers objects that actually have something to display
-     * (a digital_object or a 3D model) so the generated show is not empty boxes. Ranked by
-     * keyword overlap (title weighted, +1 for having media). Returns id => [id,title,scope].
+     * On-theme candidate pool drawn from the real catalogue.
+     *
+     * Primary path is Elasticsearch semantic/topical recall (#1186): a multi_match over the
+     * description's title + scope/content + the other narrative i18n fields, so a theme like
+     * "Ndebele beadwork" or "WWI letters" pulls topically relevant records rather than only
+     * literal substring matches. The ES path enforces the same guarantees as the keyword path -
+     * published records only (publicationStatusId = 160), the root collection excluded, a
+     * non-empty title - and applies the identical media-preference re-ranking so objects that
+     * actually have something to display float to the top.
+     *
+     * If Elasticsearch is unreachable, the index is missing, or it returns zero hits, this
+     * degrades gracefully to the original keyword/LIKE DB select ({@see candidateObjectsKeyword()}).
+     * The return contract is identical for both paths - id => [id,title,scope] - so
+     * {@see selectWithAi()} and {@see curate()} are untouched.
      *
      * @return array<int,array{id:int,title:string,scope:string}>
      */
     private function candidateObjects(string $theme, int $limit): array
+    {
+        try {
+            $hits = $this->candidateObjectsEs($theme, $limit);
+            if ($hits) {
+                return $hits;
+            }
+            Log::debug('[ahg-exhibition] theme curate: ES returned no hits, falling back to keyword search.');
+        } catch (\Throwable $e) {
+            Log::debug('[ahg-exhibition] theme curate: ES candidate search unavailable, falling back to keyword - '.$e->getMessage());
+        }
+
+        return $this->candidateObjectsKeyword($theme, $limit);
+    }
+
+    /**
+     * Elasticsearch candidate recall. Reuses the existing ES client in ahg-search
+     * ({@see \AhgSearch\Services\ElasticsearchService::search()}) - the generic raw-search entry
+     * point that prepends the configured index prefix - rather than hand-rolling any HTTP. The
+     * query runs against the archival-description index (qubitinformationobject).
+     *
+     * Query: a multi_match (best_fields + a most_fields companion + a phrase boost) over the
+     * indexed narrative text fields - title (boosted), scopeAndContent, archivalHistory,
+     * extentAndMedium and accessConditions - which together carry the topical content of a
+     * description. Filters mirror the keyword path exactly: published only (status 160), the root
+     * collection (parentId 1) excluded, and a title required.
+     *
+     * Returns id => [id,title,scope] (identical shape to the keyword path) after the same
+     * media-preference re-ranking. Throws on transport/index errors so the caller can fall back.
+     *
+     * @return array<int,array{id:int,title:string,scope:string}>
+     */
+    private function candidateObjectsEs(string $theme, int $limit, string $culture = 'en'): array
+    {
+        // Reuse the ahg-search ES client. Its constructor reads ELASTICSEARCH_HOST / prefix from
+        // config, so no wiring is needed here; search() prepends the "heratio_" prefix to the
+        // bare index name we pass.
+        $es = app(\AhgSearch\Services\ElasticsearchService::class);
+
+        $titleField = "i18n.{$culture}.title";
+        $textFields = [
+            "i18n.{$culture}.title^3",
+            "i18n.{$culture}.scopeAndContent",
+            "i18n.{$culture}.archivalHistory",
+            "i18n.{$culture}.extentAndMedium",
+            "i18n.{$culture}.accessConditions",
+        ];
+
+        // Recall as wide as we can score, then re-rank locally (media preference) and trim to
+        // $limit - mirrors the keyword path, which pulls 120 then ranks down to $limit.
+        $size = max($limit, 120);
+
+        $body = [
+            '_source' => [$titleField, "i18n.{$culture}.scopeAndContent"],
+            'query' => [
+                'bool' => [
+                    // best_fields handles the "any one field is a strong match" case; the
+                    // most_fields companion rewards records that hit the theme across several
+                    // fields; the match_phrase boost lifts records carrying the theme as a phrase.
+                    'should' => [
+                        ['multi_match' => [
+                            'query' => $theme,
+                            'type' => 'best_fields',
+                            'fields' => $textFields,
+                            'operator' => 'or',
+                        ]],
+                        ['multi_match' => [
+                            'query' => $theme,
+                            'type' => 'most_fields',
+                            'fields' => $textFields,
+                            'operator' => 'or',
+                        ]],
+                        ['multi_match' => [
+                            'query' => $theme,
+                            'type' => 'phrase',
+                            'fields' => $textFields,
+                            'slop' => 2,
+                            'boost' => 2,
+                        ]],
+                    ],
+                    'minimum_should_match' => 1,
+                    'filter' => [
+                        // Published records only (status 160) - same guarantee as the keyword path.
+                        ['term' => ['publicationStatusId' => 160]],
+                        // Exclude the root collection (parent_id 1), as the keyword path does.
+                        ['bool' => ['must_not' => [['term' => ['parentId' => 1]]]]],
+                        // Require a title - the displayable handle every record needs.
+                        ['exists' => ['field' => $titleField]],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $es->search('qubitinformationobject', $body, 0, $size);
+        $hits = $result['hits']['hits'] ?? null;
+        if (! is_array($hits) || ! $hits) {
+            return [];
+        }
+
+        // Map ES hits -> the rows shape the media-preference re-ranker expects, preserving the
+        // relevance order ES returned them in (used as the tiebreaker in rankCandidates()).
+        $rows = [];
+        $rank = 0;
+        foreach ($hits as $h) {
+            $id = (int) ($h['_id'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
+            $i18n = $h['_source']['i18n'][$culture] ?? [];
+            $title = (string) ($i18n['title'] ?? '');
+            if ($title === '') {
+                continue;   // title is the displayable handle; skip blanks (matches keyword path)
+            }
+            $rows[] = (object) [
+                'id' => $id,
+                'title' => $title,
+                'scope_and_content' => (string) ($i18n['scopeAndContent'] ?? ''),
+                'es_rank' => $rank++,   // 0-based ES relevance position (lower = better)
+            ];
+        }
+        if (! $rows) {
+            return [];
+        }
+
+        return $this->rankCandidates($rows, $limit);
+    }
+
+    /**
+     * Re-rank a candidate row set by media preference and return the id => [id,title,scope] map
+     * the caller contracts on. Shared by the ES and keyword paths. A row exposes ->id, ->title
+     * and ->scope_and_content; for ES rows ->es_rank carries the relevance order so equally-ranked
+     * media/non-media records keep ES's order. The keyword path passes its own ->score instead.
+     *
+     * @param  iterable<object>  $rows
+     * @return array<int,array{id:int,title:string,scope:string}>
+     */
+    private function rankCandidates(iterable $rows, int $limit): array
+    {
+        $rows = is_array($rows) ? $rows : iterator_to_array($rows);
+
+        // Flag objects that have something to show (a digital object or a 3D model) via batched
+        // whereIn probes, merged in PHP - simpler and more portable than a correlated subquery.
+        $ids = array_values(array_filter(array_map(fn ($r) => (int) $r->id, $rows)));
+        $mediaIds = [];
+        if ($ids) {
+            $mediaIds = array_flip(DB::table('digital_object')
+                ->whereIn('object_id', $ids)->distinct()->pluck('object_id')->all());
+            if ($this->tableExists('object_3d_model')) {
+                foreach (DB::table('object_3d_model')->whereIn('object_id', $ids)->distinct()->pluck('object_id') as $mid) {
+                    $mediaIds[(int) $mid] = true;
+                }
+            }
+        }
+
+        $scored = [];
+        foreach ($rows as $r) {
+            $id = (int) $r->id;
+            // Pre-computed relevance: keyword token score if present, else 0 for ES rows (ES has
+            // already ordered them; es_rank breaks ties). +1 for having something to display.
+            $score = (int) ($r->score ?? 0);
+            if (isset($mediaIds[$id])) {
+                $score += 1;   // prefer objects that have something to display
+            }
+            $scored[] = [
+                'id' => $id,
+                'title' => (string) $r->title,
+                'scope' => trim(mb_substr(strip_tags((string) ($r->scope_and_content ?? '')), 0, 240)),
+                'score' => $score,
+                'es_rank' => isset($r->es_rank) ? (int) $r->es_rank : PHP_INT_MAX,
+            ];
+        }
+        // Higher score first; within equal scores, keep the incoming (ES relevance) order.
+        usort($scored, fn ($a, $b) => ($b['score'] <=> $a['score']) ?: ($a['es_rank'] <=> $b['es_rank']));
+
+        $out = [];
+        foreach (array_slice($scored, 0, $limit) as $c) {
+            $out[$c['id']] = ['id' => $c['id'], 'title' => $c['title'], 'scope' => $c['scope']];
+        }
+
+        return $out;
+    }
+
+    /**
+     * On-theme candidate pool via the keyword/LIKE DB select. This is the original recall path,
+     * kept intact as the graceful fallback for {@see candidateObjects()} when Elasticsearch is
+     * unavailable or returns nothing. Matches the theme tokens against title + scope_and_content,
+     * and prefers objects that actually have something to display (a digital_object or a 3D model)
+     * so the generated show is not empty boxes. Ranked by keyword overlap (title weighted, +1 for
+     * having media). Returns id => [id,title,scope].
+     *
+     * @return array<int,array{id:int,title:string,scope:string}>
+     */
+    private function candidateObjectsKeyword(string $theme, int $limit): array
     {
         $tokens = array_values(array_filter(
             preg_split('/[^\p{L}\p{N}]+/u', mb_strtolower($theme)) ?: [],
@@ -160,21 +362,8 @@ class ThemeExhibitionService
 
         $rows = $q->select('io.id', 'i.title', 'i.scope_and_content')->limit(120)->get();
 
-        // Flag objects that have something to show (a digital object or a 3D model) via batched
-        // whereIn probes, merged in PHP - simpler and more portable than a correlated subquery.
-        $ids = $rows->pluck('id')->map(fn ($v) => (int) $v)->all();
-        $mediaIds = [];
-        if ($ids) {
-            $mediaIds = array_flip(DB::table('digital_object')
-                ->whereIn('object_id', $ids)->distinct()->pluck('object_id')->all());
-            if ($this->tableExists('object_3d_model')) {
-                foreach (DB::table('object_3d_model')->whereIn('object_id', $ids)->distinct()->pluck('object_id') as $mid) {
-                    $mediaIds[(int) $mid] = true;
-                }
-            }
-        }
-
-        $scored = [];
+        // Pre-score each row by keyword overlap (title weighted 2, scope 1), then hand off to the
+        // shared media-preference re-ranker + shaper so both recall paths produce the same shape.
         foreach ($rows as $r) {
             $title = mb_strtolower((string) $r->title);
             $scope = mb_strtolower(strip_tags((string) ($r->scope_and_content ?? '')));
@@ -187,24 +376,10 @@ class ThemeExhibitionService
                     $score += 1;
                 }
             }
-            if (isset($mediaIds[(int) $r->id])) {
-                $score += 1;   // prefer objects that have something to display
-            }
-            $scored[] = [
-                'id' => (int) $r->id,
-                'title' => (string) $r->title,
-                'scope' => trim(mb_substr(strip_tags((string) ($r->scope_and_content ?? '')), 0, 240)),
-                'score' => $score,
-            ];
-        }
-        usort($scored, fn ($a, $b) => $b['score'] <=> $a['score']);
-
-        $out = [];
-        foreach (array_slice($scored, 0, $limit) as $c) {
-            $out[$c['id']] = ['id' => $c['id'], 'title' => $c['title'], 'scope' => $c['scope']];
+            $r->score = $score;
         }
 
-        return $out;
+        return $this->rankCandidates($rows, $limit);
     }
 
     /**

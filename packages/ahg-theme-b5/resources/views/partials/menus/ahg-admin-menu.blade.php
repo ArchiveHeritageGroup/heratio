@@ -138,6 +138,24 @@
     @if(Route::has('ric.connections'))
     <li><a class="dropdown-item" href="{{ route('ric.connections') }}"><i class="fas fa-diagram-project me-2"></i>{{ __('Cross-collection Connections') }}</a></li>
     @endif
+    @if(Route::has('ric.explorer'))
+    <li><a class="dropdown-item" href="{{ route('ric.explorer') }}"><i class="fas fa-project-diagram me-2"></i>{{ __('Graph Explorer') }}</a></li>
+    @endif
+    @if(Route::has('ric.places.browse') || Route::has('ric.activities.browse') || Route::has('ric.rules.browse') || Route::has('ric.instantiations.browse'))
+    <li><h6 class="dropdown-header small text-muted ps-3">{{ __('RiC Entities') }}</h6></li>
+    @if(Route::has('ric.places.browse'))
+    <li><a class="dropdown-item" href="{{ route('ric.places.browse') }}"><i class="fas fa-map-marker-alt me-2"></i>{{ __('Places') }}</a></li>
+    @endif
+    @if(Route::has('ric.activities.browse'))
+    <li><a class="dropdown-item" href="{{ route('ric.activities.browse') }}"><i class="fas fa-running me-2"></i>{{ __('Activities') }}</a></li>
+    @endif
+    @if(Route::has('ric.rules.browse'))
+    <li><a class="dropdown-item" href="{{ route('ric.rules.browse') }}"><i class="fas fa-gavel me-2"></i>{{ __('Mandates & Rules') }}</a></li>
+    @endif
+    @if(Route::has('ric.instantiations.browse'))
+    <li><a class="dropdown-item" href="{{ route('ric.instantiations.browse') }}"><i class="fas fa-copy me-2"></i>{{ __('Instantiations') }}</a></li>
+    @endif
+    @endif
     <li><a class="dropdown-item" href="{{ route('ric.import') }}"><i class="fas fa-file-import me-2"></i>{{ __('RDF Import (TTL/JSON-LD/RDF-XML)') }}</a></li>
     @endif
 

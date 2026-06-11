@@ -8,7 +8,21 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // heratio#1210 - public "Discoveries" surface. Registered here in
+        // register() (not boot()) via callAfterResolving('router') so it binds
+        // BEFORE the single-segment /{slug} archival-record catch-all in
+        // ahg-information-object-manage. That package's composer name sorts
+        // before this one, so its boot() (which registers the catch-all) runs
+        // ahead of our boot(); but register() runs for ALL providers before ANY
+        // boot(), so this route wins the match for the single-segment public
+        // path /discoveries. See memory/reference_slug_catchall_route_precedence.md.
+        $this->callAfterResolving('router', function ($router) {
+            $router->middleware('web')
+                ->get('/discoveries', [
+                    \AhgSemanticSearch\Controllers\DiscoveriesController::class, 'index',
+                ])
+                ->name('scholarship.discoveries');
+        });
     }
 
     public function boot(): void

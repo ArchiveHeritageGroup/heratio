@@ -35,6 +35,58 @@
   }
   .system-map-help-hint { font-size: .8rem; }
 
+  /* ----- Navigation aids (search, stage filter, minimap) ----- */
+  .system-map-search { position: relative; }
+  .system-map-search .form-control-sm { min-width: 9rem; }
+  .system-map-search .sm-search-clear {
+    position: absolute; right: .25rem; top: 50%; transform: translateY(-50%);
+    border: 0; background: transparent; color: #6c757d; line-height: 1;
+    padding: 0 .35rem; cursor: pointer;
+  }
+  /* Stage filter chips - wrap freely below the toolbar on narrow screens. */
+  .system-map-stage-filter { gap: .35rem .4rem; flex-wrap: wrap; }
+  .system-map-stage-filter .sm-chip {
+    display: inline-flex; align-items: center; gap: .35rem;
+    border: 1px solid #ced4da; background: #fff; color: #212529;
+    border-radius: 999px; padding: .15rem .6rem; font-size: .8rem;
+    cursor: pointer; user-select: none; line-height: 1.4;
+  }
+  .system-map-stage-filter .sm-chip:hover { background: #f1f3f5; }
+  .system-map-stage-filter .sm-chip.sm-chip-off { opacity: .5; }
+  .system-map-stage-filter .sm-chip.sm-chip-off .sm-chip-dot { filter: grayscale(1); }
+  .system-map-stage-filter .sm-chip-dot {
+    display: inline-block; width: .7rem; height: .7rem;
+    border-radius: 50%; flex: 0 0 auto;
+  }
+  .system-map-stage-filter .sm-chip input { display: none; }
+  .system-map-stage-count { font-size: .78rem; }
+
+  /* Minimap overview panel - absolutely positioned over the canvas,
+     bottom-right, never overlapping toolbar/fallback. Click-to-recenter;
+     the host canvas keeps full pan/zoom. */
+  #systemMapMinimap {
+    position: absolute;
+    right: .6rem; bottom: .6rem;
+    width: 168px; height: 120px;
+    background: rgba(255,255,255,.92);
+    border: 1px solid #ced4da;
+    border-radius: .4rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,.12);
+    overflow: hidden;
+    z-index: 5;
+    cursor: pointer;
+  }
+  #systemMapMinimap canvas { display: block; width: 100%; height: 100%; }
+  #systemMapMinimap .sm-mini-label {
+    position: absolute; top: 2px; left: 5px;
+    font-size: .62rem; color: #6c757d; pointer-events: none;
+    text-transform: uppercase; letter-spacing: .03em;
+  }
+  /* On very small screens the minimap eats too much of the canvas - shrink it. */
+  @media (max-width: 575.98px) {
+    #systemMapMinimap { width: 116px; height: 84px; right: .4rem; bottom: .4rem; }
+  }
+
   /* ----- Visible-failure + static fallback surfaces -----
      These replace the silent blank-white canvas whenever Cytoscape cannot
      render (lib missing, init/layout exception, or no usable size). */
@@ -75,6 +127,22 @@
 @endpush
 
 @section('content')
+@php
+  // Reconstruct the stage -> children tree from the flat Cytoscape element
+  // list (the controller passes only 'elements' + 'bands'). Pure derivation,
+  // no controller change needed - feeds BOTH the stage-filter chips and the
+  // server-rendered static fallback below.
+  $smStages = [];
+  $smChildren = [];
+  foreach ($graph['elements'] ?? [] as $el) {
+      $d = $el['data'] ?? [];
+      if (($d['kind'] ?? null) === 'stage') {
+          $smStages[$d['id']] = $d;
+      } elseif (($d['kind'] ?? null) === 'child') {
+          $smChildren[$d['subId'] ?? ''][] = $d;
+      }
+  }
+@endphp
 <div class="row">
   <div class="col-12">
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-2">
@@ -94,15 +162,45 @@
     </div>
 
     {{-- Toolbar --}}
-    <div class="d-flex system-map-toolbar mb-2">
+    <div class="d-flex align-items-center system-map-toolbar mb-2">
       <button type="button" id="smZoomIn"  class="btn btn-sm atom-btn-white" title="{{ __('Zoom in') }}"><i class="bi bi-zoom-in"></i></button>
       <button type="button" id="smZoomOut" class="btn btn-sm atom-btn-white" title="{{ __('Zoom out') }}"><i class="bi bi-zoom-out"></i></button>
       <button type="button" id="smFit"     class="btn btn-sm atom-btn-white" title="{{ __('Reset / fit to screen') }}"><i class="bi bi-arrows-fullscreen me-1"></i>{{ __('Fit') }}</button>
       <button type="button" id="smUp"      class="btn btn-sm atom-btn-white" title="{{ __('Collapse / back up') }}"><i class="bi bi-arrow-up-left-circle me-1"></i>{{ __('Up') }}</button>
       <span class="vr mx-1 d-none d-md-inline"></span>
+      {{-- In-map search: type to highlight matching nodes and dim the rest. --}}
+      <div class="system-map-search">
+        <label for="smSearch" class="visually-hidden">{{ __('Search the map') }}</label>
+        <input type="search" id="smSearch" class="form-control form-control-sm"
+               autocomplete="off" placeholder="{{ __('Search nodes…') }}"
+               aria-label="{{ __('Search the map by node label') }}" style="padding-right: 1.6rem;">
+        <button type="button" id="smSearchClear" class="sm-search-clear" hidden
+                title="{{ __('Clear search') }}" aria-label="{{ __('Clear search') }}"><i class="bi bi-x-circle"></i></button>
+      </div>
+      <span class="vr mx-1 d-none d-md-inline"></span>
       <span class="text-muted small align-self-center d-none d-md-inline">
         {{ __('Drag to pan - wheel to zoom - arrow keys to pan - click a stage to drill in') }}
       </span>
+    </div>
+
+    {{-- Stage filter: one colour-dotted chip per top-level stage. Toggling a
+         chip hides/shows that stage's subtree and re-fits the visible graph. --}}
+    <div class="d-flex align-items-center system-map-stage-filter mb-2" id="smStageFilter">
+      <span class="text-muted small me-1">{{ __('Stages:') }}</span>
+      <button type="button" id="smStagesAll"   class="sm-chip" title="{{ __('Show all stages') }}">
+        <i class="bi bi-check2-all"></i>{{ __('All') }}
+      </button>
+      <button type="button" id="smStagesReset" class="sm-chip" title="{{ __('Reset filter and view') }}">
+        <i class="bi bi-arrow-counterclockwise"></i>{{ __('Reset') }}
+      </button>
+      @foreach($smStages as $sid => $stage)
+        <label class="sm-chip" data-stage="{{ $sid }}" title="{{ $stage['label'] }}">
+          <input type="checkbox" class="sm-stage-toggle" value="{{ $sid }}" checked>
+          <span class="sm-chip-dot" style="background: {{ $stage['color'] ?? '#264653' }};"></span>
+          <span class="sm-chip-text">{{ $stage['label'] }}</span>
+        </label>
+      @endforeach
+      <span class="text-muted system-map-stage-count ms-2" id="smStageCount" aria-live="polite"></span>
     </div>
 
     {{-- Breadcrumb of where you are inside the map --}}
@@ -111,6 +209,13 @@
     <div id="systemMapShell">
       <div id="systemMapCanvas" tabindex="0" role="application"
            aria-label="{{ __('Interactive system flow map. Use arrow keys to pan, plus and minus to zoom, Enter to drill into the focused stage, and Escape to go up.') }}"></div>
+      {{-- Minimap overview: a small whole-graph render with a viewport rectangle,
+           absolutely positioned over the canvas (bottom-right). Built by the init
+           script ONLY after the main canvas paints; hidden if Cytoscape fails. --}}
+      <div id="systemMapMinimap" hidden role="img"
+           aria-label="{{ __('Overview minimap of the whole system map') }}" title="{{ __('Overview - click to recenter') }}">
+        <span class="sm-mini-label">{{ __('Overview') }}</span>
+      </div>
     </div>
 
     {{--
@@ -121,21 +226,6 @@
       error the script re-shows it (and shows the error text above), so a failure
       is always diagnosable instead of a silent white box.
     --}}
-    @php
-      // Reconstruct the stage -> children tree from the flat Cytoscape element
-      // list (the controller passes only 'elements' + 'bands'). Pure derivation,
-      // no controller change needed - keeps the fallback fully data-driven.
-      $smStages = [];
-      $smChildren = [];
-      foreach ($graph['elements'] ?? [] as $el) {
-          $d = $el['data'] ?? [];
-          if (($d['kind'] ?? null) === 'stage') {
-              $smStages[$d['id']] = $d;
-          } elseif (($d['kind'] ?? null) === 'child') {
-              $smChildren[$d['subId'] ?? ''][] = $d;
-          }
-      }
-    @endphp
     <div id="systemMapFallback" class="system-map-fallback">
       <p class="text-muted small mb-2">
         <i class="bi bi-list-nested me-1"></i>{{ __('Platform stages (text outline)') }}
@@ -281,6 +371,12 @@
     // ---- expandedStage: which top-level stage (if any) is drilled into ----
     var expandedStage = null;
 
+    // ---- hiddenStages: stage ids toggled OFF via the stage-filter chips.
+    //      A hidden stage (and its whole subtree) is removed from the visible
+    //      set by applyVisibility(), exactly like the drill model does. ----
+    var hiddenStages = Object.create(null);
+    function isStageHidden(id) { return !!hiddenStages[id]; }
+
     cy = cytoscape({
       container: container,
       elements: GRAPH,
@@ -352,7 +448,23 @@
           selector: 'edge[kind="child-edge"]',
           style: { 'line-color': '#6c757d', 'target-arrow-color': '#6c757d', 'line-style': 'dashed', 'width': 2 }
         },
-        { selector: '.sm-hidden', style: { 'display': 'none' } }
+        { selector: '.sm-hidden', style: { 'display': 'none' } },
+        // ---- In-map search highlight / dim ----
+        // Matching nodes stay fully opaque and gain a bright halo; everything
+        // else (nodes + edges) is dimmed so the matches pop. Classes are added
+        // / removed by the search handler below.
+        {
+          selector: 'node.sm-match',
+          style: {
+            'border-width': 5,
+            'border-color': '#ffc107',
+            'border-opacity': 1,
+            'opacity': 1,
+            'z-index': 9999
+          }
+        },
+        { selector: '.sm-dim', style: { 'opacity': 0.18 } },
+        { selector: 'edge.sm-dim', style: { 'opacity': 0.10 } }
       ]
     });
 
@@ -365,7 +477,7 @@
         cy.elements().removeClass('sm-hidden');
 
         cy.nodes('[kind="child"]').forEach(function (n) {
-          if (expandedStage && n.data('subId') === expandedStage) {
+          if (expandedStage && n.data('subId') === expandedStage && !isStageHidden(n.data('subId'))) {
             n.removeClass('sm-hidden');
           } else {
             n.addClass('sm-hidden');
@@ -373,9 +485,20 @@
         });
 
         cy.edges('[kind="child-edge"]').forEach(function (e) {
-          if (expandedStage && e.data('subId') === expandedStage) {
+          if (expandedStage && e.data('subId') === expandedStage && !isStageHidden(e.data('subId'))) {
             e.removeClass('sm-hidden');
           } else {
+            e.addClass('sm-hidden');
+          }
+        });
+
+        // Stage-filter: stages toggled OFF are removed from the visible set,
+        // along with any stage-edge that touches them (so no dangling arrows).
+        cy.nodes('[kind="stage"]').forEach(function (n) {
+          if (isStageHidden(n.id())) { n.addClass('sm-hidden'); }
+        });
+        cy.edges('[kind="stage-edge"]').forEach(function (e) {
+          if (isStageHidden(e.data('source')) || isStageHidden(e.data('target'))) {
             e.addClass('sm-hidden');
           }
         });
@@ -513,10 +636,258 @@
     });
     cy.on('mouseout', 'node', function () { container.style.cursor = 'default'; });
 
+    // ================================================================
+    // Navigation aids: (1) in-map search, (2) stage filter, (3) minimap.
+    // All client-side, layered on top of the drill/visibility model above.
+    // ================================================================
+
+    // ---------- (2) Stage filter: count indicator ----------
+    function totalStages() { return cy.nodes('[kind="stage"]').length; }
+    function shownStages() {
+      var total = totalStages(), hidden = 0, i;
+      var ids = cy.nodes('[kind="stage"]').map(function (n) { return n.id(); });
+      for (i = 0; i < ids.length; i++) { if (isStageHidden(ids[i])) { hidden++; } }
+      return total - hidden;
+    }
+    function refreshStageCount() {
+      var el = document.getElementById('smStageCount');
+      if (!el) return;
+      var shown = shownStages(), total = totalStages();
+      // "X of Y stages shown" - always visible context indicator.
+      el.textContent = shown + ' {{ __('of') }} ' + total + ' {{ __('stages shown') }}';
+    }
+
+    // ---------- (2) Stage filter: chip toggles ----------
+    // Toggling a chip flips hiddenStages[id], then re-runs the SAME visibility
+    // + relayout + re-fit path the drill model uses, so the visible graph
+    // re-lays-out and re-fits cleanly with the filtered set.
+    function syncChipUI() {
+      var chips = document.querySelectorAll('#smStageFilter .sm-chip[data-stage]');
+      chips.forEach(function (chip) {
+        var id = chip.getAttribute('data-stage');
+        var box = chip.querySelector('input.sm-stage-toggle');
+        var off = isStageHidden(id);
+        if (box) { box.checked = !off; }
+        chip.classList.toggle('sm-chip-off', off);
+      });
+    }
+    function applyStageFilter(refit) {
+      // If the currently-expanded stage was just hidden, collapse back up.
+      if (expandedStage && isStageHidden(expandedStage)) { expandedStage = null; }
+      applyVisibility();
+      relayout(refit !== false);
+      renderBread();
+      syncChipUI();
+      refreshStageCount();
+      scheduleMinimap();
+    }
+    (function wireStageFilter() {
+      var boxes = document.querySelectorAll('#smStageFilter input.sm-stage-toggle');
+      boxes.forEach(function (box) {
+        box.addEventListener('change', function () {
+          if (box.checked) { delete hiddenStages[box.value]; }
+          else { hiddenStages[box.value] = true; }
+          applyStageFilter(true);
+        });
+      });
+      var allBtn = document.getElementById('smStagesAll');
+      if (allBtn) {
+        allBtn.addEventListener('click', function () {
+          hiddenStages = Object.create(null);
+          applyStageFilter(true);
+        });
+      }
+      var resetBtn = document.getElementById('smStagesReset');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+          hiddenStages = Object.create(null);
+          expandedStage = null;
+          clearSearch();
+          applyStageFilter(true);
+        });
+      }
+    })();
+
+    // ---------- (1) In-map search ----------
+    // Case-insensitive substring match on node labels (over the CURRENTLY
+    // visible nodes only - i.e. stage view or the drilled-in stage). Matches
+    // get .sm-match (bright halo, full opacity); everything else gets .sm-dim.
+    // Empty box clears both classes. A single strong match centers on it.
+    var searchInput = document.getElementById('smSearch');
+    var searchClear = document.getElementById('smSearchClear');
+    var _searchT = null;
+
+    function clearSearchClasses() {
+      cy.batch(function () {
+        cy.elements().removeClass('sm-match sm-dim');
+      });
+    }
+    function clearSearch() {
+      if (searchInput) { searchInput.value = ''; }
+      if (searchClear) { searchClear.hidden = true; }
+      clearSearchClasses();
+    }
+    function runSearch(raw) {
+      var q = (raw || '').trim().toLowerCase();
+      if (searchClear) { searchClear.hidden = (q === ''); }
+      if (q === '') { clearSearchClasses(); return; }
+
+      var visible = cy.nodes(':visible');
+      var matches = visible.filter(function (n) {
+        var label = String(n.data('label') || '').toLowerCase();
+        return label.indexOf(q) !== -1;
+      });
+
+      cy.batch(function () {
+        // Dim every visible element, then un-dim + halo the matching nodes.
+        cy.elements(':visible').addClass('sm-dim');
+        matches.removeClass('sm-dim').addClass('sm-match');
+        // Keep edges between two matches readable.
+        matches.edgesWith(matches).removeClass('sm-dim');
+      });
+
+      // On exactly one match, gently center it so the user can see where it is.
+      if (matches.length === 1) {
+        try { cy.animate({ center: { eles: matches }, duration: 250 }); } catch (e) {}
+      }
+    }
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        if (_searchT) { clearTimeout(_searchT); }
+        var val = searchInput.value;
+        _searchT = setTimeout(function () { runSearch(val); scheduleMinimap(); }, 180); // debounce
+      });
+      // Escape inside the box clears it without bubbling to the canvas handler.
+      searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { clearSearch(); e.stopPropagation(); }
+      });
+    }
+    if (searchClear) {
+      searchClear.addEventListener('click', function () { clearSearch(); if (searchInput) { searchInput.focus(); } });
+    }
+
+    // ---------- (3) Minimap overview ----------
+    // A true minimap: render the whole graph to a small canvas (bounding box of
+    // ALL elements, scaled to fit) with a viewport rectangle showing the part
+    // currently on screen. Repaints on pan/zoom/layout. Click recenters the
+    // main view. No extra libs - just the model's positions + a 2D context.
+    var miniEl = document.getElementById('systemMapMinimap');
+    var miniCanvas = null, miniCtx = null, _miniT = null, _miniBB = null;
+    function ensureMiniCanvas() {
+      if (!miniEl) return false;
+      if (!miniCanvas) {
+        miniCanvas = document.createElement('canvas');
+        miniEl.appendChild(miniCanvas);
+      }
+      var w = miniEl.clientWidth, h = miniEl.clientHeight;
+      if (w <= 0 || h <= 0) return false;
+      var dpr = window.devicePixelRatio || 1;
+      if (miniCanvas.width !== Math.round(w * dpr) || miniCanvas.height !== Math.round(h * dpr)) {
+        miniCanvas.width = Math.round(w * dpr);
+        miniCanvas.height = Math.round(h * dpr);
+        miniCanvas.style.width = w + 'px';
+        miniCanvas.style.height = h + 'px';
+      }
+      miniCtx = miniCanvas.getContext('2d');
+      if (miniCtx) { miniCtx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+      return !!miniCtx;
+    }
+    // Map a model point -> minimap pixel using the cached whole-graph bbox + fit.
+    function miniTransform(w, h) {
+      var bb = _miniBB;
+      if (!bb || bb.w <= 0 || bb.h <= 0) { return null; }
+      var pad = 6;
+      var s = Math.min((w - pad * 2) / bb.w, (h - pad * 2) / bb.h);
+      var offX = (w - bb.w * s) / 2;
+      var offY = (h - bb.h * s) / 2;
+      return {
+        s: s,
+        x: function (mx) { return offX + (mx - bb.x1) * s; },
+        y: function (my) { return offY + (my - bb.y1) * s; }
+      };
+    }
+    function drawMinimap() {
+      if (!miniEl || miniEl.hidden) return;
+      if (!ensureMiniCanvas()) return;
+      var w = miniEl.clientWidth, h = miniEl.clientHeight;
+      var vis = cy.elements(':visible');
+      var bb = vis.boundingBox();
+      _miniBB = { x1: bb.x1, y1: bb.y1, w: bb.w, h: bb.h };
+      var t = miniTransform(w, h);
+      miniCtx.clearRect(0, 0, w, h);
+      if (!t) { return; }
+
+      // Edges first (thin grey), then node dots in their stage colour.
+      miniCtx.strokeStyle = 'rgba(108,117,125,.45)';
+      miniCtx.lineWidth = 1;
+      vis.filter('edge').forEach(function (e) {
+        var s = e.source().position(), tg = e.target().position();
+        miniCtx.beginPath();
+        miniCtx.moveTo(t.x(s.x), t.y(s.y));
+        miniCtx.lineTo(t.x(tg.x), t.y(tg.y));
+        miniCtx.stroke();
+      });
+      vis.filter('node').forEach(function (n) {
+        if (n.isParent()) { return; }
+        var p = n.position();
+        miniCtx.fillStyle = n.data('color') || '#264653';
+        miniCtx.beginPath();
+        miniCtx.arc(t.x(p.x), t.y(p.y), 2.4, 0, Math.PI * 2);
+        miniCtx.fill();
+      });
+
+      // Viewport rectangle: convert the on-screen extent to model coords.
+      var ext = cy.extent();
+      var rx = t.x(ext.x1), ry = t.y(ext.y1);
+      var rw = (ext.x2 - ext.x1) * t.s, rh = (ext.y2 - ext.y1) * t.s;
+      miniCtx.strokeStyle = '#0d6efd';
+      miniCtx.lineWidth = 1.5;
+      miniCtx.strokeRect(
+        Math.max(0, rx), Math.max(0, ry),
+        Math.min(rw, w), Math.min(rh, h)
+      );
+      miniCtx.fillStyle = 'rgba(13,110,253,.10)';
+      miniCtx.fillRect(Math.max(0, rx), Math.max(0, ry), Math.min(rw, w), Math.min(rh, h));
+    }
+    function scheduleMinimap() {
+      if (_miniT) { return; }
+      _miniT = requestAnimationFrame(function () { _miniT = null; try { drawMinimap(); } catch (e) {} });
+    }
+    function showMinimap() {
+      if (miniEl) { miniEl.hidden = false; scheduleMinimap(); }
+    }
+    // Click on the minimap pans the main view so the clicked model point is centred.
+    if (miniEl) {
+      miniEl.addEventListener('click', function (ev) {
+        if (!ensureMiniCanvas()) return;
+        var rect = miniEl.getBoundingClientRect();
+        var px = ev.clientX - rect.left, py = ev.clientY - rect.top;
+        var w = miniEl.clientWidth, h = miniEl.clientHeight;
+        var t = miniTransform(w, h);
+        if (!t || !_miniBB) return;
+        // invert the transform back to model coords
+        var s = t.s;
+        var offX = (w - _miniBB.w * s) / 2;
+        var offY = (h - _miniBB.h * s) / 2;
+        var mx = _miniBB.x1 + (px - offX) / s;
+        var my = _miniBB.y1 + (py - offY) / s;
+        // Pan (keeping zoom) so the clicked model point sits at the canvas centre.
+        var z = cy.zoom();
+        var targetPan = { x: container.clientWidth / 2 - mx * z, y: container.clientHeight / 2 - my * z };
+        try { cy.animate({ pan: targetPan, duration: 200 }); }
+        catch (e) { cy.pan(targetPan); }
+      });
+    }
+    // Repaint the viewport rectangle as the user pans / zooms / re-lays-out.
+    cy.on('pan zoom render', scheduleMinimap);
+
     // ---- initial render ----
     applyVisibility();
     relayout(true);
     renderBread();
+    syncChipUI();
+    refreshStageCount();
+    showMinimap();
 
     // The interactive canvas painted successfully - hide the static outline.
     hideFallback();
