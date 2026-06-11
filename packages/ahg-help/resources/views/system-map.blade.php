@@ -610,6 +610,23 @@
           }
         });
 
+        // ---- Hierarchy edges: parent -> child connectors that root the drill
+        //      layout so the open stage/child sits ABOVE its items. A stage's
+        //      down-edges show while it is open (all at level 2; only the edge
+        //      to the open child once a child is drilled, so nothing dangles).
+        cy.edges('[kind="down-stage"]').forEach(function (e) {
+          var show = expandedStage && e.data('subId') === expandedStage && !isStageHidden(e.data('subId'))
+            && (!expandedChild || e.data('target') === expandedChild);
+          if (show) { e.removeClass('sm-hidden'); } else { e.addClass('sm-hidden'); }
+        });
+        cy.edges('[kind="down-child"]').forEach(function (e) {
+          if (expandedChild && e.data('subId') === expandedChild && !isStageHidden(e.data('stageId'))) {
+            e.removeClass('sm-hidden');
+          } else {
+            e.addClass('sm-hidden');
+          }
+        });
+
         // When a child is drilled into, hide its SIBLING children (and their
         // child-edges) so only the open child + its grandchildren remain. The
         // open child itself is re-shown just below.
@@ -645,17 +662,35 @@
     }
 
     function relayout(fit) {
-      var opts;
+      var opts, root = null;
       if (expandedChild) {
-        opts = { name: 'breadthfirst', directed: true, spacingFactor: 1.15, padding: 30, animate: false };
+        root = expandedChild;
+        opts = { name: 'breadthfirst', directed: true, spacingFactor: 0.55, padding: 20, animate: false };
       } else if (expandedStage) {
-        opts = { name: 'breadthfirst', directed: true, spacingFactor: 1.25, padding: 30, animate: false };
+        root = expandedStage;
+        opts = { name: 'breadthfirst', directed: true, spacingFactor: 0.55, padding: 20, animate: false };
       } else {
         opts = { name: 'breadthfirst', directed: true, spacingFactor: 1.4, padding: 40, animate: false };
       }
+      // Force the open parent to be the layout ROOT so it sits at the TOP with
+      // its items beneath it (clean parent/child tree). Without this, breadthfirst
+      // auto-picks a root from the flow edges and the parent floats off to one
+      // side. The tighter spacingFactor packs the items so the fit can zoom in
+      // (bigger, more readable blocks).
+      if (root) { var r = cy.getElementById(root); if (r && r.nonempty()) { opts.roots = r; } }
       var eles = cy.elements(':visible');
       eles.layout(opts).run();
-      if (fit !== false) { cy.fit(eles, 40); }
+      // Defer the fit so breadthfirst has actually applied the new positions.
+      // Fitting inline frames the PRE-layout positions and zooms onto a single
+      // node, leaving the rest off-screen - the "drill shows only one block"
+      // bug. Fit NODES ONLY (a transient edge bbox can skew cy.elements right
+      // after a layout). rAF + a short timeout covers both sync and deferred
+      // position application.
+      if (fit !== false) {
+        var doFit = function () { try { cy.fit(cy.nodes(':visible'), 40); } catch (e) {} };
+        requestAnimationFrame(doFit);
+        setTimeout(doFit, 60);
+      }
     }
 
     function renderBread() {

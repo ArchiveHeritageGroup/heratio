@@ -83,6 +83,17 @@ class SystemMapService
                     'hasChildren' => ! empty($child['children']),
                 ]];
 
+                // Parent -> child hierarchy edge. Roots the drill-in layout so
+                // the stage sits ABOVE its children (a proper parent/child tree).
+                // Shown only while this stage is the open one.
+                $elements[] = ['data' => [
+                    'id'     => 'dn-'.$stage['id'].'__'.$child['id'],
+                    'source' => $stage['id'],
+                    'target' => $child['id'],
+                    'kind'   => 'down-stage',
+                    'subId'  => $stage['id'],
+                ]];
+
                 // Grandchild detail nodes (third level). parent => child id; the
                 // view strips `parent` so they render as solid nodes, and the
                 // drill model reveals them by subId === their parent child id.
@@ -95,6 +106,17 @@ class SystemMapService
                         'help'    => $grand['help'] ?? null,
                         'kind'    => 'grandchild',
                         'parent'  => $child['id'],
+                        'subId'   => $child['id'],
+                        'stageId' => $stage['id'],
+                    ]];
+
+                    // Child -> grandchild hierarchy edge (same idea, one level
+                    // deeper): the child sits ABOVE its detail nodes.
+                    $elements[] = ['data' => [
+                        'id'      => 'dn-'.$child['id'].'__'.$grand['id'],
+                        'source'  => $child['id'],
+                        'target'  => $grand['id'],
+                        'kind'    => 'down-child',
                         'subId'   => $child['id'],
                         'stageId' => $stage['id'],
                     ]];
@@ -142,12 +164,20 @@ class SystemMapService
         // text instead of a dead link. One query, mirrors HelpArticleService's
         // own visibility gate. Degrades safely (links kept) if the table is
         // absent or the lookup throws.
+        $bands = $def['bands'] ?? [];
         try {
             $slugs = [];
             foreach ($elements as $el) {
                 if (! empty($el['data']['help'])) {
                     $slugs[$el['data']['help']] = true;
                 }
+            }
+            // The cross-cutting legend bands (Auth / Settings / Rights) also carry
+            // help slugs - gate them the same way, so an admin-only article (e.g.
+            // the SHACL howto in the Technical category) is shown as plain text
+            // for an anonymous visitor instead of a 404 link.
+            foreach ($bands as $band) {
+                if (! empty($band['help'])) { $slugs[$band['help']] = true; }
             }
             if ($slugs && \Illuminate\Support\Facades\Schema::hasTable('help_article')) {
                 $q = \Illuminate\Support\Facades\DB::table('help_article')
@@ -163,6 +193,11 @@ class SystemMapService
                     }
                 }
                 unset($el);
+                foreach ($bands as $bid => $band) {
+                    if (! empty($band['help']) && ! isset($viewable[$band['help']])) {
+                        $bands[$bid]['help'] = null;
+                    }
+                }
             }
         } catch (\Throwable $e) {
             // Keep the links as-is on any lookup failure - a possible 404 is
@@ -171,7 +206,7 @@ class SystemMapService
 
         return [
             'elements' => $elements,
-            'bands'    => $def['bands'] ?? [],
+            'bands'    => $bands,
         ];
     }
 }

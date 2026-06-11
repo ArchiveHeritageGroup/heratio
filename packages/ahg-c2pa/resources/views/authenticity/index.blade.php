@@ -147,6 +147,15 @@
     <p class="small mb-0 mt-2">
       <i class="fas fa-upload me-1"></i><a href="{{ url('/verify/check') }}">{{ __('Have a file from anywhere? Check its content credentials by uploading it.') }}</a>
     </p>
+    {{-- Admin-only: deep-link to the internal coverage dashboard so operators
+         can see and close the gap. Gated with the same AclService::canAdmin
+         check the /admin/c2pa routes enforce; invisible to the public. --}}
+    @php($c2paIsAdmin = auth()->check() && \AhgCore\Services\AclService::canAdmin(auth()->id()))
+    @if($c2paIsAdmin)
+      <p class="small mb-0 mt-2">
+        <i class="fas fa-shield-alt me-1"></i><a href="{{ url('/admin/c2pa/coverage') }}">{{ __('Admin: view the authenticity-coverage report (how much of the collection is signed, and where the gaps are).') }}</a>
+      </p>
+    @endif
   </div>
 </div>
 

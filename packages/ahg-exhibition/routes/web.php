@@ -204,6 +204,13 @@ Route::get('/exhibition-space/{slug}/manifest.json', [ExhibitionSpaceController:
 Route::get('/exhibition-space/{slug}/scene.json', [ExhibitionSpaceController::class, 'sceneExport'])->name('exhibition-space.scene');
 Route::get('/exhibition-space/{slug}/exhibition.jsonld', [ExhibitionSpaceController::class, 'exhibitionJsonLd'])->name('exhibition-space.jsonld');
 
+// heratio#exhibitions-index - PUBLIC "Explore our exhibitions" landing: one page
+// that lists every public exhibition space so a visitor can find them all (until
+// now each space was only reachable by its own URL). A fixed literal single-segment
+// path, registered ahead of the /{slug} IO catch-all below (same precedence trick
+// as /reconstructions and /verify), so it binds before the catch-all ever sees it.
+Route::get('/exhibitions', [ExhibitionSpaceController::class, 'index'])->name('exhibition-space.index');
+
 // heratio#1206 - "walk through what no longer exists": PUBLIC gallery of every
 // catalogue record (a lost / destroyed place) linked to a walkable reconstruction
 // twin. A fixed literal path, registered ahead of the /{slug} catch-all below.

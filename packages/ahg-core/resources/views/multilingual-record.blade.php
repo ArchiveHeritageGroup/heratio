@@ -43,8 +43,29 @@
 @endphp
 <div class="container py-4" style="max-width:1100px">
   <header class="mb-3">
-    <h1 class="h3 mb-1"><i class="fas fa-globe me-2 text-muted"></i>{{ __('Read this record in your language') }}</h1>
-    <p class="text-muted mb-0">{{ __('Choose a language to read this record\'s key metadata translated on demand, side by side with the original. The original catalogue text is always shown and is authoritative.') }}</p>
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+      <div>
+        <h1 class="h3 mb-1"><i class="fas fa-globe me-2 text-muted"></i>{{ __('Read this record in your language') }}</h1>
+        <p class="text-muted mb-0">{{ __('Choose a language to read this record\'s key metadata translated on demand, side by side with the original. The original catalogue text is always shown and is authoritative.') }}</p>
+      </div>
+      {{-- Compact, remembered reading-language control (heratio#1211 preference
+           layer). Persists the choice for next time; on this page it drives the
+           in-place re-translation via the ahg:reading-language event below. --}}
+      <div class="text-md-end">
+        @include('ahg-core::partials.reading-language-picker', [
+          'rlpLanguages' => $languages,
+          'rlpSelected'  => $selectedLang,
+          'rlpSource'    => $sourceLang,
+          'rlpRedirect'  => route('record.translate', ['idOrSlug' => $idOrSlug], false) . ($selectedLang !== '' ? ('?lang=' . urlencode($selectedLang)) : ''),
+          'rlpLabel'     => __('Reading language'),
+        ])
+        @if(!empty($preferredLang))
+          <div class="form-text mt-1">
+            <i class="fas fa-bookmark me-1"></i>{{ __('Remembered for your next visit.') }}
+          </div>
+        @endif
+      </div>
+    </div>
   </header>
 
   <div class="alert alert-info d-flex align-items-start" role="note">
@@ -157,8 +178,28 @@
   var ajaxUrl = '{{ route('record.translate.ajax') }}';
   var showUrl = '{{ route('record.translate', ['idOrSlug' => $idOrSlug]) }}';
   var csrf = '{{ csrf_token() }}';
+  var prefUrl = '{{ route('reading-language.set') }}';
   var mtLabel = '{{ __('Machine translation') }}';
   var inFlight = 0;
+  var syncing = false; // guard so a programmatic sync doesn't re-loop events
+
+  // Persist the chosen reading language (1-year cookie + session) so a returning
+  // visitor's record opens already translated. Best-effort: a failure here never
+  // blocks the in-place translation the user already sees.
+  function persistPreference(lang) {
+    try {
+      fetch(prefUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': csrf,
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ lang: lang })
+      }).catch(function () {});
+    } catch (e) {}
+  }
 
   function txt(s) { return (s == null ? '' : String(s)); }
 
@@ -224,6 +265,7 @@
       if (sel) { sel.value = ''; }
       showOriginalOnly();
       showNotice('');
+      persistPreference(''); // "show original only" also forgets the preference
       try { history.replaceState(null, '', showUrl); } catch (e) {}
     });
   }
@@ -271,15 +313,33 @@
       });
   }
 
-  // Re-translate on picker change (no full reload).
+  // Re-translate on picker change (no full reload), and remember the choice so
+  // the next visit opens in this language.
   if (sel) {
-    sel.addEventListener('change', function () { translateTo((sel.value || '').trim()); });
+    sel.addEventListener('change', function () {
+      var lang = (sel.value || '').trim();
+      translateTo(lang);
+      if (!syncing) { persistPreference(lang); }
+    });
   }
 
   // No-JS fallback path also works via GET submit; intercept for the async path.
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     translateTo((sel.value || '').trim());
+  });
+
+  // The compact header "Reading language" picker (partials/reading-language-
+  // picker) persists the choice itself and emits ahg:reading-language. Mirror it
+  // into the main picker + re-translate in place, without double-persisting.
+  document.addEventListener('ahg:reading-language', function (e) {
+    var lang = (e && e.detail && typeof e.detail.lang === 'string') ? e.detail.lang.trim() : '';
+    if (sel && sel.value !== lang) {
+      syncing = true;
+      sel.value = lang;
+      syncing = false;
+    }
+    translateTo(lang);
   });
 })();
 </script>

@@ -47,6 +47,97 @@ class ExhibitionSpaceService
     }
 
     /**
+     * Public landing list (heratio#exhibitions-index): every exhibition space a
+     * visitor may explore, ordered by name, each with a short intro and a cheap
+     * object count. Read-only and resilient - a missing table or column degrades to
+     * an empty list rather than a 500, so the index can never bring the site down.
+     *
+     * Visibility: if the install has added an `is_public`/`is_published` flag to
+     * the space table, only published rows are returned; otherwise every space is
+     * listed (the base schema carries no visibility flag, so "list all" is the
+     * documented fallback).
+     *
+     * @return array<int,array<string,mixed>> render-ready rows: id, slug, name,
+     *         space_type, building, floor, intro, object_count
+     */
+    public function listPublic(): array
+    {
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_space')) {
+                return [];
+            }
+
+            $query = DB::table('ahg_exhibition_space as sp')
+                ->select('sp.id', 'sp.slug', 'sp.name', 'sp.space_type', 'sp.building', 'sp.floor', 'sp.notes');
+
+            // Respect a visibility flag only when the column actually exists - the
+            // base schema has none, so this is purely forward-compatible.
+            foreach (['is_public', 'is_published', 'published'] as $flag) {
+                if (\Illuminate\Support\Facades\Schema::hasColumn('ahg_exhibition_space', $flag)) {
+                    $query->where('sp.'.$flag, 1);
+                    break;
+                }
+            }
+
+            $spaces = $query->orderBy('sp.name')->get();
+            if ($spaces->isEmpty()) {
+                return [];
+            }
+
+            // Cheap per-space object count (one grouped query; placement table optional).
+            $counts = [];
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_placement')) {
+                $counts = DB::table('ahg_exhibition_placement')
+                    ->select('exhibition_space_id', DB::raw('COUNT(DISTINCT information_object_id) AS n'))
+                    ->whereIn('exhibition_space_id', $spaces->pluck('id')->all())
+                    ->groupBy('exhibition_space_id')
+                    ->pluck('n', 'exhibition_space_id')
+                    ->all();
+            }
+
+            return $spaces->map(function ($sp) use ($counts) {
+                return [
+                    'id' => (int) $sp->id,
+                    'slug' => (string) $sp->slug,
+                    'name' => (string) $sp->name,
+                    'space_type' => $sp->space_type ?? null,
+                    'building' => $sp->building ?: null,
+                    'floor' => $sp->floor ?: null,
+                    'intro' => $this->spaceIntro($sp),
+                    'object_count' => (int) ($counts[$sp->id] ?? 0),
+                ];
+            })->all();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    /**
+     * A short, plain-text intro line for a public exhibition card. Prefers the
+     * curatorial notes (HTML stripped + trimmed), then falls back to the building /
+     * floor placement, then to a generic line keyed off the space type.
+     */
+    private function spaceIntro(object $sp): string
+    {
+        $notes = trim(strip_tags((string) ($sp->notes ?? '')));
+        if ($notes !== '') {
+            return mb_strlen($notes) > 220 ? mb_substr($notes, 0, 220).'...' : $notes;
+        }
+
+        $where = array_filter([
+            $sp->building ? trim((string) $sp->building) : null,
+            $sp->floor ? trim((string) $sp->floor) : null,
+        ]);
+        if (! empty($where)) {
+            return implode(', ', $where);
+        }
+
+        $type = self::SPACE_TYPES[$sp->space_type ?? ''] ?? null;
+
+        return $type ? ('A '.mb_strtolower($type).' you can explore online.') : 'An exhibition space you can explore online.';
+    }
+
+    /**
      * Paginated browse with current-utilisation summary (placements active TODAY).
      */
     public function browse(string $search = '', int $perPage = 25): LengthAwarePaginator

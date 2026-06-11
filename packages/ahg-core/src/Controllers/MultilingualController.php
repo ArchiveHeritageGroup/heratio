@@ -29,6 +29,7 @@
 
 namespace AhgCore\Controllers;
 
+use AhgCore\Controllers\ReadingLanguageController;
 use AhgCore\Services\MultilingualRecordService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -57,21 +58,39 @@ class MultilingualController extends Controller
         $fields = $this->service->fields($objectId);
         $languages = $this->service->languages($record['culture']);
 
-        // Optional server-side pre-translation (no-JS / shareable deep link).
-        $selected = $request->query('lang');
+        // The persisted reading-language preference (1-year cookie + session),
+        // validated against the supported set for THIS record's source culture.
+        // Empty string when none is set or the stored value is no longer
+        // supported, in which case the page behaves exactly as before.
+        $preferred = ReadingLanguageController::current($request, $this->service, $record['culture']);
+
+        // Resolve which language (if any) to pre-select + pre-translate on load.
+        // Precedence: an EXPLICIT ?lang= in the URL (shareable deep link / no-JS
+        // submit) always wins so it stays refresh-safe and shareable. When no
+        // ?lang= is given, fall back to the remembered preference so a returning
+        // visitor's record opens already translated into their language. No
+        // preference and no ?lang= -> original-only, unchanged behaviour.
+        $explicit = $request->query('lang');
+        $hasExplicit = is_string($explicit) && trim($explicit) !== '';
+        $selected = $hasExplicit ? trim($explicit) : $preferred;
+
+        // Server-side pre-translation (no-JS / shareable deep link / remembered
+        // preference). The service validates the target and degrades to the
+        // original on any gateway failure, so this never 500s.
         $translation = null;
-        if (is_string($selected) && trim($selected) !== '') {
-            $translation = $this->service->translate($objectId, trim($selected));
+        if ($selected !== '') {
+            $translation = $this->service->translate($objectId, $selected);
         }
 
         return view('ahg-core::multilingual-record', [
-            'objectId'     => $objectId,
-            'idOrSlug'     => $idOrSlug,
-            'sourceLang'   => $record['culture'],
-            'fields'       => $fields,
-            'languages'    => $languages,
-            'translation'  => $translation,
-            'selectedLang' => is_string($selected) ? trim($selected) : '',
+            'objectId'      => $objectId,
+            'idOrSlug'      => $idOrSlug,
+            'sourceLang'    => $record['culture'],
+            'fields'        => $fields,
+            'languages'     => $languages,
+            'translation'   => $translation,
+            'selectedLang'  => $selected,
+            'preferredLang' => $preferred,
         ]);
     }
 

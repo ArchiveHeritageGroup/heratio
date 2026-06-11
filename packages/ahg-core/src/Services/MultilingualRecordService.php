@@ -406,6 +406,36 @@ class MultilingualRecordService
     }
 
     /**
+     * Is $code a supported target-language code? Validates against the SAME
+     * source the picker is built from (languages()/supportedCodes()), so a
+     * persisted reading-language preference can never drift to a value the
+     * service cannot actually translate into. A blank/garbage code is rejected.
+     *
+     * Used by the preference layer (set + get) so an unsupported or hand-edited
+     * cookie value is ignored/cleared rather than driving a dead gateway call.
+     */
+    public function isSupportedCode(?string $code, ?string $sourceCulture = null): bool
+    {
+        $code = $this->normaliseLang((string) ($code ?? ''));
+        if ($code === '') {
+            return false;
+        }
+
+        return in_array($code, $this->supportedCodes($sourceCulture), true);
+    }
+
+    /**
+     * Normalise an arbitrary (possibly user-supplied) language code to its
+     * lower-cased base subtag, the canonical form the rest of the service keys
+     * on. Public wrapper around the internal normaliser so the preference layer
+     * (controller) can store a clean value in the cookie/session.
+     */
+    public function canonicaliseLang(string $code): string
+    {
+        return $this->normaliseLang($code);
+    }
+
+    /**
      * The jurisdiction-neutral default target to fall back to when a requested
      * language is not in the supported set. Prefers English when offered,
      * otherwise the first supported code; ultimately 'en'.

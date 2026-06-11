@@ -13,6 +13,7 @@
 declare(strict_types=1);
 
 use AhgC2pa\Controllers\AuthenticityController;
+use AhgC2pa\Controllers\CoverageController;
 use AhgC2pa\Controllers\ProvenanceController;
 use AhgC2pa\Controllers\PublicCheckController;
 use AhgC2pa\Controllers\VerifyController;
@@ -124,6 +125,16 @@ Route::prefix('verify')->group(function () {
 });
 
 Route::middleware('admin')->prefix('admin/c2pa')->group(function () {
+    // Authenticity-coverage dashboard (deepens #1201 / #1209). The operator's
+    // view of how much of the collection actually carries content credentials:
+    // headline coverage %, verified / invalid / unsigned split, and a
+    // per-holding-repository gap table. Admin-gated the same way as the
+    // provenance admin routes below (the group's 'admin' middleware). Read-only.
+    // A literal, multi-segment path so the single-segment IO slug catch-all
+    // never intercepts it.
+    Route::get('/coverage', [CoverageController::class, 'index'])
+        ->name('c2pa.coverage');
+
     Route::get('/object/{informationObjectId}', [ProvenanceController::class, 'index'])
         ->name('c2pa.provenance.index')
         ->where('informationObjectId', '[0-9]+');

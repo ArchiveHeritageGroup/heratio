@@ -61,6 +61,104 @@ class GraphKmBridgeService
     protected int $maxEntities = 200;
 
     /**
+     * heratio#1220 / #1197 - publication-status coordinates for "Published".
+     *
+     * Publication status lives in the generic `status` table (type_id 158), not
+     * on information_object. status_id 160 = Published, 159 = Draft. The graph
+     * digest only ever exports PUBLISHED records so KM never ingests drafts or
+     * unpublished working data. See CLAUDE.md "Publication Status".
+     */
+    protected int $publicationStatusTypeId = 158;
+
+    protected int $publishedStatusId = 160;
+
+    /**
+     * heratio#1220 - the synthetic top-level root of the information_object MPTT
+     * tree (id = 1). It is a structural placeholder with no real title and must
+     * never be exported as a "most-connected entity".
+     */
+    protected int $syntheticRootId = 1;
+
+    /**
+     * heratio#1220 - minimum number of DISTINCT cross-collection DOMAINS an
+     * entity must connect into before it is worth a digest. A record that has a
+     * high edge degree but only links into ONE domain (e.g. 180 edges all to one
+     * hub of actors) is a single-hub artefact, not a genuine cross-collection
+     * connector. Requiring >= 2 distinct domains keeps the digest focused on
+     * records that actually bridge collections (records <-> people, places,
+     * subjects, accessions, ...). Conservative on purpose: 2 is the lowest value
+     * that still means "crosses a boundary". Tune here if the corpus changes.
+     */
+    protected int $minCrossDomains = 2;
+
+    /**
+     * heratio#1220 - test-fixture title patterns (case-insensitive PCRE, applied
+     * to the resolved English title). On a real instance the raw edge-degree
+     * ranking is dominated by synthetic QA/demo fixtures ("AI Test 19", "Test
+     * AI", "Ironman", "3D People", "watermark test", ...) which are PUBLISHED but
+     * carry no real catalogue value - ingesting them would pollute KM.
+     *
+     * Kept deliberately CONSERVATIVE so a genuine record is never dropped:
+     *  - '/\btest\b/i'         : the word "test" as a standalone token (covers
+     *                            "Test AI", "AI Test 19", "watermark test",
+     *                            "Test DAM", "Test Gallery"). Does NOT match
+     *                            substrings inside real words (e.g. "Testament",
+     *                            "Contestant", "Protestant") because of the \b
+     *                            boundaries.
+     *  - '/^(test|ai test)\b/i': a title that simply STARTS with "test"/"ai test"
+     *                            (belt-and-braces; already covered by \btest\b,
+     *                            but documents intent).
+     *  - '/\bironman\b/i'       : a known demo fixture title.
+     *  - '/^3d people$/i'       : a known demo fixture title (exact match so a
+     *                            real record merely mentioning "3D people"
+     *                            survives).
+     *
+     * To tune: add/remove a pattern here. Each entry is a full PCRE with
+     * delimiters and the /i flag; they are ORed (any match excludes the record).
+     *
+     * @var array<int,string>
+     */
+    protected array $testTitlePatterns = [
+        '/\btest\b/i',
+        '/^(test|ai test)\b/i',
+        '/\bironman\b/i',
+        '/^3d people$/i',
+    ];
+
+    /**
+     * heratio#1220 - true when a resolved title looks like a synthetic test /
+     * demo fixture (see $testTitlePatterns). An empty/absent title is NOT
+     * treated as a test here (the root and untitled records are excluded by
+     * other gates), so this only fires on a positive pattern hit.
+     */
+    public function looksLikeTestTitle(?string $title): bool
+    {
+        $title = is_string($title) ? trim($title) : '';
+        if ($title === '') {
+            return false;
+        }
+        foreach ($this->testTitlePatterns as $pattern) {
+            if (preg_match($pattern, $title) === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** heratio#1220 - the test-title patterns, for command-level reporting/tuning. @return array<int,string> */
+    public function testTitlePatterns(): array
+    {
+        return $this->testTitlePatterns;
+    }
+
+    /** heratio#1220 - the minimum distinct cross-collection domains an entity must span to qualify. */
+    public function minCrossDomains(): int
+    {
+        return $this->minCrossDomains;
+    }
+
+    /**
      * Build a concise, factual natural-language summary of how one record
      * connects across the collection. Plain catalogue facts only - grouped by
      * domain, capped per domain. Returns null when the record has no resolvable
@@ -246,14 +344,62 @@ class GraphKmBridgeService
      * This is a SELECT-only ranking helper; it writes nothing. The command
      * layer turns the rows into bounded markdown digests.
      *
+     * QUALITY FILTER (heratio#1220): the raw edge-degree ranking on a real
+     * instance is dominated by synthetic test fixtures (titles like "AI Test
+     * 19", "Test AI", "Ironman", "3D People") and by the synthetic tree root
+     * (id 1). Ingesting those into KM pollutes it. This method now returns only
+     * records that pass every gate below; see topConnectedEntitiesFiltered() for
+     * the full accounting (excluded-as-test etc.).
+     *
      * @return array<int,array{id:int,title:string,slug:?string,degree:int,crossDomains:int}>
      */
     public function topConnectedEntities(int $limit = 50): array
     {
+        return $this->topConnectedEntitiesFiltered($limit)['included'];
+    }
+
+    /**
+     * heratio#1220 - the quality-filtered ranking plus full exclusion
+     * accounting. Read-only. Walks candidate records in descending edge-degree
+     * order and keeps only those that pass EVERY gate, stopping once $limit
+     * qualifiers are collected. Every candidate examined is accounted for so the
+     * command can report counts and never silently truncate.
+     *
+     * Gates, in order (cheapest first):
+     *   1. NOT the synthetic tree root (id != $syntheticRootId).
+     *   2. PUBLISHED - has a status row (type_id 158, status_id 160). Drafts and
+     *      unpublished working records are never exported to KM.
+     *   3. Title does NOT look like a test/demo fixture ($testTitlePatterns).
+     *   4. Connects into >= $minCrossDomains DISTINCT collection domains - i.e.
+     *      it genuinely bridges collections rather than being a single-hub
+     *      artefact with a huge degree into one bucket.
+     *
+     * The candidate pool is degree-ranked and capped (a generous multiple of the
+     * ceiling) so the bounded sweep stays read-only and predictable even when
+     * most high-degree records are test fixtures.
+     *
+     * @return array{
+     *   included:array<int,array{id:int,title:string,slug:?string,degree:int,crossDomains:int}>,
+     *   considered:int, excluded_root:int, excluded_unpublished:int,
+     *   excluded_test:int, excluded_low_cross_domain:int, excluded_no_title:int
+     * }
+     */
+    public function topConnectedEntitiesFiltered(int $limit = 50): array
+    {
         $limit = max(1, min($limit, $this->maxEntities));
 
+        $acc = [
+            'included' => [],
+            'considered' => 0,
+            'excluded_root' => 0,
+            'excluded_unpublished' => 0,
+            'excluded_test' => 0,
+            'excluded_low_cross_domain' => 0,
+            'excluded_no_title' => 0,
+        ];
+
         if (! Schema::hasTable('relation') || ! Schema::hasTable('information_object')) {
-            return [];
+            return $acc;
         }
 
         // Degree per id, counting an edge once whether the id sits on the
@@ -263,33 +409,101 @@ class GraphKmBridgeService
         $endpoints = DB::table('relation')->select('subject_id as id')
             ->unionAll(DB::table('relation')->select('object_id as id'));
 
+        // Pull a generous candidate pool (10x the ceiling, itself capped) so the
+        // post-rank quality filter can drop a long run of test fixtures without
+        // starving the result below $limit, while staying hard-bounded.
+        $poolSize = min($this->maxEntities * 10, 2000);
+
         $ranked = DB::query()
             ->fromSub($endpoints, 'e')
             ->join('information_object as io', 'io.id', '=', 'e.id')
             ->groupBy('e.id')
             ->orderByDesc(DB::raw('COUNT(*)'))
             ->orderBy('e.id')
-            ->limit($limit)
+            ->limit($poolSize)
             ->get(['e.id', DB::raw('COUNT(*) as degree')]);
 
-        $out = [];
         foreach ($ranked as $row) {
+            if (count($acc['included']) >= $limit) {
+                break; // enough qualifiers; remaining candidates are reported as over-limit by the command
+            }
+
             $id = (int) $row->id;
+            $acc['considered']++;
+
+            // Gate 1 - synthetic tree root.
+            if ($id === $this->syntheticRootId) {
+                $acc['excluded_root']++;
+
+                continue;
+            }
+
+            // Gate 2 - must be PUBLISHED.
+            if (! $this->isPublished($id)) {
+                $acc['excluded_unpublished']++;
+
+                continue;
+            }
+
             $title = $this->recordTitle($id);
+
+            // Gate 2b - a high-degree record with no resolvable title is not
+            // worth a digest (and cannot be name-checked); exclude it.
+            if ($title === null) {
+                $acc['excluded_no_title']++;
+
+                continue;
+            }
+
+            // Gate 3 - title looks like a test / demo fixture.
+            if ($this->looksLikeTestTitle($title)) {
+                $acc['excluded_test']++;
+
+                continue;
+            }
+
+            // Gate 4 - must bridge >= minCrossDomains distinct domains.
             $neighbours = app(\AhgRic\Services\RelationshipService::class)
                 ->crossCollectionNeighbours($id);
             $groups = $neighbours['groups'] ?? [];
+            $crossDomains = is_array($groups) ? count($groups) : 0;
 
-            $out[] = [
+            if ($crossDomains < $this->minCrossDomains) {
+                $acc['excluded_low_cross_domain']++;
+
+                continue;
+            }
+
+            $acc['included'][] = [
                 'id' => $id,
-                'title' => $title ?? ('Record #'.$id),
+                'title' => $title,
                 'slug' => $this->recordSlug($id),
                 'degree' => (int) $row->degree,
-                'crossDomains' => is_array($groups) ? count($groups) : 0,
+                'crossDomains' => $crossDomains,
             ];
         }
 
-        return $out;
+        return $acc;
+    }
+
+    /**
+     * heratio#1220 - is this information object PUBLISHED? True when a status row
+     * exists with type_id = publication-status (158) and status_id = Published
+     * (160). Read-only. Records with no status row, or a Draft (159) row, return
+     * false and are never exported to KM.
+     */
+    public function isPublished(int $objectId): bool
+    {
+        if (! Schema::hasTable('status')) {
+            // No status table: cannot prove publication, so refuse (fail closed).
+            return false;
+        }
+
+        return DB::table('status')
+            ->where('object_id', $objectId)
+            ->where('type_id', $this->publicationStatusTypeId)
+            ->where('status_id', $this->publishedStatusId)
+            ->exists();
     }
 
     /**

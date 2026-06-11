@@ -105,6 +105,15 @@ Route::post('/record/translate', [\AhgCore\Controllers\MultilingualController::c
 Route::get('/record/{idOrSlug}/translate', [\AhgCore\Controllers\MultilingualController::class, 'show'])
     ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9_-]*')->name('record.translate');
 
+// heratio#1211 - reading-language PREFERENCE (deepening universal multilingual access): a visitor
+// sets a preferred reading language ONCE and it is remembered (1-year cookie + session) and applied
+// to the translate page so they need not re-choose each visit. CSRF-protected POST. Validated against
+// the SAME supported set the picker is built from; an unsupported value is ignored/cleared. No DB
+// writes. Progressive enhancement: a normal form post (no JS) redirects back with the new ?lang=
+// applied; a nonce'd fetch gets JSON. Single safe public path; never collides with the /{slug}
+// archival-record catch-all (that route only matches a single segment AND excludes known prefixes).
+Route::post('/reading-language', [\AhgCore\Controllers\ReadingLanguageController::class, 'set'])->name('reading-language.set');
+
 // heratio#1183 - point clouds: admin manager + public Potree viewer
 Route::middleware('auth')->group(function () {
     Route::get('/admin/pointclouds', [\AhgCore\Controllers\PointCloudController::class, 'index'])->name('pointclouds.index');

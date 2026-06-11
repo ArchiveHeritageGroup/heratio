@@ -22,6 +22,37 @@ class ExhibitionSpaceController extends Controller
         $this->service = new ExhibitionSpaceService;
     }
 
+    /**
+     * Public "Explore our exhibitions" landing (heratio#exhibitions-index): one
+     * page that lists every public exhibition space so a visitor can find them all
+     * in one place (until now each space was only reachable by its own URL). For
+     * each space it offers the visitor-facing actions - walk through, find your way
+     * (wayfinding) and take the catalogue. Read-only and resilient: a missing table
+     * degrades to a dignified empty state rather than a 500.
+     */
+    public function index()
+    {
+        $spaces = [];
+        try {
+            $spaces = $this->service->listPublic();
+        } catch (\Throwable $e) {
+            $spaces = [];
+        }
+
+        // Gate each action by route existence so a feature that is not wired in a
+        // given install can never produce a dead link.
+        $links = [
+            'walkthrough' => \Illuminate\Support\Facades\Route::has('exhibition-space.walkthrough'),
+            'wayfinding' => \Illuminate\Support\Facades\Route::has('exhibition-space.wayfinding'),
+            'catalogue' => \Illuminate\Support\Facades\Route::has('exhibition-space.catalogue'),
+        ];
+
+        return view('ahg-exhibition::exhibition-space.index', [
+            'spaces' => $spaces,
+            'links' => $links,
+        ]);
+    }
+
     public function browse(Request $request)
     {
         $search = trim((string) $request->input('subquery', ''));
