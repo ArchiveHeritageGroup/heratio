@@ -15,6 +15,7 @@ declare(strict_types=1);
 use AhgC2pa\Controllers\AuthenticityController;
 use AhgC2pa\Controllers\AuthenticityReportController;
 use AhgC2pa\Controllers\CoverageController;
+use AhgC2pa\Controllers\InferenceProvenanceController;
 use AhgC2pa\Controllers\ProvenanceController;
 use AhgC2pa\Controllers\PublicCheckController;
 use AhgC2pa\Controllers\VerifyController;
@@ -22,6 +23,41 @@ use AhgC2pa\Controllers\VerifyObjectController;
 use AhgC2pa\Controllers\VerifyObjectDownloadController;
 use AhgC2pa\Controllers\VerifyRecordTraceController;
 use Illuminate\Support\Facades\Route;
+
+// Public per-record INFERENCE-PROVENANCE explorer (issue #1201).
+// An honest, read-only view of which AI inferences (descriptions, NER, HTR,
+// translations, condition scans, ...) contributed to ONE published record's
+// metadata - the model, the gateway, when - and that a human remained
+// accountable for the result. It consolidates the existing AI-inference
+// provenance foundation (ahg_ai_inference + ahg_ai_override, issue #61 /
+// ADR-0002) READ-ONLY via InferenceProvenanceService; it records nothing, runs
+// no AI, and re-verifies nothing. A published record with no recorded inference
+// degrades to the dignified "no AI inference recorded" state (still HTTP 200);
+// an unknown / unpublished record is a clean 404 (HTML + JSON).
+//
+// All paths are multi-segment (/inference-provenance/...) so the single-segment
+// IO slug catch-all (/{slug}) can never intercept them. There is deliberately
+// NO bare /inference-provenance route: the explorer needs a record reference.
+// The literal '.json' companion is declared BEFORE the {idOrSlug} '.+' matcher
+// so it can never be captured as part of a slug. No '.svg' surface here (nginx
+// would serve *.svg statically and 404 before Laravel) - JSON only.
+Route::prefix('inference-provenance')->group(function () {
+    // Machine-readable companion. nginx passes *.json through to Laravel, so
+    // it keeps its real extension. Declared before the bare {idOrSlug} page
+    // route so the literal '.json' suffix resolves here. Numeric or single-
+    // segment slug; a multi-segment slug uses the page route below.
+    Route::get('/{idOrSlug}.json', [InferenceProvenanceController::class, 'json'])
+        ->name('c2pa.inference.provenance.json')
+        ->where('idOrSlug', '[^/]+');
+
+    // The explorer page, addressed by numeric id or (possibly multi-segment)
+    // slug. '.+' so /inference-provenance/fonds/series/item resolves to one
+    // record. Unknown / unpublished -> 404. Declared LAST so the .json literal
+    // wins first.
+    Route::get('/{idOrSlug}', [InferenceProvenanceController::class, 'show'])
+        ->name('c2pa.inference.provenance')
+        ->where('idOrSlug', '.+');
+});
 
 // Public per-record AUTHENTICITY REPORT surface (issue #1209, north star).
 // A single, plain-language report that CONSOLIDATES the verification signals
