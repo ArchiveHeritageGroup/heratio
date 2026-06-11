@@ -40,6 +40,13 @@ class ExploreController extends Controller
         // example id). `note` is optional supplementary copy shown under the card body.
         $candidates = [
             [
+                'route' => 'collection.overview',
+                'icon' => 'fas fa-layer-group',
+                'title' => __('This collection at a glance'),
+                'desc' => __('See the size and shape of the collection at a glance - how many descriptions, across which levels and centuries, from which repositories, and how much you can explore online.'),
+                'cta' => __('See the overview'),
+            ],
+            [
                 'route' => 'ask.collection',
                 'icon' => 'fas fa-comments',
                 'title' => __('Ask the collection'),

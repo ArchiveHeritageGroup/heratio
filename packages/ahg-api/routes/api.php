@@ -1,6 +1,7 @@
 <?php
 
 use AhgApi\Controllers\DatasetController;
+use AhgApi\Controllers\FeedController;
 use AhgApi\Controllers\GraphController;
 use AhgApi\Controllers\LegacyApiController;
 use AhgApi\Controllers\OaiPmhController;
@@ -224,6 +225,44 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
         ->name('public.sitemap');
     Route::get('robots.txt', [PublicSitemapController::class, 'robots'])
         ->name('public.robots');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Public content-syndication feeds — /feed.atom + /feed.rss (root path)
+|--------------------------------------------------------------------------
+| A small recency-window syndication surface over the PUBLISHED catalogue,
+| complementing /sitemap.xml (whole catalogue, for indexing) and the bulk
+| dataset export. Where the sitemap is "everything", these feeds are "what
+| changed recently" — the surface a reader, an aggregator, or a change-watching
+| agent subscribes to.
+|
+|   GET /feed.atom  - Atom 1.0 feed of the most recently UPDATED published
+|                     records (ORDER BY object.updated_at DESC). Bounded to 50
+|                     entries by default, ?limit= raisable up to 200.
+|                     application/atom+xml.
+|   GET /feed.rss   - the same data as an RSS 2.0 channel. application/rss+xml.
+|
+| Both are PUBLIC (no auth), read-only, published-only (drafts never exposed),
+| and resilient: an empty catalogue still yields a valid empty feed, never a
+| 500. Same published-status gate as the rest of the public API
+| (status.type_id=158, status_id=160), synthetic root (id=1) excluded.
+|
+| Registered at the ROOT (this routes file is loaded without a group prefix).
+| "feed.atom" / "feed.rss" each contain a dot, so the single-segment /{slug}
+| archival-record catch-all (constraint '[a-z0-9][a-z0-9-]*$', no dot) can
+| NEVER capture them — they bind here, before the catch-all. Note: nginx's
+| static-file whitelist does not include .atom/.rss, so both reach Laravel.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('feed.atom', [FeedController::class, 'options']);
+    Route::get('feed.atom', [FeedController::class, 'atom'])
+        ->name('public.feed.atom');
+
+    Route::options('feed.rss', [FeedController::class, 'options']);
+    Route::get('feed.rss', [FeedController::class, 'rss'])
+        ->name('public.feed.rss');
 });
 
 /*

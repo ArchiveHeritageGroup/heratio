@@ -20,8 +20,25 @@
     <h1><i class="fas fa-user me-2"></i>{{ e($researcher->title ?? '') }} {{ e($researcher->first_name ?? '') }} {{ e($researcher->last_name ?? '') }}</h1>
     @php
       $sc = ['approved' => 'success', 'pending' => 'warning', 'suspended' => 'danger', 'expired' => 'secondary', 'rejected' => 'danger'];
+      $isVerified = (int) ($researcher->id_verified ?? 0) === 1;
     @endphp
-    <span class="badge bg-{{ $sc[$researcher->status ?? ''] ?? 'secondary' }} fs-6">{{ ucfirst(e($researcher->status ?? 'unknown')) }}</span>
+    <div class="d-flex align-items-center gap-2">
+      @if($isVerified)
+        <span class="badge bg-success fs-6" title="{{ $researcher->id_verified_at ? __('Verified :when', ['when' => \Illuminate\Support\Carbon::parse($researcher->id_verified_at)->format('Y-m-d H:i')]) : __('Verified') }}"><i class="fas fa-check-circle me-1"></i>{{ __('Verified') }}</span>
+      @else
+        <span class="badge bg-light text-dark border fs-6">{{ __('Not verified') }}</span>
+      @endif
+      <span class="badge bg-{{ $sc[$researcher->status ?? ''] ?? 'secondary' }} fs-6">{{ ucfirst(e($researcher->status ?? 'unknown')) }}</span>
+      <form action="{{ route('research.researchers.verify', $researcher->id) }}" method="POST" class="d-inline">
+        @csrf
+        <input type="hidden" name="verified" value="{{ $isVerified ? '0' : '1' }}">
+        @if($isVerified)
+          <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="fas fa-user-slash me-1"></i>{{ __('Remove verification') }}</button>
+        @else
+          <button type="submit" class="btn btn-sm btn-success" title="{{ __('Confirmed by phone while email is down') }}"><i class="fas fa-user-check me-1"></i>{{ __('Mark verified') }}</button>
+        @endif
+      </form>
+    </div>
   </div>
 
   {{-- Personal Info --}}

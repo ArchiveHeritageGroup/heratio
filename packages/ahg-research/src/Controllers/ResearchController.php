@@ -506,6 +506,34 @@ class ResearchController extends Controller
             ->with('success', 'Researcher approved and account activated');
     }
 
+    /**
+     * Manually flip a researcher's verified flag.
+     *
+     * The registration flow expects the researcher to confirm by email; when
+     * mail delivery is down they never receive it and instead confirm their
+     * identity by phone. This lets an admin set the verified flag directly,
+     * reusing the existing id_verified column + its audit fields (by / at).
+     * POST `verified` = '1' to verify, '0' to clear.
+     */
+    public function verifyResearcher(Request $request, int $id)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcher($id);
+        if (!$researcher) abort(404);
+
+        $verified = (string) $request->input('verified', '1') === '1' ? 1 : 0;
+        DB::table('research_researcher')->where('id', $id)->update([
+            'id_verified'    => $verified,
+            'id_verified_by' => $verified ? Auth::id() : null,
+            'id_verified_at' => $verified ? now() : null,
+            'updated_at'     => now(),
+        ]);
+
+        return redirect()->back()->with('success', $verified
+            ? 'Researcher marked as verified'
+            : 'Researcher verification removed');
+    }
+
     public function rejectResearcher(Request $request, int $id)
     {
         if (!Auth::check()) return redirect()->route('login');

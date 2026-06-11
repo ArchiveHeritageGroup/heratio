@@ -88,8 +88,9 @@
             <th>{{ __('Email') }}</th>
             <th>{{ __('Institution') }}</th>
             <th>{{ __('Status') }}</th>
+            <th>{{ __('Verified') }}</th>
             <th>{{ __('Registered') }}</th>
-            <th width="100"></th>
+            <th width="130"></th>
           </tr>
         </thead>
         <tbody>
@@ -106,6 +107,13 @@
                 @endphp
                 <span class="badge bg-{{ $sc[$r->status] ?? 'secondary' }}">{{ ucfirst(e($r->status ?? 'unknown')) }}</span>
               </td>
+              <td>
+                @if((int) ($r->id_verified ?? 0) === 1)
+                  <span class="badge bg-success" title="{{ $r->id_verified_at ? __('Verified :when', ['when' => \Illuminate\Support\Carbon::parse($r->id_verified_at)->format('Y-m-d')]) : __('Verified') }}"><i class="fas fa-check-circle me-1"></i>{{ __('Verified') }}</span>
+                @else
+                  <span class="badge bg-light text-dark border">{{ __('Not verified') }}</span>
+                @endif
+              </td>
               <td><small>{{ $r->created_at ? \Illuminate\Support\Carbon::parse($r->created_at)->format('Y-m-d') : '-' }}</small></td>
               <td>
                 <a href="{{ route('research.viewResearcher', $r->id) }}" class="btn btn-sm btn-outline-primary">
@@ -119,11 +127,24 @@
                     </button>
                   </form>
                 @endif
+                <form action="{{ route('research.researchers.verify', $r->id) }}" method="POST" class="d-inline">
+                  @csrf
+                  <input type="hidden" name="verified" value="{{ (int) ($r->id_verified ?? 0) === 1 ? '0' : '1' }}">
+                  @if((int) ($r->id_verified ?? 0) === 1)
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ __('Remove verification') }}">
+                      <i class="fas fa-user-slash"></i>
+                    </button>
+                  @else
+                    <button type="submit" class="btn btn-sm btn-outline-success" title="{{ __('Mark verified (e.g. confirmed by phone)') }}">
+                      <i class="fas fa-user-check"></i>
+                    </button>
+                  @endif
+                </form>
               </td>
             </tr>
           @empty
             <tr>
-              <td colspan="6" class="text-center text-muted py-4">No researchers found.</td>
+              <td colspan="7" class="text-center text-muted py-4">No researchers found.</td>
             </tr>
           @endforelse
         </tbody>

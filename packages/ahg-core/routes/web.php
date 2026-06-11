@@ -157,6 +157,22 @@ Route::get('/splat/do/{id}', [\AhgCore\Controllers\GaussianSplatController::clas
 // belt-and-braces for late-registered packages, not the mechanism relied on here.)
 Route::get('/explore', [\AhgCore\Controllers\ExploreController::class, 'index'])->name('explore.index');
 
+// Public "Collection at a glance" overview: a positive, visitor-facing snapshot of
+// the PUBLISHED collection's size and shape (total descriptions, by level, top
+// holding repositories, by century, digital/IIIF/3D coverage, and the actors,
+// repositories, subjects and places it connects). All figures come from the
+// read-only CollectionOverviewService as cheap aggregate COUNTs; breakdown rows
+// deep-link into the GLAM browse with the matching filter only when that route
+// exists (Route::has-gated in the controller). Zero records / missing tables render
+// a calm "still being catalogued" empty-state, never a 500. This is the welcoming
+// outward counterpart to the admin data-quality dashboard (which shows gaps).
+//
+// /collection-overview is a SINGLE-segment public path, like /explore and
+// /open-data. ahg-core boots early, so this route is registered before the
+// single-segment /{slug} archival-record catch-all in ahg-information-object-manage
+// and wins the match. (First-registered route wins.)
+Route::get('/collection-overview', [\AhgCore\Controllers\CollectionOverviewController::class, 'index'])->name('collection.overview');
+
 // Public "Open Data & APIs" hub: one landing page that surfaces every open-data
 // endpoint this platform exposes for researchers and developers (the linked-data
 // graph, bulk dataset dumps, OAI-PMH, the VoID discovery document, the API

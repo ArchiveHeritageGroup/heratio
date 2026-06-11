@@ -885,6 +885,10 @@
     @include('ahg-search::_find-similar', ['ioId' => $io->id])
   @endif
 
+  {{-- Related records (cross-collection connections) - heratio#1214 item 2.
+       Always visible: deterministic graph neighbours from the relation table. --}}
+  @include('ahg-information-object-manage::partials._related-records')
+
   {{-- ===== 10. Digital object metadata (relocated to the bottom of the
        middle area, just above the Action bar in @section('after-content')) ===== --}}
   @if(isset($digitalObjects) && $digitalObjects['master'])

@@ -435,6 +435,10 @@ class GraphController extends Controller
         // Bulk dataset dumps of the whole published catalogue (DatasetController).
         $stanza[] = 'void:dataDump <'.$this->ttlIri($base.'/api/v1/dataset.csv').'>';
         $stanza[] = 'void:dataDump <'.$this->ttlIri($base.'/api/v1/dataset.jsonld').'>';
+        // Content-syndication feed of recently updated published records (the
+        // "what changed recently" surface). Linked as a related resource so a
+        // change-watching consumer can subscribe rather than re-crawl.
+        $stanza[] = 'dcterms:isReferencedBy <'.$this->ttlIri($base.'/feed.atom').'>';
         $stanza[] = 'void:feature <'.$this->ttlIri($contextUri).'>';
         $stanza[] = 'dcat:contactPoint <'.$this->ttlIri($datasetUri).'>';
 
