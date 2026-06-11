@@ -18,7 +18,8 @@
         "laravel": {
             "providers": [
                 "AhgFederation\\Providers\\AhgFederationServiceProvider",
-                "AhgFederation\\Providers\\AhgUnionCatalogueServiceProvider"
+                "AhgFederation\\Providers\\AhgUnionCatalogueServiceProvider",
+                "AhgFederation\\Providers\\AhgFederationLoanServiceProvider"
             ]
         }
     }

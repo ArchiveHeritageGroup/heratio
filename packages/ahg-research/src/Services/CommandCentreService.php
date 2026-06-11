@@ -154,6 +154,121 @@ class CommandCentreService
     }
 
     /**
+     * Build the ordered list of secondary Research OS tools for a project.
+     *
+     * These sit alongside the core journey - the Contradiction Engine, Analysis
+     * Bridge, Field Alerts, Research Memory, Argument warnings, Writing/Export,
+     * Replication Pack, Grant Engine, Time Machine, Impact Tracking and AI
+     * Disclosure. Each entry is the same shape as a journey phase (key, label,
+     * icon, count, hint, url) so the Command Centre partial can render them with
+     * the same styling.
+     *
+     * Read-only and defensive: every count is Schema::hasTable-guarded and
+     * try/catch-wrapped, and every link is Route::has-gated. A tool whose route
+     * is not registered is omitted entirely, so a partial install simply renders
+     * fewer cards rather than 500-ing the project page. A meaningful, cheap count
+     * is surfaced where one exists (open contradictions, analysis results, unread
+     * alerts, live memory items, open AI flags); otherwise the count is null.
+     *
+     * @return array<int,array<string,mixed>> each: key,label,icon,count,hint,url
+     */
+    public function tools(int $projectId, ?int $researcherId = null): array
+    {
+        $defs = [];
+
+        // Contradiction Engine - open contradictions across the Claim Ledger.
+        $contraOpen = $this->count('research_contradiction', function ($q) use ($projectId) {
+            return $q->where('project_id', $projectId)->where('status', 'open');
+        });
+        $defs[] = $this->tool('contradictions', 'Contradiction Engine', 'fa-bolt',
+            'research.contradictions.index', ['projectId' => $projectId],
+            $contraOpen,
+            'Surface claims that quietly disagree with each other.');
+
+        // Analysis Bridge - recorded analysis results for this project.
+        $analysisCount = $this->count('research_analysis_result', fn ($q) => $q->where('project_id', $projectId));
+        $defs[] = $this->tool('analysis', 'Analysis Bridge', 'fa-chart-column',
+            'research.analysis.index', ['projectId' => $projectId],
+            $analysisCount,
+            'Register analysis outputs and link them back to your claims.');
+
+        // Field Alerts - unread alerts (retractions, updates, new related work).
+        $alertsUnread = $this->count('research_field_alert', function ($q) use ($projectId) {
+            return $q->where('project_id', $projectId)->where('is_read', 0);
+        });
+        $defs[] = $this->tool('alerts', 'Field Alerts', 'fa-bell',
+            'research.alerts.index', ['projectId' => $projectId],
+            $alertsUnread,
+            'Watch cited work for retractions, updates and new related research.');
+
+        // Research Memory - live (open / carry-forward) memory items for this
+        // project, plus the researcher's detached carry-forward pool if known.
+        $memoryCount = $this->count('research_memory_item', function ($q) use ($projectId, $researcherId) {
+            return $q->whereIn('status', ['open', 'carry_forward'])
+                ->where(function ($w) use ($projectId, $researcherId) {
+                    $w->where('project_id', $projectId);
+                    if ($researcherId) {
+                        $w->orWhere(function ($p) use ($researcherId) {
+                            $p->whereNull('project_id')->where('researcher_id', $researcherId);
+                        });
+                    }
+                });
+        });
+        $defs[] = $this->tool('memory', 'Research Memory', 'fa-brain',
+            'research.memory.index', ['projectId' => $projectId],
+            $memoryCount,
+            'Carry intellectual memory forward so the next project starts smarter.');
+
+        // Argument warnings - the argument canvas flags weak spots.
+        $defs[] = $this->tool('argument', 'Argument warnings', 'fa-triangle-exclamation',
+            'research.argument.show', ['projectId' => $projectId],
+            null,
+            'Review the argument chain; the system flags unsupported steps.');
+
+        // Writing / Export - one-click, full-fidelity, open-format export.
+        $defs[] = $this->tool('export', 'Writing / Export', 'fa-file-export',
+            'research.export.index', ['projectId' => $projectId],
+            null,
+            'Export the whole project in open formats - the exit door is always open.');
+
+        // Replication Pack - build a reproducible bundle.
+        $defs[] = $this->tool('replication', 'Replication Pack', 'fa-box-archive',
+            'research.replication.index', ['projectId' => $projectId],
+            null,
+            'Assemble a reproducible pack of the evidence behind your findings.');
+
+        // Grant Engine - drafted grant applications for this project.
+        $grantCount = $this->count('research_grant_draft', fn ($q) => $q->where('project_id', $projectId));
+        $defs[] = $this->tool('grant', 'Grant Engine', 'fa-hand-holding-dollar',
+            'research.grant.index', ['projectId' => $projectId],
+            $grantCount,
+            'Draft funder applications from your project, section by section.');
+
+        // Time Machine - read-only reconstruction of how the work developed.
+        $defs[] = $this->tool('timemachine', 'Time Machine', 'fa-clock-rotate-left',
+            'research.timemachine.index', ['projectId' => $projectId],
+            null,
+            'Replay how the research developed - the honesty engine.');
+
+        // Impact Tracking - downstream signals on published outputs.
+        $impactCount = $this->count('research_impact_signal', fn ($q) => $q->where('project_id', $projectId));
+        $defs[] = $this->tool('impact', 'Impact Tracking', 'fa-arrow-trend-up',
+            'research.impact.index', ['projectId' => $projectId],
+            $impactCount,
+            'Track citations, mentions and dataset reuse of your published work.');
+
+        // AI Disclosure - logged AI usage for the disclosure statement.
+        $aiCount = $this->count('research_ai_disclosure_log', fn ($q) => $q->where('project_id', $projectId));
+        $defs[] = $this->tool('aidisclosure', 'AI Disclosure', 'fa-robot',
+            'research.aidisclosure.index', ['projectId' => $projectId],
+            $aiCount > 0 ? $aiCount : null,
+            'Track and disclose any AI assistance, transparently and on the record.');
+
+        // Drop any tool whose route is not registered (url() returned null).
+        return array_values(array_filter($defs, fn ($t) => ! empty($t['url'])));
+    }
+
+    /**
      * Progress summary across the journey (done vs total scorable phases).
      *
      * @param  array<int,array<string,mixed>>  $journey
@@ -211,5 +326,24 @@ class CommandCentreService
     protected function phase(string $key, string $label, string $icon, string $status, ?int $count, string $hint, ?string $url, ?string $flag = null): array
     {
         return compact('key', 'label', 'icon', 'status', 'count', 'hint', 'url', 'flag');
+    }
+
+    /**
+     * Build one secondary-tool entry. The link is Route::has-gated via url(), so
+     * an unregistered slice yields a null url and is dropped by the caller.
+     *
+     * @param  array<string,mixed>  $params
+     * @return array<string,mixed>
+     */
+    protected function tool(string $key, string $label, string $icon, string $routeName, array $params, ?int $count, string $hint): array
+    {
+        return [
+            'key' => $key,
+            'label' => $label,
+            'icon' => $icon,
+            'count' => $count,
+            'hint' => $hint,
+            'url' => $this->url($routeName, $params),
+        ];
     }
 }

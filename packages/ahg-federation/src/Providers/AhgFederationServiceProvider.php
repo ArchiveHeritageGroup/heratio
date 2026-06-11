@@ -45,6 +45,8 @@ class AhgFederationServiceProvider extends ServiceProvider
         // installed.json is refreshed; register it explicitly here (this
         // provider is already discovered) so its routes + auto-install load.
         $this->app->register(\AhgFederation\Providers\AhgUnionCatalogueServiceProvider::class);
+        // heratio#1203 - inter-institution loans provider, same reason.
+        $this->app->register(\AhgFederation\Providers\AhgFederationLoanServiceProvider::class);
     }
 
     public function boot(): void
