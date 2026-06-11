@@ -57,7 +57,77 @@ class CaptureQueueController extends Controller
             'rows' => $this->service->list($status !== '' ? ['status' => $status] : []),
             'statuses' => $statuses,
             'counts' => $this->service->counts(),
+            'throughput' => $this->service->throughput(),
             'filterStatus' => $status,
+        ]);
+    }
+
+    /**
+     * Stream the current capture queue as a CSV download, respecting the active
+     * ?status= filter (a single configured dropdown code; anything else is ignored,
+     * exporting the full queue). Read-only - no writes happen here. The body is
+     * streamed row by row from the service cursor so an arbitrarily large queue
+     * never lands wholly in memory. A fresh / empty install yields a valid file
+     * with just the header row, never a 500. The status column carries the human
+     * label from the dropdown group when available, falling back to the raw code.
+     */
+    public function export(Request $request)
+    {
+        $status = trim((string) $request->query('status', ''));
+        $statuses = $this->service->statuses();
+
+        // Only honour a filter that is a real, configured status code.
+        $labelByCode = [];
+        foreach ($statuses as $s) {
+            $labelByCode[$s['code']] = $s['label'];
+        }
+        if ($status !== '' && ! array_key_exists($status, $labelByCode)) {
+            $status = '';
+        }
+
+        $columns = [
+            __('Record ID'),
+            __('Title'),
+            __('URL'),
+            __('Status'),
+            __('Priority score'),
+            __('Assignee'),
+            __('Note'),
+            __('Queued at'),
+            __('Captured at'),
+        ];
+
+        $filename = 'capture-queue'.($status !== '' ? '-'.$status : '').'-'.date('Y-m-d_His').'.csv';
+        $cursor = $this->service->cursor($status !== '' ? ['status' => $status] : []);
+
+        return response()->streamDownload(function () use ($columns, $cursor, $labelByCode) {
+            $out = fopen('php://output', 'w');
+            // UTF-8 BOM so spreadsheet apps detect the encoding for non-ASCII titles.
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, $columns);
+
+            foreach ($cursor as $r) {
+                $slug = $r['slug'] ?? null;
+                $url = ($slug !== null && $slug !== '') ? url('/'.$slug) : '';
+                $statusLabel = $labelByCode[$r['status']] ?? $r['status'];
+
+                fputcsv($out, [
+                    $r['information_object_id'],
+                    $r['title'],
+                    $url,
+                    $statusLabel,
+                    $r['priority_score'],
+                    $r['assigned_to'] ?? '',
+                    $r['note'] ?? '',
+                    $r['queued_at'] ?? '',
+                    $r['captured_at'] ?? '',
+                ]);
+            }
+
+            fclose($out);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 

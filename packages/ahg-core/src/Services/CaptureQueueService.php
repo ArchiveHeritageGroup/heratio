@@ -343,6 +343,112 @@ class CaptureQueueService
     }
 
     /**
+     * Captured-throughput buckets for the queue dashboard: how many rows reached
+     * the "captured" status within the last N days (counted from captured_at), plus
+     * the number still queued (anything not yet captured, i.e. captured_at is null).
+     * A single guarded aggregate query - no SQL leaks into the controller or view.
+     * Returns all zeros when the feature is unavailable so the strip renders cleanly.
+     *
+     * @return array{captured_7d:int,captured_30d:int,still_queued:int,captured_total:int}
+     */
+    public function throughput(): array
+    {
+        $out = ['captured_7d' => 0, 'captured_30d' => 0, 'still_queued' => 0, 'captured_total' => 0];
+
+        if (! $this->isAvailable()) {
+            return $out;
+        }
+
+        try {
+            $now = now();
+            $row = DB::table('ahg_capture_queue')
+                ->selectRaw('SUM(CASE WHEN captured_at IS NOT NULL AND captured_at >= ? THEN 1 ELSE 0 END) AS c7', [$now->copy()->subDays(7)])
+                ->selectRaw('SUM(CASE WHEN captured_at IS NOT NULL AND captured_at >= ? THEN 1 ELSE 0 END) AS c30', [$now->copy()->subDays(30)])
+                ->selectRaw('SUM(CASE WHEN captured_at IS NOT NULL THEN 1 ELSE 0 END) AS ctotal')
+                ->selectRaw('SUM(CASE WHEN captured_at IS NULL THEN 1 ELSE 0 END) AS queued')
+                ->first();
+
+            if ($row) {
+                $out['captured_7d'] = (int) ($row->c7 ?? 0);
+                $out['captured_30d'] = (int) ($row->c30 ?? 0);
+                $out['captured_total'] = (int) ($row->ctotal ?? 0);
+                $out['still_queued'] = (int) ($row->queued ?? 0);
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-core] capture-queue throughput failed: '.$e->getMessage());
+        }
+
+        return $out;
+    }
+
+    /**
+     * Lazily stream the capture queue (same shape + ordering as list(), optionally
+     * filtered by a single status code) row by row, so an export of an arbitrarily
+     * large queue never materialises the whole set in memory. Yields the same
+     * normalised arrays list() builds. Yields nothing when the feature is
+     * unavailable, so an export of a fresh install is a valid header-only file.
+     *
+     * @param  array{status?:string}  $filters
+     * @return \Generator<int, array{id:int,information_object_id:int,status:string,priority_score:int,note:?string,assigned_to:?string,queued_at:?string,captured_at:?string,title:string,slug:?string}>
+     */
+    public function cursor(array $filters = []): \Generator
+    {
+        if (! $this->isAvailable()) {
+            return;
+        }
+
+        try {
+            $q = DB::table('ahg_capture_queue as q')
+                ->leftJoin('information_object as io', 'io.id', '=', 'q.information_object_id')
+                ->leftJoin('information_object_i18n as i18n', function ($j) {
+                    $j->on('i18n.id', '=', 'io.id')
+                        ->on('i18n.culture', '=', 'io.source_culture');
+                })
+                ->leftJoin('slug as s', 's.object_id', '=', 'q.information_object_id')
+                ->select([
+                    'q.id',
+                    'q.information_object_id',
+                    'q.status',
+                    'q.priority_score',
+                    'q.note',
+                    'q.assigned_to',
+                    'q.queued_at',
+                    'q.captured_at',
+                    'i18n.title',
+                    's.slug',
+                ]);
+
+            $status = trim((string) ($filters['status'] ?? ''));
+            if ($status !== '') {
+                $q->where('q.status', $status);
+            }
+
+            $q->orderByDesc('q.queued_at')->orderByDesc('q.id');
+
+            foreach ($q->cursor() as $r) {
+                $title = trim((string) ($r->title ?? ''));
+
+                yield [
+                    'id' => (int) $r->id,
+                    'information_object_id' => (int) $r->information_object_id,
+                    'status' => (string) $r->status,
+                    'priority_score' => (int) $r->priority_score,
+                    'note' => $r->note !== null ? (string) $r->note : null,
+                    'assigned_to' => $r->assigned_to !== null ? (string) $r->assigned_to : null,
+                    'queued_at' => $r->queued_at !== null ? (string) $r->queued_at : null,
+                    'captured_at' => $r->captured_at !== null ? (string) $r->captured_at : null,
+                    'title' => $title !== '' ? $title : '(untitled record #'.(int) $r->information_object_id.')',
+                    'slug' => $r->slug !== null ? (string) $r->slug : null,
+                ];
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-core] capture-queue cursor failed: '.$e->getMessage());
+
+            return;
+        }
+    }
+
+    /**
      * The set of information_object ids already in the queue, for O(1) "already
      * queued?" checks when rendering the at-risk register's per-row action.
      *

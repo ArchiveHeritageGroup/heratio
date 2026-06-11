@@ -67,6 +67,8 @@ Route::middleware('auth')->group(function () {
     // confined to ahg_capture_queue; no AtoM base tables are touched. Multi-segment paths keep this
     // clear of the single-segment /{slug} archival-record catch-all.
     Route::get('/admin/capture-priority/queue', [\AhgCore\Controllers\CaptureQueueController::class, 'index'])->name('capture-priority.queue');
+    // Read-only CSV export of the current queue (respects the active ?status= filter); streamed.
+    Route::get('/admin/capture-priority/queue/export', [\AhgCore\Controllers\CaptureQueueController::class, 'export'])->name('capture-priority.queue.export');
     Route::post('/admin/capture-priority/queue/add', [\AhgCore\Controllers\CaptureQueueController::class, 'store'])->name('capture-priority.queue.add');
     Route::post('/admin/capture-priority/queue/status', [\AhgCore\Controllers\CaptureQueueController::class, 'setStatus'])->name('capture-priority.queue.status');
     Route::post('/admin/capture-priority/queue/assign', [\AhgCore\Controllers\CaptureQueueController::class, 'assign'])->name('capture-priority.queue.assign');

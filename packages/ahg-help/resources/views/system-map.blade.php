@@ -128,18 +128,21 @@
 
 @section('content')
 @php
-  // Reconstruct the stage -> children tree from the flat Cytoscape element
-  // list (the controller passes only 'elements' + 'bands'). Pure derivation,
-  // no controller change needed - feeds BOTH the stage-filter chips and the
-  // server-rendered static fallback below.
+  // Reconstruct the stage -> child -> grandchild tree from the flat Cytoscape
+  // element list (the controller passes only 'elements' + 'bands'). Pure
+  // derivation, no controller change needed - feeds BOTH the stage-filter chips
+  // and the server-rendered static fallback (now 3 levels deep) below.
   $smStages = [];
   $smChildren = [];
+  $smGrand = [];
   foreach ($graph['elements'] ?? [] as $el) {
       $d = $el['data'] ?? [];
       if (($d['kind'] ?? null) === 'stage') {
           $smStages[$d['id']] = $d;
       } elseif (($d['kind'] ?? null) === 'child') {
           $smChildren[$d['subId'] ?? ''][] = $d;
+      } elseif (($d['kind'] ?? null) === 'grandchild') {
+          $smGrand[$d['subId'] ?? ''][] = $d;
       }
   }
 @endphp
@@ -255,6 +258,22 @@
                     @endif
                     @if(!empty($child['sub']))
                       <span class="sm-sub ms-1">- {{ $child['sub'] }}</span>
+                    @endif
+                    @if(!empty($smGrand[$child['id'] ?? '']))
+                      <ul>
+                        @foreach($smGrand[$child['id']] as $grand)
+                          <li>
+                            @if(!empty($grand['help']))
+                              <a href="{{ route('help.article', $grand['help']) }}" class="text-decoration-none">{{ $grand['label'] }}</a>
+                            @else
+                              {{ $grand['label'] }}
+                            @endif
+                            @if(!empty($grand['sub']))
+                              <span class="sm-sub ms-1">- {{ $grand['sub'] }}</span>
+                            @endif
+                          </li>
+                        @endforeach
+                      </ul>
                     @endif
                   </li>
                 @endforeach
@@ -436,8 +455,13 @@
 
     try {
 
-    // ---- expandedStage: which top-level stage (if any) is drilled into ----
+    // ---- Drill state: two levels of "where am I". ----
+    //   expandedStage = which top-level stage (if any) is drilled into.
+    //   expandedChild = which child (sub-area) inside that stage is drilled
+    //                   into, revealing its grandchild detail nodes.
+    // expandedChild is only ever set while expandedStage is also set.
     var expandedStage = null;
+    var expandedChild = null;
 
     // ---- hiddenStages: stage ids toggled OFF via the stage-filter chips.
     //      A hidden stage (and its whole subtree) is removed from the visible
@@ -537,13 +561,23 @@
     });
 
     // ----------------------------------------------------------------
-    // Drill model: by default ONLY top-level stage nodes + stage edges
-    // are visible. Children + child-edges are hidden until you drill in.
+    // Drill model (3 levels, pure show/hide via .sm-hidden - never compound
+    // nesting). The visible set depends on (expandedStage, expandedChild):
+    //
+    //   (null, null)          -> only `stage` nodes + `stage-edge`s.
+    //   (stage, null)         -> that stage + its `child` nodes + `child-edge`s;
+    //                            all grandchildren hidden.
+    //   (stage, child)        -> that child + its `grandchild` nodes +
+    //                            `grandchild-edge`s; sibling children's
+    //                            grandchildren hidden; the parent child stays
+    //                            visible (it's the drilled-into node).
     // ----------------------------------------------------------------
     function applyVisibility() {
       cy.batch(function () {
         cy.elements().removeClass('sm-hidden');
 
+        // ---- Level 2: child sub-flow nodes. Visible only when their stage is
+        //      the expanded one (and that stage isn't filtered off). ----
         cy.nodes('[kind="child"]').forEach(function (n) {
           if (expandedStage && n.data('subId') === expandedStage && !isStageHidden(n.data('subId'))) {
             n.removeClass('sm-hidden');
@@ -551,7 +585,6 @@
             n.addClass('sm-hidden');
           }
         });
-
         cy.edges('[kind="child-edge"]').forEach(function (e) {
           if (expandedStage && e.data('subId') === expandedStage && !isStageHidden(e.data('subId'))) {
             e.removeClass('sm-hidden');
@@ -559,6 +592,35 @@
             e.addClass('sm-hidden');
           }
         });
+
+        // ---- Level 3: grandchild detail nodes. Visible only when their parent
+        //      child is the expanded one. ----
+        cy.nodes('[kind="grandchild"]').forEach(function (n) {
+          if (expandedChild && n.data('subId') === expandedChild && !isStageHidden(n.data('stageId'))) {
+            n.removeClass('sm-hidden');
+          } else {
+            n.addClass('sm-hidden');
+          }
+        });
+        cy.edges('[kind="grandchild-edge"]').forEach(function (e) {
+          if (expandedChild && e.data('subId') === expandedChild && !isStageHidden(e.data('stageId'))) {
+            e.removeClass('sm-hidden');
+          } else {
+            e.addClass('sm-hidden');
+          }
+        });
+
+        // When a child is drilled into, hide its SIBLING children (and their
+        // child-edges) so only the open child + its grandchildren remain. The
+        // open child itself is re-shown just below.
+        if (expandedChild) {
+          cy.nodes('[kind="child"]').forEach(function (n) {
+            if (n.id() !== expandedChild) { n.addClass('sm-hidden'); }
+          });
+          cy.edges('[kind="child-edge"]').addClass('sm-hidden');
+          var openChild = cy.getElementById(expandedChild);
+          if (openChild && openChild.nonempty()) { openChild.removeClass('sm-hidden'); }
+        }
 
         // Stage-filter: stages toggled OFF are removed from the visible set,
         // along with any stage-edge that touches them (so no dangling arrows).
@@ -571,7 +633,8 @@
           }
         });
 
-        // When focused on one stage, dim the sibling stages + spine edges
+        // When focused on one stage, hide the sibling stages + spine edges
+        // (at any sub-depth).
         if (expandedStage) {
           cy.nodes('[kind="stage"]').forEach(function (n) {
             if (n.id() !== expandedStage) { n.addClass('sm-hidden'); }
@@ -583,7 +646,9 @@
 
     function relayout(fit) {
       var opts;
-      if (expandedStage) {
+      if (expandedChild) {
+        opts = { name: 'breadthfirst', directed: true, spacingFactor: 1.15, padding: 30, animate: false };
+      } else if (expandedStage) {
         opts = { name: 'breadthfirst', directed: true, spacingFactor: 1.25, padding: 30, animate: false };
       } else {
         opts = { name: 'breadthfirst', directed: true, spacingFactor: 1.4, padding: 40, animate: false };
@@ -598,24 +663,30 @@
       if (!bread) return;
       bread.innerHTML = '';
 
-      var root = document.createElement('a');
-      root.className = 'crumb-link link-primary text-decoration-none';
-      root.textContent = '{{ __('Whole system') }}';
-      root.addEventListener('click', function () { drillUp(); });
-      bread.appendChild(root);
-
-      if (expandedStage) {
-        var node = cy.getElementById(expandedStage);
-        var sep = document.createElement('span');
-        sep.className = 'text-muted mx-2';
-        sep.textContent = '/';
-        bread.appendChild(sep);
-        var cur = document.createElement('span');
-        cur.className = 'fw-semibold';
-        cur.textContent = node.data('label') || expandedStage;
-        bread.appendChild(cur);
-
-        if (node.data('help')) {
+      function sep() {
+        var s = document.createElement('span');
+        s.className = 'text-muted mx-2';
+        s.textContent = '/';
+        bread.appendChild(s);
+      }
+      // A crumb is a link when it targets a SHALLOWER level than the current
+      // one (click to go back up to it); the deepest crumb is plain text.
+      function crumb(label, onClick) {
+        if (onClick) {
+          var a = document.createElement('a');
+          a.className = 'crumb-link link-primary text-decoration-none';
+          a.textContent = label;
+          a.addEventListener('click', onClick);
+          bread.appendChild(a);
+        } else {
+          var cur = document.createElement('span');
+          cur.className = 'fw-semibold';
+          cur.textContent = label;
+          bread.appendChild(cur);
+        }
+      }
+      function openHelpLink(node) {
+        if (node && node.data('help')) {
           var a = document.createElement('a');
           a.className = 'ms-2 small';
           a.href = ARTICLE_BASE + node.data('help');
@@ -623,8 +694,42 @@
           bread.appendChild(a);
         }
       }
+
+      // Level 0: Whole system. Clickable unless already at the root.
+      crumb('{{ __('Whole system') }}', (expandedStage || expandedChild) ? function () { drillToRoot(); } : null);
+
+      // Level 1: the expanded stage.
+      if (expandedStage) {
+        sep();
+        var stageNode = cy.getElementById(expandedStage);
+        var stageLabel = (stageNode && stageNode.nonempty() && stageNode.data('label')) || expandedStage;
+        // Clickable (back to stage view) only when we are deeper than it.
+        crumb(stageLabel, expandedChild ? function () { drillToStage(); } : null);
+        if (!expandedChild) { openHelpLink(stageNode); }
+      }
+
+      // Level 2: the expanded child (deepest - always plain text + help link).
+      if (expandedChild) {
+        sep();
+        var childNode = cy.getElementById(expandedChild);
+        var childLabel = (childNode && childNode.nonempty() && childNode.data('label')) || expandedChild;
+        crumb(childLabel, null);
+        openHelpLink(childNode);
+      }
     }
 
+    // Shared post-drill refresh: re-run visibility, re-layout + re-fit, redraw
+    // the breadcrumb, the stage counter, and the minimap. Every state change
+    // (tap, up, breadcrumb, escape) funnels through here for one code path.
+    function afterDrill() {
+      applyVisibility();
+      relayout(true);
+      renderBread();
+      refreshStageCount();
+      scheduleMinimap();
+    }
+
+    // Level 1: drill from the whole-system view INTO a stage.
     function drillInto(stageId) {
       if (!stageId) return;
       var n = cy.getElementById(stageId);
@@ -635,20 +740,48 @@
         return;
       }
       expandedStage = stageId;
-      applyVisibility();
-      relayout(true);
-      renderBread();
+      expandedChild = null;
+      afterDrill();
     }
 
-    function drillUp() {
-      if (!expandedStage) { cy.fit(cy.elements(':visible'), 40); return; }
+    // Level 2: drill from a stage view INTO one of its children.
+    function drillIntoChild(childId) {
+      if (!childId) return;
+      var n = cy.getElementById(childId);
+      if (n.empty() || n.data('kind') !== 'child') return;
+      if (!n.data('hasChildren')) {
+        // leaf child (no detail level) -> open its help article if present
+        if (n.data('help')) { window.location.href = ARTICLE_BASE + n.data('help'); }
+        return;
+      }
+      // A child only opens while its own stage is the expanded one.
+      expandedStage = n.data('subId');
+      expandedChild = childId;
+      afterDrill();
+    }
+
+    // Jump straight back to the stage view (drop the child level, keep stage).
+    function drillToStage() {
+      if (!expandedChild) { return; }
+      expandedChild = null;
+      afterDrill();
+    }
+
+    // Jump straight back to the whole-system view.
+    function drillToRoot() {
       expandedStage = null;
-      applyVisibility();
-      relayout(true);
-      renderBread();
+      expandedChild = null;
+      afterDrill();
     }
 
-    // ---- node click: drill-in for stages, deep-link for children ----
+    // One step up: child view -> stage view -> whole system.
+    function drillUp() {
+      if (expandedChild) { drillToStage(); return; }
+      if (expandedStage) { drillToRoot(); return; }
+      cy.fit(cy.elements(':visible'), 40);
+    }
+
+    // ---- node click: drill-in by level, deep-link at the leaves ----
     cy.on('tap', 'node', function (evt) {
       var n = evt.target;
       var kind = n.data('kind');
@@ -661,6 +794,17 @@
           drillInto(n.id());
         }
       } else if (kind === 'child') {
+        // A child with its own detail level drills in; if it's already the
+        // expanded child (or has no detail level), tap opens its help article.
+        if (expandedChild === n.id()) {
+          if (n.data('help')) { window.location.href = ARTICLE_BASE + n.data('help'); }
+        } else if (n.data('hasChildren')) {
+          drillIntoChild(n.id());
+        } else if (n.data('help')) {
+          window.location.href = ARTICLE_BASE + n.data('help');
+        }
+      } else if (kind === 'grandchild') {
+        // Leaf detail node: open its help article if it has one.
         if (n.data('help')) {
           window.location.href = ARTICLE_BASE + n.data('help');
         }
@@ -688,7 +832,16 @@
         case '-': case '_': zoomBy(0.8);  e.preventDefault(); break;
         case 'Enter': {
           var sel = cy.nodes(':selected');
-          if (sel.nonempty()) { drillInto(sel[0].id()); }
+          if (sel.nonempty()) {
+            var sn = sel[0], sk = sn.data('kind');
+            if (sk === 'stage') { drillInto(sn.id()); }
+            else if (sk === 'child') {
+              if (sn.data('hasChildren')) { drillIntoChild(sn.id()); }
+              else if (sn.data('help')) { window.location.href = ARTICLE_BASE + sn.data('help'); }
+            } else if (sk === 'grandchild' && sn.data('help')) {
+              window.location.href = ARTICLE_BASE + sn.data('help');
+            }
+          }
           e.preventDefault();
           break;
         }
@@ -700,7 +853,7 @@
     // ---- pointer cursor hint on hoverable nodes ----
     cy.on('mouseover', 'node', function (evt) {
       var n = evt.target;
-      if (n.data('kind') === 'stage' || n.data('help')) { container.style.cursor = 'pointer'; }
+      if (n.data('kind') === 'stage' || n.data('hasChildren') || n.data('help')) { container.style.cursor = 'pointer'; }
     });
     cy.on('mouseout', 'node', function () { container.style.cursor = 'default'; });
 
@@ -740,8 +893,9 @@
       });
     }
     function applyStageFilter(refit) {
-      // If the currently-expanded stage was just hidden, collapse back up.
-      if (expandedStage && isStageHidden(expandedStage)) { expandedStage = null; }
+      // If the currently-expanded stage was just hidden, collapse back up
+      // (dropping any drilled-in child with it).
+      if (expandedStage && isStageHidden(expandedStage)) { expandedStage = null; expandedChild = null; }
       applyVisibility();
       relayout(refit !== false);
       renderBread();
@@ -770,6 +924,7 @@
         resetBtn.addEventListener('click', function () {
           hiddenStages = Object.create(null);
           expandedStage = null;
+          expandedChild = null;
           clearSearch();
           applyStageFilter(true);
         });

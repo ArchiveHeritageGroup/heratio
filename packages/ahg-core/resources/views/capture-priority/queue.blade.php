@@ -15,6 +15,7 @@
   $rows = $rows ?? [];
   $statuses = $statuses ?? [];
   $counts = $counts ?? ['total' => 0, 'by_status' => []];
+  $throughput = $throughput ?? ['captured_7d' => 0, 'captured_30d' => 0, 'still_queued' => 0, 'captured_total' => 0];
   $filterStatus = $filterStatus ?? '';
   // code -> {label,color,icon} for rendering a status badge from its stored code.
   $statusMap = [];
@@ -64,6 +65,53 @@
         <span class="badge bg-light text-dark ms-1">{{ number_format($n) }}</span>
       </a>
     @endforeach
+    {{-- Export the current queue to CSV, carrying the active status filter. Read-only, streamed server-side. --}}
+    <a href="{{ route('capture-priority.queue.export', $filterStatus !== '' ? ['status' => $filterStatus] : []) }}"
+       class="ms-auto btn btn-sm btn-outline-primary">
+      <i class="fas fa-file-csv me-1"></i>{{ __('Export CSV') }}
+    </a>
+  </div>
+
+  {{-- Throughput summary: a small at-a-glance strip of how the queue is moving. Built from
+       CaptureQueueService::counts() + throughput() (a single guarded aggregate); zeros on an
+       empty / unavailable queue. Jurisdiction-neutral copy. --}}
+  <div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body py-2">
+          <div class="text-muted small text-uppercase">{{ __('In queue') }}</div>
+          <div class="h4 mb-0">{{ number_format($counts['total'] ?? 0) }}</div>
+          <div class="text-muted small">{{ number_format($throughput['still_queued'] ?? 0) }} {{ __('not yet captured') }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body py-2">
+          <div class="text-muted small text-uppercase">{{ __('Captured (7 days)') }}</div>
+          <div class="h4 mb-0 text-success">{{ number_format($throughput['captured_7d'] ?? 0) }}</div>
+          <div class="text-muted small">{{ __('in the last week') }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body py-2">
+          <div class="text-muted small text-uppercase">{{ __('Captured (30 days)') }}</div>
+          <div class="h4 mb-0 text-success">{{ number_format($throughput['captured_30d'] ?? 0) }}</div>
+          <div class="text-muted small">{{ __('in the last month') }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body py-2">
+          <div class="text-muted small text-uppercase">{{ __('Captured (total)') }}</div>
+          <div class="h4 mb-0">{{ number_format($throughput['captured_total'] ?? 0) }}</div>
+          <div class="text-muted small">{{ __('all time') }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   @if(empty($statuses))

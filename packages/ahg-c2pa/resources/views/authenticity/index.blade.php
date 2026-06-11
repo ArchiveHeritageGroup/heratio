@@ -144,6 +144,9 @@
     <p class="text-muted small mb-0 mt-1">
       <i class="fas fa-shield-alt me-1"></i>{{ __('Checking one file? Use /verify/ followed by its file (digital object) id to see that file\'s content-credentials chain and an embeddable verify badge.') }}
     </p>
+    <p class="small mb-0 mt-2">
+      <i class="fas fa-upload me-1"></i><a href="{{ url('/verify/check') }}">{{ __('Have a file from anywhere? Check its content credentials by uploading it.') }}</a>
+    </p>
   </div>
 </div>
 

@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 use AhgC2pa\Controllers\AuthenticityController;
 use AhgC2pa\Controllers\ProvenanceController;
+use AhgC2pa\Controllers\PublicCheckController;
 use AhgC2pa\Controllers\VerifyController;
 use AhgC2pa\Controllers\VerifyObjectController;
 use AhgC2pa\Controllers\VerifyObjectDownloadController;
@@ -33,6 +34,18 @@ Route::prefix('verify')->group(function () {
     // single-segment IO catch-all (/{slug}), so that never intercepts it.
     Route::get('/', [AuthenticityController::class, 'index'])
         ->name('c2pa.authenticity');
+
+    // Public "check content credentials" file-drop tool (deepens #1209 / #1201):
+    // a visitor uploads ANY image - including files that did NOT come from this
+    // repository - and gets its C2PA verdict in plain language. No auth, no DB
+    // writes, the upload is throwaway. A literal 'check' segment, declared HERE
+    // (before the numeric /{digitalObjectId} and the {slug} '.+' matcher below)
+    // so it can never be captured as a digital-object id or a record slug. The
+    // POST is on the same path; it inherits the 'web' group's CSRF protection.
+    Route::get('/check', [PublicCheckController::class, 'form'])
+        ->name('c2pa.verify.check');
+    Route::post('/check', [PublicCheckController::class, 'check'])
+        ->name('c2pa.verify.check.run');
 
     // Numeric id, namespaced under /verify/id/ so a purely numeric slug can
     // never collide with the id route.

@@ -45,8 +45,12 @@ class SystemMapService
      *   ]
      *
      * Every node carries `parent` (for compound drill-in), `help` (slug or
-     * null), `kind` (stage|child), and `subId` (the parent stage id) so the
-     * client JS can expand/collapse a single stage cheaply.
+     * null), `kind` (stage|child|grandchild), and `subId` so the client JS can
+     * expand/collapse a single level cheaply:
+     *   - child nodes      -> subId = stage id
+     *   - grandchild nodes -> subId = parent child id (also `stageId`)
+     * Edges carry `kind` (stage-edge|child-edge|grandchild-edge) and the same
+     * `subId` so the drill model can show only the open level's edges.
      */
     public static function graph(): array
     {
@@ -76,7 +80,37 @@ class SystemMapService
                     'kind'   => 'child',
                     'parent' => $stage['id'],
                     'subId'  => $stage['id'],
+                    'hasChildren' => ! empty($child['children']),
                 ]];
+
+                // Grandchild detail nodes (third level). parent => child id; the
+                // view strips `parent` so they render as solid nodes, and the
+                // drill model reveals them by subId === their parent child id.
+                foreach ($child['children'] ?? [] as $grand) {
+                    $elements[] = ['data' => [
+                        'id'      => $grand['id'],
+                        'label'   => $grand['label'],
+                        'sub'     => $grand['sub'] ?? '',
+                        'color'   => $stage['color'] ?? '#264653',
+                        'help'    => $grand['help'] ?? null,
+                        'kind'    => 'grandchild',
+                        'parent'  => $child['id'],
+                        'subId'   => $child['id'],
+                        'stageId' => $stage['id'],
+                    ]];
+                }
+
+                // Intra-child flow edges (only meaningful while the child is open).
+                foreach ($child['child_edges'] ?? [] as $ge) {
+                    $elements[] = ['data' => [
+                        'id'      => 'ge-'.$ge[0].'__'.$ge[1],
+                        'source'  => $ge[0],
+                        'target'  => $ge[1],
+                        'kind'    => 'grandchild-edge',
+                        'subId'   => $child['id'],
+                        'stageId' => $stage['id'],
+                    ]];
+                }
             }
 
             // Intra-stage flow edges (only meaningful while the stage is open).

@@ -31,23 +31,36 @@
  * the controller, view, or JS needs to change.
  *
  * Each TOP-LEVEL stage is a compound (parent) node. Its `children` are the
- * sub-flow nodes that the user reveals by drilling INTO the stage. `edges`
- * declares the directed flow between top-level stages; child-level edges are
- * declared inside each stage under `child_edges` and are only shown while
- * that stage is expanded.
+ * sub-flow nodes that the user reveals by drilling INTO the stage. Each child
+ * may in turn carry its own `children` (the third level: concrete detail nodes
+ * - the bits of plumbing or sub-steps behind that sub-area). `edges` declares
+ * the directed flow between top-level stages; child-level edges are declared
+ * inside each stage under `child_edges`, and grandchild-level edges inside each
+ * child under its own `child_edges`. Each level's edges are only shown while
+ * that level is expanded.
+ *
+ * The map therefore drills THREE levels:
+ *   stage  ->  child (sub-area)  ->  grandchild (detail)
+ * e.g. AI Services -> NER -> [Gateway, Models, Provenance logged].
  *
  * NODE FIELDS
- *   id       (string, required)  unique slug-id, used as the Cytoscape node id
+ *   id       (string, required)  unique slug-id, used as the Cytoscape node id.
+ *                                Keep ids hierarchical: stage.child.detail
  *   label    (string, required)  text shown on the node
  *   sub      (string, optional)  one-line subtitle / standards line
  *   band     (string, optional)  cross-cutting band id this node belongs to
  *                                (auth | settings | rights) - drawn as a tint
  *   help     (string, optional)  help_article slug -> deep-links to
  *                                /help/article/{slug}. Omit if no article yet.
- *   children (array, optional)   sub-flow nodes (same field shape, minus
- *                                children); revealed on drill-in
- *   child_edges (array, optional) [from-child-id, to-child-id] pairs inside
- *                                the stage
+ *                                The service nulls any slug the viewer cannot
+ *                                open, so an absent/unknown slug degrades to
+ *                                plain text - never a dead link.
+ *   children (array, optional)   sub-flow nodes (same field shape); revealed on
+ *                                drill-in. A child's own `children` are the
+ *                                third-level detail nodes.
+ *   child_edges (array, optional) [from-id, to-id] pairs inside the stage (at
+ *                                child level) or inside a child (at grandchild
+ *                                level) - only shown while that level is open
  *
  * Help-article slugs below were resolved against the live help_article table
  * (is_published=1). If you rename/retire an article, update or drop the
@@ -76,9 +89,40 @@ return [
             'color' => '#264653',
             'help'  => 'accession-v2-user-guide',
             'children' => [
-                ['id' => 'acquire.acquisition', 'label' => 'Acquisition',     'sub' => 'Library / archival intake', 'help' => 'library-acquisitions-user-guide'],
-                ['id' => 'acquire.accession',   'label' => 'Accession record', 'sub' => 'Accession Management V2',    'help' => 'accession-v2-user-guide'],
-                ['id' => 'acquire.donor',       'label' => 'Donors & source',  'sub' => 'Provenance origin',          'help' => 'ahgprovenanceplugin'],
+                [
+                    'id' => 'acquire.acquisition', 'label' => 'Acquisition', 'sub' => 'Library / archival intake', 'help' => 'library-acquisitions-user-guide',
+                    'children' => [
+                        ['id' => 'acquire.acquisition.order',   'label' => 'Order / request', 'sub' => 'Purchase or gift request'],
+                        ['id' => 'acquire.acquisition.receive', 'label' => 'Receive',         'sub' => 'Mark items received'],
+                        ['id' => 'acquire.acquisition.method',  'label' => 'Method',          'sub' => 'Purchase / gift / loan'],
+                    ],
+                    'child_edges' => [
+                        ['acquire.acquisition.order', 'acquire.acquisition.receive'],
+                    ],
+                ],
+                [
+                    'id' => 'acquire.accession', 'label' => 'Accession record', 'sub' => 'Accession Management V2', 'help' => 'accession-v2-user-guide',
+                    'children' => [
+                        ['id' => 'acquire.accession.id',     'label' => 'Accession number', 'sub' => 'Auto-generated identifier'],
+                        ['id' => 'acquire.accession.scope',  'label' => 'Scope & content',  'sub' => 'What was accessioned'],
+                        ['id' => 'acquire.accession.toio',   'label' => 'Create record',    'sub' => 'Spawn archival description', 'help' => 'information-object-manage-user-guide'],
+                    ],
+                    'child_edges' => [
+                        ['acquire.accession.id', 'acquire.accession.scope'],
+                        ['acquire.accession.scope', 'acquire.accession.toio'],
+                    ],
+                ],
+                [
+                    'id' => 'acquire.donor', 'label' => 'Donors & source', 'sub' => 'Provenance origin', 'help' => 'ahgprovenanceplugin',
+                    'children' => [
+                        ['id' => 'acquire.donor.actor',  'label' => 'Donor actor',     'sub' => 'Person / organisation', 'help' => 'authority-resolution-user-guide'],
+                        ['id' => 'acquire.donor.chain',  'label' => 'Provenance chain', 'sub' => 'Custody history',       'help' => 'ahgprovenanceplugin'],
+                        ['id' => 'acquire.donor.rights', 'label' => 'Donor rights',     'sub' => 'Conditions of gift'],
+                    ],
+                    'child_edges' => [
+                        ['acquire.donor.actor', 'acquire.donor.chain'],
+                    ],
+                ],
             ],
             'child_edges' => [
                 ['acquire.acquisition', 'acquire.accession'],
@@ -92,12 +136,60 @@ return [
             'color' => '#2a6f97',
             'help'  => 'data-ingest-user-guide',
             'children' => [
-                ['id' => 'ingest.configure', 'label' => 'Configure',  'sub' => 'Pick source / template',      'help' => 'data-ingest-user-guide'],
-                ['id' => 'ingest.upload',    'label' => 'Upload',      'sub' => 'CSV + files / scan capture',   'help' => 'scanner-capture-user-guide'],
-                ['id' => 'ingest.map',       'label' => 'Map',         'sub' => 'Column -> field mapping',      'help' => 'data-ingest-user-guide'],
-                ['id' => 'ingest.validate',  'label' => 'Validate',    'sub' => 'File + metadata checks',       'help' => 'atom-heratio-filevalidationservice-feature-overview'],
-                ['id' => 'ingest.ai',        'label' => 'AI steps',    'sub' => 'OCR / NER / summarize / scan', 'help' => 'ner-user-guide'],
-                ['id' => 'ingest.commit',    'label' => 'Commit',      'sub' => 'Create records',               'help' => 'data-ingest-user-guide'],
+                [
+                    'id' => 'ingest.configure', 'label' => 'Configure', 'sub' => 'Pick source / template', 'help' => 'data-ingest-user-guide',
+                    'children' => [
+                        ['id' => 'ingest.configure.source',   'label' => 'Source',   'sub' => 'CSV / folder / scan', 'help' => 'scanner-capture-user-guide'],
+                        ['id' => 'ingest.configure.template', 'label' => 'Template', 'sub' => 'Entity + field set',  'help' => 'data-ingest-user-guide'],
+                    ],
+                ],
+                [
+                    'id' => 'ingest.upload', 'label' => 'Upload', 'sub' => 'CSV + files / scan capture', 'help' => 'scanner-capture-user-guide',
+                    'children' => [
+                        ['id' => 'ingest.upload.files',   'label' => 'Files',         'sub' => 'CSV + digital objects'],
+                        ['id' => 'ingest.upload.watched', 'label' => 'Watched folder','sub' => 'Auto-pick scan output', 'help' => 'scanner-capture-user-guide'],
+                    ],
+                ],
+                [
+                    'id' => 'ingest.map', 'label' => 'Map', 'sub' => 'Column -> field mapping', 'help' => 'data-ingest-user-guide',
+                    'children' => [
+                        ['id' => 'ingest.map.columns', 'label' => 'Columns',  'sub' => 'CSV header -> field'],
+                        ['id' => 'ingest.map.defaults','label' => 'Defaults',  'sub' => 'Fixed / fallback values'],
+                    ],
+                ],
+                [
+                    'id' => 'ingest.validate', 'label' => 'Validate', 'sub' => 'File + metadata checks', 'help' => 'atom-heratio-filevalidationservice-feature-overview',
+                    'children' => [
+                        ['id' => 'ingest.validate.file', 'label' => 'File checks',     'sub' => 'Type / size / virus', 'help' => 'atom-heratio-filevalidationservice-feature-overview'],
+                        ['id' => 'ingest.validate.meta', 'label' => 'Metadata checks', 'sub' => 'Required fields'],
+                    ],
+                    'child_edges' => [
+                        ['ingest.validate.file', 'ingest.validate.meta'],
+                    ],
+                ],
+                [
+                    'id' => 'ingest.ai', 'label' => 'AI steps', 'sub' => 'OCR / NER / summarize / scan', 'help' => 'ner-user-guide',
+                    'children' => [
+                        ['id' => 'ingest.ai.ocr',       'label' => 'OCR / HTR',  'sub' => 'Text from images',  'help' => 'htr-user-guide'],
+                        ['id' => 'ingest.ai.ner',       'label' => 'NER',        'sub' => 'Entity extraction', 'help' => 'ner-user-guide'],
+                        ['id' => 'ingest.ai.summarize', 'label' => 'Summarize',  'sub' => 'Scope-note draft'],
+                        ['id' => 'ingest.ai.gateway',   'label' => 'AI gateway', 'sub' => 'ai.theahg.co.za'],
+                    ],
+                    'child_edges' => [
+                        ['ingest.ai.ocr', 'ingest.ai.ner'],
+                        ['ingest.ai.ner', 'ingest.ai.gateway'],
+                    ],
+                ],
+                [
+                    'id' => 'ingest.commit', 'label' => 'Commit', 'sub' => 'Create records', 'help' => 'data-ingest-user-guide',
+                    'children' => [
+                        ['id' => 'ingest.commit.preview', 'label' => 'Preview', 'sub' => 'Dry-run before write'],
+                        ['id' => 'ingest.commit.create',  'label' => 'Create',  'sub' => 'Write records + index'],
+                    ],
+                    'child_edges' => [
+                        ['ingest.commit.preview', 'ingest.commit.create'],
+                    ],
+                ],
             ],
             'child_edges' => [
                 ['ingest.configure', 'ingest.upload'],
@@ -114,12 +206,68 @@ return [
             'color' => '#1b998b',
             'help'  => 'information-object-manage-user-guide',
             'children' => [
-                ['id' => 'describe.isad',     'label' => 'ISAD(G)',     'sub' => 'Archival description',      'help' => 'information-object-manage-user-guide'],
-                ['id' => 'describe.ric',      'label' => 'RiC',         'sub' => 'Records in Contexts',      'help' => 'ric-user-guide'],
-                ['id' => 'describe.spectrum', 'label' => 'Spectrum',    'sub' => 'Museum procedures 5.1',    'help' => 'spectrum-user-guide'],
-                ['id' => 'describe.cco',      'label' => 'CCO / VRA',   'sub' => 'Cultural objects / works', 'help' => 'gallery-module-user-guide'],
-                ['id' => 'describe.authority','label' => 'Authorities', 'sub' => 'Actors, terms, places',    'help' => 'authority-resolution-user-guide'],
-                ['id' => 'describe.condition','label' => 'Condition',   'sub' => 'Condition reports',        'help' => 'condition-reports'],
+                [
+                    'id' => 'describe.isad', 'label' => 'ISAD(G)', 'sub' => 'Archival description', 'help' => 'information-object-manage-user-guide',
+                    'children' => [
+                        ['id' => 'describe.isad.identity', 'label' => 'Identity',    'sub' => 'Reference / title / dates'],
+                        ['id' => 'describe.isad.context',  'label' => 'Context',     'sub' => 'Creator / custody'],
+                        ['id' => 'describe.isad.content',  'label' => 'Content',     'sub' => 'Scope / arrangement'],
+                        ['id' => 'describe.isad.levels',   'label' => 'Levels',      'sub' => 'Fonds -> item hierarchy'],
+                    ],
+                    'child_edges' => [
+                        ['describe.isad.identity', 'describe.isad.context'],
+                        ['describe.isad.context', 'describe.isad.content'],
+                    ],
+                ],
+                [
+                    'id' => 'describe.ric', 'label' => 'RiC', 'sub' => 'Records in Contexts', 'help' => 'ric-user-guide',
+                    'children' => [
+                        ['id' => 'describe.ric.entities', 'label' => 'Entities',  'sub' => 'Record / agent / activity', 'help' => 'ric-user-guide'],
+                        ['id' => 'describe.ric.relations','label' => 'Relations', 'sub' => 'rico:* predicates'],
+                        ['id' => 'describe.ric.graph',    'label' => 'Graph',     'sub' => 'JSON-LD / SPARQL',          'help' => 'knowledge-graph-user-guide'],
+                    ],
+                    'child_edges' => [
+                        ['describe.ric.entities', 'describe.ric.relations'],
+                        ['describe.ric.relations', 'describe.ric.graph'],
+                    ],
+                ],
+                [
+                    'id' => 'describe.spectrum', 'label' => 'Spectrum', 'sub' => 'Museum procedures 5.1', 'help' => 'spectrum-user-guide',
+                    'children' => [
+                        ['id' => 'describe.spectrum.object', 'label' => 'Object entry', 'sub' => 'Object identification', 'help' => 'spectrum-user-guide'],
+                        ['id' => 'describe.spectrum.loc',    'label' => 'Location',     'sub' => 'Movement control'],
+                        ['id' => 'describe.spectrum.privacy','label' => 'Privacy',      'sub' => 'Compliance hooks'],
+                    ],
+                    'child_edges' => [
+                        ['describe.spectrum.object', 'describe.spectrum.loc'],
+                    ],
+                ],
+                [
+                    'id' => 'describe.cco', 'label' => 'CCO / VRA', 'sub' => 'Cultural objects / works', 'help' => 'gallery-module-user-guide',
+                    'children' => [
+                        ['id' => 'describe.cco.work',  'label' => 'Work',  'sub' => 'Work record',  'help' => 'gallery-module-user-guide'],
+                        ['id' => 'describe.cco.image', 'label' => 'Image', 'sub' => 'Surrogate / view'],
+                    ],
+                ],
+                [
+                    'id' => 'describe.authority', 'label' => 'Authorities', 'sub' => 'Actors, terms, places', 'help' => 'authority-resolution-user-guide',
+                    'children' => [
+                        ['id' => 'describe.authority.actor', 'label' => 'Actors', 'sub' => 'ISAAR persons / bodies', 'help' => 'authority-resolution-user-guide'],
+                        ['id' => 'describe.authority.term',  'label' => 'Terms',  'sub' => 'Subjects / places'],
+                        ['id' => 'describe.authority.dedupe','label' => 'Resolve','sub' => 'Match / merge'],
+                    ],
+                    'child_edges' => [
+                        ['describe.authority.actor', 'describe.authority.dedupe'],
+                        ['describe.authority.term', 'describe.authority.dedupe'],
+                    ],
+                ],
+                [
+                    'id' => 'describe.condition', 'label' => 'Condition', 'sub' => 'Condition reports', 'help' => 'condition-reports',
+                    'children' => [
+                        ['id' => 'describe.condition.assess', 'label' => 'Assessment', 'sub' => 'Condition grade', 'help' => 'condition-reports'],
+                        ['id' => 'describe.condition.photos', 'label' => 'Photos',     'sub' => 'Condition images'],
+                    ],
+                ],
             ],
             'child_edges' => [
                 ['describe.isad', 'describe.authority'],
@@ -135,10 +283,42 @@ return [
             'color' => '#3a7d44',
             'help'  => 'preservation-user-guide',
             'children' => [
-                ['id' => 'preserve.oais',  'label' => 'OAIS ingest',  'sub' => 'AIP / SIP / DIP',     'help' => 'preservation-user-guide'],
-                ['id' => 'preserve.premis','label' => 'PREMIS',       'sub' => 'Preservation events', 'help' => 'ahgpreservationplugin'],
-                ['id' => 'preserve.fixity','label' => 'Fixity',       'sub' => 'Checksums / audits',  'help' => 'preservation-user-guide'],
-                ['id' => 'preserve.3d',    'label' => '3D / media',   'sub' => '3D model preservation','help' => '3d-preservation'],
+                [
+                    'id' => 'preserve.oais', 'label' => 'OAIS ingest', 'sub' => 'AIP / SIP / DIP', 'help' => 'preservation-user-guide',
+                    'children' => [
+                        ['id' => 'preserve.oais.sip', 'label' => 'SIP', 'sub' => 'Submission package'],
+                        ['id' => 'preserve.oais.aip', 'label' => 'AIP', 'sub' => 'Archival package'],
+                        ['id' => 'preserve.oais.dip', 'label' => 'DIP', 'sub' => 'Dissemination package'],
+                    ],
+                    'child_edges' => [
+                        ['preserve.oais.sip', 'preserve.oais.aip'],
+                        ['preserve.oais.aip', 'preserve.oais.dip'],
+                    ],
+                ],
+                [
+                    'id' => 'preserve.premis', 'label' => 'PREMIS', 'sub' => 'Preservation events', 'help' => 'ahgpreservationplugin',
+                    'children' => [
+                        ['id' => 'preserve.premis.events', 'label' => 'Events',  'sub' => 'Capture / migrate', 'help' => 'ahgpreservationplugin'],
+                        ['id' => 'preserve.premis.agents', 'label' => 'Agents',  'sub' => 'Who / what acted'],
+                    ],
+                ],
+                [
+                    'id' => 'preserve.fixity', 'label' => 'Fixity', 'sub' => 'Checksums / audits', 'help' => 'preservation-user-guide',
+                    'children' => [
+                        ['id' => 'preserve.fixity.checksum', 'label' => 'Checksums', 'sub' => 'SHA / MD5 on ingest'],
+                        ['id' => 'preserve.fixity.audit',    'label' => 'Audits',    'sub' => 'Scheduled re-verify'],
+                    ],
+                    'child_edges' => [
+                        ['preserve.fixity.checksum', 'preserve.fixity.audit'],
+                    ],
+                ],
+                [
+                    'id' => 'preserve.3d', 'label' => '3D / media', 'sub' => '3D model preservation', 'help' => '3d-preservation',
+                    'children' => [
+                        ['id' => 'preserve.3d.formats', 'label' => 'Formats', 'sub' => 'glTF / PLY / splat', 'help' => '3d-preservation'],
+                        ['id' => 'preserve.3d.derive',  'label' => 'Derivatives','sub' => 'Web-ready surrogates'],
+                    ],
+                ],
             ],
             'child_edges' => [
                 ['preserve.oais', 'preserve.premis'],
@@ -152,10 +332,42 @@ return [
             'color' => '#bc6c25',
             'help'  => 'advanced-search-user-guide',
             'children' => [
-                ['id' => 'search.es',       'label' => 'Elasticsearch', 'sub' => 'Index + advanced search', 'help' => 'elasticsearch-configuration'],
-                ['id' => 'search.advanced', 'label' => 'Advanced',      'sub' => 'Facets / filters',        'help' => 'advanced-search-user-guide'],
-                ['id' => 'search.semantic', 'label' => 'Semantic',      'sub' => 'Vector / KM RAG',         'help' => 'semantic-search-user-guide'],
-                ['id' => 'search.graph',    'label' => 'Knowledge graph','sub' => 'Entity links',           'help' => 'knowledge-graph-user-guide'],
+                [
+                    'id' => 'search.es', 'label' => 'Elasticsearch', 'sub' => 'Index + advanced search', 'help' => 'elasticsearch-configuration',
+                    'children' => [
+                        ['id' => 'search.es.indices',   'label' => 'Indices',   'sub' => 'heratio_* indices',     'help' => 'elasticsearch-configuration'],
+                        ['id' => 'search.es.reindex',   'label' => 'Reindex',   'sub' => 'ahg:es-reindex command'],
+                        ['id' => 'search.es.analyzers', 'label' => 'Analyzers', 'sub' => 'Tokenize / stem'],
+                    ],
+                    'child_edges' => [
+                        ['search.es.indices', 'search.es.reindex'],
+                    ],
+                ],
+                [
+                    'id' => 'search.advanced', 'label' => 'Advanced', 'sub' => 'Facets / filters', 'help' => 'advanced-search-user-guide',
+                    'children' => [
+                        ['id' => 'search.advanced.facets',   'label' => 'Facets',   'sub' => 'Aggregated filters', 'help' => 'advanced-search-user-guide'],
+                        ['id' => 'search.advanced.ancestor', 'label' => 'Ancestor', 'sub' => 'lft/rgt subtree'],
+                    ],
+                ],
+                [
+                    'id' => 'search.semantic', 'label' => 'Semantic', 'sub' => 'Vector / KM RAG', 'help' => 'semantic-search-user-guide',
+                    'children' => [
+                        ['id' => 'search.semantic.vectors', 'label' => 'Vectors', 'sub' => 'Embeddings store',   'help' => 'semantic-search-user-guide'],
+                        ['id' => 'search.semantic.km',      'label' => 'KM RAG',   'sub' => 'km.theahg.co.za'],
+                        ['id' => 'search.semantic.gateway', 'label' => 'AI gateway','sub' => 'Embedding endpoint'],
+                    ],
+                    'child_edges' => [
+                        ['search.semantic.vectors', 'search.semantic.km'],
+                    ],
+                ],
+                [
+                    'id' => 'search.graph', 'label' => 'Knowledge graph', 'sub' => 'Entity links', 'help' => 'knowledge-graph-user-guide',
+                    'children' => [
+                        ['id' => 'search.graph.nodes', 'label' => 'Entities', 'sub' => 'Records / actors / terms', 'help' => 'knowledge-graph-user-guide'],
+                        ['id' => 'search.graph.edges', 'label' => 'Links',    'sub' => 'Typed relations'],
+                    ],
+                ],
             ],
             'child_edges' => [
                 ['search.es', 'search.advanced'],
@@ -170,13 +382,59 @@ return [
             'color' => '#e09f3e',
             'help'  => 'glam-browse-user-guide',
             'children' => [
-                ['id' => 'display.glam',    'label' => 'GLAM browse',  'sub' => 'Card / grid / table',    'help' => 'glam-browse-user-guide'],
-                ['id' => 'display.library', 'label' => 'Library',      'sub' => 'Library sector show',    'help' => 'ahglibraryplugin'],
-                ['id' => 'display.museum',  'label' => 'Museum',       'sub' => 'Museum sector show',     'help' => 'museum-module-user-guide'],
-                ['id' => 'display.gallery', 'label' => 'Gallery',      'sub' => 'Gallery sector show',    'help' => 'gallery-module-user-guide'],
-                ['id' => 'display.dam',     'label' => 'DAM',          'sub' => 'Digital asset show',     'help' => 'dam-module-user-guide'],
-                ['id' => 'display.iiif',    'label' => 'IIIF viewer',  'sub' => 'Mirador / OpenSeadragon','help' => 'mirador-user-guide'],
-                ['id' => 'display.3d',      'label' => '3D / splat',   'sub' => '3D + Gaussian splat',    'help' => '3d-model-viewer-user-guide'],
+                [
+                    'id' => 'display.glam', 'label' => 'GLAM browse', 'sub' => 'Card / grid / table', 'help' => 'glam-browse-user-guide',
+                    'children' => [
+                        ['id' => 'display.glam.views',  'label' => 'View modes', 'sub' => 'Card / grid / table / full', 'help' => 'glam-browse-user-guide'],
+                        ['id' => 'display.glam.facets', 'label' => 'Facets',     'sub' => 'Refine results'],
+                    ],
+                ],
+                [
+                    'id' => 'display.library', 'label' => 'Library', 'sub' => 'Library sector show', 'help' => 'ahglibraryplugin',
+                    'children' => [
+                        ['id' => 'display.library.bib',  'label' => 'Bibliographic', 'sub' => 'MARC / item record'],
+                        ['id' => 'display.library.copy', 'label' => 'Holdings',      'sub' => 'Copies / availability'],
+                    ],
+                ],
+                [
+                    'id' => 'display.museum', 'label' => 'Museum', 'sub' => 'Museum sector show', 'help' => 'museum-module-user-guide',
+                    'children' => [
+                        ['id' => 'display.museum.object', 'label' => 'Object',   'sub' => 'Spectrum object view', 'help' => 'museum-module-user-guide'],
+                        ['id' => 'display.museum.loc',    'label' => 'Location', 'sub' => 'Current location'],
+                    ],
+                ],
+                [
+                    'id' => 'display.gallery', 'label' => 'Gallery', 'sub' => 'Gallery sector show', 'help' => 'gallery-module-user-guide',
+                    'children' => [
+                        ['id' => 'display.gallery.work',  'label' => 'Work',  'sub' => 'CCO work view', 'help' => 'gallery-module-user-guide'],
+                        ['id' => 'display.gallery.image', 'label' => 'Images','sub' => 'Views / surrogates'],
+                    ],
+                ],
+                [
+                    'id' => 'display.dam', 'label' => 'DAM', 'sub' => 'Digital asset show', 'help' => 'dam-module-user-guide',
+                    'children' => [
+                        ['id' => 'display.dam.asset',   'label' => 'Asset',    'sub' => 'Master + derivatives', 'help' => 'dam-module-user-guide'],
+                        ['id' => 'display.dam.formats', 'label' => 'Formats',  'sub' => 'Image / AV / docs'],
+                    ],
+                ],
+                [
+                    'id' => 'display.iiif', 'label' => 'IIIF viewer', 'sub' => 'Mirador / OpenSeadragon', 'help' => 'mirador-user-guide',
+                    'children' => [
+                        ['id' => 'display.iiif.mirador', 'label' => 'Mirador',     'sub' => 'Multi-image workspace', 'help' => 'mirador-user-guide'],
+                        ['id' => 'display.iiif.osd',     'label' => 'OpenSeadragon','sub' => 'Deep-zoom tiles'],
+                        ['id' => 'display.iiif.canta',   'label' => 'Cantaloupe',   'sub' => 'IIIF Image API 3.0'],
+                    ],
+                    'child_edges' => [
+                        ['display.iiif.canta', 'display.iiif.osd'],
+                    ],
+                ],
+                [
+                    'id' => 'display.3d', 'label' => '3D / splat', 'sub' => '3D + Gaussian splat', 'help' => '3d-model-viewer-user-guide',
+                    'children' => [
+                        ['id' => 'display.3d.model', 'label' => '3D model',  'sub' => 'glTF mesh viewer', 'help' => '3d-model-viewer-user-guide'],
+                        ['id' => 'display.3d.splat', 'label' => 'Splat',     'sub' => 'Gaussian splat scene'],
+                    ],
+                ],
             ],
             'child_edges' => [
                 ['display.glam', 'display.library'],
@@ -194,9 +452,32 @@ return [
             'color' => '#9e2a2b',
             'help'  => 'exhibition-user-guide',
             'children' => [
-                ['id' => 'exhibit.builder', 'label' => 'Exhibition builder', 'sub' => 'Curate + landing page', 'help' => 'exhibition-user-guide'],
-                ['id' => 'exhibit.twin',    'label' => 'Digital twin',       'sub' => '3D walkthrough',        'help' => 'exhibition-digital-twin'],
-                ['id' => 'exhibit.engage',  'label' => 'Engage',             'sub' => 'Cart / marketplace',    'help' => 'marketplace-flow-guide'],
+                [
+                    'id' => 'exhibit.builder', 'label' => 'Exhibition builder', 'sub' => 'Curate + landing page', 'help' => 'exhibition-user-guide',
+                    'children' => [
+                        ['id' => 'exhibit.builder.curate', 'label' => 'Curate',  'sub' => 'Pick + order items', 'help' => 'exhibition-user-guide'],
+                        ['id' => 'exhibit.builder.layout', 'label' => 'Layout',  'sub' => 'Landing-page design'],
+                        ['id' => 'exhibit.builder.publish','label' => 'Publish', 'sub' => 'Go live'],
+                    ],
+                    'child_edges' => [
+                        ['exhibit.builder.curate', 'exhibit.builder.layout'],
+                        ['exhibit.builder.layout', 'exhibit.builder.publish'],
+                    ],
+                ],
+                [
+                    'id' => 'exhibit.twin', 'label' => 'Digital twin', 'sub' => '3D walkthrough', 'help' => 'exhibition-digital-twin',
+                    'children' => [
+                        ['id' => 'exhibit.twin.scene', 'label' => 'Scene',       'sub' => 'Interior walls / scale', 'help' => 'exhibition-digital-twin'],
+                        ['id' => 'exhibit.twin.walk',  'label' => 'Walkthrough', 'sub' => 'First-person navigation'],
+                    ],
+                ],
+                [
+                    'id' => 'exhibit.engage', 'label' => 'Engage', 'sub' => 'Cart / marketplace', 'help' => 'marketplace-flow-guide',
+                    'children' => [
+                        ['id' => 'exhibit.engage.cart',   'label' => 'Cart',   'sub' => 'Add to cart', 'help' => 'marketplace-flow-guide'],
+                        ['id' => 'exhibit.engage.repro',  'label' => 'Reproduction','sub' => 'Order copies'],
+                    ],
+                ],
             ],
             'child_edges' => [
                 ['exhibit.builder', 'exhibit.twin'],
@@ -210,11 +491,63 @@ return [
             'color' => '#5a189a',
             'help'  => 'ner-user-guide',
             'children' => [
-                ['id' => 'ai.ner',       'label' => 'NER',          'sub' => 'Entity extraction',     'help' => 'ner-user-guide'],
-                ['id' => 'ai.condition', 'label' => 'AI condition', 'sub' => 'Condition assessment',  'help' => 'ai-condition-user-guide'],
-                ['id' => 'ai.translate', 'label' => 'Translate',    'sub' => 'Machine translation',   'help' => 'translation-user-guide'],
-                ['id' => 'ai.dedupe',    'label' => 'Duplicates',   'sub' => 'Duplicate detection',   'help' => 'duplicate-detection-user-guide'],
-                ['id' => 'ai.provenance','label' => 'AI provenance','sub' => 'Inference provenance',  'help' => 'ai-inference-provenance-user-guide'],
+                [
+                    'id' => 'ai.ner', 'label' => 'NER', 'sub' => 'Entity extraction', 'help' => 'ner-user-guide',
+                    'children' => [
+                        ['id' => 'ai.ner.gateway',    'label' => 'Gateway',          'sub' => 'ai.theahg.co.za'],
+                        ['id' => 'ai.ner.models',     'label' => 'Models',           'sub' => 'Ollama / vLLM'],
+                        ['id' => 'ai.ner.provenance', 'label' => 'Provenance logged','sub' => 'Inference recorded', 'help' => 'ai-inference-provenance-user-guide'],
+                    ],
+                    'child_edges' => [
+                        ['ai.ner.gateway', 'ai.ner.models'],
+                        ['ai.ner.models', 'ai.ner.provenance'],
+                    ],
+                ],
+                [
+                    'id' => 'ai.condition', 'label' => 'AI condition', 'sub' => 'Condition assessment', 'help' => 'ai-condition-user-guide',
+                    'children' => [
+                        ['id' => 'ai.condition.gateway', 'label' => 'Gateway',         'sub' => 'ai.theahg.co.za'],
+                        ['id' => 'ai.condition.vision',  'label' => 'Vision model',    'sub' => 'Image assessment'],
+                        ['id' => 'ai.condition.report',  'label' => 'Condition report','sub' => 'Feeds Description',  'help' => 'condition-reports'],
+                    ],
+                    'child_edges' => [
+                        ['ai.condition.gateway', 'ai.condition.vision'],
+                        ['ai.condition.vision', 'ai.condition.report'],
+                    ],
+                ],
+                [
+                    'id' => 'ai.translate', 'label' => 'Translate', 'sub' => 'Machine translation', 'help' => 'translation-user-guide',
+                    'children' => [
+                        ['id' => 'ai.translate.gateway', 'label' => 'Gateway',  'sub' => 'ai.theahg.co.za'],
+                        ['id' => 'ai.translate.engine',  'label' => 'MT engine','sub' => 'NLLB / adapter'],
+                        ['id' => 'ai.translate.review',  'label' => 'Review',   'sub' => 'Human post-edit'],
+                    ],
+                    'child_edges' => [
+                        ['ai.translate.gateway', 'ai.translate.engine'],
+                        ['ai.translate.engine', 'ai.translate.review'],
+                    ],
+                ],
+                [
+                    'id' => 'ai.dedupe', 'label' => 'Duplicates', 'sub' => 'Duplicate detection', 'help' => 'duplicate-detection-user-guide',
+                    'children' => [
+                        ['id' => 'ai.dedupe.candidates', 'label' => 'Candidates', 'sub' => 'Similarity match',  'help' => 'duplicate-detection-user-guide'],
+                        ['id' => 'ai.dedupe.merge',      'label' => 'Merge',      'sub' => 'Resolve duplicates'],
+                    ],
+                    'child_edges' => [
+                        ['ai.dedupe.candidates', 'ai.dedupe.merge'],
+                    ],
+                ],
+                [
+                    'id' => 'ai.provenance', 'label' => 'AI provenance', 'sub' => 'Inference provenance', 'help' => 'ai-inference-provenance-user-guide',
+                    'children' => [
+                        ['id' => 'ai.provenance.record', 'label' => 'Record',   'sub' => 'Model / prompt / output', 'help' => 'ai-inference-provenance-user-guide'],
+                        ['id' => 'ai.provenance.trace',  'label' => 'Trace',     'sub' => 'Audit / FOIA trail'],
+                        ['id' => 'ai.provenance.override','label' => 'Override', 'sub' => 'Human correction'],
+                    ],
+                    'child_edges' => [
+                        ['ai.provenance.record', 'ai.provenance.trace'],
+                    ],
+                ],
             ],
             'child_edges' => [
                 ['ai.ner', 'ai.provenance'],
@@ -229,13 +562,62 @@ return [
             'color' => '#0b525b',
             'help'  => 'api-user-guide',
             'children' => [
-                ['id' => 'interop.rest',   'label' => 'REST / GraphQL', 'sub' => 'API v1 / v2 + GraphQL', 'help' => 'api-user-guide'],
-                ['id' => 'interop.iiif',   'label' => 'IIIF API',       'sub' => 'Presentation + Image',  'help' => 'ahgiiifplugin'],
-                ['id' => 'interop.ld',     'label' => 'Linked Data',    'sub' => 'RiC JSON-LD / SPARQL',  'help' => 'ahgricexplorerplugin'],
-                ['id' => 'interop.oai',    'label' => 'OAI-PMH',        'sub' => 'Metadata harvesting'],
-                ['id' => 'interop.c2pa',   'label' => 'C2PA',           'sub' => 'Content credentials'],
-                ['id' => 'interop.doi',    'label' => 'DOI',            'sub' => 'Persistent identifiers','help' => 'doi-user-guide'],
-                ['id' => 'interop.federation','label' => 'Federation',  'sub' => 'Federated search',      'help' => 'federation-user-guide'],
+                [
+                    'id' => 'interop.rest', 'label' => 'REST / GraphQL', 'sub' => 'API v1 / v2 + GraphQL', 'help' => 'api-user-guide',
+                    'children' => [
+                        ['id' => 'interop.rest.v1',    'label' => 'API v1',   'sub' => 'CRUD endpoints', 'help' => 'api-user-guide'],
+                        ['id' => 'interop.rest.v2',    'label' => 'API v2',   'sub' => 'REST resources'],
+                        ['id' => 'interop.rest.keys',  'label' => 'API keys', 'sub' => 'Key + scope auth'],
+                    ],
+                    'child_edges' => [
+                        ['interop.rest.keys', 'interop.rest.v2'],
+                    ],
+                ],
+                [
+                    'id' => 'interop.iiif', 'label' => 'IIIF API', 'sub' => 'Presentation + Image', 'help' => 'ahgiiifplugin',
+                    'children' => [
+                        ['id' => 'interop.iiif.presentation', 'label' => 'Presentation', 'sub' => 'Manifests / collections', 'help' => 'ahgiiifplugin'],
+                        ['id' => 'interop.iiif.image',        'label' => 'Image',        'sub' => 'Cantaloupe tiles'],
+                    ],
+                ],
+                [
+                    'id' => 'interop.ld', 'label' => 'Linked Data', 'sub' => 'RiC JSON-LD / SPARQL', 'help' => 'ahgricexplorerplugin',
+                    'children' => [
+                        ['id' => 'interop.ld.jsonld', 'label' => 'JSON-LD', 'sub' => 'RiC-O serialization', 'help' => 'ahgricexplorerplugin'],
+                        ['id' => 'interop.ld.sparql', 'label' => 'SPARQL',  'sub' => 'Graph query'],
+                    ],
+                ],
+                [
+                    'id' => 'interop.oai', 'label' => 'OAI-PMH', 'sub' => 'Metadata harvesting',
+                    'children' => [
+                        ['id' => 'interop.oai.formats', 'label' => 'Formats', 'sub' => 'Dublin Core / EAD'],
+                        ['id' => 'interop.oai.sets',    'label' => 'Sets',    'sub' => 'Selective harvesting'],
+                    ],
+                ],
+                [
+                    'id' => 'interop.c2pa', 'label' => 'C2PA', 'sub' => 'Content credentials',
+                    'children' => [
+                        ['id' => 'interop.c2pa.manifest', 'label' => 'Manifest', 'sub' => 'Provenance assertions'],
+                        ['id' => 'interop.c2pa.sign',     'label' => 'Sign',     'sub' => 'Cryptographic seal'],
+                    ],
+                ],
+                [
+                    'id' => 'interop.doi', 'label' => 'DOI', 'sub' => 'Persistent identifiers', 'help' => 'doi-user-guide',
+                    'children' => [
+                        ['id' => 'interop.doi.mint',     'label' => 'Mint',     'sub' => 'Register DOI', 'help' => 'doi-user-guide'],
+                        ['id' => 'interop.doi.metadata', 'label' => 'Metadata', 'sub' => 'DataCite record'],
+                    ],
+                    'child_edges' => [
+                        ['interop.doi.metadata', 'interop.doi.mint'],
+                    ],
+                ],
+                [
+                    'id' => 'interop.federation', 'label' => 'Federation', 'sub' => 'Federated search', 'help' => 'federation-user-guide',
+                    'children' => [
+                        ['id' => 'interop.federation.peers', 'label' => 'Peers',  'sub' => 'Connected sources', 'help' => 'federation-user-guide'],
+                        ['id' => 'interop.federation.merge', 'label' => 'Merge',  'sub' => 'Unified results'],
+                    ],
+                ],
             ],
             'child_edges' => [
                 ['interop.rest', 'interop.oai'],
