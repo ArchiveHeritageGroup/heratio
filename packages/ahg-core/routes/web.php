@@ -147,6 +147,36 @@ Route::post('/reading-language', [\AhgCore\Controllers\ReadingLanguageController
 Route::get('/language-coverage', [\AhgCore\Controllers\LanguageCoverageController::class, 'index'])->name('language-coverage.index');
 Route::post('/language-coverage/translate', [\AhgCore\Controllers\LanguageCoverageController::class, 'translate'])->name('language-coverage.translate');
 
+// heratio#1211 - universal multilingual access (north-star NEXT slice): a standalone,
+// shareable public "READ THIS RECORD IN YOUR LANGUAGE" page. It shows a PUBLISHED
+// record's title + descriptive metadata and a language picker, and PREFERS a real,
+// human-authored translation over machine translation:
+//
+//   - When the catalogue already holds an information_object_i18n row for the chosen
+//     culture, that text is shown labelled "official translation" (authoritative, no
+//     gateway call).
+//   - Otherwise the metadata is translated ON DEMAND via the SANCTIONED AHG AI gateway
+//     client (MultilingualRecordService::translate -> AhgAiServices\Services\LlmService
+//     ::translate -> https://ai.theahg.co.za/ai/v1, never a node port) and labelled
+//     "machine translation via the AHG gateway - not an official translation".
+//
+// The original is always shown + authoritative; nothing is written back to the
+// catalogue; drafts 404 for the public; gateway failure degrades to the original with
+// a calm notice (never a 500).
+//
+// GET  /read/{idOrSlug}            is TWO-segment, so it can never collide with the
+//                                  single-segment /{slug} archival-record catch-all in
+//                                  ahg-information-object-manage (that route only ever
+//                                  matches ONE path segment).
+// POST /read/{idOrSlug}/translate  is MULTI-segment (catch-all-safe either way) and is
+//                                  registered BEFORE the GET show route so a literal
+//                                  '/read/translate'-style path can never be captured as
+//                                  an {idOrSlug} value.
+Route::post('/read/{idOrSlug}/translate', [\AhgCore\Controllers\ReadInLanguageController::class, 'translate'])
+    ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9_-]*')->name('read-in-language.translate');
+Route::get('/read/{idOrSlug}', [\AhgCore\Controllers\ReadInLanguageController::class, 'show'])
+    ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9_-]*')->name('read-in-language.show');
+
 // heratio#1183 - point clouds: admin manager + public Potree viewer
 Route::middleware('auth')->group(function () {
     Route::get('/admin/pointclouds', [\AhgCore\Controllers\PointCloudController::class, 'index'])->name('pointclouds.index');

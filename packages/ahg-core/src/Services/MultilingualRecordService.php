@@ -452,6 +452,162 @@ class MultilingualRecordService
     }
 
     /**
+     * The set of cultures for which this record carries a REAL (human-authored)
+     * information_object_i18n row that has at least one populated descriptive
+     * field. These are AUTHORITATIVE existing translations - the cataloguer (or a
+     * professional translator) wrote them - and must be PREFERRED over machine
+     * translation. The source culture is always included.
+     *
+     * Read-only; never writes; never throws. Returns lower-cased base subtags.
+     *
+     * @return array<int,string>
+     */
+    public function availableCultures(int $objectId): array
+    {
+        $source = $this->sourceCulture($objectId);
+        $out = [$source];
+
+        try {
+            if (! Schema::hasTable('information_object_i18n')) {
+                return $out;
+            }
+            $rows = DB::table('information_object_i18n')
+                ->where('id', $objectId)
+                ->get();
+
+            $cols = array_values(self::FIELDS); // the descriptive columns we surface
+            foreach ($rows as $row) {
+                $culture = isset($row->culture) ? $this->normaliseLang((string) $row->culture) : '';
+                if ($culture === '') {
+                    continue;
+                }
+                // Only count a culture as "available" when it actually carries text
+                // in at least one of the descriptive fields we display.
+                $hasText = false;
+                foreach ($cols as $col) {
+                    if (isset($row->{$col}) && trim((string) $row->{$col}) !== '') {
+                        $hasText = true;
+                        break;
+                    }
+                }
+                if ($hasText) {
+                    $out[] = $culture;
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-core] multilingual availableCultures failed: ' . $e->getMessage());
+        }
+
+        return array_values(array_unique(array_filter($out)));
+    }
+
+    /**
+     * Read the record's OFFICIAL (human-authored) translation for $lang straight
+     * from information_object_i18n, when one exists. This is the authoritative
+     * existing translation and is PREFERRED over machine translation.
+     *
+     * Returns the same per-field shape the MT path uses, but with source set to
+     * 'official' and is_translated=true on every populated field, so the caller
+     * can label it "official translation". Returns null when no real i18n row for
+     * $lang exists (the caller then falls back to MT). Read-only; never throws.
+     *
+     * @return array{
+     *   lang:string, language:string, source:string, provider:string,
+     *   authoritative:string, fields:array<int,array{key:string,label:string,original:string,translated:string,is_translated:bool}>
+     * }|null
+     */
+    public function officialTranslation(int $objectId, string $lang): ?array
+    {
+        $lang = $this->normaliseLang($lang);
+        if ($lang === '') {
+            return null;
+        }
+
+        try {
+            if (! Schema::hasTable('information_object_i18n')) {
+                return null;
+            }
+
+            // Match the requested culture on its base subtag (af / af_ZA both count).
+            $row = null;
+            foreach (DB::table('information_object_i18n')->where('id', $objectId)->get() as $candidate) {
+                if (isset($candidate->culture) && $this->normaliseLang((string) $candidate->culture) === $lang) {
+                    $row = $candidate;
+                    break;
+                }
+            }
+            if ($row === null) {
+                return null;
+            }
+
+            // Original (source-culture) text, so the official translation is shown
+            // alongside the authoritative original exactly like the MT path.
+            $originals = [];
+            foreach ($this->fields($objectId) as $f) {
+                $originals[$f['key']] = $f['original'];
+            }
+
+            $out = [];
+            foreach (self::FIELDS as $label => $col) {
+                $translated = isset($row->{$col}) ? trim((string) $row->{$col}) : '';
+                $original = $originals[$col] ?? '';
+                // Skip fields that are blank in BOTH the original and the translation.
+                if ($translated === '' && $original === '') {
+                    continue;
+                }
+                $out[] = [
+                    'key'           => $col,
+                    'label'         => $label,
+                    'original'      => $original,
+                    'translated'    => $translated !== '' ? $translated : $original,
+                    'is_translated' => ($translated !== '' && $translated !== $original),
+                ];
+            }
+
+            if (empty($out)) {
+                return null;
+            }
+
+            return [
+                'lang'          => $lang,
+                'language'      => self::LANGUAGE_LABELS[$lang] ?? strtoupper($lang),
+                'source'        => 'official',
+                'provider'      => 'catalogue',
+                'authoritative' => 'official',
+                'fields'        => $out,
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('[ahg-core] multilingual officialTranslation failed: ' . $e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
+     * Render the record in $lang, PREFERRING a real official translation over
+     * machine translation. This is the policy the public /read page enforces:
+     *
+     *   1. If a real information_object_i18n row exists for $lang, return it
+     *      labelled source='official' (no gateway call).
+     *   2. Otherwise fall through to translate() (the sanctioned gateway MT path),
+     *      labelled source='machine-translation'.
+     *
+     * The publication gate + graceful degradation of translate() are inherited.
+     * Never throws.
+     *
+     * @return array<string,mixed>
+     */
+    public function read(int $objectId, string $lang): array
+    {
+        $official = $this->officialTranslation($objectId, $lang);
+        if ($official !== null) {
+            return $official;
+        }
+
+        return $this->translate($objectId, $lang);
+    }
+
+    /**
      * Is this record published? (status.type_id=158, status_id=160). Errors
      * resolve to "not published" so a DB hiccup never leaks a draft.
      */
