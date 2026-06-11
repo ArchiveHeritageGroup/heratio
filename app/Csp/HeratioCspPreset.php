@@ -55,6 +55,12 @@ class HeratioCspPreset implements Preset
                 // Draco-compressed 3D models decode in WebAssembly inside
                 // <model-viewer>; without this the geometry never loads.
                 Keyword::UNSAFE_WEB_ASSEMBLY_EXECUTION,
+                // The system-map graph (Cytoscape.js) and other graph/layout
+                // helpers use the Function() constructor at runtime; CSP treats
+                // that as eval, so without 'unsafe-eval' the map renders blank
+                // with only a "CSP blocks eval" console warning. Scripts already
+                // allow 'unsafe-inline', so this is a consistent relaxation.
+                Keyword::UNSAFE_EVAL,
                 // blob: so the Gaussian-splat viewer's sort worker
                 // (@mkkellogg/gaussian-splats-3d spawns a blob: Web Worker whose
                 // script the browser also checks against script-src) is not
