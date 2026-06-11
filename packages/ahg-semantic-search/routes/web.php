@@ -121,3 +121,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/semantic-search/sync-logs', fn () => redirect('/semantic-search/admin/sync-logs', 301));
     Route::get('/admin/semantic-search/search-logs', fn () => redirect('/semantic-search/admin/search-logs', 301));
 });
+
+// heratio#1208 - admin moderation of the community language-revival glossary.
+// Writes go ONLY to language_revival_glossary. The public read-only corpus
+// surfaces are bound in the provider's register() (catch-all precedence).
+Route::middleware(['auth', 'admin'])->prefix('language-corpus-admin')->group(function () {
+    Route::get('/glossary', [\AhgSemanticSearch\Controllers\LanguageCorpusController::class, 'moderate'])
+        ->name('language-corpus.glossary.moderate');
+    Route::post('/glossary/{id}', [\AhgSemanticSearch\Controllers\LanguageCorpusController::class, 'moderateSet'])
+        ->where('id', '[0-9]+')
+        ->name('language-corpus.glossary.set');
+});

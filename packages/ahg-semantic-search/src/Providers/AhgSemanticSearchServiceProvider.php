@@ -114,6 +114,35 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ])
                 ->where('id', '[0-9]+')
                 ->name('research-leads.show');
+
+            // heratio#1208 - North Star "a culture you can talk to": public,
+            // read-only language-revival corpus. Single-segment /language-corpus
+            // bound here (register() + callAfterResolving) to win ahead of the
+            // /{slug} catch-all; per-culture views + POSTs follow (culture-code
+            // constrained, so they never shadow a slug).
+            $router->middleware('web')
+                ->get('/language-corpus', [
+                    \AhgSemanticSearch\Controllers\LanguageCorpusController::class, 'index',
+                ])
+                ->name('language-corpus.index');
+            $router->middleware('web')
+                ->get('/language-corpus/{culture}', [
+                    \AhgSemanticSearch\Controllers\LanguageCorpusController::class, 'show',
+                ])
+                ->where('culture', '[A-Za-z]{2,3}([-_@][A-Za-z0-9]+)*')
+                ->name('language-corpus.show');
+            $router->middleware('web')
+                ->post('/language-corpus/{culture}/contribute', [
+                    \AhgSemanticSearch\Controllers\LanguageCorpusController::class, 'contribute',
+                ])
+                ->where('culture', '[A-Za-z]{2,3}([-_@][A-Za-z0-9]+)*')
+                ->name('language-corpus.contribute');
+            $router->middleware('web')
+                ->post('/language-corpus/{culture}/translate', [
+                    \AhgSemanticSearch\Controllers\LanguageCorpusController::class, 'translate',
+                ])
+                ->where('culture', '[A-Za-z]{2,3}([-_@][A-Za-z0-9]+)*')
+                ->name('language-corpus.translate');
         });
     }
 
@@ -155,6 +184,11 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
         // package idiom - never fatal a fresh boot; see
         // memory/reference_ci_schema_hastable.md).
         $this->bootResearchLeadTable();
+
+        // heratio#1208 - community-contributed glossary behind the public
+        // language-revival corpus pages lives in language_revival_glossary.
+        // Auto-created on first boot (Schema::hasTable probe in one try/catch).
+        $this->bootLanguageGlossaryTable();
 
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -246,6 +280,29 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
      * wrapped in a single try/catch so a missing/locked DB at boot can never
      * fatal the app - the controller falls back to on-demand generation.
      */
+    /**
+     * heratio#1208 - idempotent first-boot creation of language_revival_glossary
+     * (community glossary; VARCHAR moderation_status, soft refs, no FK/ALTER).
+     * Never fatal a fresh boot.
+     */
+    protected function bootLanguageGlossaryTable(): void
+    {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('language_revival_glossary')) {
+                return;
+            }
+            $sqlPath = __DIR__.'/../../database/install_language_glossary.sql';
+            if (is_readable($sqlPath)) {
+                $sql = (string) file_get_contents($sqlPath);
+                if (trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                }
+            }
+        } catch (\Throwable $e) {
+            // DB not ready / install hiccup - retries next boot.
+        }
+    }
+
     protected function bootScholarshipDiscoveryTable(): void
     {
         try {
