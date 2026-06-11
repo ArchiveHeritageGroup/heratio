@@ -3,6 +3,7 @@
 use AhgSemanticSearch\Controllers\DisplacedHeritageController;
 use AhgSemanticSearch\Controllers\EndangeredHeritageController;
 use AhgSemanticSearch\Controllers\RepatriationClaimController;
+use AhgSemanticSearch\Controllers\ResearchLeadAdminController;
 use AhgSemanticSearch\Controllers\ScholarshipController;
 use AhgSemanticSearch\Controllers\SemanticSearchController;
 use Illuminate\Support\Facades\Route;
@@ -77,6 +78,30 @@ Route::middleware(['auth', 'admin'])->prefix('endangered')->group(function () {
     Route::post('/{id}/capture-status', [EndangeredHeritageController::class, 'captureStatus'])
         ->where('id', '[0-9]+')
         ->name('endangered.capture-status');
+});
+
+// heratio#1210 - North Star "generative scholarship": curation of the public
+// "Research Leads" feed. Admin-gated worklist + generate + publish/dismiss/repend
+// over the new research_lead table. All paths are 2-segment+ (prefixed
+// /admin/research-leads) so they never collide with the single-segment /{slug}
+// archival-record catch-all. The PUBLIC read-only feed lives at the single-
+// segment /research-leads and /research-leads/{id} and is bound separately in the
+// provider's register() (callAfterResolving('router')) so it wins the match ahead
+// of the catch-all - see memory/reference_slug_catchall_route_precedence.md.
+Route::middleware(['auth', 'admin'])->prefix('admin/research-leads')->group(function () {
+    Route::get('/', [ResearchLeadAdminController::class, 'index'])
+        ->name('research-leads.admin');
+    Route::post('/generate', [ResearchLeadAdminController::class, 'generate'])
+        ->name('research-leads.generate');
+    Route::post('/{id}/publish', [ResearchLeadAdminController::class, 'publish'])
+        ->where('id', '[0-9]+')
+        ->name('research-leads.publish');
+    Route::post('/{id}/dismiss', [ResearchLeadAdminController::class, 'dismiss'])
+        ->where('id', '[0-9]+')
+        ->name('research-leads.dismiss');
+    Route::post('/{id}/repend', [ResearchLeadAdminController::class, 'repend'])
+        ->where('id', '[0-9]+')
+        ->name('research-leads.repend');
 });
 
 // AJAX endpoints (legacy camelCase aliases)

@@ -88,6 +88,32 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                     \AhgSemanticSearch\Controllers\EndangeredHeritageController::class, 'register',
                 ])
                 ->name('endangered.register');
+
+            // heratio#1210 - North Star "generative scholarship": the PUBLIC,
+            // read-only "Research Leads" feed. The strongest AI-found cross-
+            // collection connections (from the Discoveries feature) promoted by
+            // curators into browsable scholarly leads, PUBLISHED items only.
+            // Single-segment public path, registered the same way as
+            // /discoveries and /at-risk (register() + callAfterResolving('router'))
+            // so it binds BEFORE the single-segment /{slug} archival-record catch-
+            // all in ahg-information-object-manage. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/research-leads', [
+                    \AhgSemanticSearch\Controllers\ResearchLeadsController::class, 'index',
+                ])
+                ->name('research-leads.index');
+
+            // heratio#1210 - per-lead public detail. Numeric {id} constraint so it
+            // can never shadow the /research-leads index or a single-segment
+            // archival-record slug; bound here for the same precedence guarantee
+            // as the index above.
+            $router->middleware('web')
+                ->get('/research-leads/{id}', [
+                    \AhgSemanticSearch\Controllers\ResearchLeadsController::class, 'show',
+                ])
+                ->where('id', '[0-9]+')
+                ->name('research-leads.show');
         });
     }
 
@@ -122,14 +148,91 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
         // memory/reference_ci_schema_hastable.md).
         $this->bootEndangeredHeritageTable();
 
+        // heratio#1210 - North Star "generative scholarship": the public
+        // "Research Leads" feed. Curated leads (promoted from the persisted
+        // Discoveries set) live in research_lead. Auto-created on first boot
+        // behind a Schema::hasTable probe in a single try/catch (the canonical
+        // package idiom - never fatal a fresh boot; see
+        // memory/reference_ci_schema_hastable.md).
+        $this->bootResearchLeadTable();
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgSemanticSearch\Console\Commands\KmGraphSyncCommand::class,
                 \AhgSemanticSearch\Console\Commands\KmExportGraphCommand::class,
                 \AhgSemanticSearch\Console\Commands\ScholarshipDiscoverCommand::class,
                 \AhgSemanticSearch\Console\Commands\GenerateDiscoveriesCommand::class,
+                \AhgSemanticSearch\Console\Commands\GenerateResearchLeadsCommand::class,
                 \AhgSemanticSearch\Console\Commands\DisplacedHeritageScanCommand::class,
             ]);
+        }
+    }
+
+    /**
+     * Idempotent first-boot creation of the research_lead table.
+     *
+     * One row per promoted research lead: the connection's centre record (a SOFT
+     * reference - NO foreign key - so this additive table never constrains or
+     * ALTERs the existing catalogue), the plain-language "why it matters" prompt,
+     * the AI lead text, a JSON snapshot of the evidence, and a curation status
+     * (status is VARCHAR, never an ENUM). Only PUBLISHED leads with published
+     * records reach the public feed.
+     *
+     * Prefers the shipped install SQL (database/install_research_lead.sql) so the
+     * table definition has one source of truth; falls back to a Schema builder
+     * create if the SQL file is unreadable. The whole thing is wrapped in a single
+     * try/catch so a missing / locked DB at boot can never fatal the app - the
+     * service and controllers degrade to the empty-state when the table is absent.
+     */
+    protected function bootResearchLeadTable(): void
+    {
+        try {
+            if (Schema::hasTable('research_lead')) {
+                return;
+            }
+
+            $sqlPath = __DIR__.'/../../database/install_research_lead.sql';
+            $ran = false;
+            if (is_readable($sqlPath)) {
+                $sql = (string) file_get_contents($sqlPath);
+                if (trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                    $ran = true;
+                }
+            }
+
+            // Fallback: build the table via the Schema builder if the SQL file was
+            // not available, so a fresh install still gets the table.
+            if (! $ran && ! Schema::hasTable('research_lead')) {
+                Schema::create('research_lead', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->unsignedBigInteger('information_object_id');
+                    $table->unsignedBigInteger('source_discovery_id')->nullable();
+                    $table->string('headline', 1024)->nullable();
+                    $table->text('lead_text')->nullable();
+                    $table->text('why_it_matters')->nullable();
+                    $table->unsignedInteger('connection_count')->default(0);
+                    $table->unsignedSmallInteger('confidence')->default(0);
+                    $table->json('evidence')->nullable();
+                    $table->string('status', 32)->default('pending');
+                    $table->boolean('ai_labelled')->default(true);
+                    $table->unsignedBigInteger('curated_by')->nullable();
+                    $table->timestamp('generated_at')->nullable();
+                    $table->timestamp('published_at')->nullable();
+                    $table->timestamps();
+
+                    $table->unique('information_object_id', 'uq_research_lead_io');
+                    $table->index('status', 'ix_research_lead_status');
+                    $table->index(['status', 'confidence'], 'ix_research_lead_status_conf');
+                    $table->index('source_discovery_id', 'ix_research_lead_source');
+                });
+            }
+
+            Log::info('ahg-semantic-search: research_lead created (first-boot)');
+        } catch (\Throwable $e) {
+            // Never block boot on install failure - log and continue. The feed
+            // degrades to the empty-state when the table is absent.
+            Log::warning('ahg-semantic-search research-lead boot install skipped: '.$e->getMessage());
         }
     }
 
