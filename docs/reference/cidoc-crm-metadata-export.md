@@ -24,14 +24,42 @@ two documents interoperate.
 ## Files
 
 - `packages/ahg-metadata-export/src/Services/Exporters/CidocCrmSerializer.php` -
-  the serializer. Uses the package's `InformationObjectFetcher` trait for all
-  read-only fetches.
+  the records serializer. Uses the package's `InformationObjectFetcher` trait
+  for all read-only fetches.
+- `packages/ahg-metadata-export/src/Services/Exporters/CidocCrmActorSerializer.php` -
+  the actor serializer (person / corporate body / family). Read-only.
+- `packages/ahg-metadata-export/src/Services/Exporters/CidocCrmTermSerializer.php` -
+  the term / place serializer (subjects, genres -> E55 Type; places -> E53
+  Place). Read-only.
+- `packages/ahg-metadata-export/src/Services/Exporters/CrmRdfRenderer.php` -
+  shared Turtle + RDF/XML rendering trait. The actor and term serializers reuse
+  it (it is the records serializer's render code, lifted verbatim) so the three
+  CIDOC-CRM surfaces cannot drift in their serialisation. The records serializer
+  is left untouched and keeps its own private render copies.
 - `packages/ahg-metadata-export/src/Controllers/MetadataExportController.php` -
-  `downloadCidocCrm()` method + `cidoc-crm` entry in the dashboard `$formats`.
-- `packages/ahg-metadata-export/routes/web.php` - `ahgmetadataexport.cidoc` and
-  `ahgmetadataexport.cidoc.ext` routes under `/admin/metadata-export`.
+  `downloadCidocCrm()` (records) + `downloadCidocCrmActor()` +
+  `downloadCidocCrmTerm()`; `cidoc-crm` entry in the dashboard `$formats`.
+- `packages/ahg-metadata-export/routes/web.php` - `ahgmetadataexport.cidoc[.ext]`
+  (records), `ahgmetadataexport.cidoc.actor[.ext]` and
+  `ahgmetadataexport.cidoc.term[.ext]` routes, all under `/admin/metadata-export`.
 
-## CRM class / property mapping
+## Entity coverage
+
+CIDOC-CRM export now spans all three core G/L/A/M entity types, not just
+records:
+
+| Entity | Endpoint param | Central CRM class |
+|---|---|---|
+| Information object (record) | `?io=` | `E22_Human-Made_Object` |
+| Actor (person / corporate body / family) | `?actor=` | `E21_Person` / `E40_Legal_Body` / `E74_Group` / `E39_Actor` |
+| Term - subject / genre | `?term=` | `E55_Type` |
+| Term - place (taxonomy 42) | `?term=` | `E53_Place` |
+
+The actor and term documents reference the same record/production fragment URIs
+the records exporter mints (`<record-url>#crm-object`, `<record-url>#crm-production`),
+so an actor, a term and a record document join cleanly in one triple store.
+
+## CRM class / property mapping - records
 
 | Heratio source | CRM class | Linking property |
 |---|---|---|
@@ -50,6 +78,53 @@ two documents interoperate.
 Actor sub-typing uses the AtoM `actor.entity_type_id` ids
 (131 = Person, 132 = Corporate body, 133 = Family), mirroring
 `RicToCrmMapper::AGENT_SUBCLASS`.
+
+## CRM class / property mapping - actors
+
+`CidocCrmActorSerializer::serializeActor($actorId, $culture, $format, $publicOnly)`.
+
+| Heratio source | CRM class | Linking property |
+|---|---|---|
+| actor (person) | `E21_Person` | (central node) |
+| actor (corporate body) | `E40_Legal_Body` | (central node) |
+| actor (family) | `E74_Group` | (central node) |
+| actor (unknown type) | `E39_Actor` | (central node, generic super-class) |
+| authorized_form_of_name | `E82_Actor_Appellation` | `P1_is_identified_by` |
+| history | (literal) | `P3_has_note` |
+| existence dates / dates_of_existence | `E52_Time-Span` | persons: `E67_Birth - P98_brought_into_life` + `P4_has_time-span`; other types: actor `P4_has_time-span`. Span carries `P82a_begin_of_the_begin` / `P82b_end_of_the_end` (`xsd:date`) and the display label |
+| created records (creation event type_id 111) | `E12_Production` (and an `E22` stub per record) | actor `P11i_participated_in` -> `E12`, which carries `P14_carried_out_by` (back to the actor) and `P108_has_produced` -> the record `E22` |
+
+The production node URI is `<record-url>#crm-production` and the record stub is
+`<record-url>#crm-object`, identical to the records exporter's fragments, so the
+actor graph dovetails with each record graph. The produced-record list is
+published-aware: with `$publicOnly = true` only published records (status
+type_id 158, status_id 160; root id 1 excluded) appear, so a public actor
+document never leaks a draft record title.
+
+## CRM class / property mapping - terms and places
+
+`CidocCrmTermSerializer::serializeTerm($termId, $culture, $format, $publicOnly)`.
+
+A term is typed by its taxonomy: the **Places** taxonomy (id 42) -> `E53_Place`;
+every other taxonomy (subjects id 35, genres, etc.) -> `E55_Type`.
+
+| Heratio source | CRM class | Linking property |
+|---|---|---|
+| place term (taxonomy 42) | `E53_Place` | (central node) |
+| subject / genre term | `E55_Type` | (central node) |
+| term_i18n.name (place) | `E48_Place_Name` | `P1_is_identified_by` |
+| term_i18n.name (type) | `E41_Appellation` | `P1_is_identified_by` |
+| parent term (place) | `E53_Place` | `P89_falls_within` |
+| child term (place) | `E53_Place` | `P89i_contains` |
+| parent term (type) | `E55_Type` | `P127_has_broader_term` |
+| child term (type) | `E55_Type` | `P127i_has_narrower_term` |
+| citing record (place) | `E22_Human-Made_Object` (stub) | `P67i_is_referred_to_by` (inverse of the record's `P67_refers_to`) |
+| citing record (type) | `E22_Human-Made_Object` (stub) | `P129i_is_subject_of` (inverse of the record's `P129_is_about`) |
+
+The cited-record links are the exact inverses of the records exporter's forward
+properties (`P67_refers_to` for places, `P129_is_about` for subjects), so a term
+document and a record document are two halves of the same edge. The cited-record
+list is published-aware on the same gate as the actor export.
 
 ## Namespaces
 
@@ -78,16 +153,29 @@ Mirrors the `download/{format}` pattern of the DACS/MODS/RAD/dcterms exporters,
 but emits RDF instead of an XML envelope:
 
 ```
+# records
 GET /admin/metadata-export/cidoc-crm?io={id}[&culture=en][&rdf=ttl|rdf]
 GET /admin/metadata-export/cidoc-crm.ttl?io={id}
 GET /admin/metadata-export/cidoc-crm.rdf?io={id}
+
+# actors (person / corporate body / family)
+GET /admin/metadata-export/cidoc-crm-actor?actor={id}[&culture=en][&rdf=ttl|rdf]
+GET /admin/metadata-export/cidoc-crm-actor.ttl?actor={id}
+GET /admin/metadata-export/cidoc-crm-actor.rdf?actor={id}
+
+# terms and places (place taxonomy -> E53 Place, else E55 Type)
+GET /admin/metadata-export/cidoc-crm-term?term={id}[&culture=en][&rdf=ttl|rdf]
+GET /admin/metadata-export/cidoc-crm-term.ttl?term={id}
+GET /admin/metadata-export/cidoc-crm-term.rdf?term={id}
 ```
 
-Behind `web` + `auth` middleware, under the `/admin/metadata-export` prefix so
-the IO slug catch-all in `ahg-information-object-manage` cannot intercept it.
-The dashboard view iterates the controller's `$formats` array, so the new
-`cidoc-crm` format card and preview option appear with no Blade edit (the views
-are page-locked).
+All three families are behind `web` + `auth` middleware, under the
+`/admin/metadata-export` prefix so the IO slug catch-all in
+`ahg-information-object-manage` cannot intercept them. They use the same format
+negotiation (Turtle default; RDF/XML via `?rdf=rdf` or a `.rdf` extension) as
+the record export. The actor and term endpoints are exposed as named routes; the
+dashboard `$formats` array (record-centric, iterated per IO) is left unchanged so
+the per-record download/preview view continues to behave exactly as before.
 
 ## Published-records gate
 
@@ -105,22 +193,35 @@ gate is wired and ready for any future unauthenticated Linked Data surface.
 
 ## Read-only / safety
 
-- Every query is a SELECT via `InformationObjectFetcher`; no INSERT / UPDATE /
+- Every query is a SELECT (records via `InformationObjectFetcher`; actors and
+  terms via the serializers' own private fetch methods); no INSERT / UPDATE /
   DELETE / ALTER anywhere.
-- Existing exporters are untouched; the only edits to shared files add the new
-  format (import line, `$formats` entry, `downloadCidocCrm()` method, two
-  routes).
+- The records exporter (`CidocCrmSerializer`) is untouched. The actor and term
+  serializers are new files; they reuse the records render logic through the new
+  `CrmRdfRenderer` trait (a verbatim copy), so the records serializer's own
+  render path is unchanged.
+- Shared-file edits are purely additive: the controller gains two new download
+  methods + two import lines; `routes/web.php` gains four named routes. No
+  existing route, method or `$formats` entry was modified.
 - RDF/XML output is XML-escaped (`ENT_XML1`) and verified well-formed via
   simplexml; Turtle literals are escaped per Turtle string rules and verified
   structurally (every statement terminated).
 
 ## Validation performed
 
-- `php -l` clean on the serializer, controller and routes.
-- Standalone harness with stubbed facades renders both formats from synthetic
-  data; RDF/XML parses under `simplexml_load_string` (well-formed), Turtle
-  passes the structural terminator check. Special characters
-  (`"`, `&`, `<`, `>`) round-trip correctly in both forms.
+- `php -l` clean on `CrmRdfRenderer`, `CidocCrmActorSerializer`,
+  `CidocCrmTermSerializer`, the controller and routes.
+- Render harness (stubbed `url()`): Turtle structurally sound, RDF/XML
+  well-formed under `simplexml_load_string`, all five namespaces declared,
+  special characters (`"`, `&`, `<`, `>`, newlines) escaped correctly in both
+  forms.
+- Graph harness over `CidocCrmTermSerializer::buildGraph`: place ->
+  E53/E48 + P89/P89i/P67i; subject -> E55/E41 + P127/P127i/P129i.
+- Live read-only smoke test booting the Laravel app against the real `heratio`
+  DB: a real actor, place and subject all serialise to valid Turtle + well-formed
+  RDF/XML; the `$publicOnly = true` path runs clean. Actor sub-typing verified on
+  real rows: entity_type_id 131 -> `E21_Person`, 132 -> `E40_Legal_Body`, NULL ->
+  `E39_Actor` (generic fallback).
 
 ## Epic status
 

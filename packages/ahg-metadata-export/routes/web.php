@@ -23,6 +23,24 @@ Route::prefix('admin/metadata-export')->middleware(['web', 'auth'])->group(funct
         ->whereIn('ext', ['ttl', 'rdf'])
         ->name('ahgmetadataexport.cidoc.ext');
 
+    // #1197 CIDOC-CRM RDF download for an ACTOR. ?actor=NNN required. Same
+    // format negotiation as the record export (Turtle default, RDF/XML via
+    // ?rdf=rdf or a .rdf extension). Under /admin/metadata-export so the IO
+    // slug catch-all cannot intercept it.
+    Route::get('/cidoc-crm-actor', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadCidocCrmActor'])
+        ->name('ahgmetadataexport.cidoc.actor');
+    Route::get('/cidoc-crm-actor.{ext}', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadCidocCrmActor'])
+        ->whereIn('ext', ['ttl', 'rdf'])
+        ->name('ahgmetadataexport.cidoc.actor.ext');
+
+    // #1197 CIDOC-CRM RDF download for a TERM / PLACE. ?term=NNN required.
+    // Place taxonomy serialises as E53 Place, every other taxonomy as E55 Type.
+    Route::get('/cidoc-crm-term', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadCidocCrmTerm'])
+        ->name('ahgmetadataexport.cidoc.term');
+    Route::get('/cidoc-crm-term.{ext}', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadCidocCrmTerm'])
+        ->whereIn('ext', ['ttl', 'rdf'])
+        ->name('ahgmetadataexport.cidoc.term.ext');
+
     // #662 Phase 3 RAD / DACS XML importer. POST with `xml_file` upload or
     // `xml` body field. dryRun=1 (default) returns preview JSON; dryRun=0
     // (or commit=1) persists into ahg_io_rad / ahg_io_dacs.

@@ -25,7 +25,9 @@
 
 namespace AhgMetadataExport\Controllers;
 
+use AhgMetadataExport\Services\Exporters\CidocCrmActorSerializer;
 use AhgMetadataExport\Services\Exporters\CidocCrmSerializer;
+use AhgMetadataExport\Services\Exporters\CidocCrmTermSerializer;
 use AhgMetadataExport\Services\Exporters\DacsSerializer;
 use AhgMetadataExport\Services\Exporters\DublinCoreQualifiedSerializer;
 use AhgMetadataExport\Services\Exporters\ModsSerializer;
@@ -178,6 +180,92 @@ class MetadataExportController extends Controller
         } else {
             $contentType = 'text/turtle; charset=UTF-8';
             $filename = sprintf('heratio-cidoc-crm-%d.ttl', $ioId);
+        }
+
+        return new Response($body, 200, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
+    /**
+     * Download a single actor as a CIDOC-CRM (ISO 21127) RDF document. Sibling
+     * to downloadCidocCrm, mirroring its format negotiation exactly: Turtle by
+     * default, RDF/XML when ?rdf=rdf or via the .rdf path extension; ?actor=NNN
+     * required.
+     *
+     * Part of issue #1197 (unified G/L/A/M knowledge graph). Read-only:
+     * delegates to CidocCrmActorSerializer which never writes the database.
+     */
+    public function downloadCidocCrmActor(Request $request, ?string $ext = null)
+    {
+        $actorId = (int) $request->query('actor', 0);
+        $culture = (string) $request->query('culture', app()->getLocale() ?: 'en');
+        if ($actorId < 1) {
+            abort(400, 'Missing actor parameter');
+        }
+
+        $hint = strtolower((string) ($ext ?: $request->query('rdf', 'ttl')));
+        $isRdfXml = in_array($hint, ['rdf', 'rdfxml', 'rdf+xml', 'xml'], true);
+        $format = $isRdfXml ? CidocCrmActorSerializer::FORMAT_RDFXML : CidocCrmActorSerializer::FORMAT_TURTLE;
+
+        // Operator endpoint (web+auth): publicOnly stays false so the linked
+        // produced-record list includes drafts for staff review. The gate is
+        // reserved for any future unauthenticated Linked Data surface.
+        $body = (new CidocCrmActorSerializer())->serializeActor($actorId, $culture, $format, false);
+
+        if ($body === '') {
+            abort(404, 'No actor produced for CIDOC-CRM export');
+        }
+
+        if ($isRdfXml) {
+            $contentType = 'application/rdf+xml; charset=UTF-8';
+            $filename = sprintf('heratio-cidoc-crm-actor-%d.rdf', $actorId);
+        } else {
+            $contentType = 'text/turtle; charset=UTF-8';
+            $filename = sprintf('heratio-cidoc-crm-actor-%d.ttl', $actorId);
+        }
+
+        return new Response($body, 200, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
+    /**
+     * Download a single term (subject / genre / place) as a CIDOC-CRM
+     * (ISO 21127) RDF document. Sibling to downloadCidocCrm, mirroring its
+     * format negotiation exactly: Turtle by default, RDF/XML when ?rdf=rdf or
+     * via the .rdf path extension; ?term=NNN required. Place terms serialise as
+     * E53 Place, every other taxonomy as E55 Type.
+     *
+     * Part of issue #1197 (unified G/L/A/M knowledge graph). Read-only:
+     * delegates to CidocCrmTermSerializer which never writes the database.
+     */
+    public function downloadCidocCrmTerm(Request $request, ?string $ext = null)
+    {
+        $termId = (int) $request->query('term', 0);
+        $culture = (string) $request->query('culture', app()->getLocale() ?: 'en');
+        if ($termId < 1) {
+            abort(400, 'Missing term parameter');
+        }
+
+        $hint = strtolower((string) ($ext ?: $request->query('rdf', 'ttl')));
+        $isRdfXml = in_array($hint, ['rdf', 'rdfxml', 'rdf+xml', 'xml'], true);
+        $format = $isRdfXml ? CidocCrmTermSerializer::FORMAT_RDFXML : CidocCrmTermSerializer::FORMAT_TURTLE;
+
+        $body = (new CidocCrmTermSerializer())->serializeTerm($termId, $culture, $format, false);
+
+        if ($body === '') {
+            abort(404, 'No term produced for CIDOC-CRM export');
+        }
+
+        if ($isRdfXml) {
+            $contentType = 'application/rdf+xml; charset=UTF-8';
+            $filename = sprintf('heratio-cidoc-crm-term-%d.rdf', $termId);
+        } else {
+            $contentType = 'text/turtle; charset=UTF-8';
+            $filename = sprintf('heratio-cidoc-crm-term-%d.ttl', $termId);
         }
 
         return new Response($body, 200, [

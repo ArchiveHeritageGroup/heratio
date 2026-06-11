@@ -10,11 +10,17 @@
 
 ## What it does
 
-This exporter, part of the **Metadata Export** dashboard, emits a single
-archival record as a CIDOC Conceptual Reference Model (CIDOC-CRM / ISO 21127)
-RDF document. CIDOC-CRM is the de-facto interoperability ontology for cultural
-heritage, used by ResearchSpace, the Erlangen-CRM importer, Getty Linked Open
-Data and most museum aggregator pipelines.
+This exporter, part of the **Metadata Export** dashboard, emits Heratio entities
+as CIDOC Conceptual Reference Model (CIDOC-CRM / ISO 21127) RDF documents.
+CIDOC-CRM is the de-facto interoperability ontology for cultural heritage, used
+by ResearchSpace, the Erlangen-CRM importer, Getty Linked Open Data and most
+museum aggregator pipelines.
+
+It now covers all three core G/L/A/M entity types - **records, actors and terms
+/ places** - so a Heratio holding can be published to a CRM consumer as a joined
+graph of objects, the people and bodies who made them, and the subjects and
+places they describe. Each document references the others by URI, so they slot
+together in one triple store.
 
 It is a sibling of the RiC-bridge CIDOC-CRM export (see "CIDOC-CRM Export"). The
 key difference is that this exporter models the **creation chain as an explicit
@@ -31,19 +37,32 @@ E22 Human-Made Object
 It is one of the slices of the unified G/L/A/M knowledge graph (RiC +
 CIDOC-CRM + KM, issue #1197).
 
-## Endpoint
+## Endpoints
 
-The exporter is reached from the Metadata Export dashboard, or directly:
+There is one endpoint family per entity type. All share the same format
+negotiation (Turtle by default, RDF/XML via `?rdf=rdf` or a `.rdf` extension) and
+all live under `/admin/metadata-export`:
 
 ```
+# record
 GET /admin/metadata-export/cidoc-crm?io={id}
 GET /admin/metadata-export/cidoc-crm.ttl?io={id}
 GET /admin/metadata-export/cidoc-crm.rdf?io={id}
+
+# actor (person / corporate body / family)
+GET /admin/metadata-export/cidoc-crm-actor?actor={id}
+GET /admin/metadata-export/cidoc-crm-actor.ttl?actor={id}
+GET /admin/metadata-export/cidoc-crm-actor.rdf?actor={id}
+
+# term / place (place taxonomy -> E53 Place, else E55 Type)
+GET /admin/metadata-export/cidoc-crm-term?term={id}
+GET /admin/metadata-export/cidoc-crm-term.ttl?term={id}
+GET /admin/metadata-export/cidoc-crm-term.rdf?term={id}
 ```
 
 | Parameter | Default | Notes |
 |---|---|---|
-| `io` | (required) | `information_object.id` of the record to export |
+| `io` / `actor` / `term` | (required) | the id of the entity to export |
 | `culture` | session locale | ISO 639-1 language code (`en`, `af`, `fr`, etc.) |
 | `rdf` | `ttl` | `ttl` (Turtle) or `rdf` (RDF/XML); ignored when a `.ttl`/`.rdf` path extension is used |
 
@@ -88,6 +107,39 @@ The default namespace is the official CIDOC ns
 (`http://erlangen-crm.org/current/`) is declared as the `ecrm:` alias so
 Erlangen-based tooling resolves the same local names.
 
+### What is in an actor document
+
+For an actor (`?actor={id}`):
+
+- **The actor node** typed by entity type: `crm:E21_Person` (person),
+  `crm:E40_Legal_Body` (corporate body), `crm:E74_Group` (family), or
+  `crm:E39_Actor` when the type is unknown.
+- **`crm:P1_is_identified_by`** to a `crm:E82_Actor_Appellation` node carrying
+  the authorized form of name.
+- **`crm:P3_has_note`** for the actor history.
+- **An existence `crm:E52_Time-Span`** when dates exist: for a person via a
+  `crm:E67_Birth` event (`P98_brought_into_life` + `P4_has_time-span`), for other
+  types via a direct `P4_has_time-span`. The span carries
+  `crm:P82a_begin_of_the_begin` / `crm:P82b_end_of_the_end` (`xsd:date`) and the
+  display dates label.
+- **`crm:P11i_participated_in`** to the `crm:E12_Production` of each record the
+  actor created - the same production URI the record export mints, so the two
+  documents join.
+
+### What is in a term / place document
+
+For a term (`?term={id}`). A term in the **Places** taxonomy maps to
+`crm:E53_Place`; any other taxonomy (subjects, genres) maps to `crm:E55_Type`:
+
+- **`crm:P1_is_identified_by`** to a `crm:E48_Place_Name` (places) or
+  `crm:E41_Appellation` (types) appellation node.
+- **Hierarchy:** places use `crm:P89_falls_within` (parent) and
+  `crm:P89i_contains` (children); types use `crm:P127_has_broader_term` and
+  `crm:P127i_has_narrower_term`.
+- **Records that cite the term**, via the inverse of the record export's forward
+  link: places use `crm:P67i_is_referred_to_by`; types use
+  `crm:P129i_is_subject_of`. Each points at the record's `#crm-object` node.
+
 ## Formats
 
 - **Turtle** (`text/turtle`) - default; compact, good for human review and git diffs.
@@ -104,11 +156,17 @@ serializer additionally carries a **published-records gate**
 excluded) that any future unauthenticated Linked Data surface can opt into so
 only published records are exposed publicly.
 
+The actor and term endpoints carry the same published-records gate on their
+linked-record lists, so a public surface that opts in never exposes a draft
+record title through an actor's produced works or a term's citations.
+
 ## Read-only
 
 The exporter only reads the database. It never writes, alters or migrates any
 table, and leaves the existing exporters (DACS, MODS, RAD, dcterms, EAD, EAC,
-MARC) untouched.
+MARC) and the existing record CIDOC-CRM export untouched. The actor and term
+serializers are new files; they reuse the record serializer's rendering through
+a shared trait so the three CRM surfaces produce identical Turtle / RDF/XML.
 
 ## Troubleshooting
 

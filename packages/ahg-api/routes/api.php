@@ -1,6 +1,7 @@
 <?php
 
 use AhgApi\Controllers\ActorEntityController;
+use AhgApi\Controllers\CatalogController;
 use AhgApi\Controllers\DatasetController;
 use AhgApi\Controllers\EntityController;
 use AhgApi\Controllers\FeedController;
@@ -267,6 +268,50 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
     Route::options('feed.rss', [FeedController::class, 'options']);
     Route::get('feed.rss', [FeedController::class, 'rss'])
         ->name('public.feed.rss');
+});
+
+/*
+|--------------------------------------------------------------------------
+| DCAT data catalogue - /data/catalog (north-star #1204)
+|--------------------------------------------------------------------------
+| A machine-readable W3C DCAT (DCAT-AP aligned) catalogue of the WHOLE
+| open-data offering: a dcat:Catalog whose dcat:dataset entries are the very
+| same open surfaces ProtocolController enumerates (the bulk dumps, the
+| per-entity linked-data endpoints, the VoID description, OAI-PMH, the
+| sitemaps, the feeds, the OpenAPI spec). Each dataset carries its
+| dcat:distribution list (the actual access URLs + dcat:mediaType),
+| dcterms:license, dcterms:publisher and dcat:landingPage. A DCAT-aware
+| harvester (CKAN, the European Data Portal, ...) ingests this one document.
+|
+|   GET /data/catalog          - content-negotiated (Accept -> JSON-LD /
+|                                Turtle / RDF-XML; a browser -> HTML page).
+|   GET /data/catalog.jsonld   - JSON-LD, explicitly.
+|   GET /data/catalog.ttl      - Turtle, explicitly.
+|   GET /data/catalog.rdf      - RDF/XML, explicitly.
+|
+| STAYS IN SYNC: the dataset list comes from ProtocolController::surfaces() -
+| ONE list, two views (the bespoke capabilities document + this DCAT catalogue)
+| - so they can never drift. Read-only (no DB access); permissive open-data
+| CORS; resilient (a valid empty catalogue rather than a 500).
+|
+| CATCH-ALL SAFETY: "/data/catalog" (+ the dotted .jsonld/.ttl/.rdf forms) are
+| TWO-segment paths, so the single-segment /{slug} archival-record catch-all
+| can never capture them. They are registered BEFORE the generic /data/{slug}
+| record-entity wildcard below, so "catalog" binds as the literal catalogue,
+| never as a record slug. The dotted suffixes contain a dot, which the slug
+| grammar ([A-Za-z0-9\-_], no dot) already excludes.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('data/catalog', [CatalogController::class, 'options']);
+    Route::get('data/catalog', [CatalogController::class, 'index'])
+        ->name('open-data.catalog');
+    // Explicit format suffixes (a dot keeps them clear of the slug grammar).
+    Route::options('data/catalog.{suffix}', [CatalogController::class, 'options'])
+        ->where('suffix', 'jsonld|ttl|rdf');
+    Route::get('data/catalog.{suffix}', [CatalogController::class, 'index'])
+        ->where('suffix', 'jsonld|ttl|rdf')
+        ->name('open-data.catalog.suffixed');
 });
 
 /*

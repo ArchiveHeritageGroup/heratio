@@ -109,6 +109,45 @@ class ProtocolController extends Controller
      */
     protected function document(): array
     {
+        $surfaces = $this->surfaces();
+
+        return [
+            '@context' => [
+                'schema' => 'https://schema.org/',
+                'dcterms' => 'http://purl.org/dc/terms/',
+            ],
+            '@type' => 'schema:WebAPI',
+            'protocol' => 'Open Memory Protocol',
+            'protocolVersion' => '1.0',
+            'name' => (string) config('app.name', 'Heratio').' open-data protocol',
+            'description' => 'The machine-discoverable index of this platform\'s open-data surfaces. '
+                .'Every surface lists its URL (or URL template) and the media types it serves. '
+                .'All surfaces are read-only, expose published records only, and are open data under CC-BY-4.0.',
+            'license' => 'https://creativecommons.org/licenses/by/4.0/',
+            'documentation' => $this->base().'/open-data',
+            // The DCAT-AP data catalogue: the same surface list re-described as a
+            // dcat:Catalog of dcat:Datasets + dcat:Distributions, for DCAT-aware
+            // open-data harvesters (data portals, CKAN, the EU data portal, ...).
+            'catalog' => $this->resolve('open-data.catalog', '/data/catalog'),
+            'cors' => 'Access-Control-Allow-Origin: *',
+            'authentication' => 'none (open data)',
+            'count' => count($surfaces),
+            'surfaces' => $surfaces,
+        ];
+    }
+
+    /**
+     * The single source-of-truth list of open-data surfaces, as neutral PHP
+     * arrays. Public so the DCAT CatalogController can re-describe the SAME list
+     * as a dcat:Catalog without the two ever drifting (one list, two views).
+     *
+     * Each surface is resolved defensively (Route::has + a literal path
+     * fallback) so a missing package drops the surface rather than dead-linking.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function surfaces(): array
+    {
         $base = $this->base();
 
         $surfaces = [
@@ -254,29 +293,9 @@ class ProtocolController extends Controller
         ];
 
         // Drop any surface that resolved to neither a URL nor a template.
-        $surfaces = array_values(array_filter($surfaces, static function (array $s): bool {
+        return array_values(array_filter($surfaces, static function (array $s): bool {
             return ! empty($s['url']) || ! empty($s['urlTemplate']);
         }));
-
-        return [
-            '@context' => [
-                'schema' => 'https://schema.org/',
-                'dcterms' => 'http://purl.org/dc/terms/',
-            ],
-            '@type' => 'schema:WebAPI',
-            'protocol' => 'Open Memory Protocol',
-            'protocolVersion' => '1.0',
-            'name' => (string) config('app.name', 'Heratio').' open-data protocol',
-            'description' => 'The machine-discoverable index of this platform\'s open-data surfaces. '
-                .'Every surface lists its URL (or URL template) and the media types it serves. '
-                .'All surfaces are read-only, expose published records only, and are open data under CC-BY-4.0.',
-            'license' => 'https://creativecommons.org/licenses/by/4.0/',
-            'documentation' => $this->base().'/open-data',
-            'cors' => 'Access-Control-Allow-Origin: *',
-            'authentication' => 'none (open data)',
-            'count' => count($surfaces),
-            'surfaces' => $surfaces,
-        ];
     }
 
     /**
