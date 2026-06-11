@@ -41,6 +41,8 @@ class AhgResearchServiceProvider extends ServiceProvider
                 \AhgResearch\Commands\SeedDropdownsCommand::class,
                 \AhgResearch\Commands\SeedTargetJournalsCommand::class,
                 OrcidSyncCommand::class,
+                \AhgResearch\Console\Commands\FieldAlertsCommand::class, // #1235 Living Field Alerts
+                \AhgResearch\Console\Commands\ImpactRefreshCommand::class, // #1241 Impact Tracking
             ]);
 
             $this->app->booted(function () {
@@ -63,6 +65,23 @@ class AhgResearchServiceProvider extends ServiceProvider
                             return true; // error → skip rather than crash scheduler boot
                         }
                     });
+
+                // #1235 Living Field Alerts - poll Crossref/OpenAlex for
+                // retractions + updates on watched works. Resilient: a failed
+                // fetch just yields no new alerts.
+                $schedule->command('ahg:research-field-alerts')
+                    ->dailyAt('02:10')
+                    ->withoutOverlapping(60)
+                    ->runInBackground()
+                    ->onOneServer();
+
+                // #1241 Impact Tracking - poll OpenAlex/Crossref for citations +
+                // mentions of published outputs. Same resilient pattern.
+                $schedule->command('ahg:research-impact-refresh')
+                    ->dailyAt('02:25')
+                    ->withoutOverlapping(60)
+                    ->runInBackground()
+                    ->onOneServer();
             });
         }
 
@@ -78,6 +97,52 @@ class AhgResearchServiceProvider extends ServiceProvider
                 }
             } catch (\Throwable $e) {
                 // DB not ready / install hiccup - retries next boot.
+            }
+        });
+
+        // Research OS (epic #1222) - auto-install per-slice sidecar/new tables.
+        // Idempotent; one outer try per reference_ci_schema_hastable. Existing
+        // tables are NEVER altered. Extend this map as ROS slices land.
+        $this->app->booted(function () {
+            // [table, install sql, optional dropdown-seed sql].
+            $installs = [
+                ['research_claim_meta', 'install_claim_ledger.sql', null],                       // #1223 Claim Ledger
+                ['research_decision_log', 'install_decision_log.sql', 'seed_decision_log_dropdowns.sql'], // #1224 Decision Log
+                ['research_source_triage', 'install_source_triage.sql', null],                   // #1227 Source Triage
+                ['research_question_brief', 'install_question_builder.sql', null],               // #1226 Question Builder
+                ['research_inbox_item', 'install_inbox.sql', 'seed_inbox_dropdowns.sql'],        // #1228 Quick Capture Inbox
+                ['research_argument', 'install_argument_builder.sql', null],                     // #1229 Argument Builder
+                ['research_review_comment', 'install_review_studio.sql', null],                  // #1230 Review Studio
+                ['research_method_template', 'install_method_studio.sql', 'seed_method_templates.sql'], // #1231 Method Studio
+                ['research_submission', 'install_publication_studio.sql', null],                 // #1232 Publication Studio
+                ['research_memory_item', 'install_research_memory.sql', null],                   // #1233 Research Memory
+                ['research_analysis_result', 'install_analysis_bridge.sql', null],              // #1234 Analysis Bridge
+                ['research_field_watch', 'install_field_alerts.sql', null],                      // #1235 Living Field Alerts
+                ['research_contradiction', 'install_contradiction_engine.sql', null],            // #1236 Contradiction Engine
+                ['research_replication_log', 'install_replication_pack.sql', null],              // #1238 Replication Pack
+                ['research_export_log', 'install_project_export.sql', null],                     // #1237 Open-format Export
+                ['research_ai_disclosure_log', 'install_ai_disclosure.sql', null],              // #1242 AI Disclosure
+                ['research_impact_signal', 'install_impact_tracking.sql', null],                 // #1241 Impact Tracking
+                ['research_grant_draft', 'install_grant_engine.sql', 'seed_grant_templates.sql'], // #1239 Grant Engine
+                // #1240 Time Machine - read-only reconstruction, no table.
+            ];
+            foreach ($installs as [$table, $file, $seed]) {
+                try {
+                    if (! \Illuminate\Support\Facades\Schema::hasTable($table)) {
+                        $sql = @file_get_contents(__DIR__.'/../../database/'.$file);
+                        if (is_string($sql) && trim($sql) !== '') {
+                            \Illuminate\Support\Facades\DB::unprepared($sql);
+                        }
+                        if ($seed !== null && \Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')) {
+                            $seedSql = @file_get_contents(__DIR__.'/../../database/'.$seed);
+                            if (is_string($seedSql) && trim($seedSql) !== '') {
+                                \Illuminate\Support\Facades\DB::unprepared($seedSql);
+                            }
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    // DB not ready / install hiccup - retries next boot.
+                }
             }
         });
 
@@ -98,6 +163,19 @@ class AhgResearchServiceProvider extends ServiceProvider
 
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
+        // Research OS (epic #1222) routes - one file per slice so the shared
+        // routes/web.php stays untouched. Each file self-contains its own
+        // prefix('research')->name('research.')->middleware(['web','auth'])
+        // group, so load it plainly. Extend this list as ROS slices land.
+        foreach ([
+            'claim-ledger', 'decision-log', 'source-triage', 'question-builder', 'inbox',
+            'argument-builder', 'review-studio', 'method-studio', 'publication-studio',
+            'research-memory', 'analysis-bridge', 'field-alerts', 'contradiction-engine',
+            'replication-pack', 'project-export', 'ai-disclosure', 'time-machine', 'impact-tracking',
+            'grant-engine',
+        ] as $rosRoute) {
+            \Illuminate\Support\Facades\Route::group([], __DIR__ . '/../../routes/' . $rosRoute . '.php');
+        }
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'research');
     }
 }

@@ -36,6 +36,9 @@
 <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 @endif
 
+{{-- Research OS #1225 - the per-project Command Centre journey --}}
+@include('research::research._command-centre')
+
 <div class="row">
     <div class="col-md-8">
         {{-- Description --}}

@@ -1244,9 +1244,22 @@ class ResearchController extends Controller
             ->orderBy('updated_at', 'desc')
             ->get()->toArray();
 
+        // Research OS #1225 - the per-project Command Centre journey (where am I /
+        // what's next). Read-only + fully guarded; degrades to an empty journey
+        // rather than breaking the project page.
+        $journey = [];
+        $journeyProgress = ['done' => 0, 'total' => 0, 'pct' => 0, 'next' => null];
+        try {
+            $cc = app(\AhgResearch\Services\CommandCentreService::class);
+            $journey = $cc->journey((int) $id, (int) ($researcher->id ?? 0));
+            $journeyProgress = $cc->progress($journey);
+        } catch (\Throwable $e) {
+            // leave the journey empty - the panel simply does not render
+        }
+
         return view('research::research.view-project', array_merge(
             $this->getSidebarData('projects'),
-            compact('researcher', 'project', 'collaborators', 'resources', 'milestones', 'activities', 'reports')
+            compact('researcher', 'project', 'collaborators', 'resources', 'milestones', 'activities', 'reports', 'journey', 'journeyProgress')
         ));
     }
 

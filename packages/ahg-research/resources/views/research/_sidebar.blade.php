@@ -2,7 +2,7 @@
 @php $active = $sidebarActive ?? ''; $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id()); @endphp
 
 <div class="list-group mb-4">
-    <span class="list-group-item bg-light fw-bold text-uppercase small">{{ __('Research') }}</span>
+    <span class="list-group-item bg-light fw-bold text-uppercase small">{{ __('My Research Journey') }}</span>
     <a href="{{ route('research.dashboard') }}"
        class="list-group-item list-group-item-action {{ $active === 'workspace' ? 'active' : '' }}">
         <i class="fas fa-tachometer-alt me-2"></i>{{ __('My Workspace') }}
@@ -11,6 +11,12 @@
        class="list-group-item list-group-item-action {{ $active === 'projects' ? 'active' : '' }}">
         <i class="fas fa-project-diagram me-2"></i>{{ __('My Projects') }}
     </a>
+    @if(\Illuminate\Support\Facades\Route::has('research.inbox.index'))
+    <a href="{{ route('research.inbox.index') }}"
+       class="list-group-item list-group-item-action {{ $active === 'inbox' ? 'active' : '' }}">
+        <i class="fas fa-inbox me-2"></i>{{ __('Quick Capture Inbox') }}
+    </a>
+    @endif
     <a href="{{ route('research.workspaces') }}"
        class="list-group-item list-group-item-action {{ $active === 'workspaces' ? 'active' : '' }}">
         <i class="fas fa-users me-2"></i>{{ __('Team Workspaces') }}
