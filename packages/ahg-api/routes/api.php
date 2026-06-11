@@ -5,6 +5,7 @@ use AhgApi\Controllers\GraphController;
 use AhgApi\Controllers\LegacyApiController;
 use AhgApi\Controllers\OaiPmhController;
 use AhgApi\Controllers\OpenApiController;
+use AhgApi\Controllers\PublicSitemapController;
 use AhgApi\Controllers\V1\AccessionApiController;
 use AhgApi\Controllers\V1\ActorApiController;
 use AhgApi\Controllers\V1\DigitalObjectApiController;
@@ -187,6 +188,42 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
         ->name('wellknown.void');
     Route::get('.well-known/void.ttl', [GraphController::class, 'void'])
         ->name('wellknown.void.ttl');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Public-website SEO surfaces — /sitemap.xml + /robots.txt (root path)
+|--------------------------------------------------------------------------
+| Search-engine discoverability for the PUBLIC RECORD pages (the canonical
+| single-segment /{slug} archival-record views) plus the key static public
+| pages (home, /glam/browse, /explore, /open-data, /reconstructions, /verify
+| — only those whose routes are registered).
+|
+|   GET /sitemap.xml  - an XML sitemap of the public record pages. A
+|                       <sitemapindex> over ?page=N child <urlset>s when the
+|                       published count exceeds one file's cap, else a single
+|                       <urlset>. Each url carries <loc> + <lastmod> + a
+|                       <changefreq>. Streamed (keyset slice) — never loads the
+|                       whole catalogue into memory. application/xml.
+|   GET /robots.txt   - allow public content, disallow /admin and the private
+|                       prefixes, and advertise the sitemap. text/plain.
+|
+| Both are PUBLIC (no auth), read-only, published-only (drafts are never
+| exposed), and resilient: an empty catalogue still yields a valid sitemap with
+| just the static pages, never a 500.
+|
+| Registered at the ROOT (this routes file is loaded without a group prefix).
+| "sitemap.xml" and "robots.txt" each contain a dot, so the single-segment
+| /{slug} archival-record catch-all (constraint '[a-z0-9][a-z0-9-]*$', no dot)
+| can NEVER capture them — they bind here, before the catch-all. Note: nginx's
+| static-file whitelist does not include .xml/.txt, so both reach Laravel.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::get('sitemap.xml', [PublicSitemapController::class, 'sitemap'])
+        ->name('public.sitemap');
+    Route::get('robots.txt', [PublicSitemapController::class, 'robots'])
+        ->name('public.robots');
 });
 
 /*

@@ -13,6 +13,7 @@ namespace AhgC2pa\Providers;
 
 use AhgC2pa\Console\Commands\C2paEmbedCommand;
 use AhgC2pa\Console\Commands\C2paProvenanceBackfillCommand;
+use AhgC2pa\Console\Commands\C2paReverifyCommand;
 use AhgC2pa\Console\Commands\C2paSmokeCommand;
 use AhgC2pa\Console\Commands\C2paVerifyCommand;
 use AhgC2pa\Controllers\AuthenticityController;
@@ -136,6 +137,7 @@ final class AhgC2paServiceProvider extends ServiceProvider
                 C2paVerifyCommand::class,
                 C2paEmbedCommand::class,
                 C2paProvenanceBackfillCommand::class,
+                C2paReverifyCommand::class,
             ]);
         }
 

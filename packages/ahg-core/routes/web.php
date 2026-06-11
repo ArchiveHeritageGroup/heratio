@@ -74,6 +74,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/capture-priority/queue/assign', [\AhgCore\Controllers\CaptureQueueController::class, 'assign'])->name('capture-priority.queue.assign');
     Route::post('/admin/capture-priority/queue/remove', [\AhgCore\Controllers\CaptureQueueController::class, 'remove'])->name('capture-priority.queue.remove');
 });
+// Metadata completeness / data-quality dashboard (admin): a read-only audit that surfaces PUBLISHED
+// archival descriptions missing key descriptive fields (title, scope/abstract, level of description,
+// creation date, creator, subjects, digital object / master surrogate) so cataloguers can close the
+// gaps. DISTINCT from the capture-priority register above (that is about at-risk physical capture;
+// this is about the QUALITY of the metadata already recorded). Read-only, no writes, no AI calls.
+// Multi-segment path keeps it clear of the single-segment /{slug} archival-record catch-all.
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/data-quality', [\AhgCore\Controllers\DataQualityController::class, 'index'])->name('data-quality.index');
+});
+
 // Public "race against loss" awareness board: a dignified, anonymous, read-only top-N of the records
 // most at risk of being lost, drawn from the same CapturePriorityService. /race-against-loss is a
 // SINGLE-segment public path (like /explore and /reconstructions). ahg-core boots early, so this is
