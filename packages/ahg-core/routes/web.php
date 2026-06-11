@@ -70,6 +70,21 @@ Route::middleware('auth')->group(function () {
 Route::get('/ask-the-collection', [\AhgCore\Controllers\AskCollectionController::class, 'index'])->name('ask.collection');
 Route::match(['get', 'post'], '/ask-the-collection/ask', [\AhgCore\Controllers\AskCollectionController::class, 'ask'])->name('ask.collection.ask');
 
+// heratio#1211 - universal multilingual access (north-star first slice): a SEPARATE public surface
+// that lets any visitor read a catalogue record's key metadata translated into their language, on
+// demand, grounded in the real record text (never invented), via the SANCTIONED gateway translate
+// path (AhgAiServices\Services\LlmService::translate -> https://ai.theahg.co.za/ai/v1). The original
+// is always shown + authoritative; the translation is labelled "machine translation" and is never
+// written back to the catalogue. Publication status is enforced (drafts 404 for the public).
+//
+// Both routes are MULTI-SEGMENT so they can never collide with the single-segment /{slug}
+// archival-record catch-all in ahg-information-object-manage (that route only ever matches ONE path
+// segment via its '[a-z0-9][a-z0-9-]*$' constraint). The POST ajax route is registered BEFORE the
+// GET show route so '/record/translate' is never captured as an {idOrSlug} value.
+Route::post('/record/translate', [\AhgCore\Controllers\MultilingualController::class, 'translateAjax'])->name('record.translate.ajax');
+Route::get('/record/{idOrSlug}/translate', [\AhgCore\Controllers\MultilingualController::class, 'show'])
+    ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9_-]*')->name('record.translate');
+
 // heratio#1183 - point clouds: admin manager + public Potree viewer
 Route::middleware('auth')->group(function () {
     Route::get('/admin/pointclouds', [\AhgCore\Controllers\PointCloudController::class, 'index'])->name('pointclouds.index');

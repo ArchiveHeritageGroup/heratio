@@ -357,6 +357,17 @@
     applyVisibility();
     relayout(true);
     renderBread();
+
+    // ---- keep the canvas sized to its container. Fixes the blank/empty map on mobile,
+    //      where the container's real size settles AFTER Cytoscape first measures it (CSS/
+    //      font reflow, address bar), and re-fits on rotate / window resize. ----
+    function refit() { try { cy.resize(); cy.fit(cy.elements(':visible'), 40); } catch (e) {} }
+    requestAnimationFrame(refit);
+    setTimeout(refit, 250);
+    setTimeout(refit, 800);
+    var _smRt;
+    window.addEventListener('resize', function () { clearTimeout(_smRt); _smRt = setTimeout(refit, 150); });
+    window.addEventListener('orientationchange', function () { setTimeout(refit, 300); });
   });
 })();
 </script>

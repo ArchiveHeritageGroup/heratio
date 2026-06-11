@@ -28,6 +28,10 @@ class AhgCoreServiceProvider extends ServiceProvider
         $this->app->singleton(CronRunTrackerService::class);
         $this->app->singleton(CronSchedulerService::class);
 
+        // heratio#1211 - universal multilingual access: on-demand, display-only
+        // translation of a record's key metadata via the sanctioned AI gateway.
+        $this->app->singleton(\AhgCore\Services\MultilingualRecordService::class);
+
         // Repository contracts → MySQL implementations
         $this->app->bind(DescriptionRepository::class, MysqlDescriptionRepository::class);
         $this->app->bind(AgentRepository::class, MysqlAgentRepository::class);
