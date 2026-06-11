@@ -1,5 +1,6 @@
 <?php
 
+use AhgSemanticSearch\Controllers\DisplacedHeritageController;
 use AhgSemanticSearch\Controllers\ScholarshipController;
 use AhgSemanticSearch\Controllers\SemanticSearchController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +26,12 @@ Route::middleware(['auth', 'admin'])->prefix('semantic-search/admin')->group(fun
     Route::get('/scholarship/{objectId}', [ScholarshipController::class, 'show'])
         ->name('semantic-search.scholarship.show')
         ->where('objectId', '[A-Za-z0-9][A-Za-z0-9_-]*');
+
+    // heratio#1207 - repatriation engine, first slice (detection): the
+    // "potentially displaced heritage" review register. Origin-vs-holding
+    // mismatch flags for curatorial review only - not a repatriation claim.
+    Route::get('/displaced-heritage', [DisplacedHeritageController::class, 'index'])
+        ->name('semantic-search.displaced-heritage.index');
 });
 
 // AJAX endpoints (legacy camelCase aliases)

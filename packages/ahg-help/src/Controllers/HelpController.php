@@ -146,6 +146,23 @@ class HelpController extends Controller
         ]);
     }
 
+    /**
+     * Interactive end-to-end system flow map (issue #1216). A single
+     * data-driven, pan/zoom/drill diagram of the platform journey. The
+     * node/edge model lives in resources/data/system-map.php and is turned
+     * into Cytoscape elements by SystemMapService.
+     */
+    public function systemMap()
+    {
+        $graph = \AhgHelp\Services\SystemMapService::graph();
+        $categories = HelpArticleService::getCategories();
+
+        return view('ahg-help::system-map', [
+            'graph' => $graph,
+            'categories' => $categories,
+        ]);
+    }
+
     public function search(Request $request)
     {
         $query = trim($request->get('q', ''));

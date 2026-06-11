@@ -324,6 +324,23 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     DB::statement("ALTER TABLE ahg_exhibition_event_rsvp ADD COLUMN {$col} {$ddl}");
                 }
             }
+
+            // heratio#1206 - "walk through what no longer exists": associate a catalogue
+            // record about a lost / destroyed / no-longer-extant place with a walkable
+            // exhibition-space digital twin that serves as its virtual RECONSTRUCTION.
+            // A reconstruction IS an exhibition space; this table is the link only.
+            // FIRST SLICE = the association + a public gallery of reconstructions.
+            if (! Schema::hasTable('ahg_lost_place_reconstruction')) {
+                DB::statement('CREATE TABLE ahg_lost_place_reconstruction (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    information_object_id INT NOT NULL,
+                    exhibition_space_id BIGINT UNSIGNED NOT NULL,
+                    note TEXT NULL,
+                    created_at DATETIME NULL,
+                    INDEX idx_io (information_object_id),
+                    INDEX idx_space (exhibition_space_id)
+                )');
+            }
         } catch (\Throwable $e) {
             // Non-fatal: builder simply stays unavailable until the columns exist.
         }

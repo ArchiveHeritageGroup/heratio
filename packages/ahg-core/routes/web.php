@@ -53,6 +53,14 @@ Route::middleware('auth')->group(function () {
 Route::get('/stories/{slug}', [\AhgCore\Controllers\StorytellingController::class, 'show'])
     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('stories.show');
 
+// heratio#1205 - capture / at-risk register (admin): the records most in need of digitisation or
+// most at risk of loss, ranked by transparent catalogue signals (no master surrogate, poor/fragile
+// condition, endangerment flags). The detection-and-triage foundation of the capture network.
+// Multi-segment path keeps it clear of the single-segment /{slug} archival-record catch-all.
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/capture-priority', [\AhgCore\Controllers\CapturePriorityController::class, 'index'])->name('capture-priority.index');
+});
+
 // heratio#1208 - public "Ask the collection": plain-language question -> answer grounded in the
 // institution's own corpus via the KM (knowledge-management RAG) service, with cited sources, and
 // honest when the corpus does not cover the question. The collection-wide, anonymous cousin of the

@@ -1,5 +1,6 @@
 <?php
 
+use AhgApi\Controllers\GraphController;
 use AhgApi\Controllers\LegacyApiController;
 use AhgApi\Controllers\OpenApiController;
 use AhgApi\Controllers\V1\AccessionApiController;
@@ -46,6 +47,25 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['api.cors', 'api.etag'])->group(function () {
     Route::get('api/openapi.json', [OpenApiController::class, 'spec'])->name('api.openapi.spec');
     Route::get('api/docs', [OpenApiController::class, 'docs'])->name('api.openapi.docs');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Open Memory Protocol — public Linked-Data graph endpoint (north-star #1204)
+|--------------------------------------------------------------------------
+| GET /api/v1/graph/{idOrSlug} — a record's graph neighbourhood as open,
+| read-only Linked Data (JSON-LD by default, Turtle/CIDOC-CRM on request).
+| No API key (open data); permissive CORS via api.cors. Published records
+| only (the controller enforces the same publication-status gate as the rest
+| of the public v1 API). A light throttle keeps the open door cheap.
+*/
+
+Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('graph/{idOrSlug}', [GraphController::class, 'options'])
+        ->where('idOrSlug', '.*');
+    Route::get('graph/{idOrSlug}', [GraphController::class, 'show'])
+        ->where('idOrSlug', '[A-Za-z0-9\-_]+')
+        ->name('api.v1.graph.show');
 });
 
 /*

@@ -116,6 +116,8 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Console\Commands\PointCloudSetupCommand::class,
                 \AhgCore\Console\Commands\ConvertPointCloudCommand::class,
                 \AhgCore\Console\Commands\SplatSetupCommand::class,
+                // #1205 capture / at-risk register (endangered-heritage capture network)
+                \AhgCore\Console\Commands\CapturePriorityCommand::class,
                 \AhgCore\Commands\SearchPopulateCommand::class,
                 \AhgCore\Commands\SearchUpdateCommand::class,
                 \AhgCore\Commands\SearchCleanupCommand::class,

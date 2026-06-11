@@ -26,6 +26,23 @@
       </div>
     </div>
 
+    {{-- System Map --}}
+    <div class="card border-success mb-4">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h5 class="card-title mb-1"><i class="bi bi-diagram-3 me-2"></i>{{ __('System Map') }}</h5>
+            <p class="card-text text-muted mb-0">{{ __('One traversable diagram of the whole platform - acquire, ingest, describe, preserve, search, display, exhibit, AI, and interoperate. Pan, zoom, and drill into any stage.') }}</p>
+          </div>
+          <div class="col-md-4 text-md-end mt-2 mt-md-0">
+            <a href="{{ route('help.system-map') }}" class="btn atom-btn-white">
+              <i class="bi bi-diagram-3 me-1"></i>{{ __('Open System Map') }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     {{-- Documentation Portal --}}
     <div class="card border-primary mb-4">
       <div class="card-body">

@@ -21,6 +21,7 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
             $this->commands([
                 \AhgSemanticSearch\Console\Commands\KmGraphSyncCommand::class,
                 \AhgSemanticSearch\Console\Commands\ScholarshipDiscoverCommand::class,
+                \AhgSemanticSearch\Console\Commands\DisplacedHeritageScanCommand::class,
             ]);
         }
     }

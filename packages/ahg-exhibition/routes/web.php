@@ -5,6 +5,7 @@ use AhgExhibition\Controllers\ExhibitionEventController;
 use AhgExhibition\Controllers\ExhibitionSpaceController;
 use AhgExhibition\Controllers\GenerativeController;
 use AhgExhibition\Controllers\GenerativeExhibitionController;
+use AhgExhibition\Controllers\ReconstructionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->prefix('exhibition')->group(function () {
@@ -133,6 +134,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/exhibition-space/{slug}/openings/{eventId}/delete', [ExhibitionEventController::class, 'destroy'])->name('exhibition-space.openings.delete')->middleware('acl:delete')->whereNumber('eventId');
     // heratio#1192 slice 2b - settle a pending paid ticket (admin "mark as paid")
     Route::post('/exhibition-space/{slug}/openings/{eventId}/rsvp/{rsvpId}/mark-paid', [ExhibitionEventController::class, 'markPaid'])->name('exhibition-space.openings.mark-paid')->middleware('acl:update')->whereNumber('eventId')->whereNumber('rsvpId');
+
+    // heratio#1206 - "walk through what no longer exists": curator links a catalogue
+    // record (a lost / destroyed place) to a walkable reconstruction space. Multi-segment
+    // URLs so they stay clear of the single-segment /exhibition-space/{slug} catch-all.
+    Route::get('/exhibition-space/reconstructions/manage', [ReconstructionController::class, 'manage'])->name('exhibition-space.reconstructions.manage');
+    Route::post('/exhibition-space/reconstructions/manage', [ReconstructionController::class, 'store'])->name('exhibition-space.reconstructions.store')->middleware('acl:create');
+    Route::post('/exhibition-space/reconstructions/{id}/delete', [ReconstructionController::class, 'destroy'])->name('exhibition-space.reconstructions.delete')->middleware('acl:delete')->whereNumber('id');
 });
 
 // heratio#1192 - live virtual openings: PUBLIC tokenised event page + RSVP (no login;
@@ -180,6 +188,11 @@ Route::post('/exhibition-space/{slug}/visit-event', [ExhibitionSpaceController::
 Route::get('/exhibition-space/{slug}/manifest.json', [ExhibitionSpaceController::class, 'iiifManifest'])->name('exhibition-space.iiif');
 Route::get('/exhibition-space/{slug}/scene.json', [ExhibitionSpaceController::class, 'sceneExport'])->name('exhibition-space.scene');
 Route::get('/exhibition-space/{slug}/exhibition.jsonld', [ExhibitionSpaceController::class, 'exhibitionJsonLd'])->name('exhibition-space.jsonld');
+
+// heratio#1206 - "walk through what no longer exists": PUBLIC gallery of every
+// catalogue record (a lost / destroyed place) linked to a walkable reconstruction
+// twin. A fixed literal path, registered ahead of the /{slug} catch-all below.
+Route::get('/reconstructions', [ReconstructionController::class, 'gallery'])->name('exhibition-space.reconstructions');
 
 Route::middleware('admin')->group(function () {
     Route::get('/exhibition-space/{slug}/delete', [ExhibitionSpaceController::class, 'confirmDelete'])->name('exhibition-space.confirmDelete');
