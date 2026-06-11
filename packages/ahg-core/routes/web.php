@@ -95,6 +95,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/preservation-maturity', [\AhgCore\Controllers\PreservationMaturityController::class, 'index'])->name('preservation-maturity.index');
 });
 
+// heratio#1244 (fixity slice) - fixity / integrity verification report (admin): a read-only
+// dashboard that shows how many digital objects carry a verifiable checksum baseline, how many
+// have never been verified, and the result roll-up of the most recent verification sweep
+// (match / mismatch / missing_file / ...). The actual verification is done out-of-band by the
+// bounded "php artisan ahg:fixity-sweep" command (default 100, hard-capped) + its daily schedule;
+// the page never runs a sweep itself. This is the actionable "Integrity" functional area of the
+// NDSA Levels of Digital Preservation. Read-only over digital_object - the only writes anywhere
+// are append-only rows in the NEW core_fixity_check_log table; no ALTER, no AI calls. The
+// two-segment /admin/fixity path keeps it clear of the single-segment /{slug} archival-record
+// catch-all (that route only ever matches ONE path segment). A zero-object / missing-table state
+// renders a calm empty card, never a 500.
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/fixity', [\AhgCore\Controllers\FixityController::class, 'index'])->name('fixity.index');
+});
+
 // Public "race against loss" awareness board: a dignified, anonymous, read-only top-N of the records
 // most at risk of being lost, drawn from the same CapturePriorityService. /race-against-loss is a
 // SINGLE-segment public path (like /explore and /reconstructions). ahg-core boots early, so this is

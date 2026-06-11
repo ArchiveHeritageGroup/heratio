@@ -37,6 +37,9 @@
             <a href="{{ route('union.members.index') }}" class="atom-btn-white">
                 <i class="bi bi-people me-1"></i>{{ __('Members') }}
             </a>
+            <a href="{{ route('federation.loans.analytics') }}" class="atom-btn-white">
+                <i class="bi bi-bar-chart-line me-1"></i>{{ __('Analytics') }}
+            </a>
             <a href="{{ route('federation.loans.create') }}" class="atom-btn-white">
                 <i class="bi bi-plus-lg me-1"></i>{{ __('New loan request') }}
             </a>

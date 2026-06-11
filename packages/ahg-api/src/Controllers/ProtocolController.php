@@ -160,6 +160,14 @@ class ProtocolController extends Controller
                 'method' => 'GET',
             ],
             [
+                'id' => 'stats',
+                'title' => 'Graph statistics (at a glance)',
+                'description' => 'Aggregate size-and-shape statistics for the published open graph: record / actor / term / edge cardinalities, descriptive coverage and a VoID-aligned dataset description. Content-negotiated (a browser gets a human dashboard).',
+                'url' => $this->resolve('open-data.stats', '/data/stats'),
+                'mediaTypes' => ['text/html', 'application/ld+json', 'application/json'],
+                'method' => 'GET',
+            ],
+            [
                 'id' => 'graph-dataset',
                 'title' => 'Linked-data graph (dataset front door)',
                 'description' => 'A self-describing VoID / DCAT dataset description of the published heritage graph, with namespaces, class counts and discovery links.',

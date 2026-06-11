@@ -12,6 +12,7 @@ use AhgApi\Controllers\OaiPmhController;
 use AhgApi\Controllers\OpenApiController;
 use AhgApi\Controllers\ProtocolController;
 use AhgApi\Controllers\PublicSitemapController;
+use AhgApi\Controllers\StatsController;
 use AhgApi\Controllers\TermEntityController;
 use AhgApi\Controllers\V1\AccessionApiController;
 use AhgApi\Controllers\V1\ActorApiController;
@@ -313,6 +314,47 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
     Route::get('data/catalog.{suffix}', [CatalogController::class, 'index'])
         ->where('suffix', 'jsonld|ttl|rdf')
         ->name('open-data.catalog.suffixed');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Open graph statistics - /data/stats (north-star #1204)
+|--------------------------------------------------------------------------
+| The "graph at a glance" surface: cheap aggregate COUNTs describing the SIZE
+| and SHAPE of the published open-data graph - published records (by level),
+| people / organisations (by kind), subjects / places / genres, relation edges
+| (total + the associative record-to-record cross-links), records carrying a
+| linked-data URI, descriptive coverage (dates / creators / subjects) and the
+| distinct holding repositories. VoID-aligned where it makes sense
+| (void:entities / void:triples / void:classPartition).
+|
+|   GET /data/stats        - content-negotiated:
+|                            text/html (a browser) -> the human dashboard
+|                              (big numbers + plain CSS bars, no charting lib);
+|                            application/ld+json   -> a VoID-aligned JSON-LD
+|                              dataset description;
+|                            everything else / ?format=json -> plain JSON.
+|   GET /data/stats.json   - the machine JSON, explicitly (CORS-open).
+|
+| Read-only (COUNT / GROUP BY only; every aggregate Schema::hasTable-guarded);
+| resilient (an empty corpus yields a valid all-zero document, never a 500);
+| permissive open-data CORS. The dashboard links out to /data/catalog,
+| /open-data/protocol and /graph-explorer.
+|
+| CATCH-ALL SAFETY: "/data/stats" and "/data/stats.json" are TWO-segment paths,
+| so the single-segment /{slug} archival-record catch-all can never capture
+| them. They are registered BEFORE the generic /data/{slug} record-entity
+| wildcard below, so "stats" binds as the literal statistics surface, never as
+| a record slug. The ".json" form carries a dot, which the slug grammar
+| ([A-Za-z0-9\-_], no dot) already excludes.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('data/stats', [StatsController::class, 'options']);
+    Route::get('data/stats', [StatsController::class, 'index'])
+        ->name('open-data.stats');
+    Route::get('data/stats.json', fn (\Illuminate\Http\Request $request) => app(StatsController::class)->index($request, true))
+        ->name('open-data.stats.json');
 });
 
 /*

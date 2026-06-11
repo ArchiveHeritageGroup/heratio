@@ -12,6 +12,45 @@ PREMIS (Preservation Metadata: Implementation Strategies) is the standard mainta
 
 If you need a packaged AIP (Archival Information Package), use the BagIt bag in the Preservation Packages section instead - that bag wraps the same PREMIS XML inside a Bag with manifest checksums.
 
+## Two ways to get a PREMIS document
+
+Heratio exposes PREMIS in two complementary places:
+
+1. **Web download (Metadata Export)** - a one-click PREMIS 3.0 XML download for a single record, served from the Metadata Export module alongside the other standards (METS, CIDOC-CRM, MODS, DACS, EAD). Use this for a quick, read-only snapshot of a record's preservation state straight from the browser. No command line needed. See "Web download" below.
+2. **Command line (`premis:export`)** - the full preservation-officer tool. Adds ODRL-to-PREMIS rights projection, XSD validation, and file output. Use this for AIP-building and audit workflows. See "Running the export" below.
+
+Both emit the same PREMIS namespace (`http://www.loc.gov/premis/v3`, version 3.0) and draw fixity, size, and format from the same tables, so a record exported either way is interoperable downstream. The web download is rights-light (it focuses on object / event / agent evidence); the CLI export adds the `<rights>` block.
+
+## Web download
+
+From the **Metadata Export** dashboard (`/admin/metadata-export/index`), the PREMIS 3.0 card sits alongside the other format cards. To download a single record's PREMIS document directly:
+
+```
+/admin/metadata-export/premis?io=1234
+```
+
+or the explicit extension variant:
+
+```
+/admin/metadata-export/premis.xml?io=1234
+```
+
+- `io` (required) is the numeric `information_object.id`.
+- `culture` (optional) selects the i18n culture for labels (default `en`).
+
+The response is an `application/xml` attachment named `heratio-premis-<id>.xml`. The endpoint sits under the authenticated `/admin/metadata-export` prefix (operator access), so it can emit unpublished records for staff review. A published-records gate is built into the serializer for any future public preservation-metadata surface.
+
+What the web download contains, per record:
+
+| PREMIS entity | Source in Heratio |
+|---|---|
+| `<object xsi:type="file">` | One per attached `digital_object` (fixity, size, format, originalName) |
+| `<object xsi:type="representation">` | Fallback anchor when the record has no digital objects yet |
+| `<event>` | Every `preservation_event` row linked to the IO or its digital objects |
+| `<agent>` | One per distinct responsible agent / system named on those events |
+
+Fixity (`messageDigestAlgorithm` + `messageDigest`) comes from `digital_object.checksum` / `checksum_type`; `size` from `byte_size`; format name / version / PRONOM PUID from `preservation_object_format` when a format identification has run, otherwise the stored MIME type; `originalName` from the stored file name. Anything not yet recorded is silently omitted and the document stays well-formed.
+
 ## Running the export
 
 From the Heratio command line:
@@ -83,4 +122,6 @@ Phase 1 ships a permissive stand-in XSD; it will pass any well-formed PREMIS doc
 
 - See "Preservation scan" for populating events before export.
 - See the BagIt packages screen for a wrapped AIP that includes this XML.
+- See the Metadata Export module for the matching METS, CIDOC-CRM, MODS, DACS, and EAD downloads.
 - Issue #653 tracks the Phase 2+ items (real PRONOM signature sync, JHOVE validation, replication).
+- The web download advances issues #1197 (unified metadata) and #1244 / #1243 (digital preservation).

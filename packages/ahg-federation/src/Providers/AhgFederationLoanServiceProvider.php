@@ -39,6 +39,7 @@
 
 namespace AhgFederation\Providers;
 
+use AhgFederation\Controllers\LoanAnalyticsController;
 use AhgFederation\Controllers\LoanRequestController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -63,6 +64,22 @@ class AhgFederationLoanServiceProvider extends ServiceProvider
                         ->name('federation.loans.create');
                     $router->post('/save', [LoanRequestController::class, 'save'])
                         ->name('federation.loans.save');
+
+                    // Loan-analytics dashboard (#1203 loan-analytics slice).
+                    // Read-only aggregate report over federation_loan_request.
+                    // The static "analytics" / "analytics.json" segments are
+                    // registered BEFORE the numeric /{id} route below; the
+                    // {id} route is also ->whereNumber-constrained so the word
+                    // "analytics" can never match it - belt and braces against
+                    // a /federation/loans/{id} collision. Multi-segment path,
+                    // so the locked single-segment /{slug} catch-all never
+                    // intercepts it. The .json surface is CORS-open inside the
+                    // controller (it stays admin-gated here on purpose).
+                    $router->get('/analytics.json', [LoanAnalyticsController::class, 'json'])
+                        ->name('federation.loans.analytics.json');
+                    $router->get('/analytics', [LoanAnalyticsController::class, 'index'])
+                        ->name('federation.loans.analytics');
+
                     $router->get('/{id}', [LoanRequestController::class, 'show'])
                         ->whereNumber('id')
                         ->name('federation.loans.show');

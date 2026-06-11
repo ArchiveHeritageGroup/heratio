@@ -31,6 +31,7 @@ use AhgMetadataExport\Services\Exporters\CidocCrmTermSerializer;
 use AhgMetadataExport\Services\Exporters\DacsSerializer;
 use AhgMetadataExport\Services\Exporters\DublinCoreQualifiedSerializer;
 use AhgMetadataExport\Services\Exporters\ModsSerializer;
+use AhgMetadataExport\Services\Exporters\PremisSerializer;
 use AhgMetadataExport\Services\Exporters\RadSerializer;
 use AhgMetadataExport\Services\Importers\DacsXmlImporter;
 use AhgMetadataExport\Services\Importers\RadXmlImporter;
@@ -62,6 +63,7 @@ class MetadataExportController extends Controller
             'turtle' => ['name' => 'Turtle (TTL)', 'icon' => 'bi-file-earmark-text'],
             'ntriples' => ['name' => 'N-Triples', 'icon' => 'bi-file-earmark-text'],
             'cidoc-crm' => ['name' => 'CIDOC-CRM (Turtle / RDF/XML)', 'icon' => 'bi-diagram-3'],
+            'premis' => ['name' => 'PREMIS 3.0 (Preservation XML)', 'icon' => 'bi-shield-check'],
         ];
 
         $repositories = DB::table('repository')
@@ -133,6 +135,46 @@ class MetadataExportController extends Controller
         }
 
         $filename = sprintf('heratio-%s-%d.xml', $format, $ioId);
+
+        return new Response($xml, 200, [
+            'Content-Type' => 'application/xml; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
+    /**
+     * Download a single information_object plus its digital object(s) as a
+     * PREMIS 3.0 (Library of Congress) preservation-metadata XML document.
+     * Twin to downloadStandard / downloadCidocCrm: ?io=NNN required, optional
+     * ?culture=. The serialiser emits premis:object (fixity / size / format /
+     * originalName) per digital_object, premis:event rows for recorded
+     * preservation events, and premis:agent rows for the responsible systems.
+     * A .xml path variant is exposed via the same handler.
+     *
+     * Advances issue #1197 (unified metadata) and the digital preservation
+     * epics #1244 / #1243. Read-only: delegates to PremisSerializer which
+     * never writes the database. Lives under /admin/metadata-export so the IO
+     * slug catch-all in ahg-information-object-manage cannot intercept it.
+     */
+    public function downloadPremis(Request $request, ?string $ext = null)
+    {
+        $ioId = (int) $request->query('io', 0);
+        $culture = (string) $request->query('culture', app()->getLocale() ?: 'en');
+        if ($ioId < 1) {
+            abort(400, 'Missing io parameter');
+        }
+
+        // Operator endpoint (web+auth middleware): emit even unpublished
+        // records for staff review. publicOnly stays false here; the
+        // serializer's published-records gate is reserved for any future
+        // unauthenticated preservation-metadata surface.
+        $xml = (new PremisSerializer())->serializeRecord($ioId, $culture, false);
+
+        if ($xml === '') {
+            abort(404, 'No record produced for PREMIS export');
+        }
+
+        $filename = sprintf('heratio-premis-%d.xml', $ioId);
 
         return new Response($xml, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',

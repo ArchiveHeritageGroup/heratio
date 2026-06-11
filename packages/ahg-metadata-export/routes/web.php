@@ -41,6 +41,19 @@ Route::prefix('admin/metadata-export')->middleware(['web', 'auth'])->group(funct
         ->whereIn('ext', ['ttl', 'rdf'])
         ->name('ahgmetadataexport.cidoc.term.ext');
 
+    // #1197 / #1244 / #1243 PREMIS 3.0 preservation-metadata download.
+    // ?io=NNN required; optional ?culture=. Emits premis:object (fixity /
+    // size / format / originalName) per digital_object, premis:event rows for
+    // recorded preservation events, premis:agent rows for the responsible
+    // systems. A .xml path variant selects the same handler. Under
+    // /admin/metadata-export so the IO slug catch-all in
+    // ahg-information-object-manage cannot intercept it.
+    Route::get('/premis', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadPremis'])
+        ->name('ahgmetadataexport.premis');
+    Route::get('/premis.{ext}', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadPremis'])
+        ->whereIn('ext', ['xml'])
+        ->name('ahgmetadataexport.premis.ext');
+
     // #662 Phase 3 RAD / DACS XML importer. POST with `xml_file` upload or
     // `xml` body field. dryRun=1 (default) returns preview JSON; dryRun=0
     // (or commit=1) persists into ahg_io_rad / ahg_io_dacs.
