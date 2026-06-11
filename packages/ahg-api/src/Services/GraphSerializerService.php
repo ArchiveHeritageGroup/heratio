@@ -64,6 +64,7 @@ class GraphSerializerService
             'rico' => 'https://www.ica.org/standards/RiC/ontology#',
             'crm' => 'http://www.cidoc-crm.org/cidoc-crm/',
             'dcterms' => 'http://purl.org/dc/terms/',
+            'skos' => 'http://www.w3.org/2004/02/skos/core#',
             'rdf' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
             'rdfs' => 'http://www.w3.org/2000/01/rdf-schema#',
             'omp' => $this->ompNamespace(),
@@ -99,6 +100,8 @@ class GraphSerializerService
             'rico' => $ns['rico'],
             'crm' => $ns['crm'],
             'dcterms' => $ns['dcterms'],
+            'skos' => $ns['skos'],
+            'rdfs' => $ns['rdfs'],
             'omp' => $ns['omp'],
             // Core descriptive terms -> schema.org.
             'name' => 'schema:name',
@@ -107,6 +110,21 @@ class GraphSerializerService
             'dateModified' => 'schema:dateModified',
             'additionalType' => ['@id' => 'schema:additionalType', '@type' => '@id'],
             'sameAs' => ['@id' => 'schema:sameAs', '@type' => '@id'],
+            // Entity-description predicates shared by the /id/{slug} record,
+            // actor and term endpoints (so all three RDF serialisations render
+            // them, not just JSON-LD - the serializer is the single source).
+            'temporalCoverage' => 'schema:temporalCoverage',
+            'seeAlso' => ['@id' => 'rdfs:seeAlso', '@type' => '@id'],
+            'relation' => ['@id' => 'dcterms:relation', '@type' => '@id'],
+            'creator' => ['@id' => 'dcterms:creator'],
+            'subject' => ['@id' => 'dcterms:subject'],
+            'spatial' => ['@id' => 'dcterms:spatial'],
+            'publisher' => ['@id' => 'dcterms:publisher'],
+            'isPartOf' => ['@id' => 'dcterms:isPartOf', '@type' => '@id'],
+            // SKOS terms for the controlled-vocabulary (term) entity surface.
+            'prefLabel' => 'skos:prefLabel',
+            'broader' => ['@id' => 'skos:broader', '@type' => '@id'],
+            'narrower' => ['@id' => 'skos:narrower', '@type' => '@id'],
             // CIDOC-CRM cross-walk for the descriptive core, so a CRM-aware
             // consumer can read the same node.
             'crmTitle' => 'crm:P102_has_title',

@@ -44,11 +44,37 @@ curl -s -H "Accept: application/rdf+xml" "https://your-site.example/id/my-record
 
 ---
 
+## Entity endpoints for people, organisations, and places/subjects
+
+The same linked-data identity now extends beyond records to the entities records are *about*, so the open graph covers people, organisations, families, and the controlled-vocabulary terms (places, subjects, genres) used to describe the collection.
+
+**GET /id/actor/{slug}** (alias **GET /data/actor/{slug}**) - a person, corporate body, or family.
+
+The description includes the authorised name, the type (schema.org `Person` or `Organization`, plus a Records-in-Contexts type so a corporate body, person, or family is precisely distinguished), the dates of existence, a biography or administrative-history note, the published records the actor is linked to (`dcterms:relation`, each a dereferenceable record URL), and `seeAlso` / `sameAs` links to the human authority page and the Records-in-Contexts agent export.
+
+**GET /id/term/{slug}** (alias **GET /data/term/{slug}**) - a place, subject, or genre term.
+
+A term is described as a SKOS concept (`skos:Concept`); a place is additionally a schema.org `Place`. The description includes the preferred label, the broader term and any narrower terms (`skos:broader` / `skos:narrower`, each a dereferenceable term URL), and the published records that reference the term (`dcterms:relation`). A browser is redirected to the browse page filtered by that term.
+
+Both endpoints are content-negotiated exactly like the record endpoint (`Accept: application/ld+json | text/turtle | application/rdf+xml`, or `?format=`; a browser gets a 303 redirect to the human page). They are reference entities, so the actor or term itself is always described - but every record they link to is filtered to **published** records only. An unknown slug returns a clean 404 in the format you asked for.
+
+### Example
+
+```bash
+# An actor as Turtle
+curl -s -H "Accept: text/turtle" "https://your-site.example/id/actor/some-person-slug"
+
+# A place/subject term as JSON-LD
+curl -s "https://your-site.example/id/term/some-term-slug"
+```
+
+---
+
 ## The protocol capabilities document
 
 **GET /open-data/protocol** (machine view at **GET /open-data/protocol.json**)
 
-This is the machine-discoverable index of every open-data surface: the VoID/DCAT discovery document, the linked-data graph (dataset front door and per-record), this new entity endpoint, the JSON-LD context, the crawl seed, the bulk CSV and JSON-LD dataset dumps, OAI-PMH harvesting, the sitemaps, the Atom/RSS feeds, and the OpenAPI specification and API docs. Each entry lists its URL (or URL template) and the media types it serves.
+This is the machine-discoverable index of every open-data surface: the VoID/DCAT discovery document, the linked-data graph (dataset front door and per-record), the entity endpoints (record, actor, and term), the JSON-LD context, the crawl seed, the bulk CSV and JSON-LD dataset dumps, OAI-PMH harvesting, the sitemaps, the Atom/RSS feeds, and the OpenAPI specification and API docs. Each entry lists its URL (or URL template) and the media types it serves.
 
 A browser visiting `/open-data/protocol` sees a readable HTML table; a data client (or `/open-data/protocol.json`) gets JSON. A surface only appears when its feature is installed, so the document never points at something that is not there.
 

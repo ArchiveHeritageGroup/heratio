@@ -1,5 +1,6 @@
 <?php
 
+use AhgApi\Controllers\ActorEntityController;
 use AhgApi\Controllers\DatasetController;
 use AhgApi\Controllers\EntityController;
 use AhgApi\Controllers\FeedController;
@@ -9,6 +10,7 @@ use AhgApi\Controllers\OaiPmhController;
 use AhgApi\Controllers\OpenApiController;
 use AhgApi\Controllers\ProtocolController;
 use AhgApi\Controllers\PublicSitemapController;
+use AhgApi\Controllers\TermEntityController;
 use AhgApi\Controllers\V1\AccessionApiController;
 use AhgApi\Controllers\V1\ActorApiController;
 use AhgApi\Controllers\V1\DigitalObjectApiController;
@@ -295,6 +297,56 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
 */
 
 Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    // ---------------------------------------------------------------------
+    // ENTITY identity for ACTORS and TERMS (north-star #1204, next slice).
+    //
+    // These are THREE-segment paths (/id/actor/{slug}, /id/term/{slug}) and so
+    // can never be captured by the single-segment /{slug} archival-record
+    // catch-all, nor by the two-segment /id/{slug} record entity endpoint
+    // below. They are declared FIRST so the literal second segment ("actor",
+    // "term") binds before the generic /id/{slug} wildcard is ever consulted.
+    //
+    //   GET /id/actor/{slug}  (+ /data/actor/{slug}) - a person / corporate
+    //       body / family: schema.org Person|Organization + RiC additionalType,
+    //       dates of existence, biography / administrative history, the related
+    //       PUBLISHED records, sameAs/seeAlso to the authority page + RiC export.
+    //   GET /id/term/{slug}   (+ /data/term/{slug})  - a place / subject / genre
+    //       term: skos:Concept (+ schema:Place for the spatial taxonomy),
+    //       skos:broader / skos:narrower, and the PUBLISHED records referencing
+    //       it; sameAs/seeAlso to the filtered browse page.
+    //
+    // Content-negotiated exactly like /id/{slug} (Accept -> JSON-LD / Turtle /
+    // RDF-XML; a browser is 303-redirected to the human view). Read-only;
+    // published-only for every record link; an unknown slug -> a clean
+    // negotiated 404. Permissive open-data CORS.
+    // ---------------------------------------------------------------------
+    Route::options('id/actor/{slug}', [ActorEntityController::class, 'options'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
+    Route::get('id/actor/{slug}', [ActorEntityController::class, 'show'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('open-data.entity.actor');
+    Route::options('data/actor/{slug}', [ActorEntityController::class, 'options'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
+    Route::get('data/actor/{slug}', [ActorEntityController::class, 'show'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('open-data.entity.actor.data');
+
+    Route::options('id/term/{slug}', [TermEntityController::class, 'options'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
+    Route::get('id/term/{slug}', [TermEntityController::class, 'show'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('open-data.entity.term');
+    Route::options('data/term/{slug}', [TermEntityController::class, 'options'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
+    Route::get('data/term/{slug}', [TermEntityController::class, 'show'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('open-data.entity.term.data');
+
+    // ---------------------------------------------------------------------
+    // ENTITY identity for a RECORD (the original slice). Two-segment paths.
+    // Declared AFTER the actor/term routes above so "actor"/"term" never get
+    // captured as a record {slug}.
+    // ---------------------------------------------------------------------
     Route::options('id/{slug}', [EntityController::class, 'options'])
         ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
     Route::get('id/{slug}', [EntityController::class, 'show'])

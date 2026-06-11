@@ -21,8 +21,11 @@
  *   - VoID / DCAT discovery        (/.well-known/void, Turtle)
  *   - graph dataset front door     (/api/v1/graph, JSON-LD)
  *   - per-entity graph             (/api/v1/graph/{idOrSlug}[.ext])
- *   - entity identity endpoint     (/id/{slug}, content-negotiated) - the new
- *                                   slice this protocol doc indexes
+ *   - entity identity (record)     (/id/{slug}, content-negotiated)
+ *   - entity identity (actor)      (/id/actor/{slug}, content-negotiated) -
+ *                                   a person / corporate body / family
+ *   - entity identity (term)       (/id/term/{slug}, content-negotiated) -
+ *                                   a place / subject / genre concept
  *   - JSON-LD @context             (/api/v1/graph/context.jsonld)
  *   - crawl seed / index           (/api/v1/graph/index)
  *   - bulk dataset dumps           (/api/v1/dataset.csv, /api/v1/dataset.jsonld)
@@ -135,10 +138,28 @@ class ProtocolController extends Controller
             ],
             [
                 'id' => 'entity',
-                'title' => 'Entity identity endpoint',
+                'title' => 'Entity identity endpoint (record)',
                 'description' => 'The stable, dereferenceable URI of a single published record, described in full (title, type, dates, creators, subjects, places, repository, parent). Content-negotiated by Accept header; a browser is 303-redirected to the human record page.',
                 'urlTemplate' => $base.'/id/{slug}',
                 'aliasTemplate' => $base.'/data/{slug}',
+                'mediaTypes' => ['application/ld+json', 'text/turtle', 'application/rdf+xml', 'text/html'],
+                'method' => 'GET',
+            ],
+            [
+                'id' => 'entity-actor',
+                'title' => 'Entity identity endpoint (actor)',
+                'description' => 'The stable, dereferenceable URI of an actor - a person, corporate body or family - described in full (name, schema.org Person/Organization plus a RiC additionalType, dates of existence, biography / administrative history, and the published records it is linked to). Content-negotiated by Accept header; a browser is 303-redirected to the human authority page.',
+                'urlTemplate' => $base.'/id/actor/{slug}',
+                'aliasTemplate' => $base.'/data/actor/{slug}',
+                'mediaTypes' => ['application/ld+json', 'text/turtle', 'application/rdf+xml', 'text/html'],
+                'method' => 'GET',
+            ],
+            [
+                'id' => 'entity-term',
+                'title' => 'Entity identity endpoint (term)',
+                'description' => 'The stable, dereferenceable URI of a controlled-vocabulary term - a place, subject or genre - modelled as a skos:Concept (a place is also a schema:Place), with skos:broader / skos:narrower hierarchy and the published records that reference it. Content-negotiated by Accept header; a browser is 303-redirected to the browse page filtered by the term.',
+                'urlTemplate' => $base.'/id/term/{slug}',
+                'aliasTemplate' => $base.'/data/term/{slug}',
                 'mediaTypes' => ['application/ld+json', 'text/turtle', 'application/rdf+xml', 'text/html'],
                 'method' => 'GET',
             ],
