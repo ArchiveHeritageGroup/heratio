@@ -230,14 +230,42 @@
         @csrf
         <div class="mb-3">
           <label class="form-label" for="nav-email">Email<span aria-hidden="true" class="text-primary ms-1" title="{{ __('This field is required.') }}"><strong>*</strong></span><span class="visually-hidden">{{ __('This field is required.') }}</span></label>
-          <input type="email" name="email" class="form-control-sm form-control" id="nav-email" required autocomplete="email">
+          <input type="text" data-login-activate="email" class="form-control-sm form-control" id="nav-email" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
         </div>
         <div class="mb-3">
           <label class="form-label" for="nav-password">Password<span aria-hidden="true" class="text-primary ms-1" title="{{ __('This field is required.') }}"><strong>*</strong></span><span class="visually-hidden">{{ __('This field is required.') }}</span></label>
-          <input type="password" name="password" class="form-control-sm form-control" id="nav-password" required autocomplete="current-password">
+          <input type="text" data-login-activate="password" class="form-control-sm form-control" id="nav-password" autocomplete="off">
         </div>
         <button class="btn btn-sm atom-btn-secondary w-100 mt-2" type="submit">{{ __('Log in') }}</button>
       </form>
+      <script nonce="{{ $cspNonce ?? '' }}">
+      (function () {
+        // Autofill hygiene: the email/password inputs render as a neutral
+        // type="text" with no name, so the browser sees NO login form on page
+        // load and stops offering / forcing a saved credential into every text
+        // field (including the navbar search box). They become a real
+        // email/password form only when the login dropdown opens or a field is
+        // focused - i.e. exactly when the user actually wants to sign in.
+        function activate() {
+          var e = document.getElementById('nav-email');
+          var p = document.getElementById('nav-password');
+          if (e && e.dataset.loginActivate) {
+            e.type = 'email'; e.name = 'email'; e.required = true;
+            e.setAttribute('autocomplete', 'email'); delete e.dataset.loginActivate;
+          }
+          if (p && p.dataset.loginActivate) {
+            p.type = 'password'; p.name = 'password'; p.required = true;
+            p.setAttribute('autocomplete', 'current-password'); delete p.dataset.loginActivate;
+          }
+        }
+        document.addEventListener('show.bs.dropdown', function (ev) {
+          if (ev.target && ev.target.id === 'user-menu') { activate(); }
+        });
+        document.addEventListener('focusin', function (ev) {
+          if (ev.target && ev.target.dataset && ev.target.dataset.loginActivate) { activate(); }
+        });
+      })();
+      </script>
 
       {{-- Demo credentials — only on the AHG-branded heratio site, not on white-label client deployments.
            Gated by Show Branding (same toggle that controls "Powered by Heratio"). --}}

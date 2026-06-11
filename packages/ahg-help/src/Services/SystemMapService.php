@@ -101,6 +101,40 @@ class SystemMapService
             ]];
         }
 
+        // Only keep `help` links the current viewer can actually open. Some
+        // nodes point at articles in admin-only categories (Technical / Plugin
+        // Reference) or at slugs not (yet) ingested; for an anonymous visitor
+        // those resolve to a 404. Null those slugs so the node renders as plain
+        // text instead of a dead link. One query, mirrors HelpArticleService's
+        // own visibility gate. Degrades safely (links kept) if the table is
+        // absent or the lookup throws.
+        try {
+            $slugs = [];
+            foreach ($elements as $el) {
+                if (! empty($el['data']['help'])) {
+                    $slugs[$el['data']['help']] = true;
+                }
+            }
+            if ($slugs && \Illuminate\Support\Facades\Schema::hasTable('help_article')) {
+                $q = \Illuminate\Support\Facades\DB::table('help_article')
+                    ->whereIn('slug', array_keys($slugs))
+                    ->where('is_published', 1);
+                if (! HelpArticleService::isAdmin()) {
+                    $q->whereNotIn('category', HelpArticleService::ADMIN_CATEGORIES);
+                }
+                $viewable = array_flip($q->pluck('slug')->all());
+                foreach ($elements as &$el) {
+                    if (! empty($el['data']['help']) && ! isset($viewable[$el['data']['help']])) {
+                        $el['data']['help'] = null;
+                    }
+                }
+                unset($el);
+            }
+        } catch (\Throwable $e) {
+            // Keep the links as-is on any lookup failure - a possible 404 is
+            // better than a blank map.
+        }
+
         return [
             'elements' => $elements,
             'bands'    => $def['bands'] ?? [],
