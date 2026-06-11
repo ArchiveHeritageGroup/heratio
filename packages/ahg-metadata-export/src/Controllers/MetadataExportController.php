@@ -25,6 +25,7 @@
 
 namespace AhgMetadataExport\Controllers;
 
+use AhgMetadataExport\Services\Exporters\CidocCrmSerializer;
 use AhgMetadataExport\Services\Exporters\DacsSerializer;
 use AhgMetadataExport\Services\Exporters\DublinCoreQualifiedSerializer;
 use AhgMetadataExport\Services\Exporters\ModsSerializer;
@@ -58,6 +59,7 @@ class MetadataExportController extends Controller
             'json-ld' => ['name' => 'JSON-LD', 'icon' => 'bi-braces'],
             'turtle' => ['name' => 'Turtle (TTL)', 'icon' => 'bi-file-earmark-text'],
             'ntriples' => ['name' => 'N-Triples', 'icon' => 'bi-file-earmark-text'],
+            'cidoc-crm' => ['name' => 'CIDOC-CRM (Turtle / RDF/XML)', 'icon' => 'bi-diagram-3'],
         ];
 
         $repositories = DB::table('repository')
@@ -132,6 +134,54 @@ class MetadataExportController extends Controller
 
         return new Response($xml, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+
+    /**
+     * Download a single information_object as a CIDOC-CRM (ISO 21127) RDF
+     * document. Twin to downloadStandard but RDF rather than XML-envelope:
+     * the graph is emitted as Turtle (default) or RDF/XML depending on the
+     * ?rdf format hint (ttl | rdf | rdfxml), and the ahgmetadataexport.cidoc
+     * route exposes a .ttl / .rdf path variant via the same handler.
+     *
+     * Part of issue #1197 (unified G/L/A/M knowledge graph). Read-only:
+     * delegates to CidocCrmSerializer which never writes the database.
+     */
+    public function downloadCidocCrm(Request $request, ?string $ext = null)
+    {
+        $ioId = (int) $request->query('io', 0);
+        $culture = (string) $request->query('culture', app()->getLocale() ?: 'en');
+        if ($ioId < 1) {
+            abort(400, 'Missing io parameter');
+        }
+
+        // Format precedence: path extension (.ttl/.rdf) > ?rdf= query > default ttl.
+        $hint = strtolower((string) ($ext ?: $request->query('rdf', 'ttl')));
+        $isRdfXml = in_array($hint, ['rdf', 'rdfxml', 'rdf+xml', 'xml'], true);
+
+        $format = $isRdfXml ? CidocCrmSerializer::FORMAT_RDFXML : CidocCrmSerializer::FORMAT_TURTLE;
+
+        // Operator endpoint (web+auth middleware) - emit even unpublished
+        // records for staff review. publicOnly stays false here; the
+        // serializer's published-records gate is reserved for any future
+        // unauthenticated Linked Data surface.
+        $body = (new CidocCrmSerializer())->serializeRecord($ioId, $culture, $format, false);
+
+        if ($body === '') {
+            abort(404, 'No record produced for CIDOC-CRM export');
+        }
+
+        if ($isRdfXml) {
+            $contentType = 'application/rdf+xml; charset=UTF-8';
+            $filename = sprintf('heratio-cidoc-crm-%d.rdf', $ioId);
+        } else {
+            $contentType = 'text/turtle; charset=UTF-8';
+            $filename = sprintf('heratio-cidoc-crm-%d.ttl', $ioId);
+        }
+
+        return new Response($body, 200, [
+            'Content-Type' => $contentType,
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }

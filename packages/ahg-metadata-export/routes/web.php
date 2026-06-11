@@ -12,6 +12,17 @@ Route::prefix('admin/metadata-export')->middleware(['web', 'auth'])->group(funct
         ->whereIn('format', ['dcterms', 'mods', 'rad', 'dacs'])
         ->name('ahgmetadataexport.download');
 
+    // #1197 CIDOC-CRM (ISO 21127) RDF download. ?io=NNN required; serialisation
+    // is Turtle by default, RDF/XML when ?rdf=rdf. A .ttl / .rdf path variant
+    // selects the format from the extension. Lives under /admin/metadata-export
+    // so the IO slug catch-all in ahg-information-object-manage cannot
+    // intercept it.
+    Route::get('/cidoc-crm', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadCidocCrm'])
+        ->name('ahgmetadataexport.cidoc');
+    Route::get('/cidoc-crm.{ext}', [\AhgMetadataExport\Controllers\MetadataExportController::class, 'downloadCidocCrm'])
+        ->whereIn('ext', ['ttl', 'rdf'])
+        ->name('ahgmetadataexport.cidoc.ext');
+
     // #662 Phase 3 RAD / DACS XML importer. POST with `xml_file` upload or
     // `xml` body field. dryRun=1 (default) returns preview JSON; dryRun=0
     // (or commit=1) persists into ahg_io_rad / ahg_io_dacs.

@@ -1,6 +1,7 @@
 <?php
 
 use AhgSemanticSearch\Controllers\DisplacedHeritageController;
+use AhgSemanticSearch\Controllers\RepatriationClaimController;
 use AhgSemanticSearch\Controllers\ScholarshipController;
 use AhgSemanticSearch\Controllers\SemanticSearchController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,29 @@ Route::middleware(['auth', 'admin'])->prefix('semantic-search/admin')->group(fun
     // mismatch flags for curatorial review only - not a repatriation claim.
     Route::get('/displaced-heritage', [DisplacedHeritageController::class, 'index'])
         ->name('semantic-search.displaced-heritage.index');
+});
+
+// heratio#1207 - repatriation engine, next slice: structured repatriation-claim
+// workflow on top of the displaced-heritage register. Admin-gated CRUD over the
+// new displaced_heritage_claim table (the public virtual-return view is bound
+// separately in the provider's register()). All paths are 2-segment+ so they
+// never collide with the single-segment /{slug} archival-record catch-all.
+Route::middleware(['auth', 'admin'])->prefix('repatriation')->group(function () {
+    Route::get('/claims', [RepatriationClaimController::class, 'index'])
+        ->name('repatriation.claims.index');
+    Route::get('/claims/create', [RepatriationClaimController::class, 'create'])
+        ->name('repatriation.claims.create');
+    Route::post('/claims', [RepatriationClaimController::class, 'store'])
+        ->name('repatriation.claims.store');
+    Route::get('/claims/{id}/edit', [RepatriationClaimController::class, 'edit'])
+        ->where('id', '[0-9]+')
+        ->name('repatriation.claims.edit');
+    Route::post('/claims/{id}', [RepatriationClaimController::class, 'update'])
+        ->where('id', '[0-9]+')
+        ->name('repatriation.claims.update');
+    Route::post('/claims/{id}/status', [RepatriationClaimController::class, 'status'])
+        ->where('id', '[0-9]+')
+        ->name('repatriation.claims.status');
 });
 
 // AJAX endpoints (legacy camelCase aliases)

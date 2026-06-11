@@ -58,6 +58,22 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ])
                 ->where('id', '[0-9]+')
                 ->name('displaced-heritage.show');
+
+            // heratio#1207 - public "virtual return" surface. One repatriation
+            // claim rendered as a respectful virtual return: the object shown in
+            // its ORIGIN context (origin place + claimant community + a record
+            // link for PUBLISHED items only). Two-segment path with a numeric
+            // {id} so it can never shadow the single-segment /{slug} archival-
+            // record catch-all, but bound here (register() +
+            // callAfterResolving('router')) for the same precedence guarantee as
+            // the routes above. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/virtual-return/{id}', [
+                    \AhgSemanticSearch\Controllers\VirtualReturnController::class, 'show',
+                ])
+                ->where('id', '[0-9]+')
+                ->name('virtual-return.show');
         });
     }
 
@@ -75,6 +91,14 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
         // single try/catch so a fresh boot never fatals - see the CI rule in
         // memory/reference_ci_schema_hastable.md).
         $this->bootScholarshipDiscoveryTable();
+
+        // heratio#1207 - repatriation-claim / virtual-return workflow. The
+        // structured claim records that sit on top of the displaced-heritage
+        // register live in displaced_heritage_claim. Auto-created on first boot
+        // behind a Schema::hasTable probe in a single try/catch (the canonical
+        // package idiom - never fatal a fresh boot; see
+        // memory/reference_ci_schema_hastable.md).
+        $this->bootRepatriationClaimTable();
 
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -125,6 +149,70 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
             // Discoveries page degrades to on-demand generation when the table
             // is absent.
             Log::warning('ahg-semantic-search scholarship-discovery boot install skipped: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Idempotent first-boot creation of the repatriation-claim table.
+     *
+     * One row per claim holds the structured workflow record that sits on top of
+     * a displaced-heritage item: who is claiming it, its place of origin, the
+     * current holder, where the claim stands (claim_status, a VARCHAR - never an
+     * ENUM), the documented evidence summary, and curatorial notes. item_ref is a
+     * soft reference to the information_object id (NO foreign key) so this
+     * additive table never constrains or ALTERs the existing catalogue.
+     *
+     * Prefers the shipped install SQL (database/install_repatriation_claim.sql)
+     * so the table definition has one source of truth; falls back to a Schema
+     * builder create if the SQL file is unreadable. The whole thing is wrapped in
+     * a single try/catch so a missing / locked DB at boot can never fatal the
+     * app - the service and controllers degrade to the empty-state when the table
+     * is absent.
+     */
+    protected function bootRepatriationClaimTable(): void
+    {
+        try {
+            if (Schema::hasTable('displaced_heritage_claim')) {
+                return;
+            }
+
+            $sqlPath = __DIR__.'/../../database/install_repatriation_claim.sql';
+            $ran = false;
+            if (is_readable($sqlPath)) {
+                $sql = (string) file_get_contents($sqlPath);
+                if (trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                    $ran = true;
+                }
+            }
+
+            // Fallback: build the table via the Schema builder if the SQL file
+            // was not available, so a fresh install still gets the table.
+            if (! $ran && ! Schema::hasTable('displaced_heritage_claim')) {
+                Schema::create('displaced_heritage_claim', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->unsignedBigInteger('item_ref');
+                    $table->string('claimant_community', 512)->nullable();
+                    $table->string('origin_place', 512)->nullable();
+                    $table->string('current_holder', 512)->nullable();
+                    $table->string('claim_status', 64)->default('registered');
+                    $table->text('evidence_summary')->nullable();
+                    $table->string('contact', 512)->nullable();
+                    $table->text('notes')->nullable();
+                    $table->unsignedBigInteger('created_by')->nullable();
+                    $table->timestamps();
+
+                    $table->index('item_ref', 'ix_dhc_item_ref');
+                    $table->index('claim_status', 'ix_dhc_status');
+                    $table->index(['item_ref', 'claim_status'], 'ix_dhc_item_status');
+                });
+            }
+
+            Log::info('ahg-semantic-search: displaced_heritage_claim created (first-boot)');
+        } catch (\Throwable $e) {
+            // Never block boot on install failure - log and continue. The claim
+            // workflow degrades to the empty-state when the table is absent.
+            Log::warning('ahg-semantic-search repatriation-claim boot install skipped: '.$e->getMessage());
         }
     }
 }
