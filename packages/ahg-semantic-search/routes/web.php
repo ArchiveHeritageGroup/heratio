@@ -1,6 +1,7 @@
 <?php
 
 use AhgSemanticSearch\Controllers\DisplacedHeritageController;
+use AhgSemanticSearch\Controllers\EndangeredHeritageController;
 use AhgSemanticSearch\Controllers\RepatriationClaimController;
 use AhgSemanticSearch\Controllers\ScholarshipController;
 use AhgSemanticSearch\Controllers\SemanticSearchController;
@@ -56,6 +57,26 @@ Route::middleware(['auth', 'admin'])->prefix('repatriation')->group(function () 
     Route::post('/claims/{id}/status', [RepatriationClaimController::class, 'status'])
         ->where('id', '[0-9]+')
         ->name('repatriation.claims.status');
+});
+
+// heratio#1205 - North Star "race against loss": endangered-heritage register +
+// capture-priority list. Admin-gated worklist + flag + capture-status workflow
+// over the new endangered_heritage_item table. All paths are 2-segment+ so they
+// never collide with the single-segment /{slug} archival-record catch-all. The
+// PUBLIC read-only register lives at the single-segment /at-risk and is bound
+// separately in the provider's register() (callAfterResolving('router')) so it
+// wins the match ahead of the catch-all - see
+// memory/reference_slug_catchall_route_precedence.md.
+Route::middleware(['auth', 'admin'])->prefix('endangered')->group(function () {
+    Route::get('/priority', [EndangeredHeritageController::class, 'worklist'])
+        ->name('endangered.priority');
+    Route::get('/flag', [EndangeredHeritageController::class, 'flagForm'])
+        ->name('endangered.flag.form');
+    Route::post('/flag', [EndangeredHeritageController::class, 'flag'])
+        ->name('endangered.flag');
+    Route::post('/{id}/capture-status', [EndangeredHeritageController::class, 'captureStatus'])
+        ->where('id', '[0-9]+')
+        ->name('endangered.capture-status');
 });
 
 // AJAX endpoints (legacy camelCase aliases)

@@ -66,6 +66,13 @@ class ExploreController extends Controller
                 'note' => __('Pick any record, then choose "Read in your language".'),
             ],
             [
+                'route' => 'language-coverage.index',
+                'icon' => 'fas fa-globe',
+                'title' => __('Languages of this collection'),
+                'desc' => __('See which languages the catalogue can be read in today, and how much of it - and help us reach more readers in more languages.'),
+                'cta' => __('See language coverage'),
+            ],
+            [
                 'route' => 'capture-priority.public',
                 'icon' => 'fas fa-hourglass-half',
                 'title' => __('Race against loss'),

@@ -74,6 +74,20 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ])
                 ->where('id', '[0-9]+')
                 ->name('virtual-return.show');
+
+            // heratio#1205 - North Star "race against loss": the PUBLIC, read-only
+            // "at risk" register of endangered heritage (PUBLISHED items only),
+            // most-urgent first, framing why heritage is endangered and the race
+            // to capture it. Single-segment public path, registered the same way
+            // as /discoveries and /displaced-heritage (register() +
+            // callAfterResolving('router')) so it binds BEFORE the single-segment
+            // /{slug} archival-record catch-all in ahg-information-object-manage.
+            // See memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/at-risk', [
+                    \AhgSemanticSearch\Controllers\EndangeredHeritageController::class, 'register',
+                ])
+                ->name('endangered.register');
         });
     }
 
@@ -99,6 +113,14 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
         // package idiom - never fatal a fresh boot; see
         // memory/reference_ci_schema_hastable.md).
         $this->bootRepatriationClaimTable();
+
+        // heratio#1205 - North Star "race against loss": endangered-heritage
+        // register + capture-priority list. The at-risk flags live in
+        // endangered_heritage_item. Auto-created on first boot behind a
+        // Schema::hasTable probe in a single try/catch (the canonical package
+        // idiom - never fatal a fresh boot; see
+        // memory/reference_ci_schema_hastable.md).
+        $this->bootEndangeredHeritageTable();
 
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -213,6 +235,68 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
             // Never block boot on install failure - log and continue. The claim
             // workflow degrades to the empty-state when the table is absent.
             Log::warning('ahg-semantic-search repatriation-claim boot install skipped: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Idempotent first-boot creation of the endangered-heritage register table.
+     *
+     * One row per at-risk flag holds the risk category, urgency, the documented
+     * reason, the capture-workflow status, and who raised the flag. item_ref is a
+     * SOFT reference to the information_object id (NO foreign key) so this additive
+     * table never constrains or ALTERs the existing catalogue. risk_category,
+     * urgency and capture_status are VARCHAR (Dropdown-Manager idiom, never an
+     * ENUM).
+     *
+     * Prefers the shipped install SQL (database/install_endangered_heritage.sql)
+     * so the table definition has one source of truth; falls back to a Schema
+     * builder create if the SQL file is unreadable. The whole thing is wrapped in
+     * a single try/catch so a missing / locked DB at boot can never fatal the app
+     * - the service and controllers degrade to the empty-state when the table is
+     * absent.
+     */
+    protected function bootEndangeredHeritageTable(): void
+    {
+        try {
+            if (Schema::hasTable('endangered_heritage_item')) {
+                return;
+            }
+
+            $sqlPath = __DIR__.'/../../database/install_endangered_heritage.sql';
+            $ran = false;
+            if (is_readable($sqlPath)) {
+                $sql = (string) file_get_contents($sqlPath);
+                if (trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                    $ran = true;
+                }
+            }
+
+            // Fallback: build the table via the Schema builder if the SQL file was
+            // not available, so a fresh install still gets the table.
+            if (! $ran && ! Schema::hasTable('endangered_heritage_item')) {
+                Schema::create('endangered_heritage_item', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->unsignedBigInteger('item_ref');
+                    $table->string('risk_category', 64)->default('other');
+                    $table->string('urgency', 32)->default('medium');
+                    $table->text('reason')->nullable();
+                    $table->string('capture_status', 32)->default('flagged');
+                    $table->unsignedBigInteger('flagged_by')->nullable();
+                    $table->timestamps();
+
+                    $table->index('item_ref', 'ix_ehi_item_ref');
+                    $table->index('urgency', 'ix_ehi_urgency');
+                    $table->index('capture_status', 'ix_ehi_capture_status');
+                    $table->index(['item_ref', 'urgency'], 'ix_ehi_item_urgency');
+                });
+            }
+
+            Log::info('ahg-semantic-search: endangered_heritage_item created (first-boot)');
+        } catch (\Throwable $e) {
+            // Never block boot on install failure - log and continue. The register
+            // degrades to the empty-state when the table is absent.
+            Log::warning('ahg-semantic-search endangered-heritage boot install skipped: '.$e->getMessage());
         }
     }
 }

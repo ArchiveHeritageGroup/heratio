@@ -13,6 +13,7 @@
 declare(strict_types=1);
 
 use AhgC2pa\Controllers\AuthenticityController;
+use AhgC2pa\Controllers\AuthenticityReportController;
 use AhgC2pa\Controllers\CoverageController;
 use AhgC2pa\Controllers\ProvenanceController;
 use AhgC2pa\Controllers\PublicCheckController;
@@ -21,6 +22,49 @@ use AhgC2pa\Controllers\VerifyObjectController;
 use AhgC2pa\Controllers\VerifyObjectDownloadController;
 use AhgC2pa\Controllers\VerifyRecordTraceController;
 use Illuminate\Support\Facades\Route;
+
+// Public per-record AUTHENTICITY REPORT surface (issue #1209, north star).
+// A single, plain-language report that CONSOLIDATES the verification signals
+// that already exist for one published record - content credentials / C2PA
+// signing, the whole-record provenance verdict, AI-inference provenance - plus
+// an honest "what we can and cannot verify" statement. It reuses the existing
+// services read-only (AuthenticityReportService -> ProvenanceTraceService ->
+// ProvenanceRecordService); it builds no new verification of its own.
+//
+// All paths are multi-segment (/authenticity/...) so the single-segment IO
+// slug catch-all (/{slug}) can never intercept them. There is deliberately NO
+// bare /authenticity route here: the report needs a record reference, and a
+// bare single-segment /authenticity would sit in the catch-all's lane. The
+// literal '.json' companion and the extensionless 'badge' are declared BEFORE
+// the {idOrSlug} '.+' matcher so they can never be captured as part of a slug.
+Route::prefix('authenticity')->group(function () {
+    // Embeddable record-level trust badge. Extensionless on purpose: nginx
+    // serves *.svg as a static file and 404s before Laravel. The response is
+    // still image/svg+xml and embeds fine in an <img>. Deeper '/badge' segment
+    // declared before the {idOrSlug} '.+' route so 'badge' is never swallowed
+    // as a slug fragment. {idOrSlug} pinned to a non-slash run so the badge
+    // path stays unambiguous.
+    Route::get('/{idOrSlug}/badge', [AuthenticityReportController::class, 'badge'])
+        ->name('c2pa.authenticity.report.badge')
+        ->where('idOrSlug', '[^/]+');
+
+    // Machine-readable companion. nginx passes *.json through to Laravel, so
+    // unlike the SVG badge this keeps its real extension. Declared before the
+    // bare {idOrSlug} page route so the literal '.json' suffix resolves here.
+    // A purely numeric or single-segment slug reference is supported; a
+    // multi-segment slug uses the page route below (its own '.+' matcher).
+    Route::get('/{idOrSlug}.json', [AuthenticityReportController::class, 'json'])
+        ->name('c2pa.authenticity.report.json')
+        ->where('idOrSlug', '[^/]+');
+
+    // The report page itself, addressed by numeric id or (possibly
+    // multi-segment) slug. '.+' so /authenticity/fonds/series/item resolves to
+    // one record. Unknown / unpublished -> 404. Declared LAST so the badge +
+    // .json literals win first.
+    Route::get('/{idOrSlug}', [AuthenticityReportController::class, 'show'])
+        ->name('c2pa.authenticity.report')
+        ->where('idOrSlug', '.+');
+});
 
 // Public "verify authenticity" trust-anchor surface (issue #1209).
 // Multi-segment /verify/... paths so the single-segment IO slug catch-all

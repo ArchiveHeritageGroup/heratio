@@ -124,6 +124,29 @@ Route::get('/record/{idOrSlug}/translate', [\AhgCore\Controllers\MultilingualCon
 // archival-record catch-all (that route only matches a single segment AND excludes known prefixes).
 Route::post('/reading-language', [\AhgCore\Controllers\ReadingLanguageController::class, 'set'])->name('reading-language.set');
 
+// heratio#1211 - universal multilingual access (north-star NEXT slice): a public,
+// read-only LANGUAGE-COVERAGE dashboard + an on-demand metadata-translation endpoint.
+//
+//  - GET /language-coverage shows, per language, how much of the PUBLISHED catalogue
+//    (descriptions, authority records, vocabulary terms) can be read in it, as counts
+//    + simple CSS bars, framed as a "help us reach more readers" invitation. All
+//    figures are cheap aggregate COUNTs from the read-only LanguageCoverageService;
+//    a zero total renders a calm empty-state, never a 500.
+//  - POST /language-coverage/translate machine-translates ONE published record's key
+//    metadata into a target language for DISPLAY ONLY, via the SANCTIONED gateway
+//    client (MultilingualRecordService -> AhgAiServices\Services\LlmService::translate
+//    -> https://ai.theahg.co.za/ai/v1), labelled "machine translation via the AHG
+//    gateway - not an official translation". The original stays authoritative and is
+//    never overwritten; drafts 404 for the public.
+//
+// /language-coverage is a SINGLE-segment public path, like /explore and
+// /collection-overview. ahg-core boots early, so it is registered before the
+// single-segment /{slug} archival-record catch-all in ahg-information-object-manage
+// and wins the match (first-registered route wins). The POST translate route is
+// MULTI-SEGMENT, so it can never be captured as a /{slug} value either way.
+Route::get('/language-coverage', [\AhgCore\Controllers\LanguageCoverageController::class, 'index'])->name('language-coverage.index');
+Route::post('/language-coverage/translate', [\AhgCore\Controllers\LanguageCoverageController::class, 'translate'])->name('language-coverage.translate');
+
 // heratio#1183 - point clouds: admin manager + public Potree viewer
 Route::middleware('auth')->group(function () {
     Route::get('/admin/pointclouds', [\AhgCore\Controllers\PointCloudController::class, 'index'])->name('pointclouds.index');
