@@ -1302,10 +1302,18 @@
     document.addEventListener('keyup', function (e) { keys[e.code] = false; });
 
     // Format-aware model loader (glb/gltf/obj/stl/ply).
+    // The actual file extension is authoritative: the stored model_format column
+    // can be wrong (e.g. a .glb file mislabelled 'obj' in object_3d_model.format),
+    // which would route a binary GLB to OBJLoader and render nothing - "Unexpected
+    // line" garbage in the console and a grey/empty display case. Trust the URL's
+    // recognised 3D extension first; fall back to model_format only when the URL
+    // has no usable extension.
     function modelExt(s) {
-      if (s.model_format) return String(s.model_format).toLowerCase();
-      var u = (s.model_url || '').split('?')[0];
-      return u.substring(u.lastIndexOf('.') + 1).toLowerCase();
+      var u = (s.model_url || '').split('?')[0].toLowerCase();
+      var m = u.match(/\.(glb|gltf|obj|fbx|stl|ply|pcd|splat|ksplat)$/);
+      if (m) { return m[1]; }
+      if (s.model_format) { return String(s.model_format).toLowerCase(); }
+      return u.substring(u.lastIndexOf('.') + 1);
     }
     // Effective per-object tilt (degrees). Explicit Builder value wins; else auto:
     // OBJ/STL/PLY are usually Z-up so default to -90 X; glTF stays upright.
@@ -1327,13 +1335,13 @@
       _gltfLoader = new THREE.GLTFLoader();
       if (THREE.DRACOLoader) {   // decode DRACO-compressed meshes (no-op for uncompressed)
         var dl = new THREE.DRACOLoader();
-        dl.setDecoderPath('/vendor/three/0.137.5/draco/');   // self-hosted, was jsdelivr CDN
+        dl.setDecoderPath('/vendor/three/0.169.0/draco/');   // MUST match the loaded three.js (r169); the r137 decoder throws "DRACOLoader: Unexpected geometry type" and the model renders as a grey block
         _gltfLoader.setDRACOLoader(dl);
       }
       if (THREE.KTX2Loader) {   // transcode KTX2/Basis textures (no-op when none present)
         try {
           var kt = new THREE.KTX2Loader();
-          kt.setTranscoderPath('/vendor/three/0.137.5/basis/');
+          kt.setTranscoderPath('/vendor/three/0.169.0/basis/');   // match the loaded three.js (r169), as with the Draco decoder above
           if (typeof renderer !== 'undefined' && renderer) { kt.detectSupport(renderer); }
           _gltfLoader.setKTX2Loader(kt);
         } catch (e) {}
