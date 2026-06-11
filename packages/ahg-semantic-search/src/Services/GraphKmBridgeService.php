@@ -198,7 +198,10 @@ class GraphKmBridgeService
             $names = [];
             foreach ($items as $item) {
                 $name = trim((string) ($item['name'] ?? ''));
-                if ($name !== '') {
+                // heratio#1220 - scrub synthetic test/demo fixtures from the
+                // neighbour list too (not just the digest subject), so a real
+                // record that links to "Test AI" never leaks that name into KM.
+                if ($name !== '' && ! $this->looksLikeTestTitle($name)) {
                     $names[] = $name;
                 }
                 if (count($names) >= $this->perDomainCap) {

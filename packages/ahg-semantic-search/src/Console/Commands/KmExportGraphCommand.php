@@ -322,7 +322,9 @@ class KmExportGraphCommand extends Command
                 $names = [];
                 foreach ($items as $item) {
                     $name = trim((string) ($item['name'] ?? ''));
-                    if ($name !== '') {
+                    // heratio#1220 - keep test/demo fixture names out of the
+                    // neighbour list so they never reach KM.
+                    if ($name !== '' && ! $bridge->looksLikeTestTitle($name)) {
                         $names[] = $name;
                     }
                     if (count($names) >= 8) {
