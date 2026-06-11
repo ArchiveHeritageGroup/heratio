@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  heratio#1219 reconstruction-montage demo layer 3 of 6: openings + upper storey.
+  Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems. AGPL-3.0-or-later.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" role="img" aria-label="Doors, windows and upper storey">
+  <!-- upper storey -->
+  <rect x="230" y="190" width="500" height="120" fill="#6b5a45" stroke="#4a3e2f" stroke-width="2"/>
+  <!-- door -->
+  <rect x="455" y="420" width="50" height="100" fill="#2c2018" stroke="#1c140d" stroke-width="2"/>
+  <!-- ground-floor windows -->
+  <g fill="#9fc6e8" stroke="#3a2e22" stroke-width="3">
+    <rect x="270" y="360" width="55" height="70"/>
+    <rect x="360" y="360" width="55" height="70"/>
+    <rect x="545" y="360" width="55" height="70"/>
+    <rect x="635" y="360" width="55" height="70"/>
+  </g>
+  <!-- upper windows -->
+  <g fill="#9fc6e8" stroke="#3a2e22" stroke-width="3">
+    <rect x="300" y="220" width="48" height="60"/>
+    <rect x="456" y="220" width="48" height="60"/>
+    <rect x="612" y="220" width="48" height="60"/>
+  </g>
+</svg>

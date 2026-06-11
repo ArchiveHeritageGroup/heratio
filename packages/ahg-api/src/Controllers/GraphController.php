@@ -52,6 +52,7 @@
 
 namespace AhgApi\Controllers;
 
+use AhgApi\Services\GraphSerializerService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -68,11 +69,19 @@ class GraphController extends Controller
     /** Hard cap on neighbours emitted, so the open endpoint stays cheap. */
     private const MAX_NEIGHBOURS = 200;
 
+    /** Default page size for the crawlable index; also the hard ceiling. */
+    private const INDEX_PAGE_SIZE = 200;
+
+    private const INDEX_MAX_PAGE_SIZE = 500;
+
     protected string $culture = 'en';
 
-    public function __construct()
+    protected GraphSerializerService $serializer;
+
+    public function __construct(GraphSerializerService $serializer)
     {
         $this->culture = app()->getLocale() ?: 'en';
+        $this->serializer = $serializer;
     }
 
     /**
@@ -81,13 +90,18 @@ class GraphController extends Controller
      * Returns the record's graph neighbourhood as Linked Data.
      *
      * Format selection (in priority order):
-     *   1. ?format=jsonld|json-ld|turtle|ttl|crm  query param
-     *   2. Accept header (text/turtle -> Turtle, application/ld+json -> JSON-LD)
-     *   3. Default: JSON-LD
+     *   1. Path suffix (.jsonld / .ttl / .rdf), passed in by the route.
+     *   2. ?format=jsonld|json-ld|json|ttl|turtle|rdf|crm  query param
+     *   3. Accept header (text/turtle -> Turtle, application/rdf+xml ->
+     *      RDF/XML, application/ld+json or application/json -> JSON-LD)
+     *   4. Default: JSON-LD
+     *
+     * The JSON-LD (default) response is byte-for-byte the historical shape, so
+     * existing callers are unaffected.
      */
-    public function show(Request $request, string $idOrSlug): Response
+    public function show(Request $request, string $idOrSlug, ?string $suffix = null): Response
     {
-        $format = $this->negotiateFormat($request);
+        $format = $this->negotiateFormat($request, $suffix);
 
         // Resolve numeric id or slug to an object id.
         $objectId = is_numeric($idOrSlug)
@@ -95,25 +109,53 @@ class GraphController extends Controller
             : (int) DB::table('slug')->where('slug', $idOrSlug)->value('object_id');
 
         if (! $objectId) {
-            return $this->notFound($idOrSlug);
+            return $this->notFound($idOrSlug, $this->contentTypeFor($format));
         }
 
         // Load the node itself (and enforce the publication-status gate). Only
         // published archival descriptions are exposed as open data.
         $node = $this->loadNode($objectId);
         if (! $node) {
-            return $this->notFound($idOrSlug);
+            return $this->notFound($idOrSlug, $this->contentTypeFor($format));
         }
 
-        // Turtle: hand off to ahg-ric's CrmSerializer for the CIDOC-CRM view of
-        // the node (creators, time-spans, repository, subjects, places). This
-        // is the canonical RDF rendering of the record graph; read-only call.
+        // Build the neutral graph array once; every serialisation derives from
+        // it so the formats can never drift.
+        $graph = $this->buildGraph($node);
+
+        // Turtle: prefer ahg-ric's CrmSerializer for the richer CIDOC-CRM view
+        // of the node (creators, time-spans, repository, subjects, places).
+        // Fall back to the in-package serializer when ahg-ric is absent, so the
+        // open endpoint never 501s for a published record.
         if ($format === 'turtle') {
-            return $this->turtleResponse($objectId);
+            $ric = $this->ricTurtle($objectId);
+            if ($ric !== null) {
+                return $this->withCors(
+                    response($ric, 200, ['Content-Type' => 'text/turtle; charset=utf-8'])
+                );
+            }
+
+            return $this->withCors(response(
+                $this->serializer->toTurtle($graph),
+                200,
+                ['Content-Type' => 'text/turtle; charset=utf-8']
+            ));
+        }
+
+        if ($format === 'rdfxml') {
+            return $this->withCors(response(
+                $this->serializer->toRdfXml($graph),
+                200,
+                ['Content-Type' => 'application/rdf+xml; charset=utf-8']
+            ));
         }
 
         // JSON-LD (default): node + cross-collection neighbours as an @graph.
-        return $this->jsonLdResponse($node);
+        $body = json_encode($graph, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return $this->withCors(
+            response($body, 200, ['Content-Type' => 'application/ld+json; charset=utf-8'])
+        );
     }
 
     /**
@@ -125,26 +167,287 @@ class GraphController extends Controller
     }
 
     // -----------------------------------------------------------------
+    // Protocol front door: dataset description (VoID / DCAT-ish)
+    // -----------------------------------------------------------------
+
+    /**
+     * GET /api/v1/graph
+     *
+     * The protocol's discovery root: a self-describing dataset description
+     * (VoID / DCAT flavoured) so a crawler can learn the title, licence, the
+     * namespaces in use, entity counts by class, and where to find the
+     * context document and the crawlable seed/index. Read-only.
+     */
+    public function dataset(Request $request): Response
+    {
+        $base = $this->endpointBase();
+        $counts = $this->classCounts();
+        $total = array_sum($counts);
+
+        $doc = [
+            '@context' => array_merge($this->serializer->context(), [
+                'void' => 'http://rdfs.org/ns/void#',
+                'dcat' => 'http://www.w3.org/ns/dcat#',
+                'title' => 'dcterms:title',
+                'license' => ['@id' => 'dcterms:license', '@type' => '@id'],
+                'modified' => 'dcterms:modified',
+                'triples' => 'void:triples',
+                'entities' => 'void:entities',
+                'classPartition' => 'void:classPartition',
+                'class' => ['@id' => 'void:class', '@type' => '@id'],
+                'dataDump' => ['@id' => 'void:dataDump', '@type' => '@id'],
+                'rootResource' => ['@id' => 'void:rootResource', '@type' => '@id'],
+            ]),
+            '@id' => $base.'/api/v1/graph',
+            '@type' => ['void:Dataset', 'dcat:Dataset'],
+            'title' => (string) config('app.name', 'Heratio').' Open Memory Protocol graph',
+            'description' => 'Open, read-only Linked-Data graph of published archival '
+                .'descriptions and their cross-collection neighbours. Content-'
+                .'negotiable JSON-LD (default), Turtle and RDF/XML. Crawlable: '
+                .'every entity @id dereferences back to this endpoint.',
+            'license' => 'https://creativecommons.org/licenses/by/4.0/',
+            'modified' => now()->toIso8601String(),
+            'entities' => $total,
+            // Namespaces in use, mirrored from the serializer.
+            'omp:namespaces' => $this->serializer->namespaces(),
+            // Class partition (VoID) - published entity counts per class.
+            'classPartition' => $this->classPartition($counts),
+            // Discovery links.
+            'context' => $base.'/api/v1/graph/context.jsonld',
+            'rootResource' => $base.'/api/v1/graph/index',
+            'omp:seed' => $base.'/api/v1/graph/index',
+            'dataDump' => $base.'/api/v1/graph/index',
+        ];
+
+        $body = json_encode($doc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return $this->withCors(
+            response($body, 200, ['Content-Type' => 'application/ld+json; charset=utf-8'])
+        );
+    }
+
+    // -----------------------------------------------------------------
+    // Crawlable seed / index (cursor-paginated)
+    // -----------------------------------------------------------------
+
+    /**
+     * GET /api/v1/graph/index  (alias: /seed)
+     *
+     * A cursor-paginated list of published entity ids/slugs+classes so a
+     * crawler can enumerate the whole graph. Bounded page size; an opaque
+     * (here: id-keyset) `next` cursor. Read-only over the same tables the
+     * per-entity endpoint uses, with the identical publication-status gate.
+     */
+    public function index(Request $request): Response
+    {
+        $base = $this->endpointBase();
+
+        $size = (int) $request->query('pageSize', (string) self::INDEX_PAGE_SIZE);
+        if ($size < 1) {
+            $size = self::INDEX_PAGE_SIZE;
+        }
+        $size = min($size, self::INDEX_MAX_PAGE_SIZE);
+
+        // Keyset cursor: "after this object id". Opaque to the consumer.
+        $after = (int) $request->query('after', '0');
+
+        $rows = DB::table('information_object as io')
+            ->join('object as o', 'io.id', '=', 'o.id')
+            ->join('status as st', function ($j) {
+                $j->on('io.id', '=', 'st.object_id')
+                    ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION)
+                    ->where('st.status_id', '=', self::STATUS_PUBLISHED);
+            })
+            ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
+            ->leftJoin('information_object_i18n as i18n', function ($j) {
+                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
+            })
+            ->where('io.id', '>', $after)
+            ->where('io.id', '!=', 1) // exclude synthetic root
+            ->orderBy('io.id')
+            ->limit($size + 1) // one extra row to detect a next page
+            ->select('io.id', 'io.level_of_description_id', 's.slug', 'i18n.title')
+            ->get();
+
+        $hasMore = $rows->count() > $size;
+        $page = $hasMore ? $rows->slice(0, $size) : $rows;
+
+        $items = [];
+        $lastId = $after;
+        foreach ($page as $row) {
+            $lastId = (int) $row->id;
+            $level = $this->termName($row->level_of_description_id);
+            $items[] = [
+                '@id' => $this->graphUri((int) $row->id),
+                '@type' => $this->schemaType($level),
+                'additionalType' => $this->ricTypeForLevel($level),
+                'identifier' => (int) $row->id,
+                'slug' => $row->slug,
+                'name' => $row->title,
+            ];
+        }
+
+        $context = array_merge($this->serializer->context(), [
+            'hydra' => 'http://www.w3.org/ns/hydra/core#',
+            'next' => ['@id' => 'hydra:next', '@type' => '@id'],
+            'pageSize' => 'hydra:limit',
+            'member' => ['@id' => 'hydra:member', '@type' => '@id'],
+            'items' => 'hydra:member',
+        ]);
+
+        $doc = [
+            '@context' => $context,
+            '@id' => $base.'/api/v1/graph/index'.($after > 0 ? '?after='.$after : ''),
+            '@type' => 'hydra:PartialCollectionView',
+            'pageSize' => $size,
+            'count' => count($items),
+            'items' => $items,
+        ];
+
+        if ($hasMore) {
+            $doc['next'] = $base.'/api/v1/graph/index?after='.$lastId.'&pageSize='.$size;
+            $doc['cursor'] = (string) $lastId;
+        }
+
+        $body = json_encode($doc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return $this->withCors(
+            response($body, 200, ['Content-Type' => 'application/ld+json; charset=utf-8'])
+        );
+    }
+
+    // -----------------------------------------------------------------
+    // Stand-alone @context document
+    // -----------------------------------------------------------------
+
+    /**
+     * GET /api/v1/graph/context.jsonld
+     *
+     * The shared JSON-LD @context as a stable, dereferenceable document. The
+     * per-entity responses inline the same context (single source in the
+     * GraphSerializerService), so the two never drift.
+     */
+    public function context(): Response
+    {
+        $doc = ['@context' => $this->serializer->context()];
+
+        $body = json_encode($doc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+        return $this->withCors(
+            response($body, 200, ['Content-Type' => 'application/ld+json; charset=utf-8'])
+        );
+    }
+
+    // -----------------------------------------------------------------
+    // Class counts for the dataset description (read-only)
+    // -----------------------------------------------------------------
+
+    /**
+     * Count published archival descriptions grouped by schema.org class.
+     *
+     * @return array<string,int>
+     */
+    protected function classCounts(): array
+    {
+        try {
+            $rows = DB::table('information_object as io')
+                ->join('status as st', function ($j) {
+                    $j->on('io.id', '=', 'st.object_id')
+                        ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION)
+                        ->where('st.status_id', '=', self::STATUS_PUBLISHED);
+                })
+                ->where('io.id', '!=', 1)
+                ->select('io.level_of_description_id', DB::raw('COUNT(*) as n'))
+                ->groupBy('io.level_of_description_id')
+                ->get();
+        } catch (\Throwable $e) {
+            return [];
+        }
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $class = $this->schemaType($this->termName($row->level_of_description_id));
+            $counts[$class] = ($counts[$class] ?? 0) + (int) $row->n;
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Shape class counts into a VoID classPartition list.
+     *
+     * @param  array<string,int>  $counts
+     * @return array<int,array<string,mixed>>
+     */
+    protected function classPartition(array $counts): array
+    {
+        $partition = [];
+        foreach ($counts as $class => $n) {
+            $partition[] = [
+                'class' => $class,
+                'entities' => $n,
+            ];
+        }
+
+        return $partition;
+    }
+
+    // -----------------------------------------------------------------
     // Format negotiation
     // -----------------------------------------------------------------
 
-    protected function negotiateFormat(Request $request): string
+    /**
+     * Resolve the wire format. Returns one of: 'jsonld', 'turtle', 'rdfxml'.
+     *
+     * @param  string|null  $suffix  path suffix captured by the route
+     *                               ('jsonld' | 'ttl' | 'rdf'), highest priority.
+     */
+    protected function negotiateFormat(Request $request, ?string $suffix = null): string
     {
-        $param = strtolower((string) $request->query('format', ''));
-        if (in_array($param, ['turtle', 'ttl', 'crm', 'rdf'], true)) {
+        // 1. Path suffix wins (e.g. /graph/123.ttl).
+        $sfx = strtolower((string) $suffix);
+        if ($sfx === 'ttl') {
             return 'turtle';
+        }
+        if ($sfx === 'rdf') {
+            return 'rdfxml';
+        }
+        if ($sfx === 'jsonld') {
+            return 'jsonld';
+        }
+
+        // 2. ?format= query param.
+        $param = strtolower((string) $request->query('format', ''));
+        if (in_array($param, ['turtle', 'ttl', 'crm'], true)) {
+            return 'turtle';
+        }
+        if (in_array($param, ['rdf', 'rdfxml', 'rdf-xml', 'rdf/xml'], true)) {
+            return 'rdfxml';
         }
         if (in_array($param, ['jsonld', 'json-ld', 'json'], true)) {
             return 'jsonld';
         }
 
-        // Fall back to the Accept header.
+        // 3. Accept header.
         $accept = strtolower((string) $request->header('Accept', ''));
         if (str_contains($accept, 'text/turtle') || str_contains($accept, 'application/x-turtle')) {
             return 'turtle';
         }
+        if (str_contains($accept, 'application/rdf+xml')) {
+            return 'rdfxml';
+        }
 
+        // 4. Default.
         return 'jsonld';
+    }
+
+    protected function contentTypeFor(string $format): string
+    {
+        return match ($format) {
+            'turtle' => 'text/turtle',
+            'rdfxml' => 'application/rdf+xml',
+            default => 'application/ld+json',
+        };
     }
 
     // -----------------------------------------------------------------
@@ -209,33 +512,24 @@ class GraphController extends Controller
     // -----------------------------------------------------------------
 
     /**
-     * Build the JSON-LD document: a schema.org / rico / crm @context plus an
-     * @graph holding the node and its cross-collection neighbours. Every node
-     * carries an @id that resolves back to this endpoint, so a consumer can
-     * crawl outward.
+     * Build the JSON-LD document as a neutral PHP array: a schema.org / rico /
+     * crm @context plus an @graph holding the node and its cross-collection
+     * neighbours. Every node carries an @id that resolves back to this
+     * endpoint, so a consumer can crawl outward. This array is the single
+     * source the RDF serialisers (Turtle, RDF/XML) and the JSON-LD response
+     * all derive from, so the formats can never drift.
+     *
+     * The shape is byte-for-byte the historical JSON-LD response.
+     *
+     * @return array<string,mixed>
      */
-    protected function jsonLdResponse(array $node): Response
+    protected function buildGraph(array $node): array
     {
         // Cross-collection neighbours from the unified graph (read-only).
         $neighbourGroups = $this->neighbourGroups($node['id']);
 
-        $context = [
-            '@vocab' => 'https://schema.org/',
-            'schema' => 'https://schema.org/',
-            'rico' => 'https://www.ica.org/standards/RiC/ontology#',
-            'crm' => 'http://www.cidoc-crm.org/cidoc-crm/',
-            'dcterms' => 'http://purl.org/dc/terms/',
-            // Project-local discovery predicate: "this node is related to".
-            'omp' => $this->endpointBase() . '/ns#',
-            'name' => 'schema:name',
-            'identifier' => 'schema:identifier',
-            'description' => 'schema:description',
-            'additionalType' => ['@id' => 'schema:additionalType', '@type' => '@id'],
-            'isRelatedTo' => ['@id' => 'omp:isRelatedTo', '@type' => '@id'],
-            'relationshipDomain' => 'omp:relationshipDomain',
-            'sameAs' => ['@id' => 'schema:sameAs', '@type' => '@id'],
-            'dateModified' => 'schema:dateModified',
-        ];
+        // Shared @context owned by GraphSerializerService (single source).
+        $context = $this->serializer->context();
 
         $nodeUri = $this->graphUri($node['id']);
         $publicUrl = $this->recordPublicUrl($node);
@@ -297,50 +591,42 @@ class GraphController extends Controller
             $graph[0] = $central; // refresh the (array-copied) central node
         }
 
-        $doc = [
+        return [
             '@context' => $context,
             '@graph' => $graph,
         ];
-
-        $body = json_encode($doc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-        return $this->withCors(
-            response($body, 200, ['Content-Type' => 'application/ld+json; charset=utf-8'])
-        );
     }
 
     // -----------------------------------------------------------------
-    // Turtle (CIDOC-CRM) via ahg-ric CrmSerializer
+    // Turtle (CIDOC-CRM) via ahg-ric CrmSerializer (optional enrichment)
     // -----------------------------------------------------------------
 
-    protected function turtleResponse(int $objectId): Response
+    /**
+     * Render the richer CIDOC-CRM Turtle view via ahg-ric's CrmSerializer.
+     * Returns null when ahg-ric is absent or yields nothing, so the caller
+     * can fall back to the in-package Turtle serialisation (and the open
+     * endpoint never 501s for a published record).
+     */
+    protected function ricTurtle(int $objectId): ?string
     {
-        // Read-only call into ahg-ric. Guard the dependency so a missing
-        // ahg-ric never 500s this open endpoint.
         $serializerClass = \AhgRic\Crm\CrmSerializer::class;
         if (! class_exists($serializerClass)) {
-            return $this->withCors(response(
-                "# Turtle (CIDOC-CRM) view unavailable: ahg-ric not installed.\n",
-                501,
-                ['Content-Type' => 'text/turtle; charset=utf-8']
-            ));
+            return null;
         }
 
-        /** @var \AhgRic\Crm\CrmSerializer $serializer */
-        $serializer = app($serializerClass);
-        $ttl = $serializer->serializeRecord(
-            $objectId,
-            $this->culture,
-            \AhgRic\Crm\CrmSerializer::FORMAT_TURTLE
-        );
+        try {
+            /** @var \AhgRic\Crm\CrmSerializer $serializer */
+            $serializer = app($serializerClass);
+            $ttl = $serializer->serializeRecord(
+                $objectId,
+                $this->culture,
+                \AhgRic\Crm\CrmSerializer::FORMAT_TURTLE
+            );
 
-        if ($ttl === '') {
-            return $this->notFound((string) $objectId, 'text/turtle');
+            return $ttl === '' ? null : $ttl;
+        } catch (\Throwable $e) {
+            return null;
         }
-
-        return $this->withCors(
-            response($ttl, 200, ['Content-Type' => 'text/turtle; charset=utf-8'])
-        );
     }
 
     // -----------------------------------------------------------------

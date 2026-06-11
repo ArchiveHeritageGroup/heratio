@@ -59,6 +59,13 @@ class ExploreController extends Controller
                 'note' => __('Pick any record, then choose "Read in your language".'),
             ],
             [
+                'route' => 'capture-priority.public',
+                'icon' => 'fas fa-hourglass-half',
+                'title' => __('Race against loss'),
+                'desc' => __('See the records this collection has identified as most at risk of being lost, and why - the items a digitisation effort should reach first.'),
+                'cta' => __('See what is at risk'),
+            ],
+            [
                 'route' => 'exhibition-space.reconstructions',
                 'icon' => 'fas fa-cubes',
                 'title' => __('Reconstructions gallery'),

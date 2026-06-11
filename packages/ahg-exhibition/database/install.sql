@@ -482,4 +482,44 @@ CREATE TABLE IF NOT EXISTS ahg_exhibition_placement (
 );
 
 
+-- ============================================================================
+-- heratio#1206 / #1219 - "walk through what no longer exists": the lost-place
+-- reconstruction link, plus the rebuild-stage rows that drive the public
+-- "reconstruction assembly montage" (a lost structure rebuilding itself on
+-- screen before the visitor walks into its 3D twin).
+--
+-- The link table is also auto-created in the service provider boot probe; this
+-- block keeps a fresh `mysql < install.sql` install self-contained.
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS ahg_lost_place_reconstruction (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    information_object_id INT NOT NULL,
+    exhibition_space_id BIGINT UNSIGNED NOT NULL,
+    note TEXT NULL,
+    montage_style VARCHAR(20) NOT NULL DEFAULT 'assembly'
+      COMMENT 'reconstruction_montage_style dropdown: assembly | timelapse',
+    created_at DATETIME NULL,
+    INDEX idx_io (information_object_id),
+    INDEX idx_space (exhibition_space_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- heratio#1219 - one row per rebuild stage of a reconstruction. The montage
+-- accretes these stages: in Assembly mode each stage is an absolutely-positioned
+-- layer that fades in and STAYS (opacity controls how translucent it sits in the
+-- stack); in Time-lapse mode each dated state cross-fades into the next.
+CREATE TABLE IF NOT EXISTS ahg_reconstruction_stage (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    reconstruction_id INT NOT NULL COMMENT 'FK to ahg_lost_place_reconstruction.id',
+    sort_order INT NOT NULL DEFAULT 0,
+    caption VARCHAR(255) NULL,
+    body TEXT NULL,
+    date_display VARCHAR(64) NULL COMMENT 'free-text dated label, drives the time-lapse scrubber',
+    image_path VARCHAR(1024) NULL COMMENT 'uploaded evidence image, stored path (served via reconstruction.stage.image)',
+    image_url VARCHAR(1024) NULL COMMENT 'external / bundled asset URL',
+    opacity DECIMAL(4,2) NOT NULL DEFAULT 1.00 COMMENT 'layer translucency in the Assembly stack (0.00-1.00)',
+    created_at DATETIME NULL,
+    updated_at DATETIME NULL,
+    INDEX idx_recon_order (reconstruction_id, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;

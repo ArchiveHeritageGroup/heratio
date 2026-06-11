@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  heratio#1219 reconstruction-montage demo layer 5 of 6: dated archival photo frame.
+  Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems. AGPL-3.0-or-later.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" role="img" aria-label="Archival photograph, 1931">
+  <defs>
+    <linearGradient id="sepia" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d8c39a"/>
+      <stop offset="1" stop-color="#b29a6f"/>
+    </linearGradient>
+  </defs>
+  <rect x="120" y="60" width="720" height="480" fill="#f3ead2" stroke="#cbb386" stroke-width="10"/>
+  <rect x="150" y="90" width="660" height="380" fill="url(#sepia)"/>
+  <rect x="240" y="230" width="480" height="200" fill="#8a7553" opacity="0.85"/>
+  <polygon points="220,230 480,150 740,230" fill="#6f5a3c" opacity="0.85"/>
+  <g fill="#5c4a30" opacity="0.7">
+    <rect x="300" y="300" width="46" height="60"/>
+    <rect x="620" y="300" width="46" height="60"/>
+    <rect x="455" y="350" width="50" height="80"/>
+  </g>
+  <text x="780" y="510" fill="#7a6646" font-family="Georgia, serif" font-size="26" text-anchor="end" font-style="italic">1931</text>
+</svg>

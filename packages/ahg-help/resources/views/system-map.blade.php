@@ -315,6 +315,36 @@
   function showFallback() { if (fallbackEl) { fallbackEl.style.display = ''; } }
   function hideFallback() { if (fallbackEl) { fallbackEl.style.display = 'none'; } }
 
+  // Small-screen mode: present the static outline as the primary view and hide
+  // the interactive canvas + its controls (the canvas is unreliable at phone
+  // width and a 70-node graph is hard to use on a phone), with an explicit
+  // opt-in to load the interactive map anyway. The choice is remembered for the
+  // session so the opt-in survives the reload.
+  function enterOutlineMode(container) {
+    showFallback();
+    if (container) { container.style.display = 'none'; }
+    var mini = document.getElementById('systemMapMinimap'); if (mini) { mini.hidden = true; }
+    ['system-map-toolbar', 'system-map-stage-filter', 'system-map-stage-count', 'system-map-bread'].forEach(function (c) {
+      var els = document.getElementsByClassName(c);
+      for (var i = 0; i < els.length; i++) { els[i].style.display = 'none'; }
+    });
+    var note = document.createElement('div');
+    note.className = 'alert alert-info d-flex flex-wrap align-items-center gap-2 small mb-2';
+    var span = document.createElement('span');
+    span.innerHTML = '<i class="bi bi-list-nested me-1"></i>{{ __('Showing the text outline, which works best on small screens.') }}';
+    note.appendChild(span);
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-sm btn-outline-primary';
+    btn.textContent = '{{ __('Load interactive map anyway') }}';
+    btn.addEventListener('click', function () {
+      try { sessionStorage.setItem('sm-force-interactive', '1'); } catch (e) {}
+      window.location.reload();
+    });
+    note.appendChild(btn);
+    if (container && container.parentNode) { container.parentNode.insertBefore(note, container); }
+  }
+
   // Replace the (potentially blank) canvas with a visible, diagnosable error
   // instead of silent white. Keeps the static outline below it.
   function showError(container, msg, err) {
@@ -353,16 +383,44 @@
       return;
     }
 
+    // ---- Small screens default to the text outline (reliable) over the canvas. ----
+    var _smForce = false;
+    try {
+      var _smP = new URLSearchParams(window.location.search);
+      _smForce = _smP.get('map') === 'interactive' || sessionStorage.getItem('sm-force-interactive') === '1';
+    } catch (e) {}
+    if (window.matchMedia && window.matchMedia('(max-width: 767.98px)').matches && !_smForce) {
+      enterOutlineMode(container);
+      return;
+    }
+
     // ---- Guaranteed size: never hand Cytoscape a zero-sized container. ----
     // If CSS hasn't given the box a real height/width yet, force an explicit
     // pixel size so the very first measure is non-zero. This is the core
     // mobile fix - a 0px container paints blank and never recovers without a
     // resize event we can't guarantee.
-    if (container.clientHeight === 0 || container.clientWidth === 0) {
-      var h = Math.max(Math.round(window.innerHeight * 0.7), 420);
-      container.style.height = h + 'px';
-      if (container.clientWidth === 0) { container.style.width = '100%'; }
+    // A width:100% canvas inside any shrink-to-fit ancestor can compute to 0 on
+    // mobile, painting the main canvas blank while the fixed-size minimap still
+    // renders (the "white map + Overview block" symptom). width:'100%' cannot fix
+    // a 0-width PARENT, so resolve an explicit pixel width from the first ancestor
+    // that actually has one, falling back to the viewport, and re-assert it before
+    // every fit.
+    function reliableWidth() {
+      var w = container.clientWidth, p = container.parentElement;
+      while ((!w || w < 50) && p) { w = p.clientWidth; p = p.parentElement; }
+      if (!w || w < 50) { w = document.documentElement.clientWidth || window.innerWidth || 0; }
+      return Math.round(w);
     }
+    function ensureCanvasSize() {
+      if (container.clientWidth < 50) {
+        var w = reliableWidth();
+        if (w >= 50) { container.style.width = w + 'px'; }
+      }
+      if (container.clientHeight < 50) {
+        container.style.height = Math.max(Math.round(window.innerHeight * 0.7), 420) + 'px';
+      }
+    }
+    ensureCanvasSize();
 
     var cy;
 
@@ -895,7 +953,7 @@
     // ---- keep the canvas sized to its container. Fixes the blank/empty map on mobile,
     //      where the container's real size settles AFTER Cytoscape first measures it (CSS/
     //      font reflow, address bar), and re-fits on rotate / window resize. ----
-    function refit() { try { cy.resize(); cy.fit(cy.elements(':visible'), 40); } catch (e) {} }
+    function refit() { try { ensureCanvasSize(); cy.resize(); cy.fit(cy.elements(':visible'), 40); } catch (e) {} }
     requestAnimationFrame(refit);
     setTimeout(refit, 250);
     setTimeout(refit, 800);

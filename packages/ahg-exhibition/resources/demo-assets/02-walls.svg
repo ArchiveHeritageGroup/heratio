@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  heratio#1219 reconstruction-montage demo layer 2 of 6: walls raised.
+  Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems. AGPL-3.0-or-later.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" role="img" aria-label="Reconstructed walls">
+  <g fill="#6b5a45" stroke="#4a3e2f" stroke-width="2">
+    <rect x="210" y="300" width="540" height="220"/>
+  </g>
+  <g fill="#7a6850" stroke="#4a3e2f" stroke-width="1" opacity="0.6">
+    <rect x="210" y="300" width="540" height="22"/>
+    <rect x="210" y="345" width="540" height="22"/>
+    <rect x="210" y="390" width="540" height="22"/>
+    <rect x="210" y="435" width="540" height="22"/>
+    <rect x="210" y="480" width="540" height="22"/>
+  </g>
+  <rect x="80" y="520" width="800" height="50" fill="#2a3340"/>
+</svg>

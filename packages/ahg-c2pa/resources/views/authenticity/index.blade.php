@@ -141,6 +141,9 @@
     <p class="text-muted small mb-0 mt-2">
       <i class="fas fa-info-circle me-1"></i>{{ __('Tip: append a record permalink to /verify/, or use /verify/id/ followed by a numeric record id.') }}
     </p>
+    <p class="text-muted small mb-0 mt-1">
+      <i class="fas fa-shield-alt me-1"></i>{{ __('Checking one file? Use /verify/ followed by its file (digital object) id to see that file\'s content-credentials chain and an embeddable verify badge.') }}
+    </p>
   </div>
 </div>
 

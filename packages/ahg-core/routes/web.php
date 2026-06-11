@@ -60,6 +60,12 @@ Route::get('/stories/{slug}', [\AhgCore\Controllers\StorytellingController::clas
 Route::middleware('auth')->group(function () {
     Route::get('/admin/capture-priority', [\AhgCore\Controllers\CapturePriorityController::class, 'index'])->name('capture-priority.index');
 });
+// Public "race against loss" awareness board: a dignified, anonymous, read-only top-N of the records
+// most at risk of being lost, drawn from the same CapturePriorityService. /race-against-loss is a
+// SINGLE-segment public path (like /explore and /reconstructions). ahg-core boots early, so this is
+// registered before the single-segment /{slug} archival-record catch-all in
+// ahg-information-object-manage and wins the match (first-registered route wins).
+Route::get('/race-against-loss', [\AhgCore\Controllers\CapturePriorityController::class, 'publicBoard'])->name('capture-priority.public');
 
 // heratio#1208 - public "Ask the collection": plain-language question -> answer grounded in the
 // institution's own corpus via the KM (knowledge-management RAG) service, with cited sources, and

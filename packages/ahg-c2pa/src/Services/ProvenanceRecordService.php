@@ -412,6 +412,27 @@ final class ProvenanceRecordService
             ->all();
     }
 
+    /**
+     * List provenance records bound to a single digital object, oldest first
+     * so the chain reads in capture-then-edit order (the natural reading order
+     * for a content-credentials timeline). Returns an empty list when the table
+     * is absent or nothing is recorded for the object. Never throws.
+     *
+     * @return list<object>
+     */
+    public function listForDigitalObject(int $digitalObjectId): array
+    {
+        if ($digitalObjectId <= 0 || !Schema::hasTable('ahg_c2pa_provenance')) {
+            return [];
+        }
+        return DB::table('ahg_c2pa_provenance')
+            ->where('digital_object_id', $digitalObjectId)
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get()
+            ->all();
+    }
+
     public function find(int $provenanceId): ?object
     {
         if (!Schema::hasTable('ahg_c2pa_provenance')) {

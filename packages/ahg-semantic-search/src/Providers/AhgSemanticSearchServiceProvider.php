@@ -22,6 +22,18 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                     \AhgSemanticSearch\Controllers\DiscoveriesController::class, 'index',
                 ])
                 ->name('scholarship.discoveries');
+
+            // heratio#1207 - public "Displaced heritage register" surface.
+            // Single-segment public path, registered the same way as
+            // /discoveries (register() + callAfterResolving('router')) so it
+            // binds BEFORE the single-segment /{slug} archival-record catch-all
+            // in ahg-information-object-manage. See the note above and
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/displaced-heritage', [
+                    \AhgSemanticSearch\Controllers\DisplacedHeritageRegisterController::class, 'index',
+                ])
+                ->name('displaced-heritage.index');
         });
     }
 

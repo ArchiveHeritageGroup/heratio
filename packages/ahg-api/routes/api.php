@@ -53,16 +53,53 @@ Route::middleware(['api.cors', 'api.etag'])->group(function () {
 |--------------------------------------------------------------------------
 | Open Memory Protocol — public Linked-Data graph endpoint (north-star #1204)
 |--------------------------------------------------------------------------
-| GET /api/v1/graph/{idOrSlug} — a record's graph neighbourhood as open,
-| read-only Linked Data (JSON-LD by default, Turtle/CIDOC-CRM on request).
+| A small crawlable open-data protocol around the heritage graph:
+|
+|   GET /api/v1/graph                  - VoID/DCAT dataset description (front door)
+|   GET /api/v1/graph/context.jsonld   - the stable JSON-LD @context document
+|   GET /api/v1/graph/index            - cursor-paginated crawl seed (alias /seed)
+|   GET /api/v1/graph/{idOrSlug}       - a record's graph neighbourhood
+|   GET /api/v1/graph/{idOrSlug}.{ext} - same, with .jsonld | .ttl | .rdf suffix
+|
+| Per-entity content negotiation: JSON-LD (default), Turtle, RDF/XML - chosen
+| by Accept header, ?format= param, or the path suffix. JSON-LD stays the
+| default so existing callers are unaffected.
+|
 | No API key (open data); permissive CORS via api.cors. Published records
 | only (the controller enforces the same publication-status gate as the rest
 | of the public v1 API). A light throttle keeps the open door cheap.
+|
+| IMPORTANT: the literal routes (/graph, /graph/index, /graph/context.jsonld)
+| are registered BEFORE the {idOrSlug} wildcard, and the wildcard is
+| constrained, so they can never shadow each other.
 */
 
 Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    // Literal protocol surfaces - registered first so the wildcard below
+    // cannot capture them.
+    Route::options('graph', [GraphController::class, 'options']);
+    Route::get('graph', [GraphController::class, 'dataset'])
+        ->name('api.v1.graph.dataset');
+
+    Route::get('graph/context.jsonld', [GraphController::class, 'context'])
+        ->name('api.v1.graph.context');
+
+    Route::get('graph/index', [GraphController::class, 'index'])
+        ->name('api.v1.graph.index');
+    Route::get('graph/seed', [GraphController::class, 'index'])
+        ->name('api.v1.graph.seed');
+
+    // Per-entity endpoint, with optional .jsonld/.ttl/.rdf suffix. The
+    // wildcard is constrained to an id/slug grammar so it never swallows the
+    // literals above.
     Route::options('graph/{idOrSlug}', [GraphController::class, 'options'])
         ->where('idOrSlug', '.*');
+
+    Route::get('graph/{idOrSlug}.{suffix}', [GraphController::class, 'show'])
+        ->where('idOrSlug', '[A-Za-z0-9\-_]+')
+        ->where('suffix', 'jsonld|ttl|rdf')
+        ->name('api.v1.graph.show.suffixed');
+
     Route::get('graph/{idOrSlug}', [GraphController::class, 'show'])
         ->where('idOrSlug', '[A-Za-z0-9\-_]+')
         ->name('api.v1.graph.show');

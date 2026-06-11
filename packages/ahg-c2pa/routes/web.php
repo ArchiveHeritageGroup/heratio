@@ -15,6 +15,7 @@ declare(strict_types=1);
 use AhgC2pa\Controllers\AuthenticityController;
 use AhgC2pa\Controllers\ProvenanceController;
 use AhgC2pa\Controllers\VerifyController;
+use AhgC2pa\Controllers\VerifyObjectController;
 use Illuminate\Support\Facades\Route;
 
 // Public "verify authenticity" trust-anchor surface (issue #1209).
@@ -36,6 +37,33 @@ Route::prefix('verify')->group(function () {
     Route::get('/id/{informationObjectId}', [VerifyController::class, 'byId'])
         ->name('c2pa.verify.id')
         ->where('informationObjectId', '[0-9]+');
+
+    // Per-digital-object content-credentials surface (issue #1209 truth anchor
+    // / #1201). A single FILE's authenticity, made human-readable and
+    // embeddable so it travels with the object. Declared BEFORE the {slug}
+    // '.+' matcher so a purely numeric path resolves to the digital object
+    // rather than being treated as a numeric slug. {digitalObjectId} is pinned
+    // to [0-9]+ and the badge endpoints are deeper segments, so none of these
+    // can shadow the bare /verify landing (declared first, above) or the
+    // existing /verify/id/{io} route.
+    //
+    // Embeddable badge (deeper segments first so the bare /verify/{id} detail
+    // route does not capture "badge" as a fragment of the id).
+    Route::get('/{digitalObjectId}/badge.json', [VerifyObjectController::class, 'badgeJson'])
+        ->name('c2pa.verify.object.badge.json')
+        ->where('digitalObjectId', '[0-9]+');
+
+    // Extensionless on purpose: nginx serves *.svg as a static file and 404s
+    // before Laravel ever sees it. The response is still image/svg+xml and embeds
+    // fine in an <img>. Keeping the .svg name on the route would never resolve.
+    Route::get('/{digitalObjectId}/badge', [VerifyObjectController::class, 'badgeSvg'])
+        ->name('c2pa.verify.object.badge.svg')
+        ->where('digitalObjectId', '[0-9]+');
+
+    // Provenance-chain detail page for one digital object.
+    Route::get('/{digitalObjectId}', [VerifyObjectController::class, 'detail'])
+        ->name('c2pa.verify.object')
+        ->where('digitalObjectId', '[0-9]+');
 
     // Slug, including multi-segment slugs (e.g. /verify/fonds/series/item).
     Route::get('/{slug}', [VerifyController::class, 'bySlug'])

@@ -84,44 +84,193 @@
   @if(empty($reconstructions))
     <p class="text-muted">{{ __('No reconstructions have been linked yet.') }}</p>
   @else
-    <div class="table-responsive">
-      <table class="table table-sm align-middle">
-        <thead>
-          <tr>
-            <th>{{ __('Lost place (record)') }}</th>
-            <th>{{ __('Reconstruction space') }}</th>
-            <th>{{ __('Note') }}</th>
-            <th class="text-end">{{ __('Actions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach($reconstructions as $r)
-            <tr>
-              <td>
-                {{ $r->record_title ?: __('Untitled record') }}
-                <span class="text-muted small">#{{ $r->information_object_id }}</span>
-              </td>
-              <td>{{ $r->space_name ?: __('(missing space)') }}</td>
-              <td class="small text-muted">{{ $r->note }}</td>
-              <td class="text-end text-nowrap">
-                @if($r->space_slug)
-                  <a href="{{ route('exhibition-space.walkthrough', $r->space_slug) }}"
-                     class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener">
-                    <i class="fas fa-walking me-1"></i>{{ __('Walk') }}
-                  </a>
+    @foreach($reconstructions as $r)
+      @php
+        $stages = $stagesByRecon[$r->id] ?? [];
+        $style = $styleByRecon[$r->id] ?? 'assembly';
+      @endphp
+      <div class="card shadow-sm mb-3">
+        <div class="card-header d-flex flex-wrap align-items-center gap-2">
+          <div class="flex-grow-1">
+            <strong>{{ $r->record_title ?: __('Untitled record') }}</strong>
+            <span class="text-muted small">#{{ $r->information_object_id }}</span>
+            <span class="text-muted small">&middot; {{ $r->space_name ?: __('(missing space)') }}</span>
+            @if($r->note)
+              <div class="small text-muted fst-italic">{{ $r->note }}</div>
+            @endif
+          </div>
+          <a href="{{ route('reconstruction.show', $r->id) }}"
+             class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener">
+            <i class="fas fa-play me-1"></i>{{ __('Play montage') }}
+          </a>
+          @if($r->space_slug)
+            <a href="{{ route('exhibition-space.walkthrough', $r->space_slug) }}"
+               class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener">
+              <i class="fas fa-walking me-1"></i>{{ __('Walk') }}
+            </a>
+          @endif
+          <form method="POST" action="{{ route('exhibition-space.reconstructions.delete', $r->id) }}"
+                class="d-inline" onsubmit="return confirm('{{ __('Remove this reconstruction link? Its rebuild stages will also be removed.') }}');">
+            @csrf
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+              <i class="fas fa-unlink me-1"></i>{{ __('Remove') }}
+            </button>
+          </form>
+        </div>
+        <div class="card-body">
+
+          {{-- Montage style (Dropdown-Manager-sourced options) --}}
+          <form method="POST" action="{{ route('exhibition-space.reconstructions.style', $r->id) }}"
+                class="row g-2 align-items-end mb-3">
+            @csrf
+            <div class="col-auto">
+              <label for="montage_style_{{ $r->id }}" class="form-label small mb-1">{{ __('Default montage style') }}</label>
+              <select name="montage_style" id="montage_style_{{ $r->id }}" class="form-select form-select-sm">
+                @foreach($styleOptions as $opt)
+                  <option value="{{ $opt['code'] }}" @selected($style === $opt['code'])>{{ $opt['label'] }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="col-auto">
+              <button type="submit" class="btn btn-sm btn-outline-primary">{{ __('Save style') }}</button>
+            </div>
+          </form>
+
+          {{-- Existing rebuild stages --}}
+          <h3 class="h6">{{ __('Rebuild stages') }}</h3>
+          @if(empty($stages))
+            <p class="text-muted small">{{ __('No rebuild stages yet. Add evidence layers below - they assemble into the structure on the public montage.') }}</p>
+          @else
+            <form method="POST" action="{{ route('exhibition-space.reconstructions.stages.reorder', $r->id) }}" class="mb-2">
+              @csrf
+              <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                  <thead>
+                    <tr>
+                      <th style="width:8rem;">{{ __('Order') }}</th>
+                      <th style="width:7rem;">{{ __('Layer') }}</th>
+                      <th>{{ __('Caption') }}</th>
+                      <th style="width:8rem;">{{ __('Date') }}</th>
+                      <th style="width:6rem;">{{ __('Opacity') }}</th>
+                      <th class="text-end" style="width:7rem;">{{ __('Actions') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @foreach($stages as $s)
+                      <tr>
+                        <td>
+                          <input type="number" name="order[]" value="{{ $s->id }}" class="d-none">
+                          <input type="number" form="stage-edit-{{ $s->id }}" name="sort_order"
+                                 value="{{ $loop->iteration * 10 }}" min="0" class="form-control form-control-sm" style="width:5rem;">
+                        </td>
+                        <td>
+                          @if($s->src)
+                            <img src="{{ $s->src }}" alt="" style="height:42px;width:auto;background:#0f1115;border-radius:.2rem;">
+                          @else
+                            <span class="text-muted small">{{ __('none') }}</span>
+                          @endif
+                        </td>
+                        <td>
+                          <input type="text" form="stage-edit-{{ $s->id }}" name="caption"
+                                 value="{{ $s->caption }}" class="form-control form-control-sm" maxlength="255">
+                          <input type="text" form="stage-edit-{{ $s->id }}" name="body"
+                                 value="{{ $s->body }}" class="form-control form-control-sm mt-1"
+                                 placeholder="{{ __('Body / sources (optional)') }}">
+                        </td>
+                        <td>
+                          <input type="text" form="stage-edit-{{ $s->id }}" name="date_display"
+                                 value="{{ $s->date_display }}" class="form-control form-control-sm" maxlength="64"
+                                 placeholder="{{ __('e.g. 1931') }}">
+                        </td>
+                        <td>
+                          <input type="number" form="stage-edit-{{ $s->id }}" name="opacity"
+                                 value="{{ rtrim(rtrim(number_format($s->opacity, 2, '.', ''), '0'), '.') ?: '0' }}"
+                                 min="0" max="1" step="0.05" class="form-control form-control-sm">
+                        </td>
+                        <td class="text-end text-nowrap">
+                          <button type="submit" form="stage-edit-{{ $s->id }}" class="btn btn-outline-primary btn-sm" title="{{ __('Save') }}">
+                            <i class="fas fa-save"></i>
+                          </button>
+                          <button type="submit" form="stage-del-{{ $s->id }}" class="btn btn-outline-danger btn-sm" title="{{ __('Delete') }}"
+                                  onclick="return confirm('{{ __('Delete this rebuild stage?') }}');">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    @endforeach
+                  </tbody>
+                </table>
+              </div>
+              <button type="submit" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-sort me-1"></i>{{ __('Save order') }}
+              </button>
+            </form>
+
+            {{-- Per-stage edit + delete forms (referenced by the table inputs above) --}}
+            @foreach($stages as $s)
+              <form id="stage-edit-{{ $s->id }}" method="POST"
+                    action="{{ route('exhibition-space.reconstructions.stages.update', ['id' => $r->id, 'stageId' => $s->id]) }}"
+                    enctype="multipart/form-data" class="d-none">
+                @csrf
+                @method('PUT')
+                @if($s->image_url)
+                  <input type="hidden" name="image_url" value="{{ $s->image_url }}">
                 @endif
-                <form method="POST" action="{{ route('exhibition-space.reconstructions.delete', $r->id) }}"
-                      class="d-inline" onsubmit="return confirm('{{ __('Remove this reconstruction link?') }}');">
-                  @csrf
-                  <button type="submit" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-unlink me-1"></i>{{ __('Remove') }}
-                  </button>
-                </form>
-              </td>
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
-    </div>
+              </form>
+              <form id="stage-del-{{ $s->id }}" method="POST"
+                    action="{{ route('exhibition-space.reconstructions.stages.delete', ['id' => $r->id, 'stageId' => $s->id]) }}"
+                    class="d-none">
+                @csrf
+                @method('DELETE')
+              </form>
+            @endforeach
+          @endif
+
+          {{-- Add a rebuild stage --}}
+          <div class="border rounded p-2 mt-2 bg-light">
+            <form method="POST" action="{{ route('exhibition-space.reconstructions.stages.add', $r->id) }}"
+                  enctype="multipart/form-data" class="row g-2 align-items-end">
+              @csrf
+              <div class="col-md-3">
+                <label class="form-label small mb-1">{{ __('Caption') }}</label>
+                <input type="text" name="caption" class="form-control form-control-sm" maxlength="255">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-1">{{ __('Body (optional)') }}</label>
+                <input type="text" name="body" class="form-control form-control-sm">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small mb-1">{{ __('Date label') }}</label>
+                <input type="text" name="date_display" class="form-control form-control-sm" maxlength="64" placeholder="{{ __('e.g. 1931') }}">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small mb-1">{{ __('Opacity') }}</label>
+                <input type="number" name="opacity" class="form-control form-control-sm" min="0" max="1" step="0.05" value="1">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small mb-1">{{ __('Order') }}</label>
+                <input type="number" name="sort_order" class="form-control form-control-sm" min="0" placeholder="{{ __('auto') }}">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small mb-1">{{ __('Evidence image (upload)') }}</label>
+                <input type="file" name="image" class="form-control form-control-sm" accept="image/*">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small mb-1">{{ __('or Image URL') }}</label>
+                <input type="url" name="image_url" class="form-control form-control-sm" maxlength="1024"
+                       placeholder="https://...">
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-sm btn-primary">
+                  <i class="fas fa-plus me-1"></i>{{ __('Add rebuild stage') }}
+                </button>
+                <span class="form-text ms-2">{{ __('Upload an evidence image or paste an image URL. Upload wins if both are given.') }}</span>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    @endforeach
   @endif
 @endsection

@@ -141,6 +141,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/exhibition-space/reconstructions/manage', [ReconstructionController::class, 'manage'])->name('exhibition-space.reconstructions.manage');
     Route::post('/exhibition-space/reconstructions/manage', [ReconstructionController::class, 'store'])->name('exhibition-space.reconstructions.store')->middleware('acl:create');
     Route::post('/exhibition-space/reconstructions/{id}/delete', [ReconstructionController::class, 'destroy'])->name('exhibition-space.reconstructions.delete')->middleware('acl:delete')->whereNumber('id');
+
+    // heratio#1219 - rebuild-stage CRUD + montage style for a reconstruction.
+    // Multi-segment, ACL-gated like the manage actions above. Numeric ids only.
+    Route::post('/admin/reconstructions/{id}/stages', [ReconstructionController::class, 'addStage'])->name('exhibition-space.reconstructions.stages.add')->middleware('acl:create')->whereNumber('id');
+    Route::match(['put', 'patch'], '/admin/reconstructions/{id}/stages/{stageId}', [ReconstructionController::class, 'updateStage'])->name('exhibition-space.reconstructions.stages.update')->middleware('acl:update')->whereNumber('id')->whereNumber('stageId');
+    Route::delete('/admin/reconstructions/{id}/stages/{stageId}', [ReconstructionController::class, 'deleteStage'])->name('exhibition-space.reconstructions.stages.delete')->middleware('acl:delete')->whereNumber('id')->whereNumber('stageId');
+    Route::post('/admin/reconstructions/{id}/stages/reorder', [ReconstructionController::class, 'reorderStages'])->name('exhibition-space.reconstructions.stages.reorder')->middleware('acl:update')->whereNumber('id');
+    Route::post('/admin/reconstructions/{id}/style', [ReconstructionController::class, 'setStyle'])->name('exhibition-space.reconstructions.style')->middleware('acl:update')->whereNumber('id');
 });
 
 // heratio#1192 - live virtual openings: PUBLIC tokenised event page + RSVP (no login;
@@ -193,6 +201,17 @@ Route::get('/exhibition-space/{slug}/exhibition.jsonld', [ExhibitionSpaceControl
 // catalogue record (a lost / destroyed place) linked to a walkable reconstruction
 // twin. A fixed literal path, registered ahead of the /{slug} catch-all below.
 Route::get('/reconstructions', [ReconstructionController::class, 'gallery'])->name('exhibition-space.reconstructions');
+
+// heratio#1219 - "reconstruction assembly montage": a lost structure rebuilding
+// itself on screen before the visitor walks into its 3D twin. All public, all
+// two-segment so the single-segment /{slug} IO catch-all never sees them.
+// Precedence matters: the LITERAL /reconstructions/demo MUST be registered before
+// the numeric /reconstructions/{id} player, and {id} is constrained to digits so a
+// stray slug falls through to the catch-all rather than hitting the player.
+Route::get('/reconstructions/demo', [ReconstructionController::class, 'demo'])->name('reconstruction.demo');
+Route::get('/reconstructions/demo-asset/{file}', [ReconstructionController::class, 'demoAsset'])->name('reconstruction.demo.asset')->where('file', '[a-z0-9-]+');
+Route::get('/reconstructions/stage/{id}/image', [ReconstructionController::class, 'stageImage'])->name('reconstruction.stage.image')->whereNumber('id');
+Route::get('/reconstructions/{id}', [ReconstructionController::class, 'show'])->name('reconstruction.show')->whereNumber('id');
 
 Route::middleware('admin')->group(function () {
     Route::get('/exhibition-space/{slug}/delete', [ExhibitionSpaceController::class, 'confirmDelete'])->name('exhibition-space.confirmDelete');

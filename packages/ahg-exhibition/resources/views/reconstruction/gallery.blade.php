@@ -23,6 +23,11 @@
     <p class="text-muted small fst-italic mt-2 mb-0" style="max-width: 60rem;">
       {{ __('A reconstruction is a virtual reconstruction for interpretation. It is one informed reading of the evidence, not a claim about the original\'s exact appearance.') }}
     </p>
+    <p class="mt-2 mb-0">
+      <a href="{{ route('reconstruction.demo') }}" class="btn btn-outline-primary btn-sm">
+        <i class="fas fa-play-circle me-1"></i>{{ __('See how it works (demonstration)') }}
+      </a>
+    </p>
   </div>
 
   @if(empty($reconstructions))
@@ -54,16 +59,17 @@
               @else
                 <div class="flex-grow-1"></div>
               @endif
-              @if($r->space_slug)
-                <a href="{{ route('exhibition-space.walkthrough', $r->space_slug) }}"
-                   class="btn btn-primary mt-2">
-                  <i class="fas fa-walking me-1"></i>{{ __('Walk the reconstruction') }}
+              <div class="d-grid gap-2 mt-2">
+                <a href="{{ route('reconstruction.show', $r->id) }}" class="btn btn-primary">
+                  <i class="fas fa-play me-1"></i>{{ __('Watch it rebuild') }}
                 </a>
-              @else
-                <span class="btn btn-outline-secondary disabled mt-2">
-                  {{ __('Reconstruction unavailable') }}
-                </span>
-              @endif
+                @if($r->space_slug)
+                  <a href="{{ route('exhibition-space.walkthrough', $r->space_slug) }}"
+                     class="btn btn-outline-primary">
+                    <i class="fas fa-walking me-1"></i>{{ __('Walk the reconstruction') }}
+                  </a>
+                @endif
+              </div>
             </div>
           </div>
         </div>

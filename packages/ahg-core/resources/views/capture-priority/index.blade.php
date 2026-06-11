@@ -1,7 +1,8 @@
 {{--
-  heratio#1205 - Capture / at-risk register (first slice of the endangered-heritage
-  capture network). Which records to capture next, and why. Jurisdiction-neutral.
-  Read-only prioritisation aid built from catalogue signals.
+  heratio#1205 - Capture / at-risk register (admin) - first slice of the
+  endangered-heritage capture network. Which records to capture next, and why.
+  Jurisdiction-neutral. Read-only prioritisation aid built from catalogue signals
+  via AhgCore\Services\CapturePriorityService::register().
 --}}
 @extends('theme::layouts.1col')
 @section('title', __('Capture priority register'))
@@ -23,6 +24,11 @@
   <div class="d-flex flex-wrap align-items-baseline gap-2 mb-1">
     <h1 class="h4 mb-0"><i class="fas fa-triangle-exclamation me-2 text-danger"></i>{{ __('Capture priority register') }}</h1>
     <span class="text-muted small">{{ __('Which records to capture next, and why') }}</span>
+    @if(Route::has('capture-priority.public'))
+      <a href="{{ route('capture-priority.public') }}" class="ms-auto btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">
+        <i class="fas fa-up-right-from-square me-1"></i>{{ __('View public board') }}
+      </a>
+    @endif
   </div>
   <p class="text-muted small mb-3" style="max-width:820px">
     {{ __('This register surfaces the records most in need of digitisation or most at risk of loss. It is the detection-and-triage step of a capture network: catalogue signals (no preservation copy yet, recorded condition, fragility/decay notes) are combined into a transparent priority score so limited capture effort goes where loss is most likely first.') }}
@@ -129,7 +135,7 @@
         <thead class="table-light">
           <tr>
             <th style="width:3rem" class="text-end">#</th>
-            <th style="width:9rem">{{ __('Priority') }}</th>
+            <th style="width:11rem">{{ __('Priority') }}</th>
             <th>{{ __('Record') }}</th>
             <th>{{ __('Why it is prioritised') }}</th>
           </tr>
@@ -138,13 +144,15 @@
           @foreach($rows as $i => $r)
             @php
               $pct = $maxScore > 0 ? min(100, round($r['score'] / $maxScore * 100)) : 0;
-              $bar = $pct >= 66 ? 'bg-danger' : ($pct >= 33 ? 'bg-warning' : 'bg-secondary');
+              if ($pct >= 66) { $bar = 'bg-danger'; $band = __('High'); }
+              elseif ($pct >= 33) { $bar = 'bg-warning'; $band = __('Medium'); }
+              else { $bar = 'bg-secondary'; $band = __('Low'); }
             @endphp
             <tr>
               <td class="text-end text-muted">{{ $i + 1 }}</td>
               <td>
                 <div class="d-flex align-items-center gap-2">
-                  <span class="badge {{ $bar }}">{{ $r['score'] }}</span>
+                  <span class="badge {{ $bar }}">{{ $band }} &middot; {{ $r['score'] }}</span>
                   <div class="progress flex-grow-1" style="height:6px;min-width:48px" role="progressbar" aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100">
                     <div class="progress-bar {{ $bar }}" style="width: {{ $pct }}%"></div>
                   </div>

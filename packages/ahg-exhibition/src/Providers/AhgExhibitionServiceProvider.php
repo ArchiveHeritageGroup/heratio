@@ -341,6 +341,68 @@ class AhgExhibitionServiceProvider extends ServiceProvider
                     INDEX idx_space (exhibition_space_id)
                 )');
             }
+
+            // heratio#1219 - "reconstruction assembly montage": a lost structure
+            // rebuilding itself on screen before the visitor walks into its 3D twin.
+            // Each reconstruction carries a default montage style; each stage is a
+            // rebuild layer (Assembly stacks them, Time-lapse cross-fades them).
+            if (Schema::hasTable('ahg_lost_place_reconstruction')
+                && ! Schema::hasColumn('ahg_lost_place_reconstruction', 'montage_style')) {
+                DB::statement("ALTER TABLE ahg_lost_place_reconstruction ADD COLUMN montage_style VARCHAR(20) NOT NULL DEFAULT 'assembly'");
+            }
+
+            if (! Schema::hasTable('ahg_reconstruction_stage')) {
+                DB::statement('CREATE TABLE ahg_reconstruction_stage (
+                    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                    reconstruction_id INT NOT NULL,
+                    sort_order INT NOT NULL DEFAULT 0,
+                    caption VARCHAR(255) NULL,
+                    body TEXT NULL,
+                    date_display VARCHAR(64) NULL,
+                    image_path VARCHAR(1024) NULL,
+                    image_url VARCHAR(1024) NULL,
+                    opacity DECIMAL(4,2) NOT NULL DEFAULT 1.00,
+                    created_at DATETIME NULL,
+                    updated_at DATETIME NULL,
+                    INDEX idx_recon_order (reconstruction_id, sort_order)
+                )');
+            }
+
+            // Seed the montage-style dropdown so the admin select reads from the
+            // Dropdown Manager (no hardcoded option list). INSERT IGNORE keeps it
+            // idempotent across boots.
+            if (Schema::hasTable('ahg_dropdown')
+                && ! DB::table('ahg_dropdown')->where('taxonomy', 'reconstruction_montage_style')->exists()) {
+                $now = now();
+                DB::table('ahg_dropdown')->insertOrIgnore([
+                    [
+                        'taxonomy' => 'reconstruction_montage_style',
+                        'taxonomy_label' => 'Reconstruction Montage Style',
+                        'taxonomy_section' => 'exhibition',
+                        'code' => 'assembly',
+                        'label' => 'Assembly (fragments accrete into the whole)',
+                        'color' => '#0d6efd',
+                        'icon' => 'layer-group',
+                        'sort_order' => 10,
+                        'is_default' => 1,
+                        'is_active' => 1,
+                        'created_at' => $now,
+                    ],
+                    [
+                        'taxonomy' => 'reconstruction_montage_style',
+                        'taxonomy_label' => 'Reconstruction Montage Style',
+                        'taxonomy_section' => 'exhibition',
+                        'code' => 'timelapse',
+                        'label' => 'Time-lapse (dated states cross-fade)',
+                        'color' => '#198754',
+                        'icon' => 'clock-history',
+                        'sort_order' => 20,
+                        'is_default' => 0,
+                        'is_active' => 1,
+                        'created_at' => $now,
+                    ],
+                ]);
+            }
         } catch (\Throwable $e) {
             // Non-fatal: builder simply stays unavailable until the columns exist.
         }

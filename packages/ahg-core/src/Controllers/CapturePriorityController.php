@@ -13,6 +13,13 @@
  * writes. Multi-segment path (/admin/capture-priority) keeps it clear of the
  * single-segment /{slug} archival-record catch-all.
  *
+ * The same service also backs a public, anonymous "race against loss" awareness
+ * board (publicBoard) - a dignified, read-only top-N list of the records most at
+ * risk of being lost, with a plain explainer of why each is flagged. The public
+ * surface is bounded (a small top-N), shows no operator-only detail (raw scoring
+ * weights, full reason tallies, internal record ids) and, like the admin report,
+ * never writes and never 500s.
+ *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
  * Email: johan@plainsailingisystems.co.za
@@ -59,9 +66,52 @@ class CapturePriorityController extends Controller
             ];
         }
 
-        return view('ahg-core::capture-priority', [
+        return view('ahg-core::capture-priority.index', [
             'report' => $report,
             'limit' => $limit,
+        ]);
+    }
+
+    /**
+     * Public "race against loss" awareness board. Read-only, anonymous, bounded to
+     * a dignified top-N of the most at-risk records (capped well below the admin
+     * report). Shows only what is safe in public: title, a plain "why it is at
+     * risk" line, and a High/Medium/Low priority badge - never raw weights, full
+     * reason tallies or internal record ids. The service never throws; on any
+     * failure (or an install with no scored records) we render the empty-state
+     * explainer rather than a 500.
+     */
+    public function publicBoard(Request $request)
+    {
+        // Bounded, public-safe top-N. Not operator-tunable from the query string.
+        $topN = 24;
+
+        try {
+            $report = $this->service->register(['limit' => $topN]);
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-core] race-against-loss board failed: '.$e->getMessage());
+            $report = [
+                'rows' => [],
+                'summary' => ['total' => 0, 'no_master' => 0, 'poor_condition' => 0, 'endangered' => 0, 'scored' => 0],
+                'reason_counts' => [],
+                'weights' => CapturePriorityService::DEFAULT_WEIGHTS,
+                'generated_at' => now()->toDateTimeString(),
+                'notes' => ['condition_reports' => false, 'museum_metadata' => false],
+                'error' => true,
+            ];
+        }
+
+        // Highest achievable score from the active weights, used to map a raw score
+        // onto a clear High/Medium/Low band + percentage for the public badge.
+        $maxScore = 0;
+        foreach (($report['weights'] ?? []) as $w) {
+            $maxScore += (int) $w;
+        }
+
+        return view('ahg-core::capture-priority.public', [
+            'report' => $report,
+            'maxScore' => $maxScore,
+            'topN' => $topN,
         ]);
     }
 }

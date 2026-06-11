@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  heratio#1219 reconstruction-montage demo layer 6 of 6: full solid render.
+  Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems. AGPL-3.0-or-later.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" role="img" aria-label="Completed reconstruction render">
+  <defs>
+    <linearGradient id="sky6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#aacbe8"/>
+      <stop offset="1" stop-color="#e8f0f6"/>
+    </linearGradient>
+    <linearGradient id="wall6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cdb792"/>
+      <stop offset="1" stop-color="#b39a72"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="600" fill="url(#sky6)"/>
+  <rect x="80" y="500" width="800" height="70" fill="#7f9469"/>
+  <!-- building body -->
+  <rect x="230" y="190" width="500" height="330" fill="url(#wall6)" stroke="#8a734f" stroke-width="2"/>
+  <!-- roof -->
+  <polygon points="190,195 480,90 770,195" fill="#9a4636" stroke="#6e3326" stroke-width="3"/>
+  <rect x="640" y="120" width="40" height="80" fill="#7a5e46"/>
+  <!-- door -->
+  <rect x="455" y="430" width="50" height="90" fill="#5a3c26" stroke="#3a2616" stroke-width="2"/>
+  <!-- windows -->
+  <g fill="#bcdcf2" stroke="#7a5e46" stroke-width="3">
+    <rect x="270" y="360" width="55" height="70"/>
+    <rect x="360" y="360" width="55" height="70"/>
+    <rect x="545" y="360" width="55" height="70"/>
+    <rect x="635" y="360" width="55" height="70"/>
+    <rect x="300" y="220" width="48" height="60"/>
+    <rect x="456" y="220" width="48" height="60"/>
+    <rect x="612" y="220" width="48" height="60"/>
+  </g>
+</svg>

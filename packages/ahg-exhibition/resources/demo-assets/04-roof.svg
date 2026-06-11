@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  heratio#1219 reconstruction-montage demo layer 4 of 6: roof + structure.
+  Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems. AGPL-3.0-or-later.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" width="960" height="600" role="img" aria-label="Roof and structural frame">
+  <polygon points="190,195 480,90 770,195" fill="#7d3b2e" stroke="#52261d" stroke-width="3"/>
+  <polygon points="480,90 770,195 770,165 480,70" fill="#5a2c22"/>
+  <rect x="640" y="120" width="40" height="80" fill="#5a4636" stroke="#3a2c20" stroke-width="2"/>
+  <rect x="632" y="112" width="56" height="16" fill="#4a382a"/>
+  <line x1="190" y1="195" x2="770" y2="195" stroke="#52261d" stroke-width="5"/>
+</svg>
