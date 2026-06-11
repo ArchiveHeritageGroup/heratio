@@ -84,6 +84,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/data-quality', [\AhgCore\Controllers\DataQualityController::class, 'index'])->name('data-quality.index');
 });
 
+// heratio#1244 (first slice) - preservation maturity self-assessment (admin): a read-only dashboard
+// that scores the running instance, evidence-based, against the five functional areas of the NDSA
+// Levels of Digital Preservation (storage, integrity, information security, metadata, file formats).
+// Each area gets an achieved level (Not yet, Level 1..4), a short evidence string, and the next gap
+// to close. Honest, conservative scoring from concrete records; absence lowers the level, never a 500.
+// Read-only - no writes, no ALTER, no AI calls. The two-segment /admin/preservation-maturity path
+// keeps it clear of the single-segment /{slug} archival-record catch-all.
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/preservation-maturity', [\AhgCore\Controllers\PreservationMaturityController::class, 'index'])->name('preservation-maturity.index');
+});
+
 // Public "race against loss" awareness board: a dignified, anonymous, read-only top-N of the records
 // most at risk of being lost, drawn from the same CapturePriorityService. /race-against-loss is a
 // SINGLE-segment public path (like /explore and /reconstructions). ahg-core boots early, so this is

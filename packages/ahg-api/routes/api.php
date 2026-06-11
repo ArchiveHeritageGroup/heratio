@@ -6,6 +6,7 @@ use AhgApi\Controllers\DatasetController;
 use AhgApi\Controllers\EntityController;
 use AhgApi\Controllers\FeedController;
 use AhgApi\Controllers\GraphController;
+use AhgApi\Controllers\GraphExplorerController;
 use AhgApi\Controllers\LegacyApiController;
 use AhgApi\Controllers\OaiPmhController;
 use AhgApi\Controllers\OpenApiController;
@@ -404,6 +405,51 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
     Route::get('data/{slug}', [EntityController::class, 'show'])
         ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
         ->name('open-data.entity.data');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Public GRAPH EXPLORER - /graph-explorer (+ /{type}/{slug}) (#1204)
+|--------------------------------------------------------------------------
+| The HUMAN-friendly counterpart to the machine /id/... entity endpoints above.
+| Anyone can navigate the open linked-data graph in a browser, following the
+| connections between records, people / organisations, places and subjects one
+| hop at a time:
+|
+|   GET /graph-explorer                - landing: a search box + a few high-degree
+|                                        starting entities (always an entry point).
+|   GET /graph-explorer/{type}/{slug}  - ONE entity (type record|actor|term) as a
+|                                        human page: its label + key facts and its
+|                                        connections grouped and CLICKABLE, each
+|                                        link navigating to the explorer for the
+|                                        connected entity. Each page also links to
+|                                        the machine /id/... document and the
+|                                        canonical record / authority page.
+|
+| Thin presentation over GraphExplorerService, which mirrors the EXACT fetch +
+| published-only gate (status.type_id=158, status_id=160; root id=1 excluded) of
+| EntityController / ActorEntityController / TermEntityController, so the explorer
+| can never drift from the linked-data output. Read-only; published records only;
+| an unknown type or unknown / unpublished slug -> a clean themed 404, never a 500.
+|
+| CATCH-ALL SAFETY: "/graph-explorer/{type}/{slug}" is a THREE-segment path, so
+| the single-segment /{slug} archival-record catch-all (ahg-information-object-
+| manage) can never capture it. The bare "/graph-explorer" landing IS a single
+| segment, but ahg-api is discovered before ahg-information-object-manage
+| (alphabetical package order), so this route registers first and wins the match
+| (first-registered route wins) - the same idiom as /open-data, /explore and
+| /collection-overview in ahg-core. {type} is constrained to record|actor|term
+| and {slug} to the slug grammar, so neither swallows a sibling path.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::get('graph-explorer', [GraphExplorerController::class, 'index'])
+        ->name('graph-explorer.index');
+
+    Route::get('graph-explorer/{type}/{slug}', [GraphExplorerController::class, 'show'])
+        ->where('type', 'record|actor|term')
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('graph-explorer.show');
 });
 
 /*

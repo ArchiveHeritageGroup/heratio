@@ -168,6 +168,28 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ])
                 ->where('culture', '[A-Za-z]{2,3}([-_@][A-Za-z0-9]+)*')
                 ->name('language-corpus.translate');
+
+            // heratio#1208 - North Star "a culture you can talk to": community
+            // TRANSCRIPTION / correction / translation contributions on a
+            // published item. The public submit form + POST handler are bound
+            // here (register() + callAfterResolving) for the same precedence
+            // guarantee as the corpus routes above. {item} is numeric-only, so a
+            // two-segment path like /language-transcribe/553 can never shadow the
+            // single-segment /{slug} archival-record catch-all in
+            // ahg-information-object-manage. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/language-transcribe/{item}', [
+                    \AhgSemanticSearch\Controllers\LanguageTranscriptionController::class, 'form',
+                ])
+                ->where('item', '[0-9]+')
+                ->name('language-transcribe.form');
+            $router->middleware('web')
+                ->post('/language-transcribe/{item}', [
+                    \AhgSemanticSearch\Controllers\LanguageTranscriptionController::class, 'contribute',
+                ])
+                ->where('item', '[0-9]+')
+                ->name('language-transcribe.contribute');
         });
     }
 
@@ -214,6 +236,12 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
         // language-revival corpus pages lives in language_revival_glossary.
         // Auto-created on first boot (Schema::hasTable probe in one try/catch).
         $this->bootLanguageGlossaryTable();
+
+        // heratio#1208 - community TRANSCRIPTION / correction / translation
+        // contributions on heritage-language items live in
+        // language_transcription_contribution. Auto-created on first boot
+        // (Schema::hasTable probe in one try/catch).
+        $this->bootLanguageTranscriptionTable();
 
         if ($this->app->runningInConsole()) {
             $this->commands([
@@ -325,6 +353,67 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
             }
         } catch (\Throwable $e) {
             // DB not ready / install hiccup - retries next boot.
+        }
+    }
+
+    /**
+     * heratio#1208 - idempotent first-boot creation of
+     * language_transcription_contribution (community transcriptions / corrections
+     * / translations; VARCHAR contribution_type + moderation_status, soft refs, no
+     * FK/ALTER). Prefers the shipped install SQL so the table definition has one
+     * source of truth; falls back to a Schema builder create if the SQL file is
+     * unreadable. Wrapped in a single try/catch so a missing / locked DB at boot
+     * can never fatal the app - the service and controllers degrade to the
+     * empty-state when the table is absent.
+     */
+    protected function bootLanguageTranscriptionTable(): void
+    {
+        try {
+            if (Schema::hasTable('language_transcription_contribution')) {
+                return;
+            }
+
+            $sqlPath = __DIR__.'/../../database/install_language_transcription.sql';
+            $ran = false;
+            if (is_readable($sqlPath)) {
+                $sql = (string) file_get_contents($sqlPath);
+                if (trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                    $ran = true;
+                }
+            }
+
+            // Fallback: build the table via the Schema builder if the SQL file was
+            // not available, so a fresh install still gets the table.
+            if (! $ran && ! Schema::hasTable('language_transcription_contribution')) {
+                Schema::create('language_transcription_contribution', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->unsignedBigInteger('item_ref')->nullable();
+                    $table->string('culture', 16);
+                    $table->string('contribution_type', 32)->default('transcription');
+                    $table->mediumText('body');
+                    $table->string('source', 512)->nullable();
+                    $table->unsignedBigInteger('contributed_by')->nullable();
+                    $table->string('contributor_name', 255)->nullable();
+                    $table->boolean('credit_consent')->default(false);
+                    $table->string('moderation_status', 32)->default('pending');
+                    $table->unsignedBigInteger('moderated_by')->nullable();
+                    $table->timestamp('moderated_at')->nullable();
+                    $table->timestamps();
+
+                    $table->index('culture', 'ix_ltc_culture');
+                    $table->index('item_ref', 'ix_ltc_item_ref');
+                    $table->index('moderation_status', 'ix_ltc_status');
+                    $table->index(['item_ref', 'moderation_status'], 'ix_ltc_item_status');
+                    $table->index(['culture', 'moderation_status'], 'ix_ltc_culture_status');
+                });
+            }
+
+            Log::info('ahg-semantic-search: language_transcription_contribution created (first-boot)');
+        } catch (\Throwable $e) {
+            // Never block boot on install failure - log and continue. The
+            // contribution surfaces degrade to the empty-state when absent.
+            Log::warning('ahg-semantic-search language-transcription boot install skipped: '.$e->getMessage());
         }
     }
 

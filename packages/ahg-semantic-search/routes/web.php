@@ -131,4 +131,15 @@ Route::middleware(['auth', 'admin'])->prefix('language-corpus-admin')->group(fun
     Route::post('/glossary/{id}', [\AhgSemanticSearch\Controllers\LanguageCorpusController::class, 'moderateSet'])
         ->where('id', '[0-9]+')
         ->name('language-corpus.glossary.set');
+
+    // heratio#1208 - admin moderation of community TRANSCRIPTION / correction /
+    // translation contributions. Writes go ONLY to
+    // language_transcription_contribution. Mirrors the glossary moderation flow
+    // above. The public submit form is bound in the provider's register()
+    // (catch-all precedence; numeric {item} so it can never shadow a slug).
+    Route::get('/transcriptions', [\AhgSemanticSearch\Controllers\LanguageTranscriptionController::class, 'moderate'])
+        ->name('language-transcribe.moderate');
+    Route::post('/transcriptions/{id}', [\AhgSemanticSearch\Controllers\LanguageTranscriptionController::class, 'moderateSet'])
+        ->where('id', '[0-9]+')
+        ->name('language-transcribe.set');
 });

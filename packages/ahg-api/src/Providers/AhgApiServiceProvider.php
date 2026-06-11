@@ -11,6 +11,7 @@ use AhgApi\Middleware\ApiRateLimit;
 use AhgApi\Middleware\ETagMiddleware;
 use AhgApi\Middleware\IdempotencyKeyMiddleware;
 use AhgApi\Services\ApiKeyService;
+use AhgApi\Services\GraphExplorerService;
 use AhgApi\Services\GraphSerializerService;
 use AhgApi\Services\OpenApiGenerator;
 use AhgApi\Services\WebhookService;
@@ -25,6 +26,7 @@ class AhgApiServiceProvider extends ServiceProvider
         $this->app->singleton(WebhookService::class);
         $this->app->singleton(OpenApiGenerator::class);
         $this->app->singleton(GraphSerializerService::class);
+        $this->app->singleton(GraphExplorerService::class);
     }
 
     public function boot(): void

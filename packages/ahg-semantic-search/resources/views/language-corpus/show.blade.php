@@ -96,7 +96,12 @@
                                     @endif
                                 </h3>
                                 @if(!empty($r['snippet']))
-                                    <p class="small text-muted mb-0">{{ $r['snippet'] }}</p>
+                                    <p class="small text-muted mb-2">{{ $r['snippet'] }}</p>
+                                @endif
+                                @if(!empty($r['id']))
+                                    <a href="{{ route('language-transcribe.form', ['item' => $r['id']]) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-feather-pointed me-1"></i>{{ __('Contribute a transcription') }}
+                                    </a>
                                 @endif
                             </div>
                         </div>
@@ -171,12 +176,19 @@
                                 {{ $t['title'] }}
                             @endif
                         </h3>
-                        <button type="button"
-                                class="btn btn-sm btn-outline-secondary js-lc-translate"
-                                data-text="{{ $i }}"
-                                data-target="en">
-                            <i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Translate to English (machine)') }}
-                        </button>
+                        <div class="d-flex align-items-center gap-2">
+                            @if(!empty($t['id']))
+                                <a href="{{ route('language-transcribe.form', ['item' => $t['id']]) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-feather-pointed me-1"></i>{{ __('Transcribe or correct') }}
+                                </a>
+                            @endif
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-secondary js-lc-translate"
+                                    data-text="{{ $i }}"
+                                    data-target="en">
+                                <i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Translate to English (machine)') }}
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <p class="small mb-0" id="lc-src-{{ $i }}" style="white-space: pre-line;">{{ $t['text'] }}</p>
