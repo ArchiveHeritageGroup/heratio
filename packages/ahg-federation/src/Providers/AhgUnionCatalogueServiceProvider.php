@@ -43,6 +43,7 @@
 namespace AhgFederation\Providers;
 
 use AhgFederation\Console\UnionPublishCommand;
+use AhgFederation\Controllers\NetworkDirectoryController;
 use AhgFederation\Controllers\UnionCatalogueController;
 use AhgFederation\Controllers\UnionMemberController;
 use AhgFederation\Services\UnionCatalogueService;
@@ -71,6 +72,18 @@ class AhgUnionCatalogueServiceProvider extends ServiceProvider
                 $router->get('/union-catalogue',
                     [UnionCatalogueController::class, 'index'])
                     ->name('union.catalogue');
+
+                // PUBLIC GLAM-network directory (#1203 slice). Two-segment
+                // paths, so the locked single-segment /{slug} catch-all does
+                // not intercept them; registered here alongside the catalogue
+                // routes for ordering safety and a single public surface.
+                $router->get('/federation/network.json',
+                    [NetworkDirectoryController::class, 'json'])
+                    ->name('federation.network.json');
+
+                $router->get('/federation/network',
+                    [NetworkDirectoryController::class, 'index'])
+                    ->name('federation.network');
             });
 
             // Admin member registry + opt-in sharing config + publish trigger.
