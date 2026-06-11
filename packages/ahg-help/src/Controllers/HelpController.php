@@ -163,6 +163,25 @@ class HelpController extends Controller
         ]);
     }
 
+    /**
+     * Interactive System Breakdown - a four-level functional capability tree
+     * (Heratio -> entity -> aspect -> feature). Separate from, and deeper than,
+     * the three-level workflow System Map: this answers "what can the platform
+     * do, broken down by record type". The node/edge model lives in
+     * resources/data/system-breakdown.php and is turned into Cytoscape elements
+     * by SystemBreakdownService.
+     */
+    public function systemBreakdown()
+    {
+        $graph = \AhgHelp\Services\SystemBreakdownService::graph();
+        $categories = HelpArticleService::getCategories();
+
+        return view('ahg-help::system-breakdown', [
+            'graph' => $graph,
+            'categories' => $categories,
+        ]);
+    }
+
     public function search(Request $request)
     {
         $query = trim($request->get('q', ''));

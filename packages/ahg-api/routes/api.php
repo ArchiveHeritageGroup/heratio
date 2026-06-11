@@ -1,5 +1,6 @@
 <?php
 
+use AhgApi\Controllers\DatasetController;
 use AhgApi\Controllers\GraphController;
 use AhgApi\Controllers\LegacyApiController;
 use AhgApi\Controllers\OaiPmhController;
@@ -131,6 +132,21 @@ Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(funct
     // ?page=N child is a <urlset>.
     Route::get('graph/sitemap.xml', [GraphController::class, 'sitemap'])
         ->name('api.v1.graph.sitemap');
+
+    // Bulk open-data dataset export (extends the #1204 open-data line). Lets a
+    // researcher download the WHOLE published catalogue as a dataset:
+    //   GET /api/v1/dataset.csv     - streamed CSV (server-side cursor).
+    //   GET /api/v1/dataset.jsonld  - bounded JSON-LD @graph, ?after= cursor.
+    // Literal routes, registered BEFORE the {idOrSlug} wildcard so the dotted
+    // names can never be captured as an id/slug. Same published-only gate as
+    // graph/OAI; read-only; open data (permissive CORS via api.cors).
+    Route::options('dataset.csv', [DatasetController::class, 'options']);
+    Route::get('dataset.csv', [DatasetController::class, 'csv'])
+        ->name('api.v1.dataset.csv');
+
+    Route::options('dataset.jsonld', [DatasetController::class, 'options']);
+    Route::get('dataset.jsonld', [DatasetController::class, 'jsonld'])
+        ->name('api.v1.dataset.jsonld');
 
     // Per-entity endpoint, with optional .jsonld/.ttl/.rdf suffix. The
     // wildcard is constrained to an id/slug grammar so it never swallows the

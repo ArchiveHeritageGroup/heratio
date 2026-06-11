@@ -43,6 +43,23 @@
       </div>
     </div>
 
+    {{-- System Breakdown (four-level capability tree, separate from the map) --}}
+    <div class="card border-success mb-4">
+      <div class="card-body">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h5 class="card-title mb-1"><i class="bi bi-diagram-2 me-2"></i>{{ __('System Breakdown') }}</h5>
+            <p class="card-text text-muted mb-0">{{ __('A four-level capability tree: Heratio, then each record type, then its functional aspects, then the concrete tools. Drill down level by level to see exactly what the platform can do for every kind of record.') }}</p>
+          </div>
+          <div class="col-md-4 text-md-end mt-2 mt-md-0">
+            <a href="{{ route('help.system-breakdown') }}" class="btn atom-btn-white">
+              <i class="bi bi-diagram-2 me-1"></i>{{ __('Open System Breakdown') }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     {{-- Documentation Portal --}}
     <div class="card border-primary mb-4">
       <div class="card-body">

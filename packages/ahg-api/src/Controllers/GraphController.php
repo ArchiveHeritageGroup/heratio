@@ -224,7 +224,14 @@ class GraphController extends Controller
             'context' => $base.'/api/v1/graph/context.jsonld',
             'rootResource' => $base.'/api/v1/graph/index',
             'omp:seed' => $base.'/api/v1/graph/index',
-            'dataDump' => $base.'/api/v1/graph/index',
+            // Bulk dataset dumps: the whole published catalogue as CSV and as a
+            // paginated JSON-LD @graph (DatasetController). Researchers can pull
+            // the corpus in one download instead of crawling per-entity.
+            'dataDump' => [
+                $base.'/api/v1/graph/index',
+                $base.'/api/v1/dataset.csv',
+                $base.'/api/v1/dataset.jsonld',
+            ],
             // The XML sitemap that enumerates every per-entity graph URL, so
             // discovery -> sitemap -> per-entity crawl is a connected path.
             'sitemap' => $base.'/api/v1/graph/sitemap.xml',
@@ -425,6 +432,9 @@ class GraphController extends Controller
         $stanza[] = 'void:rootResource <'.$this->ttlIri($datasetUri).'>';
         $stanza[] = 'void:dataDump <'.$this->ttlIri($seedUri).'>';
         $stanza[] = 'void:dataDump <'.$this->ttlIri($sitemapUri).'>';
+        // Bulk dataset dumps of the whole published catalogue (DatasetController).
+        $stanza[] = 'void:dataDump <'.$this->ttlIri($base.'/api/v1/dataset.csv').'>';
+        $stanza[] = 'void:dataDump <'.$this->ttlIri($base.'/api/v1/dataset.jsonld').'>';
         $stanza[] = 'void:feature <'.$this->ttlIri($contextUri).'>';
         $stanza[] = 'dcat:contactPoint <'.$this->ttlIri($datasetUri).'>';
 

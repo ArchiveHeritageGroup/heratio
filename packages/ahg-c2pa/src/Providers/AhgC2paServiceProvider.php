@@ -15,6 +15,7 @@ use AhgC2pa\Console\Commands\C2paEmbedCommand;
 use AhgC2pa\Console\Commands\C2paProvenanceBackfillCommand;
 use AhgC2pa\Console\Commands\C2paSmokeCommand;
 use AhgC2pa\Console\Commands\C2paVerifyCommand;
+use AhgC2pa\Controllers\AuthenticityController;
 use AhgC2pa\Events\AiOutputProduced;
 use AhgC2pa\Listeners\RecordDigitalObjectProvenance;
 use AhgC2pa\Listeners\WriteC2paSidecar;
@@ -34,6 +35,25 @@ final class AhgC2paServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // Public, single-segment "Content Credentials" explainer / trust page
+        // (deepens #1209 / #1201). Unlike the multi-segment /verify/... routes
+        // (which the single-segment IO slug catch-all /{slug} can never match),
+        // /content-credentials IS a single segment and is NOT in that catch-
+        // all's exclusion list, so a route declared in this package's boot()
+        // web.php would be SHADOWED by the catch-all depending on provider boot
+        // order. We therefore register it here, in register(), via
+        // callAfterResolving('router'): this defines the route during the
+        // register phase - before the IO package loads its catch-all in boot()
+        // - so Laravel's first-match-wins resolution always picks this route.
+        // (Same pattern as the z3950 / sru top-level routes in
+        // AppServiceProvider; see reference_slug_catchall_route_precedence.md.)
+        // Read-only, no auth: this is public trust-anchor copy.
+        $this->callAfterResolving('router', function ($router) {
+            $router->middleware('web')
+                ->get('/content-credentials', [AuthenticityController::class, 'explainer'])
+                ->name('c2pa.explainer');
+        });
+
         // Reuse the inference-receipts Ed25519 key (same kid travels with
         // both the Article 12 chain entries and the C2PA manifests, so a
         // verifier can resolve either through ai_inference_key).

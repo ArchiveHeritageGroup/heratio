@@ -624,6 +624,71 @@ return [
                 ['interop.iiif', 'interop.ld'],
             ],
         ],
+
+        // -----------------------------------------------------------------
+        // North Star: the vision Heratio builds toward. Update as moonshot
+        // slices ship - each child is a north-star, its detail nodes the
+        // shipped pieces (linking in-app help where it exists).
+        // -----------------------------------------------------------------
+        [
+            'id' => 'northstar', 'label' => 'North Star', 'sub' => 'The vision - where Heratio is heading', 'color' => '#5319e7',
+            'children' => [
+                ['id' => 'northstar.graph', 'label' => 'World heritage graph', 'sub' => 'Open memory protocol', 'help' => 'open-data-graph-api',
+                    'children' => [
+                        ['id' => 'northstar.graph.api', 'label' => 'Graph API', 'sub' => 'JSON-LD / Turtle / RDF', 'help' => 'open-data-graph-api'],
+                        ['id' => 'northstar.graph.harvest', 'label' => 'OAI-PMH + sitemap', 'sub' => 'Harvestable', 'help' => 'open-data-graph-sitemap-oai-pmh-user-guide'],
+                        ['id' => 'northstar.graph.dumps', 'label' => 'Bulk data', 'sub' => 'CSV / JSON-LD dumps'],
+                    ],
+                ],
+                ['id' => 'northstar.loss', 'label' => 'Race against loss', 'sub' => 'Capture what is at risk', 'help' => 'race-against-loss-user-guide',
+                    'children' => [
+                        ['id' => 'northstar.loss.register', 'label' => 'At-risk register', 'sub' => 'Prioritised', 'help' => 'race-against-loss-user-guide'],
+                        ['id' => 'northstar.loss.queue', 'label' => 'Capture queue', 'sub' => 'Operator workflow'],
+                    ],
+                ],
+                ['id' => 'northstar.reconstruct', 'label' => 'Reconstruct lost places', 'sub' => 'Walk what is gone', 'help' => 'reconstruction-montage-user-guide',
+                    'children' => [
+                        ['id' => 'northstar.reconstruct.montage', 'label' => 'Rebuild montage', 'sub' => 'Assembly / time-lapse', 'help' => 'reconstruction-montage-user-guide'],
+                        ['id' => 'northstar.reconstruct.twin', 'label' => 'Walkable twin', 'sub' => '3D walkthrough'],
+                    ],
+                ],
+                ['id' => 'northstar.repatriation', 'label' => 'Repatriation engine', 'sub' => 'Trace + virtual return', 'help' => 'displaced-heritage-register-user-guide',
+                    'children' => [
+                        ['id' => 'northstar.repatriation.register', 'label' => 'Displaced register', 'sub' => 'Origin vs holder', 'help' => 'displaced-heritage-register-user-guide'],
+                        ['id' => 'northstar.repatriation.return', 'label' => 'Virtual return', 'sub' => 'Experience it back'],
+                    ],
+                ],
+                ['id' => 'northstar.truth', 'label' => 'Truth anchor', 'sub' => 'Verifiable authenticity', 'help' => 'content-credentials-authenticity-user-guide',
+                    'children' => [
+                        ['id' => 'northstar.truth.verify', 'label' => 'Verify', 'sub' => 'Content credentials', 'help' => 'content-credentials-authenticity-user-guide'],
+                        ['id' => 'northstar.truth.trace', 'label' => 'Provenance trace', 'sub' => 'Full chain'],
+                        ['id' => 'northstar.truth.coverage', 'label' => 'Coverage', 'sub' => 'How much is signed'],
+                    ],
+                ],
+                ['id' => 'northstar.talk', 'label' => 'Talk to the culture', 'sub' => 'Corpus-grounded history', 'help' => 'ask-the-collection-user-guide',
+                    'children' => [
+                        ['id' => 'northstar.talk.ask', 'label' => 'Ask the collection', 'sub' => 'Grounded answers', 'help' => 'ask-the-collection-user-guide'],
+                    ],
+                ],
+                ['id' => 'northstar.scholarship', 'label' => 'Generative scholarship', 'sub' => 'AI finds connections', 'help' => 'discoveries-user-guide',
+                    'children' => [
+                        ['id' => 'northstar.scholarship.discoveries', 'label' => 'Discoveries', 'sub' => 'Cross-collection links', 'help' => 'discoveries-user-guide'],
+                    ],
+                ],
+                ['id' => 'northstar.access', 'label' => 'Universal access', 'sub' => 'Every museum, every language', 'help' => 'read-record-in-your-language-user-guide',
+                    'children' => [
+                        ['id' => 'northstar.access.translate', 'label' => 'Read in your language', 'sub' => 'On-demand translation', 'help' => 'read-record-in-your-language-user-guide'],
+                        ['id' => 'northstar.access.pref', 'label' => 'Language preference', 'sub' => 'Remembered'],
+                    ],
+                ],
+                ['id' => 'northstar.museum', 'label' => 'Encyclopedic museum', 'sub' => 'Building-scale twin', 'help' => 'exhibition-wayfinding-user-guide',
+                    'children' => [
+                        ['id' => 'northstar.museum.wayfinding', 'label' => 'Wayfinding', 'sub' => 'Take me to X', 'help' => 'exhibition-wayfinding-user-guide'],
+                        ['id' => 'northstar.museum.scale', 'label' => 'Building scale', 'sub' => 'Wings / floors (next)'],
+                    ],
+                ],
+            ],
+        ],
     ],
 
     // -----------------------------------------------------------------
@@ -640,5 +705,6 @@ return [
         ['ai', 'describe'],     // AI feeds enrichment back into description
         ['display', 'interop'],
         ['exhibit', 'interop'],
+        ['display', 'northstar'],   // everything we build feeds the vision
     ],
 ];

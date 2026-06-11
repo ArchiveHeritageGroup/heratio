@@ -182,6 +182,102 @@ class ExhibitionEventController extends Controller
             ->with('success', 'Payment recorded - ticket confirmed and emailed.');
     }
 
+    /**
+     * Public: "What's on" - upcoming + live openings across every exhibition space,
+     * in start-time order (deepens heratio#1192). Read-only: no DB writes, no auth.
+     *
+     * Selection: status in (scheduled, live), not cancelled, and not already past
+     * (starts_at within the last 24h so a live event mid-run still shows; fully
+     * elapsed scheduled rows are then dropped in PHP). For each event we resolve its
+     * space (name + slug) for the link, the free-or-priced flag, and the remaining
+     * seats via the service's seat logic.
+     *
+     * Resilient: a missing table or any error degrades to an empty list and the
+     * view's empty-state, so this page can never 500.
+     */
+    public function whatsOn()
+    {
+        $events = [];
+        $now = time();
+
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_exhibition_event')) {
+                // Pull the candidate window in SQL, then filter the live/scheduled
+                // tail in PHP using the event's own duration so a running event
+                // (start passed, not yet ended) is still surfaced.
+                $cutoff = date('Y-m-d H:i:s', $now - (24 * 3600));
+                $rows = \Illuminate\Support\Facades\DB::table('ahg_exhibition_event')
+                    ->whereIn('status', ['scheduled', 'live'])
+                    ->where('starts_at', '>=', $cutoff)
+                    ->orderBy('starts_at')
+                    ->get();
+
+                // Resolve spaces in one pass; cache so repeated spaces cost one query.
+                $spaceCache = [];
+
+                foreach ($rows as $ev) {
+                    // Drop anything that has already ended (scheduled rows whose window
+                    // has fully elapsed). A status='live' row is always kept.
+                    $start = strtotime((string) $ev->starts_at);
+                    $end = $start + ((int) ($ev->duration_minutes ?? 0) * 60);
+                    if (($ev->status ?? '') !== 'live' && $end < $now) {
+                        continue;
+                    }
+
+                    $spaceId = (int) $ev->exhibition_space_id;
+                    if (! array_key_exists($spaceId, $spaceCache)) {
+                        $spaceCache[$spaceId] = $this->spaces->getById($spaceId);
+                    }
+                    $space = $spaceCache[$spaceId];
+                    if (! $space) {
+                        continue;   // orphaned event with no resolvable space
+                    }
+
+                    $remaining = $this->events->remainingSeats($ev);
+
+                    $events[] = [
+                        'token' => (string) $ev->public_token,
+                        'title' => (string) ($ev->title ?: __('Untitled opening')),
+                        'host_name' => $ev->host_name ?: null,
+                        'description' => $ev->description ?: null,
+                        'starts_at' => (string) $ev->starts_at,
+                        'starts_ts' => $start,
+                        'duration_minutes' => (int) ($ev->duration_minutes ?? 0),
+                        'status' => (string) ($ev->status ?? 'scheduled'),
+                        'is_live' => ($ev->status ?? '') === 'live',
+                        'is_paid' => $this->events->isPaid($ev),
+                        'price' => isset($ev->price) ? (float) $ev->price : null,
+                        'currency' => $ev->currency ?? ExhibitionEventService::DEFAULT_CURRENCY,
+                        'capacity' => (int) ($ev->capacity ?? 0),
+                        'remaining' => $remaining,
+                        'sold_out' => $remaining <= 0,
+                        'space_name' => (string) ($space->name ?? __('Exhibition space')),
+                        'space_slug' => $space->slug ?? null,
+                        'date_label' => date('l, j F Y', $start),
+                        'time_label' => date('H:i', $start),
+                    ];
+                }
+            }
+        } catch (\Throwable $e) {
+            $events = [];   // never 500 - fall through to the empty state
+        }
+
+        // Group by calendar date for the view (preserves the start-time ordering).
+        $grouped = [];
+        foreach ($events as $row) {
+            $grouped[$row['date_label']][] = $row;
+        }
+
+        return view('ahg-exhibition::exhibition-space.whats-on', [
+            'events' => $events,
+            'grouped' => $grouped,
+            // Gate links only when both the route and a real slug/token exist.
+            'hasSpaceIndex' => \Illuminate\Support\Facades\Route::has('exhibition-space.index'),
+            'hasOpeningPublic' => \Illuminate\Support\Facades\Route::has('exhibition-space.opening-public'),
+            'hasSpaceShow' => \Illuminate\Support\Facades\Route::has('exhibition-space.show'),
+        ]);
+    }
+
     /** Public: event landing page (RSVP + join link). Reached via a tokenised URL. */
     public function publicShow(string $token)
     {

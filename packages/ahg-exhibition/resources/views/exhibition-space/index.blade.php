@@ -34,6 +34,12 @@
     <p class="text-muted mb-0" style="max-width: 60rem;">
       {{ __('Every public exhibition space, in one place. Choose a space to walk through it in 3D, find your way around with the floor plan, or take its catalogue with you.') }}
     </p>
+    @if(\Illuminate\Support\Facades\Route::has('exhibition.whats-on'))
+      {{-- heratio#1192 deepened - public "What's on" listing of upcoming + live openings. --}}
+      <a href="{{ route('exhibition.whats-on') }}" class="btn btn-sm btn-outline-secondary mt-3">
+        <i class="far fa-calendar-check me-1"></i>{{ __("What's on - upcoming openings") }}
+      </a>
+    @endif
   </div>
 
   @if(empty($spaces))

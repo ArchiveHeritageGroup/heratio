@@ -211,6 +211,13 @@ Route::get('/exhibition-space/{slug}/exhibition.jsonld', [ExhibitionSpaceControl
 // as /reconstructions and /verify), so it binds before the catch-all ever sees it.
 Route::get('/exhibitions', [ExhibitionSpaceController::class, 'index'])->name('exhibition-space.index');
 
+// heratio#1192 deepened - PUBLIC "What's on": upcoming + live openings across every
+// exhibition space, in start-time order, each linking to its existing tokenised
+// opening page for details + RSVP. A fixed literal single-segment path, registered
+// ahead of the /{slug} IO catch-all below (same precedence trick as /exhibitions
+// and /reconstructions), so it binds before the catch-all ever sees it.
+Route::get('/whats-on', [ExhibitionEventController::class, 'whatsOn'])->name('exhibition.whats-on');
+
 // heratio#1206 - "walk through what no longer exists": PUBLIC gallery of every
 // catalogue record (a lost / destroyed place) linked to a walkable reconstruction
 // twin. A fixed literal path, registered ahead of the /{slug} catch-all below.

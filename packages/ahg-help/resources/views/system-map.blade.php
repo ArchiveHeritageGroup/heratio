@@ -162,6 +162,11 @@
           {{ __('One traversable diagram of the whole platform - pan, zoom, and drill into any stage. Click a node with a link icon to open its help article.') }}
         </p>
       </div>
+      @if(\Illuminate\Support\Facades\Route::has('help.system-breakdown'))
+        <a href="{{ route('help.system-breakdown') }}" class="btn btn-sm atom-btn-white align-self-start">
+          <i class="bi bi-grid-3x3-gap-fill me-1"></i>{{ __('System breakdown') }}
+        </a>
+      @endif
     </div>
 
     {{-- Toolbar --}}

@@ -147,6 +147,11 @@
     <p class="small mb-0 mt-2">
       <i class="fas fa-upload me-1"></i><a href="{{ url('/verify/check') }}">{{ __('Have a file from anywhere? Check its content credentials by uploading it.') }}</a>
     </p>
+    @if(\Route::has('c2pa.explainer'))
+      <p class="small mb-0 mt-2">
+        <i class="fas fa-info-circle me-1"></i><a href="{{ route('c2pa.explainer') }}">{{ __('New to content credentials? Read what they are and how to check.') }}</a>
+      </p>
+    @endif
     {{-- Admin-only: deep-link to the internal coverage dashboard so operators
          can see and close the gap. Gated with the same AclService::canAdmin
          check the /admin/c2pa routes enforce; invisible to the public. --}}
