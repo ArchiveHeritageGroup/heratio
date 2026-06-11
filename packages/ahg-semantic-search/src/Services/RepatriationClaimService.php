@@ -329,6 +329,157 @@ class RepatriationClaimService
     }
 
     /**
+     * Read-only aggregate of the whole claims register for the public dashboard
+     * (north-star heratio#1207). Cheap aggregate COUNTs only - no per-record
+     * loops, no heavy joins - so the page stays fast on a large register. Every
+     * query is Schema::hasTable-guarded (via available()) and wrapped so a missing
+     * table or any failure degrades to a fully-zeroed structure rather than a 500.
+     *
+     * The shape is deliberately presentation-agnostic: counts keyed by status, a
+     * normalised top-status breakdown carrying the same neutral label/level/help
+     * metadata the rest of the feature uses, the top origin places / communities,
+     * the virtual-return vs physically-returned split, the grand total, and a
+     * small "recent activity" tail (the only place that reads individual rows, and
+     * only a handful, decorated for linking to each /virtual-return/{id} page).
+     *
+     * @param  int  $topOrigins   how many origin places / communities to surface
+     * @param  int  $recentLimit  how many recent claims to surface
+     * @return array{
+     *   available:bool,
+     *   total:int,
+     *   by_status:array<int,array{key:string,label:string,level:string,help:string,count:int}>,
+     *   raw_status_counts:array<string,int>,
+     *   by_origin:array<int,array{place:string,count:int}>,
+     *   by_community:array<int,array{community:string,count:int}>,
+     *   virtual_return:int,
+     *   returned:int,
+     *   in_dialogue:int,
+     *   recent:array<int,array<string,mixed>>
+     * }
+     */
+    public function dashboard(int $topOrigins = 12, int $recentLimit = 8): array
+    {
+        $empty = [
+            'available' => false,
+            'total' => 0,
+            'by_status' => [],
+            'raw_status_counts' => [],
+            'by_origin' => [],
+            'by_community' => [],
+            'virtual_return' => 0,
+            'returned' => 0,
+            'in_dialogue' => 0,
+            'recent' => [],
+        ];
+
+        if (! $this->available()) {
+            return $empty;
+        }
+
+        // Counts per status (single GROUP BY). Reuses statusCounts() so there is
+        // one source of truth for the status tally.
+        $rawCounts = $this->statusCounts();
+        $total = array_sum($rawCounts);
+
+        // Normalise into an ordered, labelled breakdown. We lead with the
+        // canonical workflow order, then append any dropdown-added status actually
+        // present in the data so nothing is silently dropped.
+        $byStatus = [];
+        foreach (self::STATUSES as $key => $meta) {
+            $c = (int) ($rawCounts[$key] ?? 0);
+            $byStatus[] = ['key' => $key] + $meta + ['count' => $c];
+        }
+        foreach ($rawCounts as $key => $c) {
+            if (! array_key_exists($key, self::STATUSES)) {
+                $meta = $this->statusMeta($key);
+                $byStatus[] = ['key' => $meta['key'], 'label' => $meta['label'], 'level' => $meta['level'], 'help' => $meta['help'], 'count' => (int) $c];
+            }
+        }
+
+        // Virtual-return vs physically-returned split, plus an "in dialogue" tally
+        // (everything that is neither a virtual nor a physical return).
+        $virtualReturn = (int) ($rawCounts['virtual_return'] ?? 0);
+        $returned = (int) ($rawCounts['returned'] ?? 0);
+        $inDialogue = max(0, $total - $virtualReturn - $returned);
+
+        // Top origin places and claimant communities (cheap GROUP BY COUNT, top N).
+        $byOrigin = $this->topGroup('origin_place', $topOrigins, 'place');
+        $byCommunity = $this->topGroup('claimant_community', $topOrigins, 'community');
+
+        // Recent activity tail - the only individual-row read, bounded to a handful
+        // and decorated so each links to its /virtual-return/{id} page.
+        $recent = [];
+        if ($recentLimit > 0) {
+            try {
+                $rows = DB::table(self::TABLE)
+                    ->orderByDesc('updated_at')
+                    ->orderByDesc('id')
+                    ->limit($recentLimit)
+                    ->get();
+                foreach ($rows as $row) {
+                    $recent[] = $this->decorate($row);
+                }
+            } catch (\Throwable $e) {
+                Log::info('[repatriation] dashboard recent failed: '.$e->getMessage());
+            }
+        }
+
+        return [
+            'available' => true,
+            'total' => (int) $total,
+            'by_status' => $byStatus,
+            'raw_status_counts' => $rawCounts,
+            'by_origin' => $byOrigin,
+            'by_community' => $byCommunity,
+            'virtual_return' => $virtualReturn,
+            'returned' => $returned,
+            'in_dialogue' => $inDialogue,
+            'recent' => $recent,
+        ];
+    }
+
+    /**
+     * Cheap "top N by COUNT" over one non-empty VARCHAR column. Read-only,
+     * Schema-guarded by the caller (available()), and wrapped so any failure
+     * degrades to an empty list. The returned rows carry the value under $valueKey
+     * plus its count.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    protected function topGroup(string $column, int $limit, string $valueKey): array
+    {
+        if ($limit <= 0) {
+            return [];
+        }
+
+        try {
+            $rows = DB::table(self::TABLE)
+                ->select($column, DB::raw('COUNT(*) as c'))
+                ->whereNotNull($column)
+                ->where($column, '!=', '')
+                ->groupBy($column)
+                ->orderByDesc('c')
+                ->limit($limit)
+                ->get();
+        } catch (\Throwable $e) {
+            Log::info('[repatriation] topGroup('.$column.') failed: '.$e->getMessage());
+
+            return [];
+        }
+
+        $out = [];
+        foreach ($rows as $row) {
+            $value = (string) ($row->{$column} ?? '');
+            if ($value === '') {
+                continue;
+            }
+            $out[] = [$valueKey => $value, 'count' => (int) $row->c];
+        }
+
+        return $out;
+    }
+
+    /**
      * One claim by id, decorated, or null if not found. Never throws.
      *
      * @return array<string,mixed>|null

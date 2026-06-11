@@ -22,6 +22,7 @@ use AhgC2pa\Listeners\RecordDigitalObjectProvenance;
 use AhgC2pa\Listeners\WriteC2paSidecar;
 use AhgC2pa\Middleware\InjectContentCredentialsBadge;
 use AhgC2pa\Controllers\TrustController;
+use AhgC2pa\Controllers\VerifiedRecordsController;
 use AhgC2pa\Services\C2paService;
 use AhgC2pa\Services\DigitalObjectProvenanceService;
 use AhgC2pa\Services\ProvenanceRecordService;
@@ -74,6 +75,30 @@ final class AhgC2paServiceProvider extends ServiceProvider
             $router->middleware('web')
                 ->get('/trust', [TrustController::class, 'index'])
                 ->name('c2pa.trust');
+        });
+
+        // Public, single-segment BROWSE of provenance-verified records (issue
+        // #1209, north star): the walkable verifiable corpus - the PUBLISHED
+        // records that actually carry content credentials, paginated, each
+        // linking to its /authenticity/{id} report. Same single-segment problem
+        // as /trust and /content-credentials: /verified-records and
+        // /verified-records.json are NOT in the IO slug catch-all's (/{slug})
+        // exclusion list, so declaring them in boot() web.php would risk the
+        // catch-all shadowing them depending on provider boot order. Registering
+        // here, in register(), via callAfterResolving('router') defines them
+        // BEFORE the IO package loads its catch-all in boot(), so first-match-
+        // wins resolution always picks these. The .json companion keeps its real
+        // extension (nginx passes *.json through to Laravel), is CORS-open, and
+        // is declared FIRST so the literal '.json' can never be captured as a
+        // slug. Read-only, public, no auth: this is the public verifiable-corpus
+        // index.
+        $this->callAfterResolving('router', function ($router) {
+            $router->middleware('web')
+                ->get('/verified-records.json', [VerifiedRecordsController::class, 'json'])
+                ->name('c2pa.verified.records.json');
+            $router->middleware('web')
+                ->get('/verified-records', [VerifiedRecordsController::class, 'index'])
+                ->name('c2pa.verified.records');
         });
 
         // Reuse the inference-receipts Ed25519 key (same kid travels with

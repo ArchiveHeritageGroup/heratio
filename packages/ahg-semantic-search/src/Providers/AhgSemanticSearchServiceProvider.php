@@ -75,6 +75,31 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ->where('id', '[0-9]+')
                 ->name('virtual-return.show');
 
+            // heratio#1207 - PUBLIC repatriation dashboard. A read-only aggregate
+            // VIEW over the claims register (counts by status, top origin places /
+            // communities, virtual-return vs physically-returned split, recent
+            // activity), each row linking onward to a claim's /virtual-return/{id}
+            // page. Single-segment public path, registered the same way as
+            // /discoveries, /at-risk and /displaced-heritage (register() +
+            // callAfterResolving('router')) so it binds BEFORE the single-segment
+            // /{slug} archival-record catch-all in ahg-information-object-manage.
+            // See memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/repatriation', [
+                    \AhgSemanticSearch\Controllers\RepatriationDashboardController::class, 'index',
+                ])
+                ->name('repatriation.dashboard');
+
+            // heratio#1207 - machine-readable twin of the dashboard. The .json
+            // suffix keeps it a distinct single-segment path that can never shadow
+            // a slug; CORS-open public read-only data. Bound here for the same
+            // catch-all precedence guarantee as the HTML dashboard above.
+            $router->middleware('web')
+                ->get('/repatriation.json', [
+                    \AhgSemanticSearch\Controllers\RepatriationDashboardController::class, 'json',
+                ])
+                ->name('repatriation.dashboard.json');
+
             // heratio#1205 - North Star "race against loss": the PUBLIC, read-only
             // "at risk" register of endangered heritage (PUBLISHED items only),
             // most-urgent first, framing why heritage is endangered and the race

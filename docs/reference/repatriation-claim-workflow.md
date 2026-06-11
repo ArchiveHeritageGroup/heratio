@@ -81,3 +81,35 @@ virtual-return page. Empty-states everywhere; nothing 500s.
 `repatriation/form.blade.php` (create/edit), `virtual-return/show.blade.php`
 (public). Bootstrap 5 + `theme::layouts.1col` + FontAwesome + `__()` strings, in
 line with the existing displaced-heritage views.
+
+## Public dashboard (next slice)
+
+Public, read-only aggregate VIEW over the same claims register. **No new table.**
+
+- **Service:** `RepatriationClaimService::dashboard($topOrigins, $recentLimit)` -
+  cheap aggregate COUNTs only (reuses `statusCounts()` + a small `topGroup()`
+  GROUP-BY helper for top `origin_place` / `claimant_community`), the
+  virtual_return vs returned vs in-dialogue split, the grand total, and a bounded
+  recent-activity tail (the only individual-row read, decorated for linking to each
+  `/virtual-return/{id}`). `available()`-guarded; degrades to a fully-zeroed shape,
+  never 500s. No per-record loops, no heavy joins.
+- **Controller:** `RepatriationDashboardController` - `index()` renders the HTML
+  dashboard; `json()` returns the same aggregate as CORS-open
+  (`Access-Control-Allow-Origin: *`) public read-only JSON.
+- **Routes:** `GET /repatriation` (name `repatriation.dashboard`) and
+  `GET /repatriation.json` (name `repatriation.dashboard.json`), both single-segment
+  and both bound in `AhgSemanticSearchServiceProvider::register()` via
+  `callAfterResolving('router')` so they win the match ahead of the single-segment
+  `/{slug}` archival-record catch-all in `ahg-information-object-manage` (same
+  pattern as `/at-risk`, `/displaced-heritage`, `/discoveries`). The `.json` suffix
+  keeps the machine route a distinct path that can never shadow a slug. See
+  `memory/reference_slug_catchall_route_precedence.md`.
+- **View:** `resources/views/repatriation/dashboard.blade.php` - big numbers + simple
+  Bootstrap `.progress` CSS bars (no charting library), top places / communities,
+  recent-activity table, each row linking to `/virtual-return/{id}`. Dignified
+  empty-state ("No repatriation claims recorded yet"). Same standing disclaimer and
+  factual, non-partisan, jurisdiction-neutral framing as the rest of the feature.
+  `url()` (never a hardcoded host), Bootstrap 5 + `theme::layouts.1col`.
+
+Read-only; no DB writes; no ALTER; the existing claim / virtual-return feature is
+untouched.

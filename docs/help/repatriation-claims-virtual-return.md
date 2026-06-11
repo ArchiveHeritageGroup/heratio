@@ -55,8 +55,29 @@ happened. A link to the object's own record (with any digital surrogate or 3D
 viewer) is shown **only when that record is published**; unpublished items show
 origin context only.
 
+## Public dashboard
+
+A public **repatriation dashboard** at `/repatriation` gives an open, at-a-glance
+overview of every documented claim. It is a read-only aggregate of the same claims
+register: big numbers (documented claims, dialogues in progress, items under
+virtual return, items physically returned), simple bars showing where the dialogues
+stand and the leading places and communities of origin, and a short recent-activity
+list. Every entry links onward to that claim's `/virtual-return/{id}` page.
+
+The dashboard is factual, non-partisan and jurisdiction-neutral. A status describes
+where a dialogue stands, never a legal determination, and the standing disclaimer is
+shown at the top. When no claims have been recorded it shows a dignified empty-state
+("No repatriation claims recorded yet"); it never errors.
+
+A machine-readable version is available at `/repatriation.json` (CORS-open, public
+read-only data) so partner sites and external dashboards can re-use the same
+aggregate. It exposes the totals, the status breakdown, the top origin places and
+communities, the virtual-return / returned / in-dialogue split, and the recent
+activity (each carrying its `virtual_return_url`).
+
 ## What it does not touch
 
 The workflow writes only to its own `displaced_heritage_claim` table. It reads the
 existing catalogue and the displaced-heritage register read-only. It never alters
-existing records.
+existing records. The dashboard adds **no new table**: it is a read-only aggregate
+(cheap COUNTs) over the existing claims register.
