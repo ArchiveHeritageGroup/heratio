@@ -15,6 +15,8 @@
   $reasonCounts = $report['reason_counts'] ?? [];
   $weights = $report['weights'] ?? [];
   $notes = $report['notes'] ?? ['condition_reports' => false, 'museum_metadata' => false];
+  $queueEnabled = $queueEnabled ?? false;
+  $queuedIds = $queuedIds ?? [];
   $maxScore = 0;
   foreach ($weights as $w) { $maxScore += (int) $w; }
 @endphp
@@ -24,8 +26,14 @@
   <div class="d-flex flex-wrap align-items-baseline gap-2 mb-1">
     <h1 class="h4 mb-0"><i class="fas fa-triangle-exclamation me-2 text-danger"></i>{{ __('Capture priority register') }}</h1>
     <span class="text-muted small">{{ __('Which records to capture next, and why') }}</span>
+    <span class="ms-auto"></span>
+    @if($queueEnabled && Route::has('capture-priority.queue'))
+      <a href="{{ route('capture-priority.queue') }}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-list-check me-1"></i>{{ __('Capture queue') }}
+      </a>
+    @endif
     @if(Route::has('capture-priority.public'))
-      <a href="{{ route('capture-priority.public') }}" class="ms-auto btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">
+      <a href="{{ route('capture-priority.public') }}" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">
         <i class="fas fa-up-right-from-square me-1"></i>{{ __('View public board') }}
       </a>
     @endif
@@ -138,6 +146,7 @@
             <th style="width:11rem">{{ __('Priority') }}</th>
             <th>{{ __('Record') }}</th>
             <th>{{ __('Why it is prioritised') }}</th>
+            @if($queueEnabled)<th style="width:9rem" class="text-end">{{ __('Action') }}</th>@endif
           </tr>
         </thead>
         <tbody>
@@ -171,6 +180,25 @@
                   <span class="badge bg-light text-dark border me-1 mb-1 fw-normal">{{ $reason }}</span>
                 @endforeach
               </td>
+              @if($queueEnabled)
+              <td class="text-end">
+                @if(!empty($queuedIds[$r['id']]))
+                  {{-- Already in the working queue: show a quiet badge with a link to it instead of a duplicate add. --}}
+                  <a href="{{ route('capture-priority.queue') }}" class="badge bg-success-subtle text-success border border-success-subtle text-decoration-none" title="{{ __('View in capture queue') }}">
+                    <i class="fas fa-check me-1"></i>{{ __('Queued') }}
+                  </a>
+                @else
+                  <form method="post" action="{{ route('capture-priority.queue.add') }}" class="d-inline">
+                    @csrf
+                    <input type="hidden" name="information_object_id" value="{{ $r['id'] }}">
+                    <input type="hidden" name="priority_score" value="{{ $r['score'] }}">
+                    <button type="submit" class="btn btn-sm btn-outline-primary" title="{{ __('Add this record to the capture queue') }}">
+                      <i class="fas fa-plus me-1"></i>{{ __('Add to queue') }}
+                    </button>
+                  </form>
+                @endif
+              </td>
+              @endif
             </tr>
           @endforeach
         </tbody>

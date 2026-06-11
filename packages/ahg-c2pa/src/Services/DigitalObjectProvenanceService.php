@@ -97,6 +97,59 @@ final class DigitalObjectProvenanceService
     }
 
     /**
+     * Public master-file resolver for the "download with content credentials"
+     * path (issue #1201). Loads the digital_object row by id and resolves its
+     * on-disk master, reusing the SAME candidate logic the ingest / record /
+     * backfill paths use, so the download path agrees with the rest of the
+     * package on where masters live. Returns null when the row is absent, the
+     * path is an external URL, or the file cannot be read. Never throws.
+     *
+     * @return array{path:string, name:string, mime:?string}|null
+     */
+    public function resolveMasterForDownload(int $digitalObjectId): ?array
+    {
+        try {
+            if ($digitalObjectId <= 0 || !Schema::hasTable('digital_object')) {
+                return null;
+            }
+            $do = DB::table('digital_object')
+                ->where('id', $digitalObjectId)
+                ->first(['id', 'object_id', 'usage_id', 'mime_type', 'name', 'path', 'parent_id']);
+            if ($do === null) {
+                return null;
+            }
+
+            // External URL links have no local file to stream.
+            $rawPath = (string) ($do->path ?? '');
+            if (preg_match('#^(https?|ftp)://#i', $rawPath)) {
+                return null;
+            }
+
+            $resolved = $this->resolveAssetPath($do);
+            if ($resolved === null || !is_readable($resolved)) {
+                return null;
+            }
+
+            $name = (string) ($do->name ?? '');
+            if ($name === '') {
+                $name = basename($resolved);
+            }
+
+            return [
+                'path' => $resolved,
+                'name' => $name,
+                'mime' => isset($do->mime_type) && (string) $do->mime_type !== '' ? (string) $do->mime_type : null,
+            ];
+        } catch (Throwable $e) {
+            Log::warning('c2pa: resolveMasterForDownload failed', [
+                'digital_object_id' => $digitalObjectId,
+                'err'               => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
      * A digital object is a signable master when it is a top-level master row
      * (usage_id=140, or a row with no parent so AtoM "thumbnail-as-master"
      * uploads still qualify) and is NOT an external URL link. We sign masters

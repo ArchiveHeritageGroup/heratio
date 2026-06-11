@@ -30,12 +30,16 @@
 namespace AhgCore\Controllers;
 
 use AhgCore\Services\CapturePriorityService;
+use AhgCore\Services\CaptureQueueService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
 class CapturePriorityController extends Controller
 {
-    public function __construct(private CapturePriorityService $service) {}
+    public function __construct(
+        private CapturePriorityService $service,
+        private CaptureQueueService $queue,
+    ) {}
 
     /**
      * The capture-priority admin report. Bounded by ?limit= (default 100, max 1000,
@@ -66,9 +70,19 @@ class CapturePriorityController extends Controller
             ];
         }
 
+        // #1205 capture queue: surface which of the shown rows are already queued so
+        // the view can offer "Add to capture queue" only where it makes sense. The
+        // queue service fails safe (returns empty / false) when its table is missing,
+        // so a fresh install simply gets no queue controls - the register still renders.
+        $rowIds = array_map(fn ($r) => (int) ($r['id'] ?? 0), $report['rows'] ?? []);
+        $queueEnabled = $this->queue->isAvailable();
+        $queuedIds = $queueEnabled ? $this->queue->queuedIds($rowIds) : [];
+
         return view('ahg-core::capture-priority.index', [
             'report' => $report,
             'limit' => $limit,
+            'queueEnabled' => $queueEnabled,
+            'queuedIds' => $queuedIds,
         ]);
     }
 

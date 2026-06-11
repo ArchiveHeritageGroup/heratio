@@ -3613,6 +3613,170 @@ class ExhibitionSpaceService
         return $stops;
     }
 
+    // -------- Printable catalogue (the classic museum deliverable) --------
+
+    /**
+     * Catalogue entries for a space: the placed objects in reading order, each with
+     * a display title, best-effort creator + date, the wall text / caption (the
+     * object's scope_and_content), a browser-renderable image (or null), and the
+     * record link. Entries are grouped by their wall/zone so a multi-section show
+     * prints with a clear structure.
+     *
+     * Built on getWalkthroughStops() so image + wall-text + record-link resolution
+     * (and the curator's saved reading order) are shared with the walkthrough, then
+     * enriched with creator/date from the standard AtoM creation event. Every lookup
+     * degrades gracefully: a missing image, caption, creator or date simply yields
+     * an empty value rather than an error.
+     *
+     * @return array{
+     *   entries: array<int,array<string,mixed>>,
+     *   sections: array<int,array{key:string,label:string,entries:array<int,array<string,mixed>>}>,
+     *   has_sections: bool
+     * }
+     */
+    public function getCatalogueEntries(int $exhibitionSpaceId): array
+    {
+        $stops = [];
+        try {
+            $stops = $this->getWalkthroughStops($exhibitionSpaceId);
+        } catch (\Throwable $e) {
+            $stops = [];
+        }
+
+        // One batched pass for creator + date keeps the per-entry work cheap even
+        // for a large show. Missing tables/columns fall back to empty enrichment.
+        $ioIds = [];
+        foreach ($stops as $s) {
+            $id = (int) ($s['information_object_id'] ?? 0);
+            if ($id > 0) {
+                $ioIds[$id] = true;
+            }
+        }
+        $byId = $this->catalogueCreatorsAndDates(array_keys($ioIds));
+
+        $entries = [];
+        $sections = [];        // keyed by zone slug -> [label, entries]
+        $position = 0;
+        foreach ($stops as $s) {
+            $ioId = (int) ($s['information_object_id'] ?? 0);
+            $meta = $byId[$ioId] ?? ['creator' => null, 'date' => null];
+            $caption = trim((string) ($s['description'] ?? ''));
+            $entry = [
+                'position' => ++$position,
+                'information_object_id' => $ioId,
+                'title' => $s['title'] ?: ('#'.$ioId),
+                'creator' => $meta['creator'] ?: null,
+                'date' => $meta['date'] ?: null,
+                'caption' => $caption !== '' ? $caption : null,
+                'image_url' => $s['image_url'] ?? ($s['thumb_url'] ?? null),
+                'record_url' => $s['record_url'] ?? null,
+                'zone' => $s['wall_or_zone'] ?? null,
+            ];
+            $entries[] = $entry;
+
+            $zone = $s['wall_or_zone'] ?? null;
+            $key = ($zone === null || trim((string) $zone) === '') ? '_general' : strtolower(trim((string) $zone));
+            if (! isset($sections[$key])) {
+                $sections[$key] = [
+                    'key' => $key,
+                    'label' => $this->catalogueZoneLabel($zone),
+                    'entries' => [],
+                ];
+            }
+            $sections[$key]['entries'][] = $entry;
+        }
+
+        // Only treat the catalogue as sectioned when objects genuinely split across
+        // more than one named zone; a single bucket prints as one flat run.
+        $hasSections = count($sections) > 1;
+
+        return [
+            'entries' => $entries,
+            'sections' => array_values($sections),
+            'has_sections' => $hasSections,
+        ];
+    }
+
+    /**
+     * Best-effort creator + display date for a set of information objects, keyed by
+     * id. Creator = the actor on the creation event (type_id 111); date = that
+     * event's display date, else any event date on the object. Tolerant of missing
+     * tables/rows so the catalogue never 500s on sparse data.
+     *
+     * @param  array<int,int>  $ioIds
+     * @return array<int,array{creator:?string,date:?string}>
+     */
+    private function catalogueCreatorsAndDates(array $ioIds): array
+    {
+        $out = [];
+        if (empty($ioIds)) {
+            return $out;
+        }
+
+        try {
+            $events = DB::table('event')
+                ->leftJoin('event_i18n', function ($j) {
+                    $j->on('event_i18n.id', '=', 'event.id')->where('event_i18n.culture', '=', 'en');
+                })
+                ->leftJoin('actor_i18n', function ($j) {
+                    $j->on('actor_i18n.id', '=', 'event.actor_id')->where('actor_i18n.culture', '=', 'en');
+                })
+                ->whereIn('event.object_id', $ioIds)
+                ->select(
+                    'event.object_id',
+                    'event.type_id',
+                    'event.start_date',
+                    'event_i18n.date as date_display',
+                    'actor_i18n.authorized_form_of_name as creator'
+                )
+                ->get();
+        } catch (\Throwable $e) {
+            return $out;
+        }
+
+        foreach ($events as $ev) {
+            $oid = (int) $ev->object_id;
+            if (! isset($out[$oid])) {
+                $out[$oid] = ['creator' => null, 'date' => null];
+            }
+            $isCreation = (int) ($ev->type_id ?? 0) === 111;
+            $creator = trim((string) ($ev->creator ?? ''));
+            if ($creator !== '' && ($out[$oid]['creator'] === null || $isCreation)) {
+                $out[$oid]['creator'] = $creator;
+            }
+            $date = trim((string) ($ev->date_display ?? ''));
+            if ($date === '' && ! empty($ev->start_date)) {
+                // Fall back to the year from a structured start date.
+                $date = substr((string) $ev->start_date, 0, 4);
+            }
+            if ($date !== '' && ($out[$oid]['date'] === null || $isCreation)) {
+                $out[$oid]['date'] = $date;
+            }
+        }
+
+        return $out;
+    }
+
+    /** Human label for a catalogue section from a wall/zone key. */
+    private function catalogueZoneLabel(?string $zone): string
+    {
+        $zone = trim((string) $zone);
+        if ($zone === '') {
+            return 'Catalogue';
+        }
+        $named = [
+            'north' => 'North wall', 'south' => 'South wall',
+            'east' => 'East wall', 'west' => 'West wall',
+            'corridor' => 'Corridor',
+        ];
+        $key = strtolower($zone);
+        if (isset($named[$key])) {
+            return $named[$key];
+        }
+
+        return ucwords(str_replace(['-', '_'], ' ', $zone));
+    }
+
     // -------- Helpers --------
 
     private function generateUniqueSlug(string $name): string

@@ -32,6 +32,10 @@ class AhgCoreServiceProvider extends ServiceProvider
         // translation of a record's key metadata via the sanctioned AI gateway.
         $this->app->singleton(\AhgCore\Services\MultilingualRecordService::class);
 
+        // heratio#1205 - capture queue workflow service (the actionable layer on
+        // top of the read-only capture-priority register).
+        $this->app->singleton(\AhgCore\Services\CaptureQueueService::class);
+
         // Repository contracts → MySQL implementations
         $this->app->bind(DescriptionRepository::class, MysqlDescriptionRepository::class);
         $this->app->bind(AgentRepository::class, MysqlAgentRepository::class);
@@ -527,6 +531,30 @@ class AhgCoreServiceProvider extends ServiceProvider
             }
         } catch (\Throwable $e) {
             \Log::warning('[ahg-core] ahg_gaussian_splat install failed: '.$e->getMessage());
+        }
+
+        // #1205 capture queue: ahg_capture_queue (the actionable workflow on top of the at-risk
+        // register) + the capture_queue_status dropdown group. Single outer try/catch around
+        // hasTable() + unprepared() per reference_ci_schema_hastable.md so the CI sqlite fallback
+        // cannot crash package:discover before a real DB is wired. The dropdown seed only runs when
+        // ahg_dropdown exists and the group is not yet present, so it is a no-op on every boot after
+        // the first - and a missing dropdown table never blocks the table install.
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_capture_queue')) {
+                $sql = file_get_contents(__DIR__.'/../../database/install_capture_queue.sql');
+                if (is_string($sql) && trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                }
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')
+                && ! \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'capture_queue_status')->exists()) {
+                $seed = file_get_contents(__DIR__.'/../../database/seed_capture_queue_dropdowns.sql');
+                if (is_string($seed) && trim($seed) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($seed);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-core] ahg_capture_queue install failed: '.$e->getMessage());
         }
     }
 }

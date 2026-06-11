@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace AhgC2pa\Controllers;
 
+use AhgC2pa\Services\DigitalObjectProvenanceService;
 use AhgC2pa\Services\ProvenanceRecordService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -44,8 +45,10 @@ final class VerifyObjectController extends Controller
     private const STATE_INVALID  = 'invalid';    // red:   signed but a signature/hash failed (tampered)
     private const STATE_ABSENT   = 'absent';     // neutral: no content credentials recorded/signed
 
-    public function __construct(private ProvenanceRecordService $service)
-    {
+    public function __construct(
+        private ProvenanceRecordService $service,
+        private DigitalObjectProvenanceService $resolver,
+    ) {
     }
 
     /**
@@ -62,16 +65,31 @@ final class VerifyObjectController extends Controller
 
         $analysis = $this->analyse($digitalObjectId);
 
+        // Is a master file actually on disk? Only then do we offer the
+        // "download with content credentials" link (issue #1201). Best-effort;
+        // a resolver fault simply hides the link.
+        $downloadable = false;
+        try {
+            $downloadable = $this->resolver->resolveMasterForDownload($digitalObjectId) !== null;
+        } catch (Throwable $e) {
+            Log::info('c2pa: download availability check failed; hiding link', [
+                'digital_object_id' => $digitalObjectId,
+                'err'               => $e->getMessage(),
+            ]);
+        }
+
         return view('ahg-c2pa::verify.object', [
-            'object'    => $object,
-            'state'     => $analysis['state'],
-            'chain'     => $analysis['chain'],
-            'signer'    => $analysis['signer'],
-            'signedAt'  => $analysis['signed_at'],
-            'counts'    => $analysis['counts'],
-            'verifyUrl' => $this->verifyUrl($digitalObjectId),
-            'badgeJson' => $this->badgeUrl($digitalObjectId, 'json'),
-            'badgeSvg'  => $this->badgeUrl($digitalObjectId, 'svg'),
+            'object'       => $object,
+            'state'        => $analysis['state'],
+            'chain'        => $analysis['chain'],
+            'signer'       => $analysis['signer'],
+            'signedAt'     => $analysis['signed_at'],
+            'counts'       => $analysis['counts'],
+            'verifyUrl'    => $this->verifyUrl($digitalObjectId),
+            'badgeJson'    => $this->badgeUrl($digitalObjectId, 'json'),
+            'badgeSvg'     => $this->badgeUrl($digitalObjectId, 'svg'),
+            'downloadable' => $downloadable,
+            'downloadUrl'  => $this->safeUrl('/verify/' . $digitalObjectId . '/download'),
         ]);
     }
 

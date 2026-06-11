@@ -281,6 +281,17 @@ Route::prefix('research')->name('research.')->middleware('auth')->group(function
     Route::match(['get', 'post'], '/bibliographies', [ResearchController::class, 'bibliographies'])->name('bibliographies');
     Route::match(['get', 'post'], '/viewBibliography/{id}', [ResearchController::class, 'viewBibliography'])->name('viewBibliography')->where('id', '[0-9]+');
 
+    // Bibliography export for reference managers (BibTeX / RIS / CSL-JSON).
+    // Same auth + ownership gating as viewBibliography (enforced in the controller).
+    Route::get('/bibliography/{id}/export/{format}', [ResearchController::class, 'exportBibliography'])
+        ->name('bibliography.export')
+        ->where('id', '[0-9]+')
+        ->where('format', 'bibtex|ris|csljson');
+    Route::get('/cite/{itemId}/export/{format}', [ResearchController::class, 'exportBibliographyEntry'])
+        ->name('bibliographyEntry.export')
+        ->where('itemId', '[0-9]+')
+        ->where('format', 'bibtex|ris|csljson');
+
     // Source Assessments
     Route::get('/assessments', [ResearchController::class, 'assessments'])->name('assessments');
 

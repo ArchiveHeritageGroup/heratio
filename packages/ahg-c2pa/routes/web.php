@@ -16,6 +16,7 @@ use AhgC2pa\Controllers\AuthenticityController;
 use AhgC2pa\Controllers\ProvenanceController;
 use AhgC2pa\Controllers\VerifyController;
 use AhgC2pa\Controllers\VerifyObjectController;
+use AhgC2pa\Controllers\VerifyObjectDownloadController;
 use AhgC2pa\Controllers\VerifyRecordTraceController;
 use Illuminate\Support\Facades\Route;
 
@@ -59,6 +60,22 @@ Route::prefix('verify')->group(function () {
     // fine in an <img>. Keeping the .svg name on the route would never resolve.
     Route::get('/{digitalObjectId}/badge', [VerifyObjectController::class, 'badgeSvg'])
         ->name('c2pa.verify.object.badge.svg')
+        ->where('digitalObjectId', '[0-9]+');
+
+    // "Download with content credentials" (issue #1201: credentials travel with
+    // the object on export). A NEW, additive, parallel download path - it never
+    // touches the locked IO/media download route. Streams the digital object's
+    // master either as a C2PA-embedded copy (when c2patool + an embeddable
+    // format) or as the original plus a sidecar manifest advertised in the
+    // headers. Deeper '/download' + '/credentials.c2pa' segments so the bare
+    // /verify/{id} detail route never captures them as part of the id. nginx has
+    // no static rule for the .c2pa extension, so it passes through to Laravel.
+    Route::get('/{digitalObjectId}/download', [VerifyObjectDownloadController::class, 'download'])
+        ->name('c2pa.verify.object.download')
+        ->where('digitalObjectId', '[0-9]+');
+
+    Route::get('/{digitalObjectId}/credentials.c2pa', [VerifyObjectDownloadController::class, 'credentials'])
+        ->name('c2pa.verify.object.credentials')
         ->where('digitalObjectId', '[0-9]+');
 
     // Provenance-chain detail page for one digital object.

@@ -66,10 +66,24 @@
             </div>
         </div>
     @else
-        <p class="text-muted small mb-3">
-            <i class="fas fa-circle-info me-1"></i>
-            {{ trans_choice('{1}:count discovery surfaced from the current collection graph.|[2,*]:count discoveries surfaced from the current collection graph.', count($discoveries), ['count' => count($discoveries)]) }}
-        </p>
+        @php
+            $isPersisted = !empty($persisted);
+            $genAt = $generatedAt ?? null;
+            $paginator = $paginator ?? null;
+            $shownCount = ($isPersisted && $paginator) ? $paginator->total() : count($discoveries);
+        @endphp
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+            <p class="text-muted small mb-0">
+                <i class="fas fa-circle-info me-1"></i>
+                {{ trans_choice('{1}:count discovery surfaced from the current collection graph.|[2,*]:count discoveries surfaced from the current collection graph.', $shownCount, ['count' => $shownCount]) }}
+            </p>
+            @if($isPersisted && $genAt)
+                <span class="badge text-bg-light border" title="{{ __('When this curated set was last generated') }}">
+                    <i class="fas fa-clock-rotate-left me-1"></i>
+                    {{ __('Generated') }} {{ \Illuminate\Support\Carbon::parse($genAt)->toDayDateTimeString() }}
+                </span>
+            @endif
+        </div>
 
         <div class="row g-4">
             @foreach($discoveries as $d)
@@ -176,17 +190,30 @@
                                     &middot; {{ (int) $d['second_hop'] }} {{ __('indirect') }}
                                 @endif
                             </span>
-                            @if(!empty($rec['slug']))
-                                <a href="{{ url('/'.$rec['slug']) }}" class="text-decoration-none">
-                                    {{ __('Open record') }} <i class="fas fa-arrow-right ms-1"></i>
-                                </a>
-                            @endif
+                            <span class="d-flex gap-3">
+                                @if(!empty($d['id']))
+                                    <a href="{{ route('scholarship.discoveries.show', ['id' => $d['id']]) }}" class="text-decoration-none">
+                                        {{ __('View discovery') }} <i class="fas fa-up-right-from-square ms-1"></i>
+                                    </a>
+                                @endif
+                                @if(!empty($rec['slug']))
+                                    <a href="{{ url('/'.$rec['slug']) }}" class="text-decoration-none">
+                                        {{ __('Open record') }} <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                @endif
+                            </span>
                         </div>
 
                     </div>
                 </div>
             @endforeach
         </div>
+
+        @if($isPersisted && $paginator && $paginator->hasPages())
+            <div class="mt-4 d-flex justify-content-center">
+                {{ $paginator->links() }}
+            </div>
+        @endif
 
         <p class="text-muted small mt-4 mb-0">
             <i class="fas fa-rotate me-1"></i>

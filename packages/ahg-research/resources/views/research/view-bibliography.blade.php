@@ -36,9 +36,10 @@
                 <i class="fas fa-download me-1"></i>{{ __('Export') }}
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{{ route('research.viewBibliography', $bibliography->id) }}?export=ris">RIS (EndNote, Zotero)</a></li>
-                <li><a class="dropdown-item" href="{{ route('research.viewBibliography', $bibliography->id) }}?export=bibtex">BibTeX (LaTeX)</a></li>
-                <li><a class="dropdown-item" href="{{ route('research.viewBibliography', $bibliography->id) }}?export=csv">CSV</a></li>
+                <li><h6 class="dropdown-header">{{ __('Reference manager') }}</h6></li>
+                <li><a class="dropdown-item" href="{{ route('research.bibliography.export', ['id' => $bibliography->id, 'format' => 'bibtex']) }}">BibTeX (.bib) &middot; {{ __('LaTeX, JabRef') }}</a></li>
+                <li><a class="dropdown-item" href="{{ route('research.bibliography.export', ['id' => $bibliography->id, 'format' => 'ris']) }}">RIS (.ris) &middot; {{ __('EndNote, Zotero, Mendeley') }}</a></li>
+                <li><a class="dropdown-item" href="{{ route('research.bibliography.export', ['id' => $bibliography->id, 'format' => 'csljson']) }}">CSL-JSON (.json) &middot; {{ __('Zotero, Pandoc') }}</a></li>
             </ul>
         </div>
         <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editBibModal"><i class="fas fa-edit"></i></button>

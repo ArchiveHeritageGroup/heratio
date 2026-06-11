@@ -59,6 +59,18 @@ Route::get('/stories/{slug}', [\AhgCore\Controllers\StorytellingController::clas
 // Multi-segment path keeps it clear of the single-segment /{slug} archival-record catch-all.
 Route::middleware('auth')->group(function () {
     Route::get('/admin/capture-priority', [\AhgCore\Controllers\CapturePriorityController::class, 'index'])->name('capture-priority.index');
+
+    // heratio#1205 - capture queue workflow (admin): the actionable layer on top of the at-risk
+    // register. Operators pull a record into a working queue, track its status (queued -> in
+    // progress -> captured / deferred), assign it, note it, and pull it back out. Status values come
+    // from the Dropdown Manager group `capture_queue_status` (CaptureQueueService). All writes are
+    // confined to ahg_capture_queue; no AtoM base tables are touched. Multi-segment paths keep this
+    // clear of the single-segment /{slug} archival-record catch-all.
+    Route::get('/admin/capture-priority/queue', [\AhgCore\Controllers\CaptureQueueController::class, 'index'])->name('capture-priority.queue');
+    Route::post('/admin/capture-priority/queue/add', [\AhgCore\Controllers\CaptureQueueController::class, 'store'])->name('capture-priority.queue.add');
+    Route::post('/admin/capture-priority/queue/status', [\AhgCore\Controllers\CaptureQueueController::class, 'setStatus'])->name('capture-priority.queue.status');
+    Route::post('/admin/capture-priority/queue/assign', [\AhgCore\Controllers\CaptureQueueController::class, 'assign'])->name('capture-priority.queue.assign');
+    Route::post('/admin/capture-priority/queue/remove', [\AhgCore\Controllers\CaptureQueueController::class, 'remove'])->name('capture-priority.queue.remove');
 });
 // Public "race against loss" awareness board: a dignified, anonymous, read-only top-N of the records
 // most at risk of being lost, drawn from the same CapturePriorityService. /race-against-loss is a

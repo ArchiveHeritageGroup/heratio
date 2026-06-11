@@ -1505,6 +1505,80 @@ class ResearchController extends Controller
         ));
     }
 
+    /**
+     * Export a researcher's own bibliography as BibTeX / RIS / CSL-JSON.
+     *
+     * Reuses the exact ownership gating of viewBibliography(): the bibliography
+     * must belong to the signed-in researcher, otherwise the same abort(404) is
+     * issued. The route constraint limits {format} to bibtex|ris|csljson, but an
+     * unknown format is also mapped to 404 defensively. An empty bibliography
+     * yields a valid-but-empty download, never a 500.
+     */
+    public function exportBibliography(Request $request, int $id, string $format)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        // Same ownership gate as viewBibliography().
+        $bibliography = DB::table('research_bibliography')
+            ->where('id', $id)
+            ->where('researcher_id', $researcher->id)
+            ->first();
+        if (!$bibliography) abort(404);
+
+        $entries = DB::table('research_bibliography_entry')
+            ->where('bibliography_id', $id)
+            ->orderBy('sort_order')
+            ->get()->toArray();
+
+        $exporter = app(\AhgResearch\Services\CitationExportService::class);
+        $body     = $exporter->export($entries, $format);
+        if ($body === null) {
+            abort(404, 'Unsupported export format');
+        }
+
+        return response($body, 200, [
+            'Content-Type'        => $exporter->mimeFor($format),
+            'Content-Disposition' => 'attachment; filename="'
+                . $exporter->filenameFor($bibliography->name ?? null, $id, $format) . '"',
+        ]);
+    }
+
+    /**
+     * Export a single bibliography entry (one citation) as BibTeX / RIS /
+     * CSL-JSON. The entry must belong to a bibliography owned by the signed-in
+     * researcher; otherwise abort(404). Unknown format -> 404.
+     */
+    public function exportBibliographyEntry(Request $request, int $itemId, string $format)
+    {
+        if (!Auth::check()) return redirect()->route('login');
+        $researcher = $this->service->getResearcherByUserId(Auth::id());
+        if (!$researcher) return redirect()->route('researcher.register');
+
+        // Join through to the owning bibliography so we never expose another
+        // researcher's entry.
+        $entry = DB::table('research_bibliography_entry as e')
+            ->join('research_bibliography as b', 'e.bibliography_id', '=', 'b.id')
+            ->where('e.id', $itemId)
+            ->where('b.researcher_id', $researcher->id)
+            ->select('e.*')
+            ->first();
+        if (!$entry) abort(404);
+
+        $exporter = app(\AhgResearch\Services\CitationExportService::class);
+        $body     = $exporter->export([$entry], $format);
+        if ($body === null) {
+            abort(404, 'Unsupported export format');
+        }
+
+        return response($body, 200, [
+            'Content-Type'        => $exporter->mimeFor($format),
+            'Content-Disposition' => 'attachment; filename="'
+                . $exporter->filenameFor('citation-' . $itemId, $itemId, $format) . '"',
+        ]);
+    }
+
     // =========================================================================
     // REPORTS
     // =========================================================================

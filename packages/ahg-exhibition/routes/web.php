@@ -44,6 +44,9 @@ Route::get('/exhibition-space/{slug}/plan', [ExhibitionSpaceController::class, '
 // floor plan + "take me to X" object directory (deep-links into the walkthrough).
 // Public, multi-segment so it stays clear of the single-segment /{slug} catch-all.
 Route::get('/exhibition-space/{slug}/wayfinding', [ExhibitionSpaceController::class, 'wayfinding'])->name('exhibition-space.wayfinding');
+// Printable / PDF-ready exhibition catalogue (the classic museum deliverable).
+// Public, read-only, multi-segment so it stays clear of the single-segment /{slug} catch-all.
+Route::get('/exhibition-space/{slug}/catalogue', [ExhibitionSpaceController::class, 'catalogue'])->name('exhibition-space.catalogue');
 Route::get('/exhibition-space/{slug}/forecast', [ExhibitionSpaceController::class, 'forecast'])->name('exhibition-space.forecast');
 Route::get('/exhibition-space/{slug}/analytics', [ExhibitionSpaceController::class, 'analytics'])->name('exhibition-space.analytics');
 

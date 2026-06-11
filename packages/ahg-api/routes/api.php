@@ -2,6 +2,7 @@
 
 use AhgApi\Controllers\GraphController;
 use AhgApi\Controllers\LegacyApiController;
+use AhgApi\Controllers\OaiPmhController;
 use AhgApi\Controllers\OpenApiController;
 use AhgApi\Controllers\V1\AccessionApiController;
 use AhgApi\Controllers\V1\ActorApiController;
@@ -47,6 +48,41 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['api.cors', 'api.etag'])->group(function () {
     Route::get('api/openapi.json', [OpenApiController::class, 'spec'])->name('api.openapi.spec');
     Route::get('api/docs', [OpenApiController::class, 'docs'])->name('api.openapi.docs');
+});
+
+/*
+|--------------------------------------------------------------------------
+| OAI-PMH 2.0 harvesting endpoint (deepens north-star #1204)
+|--------------------------------------------------------------------------
+| GET /api/oai?verb=...  - a single standards-based OAI-PMH 2.0 endpoint over
+| the PUBLISHED archival corpus, serving simple Dublin Core (oai_dc). It makes
+| the corpus harvestable by library/archive aggregators and crawling agents,
+| complementing the Linked-Data graph endpoint (the graph is for per-entity
+| crawling; OAI-PMH is for bulk metadata harvesting).
+|
+| Verbs: Identify, ListMetadataFormats, ListIdentifiers, ListRecords,
+| GetRecord. Selective harvesting via from/until + an opaque resumptionToken
+| (bounded page size). No API key (open data); permissive CORS; a light
+| throttle keeps the open door cheap. The controller enforces the same
+| publication-status gate as the rest of the public API (status.type_id=158,
+| status_id=160), excludes the synthetic root (id=1), and never 500s - every
+| error is a valid OAI <error> document.
+|
+| Route choice: /api/oai (single endpoint, OAI verbs via query string). It is
+| under the "api/" path space, which the single-segment /{slug} information-
+| object catch-all already excludes (its regex is ^(?!api|admin|...)... ), so
+| it can never be shadowed. Registering it in this package also loads it well
+| before the catch-all. It is consistent with the package's existing route base
+| (api/openapi.json, api/docs, api/v1/...).
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('api/oai', [OaiPmhController::class, 'options']);
+    Route::get('api/oai', [OaiPmhController::class, 'handle'])->name('api.oai');
+    // POST is permitted by the OAI-PMH spec; arguments still arrive as query/
+    // form params, which Request::query reads transparently for GET. Accept
+    // POST too so a strict harvester that prefers POST is served.
+    Route::post('api/oai', [OaiPmhController::class, 'handle'])->name('api.oai.post');
 });
 
 /*

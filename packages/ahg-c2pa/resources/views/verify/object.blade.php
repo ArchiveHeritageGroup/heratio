@@ -98,6 +98,24 @@
   </div>
 </div>
 
+{{-- Download with content credentials (issue #1201): the file leaves Heratio
+     carrying its provenance - embedded in the bytes where the format allows,
+     otherwise alongside a signed sidecar manifest. Only shown when a master is
+     actually on disk. --}}
+@if(!empty($downloadable) && !empty($downloadUrl))
+  <div class="card mb-3">
+    <div class="card-header"><i class="fas fa-download me-2"></i>{{ __('Take the credentials with you') }}</div>
+    <div class="card-body">
+      <p class="text-muted small mb-2">
+        {{ __('Download a copy of this file with its content credentials attached, so its provenance can be verified anywhere - not just here. Where the file format supports it, the credentials are embedded into the file itself; otherwise they travel alongside it as a signed manifest.') }}
+      </p>
+      <a href="{{ $downloadUrl }}" class="btn btn-primary btn-sm" rel="nofollow">
+        <i class="fas fa-shield-alt me-1"></i>{{ __('Download with content credentials') }}
+      </a>
+    </div>
+  </div>
+@endif
+
 {{-- The chain itself: one card per provenance record, with its signed steps. --}}
 @foreach($chain as $link)
   @php

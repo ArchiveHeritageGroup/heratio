@@ -4,17 +4,25 @@
  * DiscoveriesController - public "Discoveries" surface (heratio#1210).
  *
  * "AI finds connections no human spotted." This is the public read surface for
- * generative scholarship. It selects a curated set of well-connected records and
- * runs ScholarshipService::discover() over each, surfacing the AI's non-obvious,
- * graph-grounded research leads alongside the real catalogue links they rest on.
+ * generative scholarship. It surfaces a curated set of well-connected records
+ * with the AI's non-obvious, graph-grounded research leads alongside the real
+ * catalogue links they rest on.
  *
- * Discoveries are produced ON DEMAND by ScholarshipService (there is no stored
- * pool), so this controller curates a stable candidate set - the records with
- * the densest cross-collection graph neighbourhoods - and caches the rendered
- * result for a short window. That keeps the page fast and bounds the number of
- * AI gateway calls. All AI behaviour (gateway routing, graceful degradation,
- * grounding) is encapsulated in the service; the controller only reads what it
- * returns and shapes it for the view.
+ * Two sources, in priority order:
+ *   1. PERSISTED (preferred) - when ahg_scholarship_discovery has rows (refreshed
+ *      by `php artisan ahg:generate-discoveries`), the page renders those STORED
+ *      discoveries: stable, fast, paginated, ordered by confidence then recency,
+ *      with a "generated <date>" note. No AI calls happen on the request path, so
+ *      the discoveries are stable and citable across page loads.
+ *   2. ON-DEMAND (fallback) - when the table is empty or missing, the controller
+ *      falls back to the original behaviour: it curates a candidate set (the
+ *      densest cross-collection neighbourhoods), runs ScholarshipService::discover()
+ *      over each, and caches the rendered result for a short window. This keeps
+ *      the page populated before the first generate run and if the table is gone.
+ *
+ * The controller is READ-ONLY: it never writes ahg_scholarship_discovery (that is
+ * the command's job). All AI behaviour (gateway routing, graceful degradation,
+ * grounding) is encapsulated in the service; the controller only reads.
  *
  * Resilience: every step is guarded. If the relevant tables are missing, the
  * service errors, or no record has any connections, the page renders its
@@ -63,6 +71,12 @@ class DiscoveriesController extends Controller
     /** Cache window for the rendered discovery set (seconds). */
     protected int $cacheTtl = 1800;
 
+    /** Page size when rendering the persisted discovery set. */
+    protected int $perPage = 12;
+
+    /** The persistence table the generate command writes and we read. */
+    protected string $table = 'ahg_scholarship_discovery';
+
     protected ScholarshipService $service;
 
     public function __construct()
@@ -73,13 +87,25 @@ class DiscoveriesController extends Controller
     /**
      * Public index: the connections across the collection that no one had noticed.
      *
-     * Renders a curated, cached set of discoveries. Each discovery is one record
-     * with at least one AI-surfaced, graph-grounded research lead, plus the real
-     * linked entities the lead rests on. Falls back to an empty-state whenever
-     * nothing can be produced - never 500s.
+     * Prefers the PERSISTED discovery set (stable, fast, paginated) when the
+     * ahg_scholarship_discovery table has rows; otherwise falls back to the
+     * original ON-DEMAND path so the page is never empty. Either way it degrades
+     * to an empty-state rather than 500ing.
      */
     public function index()
     {
+        // ---- Preferred: render stored discoveries when the table has rows. ----
+        try {
+            if ($this->hasStoredDiscoveries()) {
+                return $this->renderStored();
+            }
+        } catch (\Throwable $e) {
+            // Stored read failed (table dropped mid-request, etc.) - fall through
+            // to the on-demand path rather than 500ing.
+            Log::info('[discoveries] stored read failed, falling back to on-demand: '.$e->getMessage());
+        }
+
+        // ---- Fallback: original on-demand generation, short-cached. ----
         $discoveries = [];
         $aiUnavailable = false;
 
@@ -100,7 +126,156 @@ class DiscoveriesController extends Controller
         return view('ahg-semantic-search::discoveries.index', [
             'discoveries' => $discoveries,
             'aiUnavailable' => $aiUnavailable,
+            'persisted' => false,
+            'generatedAt' => null,
+            'paginator' => null,
         ]);
+    }
+
+    /**
+     * Optional detail view for a single STORED discovery. Renders the full lead +
+     * the snapshotted evidence the lead rests on. Falls back to redirecting to the
+     * record when the stored row or table is absent - never 500s.
+     *
+     * @param  int|string  $id  The ahg_scholarship_discovery row id.
+     */
+    public function show($id)
+    {
+        try {
+            if (Schema::hasTable($this->table)) {
+                $row = DB::table($this->table)->where('id', (int) $id)->first();
+                if ($row) {
+                    return view('ahg-semantic-search::discoveries.show', [
+                        'discovery' => $this->shapeStoredCard($row),
+                        'generatedAt' => $row->generated_at ?? null,
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::info('[discoveries] show('.$id.') failed: '.$e->getMessage());
+        }
+
+        // No stored row: send the user to the discoveries index rather than erroring.
+        return redirect()->route('scholarship.discoveries');
+    }
+
+    /**
+     * Whether the persisted table exists and has at least one row.
+     */
+    protected function hasStoredDiscoveries(): bool
+    {
+        return Schema::hasTable($this->table)
+            && DB::table($this->table)->exists();
+    }
+
+    /**
+     * Render the persisted discovery set: paginated, ordered by confidence then
+     * recency. Read-only.
+     */
+    protected function renderStored()
+    {
+        $paginator = DB::table($this->table)
+            ->orderByDesc('confidence')
+            ->orderByDesc('generated_at')
+            ->orderByDesc('id')
+            ->paginate($this->perPage)
+            ->withQueryString();
+
+        $discoveries = [];
+        foreach ($paginator->items() as $row) {
+            $discoveries[] = $this->shapeStoredCard($row);
+        }
+
+        // Newest generated_at across the stored set, for the "generated <date>" note.
+        $generatedAt = DB::table($this->table)->max('generated_at');
+
+        return view('ahg-semantic-search::discoveries.index', [
+            'discoveries' => $discoveries,
+            'aiUnavailable' => false,
+            'persisted' => true,
+            'generatedAt' => $generatedAt,
+            'paginator' => $paginator,
+        ]);
+    }
+
+    /**
+     * Shape a stored ahg_scholarship_discovery row into the same card structure
+     * the view consumes for on-demand cards, rehydrating the evidence snapshot
+     * (connections, metrics) so the stored card renders identically. Adds the row
+     * id so the view can link to the detail page.
+     *
+     * @param  object  $row
+     * @return array<string,mixed>
+     */
+    protected function shapeStoredCard($row): array
+    {
+        $evidence = [];
+        if (! empty($row->evidence)) {
+            $decoded = json_decode((string) $row->evidence, true);
+            if (is_array($decoded)) {
+                $evidence = $decoded;
+            }
+        }
+
+        $rec = $evidence['record'] ?? [];
+        $total = (int) ($row->connection_count ?? 0);
+        $secondHop = (int) ($evidence['second_hop_count'] ?? 0);
+        $grounded = (int) ($evidence['grounded_entities'] ?? 0);
+        $insights = array_values(array_filter((array) ($evidence['insights'] ?? [])));
+
+        // Flatten the snapshotted grouped connections into the card's link list.
+        $links = [];
+        foreach (($evidence['connections'] ?? []) as $group) {
+            $domain = (string) ($group['domain'] ?? 'Other');
+            foreach (($group['items'] ?? []) as $item) {
+                $name = trim((string) ($item['name'] ?? ''));
+                if ($name === '') {
+                    continue;
+                }
+                $links[] = [
+                    'name' => $name,
+                    'slug' => $item['slug'] ?? null,
+                    'domain' => $domain,
+                ];
+            }
+        }
+
+        return [
+            'id' => (int) ($row->id ?? 0),
+            'record' => [
+                'id' => (int) ($rec['id'] ?? ($row->information_object_id ?? 0)),
+                'title' => $rec['title'] ?? ($row->title ?? null),
+                'slug' => $rec['slug'] ?? null,
+            ],
+            'summary' => (string) ($row->summary ?? ''),
+            'insights' => $insights,
+            'links' => $links,
+            'total' => $total,
+            'second_hop' => $secondHop,
+            'grounded' => $grounded,
+            'ai_available' => (bool) ($evidence['ai_available'] ?? false),
+            'confidence' => $this->bandFromScore((int) ($row->confidence ?? 0)),
+            'generated_at' => $row->generated_at ?? null,
+        ];
+    }
+
+    /**
+     * Map a stored 0-100 confidence score back to the label/level/score band the
+     * view renders (same thresholds as confidenceBand()).
+     *
+     * @return array{label:string,level:string,score:int}
+     */
+    protected function bandFromScore(int $score): array
+    {
+        $score = (int) max(0, min(100, $score));
+        if ($score >= 70) {
+            return ['label' => 'High confidence', 'level' => 'success', 'score' => $score];
+        }
+        if ($score >= 40) {
+            return ['label' => 'Moderate confidence', 'level' => 'warning', 'score' => $score];
+        }
+
+        return ['label' => 'Tentative', 'level' => 'secondary', 'score' => $score];
     }
 
     /**

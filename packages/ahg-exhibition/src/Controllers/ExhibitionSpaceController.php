@@ -312,6 +312,38 @@ class ExhibitionSpaceController extends Controller
     }
 
     /**
+     * Printable / PDF-ready exhibition catalogue (the classic museum deliverable).
+     * Read-only and public, like the walkthrough / wayfinding pages. Resolves the
+     * space, then its placed objects in reading order - each with title, best-effort
+     * creator + date, the wall text / caption, a display image and the record link
+     * (all via ExhibitionSpaceService, sharing the walkthrough's media + wall-text
+     * resolution). A space with no objects degrades to a dignified empty catalogue
+     * rather than a 500; the entry assembly is guarded for the same reason.
+     */
+    public function catalogue(string $slug)
+    {
+        $space = $this->service->getBySlug($slug);
+        if (! $space) {
+            abort(404);
+        }
+
+        $catalogue = ['entries' => [], 'sections' => [], 'has_sections' => false];
+        try {
+            $catalogue = $this->service->getCatalogueEntries((int) $space->id) ?: $catalogue;
+        } catch (\Throwable $e) {
+            $catalogue = ['entries' => [], 'sections' => [], 'has_sections' => false];
+        }
+
+        return view('ahg-exhibition::exhibition-space.catalogue', [
+            'space' => $space,
+            'entries' => $catalogue['entries'],
+            'sections' => $catalogue['sections'],
+            'hasSections' => $catalogue['has_sections'],
+            'cspNonce' => app()->bound('csp-nonce') ? (string) app('csp-nonce') : '',
+        ]);
+    }
+
+    /**
      * Derive a normalised 2D top-down layout from the building's room rects +
      * each room's object placements. Output is render-ready (SVG viewport coords
      * already scaled), so the Blade view is a thin renderer with no geometry.
