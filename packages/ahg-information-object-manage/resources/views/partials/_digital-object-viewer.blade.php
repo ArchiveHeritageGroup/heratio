@@ -373,8 +373,8 @@
              on the page (re-imports the already-cached module). --}}
         <script type="module" nonce="{{ csp_nonce() }}">
           import {ModelViewerElement} from '/vendor/model-viewer/3.3.0/model-viewer.min.js';
-          ModelViewerElement.dracoDecoderLocation   = '/vendor/three/0.137.5/draco/';
-          ModelViewerElement.ktx2TranscoderLocation = '/vendor/three/0.137.5/basis/';
+          ModelViewerElement.dracoDecoderLocation   = '/vendor/three/0.169.0/draco/';
+          ModelViewerElement.ktx2TranscoderLocation = '/vendor/three/0.169.0/basis/';
         </script>
         <script nonce="{{ csp_nonce() }}">
         document.addEventListener('DOMContentLoaded', function() {
