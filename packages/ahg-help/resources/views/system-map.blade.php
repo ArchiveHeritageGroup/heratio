@@ -296,6 +296,16 @@
   'use strict';
 
   var GRAPH = @json($graph['elements']);
+
+  // Each stage's children declare `parent: <stageId>`, which makes Cytoscape
+  // treat the stage as a COMPOUND PARENT node. The :parent style then paints it
+  // at background-opacity 0.10 (90% transparent) and auto-sizes it to its
+  // (hidden) children, so collapsed stages render nearly invisible - the map
+  // looked blank on every device even though the nodes were present and
+  // clickable (and the minimap, which draws from data.color, showed them fine).
+  // The drill model is pure show/hide and never relies on compound nesting, so
+  // strip `parent` to render every stage as a solid, visible node.
+  GRAPH.forEach(function (el) { if (el && el.data && el.data.parent != null) { delete el.data.parent; } });
   var ARTICLE_BASE = "{{ url('/help/article') }}/";
 
   // Run AFTER the full load event: by then the stylesheet + webfonts have
