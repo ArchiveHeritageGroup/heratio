@@ -6,13 +6,22 @@
  *
  * Where the admin DisplacedHeritageController renders the curatorial review
  * report, this controller renders the public, dignified register of traced
- * items at GET /displaced-heritage (name displaced-heritage.index). It reads
- * exactly what DisplacedHeritageService::scan() returns - museum-catalogued
- * objects whose recorded place/community of origin appears to differ from where
- * they are now held - and presents each as a respectful, factual entry: the
- * object, its place/community of origin, its current holding location, the
- * displacement (origin-vs-holding) context, and a confidence indicator. It adds
- * no fields the service does not produce.
+ * items at GET /displaced-heritage (name displaced-heritage.index) and the
+ * per-item detail at GET /displaced-heritage/{id} (name displaced-heritage.show).
+ * Both read exactly what DisplacedHeritageService::scan() returns - museum-
+ * catalogued objects whose recorded place/community of origin appears to differ
+ * from where they are now held - and present each as a respectful, factual
+ * entry: the object, its place/community of origin, its current holding
+ * location, the displacement (origin-vs-holding) context, and a confidence
+ * indicator. They add no fields the service does not produce.
+ *
+ * The detail view (show) does NOT add a heavier query: it asks scan() for the
+ * full traced set and picks out the single requested object in memory. scan()
+ * is already the conservative, bounded, read-only contract; deriving one item
+ * from it keeps a single source of truth and never issues a per-id heavy query.
+ * An id that is not in the traced set resolves to a 404 (it is not a displaced-
+ * heritage record), and a missing catalogue / service error resolves to the
+ * dignified empty-state on the index - never a 500.
  *
  * Framing is deliberately careful. This is sensitive subject matter. Every
  * entry is shown as a documented origin-vs-holding observation drawn from the
@@ -142,6 +151,77 @@ class DisplacedHeritageRegisterController extends Controller
             'totalTraced' => (int) ($report['flagged_count'] ?? count($records)),
             'shownCount' => count($entries),
             'originFilter' => $originFilter,
+        ]);
+    }
+
+    /**
+     * Per-item detail for one traced object.
+     *
+     * Derives the single item from DisplacedHeritageService::scan() - the same
+     * conservative, bounded, read-only contract the register uses - rather than
+     * inventing a per-id heavy query. We scan the full traced set (limit 0) and
+     * select the requested object in memory. An id that is not in the traced set
+     * is, by definition, not a displaced-heritage record, so we 404. A service
+     * error or missing catalogue degrades to the register's empty-state via a
+     * redirect, never a 500.
+     */
+    public function show(Request $request, $id)
+    {
+        $objectId = (int) $id;
+        if ($objectId <= 0) {
+            abort(404);
+        }
+
+        $report = null;
+        try {
+            $report = $this->service->scan(['limit' => 0]);
+        } catch (\Throwable $e) {
+            Log::info('[displaced-heritage] show scan failed: '.$e->getMessage());
+        }
+
+        // No catalogue / nothing traced: fall back to the register rather than
+        // a 500. The register renders its own dignified empty-state.
+        if (! is_array($report) || empty($report['records']) || ! is_array($report['records'])) {
+            return redirect()->route('displaced-heritage.index');
+        }
+
+        // Pick out the one traced record for this id. Not present => not a
+        // displaced-heritage record => 404.
+        $match = null;
+        foreach ($report['records'] as $r) {
+            if ((int) ($r['id'] ?? 0) === $objectId) {
+                $match = $r;
+                break;
+            }
+        }
+        if ($match === null) {
+            abort(404);
+        }
+
+        // Resolve the virtual-return affordance with the same existence-guarded
+        // capability probes the register uses, so the detail page never emits a
+        // dead link either.
+        $hasReconTable = false;
+        $hasSpaceTable = false;
+        $hasDigitalObject = false;
+        try {
+            $hasReconTable = Schema::hasTable('ahg_lost_place_reconstruction');
+            $hasSpaceTable = Schema::hasTable('ahg_exhibition_space');
+            $hasDigitalObject = Schema::hasTable('digital_object');
+        } catch (\Throwable $e) {
+            Log::info('[displaced-heritage] show schema probe failed: '.$e->getMessage());
+        }
+
+        $entry = $this->decorate($match, [
+            'hasReconTable' => $hasReconTable,
+            'hasSpaceTable' => $hasSpaceTable,
+            'hasDigitalObject' => $hasDigitalObject,
+            'walkthroughRouteExists' => Route::has('exhibition-space.walkthrough'),
+        ]);
+
+        return view('ahg-semantic-search::displaced-heritage.show', [
+            'disclaimer' => (string) ($report['disclaimer'] ?? DisplacedHeritageService::DISCLAIMER),
+            'entry' => $entry,
         ]);
     }
 

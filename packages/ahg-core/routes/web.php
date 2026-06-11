@@ -147,6 +147,20 @@ Route::get('/splat/do/{id}', [\AhgCore\Controllers\GaussianSplatController::clas
 // belt-and-braces for late-registered packages, not the mechanism relied on here.)
 Route::get('/explore', [\AhgCore\Controllers\ExploreController::class, 'index'])->name('explore.index');
 
+// Public "Open Data & APIs" hub: one landing page that surfaces every open-data
+// endpoint this platform exposes for researchers and developers (the linked-data
+// graph, bulk dataset dumps, OAI-PMH, the VoID discovery document, the API
+// reference, the content-credentials API, the RiC SPARQL endpoint, ResourceSync).
+// Each card is gated by Route::has() in the controller, so a card only shows when
+// its feature's package is installed and at least one endpoint resolves - the hub
+// never 500s and never shows a dead link.
+//
+// /open-data is a SINGLE-segment public path, like /explore and /reconstructions.
+// ahg-core boots early, so this route is registered before the single-segment
+// /{slug} archival-record catch-all in ahg-information-object-manage and wins the
+// match. (First-registered route wins.)
+Route::get('/open-data', [\AhgCore\Controllers\OpenDataController::class, 'index'])->name('open-data.index');
+
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::match(['get', 'post'], '/', [ClipboardController::class, 'index'])->name('index');

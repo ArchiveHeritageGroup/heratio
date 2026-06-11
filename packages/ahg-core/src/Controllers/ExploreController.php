@@ -96,6 +96,13 @@ class ExploreController extends Controller
                 'params' => ['idOrSlug' => 1],
                 'developer' => true,
             ],
+            [
+                'route' => 'open-data.index',
+                'icon' => 'fas fa-database',
+                'title' => __('Open data and APIs'),
+                'desc' => __('Take this collection as data: the linked-data graph, bulk dataset dumps, OAI-PMH harvesting, the API reference, and more - all open, no key required.'),
+                'cta' => __('Browse the open data'),
+            ],
         ];
 
         $cards = [];

@@ -88,7 +88,7 @@
 
             @if(!empty($byOrigin))
                 <div class="d-flex flex-wrap gap-1 align-items-center">
-                    <span class="text-muted small me-1">{{ __('By place of origin:') }}</span>
+                    <span class="text-muted small me-1">{{ __('Browse by place of origin:') }}</span>
                     @foreach($byOrigin as $bo)
                         @php
                             $region = (string) ($bo['region'] ?? '');
@@ -113,6 +113,10 @@
                     $title = $e['title'] ?: (__('Record').' #'.$e['id']);
                     $conf = $e['confidence'] ?? ['label' => __('Documented origin'), 'level' => 'info'];
                     $vr = $e['virtual_return'] ?? null;
+                    // Per-item detail link, gated on the route existing and a real id.
+                    $detailUrl = (!empty($e['id']) && \Illuminate\Support\Facades\Route::has('displaced-heritage.show'))
+                        ? route('displaced-heritage.show', ['id' => (int) $e['id']])
+                        : null;
                 @endphp
 
                 <div class="col-12 col-lg-6">
@@ -125,7 +129,9 @@
                                     <i class="fas fa-landmark me-1"></i>{{ __('Object') }}
                                 </div>
                                 <h2 class="h5 mb-0">
-                                    @if(!empty($e['slug']))
+                                    @if($detailUrl)
+                                        <a href="{{ $detailUrl }}" class="text-decoration-none">{{ $title }}</a>
+                                    @elseif(!empty($e['slug']))
                                         <a href="{{ url('/'.$e['slug']) }}" class="text-decoration-none">{{ $title }}</a>
                                     @else
                                         {{ $title }}
@@ -176,6 +182,15 @@
                             @endif
 
                         </div>
+
+                        {{-- Per-item detail link --}}
+                        @if($detailUrl)
+                            <div class="px-3 pb-2">
+                                <a href="{{ $detailUrl }}" class="small text-decoration-none">
+                                    <i class="fas fa-circle-info me-1"></i>{{ __('View the full entry') }}
+                                </a>
+                            </div>
+                        @endif
 
                         {{-- Virtual return / provenance affordance --}}
                         <div class="card-footer bg-white d-flex justify-content-between flex-wrap gap-2 align-items-center">

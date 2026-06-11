@@ -46,6 +46,18 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                     \AhgSemanticSearch\Controllers\DisplacedHeritageRegisterController::class, 'index',
                 ])
                 ->name('displaced-heritage.index');
+
+            // heratio#1207 - per-item detail for one traced object. Numeric
+            // constraint so it never shadows the /displaced-heritage index or a
+            // single-segment archival-record slug. Bound the same way
+            // (register() + callAfterResolving('router')) so it wins the match
+            // ahead of the /{slug} catch-all in ahg-information-object-manage.
+            $router->middleware('web')
+                ->get('/displaced-heritage/{id}', [
+                    \AhgSemanticSearch\Controllers\DisplacedHeritageRegisterController::class, 'show',
+                ])
+                ->where('id', '[0-9]+')
+                ->name('displaced-heritage.show');
         });
     }
 
