@@ -170,7 +170,12 @@ class GenerativeExhibitionService
         $this->applyPublishedFilter($q1, 'ep.information_object_id', $publishedOnly);
         $rows = $q1->select('ep.information_object_id as id', 'i.title', 'i.scope_and_content')->distinct()->get();
 
-        // 2) Fallback to the catalogue if no room objects exist yet.
+        // 2) Fallback to the catalogue if no room objects exist yet. Prefer Elasticsearch
+        //    semantic/topical recall (#1186); if ES is unavailable or yields nothing, fall back
+        //    to the original keyword/LIKE catalogue search so the flow never hard-depends on ES.
+        if ($rows->isEmpty() && $tokens) {
+            $rows = $this->candidateObjectsEsRows($theme, 80, $publishedOnly);
+        }
         if ($rows->isEmpty() && $tokens) {
             $q2 = DB::table('information_object_i18n as i')
                 ->join('information_object as io', 'io.id', '=', 'i.id')
@@ -207,6 +212,88 @@ class GenerativeExhibitionService
         }
 
         return $this->enrichWithYears($out);
+    }
+
+    /**
+     * heratio#1186 - Elasticsearch semantic/topical recall for the catalogue fallback. Mirrors the
+     * theme-curation ES query ({@see ThemeExhibitionService::candidateObjectsEs()}): a multi_match
+     * (best_fields + most_fields + a phrase boost) over the description's narrative fields, so the
+     * two curation flows recall candidates the same way. Returns rows shaped exactly like the
+     * keyword catalogue query (->id, ->title, ->scope_and_content) so the downstream theme-overlap
+     * scorer is unchanged. Degrades to an empty collection (-> keyword LIKE fallback) when
+     * ahg-search is absent, ES is down, or there are no hits - never a hard dependency on ES.
+     */
+    private function candidateObjectsEsRows(string $theme, int $limit, bool $publishedOnly, string $culture = 'en'): \Illuminate\Support\Collection
+    {
+        if (! class_exists(\AhgSearch\Services\ElasticsearchService::class)) {
+            return collect();
+        }
+
+        $titleField = "i18n.{$culture}.title";
+        $textFields = [
+            "i18n.{$culture}.title^3",
+            "i18n.{$culture}.scopeAndContent",
+            "i18n.{$culture}.archivalHistory",
+            "i18n.{$culture}.extentAndMedium",
+            "i18n.{$culture}.accessConditions",
+        ];
+
+        $filter = [
+            // Exclude the root collection (parent_id 1), as the keyword path does.
+            ['bool' => ['must_not' => [['term' => ['parentId' => 1]]]]],
+            // Require a title - the displayable handle every candidate needs.
+            ['exists' => ['field' => $titleField]],
+        ];
+        if ($publishedOnly) {
+            // Published records only (status 160) - same guarantee as applyPublishedFilter().
+            $filter[] = ['term' => ['publicationStatusId' => 160]];
+        }
+
+        $body = [
+            '_source' => [$titleField, "i18n.{$culture}.scopeAndContent"],
+            'query' => [
+                'bool' => [
+                    'should' => [
+                        ['multi_match' => ['query' => $theme, 'type' => 'best_fields', 'fields' => $textFields, 'operator' => 'or']],
+                        ['multi_match' => ['query' => $theme, 'type' => 'most_fields', 'fields' => $textFields, 'operator' => 'or']],
+                        ['multi_match' => ['query' => $theme, 'type' => 'phrase', 'fields' => $textFields, 'slop' => 2, 'boost' => 2]],
+                    ],
+                    'minimum_should_match' => 1,
+                    'filter' => $filter,
+                ],
+            ],
+        ];
+
+        try {
+            // search() reads ELASTICSEARCH_HOST/prefix from config and prepends "heratio_".
+            $result = app(\AhgSearch\Services\ElasticsearchService::class)->search('qubitinformationobject', $body, 0, max($limit, 80));
+        } catch (\Throwable $e) {
+            Log::debug('[ahg-exhibition] generative ES recall failed, using keyword fallback: '.$e->getMessage());
+
+            return collect();
+        }
+
+        $hits = $result['hits']['hits'] ?? null;
+        if (! is_array($hits) || ! $hits) {
+            return collect();
+        }
+
+        $rows = [];
+        foreach ($hits as $h) {
+            $id = (int) ($h['_id'] ?? 0);
+            $i18n = $h['_source']['i18n'][$culture] ?? [];
+            $title = (string) ($i18n['title'] ?? '');
+            if ($id <= 0 || $title === '') {
+                continue;
+            }
+            $rows[] = (object) [
+                'id' => $id,
+                'title' => $title,
+                'scope_and_content' => (string) ($i18n['scopeAndContent'] ?? ''),
+            ];
+        }
+
+        return collect($rows);
     }
 
     /** Restrict a query to published records (publication status type 158 = published 160). */
