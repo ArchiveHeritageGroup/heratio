@@ -1,11 +1,13 @@
 <?php
 
 use AhgApi\Controllers\DatasetController;
+use AhgApi\Controllers\EntityController;
 use AhgApi\Controllers\FeedController;
 use AhgApi\Controllers\GraphController;
 use AhgApi\Controllers\LegacyApiController;
 use AhgApi\Controllers\OaiPmhController;
 use AhgApi\Controllers\OpenApiController;
+use AhgApi\Controllers\ProtocolController;
 use AhgApi\Controllers\PublicSitemapController;
 use AhgApi\Controllers\V1\AccessionApiController;
 use AhgApi\Controllers\V1\ActorApiController;
@@ -263,6 +265,80 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
     Route::options('feed.rss', [FeedController::class, 'options']);
     Route::get('feed.rss', [FeedController::class, 'rss'])
         ->name('public.feed.rss');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Content-negotiated entity endpoint — /id/{slug} (+ /data/{slug}) (north-star #1204)
+|--------------------------------------------------------------------------
+| Every published record gets a single, stable, dereferenceable Linked-Data
+| identity. The format is chosen by the Accept header:
+|
+|   Accept: application/ld+json   -> JSON-LD (machine default)
+|   Accept: text/turtle           -> Turtle
+|   Accept: application/rdf+xml   -> RDF/XML
+|   Accept: text/html (browser)   -> 303 See Other to the canonical /{slug} page
+|
+| (?format=jsonld|turtle|rdf|html overrides the header for convenience.) The
+| description carries title, type, identifier, dates, creators, subjects,
+| places, repository, parent (dcterms:isPartOf) and rdfs:seeAlso back-links;
+| published records only; an unknown/draft slug -> a clean negotiated 404.
+| Read-only; permissive open-data CORS.
+|
+| CATCH-ALL SAFETY: the single-segment /{slug} archival-record catch-all (in
+| ahg-information-object-manage, constraint '[a-z0-9][a-z0-9-]*$' — ONE segment,
+| no slash) can NEVER capture a TWO-segment path. "/id/{slug}" and
+| "/data/{slug}" are two segments, so they bind here regardless of load order.
+| The {slug} wildcard is constrained to the slug grammar so it cannot swallow a
+| sibling literal. Note: nginx's static-file whitelist does not include these
+| paths, so they reach Laravel.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('id/{slug}', [EntityController::class, 'options'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
+    Route::get('id/{slug}', [EntityController::class, 'show'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('open-data.entity');
+
+    // Explicit alias (some clients prefer a "/data/" path for the document).
+    Route::options('data/{slug}', [EntityController::class, 'options'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
+    Route::get('data/{slug}', [EntityController::class, 'show'])
+        ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('open-data.entity.data');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Open Memory Protocol capabilities document — /open-data/protocol (#1204)
+|--------------------------------------------------------------------------
+| The machine-discoverable INDEX of every open-data surface: VoID, the graph
+| dataset front door + per-entity graph, the new /id/{slug} entity endpoint,
+| the JSON-LD @context, the crawl seed, the bulk dataset dumps, OAI-PMH, the
+| sitemaps, the syndication feeds, and the OpenAPI spec + Swagger UI — each
+| with its URL (url()-based) and media types. One fetch tells an agent how to
+| consume everything else.
+|
+|   GET /open-data/protocol        - content-negotiated (browser -> HTML page,
+|                                     everyone else -> JSON capabilities).
+|   GET /open-data/protocol.json   - the JSON capabilities, explicitly.
+|
+| Read-only (no DB access); permissive open-data CORS.
+|
+| CATCH-ALL SAFETY: "/open-data/protocol" and "/open-data/protocol.json" are
+| TWO-segment paths, so the single-segment /{slug} catch-all cannot capture
+| them. (The literal first segment /open-data is itself a registered single-
+| segment public page in ahg-core; these two-segment children sit cleanly
+| underneath it.)
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('open-data/protocol', [ProtocolController::class, 'options']);
+    Route::get('open-data/protocol', [ProtocolController::class, 'index'])
+        ->name('open-data.protocol');
+    Route::get('open-data/protocol.json', fn (\Illuminate\Http\Request $request) => app(ProtocolController::class)->index($request, true))
+        ->name('open-data.protocol.json');
 });
 
 /*
