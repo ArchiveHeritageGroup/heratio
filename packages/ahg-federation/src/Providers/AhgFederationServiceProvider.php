@@ -40,7 +40,11 @@ class AhgFederationServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // heratio#1203 - the union-catalogue provider ships in the same package
+        // but its composer extra.laravel.providers entry is not picked up until
+        // installed.json is refreshed; register it explicitly here (this
+        // provider is already discovered) so its routes + auto-install load.
+        $this->app->register(\AhgFederation\Providers\AhgUnionCatalogueServiceProvider::class);
     }
 
     public function boot(): void
