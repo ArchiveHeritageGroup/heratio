@@ -14,6 +14,7 @@ namespace AhgAiChatbot\Providers;
 use AhgAiChatbot\Controllers\ChatbotController;
 use AhgAiChatbot\Services\ChatbotService;
 use AhgAiChatbot\Services\ChatbotSkillService;
+use AhgAiChatbot\Services\PreservationKnowledgeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +25,7 @@ class AhgAiChatbotServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(ChatbotSkillService::class);
+        $this->app->singleton(PreservationKnowledgeService::class);
         $this->app->singleton(ChatbotService::class);
 
         // Merge package config

@@ -24,22 +24,29 @@ class ChatbotService
     private QdrantRetriever $retriever;
     private \AhgAiServices\Services\GuardrailService $guardrail;
     private ChatbotSkillService $skills;
+    private PreservationKnowledgeService $preservation;
     private int $maxHistory;
     private int $maxContext;
     private float $groundingThreshold;
     private ?string $systemPrompt;
     private string $temperature;
+    private int $preservationPassages;
 
-    public function __construct(?QdrantRetriever $retriever = null, ?ChatbotSkillService $skills = null)
-    {
+    public function __construct(
+        ?QdrantRetriever $retriever = null,
+        ?ChatbotSkillService $skills = null,
+        ?PreservationKnowledgeService $preservation = null,
+    ) {
         $this->retriever         = $retriever ?? new QdrantRetriever();
         $this->guardrail         = new \AhgAiServices\Services\GuardrailService();
         $this->skills            = $skills ?? new ChatbotSkillService();
+        $this->preservation      = $preservation ?? new PreservationKnowledgeService();
         $this->maxHistory        = (int) config('ahg-ai-chatbot.max_history', 20);
         $this->maxContext        = (int) config('ahg-ai-chatbot.max_context_records', 5);
         $this->groundingThreshold = (float) config('ahg-ai-chatbot.grounding_threshold', 0.5);
         $this->systemPrompt      = config('ahg-ai-chatbot.system_prompt');
         $this->temperature      = (string) config('ahg-ai-chatbot.temperature', '0.3');
+        $this->preservationPassages = (int) config('ahg-ai-chatbot.preservation_passages', 3);
     }
 
     // ─── Conversation management ──────────────────────────────────
@@ -126,7 +133,7 @@ class ChatbotService
      * @param array $history Conversation history (oldest first)
      * @return array{system: string, user: string}
      */
-    public function buildRagPrompt(string $userMessage, array $records, array $history = [], ?array $currentRecord = null): array
+    public function buildRagPrompt(string $userMessage, array $records, array $history = [], ?array $currentRecord = null, string $preservationBlock = ''): array
     {
         $systemBase = $this->baseSystemPrompt();
 
@@ -152,7 +159,11 @@ class ChatbotService
                 . " When the question is about the item being viewed, answer from source [1] and cite it.";
         }
 
-        $systemPrompt = $systemBase . $contextBlock;
+        // Supplementary preservation-knowledge grounding (issue #1243). Additive:
+        // it never replaces the catalogue SOURCES; it gives the model curated,
+        // cite-able digital-preservation guidance for preservation-domain
+        // questions. Empty string when nothing relevant was retrieved.
+        $systemPrompt = $systemBase . $contextBlock . $preservationBlock;
 
         // Build conversation-turn user block
         $turn = "USER QUERY: {$userMessage}";
@@ -193,10 +204,15 @@ Your role is to help users understand and navigate archival descriptions using
 the Records in Contexts (RiC-O) framework and ISAD(G) descriptive standards.
 
 RULES:
-1. Answer only from the provided SOURCES. If no relevant source is available,
-   say "I could not find anything in the catalogue matching your query."
-2. ALWAYS cite your sources using the format [N] where N is the source number.
-   Example: "The fonds was created by the National Archives [1]."
+1. Answer from the provided SOURCES (catalogue records) and, for
+   digital-preservation questions, from the PRESERVATION KNOWLEDGE passages
+   when present. If neither contains anything relevant, say "I could not find
+   anything in the catalogue matching your query."
+2. ALWAYS cite your sources. Cite catalogue records using the format [N] where N
+   is the source number (e.g. "The fonds was created by the National Archives
+   [1]."). Cite preservation-knowledge passages by their (source: ...) tag
+   verbatim. Do not invent digital-preservation guidance beyond what the
+   PRESERVATION KNOWLEDGE passages state.
 3. Keep answers concise, factual, and professionally worded in accordance
    with ISAD(G) principles.
 4. Distinguish clearly between facts stated in the description and your own
@@ -312,8 +328,34 @@ PROMPT;
         // Conversation history
         $history = $this->getHistory($sessionId);
 
+        // Supplementary preservation-knowledge grounding (issue #1243). Pure,
+        // deterministic retrieval over the curated in-repo digital-preservation
+        // corpus - NO AI / embedding / gateway call. We always probe, but only
+        // attach the block when the query looks like a preservation question and
+        // relevant curated passages are found; otherwise it stays empty and the
+        // assistant behaves exactly as before.
+        $preservationBlock = '';
+        $preservationSources = [];
+        try {
+            if ($this->preservation->looksLikePreservationQuestion($userMessage)) {
+                $passages = $this->preservation->retrieve($userMessage, $this->preservationPassages);
+                if (!empty($passages)) {
+                    $preservationBlock = $this->preservation->buildContextBlock($userMessage, $this->preservationPassages);
+                    $preservationSources = array_map(fn ($p) => [
+                        'title'  => $p['title'],
+                        'source' => $p['source'],
+                        'kind'   => 'preservation-knowledge',
+                    ], $passages);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('[chatbot] preservation knowledge retrieval failed: ' . $e->getMessage());
+            $preservationBlock = '';
+            $preservationSources = [];
+        }
+
         // Build prompt
-        $prompts = $this->buildRagPrompt($userMessage, $records, $history, $currentRecord);
+        $prompts = $this->buildRagPrompt($userMessage, $records, $history, $currentRecord, $preservationBlock);
 
         // LLM dispatch
         $llm = app(\AhgAiServices\Services\LlmService::class);
@@ -348,6 +390,22 @@ PROMPT;
                         'ref'        => '[' . ($i + 1) . ']',
                     ];
                 }, $records, array_keys($records));
+            }
+        }
+
+        // Surface curated preservation-knowledge passages as additional sources
+        // (issue #1243) so the user can see / follow the cited guidance. These
+        // are appended after the catalogue sources and never replace them.
+        if ($success && !empty($preservationSources)) {
+            foreach ($preservationSources as $ps) {
+                $sources[] = [
+                    'title'      => $ps['title'],
+                    'identifier' => '',
+                    'url'        => null,
+                    'source'     => $ps['source'],
+                    'kind'       => 'preservation-knowledge',
+                    'ref'        => '(source: ' . $ps['source'] . ')',
+                ];
             }
         }
 

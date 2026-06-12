@@ -31,4 +31,7 @@ Route::middleware(['auth'])->prefix('chatbot')->group(function () {
 Route::middleware(['auth'])->prefix('admin/chatbot')->group(function () {
     Route::get('/', [ChatbotController::class, 'admin'])->name('admin.chatbot.index');
     Route::get('/review', [ChatbotController::class, 'review'])->name('admin.chatbot.review');
+    // #1243 - deterministic preservation-knowledge retrieval debug/verify surface.
+    Route::get('/preservation-knowledge', [ChatbotController::class, 'preservationKnowledge'])
+        ->name('admin.chatbot.preservation-knowledge');
 });

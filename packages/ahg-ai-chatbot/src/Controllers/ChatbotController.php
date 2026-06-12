@@ -130,6 +130,42 @@ class ChatbotController extends Controller
     }
 
     /**
+     * GET /admin/chatbot/preservation-knowledge?q=... (issue #1243)
+     *
+     * Debug / verification surface for the deterministic preservation-knowledge
+     * retrieval layer. Returns the curated passages (with source citations) that
+     * would be injected as supplementary grounding for the given query. No LLM
+     * call is made - this is the pure, testable retrieval result. Admin-guarded.
+     */
+    public function preservationKnowledge(
+        Request $request,
+        \AhgAiChatbot\Services\PreservationKnowledgeService $knowledge
+    ): JsonResponse {
+        $query = trim((string) $request->input('q', ''));
+        $limit = max(1, min(10, (int) $request->input('limit', 3)));
+
+        if ($query === '') {
+            return response()->json([
+                'success'      => false,
+                'error'        => 'Provide a query via ?q=',
+                'corpus_files' => count($knowledge->corpusFiles()),
+            ], 422);
+        }
+
+        $passages = $knowledge->retrieve($query, $limit);
+
+        return response()->json([
+            'success'                => true,
+            'query'                  => $query,
+            'is_preservation_query'  => $knowledge->looksLikePreservationQuestion($query),
+            'corpus_files'           => count($knowledge->corpusFiles()),
+            'indexed_sections'       => count($knowledge->getIndex()),
+            'passages'               => $passages,
+            'retrieval'              => 'deterministic keyword/section index (no AI / embedding / gateway call)',
+        ]);
+    }
+
+    /**
      * GET /chatbot/policy - plain-language POPIA / GDPR notice.
      * Public; no auth required so visitors can read before opting in.
      */

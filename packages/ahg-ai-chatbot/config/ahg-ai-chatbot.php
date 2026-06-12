@@ -34,6 +34,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Preservation-knowledge grounding passages (issue #1243)
+    |--------------------------------------------------------------------------
+    | How many curated digital-preservation passages to retrieve from the
+    | in-repo knowledge corpus (docs/reference/dp-*.md + preservation help
+    | articles) and inject as a supplementary grounding block when the query
+    | looks like a preservation question. Deterministic, file-based retrieval -
+    | NO AI / embedding / gateway call is made. Set to 0 to disable the block.
+    */
+
+    'preservation_passages'  => (int) env('AHG_CHATBOT_PRESERVATION_PASSAGES', 3),
+
+    /*
+    |--------------------------------------------------------------------------
     | RAG grounding threshold
     |--------------------------------------------------------------------------
     | Minimum normalised grounding score (0–1) for a response to be accepted.

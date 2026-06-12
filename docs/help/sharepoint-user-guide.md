@@ -250,8 +250,31 @@ php symfony sharepoint:sync --drive=1 --full
 
 ---
 
+## Federated search lives in this package (issue #1221)
+
+SharePoint federated search is reached through the **general** federation search
+page at `/federation/search`, by registering a federation peer whose
+`peer_type` is `sharepoint_graph_search`. The Microsoft-Graph-specific connector
+that powers that peer type is owned by **this** package
+(`packages/ahg-sharepoint/src/Federation/SharePointGraphConnector.php`), not by
+`ahg-federation`. The general federation engine, the OAI-PMH and local-AtoM
+connectors, and the search dispatcher remain in `ahg-federation`.
+
+This separation keeps the general federation package free of any Microsoft 365
+coupling: an install that does not use SharePoint can drop the whole
+`ahg-sharepoint` package and federation still works for OAI-PMH, the union
+catalogue, loans, and Europeana.
+
+The connector relocation is staged. The current connector class is an inert
+scaffold (it is not yet wired into the live dispatcher). The full cutover plan,
+including which files move and the locked-file unlock steps an operator must
+run, is documented in `packages/ahg-sharepoint/MIGRATION.md`.
+
+---
+
 ## Further reading
 
+- Migration / cutover plan: `heratio/packages/ahg-sharepoint/MIGRATION.md`
 - Implementation plan: `atom-extensions-catalog/docs/technical/ahgSharePointPlugin_Implementation_Plan.md`
 - AtoM plugin source: `atom-ahg-plugins/ahgSharePointPlugin/`
 - Heratio package source: `heratio/packages/ahg-sharepoint/`
