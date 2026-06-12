@@ -1,5 +1,6 @@
 <?php
 
+use AhgReports\Controllers\AiUsageController;
 use AhgReports\Controllers\CollectionsHealthController;
 use AhgReports\Controllers\DataQualityController;
 use AhgReports\Controllers\NorthStarCockpitController;
@@ -36,6 +37,18 @@ Route::middleware('admin')->group(function () {
 // never 500s; empty-state safe on a fresh install.
 Route::middleware('admin')->group(function () {
     Route::get('/admin/data-quality', [DataQualityController::class, 'index'])->name('reports.data-quality');
+});
+
+// AI Usage transparency report - a read-only aggregate of how much AI has
+// assisted the catalogue: total inferences logged, distinct records touched, the
+// breakdown by inference type and by model, the human-reviewed share (from the
+// override log, framed as accountability), and a per-month over-time trend. Reads
+// the ahg_ai_inference + ahg_ai_override provenance logs and writes to neither.
+// Admin-gated, same as the consoles above. The two-segment /admin/ai-usage path
+// keeps it clear of the single-segment /{slug} archival-record catch-all.
+// Read-only; bounded aggregate COUNTs only; never 500s; empty-state safe.
+Route::middleware('admin')->group(function () {
+    Route::get('/admin/ai-usage', [AiUsageController::class, 'index'])->name('reports.ai-usage');
 });
 
 // Main dashboard at /reports (matching AtoM URL)
