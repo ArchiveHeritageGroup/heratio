@@ -52,6 +52,11 @@
     <h1 class="h4 mb-0"><i class="fas fa-shield-halved me-2 text-primary"></i>{{ __('Preservation maturity') }}</h1>
     <span class="text-muted small">{{ __('How this repository scores against the NDSA Levels of Digital Preservation') }}</span>
     <span class="ms-auto"></span>
+    @if(Route::has('preservation-self-assessment.index'))
+      <a href="{{ route('preservation-self-assessment.index') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-clipboard-list me-1"></i>{{ __('Self-assessment') }}
+      </a>
+    @endif
     @if(Route::has('data-quality.index'))
       <a href="{{ route('data-quality.index') }}" class="btn btn-sm btn-outline-secondary">
         <i class="fas fa-clipboard-check me-1"></i>{{ __('Metadata completeness') }}

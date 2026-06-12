@@ -95,6 +95,31 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/preservation-maturity', [\AhgCore\Controllers\PreservationMaturityController::class, 'index'])->name('preservation-maturity.index');
 });
 
+// heratio#1244 (maturity self-assessment slice) - human-entered preservation maturity
+// SELF-ASSESSMENT (admin): the organisational counterpart to the read-only computed
+// /admin/preservation-maturity dashboard above. Where that surface scores the running
+// instance from concrete records, this one records what the institution says about
+// ITSELF when it rates its practice section by section against a recognised
+// international maturity model - the NDSA Levels of Digital Preservation or the DPC
+// Rapid Assessment Model (DPC RAM). It stores assessment runs + a rating per section,
+// renders a maturity profile (CSS-only radar + bars) and a history of past runs to
+// show progress over time, and exports a run as .json. All writes are confined to the
+// NEW side tables preservation_self_assessment + preservation_self_assessment_rating
+// via PreservationSelfAssessmentService; no AtoM base table is written, no ALTER, no
+// AI call. Enumerated values (model, level labels) come from the Dropdown Manager
+// (assessment_model + maturity_level). Every path is MULTI-SEGMENT so it can never
+// collide with the single-segment /{slug} archival-record catch-all; a fresh /
+// mid-migration install (tables absent) degrades to a calm empty state, never a 500.
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/preservation-self-assessment', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'index'])->name('preservation-self-assessment.index');
+    Route::post('/admin/preservation-self-assessment/start', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'start'])->name('preservation-self-assessment.start');
+    Route::get('/admin/preservation-self-assessment/{id}', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'edit'])->whereNumber('id')->name('preservation-self-assessment.edit');
+    Route::post('/admin/preservation-self-assessment/{id}', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'update'])->whereNumber('id')->name('preservation-self-assessment.update');
+    Route::get('/admin/preservation-self-assessment/{id}/profile', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'profile'])->whereNumber('id')->name('preservation-self-assessment.profile');
+    Route::get('/admin/preservation-self-assessment/{id}/export', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'export'])->whereNumber('id')->name('preservation-self-assessment.export');
+    Route::post('/admin/preservation-self-assessment/{id}/delete', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'destroy'])->whereNumber('id')->name('preservation-self-assessment.destroy');
+});
+
 // heratio#1244 (fixity slice) - fixity / integrity verification report (admin): a read-only
 // dashboard that shows how many digital objects carry a verifiable checksum baseline, how many
 // have never been verified, and the result roll-up of the most recent verification sweep

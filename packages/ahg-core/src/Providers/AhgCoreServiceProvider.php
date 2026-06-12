@@ -42,6 +42,12 @@ class AhgCoreServiceProvider extends ServiceProvider
         $this->app->singleton(\AhgCore\Services\AltTextService::class);
         $this->app->singleton(\AhgCore\Services\AltTextSuggestionService::class);
 
+        // heratio#1244 maturity self-assessment slice: the human-entered preservation
+        // maturity self-assessment service (the organisational counterpart to the
+        // evidence-computed PreservationMaturityService). Writes only to its own two
+        // side tables; enumerated values come from the Dropdown Manager.
+        $this->app->singleton(\AhgCore\Services\PreservationSelfAssessmentService::class);
+
         // Repository contracts → MySQL implementations
         $this->app->bind(DescriptionRepository::class, MysqlDescriptionRepository::class);
         $this->app->bind(AgentRepository::class, MysqlAgentRepository::class);
@@ -610,6 +616,36 @@ class AhgCoreServiceProvider extends ServiceProvider
             }
         } catch (\Throwable $e) {
             \Log::warning('[ahg-core] image_alt_text install failed: '.$e->getMessage());
+        }
+
+        // #1244 maturity self-assessment slice: the two side tables that store the
+        // human-entered preservation maturity self-assessment - preservation_self_assessment
+        // (one run: date, assessor, model, notes) and preservation_self_assessment_rating
+        // (one rating per section), plus the Dropdown Manager taxonomies assessment_model
+        // + maturity_level. This is the organisational counterpart to the evidence-computed
+        // /admin/preservation-maturity dashboard; it does NOT touch that surface. Single
+        // outer try/catch around hasTable() + unprepared() per reference_ci_schema_hastable.md
+        // so the CI sqlite fallback cannot crash package:discover before a real DB is wired.
+        // The dropdown seed only runs when ahg_dropdown exists and the assessment_model group
+        // is not yet present, so it is a no-op on every boot after the first. No ALTER on any
+        // existing table; CREATE TABLE IF NOT EXISTS + INSERT IGNORE only.
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('preservation_self_assessment')
+                || ! \Illuminate\Support\Facades\Schema::hasTable('preservation_self_assessment_rating')) {
+                $sql = file_get_contents(__DIR__.'/../../database/install_preservation_self_assessment.sql');
+                if (is_string($sql) && trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                }
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')
+                && ! \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'assessment_model')->exists()) {
+                $seed = file_get_contents(__DIR__.'/../../database/seed_preservation_self_assessment_dropdowns.sql');
+                if (is_string($seed) && trim($seed) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($seed);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-core] preservation_self_assessment install failed: '.$e->getMessage());
         }
     }
 }
