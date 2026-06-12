@@ -259,6 +259,14 @@ class CommandCentreService
             $outputCount,
             'Register the articles, datasets, software and reports this project produced, each with a DOI or persistent identifier.');
 
+        // Research Ethics & Consent register - the project's ethics approvals and
+        // the consent basis for its human-subject / sensitive data.
+        $ethicsCount = $this->count('research_ethics', fn ($q) => $q->where('project_id', $projectId));
+        $defs[] = $this->tool('ethics', 'Research Ethics & Consent', 'fa-shield-alt',
+            'research.ethics.index', ['projectId' => $projectId],
+            $ethicsCount,
+            'Record this project\'s ethics approvals and the consent basis for its human-subject and sensitive data.');
+
         // Time Machine - read-only reconstruction of how the work developed.
         $defs[] = $this->tool('timemachine', 'Time Machine', 'fa-clock-rotate-left',
             'research.timemachine.index', ['projectId' => $projectId],
