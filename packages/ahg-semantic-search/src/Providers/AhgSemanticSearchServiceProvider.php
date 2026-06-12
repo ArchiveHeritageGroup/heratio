@@ -404,6 +404,33 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                     \AhgSemanticSearch\Controllers\TimelineController::class, 'index',
                 ])
                 ->name('timeline.index');
+
+            // PUBLIC "Explore the collection" hub - one coherent entry point that
+            // gathers the browse-by discovery surfaces above (themes, places,
+            // people, timeline) with a small READ-ONLY teaser from each existing
+            // service, then links onward to the full slice page. Additive: it
+            // REUSES the slice services and edits none of their files. Each section
+            // is Route::has-gated in the controller, so a section (and its onward
+            // links) only renders when that slice is installed - never a dead link.
+            //
+            // The .json twin is declared FIRST (dotted, so a record slug that
+            // literally ends in ".json" can never be swallowed by the HTML hub
+            // route); the single-segment /explore-collection is then bound here
+            // (register() + callAfterResolving('router')) so it binds BEFORE the
+            // single-segment /{slug} archival-record catch-all in
+            // ahg-information-object-manage, exactly like /themes above. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/explore-collection.json', [
+                    \AhgSemanticSearch\Controllers\ExploreCollectionController::class, 'json',
+                ])
+                ->name('explore-collection.json');
+
+            $router->middleware('web')
+                ->get('/explore-collection', [
+                    \AhgSemanticSearch\Controllers\ExploreCollectionController::class, 'index',
+                ])
+                ->name('explore-collection.index');
         });
     }
 
