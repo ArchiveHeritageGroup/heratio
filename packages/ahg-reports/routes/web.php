@@ -1,6 +1,7 @@
 <?php
 
 use AhgReports\Controllers\AiUsageController;
+use AhgReports\Controllers\CatalogueGrowthController;
 use AhgReports\Controllers\CollectionsHealthController;
 use AhgReports\Controllers\DataQualityController;
 use AhgReports\Controllers\NorthStarCockpitController;
@@ -49,6 +50,22 @@ Route::middleware('admin')->group(function () {
 // Read-only; bounded aggregate COUNTs only; never 500s; empty-state safe.
 Route::middleware('admin')->group(function () {
     Route::get('/admin/ai-usage', [AiUsageController::class, 'index'])->name('reports.ai-usage');
+});
+
+// Catalogue Growth report - a read-only, management-facing view of how the
+// catalogue has grown and how it is composed: headline totals (records, published
+// vs unpublished, digital objects, actors, repositories), a records-created-per-
+// month time series (shown ONLY when a real creation timestamp exists on the
+// schema - here object.created_at via Class-Table-Inheritance - and omitted with
+// an honest note otherwise; no publication-time signal exists so no published-per-
+// month series is fabricated), and the composition by level of description, by
+// repository and by digital-surrogate presence. Distinct from the data-quality
+// (completeness) and ai-usage reports. Admin-gated, same as the consoles above.
+// The two-segment /admin/catalogue-growth path keeps it clear of the single-
+// segment /{slug} archival-record catch-all. Read-only; bounded aggregate COUNTs
+// only; never 500s; empty-state safe.
+Route::middleware('admin')->group(function () {
+    Route::get('/admin/catalogue-growth', [CatalogueGrowthController::class, 'index'])->name('reports.catalogue-growth');
 });
 
 // Main dashboard at /reports (matching AtoM URL)
