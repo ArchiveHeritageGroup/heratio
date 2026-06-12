@@ -658,6 +658,22 @@ class AhgCoreServiceProvider extends ServiceProvider
                     \Illuminate\Support\Facades\DB::unprepared($sql);
                 }
             }
+            // #1244 merge: the unified capture adds two columns (mode = record|url,
+            // submitted_url) to warc_capture. CREATE TABLE IF NOT EXISTS above only
+            // helps fresh installs, so add them idempotently for installs that already
+            // had the table.
+            if (\Illuminate\Support\Facades\Schema::hasTable('warc_capture')) {
+                if (! \Illuminate\Support\Facades\Schema::hasColumn('warc_capture', 'mode')) {
+                    \Illuminate\Support\Facades\Schema::table('warc_capture', function ($t) {
+                        $t->string('mode', 16)->default('record')->after('slug');
+                    });
+                }
+                if (! \Illuminate\Support\Facades\Schema::hasColumn('warc_capture', 'submitted_url')) {
+                    \Illuminate\Support\Facades\Schema::table('warc_capture', function ($t) {
+                        $t->string('submitted_url', 2048)->nullable()->after('mode');
+                    });
+                }
+            }
             if (\Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')
                 && ! \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'warc_capture_status')->exists()) {
                 $seed = file_get_contents(__DIR__.'/../../database/seed_warc_capture_dropdowns.sql');

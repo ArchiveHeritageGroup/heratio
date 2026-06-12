@@ -3,6 +3,32 @@
 /**
  * WebArchiveController - Heratio ahg-scan
  *
+ * heratio#1244 - the SINGLE web-archive admin surface at /admin/web-archive. It offers
+ * BOTH capture modes over ONE list, ONE detail, ONE download, ONE replay, and ONE asset
+ * route, and it owns the live web-archive.* route names + URIs:
+ *
+ *   GET  /admin/web-archive                list captures + both capture forms
+ *   POST /admin/web-archive                archive a submitted URL          (url mode)
+ *   POST /admin/web-archive/capture        snapshot a published record's page (record mode)
+ *   GET  /admin/web-archive/{id}           per-capture detail + WARC record headers
+ *   GET  /admin/web-archive/{id}/replay    render the captured page FROM the WARC
+ *   GET  /admin/web-archive/{id}/asset     serve ONE archived subresource FROM the WARC
+ *   GET  /admin/web-archive/{id}/download  stream the stored .warc (application/warc)
+ *
+ * This controller is a thin SURFACE: all the heavy lifting lives in the reusable engine
+ * services in ahg-core (the base package ahg-scan depends on):
+ *   - AhgCore\Services\WarcCaptureService - the capture engine for BOTH modes
+ *       (SSRF-guarded record-page capture with same-host subresources, and SSRF-guarded
+ *        operator-submitted-URL capture), writing the single warc_capture table + the
+ *        .warc files on disk under the configured storage path.
+ *   - AhgCore\Services\WarcReplayService  - the well-tested length-delimited WARC 1.1
+ *        parser + URI -> response model used by replay + asset.
+ *
+ * Replay is strictly read-only and serves ONLY from the stored WARC - it NEVER performs a
+ * live fetch. A missing / corrupt / empty WARC degrades to a clean "snapshot unavailable"
+ * page, never a 500. Off-host assets are not captured, so they do not replay - that gap
+ * keeps #1244 open.
+ *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
  * Email: johan@plainsailingisystems.co.za
@@ -27,97 +53,129 @@
 
 namespace AhgScan\Controllers;
 
-use AhgScan\Services\WarcReplayService;
-use AhgScan\Services\WebArchiveCaptureService;
+use AhgCore\Services\WarcCaptureService;
+use AhgCore\Services\WarcReplayService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Admin surface for single-page web archiving (WARC 1.1).
- *
- * Every action is empty-state safe: if the table is not yet installed, the
- * pages render an informative notice rather than throwing a 500.
+ * The single admin surface for web archiving (WARC 1.1). Every action is empty-state safe:
+ * if the warc_capture table is not yet installed, the pages render an informative notice
+ * rather than throwing a 500.
  */
 class WebArchiveController extends Controller
 {
     public function __construct(
-        protected WebArchiveCaptureService $service,
-        protected WarcReplayService $replayService
+        protected WarcCaptureService $capture,
+        protected WarcReplayService $replay
     ) {
     }
 
-    /** List captures + the submit-URL form. */
+    /** List captures + both capture forms (archive a URL, and capture a record page). */
     public function index()
     {
-        $installed = $this->installed();
-
-        $captures = collect();
-        if ($installed) {
-            $captures = DB::table('web_archive_capture')
-                ->orderByDesc('id')
-                ->limit(100)
-                ->get();
-        }
-
         return view('ahg-scan::admin.web-archive.index', [
-            'installed' => $installed,
-            'captures' => $captures,
+            'available' => $this->capture->isAvailable(),
+            'captures' => $this->capture->listCaptures(),
             'storageHint' => rtrim((string) config('heratio.storage_path'), '/').'/web-archive',
         ]);
     }
 
-    /** Handle the submit-URL form: capture, then redirect back with a notice. */
+    /**
+     * Mode (a): archive an operator-submitted general URL. Keeps the original http/https
+     * URL validation and adds the engine's public-host SSRF guard (never loosened); the
+     * engine fetches the page and writes a mode = url row + .warc.
+     */
     public function store(Request $request)
     {
-        if (! $this->installed()) {
+        if (! $this->capture->isAvailable()) {
             return redirect()->route('web-archive.index')
-                ->with('error', 'The web-archive store is not installed yet. Reload this page to trigger auto-install.');
+                ->with('error', __('The web-archive store is not installed yet. Reload this page to trigger auto-install.'));
         }
 
         $validated = $request->validate([
             'url' => ['required', 'string', 'max:2048', 'url'],
         ]);
 
-        $id = $this->service->capture($validated['url'], optional($request->user())->id);
+        $result = $this->capture->captureUrl($validated['url'], optional($request->user())->id);
 
-        if ($id === null) {
-            return redirect()->route('web-archive.index')
-                ->with('error', 'Capture could not be recorded.');
+        if (! empty($result['ok'])) {
+            return redirect()->route('web-archive.show', $result['id'])
+                ->with('notice', __('Captured to WARC.').' ('.number_format((int) ($result['byte_size'] ?? 0)).' '.__('bytes').')');
         }
 
-        $row = DB::table('web_archive_capture')->find($id);
-        if ($row && $row->status === 'captured') {
-            return redirect()->route('web-archive.show', $id)
-                ->with('notice', 'Captured to WARC.');
+        if (! empty($result['id'])) {
+            return redirect()->route('web-archive.show', $result['id'])
+                ->with('error', __('Capture recorded as failed:').' '.($result['message'] ?? __('unknown error')));
         }
 
-        return redirect()->route('web-archive.show', $id)
-            ->with('error', 'Capture recorded as failed: '.($row->error ?? 'unknown error'));
+        return redirect()->route('web-archive.index')
+            ->with('error', $result['message'] ?? __('Capture could not be recorded.'));
     }
 
-    /** Per-capture detail: row metadata + parsed WARC headers + download link. */
-    public function show($id)
+    /**
+     * Mode (b): snapshot a PUBLISHED record's own public page (by record id). The engine
+     * derives the record's own canonical url(), SSRF-validates it (same host, own record),
+     * and captures the page plus its same-host subresources into a mode = record row.
+     */
+    public function captureRecord(Request $request)
     {
-        if (! $this->installed()) {
+        if (! $this->capture->isAvailable()) {
             return redirect()->route('web-archive.index')
-                ->with('error', 'The web-archive store is not installed yet.');
+                ->with('error', __('The web-archive store is not installed yet. Reload this page to trigger auto-install.'));
         }
 
-        $capture = DB::table('web_archive_capture')->find((int) $id);
+        $validated = $request->validate([
+            'information_object_id' => ['required', 'integer', 'min:2'],
+        ]);
+
+        $result = $this->capture->capture((int) $validated['information_object_id'], Auth::id());
+
+        if (! empty($result['ok'])) {
+            $subCount = (int) ($result['subresource_count'] ?? 0);
+            $subNote = $subCount > 0
+                ? ' '.trans_choice(
+                    '{1}+ :count same-host subresource.|[2,*]+ :count same-host subresources.',
+                    $subCount,
+                    ['count' => $subCount]
+                )
+                : ' '.__('(page only; no same-host subresources).');
+
+            return redirect()->route('web-archive.show', $result['id'])
+                ->with('notice', __('Page captured to a WARC file.').' ('.number_format((int) ($result['byte_size'] ?? 0)).' '.__('bytes').')'.$subNote);
+        }
+
+        if (! empty($result['id'])) {
+            return redirect()->route('web-archive.show', $result['id'])
+                ->with('error', __('Capture recorded as failed:').' '.($result['message'] ?? __('unknown error')));
+        }
+
+        return redirect()->route('web-archive.index')
+            ->with('error', $result['message'] ?? __('The page could not be captured.'));
+    }
+
+    /** Per-capture detail: row metadata + parsed WARC headers + replay/download links. */
+    public function show($id)
+    {
+        if (! $this->capture->isAvailable()) {
+            return redirect()->route('web-archive.index')
+                ->with('error', __('The web-archive store is not installed yet.'));
+        }
+
+        $capture = DB::table(WarcCaptureService::TABLE)->find((int) $id);
         if ($capture === null) {
             return redirect()->route('web-archive.index')
-                ->with('error', 'Capture not found.');
+                ->with('error', __('Capture not found.'));
         }
 
         $warcHeaders = [];
         $warcExists = false;
-        if ($capture->warc_path && is_file($capture->warc_path) && is_readable($capture->warc_path)) {
+        if ($capture->file_path && is_file($capture->file_path) && is_readable($capture->file_path)) {
             $warcExists = true;
-            $warcHeaders = $this->parseWarcHeaders($capture->warc_path);
+            $warcHeaders = $this->parseWarcHeaders($capture->file_path);
         }
 
         return view('ahg-scan::admin.web-archive.show', [
@@ -128,289 +186,394 @@ class WebArchiveController extends Controller
     }
 
     /**
-     * Replay a captured snapshot back from its stored WARC file.
-     *
-     * This is a SINGLE-DOCUMENT replay: it serves the archived page document
-     * exactly as it was captured, with the original Content-Type, but it never
-     * fetches, executes, or proxies any live subresource (CSS, JS, images,
-     * trackers). For HTML it injects a fixed "archived snapshot" banner and a
-     * restrictive Content-Security-Policy so the page cannot reach out to the
-     * live web. Non-HTML payloads are offered as a download alongside a small
-     * metadata page. Multi-resource replay is future work.
-     *
-     * Never 500s: a missing or corrupt WARC degrades to a clean notice page.
+     * Replay the captured MAIN page FROM the stored WARC (never the live site). Delegates
+     * the parse to the ahg-core engine: WarcReplayService builds the URI -> response model,
+     * and the archived HTML is served with its same-host subresource URLs rewritten to the
+     * asset route, an "Archived snapshot" banner prepended, and a restrictive
+     * Content-Security-Policy so the page cannot beacon out to the live site. A missing /
+     * corrupt / empty WARC degrades to a clean notice page, never a 500.
      */
     public function replay($id)
     {
-        if (! $this->installed()) {
-            return redirect()->route('web-archive.index')
-                ->with('error', 'The web-archive store is not installed yet.');
+        $row = $this->replay->captureRow((int) $id);
+        if ($row === null) {
+            return $this->snapshotUnavailable(__('That capture could not be found.'));
         }
 
-        $capture = DB::table('web_archive_capture')->find((int) $id);
-        if ($capture === null) {
-            return redirect()->route('web-archive.index')
-                ->with('error', 'Capture not found.');
+        $model = $this->replay->buildModel($row);
+        if ($model === null || empty($model['main'])) {
+            return $this->snapshotUnavailable(
+                __('This snapshot is unavailable: the archived WARC is missing, empty, or could not be read.')
+            );
         }
 
-        if (($capture->status ?? null) !== 'captured' || ! $capture->warc_path) {
-            return $this->replayUnavailable($capture, 'This capture has no archived WARC file to replay.');
+        $main = $model['main'];
+        $body = (string) ($main['body'] ?? '');
+        $contentType = strtolower((string) ($main['content_type'] ?? ''));
+
+        // Only HTML is rewritten + framed; anything else is served verbatim from the WARC.
+        if (! str_contains($contentType, 'html')) {
+            $resp = response($body, 200);
+            $resp->headers->set('Content-Type', $main['content_type'] ?: 'application/octet-stream');
+            $this->applyReplayCsp($resp);
+
+            return $resp;
         }
 
-        $result = $this->replayService->replay($capture->warc_path);
-        if (! ($result['ok'] ?? false)) {
-            return $this->replayUnavailable($capture, $result['error'] ?? 'The archived snapshot could not be replayed.');
-        }
+        $rewritten = $this->rewriteHtml(
+            $body,
+            (string) ($model['main_uri'] ?? ($row['target_uri'] ?? '')),
+            (int) $id,
+            array_keys($model['resources'] ?? [])
+        );
 
-        $contentType = $result['content_type'] ?: ($capture->content_type ?: 'application/octet-stream');
-        $isHtml = stripos((string) $contentType, 'html') !== false;
+        $framed = $this->bannerHtml($row).$rewritten;
 
-        if ($isHtml) {
-            return $this->serveArchivedHtml($capture, $result, (string) $contentType);
-        }
+        $resp = response($framed, 200);
+        $resp->headers->set('Content-Type', 'text/html; charset=UTF-8');
+        $resp->headers->set('X-Content-Type-Options', 'nosniff');
+        $this->applyReplayCsp($resp);
 
-        return $this->serveArchivedNonHtml($capture, $result, (string) $contentType);
+        return $resp;
     }
 
-    /** Stream the WARC file as a download. */
+    /**
+     * Serve ONE archived subresource FROM the WARC by its captured URI (the `u` query
+     * param). 404 when the URI is not in this WARC - replay serves ONLY from the WARC and
+     * NEVER falls through to a live fetch.
+     */
+    public function asset($id, Request $request)
+    {
+        $uri = (string) $request->query('u', '');
+        if (trim($uri) === '') {
+            abort(404);
+        }
+
+        $row = $this->replay->captureRow((int) $id);
+        if ($row === null) {
+            abort(404);
+        }
+
+        $resource = $this->replay->findResource($row, $uri);
+        if ($resource === null) {
+            // Archived-only: the URI is not in the WARC. No live fallback. 404.
+            abort(404);
+        }
+
+        $resp = response((string) ($resource['body'] ?? ''), 200);
+        $ct = (string) ($resource['content_type'] ?? '');
+        $resp->headers->set('Content-Type', $ct !== '' ? $ct : 'application/octet-stream');
+        $resp->headers->set('X-Content-Type-Options', 'nosniff');
+        $this->applyReplayCsp($resp);
+
+        return $resp;
+    }
+
+    /** Stream the stored .warc file as a download (Content-Type application/warc). */
     public function download($id)
     {
-        if (! $this->installed()) {
+        $file = $this->capture->fileForDownload((int) $id);
+        if ($file === null) {
             abort(404);
         }
 
-        $capture = DB::table('web_archive_capture')->find((int) $id);
-        if ($capture === null || ! $capture->warc_path || ! is_file($capture->warc_path)) {
-            abort(404);
-        }
-
-        return response()->download($capture->warc_path, basename($capture->warc_path), [
+        return response()->download($file['path'], $file['name'], [
             'Content-Type' => 'application/warc',
         ]);
     }
 
     // ------------------------------------------------------------------
-    // Replay serving
+    // Replay rendering helpers (mirror the ahg-core engine's replay output)
     // ------------------------------------------------------------------
 
     /**
-     * Serve an archived HTML snapshot. The fixed banner is injected at the top
-     * of the document and a restrictive CSP is set so the page cannot load any
-     * live subresource (scripts, trackers, frames). The archived body is served
-     * verbatim apart from the prepended banner.
+     * A clean "snapshot unavailable" page (HTTP 200, not a 500). Rendered inline so it
+     * never depends on the WARC having parsed.
      */
-    protected function serveArchivedHtml($capture, array $result, string $contentType): Response
+    protected function snapshotUnavailable(string $message): Response
     {
-        $banner = $this->bannerHtml($capture);
-        $body = (string) ($result['body'] ?? '');
-        $html = $this->injectBanner($body, $banner);
+        $backUrl = e(route('web-archive.index'));
+        $msg = e($message);
+        $title = e(__('Archived snapshot unavailable'));
+        $back = e(__('Back to web archive'));
+        $html = <<<HTML
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{$title}</title>
+<style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#f8f9fa;color:#212529}
+.wrap{max-width:640px;margin:8vh auto;padding:2rem;background:#fff;border:1px solid #dee2e6;border-radius:.5rem;text-align:center}
+.ic{font-size:2.5rem;color:#adb5bd}.t{font-size:1.25rem;font-weight:600;margin:.5rem 0}
+.m{color:#6c757d;margin:.75rem 0 1.5rem}.b{display:inline-block;padding:.5rem 1rem;background:#0d6efd;color:#fff;border-radius:.375rem;text-decoration:none}</style>
+</head><body><div class="wrap"><div class="ic">&#9888;</div>
+<div class="t">{$title}</div><div class="m">{$msg}</div>
+<a class="b" href="{$backUrl}">{$back}</a></div></body></html>
+HTML;
 
-        $charset = $this->charsetFromContentType($contentType);
-        $serveType = 'text/html'.($charset !== null ? '; charset='.$charset : '; charset=UTF-8');
+        return response($html, 200)->header('Content-Type', 'text/html; charset=UTF-8');
+    }
 
-        $response = response($html, 200);
-        $this->applySafeHeaders($response, $serveType);
+    /** The "Archived snapshot - captured <when>" banner prepended to a replayed page. */
+    protected function bannerHtml(array $row): string
+    {
+        $when = trim((string) ($row['captured_at'] ?? ''));
+        $whenLabel = $when !== ''
+            ? __('Archived snapshot - captured :when', ['when' => $when])
+            : __('Archived snapshot');
+        $note = __('This page is served entirely from the stored WARC file, not the live site. Links and off-host assets may not work.');
+        $download = route('web-archive.download', ['id' => $row['id']]);
+        $back = route('web-archive.index');
 
-        return $response;
+        $whenLabel = e($whenLabel);
+        $note = e($note);
+        $download = e($download);
+        $back = e($back);
+        $dlLabel = e(__('Download WARC'));
+        $backLabel = e(__('Web archive'));
+
+        return <<<HTML
+<div style="position:sticky;top:0;z-index:2147483647;background:#664d03;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:13px;line-height:1.4;padding:8px 14px;border-bottom:2px solid #ffc107;box-shadow:0 1px 4px rgba(0,0,0,.3)">
+<strong style="background:#ffc107;color:#000;padding:1px 6px;border-radius:3px;margin-right:8px">&#128190; {$whenLabel}</strong>
+<span style="opacity:.95">{$note}</span>
+<span style="float:right">
+<a href="{$download}" style="color:#ffe69c;text-decoration:underline;margin-left:12px">{$dlLabel}</a>
+<a href="{$back}" style="color:#ffe69c;text-decoration:underline;margin-left:12px">{$backLabel}</a>
+</span></div>
+HTML;
     }
 
     /**
-     * Serve a non-HTML archived payload. To avoid handing the browser an
-     * unframed live-looking document, the body is offered as a download
-     * (Content-Disposition: attachment) and a small HTML metadata page is shown
-     * with a direct download link and the snapshot banner.
-     *
-     * The actual bytes are streamed when ?raw=1 is present (the download link),
-     * carrying the original Content-Type and an attachment disposition.
+     * Apply a restrictive Content-Security-Policy to a replayed response so archived
+     * content cannot beacon out to the live site: everything is pinned to 'self' (this
+     * app's own origin, where the replay + asset routes live), inline + data URIs are
+     * allowed for the archived markup's own inline styles/scripts, but no off-origin
+     * connect / frame / form-action is permitted.
      */
-    protected function serveArchivedNonHtml($capture, array $result, string $contentType): Response
-    {
-        if (request()->query('raw') === '1') {
-            $body = (string) ($result['body'] ?? '');
-            $filename = $this->downloadFilename($capture, $contentType);
-
-            $response = response($body, 200);
-            $this->applySafeHeaders($response, $contentType);
-            $response->headers->set('Content-Disposition', 'attachment; filename="'.$filename.'"');
-
-            return $response;
-        }
-
-        $html = view('ahg-scan::admin.web-archive.replay-binary', [
-            'capture' => $capture,
-            'contentType' => $contentType,
-            'targetUri' => $result['target_uri'] ?? $capture->url,
-            'byteSize' => isset($result['body']) ? strlen((string) $result['body']) : null,
-            'rawUrl' => route('web-archive.replay', $capture->id).'?raw=1',
-        ])->render();
-
-        $response = response($html, 200);
-        $this->applySafeHeaders($response, 'text/html; charset=UTF-8');
-
-        return $response;
-    }
-
-    /**
-     * Render the "snapshot unavailable" notice (missing / corrupt WARC). Always
-     * a clean 200 HTML page, never a 500.
-     */
-    protected function replayUnavailable($capture, string $message): Response
-    {
-        $html = view('ahg-scan::admin.web-archive.replay-unavailable', [
-            'capture' => $capture,
-            'message' => $message,
-        ])->render();
-
-        $response = response($html, 200);
-        $this->applySafeHeaders($response, 'text/html; charset=UTF-8');
-
-        return $response;
-    }
-
-    /**
-     * Apply the safe-serving headers used for every replayed response:
-     *   - A restrictive Content-Security-Policy that blocks every live network
-     *     fetch (default-src 'none'), allows only inline styles for the banner,
-     *     and forbids framing.
-     *   - X-Frame-Options DENY + nosniff + a no-referrer policy.
-     *   - X-Robots-Tag noindex so a replayed snapshot is never search-indexed.
-     * These ensure a replayed page cannot reach the live web or load trackers.
-     */
-    protected function applySafeHeaders($response, string $contentType): void
+    protected function applyReplayCsp($response): void
     {
         $csp = implode('; ', [
-            "default-src 'none'",
+            "default-src 'self'",
             "img-src 'self' data:",
-            "style-src 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline'",
             "font-src 'self' data:",
-            "form-action 'none'",
+            "script-src 'self' 'unsafe-inline'",
+            "connect-src 'self'",
+            "frame-src 'none'",
+            "object-src 'none'",
+            "form-action 'self'",
             "base-uri 'none'",
-            "frame-ancestors 'none'",
         ]);
-
-        $response->headers->set('Content-Type', $contentType);
         $response->headers->set('Content-Security-Policy', $csp);
-        $response->headers->set('X-Frame-Options', 'DENY');
-        $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'no-referrer');
         $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
         $response->headers->set('Cache-Control', 'no-store, max-age=0');
     }
 
     /**
-     * Build the fixed archived-snapshot banner markup. Self-contained inline
-     * styles only (no external CSS), so it renders under the strict CSP.
+     * Rewrite a captured page's same-host subresource URLs so they point at the asset route
+     * (so the page renders entirely from the WARC, not the live site). Rewrites <link href>,
+     * <script src>, <img src>, <source src>, <img/source srcset>, and url(...) inside inline
+     * <style> blocks. Only URLs that resolve to a captured resource (present in
+     * $capturedUris) are rewritten; everything else is left as-is (off-host / uncaptured
+     * assets honestly do not load - the documented gap). The original <base href> is
+     * neutralised so relative URLs we did not rewrite do not resolve against the live host.
      */
-    protected function bannerHtml($capture): string
+    protected function rewriteHtml(string $html, string $pageUri, int $id, array $capturedUris): string
     {
-        $when = $this->capturedWhen($capture);
-        $url = htmlspecialchars((string) $capture->url, ENT_QUOTES, 'UTF-8');
-        $whenEsc = htmlspecialchars($when, ENT_QUOTES, 'UTF-8');
+        if (trim($html) === '') {
+            return $html;
+        }
 
-        $style = 'all:initial;display:block;box-sizing:border-box;position:sticky;top:0;left:0;'
-            .'width:100%;z-index:2147483647;background:#5a1f1f;color:#fff;'
-            .'font:13px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;'
-            .'padding:8px 14px;border-bottom:2px solid #2d0f0f;text-align:left;';
-        $linkStyle = 'color:#ffd9d9;text-decoration:underline;word-break:break-all;';
+        $captured = [];
+        foreach ($capturedUris as $u) {
+            $captured[$this->replay->normalizeUri((string) $u)] = true;
+        }
 
-        return '<div role="alert" style="'.$style.'">'
-            .'<strong>ARCHIVED SNAPSHOT</strong> &middot; captured '.$whenEsc
-            .' from <a href="'.$url.'" rel="noopener noreferrer nofollow" style="'.$linkStyle.'">'.$url.'</a>'
-            .' &middot; this is a stored copy, not the live site. Links and embedded resources are not replayed.'
-            .'</div>';
+        $assetBase = route('web-archive.asset', ['id' => $id]);
+        $toAsset = function (string $absUri) use ($assetBase): string {
+            return $assetBase.'?u='.rawurlencode($absUri);
+        };
+
+        $rewriteRef = function (string $ref) use ($pageUri, $captured, $toAsset): ?string {
+            $abs = $this->resolveAgainst($ref, $pageUri);
+            if ($abs === null) {
+                return null;
+            }
+            $norm = $this->replay->normalizeUri($abs);
+            if ($norm === '' || ! isset($captured[$norm])) {
+                return null;
+            }
+
+            return $toAsset($norm);
+        };
+
+        // Neutralise any <base href> so un-rewritten relative URLs don't hit the live host.
+        $html = preg_replace('/<base\b[^>]*\bhref\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)[^>]*>/i', '<!-- base neutralised by replay -->', $html);
+
+        $html = $this->rewriteAttr($html, 'link', 'href', $rewriteRef);
+        $html = $this->rewriteAttr($html, 'script', 'src', $rewriteRef);
+        $html = $this->rewriteAttr($html, 'img', 'src', $rewriteRef);
+        $html = $this->rewriteAttr($html, 'source', 'src', $rewriteRef);
+
+        $html = $this->rewriteSrcset($html, $rewriteRef);
+
+        $html = preg_replace_callback('/<style\b[^>]*>(.*?)<\/style>/is', function ($m) use ($rewriteRef) {
+            return str_replace($m[1], $this->rewriteCssUrls($m[1], $rewriteRef), $m[0]);
+        }, $html);
+
+        return $html;
     }
 
     /**
-     * Inject the banner immediately after <body> if present, otherwise after
-     * the first <html...> tag, otherwise at the very top of the document.
+     * Rewrite one attribute (e.g. src / href) on all occurrences of a tag, replacing the
+     * value with the asset-route URL when $rewriteRef maps it to a captured resource.
      */
-    protected function injectBanner(string $html, string $banner): string
+    protected function rewriteAttr(string $html, string $tag, string $attr, callable $rewriteRef): string
     {
-        if (preg_match('/<body\b[^>]*>/i', $html, $m, PREG_OFFSET_CAPTURE)) {
-            $pos = $m[0][1] + strlen($m[0][0]);
+        $pattern = '/<'.$tag.'\b[^>]*>/i';
 
-            return substr($html, 0, $pos).$banner.substr($html, $pos);
-        }
+        return preg_replace_callback($pattern, function ($m) use ($attr, $rewriteRef) {
+            $full = $m[0];
+            $valPattern = '/(\b'.$attr.'\s*=\s*)("([^"]*)"|\'([^\']*)\'|([^\s>]+))/i';
 
-        if (preg_match('/<html\b[^>]*>/i', $html, $m, PREG_OFFSET_CAPTURE)) {
-            $pos = $m[0][1] + strlen($m[0][0]);
+            return preg_replace_callback($valPattern, function ($vm) use ($rewriteRef) {
+                $prefix = $vm[1];
+                $raw = $vm[3] ?? ($vm[4] ?? ($vm[5] ?? ''));
+                $decoded = html_entity_decode($raw, ENT_QUOTES | ENT_HTML5);
+                $new = $rewriteRef($decoded);
+                if ($new === null) {
+                    return $vm[0];
+                }
 
-            return substr($html, 0, $pos).$banner.substr($html, $pos);
-        }
-
-        return $banner.$html;
+                return $prefix.'"'.htmlspecialchars($new, ENT_QUOTES).'"';
+            }, $full);
+        }, $html) ?? $html;
     }
 
-    protected function capturedWhen($capture): string
+    /** Rewrite each captured URL inside any srcset="" attribute on <img>/<source>. */
+    protected function rewriteSrcset(string $html, callable $rewriteRef): string
     {
-        $raw = $capture->captured_at ?? $capture->created_at ?? null;
-        if ($raw === null || $raw === '') {
-            return 'an unknown date';
-        }
-        try {
-            return \Illuminate\Support\Carbon::parse($raw)->toDayDateTimeString();
-        } catch (\Throwable $e) {
-            return (string) $raw;
-        }
+        $pattern = '/<(?:img|source)\b[^>]*>/i';
+
+        return preg_replace_callback($pattern, function ($m) use ($rewriteRef) {
+            return preg_replace_callback('/(\bsrcset\s*=\s*)("([^"]*)"|\'([^\']*)\')/i', function ($sm) use ($rewriteRef) {
+                $prefix = $sm[1];
+                $set = $sm[3] ?? ($sm[4] ?? '');
+                $parts = [];
+                foreach (explode(',', $set) as $cand) {
+                    $cand = trim($cand);
+                    if ($cand === '') {
+                        continue;
+                    }
+                    $tokens = preg_split('/\s+/', $cand);
+                    $url = (string) ($tokens[0] ?? '');
+                    $descriptor = count($tokens) > 1 ? ' '.implode(' ', array_slice($tokens, 1)) : '';
+                    $decoded = html_entity_decode($url, ENT_QUOTES | ENT_HTML5);
+                    $new = $rewriteRef($decoded);
+                    $parts[] = ($new !== null ? $new : $url).$descriptor;
+                }
+
+                return $prefix.'"'.htmlspecialchars(implode(', ', $parts), ENT_QUOTES).'"';
+            }, $m[0]) ?? $m[0];
+        }, $html) ?? $html;
     }
 
-    protected function charsetFromContentType(string $contentType): ?string
+    /** Rewrite url(...) references inside a CSS string to the asset route where captured. */
+    protected function rewriteCssUrls(string $css, callable $rewriteRef): string
     {
-        if (preg_match('/charset=([\w\-]+)/i', $contentType, $m)) {
-            return $m[1];
-        }
+        return preg_replace_callback('/url\(\s*(\'[^\']*\'|"[^"]*"|[^)]*)\s*\)/i', function ($m) use ($rewriteRef) {
+            $raw = trim($m[1], " \t\n\r\0\x0B\"'");
+            if ($raw === '') {
+                return $m[0];
+            }
+            $new = $rewriteRef(html_entity_decode($raw, ENT_QUOTES | ENT_HTML5));
+            if ($new === null) {
+                return $m[0];
+            }
 
-        return null;
-    }
-
-    protected function downloadFilename($capture, string $contentType): string
-    {
-        $host = parse_url((string) $capture->url, PHP_URL_HOST) ?: 'snapshot';
-        $base = Str::slug($host).'-'.(int) $capture->id;
-        $ext = $this->extensionForType($contentType);
-
-        return $base.($ext !== null ? '.'.$ext : '');
-    }
-
-    protected function extensionForType(string $contentType): ?string
-    {
-        $type = Str::lower(trim(Str::before($contentType, ';')));
-        $map = [
-            'application/pdf' => 'pdf',
-            'application/json' => 'json',
-            'text/plain' => 'txt',
-            'text/css' => 'css',
-            'text/csv' => 'csv',
-            'application/xml' => 'xml',
-            'text/xml' => 'xml',
-            'image/jpeg' => 'jpg',
-            'image/png' => 'png',
-            'image/gif' => 'gif',
-            'image/svg+xml' => 'svg',
-            'image/webp' => 'webp',
-        ];
-
-        return $map[$type] ?? null;
-    }
-
-    // ------------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------------
-
-    protected function installed(): bool
-    {
-        try {
-            return Schema::hasTable('web_archive_capture');
-        } catch (\Throwable $e) {
-            return false;
-        }
+            return 'url("'.$new.'")';
+        }, $css) ?? $css;
     }
 
     /**
-     * Read just the named WARC header fields from each record's framing block
-     * (the lines before the first blank line of each record). Bounded read so a
-     * large WARC does not load fully into memory; for a single-response WARC the
-     * relevant headers are always near the top.
+     * Resolve a (possibly relative) reference against the captured page URI into an
+     * absolute URL, mirroring the capture engine's resolution so the rewritten key matches
+     * a captured WARC-Target-URI. Returns null for non-fetchable schemes.
+     */
+    protected function resolveAgainst(string $ref, string $base): ?string
+    {
+        $ref = trim($ref);
+        if ($ref === '') {
+            return null;
+        }
+        $lc = strtolower($ref);
+        if (str_starts_with($lc, 'data:')
+            || str_starts_with($lc, 'javascript:')
+            || str_starts_with($lc, 'mailto:')
+            || str_starts_with($lc, 'tel:')
+            || str_starts_with($lc, 'blob:')
+            || str_starts_with($lc, 'about:')
+            || str_starts_with($ref, '#')) {
+            return null;
+        }
+
+        $b = parse_url($base);
+        if (! is_array($b) || ! isset($b['scheme'], $b['host'])) {
+            return null;
+        }
+        $scheme = strtolower((string) $b['scheme']);
+        $host = (string) $b['host'];
+        $basePath = (string) ($b['path'] ?? '/');
+
+        if (preg_match('#^[a-z][a-z0-9+.\-]*://#i', $ref)) {
+            return $ref;
+        }
+        if (str_starts_with($ref, '//')) {
+            return $scheme.':'.$ref;
+        }
+        if (str_starts_with($ref, '/')) {
+            return $scheme.'://'.$host.$ref;
+        }
+        $dir = $basePath;
+        $slash = strrpos($dir, '/');
+        $dir = $slash === false ? '/' : substr($dir, 0, $slash + 1);
+
+        return $scheme.'://'.$host.$this->normalizePath($dir.$ref);
+    }
+
+    /** Collapse ./ and ../ segments in a URL path (mirrors the capture engine). */
+    protected function normalizePath(string $path): string
+    {
+        $isAbs = str_starts_with($path, '/');
+        $parts = explode('/', $path);
+        $stack = [];
+        foreach ($parts as $seg) {
+            if ($seg === '' || $seg === '.') {
+                continue;
+            }
+            if ($seg === '..') {
+                array_pop($stack);
+
+                continue;
+            }
+            $stack[] = $seg;
+        }
+        $out = ($isAbs ? '/' : '').implode('/', $stack);
+        if (str_ends_with($path, '/') && ! str_ends_with($out, '/')) {
+            $out .= '/';
+        }
+
+        return $out === '' ? '/' : $out;
+    }
+
+    // ------------------------------------------------------------------
+    // Detail helpers
+    // ------------------------------------------------------------------
+
+    /**
+     * Read just the named WARC header fields from each record's framing block (the lines
+     * before the first blank line of each record). Bounded read so a large WARC does not
+     * load fully into memory.
      */
     protected function parseWarcHeaders(string $path): array
     {
@@ -446,7 +609,6 @@ class WebArchiveController extends Controller
 
                 if ($inHeaders) {
                     if ($line === '') {
-                        // end of this record's header block; skip the block body
                         $inHeaders = false;
 
                         continue;

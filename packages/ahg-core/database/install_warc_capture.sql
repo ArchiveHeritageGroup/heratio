@@ -26,8 +26,10 @@
 CREATE TABLE IF NOT EXISTS `warc_capture` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `information_object_id` INT NULL COMMENT 'soft reference to the captured published record (information_object.id) - no FK',
-  `slug` VARCHAR(255) NULL COMMENT 'the record slug at capture time (for display / re-resolution)',
-  `target_uri` VARCHAR(2048) NOT NULL COMMENT 'the exact same-host public record URL that was fetched (the WARC-Target-URI)',
+  `slug` VARCHAR(255) NULL COMMENT 'the record slug at capture time (for display / re-resolution); NULL for url-mode captures',
+  `mode` VARCHAR(16) NOT NULL DEFAULT 'record' COMMENT 'capture source: record (a published record''s own page, SSRF-scoped to this host) or url (an operator-submitted general URL); never an ENUM',
+  `submitted_url` VARCHAR(2048) NULL COMMENT 'the raw operator-submitted URL when mode = url (informational; target_uri carries the actually-fetched URL); NULL for record captures',
+  `target_uri` VARCHAR(2048) NOT NULL COMMENT 'the exact public URL that was fetched (the WARC-Target-URI): the record''s own same-host page for record mode, or the submitted URL for url mode',
   `file_path` VARCHAR(1024) NULL COMMENT 'absolute path to the stored .warc on disk (under the configured storage web-archive dir)',
   `file_name` VARCHAR(255) NULL COMMENT 'the .warc file name (download name)',
   `byte_size` BIGINT UNSIGNED NULL COMMENT 'size of the stored .warc file in bytes',

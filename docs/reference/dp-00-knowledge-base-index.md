@@ -31,7 +31,7 @@ digital-preservation knowledge layer"). Docs-only; the epic stays open.
 | `dp-09-dpc-ram` | DPC Rapid Assessment Model (RAM) v2.0 organisational maturity |
 | `dp-10-significant-properties` | Significant properties and format normalisation / migration |
 | `dp-11-storage-replication-ocfl` | Storage, geographic replication, and OCFL preservation storage |
-| `dp-12-web-archiving-warc` | Web archiving and WARC (an honest gap in Heratio today) |
+| `web-archive-warc` | Web archiving (WARC 1.1): the single merged surface - both capture modes (archive a URL + capture a record page), the reusable ahg-core capture + replay engines, the single warc_capture table, and in-app replay from the stored WARC |
 
 ## How to read these
 

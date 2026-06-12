@@ -109,6 +109,14 @@ class WarcCaptureService
 
     public const STATUS_FAILED = 'failed';
 
+    /** Capture source modes (written to the warc_capture.mode column; never an ENUM). */
+
+    /** A published record's OWN page, SSRF-scoped to this host (the record-id form). */
+    public const MODE_RECORD = 'record';
+
+    /** An operator-submitted general URL (the archive-a-URL form). */
+    public const MODE_URL = 'url';
+
     /** Bounded capture caps. */
     private const HTTP_TIMEOUT_SECONDS = 20;
 
@@ -382,6 +390,8 @@ class WarcCaptureService
             $id = (int) DB::table(self::TABLE)->insertGetId([
                 'information_object_id' => $informationObjectId,
                 'slug' => $this->clip($record['slug'], 255),
+                'mode' => self::MODE_RECORD,
+                'submitted_url' => null,
                 'target_uri' => $this->clip($targetUri, 2048),
                 'file_path' => $this->clip($written['path'], 1024),
                 'file_name' => $this->clip($written['name'], 255),
@@ -420,6 +430,165 @@ class WarcCaptureService
             'sha256' => $written['sha256'],
             'subresource_count' => $subCount,
         ];
+    }
+
+    /**
+     * Capture an operator-submitted general URL (the "archive a URL" form) into a WARC
+     * 1.1 file and record it as a mode = url row. This is the second capture mode that
+     * the single web-archive surface offers, distinct from the record-id mode above.
+     *
+     * SSRF posture (NOT loosened): the original ahg-scan url form validated only that the
+     * input was an http/https URL. This engine keeps that http/https-only rule AND adds a
+     * public-host guard on top - it refuses loopback / link-local / cloud-metadata /
+     * private-range hosts and any embedded credentials, so a submitted URL can never be
+     * used to reach an internal service. The page is fetched with the same bounded cURL
+     * client (connect + total timeout, redirect cap pinned to http/https, hard size cap)
+     * as the record mode. It is a single-page capture: url mode does NOT crawl same-host
+     * subresources (those are scoped to the record's own host in record mode), matching
+     * the original single-page url behaviour.
+     *
+     * Never throws: a bad / unreachable / blocked / oversize URL records a `failed` row
+     * (when the table exists) and returns ok=false with a clean message.
+     *
+     * @return array{ok:bool, id:?int, status:string, message:?string, target_uri:?string, byte_size:?int, sha256:?string, subresource_count:int}
+     */
+    public function captureUrl(string $submittedUrl, ?int $userId = null): array
+    {
+        $url = trim($submittedUrl);
+
+        // http/https-only validation (the original ahg-scan rule), plus a public-host
+        // SSRF guard (a strict ADDITION, never a loosening).
+        if (! $this->isPublicHttpUrl($url)) {
+            return $this->failUrl($url, __('Refused: only public http/https URLs can be archived (internal, loopback, and credentialed URLs are blocked).'));
+        }
+
+        if (! $this->isAvailable()) {
+            return [
+                'ok' => false,
+                'id' => null,
+                'status' => self::STATUS_FAILED,
+                'message' => __('The web-archive table is not installed yet. Please try again shortly.'),
+                'target_uri' => $url,
+                'byte_size' => null,
+                'sha256' => null,
+                'subresource_count' => 0,
+            ];
+        }
+
+        // Bounded server-side GET of the submitted URL.
+        $fetch = $this->fetch($url);
+        if (! $fetch['ok']) {
+            return $this->failUrl($url, $fetch['error'] ?? __('The page could not be captured.'), $fetch['http_status'] ?? null);
+        }
+
+        // Build the WARC (page only for url mode - no same-host subresource crawl).
+        try {
+            $warc = $this->buildWarc(
+                $url,
+                $fetch['request_block'],
+                $fetch['response_block'],
+                $fetch['http_status'],
+                []
+            );
+        } catch (Throwable $e) {
+            \Log::warning('[ahg-core] warc buildWarc (url) failed: '.$e->getMessage());
+
+            return $this->failUrl($url, __('The WARC file could not be assembled.'), $fetch['http_status'] ?? null);
+        }
+
+        // Write under the configured storage web-archive dir, named from the URL host.
+        $nameSlug = $this->urlNameSlug($url);
+        $written = $this->writeWarc($nameSlug, 0, $warc);
+        if (! $written['ok']) {
+            return $this->failUrl($url, $written['error'] ?? __('The WARC file could not be stored.'), $fetch['http_status'] ?? null);
+        }
+
+        $now = now();
+        try {
+            $id = (int) DB::table(self::TABLE)->insertGetId([
+                'information_object_id' => null,
+                'slug' => null,
+                'mode' => self::MODE_URL,
+                'submitted_url' => $this->clip($url, 2048),
+                'target_uri' => $this->clip($url, 2048),
+                'file_path' => $this->clip($written['path'], 1024),
+                'file_name' => $this->clip($written['name'], 255),
+                'byte_size' => $written['size'],
+                'sha256' => $written['sha256'],
+                'http_status' => $fetch['http_status'] ?: null,
+                'status' => self::STATUS_CAPTURED,
+                'error_message' => __('Submitted URL; page only (url mode does not crawl subresources).'),
+                'captured_by' => $userId && $userId > 0 ? $userId : null,
+                'captured_at' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        } catch (Throwable $e) {
+            \Log::warning('[ahg-core] warc captureUrl insert failed: '.$e->getMessage());
+
+            return [
+                'ok' => false,
+                'id' => null,
+                'status' => self::STATUS_FAILED,
+                'message' => __('The capture was made but could not be recorded.'),
+                'target_uri' => $url,
+                'byte_size' => $written['size'],
+                'sha256' => $written['sha256'],
+                'subresource_count' => 0,
+            ];
+        }
+
+        return [
+            'ok' => true,
+            'id' => $id,
+            'status' => self::STATUS_CAPTURED,
+            'message' => null,
+            'target_uri' => $url,
+            'byte_size' => $written['size'],
+            'sha256' => $written['sha256'],
+            'subresource_count' => 0,
+        ];
+    }
+
+    /**
+     * http/https-only + public-host SSRF guard for an operator-submitted URL. Rejects a
+     * non-http(s) scheme, an embedded credential, an explicit port that is not the scheme
+     * default is permitted (a general URL may legitimately carry a port), but a loopback /
+     * link-local / cloud-metadata / private-range HOST is always refused. This is the
+     * url-mode equivalent of assertSameHostUrl()'s host-literal guard, without the
+     * same-host constraint (a submitted URL is, by definition, off-site).
+     */
+    public function isPublicHttpUrl(string $url): bool
+    {
+        if ($url === '' || filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return false;
+        }
+        $p = parse_url($url);
+        if (! is_array($p)) {
+            return false;
+        }
+        $scheme = strtolower((string) ($p['scheme'] ?? ''));
+        if (! in_array($scheme, ['http', 'https'], true)) {
+            return false;
+        }
+        if (isset($p['user']) || isset($p['pass'])) {
+            return false; // no embedded credentials
+        }
+        $host = strtolower((string) ($p['host'] ?? ''));
+        if ($host === '' || $this->isBlockedHostLiteral($host)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /** A filesystem-safe name slug derived from a submitted URL's host (for the .warc file name). */
+    private function urlNameSlug(string $url): string
+    {
+        $host = (string) (parse_url($url, PHP_URL_HOST) ?: 'url-capture');
+        $slug = preg_replace('/[^a-z0-9-]/', '-', strtolower($host));
+
+        return $slug !== '' ? $slug : 'url-capture';
     }
 
     /**
@@ -1309,6 +1478,8 @@ class WarcCaptureService
                     'id' => (int) $r->id,
                     'information_object_id' => $r->information_object_id !== null ? (int) $r->information_object_id : null,
                     'slug' => $r->slug !== null ? (string) $r->slug : null,
+                    'mode' => isset($r->mode) && $r->mode !== null && $r->mode !== '' ? (string) $r->mode : self::MODE_RECORD,
+                    'submitted_url' => isset($r->submitted_url) && $r->submitted_url !== null ? (string) $r->submitted_url : null,
                     'target_uri' => (string) $r->target_uri,
                     'byte_size' => $r->byte_size !== null ? (int) $r->byte_size : null,
                     'sha256' => $r->sha256 !== null ? (string) $r->sha256 : null,
@@ -1453,6 +1624,52 @@ class WarcCaptureService
             'target_uri' => $targetUri,
             'byte_size' => null,
             'sha256' => null,
+        ];
+    }
+
+    /**
+     * Record a `failed` row for a url-mode capture (best-effort) and return the structured
+     * failure result. Mirrors fail() but writes mode = url + submitted_url. Never throws.
+     *
+     * @return array{ok:bool, id:?int, status:string, message:?string, target_uri:?string, byte_size:?int, sha256:?string, subresource_count:int}
+     */
+    private function failUrl(string $submittedUrl, string $message, ?int $httpStatus = null): array
+    {
+        if ($this->isAvailable()) {
+            try {
+                $now = now();
+                DB::table(self::TABLE)->insert([
+                    'information_object_id' => null,
+                    'slug' => null,
+                    'mode' => self::MODE_URL,
+                    'submitted_url' => $this->clip($submittedUrl, 2048),
+                    'target_uri' => $this->clip($submittedUrl !== '' ? $submittedUrl : 'url:invalid', 2048),
+                    'file_path' => null,
+                    'file_name' => null,
+                    'byte_size' => null,
+                    'sha256' => null,
+                    'http_status' => $httpStatus && $httpStatus > 0 ? $httpStatus : null,
+                    'status' => self::STATUS_FAILED,
+                    'error_message' => $this->clip($message, 1024),
+                    'captured_by' => null,
+                    'captured_at' => $now,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+            } catch (Throwable $e) {
+                \Log::warning('[ahg-core] warc url fail-row insert failed: '.$e->getMessage());
+            }
+        }
+
+        return [
+            'ok' => false,
+            'id' => null,
+            'status' => self::STATUS_FAILED,
+            'message' => $message,
+            'target_uri' => $submittedUrl !== '' ? $submittedUrl : null,
+            'byte_size' => null,
+            'sha256' => null,
+            'subresource_count' => 0,
         ];
     }
 

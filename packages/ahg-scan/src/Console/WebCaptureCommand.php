@@ -27,27 +27,28 @@
 
 namespace AhgScan\Console;
 
-use AhgScan\Services\WebArchiveCaptureService;
+use AhgCore\Services\WarcCaptureService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 /**
- * Capture a single URL to a WARC 1.1 file from the command line.
+ * Capture a single URL to a WARC 1.1 file from the command line (url mode).
  *
- * Single-page capture only: no crawl, no replay. The remote host being down is
- * not an error here; the run records a 'failed' row and exits cleanly.
+ * This is the CLI face of the single web-archive surface: it calls the reusable ahg-core
+ * engine (WarcCaptureService::captureUrl) and writes to the single warc_capture table.
+ * Single-page capture only (url mode does not crawl subresources). The remote host being
+ * down is not an error here; the run records a 'failed' row and exits cleanly. SSRF is not
+ * loosened: the engine enforces http/https-only + a public-host guard.
  */
 class WebCaptureCommand extends Command
 {
     protected $signature = 'ahg:web-capture {url : The http/https URL to capture to WARC}';
 
-    protected $description = 'Capture a single web page to a WARC 1.1 file (no crawl, no replay)';
+    protected $description = 'Capture a single web page to a WARC 1.1 file (url mode; no crawl)';
 
-    public function handle(WebArchiveCaptureService $service): int
+    public function handle(WarcCaptureService $service): int
     {
-        if (! Schema::hasTable('web_archive_capture')) {
-            $this->error('web_archive_capture table is not installed yet. Boot the app once, or run a web request, to auto-install it.');
+        if (! $service->isAvailable()) {
+            $this->error('warc_capture table is not installed yet. Boot the app once, or run a web request, to auto-install it.');
 
             return self::FAILURE;
         }
@@ -55,29 +56,18 @@ class WebCaptureCommand extends Command
         $url = (string) $this->argument('url');
         $this->line('Capturing: '.$url);
 
-        $id = $service->capture($url, null);
+        $result = $service->captureUrl($url, null);
 
-        if ($id === null) {
-            $this->error('Capture could not be recorded (insert failed).');
-
-            return self::FAILURE;
-        }
-
-        $row = DB::table('web_archive_capture')->find($id);
-        if ($row === null) {
-            $this->warn('Recorded id '.$id.' but row could not be re-read.');
+        if (! empty($result['ok'])) {
+            $this->info('Captured #'.($result['id'] ?? '?').' ('.number_format((int) ($result['byte_size'] ?? 0)).' bytes)');
+            if (! empty($result['sha256'])) {
+                $this->line('sha256: '.$result['sha256']);
+            }
 
             return self::SUCCESS;
         }
 
-        if ($row->status === 'captured') {
-            $this->info('Captured #'.$id.' ('.($row->http_status ?? '?').' '.($row->content_type ?? '?').', '.number_format((int) $row->byte_size).' bytes)');
-            $this->line('WARC: '.$row->warc_path);
-
-            return self::SUCCESS;
-        }
-
-        $this->error('Capture failed #'.$id.': '.($row->error ?? 'unknown error'));
+        $this->error('Capture failed: '.($result['message'] ?? 'unknown error'));
 
         return self::FAILURE;
     }

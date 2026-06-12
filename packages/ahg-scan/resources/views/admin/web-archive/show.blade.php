@@ -1,7 +1,21 @@
+{{--
+  Web archive capture detail (admin). heratio#1244.
+
+  Per-capture detail over the single warc_capture table: the row metadata (mode, target
+  URI, on-disk .warc path + fixity sha256, http status, outcome), the parsed WARC record
+  headers, and the replay / download actions. Replay serves the archived page back entirely
+  from the stored WARC (never the live site). Bootstrap 5 + central theme.
+
+  Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems.
+  Licensed under the GNU Affero General Public License v3 or later.
+--}}
 @extends('theme::layouts.1col')
-@section('title', 'Web archive capture #' . $capture->id)
+@section('title', __('Web archive capture') . ' #' . $capture->id)
 
 @section('content')
+@php
+  $mode = $capture->mode ?? 'record';
+@endphp
 <h1>{{ __('Capture') }} #{{ $capture->id }}</h1>
 
 <nav aria-label="{{ __('breadcrumb') }}">
@@ -25,42 +39,50 @@
             <div class="card-header"><strong>{{ __('Capture') }}</strong></div>
             <div class="card-body">
                 <dl class="row mb-0">
-                    <dt class="col-sm-3">{{ __('URL') }}</dt>
-                    <dd class="col-sm-9"><a href="{{ $capture->url }}" target="_blank" rel="noopener noreferrer">{{ $capture->url }}</a></dd>
+                    <dt class="col-sm-3">{{ __('Mode') }}</dt>
+                    <dd class="col-sm-9">
+                        @if($mode === 'url')
+                            <span class="badge bg-light text-dark border"><i class="fas fa-link me-1"></i>{{ __('Submitted URL') }}</span>
+                        @else
+                            <span class="badge bg-light text-dark border"><i class="fas fa-file-lines me-1"></i>{{ __('Record page') }}</span>
+                        @endif
+                    </dd>
 
-                    <dt class="col-sm-3">{{ __('Title') }}</dt>
-                    <dd class="col-sm-9">{{ $capture->title ?: '' }}</dd>
+                    @if($mode === 'record' && $capture->slug)
+                        <dt class="col-sm-3">{{ __('Record') }}</dt>
+                        <dd class="col-sm-9"><a href="{{ url('/'.ltrim($capture->slug, '/')) }}" target="_blank" rel="noopener">{{ $capture->slug }}</a></dd>
+                    @endif
+
+                    <dt class="col-sm-3">{{ __('Target URI') }}</dt>
+                    <dd class="col-sm-9"><a href="{{ $capture->target_uri }}" target="_blank" rel="noopener noreferrer">{{ $capture->target_uri }}</a></dd>
 
                     <dt class="col-sm-3">{{ __('Status') }}</dt>
                     <dd class="col-sm-9">
-                        @php $colors = ['captured'=>'success','failed'=>'danger','pending'=>'secondary']; @endphp
-                        <span class="badge bg-{{ $colors[$capture->status] ?? 'secondary' }}">{{ $capture->status }}</span>
+                        @php $colors = ['captured'=>'success','failed'=>'danger']; @endphp
+                        <span class="badge bg-{{ $colors[$capture->status] ?? 'secondary' }}">{{ __(ucfirst($capture->status)) }}</span>
                     </dd>
 
                     <dt class="col-sm-3">{{ __('HTTP status') }}</dt>
                     <dd class="col-sm-9">{{ $capture->http_status ?? '' }}</dd>
 
-                    <dt class="col-sm-3">{{ __('Content type') }}</dt>
-                    <dd class="col-sm-9">{{ $capture->content_type ?: '' }}</dd>
-
                     <dt class="col-sm-3">{{ __('Size') }}</dt>
                     <dd class="col-sm-9">{{ $capture->byte_size !== null ? number_format((int) $capture->byte_size) . ' ' . __('bytes') : '' }}</dd>
 
+                    <dt class="col-sm-3">{{ __('Fixity (sha256)') }}</dt>
+                    <dd class="col-sm-9"><small><code>{{ $capture->sha256 ?: '' }}</code></small></dd>
+
                     <dt class="col-sm-3">{{ __('WARC path') }}</dt>
-                    <dd class="col-sm-9"><small><code>{{ $capture->warc_path ?: '' }}</code></small></dd>
+                    <dd class="col-sm-9"><small><code>{{ $capture->file_path ?: '' }}</code></small></dd>
 
                     <dt class="col-sm-3">{{ __('Captured at') }}</dt>
                     <dd class="col-sm-9">{{ $capture->captured_at ?? '' }}</dd>
-
-                    <dt class="col-sm-3">{{ __('Created at') }}</dt>
-                    <dd class="col-sm-9">{{ $capture->created_at }}</dd>
                 </dl>
             </div>
         </div>
 
-        @if($capture->status === 'failed' && $capture->error)
+        @if($capture->status === 'failed' && $capture->error_message)
             <div class="alert alert-danger">
-                <strong>{{ __('Error') }}:</strong> {{ $capture->error }}
+                <strong>{{ __('Error') }}:</strong> {{ $capture->error_message }}
             </div>
         @endif
 
@@ -113,7 +135,7 @@
         <div class="card">
             <div class="card-body">
                 <p class="text-muted mb-0"><small>
-                    {{ __('Replay serves the archived page document back from its stored WARC, with a clear archived-snapshot banner. It is a single-document replay: embedded resources (images, CSS, scripts) and links are not replayed, and nothing live is fetched. Multi-resource replay is planned. The WARC file remains a standards-conformant capture you can open in any WARC-aware tool.') }}
+                    {{ __('Replay serves the archived page back entirely from its stored WARC, with a clear archived-snapshot banner and a restrictive content-security policy. Same-host subresources captured into the WARC are rewritten to load from the archive; off-host resources were never captured and do not load. Nothing live is fetched. The WARC file remains a standards-conformant capture you can open in any WARC-aware tool.') }}
                 </small></p>
             </div>
         </div>
