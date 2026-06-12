@@ -349,6 +349,37 @@ Route::get('/opensearch.xml', [\AhgCore\Controllers\OpenSearchController::class,
 // /{slug} archival-record catch-all - no exclusion-list entry is needed.
 Route::get('/opensearch/suggest', [\AhgCore\Controllers\OpenSearchController::class, 'suggest'])->name('opensearch.suggest');
 
+// Public "Recently added" surface: the newest PUBLISHED records, most-recent
+// first (ORDER BY object.created_at DESC - the real creation signal, since
+// information_object has no created_at), so visitors and returning researchers
+// can see what is new. Three faces of the same bounded, read-only list served by
+// RecentlyAddedController over the read-only RecentlyAddedService:
+//
+//   - GET /recent       the public Bootstrap-5 / central-theme card grid.
+//   - GET /recent.json  the same list as machine data ({id, slug, title,
+//                       created_at, url}), CORS-open.
+//   - GET /recent.atom  a valid Atom 1.0 feed of recent additions (escaped XML).
+//
+// The DOTTED .json / .atom paths are declared FIRST and are inherently safe from
+// the single-segment /{slug} archival-record catch-all (that route only matches a
+// slug of the form [a-z0-9][a-z0-9-]* - a dot disqualifies it).
+//
+// /recent itself is a SINGLE-segment public path, exactly like /explore,
+// /collection-overview, /open-data and /accessibility-statement above. ahg-core
+// boots early, so this route is registered before the single-segment /{slug}
+// archival-record catch-all in ahg-information-object-manage and wins the match
+// (first-registered route wins; the IO catch-all's exclusion list is belt-and-
+// braces, not the mechanism relied on here). A normal record slug still resolves,
+// because the catch-all only matches a single-segment path that no earlier route
+// has already claimed.
+//
+// Read-only - no writes, no ALTER, no AI calls, bounded LIMIT + offset paging
+// (no full scan). A zero-result / missing-table state degrades to a calm empty
+// page (or an empty but valid feed/JSON), never a 500.
+Route::get('/recent.json', [\AhgCore\Controllers\RecentlyAddedController::class, 'json'])->name('recent.json');
+Route::get('/recent.atom', [\AhgCore\Controllers\RecentlyAddedController::class, 'atom'])->name('recent.atom');
+Route::get('/recent', [\AhgCore\Controllers\RecentlyAddedController::class, 'index'])->name('recent.index');
+
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::match(['get', 'post'], '/', [ClipboardController::class, 'index'])->name('index');
