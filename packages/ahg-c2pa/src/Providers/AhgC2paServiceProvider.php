@@ -21,6 +21,7 @@ use AhgC2pa\Events\AiOutputProduced;
 use AhgC2pa\Listeners\RecordDigitalObjectProvenance;
 use AhgC2pa\Listeners\WriteC2paSidecar;
 use AhgC2pa\Middleware\InjectContentCredentialsBadge;
+use AhgC2pa\Controllers\TransparencyController;
 use AhgC2pa\Controllers\TrustController;
 use AhgC2pa\Controllers\VerifiedRecordsController;
 use AhgC2pa\Services\C2paService;
@@ -99,6 +100,33 @@ final class AhgC2paServiceProvider extends ServiceProvider
             $router->middleware('web')
                 ->get('/verified-records', [VerifiedRecordsController::class, 'index'])
                 ->name('c2pa.verified.records');
+        });
+
+        // Public, single-segment catalogue-wide TRANSPARENCY REPORT (issue
+        // #1209): the PUBLIC counterpart to the operator-only admin trust console
+        // (/admin/trust-console) and to the per-record trust dossier
+        // (/trust-dossier). It rolls the whole PUBLISHED catalogue up into five
+        // honest dimensions (content credentials, AI provenance, integrity,
+        // preservation, accessibility), each a headline number + share, with an
+        // honest framing that never overclaims and shows gaps as gaps. Same
+        // single-segment problem as /trust, /verified-records and
+        // /content-credentials: /transparency and /transparency.json are NOT in
+        // the IO slug catch-all's (/{slug}) exclusion list, so declaring them in
+        // boot() web.php would risk the catch-all shadowing them depending on
+        // provider boot order. Registering here, in register(), via
+        // callAfterResolving('router') defines them BEFORE the IO package loads
+        // its catch-all in boot(), so first-match-wins resolution always picks
+        // these. The .json companion keeps its real extension (nginx passes
+        // *.json through to Laravel), is CORS-open, and is declared FIRST so the
+        // literal '.json' can never be captured as a slug. Read-only, public, no
+        // auth: this is the public, catalogue-wide transparency scorecard.
+        $this->callAfterResolving('router', function ($router) {
+            $router->middleware('web')
+                ->get('/transparency.json', [TransparencyController::class, 'json'])
+                ->name('c2pa.transparency.json');
+            $router->middleware('web')
+                ->get('/transparency', [TransparencyController::class, 'index'])
+                ->name('c2pa.transparency');
         });
 
         // Reuse the inference-receipts Ed25519 key (same kid travels with
