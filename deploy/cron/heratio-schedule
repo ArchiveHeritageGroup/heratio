@@ -1,0 +1,23 @@
+# Tracked copy of /etc/cron.d/heratio-schedule (source of truth). Heratio app cron.
+# No AHG internal addresses/secrets present - tracked verbatim. Update after each edit.
+# ============================================================================
+
+# Heratio: trigger Laravel's scheduler every minute. This is the single
+# entrypoint that fires every Schedule::command() registration in the
+# codebase (audit:prune, auth:gc-attempts, auth:warn-password-expiry,
+# ahg:cron-run, etc.). Without this entry, schedule:list shows the tasks
+# but they never fire.
+#
+# flock -n guards against pile-up if one tick is still running when the
+# next minute arrives. Absolute paths to both php and artisan because
+# /etc/cron.d/* commands run with cwd=/, so relative artisan would fail
+# with "Could not open input file: artisan" (the silent failure mode that
+# bit /etc/cron.d/ahg-discovery-prune — see its log).
+#
+# Output goes to /var/log/heratio-schedule.log (chowned to www-data so the
+# www-data-run command can append).
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=""
+
+* * * * * www-data flock -n /var/run/heratio-schedule.lock -c '/usr/bin/php8.3 /usr/share/nginx/heratio/artisan schedule:run >> /var/log/heratio-schedule.log 2>&1'

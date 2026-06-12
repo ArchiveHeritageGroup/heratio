@@ -1,0 +1,28 @@
+# Tracked copy of /etc/cron.d/ahg-facet-cache (source of truth). Heratio app cron.
+# No AHG internal addresses/secrets present - tracked verbatim. Update after each edit.
+# ============================================================================
+
+# Heratio: hourly refresh of display_facet_cache for every DB that has the GLAM browse.
+#
+# Replaces the prior /usr/share/nginx/archive symfony cron (which only hit the
+# `archive` DB and silently bypassed atom/dam/heratio). One outer flock so
+# parallel runs can't pile up — that was the root cause of the 12-query, 25-hour
+# stuck-query incident on 2026-04-28. max_execution_time=300000 (5 min) gives a
+# server-side belt-and-braces if one DB's facet build hangs.
+#
+# Each DB is invoked sequentially. If one is slow, subsequent DBs that hour are
+# delayed but the next hour's tick will skip (flock -n) until this run finishes,
+# so backlog cannot recur.
+#
+# Absolute paths to php + artisan because /etc/cron.d/* commands run with
+# cwd=/. The previous form (`php artisan ...`) silently failed every hour
+# with "Could not open input file: artisan" - fixed 2026-05-06.
+#
+# Runs as www-data, NOT root. The artisan command lazy-creates Laravel cache
+# shards under storage/framework/cache/data/<2c>/<2c>/ and root-owned shards
+# break subsequent www-data writes (see docs/reference/github-pat-rotation.md
+# pattern; concrete incident 2026-05-08 surfaced via /admin/errorLog as
+# fopen(...c+) "No such file or directory" 500s on /api/ric/v1/* endpoints).
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+0 * * * * www-data flock -n /var/run/heratio-facet-cache.lock -c 'for d in archive atom dam heratio; do echo "[$(date -Iseconds)] facet-cache: $d"; DB_DATABASE=$d /usr/bin/php8.3 /usr/share/nginx/heratio/artisan ahg:refresh-facet-cache 2>&1 || echo "  failed $d"; done >> /var/log/facet-cache.log 2>&1'

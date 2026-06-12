@@ -1,0 +1,20 @@
+# Tracked copy of /etc/cron.d/ahg-discovery-prune (source of truth). Heratio app cron.
+# No AHG internal addresses/secrets present - tracked verbatim. Update after each edit.
+# ============================================================================
+
+# Heratio: hourly prune of ahg_discovery_log to bound table growth.
+# Reads retention from ahg_settings.ahg_discovery_log_retention_days (default 90).
+# Outer flock-n so a slow run cannot pile up; if last hour's tick is still
+# running, this hour skips silently. See GitHub issue #19.
+#
+# Absolute paths to php + artisan because /etc/cron.d/* commands run with
+# cwd=/. The previous form (`php artisan ...`) silently failed every hour
+# with "Could not open input file: artisan" - fixed 2026-05-06.
+#
+# Runs as www-data, NOT root. Artisan commands lazy-create Laravel cache
+# shards under storage/framework/cache/data/; if owned by root, subsequent
+# www-data web requests get 500s with fopen "No such file or directory".
+# See incident 2026-05-08 (admin/errorLog).
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+17 * * * * www-data flock -n /var/run/heratio-discovery-prune.lock -c 'for d in heratio atom archive; do echo "[$(date -Iseconds)] discovery-prune: $d"; DB_DATABASE=$d /usr/bin/php8.3 /usr/share/nginx/heratio/artisan ahg:discovery-prune 2>&1 || echo "  failed $d"; done >> /var/log/heratio-discovery-prune.log 2>&1'
