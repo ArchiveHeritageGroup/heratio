@@ -330,6 +330,14 @@ class ProtocolController extends Controller
                 'mediaTypes' => ['text/html', 'application/json'],
                 'method' => 'GET',
             ],
+            [
+                'id' => 'cookbook',
+                'title' => 'Developer cookbook (worked examples)',
+                'description' => 'A developer-facing guide of copy-paste worked examples for consuming the open data: content negotiation against the entity URIs, the bulk dumps, OAI-PMH harvesting, the discovery documents, and loading the data into common tools (rdflib, Apache Jena, a triple store) to run SPARQL locally. Every example URL is resolved from this surface list, so the commands target this deployment\'s real URLs. Content-negotiated (a browser gets a human guide; machine view is the JSON example index).',
+                'url' => $this->resolve('open-data.cookbook', '/open-data/cookbook'),
+                'mediaTypes' => ['text/html', 'application/json'],
+                'method' => 'GET',
+            ],
         ];
 
         // Drop any surface that resolved to neither a URL nor a template.

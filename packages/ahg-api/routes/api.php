@@ -2,6 +2,7 @@
 
 use AhgApi\Controllers\ActorEntityController;
 use AhgApi\Controllers\CatalogController;
+use AhgApi\Controllers\CookbookController;
 use AhgApi\Controllers\DataSitemapController;
 use AhgApi\Controllers\DatasetController;
 use AhgApi\Controllers\DatasetSchemaController;
@@ -653,6 +654,44 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
         ->name('open-data.maturity');
     Route::get('open-data/maturity.json', fn (\Illuminate\Http\Request $request) => app(MaturityController::class)->index($request, true))
         ->name('open-data.maturity.json');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Open-data developer cookbook - /open-data/cookbook (#1204)
+|--------------------------------------------------------------------------
+| A developer-facing guide of copy-paste WORKED EXAMPLES for consuming the
+| open data: content negotiation against /id/{slug} entity URIs (JSON-LD /
+| Turtle / RDF-XML), the bulk CSV / JSON-LD / CIDOC-CRM dumps, OAI-PMH
+| harvesting, the discovery documents (protocol / VoID / DCAT / schema.org
+| Dataset / crawl sitemap), and loading the data into common tools (rdflib,
+| Apache Jena, a triple store) for LOCAL SPARQL. Every example URL is resolved
+| from ProtocolController::surfaces() (the one canonical surface list) via
+| url() / route(), so the commands target this deployment's real URLs and an
+| example whose surface is absent is simply omitted (never a dead link).
+|
+| Honest where a capability is absent: there is no live, hosted SPARQL endpoint,
+| so the SPARQL recipes show the local load-and-query path and say so plainly.
+|
+|   GET /open-data/cookbook        - content-negotiated (browser -> HTML guide,
+|                                    everyone else -> a JSON example index).
+|   GET /open-data/cookbook.json   - the JSON example index, explicitly.
+|
+| Read-only (no DB access, no AI); permissive open-data CORS; never 500s.
+|
+| CATCH-ALL SAFETY: "/open-data/cookbook" and "/open-data/cookbook.json" are
+| TWO-segment paths, so the single-segment /{slug} archival-record catch-all
+| cannot capture them (the literal first segment /open-data is itself a
+| registered single-segment public page in ahg-core; these two-segment children
+| sit cleanly underneath it).
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('open-data/cookbook', [CookbookController::class, 'options']);
+    Route::get('open-data/cookbook', [CookbookController::class, 'index'])
+        ->name('open-data.cookbook');
+    Route::get('open-data/cookbook.json', fn (\Illuminate\Http\Request $request) => app(CookbookController::class)->index($request, true))
+        ->name('open-data.cookbook.json');
 });
 
 /*
