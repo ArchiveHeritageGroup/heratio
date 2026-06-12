@@ -319,6 +319,43 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ->where('termId', '[0-9]+')
                 ->name('places.show');
 
+            // PUBLIC "People and organisations" discovery surface - the published
+            // holdings organised by the PEOPLE and ORGANISATIONS that created them
+            // (the actors the `event` table credits as creators), the creator
+            // sibling of the "Explore by theme" subject slice and the "Browse by
+            // place" geography slice above. Read-only cheap aggregate over event ->
+            // actor + the publication-status gate; no new table. The .json twin is
+            // declared FIRST (dotted, so a record slug that literally ends in
+            // ".json" can never be swallowed by the HTML index route); the
+            // single-segment /people is then bound here (register() +
+            // callAfterResolving('router')) so it binds BEFORE the single-segment
+            // /{slug} archival-record catch-all in ahg-information-object-manage.
+            // See memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/people.json', [
+                    \AhgSemanticSearch\Controllers\PeopleController::class, 'json',
+                ])
+                ->name('people.json');
+
+            $router->middleware('web')
+                ->get('/people', [
+                    \AhgSemanticSearch\Controllers\PeopleController::class, 'index',
+                ])
+                ->name('people.index');
+
+            // Per-creator detail: one actor, the authorized form of name + dates /
+            // history, and a paginated, bounded list of the published records they
+            // created (each linking to the record). Numeric {actorId} constraint so
+            // a two-segment path like /people/830 can never shadow the
+            // single-segment /{slug} archival-record catch-all; bound here for the
+            // same precedence guarantee as the index above.
+            $router->middleware('web')
+                ->get('/people/{actorId}', [
+                    \AhgSemanticSearch\Controllers\PeopleController::class, 'show',
+                ])
+                ->where('actorId', '[0-9]+')
+                ->name('people.show');
+
             // Public "Related records" discovery surface. Given ONE published
             // archival record (numeric id OR slug), surface the most-similar OTHER
             // published records by REUSING the existing semantic vector index in
