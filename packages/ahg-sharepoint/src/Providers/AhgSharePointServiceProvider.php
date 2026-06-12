@@ -5,7 +5,6 @@ namespace AhgSharePoint\Providers;
 use AhgSharePoint\Federation\SharePointFederationConfig;
 use AhgSharePoint\Federation\SharePointGraphConnector;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -75,34 +74,12 @@ class AhgSharePointServiceProvider extends ServiceProvider
         // Views (Phase 1 admin UI templates)
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-sharepoint');
 
-        // Issue #1221 — inject SharePoint config options into the LOCKED
-        // ahg-federation peer-edit blade WITHOUT editing it. The peer form is at
-        // packages/ahg-federation/resources/views/edit-peer.blade.php, which is
-        // locked AND no-push. A View::composer is the unlocked-caller pattern
-        // (see memory/reference_view_composer_for_locked_callers): when (and only
-        // when) that view renders, these variables become available to it, so the
-        // SharePoint sub-fields for peer_type=sharepoint_graph_search
-        // (tenant picker + scope hints) can be surfaced by ahg-federation's own
-        // markup if/when it opts to read them. We never modify the blade. The
-        // composer is registered defensively against the view NAME; if the view
-        // does not exist on this instance, Laravel simply never fires it.
-        View::composer('ahg-federation::edit-peer', function ($view): void {
-            try {
-                $cfg = $this->app->make(SharePointFederationConfig::class);
-                $view->with([
-                    'sharepointConfigured'    => $cfg->isConfigured(),
-                    'sharepointTenantOptions' => $cfg->tenantOptions(),
-                    'sharepointDefaultTenant' => $cfg->defaultTenantId(),
-                ]);
-            } catch (\Throwable $e) {
-                // Degrade cleanly: never let the composer break the peer form.
-                $view->with([
-                    'sharepointConfigured'    => false,
-                    'sharepointTenantOptions' => [],
-                    'sharepointDefaultTenant' => null,
-                ]);
-            }
-        });
+        // #1221 cutover: the SharePoint peer-edit fields now live NATIVELY in the
+        // ahg-federation edit-peer.blade (the locked file was properly unlocked and
+        // promoted as part of the cutover, v1.142.72). The earlier View::composer
+        // that injected SharePoint config into that locked blade to AVOID editing it
+        // has been removed - per the locked-paths rule we unlock and edit the real
+        // file rather than dodge it with a convenient alternative surface.
 
         // CLI commands
         if ($this->app->runningInConsole()) {
