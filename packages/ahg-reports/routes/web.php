@@ -5,6 +5,7 @@ use AhgReports\Controllers\CatalogueGrowthController;
 use AhgReports\Controllers\CollectionsHealthController;
 use AhgReports\Controllers\DataQualityController;
 use AhgReports\Controllers\NorthStarCockpitController;
+use AhgReports\Controllers\PreservationHealthController;
 use AhgReports\Controllers\ReportController;
 use AhgReports\Controllers\ReportBuilderController;
 use AhgReports\Controllers\TrustConsoleController;
@@ -66,6 +67,23 @@ Route::middleware('admin')->group(function () {
 // only; never 500s; empty-state safe.
 Route::middleware('admin')->group(function () {
     Route::get('/admin/catalogue-growth', [CatalogueGrowthController::class, 'index'])->name('reports.catalogue-growth');
+});
+
+// Preservation Health report - a read-only, operator-facing view of the
+// operational state of the digital collection's integrity. It surfaces what
+// needs attention from the canonical preservation stores owned by the
+// ahg-preservation package: fixity pass vs fail and objects never checked
+// (preservation_fixity_check, latest per object, aligned with ahg-core's
+// FixityService); objects flagged with a missing file (preservation_event
+// file_missing); format-identification coverage (preservation_object_format
+// PUID/format_name); virus-scan posture (preservation_virus_scan); and a small
+// recent failures/warnings list (preservation_event outcome failure/warning).
+// READ ONLY - no writes, no ALTER. Admin-gated, same as the consoles above. The
+// two-segment /admin/preservation-health path keeps it clear of the single-
+// segment /{slug} archival-record catch-all. Bounded aggregate COUNTs + one
+// LIMITed recent list only; never 500s; empty-state safe.
+Route::middleware('admin')->group(function () {
+    Route::get('/admin/preservation-health', [PreservationHealthController::class, 'index'])->name('reports.preservation-health');
 });
 
 // Main dashboard at /reports (matching AtoM URL)
