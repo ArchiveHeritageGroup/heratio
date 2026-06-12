@@ -126,8 +126,6 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Console\Commands\SplatSetupCommand::class,
                 // #1205 capture / at-risk register (endangered-heritage capture network)
                 \AhgCore\Console\Commands\CapturePriorityCommand::class,
-                // #1244 fixity slice - bounded fixity / integrity sweep
-                \AhgCore\Console\Commands\FixitySweepCommand::class,
                 \AhgCore\Commands\SearchPopulateCommand::class,
                 \AhgCore\Commands\SearchUpdateCommand::class,
                 \AhgCore\Commands\SearchCleanupCommand::class,
@@ -382,19 +380,11 @@ class AhgCoreServiceProvider extends ServiceProvider
                     ->withoutOverlapping(120)
                     ->runInBackground();
 
-                // #1244 fixity slice - daily BOUNDED fixity sweep. Re-verifies a
-                // capped batch (default 100) of digital objects against their
-                // stored checksum, logging each result to core_fixity_check_log so
-                // the /admin/fixity report stays current and integrity drift is
-                // caught early. Bounded + resilient by construction (a missing or
-                // unreadable file becomes a missing_file/error row, never an
-                // exception; oversized files are skipped + logged), so this is a
-                // safe, low-cost daily task. Off-peak + background since hashing is
-                // IO-heavy. The command self-no-ops when digital_object is absent.
-                $schedule->command('ahg:fixity-sweep --limit=100')
-                    ->dailyAt('03:40')
-                    ->withoutOverlapping(120)
-                    ->runInBackground();
+                // #1244 fixity slice CONSOLIDATED: the fixity verification ENGINE +
+                // its daily sweep live in ahg-preservation (ahg:preservation-fixity-run
+                // -> preservation_fixity_check). The ahg-core /admin/fixity surface is
+                // now a read-only DASHBOARD over that same store, so there is no
+                // duplicate sweep/schedule here.
             });
         }
 
@@ -573,20 +563,8 @@ class AhgCoreServiceProvider extends ServiceProvider
             \Log::warning('[ahg-core] ahg_capture_queue install failed: '.$e->getMessage());
         }
 
-        // #1244 fixity slice: core_fixity_check_log (the append-only fixity /
-        // integrity verification log written by FixityService + ahg:fixity-sweep).
-        // NEW, additive table - no existing table is ALTERed. Single outer try/catch
-        // around hasTable() + unprepared() per reference_ci_schema_hastable.md so the
-        // CI sqlite fallback cannot crash package:discover before a real DB is wired.
-        try {
-            if (! \Illuminate\Support\Facades\Schema::hasTable('core_fixity_check_log')) {
-                $sql = file_get_contents(__DIR__.'/../../database/install_fixity_check_log.sql');
-                if (is_string($sql) && trim($sql) !== '') {
-                    \Illuminate\Support\Facades\DB::unprepared($sql);
-                }
-            }
-        } catch (\Throwable $e) {
-            \Log::warning('[ahg-core] core_fixity_check_log install failed: '.$e->getMessage());
-        }
+        // #1244 fixity slice CONSOLIDATED: no ahg-core fixity table is installed -
+        // the canonical fixity store is ahg-preservation's preservation_fixity_check,
+        // which FixityService now reads read-only.
     }
 }

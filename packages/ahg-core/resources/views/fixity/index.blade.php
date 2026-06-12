@@ -60,7 +60,7 @@
     @endif
   </div>
   <p class="text-muted small mb-3" style="max-width:880px">
-    {{ __('Fixity is the assurance that a stored file has not changed since it was ingested. This read-only report shows how much of the collection carries a verifiable checksum baseline and what the most recent verification found. To verify a bounded batch, run the scheduled sweep or "php artisan ahg:fixity-sweep". It is the actionable Integrity area of the NDSA Levels of Digital Preservation, and it never changes a record.') }}
+    {{ __('Fixity is the assurance that a stored file has not changed since it was ingested. This read-only report draws on the canonical preservation fixity store. To run verification, use the preservation fixity tools (Preservation > Fixity log, or "php artisan ahg:preservation-fixity-run"). It is the actionable Integrity area of the NDSA Levels of Digital Preservation, and it never changes a record.') }}
   </p>
 
   @if($hasError)
@@ -148,7 +148,7 @@
                 @endforeach
               </div>
             @else
-              <p class="text-muted small mb-0">{{ __('No sweep has run yet. Run "php artisan ahg:fixity-sweep" or wait for the daily schedule.') }}</p>
+              <p class="text-muted small mb-0">{{ __('No verification has run yet. Use the preservation fixity tools (Preservation > Fixity log) to verify.') }}</p>
             @endif
           </div>
         </div>
