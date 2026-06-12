@@ -18,6 +18,7 @@ use AhgC2pa\Controllers\CoverageController;
 use AhgC2pa\Controllers\InferenceProvenanceController;
 use AhgC2pa\Controllers\ProvenanceController;
 use AhgC2pa\Controllers\PreservationTimelineController;
+use AhgC2pa\Controllers\TrustDossierController;
 use AhgC2pa\Controllers\PublicCheckController;
 use AhgC2pa\Controllers\VerifyController;
 use AhgC2pa\Controllers\VerifyObjectController;
@@ -100,6 +101,43 @@ Route::prefix('preservation-timeline')->group(function () {
     // wins first.
     Route::get('/{idOrSlug}', [PreservationTimelineController::class, 'show'])
         ->name('c2pa.preservation.timeline')
+        ->where('idOrSlug', '.+');
+});
+
+// Public per-record consolidated TRUST DOSSIER (issues #1209 / #1201, next
+// slice). The one-stop "defence dossier" for ONE published record: it UNIFIES
+// the three per-record trust surfaces - the Authenticity Report (C2PA content
+// credentials / signing), the AI Inference Provenance Explorer, and the
+// Preservation Timeline (PREMIS lifecycle) - onto one print-friendly page, topped
+// by an honest "what can and cannot be verified about this record" statement that
+// never overclaims. It consolidates the three existing services READ-ONLY via
+// TrustDossierService (AuthenticityReportService + InferenceProvenanceService +
+// PreservationTimelineService); it records nothing, signs nothing, runs no AI, runs
+// no preservation action, and re-verifies nothing. Each section is guarded so a
+// missing / faulting sub-layer degrades only that section, never the page. A
+// published record with thin layers shows those layers' dignified empty states
+// (still HTTP 200); an unknown / unpublished record is a clean 404 (HTML + JSON).
+//
+// All paths are multi-segment (/trust-dossier/...) so the single-segment IO slug
+// catch-all (/{slug}) can never intercept them. There is deliberately NO bare
+// /trust-dossier route: the dossier needs a record reference. The literal '.json'
+// companion is declared BEFORE the {idOrSlug} '.+' matcher so it can never be
+// captured as part of a slug. No '.svg' surface here (nginx would serve *.svg
+// statically and 404 before Laravel) - JSON only.
+Route::prefix('trust-dossier')->group(function () {
+    // Machine-readable companion. nginx passes *.json through to Laravel, so it
+    // keeps its real extension. Declared before the bare {idOrSlug} page route so
+    // the literal '.json' suffix resolves here. Numeric or single-segment slug; a
+    // multi-segment slug uses the page route below.
+    Route::get('/{idOrSlug}.json', [TrustDossierController::class, 'json'])
+        ->name('c2pa.trust.dossier.json')
+        ->where('idOrSlug', '[^/]+');
+
+    // The dossier page, addressed by numeric id or (possibly multi-segment) slug.
+    // '.+' so /trust-dossier/fonds/series/item resolves to one record. Unknown /
+    // unpublished -> 404. Declared LAST so the .json literal wins first.
+    Route::get('/{idOrSlug}', [TrustDossierController::class, 'show'])
+        ->name('c2pa.trust.dossier')
         ->where('idOrSlug', '.+');
 });
 

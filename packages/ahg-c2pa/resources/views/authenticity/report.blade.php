@@ -217,6 +217,9 @@
 <div class="card mb-3">
   <div class="card-body">
     <div class="d-flex flex-wrap gap-2 align-items-center">
+      <a class="btn btn-primary btn-sm" href="{{ url('/trust-dossier/' . (($object->slug ?? null) ?: $object->id)) }}">
+        <i class="fas fa-folder-tree me-1"></i>{{ __('See the full trust dossier') }}
+      </a>
       <a class="btn btn-outline-primary btn-sm" href="{{ $report['trace_url'] }}">
         <i class="fas fa-stream me-1"></i>{{ __('See the full provenance trace') }}
       </a>
