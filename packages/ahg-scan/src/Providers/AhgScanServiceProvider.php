@@ -40,6 +40,7 @@ class AhgScanServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Route::middleware('web')->group(__DIR__.'/../../routes/web.php');
+        Route::middleware('web')->group(__DIR__.'/../../routes/web-archive.php');
         Route::middleware('api')->group(__DIR__.'/../../routes/api.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-scan');
 
@@ -49,6 +50,7 @@ class AhgScanServiceProvider extends ServiceProvider
                 \AhgScan\Console\ScanProcessCommand::class,
                 \AhgScan\Console\ScanInstallCommand::class,
                 \AhgScan\Console\ScanRetryFailedCommand::class,
+                \AhgScan\Console\WebCaptureCommand::class,
             ]);
         }
 
@@ -61,6 +63,48 @@ class AhgScanServiceProvider extends ServiceProvider
             } catch (\Throwable $e) {
                 // Silently skip during migrations / early boot
             }
+
+            // Web-archiving (WARC 1.1) capture store. Guarded auto-create on
+            // first boot, independent of the scan-install path above so a
+            // missing scan_folder install never blocks web archiving.
+            try {
+                $this->installWebArchiveSchema();
+            } catch (\Throwable $e) {
+                // Silently skip during migrations / early boot
+            }
         });
+    }
+
+    /**
+     * Create the web_archive_capture table if it is absent. Uses
+     * CREATE TABLE IF NOT EXISTS guarded by Schema::hasTable so it is safe to
+     * run on every boot and never issues an ALTER on an existing table.
+     */
+    protected function installWebArchiveSchema(): void
+    {
+        if (Schema::hasTable('web_archive_capture')) {
+            return;
+        }
+
+        DB::statement(<<<'SQL'
+CREATE TABLE IF NOT EXISTS `web_archive_capture` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `url` VARCHAR(2048) NOT NULL,
+  `title` VARCHAR(1024) NULL,
+  `status` VARCHAR(16) NOT NULL DEFAULT 'pending',
+  `http_status` INT NULL,
+  `content_type` VARCHAR(255) NULL,
+  `warc_path` VARCHAR(1024) NULL,
+  `byte_size` BIGINT UNSIGNED NULL,
+  `captured_by` INT NULL,
+  `captured_at` DATETIME NULL,
+  `error` VARCHAR(2048) NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `ix_web_archive_status` (`status`),
+  KEY `ix_web_archive_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL
+        );
     }
 }

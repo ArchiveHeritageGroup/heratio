@@ -29,10 +29,12 @@ class AhgMetadataExportServiceProvider extends ServiceProvider
             ->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-metadata-export');
 
-        // EAD PDF finding-aid generator (#657 Phase 1, item 4).
+        // EAD PDF finding-aid generator (#657 Phase 1, item 4) +
+        // whole-collection CIDOC-CRM graph dump (#1197 / #1204).
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgMetadataExport\Console\Commands\EadFindingAidCommand::class,
+                \AhgMetadataExport\Console\Commands\ExportCidocGraphCommand::class,
             ]);
         }
 

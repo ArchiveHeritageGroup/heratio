@@ -298,6 +298,22 @@ class ProtocolController extends Controller
                 'mediaTypes' => ['text/html'],
                 'method' => 'GET',
             ],
+            [
+                'id' => 'dataset-cidoc-crm',
+                'title' => 'Bulk dataset dump (CIDOC-CRM Turtle)',
+                'description' => 'The whole published catalogue as ONE combined CIDOC-CRM (ISO 21127) Turtle graph - every record, joined by shared #crm-object fragments. Served from a scheduled dump, or a bounded on-the-fly graph when no dump is staged.',
+                'url' => $this->resolve('ahgmetadataexport.cidoc.graph', '/data/cidoc-crm.ttl'),
+                'mediaTypes' => ['text/turtle'],
+                'method' => 'GET',
+            ],
+            [
+                'id' => 'sitemap-data',
+                'title' => 'Linked-data crawl sitemap',
+                'description' => 'A sitemap index linking per-type XML sitemaps of the dereferenceable /id/... entity identity URIs (records, actors, terms), so search engines and Linked-Open-Data crawlers discover every entity URI. Bounded + paginated (50000 URLs per file).',
+                'url' => $this->resolve('public.data-sitemap', '/sitemap-data.xml'),
+                'mediaTypes' => ['application/xml'],
+                'method' => 'GET',
+            ],
         ];
 
         // Drop any surface that resolved to neither a URL nor a template.

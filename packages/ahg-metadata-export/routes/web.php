@@ -76,6 +76,25 @@ Route::match(['get', 'post'], '/admin/sparql', [\AhgMetadataExport\Controllers\S
     ->middleware('web')
     ->name('ahgmetadataexport.sparql');
 
+// PUBLIC whole-collection CIDOC-CRM (ISO 21127) bulk dump - GET /data/cidoc-crm.ttl
+// (#1197 / #1204, the Open Memory Protocol open-data line). Unauthenticated open
+// data: published records only, CORS-open, read-only. Streams the most-recent
+// pre-built dump from config('heratio.storage_path')/cidoc-graph/cidoc-crm.ttl
+// when present, otherwise generates a bounded (hard-capped) graph on the fly.
+//
+// CATCH-ALL SAFETY: "/data/cidoc-crm.ttl" is a TWO-segment, dotted path. The
+// archival-record /{slug} catch-all in ahg-information-object-manage matches a
+// SINGLE path segment with no dot (^[a-z0-9][a-z0-9-]*$), so it can never
+// capture this URL. Registered at the root with the bare `web` group (no auth)
+// so external Linked Data clients reach it without a session cookie.
+Route::options('/data/cidoc-crm.ttl', [\AhgMetadataExport\Controllers\CidocGraphController::class, 'options'])
+    ->middleware('web')
+    ->name('ahgmetadataexport.cidoc.graph.options');
+
+Route::get('/data/cidoc-crm.ttl', [\AhgMetadataExport\Controllers\CidocGraphController::class, 'download'])
+    ->middleware('web')
+    ->name('ahgmetadataexport.cidoc.graph');
+
 // ---- BEGIN MARCXML import (#663 Phase 2) ------------------------------------
 // Upload + preview + commit flow. Kept inside /admin so the IO slug catch-all
 // regex in ahg-information-object-manage cannot intercept these URLs.

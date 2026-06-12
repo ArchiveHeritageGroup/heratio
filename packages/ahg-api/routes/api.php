@@ -2,6 +2,7 @@
 
 use AhgApi\Controllers\ActorEntityController;
 use AhgApi\Controllers\CatalogController;
+use AhgApi\Controllers\DataSitemapController;
 use AhgApi\Controllers\DatasetController;
 use AhgApi\Controllers\EntityController;
 use AhgApi\Controllers\FeedController;
@@ -232,6 +233,51 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
         ->name('public.sitemap');
     Route::get('robots.txt', [PublicSitemapController::class, 'robots'])
         ->name('public.robots');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Linked-Data crawl sitemap — /sitemap-data*.xml (north-star #1204)
+|--------------------------------------------------------------------------
+| Search-engine + Linked-Open-Data discoverability for the dereferenceable
+| ENTITY IDENTITY URIs (the /id/... surfaces served by EntityController,
+| ActorEntityController and TermEntityController). Where /sitemap.xml lists the
+| human /{slug} record PAGES and /api/v1/graph/sitemap.xml lists the per-record
+| graph NEIGHBOURHOOD URLs, these list the canonical /id/... "thing" URIs so a
+| crawler finds the open-data graph itself.
+|
+|   GET /sitemap-data.xml          - a <sitemapindex> linking the per-type
+|                                    sitemaps below (one entry per page of each
+|                                    type, ?page=N when a type exceeds the cap).
+|   GET /sitemap-data-records.xml  - a <urlset> of /id/{slug} record URIs
+|                                    (published-only, root-excluded).
+|   GET /sitemap-data-actors.xml   - a <urlset> of /id/actor/{slug} actor URIs.
+|   GET /sitemap-data-terms.xml    - a <urlset> of /id/term/{slug} term URIs.
+|
+| Each per-type sitemap is bounded + paginated (?page=N), capped at 50000 URLs
+| per file (the sitemaps.org ceiling); the index lists every page. Each <loc>
+| is the /id/... URI built with url() — never a hardcoded host. Read-only;
+| PUBLIC (no auth); published-only for records (drafts never exposed); and
+| resilient — an empty corpus still yields a valid empty <urlset> / minimal
+| index, never a 500. Permissive open CORS via api.cors.
+|
+| Registered at the ROOT (this routes file is loaded without a group prefix).
+| Each path is a single segment that CONTAINS A DOT ("sitemap-data.xml",
+| "sitemap-data-records.xml", …), so the single-segment /{slug} archival-record
+| catch-all (constraint '[a-z0-9][a-z0-9-]*$', no dot) can NEVER capture them —
+| they bind here, before the catch-all. nginx's static-file whitelist does not
+| include these names, so all four reach Laravel.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::get('sitemap-data.xml', [DataSitemapController::class, 'index'])
+        ->name('public.data-sitemap');
+    Route::get('sitemap-data-records.xml', [DataSitemapController::class, 'records'])
+        ->name('public.data-sitemap.records');
+    Route::get('sitemap-data-actors.xml', [DataSitemapController::class, 'actors'])
+        ->name('public.data-sitemap.actors');
+    Route::get('sitemap-data-terms.xml', [DataSitemapController::class, 'terms'])
+        ->name('public.data-sitemap.terms');
 });
 
 /*

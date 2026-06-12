@@ -588,6 +588,127 @@ class EndangeredHeritageService
     }
 
     /**
+     * Read-only aggregate VIEW over the whole register, for the PUBLIC endangered-
+     * heritage dashboard (next slice of north-star heratio#1205). Cheap aggregate
+     * COUNTs only - no per-record loops beyond a short, bounded "highest-priority
+     * outstanding" tail. Nothing is written; every read is Schema-guarded by
+     * available() / the count helpers, and the whole thing degrades to the zeroed
+     * (unavailable) shape rather than throwing.
+     *
+     * The capture-progress split (captured / in-progress / flagged) is the heart of
+     * the race-against-loss framing: how much of the at-risk register has already
+     * been safeguarded, how much is under way, and how much still waits. The risk
+     * and urgency breakdowns are taken over EVERY flag (not just the public
+     * register) so the operational picture is complete; the highest-priority tail,
+     * by contrast, is gated to PUBLISHED items still awaiting capture and links to
+     * the public /at-risk register, so it never leaks an unpublished record.
+     *
+     * @return array{
+     *   available:bool,
+     *   total:int,
+     *   by_risk:array<int,array{key:string,label:string,icon:string,count:int}>,
+     *   by_urgency:array<int,array{key:string,label:string,level:string,count:int}>,
+     *   captured:int,
+     *   in_progress:int,
+     *   flagged:int,
+     *   outstanding:int,
+     *   capture_progress_pct:int,
+     *   public_total:int,
+     *   priority:array<int,array<string,mixed>>
+     * }
+     */
+    public function dashboard(int $topPriority = 8): array
+    {
+        $empty = [
+            'available' => false,
+            'total' => 0,
+            'by_risk' => [],
+            'by_urgency' => [],
+            'captured' => 0,
+            'in_progress' => 0,
+            'flagged' => 0,
+            'outstanding' => 0,
+            'capture_progress_pct' => 0,
+            'public_total' => 0,
+            'priority' => [],
+        ];
+
+        if (! $this->available()) {
+            return $empty;
+        }
+
+        // Cheap GROUP BY COUNTs - one query per dimension, no per-record loops.
+        $riskCounts = $this->countsBy('risk_category');
+        $urgencyCounts = $this->urgencyCounts();
+        $statusCounts = $this->statusCounts();
+
+        $total = array_sum($statusCounts);
+
+        // Capture-progress split. Anything that is neither captured nor unflagged is
+        // still outstanding (flagged or in-progress, plus any dropdown-added status
+        // that has not reached "captured"), so nothing is silently dropped.
+        $captured = (int) ($statusCounts['captured'] ?? 0);
+        $inProgress = (int) ($statusCounts['in_progress'] ?? 0);
+        $flagged = (int) ($statusCounts['flagged'] ?? 0);
+        $unflagged = (int) ($statusCounts['unflagged'] ?? 0);
+        $outstanding = max(0, $total - $captured - $unflagged);
+
+        // Progress is captured / (captured + everything still outstanding). Unflagged
+        // rows are excluded from the denominator: they are no longer in the race.
+        $progressDenom = $captured + $outstanding;
+        $captureProgressPct = $progressDenom > 0 ? (int) round($captured / $progressDenom * 100) : 0;
+
+        // Ordered, labelled risk breakdown. Lead with the canonical order, then
+        // append any dropdown-added category actually present so nothing is dropped.
+        $byRisk = [];
+        foreach (self::RISK_CATEGORIES as $key => $meta) {
+            $byRisk[] = ['key' => $key, 'label' => $meta['label'], 'icon' => $meta['icon'], 'count' => (int) ($riskCounts[$key] ?? 0)];
+        }
+        foreach ($riskCounts as $key => $c) {
+            if (! array_key_exists($key, self::RISK_CATEGORIES)) {
+                $m = $this->riskMeta($key);
+                $byRisk[] = ['key' => $m['key'], 'label' => $m['label'], 'icon' => $m['icon'], 'count' => (int) $c];
+            }
+        }
+
+        // Ordered, labelled urgency breakdown, same lead-canonical-then-append rule.
+        $byUrgency = [];
+        foreach (self::URGENCIES as $key => $meta) {
+            $byUrgency[] = ['key' => $key, 'label' => $meta['label'], 'level' => $meta['level'], 'count' => (int) ($urgencyCounts[$key] ?? 0)];
+        }
+        foreach ($urgencyCounts as $key => $c) {
+            if (! array_key_exists($key, self::URGENCIES)) {
+                $m = $this->urgencyMeta($key);
+                $byUrgency[] = ['key' => $m['key'], 'label' => $m['label'], 'level' => $m['level'], 'count' => (int) $c];
+            }
+        }
+
+        // Highest-priority OUTSTANDING items, PUBLISHED only, bounded. Reuses the
+        // public register (already published-gated + urgency-ordered) and slices the
+        // head, so the tail links straight to /at-risk without leaking a private row.
+        $priority = [];
+        $publicRegister = $this->publicRegister(null, 0);
+        $publicTotal = count($publicRegister);
+        if ($topPriority > 0) {
+            $priority = array_slice($publicRegister, 0, $topPriority);
+        }
+
+        return [
+            'available' => true,
+            'total' => (int) $total,
+            'by_risk' => $byRisk,
+            'by_urgency' => $byUrgency,
+            'captured' => $captured,
+            'in_progress' => $inProgress,
+            'flagged' => $flagged,
+            'outstanding' => $outstanding,
+            'capture_progress_pct' => $captureProgressPct,
+            'public_total' => $publicTotal,
+            'priority' => $priority,
+        ];
+    }
+
+    /**
      * Is an information object PUBLISHED (and not the catalogue root)? Publication
      * status lives in the status table (type_id = 158); status_id = 160 means
      * published. Fully existence-guarded; on any uncertainty returns false so an

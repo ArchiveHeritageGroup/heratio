@@ -114,6 +114,32 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ])
                 ->name('endangered.register');
 
+            // heratio#1205 - PUBLIC endangered-heritage dashboard, the next slice of
+            // the "race against loss". A read-only aggregate VIEW over the at-risk
+            // register (counts by risk category, by urgency, the capture-progress
+            // split captured/in-progress/flagged, the grand total, and a short tail
+            // of the highest-priority outstanding PUBLISHED items that links onward
+            // to /at-risk). Single-segment public path, registered the same way as
+            // /at-risk and /repatriation (register() + callAfterResolving('router'))
+            // so it binds BEFORE the single-segment /{slug} archival-record catch-all
+            // in ahg-information-object-manage. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/endangered-heritage', [
+                    \AhgSemanticSearch\Controllers\EndangeredHeritageDashboardController::class, 'index',
+                ])
+                ->name('endangered.dashboard');
+
+            // heratio#1205 - machine-readable twin of the dashboard. The .json suffix
+            // keeps it a distinct single-segment path that can never shadow a slug;
+            // CORS-open public read-only data. Bound here for the same catch-all
+            // precedence guarantee as the HTML dashboard above.
+            $router->middleware('web')
+                ->get('/endangered-heritage.json', [
+                    \AhgSemanticSearch\Controllers\EndangeredHeritageDashboardController::class, 'json',
+                ])
+                ->name('endangered.dashboard.json');
+
             // heratio#1210 - North Star "generative scholarship": the PUBLIC,
             // read-only "Research Leads" feed. The strongest AI-found cross-
             // collection connections (from the Discoveries feature) promoted by
