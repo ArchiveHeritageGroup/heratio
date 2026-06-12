@@ -319,6 +319,43 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ->where('termId', '[0-9]+')
                 ->name('places.show');
 
+            // PUBLIC "Browse by genre / form" discovery surface - the published
+            // holdings organised by the GENRES and FORMS they carry (genre
+            // taxonomy 78), the genre/form sibling of the "Explore by theme"
+            // subject slice and the "Browse by place" geography slice above.
+            // Read-only cheap aggregate over object_term_relation -> term + the
+            // publication-status gate; no new table. The .json twin is declared
+            // FIRST (dotted, so a record slug that literally ends in ".json" can
+            // never be swallowed by the HTML index route); the single-segment
+            // /genres is then bound here (register() + callAfterResolving('router'))
+            // so it binds BEFORE the single-segment /{slug} archival-record
+            // catch-all in ahg-information-object-manage. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/genres.json', [
+                    \AhgSemanticSearch\Controllers\GenresController::class, 'json',
+                ])
+                ->name('genres.json');
+
+            $router->middleware('web')
+                ->get('/genres', [
+                    \AhgSemanticSearch\Controllers\GenresController::class, 'index',
+                ])
+                ->name('genres.index');
+
+            // Per-genre detail: one genre term, its label + scope note, and a
+            // paginated, bounded list of the published records of it (each
+            // linking to the record). Numeric {termId} constraint so a two-segment
+            // path like /genres/387 can never shadow the single-segment /{slug}
+            // archival-record catch-all; bound here for the same precedence
+            // guarantee as the index above.
+            $router->middleware('web')
+                ->get('/genres/{termId}', [
+                    \AhgSemanticSearch\Controllers\GenresController::class, 'show',
+                ])
+                ->where('termId', '[0-9]+')
+                ->name('genres.show');
+
             // PUBLIC "People and organisations" discovery surface - the published
             // holdings organised by the PEOPLE and ORGANISATIONS that created them
             // (the actors the `event` table credits as creators), the creator

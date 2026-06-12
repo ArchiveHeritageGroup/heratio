@@ -325,6 +325,31 @@ Route::get('/open-data', [\AhgCore\Controllers\OpenDataController::class, 'index
 // route has already claimed.
 Route::get('/accessibility-statement', [\AhgCore\Controllers\AccessibilityStatementController::class, 'index'])->name('accessibility.statement');
 
+// oEmbed provider endpoint (heratio#1211 family - discoverability/embedding). oEmbed
+// ( https://oembed.com/ ) is the open standard that lets ANY consumer site turn a
+// pasted Heratio record URL into a rich embeddable card (the same mechanism that
+// auto-embeds a YouTube / Flickr link). A consumer calls:
+//
+//   GET /oembed?url={recordUrl}&format=json|xml&maxwidth=&maxheight=
+//
+// The handler resolves the `url` to a PUBLISHED record via OembedResolverService
+// (URL -> first path segment -> slug -> status type_id=158 status_id=160 gate, root
+// id=1 excluded) and returns an oEmbed 1.0 `rich` response with a small, self-
+// contained, escaped embeddable HTML card linking back to the record. json (default,
+// CORS-open) and xml (well-formed <oembed>) are both supported. Read-only, bounded to
+// ONE record; a bad/missing/unknown/unpublished url returns a CLEAN oEmbed 404/400
+// (an unsupported format a 501), never a 500.
+//
+// /oembed is a SINGLE-segment public path with the record URL carried in the `?url=`
+// query string, so the path itself is just /oembed - exactly like /explore,
+// /open-data and /accessibility-statement above. ahg-core boots early, so this route
+// is registered before the single-segment /{slug} archival-record catch-all in
+// ahg-information-object-manage and wins the match (first-registered route wins; and
+// `oembed` is also on that catch-all's exclusion list by name). A normal record slug
+// still resolves, because the catch-all only matches a single-segment path that no
+// earlier route has already claimed.
+Route::get('/oembed', [\AhgCore\Controllers\OembedController::class, 'index'])->name('oembed.endpoint');
+
 // OpenSearch description document (search-provider autodiscovery). A browser or a
 // federated discovery aggregator fetches GET /opensearch.xml to add this Heratio
 // catalogue as a search provider. The document's html search template targets the

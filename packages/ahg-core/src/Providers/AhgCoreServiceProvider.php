@@ -127,6 +127,17 @@ class AhgCoreServiceProvider extends ServiceProvider
             $this->app['router']->pushMiddlewareToGroup('web', \AhgCore\Middleware\InjectOpenSearchLink::class);
         });
 
+        // oEmbed autodiscovery - add the <link rel="alternate" type="application/json+oembed">
+        // pointing at /oembed?url={thisPage} into the <head> of single-segment (record-shaped)
+        // HTML responses, so an oEmbed consumer that scrapes a pasted record URL discovers the
+        // provider endpoint without editing the locked theme head. DB-FREE: the href is built
+        // purely from the current request URL (no record lookup, no setting read). Best-effort +
+        // guarded (never breaks a render). Registered in booted() for the same reason as the
+        // middleware above (the kernel syncs the web group after early-booting packages).
+        $this->app->booted(function () {
+            $this->app['router']->pushMiddlewareToGroup('web', \AhgCore\Middleware\InjectOembedLink::class);
+        });
+
         // Load views
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-core');
 

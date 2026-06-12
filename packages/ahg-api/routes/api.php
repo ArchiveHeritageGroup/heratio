@@ -14,6 +14,7 @@ use AhgApi\Controllers\GraphExplorerController;
 use AhgApi\Controllers\IiifPresentationController;
 use AhgApi\Controllers\LegacyApiController;
 use AhgApi\Controllers\MaturityController;
+use AhgApi\Controllers\MetsController;
 use AhgApi\Controllers\OaiPmhController;
 use AhgApi\Controllers\OpenApiController;
 use AhgApi\Controllers\ProtocolController;
@@ -703,6 +704,51 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
     Route::get('iiif-presentation/{idOrSlug}/manifest.json', [IiifPresentationController::class, 'manifest'])
         ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_/]*')
         ->name('iiif-presentation.manifest');
+});
+
+/*
+|--------------------------------------------------------------------------
+| METS export per record — /mets/{idOrSlug}.xml
+|--------------------------------------------------------------------------
+| A valid METS 1.12 (Library of Congress) XML wrapper for ONE published
+| archival record, the standard archival-interchange container used to exchange
+| records between archives and to ingest them into preservation / repository
+| systems:
+|
+|   GET /mets/{idOrSlug}.xml
+|       - application/xml METS 1.12 document. A metsHdr (CREATEDATE + a CREATOR
+|         agent = the holding repository / platform); a dmdSec whose mdWrap
+|         carries simple Dublin Core (oai_dc) descriptive metadata (title,
+|         creator, date, identifier, publisher = repository, type, the record
+|         URL); a fileSec inventorying each digital object as a mets:file
+|         (MIMETYPE, SIZE, CHECKSUM + CHECKSUMTYPE when present, a mets:FLocat
+|         xlink:href to the file URL, plus a IIIF Image API locator for images);
+|         and a physical structMap referencing the files and the record. CORS-open.
+|
+| The controller REUSES EntityController / CitationController / IiifPresentation
+| Controller slug -> information_object resolution and the published-only gate
+| (status.type_id=158, status_id=160; root id=1 excluded); {idOrSlug} accepts the
+| numeric record id too. The Dublin Core is the SAME oai_dc shape the cite
+| .dc.xml + OAI-PMH serve; the digital-object gathering + the '/' -> '_SL_' IIIF
+| identifier mirror IiifPresentationController; every URL is from url('/'), never
+| hardcoded. An unknown / unpublished / root record -> a clean 404 XML; a record
+| with no digital objects -> a valid METS with an empty fileSec (never a 500).
+| Read-only; every value XML-entity-escaped.
+|
+| CATCH-ALL SAFETY: the path is MULTI-SEGMENT and DOTTED ("/mets/{idOrSlug}.xml"),
+| so the single-segment /{slug} archival-record catch-all (constraint
+| '[a-z0-9][a-z0-9-]*$' - one segment, no slash, no dot) can NEVER capture it; a
+| normal record slug still resolves. {idOrSlug} permits multi-segment slugs
+| (slashes), with the trailing ".xml" pinned as a literal so the record token can
+| never absorb the suffix.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('mets/{idOrSlug}.xml', [MetsController::class, 'options'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_/]*');
+    Route::get('mets/{idOrSlug}.xml', [MetsController::class, 'show'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_/]*')
+        ->name('mets.show');
 });
 
 /*

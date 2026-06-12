@@ -209,6 +209,14 @@ class ProtocolController extends Controller
                 'method' => 'GET',
             ],
             [
+                'id' => 'mets',
+                'title' => 'METS export (record)',
+                'description' => 'A METS 1.12 (Library of Congress) XML wrapper for a single published record - the standard archival-interchange container for exchanging records between archives and ingesting them into preservation / repository systems. One document carries a metsHdr (creation date + the holding-repository agent), a dmdSec wrapping simple Dublin Core (oai_dc) descriptive metadata (title, creator, date, identifier, publisher = repository, type, the record URL), a fileSec inventorying each digital object as a mets:file (MIMETYPE, size, CHECKSUM + CHECKSUMTYPE when present, a mets:FLocat to the file URL plus a IIIF Image API locator for images), and a physical structMap referencing the files and the record. A record with no digital objects yields a valid METS with an empty fileSec. CORS-open; {idOrSlug} accepts the numeric record id too.',
+                'urlTemplate' => $base.'/mets/{idOrSlug}.xml',
+                'mediaTypes' => ['application/xml'],
+                'method' => 'GET',
+            ],
+            [
                 'id' => 'entity-actor',
                 'title' => 'Entity identity endpoint (actor)',
                 'description' => 'The stable, dereferenceable URI of an actor - a person, corporate body or family - described in full (name, schema.org Person/Organization plus a RiC additionalType, dates of existence, biography / administrative history, and the published records it is linked to). Content-negotiated by Accept header; a browser is 303-redirected to the human authority page.',
