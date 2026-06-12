@@ -29,6 +29,7 @@ class AhgResearchServiceProvider extends ServiceProvider
         $this->app->singleton(CollaborationRealtimeService::class);
         $this->app->singleton(OrcidService::class);
         $this->app->singleton(\AhgResearch\Services\DmpService::class);
+        $this->app->singleton(\AhgResearch\Services\ResearchOutputService::class);
     }
 
     public function boot(): void
@@ -127,6 +128,7 @@ class AhgResearchServiceProvider extends ServiceProvider
                 ['research_grant_draft', 'install_grant_engine.sql', 'seed_grant_templates.sql'], // #1239 Grant Engine
                 ['research_writing_doc', 'install_writing_studio.sql', null],                    // #1222 Stage 13 Writing Studio
                 ['research_dmp', 'install_dmp_builder.sql', 'seed_dmp_dropdowns.sql'],            // #1222 DMP Builder
+                ['research_output', 'install_research_outputs.sql', 'seed_research_outputs_dropdowns.sql'], // #1222 Research Outputs register (CRIS/RIM)
                 // #1240 Time Machine - read-only reconstruction, no table.
             ];
             foreach ($installs as [$table, $file, $seed]) {
@@ -175,7 +177,7 @@ class AhgResearchServiceProvider extends ServiceProvider
             'argument-builder', 'review-studio', 'method-studio', 'publication-studio',
             'research-memory', 'analysis-bridge', 'field-alerts', 'contradiction-engine',
             'replication-pack', 'project-export', 'ai-disclosure', 'time-machine', 'impact-tracking',
-            'grant-engine', 'writing-studio', 'dmp-builder',
+            'grant-engine', 'writing-studio', 'dmp-builder', 'research-outputs',
         ] as $rosRoute) {
             \Illuminate\Support\Facades\Route::group([], __DIR__ . '/../../routes/' . $rosRoute . '.php');
         }

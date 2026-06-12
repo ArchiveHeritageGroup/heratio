@@ -251,6 +251,14 @@ class CommandCentreService
             $dmpCount,
             'Build the FAIR data management plan funders require, on the maDMP standard.');
 
+        // Research Outputs register (CRIS / RIM) - the scholarly outputs this
+        // project has produced, each with a resolvable persistent identifier.
+        $outputCount = $this->count('research_output', fn ($q) => $q->where('project_id', $projectId));
+        $defs[] = $this->tool('outputs', 'Research Outputs', 'fa-book',
+            'research.outputs.index', ['projectId' => $projectId],
+            $outputCount,
+            'Register the articles, datasets, software and reports this project produced, each with a DOI or persistent identifier.');
+
         // Time Machine - read-only reconstruction of how the work developed.
         $defs[] = $this->tool('timemachine', 'Time Machine', 'fa-clock-rotate-left',
             'research.timemachine.index', ['projectId' => $projectId],
