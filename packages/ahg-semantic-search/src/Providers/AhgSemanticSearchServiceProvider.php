@@ -283,6 +283,42 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ->where('termId', '[0-9]+')
                 ->name('themes.show');
 
+            // PUBLIC "Browse by place" discovery surface - the published holdings
+            // organised by the PLACES they are about (place taxonomy 42), the
+            // geography sibling of the "Explore by theme" subject slice above.
+            // Read-only cheap aggregate over object_term_relation -> term + the
+            // publication-status gate; no new table. The .json twin is declared
+            // FIRST (dotted, so a record slug that literally ends in ".json" can
+            // never be swallowed by the HTML index route); the single-segment
+            // /places is then bound here (register() + callAfterResolving('router'))
+            // so it binds BEFORE the single-segment /{slug} archival-record
+            // catch-all in ahg-information-object-manage. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/places.json', [
+                    \AhgSemanticSearch\Controllers\PlacesController::class, 'json',
+                ])
+                ->name('places.json');
+
+            $router->middleware('web')
+                ->get('/places', [
+                    \AhgSemanticSearch\Controllers\PlacesController::class, 'index',
+                ])
+                ->name('places.index');
+
+            // Per-place detail: one place term, its label + scope note, and a
+            // paginated, bounded list of the published records about it (each
+            // linking to the record). Numeric {termId} constraint so a two-segment
+            // path like /places/553 can never shadow the single-segment /{slug}
+            // archival-record catch-all; bound here for the same precedence
+            // guarantee as the index above.
+            $router->middleware('web')
+                ->get('/places/{termId}', [
+                    \AhgSemanticSearch\Controllers\PlacesController::class, 'show',
+                ])
+                ->where('termId', '[0-9]+')
+                ->name('places.show');
+
             // Public "Related records" discovery surface. Given ONE published
             // archival record (numeric id OR slug), surface the most-similar OTHER
             // published records by REUSING the existing semantic vector index in

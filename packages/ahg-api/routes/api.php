@@ -11,6 +11,7 @@ use AhgApi\Controllers\EntityController;
 use AhgApi\Controllers\FeedController;
 use AhgApi\Controllers\GraphController;
 use AhgApi\Controllers\GraphExplorerController;
+use AhgApi\Controllers\IiifPresentationController;
 use AhgApi\Controllers\LegacyApiController;
 use AhgApi\Controllers\MaturityController;
 use AhgApi\Controllers\OaiPmhController;
@@ -660,6 +661,47 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
     Route::get('cite/{idOrSlug}', [CitationController::class, 'show'])
         ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
         ->name('cite.show');
+});
+
+/*
+|--------------------------------------------------------------------------
+| IIIF Presentation API 3.0 Manifest — /iiif-presentation/{idOrSlug}/manifest.json
+|--------------------------------------------------------------------------
+| A valid IIIF Presentation 3.0 Manifest for ONE published archival record, so
+| any IIIF viewer (Mirador, Universal Viewer) opens the record's images and any
+| IIIF aggregator / harvester can ingest it:
+|
+|   GET /iiif-presentation/{idOrSlug}/manifest.json
+|       - application/ld+json IIIF Presentation 3.0 Manifest. One Canvas per
+|         image digital object -> AnnotationPage -> painting Annotation -> Image
+|         body with a IIIF Image API 3.0 `service` block + thumbnail. CORS-open.
+|
+| This is the PRESENTATION side only; it references the Image API service URLs
+| the deployed viewer already uses (the locked ahg-core IiifController / the
+| Cantaloupe delegate are NOT touched). The controller REUSES EntityController /
+| CitationController slug -> information_object resolution and the published-only
+| gate (status.type_id=158, status_id=160; root id=1 excluded); {idOrSlug}
+| accepts the numeric id too. The Cantaloupe identifier is built exactly as the
+| deployed viewer + the (locked) IiifCollectionService build it ('/' -> '_SL_'
+| with the filename appended, under '/iiif/3/'). The public IIIF base is DERIVED
+| from url('/') (the request host the viewer also uses), never hardcoded. An
+| unknown / unpublished / root record -> a clean 404 JSON; a record with no
+| images -> a valid Manifest with empty items (never a 500). Read-only.
+|
+| CATCH-ALL SAFETY: the path is MULTI-SEGMENT and ends in the literal
+| "/manifest.json", so the single-segment /{slug} archival-record catch-all
+| (constraint '[a-z0-9][a-z0-9-]*$' - one segment, no slash) can NEVER capture
+| it; a normal record slug still resolves. {idOrSlug} permits multi-segment
+| slugs (slashes), with the trailing "/manifest.json" pinned as a literal so the
+| record token can never absorb the suffix.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('iiif-presentation/{idOrSlug}/manifest.json', [IiifPresentationController::class, 'options'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_/]*');
+    Route::get('iiif-presentation/{idOrSlug}/manifest.json', [IiifPresentationController::class, 'manifest'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_/]*')
+        ->name('iiif-presentation.manifest');
 });
 
 /*

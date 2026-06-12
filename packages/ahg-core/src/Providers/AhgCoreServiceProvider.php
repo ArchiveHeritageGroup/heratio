@@ -117,6 +117,16 @@ class AhgCoreServiceProvider extends ServiceProvider
             $this->app['router']->pushMiddlewareToGroup('web', \AhgCore\Middleware\InjectSplatViewer::class);
         });
 
+        // OpenSearch autodiscovery - add the <link rel="search"> pointing at
+        // /opensearch.xml into the <head> of HTML responses, so a browser/aggregator
+        // discovers the catalogue's search provider without editing the locked theme
+        // head. Best-effort + guarded (never breaks a render). Registered in booted()
+        // for the same reason as InjectSplatViewer above (kernel syncs the web group
+        // after early-booting packages).
+        $this->app->booted(function () {
+            $this->app['router']->pushMiddlewareToGroup('web', \AhgCore\Middleware\InjectOpenSearchLink::class);
+        });
+
         // Load views
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-core');
 

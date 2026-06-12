@@ -325,6 +325,21 @@ Route::get('/open-data', [\AhgCore\Controllers\OpenDataController::class, 'index
 // route has already claimed.
 Route::get('/accessibility-statement', [\AhgCore\Controllers\AccessibilityStatementController::class, 'index'])->name('accessibility.statement');
 
+// OpenSearch description document (search-provider autodiscovery). A browser or a
+// federated discovery aggregator fetches GET /opensearch.xml to add this Heratio
+// catalogue as a search provider. The document's html search template targets the
+// REAL public catalogue search - GET /glam/browse?query={searchTerms} (the free-text
+// param DisplayController::browse reads as $request->input('query')) - and, when the
+// public JSON search route exists, also advertises GET /api/v1/informationobjects/
+// search?query={searchTerms}. Read-only; the controller degrades to a minimal valid
+// document rather than ever 500ing.
+//
+// The path is DOTTED (.xml), so it is inherently safe from the single-segment /{slug}
+// archival-record catch-all in ahg-information-object-manage (that route only matches
+// a slug of the form [a-z0-9][a-z0-9-]* - a dot disqualifies it). No boot-order or
+// exclusion-list reliance is needed for catch-all safety here.
+Route::get('/opensearch.xml', [\AhgCore\Controllers\OpenSearchController::class, 'index'])->name('opensearch.description');
+
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::match(['get', 'post'], '/', [ClipboardController::class, 'index'])->name('index');

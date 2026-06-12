@@ -201,6 +201,14 @@ class ProtocolController extends Controller
                 'method' => 'GET',
             ],
             [
+                'id' => 'iiif-manifest',
+                'title' => 'IIIF Presentation 3.0 manifest (record)',
+                'description' => 'A IIIF Presentation API 3.0 Manifest for a single published record, so the record opens in any IIIF viewer (Mirador, Universal Viewer) and can be harvested by IIIF aggregators. One Canvas per image digital object (AnnotationPage -> painting Annotation -> Image body) with a IIIF Image API 3.0 service block per file plus a thumbnail; label, metadata, summary, rights, requiredStatement (holding-repository attribution) and a homepage deep link to the human record page. A record with no images yields a valid Manifest with empty items. CORS-open; {idOrSlug} accepts the numeric record id too.',
+                'urlTemplate' => $base.'/iiif-presentation/{idOrSlug}/manifest.json',
+                'mediaTypes' => ['application/ld+json'],
+                'method' => 'GET',
+            ],
+            [
                 'id' => 'entity-actor',
                 'title' => 'Entity identity endpoint (actor)',
                 'description' => 'The stable, dereferenceable URI of an actor - a person, corporate body or family - described in full (name, schema.org Person/Organization plus a RiC additionalType, dates of existence, biography / administrative history, and the published records it is linked to). Content-negotiated by Accept header; a browser is 303-redirected to the human authority page.',
