@@ -4,6 +4,7 @@ use AhgApi\Controllers\ActorEntityController;
 use AhgApi\Controllers\CatalogController;
 use AhgApi\Controllers\DataSitemapController;
 use AhgApi\Controllers\DatasetController;
+use AhgApi\Controllers\DatasetSchemaController;
 use AhgApi\Controllers\EntityController;
 use AhgApi\Controllers\FeedController;
 use AhgApi\Controllers\GraphController;
@@ -401,6 +402,55 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
         ->name('open-data.stats');
     Route::get('data/stats.json', fn (\Illuminate\Http\Request $request) => app(StatsController::class)->index($request, true))
         ->name('open-data.stats.json');
+});
+
+/*
+|--------------------------------------------------------------------------
+| schema.org/Dataset descriptor - /data/dataset.jsonld (north-star #1204)
+|--------------------------------------------------------------------------
+| A single schema.org/Dataset node shaped specifically for the general web
+| search engines that index schema.org markup - Google Dataset Search and
+| Bing in particular. Where /data/catalog speaks DCAT to open-data-portal
+| harvesters, THIS surface speaks the schema.org vocabulary the web search
+| engines crawl, so the WHOLE published collection is indexed AS A DATASET
+| (and surfaces in dataset-search results, not only the generic web index).
+|
+| The Dataset carries name, description, url, creator + publisher (a
+| schema.org/Organization named from config('app.name')), license (CC-BY-4.0),
+| keywords, temporalCoverage (a cheap MIN/MAX date span), spatialCoverage (the
+| top place terms), includedInDataCatalog -> /data/catalog, and a
+| schema.org/DataDownload distribution per bulk dump + crawlable entry point
+| (CSV, JSON-LD, CIDOC-CRM Turtle, the linked-data graph, OAI-PMH, VoID) - each
+| with encodingFormat + contentUrl. The distribution list is derived from
+| ProtocolController::surfaces() and the record-count size is reused from the
+| StatsController aggregate, so neither can drift from the canonical surfaces /
+| stats figures.
+|
+|   GET /data/dataset.jsonld  - the schema.org/Dataset as JSON-LD (always).
+|   GET /data/dataset         - content-negotiated: a browser (text/html) is
+|                               303-redirected to the /open-data human hub;
+|                               everyone else (and a bare curl) gets JSON-LD.
+|
+| Read-only (cheap COUNT / GROUP BY / MIN / MAX only, every figure guarded);
+| resilient (an empty corpus yields a valid minimal Dataset, never a 500);
+| permissive open-data CORS; every URI from url() / route(), never a hardcoded
+| host.
+|
+| CATCH-ALL SAFETY: "/data/dataset" and "/data/dataset.jsonld" are TWO-segment
+| paths, so the single-segment /{slug} archival-record catch-all can never
+| capture them. They are registered BEFORE the generic /data/{slug} record-
+| entity wildcard below, so "dataset" binds as the literal descriptor, never as
+| a record slug. The ".jsonld" form carries a dot, which the slug grammar
+| ([A-Za-z0-9\-_], no dot) already excludes.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('data/dataset', [DatasetSchemaController::class, 'options']);
+    Route::get('data/dataset', [DatasetSchemaController::class, 'index'])
+        ->name('open-data.dataset');
+    Route::options('data/dataset.jsonld', [DatasetSchemaController::class, 'options']);
+    Route::get('data/dataset.jsonld', fn (\Illuminate\Http\Request $request) => app(DatasetSchemaController::class)->index($request, true))
+        ->name('open-data.dataset.jsonld');
 });
 
 /*

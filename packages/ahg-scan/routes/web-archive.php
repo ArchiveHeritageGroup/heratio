@@ -23,5 +23,6 @@ Route::middleware(['auth', 'admin'])
         Route::get('/', [WebArchiveController::class, 'index'])->name('index');
         Route::post('/', [WebArchiveController::class, 'store'])->name('store');
         Route::get('/{id}', [WebArchiveController::class, 'show'])->name('show')->whereNumber('id');
+        Route::get('/{id}/replay', [WebArchiveController::class, 'replay'])->name('replay')->whereNumber('id');
         Route::get('/{id}/download', [WebArchiveController::class, 'download'])->name('download')->whereNumber('id');
     });

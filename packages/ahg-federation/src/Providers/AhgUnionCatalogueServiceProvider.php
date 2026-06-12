@@ -45,6 +45,7 @@ namespace AhgFederation\Providers;
 use AhgFederation\Console\UnionPublishCommand;
 use AhgFederation\Controllers\NetworkDirectoryController;
 use AhgFederation\Controllers\UnionCatalogueController;
+use AhgFederation\Controllers\UnionHarvestController;
 use AhgFederation\Controllers\UnionMemberController;
 use AhgFederation\Services\UnionCatalogueService;
 use Illuminate\Console\Scheduling\Schedule;
@@ -84,6 +85,29 @@ class AhgUnionCatalogueServiceProvider extends ServiceProvider
                 $router->get('/federation/network',
                     [NetworkDirectoryController::class, 'index'])
                     ->name('federation.network');
+
+                // PUBLIC harvest API over the union index (#1203 slice). Lets
+                // partner / aggregator systems pull the shared discovery
+                // records out of the network: a paginated CORS-open JSON
+                // harvest plus an OAI-DC-style ListRecords XML variant.
+                //
+                // Mounted under /union-catalogue/ (NOT /federation/harvest):
+                // the path GET /federation/harvest is already taken by the F3
+                // admin harvest-client page (auth+admin gated, named
+                // federation.harvest, in the locked FederationController), so
+                // a public surface there would collide. /union-catalogue/* is
+                // the correct public home for the union read API and matches
+                // the sibling /union-catalogue search route. Two-segment paths,
+                // so the locked single-segment /{slug} catch-all does not
+                // intercept them. Register .xml before the bare path so the
+                // more specific route is matched first.
+                $router->get('/union-catalogue/harvest.xml',
+                    [UnionHarvestController::class, 'xml'])
+                    ->name('union.harvest.xml');
+
+                $router->get('/union-catalogue/harvest',
+                    [UnionHarvestController::class, 'json'])
+                    ->name('union.harvest');
             });
 
             // Admin member registry + opt-in sharing config + publish trigger.

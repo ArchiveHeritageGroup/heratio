@@ -94,6 +94,12 @@
         <div class="card mb-3">
             <div class="card-header"><strong>{{ __('Actions') }}</strong></div>
             <div class="card-body">
+                @if($warcExists && $capture->status === 'captured')
+                    <a href="{{ route('web-archive.replay', $capture->id) }}" target="_blank" rel="noopener"
+                       class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-clock-rotate-left me-1"></i>{{ __('Replay snapshot') }}
+                    </a>
+                @endif
                 @if($warcExists)
                     <a href="{{ route('web-archive.download', $capture->id) }}" class="btn btn-outline-primary w-100 mb-2">
                         <i class="fas fa-download me-1"></i>{{ __('Download WARC') }}
@@ -107,7 +113,7 @@
         <div class="card">
             <div class="card-body">
                 <p class="text-muted mb-0"><small>
-                    {{ __('Replay (rendering the archived page back) is not available yet. The WARC file is a standards-conformant capture you can open in any WARC-aware tool.') }}
+                    {{ __('Replay serves the archived page document back from its stored WARC, with a clear archived-snapshot banner. It is a single-document replay: embedded resources (images, CSS, scripts) and links are not replayed, and nothing live is fetched. Multi-resource replay is planned. The WARC file remains a standards-conformant capture you can open in any WARC-aware tool.') }}
                 </small></p>
             </div>
         </div>

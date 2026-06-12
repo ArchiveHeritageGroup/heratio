@@ -1,9 +1,11 @@
 # Web archiving: single-page WARC 1.1 capture (ahg-scan)
 
-Heratio's first web-archiving slice captures a single web page to a WARC 1.1
-file (ISO 28500). It lives in the `ahg-scan` package alongside the scanner /
-capture pipeline. It is single-page only: no crawl, no embedded-resource
-harvesting, and no replay yet.
+Heratio's web-archiving slices capture a single web page to a WARC 1.1 file
+(ISO 28500) and replay that captured page back from its stored WARC. They live
+in the `ahg-scan` package alongside the scanner / capture pipeline. Scope:
+single-page capture (no crawl, no embedded-resource harvesting) and
+single-document replay (the captured page document only, no embedded-resource
+replay yet).
 
 ## Components
 
@@ -18,11 +20,55 @@ harvesting, and no replay yet.
 - **Command** `ahg:web-capture {url}` (`AhgScan\Console\WebCaptureCommand`).
 - **Controller** `AhgScan\Controllers\WebArchiveController` serving
   `/admin/web-archive` (list + submit form), `/admin/web-archive/{id}` (detail
-  with parsed WARC record headers), and `/admin/web-archive/{id}/download`.
+  with parsed WARC record headers), `/admin/web-archive/{id}/replay` (snapshot
+  replay), and `/admin/web-archive/{id}/download`.
 - **Routes** `packages/ahg-scan/routes/web-archive.php`, registered by
   `AhgScanServiceProvider::boot()` under middleware `['auth', 'admin']`.
-- **Views** `resources/views/admin/web-archive/{index,show}.blade.php`,
-  extending `theme::layouts.1col`.
+- **Views** `resources/views/admin/web-archive/{index,show,replay-binary,replay-unavailable}.blade.php`.
+  The `index`/`show` views extend `theme::layouts.1col`; the two `replay-*` views
+  are standalone HTML documents (no theme layout) so they render under the strict
+  replay Content-Security-Policy without pulling in live theme assets.
+
+## Replay (single-document)
+
+- **Service** `AhgScan\Services\WarcReplayService` (read-only). Given a stored
+  `warc_path`, it resolves and traversal-guards the path, streams the WARC,
+  length-frames each record by its `Content-Length`, skips the warcinfo record,
+  reads the `response` record block, and parses the archived HTTP status line,
+  headers, and body. The public `replay(?string $warcPath): array` never throws:
+  every failure (missing file, outside the storage root, unreadable, truncated,
+  no response record, malformed framing) returns `['ok' => false, 'error' => ...]`.
+  On success it returns `['ok' => true, 'status', 'reason', 'headers', 'body',
+  'content_type', 'target_uri']`.
+- **Length-framed parser.** The reader takes each record's declared
+  `Content-Length` and reads exactly that many bytes as the record block, so a
+  body that itself contains a `WARC/1.1` line or blank lines is parsed
+  correctly. Header scan is bounded (64 KB) and block reads are capped at 50 MB.
+- **Path resolution + traversal guard.** `resolvePath()` realpaths the stored
+  `warc_path`, requires it to be a readable file, and requires the canonical path
+  to sit under `realpath(config('heratio.storage_path').'/web-archive')` (compared
+  with a trailing separator so a sibling prefix like `web-archive-evil` cannot
+  match). A `..` traversal or any path outside the root is rejected, returning a
+  clean error. The storage root is never hard-coded; it mirrors the capture
+  service.
+- **Controller serving.** `WebArchiveController::replay($id)`:
+  - HTML (`Content-Type` contains `html`): serves the archived body verbatim with
+    a fixed inline-styled **ARCHIVED SNAPSHOT** banner injected after `<body>`
+    (falling back to after `<html>` or the document top), carrying the original
+    content type / charset.
+  - Non-HTML: renders `replay-binary` (a metadata page with a download link);
+    the raw bytes are streamed only on `?raw=1`, with the original content type
+    and a `Content-Disposition: attachment`.
+  - Missing / corrupt / unparseable WARC: renders `replay-unavailable` as a clean
+    200, never a 500.
+- **Safe-serving headers** (every replayed response):
+  `Content-Security-Policy: default-src 'none'; img-src 'self' data:;
+  style-src 'unsafe-inline'; font-src 'self' data:; form-action 'none';
+  base-uri 'none'; frame-ancestors 'none'`, plus `X-Frame-Options: DENY`,
+  `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`,
+  `X-Robots-Tag: noindex, nofollow`, `Cache-Control: no-store`. The CSP blocks
+  every live network fetch so a replayed page cannot reach the live web or load
+  trackers.
 
 ## Table: `web_archive_capture`
 
@@ -86,8 +132,12 @@ demand with a guarded `mkdir`.
 ## Not yet implemented (future track)
 
 - Crawl / link-following / embedded-resource capture.
-- WARC **replay** (rendering the archived page back inside Heratio, e.g. via a
-  pywb-style replay surface).
+- **Multi-resource replay.** Today's replay is single-document: it serves the
+  captured page document only. Embedded resources (CSS, JS, images, fonts) are
+  not replayed from the archive and nothing live is fetched, so a replayed HTML
+  page may render unstyled. A pywb-style multi-resource replay surface (rewriting
+  subresource URLs to archived copies) is future work and depends on the capture
+  side first harvesting those resources.
 - Request records (the WARC `request` record paired with each response).
 
 Reference: WARC 1.1 / ISO 28500, IIPC WARC specification.

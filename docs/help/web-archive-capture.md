@@ -11,17 +11,40 @@ slice of a larger web-archiving capability.
   tool (for example `warcio`, the Webrecorder tooling, or pywb).
 - Records each capture in a list with its HTTP status, content type, byte size,
   and the path to the WARC file.
+- **Replays the captured page back to you** from its stored WARC file, with a
+  clear archived-snapshot banner (see "Replaying a snapshot" below).
 
 ## What it does NOT do yet
 
 - **No crawl.** It does not follow links or fetch a whole site, and it does not
   download embedded resources (images, CSS, JavaScript). It captures the single
   HTTP response for the URL you submit.
-- **No replay.** Heratio does not yet render the archived page back to you. The
-  WARC file is a faithful capture you can replay in an external WARC viewer.
+- **Single-document replay only.** Replay serves the captured page document
+  itself, not its embedded resources. Images, CSS, and JavaScript are not
+  replayed from the archive, and nothing live is fetched, so a replayed page may
+  look unstyled. Full multi-resource replay (rendering the page with its
+  archived assets) is planned future work.
 
-These are deliberate scope limits for the first slice and are tracked for
-future work.
+These are deliberate scope limits and are tracked for future work.
+
+## Replaying a snapshot
+
+Open a captured page from its detail view with **Replay snapshot**
+(`/admin/web-archive/{id}/replay`). Heratio reads the archived HTTP response
+straight from the stored WARC file and serves it back to you:
+
+- For an **HTML page**, the archived document is shown with its original content
+  type and a fixed red **ARCHIVED SNAPSHOT** banner at the top, stating the
+  capture date and original URL, and making clear this is a stored copy and not
+  the live site.
+- For a **non-HTML resource** (PDF, image, JSON, and so on), Heratio shows a
+  short metadata page with a download link rather than rendering it inline.
+- Replay is **read-only and offline**: it serves only the bytes archived at
+  capture time. A restrictive Content-Security-Policy blocks every live network
+  request, so a replayed page cannot load trackers, scripts, or any live
+  resource, and cannot be framed by another site.
+- A missing or corrupt WARC file shows a clean "snapshot unavailable" notice
+  rather than an error.
 
 ## How to capture a page
 

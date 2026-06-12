@@ -314,6 +314,14 @@ class ProtocolController extends Controller
                 'mediaTypes' => ['application/xml'],
                 'method' => 'GET',
             ],
+            [
+                'id' => 'dataset-schema-org',
+                'title' => 'schema.org Dataset descriptor (search-engine indexing)',
+                'description' => 'A single schema.org/Dataset node describing the whole published collection, shaped for the general web search engines that index schema.org markup (Google Dataset Search, Bing), with schema.org/DataDownload distributions (CSV, JSON-LD, CIDOC-CRM, the linked-data graph, OAI-PMH, VoID). Content-negotiated (a browser is 303-redirected to /open-data).',
+                'url' => $this->resolve('open-data.dataset', '/data/dataset'),
+                'mediaTypes' => ['application/ld+json', 'text/html'],
+                'method' => 'GET',
+            ],
         ];
 
         // Drop any surface that resolved to neither a URL nor a template.

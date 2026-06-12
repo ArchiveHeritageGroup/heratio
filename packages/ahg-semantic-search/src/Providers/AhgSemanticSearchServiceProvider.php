@@ -75,6 +75,32 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ->where('id', '[0-9]+')
                 ->name('virtual-return.show');
 
+            // heratio#1207 - PUBLIC community KNOWLEDGE contribution on one
+            // repatriation claim. A member of a source community, a descendant, a
+            // researcher or any knowledgeable person can contribute knowledge
+            // (oral history / provenance / correction / source community) about a
+            // displaced object, linked from the claim's /virtual-return/{id}
+            // page. The contribution lands MODERATED ('pending') and is shown
+            // publicly only once an admin approves it. {claim} is numeric-only,
+            // so a two-segment path like /repatriation-knowledge/12 can never
+            // shadow the single-segment /{slug} archival-record catch-all in
+            // ahg-information-object-manage; bound here (register() +
+            // callAfterResolving('router')) for the same precedence guarantee as
+            // the routes above. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/repatriation-knowledge/{claim}', [
+                    \AhgSemanticSearch\Controllers\RepatriationKnowledgeController::class, 'form',
+                ])
+                ->where('claim', '[0-9]+')
+                ->name('repatriation-knowledge.form');
+            $router->middleware('web')
+                ->post('/repatriation-knowledge/{claim}', [
+                    \AhgSemanticSearch\Controllers\RepatriationKnowledgeController::class, 'contribute',
+                ])
+                ->where('claim', '[0-9]+')
+                ->name('repatriation-knowledge.contribute');
+
             // heratio#1207 - PUBLIC repatriation dashboard. A read-only aggregate
             // VIEW over the claims register (counts by status, top origin places /
             // communities, virtual-return vs physically-returned split, recent
@@ -241,6 +267,14 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
         // package idiom - never fatal a fresh boot; see
         // memory/reference_ci_schema_hastable.md).
         $this->bootRepatriationClaimTable();
+
+        // heratio#1207 - community KNOWLEDGE contributions about displaced items /
+        // repatriation claims (oral history, provenance, corrections, source
+        // community). Moderated; live in repatriation_knowledge_contribution.
+        // Auto-created on first boot behind a Schema::hasTable probe in a single
+        // try/catch (the canonical package idiom - never fatal a fresh boot; see
+        // memory/reference_ci_schema_hastable.md).
+        $this->bootRepatriationKnowledgeTable();
 
         // heratio#1205 - North Star "race against loss": endangered-heritage
         // register + capture-priority list. The at-risk flags live in
@@ -535,6 +569,76 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
             // Never block boot on install failure - log and continue. The claim
             // workflow degrades to the empty-state when the table is absent.
             Log::warning('ahg-semantic-search repatriation-claim boot install skipped: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Idempotent first-boot creation of the repatriation-knowledge table.
+     *
+     * One row per community knowledge contribution about a displaced object: the
+     * claim it concerns (claim_id, a SOFT reference - NO foreign key), the
+     * underlying catalogue item (item_ref, also soft), the kind of knowledge
+     * (contribution_type, a VARCHAR - never an ENUM), the contributed text, an
+     * optional source, the contributor's name surfaced ONLY on explicit consent
+     * (credit_consent), and a moderation state (moderation_status, also VARCHAR).
+     * No foreign keys, so this additive table never constrains or ALTERs the
+     * existing claim / catalogue tables.
+     *
+     * Prefers the shipped install SQL (database/install_repatriation_knowledge.sql)
+     * so the table definition has one source of truth; falls back to a Schema
+     * builder create if the SQL file is unreadable. The whole thing is wrapped in
+     * a single try/catch so a missing / locked DB at boot can never fatal the
+     * app - the service and controllers degrade to the empty-state when the table
+     * is absent.
+     */
+    protected function bootRepatriationKnowledgeTable(): void
+    {
+        try {
+            if (Schema::hasTable('repatriation_knowledge_contribution')) {
+                return;
+            }
+
+            $sqlPath = __DIR__.'/../../database/install_repatriation_knowledge.sql';
+            $ran = false;
+            if (is_readable($sqlPath)) {
+                $sql = (string) file_get_contents($sqlPath);
+                if (trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                    $ran = true;
+                }
+            }
+
+            // Fallback: build the table via the Schema builder if the SQL file
+            // was not available, so a fresh install still gets the table.
+            if (! $ran && ! Schema::hasTable('repatriation_knowledge_contribution')) {
+                Schema::create('repatriation_knowledge_contribution', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->unsignedBigInteger('claim_id')->nullable();
+                    $table->unsignedBigInteger('item_ref')->nullable();
+                    $table->string('contribution_type', 32)->default('other');
+                    $table->mediumText('body');
+                    $table->string('source', 512)->nullable();
+                    $table->string('contributor_name', 255)->nullable();
+                    $table->boolean('credit_consent')->default(false);
+                    $table->unsignedBigInteger('contributed_by')->nullable();
+                    $table->string('moderation_status', 32)->default('pending');
+                    $table->unsignedBigInteger('moderated_by')->nullable();
+                    $table->timestamp('moderated_at')->nullable();
+                    $table->timestamps();
+
+                    $table->index('claim_id', 'ix_rkc_claim');
+                    $table->index('item_ref', 'ix_rkc_item_ref');
+                    $table->index('moderation_status', 'ix_rkc_status');
+                    $table->index(['claim_id', 'moderation_status'], 'ix_rkc_claim_status');
+                    $table->index(['item_ref', 'moderation_status'], 'ix_rkc_item_status');
+                });
+            }
+
+            Log::info('ahg-semantic-search: repatriation_knowledge_contribution created (first-boot)');
+        } catch (\Throwable $e) {
+            // Never block boot on install failure - log and continue. The
+            // contribution surfaces degrade to the empty-state when absent.
+            Log::warning('ahg-semantic-search repatriation-knowledge boot install skipped: '.$e->getMessage());
         }
     }
 

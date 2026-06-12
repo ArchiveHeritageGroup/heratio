@@ -47,6 +47,7 @@
 namespace AhgSemanticSearch\Controllers;
 
 use AhgSemanticSearch\Services\RepatriationClaimService;
+use AhgSemanticSearch\Services\RepatriationKnowledgeService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 
@@ -54,9 +55,12 @@ class VirtualReturnController extends Controller
 {
     protected RepatriationClaimService $service;
 
+    protected RepatriationKnowledgeService $knowledge;
+
     public function __construct()
     {
         $this->service = new RepatriationClaimService;
+        $this->knowledge = new RepatriationKnowledgeService;
     }
 
     /**
@@ -81,11 +85,24 @@ class VirtualReturnController extends Controller
             abort(404);
         }
 
+        // heratio#1207 - community KNOWLEDGE slice. Surface the APPROVED community
+        // knowledge on this claim (read-only) plus a link to the public submit
+        // form. Wrapped + defaulted so the existing virtual-return page never
+        // breaks if the knowledge table is absent.
+        $knowledge = [];
+        try {
+            $knowledge = $this->knowledge->approvedForClaim($claimId);
+        } catch (\Throwable $e) {
+            Log::info('[virtual-return] knowledge read failed for '.$claimId.': '.$e->getMessage());
+        }
+
         return view('ahg-semantic-search::virtual-return.show', [
             'claim' => $context['claim'] ?? [],
             'item' => $context['item'] ?? null,
             'register' => $context['register'] ?? null,
             'disclaimer' => (string) ($context['disclaimer'] ?? RepatriationClaimService::DISCLAIMER),
+            'claimId' => $claimId,
+            'knowledge' => $knowledge,
         ]);
     }
 }

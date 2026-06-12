@@ -134,6 +134,52 @@
 
     </div>
 
+    {{-- Community knowledge (heratio#1207, knowledge slice). Approved community
+         knowledge about this object - oral history, provenance, corrections,
+         source-community links - plus an invitation to contribute. Defensive
+         defaults so the page is unchanged when these props are not supplied. --}}
+    @php
+        $knowledge = $knowledge ?? [];
+        $kClaimId = $claimId ?? ($claim['id'] ?? null);
+    @endphp
+    @if($kClaimId)
+        <section class="mt-5">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                <h2 class="h4 mb-0"><i class="fas fa-users me-2 text-muted"></i>{{ __('Community knowledge') }}</h2>
+                <a href="{{ route('repatriation-knowledge.form', ['claim' => $kClaimId]) }}" class="btn btn-outline-dark btn-sm">
+                    <i class="fas fa-hand-holding-heart me-1"></i>{{ __('Share what you know') }}
+                </a>
+            </div>
+            <p class="text-muted small">
+                {{ __('Knowledge about this object belongs to its communities. Oral history, provenance, corrections and links to source communities are welcome; contributions are reviewed before they appear, and you are credited only if you ask to be.') }}
+            </p>
+            @if(empty($knowledge))
+                <p class="text-muted small mb-0">{{ __('No approved community knowledge on this object yet. Be the first to contribute.') }}</p>
+            @else
+                <div class="row g-3">
+                    @foreach($knowledge as $c)
+                        <div class="col-12 col-lg-6">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-white">
+                                    <span class="small fw-semibold">
+                                        <i class="fas {{ $c['type_meta']['icon'] ?? 'fa-circle-info' }} me-1 text-muted"></i>{{ __($c['type_meta']['label'] ?? $c['contribution_type']) }}
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <p class="small mb-2" style="white-space: pre-line;">{{ \Illuminate\Support\Str::limit($c['body'], 600) }}</p>
+                                    @if(!empty($c['source']))
+                                        <p class="small text-muted mb-1"><i class="fas fa-book-open me-1"></i>{{ $c['source'] }}</p>
+                                    @endif
+                                    <p class="small text-muted mb-0"><i class="fas fa-user me-1"></i>{{ $c['contributor_name'] ?: __('Anonymous contributor') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </section>
+    @endif
+
     <p class="text-muted small mt-4 mb-0">
         <i class="fas fa-hand-holding-heart me-1"></i>
         {{ __('This virtual return is maintained in dialogue with communities and holding institutions. Origin, ownership and lawful-transfer history are matters for the relevant communities and qualified staff to assess together, case by case.') }}

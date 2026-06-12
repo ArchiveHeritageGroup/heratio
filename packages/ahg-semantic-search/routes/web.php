@@ -3,6 +3,7 @@
 use AhgSemanticSearch\Controllers\DisplacedHeritageController;
 use AhgSemanticSearch\Controllers\EndangeredHeritageController;
 use AhgSemanticSearch\Controllers\RepatriationClaimController;
+use AhgSemanticSearch\Controllers\RepatriationKnowledgeController;
 use AhgSemanticSearch\Controllers\ResearchLeadAdminController;
 use AhgSemanticSearch\Controllers\ScholarshipController;
 use AhgSemanticSearch\Controllers\SemanticSearchController;
@@ -58,6 +59,19 @@ Route::middleware(['auth', 'admin'])->prefix('repatriation')->group(function () 
     Route::post('/claims/{id}/status', [RepatriationClaimController::class, 'status'])
         ->where('id', '[0-9]+')
         ->name('repatriation.claims.status');
+
+    // heratio#1207 - admin moderation of community KNOWLEDGE contributions about
+    // displaced items / repatriation claims (oral history, provenance,
+    // corrections, source community). Writes go ONLY to the new
+    // repatriation_knowledge_contribution table. Mirrors the language-revival
+    // glossary / transcription moderation flow. The PUBLIC submit form is bound
+    // in the provider's register() (catch-all precedence; numeric {claim} so it
+    // can never shadow a slug).
+    Route::get('/knowledge', [RepatriationKnowledgeController::class, 'moderate'])
+        ->name('repatriation-knowledge.moderate');
+    Route::post('/knowledge/{id}', [RepatriationKnowledgeController::class, 'moderateSet'])
+        ->where('id', '[0-9]+')
+        ->name('repatriation-knowledge.set');
 });
 
 // heratio#1205 - North Star "race against loss": endangered-heritage register +
