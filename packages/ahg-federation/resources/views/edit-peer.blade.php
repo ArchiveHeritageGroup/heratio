@@ -44,15 +44,90 @@
                             <div class="form-text">A descriptive name for this peer repository</div>
                         </div>
 
+                        @php
+                            $peerType = $peer->peer_type ?? old('peer_type', 'oai_pmh');
+                            $peerConfig = [];
+                            if (!empty($peer->config)) {
+                                $decoded = is_string($peer->config) ? json_decode($peer->config, true) : $peer->config;
+                                if (is_array($decoded)) { $peerConfig = $decoded; }
+                            }
+                        @endphp
+
                         <div class="mb-3">
-                            <label for="base_url" class="form-label">OAI-PMH Base URL <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                            <label for="peer_type" class="form-label">Peer type <span class="text-danger">*</span></label>
+                            <select class="form-select" id="peer_type" name="peer_type" required onchange="ahgFederationTogglePeerType()">
+                                <option value="oai_pmh" {{ $peerType === 'oai_pmh' ? 'selected' : '' }}>OAI-PMH repository</option>
+                                <option value="sharepoint_graph_search" {{ $peerType === 'sharepoint_graph_search' ? 'selected' : '' }}>SharePoint (Microsoft Graph search)</option>
+                            </select>
+                            <div class="form-text">{{ __('Determines which connector is used at search time. OAI peers also support background harvest.') }}</div>
+                        </div>
+
+                        <div class="mb-3" id="peer-type-block-oai_pmh"
+                             style="{{ $peerType !== 'oai_pmh' ? 'display:none' : '' }}">
+                            <label for="base_url" class="form-label">OAI-PMH Base URL <span class="text-danger">*</span></label>
                             <input type="url" class="form-control" id="base_url" name="base_url"
-                                   value="{{ $peer->base_url ?? old('base_url', '') }}" required
+                                   value="{{ $peer->base_url ?? old('base_url', '') }}"
                                    placeholder="{{ __('https://example.com/oai') }}">
                             <div class="form-text">The OAI-PMH endpoint URL of the peer repository</div>
                         </div>
 
-                        <div class="mb-3">
+                        <div id="peer-type-block-sharepoint_graph_search"
+                             style="{{ $peerType !== 'sharepoint_graph_search' ? 'display:none' : '' }}">
+                            <div class="alert alert-info py-2 small">
+                                <i class="bi bi-info-circle me-1"></i>
+                                {{ __('SharePoint peers do not harvest; they only contribute hits to federated search via the Microsoft Graph search API. Credentials live in the existing SharePoint tenant pool.') }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="sp_tenant_id" class="form-label">SharePoint tenant <span class="text-danger">*</span></label>
+                                <input type="number" min="1" class="form-control" id="sp_tenant_id" name="sp_tenant_id"
+                                       value="{{ $peerConfig['tenant_id'] ?? '' }}"
+                                       placeholder="{{ __('sharepoint_tenant.id (e.g. 1)') }}">
+                                <div class="form-text">{{ __('FK to sharepoint_tenant.id — not the AAD tenant GUID. Configure tenants under SharePoint admin.') }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="sp_default_site_ids" class="form-label">{{ __('Default site IDs (optional)') }}</label>
+                                <textarea class="form-control font-monospace" id="sp_default_site_ids" name="sp_default_site_ids" rows="2"
+                                          placeholder='["contoso.sharepoint.com,abc,def"]'>{{ isset($peerConfig['default_site_ids']) ? json_encode($peerConfig['default_site_ids']) : '' }}</textarea>
+                                <div class="form-text">{{ __('JSON array of Graph siteId values. Constrains KQL to these sites.') }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="sp_default_drive_ids" class="form-label">{{ __('Default drive IDs (optional)') }}</label>
+                                <textarea class="form-control font-monospace" id="sp_default_drive_ids" name="sp_default_drive_ids" rows="2"
+                                          placeholder='["b!abc123…"]'>{{ isset($peerConfig['default_drive_ids']) ? json_encode($peerConfig['default_drive_ids']) : '' }}</textarea>
+                                <div class="form-text">{{ __('JSON array of Graph driveId values. Constrains KQL to these drives.') }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="sp_max_results_per_query" class="form-label">{{ __('Max results per query') }}</label>
+                                <input type="number" min="1" max="50" class="form-control" id="sp_max_results_per_query" name="sp_max_results_per_query"
+                                       value="{{ $peerConfig['max_results_per_query'] ?? 50 }}">
+                                <div class="form-text">{{ __('Hard cap (Graph allows up to 50 per request).') }}</div>
+                            </div>
+                        </div>
+
+                        <script>
+                            function ahgFederationTogglePeerType() {
+                                var sel = document.getElementById('peer_type');
+                                var t = sel ? sel.value : 'oai_pmh';
+                                var oaiBlock     = document.getElementById('peer-type-block-oai_pmh');
+                                var spBlock      = document.getElementById('peer-type-block-sharepoint_graph_search');
+                                var prefixRow    = document.getElementById('oai-metadata-prefix-row');
+                                var baseUrl      = document.getElementById('base_url');
+                                var spTenantId   = document.getElementById('sp_tenant_id');
+                                var showOai = (t === 'oai_pmh');
+                                var showSp  = (t === 'sharepoint_graph_search');
+                                if (oaiBlock)   oaiBlock.style.display   = showOai ? '' : 'none';
+                                if (spBlock)    spBlock.style.display    = showSp  ? '' : 'none';
+                                if (prefixRow)  prefixRow.style.display  = showOai ? '' : 'none';
+                                if (baseUrl)    baseUrl.required         = showOai;
+                                if (spTenantId) spTenantId.required      = showSp;
+                            }
+                            document.addEventListener('DOMContentLoaded', ahgFederationTogglePeerType);
+                        </script>
+
+                        {{-- The legacy stand-alone base_url block has been merged into peer-type-block-oai_pmh above. --}}
+
+                        <div class="mb-3" id="oai-metadata-prefix-row"
+                             style="{{ $peerType !== 'oai_pmh' ? 'display:none' : '' }}">
                             <label for="metadata_prefix" class="form-label">Metadata Prefix <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="metadata_prefix" name="metadata_prefix">
                                 <option value="oai_dc" {{ ($peer->metadata_prefix ?? '') === 'oai_dc' ? 'selected' : '' }}>oai_dc (Dublin Core)</option>

@@ -175,14 +175,32 @@ class FederationController extends Controller
      */
     public function savePeer(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'base_url' => 'required|url',
-        ]);
+        $peerType = (string) $request->input('peer_type', 'oai_pmh');
+        if (!in_array($peerType, ['oai_pmh', 'sharepoint_graph_search'], true)) {
+            $peerType = 'oai_pmh';
+        }
+
+        // Validation matrix: OAI requires base_url; SharePoint requires sp_tenant_id.
+        $rules = [
+            'name'      => 'required|string|max:255',
+            'peer_type' => 'required|in:oai_pmh,sharepoint_graph_search',
+        ];
+        if ($peerType === 'oai_pmh') {
+            $rules['base_url'] = 'required|url';
+        } else {
+            $rules['sp_tenant_id'] = 'required|integer|min:1';
+        }
+        $request->validate($rules);
+
+        // Build config JSON for non-OAI types (Phase H).
+        $config = null;
+        if ($peerType === 'sharepoint_graph_search') {
+            $config = $this->buildSharePointConfig($request);
+        }
 
         $data = [
             'name' => $request->input('name'),
-            'base_url' => rtrim($request->input('base_url'), '/'),
+            'base_url' => rtrim((string) $request->input('base_url', ''), '/') ?: '-',
             'oai_identifier' => $request->input('oai_identifier'),
             'api_key' => $request->input('api_key'),
             'description' => $request->input('description'),
@@ -191,6 +209,8 @@ class FederationController extends Controller
             'default_set' => $request->input('default_set'),
             'harvest_interval_hours' => (int) $request->input('harvest_interval_hours', 24),
             'is_active' => $request->boolean('is_active') ? 1 : 0,
+            'peer_type' => $peerType,
+            'config'    => $config !== null ? json_encode($config) : null,
             'updated_at' => now(),
         ];
 
@@ -206,6 +226,30 @@ class FederationController extends Controller
         }
 
         return redirect()->route('federation.peers');
+    }
+
+    /**
+     * Phase H — translate Phase-H form fields into the federation_peer.config JSON shape
+     * expected by SharePointGraphConnector.
+     *
+     * @return array<string,mixed>
+     */
+    protected function buildSharePointConfig(Request $request): array
+    {
+        $decodeJsonArray = function (?string $raw): array {
+            if (!is_string($raw) || trim($raw) === '') {
+                return [];
+            }
+            $d = json_decode($raw, true);
+            return is_array($d) ? array_values(array_filter($d, 'is_string')) : [];
+        };
+
+        return [
+            'tenant_id'             => (int) $request->input('sp_tenant_id'),
+            'default_site_ids'      => $decodeJsonArray($request->input('sp_default_site_ids')),
+            'default_drive_ids'     => $decodeJsonArray($request->input('sp_default_drive_ids')),
+            'max_results_per_query' => max(1, min(50, (int) $request->input('sp_max_results_per_query', 50))),
+        ];
     }
 
     /**

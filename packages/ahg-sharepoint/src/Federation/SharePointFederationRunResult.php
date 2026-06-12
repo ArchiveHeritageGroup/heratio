@@ -32,6 +32,8 @@
 
 namespace AhgSharePoint\Federation;
 
+use AhgFederation\Connectors\PeerSearchResult;
+
 final class SharePointFederationRunResult
 {
     public const STATE_NOT_CONFIGURED = 'not_configured';

@@ -43,6 +43,7 @@
 
 namespace AhgSharePoint\Federation;
 
+use AhgFederation\Connectors\PeerSearchResult;
 use Illuminate\Support\Facades\Log;
 
 class SharePointFederationRunner

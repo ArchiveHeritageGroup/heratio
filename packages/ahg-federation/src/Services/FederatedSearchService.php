@@ -142,6 +142,8 @@ class FederatedSearchService
                 'p.name as peer_name',
                 'p.base_url',
                 'p.api_key',
+                'p.peer_type',
+                'p.config',
                 DB::raw("COALESCE(ps.search_api_url, CONCAT(p.base_url, '/api/search')) as search_url"),
                 DB::raw('COALESCE(ps.search_api_key, p.api_key) as search_api_key'),
                 DB::raw("COALESCE(ps.search_timeout_ms, $defaultTimeout) as timeout_ms"),
@@ -152,8 +154,37 @@ class FederatedSearchService
             ->get();
     }
 
+    /**
+     * Top-level dispatcher: routes each peer to its peer_type's execution path.
+     *
+     *   oai_pmh  → existing cURL multi (parallel, byte-equivalent to pre-F3 behaviour)
+     *   other    → PeerConnector dispatch (sequential, runs after the cURL multi completes)
+     *
+     * Returns peerId → result-array shape (unchanged), so mergeResults() doesn't need updating.
+     *
+     * @phase F
+     */
     protected function executeParallelSearches(Collection $peers, string $query, array $options): array
     {
+        $oaiPeers = $peers->filter(fn ($p) => ($p->peer_type ?? 'oai_pmh') === 'oai_pmh');
+        $connectorPeers = $peers->filter(fn ($p) => ($p->peer_type ?? 'oai_pmh') !== 'oai_pmh');
+
+        $results = $this->runOaiPeers($oaiPeers, $query, $options);
+        $results += $this->runConnectorPeers($connectorPeers, $query, $options);
+
+        $this->updatePeerStats($results);
+
+        return $results;
+    }
+
+    /**
+     * Existing cURL-multi flow, unchanged in behaviour. Only the peer set is now filtered.
+     */
+    protected function runOaiPeers(Collection $peers, string $query, array $options): array
+    {
+        if ($peers->isEmpty()) {
+            return [];
+        }
         $results = [];
         $multi = curl_multi_init();
         $handles = [];
@@ -192,9 +223,145 @@ class FederatedSearchService
 
         curl_multi_close($multi);
 
-        $this->updatePeerStats($results);
+        return $results;
+    }
+
+    /**
+     * PeerConnector dispatch path. Each non-OAI peer resolves its connector via
+     * Laravel container, binds the peer row, calls search(), and the resulting
+     * PeerSearchResult[] is flattened into the same legacy result-array shape.
+     *
+     * Filter mapping (legacy options → connector $filters):
+     *   options['type']     → not propagated (legacy OAI-only)
+     *   options['dateFrom'] → filters['date_range']['from']
+     *   options['dateTo']   → filters['date_range']['to']
+     *   options['source']   → filters['source']
+     *
+     * @phase F
+     */
+    protected function runConnectorPeers(Collection $peers, string $query, array $options): array
+    {
+        if ($peers->isEmpty()) {
+            return [];
+        }
+
+        $filters = $this->optionsToFilters($options);
+        $results = [];
+
+        foreach ($peers as $peer) {
+            $peerId = (int) $peer->peer_id;
+            $startTime = microtime(true);
+            $connectorClass = $this->connectorClassFor((string) $peer->peer_type);
+
+            $result = [
+                'peerId'     => $peerId,
+                'peerName'   => $peer->peer_name,
+                'peerUrl'    => $peer->base_url,
+                'duration'   => 0,
+                'status'     => self::STATUS_ERROR,
+                'results'    => [],
+                'totalCount' => 0,
+                'error'      => null,
+                'priority'   => (int) ($peer->priority ?? 100),
+            ];
+
+            if ($connectorClass === null) {
+                $result['error'] = "No connector registered for peer_type='{$peer->peer_type}'";
+                $results[$peerId] = $result;
+                continue;
+            }
+
+            try {
+                /** @var \AhgFederation\Connectors\PeerConnector $connector */
+                $connector = app($connectorClass);
+                $connector->bind($peer);
+                $limit = (int) ($peer->max_results ?? $this->maxResultsPerPeer);
+                $rows = $connector->search($query, $filters, $limit);
+            } catch (\Throwable $e) {
+                $result['error'] = $e->getMessage();
+                $result['duration'] = (microtime(true) - $startTime) * 1000;
+                $results[$peerId] = $result;
+                Log::warning('Federation connector exception', [
+                    'peer_id'   => $peerId,
+                    'peer_type' => $peer->peer_type,
+                    'error'     => $e->getMessage(),
+                ]);
+                continue;
+            }
+
+            $result['status']     = self::STATUS_SUCCESS;
+            $result['results']    = array_map([$this, 'connectorResultToLegacy'], $rows);
+            $result['totalCount'] = count($rows);
+            $result['duration']   = (microtime(true) - $startTime) * 1000;
+            $results[$peerId] = $result;
+        }
 
         return $results;
+    }
+
+    /** @return class-string|null */
+    protected function connectorClassFor(string $peerType): ?string
+    {
+        // Registry-first dispatch (issue #1221). Other packages contribute their
+        // own peer_type => connector-class mappings via
+        // config('federation.connectors'); e.g. ahg-sharepoint publishes
+        //   'sharepoint_graph_search' =>
+        //       \AhgSharePoint\Federation\SharePointGraphConnector::class
+        // in its service provider, so the SharePoint FQCN never appears in
+        // ahg-federation source.
+        $registry = (array) config('federation.connectors', []);
+        if (isset($registry[$peerType]) && is_string($registry[$peerType]) && $registry[$peerType] !== '') {
+            return $registry[$peerType];
+        }
+
+        // Built-in GENERAL connectors that stay in ahg-federation.
+        return match ($peerType) {
+            'atom_local' => \AhgFederation\Connectors\AtomElasticsearchConnector::class,
+            default      => null,
+        };
+    }
+
+    protected function optionsToFilters(array $options): array
+    {
+        $filters = [];
+        if (!empty($options['dateFrom']) || !empty($options['dateTo'])) {
+            $filters['date_range'] = array_filter([
+                'from' => $options['dateFrom'] ?? null,
+                'to'   => $options['dateTo']   ?? null,
+            ]);
+        }
+        if (!empty($options['source']))  { $filters['source']  = $options['source']; }
+        if (!empty($options['culture'])) { $filters['culture'] = $options['culture']; }
+        return $filters;
+    }
+
+    /**
+     * Convert PeerSearchResult → legacy result-array shape (matches transformSearchResult output).
+     */
+    protected function connectorResultToLegacy(\AhgFederation\Connectors\PeerSearchResult $r): array
+    {
+        return [
+            'id'           => $r->sourceId,
+            'title'        => $r->title,
+            'description'  => $r->snippet,
+            'identifier'   => $r->extras['reference'] ?? null,
+            'level'        => $r->extras['level'] ?? null,
+            'date'         => $r->date,
+            'type'         => $r->peerType,
+            'thumbnailUrl' => $r->extras['thumbnail'] ?? null,
+            'source'       => [
+                'peerId'      => $r->extras['peer_id'] ?? null,
+                'peerName'    => $r->extras['peer_name'] ?? null,
+                'peerUrl'     => null,
+                'originalUrl' => $r->url,
+                'originalId'  => $r->sourceId,
+                'peerType'    => $r->peerType,
+                'badge'       => $r->sourceBadge,
+            ],
+            'score'        => $r->score,
+            'dedupe_key'   => $r->dedupeKey,
+            '_original'    => $r->toArray(),
+        ];
     }
 
     protected function createSearchRequest(object $peer, string $query, array $options): \CurlHandle
@@ -327,9 +494,14 @@ class FederatedSearchService
             }
             $priorityByPeer[$peerId] = $peerResult['priority'] ?? 100;
             foreach ($peerResult['results'] as $r) {
+                $r = $this->stampSourceBadge($r);
                 $allResults[] = $r;
             }
         }
+
+        // Phase G — dedupe by dedupe_key. When two rows share a key, the higher-score
+        // row wins and absorbs a `peer_types_also_present` pill from the losing row(s).
+        $allResults = $this->dedupeByKey($allResults);
 
         usort($allResults, function ($a, $b) use ($priorityByPeer) {
             $scoreA = $a['score'] ?? 1.0;
@@ -344,6 +516,85 @@ class FederatedSearchService
 
         $limit = (int) ($options['limit'] ?? 100);
         return array_slice($allResults, 0, $limit);
+    }
+
+    /**
+     * Phase G — source-attribution badge. If the connector already wrote
+     * `source.badge` we leave it alone. For legacy OAI rows (which don't go
+     * through the connector path) we synthesise the badge from the peer name.
+     */
+    protected function stampSourceBadge(array $row): array
+    {
+        if (!empty($row['source']['badge'])) {
+            return $row;
+        }
+        $peerName = $row['source']['peerName'] ?? 'peer';
+        $row['source']['badge'] = sprintf('Federated from %s', $peerName);
+        $row['source']['peerType'] = $row['source']['peerType'] ?? 'oai_pmh';
+        return $row;
+    }
+
+    /**
+     * Phase G — collapse rows with the same dedupe_key. Highest-score row wins
+     * and gets a `also_present_in` array listing the other peer types that
+     * matched. AtoM hits with sp_item_id collapse with SharePoint hits sharing
+     * the same id; the AtoM hit wins (more authoritative metadata) and renders
+     * with an "Also active in SharePoint" pill.
+     */
+    protected function dedupeByKey(array $rows): array
+    {
+        $bestByKey = [];
+        $kept = [];
+        foreach ($rows as $row) {
+            $key = $row['dedupe_key'] ?? null;
+            if ($key === null || $key === '') {
+                $kept[] = $row;
+                continue;
+            }
+            if (!isset($bestByKey[$key])) {
+                $bestByKey[$key] = $row;
+                continue;
+            }
+            // Compare on score; tie-break on peer_type preference (atom_local > oai_pmh > sharepoint_graph_search).
+            $existing = $bestByKey[$key];
+            if ($this->preferRow($row, $existing)) {
+                $row['also_present_in'] = array_unique(array_merge(
+                    $existing['also_present_in'] ?? [],
+                    [$this->pillFor($existing)],
+                ));
+                $bestByKey[$key] = $row;
+            } else {
+                $existing['also_present_in'] = array_unique(array_merge(
+                    $existing['also_present_in'] ?? [],
+                    [$this->pillFor($row)],
+                ));
+                $bestByKey[$key] = $existing;
+            }
+        }
+        return array_merge($kept, array_values($bestByKey));
+    }
+
+    protected function preferRow(array $candidate, array $existing): bool
+    {
+        $scoreC = (float) ($candidate['score'] ?? 0.0);
+        $scoreE = (float) ($existing['score']  ?? 0.0);
+        if ($scoreC !== $scoreE) {
+            return $scoreC > $scoreE;
+        }
+        // Tie-break on peer-type priority. Lower = preferred.
+        $rank = ['atom_local' => 0, 'oai_pmh' => 1, 'sharepoint_graph_search' => 2];
+        $tc = $candidate['source']['peerType'] ?? 'oai_pmh';
+        $te = $existing['source']['peerType']  ?? 'oai_pmh';
+        return ($rank[$tc] ?? 99) < ($rank[$te] ?? 99);
+    }
+
+    protected function pillFor(array $row): string
+    {
+        return match ($row['source']['peerType'] ?? 'oai_pmh') {
+            'atom_local'              => 'Also archived in AtoM',
+            'sharepoint_graph_search' => 'Also active in SharePoint',
+            default                   => 'Also federated from ' . ($row['source']['peerName'] ?? 'peer'),
+        };
     }
 
     protected function calculatePeerStats(array $peerResults): array

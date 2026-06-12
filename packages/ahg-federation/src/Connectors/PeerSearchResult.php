@@ -1,38 +1,21 @@
 <?php
 
 /**
- * PeerSearchResult (ahg-sharepoint copy) — common result shape returned by
- * every PeerConnector.
+ * PeerSearchResult — common result shape returned by every PeerConnector.
  *
- * Copyright (C) 2026 Johan Pieterse
- * Plain Sailing Information Systems
- * Email: johan@plainsailingisystems.co.za
+ * The federation dispatcher collects PeerSearchResult arrays from every
+ * connector, applies dedupe (by dedupe_key when present), tags each row with
+ * the source-attribution badge, and hands the merged list to the result
+ * renderer.
  *
- * This file is part of Heratio.
+ * Field semantics are documented per-field; connectors that have no value
+ * for an optional field pass null and the renderer falls back to a sensible
+ * default.
  *
- * Heratio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Heratio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with Heratio. If not, see <https://www.gnu.org/licenses/>.
- *
- * -----------------------------------------------------------------------------
- * INERT SCAFFOLD — issue #1221, step 1 (non-destructive).
- *
- * Byte-equivalent copy of the general federation value object, placed here so
- * the inert SharePoint connector scaffold is self-contained. The live result
- * shape remains the one in ahg-federation. See MIGRATION.md.
- * -----------------------------------------------------------------------------
+ * @phase B
  */
 
-namespace AhgSharePoint\Federation;
+namespace AhgFederation\Connectors;
 
 final class PeerSearchResult
 {
@@ -52,10 +35,10 @@ final class PeerSearchResult
         /** @var string peerTypeKey of the producing connector — used for badge dispatch. */
         public readonly string $peerType,
 
-        /** @var string Human-readable source label (e.g. "Active in SharePoint"). */
+        /** @var string Human-readable source label (e.g. "Archived in AtoM"). */
         public readonly string $sourceBadge,
 
-        /** @var float Relevance score (0.0-1.0). Connector responsible for normalisation. */
+        /** @var float Relevance score (0.0–1.0). Connector responsible for normalisation. */
         public readonly float $score,
 
         /** @var ?string Optional dedupe key — when two results share this, dedupe wins by score. */

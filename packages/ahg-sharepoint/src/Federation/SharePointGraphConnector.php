@@ -32,19 +32,16 @@
  *   /opt/ahg-sp-integration/F3/heratio/src/Connectors/SharePointGraphConnector.php
  * under namespace AhgFederation\Connectors.
  *
- * IMPORTANT — this class is INERT until the cutover described in MIGRATION.md:
- *   * It is NOT registered in connectorClassFor() of any live FederatedSearchService.
- *     The live ahg-federation FederatedSearchService on disk is the pre-F3 build
- *     and has no connector dispatch at all, so nothing references this class.
- *   * Its FQCN (AhgSharePoint\Federation\SharePointGraphConnector) differs from
- *     the upstream F3 FQCN (AhgFederation\Connectors\SharePointGraphConnector),
- *     so there is no class-name collision and no double registration.
- *   * It registers no routes and is not constructed at boot.
+ * #1221 cutover LIVE: the promoted ahg-federation FederatedSearchService dispatches
+ * to this connector via config('federation.connectors')['sharepoint_graph_search']
+ * (published by AhgSharePointServiceProvider), so the SharePoint FQCN never appears
+ * in ahg-federation source. The package's own /sharepoint/federated-search surface
+ * uses the same connector.
  *
  * Functionally identical to the upstream F3 connector. The only edits are:
  *   1. namespace AhgFederation\Connectors  ->  namespace AhgSharePoint\Federation
- *   2. it implements the local AhgSharePoint\Federation\PeerConnector and returns
- *      the local AhgSharePoint\Federation\PeerSearchResult
+ *   2. it implements the shared AhgFederation\Connectors\PeerConnector contract and
+ *      returns AhgFederation\Connectors\PeerSearchResult (one contract, no local copy)
  *   3. GraphClientService is already in this package's namespace (no `use` change)
  *
  * Microsoft Graph KQL query construction:
@@ -72,8 +69,16 @@
 
 namespace AhgSharePoint\Federation;
 
+use AhgFederation\Connectors\PeerConnector;
+use AhgFederation\Connectors\PeerSearchResult;
 use AhgSharePoint\Services\GraphClientService;
 
+// #1221 cutover complete: this connector now implements the shared
+// AhgFederation\Connectors\PeerConnector contract and returns
+// AhgFederation\Connectors\PeerSearchResult, so the promoted ahg-federation
+// dispatcher resolves it (via config('federation.connectors')) and consumes its
+// results directly. The package's own /sharepoint/federated-search surface uses
+// the same connector.
 final class SharePointGraphConnector implements PeerConnector
 {
     public const PEER_TYPE = 'sharepoint_graph_search';
