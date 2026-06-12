@@ -283,6 +283,14 @@ class ProtocolController extends Controller
                 'method' => 'GET',
             ],
             [
+                'id' => 'resourcesync',
+                'title' => 'ResourceSync (NISO Z39.99) web sync',
+                'description' => 'A ResourceSync 1.1 (NISO Z39.99-2017) sync framework over the published corpus - the modern web-sync complement to OAI-PMH and the sitemaps. The Source Description at /.well-known/resourcesync links to a Capability List that advertises a Resource List (every published record as <url><loc> + <lastmod> + <rs:md>, paged with rs:ln rel="next") and a Change List (created / updated / deleted records inside a trailing window, from the real object.updated_at modified timestamp plus OAI-shared tombstones). Read-only, published-only.',
+                'url' => $this->resolve('resourcesync.source-description', '/.well-known/resourcesync'),
+                'mediaTypes' => ['application/xml'],
+                'method' => 'GET',
+            ],
+            [
                 'id' => 'sitemap-public',
                 'title' => 'Public record sitemap',
                 'description' => 'An XML sitemap of the canonical public record pages for search-engine discovery.',
