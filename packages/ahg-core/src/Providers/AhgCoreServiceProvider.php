@@ -129,26 +129,12 @@ class AhgCoreServiceProvider extends ServiceProvider
             $this->app['router']->pushMiddlewareToGroup('web', \AhgCore\Middleware\InjectSplatViewer::class);
         });
 
-        // OpenSearch autodiscovery - add the <link rel="search"> pointing at
-        // /opensearch.xml into the <head> of HTML responses, so a browser/aggregator
-        // discovers the catalogue's search provider without editing the locked theme
-        // head. Best-effort + guarded (never breaks a render). Registered in booted()
-        // for the same reason as InjectSplatViewer above (kernel syncs the web group
-        // after early-booting packages).
-        $this->app->booted(function () {
-            $this->app['router']->pushMiddlewareToGroup('web', \AhgCore\Middleware\InjectOpenSearchLink::class);
-        });
-
-        // oEmbed autodiscovery - add the <link rel="alternate" type="application/json+oembed">
-        // pointing at /oembed?url={thisPage} into the <head> of single-segment (record-shaped)
-        // HTML responses, so an oEmbed consumer that scrapes a pasted record URL discovers the
-        // provider endpoint without editing the locked theme head. DB-FREE: the href is built
-        // purely from the current request URL (no record lookup, no setting read). Best-effort +
-        // guarded (never breaks a render). Registered in booted() for the same reason as the
-        // middleware above (the kernel syncs the web group after early-booting packages).
-        $this->app->booted(function () {
-            $this->app['router']->pushMiddlewareToGroup('web', \AhgCore\Middleware\InjectOembedLink::class);
-        });
+        // OpenSearch + oEmbed autodiscovery links now live natively in the theme
+        // master.blade.php <head> (locked-paths rule: edit the real file, do not
+        // dodge it with an injection middleware). The InjectOpenSearchLink /
+        // InjectOembedLink middlewares were removed. InjectSplatViewer stays - it
+        // does DYNAMIC per-record injection (only when a record has a splat
+        // capture), which legitimately needs a response middleware.
 
         // Load views
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-core');

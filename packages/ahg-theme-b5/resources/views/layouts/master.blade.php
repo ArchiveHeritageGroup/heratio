@@ -28,6 +28,14 @@
     @endphp
     <title>{{ $__docTitle }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    {{-- Autodiscovery links live NATIVELY in the head (locked-paths rule: edit the
+         real file, do not dodge it with an injection middleware). --}}
+    <link rel="search" type="application/opensearchdescription+xml" href="{{ url('/opensearch.xml') }}" title="{{ config('app.name', 'Heratio') }}">
+    @if (count(request()->segments()) === 1)
+    {{-- oEmbed autodiscovery on record-shaped (single-segment) pages only. --}}
+    <link rel="alternate" type="application/json+oembed" href="{{ url('/oembed') . '?url=' . rawurlencode(request()->fullUrl()) }}" title="oEmbed">
+    @endif
     {{-- CSS-in-JS libraries (Material-UI / JSS, used by Mirador 3) discover the
          per-request CSP nonce from this meta tag and tag their dynamically
          injected <style> blocks with it. Without this, browsers ignore
