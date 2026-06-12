@@ -130,6 +130,7 @@ class AhgResearchServiceProvider extends ServiceProvider
                 ['research_dmp', 'install_dmp_builder.sql', 'seed_dmp_dropdowns.sql'],            // #1222 DMP Builder
                 ['research_output', 'install_research_outputs.sql', 'seed_research_outputs_dropdowns.sql'], // #1222 Research Outputs register (CRIS/RIM)
                 ['research_ethics', 'install_research_ethics.sql', 'seed_research_ethics_dropdowns.sql'], // #1222 Research Ethics & Consent register
+                ['research_funding', 'install_research_funding.sql', 'seed_research_funding_dropdowns.sql'], // #1222 Research Funding tracker (awarded-funding ledger)
                 // #1240 Time Machine - read-only reconstruction, no table.
             ];
             foreach ($installs as [$table, $file, $seed]) {
@@ -179,6 +180,7 @@ class AhgResearchServiceProvider extends ServiceProvider
             'research-memory', 'analysis-bridge', 'field-alerts', 'contradiction-engine',
             'replication-pack', 'project-export', 'ai-disclosure', 'time-machine', 'impact-tracking',
             'grant-engine', 'writing-studio', 'dmp-builder', 'research-outputs', 'research-ethics',
+            'research-funding',
         ] as $rosRoute) {
             \Illuminate\Support\Facades\Route::group([], __DIR__ . '/../../routes/' . $rosRoute . '.php');
         }

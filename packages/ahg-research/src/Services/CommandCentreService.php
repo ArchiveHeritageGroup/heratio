@@ -267,6 +267,15 @@ class CommandCentreService
             $ethicsCount,
             'Record this project\'s ethics approvals and the consent basis for its human-subject and sensitive data.');
 
+        // Research Funding tracker - the awarded-funding ledger for this project
+        // (sources, amounts, currencies, award periods). Distinct from drafting a
+        // grant proposal (Grant Engine).
+        $fundingCount = $this->count('research_funding', fn ($q) => $q->where('project_id', $projectId));
+        $defs[] = $this->tool('funding', 'Research Funding', 'fa-hand-holding-dollar',
+            'research.funding.index', ['projectId' => $projectId],
+            $fundingCount,
+            'Track this project\'s funding sources, amounts, currencies and award periods - the awarded-funding record.');
+
         // Time Machine - read-only reconstruction of how the work developed.
         $defs[] = $this->tool('timemachine', 'Time Machine', 'fa-clock-rotate-left',
             'research.timemachine.index', ['projectId' => $projectId],
