@@ -285,6 +285,15 @@ class CommandCentreService
             $teamCount,
             'Document who is on this project - co-investigators, students, partners and collaborators - with their role, affiliation and ORCID.');
 
+        // Research Milestones & Deliverables tracker - the project's plan: planned
+        // milestones and deliverables with due dates, status and progress. Distinct
+        // from the Research Outputs register, which records what has been produced.
+        $milestoneCount = $this->count('research_milestone', fn ($q) => $q->where('project_id', $projectId));
+        $defs[] = $this->tool('milestones', 'Milestones & Deliverables', 'fa-flag-checkered',
+            'research.milestones.index', ['projectId' => $projectId],
+            $milestoneCount,
+            'Plan this project\'s milestones and deliverables with due dates, status and progress - with overdue and due-soon flags.');
+
         // Time Machine - read-only reconstruction of how the work developed.
         $defs[] = $this->tool('timemachine', 'Time Machine', 'fa-clock-rotate-left',
             'research.timemachine.index', ['projectId' => $projectId],

@@ -132,6 +132,7 @@ class AhgResearchServiceProvider extends ServiceProvider
                 ['research_ethics', 'install_research_ethics.sql', 'seed_research_ethics_dropdowns.sql'], // #1222 Research Ethics & Consent register
                 ['research_funding', 'install_research_funding.sql', 'seed_research_funding_dropdowns.sql'], // #1222 Research Funding tracker (awarded-funding ledger)
                 ['research_team_member', 'install_research_team.sql', 'seed_research_team_dropdowns.sql'], // #1222 Research Team & Collaborators register
+                ['research_milestone', 'install_research_milestones.sql', 'seed_research_milestones_dropdowns.sql'], // #1222 Research Milestones & Deliverables tracker
                 // #1240 Time Machine - read-only reconstruction, no table.
             ];
             foreach ($installs as [$table, $file, $seed]) {
@@ -181,7 +182,7 @@ class AhgResearchServiceProvider extends ServiceProvider
             'research-memory', 'analysis-bridge', 'field-alerts', 'contradiction-engine',
             'replication-pack', 'project-export', 'ai-disclosure', 'time-machine', 'impact-tracking',
             'grant-engine', 'writing-studio', 'dmp-builder', 'research-outputs', 'research-ethics',
-            'research-funding', 'research-team',
+            'research-funding', 'research-team', 'research-milestones',
         ] as $rosRoute) {
             \Illuminate\Support\Facades\Route::group([], __DIR__ . '/../../routes/' . $rosRoute . '.php');
         }
