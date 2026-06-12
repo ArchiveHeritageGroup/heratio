@@ -17,6 +17,20 @@
  * header uses), with a neutral fallback; the host comes from url(), never a
  * hardcoded host. No new table, no DB writes, no ALTER.
  *
+ * The same controller also serves the OpenSearch Suggestions extension at
+ * GET /opensearch/suggest?q={searchTerms} (advertised in the description via a
+ * `<Url type="application/x-suggestions+json">` line). It returns the standard
+ * OpenSearch Suggestions JSON shape - a 4-element array
+ * [query, [completions], [descriptions], [urls]] - where completions are up to
+ * ten PUBLISHED (status type_id=158, status_id=160; synthetic root id=1 excluded)
+ * archival-record titles whose `information_object_i18n.title` prefix-matches the
+ * query, and urls link to each record via url(). The LIKE input is sanitised
+ * (the % and _ wildcards and the escape char are neutralised) so a user query can
+ * neither break the match nor trigger an unbounded scan; the result set is capped
+ * at ten and a query shorter than two characters degrades to the empty 4-element
+ * shape rather than ever returning a 500. The /opensearch/suggest path is
+ * two-segment and so is inherently safe from the single-segment /{slug} catch-all.
+ *
  * The `.xml` path is dotted, so it can never be captured by the single-segment
  * /{slug} archival-record catch-all (that route only matches a slug of the form
  * [a-z0-9][a-z0-9-]* and excludes known prefixes); it is inherently catch-all-safe.
@@ -63,6 +77,20 @@ class OpenSearchController extends Controller
 
     /** Neutral fallback when no siteTitle setting is configured. */
     private const DEFAULT_SHORT_NAME = 'Heratio';
+
+    /** Publication-status taxonomy row id and the "Published" status id. */
+    private const STATUS_TYPE_PUBLICATION = 158;
+    private const STATUS_PUBLISHED        = 160;
+
+    /** Synthetic root description id, excluded from suggestions. */
+    private const ROOT_ID = 1;
+
+    /** The culture whose titles are suggested (locale-neutral default). */
+    private const CULTURE = 'en';
+
+    /** Suggestion bounds: minimum query length and the hard result cap. */
+    private const SUGGEST_MIN_LENGTH = 2;
+    private const SUGGEST_LIMIT      = 10;
 
     /**
      * GET /opensearch.xml - the OpenSearch 1.1 description document.
@@ -136,6 +164,11 @@ class OpenSearchController extends Controller
         if ($jsonTemplate !== null) {
             $lines[] = '  <Url type="application/json" method="get" template="'.$this->xTemplate($jsonTemplate).'"/>';
         }
+        // OpenSearch Suggestions extension: typeahead source. Browsers discover
+        // this and call it as the user types in the search bar. The endpoint is
+        // published-only, read-only and bounded (see suggest()).
+        $suggestTemplate = $this->absolute('/opensearch/suggest').'?q={searchTerms}';
+        $lines[] = '  <Url type="application/x-suggestions+json" method="get" template="'.$this->xTemplate($suggestTemplate).'"/>';
         // Self-reference so aggregators can re-fetch the description.
         $lines[] = '  <Url type="'.$this->x(self::MEDIA_TYPE).'" rel="self" template="'.$this->xTemplate($this->absolute('/opensearch.xml')).'"/>';
         $lines[] = '  <InputEncoding>UTF-8</InputEncoding>';
@@ -233,6 +266,127 @@ class OpenSearchController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * GET /opensearch/suggest?q=... - the OpenSearch Suggestions extension.
+     *
+     * Returns the standard 4-element OpenSearch Suggestions JSON array
+     * [query, [completions], [descriptions], [urls]] for browser typeahead. The
+     * completions are up to TEN published archival-record titles that prefix-match
+     * the query; urls link to each record. CORS-open so a search bar on any origin
+     * can consume it. Never 500s: a short/empty query, an error, or no match all
+     * degrade to [q, [], [], []].
+     *
+     * Read-only: a bounded, indexed prefix SELECT against information_object_i18n /
+     * slug / status. No DB writes, no ALTER, no new table.
+     */
+    public function suggest(\Illuminate\Http\Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+
+        // Empty shape for short/empty input - the spec requires the echoed query
+        // as the first element even when there are no completions.
+        $empty = [$q, [], [], []];
+
+        try {
+            // Minimum query length of two keeps the prefix scan meaningful and cheap.
+            if (function_exists('mb_strlen') ? mb_strlen($q) < self::SUGGEST_MIN_LENGTH
+                                             : strlen($q) < self::SUGGEST_MIN_LENGTH) {
+                return $this->suggestionsResponse($empty);
+            }
+
+            $rows = $this->matchTitles($q);
+
+            $completions  = [];
+            $descriptions = [];
+            $urls         = [];
+            foreach ($rows as $row) {
+                $title = trim((string) ($row->title ?? ''));
+                $slug  = trim((string) ($row->slug ?? ''));
+                if ($title === '' || $slug === '') {
+                    continue;
+                }
+                $completions[]  = $title;
+                $descriptions[] = '';
+                $urls[]         = $this->absolute('/'.ltrim($slug, '/'));
+            }
+
+            return $this->suggestionsResponse([$q, $completions, $descriptions, $urls]);
+        } catch (Throwable $e) {
+            \Log::warning('[ahg-core] opensearch suggest failed: '.$e->getMessage());
+
+            return $this->suggestionsResponse($empty);
+        }
+    }
+
+    /**
+     * Up to ten PUBLISHED, non-root information-object titles whose title
+     * prefix-matches the (wildcard-escaped) query, with the record slug.
+     *
+     * SQL shape:
+     *   SELECT i.title, s.slug
+     *     FROM information_object_i18n i
+     *     JOIN slug   s  ON s.object_id = i.id
+     *     JOIN status st ON st.object_id = i.id AND st.type_id=158 AND st.status_id=160
+     *    WHERE i.id > 1
+     *      AND i.culture = 'en'
+     *      AND i.title LIKE '<escaped-prefix>%' ESCAPE '\'
+     *    ORDER BY i.title
+     *    LIMIT 10
+     *
+     * The LIKE pattern escapes the SQL wildcards % and _ (and the escape char
+     * itself) in the user input so the match stays a literal prefix and can never
+     * widen into an unbounded scan.
+     */
+    private function matchTitles(string $q): \Illuminate\Support\Collection
+    {
+        $pattern = $this->likePrefix($q);
+
+        return DB::table('information_object_i18n as i')
+            ->join('slug as s', 's.object_id', '=', 'i.id')
+            ->join('status as st', function ($join) {
+                $join->on('st.object_id', '=', 'i.id')
+                    ->where('st.type_id', self::STATUS_TYPE_PUBLICATION)
+                    ->where('st.status_id', self::STATUS_PUBLISHED);
+            })
+            ->where('i.id', '>', self::ROOT_ID)
+            ->where('i.culture', self::CULTURE)
+            ->whereNotNull('i.title')
+            ->where('i.title', '!=', '')
+            ->whereRaw("i.title LIKE ? ESCAPE '\\\\'", [$pattern])
+            ->orderBy('i.title')
+            ->limit(self::SUGGEST_LIMIT)
+            ->get(['i.title', 's.slug']);
+    }
+
+    /**
+     * Build a literal-prefix LIKE pattern from raw user input. The LIKE wildcards
+     * % and _ and the escape character \ are each backslash-escaped so the input
+     * matches literally; a single trailing % then makes it a prefix match.
+     */
+    private function likePrefix(string $q): string
+    {
+        $escaped = str_replace(
+            ['\\', '%', '_'],
+            ['\\\\', '\\%', '\\_'],
+            $q
+        );
+
+        return $escaped.'%';
+    }
+
+    /**
+     * A CORS-open JSON response with the OpenSearch Suggestions content type. The
+     * payload is always the 4-element array, never wrapped or re-keyed.
+     */
+    private function suggestionsResponse(array $payload)
+    {
+        return response()->json($payload, 200, [
+            'Content-Type'                => 'application/x-suggestions+json; charset=UTF-8',
+            'Access-Control-Allow-Origin' => '*',
+            'Cache-Control'               => 'public, max-age=60',
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     /** Absolute URL for a host-relative path, derived from url() (never hardcoded). */

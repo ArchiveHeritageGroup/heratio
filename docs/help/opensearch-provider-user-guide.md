@@ -23,7 +23,7 @@ a dot, so the two can never be confused.
 
 ## What it advertises
 
-The document tells the consumer two things:
+The document tells the consumer three things:
 
 1. **Where to send a free-text search (HTML).** This points at the **real**
    public catalogue search:
@@ -47,6 +47,19 @@ The document tells the consumer two things:
    This returns published records as JSON for an aggregator that prefers
    structured results. It is only advertised when that route actually exists, so
    the document never points at a dead endpoint.
+
+3. **Where to get live typeahead suggestions.** As a visitor types in their
+   browser search bar, the browser can call:
+
+   ```
+   /opensearch/suggest?q={searchTerms}
+   ```
+
+   This returns up to ten **published** record titles that begin with what has
+   been typed so far, each linked to its record, in the standard OpenSearch
+   Suggestions format. Typing fewer than two characters returns nothing (an empty
+   suggestion list), so there is no noise on the first keystroke. Only published
+   records are ever suggested.
 
 The institution / site name shown in the provider (its short name and title)
 comes from your existing **Site information** setting (`siteTitle`). The host is
@@ -97,3 +110,7 @@ and changes no other markup.
   catalogue search directly.
 - *No JSON results option appears in an aggregator.* The JSON template is only
   advertised when the public read API route is installed.
+- *No typeahead suggestions appear.* Suggestions need at least two characters and
+  only match the **start** of a published record title. If nothing is suggested,
+  confirm the title actually begins with the typed text and that the record is
+  published.

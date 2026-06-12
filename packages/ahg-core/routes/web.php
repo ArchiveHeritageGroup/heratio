@@ -340,6 +340,15 @@ Route::get('/accessibility-statement', [\AhgCore\Controllers\AccessibilityStatem
 // exclusion-list reliance is needed for catch-all safety here.
 Route::get('/opensearch.xml', [\AhgCore\Controllers\OpenSearchController::class, 'index'])->name('opensearch.description');
 
+// OpenSearch Suggestions extension (typeahead). A browser that has registered the
+// catalogue as a search provider calls GET /opensearch/suggest?q={searchTerms} as
+// the user types and renders the returned completions in the search bar. The handler
+// returns the 4-element OpenSearch Suggestions JSON array, published-only and bounded,
+// and degrades to the empty 4-element shape rather than ever 500ing. The path is
+// TWO-segment (/opensearch/suggest), so it is inherently safe from the single-segment
+// /{slug} archival-record catch-all - no exclusion-list entry is needed.
+Route::get('/opensearch/suggest', [\AhgCore\Controllers\OpenSearchController::class, 'suggest'])->name('opensearch.suggest');
+
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::match(['get', 'post'], '/', [ClipboardController::class, 'index'])->name('index');
