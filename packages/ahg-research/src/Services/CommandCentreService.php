@@ -276,6 +276,15 @@ class CommandCentreService
             $fundingCount,
             'Track this project\'s funding sources, amounts, currencies and award periods - the awarded-funding record.');
 
+        // Research Team & Collaborators register - who is on the project and in
+        // what capacity (name, role, affiliation, ORCID). The broader contributor
+        // list, distinct from the project's single owner.
+        $teamCount = $this->count('research_team_member', fn ($q) => $q->where('project_id', $projectId));
+        $defs[] = $this->tool('team', 'Research Team', 'fa-users',
+            'research.team.index', ['projectId' => $projectId],
+            $teamCount,
+            'Document who is on this project - co-investigators, students, partners and collaborators - with their role, affiliation and ORCID.');
+
         // Time Machine - read-only reconstruction of how the work developed.
         $defs[] = $this->tool('timemachine', 'Time Machine', 'fa-clock-rotate-left',
             'research.timemachine.index', ['projectId' => $projectId],
