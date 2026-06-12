@@ -193,6 +193,14 @@ class ProtocolController extends Controller
                 'method' => 'GET',
             ],
             [
+                'id' => 'cite',
+                'title' => 'Cite this record (bibliographic export)',
+                'description' => 'Standard bibliographic citation formats for a single published record, so a reference drops straight into a reference manager. A browser gets a "Cite this" page (a formatted reference plus copy buttons + per-format download links); the dotted variants are downloadable artifacts: .bib (BibTeX), .ris (RIS), .json (CSL-JSON), .dc.xml (simple Dublin Core / OAI-DC). Honest mapping (title, creator(s), date, holding repository as publisher, identifier, the persistent record URL); an absent field is omitted, never fabricated.',
+                'urlTemplate' => $base.'/cite/{idOrSlug}',
+                'mediaTypes' => ['text/html', 'application/x-bibtex', 'application/x-research-info-systems', 'application/vnd.citationstyles.csl+json', 'application/xml'],
+                'method' => 'GET',
+            ],
+            [
                 'id' => 'entity-actor',
                 'title' => 'Entity identity endpoint (actor)',
                 'description' => 'The stable, dereferenceable URI of an actor - a person, corporate body or family - described in full (name, schema.org Person/Organization plus a RiC additionalType, dates of existence, biography / administrative history, and the published records it is linked to). Content-negotiated by Accept header; a browser is 303-redirected to the human authority page.',

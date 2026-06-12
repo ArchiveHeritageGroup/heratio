@@ -282,6 +282,36 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ])
                 ->where('termId', '[0-9]+')
                 ->name('themes.show');
+
+            // Public "Related records" discovery surface. Given ONE published
+            // archival record (numeric id OR slug), surface the most-similar OTHER
+            // published records by REUSING the existing semantic vector index in
+            // ahg-search (no new index, no AI call of its own - see
+            // RelatedRecordsService). Both paths are TWO-segment (/related/...), so
+            // the single-segment /{slug} archival-record catch-all in
+            // ahg-information-object-manage (constrained to one path segment, no
+            // slash) can never intercept them; they are nonetheless bound here
+            // (register() + callAfterResolving('router')) for the same catch-all
+            // precedence guarantee as the discovery surfaces above. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            //
+            // The .json twin is declared FIRST so a record slug that literally ends
+            // in ".json" can never be swallowed by the HTML route. The {idOrSlug}
+            // matcher allows a multi-segment slug ([A-Za-z0-9][A-Za-z0-9/_-]*) and
+            // the .json route additionally requires the literal .json suffix.
+            $router->middleware('web')
+                ->get('/related/{idOrSlug}.json', [
+                    \AhgSemanticSearch\Controllers\RelatedRecordsController::class, 'json',
+                ])
+                ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9/_-]*')
+                ->name('related.json');
+
+            $router->middleware('web')
+                ->get('/related/{idOrSlug}', [
+                    \AhgSemanticSearch\Controllers\RelatedRecordsController::class, 'show',
+                ])
+                ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9/_-]*')
+                ->name('related.show');
         });
     }
 

@@ -2,6 +2,7 @@
 
 use AhgApi\Controllers\ActorEntityController;
 use AhgApi\Controllers\CatalogController;
+use AhgApi\Controllers\CitationController;
 use AhgApi\Controllers\CookbookController;
 use AhgApi\Controllers\DataSitemapController;
 use AhgApi\Controllers\DatasetController;
@@ -590,6 +591,75 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
         ->where('type', 'record|actor|term')
         ->where('slug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
         ->name('graph-explorer.show');
+});
+
+/*
+|--------------------------------------------------------------------------
+| "Cite this record" bibliographic export — /cite/{idOrSlug}(.bib|.ris|.json|.dc.xml)
+|--------------------------------------------------------------------------
+| Standard bibliographic citation formats for ONE published archival record, so
+| a researcher can drop a reference straight into a reference manager:
+|
+|   GET /cite/{idOrSlug}        - an HTML "Cite this" page (themed): a formatted
+|                                 reference + copy buttons + per-format download
+|                                 links.
+|   GET /cite/{idOrSlug}.bib    - BibTeX        (application/x-bibtex)
+|   GET /cite/{idOrSlug}.ris    - RIS           (application/x-research-info-systems)
+|   GET /cite/{idOrSlug}.json   - CSL-JSON      (application/vnd.citationstyles.csl+json)
+|   GET /cite/{idOrSlug}.dc.xml - simple Dublin Core / OAI-DC (application/xml)
+|
+| The controller REUSES EntityController's slug -> information_object resolution
+| and the published-only gate (status.type_id=158, status_id=160; root id=1
+| excluded). {idOrSlug} accepts the numeric information_object id too. An
+| unknown / unpublished / root record -> a clean 404 in every format. Read-only;
+| the machine formats are CORS-open; every value is escaped for its format.
+|
+| CATCH-ALL SAFETY: every path is MULTI-SEGMENT ("/cite/...") and the machine
+| variants are DOTTED, so the single-segment /{slug} archival-record catch-all
+| (constraint '[a-z0-9][a-z0-9-]*$' - one segment, no slash, no dot) can NEVER
+| capture them. The DOTTED format routes are registered BEFORE the bare HTML
+| route so a suffix binds as a format, never as part of a slug; the {idOrSlug}
+| matcher allows the slug grammar (hyphens/underscores, a single segment).
+| Registered at the ROOT (this routes file loads without a group prefix), and
+| ahg-api is discovered before ahg-information-object-manage, so these bind
+| first regardless.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    // Dotted machine-format routes FIRST so ".bib" / ".ris" / ".json" /
+    // ".dc.xml" bind as formats, never as part of an {idOrSlug}.
+    Route::options('cite/{idOrSlug}.bib', [CitationController::class, 'options'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
+    Route::get('cite/{idOrSlug}.bib', [CitationController::class, 'bib'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('cite.bib');
+
+    Route::options('cite/{idOrSlug}.ris', [CitationController::class, 'options'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
+    Route::get('cite/{idOrSlug}.ris', [CitationController::class, 'risExport'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('cite.ris');
+
+    Route::options('cite/{idOrSlug}.json', [CitationController::class, 'options'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
+    Route::get('cite/{idOrSlug}.json', [CitationController::class, 'csl'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('cite.csl');
+
+    // ".dc.xml" carries two dots; the {idOrSlug} grammar (no dot) keeps the
+    // record token clear of the suffix.
+    Route::options('cite/{idOrSlug}.dc.xml', [CitationController::class, 'options'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
+    Route::get('cite/{idOrSlug}.dc.xml', [CitationController::class, 'dc'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('cite.dc');
+
+    // Bare HTML "Cite this" page LAST so the dotted format routes above win.
+    Route::options('cite/{idOrSlug}', [CitationController::class, 'options'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
+    Route::get('cite/{idOrSlug}', [CitationController::class, 'show'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*')
+        ->name('cite.show');
 });
 
 /*

@@ -304,6 +304,27 @@ Route::get('/collection-overview', [\AhgCore\Controllers\CollectionOverviewContr
 // match. (First-registered route wins.)
 Route::get('/open-data', [\AhgCore\Controllers\OpenDataController::class, 'index'])->name('open-data.index');
 
+// Public ACCESSIBILITY STATEMENT (heratio#1211 north-star, public-statement slice):
+// the standard, outward, human-readable conformance statement every public digital
+// service is expected to publish, following the W3C model accessibility statement
+// structure (commitment, conformance status against WCAG 2.2 with EN 301 549 named
+// as ONE recognised harmonised standard - international, never one country's law,
+// what is accessible, honest known limitations, how to report a barrier, and the
+// preparation / last-reviewed date). Configurable institution / contact / level are
+// read from the existing ahg_settings table with neutral international defaults; no
+// new table. Distinct from the internal /admin/accessibility coverage report and the
+// /admin/alt-text curation surface. Read-only; the controller falls back to an
+// all-defaults statement so the page never 500s.
+//
+// /accessibility-statement is a SINGLE-segment public path, like /explore and
+// /open-data above. ahg-core boots early, so this route is registered before the
+// single-segment /{slug} archival-record catch-all in ahg-information-object-manage
+// and wins the match (first-registered route wins; the IO catch-all's exclusion list
+// is belt-and-braces, not the mechanism relied on here). A normal record slug still
+// resolves, because the catch-all only matches a single-segment path that no earlier
+// route has already claimed.
+Route::get('/accessibility-statement', [\AhgCore\Controllers\AccessibilityStatementController::class, 'index'])->name('accessibility.statement');
+
 // Clipboard routes
 Route::prefix('clipboard')->name('clipboard.')->group(function () {
     Route::match(['get', 'post'], '/', [ClipboardController::class, 'index'])->name('index');
