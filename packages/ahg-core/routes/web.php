@@ -139,6 +139,13 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/admin/alt-text', [\AhgCore\Controllers\AltTextController::class, 'index'])->name('alt-text.index');
     Route::post('/admin/alt-text/save', [\AhgCore\Controllers\AltTextController::class, 'store'])->name('alt-text.save');
+    // OPTIONAL AI assist: a DRAFT alt-text suggestion for one image, via the sanctioned
+    // AHG AI gateway vision model (never a node port). Returns JSON; the draft is shown
+    // labelled "AI-suggested - review and edit before saving" and is NEVER auto-saved -
+    // the curator saves through alt-text.save above. Degrades cleanly (JSON ok:false,
+    // HTTP 200) when the gateway is unavailable. Multi-segment path keeps it clear of
+    // the single-segment /{slug} archival-record catch-all.
+    Route::post('/admin/alt-text/suggest', [\AhgCore\Controllers\AltTextController::class, 'suggest'])->name('alt-text.suggest');
 });
 
 // Public "race against loss" awareness board: a dignified, anonymous, read-only top-N of the records

@@ -12,8 +12,10 @@ no dedicated place to record alt text, so the report could only fall back to the
 embedded IPTC/XMP caption. This worklist closes that gap: it gives cataloguers and
 contributors a real place to write and curate a text alternative for each image.
 
-Alternative text here is **authored by people**. It is not generated
-automatically.
+Alternative text here is **authored by people**. Nothing is ever saved
+automatically. To speed the work you can optionally ask an AI vision model (through
+the AHG gateway) for a **draft** description to start from - you remain the author
+and must review and edit it before saving. See **AI-assisted suggestions** below.
 
 ## Where to find it
 
@@ -43,6 +45,43 @@ automatically.
 - If an embedded caption is shown, you can adapt it, but make sure it reads as a
   description rather than a title.
 
+## AI-assisted suggestions (optional)
+
+When the AHG AI gateway is configured for this instance, each image in the worklist
+shows a **Suggest alt text** button next to **Save**. Pressing it sends that one
+image to a vision model **through the sanctioned AHG AI gateway**
+(`https://ai.theahg.co.za/ai/v1`) and drops a **draft** description into the text
+box, labelled:
+
+> **AI-suggested - review and edit before saving.**
+
+The draft is a starting point only:
+
+- It is **never saved automatically**. Nothing reaches the `image_alt_text` store
+  until you review the text and press **Save** yourself, through the same human save
+  path as a hand-written entry. **You are the author.**
+- Treat every draft critically. A vision model can misread a scene or invent detail
+  it cannot actually see - correct anything wrong and remove anything guessed (names,
+  dates, places).
+- The draft is requested in the **working language**, so you can draft in English,
+  Afrikaans, or any other language you have selected.
+
+### When the button is missing or says "unavailable"
+
+The button only appears when a gateway endpoint and key are configured. If the
+gateway is unreachable, no vision model is available, or the image file cannot be
+read, the suggestion simply fails with a calm "suggestion unavailable" message and
+the box is left untouched - manual curation always still works. The AI assist is a
+convenience layered on top of the human workflow, never a dependency.
+
+### How the image reaches the model
+
+- AI is reached **only** through the AHG AI gateway - never a direct GPU node port.
+- One image at a time, with a size cap on what is sent. Raster images (JPEG, PNG,
+  GIF, WebP, BMP) are eligible; large TIFF/JP2 masters are skipped.
+- The request carries the image plus a short instruction to describe what is
+  visibly shown for a screen-reader user, in the working language.
+
 ## How it counts toward the accessibility report
 
 A published image counts as having a text alternative in the accessibility report
@@ -55,6 +94,8 @@ directly; the caption is only a fallback. As you curate, the report's
 
 - Only **published** images appear in the worklist.
 - Saving writes **only** to the dedicated `image_alt_text` store. It never changes
-  the original record or the digital object, and makes no AI calls.
+  the original record or the digital object.
+- The optional **Suggest alt text** assist only reads the image and returns a draft
+  for you to edit; it writes nothing. The single write path remains your **Save**.
 - Clearing the text removes the entry, which is a legitimate curation action and
   keeps the coverage figure honest.

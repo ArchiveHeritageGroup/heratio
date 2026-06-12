@@ -4,6 +4,7 @@ use AhgReports\Controllers\CollectionsHealthController;
 use AhgReports\Controllers\NorthStarCockpitController;
 use AhgReports\Controllers\ReportController;
 use AhgReports\Controllers\ReportBuilderController;
+use AhgReports\Controllers\TrustConsoleController;
 use Illuminate\Support\Facades\Route;
 
 // North Star Cockpit - single demo-ready overview of the platform's vision
@@ -12,6 +13,17 @@ use Illuminate\Support\Facades\Route;
 // defensively at request time.
 Route::middleware('admin')->group(function () {
     Route::get('/admin/north-stars', [NorthStarCockpitController::class, 'index'])->name('north-stars.cockpit');
+});
+
+// Trust and Transparency Console - a single read-only operator console that
+// ties together the scattered trust, preservation, accessibility and open-data
+// surfaces shipped across recent releases. This is a HUB: it LINKS to each
+// surface (Route::has-gated, no dead links) and re-implements none of them.
+// Admin-gated, same as the North Star Cockpit above. The two-segment
+// /admin/trust-console path keeps it clear of the single-segment /{slug}
+// archival-record catch-all. Read-only; never 500s.
+Route::middleware('admin')->group(function () {
+    Route::get('/admin/trust-console', [TrustConsoleController::class, 'index'])->name('trust.console');
 });
 
 // Main dashboard at /reports (matching AtoM URL)

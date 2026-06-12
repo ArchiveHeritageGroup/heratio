@@ -36,6 +36,12 @@ class AhgCoreServiceProvider extends ServiceProvider
         // top of the read-only capture-priority register).
         $this->app->singleton(\AhgCore\Services\CaptureQueueService::class);
 
+        // heratio#1211 alt-text curation slice: the optional AI ASSIST that drafts an
+        // alt-text suggestion via the sanctioned AHG AI gateway vision model. The draft
+        // is never saved; the human curation path stays the only write.
+        $this->app->singleton(\AhgCore\Services\AltTextService::class);
+        $this->app->singleton(\AhgCore\Services\AltTextSuggestionService::class);
+
         // Repository contracts → MySQL implementations
         $this->app->bind(DescriptionRepository::class, MysqlDescriptionRepository::class);
         $this->app->bind(AgentRepository::class, MysqlAgentRepository::class);

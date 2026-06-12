@@ -23,6 +23,9 @@
   $worklist = $worklist ?? ['rows' => [], 'page' => 1, 'per_page' => 25, 'total_missing' => 0, 'last_page' => 1, 'lang' => 'en'];
   $lang = $lang ?? ($coverage['lang'] ?? 'en');
   $maxAltLen = (int) ($maxAltLen ?? 2000);
+  // Optional AI assist (a DRAFT suggestion only; never auto-saved). Shown only when
+  // the gateway vision path is configured; otherwise the manual curation is unchanged.
+  $aiEnabled = (bool) ($aiEnabled ?? false);
 
   $covTotal = (int) ($coverage['total'] ?? 0);
   $covWith = (int) ($coverage['with'] ?? 0);
@@ -64,7 +67,10 @@
     @endif
   </div>
   <p class="text-muted small mb-2" style="max-width:900px">
-    {{ __('Screen-reader users rely on a text alternative to understand an image (WCAG 2.1 - 1.1.1 Non-text Content). This worklist lists published images that still have no curated alternative text in the working language, so you can add one. Alternative text is authored by people here - it is stored separately from the embedded caption and never generated automatically.') }}
+    {{ __('Screen-reader users rely on a text alternative to understand an image (WCAG 2.1 - 1.1.1 Non-text Content). This worklist lists published images that still have no curated alternative text in the working language, so you can add one. Alternative text is authored by people here, and stored separately from the embedded caption.') }}
+    @if($aiEnabled)
+      {{ __('To speed things up you may ask the AI vision model (via the AHG gateway) for a draft description; it is a starting point only - you review, correct, and save it. Nothing is ever saved automatically.') }}
+    @endif
   </p>
 
   {{-- Flash messages from the save action --}}
@@ -207,11 +213,26 @@
                         <input type="hidden" name="lang" value="{{ $lang }}">
                         <input type="hidden" name="page" value="{{ $page }}">
                         <label class="visually-hidden" for="alt-{{ $doId }}">{{ __('Alternative text for :name', ['name' => $display]) }}</label>
+                        {{-- AI-draft notice: hidden until a suggestion is fetched. Honest framing -
+                             the draft is AI-generated and must be reviewed + edited by a person, who
+                             is the author of the saved text. --}}
+                        <div id="ai-note-{{ $doId }}" class="alert alert-info py-1 px-2 small mb-0 d-none" role="status">
+                          <i class="fas fa-robot me-1"></i><strong>{{ __('AI-suggested - review and edit before saving') }}.</strong>
+                          {{ __('This draft was generated from the image by an AI vision model via the AHG gateway. You are the author: check it for accuracy, correct anything wrong, and remove anything the model guessed.') }}
+                        </div>
                         <textarea id="alt-{{ $doId }}" name="alt_text" class="form-control form-control-sm"
                                   rows="2" maxlength="{{ $maxAltLen }}"
                                   placeholder="{{ $caption !== '' ? __('Describe the image (you can adapt the embedded caption above)') : __('Describe what the image shows, for someone who cannot see it') }}"></textarea>
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex align-items-center flex-wrap gap-2">
                           <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-floppy-disk me-1"></i>{{ __('Save') }}</button>
+                          @if($aiEnabled)
+                            <button type="button" class="btn btn-sm btn-outline-secondary js-alt-suggest"
+                                    data-do-id="{{ $doId }}" data-target="alt-{{ $doId }}" data-note="ai-note-{{ $doId }}"
+                                    title="{{ __('Generate a draft description from the image - you review and edit it before saving') }}">
+                              <i class="fas fa-wand-magic-sparkles me-1"></i>{{ __('Suggest alt text') }}
+                            </button>
+                            <span class="js-alt-suggest-msg text-muted small" data-for="{{ $doId }}" aria-live="polite"></span>
+                          @endif
                           <span class="text-muted small">{{ __('Max :n characters', ['n' => number_format($maxAltLen)]) }}</span>
                         </div>
                       </form>
@@ -247,4 +268,78 @@
   @endif
 
 </div>
+
+@if($aiEnabled)
+{{-- AI alt-text suggestion: fetch a DRAFT from the gateway vision model and drop it
+     into the matching textarea. The draft is NEVER auto-saved - it only fills the box,
+     reveals the "AI-suggested - review and edit before saving" notice, and leaves the
+     curator to edit + submit the existing save form. Resilient: a non-ok response or a
+     network error shows a calm inline message and leaves the textarea untouched. --}}
+<script>
+(function () {
+  if (window.__ahgAltSuggestWired) { return; }
+  window.__ahgAltSuggestWired = true;
+
+  var endpoint = @json(route('alt-text.suggest'));
+  var token = document.querySelector('meta[name="csrf-token"]');
+  token = token ? token.getAttribute('content') : '';
+
+  function msgEl(doId) {
+    return document.querySelector('.js-alt-suggest-msg[data-for="' + doId + '"]');
+  }
+
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target.closest('.js-alt-suggest');
+    if (!btn) { return; }
+    ev.preventDefault();
+
+    var doId = btn.getAttribute('data-do-id');
+    var ta = document.getElementById(btn.getAttribute('data-target'));
+    var note = document.getElementById(btn.getAttribute('data-note'));
+    var msg = msgEl(doId);
+    if (!ta) { return; }
+
+    btn.disabled = true;
+    var original = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>' + @json(__('Thinking...'));
+    if (msg) { msg.textContent = ''; }
+
+    var body = new URLSearchParams();
+    body.set('digital_object_id', doId);
+    body.set('lang', @json($lang));
+
+    fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': token,
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+      },
+      body: body.toString(),
+      credentials: 'same-origin'
+    })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) {
+      if (data && data.ok && data.draft) {
+        ta.value = data.draft;
+        ta.focus();
+        if (note) { note.classList.remove('d-none'); }
+        if (msg) { msg.textContent = @json(__('Draft inserted - please review and edit.')); }
+      } else {
+        var reason = (data && data.reason) ? data.reason : @json(__('Suggestion unavailable right now.'));
+        if (msg) { msg.textContent = reason; }
+      }
+    })
+    .catch(function () {
+      if (msg) { msg.textContent = @json(__('Suggestion unavailable right now.')); }
+    })
+    .finally(function () {
+      btn.disabled = false;
+      btn.innerHTML = original;
+    });
+  });
+})();
+</script>
+@endif
 @endsection

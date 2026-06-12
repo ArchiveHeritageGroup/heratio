@@ -244,6 +244,13 @@ class CommandCentreService
             $grantCount,
             'Draft funder applications from your project, section by section.');
 
+        // Data Management Plan (DMP) Builder - FAIR / maDMP plans for this project.
+        $dmpCount = $this->count('research_dmp', fn ($q) => $q->where('project_id', $projectId));
+        $defs[] = $this->tool('dmp', 'Data Management Plan', 'fa-database',
+            'research.dmp.index', ['projectId' => $projectId],
+            $dmpCount,
+            'Build the FAIR data management plan funders require, on the maDMP standard.');
+
         // Time Machine - read-only reconstruction of how the work developed.
         $defs[] = $this->tool('timemachine', 'Time Machine', 'fa-clock-rotate-left',
             'research.timemachine.index', ['projectId' => $projectId],
