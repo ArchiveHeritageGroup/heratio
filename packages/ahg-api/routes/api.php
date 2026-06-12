@@ -10,6 +10,7 @@ use AhgApi\Controllers\FeedController;
 use AhgApi\Controllers\GraphController;
 use AhgApi\Controllers\GraphExplorerController;
 use AhgApi\Controllers\LegacyApiController;
+use AhgApi\Controllers\MaturityController;
 use AhgApi\Controllers\OaiPmhController;
 use AhgApi\Controllers\OpenApiController;
 use AhgApi\Controllers\ProtocolController;
@@ -620,6 +621,38 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
         ->name('open-data.protocol');
     Route::get('open-data/protocol.json', fn (\Illuminate\Http\Request $request) => app(ProtocolController::class)->index($request, true))
         ->name('open-data.protocol.json');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Open Data Maturity scorecard - /open-data/maturity (#1204)
+|--------------------------------------------------------------------------
+| A public scorecard that GRADES the platform's open-data offering against
+| Tim Berners-Lee's 5-star Open Data deployment scheme, and shows the concrete
+| EVIDENCE for each star (the real open surfaces that prove it). The evidence is
+| resolved from ProtocolController::surfaces() - the one canonical surface list -
+| so the scorecard can never drift from what is actually served; each star is
+| marked achieved only when its evidence surface really resolves (honest on a
+| slimmer install).
+|
+|   GET /open-data/maturity        - content-negotiated (browser -> HTML
+|                                     scorecard, everyone else -> JSON).
+|   GET /open-data/maturity.json   - the JSON scorecard, explicitly.
+|
+| Read-only (no DB access, no AI); permissive open-data CORS; never 500s.
+|
+| CATCH-ALL SAFETY: "/open-data/maturity" and "/open-data/maturity.json" are
+| TWO-segment paths, so the single-segment /{slug} catch-all cannot capture
+| them (the literal first segment /open-data is itself a registered single-
+| segment public page in ahg-core; these two-segment children sit underneath).
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    Route::options('open-data/maturity', [MaturityController::class, 'options']);
+    Route::get('open-data/maturity', [MaturityController::class, 'index'])
+        ->name('open-data.maturity');
+    Route::get('open-data/maturity.json', fn (\Illuminate\Http\Request $request) => app(MaturityController::class)->index($request, true))
+        ->name('open-data.maturity.json');
 });
 
 /*

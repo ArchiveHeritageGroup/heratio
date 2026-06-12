@@ -322,6 +322,14 @@ class ProtocolController extends Controller
                 'mediaTypes' => ['application/ld+json', 'text/html'],
                 'method' => 'GET',
             ],
+            [
+                'id' => 'open-data-maturity',
+                'title' => 'Open data maturity scorecard',
+                'description' => 'A self-verifying scorecard grading this platform\'s open-data offering against the 5-star Open Data deployment scheme (Tim Berners-Lee), citing the concrete live surfaces that prove each star. Content-negotiated (a browser gets a human scorecard).',
+                'url' => $this->resolve('open-data.maturity', '/open-data/maturity'),
+                'mediaTypes' => ['text/html', 'application/json'],
+                'method' => 'GET',
+            ],
         ];
 
         // Drop any surface that resolved to neither a URL nor a template.
