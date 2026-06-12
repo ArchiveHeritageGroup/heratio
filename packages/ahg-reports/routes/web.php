@@ -6,6 +6,7 @@ use AhgReports\Controllers\CollectionsHealthController;
 use AhgReports\Controllers\DataQualityController;
 use AhgReports\Controllers\NorthStarCockpitController;
 use AhgReports\Controllers\PreservationHealthController;
+use AhgReports\Controllers\RightsReportController;
 use AhgReports\Controllers\ReportController;
 use AhgReports\Controllers\ReportBuilderController;
 use AhgReports\Controllers\TrustConsoleController;
@@ -84,6 +85,23 @@ Route::middleware('admin')->group(function () {
 // LIMITed recent list only; never 500s; empty-state safe.
 Route::middleware('admin')->group(function () {
     Route::get('/admin/preservation-health', [PreservationHealthController::class, 'index'])->name('reports.preservation-health');
+});
+
+// Rights and Access report - a read-only, administrator-facing view of how the
+// catalogue breaks down by access status, rights/licensing and ODRL policy
+// coverage: publication (the access baseline; status type 158 / status 160),
+// rights-statement coverage and copyright status (the `rights` table linked to a
+// record through the `relation` "Right" edge, type_id 168; copyright_status_id
+// resolved via term_i18n), and ODRL policy governance (research_rights_policy;
+// records governed vs open-by-default, broken down by action verb use/reproduce).
+// Where a signal is not recorded it is shown as such, not inferred. Distinct from
+// the data-quality (completeness), ai-usage, catalogue-growth and preservation-
+// health reports. READ ONLY - no writes, no ALTER. Admin-gated, same as the
+// consoles above. The two-segment /admin/rights-report path keeps it clear of the
+// single-segment /{slug} archival-record catch-all. Bounded aggregate COUNTs
+// only; never 500s; empty-state safe.
+Route::middleware('admin')->group(function () {
+    Route::get('/admin/rights-report', [RightsReportController::class, 'index'])->name('reports.rights-report');
 });
 
 // Main dashboard at /reports (matching AtoM URL)
