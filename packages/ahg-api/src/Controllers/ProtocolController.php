@@ -227,6 +227,22 @@ class ProtocolController extends Controller
                 'method' => 'GET',
             ],
             [
+                'id' => 'vocabularies',
+                'title' => 'Controlled vocabularies (SKOS concept schemes index)',
+                'description' => 'The index of this platform\'s controlled vocabularies (authorities) - subjects, places, genres / forms - published as standard SKOS concept schemes, the conventional linked-data way to expose an institution\'s authorities. A browser gets a human index with live term counts and links; ?format=json gives a machine list of the schemes.',
+                'url' => $this->resolve('open-data.vocabularies', '/vocabularies'),
+                'mediaTypes' => ['text/html', 'application/json'],
+                'method' => 'GET',
+            ],
+            [
+                'id' => 'vocabulary',
+                'title' => 'Controlled vocabulary (one SKOS concept scheme)',
+                'description' => 'ONE controlled vocabulary as a skos:ConceptScheme: every term a skos:Concept with a language-tagged skos:prefLabel, skos:notation, skos:broader / skos:narrower hierarchy, skos:inScheme / skos:topConceptOf and skos:scopeNote. A bare path gives JSON-LD (machine-first); a .ttl / .jsonld / .rdf suffix forces Turtle / JSON-LD / RDF-XML. Each concept dereferences at /vocabulary/{scheme}/{termId} (same content negotiation), with a bounded handful of example published records (dct:subject). Bounded; CORS-open.',
+                'urlTemplate' => $base.'/vocabulary/{scheme}',
+                'mediaTypes' => ['application/ld+json', 'text/turtle', 'application/rdf+xml'],
+                'method' => 'GET',
+            ],
+            [
                 'id' => 'context',
                 'title' => 'JSON-LD @context',
                 'description' => 'The stable, dereferenceable JSON-LD @context shared by every graph and entity response.',

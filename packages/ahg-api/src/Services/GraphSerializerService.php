@@ -121,10 +121,20 @@ class GraphSerializerService
             'spatial' => ['@id' => 'dcterms:spatial'],
             'publisher' => ['@id' => 'dcterms:publisher'],
             'isPartOf' => ['@id' => 'dcterms:isPartOf', '@type' => '@id'],
-            // SKOS terms for the controlled-vocabulary (term) entity surface.
+            // SKOS terms for the controlled-vocabulary (term) entity surface and
+            // the SKOS concept-scheme surface (/vocabulary). Carried here, in the
+            // single source of truth, so all three serialisations (JSON-LD,
+            // Turtle, RDF/XML) render them - not just JSON-LD.
             'prefLabel' => 'skos:prefLabel',
             'broader' => ['@id' => 'skos:broader', '@type' => '@id'],
             'narrower' => ['@id' => 'skos:narrower', '@type' => '@id'],
+            'scopeNote' => 'skos:scopeNote',
+            'notation' => 'skos:notation',
+            'note' => 'skos:note',
+            'inScheme' => ['@id' => 'skos:inScheme', '@type' => '@id'],
+            'topConceptOf' => ['@id' => 'skos:topConceptOf', '@type' => '@id'],
+            'hasTopConcept' => ['@id' => 'skos:hasTopConcept', '@type' => '@id'],
+            'exactMatch' => ['@id' => 'skos:exactMatch', '@type' => '@id'],
             // CIDOC-CRM cross-walk for the descriptive core, so a CRM-aware
             // consumer can read the same node.
             'crmTitle' => 'crm:P102_has_title',

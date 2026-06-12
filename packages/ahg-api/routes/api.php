@@ -20,6 +20,7 @@ use AhgApi\Controllers\ProtocolController;
 use AhgApi\Controllers\PublicSitemapController;
 use AhgApi\Controllers\StatsController;
 use AhgApi\Controllers\TermEntityController;
+use AhgApi\Controllers\VocabularyController;
 use AhgApi\Controllers\V1\AccessionApiController;
 use AhgApi\Controllers\V1\ActorApiController;
 use AhgApi\Controllers\V1\DigitalObjectApiController;
@@ -804,6 +805,91 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
         ->name('open-data.cookbook');
     Route::get('open-data/cookbook.json', fn (\Illuminate\Http\Request $request) => app(CookbookController::class)->index($request, true))
         ->name('open-data.cookbook.json');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Controlled vocabularies as SKOS concept schemes — /vocabularies + /vocabulary (#1204)
+|--------------------------------------------------------------------------
+| Heratio's controlled vocabularies (authorities) published the standard
+| linked-data way: as SKOS concept schemes. Where /id/term/{slug} dereferences
+| ONE term as a skos:Concept, this surface publishes the whole VOCABULARY:
+|
+|   GET /vocabularies                  - an HTML index of the published concept
+|                                        schemes (subjects, places, genres) with
+|                                        live term counts + links (?format=json
+|                                        gives a machine list).
+|   GET /vocabulary/{taxonomy}         - ONE taxonomy as a skos:ConceptScheme;
+|       (+ .ttl | .jsonld | .rdf)        every term a skos:Concept with a
+|                                        language-tagged skos:prefLabel,
+|                                        skos:notation, skos:broader /
+|                                        skos:narrower, skos:inScheme /
+|                                        skos:topConceptOf and skos:scopeNote.
+|   GET /vocabulary/{taxonomy}/{termId}- ONE skos:Concept nested under its
+|       (+ .ttl | .jsonld | .rdf)        scheme, with a bounded handful of
+|                                        example published records (dct:subject).
+|
+| {taxonomy} is a SAFE, FIXED slug (subjects|places|genres) mapped to a term
+| taxonomy id, so it can never collide with a numeric id; {termId} is numeric.
+| The three RDF serialisations REUSE GraphSerializerService (no new RDF library).
+| Read-only; bounded (a huge scheme is capped with an honest skos:note); every
+| URI from url(); permissive open-data CORS on the machine forms.
+|
+| CATCH-ALL SAFETY:
+|   - "/vocabulary/{taxonomy}" and the deeper "/vocabulary/{taxonomy}/{termId}"
+|     are MULTI-SEGMENT, and the dotted variants carry a "." - so the
+|     single-segment /{slug} archival-record catch-all (constraint
+|     '[a-z0-9][a-z0-9-]*$' - one segment, no slash, no dot) can NEVER capture
+|     them.
+|   - "/vocabularies" is a SINGLE segment. ahg-api is discovered before
+|     ahg-information-object-manage (alphabetical package order), so this route
+|     registers first and wins the match (first-registered route wins) - the
+|     same idiom as /open-data, /explore and /graph-explorer. {taxonomy} is
+|     constrained to the slug grammar and {termId} to digits, so neither swallows
+|     a sibling path. The DOTTED scheme/concept routes are registered BEFORE the
+|     bare ones so a suffix binds as a format, never as part of the token.
+*/
+
+Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
+    // Single-segment HTML index of the concept schemes.
+    Route::options('vocabularies', [VocabularyController::class, 'options']);
+    Route::get('vocabularies', [VocabularyController::class, 'index'])
+        ->name('open-data.vocabularies');
+
+    // Concept (deepest) DOTTED format routes FIRST so ".ttl"/".jsonld"/".rdf"
+    // bind as a format, never as part of the {termId}.
+    Route::options('vocabulary/{taxonomy}/{termId}.{suffix}', [VocabularyController::class, 'options'])
+        ->where('taxonomy', '[a-z][a-z0-9\-]*')
+        ->where('termId', '[0-9]+')
+        ->where('suffix', 'ttl|jsonld|rdf');
+    Route::get('vocabulary/{taxonomy}/{termId}.{suffix}', [VocabularyController::class, 'concept'])
+        ->where('taxonomy', '[a-z][a-z0-9\-]*')
+        ->where('termId', '[0-9]+')
+        ->where('suffix', 'ttl|jsonld|rdf')
+        ->name('open-data.vocabulary.concept.suffixed');
+
+    Route::options('vocabulary/{taxonomy}/{termId}', [VocabularyController::class, 'options'])
+        ->where('taxonomy', '[a-z][a-z0-9\-]*')
+        ->where('termId', '[0-9]+');
+    Route::get('vocabulary/{taxonomy}/{termId}', [VocabularyController::class, 'concept'])
+        ->where('taxonomy', '[a-z][a-z0-9\-]*')
+        ->where('termId', '[0-9]+')
+        ->name('open-data.vocabulary.concept');
+
+    // Scheme DOTTED format routes BEFORE the bare scheme route.
+    Route::options('vocabulary/{taxonomy}.{suffix}', [VocabularyController::class, 'options'])
+        ->where('taxonomy', '[a-z][a-z0-9\-]*')
+        ->where('suffix', 'ttl|jsonld|rdf');
+    Route::get('vocabulary/{taxonomy}.{suffix}', [VocabularyController::class, 'scheme'])
+        ->where('taxonomy', '[a-z][a-z0-9\-]*')
+        ->where('suffix', 'ttl|jsonld|rdf')
+        ->name('open-data.vocabulary.scheme.suffixed');
+
+    Route::options('vocabulary/{taxonomy}', [VocabularyController::class, 'options'])
+        ->where('taxonomy', '[a-z][a-z0-9\-]*');
+    Route::get('vocabulary/{taxonomy}', [VocabularyController::class, 'scheme'])
+        ->where('taxonomy', '[a-z][a-z0-9\-]*')
+        ->name('open-data.vocabulary.scheme');
 });
 
 /*
