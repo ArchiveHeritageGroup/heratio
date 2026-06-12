@@ -1,6 +1,7 @@
 <?php
 
 use AhgReports\Controllers\CollectionsHealthController;
+use AhgReports\Controllers\DataQualityController;
 use AhgReports\Controllers\NorthStarCockpitController;
 use AhgReports\Controllers\ReportController;
 use AhgReports\Controllers\ReportBuilderController;
@@ -24,6 +25,17 @@ Route::middleware('admin')->group(function () {
 // archival-record catch-all. Read-only; never 500s.
 Route::middleware('admin')->group(function () {
     Route::get('/admin/trust-console', [TrustConsoleController::class, 'index'])->name('trust.console');
+});
+
+// Collection Data-Quality report - a read-only, archivist-facing dashboard of
+// ISAD(G) descriptive completeness across the published catalogue. For each core
+// ISAD(G) element it shows how many published records are missing it, plus an
+// overall completeness gauge. Admin-gated, same as the consoles above. The
+// two-segment /admin/data-quality path keeps it clear of the single-segment
+// /{slug} archival-record catch-all. Read-only; bounded aggregate COUNTs only;
+// never 500s; empty-state safe on a fresh install.
+Route::middleware('admin')->group(function () {
+    Route::get('/admin/data-quality', [DataQualityController::class, 'index'])->name('reports.data-quality');
 });
 
 // Main dashboard at /reports (matching AtoM URL)

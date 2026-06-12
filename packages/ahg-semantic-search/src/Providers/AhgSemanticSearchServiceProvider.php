@@ -312,6 +312,25 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ])
                 ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9/_-]*')
                 ->name('related.show');
+
+            // Public collection timeline - the distribution of published records
+            // across time, bucketed by period. The .json twin is declared FIRST
+            // (dotted, so a slug ending in ".json" can never be swallowed); the
+            // single-segment /timeline is bound here (register() +
+            // callAfterResolving('router')) so it wins ahead of the /{slug}
+            // archival-record catch-all, exactly like /themes above. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/timeline.json', [
+                    \AhgSemanticSearch\Controllers\TimelineController::class, 'json',
+                ])
+                ->name('timeline.json');
+
+            $router->middleware('web')
+                ->get('/timeline', [
+                    \AhgSemanticSearch\Controllers\TimelineController::class, 'index',
+                ])
+                ->name('timeline.index');
         });
     }
 
