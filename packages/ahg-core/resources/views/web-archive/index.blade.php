@@ -9,7 +9,9 @@
   Bootstrap 5 + central theme; FontAwesome icons. Jurisdiction-neutral.
 
   Honest scope note (shown to the operator): this archives the record's OWN HTML page
-  only - not yet its subresources (CSS / JS / images), and there is no replay surface yet.
+  PLUS its direct same-host subresources (CSS / JS / images / icons) into the same WARC;
+  off-host assets (third-party CDNs / fonts) are not fetched, and there is no replay
+  surface yet.
 
   Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems.
   Licensed under the GNU Affero General Public License v3 or later.
@@ -47,12 +49,12 @@
     @endif
   </div>
   <p class="text-muted small mb-3" style="max-width:960px">
-    {{ __('Web archiving captures a web page and preserves it in the standard WARC container (ISO 28500) so it remains readable after the live page changes. Here the catalogue can web-archive its own record pages: each capture performs a server-side request for the record\'s own public page on this host and writes a valid WARC 1.1 file (a warcinfo, request and response record) that you can store and download.') }}
+    {{ __('Web archiving captures a web page and preserves it in the standard WARC container (ISO 28500) so it remains readable after the live page changes. Here the catalogue can web-archive its own record pages: each capture performs a server-side request for the record\'s own public page on this host, then for its direct same-host subresources, and writes a valid WARC 1.1 file (a warcinfo record, the page request and response, and a request and response record for each captured asset) that you can store and download.') }}
   </p>
 
   <div class="alert alert-info py-2 small" style="max-width:960px">
     <i class="fas fa-circle-info me-1"></i>
-    {{ __('This first slice archives the record\'s own HTML page only. It does not yet fetch the page\'s subresources (CSS, JavaScript, images), and there is no in-app replay (Wayback) viewer yet - multi-resource capture and replay remain on the roadmap.') }}
+    {{ __('Each capture archives the record\'s own HTML page plus its direct SAME-HOST subresources (CSS, JavaScript, images, icons) into the same WARC file, so the captured page is more self-contained. Off-host assets (third-party CDNs, fonts) are deliberately not fetched, and there is no in-app replay (Wayback) viewer yet - off-host capture and replay remain on the roadmap.') }}
   </div>
 
   @foreach(['success' => 'alert-success', 'error' => 'alert-danger'] as $key => $cls)
@@ -118,6 +120,7 @@
                       <th>{{ __('Captured') }}</th>
                       <th>{{ __('Record') }}</th>
                       <th>{{ __('Target URI') }}</th>
+                      <th class="text-end">{{ __('Assets') }}</th>
                       <th class="text-end">{{ __('Size') }}</th>
                       <th>{{ __('Status') }}</th>
                       <th class="text-end">{{ __('Actions') }}</th>
@@ -135,6 +138,20 @@
                           @endif
                         </td>
                         <td class="small text-truncate" style="max-width:240px" title="{{ $c['target_uri'] }}">{{ $c['target_uri'] }}</td>
+                        <td class="small text-end text-nowrap">
+                          @if($c['status'] === 'captured')
+                            @php $sc = (int) ($c['subresource_count'] ?? 0); @endphp
+                            @if($sc > 0)
+                              <span class="badge bg-light text-dark border" title="{{ __('Same-host subresources captured into the WARC') }}">
+                                <i class="fas fa-link me-1"></i>+{{ $sc }}
+                              </span>
+                            @else
+                              <span class="text-muted" title="{{ __('Page only; no same-host subresources') }}">{{ __('page only') }}</span>
+                            @endif
+                          @else
+                            <span class="text-muted">-</span>
+                          @endif
+                        </td>
                         <td class="small text-end text-nowrap">{{ $fmtBytes($c['byte_size']) }}</td>
                         <td>
                           <span class="badge {{ $statusBadge($c['status']) }}">{{ __(ucfirst($c['status'])) }}</span>
@@ -159,7 +176,7 @@
                       @if($c['status'] === 'captured' && $c['sha256'])
                         <tr>
                           <td></td>
-                          <td colspan="5" class="small text-muted font-monospace" style="font-size:.7rem">
+                          <td colspan="6" class="small text-muted font-monospace" style="font-size:.7rem">
                             sha256: {{ $c['sha256'] }}
                           </td>
                         </tr>

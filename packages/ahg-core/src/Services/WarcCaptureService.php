@@ -46,10 +46,33 @@
  * Resilient by design: a missing table, an unreachable page, an oversize body, or a
  * non-own-host URL produces a `failed` row + a clean message - never a 500.
  *
- * Honest remaining gap: this archives the record's OWN HTML page only. It does NOT yet
- * fetch and embed the page's subresources (CSS / JS / images / fonts), and there is no
- * replay (Wayback / pywb) surface. Multi-resource capture and replay remain open under
- * heratio#1244 / the digital-preservation roadmap.
+ * Subresources (extends the original page-only slice)
+ * -----------------------------------------------------
+ * After fetching the main HTML page, the capture ALSO parses that page for its direct
+ * (depth-1) subresources - stylesheet/script/image/icon URLs from
+ * <link rel=stylesheet href>, <script src>, <img src> + srcset, <link rel=icon href>,
+ * and url(...) references inside inline <style> blocks - resolves each relative URL
+ * against the page URL, and keeps ONLY the SAME-HOST http/https ones (assertSameHostUrl()
+ * applies the same SSRF guards as the page fetch: same host as the record page, http/https
+ * only, no embedded credentials, no alternate port, no loopback / link-local /
+ * cloud-metadata host). Off-host assets (third-party CDNs, fonts, analytics) are dropped
+ * honestly - they are never fetched. Each kept subresource is fetched with the same
+ * bounded cURL client and appended to the SAME .warc as a matching request + response
+ * record pair, identical in structure to the page's records (WARC-Block-Digest sha256,
+ * WARC-Target-URI, Content-Type application/http; msgtype=...). The whole capture stays
+ * a single valid WARC 1.1 file. Bounds: a hard cap on the number of subresources, a
+ * per-asset size cap, a total-capture size cap, a per-asset timeout, URL de-duplication,
+ * and depth-1 only (the page's direct subresources; nested @import inside fetched CSS is
+ * NOT recursed). A subresource that fails (404 / timeout / oversize / off-host) is
+ * skipped cleanly and never aborts the capture. The page-only path still works when a
+ * page has no same-host subresources. The subresource count is recorded WITHOUT any
+ * schema change (no ALTER): it is written into the existing error_message column as a
+ * short note for successful captures and surfaced in the admin list + result message.
+ *
+ * Honest remaining gap: same-host subresources are now captured, but OFF-HOST assets
+ * (third-party CDNs / fonts) are deliberately NOT fetched, and there is still no replay
+ * (Wayback / pywb) surface. Off-host capture and replay remain open under heratio#1244 /
+ * the digital-preservation roadmap.
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -95,6 +118,23 @@ class WarcCaptureService
 
     /** Hard response-body size cap (8 MiB). Oversize -> clean failure. */
     private const MAX_BODY_BYTES = 8388608;
+
+    /** Subresource bounds (depth-1, same-host only). */
+
+    /** Max number of distinct same-host subresources fetched per capture. */
+    private const MAX_SUBRESOURCES = 50;
+
+    /** Per-subresource body size cap (4 MiB). Oversize -> skipped cleanly. */
+    private const MAX_SUBRESOURCE_BYTES = 4194304;
+
+    /** Total-capture body budget across the page + all subresources (24 MiB). */
+    private const MAX_TOTAL_BYTES = 25165824;
+
+    /** Per-subresource total timeout (seconds). */
+    private const SUBRESOURCE_TIMEOUT_SECONDS = 12;
+
+    /** Per-subresource connect timeout (seconds). */
+    private const SUBRESOURCE_CONNECT_TIMEOUT_SECONDS = 6;
 
     /** WARC subdirectory under the configured storage path. */
     private const WEB_ARCHIVE_SUBDIR = 'web-archive';
@@ -302,13 +342,24 @@ class WarcCaptureService
             return $this->fail($informationObjectId, $record['slug'], $fetch['error'] ?? __('The page could not be captured.'), $informationObjectId, $targetUri);
         }
 
-        // Build the WARC 1.1 bytes.
+        // Discover + fetch the page's DIRECT same-host subresources (depth-1, bounded).
+        // Any failure here degrades to zero subresources - the page-only WARC still
+        // succeeds.
+        $subresources = $this->captureSubresources(
+            $targetUri,
+            (string) ($fetch['body'] ?? ''),
+            (string) ($fetch['content_type'] ?? ''),
+            strlen((string) ($fetch['response_block'] ?? ''))
+        );
+
+        // Build the WARC 1.1 bytes (page records + N subresource record pairs).
         try {
             $warc = $this->buildWarc(
                 $targetUri,
                 $fetch['request_block'],
                 $fetch['response_block'],
-                $fetch['http_status']
+                $fetch['http_status'],
+                $subresources
             );
         } catch (Throwable $e) {
             \Log::warning('[ahg-core] warc buildWarc failed: '.$e->getMessage());
@@ -322,7 +373,10 @@ class WarcCaptureService
             return $this->fail($informationObjectId, $record['slug'], $written['error'] ?? __('The WARC file could not be stored.'), $informationObjectId, $targetUri);
         }
 
-        // Record the success row.
+        // Record the success row. The subresource COUNT is recorded WITHOUT any schema
+        // change (no ALTER, no new column): it is stored as a short note in the existing
+        // error_message column (a free-text status field) and surfaced in the admin list.
+        $subCount = count($subresources);
         $now = now();
         try {
             $id = (int) DB::table(self::TABLE)->insertGetId([
@@ -335,7 +389,7 @@ class WarcCaptureService
                 'sha256' => $written['sha256'],
                 'http_status' => $fetch['http_status'] ?: null,
                 'status' => self::STATUS_CAPTURED,
-                'error_message' => null,
+                'error_message' => $this->subresourceNote($subCount),
                 'captured_by' => $userId && $userId > 0 ? $userId : null,
                 'captured_at' => $now,
                 'created_at' => $now,
@@ -352,6 +406,7 @@ class WarcCaptureService
                 'target_uri' => $targetUri,
                 'byte_size' => $written['size'],
                 'sha256' => $written['sha256'],
+                'subresource_count' => $subCount,
             ];
         }
 
@@ -363,7 +418,81 @@ class WarcCaptureService
             'target_uri' => $targetUri,
             'byte_size' => $written['size'],
             'sha256' => $written['sha256'],
+            'subresource_count' => $subCount,
         ];
+    }
+
+    /**
+     * Discover + fetch the page's DIRECT (depth-1) same-host subresources into WARC
+     * record blocks, fully bounded (count cap, per-asset cap, total-capture budget,
+     * per-asset timeout, de-dup). Resilient: any single asset failure is skipped and a
+     * total failure here returns an empty list so the page-only WARC still succeeds.
+     *
+     * @return array<int, array{target_uri:string, request_block:string, response_block:string}>
+     */
+    private function captureSubresources(string $pageUrl, string $body, string $contentType, int $pageBlockBytes): array
+    {
+        try {
+            // Only parse subresources out of an HTML page.
+            if ($contentType !== '' && ! str_contains($contentType, 'html')) {
+                return [];
+            }
+            if (trim($body) === '') {
+                return [];
+            }
+
+            $urls = $this->discoverSubresources($body, $pageUrl);
+            if ($urls === []) {
+                return [];
+            }
+
+            $out = [];
+            // The page response block already consumed part of the total budget.
+            $remaining = self::MAX_TOTAL_BYTES - max(0, $pageBlockBytes);
+
+            foreach ($urls as $url) {
+                if ($remaining <= 0 || count($out) >= self::MAX_SUBRESOURCES) {
+                    break;
+                }
+                $sub = $this->fetchSubresource($url, $remaining);
+                if (! $sub['ok']) {
+                    // 404 / timeout / oversize / off-host-redirect -> skip cleanly, noted.
+                    \Log::info('[ahg-core] warc subresource skipped ('.($sub['error'] ?? 'unknown').'): '.$url);
+
+                    continue;
+                }
+                $remaining -= (int) $sub['byte_len'];
+                $out[] = [
+                    'target_uri' => $url,
+                    'request_block' => $sub['request_block'],
+                    'response_block' => $sub['response_block'],
+                ];
+            }
+
+            return $out;
+        } catch (Throwable $e) {
+            \Log::warning('[ahg-core] warc captureSubresources failed (page-only fallback): '.$e->getMessage());
+
+            return [];
+        }
+    }
+
+    /**
+     * A short, human-readable note recording the subresource count on a SUCCESSFUL
+     * capture, stored in the existing error_message column (no schema change). The admin
+     * list parses this back into a count for display.
+     */
+    private function subresourceNote(int $count): ?string
+    {
+        if ($count <= 0) {
+            return __('Page only; no same-host subresources captured.');
+        }
+
+        return trans_choice(
+            '{1}:count same-host subresource captured.|[2,*]:count same-host subresources captured.',
+            $count,
+            ['count' => $count]
+        );
     }
 
     /**
@@ -371,13 +500,13 @@ class WarcCaptureService
      * cURL when available (for a streamed, size-capped read + redirect cap), and
      * captures the exact request + response blocks for the WARC.
      *
-     * @return array{ok:bool, error:?string, http_status:int, request_block:string, response_block:string}
+     * @return array{ok:bool, error:?string, http_status:int, request_block:string, response_block:string, body:string, content_type:string}
      */
     private function fetch(string $url): array
     {
         $fail = fn (string $msg) => [
             'ok' => false, 'error' => $msg, 'http_status' => 0,
-            'request_block' => '', 'response_block' => '',
+            'request_block' => '', 'response_block' => '', 'body' => '', 'content_type' => '',
         ];
 
         if (! function_exists('curl_init')) {
@@ -472,7 +601,480 @@ class WarcCaptureService
             'http_status' => $status,
             'request_block' => $requestBlock,
             'response_block' => $responseBlock,
+            'body' => $body,
+            'content_type' => $this->contentTypeFromHeaderBlock($finalHeader),
         ];
+    }
+
+    /**
+     * Bounded server-side HTTP GET of one SAME-HOST subresource (already SSRF-validated
+     * by assertSameHostUrl()). Mirrors fetch() but uses the tighter per-subresource
+     * caps and an explicit remaining-byte budget so the total capture stays bounded.
+     * Returns ok=false (with a short reason) on any failure / oversize / non-2xx so the
+     * caller can skip it cleanly - it never throws.
+     *
+     * @return array{ok:bool, error:?string, http_status:int, request_block:string, response_block:string, byte_len:int}
+     */
+    private function fetchSubresource(string $url, int $remainingBudget): array
+    {
+        $fail = fn (string $msg) => [
+            'ok' => false, 'error' => $msg, 'http_status' => 0,
+            'request_block' => '', 'response_block' => '', 'byte_len' => 0,
+        ];
+
+        if (! function_exists('curl_init')) {
+            return $fail('http client unavailable');
+        }
+
+        // Per-asset cap is the smaller of the fixed per-asset cap and what is left in
+        // the total-capture budget.
+        $cap = max(0, min(self::MAX_SUBRESOURCE_BYTES, $remainingBudget));
+        if ($cap <= 0) {
+            return $fail('total capture budget exhausted');
+        }
+
+        $parts = parse_url($url);
+        $host = (string) ($parts['host'] ?? '');
+        $path = (string) ($parts['path'] ?? '/');
+        if ($path === '') {
+            $path = '/';
+        }
+        if (isset($parts['query']) && $parts['query'] !== '') {
+            $path .= '?'.$parts['query'];
+        }
+
+        $reqHeaders = [
+            'GET '.$path.' HTTP/1.1',
+            'Host: '.$host,
+            'User-Agent: '.self::SOFTWARE,
+            'Accept: */*',
+            'Accept-Encoding: identity',
+            'Connection: close',
+        ];
+        $requestBlock = implode("\r\n", $reqHeaders)."\r\n\r\n";
+
+        $rawHeader = '';
+        $body = '';
+        $oversize = false;
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_HTTPGET => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => self::MAX_REDIRECTS,
+            CURLOPT_CONNECTTIMEOUT => self::SUBRESOURCE_CONNECT_TIMEOUT_SECONDS,
+            CURLOPT_TIMEOUT => self::SUBRESOURCE_TIMEOUT_SECONDS,
+            CURLOPT_HTTPHEADER => [
+                'User-Agent: '.self::SOFTWARE,
+                'Accept: */*',
+                'Accept-Encoding: identity',
+            ],
+            // Pin to http/https only (defence in depth on top of assertSameHostUrl()).
+            CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+            CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+            CURLOPT_HEADERFUNCTION => function ($c, $line) use (&$rawHeader) {
+                $rawHeader .= $line;
+
+                return strlen($line);
+            },
+            CURLOPT_WRITEFUNCTION => function ($c, $chunk) use (&$body, &$oversize, $cap) {
+                $body .= $chunk;
+                if (strlen($body) > $cap) {
+                    $oversize = true;
+
+                    return -1; // abort: oversize / over budget
+                }
+
+                return strlen($chunk);
+            },
+        ]);
+
+        $ok = curl_exec($ch);
+        $errno = curl_errno($ch);
+        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        curl_close($ch);
+
+        if ($oversize) {
+            return $fail('subresource exceeds size / budget cap');
+        }
+        if ($ok === false && $errno !== 0) {
+            return $fail('subresource network error');
+        }
+        if ($status < 200 || $status >= 300) {
+            // Only archive successfully-served assets (a 404/redirect-loop/5xx is skipped).
+            return $fail('subresource HTTP '.$status);
+        }
+
+        $finalHeader = $this->lastHeaderBlock($rawHeader);
+        $finalHeader = $this->toCrlf(rtrim($finalHeader, "\r\n"));
+        $responseBlock = $finalHeader."\r\n\r\n".$body;
+
+        return [
+            'ok' => true,
+            'error' => null,
+            'http_status' => $status,
+            'request_block' => $requestBlock,
+            'response_block' => $responseBlock,
+            'byte_len' => strlen($responseBlock),
+        ];
+    }
+
+    // =====================================================================
+    // Subresource discovery + same-host SSRF filter (depth-1)
+    // =====================================================================
+
+    /**
+     * Parse the fetched HTML for the page's DIRECT (depth-1) subresource URLs, resolve
+     * each against the page URL, keep only SAME-HOST http/https ones, de-duplicate, and
+     * cap the count. Returns an ordered, unique list of absolute same-host URLs.
+     *
+     * Discovered references:
+     *   - <link rel="stylesheet" href>          (CSS)
+     *   - <link rel="icon"|"shortcut icon" href> (favicons)
+     *   - <link rel="preload" as="..."> / "modulepreload" href
+     *   - <script src>                           (JS)
+     *   - <img src> and <img srcset> / <source srcset>
+     *   - url(...) inside inline <style> blocks   (CSS images / @font-face)
+     *
+     * Off-host references are dropped here (never fetched). Nested @import inside fetched
+     * CSS is intentionally NOT recursed (depth-1 only).
+     *
+     * @return array<int, string>
+     */
+    public function discoverSubresources(string $html, string $pageUrl): array
+    {
+        if (trim($html) === '') {
+            return [];
+        }
+
+        $candidates = [];
+
+        // href on <link> (stylesheet / icon / preload / modulepreload).
+        if (preg_match_all('/<link\b[^>]*>/i', $html, $m)) {
+            foreach ($m[0] as $tag) {
+                $rel = $this->attr($tag, 'rel');
+                $relLc = strtolower($rel);
+                $wanted = str_contains($relLc, 'stylesheet')
+                    || str_contains($relLc, 'icon')
+                    || str_contains($relLc, 'preload')        // covers preload + modulepreload
+                    || str_contains($relLc, 'apple-touch');
+                if (! $wanted) {
+                    continue;
+                }
+                $href = $this->attr($tag, 'href');
+                if ($href !== '') {
+                    $candidates[] = $href;
+                }
+                // <link rel=preload imagesrcset=...> carries a srcset too.
+                foreach ($this->srcsetUrls($this->attr($tag, 'imagesrcset')) as $u) {
+                    $candidates[] = $u;
+                }
+            }
+        }
+
+        // <script src>.
+        if (preg_match_all('/<script\b[^>]*\bsrc\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)[^>]*>/i', $html, $m)) {
+            foreach ($m[0] as $tag) {
+                $src = $this->attr($tag, 'src');
+                if ($src !== '') {
+                    $candidates[] = $src;
+                }
+            }
+        }
+
+        // <img src> + <img srcset> + <source srcset>.
+        if (preg_match_all('/<(?:img|source)\b[^>]*>/i', $html, $m)) {
+            foreach ($m[0] as $tag) {
+                $src = $this->attr($tag, 'src');
+                if ($src !== '') {
+                    $candidates[] = $src;
+                }
+                foreach ($this->srcsetUrls($this->attr($tag, 'srcset')) as $u) {
+                    $candidates[] = $u;
+                }
+            }
+        }
+
+        // url(...) inside inline <style> blocks (CSS background images, @font-face src).
+        if (preg_match_all('/<style\b[^>]*>(.*?)<\/style>/is', $html, $m)) {
+            foreach ($m[1] as $css) {
+                foreach ($this->cssUrls($css) as $u) {
+                    $candidates[] = $u;
+                }
+            }
+        }
+
+        // Resolve, same-host filter, de-dup, cap.
+        $seen = [];
+        $out = [];
+        foreach ($candidates as $raw) {
+            $abs = $this->resolveUrl($raw, $pageUrl);
+            if ($abs === null) {
+                continue;
+            }
+            if (! $this->assertSameHostUrl($abs, $pageUrl)) {
+                continue; // off-host / loopback / metadata / ported / credentialed -> dropped
+            }
+            if (isset($seen[$abs])) {
+                continue;
+            }
+            // Never re-fetch the page itself as a subresource.
+            if (rtrim($abs, '/') === rtrim($this->stripFragmentQuery($pageUrl), '/')) {
+                continue;
+            }
+            $seen[$abs] = true;
+            $out[] = $abs;
+            if (count($out) >= self::MAX_SUBRESOURCES) {
+                break;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * SAME-HOST SSRF GUARD for a subresource URL. Looser than assertOwnRecordUrl() on
+     * the PATH (a subresource has its own path) but identical on every host-level guard:
+     * http/https only, the SAME host as the record page, no embedded credentials, no
+     * alternate port, and the host must not be a loopback / link-local / cloud-metadata
+     * address. cURL is additionally pinned to http/https at fetch time.
+     */
+    public function assertSameHostUrl(string $url, string $pageUrl): bool
+    {
+        $a = parse_url($url);
+        $p = parse_url($pageUrl);
+        if (! is_array($a) || ! is_array($p)) {
+            return false;
+        }
+
+        // Scheme must be http/https and identical to the page scheme (no downgrade).
+        $aScheme = strtolower((string) ($a['scheme'] ?? ''));
+        $pScheme = strtolower((string) ($p['scheme'] ?? ''));
+        if (! in_array($aScheme, ['http', 'https'], true) || $aScheme !== $pScheme) {
+            return false;
+        }
+
+        // No embedded credentials.
+        if (isset($a['user']) || isset($a['pass'])) {
+            return false;
+        }
+
+        // Host must match the page host exactly, and must be this site's own host.
+        $aHost = strtolower((string) ($a['host'] ?? ''));
+        $pHost = strtolower((string) ($p['host'] ?? ''));
+        $ours = strtolower((string) parse_url((string) url('/'), PHP_URL_HOST));
+        if ($aHost === '' || $aHost !== $pHost || ($ours !== '' && $aHost !== $ours)) {
+            return false;
+        }
+
+        // No alternate port (the canonical page URL carries no explicit port).
+        if (isset($a['port'])) {
+            return false;
+        }
+
+        // Reject literal loopback / link-local / cloud-metadata hosts as a belt-and-braces
+        // guard even though the host-equality check above already constrains us.
+        if ($this->isBlockedHostLiteral($aHost)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /** True for loopback / link-local / cloud-metadata / private-range host literals. */
+    private function isBlockedHostLiteral(string $host): bool
+    {
+        if ($host === '') {
+            return true;
+        }
+        $h = trim($host, '[]'); // strip IPv6 brackets
+
+        if (in_array($h, ['localhost', '127.0.0.1', '::1', '0.0.0.0'], true)) {
+            return true;
+        }
+        // AWS / GCP / Azure link-local metadata endpoint.
+        if ($h === '169.254.169.254' || str_starts_with($h, '169.254.')) {
+            return true;
+        }
+        // RFC1918 / loopback / unspecified IPv4 literals.
+        if (filter_var($h, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            if (! filter_var($h, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return true;
+            }
+        }
+        // Unique-local / loopback IPv6 literals.
+        if (filter_var($h, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            $lc = strtolower($h);
+            if ($lc === '::1' || str_starts_with($lc, 'fc') || str_starts_with($lc, 'fd') || str_starts_with($lc, 'fe80')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** Resolve a (possibly relative) reference against the absolute page URL. */
+    private function resolveUrl(string $ref, string $base): ?string
+    {
+        $ref = trim(html_entity_decode($ref, ENT_QUOTES | ENT_HTML5));
+        if ($ref === '') {
+            return null;
+        }
+        // Ignore non-fetchable schemes outright.
+        $lc = strtolower($ref);
+        if (str_starts_with($lc, 'data:')
+            || str_starts_with($lc, 'javascript:')
+            || str_starts_with($lc, 'mailto:')
+            || str_starts_with($lc, 'tel:')
+            || str_starts_with($lc, 'blob:')
+            || str_starts_with($lc, '#')
+            || str_starts_with($lc, 'about:')) {
+            return null;
+        }
+
+        $b = parse_url($base);
+        if (! is_array($b) || ! isset($b['scheme'], $b['host'])) {
+            return null;
+        }
+        $scheme = strtolower((string) $b['scheme']);
+        $host = (string) $b['host'];
+        $basePath = (string) ($b['path'] ?? '/');
+
+        // Already absolute (has a scheme).
+        if (preg_match('#^[a-z][a-z0-9+.\-]*://#i', $ref)) {
+            return $this->stripFragmentQuery($ref, true);
+        }
+        // Protocol-relative //host/path.
+        if (str_starts_with($ref, '//')) {
+            return $this->stripFragmentQuery($scheme.':'.$ref, true);
+        }
+        // Root-relative /path.
+        if (str_starts_with($ref, '/')) {
+            return $this->stripFragmentQuery($scheme.'://'.$host.$ref, true);
+        }
+        // Document-relative path -> resolve against the base directory.
+        $dir = $basePath;
+        $slash = strrpos($dir, '/');
+        $dir = $slash === false ? '/' : substr($dir, 0, $slash + 1);
+        $combined = $this->normalizePath($dir.$ref);
+
+        return $this->stripFragmentQuery($scheme.'://'.$host.$combined, true);
+    }
+
+    /** Collapse ./ and ../ segments in a URL path. */
+    private function normalizePath(string $path): string
+    {
+        $isAbs = str_starts_with($path, '/');
+        $parts = explode('/', $path);
+        $stack = [];
+        foreach ($parts as $seg) {
+            if ($seg === '' || $seg === '.') {
+                continue;
+            }
+            if ($seg === '..') {
+                array_pop($stack);
+
+                continue;
+            }
+            $stack[] = $seg;
+        }
+        $out = ($isAbs ? '/' : '').implode('/', $stack);
+        // Preserve a trailing slash if the original had one.
+        if (str_ends_with($path, '/') && ! str_ends_with($out, '/')) {
+            $out .= '/';
+        }
+
+        return $out === '' ? '/' : $out;
+    }
+
+    /**
+     * Strip the fragment from a URL (and, by default for subresources, keep the query
+     * since CSS/JS assets are often cache-busted with ?v=...). When $keepQuery is false
+     * the query is also stripped (used to compare against the page URL).
+     */
+    private function stripFragmentQuery(string $url, bool $keepQuery = false): string
+    {
+        $hash = strpos($url, '#');
+        if ($hash !== false) {
+            $url = substr($url, 0, $hash);
+        }
+        if (! $keepQuery) {
+            $q = strpos($url, '?');
+            if ($q !== false) {
+                $url = substr($url, 0, $q);
+            }
+        }
+
+        return $url;
+    }
+
+    /** Extract an HTML attribute value (quoted or bare) from a single tag string. */
+    private function attr(string $tag, string $name): string
+    {
+        if ($tag === '') {
+            return '';
+        }
+        if (preg_match('/\b'.preg_quote($name, '/').'\s*=\s*"([^"]*)"/i', $tag, $m)) {
+            return $m[1];
+        }
+        if (preg_match('/\b'.preg_quote($name, '/').'\s*=\s*\'([^\']*)\'/i', $tag, $m)) {
+            return $m[1];
+        }
+        if (preg_match('/\b'.preg_quote($name, '/').'\s*=\s*([^\s>]+)/i', $tag, $m)) {
+            return $m[1];
+        }
+
+        return '';
+    }
+
+    /** Pull the URL part out of each comma-separated srcset candidate. */
+    private function srcsetUrls(string $srcset): array
+    {
+        $srcset = trim($srcset);
+        if ($srcset === '') {
+            return [];
+        }
+        $out = [];
+        foreach (explode(',', $srcset) as $cand) {
+            $cand = trim($cand);
+            if ($cand === '') {
+                continue;
+            }
+            // "url 2x" / "url 640w" / "url" - take the first whitespace-delimited token.
+            $url = preg_split('/\s+/', $cand)[0] ?? '';
+            if ($url !== '') {
+                $out[] = $url;
+            }
+        }
+
+        return $out;
+    }
+
+    /** Extract url(...) references from a CSS string (inline <style> only, depth-1). */
+    private function cssUrls(string $css): array
+    {
+        $out = [];
+        if (preg_match_all('/url\(\s*(\'[^\']*\'|"[^"]*"|[^)]*)\s*\)/i', $css, $m)) {
+            foreach ($m[1] as $u) {
+                $u = trim($u, " \t\n\r\0\x0B\"'");
+                if ($u !== '') {
+                    $out[] = $u;
+                }
+            }
+        }
+
+        return $out;
+    }
+
+    /** Best-effort Content-Type value from a normalised HTTP header block (lowercased). */
+    private function contentTypeFromHeaderBlock(string $headerBlock): string
+    {
+        if (preg_match('/^content-type\s*:\s*([^\r\n]+)/im', $headerBlock, $m)) {
+            return strtolower(trim($m[1]));
+        }
+
+        return '';
     }
 
     // =====================================================================
@@ -487,7 +1089,7 @@ class WarcCaptureService
      * WARC-Block-Digest; request/response also carry WARC-Target-URI and
      * Content-Type: application/http; msgtype=<request|response>.
      */
-    public function buildWarc(string $targetUri, string $requestBlock, string $responseBlock, int $httpStatus): string
+    public function buildWarc(string $targetUri, string $requestBlock, string $responseBlock, int $httpStatus, array $subresources = []): string
     {
         $date = gmdate('Y-m-d\TH:i:s\Z');
 
@@ -517,7 +1119,32 @@ class WarcCaptureService
             'Content-Type' => 'application/http; msgtype=response',
         ], $responseBlock, null);
 
-        return $warcinfo.$requestRec.$responseRec;
+        $warc = $warcinfo.$requestRec.$responseRec;
+
+        // Append each captured SAME-HOST subresource as a request + response pair, with
+        // the exact same record structure (headers + sha256 block digest) as the page.
+        foreach ($subresources as $sub) {
+            $subUri = (string) ($sub['target_uri'] ?? '');
+            $subReq = (string) ($sub['request_block'] ?? '');
+            $subResp = (string) ($sub['response_block'] ?? '');
+            if ($subUri === '' || $subResp === '') {
+                continue;
+            }
+
+            $warc .= $this->record('request', [
+                'WARC-Date' => $date,
+                'WARC-Target-URI' => $subUri,
+                'Content-Type' => 'application/http; msgtype=request',
+            ], $subReq, null);
+
+            $warc .= $this->record('response', [
+                'WARC-Date' => $date,
+                'WARC-Target-URI' => $subUri,
+                'Content-Type' => 'application/http; msgtype=response',
+            ], $subResp, null);
+        }
+
+        return $warc;
     }
 
     /**
@@ -688,6 +1315,9 @@ class WarcCaptureService
                     'http_status' => $r->http_status !== null ? (int) $r->http_status : null,
                     'status' => (string) $r->status,
                     'error_message' => $r->error_message !== null ? (string) $r->error_message : null,
+                    'subresource_count' => (string) $r->status === self::STATUS_CAPTURED
+                        ? $this->subresourceCountFromNote($r->error_message !== null ? (string) $r->error_message : null)
+                        : null,
                     'captured_at' => $r->captured_at !== null ? (string) $r->captured_at : null,
                     'has_file' => $r->file_path !== null && $r->file_path !== '' && is_file((string) $r->file_path),
                 ];
@@ -742,6 +1372,23 @@ class WarcCaptureService
 
             return null;
         }
+    }
+
+    /**
+     * Parse the subresource count back out of a successful capture's note (stored in the
+     * error_message column). Returns the integer count, or 0 when the note is the
+     * "page only" form (or absent / unparsable). Never throws.
+     */
+    private function subresourceCountFromNote(?string $note): int
+    {
+        if ($note === null || trim($note) === '') {
+            return 0;
+        }
+        if (preg_match('/\d+/', $note, $m)) {
+            return (int) $m[0];
+        }
+
+        return 0;
     }
 
     /** Dropdown-driven status label, with a safe fallback to the raw code. */

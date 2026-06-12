@@ -9,12 +9,14 @@ replay tool (such as the Wayback Machine / pywb) can reconstruct the page exactl
 as it was served. Capture tools include Heritrix, Browsertrix / Webrecorder, and
 wget's WARC mode. **Heratio now implements a bounded first slice of WARC web
 archiving (heratio#1244):** the catalogue can snapshot a PUBLISHED record's OWN
-public page into a valid WARC 1.1 file at **Admin -> Web archive**
+public page - plus that page's direct SAME-HOST subresources (CSS / JS / images /
+icons) - into a single valid WARC 1.1 file at **Admin -> Web archive**
 (`/admin/web-archive`). This article describes what that slice does, exactly, and
-is honest about what is NOT yet done (subresource capture, replay). If a user asks
-how Heratio captures or replays websites, the correct answer is: it can web-archive
-its own record pages into a valid WARC 1.1 file today, but it does not yet capture
-a page's subresources and has no in-app replay surface.
+is honest about what is NOT yet done (off-host subresource capture, replay). If a
+user asks how Heratio captures or replays websites, the correct answer is: it can
+web-archive its own record pages AND their same-host subresources into a valid WARC
+1.1 file today, but it does not fetch off-host (third-party CDN / font) assets and
+has no in-app replay surface.
 
 ## The concept
 
@@ -53,19 +55,42 @@ catalogue can web-archive **its own published record pages**. Precisely:
 - **The bounded fetch.** A server-side cURL GET of that one page, with a connect
   timeout, a total timeout, a redirect cap, and a hard response-size cap (8 MiB).
   An unreachable or oversize page records a `failed` row with a clean reason.
-- **The WARC 1.1 produced.** Three records in order - `warcinfo`
-  (`application/warc-fields`), `request` (`application/http; msgtype=request`),
-  and `response` (`application/http; msgtype=response`) - each with a `WARC/1.1`
-  version line and correct headers: `WARC-Type`, a `urn:uuid` `WARC-Record-ID`,
-  `WARC-Date`, `WARC-Target-URI`, `Content-Type`, `Content-Length` for the block,
-  and a `WARC-Block-Digest: sha256:<base32>`. Records are CRLF-CRLF terminated.
+- **Same-host subresources (depth-1).** After the page is fetched, the HTML is
+  parsed for its DIRECT subresource references: `<link rel=stylesheet|icon|preload
+  href>`, `<script src>`, `<img src>` + `srcset`, `<source srcset>`, and `url(...)`
+  inside inline `<style>` blocks. Each reference is resolved against the page URL
+  and passed through `assertSameHostUrl()`, which applies the SAME SSRF guards as
+  the page fetch: http/https only, the same host as the record page, no embedded
+  credentials, no alternate port, and a literal-host block-list (loopback /
+  link-local / cloud-metadata / private-range). ONLY same-host assets are kept;
+  off-host references (third-party CDNs, fonts, analytics) are dropped and never
+  fetched. Each kept asset is fetched with the same cURL client (pinned to
+  http/https) and appended to the SAME WARC as a `request` + `response` pair,
+  identical in structure to the page records. Bounds: at most 50 subresources, a
+  per-asset cap (4 MiB), a total-capture budget (24 MiB), a per-asset timeout, URL
+  de-duplication, and depth-1 only (nested `@import` inside fetched CSS is NOT
+  recursed). A subresource that 404s / times out / is oversize / redirects
+  off-host is skipped cleanly and never aborts the capture; a page with no
+  same-host subresources still produces a valid page-only WARC.
+- **The WARC 1.1 produced.** A `warcinfo` record (`application/warc-fields`), then
+  the page `request` (`application/http; msgtype=request`) and `response`
+  (`application/http; msgtype=response`), then a `request` + `response` pair for
+  each captured same-host subresource - all in one file. Each record carries a
+  `WARC/1.1` version line and correct headers: `WARC-Type`, a `urn:uuid`
+  `WARC-Record-ID`, `WARC-Date`, `WARC-Target-URI`, `Content-Type`,
+  `Content-Length` for the block, and a `WARC-Block-Digest: sha256:<base32>`.
+  Records are CRLF-CRLF terminated.
 - **Storage + register.** The `.warc` bytes are written under
   `config('heratio.storage_path').'/web-archive'` (never a hardcoded path; the
   storage root is www-data-writable). A row is recorded in the NEW `warc_capture`
   table (information_object_id, slug, target_uri, file path + name, byte size,
   file SHA-256, http status, outcome status, captured_by, captured_at). The
   outcome status comes from the Dropdown Manager group `warc_capture_status` (no
-  ENUM). Download streams the file with `Content-Type: application/warc`.
+  ENUM). The subresource COUNT is recorded WITHOUT any schema change (no ALTER, no
+  new column): for a successful capture a short note ("N same-host subresources
+  captured." / "Page only; no same-host subresources.") is written into the
+  existing `error_message` free-text column and parsed back for the admin list +
+  result message. Download streams the file with `Content-Type: application/warc`.
 - **Adjacent file pipelines.** Heratio's ingest and scanner pipelines
   (`ahg-ingest`, `ahg-scan`) still treat any externally-produced WARC deposited as
   a plain file the way they treat any file (store, checksum, PUID-identify). See
@@ -73,10 +98,13 @@ catalogue can web-archive **its own published record pages**. Precisely:
 
 ## Gaps / not yet (the honest answer)
 
-- **Own HTML page only - no subresources.** The capture archives the record's own
-  HTML response. It does NOT yet fetch and embed the page's subresources (CSS,
-  JavaScript, images, fonts), so a stored WARC replays the markup but not the full
-  rendered page.
+- **Same-host subresources only - off-host assets not fetched.** The capture now
+  archives the record's own HTML page PLUS its direct same-host subresources (CSS,
+  JS, images, icons). It deliberately does NOT fetch OFF-HOST assets (third-party
+  CDNs, web fonts, analytics) - those are dropped honestly by the SSRF guard - so a
+  page that loads, say, a CDN stylesheet or a Google font will replay without it.
+  Subresource discovery is also depth-1: nested `@import` inside a fetched CSS file
+  is not followed.
 - **No replay surface.** There is no in-app Wayback / pywb-style replay viewer;
   the stored WARC is browsed with external WARC tooling.
 - **Own pages only.** The capture is deliberately scoped to the catalogue's OWN
@@ -87,6 +115,6 @@ catalogue can web-archive **its own published record pages**. Precisely:
 - **Recommendation if asked.** For full-site or subresource-faithful archiving,
   use a dedicated tool (Browsertrix, Conifer / Webrecorder, the Internet Archive's
   Archive-It, or Heritrix + pywb) and deposit the resulting WARC into Heratio as a
-  preserved file (with fixity and PREMIS). Multi-resource capture and replay
+  preserved file (with fixity and PREMIS). Off-host subresource capture and replay
   inside Heratio remain open under the digital-preservation roadmap (heratio#1244
   / epic heratio#1243).

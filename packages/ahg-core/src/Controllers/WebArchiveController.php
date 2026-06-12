@@ -18,8 +18,12 @@
  * .warc files on disk under the configured storage path; no AtoM/Qubit base table is
  * written, no ALTER, no AI call. The capture takes a record ID (never a raw URL): the
  * service derives the record's OWN canonical url() and SSRF-validates it before any
- * fetch. Every action is resilient: a missing table, an unreachable / oversize page,
- * or a non-own-host target degrades to a clean message + a `failed` row, never a 500.
+ * fetch. The capture now also archives the page's DIRECT same-host subresources (CSS /
+ * JS / images / icons / inline-style url()) into the SAME WARC - off-host assets are
+ * dropped honestly, and the bounded subresource count is surfaced in the result message
+ * + the captures list. Every action is resilient: a missing table, an unreachable /
+ * oversize page, a failing subresource, or a non-own-host target degrades to a clean
+ * message + a `failed` row, never a 500.
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -67,8 +71,17 @@ class WebArchiveController extends Controller
         $result = $this->service->capture((int) $data['information_object_id'], Auth::id());
 
         if (! empty($result['ok'])) {
+            $subCount = (int) ($result['subresource_count'] ?? 0);
+            $subNote = $subCount > 0
+                ? ' '.trans_choice(
+                    '{1}+ :count same-host subresource.|[2,*]+ :count same-host subresources.',
+                    $subCount,
+                    ['count' => $subCount]
+                )
+                : ' '.__('(page only; no same-host subresources).');
+
             return redirect()->route('web-archive.index')
-                ->with('success', __('Page captured to a WARC file.').' ('.($result['byte_size'] ?? 0).' '.__('bytes').')');
+                ->with('success', __('Page captured to a WARC file.').' ('.($result['byte_size'] ?? 0).' '.__('bytes').')'.$subNote);
         }
 
         return redirect()->route('web-archive.index')
