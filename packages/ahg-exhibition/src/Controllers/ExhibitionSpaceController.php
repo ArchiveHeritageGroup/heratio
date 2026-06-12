@@ -142,6 +142,20 @@ class ExhibitionSpaceController extends Controller
         }
         $msg = "Published to the RiC graph as an Activity. Linked {$r['linked']} object(s)"
             .($r['already'] ? ", {$r['already']} already linked" : '').'.';
+        // heratio#1218 - surface the richer relations (participant / venue / date) when emitted.
+        $extra = [];
+        if (! empty($r['participants'])) {
+            $extra[] = "{$r['participants']} participant(s)";
+        }
+        if (! empty($r['venues'])) {
+            $extra[] = 'venue (took place at)';
+        }
+        if (! empty($r['dated'])) {
+            $extra[] = 'date';
+        }
+        if ($extra) {
+            $msg .= ' Added '.implode(', ', $extra).'.';
+        }
 
         return back()->with('success', $msg);
     }

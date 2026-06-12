@@ -259,3 +259,23 @@ A **WebGPU renderer** (issue #1153) is being evaluated: open
 modern three.js with WebGPU on capable devices and a graceful WebGL2 fallback elsewhere
 (a badge shows which backend is live). The main walkthrough still uses WebGL until that
 evaluation completes.
+
+## Publish to the RiC knowledge graph
+
+The **Publish to RiC graph** button on the exhibition-space page adds the exhibition to
+Heratio's Records in Contexts (RiC) graph as a `rico:Activity`, so it sits alongside your
+archival activities and each displayed object lists the exhibitions it featured in.
+
+When the space is tied to a catalogued exhibition, publishing now also records the activity's
+**who, where and when**:
+
+- **Had participant** - the exhibition's curator, designer and organising body are added as
+  people/organisations (RiC agents) that carried out the activity.
+- **Took place at** - the exhibition's venue is added as a place the activity was held at
+  (resolved from your venue record, or from the venue name/address on the exhibition).
+- **Has date** - the exhibition's opening and closing dates are recorded on the activity and on
+  each of the above links.
+
+Only the details that actually exist are added - an exhibition with no venue, no named people or
+no dates simply skips those links. Publishing again is safe: it refreshes the activity and never
+creates duplicate participant or venue links.
