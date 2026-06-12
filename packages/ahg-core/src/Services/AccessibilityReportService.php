@@ -19,11 +19,11 @@
  * 1.2.3/1.2.5 Audio Description / Media Alternative, 3.1.1/3.1.2 Language).
  *
  * What it measures (cheap aggregate COUNTs only - NO per-record loops):
- *   - IMAGE digital objects on published records that carry a stored description
- *     (digital_object_metadata.description - the embedded IPTC/XMP caption, the
- *     closest queryable alt-text signal Heratio persists) vs those that do not.
- *     A dedicated alt-text column does not exist in the schema, so genuine alt
- *     text is reported separately as "Not measured" with a gap recommendation.
+ *   - IMAGE digital objects on published records that carry a text alternative -
+ *     EITHER a genuine human-authored entry in the dedicated image_alt_text store
+ *     (the heratio#1211 curation slice), OR - as a fallback - the embedded IPTC/XMP
+ *     caption in digital_object_metadata.description - vs those that carry neither.
+ *     The curated store is the real WCAG 1.1.1 signal; the caption is a fallback.
  *   - AUDIO/VIDEO digital objects (on published records) that have at least one
  *     active caption / subtitle track (media_caption_track) vs those without.
  *   - AUDIO/VIDEO digital objects that have a transcript (media_transcription)
@@ -150,27 +150,31 @@ class AccessibilityReportService
     /**
      * Image alternative text (WCAG 1.1.1 Non-text Content).
      *
-     * Heratio has NO dedicated alt-text column for image digital objects, so true
-     * programmatic alt text cannot be measured. The closest queryable signal is the
-     * embedded IPTC/XMP caption stored in digital_object_metadata.description; we
-     * report image surrogates (on published records) that carry that description as
-     * the coverage proxy, and label the area's gap to make the limitation explicit.
-     * If the metadata table is absent the area is "Not measured".
+     * A published image counts as having a text alternative if EITHER a curator has
+     * authored a genuine alt-text row in the dedicated image_alt_text store (the
+     * heratio#1211 curation slice - human-authored, the real WCAG 1.1.1 signal), OR -
+     * as a fallback - it carries an embedded IPTC/XMP caption in
+     * digital_object_metadata.description. The two are OR-ed in a single bounded
+     * aggregate. Either source can be absent independently: if neither the curation
+     * store nor the metadata caption is queryable, the area is "Not measured".
      */
     private function imageAltArea(): array
     {
         $key = 'image_alt';
         $name = 'Image alternative text';
-        $subtitle = 'Published image surrogates that carry a stored text description';
+        $subtitle = 'Published image surrogates that carry a text alternative (curated entry or embedded caption)';
         $wcag = 'WCAG 2.1 - 1.1.1 Non-text Content (A)';
 
+        $hasAltStore = Schema::hasTable('image_alt_text');
+        $hasCaption = Schema::hasTable('digital_object_metadata')
+            && Schema::hasColumn('digital_object_metadata', 'description');
+
         if (! Schema::hasTable('digital_object') || ! Schema::hasTable('information_object')
-            || ! Schema::hasTable('digital_object_metadata')
-            || ! Schema::hasColumn('digital_object_metadata', 'description')) {
+            || (! $hasAltStore && ! $hasCaption)) {
             return $this->notMeasured(
                 $key, $name, $subtitle, $wcag,
-                'Heratio does not store a dedicated alternative-text field for image surrogates, so programmatic alt text cannot be measured from the catalogue.',
-                'Add a per-surrogate alternative-text field (separate from the embedded IPTC/XMP caption) and prompt for it on upload, so screen-reader users get a real text alternative for every published image (WCAG 1.1.1).'
+                'No place to record image alternative text is available to measure (neither the curated alt-text store nor an embedded caption field).',
+                'Use the alt-text curation worklist (/admin/alt-text) to author a genuine text alternative for each published image, so screen-reader users get a real non-text alternative (WCAG 1.1.1).'
             );
         }
 
@@ -180,32 +184,71 @@ class AccessibilityReportService
                 return $this->emptyAreaButMeasured(
                     $key, $name, $subtitle, $wcag,
                     'No published image surrogates were found to assess.',
-                    'When images are published, record a text description for each so screen-reader users have a non-text alternative (WCAG 1.1.1).'
+                    'When images are published, author a text alternative for each via the alt-text curation worklist so screen-reader users have a non-text alternative (WCAG 1.1.1).'
                 );
             }
 
+            // OR-in the new curated store AND the legacy caption proxy as two
+            // whereExists legs, so the count stays a single bounded aggregate (no
+            // per-row loop). Each leg is guarded so an absent source simply drops out.
             $with = (int) DB::table('digital_object as d')
                 ->joinSub($this->publishedIdSub(), 'pub', 'pub.object_id', '=', 'd.object_id')
-                ->join('digital_object_metadata as m', 'm.digital_object_id', '=', 'd.id')
                 ->where($this->imageWhere())
-                ->whereNotNull('m.description')
-                ->whereRaw("TRIM(COALESCE(m.description,'')) <> ''")
+                ->where(function ($w) use ($hasAltStore, $hasCaption) {
+                    if ($hasAltStore) {
+                        $w->orWhereExists(function ($q) {
+                            $q->select(DB::raw(1))
+                                ->from('image_alt_text as a')
+                                ->whereColumn('a.digital_object_id', 'd.id')
+                                ->whereRaw("TRIM(COALESCE(a.alt_text,'')) <> ''");
+                        });
+                    }
+                    if ($hasCaption) {
+                        $w->orWhereExists(function ($q) {
+                            $q->select(DB::raw(1))
+                                ->from('digital_object_metadata as m')
+                                ->whereColumn('m.digital_object_id', 'd.id')
+                                ->whereNotNull('m.description')
+                                ->whereRaw("TRIM(COALESCE(m.description,'')) <> ''");
+                        });
+                    }
+                })
                 ->distinct()
                 ->count('d.id');
 
             $pct = $this->pct($with, $total);
 
+            // How many published images carry GENUINE curated alt text (the new store),
+            // so the evidence + recommendation reflect the curation surface honestly.
+            $curated = 0;
+            if ($hasAltStore) {
+                $curated = (int) DB::table('digital_object as d')
+                    ->joinSub($this->publishedIdSub(), 'pub', 'pub.object_id', '=', 'd.object_id')
+                    ->join('image_alt_text as a', 'a.digital_object_id', '=', 'd.id')
+                    ->where($this->imageWhere())
+                    ->whereRaw("TRIM(COALESCE(a.alt_text,'')) <> ''")
+                    ->distinct()
+                    ->count('d.id');
+            }
+
+            $evidence = $this->evidenceFrac($with, $total, 'published image surrogate(s) carry a text alternative (a curated alt-text entry, or - as a fallback - the embedded IPTC/XMP caption)');
+            if ($curated > 0) {
+                $evidence .= ' '.number_format($curated).' of these now have genuine human-authored alternative text from the alt-text curation surface.';
+            }
+
+            $gap = 'Keep curating: open the alt-text worklist (/admin/alt-text) to author a genuine text alternative for the remaining published images (WCAG 1.1.1). Curated entries are the real signal; the embedded IPTC/XMP caption is only a fallback.';
+
             return $this->scoredArea(
                 $key, $name, $subtitle, $wcag, $with, $total, $pct,
-                $this->evidenceFrac($with, $total, 'published image surrogate(s) carry a stored text description (embedded IPTC/XMP caption - the closest alt-text signal Heratio stores)'),
-                'Genuine alternative text is still not measurable: Heratio has no dedicated alt-text column. Add one and prompt for it on upload (WCAG 1.1.1). Meanwhile, supply a description for the remaining published images.'
+                $evidence,
+                $gap
             );
         } catch (\Throwable $e) {
             \Log::warning('[ahg-core] accessibility imageAltArea failed: '.$e->getMessage());
 
             return $this->notMeasured($key, $name, $subtitle, $wcag,
-                'The image-description coverage could not be computed right now.',
-                'Add a per-surrogate alternative-text field and prompt for it on upload (WCAG 1.1.1).');
+                'The image alternative-text coverage could not be computed right now.',
+                'Author alternative text for published images via the curation worklist (/admin/alt-text) (WCAG 1.1.1).');
         }
     }
 

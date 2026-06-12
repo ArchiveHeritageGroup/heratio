@@ -242,6 +242,46 @@ class AhgSemanticSearchServiceProvider extends ServiceProvider
                 ])
                 ->where('item', '[0-9]+')
                 ->name('language-transcribe.contribute');
+
+            // heratio#1210 - North Star "generative scholarship" + discovery: the
+            // PUBLIC "Explore by theme" surface. Themes are the collection's
+            // strongest subjects (subject taxonomy 35): the subject terms under
+            // which the most PUBLISHED records sit are its de-facto themes, framed
+            // as "ways into the collection". Read-only cheap aggregate over
+            // object_term_relation -> term + the publication-status gate; no new
+            // table. Single-segment public path /themes, registered here
+            // (register() + callAfterResolving('router')) so it binds BEFORE the
+            // single-segment /{slug} archival-record catch-all in
+            // ahg-information-object-manage. See
+            // memory/reference_slug_catchall_route_precedence.md.
+            $router->middleware('web')
+                ->get('/themes', [
+                    \AhgSemanticSearch\Controllers\ThemesController::class, 'index',
+                ])
+                ->name('themes.index');
+
+            // heratio#1210 - machine-readable twin of the theme list. The .json
+            // suffix keeps it a distinct single-segment path that can never shadow
+            // a slug; CORS-open public read-only data. Bound here for the same
+            // catch-all precedence guarantee as the index above.
+            $router->middleware('web')
+                ->get('/themes.json', [
+                    \AhgSemanticSearch\Controllers\ThemesController::class, 'json',
+                ])
+                ->name('themes.json');
+
+            // heratio#1210 - per-theme detail: one subject term, its label + scope
+            // note, and a paginated, bounded list of the published records filed
+            // under it (each linking to the record). Numeric {termId} constraint so
+            // a two-segment path like /themes/553 can never shadow the
+            // single-segment /{slug} archival-record catch-all; bound here for the
+            // same precedence guarantee as the index above.
+            $router->middleware('web')
+                ->get('/themes/{termId}', [
+                    \AhgSemanticSearch\Controllers\ThemesController::class, 'show',
+                ])
+                ->where('termId', '[0-9]+')
+                ->name('themes.show');
         });
     }
 

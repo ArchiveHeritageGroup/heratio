@@ -19,7 +19,8 @@
             "providers": [
                 "AhgFederation\\Providers\\AhgFederationServiceProvider",
                 "AhgFederation\\Providers\\AhgUnionCatalogueServiceProvider",
-                "AhgFederation\\Providers\\AhgFederationLoanServiceProvider"
+                "AhgFederation\\Providers\\AhgFederationLoanServiceProvider",
+                "AhgFederation\\Providers\\AhgFederationJoinServiceProvider"
             ]
         }
     }

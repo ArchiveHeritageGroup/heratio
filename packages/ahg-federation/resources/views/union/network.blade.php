@@ -19,19 +19,26 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <div class="mb-4">
-        <h4 class="mb-1">
-            <i class="bi bi-diagram-3 me-2"></i>{{ __('GLAM network directory') }}
-        </h4>
-        <p class="text-muted mb-0">
-            {{ __('The galleries, libraries, archives and museums that share their collections through this federation. Every institution that joins makes the shared memory richer for everyone.') }}
-        </p>
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+        <div>
+            <h4 class="mb-1">
+                <i class="bi bi-diagram-3 me-2"></i>{{ __('GLAM network directory') }}
+            </h4>
+            <p class="text-muted mb-0">
+                {{ __('The galleries, libraries, archives and museums that share their collections through this federation. Every institution that joins makes the shared memory richer for everyone.') }}
+            </p>
+        </div>
+        {{-- #1203 join-request slice: invite new institutions to join. --}}
+        <a href="{{ url('/federation/join') }}" class="btn btn-primary">
+            <i class="bi bi-envelope-plus me-1"></i>{{ __('Join the network') }}
+        </a>
     </div>
 
     @if ($directory['memberCount'] === 0)
         <div class="alert alert-info">
             <i class="bi bi-info-circle me-1"></i>
             {{ __('No participating institutions yet. When institutions opt in, they appear here and their shared records become searchable across the network.') }}
+            <a href="{{ url('/federation/join') }}" class="alert-link">{{ __('Be the first to join.') }}</a>
         </div>
     @else
         <div class="row g-3 mb-4">

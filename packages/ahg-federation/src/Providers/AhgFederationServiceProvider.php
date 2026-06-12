@@ -47,6 +47,9 @@ class AhgFederationServiceProvider extends ServiceProvider
         $this->app->register(\AhgFederation\Providers\AhgUnionCatalogueServiceProvider::class);
         // heratio#1203 - inter-institution loans provider, same reason.
         $this->app->register(\AhgFederation\Providers\AhgFederationLoanServiceProvider::class);
+        // heratio#1203 - public "Join the network" request workflow (moderated),
+        // same reason. Public join form + admin moderation queue.
+        $this->app->register(\AhgFederation\Providers\AhgFederationJoinServiceProvider::class);
     }
 
     public function boot(): void

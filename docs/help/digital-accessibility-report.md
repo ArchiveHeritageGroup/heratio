@@ -26,10 +26,12 @@ Each area shows a coverage level (None yet, Low, Partial, Good, Strong), the
 and a recommendation.
 
 - **Image alternative text** (WCAG 1.1.1) - published image surrogates that carry
-  a stored text description. Heratio has no dedicated alt-text column for images,
-  so the report measures the closest stored signal (the embedded IPTC/XMP caption
-  in `digital_object_metadata.description`) and recommends adding a true alt-text
-  field. Where even that table is unavailable the area reads **Not measured**.
+  a text alternative. A published image counts if **either** a curator has authored
+  a genuine entry in the dedicated alt-text store (`image_alt_text` - the real
+  WCAG 1.1.1 signal), **or**, as a fallback, it carries an embedded IPTC/XMP caption
+  in `digital_object_metadata.description`. Author genuine alternative text from the
+  **Image alt-text curation** worklist (`/admin/alt-text`). Where neither source is
+  available the area reads **Not measured**.
 - **Captions and subtitles** (WCAG 1.2.2) - published audio/video surrogates with
   at least one active caption or subtitle track.
 - **Transcripts** (WCAG 1.2.3 / 1.2.5) - published audio/video surrogates with a
@@ -52,9 +54,10 @@ honestly **excluded** from the overall score rather than counted as a failure.
 
 Where Heratio cannot evidence a signal, the report says so. A missing column or
 table yields a **Not measured** area with a specific recommendation - it never
-invents coverage. The image alt-text area is the clearest example: because there
-is no dedicated alt-text column, the report measures the embedded-caption proxy
-and is explicit that genuine alternative text still needs a schema field.
+invents coverage. For image alternative text, curated entries authored in the
+**Image alt-text curation** worklist (`/admin/alt-text`) are counted directly as
+the genuine WCAG 1.1.1 signal; the embedded IPTC/XMP caption is only used as a
+fallback where no curated alternative text exists.
 
 ## Where to find it
 

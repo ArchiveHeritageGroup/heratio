@@ -125,6 +125,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/accessibility', [\AhgCore\Controllers\AccessibilityReportController::class, 'index'])->name('accessibility.index');
 });
 
+// heratio#1211 (alt-text curation slice) - the actionable companion to the read-only accessibility
+// report above. The report surfaced that published image surrogates carry essentially no genuine
+// alternative text (the catalogue has no dedicated alt-text column). This admin surface lets
+// cataloguers and contributors CURATE real, human-authored alt text into the NEW image_alt_text
+// side table: a bounded, paginated worklist of PUBLISHED image digital objects MISSING alt text in
+// the working language, an inline add/edit form (POST), and a live coverage figure. Lang-aware
+// (international; Afrikaans is a first-class working language). The ONLY write is the upsert in
+// store(), confined to image_alt_text; no AtoM base table is written, no ALTER, no AI call (alt text
+// is human-authored here). The two-segment /admin/alt-text paths keep this clear of the
+// single-segment /{slug} archival-record catch-all (that route only ever matches ONE path segment).
+// A zero-content / missing-table state renders a calm empty state, never a 500.
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/alt-text', [\AhgCore\Controllers\AltTextController::class, 'index'])->name('alt-text.index');
+    Route::post('/admin/alt-text/save', [\AhgCore\Controllers\AltTextController::class, 'store'])->name('alt-text.save');
+});
+
 // Public "race against loss" awareness board: a dignified, anonymous, read-only top-N of the records
 // most at risk of being lost, drawn from the same CapturePriorityService. /race-against-loss is a
 // SINGLE-segment public path (like /explore and /reconstructions). ahg-core boots early, so this is

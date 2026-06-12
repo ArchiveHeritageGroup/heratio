@@ -17,6 +17,7 @@ use AhgC2pa\Controllers\AuthenticityReportController;
 use AhgC2pa\Controllers\CoverageController;
 use AhgC2pa\Controllers\InferenceProvenanceController;
 use AhgC2pa\Controllers\ProvenanceController;
+use AhgC2pa\Controllers\PreservationTimelineController;
 use AhgC2pa\Controllers\PublicCheckController;
 use AhgC2pa\Controllers\VerifyController;
 use AhgC2pa\Controllers\VerifyObjectController;
@@ -56,6 +57,49 @@ Route::prefix('inference-provenance')->group(function () {
     // wins first.
     Route::get('/{idOrSlug}', [InferenceProvenanceController::class, 'show'])
         ->name('c2pa.inference.provenance')
+        ->where('idOrSlug', '.+');
+});
+
+// Public per-record PRESERVATION-TIMELINE explorer (issue #1244, building on the
+// #1201 provenance epic). An honest, read-only view of the PREMIS-style digital-
+// preservation lifecycle of ONE published record's digital objects: ingest,
+// fixity checks, format identification, migrations / normalisations, and virus
+// scans, in chronological order, each with its outcome and the responsible agent
+// or tool. It consolidates the preservation stores owned by the (locked)
+// ahg-preservation package READ-ONLY via PreservationTimelineService
+// (preservation_event + preservation_fixity_check + preservation_object_format +
+// preservation_virus_scan + preservation_format_conversion); it records nothing,
+// runs no preservation action, and re-verifies nothing. ahg-preservation remains
+// the sole owner / writer of those tables. A published record with no recorded
+// preservation event degrades to the dignified "no preservation events recorded
+// yet" state (still HTTP 200); an unknown / unpublished record is a clean 404
+// (HTML + JSON).
+//
+// This is DISTINCT from /inference-provenance (the AI-inference layer) and from
+// /authenticity (the C2PA content-credentials / signing layer); the page links
+// to both for the full trust picture.
+//
+// All paths are multi-segment (/preservation-timeline/...) so the single-segment
+// IO slug catch-all (/{slug}) can never intercept them. There is deliberately NO
+// bare /preservation-timeline route: the explorer needs a record reference. The
+// literal '.json' companion is declared BEFORE the {idOrSlug} '.+' matcher so it
+// can never be captured as part of a slug. No '.svg' surface here (nginx would
+// serve *.svg statically and 404 before Laravel) - JSON only.
+Route::prefix('preservation-timeline')->group(function () {
+    // Machine-readable companion. nginx passes *.json through to Laravel, so it
+    // keeps its real extension. Declared before the bare {idOrSlug} page route so
+    // the literal '.json' suffix resolves here. Numeric or single-segment slug; a
+    // multi-segment slug uses the page route below.
+    Route::get('/{idOrSlug}.json', [PreservationTimelineController::class, 'json'])
+        ->name('c2pa.preservation.timeline.json')
+        ->where('idOrSlug', '[^/]+');
+
+    // The explorer page, addressed by numeric id or (possibly multi-segment)
+    // slug. '.+' so /preservation-timeline/fonds/series/item resolves to one
+    // record. Unknown / unpublished -> 404. Declared LAST so the .json literal
+    // wins first.
+    Route::get('/{idOrSlug}', [PreservationTimelineController::class, 'show'])
+        ->name('c2pa.preservation.timeline')
         ->where('idOrSlug', '.+');
 });
 

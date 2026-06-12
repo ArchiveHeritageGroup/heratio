@@ -566,5 +566,23 @@ class AhgCoreServiceProvider extends ServiceProvider
         // #1244 fixity slice CONSOLIDATED: no ahg-core fixity table is installed -
         // the canonical fixity store is ahg-preservation's preservation_fixity_check,
         // which FixityService now reads read-only.
+
+        // #1211 alt-text curation slice: image_alt_text. The accessibility report
+        // surfaced that published image surrogates carry essentially no genuine alt
+        // text (the catalogue has no dedicated alt-text column); this side table is
+        // the human-authored store AltTextService curates into. Single outer
+        // try/catch around hasTable() + unprepared() per reference_ci_schema_hastable.md
+        // so the CI sqlite fallback cannot crash package:discover before a real DB is
+        // wired. No ALTER on any existing table; CREATE TABLE IF NOT EXISTS only.
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('image_alt_text')) {
+                $sql = file_get_contents(__DIR__.'/../../database/install_image_alt_text.sql');
+                if (is_string($sql) && trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-core] image_alt_text install failed: '.$e->getMessage());
+        }
     }
 }
