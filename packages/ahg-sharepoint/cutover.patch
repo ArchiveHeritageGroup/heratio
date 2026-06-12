@@ -1,0 +1,97 @@
+OPERATOR-ONLY PATCH — issue #1221 SharePoint federated-search cutover, step C.
+
+WHY THIS IS NOT IN THE REPO
+===========================
+The one genuinely unavoidable upstream change is making ahg-federation's
+FederatedSearchService dispatcher EXTENSIBLE so the SharePoint connector class is
+contributed by ahg-sharepoint (via config('federation.connectors')) instead of
+being hard-coded in ahg-federation source.
+
+That file is BOTH:
+  * locked      — packages/ahg-federation/src/Services/FederatedSearchService.php
+                  is in .locked-paths (the F3 SharePoint federated-search lock,
+                  lines 188-194), so it cannot be committed/released without an
+                  explicit operator ./bin/unlock; and
+  * no-push     — per the SharePoint NO-PUSH policy
+                  (memory/f3_federation_sharepoint_local.md), the F3 federation
+                  files NEVER commit and NEVER release. Their canonical source of
+                  truth is /opt/ahg-sp-integration/F3/, which is operator-managed.
+
+Therefore this agent CANNOT and MUST NOT edit that file in the repo. The change
+below is applied by the OPERATOR to the canonical source, NOT pushed from here:
+
+  Canonical target (operator applies here):
+    /opt/ahg-sp-integration/F3/heratio/src/Services/FederatedSearchService.php
+
+  When the operator later PROMOTES F3 into the live tree (MIGRATION.md step B),
+  the promoted FederatedSearchService.php already carries this change, and the
+  SharePoint FQCN never appears in ahg-federation source — ahg-sharepoint's
+  service provider supplies it through config('federation.connectors').
+
+WHAT THE PATCH DOES
+===================
+Replaces the hard-coded match() in connectorClassFor() with a registry-first
+lookup:
+  1. consult config('federation.connectors')[$peerType] — this is the map that
+     ahg-sharepoint publishes in AhgSharePointServiceProvider::register():
+         'sharepoint_graph_search' =>
+             \AhgSharePoint\Federation\SharePointGraphConnector::class
+     so any package can contribute a connector for its own peer_type.
+  2. fall back to the GENERAL connectors that legitimately stay in
+     ahg-federation (atom_local). The 'sharepoint_graph_search' literal is
+     REMOVED from ahg-federation source.
+
+The contract-decision (MIGRATION.md, "Contract placement decision") collapses to
+OPTION 1 at the same time: the relocated ahg-sharepoint connector implements
+\AhgFederation\Connectors\PeerConnector and returns
+\AhgFederation\Connectors\PeerSearchResult (the dispatcher's
+connectorResultToLegacy() type-hints the latter). The local
+AhgSharePoint\Federation\PeerConnector / PeerSearchResult copies remain in the
+package ONLY for its self-contained /sharepoint/federated-search surface, which
+does not touch the ahg-federation dispatcher. If the operator prefers option 1
+end-to-end, change the two `implements`/return lines in
+packages/ahg-sharepoint/src/Federation/SharePointGraphConnector.php to the
+\AhgFederation\Connectors\... FQCNs and add "ahg/federation": "@dev" to the
+package composer require block. (That edit is inside ahg-sharepoint and is safe
+to push; it is deferred here only because ahg-federation's F3 PeerConnector is
+not yet in the live tree — promoting it is MIGRATION.md step B, operator-run.)
+
+APPLY (operator, on the canonical /opt source)
+==============================================
+    cd /opt/ahg-sp-integration/F3/heratio
+    git apply /usr/share/nginx/heratio/packages/ahg-sharepoint/cutover.patch   # if /opt is a git tree
+    #   – or –
+    patch -p1 < /usr/share/nginx/heratio/packages/ahg-sharepoint/cutover.patch
+
+--- a/src/Services/FederatedSearchService.php
++++ b/src/Services/FederatedSearchService.php
+@@ -300,13 +300,28 @@
+
+     /** @return class-string|null */
+     protected function connectorClassFor(string $peerType): ?string
+     {
+-        // Hand-coded registry for v0.1.0. Extension point: dispatch via a
+-        // container-tagged collection in a later release.
+-        return match ($peerType) {
+-            'atom_local'              => \AhgFederation\Connectors\AtomElasticsearchConnector::class,
+-            'sharepoint_graph_search' => \AhgFederation\Connectors\SharePointGraphConnector::class,
+-            default                   => null,
+-        };
++        // Registry-first dispatch (issue #1221). Other packages contribute their
++        // own peer_type => connector-class mappings via
++        // config('federation.connectors'); e.g. ahg-sharepoint publishes
++        //   'sharepoint_graph_search' =>
++        //       \AhgSharePoint\Federation\SharePointGraphConnector::class
++        // in its service provider, so the SharePoint FQCN never appears in
++        // ahg-federation source.
++        $registry = (array) config('federation.connectors', []);
++        if (isset($registry[$peerType]) && is_string($registry[$peerType]) && $registry[$peerType] !== '') {
++            return $registry[$peerType];
++        }
++
++        // Built-in GENERAL connectors that stay in ahg-federation.
++        return match ($peerType) {
++            'atom_local' => \AhgFederation\Connectors\AtomElasticsearchConnector::class,
++            default      => null,
++        };
+     }

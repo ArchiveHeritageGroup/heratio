@@ -1,10 +1,17 @@
 # MIGRATION — SharePoint federated search into `ahg-sharepoint` (issue #1221)
 
-> Status: **Step 1 of N — scaffold only, nothing live moved yet.**
-> This document is the cutover plan. No file in `ahg-federation` and no file
-> under `/opt/ahg-sp-integration/F3/` has been moved, edited, or deleted by
-> step 1. The only runtime artefact added is an **inert** connector under
-> `packages/ahg-sharepoint/src/Federation/` (see "What step 1 added").
+> Status: **Step 2 of N — connector now self-contained + WORKING inside
+> `ahg-sharepoint`; the only remaining change is operator-only (the `/opt`
+> dispatcher patch + promotion + re-lock + AtoM mirror).**
+>
+> Step 2 added a package-owned, working SharePoint federated-search surface
+> (config helper + runner + controller + route + view) and a connector-discovery
+> registry, all inside `packages/ahg-sharepoint/`. It changed **no** file in
+> `ahg-federation` and **no** file under `/opt/ahg-sp-integration/F3/`. The one
+> unavoidable upstream edit (extensible dispatcher) is written as an
+> operator-only patch in [`cutover.patch`](cutover.patch) — see step C below.
+>
+> See "Step 2 — DONE vs remaining" near the end for the current state.
 
 ## Why
 
@@ -130,22 +137,50 @@ any SharePoint connector becomes live.
 
 - **C. Make `connectorClassFor()` extensible** instead of hard-coding the
   SharePoint arm. Replace the `'sharepoint_graph_search' => \AhgFederation\…`
-  literal with a lookup over a registry that other packages contribute to (e.g.
-  a tagged container binding or a `config('federation.connectors')` map). Then
-  `ahg-sharepoint`'s service provider registers:
+  literal with a lookup over a registry that other packages contribute to (a
+  `config('federation.connectors')` map). Then `ahg-sharepoint`'s service
+  provider registers:
   ```php
   'sharepoint_graph_search' => \AhgSharePoint\Federation\SharePointGraphConnector::class
   ```
   Result: the SharePoint FQCN never appears in `ahg-federation` source.
 
+  **Status (step 2):** the `ahg-sharepoint` HALF is **DONE** — its provider now
+  publishes the registry entry into `config('federation.connectors')`
+  (`AhgSharePointServiceProvider::register()`). The `ahg-federation` HALF — making
+  the dispatcher *read* that registry — is the one genuinely-unavoidable
+  locked + NO-PUSH change, and is therefore written as an **operator-only** patch
+  in [`cutover.patch`](cutover.patch) for application to the canonical
+  `/opt/ahg-sp-integration/F3/heratio/src/Services/FederatedSearchService.php`.
+  It is NOT applied in the repo because that file is both locked
+  (`.locked-paths`) and NO-PUSH (`memory/f3_federation_sharepoint_local.md`); the
+  operator applies it upstream, and it rides into the live tree at step B.
+
 - **D. Resolve the contract decision** (see above). If option 1, delete the two
   local contract copies in this package and add the `ahg/federation` require.
+
+  **Status (step 2):** deferred to the operator, by necessity. Option 1 requires
+  the ahg-federation F3 `PeerConnector` interface to exist in the live tree,
+  which only happens at step B (operator-run promotion). The package therefore
+  still ships option 2's local contract copies today so its OWN self-contained
+  `/sharepoint/federated-search` surface works now; `cutover.patch` documents the
+  exact two-line switch to option 1 once step B lands.
 
 - **E. Move the SharePoint config sub-fields** out of the locked
   `edit-peer.blade.php` into a `ahg-sharepoint`-owned partial included by the
   generic peer form (e.g. via a Blade `@stack`/`@include` hook or a
   `View::composer`-injected partial, the unlocked-caller pattern). Keep the
   generic peer chrome in `ahg-federation`.
+
+  **Status (step 2):** the unlocked-caller injection is **DONE** — the locked
+  `edit-peer.blade.php` was NOT edited. `AhgSharePointServiceProvider::boot()`
+  registers a `View::composer('ahg-federation::edit-peer', …)` that injects
+  `$sharepointConfigured`, `$sharepointTenantOptions`, and
+  `$sharepointDefaultTenant` whenever that view renders. ahg-federation's own
+  markup can surface the SharePoint tenant picker for
+  `peer_type=sharepoint_graph_search` from those variables without this package
+  ever touching the locked blade. The composer degrades cleanly (try/catch) and
+  is inert until that view exists/renders.
 
 - **F. Re-lock** whatever was unlocked, per the locked-paths workflow (lock
   auto-rearms after a successful `./bin/release`; or `./bin/lock --all`).
@@ -159,13 +194,59 @@ any SharePoint connector becomes live.
   unchanged; confirm a `sharepoint_graph_search` peer dispatches to
   `AhgSharePoint\Federation\SharePointGraphConnector`; run the federation tests.
 
-## Hard rules observed in step 1
+## Step 2 — DONE vs remaining
+
+### DONE in this package (pushable, all inside `packages/ahg-sharepoint/`)
+
+- **Self-contained connector wiring.** `AhgSharePointServiceProvider::register()`
+  binds `SharePointGraphConnector`, `SharePointFederationConfig`, and
+  `SharePointFederationRunner` as singletons. The connector reads tenant +
+  credentials from this package's OWN M365 store (`GraphClientService` /
+  `SharePointTenantRepository` / `sharepoint_tenant`), never from an
+  ahg-federation peer row.
+- **Connector-discovery registry.** The provider publishes
+  `config('federation.connectors')['sharepoint_graph_search'] =
+  \AhgSharePoint\Federation\SharePointGraphConnector::class`, so a future
+  extensible dispatcher resolves the SharePoint connector without the FQCN
+  appearing in ahg-federation source. Harmless metadata until the dispatcher
+  reads it.
+- **Working package-owned search surface.** `SharePointFederationRunner` +
+  `SharePointFederatedSearchController` + routes
+  `GET /sharepoint/federated-search` (rendered) and
+  `GET /sharepoint/federated-search.json` (JSON) + view
+  `ahg-sharepoint::federated-search`. Runs a real Graph search from a tenant in
+  the package store. Distinct prefix from `/federation/*` — no route collision.
+- **Degrade-when-unconfigured.** `SharePointFederationConfig::isConfigured()`
+  guards everything and never throws (missing table / unreachable DB / no tenant
+  all resolve to "not configured"). The runner returns
+  `SharePointFederationRunResult::notConfigured()` and the UI/JSON render an
+  honest "SharePoint not configured" state with HTTP 200 — never a 500.
+- **Locked-blade config injection without editing it.** A
+  `View::composer('ahg-federation::edit-peer', …)` in `boot()` injects SharePoint
+  tenant options into the locked peer-edit view. The locked/NO-PUSH
+  `edit-peer.blade.php` is untouched.
+
+### Remaining — OPERATOR-ONLY (locked + NO-PUSH; cannot be pushed from here)
+
+- **The `/opt` dispatcher patch (step C, ahg-federation half).** Apply
+  [`cutover.patch`](cutover.patch) to the canonical
+  `/opt/ahg-sp-integration/F3/heratio/src/Services/FederatedSearchService.php` to
+  make `connectorClassFor()` registry-first and drop the SharePoint literal.
+- **Promote F3 into the live tree (step B)** + **collapse to the single shared
+  contract (step D, option 1)** + **re-lock (step F)** — all operator-run, in
+  order, per the locked-paths workflow.
+- **AtoM-AHG parity mirror (step G)** under
+  `/usr/share/nginx/archive/atom-ahg-plugins/` from
+  `/opt/ahg-sp-integration/F3/atom/lib/Connectors/`.
+
+## Hard rules observed (steps 1 + 2)
 
 - No edit/move/delete of any `.locked-paths` entry (the four F3 files in
-  `ahg-federation` are untouched).
-- No edit of any file under `/opt/ahg-sp-integration/F3/`.
+  `ahg-federation` are untouched and byte-identical).
+- No edit of any file under `/opt/ahg-sp-integration/F3/` (the dispatcher change
+  is delivered as `cutover.patch` for the operator to apply upstream).
 - No `install.sql` (or any SQL) run against the live database.
-- No new route registered; nothing competes with the live `/federation/*` or
-  `/sharepoint/*` routes.
-- `./bin/check-locked` stays green; `git status` shows only new files under
-  `packages/ahg-sharepoint/` and `docs/`.
+- New routes are added ONLY under this package's own `/sharepoint/*` prefix;
+  nothing competes with the live `/federation/*` routes.
+- `./bin/check-locked` stays green; `git status` shows only new/changed files
+  under `packages/ahg-sharepoint/` and `docs/`.

@@ -120,6 +120,33 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/preservation-self-assessment/{id}/delete', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'destroy'])->whereNumber('id')->name('preservation-self-assessment.destroy');
 });
 
+// heratio#1244 (WARC web-archiving slice) - web archive (admin): a bounded, verifiable first
+// slice of web archiving for the catalogue. It snapshots a PUBLISHED archival record's OWN public
+// web page into a valid WARC 1.1 (ISO 28500) file - a warcinfo + request + response record with
+// correct WARC headers + sha256 block digests - then stores it under the configured storage path
+// (config('heratio.storage_path').'/web-archive', never a hardcoded path) and lists it for
+// download. The capture takes a record ID, not a raw URL: WarcCaptureService resolves the record's
+// OWN canonical url() (single-segment /{slug}, published gate type_id=158 status_id=160, root id=1
+// excluded) and SSRF-validates that the target is the record's own page on THIS host before any
+// fetch - so no off-host / cross-record / non-http URL is ever fetched. The fetch is bounded (one
+// page, connect + total timeout, redirect cap, hard size cap). All writes are confined to the NEW
+// warc_capture table + the .warc files on disk; no AtoM base table is written, no ALTER, no AI
+// call. The status enumeration comes from the Dropdown Manager (warc_capture_status). Every path is
+// MULTI-SEGMENT so it can never collide with the single-segment /{slug} archival-record catch-all
+// (that route only ever matches ONE path segment); a fresh / mid-migration install (table absent),
+// an unreachable / oversize page, or a non-own-host target degrades to a calm message + a failed
+// row, never a 500.
+//
+// HONEST remaining gap: this archives the record's OWN HTML page only. It does NOT yet fetch the
+// page's subresources (CSS / JS / images), and there is no in-app replay (Wayback / pywb) surface.
+// Multi-resource capture and replay remain open under heratio#1244 / the digital-preservation
+// roadmap.
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/web-archive', [\AhgCore\Controllers\WebArchiveController::class, 'index'])->name('web-archive.index');
+    Route::post('/admin/web-archive/capture', [\AhgCore\Controllers\WebArchiveController::class, 'capture'])->name('web-archive.capture');
+    Route::get('/admin/web-archive/{id}/download', [\AhgCore\Controllers\WebArchiveController::class, 'download'])->whereNumber('id')->name('web-archive.download');
+});
+
 // heratio#1244 (fixity slice) - fixity / integrity verification report (admin): a read-only
 // dashboard that shows how many digital objects carry a verifiable checksum baseline, how many
 // have never been verified, and the result roll-up of the most recent verification sweep

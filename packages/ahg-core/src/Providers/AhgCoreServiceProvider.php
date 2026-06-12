@@ -48,6 +48,12 @@ class AhgCoreServiceProvider extends ServiceProvider
         // side tables; enumerated values come from the Dropdown Manager.
         $this->app->singleton(\AhgCore\Services\PreservationSelfAssessmentService::class);
 
+        // heratio#1244 WARC web-archiving slice: snapshot a published record's OWN
+        // public page into a valid WARC 1.1 (ISO 28500) file. SSRF-safe (own-record
+        // url() on this host only), bounded, and writes only to the new warc_capture
+        // table + .warc files under the configured storage path.
+        $this->app->singleton(\AhgCore\Services\WarcCaptureService::class);
+
         // Repository contracts → MySQL implementations
         $this->app->bind(DescriptionRepository::class, MysqlDescriptionRepository::class);
         $this->app->bind(AgentRepository::class, MysqlAgentRepository::class);
@@ -646,6 +652,35 @@ class AhgCoreServiceProvider extends ServiceProvider
             }
         } catch (\Throwable $e) {
             \Log::warning('[ahg-core] preservation_self_assessment install failed: '.$e->getMessage());
+        }
+
+        // #1244 WARC web-archiving slice: the warc_capture register table (one row per
+        // record-page WARC capture: target uri, on-disk .warc path, byte size, file
+        // sha256, http status, outcome status) + the warc_capture_status Dropdown
+        // Manager group. The .warc bytes themselves live on disk under the configured
+        // storage path; this table only records the metadata. Single outer try/catch
+        // around hasTable() + unprepared() per reference_ci_schema_hastable.md so the CI
+        // sqlite fallback cannot crash package:discover before a real DB is wired. The
+        // dropdown seed only runs when ahg_dropdown exists and the group is not yet
+        // present, so it is a no-op on every boot after the first - and a missing
+        // dropdown table never blocks the table install. No ALTER on any existing table;
+        // CREATE TABLE IF NOT EXISTS + INSERT IGNORE only.
+        try {
+            if (! \Illuminate\Support\Facades\Schema::hasTable('warc_capture')) {
+                $sql = file_get_contents(__DIR__.'/../../database/install_warc_capture.sql');
+                if (is_string($sql) && trim($sql) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($sql);
+                }
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_dropdown')
+                && ! \Illuminate\Support\Facades\DB::table('ahg_dropdown')->where('taxonomy', 'warc_capture_status')->exists()) {
+                $seed = file_get_contents(__DIR__.'/../../database/seed_warc_capture_dropdowns.sql');
+                if (is_string($seed) && trim($seed) !== '') {
+                    \Illuminate\Support\Facades\DB::unprepared($seed);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-core] warc_capture install failed: '.$e->getMessage());
         }
     }
 }

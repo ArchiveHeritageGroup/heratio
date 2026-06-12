@@ -35,7 +35,7 @@ Both modes share:
 | Phase 1 — Foundation | Tenant config, drive registration, manual delta sync (`sharepoint:sync`), settings UI | **Implemented** |
 | Phase 2.A — Webhooks (auto / declare) | Subscription lifecycle, webhook receiver, retention mapping, label allowlist filter | **Scaffold complete; runs end-to-end against a real tenant once the AAD app is registered** |
 | Phase 2.B — Manual push | SPFx command set, AAD JWT validation, OBO file fetch, user mapping admin | **Scaffold complete; SPFx package needs `gulp bundle`; user provisioning needs platform-specific wiring** |
-| Phase 3 — Discovery surfaces | Federated search tab, M365 Microsoft Search connector | Planned |
+| Phase 3 — Discovery surfaces | Federated search tab, M365 Microsoft Search connector | **Package-owned SharePoint search live** at `/sharepoint/federated-search` (self-contained, issue #1221 step 2); general cross-peer dispatch via `/federation/search` pending the operator-only dispatcher cutover |
 
 ---
 
@@ -219,6 +219,8 @@ php symfony sharepoint:sync --drive=1 --full
 | `/sharepoint/events` | Inbound event log (filterable by status) |
 | `/sharepoint/events/{id}` | Single event detail + raw payload + retry button |
 | `/sharepoint/user-mappings` | AAD user → archive user mappings (Mode A) |
+| `/sharepoint/federated-search` | Package-owned SharePoint federated search (renders results; degrades cleanly when no tenant is configured) |
+| `/sharepoint/federated-search.json` | Same search as JSON (for the union catalogue / AJAX callers) |
 | `Admin > AHG Settings > SharePoint Integration` | Global toggles + retention map + webhook URL |
 
 ---
@@ -252,23 +254,38 @@ php symfony sharepoint:sync --drive=1 --full
 
 ## Federated search lives in this package (issue #1221)
 
-SharePoint federated search is reached through the **general** federation search
-page at `/federation/search`, by registering a federation peer whose
-`peer_type` is `sharepoint_graph_search`. The Microsoft-Graph-specific connector
-that powers that peer type is owned by **this** package
+The Microsoft-Graph SharePoint search connector is owned by **this** package
 (`packages/ahg-sharepoint/src/Federation/SharePointGraphConnector.php`), not by
 `ahg-federation`. The general federation engine, the OAI-PMH and local-AtoM
-connectors, and the search dispatcher remain in `ahg-federation`.
-
+connectors, and the cross-peer search dispatcher remain in `ahg-federation`.
 This separation keeps the general federation package free of any Microsoft 365
 coupling: an install that does not use SharePoint can drop the whole
 `ahg-sharepoint` package and federation still works for OAI-PMH, the union
 catalogue, loans, and Europeana.
 
-The connector relocation is staged. The current connector class is an inert
-scaffold (it is not yet wired into the live dispatcher). The full cutover plan,
-including which files move and the locked-file unlock steps an operator must
-run, is documented in `packages/ahg-sharepoint/MIGRATION.md`.
+There are two ways to run a SharePoint search:
+
+1. **Package-owned search (live now).** Go to `/sharepoint/federated-search`.
+   This page runs a Graph search using a tenant from this package's own
+   SharePoint tenant store — no federation peer row needed. If no SharePoint
+   tenant is configured on the instance, the page shows an honest
+   "SharePoint is not configured" panel (HTTP 200, never an error) with a link
+   to add a tenant. A JSON variant at `/sharepoint/federated-search.json` lets
+   the union catalogue or an AJAX caller embed the same results.
+
+2. **General cross-peer search (after the operator cutover).** The general
+   `/federation/search` page can also dispatch to the SharePoint connector by
+   registering a federation peer whose `peer_type` is `sharepoint_graph_search`.
+   This path activates once the operator promotes the F3 dispatcher and applies
+   the connector-registry patch (`packages/ahg-sharepoint/cutover.patch`) to the
+   canonical federation source; that change is locked and local-only, so it is
+   applied by the operator upstream rather than pushed from the repo.
+
+The connector reads its tenant id and credentials from this package's own M365
+configuration (the `sharepoint_tenant` table via `GraphClientService`), so the
+two surfaces share one configuration store. The full cutover plan, including the
+locked-file unlock steps an operator must run, is documented in
+`packages/ahg-sharepoint/MIGRATION.md`.
 
 ---
 

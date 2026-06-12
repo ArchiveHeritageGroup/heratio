@@ -1,9 +1,14 @@
 <?php
 
 use AhgSharePoint\Controllers\SharePointController;
+use AhgSharePoint\Controllers\SharePointFederatedSearchController;
 use AhgSharePoint\Controllers\SharePointWebhookController;
-// SharePointFederatedSearchController removed in F3 — search now flows through
-// /federation/search with a peer of type sharepoint_graph_search.
+// The GENERAL cross-peer search still flows through ahg-federation's
+// /federation/search dispatcher (peer_type=sharepoint_graph_search). In addition,
+// issue #1221 gives this package its OWN self-contained SharePoint search entry
+// point at /sharepoint/federated-search, so SharePoint search works even before
+// the F3 dispatcher cutover lands upstream in ahg-federation. The two do not
+// collide: different prefixes, different controllers.
 use Illuminate\Support\Facades\Route;
 
 // Phase 1 — admin foundation
@@ -25,9 +30,17 @@ Route::prefix('sharepoint')->group(function () {
     Route::get('/user-mappings', [\AhgSharePoint\Controllers\SharePointUserMappingController::class, 'index'])->name('sharepoint.user-mappings');
     Route::match(['get', 'post'], '/user-mappings/{id}', [\AhgSharePoint\Controllers\SharePointUserMappingController::class, 'edit'])->whereNumber('id')->name('sharepoint.user-mapping.edit');
 
-    // Phase 3 — federated search lives at /federation/search (F3).
-    // The old stub route GET /sharepoint/federated-search returned 503;
-    // it is intentionally removed so the dispatcher is the only entry point.
+    // Phase 3 — federated search.
+    //
+    // The general cross-peer dispatcher still lives at /federation/search (F3).
+    // Issue #1221 ALSO gives this package a self-contained SharePoint search
+    // surface here so SharePoint search is usable from this package alone, with
+    // config drawn entirely from the package's own tenant store (NOT from an
+    // ahg-federation peer row). Degrades cleanly when no tenant is configured.
+    Route::get('/federated-search', [SharePointFederatedSearchController::class, 'index'])
+        ->name('sharepoint.federated-search');
+    Route::get('/federated-search.json', [SharePointFederatedSearchController::class, 'json'])
+        ->name('sharepoint.federated-search.json');
 
     // Phase 2 — v2 ingest plan: auto-ingest rules + per-drive mapping templates
     Route::get('/rules', [SharePointController::class, 'rules'])->name('sharepoint.rules');

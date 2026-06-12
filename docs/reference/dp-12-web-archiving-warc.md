@@ -1,4 +1,4 @@
-# Web archiving and WARC - an honest gap in Heratio
+# Web archiving and WARC in Heratio
 
 **Summary.** Web archiving is the practice of capturing websites and web-delivered
 content and preserving them so they remain accessible after the live site
@@ -7,10 +7,14 @@ changes or disappears. The standard container for archived web content is WARC
 request / response records, headers, and payloads captured during a crawl, so a
 replay tool (such as the Wayback Machine / pywb) can reconstruct the page exactly
 as it was served. Capture tools include Heritrix, Browsertrix / Webrecorder, and
-wget's WARC mode. **Heratio does not currently implement web archiving or WARC.**
-This article is included for completeness and to keep the assistants honest: if a
-user asks how Heratio captures or replays websites, the correct answer is that it
-does not yet, and what the adjacent capabilities are.
+wget's WARC mode. **Heratio now implements a bounded first slice of WARC web
+archiving (heratio#1244):** the catalogue can snapshot a PUBLISHED record's OWN
+public page into a valid WARC 1.1 file at **Admin -> Web archive**
+(`/admin/web-archive`). This article describes what that slice does, exactly, and
+is honest about what is NOT yet done (subresource capture, replay). If a user asks
+how Heratio captures or replays websites, the correct answer is: it can web-archive
+its own record pages into a valid WARC 1.1 file today, but it does not yet capture
+a page's subresources and has no in-app replay surface.
 
 ## The concept
 
@@ -30,33 +34,59 @@ does not yet, and what the adjacent capabilities are.
 
 ## How Heratio addresses this
 
-Heratio does **not** capture, store, or replay web content as WARC today. To be
-precise about what *does* exist and is adjacent:
+Heratio implements a bounded, verifiable first slice of WARC web archiving: the
+catalogue can web-archive **its own published record pages**. Precisely:
 
-- Heratio's ingest and scanner pipelines (`ahg-ingest`, `ahg-scan`) handle file
-  deposits and captured documents / images / AV / 3D, with format identification,
-  virus scanning, and OAIS packaging - but they treat inputs as files, not as
-  crawled websites. See `dp-02-sip-aip-dip-lifecycle` and
-  `dp-06-pronom-format-identification`.
-- If a WARC file were ingested as a plain file, Heratio would store it, checksum
-  it, and could identify it by PUID like any other format - but it has **no WARC
-  replay / Wayback surface**, so the archived site could not be browsed back from
-  within Heratio.
-- A web page saved as PDF/A or a static export could be ingested as an ordinary
-  digital object, but that is page-snapshotting, not faithful web archiving, and
-  loses interactivity and link structure.
+- **Capture surface (`/admin/web-archive`, admin-gated).** An operator enters a
+  PUBLISHED record's ID and captures a snapshot. The page is in
+  `packages/ahg-core` (`WebArchiveController` + `WarcCaptureService`); the routes
+  are multi-segment (`/admin/web-archive`, `/admin/web-archive/capture`,
+  `/admin/web-archive/{id}/download`) so they never collide with the
+  single-segment `/{slug}` archival-record catch-all.
+- **What is fetched (SSRF-safe).** The capture takes a record ID, not a URL.
+  `WarcCaptureService` resolves the record's OWN canonical public URL with
+  `url('/'.slug)` on THIS host (published gate: `status.type_id=158`,
+  `status_id=160`, root id 1 excluded) and `assertOwnRecordUrl()` re-derives that
+  canonical URL and refuses anything whose scheme / host / path differs, anything
+  with an embedded port or credentials, or any non-HTTP scheme. No off-host,
+  cross-record, or arbitrary URL is ever fetched.
+- **The bounded fetch.** A server-side cURL GET of that one page, with a connect
+  timeout, a total timeout, a redirect cap, and a hard response-size cap (8 MiB).
+  An unreachable or oversize page records a `failed` row with a clean reason.
+- **The WARC 1.1 produced.** Three records in order - `warcinfo`
+  (`application/warc-fields`), `request` (`application/http; msgtype=request`),
+  and `response` (`application/http; msgtype=response`) - each with a `WARC/1.1`
+  version line and correct headers: `WARC-Type`, a `urn:uuid` `WARC-Record-ID`,
+  `WARC-Date`, `WARC-Target-URI`, `Content-Type`, `Content-Length` for the block,
+  and a `WARC-Block-Digest: sha256:<base32>`. Records are CRLF-CRLF terminated.
+- **Storage + register.** The `.warc` bytes are written under
+  `config('heratio.storage_path').'/web-archive'` (never a hardcoded path; the
+  storage root is www-data-writable). A row is recorded in the NEW `warc_capture`
+  table (information_object_id, slug, target_uri, file path + name, byte size,
+  file SHA-256, http status, outcome status, captured_by, captured_at). The
+  outcome status comes from the Dropdown Manager group `warc_capture_status` (no
+  ENUM). Download streams the file with `Content-Type: application/warc`.
+- **Adjacent file pipelines.** Heratio's ingest and scanner pipelines
+  (`ahg-ingest`, `ahg-scan`) still treat any externally-produced WARC deposited as
+  a plain file the way they treat any file (store, checksum, PUID-identify). See
+  `dp-02-sip-aip-dip-lifecycle` and `dp-06-pronom-format-identification`.
 
 ## Gaps / not yet (the honest answer)
 
-- **No WARC capture.** Heratio bundles no crawler (no Heritrix / Browsertrix /
-  wget-WARC integration) and does not initiate web crawls.
-- **No WARC ingest profile.** There is no WARC-aware ingest step that unpacks a
-  WARC into its constituent captured resources or indexes them.
-- **No WARC replay.** There is no Wayback / pywb-style replay surface to browse
-  archived sites.
-- **Recommendation if asked.** A site needing web archiving today should use a
-  dedicated tool (Browsertrix, Conifer/Webrecorder, the Internet Archive's
-  Archive-It, or Heritrix + pywb) and may *deposit the resulting WARC* into
-  Heratio as a preserved file (with fixity and PREMIS) - but replay would happen
-  outside Heratio. First-class WARC support would be a future enhancement under
-  the digital-preservation roadmap (epic heratio#1243), not a current feature.
+- **Own HTML page only - no subresources.** The capture archives the record's own
+  HTML response. It does NOT yet fetch and embed the page's subresources (CSS,
+  JavaScript, images, fonts), so a stored WARC replays the markup but not the full
+  rendered page.
+- **No replay surface.** There is no in-app Wayback / pywb-style replay viewer;
+  the stored WARC is browsed with external WARC tooling.
+- **Own pages only.** The capture is deliberately scoped to the catalogue's OWN
+  published record pages on this host (SSRF-safe). It is not a general crawler and
+  does not capture external sites.
+- **No WARC ingest/unpack profile.** There is no ingest step that unpacks a
+  deposited WARC into its constituent captured resources or indexes them.
+- **Recommendation if asked.** For full-site or subresource-faithful archiving,
+  use a dedicated tool (Browsertrix, Conifer / Webrecorder, the Internet Archive's
+  Archive-It, or Heritrix + pywb) and deposit the resulting WARC into Heratio as a
+  preserved file (with fixity and PREMIS). Multi-resource capture and replay
+  inside Heratio remain open under the digital-preservation roadmap (heratio#1244
+  / epic heratio#1243).
