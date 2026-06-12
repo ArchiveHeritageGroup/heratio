@@ -1,0 +1,30 @@
+--- a/src/Services/FederatedSearchService.php
++++ b/src/Services/FederatedSearchService.php
+@@ -302,12 +302,22 @@
+     /** @return class-string|null */
+     protected function connectorClassFor(string $peerType): ?string
+     {
+-        // Hand-coded registry for v0.1.0. Extension point: dispatch via a
+-        // container-tagged collection in a later release.
++        // Registry-first dispatch (issue #1221). Other packages contribute their
++        // own peer_type => connector-class mappings via
++        // config('federation.connectors'); e.g. ahg-sharepoint publishes
++        //   'sharepoint_graph_search' =>
++        //       \AhgSharePoint\Federation\SharePointGraphConnector::class
++        // in its service provider, so the SharePoint FQCN never appears in
++        // ahg-federation source.
++        $registry = (array) config('federation.connectors', []);
++        if (isset($registry[$peerType]) && is_string($registry[$peerType]) && $registry[$peerType] !== '') {
++            return $registry[$peerType];
++        }
++
++        // Built-in GENERAL connectors that stay in ahg-federation.
+         return match ($peerType) {
+-            'atom_local'              => \AhgFederation\Connectors\AtomElasticsearchConnector::class,
+-            'sharepoint_graph_search' => \AhgFederation\Connectors\SharePointGraphConnector::class,
+-            default                   => null,
++            'atom_local' => \AhgFederation\Connectors\AtomElasticsearchConnector::class,
++            default      => null,
+         };
+     }
+ 
