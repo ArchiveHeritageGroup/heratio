@@ -110,6 +110,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/fixity', [\AhgCore\Controllers\FixityController::class, 'index'])->name('fixity.index');
 });
 
+// heratio#1211 (accessibility slice) - digital accessibility coverage report (admin): a read-only
+// HEURISTIC coverage report (NOT a WCAG conformance audit) over the accessibility-relevant metadata
+// Heratio stores - image text descriptions, captions / subtitles and transcripts for audio-visual
+// surrogates, 3D-model alternative text, and how much of the catalogue is readable in more than one
+// language. Each area gets a coverage level + an honest gap recommendation, with WCAG 2.1 AA success
+// criteria cited as an international reference. Where the schema has no place to record a signal
+// (e.g. no dedicated image alt-text column) the area is reported as Not measured, never invented.
+// Cheap aggregate COUNTs only, every query Schema::hasTable / hasColumn-guarded - read-only over the
+// catalogue, no writes, no ALTER, no AI calls. The two-segment /admin/accessibility path keeps it
+// clear of the single-segment /{slug} archival-record catch-all (that route only ever matches ONE
+// path segment). A zero-content / missing-table state renders a calm empty card, never a 500.
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/accessibility', [\AhgCore\Controllers\AccessibilityReportController::class, 'index'])->name('accessibility.index');
+});
+
 // Public "race against loss" awareness board: a dignified, anonymous, read-only top-N of the records
 // most at risk of being lost, drawn from the same CapturePriorityService. /race-against-loss is a
 // SINGLE-segment public path (like /explore and /reconstructions). ahg-core boots early, so this is
