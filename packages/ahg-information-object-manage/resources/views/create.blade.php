@@ -40,7 +40,7 @@
     </div>
   @endif
 
-  <form method="POST" action="{{ route('informationobject.store') }}" id="editForm" enctype="multipart/form-data">
+  <form method="POST" action="{{ route('informationobject.store') }}" id="editForm" enctype="multipart/form-data" autocomplete="off">
     @csrf
     {{-- Persist the duplicate intent through the POST so store() can copy
          multi-row tables (events, altIds, notes, languages, access points,
@@ -69,7 +69,7 @@
                 Identifier
                 <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <div class="input-group">
-                <input type="text" class="form-control" id="identifier" name="identifier" value="{{ old('identifier') }}">
+                <input type="text" class="form-control" id="identifier" name="identifier" autocomplete="off" value="{{ old('identifier') }}">
                 <button type="button" class="btn atom-btn-white" id="generate-identifier"
                         data-generate-identifier-url="{{ url('/informationobject/generateIdentifier') }}">
                   <i class="fas fa-cog me-1" aria-hidden="true"></i>{{ __('Generate') }}

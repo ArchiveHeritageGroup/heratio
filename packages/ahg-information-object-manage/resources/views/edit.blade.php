@@ -75,7 +75,7 @@
     </div>
   @endif
 
-  <form method="POST" action="{{ route('informationobject.update', $io->slug) }}" id="editForm" enctype="multipart/form-data">
+  <form method="POST" action="{{ route('informationobject.update', $io->slug) }}" id="editForm" enctype="multipart/form-data" autocomplete="off">
     @csrf
     @method('PUT')
 
@@ -95,6 +95,7 @@
               <label for="identifier" class="form-label">Identifier <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="input-group">
                 <input type="text" class="form-control" id="identifier" name="identifier"
+                       autocomplete="off"
                        value="{{ old('identifier', $io->identifier) }}">
                 <button type="button" class="btn atom-btn-white" id="generate-identifier"
                         data-generate-identifier-url="{{ url('/informationobject/generateIdentifier') }}">
