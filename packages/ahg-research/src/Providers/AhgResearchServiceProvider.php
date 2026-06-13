@@ -30,6 +30,8 @@ class AhgResearchServiceProvider extends ServiceProvider
         $this->app->singleton(OrcidService::class);
         $this->app->singleton(\AhgResearch\Services\DmpService::class);
         $this->app->singleton(\AhgResearch\Services\ResearchOutputService::class);
+        // Bind the UserProvisionerInterface to the default Eloquent implementation
+        $this->app->singleton(\AhgResearch\Contracts\UserProvisionerInterface::class, \AhgResearch\Services\UserProvisioner\EloquentUserProvisioner::class);
     }
 
     public function boot(): void
