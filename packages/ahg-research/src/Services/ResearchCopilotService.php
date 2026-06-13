@@ -68,7 +68,7 @@ class ResearchCopilotService
      *
      * @return array{ok:bool, id:int, error?:string}
      */
-    public function saveAnswer(int $workspaceId, ?int $researcherId, string $question, string $answer, array $sources): array
+    public function saveAnswer(int $workspaceId, ?int $researcherId, string $question, string $answer, array $sources, ?int $projectId = null): array
     {
         $question = trim($question);
         $answer = trim($answer);
@@ -86,16 +86,51 @@ class ResearchCopilotService
             $clean[] = ['id' => $id, 'title' => mb_substr($title, 0, 300), 'slug' => is_array($s) ? ($s['slug'] ?? null) : null];
         }
 
-        $id = (int) DB::table('research_copilot_answer')->insertGetId([
+        // #1252 AI-use disclosure: a saved copilot answer is pure gateway output,
+        // so every row carries the AI marker. project_id is set when the saving
+        // UI supplies it, letting the disclosure aggregator attribute the answer
+        // to a project; without it the marker still records that AI was used.
+        $row = [
             'workspace_id' => $workspaceId,
             'researcher_id' => $researcherId,
             'question' => mb_substr($question, 0, 500),
             'answer' => $answer,
             'sources_json' => json_encode($clean),
             'created_at' => now(),
-        ]);
+        ];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('research_copilot_answer', 'ai_at')) {
+                $row['project_id'] = ($projectId !== null && $projectId > 0) ? $projectId : null;
+                $row['ai_model']   = $this->resolveAiModel();
+                $row['ai_at']      = now();
+            }
+        } catch (\Throwable $e) {
+            // columns not present yet - save without the marker.
+        }
+
+        $id = (int) DB::table('research_copilot_answer')->insertGetId($row);
 
         return ['ok' => true, 'id' => $id];
+    }
+
+    /**
+     * #1252 - best-effort model name from the LlmService default config; falls
+     * back to the gateway label. Config read only; never contacts a node.
+     */
+    protected function resolveAiModel(): string
+    {
+        try {
+            if (class_exists(\AhgAiServices\Services\LlmService::class)) {
+                $cfg = (new \AhgAiServices\Services\LlmService())->getDefaultConfig();
+                $model = trim((string) ($cfg->model ?? ''));
+                if ($model !== '') {
+                    return mb_substr($model, 0, 120);
+                }
+            }
+        } catch (\Throwable $e) {
+            // fall through to label.
+        }
+        return 'AHG AI gateway';
     }
 
     /** Saved copilot answers for a workspace (newest first), with decoded sources. */

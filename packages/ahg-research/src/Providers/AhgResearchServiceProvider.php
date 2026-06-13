@@ -122,6 +122,46 @@ class AhgResearchServiceProvider extends ServiceProvider
             }
         });
 
+        // #1252 AI-use disclosure: per-row AI markers on the seven AI-capable
+        // slices that persist gateway output without a marker. Added idempotently
+        // here (one guarded ALTER per column, mirroring the experience_level
+        // pattern above) because this package provisions schema at boot, not via
+        // artisan migrate. ai_model = the model the AHG gateway used; ai_at = the
+        // generation timestamp. NULL means the row was NOT AI-produced. Copilot
+        // also gains project_id so its answers can be attributed per project.
+        $this->app->booted(function () {
+            // [table, column, column definition].
+            $aiMarkers = [
+                ['research_writing_version', 'ai_model', "ADD COLUMN `ai_model` VARCHAR(120) NULL"],
+                ['research_writing_version', 'ai_at',    "ADD COLUMN `ai_at` DATETIME NULL"],
+                ['research_question_brief', 'ai_model', "ADD COLUMN `ai_model` VARCHAR(120) NULL"],
+                ['research_question_brief', 'ai_at',    "ADD COLUMN `ai_at` DATETIME NULL"],
+                ['research_analysis_result', 'ai_model', "ADD COLUMN `ai_model` VARCHAR(120) NULL"],
+                ['research_analysis_result', 'ai_at',    "ADD COLUMN `ai_at` DATETIME NULL"],
+                ['research_grant_draft', 'ai_model', "ADD COLUMN `ai_model` VARCHAR(120) NULL"],
+                ['research_grant_draft', 'ai_at',    "ADD COLUMN `ai_at` DATETIME NULL"],
+                ['research_argument', 'ai_model', "ADD COLUMN `ai_model` VARCHAR(120) NULL"],
+                ['research_argument', 'ai_at',    "ADD COLUMN `ai_at` DATETIME NULL"],
+                ['research_submission', 'ai_model', "ADD COLUMN `ai_model` VARCHAR(120) NULL"],
+                ['research_submission', 'ai_at',    "ADD COLUMN `ai_at` DATETIME NULL"],
+                ['research_copilot_answer', 'project_id', "ADD COLUMN `project_id` INT NULL"],
+                ['research_copilot_answer', 'ai_model', "ADD COLUMN `ai_model` VARCHAR(120) NULL"],
+                ['research_copilot_answer', 'ai_at',    "ADD COLUMN `ai_at` DATETIME NULL"],
+            ];
+            foreach ($aiMarkers as [$table, $column, $definition]) {
+                try {
+                    if (\Illuminate\Support\Facades\Schema::hasTable($table)
+                        && ! \Illuminate\Support\Facades\Schema::hasColumn($table, $column)) {
+                        \Illuminate\Support\Facades\DB::statement(
+                            "ALTER TABLE `{$table}` {$definition}"
+                        );
+                    }
+                } catch (\Throwable $e) {
+                    // DB not ready / column already present - retries next boot.
+                }
+            }
+        });
+
         // Research OS (epic #1222) - auto-install per-slice sidecar/new tables.
         // Idempotent; one outer try per reference_ci_schema_hastable. Existing
         // tables are NEVER altered. Extend this map as ROS slices land.

@@ -273,10 +273,23 @@ class PublicationStudioController extends Controller
             return response()->json(['ok' => false, 'error' => 'Unknown venue.'], 422);
         }
 
+        // #1252 - when the fit suggestion is requested against a specific
+        // submission, pass its id so the service can stamp the AI marker on that
+        // row. Validate ownership before trusting it; otherwise leave it null.
+        $submissionId = (int) $request->input('submission_id', 0);
+        if ($submissionId > 0 && ! $this->service->getSubmission($projectId, $submissionId)) {
+            $submissionId = 0;
+        }
+
         return response()->json([
             'ok'           => true,
             'ai_available' => true,
-            'note'         => $this->service->aiFitSuggestion($project, $journal),
+            'note'         => $this->service->aiFitSuggestion(
+                $project,
+                $journal,
+                $projectId,
+                $submissionId > 0 ? $submissionId : null
+            ),
         ]);
     }
 

@@ -181,7 +181,7 @@ class QuestionBuilderController extends Controller
 
         $flags  = $this->service->diagnose($payload);
         $useAi  = filter_var($request->input('use_ai', false), FILTER_VALIDATE_BOOLEAN);
-        $aiNote = ($useAi && $this->service->aiAvailable()) ? $this->service->aiDiagnosis($payload) : null;
+        $aiNote = ($useAi && $this->service->aiAvailable()) ? $this->service->aiDiagnosis($payload, $projectId) : null;
 
         return response()->json([
             'ok'           => true,

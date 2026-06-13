@@ -240,7 +240,8 @@ class GrantEngineController extends Controller
             $data['section_key'],
             $data['section_label'],
             (string) ($data['current_text'] ?? ''),
-            $funderName
+            $funderName,
+            $draftId
         );
 
         if (! $result['ok']) {

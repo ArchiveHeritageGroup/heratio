@@ -49,6 +49,7 @@ class ResearchCopilotController extends Controller
     {
         $data = $request->validate([
             'workspace_id' => 'required|integer|min:1',
+            'project_id' => 'nullable|integer|min:1',
             'question' => 'required|string|max:500',
             'answer' => 'required|string|max:20000',
             'sources' => 'nullable|array|max:50',
@@ -64,7 +65,8 @@ class ResearchCopilotController extends Controller
 
         return response()->json($this->service->saveAnswer(
             (int) $data['workspace_id'], $researcherId,
-            $data['question'], $data['answer'], $data['sources'] ?? []
+            $data['question'], $data['answer'], $data['sources'] ?? [],
+            isset($data['project_id']) ? (int) $data['project_id'] : null
         ));
     }
 

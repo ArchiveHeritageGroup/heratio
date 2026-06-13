@@ -560,7 +560,7 @@ class PublicationStudioService
      * port. Returns null when unavailable / disabled / on error. Callers MUST
      * label the output as AI.
      */
-    public function aiFitSuggestion(object $project, array $journal): ?string
+    public function aiFitSuggestion(object $project, array $journal, ?int $projectId = null, ?int $submissionId = null): ?string
     {
         if (! $this->aiAvailable()) {
             return null;
@@ -581,11 +581,64 @@ class PublicationStudioService
 
             $out = is_string($out) ? trim($out) : '';
 
+            // #1252 AI-use disclosure: a successful gateway fit-suggestion is AI
+            // assistance applied to a submission. Stamp the submission row when a
+            // specific submission is in context. A pure project-level advisory
+            // (no submission id) leaves nothing to attribute the marker to, so it
+            // is not recorded here - the researcher may log it via the manual log.
+            if ($out !== '' && $projectId !== null && $submissionId !== null && $submissionId > 0) {
+                $this->stampAiSubmission($projectId, $submissionId);
+            }
+
             return $out === '' ? null : $out;
         } catch (\Throwable $e) {
             Log::warning('[ahg-research] publication-studio aiFitSuggestion failed: ' . $e->getMessage());
 
             return null;
         }
+    }
+
+    /**
+     * #1252 - mark a submission row as AI-assisted (project-scoped). Best-effort;
+     * never throws into the caller.
+     */
+    protected function stampAiSubmission(int $projectId, int $submissionId): void
+    {
+        try {
+            if (! Schema::hasTable('research_submission')
+                || ! Schema::hasColumn('research_submission', 'ai_at')) {
+                return;
+            }
+            DB::table('research_submission')
+                ->where('project_id', $projectId)
+                ->where('id', $submissionId)
+                ->update([
+                    'ai_model'   => $this->resolveAiModel(),
+                    'ai_at'      => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+        } catch (\Throwable $e) {
+            // best-effort disclosure marker only.
+        }
+    }
+
+    /**
+     * #1252 - best-effort model name from the LlmService default config; falls
+     * back to the gateway label. Config read only; never contacts a node.
+     */
+    protected function resolveAiModel(): string
+    {
+        try {
+            if (class_exists(\AhgAiServices\Services\LlmService::class)) {
+                $cfg = (new \AhgAiServices\Services\LlmService())->getDefaultConfig();
+                $model = trim((string) ($cfg->model ?? ''));
+                if ($model !== '') {
+                    return mb_substr($model, 0, 120);
+                }
+            }
+        } catch (\Throwable $e) {
+            // fall through to label.
+        }
+        return 'AHG AI gateway';
     }
 }

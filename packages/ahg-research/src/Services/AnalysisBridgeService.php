@@ -545,10 +545,60 @@ class AnalysisBridgeService
                 . 'Researcher decision: ' . (string) ($result->researcher_decision ?? '');
             $out = $llm->complete($prompt, ['max_tokens' => 80]);
             $out = is_string($out) ? trim($out) : '';
+
+            // #1252 AI-use disclosure: a successful gateway caption is AI
+            // assistance applied to this result row. Stamp it so the aggregator
+            // can detect it. Manual result registration leaves ai_model/ai_at
+            // NULL and is not disclosed as AI.
+            if ($out !== '' && isset($result->id)) {
+                $this->stampAiResult((int) $result->id, $llm);
+            }
+
             return $out !== '' ? $out : null;
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    /**
+     * #1252 - mark an analysis result row as AI-assisted. Best-effort; never
+     * throws into the caller.
+     */
+    protected function stampAiResult(int $resultId, \AhgAiServices\Services\LlmService $llm): void
+    {
+        try {
+            if (! $this->resultsReady()
+                || ! Schema::hasColumn('research_analysis_result', 'ai_at')) {
+                return;
+            }
+            DB::table('research_analysis_result')
+                ->where('id', $resultId)
+                ->update([
+                    'ai_model'   => $this->resolveAiModel($llm),
+                    'ai_at'      => now(),
+                    'updated_at' => now(),
+                ]);
+        } catch (\Throwable $e) {
+            // best-effort disclosure marker only.
+        }
+    }
+
+    /**
+     * #1252 - best-effort model name from the LlmService default config; falls
+     * back to the gateway label. Config read only; never contacts a node.
+     */
+    protected function resolveAiModel(\AhgAiServices\Services\LlmService $llm): string
+    {
+        try {
+            $cfg = $llm->getDefaultConfig();
+            $model = trim((string) ($cfg->model ?? ''));
+            if ($model !== '') {
+                return mb_substr($model, 0, 120);
+            }
+        } catch (\Throwable $e) {
+            // fall through to label.
+        }
+        return 'AHG AI gateway';
     }
 
     // =====================================================================

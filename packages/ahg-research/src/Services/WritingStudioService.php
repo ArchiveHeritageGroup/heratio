@@ -724,11 +724,74 @@ class WritingStudioService
 
             $out['text'] = $text;
             $out['ok']   = $text !== '';
+
+            // #1252 AI-use disclosure: each successful gateway generation is
+            // recorded as an AI-stamped version snapshot of the document, so the
+            // disclosure aggregator can detect it. The draft itself is still NEVER
+            // auto-applied to the section - this only logs that AI assistance was
+            // used, with the model + time. A purely manual saveVersion() leaves
+            // ai_model/ai_at NULL and is therefore not disclosed as AI.
+            if ($out['ok']) {
+                $this->recordAiVersion($projectId, $docId, $heading);
+            }
         } catch (\Throwable $e) {
             Log::warning('[ahg-research] writing-studio aiDraftSection failed: ' . $e->getMessage());
         }
 
         return $out;
+    }
+
+    /**
+     * #1252 - record an AI-marked version snapshot capturing that the gateway
+     * drafted prose for a section. Best-effort; never throws into the caller.
+     */
+    protected function recordAiVersion(int $projectId, int $docId, string $heading): void
+    {
+        try {
+            if (! $this->versionsReady()
+                || ! Schema::hasColumn('research_writing_version', 'ai_at')) {
+                return;
+            }
+            $snapshot = $this->exportMarkdown($projectId, $docId);
+            if ($snapshot === null) {
+                return;
+            }
+            $next = (int) DB::table('research_writing_version')
+                ->where('doc_id', $docId)->max('version_no') + 1;
+            DB::table('research_writing_version')->insert([
+                'doc_id'     => $docId,
+                'version_no' => $next,
+                'snapshot'   => $snapshot,
+                'note'       => $this->trimTo('AI draft generated for "' . $heading . '" (review required before use)', 1000),
+                'created_by' => null,
+                'created_at' => now(),
+                'ai_model'   => $this->resolveAiModel(),
+                'ai_at'      => now(),
+            ]);
+        } catch (\Throwable $e) {
+            // best-effort disclosure marker only.
+        }
+    }
+
+    /**
+     * #1252 - best-effort name of the model the AHG gateway used, read from the
+     * LlmService default config. Falls back to the gateway label when the model
+     * id is not exposed. NEVER contacts a node; config read only.
+     */
+    protected function resolveAiModel(): string
+    {
+        try {
+            if (class_exists(\AhgAiServices\Services\LlmService::class)) {
+                $cfg = (new \AhgAiServices\Services\LlmService())->getDefaultConfig();
+                $model = trim((string) ($cfg->model ?? ''));
+                if ($model !== '') {
+                    return mb_substr($model, 0, 120);
+                }
+            }
+        } catch (\Throwable $e) {
+            // fall through to label.
+        }
+        return 'AHG AI gateway';
     }
 
     // =====================================================================

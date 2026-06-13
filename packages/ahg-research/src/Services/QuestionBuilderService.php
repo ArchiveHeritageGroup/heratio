@@ -307,7 +307,7 @@ class QuestionBuilderService
      * direct GPU node port. Returns a short labelled note, or null when AI is
      * unavailable / disabled / errors. Callers MUST label this as AI output.
      */
-    public function aiDiagnosis(array $b): ?string
+    public function aiDiagnosis(array $b, ?int $projectId = null): ?string
     {
         if (! $this->aiAvailable()) {
             return null;
@@ -343,11 +343,75 @@ class QuestionBuilderService
 
             $out = is_string($out) ? trim($out) : '';
 
+            // #1252 AI-use disclosure: a successful gateway diagnosis is AI
+            // assistance applied to this project's brief. Stamp the brief row so
+            // the aggregator can detect it. Manual saves of the brief leave
+            // ai_model/ai_at NULL and are not disclosed as AI.
+            if ($out !== '' && $projectId !== null) {
+                $this->stampAiBrief($projectId);
+            }
+
             return $out === '' ? null : $out;
         } catch (\Throwable $e) {
             Log::warning('[ahg-research] question-builder AI diagnosis failed: ' . $e->getMessage());
 
             return null;
         }
+    }
+
+    /**
+     * #1252 - mark the project's brief row as AI-assisted (creating the parent
+     * brief row if the researcher has not yet saved one). Best-effort; never
+     * throws into the caller.
+     */
+    protected function stampAiBrief(int $projectId): void
+    {
+        try {
+            if (! $this->isReady()
+                || ! \Illuminate\Support\Facades\Schema::hasColumn('research_question_brief', 'ai_at')) {
+                return;
+            }
+            $now   = date('Y-m-d H:i:s');
+            $model = $this->resolveAiModel();
+            $brief = $this->getBrief($projectId);
+            if (! $brief) {
+                DB::table('research_question_brief')->insert([
+                    'project_id'      => $projectId,
+                    'current_version' => 0,
+                    'status'          => 'draft',
+                    'created_at'      => $now,
+                    'updated_at'      => $now,
+                    'ai_model'        => $model,
+                    'ai_at'           => $now,
+                ]);
+                return;
+            }
+            DB::table('research_question_brief')
+                ->where('id', (int) $brief->id)
+                ->update(['ai_model' => $model, 'ai_at' => $now, 'updated_at' => $now]);
+        } catch (\Throwable $e) {
+            // best-effort disclosure marker only.
+        }
+    }
+
+    /**
+     * #1252 - best-effort name of the model the AHG gateway used, read from the
+     * LlmService default config. Falls back to the gateway label. Config read
+     * only; never contacts a node.
+     */
+    protected function resolveAiModel(): string
+    {
+        try {
+            if (class_exists(\AhgAiServices\Services\LlmService::class)) {
+                $cfg = (new \AhgAiServices\Services\LlmService())->getDefaultConfig();
+                $model = trim((string) ($cfg->model ?? ''));
+                if ($model !== '') {
+                    return mb_substr($model, 0, 120);
+                }
+            }
+        } catch (\Throwable $e) {
+            // fall through to label.
+        }
+        return 'AHG AI gateway';
     }
 }

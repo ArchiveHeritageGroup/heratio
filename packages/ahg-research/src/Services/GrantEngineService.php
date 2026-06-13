@@ -657,7 +657,7 @@ class GrantEngineService
      *
      * @return array{ok:bool, text:string, label:string}
      */
-    public function draftSection(int $projectId, string $sectionKey, string $sectionLabel, string $currentText, string $funderName = ''): array
+    public function draftSection(int $projectId, string $sectionKey, string $sectionLabel, string $currentText, string $funderName = '', ?int $draftId = null): array
     {
         $out = ['ok' => false, 'text' => '', 'label' => 'AI-assisted draft (review required before use)'];
 
@@ -684,11 +684,64 @@ class GrantEngineService
 
             $out['text'] = $text;
             $out['ok']   = $text !== '';
+
+            // #1252 AI-use disclosure: a successful gateway draft is AI
+            // assistance applied to this grant draft. Stamp the draft row so the
+            // aggregator can detect it (the draft text itself is still only saved
+            // when the researcher confirms). Manually written drafts leave
+            // ai_model/ai_at NULL and are not disclosed as AI.
+            if ($out['ok'] && $draftId !== null && $draftId > 0) {
+                $this->stampAiDraft($draftId, $projectId);
+            }
         } catch (\Throwable $e) {
             Log::warning('[ahg-research] grant draftSection LLM failed: ' . $e->getMessage());
         }
 
         return $out;
+    }
+
+    /**
+     * #1252 - mark a grant draft row as AI-assisted (project-scoped).
+     * Best-effort; never throws into the caller.
+     */
+    protected function stampAiDraft(int $draftId, int $projectId): void
+    {
+        try {
+            if (! Schema::hasTable('research_grant_draft')
+                || ! Schema::hasColumn('research_grant_draft', 'ai_at')) {
+                return;
+            }
+            DB::table('research_grant_draft')
+                ->where('id', $draftId)
+                ->where('project_id', $projectId)
+                ->update([
+                    'ai_model'   => $this->resolveAiModel(),
+                    'ai_at'      => now(),
+                    'updated_at' => now(),
+                ]);
+        } catch (\Throwable $e) {
+            // best-effort disclosure marker only.
+        }
+    }
+
+    /**
+     * #1252 - best-effort model name from the LlmService default config; falls
+     * back to the gateway label. Config read only; never contacts a node.
+     */
+    protected function resolveAiModel(): string
+    {
+        try {
+            if (class_exists(\AhgAiServices\Services\LlmService::class)) {
+                $cfg = (new \AhgAiServices\Services\LlmService())->getDefaultConfig();
+                $model = trim((string) ($cfg->model ?? ''));
+                if ($model !== '') {
+                    return mb_substr($model, 0, 120);
+                }
+            }
+        } catch (\Throwable $e) {
+            // fall through to label.
+        }
+        return 'AHG AI gateway';
     }
 
     /** Compact digest of the gathered material for the AI prompt. */

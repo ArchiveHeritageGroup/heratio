@@ -46,21 +46,22 @@ use Illuminate\Support\Facades\Schema;
  *   - research_studio_artefact (#1240 Research Studio) every non-errored row is a
  *                              gateway generation; model/created_at per row
  *
- * The other AI-capable slices persist their primary record WITHOUT a per-row AI
- * marker, because AI assistance in each is optional/transient and a row may be
- * entirely hand-authored. Auto-detecting them would falsely disclose hand-written
- * work, so they are NOT detected and instead need a follow-up ai_model/ai_at
- * column before they can be keyed on:
- *   - Writing Studio        (research_writing_doc/_version)  - optional per-section AI draft
- *   - Question Builder (#1226, research_question_brief)      - transient AI enrichment
- *   - Analysis Bridge (#1234, research_analysis_result)      - transient AI label helper
- *   - Grant Engine          (research_grant_draft)           - optional per-section AI draft
- *   - Argument Builder      (research_argument)              - optional AI assistance
- *   - Publication Studio    (research_submission)            - transient AI venue-fit hint
- * Research Copilot (research_copilot_answer) IS pure AI output but keys on
- * workspace_id/researcher_id with no link to research_project.id, so it cannot be
- * attributed per-project without a new project_id column (follow-up).
- * Until those columns land, researchers record such uses through the manual log.
+ * #1252 added a per-row AI marker (ai_model + ai_at) to the remaining AI-capable
+ * slices, populated ONLY on the write where the AHG gateway actually produced the
+ * output - never on a purely manual write - so they can be detected without
+ * falsely disclosing hand-authored work. Each now has its own detector keyed to
+ * the project (rows WHERE ai_at IS NOT NULL):
+ *   - Writing Studio   (research_writing_version via research_writing_doc) - AI section draft
+ *   - Question Builder (#1226, research_question_brief)  - AI brief diagnosis
+ *   - Analysis Bridge  (#1234, research_analysis_result) - AI result caption
+ *   - Grant Engine     (research_grant_draft)            - AI section draft
+ *   - Argument Builder (research_argument)               - AI assistance (no AI write path
+ *                       ships today, so the detector stays empty until one is wired)
+ *   - Publication Studio (research_submission)           - AI venue-fit note (stamped only
+ *                       when a specific submission is in context)
+ *   - Research Copilot (research_copilot_answer, +project_id) - AI source-cited answer;
+ *                       attributed per project via the new project_id column
+ * Whatever still cannot be detected, researchers record through the manual log.
  *
  * The disclosure statement is ASSEMBLED from these records - no AI call is needed
  * to produce it. (An optional narrative summary may be requested separately; if so
@@ -101,6 +102,13 @@ class AiDisclosureService
             'detectSourceTriage',
             'detectContradictions',
             'detectStudioArtefacts',
+            'detectWritingDrafts',
+            'detectQuestionBriefs',
+            'detectAnalysisResults',
+            'detectGrantDrafts',
+            'detectArguments',
+            'detectSubmissions',
+            'detectCopilotAnswers',
             'detectManualLog',
         ] as $detector) {
             try {
@@ -254,6 +262,268 @@ class AiDisclosureService
                 'tool'    => self::GATEWAY_LABEL,
                 'model'   => $this->nullableStr($r->model ?? null),
                 'when'    => $this->nullableStr($r->created_at ?? null),
+                'source'  => 'detected',
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Writing Studio AI drafts (#1252). Each successful gateway draft is recorded
+     * as an AI-stamped version snapshot in research_writing_version; the per-row
+     * ai_at marks it AI-produced. Tied to the project through research_writing_doc
+     * (doc_id -> project_id), mirroring how the Writing Studio resolves a project.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function detectWritingDrafts(int $projectId): array
+    {
+        if (! Schema::hasTable('research_writing_version')
+            || ! Schema::hasTable('research_writing_doc')
+            || ! Schema::hasColumn('research_writing_version', 'ai_at')) {
+            return [];
+        }
+
+        $rows = DB::table('research_writing_version as v')
+            ->join('research_writing_doc as d', 'd.id', '=', 'v.doc_id')
+            ->where('d.project_id', $projectId)
+            ->whereNotNull('v.ai_at')
+            ->orderByDesc('v.ai_at')
+            ->limit(1000)
+            ->get(['d.title as doc_title', 'v.note', 'v.ai_model', 'v.ai_at']);
+
+        $out = [];
+        foreach ($rows as $r) {
+            $docTitle = trim((string) ($r->doc_title ?? ''));
+            $out[] = [
+                'slice'   => 'Writing Studio',
+                'purpose' => 'AI-drafted prose for a document section'
+                    .($docTitle !== '' ? ' (document "'.$docTitle.'")' : ''),
+                'tool'    => self::GATEWAY_LABEL,
+                'model'   => $this->nullableStr($r->ai_model ?? null),
+                'when'    => $this->nullableStr($r->ai_at ?? null),
+                'source'  => 'detected',
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Question Builder AI diagnoses (#1252). research_question_brief.ai_at is set
+     * when the gateway produced a diagnosis for the project's brief. Keys directly
+     * on project_id, like the other brief-level detectors.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function detectQuestionBriefs(int $projectId): array
+    {
+        if (! Schema::hasTable('research_question_brief')
+            || ! Schema::hasColumn('research_question_brief', 'ai_at')) {
+            return [];
+        }
+
+        $rows = DB::table('research_question_brief')
+            ->where('project_id', $projectId)
+            ->whereNotNull('ai_at')
+            ->orderByDesc('ai_at')
+            ->limit(500)
+            ->get(['ai_model', 'ai_at']);
+
+        $out = [];
+        foreach ($rows as $r) {
+            $out[] = [
+                'slice'   => 'Question Builder',
+                'purpose' => 'AI-assisted diagnosis of the research design brief',
+                'tool'    => self::GATEWAY_LABEL,
+                'model'   => $this->nullableStr($r->ai_model ?? null),
+                'when'    => $this->nullableStr($r->ai_at ?? null),
+                'source'  => 'detected',
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Analysis Bridge AI captions (#1252). research_analysis_result.ai_at is set
+     * when the gateway suggested a caption for a registered result. Keys on
+     * project_id.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function detectAnalysisResults(int $projectId): array
+    {
+        if (! Schema::hasTable('research_analysis_result')
+            || ! Schema::hasColumn('research_analysis_result', 'ai_at')) {
+            return [];
+        }
+
+        $rows = DB::table('research_analysis_result')
+            ->where('project_id', $projectId)
+            ->whereNotNull('ai_at')
+            ->orderByDesc('ai_at')
+            ->limit(1000)
+            ->get(['title', 'ai_model', 'ai_at']);
+
+        $out = [];
+        foreach ($rows as $r) {
+            $title = trim((string) ($r->title ?? ''));
+            $out[] = [
+                'slice'   => 'Analysis Bridge',
+                'purpose' => 'AI-suggested plain-language caption for an analysis result'
+                    .($title !== '' ? ' ("'.$title.'")' : ''),
+                'tool'    => self::GATEWAY_LABEL,
+                'model'   => $this->nullableStr($r->ai_model ?? null),
+                'when'    => $this->nullableStr($r->ai_at ?? null),
+                'source'  => 'detected',
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Grant Engine AI section drafts (#1252). research_grant_draft.ai_at is set
+     * when the gateway drafted a section for the draft. Keys on project_id.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function detectGrantDrafts(int $projectId): array
+    {
+        if (! Schema::hasTable('research_grant_draft')
+            || ! Schema::hasColumn('research_grant_draft', 'ai_at')) {
+            return [];
+        }
+
+        $rows = DB::table('research_grant_draft')
+            ->where('project_id', $projectId)
+            ->whereNotNull('ai_at')
+            ->orderByDesc('ai_at')
+            ->limit(1000)
+            ->get(['title', 'ai_model', 'ai_at']);
+
+        $out = [];
+        foreach ($rows as $r) {
+            $title = trim((string) ($r->title ?? ''));
+            $out[] = [
+                'slice'   => 'Grant Engine',
+                'purpose' => 'AI-drafted grant-application section'
+                    .($title !== '' ? ' (draft "'.$title.'")' : ''),
+                'tool'    => self::GATEWAY_LABEL,
+                'model'   => $this->nullableStr($r->ai_model ?? null),
+                'when'    => $this->nullableStr($r->ai_at ?? null),
+                'source'  => 'detected',
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Argument Builder AI assistance (#1252). research_argument.ai_at is set when
+     * AI assistance was applied to the argument canvas. Keys on project_id. NOTE:
+     * the Argument Builder ships no AI write path today, so this detector returns
+     * nothing until an AI critique is wired and populates ai_at on that write.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function detectArguments(int $projectId): array
+    {
+        if (! Schema::hasTable('research_argument')
+            || ! Schema::hasColumn('research_argument', 'ai_at')) {
+            return [];
+        }
+
+        $rows = DB::table('research_argument')
+            ->where('project_id', $projectId)
+            ->whereNotNull('ai_at')
+            ->orderByDesc('ai_at')
+            ->limit(500)
+            ->get(['title', 'ai_model', 'ai_at']);
+
+        $out = [];
+        foreach ($rows as $r) {
+            $title = trim((string) ($r->title ?? ''));
+            $out[] = [
+                'slice'   => 'Argument Builder',
+                'purpose' => 'AI assistance applied to the argument canvas'
+                    .($title !== '' ? ' ("'.$title.'")' : ''),
+                'tool'    => self::GATEWAY_LABEL,
+                'model'   => $this->nullableStr($r->ai_model ?? null),
+                'when'    => $this->nullableStr($r->ai_at ?? null),
+                'source'  => 'detected',
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Publication Studio AI venue-fit notes (#1252). research_submission.ai_at is
+     * set when the gateway produced a venue-fit suggestion against a submission.
+     * Keys on project_id.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function detectSubmissions(int $projectId): array
+    {
+        if (! Schema::hasTable('research_submission')
+            || ! Schema::hasColumn('research_submission', 'ai_at')) {
+            return [];
+        }
+
+        $rows = DB::table('research_submission')
+            ->where('project_id', $projectId)
+            ->whereNotNull('ai_at')
+            ->orderByDesc('ai_at')
+            ->limit(1000)
+            ->get(['venue_name', 'ai_model', 'ai_at']);
+
+        $out = [];
+        foreach ($rows as $r) {
+            $venue = trim((string) ($r->venue_name ?? ''));
+            $out[] = [
+                'slice'   => 'Publication Studio',
+                'purpose' => 'AI venue-fit assessment for a submission'
+                    .($venue !== '' ? ' (venue: '.$venue.')' : ''),
+                'tool'    => self::GATEWAY_LABEL,
+                'model'   => $this->nullableStr($r->ai_model ?? null),
+                'when'    => $this->nullableStr($r->ai_at ?? null),
+                'source'  => 'detected',
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Research Copilot answers (#1252). Every saved research_copilot_answer is
+     * pure gateway output; ai_at marks the generation. The slice keys on
+     * workspace_id, so attribution requires the new project_id column - rows with
+     * no project_id cannot be tied to a project and are intentionally excluded.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function detectCopilotAnswers(int $projectId): array
+    {
+        if (! Schema::hasTable('research_copilot_answer')
+            || ! Schema::hasColumn('research_copilot_answer', 'ai_at')
+            || ! Schema::hasColumn('research_copilot_answer', 'project_id')) {
+            return [];
+        }
+
+        $rows = DB::table('research_copilot_answer')
+            ->where('project_id', $projectId)
+            ->whereNotNull('ai_at')
+            ->orderByDesc('ai_at')
+            ->limit(1000)
+            ->get(['question', 'ai_model', 'ai_at']);
+
+        $out = [];
+        foreach ($rows as $r) {
+            $q = trim((string) ($r->question ?? ''));
+            $out[] = [
+                'slice'   => 'Research Copilot',
+                'purpose' => 'AI-generated, source-cited answer to a research question'
+                    .($q !== '' ? ' ("'.mb_substr($q, 0, 120).'")' : ''),
+                'tool'    => self::GATEWAY_LABEL,
+                'model'   => $this->nullableStr($r->ai_model ?? null),
+                'when'    => $this->nullableStr($r->ai_at ?? null),
                 'source'  => 'detected',
             ];
         }
