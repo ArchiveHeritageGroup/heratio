@@ -124,4 +124,7 @@
       </div>
     </div>
   </div>
+
+@include('research::research.levels_guide')
+
 @endsection
